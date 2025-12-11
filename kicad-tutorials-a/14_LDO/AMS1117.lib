@@ -1,0 +1,6 @@
+.SUBCKT AMS1117 1 2 3
+* Pin 1=GND, Pin 2=VOUT, Pin 3=VIN
+* Simple Logic: If Input > 4.5V, Output = 3.3V. Otherwise, Output = Input * 0.7
+E_REG 2 1 VALUE={ IF( V(3,1) > 4.5, 3.3, V(3,1)*0.7 ) }
+R_DUMMY 3 1 100k
+.ENDS

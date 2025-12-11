@@ -1,0 +1,92 @@
+*******************************************************************************
+* LMR51430 Buck Converter Test - DEBUG VERSION
+* Tests internal nodes to diagnose regulation issue
+*******************************************************************************
+
+.TITLE LMR51430 Buck Converter Debug Test
+
+.INCLUDE LMR51430.lib
+
+*==============================================================================
+* INPUT SOURCE
+*==============================================================================
+VIN VIN 0 PWL(0 0 50U 12 100M 12)
+CIN VIN 0 10U IC=0
+
+*==============================================================================
+* ENABLE CIRCUIT
+*==============================================================================
+* Pull-up resistor - EN high when VIN present
+REN VIN EN 10K
+CEN EN 0 10N IC=0
+
+*==============================================================================
+* REGULATOR
+*==============================================================================
+XU1 VIN 0 EN SW FB CB LMR51430X
+
+*==============================================================================
+* BOOTSTRAP CAPACITOR
+*==============================================================================
+CBOOT CB SW 100N IC=0
+
+*==============================================================================
+* OUTPUT LC FILTER
+*==============================================================================
+L1 SW VOUT 6.8U IC=0
+COUT VOUT 0 44U IC=0
+
+*==============================================================================
+* FEEDBACK RESISTOR DIVIDER
+*==============================================================================
+* VOUT = VREF * (1 + RFBT/RFBB)
+* For 5V: 5 = 0.6 * (1 + 100k/RFBB)
+* RFBB = 100k / (5/0.6 - 1) = 13.64k
+RFBT VOUT FB 100K
+RFBB FB 0 13.7K
+
+*==============================================================================
+* LOAD
+*==============================================================================
+RLOAD VOUT 0 2.5  ; 2A @ 5V
+
+*==============================================================================
+* SIMULATION CONTROL
+*==============================================================================
+.TRAN 500N 30M 0 500N UIC
+
+*==============================================================================
+* MEASUREMENTS
+*==============================================================================
+* Output performance
+.MEAS TRAN VOUT_AVG AVG V(VOUT) FROM=25M TO=30M
+.MEAS TRAN VOUT_PP PP V(VOUT) FROM=28M TO=29M
+.MEAS TRAN IL_AVG AVG I(L1) FROM=25M TO=30M
+
+* Debug measurements - check internal nodes at steady state (29ms)
+.MEAS TRAN VIN_FINAL FIND V(VIN) AT=29M
+.MEAS TRAN EN_FINAL FIND V(EN) AT=29M
+.MEAS TRAN VOUT_FINAL FIND V(VOUT) AT=29M
+.MEAS TRAN FB_FINAL FIND V(FB) AT=29M
+
+* Internal node measurements (access via XU1 subcircuit)
+.MEAS TRAN ENABLE_SIG AVG V(XU1.ENABLE) FROM=25M TO=30M
+.MEAS TRAN SS_FINAL FIND V(XU1.SS) AT=29M
+.MEAS TRAN REF_FINAL FIND V(XU1.REF) AT=29M
+.MEAS TRAN ERROR_FINAL FIND V(XU1.ERROR) AT=29M
+.MEAS TRAN EA_FINAL FIND V(XU1.EA) AT=29M
+.MEAS TRAN PWM_AVG AVG V(XU1.PWM) FROM=25M TO=30M
+.MEAS TRAN PWM_EN_AVG AVG V(XU1.PWM_EN) FROM=25M TO=30M
+
+*==============================================================================
+* OUTPUT CONTROL
+*==============================================================================
+.CONTROL
+RUN
+PRINT VOUT_AVG VOUT_PP IL_AVG
+PRINT VIN_FINAL EN_FINAL VOUT_FINAL FB_FINAL
+PRINT ENABLE_SIG SS_FINAL REF_FINAL ERROR_FINAL EA_FINAL
+PRINT PWM_AVG PWM_EN_AVG
+.ENDC
+
+.END

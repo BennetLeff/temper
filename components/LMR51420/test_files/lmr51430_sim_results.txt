@@ -1,0 +1,84 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: LMR51430 Buck Converter Test
+
+
+====================================
+  LMR51430 Buck Converter Test
+====================================
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 262511
+
+  Measurements for Transient Analysis
+
+vout_avg            =  4.796712e+00 from=  8.000000e-03 to=  1.000000e-02
+vout_pp             =  6.789274e-03 from=  9.000000e-03 to=  9.500000e-03
+il_avg              =  1.918541e+00 from=  8.000000e-03 to=  1.000000e-02
+tstart              =   3.20103e-03
+
+Done! Plotting results...
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+====================================
+RESULTS:
+====================================
+Warning from checkvalid: vector vout_avg is not available or has zero length.
+====================================
+
+Expected: VOUT ~ 5V, IL ~ 2A
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 262511
+
+  Measurements for Transient Analysis
+
+vout_avg            =  4.796712e+00 from=  8.000000e-03 to=  1.000000e-02
+vout_pp             =  6.789274e-03 from=  9.000000e-03 to=  9.500000e-03
+il_avg              =  1.918541e+00 from=  8.000000e-03 to=  1.000000e-02
+tstart              =   3.20103e-03
+
+
+Total analysis time (seconds) = 2.97118
+
+Total elapsed time (seconds) = 2.991 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  222.703 MB.
+Maximum ngspice program size =   91.062 MB.
+Current ngspice program size =   91.062 MB.
+

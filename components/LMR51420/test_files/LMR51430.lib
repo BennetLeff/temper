@@ -1,0 +1,184 @@
+*******************************************************************************
+* LMR51430 SPICE Behavioral Model - ngspice Compatible
+* Texas Instruments Buck Converter - 4.5-36V In, 3A Out
+*
+* Version 4.0 - Simplified robust switching model
+*
+* This uses a behavioral voltage source for the switch node
+* which avoids convergence issues with discrete switches.
+*******************************************************************************
+
+*------------------------------------------------------------------------------
+* LMR51430X - 500kHz Version  
+*------------------------------------------------------------------------------
+.SUBCKT LMR51430X VIN GND EN SW FB CB
+
+*==============================================================================
+* PARAMETERS
+*==============================================================================
+.PARAM VREF=0.6
+.PARAM VEN_TH=1.2
+.PARAM VIN_UVLO=4.0
+.PARAM FSW=500K
+.PARAM TPER=2U
+
+*==============================================================================
+* INPUT VOLTAGE BUFFER (avoids ngspice port reference issues)
+*==============================================================================
+EVIN VIN_SENSE GND VIN GND 1.0
+EEN EN_SENSE GND EN GND 1.0
+
+*==============================================================================
+* ENABLE / UVLO 
+*==============================================================================
+* Smooth enable signal
+BENABLE ENABLE GND V = (1/(1+exp(-10*(V(VIN_SENSE)-VIN_UVLO)))) * (1/(1+exp(-10*(V(EN_SENSE)-VEN_TH))))
+
+*==============================================================================
+* SOFT START (4ms time constant)
+*==============================================================================
+* RC soft start
+RSS ENABLE SS_IN 1K
+CSS SS_IN GND 4U IC=0
+
+* Clamp to VREF
+BSS_CLAMP SS GND V = min(V(SS_IN), VREF)
+
+*==============================================================================
+* ERROR AMPLIFIER
+*==============================================================================
+* Reference (soft-start limited)
+BREF REF GND V = V(SS) * V(ENABLE)
+
+* Error = REF - FB (positive error means output too low)
+BERROR ERROR GND V = V(REF) - V(FB)
+
+* PI controller with limited output
+* Proportional path
+BP PROP GND V = V(ERROR) * 2
+
+* Integral path (slow integrator)
+GI GND INT ERROR GND 10U
+RI INT GND 1MEG
+CI INT GND 100N IC=0.4
+
+* Combine and clamp to valid duty cycle range (10% to 90%)
+BEA EA GND V = min(max(V(PROP) + V(INT), 0.1), 0.9)
+
+*==============================================================================
+* PWM MODULATOR
+*==============================================================================
+* Sawtooth 0 to 1 at 500kHz
+VRAMP RAMP GND PULSE(0 1 0 {TPER*0.99} {TPER*0.005} {TPER*0.005} {TPER})
+
+* PWM comparator: duty cycle = EA output
+* Output is 1 when EA > RAMP, 0 otherwise
+BPWM PWM GND V = 1/(1+exp(-50*(V(EA)-V(RAMP))))
+
+* Apply enable
+BPWM_EN PWM_EN GND V = V(PWM) * V(ENABLE)
+
+*==============================================================================
+* SWITCH NODE - Behavioral Model
+*==============================================================================
+* SW = PWM * VIN when on, 0 when off (body diode handles negative)
+BSW SW GND V = V(PWM_EN) * V(VIN_SENSE)
+
+* Body diode clamp (allows SW to go slightly negative)
+DSW_LO GND SW DBODY
+.MODEL DBODY D IS=1E-9 RS=0.05 N=1.5
+
+*==============================================================================
+* BOOTSTRAP (simplified)
+*==============================================================================
+BCB CB GND V = V(SW) + 5
+
+*==============================================================================
+* QUIESCENT CURRENT (for efficiency estimation)
+*==============================================================================
+IQ VIN GND DC 1M
+
+.ENDS LMR51430X
+
+
+*------------------------------------------------------------------------------
+* Other variants (same core, different params)
+*------------------------------------------------------------------------------
+.SUBCKT LMR51430XF VIN GND EN SW FB CB
+XU VIN GND EN SW FB CB LMR51430X
+.ENDS LMR51430XF
+
+.SUBCKT LMR51430Y VIN GND EN SW FB CB
+* 1.1MHz version
+.PARAM VREF=0.6
+.PARAM TPER=909N
+
+* Input buffers
+EVIN VIN_S GND VIN GND 1.0
+EEN EN_S GND EN GND 1.0
+
+BENABLE EN_OK GND V = (1/(1+exp(-10*(V(VIN_S)-4)))) * (1/(1+exp(-10*(V(EN_S)-1.2))))
+RSS EN_OK SS_I 1K
+CSS SS_I GND 4U IC=0
+BSS SS GND V = min(V(SS_I), VREF)
+BREF REF GND V = V(SS)*V(EN_OK)
+BERR ERR GND V = V(REF)-V(FB)
+BP P GND V = V(ERR)*2
+GI GND I ERR GND 10U
+RI I GND 1MEG
+CI I GND 100N IC=0.4
+BEA EA GND V = min(max(V(P)+V(I), 0.1), 0.9)
+VRAMP RAMP GND PULSE(0 1 0 {TPER*0.99} {TPER*0.005} {TPER*0.005} {TPER})
+BPWM PWM GND V = 1/(1+exp(-50*(V(EA)-V(RAMP))))
+BPWM_E PE GND V = V(PWM)*V(EN_OK)
+BSW SW GND V = V(PE)*V(VIN_S)
+DSW GND SW DBD
+.MODEL DBD D IS=1E-9 RS=0.05 N=1.5
+BCB CB GND V = V(SW)+5
+IQ VIN GND DC 1M
+.ENDS LMR51430Y
+
+.SUBCKT LMR51430YF VIN GND EN SW FB CB
+XU VIN GND EN SW FB CB LMR51430Y
+.ENDS LMR51430YF
+
+
+*******************************************************************************
+* AVERAGED MODEL (no switching, very fast)
+*******************************************************************************
+.SUBCKT LMR51430_AVG VIN GND EN SW FB CB
+
+.PARAM VREF=0.6
+
+* Input buffers
+EVIN VIN_S GND VIN GND 1.0
+EEN EN_S GND EN GND 1.0
+
+* Enable
+BEN EN_OK GND V = (1/(1+exp(-10*(V(VIN_S)-4)))) * (1/(1+exp(-10*(V(EN_S)-1.2))))
+
+* Soft start
+RSS EN_OK SS_I 1K
+CSS SS_I GND 4U IC=0
+BSS SS GND V = min(V(SS_I), VREF)
+
+* Reference
+BREF REF GND V = V(SS) * V(EN_OK)
+
+* Error amp
+BERR ERR GND V = V(REF) - V(FB)
+GI GND EA ERR GND 10U
+RI EA GND 1MEG
+CI EA GND 100N IC=0.4
+
+* Duty cycle
+BD D GND V = min(max(V(EA), 0.05), 0.95)
+
+* Averaged SW voltage
+BSW SW GND V = V(D) * V(VIN_S) * V(EN_OK)
+
+BCB CB GND V = V(SW) + 5
+
+.ENDS LMR51430_AVG
+
+*******************************************************************************

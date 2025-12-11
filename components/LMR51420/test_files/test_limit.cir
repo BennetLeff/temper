@@ -1,0 +1,19 @@
+* Test limit() function in ngspice
+.TITLE Test limit function
+
+V1 IN 0 DC 1.5
+
+* Test limit function
+B1 OUT1 0 V = limit(V(IN), 0.1, 0.9)
+
+* Alternative: min/max nested
+B2 OUT2 0 V = min(max(V(IN), 0.1), 0.9)
+
+.OP
+
+.CONTROL
+RUN
+PRINT V(IN) V(OUT1) V(OUT2)
+.ENDC
+
+.END

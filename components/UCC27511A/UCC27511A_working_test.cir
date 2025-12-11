@@ -1,0 +1,41 @@
+* UCC27511A Working Test - Using Single Output
+.TITLE UCC27511A Working Test
+
+.INCLUDE UCC27511A.lib
+
+* Power supply
+VDD VDD 0 DC 12
+
+* PWM input (20kHz, 50% duty)
+VPWM PWM_IN 0 PULSE(0 5 5U 10N 10N 25U 50U)
+RIN PWM_IN INP 50
+RINN INN 0 1MEG
+
+* Driver
+XU1 VDD 0 INP INN OUTH OUTL UCC27511A
+
+* Use only OUTL path for testing (lower resistance, faster)
+RGATE OUTL GATE 5
+CGATE GATE 0 2N
+
+* Bypass caps
+CVDD VDD 0 10U IC=12
+
+.CONTROL
+TRAN 100N 150U 0 100N UIC
+
+MEAS TRAN V_GATE_HIGH MAX V(GATE) FROM=50U TO=100U
+MEAS TRAN V_GATE_LOW MIN V(GATE) FROM=50U TO=100U
+MEAS TRAN V_OUTL_HIGH MAX V(OUTL) FROM=50U TO=100U
+
+ECHO "======================================"
+ECHO "  UCC27511A Working Test (OUTL only)"
+ECHO "======================================"
+PRINT V_GATE_HIGH V_GATE_LOW V_OUTL_HIGH
+ECHO "======================================"
+
+.ENDC
+
+.OPTIONS METHOD=TRAP RELTOL=0.001
+
+.END

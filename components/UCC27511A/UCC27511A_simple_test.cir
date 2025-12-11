@@ -1,0 +1,71 @@
+* UCC27511A Simple Test - Single Combined Output
+* Tests basic gate driver functionality
+
+.TITLE UCC27511A Simple Test
+
+*======================================================================
+* Simple Single-Output Model for Testing
+*======================================================================
+.SUBCKT UCC27511A_SIMPLE VDD GND INP INN OUT
+
+* Supply current
+IQ VDD GND 180U
+
+* Input stage
+RIN_P INP GND 200K
+RIN_N INN GND 200K
+
+* Logic: OUT = (VDD>4V) AND (INP>1.7V) AND (INN<1.7V)
+ELOGIC logic 0 VALUE={V(VDD)>4 ? (V(INP)>1.7 ? (V(INN)<1.7 ? 1 : 0) : 0) : 0}
+
+* Delay
+RDLY logic logic_d 1K
+CDLY logic_d 0 13P
+
+* Output stage - simple totem pole
+* When logic_d > 0.5: drive toward VDD with 3Ω (average of 6Ω and 0.5Ω weighted by current)
+* When logic_d < 0.5: drive toward GND with 0.5Ω
+EOUT_INT out_int 0 VALUE={V(logic_d)>0.5 ? V(VDD) : 0}
+ROUT out_int OUT 2
+COUT OUT 0 10P
+
+.ENDS UCC27511A_SIMPLE
+
+*======================================================================
+* Test Circuit
+*======================================================================
+VDD VDD 0 DC 12
+VPWM PWM_IN 0 PULSE(0 5 5U 10N 10N 25U 50U)
+
+RIN PWM_IN INP 50
+RINN INN 0 1MEG
+
+XU1 VDD 0 INP INN OUT UCC27511A_SIMPLE
+
+* Gate load
+RGATE OUT GATE 10
+CGATE GATE 0 2N
+
+* Bypass caps
+CVDD VDD 0 10U IC=12
+
+*======================================================================
+* Simulation
+*======================================================================
+.CONTROL
+TRAN 100N 150U 0 100N UIC
+
+MEAS TRAN V_GATE_HIGH MAX V(GATE) FROM=50U TO=100U
+MEAS TRAN V_GATE_LOW MIN V(GATE) FROM=50U TO=100U
+
+ECHO "======================================"
+ECHO "  Simple Test Results"
+ECHO "======================================"
+PRINT V_GATE_HIGH V_GATE_LOW
+ECHO "======================================"
+
+.ENDC
+
+.OPTIONS METHOD=TRAP RELTOL=0.001
+
+.END

@@ -1,0 +1,60 @@
+* UCC27511A SPICE Model Library
+* Single-Channel High-Speed Low-Side Gate Driver
+* 4A Peak Source / 8A Peak Sink - Asymmetrical Drive
+* Split Output (OUTH/OUTL) Configuration
+*
+* Model Version: 2.2
+* Date: December 9, 2025
+
+.SUBCKT UCC27511A VDD GND INP INN OUTH OUTL
+
+*----------------------------------------------------------------------
+* Supply Current
+*----------------------------------------------------------------------
+IQ VDD GND 180U
+
+*----------------------------------------------------------------------
+* Input Stage
+*----------------------------------------------------------------------
+RIN_P INP GND 200K
+CIN_P INP GND 5P
+RIN_N INN GND 200K
+CIN_N INN GND 5P
+
+*----------------------------------------------------------------------
+* Logic
+*----------------------------------------------------------------------
+ELOGIC logic 0 VALUE={V(VDD)>4 ? (V(INP)>1.7 ? (V(INN)<1.7 ? 1 : 0) : 0) : 0}
+
+*----------------------------------------------------------------------
+* Delay
+*----------------------------------------------------------------------
+RDLY logic logic_d 1K
+CDLY logic_d 0 13P
+EBUF out_state 0 VALUE={V(logic_d) > 0.5 ? 1 : 0}
+
+*----------------------------------------------------------------------
+* Internal Totem-Pole Output
+*----------------------------------------------------------------------
+* Common internal node that switches between VDD and GND
+EOUT_INTERNAL out_int 0 VALUE={V(out_state) > 0.5 ? V(VDD) : 0}
+
+*----------------------------------------------------------------------
+* Split Outputs
+*----------------------------------------------------------------------
+* OUTH and OUTL both connect to the same internal node
+* but with different series resistances
+*
+* OUTH: Higher resistance (6Ω) - optimized for sourcing (4A)
+* OUTL: Lower resistance (0.5Ω) - optimized for sinking (8A)
+*
+* This allows independent control of turn-on/turn-off speed
+* via external gate resistors
+
+ROUTH out_int OUTH 6
+COUTH OUTH 0 10P
+
+ROUTL out_int OUTL 0.5
+COUTL OUTL 0 10P
+
+.ENDS UCC27511A

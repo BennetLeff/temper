@@ -1,0 +1,301 @@
+* UCC14240-Q1 Isolated DC/DC Converter Test Circuit
+* Texas Instruments Automotive Isolated Bias Supply
+* Typical application: Gate driver power supply for induction cooker
+*
+* This test circuit demonstrates:
+* 1. Dual output configuration: VDD-VEE = 20V, COM-VEE = 10V
+* 2. Provides bipolar supply: +10V (VDD-COM), -10V (COM-VEE)
+* 3. Soft-start sequence with enable control
+* 4. Power-good monitoring
+* 5. Load transient response
+
+***************************************************************************
+* Include UCC14240-Q1 Model
+***************************************************************************
+.include UCC14240-Q1.lib
+
+***************************************************************************
+* Supply and Enable Control
+***************************************************************************
+* Input power supply: 24V nominal (21-27V operating range)
+VIN VIN_NODE 0 DC 24
+
+* Enable signal: Step from 0 to 3.3V at t=100us
+VEN ENA_NODE 0 PWL(0 0 100u 0 101u 3.3)
+
+***************************************************************************
+* UCC14240-Q1 Isolated DC/DC Converter
+***************************************************************************
+* Pin mapping for 36-pin SOIC package
+* All GNDP pins connected to primary ground (0)
+* All VEE pins connected to secondary ground reference (VEE_REF)
+* VDD pins connected together (VDD_OUT)
+
+X_UCC UCC14240-Q1
++ 0 0 PG_NODE ENA_NODE 0 VIN_NODE VIN_NODE
++ 0 0 0 0 0 0 0 0 0 0 0
++ VEE_REF VEE_REF VEE_REF VEE_REF VEE_REF VEE_REF VEE_REF VEE_REF VEE_REF
++ VDD_OUT VDD_OUT
++ VEE_REF VEE_REF RLIM_NODE FBVEE_NODE FBVDD_NODE VEEA_NODE VEE_REF
+
+***************************************************************************
+* Input Bypass Capacitors
+***************************************************************************
+* Per datasheet: 10µF bulk + 0.1µF ceramic close to pins
+CIN_BULK VIN_NODE 0 10u IC=0
+CIN_CERAMIC VIN_NODE 0 0.1u IC=0
+
+* ESR for electrolytic capacitor
+RESR_CIN VIN_NODE VIN_FILT 0.1
+CCIN_FILT VIN_FILT 0 10u IC=0
+
+***************************************************************************
+* Output Capacitors
+***************************************************************************
+* COUT1: VDD to VEE (main output)
+* COUT2: VDD to COM (upper half)
+* COUT3: COM to VEE (lower half)
+* Ratio of COUT2:COUT3 determines initial COM voltage during startup
+
+* COM node (midpoint between VDD and VEE)
+* Created by capacitor divider and regulated by RLIM
+
+* COUT1: 47µF ceramic (VDD to VEE total output)
+COUT1 VDD_OUT VEE_REF 47u IC=0
+
+* COUT2: 22µF ceramic (VDD to COM, upper rail)
+COUT2 VDD_OUT COM_NODE 22u IC=0
+
+* COUT3: 22µF ceramic (COM to VEE, lower rail)
+COUT3 COM_NODE VEE_REF 22u IC=0
+
+* Small ESR for ceramic capacitors
+RESR_COUT1 VDD_OUT N_VDD_ESR1 0.01
+COUT1_ESR N_VDD_ESR1 VEE_REF 47u IC=0
+
+***************************************************************************
+* Feedback Resistor Divider for VDD-VEE
+***************************************************************************
+* Target: VDD-VEE = 20V
+* VFBVDD = 2.5V when regulated
+* VVDD-VEE = 2.5V × (R_TOP + R_BOT) / R_BOT
+* 20V = 2.5V × (R_TOP + R_BOT) / R_BOT
+* (R_TOP + R_BOT) / R_BOT = 8
+* R_TOP / R_BOT = 7
+* Choose R_BOT = 10kΩ, R_TOP = 70kΩ
+
+RFBVDD_BOT FBVDD_NODE VEEA_NODE 10k
+RFBVDD_TOP VDD_OUT FBVDD_NODE 70k
+
+* Feedback filter capacitor (optional, reduces noise)
+CFBVDD FBVDD_NODE VEEA_NODE 100n
+
+***************************************************************************
+* Feedback Resistor Divider for COM-VEE
+***************************************************************************
+* Target: COM-VEE = 10V (half of VDD-VEE for symmetric bipolar supply)
+* VFBVEE = 2.5V when regulated
+* VCOM-VEE = 2.5V × (R_TOP + R_BOT) / R_BOT
+* 10V = 2.5V × (R_TOP + R_BOT) / R_BOT
+* (R_TOP + R_BOT) / R_BOT = 4
+* R_TOP / R_BOT = 3
+* Choose R_BOT = 10kΩ, R_TOP = 30kΩ
+
+RFBVEE_BOT FBVEE_NODE VEEA_NODE 10k
+RFBVEE_TOP COM_NODE FBVEE_NODE 30k
+
+* Feedback filter capacitor
+CFBVEE FBVEE_NODE VEEA_NODE 100n
+
+***************************************************************************
+* RLIM Resistor
+***************************************************************************
+* Sets maximum source/sink current for COM-VEE regulator
+* RLIM = VCOM-VEE / IMAX - 30Ω (internal resistance)
+* For VCOM = 10V, target IMAX = 50mA:
+* RLIM = 10V / 50mA - 30Ω = 200Ω - 30Ω = 170Ω
+* Use 180Ω (standard value)
+
+RRLIM RLIM_NODE VEE_REF 180
+
+***************************************************************************
+* Power-Good Pull-up Resistor
+***************************************************************************
+* PG is open-drain output, needs external pull-up
+* Pull up to 3.3V or 5V logic level
+VPG_PULLUP PG_SUPPLY 0 DC 3.3
+RPG_PULLUP PG_SUPPLY PG_NODE 10k
+
+***************************************************************************
+* Load Simulation
+***************************************************************************
+* Simulate gate driver load:
+* 1. Quiescent current: 5mA on each rail
+* 2. Switching current: Pulses representing gate charge
+*
+* For IGBT with QG = 200nC @ 1kHz switching:
+* Average current = 200nC × 1kHz = 200µA per IGBT
+* With 2 IGBTs (half-bridge): 400µA
+* Peak current during gate charge: assume 10mA for 20µs
+
+* Quiescent load on VDD rail (referenced to COM)
+RLOAD_VDD_Q VDD_OUT COM_NODE 2k ; 5mA @ 10V
+
+* Quiescent load on VEE rail (referenced to COM)
+RLOAD_VEE_Q COM_NODE VEE_REF 2k ; 5mA @ 10V
+
+* Switching load on VDD rail (gate charge current pulses)
+* Pulse: 10mA peak, 20µs pulse width, 1kHz repetition (1ms period)
+ILOAD_VDD_SW VDD_OUT COM_NODE PWL(
++ 0 0
++ 10m 0
++ 10.001m 10m
++ 10.020m 10m
++ 10.021m 0
++ 11m 0
++ 11.001m 10m
++ 11.020m 10m
++ 11.021m 0
++ 20m 0
++) R
+
+* Switching load on VEE rail (gate charge current pulses)
+ILOAD_VEE_SW COM_NODE VEE_REF PWL(
++ 0 0
++ 10m 0
++ 10.001m 10m
++ 10.020m 10m
++ 10.021m 0
++ 11m 0
++ 11.001m 10m
++ 11.020m 10m
++ 11.021m 0
++ 20m 0
++) R
+
+* Load step at 15ms to test transient response
+* Add 20mA step load on VDD rail
+ILOAD_STEP VDD_OUT VEE_REF PWL(0 0 15m 0 15.001m 20m 25m 20m 25.001m 0)
+
+***************************************************************************
+* Simulation Control
+***************************************************************************
+* Transient analysis: Run for 30ms to see startup and load transients
+.tran 10u 30m 0 10u
+
+* Initial conditions
+.ic V(VEE_REF)=0 V(VDD_OUT)=0 V(COM_NODE)=0
+
+***************************************************************************
+* Output Control and Measurement
+***************************************************************************
+* Plot key waveforms
+.control
+run
+
+* Print summary at key time points
+echo "==================================================================="
+echo "UCC14240-Q1 Isolated DC/DC Converter Simulation Results"
+echo "==================================================================="
+echo ""
+echo "Target Voltages:"
+echo "  VDD-VEE: 20V"
+echo "  COM-VEE: 10V"
+echo "  VDD-COM: 10V (positive rail for gate driver)"
+echo ""
+echo "Steady-State Voltages @ t=10ms (after soft-start):"
+print V(VDD_OUT)-V(VEE_REF) V(COM_NODE)-V(VEE_REF) V(VDD_OUT)-V(COM_NODE) V(FBVDD_NODE) V(FBVEE_NODE)
+echo ""
+echo "Final Voltages @ t=30ms:"
+print V(VDD_OUT)-V(VEE_REF) V(COM_NODE)-V(VEE_REF) V(VDD_OUT)-V(COM_NODE) V(FBVDD_NODE) V(FBVEE_NODE)
+echo ""
+echo "Power-Good Status:"
+echo "  PG @ t=1ms (before startup):"
+print V(PG_NODE)
+echo "  PG @ t=10ms (after startup):"
+print V(PG_NODE)
+echo ""
+echo "Input Current:"
+echo "  @ t=0.5ms (disabled):"
+print I(VIN)
+echo "  @ t=10ms (steady-state):"
+print I(VIN)
+echo "  @ t=20ms (with load pulse):"
+print I(VIN)
+echo ""
+
+* Plot voltage waveforms
+plot V(VDD_OUT)-V(VEE_REF) V(COM_NODE)-V(VEE_REF) V(VDD_OUT)-V(COM_NODE) title "UCC14240-Q1 Output Voltages"
+plot V(FBVDD_NODE) V(FBVEE_NODE) title "Feedback Voltages (Target: 2.5V)"
+plot V(PG_NODE) V(ENA_NODE) title "Control Signals (PG and Enable)"
+plot I(VIN)*-1 title "Input Current (mA)"
+plot (V(VDD_OUT)-V(VEE_REF))*I(ILOAD_VDD_SW) + (V(COM_NODE)-V(VEE_REF))*I(ILOAD_VEE_SW) title "Output Power (W)"
+
+* Measure soft-start time (time for VDD-VEE to reach 90% of final value)
+meas tran Tss WHEN V(VDD_OUT)-V(VEE_REF)=18 RISE=1
+
+* Measure regulation accuracy at steady-state (t=10ms)
+meas tran Vdd_vee_ss FIND V(VDD_OUT)-V(VEE_REF) AT=10m
+meas tran Vcom_vee_ss FIND V(COM_NODE)-V(VEE_REF) AT=10m
+meas tran Vdd_com_ss FIND V(VDD_OUT)-V(COM_NODE) AT=10m
+
+* Measure load transient response (voltage droop at t=15ms)
+meas tran Vdd_vee_pre FIND V(VDD_OUT)-V(VEE_REF) AT=14.99m
+meas tran Vdd_vee_post FIND V(VDD_OUT)-V(VEE_REF) AT=15.1m
+let Vdd_vee_droop = Vdd_vee_pre - Vdd_vee_post
+
+* Measure input power
+meas tran Pin_avg AVG I(VIN)*V(VIN_NODE) FROM=10m TO=14m
+
+* Measure output power
+meas tran Pout_avg AVG (V(VDD_OUT)-V(VEE_REF))*(I(RLOAD_VDD_Q)+I(RLOAD_VEE_Q)) FROM=10m TO=14m
+
+echo "==================================================================="
+echo "Measured Performance:"
+echo "==================================================================="
+echo "Soft-start time to 90%:"
+print Tss
+echo ""
+echo "Steady-state voltages @ 10ms:"
+print Vdd_vee_ss Vcom_vee_ss Vdd_com_ss
+echo ""
+echo "Load transient (20mA step @ 15ms):"
+print Vdd_vee_droop
+echo ""
+echo "Power measurements (10-14ms window):"
+print Pin_avg Pout_avg
+let efficiency = Pout_avg / Pin_avg * 100
+print efficiency
+echo ""
+echo "==================================================================="
+
+.endc
+
+***************************************************************************
+* Notes
+***************************************************************************
+* 1. This circuit demonstrates typical application for gate driver supply
+* 2. Soft-start takes ~16ms as per datasheet specification
+* 3. VDD-VEE regulated to 20V ± 1.3% (datasheet accuracy spec)
+* 4. COM-VEE regulated to 10V ± 1.3%
+* 5. This creates bipolar supply: +10V (VDD-COM) and -10V (COM-VEE)
+* 6. PG goes high after outputs are in regulation for >100us
+* 7. Load transients show regulation recovery behavior
+* 8. Input current varies with output load (burst-mode operation)
+*
+* Expected Results:
+* - Soft-start time: ~16ms
+* - VDD-VEE final voltage: ~20V (±1.3%)
+* - COM-VEE final voltage: ~10V (±1.3%)
+* - Feedback voltages: 2.5V ± 10mV (hysteresis)
+* - PG transitions: Low initially, high after ~16.1ms
+* - Input current: ~35mA no-load, ~100-150mA with load
+* - Efficiency: ~50-60% typical
+*
+* To run this simulation:
+*   ngspice UCC14240-Q1_test.cir
+*
+* Output files:
+*   - Console output shows measured values
+*   - Plots display voltage/current waveforms
+***************************************************************************

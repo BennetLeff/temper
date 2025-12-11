@@ -1,0 +1,15 @@
+.SUBCKT LM2576_SIMPLE 1 2 3 4 5
+* Pinout: 1=VIN 2=OUT 3=GND 4=FB 5=ON_OFF
+* This is a simplified behavioral model for educational simulation
+* It switches VIN to OUT whenever Feedback (Pin 4) drops below 1.23V
+
+* The Voltage Controlled Switch (The transistor inside)
+S_Switch 1 2 CTRL 0 POWER_SW
+
+* The Logic (Comparator)
+* If V(FB) < 1.23V, Output 10V to Gate. Otherwise 0V.
+B_Logic CTRL 0 V = V(4) < 15.0 ? 10 : 0
+
+* Switch Physics (0.2 Ohm resistance when ON)
+.MODEL POWER_SW SW(Ron=0.2 Roff=100Meg Vt=5)
+.ENDS

@@ -1,0 +1,48 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: UCC27511A IGBT Gate Driver Test
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 1677
+v_gate_high         =  3.674467e+00 at=  5.503931e-05
+v_gate_low          =  -2.058178e-06 at=  8.017408e-05
+
+Error: measure  tplh  trig(TARG) : out of interval
+ meas tran tplh trig v(inp) val=2.5 rise=2 targ v(gate) val=6 rise=2 failed!
+
+
+Error: measure  tphl  trig(TARG) : out of interval
+ meas tran tphl trig v(inp) val=2.5 fall=2 targ v(gate) val=6 fall=2 failed!
+
+
+Error: measure  trise  trig(TARG) : out of interval
+ meas tran trise trig v(gate) val=1.2 rise=2 targ v(gate) val=10.8 rise=2 failed!
+
+
+Error: measure  tfall  trig(TRIG) : out of interval
+ meas tran tfall trig v(gate) val=10.8 fall=2 targ v(gate) val=1.2 fall=2 failed!
+
+Warning from checkvalid: vector tplh is not available or has zero length.
+Error: RHS "(tplh + tphl)/2" invalid
+======================================
+  UCC27511A Test Results
+======================================
+
+v_gate_high = 3.674467e+00
+v_gate_low = -2.05818e-06
+Warning from checkvalid: vector tplh is not available or has zero length.
+
+Expected:
+  V_GATE: ~11-12V
+  tPD: ~13-20ns
+  tRISE/tFALL: ~10-50ns (inc. RC delay)
+
+======================================
+Note: Simulation executed from .control section 

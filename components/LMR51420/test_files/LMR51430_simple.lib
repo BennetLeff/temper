@@ -1,0 +1,144 @@
+*******************************************************************************
+* LMR51430 Simplified SPICE Model for Fast Simulation
+* 
+* This is a simplified behavioral model optimized for:
+* - Quick design iteration
+* - Stability analysis
+* - Component value optimization
+* - Thermal estimation
+*
+* Trade-offs:
+* - Less accurate transient behavior
+* - Simplified protection features
+* - Averaged switching behavior
+*
+* Use the full model (LMR51430.lib) for detailed timing analysis
+*******************************************************************************
+
+.SUBCKT LMR51430_SIMPLE VIN GND EN SW FB CB PARAMS: FSW=500K VOUT=5
+
+* Key parameters from datasheet
+.PARAM VREF=0.6
+.PARAM VEN_TH=1.2
+.PARAM VIN_UVLO=4.0
+.PARAM RDSON_HS=0.12
+.PARAM RDSON_LS=0.07
+.PARAM ILIMIT=4.5
+.PARAM EFF=0.92
+
+* =====================================================
+* ENABLE AND UVLO LOGIC
+* =====================================================
+* Simple threshold comparators
+BE_EN EN_OK GND V = IF(V(EN,GND) > VEN_TH, 1, 0)
+BE_UVLO UVLO_OK GND V = IF(V(VIN,GND) > VIN_UVLO, 1, 0)
+BE_READY READY GND V = V(EN_OK) * V(UVLO_OK)
+
+* =====================================================
+* SOFT START (Simplified)
+* =====================================================
+RSS SS_INT GND 1MEG
+CSS SS_INT GND 4N IC=0  ; 4ms time constant
+BSS_CHG SS_INT GND I = IF(V(READY) > 0.5, 1U, -V(SS_INT)/100)
+BSS SS GND V = LIMIT(V(SS_INT), 0, 1)
+
+* =====================================================
+* DUTY CYCLE CALCULATION
+* =====================================================
+* Ideal duty cycle based on voltage ratio
+BD_IDEAL D_IDEAL GND V = {VOUT/36}  ; Normalized to max VIN
+BD_ACTUAL D_ACTUAL GND V = V(SS) * V(VOUT_INT) / (V(VIN,GND) + 1M)
+
+* =====================================================
+* SIMPLIFIED CONTROL LOOP
+* =====================================================
+* Error amplifier (Type II compensated)
+VERR_REF ERR_REF GND DC {VREF}
+GEA EA_OUT GND ERR_REF FB 100U
+REA EA_OUT GND 100K
+CEA EA_OUT GND 1N
+
+* Control to duty cycle
+BD_CTRL D_CTRL GND V = LIMIT(V(EA_OUT)/2.5, 0.05, 0.95)
+
+* =====================================================
+* AVERAGED SWITCH MODEL
+* =====================================================
+* Switch node voltage = D * VIN
+BSW SW GND V = V(READY) * V(D_CTRL) * V(VIN,GND)
+
+* Internal output voltage estimate (for feedback)
+BVOUT VOUT_INT GND V = V(FB,GND) * (1 + 100K/13.7K)
+
+* =====================================================
+* CURRENT LIMITING
+* =====================================================
+* Estimate output current from power balance
+* Iout ≈ (VIN * D * Eff) / VOUT
+BIOUT IOUT_EST GND V = V(VIN,GND) * V(D_CTRL) * EFF / (V(VOUT_INT) + 0.1)
+BILIM I_LIMITED GND V = IF(V(IOUT_EST) > ILIMIT, ILIMIT, V(IOUT_EST))
+
+* =====================================================
+* BOOTSTRAP VOLTAGE (Simplified)
+* =====================================================
+BCB CB GND V = V(SW) + 5
+
+* =====================================================
+* POWER DISSIPATION ESTIMATE
+* =====================================================
+* Conduction losses
+.PARAM PLOSS_SW = 0.1  ; Switching loss coefficient
+BPLOSS PLOSS GND V = V(I_LIMITED)*V(I_LIMITED)*(V(D_CTRL)*RDSON_HS + (1-V(D_CTRL))*RDSON_LS) + PLOSS_SW*V(VIN,GND)*V(I_LIMITED)*FSW/1E6
+
+.ENDS LMR51430_SIMPLE
+
+
+*******************************************************************************
+* IDEAL BUCK CONVERTER MODEL
+* Use for initial filter design and stability analysis
+*******************************************************************************
+
+.SUBCKT BUCK_IDEAL VIN GND VOUT_NODE D_NODE
+* Ideal transformer model of buck converter
+* D_NODE is duty cycle input (0 to 1)
+
+* Input current = D * Iout
+GIN VIN GND VOUT_NODE GND {1}
+HSCALE GND N_SCALE D_NODE GND 1
+EIN N_IN GND POLY(2) N_SCALE GND VOUT_NODE GND 0 0 0 0 1
+
+* Output voltage = D * VIN  
+EOUT VOUT_NODE GND POLY(2) D_NODE GND VIN GND 0 0 0 0 1
+
+.ENDS BUCK_IDEAL
+
+
+*******************************************************************************
+* AVERAGED PWM SWITCH MODEL (Vorperian Model)
+* For small-signal and stability analysis
+*******************************************************************************
+
+.SUBCKT PWM_SWITCH_AVG A P C PARAMS: L=6.8U FS=500K
+
+* Nodes: A=active (high side), P=passive (low side), C=common (SW)
+* Based on Vorperian's PWM switch model
+
+* Duty cycle input (external)
+.PARAM D=0.4  ; Default duty cycle
+
+* Averaged model equations
+* Ia = D * Ic
+* Vcp = D * Vap
+
+* Current-controlled current source
+GCCP C P VALUE = {D * I(VAP)}
+
+* Voltage-controlled voltage source  
+EVCP V_C P VALUE = {D * V(A,P)}
+RVCP V_C C 1M
+
+* Sense element
+VAP A N_A DC 0
+RN N_A P 1M
+
+.ENDS PWM_SWITCH_AVG

@@ -1,0 +1,407 @@
+* UCC14240-Q1 Isolated DC/DC Power Module SPICE Model
+* Texas Instruments
+* Automotive Isolated Bias Supply for Gate Drivers
+* Model version: 1.0
+* Date: 2024
+*
+* This model represents the UCC14240-Q1 isolated DC/DC converter
+* Suitable for ngspice and KiCad simulation
+*
+* Pin Configuration (36-pin SSOP DWN package):
+* Pin 1-2, 5, 8-18: GNDP - Primary side ground (analog ground: 1,2,5)
+* Pin 3: PG - Power Good output (active-low open-drain)
+* Pin 4: ENA - Enable input (active high)
+* Pin 6: VIN_ANALOG - Analog input voltage sense
+* Pin 7: VIN_POWER - Power input voltage (21V to 27V)
+* Pin 19-27, 30-31, 36: VEE - Secondary side negative output (ground reference)
+* Pin 28-29: VDD - Secondary side positive output
+* Pin 32: RLIM - Current limit resistor connection
+* Pin 33: FBVEE - Feedback for COM-VEE voltage
+* Pin 34: FBVDD - Feedback for VDD-VEE voltage
+* Pin 35: VEEA - Analog ground for feedback network
+*
+* Note: COM pin is not brought out - it's the midpoint between VDD and VEE
+* Dual outputs:
+*   - VDD-VEE: 18V to 25V (adjustable via FBVDD resistor divider)
+*   - COM-VEE: 2.5V to (VDD-VEE) (adjustable via FBVEE resistor divider)
+*
+* Key Features:
+* - Integrated isolated DC/DC converter with transformer
+* - Input: 21V to 27V nominal (32V absolute max)
+* - Output power: 2.0W @ 85°C, >1.5W @ 105°C
+* - Isolation: 3000V RMS (UL 1577), 4243V peak
+* - Switching frequency: 11-15 MHz (13 MHz typical)
+* - Hysteretic burst-mode regulation (±10mV hysteresis)
+* - Dual adjustable outputs for bipolar gate driver supply
+* - Soft-start with 16ms timeout
+* - Protection: UVLO, OVLO, UVP, OVP, thermal shutdown
+* - AEC-Q100 Grade 1 qualified (-40°C to 150°C)
+*
+* Application:
+* - Gate driver bias supply for IGBT/SiC FET
+* - Induction cooker power stages
+* - Isolated power for high-side drivers
+
+***************************************************************************
+* Main Subcircuit: UCC14240-Q1
+***************************************************************************
+.subckt UCC14240-Q1
++ GNDP_1 GNDP_2 PG ENA GNDP_5 VIN_ANALOG VIN_POWER
++ GNDP_8 GNDP_9 GNDP_10 GNDP_11 GNDP_12 GNDP_13 GNDP_14 GNDP_15 GNDP_16 GNDP_17 GNDP_18
++ VEE_19 VEE_20 VEE_21 VEE_22 VEE_23 VEE_24 VEE_25 VEE_26 VEE_27
++ VDD_28 VDD_29
++ VEE_30 VEE_31 RLIM FBVEE FBVDD VEEA VEE_36
+
+* Internal node connections for multiple ground/power pins
+* Primary side ground bus
+R_GNDP_1_2 GNDP_1 GNDP_2 0.001
+R_GNDP_2_5 GNDP_2 GNDP_5 0.001
+R_GNDP_5_8 GNDP_5 GNDP_8 0.001
+R_GNDP_8_9 GNDP_8 GNDP_9 0.001
+R_GNDP_9_10 GNDP_9 GNDP_10 0.001
+R_GNDP_10_11 GNDP_10 GNDP_11 0.001
+R_GNDP_11_12 GNDP_11 GNDP_12 0.001
+R_GNDP_12_13 GNDP_12 GNDP_13 0.001
+R_GNDP_13_14 GNDP_13 GNDP_14 0.001
+R_GNDP_14_15 GNDP_14 GNDP_15 0.001
+R_GNDP_15_16 GNDP_15 GNDP_16 0.001
+R_GNDP_16_17 GNDP_16 GNDP_17 0.001
+R_GNDP_17_18 GNDP_17 GNDP_18 0.001
+
+* Use GNDP_1 as primary reference
+.param GNDP={GNDP_1}
+
+* Secondary side VEE bus (negative output reference)
+R_VEE_19_20 VEE_19 VEE_20 0.001
+R_VEE_20_21 VEE_20 VEE_21 0.001
+R_VEE_21_22 VEE_21 VEE_22 0.001
+R_VEE_22_23 VEE_22 VEE_23 0.001
+R_VEE_23_24 VEE_23 VEE_24 0.001
+R_VEE_24_25 VEE_24 VEE_25 0.001
+R_VEE_25_26 VEE_25 VEE_26 0.001
+R_VEE_26_27 VEE_26 VEE_27 0.001
+R_VEE_27_30 VEE_27 VEE_30 0.001
+R_VEE_30_31 VEE_30 VEE_31 0.001
+R_VEE_31_36 VEE_31 VEE_36 0.001
+
+* Use VEE_19 as secondary reference
+.param VEE={VEE_19}
+
+* VDD bus (positive output)
+R_VDD_28_29 VDD_28 VDD_29 0.001
+
+* Use VDD_28 as VDD reference
+.param VDD={VDD_28}
+
+* Connect VEEA to VEE (analog ground for feedback)
+R_VEEA_VEE VEEA VEE_19 0.001
+
+***************************************************************************
+* Input Protection and Enable Logic
+***************************************************************************
+* Input voltage monitoring
+B_VIN_SENSE N_VIN_SENSE GNDP_1 V={V(VIN_ANALOG,GNDP_1)}
+R_VIN_SENSE N_VIN_SENSE GNDP_1 1MEG
+
+* Enable input (active high, threshold ~1.0V)
+B_ENA_DET N_ENA_DET GNDP_1 V={IF(V(ENA,GNDP_1) > 1.0, 1, 0)}
+R_ENA_DET N_ENA_DET GNDP_1 100k
+
+* UVLO: Rising threshold 20V, falling 18V (2V hysteresis)
+B_UVLO N_UVLO GNDP_1 V={
++ IF(V(N_VIN_SENSE,GNDP_1) < 18, 0,
++   IF(V(N_VIN_SENSE,GNDP_1) > 20, 1,
++     V(N_UVLO,GNDP_1)
++   )
++ )
++}
+R_UVLO N_UVLO GNDP_1 1MEG
+C_UVLO N_UVLO GNDP_1 10n
+
+* OVLO: Rising threshold 31V, falling 29V (2V hysteresis)
+B_OVLO N_OVLO GNDP_1 V={
++ IF(V(N_VIN_SENSE,GNDP_1) > 31, 0,
++   IF(V(N_VIN_SENSE,GNDP_1) < 29, 1,
++     V(N_OVLO,GNDP_1)
++   )
++ )
++}
+R_OVLO N_OVLO GNDP_1 1MEG
+C_OVLO N_OVLO GNDP_1 10n
+
+* Input voltage OK signal
+B_VIN_OK N_VIN_OK GNDP_1 V={IF(V(N_UVLO,GNDP_1)>0.5 & V(N_OVLO,GNDP_1)>0.5 & V(N_ENA_DET,GNDP_1)>0.5, 1, 0)}
+R_VIN_OK N_VIN_OK GNDP_1 100k
+
+***************************************************************************
+* Soft-Start Sequencing
+***************************************************************************
+* Soft-start: 7-step voltage ramp from 1.3V to 2.5V in 200mV steps
+* Each step ~2.3ms, total ~16ms
+* When VIN_OK goes high, ramp feedback reference
+
+* Soft-start capacitor charging
+B_SS_CHARGE N_SS GNDP_1 I={IF(V(N_VIN_OK,GNDP_1)>0.5, 1u, 0)}
+C_SS N_SS GNDP_1 10u
+R_SS_DISCHARGE N_SS GNDP_1 {IF(V(N_VIN_OK,GNDP_1)<0.5, 1, 1G)}
+
+* Soft-start reference (ramps from 0 to 2.5V in ~16ms)
+B_VREF_SS N_VREF_SS GNDP_1 V={MIN(2.5, V(N_SS,GNDP_1)*0.156)}
+R_VREF_SS N_VREF_SS GNDP_1 1MEG
+
+* Final reference voltage (2.5V nominal with ±0.0325V tolerance)
+* Using 2.5V nominal
+B_VREF N_VREF GNDP_1 V={IF(V(N_SS,GNDP_1) > 16, 2.5, V(N_VREF_SS,GNDP_1))}
+R_VREF N_VREF GNDP_1 1MEG
+
+***************************************************************************
+* VDD-VEE Output Regulation (Primary Output)
+***************************************************************************
+* Feedback voltage from FBVDD resistor divider
+* Target: VFBVDD = 2.5V when VDD-VEE is at setpoint
+* User sets VDD-VEE = 2.5V × (R_TOP + R_BOT) / R_BOT
+
+* Hysteretic comparator for VDD-VEE regulation
+* Hysteresis: ±10mV at feedback pin
+B_VDD_HYST N_VDD_HYST GNDP_1 V={
++ IF(V(FBVDD,VEEA) < V(N_VREF,GNDP_1) - 0.010, 1,
++   IF(V(FBVDD,VEEA) > V(N_VREF,GNDP_1) + 0.010, 0,
++     V(N_VDD_HYST,GNDP_1)
++   )
++ )
++}
+R_VDD_HYST N_VDD_HYST GNDP_1 1MEG
+C_VDD_HYST N_VDD_HYST GNDP_1 1n
+
+* Output voltage protection (±10% of target)
+* Under-voltage: FBVDD < 2.25V (90% of 2.5V)
+* Over-voltage: FBVDD > 2.75V (110% of 2.5V)
+B_VDD_UVP N_VDD_UVP GNDP_1 V={IF(V(FBVDD,VEEA) < 2.25 & V(N_SS,GNDP_1)>16, 0, 1)}
+B_VDD_OVP N_VDD_OVP GNDP_1 V={IF(V(FBVDD,VEEA) > 2.75, 0, 1)}
+R_VDD_UVP N_VDD_UVP GNDP_1 100k
+R_VDD_OVP N_VDD_OVP GNDP_1 100k
+
+***************************************************************************
+* COM-VEE Output Regulation (Secondary Output)
+***************************************************************************
+* Feedback voltage from FBVEE resistor divider
+* Target: VFBVEE = 2.5V when COM-VEE is at setpoint
+* User sets VCOM-VEE = 2.5V × (R_TOP + R_BOT) / R_BOT
+
+* Hysteretic comparator for COM-VEE regulation
+* Hysteresis: ±10mV at feedback pin
+B_COM_HYST N_COM_HYST GNDP_1 V={
++ IF(V(FBVEE,VEEA) < V(N_VREF,GNDP_1) - 0.010, 1,
++   IF(V(FBVEE,VEEA) > V(N_VREF,GNDP_1) + 0.010, 0,
++     V(N_COM_HYST,GNDP_1)
++   )
++ )
++}
+R_COM_HYST N_COM_HYST GNDP_1 1MEG
+C_COM_HYST N_COM_HYST GNDP_1 1n
+
+* Output voltage protection (±10% of target)
+B_COM_UVP N_COM_UVP GNDP_1 V={IF(V(FBVEE,VEEA) < 2.25 & V(N_SS,GNDP_1)>16, 0, 1)}
+B_COM_OVP N_COM_OVP GNDP_1 V={IF(V(FBVEE,VEEA) > 2.75, 0, 1)}
+R_COM_UVP N_COM_UVP GNDP_1 100k
+R_COM_OVP N_COM_OVP GNDP_1 100k
+
+***************************************************************************
+* Thermal Shutdown
+***************************************************************************
+* Thermal shutdown: 150°C junction temperature (both primary and secondary)
+* Modeled as function of die temperature
+* Simplified: Use ambient temperature as proxy
+
+* Primary side thermal shutdown
+B_TSD_PRI N_TSD_PRI GNDP_1 V={IF(TEMP > 150, 0, 1)}
+R_TSD_PRI N_TSD_PRI GNDP_1 100k
+
+* Secondary side thermal shutdown
+B_TSD_SEC N_TSD_SEC VEE_19 V={IF(TEMP > 150, 0, 1)}
+R_TSD_SEC N_TSD_SEC VEE_19 100k
+
+***************************************************************************
+* Overall Enable Signal
+***************************************************************************
+* Converter enabled when all conditions met:
+* - VIN_OK (ENA high, UVLO, OVLO)
+* - No UVP/OVP faults
+* - No thermal shutdown
+* - Soft-start completed
+
+B_ENABLE N_ENABLE GNDP_1 V={
++ IF(V(N_VIN_OK,GNDP_1)>0.5 &
++    V(N_VDD_UVP,GNDP_1)>0.5 & V(N_VDD_OVP,GNDP_1)>0.5 &
++    V(N_COM_UVP,GNDP_1)>0.5 & V(N_COM_OVP,GNDP_1)>0.5 &
++    V(N_TSD_PRI,GNDP_1)>0.5 & V(N_TSD_SEC,VEE_19)>0.5 &
++    V(N_SS,GNDP_1)>16,
++    1, 0)
++}
+R_ENABLE N_ENABLE GNDP_1 100k
+
+***************************************************************************
+* Power Good Output
+***************************************************************************
+* PG is open-drain, active LOW when outputs are good
+* PG goes high (release) when:
+* - Outputs in regulation for >100us
+* - No fault conditions
+
+* PG delay timer
+B_PG_TIMER_CHARGE N_PG_TIMER GNDP_1 I={IF(V(N_ENABLE,GNDP_1)>0.5, 10u, -100u)}
+C_PG_TIMER N_PG_TIMER GNDP_1 1u
+R_PG_TIMER_CLAMP N_PG_TIMER GNDP_1 {IF(V(N_PG_TIMER,GNDP_1)<0, 1, IF(V(N_PG_TIMER,GNDP_1)>1, 1, 1G))}
+
+* PG output (open-drain, active LOW)
+* When PG_TIMER > 1V (outputs good), PG is released (high-Z)
+* When fault, PG pulls low
+B_PG_CTRL N_PG_CTRL GNDP_1 V={IF(V(N_PG_TIMER,GNDP_1) > 1, 0, 1)}
+R_PG_CTRL N_PG_CTRL GNDP_1 1MEG
+
+* Open-drain output
+S_PG PG N_PG_LOW N_PG_CTRL GNDP_1 SW_PG
+R_PG_LOW N_PG_LOW GNDP_1 10
+C_PG PG GNDP_1 10p
+
+***************************************************************************
+* DC/DC Converter Power Stage
+***************************************************************************
+* Behavioral model of isolated transformer and rectifier
+* Simplified: Model average behavior with burst-mode switching
+
+* Input power calculation
+* No-load quiescent: ~35mA @ 24V = 0.84W
+* At 2W output with 55% efficiency: Pin = 2W/0.55 = 3.64W
+* Input current: 3.64W/24V = 152mA + 35mA = 187mA
+
+* Output power demand
+B_POUT_VDD N_POUT_VDD VEE_19 V={V(VDD_28,VEE_19) * I(V_SENSE_VDD)}
+R_POUT_VDD N_POUT_VDD VEE_19 1MEG
+
+* Current sensor for VDD output
+V_SENSE_VDD VDD_28 N_VDD_INT 0
+
+* VDD output source (controlled by regulation)
+* Efficiency model: 50-60% typical, use 55%
+* Voltage source with series resistance to model output impedance
+B_VDD_SOURCE N_VDD_INT N_VDD_PRE V={
++ IF(V(N_ENABLE,GNDP_1)<0.5, 0,
++   IF(V(N_VDD_HYST,GNDP_1)>0.5,
++     V(FBVDD,VEEA) * (V(FBVDD,VEEA) + 100) / V(FBVDD,VEEA),
++     V(FBVDD,VEEA) * (V(FBVDD,VEEA) + 100) / V(FBVDD,VEEA) * 0.95
++   )
++ )
++}
+R_VDD_SOURCE N_VDD_PRE VDD_29 0.1
+
+* COM rail generation
+* COM is created by RLIM current regulator
+* RLIM = (VCOM-VEE) / IMAX - 30Ω (internal resistance)
+
+* Internal COM node (not brought out as pin)
+* COM is between VDD and VEE
+
+* RLIM current source/sink
+* When FBVEE < VREF: source current (charge COM node)
+* When FBVEE > VREF: sink current (discharge COM node)
+B_RLIM_CURRENT N_RLIM VEE_19 I={
++ IF(V(N_ENABLE,GNDP_1)<0.5, 0,
++   IF(V(N_COM_HYST,GNDP_1)>0.5,
++     (V(FBVEE,VEEA) - 2.5) / (V(RLIM,VEE_19) + 30),
++     (V(FBVEE,VEEA) - 2.5) / (V(RLIM,VEE_19) + 30) * 0.9
++   )
++ )
++}
+R_RLIM N_RLIM RLIM 30
+
+* Note: COM node is internal - users connect FBVEE divider between external
+* capacitors to create the midpoint voltage
+
+***************************************************************************
+* Input Current Consumption
+***************************************************************************
+* Quiescent current: ~35mA @ 24V
+* Operating current depends on output power and efficiency
+* Efficiency: ~55% typical
+
+* Input current
+B_IIN VIN_POWER N_IIN_INT I={
++ IF(V(N_ENABLE,GNDP_1)<0.5,
++   35m,
++   35m + ABS(V(N_POUT_VDD,VEE_19)) / (V(VIN_ANALOG,GNDP_1) * 0.55)
++ )
++}
+R_IIN N_IIN_INT GNDP_1 1
+
+* Analog input sense (minimal current)
+R_VIN_ANALOG VIN_ANALOG GNDP_1 1MEG
+
+***************************************************************************
+* Output Capacitance
+***************************************************************************
+* Internal output capacitance (user adds external caps)
+C_VDD_INTERNAL VDD_28 VEE_19 47p
+C_VEE_INTERNAL VEE_19 GNDP_1 10p
+
+.ends UCC14240-Q1
+
+***************************************************************************
+* Device Models
+***************************************************************************
+* Power-good open-drain output switch
+.model SW_PG VSWITCH (RON=10 ROFF=10MEG VON=0.7 VOFF=0.3)
+
+***************************************************************************
+* Additional Notes for Simulation
+***************************************************************************
+* 1. This is a simplified behavioral model for system-level simulation
+* 2. Key characteristics modeled:
+*    - Dual adjustable output regulation (VDD-VEE and COM-VEE)
+*    - Hysteretic burst-mode control
+*    - Soft-start sequence (~16ms)
+*    - Input protection (UVLO, OVLO)
+*    - Output protection (UVP, OVP)
+*    - Thermal shutdown
+*    - Power-good output with delay
+*    - Input current consumption
+* 3. Not modeled in detail:
+*    - High-frequency switching ripple (13 MHz)
+*    - EMI/spread spectrum modulation
+*    - Detailed magnetic isolation characteristics
+*    - Propagation delays across isolation barrier
+*    - CMTI (common-mode transient immunity)
+* 4. External components required:
+*    - Input bypass capacitor: 10µF + 0.1µF ceramic
+*    - Output capacitors:
+*      * COUT1 (VDD-VEE): 10µF to 100µF (depends on load)
+*      * COUT2 (VDD-COM): 1µF to 10µF
+*      * COUT3 (COM-VEE): 1µF to 10µF
+*      * Ratio COUT2:COUT3 sets initial COM voltage during startup
+*    - Feedback resistor dividers for FBVDD and FBVEE
+*    - RLIM resistor for COM current limiting
+*    - Pull-up resistor on PG output (open-drain)
+* 5. Feedback resistor divider design:
+*    - For VDD-VEE voltage:
+*      VVDD-VEE = 2.5V × (RFBVDD_TOP + RFBVDD_BOT) / RFBVDD_BOT
+*      Recommended: RFBVDD_BOT = 10kΩ to 100kΩ
+*    - For COM-VEE voltage:
+*      VCOM-VEE = 2.5V × (RFBVEE_TOP + RFBVEE_BOT) / RFBVEE_BOT
+*      Recommended: RFBVEE_BOT = 10kΩ to 100kΩ
+* 6. RLIM resistor calculation:
+*    - For bipolar output (positive and negative rails):
+*      RLIM = VCOM-VEE / IMAX - 30Ω
+*    - Where IMAX is maximum source/sink current needed
+*    - Typical: 100Ω to 1kΩ depending on application
+* 7. Typical application voltages:
+*    - VDD-VEE = 20V (for ±10V gate drive with COM at midpoint)
+*    - COM-VEE = 10V (creates +10V on VDD-COM, -10V on COM-VEE)
+* 8. Power budget:
+*    - Maximum output power: 2.0W @ 85°C ambient
+*    - Derate for higher ambient temperature
+*    - Include gate charge current + quiescent current of gate driver
+* 9. Enable and power-good sequencing:
+*    - Assert ENA after VIN is stable
+*    - Wait for PG to go high before enabling gate driver
+*    - PG has ~100µs delay after outputs reach regulation
+***************************************************************************

@@ -1,0 +1,22 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: UCC27511A Simple Test
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 1677
+v_gate_high         =  1.200031e+01 at=  5.523520e-05
+v_gate_low          =  -1.083420e-04 at=  8.102637e-05
+======================================
+  Simple Test Results
+======================================
+v_gate_high = 1.200031e+01
+v_gate_low = -1.08342e-04
+======================================
+Note: Simulation executed from .control section 

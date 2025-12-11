@@ -1,0 +1,154 @@
+* UCC21550 Test Circuit for Induction Cooker Application
+* Half-Bridge Configuration with IGBTs
+* This netlist demonstrates the UCC21550 driving a half-bridge inverter
+* Suitable for ngspice simulation
+
+.title UCC21550 Induction Cooker Gate Driver Test
+
+* Include the UCC21550 model
+.include UCC21550.lib
+
+***************************************************************************
+* Power Supplies
+***************************************************************************
+* Primary side logic supply (5V for microcontroller interface)
+VCC VCCI 0 DC 5.0
+
+* Secondary side gate drive supply (15V typical for IGBTs)
+VDD_HS VDDA 0 DC 15.0
+VDD_LS VDDB 0 DC 15.0
+
+* High voltage DC bus for induction cooker (300V typical for 120V AC mains)
+VDC_BUS VDC 0 DC 300
+
+***************************************************************************
+* Input Signals - PWM from microcontroller
+***************************************************************************
+* High-side input - 50kHz, 45% duty cycle (with dead time)
+VIN_HS INA 0 PULSE(0 3.3 0 10n 10n 8.55u 20u)
+
+* Low-side input - 50kHz, 45% duty cycle, 180° out of phase
+VIN_LS INB 0 PULSE(0 3.3 10.5u 10n 10n 8.55u 20u)
+
+* Disable input - tied low for normal operation
+VDIS DIS 0 DC 0
+
+* Dead time programming - float for no additional dead time
+* (Dead time is programmed in input signals above)
+* Connect to GND through resistor for programmable dead time
+
+***************************************************************************
+* UCC21550 Gate Driver IC
+***************************************************************************
+* Using UCC21550A variant (5V UVLO on VDD)
+XUCC21550 INA INB VCCI 0 DIS DT_PIN NC1 VCCI 0 GATE_LS VDDB NC2 NC3 SW GATE_HS VDDA UCC21550A
+
+* Dead time pin left floating for this example
+R_DT DT_PIN 0 1MEG
+
+***************************************************************************
+* Gate Drive Resistors
+***************************************************************************
+* High-side gate driver
+R_G_HS_ON GATE_HS HS_GATE 2.2
+* Anti-parallel diode for fast turn-off
+D_G_HS GATE_HS HS_GATE DFAST
+
+* Low-side gate driver
+R_G_LS_ON GATE_LS LS_GATE 2.2
+* Anti-parallel diode for fast turn-off
+D_G_LS GATE_LS LS_GATE DFAST
+
+* Gate-to-source resistors for stability
+R_GS_HS HS_GATE SW 10k
+R_GS_LS LS_GATE 0 10k
+
+***************************************************************************
+* Power Transistors (Simplified IGBT models)
+***************************************************************************
+* High-side IGBT (e.g., IKW40N120H3)
+Q_HS VDC HS_GATE SW IGBT_MODEL
+D_HS_FWD SW VDC DFAST
+
+* Low-side IGBT
+Q_LS SW LS_GATE 0 IGBT_MODEL
+D_LS_FWD 0 SW DFAST
+
+***************************************************************************
+* Load - Induction Coil (Series Resonant LC)
+***************************************************************************
+* Resonant capacitor (typically 0.1-0.5uF for induction cooker)
+C_RES SW N_COIL 0.22u IC=0
+
+* Induction coil (typically 50-150uH with ESR)
+L_COIL N_COIL LOAD 100u IC=0
+R_COIL LOAD 0 0.5
+
+* Snubber circuit
+R_SNUB SW N_SNUB 10
+C_SNUB N_SNUB 0 10n
+
+***************************************************************************
+* Device Models
+***************************************************************************
+* Fast recovery diode model
+.model DFAST D (IS=1e-15 RS=0.05 CJO=50p TT=10n BV=1200)
+
+* Simplified IGBT model (behavioral)
+.model IGBT_MODEL NPN (BF=20 IS=1e-15 VAF=100 IKF=5
++ CJE=500p CJC=100p TF=50n TR=500n)
+
+***************************************************************************
+* Simulation Control
+***************************************************************************
+* Transient analysis - run for 5 switching cycles
+.tran 1n 100u 0 1n
+
+* Initial conditions
+.ic V(SW)=0 V(HS_GATE)=0 V(LS_GATE)=0
+
+***************************************************************************
+* Output Control
+***************************************************************************
+* Save key waveforms
+.save V(INA) V(INB) V(GATE_HS) V(GATE_LS) V(SW) V(LOAD) I(L_COIL) I(VDC_BUS)
+
+* Print results
+.control
+run
+set hcopydevtype=postscript
+set color0=white
+set color1=black
+
+* Plot input signals
+plot V(INA) V(INB)+5 title 'Input Signals'
+
+* Plot gate drive signals
+plot V(GATE_HS) V(GATE_LS) title 'Gate Drive Signals'
+
+* Plot switch node and load voltage
+plot V(SW) V(LOAD) title 'Switch Node and Load'
+
+* Plot load current
+plot I(L_COIL) title 'Inductor Current'
+
+* Plot DC bus current
+plot I(VDC_BUS) title 'DC Bus Current'
+
+* Measure propagation delays
+meas tran t_rise_ina WHEN V(INA)=1.65 RISE=1
+meas tran t_rise_gate_hs WHEN V(GATE_HS)=7.5 RISE=1
+meas tran prop_delay_hs PARAM='t_rise_gate_hs - t_rise_ina'
+
+print prop_delay_hs
+
+* Measure dead time
+meas tran t_fall_gate_ls WHEN V(GATE_LS)=7.5 FALL=1
+meas tran t_rise_gate_hs2 WHEN V(GATE_HS)=7.5 RISE=1
+meas tran dead_time PARAM='t_rise_gate_hs2 - t_fall_gate_ls'
+
+print dead_time
+
+.endc
+
+.end

@@ -1,0 +1,70 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: LMR51430 Buck Converter Debug Test
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 345395
+
+  Measurements for Transient Analysis
+
+vout_avg            =  1.803626e-01 from=  2.500000e-02 to=  3.000000e-02
+vout_pp             =  4.452253e-02 from=  2.800000e-02 to=  2.900000e-02
+il_avg              =  7.223502e-02 from=  2.500000e-02 to=  3.000000e-02
+vin_final           =  1.200000e+01
+en_final            =  1.200000e+01
+vout_final          =  1.726445e-01
+fb_final            =  2.080238e-02
+enable_sig          =  1.000000e+00 from=  2.500000e-02 to=  3.000000e-02
+ss_final            =  6.000000e-01
+ref_final           =  6.000000e-01
+error_final         =  5.791976e-01
+ea_final            =  0.000000e+00
+pwm_avg             =  1.503246e-02 from=  2.500000e-02 to=  3.000000e-02
+pwm_en_avg          =  1.503246e-02 from=  2.500000e-02 to=  3.000000e-02
+
+Warning from checkvalid: vector vout_avg is not available or has zero length.
+Warning from checkvalid: vector vin_final is not available or has zero length.
+Warning from checkvalid: vector enable_sig is not available or has zero length.
+Warning from checkvalid: vector pwm_avg is not available or has zero length.
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 345395
+
+  Measurements for Transient Analysis
+
+vout_avg            =  1.803626e-01 from=  2.500000e-02 to=  3.000000e-02
+vout_pp             =  4.452253e-02 from=  2.800000e-02 to=  2.900000e-02
+il_avg              =  7.223502e-02 from=  2.500000e-02 to=  3.000000e-02
+vin_final           =  1.200000e+01
+en_final            =  1.200000e+01
+vout_final          =  1.726445e-01
+fb_final            =  2.080238e-02
+enable_sig          =  1.000000e+00 from=  2.500000e-02 to=  3.000000e-02
+ss_final            =  6.000000e-01
+ref_final           =  6.000000e-01
+error_final         =  5.791976e-01
+ea_final            =  0.000000e+00
+pwm_avg             =  1.503246e-02 from=  2.500000e-02 to=  3.000000e-02
+pwm_en_avg          =  1.503246e-02 from=  2.500000e-02 to=  3.000000e-02
+
+
+Total analysis time (seconds) = 3.86091
+
+Total elapsed time (seconds) = 3.890 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  306.578 MB.
+Maximum ngspice program size =  151.875 MB.
+Current ngspice program size =  151.875 MB.
+

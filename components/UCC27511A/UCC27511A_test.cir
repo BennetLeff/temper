@@ -1,0 +1,125 @@
+* UCC27511A Gate Driver Test Circuit
+* Application: Induction Cooker IGBT Gate Driver
+* Simplified test for model validation
+*
+* This circuit validates:
+* 1. PWM signal propagation
+* 2. Split output operation (OUTH/OUTL)
+* 3. Gate drive capability
+* 4. Rise/fall times
+* 5. Propagation delay
+
+.TITLE UCC27511A IGBT Gate Driver Test
+
+*======================================================================
+* Include SPICE Model Library
+*======================================================================
+.INCLUDE UCC27511A.lib
+
+*======================================================================
+* Supply Voltage
+*======================================================================
+VDD VDD 0 DC 12
+
+*======================================================================
+* Input Signal - PWM from Microcontroller
+*======================================================================
+* 20kHz switching frequency
+* 50μs period, 50% duty cycle
+* 5V logic level
+VPWM PWM_IN 0 PULSE(0 5 5U 10N 10N 25U 50U)
+
+*======================================================================
+* Input Configuration
+*======================================================================
+RIN PWM_IN INP 50
+CIN INP 0 50P
+
+* IN- tied to ground (non-inverting mode)
+RINN INN 0 1MEG
+
+*======================================================================
+* Gate Driver IC
+*======================================================================
+XU1 VDD 0 INP INN OUTH OUTL UCC27511A
+
+*======================================================================
+* External Gate Resistors
+*======================================================================
+* Turn-ON resistor
+RGON OUTH gate_on 10
+
+* Turn-OFF resistor
+RGOFF OUTL gate_off 5
+
+* Combine outputs with diodes
+DOUTH gate_on GATE DSCH
+DOUTL gate_off GATE DSCH
+.MODEL DSCH D (IS=1E-12 RS=0.05 N=1.05)
+
+*======================================================================
+* IGBT Gate Load (Simplified)
+*======================================================================
+* CISS = 2nF typical
+CIGBT GATE 0 2N
+
+* Internal gate resistance
+RGINT GATE 0 2
+
+*======================================================================
+* Bypass Capacitors
+*======================================================================
+CVDD VDD 0 10U IC=12
+CVDD_HF VDD 0 100N IC=12
+
+*======================================================================
+* Simulation Control
+*======================================================================
+.CONTROL
+
+* Run transient analysis
+TRAN 100N 150U 0 100N UIC
+
+* Measurements
+MEAS TRAN V_GATE_HIGH MAX V(GATE) FROM=50U TO=100U
+MEAS TRAN V_GATE_LOW MIN V(GATE) FROM=50U TO=100U
+
+* Measure propagation delay (IN+ to GATE)
+MEAS TRAN tPLH TRIG V(INP) VAL=2.5 RISE=2 TARG V(GATE) VAL=6 RISE=2
+MEAS TRAN tPHL TRIG V(INP) VAL=2.5 FALL=2 TARG V(GATE) VAL=6 FALL=2
+
+* Measure rise/fall times (10% to 90%)
+MEAS TRAN tRISE TRIG V(GATE) VAL=1.2 RISE=2 TARG V(GATE) VAL=10.8 RISE=2
+MEAS TRAN tFALL TRIG V(GATE) VAL=10.8 FALL=2 TARG V(GATE) VAL=1.2 FALL=2
+
+* Calculate average switching times
+LET tPD_AVG = (tPLH + tPHL)/2
+
+ECHO "======================================"
+ECHO "  UCC27511A Test Results"
+ECHO "======================================"
+ECHO ""
+PRINT V_GATE_HIGH V_GATE_LOW
+PRINT tPLH tPHL tRISE tFALL
+ECHO ""
+ECHO "Expected:"
+ECHO "  V_GATE: ~11-12V"
+ECHO "  tPD: ~13-20ns"
+ECHO "  tRISE/tFALL: ~10-50ns (inc. RC delay)"
+ECHO ""
+ECHO "======================================"
+
+* Write to file
+PRINT V(GATE) V(OUTH) V(OUTL) V(INP) > ucc27511a_waveforms.txt
+
+.ENDC
+
+*======================================================================
+* Options
+*======================================================================
+.OPTIONS METHOD=TRAP
+.OPTIONS RELTOL=0.001
+.OPTIONS ABSTOL=1U
+.OPTIONS VNTOL=1M
+
+.END

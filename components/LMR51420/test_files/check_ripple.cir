@@ -1,0 +1,46 @@
+* Quick ripple check - shorter sim for faster analysis
+.TITLE LMR51430 Ripple Check
+
+.INCLUDE LMR51430.lib
+
+VIN VIN 0 PWL(0 0 50U 12 10M 12)
+CIN VIN 0 10U IC=0
+
+REN VIN EN 10K
+CEN EN 0 10N IC=0
+
+XU1 VIN 0 EN SW FB CB LMR51430X
+
+CBOOT CB SW 100N IC=0
+
+L1 SW VOUT 6.8U IC=0
+COUT VOUT 0 44U IC=0
+
+RFBT VOUT FB 100K
+RFBB FB 0 13.7K
+
+RLOAD VOUT 0 2.5
+
+.TRAN 100N 10M 0 100N UIC
+
+* Multiple ripple measurements at different times
+.MEAS TRAN VOUT_FINAL FIND V(VOUT) AT=9.9M
+.MEAS TRAN VOUT_MIN MIN V(VOUT) FROM=9M TO=9.5M
+.MEAS TRAN VOUT_MAX MAX V(VOUT) FROM=9M TO=9.5M
+.MEAS TRAN RIPPLE_CALC PARAM='VOUT_MAX - VOUT_MIN'
+
+* Standard PP measurement
+.MEAS TRAN VOUT_PP PP V(VOUT) FROM=9M TO=9.5M
+
+* Check switching node too
+.MEAS TRAN SW_AVG AVG V(SW) FROM=9M TO=9.5M
+
+.CONTROL
+RUN
+PRINT VOUT_FINAL VOUT_MIN VOUT_MAX RIPPLE_CALC VOUT_PP SW_AVG
+* Plot last 100us to see ripple detail
+plot v(vout) xlimit 9.9m 10m
+plot v(sw) xlimit 9.9m 10m
+.ENDC
+
+.END

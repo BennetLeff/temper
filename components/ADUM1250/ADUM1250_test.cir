@@ -1,0 +1,416 @@
+* ADUM1250 Test Circuit for Induction Cooker Application
+* I2C Isolation Between Microcontroller and High-Voltage Side Sensors
+* This netlist demonstrates the ADUM1250 isolating I2C communication
+* Suitable for ngspice simulation
+
+.title ADUM1250 I2C Isolator Test Circuit
+
+* Include the ADUM1250 model
+.include ADUM1250.lib
+
+***************************************************************************
+* Power Supplies
+***************************************************************************
+* Side 1: Microcontroller side (low-voltage logic)
+* Typical 3.3V supply for modern microcontrollers
+VDD1 VDD1 0 DC 3.3
+
+* Side 2: Isolated high-voltage side sensors
+* Can use same 3.3V or different voltage (3.0V to 5.5V range)
+* Using 5V to demonstrate mixed-voltage operation
+VDD2 VDD2 0 DC 5.0
+
+***************************************************************************
+* ADUM1250 I2C Isolator
+***************************************************************************
+* Two bidirectional I2C channels with magnetic isolation
+* Provides 2500V rms isolation between microcontroller and high-voltage sensors
+XISO VDD1 SCL1 SDA1 0 0 SDA2 SCL2 VDD2 ADUM1250
+
+***************************************************************************
+* Side 1: Microcontroller I2C Master (Low-Voltage Side)
+***************************************************************************
+* In real application, this would be a microcontroller
+* Simulated using voltage sources to generate I2C transactions
+
+* Pull-up resistors for Side 1 I2C bus
+* Side 1 has 3mA sink capability, so use higher value resistors
+* For 100kHz I2C: 4.7kΩ typical
+R_PU_SCL1 VDD1 SCL1 4.7k
+R_PU_SDA1 VDD1 SDA1 4.7k
+
+* Bus capacitance (trace capacitance + ADUM1250 input capacitance)
+C_BUS_SCL1 SCL1 0 50p
+C_BUS_SDA1 SDA1 0 50p
+
+***************************************************************************
+* I2C Transaction Simulation - Side 1 (Master)
+***************************************************************************
+* Simulate a simple I2C read transaction:
+* START - Address (0x48 W) - Register (0x00) - RESTART - Address (0x48 R) - Data - STOP
+* I2C timing at 100kHz (10us period):
+*   - Bit time: 10us
+*   - SCL low: ~5us, SCL high: ~5us
+*   - SDA setup time: 250ns before SCL rising edge
+*   - SDA hold time: valid after SCL falling edge
+
+* SCL (Clock) generation - 100kHz I2C
+* START condition at t=50us
+* Transaction: 9 bits × 4 bytes = 36 clock cycles
+* Each clock cycle: 10us (5us low, 5us high)
+* Total transaction time: ~400us
+
+* SCL clock pattern (simplified - shows first few bytes)
+* Open-drain simulation: use voltage-controlled switch
+B_SCL1_CTRL N_SCL1_CTRL 0 V={
++ IF(TIME < 50u, 1,
++   IF(TIME < 55u, 0,
++   IF(TIME < 60u, 1,
++   IF(TIME < 65u, 0,
++   IF(TIME < 70u, 1,
++   IF(TIME < 75u, 0,
++   IF(TIME < 80u, 1,
++   IF(TIME < 85u, 0,
++   IF(TIME < 90u, 1,
++   IF(TIME < 95u, 0,
++   IF(TIME < 100u, 1,
++   IF(TIME < 105u, 0,
++   IF(TIME < 110u, 1,
++   IF(TIME < 115u, 0,
++   IF(TIME < 120u, 1,
++   IF(TIME < 125u, 0,
++   IF(TIME < 130u, 1,
++   IF(TIME < 135u, 0,
++   IF(TIME < 140u, 1,
++   1
++   ))))))))))))))))))
++}
+
+S_SCL1_DRV SCL1 0 N_SCL1_CTRL 0 SCL_SW
+R_SCL1_DRV_ON SCL1 0 1
+
+* SDA (Data) generation
+* START: SDA falls while SCL high (at 48us)
+* Address byte: 0x48 = 0100 1000 (write bit = 0)
+* Bits transmitted MSB first during SCL low period
+B_SDA1_CTRL N_SDA1_CTRL 0 V={
++ IF(TIME < 48u, 1,
++   IF(TIME < 53u, 0,
++   IF(TIME < 58u, 0,
++   IF(TIME < 63u, 1,
++   IF(TIME < 68u, 0,
++   IF(TIME < 73u, 0,
++   IF(TIME < 78u, 1,
++   IF(TIME < 83u, 0,
++   IF(TIME < 88u, 0,
++   IF(TIME < 93u, 0,
++   IF(TIME < 98u, 1,
++   IF(TIME < 145u, 1,
++   1
++   ))))))))))))
++}
+
+S_SDA1_DRV SDA1 0 N_SDA1_CTRL 0 SDA_SW
+R_SDA1_DRV_ON SDA1 0 1
+
+* Model for open-drain drivers
+.model SCL_SW VSWITCH (RON=10 ROFF=100MEG VON=0.5 VOFF=0.5)
+.model SDA_SW VSWITCH (RON=10 ROFF=100MEG VON=0.5 VOFF=0.5)
+
+***************************************************************************
+* Side 2: I2C Slave Device (High-Voltage Isolated Side)
+***************************************************************************
+* Simulated I2C slave device (e.g., temperature sensor, EEPROM)
+* In induction cooker: could be monitoring IGBT temperature, heatsink temp, etc.
+
+* Pull-up resistors for Side 2 I2C bus
+* Side 2 has 30mA sink capability, can use lower values
+* Using 2.2kΩ for faster edges at higher frequencies
+R_PU_SCL2 VDD2 SCL2 2.2k
+R_PU_SDA2 VDD2 SDA2 2.2k
+
+* Bus capacitance (trace + device capacitance)
+C_BUS_SCL2 SCL2 0 100p
+C_BUS_SDA2 SDA2 0 100p
+
+***************************************************************************
+* I2C Slave Response Simulation - Side 2
+***************************************************************************
+* Slave responds with ACK bit (pulls SDA low during 9th clock)
+* Simplified: Slave pulls SDA low at specific times to simulate ACK
+
+* Slave SDA control (ACK generation)
+* ACK after address byte (9th clock cycle): pull SDA low at ~98-108us
+* ACK after register byte: pull SDA low at ~138-148us
+B_SDA2_SLAVE_CTRL N_SDA2_SLAVE_CTRL 0 V={
++ IF(TIME > 98u & TIME < 108u, 0,
++   IF(TIME > 138u & TIME < 148u, 0,
++     1
++   )
++ )
++}
+
+S_SDA2_SLAVE SDA2 0 N_SDA2_SLAVE_CTRL 0 SDA2_SLAVE_SW
+R_SDA2_SLAVE_ON SDA2 0 1
+.model SDA2_SLAVE_SW VSWITCH (RON=20 ROFF=100MEG VON=0.5 VOFF=0.5)
+
+* Slave device input capacitance
+C_SLAVE_SCL SCL2 0 20p
+C_SLAVE_SDA SDA2 0 20p
+
+***************************************************************************
+* Power Supply Decoupling
+***************************************************************************
+* Critical for proper isolator operation and noise immunity
+
+* Side 1 bypass capacitors
+C_BYP1_100n VDD1 0 100n
+C_BYP1_10u VDD1 0 10u IC=3.3
+R_BYP1_ESR VDD1 N_BYP1 0.1
+C_BYP1_ESR N_BYP1 0 1u
+
+* Side 2 bypass capacitors
+C_BYP2_100n VDD2 0 100n
+C_BYP2_10u VDD2 0 10u IC=5.0
+R_BYP2_ESR VDD2 N_BYP2 0.1
+C_BYP2_ESR N_BYP2 0 1u
+
+* Supply impedance (trace resistance)
+R_VDD1 VDD1 0 0.01
+R_VDD2 VDD2 0 0.01
+
+***************************************************************************
+* Measurement Points
+***************************************************************************
+* Current probes for supply current monitoring
+V_SENSE_IDD1 VDD1 N_VDD1_LOCAL 0
+V_SENSE_IDD2 VDD2 N_VDD2_LOCAL 0
+
+* Local supply nodes (after sense resistors)
+R_VDD1_LOCAL N_VDD1_LOCAL VDD1 0.001
+R_VDD2_LOCAL N_VDD2_LOCAL VDD2 0.001
+
+***************************************************************************
+* Parasitic Elements
+***************************************************************************
+* PCB trace inductance (important for signal integrity)
+L_SCL1_TRACE SCL1 N_SCL1_TRACE 10n
+R_SCL1_TRACE N_SCL1_TRACE SCL1 0.01
+
+L_SDA1_TRACE SDA1 N_SDA1_TRACE 10n
+R_SDA1_TRACE N_SDA1_TRACE SDA1 0.01
+
+L_SCL2_TRACE SCL2 N_SCL2_TRACE 10n
+R_SCL2_TRACE N_SCL2_TRACE SCL2 0.01
+
+L_SDA2_TRACE SDA2 N_SDA2_TRACE 10n
+R_SDA2_TRACE N_SDA2_TRACE SDA2 0.01
+
+***************************************************************************
+* Simulation Control
+***************************************************************************
+* Transient analysis - simulate complete I2C transaction
+* Time step: 100ns for accurate edge capture
+* Stop time: 500us to see complete transaction plus settling
+
+.tran 100n 500u 0 100n
+
+* Initial conditions
+.ic V(SCL1)=3.3 V(SDA1)=3.3 V(SCL2)=5.0 V(SDA2)=5.0
+.ic V(VDD1)=3.3 V(VDD2)=5.0
+
+* Convergence aids for digital signals
+.options gmin=1e-12
+.options abstol=1e-10
+.options reltol=0.001
+.options method=gear
+.options maxord=2
+
+***************************************************************************
+* Output Control
+***************************************************************************
+* Save key waveforms for analysis
+.save V(VDD1) V(VDD2)
+.save V(SCL1) V(SDA1) V(SCL2) V(SDA2)
+.save V(N_SCL1_CTRL) V(N_SDA1_CTRL)
+.save V(N_SDA2_SLAVE_CTRL)
+.save I(V_SENSE_IDD1) I(V_SENSE_IDD2)
+
+***************************************************************************
+* Analysis and Plotting
+***************************************************************************
+.control
+run
+
+* Set plot parameters
+set hcopydevtype=postscript
+set color0=white
+set color1=black
+set color2=red
+set color3=blue
+set color4=green
+set color5=magenta
+
+* Plot 1: Side 1 I2C signals (microcontroller side)
+plot V(SCL1) V(SDA1)+5 title 'Side 1 I2C Signals (SCL1, SDA1+5V)'
+
+* Plot 2: Side 2 I2C signals (isolated sensor side)
+plot V(SCL2) V(SDA2)+7 title 'Side 2 I2C Signals (SCL2, SDA2+7V)'
+
+* Plot 3: Both SCL signals overlaid (shows propagation delay)
+plot V(SCL1) V(SCL2) title 'SCL Propagation Through Isolator'
+
+* Plot 4: Both SDA signals overlaid (shows propagation delay)
+plot V(SDA1) V(SDA2) title 'SDA Propagation Through Isolator'
+
+* Plot 5: Supply currents
+plot I(V_SENSE_IDD1) I(V_SENSE_IDD2) title 'Supply Currents (IDD1, IDD2)'
+
+* Plot 6: Power supply voltages (check for noise/droop)
+plot V(VDD1) V(VDD2) title 'Supply Voltages (VDD1, VDD2)'
+
+*************************************************************
+* Measurements
+*************************************************************
+echo "===== ADUM1250 I2C Isolator Test Results ====="
+echo ""
+
+* Supply current measurements
+meas tran i_dd1_avg AVG I(V_SENSE_IDD1) FROM=100u TO=400u
+meas tran i_dd2_avg AVG I(V_SENSE_IDD2) FROM=100u TO=400u
+
+echo "Supply Currents (should be ~1.7mA and ~2.1mA respectively):"
+print i_dd1_avg i_dd2_avg
+
+* Propagation delay measurements (Side 1 to Side 2)
+* Measure SCL propagation delay during falling edge
+meas tran t_scl1_fall WHEN V(SCL1)=1.65 FALL=1
+meas tran t_scl2_fall WHEN V(SCL2)=2.5 FALL=1
+meas tran prop_delay_scl_1to2 PARAM='t_scl2_fall - t_scl1_fall'
+
+echo "SCL Propagation Delay (Side 1 to Side 2, should be ~95ns):"
+print prop_delay_scl_1to2
+
+* Measure SDA propagation delay during START condition
+meas tran t_sda1_start WHEN V(SDA1)=1.65 FALL=1
+meas tran t_sda2_start WHEN V(SDA2)=2.5 FALL=1
+meas tran prop_delay_sda_1to2 PARAM='t_sda2_start - t_sda1_start'
+
+echo "SDA Propagation Delay (Side 1 to Side 2, should be ~95ns):"
+print prop_delay_sda_1to2
+
+* Propagation delay measurements (Side 2 to Side 1)
+* Measure ACK bit propagation (slave pulling SDA low)
+meas tran t_sda2_ack WHEN V(SDA2)=2.5 FALL=2
+meas tran t_sda1_ack WHEN V(SDA1)=1.65 FALL=2
+meas tran prop_delay_sda_2to1 PARAM='t_sda1_ack - t_sda2_ack'
+
+echo "SDA Propagation Delay (Side 2 to Side 1, should be ~325ns):"
+print prop_delay_sda_2to1
+
+* Logic level measurements
+meas tran v_scl1_low MIN V(SCL1) FROM=55u TO=145u
+meas tran v_scl1_high MAX V(SCL1) FROM=55u TO=145u
+meas tran v_sda1_low MIN V(SDA1) FROM=55u TO=145u
+
+echo "Side 1 Logic Levels:"
+print v_scl1_low v_scl1_high v_sda1_low
+
+meas tran v_scl2_low MIN V(SCL2) FROM=55u TO=145u
+meas tran v_scl2_high MAX V(SCL2) FROM=55u TO=145u
+meas tran v_sda2_low MIN V(SDA2) FROM=55u TO=145u
+
+echo "Side 2 Logic Levels:"
+print v_scl2_low v_scl2_high v_sda2_low
+
+* Rise/fall time measurements (dependent on pull-up resistor values)
+meas tran t_scl2_10 WHEN V(SCL2)=0.5 RISE=1
+meas tran t_scl2_90 WHEN V(SCL2)=4.5 RISE=1
+meas tran t_scl2_rise PARAM='t_scl2_90 - t_scl2_10'
+
+echo "Side 2 SCL Rise Time (depends on 2.2kΩ pull-up and bus capacitance):"
+print t_scl2_rise
+
+meas tran t_scl2_fall_90 WHEN V(SCL2)=4.5 FALL=1
+meas tran t_scl2_fall_10 WHEN V(SCL2)=0.5 FALL=1
+meas tran t_scl2_fall_time PARAM='t_scl2_fall_10 - t_scl2_fall_90'
+
+echo "Side 2 SCL Fall Time:"
+print t_scl2_fall_time
+
+* Power consumption
+let p_dd1_avg = v_dd1_avg * i_dd1_avg
+let p_dd2_avg = v_dd2_avg * i_dd2_avg
+let p_total = p_dd1_avg + p_dd2_avg
+
+echo "Power Consumption:"
+echo "  Side 1: "
+print p_dd1_avg
+echo "  Side 2: "
+print p_dd2_avg
+echo "  Total: "
+print p_total
+
+* Validation checks
+let delay_1to2_valid = (prop_delay_scl_1to2 > 50n) & (prop_delay_scl_1to2 < 200n)
+let delay_2to1_valid = (prop_delay_sda_2to1 > 200n) & (prop_delay_sda_2to1 < 500n)
+let current_valid = (i_dd1_avg < 5m) & (i_dd2_avg < 5m)
+let levels_valid = (v_sda2_low < 0.6) & (v_scl2_high > 4.5)
+
+echo ""
+echo "===== Validation Status ====="
+if delay_1to2_valid
+  echo "✓ Side 1 to Side 2 propagation delay within spec"
+else
+  echo "✗ Side 1 to Side 2 propagation delay OUT OF SPEC"
+end
+
+if delay_2to1_valid
+  echo "✓ Side 2 to Side 1 propagation delay within spec"
+else
+  echo "✗ Side 2 to Side 1 propagation delay OUT OF SPEC"
+end
+
+if current_valid
+  echo "✓ Supply currents within spec"
+else
+  echo "✗ Supply currents OUT OF SPEC"
+end
+
+if levels_valid
+  echo "✓ Logic levels within spec"
+else
+  echo "✗ Logic levels OUT OF SPEC"
+end
+
+echo ""
+echo "===== Application Notes ====="
+echo "1. This test shows I2C isolation at 100kHz"
+echo "2. For 400kHz operation, reduce pull-up resistors to 2.2kΩ or lower"
+echo "3. For 1MHz operation, use 1kΩ pull-ups and minimize trace length"
+echo "4. Side 1 (MCU side) has modified logic levels - do not mix with standard I2C"
+echo "5. Side 2 is fully I2C compliant - safe to connect standard I2C devices"
+echo "6. Asymmetric propagation delays (95ns vs 325ns) are normal"
+echo "7. Ensure both power supplies are stable before I2C communication"
+echo "8. Maximum bus capacitance: 400pF per I2C specification"
+echo ""
+echo "===== Induction Cooker Application ====="
+echo "Typical uses of I2C isolation in induction cooker:"
+echo "- Temperature sensors on IGBT/heatsink (high-voltage side)"
+echo "- Power monitoring ICs measuring AC input voltage/current"
+echo "- Digital potentiometers for power level control"
+echo "- EEPROM for cooking profiles (can be on either side)"
+echo "- Fan controller ICs (if on high-voltage side)"
+echo ""
+echo "Safety: ADUM1250 provides 2500V rms isolation between low-voltage"
+echo "microcontroller and high-voltage power electronics, preventing"
+echo "ground loops and protecting user interface from AC mains."
+echo ""
+echo "===== Simulation Complete ====="
+
+* Export data (optional)
+* write ADUM1250_test_results.raw
+
+.endc
+
+.end
