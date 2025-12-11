@@ -1,0 +1,449 @@
+* MAX31865 RTD-to-Digital Converter SPICE Model
+* Maxim Integrated (Analog Devices)
+* Easy-to-use resistance-to-digital converter optimized for platinum RTDs
+* Model version: 1.0
+* Date: 2024
+*
+* This model represents the MAX31865 RTD-to-digital converter
+* Suitable for ngspice and KiCad simulation
+*
+* Pin Configuration (20-pin SSOP):
+* Pin 1: DRDY - Data Ready output (active low, push-pull)
+* Pin 2: DVDD - Digital supply voltage (3.0-3.6V)
+* Pin 3: VDD - Analog supply voltage (3.0-3.6V)
+* Pin 4: BIAS - Bias voltage output (2.0V typical)
+* Pin 5: REFIN+ - Positive reference voltage input
+* Pin 6: REFIN- - Negative reference voltage input
+* Pin 7: ISENSOR - Low side of reference resistor
+* Pin 8: FORCE+ - High-side RTD drive
+* Pin 9: FORCE2 - 3-wire positive input (connect to FORCE+ for 3-wire)
+* Pin 10: RTDIN+ - Positive RTD input
+* Pin 11: RTDIN- - Negative RTD input
+* Pin 12: FORCE- - Low-side RTD return
+* Pin 13: GND2 - Analog ground
+* Pin 14: SDI - Serial data input
+* Pin 15: SCLK - Serial clock input
+* Pin 16: CS - Chip select (active low)
+* Pin 17: SDO - Serial data output
+* Pin 18: DGND - Digital ground
+* Pin 19: GND1 - Analog ground
+* Pin 20: N.C. - No connect
+*
+* Key Features:
+* - 15-bit ADC resolution (no missing codes)
+* - Ratiometric conversion: RTD resistance / Reference resistance
+* - Handles PT100 to PT1000 RTDs (100Ω to 1kΩ at 0°C)
+* - Compatible with 2-wire, 3-wire, and 4-wire sensor connections
+* - Input protection: ±45V on FORCE+, FORCE2, FORCE-, RTDIN+, RTDIN-
+* - Bias voltage: 2.0V ± 3% (up to 5.75mA output)
+* - Conversion time: 52ms (60Hz notch) or 62.5ms (50Hz notch)
+* - Fault detection: Open RTD, shorted RTD, cable faults
+* - Temperature accuracy: 0.5°C max (0.05% of full scale)
+* - SPI interface: up to 5MHz clock, modes 1 and 3
+*
+* Application:
+* - Precision temperature measurement with platinum RTDs
+* - Industrial process control
+* - Medical equipment
+* - Laboratory instrumentation
+
+***************************************************************************
+* Main Subcircuit: MAX31865
+***************************************************************************
+.subckt MAX31865
++ DRDY DVDD VDD BIAS
++ REFIN+ REFIN- ISENSOR
++ FORCE+ FORCE2 RTDIN+ RTDIN- FORCE-
++ GND2 SDI SCLK CS SDO DGND GND1 NC
+
+* Internal node naming
+.param GND={GND1}
+
+***************************************************************************
+* Power Supply Monitoring and Power-On Reset
+***************************************************************************
+* VDD monitoring (analog supply)
+B_VDD_MON N_VDD_OK GND V={IF(V(VDD,GND)>2.0 & V(VDD,GND)<4.0, 1, 0)}
+R_VDD_MON N_VDD_OK GND 100k
+
+* DVDD monitoring (digital supply)
+B_DVDD_MON N_DVDD_OK GND V={IF(V(DVDD,DGND)>2.0 & V(DVDD,DGND)<4.0, 1, 0)}
+R_DVDD_MON N_DVDD_OK GND 100k
+
+* Power-on reset (threshold ~2.27V)
+B_POR N_POR GND V={
++ IF(V(VDD,GND)<2.0, 0,
++   IF(V(VDD,GND)>2.27, 1,
++     V(N_POR,GND)
++   )
++ )
++}
+R_POR N_POR GND 1MEG
+C_POR N_POR GND 1u
+
+* Overall power good signal
+B_PWR_GOOD N_PWR_GOOD GND V={IF(V(N_VDD_OK,GND)>0.5 & V(N_DVDD_OK,GND)>0.5 & V(N_POR,GND)>0.5, 1, 0)}
+R_PWR_GOOD N_PWR_GOOD GND 100k
+
+***************************************************************************
+* Bias Voltage Generator
+***************************************************************************
+* VBIAS = 2.0V typical (1.95V to 2.06V tolerance)
+* Output current: 0.2mA to 5.75mA
+* Load regulation: 30mV/mA
+* Startup time: 10ms typical
+
+* Bias voltage reference (2.0V with startup delay)
+B_VBIAS_REF N_VBIAS_REF GND V={IF(V(N_PWR_GOOD,GND)>0.5, 2.0, 0)}
+R_VBIAS_REF N_VBIAS_REF GND 1MEG
+
+* Startup delay (10ms)
+C_VBIAS_START N_VBIAS_DELAYED GND 1u
+R_VBIAS_START N_VBIAS_REF N_VBIAS_DELAYED 10k
+
+* Bias voltage output with load regulation
+B_VBIAS BIAS N_VBIAS_SENSE V={V(N_VBIAS_DELAYED,GND)}
+R_VBIAS_SENSE N_VBIAS_SENSE GND 1
+
+* Load regulation: 30mV/mA
+* Modeled as output resistance
+R_VBIAS_OUT N_VBIAS_SENSE GND 30
+
+* Output current limit (5.75mA max)
+B_VBIAS_ILIM BIAS N_VBIAS_LIM I={LIMIT(V(BIAS,GND)/100, -5.75m, 5.75m)}
+R_VBIAS_LIM N_VBIAS_LIM GND 100
+
+***************************************************************************
+* Input Protection (±45V on RTD and FORCE pins)
+***************************************************************************
+* Protection on FORCE+, FORCE2, FORCE-, RTDIN+, RTDIN-
+* Opens switches when voltage > VDD+100mV or < GND-400mV
+* Leakage current: ~350µA during fault
+
+* FORCE+ protection
+B_PROT_FP N_PROT_FP GND V={
++ IF(V(FORCE+,GND)>V(VDD,GND)+0.1, 0,
++   IF(V(FORCE+,GND)<-0.4, 0,
++     1
++   )
++ )
++}
+R_PROT_FP N_PROT_FP GND 100k
+
+* FORCE2 protection
+B_PROT_F2 N_PROT_F2 GND V={
++ IF(V(FORCE2,GND)>V(VDD,GND)+0.1, 0,
++   IF(V(FORCE2,GND)<-0.4, 0,
++     1
++   )
++ )
++}
+R_PROT_F2 N_PROT_F2 GND 100k
+
+* RTDIN+ protection
+B_PROT_RP N_PROT_RP GND V={
++ IF(V(RTDIN+,GND)>V(VDD,GND)+0.1, 0,
++   IF(V(RTDIN+,GND)<-0.4, 0,
++     1
++   )
++ )
++}
+R_PROT_RP N_PROT_RP GND 100k
+
+* RTDIN- protection
+B_PROT_RN N_PROT_RN GND V={
++ IF(V(RTDIN-,GND)>V(VDD,GND)+0.1, 0,
++   IF(V(RTDIN-,GND)<-0.4, 0,
++     1
++   )
++ )
++}
+R_PROT_RN N_PROT_RN GND 100k
+
+* FORCE- protection
+B_PROT_FN N_PROT_FN GND V={
++ IF(V(FORCE-,GND)>V(VDD,GND)+0.1, 0,
++   IF(V(FORCE-,GND)<-0.4, 0,
++     1
++   )
++ )
++}
+R_PROT_FN N_PROT_FN GND 100k
+
+* Overall protection fault status
+B_OV_UV_FAULT N_OV_UV_FAULT GND V={
++ IF(V(N_PROT_FP,GND)<0.5 | V(N_PROT_F2,GND)<0.5 | V(N_PROT_RP,GND)<0.5 |
++    V(N_PROT_RN,GND)<0.5 | V(N_PROT_FN,GND)<0.5, 1, 0)
++}
+R_OV_UV_FAULT N_OV_UV_FAULT GND 100k
+
+***************************************************************************
+* Reference Resistor Current Path
+***************************************************************************
+* Connect REFIN+ to BIAS (external connection)
+* Reference resistor between REFIN+ and REFIN-
+* ISENSOR connects to REFIN- (for current sensing)
+
+* Internal connection of ISENSOR to REFIN-
+R_ISENSOR_REF ISENSOR REFIN- 0.001
+
+***************************************************************************
+* 15-Bit Delta-Sigma ADC
+***************************************************************************
+* Ratiometric measurement: ADC_CODE = 2^15 × (RTDIN+ - RTDIN-) / (REFIN+ - REFIN-)
+* Full scale: 0 to 32767 (15 bits, no missing codes)
+* Input common-mode range: 0 to VBIAS
+* Noise: 150µVRMS over Nyquist bandwidth
+
+* ADC input voltages (protected)
+B_ADC_INP N_ADC_INP GND V={IF(V(N_PROT_RP,GND)>0.5, V(RTDIN+,GND), 0)}
+B_ADC_INN N_ADC_INN GND V={IF(V(N_PROT_RN,GND)>0.5, V(RTDIN-,GND), 0)}
+R_ADC_INP N_ADC_INP GND 1MEG
+R_ADC_INN N_ADC_INN GND 1MEG
+
+* ADC reference voltages
+B_ADC_REFP N_ADC_REFP GND V={V(REFIN+,GND)}
+B_ADC_REFN N_ADC_REFN GND V={V(REFIN-,GND)}
+R_ADC_REFP N_ADC_REFP GND 1MEG
+R_ADC_REFN N_ADC_REFN GND 1MEG
+
+* Differential input voltage
+B_ADC_DIFF N_ADC_DIFF GND V={V(N_ADC_INP,GND) - V(N_ADC_INN,GND)}
+R_ADC_DIFF N_ADC_DIFF GND 1MEG
+
+* Differential reference voltage
+B_ADC_VREF N_ADC_VREF GND V={V(N_ADC_REFP,GND) - V(N_ADC_REFN,GND)}
+R_ADC_VREF N_ADC_VREF GND 1MEG
+
+* Ratiometric ADC code (15-bit unsigned)
+* ADC_CODE = 32768 × (VIN / VREF), limited to 0-32767
+B_ADC_RAW N_ADC_RAW GND V={
++ LIMIT(32768 * V(N_ADC_DIFF,GND) / MAX(V(N_ADC_VREF,GND), 0.1), 0, 32767)
++}
+R_ADC_RAW N_ADC_RAW GND 1MEG
+
+* Add ADC noise (150µVRMS input-referred, simplified as white noise)
+* Noise spectral density: ~150µVRMS over Nyquist BW
+* For simulation, add small random variation
+B_ADC_NOISE N_ADC_NOISE GND V={0.15m * (2*RAND(1)-1)}
+R_ADC_NOISE N_ADC_NOISE GND 1MEG
+
+* Final ADC code with noise
+B_ADC_CODE N_ADC_CODE GND V={
++ LIMIT(V(N_ADC_RAW,GND) + V(N_ADC_NOISE,GND), 0, 32767)
++}
+R_ADC_CODE N_ADC_CODE GND 1MEG
+
+* ADC offset error (-3 to +3 LSB typical)
+* Modeled as fixed offset (1 LSB)
+B_ADC_OFFSET N_ADC_OFFSET GND V={1}
+R_ADC_OFFSET N_ADC_OFFSET GND 1MEG
+
+* Final ADC result
+B_ADC_RESULT N_ADC_RESULT GND V={V(N_ADC_CODE,GND) + V(N_ADC_OFFSET,GND)}
+R_ADC_RESULT N_ADC_RESULT GND 1MEG
+
+***************************************************************************
+* Fault Detection
+***************************************************************************
+* Fault detection on every conversion:
+* - RTD High: ADC result >= High Threshold
+* - RTD Low: ADC result <= Low Threshold
+
+* Fault detection on demand (manual trigger):
+* - REFIN- > 0.85 × VBIAS (open RTD or high REFIN-)
+* - REFIN- < 0.85 × VBIAS with FORCE- open (short to REFIN-)
+* - RTDIN- < 0.85 × VBIAS with FORCE- open (short to RTDIN-)
+
+* High threshold fault (using 90% of full scale as example)
+B_FAULT_HIGH N_FAULT_HIGH GND V={IF(V(N_ADC_RESULT,GND) >= 29490, 1, 0)}
+R_FAULT_HIGH N_FAULT_HIGH GND 100k
+
+* Low threshold fault (using 10% of full scale as example)
+B_FAULT_LOW N_FAULT_LOW GND V={IF(V(N_ADC_RESULT,GND) <= 3277, 1, 0)}
+R_FAULT_LOW N_FAULT_LOW GND 100k
+
+* REFIN- voltage check (> 0.85 × VBIAS)
+B_FAULT_REFIN_HIGH N_FAULT_REFIN_HIGH GND V={
++ IF(V(REFIN-,GND) > 0.85*V(BIAS,GND), 1, 0)
++}
+R_FAULT_REFIN_HIGH N_FAULT_REFIN_HIGH GND 100k
+
+* Overall fault status
+B_FAULT_STATUS N_FAULT_STATUS GND V={
++ IF(V(N_FAULT_HIGH,GND)>0.5 | V(N_FAULT_LOW,GND)>0.5 |
++    V(N_FAULT_REFIN_HIGH,GND)>0.5 | V(N_OV_UV_FAULT,GND)>0.5, 1, 0)
++}
+R_FAULT_STATUS N_FAULT_STATUS GND 100k
+
+***************************************************************************
+* Conversion Control and DRDY
+***************************************************************************
+* Simplified conversion control:
+* - Continuous conversion mode: conversions every 52ms (60Hz notch)
+* - 1-shot mode: single conversion triggered by SPI command
+* - DRDY goes low when new data available
+
+* Conversion timer (52ms for 60Hz notch filter)
+* Simplified: use RC time constant for periodic conversions
+C_CONV N_CONV_TIMER GND 52m
+R_CONV_CHARGE VDD N_CONV_TIMER 1k
+
+* DRDY output (active low when conversion complete)
+* DRDY goes high when RTD data register is read
+B_DRDY_LOGIC N_DRDY_LOGIC GND V={
++ IF(V(N_PWR_GOOD,GND)<0.5, 1,
++   IF(V(N_CONV_TIMER,GND)>2.5, 0, 1)
++ )
++}
+R_DRDY_LOGIC N_DRDY_LOGIC GND 100k
+
+* DRDY output (push-pull)
+B_DRDY DRDY GND V={IF(V(N_DRDY_LOGIC,GND)>0.5, V(DVDD,DGND), 0)}
+R_DRDY DRDY GND 100
+
+***************************************************************************
+* SPI Interface (Simplified)
+***************************************************************************
+* Simplified SPI interface model
+* In a full model, this would include:
+* - Register set (configuration, RTD data, fault status, thresholds)
+* - State machine for SPI transactions
+* - Address decoding and data transfer
+*
+* For this behavioral model, we simplify:
+* - SDO driven to high-Z when CS is high
+* - SDO outputs data when CS is low (simplified as DVDD/2)
+
+* CS input detection
+B_CS_DET N_CS_ACTIVE GND V={IF(V(CS,DGND)<0.3*V(DVDD,DGND), 1, 0)}
+R_CS_DET N_CS_ACTIVE GND 100k
+
+* SDO output control
+* When CS active and SCLK toggles, output data
+* Simplified: drive to mid-voltage when active
+B_SDO_CTRL N_SDO_CTRL GND V={
++ IF(V(N_CS_ACTIVE,GND)>0.5, 0.5*V(DVDD,DGND), 0)
++}
+R_SDO_CTRL N_SDO_CTRL GND 1MEG
+
+* SDO output (tri-state)
+S_SDO SDO N_SDO_DRIVE N_CS_ACTIVE GND SW_SDO
+B_SDO_DRIVE N_SDO_DRIVE DGND V={V(N_SDO_CTRL,GND)}
+R_SDO_DRIVE N_SDO_DRIVE DGND 100
+
+* SDO output capacitance
+C_SDO SDO DGND 6p
+
+***************************************************************************
+* Supply Current Consumption
+***************************************************************************
+* Analog supply (VDD):
+* - Shutdown: 1.5mA typical (3mA max)
+* - Active conversion: 2mA typical (3.5mA max)
+* - Additional 400µA if RTDIN > REFIN
+
+* Digital supply (DVDD):
+* - Minimal current during idle
+* - Increases during SPI communication
+
+* VDD current
+B_IDD_ANALOG VDD N_IDD_ANALOG I={
++ IF(V(N_PWR_GOOD,GND)<0.5, 1.5m,
++   IF(V(N_CONV_TIMER,GND)>2.5, 2.5m, 2m)
++ ) +
++ IF(V(N_ADC_DIFF,GND) > V(N_ADC_VREF,GND), 400u, 0)
++}
+R_IDD_ANALOG N_IDD_ANALOG GND 1
+
+* DVDD current
+B_IDD_DIGITAL DVDD N_IDD_DIGITAL I={
++ IF(V(N_CS_ACTIVE,GND)>0.5, 500u, 100u)
++}
+R_IDD_DIGITAL N_IDD_DIGITAL DGND 1
+
+***************************************************************************
+* Input Leakage Currents
+***************************************************************************
+* RTD input leakage (on-state): 2nA typical @ 0-70°C, 14nA @ -40 to 100°C
+* Modeled as small resistance to ground
+
+R_LEAK_RTDINP RTDIN+ GND 500MEG
+R_LEAK_RTDINN RTDIN- GND 500MEG
+R_LEAK_FORCEP FORCE+ GND 500MEG
+R_LEAK_FORCE2 FORCE2 GND 500MEG
+R_LEAK_FORCEN FORCE- GND 500MEG
+
+***************************************************************************
+* Ground Connections
+***************************************************************************
+* Connect GND1, GND2 together (analog ground)
+R_GND1_GND2 GND1 GND2 0.001
+
+* Connect DGND separately (digital ground, but reference to same in simulation)
+* In real application, keep analog and digital grounds separated at device,
+* connected at single point
+
+.ends MAX31865
+
+***************************************************************************
+* Device Models
+***************************************************************************
+* SDO tri-state switch
+.model SW_SDO VSWITCH (RON=100 ROFF=10MEG VON=0.7 VOFF=0.3)
+
+***************************************************************************
+* Additional Notes for Simulation
+***************************************************************************
+* 1. This is a behavioral model for system-level simulation
+* 2. Key characteristics modeled:
+*    - Bias voltage generation (2.0V with load regulation)
+*    - 15-bit ratiometric ADC conversion
+*    - Input protection (±45V on RTD pins)
+*    - Fault detection (high/low threshold, REFIN- check)
+*    - DRDY output (conversion ready indicator)
+*    - Supply current consumption
+*    - Input leakage currents
+* 3. Not modeled in detail:
+*    - Complete SPI register set and state machine
+*    - Detailed digital filtering (sinc filter, 50/60Hz notch)
+*    - Temperature-dependent specifications
+*    - Rise/fall times and settling behavior
+*    - Detailed fault detection cycle timing
+* 4. External components required:
+*    - Reference resistor (RREF) between REFIN+ and REFIN-
+*      * 400Ω for PT100 (100Ω RTD)
+*      * 4kΩ for PT1000 (1kΩ RTD)
+*    - RTD sensor connected to RTDIN+/RTDIN- and FORCE+/FORCE-
+*    - Bypass capacitors:
+*      * 0.1µF on VDD to GND1
+*      * 0.1µF on DVDD to DGND
+*    - Input filter capacitor on RTDIN+/RTDIN-:
+*      * 100nF for PT100 (100Ω RTD)
+*      * 10nF for PT1000 (1kΩ RTD)
+* 5. Wiring configurations:
+*    - 4-wire (most accurate): Separate FORCE and SENSE lines
+*      * FORCE+ → RTD high side → RTDIN+
+*      * FORCE- → RTD low side → RTDIN-
+*      * FORCE2 → GND (not used)
+*    - 3-wire (compensates cable resistance):
+*      * FORCE+ and FORCE2 connected together → RTD high
+*      * RTDIN+ → RTD high (separate cable)
+*      * FORCE- and RTDIN- → RTD low (single cable)
+*    - 2-wire (simplest, least accurate):
+*      * FORCE+ and RTDIN+ → RTD high
+*      * FORCE- and RTDIN- → RTD low
+*      * FORCE2 → GND
+* 6. ADC code to resistance calculation:
+*    RRTD = (ADC_CODE × RREF) / 32768
+*    Where ADC_CODE is the 15-bit result (0-32767)
+* 7. Temperature linearization:
+*    For PT100 RTD over -100°C to +100°C range:
+*    Temperature (°C) ≈ (ADC_CODE/32) - 256
+*    For better accuracy, use Callendar-Van Dusen equation
+* 8. SPI communication:
+*    - Modes 1 and 3 supported (CPOL = 0 or 1, CPHA = 1)
+*    - Maximum SCLK frequency: 5MHz
+*    - MSB first data transfer
+*    - Registers: Configuration, RTD Data (MSB/LSB), Fault Thresholds, Fault Status
+***************************************************************************
