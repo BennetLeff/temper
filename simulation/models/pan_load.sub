@@ -1,0 +1,242 @@
+* Pan Load Equivalent Circuit Model for Induction Cooker
+* pan_load.sub
+*
+* PURPOSE: Model the induction coil and ferromagnetic pan load as a
+*          transformer-coupled system with variable parameters.
+*
+* THEORY:
+* The induction coil and pan form a loosely-coupled transformer where:
+*   - Primary: Induction coil (Litz wire spiral, ~50uH uncoupled)
+*   - Secondary: Pan bottom (acts as shorted turn)
+*   - Coupling coefficient k: 0.2 to 0.6 (depends on air gap, pan size)
+*
+* EQUIVALENT CIRCUIT (T-model):
+*
+*         L_leak                       L_leak
+*    o----YYYY----o--------o--------o----YYYY----o
+*    |            |        |        |            |
+*    |           ---      ---       |           ---
+*   L1          | |      | |       L2          | |
+*   Coil       Lmag      Rmag      Pan        Rpan
+*    |          | |      | |        |          | |
+*    |           ---      ---       |           ---
+*    |            |        |        |            |
+*    o------------o--------o--------o------------o
+*
+* For induction cooking, the secondary (pan) is effectively shorted,
+* so we can use a simplified reflected impedance model:
+*
+*    Zreflected = (k^2 * L1 * omega)^2 / (Rpan + j*omega*L2)
+*              ≈ Rref + j*omega*Leff
+*
+* Where:
+*   Rref = k^2 * omega^2 * M^2 / Rpan  (reflected resistance = power delivery)
+*   Leff = L1 * (1 - k^2)               (effective inductance)
+*
+* PAN MATERIALS (typical values at 30-40kHz):
+*   Cast Iron:    Rpan = 5-15 ohm,  k = 0.4-0.6
+*   Stainless:    Rpan = 15-50 ohm, k = 0.2-0.4
+*   Aluminum:     Rpan = 50-200 ohm, k = 0.1-0.2 (poor coupling)
+*   No pan:       Rpan = ∞,          k ≈ 0
+*
+***************************************************************************
+* MODEL PARAMETERS (override with .param statements)
+***************************************************************************
+* .param L1_UNCOUPLED = 80u    ; Primary coil inductance (no pan)
+* .param K_COUPLE = 0.4        ; Coupling coefficient (0.2 to 0.6)
+* .param R_PAN = 10            ; Pan equivalent resistance
+* .param R_COIL = 0.1          ; Primary coil AC resistance
+*
+***************************************************************************
+
+***************************************************************************
+* SUBCIRCUIT: PANLOAD_SIMPLE
+* Simplified model using reflected impedance
+*
+* Terminals:
+*   A, B: Connection to resonant tank
+*
+* Parameters:
+*   L1 = Primary inductance uncoupled (default 80uH)
+*   K  = Coupling coefficient (default 0.4)
+*   RPAN = Pan equivalent resistance (default 10 ohm)
+*   RCOIL = Coil series resistance (default 0.1 ohm)
+***************************************************************************
+.subckt PANLOAD_SIMPLE A B L1=80u K=0.4 RPAN=10 RCOIL=0.1
+
+* Effective inductance: Leff = L1 * (1 - k^2)
+* With k=0.4, Leff = L1 * 0.84
+L_eff A N_leff {L1*(1-K*K)} IC=0
+
+* Coil AC resistance (skin effect in Litz wire)
+R_coil N_leff N_rcoil {RCOIL}
+
+* Reflected resistance from pan
+* Rref ≈ k^2 * L1 * omega / Rpan * L1 * omega
+* Simplified: at resonance, Rref ≈ k^2 * L1^2 * omega^2 / Rpan
+* For 35kHz: omega = 220k rad/s
+* Rref ≈ 0.16 * 80u^2 * 220k^2 / 10 ≈ 5 ohm
+* This is frequency-dependent, so we use a fixed approximation
+* that's valid near the operating frequency
+*
+* More accurate: Use behavioral source, but for initial design
+* we use a fixed value representing reflected resistance
+R_ref N_rcoil B {K*K*80}
+
+.ends PANLOAD_SIMPLE
+
+***************************************************************************
+* SUBCIRCUIT: PANLOAD_TRANSFORMER
+* Full transformer model with mutual inductance
+*
+* Terminals:
+*   A, B: Primary connection (to resonant tank)
+*
+* Parameters:
+*   L1 = Primary inductance (default 80uH)
+*   L2 = Secondary inductance (default 1uH for pan)
+*   K  = Coupling coefficient (default 0.4)
+*   RPAN = Pan equivalent resistance (default 10 ohm)
+*   RCOIL = Coil series resistance (default 0.1 ohm)
+***************************************************************************
+.subckt PANLOAD_TRANSFORMER A B L1=80u L2=1u K=0.4 RPAN=10 RCOIL=0.1
+
+* Primary side
+R_coil A N_p1 {RCOIL}
+L_pri N_p1 N_p2 {L1} IC=0
+
+* Secondary side (pan as shorted turn)
+L_sec N_s1 N_s2 {L2} IC=0
+R_pan N_s2 N_s3 {RPAN}
+
+* Short the secondary (pan is continuous conductor)
+V_short N_s3 N_s1 DC 0
+
+* Mutual coupling
+K_couple L_pri L_sec {K}
+
+* Complete primary circuit
+R_dummy N_p2 B 1m
+
+.ends PANLOAD_TRANSFORMER
+
+***************************************************************************
+* SUBCIRCUIT: PANLOAD_VARIABLE
+* Model with parameterized coupling for no-pan detection testing
+*
+* Terminals:
+*   A, B: Primary connection
+*
+* Parameters:
+*   L1 = Primary inductance (default 80uH)
+*   K  = Coupling coefficient (0 = no pan, 0.5 = good pan)
+*   RPAN = Pan resistance (default 10 ohm)
+*   RCOIL = Coil resistance (default 0.1 ohm)
+***************************************************************************
+.subckt PANLOAD_VARIABLE A B L1=80u K=0.4 RPAN=10 RCOIL=0.1
+
+* Behavioral model for variable reflected impedance
+* This allows testing no-pan vs pan-present scenarios
+
+* Primary inductance (affected by coupling)
+* With no pan (k=0): full L1
+* With pan (k>0): reduced effective inductance
+L_eff A N_l {L1*(1-K*K)} IC=0
+
+* Coil resistance
+R_coil N_l N_r {RCOIL}
+
+* Reflected resistance (only when pan present)
+* When k=0: very high impedance (no power transfer)
+* When k>0: power transferred to pan
+* Rref roughly proportional to k^2
+R_ref N_r B {(K > 0.01) ? (K*K*100) : 10MEG}
+
+.ends PANLOAD_VARIABLE
+
+***************************************************************************
+* SUBCIRCUIT: PANLOAD_CASTIR0N
+* Pre-configured for cast iron pan (best coupling)
+* Typical: 26cm diameter, 4mm thickness
+***************************************************************************
+.subckt PANLOAD_CASTIRON A B
+
+* Cast iron parameters:
+* - High permeability -> good coupling
+* - Moderate resistivity -> good power absorption
+* - k = 0.5 typical
+* - Rpan = 8 ohm typical at 35kHz
+
+X_pan A B PANLOAD_SIMPLE L1=80u K=0.5 RPAN=8 RCOIL=0.1
+
+.ends PANLOAD_CASTIRON
+
+***************************************************************************
+* SUBCIRCUIT: PANLOAD_STAINLESS
+* Pre-configured for 18/10 stainless steel pan
+* Requires ferromagnetic disk for induction compatibility
+***************************************************************************
+.subckt PANLOAD_STAINLESS A B
+
+* Stainless steel parameters:
+* - Low permeability -> poor coupling without disk
+* - High resistivity -> less efficient power transfer
+* - k = 0.3 typical
+* - Rpan = 25 ohm typical at 35kHz
+
+X_pan A B PANLOAD_SIMPLE L1=80u K=0.3 RPAN=25 RCOIL=0.1
+
+.ends PANLOAD_STAINLESS
+
+***************************************************************************
+* SUBCIRCUIT: PANLOAD_NOPAN
+* No pan present - used for no-load detection
+***************************************************************************
+.subckt PANLOAD_NOPAN A B
+
+* No pan: uncoupled coil
+* Full inductance, no reflected resistance
+* Only coil losses present
+
+L_coil A N_l 80u IC=0
+R_coil N_l B 0.1
+
+* Very small parasitic to prevent floating node
+R_par A B 10MEG
+
+.ends PANLOAD_NOPAN
+
+***************************************************************************
+* SIMULATION NOTES:
+*
+* 1. For resonant tank design, use PANLOAD_SIMPLE or PANLOAD_CASTIRON
+*    to get approximate behavior near resonance.
+*
+* 2. For frequency sweep analysis, use PANLOAD_TRANSFORMER for more
+*    accurate frequency-dependent behavior.
+*
+* 3. For no-pan detection testing, compare PANLOAD_CASTIRON vs
+*    PANLOAD_NOPAN - the resonant frequency and Q-factor will differ
+*    significantly.
+*
+* 4. Resonant capacitor selection:
+*    C = 1 / (omega^2 * Leff)
+*    For f = 35kHz, Leff = 54uH (with k=0.5, L1=80uH):
+*    C = 1 / ((2*pi*35k)^2 * 54u) = 383nF ≈ 400nF
+*
+* 5. Quality factor at resonance:
+*    Q = omega * Leff / Rtotal
+*    For f=35kHz, Leff=54uH, Rtotal=5ohm:
+*    Q = 220k * 54u / 5 = 2.4
+*    Low Q is normal for loaded induction systems (power transfer!)
+*
+* 6. TYPICAL OPERATING PARAMETERS:
+*    - Resonant frequency: 25-40 kHz
+*    - Effective inductance: 40-70 uH (depends on pan)
+*    - Resonant capacitor: 300-600 nF
+*    - Reflected resistance: 3-20 ohm (depends on pan type)
+*    - Peak coil current: 30-50 A for 2kW
+*
+***************************************************************************
+
+* End of pan_load.sub

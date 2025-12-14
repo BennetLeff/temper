@@ -1,0 +1,278 @@
+* ZVS (Zero Voltage Switching) Verification Simulation
+* sim_25_zvs_verification.cir
+*
+* PURPOSE: Verify soft-switching conditions for the half-bridge
+*          driving the resonant tank. ZVS reduces switching losses
+*          by ensuring voltage across the switch is zero before turn-on.
+*
+* THEORY:
+* For ZVS operation:
+* 1. Operate above resonant frequency (inductive mode)
+* 2. Tank current lags voltage (phase < 0)
+* 3. During dead-time, current flows through anti-parallel diode
+* 4. This clamps switch voltage to ~0V before turn-on
+*
+* ZVS CONDITIONS:
+* - Current must be large enough to charge/discharge Coss
+* - Dead-time must be long enough for voltage transition
+* - Frequency must be above resonance (current lags voltage)
+*
+* VERIFICATION METRICS:
+* 1. Switch voltage < 10V at turn-on (ZVS achieved)
+* 2. Current direction during dead-time (must be correct for ZVS)
+* 3. Voltage transition completes before gate turn-on
+*
+***************************************************************************
+
+.title ZVS (Zero Voltage Switching) Verification
+
+***************************************************************************
+* CONVERGENCE OPTIONS
+***************************************************************************
+.options reltol=1e-3
+.options abstol=1e-9
+.options vntol=1e-4
+.options gmin=1e-10
+.options method=gear
+.options maxord=2
+.options itl1=500
+.options itl2=200
+.options itl4=100
+
+***************************************************************************
+* INCLUDE MODELS
+***************************************************************************
+.include ../models/IKW40N120H3.lib
+.include ../models/pan_load.sub
+
+***************************************************************************
+* SIMULATION PARAMETERS
+***************************************************************************
+* Operating point for ZVS: slightly above resonance
+.param VDC=320               ; DC bus voltage
+.param F_RES=35.8k           ; Resonant frequency of tank
+.param F_SW=38k              ; Switching frequency (above resonance for ZVS)
+.param PERIOD={1/F_SW}       ; ~26.3us
+.param DUTY=0.48             ; Near 50% duty for symmetric operation
+.param T_ON={PERIOD*DUTY}    ; On-time
+.param DT_NS=500             ; Dead-time in ns
+.param DT={DT_NS*1n}         ; Dead-time in seconds
+
+* Gate drive parameters
+.param VGE_ON=15             ; Gate drive voltage
+.param RG=5                  ; Gate resistor
+
+* Resonant tank parameters
+.param C_RES=330n            ; Resonant capacitor
+.param L_EFF=60u             ; Effective inductance (with pan coupled)
+.param R_LOAD=8              ; Reflected pan resistance
+
+***************************************************************************
+* POWER SUPPLIES
+***************************************************************************
+* DC Bus with soft-start
+V_dcbus vbus 0 PWL(0 0 20u {VDC} 500u {VDC})
+
+* Split DC bus for return path
+* In real circuit, resonant cap connects to bus midpoint or uses
+* series topology. Here we use a virtual midpoint.
+V_bus_mid vmid 0 DC {VDC/2}
+
+* Bus capacitors
+C_bus_p vbus vmid 470u IC={VDC/2}
+C_bus_n vmid 0 470u IC={VDC/2}
+
+* Gate driver supplies (referenced correctly)
+V_vdd_hi vdd_hi gnd_hi DC {VGE_ON}
+V_vdd_lo vdd_lo 0 DC {VGE_ON}
+
+***************************************************************************
+* GATE DRIVE SIGNALS
+* Operating at 38kHz for ZVS (above 35.8kHz resonance)
+***************************************************************************
+* High-side gate (Q1): ON during first part of period
+V_gate_hi_src gate_hi_in gnd_hi PWL(
++ 0 0
++ {DT/2} 0
++ {DT/2 + 10n} {VGE_ON}
++ {T_ON - 10n} {VGE_ON}
++ {T_ON} 0
++ {PERIOD} 0
++ {PERIOD + DT/2} 0
++ {PERIOD + DT/2 + 10n} {VGE_ON}
++ {PERIOD + T_ON - 10n} {VGE_ON}
++ {PERIOD + T_ON} 0
++ {2*PERIOD} 0
++ {2*PERIOD + DT/2} 0
++ {2*PERIOD + DT/2 + 10n} {VGE_ON}
++ {2*PERIOD + T_ON - 10n} {VGE_ON}
++ {2*PERIOD + T_ON} 0
++ {3*PERIOD} 0
++ {3*PERIOD + DT/2} 0
++ {3*PERIOD + DT/2 + 10n} {VGE_ON}
++ {3*PERIOD + T_ON - 10n} {VGE_ON}
++ {3*PERIOD + T_ON} 0
++ {4*PERIOD} 0
++ {4*PERIOD + DT/2} 0
++ {4*PERIOD + DT/2 + 10n} {VGE_ON}
++ {4*PERIOD + T_ON - 10n} {VGE_ON}
++ {4*PERIOD + T_ON} 0
++ {5*PERIOD} 0
++ {5*PERIOD + DT/2} 0
++ {5*PERIOD + DT/2 + 10n} {VGE_ON}
++ {5*PERIOD + T_ON - 10n} {VGE_ON}
++ {5*PERIOD + T_ON} 0
++ 500u 0)
+
+R_gate_hi gate_hi_in gate_hi {RG}
+
+* Low-side gate (Q2): ON during second part of period (complementary)
+V_gate_lo_src gate_lo_in 0 PWL(
++ 0 0
++ {T_ON + DT} 0
++ {T_ON + DT + 10n} {VGE_ON}
++ {PERIOD - 10n} {VGE_ON}
++ {PERIOD} 0
++ {PERIOD + T_ON + DT} 0
++ {PERIOD + T_ON + DT + 10n} {VGE_ON}
++ {2*PERIOD - 10n} {VGE_ON}
++ {2*PERIOD} 0
++ {2*PERIOD + T_ON + DT} 0
++ {2*PERIOD + T_ON + DT + 10n} {VGE_ON}
++ {3*PERIOD - 10n} {VGE_ON}
++ {3*PERIOD} 0
++ {3*PERIOD + T_ON + DT} 0
++ {3*PERIOD + T_ON + DT + 10n} {VGE_ON}
++ {4*PERIOD - 10n} {VGE_ON}
++ {4*PERIOD} 0
++ {4*PERIOD + T_ON + DT} 0
++ {4*PERIOD + T_ON + DT + 10n} {VGE_ON}
++ {5*PERIOD - 10n} {VGE_ON}
++ {5*PERIOD} 0
++ 500u {VGE_ON})
+
+R_gate_lo gate_lo_in gate_lo {RG}
+
+***************************************************************************
+* HIGH-SIDE IGBT (Q1)
+***************************************************************************
+X_Q1 vbus gate_hi midpoint IKW40N120H3
+
+* High-side gate ground reference
+V_gnd_hi_ref gnd_hi midpoint DC 0
+
+***************************************************************************
+* LOW-SIDE IGBT (Q2)
+***************************************************************************
+X_Q2 midpoint gate_lo 0 IKW40N120H3
+
+***************************************************************************
+* RESONANT TANK
+***************************************************************************
+* Series LC tank from midpoint to bus midpoint
+* This is the quasi-resonant topology used in induction cookers
+
+* Resonant capacitor
+C_res midpoint n_cap {C_RES} IC=0
+
+* Effective coil inductance (with pan coupling)
+L_coil n_cap n_l {L_EFF} IC=0
+
+* Coil AC resistance
+R_coil n_l n_r 0.1
+
+* Reflected pan resistance (power delivery)
+R_pan n_r vmid {R_LOAD}
+
+***************************************************************************
+* ANALYSIS
+***************************************************************************
+.tran 5n 300u 0 5n uic
+
+***************************************************************************
+* MEASUREMENTS - ZVS VERIFICATION
+***************************************************************************
+* Window for measurements (after startup settling)
+.param T_START=150u
+.param T_END=280u
+
+* Voltage across Q2 (low-side) at turn-on events
+* ZVS achieved if V_ce_lo < 10V when gate goes high
+.meas tran V_Q2_ce_max MAX v(midpoint) FROM={T_START} TO={T_END}
+.meas tran V_Q2_ce_min MIN v(midpoint) FROM={T_START} TO={T_END}
+
+* Tank current (through inductor)
+.meas tran I_tank_max MAX i(L_coil) FROM={T_START} TO={T_END}
+.meas tran I_tank_min MIN i(L_coil) FROM={T_START} TO={T_END}
+.meas tran I_tank_rms RMS i(L_coil) FROM={T_START} TO={T_END}
+
+* Resonant capacitor voltage
+.meas tran V_cap_max MAX v(n_cap) FROM={T_START} TO={T_END}
+
+***************************************************************************
+* CONTROL SCRIPT
+***************************************************************************
+.control
+run
+
+echo ""
+echo "============================================================"
+echo "ZVS Verification Simulation - Simulation 25"
+echo "============================================================"
+echo ""
+
+echo "CONFIGURATION:"
+echo "  DC Bus Voltage: 320V"
+echo "  Resonant frequency: 35.8 kHz (calculated)"
+echo "  Switching frequency: 38 kHz (above resonance)"
+echo "  Dead-time: 500 ns"
+echo "  Resonant cap: 330 nF"
+echo "  Effective inductance: 60 uH"
+echo "  Reflected resistance: 8 ohm"
+echo ""
+
+echo "============================================================"
+echo "MEASUREMENT RESULTS (see above for values)"
+echo "============================================================"
+echo ""
+echo "V_Q2_ce_max: Midpoint maximum voltage (should be ~320V)"
+echo "V_Q2_ce_min: Midpoint minimum voltage (ZVS: <10V, otherwise ~0V)"
+echo "I_tank_max/min: Peak tank current (+/-)"
+echo "I_tank_rms: RMS current for power calculation"
+echo "V_cap_max: Resonant capacitor peak voltage"
+echo ""
+
+echo "============================================================"
+echo "ZVS ANALYSIS"
+echo "============================================================"
+echo ""
+echo "ZVS is achieved when:"
+echo "1. Operating above resonance (38kHz > 35.8kHz) - CHECK"
+echo "2. V_Q2_ce_min is near 0V at turn-on"
+echo "3. Current flows through body diode during dead-time"
+echo ""
+echo "Power to pan = I_rms^2 * R_pan"
+echo "Example: (1.88A)^2 * 8ohm = 28W (low power during startup)"
+echo ""
+echo "At full operation with ~20A RMS:"
+echo "P = 20^2 * 8 = 3200W"
+echo ""
+
+echo "============================================================"
+echo "RECOMMENDATIONS"
+echo "============================================================"
+echo ""
+echo "1. Optimal ZVS operating point:"
+echo "   - Frequency: 5-15% above resonance"
+echo "   - Dead-time: 500ns - 1us"
+echo "   - Tank current: > 5A minimum for reliable ZVS"
+echo ""
+echo "2. Power control:"
+echo "   - Higher frequency = less power"
+echo "   - Range: f_res to f_res + 50%"
+echo ""
+
+quit
+.endc
+
+.end

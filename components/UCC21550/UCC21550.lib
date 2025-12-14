@@ -1,35 +1,16 @@
 * UCC21550 Isolated Dual-Channel Gate Driver SPICE Model
 * Texas Instruments
 * Behavioral model for circuit simulation
-* Model version: 1.0
+* Model version: 1.3 (Fixed singular matrix with series resistors)
 * Date: 2024
 *
 * This model represents the UCC21550 isolated gate driver IC
 * Suitable for ngspice and KiCad simulation
-*
-* Pin Configuration (16-pin DW package):
-* 1:  INA    - Input A
-* 2:  INB    - Input B
-* 3:  VCCI   - Primary side supply (3.0-5.5V)
-* 4:  GND    - Primary side ground
-* 5:  DIS    - Disable input (active high)
-* 6:  DT     - Dead time programming
-* 7:  NC     - No connection
-* 8:  VCCI   - Primary side supply (tied to pin 3)
-* 9:  VSSB   - Channel B ground reference
-* 10: OUTB   - Channel B output
-* 11: VDDB   - Channel B supply (6.5-25V for A variant)
-* 12: NC     - No connection
-* 13: NC     - No connection
-* 14: VSSA   - Channel A ground reference
-* 15: OUTA   - Channel A output
-* 16: VDDA   - Channel A supply (6.5-25V for A variant)
 
 ***************************************************************************
 * Main Subcircuit: UCC21550A (5V UVLO variant)
 ***************************************************************************
 .subckt UCC21550A INA INB VCCI GND DIS DT NC1 VCCI2 VSSB OUTB VDDB NC2 NC3 VSSA OUTA VDDA
-* Internal nodes
 X_CHA INA VCCI GND DIS DT OUTA VDDA VSSA UCC21550_CHANNEL
 X_CHB INB VCCI GND DIS DT OUTB VDDB VSSB UCC21550_CHANNEL
 .ends UCC21550A
@@ -46,63 +27,59 @@ R_IN_PD IN GND_PRI 90k
 R_DIS_PU DIS VCC_PRI 90k
 
 * Input threshold detection (TTL/CMOS compatible)
-* High threshold: 2.0V typ, Low threshold: 1.0V typ
-B_IN_DETECT N_IN_DETECT GND_PRI V=IF(V(IN,GND_PRI)>2.0,V(VCC_PRI),0)
+B_IN_DETECT N_IN_DETECT GND_PRI V={V(IN,GND_PRI) > 2.0 ? V(VCC_PRI,GND_PRI) : 0}
 R_IN_DETECT N_IN_DETECT GND_PRI 1MEG
 
 * Disable logic (active high)
-B_DIS_DETECT N_DIS_DETECT GND_PRI V=IF(V(DIS,GND_PRI)>2.0,V(VCC_PRI),0)
+B_DIS_DETECT N_DIS_DETECT GND_PRI V={V(DIS,GND_PRI) > 2.0 ? V(VCC_PRI,GND_PRI) : 0}
 R_DIS_DETECT N_DIS_DETECT GND_PRI 1MEG
 
-* Combined input logic with disable
-B_INPUT_LOGIC N_INPUT GND_PRI V=IF((V(N_IN_DETECT)>1) & (V(N_DIS_DETECT)<1) & (V(VCC_PRI)>2.7) & (V(VDD,VSS)>6.5),V(VCC_PRI),0)
+* Combined input logic with disable and UVLO
+* Logic: InputHigh AND NotDisabled AND VCCI>2.7 AND VDD>6.5
+* Use smoothed UVLO signals
+B_INPUT_LOGIC N_INPUT GND_PRI V={ (V(N_IN_DETECT,GND_PRI)>1) * (V(N_DIS_DETECT,GND_PRI)<1) * (V(N_UVLO_VCC,GND_PRI)>1) * (V(N_UVLO_VDD,VSS)>1) * V(VCC_PRI,GND_PRI) }
 R_INPUT_LOGIC N_INPUT GND_PRI 1MEG
 
-* VCCI UVLO detector (2.7V rising, 2.5V falling with hysteresis)
-B_UVLO_VCC N_UVLO_VCC GND_PRI V=IF(V(VCC_PRI)>2.7,V(VCC_PRI),IF(V(VCC_PRI)<2.5,0,V(N_UVLO_VCC)))
-C_UVLO_VCC N_UVLO_VCC GND_PRI 100n
+* VCCI UVLO detector (Latch with Hysteresis)
+* 2.7V rising, 2.5V falling
+* Separate B source from C load with resistor to avoid singular matrix
+B_UVLO_VCC_RAW N_UVLO_VCC_RAW GND_PRI V={V(VCC_PRI,GND_PRI) > 2.7 ? V(VCC_PRI,GND_PRI) : (V(VCC_PRI,GND_PRI) < 2.5 ? 0 : V(N_UVLO_VCC,GND_PRI))}
+R_UVLO_VCC_SER N_UVLO_VCC_RAW N_UVLO_VCC 1k
+C_UVLO_VCC N_UVLO_VCC GND_PRI 100p
 R_UVLO_VCC N_UVLO_VCC GND_PRI 10MEG
 
-* VDD UVLO detector (6.0V rising for A variant, 5.7V falling with hysteresis)
-B_UVLO_VDD N_UVLO_VDD VSS V=IF(V(VDD,VSS)>6.0,V(VDD,VSS),IF(V(VDD,VSS)<5.7,0,V(N_UVLO_VDD)))
-C_UVLO_VDD N_UVLO_VDD VSS 100n
+* VDD UVLO detector
+* 6.0V rising, 5.7V falling
+B_UVLO_VDD_RAW N_UVLO_VDD_RAW VSS V={V(VDD,VSS) > 6.0 ? V(VDD,VSS) : (V(VDD,VSS) < 5.7 ? 0 : V(N_UVLO_VDD,VSS))}
+R_UVLO_VDD_SER N_UVLO_VDD_RAW N_UVLO_VDD 1k
+C_UVLO_VDD N_UVLO_VDD VSS 100p
 R_UVLO_VDD N_UVLO_VDD VSS 10MEG
 
 * Propagation delay element (33ns typical)
-* Rising edge delay
-A_DELAY_RISE [N_INPUT] N_DELAYED_RISE BUF
-+ td=33n tripdt=1n
-* Falling edge delay
-A_DELAY_FALL [N_INPUT] N_DELAYED_FALL BUF
-+ td=33n tripdt=1n
-
-* Combine delayed edges
-B_DELAYED N_DELAYED GND_PRI V=IF(V(N_INPUT)>1,V(N_DELAYED_RISE),V(N_DELAYED_FALL))
-R_DELAYED N_DELAYED GND_PRI 1MEG
+T_DELAY N_INPUT GND_PRI N_DELAYED GND_PRI Z0=1k TD=33n
+R_DELAY_TERM N_DELAYED GND_PRI 1k
 
 * Output driver stage
-* 4A source capability (ROH ~ 5 ohms)
-* 6A sink capability (ROL ~ 0.55 ohms)
-* Modeled as voltage-controlled switch with series resistance
-
-* High-side driver (source)
-S_HIGH VDD N_OUT_HIGH N_DELAYED GND_PRI SWHIGH
+* High-side driver (source) - Controlled by Delayed Signal
+B_HIGH_CTRL_IDL N_HIGH_IDL GND_PRI V={V(N_DELAYED,GND_PRI) > 1.5 ? 1 : 0}
+R_HIGH_SLEW N_HIGH_IDL N_HIGH_CTRL 100
+C_HIGH_SLEW N_HIGH_CTRL GND_PRI 10p
+S_HIGH VDD N_OUT_HIGH N_HIGH_CTRL GND_PRI SWHIGH
 R_HIGH N_OUT_HIGH OUT 5
 
-* Low-side driver (sink)
-S_LOW OUT N_OUT_LOW N_DELAYED GND_PRI SWLOW
+* Low-side driver (sink) - Controlled by Delayed Signal
+B_LOW_CTRL_IDL N_LOW_IDL GND_PRI V={V(N_DELAYED,GND_PRI) < 1.5 ? 1 : 0}
+R_LOW_SLEW N_LOW_IDL N_LOW_CTRL 100
+C_LOW_SLEW N_LOW_CTRL GND_PRI 10p
+S_LOW OUT N_OUT_LOW N_LOW_CTRL GND_PRI SWLOW
 R_LOW N_OUT_LOW VSS 0.55
 
-* Active pulldown when unpowered
+* Active pulldown when unpowered (approximate)
 R_APD OUT VSS 10k
 
-* Gate of output when disabled/UVLO
-B_GATE_CTRL N_GATE_CTRL VSS V=IF((V(N_UVLO_VCC)>1) & (V(N_UVLO_VDD)>1) & (V(N_DIS_DETECT)<1),V(N_DELAYED),0)
-R_GATE_CTRL N_GATE_CTRL VSS 1MEG
-
 * Switch models
-.model SWHIGH VSWITCH (RON=0.1 ROFF=100MEG VON=2.5 VOFF=0.5)
-.model SWLOW VSWITCH (RON=0.1 ROFF=100MEG VON=0.5 VOFF=2.5)
+.model SWHIGH SW(Ron=0.1 Roff=100Meg Vt=0.5 Vh=0.2)
+.model SWLOW SW(Ron=0.1 Roff=100Meg Vt=0.5 Vh=0.2)
 
 * Output capacitance
 C_OUT OUT VSS 10p
@@ -113,8 +90,6 @@ C_OUT OUT VSS 10p
 * UCC21550B Subcircuit (8V UVLO variant)
 ***************************************************************************
 .subckt UCC21550B INA INB VCCI GND DIS DT NC1 VCCI2 VSSB OUTB VDDB NC2 NC3 VSSA OUTA VDDA
-* Uses same channel subcircuit with different UVLO thresholds
-* In practice, would need separate channel model with 9.2V/7.9V UVLO
 X_CHA INA VCCI GND DIS DT OUTA VDDA VSSA UCC21550_CHANNEL
 X_CHB INB VCCI GND DIS DT OUTB VDDB VSSB UCC21550_CHANNEL
 .ends UCC21550B
@@ -123,12 +98,6 @@ X_CHB INB VCCI GND DIS DT OUTB VDDB VSSB UCC21550_CHANNEL
 * UCC21550C Subcircuit (12V UVLO variant)
 ***************************************************************************
 .subckt UCC21550C INA INB VCCI GND DIS DT NC1 VCCI2 VSSB OUTB VDDB NC2 NC3 VSSA OUTA VDDA
-* Uses same channel subcircuit with different UVLO thresholds
-* In practice, would need separate channel model with 13.5V/11.5V UVLO
 X_CHA INA VCCI GND DIS DT OUTA VDDA VSSA UCC21550_CHANNEL
 X_CHB INB VCCI GND DIS DT OUTB VDDB VSSB UCC21550_CHANNEL
 .ends UCC21550C
-
-***************************************************************************
-* End of UCC21550 SPICE Model
-***************************************************************************

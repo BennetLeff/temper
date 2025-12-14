@@ -1,0 +1,177 @@
+* Overcurrent Protection (OCP) Circuit Simulation
+* sim_17_ocp_protection.cir
+*
+* PURPOSE: Hardware overcurrent protection with fast response time
+*          using full-wave rectification for detecting AC current peaks.
+*
+* KEY RESULTS:
+*   - Response time: ~33ns from threshold crossing to comparator output
+*   - Cycle-by-cycle protection (pulses when overcurrent detected)
+*   - Latching behavior added in sim_20 (fault integration)
+*
+***************************************************************************
+
+.title Overcurrent Protection (OCP) Circuit Simulation
+
+.include ../models/current_transformer.sub
+
+***************************************************************************
+* POWER SUPPLIES
+***************************************************************************
+V_vcc vcc 0 DC 5
+
+***************************************************************************
+* SIMULATED TANK CURRENT
+***************************************************************************
+* Test: Current suddenly increases from 40A to 60A at t=50us
+B_tank tank_p 0 I = {
++ time < 50u ? 40*sin(2*3.14159*35000*time) :
++ 60*sin(2*3.14159*35000*time)}
+
+* Current transformer (1:1000)
+X_ct tank_p 0 ct_out 0 CURRENT_TRANSFORMER N=1000 LM=10m LL=100u RW=50
+
+* Burden resistor (50Ω) - gives ±2.0V at 40A, ±3.0V at 60A
+R_burden ct_out 0 50
+
+***************************************************************************
+* FULL-WAVE PRECISION RECTIFIER (Behavioral)
+***************************************************************************
+* Output = |V_in|
+* In hardware: Use precision rectifier with op-amp + diodes
+B_abs abs_out 0 V = {abs(V(ct_out))}
+
+* Small filter for noise immunity
+R_filt abs_out filt_out 100
+C_filt filt_out 0 10p
+
+***************************************************************************
+* COMPARATOR (TLV3201 behavioral model)
+***************************************************************************
+* Reference: 2.5V for 50A threshold
+R_ref1 vcc v_ref 10k
+R_ref2 v_ref 0 10k
+
+* Hysteresis (~10%)
+R_hyst comp_out hyst_node 470k
+R_in filt_out hyst_node 47k
+
+* Comparator with 40ns propagation delay
+B_comp comp_int 0 V = {5 * (1 + tanh((V(hyst_node) - V(v_ref)) * 50)) / 2}
+R_delay comp_int delay_node 1k
+C_delay delay_node 0 40p
+B_out comp_out 0 V = {V(delay_node) > 2.5 ? 5.0 : 0.0}
+
+* Load
+R_load comp_out 0 10k
+
+***************************************************************************
+* ANALYSIS
+***************************************************************************
+.tran 5n 150u uic
+
+***************************************************************************
+* MEASUREMENTS
+***************************************************************************
+* First trip after fault
+.meas tran t_first_trip WHEN v(comp_out)=2.5 RISE=1 FROM=50u
+
+* Response time from fault onset
+.meas tran t_response PARAM='t_first_trip - 50u'
+
+* Normal operation peaks
+.meas tran v_abs_normal MAX v(abs_out) FROM=20u TO=45u
+
+* Fault peaks
+.meas tran v_abs_fault MAX v(abs_out) FROM=60u TO=100u
+
+* Count trips (measure time between first and second trip during fault)
+.meas tran t_second_trip WHEN v(comp_out)=2.5 RISE=2 FROM=50u
+.meas tran trip_period PARAM='t_second_trip - t_first_trip'
+
+.control
+run
+
+echo ""
+echo "============================================"
+echo "OCP Circuit Verification - Simulation 17"
+echo "============================================"
+echo ""
+echo "Configuration:"
+echo "  CT ratio: 1:1000"
+echo "  Burden: 50 ohm (2.5V at 50A)"
+echo "  Comparator: TLV3201 (40ns prop delay)"
+echo "  Full-wave rectification for AC detection"
+echo ""
+echo "Test Scenario:"
+echo "  0-50us:  40A peak (below 50A threshold)"
+echo "  50us+:   60A peak (above threshold - fault)"
+echo ""
+echo "============================================"
+echo "DETECTION PERFORMANCE"
+echo "============================================"
+echo ""
+echo "Rectified peak during normal (40A, expect 2.0V):"
+print v_abs_normal
+echo ""
+echo "Rectified peak during fault (60A, expect 3.0V):"
+print v_abs_fault
+echo ""
+echo "============================================"
+echo "TIMING RESULTS"
+echo "============================================"
+echo ""
+echo "First trip after fault onset (50us):"
+print t_first_trip
+echo ""
+echo "Response time (target: <half cycle = 14.3us):"
+print t_response
+echo ""
+echo "Second trip (shows cycle-by-cycle behavior):"
+print t_second_trip
+echo ""
+echo "Trip period (expect ~14.3us = half of 35kHz):"
+print trip_period
+echo ""
+echo "============================================"
+echo "SUMMARY"
+echo "============================================"
+echo ""
+echo "The OCP circuit provides cycle-by-cycle overcurrent"
+echo "detection. When tank current exceeds 50A, the"
+echo "comparator pulses HIGH for the portion of each"
+echo "half-cycle where |I| > 50A."
+echo ""
+echo "Response time is limited by when the fault occurs"
+echo "relative to the AC waveform phase. Worst case is"
+echo "one half-cycle (~14.3us at 35kHz)."
+echo ""
+echo "Once detected, the fault signal feeds into the"
+echo "latching logic (sim_20) which maintains the DISABLE"
+echo "state until manual reset."
+echo ""
+echo "PASS CRITERIA:"
+echo "  - Detection within one half-cycle: "
+if t_response < 15u
+  echo "    PASS"
+else
+  echo "    FAIL"
+end
+echo "  - No false trip at 40A (v_abs < 2.5V):"
+if v_abs_normal < 2.5
+  echo "    PASS"
+else
+  echo "    FAIL"
+end
+echo "  - Correct detection at 60A (v_abs > 2.5V):"
+if v_abs_fault > 2.5
+  echo "    PASS"
+else
+  echo "    FAIL"
+end
+echo ""
+
+quit
+.endc
+
+.end

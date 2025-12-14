@@ -1938,48 +1938,183 @@ Critical PCB layout guidelines for the UCC14140-Q1:
 ## Lesson 09: AC Input Stage — Rectification and Soft-Start
 
 ### Objective
+Simulate and design the robust AC mains input stage, including full-bridge rectification, EMI filtering, and a relay-bypassed inrush current limiting circuit. Validate that the design limits peak inrush current to safe levels (<20A) while ensuring reliability under fault conditions.
 
-Simulate the AC mains input stage including rectification, EMI filtering, and inrush current limiting. Validate that the soft-start circuit prevents destructive inrush current.
+### 1. Theory: The Inrush Problem
+When a discharged DC link capacitor bank ($C_{bus} \approx 470\mu F$) connects to the AC mains, it acts as a momentary short circuit.
+$$I_{inrush} = \frac{V_{peak}}{R_{line} + R_{ESR}}$$
+For $120V_{AC}$, $V_{peak} \approx 170V$. With $R_{total} \approx 0.1\Omega$, $I_{peak}$ can reach **1700A**, welding relay contacts, blowing fuses, and damaging diode bridges.
 
-### Theory: Inrush Current
+### 2. Soft-Start Circuit Design
 
-When empty DC link capacitors are connected to rectified mains, the peak inrush current can exceed 100A—enough to trip breakers, weld relay contacts, and stress capacitors. The soft-start circuit uses a PTC thermistor (or NTC + bypass relay) to limit this current.
+#### Architecture
+1.  **Stage 1 (Pre-charge):** Current flows through a current-limiting resistor (NTC or PTC) to charge $C_{bus}$ slowly.
+2.  **Stage 2 (Bypass):** Once $V_{bus}$ reaches ~80% of $V_{peak}$, a relay closes to bypass the resistor, eliminating power loss during operation.
 
-$$I_{inrush(peak)} = \frac{V_{peak}}{ESR} \approx \frac{340V}{0.1\Omega} = 3400A \text{ (without limiting!)}$$
+#### Component Selection: NTC vs. PTC vs. Fixed Resistor
+| Feature | NTC Thermistor | PTC Thermistor | Fixed Resistor |
+| :--- | :--- | :--- | :--- |
+| **Cold State** | High Resistance (limits inrush) | Low Resistance | Constant Resistance |
+| **Hot State** | Low Resistance | High Resistance (protects if shorted) | Constant (Must be high power) |
+| **Failure Mode** | Can overheat if bypass fails | Self-protects (limits current) | Burns out if bypass fails |
+| **Cooldown** | Needs time to recover (High R) | Instant reset (mostly) | Instant reset |
+| **Selection** | **Preferred** for reliability | Good for self-protection | Simple, but bulky |
 
-### Simulation Exercise
+**Decision:** We use a **Fixed Power Resistor (Ceramic)** or **NTC** with a **Bypass Relay**. For this high-power application ($>1500W$), a fixed resistor (e.g., $10\Omega$, 10W) is often more robust than an NTC if the relay timing is precise, but NTC provides passive protection if the relay fails to close immediately. We will simulate an **NTC** for this lesson as it is standard practice.
 
-Model the rectifier, DC link capacitor (470µF), and soft-start circuit. Simulate power-on and verify:
+#### Design Calculations
+- **Target Peak Current:** $< 20A$
+- **Resistance Required:** $R = \frac{V_{peak}}{I_{max}} = \frac{170V}{20A} = 8.5\Omega$. Select **10Ω**.
+- **Energy Dissipation:** $E = \frac{1}{2} C V^2 = 0.5 \times 470\mu F \times 170^2 \approx 6.8J$.
+- **NTC Rating:** Must withstand $>7J$ of energy without failure.
 
+### 3. Relay Bypass & Contact Protection
+The relay handles the full load current ($I_{rms} \approx 15A$).
+- **Relay Selection:** 30A/250VAC SPST (e.g., T9A series).
+- **Contact Protection:** Inductive loads (transformer/choke upstream) can cause arcing.
+    - **Snubber:** RC network across contacts.
+    - **MOV:** Metal Oxide Varistor across AC lines to absorb transients.
+
+### 4. SPICE Simulation
+
+We will model the thermal behavior of the NTC and the timing of the bypass relay.
+
+**File:** `simulations/soft_start_sim.cir`
 ```spice
-* AC Input with Soft-Start
-V_ac ac_in 0 SIN(0 170 60)  ; 120Vrms, 60Hz
+* AC Input with Soft-Start and Bypass Relay
+V_ac ac_in 0 SIN(0 170 60)
 
-* Bridge rectifier (simplified)
-D1 ac_in rect_pos DIODE
-D2 0 rect_pos DIODE
-D3 rect_neg ac_in DIODE
-D4 rect_neg 0 DIODE
+* Full Bridge Rectifier
+D1 ac_in rect_pos D_ideal
+D2 0 rect_pos D_ideal
+D3 rect_neg ac_in D_ideal
+D4 rect_neg 0 D_ideal
 
-* Soft-start NTC (models as time-varying resistor)
-* Cold: 10Ω, Hot: 0.5Ω with 200ms time constant
-B_ntc rect_pos ntc_out I = V(rect_pos, ntc_out) / (0.5 + 9.5*exp(-TIME/0.2))
+* Soft-Start NTC (Thermally Coupled Model)
+* Resistance drops as temperature rises
+* R(T) = R25 * exp(B * (1/T - 1/298))
+* Simplified behavioral model: R = 10 / (1 + integral(I^2)*k_heat)
+* We use a voltage source to represent resistance for flexibility
+B_ntc rect_pos ntc_node V = I(B_ntc) * V(res_val)
 
-* DC link capacitor
-C_dc ntc_out rect_neg 470u IC=0
+* Thermal Model of NTC
+* V(res_val) starts at 10, decays as energy is absorbed
+* Energy = integral(P) dt. Temp rise proportional to Energy.
+* Let's assume Resistance drops to 1 ohm after 10 Joules.
+.func R_ntc(energy) { 10 * exp(-energy/5) + 0.5 }
+C_energy e_node 0 1
+B_pwr 0 e_node I = V(rect_pos, ntc_node) * I(B_ntc)
+B_res_calc res_val 0 V = R_ntc(V(e_node))
 
-.model DIODE D(IS=1e-10 RS=0.05)
-.tran 100u 1s UIC
-.end
+* Bypass Relay (Closes at t=200ms)
+S_bypass rect_pos ntc_node relay_ctrl 0 Switch_Relay
+V_relay_ctrl relay_ctrl 0 PULSE(0 1 200m 1m 1m 1 1)
+
+* DC Link Capacitor & Load
+C_bus ntc_node rect_neg 470u IC=0
+R_bleed ntc_node rect_neg 100k
+R_load ntc_node rect_neg 100 ; Light load during startup
+
+.model D_ideal D(IS=1e-10 RS=0.01)
+.model Switch_Relay SW(Vt=0.5 Ron=0.01 Roff=100Meg)
+.tran 100u 500m UIC
 ```
 
-**Verify:**
+**Simulation Analysis:**
+1.  **Phase 1 (0-200ms):** Current flows through `B_ntc`. Observe `V(res_val)` dropping. Peak current should be limited to ~17A ($170V / 10\Omega$).
+2.  **Phase 2 (>200ms):** Relay closes. `V(ntc_node)` should snap to `V(rect_pos)`.
+3.  **Failure Case (Stuck Relay):** Run simulation with `V_relay_ctrl` disabled. Check if NTC overheats (monitor energy/temp).
 
-- [ ] Peak inrush current < 20A
-- [ ] DC bus reaches 310V within 500ms
-- [ ] Bypass relay engages after bus stabilizes
+### 5. Failure Mode Analysis (FMEA)
+
+| Failure Mode | Effect | Detection/Mitigation |
+| :--- | :--- | :--- |
+| **Relay Fails Open** | Current stays in NTC. NTC overheats and may burn out. | Firmware monitors DC Bus ripple. High ripple under load = High R = Relay Open. Shut down. |
+| **Relay Fails Closed** | No inrush limiting on next boot. Fuse blows. | Firmware checks DC Bus rise time. Too fast = Relay stuck. Prevent operation? (Hard to prevent fuse blow). |
+| **NTC Open** | No start-up. DC Bus stays at 0V. | MCU detects UVLO (Under-Voltage Lockout). System doesn't start. Safe. |
+| **Capacitor Short** | Massive current through NTC/Diode. | Fuse blows immediately. |
+
+### 6. Validation Checklist
+
+- [ ] **Simulated Peak Current:** < 20A under worst-case (peak of sine wave start).
+- [ ] **Charge Time:** DC Bus reaches 300V before relay closes (typically < 300ms).
+- [ ] **Bypass Logic:** Relay engages ONLY when $V_{bus} > V_{threshold}$.
+- [ ] **Thermal Stress:** NTC energy rating is at least 2x calculated $E_{inrush}$.
 
 > **[PHOTO PLACEHOLDER: Waveforms showing inrush current limiting during startup]**
+
+---
+
+## Lesson 09 Extension: EMI/EMC Filter Design & Compliance
+
+### Objective
+Design and simulate the electromagnetic interference (EMI) filter stage to attenuate conducted emissions (150kHz - 30MHz) and ensure compliance with FCC/CISPR standards.
+
+### 1. Theory: Sources of EMI
+Induction cookers are notorious noise generators due to:
+- **High-Frequency Switching:** 30-40kHz fundamental + harmonics.
+- **High dV/dt:** Fast IGBT switching (Common Mode noise).
+- **High dI/dt:** Resonant tank currents (Differential Mode noise).
+
+**Noise Types:**
+1.  **Differential Mode (DM):** Noise flows out Line, returns via Neutral. Caused by ripple current.
+2.  **Common Mode (CM):** Noise flows out Line/Neutral together, returns via Earth/Chassis. Caused by capacitive coupling to heatsink/coil.
+
+### 2. Filter Architecture
+Standard topology: **Pi-Filter** or **Two-Stage Filter**.
+- **X-Capacitors ($C_x$):** Across L-N. Attenuates DM noise.
+- **Y-Capacitors ($C_y$):** From L/N to Earth. Attenuates CM noise.
+- **Common Mode Choke ($L_{cm}$):** High impedance to CM currents.
+- **Differential Mode Choke ($L_{dm}$):** Often formed by leakage inductance of $L_{cm}$ or discrete inductor.
+
+### 3. Design & Component Selection
+- **X-Caps:** Metallized Polypropylene (MKP). Safety rated X2. Typical: 0.47µF - 2.2µF.
+- **Y-Caps:** Ceramic/Safety. Rated Y1/Y2. Typical: 2.2nF - 4.7nF (Limit leakage current < 0.75mA for safety!).
+- **CM Choke:** Toroidal ferrite. High permeability. Typical: 2mH - 10mH.
+
+### 4. SPICE Simulation: Filter Effectiveness
+
+**File:** `simulations/emi_filter.cir`
+```spice
+* EMI Filter Test Bench (Frequency Domain)
+* AC Source with 50 Ohm Impedance (LISN Equivalent)
+Vin line 0 AC 1
+R_lisn line line_in 50
+R_neutral 0 neutral_in 50
+
+* Filter Stage
+Cx1 line_in neutral_in 1u
+L_cm1 line_in line_out 5m
+L_cm2 neutral_in neutral_out 5m K_cm L_cm1 L_cm2 0.99 ; Coupled choke with leakage
+Cx2 line_out neutral_out 0.47u
+Cy1 line_out earth 4.7n
+Cy2 neutral_out earth 4.7n
+R_earth earth 0 1m ; Earth ground connection
+
+* Noise Source Injection (Simulated Inverter Noise)
+* Injecting into DC Bus side
+I_noise line_out neutral_out AC 1
+
+.ac dec 10 10k 30Meg
+.plot ac v(line_in)
+```
+
+### 5. Layout Rules for EMI
+- **Minimize Loop Areas:** Large loops act as antennas.
+- **Filter Placement:** Keep filter components as close to the AC inlet as possible.
+- **Chassis Grounding:** Keep Y-cap ground traces short and wide (low inductance).
+- **Separation:** Keep "Dirty" (Switched High Voltage) traces far from "Clean" (AC Input) traces.
+
+### 6. Compliance Checklist (UL/FCC)
+- [ ] **FCC Part 18:** Consumer ISM equipment limits.
+- [ ] **Conducted Emissions:** < 48dBµV (0.45-30MHz).
+- [ ] **Leakage Current:** < 0.75mA (UL 1026).
+- [ ] **Surge Immunity:** IEC 61000-4-5 (1kV L-L, 2kV L-PE).
+
+### 7. Validation Checkpoint
+- [ ] Filter simulation shows >40dB attenuation at 150kHz.
+- [ ] Leakage current calculation is within safety limits.
+- [ ] Layout review confirms filter proximity to connector.
 
 ---
 
@@ -2991,55 +3126,108 @@ This phase develops the control algorithms in software, using simulation models 
 ## Lesson 27: Pan Detection Algorithm
 
 ### Objective
+Implement the "Pulse and Listen" pan detection algorithm using the ESP32-S3's hardware capture peripherals for non-blocking, precision measurement.
 
-Implement the "pulse-and-measure" pan detection algorithm.
+### 1. Algorithm Design: The "Ping" Method
+The MCU injects a small energy pulse into the tank and measures the decay (ringing) time.
+- **Pulse:** Fire the half-bridge for a very short duration (e.g., 20µs).
+- **Listen:** Disable PWM (High-Z) and count the resonant ring-down cycles via the Current Sense Transformer (ZC signal).
 
-### The "Ping" Algorithm
+| Decay Cycles | Interpretation | Physics |
+|--------------|----------------|---------|
+| **< 5 cycles** | Pan Present (Ferrous) | Heavy magnetic damping dissipates energy quickly. |
+| **> 20 cycles** | No Pan | High Q-factor tank rings freely. |
+| **< 2 cycles** | Non-Ferrous/Fault | Over-damped (Aluminum) or Short Circuit. |
 
-The MCU injects a small energy pulse and measures the decay time:
+### 2. Production Implementation (Non-Blocking)
 
-| Decay Cycles | Interpretation |
-|--------------|----------------|
-| ≤5 cycles | Pan present (energy absorbed) |
-| ≥20 cycles | No pan (energy rings) |
-
-### Implementation
+We use the MCPWM Capture Unit to count edges without blocking the CPU.
 
 ```c
-typedef enum {
-    PAN_UNKNOWN,
-    PAN_PRESENT,
-    PAN_ABSENT
-} pan_status_t;
+// firmware/components/pan_detect/pan_detect.c
+#include "driver/mcpwm_prelude.h"
+#include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-pan_status_t detect_pan(void) {
-    // Inject single low-energy pulse
-    mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, 10.0);  // 10% duty
-    vTaskDelay(pdMS_TO_TICKS(1));  // 1ms pulse
-    mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, 0.0);
+// Configuration
+#define PULSE_WIDTH_US 20    // 20 microseconds pulse
+#define DECAY_THRESHOLD_PAN 8
+#define DECAY_THRESHOLD_OPEN 15
+
+typedef enum {
+    PAN_DETECT_NONE,
+    PAN_DETECT_FERROUS,
+    PAN_DETECT_NON_FERROUS, // Aluminum/Copper
+    PAN_DETECT_ERROR
+} pan_result_t;
+
+// Global context for ISR
+static volatile uint32_t edge_count = 0;
+static mcpwm_cap_channel_handle_t cap_chan = NULL;
+
+// Capture Callback (ISR) - Counts zero-crossings
+static bool IRAM_ATTR decay_capture_cb(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data) {
+    edge_count++;
+    return false; // No context switch needed
+}
+
+pan_result_t pan_detect_run(mcpwm_timer_handle_t timer_handle) {
+    // 1. Reset Capture Counter
+    edge_count = 0;
     
-    // Measure decay time
-    uint32_t start = esp_timer_get_time();
-    int cycles = 0;
+    // 2. Generate Pulse (One-Shot)
+    // We manually start and stop the timer for a precise short burst
+    // Note: In production, use a dedicated one-shot timer configuration
+    mcpwm_timer_start_stop(timer_handle, MCPWM_TIMER_START_NO_STOP);
     
-    while (gpio_get_level(CURRENT_SENSE_ZC) == 0 && cycles < 30) {
-        // Wait for zero crossing
+    // Busy-wait for 20us (acceptable for this short duration)
+    esp_rom_delay_us(PULSE_WIDTH_US); 
+    
+    // Force Stop (High-Z or Low, depending on driver logic)
+    mcpwm_timer_start_stop(timer_handle, MCPWM_TIMER_STOP_EMPTY); 
+    
+    // 3. Listen Window
+    // Allow ringing to occur. Ringing at 30kHz = 33us per cycle.
+    // 30 cycles ~ 1ms. Wait 2ms to be safe.
+    vTaskDelay(pdMS_TO_TICKS(2)); 
+    
+    // 4. Analyze Results
+    uint32_t detected_edges = edge_count;
+    
+    if (detected_edges == 0) {
+        return PAN_DETECT_ERROR; // Sensor fault?
+    } else if (detected_edges < 3) {
+        return PAN_DETECT_NON_FERROUS; // Damped instantly (or short)
+    } else if (detected_edges < DECAY_THRESHOLD_PAN) {
+        return PAN_DETECT_FERROUS; // Good Pan
+    } else {
+        return PAN_DETECT_NONE; // Ringing continued (High Q)
     }
-    
-    while (cycles < 30) {
-        if (gpio_get_level(CURRENT_SENSE_ZC)) {
-            cycles++;
-            while (gpio_get_level(CURRENT_SENSE_ZC));  // Wait for low
-        }
-        
-        if ((esp_timer_get_time() - start) > 1000) break;  // 1ms timeout
-    }
-    
-    if (cycles <= 5) return PAN_PRESENT;
-    if (cycles >= 20) return PAN_ABSENT;
-    return PAN_UNKNOWN;  // Retry needed
 }
 ```
+
+### 3. Unit Testing Strategy
+Since we cannot easily mock the physics in a pure unit test, we abstract the "analyze" logic.
+
+```c
+// test_pan_detect.c
+void test_pan_logic_ferrous(void) {
+    uint32_t edges = 4; // Simulated heavy damping
+    TEST_ASSERT_EQUAL(PAN_DETECT_FERROUS, analyze_edges(edges));
+}
+
+void test_pan_logic_nopan(void) {
+    uint32_t edges = 25; // Simulated ringing
+    TEST_ASSERT_EQUAL(PAN_DETECT_NONE, analyze_edges(edges));
+}
+```
+
+### 4. Performance & Tuning
+- **Execution Time:** ~2.1ms per check. Safe to run at 10Hz (every 100ms) in Standby mode.
+- **CPU Load:** < 0.1%. Most time is spent in `vTaskDelay` (yielded).
+- **Memory:** Stack usage minimal (< 64 bytes).
+- **Tuning:** Adjust `PULSE_WIDTH_US` if the pulse is too weak to ring the tank or too strong (causing noise).
 
 ### Simulation Exercise
 
@@ -3051,54 +3239,111 @@ Model both cases in simulation and verify the detection algorithm works reliably
 - [ ] Detection reliable for stainless steel
 - [ ] Aluminum correctly rejected
 - [ ] No false positives with empty coil
+- [ ] Aluminum correctly rejected
+- [ ] No false positives with empty coil
 
 ---
 
 ## Lesson 28: PID Temperature Control
 
 ### Objective
+Implement and tune a robust PID control loop for precision temperature regulation, addressing the specific thermal lag and non-linearity of induction cooking.
 
-Implement and tune the PID control loop for precision temperature regulation.
+### 1. Theory: PID for Induction Heating
+Temperature control in induction cooking is characterized by large thermal inertia (lag).
+- **P (Proportional):** Reacts to current error. Provides the bulk of the control effort.
+- **I (Integral):** Corrects steady-state error (heat loss). Critical for holding specific temperatures (e.g., sous-vide).
+- **D (Derivative):** Predicts future error (dampens overshoot).
 
-### Target Performance
+**Challenges:**
+- **Thermal Lag:** The pan takes time to heat up after power is applied. A high P-term causes overshoot.
+- **Non-Linearity:** Efficiency changes with temperature.
+- **Integrator Windup:** If the pan is removed or power is saturated, the I-term can grow indefinitely, causing massive overshoot when conditions return to normal.
 
-| Metric | Target |
-|--------|--------|
-| Overshoot | Zero (critical for precision cooking) |
-| Steady-state error | ≤0.5°C |
-| Response time | <60 seconds to setpoint |
+### 2. Production Implementation
 
-### Implementation
+We use a "Velocity Form" or robust "Positional Form" PID with Anti-Windup and "Derivative on Measurement".
 
 ```c
-typedef struct {
-    float Kp, Ki, Kd;
-    float integral;
-    float prev_error;
-    float integral_limit;
-} pid_controller_t;
+// firmware/components/pid/pid.c
+#include <math.h>
 
-float pid_compute(pid_controller_t *pid, float setpoint, float measured, float dt) {
-    float error = setpoint - measured;
+typedef struct {
+    // Tuning Parameters
+    float kp;
+    float ki;
+    float kd;
     
-    // Proportional term
-    float P = pid->Kp * error;
+    // Limits
+    float output_min;
+    float output_max;
+    float integrator_limit;
     
-    // Integral term with anti-windup
-    pid->integral += error * dt;
-    pid->integral = fmaxf(-pid->integral_limit, fminf(pid->integral_limit, pid->integral));
-    float I = pid->Ki * pid->integral;
+    // State
+    float integrator;
+    float prev_error;
+    float prev_measurement; // For "Derivative on Measurement"
+} pid_handle_t;
+
+void pid_init(pid_handle_t *pid, float kp, float ki, float kd) {
+    pid->kp = kp; pid->ki = ki; pid->kd = kd;
+    pid->integrator = 0.0f;
+    pid->prev_error = 0.0f;
+    pid->prev_measurement = 0.0f;
+    pid->output_min = 0.0f;
+    pid->output_max = 100.0f; // Duty Cycle %
+    pid->integrator_limit = 50.0f; // Limit I-term contribution
+}
+
+float pid_compute(pid_handle_t *pid, float setpoint, float measurement, float dt_sec) {
+    float error = setpoint - measurement;
     
-    // Derivative term (on measurement to avoid derivative kick)
-    float derivative = (pid->prev_error - error) / dt;  // Note: negative for measurement
-    float D = pid->Kd * derivative;
+    // 1. Proportional Term
+    float p_term = pid->kp * error;
+    
+    // 2. Integral Term (Trapezoidal Rule for accuracy)
+    pid->integrator += (error * dt_sec);
+    
+    // Anti-Windup: Clamping
+    if (pid->integrator > pid->integrator_limit) pid->integrator = pid->integrator_limit;
+    if (pid->integrator < -pid->integrator_limit) pid->integrator = -pid->integrator_limit;
+    
+    float i_term = pid->ki * pid->integrator;
+    
+    // 3. Derivative Term (Derivative on Measurement to avoid "Kick" on setpoint change)
+    // dMeasured/dt = (Current - Prev) / dt
+    float d_term = 0.0f;
+    if (dt_sec > 0.0f) {
+        d_term = -pid->kd * ((measurement - pid->prev_measurement) / dt_sec);
+    }
+    
+    // Output Calculation
+    float output = p_term + i_term + d_term;
+    
+    // Output Saturation
+    if (output > pid->output_max) output = pid->output_max;
+    if (output < pid->output_min) output = pid->output_min;
+    
+    // Update State
     pid->prev_error = error;
+    pid->prev_measurement = measurement;
     
-    // Combined output
-    float output = P + I + D;
-    return fmaxf(0.0f, fminf(100.0f, output));  // Clamp 0-100%
+    return output;
 }
 ```
+
+### 3. Tuning Guidelines (Ziegler-Nichols Modified)
+1.  **Baseline:** Set $K_i = 0, K_d = 0$.
+2.  **Find $K_u$:** Increase $K_p$ until system oscillates consistently (Ultimate Gain). Measure period ($T_u$).
+3.  **Calculate Gains:**
+    *   $K_p = 0.3 K_u$ (Reduced from 0.6 for "No Overshoot")
+    *   $K_i = 2 K_p / T_u$
+    *   $K_d = K_p T_u / 3$
+4.  **Refine:** For cooking, we prefer **over-damped** response (slow approach) to avoid burning food.
+
+### 4. Benchmarks
+- **Update Rate:** 1Hz - 10Hz. (Thermal dynamics are slow; 100Hz is unnecessary).
+- **Precision:** Float32 is sufficient.
 
 ### Simulation Exercise
 
@@ -3142,95 +3387,278 @@ class ThermalModel:
 ## Lesson 29: Phase-Locked Loop for ZVS Tracking
 
 ### Objective
+Implement a robust digital Phase-Locked Loop (PLL) on the ESP32-S3 to dynamically track the resonant frequency of the tank circuit, ensuring Zero Voltage Switching (ZVS) under varying load conditions.
 
-Implement the software PLL that maintains zero-voltage switching across load variations.
+### 1. Theory: Why PLL for Induction Heating?
+In a resonant converter, the tank's resonant frequency ($f_r$) shifts significantly depending on the pan material and coupling.
+- **Inductive Load (Above Resonance):** The current lags the voltage. This is the preferred region for ZVS.
+- **Capacitive Load (Below Resonance):** The current leads the voltage. This causes hard switching and potential MOSFET destruction.
+- **ZVS Condition:** To achieve ZVS, we want to operate slightly above resonance, where the inductive reactance creates a small phase lag, allowing the MOSFET body diodes to conduct before the switch turns on.
 
-### Theory
+The PLL's job is to adjust the switching frequency ($f_{sw}$) to maintain a constant phase angle ($\phi$) between the inverter output voltage and the tank current.
 
-As pan loading changes, the optimal operating frequency shifts. The PLL adjusts frequency to maintain the desired phase relationship between drive and current.
+#### Phase Detection Methods
+1.  **Zero Crossing Detection (ZCD):** Uses a comparator (like the LM393 from Lesson 10) to create a digital pulse when the current crosses zero. The time difference between the PWM edge and the ZCD edge is the phase shift.
+2.  **Direct ADC Sampling:** Fast sampling of voltage and current to calculate phase. (Too slow for 40kHz without dedicated DSP hardware).
+3.  **Quadrature Demodulation:** Multiplying the current signal by sine/cosine references. (Complex to implement in software at high speeds).
 
-### Implementation
+We will use the **ZCD method** coupled with the ESP32's **MCPWM Capture Module**.
 
+### 2. Digital PLL Implementation on ESP32-S3
+
+The ESP32-S3's Motor Control PWM (MCPWM) module has a dedicated capture unit that can timestamp events with nanosecond precision.
+
+#### Architecture
+1.  **PWM Output:** Generates the 30-40kHz square wave for the Gate Driver.
+2.  **Capture Input:** Connected to the output of the Current Sense Transformer -> Comparator (ZCD).
+3.  **Interrupt/DMA:** Triggered on the capture event to read the timestamp.
+4.  **Control Loop:** Calculates the time delta ($t_{lag}$), compares it to the target $t_{target}$, and adjusts frequency.
+
+#### Phase Measurement Logic
+Let $T_{sw}$ be the switching period.
+- The PWM edge (Low->High) happens at $t=0$.
+- The Current ZCD (Low->High) happens at $t_{zcd}$.
+- Phase lag $\phi = \frac{t_{zcd}}{T_{sw}} \times 360^\circ$.
+
+We control $t_{zcd}$ directly to be a fixed time (e.g., 500ns - 1.5µs) to ensure ZVS.
+
+### 3. Simulation: Python PLL Behavior
+
+Before coding firmware, we simulate the locking behavior.
+
+**File:** `simulations/pll_sim.py`
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+class DigitalPLL:
+    def __init__(self, f_center, f_min, f_max, kp, ki, ts):
+        self.f_center = f_center
+        self.f_min = f_min
+        self.f_max = f_max
+        self.kp = kp
+        self.ki = ki
+        self.ts = ts # Sampling time
+        self.integrator = 0
+        self.freq = f_center
+
+    def update(self, target_phase, measured_phase):
+        error = target_phase - measured_phase
+        
+        # Proportional term
+        p_term = self.kp * error
+        
+        # Integral term
+        self.integrator += self.ki * error * self.ts
+        
+        # Output frequency
+        self.freq = self.f_center + p_term + self.integrator
+        
+        # Saturation
+        if self.freq > self.f_max: self.freq = self.f_max
+        if self.freq < self.f_min: self.freq = self.f_min
+        
+        return self.freq
+
+# Simulation Loop
+ts = 1/1000.0 # 1kHz control loop
+time = np.arange(0, 0.5, ts)
+pll = DigitalPLL(35000, 30000, 40000, 500, 10000, ts)
+
+# Simulate a system where phase decreases as frequency increases (Inductive slope)
+f_resonant = 33000
+true_phase = []
+freqs = []
+current_freq = 35000
+
+for t in time:
+    # System Plant Model: At F_res, phase is 0. Above F_res, phase lags (positive).
+    # Linear approx: Phase = (Freq - F_resonant) * Sensitivity
+    actual_phase = (current_freq - f_resonant) * 0.05 
+    
+    # Add noise
+    measured_phase = actual_phase + np.random.normal(0, 1.0)
+    
+    # Update PLL (Target phase e.g. 45 degrees for safety)
+    current_freq = pll.update(45.0, measured_phase)
+    
+    # Disturbance: Pan removed at t=0.25s (Resonance shifts up)
+    if t > 0.25:
+        f_resonant = 36000 
+
+    true_phase.append(actual_phase)
+    freqs.append(current_freq)
+
+# Plotting code would go here
+```
+
+### 4. Firmware Implementation
+
+We integrate the PLL into the ESP32-S3 MCPWM driver.
+
+**File:** `firmware/main/pll_control.c`
 ```c
-typedef struct {
-    float frequency;      // Current operating frequency
-    float phase_target;   // Target phase angle (radians)
-    float Kp, Ki;         // PI gains
-    float integral;
-    float freq_min, freq_max;
-} zvs_pll_t;
+#include "driver/mcpwm_prelude.h"
+#include <math.h>
 
-void zvs_pll_update(zvs_pll_t *pll, float measured_phase, float dt) {
-    // Phase error (positive = current lagging = increase frequency)
-    float phase_error = pll->phase_target - measured_phase;
+#define PLL_KP 2.0f
+#define PLL_KI 50.0f
+#define TARGET_PHASE_US 1.5f // Target lag in microseconds
+#define MIN_FREQ_HZ 30000
+#define MAX_FREQ_HZ 50000
+
+typedef struct {
+    float current_freq;
+    float integrator;
+    mcpwm_timer_handle_t timer;
+} pll_context_t;
+
+pll_context_t pll_ctx;
+
+// Called from High-Priority Task or ISR
+void update_pll_loop(float measured_lag_us) {
+    float error = TARGET_PHASE_US - measured_lag_us;
+
+    // PI Control
+    float p_out = PLL_KP * error;
+    pll_ctx.integrator += PLL_KI * error * 0.001f; // Assuming 1ms loop
     
-    // Wrap phase error to [-π, π]
-    while (phase_error > M_PI) phase_error -= 2 * M_PI;
-    while (phase_error < -M_PI) phase_error += 2 * M_PI;
-    
-    // PI control
-    float P = pll->Kp * phase_error;
-    pll->integral += phase_error * dt;
-    float I = pll->Ki * pll->integral;
-    
-    // Update frequency
-    pll->frequency += P + I;
-    pll->frequency = fmaxf(pll->freq_min, fminf(pll->freq_max, pll->frequency));
-    
-    // Apply new frequency to MCPWM
-    mcpwm_set_frequency(MCPWM_UNIT_0, MCPWM_TIMER_0, (uint32_t)pll->frequency);
+    float new_freq = pll_ctx.current_freq + p_out + pll_ctx.integrator;
+
+    // Safety Limits
+    if (new_freq > MAX_FREQ_HZ) new_freq = MAX_FREQ_HZ;
+    if (new_freq < MIN_FREQ_HZ) new_freq = MIN_FREQ_HZ;
+
+    // Apply to Hardware with Hysteresis
+    if (fabs(new_freq - pll_ctx.current_freq) > 10.0f) {
+        mcpwm_timer_set_period_hz(pll_ctx.timer, (uint32_t)new_freq);
+        pll_ctx.current_freq = new_freq;
+    }
 }
 ```
 
-### Validation Checkpoint
+### 5. Validation Criteria & Test Procedures
 
-- [ ] PLL locks within 100ms of load change
-- [ ] ZVS maintained across 50-100% load
-- [ ] Frequency limits prevent unsafe operation
+1.  **Lock Range Test:**
+    *   **Setup:** Use the coil with variable capacitance bank (or move pan).
+    *   **Procedure:** Sweep the tank resonance from 30kHz to 40kHz manually. Enable PLL.
+    *   **Success:** PLL automatically adjusts $f_{sw}$ to match. Phase error < 10 degrees.
+
+2.  **Step Response:**
+    *   **Procedure:** Quickly lift the pan 1cm.
+    *   **Success:** Frequency settles to new setpoint within 100ms. No "undershoot" below resonance.
+
+3.  **Start-up Lock:**
+    *   **Procedure:** Start system at $f_{max}$ (Safe Zone).
+    *   **Success:** Frequency ramps down until phase target is met.
+
+4.  **Loss of Lock Safety:**
+    *   **Procedure:** Disconnect ZCD signal line.
+    *   **Success:** System detects timeout/missing pulses and triggers immediate shutdown.
 
 ---
 
 ## Lesson 30: Watchdog Timer Implementation
 
 ### Objective
+Implement robust firmware safety mechanisms using the ESP32 Task Watchdog Timer (TWDT) to ensure the system fails safe (reboots/shuts down) if the firmware hangs or behaves unpredictably.
 
-Implement firmware safety mechanisms including the Task Watchdog Timer.
+### 1. Theory: Watchdog Timers in Power Electronics
+A Watchdog Timer (WDT) is a hardware timer that resets the MCU if the firmware fails to "pet" (reset) it periodically.
+In a 2000W induction cooker, a frozen MCU with the PWM stuck "ON" can destroy IGBTs or boil dry a pot in seconds.
+- **Task Watchdog (TWDT):** Monitors individual FreeRTOS tasks. If a critical task (like the PID loop) starves or hangs, the WDT triggers.
+- **Interrupt Watchdog (IWDT):** Monitors ISR latency.
 
-### Safety Requirement
+### 2. Production Implementation
+We monitor multiple critical tasks (Control Loop, UI, Safety Monitor) independently.
 
 ```c
+// firmware/components/safety/watchdog.c
 #include "esp_task_wdt.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
 
-#define WDT_TIMEOUT_S 2
+// Configuration
+#define WDT_TIMEOUT_MS 1000  // 1 Second Timeout (Strict)
+#define CONTROL_LOOP_FREQ_HZ 100
 
-void app_main(void) {
-    // Initialize watchdog
-    esp_task_wdt_config_t wdt_config = {
-        .timeout_ms = WDT_TIMEOUT_S * 1000,
-        .trigger_panic = true,
+static const char *TAG = "WDT";
+
+// Initialize the Task Watchdog for the entire system
+void safety_wdt_init(void) {
+    esp_task_wdt_config_t config = {
+        .timeout_ms = WDT_TIMEOUT_MS,
+        .idle_core_mask = (1 << 0) | (1 << 1), // Watch both cores' Idle tasks
+        .trigger_panic = true, // Panic (Reboot) on timeout
     };
-    esp_task_wdt_init(&wdt_config);
-    esp_task_wdt_add(NULL);  // Add current task
+    ESP_ERROR_CHECK(esp_task_wdt_init(&config));
+    ESP_LOGI(TAG, "Task WDT Initialized with %d ms timeout", WDT_TIMEOUT_MS);
+}
+
+// Example: Critical Control Task
+void task_control_loop(void *arg) {
+    // 1. Subscribe this task to the WDT
+    // If we don't call reset() within 1s, system reboots.
+    ESP_ERROR_CHECK(esp_task_wdt_add(NULL)); 
     
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xFrequency = pdMS_TO_TICKS(1000 / CONTROL_LOOP_FREQ_HZ);
+
     while (1) {
-        // Normal operation
-        control_loop();
+        // 2. Execute Critical Logic
+        // If this hangs > 1s, WDT triggers
+        run_pid_loop();
+        check_safety_interlocks();
         
-        // Reset watchdog - MUST be called every iteration
+        // 3. "Pet the Dog" (Reset Timer)
+        // CRITICAL: Only reset if logical conditions are met (see Logical WDT below)
         esp_task_wdt_reset();
         
-        vTaskDelay(pdMS_TO_TICKS(10));  // 100Hz loop
+        // 4. Wait for next cycle
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
 ```
 
-If the watchdog is not reset within 2 seconds, the system reboots to a safe OFF state.
+### 3. Logical Watchdog Strategy
+A standard WDT only catches *slow* or *stuck* loops. It does not catch a loop that is running too *fast* (skipping logic) or running with invalid data.
+We implement a "Logical Check" before resetting the WDT.
+
+```c
+void secure_wdt_reset(void) {
+    bool safety_ok = check_hardware_interlocks();
+    bool sensor_ok = check_sensors_valid();
+    
+    if (safety_ok && sensor_ok) {
+        esp_task_wdt_reset();
+    } else {
+        // If unsafe, DO NOT reset WDT. 
+        // Let it timeout and reboot the system to reach Safe State.
+        ESP_LOGE(TAG, "Safety check failed! Allowing WDT timeout...");
+    }
+}
+```
+
+### 4. Boot Reason & Recovery
+On startup, we check *why* we reset.
+```c
+void check_boot_reason(void) {
+    esp_reset_reason_t reason = esp_reset_reason();
+    if (reason == ESP_RST_TASK_WDT || reason == ESP_RST_WDT) {
+        ESP_LOGE(TAG, "Rebooted due to Watchdog Timeout! Entering SAFE MODE.");
+        enter_safe_mode(); // Disable PWM, User must manually reset
+    }
+}
+```
 
 ### Validation Checkpoint
 
-- [ ] WDT triggers on infinite loop
-- [ ] System boots to safe state after WDT reset
-- [ ] Normal operation does not trigger WDT
+- [ ] **Stuck Loop Test:** Insert `while(1){}` in the control loop. Verify system reboots in ~1s.
+- [ ] **Hard Fault Test:** Force a crash (dereference NULL). Verify reboot.
+- [ ] **Logical Test:** Simulate a sensor failure. Verify WDT times out (if using logical strategy).
+- [ ] **Boot State:** System enters Safe Mode (PWM Off) after a WDT reset.
 
 ---
 
@@ -4722,40 +5150,107 @@ int main(void) {
 ## Lesson 32: Firmware Integration Testing
 
 ### Objective
+Integrate all firmware modules and validate system behavior using automated Unit Tests and Integration Tests (Unity Framework). Ensure performance meets timing constraints.
 
-Integrate all firmware modules and validate against simulation models.
+### 1. Theory: Automated Firmware Testing
+Manual testing is insufficient for safety-critical systems. We implement:
+1.  **Unit Tests:** Test individual functions (PID, Pan Detect) in isolation.
+2.  **Integration Tests:** Test interaction between modules (e.g., State Machine + PWM).
+3.  **Performance Benchmarking:** Verify CPU load and timing.
 
-### Test Cases
-
-| Test | Procedure | Expected Result |
-|------|-----------|-----------------|
-| Normal sequence | Power on → Place pan → Set temp → Heat | Reaches setpoint within 60s |
-| Pan removal | Heat to 100°C → Remove pan | Stops heating within 500ms |
-| Over-temp | Block airflow | Shuts down at 110°C |
-| Fan failure | Disconnect fan | Emergency shutdown |
-| Power-on self-test | Normal boot | All peripherals pass |
-
-### Test Harness
+### 2. Production Implementation (Unity Framework)
+We use the **Unity** testing framework, which is built into ESP-IDF.
 
 ```c
-// Firmware test harness (runs on target)
-void run_integration_tests(void) {
-    TEST_ASSERT(test_adc_calibration());
-    TEST_ASSERT(test_pwm_output());
-    TEST_ASSERT(test_fan_control());
-    TEST_ASSERT(test_temperature_sensing());
-    TEST_ASSERT(test_safety_interlocks());
-    TEST_ASSERT(test_state_machine());
+// firmware/test/test_main.c
+#include "unity.h"
+#include "pid.h"
+#include "state_machine.h"
+#include "safety.h"
+
+// 1. Unit Test Example: PID Logic
+void test_pid_convergence(void) {
+    pid_handle_t pid;
+    pid_init(&pid, 1.0, 0.1, 0.0); // Simple gains
     
-    printf("All integration tests passed!\n");
+    // Simulate 100 steps of a simple plant
+    float measurement = 20.0;
+    float setpoint = 100.0;
+    
+    for (int i=0; i<100; i++) {
+        float out = pid_compute(&pid, setpoint, measurement, 0.1);
+        measurement += out * 0.05; // Dummy plant response
+    }
+    
+    // Assert we converged
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, setpoint, measurement);
+}
+
+// 2. Integration Test: State Machine + Safety
+void test_safety_shutdown(void) {
+    // Setup: Force State to RUNNING
+    fsm_force_state(STATE_RUNNING);
+    
+    // Action: Simulate Over-Temp Event
+    mock_set_temperature(120.0f); // > Limit
+    
+    // Run FSM Cycle
+    fsm_run_cycle();
+    
+    // Assert: System Shutdown
+    TEST_ASSERT_EQUAL(STATE_ERROR, fsm_get_current_state());
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, get_pwm_duty_cycle()); // PWM must be 0
+}
+
+void app_main(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_pid_convergence);
+    RUN_TEST(test_safety_shutdown);
+    UNITY_END();
 }
 ```
 
+### 3. Performance Benchmarks
+We must verify that our control loop meets timing constraints (e.g., 1kHz loop must finish in <1ms).
+
+```c
+// firmware/main/benchmark.c
+void benchmark_control_loop(void) {
+    int64_t start = esp_timer_get_time();
+    
+    for (int i=0; i<1000; i++) {
+        run_full_control_cycle(); // PID + Safety + FSM
+    }
+    
+    int64_t end = esp_timer_get_time();
+    float avg_us = (float)(end - start) / 1000.0f;
+    
+    printf("Avg Control Loop Time: %.2f us\n", avg_us);
+    
+    // Fail if we use > 50% of our time budget (500us limit for 1ms loop)
+    TEST_ASSERT_LESS_THAN(500.0f, avg_us); 
+}
+```
+
+### 4. Memory Usage Analysis
+Embedded systems must track RAM usage to prevent stack overflows or heap exhaustion.
+- **Static Analysis:** Run `idf.py size-components`.
+- **Dynamic Analysis:**
+    ```c
+    void print_memory_stats(void) {
+        printf("Free Heap: %d bytes\n", esp_get_free_heap_size());
+        printf("Min Free Heap: %d bytes\n", esp_get_minimum_free_heap_size());
+        printf("Stack High Water Mark: %d bytes\n", uxTaskGetStackHighWaterMark(NULL));
+    }
+    ```
+
 ### Validation Checkpoint
 
-- [ ] All test cases pass
-- [ ] Code coverage > 80%
-- [ ] No memory leaks detected
+- [ ] All Unit Tests pass (Green).
+- [ ] Integration Tests verify Safety Shutdown logic.
+- [ ] Control Loop execution time < 500µs.
+- [ ] Heap fragmentation remains low after 24h stress test.
+- [ ] No memory leaks (Min Free Heap stable).
 
 ---
 
@@ -4931,6 +5426,71 @@ kicad-cli pcb export pos \
 - [ ] DRC passes with zero errors
 - [ ] Gerbers reviewed in viewer
 - [ ] BOM complete and accurate
+
+---
+
+## Lesson 37 Extension: Manufacturing Tolerance & Reliability
+
+### Objective
+Ensure the design is robust against component variations (tolerances), environmental extremes, and aging effects. A working prototype $\neq$ a manufacturable product.
+
+### 1. Component Tolerance Stack-up
+Real components deviate from their nominal values.
+- **Resonant Tank:** $L \pm 10\%$, $C \pm 5\%$.
+    - $f_{res} = \frac{1}{2\pi\sqrt{LC}}$.
+    - Worst Case Low $f$: $L_{max}, C_{max}$. Worst Case High $f$: $L_{min}, C_{min}$.
+    - **Impact:** PLL must track a wider range than calculated.
+- **Voltage Dividers:** $R \pm 1\%$.
+    - $V_{out} = V_{in} \frac{R_2}{R_1+R_2}$.
+    - Worst case error can be $\approx 2\%$. Firmware calibration is required.
+
+### 2. Worst-Case Circuit Analysis (WCCA)
+We use Monte Carlo simulation in SPICE to validate robustness.
+
+**File:** `simulations/monte_carlo_tank.cir`
+```spice
+* Monte Carlo Simulation of Resonant Tank Frequency
+.param L_val=50u C_val=470n
+.param tol_L=0.10 tol_C=0.05
+
+* Define components with Gaussian distribution
+.param L_mc = agauss(L_val, L_val*tol_L, 3)
+.param C_mc = agauss(C_val, C_val*tol_C, 3)
+
+L1 1 0 {L_mc}
+C1 1 0 {C_mc}
+I1 0 1 AC 1
+
+.ac dec 100 20k 60k
+.step param run 1 100 1 ; Run 100 iterations
+.measure ac fres max mag(v(1))
+```
+
+### 3. Component Derating
+Reliability is a function of stress. We apply standard derating rules (e.g., IPC-9592B).
+
+| Component | Parameter | Rating | Max Applied | Derating Factor | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **IGBT** | $V_{CES}$ | 1200V | 900V (Surge) | 75% | **Pass** (<80%) |
+| **IGBT** | $T_j$ | 175°C | 125°C | 71% | **Pass** (<80%) |
+| **Film Cap** | $V_{DC}$ | 630V | 340V | 54% | **Pass** (<60%) |
+| **Resistor** | Power | 0.25W | 0.10W | 40% | **Pass** (<50%) |
+
+### 4. Thermal & Environmental Validation
+- **Temperature Sweep:** Simulation must pass from $-20^\circ C$ to $+85^\circ C$.
+    - NTC/PTC resistance changes significantly.
+    - $V_{th}$ of MOSFETs drops with temp (easier to turn on, slower to turn off).
+- **Humidity:** Conformal coating required for high-impedance nodes (e.g., Zero Crossing detection) to prevent leakage currents.
+
+### 5. Production Yield Modeling
+If $f_{res}$ tolerance is too wide, some units might fall outside the optimal ZVS window.
+- **Process Capability ($C_{pk}$):** Target $C_{pk} > 1.33$ (4 Sigma).
+- **Action:** If yield is low, tighten tolerances (use 2% caps instead of 5%) or widen firmware tracking range.
+
+### 6. Validation Checkpoint
+- [ ] Monte Carlo simulation shows $f_{res}$ stays within 30kHz-40kHz range (3$\sigma$).
+- [ ] All components meet derating guidelines under worst-case load.
+- [ ] Thermal simulation confirms $T_j < 125^\circ C$ at $T_{amb} = 40^\circ C$.
 
 ---
 
@@ -5168,6 +5728,59 @@ Complete final testing and create documentation package.
 
 # Appendix A: Component Glossary & Technical Justification
 
+### 1. Critical Component Selection Rationale
+
+#### Power Switch (IGBT vs. MOSFET vs. SiC)
+- **Selection:** **Infineon IKW40N120H3** (1200V, 40A IGBT)
+- **Rationale:**
+    - **Voltage Rating:** 1200V is required for a resonant tank driven from rectified 120V mains ($V_{bus} \approx 170V$). The resonant swing can reach $\pi \times V_{bus} \approx 540V$, plus overshoot. 600V devices are marginal; 1200V provides a 2x safety margin.
+    - **Technology:** "HighSpeed 3" allows 40kHz switching with low tail current ($E_{off}$ losses), bridging the gap between traditional IGBTs and MOSFETs.
+    - **Cost:** ~$4.50 vs ~$15.00 for SiC MOSFETs. SiC offers lower losses but is cost-prohibitive for this budget class.
+- **Alternatives:**
+    - *STGW40H120DF2* (STMicro) - Excellent second source.
+    - *FGA40N120* (Fairchild/OnSemi) - Legacy part, higher losses.
+
+#### Resonant Capacitor Bank
+- **Selection:** **KEMET R76 Series** (MKP Polypropylene)
+- **Rationale:**
+    - **Dielectric:** Polypropylene is mandatory for high pulse current handling and low dielectric loss ($\tan \delta < 0.0005$). Polyester (Mylar) has 10x higher losses and will melt under load.
+    - **Configuration:** Parallel bank (e.g., 10x 47nF) distributes heat and lowers Total ESR compared to a single large capacitor.
+- **Cost/Perf:** MKP is premium priced but non-negotiable for safety.
+
+#### Gate Driver (Isolated)
+- **Selection:** **TI UCC21550**
+- **Rationale:**
+    - **Isolation:** Capacitive isolation offers superior life and CMTI (>100V/ns) compared to Optocouplers, preventing "latch-up" during high dV/dt switching events.
+    - **Safety:** Programmable dead-time prevents cross-conduction (shoot-through).
+- **Alternatives:**
+    - *Si823x* (Skyworks) - Similar performance.
+    - *ADuM4223* (Analog Devices) - Reliable alternative.
+
+### 2. Bill of Materials (BOM) Estimate
+
+| Category | Part Number | Description | Qty | Unit Cost | Total | Mfr | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Power** | IKW40N120H3 | IGBT 1200V 40A TO-247 | 2 | $4.50 | $9.00 | Infineon | Main Switch |
+| **Power** | R76QR3470SE30J | Cap MKP 470nF 1000V | 1 | $3.20 | $3.20 | KEMET | Tank Cap (or 5x 100nF) |
+| **Driver** | UCC21550DW | Iso Gate Driver SOIC-16 | 1 | $2.80 | $2.80 | TI | High CMTI |
+| **Driver** | UCC14140-Q1 | Iso DC/DC Module | 1 | $4.50 | $4.50 | TI | Bias Supply |
+| **Control**| ESP32-S3-WROOM-1 | MCU Module 8MB Flash | 1 | $3.50 | $3.50 | Espressif | Logic |
+| **Sense** | MAX31865ATP+ | RTD Digital Conv. | 1 | $6.00 | $6.00 | Maxim | Temp Sense |
+| **Sense** | ADuM1250ARZ | I2C Isolator | 1 | $2.50 | $2.50 | ADI | Safety |
+| **Aux** | LMR51430 | Buck Converter 65V | 1 | $1.20 | $1.20 | TI | 24V->5V |
+| **Mech** | T9AS1D12-12 | Relay 30A 240VAC | 1 | $3.00 | $3.00 | TE | Soft-Start |
+| **Passives**| Various | Resistors, MLCCs | 100 | $0.05 | $5.00 | Yageo | 1% Tolerance |
+| **Mag** | Custom | Litz Wire Coil 50uH | 1 | $15.00 | $15.00 | Custom | Main Inductor |
+| **Cooling**| Heatsink | Extruded Al 100x100 | 1 | $8.00 | $8.00 | Wakefield | Cooling |
+| **PCB** | Custom | 4-Layer FR4 | 1 | $5.00 | $5.00 | JLCPCB | Prototype run |
+| **Total** | | | | | **$68.70** | | Est. Single Unit |
+
+**Supply Chain Notes:**
+- **Critical Path:** UCC14140-Q1 is a specialized part. **Risk:** High. **Mitigation:** Design footprint to accept discrete transformer alternative (Lesson 08).
+- **IGBTs:** Widely available, but beware of counterfeits. Buy only from authorized distributors.
+
+### 3. Component Glossary
+
 | Component | Description | Simple Explanation | Technical Justification |
 |-----------|-------------|-------------------|------------------------|
 | **IKW40N120H3** | 1200V 40A IGBT | The power switch that turns on/off 40,000 times per second | High Speed 3 technology for low Eoff. Vce(sat)≈2.05V. RθJC=0.35K/W |
@@ -5256,6 +5869,69 @@ Before operating the completed system:
 - [ ] Tested probe fault detection (open/short)
 - [ ] Verified conformal coating integrity (if applied)
 - [ ] Documented all test results
+
+---
+
+# Appendix E: Debugging & Troubleshooting Guide
+
+### 1. Safety Precautions
+**DANGER: HIGH VOLTAGE (310V DC / 120V AC)**
+- **Isolation:** ALWAYS use an isolation transformer for the DUT (Device Under Test) OR use Differential Probes.
+- **Discharge:** Wait 2 minutes after power-off for the DC Bus capacitors to bleed down. Verify < 10V before touching.
+- **PPE:** Wear safety glasses. No jewelry/watches.
+
+### 2. Common Symptoms & Workflows
+
+#### Symptom: No Power (Dead System)
+1.  **Check AC Input:** Is the fuse blown? (If yes, check Bridge/IGBTs for short).
+2.  **Check Aux Supply:** Is the LMR51430 producing 5V?
+    - If 0V: Check input to buck converter.
+    - If hot: Check for short on 5V rail.
+3.  **Check LDO:** Is 3.3V present at MCU?
+
+#### Symptom: Fuse Blows Immediately
+1.  **Stop:** Do NOT replace fuse and try again.
+2.  **Measure:** Check resistance across AC Input. If < 1kΩ, Bridge Rectifier or MOV is shorted.
+3.  **Measure:** Check resistance across DC Bus. If < 10Ω, IGBTs or Capacitor is shorted.
+    - Desolder IGBTs and test Gate-Emitter (should be open) and Collector-Emitter (diode drop one way).
+
+#### Symptom: Fan Spins, but No Heating
+1.  **Check Interlocks:** Measure voltages at Comparator inputs (Lesson 22). Is a fault asserted?
+2.  **Check Pan Detect:** Does the firmware see the pan? (Use UART logging).
+3.  **Check PWM:** Place scope on Gate Drive output.
+    - **No Signal?** MCU is not driving it (Software/Safety Lockout).
+    - **Signal Present but no Current?** Check DC Bus voltage (Relay might be open).
+
+#### Symptom: "Click-Click" Loop (Relay Cycling)
+1.  **Cause:** DC Bus voltage collapses when Relay closes.
+2.  **Fix:** Check inrush NTC (might be open, preventing pre-charge). Check mains wiring (high resistance).
+
+#### Symptom: IGBT Explosion
+1.  **Cause:** Shoot-through (Cross-conduction) or ZVS failure.
+2.  **Fix:**
+    - Increase Dead-time in firmware.
+    - Check Gate Driver supply (UCC14140). If < 15V, IGBTs may not saturate.
+    - Verify Current Transformer phasing (Positive feedback = Boom).
+
+### 3. Error Codes (Firmware)
+| Code | Meaning | Check |
+| :--- | :--- | :--- |
+| **E01** | Under-Voltage (DC Bus) | Mains voltage, Rectifier, Soft-start |
+| **E02** | Over-Current | Pan placement, Shorted coil |
+| **E03** | IGBT Over-Temp | Fan, Heatsink, Thermal paste |
+| **E04** | Coil Over-Temp | Airflow, Sensor wire broken |
+| **E05** | Comm Error (UI) | Cable loose, RX/TX swap |
+| **E06** | Probe Fault | RTD disconnected/shorted |
+
+### 4. Test Points & Expected Values
+| TP | Signal | Expected (Idle) | Expected (Run) |
+| :--- | :--- | :--- | :--- |
+| **TP1** | 5V Rail | 5.0V ± 0.1V | 5.0V |
+| **TP2** | 3.3V Rail | 3.3V ± 0.05V | 3.3V |
+| **TP3** | Gate High | 0V (Ref to Emitter) | -4V to +18V Square |
+| **TP4** | Gate Low | 0V | -4V to +18V Square |
+| **TP5** | ZC Out | 3.3V/0V Toggle | 30kHz Square |
+| **TP6** | Current Sense | 1.65V (Offset) | Sine wave centered on 1.65V |
 
 ---
 

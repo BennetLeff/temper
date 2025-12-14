@@ -1,0 +1,130 @@
+* Current Transformer SPICE Model
+* For induction cooker tank current sensing and overcurrent protection
+*
+* Model Version: 1.0
+* Date: 2025-12-13
+*
+* CT SPECIFICATIONS:
+* - Turns ratio: 1:1000 (1 primary turn, 1000 secondary turns)
+* - Rated current: 50A primary → 50mA secondary
+* - Frequency range: 20kHz - 100kHz
+* - Core: Ferrite toroid (suitable for HF operation)
+*
+* PARAMETERS:
+* - N = Turns ratio (default 1000)
+* - LM = Magnetizing inductance (default 10mH)
+* - LL = Leakage inductance referred to secondary (default 100uH)
+* - RW = Secondary winding resistance (default 50 ohm)
+* - RCORE = Core loss equivalent resistance (default 100k)
+*
+* TOPOLOGY:
+* The CT is modeled as an ideal transformer with:
+* 1. Magnetizing inductance (Lm) - allows DC to droop
+* 2. Leakage inductance (Ll) - series impedance
+* 3. Winding resistance (Rw) - copper loss
+* 4. Core loss resistance (Rcore) - parallel with Lm
+*
+* PRIMARY PORT: pri_p, pri_n (current flows in, one turn)
+* SECONDARY PORT: sec_p, sec_n (current flows out, N turns)
+*
+***************************************************************************
+
+.subckt CURRENT_TRANSFORMER pri_p pri_n sec_p sec_n
++ PARAMS: N=1000 LM=10m LL=100u RW=50 RCORE=100k
+
+* --- Primary Side ---
+* Sense the primary current (this is what we want to measure)
+V_sense pri_p pri_int 0
+
+* --- Ideal Transformer ---
+* Primary voltage appears across the magnetizing branch
+* Secondary current = Primary current / N
+*
+* Use E (voltage-controlled voltage source) and F (current-controlled current source)
+* Voltage transformation: V_sec = V_pri * N
+* Current transformation: I_pri = I_sec * N
+
+* Magnetizing inductance (parallel with primary)
+* This allows low-frequency droop - CT doesn't pass DC!
+L_mag pri_int pri_n {LM}
+
+* Core loss resistance (parallel with Lm)
+R_core pri_int pri_n {RCORE}
+
+* --- Secondary Side ---
+* Current source representing transformed primary current
+* I_secondary = I_primary / N
+F_xfmr sec_p sec_int V_sense {1/N}
+
+* Leakage inductance (series with secondary)
+L_leak sec_int sec_leak {LL}
+
+* Winding resistance (series with secondary)
+R_wind sec_leak sec_n {RW}
+
+.ends CURRENT_TRANSFORMER
+
+***************************************************************************
+* SIMPLIFIED CT MODEL (for faster simulation)
+* Use when magnetizing inductance effects are not critical
+***************************************************************************
+.subckt CT_SIMPLE pri_p pri_n sec_p sec_n
++ PARAMS: N=1000 RW=50
+
+* Sense primary current
+V_sense pri_p pri_n 0
+
+* Transform to secondary (ideal transformer action)
+F_xfmr sec_p sec_int V_sense {1/N}
+
+* Secondary winding resistance
+R_wind sec_int sec_n {RW}
+
+.ends CT_SIMPLE
+
+***************************************************************************
+* CT WITH BURDEN RESISTOR (complete sensing circuit)
+* Outputs voltage proportional to primary current
+***************************************************************************
+.subckt CT_WITH_BURDEN pri_p pri_n v_out gnd
++ PARAMS: N=1000 RW=50 R_BURDEN=50
+
+* Full CT model
+V_sense pri_p pri_int 0
+L_mag pri_int pri_n 10m
+R_core pri_int pri_n 100k
+F_xfmr v_out sec_int V_sense {1/N}
+L_leak sec_int sec_leak 100u
+R_wind sec_leak gnd {RW}
+
+* Burden resistor (converts current to voltage)
+R_burden v_out gnd {R_BURDEN}
+
+* Output voltage = I_primary / N * R_BURDEN
+* At 50A primary, 1000:1 ratio, 50 ohm burden:
+* V_out = 50A / 1000 * 50 = 2.5V peak
+
+.ends CT_WITH_BURDEN
+
+***************************************************************************
+* TEST CIRCUIT FOR CT MODEL VALIDATION
+* Run: ngspice -b current_transformer_test.cir
+***************************************************************************
+* Uncomment below to run standalone test
+*
+* .include current_transformer.sub
+*
+* * Test 1: 50A @ 35kHz sinusoidal primary current
+* I_primary pri_p gnd SIN(0 50 35k)
+* X_ct pri_p gnd sec_p gnd CURRENT_TRANSFORMER N=1000 LM=10m LL=100u RW=50
+* R_burden sec_p gnd 50
+* 
+* .tran 1u 500u
+* .control
+* run
+* plot i(I_primary) title 'Primary Current (A)'
+* plot v(sec_p)/50*1000 title 'Measured Current (A, from secondary voltage)'
+* plot (v(sec_p)/50*1000 - i(I_primary)) title 'Measurement Error (A)'
+* .endc
+* .end
+

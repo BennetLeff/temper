@@ -1,0 +1,74 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: Overvoltage Protection (OVP) Circuit Simulation
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 637
+
+  Measurements for Transient Analysis
+
+v_div_310           =  3.069307e+00
+v_div_420           =  4.158416e+00
+v_ref_actual        =  3.846154e+00
+t_threshold         =   8.58409e-05
+t_fault             =   8.58500e-05
+t_response          =  9.09091e-09
+v_out_normal        =  0.000000e+00
+v_out_fault         =  5.000000e+00
+
+Warning from checkvalid: vector v_ref_actual is not available or has zero length.
+Warning from checkvalid: vector v_div_310 is not available or has zero length.
+Warning from checkvalid: vector v_div_420 is not available or has zero length.
+Warning from checkvalid: vector t_threshold is not available or has zero length.
+Warning from checkvalid: vector t_fault is not available or has zero length.
+Warning from checkvalid: vector t_response is not available or has zero length.
+Warning from checkvalid: vector v_out_normal is not available or has zero length.
+Warning from checkvalid: vector v_out_fault is not available or has zero length.
+
+============================================
+OVP Circuit Verification - Simulation 18
+============================================
+
+Configuration:
+  Divider: 3M / 30k (101:1 ratio)
+  Reference: 3.85V (~390V bus threshold)
+  Comparator: 40ns propagation delay
+
+Test Scenario:
+  0-50us:    310V (normal)
+  50-100us:  Ramp to 420V
+  100-150us: Hold 420V (fault)
+  150-200us: Return to 310V
+
+============================================
+MEASUREMENTS
+============================================
+
+Reference voltage:
+
+Divider at 310V bus:
+
+Divider at 420V bus:
+
+Time when divider reaches threshold:
+
+Time when fault output trips:
+
+Response time (target <10us):
+
+Output at 310V (expect 0V):
+
+Output at 420V (expect 5V):
+
+============================================
+PASS/FAIL
+============================================
+
+ngspice-45.2 done

@@ -1,0 +1,207 @@
+* UCC14140-Q1 Isolated DC/DC Power Module SPICE Model
+* Texas Instruments
+* Behavioral model for circuit simulation
+* Model version: 1.2 (Fixed floating node)
+* Date: 2024
+*
+* This model represents the UCC14140-Q1 isolated DC/DC module
+* Suitable for ngspice and KiCad simulation
+
+***************************************************************************
+* Main Subcircuit: UCC14140-Q1
+***************************************************************************
+.subckt UCC14140-Q1 GNDP1 GNDP2 PG ENA GNDP5 VIN1 VIN2 GNDP8 GNDP9 GNDP10 GNDP11 GNDP12 GNDP13 GNDP14 GNDP15 GNDP16 GNDP17 GNDP18 VEE1 VEE2 VEE3 VEE4 VEE5 VEE6 VEE7 VEE8 VDD1 VDD2 VEE9 VEE10
++ RLIM FBVEE FBVDD VEEA VEE12
+
+* Internal node definitions
+* Combine multiple pins internally
+B_VIN_COMBINE VIN_INT GNDP_INT V=(V(VIN1,GNDP_INT)+V(VIN2,GNDP_INT))/2
+R_VIN_COMBINE VIN_INT GNDP_INT 10MEG
+
+* Tie all GNDP pins together
+R_GNDP1 GNDP1 GNDP_INT 0.001
+R_GNDP2 GNDP2 GNDP_INT 0.001
+R_GNDP5 GNDP5 GNDP_INT 0.001
+R_GNDP8 GNDP8 GNDP_INT 0.001
+R_GNDP9 GNDP9 GNDP_INT 0.001
+R_GNDP10 GNDP10 GNDP_INT 0.001
+R_GNDP11 GNDP11 GNDP_INT 0.001
+R_GNDP12 GNDP12 GNDP_INT 0.001
+R_GNDP13 GNDP13 GNDP_INT 0.001
+R_GNDP14 GNDP14 GNDP_INT 0.001
+R_GNDP15 GNDP15 GNDP_INT 0.001
+R_GNDP16 GNDP16 GNDP_INT 0.001
+R_GNDP17 GNDP17 GNDP_INT 0.001
+R_GNDP18 GNDP18 GNDP_INT 0.001
+
+* Secondary side - tie VEE pins together
+R_VEE1 VEE1 VEE_INT 0.001
+R_VEE2 VEE2 VEE_INT 0.001
+R_VEE3 VEE3 VEE_INT 0.001
+R_VEE4 VEE4 VEE_INT 0.001
+R_VEE5 VEE5 VEE_INT 0.001
+R_VEE6 VEE6 VEE_INT 0.001
+R_VEE7 VEE7 VEE_INT 0.001
+R_VEE8 VEE8 VEE_INT 0.001
+R_VEE9 VEE9 VEE_INT 0.001
+R_VEE10 VEE10 VEE_INT 0.001
+R_VEE12 VEE12 VEE_INT 0.001
+
+* Tie VDD pins together
+R_VDD1 VDD1 VDD_INT 0.001
+R_VDD2 VDD2 VDD_INT 0.001
+
+***************************************************************************
+* Primary Side Logic and Protection
+***************************************************************************
+
+* Enable input with internal pull-down (enabled when high)
+R_ENA_PD ENA GNDP_INT 100k
+
+* Enable threshold detector (Latch with hysteresis)
+* 1.5V threshold, 0.15V hysteresis
+B_ENA_DETECT_RAW N_ENA_DETECT_RAW GNDP_INT V={V(ENA,GNDP_INT)>1.5 ? 3.3 : (V(ENA,GNDP_INT)<1.35 ? 0 : V(N_ENA_DETECT,GNDP_INT))}
+R_ENA_DETECT_SER N_ENA_DETECT_RAW N_ENA_DETECT 1k
+C_ENA_DETECT N_ENA_DETECT GNDP_INT 10n
+R_ENA_DETECT N_ENA_DETECT GNDP_INT 1MEG
+
+* Input UVLO detector (Latch with hysteresis)
+* 8.0V rising, 7.0V falling
+B_UVLO_VIN_RAW N_UVLO_VIN_RAW GNDP_INT V={V(VIN_INT,GNDP_INT)>8.0 ? 3.3 : (V(VIN_INT,GNDP_INT)<7.0 ? 0 : V(N_UVLO_VIN,GNDP_INT))}
+R_UVLO_VIN_SER N_UVLO_VIN_RAW N_UVLO_VIN 1k
+C_UVLO_VIN N_UVLO_VIN GNDP_INT 100n
+R_UVLO_VIN N_UVLO_VIN GNDP_INT 1MEG
+
+* Combined enable and UVLO logic
+B_ENABLE_LOGIC N_ENABLE GNDP_INT V={ (V(N_ENA_DETECT,GNDP_INT)>1.5) * (V(N_UVLO_VIN,GNDP_INT)>1.5) ? 3.3 : 0 }
+R_ENABLE_LOGIC N_ENABLE GNDP_INT 1MEG
+
+* Soft-start capacitor (28.4ms typical startup time)
+* Modeled as RC with 30ms time constant
+* Current source driving capacitor is valid
+B_SOFTSTART N_SS GNDP_INT I={ (V(N_ENABLE,GNDP_INT)>1.5 ? 1u : 0) - (V(N_SS,GNDP_INT)>0 ? V(N_SS,GNDP_INT)/30MEG : 0) }
+C_SOFTSTART N_SS GNDP_INT 1u
+R_SOFTSTART_CLAMP N_SS GNDP_INT 100MEG
+
+* Soft-start limiter
+B_SS_LIMIT N_SS_LIM GNDP_INT V={LIMIT(V(N_SS,GNDP_INT),0,3.3)}
+R_SS_LIMIT N_SS_LIM GNDP_INT 1MEG
+
+***************************************************************************
+* Isolated DC/DC Converter Core
+***************************************************************************
+
+* Input power calculation
+B_PIN N_PIN GNDP_INT V={V(VIN_INT,GNDP_INT)*I(V_VIN_SENSE)}
+V_VIN_SENSE VIN_INT N_VIN_SENSE 0
+
+* Available output power
+B_POUT_AVAIL N_POUT_AVAIL GNDP_INT V={ (V(VIN_INT,GNDP_INT)<10.8) ? (LIMIT(1.0*V(N_SS_LIM,GNDP_INT)/3.3,0,1.0)) : ( (V(VIN_INT,GNDP_INT)>13.2) ? (LIMIT(1.0*V(N_SS_LIM,GNDP_INT)/3.3,0,1.0)) : (LIMIT(1.5*V(N_SS_LIM,GNDP_INT)/3.3,0,1.5)) ) }
+R_POUT_AVAIL N_POUT_AVAIL GNDP_INT 10MEG
+
+***************************************************************************
+* VDD-VEE Output Regulator
+***************************************************************************
+
+* VDD-VEE feedback divider detection
+B_FB_VDD_VEE N_FB_VDD_VEE GNDP_INT V={V(FBVDD,FBVEE)}
+R_FB_VDD_VEE N_FB_VDD_VEE GNDP_INT 10MEG
+
+* VDD-VEE error amplifier
+B_ERROR_VDD_VEE N_ERR_VDD_VEE GNDP_INT V={LIMIT((2.5 - V(N_FB_VDD_VEE,GNDP_INT))*1000, -10, 10)}
+R_ERROR_VDD_VEE N_ERR_VDD_VEE GNDP_INT 1MEG
+
+* VDD-VEE output voltage source
+E_VDD_VEE N_VDD_VEE_RAW VEEA_INT N_ERR_VDD_VEE GNDP_INT 2.0
+R_VDD_COMP1 N_VDD_VEE_RAW N_VDD_VEE_COMP 1k
+C_VDD_COMP N_VDD_VEE_COMP VEEA_INT 10u
+R_VDD_COMP2 N_VDD_VEE_COMP VEEA_INT 100k
+
+* VDD output with source resistance
+R_VDD_OUT N_VDD_VEE_COMP VDD_INT 0.5
+
+* Current limit from RLIM resistor
+* ILIM = 175µA / RLIM (typ)
+B_ILIM_VDD N_ILIM_VDD GNDP_INT V={175u/MAX(V(RLIM,VEEA_INT)/1u, 1)}
+R_ILIM_VDD N_ILIM_VDD GNDP_INT 10MEG
+
+* VDD current sense
+V_VDD_SENSE VDD_INT N_VDD_AFTER_SENSE 0
+
+***************************************************************************
+* COM-VEE (VEEA) Output Regulator
+***************************************************************************
+
+* VEEA feedback
+R_VEEA_INT VEEA VEEA_INT 0.001
+
+* VEEA voltage source
+E_VEEA N_VEEA_RAW VEE_INT N_FB_VDD_VEE GNDP_INT 0.125
+R_VEEA_COMP1 N_VEEA_RAW N_VEEA_COMP 500
+C_VEEA_COMP N_VEEA_COMP VEE_INT 22u
+R_VEEA_COMP2 N_VEEA_COMP VEE_INT 50k
+
+* VEEA output
+R_VEEA_OUT N_VEEA_COMP VEEA_INT 1.0
+
+* VEEA current sense
+V_VEEA_SENSE VEEA_INT N_VEEA_AFTER_SENSE 0
+
+***************************************************************************
+* VEE (Negative Rail) Generation
+***************************************************************************
+
+E_VEE VEE_INT 0 VALUE={-V(VDD_INT,VEEA_INT)}
+R_VEE_REF VEE_INT 0 100MEG
+
+***************************************************************************
+* Input Current Draw
+***************************************************************************
+
+B_VIN_CURRENT N_VIN_SENSE GNDP_INT I={ (V(N_ENABLE,GNDP_INT)>1.5) ? ((V(VDD_INT,VEEA_INT)*ABS(I(V_VDD_SENSE)) + V(VEEA_INT,VEE_INT)*ABS(I(V_VEEA_SENSE)))/V(VIN_INT,GNDP_INT)/0.80 + 0.018) : 0.0001 }
+
+***************************************************************************
+* Power Good Output
+***************************************************************************
+
+B_PG_LOGIC N_PG_LOGIC GNDP_INT V={ ( (V(N_ENABLE,GNDP_INT)>1.5) * (ABS(V(N_FB_VDD_VEE,GNDP_INT)-2.5)<0.25) * (V(N_SS,GNDP_INT)>3.0) ) ? 0 : 3.3 }
+R_PG_LOGIC N_PG_LOGIC GNDP_INT 1MEG
+
+* Open-drain output
+S_PG PG GNDP_INT N_PG_LOGIC GNDP_INT PG_SW
+.model PG_SW SW(Ron=50 Roff=100Meg Vt=2.0 Vh=0.5)
+
+* PG pull-up leakage
+R_PG_LEAK PG GNDP_INT 1MEG
+
+***************************************************************************
+* Output Under/Over Voltage Protection
+***************************************************************************
+
+* VDD-VEE OVP (Latch)
+B_OVP_VDD_RAW N_OVP_RAW GNDP_INT V={V(VDD_INT,VEE_INT)>28 ? 3.3 : (V(VDD_INT,VEE_INT)<26 ? 0 : V(N_OVP,GNDP_INT))}
+R_OVP_SER N_OVP_RAW N_OVP 1k
+C_OVP N_OVP GNDP_INT 100n
+R_OVP N_OVP GNDP_INT 1MEG
+
+* Shutdown on OVP
+B_OVP_SHUTDOWN N_ENABLE_FINAL GNDP_INT V={ (V(N_OVP,GNDP_INT)<1.5) ? V(N_ENABLE,GNDP_INT) : 0 }
+R_ENABLE_FINAL N_ENABLE_FINAL GNDP_INT 1MEG
+
+***************************************************************************
+* Thermal Model
+***************************************************************************
+
+B_POWER_DISS N_PDISS GNDP_INT V={MAX(V(N_PIN,GNDP_INT) - (V(VDD_INT,VEEA_INT)*ABS(I(V_VDD_SENSE)) + V(VEEA_INT,VEE_INT)*ABS(I(V_VEEA_SENSE))), 0)}
+R_PDISS N_PDISS GNDP_INT 10MEG
+
+B_THERMAL N_TJUNC GNDP_INT V={25 + V(N_PDISS,GNDP_INT)*32}
+R_THERMAL N_TJUNC GNDP_INT 10MEG
+
+* Thermal shutdown Latch
+B_TSD_RAW N_TSD_RAW GNDP_INT V={V(N_TJUNC,GNDP_INT)>165 ? 0 : (V(N_TJUNC,GNDP_INT)<150 ? 3.3 : V(N_TSD,GNDP_INT))}
+R_TSD_SER N_TSD_RAW N_TSD 1k
+C_TSD N_TSD GNDP_INT 1u
+R_TSD N_TSD GNDP_INT 10MEG
+
+.ends UCC14140-Q1

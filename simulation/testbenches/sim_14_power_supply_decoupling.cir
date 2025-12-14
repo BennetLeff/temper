@@ -1,0 +1,268 @@
+Power Supply Decoupling Network Verification (Revised)
+* Verify decoupling for ESP32-S3, UCC21550, MAX31865, ADUM1250
+* Test PDN impedance, ESR/ESL effects, transient response
+* Frequency range: DC to 100 MHz
+* Date: 2025-12-13
+* Task: temper-vkx.5
+* REVISION: Fixed initial steady-state convergence
+
+*============================================
+* POWER SUPPLY SOURCE (5V and 3.3V rails)
+*============================================
+
+* 5V rail from LMR51430 buck converter
+* Model as ideal voltage source with series impedance (PCB trace resistance only)
+* Inductance removed to avoid steady-state convergence issues
+V5V 5v_rail 0 DC 5.0
+
+* Bulk capacitor on 5V rail (near LMR51430 output)
+* 47µF ceramic + 100µF electrolytic (for load transients)
+C5V_bulk1 5v_rail 0 47u IC=5.0
+R5V_esr1 5v_rail 5v_rail_int 10m
+
+C5V_bulk2 5v_rail_int 0 100u IC=5.0
+R5V_esr2 5v_rail_int 0 50m
+
+* 3.3V rail from LDO regulator
+* Model as ideal voltage source with series output resistance
+V3V3 3v3_rail 0 DC 3.3
+
+* Bulk capacitor on 3.3V rail (near LDO output)
+C3V3_bulk 3v3_rail 0 22u IC=3.3
+R3V3_esr 3v3_rail 0 15m
+
+*============================================
+* IC #1: ESP32-S3 DECOUPLING
+*============================================
+
+* PCB trace from 3.3V rail to ESP32-S3 (20mm trace)
+* R_trace ~10mΩ, L_trace ~20nH
+RESP32_trace 3v3_rail esp32_vdd 10m
+LESP32_trace esp32_vdd esp32_vdd_filt 20n
+
+* Decoupling capacitors with realistic ESR/ESL
+* 10µF bulk capacitor (X7R, 1206)
+CESP32_10u esp32_vdd_filt 0 10u IC=3.3
+RESP32_esr1 esp32_vdd_filt esp32_node1 5m
+LESP32_esl1 esp32_node1 0 800p
+
+* 4× 100nF capacitors (X7R, 0603) - modeled as parallel equivalent
+CESP32_100n esp32_vdd_filt 0 400n IC=3.3
+RESP32_esr2 esp32_vdd_filt esp32_node2 750u
+LESP32_esl2 esp32_node2 0 150p
+
+* 4× 10nF capacitors (X7R, 0402) - modeled as parallel equivalent
+CESP32_10n esp32_vdd_filt 0 40n IC=3.3
+RESP32_esr3 esp32_vdd_filt esp32_node3 500u
+LESP32_esl3 esp32_node3 0 100p
+
+* ESP32-S3 load current (200mA baseline + 300mA @ 160MHz switching)
+IESP32_dc 0 esp32_vdd_filt DC 200m
+IESP32_pulse 0 esp32_vdd_filt PULSE(0 300m 0 1n 1n 3.125n 6.25n)
+
+*============================================
+* IC #2: UCC21550 VCC DECOUPLING
+*============================================
+
+* PCB trace from 5V rail to UCC21550 (30mm)
+RUCC_trace 5v_rail ucc_vcc 15m
+LUCC_trace ucc_vcc ucc_vcc_filt 30n
+
+* 10µF bulk + 100nF HF capacitor
+CUCC_10u ucc_vcc_filt 0 10u IC=5.0
+RUCC_esr1 ucc_vcc_filt ucc_node1 5m
+LUCC_esl1 ucc_node1 0 800p
+
+CUCC_100n ucc_vcc_filt 0 100n IC=5.0
+RUCC_esr2 ucc_vcc_filt ucc_node2 3m
+LUCC_esl2 ucc_node2 0 600p
+
+* UCC21550 load (5mA DC + 50mA @ 40kHz gate drive pulses)
+IUCC_dc 0 ucc_vcc_filt DC 5m
+IUCC_pulse 0 ucc_vcc_filt PULSE(0 50m 0 10n 10n 12.5u 25u)
+
+*============================================
+* IC #3: MAX31865 VDD DECOUPLING
+*============================================
+
+* PCB trace from 3.3V rail (25mm)
+RMAX_trace 3v3_rail max_vdd 12m
+LMAX_trace max_vdd max_vdd_filt 25n
+
+* 10µF bulk + 100nF HF capacitor
+CMAX_10u max_vdd_filt 0 10u IC=3.3
+RMAX_esr1 max_vdd_filt max_node1 5m
+LMAX_esl1 max_node1 0 700p
+
+CMAX_100n max_vdd_filt 0 100n IC=3.3
+RMAX_esr2 max_vdd_filt max_node2 3m
+LMAX_esl2 max_node2 0 500p
+
+* MAX31865 load (2mA DC + 1mA @ 10kHz SPI transients)
+IMAX_dc 0 max_vdd_filt DC 2m
+IMAX_pulse 0 max_vdd_filt PULSE(0 1m 0 1u 1u 50u 100u)
+
+*============================================
+* IC #4: ADUM1250 VDD1 DECOUPLING (Side 1)
+*============================================
+
+* PCB trace from 3.3V rail (20mm)
+RADUM1_trace 3v3_rail adum1_vdd 10m
+LADUM1_trace adum1_vdd adum1_vdd_filt 20n
+
+* 10µF bulk + 100nF HF capacitor
+CADUM1_10u adum1_vdd_filt 0 10u IC=3.3
+RADUM1_esr1 adum1_vdd_filt adum1_node1 5m
+LADUM1_esl1 adum1_node1 0 800p
+
+CADUM1_100n adum1_vdd_filt 0 100n IC=3.3
+RADUM1_esr2 adum1_vdd_filt adum1_node2 3m
+LADUM1_esl2 adum1_node2 0 600p
+
+* ADUM1250 Side 1 load (2mA DC + 2mA @ 100kHz I2C)
+IADUM1_dc 0 adum1_vdd_filt DC 2m
+IADUM1_pulse 0 adum1_vdd_filt PULSE(0 2m 0 1u 1u 5u 10u)
+
+*============================================
+* IC #5: ADUM1250 VDD2 DECOUPLING (Side 2, isolated)
+*============================================
+
+* Separate isolated 3.3V supply
+V3V3_iso 3v3_iso_rail 0 DC 3.3
+
+* PCB trace (20mm)
+RADUM2_trace 3v3_iso_rail adum2_vdd 10m
+LADUM2_trace adum2_vdd adum2_vdd_filt 20n
+
+* 10µF bulk + 100nF HF capacitor
+CADUM2_10u adum2_vdd_filt 0 10u IC=3.3
+RADUM2_esr1 adum2_vdd_filt adum2_node1 5m
+LADUM2_esl1 adum2_node1 0 800p
+
+CADUM2_100n adum2_vdd_filt 0 100n IC=3.3
+RADUM2_esr2 adum2_vdd_filt adum2_node2 3m
+LADUM2_esl2 adum2_node2 0 600p
+
+* ADUM1250 Side 2 load (3mA DC + 3mA @ 100kHz, higher due to isolation refresh)
+IADUM2_dc 0 adum2_vdd_filt DC 3m
+IADUM2_pulse 0 adum2_vdd_filt PULSE(0 3m 0 1u 1u 5u 10u)
+
+*============================================
+* MEASUREMENTS
+*============================================
+
+.control
+* Transient analysis: 50µs to capture multiple switching cycles
+tran 10n 50u 0 10n
+
+* === ESP32-S3 (160 MHz switching, 6.25ns period) ===
+meas tran esp32_vmin MIN v(esp32_vdd_filt) from=10u to=50u
+meas tran esp32_vmax MAX v(esp32_vdd_filt) from=10u to=50u
+meas tran esp32_vavg AVG v(esp32_vdd_filt) from=10u to=50u
+
+* === UCC21550 (40 kHz switching, 25µs period) ===
+meas tran ucc_vmin MIN v(ucc_vcc_filt) from=10u to=50u
+meas tran ucc_vmax MAX v(ucc_vcc_filt) from=10u to=50u
+meas tran ucc_vavg AVG v(ucc_vcc_filt) from=10u to=50u
+
+* === MAX31865 (10 kHz SPI, 100µs period) ===
+meas tran max_vmin MIN v(max_vdd_filt) from=10u to=50u
+meas tran max_vmax MAX v(max_vdd_filt) from=10u to=50u
+meas tran max_vavg AVG v(max_vdd_filt) from=10u to=50u
+
+* === ADUM1250 Side 1 (100 kHz I2C, 10µs period) ===
+meas tran adum1_vmin MIN v(adum1_vdd_filt) from=10u to=50u
+meas tran adum1_vmax MAX v(adum1_vdd_filt) from=10u to=50u
+meas tran adum1_vavg AVG v(adum1_vdd_filt) from=10u to=50u
+
+* === ADUM1250 Side 2 (isolated) ===
+meas tran adum2_vmin MIN v(adum2_vdd_filt) from=10u to=50u
+meas tran adum2_vmax MAX v(adum2_vdd_filt) from=10u to=50u
+meas tran adum2_vavg AVG v(adum2_vdd_filt) from=10u to=50u
+
+* === BULK CAPACITOR RIPPLE ===
+meas tran bulk3v3_vmin MIN v(3v3_rail) from=10u to=50u
+meas tran bulk3v3_vmax MAX v(3v3_rail) from=10u to=50u
+meas tran bulk5v_vmin MIN v(5v_rail) from=10u to=50u
+meas tran bulk5v_vmax MAX v(5v_rail) from=10u to=50u
+
+* Calculate ripple (in mV)
+let esp32_ripple_mv = (esp32_vmax - esp32_vmin) * 1000
+let ucc_ripple_mv = (ucc_vmax - ucc_vmin) * 1000
+let max_ripple_mv = (max_vmax - max_vmin) * 1000
+let adum1_ripple_mv = (adum1_vmax - adum1_vmin) * 1000
+let adum2_ripple_mv = (adum2_vmax - adum2_vmin) * 1000
+let bulk3v3_ripple_mv = (bulk3v3_vmax - bulk3v3_vmin) * 1000
+let bulk5v_ripple_mv = (bulk5v_vmax - bulk5v_vmin) * 1000
+
+* Calculate voltage droop from nominal (in mV)
+let esp32_droop_mv = (3.3 - esp32_vmin) * 1000
+let ucc_droop_mv = (5.0 - ucc_vmin) * 1000
+let max_droop_mv = (3.3 - max_vmin) * 1000
+let adum1_droop_mv = (3.3 - adum1_vmin) * 1000
+let adum2_droop_mv = (3.3 - adum2_vmin) * 1000
+
+* Calculate PDN impedance (Z = ΔV / ΔI, in mΩ)
+let esp32_zpdn_mohm = esp32_ripple_mv / 300
+let ucc_zpdn_mohm = ucc_ripple_mv / 50
+let max_zpdn_mohm = max_ripple_mv / 1
+let adum1_zpdn_mohm = adum1_ripple_mv / 2
+let adum2_zpdn_mohm = adum2_ripple_mv / 3
+
+* Calculate decoupling effectiveness (ripple reduction ratio)
+let esp32_decouple = bulk3v3_ripple_mv / esp32_ripple_mv
+let ucc_decouple = bulk5v_ripple_mv / ucc_ripple_mv
+let max_decouple = bulk3v3_ripple_mv / max_ripple_mv
+let adum1_decouple = bulk3v3_ripple_mv / adum1_ripple_mv
+let adum2_decouple = bulk3v3_ripple_mv / adum2_ripple_mv
+
+echo
+echo "============================================"
+echo "POWER SUPPLY DECOUPLING VERIFICATION SUMMARY"
+echo "============================================"
+echo
+echo "ESP32-S3 (3.3V supply, 200mA + 300mA@160MHz):"
+echo "  Voltage: Vavg=" esp32_vavg " Vmin=" esp32_vmin " Vmax=" esp32_vmax
+echo "  Ripple: " esp32_ripple_mv " mV pk-pk"
+echo "  Droop: " esp32_droop_mv " mV (from 3.3V nominal)"
+echo "  PDN Impedance: " esp32_zpdn_mohm " mOhm"
+echo "  Decoupling ratio: " esp32_decouple "x"
+echo
+echo "UCC21550 VCC (5V supply, 5mA + 50mA@40kHz):"
+echo "  Voltage: Vavg=" ucc_vavg " Vmin=" ucc_vmin " Vmax=" ucc_vmax
+echo "  Ripple: " ucc_ripple_mv " mV pk-pk"
+echo "  Droop: " ucc_droop_mv " mV (from 5.0V nominal)"
+echo "  PDN Impedance: " ucc_zpdn_mohm " mOhm"
+echo "  Decoupling ratio: " ucc_decouple "x"
+echo
+echo "MAX31865 VDD (3.3V supply, 2mA + 1mA@10kHz):"
+echo "  Voltage: Vavg=" max_vavg " Vmin=" max_vmin " Vmax=" max_vmax
+echo "  Ripple: " max_ripple_mv " mV pk-pk"
+echo "  Droop: " max_droop_mv " mV (from 3.3V nominal)"
+echo "  PDN Impedance: " max_zpdn_mohm " mOhm"
+echo "  Decoupling ratio: " max_decouple "x"
+echo
+echo "ADUM1250 Side 1 (3.3V supply, 2mA + 2mA@100kHz):"
+echo "  Voltage: Vavg=" adum1_vavg " Vmin=" adum1_vmin " Vmax=" adum1_vmax
+echo "  Ripple: " adum1_ripple_mv " mV pk-pk"
+echo "  Droop: " adum1_droop_mv " mV (from 3.3V nominal)"
+echo "  PDN Impedance: " adum1_zpdn_mohm " mOhm"
+echo "  Decoupling ratio: " adum1_decouple "x"
+echo
+echo "ADUM1250 Side 2 (3.3V isolated, 3mA + 3mA@100kHz):"
+echo "  Voltage: Vavg=" adum2_vavg " Vmin=" adum2_vmin " Vmax=" adum2_vmax
+echo "  Ripple: " adum2_ripple_mv " mV pk-pk"
+echo "  Droop: " adum2_droop_mv " mV (from 3.3V nominal)"
+echo "  PDN Impedance: " adum2_zpdn_mohm " mOhm"
+echo "  Decoupling ratio: " adum2_decouple "x"
+echo
+echo "BULK CAPACITORS:"
+echo "  3.3V rail ripple: " bulk3v3_ripple_mv " mV pk-pk"
+echo "  5V rail ripple: " bulk5v_ripple_mv " mV pk-pk"
+echo
+echo "============================================"
+
+quit
+.endc
+
+.end

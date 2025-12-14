@@ -1,13 +1,8 @@
 * MAX31865 RTD-to-Digital Converter Test Circuit
 * Maxim Integrated (Analog Devices)
 * Typical application: PT100 RTD temperature measurement with 4-wire connection
-*
-* This test circuit demonstrates:
-* 1. 4-wire PT100 RTD configuration (most accurate)
-* 2. 400Ω reference resistor for PT100
-* 3. Bias voltage generation and loading
-* 4. Ratiometric ADC conversion
-* 5. Temperature sweep simulation
+
+.title MAX31865 RTD-to-Digital Converter Test Circuit
 
 ***************************************************************************
 * Include MAX31865 Model
@@ -17,152 +12,75 @@
 ***************************************************************************
 * Power Supplies
 ***************************************************************************
-* Analog supply: 3.3V
-VDD VDD_NODE 0 DC 3.3
-
-* Digital supply: 3.3V
-DVDD DVDD_NODE 0 DC 3.3
+V_VDD VDD_NODE 0 DC 3.3
+V_DVDD DVDD_NODE 0 DC 3.3
 
 ***************************************************************************
 * MAX31865 RTD-to-Digital Converter
 ***************************************************************************
-* Pin connections for 20-pin SSOP package
-* 4-wire RTD connection for maximum accuracy
-
-X_MAX31865 MAX31865
-+ DRDY_NODE DVDD_NODE VDD_NODE BIAS_NODE
+X_MAX31865 DRDY_NODE DVDD_NODE VDD_NODE BIAS_NODE
 + REFIN+_NODE REFIN-_NODE ISENSOR_NODE
 + FORCE+_NODE FORCE2_NODE RTDIN+_NODE RTDIN-_NODE FORCE-_NODE
 + GND2_NODE SDI_NODE SCLK_NODE CS_NODE SDO_NODE DGND_NODE GND1_NODE NC_NODE
++ MAX31865
 
 ***************************************************************************
 * Power Supply Bypass Capacitors
 ***************************************************************************
-* VDD bypass (analog supply)
 CVDD_BULK VDD_NODE 0 10u IC=0
 CVDD_CERAMIC VDD_NODE 0 0.1u IC=0
-
-* DVDD bypass (digital supply)
 CDVDD_BULK DVDD_NODE 0 10u IC=0
 CDVDD_CERAMIC DVDD_NODE 0 0.1u IC=0
 
 ***************************************************************************
-* Reference Resistor
+* Reference Resistor (400 ohm for PT100)
 ***************************************************************************
-* For PT100 RTD: RREF = 400Ω (4× the 0°C resistance)
-* This provides optimal full-scale range
-* Precision resistor: 0.1% tolerance, 25ppm/°C tempco recommended
-
-* REFIN+ connects to BIAS
 R_REFIN+ BIAS_NODE REFIN+_NODE 0.001
-
-* Reference resistor (400Ω, 0.1% tolerance)
 RREF REFIN+_NODE REFIN-_NODE 400
-
-* ISENSOR connects to REFIN- (low side of RREF)
 R_ISENSOR ISENSOR_NODE REFIN-_NODE 0.001
 
+* Connection from Reference Low to RTD High (Force+)
+R_LINK REFIN-_NODE FORCE+_NODE 0.001
+
 ***************************************************************************
-* PT100 RTD Sensor Model
+* PT100 RTD Sensor Model (109.73 ohm @ 25C)
 ***************************************************************************
-* PT100 RTD: 100Ω @ 0°C, α = 0.00385 (IEC 751)
-* Temperature coefficient: +0.385Ω/°C (approximate)
-* For simulation, model RTD resistance vs. temperature
-*
-* Callendar-Van Dusen equation (simplified for 0-100°C):
-* R(T) = R0 × (1 + α×T)
-* Where: R0 = 100Ω, α = 0.00385, T in °C
-*
-* Example resistance values:
-* -50°C: 80.31Ω
-*   0°C: 100.00Ω
-*  25°C: 109.73Ω
-*  50°C: 119.40Ω
-* 100°C: 138.51Ω
+R_RTD RTDIN+_NODE N_RTD_LOW R={100 + 0.385*25}
 
-* For DC simulation at 25°C, use 109.73Ω
-* For temperature sweep, use behavioral resistor
-
-* PT100 RTD (temperature-dependent)
-* Using simplified linear model: R = 100 + 0.385*T
-* For DC analysis at 25°C: R = 109.73Ω
-B_RTD RTDIN+_NODE N_RTD_LOW R={100 + 0.385*25}
-
-* Cable resistance (4-wire configuration minimizes cable error)
-* FORCE+ cable
+* Cable resistance
 RCABLE_FP FORCE+_NODE RTDIN+_NODE 0.1
-
-* FORCE- cable
 RCABLE_FN FORCE-_NODE N_RTD_LOW 0.1
-
-* RTDIN+ sense cable (minimal current, no voltage drop)
 RCABLE_RP RTDIN+_NODE RTDIN+_NODE 0.01
-
-* RTDIN- sense cable (minimal current, no voltage drop)
 RCABLE_RN N_RTD_LOW RTDIN-_NODE 0.01
 
-***************************************************************************
-* Input Filter Capacitor
-***************************************************************************
-* Recommended for PT100: 100nF across RTDIN+/RTDIN-
-* Filters noise, requires settling time before conversion
-* Time constant: τ = R × C = 100Ω × 100nF = 10µs
-* Settling time: 5τ = 50µs minimum before conversion
-
+* Input Filter
 CRTD_FILTER RTDIN+_NODE RTDIN-_NODE 100n IC=0
 
-***************************************************************************
-* 3-Wire Configuration (Not Used in This Circuit)
-***************************************************************************
-* For 3-wire RTD connection:
-* - Connect FORCE+ and FORCE2 together
-* - One cable to RTD high side connects to both FORCE+ and RTDIN+
-* - Single cable from RTD low side to both FORCE- and RTDIN-
-* - This compensates for cable resistance if cables are well-matched
-
-* In this 4-wire circuit, FORCE2 is grounded (not used)
+* 3-Wire Connection (Unused)
 R_FORCE2_GND FORCE2_NODE 0 0.001
 
 ***************************************************************************
-* SPI Interface
+* SPI Interface (Static)
 ***************************************************************************
-* Simplified SPI connections for testing
-* In real application, connect to microcontroller SPI bus
-
-* CS pulled high (inactive) for this static test
 VCS CS_NODE 0 DC 3.3
-
-* SCLK, SDI tied off (no active communication in this test)
 RSCLK SCLK_NODE 0 1MEG
 RSDI SDI_NODE 0 1MEG
-
-* SDO pull-up (tri-state output, needs pull-up/down)
 RSDO_PULLDOWN SDO_NODE 0 100k
-
-* DRDY observation (no load, just monitoring)
 R_DRDY DRDY_NODE 0 1MEG
 
 ***************************************************************************
 * Ground Connections
 ***************************************************************************
-* Connect all grounds together
 R_GND1_0 GND1_NODE 0 0.001
 R_GND2_0 GND2_NODE 0 0.001
 R_DGND_0 DGND_NODE 0 0.001
-
-* NC pin (no connect)
 R_NC NC_NODE 0 1MEG
 
 ***************************************************************************
 * Simulation Control
 ***************************************************************************
-* Operating point analysis to verify bias voltage and ADC conversion
 .op
-
-* Transient analysis to observe startup
 .tran 1m 100m 0 100u
-
-* Initial conditions
 .ic V(BIAS_NODE)=0 V(REFIN+_NODE)=0
 
 ***************************************************************************
@@ -171,137 +89,31 @@ R_NC NC_NODE 0 1MEG
 .control
 run
 
-echo "=================================================================="
-echo "MAX31865 RTD-to-Digital Converter Simulation Results"
-echo "=================================================================="
-echo ""
-echo "Configuration:"
-echo "  RTD Type: PT100 (100Ω @ 0°C)"
-echo "  Connection: 4-wire"
-echo "  Reference Resistor: 400Ω"
-echo "  Simulated Temperature: 25°C"
-echo "  Expected RTD Resistance: 109.73Ω"
-echo ""
-echo "Supply Voltages:"
-print V(VDD_NODE) V(DVDD_NODE)
-echo ""
-echo "Bias Voltage:"
-print V(BIAS_NODE)
-echo "  Expected: 2.0V ± 3% (1.94V to 2.06V)"
-echo ""
-echo "Reference Resistor Voltages:"
-print V(REFIN+_NODE) V(REFIN-_NODE)
-let VREF_DIFF = V(REFIN+_NODE) - V(REFIN-_NODE)
-print VREF_DIFF
-echo ""
-echo "RTD Input Voltages:"
-print V(RTDIN+_NODE) V(RTDIN-_NODE)
-let VRTD_DIFF = V(RTDIN+_NODE) - V(RTDIN-_NODE)
-print VRTD_DIFF
-echo ""
-echo "Calculated RTD Resistance:"
-echo "  From circuit: R_RTD = (V_RTDIN / V_REF) × R_REF"
-let R_RTD_CALC = (VRTD_DIFF / VREF_DIFF) * 400
-print R_RTD_CALC
-echo "  Expected: 109.73Ω @ 25°C"
-echo ""
-echo "ADC Code Calculation:"
-echo "  ADC_CODE = 32768 × (V_RTDIN / V_REF)"
-let ADC_CODE = 32768 * (VRTD_DIFF / VREF_DIFF)
-print ADC_CODE
-echo "  Expected for PT100 @ 25°C: ~8989 (109.73/400 × 32768)"
-echo ""
-echo "Temperature Calculation (Simplified):"
-echo "  Temperature ≈ (ADC_CODE / 32) - 256"
-let TEMP_APPROX = (ADC_CODE / 32) - 256
-print TEMP_APPROX
-echo "  Expected: ~25°C"
-echo ""
-echo "Bias Voltage Load Current:"
-let I_BIAS = (V(REFIN+_NODE) - 0) / 400
-print I_BIAS
-echo "  Expected: ~5mA (2V / 400Ω)"
-echo ""
-echo "Supply Currents:"
-let I_VDD = -I(VDD)
-let I_DVDD = -I(DVDD)
-print I_VDD I_DVDD
-echo "  VDD: 2-3.5mA typical during conversion"
-echo "  DVDD: <1mA typical when idle"
-echo ""
-echo "DRDY Signal:"
-print V(DRDY_NODE)
-echo "  0V = Data ready (active low)"
-echo "  3.3V = Conversion in progress"
-echo ""
-echo "=================================================================="
-echo "Accuracy Analysis:"
-echo "=================================================================="
-echo ""
-let ERROR_OHM = R_RTD_CALC - 109.73
-print ERROR_OHM
-echo "  Resistance error (Ω)"
-echo ""
-let ERROR_PERCENT = (ERROR_OHM / 109.73) * 100
-print ERROR_PERCENT
-echo "  Percentage error (%)"
-echo ""
-let ERROR_TEMP = ERROR_PERCENT / 0.385
-print ERROR_TEMP
-echo "  Temperature error (°C) - approximate"
-echo ""
-echo "=================================================================="
+echo "===== MAX31865 Test Results ====="
+echo "Conditions: PT100, 4-wire, 25C"
 
-* Plot key waveforms for transient analysis
-plot V(BIAS_NODE) title "Bias Voltage Startup"
-plot V(REFIN+_NODE) V(REFIN-_NODE) title "Reference Voltages"
-plot V(RTDIN+_NODE) V(RTDIN-_NODE) title "RTD Input Voltages"
-plot V(DRDY_NODE) title "DRDY Output (Active Low)"
+* Measure voltages at end of simulation
+let v_bias_final = v(bias_node)[length(v(bias_node))-1]
+print v_bias_final
 
+* Calculate VRTD and VREF
+let v_rtd = v(rtdin+_node) - v(rtdin-_node)
+let v_ref = v(refin+_node) - v(refin-_node)
+
+let v_rtd_final = v_rtd[length(v_rtd)-1]
+let v_ref_final = v_ref[length(v_ref)-1]
+
+print v_rtd_final
+print v_ref_final
+
+* Calculate Code
+let adc_code = 32768 * v_rtd_final / v_ref_final
+print adc_code
+
+* Calculate Temperature
+let temp_calc = (adc_code / 32) - 256
+print temp_calc
+
+echo "Expected Temp: ~25C"
 .endc
-
-***************************************************************************
-* Temperature Sweep Analysis (Optional)
-***************************************************************************
-* To simulate temperature sweep, uncomment the following:
-*
-* .step param TEMP_VAR -50 150 25
-* .param TEMP_VAR=25
-* B_RTD RTDIN+_NODE N_RTD_LOW R={100 + 0.385*TEMP_VAR}
-*
-* This will sweep temperature from -50°C to +150°C in 25°C steps
-* and show ADC code vs. temperature characteristic
-
-***************************************************************************
-* Notes
-***************************************************************************
-* 1. This circuit demonstrates 4-wire PT100 RTD measurement
-* 2. 4-wire connection provides most accurate measurement by eliminating
-*    cable resistance errors
-* 3. Reference resistor value (400Ω) is optimized for PT100 RTD
-* 4. Input filter capacitor (100nF) requires ~50µs settling time
-* 5. Expected ADC code at 25°C: ~8989 (for 109.73Ω RTD resistance)
-* 6. Temperature calculation:
-*    - Simple linear: T ≈ (ADC_CODE/32) - 256
-*    - Accurate: Use Callendar-Van Dusen equation
-* 7. Bias voltage should be 2.0V ± 3%
-* 8. DRDY goes low when conversion complete (data ready)
-*
-* Expected Results @ 25°C:
-* - BIAS voltage: ~2.0V
-* - REFIN+: ~2.0V
-* - REFIN-: ~0V
-* - RTD voltage: ~0.549V (109.73Ω × 5mA)
-* - ADC code: ~8989
-* - Calculated resistance: ~109.7Ω
-* - Calculated temperature: ~25°C
-*
-* To run this simulation:
-*   ngspice MAX31865_test.cir
-*
-* For temperature sweep:
-*   1. Uncomment .step and .param lines above
-*   2. Replace static B_RTD with temperature-dependent version
-*   3. Run simulation
-*   4. Plot ADC_CODE vs. TEMP_VAR
-***************************************************************************
+.end

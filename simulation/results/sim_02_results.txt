@@ -1,0 +1,192 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: LMR51430 Load Characterization and Transient Response
+
+
+============================================================
+  LMR51430 Buck Converter Load Characterization
+  Task: temper-ew8.2
+============================================================
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 1750086
+
+  Measurements for Transient Analysis
+
+
+Error: measure  recovery_step3  when(WHEN) : out of interval
+ .meas tran recovery_step3 when v(vout)=5.05 fall=1 td=60m failed!
+
+vout_light          =  5.013102e+00 from=  1.500000e-02 to=  2.000000e-02
+ripple_light        =  1.673586e-02 from=  1.800000e-02 to=  1.900000e-02
+vout_medium         =  4.929094e+00 from=  2.500000e-02 to=  3.000000e-02
+ripple_medium       =  1.259608e-02 from=  2.800000e-02 to=  2.900000e-02
+vout_heavy          =  4.831509e+00 from=  5.000000e-02 to=  6.000000e-02
+ripple_heavy        =  7.822046e-03 from=  5.500000e-02 to=  5.600000e-02
+vout_before_step1   =  4.991593e+00 from=  1.900000e-02 to=  1.999000e-02
+vdrop_step1         =  4.917623e+00 at=  2.004016e-02
+recovery_step1      =   2.00475e-02
+vout_before_step2   =  4.868061e+00 from=  3.900000e-02 to=  3.999000e-02
+vdrop_step2         =  4.784238e+00 at=  4.004016e-02
+recovery_step2      =   4.00128e-02
+vout_before_step3   =  4.824040e+00 from=  5.900000e-02 to=  5.999000e-02
+vovershoot_step3    =  4.903617e+00 at=  6.004106e-02
+iin_light           =  -1.000000e-03 from=  1.500000e-02 to=  2.000000e-02
+iin_medium          =  -1.000000e-03 from=  2.500000e-02 to=  3.000000e-02
+iin_heavy           =  -1.000000e-03 from=  5.000000e-02 to=  6.000000e-02
+fsw_period          =  2.000000e-06 targ=  5.000400e-02 trig=  5.000200e-02
+
+
+Simulation complete! Processing results...
+
+Warning from checkvalid: vector vout_medium is not available or has zero length.
+Error: RHS "abs((vout_medium - vout_light)/vout_light)*100" invalid
+Warning from checkvalid: vector vout_heavy is not available or has zero length.
+Error: RHS "abs((vout_heavy - vout_light)/vout_light)*100" invalid
+Warning from checkvalid: vector vout_before_step1 is not available or has zero length.
+Error: RHS "vout_before_step1 - vdrop_step1" invalid
+Warning from checkvalid: vector vout_before_step2 is not available or has zero length.
+Error: RHS "vout_before_step2 - vdrop_step2" invalid
+Warning from checkvalid: vector vovershoot_step3 is not available or has zero length.
+Error: RHS "vovershoot_step3 - vout_before_step3" invalid
+Warning from checkvalid: vector vout_light is not available or has zero length.
+Error: RHS "(vout_light * iload_100ma) / (18 * iin_light) * 100" invalid
+Warning from checkvalid: vector vout_medium is not available or has zero length.
+Error: RHS "(vout_medium * iload_600ma) / (18 * iin_medium) * 100" invalid
+Warning from checkvalid: vector vout_heavy is not available or has zero length.
+Error: RHS "(vout_heavy * iload_1200ma) / (18 * iin_heavy) * 100" invalid
+Warning from checkvalid: vector iin_light is not available or has zero length.
+Error: RHS "18*iin_light - vout_light*iload_100ma" invalid
+Warning from checkvalid: vector iin_medium is not available or has zero length.
+Error: RHS "18*iin_medium - vout_medium*iload_600ma" invalid
+Warning from checkvalid: vector iin_heavy is not available or has zero length.
+Error: RHS "18*iin_heavy - vout_heavy*iload_1200ma" invalid
+Warning from checkvalid: vector pdiss_light is not available or has zero length.
+Error: RHS "t_ambient + pdiss_light * theta_ja" invalid
+Warning from checkvalid: vector pdiss_medium is not available or has zero length.
+Error: RHS "t_ambient + pdiss_medium * theta_ja" invalid
+Warning from checkvalid: vector pdiss_heavy is not available or has zero length.
+Error: RHS "t_ambient + pdiss_heavy * theta_ja" invalid
+Warning from checkvalid: vector fsw_period is not available or has zero length.
+Error: RHS "1/(fsw_period*1e-3)" invalid
+
+============================================================
+LOAD REGULATION RESULTS:
+============================================================
+Warning from checkvalid: vector vout_light is not available or has zero length.
+Warning from checkvalid: vector ripple_light is not available or has zero length.
+
+Regulation Error (vs light load):
+Warning from checkvalid: vector regulation_error_med is not available or has zero length.
+
+============================================================
+LOAD TRANSIENT RESPONSE:
+============================================================
+Step 1: 100mA → 600mA (500mA step)
+Warning from checkvalid: vector vout_before_step1 is not available or has zero length.
+
+Step 2: 600mA → 1.2A (600mA step)
+Warning from checkvalid: vector vout_before_step2 is not available or has zero length.
+
+Step 3: 1.2A → 600mA (load release)
+Warning from checkvalid: vector vout_before_step3 is not available or has zero length.
+
+============================================================
+THERMAL PERFORMANCE:
+============================================================
+Warning from checkvalid: vector iin_light is not available or has zero length.
+Warning from checkvalid: vector pdiss_light is not available or has zero length.
+Warning from checkvalid: vector tj_light is not available or has zero length.
+
+============================================================
+EFFICIENCY ESTIMATES:
+============================================================
+Warning from checkvalid: vector eff_light is not available or has zero length.
+
+============================================================
+SWITCHING FREQUENCY:
+============================================================
+Warning from checkvalid: vector fsw_period is not available or has zero length.
+
+============================================================
+VERIFICATION CRITERIA:
+============================================================
+✓ Output voltage regulation: ±2% (4.90V to 5.10V)
+✓ Switching ripple: <50mV peak-to-peak
+✓ Load transient undershoot: <5% (>4.75V)
+✓ Load transient overshoot: <5% (<5.25V)
+✓ Junction temperature: <150°C max (150°C limit)
+✓ Switching frequency: 500kHz ± 10% (450-550kHz)
+============================================================
+
+Warning from checkvalid: vector vout_light is not available or has zero length.
+✗ FAIL: Light load voltage out of spec
+Warning from checkvalid: vector vout_medium is not available or has zero length.
+✗ FAIL: Medium load voltage out of spec
+Warning from checkvalid: vector vout_heavy is not available or has zero length.
+✗ FAIL: Heavy load voltage out of spec
+Warning from checkvalid: vector ripple_heavy is not available or has zero length.
+✗ FAIL: Ripple at full load >50mV
+Warning from checkvalid: vector vdrop_step1 is not available or has zero length.
+✗ FAIL: Load transient Step1 undershoot >5%
+Warning from checkvalid: vector vdrop_step2 is not available or has zero length.
+✗ FAIL: Load transient Step2 undershoot >5%
+Warning from checkvalid: vector vovershoot_step3 is not available or has zero length.
+✗ FAIL: Load release overshoot >5%
+Warning from checkvalid: vector tj_heavy is not available or has zero length.
+✗ FAIL: Junction temperature at full load >150°C (THERMAL ISSUE!)
+Warning from checkvalid: vector fsw_khz is not available or has zero length.
+✗ FAIL: Switching frequency out of spec
+
+Simulation results saved to: sim_02_lmr51430_load_characterization.raw
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 1750086
+
+  Measurements for Transient Analysis
+
+
+Error: measure  recovery_step3  when(WHEN) : out of interval
+ .meas tran recovery_step3 when v(vout)=5.05 fall=1 td=60m failed!
+
+vout_light          =  5.013102e+00 from=  1.500000e-02 to=  2.000000e-02
+ripple_light        =  1.673586e-02 from=  1.800000e-02 to=  1.900000e-02
+vout_medium         =  4.929094e+00 from=  2.500000e-02 to=  3.000000e-02
+ripple_medium       =  1.259608e-02 from=  2.800000e-02 to=  2.900000e-02
+vout_heavy          =  4.831509e+00 from=  5.000000e-02 to=  6.000000e-02
+ripple_heavy        =  7.822046e-03 from=  5.500000e-02 to=  5.600000e-02
+vout_before_step1   =  4.991593e+00 from=  1.900000e-02 to=  1.999000e-02
+vdrop_step1         =  4.917623e+00 at=  2.004016e-02
+recovery_step1      =   2.00475e-02
+vout_before_step2   =  4.868061e+00 from=  3.900000e-02 to=  3.999000e-02
+vdrop_step2         =  4.784238e+00 at=  4.004016e-02
+recovery_step2      =   4.00128e-02
+vout_before_step3   =  4.824040e+00 from=  5.900000e-02 to=  5.999000e-02
+vovershoot_step3    =  4.903617e+00 at=  6.004106e-02
+iin_light           =  -1.000000e-03 from=  1.500000e-02 to=  2.000000e-02
+iin_medium          =  -1.000000e-03 from=  2.500000e-02 to=  3.000000e-02
+iin_heavy           =  -1.000000e-03 from=  5.000000e-02 to=  6.000000e-02
+fsw_period          =  2.000000e-06 targ=  5.000400e-02 trig=  5.000200e-02
+
+
+Total analysis time (seconds) = 18.9927
+
+Total elapsed time (seconds) = 19.060 
+
+Total DRAM available = 36864.000 MB.
+DRAM currently available = 2483.859 MB.
+Maximum ngspice program size =  615.125 MB.
+Current ngspice program size =  615.125 MB.
+

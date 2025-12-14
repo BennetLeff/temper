@@ -1,0 +1,64 @@
+* Double Pulse Test for IKW40N120H3
+* Lesson 04: Characterization
+
+* Circuit Description
+Vbus bus 0 DC 400
+L_load bus drain 100u IC=0
+* Freewheeling diode (Top device in half bridge)
+D_fwd drain bus FREEWHEEL
+
+* DUT (Bottom device)
+X1 drain gate emit_node IKW40N120H3
+V_sense emit_node 0 DC 0
+
+* Gate Drive
+* Pulse timing for 40A target:
+* V=L*di/dt => 400 = 100u * 40 / dt => dt = 10us
+* Pulse 1: 0 to 10us (Builds 40A)
+* Gap: 10us to 12us (Capture Turn-Off)
+* Pulse 2: 12us to 15us (Capture Turn-On)
+Vgate gate_in 0 PWL(0 0 10n 15 10u 15 10.01u 0 12u 0 12.01u 15 15u 15)
+R_gate gate_in gate 5
+
+* Models
+.include simulation/models/IKW40N120H3.lib
+.model FREEWHEEL D(IS=1e-12 RS=0.01 TT=50n)
+
+* Analysis
+.tran 10n 15u
+
+* Control Block
+.control
+run
+
+* Debugging
+meas tran Vgate_max MAX v(gate)
+meas tran Vce_min MIN v(drain)
+meas tran I_max MAX i(v_sense)
+
+* Define vectors for calculation
+let p_inst = v(drain) * i(v_sense)
+let i_emit = i(v_sense)
+
+* Measure Peak Vce (Overshoot) during turn-off
+meas tran Vce_peak MAX v(drain) FROM=10u TO=11u
+
+* Measure Eoff
+meas tran Eoff INTEG p_inst FROM=10.01u TO=10.5u
+
+* Measure Tail Current
+let Ipeak_val = vecmax(i_emit)
+* We want peak before turn-off (around 10u)
+meas tran Ipeak_at_turnoff MAX i_emit FROM=9u TO=10u
+let Itarget_90 = 0.9 * Ipeak_at_turnoff
+let Itarget_10 = 0.1 * Ipeak_at_turnoff
+
+meas tran t90 WHEN i_emit=Itarget_90 FALL=1 FROM=10u TO=11u
+meas tran t10 WHEN i_emit=Itarget_10 FALL=1 FROM=10u TO=11u
+
+print Vgate_max Vce_min I_max
+print Vce_peak Eoff
+print t10-t90
+
+.endc
+.end

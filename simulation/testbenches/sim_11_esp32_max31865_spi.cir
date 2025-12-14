@@ -1,0 +1,370 @@
+*******************************************************************************
+* ESP32-S3 SPI to MAX31865 RTD Interface Verification
+* Task: temper-vkx.2
+* Purpose: Verify SPI timing, signal integrity, setup/hold times
+*******************************************************************************
+
+.TITLE ESP32-S3 to MAX31865 SPI Interface
+
+*------------------------------------------------------------------------------
+* Options for stable simulation
+*------------------------------------------------------------------------------
+.OPTIONS RELTOL=0.001 ABSTOL=1N VNTOL=1M
+.OPTIONS ITL1=300 ITL4=100
+.OPTIONS METHOD=TRAP
+
+*------------------------------------------------------------------------------
+* Power Supplies
+*------------------------------------------------------------------------------
+* ESP32-S3 and MAX31865 both run on 3.3V
+VDD_ESP32 VDD_ESP32 0 DC 3.3
+VDD_MAX VDD_MAX 0 DC 3.3
+VDVDD_MAX DVDD_MAX 0 DC 3.3
+
+*------------------------------------------------------------------------------
+* ESP32-S3 GPIO Model (SPI Master)
+* VOH = 2.64V min (80% of 3.3V), VOL = 0.66V max
+* Output impedance: 25Ω typical, 5ns rise/fall time
+*------------------------------------------------------------------------------
+
+* SPI Clock - 5MHz (200ns period) test frequency
+* Simulate a complete SPI transaction: 16 clock cycles (2 bytes)
+VSCLK_IDEAL SCLK_IDEAL 0 PULSE(0 3.3 100N 5N 5N 95N 200N 16)
+RSCLK_OUT SCLK_IDEAL SCLK_ESP32 25
+
+* Chip Select (CS) - active low for transaction
+* Goes low at t=50ns, stays low for 3.3us (16 clocks + margin)
+VCS_IDEAL CS_IDEAL 0 PWL(0 3.3 50N 3.3 51N 0 3.4U 0 3.41U 3.3)
+RCS_OUT CS_IDEAL CS_ESP32 25
+
+* MOSI (Master Out Slave In) - Data from ESP32 to MAX31865
+* Test pattern: 0x80 0x01 (Read RTD MSB register)
+* Bit stream (MSB first): 1000_0000 0000_0001
+* Data changes on falling edge of SCLK (SPI Mode 1)
+* Setup time before rising edge: ~50ns, Hold time after: ~50ns
+VMOSI_IDEAL MOSI_IDEAL 0 PWL(
++ 0      0
++ 100N   3.3
++ 300N   0
++ 3.4U   0
++ )
+RMOSI_OUT MOSI_IDEAL MOSI_ESP32 25
+
+*------------------------------------------------------------------------------
+* Interconnect Traces (PCB)
+* Assume <10cm traces, typical 50Ω impedance (not critical at 5MHz)
+* Series resistors recommended for noise immunity: 33Ω
+*------------------------------------------------------------------------------
+
+* SCLK path with series resistor
+RSCLK_SERIES SCLK_ESP32 SCLK_TRACE 33
+* Trace capacitance (~2pF/cm, 5cm = 10pF)
+CSCLK_TRACE SCLK_TRACE 0 10P
+
+* CS path with series resistor
+RCS_SERIES CS_ESP32 CS_TRACE 33
+CCS_TRACE CS_TRACE 0 10P
+
+* MOSI path with series resistor
+RMOSI_SERIES MOSI_ESP32 MOSI_TRACE 33
+CMOSI_TRACE MOSI_TRACE 0 10P
+
+*------------------------------------------------------------------------------
+* MAX31865 Input Model
+* Digital inputs with typical CMOS characteristics
+* VIH = 2.0V min, VIL = 1.0V max
+* Input capacitance: 10pF typical
+* Input resistance: >1MΩ (leakage current <1µA)
+*------------------------------------------------------------------------------
+
+* SCLK input
+CSCLK_INPUT SCLK_TRACE SCLK_MAX 10P
+RSCLK_INPUT SCLK_MAX 0 1MEG
+
+* CS input
+CCS_INPUT CS_TRACE CS_MAX 10P
+RCS_INPUT CS_MAX 0 1MEG
+
+* MOSI input (SDI on MAX31865)
+CMOSI_INPUT MOSI_TRACE MOSI_MAX 10P
+RMOSI_INPUT MOSI_MAX 0 1MEG
+
+*------------------------------------------------------------------------------
+* MISO (Master In Slave Out) - Data from MAX31865 to ESP32
+* MAX31865 SDO output model: Tri-state when CS high, driven when CS low
+* Output impedance: ~50Ω typical when driven
+* Test response: 0xAA 0x55 pattern (alternating bits)
+*------------------------------------------------------------------------------
+
+* Behavioral voltage source models tri-state output
+* When CS < 1.5V (active), output alternates at SCLK rate
+* When CS > 1.5V (inactive), output is high-Z (modeled as weak pull-up to DVDD)
+BMISO_DRIVE MISO_MAX31865 0 V={
++ V(CS_MAX) > 1.5 ? 0 :
++ (V(SCLK_MAX) > 1.5) ? 3.3 : 0
++ }
+RMISO_OUT MISO_MAX31865 MISO_TRACE 50
+
+* Trace capacitance
+CMISO_TRACE MISO_TRACE 0 10P
+
+* Series resistor (optional, not typically used on MISO)
+RMISO_SERIES MISO_TRACE MISO_ESP32 33
+
+* ESP32 input (ADC or GPIO)
+CMISO_INPUT MISO_ESP32 0 10P
+RMISO_INPUT MISO_ESP32 0 1MEG
+
+*------------------------------------------------------------------------------
+* Pull-up resistor on MISO (optional, for tri-state handling)
+* Weak pull-up to prevent floating when CS is high
+*------------------------------------------------------------------------------
+RMISO_PULLUP MISO_ESP32 VDD_ESP32 10K
+
+*------------------------------------------------------------------------------
+* Analysis
+* Run for 5us to capture complete SPI transaction
+* Use fine timestep (1ns) to capture rise/fall times accurately
+*------------------------------------------------------------------------------
+.TRAN 1N 5U 0 1N
+
+*------------------------------------------------------------------------------
+* Measurements - Signal Levels at MAX31865 Inputs
+*------------------------------------------------------------------------------
+* SCLK logic levels
+.MEAS TRAN SCLK_HIGH MAX V(SCLK_MAX) FROM=100N TO=3.4U
+.MEAS TRAN SCLK_LOW MIN V(SCLK_MAX) FROM=100N TO=3.4U
+
+* CS logic levels
+.MEAS TRAN CS_LOW MIN V(CS_MAX) FROM=51N TO=3.4U
+.MEAS TRAN CS_HIGH AVG V(CS_MAX) FROM=0 TO=50N
+
+* MOSI logic levels
+.MEAS TRAN MOSI_HIGH MAX V(MOSI_MAX) FROM=100N TO=300N
+.MEAS TRAN MOSI_LOW MIN V(MOSI_MAX) FROM=300N TO=3.4U
+
+*------------------------------------------------------------------------------
+* Measurements - Rise/Fall Times
+*------------------------------------------------------------------------------
+* SCLK rise time (10% to 90%)
+.MEAS TRAN SCLK_RISE TRIG V(SCLK_MAX) VAL=0.33 RISE=1 TD=100N
++                     TARG V(SCLK_MAX) VAL=2.97 RISE=1 TD=100N
+
+* SCLK fall time (90% to 10%)
+.MEAS TRAN SCLK_FALL TRIG V(SCLK_MAX) VAL=2.97 FALL=1 TD=200N
++                     TARG V(SCLK_MAX) VAL=0.33 FALL=1 TD=200N
+
+* MOSI rise time
+.MEAS TRAN MOSI_RISE TRIG V(MOSI_MAX) VAL=0.33 RISE=1 TD=100N
++                     TARG V(MOSI_MAX) VAL=2.97 RISE=1 TD=100N
+
+* MOSI fall time
+.MEAS TRAN MOSI_FALL TRIG V(MOSI_MAX) VAL=2.97 FALL=1 TD=300N
++                     TARG V(MOSI_MAX) VAL=0.33 FALL=1 TD=300N
+
+*------------------------------------------------------------------------------
+* Measurements - SPI Timing (Mode 1: CPOL=0, CPHA=1)
+*------------------------------------------------------------------------------
+* Setup time: Data must be stable before rising edge of SCLK
+* Requirement: tSU(Data) > 10ns (typical MAX31865 spec)
+
+* First data bit setup time (MOSI goes high at 100ns, SCLK rises ~105ns)
+.MEAS TRAN MOSI_SETUP1 TRIG V(MOSI_MAX) VAL=2.0 RISE=1 TD=100N
++                       TARG V(SCLK_MAX) VAL=1.65 RISE=1 TD=100N
+
+* Hold time: Data must remain stable after rising edge of SCLK
+* Requirement: tH(Data) > 10ns (typical MAX31865 spec)
+
+* First data bit hold time (SCLK rises ~105ns, MOSI changes at 300ns)
+.MEAS TRAN MOSI_HOLD1 TRIG V(SCLK_MAX) VAL=1.65 RISE=1 TD=100N
++                      TARG V(MOSI_MAX) VAL=1.65 FALL=1 TD=300N
+
+* CS setup time: CS must go low before first SCLK edge
+* Requirement: tCSS > 50ns (typical)
+.MEAS TRAN CS_SETUP TRIG V(CS_MAX) VAL=1.65 FALL=1 TD=50N
++                    TARG V(SCLK_MAX) VAL=1.65 RISE=1 TD=100N
+
+* CS hold time: CS must stay low after last SCLK edge
+* Requirement: tCSH > 50ns (typical)
+.MEAS TRAN LAST_SCLK_RISE WHEN V(SCLK_MAX)=1.65 RISE=16 TD=100N
+.MEAS TRAN CS_HOLD TRIG V(SCLK_MAX) VAL=1.65 RISE=16 TD=100N
++                   TARG V(CS_MAX) VAL=1.65 RISE=1 TD=3.4U
+
+*------------------------------------------------------------------------------
+* Measurements - MISO Response Timing
+*------------------------------------------------------------------------------
+* MISO access time: Time from CS falling to MISO valid
+* Requirement: tA < 100ns (MAX31865 datasheet)
+.MEAS TRAN MISO_ACCESS TRIG V(CS_MAX) VAL=1.65 FALL=1 TD=50N
++                       TARG V(MISO_TRACE) VAL=1.65 CROSS=1 TD=50N
+
+* MISO output delay: Time from SCLK edge to MISO change
+* Requirement: tDO < 50ns (typical)
+.MEAS TRAN MISO_DELAY TRIG V(SCLK_MAX) VAL=1.65 RISE=1 TD=100N
++                      TARG V(MISO_TRACE) VAL=1.65 CROSS=1 TD=100N
+
+*------------------------------------------------------------------------------
+* Control Script
+*------------------------------------------------------------------------------
+.CONTROL
+
+set filetype=ascii
+set color0=white
+set color1=red
+set color2=blue
+set color3=green
+set color4=magenta
+set color5=cyan
+
+echo ""
+echo "============================================================"
+echo "  ESP32-S3 to MAX31865 SPI Interface Verification"
+echo "  Task: temper-vkx.2"
+echo "============================================================"
+echo ""
+
+run
+
+echo ""
+echo "Simulation complete! Processing results..."
+echo ""
+
+echo "============================================================"
+echo "SIGNAL LEVEL VERIFICATION:"
+echo "============================================================"
+echo "SCLK:"
+print sclk_high sclk_low
+echo ""
+echo "CS:"
+print cs_high cs_low
+echo ""
+echo "MOSI:"
+print mosi_high mosi_low
+echo ""
+
+echo "============================================================"
+echo "LOGIC LEVEL THRESHOLD MARGINS:"
+echo "============================================================"
+* VIH = 2.0V min, VIL = 1.0V max (MAX31865 spec)
+let sclk_vih_margin = sclk_high - 2.0
+let sclk_vil_margin = 1.0 - sclk_low
+let mosi_vih_margin = mosi_high - 2.0
+let mosi_vil_margin = 1.0 - mosi_low
+let cs_vil_margin = 1.0 - cs_low
+
+print sclk_vih_margin sclk_vil_margin
+print mosi_vih_margin mosi_vil_margin
+print cs_vil_margin
+echo ""
+
+echo "============================================================"
+echo "RISE/FALL TIME ANALYSIS:"
+echo "============================================================"
+print sclk_rise sclk_fall
+print mosi_rise mosi_fall
+echo ""
+
+echo "============================================================"
+echo "SPI TIMING VERIFICATION (Mode 1):"
+echo "============================================================"
+echo "Setup and Hold Times:"
+print mosi_setup1 mosi_hold1
+echo ""
+echo "CS Timing:"
+print cs_setup cs_hold
+echo ""
+
+echo "============================================================"
+echo "MISO RESPONSE TIMING:"
+echo "============================================================"
+print miso_access miso_delay
+echo ""
+
+echo "============================================================"
+echo "VERIFICATION CRITERIA:"
+echo "============================================================"
+echo "✓ VIH margin: >0.5V (SCLK/MOSI high > 2.0V)"
+echo "✓ VIL margin: >0.5V (SCLK/MOSI/CS low < 1.0V)"
+echo "✓ Rise/fall time: <50ns (clean switching)"
+echo "✓ Data setup time: >10ns (before SCLK rising edge)"
+echo "✓ Data hold time: >10ns (after SCLK rising edge)"
+echo "✓ CS setup time: >50ns (before first SCLK)"
+echo "✓ CS hold time: >50ns (after last SCLK)"
+echo "✓ MISO access time: <100ns (from CS falling)"
+echo "✓ MISO output delay: <50ns (from SCLK edge)"
+echo "============================================================"
+echo ""
+
+* Automated verification checks
+if sclk_vih_margin > 0.5
+  echo "✓ PASS: SCLK VIH margin > 0.5V"
+else
+  echo "✗ FAIL: SCLK VIH margin < 0.5V"
+end
+
+if sclk_vil_margin > 0.5
+  echo "✓ PASS: SCLK VIL margin > 0.5V"
+else
+  echo "✗ FAIL: SCLK VIL margin < 0.5V"
+end
+
+if mosi_vih_margin > 0.5
+  echo "✓ PASS: MOSI VIH margin > 0.5V"
+else
+  echo "✗ FAIL: MOSI VIH margin < 0.5V"
+end
+
+if mosi_vil_margin > 0.5
+  echo "✓ PASS: MOSI VIL margin > 0.5V"
+else
+  echo "✗ FAIL: MOSI VIL margin < 0.5V"
+end
+
+if sclk_rise < 50e-9
+  echo "✓ PASS: SCLK rise time < 50ns"
+else
+  echo "✗ FAIL: SCLK rise time > 50ns"
+end
+
+if sclk_fall < 50e-9
+  echo "✓ PASS: SCLK fall time < 50ns"
+else
+  echo "✗ FAIL: SCLK fall time > 50ns"
+end
+
+if mosi_setup1 > 10e-9
+  echo "✓ PASS: MOSI setup time > 10ns"
+else
+  echo "✗ FAIL: MOSI setup time < 10ns"
+end
+
+if mosi_hold1 > 10e-9
+  echo "✓ PASS: MOSI hold time > 10ns"
+else
+  echo "✗ FAIL: MOSI hold time < 10ns"
+end
+
+if cs_setup > 50e-9
+  echo "✓ PASS: CS setup time > 50ns"
+else
+  echo "✗ FAIL: CS setup time < 50ns"
+end
+
+if cs_hold > 50e-9
+  echo "✓ PASS: CS hold time > 50ns"
+else
+  echo "✗ FAIL: CS hold time < 50ns"
+end
+
+echo ""
+echo "**CRITICAL: Copper pour thermal relief required for LMR51430**"
+echo "  Junction temperature reaches 154.8°C without thermal management."
+echo "  Copper pour reduces θJA from 80°C/W to ~60°C/W."
+echo "  Reference: sim_02_lmr51430_load_verification.md, temper-neo"
+echo ""
+echo "Simulation results saved to: sim_11_esp32_max31865_spi.raw"
+echo ""
+
+.ENDC
+
+.END

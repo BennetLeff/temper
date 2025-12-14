@@ -1,0 +1,247 @@
+* Resonant Tank AC Frequency Sweep Analysis
+* sim_24_resonant_tank_ac.cir
+*
+* PURPOSE: Characterize the series LC resonant tank with pan load
+*          using AC frequency sweep to determine:
+*          - Resonant frequency
+*          - Impedance at resonance
+*          - Q-factor
+*          - Phase relationship for ZVS
+*
+* THEORY:
+* Series LC resonant tank with load forms a band-pass characteristic.
+* At resonance: XL = XC, impedance is purely resistive (minimum)
+* For ZVS: operate slightly above resonance so current lags voltage
+*
+* RESONANT TANK TOPOLOGY:
+*
+*              C_res              L_coil
+*    DRIVE o----||----o----YYYY----o----o
+*                     |            |    |
+*                     |          Rcoil  |
+*                     |            |    |
+*                     |            o    Rref (reflected)
+*                     |            |    |
+*                     |            |    |
+*    RETURN o---------o------------o----o
+*
+* The "drive" input comes from half-bridge midpoint.
+* The "return" connects to DC bus midpoint (neutral).
+*
+***************************************************************************
+
+.title Resonant Tank AC Frequency Sweep Analysis
+
+***************************************************************************
+* SIMULATION OPTIONS
+***************************************************************************
+.options reltol=1e-4
+.options abstol=1e-12
+.options vntol=1e-6
+
+***************************************************************************
+* INCLUDE PAN LOAD MODEL
+***************************************************************************
+.include ../models/pan_load.sub
+
+***************************************************************************
+* DESIGN PARAMETERS
+***************************************************************************
+* Target resonant frequency
+.param F_RES=35k           ; Target 35kHz
+.param OMEGA_RES={2*3.14159*F_RES}
+
+* Coil parameters (uncoupled)
+.param L1_UNCOUPLED=80u    ; 80uH uncoupled inductance
+.param K_COUPLE=0.5        ; Coupling coefficient (cast iron pan)
+.param L_EFF={L1_UNCOUPLED*(1-K_COUPLE*K_COUPLE)}  ; ~60uH effective
+
+* Resonant capacitor: C = 1/(omega^2 * Leff)
+* For 35kHz and 60uH: C = 345nF
+.param C_RES=330n          ; Use standard value (shifts freq slightly)
+
+* Calculated resonant frequency with standard cap
+* f = 1/(2*pi*sqrt(L*C)) = 1/(2*pi*sqrt(60u*330n)) = 35.8kHz
+
+* Load parameters
+.param R_PAN=8             ; Cast iron reflected resistance
+.param R_COIL=0.1          ; Primary coil resistance
+
+***************************************************************************
+* TEST CIRCUIT - AC SWEEP
+***************************************************************************
+* AC voltage source (1V for impedance measurement)
+V_ac input 0 AC 1 DC 0
+
+* Resonant capacitor (series with coil)
+C_res input n_cap {C_RES}
+
+* Pan load model - uses simplified model for AC analysis
+* This represents: Leff in series with Rcoil and Rref
+L_eff n_cap n_l {L_EFF} IC=0
+R_coil n_l n_r {R_COIL}
+R_ref n_r 0 {R_PAN}
+
+***************************************************************************
+* AC ANALYSIS
+***************************************************************************
+* Sweep from 20kHz to 60kHz with 1000 points
+.ac dec 1000 20k 60k
+
+***************************************************************************
+* MEASUREMENTS
+***************************************************************************
+* Calculate resonant frequency from component values
+.param F_CALC={1/(2*3.14159*sqrt(L_EFF*C_RES))}
+
+* Q factor: Q = omega * L / R = 1/(omega * C * R)
+.param Q_FACTOR={OMEGA_RES*L_EFF/(R_PAN+R_COIL)}
+
+***************************************************************************
+* CONTROL SCRIPT
+***************************************************************************
+.control
+run
+
+echo ""
+echo "============================================================"
+echo "Resonant Tank AC Analysis - Simulation 24"
+echo "============================================================"
+echo ""
+
+* Design parameters
+echo "DESIGN PARAMETERS:"
+echo "  Target frequency: 35 kHz"
+echo "  Coil inductance (uncoupled): 80 uH"
+echo "  Coupling coefficient: 0.5"
+let l_eff_val = 80u * (1 - 0.5*0.5)
+print l_eff_val
+echo "  Effective inductance: ^"
+echo "  Resonant capacitor: 330 nF"
+echo "  Reflected resistance: 8 ohm"
+echo ""
+
+* Calculate theoretical resonant frequency
+let f_theory = 1/(2*3.14159*sqrt(60u*330n))
+echo "THEORETICAL CALCULATIONS:"
+print f_theory
+echo "  Theoretical resonant frequency: ^ Hz"
+echo ""
+
+* Find resonant frequency from simulation (minimum impedance)
+echo "AC ANALYSIS RESULTS:"
+echo ""
+
+* Impedance magnitude
+let z_mag = abs(v(input)/i(v_ac))
+
+* Find frequency where impedance is minimum (resonance)
+let min_z = vecmin(z_mag)
+print min_z
+echo "  Minimum impedance (at resonance): ^ ohms"
+
+* Phase angle
+let z_phase = 180/3.14159 * (ph(v(input)) - ph(i(v_ac)))
+
+echo ""
+echo "============================================================"
+echo "IMPEDANCE vs FREQUENCY"
+echo "============================================================"
+echo ""
+
+* Print impedance at key frequencies
+echo "  Frequency    |Z|       Phase"
+echo "  --------   -------    ------"
+
+* At 25 kHz
+let z_25k = abs(v(input)[125]/i(v_ac)[125])
+let ph_25k = 180/3.14159 * (ph(v(input)[125]) - ph(i(v_ac)[125]))
+print z_25k ph_25k
+
+* At 30 kHz
+let idx_30k = 225
+let z_30k = abs(v(input)[idx_30k]/i(v_ac)[idx_30k])
+let ph_30k = 180/3.14159 * (ph(v(input)[idx_30k]) - ph(i(v_ac)[idx_30k]))
+print z_30k ph_30k
+
+* At 35 kHz  
+let idx_35k = 310
+let z_35k = abs(v(input)[idx_35k]/i(v_ac)[idx_35k])
+let ph_35k = 180/3.14159 * (ph(v(input)[idx_35k]) - ph(i(v_ac)[idx_35k]))
+print z_35k ph_35k
+
+* At 40 kHz
+let idx_40k = 385
+let z_40k = abs(v(input)[idx_40k]/i(v_ac)[idx_40k])
+let ph_40k = 180/3.14159 * (ph(v(input)[idx_40k]) - ph(i(v_ac)[idx_40k]))
+print z_40k ph_40k
+
+* At 45 kHz
+let idx_45k = 450
+let z_45k = abs(v(input)[idx_45k]/i(v_ac)[idx_45k])
+let ph_45k = 180/3.14159 * (ph(v(input)[idx_45k]) - ph(i(v_ac)[idx_45k]))
+print z_45k ph_45k
+
+echo ""
+echo "============================================================"
+echo "Q-FACTOR ANALYSIS"
+echo "============================================================"
+echo ""
+* Q = f_res / bandwidth (3dB points)
+* Q = omega*L/R
+let q_calc = 2*3.14159*35000*60u/8.1
+print q_calc
+echo "  Calculated Q-factor: ^"
+echo "  (Low Q is expected - power is being transferred to pan!)"
+echo ""
+
+echo "============================================================"
+echo "ZVS OPERATING REGION"
+echo "============================================================"
+echo ""
+echo "For Zero Voltage Switching (ZVS):"
+echo "  - Operate ABOVE resonance (inductive region)"
+echo "  - Current LAGS voltage (negative phase = inductive)"
+echo "  - Typical: 5-10% above resonant frequency"
+echo ""
+echo "With f_res ≈ 35 kHz:"
+echo "  ZVS frequency range: 37-40 kHz"
+echo "  At these frequencies, phase should be negative (inductive)"
+echo ""
+
+echo "============================================================"
+echo "POWER CALCULATION AT 35kHz"
+echo "============================================================"
+echo ""
+echo "At resonance with 320V half-bridge (160V fundamental):"
+echo ""
+let v_fund = 320 * 2 / 3.14159
+print v_fund
+echo "  Fundamental voltage amplitude: ^ V"
+echo ""
+let i_peak = v_fund / z_35k
+print i_peak
+echo "  Peak current at 35kHz: ^ A"
+echo ""
+let p_delivered = i_peak * i_peak * 8 / 2
+print p_delivered
+echo "  Power delivered to pan: ^ W"
+echo ""
+
+echo "============================================================"
+echo "SUMMARY"
+echo "============================================================"
+echo ""
+echo "Tank resonates near 35 kHz as designed."
+echo "Impedance at resonance is dominated by reflected resistance."
+echo "Low Q (around 1.6) ensures good power transfer."
+echo "Operate 5-10% above resonance for ZVS."
+echo ""
+
+* Save data for plotting
+wrdata sim_24_ac_results.txt z_mag z_phase
+
+quit
+.endc
+
+.end

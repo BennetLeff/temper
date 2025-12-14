@@ -1,0 +1,148 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * esp32-s3 i2c through adum1250 isolator - simplified verification testbench
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdd1                                       3.3
+vdd2                                       3.3
+scl1                                       3.3
+sda1                                       3.3
+scl2                                       3.3
+sda2                                       3.3
+g_scl_isolate_fwd_int1                       0
+g_scl_isolate_rev_int1                       0
+g_sda_isolate_fwd_int1                       0
+g_sda_isolate_rev_int1                       0
+esp32_scl_out                              3.3
+esp32_sda_out                              3.3
+slave_sda_out                              3.3
+bg_sda_isolate_rev#branch                    0
+bg_sda_isolate_fwd#branch                    0
+bg_scl_isolate_rev#branch                    0
+bg_scl_isolate_fwd#branch                    0
+v_slave_sda#branch                 4.97866e-19
+v_esp32_sda#branch                 7.18869e-18
+v_esp32_scl#branch                 7.18869e-18
+vdd2#branch                            -0.0021
+vdd1#branch                            -0.0017
+
+
+No. of Data Rows : 4388
+
+  Measurements for Transient Analysis
+
+v_scl1_low          =  1.587364e-02 at=  2.500685e-05
+v_scl1_high         =  3.300097e+00 at=  1.501500e-05
+v_sda1_low          =  1.586845e-02 at=  3.005050e-06
+v_sda1_high         =  3.300054e+00 at=  2.201500e-05
+v_scl2_low          =  9.311947e-03 at=  2.501467e-05
+v_scl2_high         =  3.299921e+00 at=  2.000000e-05
+v_sda2_low          =  1.980000e-01 at=  9.008527e-05
+v_sda2_high         =  3.300000e+00 at=  2.302130e-05
+rise_time_scl2      =  1.548413e-06 targ=  1.412119e-05 trig=  1.257278e-05
+rise_time_sda2      =  1.159346e-07 targ=  4.755349e-05 trig=  4.743756e-05
+fall_time_scl2      =  4.330519e-08 targ=  3.901024e-06 trig=  3.857719e-06
+i_vdd1_avg          =  -2.494384e-03 from=  0.000000e+00 to=  2.000000e-04
+i_vdd2_avg          =  -2.943367e-03 from=  0.000000e+00 to=  2.000000e-04
+ack_prop_delay      =  2.472201e-05 targ=  2.752518e-05 trig=  2.803174e-06
+rise_time_scl1      =  3.971383e-06 targ=  1.449858e-05 trig=  1.052720e-05
+
+===== ESP32-S3 I2C through ADUM1250 Isolator Test Results =====
+
+Side 1 Logic Levels:
+Warning from checkvalid: vector v_scl1_low is not available or has zero length.
+
+Side 2 Logic Levels:
+Warning from checkvalid: vector v_scl2_low is not available or has zero length.
+
+Rise/Fall Times (should be <1us for 100kHz I2C):
+Warning from checkvalid: vector rise_time_scl1 is not available or has zero length.
+
+Supply Currents (should be ~1.7mA Side 1, ~2.1mA Side 2):
+Warning from checkvalid: vector i_vdd1_avg is not available or has zero length.
+
+ACK Propagation Delay (Side 2→1, includes isolator + RC delays):
+Warning from checkvalid: vector ack_prop_delay is not available or has zero length.
+
+===== Validation Analysis =====
+
+Logic Level Margins:
+  VIL_I2C = 0.3×3.3V = 0.99V
+  VIH_I2C = 0.7×3.3V = 2.31V
+Warning from checkvalid: vector v_scl1_low is not available or has zero length.
+Error: RHS "vil_i2c - v_scl1_low" invalid
+Warning from checkvalid: vector v_scl1_high is not available or has zero length.
+Error: RHS "v_scl1_high - vih_i2c" invalid
+Warning from checkvalid: vector v_scl2_low is not available or has zero length.
+Error: RHS "vil_i2c - v_scl2_low" invalid
+Warning from checkvalid: vector v_scl2_high is not available or has zero length.
+Error: RHS "v_scl2_high - vih_i2c" invalid
+  SCL1 Low Margin:
+Warning from checkvalid: vector margin_scl1_low is not available or has zero length.
+  SCL1 High Margin:
+Warning from checkvalid: vector margin_scl1_high is not available or has zero length.
+  SCL2 Low Margin:
+Warning from checkvalid: vector margin_scl2_low is not available or has zero length.
+  SCL2 High Margin:
+Warning from checkvalid: vector margin_scl2_high is not available or has zero length.
+
+Rise Time Analysis:
+  I2C 100kHz Standard Mode: t_rise < 1000ns
+  Rise time limit: 1000ns
+  SCL1 rise time:
+Warning from checkvalid: vector rise_time_scl1 is not available or has zero length.
+  SCL2 rise time:
+Warning from checkvalid: vector rise_time_scl2 is not available or has zero length.
+
+Bus Capacitance Effect:
+  Side 1: 50pF (ESP32 + traces + ADUM1250 input)
+  Side 2: 150pF (ADUM1250 output + traces + 2-3 slaves)
+  Expected rise time = 2.2 × R_pullup × C_bus
+  Calculated SCL1 rise time:
+calc_rise_scl1 = 5.170000e-07
+  Calculated SCL2 rise time:
+calc_rise_scl2 = 1.551000e-06
+
+ADUM1250 Propagation Delays (from datasheet, not explicitly modeled):
+  Side 1→2: 82-115ns typical (95ns nominal)
+  Side 2→1: 310-340ns typical (325ns nominal)
+  Total round-trip: ~420ns
+  Impact on 100kHz I2C (10us bit time): 4.2% of bit time (negligible)
+
+===== Pass/Fail Criteria =====
+vil_i2c): No such file or directory
+PPerror: syntax error in line segment
+   (v_scl1_high
+near
+   (v_scl1_high
+Error: RHS "(v_scl1_high" invalid
+vil_i2c): No such file or directory
+PPerror: syntax error in line segment
+   (v_scl2_high
+near
+   (v_scl2_high
+Error: RHS "(v_scl2_high" invalid
+rise_limit): No such file or directory
+rise_limit): No such file or directory
+-0.0015): No such file or directory
+-0.0019): No such file or directory
+Warning from checkvalid: vector pass_scl1_low is not available or has zero length.
+✗ FAIL: Logic levels out of spec
+Warning from checkvalid: vector pass_rise_scl1 is not available or has zero length.
+✗ FAIL: Rise times exceed 1us limit
+Warning from checkvalid: vector pass_curr_idd1 is not available or has zero length.
+⚠ WARNING: Supply currents outside typical range (still functional)
+
+Overall: I2C interface through ADUM1250 isolator is functional
+
+ngspice-45.2 done

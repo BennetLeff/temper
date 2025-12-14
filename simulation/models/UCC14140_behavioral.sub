@@ -1,0 +1,24 @@
+* UCC14140-Q1 Behavioral Model for System Simulation
+.subckt UCC14140_BEHAVIORAL VIN GNDP VDD VEE COM ENA PG
++ PARAMS: VOUT_VDD=22 VOUT_COM=4
+
+* Input supply (8-18V operating range)
+* UVLO at 7.4V falling, 8.2V rising
+
+* Main output VDD-VEE with soft-start
+* Rise time ~3ms typical
+B_vdd VDD VEE V = IF(V(ENA,GNDP)>2.1 & V(VIN,GNDP)>8, 
++   {VOUT_VDD} * (1 - exp(-TIME/1m)), 0)
+
+* COM-VEE output tracks main output
+B_com COM VEE V = IF(V(VDD,VEE)>12, {VOUT_COM}, 0)
+
+* Power-good output (open-drain, active low)
+* Goes low when outputs within ±10%
+B_pg PG GNDP V = IF(V(VDD,VEE)>{VOUT_VDD*0.9} & 
++   V(VDD,VEE)<{VOUT_VDD*1.1} & V(COM,VEE)>{VOUT_COM*0.9}, 0, 5)
+
+* Isolation barrier (reflected to primary)
+C_iso GNDP VEE 3.5p
+
+.ends UCC14140_BEHAVIORAL

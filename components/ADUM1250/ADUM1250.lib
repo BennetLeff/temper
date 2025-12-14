@@ -1,282 +1,131 @@
 * ADUM1250/ADUM1251 I2C Isolator SPICE Model
 * Analog Devices
 * Hot Swappable Dual I2C Isolators
-* Model version: 1.0
+* Model version: 1.3 (Fixed syntax for ngspice)
 * Date: 2024
 *
 * This model represents the ADUM1250/ADUM1251 I2C isolators
-* ADUM1250: Two bidirectional channels
-* ADUM1251: One bidirectional channel + one unidirectional channel
 * Suitable for ngspice and KiCad simulation
-*
-* Pin Configuration (8-lead SOIC):
-* Pin 1: VDD1 - Supply voltage for Side 1 (3.0V to 5.5V)
-* Pin 2: SCL1 - Side 1 I2C clock (bidirectional, open-drain)
-* Pin 3: SDA1 - Side 1 I2C data (bidirectional, open-drain)
-* Pin 4: GND1 - Ground for Side 1
-* Pin 5: GND2 - Ground for Side 2
-* Pin 6: SDA2 - Side 2 I2C data (bidirectional, open-drain)
-* Pin 7: SCL2 - Side 2 I2C clock (bidirectional, open-drain)
-* Pin 8: VDD2 - Supply voltage for Side 2 (3.0V to 5.5V)
-*
-* Key Features:
-* - Magnetic isolation: 2500V rms (UL 1577), 560V peak working voltage
-* - Bidirectional I2C communication with open-drain outputs
-* - 1000 kHz maximum operation
-* - Hot swap circuitry prevents glitching during power-up
-* - Side 1: Modified logic levels (500-700mV threshold, 600-900mV output low)
-* - Side 2: Standard I2C compatible levels
-* - Propagation delays: 82-340ns depending on direction and temperature
 
 ***************************************************************************
 * Main Subcircuit: ADUM1250 (Two Bidirectional Channels)
 ***************************************************************************
 .subckt ADUM1250 VDD1 SCL1 SDA1 GND1 GND2 SDA2 SCL2 VDD2
-* Bidirectional I2C isolator with two channels
-
-* SCL channel (bidirectional)
 X_SCL SCL1 VDD1 GND1 SCL2 VDD2 GND2 ADUM1250_BICHAN
-
-* SDA channel (bidirectional)
 X_SDA SDA1 VDD1 GND1 SDA2 VDD2 GND2 ADUM1250_BICHAN
-
 .ends ADUM1250
 
 ***************************************************************************
-* Alternate Subcircuit: ADUM1251 (One Bidirectional + One Unidirectional)
+* Alternate Subcircuit: ADUM1251
 ***************************************************************************
 .subckt ADUM1251 VDD1 SCL1 SDA1 GND1 GND2 SDA2 SCL2 VDD2
-* I2C isolator with one bidirectional and one unidirectional channel
-* SCL: Bidirectional
-* SDA: Unidirectional (Side 1 to Side 2 only)
-
-* SCL channel (bidirectional)
 X_SCL SCL1 VDD1 GND1 SCL2 VDD2 GND2 ADUM1250_BICHAN
-
-* SDA channel (unidirectional, Side 1 to Side 2 only)
 X_SDA SDA1 VDD1 GND1 SDA2 VDD2 GND2 ADUM1250_UNICHAN
-
 .ends ADUM1251
 
 ***************************************************************************
 * Bidirectional Channel Subcircuit
 ***************************************************************************
 .subckt ADUM1250_BICHAN IO1 VDD1 GND1 IO2 VDD2 GND2
-* Bidirectional I2C channel with open-drain outputs on both sides
 
-***************************************************************************
 * Hot Swap Startup Logic
-***************************************************************************
-* Both supplies must be >2.5V and stable for >40us before enabling
-* Simplified: Check if VDD1 and VDD2 are above threshold
-
-* Side 1 supply monitor
-B_POR1 N_POR1 GND1 V={IF(V(VDD1,GND1) > 2.5, V(VDD1,GND1), 0)}
+B_POR1 N_POR1 GND1 V={V(VDD1,GND1) > 2.5 ? V(VDD1,GND1) : 0}
 R_POR1 N_POR1 GND1 1MEG
-
-* Side 2 supply monitor
-B_POR2 N_POR2 GND2 V={IF(V(VDD2,GND2) > 2.5, V(VDD2,GND2), 0)}
+B_POR2 N_POR2 GND2 V={V(VDD2,GND2) > 2.5 ? V(VDD2,GND2) : 0}
 R_POR2 N_POR2 GND2 1MEG
-
-* Startup delay (40us minimum)
 C_STARTUP1 N_POR1 GND1 1u
 C_STARTUP2 N_POR2 GND2 1u
-
-* Enable signals (both supplies must be ready)
-B_EN1 N_EN1 GND1 V={IF(V(N_POR1,GND1)>2.4 & V(N_POR2,GND2)>2.4, 1, 0)}
-B_EN2 N_EN2 GND2 V={IF(V(N_POR1,GND1)>2.4 & V(N_POR2,GND2)>2.4, 1, 0)}
+* Use multiplication for logical AND
+B_EN1 N_EN1 GND1 V={ (V(N_POR1,GND1)>2.4) * (V(N_POR2,GND2)>2.4) }
+B_EN2 N_EN2 GND2 V={ (V(N_POR1,GND1)>2.4) * (V(N_POR2,GND2)>2.4) }
 R_EN1 N_EN1 GND1 100k
 R_EN2 N_EN2 GND2 100k
 
-***************************************************************************
 * Side 1 to Side 2 Signal Path
-***************************************************************************
-* Side 1 input detection
-* Input threshold: 500-700mV (using 600mV nominal)
-* Hysteresis: ~100mV
-B_IN1_DET N_IN1_DET GND1 V={
-+ IF(V(IO1,GND1) < 0.6, 0,
-+   IF(V(IO1,GND1) > 0.7, V(VDD1,GND1),
-+     V(N_IN1_DET,GND1)
-+   )
-+ )
-+}
+* Input detection with hysteresis
+* V(Self) used for latching state
+B_IN1_DET N_IN1_DET GND1 V={V(IO1,GND1) < 0.6 ? 0 : (V(IO1,GND1) > 0.7 ? 3.3 : V(N_IN1_DET,GND1))}
 R_IN1_DET N_IN1_DET GND1 1MEG
 C_IN1_DET N_IN1_DET GND1 10p
 
-* Convert to digital signal
-A_IN1_BUF [N_IN1_DET GND1] N_DIG1 BUF ref=0.5*VDD1 vhigh={VDD1}
+* Isolation Barrier (Transmission Line Delay)
+T_DELAY_1TO2 N_IN1_DET GND1 N_ISO_1TO2 GND2 Z0=1k TD=95n
+R_TERM_1TO2 N_ISO_1TO2 GND2 1k
 
-* Isolation barrier crossing (Side 1 to Side 2 direction)
-* Propagation delay: 82ns (typ @ 25°C) to 115ns (typ @ 125°C)
-* Using 95ns nominal
-A_DELAY_1TO2 [N_DIG1] N_ISO_1TO2 BUF td=95n tripdt=1n
-
-* Side 2 output driver (open-drain)
-* Output low voltage: 400mV max @ 3mA sink
-* Current sink capability: 30mA
-* Modeled as voltage-controlled switch with Ron
-B_OUT2_CTRL N_OUT2_CTRL GND2 V={IF(V(N_EN2,GND2)>0.5 & V(N_ISO_1TO2)>0.5, 0, 1)}
+* Output Driver Side 2
+* Logic: If Enabled AND InputHigh, Output OFF (Open Drain High-Z)
+* If Enabled AND InputLow, Output ON (Low)
+* N_ISO_1TO2 is high when IO1 is high. So if high, output switch OFF.
+* If low, output switch ON.
+* B_OUT2_CTRL drives switch control. 1 = ON (Low), 0 = OFF (High-Z).
+* So if N_ISO > 1.5, we want OFF (0). If N_ISO < 1.5, we want ON (1).
+B_OUT2_CTRL N_OUT2_CTRL GND2 V={ (V(N_EN2,GND2)>0.5) * (V(N_ISO_1TO2,GND2)<1.5) ? 1 : 0 }
 R_OUT2_CTRL N_OUT2_CTRL GND2 1MEG
-
-* Open-drain output (active low)
 S_OUT2 IO2 N_OUT2_LOW N_OUT2_CTRL GND2 SW_ODRAIN
-R_OUT2_LOW N_OUT2_LOW GND2 {400m/30m}
-* Output capacitance
+R_OUT2_LOW N_OUT2_LOW GND2 13.3
 C_OUT2 IO2 GND2 10p
 
-***************************************************************************
 * Side 2 to Side 1 Signal Path
-***************************************************************************
-* Side 2 input detection
-* Standard I2C levels: VIL=0.3*VDD2, VIH=0.7*VDD2
-B_IN2_DET N_IN2_DET GND2 V={
-+ IF(V(IO2,GND2) < 0.3*V(VDD2,GND2), 0,
-+   IF(V(IO2,GND2) > 0.7*V(VDD2,GND2), V(VDD2,GND2),
-+     V(N_IN2_DET,GND2)
-+   )
-+ )
-+}
+B_IN2_DET N_IN2_DET GND2 V={V(IO2,GND2) < 0.3*V(VDD2,GND2) ? 0 : (V(IO2,GND2) > 0.7*V(VDD2,GND2) ? 3.3 : V(N_IN2_DET,GND2))}
 R_IN2_DET N_IN2_DET GND2 1MEG
 C_IN2_DET N_IN2_DET GND2 10p
 
-* Convert to digital signal
-A_IN2_BUF [N_IN2_DET GND2] N_DIG2 BUF ref={0.5*VDD2} vhigh={VDD2}
+* Isolation Barrier
+T_DELAY_2TO1 N_IN2_DET GND2 N_ISO_2TO1 GND1 Z0=1k TD=325n
+R_TERM_2TO1 N_ISO_2TO1 GND1 1k
 
-* Isolation barrier crossing (Side 2 to Side 1 direction)
-* Propagation delay: 310ns (typ @ 25°C) to 340ns (typ @ 125°C)
-* Using 325ns nominal
-A_DELAY_2TO1 [N_DIG2] N_ISO_2TO1 BUF td=325n tripdt=1n
-
-* Side 1 output driver (open-drain)
-* Output low voltage: 600-900mV max @ 3mA sink (using 750mV nominal)
-* Current sink capability: 3mA
-B_OUT1_CTRL N_OUT1_CTRL GND1 V={IF(V(N_EN1,GND1)>0.5 & V(N_ISO_2TO1)>0.5, 0, 1)}
+* Output Driver Side 1
+B_OUT1_CTRL N_OUT1_CTRL GND1 V={ (V(N_EN1,GND1)>0.5) * (V(N_ISO_2TO1,GND1)<1.5) ? 1 : 0 }
 R_OUT1_CTRL N_OUT1_CTRL GND1 1MEG
-
-* Open-drain output (active low)
 S_OUT1 IO1 N_OUT1_LOW N_OUT1_CTRL GND1 SW_ODRAIN
-R_OUT1_LOW N_OUT1_LOW GND1 {750m/3m}
-* Output capacitance
+R_OUT1_LOW N_OUT1_LOW GND1 250
 C_OUT1 IO1 GND1 10p
 
-***************************************************************************
-* Supply Current Consumption
-***************************************************************************
-* Side 1: 1.7mA typ @ 3.3V, 2.3mA typ @ 5V (no load)
+* Supply Current
 B_IDD1 VDD1 N_IDD1 I={1.7m + (V(VDD1,GND1)-3.3)*0.3m}
 R_IDD1 N_IDD1 GND1 1
-
-* Side 2: 2.1mA typ @ 3.3V, 2.8mA typ @ 5V (no load)
 B_IDD2 VDD2 N_IDD2 I={2.1m + (V(VDD2,GND2)-3.3)*0.4m}
 R_IDD2 N_IDD2 GND2 1
 
 .ends ADUM1250_BICHAN
 
 ***************************************************************************
-* Unidirectional Channel Subcircuit (Side 1 to Side 2 only)
+* Unidirectional Channel Subcircuit
 ***************************************************************************
 .subckt ADUM1250_UNICHAN IO1 VDD1 GND1 IO2 VDD2 GND2
-* Unidirectional I2C channel (for ADUM1251 SDA)
 
-***************************************************************************
-* Hot Swap Startup Logic
-***************************************************************************
-* Side 1 supply monitor
-B_POR1 N_POR1 GND1 V={IF(V(VDD1,GND1) > 2.5, V(VDD1,GND1), 0)}
+* Hot Swap (simplified for unichan)
+B_POR1 N_POR1 GND1 V={V(VDD1,GND1) > 2.5 ? V(VDD1,GND1) : 0}
 R_POR1 N_POR1 GND1 1MEG
-C_STARTUP1 N_POR1 GND1 1u
-
-* Side 2 supply monitor
-B_POR2 N_POR2 GND2 V={IF(V(VDD2,GND2) > 2.5, V(VDD2,GND2), 0)}
+B_POR2 N_POR2 GND2 V={V(VDD2,GND2) > 2.5 ? V(VDD2,GND2) : 0}
 R_POR2 N_POR2 GND2 1MEG
+C_STARTUP1 N_POR1 GND1 1u
 C_STARTUP2 N_POR2 GND2 1u
-
-* Enable signal for Side 2 output
-B_EN2 N_EN2 GND2 V={IF(V(N_POR1,GND1)>2.4 & V(N_POR2,GND2)>2.4, 1, 0)}
+B_EN2 N_EN2 GND2 V={ (V(N_POR1,GND1)>2.4) * (V(N_POR2,GND2)>2.4) }
 R_EN2 N_EN2 GND2 100k
 
-***************************************************************************
-* Side 1 to Side 2 Signal Path (Unidirectional)
-***************************************************************************
-* Side 1 input detection (500-700mV threshold)
-B_IN1_DET N_IN1_DET GND1 V={
-+ IF(V(IO1,GND1) < 0.6, 0,
-+   IF(V(IO1,GND1) > 0.7, V(VDD1,GND1),
-+     V(N_IN1_DET,GND1)
-+   )
-+ )
-+}
+* Path 1->2
+B_IN1_DET N_IN1_DET GND1 V={V(IO1,GND1) < 0.6 ? 0 : (V(IO1,GND1) > 0.7 ? 3.3 : V(N_IN1_DET,GND1))}
 R_IN1_DET N_IN1_DET GND1 1MEG
 C_IN1_DET N_IN1_DET GND1 10p
 
-* Convert to digital signal
-A_IN1_BUF [N_IN1_DET GND1] N_DIG1 BUF ref={0.5*VDD1} vhigh={VDD1}
+T_DELAY_1TO2 N_IN1_DET GND1 N_ISO_1TO2 GND2 Z0=1k TD=82n
+R_TERM_1TO2 N_ISO_1TO2 GND2 1k
 
-* Isolation barrier crossing
-* Propagation delay: 82ns nominal
-A_DELAY_1TO2 [N_DIG1] N_ISO_1TO2 BUF td=82n tripdt=1n
-
-* Side 2 output driver (open-drain)
-B_OUT2_CTRL N_OUT2_CTRL GND2 V={IF(V(N_EN2,GND2)>0.5 & V(N_ISO_1TO2)>0.5, 0, 1)}
+B_OUT2_CTRL N_OUT2_CTRL GND2 V={ (V(N_EN2,GND2)>0.5) * (V(N_ISO_1TO2,GND2)<1.5) ? 1 : 0 }
 R_OUT2_CTRL N_OUT2_CTRL GND2 1MEG
-
-* Open-drain output
 S_OUT2 IO2 N_OUT2_LOW N_OUT2_CTRL GND2 SW_ODRAIN
-R_OUT2_LOW N_OUT2_LOW GND2 {400m/30m}
+R_OUT2_LOW N_OUT2_LOW GND2 13.3
 C_OUT2 IO2 GND2 10p
-
-* Side 1 has no output driver (input only)
-* Just input capacitance
 C_IN1 IO1 GND1 10p
 
-***************************************************************************
-* Supply Current Consumption
-***************************************************************************
-* Slightly lower than bidirectional channel
+* Current
 B_IDD1 VDD1 N_IDD1 I={1.5m + (V(VDD1,GND1)-3.3)*0.3m}
 R_IDD1 N_IDD1 GND1 1
-
 B_IDD2 VDD2 N_IDD2 I={1.9m + (V(VDD2,GND2)-3.3)*0.4m}
 R_IDD2 N_IDD2 GND2 1
 
 .ends ADUM1250_UNICHAN
 
-***************************************************************************
-* Device Models
-***************************************************************************
-* Open-drain output switch
-.model SW_ODRAIN VSWITCH (RON=1 ROFF=100MEG VON=0.7 VOFF=0.3)
-
-***************************************************************************
-* Additional Notes for Simulation
-***************************************************************************
-* 1. This is a behavioral model optimized for I2C circuit simulation
-* 2. Key characteristics modeled:
-*    - Bidirectional signal flow with asymmetric propagation delays
-*    - Open-drain outputs requiring external pull-up resistors
-*    - Different logic levels on Side 1 vs Side 2
-*    - Hot swap startup sequencing
-*    - Supply current consumption
-* 3. External components required:
-*    - Pull-up resistors on all I2C lines (both sides)
-*    - Bypass capacitors: 0.1uF + 10uF on VDD1 and VDD2
-* 4. Not modeled in detail:
-*    - Rise/fall time dependencies on external pull-up values
-*    - Common-mode transient immunity (CMTI) effects
-*    - Detailed startup glitch suppression mechanisms
-*    - Temperature-dependent timing variations
-* 5. Typical pull-up resistor values:
-*    - Side 1: 2.2kΩ to 10kΩ (limited by 3mA sink capability)
-*    - Side 2: 1kΩ to 10kΩ (30mA sink allows lower values)
-*    - For 100kHz: 4.7kΩ typical
-*    - For 400kHz: 2.2kΩ typical
-*    - For 1MHz: 1kΩ to 2.2kΩ
-* 6. Maximum capacitive loading:
-*    - 400pF per I2C bus specification
-*    - Consider both sides when calculating total bus capacitance
-* 7. I2C Compliance:
-*    - Side 2 is fully I2C compliant
-*    - Side 1 has modified levels (compatible but not compliant)
-*    - Do not use Side 1 levels for standard I2C bus
-***************************************************************************
+* Models
+.model SW_ODRAIN SW(Ron=1 Roff=100Meg Vt=0.5 Vh=0.2)

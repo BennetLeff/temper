@@ -1,0 +1,684 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: MAX31865 RTD-to-Digital Converter Test Circuit
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdd_node                                   3.3
+dvdd_node                                  3.3
+x_max31865.n_vdd_ok                   0.998625
+gnd1_node                          -0.00137516
+x_max31865.n_dvdd_ok                  0.998625
+dgnd_node                                1e-07
+x_max31865.n_por_raw                  0.998625
+x_max31865.n_por                      0.997626
+x_max31865.n_pwr_good                 0.998625
+x_max31865.n_vbias_ref                 1.99862
+x_max31865.n_vbias_delayed             1.99862
+bias_node                          2.06525e-10
+x_max31865.n_vbias_sense                    -2
+x_max31865.n_vbias_lim             -0.00137516
+x_max31865.n_prot_fp                  0.998625
+force+_node                       -4.40052e-09
+x_max31865.n_prot_f2                  0.998625
+force2_node                       -2.75033e-15
+x_max31865.n_prot_rp                  0.998625
+rtdin+_node                       -4.40135e-09
+x_max31865.n_prot_rn                  0.998625
+rtdin-_node                       -5.00438e-09
+x_max31865.n_prot_fn                  0.998625
+force-_node                       -5.00463e-09
+x_max31865.n_ov_uv_fault           -0.00137516
+isensor_node                      -4.40051e-09
+refin-_node                       -4.40051e-09
+x_max31865.n_adc_inp              -4.40135e-09
+x_max31865.n_adc_inn              -5.00438e-09
+x_max31865.n_adc_refp                        0
+refin+_node                                  0
+x_max31865.n_adc_refn             -4.40051e-09
+x_max31865.n_adc_diff              -0.00137516
+x_max31865.n_adc_vref              -0.00137516
+x_max31865.n_adc_raw                     32768
+x_max31865.n_adc_noise             -0.00137516
+x_max31865.n_adc_code              -0.00137516
+x_max31865.n_adc_offset               0.998625
+x_max31865.n_adc_result               0.998625
+x_max31865.n_fault_high            -0.00137516
+x_max31865.n_fault_low                0.998625
+x_max31865.n_fault_refin_high         0.998625
+x_max31865.n_fault_status             0.998625
+x_max31865.n_conv_timer                    3.3
+x_max31865.n_drdy_logic            -0.00137516
+drdy_node                          -0.00137516
+x_max31865.n_cs_active             -0.00137516
+cs_node                                    3.3
+x_max31865.n_sdo_ctrl              -0.00137516
+sdo_node                           9.90099e-10
+x_max31865.n_sdo_drive                   1e-07
+x_max31865.n_idd_analog             0.00112484
+x_max31865.n_idd_digital             0.0001001
+gnd2_node                         -0.000687582
+n_rtd_low                         -5.00435e-09
+sclk_node                                    0
+sdi_node                                     0
+nc_node                                      0
+b.x_max31865.b_sdo_drive#branch    -9.90099e-15
+b.x_max31865.b_sdo_ctrl#branch    -2.38234e-16
+b.x_max31865.b_cs_det#branch      -7.94054e-25
+b.x_max31865.b_drdy#branch         1.37516e-09
+b.x_max31865.b_drdy_logic#branch    -7.94054e-25
+b.x_max31865.b_fault_status#branch          -1e-05
+b.x_max31865.b_fault_refin_high#branch          -1e-05
+b.x_max31865.b_fault_low#branch          -1e-05
+b.x_max31865.b_fault_high#branch    -7.94054e-25
+b.x_max31865.b_adc_result#branch          -1e-06
+b.x_max31865.b_adc_offset#branch          -1e-06
+b.x_max31865.b_adc_code#branch    -2.87611e-26
+b.x_max31865.b_adc_noise#branch    -2.87611e-26
+b.x_max31865.b_adc_raw#branch        -0.032768
+b.x_max31865.b_adc_vref#branch    -4.40051e-15
+b.x_max31865.b_adc_diff#branch    -6.03035e-16
+b.x_max31865.b_adc_refn#branch    -1.37516e-09
+b.x_max31865.b_adc_refp#branch    -1.37516e-09
+b.x_max31865.b_adc_inn#branch     -1.37516e-09
+b.x_max31865.b_adc_inp#branch     -1.37516e-09
+b.x_max31865.b_ov_uv_fault#branch    -7.94054e-25
+b.x_max31865.b_prot_fn#branch           -1e-05
+b.x_max31865.b_prot_rn#branch           -1e-05
+b.x_max31865.b_prot_rp#branch           -1e-05
+b.x_max31865.b_prot_f2#branch           -1e-05
+b.x_max31865.b_prot_fp#branch           -1e-05
+b.x_max31865.b_vbias#branch           -2.06525
+b.x_max31865.b_vbias_ref#branch          -2e-06
+b.x_max31865.b_pwr_good#branch          -1e-05
+b.x_max31865.b_por_raw#branch     -9.99001e-07
+b.x_max31865.b_dvdd_mon#branch          -1e-05
+b.x_max31865.b_vdd_mon#branch           -1e-05
+vcs#branch                                   0
+v_dvdd#branch                          -0.0001
+v_vdd#branch                           -0.0025
+
+
+No. of Data Rows : 1010
+===== MAX31865 Test Results =====
+Conditions: PT100, 4-wire, 25C
+v_bias_final = 2.000002e+00
+Warning from checkvalid: vector rtdin is not available or has zero length.
+Error: RHS "v(rtdin+_node) - v(rtdin-_node)" invalid
+Warning from checkvalid: vector refin is not available or has zero length.
+Error: RHS "v(refin+_node) - v(refin-_node)" invalid
+Warning from checkvalid: vector v_rtd is not available or has zero length.
+Error: RHS "v_rtd[length(v_rtd)-1]" invalid
+Warning from checkvalid: vector v_ref is not available or has zero length.
+Error: RHS "v_ref[length(v_ref)-1]" invalid
+Warning from checkvalid: vector v_rtd_final is not available or has zero length.
+Warning from checkvalid: vector v_ref_final is not available or has zero length.
+Warning from checkvalid: vector v_rtd_final is not available or has zero length.
+Error: RHS "32768 * v_rtd_final / v_ref_final" invalid
+Warning from checkvalid: vector adc_code is not available or has zero length.
+Warning from checkvalid: vector adc_code is not available or has zero length.
+Error: RHS "(adc_code / 32) - 256" invalid
+Warning from checkvalid: vector temp_calc is not available or has zero length.
+Expected Temp: ~25C
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+Error: no data saved for Transient analysis; analysis not run
+doAnalyses: not found
+
+run simulation(s) aborted
+	Node                                  Voltage
+	----                                  -------
+	----	-------
+	nc_node                          0.000000e+00
+	sdi_node                         0.000000e+00
+	sclk_node                        0.000000e+00
+	n_rtd_low                        1.999994e+00
+	gnd2_node                        8.333333e-07
+	x_max31865.n_idd_digital         1.001000e-04
+	x_max31865.n_idd_analog          2.501667e-03
+	x_max31865.n_sdo_drive           1.000000e-07
+	sdo_node                         9.900990e-10
+	x_max31865.n_sdo_ctrl            1.666667e-06
+	cs_node                          3.300000e+00
+	x_max31865.n_cs_active           1.666667e-06
+	drdy_node                        1.666667e-06
+	x_max31865.n_drdy_logic          1.666667e-06
+	x_max31865.n_conv_timer          3.300000e+00
+	x_max31865.n_fault_status        1.000002e+00
+	x_max31865.n_fault_refin_high    1.000002e+00
+	x_max31865.n_fault_low           1.000002e+00
+	x_max31865.n_fault_high          1.666667e-06
+	x_max31865.n_adc_result          1.000002e+00
+	x_max31865.n_adc_offset          1.000002e+00
+	x_max31865.n_adc_code            1.666667e-06
+	x_max31865.n_adc_noise           1.666667e-06
+	x_max31865.n_adc_raw             3.276800e+04
+	x_max31865.n_adc_vref            8.066629e-06
+	x_max31865.n_adc_diff            2.543704e-06
+	x_max31865.n_adc_refn            1.999995e+00
+	refin+_node                      2.000002e+00
+	x_max31865.n_adc_refp            2.000002e+00
+	x_max31865.n_adc_inn             1.999994e+00
+	x_max31865.n_adc_inp             1.999995e+00
+	refin-_node                      1.999995e+00
+	isensor_node                     1.999995e+00
+	x_max31865.n_ov_uv_fault         1.666667e-06
+	force-_node                      1.999994e+00
+	x_max31865.n_prot_fn             1.000002e+00
+	rtdin-_node                      1.999994e+00
+	x_max31865.n_prot_rn             1.000002e+00
+	rtdin+_node                      1.999995e+00
+	x_max31865.n_prot_rp             1.000002e+00
+	force2_node                      3.333333e-18
+	x_max31865.n_prot_f2             1.000002e+00
+	force+_node                      1.999995e+00
+	x_max31865.n_prot_fp             1.000002e+00
+	x_max31865.n_vbias_lim           1.666667e-06
+	x_max31865.n_vbias_sense         1.651183e-06
+	bias_node                        2.000002e+00
+	x_max31865.n_vbias_delayed       2.000002e+00
+	x_max31865.n_vbias_ref           2.000002e+00
+	x_max31865.n_pwr_good            1.000002e+00
+	x_max31865.n_por                 9.990027e-01
+	x_max31865.n_por_raw             1.000002e+00
+	dgnd_node                        1.000000e-07
+	x_max31865.n_dvdd_ok             1.000002e+00
+	gnd1_node                        1.666667e-06
+	x_max31865.n_vdd_ok              1.000002e+00
+	dvdd_node                        3.300000e+00
+	vdd_node                         3.300000e+00
+
+	Source	Current
+	------	-------
+
+	v_vdd#branch                     -2.50000e-03
+	v_dvdd#branch                    -1.00000e-04
+	vcs#branch                       0.000000e+00
+	b.x_max31865.b_vdd_mon#branch    -1.00000e-05
+	b.x_max31865.b_dvdd_mon#branch   -1.00000e-05
+	b.x_max31865.b_por_raw#branch    -9.99001e-07
+	b.x_max31865.b_pwr_good#branch   -1.00000e-05
+	b.x_max31865.b_vbias_ref#branch   -2.00000e-06
+	b.x_max31865.b_vbias#branch      -1.60004e-08
+	b.x_max31865.b_prot_fp#branch    -1.00000e-05
+	b.x_max31865.b_prot_f2#branch    -1.00000e-05
+	b.x_max31865.b_prot_rp#branch    -1.00000e-05
+	b.x_max31865.b_prot_rn#branch    -1.00000e-05
+	b.x_max31865.b_prot_fn#branch    -1.00000e-05
+	b.x_max31865.b_ov_uv_fault#branch   1.134876e-27
+	b.x_max31865.b_adc_inp#branch    -1.99999e-06
+	b.x_max31865.b_adc_inn#branch    -1.99999e-06
+	b.x_max31865.b_adc_refp#branch   -2.00000e-06
+	b.x_max31865.b_adc_refn#branch   -1.99999e-06
+	b.x_max31865.b_adc_diff#branch   -8.77037e-13
+	b.x_max31865.b_adc_vref#branch   -6.39996e-12
+	b.x_max31865.b_adc_raw#branch    -3.27680e-02
+	b.x_max31865.b_adc_noise#branch   6.328804e-29
+	b.x_max31865.b_adc_code#branch   6.328804e-29
+	b.x_max31865.b_adc_offset#branch   -1.00000e-06
+	b.x_max31865.b_adc_result#branch   -1.00000e-06
+	b.x_max31865.b_fault_high#branch   1.134876e-27
+	b.x_max31865.b_fault_low#branch   -1.00000e-05
+	b.x_max31865.b_fault_refin_high#branch   -1.00000e-05
+	b.x_max31865.b_fault_status#branch   -1.00000e-05
+	b.x_max31865.b_drdy_logic#branch   1.134876e-27
+	b.x_max31865.b_drdy#branch       -1.66667e-12
+	b.x_max31865.b_cs_det#branch     1.134876e-27
+	b.x_max31865.b_sdo_ctrl#branch   -2.84686e-19
+	b.x_max31865.b_sdo_drive#branch   -9.90099e-15
+
+ Capacitor models (Fixed capacitor)
+      model                     C
+
+        cap                     0
+         cj                     0
+       cjsw                     0
+       defw                 1e-05
+       defl                     0
+     narrow                     0
+      short                     0
+        del                     0
+        tc1                     0
+        tc2                     0
+         di                     0
+      thick                     0
+     bv_max                 1e+99
+
+ Resistor models (Simple linear resistor)
+      model                     R
+
+        rsh                     0
+     narrow                     0
+      short                     0
+        tc1                     0
+        tc2                     0
+        tce                     0
+       defw                 1e-05
+          l                 1e-05
+         kf                     0
+         af                     0
+          r                     0
+     bv_max                 1e+99
+         lf                     1
+         wf                     1
+         ef                     1
+
+ Switch models (Ideal voltage controlled switch)
+      model                sw_sdo
+
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_idd_di b.x_max31865.b_idd_an b.x_max31865.b_sdo_dr
+      dtemp                     0                     0                     0
+          i                0.0001                0.0025          -9.90099e-15
+          v                3.2999                3.2975          -9.26442e-23
+   pos_node                     2                     1                    51
+   neg_node                    53                    52                     6
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_sdo_ct b.x_max31865.b_cs_det   b.x_max31865.b_drdy
+      dtemp                     0                     0                     0
+          i          -2.84686e-19           1.13488e-27          -1.66667e-12
+          v                     0                     0                     0
+   pos_node                    49                    47                    46
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_drdy_l b.x_max31865.b_fault_ b.x_max31865.b_fault_
+      dtemp                     0                     0                     0
+          i           1.13488e-27                -1e-05                -1e-05
+          v                     0                     1                     1
+   pos_node                    45                    43                    42
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_fault_ b.x_max31865.b_fault_ b.x_max31865.b_adc_re
+      dtemp                     0                     0                     0
+          i                -1e-05           1.13488e-27                -1e-06
+          v                     1                     0                     1
+   pos_node                    41                    40                    39
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_adc_of b.x_max31865.b_adc_co b.x_max31865.b_adc_no
+      dtemp                     0                     0                     0
+          i                -1e-06            6.3288e-29            6.3288e-29
+          v                     1                     0                     0
+   pos_node                    38                    37                    36
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_adc_ra b.x_max31865.b_adc_vr b.x_max31865.b_adc_di
+      dtemp                     0                     0                     0
+          i             -0.032768          -6.39996e-12          -8.77037e-13
+          v                 32768           6.39996e-06           8.77037e-07
+   pos_node                    35                    34                    33
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_adc_re b.x_max31865.b_adc_re b.x_max31865.b_adc_in
+      dtemp                     0                     0                     0
+          i          -1.99999e-06                -2e-06          -1.99999e-06
+          v               1.99999                     2               1.99999
+   pos_node                    32                    30                    29
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_adc_in b.x_max31865.b_ov_uv_ b.x_max31865.b_prot_f
+      dtemp                     0                     0                     0
+          i          -1.99999e-06           1.13488e-27                -1e-05
+          v               1.99999                     0                     1
+   pos_node                    28                    25                    23
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_prot_r b.x_max31865.b_prot_r b.x_max31865.b_prot_f
+      dtemp                     0                     0                     0
+          i                -1e-05                -1e-05                -1e-05
+          v                     1                     1                     1
+   pos_node                    21                    19                    17
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_prot_f b.x_max31865.b_vbias_  b.x_max31865.b_vbias
+      dtemp                     0                     0                     0
+          i                -1e-05                     0          -1.60004e-08
+          v                     1          -1.66667e-06          -1.65118e-06
+   pos_node                    15                    12                    12
+   neg_node                     4                    14                    13
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_vbias_ b.x_max31865.b_pwr_go b.x_max31865.b_por_ra
+      dtemp                     0                     0                     0
+          i                -2e-06                -1e-05          -9.99001e-07
+          v                     2                     1                     1
+   pos_node                    10                     9                     7
+   neg_node                     4                     4                     4
+
+ ASRC: Arbitrary Source 
+     device b.x_max31865.b_dvdd_m b.x_max31865.b_vdd_mo
+      dtemp                     0                     0
+          i                -1e-05                -1e-05
+          v                     1                     1
+   pos_node                     5                     3
+   neg_node                     4                     4
+
+ Capacitor: Fixed capacitor
+     device           crtd_filter         cdvdd_ceramic            cdvdd_bulk
+      model                     C                     C                     C
+capacitance                 1e-07                 1e-07                 1e-05
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+          i                     0                     0                     0
+          p                     0                     0                     0
+
+ Capacitor: Fixed capacitor
+     device          cvdd_ceramic             cvdd_bulk    c.x_max31865.c_sdo
+      model                     C                     C                     C
+capacitance                 1e-07                 1e-05                 6e-12
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+          i                     0                     0                     0
+          p                     0                     0                    -0
+
+ Capacitor: Fixed capacitor
+     device   c.x_max31865.c_conv c.x_max31865.c_vbias_    c.x_max31865.c_por
+      model                     C                     C                     C
+capacitance                 0.052                 1e-06                 1e-06
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+          i                     0                     0                     0
+          p                     0                     0                     0
+
+ Resistor: Simple linear resistor
+     device                  r_nc              r_dgnd_0              r_gnd2_0
+      model                     R                     R                     R
+ resistance                 1e+06                 0.001                 0.001
+         ac                 1e+06                 0.001                 0.001
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0                0.0001           0.000833333
+          p                     0                 1e-11           6.94444e-10
+
+ Resistor: Simple linear resistor
+     device              r_gnd1_0                r_drdy         rsdo_pulldown
+      model                     R                     R                     R
+ resistance                 0.001                 1e+06                100000
+         ac                 0.001                 1e+06                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i            0.00166667           1.66667e-12           9.90099e-15
+          p           2.77778e-09           2.77778e-18           9.80296e-24
+
+ Resistor: Simple linear resistor
+     device                  rsdi                 rsclk          r_force2_gnd
+      model                     R                     R                     R
+ resistance                 1e+06                 1e+06                 0.001
+         ac                 1e+06                 1e+06                 0.001
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0                     0           3.33333e-15
+          p                     0                     0           1.11111e-32
+
+ Resistor: Simple linear resistor
+     device             rcable_rn             rcable_rp             rcable_fn
+      model                     R                     R                     R
+ resistance                  0.01                  0.01                   0.1
+         ac                  0.01                  0.01                   0.1
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           3.99996e-09                     0          -3.99998e-09
+          p           1.59996e-19                     0           1.59999e-18
+
+ Resistor: Simple linear resistor
+     device             rcable_fp                 r_rtd                r_link
+      model                     R                     R                     R
+ resistance                   0.1               109.625                 0.001
+         ac                   0.1               109.625                 0.001
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i               1.2e-08           7.99997e-09           1.59999e-08
+          p           1.43999e-17           7.01595e-15           2.55996e-19
+
+ Resistor: Simple linear resistor
+     device             r_isensor                  rref              r_refin+
+      model                     R                     R                     R
+ resistance                 0.001                   400                 0.001
+         ac                 0.001                   400                 0.001
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0           -0.00499999                     0
+          p                     0            0.00999995                     0
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_gnd1_g r.x_max31865.r_leak_f r.x_max31865.r_leak_f
+      model                     R                     R                     R
+ resistance                 0.001                 5e+08                 5e+08
+         ac                 0.001                 5e+08                 5e+08
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           0.000833333           3.99999e-09          -3.33333e-15
+          p           6.94444e-10           7.99994e-09           5.55556e-21
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_leak_f r.x_max31865.r_leak_r r.x_max31865.r_leak_r
+      model                     R                     R                     R
+ resistance                 5e+08                 5e+08                 5e+08
+         ac                 5e+08                 5e+08                 5e+08
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           3.99999e-09           3.99999e-09           3.99999e-09
+          p           7.99995e-09           7.99994e-09           7.99995e-09
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_idd_di r.x_max31865.r_idd_an r.x_max31865.r_sdo_dr
+      model                     R                     R                     R
+ resistance                     1                     1                   100
+         ac                     1                     1                   100
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                0.0001                0.0025          -9.26442e-25
+          p                 1e-08              6.25e-06           8.58295e-47
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_sdo_ct r.x_max31865.r_cs_det   r.x_max31865.r_drdy
+      model                     R                     R                     R
+ resistance                 1e+06                100000                   100
+         ac                 1e+06                100000                   100
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0                     0                     0
+          p                     0                     0                     0
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_drdy_l r.x_max31865.r_conv_c r.x_max31865.r_fault_
+      model                     R                     R                     R
+ resistance                100000                  1000                100000
+         ac                100000                  1000                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0                     0                 1e-05
+          p                     0                     0                 1e-05
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_fault_ r.x_max31865.r_fault_ r.x_max31865.r_fault_
+      model                     R                     R                     R
+ resistance                100000                100000                100000
+         ac                100000                100000                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                 1e-05                 1e-05                     0
+          p                 1e-05                 1e-05                     0
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_adc_re r.x_max31865.r_adc_of r.x_max31865.r_adc_co
+      model                     R                     R                     R
+ resistance                 1e+06                 1e+06                 1e+06
+         ac                 1e+06                 1e+06                 1e+06
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                 1e-06                 1e-06                     0
+          p                 1e-06                 1e-06                     0
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_adc_no r.x_max31865.r_adc_ra r.x_max31865.r_adc_vr
+      model                     R                     R                     R
+ resistance                 1e+06                 1e+06                 1e+06
+         ac                 1e+06                 1e+06                 1e+06
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0              0.032768           6.39996e-12
+          p                     0               1073.74           4.09595e-17
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_adc_di r.x_max31865.r_adc_re r.x_max31865.r_adc_re
+      model                     R                     R                     R
+ resistance                 1e+06                 1e+06                 1e+06
+         ac                 1e+06                 1e+06                 1e+06
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           8.77037e-13           1.99999e-06                 2e-06
+          p           7.69194e-19           3.99997e-06                 4e-06
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_adc_in r.x_max31865.r_adc_in r.x_max31865.r_isenso
+      model                     R                     R                     R
+ resistance                 1e+06                 1e+06                 0.001
+         ac                 1e+06                 1e+06                 0.001
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           1.99999e-06           1.99999e-06                     0
+          p           3.99997e-06           3.99997e-06                     0
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_ov_uv_ r.x_max31865.r_prot_f r.x_max31865.r_prot_r
+      model                     R                     R                     R
+ resistance                100000                100000                100000
+         ac                100000                100000                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0                 1e-05                 1e-05
+          p                     0                 1e-05                 1e-05
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_prot_r r.x_max31865.r_prot_f r.x_max31865.r_prot_f
+      model                     R                     R                     R
+ resistance                100000                100000                100000
+         ac                100000                100000                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                 1e-05                 1e-05                 1e-05
+          p                 1e-05                 1e-05                 1e-05
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_vbias_ r.x_max31865.r_vbias_ r.x_max31865.r_vbias_
+      model                     R                     R                     R
+ resistance                   100                    30                     1
+         ac                   100                    30                     1
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0          -5.16137e-10          -1.54841e-08
+          p                     0           7.99193e-18           2.39758e-16
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_vbias_ r.x_max31865.r_vbias_ r.x_max31865.r_pwr_go
+      model                     R                     R                     R
+ resistance                 10000                 1e+06                100000
+         ac                 10000                 1e+06                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i                     0                 2e-06                 1e-05
+          p                     0                 4e-06                 1e-05
+
+ Resistor: Simple linear resistor
+     device    r.x_max31865.r_por r.x_max31865.r_por_se r.x_max31865.r_dvdd_m
+      model                     R                     R                     R
+ resistance                 1e+06                  1000                100000
+         ac                 1e+06                  1000                100000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           9.99001e-07           9.99001e-07                 1e-05
+          p           9.98003e-07           9.98003e-10                 1e-05
+
+ Resistor: Simple linear resistor
+     device r.x_max31865.r_vdd_mo
+      model                     R
+ resistance                100000
+         ac                100000
+      dtemp                     0
+     bv_max                 1e+99
+      noisy                     1
+          i                 1e-05
+          p                 1e-05
+
+ Switch: Ideal voltage controlled switch
+     device    s.x_max31865.s_sdo
+      model                sw_sdo
+          i          -9.90099e-15
+          p           9.80296e-22
+
+ Vsource: Independent voltage source
+     device                   vcs                v_dvdd                 v_vdd
+         dc                   3.3                   3.3                   3.3
+      acmag                     0                     0                     0
+      pulse         -         -         -
+        sin         -         -         -
+        exp         -         -         -
+        pwl         -         -         -
+       sffm         -         -         -
+         am         -         -         -
+    trnoise         -         -         -
+   trrandom         -         -         -
+    portnum                     0                     0                     0
+         z0                     0                     0                     0
+        pwr                     0                     0                     0
+       freq                     0                     0                     0
+      phase                     0                     0                     0
+          i                     0               -0.0001               -0.0025
+          p                     0              -0.00033              -0.00825
+
+
+Total analysis time (seconds) = 0.011627
+
+Total elapsed time (seconds) = 0.017 
+
+Total DRAM available = 36864.000 MB.
+DRAM currently available = 4501.734 MB.
+Maximum ngspice program size =   11.578 MB.
+Current ngspice program size =   11.578 MB.
+
