@@ -1,0 +1,108 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "10000000-0000-0000-0000-000000000001")
+  (paper "A4")
+  (title_block
+    (title "Power Input")
+    (date "2025-12-14")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "AC Rectification & Voltage Doubler")
+    (comment 2 "120VAC to 340VDC")
+  )
+
+  (lib_symbols)
+
+  (text "POWER INPUT STAGE\n\nFunction:\n- AC input filtering (EMI)\n- Bridge rectification\n- Voltage doubler (120VAC → 340VDC)\n- Bulk capacitor bank\n- Zero crossing detection\n\nKey Components:\n- MUR1560 diodes (15A, 600V)\n- 470µF/450V electrolytic capacitors\n- Fuse and inrush limiter\n\nReference: VOLTAGE_DOUBLER_DESIGN.md"
+    (exclude_from_sim no)
+    (at 25.4 25.4 0)
+    (effects
+      (font
+        (size 2.54 2.54)
+      )
+      (justify left)
+    )
+    (uuid "11000000-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "AC_L"
+    (shape input)
+    (at 25.4 76.2 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "11000001-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "AC_N"
+    (shape input)
+    (at 25.4 88.9 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "11000001-0000-0000-0000-000000000002")
+  )
+
+  (hierarchical_label "PE"
+    (shape input)
+    (at 25.4 101.6 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "11000001-0000-0000-0000-000000000003")
+  )
+
+  (hierarchical_label "DC_BUS+"
+    (shape output)
+    (at 228.6 76.2 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "11000001-0000-0000-0000-000000000004")
+  )
+
+  (hierarchical_label "DC_BUS-"
+    (shape output)
+    (at 228.6 88.9 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "11000001-0000-0000-0000-000000000005")
+  )
+
+  (hierarchical_label "ZCD"
+    (shape output)
+    (at 228.6 114.3 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "11000001-0000-0000-0000-000000000006")
+  )
+
+)

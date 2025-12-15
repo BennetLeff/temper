@@ -24,11 +24,23 @@ from temper_placer.io.config_loader import (
     ThermalConstraint,
     ComponentGroup,
 )
+from temper_placer.io.kicad_writer import (
+    write_placements_to_pcb,
+    state_to_placements,
+    placements_to_json,
+    placements_from_json,
+    export_placements,
+    validate_output_pcb,
+    WriteResult,
+    PlacementUpdate,
+)
 
 __all__ = [
+    # Parser
     "parse_kicad_pcb",
     "parse_kicad_schematic",
     "ParseResult",
+    # Config
     "load_constraints",
     "create_board_from_constraints",
     "PlacementConstraints",
@@ -36,4 +48,13 @@ __all__ = [
     "CriticalLoop",
     "ThermalConstraint",
     "ComponentGroup",
+    # Writer
+    "write_placements_to_pcb",
+    "state_to_placements",
+    "placements_to_json",
+    "placements_from_json",
+    "export_placements",
+    "validate_output_pcb",
+    "WriteResult",
+    "PlacementUpdate",
 ]

@@ -1,0 +1,147 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "40000000-0000-0000-0000-000000000001")
+  (paper "A4")
+  (title_block
+    (title "Safety Interlock")
+    (date "2025-12-14")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "Hardware Safety System")
+    (comment 2 "OCP + OVP + Thermal + Watchdog")
+  )
+
+  (lib_symbols)
+
+  (text "SAFETY INTERLOCK SYSTEM\n\nFunction:\n- Over-current protection (OCP)\n- Over-voltage protection (OVP)\n- Thermal shutdown\n- Hardware watchdog\n- Logic gate combination\n- Fault latching\n\nKey Components:\n- LM339 quad comparator\n- 74HC4075 triple OR gate\n- 74HC00 quad NAND gate\n- 74HC08 quad AND gate\n- 74HC04 hex inverter\n- TPS3823-33 watchdog\n\nProtection Thresholds:\n- OCP: 40A (2.0V), 60A (3.0V)\n- OVP: 390V (divider)\n- Thermal: 85°C trip, 75°C reset\n- Watchdog: 1.6s timeout\n\nReference: SAFETY_INTERLOCK_DESIGN.md"
+    (exclude_from_sim no)
+    (at 25.4 25.4 0)
+    (effects
+      (font
+        (size 2.54 2.54)
+      )
+      (justify left)
+    )
+    (uuid "41000000-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "+15V"
+    (shape input)
+    (at 25.4 88.9 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "+3.3V"
+    (shape input)
+    (at 25.4 101.6 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000002")
+  )
+
+  (hierarchical_label "I_SENSE"
+    (shape input)
+    (at 25.4 114.3 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000003")
+  )
+
+  (hierarchical_label "V_SENSE"
+    (shape input)
+    (at 25.4 127 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000004")
+  )
+
+  (hierarchical_label "TEMP_FAULT"
+    (shape input)
+    (at 25.4 139.7 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000005")
+  )
+
+  (hierarchical_label "MCU_ENABLE"
+    (shape input)
+    (at 25.4 152.4 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000006")
+  )
+
+  (hierarchical_label "SHUTDOWN_N"
+    (shape output)
+    (at 228.6 88.9 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "41000001-0000-0000-0000-000000000007")
+  )
+
+  (hierarchical_label "FAULT_STATUS"
+    (shape output)
+    (at 228.6 101.6 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "41000001-0000-0000-0000-000000000008")
+  )
+
+  (hierarchical_label "WDT_KICK"
+    (shape input)
+    (at 25.4 165.1 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "41000001-0000-0000-0000-000000000009")
+  )
+
+)

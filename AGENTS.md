@@ -647,6 +647,40 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed instructions on:
 - Hash IDs eliminate collisions - same ID with different content is a normal update
 - Use `--id` flag with `bd create` to partition ID space for parallel workers (e.g., `worker1-100`, `worker2-500`)
 
+### Bias Towards Small, Iterative Tasks
+
+**IMPORTANT**: When planning work, strongly prefer creating many small, focused tasks over fewer large ones. This applies to both epics and individual issues.
+
+**Why small tasks?**
+- **Faster feedback loops**: Complete and verify work incrementally
+- **Easier resumption**: Sessions end unexpectedly; small tasks let you pick up easily
+- **Better tracking**: Clear progress visibility with `bd stats`
+- **Reduced risk**: Small changes are easier to test and revert
+- **Parallel work**: Multiple agents can work on different small tasks simultaneously
+
+**Guidelines:**
+- **Epics**: Break into 5-15 subtasks, each completable in one session
+- **Tasks**: Should be completable in 30-60 minutes of focused work
+- **If a task feels big**: Split it immediately with `bd create --parent <epic-id>`
+- **Create issues frequently**: When you discover work, create an issue right away
+
+**Example - BAD (monolithic):**
+```bash
+bd create "Implement placement optimizer" -t epic -p 1  # Too vague, too big
+```
+
+**Example - GOOD (granular):**
+```bash
+bd create "Implement placement optimizer" -t epic -p 1
+bd create "Implement geometric primitives (point, rect)" --parent <epic-id> -p 1
+bd create "Implement overlap detection" --parent <epic-id> -p 1
+bd create "Implement boundary loss function" --parent <epic-id> -p 1
+bd create "Add unit tests for geometry module" --parent <epic-id> -p 2
+# ... continue breaking down until each task is small and focused
+```
+
+**When in doubt**: Create more issues. It's easier to merge or close unnecessary issues than to remember untracked work.
+
 ### Checking GitHub Issues and PRs
 
 Use `gh` CLI tools for checking issues/PRs (see [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for details).

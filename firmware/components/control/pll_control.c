@@ -125,28 +125,24 @@ void pll_init(const pll_config_t *config) {
  * 
  * @param timer_handle MCPWM timer handle
  */
-void pll_set_timer(mcpwm_timer_handle_t timer_handle) {
 #ifdef ESP_PLATFORM
+void pll_set_timer(mcpwm_timer_handle_t timer_handle) {
     pll_timer = timer_handle;
     ESP_LOGI(TAG, "PLL timer handle set");
-#else
-    (void)timer_handle;
-#endif
 }
+#endif
 
 /**
  * @brief Set capture channel for phase measurement
  * 
  * @param cap_chan MCPWM capture channel handle for ZCD input
  */
-void pll_set_capture_channel(mcpwm_cap_channel_handle_t cap_chan) {
 #ifdef ESP_PLATFORM
+void pll_set_capture_channel(mcpwm_cap_channel_handle_t cap_chan) {
     pll_cap_chan = cap_chan;
     ESP_LOGI(TAG, "PLL capture channel set");
-#else
-    (void)cap_chan;
-#endif
 }
+#endif
 
 void pll_enable(void) {
     pll_enabled = true;

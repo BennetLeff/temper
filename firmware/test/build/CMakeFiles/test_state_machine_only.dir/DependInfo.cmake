@@ -1,0 +1,27 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  )
+
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c" "CMakeFiles/test_state_machine_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.o" "gcc" "CMakeFiles/test_state_machine_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.o.d"
+  "/Users/bennet.leff/Documents/temper/firmware/test/state_machine_stubs.c" "CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o" "gcc" "CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o.d"
+  "/Users/bennet.leff/Documents/temper/firmware/test/test_main_state_machine.c" "CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o" "gcc" "CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o.d"
+  "/Users/bennet.leff/Documents/temper/firmware/test/test_state_machine.c" "CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o" "gcc" "CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o.d"
+  "/Users/bennet.leff/Documents/temper/firmware/test/unity/unity.c" "CMakeFiles/test_state_machine_only.dir/unity/unity.c.o" "gcc" "CMakeFiles/test_state_machine_only.dir/unity/unity.c.o.d"
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

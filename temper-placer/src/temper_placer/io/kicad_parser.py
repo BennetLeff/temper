@@ -402,10 +402,18 @@ def _parse_schematic_sheet(
 
 def _get_footprint_reference(fp: Footprint) -> Optional[str]:
     """Extract reference designator from footprint."""
-    # Try properties first
-    for prop in getattr(fp, "properties", []):
-        if hasattr(prop, "key") and prop.key == "Reference":
-            return prop.value
+    # In kiutils, properties is a dict with key 'Reference'
+    props = getattr(fp, "properties", {})
+    if isinstance(props, dict):
+        ref = props.get("Reference")
+        if ref:
+            return ref
+
+    # Fall back to iterating if it's a list (older kiutils versions)
+    if isinstance(props, list):
+        for prop in props:
+            if hasattr(prop, "key") and prop.key == "Reference":
+                return prop.value
 
     # Try graphicItems (text items)
     for item in getattr(fp, "graphicItems", []):

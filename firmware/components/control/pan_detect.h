@@ -11,7 +11,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+/* ESP-IDF includes - only available when building with ESP-IDF */
+#ifdef ESP_PLATFORM
 #include "driver/mcpwm_prelude.h"
+#else
+/* Stub types for host-based unit testing */
+typedef void* mcpwm_cap_channel_handle_t;
+typedef void* mcpwm_timer_handle_t;
+typedef int esp_err_t;
+#define ESP_OK 0
+#define ESP_ERR_INVALID_ARG -1
+#endif
 
 #ifdef __cplusplus
 extern "C" {

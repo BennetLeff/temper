@@ -216,10 +216,12 @@ class Board:
     PCB board definition.
 
     Attributes:
-        width: Board width in mm.
-        height: Board height in mm.
+        width: Board width in mm (for rectangular boards).
+        height: Board height in mm (for rectangular boards).
         origin: (x, y) origin offset in mm (typically (0, 0)).
         corner_radius: Corner radius for rounded boards in mm.
+        outline_polygon: Optional list of (x, y) vertices for non-rectangular boards.
+            When set, width/height are derived from polygon bounding box.
         mounting_holes: List of mounting holes.
         layer_stackup: Layer stackup definition.
         zones: List of placement zones.
@@ -231,6 +233,7 @@ class Board:
     height: float
     origin: Tuple[float, float] = (0.0, 0.0)
     corner_radius: float = 0.0
+    outline_polygon: Optional[List[Tuple[float, float]]] = None
     mounting_holes: List[MountingHole] = field(default_factory=list)
     layer_stackup: LayerStackup = field(default_factory=LayerStackup.default_4layer)
     zones: List[Zone] = field(default_factory=list)
@@ -240,13 +243,59 @@ class Board:
     # Zone index (populated by build_indices)
     _zone_index: dict[str, int] = field(default_factory=dict, repr=False)
 
+    # Cached polygon data for JAX operations
+    _polygon_array: Optional[Array] = field(default=None, repr=False)
+
     def __post_init__(self) -> None:
         """Build indices after initialization."""
         self.build_indices()
+        if self.outline_polygon is not None:
+            self._polygon_array = jnp.array(self.outline_polygon, dtype=jnp.float32)
 
     def build_indices(self) -> None:
         """Build lookup indices."""
         self._zone_index = {z.name: i for i, z in enumerate(self.zones)}
+
+    @property
+    def has_polygon_outline(self) -> bool:
+        """Check if board uses polygon outline instead of rectangular."""
+        return self.outline_polygon is not None
+
+    @property
+    def polygon_array(self) -> Optional[Array]:
+        """Get polygon outline as JAX array (N, 2)."""
+        return self._polygon_array
+
+    @classmethod
+    def from_polygon(
+        cls,
+        outline: List[Tuple[float, float]],
+        **kwargs,
+    ) -> Board:
+        """
+        Create a board from a polygon outline.
+
+        The width/height are derived from the polygon bounding box.
+
+        Args:
+            outline: List of (x, y) polygon vertices in order (CCW for positive area).
+            **kwargs: Additional Board constructor arguments.
+
+        Returns:
+            Board instance with polygon outline.
+        """
+        xs = [p[0] for p in outline]
+        ys = [p[1] for p in outline]
+        x_min, x_max = min(xs), max(xs)
+        y_min, y_max = min(ys), max(ys)
+
+        return cls(
+            width=x_max - x_min,
+            height=y_max - y_min,
+            origin=(x_min, y_min),
+            outline_polygon=outline,
+            **kwargs,
+        )
 
     @classmethod
     def temper_default(cls) -> Board:

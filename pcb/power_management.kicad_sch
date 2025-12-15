@@ -1,0 +1,95 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "30000000-0000-0000-0000-000000000001")
+  (paper "A4")
+  (title_block
+    (title "Power Management")
+    (date "2025-12-14")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "DC-DC Converters & LDOs")
+    (comment 2 "Multi-rail Power Distribution")
+  )
+
+  (lib_symbols)
+
+  (text "POWER MANAGEMENT\n\nFunction:\n- Buck converter (340V → 15V)\n- LDO regulator (15V → 3.3V)\n- Isolated DC-DC (for sensors)\n- Power sequencing\n- Power good indication\n\nKey Components:\n- LMR51430 buck (4.2-42V, 3A)\n- XC6220B331MR 3.3V LDO (700mA)\n- UCC14240-Q1 isolated DC-DC\n\nPower Rails:\n- +15V: Gate driver, safety logic\n- +3.3V: MCU, digital logic\n- +5V_ISO: Isolated sensors\n\nReference: BOM.md (Power Management section)"
+    (exclude_from_sim no)
+    (at 25.4 25.4 0)
+    (effects
+      (font
+        (size 2.54 2.54)
+      )
+      (justify left)
+    )
+    (uuid "31000000-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "DC_BUS+"
+    (shape input)
+    (at 25.4 88.9 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "31000001-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "+15V"
+    (shape output)
+    (at 228.6 76.2 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "31000001-0000-0000-0000-000000000002")
+  )
+
+  (hierarchical_label "+3.3V"
+    (shape output)
+    (at 228.6 88.9 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "31000001-0000-0000-0000-000000000003")
+  )
+
+  (hierarchical_label "+5V_ISO"
+    (shape output)
+    (at 228.6 101.6 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "31000001-0000-0000-0000-000000000004")
+  )
+
+  (hierarchical_label "PGOOD"
+    (shape output)
+    (at 228.6 114.3 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "31000001-0000-0000-0000-000000000005")
+  )
+
+)

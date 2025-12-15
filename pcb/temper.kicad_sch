@@ -1,0 +1,883 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
+  (paper "A3")
+  (title_block
+    (title "Temper Induction Cooker")
+    (date "2025-12-14")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "Top-Level Hierarchical Sheet")
+    (comment 2 "2000W Induction Heating System")
+  )
+
+  (lib_symbols)
+
+  (text "TEMPER INDUCTION COOKER\n\nHierarchical Design Overview\n\nPower Flow:\nAC Mains (120V) → Voltage Doubler → DC Bus (340V)\n                 → Half-Bridge → Resonant Tank → Coil\n\nControl Flow:\nESP32-S3 → PWM → Gate Driver → IGBTs\n        ← ADC ← CT Sensing\n        ← SPI ← Temperature Sensing\n\nSafety:\nOCP + OVP + Thermal + Watchdog → SHUTDOWN_N\n\nPower Rails:\n+3.3V (MCU, Logic)\n+15V (Gate Driver, Safety Logic)\n+5V (Isolated Sensors)"
+    (exclude_from_sim no)
+    (at 25.4 38.1 0)
+    (effects
+      (font
+        (size 2.54 2.54)
+      )
+      (justify left)
+    )
+    (uuid "00000000-0000-0000-0000-000000000001")
+  )
+
+  (sheet
+    (at 25.4 101.6)
+    (size 50.8 25.4)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 255 255 194 1)
+    )
+    (uuid "00000001-0000-0000-0000-000000000001")
+    (property "Sheetname" "Power_Input"
+      (at 25.4 100.8884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "power_input.kicad_sch"
+      (at 25.4 127.7346 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "AC_L" input
+      (at 25.4 107.95 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "10000001-0000-0000-0000-000000000001")
+    )
+    (pin "AC_N" input
+      (at 25.4 113.03 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "10000001-0000-0000-0000-000000000002")
+    )
+    (pin "PE" input
+      (at 25.4 118.11 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "10000001-0000-0000-0000-000000000003")
+    )
+    (pin "DC_BUS+" output
+      (at 76.2 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "10000001-0000-0000-0000-000000000004")
+    )
+    (pin "DC_BUS-" output
+      (at 76.2 113.03 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "10000001-0000-0000-0000-000000000005")
+    )
+    (pin "ZCD" output
+      (at 76.2 120.65 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "10000001-0000-0000-0000-000000000006")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "2")
+        )
+      )
+    )
+  )
+
+  (sheet
+    (at 101.6 101.6)
+    (size 50.8 25.4)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 255 194 194 1)
+    )
+    (uuid "00000002-0000-0000-0000-000000000001")
+    (property "Sheetname" "Half_Bridge"
+      (at 101.6 100.8884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "half_bridge.kicad_sch"
+      (at 101.6 127.7346 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "DC_BUS+" input
+      (at 101.6 107.95 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "20000001-0000-0000-0000-000000000001")
+    )
+    (pin "DC_BUS-" input
+      (at 101.6 113.03 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "20000001-0000-0000-0000-000000000002")
+    )
+    (pin "PWM_H" input
+      (at 101.6 118.11 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "20000001-0000-0000-0000-000000000003")
+    )
+    (pin "PWM_L" input
+      (at 101.6 123.19 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "20000001-0000-0000-0000-000000000004")
+    )
+    (pin "SHUTDOWN_N" input
+      (at 152.4 120.65 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "20000001-0000-0000-0000-000000000005")
+    )
+    (pin "SWITCH_NODE" output
+      (at 152.4 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "20000001-0000-0000-0000-000000000006")
+    )
+    (pin "I_SENSE" output
+      (at 152.4 113.03 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "20000001-0000-0000-0000-000000000007")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "3")
+        )
+      )
+    )
+  )
+
+  (sheet
+    (at 177.8 101.6)
+    (size 50.8 25.4)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 194 255 194 1)
+    )
+    (uuid "00000003-0000-0000-0000-000000000001")
+    (property "Sheetname" "Power_Management"
+      (at 177.8 100.8884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "power_management.kicad_sch"
+      (at 177.8 127.7346 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "DC_BUS+" input
+      (at 177.8 107.95 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "30000001-0000-0000-0000-000000000001")
+    )
+    (pin "+15V" output
+      (at 228.6 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "30000001-0000-0000-0000-000000000002")
+    )
+    (pin "+3.3V" output
+      (at 228.6 113.03 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "30000001-0000-0000-0000-000000000003")
+    )
+    (pin "+5V_ISO" output
+      (at 228.6 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "30000001-0000-0000-0000-000000000004")
+    )
+    (pin "PGOOD" output
+      (at 228.6 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "30000001-0000-0000-0000-000000000005")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "4")
+        )
+      )
+    )
+  )
+
+  (sheet
+    (at 25.4 152.4)
+    (size 50.8 38.1)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 255 194 255 1)
+    )
+    (uuid "00000004-0000-0000-0000-000000000001")
+    (property "Sheetname" "Safety_Interlock"
+      (at 25.4 151.6884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "safety_interlock.kicad_sch"
+      (at 25.4 191.2346 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "+15V" input
+      (at 25.4 158.75 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000001")
+    )
+    (pin "+3.3V" input
+      (at 25.4 163.83 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000002")
+    )
+    (pin "I_SENSE" input
+      (at 25.4 168.91 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000003")
+    )
+    (pin "V_SENSE" input
+      (at 25.4 173.99 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000004")
+    )
+    (pin "TEMP_FAULT" input
+      (at 25.4 179.07 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000005")
+    )
+    (pin "MCU_ENABLE" input
+      (at 25.4 184.15 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000006")
+    )
+    (pin "SHUTDOWN_N" output
+      (at 76.2 158.75 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "40000001-0000-0000-0000-000000000007")
+    )
+    (pin "FAULT_STATUS" output
+      (at 76.2 163.83 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "40000001-0000-0000-0000-000000000008")
+    )
+    (pin "WDT_KICK" input
+      (at 25.4 189.23 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-000000000009")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "5")
+        )
+      )
+    )
+  )
+
+  (sheet
+    (at 101.6 152.4)
+    (size 50.8 25.4)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 194 255 255 1)
+    )
+    (uuid "00000005-0000-0000-0000-000000000001")
+    (property "Sheetname" "Sensing"
+      (at 101.6 151.6884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "sensing.kicad_sch"
+      (at 101.6 178.4846 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "+3.3V" input
+      (at 101.6 158.75 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-000000000001")
+    )
+    (pin "+5V_ISO" input
+      (at 101.6 163.83 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-000000000002")
+    )
+    (pin "SWITCH_NODE" input
+      (at 101.6 168.91 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-000000000003")
+    )
+    (pin "SPI_MOSI" input
+      (at 101.6 173.99 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-000000000004")
+    )
+    (pin "SPI_MISO" output
+      (at 152.4 158.75 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "50000001-0000-0000-0000-000000000005")
+    )
+    (pin "SPI_SCK" input
+      (at 152.4 163.83 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "50000001-0000-0000-0000-000000000006")
+    )
+    (pin "RTD_CS" input
+      (at 152.4 168.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "50000001-0000-0000-0000-000000000007")
+    )
+    (pin "I2C_SDA" bidirectional
+      (at 152.4 173.99 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "50000001-0000-0000-0000-000000000008")
+    )
+    (pin "I2C_SCL" input
+      (at 152.4 179.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "50000001-0000-0000-0000-000000000009")
+    )
+    (pin "I_SENSE" output
+      (at 76.2 158.75 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-00000000000A")
+    )
+    (pin "V_SENSE" output
+      (at 76.2 163.83 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-00000000000B")
+    )
+    (pin "TEMP_FAULT" output
+      (at 76.2 168.91 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "50000001-0000-0000-0000-00000000000C")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "6")
+        )
+      )
+    )
+  )
+
+  (sheet
+    (at 177.8 152.4)
+    (size 50.8 38.1)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 194 194 255 1)
+    )
+    (uuid "00000006-0000-0000-0000-000000000001")
+    (property "Sheetname" "MCU"
+      (at 177.8 151.6884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "mcu.kicad_sch"
+      (at 177.8 191.2346 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "+3.3V" input
+      (at 177.8 158.75 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-000000000001")
+    )
+    (pin "PWM_H" output
+      (at 228.6 158.75 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-000000000002")
+    )
+    (pin "PWM_L" output
+      (at 228.6 163.83 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-000000000003")
+    )
+    (pin "MCU_ENABLE" output
+      (at 228.6 168.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-000000000004")
+    )
+    (pin "WDT_KICK" output
+      (at 228.6 173.99 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-000000000005")
+    )
+    (pin "SPI_MOSI" output
+      (at 177.8 163.83 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-000000000006")
+    )
+    (pin "SPI_MISO" input
+      (at 177.8 168.91 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-000000000007")
+    )
+    (pin "SPI_SCK" output
+      (at 177.8 173.99 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-000000000008")
+    )
+    (pin "RTD_CS" output
+      (at 177.8 179.07 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-000000000009")
+    )
+    (pin "I2C_SDA" bidirectional
+      (at 177.8 184.15 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-00000000000A")
+    )
+    (pin "I2C_SCL" output
+      (at 177.8 189.23 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "60000001-0000-0000-0000-00000000000B")
+    )
+    (pin "FAULT_STATUS" input
+      (at 228.6 179.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-00000000000C")
+    )
+    (pin "ZCD" input
+      (at 228.6 184.15 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-00000000000D")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "7")
+        )
+      )
+    )
+  )
+
+  (sheet
+    (at 254 152.4)
+    (size 50.8 25.4)
+    (fields_autoplaced yes)
+    (stroke
+      (width 0.1524)
+      (type solid)
+    )
+    (fill
+      (color 255 255 194 1)
+    )
+    (uuid "00000007-0000-0000-0000-000000000001")
+    (property "Sheetname" "User_Interface"
+      (at 254 151.6884 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left bottom)
+      )
+    )
+    (property "Sheetfile" "user_interface.kicad_sch"
+      (at 254 178.4846 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left top)
+      )
+    )
+    (pin "+3.3V" input
+      (at 254 158.75 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "70000001-0000-0000-0000-000000000001")
+    )
+    (pin "BTN_UP" output
+      (at 304.8 158.75 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "70000001-0000-0000-0000-000000000002")
+    )
+    (pin "BTN_DOWN" output
+      (at 304.8 163.83 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "70000001-0000-0000-0000-000000000003")
+    )
+    (pin "BTN_SELECT" output
+      (at 304.8 168.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "70000001-0000-0000-0000-000000000004")
+    )
+    (pin "ENCODER_A" output
+      (at 304.8 173.99 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "70000001-0000-0000-0000-000000000005")
+    )
+    (pin "ENCODER_B" output
+      (at 304.8 179.07 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "70000001-0000-0000-0000-000000000006")
+    )
+    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "8")
+        )
+      )
+    )
+  )
+
+)
