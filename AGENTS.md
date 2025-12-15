@@ -534,6 +534,68 @@ bd show bd-41 --json  # Verify merged content
 
 See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed workflows, testing patterns, and operational procedures.
 
+### Conventional Commits
+
+**IMPORTANT**: Use [Conventional Commits](https://www.conventionalcommits.org/) format for ALL git commits in this project.
+
+**Format:**
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Types:**
+- `feat`: New feature or functionality
+- `fix`: Bug fix
+- `docs`: Documentation changes only
+- `style`: Code style changes (formatting, semicolons, etc.)
+- `refactor`: Code changes that neither fix bugs nor add features
+- `perf`: Performance improvements
+- `test`: Adding or updating tests
+- `build`: Build system or dependency changes
+- `ci`: CI/CD configuration changes
+- `chore`: Maintenance tasks, tooling, etc.
+
+**Scope** (optional but recommended):
+- Use the module or component name (e.g., `firmware`, `pcb`, `placer`, `hal`, `safety`)
+- For temper-placer: `core`, `io`, `geometry`, `losses`, `optimizer`, `viz`, `cli`
+
+**Examples:**
+```bash
+# Feature
+git commit -m "feat(placer): add Gumbel-Softmax rotation sampling"
+
+# Bug fix
+git commit -m "fix(hal): correct ADC channel mapping for temperature sensor"
+
+# Tests
+git commit -m "test(core): add unit tests for PlacementState"
+
+# Documentation
+git commit -m "docs: update AGENTS.md with conventional commits guide"
+
+# Refactoring
+git commit -m "refactor(safety): extract interlock logic into separate module"
+
+# Build/dependencies
+git commit -m "build(placer): add JAX and optax dependencies"
+
+# Breaking change (add ! after type or BREAKING CHANGE in footer)
+git commit -m "feat(api)!: change placement output format"
+```
+
+**For `bd sync` auto-commits:**
+The `bd sync` command generates automatic commits for issue tracking changes. These are acceptable as-is since they track issue state, not code changes.
+
+**Why Conventional Commits?**
+- Enables automatic changelog generation
+- Makes git history scannable and searchable
+- Helps with semantic versioning decisions
+- Provides clear context for code review
+
 
 
 ## Current Project Status

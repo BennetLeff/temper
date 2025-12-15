@@ -1,0 +1,182 @@
+# Temper Induction Cooker - Placement Constraints
+# This configuration defines all placement constraints for the PCB optimizer
+
+board:
+  width_mm: 100
+  height_mm: 150
+  margin_mm: 3
+
+# Zone definitions
+zones:
+  - name: HV_ZONE
+    bounds: [0, 0, 50, 80]
+    net_classes: [HighVoltage, Power]
+    components:
+      - D1  # Voltage doubler diode
+      - D2  # Voltage doubler diode
+      - C_BUS1  # DC bus capacitor
+      - C_BUS2  # DC bus capacitor
+      - Q1  # High-side IGBT
+      - Q2  # Low-side IGBT
+      - U_GATE  # Gate driver (UCC21550)
+      
+  - name: LV_ZONE
+    bounds: [50, 0, 100, 80]
+    net_classes: [Signal, Power]
+    components:
+      - U_LDO_3V3  # 3.3V LDO
+      - U_LDO_5V   # 5V LDO
+      - U_BUCK     # Buck converter (LMR51430)
+      
+  - name: MCU_ZONE
+    bounds: [50, 80, 100, 150]
+    net_classes: [Signal]
+    components:
+      - U_MCU  # ESP32-S3
+      - U_USB  # USB-C connector
+      - J_DEBUG  # Debug header
+      
+  - name: INTERFACE_ZONE
+    bounds: [0, 80, 50, 150]
+    net_classes: [Signal]
+    components:
+      - J_COIL  # Coil connector
+      - J_NTC   # Temperature sensor connector
+      - U_CT    # Current transformer interface
+
+# Ground domains for split-ground design
+ground_domains:
+  - name: PGND
+    bounds: [0, 0, 50, 80]
+    # Power ground - HV section
+    
+  - name: CGND  
+    bounds: [50, 0, 100, 150]
+    star_point: [50, 40]
+    # Control ground - LV section
+
+# Clearance rules
+clearances:
+  - from: HighVoltage
+    to: Signal
+    clearance_mm: 10
+    description: "IEC 60335 creepage requirement"
+    
+  - from: HighVoltage
+    to: Power
+    clearance_mm: 5
+    description: "HV to low-voltage power clearance"
+    
+  - from: Power
+    to: Signal
+    clearance_mm: 0.3
+    description: "Standard signal clearance"
+
+hv_clearance_mm: 10  # Default HV-LV clearance
+
+# Critical current loops to minimize (EMI sensitive)
+critical_loops:
+  - name: gate_drive_high
+    nets: [GATE_H, SW_NODE, VCC_15V, GND_ISO]
+    max_area_mm2: 100
+    weight: 2.0
+    description: "High-side gate drive loop - critical for switching noise"
+    
+  - name: gate_drive_low
+    nets: [GATE_L, GND_POWER, VCC_15V]
+    max_area_mm2: 100
+    weight: 2.0
+    description: "Low-side gate drive loop"
+    
+  - name: power_commutation
+    nets: [DC_BUS+, SW_NODE, DC_BUS-]
+    max_area_mm2: 500
+    weight: 1.5
+    description: "Main power commutation loop"
+    
+  - name: bootstrap_charge
+    nets: [VCC_BOOT, SW_NODE, VCC_15V]
+    max_area_mm2: 150
+    weight: 1.0
+    description: "Bootstrap capacitor charging loop"
+
+# Thermal constraints (heat-generating components)
+thermal:
+  - components: [Q1, Q2]
+    prefer_edge: true
+    min_spacing_mm: 10
+    max_distance_from_edge_mm: 15
+    description: "IGBTs - main heat sources, need edge placement for heatsink"
+    
+  - components: [D1, D2]
+    prefer_edge: true
+    min_spacing_mm: 5
+    max_distance_from_edge_mm: 20
+    description: "Rectifier diodes - secondary heat sources"
+    
+  - components: [U_BUCK]
+    prefer_edge: false
+    min_spacing_mm: 5
+    max_distance_from_edge_mm: 30
+    description: "Buck converter - moderate heat, internal OK"
+
+# Component groups (keep together)
+groups:
+  - name: mcu_decoupling
+    components: [U_MCU, C_MCU_1, C_MCU_2, C_MCU_3, C_MCU_4]
+    max_spread_mm: 15
+    zone: MCU_ZONE
+    description: "MCU and decoupling capacitors"
+    
+  - name: gate_driver_local
+    components: [U_GATE, C_BOOT, C_VCC, R_GATE_H, R_GATE_L]
+    max_spread_mm: 20
+    zone: HV_ZONE
+    description: "Gate driver and associated components"
+    
+  - name: current_sensing
+    components: [U_CT, R_BURDEN, C_CT_FILT, U_OPAMP_CT]
+    max_spread_mm: 25
+    zone: INTERFACE_ZONE
+    description: "Current transformer sensing circuit"
+    
+  - name: voltage_doubler
+    components: [D1, D2, C_BUS1, C_BUS2]
+    max_spread_mm: 30
+    zone: HV_ZONE
+    description: "Voltage doubler rectifier"
+
+# Fixed components (connectors, mounting holes)
+fixed_components:
+  - J_AC_IN      # AC input connector
+  - J_COIL       # Coil connector
+  - J_USB        # USB connector
+  - MH1          # Mounting hole
+  - MH2          # Mounting hole
+  - MH3          # Mounting hole
+  - MH4          # Mounting hole
+
+# Zone assignments (override for specific components)
+zone_assignments:
+  U_MCU: MCU_ZONE
+  U_GATE: HV_ZONE
+  Q1: HV_ZONE
+  Q2: HV_ZONE
+  U_BUCK: LV_ZONE
+  U_CT: INTERFACE_ZONE
+
+# Net class assignments
+net_classes:
+  DC_BUS+: HighVoltage
+  DC_BUS-: HighVoltage
+  SW_NODE: HighVoltage
+  AC_L: HighVoltage
+  AC_N: HighVoltage
+  VCC_15V: Power
+  VCC_BOOT: Power
+  +3V3: Power
+  +5V: Power
+  GND: Power
+  PGND: Power
+  CGND: Power
+  GND_ISO: Power
