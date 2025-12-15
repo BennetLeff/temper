@@ -71,6 +71,35 @@ from temper_placer.optimizer.train import (
     initialize_training_state,
 )
 
+from temper_placer.optimizer.validation_callback import (
+    ValidationConfig,
+    ValidationResult,
+    ValidationCallback,
+    create_validation_callback,
+)
+
+from temper_placer.optimizer.postprocess import (
+    PostProcessConfig,
+    PostProcessResult,
+    snap_to_grid,
+    snap_to_grid_with_overlap_check,
+    discrete_rotation_refinement,
+    discrete_rotation_refinement_greedy,
+    discrete_rotation_refinement_beam,
+    postprocess,
+    finalize_placement,
+    get_rotation_index,
+    set_rotation_index,
+    DEFAULT_GRID_SIZE,
+)
+
+from temper_placer.optimizer.checkpoint import (
+    Checkpoint,
+    CheckpointManager,
+    create_checkpoint_from_training_state,
+    restore_training_state_from_checkpoint,
+)
+
 __all__ = [
     # Config
     "OptimizerConfig",
@@ -101,4 +130,27 @@ __all__ = [
     "TrainingMetrics",
     "TrainingState",
     "initialize_training_state",
+    # Validation
+    "ValidationConfig",
+    "ValidationResult",
+    "ValidationCallback",
+    "create_validation_callback",
+    # Postprocessing
+    "PostProcessConfig",
+    "PostProcessResult",
+    "snap_to_grid",
+    "snap_to_grid_with_overlap_check",
+    "discrete_rotation_refinement",
+    "discrete_rotation_refinement_greedy",
+    "discrete_rotation_refinement_beam",
+    "postprocess",
+    "finalize_placement",
+    "get_rotation_index",
+    "set_rotation_index",
+    "DEFAULT_GRID_SIZE",
+    # Checkpointing
+    "Checkpoint",
+    "CheckpointManager",
+    "create_checkpoint_from_training_state",
+    "restore_training_state_from_checkpoint",
 ]

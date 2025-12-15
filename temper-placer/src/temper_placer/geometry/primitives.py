@@ -22,19 +22,24 @@ from typing import Tuple
 # =============================================================================
 
 
-def point_distance(p1: Array, p2: Array) -> Array:
+def point_distance(p1: Array, p2: Array, eps: float = 1e-12) -> Array:
     """
     Compute Euclidean distance between two points.
+
+    Uses an epsilon guard to ensure numerical stability when points are
+    identical or very close. Without this, the gradient of sqrt(0) is
+    undefined (inf), which causes NaN in optimization.
 
     Args:
         p1: First point as (x, y) array
         p2: Second point as (x, y) array
+        eps: Small epsilon for numerical stability (default 1e-12)
 
     Returns:
-        Scalar distance between points
+        Scalar distance between points (always >= sqrt(eps))
     """
     diff = p2 - p1
-    return jnp.sqrt(jnp.sum(diff**2))
+    return jnp.sqrt(jnp.sum(diff**2) + eps)
 
 
 def point_distance_squared(p1: Array, p2: Array) -> Array:
@@ -418,12 +423,17 @@ def distance_to_board_boundary(
 # =============================================================================
 
 
-def pairwise_distances(points: Array) -> Array:
+def pairwise_distances(points: Array, eps: float = 1e-12) -> Array:
     """
     Compute pairwise Euclidean distances between all points.
 
+    Uses an epsilon guard to ensure numerical stability when points are
+    identical or very close. The diagonal (self-distance) will be sqrt(eps)
+    rather than exactly 0, which prevents undefined gradients.
+
     Args:
         points: Array of shape (N, 2) containing N points
+        eps: Small epsilon for numerical stability (default 1e-12)
 
     Returns:
         Array of shape (N, N) with distance[i, j] = distance between points i and j
@@ -432,7 +442,7 @@ def pairwise_distances(points: Array) -> Array:
     # points[:, None, :] has shape (N, 1, 2)
     # points[None, :, :] has shape (1, N, 2)
     diff = points[:, None, :] - points[None, :, :]  # (N, N, 2)
-    return jnp.sqrt(jnp.sum(diff**2, axis=-1))  # (N, N)
+    return jnp.sqrt(jnp.sum(diff**2, axis=-1) + eps)  # (N, N)
 
 
 def pairwise_distances_squared(points: Array) -> Array:
@@ -451,16 +461,20 @@ def pairwise_distances_squared(points: Array) -> Array:
     return jnp.sum(diff**2, axis=-1)
 
 
-def batch_point_distance(points1: Array, points2: Array) -> Array:
+def batch_point_distance(points1: Array, points2: Array, eps: float = 1e-12) -> Array:
     """
     Compute distances between corresponding points in two arrays.
+
+    Uses an epsilon guard to ensure numerical stability when points are
+    identical or very close.
 
     Args:
         points1: Array of shape (N, 2)
         points2: Array of shape (N, 2)
+        eps: Small epsilon for numerical stability (default 1e-12)
 
     Returns:
         Array of shape (N,) with distances
     """
     diff = points2 - points1
-    return jnp.sqrt(jnp.sum(diff**2, axis=-1))
+    return jnp.sqrt(jnp.sum(diff**2, axis=-1) + eps)

@@ -30,6 +30,30 @@ from temper_placer.validation.base import (
     ValidationSeverity,
     Validator,
 )
+from temper_placer.validation.spice import (
+    NgspiceValidator,
+    SpiceMeasurement,
+    SpiceResult,
+    estimate_loop_inductance,
+    create_validation_netlist,
+)
+from temper_placer.validation.drc import (
+    KiCadDRCValidator,
+    DRCResult,
+    DRCViolation,
+    DRCSeverity,
+    DRCViolationType,
+    find_kicad_cli,
+)
+from temper_placer.validation.scheduler import (
+    DRCScheduleConfig,
+    SpiceScheduleConfig,
+    SpiceSimulationConfig,
+    ValidationScheduleConfig,
+    ValidationScheduler,
+    create_default_config,
+    load_validation_config,
+)
 
 __all__ = [
     # Base
@@ -44,4 +68,25 @@ __all__ = [
     # Metrics
     "PlacementMetrics",
     "compute_metrics",
+    # SPICE
+    "NgspiceValidator",
+    "SpiceMeasurement",
+    "SpiceResult",
+    "estimate_loop_inductance",
+    "create_validation_netlist",
+    # KiCad DRC
+    "KiCadDRCValidator",
+    "DRCResult",
+    "DRCViolation",
+    "DRCSeverity",
+    "DRCViolationType",
+    "find_kicad_cli",
+    # Scheduler
+    "DRCScheduleConfig",
+    "SpiceScheduleConfig",
+    "SpiceSimulationConfig",
+    "ValidationScheduleConfig",
+    "ValidationScheduler",
+    "create_default_config",
+    "load_validation_config",
 ]

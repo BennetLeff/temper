@@ -34,6 +34,15 @@ from temper_placer.io.kicad_writer import (
     WriteResult,
     PlacementUpdate,
 )
+from temper_placer.io.placement_exporter import (
+    soft_to_discrete_rotations,
+    rotation_index_to_degrees,
+    positions_to_placements,
+    export_positions_to_temp_pcb,
+    create_pcb_exporter,
+    cleanup_temp_pcb,
+    PCBExporterFn,
+)
 
 __all__ = [
     # Parser
@@ -57,4 +66,12 @@ __all__ = [
     "validate_output_pcb",
     "WriteResult",
     "PlacementUpdate",
+    # Placement exporter (for DRC validation)
+    "soft_to_discrete_rotations",
+    "rotation_index_to_degrees",
+    "positions_to_placements",
+    "export_positions_to_temp_pcb",
+    "create_pcb_exporter",
+    "cleanup_temp_pcb",
+    "PCBExporterFn",
 ]

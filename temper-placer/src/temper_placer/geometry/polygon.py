@@ -88,17 +88,21 @@ def triangle_area(p1: Array, p2: Array, p3: Array) -> Array:
 # =============================================================================
 
 
-def polygon_centroid(vertices: Array) -> Array:
+def polygon_centroid(vertices: Array, eps: float = 1e-10) -> Array:
     """
     Compute centroid of a polygon.
 
     The centroid is the center of mass assuming uniform density.
 
+    For degenerate polygons (collinear points, zero area), falls back to
+    computing the mean of vertices to avoid division by zero.
+
     Args:
         vertices: Polygon vertices as (N, 2) array
+        eps: Threshold for considering area as zero (default 1e-10)
 
     Returns:
-        Centroid as (x, y) array
+        Centroid as (x, y) array (always finite)
     """
     vertices_next = jnp.roll(vertices, -1, axis=0)
 
@@ -108,9 +112,17 @@ def polygon_centroid(vertices: Array) -> Array:
     # Signed area
     area = jnp.sum(cross) / 2.0
 
-    # Centroid coordinates
-    cx = jnp.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)
-    cy = jnp.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)
+    # Centroid coordinates (standard formula)
+    cx_standard = jnp.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)
+    cy_standard = jnp.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)
+
+    # Fallback: mean of vertices (for degenerate polygons)
+    mean_centroid = jnp.mean(vertices, axis=0)
+
+    # Use standard formula if area is non-zero, otherwise use mean
+    is_degenerate = jnp.abs(area) < eps
+    cx = jnp.where(is_degenerate, mean_centroid[0], cx_standard)
+    cy = jnp.where(is_degenerate, mean_centroid[1], cy_standard)
 
     return jnp.array([cx, cy])
 

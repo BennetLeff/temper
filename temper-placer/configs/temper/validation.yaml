@@ -1,0 +1,102 @@
+# Validation schedule configuration for Temper induction cooker placer
+#
+# This file configures when and how validation runs during placement optimization.
+# Validation helps ensure placements are electrically valid, not just geometrically.
+#
+# Two types of validation:
+# - DRC: KiCad design rule checking (clearance, etc.)
+# - SPICE: ngspice electrical simulation (EMI, bootstrap, power integrity)
+
+validation:
+  # Master enable - set to false to disable all validation
+  enabled: true
+  
+  # Log validation results to console/file
+  log_results: true
+  
+  # Final phase: last N epochs have more frequent validation
+  # This catches issues as placement converges to final solution
+  final_phase_epochs: 500
+
+  # ========================================
+  # DRC (Design Rule Check) Configuration
+  # ========================================
+  drc:
+    enabled: true
+    
+    # Run DRC every N epochs during normal training
+    interval: 100
+    
+    # More frequent in final phase (every 20 epochs)
+    final_phase_interval: 20
+    
+    # Weight for DRC penalty in loss function
+    weight: 1.0
+    
+    # Stop training if DRC errors found
+    # Set to true for strict validation
+    fail_on_errors: false
+    
+    # Maximum allowed errors before failing
+    # 0 = any error fails (if fail_on_errors is true)
+    max_errors: 0
+
+  # ========================================
+  # SPICE Simulation Configuration
+  # ========================================
+  spice:
+    # Disabled by default (expensive, requires ngspice)
+    # Enable for high-fidelity validation
+    enabled: false
+    
+    # Run SPICE every N epochs during normal training
+    interval: 200
+    
+    # More frequent in final phase (every 50 epochs)
+    final_phase_interval: 50
+    
+    # Stop training if SPICE validation fails
+    fail_on_errors: false
+    
+    # Individual simulation configurations
+    simulations:
+      # Gate drive EMI validation
+      # Checks switching noise and ringing in gate drive loop
+      - name: gate_drive
+        enabled: true
+        weight: 1.0
+        # Components forming the gate drive loop for inductance estimation
+        loop_components:
+          - U_GD        # Gate driver IC
+          - Q1          # High-side IGBT
+          - R_GATE_H    # Gate resistor
+        parameters:
+          gate_resistance: 4.7  # ohms
+          
+      # Bootstrap charging validation
+      # Ensures bootstrap capacitor charges properly during low-side on
+      - name: bootstrap_charging
+        enabled: true
+        weight: 1.0
+        # Components forming the bootstrap loop
+        loop_components:
+          - U_GD        # Gate driver IC
+          - D_BOOT      # Bootstrap diode
+          - C_BOOT      # Bootstrap capacitor
+        parameters:
+          bootstrap_capacitance: 1.0e-6  # 1uF
+          bootstrap_resistance: 0.5      # ohms (diode + trace)
+          
+      # Power integrity validation
+      # Checks DC bus stability during switching
+      - name: power_integrity
+        enabled: true
+        weight: 0.5  # Lower weight - less critical than gate drive
+        # Components forming the DC bus decoupling loop
+        loop_components:
+          - C_DC        # DC bus decoupling capacitor
+          - Q1          # High-side switch
+          - Q2          # Low-side switch
+        parameters:
+          decap_esr: 0.05      # ohms
+          decap_value: 100e-6  # 100uF

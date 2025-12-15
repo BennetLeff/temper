@@ -441,3 +441,292 @@ class TestTrainingIntegration:
         result = train(netlist, board, composite, context, config, callback=callback)
 
         assert callback_count[0] > 0
+
+
+class TestValidationCallbackIntegration:
+    """Integration tests for validation callback in training loop."""
+
+    @pytest.fixture
+    def simple_setup(self):
+        """Create simple netlist and board for testing."""
+        from temper_placer.core.netlist import Component, Net, Netlist, Pin
+        from temper_placer.core.board import Board
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.boundary import BoundaryLoss
+        from temper_placer.losses.base import CompositeLoss, WeightedLoss
+
+        # Create simple components
+        components = [
+            Component(ref=f"U{i}", footprint="Package_SO:SOIC-8", bounds=(10.0, 10.0))
+            for i in range(5)
+        ]
+        netlist = Netlist(components=components, nets=[])
+        board = Board(width=100.0, height=100.0)
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+        # Simple composite loss
+        composite = CompositeLoss(
+            [
+                WeightedLoss(OverlapLoss(), weight=100.0),
+                WeightedLoss(BoundaryLoss(), weight=50.0),
+            ]
+        )
+
+        return netlist, board, context, composite
+
+    def test_validation_callback_called_at_intervals(self, simple_setup):
+        """Test that validation callback is called at configured intervals."""
+        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer.validation_callback import (
+            ValidationCallback,
+            ValidationConfig,
+            ValidationResult,
+        )
+
+        netlist, board, context, composite = simple_setup
+        config = OptimizerConfig(
+            epochs=20,
+            seed=42,
+            log_interval=5,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+
+        # Create a mock validation callback that tracks calls
+        call_epochs = []
+
+        class MockValidationCallback(ValidationCallback):
+            def __call__(self, epoch, positions, rotations, context):
+                # Record every call
+                if self.should_validate(epoch):
+                    call_epochs.append(epoch)
+                    return ValidationResult(epoch=epoch, passed=True)
+                return None
+
+        validation_config = ValidationConfig(
+            enabled=True,
+            drc_enabled=True,
+            drc_interval=5,  # Every 5 epochs
+        )
+        mock_callback = MockValidationCallback(config=validation_config)
+
+        result = train(
+            netlist,
+            board,
+            composite,
+            context,
+            config,
+            validation_callback=mock_callback,
+        )
+
+        # Should have called at epochs 0, 5, 10, 15
+        assert 0 in call_epochs
+        assert 5 in call_epochs
+        assert len(call_epochs) >= 3
+
+    def test_validation_history_in_result(self, simple_setup):
+        """Test that validation history is included in TrainingResult."""
+        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer.validation_callback import (
+            ValidationCallback,
+            ValidationConfig,
+            ValidationResult,
+        )
+
+        netlist, board, context, composite = simple_setup
+        config = OptimizerConfig(
+            epochs=15,
+            seed=42,
+            log_interval=5,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+
+        # Create callback that returns results
+        class SimpleValidationCallback(ValidationCallback):
+            def __call__(self, epoch, positions, rotations, context):
+                if self.should_validate(epoch):
+                    return ValidationResult(
+                        epoch=epoch,
+                        drc_penalty=float(epoch) * 0.1,
+                        passed=True,
+                    )
+                return None
+
+        validation_config = ValidationConfig(
+            enabled=True,
+            drc_enabled=True,
+            drc_interval=5,
+        )
+        callback = SimpleValidationCallback(config=validation_config)
+
+        result = train(
+            netlist,
+            board,
+            composite,
+            context,
+            config,
+            validation_callback=callback,
+        )
+
+        # Check validation_history in result
+        assert hasattr(result, "validation_history")
+        assert len(result.validation_history) >= 2  # Epochs 0, 5, 10
+        assert result.validation_history[0].epoch == 0
+        assert result.stopped_by_validation is False
+
+    def test_validation_failure_stops_training(self, simple_setup):
+        """Test that validation failure stops training when configured."""
+        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer.validation_callback import (
+            ValidationCallback,
+            ValidationConfig,
+            ValidationResult,
+        )
+
+        netlist, board, context, composite = simple_setup
+        config = OptimizerConfig(
+            epochs=100,  # Long training
+            seed=42,
+            log_interval=10,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+
+        # Create callback that fails at epoch 25
+        class FailingValidationCallback(ValidationCallback):
+            def __call__(self, epoch, positions, rotations, context):
+                if self.should_validate(epoch):
+                    passed = epoch < 25  # Fail at epoch 25
+                    return ValidationResult(
+                        epoch=epoch,
+                        passed=passed,
+                        messages=[] if passed else ["Validation failed at epoch 25"],
+                    )
+                return None
+
+        validation_config = ValidationConfig(
+            enabled=True,
+            drc_enabled=True,
+            drc_interval=5,
+        )
+        callback = FailingValidationCallback(config=validation_config)
+
+        result = train(
+            netlist,
+            board,
+            composite,
+            context,
+            config,
+            validation_callback=callback,
+        )
+
+        # Training should have stopped early
+        assert result.total_epochs < 100
+        assert result.total_epochs <= 26  # Should stop at or soon after 25
+        assert result.stopped_by_validation is True
+
+    def test_no_validation_callback_works(self, simple_setup):
+        """Test that training works without validation callback."""
+        from temper_placer.optimizer import train, OptimizerConfig
+
+        netlist, board, context, composite = simple_setup
+        config = OptimizerConfig(
+            epochs=10,
+            seed=42,
+            log_interval=5,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+
+        # No validation callback
+        result = train(netlist, board, composite, context, config)
+
+        assert result.total_epochs == 10
+        assert result.validation_history == []
+        assert result.stopped_by_validation is False
+
+
+class TestGradientClipping:
+    """Tests for gradient clipping in optimizer."""
+
+    def test_gradient_clipping_enabled_by_default(self):
+        """Test that gradient clipping is enabled in default config."""
+        from temper_placer.optimizer.config import OptimizerConfig
+
+        config = OptimizerConfig()
+        assert config.gradient_clip_norm == 1.0
+
+    def test_gradient_clipping_can_be_disabled(self):
+        """Test that gradient clipping can be disabled."""
+        from temper_placer.optimizer.config import OptimizerConfig
+
+        config = OptimizerConfig(gradient_clip_norm=None)
+        assert config.gradient_clip_norm is None
+
+    def test_optimizer_chain_includes_clipping(self):
+        """Test that optimizer chain includes gradient clipping when enabled."""
+        import optax
+        from temper_placer.optimizer.config import OptimizerConfig
+
+        config = OptimizerConfig(gradient_clip_norm=1.0)
+
+        # Build optimizer chain as train.py does
+        transforms = []
+        if config.gradient_clip_norm is not None:
+            transforms.append(optax.clip_by_global_norm(config.gradient_clip_norm))
+        if config.use_adam:
+            transforms.append(optax.adam(learning_rate=config.learning_rate.initial))
+        else:
+            transforms.append(optax.sgd(learning_rate=config.learning_rate.initial))
+
+        optimizer = optax.chain(*transforms)
+
+        # Verify we have 2 transforms (clip + adam)
+        assert len(transforms) == 2
+
+    def test_training_with_gradient_clipping(self):
+        """Test that training runs successfully with gradient clipping."""
+        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+        from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.boundary import BoundaryLoss
+
+        components = [
+            Component(ref=f"U{i}", footprint="Package_SO:SOIC-8", bounds=(10.0, 10.0))
+            for i in range(3)
+        ]
+        netlist = Netlist(components=components, nets=[])
+        board = Board(width=100.0, height=100.0)
+        context = LossContext.from_netlist_and_board(netlist, board)
+        composite = CompositeLoss(
+            [
+                WeightedLoss(OverlapLoss(), weight=100.0),
+                WeightedLoss(BoundaryLoss(), weight=50.0),
+            ]
+        )
+
+        # Test with clipping enabled (default)
+        config = OptimizerConfig(
+            epochs=10,
+            seed=42,
+            gradient_clip_norm=1.0,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+        result = train(netlist, board, composite, context, config)
+        assert result.total_epochs == 10
+
+        # Test with clipping disabled
+        config_no_clip = OptimizerConfig(
+            epochs=10,
+            seed=42,
+            gradient_clip_norm=None,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+        result_no_clip = train(netlist, board, composite, context, config_no_clip)
+        assert result_no_clip.total_epochs == 10

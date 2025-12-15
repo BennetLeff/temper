@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -59,7 +60,7 @@ def compute_edge_distance(
 def compute_thermal_penalty(
     positions: Array,
     context: LossContext,
-    margin: float = 0.1,
+    margin: float = 1.0,
 ) -> Array:
     """
     Compute thermal placement penalty.
@@ -67,10 +68,16 @@ def compute_thermal_penalty(
     Penalizes components that are farther from their required board edge
     than the maximum allowed distance.
 
+    Uses softplus for smooth gradients near the constraint boundary:
+    - When distance < max_distance: penalty is small (exponentially decaying)
+    - When distance > max_distance: penalty grows approximately quadratically
+    - The margin parameter controls the transition width
+
     Args:
         positions: (N, 2) component center positions.
         context: LossContext with thermal_constraints and board.
-        margin: Soft margin for smooth penalty (mm).
+        margin: Soft margin width (mm). Larger values give smoother gradients
+                but less sharp constraint enforcement. Default 1.0mm.
 
     Returns:
         Total thermal penalty (scalar).
@@ -88,11 +95,14 @@ def compute_thermal_penalty(
         # Distance to required edge
         distance = compute_edge_distance(position, board_bounds, tc.edge)
 
-        # Soft penalty: 0 if distance <= max_distance, grows quadratically beyond
-        # Using softplus for smooth gradient: log(1 + exp(x))
+        # Soft penalty using softplus for smooth gradients
+        # softplus(x/margin) ≈ 0 when x << 0, ≈ x/margin when x >> 0
+        # This gives smooth transition at the boundary
         excess = distance - tc.max_distance
+        soft_excess = margin * jax.nn.softplus(excess / margin)
+
         # Quadratic penalty for violation, scaled by weight
-        penalty = tc.weight * jnp.maximum(0.0, excess) ** 2
+        penalty = tc.weight * soft_excess**2
 
         total_penalty = total_penalty + penalty
 
@@ -107,14 +117,18 @@ class ThermalLoss(LossFunction):
     For heat-generating components like IGBTs, this loss ensures they are
     placed near board edges where heatsinks can be mounted.
 
-    The penalty is quadratic in the distance beyond the maximum allowed:
-    penalty = weight * max(0, distance - max_distance)²
+    Uses softplus for smooth gradients near the constraint boundary:
+    penalty = weight * softplus(excess/margin)²
+
+    where excess = distance - max_distance.
 
     Attributes:
-        margin: Soft margin for penalty calculation (mm).
+        margin: Soft margin width for penalty transition (mm).
+                Larger values give smoother gradients but less sharp
+                constraint enforcement. Default 1.0mm is good for PCB scale.
     """
 
-    margin: float = 0.1
+    margin: float = 1.0
 
     @property
     def name(self) -> str:

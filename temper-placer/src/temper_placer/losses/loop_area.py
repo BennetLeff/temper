@@ -5,6 +5,40 @@ This loss targets EMI-critical current loops such as gate drive loops,
 bootstrap charging loops, and power switching loops. Smaller loop areas
 reduce radiated EMI and improve signal integrity.
 
+PIN ORDERING REQUIREMENT
+========================
+
+**IMPORTANT**: The shoelace formula used to compute polygon area requires pins
+to be specified in order around the loop perimeter (either clockwise or
+counter-clockwise). If pins are provided in arbitrary order, the computed
+area will be INCORRECT and gradients will push components in the wrong direction.
+
+**Correct ordering (CW or CCW around the loop):**
+
+    Gate driver HO → IGBT gate → IGBT emitter → Gate driver HS
+
+    This traces the physical current path around the loop.
+
+**Incorrect ordering (arbitrary):**
+
+    Gate driver HO → IGBT emitter → Gate driver HS → IGBT gate
+
+    This creates a self-intersecting "figure-8" shape with wrong area.
+
+**Why it matters for optimization:**
+
+When pin ordering is wrong, the shoelace formula computes the signed area
+of a self-intersecting polygon. This area may:
+1. Be much smaller than the true loop area (underestimating EMI)
+2. Have gradients that move components in unhelpful directions
+3. Show "improvements" that actually make the physical loop larger
+
+**Best practices:**
+1. Trace the actual current flow path on your schematic
+2. List pins in the order current flows through them
+3. For power loops, start at the positive supply and follow to ground
+4. Verify loop areas match hand calculations for simple rectangles
+
 NOTE: This implementation computes the polygon area formed by pin positions
 using the shoelace formula. This is an approximation since actual current
 paths follow PCB traces, not straight lines between pins. For more accurate
@@ -36,6 +70,42 @@ class LoopAreaLoss(LossFunction):
     For each defined loop constraint, computes the polygon area formed by
     the loop's pin positions and penalizes areas exceeding the maximum.
     Uses the shoelace formula for differentiable polygon area computation.
+
+    PIN ORDERING REQUIREMENT
+    ------------------------
+
+    **CRITICAL**: Pins MUST be specified in order around the loop perimeter
+    (clockwise or counter-clockwise). The shoelace formula computes a signed
+    area that only gives correct results for properly ordered vertices.
+
+    **Example - Gate Drive Loop (CORRECT ordering):**
+
+        pins=(
+            ("U_DRIVER", "HO"),   # Step 1: Driver output
+            ("Q1", "G"),          # Step 2: Current flows to IGBT gate
+            ("Q1", "E"),          # Step 3: Returns from IGBT emitter
+            ("U_DRIVER", "HS"),   # Step 4: Back to driver source
+        )
+
+        This traces the physical current path:
+        HO → Gate → Emitter → HS → (back to HO)
+
+    **Example - Same Loop (INCORRECT ordering):**
+
+        pins=(
+            ("U_DRIVER", "HO"),   # Driver output
+            ("Q1", "E"),          # WRONG: Skips to emitter
+            ("U_DRIVER", "HS"),   # WRONG: Back to driver
+            ("Q1", "G"),          # WRONG: Then to gate
+        )
+
+        This creates a self-intersecting polygon with incorrect area!
+
+    **Why ordering matters:**
+    - Shoelace formula: area = 0.5 * |Σ(x_i*y_{i+1} - x_{i+1}*y_i)|
+    - For a simple (non-self-intersecting) polygon, this gives true area
+    - For self-intersecting polygons, it gives algebraic area (can be wrong)
+    - Incorrect areas lead to incorrect gradients during optimization
 
     Critical loops for the Temper induction cooker:
     - Gate drive high-side: UCC21550 -> Q1 gate -> Q1 source
@@ -253,13 +323,30 @@ def compute_loop_area_penalty(
     """
     Standalone function to compute loop area penalty.
 
+    **PIN ORDERING REQUIREMENT**: pin_positions MUST be ordered around the
+    loop perimeter (CW or CCW). Arbitrary ordering gives incorrect area!
+
+    See LoopAreaLoss class docstring for detailed explanation and examples.
+
     Args:
-        pin_positions: (M, 2) positions of pins forming the loop.
+        pin_positions: (M, 2) positions of pins forming the loop, in order
+            around the loop perimeter (clockwise or counter-clockwise).
         max_area: Maximum allowed area (mm²).
         scale: Penalty scale factor.
 
     Returns:
         Scalar penalty value.
+
+    Example:
+        >>> # Rectangular loop with corners at (0,0), (10,0), (10,5), (0,5)
+        >>> # CORRECT: ordered around perimeter
+        >>> pins_correct = jnp.array([[0, 0], [10, 0], [10, 5], [0, 5]])
+        >>> area = compute_loop_area_penalty(pins_correct, max_area=100.0)
+        >>> # Area = 50 mm², no penalty since < 100
+        >>>
+        >>> # INCORRECT: arbitrary order creates figure-8
+        >>> pins_wrong = jnp.array([[0, 0], [10, 5], [10, 0], [0, 5]])
+        >>> # This gives wrong area and wrong gradient!
     """
     if pin_positions.shape[0] < 3:
         return jnp.array(0.0)
@@ -282,6 +369,24 @@ def create_temper_loop_constraints() -> List[LoopConstraint]:
     - Gate drive loops (high-side and low-side)
     - Bootstrap charging loop
     - Buck converter switching loop
+
+    **PIN ORDERING**: Each constraint lists pins in the order that current
+    flows around the loop. This is REQUIRED for correct area computation.
+    Trace the current path on your schematic to verify ordering.
+
+    **Example - High-side gate drive loop:**
+
+        Gate driver HO pin
+              ↓
+        IGBT gate pin (current charges gate)
+              ↓
+        IGBT emitter pin (return path)
+              ↓
+        Gate driver HS pin (source reference)
+              ↓
+        (back to HO via driver internal)
+
+    This forms a closed loop. The pins list traces this path.
 
     Returns:
         List of LoopConstraint for Temper-specific requirements.
@@ -335,3 +440,80 @@ def create_temper_loop_constraints() -> List[LoopConstraint]:
             weight=1.5,
         ),
     ]
+
+
+def validate_loop_ordering(
+    pin_positions: Array,
+    loop_name: str = "unnamed",
+) -> List[str]:
+    """
+    Validate that pin positions form a simple (non-self-intersecting) polygon.
+
+    This is a heuristic check that can detect some common ordering errors.
+    It compares the shoelace area to the convex hull area - if the shoelace
+    area is much smaller, the polygon may be self-intersecting.
+
+    **Note**: This is not a perfect check. Some self-intersecting polygons
+    may pass, and some valid concave polygons may trigger warnings.
+    Always verify loop ordering by tracing current flow on the schematic.
+
+    Args:
+        pin_positions: (M, 2) positions of pins in the specified order.
+        loop_name: Name of the loop (for warning messages).
+
+    Returns:
+        List of warning messages (empty if no issues detected).
+
+    Example:
+        >>> pins = jnp.array([[0, 0], [10, 0], [10, 5], [0, 5]])
+        >>> warnings = validate_loop_ordering(pins, "gate_drive")
+        >>> if warnings:
+        ...     print("\\n".join(warnings))
+    """
+    import numpy as np
+    from scipy.spatial import ConvexHull
+
+    warnings = []
+
+    if pin_positions.shape[0] < 3:
+        warnings.append(f"Loop '{loop_name}': Less than 3 pins, cannot form a polygon")
+        return warnings
+
+    # Convert to numpy for scipy
+    points = np.array(pin_positions)
+
+    # Compute shoelace area
+    vertices_next = np.roll(points, -1, axis=0)
+    cross = points[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * points[:, 1]
+    shoelace_area = abs(np.sum(cross) / 2.0)
+
+    # Compute convex hull area
+    try:
+        hull = ConvexHull(points)
+        hull_area = hull.volume  # In 2D, "volume" is actually area
+    except Exception:
+        # Points may be collinear
+        warnings.append(
+            f"Loop '{loop_name}': Pins appear to be collinear (zero area). "
+            "Check that pins form a 2D polygon, not a line."
+        )
+        return warnings
+
+    # If shoelace area is much smaller than hull area, likely self-intersecting
+    if hull_area > 0 and shoelace_area < hull_area * 0.5:
+        warnings.append(
+            f"Loop '{loop_name}': Computed area ({shoelace_area:.1f} mm²) is much smaller "
+            f"than convex hull ({hull_area:.1f} mm²). This may indicate incorrect pin ordering "
+            "resulting in a self-intersecting polygon. Verify pins are ordered around the "
+            "loop perimeter by tracing current flow on the schematic."
+        )
+
+    # Check for very small area (might indicate nearly collinear points)
+    if shoelace_area < 1.0:  # Less than 1 mm²
+        warnings.append(
+            f"Loop '{loop_name}': Very small area ({shoelace_area:.2f} mm²). "
+            "This might be correct for tightly coupled components, or might indicate "
+            "pins that are nearly collinear. Verify loop geometry."
+        )
+
+    return warnings

@@ -43,6 +43,10 @@ from temper_placer.optimizer.scheduler import (
     get_learning_rate,
     ScheduleState,
 )
+from temper_placer.optimizer.validation_callback import (
+    ValidationCallback,
+    ValidationResult,
+)
 
 
 class TrainingMetrics(NamedTuple):
@@ -72,6 +76,8 @@ class TrainingResult:
         total_epochs: Number of epochs run.
         converged: Whether training converged (early stopping triggered).
         elapsed_seconds: Total training time.
+        validation_history: List of ValidationResult from validation runs.
+        stopped_by_validation: Whether training stopped due to validation failure.
     """
 
     final_state: PlacementState
@@ -82,6 +88,8 @@ class TrainingResult:
     total_epochs: int = 0
     converged: bool = False
     elapsed_seconds: float = 0.0
+    validation_history: List[ValidationResult] = field(default_factory=list)
+    stopped_by_validation: bool = False
 
 
 @dataclass
@@ -276,6 +284,7 @@ def train(
     config: Optional[OptimizerConfig] = None,
     initial_state: Optional[PlacementState] = None,
     callback: Optional[Callable[[TrainingMetrics], None]] = None,
+    validation_callback: Optional[ValidationCallback] = None,
 ) -> TrainingResult:
     """
     Run placement optimization training loop.
@@ -286,7 +295,8 @@ def train(
     3. Runs the training loop with Gumbel-Softmax rotation sampling
     4. Anneals temperature and learning rate
     5. Tracks best solution and handles early stopping
-    6. Returns final and best placement states
+    6. Optionally runs validation (DRC) at configured intervals
+    7. Returns final and best placement states
 
     Args:
         netlist: Component netlist to place.
@@ -296,6 +306,7 @@ def train(
         config: Optimizer configuration (uses defaults if None).
         initial_state: Optional initial placement to refine.
         callback: Optional function called after each logged epoch.
+        validation_callback: Optional ValidationCallback for DRC/SPICE validation.
 
     Returns:
         TrainingResult with final placement and training history.
@@ -334,6 +345,10 @@ def train(
 
     # Training history
     history: List[TrainingMetrics] = []
+
+    # Validation tracking
+    validation_history: List[ValidationResult] = []
+    stopped_by_validation = False
 
     # Best tracking
     best_loss = float("inf")
@@ -416,6 +431,21 @@ def train(
             if callback is not None:
                 callback(metrics)
 
+        # Run validation callback (if configured)
+        if validation_callback is not None:
+            validation_result = validation_callback(
+                epoch=epoch,
+                positions=state.positions,
+                rotations=rotations,
+                context=context,
+            )
+            if validation_result is not None:
+                validation_history.append(validation_result)
+                # Check if validation failed and we should stop
+                if not validation_result.passed:
+                    stopped_by_validation = True
+                    break
+
         # Early stopping check
         if (
             config.early_stopping.enabled
@@ -452,6 +482,8 @@ def train(
         total_epochs=epoch + 1,
         converged=epochs_without_improvement >= config.early_stopping.patience,
         elapsed_seconds=elapsed,
+        validation_history=validation_history,
+        stopped_by_validation=stopped_by_validation,
     )
 
 
@@ -463,6 +495,7 @@ def train_multiphase(
     config: Optional[OptimizerConfig] = None,
     initial_state: Optional[PlacementState] = None,
     callback: Optional[Callable[[TrainingMetrics], None]] = None,
+    validation_callback: Optional[ValidationCallback] = None,
 ) -> TrainingResult:
     """
     Run multi-phase training with curriculum learning.
@@ -478,6 +511,7 @@ def train_multiphase(
         config: Optimizer configuration with curriculum_phases.
         initial_state: Optional initial placement.
         callback: Optional callback for metrics.
+        validation_callback: Optional ValidationCallback for DRC/SPICE validation.
 
     Returns:
         TrainingResult with final placement.
@@ -506,6 +540,10 @@ def train_multiphase(
 
     # Training history
     history: List[TrainingMetrics] = []
+
+    # Validation tracking
+    validation_history: List[ValidationResult] = []
+    stopped_by_validation = False
 
     # Best tracking
     best_loss = float("inf")
@@ -619,6 +657,21 @@ def train_multiphase(
             if callback is not None:
                 callback(metrics)
 
+        # Run validation callback (if configured)
+        if validation_callback is not None:
+            validation_result = validation_callback(
+                epoch=epoch,
+                positions=state.positions,
+                rotations=rotations,
+                context=context,
+            )
+            if validation_result is not None:
+                validation_history.append(validation_result)
+                # Check if validation failed and we should stop
+                if not validation_result.passed:
+                    stopped_by_validation = True
+                    break
+
         # Early stopping
         if (
             config.early_stopping.enabled
@@ -654,4 +707,6 @@ def train_multiphase(
         total_epochs=epoch + 1,
         converged=epochs_without_improvement >= config.early_stopping.patience,
         elapsed_seconds=elapsed,
+        validation_history=validation_history,
+        stopped_by_validation=stopped_by_validation,
     )

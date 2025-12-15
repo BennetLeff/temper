@@ -629,7 +629,9 @@ class TestThermalLoss:
         result = loss_fn(positions, sample_rotations, context)
 
         # Q1 is 5mm from top edge (80 - 75 = 5), which is < 10mm max
-        assert float(result.value) < 1e-6
+        # With softplus smoothing, there's a small residual penalty even when satisfied
+        # (this helps with gradient smoothness during optimization)
+        assert float(result.value) < 0.1  # Small penalty for satisfied constraint
 
     def test_thermal_constraint_violated(self, sample_rotations, simple_netlist, simple_board):
         """Test that component far from edge produces positive loss."""

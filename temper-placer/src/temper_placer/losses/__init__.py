@@ -114,6 +114,14 @@ from temper_placer.losses.regularization import (
     SpreadLoss,
 )
 
+# DRC loss (non-differentiable, cached)
+from temper_placer.losses.drc_loss import (
+    create_drc_loss,
+    DRCCacheEntry,
+    DRCHistory,
+    DRCLoss,
+)
+
 
 __all__ = [
     # Base classes
@@ -166,4 +174,9 @@ __all__ = [
     "create_temper_loop_constraints",
     "create_temper_thermal_constraints",
     "create_temper_zone_assignments",
+    "create_drc_loss",
+    # DRC loss (non-differentiable, cached)
+    "DRCLoss",
+    "DRCCacheEntry",
+    "DRCHistory",
 ]
