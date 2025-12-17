@@ -16,8 +16,8 @@
     },
     "worker": {
       "name": "Worker",
-      "description": "Implementation and execution agent using Nvidia Nemotron via OpenRouter",
-      "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+      "description": "Implementation and execution agent using Mistral Devstral via OpenRouter",
+      "model": "mistralai/devstral-2512:free",
       "provider": "openrouter",
       "apiKey": "${OPENROUTER_API_KEY}",
       "baseURL": "https://openrouter.ai/api/v1",
