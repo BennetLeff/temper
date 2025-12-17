@@ -10,7 +10,7 @@
 | Parameter | Target | Design Value |
 |-----------|--------|--------------|
 | Input Voltage | 240VAC, 50Hz | 340V peak sine |
-| Output Power | 2000W | 51.2Ω load |
+| Output Power | 1800W | 51.2Ω load |
 | DC Bus Voltage | 320-340V (light load) | Capacitor-smoothed |
 | Inrush Current | < 20A | 22Ω pre-charge resistor |
 | Voltage Ripple | < 50V p-p | 2200µF bulk capacitor |

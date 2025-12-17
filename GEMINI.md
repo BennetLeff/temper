@@ -31,6 +31,17 @@ We use **beads (`bd`)** for all task tracking. **Do not use markdown TODOs.**
     *   Avoid "Phase" or "Step" naming; name tasks by what they deliver.
 *   **Discovery**: Link new findings immediately with `discovered-from` dependencies.
 
+### Agentic Workflows (Tiered Delegation)
+We use a multi-agent system where a **Master Agent** delegates to specialized **Worker Agents**.
+
+*   **Model Tiers**: 
+    *   **Thinking (Pro)**: `architect`, `security`. Used for high-reasoning tasks.
+    *   **Fast (Flash)**: `coder`, `tester`. Used for rapid execution.
+*   **Delegation Methods**:
+    *   **Label-Driven (Recommended)**: Add label `agent:<role>` to an issue, then run `python3 tools/agents/auto_assign.py`.
+    *   **Direct Command**: `python3 tools/agents/assign.py <issue_id> <role>`.
+*   **Review Cycle**: Worker agents write to `agent_outputs/`. You must review their proposed resolutions before merging into the codebase.
+
 ### Landing the Plane (Session Completion)
 The session is **not** over until the plane has landed. You must execute this protocol before stopping:
 

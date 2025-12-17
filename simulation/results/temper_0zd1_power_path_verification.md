@@ -37,9 +37,9 @@ AC Mains → Rectifier → DC Bus → Half-Bridge → Resonant Tank → Pan Load
 |-----------|-------|-------|
 | AC Input | 120V RMS, 60Hz | US mains |
 | DC Bus Voltage | 170V | Peak rectified |
-| Switching Frequency | 35-50 kHz | Variable for power control |
-| Resonant Frequency | 35.8 kHz | LC tank natural frequency |
-| Output Power | 200W - 2000W | Frequency controlled |
+| Switching Frequency | 40-55 kHz | Variable for power control |
+| Resonant Frequency | 37.5 kHz | LC tank natural frequency |
+| Output Power | 200W - 1800W | Frequency controlled |
 | Target Efficiency | >95% | With ZVS |
 
 ### 2.2 Component Summary
@@ -48,7 +48,7 @@ AC Mains → Rectifier → DC Bus → Half-Bridge → Resonant Tank → Pan Load
 |-----------|------|----------|
 | IGBTs (×2) | IKW40N120H3 | 1200V, 40A |
 | Gate Driver | UCC21550 | Isolated, 4A output |
-| Resonant Cap | Film capacitor | 330nF, 630V |
+| Resonant Cap | Film capacitor | 300nF, 1000V |
 | Coil Inductance | Litz wire spiral | 80µH (uncoupled) |
 | DC Bus Cap | Electrolytic | 470µF, 200V |
 
@@ -142,7 +142,7 @@ AC Mains → Rectifier → DC Bus → Half-Bridge → Resonant Tank → Pan Load
 
 #### Circuit
 ```
-Midpoint ──┬── C_res (330nF) ──┬── L_coil (60µH eff) ──┬── Pan (8Ω)
+Midpoint ──┬── C_res (300nF) ──┬── L_coil (60µH eff) ──┬── Pan (8Ω)
            │                   │                       │
            └───────────────────┴───────────────────────┴── Return
 ```
@@ -214,32 +214,32 @@ For Zero Voltage Switching:
 
 ## 4. Power Flow Analysis
 
-### 4.1 Power Budget at 2kW Output
+### 4.1 Power Budget at 1.8kW Output
 
 ```
-AC Input: 120V × 17A = 2040VA (est. with losses)
+AC Input: 120V × 15.8A = 1900VA (est. with losses)
          ↓
 Rectifier losses: ~5W (diode conduction)
          ↓
-DC Bus: 170V × 12A = 2040W
+DC Bus: 170V × 11.1A = 1895W
          ↓
-Switching losses: ~10W (ZVS reduces dramatically)
+Switching losses: ~8W (ZVS reduces dramatically)
          ↓
-Conduction losses: ~30W (IGBTs)
+Conduction losses: ~25W (IGBTs)
          ↓
-Coil losses: ~55W (I²R in Litz wire)
+Coil losses: ~50W (I²R in Litz wire)
          ↓
-Pan output: 2000W
+Pan output: 1800W
 ```
 
 ### 4.2 Efficiency Breakdown
 
 | Stage | Input | Output | Loss | Efficiency |
 |-------|-------|--------|------|------------|
-| Rectifier | 2100W | 2095W | 5W | 99.8% |
-| Half-bridge | 2095W | 2055W | 40W | 98.1% |
-| Resonant tank + coil | 2055W | 2000W | 55W | 97.3% |
-| **Overall** | **2100W** | **2000W** | **100W** | **95.2%** |
+| Rectifier | 1900W | 1895W | 5W | 99.7% |
+| Half-bridge | 1895W | 1862W | 33W | 98.2% |
+| Resonant tank + coil | 1862W | 1800W | 50W | 97.3% |
+| **Overall** | **1900W** | **1800W** | **100W** | **94.7%** |
 
 ---
 
@@ -251,16 +251,16 @@ Power is controlled by adjusting switching frequency:
 
 | Frequency | Impedance | Current | Power |
 |-----------|-----------|---------|-------|
-| 38 kHz | 10Ω | 15.8A | 2000W |
-| 40 kHz | 12Ω | 13A | 1350W |
-| 45 kHz | 15Ω | 10.5A | 880W |
-| 50 kHz | 19Ω | 8.3A | 550W |
-| 55 kHz | 23Ω | 6.8A | 370W |
+| 40 kHz | 10Ω | 15.0A | 1800W |
+| 42 kHz | 12Ω | 12.5A | 1350W |
+| 48 kHz | 15Ω | 10.0A | 880W |
+| 55 kHz | 19Ω | 8.0A | 550W |
+| 60 kHz | 23Ω | 6.5A | 370W |
 
 ### 5.2 Control Range
 
-- **Maximum power:** 38 kHz → 2000W
-- **Minimum power:** 55 kHz → ~350W
+- **Maximum power:** 40 kHz → 1800W
+- **Minimum power:** 60 kHz → ~350W
 - **Power ratio:** 5.7:1
 
 For lower power levels (<300W), burst mode (on/off cycling) is used.

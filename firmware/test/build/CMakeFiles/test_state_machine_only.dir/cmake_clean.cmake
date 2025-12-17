@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o"
+  "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o.d"
+  "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o"
+  "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o.d"
   "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/main/state_machine.c.o"
   "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/main/state_machine.c.o.d"
   "CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o"

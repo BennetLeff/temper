@@ -392,6 +392,10 @@ void pll_set_resonant_frequency(float freq_hz) {
  * - Outside bounds → immediate shutdown required
  */
 bool pll_is_frequency_safe(void) {
+#ifndef ESP_PLATFORM
+    static bool sim_freq_safe = true;
+    /* This allows the simulation API to override the real calculation */
+#endif
     float min_safe_freq = pll_ctx.resonant_freq - FREQ_MARGIN_LOW_HZ;
     float max_safe_freq = pll_ctx.resonant_freq + FREQ_MARGIN_HIGH_HZ;
 
@@ -407,6 +411,20 @@ bool pll_is_frequency_safe(void) {
 
     return is_safe;
 }
+
+#ifndef ESP_PLATFORM
+void pll_sim_set_locked(bool locked) {
+    pll_ctx.locked = locked;
+}
+
+void pll_sim_set_frequency_safe(bool safe) {
+    if (safe) {
+        pll_ctx.current_freq = pll_ctx.resonant_freq;
+    } else {
+        pll_ctx.current_freq = 0.0f;
+    }
+}
+#endif
 
 /**
  * @brief Get detailed lock status

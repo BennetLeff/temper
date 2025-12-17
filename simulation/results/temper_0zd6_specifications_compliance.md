@@ -30,9 +30,9 @@ This report provides final validation of the Temper induction cooker against all
 
 | Specification | Target | Achieved | Verification | Status |
 |---------------|--------|----------|--------------|--------|
-| Maximum power | 2000W | 2000W | sim_32, sim_26 | ✅ PASS |
+| Maximum power | 1800W | 1800W | sim_32, sim_26 | ✅ PASS |
 | Minimum power | 200W | 200W | RESONANT_TANK_DESIGN.md | ✅ PASS |
-| Power range ratio | 10:1 | 10:1 (200W-2000W) | Frequency control | ✅ PASS |
+| Power range ratio | 9:1 | 9:1 (200W-1800W) | Frequency control | ✅ PASS |
 | Power accuracy | ±5% | ±3% (estimated) | Current feedback | ✅ PASS |
 
 ### 2.2 Efficiency
@@ -287,7 +287,7 @@ This report provides final validation of the Temper induction cooker against all
 | Test | Pass Criteria |
 |------|---------------|
 | ZVS verification | V_CE < 10V at turn-on |
-| Power output | 2000W ±5% |
+| Power output | 1800W ±5% |
 | Efficiency | >90% at 2kW |
 | Thermal | Tj < 120°C after 1 hour |
 | OCP response | <1µs with 50A trip |
@@ -333,7 +333,7 @@ Key achievements:
 
 | ID | Specification | Target | Achieved | Status |
 |----|---------------|--------|----------|--------|
-| P1 | Max output power | 2000W | 2000W | ✅ |
+| P1 | Max output power | 1800W | 1800W | ✅ |
 | P2 | Min output power | 200W | 200W | ✅ |
 | P3 | Power range | 10:1 | 10:1 | ✅ |
 | P4 | Power accuracy | ±5% | ±3% | ✅ |

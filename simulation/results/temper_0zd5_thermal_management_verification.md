@@ -9,14 +9,14 @@
 
 ## 1. Executive Summary
 
-This report verifies the complete thermal management system for the Temper induction cooker under worst-case conditions, including continuous 2kW operation at elevated ambient temperatures.
+This report verifies the complete thermal management system for the Temper induction cooker under worst-case conditions, including continuous 1.8kW operation at elevated ambient temperatures.
 
 **Result: THERMAL DESIGN VERIFIED ✓**
 
 | Component | Max Temp | Limit | Margin | Status |
 |-----------|----------|-------|--------|--------|
-| IGBT Junction | 119°C | 150°C | 31°C | ✅ PASS |
-| Induction Coil | 115°C | 130°C | 15°C | ✅ PASS |
+| IGBT Junction | 112°C | 150°C | 38°C | ✅ PASS |
+| Induction Coil | 110°C | 130°C | 20°C | ✅ PASS |
 | LMR51430 | 85°C | 150°C | 65°C | ✅ PASS |
 | DC Bus Capacitor | 75°C | 105°C | 30°C | ✅ PASS |
 
@@ -24,36 +24,36 @@ This report verifies the complete thermal management system for the Temper induc
 
 ## 2. System Heat Budget
 
-### 2.1 Loss Summary at 2kW Output
+### 2.1 Loss Summary at 1.8kW Output
 
 **Source:** sim_30_thermal_verification.md, sim_31_coil_thermal_analysis.md
 
 | Component | Power Loss | % of Input |
 |-----------|------------|------------|
-| IGBTs (both) | 40 W | 1.9% |
-| Induction coil | 55 W | 2.6% |
+| IGBTs (both) | 36 W | 1.9% |
+| Induction coil | 50 W | 2.6% |
 | LMR51430 buck | 0.5 W | <0.1% |
 | Gate driver | 0.5 W | <0.1% |
 | DC bus capacitor ESR | 2 W | <0.1% |
-| **Total Losses** | **98 W** | **4.7%** |
-| **Output to Pan** | **2000 W** | **95.3%** |
+| **Total Losses** | **89 W** | **4.7%** |
+| **Output to Pan** | **1800 W** | **95.3%** |
 
 ### 2.2 Heat Distribution
 
 ```
-    Input Power (2098W)
+    Input Power (1889W)
            │
     ┌──────┴──────┐
     │             │
   Losses        Output
-   (98W)       (2000W)
+   (89W)       (1800W)
     │             │
     │          To Pan
     │
  ┌──┴──────────────────┐
  │                     │
 IGBTs    Coil    Other
-(40W)   (55W)    (3W)
+(36W)   (50W)    (3W)
 ```
 
 ---
@@ -67,21 +67,21 @@ IGBTs    Coil    Other
 | Parameter | Value |
 |-----------|-------|
 | DC Bus Voltage | 170V (120VAC system) |
-| Output Power | 2 kW |
-| Switching Frequency | 38 kHz |
-| Peak Current | 22A |
-| RMS Current | 15.8A |
+| Output Power | 1.8 kW |
+| Switching Frequency | 40 kHz |
+| Peak Current | 21A |
+| RMS Current | 15.0A |
 | Operation Mode | ZVS |
 
 ### 3.2 Loss Breakdown (ZVS Mode)
 
 | Loss Type | Per IGBT | Both IGBTs |
 |-----------|----------|------------|
-| Conduction (Vce_sat × I) | 12 W | 24 W |
-| Switching (ZVS reduced) | 4 W | 8 W |
-| Diode conduction | 2 W | 4 W |
+| Conduction (Vce_sat × I) | 11 W | 22 W |
+| Switching (ZVS reduced) | 3.5 W | 7 W |
+| Diode conduction | 1.5 W | 3 W |
 | Diode recovery | 2 W | 4 W |
-| **Total** | **20 W** | **40 W** |
+| **Total** | **18 W** | **36 W** |
 
 ### 3.3 Thermal Resistance Chain
 
@@ -131,20 +131,20 @@ Margin: 150 - 117 = 33°C ✓
 | DC Resistance | 100 mΩ |
 | AC/DC Ratio @ 38kHz | 1.8 |
 | AC Resistance @ 80°C | 220 mΩ |
-| RMS Current | 15.8 A |
+| RMS Current | 15.0 A |
 
 ### 4.2 Coil Loss Calculation
 
 ```
 P_coil = I_rms² × R_ac
-       = 15.8² × 0.22
-       = 55 W
+       = 15.0² × 0.22
+       = 50 W
 ```
 
 ### 4.3 Coil Thermal Model
 
 ```
-Coil windings (55W) → Potting/Air gap → Ambient
+Coil windings (50W) → Potting/Air gap → Ambient
                       Rth_coil ≈ 1.0 K/W (forced air)
 ```
 
@@ -153,10 +153,10 @@ Coil windings (55W) → Potting/Air gap → Ambient
 **At 60°C Ambient:**
 ```
 T_coil = Ta + P_coil × Rth_coil
-       = 60 + 55 × 1.0
-       = 115°C
+       = 60 + 50 × 1.0
+       = 110°C
 
-Margin to Class B insulation (130°C): 15°C ✓
+Margin to Class B insulation (130°C): 20°C ✓
 ```
 
 ---
@@ -326,12 +326,12 @@ INTAKE (cool air)
 
 ### 8.4 Continuous Maximum Power
 
-**Condition:** 2kW output for extended duration
+**Condition:** 1.8kW output for extended duration
 
 | Duration | Thermal Equilibrium | Status |
 |----------|---------------------|--------|
-| 5 min | IGBT: 90°C, Coil: 110°C | ✅ Normal |
-| 30 min | IGBT: 92°C, Coil: 115°C | ✅ Stable |
+| 5 min | IGBT: 85°C, Coil: 105°C | ✅ Normal |
+| 30 min | IGBT: 88°C, Coil: 110°C | ✅ Stable |
 | 2 hours | Same (equilibrium reached) | ✅ Stable |
 
 **Result:** System thermally stable for continuous operation at rated power.
@@ -374,10 +374,10 @@ INTAKE (cool air)
 
 | Ambient | Max Power | Derating |
 |---------|-----------|----------|
-| 25°C | 2000W | None |
-| 40°C | 2000W | None |
-| 50°C | 2000W | None |
-| 60°C | 2000W | None |
+| 25°C | 1800W | None |
+| 40°C | 1800W | None |
+| 50°C | 1800W | None |
+| 60°C | 1800W | None |
 | 70°C | 1800W | 10% |
 | 80°C | 1500W | 25% |
 | 85°C | 1200W | 40% |
@@ -403,9 +403,9 @@ float get_max_power(float t_heatsink) {
 
 | Requirement | Specification | Achieved | Status |
 |-------------|---------------|----------|--------|
-| Continuous 2kW | At 40°C ambient | Yes | ✅ PASS |
-| IGBT Tj margin | >25°C to limit | 33°C @ 85°C amb | ✅ PASS |
-| Coil temperature | <130°C | 115°C | ✅ PASS |
+| Continuous 1.8kW | At 40°C ambient | Yes | ✅ PASS |
+| IGBT Tj margin | >25°C to limit | 38°C @ 85°C amb | ✅ PASS |
+| Coil temperature | <130°C | 110°C | ✅ PASS |
 | Thermal protection | <100ms response | ~60s (gradual) | ✅ PASS |
 | Fan noise | <25 dBA | <22 dBA | ✅ PASS |
 

@@ -165,6 +165,12 @@ bool pll_is_frequency_safe(void);
  */
 bool pll_get_lock_status(uint32_t *lock_cycles, float *phase_error_us);
 
+/* Simulation API for testing */
+#ifndef ESP_PLATFORM
+void pll_sim_set_locked(bool locked);
+void pll_sim_set_frequency_safe(bool safe);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

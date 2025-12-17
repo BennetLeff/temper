@@ -10,17 +10,17 @@
 
 ## 1. Executive Summary
 
-This document consolidates thermal analysis for the Temper induction cooker operating at 2kW on 120VAC input.
+This document consolidates thermal analysis for the Temper induction cooker operating at 1.8kW on 120VAC input.
 
 ### Heat Budget
 
 | Component | Loss (W) | Cooling Method |
 |-----------|----------|----------------|
-| IGBTs (×2) | 35-40 | Heatsink + fan |
-| Induction coil | 55 | Shared airflow |
+| IGBTs (×2) | 36 | Heatsink + fan |
+| Induction coil | 50 | Shared airflow |
 | LMR51430 buck | 1-2 | PCB copper |
 | Control electronics | <1 | Natural convection |
-| **Total** | **~95W** | **Forced air** |
+| **Total** | **~89W** | **Forced air** |
 
 ### Thermal Solution
 
@@ -30,7 +30,7 @@ This document consolidates thermal analysis for the Temper induction cooker oper
 |-----------|---------------|
 | Heatsink | 120×100×40mm extruded aluminum |
 | Fan | 80mm, 1000-1500 RPM, ~20 dBA |
-| TIM | Thermal paste or graphite pad |
+| TIM | Graphite pad (Panasonic EYG-S091210) |
 | Airflow | Serial: Heatsink → Coil → Exhaust |
 
 ---
@@ -43,10 +43,10 @@ This document consolidates thermal analysis for the Temper induction cooker oper
 |-----------|-------|-------|
 | AC Input | 120V RMS, 60Hz | US mains |
 | DC Bus | 170V | Peak rectified |
-| Output Power | 2 kW max | Target |
-| Switching Frequency | 38 kHz | Above resonance |
-| Tank Current (RMS) | 15.8A | At 2kW |
-| Tank Current (peak) | 22A | |
+| Output Power | 1.8 kW max | 15A outlet limit |
+| Switching Frequency | 40 kHz | Above resonance (37.5k) |
+| Tank Current (RMS) | 15.0A | At 1.8kW |
+| Tank Current (peak) | 21A | |
 
 ### 2.2 Ambient Conditions
 
@@ -305,11 +305,11 @@ T_enclosure > 70°C →  Warning (fan speed up if PWM)
 ### System Efficiency
 
 ```
-P_output = 2000W
-P_loss = 40 + 55 + 0.5 = 95.5W
-P_input = 2095.5W
+P_output = 1800W
+P_loss = 36 + 50 + 0.5 = 86.5W
+P_input = 1886.5W
 
-Efficiency = 2000 / 2095.5 = 95.4%
+Efficiency = 1800 / 1886.5 = 95.4%
 ```
 
 ---

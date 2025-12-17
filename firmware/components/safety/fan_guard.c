@@ -44,12 +44,11 @@ fan_guard_status_t fan_guard_update(fan_guard_t *ctx, float heatsink_temp_c, flo
     // Simplified check: If rate > Limit, warn
     if (fan_on && rate > FAN_MAX_TEMP_RISE_RATE_C_PER_S) {
         // Threshold might need to scale with power. 
-        // 0.5C/s at 2000W is plausible? 
-        // At 2000W into 500g Aluminum (cp=0.9 J/gK):
-        // 50W loss (97.5% eff) -> 50 J/s
-        // dT = 50 / (500 * 0.9) = 0.11 C/s
-        // So > 0.5 C/s implies >> 200W loss or very small mass -> Blockage
-        
+            // 0.5C/s at 1800W is plausible? 
+            // At 1800W into 500g Aluminum (cp=0.9 J/gK):
+            // 50W loss (97.5% eff) -> 50 J/s
+            // dT = 50 / (500 * 0.9) = 0.11 C/s
+            // So > 0.5 C/s implies >> 200W loss or very small mass -> Blockage        
         if (rate > (FAN_MAX_TEMP_RISE_RATE_C_PER_S * 2.0f)) {
             return FAN_GUARD_ERR_BLOCKED;
         }

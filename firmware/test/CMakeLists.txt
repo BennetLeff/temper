@@ -65,6 +65,9 @@ set(MOCK_HAL_SOURCES
 # Note: state_machine.c has unique stub requirements and is tested separately
 set(FIRMWARE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pll_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/zvs_monitor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/safety.c
 )
 
@@ -72,6 +75,7 @@ set(FIRMWARE_SOURCES
 set(TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_safety.c
 )
 
@@ -113,6 +117,8 @@ target_link_libraries(test_runner m)
 add_executable(test_state_machine_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_state_machine.c
@@ -129,6 +135,17 @@ add_executable(test_pid_only
 )
 target_include_directories(test_pid_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pid_only m)
+
+# Low temperature control tests only
+add_executable(test_low_temp_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_low_temp.c
+)
+target_include_directories(test_low_temp_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_low_temp_only m)
 
 # Safety tests only
 add_executable(test_safety_only
@@ -241,6 +258,7 @@ enable_testing()
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
 add_test(NAME pid_tests COMMAND test_pid_only)
+add_test(NAME low_temp_tests COMMAND test_low_temp_only)
 add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)

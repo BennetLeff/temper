@@ -31,11 +31,12 @@ static const char *TAG = "state_machine";
 /* #include "pid_control.h" */
 /* #include "pll_control.h" */
 /* #include "safety.h" */
+#include "low_temp_control.h"
 
 /* Configuration */
 #define SAFE_IDLE_TEMP          50.0f   /* °C - safe to return to idle */
 #define MAX_TEMP                250.0f  /* °C - maximum allowed temperature */
-#define MIN_TEMP                50.0f   /* °C - minimum setpoint */
+#define MIN_TEMP                30.0f   /* °C - minimum setpoint */
 #define PAN_DETECT_TIMEOUT_MS   5000    /* 5 second pan detection timeout */
 #define NO_PAN_TIMEOUT_MS       3000    /* 3 second window to replace pan */
 #define PAN_DEBOUNCE_COUNT      10      /* Consecutive samples for debounce */
@@ -574,9 +575,13 @@ static void state_preheat_update(void) {
  * ============================================================================ */
 
 static void state_heating_entry(void) {
-    /* Switch to precision PID tuning */
-    pid_set_tuning(1.0f, 0.05f, 0.2f);
-    pid_reset_integral();
+    if (sm_ctx.target_temperature < 50.0f) {
+        low_temp_start(sm_ctx.target_temperature);
+    } else {
+        /* Switch to precision PID tuning */
+        pid_set_tuning(1.0f, 0.05f, 0.2f);
+        pid_reset_integral();
+    }
 
     /* Visual feedback */
     display_show_message("HEATING");
@@ -596,13 +601,18 @@ static void state_heating_update(void) {
     /* Read current temperature */
     float current_temp = read_pan_temperature();
 
-    /* Run PID controller */
-    float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
-    
-    /* Apply intensity limiting */
-    float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
-    float clamped_output = fminf(pid_output, intensity_max[sm_ctx.intensity_level - 1] * 100.0f);
-    power_set_level((uint8_t)clamped_output);
+    if (sm_ctx.target_temperature < 50.0f) {
+        /* Run low-temperature burst control */
+        low_temp_update(current_temp);
+    } else {
+        /* Run standard PID controller */
+        float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
+        
+        /* Apply intensity limiting */
+        float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+        float clamped_output = fminf(pid_output, intensity_max[sm_ctx.intensity_level - 1] * 100.0f);
+        power_set_level((uint8_t)clamped_output);
+    }
 
     /* Update PLL for ZVS tracking */
     pll_update();
@@ -842,6 +852,11 @@ static void state_fault_update(void) {
  * ============================================================================ */
 
 static void transition_to(system_state_t new_state) {
+    /* Stop low-temperature control if transitioning out of heating state */
+    if (sm_ctx.current_state == STATE_HEATING) {
+        low_temp_stop();
+    }
+
     /* Record previous state */
     sm_ctx.previous_state = sm_ctx.current_state;
     sm_ctx.current_state = new_state;

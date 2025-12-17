@@ -59,6 +59,11 @@ void pid_init(pid_handle_t *pid, float kp, float ki, float kd);
 void pid_set_tuning(float kp, float ki, float kd);
 
 /**
+ * @brief Apply specialized tuning for low-temperature range (30-50°C)
+ */
+void pid_apply_low_temp_tuning(void);
+
+/**
  * @brief Reset integrator to zero
  */
 void pid_reset_integral(void);

@@ -81,6 +81,35 @@ The 30-second debounce provides a **transaction window** for batch operations - 
 
 **Merge conflicts**: Rare with hash IDs. If conflicts occur, use `git checkout --theirs/.beads/beads.jsonl` and `bd import`. See [docs/GIT_INTEGRATION.md](docs/GIT_INTEGRATION.md).
 
+## Agentic Workflow System
+
+### Infrastructure
+- **Dispatcher**: `tools/agents/dispatch_core.sh` routes tasks to Gemini Pro (Thinking) or Flash (Fast).
+- **Assigner**: `tools/agents/assign.py` bridges `bd` issues with the dispatcher.
+- **Automation**: `tools/agents/auto_assign.py` provides a label-driven autonomous loop.
+
+### Creating Instructions for Sub-Agents
+When delegating, ensure your issue description (the instruction) follows these rules:
+1.  **Context-Rich**: Explicitly list filenames the sub-agent needs to read.
+2.  **Role-Specific**: Choose the role that matches the task complexity (e.g., use `architect` for new modules).
+3.  **Actionable**: Define clear success criteria for the sub-agent.
+
+### Workflow Example
+```bash
+# 1. User/Master finds a complex task
+bd create "Design Secure Auth" -t task --label agent:architect
+
+# 2. Run automation
+python3 tools/agents/auto_assign.py
+
+# 3. Architect (Pro) produces design in agent_outputs/
+# 4. Master reviews design, then creates coding task
+bd create "Implement Auth" -t task --label agent:coder
+
+# 5. Run automation again
+python3 tools/agents/auto_assign.py
+```
+
 ## Landing the Plane
 
 **When the user says "let's land the plane"**, you MUST complete ALL steps below. The plane is NOT landed until `git push` succeeds. NEVER stop before pushing. NEVER say "ready to push when you are!" - that is a FAILURE.

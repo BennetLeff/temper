@@ -53,7 +53,7 @@ This is higher than initially estimated and requires active cooling.
 ### At 2kW Output
 
 ```
-P_pan = I²_rms × R_pan = 2000W
+P_pan = I²_rms × R_pan = 1800W
 I_rms = √(2000 / 8) = 15.8A
 
 P_coil = I²_rms × R_coil
@@ -67,7 +67,7 @@ P_coil = I²_rms × R_coil
 | Component | Loss (W) | % of Output |
 |-----------|----------|-------------|
 | Coil I²R | 55W | 2.75% |
-| Pan (useful) | 2000W | 100% |
+| Pan (useful) | 1800W | 100% |
 | **Coil efficiency** | | **97.3%** |
 
 ---

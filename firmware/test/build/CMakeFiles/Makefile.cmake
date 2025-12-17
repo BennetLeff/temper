@@ -51,6 +51,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test_runner.dir/DependInfo.cmake"
   "CMakeFiles/test_state_machine_only.dir/DependInfo.cmake"
   "CMakeFiles/test_pid_only.dir/DependInfo.cmake"
+  "CMakeFiles/test_low_temp_only.dir/DependInfo.cmake"
   "CMakeFiles/test_safety_only.dir/DependInfo.cmake"
   "CMakeFiles/test_pan_detection_only.dir/DependInfo.cmake"
   "CMakeFiles/test_pll_only.dir/DependInfo.cmake"

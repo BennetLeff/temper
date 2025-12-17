@@ -13,23 +13,23 @@
 
 ## 1. Executive Summary
 
-This document provides a complete system thermal budget for the Temper 2kW induction cooker, consolidating all component analyses and defining derating curves for reliable operation.
+This document provides a complete system thermal budget for the Temper 1.8kW induction cooker, consolidating all component analyses and defining derating curves for reliable operation.
 
-### System Heat Budget (Worst Case: 240VAC, 2kW)
+### System Heat Budget (Worst Case: 120VAC, 1.8kW)
 
 | Component | Power Loss | % of Total | Cooling Method |
 |-----------|------------|------------|----------------|
-| IGBTs (×2) | 60 W | 52% | Heatsink + forced air |
-| Induction coil | 45 W | 39% | Shared airflow |
-| LMR51430 buck | 1.0 W | 0.9% | PCB copper pour |
-| XC6220 LDO | 0.65 W | 0.6% | PCB copper pour |
-| Gate drivers | 1.5 W | 1.3% | PCB + airflow |
-| Control (ESP32) | 0.5 W | 0.4% | Natural convection |
-| EMI filter | 2.0 W | 1.7% | Convection |
-| Capacitors (ESR) | 4.0 W | 3.5% | Convection |
-| **Total** | **~115 W** | **100%** | - |
+| IGBTs (×2) | 36 W | 40% | Heatsink + forced air |
+| Induction coil | 50 W | 56% | Shared airflow |
+| LMR51430 buck | 1.0 W | 1.1% | PCB copper pour |
+| XC6220 LDO | 0.65 W | 0.7% | PCB copper pour |
+| Gate drivers | 1.5 W | 1.7% | PCB + airflow |
+| Control (ESP32) | 0.5 W | 0.6% | Natural convection |
+| EMI filter | 2.0 W | 2.2% | Convection |
+| Capacitors (ESR) | 4.0 W | 4.5% | Convection |
+| **Total** | **~96 W** | **100%** | - |
 
-### System Efficiency: **94.5%** (at 2kW output)
+### System Efficiency: **94.7%** (at 1.8kW output)
 
 ---
 
@@ -39,10 +39,9 @@ This document provides a complete system thermal budget for the Temper 2kW induc
 
 | Input | DC Bus | Max Power | IGBT Loss | Coil Loss | Total Loss |
 |-------|--------|-----------|-----------|-----------|------------|
-| 120VAC | 170V | 2 kW | 40 W | 55 W | ~100 W |
-| 240VAC | 320V | 2 kW | 60 W | 45 W | ~115 W |
+| 120VAC | 170V | 1.8 kW | 36 W | 50 W | ~86 W |
 
-Note: Higher bus voltage → higher switching loss but lower coil I²R loss.
+Note: Redesigned for 1.8kW max to fit 15A outlet (15A * 120V = 1800W).
 
 ### 2.2 Ambient Temperature Ranges
 
@@ -55,20 +54,20 @@ Note: Higher bus voltage → higher switching loss but lower coil I²R loss.
 
 ---
 
-## 3. Component Thermal Details
+### 3. Component Thermal Details
 
 ### 3.1 IGBT Power Stage (IKW40N120H3)
 
 **Source:** sim_30_thermal_verification.md, RESONANT_TANK_DESIGN.md
 
-| Parameter | 120V System | 240V System |
-|-----------|-------------|-------------|
+| Parameter | 120V System (1.8kW) | 240V System (2.0kW) |
+|-----------|---------------------|---------------------|
 | DC Bus Voltage | 170V | 320V |
-| Tank Current (peak) | 22A | 42A |
-| Conduction loss (both) | 24W | 34W |
-| Switching loss (ZVS) | 8W | 17W |
-| Diode losses | 8W | 9W |
-| **Total IGBT loss** | **40W** | **60W** |
+| Tank Current (peak) | 21A | 42A |
+| Conduction loss (both) | 22W | 34W |
+| Switching loss (ZVS) | 7W | 17W |
+| Diode losses | 7W | 9W |
+| **Total IGBT loss** | **36W** | **60W** |
 
 **Thermal Path:**
 ```
@@ -79,8 +78,8 @@ Tj → Rth_jc (0.50) → Tc → Rth_cs (0.20) → Ts → Rth_sa (0.35-0.45) → 
 
 | Condition | Ta | Rth_sa | Ts | Tj | Margin |
 |-----------|----|----|----|----|--------|
-| 120V, Normal | 40°C | 0.45 | 58°C | 72°C | 78°C |
-| 120V, Worst | 70°C | 0.35 | 84°C | 98°C | 52°C |
+| 120V, Normal | 40°C | 0.45 | 56°C | 69°C | 81°C |
+| 120V, Worst | 70°C | 0.35 | 83°C | 96°C | 54°C |
 | 240V, Normal | 40°C | 0.35 | 61°C | 82°C | 68°C |
 | 240V, Worst | 70°C | 0.35 | 91°C | 112°C | 38°C |
 | 240V, Extreme | 85°C | 0.35 | 106°C | 127°C | 23°C |
@@ -89,11 +88,11 @@ Tj → Rth_jc (0.50) → Tc → Rth_cs (0.20) → Ts → Rth_sa (0.35-0.45) → 
 
 **Source:** sim_31_coil_thermal_analysis.md, THERMAL_DESIGN_GUIDE.md
 
-| Parameter | 120V System | 240V System |
-|-----------|-------------|-------------|
-| RMS Current | 15.8A | 28A |
+| Parameter | 120V System (1.8kW) | 240V System (2.0kW) |
+|-----------|---------------------|---------------------|
+| RMS Current | 15.0A | 28A |
 | AC Resistance (80°C) | 220mΩ | 58mΩ* |
-| **Power Loss** | **55W** | **45W** |
+| **Power Loss** | **50W** | **45W** |
 
 *Lower effective resistance in 240V system due to different coil design optimization
 
@@ -106,8 +105,8 @@ T_winding → Rth_coil (1.0 K/W) → T_ambient
 
 | Condition | Ta | Loss | T_coil | Insulation Limit | Margin |
 |-----------|----|----|--------|------------------|--------|
-| Normal | 40°C | 55W | 95°C | 130°C (Class B) | 35°C |
-| Worst case | 70°C | 55W | 125°C | 130°C | 5°C ⚠️ |
+| Normal | 40°C | 50W | 90°C | 130°C (Class B) | 40°C |
+| Worst case | 70°C | 50W | 120°C | 130°C | 10°C ⚠️ |
 
 **Note:** Coil temperature becomes limiting factor at high ambient. Thermal protection should trigger power reduction at T_coil > 110°C.
 
@@ -330,19 +329,19 @@ T_coil:
 
 | Subsystem | Input | Loss | Output | Efficiency |
 |-----------|-------|------|--------|------------|
-| AC Input | 2115W | 5W | 2110W | 99.8% |
-| Rectifier | 2110W | 5W | 2105W | 99.8% |
-| Half-bridge | 2105W | 60W | 2045W | 97.1% |
-| Coil | 2045W | 45W | 2000W | 97.8% |
-| **System Total** | **2115W** | **115W** | **2000W** | **94.6%** |
+| AC Input | 1901W | 5W | 1896W | 99.8% |
+| Rectifier | 1896W | 5W | 1891W | 99.8% |
+| Half-bridge | 1891W | 36W | 1855W | 98.1% |
+| Coil | 1855W | 50W | 1805W | 97.3% |
+| **System Total** | **1901W** | **96W** | **1805W** | **94.9%** |
 
 ### 8.2 Temperature Summary at Steady State
 
 | Component | 25°C Ambient | 40°C Ambient | 55°C Ambient | 70°C Ambient |
 |-----------|--------------|--------------|--------------|--------------|
-| IGBT Tj | 67°C | 82°C | 97°C | 112°C |
-| Heatsink Tc | 46°C | 61°C | 76°C | 91°C |
-| Coil | 80°C | 95°C | 110°C | 125°C ⚠️ |
+| IGBT Tj | 64°C | 79°C | 94°C | 109°C |
+| Heatsink Tc | 44°C | 59°C | 74°C | 89°C |
+| Coil | 75°C | 90°C | 105°C | 120°C |
 | LMR51430 Tj | 95°C | 115°C | 130°C | 150°C ⚠️ |
 | XC6220 Tj | 80°C | 100°C | 115°C | 130°C |
 | ESP32 | 35°C | 50°C | 65°C | 80°C |
@@ -351,8 +350,8 @@ T_coil:
 
 | Component | Max Tj | Worst Tj | Margin | Status |
 |-----------|--------|----------|--------|--------|
-| IKW40N120H3 | 150°C | 112°C | 38°C | ✅ OK |
-| Coil insulation | 130°C | 125°C | 5°C | ⚠️ Tight |
+| IKW40N120H3 | 150°C | 109°C | 41°C | ✅ OK |
+| Coil insulation | 130°C | 120°C | 10°C | ✅ OK |
 | LMR51430 | 150°C | 150°C | 0°C | ⚠️ At limit* |
 | XC6220 | 150°C | 130°C | 20°C | ✅ OK |
 | ESP32-S3 | 105°C | 80°C | 25°C | ✅ OK |

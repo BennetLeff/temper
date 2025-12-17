@@ -146,13 +146,13 @@ Recommended: 12 vias (3×4 array)
 ### 4.2 AC Mains Via Array
 
 **Requirements:**
-- Total current: 16.7A RMS
+- Total current: 15A RMS
 - Via type: High-Current (3A each)
 
 **Calculation:**
 ```
-N_vias = 16.7A / 3A = 5.6
-With 50% margin: N = 9 vias minimum
+N_vias = 15A / 3A = 5.0
+With 50% margin: N = 7.5 vias minimum
 Recommended: 9 vias (3×3 array)
 ```
 

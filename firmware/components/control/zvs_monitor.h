@@ -135,6 +135,11 @@ void zvs_reset(void);
  */
 const zvs_context_t* zvs_get_context(void);
 
+/* Simulation API for testing */
+#ifndef ESP_PLATFORM
+void zvs_sim_set_status(zvs_status_t status);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

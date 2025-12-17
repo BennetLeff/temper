@@ -842,7 +842,7 @@ void test_sm_set_temp_valid_range(void) {
  */
 void test_sm_set_temp_below_min_ignored(void) {
     setup_test();
-    state_machine_set_target_temp(30.0f);  /* Below 50°C minimum */
+    state_machine_set_target_temp(20.0f);  /* Below 30°C minimum */
     /* Function should silently ignore invalid value */
     TEST_ASSERT_TRUE(1);
 }

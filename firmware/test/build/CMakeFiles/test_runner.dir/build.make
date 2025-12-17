@@ -184,10 +184,52 @@ CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/contr
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/pid_control.c -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o: CMakeFiles/test_runner.dir/flags.make
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o: /Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o -MF CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o.d -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o -c /Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c > CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.i
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.s
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o: CMakeFiles/test_runner.dir/flags.make
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o: /Users/bennet/Desktop/temper/firmware/components/control/pll_control.c
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o -MF CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o.d -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o -c /Users/bennet/Desktop/temper/firmware/components/control/pll_control.c
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/components/control/pll_control.c > CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/pll_control.c -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o: CMakeFiles/test_runner.dir/flags.make
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o: /Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o -MF CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o.d -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o -c /Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c > CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i
+
+CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s
+
 CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o: CMakeFiles/test_runner.dir/flags.make
 CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o: /Users/bennet/Desktop/temper/firmware/components/safety/safety.c
 CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o -MF CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o.d -o CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o -c /Users/bennet/Desktop/temper/firmware/components/safety/safety.c
 
 CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.i: cmake_force
@@ -201,7 +243,7 @@ CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safet
 CMakeFiles/test_runner.dir/test_main.c.o: CMakeFiles/test_runner.dir/flags.make
 CMakeFiles/test_runner.dir/test_main.c.o: /Users/bennet/Desktop/temper/firmware/test/test_main.c
 CMakeFiles/test_runner.dir/test_main.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/test_runner.dir/test_main.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building C object CMakeFiles/test_runner.dir/test_main.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/test_main.c.o -MF CMakeFiles/test_runner.dir/test_main.c.o.d -o CMakeFiles/test_runner.dir/test_main.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_main.c
 
 CMakeFiles/test_runner.dir/test_main.c.i: cmake_force
@@ -215,7 +257,7 @@ CMakeFiles/test_runner.dir/test_main.c.s: cmake_force
 CMakeFiles/test_runner.dir/test_pid_control.c.o: CMakeFiles/test_runner.dir/flags.make
 CMakeFiles/test_runner.dir/test_pid_control.c.o: /Users/bennet/Desktop/temper/firmware/test/test_pid_control.c
 CMakeFiles/test_runner.dir/test_pid_control.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/test_runner.dir/test_pid_control.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building C object CMakeFiles/test_runner.dir/test_pid_control.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/test_pid_control.c.o -MF CMakeFiles/test_runner.dir/test_pid_control.c.o.d -o CMakeFiles/test_runner.dir/test_pid_control.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_pid_control.c
 
 CMakeFiles/test_runner.dir/test_pid_control.c.i: cmake_force
@@ -226,10 +268,24 @@ CMakeFiles/test_runner.dir/test_pid_control.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_runner.dir/test_pid_control.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/test/test_pid_control.c -o CMakeFiles/test_runner.dir/test_pid_control.c.s
 
+CMakeFiles/test_runner.dir/test_low_temp_control.c.o: CMakeFiles/test_runner.dir/flags.make
+CMakeFiles/test_runner.dir/test_low_temp_control.c.o: /Users/bennet/Desktop/temper/firmware/test/test_low_temp_control.c
+CMakeFiles/test_runner.dir/test_low_temp_control.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building C object CMakeFiles/test_runner.dir/test_low_temp_control.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/test_low_temp_control.c.o -MF CMakeFiles/test_runner.dir/test_low_temp_control.c.o.d -o CMakeFiles/test_runner.dir/test_low_temp_control.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_low_temp_control.c
+
+CMakeFiles/test_runner.dir/test_low_temp_control.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_runner.dir/test_low_temp_control.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/test/test_low_temp_control.c > CMakeFiles/test_runner.dir/test_low_temp_control.c.i
+
+CMakeFiles/test_runner.dir/test_low_temp_control.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_runner.dir/test_low_temp_control.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/test/test_low_temp_control.c -o CMakeFiles/test_runner.dir/test_low_temp_control.c.s
+
 CMakeFiles/test_runner.dir/test_safety.c.o: CMakeFiles/test_runner.dir/flags.make
 CMakeFiles/test_runner.dir/test_safety.c.o: /Users/bennet/Desktop/temper/firmware/test/test_safety.c
 CMakeFiles/test_runner.dir/test_safety.c.o: CMakeFiles/test_runner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/test_runner.dir/test_safety.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building C object CMakeFiles/test_runner.dir/test_safety.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_runner.dir/test_safety.c.o -MF CMakeFiles/test_runner.dir/test_safety.c.o.d -o CMakeFiles/test_runner.dir/test_safety.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_safety.c
 
 CMakeFiles/test_runner.dir/test_safety.c.i: cmake_force
@@ -250,9 +306,13 @@ test_runner_OBJECTS = \
 "CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_spi.c.o" \
 "CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_timer.c.o" \
 "CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o" \
+"CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o" \
+"CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o" \
+"CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o" \
 "CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o" \
 "CMakeFiles/test_runner.dir/test_main.c.o" \
 "CMakeFiles/test_runner.dir/test_pid_control.c.o" \
+"CMakeFiles/test_runner.dir/test_low_temp_control.c.o" \
 "CMakeFiles/test_runner.dir/test_safety.c.o"
 
 # External object files for target test_runner
@@ -266,13 +326,17 @@ test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/com
 test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_spi.c.o
 test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_timer.c.o
 test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
+test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o
+test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
+test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o
 test_runner: CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/safety/safety.c.o
 test_runner: CMakeFiles/test_runner.dir/test_main.c.o
 test_runner: CMakeFiles/test_runner.dir/test_pid_control.c.o
+test_runner: CMakeFiles/test_runner.dir/test_low_temp_control.c.o
 test_runner: CMakeFiles/test_runner.dir/test_safety.c.o
 test_runner: CMakeFiles/test_runner.dir/build.make
 test_runner: CMakeFiles/test_runner.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking C executable test_runner"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking C executable test_runner"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_runner.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,0 +1,304 @@
+# Footprint Library for Temper Induction Cooker PCB
+#
+# This library contains accurate courtyard bounds for all components
+# used in the Temper board. Bounds are extracted from KiCad footprint
+# library and represent the courtyard area (not just pads).
+#
+# Format:
+#   footprint_name:
+#     bounds: [width_mm, height_mm]
+#     courtyard_margin: margin_mm (optional, default 0)
+#     thermal_pad: true/false (optional, default false)
+#     pin_1_offset: [x_mm, y_mm] (optional)
+
+footprints:
+  # =========================================================================
+  # Power Stage - High Power Components
+  # =========================================================================
+
+  TO-247-3:
+    # IGBTs (Q1, Q2): IKW40N120H3
+    bounds: [16.0, 21.0]
+    courtyard_margin: 0.5
+    thermal_pad: true
+    pin_1_offset: [-5.08, 0]
+
+  DO-247:
+    # Rectifier diodes (D1-D4)
+    bounds: [12.0, 15.5]
+    courtyard_margin: 0.5
+    thermal_pad: true
+
+  # =========================================================================
+  # Integrated Circuits
+  # =========================================================================
+
+  SOIC-16_W:
+    # Gate driver: UCC21550
+    bounds: [10.3, 7.5]
+    courtyard_margin: 0.25
+    thermal_pad: false
+
+  QFN-56:
+    # MCU: ESP32-S3
+    bounds: [7.0, 7.0]
+    courtyard_margin: 0.3
+    thermal_pad: true
+
+  TSSOP-20:
+    # Temperature sensor: MAX31865
+    bounds: [6.5, 4.4]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  SOIC-8:
+    # Op-amps, comparators
+    bounds: [5.0, 4.0]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  SOT-23-5:
+    # Voltage references, small regulators
+    bounds: [2.9, 1.6]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  SOT-23-6:
+    # Logic gates, small ICs
+    bounds: [2.9, 1.75]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  TO-220-3:
+    # Linear regulators
+    bounds: [10.0, 9.0]
+    courtyard_margin: 0.4
+    thermal_pad: true
+
+  # =========================================================================
+  # Passive Components - Resistors
+  # =========================================================================
+
+  "0603":
+    # Small signal resistors
+    bounds: [1.6, 0.8]
+    courtyard_margin: 0.1
+    thermal_pad: false
+
+  "0805":
+    # Standard resistors
+    bounds: [2.0, 1.25]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  "1206":
+    # Medium power resistors
+    bounds: [3.2, 1.6]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  "2512":
+    # High power resistors (current sense)
+    bounds: [6.4, 3.2]
+    courtyard_margin: 0.3
+    thermal_pad: false
+
+  # =========================================================================
+  # Passive Components - Capacitors
+  # =========================================================================
+
+  # Ceramic capacitors (same footprints as resistors)
+  # Using aliases for clarity in component specs
+
+  C_0603:
+    # Small decoupling caps
+    bounds: [1.6, 0.8]
+    courtyard_margin: 0.1
+    thermal_pad: false
+
+  C_0805:
+    # Standard decoupling caps
+    bounds: [2.0, 1.25]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  C_1206:
+    # Medium voltage caps
+    bounds: [3.2, 1.6]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  C_1210:
+    # High current caps
+    bounds: [3.2, 2.5]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  # Electrolytic capacitors (through-hole)
+  CPOL_10x16:
+    # Bulk capacitors (450V)
+    bounds: [10.0, 10.0]  # Courtyard for THT
+    courtyard_margin: 1.0
+    thermal_pad: false
+
+  CPOL_13x20:
+    # Large bulk capacitors
+    bounds: [13.0, 13.0]
+    courtyard_margin: 1.0
+    thermal_pad: false
+
+  # =========================================================================
+  # Passive Components - Inductors
+  # =========================================================================
+
+  L_0805:
+    # Small inductors (ferrite beads)
+    bounds: [2.0, 1.25]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  L_1210:
+    # Medium inductors
+    bounds: [3.2, 2.5]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  Inductor_SMD_10x10:
+    # Buck converter inductor
+    bounds: [10.5, 10.5]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  # =========================================================================
+  # Discrete Semiconductors
+  # =========================================================================
+
+  SOT-23:
+    # Small signal transistors, diodes
+    bounds: [2.9, 1.3]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  SOD-123:
+    # Small signal diodes
+    bounds: [2.7, 1.6]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  SOD-323:
+    # Ultra-small diodes
+    bounds: [1.7, 1.25]
+    courtyard_margin: 0.1
+    thermal_pad: false
+
+  # =========================================================================
+  # Crystals and Oscillators
+  # =========================================================================
+
+  Crystal_HC49:
+    # Through-hole crystal
+    bounds: [11.0, 4.65]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  Crystal_SMD_3225:
+    # SMD crystal (3.2 x 2.5 mm)
+    bounds: [3.8, 3.0]
+    courtyard_margin: 0.2
+    thermal_pad: false
+
+  # =========================================================================
+  # Connectors
+  # =========================================================================
+
+  Connector_IEC_Inlet:
+    # AC input connector
+    bounds: [28.0, 20.0]
+    courtyard_margin: 1.0
+    thermal_pad: false
+
+  Connector_Screw_Terminal_2P:
+    # 2-position screw terminal
+    bounds: [10.0, 8.0]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  Connector_Screw_Terminal_3P:
+    # 3-position screw terminal
+    bounds: [15.0, 8.0]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  Connector_JST_XH_2P:
+    # JST connector (fan, sensors)
+    bounds: [7.5, 5.0]
+    courtyard_margin: 0.3
+    thermal_pad: false
+
+  Connector_JST_XH_3P:
+    # JST connector (thermocouple)
+    bounds: [10.0, 5.0]
+    courtyard_margin: 0.3
+    thermal_pad: false
+
+  USB_C_Receptacle:
+    # USB-C connector (programming/debug)
+    bounds: [9.0, 7.0]
+    courtyard_margin: 0.3
+    thermal_pad: false
+
+  # =========================================================================
+  # Switches and Buttons
+  # =========================================================================
+
+  Switch_Tactile_6x6:
+    # Tactile push buttons
+    bounds: [6.0, 6.0]
+    courtyard_margin: 0.3
+    thermal_pad: false
+
+  Rotary_Encoder:
+    # Rotary encoder with switch
+    bounds: [13.0, 14.0]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  # =========================================================================
+  # Miscellaneous
+  # =========================================================================
+
+  LED_0805:
+    # Status LEDs
+    bounds: [2.0, 1.25]
+    courtyard_margin: 0.15
+    thermal_pad: false
+
+  LED_5mm_THT:
+    # Through-hole LEDs
+    bounds: [5.0, 5.0]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  Fuse_Holder:
+    # PCB mount fuse holder
+    bounds: [20.0, 6.0]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  Heatsink_TO247:
+    # Heatsink for TO-247 (mounting area)
+    bounds: [25.0, 25.0]
+    courtyard_margin: 1.0
+    thermal_pad: false
+
+  MountingHole_3.2mm:
+    # PCB mounting holes
+    bounds: [6.0, 6.0]
+    courtyard_margin: 0.5
+    thermal_pad: false
+
+  TestPoint_THTPad:
+    # Test points
+    bounds: [2.0, 2.0]
+    courtyard_margin: 0.2
+    thermal_pad: false

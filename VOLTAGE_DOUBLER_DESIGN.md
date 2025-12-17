@@ -219,7 +219,7 @@ AC Mains (120V)
     │
     ├── Half-Bridge (Q1, Q2 - IKW40N120H3)
     │
-    ├── Resonant Tank (L=80µH, C=330nF)
+    ├── Resonant Tank (L=80µH, C=300nF)
     │
     └── Induction Coil → Pan
 ```

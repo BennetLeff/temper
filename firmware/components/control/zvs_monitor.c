@@ -177,3 +177,10 @@ void zvs_reset(void) {
 const zvs_context_t* zvs_get_context(void) {
     return &zvs_ctx;
 }
+
+#ifndef ESP_PLATFORM
+void zvs_sim_set_status(zvs_status_t status) {
+    zvs_ctx.status = status;
+}
+#endif
+
