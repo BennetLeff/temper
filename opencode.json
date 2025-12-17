@@ -1,43 +1,58 @@
+
 {
   "$schema": "https://opencode.ai/config.json",
-  "small_model": "github-copilot/claude-haiku-4.5",
+  "model": "anthropic/claude-sonnet-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
   "provider": {
+    "anthropic": {
+      "models": {
+        "claude-sonnet-4-5": {},
+        "claude-haiku-4-5": {},
+        "claude-opus-4-5": {}
+      }
+    },
     "google": {
       "models": {
-        "gemini-3-pro-preview": {
+        "gemini-3-pro": {
           "options": {
             "maxOutputTokens": 16000
           }
         }
       }
+    },
+    "openrouter": {
+      "models": {
+        "openrouter/deepseek/deepseek-v3.2-speciale": {
+          "options": {
+            "provider": {
+              "order": ["baseten"],
+              "allow_fallbacks": false
+            }
+          }
+        },
+        "openrouter/minimax/minimax-m2": {}
+      }
     }
   },
   "agent": {
-    "gemini-plan": {
+    "plan": {
       "mode": "primary",
-      "model": "github-copilot/gemini-3-pro-preview",
-      "description": "Planning agent using Gemini 3 Pro Preview",
-      "temperature": 0.3,
-      "tools": { "write": false, "edit": false, "bash": true }
-    },
-    "claude-plan": {
-      "mode": "primary",
-      "model": "github-copilot/claude-opus-4.5",
+      "model": "anthropic/claude-opus-4-5",
       "description": "Planning agent using Claude Opus 4.5",
       "temperature": 0.1,
-      "tools": { "write": false, "edit": false, "bash": true }
+      "tools": { "write": false, "edit": false, "bash": false }
     },
     "build": {
       "mode": "primary",
-      "model": "github-copilot/claude-opus-4.5",
-      "description": "Build agent using Claude Opus 4.5",
+      "model": "anthropic/claude-sonnet-4-5",
+      "description": "Build agent using Claude Sonnet 4.5",
       "temperature": 0.3,
       "tools": { "write": true, "edit": true, "bash": true }
     },
-    "build-fast": {
-      "mode": "primary",
-      "model": "github-copilot/claude-haiku-4.5",
-      "description": "Fast build agent using Claude Haiku 4.5",
+    "fast-build": {
+      "mode": "subagent",
+      "model": "openrouter/minimax/minimax-m2",
+      "description": "Fast build agent using MiniMax M2",
       "temperature": 0.3,
       "tools": { "write": true, "edit": true, "bash": true }
     }
