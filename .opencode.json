@@ -1,0 +1,70 @@
+{
+  "agents": {
+    "manager": {
+      "name": "Manager",
+      "description": "High-level planning and coordination agent using Claude Opus 4.5",
+      "model": "claude-opus-4-5",
+      "provider": "anthropic",
+      "temperature": 0.7,
+      "maxTokens": 8192,
+      "capabilities": [
+        "planning",
+        "architecture",
+        "coordination",
+        "code-review"
+      ]
+    },
+    "worker": {
+      "name": "Worker",
+      "description": "Implementation and execution agent using Nvidia Nemotron via OpenRouter",
+      "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+      "provider": "openrouter",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "baseURL": "https://openrouter.ai/api/v1",
+      "temperature": 0.5,
+      "maxTokens": 4096,
+      "capabilities": [
+        "implementation",
+        "testing",
+        "debugging",
+        "documentation"
+      ]
+    }
+  },
+  "workflows": {
+    "plan-and-implement": {
+      "description": "Manager creates plan, worker implements",
+      "steps": [
+        {
+          "agent": "manager",
+          "action": "analyze_and_plan",
+          "output": "implementation_plan"
+        },
+        {
+          "agent": "worker",
+          "action": "implement",
+          "input": "implementation_plan"
+        }
+      ]
+    },
+    "review-workflow": {
+      "description": "Worker implements, manager reviews",
+      "steps": [
+        {
+          "agent": "worker",
+          "action": "implement"
+        },
+        {
+          "agent": "manager",
+          "action": "review_and_approve"
+        }
+      ]
+    }
+  },
+  "settings": {
+    "defaultAgent": "worker",
+    "parallelExecution": true,
+    "maxRetries": 3,
+    "timeout": 300000
+  }
+}
