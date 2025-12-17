@@ -1,0 +1,118 @@
+{
+  "description": "DRC-Loss Correlation Analysis Results",
+  "summary": {
+    "placements_analyzed": 5,
+    "correlations_computed": 3,
+    "data_quality": "Good"
+  },
+  "correlations": [
+    {
+      "loss_component": "overlap_loss",
+      "pearson_r": 0.0,
+      "spearman_rho": 0.7,
+      "p_value": 0.5,
+      "drc_type": "courtyards_overlap"
+    },
+    {
+      "loss_component": "boundary_loss",
+      "pearson_r": 0.0,
+      "spearman_rho": 1.0,
+      "p_value": 0.5,
+      "drc_type": "edge_clearance"
+    },
+    {
+      "loss_component": "wirelength_loss",
+      "pearson_r": -0.9039027244461526,
+      "spearman_rho": -1.0,
+      "p_value": 0.10000000000000009,
+      "drc_type": "total_errors"
+    }
+  ],
+  "recommendations": {
+    "overlap": 50.0,
+    "boundary": 25.0,
+    "wirelength": 18.55854086669229
+  },
+  "interpretation": {
+    "overlap_loss": "Very weak negative correlation (r=0.000, \u03c1=0.700) with courtyards_overlap. Statistical significance: not significant (p=0.500).",
+    "boundary_loss": "Very weak negative correlation (r=0.000, \u03c1=1.000) with edge_clearance. Statistical significance: not significant (p=0.500).",
+    "wirelength_loss": "Very strong negative correlation (r=-0.904, \u03c1=-1.000) with total_errors. Statistical significance: not significant (p=0.100)."
+  },
+  "data_points": [
+    {
+      "quality_level": "perfect",
+      "optimizer_metrics": {
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 67.06004073991667,
+        "total_loss": 670.6004073991667
+      },
+      "drc_violations": {
+        "courtyards_overlap": 0,
+        "edge_clearance": 0,
+        "pad_clearance": 0,
+        "total_errors": 0
+      }
+    },
+    {
+      "quality_level": "good",
+      "optimizer_metrics": {
+        "overlap_loss": 0.05465183403939386,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 27.511905404508582,
+        "total_loss": 280.5842374490252
+      },
+      "drc_violations": {
+        "courtyards_overlap": 0,
+        "edge_clearance": 0,
+        "pad_clearance": 4,
+        "total_errors": 6
+      }
+    },
+    {
+      "quality_level": "mediocre",
+      "optimizer_metrics": {
+        "overlap_loss": 0.25245495573303084,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 25.297736669058764,
+        "total_loss": 278.2228622638907
+      },
+      "drc_violations": {
+        "courtyards_overlap": 0,
+        "edge_clearance": 0,
+        "pad_clearance": 2,
+        "total_errors": 10
+      }
+    },
+    {
+      "quality_level": "bad",
+      "optimizer_metrics": {
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 51.6849354897714,
+        "total_loss": 516.849354897714
+      },
+      "drc_violations": {
+        "courtyards_overlap": 0,
+        "edge_clearance": 0,
+        "pad_clearance": 0,
+        "total_errors": 0
+      }
+    },
+    {
+      "quality_level": "terrible",
+      "optimizer_metrics": {
+        "overlap_loss": 1.011921121268379,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 46.10212288064894,
+        "total_loss": 562.2133409333273
+      },
+      "drc_violations": {
+        "courtyards_overlap": 0,
+        "edge_clearance": 0,
+        "pad_clearance": 0,
+        "total_errors": 2
+      }
+    }
+  ]
+}
