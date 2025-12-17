@@ -71,6 +71,10 @@ addopts = [
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "gpu: marks tests that require GPU",
+    "benchmark: marks performance benchmark tests",
+    "monte_carlo: marks Monte Carlo simulation tests (require many iterations)",
+    "external: marks tests that use external PCB fixtures (require download first)",
+    "comparison: marks ground truth comparison tests",
 ]
 
 [tool.ruff]
