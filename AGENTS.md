@@ -596,29 +596,533 @@ The `bd sync` command generates automatic commits for issue tracking changes. Th
 - Helps with semantic versioning decisions
 - Provides clear context for code review
 
+---
 
+## Temper Project Overview
+
+This repository contains the **Temper induction cooker** - a high-power induction heating system with:
+- Half-bridge topology with IGBTs (IKW40N120H3)
+- ESP32-S3 MCU for control (state machine-driven firmware)
+- Resonant tank for induction heating
+- Comprehensive safety interlocks and thermal management
+- JAX-based PCB placement optimizer (temper-placer)
+
+### Repository Structure
+
+```
+temper/
+├── firmware/           # ESP32-S3 firmware (C, ESP-IDF)
+│   ├── components/     # HAL, control, safety modules
+│   │   ├── hal/        # Hardware abstraction (ADC, PWM, GPIO, SPI)
+│   │   ├── control/    # PID controller, PLL tracking
+│   │   └── safety/     # Safety monitoring, fault handling
+│   ├── main/           # Application entry point + state machine
+│   │   ├── state_machine.c  # Core 8-state state machine
+│   │   └── main.c      # Application entry
+│   ├── test/           # Unity-based unit and integration tests
+│   │   ├── test_state_machine.c  # 37 unit tests
+│   │   └── test_integration.c    # 30 integration tests
+│   └── README.md       # Detailed firmware documentation
+├── pcb/                # KiCad schematics (hierarchical)
+│   ├── temper.kicad_sch       # Root schematic
+│   ├── half_bridge.kicad_sch  # Power stage
+│   ├── mcu.kicad_sch          # Microcontroller
+│   ├── power_management.kicad_sch
+│   ├── sensing.kicad_sch
+│   ├── safety_interlock.kicad_sch
+│   └── user_interface.kicad_sch
+├── simulation/         # SPICE simulations (ngspice)
+│   ├── models/         # Component SPICE models
+│   ├── testbenches/    # .cir simulation files
+│   └── results/        # Simulation outputs (.md reports)
+├── components/         # Component libraries
+│   ├── */              # Per-component: .kicad_sym, .lib, _Documentation.md
+│   │                   # IKW40N120H3, UCC21550, LMR51430, MAX31865, etc.
+├── temper-placer/      # JAX-based PCB placement optimizer
+│   ├── src/temper_placer/
+│   │   ├── core/       # Netlist, Board, PlacementState
+│   │   ├── losses/     # Differentiable loss functions (12+ types)
+│   │   ├── optimizer/  # Training loop, curriculum learning
+│   │   ├── heuristics/ # Smart initialization (10 heuristics)
+│   │   ├── io/         # KiCad parser/writer, config loader
+│   │   ├── geometry/   # Transforms, overlap detection
+│   │   ├── validation/ # DRC integration, preflight checks
+│   │   └── visualization/ # HTML reports, board rendering
+│   ├── tests/          # pytest test suite
+│   │   ├── heuristics/ # Heuristics pipeline tests
+│   │   ├── integration/# Roundtrip tests
+│   │   └── validation/ # DRC correlation tests
+│   ├── configs/        # Constraint YAML files
+│   └── README.md       # temper-placer documentation
+├── datasheets/         # Reference datasheets (PDF)
+└── *.md                # Design documents
+```
+
+### Key Design Documents
+
+| Document | Purpose |
+|----------|---------|
+| `TEMPER_PLACER_DESIGN.md` | PCB placer architecture and algorithms |
+| `RESONANT_TANK_DESIGN.md` | LC tank calculations and tuning |
+| `HALF_BRIDGE_VERIFICATION_REPORT.md` | Power stage validation |
+| `GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md` | Bootstrap vs isolated supply |
+| `CT_SENSING_DESIGN.md` | Current transformer sensing circuit |
+| `THERMAL_DESIGN_GUIDE.md` | Thermal management strategy |
+| `SAFETY_INTERLOCK_DESIGN.md` | Protection circuit design |
+| `PCB_SPECIFICATION.md` | Board constraints and zones |
+
+### temper-placer: PCB Placement Optimizer
+
+The placer is a JAX-based gradient descent optimizer for component placement with **validation-in-the-loop** integration with KiCad DRC and ngspice.
+
+**Key Features:**
+- **Gumbel-Softmax discrete rotation** - Differentiable 0°/90°/180°/270° rotation
+- **Multi-objective optimization** - 12+ loss functions (wirelength, overlap, thermal, EMI, etc.)
+- **Smart initialization** - 10 heuristics applied before gradient descent
+- **Curriculum learning** - Progressive constraint introduction
+- **KiCad integration** - Native file format support via kiutils
+- **Validation-in-the-loop** - KiCad DRC and ngspice integration for electrical soundness
+
+**Installation:**
+```bash
+cd temper-placer
+
+# With uv (recommended)
+uv venv
+uv pip install -e ".[dev]"
+
+# With pip
+pip install -e ".[dev]"
+```
+
+**Running the optimizer:**
+```bash
+# Basic optimization
+temper-placer optimize input.kicad_pcb -c constraints.yaml -o output.kicad_pcb
+
+# With all features
+temper-placer optimize input.kicad_pcb -c constraints.yaml -o output.kicad_pcb \
+    --epochs 8000 \
+    --seed 42 \
+    --curriculum \        # Multi-phase learning (default)
+    --heuristics \        # Smart initialization (default)
+    --visualize \         # Live browser-based dashboard
+    --placements-json placements.json
+
+# Run DRC validation
+temper-placer validate output.kicad_pcb
+```
+
+**Key CLI flags:**
+- `--heuristics/--no-heuristics` - Smart initialization using 10 heuristics (default: enabled)
+- `--curriculum/--no-curriculum` - Multi-phase curriculum learning (default: enabled)
+- `--epochs N` - Number of optimization epochs (default: 8000)
+- `--seed N` - Random seed for reproducibility
+- `--visualize` - Enable live visualization (browser-based)
+
+**Heuristics Pipeline:**
+
+The placer uses 10 heuristics applied in priority order before gradient optimization:
+
+1. **HARD constraints:**
+   - `KeepoutAwarenessHeuristic` - Respect keep-out zones
+
+2. **STRUCTURAL constraints:**
+   - `ConnectorEdgeSnappingHeuristic` - Place connectors on board edges
+   - `ThermalEdgePlacementHeuristic` - Place thermal components near edges
+   - `CriticalLoopHeuristic` - Minimize switching loop areas
+
+3. **ORGANIZATIONAL constraints:**
+   - `FunctionalModuleClusteringHeuristic` - Group related components
+   - `PowerFlowTopologyHeuristic` - Arrange input → distribution → load
+   - `DecouplingCapHeuristic` - Position decoupling caps near ICs
+   - `DomainSeparationHeuristic` - Separate analog/digital domains
+
+4. **STYLE constraints:**
+   - `StarGroundTopologyHeuristic` - Star ground arrangement
+   - `SignalFlowPreservationHeuristic` - Left-to-right signal flow
+
+**Testing the placer:**
+```bash
+cd temper-placer
+
+# Run all tests
+pytest
+
+# Run specific test suites
+pytest tests/heuristics/ -v          # Heuristics pipeline tests
+pytest tests/integration/ -v         # KiCad roundtrip tests
+pytest tests/validation/ -v          # DRC correlation tests
+
+# With coverage
+pytest --cov=temper_placer --cov-report=html
+
+# Type checking
+mypy src
+
+# Linting
+ruff check src tests
+```
+
+**Key modules:**
+- `temper_placer.heuristics` - Smart initialization (`create_default_pipeline()`)
+- `temper_placer.optimizer` - Training loop (`train`, `train_multiphase`)
+- `temper_placer.losses` - 12+ differentiable loss functions
+- `temper_placer.io` - KiCad parser/writer, config loader
+- `temper_placer.geometry` - Transforms, SDF, overlap detection (JAX-accelerated)
+- `temper_placer.validation` - DRC integration, preflight checks
+- `temper_placer.visualization` - HTML reports, board rendering
+
+**Documentation:**
+- See `temper-placer/README.md` for quick start
+- See `TEMPER_PLACER_DESIGN.md` for full design specification
+- See `temper-placer/docs/USAGE.md` for detailed usage guide
+
+### Simulation Workflow
+
+SPICE simulations use ngspice with custom component models:
+
+```bash
+# Run a simulation
+cd simulation/testbenches
+ngspice -b sim_01_ac_rectifier_softstart.cir
+
+# Results go to simulation/results/
+```
+
+**Simulation naming convention:**
+- `sim_XX_description.cir` - Testbench files
+- `sim_XX_description.md` - Result analysis
+
+### Firmware Development
+
+The firmware uses ESP-IDF with a state machine-driven architecture. See `firmware/README.md` for complete documentation.
+
+**Architecture:**
+- **8-state state machine** (`main/state_machine.c`) - INIT, IDLE, PAN_DET, PREHEAT, HEATING, NO_PAN, COOLDOWN, FAULT
+- **Comprehensive testing** - 37 unit tests + 30 integration tests (Unity framework)
+- **Modular HAL** - Hardware abstraction for ADC, PWM, GPIO, SPI
+- **Safety-critical** - Multiple protection layers (OCP, OVP, thermal, watchdog)
+
+**Building for ESP32-S3:**
+```bash
+cd firmware
+idf.py set-target esp32s3
+idf.py build
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+**Running Tests (Host-Based):**
+```bash
+cd firmware/test
+mkdir -p build && cd build
+cmake ..
+make
+
+# Run specific test suites
+./test_state_machine_only    # 37 unit tests
+./test_integration_only       # 30 integration tests
+
+# Run all tests via CTest
+ctest --output-on-failure
+```
+
+**Module structure:**
+- `components/hal/` - Hardware abstraction (ADC, PWM, GPIO, SPI, Timer)
+  - `hal/esp32/` - ESP32-S3 specific implementations
+  - `hal/mock/` - Mock implementations for testing
+- `components/control/` - Control loops (PID, PLL tracking)
+- `components/safety/` - Safety monitoring, fault handling
+- `main/state_machine.c` - Core state machine (8 states, fault recovery)
+- `test/` - Unity-based tests with mock HAL
+
+**Safety Features:**
+1. **Hardware Watchdog** (TPS3823-33) - 1.6s timeout, external WDT
+2. **Software Watchdog** - State-specific timeouts (1-10s)
+3. **Over-Current Protection** - DC bus >35A triggers shutdown
+4. **Over-Temperature Protection** - Heatsink >100°C triggers fault
+5. **Fan Failure Detection** - Tachometer monitoring
+6. **RTD Probe Monitoring** - Open/short circuit detection
+7. **Thermal Runaway Detection** - Pan temp >target + 10°C
+8. **Pan Detection** - Impedance-based with confidence threshold
+
+**Key Configuration:**
+- Target temp range: 50-250°C
+- Pan detection timeout: 5s
+- Pan removal grace period: 3s
+- Max preheat time: 10 minutes
+- Safe idle temp: 50°C
 
 ## Current Project Status
 
-Run `bd stats` to see overall progress.
+**Overall Progress** (as of latest `bd stats`):
+- **Total Issues**: 442
+- **Open**: 69
+- **In Progress**: 2
+- **Closed**: 371
+- **Blocked**: 4
+- **Ready**: 65
+- **Avg Lead Time**: 7.0 hours
 
-### Active Areas
-
-- **Core CLI**: Mature, but always room for polish
-- **Examples**: Growing collection of agent integrations
-- **Documentation**: Comprehensive but can always improve
-- **MCP Server**: Implemented at `integrations/beads-mcp/` with Claude Code plugin
-- **Migration Tools**: Planned (see bd-6)
-
-### 1.0 Milestone
-
-We're working toward 1.0. Key blockers tracked in bd. Run:
-
+Check current work with:
 ```bash
-bd dep tree bd-8  # Show 1.0 epic dependencies
+bd stats                     # Overall project statistics
+bd ready --json              # Unblocked issues ready for work
+bd list --issue-type epic    # All epics
+bd show temper-7t1           # Main placer epic
+bd show temper-1my           # Optimizer validation epic
+bd show temper-37v           # Induction cooker development epic
 ```
 
+### Key Active Areas
 
+1. **temper-placer** - PCB placement optimizer (PRIMARY FOCUS - P1)
+   - ✅ Core optimizer operational with curriculum learning
+   - ✅ 10 heuristics implemented and tested
+   - ✅ DRC validation integration complete
+   - ✅ Preflight checks implemented
+   - 🔄 Comprehensive test suite expansion (temper-1by)
+   - 🔄 Optimizer validation against ground truth (temper-1my)
+   - 🔄 Missing loss functions (temper-jzq, temper-ft9, temper-c1e)
+   - **Related Epics**: temper-7t1, temper-1by, temper-1my, temper-jzq, temper-ft9, temper-c1e
+
+2. **Firmware** - ESP32-S3 control (COMPLETE - Core Implementation)
+   - ✅ 8-state state machine implemented (`main/state_machine.c`)
+   - ✅ 37 unit tests passing
+   - ✅ 30 integration tests passing
+   - ✅ HAL layer with ESP32 and mock implementations
+   - ✅ Comprehensive safety features (8 protection layers)
+   - ✅ PID control, PLL tracking components
+   - **Related Epic**: temper-37v (ongoing development)
+
+3. **PCB Design** - KiCad schematics
+   - ✅ Hierarchical design (7 subsystem sheets)
+   - ✅ Component library complete (IKW40N120H3, UCC21550, LMR51430, MAX31865, etc.)
+   - 🔄 Awaiting temper-placer optimization for layout
+   - **Key Docs**: PCB_SPECIFICATION.md, COMPONENT_COMPATIBILITY_VERIFICATION.md
+
+4. **Simulation** - SPICE verification
+   - ✅ 32+ simulation testbenches complete
+   - ✅ Power stage validated (half-bridge, gate driver, thermal)
+   - ✅ Auxiliary power verified (LMR51430, isolated supplies)
+   - ✅ Safety interlocks verified
+   - ✅ Interface timing verified (SPI, I2C, PWM, ADC)
+   - **Key Docs**: HALF_BRIDGE_VERIFICATION_REPORT.md, THERMAL_DESIGN_GUIDE.md
+
+### Top Priority Work (P1, Ready)
+
+Based on `bd ready`, the following P1 issues have no blockers:
+
+1. **temper-7t1** - temper-placer: JAX-based PCB placement optimizer (EPIC)
+2. **temper-1by** - Comprehensive Test Suite for PCB Generation Pipeline (EPIC)
+3. **temper-1my** - Optimizer Validation Epic: Ensure Real-World Placement Quality (EPIC)
+   - **temper-1my.6.1** - Create hand-placed reference Temper layout
+   - **temper-1my.6.4** - Iterate optimizer until it matches reference quality
+4. **temper-7zi** - External PCB Ground Truth Validation (EPIC)
+
+### Recent Completions
+
+- ✅ State machine implementation with comprehensive testing (Lesson 31)
+- ✅ Component compatibility verification report
+- ✅ Heuristics framework implementation (temper-600)
+- ✅ DRC integration and validation pipeline
+
+---
+
+## Temper Development Guidelines
+
+### Working with temper-placer
+
+**Before making changes:**
+1. Read `TEMPER_PLACER_DESIGN.md` for architecture overview
+2. Check `temper-placer/README.md` for CLI usage
+3. Review related bd issues: `bd list --label placer --status open`
+
+**Development workflow:**
+```bash
+cd temper-placer
+
+# Setup environment
+uv venv
+uv pip install -e ".[dev]"
+
+# Make changes to src/
+
+# Run tests
+pytest                       # All tests
+pytest tests/losses/ -v      # Specific module
+pytest -k "test_overlap"     # Specific test pattern
+
+# Type checking and linting
+mypy src
+ruff check src tests
+
+# Test actual optimization
+temper-placer optimize ../pcb/temper.kicad_pcb \
+    -c configs/temper_constraints.yaml \
+    -o /tmp/test_placement.kicad_pcb \
+    --epochs 1000 --seed 42
+```
+
+**Testing requirements for temper-placer:**
+- All new loss functions MUST have unit tests
+- Heuristics MUST have integration tests
+- Geometry functions MUST have property-based tests where applicable
+- DRC integration changes MUST verify against real KiCad output
+
+### Working with Firmware
+
+**Before making changes:**
+1. Read `firmware/README.md` for architecture overview
+2. Understand the state machine (`main/state_machine.c`)
+3. Check safety implications - this is safety-critical code
+
+**Development workflow:**
+```bash
+cd firmware
+
+# For ESP32-S3 target build
+idf.py set-target esp32s3
+idf.py menuconfig           # Configure if needed
+idf.py build
+idf.py flash monitor        # Flash and monitor
+
+# For host-based tests (preferred for rapid iteration)
+cd test
+mkdir -p build && cd build
+cmake ..
+make
+
+# Run tests
+./test_state_machine_only   # Fast unit tests
+./test_integration_only     # Full integration tests
+ctest --output-on-failure   # All tests
+
+# Make changes, rebuild, retest
+cd ..
+cmake . && make && ./test_state_machine_only
+```
+
+**Testing requirements for firmware:**
+- State machine changes MUST include unit tests
+- Safety-critical features MUST include fault injection tests
+- HAL changes MUST update both real and mock implementations
+- Integration tests MUST cover complete operational sequences
+- Minimum coverage: 80% line coverage for state machine
+
+### Working with Simulations
+
+**Before adding simulations:**
+1. Check `simulation/results/` for existing similar sims
+2. Follow naming convention: `sim_XX_description.cir`
+3. Create corresponding `.md` report in `results/`
+
+**Running simulations:**
+```bash
+cd simulation/testbenches
+
+# Run specific simulation
+ngspice -b sim_01_ac_rectifier_verification.cir > ../results/sim_01.log
+
+# Analyze results
+cd ../results
+cat sim_01_ac_rectifier_verification.md  # Read analysis
+```
+
+**Simulation requirements:**
+- All new circuits MUST have SPICE verification
+- Use realistic component models from `simulation/models/`
+- Document results with analysis in `results/*.md`
+- Include plots/waveforms for key signals
+
+### Documentation Standards
+
+**When to create/update docs:**
+
+1. **Design decisions** → Create `*_DESIGN.md` or `*_DECISION.md`
+   - Example: `GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md`
+   - Include: rationale, alternatives considered, trade-offs
+
+2. **Verification results** → Create `*_VERIFICATION_REPORT.md`
+   - Example: `HALF_BRIDGE_VERIFICATION_REPORT.md`
+   - Include: test conditions, results, pass/fail criteria
+
+3. **Component analysis** → Update `components/*/.*_Documentation.md`
+   - Include: electrical specs, thermal analysis, layout considerations
+
+4. **API changes** → Update module README.md
+   - `firmware/README.md`, `temper-placer/README.md`, etc.
+
+**Documentation format:**
+- Use markdown with clear section headers
+- Include code examples for APIs
+- Add tables for specifications/comparisons
+- Reference bd issues where relevant: `See temper-123 for details`
+- Use conventional commit format when updating docs
+
+### Testing Philosophy
+
+**For temper-placer (Python/JAX):**
+- Fast unit tests (<10ms each)
+- Integration tests run full pipelines
+- Property-based tests for geometry (hypothesis)
+- Validation tests against KiCad DRC
+- Benchmark tests for performance regressions
+
+**For firmware (C/Unity):**
+- Unit tests with mocks (fast, isolated)
+- Integration tests with full system (realistic scenarios)
+- Fault injection tests (safety critical)
+- Stress tests (long duration, rapid state changes)
+- Time-based tests use mock time advancement
+
+**Test naming convention:**
+```python
+# Python (pytest)
+def test_overlap_loss_detects_simple_overlap():
+    """Overlap loss should return >0 for overlapping rectangles."""
+    ...
+
+# C (Unity)
+void test_state_transition_idle_to_pan_det_on_start_button(void) {
+    ...
+}
+```
+
+### Common Workflows
+
+**Adding a new loss function to temper-placer:**
+1. Create issue: `bd create "Implement XyzLoss for ..." -t task -p 1 --parent temper-jzq`
+2. Read `TEMPER_PLACER_DESIGN.md` section on loss functions
+3. Implement in `src/temper_placer/losses/xyz.py`
+4. Add unit tests in `tests/losses/test_xyz.py`
+5. Register in `src/temper_placer/losses/__init__.py`
+6. Add to default config in `configs/temper_constraints.yaml`
+7. Run full test suite: `pytest`
+8. Document in code docstrings
+9. Close issue: `bd close <id> --reason "Implemented XyzLoss with unit tests"`
+
+**Adding a component to the library:**
+1. Create `components/PART_NUMBER/` directory
+2. Add KiCad symbol (`.kicad_sym`)
+3. Add SPICE model (`.lib` if available)
+4. Create `PART_NUMBER_Documentation.md` with:
+   - Electrical specifications
+   - Thermal characteristics
+   - Layout recommendations
+   - Application notes
+5. Update `BOM.md` if using in Temper design
+6. Add verification simulation if power/critical component
+
+**Modifying the state machine:**
+1. **CRITICAL**: Understand safety implications first
+2. Update state diagram in `firmware/README.md` if adding states
+3. Modify `firmware/main/state_machine.c`
+4. Update corresponding tests in `firmware/test/test_state_machine.c`
+5. Add integration test in `firmware/test/test_integration.c`
+6. Run full test suite: `cd firmware/test/build && make && ctest`
+7. Document new behavior in `firmware/README.md`
+8. Consider creating `STATE_MACHINE_CHANGE_LOG.md` for major changes
 
 ## Common Development Tasks
 
