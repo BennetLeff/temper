@@ -14,8 +14,8 @@
         "code-review"
       ]
     },
-    "build": {
-      "name": "Build",
+    "explore": {
+      "name": "Explore",
       "description": "Implementation and execution agent using Claude Sonnet 4.5 via GitHub Copilot",
       "model": "github-copilot/claude-sonnet-4.5",
       "provider": "github-copilot",
@@ -31,7 +31,7 @@
   },
   "workflows": {
     "plan-and-implement": {
-      "description": "Plan creates plan, build implements",
+      "description": "Plan creates plan, explore implements",
       "steps": [
         {
           "agent": "plan",
@@ -39,17 +39,17 @@
           "output": "implementation_plan"
         },
         {
-          "agent": "build",
+          "agent": "explore",
           "action": "implement",
           "input": "implementation_plan"
         }
       ]
     },
     "review-workflow": {
-      "description": "Build implements, plan reviews",
+      "description": "Explore implements, plan reviews",
       "steps": [
         {
-          "agent": "build",
+          "agent": "explore",
           "action": "implement"
         },
         {
@@ -60,7 +60,7 @@
     }
   },
   "settings": {
-    "defaultAgent": "build",
+    "defaultAgent": "explore",
     "parallelExecution": true,
     "maxRetries": 3,
     "timeout": 300000
