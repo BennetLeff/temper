@@ -1,7 +1,7 @@
 {
   "agents": {
-    "manager": {
-      "name": "Manager",
+    "plan": {
+      "name": "Plan",
       "description": "High-level planning and coordination agent using Claude Opus 4.5",
       "model": "claude-opus-4-5",
       "provider": "anthropic",
@@ -14,8 +14,8 @@
         "code-review"
       ]
     },
-    "worker": {
-      "name": "Worker",
+    "build": {
+      "name": "Build",
       "description": "Implementation and execution agent using Mistral Devstral via OpenRouter",
       "model": "mistralai/devstral-2512:free",
       "provider": "openrouter",
@@ -33,36 +33,36 @@
   },
   "workflows": {
     "plan-and-implement": {
-      "description": "Manager creates plan, worker implements",
+      "description": "Plan creates plan, build implements",
       "steps": [
         {
-          "agent": "manager",
+          "agent": "plan",
           "action": "analyze_and_plan",
           "output": "implementation_plan"
         },
         {
-          "agent": "worker",
+          "agent": "build",
           "action": "implement",
           "input": "implementation_plan"
         }
       ]
     },
     "review-workflow": {
-      "description": "Worker implements, manager reviews",
+      "description": "Build implements, plan reviews",
       "steps": [
         {
-          "agent": "worker",
+          "agent": "build",
           "action": "implement"
         },
         {
-          "agent": "manager",
+          "agent": "plan",
           "action": "review_and_approve"
         }
       ]
     }
   },
   "settings": {
-    "defaultAgent": "worker",
+    "defaultAgent": "build",
     "parallelExecution": true,
     "maxRetries": 3,
     "timeout": 300000
