@@ -107,19 +107,36 @@ Failure to complete these checks can result in:
 
 ---
 
-## 3. Isolation Tests (Megohmmeter)
+## 3. Isolation Tests (Megohmmeter & Hi-Pot)
 
-**Purpose:** Verify isolation barriers meet safety requirements
-**Test Condition:** Power OFF, unplugged, 500V DC megohmmeter
+**Purpose:** Verify isolation barriers meet safety requirements (IEC 60335-1)
+**Test Condition:** Power OFF, unplugged
+**Equipment:** 500V DC megohmmeter + Hi-Pot Tester (optional for prototype, required for final)
 
-**CRITICAL:** Remove ESP32 module and sensitive ICs before megger testing if possible, or ensure they are rated for 500V isolation testing.
+**CRITICAL:** Remove ESP32 module and sensitive ICs before testing.
 
-### 3.1 Mains Isolation
+### 3.1 Insulation Resistance (Megger)
 
 - [ ] AC mains (L, N) to SELV (3.3V, 5V rails): **> 10 MΩ** at 500V DC
       (Record: _______ MΩ)
 - [ ] AC mains to chassis/PE: **> 10 MΩ** at 500V DC
       (Record: _______ MΩ)
+
+### 3.2 Dielectric Strength (Hi-Pot) - Production Only
+
+*Warning: High Voltage. Qualified personnel only.*
+
+- [ ] AC Mains to Chassis (Basic Insulation): 
+  - Test Voltage: **1250V AC** or **1768V DC**
+  - Duration: **60 seconds**
+  - Leakage Current Limit: **< 5 mA**
+  - Result: **PASS** (No breakdown/arc)
+
+- [ ] AC Mains to SELV (Reinforced Insulation):
+  - Test Voltage: **3000V AC** or **4242V DC**
+  - Duration: **60 seconds**
+  - Leakage Current Limit: **< 0.25 mA**
+  - Result: **PASS** (No breakdown/arc)
 
 ### 3.2 High-Voltage DC Bus Isolation
 

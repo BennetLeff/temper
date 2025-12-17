@@ -161,16 +161,77 @@ add_executable(test_pll_only
 target_include_directories(test_pll_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pll_only m)
 
-# Integration tests (uses custom stubs like state machine tests)
-add_executable(test_integration_only
+
+# ADC Guard Tests
+add_executable(test_adc_guard_only
     ${UNITY_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_integration.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_integration.c
+    test_main_adc_guard.c
+    test_adc_guard.c
+    ../components/safety/adc_guard.c
+    ../components/hal/mock/mock_adc.c
 )
-target_include_directories(test_integration_only PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(test_integration_only m)
+target_include_directories(test_adc_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+
+
+# PWM Guard Tests
+add_executable(test_pwm_guard_only
+    ${UNITY_SOURCES}
+    test_main_pwm_guard.c
+    test_pwm_guard.c
+    ../components/safety/pwm_guard.c
+)
+target_include_directories(test_pwm_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+
+
+# NTC Guard Tests
+add_executable(test_ntc_guard_only
+    ${UNITY_SOURCES}
+    test_main_ntc_guard.c
+    test_ntc_guard.c
+    ../components/safety/ntc_guard.c
+)
+target_include_directories(test_ntc_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+target_link_libraries(test_ntc_guard_only m)
+
+# Fan Guard Tests
+add_executable(test_fan_guard_only
+    ${UNITY_SOURCES}
+    test_main_fan_guard.c
+    test_fan_guard.c
+    ../components/safety/fan_guard.c
+)
+target_include_directories(test_fan_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+
+# Coil Guard Tests
+add_executable(test_coil_guard_only
+    ${UNITY_SOURCES}
+    test_main_coil_guard.c
+    test_coil_guard.c
+    ../components/safety/coil_guard.c
+)
+target_include_directories(test_coil_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+target_link_libraries(test_coil_guard_only m)
+
 
 # ============================================================================
 # CTest integration

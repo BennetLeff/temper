@@ -58,10 +58,10 @@
 
 * Resonant capacitor: C = 1/(omega^2 * Leff)
 * For 35kHz and 60uH: C = 345nF
-.param C_RES=330n          ; Use standard value (shifts freq slightly)
+.param C_RES=300n          ; 1.8kW Redesign: Use 2x 150nF in parallel (300nF total)
 
 * Calculated resonant frequency with standard cap
-* f = 1/(2*pi*sqrt(L*C)) = 1/(2*pi*sqrt(60u*330n)) = 35.8kHz
+* f = 1/(2*pi*sqrt(L*C)) = 1/(2*pi*sqrt(60u*300n)) = 37.5kHz
 
 * Load parameters
 .param R_PAN=8             ; Cast iron reflected resistance
@@ -117,12 +117,12 @@ echo "  Coupling coefficient: 0.5"
 let l_eff_val = 80u * (1 - 0.5*0.5)
 print l_eff_val
 echo "  Effective inductance: ^"
-echo "  Resonant capacitor: 330 nF"
+echo "  Resonant capacitor: 300 nF"
 echo "  Reflected resistance: 8 ohm"
 echo ""
 
 * Calculate theoretical resonant frequency
-let f_theory = 1/(2*3.14159*sqrt(60u*330n))
+let f_theory = 1/(2*3.14159*sqrt(60u*300n))
 echo "THEORETICAL CALCULATIONS:"
 print f_theory
 echo "  Theoretical resonant frequency: ^ Hz"

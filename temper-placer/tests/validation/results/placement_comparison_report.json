@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-17T10:31:04.800239",
+  "generated_at": "2025-12-17T12:13:07.114407",
   "summary": {
     "total_projects": 5,
     "passed": 4,
@@ -27,7 +27,7 @@
         "boundary_loss": 54.95850372314453,
         "epochs": 100,
         "final_loss": 16615.8359375,
-        "time_s": 1.1256728172302246
+        "time_s": 0.5457088947296143
       },
       "comparison": {
         "wirelength_ratio": 0.7246136250928801,
@@ -52,7 +52,7 @@
         "boundary_loss": 54.71278381347656,
         "epochs": 100,
         "final_loss": 16787.79296875,
-        "time_s": 0.4768860340118408
+        "time_s": 0.5031588077545166
       },
       "comparison": {
         "wirelength_ratio": 0.67333586362818,
@@ -77,7 +77,7 @@
         "boundary_loss": 0.47245725989341736,
         "epochs": 100,
         "final_loss": 23722.369140625,
-        "time_s": 1.1440556049346924
+        "time_s": 0.6167399883270264
       },
       "comparison": {
         "wirelength_ratio": 1.1677545886603993,
@@ -102,7 +102,7 @@
         "boundary_loss": 38.4682502746582,
         "epochs": 100,
         "final_loss": 89517.5625,
-        "time_s": 1.1912848949432373
+        "time_s": 0.6566028594970703
       },
       "comparison": {
         "wirelength_ratio": 2.154018050235295,
@@ -129,7 +129,7 @@
         "boundary_loss": 0.24690447747707367,
         "epochs": 100,
         "final_loss": 10300.9970703125,
-        "time_s": 0.3294029235839844
+        "time_s": 0.310683012008667
       },
       "comparison": {
         "wirelength_ratio": 0.3211527503665411,

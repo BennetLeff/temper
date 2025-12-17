@@ -1,9 +1,9 @@
 # Temper Induction Cooker - Bill of Materials (BOM)
 
 **Project:** Temper - Production-grade Induction Cooker  
-**Version:** 1.0  
-**Date:** 2025-12-14  
-**Status:** PCB Ready
+**Version:** 1.1  
+**Date:** 2025-12-17  
+**Status:** 1.8kW Redesign Complete
 
 ---
 
@@ -24,6 +24,8 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
+| J_IN | AC Mains Inlet | 4798.9000 | Schurter | 1 | Panel Mount | IEC C20, 16A/250V |
+| L_EMI | EMI Filter Choke | B82725S2183N040 | EPCOS/TDK | 1 | Through-hole | 2x4.7mH, 18A |
 | D1, D2 | Ultrafast Rectifier | MUR1560 | ON Semiconductor | 2 | TO-220 | 15A 600V 35ns |
 | C_BUS1, C_BUS2 | Bus Capacitors | EKZE251ELL332MM40S | United Chemi-Con | 2 | Radial | 3300µF 250V 105°C |
 | R_BLEED1, R_BLEED2 | Bleeder Resistors | - | - | 2 | 2512 | 100kΩ 2W |
@@ -35,7 +37,7 @@
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | L_TANK | Tank Inductor | Custom | - | 1 | - | 80µH, 50A, ferrite |
-| C_TANK1, C_TANK2 | Tank Capacitor | FKP4T021505D00 | WIMA | 2 | Radial 37.5mm | 150nF 1000VDC MKP4 |
+| C_TANK1, C_TANK2 | Tank Capacitor | FKP1T021506B00 | WIMA | 2 | Radial 37.5mm | 150nF 1600VDC/700VAC FKP1 |
 | C_TANK1, C_TANK2 (alt) | Tank Capacitor (alt) | R76MR3150AA00M | KEMET | 2 | Radial | 150nF 800VDC R76 |
 
 ---
@@ -97,8 +99,16 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| CT1 | Current Transformer | Application Specific | - | 1 | Toroid | 1:1000, 100kHz BW |
-| R_BURDEN | Burden Resistor | RC2512FK-0750RL | Yageo | 1 | 2512 | 50Ω 1% 1W |
+| CT1 | Current Transformer | CST-1005 | Coilcraft | 1 | SMD | 1:1000, 200kHz BW |
+| R_BURDEN | Burden Resistor | RC1206FR-0766R5L | Yageo | 1 | 1206 | 66.5Ω 1% 1/4W (50A -> 3.3V) |
+
+### 4.4 Redundant Overcurrent Protection (DC Bus Shunt)
+
+| Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
+|-----|-------------|-------------|--------------|-----|---------|-------|
+| R_SHUNT | Current Shunt | WSLP25122L000FEA | Vishay | 1 | 2512 | 2mΩ 1% 3W |
+| U_DIFF | Diff Amp | INA240A1QPWRQ1 | Texas Instruments | 1 | TSSOP-8 | G=20, 400kHz BW |
+| U_COMP2 | Dual Comparator | LM393DR | Texas Instruments | 1 | SOIC-8 | Secondary OCP |
 
 ---
 
@@ -237,6 +247,17 @@
 
 ---
 
+## 11. Mechanical & Thermal
+
+| Ref | Description | Part Number | Manufacturer | Qty | Notes |
+|-----|-------------|-------------|--------------|-----|-------|
+| HS1 | Heatsink | AVID 62960 | Aavid | 1 | 100x80x40mm, ~1.0°C/W |
+| FAN1 | Cooling Fan | NF-A8 PWM | Noctua | 1 | 80mm 12V PWM |
+| TIM1 | Graphite Pad | EYG-S091210 | Panasonic | 2 | 0.1mm, 700W/mK (XY), no service req |
+| FUSE1 | Thermal Fuse | SF152E | NEC/Schott | 1 | 157°C 15A 250V |
+
+---
+
 ## BOM Summary
 
 ### By Category
@@ -269,6 +290,7 @@
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2025-12-14 | Initial release |
+| 1.1 | 2025-12-17 | Updated for 1.8kW redesign: CST-1005 CT, 66.5Ω burden, 300nF FKP1 caps |
 
 ---
 

@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# C/C++
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# KiCad
+*.lck
+*.bak
+*.kicad_prl
+*_autosave.kicad_sch
+*_autosave.kicad_pcb
+fp-info-cache
+
+# Simulations
+*.raw
+*.log
+*.txt
+!*results.txt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Temper Specific
+firmware/build/
+firmware/test/build/
+temper-placer/.pytest_cache/
+temper-placer/.ruff_cache/
+temper-placer/research/*.png
+temper-placer/research/*.svg
+.beads/
+.gemini/

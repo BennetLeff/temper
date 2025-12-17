@@ -46,7 +46,7 @@
 ***************************************************************************
 * Power stage operating point
 .param VDC=320               ; DC bus voltage (from rectified mains)
-.param F_SW=38k              ; Switching frequency (above resonance)
+.param F_SW=40k              ; 1.8kW Redesign: Switching frequency (above resonance)
 .param PERIOD={1/F_SW}       ; Switching period
 .param DUTY=0.47             ; Duty cycle per switch
 .param T_ON={PERIOD*DUTY}
@@ -58,7 +58,7 @@
 .param RG=5
 
 * Resonant tank parameters
-.param C_RES=330n            ; Resonant capacitor
+.param C_RES=300n            ; 1.8kW Redesign: 2x 150nF
 .param L1=80u                ; Coil inductance (uncoupled)
 .param K_COUPLE=0.5          ; Pan coupling coefficient
 .param L_EFF={L1*(1-K_COUPLE*K_COUPLE)}  ; ~60uH effective
@@ -293,11 +293,11 @@ echo ""
 
 echo "SYSTEM CONFIGURATION:"
 echo "  DC Bus Voltage: 320V"
-echo "  Switching Frequency: 38 kHz"
-echo "  Resonant Frequency: ~35.8 kHz"
+echo "  Switching Frequency: 40 kHz"
+echo "  Resonant Frequency: ~37.5 kHz"
 echo "  Duty Cycle: 47% per switch"
 echo "  Dead-Time: 500 ns"
-echo "  Resonant Capacitor: 330 nF"
+echo "  Resonant Capacitor: 300 nF"
 echo "  Effective Inductance: 60 uH"
 echo "  Reflected Resistance: 8 ohm (cast iron pan)"
 echo ""
