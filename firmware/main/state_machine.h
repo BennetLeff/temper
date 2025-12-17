@@ -146,6 +146,20 @@ const char* state_machine_get_state_string(system_state_t state);
 void state_machine_set_timer(bool enabled, uint32_t time_ms);
 
 /**
+ * @brief Set intensity level (heat rate limiter)
+ * 
+ * @param level Intensity level (1-10)
+ */
+void state_machine_set_intensity(uint8_t level);
+
+/**
+ * @brief Get current intensity level
+ * 
+ * @return Current intensity level (1-10)
+ */
+uint8_t state_machine_get_intensity(void);
+
+/**
  * @brief Force transition to specific state (for testing)
  * 
  * @param new_state Target state

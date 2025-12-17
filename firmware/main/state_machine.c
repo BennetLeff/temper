@@ -62,6 +62,7 @@ static struct {
     float target_temperature;
     uint32_t cooking_time_ms;
     bool cooking_timer_enabled;
+    uint8_t intensity_level;  /**< Heat rate limiter (1-10) */
     
     /* Non-blocking message display */
     bool message_pending;
@@ -187,6 +188,7 @@ void state_machine_init(void) {
     sm_ctx.target_temperature = 100.0f;
     sm_ctx.cooking_time_ms = 0;
     sm_ctx.cooking_timer_enabled = false;
+    sm_ctx.intensity_level = 10;
     
     /* Reset message display state */
     sm_ctx.message_pending = false;
@@ -301,6 +303,16 @@ const char* state_machine_get_state_string(system_state_t state) {
 void state_machine_set_timer(bool enabled, uint32_t time_ms) {
     sm_ctx.cooking_timer_enabled = enabled;
     sm_ctx.cooking_time_ms = time_ms;
+}
+
+void state_machine_set_intensity(uint8_t level) {
+    if (level >= 1 && level <= 10) {
+        sm_ctx.intensity_level = level;
+    }
+}
+
+uint8_t state_machine_get_intensity(void) {
+    return sm_ctx.intensity_level;
 }
 
 void state_machine_force_state(system_state_t new_state) {
@@ -519,16 +531,21 @@ static void state_preheat_update(void) {
         return;
     }
     
-    /* Aggressive power control */
+    /* Aggressive power control with intensity limiting */
+    uint8_t requested_power = 0;
     if (temp_error > 50.0f) {
-        power_set_level(100);
+        requested_power = 100;
     } else if (temp_error > 10.0f) {
-        power_set_level(50);
+        requested_power = 50;
     } else {
         /* Close to target: switch to precision control */
         transition_to(STATE_HEATING);
         return;
     }
+
+    float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+    uint8_t clamped_power = (uint8_t)fminf((float)requested_power, intensity_max[sm_ctx.intensity_level - 1] * 100.0f);
+    power_set_level(clamped_power);
 
     /* Safety checks */
     check_safety_interlocks();
@@ -581,7 +598,11 @@ static void state_heating_update(void) {
 
     /* Run PID controller */
     float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
-    power_set_level((uint8_t)pid_output);
+    
+    /* Apply intensity limiting */
+    float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+    float clamped_output = fminf(pid_output, intensity_max[sm_ctx.intensity_level - 1] * 100.0f);
+    power_set_level((uint8_t)clamped_output);
 
     /* Update PLL for ZVS tracking */
     pll_update();

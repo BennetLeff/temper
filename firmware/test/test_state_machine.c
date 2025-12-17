@@ -939,6 +939,138 @@ void test_sm_force_state(void) {
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
 }
 
+/**
+ * Test: Default intensity is 10
+ */
+void test_sm_init_default_intensity(void) {
+    setup_test();
+    TEST_ASSERT_EQUAL(10, state_machine_get_intensity());
+}
+
+/**
+ * Test: Set intensity within valid range
+ */
+void test_sm_set_intensity_valid(void) {
+    setup_test();
+    state_machine_set_intensity(5);
+    TEST_ASSERT_EQUAL(5, state_machine_get_intensity());
+}
+
+/**
+ * Test: Set intensity outside valid range is ignored
+ */
+void test_sm_set_intensity_invalid(void) {
+    setup_test();
+    state_machine_set_intensity(10);
+    
+    state_machine_set_intensity(0);
+    TEST_ASSERT_EQUAL(10, state_machine_get_intensity());
+    
+    state_machine_set_intensity(11);
+    TEST_ASSERT_EQUAL(10, state_machine_get_intensity());
+}
+
+/**
+ * Test: Intensity clamping in PREHEAT
+ */
+void test_sm_intensity_clamping_preheat(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    
+    /* Set low intensity (Level 2 = 20% power) */
+    state_machine_set_intensity(2);
+    
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    
+    /* In PREHEAT with high temp error, requested power is 100.
+     * With intensity level 2, it should be clamped to 20. */
+    mock_sm_set_pan_temperature(25.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    
+    TEST_ASSERT_EQUAL(20, mock_sm_get_power_level());
+}
+
+/**
+ * Test: Intensity clamping in HEATING
+ */
+void test_sm_intensity_clamping_heating(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    
+    /* Set medium intensity (Level 5 = 50% power) */
+    state_machine_set_intensity(5);
+    
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    /* Near target to enter HEATING */
+    mock_sm_set_pan_temperature(92.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+    
+    /* In HEATING, force low temperature so PID wants high power */
+    mock_sm_set_pan_temperature(25.0f);
+    state_machine_update();
+    
+    /* Power should be exactly 50 (Level 5) */
+    TEST_ASSERT_EQUAL(50, mock_sm_get_power_level());
+}
+
+/**
+ * Test: Intensity change during heating takes effect immediately
+ */
+void test_sm_intensity_change_during_heating(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    /* In PREHEAT, high temp error */
+    mock_sm_set_pan_temperature(25.0f);
+    state_machine_update();
+    
+    /* Default intensity 10: power should be 100 */
+    TEST_ASSERT_EQUAL(100, mock_sm_get_power_level());
+    
+    /* Change intensity to 3 during heating */
+    state_machine_set_intensity(3);
+    state_machine_update();
+    
+    /* Power should now be 30 */
+    TEST_ASSERT_EQUAL(30, mock_sm_get_power_level());
+}
+
 /* ============================================================================
  * Test Runner
  * ============================================================================ */
@@ -1014,4 +1146,12 @@ void run_state_machine_tests(void) {
     
     /* Force state */
     RUN_TEST(test_sm_force_state);
+
+    /* Intensity control tests */
+    RUN_TEST(test_sm_init_default_intensity);
+    RUN_TEST(test_sm_set_intensity_valid);
+    RUN_TEST(test_sm_set_intensity_invalid);
+    RUN_TEST(test_sm_intensity_clamping_preheat);
+    RUN_TEST(test_sm_intensity_clamping_heating);
+    RUN_TEST(test_sm_intensity_change_during_heating);
 }
