@@ -16,13 +16,11 @@
     },
     "build": {
       "name": "Build",
-      "description": "Implementation and execution agent using Mistral Devstral via OpenRouter",
-      "model": "mistralai/devstral-2512:free",
-      "provider": "openrouter",
-      "apiKey": "${OPENROUTER_API_KEY}",
-      "baseURL": "https://openrouter.ai/api/v1",
+      "description": "Implementation and execution agent using Claude Sonnet 4.5 via GitHub Copilot",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "provider": "github-copilot",
       "temperature": 0.5,
-      "maxTokens": 262144,
+      "maxTokens": 200000,
       "capabilities": [
         "implementation",
         "testing",
