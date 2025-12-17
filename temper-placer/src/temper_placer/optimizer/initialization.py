@@ -138,7 +138,7 @@ def compute_spectral_coordinates(
     # Skip first eigenvector (corresponds to eigenvalue ≈ 0, constant vector)
     # Take next n_dims eigenvectors for coordinates
     if n < n_dims + 1:
-        # Not enough eigenvectors, pad with zeros
+        # Not enough eigenvectors, take what we have and pad with zeros
         coords = eigenvectors[:, 1:n]
         padding = jnp.zeros((n, n_dims - (n - 1)))
         coords = jnp.concatenate([coords, padding], axis=1)
@@ -146,6 +146,43 @@ def compute_spectral_coordinates(
         coords = eigenvectors[:, 1 : n_dims + 1]
 
     return coords
+
+
+def find_connected_components(adjacency: Array) -> list[list[int]]:
+    """
+    Find connected components in the graph using BFS.
+
+    Args:
+        adjacency: (N, N) weighted adjacency matrix.
+
+    Returns:
+        List of lists, where each inner list contains indices of components
+        belonging to the same connected component.
+    """
+    n = adjacency.shape[0]
+    visited = np.zeros(n, dtype=bool)
+    components = []
+
+    # Use numpy for graph traversal
+    adj_np = np.array(adjacency)
+
+    for i in range(n):
+        if not visited[i]:
+            component = []
+            queue = [i]
+            visited[i] = True
+            while queue:
+                u = queue.pop(0)
+                component.append(u)
+                # Find neighbors (where weight > 0)
+                neighbors = np.where(adj_np[u] > 0)[0]
+                for v in neighbors:
+                    if not visited[v]:
+                        visited[v] = True
+                        queue.append(v)
+            components.append(component)
+
+    return components
 
 
 def scale_to_board(
@@ -257,23 +294,51 @@ class SpectralInitializer:
 
         Notes:
             - Deterministic for same netlist (no randomness).
-            - Handles disconnected components gracefully.
+            - Handles disconnected components by embedding each separately.
             - Single components placed at center.
         """
-        if len(netlist.components) == 0:
+        n = len(netlist.components)
+        if n == 0:
             return jnp.zeros((0, 2))
 
         # Build connectivity graph
         adjacency = build_adjacency_matrix(netlist)
 
-        # Compute spectral coordinates
-        spectral_coords = compute_spectral_coordinates(
-            adjacency,
-            n_dims=2,
-            normalized=self.normalized_laplacian,
-        )
+        # Find connected components
+        components = find_connected_components(adjacency)
 
-        # Scale to board bounds
-        positions = scale_to_board(spectral_coords, board, self.margin_fraction)
+        # Initialize all coordinates (using numpy for indexing)
+        all_coords = np.zeros((n, 2))
+
+        for comp_indices in components:
+            if len(comp_indices) <= 1:
+                # Single node or empty: leave at (0, 0)
+                continue
+
+            # Extract sub-adjacency matrix
+            indices = np.array(comp_indices)
+            sub_adj = adjacency[np.ix_(indices, indices)]
+
+            # Compute spectral coordinates for this component
+            sub_coords = compute_spectral_coordinates(
+                sub_adj,
+                n_dims=2,
+                normalized=self.normalized_laplacian,
+            )
+
+            # Normalize sub_coords to [-0.5, 0.5] range to keep them centered relative
+            # to each other before global scaling.
+            c_min = jnp.min(sub_coords, axis=0)
+            c_max = jnp.max(sub_coords, axis=0)
+            c_range = c_max - c_min
+            # Avoid division by zero
+            c_range = jnp.where(c_range < 1e-10, 1.0, c_range)
+
+            sub_coords_norm = (sub_coords - c_min) / c_range - 0.5
+            all_coords[indices] = np.array(sub_coords_norm)
+
+        # Scale all coordinates to board bounds
+        positions = scale_to_board(jnp.array(all_coords), board, self.margin_fraction)
 
         return positions
+

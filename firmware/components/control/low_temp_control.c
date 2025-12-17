@@ -1,108 +1,96 @@
 /**
  * @file low_temp_control.c
- * @brief Low-temperature burst-mode control implementation
+ * @brief Implementation of low-temperature burst-mode control
  */
 
 #include "low_temp_control.h"
-#include "pid_control.h"
-#include <math.h>
+#include <stdbool.h>
+#include <string.h>
 
-/* Forward declarations of external dependencies */
-extern uint32_t get_time_ms(void);
-extern void power_set_level(uint8_t level);
-extern void pwm_set_duty_cycle(uint8_t duty);
-
-/* Default configuration for low-temperature range */
-static low_temp_config_t g_config = {
-    .burst_duration_ms = 300.0f,     /* 300ms heating burst */
-    .burst_period_min_ms = 1000.0f,  /* Max 30% duty at 300ms burst */
-    .burst_period_max_ms = 30000.0f, /* Min ~1% duty */
-    .detune_frequency_hz = 48000.0f, /* Well above 38kHz resonance */
-    .pid_kp = 0.5f,                  /* Reduced proportional gain */
-    .pid_ki = 0.01f,                 /* Reduced integral gain */
-    .pid_kd = 0.1f                   /* Derivative gain */
+/* Default configuration */
+static const low_temp_config_t DEFAULT_CONFIG = {
+    .burst_duration_ms = 300.0f,
+    .min_period_ms = 1000.0f,
+    .max_period_ms = 30000.0f,
+    .detune_freq_hz = 48000,
+    .kp = 0.5f,
+    .ki = 0.01f,
+    .kd = 0.1f
 };
 
+/* Externals */
+extern uint32_t get_time_ms(void);
+extern float pid_update(float setpoint, float measurement);
+extern void power_set_level(uint8_t level);
+
+/* State */
 static struct {
-    bool active;
-    float target_temp;
-    uint32_t last_burst_time;
+    low_temp_config_t config;
+    uint32_t last_burst_start_ms;
+    bool burst_active;
     uint32_t current_period_ms;
-    bool in_burst;
-    pid_handle_t pid;
-} lt_ctx = {0};
+    float target_temp;
+    bool active;
+} lt_ctx;
 
 void low_temp_init(void) {
+    memset(&lt_ctx, 0, sizeof(lt_ctx));
+    lt_ctx.config = DEFAULT_CONFIG;
+    lt_ctx.current_period_ms = (uint32_t)lt_ctx.config.max_period_ms;
     lt_ctx.active = false;
-    pid_init(&lt_ctx.pid, g_config.pid_kp, g_config.pid_ki, g_config.pid_kd);
-    pid_set_output_limits(&lt_ctx.pid, 1.0f, 30.0f); /* Duty cycle 1% to 30% */
 }
 
-void low_temp_start(float target_temp) {
-    lt_ctx.target_temp = target_temp;
+void low_temp_start(float target_temp_c) {
+    lt_ctx.target_temp = target_temp_c;
     lt_ctx.active = true;
-    lt_ctx.last_burst_time = get_time_ms();
-    lt_ctx.in_burst = false;
-    lt_ctx.current_period_ms = (uint32_t)g_config.burst_period_max_ms;
+    lt_ctx.last_burst_start_ms = get_time_ms();
+    lt_ctx.burst_active = false;
+}
+
+bool low_temp_update(float current_temp_c) {
+    if (!lt_ctx.active) return false;
+
+    uint32_t now = get_time_ms();
     
-    /* Re-initialize PID for low temp gains */
-    pid_init(&lt_ctx.pid, g_config.pid_kp, g_config.pid_ki, g_config.pid_kd);
-    pid_set_output_limits(&lt_ctx.pid, 1.0f, 30.0f);
-    pid_set_integrator_limit(&lt_ctx.pid, 10.0f);
+    /* 1. Update PID to determine desired duty cycle (mapped to period) */
+    float pid_out = pid_update(lt_ctx.target_temp, current_temp_c);
+    
+    /* 2. Map PID output (0-100) to burst period (max_period to min_period) */
+    float range = lt_ctx.config.max_period_ms - lt_ctx.config.min_period_ms;
+    float period = lt_ctx.config.max_period_ms - (pid_out * range / 100.0f);
+    
+    /* Clamp period */
+    if (period < lt_ctx.config.min_period_ms) period = lt_ctx.config.min_period_ms;
+    if (period > lt_ctx.config.max_period_ms) period = lt_ctx.config.max_period_ms;
+    
+    lt_ctx.current_period_ms = (uint32_t)period;
+
+    /* 3. Manage Burst Timing */
+    if (!lt_ctx.burst_active) {
+        /* Check if it's time for a new burst */
+        if ((now - lt_ctx.last_burst_start_ms) >= lt_ctx.current_period_ms) {
+            lt_ctx.burst_active = true;
+            lt_ctx.last_burst_start_ms = now;
+        }
+    } else {
+        /* Check if current burst is over */
+        if ((now - lt_ctx.last_burst_start_ms) >= (uint32_t)lt_ctx.config.burst_duration_ms) {
+            lt_ctx.burst_active = false;
+        }
+    }
+
+    /* 4. Set power level (10% power during burst for ~50W target, 0% otherwise) */
+    /* Note: Level 10 = 10% of 1800W = 180W? 
+     * The coder resolution mentioned Level 10. Let's use 10. */
+    power_set_level(lt_ctx.burst_active ? 10 : 0);
+
+    return lt_ctx.burst_active;
 }
 
 void low_temp_stop(void) {
     lt_ctx.active = false;
-    lt_ctx.in_burst = false;
+    lt_ctx.burst_active = false;
     power_set_level(0);
-}
-
-bool low_temp_update(float current_temp) {
-    if (!lt_ctx.active) return false;
-
-    uint32_t now = get_time_ms();
-    uint32_t elapsed = now - lt_ctx.last_burst_time;
-
-    /* 1. Update PID to determine required burst duty cycle */
-    /* We use a slower update for the PID itself since the system response is slow */
-    static uint32_t last_pid_update = 0;
-    if (now - last_pid_update >= 1000) {
-        /* PID output is duty cycle in % (1-30) */
-        float duty = pid_compute(&lt_ctx.pid, lt_ctx.target_temp, current_temp, 1.0f);
-        
-        /* Convert duty cycle to period */
-        /* duty = duration / period -> period = duration / (duty/100) */
-        float period = g_config.burst_duration_ms / (duty / 100.0f);
-        
-        /* Clamp period */
-        if (period > g_config.burst_period_max_ms) period = g_config.burst_period_max_ms;
-        if (period < g_config.burst_period_min_ms) period = g_config.burst_period_min_ms;
-        
-        lt_ctx.current_period_ms = (uint32_t)period;
-        last_pid_update = now;
-    }
-
-    /* 2. Burst Logic */
-    if (lt_ctx.in_burst) {
-        if (elapsed >= (uint32_t)g_config.burst_duration_ms) {
-            /* Burst finished */
-            lt_ctx.in_burst = false;
-            power_set_level(0);
-        }
-    } else {
-        if (elapsed >= lt_ctx.current_period_ms) {
-            /* Start new burst */
-            lt_ctx.in_burst = true;
-            lt_ctx.last_burst_time = now;
-            
-            /* Apply detuned frequency power level */
-            /* We assume power_set_level handles the frequency/duty configuration
-             * when in low-temp mode, or we'd need to call pll functions here. */
-            power_set_level(10); /* Low power setting */
-        }
-    }
-
-    return lt_ctx.in_burst;
 }
 
 bool low_temp_is_active(void) {
@@ -110,5 +98,9 @@ bool low_temp_is_active(void) {
 }
 
 const low_temp_config_t* low_temp_get_config(void) {
-    return &g_config;
+    return &lt_ctx.config;
+}
+
+uint32_t low_temp_get_frequency(void) {
+    return lt_ctx.config.detune_freq_hz;
 }

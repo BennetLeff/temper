@@ -28,6 +28,9 @@ void pwm_set_duty_cycle(uint8_t duty) {
  * Tests
  * ============================================================================ */
 
+void setUp(void) {}
+void tearDown(void) {}
+
 static void low_temp_test_setup(void) {
     s_time_ms = 0;
     s_power_level = 0;

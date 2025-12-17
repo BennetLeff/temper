@@ -863,6 +863,9 @@ static void transition_to(system_state_t new_state) {
     sm_ctx.state_entry_time = get_time_ms();
     sm_ctx.state_duration = 0;
 
+    /* Reset burst mode on any transition */
+    low_temp_stop();
+
 #ifdef ESP_PLATFORM
     ESP_LOGI(TAG, "State transition: %s -> %s",
              state_machine_get_state_string(sm_ctx.previous_state),

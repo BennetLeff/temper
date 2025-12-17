@@ -38,6 +38,7 @@ from temper_placer.losses.base import (
     create_value_and_grad_fn_with_breakdown,
 )
 from temper_placer.optimizer.config import OptimizerConfig
+from temper_placer.optimizer.initialization import SpectralInitializer
 from temper_placer.optimizer.scheduler import (
     get_temperature,
     get_learning_rate,
@@ -264,16 +265,25 @@ def initialize_training_state(
         positions = initial_state.positions
         rotation_logits = initial_state.rotation_logits
     else:
-        # Random initialization in absolute coordinates
-        rng_key, init_key = jax.random.split(rng_key)
-        state = PlacementState.random_init(
-            n_components=netlist.n_components,
-            board_width=board.width,
-            board_height=board.height,
-            key=init_key,
-            origin=board.origin,  # Use board origin for absolute coordinates
-        )
-        positions = state.positions
+        # Use configured initialization method
+        if config.initialization.method == "spectral":
+            initializer = SpectralInitializer(
+                normalized_laplacian=config.initialization.spectral_normalized,
+                margin_fraction=config.initialization.spectral_margin,
+            )
+            positions = initializer.initialize(netlist, board)
+        else:
+            # Default: Random initialization in absolute coordinates
+            rng_key, init_key = jax.random.split(rng_key)
+            state = PlacementState.random_init(
+                n_components=netlist.n_components,
+                board_width=board.width,
+                board_height=board.height,
+                key=init_key,
+                origin=board.origin,  # Use board origin for absolute coordinates
+            )
+            positions = state.positions
+
         # Start with uniform logits (equal probability for all rotations)
         rotation_logits = jnp.zeros((netlist.n_components, 4))
 

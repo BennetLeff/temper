@@ -1,2 +1,6 @@
 [cli]
+# Default model used by the Codex CLI
 model = "gpt-5.2"
+
+# Use the OpenAI provider for model resolution.
+provider = "openai"

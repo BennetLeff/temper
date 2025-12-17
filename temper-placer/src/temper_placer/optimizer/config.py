@@ -113,6 +113,22 @@ class EarlyStoppingConfig:
 
 
 @dataclass
+class InitializationConfig:
+    """
+    Component placement initialization configuration.
+
+    Attributes:
+        method: Initialization method ("random" or "spectral").
+        spectral_normalized: If True, use normalized Laplacian for spectral.
+        spectral_margin: Fraction of board to leave as margin for spectral.
+    """
+
+    method: str = "random"  # "random" or "spectral"
+    spectral_normalized: bool = True
+    spectral_margin: float = 0.1
+
+
+@dataclass
 class OptimizerConfig:
     """
     Complete optimizer configuration.
@@ -125,6 +141,7 @@ class OptimizerConfig:
         epochs: Total number of training epochs.
         seed: Random seed for reproducibility.
         batch_size: Not used for placement (always full batch), reserved for future.
+        initialization: Initialization configuration.
         temperature: Gumbel-Softmax temperature schedule.
         learning_rate: Learning rate schedule.
         curriculum_phases: List of curriculum phases (optional).
@@ -142,6 +159,9 @@ class OptimizerConfig:
     epochs: int = 8000
     seed: int = 42
     batch_size: int = 1  # Full batch for placement
+
+    # Initialization
+    initialization: InitializationConfig = field(default_factory=InitializationConfig)
 
     # Schedules
     temperature: TemperatureSchedule = field(default_factory=TemperatureSchedule)
