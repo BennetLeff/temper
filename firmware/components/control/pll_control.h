@@ -46,6 +46,9 @@ typedef struct {
     uint32_t min_freq;      /**< Minimum frequency limit */
     uint32_t max_freq;      /**< Maximum frequency limit */
     bool locked;            /**< PLL lock status */
+    uint32_t lock_count;    /**< Consecutive cycles within lock tolerance */
+    uint32_t unlock_count;  /**< Consecutive cycles outside lock tolerance */
+    float resonant_freq;    /**< Expected resonant frequency (Hz) */
 } pll_context_t;
 
 /**
@@ -135,6 +138,32 @@ void pll_reset(void);
  * @brief Get PLL context for debugging/monitoring
  */
 const pll_context_t* pll_get_context(void);
+
+/**
+ * @brief Set expected resonant frequency for boundary checking
+ *
+ * @param freq_hz Expected resonant frequency in Hz
+ */
+void pll_set_resonant_frequency(float freq_hz);
+
+/**
+ * @brief Check if frequency is within safe operating bounds
+ *
+ * Returns true if current frequency is within acceptable range
+ * of the resonant frequency (f_res - 5kHz to f_res + 10kHz).
+ *
+ * @return true if frequency is safe, false if out of bounds
+ */
+bool pll_is_frequency_safe(void);
+
+/**
+ * @brief Get detailed lock status
+ *
+ * @param lock_cycles Output: number of consecutive locked cycles
+ * @param phase_error_us Output: current phase error in microseconds
+ * @return true if locked
+ */
+bool pll_get_lock_status(uint32_t *lock_cycles, float *phase_error_us);
 
 #ifdef __cplusplus
 }

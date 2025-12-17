@@ -35,7 +35,10 @@ typedef enum {
     SAFETY_OVER_CURRENT,
     SAFETY_FAN_FAILURE,
     SAFETY_SENSOR_FAULT,
-    SAFETY_INTERLOCK_TRIP
+    SAFETY_INTERLOCK_TRIP,
+    SAFETY_PLL_UNLOCK,           /**< PLL lost lock - frequency unstable */
+    SAFETY_FREQ_OUT_OF_BOUNDS,   /**< Frequency outside safe operating range */
+    SAFETY_ZVS_LOSS              /**< Zero voltage switching failure */
 } safety_status_t;
 
 /**
@@ -99,10 +102,31 @@ bool check_sensors_valid(void);
 
 /**
  * @brief Run comprehensive safety check
- * 
+ *
  * @return SAFETY_OK if all checks pass, fault code otherwise
  */
 safety_status_t run_safety_check(void);
+
+/**
+ * @brief Check PLL lock status and frequency bounds
+ *
+ * Per ticket temper-1lj.3: Monitors PLL for:
+ * - Lock status (must maintain lock during operation)
+ * - Frequency within safe bounds (f_res ± margins)
+ *
+ * @return SAFETY_OK, SAFETY_PLL_UNLOCK, or SAFETY_FREQ_OUT_OF_BOUNDS
+ */
+safety_status_t check_pll_safety(void);
+
+/**
+ * @brief Check ZVS operation status
+ *
+ * Per ticket temper-1lj.3: Monitors for hard switching events
+ * that indicate ZVS failure and can cause IGBT thermal runaway.
+ *
+ * @return SAFETY_OK, SAFETY_ZVS_LOSS, or SAFETY_OK with power reduction
+ */
+safety_status_t check_zvs_safety(void);
 
 /**
  * @brief Trigger emergency hardware shutdown

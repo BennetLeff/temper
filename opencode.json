@@ -50,7 +50,7 @@
       "tools": { "write": true, "edit": true, "bash": true }
     },
     "fast-build": {
-      "mode": "subagent",
+      "mode": "primary",
       "model": "openrouter/minimax/minimax-m2",
       "description": "Fast build agent using MiniMax M2",
       "temperature": 0.3,

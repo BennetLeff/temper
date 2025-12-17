@@ -35,7 +35,8 @@
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | L_TANK | Tank Inductor | Custom | - | 1 | - | 80µH, 50A, ferrite |
-| C_TANK | Tank Capacitor | - | - | 1-3 | - | 330nF total, 1200V |
+| C_TANK1, C_TANK2 | Tank Capacitor | FKP4T021505D00 | WIMA | 2 | Radial 37.5mm | 150nF 1000VDC MKP4 |
+| C_TANK1, C_TANK2 (alt) | Tank Capacitor (alt) | R76MR3150AA00M | KEMET | 2 | Radial | 150nF 800VDC R76 |
 
 ---
 
@@ -127,14 +128,38 @@
 | U_WDT | Watchdog Timer | TPS3823-33DBVR | Texas Instruments | 1 | SOT-23-5 | 1.6s timeout |
 | C_WDT | Decoupling | GRM155R71H104KE14D | Murata | 1 | 0402 | 100nF 50V X7R |
 
-### 5.4 OVP Voltage Divider
+### 5.4 IGBT Desaturation Protection
+
+| Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
+|-----|-------------|-------------|--------------|-----|---------|-------|
+| D_DESAT_HS | DESAT Diode High-Side | STTH1R06 | STMicroelectronics | 1 | DO-201AD | 1200V 1A Fast |
+| D_DESAT_LS | DESAT Diode Low-Side | STTH1R06 | STMicroelectronics | 1 | DO-201AD | 1200V 1A Fast |
+| R_DESAT1_HS | Current Limit HS | ERJ-8ENF1004V | Panasonic | 1 | 1206 | 1MΩ 1% 0.25W |
+| R_DESAT1_LS | Current Limit LS | ERJ-8ENF1004V | Panasonic | 1 | 1206 | 1MΩ 1% 0.25W |
+| C_BLANK_HS | Blanking Cap HS | GRM1885C2A101JA01D | Murata | 1 | 0603 | 100pF 100V C0G |
+| C_BLANK_LS | Blanking Cap LS | GRM1885C2A101JA01D | Murata | 1 | 0603 | 100pF 100V C0G |
+| R_DIV1_HS | Voltage Divider High | ERJ-8ENF2203V | Panasonic | 1 | 1206 | 220kΩ 1% |
+| R_DIV1_LS | Voltage Divider High | ERJ-8ENF2203V | Panasonic | 1 | 1206 | 220kΩ 1% |
+| R_DIV2_HS | Voltage Divider Low | RC0603FR-0722KL | Yageo | 1 | 0603 | 22kΩ 1% |
+| R_DIV2_LS | Voltage Divider Low | RC0603FR-0722KL | Yageo | 1 | 0603 | 22kΩ 1% |
+| D_TVS_HS | Clamp Diode HS | SMBJ3.0CA | Littelfuse | 1 | SMB | 3.0V TVS |
+| D_TVS_LS | Clamp Diode LS | SMBJ3.0CA | Littelfuse | 1 | SMB | 3.0V TVS |
+| C_FILT_HS | Filter Cap HS | GRM155R71H104KE14D | Murata | 1 | 0402 | 100pF |
+| C_FILT_LS | Filter Cap LS | GRM155R71H104KE14D | Murata | 1 | 0402 | 100pF |
+| U_DESAT | Dual Comparator | LM393DR | Texas Instruments | 1 | SOIC-8 | 2 comparators |
+| R_REF1 | Ref Divider High | RC0603FR-074K7L | Yageo | 1 | 0603 | 4.7kΩ 1% |
+| R_REF2 | Ref Divider Low | RC0603FR-071KL | Yageo | 1 | 0603 | 1kΩ 1% |
+| R_PULL_HS | Pull-up Resistor HS | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ |
+| R_PULL_LS | Pull-up Resistor LS | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ |
+
+### 5.5 OVP Voltage Divider
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | R_OVP1-3 | HV Divider High | CRCW12061M00FKEA | Vishay | 3 | 1206 | 1MΩ 200V 1% |
 | R_OVP4 | HV Divider Low | CRCW120630K0FKEA | Vishay | 1 | 1206 | 30kΩ 1% |
 
-### 5.5 Thermal Protection
+### 5.6 Thermal Protection
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|

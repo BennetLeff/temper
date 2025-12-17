@@ -129,12 +129,12 @@ This frequency shift enables **pan detection**: measuring resonant frequency or 
 - High ripple current capability
 - Stable over temperature
 
-**Selected:** 330 nF, 630V polypropylene film
+**Selected:** 330 nF, 800V polypropylene film
 
 | Parameter | Specification |
 |-----------|---------------|
 | Capacitance | 330 nF ±5% |
-| Voltage Rating | 630 VDC |
+| Voltage Rating | 800 VDC minimum (1000V preferred) |
 | Dielectric | Polypropylene (PP) |
 | ESR | < 10 mΩ |
 | Ripple Current | > 15 A RMS |
@@ -142,13 +142,19 @@ This frequency shift enables **pan detection**: measuring resonant frequency or 
 
 **Voltage stress calculation:**
 ```
-V_cap_peak = I_peak × X_C
-           = 40A × (1 / (2π × 38kHz × 330nF))
-           = 40A × 12.7Ω
-           = 508V peak
+V_cap_peak_steady = I_peak × X_C
+                  = 40A × (1 / (2π × 38kHz × 330nF))
+                  = 40A × 12.7Ω
+                  = 508V peak (steady-state)
+
+V_cap_peak_transient = 648V (observed in startup simulation)
 ```
 
-630V rating provides adequate margin.
+**Voltage rating justification:**
+- Steady-state: 508V peak
+- Transient: 648V peak (startup overshoot)
+- 800V rating provides 23% margin over worst-case transient
+- 1000V rating provides 54% margin (preferred for production)
 
 #### Induction Coil (L1)
 
@@ -324,13 +330,17 @@ Power is controlled by varying switching frequency:
 
 | Stress | Value | Rating | Margin |
 |--------|-------|--------|--------|
-| Voltage (peak) | ~480 V | 630 V | 31% |
-| Voltage (RMS) | ~340 V | 400 V AC | 18% |
+| Voltage (peak steady) | 508 V | 800 V | 58% |
+| Voltage (peak transient) | 648 V | 800 V | 23% |
+| Voltage (RMS) | ~340 V | 500 V AC | 47% |
 | Current (RMS) | 28 A | 15 A | **NEED 2 CAPS** |
 
-**Note:** 630V is the industry standard for induction cookers on 230VAC mains. The 648V seen in simulation was a startup transient; steady-state operation with ZVS stays under 500V.
+**CRITICAL SAFETY NOTE:** Initial design with 630V rated capacitors had NEGATIVE margin during startup transients (648V on 630V rated part = -2.9% margin). This is a fire hazard and has been corrected to 800V minimum rating.
 
-**Recommendation:** Use 2× 150nF/630V capacitors in parallel to share current, or select capacitor with higher ripple current rating.
+**Recommendation:** Use 2× 150nF/800V (or 1000V) capacitors in parallel to:
+1. Share ripple current (28A / 2 = 14A per cap)
+2. Provide redundancy
+3. Ensure adequate voltage margin on transients
 
 ### 7.2 Induction Coil
 
@@ -415,7 +425,8 @@ Monitor resonant tank current during low-power pulse:
 
 | Item | Part Number | Qty | Notes |
 |------|-------------|-----|-------|
-| Resonant capacitor | WIMA MKP4 330nF/630V | 2 | In parallel for current sharing |
+| Resonant capacitor | WIMA MKP4 150nF/1000V (FKP4T021505D00) | 2 | In parallel for current sharing |
+| Resonant capacitor (alt) | KEMET R76 150nF/800V (R76MR3150AA00M) | 2 | Alternative if 1000V unavailable |
 | Induction coil | Custom | 1 | 80µH Litz wire |
 | High-side IGBT | IKW40N120H3 | 1 | With heatsink |
 | Low-side IGBT | IKW40N120H3 | 1 | With heatsink |

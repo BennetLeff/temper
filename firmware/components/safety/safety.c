@@ -21,6 +21,10 @@
 #include <stdbool.h>
 #include <math.h>
 
+/* Control module includes for safety monitoring */
+#include "../control/pll_control.h"
+#include "../control/zvs_monitor.h"
+
 /* ESP-IDF includes (available when building with ESP-IDF) */
 #ifdef ESP_PLATFORM
 #include "esp_task_wdt.h"
@@ -318,7 +322,69 @@ safety_status_t run_safety_check(void) {
     if (!check_sensors_valid()) {
         return SAFETY_SENSOR_FAULT;
     }
-    
+
+    /* PLL safety check (per ticket temper-1lj.3) */
+    safety_status_t pll_status = check_pll_safety();
+    if (pll_status != SAFETY_OK) {
+        return pll_status;
+    }
+
+    /* ZVS safety check (per ticket temper-1lj.3) */
+    safety_status_t zvs_status = check_zvs_safety();
+    if (zvs_status != SAFETY_OK) {
+        return zvs_status;
+    }
+
+    return SAFETY_OK;
+}
+
+/**
+ * @brief Check PLL lock status and frequency bounds
+ *
+ * Per ticket temper-1lj.3: Critical safety check to prevent
+ * hard switching and thermal runaway.
+ */
+safety_status_t check_pll_safety(void) {
+    /* Check if PLL is locked */
+    if (!pll_is_locked()) {
+#ifdef ESP_PLATFORM
+        ESP_LOGW(TAG, "PLL unlock detected");
+#endif
+        return SAFETY_PLL_UNLOCK;
+    }
+
+    /* Check frequency bounds */
+    if (!pll_is_frequency_safe()) {
+#ifdef ESP_PLATFORM
+        ESP_LOGE(TAG, "Frequency outside safe operating bounds");
+#endif
+        return SAFETY_FREQ_OUT_OF_BOUNDS;
+    }
+
+    return SAFETY_OK;
+}
+
+/**
+ * @brief Check ZVS operation status
+ *
+ * Per ticket temper-1lj.3: Monitors for hard switching that
+ * causes 10-100x switching loss increase.
+ */
+safety_status_t check_zvs_safety(void) {
+    /* Check ZVS status */
+    zvs_status_t zvs_status = zvs_get_status();
+
+    if (zvs_status == ZVS_FAULT) {
+#ifdef ESP_PLATFORM
+        ESP_LOGE(TAG, "ZVS fault - critical hard switching detected");
+#endif
+        return SAFETY_ZVS_LOSS;
+    }
+
+    /* Note: ZVS_WARNING and ZVS_POWER_REDUCTION are handled by the
+     * control loop and do not trigger safety shutdown, but power
+     * reduction is applied automatically by zvs_get_power_factor() */
+
     return SAFETY_OK;
 }
 
