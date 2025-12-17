@@ -12,53 +12,50 @@
 ***************************************************************************
 * Power Supplies
 ***************************************************************************
-* Rectified AC mains (120V RMS -> ~170V peak -> 300-340V DC after doubler/bridge)
-* Using 300V DC bus for induction cooker
+* Rectified AC mains (300V DC bus)
 VDC_BUS VDC 0 DC 300
 
 * Gate driver supply (15V for IGBT gate drive)
-VDD_HS VDDA 0 DC 15.0
+* Low Side Supply (Referenced to Ground)
 VDD_LS VDDB 0 DC 15.0
 
-* Primary side logic supply (5V for microcontroller/UCC21550 logic)
+* High Side Supply (Floating, Referenced to SW Node)
+* This simulates the isolated supply or bootstrap capacitor
+VDD_HS VDDA SW DC 15.0
+
+* Primary side logic supply (5V)
 VCC VCCI 0 DC 5.0
 
 ***************************************************************************
 * Input PWM Signals from Microcontroller
 ***************************************************************************
 * Operating frequency: 50kHz (20us period)
-* Dead time: 1us between high-side and low-side to prevent shoot-through
+* Dead time: 1us
 * Duty cycle: 45% each (9us on, 11us off including dead time)
 
-* High-side input - 50kHz, 45% duty cycle
-* ON from 0 to 9us, OFF from 9us to 20us
+* High-side input
 VIN_HS INA 0 PULSE(0 3.3 0 10n 10n 9u 20u)
 
-* Low-side input - 50kHz, 45% duty cycle, phase-shifted with dead time
-* OFF from 0 to 10us (includes dead time), ON from 10us to 19us, OFF from 19us to 20us
+* Low-side input (Phase shifted)
+* Start at 10us (180 deg phase shift)
 VIN_LS INB 0 PULSE(0 3.3 10u 10n 10n 9u 20u)
 
-* Disable input - tied low for normal operation
+* Disable input
 VDIS DIS 0 DC 0
 
 ***************************************************************************
 * UCC21550A Isolated Gate Driver
 ***************************************************************************
-* Drives both high-side and low-side IGBTs with isolation
 XUCC21550 INA INB VCCI 0 DIS DT_PIN NC1 VCCI 0 GATE_LS VDDB NC2 NC3 SW GATE_HS VDDA UCC21550A
 
-* Dead time programming resistor (optional - using input signal dead time instead)
 R_DT DT_PIN 0 1MEG
 
 ***************************************************************************
 * Gate Drive Circuits
 ***************************************************************************
 * High-side gate drive
-* Gate resistor for controlled di/dt and dv/dt
 R_G_HS GATE_HS N_G_HS 3.3
-* Series inductance for EMI reduction
 L_G_HS N_G_HS HS_GATE 10n
-* Gate-source resistor for noise immunity
 R_GS_HS HS_GATE SW 10k
 
 * Low-side gate drive
@@ -69,206 +66,95 @@ R_GS_LS LS_GATE 0 10k
 ***************************************************************************
 * High-Side IGBT (IKW40N120H3)
 ***************************************************************************
-* Connected in half-bridge configuration
 XQ_HS VDC HS_GATE SW IKW40N120H3
-
-* Gate-emitter decoupling capacitor
 C_GE_HS HS_GATE SW 1n
 
 ***************************************************************************
 * Low-Side IGBT (IKW40N120H3)
 ***************************************************************************
 XQ_LS SW LS_GATE 0 IKW40N120H3
-
-* Gate-emitter decoupling capacitor
 C_GE_LS LS_GATE 0 1n
 
 ***************************************************************************
 * DC Bus Decoupling and Snubber
 ***************************************************************************
-* Bus capacitor (electrolytic + film combination)
 C_BUS_ELEC VDC 0 100u IC=300
 R_BUS_ESR VDC N_BUS 0.05
 C_BUS_FILM N_BUS 0 2.2u
 
-* RC snubber across high-side IGBT to reduce dv/dt stress
 R_SNUB_HS VDC N_SNUB_HS 47
 C_SNUB_HS N_SNUB_HS SW 22n
 
-* RC snubber across low-side IGBT
 R_SNUB_LS SW N_SNUB_LS 47
 C_SNUB_LS N_SNUB_LS 0 22n
 
 ***************************************************************************
 * Resonant Load (Induction Coil)
 ***************************************************************************
-* Series resonant LC circuit representing the induction coil and work piece
-* Typical values for induction cooker:
-* L = 100uH (coil inductance)
-* C = 0.22uF (resonant capacitor)
-* R = 0.5 ohm (equivalent series resistance of coil + load)
-*
-* Resonant frequency: f0 = 1/(2*pi*sqrt(LC)) = ~34kHz
-* Operating above resonance (50kHz) for ZVS-like soft switching
+* Series resonant LC
+* L=100uH, C=0.22uF -> f0=34kHz
+* Driving at 50kHz (Inductive region, ZVS)
 
-* Resonant capacitor (AC-rated film capacitor)
 C_RES SW N_COIL 0.22u IC=0
-
-* Induction coil inductance
 L_COIL N_COIL N_LOAD 100u IC=0
-
-* Coil series resistance (copper losses)
 R_COIL N_LOAD LOAD 0.3
-
-* Work piece equivalent resistance (eddy current heating)
 R_LOAD LOAD 0 0.2
-
-* Coil interwinding capacitance
 C_COIL_PAR N_COIL 0 20p
 
 ***************************************************************************
 * Parasitic Elements
 ***************************************************************************
-* Bus bar inductance (important for switching transients)
 L_BUS_P VDC N_VDC_LOCAL 20n
 L_BUS_N 0 N_GND_LOCAL 20n
-
-* Connect to IGBT through parasitic inductance
 R_BUS_P N_VDC_LOCAL VDC 0.001
 R_BUS_N N_GND_LOCAL 0 0.001
 
 ***************************************************************************
-* Measurement Points and Current Probes
+* Measurement Points
 ***************************************************************************
-* DC bus current measurement
 V_SENSE_DC N_VDC_LOCAL VDC 0
-
-* Load current measurement
 V_SENSE_LOAD LOAD N_LOAD_SENSE 0
 R_LOAD_SENSE N_LOAD_SENSE 0 0.001
 
 ***************************************************************************
 * Simulation Control
 ***************************************************************************
-* Transient analysis - simulate 10 switching cycles for steady state
-* Time step: 10ns for accurate switching capture
-* Stop time: 200us (10 cycles at 50kHz)
+* Run for 200us (10 cycles)
 .tran 10n 200u 0 10n
 
 * Initial conditions
 .ic V(SW)=0 V(VDC)=300 V(HS_GATE)=0 V(LS_GATE)=0
 
-* Convergence aids
-.options gmin=1e-12
-.options abstol=1e-9
-.options reltol=0.001
-.options method=gear
+.options gmin=1e-12 abstol=1e-9 reltol=0.001 method=gear
 
 ***************************************************************************
 * Output Control
 ***************************************************************************
-* Save key waveforms
 .save V(INA) V(INB) V(GATE_HS) V(GATE_LS) V(HS_GATE) V(LS_GATE)
 .save V(SW) V(N_COIL) V(LOAD)
 .save I(L_COIL) I(V_SENSE_DC) I(V_SENSE_LOAD)
-.save I(XQ_HS.B_ic) I(XQ_LS.B_ic)
 
-***************************************************************************
-* Analysis and Plotting
-***************************************************************************
+* Print results
 .control
 run
-
-* Set plot parameters
 set hcopydevtype=postscript
 set color0=white
 set color1=black
-set color2=red
-set color3=blue
-set color4=green
 
-* Plot 1: Input signals from microcontroller
-plot V(INA) V(INB)+5 title 'PWM Input Signals (INA, INB+5V)'
-
-* Plot 2: Gate driver outputs
-plot V(GATE_HS) V(GATE_LS) title 'Gate Driver Outputs (before gate resistors)'
-
-* Plot 3: Actual gate-emitter voltages
-plot V(HS_GATE,SW) V(LS_GATE) title 'IGBT Gate-Emitter Voltages'
-
-* Plot 4: Switch node and resonant capacitor voltage
-plot V(SW) V(N_COIL) title 'Switch Node and Resonant Cap Voltage'
-
-* Plot 5: Load voltage and current
-plot V(LOAD) I(L_COIL) title 'Load Voltage and Coil Current'
-
-* Plot 6: DC bus current
-plot I(V_SENSE_DC) title 'DC Bus Current'
-
-* Plot 7: Collector-emitter voltages
-plot V(VDC,SW) V(SW) title 'High-Side VCE and Low-Side VCE'
-
-*************************************************************
-* Measurements
-*************************************************************
 echo "===== IKW40N120H3 Induction Cooker Test Results ====="
-echo ""
 
-* Gate drive timing measurements
-meas tran t_ina_rise WHEN V(INA)=1.65 RISE=3
-meas tran t_gate_hs_rise WHEN V(HS_GATE,SW)=7.5 RISE=3
-meas tran prop_delay_hs PARAM='t_gate_hs_rise - t_ina_rise'
-
-echo "High-Side Propagation Delay (driver + gate resistor):"
-print prop_delay_hs
-
-* Dead time measurement
-meas tran t_ls_fall WHEN V(LS_GATE)=7.5 FALL=3
-meas tran t_hs_rise WHEN V(HS_GATE,SW)=7.5 RISE=3
-meas tran dead_time_ls_hs PARAM='t_hs_rise - t_ls_fall'
-
-echo "Dead Time (LS fall to HS rise):"
-print dead_time_ls_hs
-
-* Switch node voltage swing
+* Measure switching node voltage
 meas tran v_sw_max MAX V(SW) FROM=100u TO=120u
-meas tran v_sw_min MIN V(SW) FROM=100u TO=120u
+print v_sw_max
 
-echo "Switch Node Voltage Range:"
-print v_sw_max v_sw_min
-
-* Resonant current measurements
+* Measure Peak Coil Current
 meas tran i_coil_peak MAX I(L_COIL) FROM=100u TO=200u
-meas tran i_coil_rms RMS I(L_COIL) FROM=100u TO=200u
+print i_coil_peak
 
-echo "Coil Current:"
-print i_coil_peak i_coil_rms
-
-* DC bus current
-meas tran i_dc_avg AVG I(V_SENSE_DC) FROM=100u TO=200u
-meas tran i_dc_rms RMS I(V_SENSE_DC) FROM=100u TO=200u
-
-echo "DC Bus Current:"
-print i_dc_avg i_dc_rms
-
-* Power calculations
-meas tran p_dc_avg AVG V(VDC)*I(V_SENSE_DC) FROM=100u TO=200u
-meas tran p_load_avg AVG V(LOAD)*I(V_SENSE_LOAD) FROM=100u TO=200u
-
-echo "Power:"
-print p_dc_avg p_load_avg
-
-* Calculate efficiency
-let efficiency = p_load_avg / p_dc_avg * 100
-echo "Estimated Efficiency (simplified):"
-print efficiency
-
-echo ""
-echo "===== Simulation Complete ====="
-
-* Export data (optional)
-* write IKW40N120H3_test_results.raw
+* Measure Power
+let p_load = v(load) * i(v_sense_load)
+meas tran p_load_avg AVG p_load FROM=100u TO=200u
+print p_load_avg
 
 .endc
-
 .end

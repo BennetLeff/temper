@@ -1,0 +1,77 @@
+* Gate Drive Loop EMI Validation
+* Template for placement-dependent simulation
+* 
+* Parameters substituted from placement:
+*   {{GATE_LOOP_INDUCTANCE}} - Gate drive loop inductance (H)
+*   {{GATE_RESISTANCE}} - Total gate path resistance (ohms)
+*
+* Validates: Switching waveform quality, ringing, di/dt
+
+* Placement-derived parameters
+.param L_GATE_LOOP = {{GATE_LOOP_INDUCTANCE}}
+.param R_GATE = {{GATE_RESISTANCE}}
+
+* Fixed circuit parameters (from Temper design)
+.param V_SUPPLY = 15          ; Gate driver supply voltage
+.param C_GATE = 2.7n          ; IKW40N120H3 typical input capacitance
+.param R_GATE_INT = 1.5       ; IGBT internal gate resistance
+
+* Gate Driver Model (simplified UCC21550-style push-pull)
+* Strong output: ~4A peak source/sink
+.subckt GATE_DRIVER IN OUT VDD GND
+* Input threshold at 1.5V, output follows VDD or 0
+E_out OUT GND VALUE={ (V(IN) > 1.5) ? V(VDD) : 0 }
+* Output impedance modeled in external components
+.ends
+
+* Test Circuit
+* Power supplies
+V_vdd vdd 0 DC {V_SUPPLY}
+V_pwm pwm_in 0 PULSE(0 3.3 100n 5n 5n 10u 20u)
+
+* Gate driver
+X_drv pwm_in gate_drv vdd 0 GATE_DRIVER
+
+* Gate loop with placement-dependent inductance
+* Driver output -> Loop inductance -> External gate resistor -> IGBT gate
+L_loop gate_drv gate_mid {L_GATE_LOOP} IC=0
+R_ext gate_mid gate {R_GATE}
+
+* IGBT gate model (simplified RC)
+R_gate_int gate gate_int {R_GATE_INT}
+C_gate gate_int 0 {C_GATE} IC=0
+
+* Analysis - fast transient to capture ringing
+.tran 1n 25u UIC
+
+* Control and measurements
+.control
+run
+
+* Measure peak gate voltage (check for overshoot/ringing)
+meas tran V_GATE_PEAK MAX v(gate_int) FROM=100n TO=15u
+meas tran V_GATE_MIN MIN v(gate_int) FROM=100n TO=15u
+
+* Measure rise time (10% to 90% of 15V)
+meas tran T_RISE TRIG v(gate_int) VAL=1.5 RISE=1 TARG v(gate_int) VAL=13.5 RISE=1
+
+* Measure fall time
+meas tran T_FALL TRIG v(gate_int) VAL=13.5 FALL=1 TARG v(gate_int) VAL=1.5 FALL=1
+
+* Measure ringing - peak-to-peak during settling period after first rise
+meas tran V_RING_PP PP v(gate_int) FROM=200n TO=2u
+
+* Calculate overshoot percentage
+* Note: using let with measured values
+let v_target = 15
+let v_overshoot_pct = 100 * (V_GATE_PEAK - v_target) / v_target
+let v_undershoot_pct = 100 * (0 - V_GATE_MIN) / v_target
+
+* Print all measurements
+echo "=== Gate Drive Validation Results ==="
+print V_GATE_PEAK V_GATE_MIN
+print T_RISE T_FALL V_RING_PP
+print v_overshoot_pct v_undershoot_pct
+
+.endc
+.end

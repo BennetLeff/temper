@@ -2,38 +2,19 @@
 * Infineon Technologies
 * 1200V, 40A IGBT in Trench and Fieldstop technology
 * with fast, soft recovery antiparallel diode
-* Model version: 1.0
+* Model version: 1.2 (Fixed TEMP parameter)
 * Date: 2024
 *
 * This model represents the IKW40N120H3 IGBT with integrated freewheeling diode
 * Suitable for ngspice and KiCad simulation
-*
-* Pin Configuration (TO-247-3 package):
-* Pin 1: Gate (G)
-* Pin 2: Collector (C) - also connected to backside/heatsink tab
-* Pin 3: Emitter (E)
-*
-* Circuit symbol:
-*        C (Collector)
-*        |
-*        |
-*    G --+-- IGBT
-*        |
-*        E (Emitter)
-*
-* Antiparallel diode: Cathode at C, Anode at E
 
 ***************************************************************************
 * Main Subcircuit: IKW40N120H3
 ***************************************************************************
 .subckt IKW40N120H3 C G E
-* Nodes: Collector, Gate, Emitter
 
-***************************************************************************
-* IGBT Core Model
-***************************************************************************
-* Using Hefner IGBT model approach
-* Simplified behavioral model for circuit-level simulation
+* Define Temperature Parameter (Default 27C)
+.param TEMP=27
 
 * Gate-emitter capacitance (Cies = 2330pF)
 Cge G E 2330p
@@ -44,77 +25,54 @@ Cce_int C_int E 185p
 * Reverse transfer capacitance (Miller capacitance, Cres = 130pF)
 Cgc G C_int 130p
 
-* Gate resistor for damping
+* Gate resistor
 Rg_int G N_gate 1
 
 * Gate threshold detection with temperature coefficient
-* Vth = 5.8V typical, range 5.0-6.5V
-* Negative temperature coefficient: -6mV/°C typical
+* Vth = 5.8V typical, -6mV/C
 B_vth N_vth E V={5.8 + TEMP*(-0.006)}
 R_vth N_vth E 1MEG
 
-* Gate voltage clamping for protection
+* Gate clamping
 D_ge_clamp G E DCLAMP
 D_eg_clamp E G DCLAMP
 
 * Transconductance control
 * gfs = 20 S at 40A
-* IC = gfs * (VGE - Vth) in linear region
-B_gm N_gm E V={IF(V(N_gate,E) > V(N_vth,E), 20*(V(N_gate,E) - V(N_vth,E)), 0)}
+B_gm N_gm E V={ (V(N_gate,E) > V(N_vth,E)) ? (20*(V(N_gate,E) - V(N_vth,E))) : 0 }
 R_gm N_gm E 1MEG
 
 * Collector current source (voltage-controlled)
 * Includes VCEsat characteristic
-* VCEsat = 2.05V @ 40A, 25°C; 2.5V @ 125°C; 2.7V @ 175°C
-* Temperature coefficient: +3.5mV/°C
-B_ic C_int N_ce_int I={
-+ IF(V(N_gate,E) < V(N_vth,E), 0,
-+   IF(V(C_int, N_ce_int) > (2.05 + 0.0035*TEMP + V(N_gm,E)*0.01),
-+     V(N_gm,E),
-+     V(C_int, N_ce_int) / (2.05 + 0.0035*TEMP + 0.01) * V(N_gm,E)
-+   )
-+ )
-+}
+B_ic C_int N_ce_int I={ (V(N_gate,E) < V(N_vth,E)) ? 0 : ((V(C_int, N_ce_int) > (2.05 + 0.0035*TEMP + V(N_gm,E)*0.01)) ? V(N_gm,E) : (V(C_int, N_ce_int) / (2.05 + 0.0035*TEMP + 0.01) * V(N_gm,E))) }
 
 * On-state resistance representation
-* Ron derived from VCEsat/IC characteristic
 R_ce N_ce_int E {2.05/40}
 
 * Collector-emitter leakage current (ICES)
-* 250uA @ 25°C, 2500uA @ 175°C
-B_ices C_int E I={IF(V(N_gate,E) < 1.0,
-+ 250e-6 * exp((TEMP-25)/60), 0)}
+B_ices C_int E I={ (V(N_gate,E) < 1.0) ? (250e-6 * exp((TEMP-25)/60)) : 0 }
 
-* Parasitic NPN for latch-up modeling (simplified)
+* Parasitic NPN for latch-up
 Q_latch N_ce_int N_base E QLATCH
 R_base N_base E 10k
 D_base_clamp N_base E DCLAMP
 
-* Internal inductance (13nH from datasheet)
+* Internal inductance
 L_e_int N_ce_int E 13n
 
 ***************************************************************************
 * Antiparallel Freewheeling Diode Model
 ***************************************************************************
-* Fast, soft recovery diode
-* VF = 2.4V typ @ 40A, 25°C
-* Reverse recovery: trr = 355ns, Qrr = 1.9uC @ 25°C
-
-* Main diode with temperature-dependent forward voltage
+* Main diode
 D_fwd E C_int DFWD
 
 * Reverse recovery charge modeling
-* Simplified charge storage model
-B_qrr N_qrr E I={
-+ IF(I(V_diode_sense) > 0.1,
-+   I(V_diode_sense) * 1.9e-6 / 40,
-+   0
-+ )
-+}
+* I(V_diode_sense) is diode current
+B_qrr N_qrr E I={ (I(V_diode_sense) > 0.1) ? (I(V_diode_sense) * 1.9e-6 / 40) : 0 }
 C_qrr N_qrr E 100p
 R_qrr N_qrr E 355
 
-* Diode current sense for reverse recovery
+* Diode current sense
 V_diode_sense C_int C_fwd 0
 R_diode_int C_fwd E 0.01
 
@@ -124,13 +82,8 @@ C_diode E C_int 50p
 ***************************************************************************
 * Device Models
 ***************************************************************************
-* Gate clamping diode (Zener-like)
 .model DCLAMP D (IS=1e-15 RS=0.1 BV=20 IBV=1m)
 
-* Freewheeling diode model
-* IS scaled for 40A rating
-* RS gives proper VF @ rated current: VF = 2.4V @ 40A
-* Temperature coefficient built in
 .model DFWD D (
 + IS=1e-10
 + RS={2.4/40}
@@ -146,7 +99,6 @@ C_diode E C_int 50p
 + TRS1=0.001
 +)
 
-* Parasitic NPN transistor
 .model QLATCH NPN (
 + BF=2
 + IS=1e-15
@@ -157,33 +109,4 @@ C_diode E C_int 50p
 + TF=100n
 +)
 
-* Temperature-dependent parameters
-.param TEMP=25
-
 .ends IKW40N120H3
-
-***************************************************************************
-* Additional Notes for Simulation
-***************************************************************************
-* 1. This is a behavioral model optimized for circuit-level simulation
-* 2. Key characteristics modeled:
-*    - Gate threshold and transconductance
-*    - VCEsat vs temperature
-*    - Switching capacitances (Cies, Coes, Cres)
-*    - Diode forward drop and reverse recovery
-*    - Leakage currents
-* 3. Not modeled in detail:
-*    - Detailed switching transients (use parasitic L, C from test circuit)
-*    - Short circuit behavior (requires physical device model)
-*    - Extreme temperature effects beyond linear coefficients
-* 4. For accurate switching loss simulation, include:
-*    - Gate driver output impedance
-*    - PCB parasitic inductances
-*    - Snubber circuits
-* 5. Typical simulation parameters for induction cooker:
-*    - VGE = 0/15V
-*    - VCE up to 600V
-*    - IC = 20-40A
-*    - fsw = 20-100kHz
-*    - RG(on) = RG(off) = 2-12 ohms
-***************************************************************************

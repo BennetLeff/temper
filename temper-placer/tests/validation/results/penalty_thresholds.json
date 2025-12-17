@@ -1,0 +1,54 @@
+{
+  "overlap_threshold": 0.0,
+  "boundary_threshold": 0.0,
+  "total_loss_threshold": 804.720488879,
+  "safety_margin": 0.2,
+  "data_points": [
+    {
+      "quality_level": "perfect",
+      "overlap_loss": 0.0,
+      "boundary_loss": 0.0,
+      "total_loss": 670.6004073991667,
+      "drc_errors": 0,
+      "drc_warnings": 4,
+      "drc_pass": true
+    },
+    {
+      "quality_level": "good",
+      "overlap_loss": 0.05465183403939386,
+      "boundary_loss": 0.0,
+      "total_loss": 280.5842374490252,
+      "drc_errors": 6,
+      "drc_warnings": 4,
+      "drc_pass": false
+    },
+    {
+      "quality_level": "mediocre",
+      "overlap_loss": 0.25245495573303084,
+      "boundary_loss": 0.0,
+      "total_loss": 278.2228622638907,
+      "drc_errors": 10,
+      "drc_warnings": 4,
+      "drc_pass": false
+    },
+    {
+      "quality_level": "bad",
+      "overlap_loss": 0.0,
+      "boundary_loss": 0.0,
+      "total_loss": 516.849354897714,
+      "drc_errors": 0,
+      "drc_warnings": 4,
+      "drc_pass": true
+    },
+    {
+      "quality_level": "terrible",
+      "overlap_loss": 1.011921121268379,
+      "boundary_loss": 0.0,
+      "total_loss": 562.2133409333273,
+      "drc_errors": 2,
+      "drc_warnings": 4,
+      "drc_pass": false
+    }
+  ],
+  "note": "Thresholds are highest passing value + 20% safety margin"
+}

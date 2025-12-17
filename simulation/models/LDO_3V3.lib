@@ -1,0 +1,79 @@
+*******************************************************************************
+* Generic 3.3V LDO Regulator Model
+* Based on AMS1117-3.3 / LD1117-3.3 characteristics
+* 1A maximum output current, low dropout (~1.2V @ 1A)
+*******************************************************************************
+
+.SUBCKT LDO_3V3 VIN VOUT GND
+
+*------------------------------------------------------------------------------
+* Parameters (typical values for AMS1117-3.3)
+*------------------------------------------------------------------------------
+.PARAM VREF=3.3      ; Output voltage reference
+.PARAM IQ=5M         ; Quiescent current (5mA typical)
+.PARAM ILIMIT=1.2    ; Current limit (1.2A)
+.PARAM VDROPOUT=1.2  ; Dropout voltage at 1A
+.PARAM PSRR_DC=60    ; DC PSRR in dB
+.PARAM TCOEFF=0.0002 ; Temperature coefficient (200ppm/°C)
+
+*------------------------------------------------------------------------------
+* Dropout Voltage Modeling
+* Vdropout varies with load current: ~0.5V @ 100mA to 1.2V @ 1A
+*------------------------------------------------------------------------------
+* Measure output current
+HSENSE VOUT VOUT_INT 0
+BVDROP VIN VREG VALUE={
++ V(VIN,GND) - (0.5 + 0.7*min(abs(I(HSENSE))/ILIMIT, 1))
++ }
+
+*------------------------------------------------------------------------------
+* Error Amplifier and Regulation
+* High gain to regulate VOUT to VREF
+* Includes line and load regulation effects
+*------------------------------------------------------------------------------
+EREG VREG GND VALUE={
++ IF(V(VIN,GND) > VREF+0.5,
++   VREF*(1 - (VREF-V(VOUT_INT,GND))*10),
++   V(VIN,GND)*0.7
++ )
++ }
+
+*------------------------------------------------------------------------------
+* Output Resistance (for load regulation)
+* ~50mΩ typical for AMS1117
+*------------------------------------------------------------------------------
+ROUT VREG VOUT_INT 50m
+
+*------------------------------------------------------------------------------
+* Current Limit
+* Foldback current limiting at ~1.2A
+*------------------------------------------------------------------------------
+BLIMIT VOUT_INT VOUT_LIM I={
++ min(V(VREG,VOUT_INT)/50m, ILIMIT)
++ }
+
+*------------------------------------------------------------------------------
+* Output Capacitor ESR interaction
+* Small resistance to model stability
+*------------------------------------------------------------------------------
+RESR VOUT_LIM VOUT 10m
+
+*------------------------------------------------------------------------------
+* Ground Pin Current (Quiescent + Pass-through)
+*------------------------------------------------------------------------------
+GQUIESCENT GND VIN DC {IQ}
+GPASS GND VIN VALUE={ I(HSENSE) }
+
+*------------------------------------------------------------------------------
+* Thermal Shutdown Model (simplified)
+* Shutdown at TJ > 150°C
+*------------------------------------------------------------------------------
+* Not modeled in this basic version
+
+*------------------------------------------------------------------------------
+* PSRR Model (AC behavior)
+* Low-pass filter from input to output
+*------------------------------------------------------------------------------
+* Simplified: included in EREG error amplifier gain
+
+.ENDS LDO_3V3

@@ -1,0 +1,130 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: AC Rectifier + Soft-Start for Auxiliary Power Supply
+
+
+============================================================
+  AC Rectifier + Soft-Start + LMR51430 Buck Converter
+  Task: temper-ew8.1
+============================================================
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 2205748
+
+  Measurements for Transient Analysis
+
+
+Error: measure  inrush_peak  max(TRIG) : no such vector as 'i(rsense)'
+ .meas tran inrush_peak max i(rsense) from=0 to=50m failed!
+
+vrect_dc            =  2.472607e+01 from=  1.500000e-01 to=  2.000000e-01
+vrect_ripple        =  9.902276e-03 from=  1.900000e-01 to=  2.000000e-01
+vin_buck_dc         =  2.472422e+01 from=  1.500000e-01 to=  2.000000e-01
+vin_buck_ripple     =  9.762722e-03 from=  1.900000e-01 to=  2.000000e-01
+vout_avg            =  4.847935e+00 from=  1.500000e-01 to=  2.000000e-01
+vout_ripple         =  8.375768e-01 from=  1.800000e-01 to=  2.000000e-01
+tstart              =   2.15144e-03
+
+
+Simulation complete! Generating plots...
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+============================================================
+MEASUREMENT RESULTS:
+============================================================
+Warning from checkvalid: vector vrect_dc is not available or has zero length.
+Warning from checkvalid: vector vin_buck_dc is not available or has zero length.
+Warning from checkvalid: vector vout_avg is not available or has zero length.
+Warning from checkvalid: vector inrush_peak is not available or has zero length.
+
+============================================================
+VERIFICATION CRITERIA:
+============================================================
+✓ VRECT_DC should be ~18V (25.5V peak × 0.707)
+✓ VRECT_RIPPLE should be <2V p-p (120Hz ripple)
+✓ VIN_BUCK_DC should be ~18V (after soft-start)
+✓ VIN_BUCK_RIPPLE should be <500mV (decoupling effective)
+✓ VOUT_AVG should be 5.0V ± 2% (4.9-5.1V)
+✓ VOUT_RIPPLE should be <50mV p-p
+✓ INRUSH_PEAK should be <5A (soft-start limiting)
+✓ TSTART should be ~100ms (soft-start time constant)
+============================================================
+
+VIN_BUCK range:  -0.00586922 V to 24.7325 V
+✗ FAIL: VIN_MIN < 4.5V (below LMR51430 minimum)
+✓ PASS: VIN_MAX < 36V (within LMR51430 spec)
+
+Simulation results saved to: sim_01_ac_rectifier_softstart.raw
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Warning: can't parse 'rsense#branch': ignored
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 2205748
+
+  Measurements for Transient Analysis
+
+
+Error: measure  inrush_peak  max(TRIG) : no such vector as 'i(rsense)'
+ .meas tran inrush_peak max i(rsense) from=0 to=50m failed!
+
+vrect_dc            =  2.472607e+01 from=  1.500000e-01 to=  2.000000e-01
+vrect_ripple        =  9.902276e-03 from=  1.900000e-01 to=  2.000000e-01
+vin_buck_dc         =  2.472422e+01 from=  1.500000e-01 to=  2.000000e-01
+vin_buck_ripple     =  9.762722e-03 from=  1.900000e-01 to=  2.000000e-01
+vout_avg            =  4.847935e+00 from=  1.500000e-01 to=  2.000000e-01
+vout_ripple         =  8.375768e-01 from=  1.800000e-01 to=  2.000000e-01
+tstart              =   2.15144e-03
+
+
+Total analysis time (seconds) = 36.9193
+
+Total elapsed time (seconds) = 36.999 
+
+Total DRAM available = 36864.000 MB.
+DRAM currently available =  503.859 MB.
+Maximum ngspice program size =  853.688 MB.
+Current ngspice program size =  853.688 MB.
+

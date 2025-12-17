@@ -1,0 +1,41 @@
+*******************************************************************************
+* XC6220B331 Low-Noise LDO Model (Simplified for Simulation)
+* 3.3V 700mA Ultra-Low Noise Regulator
+* Based on Torex XC6220 datasheet specifications
+*******************************************************************************
+
+.SUBCKT XC6220_3V3 VIN VOUT GND CE
+
+*------------------------------------------------------------------------------
+* Parameters from datasheet
+*------------------------------------------------------------------------------
+* VREF = 3.3V, ILIMIT = 850mA, IQ = 8µA
+* Noise: 6.5µV RMS, PSRR: 75dB @ 1kHz
+
+*------------------------------------------------------------------------------
+* Simple Behavioral Model
+* Output = VREF when VIN > VREF + dropout
+* PSRR modeled as attenuated ripple injection
+*------------------------------------------------------------------------------
+
+* Error amplifier: high gain regulation to 3.3V
+* Uses voltage-controlled voltage source with limiting
+EREG VREG 0 VALUE={LIMIT(3.3 + (3.3 - V(VOUT_INT))*100, 0, V(VIN))}
+
+* Pass element with output resistance
+RPASS VREG VOUT_INT 0.1
+
+* Load regulation (15mΩ output impedance)
+ROUT VOUT_INT VOUT 15M
+
+* PSRR: attenuate input ripple by 80dB (factor of 10000)
+* Inject tiny fraction of input ripple to output
+EPSRR VOUT N_OUT_FINAL VALUE={V(VIN)*0.0001}
+
+* Dummy resistance for output node
+RDUMMY N_OUT_FINAL 0 1MEG
+
+* Quiescent current (8µA)
+RQUIESCENT VIN 0 625K
+
+.ENDS XC6220_3V3

@@ -1,0 +1,10 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "IKW40N120H3")(type "KiCad")(uri "${KIPRJMOD}/../components/IKW40N120H3/IKW40N120H3.kicad_sym")(options "")(descr "IGBT 40A 1200V"))
+  (lib (name "UCC21550")(type "KiCad")(uri "${KIPRJMOD}/../components/UCC21550/UCC21550.kicad_sym")(options "")(descr "Isolated Dual Gate Driver"))
+  (lib (name "ADUM1250")(type "KiCad")(uri "${KIPRJMOD}/../components/ADUM1250/ADUM1250.kicad_sym")(options "")(descr "I2C Digital Isolator"))
+  (lib (name "ESP32-S3")(type "KiCad")(uri "${KIPRJMOD}/../components/ESP32-S3/ESP32-S3-WROOM-1.kicad_sym")(options "")(descr "ESP32-S3 WiFi Module"))
+  (lib (name "XC6220")(type "KiCad")(uri "${KIPRJMOD}/../components/XC6220/XC6220.kicad_sym")(options "")(descr "700mA LDO Regulator"))
+  (lib (name "UCC14240-Q1")(type "KiCad")(uri "${KIPRJMOD}/../components/ucc14240-q1/UCC14240-Q1.kicad_sym")(options "")(descr "1.5W Isolated DC-DC"))
+  (lib (name "MAX31865")(type "KiCad")(uri "${KIPRJMOD}/../max31865/MAX31865.kicad_sym")(options "")(descr "RTD-to-Digital Converter"))
+)

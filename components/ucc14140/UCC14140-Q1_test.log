@@ -1,0 +1,224 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: UCC14140-Q1 Gate Driver Bias Power Supply Test
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vin_rail                                    12
+vin_filt                               11.9994
+enable                                       0
+xucc14140.vin_int                      11.9994
+xucc14140.gndp_int                 7.98546e-07
+vee_out                                      0
+xucc14140.vee_int                 -7.49621e-06
+vdd_out                                      0
+xucc14140.vdd_int                  2.49873e-06
+xucc14140.n_ena_detect_raw         7.98546e-07
+xucc14140.n_ena_detect             7.98546e-07
+xucc14140.n_uvlo_vin_raw                   3.3
+xucc14140.n_uvlo_vin                    3.2967
+xucc14140.n_enable                 7.98546e-07
+xucc14140.n_ss                     7.98546e-07
+xucc14140.n_ss_lim                 7.98546e-07
+xucc14140.n_pin                     0.00120074
+xucc14140.n_vin_sense                  11.9994
+xucc14140.n_pout_avail                     1.5
+xucc14140.n_fb_vdd_vee             7.98546e-07
+fb_vdd                                       0
+fb_vee                                       0
+xucc14140.n_err_vdd_vee                    2.5
+xucc14140.n_vdd_vee_raw                      5
+xucc14140.veea_int                -4.99747e-06
+xucc14140.n_vdd_vee_comp            0.00250123
+xucc14140.n_ilim_vdd               3.58162e-05
+rlim_pin                                     0
+xucc14140.n_vdd_after_sense        2.49873e-06
+veea_out                                     0
+xucc14140.n_veea_raw              -7.49621e-06
+xucc14140.n_veea_comp             -5.00251e-06
+xucc14140.n_veea_after_sense      -4.99747e-06
+xucc14140.e_vee_int1              -7.49621e-06
+xucc14140.n_pg_logic                       3.3
+pg_out                                0.558955
+xucc14140.n_ovp_raw                7.98546e-07
+xucc14140.n_ovp                    7.98546e-07
+xucc14140.n_enable_final           7.98546e-07
+xucc14140.n_pdiss                   0.00120074
+xucc14140.n_tjunc                      25.0384
+xucc14140.n_tsd_raw                        3.3
+xucc14140.n_tsd                        3.29967
+n_vdd_esr1                                   0
+n_led_pg                               1.96384
+n_vin_l                                11.9994
+vin_module                             11.9994
+n_vdd_load                                   0
+n_veea_load                                  0
+n_vee_load                                   0
+b.xucc14140.b_tsd_raw#branch      -3.29967e-07
+b.xucc14140.b_thermal#branch      -2.50384e-06
+b.xucc14140.b_power_diss#branch    -1.19994e-10
+v.xucc14140.v_vdd_sense#branch               0
+v.xucc14140.v_veea_sense#branch               0
+b.xucc14140.b_ovp_shutdown#branch     4.27243e-29
+b.xucc14140.b_ovp_vdd_raw#branch    -3.81298e-26
+b.xucc14140.b_pg_logic#branch         -3.3e-06
+b.xucc14140.be_vee#branch                    0
+b.xucc14140.b_ilim_vdd#branch     -3.50177e-12
+b.xucc14140.b_error_vdd_vee#branch        -2.5e-06
+b.xucc14140.b_fb_vdd_vee#branch     1.74808e-30
+b.xucc14140.b_pout_avail#branch        -1.5e-07
+b.xucc14140.b_pin#branch                     0
+v.xucc14140.v_vin_sense#branch          0.0001
+b.xucc14140.b_ss_limit#branch                0
+b.xucc14140.b_enable_logic#branch     4.27243e-29
+b.xucc14140.b_uvlo_vin_raw#branch     -3.2967e-06
+b.xucc14140.b_ena_detect_raw#branch     3.81298e-26
+b.xucc14140.b_vin_combine#branch      -0.0001012
+l_in#branch                        2.42219e-14
+e.xucc14140.e_vee#branch             0.0824583
+e.xucc14140.e_veea#branch          4.98739e-09
+e.xucc14140.e_vdd_vee#branch       -0.00499749
+v_sense_vee#branch                           0
+v_sense_veea#branch                          0
+v_sense_vdd#branch                           0
+ven#branch                         7.98546e-12
+vin#branch                          -0.0111796
+
+
+No. of Data Rows : 122041
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+===================================================================
+UCC14140-Q1 Test Results
+===================================================================
+
+Error: no such vector as v(vdd_out,vee_out).
+ meas tran vout_final find v(vdd_out,vee_out) at=99m failed!
+
+Warning from checkvalid: vector vout_final is not available or has zero length.
+Error: RHS "vout_final*0.9" invalid
+	measure 'vout_90pct'  failed
+Error: measure  vout_90pct  :
+	no such function as 'param=vexprint1'
+ meas tran vout_90pct param=vexprint1 failed!
+
+
+Error: measure  t_startup  when(WHEN) : Cannot evaluate vout_90pct 
+ meas tran t_startup when v(vdd_out,vee_out)=vout_90pct rise=1 failed!
+
+Startup time to 90% VOUT: 
+Warning from checkvalid: vector t_startup is not available or has zero length.
+
+Error: measure  vdd_vee_avg  avg(TRIG) : no such vector as 'v(vdd_out,vee_out)'
+ meas tran vdd_vee_avg avg v(vdd_out,vee_out) from=95m to=99m failed!
+
+
+Error: measure  vdd_veea_avg  avg(TRIG) : no such vector as 'v(vdd_out,veea_out)'
+ meas tran vdd_veea_avg avg v(vdd_out,veea_out) from=95m to=99m failed!
+
+
+Error: measure  veea_vee_avg  avg(TRIG) : no such vector as 'v(veea_out,vee_out)'
+ meas tran veea_vee_avg avg v(veea_out,vee_out) from=95m to=99m failed!
+
+Average output voltages (steady state):
+Warning from checkvalid: vector vdd_vee_avg is not available or has zero length.
+
+Error: measure  vdd_vee_max  max(TRIG) : no such vector as 'v(vdd_out,vee_out)'
+ meas tran vdd_vee_max max v(vdd_out,vee_out) from=96m to=100m failed!
+
+
+Error: measure  vdd_vee_min  min(TRIG) : no such vector as 'v(vdd_out,vee_out)'
+ meas tran vdd_vee_min min v(vdd_out,vee_out) from=96m to=100m failed!
+
+	measure 'vdd_vee_ripple'  failed
+Error: measure  vdd_vee_ripple  :
+	no such function as 'param=vdd_vee_max - vdd_vee_min'
+ meas tran vdd_vee_ripple param=vdd_vee_max - vdd_vee_min failed!
+
+VDD-VEE output ripple (peak-to-peak):
+Warning from checkvalid: vector vdd_vee_ripple is not available or has zero length.
+i_vdd_avg           =  0.000000e+00 from=  9.500000e-02 to=  9.900001e-02
+i_veea_avg          =  0.000000e+00 from=  9.500000e-02 to=  9.900001e-02
+Average output currents:
+i_vdd_avg = 0.000000e+00
+i_veea_avg = 0.000000e+00
+i_in_avg            =  -1.118066e-02 from=  9.500000e-02 to=  9.900001e-02
+
+Error: measure  p_in_avg  avg(TRIG) : no such vector as 'v(vin_rail)*i(vin)'
+ meas tran p_in_avg avg v(vin_rail)*i(vin) from=95m to=99m failed!
+
+
+Error: measure  p_out_avg  avg(TRIG) : no such vector as 'v(vdd_out,veea_out)*i(v_sense_vdd)+v(veea_out,vee_out)*i(v_sense_veea)'
+ meas tran p_out_avg avg v(vdd_out,veea_out)*i(v_sense_vdd)+v(veea_out,vee_out)*i(v_sense_veea) from=95m to=99m failed!
+
+Warning from checkvalid: vector p_out_avg is not available or has zero length.
+Error: RHS "p_out_avg/p_in_avg*100" invalid
+	measure 'efficiency'  failed
+Error: measure  efficiency  :
+	no such function as 'param=vexprint2'
+ meas tran efficiency param=vexprint2 failed!
+
+Input/Output power and efficiency:
+Warning from checkvalid: vector p_in_avg is not available or has zero length.
+
+Error: measure  fb_voltage_avg  avg(TRIG) : no such vector as 'v(fb_vdd,fb_vee)'
+ meas tran fb_voltage_avg avg v(fb_vdd,fb_vee) from=95m to=99m failed!
+
+Feedback voltage (should be 2.5V):
+Warning from checkvalid: vector fb_voltage_avg is not available or has zero length.
+
+Error: measure  t_pg_assert  when(WHEN) : out of interval
+ meas tran t_pg_assert when v(pg_out)=6 fall=1 failed!
+
+Power Good assertion time:
+Warning from checkvalid: vector t_pg_assert is not available or has zero length.
+
+===================================================================
+Expected Results:
+  VDD-VEE output: 20V ±5%
+  VEEA-VEE output: 2.5V (default)
+  Startup time: ~28ms (soft-start)
+  Efficiency: ~75-85%
+  FB voltage: 2.5V ±2%
+===================================================================
+Note: Simulation executed from .control section 

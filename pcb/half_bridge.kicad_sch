@@ -1,0 +1,121 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "20000000-0000-0000-0000-000000000001")
+  (paper "A4")
+  (title_block
+    (title "Half Bridge")
+    (date "2025-12-14")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "IGBT Half-Bridge with Gate Driver")
+    (comment 2 "2000W Induction Heating")
+  )
+
+  (lib_symbols)
+
+  (text "HALF-BRIDGE POWER STAGE\n\nFunction:\n- IGBT half-bridge (high-side + low-side)\n- Isolated gate driver (UCC21550)\n- Bootstrap power supply\n- Dead-time generation\n- Current sensing (CT)\n\nKey Components:\n- IKW40N120H3 IGBTs (40A, 1200V)\n- UCC21550 dual gate driver\n- Bootstrap diodes and capacitors\n- Current transformer\n\nReference:\n- SPLIT_RAIL_BOOTSTRAP_DESIGN.md\n- CT_SENSING_DESIGN.md\n- HALF_BRIDGE_VERIFICATION_REPORT.md"
+    (exclude_from_sim no)
+    (at 25.4 25.4 0)
+    (effects
+      (font
+        (size 2.54 2.54)
+      )
+      (justify left)
+    )
+    (uuid "21000000-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "DC_BUS+"
+    (shape input)
+    (at 25.4 88.9 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "21000001-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "DC_BUS-"
+    (shape input)
+    (at 25.4 101.6 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "21000001-0000-0000-0000-000000000002")
+  )
+
+  (hierarchical_label "PWM_H"
+    (shape input)
+    (at 25.4 114.3 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "21000001-0000-0000-0000-000000000003")
+  )
+
+  (hierarchical_label "PWM_L"
+    (shape input)
+    (at 25.4 127 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "21000001-0000-0000-0000-000000000004")
+  )
+
+  (hierarchical_label "SHUTDOWN_N"
+    (shape input)
+    (at 228.6 127 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "21000001-0000-0000-0000-000000000005")
+  )
+
+  (hierarchical_label "SWITCH_NODE"
+    (shape output)
+    (at 228.6 88.9 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "21000001-0000-0000-0000-000000000006")
+  )
+
+  (hierarchical_label "I_SENSE"
+    (shape output)
+    (at 228.6 101.6 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "21000001-0000-0000-0000-000000000007")
+  )
+
+)

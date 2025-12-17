@@ -1,0 +1,157 @@
+* Thermal Shutdown Protection Circuit Simulation
+* sim_19_thermal_shutdown.cir
+*
+* PURPOSE: Verify thermal protection circuit using NTC thermistor
+*
+***************************************************************************
+
+.title Thermal Shutdown Protection Circuit Simulation
+
+***************************************************************************
+* POWER SUPPLY
+***************************************************************************
+V_vcc vcc 0 DC 5
+
+***************************************************************************
+* SIMULATED NTC OUTPUT VOLTAGE
+***************************************************************************
+* Directly model voltage at NTC divider output
+* As temperature rises, V_ntc decreases
+
+V_ntc_sim ntc_node 0 PWL(
++ 0 2.50
++ 2m 2.50
++ 5m 0.45
++ 10m 0.33
++ 15m 0.33
++ 18m 0.70
++ 22m 0.70
++ 25m 2.50)
+
+***************************************************************************
+* COMPARATOR (Simple Model)
+***************************************************************************
+* Trip when V_ntc < 0.50V (85°C)
+* Reset when V_ntc > 0.65V (75°C)
+* Using Schmidt trigger model
+
+* Reference: 0.50V for trip
+R_ref1 vcc v_ref_lo 90k
+R_ref2 v_ref_lo 0 10k
+
+* Higher reference: 0.65V for reset
+R_ref3 vcc v_ref_hi 67k
+R_ref4 v_ref_hi 0 10k
+
+* Simple comparator without feedback (avoids convergence issues)
+* Uses conditional logic for hysteresis
+
+* Output is HIGH (fault) when ntc_node < threshold
+* Once HIGH, stays HIGH until ntc_node > higher threshold
+* Model as aswitch
+
+* For simplicity, use behavioral source with explicit hysteresis
+* State variable approach:
+* - If output was LOW and ntc < trip_threshold, go HIGH
+* - If output was HIGH and ntc > reset_threshold, go LOW
+
+* Use capacitor as state memory
+.IC V(state_cap)=0
+
+R_state_charge vcc state_cap 100k
+C_state state_cap 0 10n
+
+* Comparator output based on state and current input
+B_thermal_out fault_out 0 V = {
++ V(ntc_node) < 0.50 ? 5.0 :
++ V(ntc_node) > 0.65 ? 0.0 :
++ V(state_cap) > 2.5 ? 5.0 : 0.0}
+
+* Update state based on output
+B_state_drive state_drive 0 V = {V(fault_out) > 2.5 ? 5.0 : 0.0}
+R_state_in state_drive state_cap 1k
+
+* Output load
+R_load fault_out 0 10k
+
+***************************************************************************
+* ANALYSIS
+***************************************************************************
+.tran 50u 30m uic
+
+***************************************************************************
+* MEASUREMENTS
+***************************************************************************
+.meas tran v_ntc_cold FIND v(ntc_node) AT=1m
+.meas tran v_ntc_hot FIND v(ntc_node) AT=7m
+.meas tran v_ntc_cooled FIND v(ntc_node) AT=20m
+
+.meas tran t_trip WHEN v(fault_out)=2.5 RISE=1
+.meas tran v_ntc_trip FIND v(ntc_node) WHEN v(fault_out)=2.5 RISE=1
+
+.meas tran t_reset WHEN v(fault_out)=2.5 FALL=1
+.meas tran v_ntc_reset FIND v(ntc_node) WHEN v(fault_out)=2.5 FALL=1
+
+.meas tran v_out_cold FIND v(fault_out) AT=1m
+.meas tran v_out_hot FIND v(fault_out) AT=12m
+.meas tran v_out_after_cool FIND v(fault_out) AT=20m
+
+.control
+run
+
+echo ""
+echo "============================================"
+echo "Thermal Shutdown Verification - Sim 19"
+echo "============================================"
+echo ""
+echo "V_ntc vs Temperature:"
+echo "  25C → 2.50V, 85C → 0.50V (trip)"
+echo "  75C → 0.65V (reset), 100C → 0.33V"
+echo ""
+echo "============================================"
+echo "NTC READINGS"
+echo "============================================"
+echo ""
+echo "V_ntc cold (expect 2.50V):"
+print v_ntc_cold
+echo ""
+echo "V_ntc hot (expect ~0.33V):"
+print v_ntc_hot
+echo ""
+echo "V_ntc cooled (expect ~0.70V):"
+print v_ntc_cooled
+echo ""
+echo "============================================"
+echo "TRIP/RESET"
+echo "============================================"
+echo ""
+echo "Trip time:"
+print t_trip
+echo ""
+echo "V_ntc at trip (target <0.50V):"
+print v_ntc_trip
+echo ""
+echo "Reset time:"
+print t_reset
+echo ""
+echo "V_ntc at reset (target >0.65V):"
+print v_ntc_reset
+echo ""
+echo "============================================"
+echo "OUTPUTS"
+echo "============================================"
+echo ""
+echo "Cold (expect 0V):"
+print v_out_cold
+echo ""
+echo "Hot (expect 5V):"
+print v_out_hot
+echo ""
+echo "Cooled to 70C (expect 0V - below reset):"
+print v_out_after_cool
+echo ""
+
+quit
+.endc
+
+.end

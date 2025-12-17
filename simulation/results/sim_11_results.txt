@@ -1,0 +1,274 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: ESP32-S3 to MAX31865 SPI Interface
+
+
+============================================================
+  ESP32-S3 to MAX31865 SPI Interface Verification
+  Task: temper-vkx.2
+============================================================
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdd_esp32                                  3.3
+vdd_max                                    3.3
+dvdd_max                                   3.3
+sclk_ideal                                   0
+sclk_esp32                                   0
+cs_ideal                                   3.3
+cs_esp32                                   3.3
+mosi_ideal                                   0
+mosi_esp32                                   0
+sclk_trace                                   0
+cs_trace                                   3.3
+mosi_trace                                   0
+sclk_max                                     0
+cs_max                                       0
+mosi_max                                     0
+miso_max31865                                0
+miso_trace                           0.0163628
+miso_esp32                           0.0271623
+bmiso_drive#branch                 0.000327257
+vmosi_ideal#branch                           0
+vcs_ideal#branch                   -4.6102e-17
+vsclk_ideal#branch                           0
+vdvdd_max#branch                             0
+vdd_max#branch                               0
+vdd_esp32#branch                  -0.000327284
+
+
+No. of Data Rows : 5404
+
+  Measurements for Transient Analysis
+
+
+Error: measure  mosi_rise  trig(TRIG) : out of interval
+ .meas tran mosi_rise trig v(mosi_max) val=0.33 rise=1 td=100n targ v(mosi_max) val=2.97 rise=1 td=100n failed!
+
+
+Error: measure  mosi_fall  trig(TRIG) : out of interval
+ .meas tran mosi_fall trig v(mosi_max) val=2.97 fall=1 td=300n targ v(mosi_max) val=0.33 fall=1 td=300n failed!
+
+
+Error: measure  mosi_setup1  trig(TRIG) : out of interval
+ .meas tran mosi_setup1 trig v(mosi_max) val=2.0 rise=1 td=100n targ v(sclk_max) val=1.65 rise=1 td=100n failed!
+
+
+Error: measure  mosi_hold1  trig(TARG) : out of interval
+ .meas tran mosi_hold1 trig v(sclk_max) val=1.65 rise=1 td=100n targ v(mosi_max) val=1.65 fall=1 td=300n failed!
+
+
+Error: measure  cs_setup  trig(TRIG) : out of interval
+ .meas tran cs_setup trig v(cs_max) val=1.65 fall=1 td=50n targ v(sclk_max) val=1.65 rise=1 td=100n failed!
+
+
+Error: measure  cs_hold  trig(TARG) : out of interval
+ .meas tran cs_hold trig v(sclk_max) val=1.65 rise=16 td=100n targ v(cs_max) val=1.65 rise=1 td=3.4u failed!
+
+
+Error: measure  miso_access  trig(TRIG) : out of interval
+ .meas tran miso_access trig v(cs_max) val=1.65 fall=1 td=50n targ v(miso_trace) val=1.65 cross=1 td=50n failed!
+
+sclk_high           =  3.297908e+00 at=  1.085000e-07
+sclk_low            =  -4.537070e-01 at=  3.210456e-06
+cs_low              =  -3.297963e+00 at=  5.585627e-08
+cs_high             =  -1.211930e-15 from=  0.000000e+00 to=  5.010000e-08
+mosi_high           =  3.272957e+00 at=  1.006813e-07
+mosi_low            =  -4.865550e-02 at=  3.046658e-07
+sclk_rise           =  4.131228e-09 targ=  1.050953e-07 trig=  1.009640e-07
+sclk_fall           =  4.140674e-09 targ=  2.050354e-07 trig=  2.008948e-07
+last_sclk_rise      =   3.10372e-06
+miso_delay          =  1.008710e-09 targ=  1.040876e-07 trig=  1.030789e-07
+
+
+Simulation complete! Processing results...
+
+============================================================
+SIGNAL LEVEL VERIFICATION:
+============================================================
+SCLK:
+Warning from checkvalid: vector sclk_high is not available or has zero length.
+
+CS:
+Warning from checkvalid: vector cs_high is not available or has zero length.
+
+MOSI:
+Warning from checkvalid: vector mosi_high is not available or has zero length.
+
+============================================================
+LOGIC LEVEL THRESHOLD MARGINS:
+============================================================
+Warning from checkvalid: vector sclk_high is not available or has zero length.
+Error: RHS "sclk_high - 2.0" invalid
+Warning from checkvalid: vector sclk_low is not available or has zero length.
+Error: RHS "1.0 - sclk_low" invalid
+Warning from checkvalid: vector mosi_high is not available or has zero length.
+Error: RHS "mosi_high - 2.0" invalid
+Warning from checkvalid: vector mosi_low is not available or has zero length.
+Error: RHS "1.0 - mosi_low" invalid
+Warning from checkvalid: vector cs_low is not available or has zero length.
+Error: RHS "1.0 - cs_low" invalid
+Warning from checkvalid: vector sclk_vih_margin is not available or has zero length.
+Warning from checkvalid: vector mosi_vih_margin is not available or has zero length.
+Warning from checkvalid: vector cs_vil_margin is not available or has zero length.
+
+============================================================
+RISE/FALL TIME ANALYSIS:
+============================================================
+Warning from checkvalid: vector sclk_rise is not available or has zero length.
+Warning from checkvalid: vector mosi_rise is not available or has zero length.
+
+============================================================
+SPI TIMING VERIFICATION (Mode 1):
+============================================================
+Setup and Hold Times:
+Warning from checkvalid: vector mosi_setup1 is not available or has zero length.
+
+CS Timing:
+Warning from checkvalid: vector cs_setup is not available or has zero length.
+
+============================================================
+MISO RESPONSE TIMING:
+============================================================
+Warning from checkvalid: vector miso_access is not available or has zero length.
+
+============================================================
+VERIFICATION CRITERIA:
+============================================================
+✓ VIH margin: >0.5V (SCLK/MOSI high > 2.0V)
+✓ VIL margin: >0.5V (SCLK/MOSI/CS low < 1.0V)
+✓ Rise/fall time: <50ns (clean switching)
+✓ Data setup time: >10ns (before SCLK rising edge)
+✓ Data hold time: >10ns (after SCLK rising edge)
+✓ CS setup time: >50ns (before first SCLK)
+✓ CS hold time: >50ns (after last SCLK)
+✓ MISO access time: <100ns (from CS falling)
+✓ MISO output delay: <50ns (from SCLK edge)
+============================================================
+
+Warning from checkvalid: vector sclk_vih_margin is not available or has zero length.
+✗ FAIL: SCLK VIH margin < 0.5V
+Warning from checkvalid: vector sclk_vil_margin is not available or has zero length.
+✗ FAIL: SCLK VIL margin < 0.5V
+Warning from checkvalid: vector mosi_vih_margin is not available or has zero length.
+✗ FAIL: MOSI VIH margin < 0.5V
+Warning from checkvalid: vector mosi_vil_margin is not available or has zero length.
+✗ FAIL: MOSI VIL margin < 0.5V
+Warning from checkvalid: vector sclk_rise is not available or has zero length.
+✗ FAIL: SCLK rise time > 50ns
+Warning from checkvalid: vector sclk_fall is not available or has zero length.
+✗ FAIL: SCLK fall time > 50ns
+Warning from checkvalid: vector mosi_setup1 is not available or has zero length.
+✗ FAIL: MOSI setup time < 10ns
+Warning from checkvalid: vector mosi_hold1 is not available or has zero length.
+✗ FAIL: MOSI hold time < 10ns
+Warning from checkvalid: vector cs_setup is not available or has zero length.
+✗ FAIL: CS setup time < 50ns
+Warning from checkvalid: vector cs_hold is not available or has zero length.
+✗ FAIL: CS hold time < 50ns
+
+**CRITICAL: Copper pour thermal relief required for LMR51430**
+  Junction temperature reaches 154.8°C without thermal management.
+  Copper pour reduces θJA from 80°C/W to ~60°C/W.
+  Reference: sim_02_lmr51430_load_verification.md, temper-neo
+
+Simulation results saved to: sim_11_esp32_max31865_spi.raw
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdd_esp32                                  3.3
+vdd_max                                    3.3
+dvdd_max                                   3.3
+sclk_ideal                                   0
+sclk_esp32                                   0
+cs_ideal                                   3.3
+cs_esp32                                   3.3
+mosi_ideal                                   0
+mosi_esp32                                   0
+sclk_trace                                   0
+cs_trace                                   3.3
+mosi_trace                                   0
+sclk_max                                     0
+cs_max                                       0
+mosi_max                                     0
+miso_max31865                                0
+miso_trace                           0.0163628
+miso_esp32                           0.0271623
+bmiso_drive#branch                 0.000327257
+vmosi_ideal#branch                           0
+vcs_ideal#branch                   -4.6102e-17
+vsclk_ideal#branch                           0
+vdvdd_max#branch                             0
+vdd_max#branch                               0
+vdd_esp32#branch                  -0.000327284
+
+
+No. of Data Rows : 5404
+
+  Measurements for Transient Analysis
+
+
+Error: measure  mosi_rise  trig(TRIG) : out of interval
+ .meas tran mosi_rise trig v(mosi_max) val=0.33 rise=1 td=100n targ v(mosi_max) val=2.97 rise=1 td=100n failed!
+
+
+Error: measure  mosi_fall  trig(TRIG) : out of interval
+ .meas tran mosi_fall trig v(mosi_max) val=2.97 fall=1 td=300n targ v(mosi_max) val=0.33 fall=1 td=300n failed!
+
+
+Error: measure  mosi_setup1  trig(TRIG) : out of interval
+ .meas tran mosi_setup1 trig v(mosi_max) val=2.0 rise=1 td=100n targ v(sclk_max) val=1.65 rise=1 td=100n failed!
+
+
+Error: measure  mosi_hold1  trig(TARG) : out of interval
+ .meas tran mosi_hold1 trig v(sclk_max) val=1.65 rise=1 td=100n targ v(mosi_max) val=1.65 fall=1 td=300n failed!
+
+
+Error: measure  cs_setup  trig(TRIG) : out of interval
+ .meas tran cs_setup trig v(cs_max) val=1.65 fall=1 td=50n targ v(sclk_max) val=1.65 rise=1 td=100n failed!
+
+
+Error: measure  cs_hold  trig(TARG) : out of interval
+ .meas tran cs_hold trig v(sclk_max) val=1.65 rise=16 td=100n targ v(cs_max) val=1.65 rise=1 td=3.4u failed!
+
+
+Error: measure  miso_access  trig(TRIG) : out of interval
+ .meas tran miso_access trig v(cs_max) val=1.65 fall=1 td=50n targ v(miso_trace) val=1.65 cross=1 td=50n failed!
+
+sclk_high           =  3.297908e+00 at=  1.085000e-07
+sclk_low            =  -4.537070e-01 at=  3.210456e-06
+cs_low              =  -3.297963e+00 at=  5.585627e-08
+cs_high             =  -1.211930e-15 from=  0.000000e+00 to=  5.010000e-08
+mosi_high           =  3.272957e+00 at=  1.006813e-07
+mosi_low            =  -4.865550e-02 at=  3.046658e-07
+sclk_rise           =  4.131228e-09 targ=  1.050953e-07 trig=  1.009640e-07
+sclk_fall           =  4.140674e-09 targ=  2.050354e-07 trig=  2.008948e-07
+last_sclk_rise      =   3.10372e-06
+miso_delay          =  1.008710e-09 targ=  1.040876e-07 trig=  1.030789e-07
+
+
+Total analysis time (seconds) = 0.021367
+
+Total elapsed time (seconds) = 0.028 
+
+Total DRAM available = 36864.000 MB.
+DRAM currently available = 2191.578 MB.
+Maximum ngspice program size =   11.500 MB.
+Current ngspice program size =   11.500 MB.
+

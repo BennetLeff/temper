@@ -1,0 +1,150 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: IKW40N120H3 Induction Cooker Test Circuit
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Warning: singular matrix:  check node l_bus_p#branch
+
+Note: Starting dynamic gmin stepping
+Warning: singular matrix:  check node l_bus_p#branch
+
+Warning: Dynamic gmin stepping failed
+Note: Starting true gmin stepping
+Warning: singular matrix:  check node l_bus_p#branch
+
+Warning: singular matrix:  check node l_bus_p#branch
+
+Warning: singular matrix:  check node l_bus_p#branch
+
+Warning: singular matrix:  check node l_bus_p#branch
+
+Warning: True gmin stepping failed
+Note: Starting source stepping
+Warning: source stepping failed
+Note: Transient op started
+Note: Transient op finished successfully
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdc                                        300
+vddb                                        15
+vdda                                    65.126
+sw                                      50.126
+vcci                                         5
+ina                                          0
+inb                                          0
+dis                                          0
+xucc21550.x_cha.n_in_detect                  0
+xucc21550.x_cha.n_dis_detect                 0
+xucc21550.x_cha.n_input                      0
+xucc21550.x_cha.n_uvlo_vcc              4.9995
+xucc21550.x_cha.n_uvlo_vdd             65.1245
+xucc21550.x_cha.n_uvlo_vcc_raw               5
+xucc21550.x_cha.n_uvlo_vdd_raw          65.126
+xucc21550.x_cha.n_delayed                    0
+xucc21550.x_cha.n_high_idl                   0
+xucc21550.x_cha.n_high_ctrl                  0
+xucc21550.x_cha.n_out_high              50.126
+gate_hs                                 50.126
+xucc21550.x_cha.n_low_idl                    1
+xucc21550.x_cha.n_low_ctrl                   1
+xucc21550.x_cha.n_out_low               50.126
+xucc21550.x_chb.n_in_detect                  0
+xucc21550.x_chb.n_dis_detect                 0
+xucc21550.x_chb.n_input                      0
+xucc21550.x_chb.n_uvlo_vcc              4.9995
+xucc21550.x_chb.n_uvlo_vdd             14.9985
+xucc21550.x_chb.n_uvlo_vcc_raw               5
+xucc21550.x_chb.n_uvlo_vdd_raw              15
+xucc21550.x_chb.n_delayed                    0
+xucc21550.x_chb.n_high_idl                   0
+xucc21550.x_chb.n_high_ctrl                  0
+xucc21550.x_chb.n_out_high         8.47487e-07
+gate_ls                            9.74873e-08
+xucc21550.x_chb.n_low_idl                    1
+xucc21550.x_chb.n_low_ctrl                   1
+xucc21550.x_chb.n_out_low          8.24893e-08
+dt_pin                                       0
+n_g_hs                                  50.126
+hs_gate                                 50.126
+n_g_ls                             9.74552e-08
+ls_gate                            9.74552e-08
+xq_hs.c_int                             50.126
+xq_hs.n_gate                            50.126
+xq_hs.n_vth                             55.764
+xq_hs.n_gm                              50.126
+xq_hs.n_ce_int                          50.126
+xq_hs.n_base                            50.126
+xq_hs.n_qrr                             50.126
+xq_hs.c_fwd                             50.126
+xq_ls.c_int                       -2.58474e-06
+xq_ls.n_gate                       9.74552e-08
+xq_ls.n_vth                              5.638
+xq_ls.n_gm                                   0
+xq_ls.n_ce_int                    1.08993e-130
+xq_ls.n_base                     -5.19493e-124
+xq_ls.n_qrr                                  0
+xq_ls.c_fwd                       -2.58474e-06
+n_bus                                      300
+n_snub_hs                              319.736
+n_snub_ls                              30.3716
+n_coil                                 26.2021
+n_load                               -0.253003
+load                              -0.000836375
+n_vdc_local                                300
+n_gnd_local                                  0
+n_load_sense                      -0.000836375
+v.xq_ls.v_diode_sense#branch      -0.000258474
+b.xq_ls.b_gm#branch                          0
+b.xq_ls.b_vth#branch                -5.638e-06
+v.xq_hs.v_diode_sense#branch      -0.000258474
+b.xq_hs.b_gm#branch                -5.0331e-11
+b.xq_hs.b_vth#branch                -5.638e-06
+b.xucc21550.x_chb.b_low_ctrl_idl#branch    -9.99998e-13
+b.xucc21550.x_chb.b_high_ctrl_idl#branch               0
+b.xucc21550.x_chb.b_uvlo_vdd_raw#branch    -1.49987e-06
+b.xucc21550.x_chb.b_uvlo_vcc_raw#branch    -4.99955e-07
+b.xucc21550.x_chb.b_input_logic#branch               0
+b.xucc21550.x_chb.b_dis_detect#branch               0
+b.xucc21550.x_chb.b_in_detect#branch               0
+b.xucc21550.x_cha.b_low_ctrl_idl#branch    -9.99998e-13
+b.xucc21550.x_cha.b_high_ctrl_idl#branch               0
+b.xucc21550.x_cha.b_uvlo_vdd_raw#branch    -1.49991e-06
+b.xucc21550.x_cha.b_uvlo_vcc_raw#branch    -4.99955e-07
+b.xucc21550.x_cha.b_input_logic#branch               0
+b.xucc21550.x_cha.b_dis_detect#branch               0
+b.xucc21550.x_cha.b_in_detect#branch               0
+l_bus_n#branch                               0
+l_bus_p#branch                      1.5001e-07
+l_coil#branch                        -0.840557
+l.xq_ls.l_e_int#branch            1.51898e-128
+l.xq_hs.l_e_int#branch            -1.11624e-10
+l_g_ls#branch                      9.74552e-12
+l_g_hs#branch                       1.5955e-10
+v_sense_load#branch                  -0.836375
+v_sense_dc#branch                  4.50017e-07
+vdis#branch                        0.000111111
+vin_ls#branch                                0
+vin_hs#branch                                0
+vcc#branch                        -0.000111111
+vdd_hs#branch                         -1.5e-07
+vdd_ls#branch                         -1.5e-07
+vdc_bus#branch                        0.419916
+
+
+No. of Data Rows : 22540
+===== IKW40N120H3 Induction Cooker Test Results =====
+v_sw_max            =  2.500026e+01 at=  1.001792e-04
+v_sw_max = 2.500026e+01
+i_coil_peak         =  3.799795e-06 at=  1.038792e-04
+i_coil_peak = 3.799795e-06
+p_load_avg          =  6.158556e-16 from=  1.000000e-04 to=  2.000000e-04
+p_load_avg = 6.158556e-16
+Note: Simulation executed from .control section 

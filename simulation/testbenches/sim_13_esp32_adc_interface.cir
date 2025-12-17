@@ -1,0 +1,229 @@
+ESP32-S3 ADC Interface Verification
+* Verify 12-bit SAR ADC (0-3.3V) for analog sensing inputs
+* Test input impedance loading, anti-aliasing filter, sampling artifacts, quantization noise
+* Date: 2025-12-13
+* Task: temper-vkx.4
+
+*============================================
+* SIGNAL SOURCES (Three sensing channels)
+*============================================
+
+* Channel 1: Current Transformer (CT) output - 40 kHz fundamental, harmonics
+* CT sensing circuit output after conditioning (resistive divider + buffer)
+VCT_signal ct_raw 0 DC 1.65 SIN(1.65 0.8 40k 0 0 0)
+
+* Channel 2: NTC Thermistor - Slow varying DC signal (temperature)
+* Simulating 25°C → 100°C temperature ramp over 100ms
+VNTC_signal ntc_raw 0 PWL(0 1.8 50m 1.4 100m 1.0)
+
+* Channel 3: High-voltage bus monitor - 310V DC bus with switching ripple
+* Divided and isolated to 0-3.3V range, with 100kHz switching noise
+VHV_signal hv_raw 0 DC 2.0 SIN(2.0 0.05 100k 0 0 0)
+
+*============================================
+* ANTI-ALIASING FILTERS (One per channel)
+*============================================
+
+* Channel 1: CT signal anti-aliasing filter
+* Cutoff = 100 kHz (to pass 40kHz fundamental + harmonics up to 3rd)
+* R = 1kΩ, C = 1.6nF → fc = 1/(2π×1k×1.6n) = 99.5 kHz
+RCT1 ct_raw ct_filt 1k
+CCT1 ct_filt 0 1.6n
+
+* Channel 2: NTC thermistor anti-aliasing filter
+* Cutoff = 1 kHz (thermal time constant is slow, reject 35kHz induction noise)
+* R = 10kΩ, C = 15nF → fc = 1/(2π×10k×15n) = 1.06 kHz
+RNTC1 ntc_raw ntc_filt 10k
+CNTC1 ntc_filt 0 15n
+
+* Channel 3: HV monitor anti-aliasing filter
+* Cutoff = 10 kHz (pass slow bus voltage changes, reject 100kHz switching noise)
+* R = 10kΩ, C = 1.6nF → fc = 1/(2π×10k×1.6n) = 9.95 kHz
+RHV1 hv_raw hv_filt 10k
+CHV1 hv_filt 0 1.6n
+
+*============================================
+* ESP32-S3 ADC INPUT MODEL
+*============================================
+
+* ESP32-S3 ADC characteristics (from datasheet):
+* - 12-bit SAR ADC
+* - Input voltage range: 0-3.3V (with 11dB attenuation setting)
+* - Input impedance: ~1-10 MΩ parallel with ~5pF
+* - Sampling frequency: Up to 2 MSPS (we use 10 kSPS typical for control)
+* - Quantization: 3.3V / 4096 = 0.806 mV/LSB
+
+* ADC input impedance model (per channel)
+RCT_adc ct_filt ct_adc_in 1Meg
+CCT_adc ct_adc_in 0 5p
+
+RNTC_adc ntc_filt ntc_adc_in 1Meg
+CNTC_adc ntc_adc_in 0 5p
+
+RHV_adc hv_filt hv_adc_in 1Meg
+CHV_adc hv_adc_in 0 5p
+
+* Ideal voltage buffers to observe ADC input (no loading)
+ECT_buf ct_adc_out 0 ct_adc_in 0 1
+ENTC_buf ntc_adc_out 0 ntc_adc_in 0 1
+EHV_buf hv_adc_out 0 hv_adc_in 0 1
+
+*============================================
+* QUANTIZATION NOISE MODEL (Channel 1 only)
+*============================================
+
+* To demonstrate quantization noise, we'll model the 12-bit conversion
+* using a behavioral voltage source with floor() function
+* Quantization step = 3.3V / 4096 = 0.806 mV
+
+* NOTE: ngspice doesn't have floor() in behavioral sources
+* Instead, we'll calculate quantization noise in post-processing
+* For simulation, we'll just observe the analog signal vs ideal
+
+*============================================
+* SIGNAL CONDITIONING IMPEDANCE (Source impedance)
+*============================================
+
+* CT conditioning circuit output impedance (op-amp buffer assumed)
+RCT_src ct_raw ct_cond 10
+VCT_cond ct_cond ct_raw 0
+
+* NTC divider output impedance (voltage divider Thevenin equivalent)
+* Example: 10kΩ / 10kΩ divider → Rth = 5kΩ
+RNTC_src ntc_raw ntc_cond 5k
+VNTC_cond ntc_cond ntc_raw 0
+
+* HV monitor output impedance (isolation amplifier output)
+RHV_src hv_raw hv_cond 100
+VHV_cond hv_cond hv_raw 0
+
+*============================================
+* MEASUREMENTS
+*============================================
+
+.control
+* Transient analysis: 100ms (captures NTC temperature ramp, multiple CT cycles)
+tran 10u 100m 0 10u
+
+* === CHANNEL 1: CT SIGNAL (40 kHz) ===
+* Measure signal amplitude before and after anti-aliasing filter
+meas tran vct_raw_max MAX v(ct_raw) from=10m to=11m
+meas tran vct_raw_min MIN v(ct_raw) from=10m to=11m
+meas tran vct_filt_max MAX v(ct_filt) from=10m to=11m
+meas tran vct_filt_min MIN v(ct_filt) from=10m to=11m
+meas tran vct_adc_max MAX v(ct_adc_in) from=10m to=11m
+meas tran vct_adc_min MIN v(ct_adc_in) from=10m to=11m
+
+* Calculate attenuation through anti-aliasing filter at 40 kHz
+let vct_raw_pp = vct_raw_max - vct_raw_min
+let vct_filt_pp = vct_filt_max - vct_filt_min
+let vct_attenuation_db = 20*log10(vct_filt_pp/vct_raw_pp)
+
+print vct_raw_pp vct_filt_pp vct_attenuation_db
+
+* === CHANNEL 2: NTC SIGNAL (DC to 10 Hz) ===
+* Measure voltage at t=0, 50ms, 100ms
+meas tran vntc_0ms FIND v(ntc_filt) AT=0
+meas tran vntc_50ms FIND v(ntc_filt) AT=50m
+meas tran vntc_100ms FIND v(ntc_filt) AT=100m
+meas tran vntc_adc_0ms FIND v(ntc_adc_in) AT=0
+meas tran vntc_adc_50ms FIND v(ntc_adc_in) AT=50m
+meas tran vntc_adc_100ms FIND v(ntc_adc_in) AT=100m
+
+* Calculate tracking error (ADC input vs filtered signal)
+let vntc_error_50ms = vntc_adc_50ms - vntc_50ms
+let vntc_error_100ms = vntc_adc_100ms - vntc_100ms
+print vntc_error_50ms vntc_error_100ms
+
+* === CHANNEL 3: HV MONITOR (DC + 100 kHz ripple) ===
+* Measure DC level and ripple
+meas tran vhv_dc_raw AVG v(hv_raw) from=10m to=100m
+meas tran vhv_dc_filt AVG v(hv_filt) from=10m to=100m
+meas tran vhv_dc_adc AVG v(hv_adc_in) from=10m to=100m
+
+meas tran vhv_ripple_raw PP v(hv_raw) from=10m to=10.1m
+meas tran vhv_ripple_filt PP v(hv_filt) from=10m to=10.1m
+meas tran vhv_ripple_adc PP v(hv_adc_in) from=10m to=10.1m
+
+* Calculate ripple rejection
+let vhv_ripple_rejection_db = 20*log10(vhv_ripple_adc/vhv_ripple_raw)
+print vhv_ripple_rejection_db
+
+* === INPUT IMPEDANCE LOADING ===
+* Compare raw signal to filtered signal (source impedance + filter loading)
+meas tran vct_loading_pct PARAM='100*(vct_raw_max - vct_filt_max)/vct_raw_max'
+meas tran vntc_loading_pct PARAM='100*(1.8 - vntc_adc_0ms)/1.8'
+meas tran vhv_loading_pct PARAM='100*(vhv_dc_raw - vhv_dc_adc)/vhv_dc_raw'
+
+print vct_loading_pct vntc_loading_pct vhv_loading_pct
+
+* === QUANTIZATION NOISE CALCULATION ===
+* Quantization step size
+let quant_step = 3.3 / 4096
+print quant_step
+
+* RMS quantization noise (uniform distribution)
+* σ = Δ / sqrt(12) = 0.806mV / 3.464 = 0.233 mV RMS
+let quant_noise_rms = quant_step / sqrt(12)
+print quant_noise_rms
+
+* Signal-to-quantization-noise ratio (SQNR) for each channel
+* SQNR = 20*log10(Vsignal_rms / Vquant_rms)
+* For 12-bit ADC: Ideal SQNR = 6.02*N + 1.76 = 74 dB
+
+* CT signal: Vsignal_rms = 0.8V / sqrt(2) = 0.566V
+let ct_signal_rms = 0.8 / sqrt(2)
+let ct_sqnr_db = 20*log10(ct_signal_rms / quant_noise_rms)
+print ct_sqnr_db
+
+* NTC signal: DC signal, use quantization SNR only
+* Vsignal = 1.4V (mid-range), SQNR = 20*log10(1.4 / 0.000233) = 75.6 dB
+let ntc_signal_dc = 1.4
+let ntc_sqnr_db = 20*log10(ntc_signal_dc / quant_noise_rms)
+print ntc_sqnr_db
+
+* === ANTI-ALIASING FILTER FREQUENCY RESPONSE ===
+* Calculate theoretical -3dB frequencies
+let fc_ct = 1 / (2 * 3.14159 * 1000 * 1.6e-9)
+let fc_ntc = 1 / (2 * 3.14159 * 10000 * 15e-9)
+let fc_hv = 1 / (2 * 3.14159 * 10000 * 1.6e-9)
+
+print fc_ct fc_ntc fc_hv
+
+* === SAMPLING RATE ANALYSIS ===
+* Nyquist frequency for 10 kSPS: 5 kHz
+* CT signal: 40 kHz fundamental - requires 80+ kSPS to avoid aliasing
+*   → Solution: Anti-aliasing filter (100 kHz) + oversample at 200 kSPS or sample envelope
+* NTC signal: <1 Hz bandwidth - 10 kSPS is overkill, 100 SPS sufficient
+* HV monitor: <100 Hz bandwidth - 10 kSPS more than adequate
+
+echo
+echo "=== ESP32-S3 ADC VERIFICATION SUMMARY ==="
+echo
+echo "CHANNEL 1: CURRENT TRANSFORMER (40 kHz)"
+print vct_raw_pp vct_filt_pp vct_attenuation_db
+print vct_loading_pct
+print ct_sqnr_db fc_ct
+echo
+echo "CHANNEL 2: NTC THERMISTOR (DC-10Hz)"
+print vntc_0ms vntc_50ms vntc_100ms
+print vntc_error_50ms vntc_error_100ms
+print vntc_loading_pct
+print ntc_sqnr_db fc_ntc
+echo
+echo "CHANNEL 3: HV BUS MONITOR (DC + 100kHz ripple)"
+print vhv_dc_raw vhv_dc_filt vhv_dc_adc
+print vhv_ripple_raw vhv_ripple_filt vhv_ripple_adc
+print vhv_ripple_rejection_db
+print vhv_loading_pct
+print fc_hv
+echo
+echo "QUANTIZATION ANALYSIS"
+print quant_step quant_noise_rms
+echo
+echo "=== END SUMMARY ==="
+
+quit
+.endc
+
+.end

@@ -1,0 +1,119 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: UCC21550 Induction Cooker Gate Driver Test
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vcci                                         5
+vdda                                        15
+vddb                                        15
+vdc                                        300
+ina                                          0
+inb                                          0
+dis                                          0
+xucc21550.x_cha.n_in_detect                  0
+xucc21550.x_cha.n_dis_detect                 0
+xucc21550.x_cha.n_input                      0
+xucc21550.x_cha.n_uvlo_vcc              4.9995
+xucc21550.x_cha.n_uvlo_vdd             14.9985
+sw                                -1.49985e-16
+xucc21550.x_cha.n_uvlo_vcc_raw               5
+xucc21550.x_cha.n_uvlo_vdd_raw              15
+xucc21550.x_cha.n_delayed                    0
+xucc21550.x_cha.n_high_idl                   0
+xucc21550.x_cha.n_high_ctrl                  0
+xucc21550.x_cha.n_out_high         8.25259e-07
+gate_hs                            7.52594e-08
+xucc21550.x_cha.n_low_idl                    1
+xucc21550.x_cha.n_low_ctrl                   1
+xucc21550.x_cha.n_out_low           6.3681e-08
+xucc21550.x_chb.n_in_detect                  0
+xucc21550.x_chb.n_dis_detect                 0
+xucc21550.x_chb.n_input                      0
+xucc21550.x_chb.n_uvlo_vcc              4.9995
+xucc21550.x_chb.n_uvlo_vdd             14.9985
+xucc21550.x_chb.n_uvlo_vcc_raw               5
+xucc21550.x_chb.n_uvlo_vdd_raw              15
+xucc21550.x_chb.n_delayed                    0
+xucc21550.x_chb.n_high_idl                   0
+xucc21550.x_chb.n_high_ctrl                  0
+xucc21550.x_chb.n_out_high         8.25259e-07
+gate_ls                            7.52594e-08
+xucc21550.x_chb.n_low_idl                    1
+xucc21550.x_chb.n_low_ctrl                   1
+xucc21550.x_chb.n_out_low           6.3681e-08
+dt_pin                                       0
+hs_gate                                      0
+ls_gate                                      0
+n_coil                                       0
+load                                         0
+n_snub                            -1.49985e-16
+b.xucc21550.x_chb.b_low_ctrl_idl#branch               0
+b.xucc21550.x_chb.b_high_ctrl_idl#branch               0
+b.xucc21550.x_chb.b_uvlo_vdd_raw#branch    -1.49985e-06
+b.xucc21550.x_chb.b_uvlo_vcc_raw#branch     -4.9995e-07
+b.xucc21550.x_chb.b_input_logic#branch               0
+b.xucc21550.x_chb.b_dis_detect#branch               0
+b.xucc21550.x_chb.b_in_detect#branch               0
+b.xucc21550.x_cha.b_low_ctrl_idl#branch               0
+b.xucc21550.x_cha.b_high_ctrl_idl#branch               0
+b.xucc21550.x_cha.b_uvlo_vdd_raw#branch    -1.49985e-06
+b.xucc21550.x_cha.b_uvlo_vcc_raw#branch     -4.9995e-07
+b.xucc21550.x_cha.b_input_logic#branch               0
+b.xucc21550.x_cha.b_dis_detect#branch               0
+b.xucc21550.x_cha.b_in_detect#branch               0
+l_coil#branch                                0
+vdis#branch                        0.000111111
+vin_ls#branch                                0
+vin_hs#branch                                0
+vdc_bus#branch                    -9.00006e-10
+vdd_ls#branch                         -1.5e-07
+vdd_hs#branch                         -1.5e-07
+vcc#branch                        -0.000111111
+
+
+No. of Data Rows : 101400
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+===== UCC21550 Test Results =====
+t_rise_ina          =  5.000000e-09
+t_rise_gate_hs      =  4.058917e-08
+High-Side Propagation Delay:
+prop_delay_hs = 3.558917e-08
+
+Error: measure  t_fall_gate_ls  when(WHEN) : out of interval
+ meas tran t_fall_gate_ls when v(gate_ls)=7.5 fall=1 failed!
+
+t_rise_gate_hs2     =  4.058917e-08
+Warning from checkvalid: vector t_fall_gate_ls is not available or has zero length.
+Error: RHS "t_rise_gate_hs2 - t_fall_gate_ls" invalid
+Dead Time:
+Warning from checkvalid: vector dead_time is not available or has zero length.
+Note: Simulation executed from .control section 

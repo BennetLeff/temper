@@ -1,0 +1,67 @@
+* DC Bus Power Integrity Validation
+* Template for placement-dependent simulation
+*
+* Parameters substituted from placement:
+*   {{DC_BUS_INDUCTANCE}} - DC bus loop inductance (H)
+*   {{DECAP_ESR}} - Decoupling capacitor ESR (ohms)
+*   {{DECAP_VALUE}} - Decoupling capacitor value (F)
+*
+* Validates: DC bus voltage drop and ripple under switching load
+
+* Placement-derived parameters
+.param L_DC_BUS = {{DC_BUS_INDUCTANCE}}
+.param R_DECAP_ESR = {{DECAP_ESR}}
+.param C_DECAP = {{DECAP_VALUE}}
+
+* Fixed circuit parameters (from Temper design)
+.param V_DC_BUS = 400         ; Rectified DC bus voltage
+.param R_SOURCE = 0.5         ; Source impedance (mains + rectifier)
+.param I_LOAD_PEAK = 30       ; Peak switching current (A)
+.param F_SWITCH = 40k         ; Switching frequency (Hz)
+.param T_PERIOD = {1/F_SWITCH}
+
+* Test Circuit
+* DC bus source with source impedance
+V_dc_bus vdc_src 0 DC {V_DC_BUS}
+R_source vdc_src dc_bus_in {R_SOURCE}
+
+* DC bus loop inductance (trace from source to load)
+L_dc_bus dc_bus_in dc_bus {L_DC_BUS} IC=0
+
+* Decoupling capacitor with ESR - use voltage source for current sensing
+V_sense dc_bus decap_esr DC 0
+R_decap_esr decap_esr decap_node {R_DECAP_ESR}
+C_decap decap_node 0 {C_DECAP} IC={V_DC_BUS}
+
+* Switching load model (current sink with PWM)
+* Use pulsed current source to simulate half-bridge
+I_load dc_bus 0 PULSE(0 {I_LOAD_PEAK} 0 10n 10n {T_PERIOD/2} {T_PERIOD})
+
+* Analysis - observe several switching cycles plus startup
+.tran 100n 1m UIC
+
+* Control and measurements
+.control
+run
+
+* Measure DC bus voltage under load
+meas tran V_DC_AVG AVG v(dc_bus) FROM=100u TO=1m
+meas tran V_DC_MIN MIN v(dc_bus) FROM=100u TO=1m
+meas tran V_DC_MAX MAX v(dc_bus) FROM=100u TO=1m
+
+* Calculate ripple and drop
+let v_ripple = V_DC_MAX - V_DC_MIN
+let v_drop = 400 - V_DC_AVG
+
+* Measure decap current through sense resistor
+meas tran I_DECAP_PEAK MAX i(V_sense) FROM=100u TO=1m
+meas tran I_DECAP_RMS RMS i(V_sense) FROM=100u TO=1m
+
+* Print all measurements
+echo "=== DC Bus Power Integrity Results ==="
+print V_DC_AVG V_DC_MIN V_DC_MAX
+print v_ripple v_drop
+print I_DECAP_PEAK I_DECAP_RMS
+
+.endc
+.end

@@ -1,0 +1,35 @@
+{
+  "description": "DRC correlation analysis results",
+  "data_points": [
+    {
+      "quality_level": "perfect",
+      "overlap_loss": 0.0,
+      "total_loss": 670.6004073991667,
+      "drc_errors": 0
+    },
+    {
+      "quality_level": "good",
+      "overlap_loss": 0.05465183403939386,
+      "total_loss": 280.5842374490252,
+      "drc_errors": 6
+    },
+    {
+      "quality_level": "mediocre",
+      "overlap_loss": 0.25245495573303084,
+      "total_loss": 278.2228622638907,
+      "drc_errors": 10
+    },
+    {
+      "quality_level": "bad",
+      "overlap_loss": 0.0,
+      "total_loss": 516.849354897714,
+      "drc_errors": 0
+    },
+    {
+      "quality_level": "terrible",
+      "overlap_loss": 1.011921121268379,
+      "total_loss": 562.2133409333273,
+      "drc_errors": 2
+    }
+  ]
+}

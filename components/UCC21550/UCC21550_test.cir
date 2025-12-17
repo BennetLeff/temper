@@ -135,18 +135,23 @@ plot I(L_COIL) title 'Inductor Current'
 * Plot DC bus current
 plot I(VDC_BUS) title 'DC Bus Current'
 
+echo "===== UCC21550 Test Results ====="
+
 * Measure propagation delays
 meas tran t_rise_ina WHEN V(INA)=1.65 RISE=1
 meas tran t_rise_gate_hs WHEN V(GATE_HS)=7.5 RISE=1
-meas tran prop_delay_hs PARAM='t_rise_gate_hs - t_rise_ina'
 
+* Calculate prop delay using variables
+let prop_delay_hs = t_rise_gate_hs - t_rise_ina
+echo "High-Side Propagation Delay:"
 print prop_delay_hs
 
 * Measure dead time
 meas tran t_fall_gate_ls WHEN V(GATE_LS)=7.5 FALL=1
 meas tran t_rise_gate_hs2 WHEN V(GATE_HS)=7.5 RISE=1
-meas tran dead_time PARAM='t_rise_gate_hs2 - t_fall_gate_ls'
 
+let dead_time = t_rise_gate_hs2 - t_fall_gate_ls
+echo "Dead Time:"
 print dead_time
 
 .endc

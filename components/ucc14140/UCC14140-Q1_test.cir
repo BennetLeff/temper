@@ -1,0 +1,260 @@
+* UCC14140-Q1 Test Circuit for Gate Driver Bias Application
+* Isolated Power Supply for IGBT/SiC Gate Drivers
+* This netlist demonstrates the UCC14140-Q1 providing isolated bias power
+* Suitable for ngspice simulation
+
+.title UCC14140-Q1 Gate Driver Bias Power Supply Test
+
+* Include the UCC14140-Q1 model
+.include UCC14140-Q1.lib
+
+***************************************************************************
+* Power Supplies
+***************************************************************************
+* Primary side input - 12V automotive battery/bus
+VIN VIN_RAIL 0 DC 12.0
+
+* Input bulk capacitor (10µF ceramic + 47µF electrolytic typical)
+C_IN_BULK VIN_RAIL 0 47u IC=0
+C_IN_CERAMIC VIN_RAIL 0 10u IC=0
+
+* Input ESR
+R_IN_ESR VIN_RAIL VIN_FILT 0.05
+
+***************************************************************************
+* Enable Control Signal
+***************************************************************************
+* Enable input - PWM or step function
+* Step from 0 to 3.3V at 1ms to enable the module
+VEN ENABLE 0 PWL(0 0 1m 0 1.01m 3.3 100m 3.3)
+
+***************************************************************************
+* UCC14140-Q1 Isolated DC/DC Module
+***************************************************************************
+* Pin connections (36-pin SSOP package)
+* Primary: GNDP (1,2,5,8-18), PG (3), ENA (4), VIN (6,7)
+* Secondary: VEE (19-27,30,31,36), VDD (28,29), RLIM (32), FBVEE (33), FBVDD (34), VEEA (35)
+
+XUCC14140 0 0 PG_OUT ENABLE 0 VIN_FILT VIN_FILT 0 0 0 0 0 0 0 0 0 0 0
++ VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT
++ VDD_OUT VDD_OUT
++ VEE_OUT VEE_OUT
++ RLIM_PIN FB_VEE FB_VDD VEEA_OUT
++ VEE_OUT
++ UCC14140-Q1
+
+***************************************************************************
+* Output Voltage Programming
+***************************************************************************
+* VDD-VEE Output Programming (Target: 20V)
+* Using 2.5V reference: VOUT = 2.5V * (1 + R1/R2)
+* For 20V: 20 = 2.5 * (1 + R1/R2) -> R1/R2 = 7
+* Choose R2 = 2kΩ, R1 = 14kΩ
+
+* VDD-VEE feedback divider
+R_FBVDD_TOP VDD_OUT FB_VDD 14k
+R_FBVDD_BOT FB_VDD FB_VEE 2k
+
+* Connect FBVEE to VEE through low resistance
+R_FBVEE_CONN FB_VEE VEE_OUT 10
+
+* VEEA to VEE voltage (defaults to 2.5V, can be programmed)
+* For this test, leaving at default 2.5V
+* Could add divider between VEEA and VEE for different voltage
+
+***************************************************************************
+* Current Limit Programming
+***************************************************************************
+* RLIM resistor sets output current limit
+* ILIM = 175µA / RLIM (typical)
+* For 75mA limit: RLIM = 175µA / 75mA = 2.33kΩ
+* Using 2.2kΩ for ~80mA limit
+
+R_RLIM RLIM_PIN VEEA_OUT 2.2k
+
+***************************************************************************
+* Output Capacitors
+***************************************************************************
+* VDD output capacitor (4.7µF min required per datasheet)
+* Using 10µF ceramic for good performance
+C_VDD_OUT VDD_OUT VEEA_OUT 10u IC=0
+R_VDD_ESR_1 VDD_OUT N_VDD_ESR1 0.01
+C_VDD_BULK N_VDD_ESR1 VEEA_OUT 47u IC=0
+
+* VEEA output capacitor (4.7µF min required)
+C_VEEA_OUT VEEA_OUT VEE_OUT 10u IC=0
+C_VEEA_BULK VEEA_OUT VEE_OUT 47u IC=0
+
+* VEE output capacitor (not explicitly required but good practice)
+C_VEE_OUT VEE_OUT 0 10u IC=0
+
+***************************************************************************
+* Load - Gate Driver Bias Current
+***************************************************************************
+* Simulating gate driver quiescent + switching current
+* Typical gate driver: 5-10mA quiescent + pulsed gate current
+* Average current: 20-40mA typical
+
+* VDD load - constant current (gate driver supply current)
+* Typical IGBT gate driver pulls 15-30mA from VDD
+I_LOAD_VDD VDD_OUT VEEA_OUT PWL(0 0 10m 0 10.1m 25m 100m 25m)
+
+* VEEA load - gate driver logic supply
+* Lighter load on VEEA (5-10mA typical)
+I_LOAD_VEEA VEEA_OUT VEE_OUT PWL(0 0 15m 0 15.1m 8m 100m 8m)
+
+* Pulsed load simulating gate switching events (50kHz PWM)
+* Peak current during gate charging
+I_LOAD_PULSE VDD_OUT VEEA_OUT PULSE(0 50m 20m 100n 100n 10u 20u)
+
+***************************************************************************
+* Power Good Indicator
+***************************************************************************
+* Pull-up resistor for open-drain PG output
+R_PG_PULLUP PG_OUT VIN_FILT 10k
+
+* LED indicator (optional visualization)
+* When PG is low (asserted), LED is on
+R_LED_PG VIN_FILT N_LED_PG 1k
+D_LED_PG N_LED_PG PG_OUT DLED
+.model DLED D (IS=1e-15 RS=1 N=1.8)
+
+***************************************************************************
+* Input Filter (EMI suppression)
+***************************************************************************
+* Small series inductor for input filtering
+L_IN VIN_FILT N_VIN_L 10u IC=0
+R_L_DCR N_VIN_L VIN_MODULE 0.1
+
+* Connect to module VIN pins
+R_VIN_CONN VIN_MODULE VIN_FILT 0.01
+
+***************************************************************************
+* Measurement Points
+***************************************************************************
+* Virtual voltage sources for current measurement
+V_SENSE_VDD VDD_OUT N_VDD_LOAD 0
+V_SENSE_VEEA VEEA_OUT N_VEEA_LOAD 0
+V_SENSE_VEE VEE_OUT N_VEE_LOAD 0
+
+***************************************************************************
+* Simulation Control
+***************************************************************************
+* Transient analysis - startup and steady state
+* Run for 100ms to see startup, soft-start, and steady state operation
+.tran 10u 100m 0 10u
+
+* Initial conditions
+.ic V(VDD_OUT)=0 V(VEEA_OUT)=0 V(VEE_OUT)=0
+
+***************************************************************************
+* Output Control
+***************************************************************************
+* Save key waveforms
+.save V(ENABLE) V(VIN_RAIL) V(PG_OUT) V(VDD_OUT) V(VEEA_OUT) V(VEE_OUT)
++ V(VDD_OUT,VEE_OUT) V(VEEA_OUT,VEE_OUT) V(FB_VDD) V(FB_VEE)
++ I(V_SENSE_VDD) I(V_SENSE_VEEA) I(V_SENSE_VEE) I(VIN)
+
+* Print and plot results
+.control
+run
+set hcopydevtype=postscript
+set color0=white
+set color1=black
+
+* Plot input voltage and enable
+plot V(VIN_RAIL) V(ENABLE) V(PG_OUT)+15 title 'Input Voltage, Enable, and Power Good'
+
+* Plot output voltages referenced to VEEA (COM)
+plot V(VDD_OUT,VEEA_OUT) V(VEEA_OUT,VEE_OUT) title 'Output Voltages: VDD-COM and COM-VEE'
+
+* Plot total output voltage VDD-VEE
+plot V(VDD_OUT,VEE_OUT) title 'Total Output Voltage VDD-VEE'
+
+* Plot output voltage absolute values
+plot V(VDD_OUT) V(VEEA_OUT) V(VEE_OUT) title 'Output Rails (Absolute)'
+
+* Plot output currents
+plot I(V_SENSE_VDD) I(V_SENSE_VEEA) abs(I(V_SENSE_VEE)) title 'Output Currents'
+
+* Plot input current
+plot I(VIN) title 'Input Current'
+
+* Plot input and output power
+plot V(VIN_RAIL)*I(VIN) (V(VDD_OUT,VEEA_OUT)*I(V_SENSE_VDD)+V(VEEA_OUT,VEE_OUT)*I(V_SENSE_VEEA)) title 'Input and Output Power'
+
+* Plot feedback voltages
+plot V(FB_VDD,FB_VEE) title 'Feedback Voltage (should be 2.5V)'
+
+* Measure key parameters
+echo
+echo "==================================================================="
+echo "UCC14140-Q1 Test Results"
+echo "==================================================================="
+echo
+
+* Measure startup time (time to reach 90% of final VDD-VEE voltage)
+meas tran VOUT_FINAL FIND V(VDD_OUT,VEE_OUT) AT=99m
+meas tran VOUT_90PCT PARAM='VOUT_FINAL*0.9'
+meas tran T_STARTUP WHEN V(VDD_OUT,VEE_OUT)=VOUT_90PCT RISE=1
+
+echo "Startup time to 90% VOUT: "
+print T_STARTUP
+
+* Measure final output voltages at steady state (95-99ms average)
+meas tran VDD_VEE_AVG AVG V(VDD_OUT,VEE_OUT) FROM=95m TO=99m
+meas tran VDD_VEEA_AVG AVG V(VDD_OUT,VEEA_OUT) FROM=95m TO=99m
+meas tran VEEA_VEE_AVG AVG V(VEEA_OUT,VEE_OUT) FROM=95m TO=99m
+
+echo "Average output voltages (steady state):"
+print VDD_VEE_AVG VDD_VEEA_AVG VEEA_VEE_AVG
+
+* Measure output voltage ripple (peak-to-peak in last 4ms)
+meas tran VDD_VEE_MAX MAX V(VDD_OUT,VEE_OUT) FROM=96m TO=100m
+meas tran VDD_VEE_MIN MIN V(VDD_OUT,VEE_OUT) FROM=96m TO=100m
+meas tran VDD_VEE_RIPPLE PARAM='VDD_VEE_MAX - VDD_VEE_MIN'
+
+echo "VDD-VEE output ripple (peak-to-peak):"
+print VDD_VEE_RIPPLE
+
+* Measure average output currents
+meas tran I_VDD_AVG AVG I(V_SENSE_VDD) FROM=95m TO=99m
+meas tran I_VEEA_AVG AVG I(V_SENSE_VEEA) FROM=95m TO=99m
+
+echo "Average output currents:"
+print I_VDD_AVG I_VEEA_AVG
+
+* Measure average input current and calculate efficiency
+meas tran I_IN_AVG AVG I(VIN) FROM=95m TO=99m
+meas tran P_IN_AVG AVG V(VIN_RAIL)*I(VIN) FROM=95m TO=99m
+meas tran P_OUT_AVG AVG V(VDD_OUT,VEEA_OUT)*I(V_SENSE_VDD)+V(VEEA_OUT,VEE_OUT)*I(V_SENSE_VEEA) FROM=95m TO=99m
+meas tran EFFICIENCY PARAM='P_OUT_AVG/P_IN_AVG*100'
+
+echo "Input/Output power and efficiency:"
+print I_IN_AVG P_IN_AVG P_OUT_AVG EFFICIENCY
+
+* Measure feedback voltage accuracy
+meas tran FB_VOLTAGE_AVG AVG V(FB_VDD,FB_VEE) FROM=95m TO=99m
+
+echo "Feedback voltage (should be 2.5V):"
+print FB_VOLTAGE_AVG
+
+* Measure PG assertion time
+meas tran T_PG_ASSERT WHEN V(PG_OUT)=6 FALL=1
+
+echo "Power Good assertion time:"
+print T_PG_ASSERT
+
+echo
+echo "==================================================================="
+echo "Expected Results:"
+echo "  VDD-VEE output: 20V ±5%"
+echo "  VEEA-VEE output: 2.5V (default)"
+echo "  Startup time: ~28ms (soft-start)"
+echo "  Efficiency: ~75-85%"
+echo "  FB voltage: 2.5V ±2%"
+echo "==================================================================="
+
+.endc
+
+.end

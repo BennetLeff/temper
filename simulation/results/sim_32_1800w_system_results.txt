@@ -1,0 +1,101 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: 1800W Induction Cooker - Full System Verification
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+doAnalyses: TRAN:  Timestep too small; time = 0.0011316, timestep = 2.5e-19: trouble with node "v.x_q1.v_diode_sense#branch"
+
+
+run simulation(s) aborted
+
+Error: measure  i_rms  rms(TRIG) : out of interval
+Warning from checkvalid: vector i_rms is not available or has zero length.
+Error: RHS "i_rms * i_rms * r_pan" invalid
+Warning from checkvalid: vector i_rms is not available or has zero length.
+Error: RHS "i_rms * i_rms * r_coil" invalid
+Warning from checkvalid: vector p_pan is not available or has zero length.
+Error: RHS "p_pan + p_coil" invalid
+Warning from checkvalid: vector p_pan is not available or has zero length.
+Error: RHS "p_pan / p_total * 100" invalid
+Warning from checkvalid: vector i_rms is not available or has zero length.
+Warning from checkvalid: vector v_bus_avg is not available or has zero length.
+Warning from checkvalid: vector v_mid_max is not available or has zero length.
+Warning from checkvalid: vector v_mid_min is not available or has zero length.
+Warning from checkvalid: vector v_cap_peak is not available or has zero length.
+Warning from checkvalid: vector p_pan is not available or has zero length.
+Warning from checkvalid: vector p_coil is not available or has zero length.
+Warning from checkvalid: vector p_total is not available or has zero length.
+Warning from checkvalid: vector eff is not available or has zero length.
+Warning from checkvalid: vector p_coil is not available or has zero length.
+Warning from checkvalid: vector v_mid_min is not available or has zero length.
+
+No. of Data Rows : 10398
+ meas tran i_rms rms i_tank from=4m to=5m failed!
+
+i_peak              =  0.000000e+00 at=  0.000000e+00
+
+============================================================
+1800W SYSTEM VERIFICATION - Simulation 32
+============================================================
+
+TARGET SPECIFICATIONS:
+  Input: 120VAC / 15A (1800W max)
+  DC Bus: 170V
+  Output Power: 1800W
+  Pan Resistance: 8 ohm
+
+============================================================
+OPERATING POINT
+============================================================
+
+Switching frequency: 38 kHz
+Resonant frequency: ~35.8 kHz
+Dead-time: 500 ns
+
+============================================================
+MEASURED RESULTS
+============================================================
+i_peak = 0.000000e+00
+
+============================================================
+POWER ANALYSIS
+============================================================
+
+============================================================
+THERMAL IMPACT
+============================================================
+
+IGBT losses (estimated with ZVS):
+  Conduction: ~24W (both)
+  Switching: ~8W (both, ZVS)
+  Diode: ~6W (both)
+  Total IGBT: ~38W
+
+Coil losses:
+
+TOTAL SYSTEM HEAT:
+  IGBTs + Coil = ~38W + ~50W = ~88W
+
+============================================================
+VERIFICATION CRITERIA
+============================================================
+
+Target I_rms for 1800W: 15.0A
+Target P_pan: 1800W
+Target efficiency: >95%
+
+============================================================
+ZVS VERIFICATION
+============================================================
+
+V_mid_min should be <10V for ZVS
+
+If V_mid_min << Vbus, ZVS is achieved
+
+ngspice-45.2 done

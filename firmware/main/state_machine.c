@@ -1,0 +1,919 @@
+/**
+ * @file state_machine.c
+ * @brief State machine implementation for induction cooker
+ * 
+ * States:
+ * - INIT: Power-on self-test
+ * - IDLE: Standby (low power)
+ * - PAN_DET: Pan detection (5s timeout)
+ * - PREHEAT: Aggressive heating to target
+ * - HEATING: Precision PID control
+ * - NO_PAN: Pan removed pause (3s window)
+ * - COOLDOWN: Active cooling
+ * - FAULT: Lockout (requires reset)
+ */
+
+#include "state_machine.h"
+#include <stddef.h>
+#include <math.h>
+
+/* ESP-IDF includes */
+#ifdef ESP_PLATFORM
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
+static const char *TAG = "state_machine";
+#endif
+
+/* Include component headers */
+/* These will resolve when building with ESP-IDF */
+/* #include "pan_detect.h" */
+/* #include "pid_control.h" */
+/* #include "pll_control.h" */
+/* #include "safety.h" */
+
+/* Configuration */
+#define SAFE_IDLE_TEMP          50.0f   /* °C - safe to return to idle */
+#define MAX_TEMP                250.0f  /* °C - maximum allowed temperature */
+#define MIN_TEMP                50.0f   /* °C - minimum setpoint */
+#define PAN_DETECT_TIMEOUT_MS   5000    /* 5 second pan detection timeout */
+#define NO_PAN_TIMEOUT_MS       3000    /* 3 second window to replace pan */
+#define PAN_DEBOUNCE_COUNT      10      /* Consecutive samples for debounce */
+#define PAN_CONFIDENCE_REQUIRED 3       /* Confirmations before heating */
+#define MAX_PREHEAT_TIME_MS     600000  /* 10 minute max preheat time */
+#define MESSAGE_DISPLAY_TIME_MS 2000    /* Non-blocking message display time */
+
+/* State machine context */
+static struct {
+    system_state_t current_state;
+    system_state_t previous_state;
+    fault_code_t fault_code;
+    uint32_t state_entry_time;
+    uint32_t state_duration;
+
+    /* State-specific data */
+    uint8_t pan_detect_confidence;
+    uint8_t pan_absent_count;
+    float initial_pan_impedance;
+    float cooldown_start_temp;
+    uint16_t countdown_timer_ms;
+
+    /* User inputs */
+    float target_temperature;
+    uint32_t cooking_time_ms;
+    bool cooking_timer_enabled;
+    
+    /* Non-blocking message display */
+    bool message_pending;
+    system_state_t message_next_state;
+    uint32_t message_start_time;
+    
+    /* Last update timestamp for timer decrement */
+    uint32_t last_update_time_ms;
+
+} sm_ctx = {
+    .current_state = STATE_INIT,
+    .previous_state = STATE_INIT,
+    .fault_code = FAULT_NONE,
+    .target_temperature = 100.0f,
+    .message_pending = false,
+    .last_update_time_ms = 0,
+};
+
+/* Forward declarations - state handlers */
+static void state_init_entry(void);
+static void state_init_update(void);
+static void state_idle_entry(void);
+static void state_idle_update(void);
+static void state_pan_det_entry(void);
+static void state_pan_det_update(void);
+static void state_preheat_entry(void);
+static void state_preheat_update(void);
+static void state_heating_entry(void);
+static void state_heating_update(void);
+static void state_no_pan_entry(void);
+static void state_no_pan_update(void);
+static void state_cooldown_entry(void);
+static void state_cooldown_update(void);
+static void state_fault_entry(void);
+static void state_fault_update(void);
+
+/* Forward declarations - helpers */
+static void transition_to(system_state_t new_state);
+static bool run_self_test(void);
+static void check_safety_interlocks(void);
+static bool fault_cleared(void);
+static void show_message_then_transition(const char *msg, system_state_t next_state);
+
+/* External function stubs - implement in peripherals module */
+extern uint32_t get_time_ms(void);
+extern void peripherals_init(void);
+extern void peripherals_enter_low_power(void);
+extern void peripherals_exit_low_power(void);
+extern void led_set_pattern(led_pattern_t pattern);
+extern void display_show_message(const char *msg);
+extern void display_update_temperature(float temp);
+extern void display_update_countdown(uint16_t seconds);
+extern void display_show_fault(fault_code_t code);
+extern void buzzer_beep(uint32_t duration_ms);
+extern void buzzer_beep_continuous(void);
+extern void buzzer_stop(void);
+extern bool button_is_pressed(button_id_t button);
+extern void button_set_enabled(button_id_t button, bool enabled);
+extern void pwm_set_duty_cycle(uint8_t duty);
+extern void pwm_disable_all(void);
+extern void power_set_level(uint8_t level);
+extern void power_enable(void);
+extern void fan_set_speed(fan_speed_t speed);
+extern void fan_set_auto_mode(bool enabled);
+extern float read_pan_temperature(void);
+extern float read_heatsink_temperature(void);
+extern float read_dc_bus_current(void);
+extern float read_rtd_resistance(void);
+extern bool is_fan_running(void);
+extern void delay_ms(uint32_t ms);
+extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
+
+/* Pan detection stubs */
+typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
+extern pan_status_t detect_pan_presence(void);
+extern float get_pan_impedance(void);
+
+/* PID stubs */
+extern void pid_set_tuning(float kp, float ki, float kd);
+extern void pid_reset_integral(void);
+extern float pid_update(float setpoint, float measurement);
+
+/* PLL stubs */
+extern void pll_enable(void);
+extern void pll_disable(void);
+extern void pll_update(void);
+
+/* Safety stubs */
+extern void watchdog_set_timeout(uint32_t timeout_ms);
+extern void watchdog_feed(void);
+extern void watchdog_hardware_feed(void);
+extern void trigger_hardware_shutdown(void);
+
+/* Self-test stubs */
+extern bool test_adc_calibration(void);
+extern bool test_pwm_generation(void);
+extern bool test_fan_operation(void);
+extern bool test_hardware_comparators(void);
+extern bool test_rtd_sensor(void);
+extern bool test_display_communication(void);
+extern bool test_eeprom_read(void);
+
+/* ============================================================================
+ * Public API
+ * ============================================================================ */
+
+void state_machine_init(void) {
+    /* Reset all state machine context to defaults */
+    sm_ctx.current_state = STATE_INIT;
+    sm_ctx.previous_state = STATE_INIT;
+    sm_ctx.fault_code = FAULT_NONE;
+    sm_ctx.state_entry_time = 0;
+    sm_ctx.state_duration = 0;
+    
+    /* Reset state-specific data */
+    sm_ctx.pan_detect_confidence = 0;
+    sm_ctx.pan_absent_count = 0;
+    sm_ctx.initial_pan_impedance = 0.0f;
+    sm_ctx.cooldown_start_temp = 0.0f;
+    sm_ctx.countdown_timer_ms = 0;
+    
+    /* Reset user inputs to defaults */
+    sm_ctx.target_temperature = 100.0f;
+    sm_ctx.cooking_time_ms = 0;
+    sm_ctx.cooking_timer_enabled = false;
+    
+    /* Reset message display state */
+    sm_ctx.message_pending = false;
+    sm_ctx.message_next_state = STATE_INIT;
+    sm_ctx.message_start_time = 0;
+    
+    /* Reset timing */
+    sm_ctx.last_update_time_ms = 0;
+    
+    transition_to(STATE_INIT);
+}
+
+void state_machine_update(void) {
+    /* Update state duration */
+    uint32_t now = get_time_ms();
+    sm_ctx.state_duration = now - sm_ctx.state_entry_time;
+    
+    /* Feed external hardware watchdog (TPS3823-33) at the TOP of the loop.
+     * This ensures the watchdog is fed even if state processing hangs.
+     * The WDI toggle provides a heartbeat to the hardware watchdog IC.
+     * If this function stops being called (MCU lockup), the watchdog
+     * will timeout after 1.6s and disable the power stage.
+     * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
+    watchdog_hardware_feed();
+    
+    /* Handle non-blocking message display */
+    if (sm_ctx.message_pending) {
+        if ((now - sm_ctx.message_start_time) >= MESSAGE_DISPLAY_TIME_MS) {
+            sm_ctx.message_pending = false;
+            transition_to(sm_ctx.message_next_state);
+            return;
+        }
+        /* Still displaying message - feed software watchdog but skip state logic */
+        watchdog_feed();
+        return;
+    }
+    
+    /* Calculate dt for timer decrement */
+    uint32_t dt_ms = 0;
+    if (sm_ctx.last_update_time_ms > 0) {
+        dt_ms = now - sm_ctx.last_update_time_ms;
+    }
+    sm_ctx.last_update_time_ms = now;
+    
+    /* Decrement cooking timer if active */
+    if (sm_ctx.cooking_timer_enabled && sm_ctx.cooking_time_ms > 0) {
+        if (dt_ms >= sm_ctx.cooking_time_ms) {
+            sm_ctx.cooking_time_ms = 0;
+        } else {
+            sm_ctx.cooking_time_ms -= dt_ms;
+        }
+    }
+
+    /* Run current state update function */
+    switch (sm_ctx.current_state) {
+        case STATE_INIT:     state_init_update();     break;
+        case STATE_IDLE:     state_idle_update();     break;
+        case STATE_PAN_DET:  state_pan_det_update();  break;
+        case STATE_PREHEAT:  state_preheat_update();  break;
+        case STATE_HEATING:  state_heating_update();  break;
+        case STATE_NO_PAN:   state_no_pan_update();   break;
+        case STATE_COOLDOWN: state_cooldown_update(); break;
+        case STATE_FAULT:    state_fault_update();    break;
+    }
+}
+
+void state_machine_set_target_temp(float temp_celsius) {
+    if (temp_celsius >= MIN_TEMP && temp_celsius <= MAX_TEMP) {
+        sm_ctx.target_temperature = temp_celsius;
+    }
+}
+
+system_state_t state_machine_get_state(void) {
+    return sm_ctx.current_state;
+}
+
+fault_code_t state_machine_get_fault(void) {
+    return sm_ctx.fault_code;
+}
+
+const char* state_machine_get_fault_string(fault_code_t code) {
+    switch (code) {
+        case FAULT_NONE:            return "NO FAULT";
+        case FAULT_OVER_TEMP:       return "OVER TEMP";
+        case FAULT_OVER_CURRENT:    return "OVER CURRENT";
+        case FAULT_FAN_FAILURE:     return "FAN FAILED";
+        case FAULT_PROBE_OPEN:      return "PROBE OPEN";
+        case FAULT_PROBE_SHORT:     return "PROBE SHORT";
+        case FAULT_THERMAL_RUNAWAY: return "THERMAL RUNAWAY";
+        case FAULT_SELF_TEST_FAILED: return "SELF TEST FAIL";
+        case FAULT_WATCHDOG_RESET:  return "WATCHDOG RESET";
+        case FAULT_COOLDOWN_OVERHEAT: return "COOLDOWN FAULT";
+        case FAULT_PAN_DETECT_HW:   return "PAN DETECT HW";
+        default:                    return "UNKNOWN FAULT";
+    }
+}
+
+const char* state_machine_get_state_string(system_state_t state) {
+    switch (state) {
+        case STATE_INIT:     return "INIT";
+        case STATE_IDLE:     return "IDLE";
+        case STATE_PAN_DET:  return "PAN_DET";
+        case STATE_PREHEAT:  return "PREHEAT";
+        case STATE_HEATING:  return "HEATING";
+        case STATE_NO_PAN:   return "NO_PAN";
+        case STATE_COOLDOWN: return "COOLDOWN";
+        case STATE_FAULT:    return "FAULT";
+        default:             return "UNKNOWN";
+    }
+}
+
+void state_machine_set_timer(bool enabled, uint32_t time_ms) {
+    sm_ctx.cooking_timer_enabled = enabled;
+    sm_ctx.cooking_time_ms = time_ms;
+}
+
+void state_machine_force_state(system_state_t new_state) {
+    transition_to(new_state);
+}
+
+/* ============================================================================
+ * STATE_INIT Implementation
+ * ============================================================================ */
+
+static void state_init_entry(void) {
+    /* Initialize all peripherals */
+    peripherals_init();
+
+    /* Visual feedback */
+    led_set_pattern(LED_BLINK_FAST);
+    display_show_message("SELF TEST");
+
+    /* Set watchdog - longer timeout for POST */
+    watchdog_set_timeout(5000);
+}
+
+static void state_init_update(void) {
+    /* Run power-on self-test */
+    bool post_passed = run_self_test();
+
+    if (post_passed) {
+        transition_to(STATE_IDLE);
+    } else {
+        sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
+        transition_to(STATE_FAULT);
+    }
+}
+
+static bool run_self_test(void) {
+    bool passed = true;
+
+    /* Test ADC channels */
+    passed &= test_adc_calibration();
+    if (!passed) return false;
+
+    /* Test PWM output */
+    passed &= test_pwm_generation();
+    if (!passed) return false;
+
+    /* Test fan */
+    passed &= test_fan_operation();
+    if (!passed) return false;
+
+    /* Test safety interlocks */
+    passed &= test_hardware_comparators();
+    if (!passed) return false;
+
+    /* Test temperature sensors */
+    passed &= test_rtd_sensor();
+    if (!passed) return false;
+
+    /* Test display */
+    passed &= test_display_communication();
+    if (!passed) return false;
+
+    /* Test EEPROM */
+    passed &= test_eeprom_read();
+    if (!passed) return false;
+
+    return true;
+}
+
+/* ============================================================================
+ * STATE_IDLE Implementation
+ * ============================================================================ */
+
+static void state_idle_entry(void) {
+    /* Disable power output */
+    pwm_set_duty_cycle(0);
+    power_set_level(0);
+
+    /* Minimum fan speed */
+    fan_set_speed(FAN_SPEED_MIN);
+
+    /* Visual feedback */
+    led_set_pattern(LED_STEADY_GREEN);
+    display_show_message("READY");
+
+    /* Re-enable start button (disabled in cooldown) */
+    button_set_enabled(BUTTON_START, true);
+
+    /* Enable sleep mode for power savings */
+    peripherals_enter_low_power();
+
+    /* Set watchdog to longer timeout */
+    watchdog_set_timeout(10000);
+}
+
+static void state_idle_update(void) {
+    /* Check for start button */
+    if (button_is_pressed(BUTTON_START) && sm_ctx.target_temperature > 0) {
+        transition_to(STATE_PAN_DET);
+        return;
+    }
+
+    /* Handle temperature adjustment */
+    if (button_is_pressed(BUTTON_TEMP_UP)) {
+        sm_ctx.target_temperature += 5.0f;
+        if (sm_ctx.target_temperature > MAX_TEMP) {
+            sm_ctx.target_temperature = MAX_TEMP;
+        }
+        display_update_temperature(sm_ctx.target_temperature);
+    }
+
+    if (button_is_pressed(BUTTON_TEMP_DOWN)) {
+        sm_ctx.target_temperature -= 5.0f;
+        if (sm_ctx.target_temperature < MIN_TEMP) {
+            sm_ctx.target_temperature = MIN_TEMP;
+        }
+        display_update_temperature(sm_ctx.target_temperature);
+    }
+
+    /* Background monitoring */
+    (void)read_heatsink_temperature();
+    (void)is_fan_running();
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * STATE_PAN_DET Implementation
+ * ============================================================================ */
+
+static void state_pan_det_entry(void) {
+    /* Wake up from low power */
+    peripherals_exit_low_power();
+
+    /* Enable low-power detection mode */
+    power_set_level(5);
+
+    /* Visual feedback */
+    display_show_message("PLACE PAN");
+    led_set_pattern(LED_BLINK_SLOW);
+
+    /* Reset detection state */
+    sm_ctx.pan_detect_confidence = 0;
+    sm_ctx.countdown_timer_ms = PAN_DETECT_TIMEOUT_MS;
+
+    /* Set watchdog */
+    watchdog_set_timeout(2000);
+}
+
+static void state_pan_det_update(void) {
+    /* Run pan detection */
+    pan_status_t result = detect_pan_presence();
+
+    if (result == PAN_PRESENT) {
+        sm_ctx.pan_detect_confidence++;
+        if (sm_ctx.pan_detect_confidence >= PAN_CONFIDENCE_REQUIRED) {
+            /* Record initial pan impedance for tracking */
+            sm_ctx.initial_pan_impedance = get_pan_impedance();
+            transition_to(STATE_PREHEAT);
+            return;
+        }
+    } else {
+        sm_ctx.pan_detect_confidence = 0;
+    }
+
+    /* Check for timeout */
+    if (sm_ctx.state_duration > sm_ctx.countdown_timer_ms) {
+        show_message_then_transition("NO PAN", STATE_IDLE);
+        return;
+    }
+
+    /* Check for cancel */
+    if (button_is_pressed(BUTTON_STOP)) {
+        transition_to(STATE_IDLE);
+        return;
+    }
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * STATE_PREHEAT Implementation
+ * ============================================================================ */
+
+static void state_preheat_entry(void) {
+    /* Enable full power */
+    power_enable();
+
+    /* Initialize PID with aggressive tuning */
+    pid_set_tuning(2.0f, 0.1f, 0.5f);
+
+    /* Enable ZVS tracking */
+    pll_enable();
+
+    /* Visual feedback */
+    display_show_message("PREHEATING");
+    led_set_pattern(LED_STEADY_ORANGE);
+
+    /* Fan to moderate speed */
+    fan_set_speed(FAN_SPEED_MEDIUM);
+
+    /* Set watchdog */
+    watchdog_set_timeout(1000);
+}
+
+static void state_preheat_update(void) {
+    /* Read current temperature */
+    float current_temp = read_pan_temperature();
+    float temp_error = sm_ctx.target_temperature - current_temp;
+
+    /* Check for preheat timeout - safety limit */
+    if (sm_ctx.state_duration > MAX_PREHEAT_TIME_MS) {
+        sm_ctx.fault_code = FAULT_THERMAL_RUNAWAY;
+        transition_to(STATE_FAULT);
+        return;
+    }
+    
+    /* Aggressive power control */
+    if (temp_error > 50.0f) {
+        power_set_level(100);
+    } else if (temp_error > 10.0f) {
+        power_set_level(50);
+    } else {
+        /* Close to target: switch to precision control */
+        transition_to(STATE_HEATING);
+        return;
+    }
+
+    /* Safety checks */
+    check_safety_interlocks();
+
+    /* Check for pan removal */
+    if (detect_pan_presence() == PAN_ABSENT) {
+        transition_to(STATE_NO_PAN);
+        return;
+    }
+
+    /* Check for stop button */
+    if (button_is_pressed(BUTTON_STOP)) {
+        transition_to(STATE_COOLDOWN);
+        return;
+    }
+
+    /* Update display */
+    display_update_temperature(current_temp);
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * STATE_HEATING Implementation
+ * ============================================================================ */
+
+static void state_heating_entry(void) {
+    /* Switch to precision PID tuning */
+    pid_set_tuning(1.0f, 0.05f, 0.2f);
+    pid_reset_integral();
+
+    /* Visual feedback */
+    display_show_message("HEATING");
+    led_set_pattern(LED_STEADY_GREEN);
+
+    /* Fan to automatic control */
+    fan_set_auto_mode(true);
+
+    /* Set watchdog */
+    watchdog_set_timeout(1000);
+    
+    /* Reset pan absent counter */
+    sm_ctx.pan_absent_count = 0;
+}
+
+static void state_heating_update(void) {
+    /* Read current temperature */
+    float current_temp = read_pan_temperature();
+
+    /* Run PID controller */
+    float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
+    power_set_level((uint8_t)pid_output);
+
+    /* Update PLL for ZVS tracking */
+    pll_update();
+
+    /* Safety checks */
+    check_safety_interlocks();
+
+    /* Thermal runaway detection */
+    if (current_temp > (sm_ctx.target_temperature + 10.0f)) {
+        sm_ctx.fault_code = FAULT_THERMAL_RUNAWAY;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
+    /* Pan removal detection (with debouncing) */
+    if (detect_pan_presence() == PAN_ABSENT) {
+        sm_ctx.pan_absent_count++;
+        if (sm_ctx.pan_absent_count > PAN_DEBOUNCE_COUNT) {
+            transition_to(STATE_NO_PAN);
+            return;
+        }
+    } else {
+        sm_ctx.pan_absent_count = 0;
+    }
+
+    /* User input */
+    if (button_is_pressed(BUTTON_STOP)) {
+        transition_to(STATE_COOLDOWN);
+        return;
+    }
+
+    if (button_is_pressed(BUTTON_TEMP_UP)) {
+        sm_ctx.target_temperature += 5.0f;
+        if (sm_ctx.target_temperature > MAX_TEMP) {
+            sm_ctx.target_temperature = MAX_TEMP;
+        }
+    }
+
+    if (button_is_pressed(BUTTON_TEMP_DOWN)) {
+        sm_ctx.target_temperature -= 5.0f;
+        if (sm_ctx.target_temperature < MIN_TEMP) {
+            sm_ctx.target_temperature = MIN_TEMP;
+        }
+    }
+
+    /* Timer check */
+    if (sm_ctx.cooking_timer_enabled && sm_ctx.cooking_time_ms == 0) {
+        show_message_then_transition("COMPLETE", STATE_COOLDOWN);
+        return;
+    }
+
+    /* Update display */
+    display_update_temperature(current_temp);
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * STATE_NO_PAN Implementation
+ * ============================================================================ */
+
+static void state_no_pan_entry(void) {
+    /* Immediately cut power */
+    power_set_level(0);
+
+    /* Alert user */
+    display_show_message("PAN REMOVED");
+    led_set_pattern(LED_BLINK_FAST);
+    buzzer_beep(500);
+
+    /* Start countdown */
+    sm_ctx.countdown_timer_ms = NO_PAN_TIMEOUT_MS;
+
+    /* Set watchdog */
+    watchdog_set_timeout(5000);
+}
+
+static void state_no_pan_update(void) {
+    /* Check if pan replaced */
+    if (detect_pan_presence() == PAN_PRESENT) {
+        /* Verify impedance matches (within 10%) */
+        float current_impedance = get_pan_impedance();
+        
+        /* Guard against division by zero */
+        if (sm_ctx.initial_pan_impedance <= 0.0f) {
+            /* No valid initial impedance - accept any pan */
+            transition_to(STATE_PREHEAT);
+            return;
+        }
+        
+        float impedance_error = fabsf(current_impedance - sm_ctx.initial_pan_impedance) /
+                               sm_ctx.initial_pan_impedance;
+
+        if (impedance_error < 0.10f) {
+            /* Same pan: resume heating */
+            transition_to(STATE_PREHEAT);
+            return;
+        } else {
+            /* Different pan detected */
+            show_message_then_transition("DIFFERENT PAN", STATE_COOLDOWN);
+            return;
+        }
+    }
+
+    /* Check timeout */
+    if (sm_ctx.state_duration > sm_ctx.countdown_timer_ms) {
+        transition_to(STATE_COOLDOWN);
+        return;
+    }
+
+    /* Update countdown display */
+    uint16_t seconds_remaining = (uint16_t)((sm_ctx.countdown_timer_ms - sm_ctx.state_duration) / 1000);
+    display_update_countdown(seconds_remaining);
+
+    /* Check for immediate cancel */
+    if (button_is_pressed(BUTTON_STOP)) {
+        transition_to(STATE_COOLDOWN);
+        return;
+    }
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * STATE_COOLDOWN Implementation
+ * ============================================================================ */
+
+static void state_cooldown_entry(void) {
+    /* Disable all power */
+    power_set_level(0);
+    pwm_set_duty_cycle(0);
+
+    /* Disable PLL */
+    pll_disable();
+
+    /* Maximum fan speed */
+    fan_set_speed(FAN_SPEED_MAX);
+
+    /* Record starting temperature */
+    sm_ctx.cooldown_start_temp = read_heatsink_temperature();
+
+    /* Visual feedback */
+    display_show_message("COOLING");
+    led_set_pattern(LED_BLINK_SLOW);
+
+    /* Disable start button */
+    button_set_enabled(BUTTON_START, false);
+
+    /* Set watchdog */
+    watchdog_set_timeout(2000);
+}
+
+static void state_cooldown_update(void) {
+    /* Read temperature */
+    float current_temp = read_heatsink_temperature();
+
+    /* Check if cool enough */
+    if (current_temp < SAFE_IDLE_TEMP) {
+        transition_to(STATE_IDLE);
+        return;
+    }
+
+    /* Safety check: temperature should NOT rise during cooldown */
+    if (current_temp > (sm_ctx.cooldown_start_temp + 5.0f)) {
+        sm_ctx.fault_code = FAULT_COOLDOWN_OVERHEAT;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
+    /* Update display */
+    display_update_temperature(current_temp);
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * STATE_FAULT Implementation
+ * ============================================================================ */
+
+static void state_fault_entry(void) {
+    /* EMERGENCY SHUTDOWN */
+    power_set_level(0);
+    pwm_disable_all();
+    pll_disable();
+
+    /* Maximum cooling */
+    fan_set_speed(FAN_SPEED_MAX);
+
+    /* Alert user */
+    led_set_pattern(LED_FAULT);
+    display_show_fault(sm_ctx.fault_code);
+    buzzer_beep_continuous();
+
+    /* Log to EEPROM */
+    eeprom_log_fault(sm_ctx.fault_code, get_time_ms());
+
+    /* Set watchdog */
+    watchdog_set_timeout(5000);
+}
+
+static void state_fault_update(void) {
+    /* Ensure power stays off */
+    power_set_level(0);
+
+    /* Display fault info */
+    display_show_message(state_machine_get_fault_string(sm_ctx.fault_code));
+
+    /* Check for user reset */
+    if (button_is_pressed(BUTTON_RESET)) {
+        if (fault_cleared()) {
+            /* Fault condition has cleared: reinitialize */
+            sm_ctx.fault_code = FAULT_NONE;
+            buzzer_stop();
+            transition_to(STATE_INIT);
+            return;
+        } else {
+            /* Fault persists */
+            display_show_message("FAULT PERSISTS");
+            buzzer_beep(1000);
+        }
+    }
+
+    /* Monitor critical temperature even in fault */
+    if (read_heatsink_temperature() > 125.0f) {
+        trigger_hardware_shutdown();
+    }
+
+    /* Feed watchdog */
+    watchdog_feed();
+}
+
+/* ============================================================================
+ * Helper Functions
+ * ============================================================================ */
+
+static void transition_to(system_state_t new_state) {
+    /* Record previous state */
+    sm_ctx.previous_state = sm_ctx.current_state;
+    sm_ctx.current_state = new_state;
+    sm_ctx.state_entry_time = get_time_ms();
+    sm_ctx.state_duration = 0;
+
+#ifdef ESP_PLATFORM
+    ESP_LOGI(TAG, "State transition: %s -> %s",
+             state_machine_get_state_string(sm_ctx.previous_state),
+             state_machine_get_state_string(new_state));
+#endif
+
+    /* Call entry function for new state */
+    switch (new_state) {
+        case STATE_INIT:     state_init_entry();     break;
+        case STATE_IDLE:     state_idle_entry();     break;
+        case STATE_PAN_DET:  state_pan_det_entry();  break;
+        case STATE_PREHEAT:  state_preheat_entry();  break;
+        case STATE_HEATING:  state_heating_entry();  break;
+        case STATE_NO_PAN:   state_no_pan_entry();   break;
+        case STATE_COOLDOWN: state_cooldown_entry(); break;
+        case STATE_FAULT:    state_fault_entry();    break;
+    }
+}
+
+static void check_safety_interlocks(void) {
+    /* Over-temperature check */
+    if (read_heatsink_temperature() > 100.0f) {
+        sm_ctx.fault_code = FAULT_OVER_TEMP;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
+    /* Over-current check */
+    if (read_dc_bus_current() > 35.0f) {
+        sm_ctx.fault_code = FAULT_OVER_CURRENT;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
+    /* Fan failure check */
+    if (!is_fan_running()) {
+        sm_ctx.fault_code = FAULT_FAN_FAILURE;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
+    /* RTD probe checks */
+    float rtd_resistance = read_rtd_resistance();
+    if (rtd_resistance > 10000.0f) {
+        sm_ctx.fault_code = FAULT_PROBE_OPEN;
+        transition_to(STATE_FAULT);
+        return;
+    }
+    if (rtd_resistance < 10.0f) {
+        sm_ctx.fault_code = FAULT_PROBE_SHORT;
+        transition_to(STATE_FAULT);
+        return;
+    }
+}
+
+static bool fault_cleared(void) {
+    float rtd_resistance;
+    
+    switch (sm_ctx.fault_code) {
+        case FAULT_OVER_TEMP:
+            return (read_heatsink_temperature() < 70.0f);
+
+        case FAULT_FAN_FAILURE:
+            return is_fan_running();
+
+        case FAULT_PROBE_OPEN:
+        case FAULT_PROBE_SHORT:
+            rtd_resistance = read_rtd_resistance();
+            return (rtd_resistance > 50.0f && rtd_resistance < 500.0f);
+
+        case FAULT_SELF_TEST_FAILED:
+            return run_self_test();
+
+        default:
+            return false;  /* Most faults require power cycle */
+    }
+}
+
+/**
+ * @brief Non-blocking message display with state transition
+ * 
+ * Shows a message for MESSAGE_DISPLAY_TIME_MS then transitions to next_state.
+ * This replaces blocking delay_ms() calls.
+ */
+static void show_message_then_transition(const char *msg, system_state_t next_state) {
+    display_show_message(msg);
+    sm_ctx.message_pending = true;
+    sm_ctx.message_next_state = next_state;
+    sm_ctx.message_start_time = get_time_ms();
+}

@@ -1,0 +1,237 @@
+project: rp2040_designguide
+extracted_at: '2025-12-16T19:14:03.261349'
+source_pcb: /Users/bennet.leff/Documents/temper/temper-placer/tests/fixtures/external/.cache/rp2040_designguide/RP2040-Guide.kicad_pcb
+board_width_mm: 45.21
+board_height_mm: 93.42
+board_origin_x: 171.45
+board_origin_y: 30.4
+component_count: 36
+net_count: 56
+total_wirelength_mm: 2931.97
+overlap_loss: 7.744979
+boundary_loss: 340.814392
+drc_errors: 6
+drc_warnings: 46
+drc_available: true
+component_positions:
+  J5:
+    x: 37.25
+    y: 88.875
+    rotation: 2.0
+    width: 3.55
+    height: 28.95
+  J3:
+    x: 12.065
+    y: 89.106
+    rotation: 2.0
+    width: 3.55
+    height: 28.95
+  J2:
+    x: 21.812
+    y: 53.53
+    rotation: 1.0
+    width: 3.55
+    height: 13.7
+  SW1:
+    x: 40.481
+    y: 10.732
+    rotation: 3.0
+    width: 3.55
+    height: 6.1
+  J4:
+    x: 24.733
+    y: 88.963
+    rotation: 2.0
+    width: 3.55
+    height: 28.95
+  C4:
+    x: 27.146
+    y: 30.416
+    rotation: 1.0
+    width: 1.82
+    height: 1.0
+  U4:
+    x: 24.987
+    y: 16.967
+    rotation: 1.0
+    width: 3.84
+    height: 3.4
+  R6:
+    x: 27.813
+    y: 24.844
+    rotation: 3.0
+    width: 2.96
+    height: 1.46
+  F1:
+    x: 24.86
+    y: 10.858
+    rotation: 3.0
+    width: 4.56
+    height: 2.24
+  R3:
+    x: 26.924
+    y: 9.35
+    rotation: 3.0
+    width: 1.86
+    height: 1.0
+  R4:
+    x: 31.877
+    y: 9.35
+    rotation: 3.0
+    width: 1.86
+    height: 1.0
+  C11:
+    x: 22.606
+    y: 39.576
+    rotation: 2.0
+    width: 1.82
+    height: 1.0
+  C8:
+    x: 26.13
+    y: 30.416
+    rotation: 1.0
+    width: 1.82
+    height: 1.0
+  C17:
+    x: 24.511
+    y: 20.653
+    rotation: 2.0
+    width: 1.82
+    height: 1.0
+  C13:
+    x: 29.912
+    y: 28.623
+    rotation: 1.0
+    width: 1.82
+    height: 1.0
+  C16:
+    x: 24.225
+    y: 14.174
+    rotation: 0.0
+    width: 1.82
+    height: 1.0
+  C10:
+    x: 29.023
+    y: 44.244
+    rotation: 3.0
+    width: 1.82
+    height: 1.0
+  C15:
+    x: 35.147
+    y: 32.957
+    rotation: 1.0
+    width: 1.82
+    height: 1.0
+  U2:
+    x: 29.432
+    y: 10.858
+    rotation: 1.0
+    width: 4.1
+    height: 3.4
+  C6:
+    x: 27.499
+    y: 44.244
+    rotation: 3.0
+    width: 1.82
+    height: 1.0
+  R1:
+    x: 34.893
+    y: 16.065
+    rotation: 3.0
+    width: 1.86
+    height: 1.0
+  C5:
+    x: 31.436
+    y: 28.623
+    rotation: 1.0
+    width: 1.82
+    height: 1.0
+  C1:
+    x: 36.163
+    y: 25.59
+    rotation: 2.0
+    width: 1.82
+    height: 1.0
+  C2:
+    x: 35.627
+    y: 48.069
+    rotation: 3.0
+    width: 1.82
+    height: 1.0
+  C9:
+    x: 23.435
+    y: 33.195
+    rotation: 2.0
+    width: 1.82
+    height: 1.0
+  C7:
+    x: 24.511
+    y: 19.637
+    rotation: 0.0
+    width: 1.82
+    height: 1.0
+  C3:
+    x: 28.924
+    y: 47.816
+    rotation: 1.0
+    width: 1.82
+    height: 1.0
+  R5:
+    x: 29.464
+    y: 24.844
+    rotation: 3.0
+    width: 2.96
+    height: 1.46
+  U3:
+    x: 29.912
+    y: 36.655
+    rotation: 2.0
+    width: 8.24
+    height: 8.24
+  Y1:
+    x: 32.198
+    y: 47.8
+    rotation: 0.0
+    width: 4.2
+    height: 3.4
+  U1:
+    x: 38.576
+    y: 20.174
+    rotation: 3.0
+    width: 9.3
+    height: 5.72
+  R2:
+    x: 22.352
+    y: 51.26
+    rotation: 2.0
+    width: 1.86
+    height: 1.0
+  C12:
+    x: 36.163
+    y: 38.798
+    rotation: 0.0
+    width: 1.82
+    height: 1.0
+  J1:
+    x: 29.337
+    y: 2.381
+    rotation: 0.0
+    width: 10.64
+    height: 9.42
+  R7:
+    x: 31.055
+    y: 44.244
+    rotation: 1.0
+    width: 1.86
+    height: 1.0
+  C14:
+    x: 23.435
+    y: 31.671
+    rotation: 2.0
+    width: 1.82
+    height: 1.0
+net_wirelengths: {}
+warnings:
+- 'Original design has overlap loss: 7.7450'
+- 'Original design has boundary loss: 340.8144'
+- DRC found 6 errors

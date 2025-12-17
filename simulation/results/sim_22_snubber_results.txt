@@ -1,0 +1,111 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: RC Snubber Design and Optimization
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  9.05456e-05
+No. of Data Rows : 20389
+
+  Measurements for Transient Analysis
+
+
+Error: measure  i_snub_hi_max  max(TRIG) : no such vector as 'i(r_snub_hi)'
+ .meas tran i_snub_hi_max max i(r_snub_hi) from=    5.999999999999999e-05     to=    9.999999999999999e-05    failed!
+
+
+Error: measure  i_snub_lo_max  max(TRIG) : no such vector as 'i(r_snub_lo)'
+ .meas tran i_snub_lo_max max i(r_snub_lo) from=    5.999999999999999e-05     to=    9.999999999999999e-05    failed!
+
+v_mid_max           =  2.741204e+02 at=  6.000127e-05
+v_mid_min           =  -1.334564e+02 at=  8.114561e-05
+v_undershoot        =  -1.334564e+02 at=  8.114561e-05
+v_overshoot         =  2.741204e+02 at=  6.000127e-05
+v_overshoot_pct     =  -1.43374e+01
+t_mid_rise_10       =   2.88435e-05
+t_mid_rise_90       =   2.88683e-05
+dvdt_rise           =  1.03034e+10
+t_mid_fall_90       =   2.90184e-05
+t_mid_fall_10       =   4.18702e-05
+dvdt_fall           =  1.99194e+07
+i_load_max          =  1.521091e+01 at=  6.390127e-05
+i_load_min          =  3.332732e+00 at=  1.000000e-04
+
+Warning from checkvalid: vector c_snub is not available or has zero length.
+Warning from checkvalid: vector r_snub is not available or has zero length.
+Warning from checkvalid: vector v_mid_max is not available or has zero length.
+Warning from checkvalid: vector v_mid_min is not available or has zero length.
+Warning from checkvalid: vector v_overshoot_pct is not available or has zero length.
+Warning from checkvalid: vector dvdt_rise is not available or has zero length.
+Warning from checkvalid: vector dvdt_fall is not available or has zero length.
+Warning from checkvalid: vector i_snub_hi_max is not available or has zero length.
+Warning from checkvalid: vector i_snub_lo_max is not available or has zero length.
+Warning from checkvalid: vector i_load_max is not available or has zero length.
+Warning from checkvalid: vector i_load_min is not available or has zero length.
+
+============================================================
+RC Snubber Design - Simulation 22
+============================================================
+
+SNUBBER CONFIGURATION:
+
+Stray inductance: 50nH
+
+============================================================
+VOLTAGE OVERSHOOT/UNDERSHOOT
+============================================================
+
+Target: Overshoot < 10% (352V max)
+Target: Undershoot > -20V
+
+============================================================
+dV/dt DURING SWITCHING
+============================================================
+
+Units: V/s
+Target: <5V/ns = 5e9 V/s for EMI control
+
+============================================================
+SNUBBER CURRENT PEAKS
+============================================================
+
+High current indicates snubber is absorbing energy
+
+============================================================
+LOAD CURRENT
+============================================================
+
+============================================================
+SNUBBER POWER LOSS (CALCULATED)
+============================================================
+
+P_snub = 0.5 * C * V^2 * f * 2
+P_snub = 0.5 * 10nF * 320V^2 * 35kHz * 2
+P_snub = 35.8W per snubber pair
+
+This is significant! Consider:
+  - RCD snubber (recovers energy)
+  - Soft switching (ZVS) to reduce losses
+
+============================================================
+DESIGN RECOMMENDATIONS
+============================================================
+
+For IKW40N120H3 with 50nH stray inductance:
+  C_snub = 10nF (limits dV/dt during turn-off)
+  R_snub = 10 ohm (critically damped)
+
+Snubber resistor power rating:
+  P_R = 0.5 * C * V^2 * f = 18W
+  Use 25W resistor with heatsink
+
+Snubber capacitor voltage rating:
+  V_cap > 1.5 * VDC = 480V
+  Use 630V film capacitor
+
+ngspice-45.2 done

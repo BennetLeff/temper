@@ -1,0 +1,76 @@
+* Bootstrap Charging Validation
+* Template for placement-dependent simulation
+*
+* Parameters substituted from placement:
+*   {{BOOTSTRAP_LOOP_INDUCTANCE}} - Bootstrap capacitor charging loop inductance (H)
+*   {{BOOTSTRAP_CAPACITANCE}} - Bootstrap capacitor value (F)
+*   {{BOOTSTRAP_RESISTANCE}} - Total loop ESR (ohms)
+*
+* Validates: V_BOOT reaches 12V+ for UCC21550 high-side driver operation
+
+* Placement-derived parameters
+.param L_BOOT_LOOP = {{BOOTSTRAP_LOOP_INDUCTANCE}}
+.param C_BOOT = {{BOOTSTRAP_CAPACITANCE}}
+.param R_BOOT = {{BOOTSTRAP_RESISTANCE}}
+
+* Fixed circuit parameters (from Temper design)
+.param V_SUPPLY = 15          ; Low-side supply voltage
+.param V_DIODE = 0.5          ; Bootstrap diode forward voltage
+.param R_DIODE = 0.1          ; Bootstrap diode series resistance
+
+* Bootstrap Diode Model (fast recovery)
+.model D_BOOT D(IS=1e-14 RS={R_DIODE} N=1.8 BV=100 IBV=1u TT=50n)
+
+* Test Circuit
+* Power supplies
+V_supply vdd_ls 0 DC {V_SUPPLY}
+
+* Low-side switch - starts conducting (V_switch = 0)
+* At 1ms, switch turns off and Vs rises to 30V (half-bridge DC bus)
+V_switch vs 0 PWL(0 0 1m 0 1.001m 30)
+
+* Bootstrap charging path with placement-dependent inductance
+* VDD_LS -> L_loop -> D_boot -> C_boot+ (at vboot node)
+L_loop vdd_ls boot_mid {L_BOOT_LOOP} IC=0
+D_boot boot_mid boot_node D_BOOT
+R_loop boot_node vboot {R_BOOT}
+
+* Bootstrap capacitor (charges between vboot and vs)
+C_boot vboot vs {C_BOOT} IC=0
+
+* Voltage sense node for measurements
+E_vsense vboot_rel 0 vboot vs 1
+
+* Analysis - observe charging during low-side ON, then hold during OFF
+.tran 10u 5m UIC
+
+* Control and measurements
+.control
+run
+
+* Measure bootstrap voltage at end of charging phase (1ms)
+meas tran V_BOOT_CHARGE FIND v(vboot_rel) AT=1m
+
+* Measure final bootstrap voltage after load step
+meas tran V_BOOT_FINAL FIND v(vboot_rel) AT=5m
+
+* Measure time to reach 12V (UCC21550 minimum)
+meas tran T_CHARGE_12V WHEN v(vboot_rel)=12 RISE=1
+
+* Measure time to reach 90% of supply (13.5V)
+meas tran T_CHARGE_90 WHEN v(vboot_rel)=13.5 RISE=1
+
+* Measure voltage droop during high-side operation (after 1ms)
+meas tran V_BOOT_MIN MIN v(vboot_rel) FROM=1.001m TO=5m
+
+* Calculate voltage margin above UCC21550 UVLO (11V typical)
+let v_margin = V_BOOT_MIN - 11
+
+* Print all measurements
+echo "=== Bootstrap Charging Validation Results ==="
+print V_BOOT_CHARGE V_BOOT_FINAL
+print T_CHARGE_12V T_CHARGE_90
+print V_BOOT_MIN v_margin
+
+.endc
+.end

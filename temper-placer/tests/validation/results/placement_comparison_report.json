@@ -1,0 +1,143 @@
+{
+  "generated_at": "2025-12-16T18:50:18.792695",
+  "summary": {
+    "total_projects": 5,
+    "passed": 4,
+    "failed": 1,
+    "pass_rate": "80.0%"
+  },
+  "aggregate_metrics": {
+    "avg_wirelength_ratio": 1.029,
+    "overlap_improvements": "4/5",
+    "boundary_improvements": "5/5"
+  },
+  "projects": [
+    {
+      "project": "piantor_left",
+      "baseline": {
+        "component_count": 36,
+        "net_count": 33,
+        "wirelength_mm": 1884.15,
+        "overlap_loss": 276.321686,
+        "boundary_loss": 48948.625
+      },
+      "optimizer": {
+        "wirelength_mm": 1763.7701246445522,
+        "overlap_loss": 1.907766889611322,
+        "boundary_loss": 57.70810033759927,
+        "epochs": 100,
+        "final_loss": 20711.709402988312,
+        "time_s": 0.7191329002380371
+      },
+      "comparison": {
+        "wirelength_ratio": 0.9361091869779753,
+        "overlap_improved": true,
+        "boundary_improved": true
+      },
+      "passed": true,
+      "failure_reasons": []
+    },
+    {
+      "project": "piantor_right",
+      "baseline": {
+        "component_count": 36,
+        "net_count": 33,
+        "wirelength_mm": 2058.57,
+        "overlap_loss": 276.321747,
+        "boundary_loss": 42323.824219
+      },
+      "optimizer": {
+        "wirelength_mm": 1407.35557591813,
+        "overlap_loss": 26.638935218671364,
+        "boundary_loss": 25.477940889623643,
+        "epochs": 100,
+        "final_loss": 18072.662620969288,
+        "time_s": 0.732316255569458
+      },
+      "comparison": {
+        "wirelength_ratio": 0.6836568957665418,
+        "overlap_improved": true,
+        "boundary_improved": true
+      },
+      "passed": true,
+      "failure_reasons": []
+    },
+    {
+      "project": "bitaxe_ultra",
+      "baseline": {
+        "component_count": 137,
+        "net_count": 61,
+        "wirelength_mm": 1981.43,
+        "overlap_loss": 407.616943,
+        "boundary_loss": 429903.4375
+      },
+      "optimizer": {
+        "wirelength_mm": 2387.5397344749917,
+        "overlap_loss": 7.567279903616542,
+        "boundary_loss": 0.6891062688866734,
+        "epochs": 100,
+        "final_loss": 24744.739140813534,
+        "time_s": 0.815446138381958
+      },
+      "comparison": {
+        "wirelength_ratio": 1.204957901351545,
+        "overlap_improved": true,
+        "boundary_improved": true
+      },
+      "passed": true,
+      "failure_reasons": []
+    },
+    {
+      "project": "libresolar_bms",
+      "baseline": {
+        "component_count": 209,
+        "net_count": 118,
+        "wirelength_mm": 3901.49,
+        "overlap_loss": 435.324371,
+        "boundary_loss": 324251.03125
+      },
+      "optimizer": {
+        "wirelength_mm": 7760.1156259162235,
+        "overlap_loss": 28.33893934809756,
+        "boundary_loss": 12.866043623828698,
+        "epochs": 100,
+        "final_loss": 81147.07498332146,
+        "time_s": 1.132634162902832
+      },
+      "comparison": {
+        "wirelength_ratio": 1.9890133323207861,
+        "overlap_improved": true,
+        "boundary_improved": true
+      },
+      "passed": false,
+      "failure_reasons": [
+        "Wirelength 1.99x baseline (threshold: 1.5x)"
+      ]
+    },
+    {
+      "project": "rp2040_designguide",
+      "baseline": {
+        "component_count": 36,
+        "net_count": 56,
+        "wirelength_mm": 2931.97,
+        "overlap_loss": 7.744996,
+        "boundary_loss": 759651.25
+      },
+      "optimizer": {
+        "wirelength_mm": 969.7361913021208,
+        "overlap_loss": 9.346417412907167,
+        "boundary_loss": 0.0,
+        "epochs": 100,
+        "final_loss": 10705.728929413868,
+        "time_s": 0.42481327056884766
+      },
+      "comparison": {
+        "wirelength_ratio": 0.33074560493528954,
+        "overlap_improved": false,
+        "boundary_improved": true
+      },
+      "passed": true,
+      "failure_reasons": []
+    }
+  ]
+}

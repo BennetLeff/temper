@@ -1,0 +1,186 @@
+# Test Constraints for Medium Board
+# This file defines placement constraints for the medium_board.kicad_pcb test fixture
+# 25 components: 10 resistors, 8 capacitors, 3 ICs, 2 inductors, 2 connectors
+
+board:
+  width_mm: 60.0   # mm (from 100 to 160)
+  height_mm: 40.0  # mm (from 85 to 125)
+  margin_mm: 2.0
+
+# Three placement zones representing different functional areas
+zones:
+  - name: power
+    bounds: [0, 0, 20, 40]  # Left side for power circuitry
+    net_classes: ["Power"]
+    description: "Power supply and regulation components"
+
+  - name: digital
+    bounds: [20, 0, 45, 40]  # Center for MCU and digital
+    net_classes: ["Signal"]
+    description: "MCU and digital interface components"
+
+  - name: analog
+    bounds: [45, 0, 60, 25]  # Right side for analog
+    net_classes: ["Signal", "Power"]
+    description: "Analog signal processing"
+
+# Component groups for functional organization
+groups:
+  - name: decoupling_caps
+    components: ["C1", "C2", "C5", "C6"]
+    zone: power
+    max_spread_mm: 15.0
+    description: "Bulk and bypass decoupling capacitors"
+    
+  - name: i2c_pullups
+    components: ["R1", "R2"]
+    zone: digital
+    max_spread_mm: 8.0
+    description: "I2C pull-up resistors - keep close to MCU"
+
+  - name: spi_termination
+    components: ["R3", "R4", "C7", "C8"]
+    zone: digital
+    max_spread_mm: 10.0
+    description: "SPI termination and bypass"
+
+  - name: pwm_output
+    components: ["R5", "R6"]
+    zone: analog
+    max_spread_mm: 6.0
+    description: "PWM output current limiting"
+
+  - name: power_regulators
+    components: ["U2", "L1", "L2", "C3", "C4"]
+    zone: power
+    max_spread_mm: 20.0
+    description: "Voltage regulator and filtering"
+
+  - name: analog_frontend
+    components: ["U1", "R7", "R8"]
+    zone: analog
+    max_spread_mm: 12.0
+    description: "Op-amp analog signal conditioning"
+
+  - name: mcu_core
+    components: ["U3"]
+    zone: digital
+    max_spread_mm: 5.0
+    description: "Microcontroller"
+
+  - name: connectors
+    components: ["J1", "J2"]
+    zone: digital
+    max_spread_mm: 20.0
+    description: "Programming and I2C headers"
+
+  - name: uart_passives
+    components: ["R9", "R10"]
+    zone: digital
+    max_spread_mm: 5.0
+    description: "UART signal conditioning"
+
+# Zone assignments - explicit component to zone mapping
+zone_assignments:
+  # Power zone
+  U2: power
+  L1: power
+  L2: power
+  C1: power
+  C3: power
+  C4: power
+  C5: power
+  C6: power
+  R7: power
+  R8: power
+  
+  # Digital zone
+  U3: digital
+  J1: digital
+  J2: digital
+  R1: digital
+  R2: digital
+  R3: digital
+  R4: digital
+  R9: digital
+  R10: digital
+  C2: digital
+  C7: digital
+  C8: digital
+  
+  # Analog zone
+  U1: analog
+  R5: analog
+  R6: analog
+
+# Net weights - prioritize signal integrity
+net_weights:
+  # High-speed signals need shortest routes
+  SPI_CLK: 2.0
+  SPI_MOSI: 1.8
+  SPI_MISO: 1.8
+  SPI_CS: 1.5
+  I2C_SDA: 1.5
+  I2C_SCL: 1.5
+  
+  # General signals
+  SIG_A: 1.2
+  SIG_B: 1.2
+  SIG_C: 1.2
+  SIG_D: 1.2
+  
+  # Communication
+  UART_TX: 1.3
+  UART_RX: 1.3
+  
+  # PWM outputs
+  PWM1: 1.0
+  PWM2: 1.0
+  
+  # Power nets - lower weight (wider traces handle length better)
+  VCC: 0.5
+  VCC_3V3: 0.5
+  GND: 0.3
+  VBAT: 0.6
+
+# Clearance rules for component spacing
+clearance_rules:
+  - name: default
+    min_spacing_mm: 0.5
+    
+  - name: power_components
+    components: ["U2", "L1", "L2", "C5", "C6"]
+    min_spacing_mm: 1.0
+    description: "Power components need more spacing for thermals"
+    
+  - name: connector_clearance
+    components: ["J1", "J2"]
+    min_spacing_mm: 2.0
+    description: "Headers need clearance for plugging"
+
+# Fixed components (connectors typically have fixed positions at board edge)
+fixed_components:
+  J1:
+    x: 5.0
+    y: 20.0
+    rotation: 0
+  J2:
+    x: 10.0
+    y: 30.0
+    rotation: 0
+
+# Thermal constraints (power components generate heat)
+thermal_constraints:
+  - name: power_thermal
+    components: ["U2", "L1", "L2"]
+    max_temp_rise_c: 30
+    min_spacing_mm: 3.0
+    description: "Keep power components spaced for cooling"
+
+# Optimizer settings for this board size
+optimizer:
+  epochs: 200
+  temperature:
+    start: 2.0
+    end: 0.1
+  learning_rate: 0.05

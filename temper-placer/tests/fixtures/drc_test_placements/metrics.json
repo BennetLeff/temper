@@ -1,0 +1,141 @@
+{
+  "description": "DRC correlation test placements",
+  "source_pcb": "/Users/bennet.leff/Documents/temper/temper-placer/tests/fixtures/minimal_board.kicad_pcb",
+  "placements": [
+    {
+      "quality_level": "perfect",
+      "total_loss": 670.6004073991667,
+      "overlap_loss": 0.0,
+      "boundary_loss": 0.0,
+      "wirelength_loss": 67.06004073991667,
+      "epochs_run": 0,
+      "converged": true,
+      "component_positions": {
+        "R1": {
+          "x": 101.66666666666667,
+          "y": 78.33333333333333
+        },
+        "R2": {
+          "x": 115.0,
+          "y": 78.33333333333333
+        },
+        "C1": {
+          "x": 101.66666666666667,
+          "y": 85.0
+        },
+        "U1": {
+          "x": 115.0,
+          "y": 85.0
+        }
+      }
+    },
+    {
+      "quality_level": "good",
+      "total_loss": 280.5842374490252,
+      "overlap_loss": 0.05465183403939386,
+      "boundary_loss": 0.0,
+      "wirelength_loss": 27.511905404508582,
+      "epochs_run": 400,
+      "converged": false,
+      "component_positions": {
+        "R1": {
+          "x": 112.38863016164973,
+          "y": 84.26567078450053
+        },
+        "R2": {
+          "x": 114.10535226628181,
+          "y": 84.71550270758681
+        },
+        "C1": {
+          "x": 113.25930732871302,
+          "y": 84.26275895476803
+        },
+        "U1": {
+          "x": 117.76108259317282,
+          "y": 84.82621032044159
+        }
+      }
+    },
+    {
+      "quality_level": "mediocre",
+      "total_loss": 278.2228622638907,
+      "overlap_loss": 0.25245495573303084,
+      "boundary_loss": 0.0,
+      "wirelength_loss": 25.297736669058764,
+      "epochs_run": 200,
+      "converged": false,
+      "component_positions": {
+        "R1": {
+          "x": 116.41836324481007,
+          "y": 82.68757851138672
+        },
+        "R2": {
+          "x": 118.88967841866388,
+          "y": 84.6703525716194
+        },
+        "C1": {
+          "x": 116.97851702556802,
+          "y": 82.6958422273227
+        },
+        "U1": {
+          "x": 120.52108022846065,
+          "y": 82.0358036959408
+        }
+      }
+    },
+    {
+      "quality_level": "bad",
+      "total_loss": 516.849354897714,
+      "overlap_loss": 0.0,
+      "boundary_loss": 0.0,
+      "wirelength_loss": 51.6849354897714,
+      "epochs_run": 40,
+      "converged": false,
+      "component_positions": {
+        "R1": {
+          "x": 100.17899923476527,
+          "y": 83.88604800885992
+        },
+        "R2": {
+          "x": 103.54858199234525,
+          "y": 83.97999831282684
+        },
+        "C1": {
+          "x": 121.1677850398262,
+          "y": 84.18675466308459
+        },
+        "U1": {
+          "x": 113.69531233817753,
+          "y": 84.01117744176125
+        }
+      }
+    },
+    {
+      "quality_level": "terrible",
+      "total_loss": 562.2133409333273,
+      "overlap_loss": 1.011921121268379,
+      "boundary_loss": 0.0,
+      "wirelength_loss": 46.10212288064894,
+      "epochs_run": 0,
+      "converged": false,
+      "component_positions": {
+        "R1": {
+          "x": 117.25638011433225,
+          "y": 80.49846309979226
+        },
+        "R2": {
+          "x": 109.39035413134542,
+          "y": 88.84700840581219
+        },
+        "C1": {
+          "x": 121.77679099732879,
+          "y": 85.54664979133562
+        },
+        "U1": {
+          "x": 121.1693971234244,
+          "y": 83.84759276922408
+        }
+      }
+    }
+  ]
+}

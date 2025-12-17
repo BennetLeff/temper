@@ -1,0 +1,243 @@
+* Lesson 08: UCC14140-Q1 Isolated Supply for High-Side Gate Driver
+* Induction Cooker Project - Educational Simulation
+*
+* PURPOSE:
+* This simulation demonstrates the UCC14140-Q1 isolated DC/DC module
+* as an alternative to bootstrap supply for gate driver power.
+*
+* NOTE: The production design uses BOOTSTRAP supply (see GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md)
+* This simulation is for educational purposes to understand isolated supplies.
+*
+* SPECIFICATIONS:
+* - Input: 12V DC (from auxiliary supply or automotive battery)
+* - Output VDD-VEE: 22V (for gate drive headroom)
+* - Output COM-VEE: 2.5V (VEEA default)
+* - Current limit: ~80mA (sufficient for gate driver)
+* - Isolation: >3kVRMS (capacitive isolation barrier)
+* - CMTI: >150kV/us (for half-bridge switching immunity)
+*
+* Author: Claude (Temper Project)
+* Date: 2025-12-14
+* Related Task: temper-37v.8
+
+.title Lesson 08: UCC14140-Q1 Isolated Supply Verification
+
+***************************************************************************
+* Include UCC14140-Q1 Model
+***************************************************************************
+.include ../../components/ucc14140/UCC14140-Q1.lib
+
+***************************************************************************
+* INPUT POWER SUPPLY
+* 12V auxiliary supply (from LMR51430 or automotive battery)
+***************************************************************************
+VIN VIN_RAIL 0 DC 12.0
+
+* Input capacitors (per datasheet recommendations)
+C_IN_BULK VIN_RAIL 0 100u IC=12
+C_IN_CER VIN_RAIL 0 10u IC=12
+
+* Small trace resistance
+R_IN_TRACE VIN_RAIL VIN_FILT 0.05
+
+***************************************************************************
+* ENABLE CONTROL
+* Enable at t=1ms (allow input caps to stabilize)
+***************************************************************************
+VEN ENABLE 0 PWL(0 0 1m 0 1.01m 3.3 200m 3.3)
+
+***************************************************************************
+* UCC14140-Q1 ISOLATED DC/DC MODULE
+***************************************************************************
+* Pin order (36-pin): GNDP(14), PG, ENA, VIN(2), GNDP(11), VEE(8), VDD(2), VEE(2), RLIM, FBVEE, FBVDD, VEEA, VEE(1)
+* Total 35 pins in model
+
+XUCC14140 0 0 PG_OUT ENABLE 0 VIN_FILT VIN_FILT 0 0 0 0 0 0 0 0 0 0 0
++ VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT VEE_OUT
++ VDD_OUT VDD_OUT
++ VEE_OUT VEE_OUT
++ RLIM_PIN FB_VEE FB_VDD VEEA_OUT
++ VEE_OUT
++ UCC14140-Q1
+
+***************************************************************************
+* OUTPUT VOLTAGE PROGRAMMING
+***************************************************************************
+* Target: VDD-VEE = 22V
+* Formula: V(VDD-VEE) = 2.5V × (1 + R1/R2)
+*   22V = 2.5V × (1 + R1/R2)
+*   R1/R2 = 7.8
+*   Choose R2 = 2kΩ, R1 = 15.6kΩ → Use 15.4kΩ
+
+R_FBVDD_TOP VDD_OUT FB_VDD 15.4k
+R_FBVDD_BOT FB_VDD FB_VEE 2k
+
+* FBVEE connects to VEE through small resistance
+R_FBVEE_CONN FB_VEE VEE_OUT 10
+
+***************************************************************************
+* CURRENT LIMIT PROGRAMMING
+***************************************************************************
+* Target: I_LIM ≈ 80mA
+* R_RLIM = 175µA / 80mA = 2.19kΩ → Use 2.2kΩ
+
+R_RLIM RLIM_PIN VEEA_OUT 2.2k
+
+***************************************************************************
+* OUTPUT CAPACITORS
+***************************************************************************
+* VDD output (gate drive rail)
+C_VDD_CER VDD_OUT VEEA_OUT 22u IC=0
+C_VDD_BULK VDD_OUT VEEA_OUT 100u IC=0
+
+* VEEA output (COM reference)
+C_VEEA_CER VEEA_OUT VEE_OUT 22u IC=0
+C_VEEA_BULK VEEA_OUT VEE_OUT 100u IC=0
+
+* VEE reference
+C_VEE_REF VEE_OUT 0 10u IC=0
+
+***************************************************************************
+* POWER GOOD INDICATOR
+***************************************************************************
+R_PG_PULLUP PG_OUT VIN_FILT 10k
+
+***************************************************************************
+* GATE DRIVER LOAD MODEL
+***************************************************************************
+* Quiescent current: 10mA (gate driver IC)
+I_LOAD_Q VDD_OUT VEEA_OUT DC 10m
+
+* VEEA load (gate driver logic supply)
+I_LOAD_VEEA VEEA_OUT VEE_OUT DC 5m
+
+* Pulsed load simulating gate switching at 25kHz (starting at 50ms)
+I_LOAD_GATE VDD_OUT VEEA_OUT PULSE(0 50m 50m 1u 1u 10u 40u)
+
+***************************************************************************
+* SIMULATION CONTROL
+***************************************************************************
+.tran 10u 200m 0 10u uic
+
+.options reltol=0.005 abstol=1n vntol=1m
+.options method=gear maxord=2
+
+***************************************************************************
+* OUTPUT AND ANALYSIS
+***************************************************************************
+.control
+set color0=white
+set color1=black
+
+run
+
+echo ""
+echo "=============================================================="
+echo "Lesson 08: UCC14140-Q1 Isolated Supply Verification"
+echo "=============================================================="
+echo ""
+
+* =====================================================================
+* Calculate differential voltages
+* =====================================================================
+let vdd_vee = v(vdd_out) - v(vee_out)
+let vdd_veea = v(vdd_out) - v(veea_out)
+let veea_vee = v(veea_out) - v(vee_out)
+let fb_diff = v(fb_vdd) - v(fb_vee)
+
+* =====================================================================
+* MEASUREMENT: Output Voltages (Steady State)
+* =====================================================================
+meas tran VDD_VEE_AVG avg vdd_vee from=150m to=190m
+meas tran VDD_VEEA_AVG avg vdd_veea from=150m to=190m
+meas tran VEEA_VEE_AVG avg veea_vee from=150m to=190m
+
+echo ""
+echo "=== OUTPUT VOLTAGE VERIFICATION ==="
+echo "Target: VDD-VEE = 22V ±5% (20.9V - 23.1V)"
+print VDD_VEE_AVG
+echo "Target: VEEA-VEE ≈ 2.5V (default)"
+print VEEA_VEE_AVG
+echo "VDD-VEEA (gate drive voltage):"
+print VDD_VEEA_AVG
+
+* =====================================================================
+* MEASUREMENT: Startup Time
+* =====================================================================
+let v_target = 0.9 * VDD_VEE_AVG
+meas tran T_STARTUP when vdd_vee=$&v_target rise=1
+
+echo ""
+echo "=== STARTUP TIME VERIFICATION ==="
+echo "Target: Startup time ≈ 28-32ms (soft-start)"
+print T_STARTUP
+
+* =====================================================================
+* MEASUREMENT: Output Ripple
+* =====================================================================
+meas tran VDD_VEE_MAX max vdd_vee from=150m to=190m
+meas tran VDD_VEE_MIN min vdd_vee from=150m to=190m
+let vdd_vee_ripple = VDD_VEE_MAX - VDD_VEE_MIN
+
+echo ""
+echo "=== OUTPUT RIPPLE ==="
+echo "Target: Ripple < 100mV"
+print vdd_vee_ripple
+
+* =====================================================================
+* MEASUREMENT: Feedback Voltage Accuracy
+* =====================================================================
+meas tran FB_VOLTAGE_AVG avg fb_diff from=150m to=190m
+
+echo ""
+echo "=== FEEDBACK VOLTAGE ACCURACY ==="
+echo "Target: FB voltage = 2.5V ±2%"
+print FB_VOLTAGE_AVG
+
+* =====================================================================
+* MEASUREMENT: Input Current
+* =====================================================================
+meas tran I_IN_AVG avg -i(vin) from=150m to=190m
+
+echo ""
+echo "=== INPUT CURRENT ==="
+print I_IN_AVG
+
+* =====================================================================
+* ISOLATION CHARACTERISTICS (from datasheet)
+* =====================================================================
+echo ""
+echo "=== ISOLATION CHARACTERISTICS (from datasheet) ==="
+echo "Isolation capacitance: <3.5pF (typical 2.5pF)"
+echo "CMTI rating: >150kV/us (typical 200kV/us)"
+echo "These are physical device parameters, not simulated"
+
+* =====================================================================
+* PASS/FAIL SUMMARY
+* =====================================================================
+echo ""
+echo "=============================================================="
+echo "VERIFICATION SUMMARY"
+echo "=============================================================="
+
+* Check results (basic output)
+echo "VDD-VEE voltage:"
+print VDD_VEE_AVG
+
+echo "VEEA-VEE voltage:"
+print VEEA_VEE_AVG
+
+echo "Feedback voltage:"
+print FB_VOLTAGE_AVG
+
+echo ""
+echo "=============================================================="
+echo "Simulation Complete"
+echo "=============================================================="
+
+* Write results to file
+wrdata sim_08_results.txt vdd_vee vdd_veea veea_vee v(pg_out) v(enable)
+
+.endc
+
+.end

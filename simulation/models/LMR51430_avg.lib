@@ -1,0 +1,18 @@
+* LMR51430 Averaged Model (simplified)
+* This model captures the control loop behavior without switching
+* Vref = 0.8V (Typ)
+
+.subckt LMR51430 VIN SW GND FB
+* Internal error amplifier
+* High gain amplifies difference between FB and 0.8V reference
+* Clamped to 0-3.3V internal rail
+E_ea comp 0 VALUE = { (10000*(0.8-V(FB)) > 3.3) ? 3.3 : ( (10000*(0.8-V(FB)) < 0) ? 0 : 10000*(0.8-V(FB)) ) }
+
+* PWM modulator (averaged as voltage-controlled voltage source)
+* Output voltage = Vin * Duty
+* Duty = V(comp)/3.3
+* Clamp Duty: 0.05 to 0.95
+* Logic: If D > 0.95 -> 0.95. Else If D < 0.05 -> 0.05. Else D.
+E_sw SW GND VALUE = { V(VIN) * ( (V(comp)/3.3 > 0.95) ? 0.95 : ( (V(comp)/3.3 < 0.05) ? 0.05 : V(comp)/3.3 ) ) }
+
+.ends LMR51430

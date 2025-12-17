@@ -1,0 +1,138 @@
+* Overvoltage Protection (OVP) Circuit Simulation
+* sim_18_ovp_protection.cir
+*
+* PURPOSE: Detect DC bus overvoltage (>400V) and trigger gate driver disable.
+*          Response time target: <10µs
+*
+***************************************************************************
+
+.title Overvoltage Protection (OVP) Circuit Simulation
+
+***************************************************************************
+* POWER SUPPLIES
+***************************************************************************
+V_vcc vcc 0 DC 5
+
+***************************************************************************
+* DC BUS VOLTAGE SOURCE
+***************************************************************************
+V_dcbus dcbus 0 PWL(
++ 0 310
++ 50u 310
++ 100u 420
++ 150u 420
++ 200u 310
++ 250u 310)
+
+***************************************************************************
+* HIGH-VOLTAGE RESISTIVE DIVIDER (101:1)
+***************************************************************************
+R_div1 dcbus div_mid1 1Meg
+R_div2 div_mid1 div_mid2 1Meg
+R_div3 div_mid2 div_out 1Meg
+R_div4 div_out 0 30k
+
+***************************************************************************
+* COMPARATOR (simplified, no hysteresis for cleaner response)
+***************************************************************************
+* Reference for 400V threshold: V_ref = 400 * 30k / 3.03M = 3.96V
+* Use slightly lower reference (3.85V) for ~390V trip with margin
+
+R_ref1 vcc v_ref 3k
+R_ref2 v_ref 0 10k
+* v_ref = 5 * 10k / (3k + 10k) = 3.85V (trips at ~390V)
+
+* Comparator: Output HIGH when div_out > v_ref
+B_comp comp_int 0 V = {5 * (1 + tanh((V(div_out) - V(v_ref)) * 100)) / 2}
+
+* Propagation delay (40ns)
+R_delay comp_int delay_node 1k
+C_delay delay_node 0 40p
+
+* Output buffer
+B_out fault_out 0 V = {V(delay_node) > 2.5 ? 5.0 : 0.0}
+
+* Load
+R_load fault_out 0 10k
+
+***************************************************************************
+* ANALYSIS
+***************************************************************************
+.tran 0.5u 300u uic
+
+***************************************************************************
+* MEASUREMENTS
+***************************************************************************
+.meas tran v_div_310 FIND v(div_out) AT=25u
+.meas tran v_div_420 FIND v(div_out) AT=125u
+.meas tran v_ref_actual FIND v(v_ref) AT=25u
+
+* Threshold corresponds to when divider = v_ref
+.meas tran t_threshold WHEN v(div_out)=3.85 RISE=1
+
+* Fault output trip
+.meas tran t_fault WHEN v(fault_out)=2.5 RISE=1
+
+* Response time
+.meas tran t_response PARAM='t_fault - t_threshold'
+
+* Output levels
+.meas tran v_out_normal FIND v(fault_out) AT=25u
+.meas tran v_out_fault FIND v(fault_out) AT=125u
+
+.control
+run
+
+echo ""
+echo "============================================"
+echo "OVP Circuit Verification - Simulation 18"
+echo "============================================"
+echo ""
+echo "Configuration:"
+echo "  Divider: 3M / 30k (101:1 ratio)"
+echo "  Reference: 3.85V (~390V bus threshold)"
+echo "  Comparator: 40ns propagation delay"
+echo ""
+echo "Test Scenario:"
+echo "  0-50us:    310V (normal)"
+echo "  50-100us:  Ramp to 420V"
+echo "  100-150us: Hold 420V (fault)"
+echo "  150-200us: Return to 310V"
+echo ""
+echo "============================================"
+echo "MEASUREMENTS"
+echo "============================================"
+echo ""
+echo "Reference voltage:"
+print v_ref_actual
+echo ""
+echo "Divider at 310V bus:"
+print v_div_310
+echo ""
+echo "Divider at 420V bus:"
+print v_div_420
+echo ""
+echo "Time when divider reaches threshold:"
+print t_threshold
+echo ""
+echo "Time when fault output trips:"
+print t_fault
+echo ""
+echo "Response time (target <10us):"
+print t_response
+echo ""
+echo "Output at 310V (expect 0V):"
+print v_out_normal
+echo ""
+echo "Output at 420V (expect 5V):"
+print v_out_fault
+echo ""
+echo "============================================"
+echo "PASS/FAIL"
+echo "============================================"
+echo ""
+
+quit
+.endc
+
+.end

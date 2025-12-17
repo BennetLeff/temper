@@ -1,0 +1,199 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "60000000-0000-0000-0000-000000000001")
+  (paper "A4")
+  (title_block
+    (title "MCU")
+    (date "2025-12-14")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "ESP32-S3 Microcontroller")
+    (comment 2 "Control & Communication")
+  )
+
+  (lib_symbols)
+
+  (text "MCU SUBSYSTEM\n\nFunction:\n- PWM generation for gate driver\n- ADC for current sensing\n- SPI for temperature sensor\n- I2C for display/sensors\n- Safety enable output\n- Watchdog kick signal\n- Zero-crossing detection\n- WiFi/BLE communication\n\nKey Components:\n- ESP32-S3-WROOM-1-N4\n- 3.3V decoupling capacitors\n- USB-C programming connector\n- Reset/boot buttons\n- Debug header\n\nPWM Configuration:\n- Frequency: 20-100kHz\n- Dead-time: 500ns minimum\n- RC filter: 51Ω + 33pF\n\nReference: ESP32-S3 Datasheet"
+    (exclude_from_sim no)
+    (at 25.4 25.4 0)
+    (effects
+      (font
+        (size 2.54 2.54)
+      )
+      (justify left)
+    )
+    (uuid "61000000-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "+3.3V"
+    (shape input)
+    (at 25.4 88.9 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-000000000001")
+  )
+
+  (hierarchical_label "PWM_H"
+    (shape output)
+    (at 228.6 88.9 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "61000001-0000-0000-0000-000000000002")
+  )
+
+  (hierarchical_label "PWM_L"
+    (shape output)
+    (at 228.6 101.6 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "61000001-0000-0000-0000-000000000003")
+  )
+
+  (hierarchical_label "MCU_ENABLE"
+    (shape output)
+    (at 228.6 114.3 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "61000001-0000-0000-0000-000000000004")
+  )
+
+  (hierarchical_label "WDT_KICK"
+    (shape output)
+    (at 228.6 127 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "61000001-0000-0000-0000-000000000005")
+  )
+
+  (hierarchical_label "SPI_MOSI"
+    (shape output)
+    (at 25.4 101.6 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-000000000006")
+  )
+
+  (hierarchical_label "SPI_MISO"
+    (shape input)
+    (at 25.4 114.3 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-000000000007")
+  )
+
+  (hierarchical_label "SPI_SCK"
+    (shape output)
+    (at 25.4 127 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-000000000008")
+  )
+
+  (hierarchical_label "RTD_CS"
+    (shape output)
+    (at 25.4 139.7 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-000000000009")
+  )
+
+  (hierarchical_label "I2C_SDA"
+    (shape bidirectional)
+    (at 25.4 152.4 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-00000000000A")
+  )
+
+  (hierarchical_label "I2C_SCL"
+    (shape output)
+    (at 25.4 165.1 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "61000001-0000-0000-0000-00000000000B")
+  )
+
+  (hierarchical_label "FAULT_STATUS"
+    (shape input)
+    (at 228.6 139.7 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "61000001-0000-0000-0000-00000000000C")
+  )
+
+  (hierarchical_label "ZCD"
+    (shape input)
+    (at 228.6 152.4 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "61000001-0000-0000-0000-00000000000D")
+  )
+
+)
