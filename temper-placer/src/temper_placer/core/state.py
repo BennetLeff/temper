@@ -63,6 +63,7 @@ class PlacementState:
         board_height: float,
         key: Array,
         margin: float = 10.0,
+        origin: Tuple[float, float] = (0.0, 0.0),
     ) -> PlacementState:
         """
         Create a random initial placement within board bounds.
@@ -73,15 +74,28 @@ class PlacementState:
             board_height: Board height in mm.
             key: JAX random key.
             margin: Margin from board edges in mm.
+            origin: Board origin offset (ox, oy) in mm. Positions will be in
+                absolute coordinates: [origin[0] + margin, origin[0] + width - margin].
+                Default (0, 0) gives relative coordinates for backward compatibility.
 
         Returns:
             New PlacementState with random positions and uniform rotation logits.
+
+        Note:
+            For KiCad PCBs, the board origin is typically non-zero (e.g., (100, 50)).
+            When optimizing for DRC compliance, use the board's actual origin to
+            ensure positions are in absolute coordinates that match the PCB file.
         """
         key1, key2 = jax.random.split(key)
+        ox, oy = origin
 
-        # Random positions within margins
-        x = jax.random.uniform(key1, (n_components,), minval=margin, maxval=board_width - margin)
-        y = jax.random.uniform(key2, (n_components,), minval=margin, maxval=board_height - margin)
+        # Random positions within margins (absolute coordinates)
+        x = jax.random.uniform(
+            key1, (n_components,), minval=ox + margin, maxval=ox + board_width - margin
+        )
+        y = jax.random.uniform(
+            key2, (n_components,), minval=oy + margin, maxval=oy + board_height - margin
+        )
         positions = jnp.stack([x, y], axis=-1)
 
         # Uniform rotation logits (zeros = equal probability)

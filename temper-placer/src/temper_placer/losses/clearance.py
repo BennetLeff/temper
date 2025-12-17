@@ -289,10 +289,10 @@ class ClearanceLoss(LossFunction):
 
         Returns full weight after 20% of training.
         """
-        progress = epoch / max(total_epochs, 1)
-        if progress < 0.2:
-            return 0.5  # Partial weight during spread phase
-        return 1.0
+        # Use jnp.maximum instead of Python max() for JAX compatibility
+        progress = epoch / jnp.maximum(total_epochs, 1)
+        # Use jnp.where instead of if/else for JAX compatibility
+        return jnp.where(progress < 0.2, 0.5, 1.0)
 
 
 def compute_clearance_penalty(

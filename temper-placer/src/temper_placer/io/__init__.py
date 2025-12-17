@@ -43,6 +43,15 @@ from temper_placer.io.placement_exporter import (
     cleanup_temp_pcb,
     PCBExporterFn,
 )
+from temper_placer.io.reference_loader import (
+    load_reference_pcb,
+    netlist_to_placement_state,
+    compute_design_stats,
+    filter_components,
+    infer_quality_config,
+    list_reference_designs,
+    ReferenceDesign,
+)
 
 __all__ = [
     # Parser
@@ -74,4 +83,12 @@ __all__ = [
     "create_pcb_exporter",
     "cleanup_temp_pcb",
     "PCBExporterFn",
+    # Reference loader (for benchmarking)
+    "load_reference_pcb",
+    "netlist_to_placement_state",
+    "compute_design_stats",
+    "filter_components",
+    "infer_quality_config",
+    "list_reference_designs",
+    "ReferenceDesign",
 ]

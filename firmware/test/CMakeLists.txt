@@ -161,6 +161,17 @@ add_executable(test_pll_only
 target_include_directories(test_pll_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pll_only m)
 
+# Integration tests (uses custom stubs like state machine tests)
+add_executable(test_integration_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_integration.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_integration.c
+)
+target_include_directories(test_integration_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_integration_only m)
+
 # ============================================================================
 # CTest integration
 # ============================================================================
@@ -172,6 +183,7 @@ add_test(NAME pid_tests COMMAND test_pid_only)
 add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)
+add_test(NAME integration_tests COMMAND test_integration_only)
 
 # ============================================================================
 # Custom targets
@@ -187,6 +199,6 @@ add_custom_target(run_tests
 # Run tests with verbose output
 add_custom_target(run_tests_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
-    DEPENDS test_runner test_state_machine_only test_pid_only test_safety_only
+    DEPENDS test_runner test_state_machine_only test_pid_only test_safety_only test_integration_only
     COMMENT "Running all tests with verbose output..."
 )

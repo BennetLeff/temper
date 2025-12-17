@@ -64,7 +64,8 @@ def compute_zone_distance(
     outside_y = dy > 0
 
     # Corner case: outside both edges
-    corner_dist = jnp.sqrt(jnp.maximum(0.0, dx) ** 2 + jnp.maximum(0.0, dy) ** 2)
+    # Add small epsilon inside sqrt to prevent NaN gradients at exactly 0
+    corner_dist = jnp.sqrt(jnp.maximum(0.0, dx) ** 2 + jnp.maximum(0.0, dy) ** 2 + 1e-8)
 
     # Edge case: outside one edge only
     edge_dist = jnp.maximum(dx, dy)
@@ -181,6 +182,26 @@ class ZoneMembershipLoss(LossFunction):
         """
         penalty = compute_zone_membership_penalty(positions, context, self.zone_assignments)
         return LossResult(value=penalty)
+
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+        """
+        Zone enforcement is strongest early, then relaxes.
+
+        This curriculum ensures components settle into their zones before
+        wirelength optimization pulls them together. Without this, wirelength
+        gradients can dominate zone gradients, causing components to cluster
+        outside their designated zones.
+
+        Args:
+            epoch: Current epoch number.
+            total_epochs: Total number of epochs.
+
+        Returns:
+            Weight multiplier (3.0 early, 1.0 later).
+        """
+        progress = epoch / jnp.maximum(total_epochs, 1)
+        # Start at 3x weight for first 30% of training, then decay to 1x
+        return jnp.where(progress < 0.3, 3.0, 1.0)
 
 
 def create_temper_zone_assignments() -> Dict[str, str]:

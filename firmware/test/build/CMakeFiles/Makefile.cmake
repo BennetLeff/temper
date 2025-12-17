@@ -122,6 +122,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test_safety_only.dir/DependInfo.cmake"
   "CMakeFiles/test_pan_detection_only.dir/DependInfo.cmake"
   "CMakeFiles/test_pll_only.dir/DependInfo.cmake"
+  "CMakeFiles/test_integration_only.dir/DependInfo.cmake"
   "CMakeFiles/run_tests.dir/DependInfo.cmake"
   "CMakeFiles/run_tests_verbose.dir/DependInfo.cmake"
   )

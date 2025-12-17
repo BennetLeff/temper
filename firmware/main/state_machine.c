@@ -169,9 +169,33 @@ extern bool test_eeprom_read(void);
  * ============================================================================ */
 
 void state_machine_init(void) {
+    /* Reset all state machine context to defaults */
     sm_ctx.current_state = STATE_INIT;
+    sm_ctx.previous_state = STATE_INIT;
     sm_ctx.fault_code = FAULT_NONE;
+    sm_ctx.state_entry_time = 0;
+    sm_ctx.state_duration = 0;
+    
+    /* Reset state-specific data */
+    sm_ctx.pan_detect_confidence = 0;
+    sm_ctx.pan_absent_count = 0;
+    sm_ctx.initial_pan_impedance = 0.0f;
+    sm_ctx.cooldown_start_temp = 0.0f;
+    sm_ctx.countdown_timer_ms = 0;
+    
+    /* Reset user inputs to defaults */
     sm_ctx.target_temperature = 100.0f;
+    sm_ctx.cooking_time_ms = 0;
+    sm_ctx.cooking_timer_enabled = false;
+    
+    /* Reset message display state */
+    sm_ctx.message_pending = false;
+    sm_ctx.message_next_state = STATE_INIT;
+    sm_ctx.message_start_time = 0;
+    
+    /* Reset timing */
+    sm_ctx.last_update_time_ms = 0;
+    
     transition_to(STATE_INIT);
 }
 

@@ -730,3 +730,160 @@ class TestGradientClipping:
         )
         result_no_clip = train(netlist, board, composite, context, config_no_clip)
         assert result_no_clip.total_epochs == 10
+
+
+# =============================================================================
+# Numerical Stability Tests
+# =============================================================================
+
+
+class TestNumericalStability:
+    """Tests for numerical stability detection (NaN/Inf)."""
+
+    @pytest.fixture
+    def simple_setup(self):
+        """Create simple netlist and board for testing."""
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+        from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.boundary import BoundaryLoss
+
+        components = [
+            Component(ref=f"U{i}", footprint="Package_SO:SOIC-8", bounds=(10.0, 10.0))
+            for i in range(3)
+        ]
+        netlist = Netlist(components=components, nets=[])
+        board = Board(width=100.0, height=100.0)
+        context = LossContext.from_netlist_and_board(netlist, board)
+        composite = CompositeLoss(
+            [
+                WeightedLoss(OverlapLoss(), weight=100.0),
+                WeightedLoss(BoundaryLoss(), weight=50.0),
+            ]
+        )
+        return netlist, board, context, composite
+
+    def test_numerical_instability_error_import(self):
+        """Test that NumericalInstabilityError can be imported."""
+        from temper_placer.optimizer import NumericalInstabilityError
+
+        assert issubclass(NumericalInstabilityError, RuntimeError)
+
+    def test_numerical_instability_error_attributes(self):
+        """Test NumericalInstabilityError has expected attributes."""
+        from temper_placer.optimizer import NumericalInstabilityError
+
+        error = NumericalInstabilityError(
+            "Test error",
+            epoch=42,
+            loss_value=float("nan"),
+            loss_breakdown={"overlap": float("inf")},
+            grad_norms={"position": 1.0, "rotation": 2.0},
+        )
+
+        assert error.epoch == 42
+        assert str(error.loss_value) == "nan"
+        assert "overlap" in error.loss_breakdown
+        assert error.grad_norms["position"] == 1.0
+
+    def test_check_numerical_stability_helper_passes_for_valid(self):
+        """Test that _check_numerical_stability passes for valid values."""
+        from temper_placer.optimizer.train import _check_numerical_stability
+
+        # Should not raise for valid values
+        _check_numerical_stability(
+            loss_value=10.5,
+            loss_breakdown={"overlap": 5.0, "boundary": 5.5},
+            grad_pos=jnp.array([[1.0, 2.0], [3.0, 4.0]]),
+            grad_rot=jnp.array([[0.1, 0.2, 0.3, 0.4]]),
+            epoch=100,
+        )
+
+    def test_check_numerical_stability_raises_for_nan_loss(self):
+        """Test that _check_numerical_stability raises for NaN loss."""
+        from temper_placer.optimizer.train import _check_numerical_stability
+        from temper_placer.optimizer import NumericalInstabilityError
+
+        with pytest.raises(NumericalInstabilityError) as exc_info:
+            _check_numerical_stability(
+                loss_value=float("nan"),
+                loss_breakdown={"overlap": float("nan"), "boundary": 5.0},
+                grad_pos=jnp.array([[1.0, 2.0]]),
+                grad_rot=jnp.array([[0.1, 0.2, 0.3, 0.4]]),
+                epoch=42,
+            )
+
+        error = exc_info.value
+        assert error.epoch == 42
+        assert "overlap" in error.loss_breakdown  # Should identify problematic component
+        assert "Non-finite loss" in str(error)
+
+    def test_check_numerical_stability_raises_for_inf_loss(self):
+        """Test that _check_numerical_stability raises for Inf loss."""
+        from temper_placer.optimizer.train import _check_numerical_stability
+        from temper_placer.optimizer import NumericalInstabilityError
+
+        with pytest.raises(NumericalInstabilityError) as exc_info:
+            _check_numerical_stability(
+                loss_value=float("inf"),
+                loss_breakdown={"wirelength": float("inf")},
+                grad_pos=jnp.array([[1.0, 2.0]]),
+                grad_rot=jnp.array([[0.1, 0.2, 0.3, 0.4]]),
+                epoch=100,
+            )
+
+        error = exc_info.value
+        assert "Non-finite loss" in str(error)
+
+    def test_check_numerical_stability_raises_for_nan_gradient(self):
+        """Test that _check_numerical_stability raises for NaN gradients."""
+        from temper_placer.optimizer.train import _check_numerical_stability
+        from temper_placer.optimizer import NumericalInstabilityError
+
+        with pytest.raises(NumericalInstabilityError) as exc_info:
+            _check_numerical_stability(
+                loss_value=10.0,
+                loss_breakdown={"overlap": 10.0},
+                grad_pos=jnp.array([[float("nan"), 2.0]]),
+                grad_rot=jnp.array([[0.1, 0.2, 0.3, 0.4]]),
+                epoch=50,
+            )
+
+        error = exc_info.value
+        assert "Non-finite gradients" in str(error)
+        assert "position" in error.grad_norms or "grad_pos_norm" in str(error)
+
+    def test_check_numerical_stability_raises_for_inf_gradient(self):
+        """Test that _check_numerical_stability raises for Inf gradients."""
+        from temper_placer.optimizer.train import _check_numerical_stability
+        from temper_placer.optimizer import NumericalInstabilityError
+
+        with pytest.raises(NumericalInstabilityError) as exc_info:
+            _check_numerical_stability(
+                loss_value=10.0,
+                loss_breakdown={"overlap": 10.0},
+                grad_pos=jnp.array([[1.0, 2.0]]),
+                grad_rot=jnp.array([[float("inf"), 0.2, 0.3, 0.4]]),
+                epoch=75,
+            )
+
+        error = exc_info.value
+        assert "Non-finite gradients" in str(error)
+
+    def test_training_with_valid_setup_succeeds(self, simple_setup):
+        """Test that normal training succeeds without NaN errors."""
+        from temper_placer.optimizer import train, OptimizerConfig
+
+        netlist, board, context, composite = simple_setup
+        config = OptimizerConfig(
+            epochs=10,
+            seed=42,
+            checkpoint=OptimizerConfig.fast_test().checkpoint,
+            early_stopping=OptimizerConfig.fast_test().early_stopping,
+        )
+
+        # Should complete without raising NumericalInstabilityError
+        result = train(netlist, board, composite, context, config)
+        assert result.total_epochs == 10
+        assert result.final_loss >= 0

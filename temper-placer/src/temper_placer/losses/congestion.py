@@ -38,6 +38,8 @@ def compute_routing_demand(
     Uses a simple bounding-box model: each net creates demand along
     its HPWL bounding box edges.
 
+    This is a fully vectorized JAX implementation that supports JIT compilation.
+
     Args:
         positions: (N, 2) component positions.
         context: LossContext with netlist.
@@ -53,19 +55,15 @@ def compute_routing_demand(
     cell_width = (x_max - x_min) / cols
     cell_height = (y_max - y_min) / rows
 
-    demand = jnp.zeros((rows, cols), dtype=jnp.float32)
-
-    # Process nets with vectorized operations
     n_nets = context.net_pin_indices.shape[0]
     if n_nets == 0:
-        return demand
+        return jnp.zeros((rows, cols), dtype=jnp.float32)
 
-    # Get pin positions for all nets
-    # (M, P, 2) = positions[indices] + offsets
+    # Get pin positions for all nets: (M, P, 2)
     all_positions = positions[context.net_pin_indices] + context.net_pin_offsets
 
     # Compute HPWL bounding box for each net using mask
-    # Set invalid positions to inf/-inf for min/max
+    # Use where with inf/-inf for proper min/max with masking
     masked_positions = jnp.where(
         context.net_pin_mask[:, :, None],
         all_positions,
@@ -78,34 +76,51 @@ def compute_routing_demand(
     )
 
     # (M, 2) bounding boxes
-    bb_min = jnp.min(masked_positions, axis=1)
-    bb_max = jnp.max(masked_positions_max, axis=1)
+    bb_min = jnp.min(masked_positions, axis=1)  # (M, 2)
+    bb_max = jnp.max(masked_positions_max, axis=1)  # (M, 2)
 
-    # Estimate demand: distribute net's weight across cells in bounding box
-    # This is a simplified model that accumulates demand in touched cells
-    for net_idx in range(n_nets):
-        x_lo, y_lo = bb_min[net_idx]
-        x_hi, y_hi = bb_max[net_idx]
-        weight = float(context.net_weights[net_idx])
+    # Convert to grid coordinates - fully vectorized
+    # col_lo/hi, row_lo/hi for each net: (M,)
+    col_lo = jnp.clip((bb_min[:, 0] - x_min) / cell_width, 0, cols - 1).astype(jnp.int32)
+    col_hi = jnp.clip((bb_max[:, 0] - x_min) / cell_width, 0, cols - 1).astype(jnp.int32)
+    row_lo = jnp.clip((bb_min[:, 1] - y_min) / cell_height, 0, rows - 1).astype(jnp.int32)
+    row_hi = jnp.clip((bb_max[:, 1] - y_min) / cell_height, 0, rows - 1).astype(jnp.int32)
 
-        # Skip invalid nets
-        if jnp.isinf(x_lo) or jnp.isinf(x_hi):
-            continue
+    # Compute number of cells per net: (M,)
+    n_cells_per_net = jnp.maximum(1, (row_hi - row_lo + 1) * (col_hi - col_lo + 1))
 
-        # Convert to grid coordinates
-        col_lo = int(jnp.clip((x_lo - x_min) / cell_width, 0, cols - 1))
-        col_hi = int(jnp.clip((x_hi - x_min) / cell_width, 0, cols - 1))
-        row_lo = int(jnp.clip((y_lo - y_min) / cell_height, 0, rows - 1))
-        row_hi = int(jnp.clip((y_hi - y_min) / cell_height, 0, rows - 1))
+    # Cell demand per net: (M,)
+    cell_demand = context.net_weights / n_cells_per_net
 
-        # Add demand to cells in bounding box
-        # Weight distributed by net weight and number of cells
-        n_cells = max(1, (row_hi - row_lo + 1) * (col_hi - col_lo + 1))
-        cell_demand = weight / n_cells
+    # Mark valid nets (not inf bounding box)
+    valid_nets = ~(jnp.isinf(bb_min[:, 0]) | jnp.isinf(bb_max[:, 0]))
 
-        for r in range(row_lo, row_hi + 1):
-            for c in range(col_lo, col_hi + 1):
-                demand = demand.at[r, c].add(cell_demand)
+    # Use a vectorized approach with outer products and masks
+    # Create grid of cell indices
+    row_indices = jnp.arange(rows)  # (rows,)
+    col_indices = jnp.arange(cols)  # (cols,)
+
+    # For each net, create mask of which cells are in its bounding box
+    # (M, rows) - is row in [row_lo, row_hi] for this net?
+    row_in_range = (row_indices[None, :] >= row_lo[:, None]) & (
+        row_indices[None, :] <= row_hi[:, None]
+    )
+    # (M, cols) - is col in [col_lo, col_hi] for this net?
+    col_in_range = (col_indices[None, :] >= col_lo[:, None]) & (
+        col_indices[None, :] <= col_hi[:, None]
+    )
+
+    # (M, rows, cols) - cell (r, c) is in net's bounding box
+    cell_in_bbox = row_in_range[:, :, None] & col_in_range[:, None, :]
+
+    # Apply valid net mask and multiply by cell demand
+    # (M, rows, cols) * (M, 1, 1) -> (M, rows, cols)
+    demand_contribution = (
+        cell_in_bbox.astype(jnp.float32) * cell_demand[:, None, None] * valid_nets[:, None, None]
+    )
+
+    # Sum over all nets to get total demand per cell: (rows, cols)
+    demand = jnp.sum(demand_contribution, axis=0)
 
     return demand
 
@@ -151,14 +166,13 @@ class CongestionLoss(LossFunction):
 
     This encourages spreading components to avoid routing bottlenecks.
 
+    The implementation is fully vectorized using JAX operations for
+    efficient JIT compilation. Memory usage is O(M * rows * cols) where
+    M is the number of nets.
+
     Attributes:
         grid_shape: (rows, cols) for congestion grid.
         capacity_per_cell: Maximum demand per cell before penalty.
-
-    Note:
-        Current implementation uses Python loops for demand accumulation.
-        For full JIT compatibility, this should be rewritten using
-        scatter operations or pre-computed cell indices.
     """
 
     grid_shape: Tuple[int, int] = (10, 10)

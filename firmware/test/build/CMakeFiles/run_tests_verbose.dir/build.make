@@ -70,6 +70,7 @@ CMakeFiles/run_tests_verbose: test_runner
 CMakeFiles/run_tests_verbose: test_state_machine_only
 CMakeFiles/run_tests_verbose: test_pid_only
 CMakeFiles/run_tests_verbose: test_safety_only
+CMakeFiles/run_tests_verbose: test_integration_only
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/bennet.leff/Documents/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running all tests with verbose output..."
 	/opt/homebrew/bin/ctest --verbose
 

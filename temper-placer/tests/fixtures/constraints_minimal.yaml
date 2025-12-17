@@ -1,0 +1,29 @@
+# Test Constraints for Minimal Board
+# This file defines placement constraints for the minimal_board.kicad_pcb test fixture
+
+board:
+  width_mm: 50.0   # mm (from 90 to 140)
+  height_mm: 30.0  # mm (from 70 to 100)
+  margin_mm: 2.0
+
+zones:
+  - name: main
+    bounds: [0, 0, 50, 30]
+    net_classes: ["Signal", "Power"]
+
+groups:
+  - name: passives
+    components: ["R1", "R2", "C1"]
+    zone: main
+    max_spread_mm: 20.0
+    
+  - name: ics
+    components: ["U1"]
+    zone: main
+    max_spread_mm: 10.0
+
+net_weights:
+  SIG1: 1.5
+  SIG2: 1.5
+  VCC: 0.5
+  GND: 0.5

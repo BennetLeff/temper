@@ -31,8 +31,10 @@ from temper_placer.visualization.model import (
     ComponentStatus,
     ComponentView,
     ConstraintStatus,
+    PadView,
     Point,
     Rectangle,
+    TraceView,
     ViolationType,
     ZoneView,
 )
@@ -58,6 +60,22 @@ ZONE_COLORS: Dict[str, str] = {
 # Default board colors
 BOARD_BACKGROUND = "#1a472a"  # Dark green (PCB color)
 BOARD_BORDER = "#2d5a3d"
+
+# Colors for copper layers
+LAYER_COLORS: Dict[str, str] = {
+    "F.Cu": "#FFD700",  # Gold for front copper
+    "B.Cu": "#4169E1",  # Royal blue for back copper
+    "*.Cu": "#CD853F",  # Peru (brownish) for through-hole
+    "In1.Cu": "#FF6347",  # Tomato for inner layer 1
+    "In2.Cu": "#32CD32",  # Lime green for inner layer 2
+}
+
+# Pad colors
+PAD_COLORS: Dict[str, str] = {
+    "smd": "#C0C0C0",  # Silver for SMD
+    "thru_hole": "#CD7F32",  # Bronze for through-hole
+    "*.Cu": "#CD7F32",  # Bronze for through-hole
+}
 
 
 def check_plotly_available() -> None:
@@ -174,6 +192,230 @@ def get_zone_shape(zone: ZoneView) -> Dict[str, Any]:
     }
 
 
+def get_trace_shapes(
+    traces: Tuple[TraceView, ...],
+    layer_filter: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Create Plotly shapes for trace segments.
+
+    Args:
+        traces: Tuple of TraceView objects.
+        layer_filter: If specified, only render traces on this layer.
+
+    Returns:
+        List of Plotly shape dictionaries (lines).
+    """
+    shapes = []
+    for trace in traces:
+        # Filter by layer if specified
+        if layer_filter and trace.layer != layer_filter:
+            continue
+
+        # Get color based on layer
+        color = LAYER_COLORS.get(trace.layer, LAYER_COLORS.get("F.Cu", "#FFD700"))
+
+        # Scale width for visibility (minimum 0.5px rendered width)
+        line_width = max(trace.width * 2, 0.5)
+
+        shapes.append(
+            {
+                "type": "line",
+                "x0": trace.start.x,
+                "y0": trace.start.y,
+                "x1": trace.end.x,
+                "y1": trace.end.y,
+                "line": {"color": color, "width": line_width},
+                "layer": "above",
+            }
+        )
+
+    return shapes
+
+
+def get_pad_shapes(
+    pads: Tuple[PadView, ...],
+    layer_filter: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Create Plotly shapes for pads.
+
+    Args:
+        pads: Tuple of PadView objects.
+        layer_filter: If specified, only render pads on this layer.
+
+    Returns:
+        List of Plotly shape dictionaries.
+    """
+    import math
+
+    shapes = []
+    for pad in pads:
+        # Filter by layer if specified (allow through-hole on any layer)
+        if layer_filter and pad.layer != layer_filter and pad.layer != "*.Cu":
+            continue
+
+        # Get color based on layer/type
+        if pad.layer == "*.Cu":
+            color = PAD_COLORS.get("thru_hole", "#CD7F32")
+        else:
+            color = PAD_COLORS.get("smd", "#C0C0C0")
+
+        px, py = pad.position.x, pad.position.y
+        pw, ph = pad.size
+
+        if pad.shape == "circle":
+            # Circle pad - use the larger dimension as diameter
+            radius = max(pw, ph) / 2
+            shapes.append(
+                {
+                    "type": "circle",
+                    "x0": px - radius,
+                    "y0": py - radius,
+                    "x1": px + radius,
+                    "y1": py + radius,
+                    "fillcolor": color,
+                    "line": {"color": "#000000", "width": 0.5},
+                    "opacity": 0.9,
+                    "layer": "above",
+                }
+            )
+        elif pad.shape == "oval":
+            # Oval - approximate with ellipse
+            shapes.append(
+                {
+                    "type": "circle",
+                    "x0": px - pw / 2,
+                    "y0": py - ph / 2,
+                    "x1": px + pw / 2,
+                    "y1": py + ph / 2,
+                    "fillcolor": color,
+                    "line": {"color": "#000000", "width": 0.5},
+                    "opacity": 0.9,
+                    "layer": "above",
+                }
+            )
+        else:
+            # Rectangle or roundrect - render as rectangle
+            # Apply rotation if needed
+            if pad.rotation != 0:
+                angle_rad = math.radians(pad.rotation)
+                cos_a = math.cos(angle_rad)
+                sin_a = math.sin(angle_rad)
+
+                # Corners relative to center
+                hw, hh = pw / 2, ph / 2
+                corners_rel = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
+
+                # Rotate and translate
+                path = ""
+                for i, (dx, dy) in enumerate(corners_rel):
+                    rx = px + dx * cos_a - dy * sin_a
+                    ry = py + dx * sin_a + dy * cos_a
+                    if i == 0:
+                        path = f"M {rx},{ry}"
+                    else:
+                        path += f" L {rx},{ry}"
+                path += " Z"
+
+                shapes.append(
+                    {
+                        "type": "path",
+                        "path": path,
+                        "fillcolor": color,
+                        "line": {"color": "#000000", "width": 0.5},
+                        "opacity": 0.9,
+                        "layer": "above",
+                    }
+                )
+            else:
+                # Simple rectangle
+                shapes.append(
+                    {
+                        "type": "rect",
+                        "x0": px - pw / 2,
+                        "y0": py - ph / 2,
+                        "x1": px + pw / 2,
+                        "y1": py + ph / 2,
+                        "fillcolor": color,
+                        "line": {"color": "#000000", "width": 0.5},
+                        "opacity": 0.9,
+                        "layer": "above",
+                    }
+                )
+
+    return shapes
+
+
+def create_trace_hover_data(
+    traces: Tuple[TraceView, ...],
+) -> Tuple[List[float], List[float], List[str]]:
+    """
+    Create hover data for traces (at midpoints).
+
+    Args:
+        traces: Tuple of traces.
+
+    Returns:
+        Tuple of (x_coords, y_coords, hover_texts).
+    """
+    x_coords = []
+    y_coords = []
+    hover_texts = []
+
+    for trace in traces:
+        # Midpoint of trace
+        mid_x = (trace.start.x + trace.end.x) / 2
+        mid_y = (trace.start.y + trace.end.y) / 2
+        x_coords.append(mid_x)
+        y_coords.append(mid_y)
+
+        # Build hover text
+        hover = f"<b>Trace</b><br>"
+        hover += f"Layer: {trace.layer}<br>"
+        hover += f"Width: {trace.width:.3f} mm<br>"
+        if trace.net:
+            hover += f"Net: {trace.net}"
+        hover_texts.append(hover)
+
+    return x_coords, y_coords, hover_texts
+
+
+def create_pad_hover_data(
+    pads: Tuple[PadView, ...],
+) -> Tuple[List[float], List[float], List[str]]:
+    """
+    Create hover data for pads.
+
+    Args:
+        pads: Tuple of pads.
+
+    Returns:
+        Tuple of (x_coords, y_coords, hover_texts).
+    """
+    x_coords = []
+    y_coords = []
+    hover_texts = []
+
+    for pad in pads:
+        x_coords.append(pad.position.x)
+        y_coords.append(pad.position.y)
+
+        # Build hover text
+        hover = f"<b>Pad {pad.number}</b><br>"
+        if pad.component_ref:
+            hover += f"Component: {pad.component_ref}<br>"
+        hover += f"Position: ({pad.position.x:.2f}, {pad.position.y:.2f})<br>"
+        hover += f"Size: {pad.size[0]:.2f} x {pad.size[1]:.2f} mm<br>"
+        hover += f"Shape: {pad.shape}<br>"
+        hover += f"Layer: {pad.layer}<br>"
+        if pad.net:
+            hover += f"Net: {pad.net}"
+        hover_texts.append(hover)
+
+    return x_coords, y_coords, hover_texts
+
+
 def create_component_annotations(
     components: Tuple[ComponentView, ...],
     show_refs: bool = True,
@@ -234,7 +476,10 @@ def create_component_hover_data(
         y_coords.append(comp.position.y)
 
         # Build hover text
-        hover = f"<b>{comp.ref}</b><br>"
+        hover = f"<b>{comp.ref}</b>"
+        if comp.value:
+            hover += f" ({comp.value})"
+        hover += "<br>"
         hover += f"Position: ({comp.position.x:.2f}, {comp.position.y:.2f})<br>"
         hover += f"Size: {comp.width:.2f} x {comp.height:.2f} mm<br>"
         hover += f"Rotation: {comp.rotation:.0f}°<br>"
@@ -252,6 +497,112 @@ def create_component_hover_data(
     return x_coords, y_coords, hover_texts
 
 
+def _add_legend_traces(
+    fig: "go.Figure",
+    board: BoardView,
+    show_traces: bool,
+    show_pads: bool,
+    show_status_colors: bool,
+) -> None:
+    """
+    Add dummy traces for legend display.
+
+    Creates invisible marker traces that appear in the legend to explain
+    the color coding used in the visualization.
+
+    Args:
+        fig: Plotly figure to add traces to.
+        board: BoardView being rendered.
+        show_traces: Whether traces are being shown.
+        show_pads: Whether pads are being shown.
+        show_status_colors: Whether status colors are being shown.
+    """
+    # Use a position outside the visible area for legend markers
+    legend_x = -100
+    legend_y = -100
+
+    # Component status legend (if showing status colors)
+    if show_status_colors:
+        for status, color in STATUS_COLORS.items():
+            fig.add_trace(
+                go.Scatter(
+                    x=[legend_x],
+                    y=[legend_y],
+                    mode="markers",
+                    marker={"size": 12, "color": color, "symbol": "square"},
+                    name=f"Component: {status.value}",
+                    showlegend=True,
+                    legendgroup="components",
+                    legendgrouptitle_text="Components",
+                    hoverinfo="skip",
+                )
+            )
+
+    # Trace layer legend (if showing traces)
+    if show_traces and board.traces:
+        # Only show legend for layers actually present
+        layers_present = set(t.layer for t in board.traces)
+        for layer, color in LAYER_COLORS.items():
+            if layer in layers_present:
+                layer_name = {
+                    "F.Cu": "Front Copper",
+                    "B.Cu": "Back Copper",
+                    "*.Cu": "Through-hole",
+                }.get(layer, layer)
+                fig.add_trace(
+                    go.Scatter(
+                        x=[legend_x],
+                        y=[legend_y],
+                        mode="lines",
+                        line={"color": color, "width": 3},
+                        name=f"Trace: {layer_name}",
+                        showlegend=True,
+                        legendgroup="traces",
+                        legendgrouptitle_text="Traces",
+                        hoverinfo="skip",
+                    )
+                )
+
+    # Pad type legend (if showing pads)
+    if show_pads and board.pads:
+        # Check which pad types are present
+        has_smd = any(p.layer != "*.Cu" for p in board.pads)
+        has_thru = any(p.layer == "*.Cu" for p in board.pads)
+
+        if has_smd:
+            fig.add_trace(
+                go.Scatter(
+                    x=[legend_x],
+                    y=[legend_y],
+                    mode="markers",
+                    marker={"size": 10, "color": PAD_COLORS["smd"], "symbol": "square"},
+                    name="Pad: SMD",
+                    showlegend=True,
+                    legendgroup="pads",
+                    legendgrouptitle_text="Pads",
+                    hoverinfo="skip",
+                )
+            )
+        if has_thru:
+            fig.add_trace(
+                go.Scatter(
+                    x=[legend_x],
+                    y=[legend_y],
+                    mode="markers",
+                    marker={
+                        "size": 10,
+                        "color": PAD_COLORS["thru_hole"],
+                        "symbol": "circle",
+                    },
+                    name="Pad: Through-hole",
+                    showlegend=True,
+                    legendgroup="pads",
+                    legendgrouptitle_text="Pads",
+                    hoverinfo="skip",
+                )
+            )
+
+
 def render_board(
     board: BoardView,
     title: Optional[str] = None,
@@ -259,6 +610,9 @@ def render_board(
     show_status_colors: bool = True,
     show_zones: bool = True,
     show_grid: bool = True,
+    show_traces: bool = True,
+    show_pads: bool = True,
+    show_legend: bool = True,
     width: int = 800,
     height: int = 600,
 ) -> "go.Figure":
@@ -272,6 +626,9 @@ def render_board(
         show_status_colors: Whether to color components by status.
         show_zones: Whether to show board zones.
         show_grid: Whether to show background grid.
+        show_traces: Whether to show copper traces.
+        show_pads: Whether to show component pads.
+        show_legend: Whether to show color legend.
         width: Figure width in pixels.
         height: Figure height in pixels.
 
@@ -302,18 +659,39 @@ def render_board(
         }
     )
 
-    # Add zones (below components)
+    # Add zones (below everything)
     if show_zones:
         for zone in board.zones:
             shape = get_zone_shape(zone)
             if shape:
                 shapes.append(shape)
 
-    # Add component shapes
+    # Add traces (above zones, below pads)
+    if show_traces and board.traces:
+        # Render back copper first, then front copper
+        shapes.extend(get_trace_shapes(board.traces, layer_filter="B.Cu"))
+        shapes.extend(get_trace_shapes(board.traces, layer_filter="F.Cu"))
+        # Render any other layers
+        for trace in board.traces:
+            if trace.layer not in ("F.Cu", "B.Cu"):
+                shapes.extend(get_trace_shapes((trace,)))
+
+    # Add pads - SMD pads below components, through-hole pads above
+    if show_pads and board.pads:
+        # SMD pads first (below components)
+        smd_pads = tuple(p for p in board.pads if p.layer != "*.Cu")
+        shapes.extend(get_pad_shapes(smd_pads))
+
+    # Add component shapes (on top of SMD pads)
     for comp in board.components:
         shapes.append(get_component_shape(comp, show_status_colors))
 
-    # Add invisible scatter for hover
+    # Add through-hole pads last (on top of components)
+    if show_pads and board.pads:
+        thru_pads = tuple(p for p in board.pads if p.layer == "*.Cu")
+        shapes.extend(get_pad_shapes(thru_pads))
+
+    # Add invisible scatter for component hover
     x_coords, y_coords, hover_texts = create_component_hover_data(board.components)
     fig.add_trace(
         go.Scatter(
@@ -324,8 +702,47 @@ def render_board(
             hoverinfo="text",
             hovertext=hover_texts,
             showlegend=False,
+            name="Components",
         )
     )
+
+    # Add invisible scatter for trace hover
+    if show_traces and board.traces:
+        tx, ty, tt = create_trace_hover_data(board.traces)
+        if tx:
+            fig.add_trace(
+                go.Scatter(
+                    x=tx,
+                    y=ty,
+                    mode="markers",
+                    marker={"size": 1, "opacity": 0},
+                    hoverinfo="text",
+                    hovertext=tt,
+                    showlegend=False,
+                    name="Traces",
+                )
+            )
+
+    # Add invisible scatter for pad hover
+    if show_pads and board.pads:
+        px, py, pt = create_pad_hover_data(board.pads)
+        if px:
+            fig.add_trace(
+                go.Scatter(
+                    x=px,
+                    y=py,
+                    mode="markers",
+                    marker={"size": 1, "opacity": 0},
+                    hoverinfo="text",
+                    hovertext=pt,
+                    showlegend=False,
+                    name="Pads",
+                )
+            )
+
+    # Add legend traces (dummy markers for legend display)
+    if show_legend:
+        _add_legend_traces(fig, board, show_traces, show_pads, show_status_colors)
 
     # Create annotations
     annotations = create_component_annotations(board.components, show_refs=show_refs)
@@ -360,7 +777,18 @@ def render_board(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="#f5f5f5",
         hovermode="closest",
-        margin={"l": 60, "r": 20, "t": 60, "b": 60},
+        margin={"l": 60, "r": 150 if show_legend else 20, "t": 60, "b": 60},
+        showlegend=show_legend,
+        legend={
+            "orientation": "v",
+            "yanchor": "top",
+            "y": 1,
+            "xanchor": "left",
+            "x": 1.02,
+            "bgcolor": "rgba(255,255,255,0.8)",
+            "bordercolor": "#ccc",
+            "borderwidth": 1,
+        },
     )
 
     return fig

@@ -1,0 +1,219 @@
+project: piantor_left
+extracted_at: '2025-12-16T19:13:56.045726'
+source_pcb: /Users/bennet.leff/Documents/temper/temper-placer/tests/fixtures/external/.cache/piantor_left/keyboard_pcb.kicad_pcb
+board_width_mm: 138.8
+board_height_mm: 89.72
+board_origin_x: 64
+board_origin_y: 43.4
+component_count: 36
+net_count: 33
+total_wirelength_mm: 1884.15
+overlap_loss: 276.321594
+boundary_loss: 272.448395
+drc_errors: 13
+drc_warnings: 48
+drc_available: true
+component_positions:
+  K25:
+    x: 100.0
+    y: 50.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K24:
+    x: 82.0
+    y: 48.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K21:
+    x: 28.0
+    y: 60.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K02:
+    x: 46.0
+    y: 14.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  H4:
+    x: 19.0
+    y: 35.1
+    rotation: 0.0
+    width: 2.2
+    height: 2.2
+  K10:
+    x: 10.0
+    y: 43.6
+    rotation: 2.0
+    width: 15.926
+    height: 14.366
+  U2:
+    x: 126.703
+    y: 33.308
+    rotation: 0.0
+    width: 22.0
+    height: 52.0
+  K04:
+    x: 82.0
+    y: 14.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K12:
+    x: 46.0
+    y: 31.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  H2:
+    x: 110.5
+    y: 23.6
+    rotation: 0.0
+    width: 2.2
+    height: 2.2
+  K30:
+    x: 77.0
+    y: 69.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K01:
+    x: 28.0
+    y: 26.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  MB1:
+    x: 17.4
+    y: 35.1
+    rotation: 1.0
+    width: 3.5
+    height: 1.0
+  MB3:
+    x: 17.4
+    y: 65.035
+    rotation: 1.0
+    width: 5.0
+    height: 1.0
+  MB2:
+    x: 17.4
+    y: 52.1
+    rotation: 1.0
+    width: 3.5
+    height: 1.0
+  K14:
+    x: 82.0
+    y: 31.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K23:
+    x: 64.0
+    y: 43.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K03:
+    x: 64.0
+    y: 9.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  H1:
+    x: 37.0
+    y: 35.1
+    rotation: 0.0
+    width: 2.2
+    height: 2.2
+  K22:
+    x: 46.0
+    y: 48.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  J1:
+    x: 138.85
+    y: 65.6
+    rotation: 3.0
+    width: 6.2
+    height: 11.1
+  K15:
+    x: 100.0
+    y: 33.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  H3:
+    x: 112.8
+    y: 64.2
+    rotation: 0.0
+    width: 2.2
+    height: 2.2
+  K32:
+    x: 120.0
+    y: 77.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K11:
+    x: 28.0
+    y: 43.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K05:
+    x: 100.0
+    y: 16.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  MB4:
+    x: 17.4
+    y: 22.135
+    rotation: 1.0
+    width: 5.0
+    height: 1.0
+  K20:
+    x: 10.0
+    y: 60.6
+    rotation: 2.0
+    width: 15.926
+    height: 14.366
+  K13:
+    x: 64.0
+    y: 26.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  K00:
+    x: 10.0
+    y: 26.6
+    rotation: 2.0
+    width: 15.926
+    height: 14.366
+  K31:
+    x: 99.0
+    y: 70.6
+    rotation: 0.0
+    width: 15.926
+    height: 14.366
+  R2:
+    x: 128.43
+    y: 20.71
+    rotation: 2.0
+    width: 4.9
+    height: 2.24
+  R1:
+    x: 128.43
+    y: 17.001
+    rotation: 0.0
+    width: 4.9
+    height: 2.24
+net_wirelengths: {}
+warnings:
+- 'Original design has overlap loss: 276.3216'
+- 'Original design has boundary loss: 272.4484'
+- DRC found 13 errors

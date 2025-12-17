@@ -1,0 +1,45 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "small_model": "github-copilot/claude-haiku-4.5",
+  "provider": {
+    "google": {
+      "models": {
+        "gemini-3-pro-preview": {
+          "options": {
+            "maxOutputTokens": 16000
+          }
+        }
+      }
+    }
+  },
+  "agent": {
+    "gemini-plan": {
+      "mode": "primary",
+      "model": "github-copilot/gemini-3-pro-preview",
+      "description": "Planning agent using Gemini 3 Pro Preview",
+      "temperature": 0.3,
+      "tools": { "write": false, "edit": false, "bash": true }
+    },
+    "claude-plan": {
+      "mode": "primary",
+      "model": "github-copilot/claude-opus-4.5",
+      "description": "Planning agent using Claude Opus 4.5",
+      "temperature": 0.1,
+      "tools": { "write": false, "edit": false, "bash": true }
+    },
+    "build": {
+      "mode": "primary",
+      "model": "github-copilot/claude-opus-4.5",
+      "description": "Build agent using Claude Opus 4.5",
+      "temperature": 0.3,
+      "tools": { "write": true, "edit": true, "bash": true }
+    },
+    "build-fast": {
+      "mode": "primary",
+      "model": "github-copilot/claude-haiku-4.5",
+      "description": "Fast build agent using Claude Haiku 4.5",
+      "temperature": 0.3,
+      "tools": { "write": true, "edit": true, "bash": true }
+    }
+  }
+}

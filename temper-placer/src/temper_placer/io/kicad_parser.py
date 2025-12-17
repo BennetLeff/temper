@@ -21,12 +21,45 @@ from temper_placer.core.board import Board, Zone, MountingHole
 
 
 @dataclass
+class TraceData:
+    """Data for a PCB trace segment."""
+
+    start: Tuple[float, float]  # (x, y) in mm, absolute coords
+    end: Tuple[float, float]  # (x, y) in mm, absolute coords
+    width: float  # trace width in mm
+    layer: str  # e.g., 'F.Cu', 'B.Cu'
+    net: Optional[str] = None  # net name
+
+
+@dataclass
+class PadData:
+    """Data for a component pad."""
+
+    position: Tuple[float, float]  # (x, y) in mm, absolute coords
+    size: Tuple[float, float]  # (width, height) in mm
+    shape: str  # 'rect', 'circle', 'oval', 'roundrect', 'thru_hole'
+    rotation: float = 0.0  # degrees
+    layer: str = "F.Cu"  # primary layer
+    number: str = ""  # pad number
+    net: Optional[str] = None  # net name
+    component_ref: Optional[str] = None  # parent component ref
+
+
+@dataclass
 class ParseResult:
     """Result of parsing KiCad files."""
 
     netlist: Netlist
     board: Optional[Board]
     warnings: List[str]
+    traces: List[TraceData] = None  # type: ignore[assignment]
+    pads: List[PadData] = None  # type: ignore[assignment]
+
+    def __post_init__(self):
+        if self.traces is None:
+            self.traces = []
+        if self.pads is None:
+            self.pads = []
 
     @property
     def has_warnings(self) -> bool:
@@ -46,24 +79,33 @@ def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
     Note:
         This extracts placement from an existing PCB file. For initial placement
         optimization, components may be unplaced (position 0,0) or randomly placed.
+
+        Component positions are normalized to origin-relative coordinates
+        (i.e., board origin is subtracted). This ensures consistency with the
+        optimizer which works in [0, board_width] x [0, board_height] space.
+        The kicad_writer adds the origin back when exporting.
     """
     warnings: List[str] = []
 
     # Load the KiCad board
     ki_board = KiBoard.from_file(str(pcb_path))
 
-    # Extract board dimensions
+    # Extract board dimensions first (needed for coordinate normalization)
     board = _extract_board_geometry(ki_board, warnings)
 
-    # Extract components (footprints)
-    components = _extract_components_from_pcb(ki_board, warnings)
+    # Extract components (footprints) with origin-relative positions
+    components = _extract_components_from_pcb(ki_board, warnings, board_origin=board.origin)
 
     # Extract nets
     nets = _extract_nets_from_pcb(ki_board, components, warnings)
 
     netlist = Netlist(components=components, nets=nets)
 
-    return ParseResult(netlist=netlist, board=board, warnings=warnings)
+    # Extract traces and pads for visualization
+    traces = _extract_traces_from_pcb(ki_board, warnings)
+    pads = _extract_pads_from_pcb(ki_board, warnings)
+
+    return ParseResult(netlist=netlist, board=board, warnings=warnings, traces=traces, pads=pads)
 
 
 def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult:
@@ -151,17 +193,31 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: List[str]) -> Board:
     # Extract zones (copper zones for placement constraints)
     zones: List[Zone] = []
     for zone in ki_board.zones:
-        if zone.layerName and "Cu" in zone.layerName:
-            # Get zone bounds from polygon
-            if zone.polygon and zone.polygon.coordinates:
-                coords = zone.polygon.coordinates
+        # Handle kiutils API change: layerName (older) vs layers (1.4.8+)
+        zone_layers = getattr(zone, "layers", None) or getattr(zone, "layerName", None)
+        zone_layers_str = str(zone_layers) if zone_layers else ""
+        if zone_layers_str and "Cu" in zone_layers_str:
+            # Get zone bounds from polygon (handle API change: polygon vs polygons)
+            zone_polygon = getattr(zone, "polygon", None)
+            zone_polygons = getattr(zone, "polygons", None)
+
+            coords = None
+            if zone_polygon and hasattr(zone_polygon, "coordinates"):
+                coords = zone_polygon.coordinates
+            elif zone_polygons and len(zone_polygons) > 0:
+                # Use first polygon from list
+                first_poly = zone_polygons[0]
+                if hasattr(first_poly, "coordinates"):
+                    coords = first_poly.coordinates
+
+            if coords:
                 zx_min = min(c.X for c in coords)
                 zy_min = min(c.Y for c in coords)
                 zx_max = max(c.X for c in coords)
                 zy_max = max(c.Y for c in coords)
 
                 zone_name = zone.name or f"Zone_{len(zones)}"
-                net_class = zone.netName or "Signal"
+                net_class = getattr(zone, "netName", None) or "Signal"
 
                 zones.append(
                     Zone(
@@ -180,10 +236,25 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: List[str]) -> Board:
     )
 
 
-def _extract_components_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[Component]:
-    """Extract components from KiCad board footprints."""
+def _extract_components_from_pcb(
+    ki_board: KiBoard,
+    warnings: List[str],
+    board_origin: Tuple[float, float] = (0.0, 0.0),
+) -> List[Component]:
+    """
+    Extract components from KiCad board footprints.
 
+    Args:
+        ki_board: The parsed KiCad board.
+        warnings: List to append warnings to.
+        board_origin: (x, y) board origin to subtract from positions.
+            This normalizes positions to origin-relative coordinates.
+
+    Returns:
+        List of Component objects with origin-relative positions.
+    """
     components: List[Component] = []
+    origin_x, origin_y = board_origin
 
     for fp in ki_board.footprints:
         ref = _get_footprint_reference(fp)
@@ -195,8 +266,31 @@ def _extract_components_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List
         width, height = _get_footprint_bounds(fp)
 
         # Get position and rotation
-        pos = (fp.position.X, fp.position.Y) if fp.position else None
-        rot = int(fp.position.angle / 90) % 4 if fp.position and fp.position.angle else 0
+        # Normalize position to origin-relative coordinates
+        if fp.position:
+            pos = (fp.position.X - origin_x, fp.position.Y - origin_y)
+        else:
+            pos = None
+
+        # Handle rotation - preserve original angle for non-90° rotations
+        original_angle = 0.0
+        rot = 0
+        if fp.position and fp.position.angle:
+            original_angle = float(fp.position.angle)
+            # Quantize to nearest 90° for optimization
+            rot = round(original_angle / 90) % 4
+            quantized_angle = rot * 90.0
+            # Warn if non-90° rotation detected
+            angle_diff = abs(original_angle - quantized_angle)
+            # Handle wraparound (e.g., 359° vs 0°)
+            if angle_diff > 180:
+                angle_diff = 360 - angle_diff
+            if angle_diff > 0.1:  # More than 0.1° off from 90° grid
+                warnings.append(
+                    f"Component {ref} has non-90° rotation ({original_angle:.1f}°), "
+                    f"quantized to {quantized_angle:.0f}° for optimization. "
+                    f"Original angle preserved in attributes."
+                )
 
         # Extract pins from pads
         pins: List[Pin] = []
@@ -222,11 +316,24 @@ def _extract_components_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List
                     net_class = "HighVoltage"
                     break
 
-        # Get value/attributes
+        # Get value/attributes from footprint properties
         attributes = {}
-        for prop in getattr(fp, "properties", []):
-            if hasattr(prop, "key") and hasattr(prop, "value"):
-                attributes[prop.key] = prop.value
+        props = getattr(fp, "properties", {})
+        if isinstance(props, dict):
+            # Modern kiutils format - properties is a dict
+            for key, value in props.items():
+                if key not in ("Reference",):  # Skip ref, we have it already
+                    attributes[key] = value
+        else:
+            # Older format - properties is a list of objects
+            for prop in props:
+                if hasattr(prop, "key") and hasattr(prop, "value"):
+                    attributes[prop.key] = prop.value
+
+        # Store original angle for non-90° rotation preservation
+        # This allows the writer to restore the angle offset on export
+        if original_angle != 0.0:
+            attributes["_original_angle"] = str(original_angle)
 
         comp = Component(
             ref=ref,
@@ -301,6 +408,159 @@ def _extract_nets_from_pcb(
     return nets
 
 
+def _extract_traces_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[TraceData]:
+    """Extract trace segments from KiCad board."""
+    import math
+
+    traces: List[TraceData] = []
+
+    # Build net name lookup from board nets
+    net_names: Dict[int, str] = {}
+    for net in getattr(ki_board, "nets", []):
+        if hasattr(net, "number") and hasattr(net, "name"):
+            net_names[net.number] = net.name
+
+    for item in ki_board.traceItems:
+        # Handle segments (straight traces)
+        if hasattr(item, "start") and hasattr(item, "end"):
+            start = (item.start.X, item.start.Y)
+            end = (item.end.X, item.end.Y)
+            width = getattr(item, "width", 0.25) or 0.25
+            layer = getattr(item, "layer", "F.Cu") or "F.Cu"
+
+            # Get net name from net number
+            net_num = getattr(item, "net", None)
+            net_name = None
+            if net_num is not None:
+                net_name = net_names.get(net_num)
+
+            traces.append(TraceData(start=start, end=end, width=width, layer=layer, net=net_name))
+
+        # Handle arcs (convert to line segments for now)
+        elif hasattr(item, "center") and hasattr(item, "mid"):
+            # Arc has center, start, mid, end points
+            # For visualization, we can approximate with start->mid->end segments
+            if hasattr(item, "start") and hasattr(item, "end"):
+                mid = item.mid
+                width = getattr(item, "width", 0.25) or 0.25
+                layer = getattr(item, "layer", "F.Cu") or "F.Cu"
+                net_num = getattr(item, "net", None)
+                net_name = net_names.get(net_num) if net_num is not None else None
+
+                # First half: start -> mid
+                traces.append(
+                    TraceData(
+                        start=(item.start.X, item.start.Y),
+                        end=(mid.X, mid.Y),
+                        width=width,
+                        layer=layer,
+                        net=net_name,
+                    )
+                )
+                # Second half: mid -> end
+                traces.append(
+                    TraceData(
+                        start=(mid.X, mid.Y),
+                        end=(item.end.X, item.end.Y),
+                        width=width,
+                        layer=layer,
+                        net=net_name,
+                    )
+                )
+
+    return traces
+
+
+def _extract_pads_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[PadData]:
+    """Extract pads from KiCad board footprints with absolute coordinates."""
+    import math
+
+    pads: List[PadData] = []
+
+    for fp in ki_board.footprints:
+        ref = _get_footprint_reference(fp)
+
+        # Get footprint position and rotation
+        fp_x = fp.position.X if fp.position else 0.0
+        fp_y = fp.position.Y if fp.position else 0.0
+        fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
+        fp_angle_rad = math.radians(fp_angle)
+
+        for pad in fp.pads:
+            # Pad position is relative to footprint
+            local_x = pad.position.X if pad.position else 0.0
+            local_y = pad.position.Y if pad.position else 0.0
+
+            # Transform to absolute coordinates
+            # Apply footprint rotation then translation
+            cos_a = math.cos(fp_angle_rad)
+            sin_a = math.sin(fp_angle_rad)
+            abs_x = fp_x + local_x * cos_a - local_y * sin_a
+            abs_y = fp_y + local_x * sin_a + local_y * cos_a
+
+            # Get pad size
+            pad_width = 1.0
+            pad_height = 1.0
+            if hasattr(pad, "size") and pad.size:
+                pad_width = getattr(pad.size, "X", 1.0) or 1.0
+                pad_height = getattr(pad.size, "Y", 1.0) or 1.0
+
+            # Determine shape
+            pad_type = getattr(pad, "type", "smd") or "smd"
+            pad_shape_attr = getattr(pad, "shape", "rect") or "rect"
+
+            # Map kiutils shape to our shape names
+            if pad_type == "thru_hole":
+                shape = "circle"  # Most through-hole pads are circular
+            elif pad_shape_attr == "circle":
+                shape = "circle"
+            elif pad_shape_attr == "oval":
+                shape = "oval"
+            elif pad_shape_attr == "roundrect":
+                shape = "roundrect"
+            else:
+                shape = "rect"
+
+            # Get pad rotation (relative to footprint)
+            pad_angle = 0.0
+            if hasattr(pad.position, "angle") and pad.position.angle:
+                pad_angle = pad.position.angle
+            total_rotation = fp_angle + pad_angle
+
+            # Get primary layer
+            layers = getattr(pad, "layers", ["F.Cu"])
+            primary_layer = "F.Cu"
+            if layers:
+                if "*.Cu" in layers:
+                    primary_layer = "*.Cu"  # Through-hole
+                elif "F.Cu" in layers:
+                    primary_layer = "F.Cu"
+                elif "B.Cu" in layers:
+                    primary_layer = "B.Cu"
+                elif layers[0]:
+                    primary_layer = layers[0]
+
+            # Get net name
+            net_name = None
+            if hasattr(pad, "net") and pad.net:
+                net_name = getattr(pad.net, "name", None)
+
+            pads.append(
+                PadData(
+                    position=(abs_x, abs_y),
+                    size=(pad_width, pad_height),
+                    shape=shape,
+                    rotation=total_rotation,
+                    layer=primary_layer,
+                    number=pad.number or "",
+                    net=net_name,
+                    component_ref=ref,
+                )
+            )
+
+    return pads
+
+
 def _parse_schematic_sheet(
     schematic: Schematic,
     base_path: Path,
@@ -373,11 +633,29 @@ def _parse_schematic_sheet(
             sheet_file = None
             sheet_name = None
 
-            for prop in sheet.properties:
-                if prop.key == "Sheetfile":
-                    sheet_file = prop.value
-                elif prop.key == "Sheetname":
-                    sheet_name = prop.value
+            # In kiutils, sheet properties are stored as attributes, not in properties list
+            # Check both the direct attributes and the properties list for compatibility
+            if hasattr(sheet, "fileName") and sheet.fileName:
+                # kiutils stores as Property object with .value attribute
+                if hasattr(sheet.fileName, "value"):
+                    sheet_file = sheet.fileName.value
+                else:
+                    sheet_file = sheet.fileName
+
+            if hasattr(sheet, "sheetName") and sheet.sheetName:
+                if hasattr(sheet.sheetName, "value"):
+                    sheet_name = sheet.sheetName.value
+                else:
+                    sheet_name = sheet.sheetName
+
+            # Fallback to properties list (older kiutils versions)
+            if not sheet_file:
+                for prop in getattr(sheet, "properties", []):
+                    if hasattr(prop, "key"):
+                        if prop.key == "Sheetfile":
+                            sheet_file = prop.value
+                        elif prop.key == "Sheetname":
+                            sheet_name = prop.value
 
             if sheet_file:
                 sub_path = base_path / sheet_file

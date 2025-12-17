@@ -69,6 +69,7 @@ from temper_placer.optimizer.train import (
     TrainingMetrics,
     TrainingState,
     initialize_training_state,
+    NumericalInstabilityError,
 )
 
 from temper_placer.optimizer.validation_callback import (
@@ -130,6 +131,7 @@ __all__ = [
     "TrainingMetrics",
     "TrainingState",
     "initialize_training_state",
+    "NumericalInstabilityError",
     # Validation
     "ValidationConfig",
     "ValidationResult",

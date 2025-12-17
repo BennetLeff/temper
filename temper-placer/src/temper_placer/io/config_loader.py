@@ -53,13 +53,61 @@ class ThermalConstraint:
 
 
 @dataclass
+class ThermalProperties:
+    """
+    Extended thermal properties for comprehensive thermal management.
+
+    This extends the basic ThermalConstraint with:
+    - Power dissipation values for heat spreading calculations
+    - Heat-sensitive component specifications
+    - Thermal pad component identification
+    """
+
+    # High-power heat sources
+    high_power_components: List[str] = field(default_factory=list)
+    power_dissipation_w: Dict[str, float] = field(default_factory=dict)
+    min_separation_mm: float = 15.0  # Between high-power components
+
+    # Heat-sensitive components (MCU, sensors)
+    heat_sensitive_components: List[str] = field(default_factory=list)
+    max_temp_rise_c: float = 20.0
+    min_distance_from_heat_sources_mm: float = 20.0
+
+    # Thermal pad components (for edge preference)
+    thermal_pad_components: List[str] = field(default_factory=list)
+    prefer_edge: bool = True
+    preferred_edge_margin_mm: float = 10.0
+
+
+@dataclass
+class ProximityRule:
+    """Proximity constraint between two components."""
+
+    component_a: str
+    component_b: str
+    max_distance_mm: float = 10.0
+    description: str = ""
+
+
+@dataclass
+class GroupSeparation:
+    """Minimum separation between two groups."""
+
+    group_a: str
+    group_b: str
+    min_distance_mm: float = 20.0
+    description: str = ""
+
+
+@dataclass
 class ComponentGroup:
     """Group of components that should be placed together."""
 
     name: str
     components: List[str]
-    max_spread_mm: float = 30.0  # Maximum spread of group centroid
+    max_spread_mm: float = 30.0  # Maximum diameter of group bounding box
     zone: Optional[str] = None  # Required zone
+    proximity_rules: List[ProximityRule] = field(default_factory=list)  # Proximity within group
     description: str = ""
 
 
@@ -83,11 +131,17 @@ class PlacementConstraints:
     # Critical loops (EMI-sensitive)
     critical_loops: List[CriticalLoop] = field(default_factory=list)
 
-    # Thermal constraints
+    # Thermal constraints (basic)
     thermal_constraints: List[ThermalConstraint] = field(default_factory=list)
+
+    # Extended thermal properties (advanced)
+    thermal_properties: Optional[ThermalProperties] = None
 
     # Component groups
     component_groups: List[ComponentGroup] = field(default_factory=list)
+
+    # Group separation rules
+    group_separations: List[GroupSeparation] = field(default_factory=list)
 
     # Fixed components (won't be optimized)
     fixed_components: List[str] = field(default_factory=list)
@@ -245,17 +299,86 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.thermal_constraints.append(thermal)
 
+    # Parse extended thermal properties
+    if "thermal_properties" in config:
+        tp_cfg = config["thermal_properties"]
+
+        # Parse high-power section
+        high_power = tp_cfg.get("high_power", {})
+        hp_components = high_power.get("components", [])
+        hp_power = high_power.get("power_dissipation_w", {})
+        hp_min_sep = high_power.get("min_separation_mm", 15.0)
+
+        # Parse heat-sensitive section
+        heat_sensitive = tp_cfg.get("heat_sensitive", {})
+        hs_components = heat_sensitive.get("components", [])
+        hs_max_temp = heat_sensitive.get("max_temp_rise_c", 20.0)
+        hs_min_dist = heat_sensitive.get("min_distance_from_heat_sources_mm", 20.0)
+
+        # Parse thermal pads section
+        thermal_pads = tp_cfg.get("thermal_pads", {})
+        pad_components = thermal_pads.get("components", [])
+        prefer_edge = thermal_pads.get("prefer_edge", True)
+        edge_margin = thermal_pads.get("preferred_edge_margin_mm", 10.0)
+
+        constraints.thermal_properties = ThermalProperties(
+            high_power_components=hp_components,
+            power_dissipation_w=hp_power,
+            min_separation_mm=hp_min_sep,
+            heat_sensitive_components=hs_components,
+            max_temp_rise_c=hs_max_temp,
+            min_distance_from_heat_sources_mm=hs_min_dist,
+            thermal_pad_components=pad_components,
+            prefer_edge=prefer_edge,
+            preferred_edge_margin_mm=edge_margin,
+        )
+
     # Parse component groups
     if "groups" in config:
         for group_cfg in config["groups"]:
+            # Parse proximity rules within group
+            proximity_rules = []
+            if "proximity" in group_cfg:
+                for prox_cfg in group_cfg["proximity"]:
+                    # Format: [[comp_a, comp_b], max_distance] or {pair: [a, b], max_distance_mm: X}
+                    if isinstance(prox_cfg, dict):
+                        pair = prox_cfg.get("pair", prox_cfg.get("components", []))
+                        max_dist = prox_cfg.get("max_distance_mm", 10.0)
+                    else:
+                        # Legacy format: [[a, b], dist]
+                        pair = prox_cfg[0] if len(prox_cfg) > 0 else []
+                        max_dist = prox_cfg[1] if len(prox_cfg) > 1 else 10.0
+                    if len(pair) >= 2:
+                        proximity_rules.append(
+                            ProximityRule(
+                                component_a=pair[0],
+                                component_b=pair[1],
+                                max_distance_mm=max_dist,
+                            )
+                        )
+
             group = ComponentGroup(
                 name=group_cfg["name"],
                 components=group_cfg["components"],
                 max_spread_mm=group_cfg.get("max_spread_mm", 30.0),
                 zone=group_cfg.get("zone"),
+                proximity_rules=proximity_rules,
                 description=group_cfg.get("description", ""),
             )
             constraints.component_groups.append(group)
+
+    # Parse group separation rules
+    if "group_separation" in config:
+        for sep_cfg in config["group_separation"]:
+            groups = sep_cfg.get("groups", [])
+            if len(groups) >= 2:
+                separation = GroupSeparation(
+                    group_a=groups[0],
+                    group_b=groups[1],
+                    min_distance_mm=sep_cfg.get("min_distance_mm", 20.0),
+                    description=sep_cfg.get("description", ""),
+                )
+                constraints.group_separations.append(separation)
 
     # Parse fixed components
     if "fixed_components" in config:

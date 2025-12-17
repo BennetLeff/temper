@@ -37,6 +37,8 @@ from temper_placer.visualization.model import (
     # Component and board views
     ComponentView,
     ZoneView,
+    TraceView,
+    PadView,
     BoardView,
     # Loss tracking
     LossDataPoint,
@@ -117,6 +119,17 @@ from temper_placer.visualization.report import (
     ValidationResults,
 )
 
+# Coordinate validation utilities
+from temper_placer.visualization.validation import (
+    CoordinateDiscrepancy,
+    ValidationResult,
+    validate_coordinates,
+    export_coordinates_csv,
+    check_components_in_bounds,
+    check_trace_connectivity,
+    compute_coordinate_statistics,
+)
+
 __all__ = [
     # Enums
     "ComponentStatus",
@@ -187,4 +200,12 @@ __all__ = [
     "generate_report",
     "ReportConfig",
     "ValidationResults",
+    # Coordinate validation
+    "CoordinateDiscrepancy",
+    "ValidationResult",
+    "validate_coordinates",
+    "export_coordinates_csv",
+    "check_components_in_bounds",
+    "check_trace_connectivity",
+    "compute_coordinate_statistics",
 ]

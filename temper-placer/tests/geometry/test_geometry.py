@@ -317,6 +317,54 @@ class TestGumbelSoftmax:
         # Should be selected majority of the time
         assert counts[1] > 80  # At least 80% of samples
 
+    def test_gumbel_softmax_very_low_temperature_no_overflow(self):
+        """Test that very low temperatures don't cause NaN/Inf.
+
+        At temperature=0.01, logits are divided by 0.01 (multiplied by 100).
+        Combined with Gumbel noise (can reach ~15), values can reach ~1500.
+        JAX softmax handles this via max subtraction, so should remain finite.
+        """
+        key = jax.random.PRNGKey(0)
+        logits = jnp.array(
+            [
+                [0.0, 1.0, 0.0, 0.0],
+                [2.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 3.0, 0.0],
+            ]
+        )
+
+        # Test very low temperatures
+        for temp in [0.1, 0.05, 0.01, 0.001]:
+            samples = sample_rotation_batch(logits, key, temperature=temp)
+
+            # All values should be finite
+            assert jnp.all(jnp.isfinite(samples)), f"Non-finite at temp={temp}"
+            # Should sum to 1 for each row
+            assert jnp.allclose(samples.sum(axis=1), 1.0), f"Sum != 1 at temp={temp}"
+            # Should be valid one-hot vectors (hard mode)
+            assert jnp.allclose(samples, jnp.round(samples)), f"Not one-hot at temp={temp}"
+
+    def test_gumbel_softmax_gradient_at_low_temperature(self):
+        """Test gradient behavior at low temperatures.
+
+        Gradients should remain finite (though they may be zero/tiny
+        due to softmax saturation at very low temperatures).
+        """
+
+        def loss_fn(logits, key, temp):
+            rot = sample_rotation(logits, key, temperature=temp)
+            point = jnp.array([1.0, 0.0])
+            rotated = rotate_point(point, rot)
+            return -rotated[1]
+
+        key = jax.random.PRNGKey(42)
+        logits = jnp.array([0.0, 1.0, 0.0, 0.0])
+
+        for temp in [1.0, 0.5, 0.1, 0.05]:
+            grads = grad(loss_fn)(logits, key, temp)
+            # Gradients should be finite (may be zero at very low temp)
+            assert jnp.all(jnp.isfinite(grads)), f"Non-finite grad at temp={temp}"
+
 
 # =============================================================================
 # SDF Tests

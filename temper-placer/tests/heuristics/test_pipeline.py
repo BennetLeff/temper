@@ -17,8 +17,8 @@ import jax.numpy as jnp
 from temper_placer.heuristics.pipeline import (
     HeuristicPipeline,
     PipelineResult,
-    create_default_pipeline,
 )
+from temper_placer.heuristics import create_default_pipeline
 from temper_placer.heuristics.base import (
     Heuristic,
     HeuristicPriority,

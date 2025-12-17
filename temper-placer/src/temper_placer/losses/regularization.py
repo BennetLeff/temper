@@ -6,12 +6,17 @@ This module provides regularization losses to improve optimization behavior:
 - RotationEntropyLoss: Encourages exploration of rotation options (annealed)
 
 These losses help the optimizer escape local minima and explore the solution space.
+
+Optimizations:
+- For N < 50 components: Full vectorized (N, N) computation
+- For N >= 50 components: Uses chunked computation to reduce peak memory
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
+import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -23,16 +28,19 @@ from temper_placer.losses.base import (
 )
 
 
-def compute_spread_penalty(
+# Threshold for switching between full vectorized and chunked computation
+_VECTORIZED_THRESHOLD = 50
+
+
+def _compute_spread_penalty_vectorized(
     positions: Array,
     bounds: Array,
     min_distance: float = 2.0,
 ) -> Array:
     """
-    Compute penalty for components that are too close together.
+    Compute spread penalty using full vectorized approach.
 
-    This is different from overlap - it penalizes components that are
-    close even if they don't overlap, encouraging uniform distribution.
+    Creates (N, N) matrices - efficient for small N but memory-intensive for large N.
 
     Args:
         positions: (N, 2) component positions.
@@ -43,8 +51,6 @@ def compute_spread_penalty(
         Total spread penalty (scalar).
     """
     n = positions.shape[0]
-    if n < 2:
-        return jnp.array(0.0)
 
     # Compute pairwise distances (center-to-center)
     # (N, 1, 2) - (1, N, 2) = (N, N, 2)
@@ -67,6 +73,101 @@ def compute_spread_penalty(
     total_penalty = jnp.sum(penalties * mask)
 
     return total_penalty
+
+
+def _compute_spread_penalty_chunked(
+    positions: Array,
+    bounds: Array,
+    min_distance: float = 2.0,
+) -> Array:
+    """
+    Compute spread penalty using chunked approach for memory efficiency.
+
+    Processes pairs row-by-row to avoid creating full (N, N) matrices.
+    Uses jax.lax.scan for efficient iteration.
+
+    Args:
+        positions: (N, 2) component positions.
+        bounds: (N, 2) component bounds (width, height).
+        min_distance: Minimum desired center-to-center distance.
+
+    Returns:
+        Total spread penalty (scalar).
+    """
+    n = positions.shape[0]
+
+    # Precompute half-diagonals for minimum separation
+    half_diag = jnp.sqrt(jnp.sum(bounds**2, axis=-1)) / 2  # (N,)
+
+    def process_row_i(carry, i):
+        """Process all pairs (i, j) where j > i."""
+        total = carry
+
+        # Get component i data
+        pos_i = positions[i]
+        half_diag_i = half_diag[i]
+
+        # Create mask for valid j indices (j > i)
+        j_indices = jnp.arange(n)
+        valid_mask = j_indices > i
+
+        # Compute distances for all j (vectorized over j)
+        diff = pos_i - positions  # (N, 2)
+        distances = jnp.sqrt(jnp.sum(diff**2, axis=-1) + 1e-6)  # (N,)
+
+        # Minimum separation for all pairs with i
+        min_sep = half_diag_i + half_diag + min_distance  # (N,)
+
+        # Soft penalty for being too close
+        deficit = min_sep - distances
+        penalties = jnp.maximum(0.0, deficit) ** 2
+
+        # Sum only valid pairs (j > i)
+        row_sum = jnp.sum(jnp.where(valid_mask, penalties, 0.0))
+
+        return total + row_sum, None
+
+    # Use scan for efficient iteration over rows
+    # Only need to process rows 0 to n-2 (last row has no j > i)
+    total, _ = jax.lax.scan(process_row_i, jnp.array(0.0), jnp.arange(n - 1))
+
+    return total
+
+
+def compute_spread_penalty(
+    positions: Array,
+    bounds: Array,
+    min_distance: float = 2.0,
+) -> Array:
+    """
+    Compute penalty for components that are too close together.
+
+    This is different from overlap - it penalizes components that are
+    close even if they don't overlap, encouraging uniform distribution.
+
+    Uses optimized computation based on number of components:
+    - For N < 50: Full vectorized (N, N) computation
+    - For N >= 50: Chunked computation to reduce peak memory
+
+    Args:
+        positions: (N, 2) component positions.
+        bounds: (N, 2) component bounds (width, height).
+        min_distance: Minimum desired center-to-center distance.
+
+    Returns:
+        Total spread penalty (scalar).
+    """
+    n = positions.shape[0]
+    if n < 2:
+        return jnp.array(0.0)
+
+    # Use lax.cond for dynamic dispatch based on n
+    return jax.lax.cond(
+        n < _VECTORIZED_THRESHOLD,
+        lambda args: _compute_spread_penalty_vectorized(*args),
+        lambda args: _compute_spread_penalty_chunked(*args),
+        (positions, bounds, min_distance),
+    )
 
 
 def compute_rotation_entropy(

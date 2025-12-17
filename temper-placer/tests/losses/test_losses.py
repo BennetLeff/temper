@@ -248,6 +248,76 @@ class TestWirelengthLoss:
         # Gradients should be finite
         assert jnp.all(jnp.isfinite(grad))
 
+    def test_wirelength_high_alpha_no_overflow(self):
+        """Test that high alpha values don't cause overflow.
+
+        Previously, large_val=1e10 caused overflow when alpha * 1e10 > ~88,
+        since exp(88) approaches float32 max. Using -inf for masking avoids this.
+        """
+        # Create a simple setup
+        positions = jnp.array([[0.0, 0.0], [50.0, 50.0]], dtype=jnp.float32)
+        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]], dtype=jnp.float32)
+
+        components = [
+            Component(
+                ref="A", footprint="test", bounds=(1.0, 1.0), pins=[Pin("1", "1", (0.0, 0.0))]
+            ),
+            Component(
+                ref="B", footprint="test", bounds=(1.0, 1.0), pins=[Pin("1", "1", (0.0, 0.0))]
+            ),
+        ]
+        nets = [Net("NET", [("A", "1"), ("B", "1")])]
+        netlist = Netlist(components=components, nets=nets)
+        board = Board(width=100.0, height=100.0)
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+        # Test with high alpha values that would have caused overflow before
+        for alpha in [10.0, 50.0, 100.0, 200.0]:
+            loss_fn = WirelengthLoss(alpha=alpha)
+            result = loss_fn(positions, rotations, context)
+
+            # Should be finite, not Inf or NaN
+            assert jnp.isfinite(result.value), f"Overflow at alpha={alpha}"
+            # HPWL should be around sqrt(50^2 + 50^2) ≈ 70.7 for this separation
+            assert 50.0 < float(result.value) < 150.0, f"Unexpected value at alpha={alpha}"
+
+    def test_wirelength_with_sparse_mask(self):
+        """Test wirelength with nets that have many masked (invalid) pins.
+
+        Verifies that -inf masking works correctly for padded arrays.
+        """
+        # Create a net with only 2 valid pins but padded to larger array
+        positions = jnp.array([[0.0, 0.0], [10.0, 10.0], [100.0, 100.0]], dtype=jnp.float32)
+        rotations = jnp.eye(4, dtype=jnp.float32)[jnp.array([0, 0, 0])]
+
+        components = [
+            Component(
+                ref="A", footprint="test", bounds=(1.0, 1.0), pins=[Pin("1", "1", (0.0, 0.0))]
+            ),
+            Component(
+                ref="B", footprint="test", bounds=(1.0, 1.0), pins=[Pin("1", "1", (0.0, 0.0))]
+            ),
+            Component(
+                ref="C",
+                footprint="test",
+                bounds=(1.0, 1.0),
+                pins=[Pin("1", "1", (0.0, 0.0))],  # Not in net
+            ),
+        ]
+        # Net only includes A and B, not C
+        nets = [Net("NET", [("A", "1"), ("B", "1")])]
+        netlist = Netlist(components=components, nets=nets)
+        board = Board(width=200.0, height=200.0)
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+        loss_fn = WirelengthLoss(alpha=10.0)
+        result = loss_fn(positions, rotations, context)
+
+        # Should be finite
+        assert jnp.isfinite(result.value)
+        # HPWL should only consider A and B (distance ~14.14), not C
+        assert float(result.value) < 30.0  # Would be much larger if C included
+
 
 # =============================================================================
 # Test Overlap Loss
@@ -953,6 +1023,78 @@ class TestSpreadLoss:
         grad = jax.grad(loss_fn_wrapper)(positions)
         assert grad.shape == positions.shape
         assert jnp.all(jnp.isfinite(grad))
+
+    def test_spread_chunked_matches_vectorized(self):
+        """Test that chunked computation matches vectorized for correctness.
+
+        This validates the chunking optimization for SpreadLoss (temper-r2i.5).
+        """
+        from temper_placer.losses.regularization import (
+            _compute_spread_penalty_vectorized,
+            _compute_spread_penalty_chunked,
+        )
+
+        # Create a test case with positions that will have spread penalties
+        key = jax.random.PRNGKey(42)
+        n = 60  # Above chunking threshold
+        positions = jax.random.uniform(key, (n, 2), minval=0.0, maxval=100.0)
+        bounds = jnp.full((n, 2), 5.0)  # 5x5mm components
+        min_distance = 10.0
+
+        # Compute using both methods
+        vectorized_result = _compute_spread_penalty_vectorized(positions, bounds, min_distance)
+        chunked_result = _compute_spread_penalty_chunked(positions, bounds, min_distance)
+
+        # Results should be very close (numerical precision differences expected)
+        assert jnp.allclose(vectorized_result, chunked_result, rtol=1e-4, atol=1e-6), (
+            f"Vectorized: {float(vectorized_result)}, Chunked: {float(chunked_result)}"
+        )
+
+    def test_spread_large_n_no_memory_explosion(self):
+        """Test that spread loss handles large N without memory issues.
+
+        The chunked implementation should prevent O(N²) memory allocation.
+        """
+        key = jax.random.PRNGKey(123)
+        n = 200  # Large enough to stress memory if not chunked
+
+        positions = jax.random.uniform(key, (n, 2), minval=0.0, maxval=300.0)
+        bounds = jnp.full((n, 2), 5.0)
+
+        # This should complete without memory issues
+        penalty = compute_spread_penalty(positions, bounds, min_distance=10.0)
+
+        # Basic sanity checks
+        assert jnp.isfinite(penalty)
+        assert float(penalty) >= 0
+
+    def test_spread_chunked_gradient_correct(self):
+        """Test that gradients are correct with chunked computation."""
+        from temper_placer.losses.regularization import (
+            _compute_spread_penalty_vectorized,
+            _compute_spread_penalty_chunked,
+        )
+
+        key = jax.random.PRNGKey(99)
+        n = 60  # Above chunking threshold
+        positions = jax.random.uniform(key, (n, 2), minval=0.0, maxval=100.0)
+        bounds = jnp.full((n, 2), 5.0)
+        min_distance = 10.0
+
+        # Compute gradients using both methods
+        def vectorized_loss(pos):
+            return _compute_spread_penalty_vectorized(pos, bounds, min_distance)
+
+        def chunked_loss(pos):
+            return _compute_spread_penalty_chunked(pos, bounds, min_distance)
+
+        grad_vectorized = jax.grad(vectorized_loss)(positions)
+        grad_chunked = jax.grad(chunked_loss)(positions)
+
+        # Gradients should match
+        assert jnp.allclose(grad_vectorized, grad_chunked, rtol=1e-4, atol=1e-6), (
+            f"Max gradient diff: {float(jnp.max(jnp.abs(grad_vectorized - grad_chunked)))}"
+        )
 
 
 class TestRotationEntropyLoss:

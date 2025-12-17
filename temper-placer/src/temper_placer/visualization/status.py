@@ -417,14 +417,17 @@ def render_constraint_status(
             label = "INVALID"
 
         # Add as annotation (simpler than trace for single symbol)
+        # Note: Plotly uses "x domain" for first subplot, "x2 domain" for second, etc.
+        xref = "x domain" if current_col == 1 else f"x{current_col} domain"
+        yref = "y domain" if current_row == 1 else f"y{current_row} domain"
         fig.add_annotation(
             x=0.5,
             y=0.7,
             text=f"<b style='font-size:48px'>{symbol}</b>",
             font=dict(size=48, color=color),
             showarrow=False,
-            xref=f"x{1 if current_col == 1 else current_col} domain",
-            yref=f"y{1 if current_row == 1 else current_row} domain",
+            xref=xref,
+            yref=yref,
         )
         fig.add_annotation(
             x=0.5,
@@ -432,8 +435,8 @@ def render_constraint_status(
             text=f"<b>{label}</b>",
             font=dict(size=20, color=color),
             showarrow=False,
-            xref=f"x{1 if current_col == 1 else current_col} domain",
-            yref=f"y{1 if current_row == 1 else current_row} domain",
+            xref=xref,
+            yref=yref,
         )
 
         if cols == 2:

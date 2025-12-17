@@ -107,6 +107,7 @@ class ComponentView:
         status: Current status for color-coding.
         zone: Zone the component is in (if any).
         footprint: Footprint name for hover info.
+        value: Component value (e.g., "100uF", "10k", "LED").
         violations: List of active violations.
     """
 
@@ -118,6 +119,7 @@ class ComponentView:
     status: ComponentStatus = ComponentStatus.OK
     zone: Optional[str] = None
     footprint: Optional[str] = None
+    value: Optional[str] = None
     violations: Tuple[str, ...] = ()
 
     def to_dict(self) -> Dict[str, Any]:
@@ -130,6 +132,7 @@ class ComponentView:
             "status": self.status.value,
             "zone": self.zone,
             "footprint": self.footprint,
+            "value": self.value,
             "violations": list(self.violations),
         }
 
@@ -171,6 +174,73 @@ class ZoneView:
 
 
 @dataclass(frozen=True)
+class TraceView:
+    """
+    Visualization data for a PCB trace segment.
+
+    Attributes:
+        start: Start point (x, y) in mm.
+        end: End point (x, y) in mm.
+        width: Trace width in mm.
+        layer: Layer name (e.g., 'F.Cu', 'B.Cu').
+        net: Optional net name for hover info.
+    """
+
+    start: Point
+    end: Point
+    width: float = 0.25
+    layer: str = "F.Cu"
+    net: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "start": self.start.to_dict(),
+            "end": self.end.to_dict(),
+            "width": self.width,
+            "layer": self.layer,
+            "net": self.net,
+        }
+
+
+@dataclass(frozen=True)
+class PadView:
+    """
+    Visualization data for a component pad.
+
+    Attributes:
+        position: Center position (x, y) in mm.
+        size: (width, height) in mm.
+        shape: Pad shape ('rect', 'circle', 'oval', 'roundrect').
+        rotation: Rotation angle in degrees.
+        layer: Layer name (e.g., 'F.Cu', 'B.Cu').
+        number: Pad number/name.
+        net: Optional net name for hover info.
+        component_ref: Reference of parent component.
+    """
+
+    position: Point
+    size: Tuple[float, float]
+    shape: str = "rect"
+    rotation: float = 0.0
+    layer: str = "F.Cu"
+    number: str = ""
+    net: Optional[str] = None
+    component_ref: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "position": self.position.to_dict(),
+            "size": list(self.size),
+            "shape": self.shape,
+            "rotation": self.rotation,
+            "layer": self.layer,
+            "number": self.number,
+            "net": self.net,
+            "component_ref": self.component_ref,
+        }
+
+
+@dataclass(frozen=True)
 class BoardView:
     """
     Visualization data for the entire board state.
@@ -180,6 +250,8 @@ class BoardView:
         height: Board height in mm.
         components: List of component views.
         zones: List of zone views.
+        traces: List of trace views.
+        pads: List of pad views.
         origin: Board origin offset (for coordinate display).
         title: Optional title for the visualization.
     """
@@ -188,6 +260,8 @@ class BoardView:
     height: float
     components: Tuple[ComponentView, ...] = ()
     zones: Tuple[ZoneView, ...] = ()
+    traces: Tuple[TraceView, ...] = ()
+    pads: Tuple[PadView, ...] = ()
     origin: Point = field(default_factory=lambda: Point(0.0, 0.0))
     title: Optional[str] = None
 
@@ -197,6 +271,8 @@ class BoardView:
             "height": self.height,
             "components": [c.to_dict() for c in self.components],
             "zones": [z.to_dict() for z in self.zones],
+            "traces": [t.to_dict() for t in self.traces],
+            "pads": [p.to_dict() for p in self.pads],
             "origin": self.origin.to_dict(),
             "title": self.title,
         }

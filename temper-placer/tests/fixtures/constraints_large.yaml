@@ -1,0 +1,115 @@
+# Constraints for large_board.kicad_pcb (100+ component stress test fixture)
+#
+# Board layout zones:
+#   - Power section (left, top): VRMs, inductors, power filtering
+#   - Control section (center): MCU, gate drivers  
+#   - Analog section (bottom-center): Op-amps, temperature sensing
+#   - Connectors (edges): Programming, debug, I/O
+#
+# Board size: 100x150mm
+
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 2.0
+
+zones:
+  - name: power
+    bounds: [0, 0, 45, 50]  # Left-top: power input, VRMs
+    net_classes: ["Power"]
+    
+  - name: gate_drivers
+    bounds: [0, 35, 45, 65]  # Left-center: gate drivers near power
+    net_classes: ["Signal"]
+    
+  - name: control
+    bounds: [35, 55, 75, 95]  # Center: MCU and control logic
+    net_classes: ["Signal"]
+    
+  - name: analog
+    bounds: [20, 95, 80, 135]  # Bottom-center: op-amps, sensing
+    net_classes: ["Signal"]
+    
+  - name: connectors
+    bounds: [0, 85, 20, 150]  # Left edge: connectors
+    net_classes: ["Signal", "Power"]
+    
+  - name: filtering
+    bounds: [45, 0, 100, 50]  # Right-top: filtering, passives
+    net_classes: ["Power"]
+    
+  - name: passives
+    bounds: [75, 50, 100, 100]  # Right-center: general passives
+    net_classes: ["Signal"]
+
+groups:
+  # Power components
+  - name: power_input
+    components: ["J4", "U6", "U7"]
+    zone: power
+    max_spread_mm: 30.0
+    
+  # Gate drivers
+  - name: gate_drivers
+    components: ["U9", "U10"]
+    zone: gate_drivers
+    max_spread_mm: 25.0
+    
+  # MCU and control
+  - name: mcu
+    components: ["U1"]
+    zone: control
+    max_spread_mm: 15.0
+    
+  # Analog ICs
+  - name: analog_ics
+    components: ["U2", "U3", "U4", "U5", "U8"]
+    zone: analog
+    max_spread_mm: 40.0
+    
+  # Connectors
+  - name: connectors
+    components: ["J1", "J2", "J3", "J5"]
+    zone: connectors
+    max_spread_mm: 50.0
+
+  # Sample passive groups (not exhaustive)
+  - name: decoupling_caps
+    components: ["C1", "C2", "C3", "C4", "C5"]
+    zone: filtering
+    max_spread_mm: 30.0
+
+net_weights:
+  # Power nets - lower weight (less critical for length)
+  GND: 0.3
+  VCC: 0.5
+  VCC_3V3: 0.5
+  VCC_5V: 0.5
+  VCC_15V: 0.5
+  HV_DC: 0.3
+  
+  # SPI bus - higher weight (timing critical)
+  SPI_MOSI: 2.0
+  SPI_MISO: 2.0
+  SPI_CLK: 2.5
+  SPI_CS1: 1.5
+  SPI_CS2: 1.5
+  
+  # I2C bus
+  I2C_SDA: 1.5
+  I2C_SCL: 1.5
+  
+  # Gate drive signals - high weight (timing critical)
+  GATE_H1: 2.0
+  GATE_L1: 2.0
+  GATE_H2: 2.0
+  GATE_L2: 2.0
+  PWM1: 1.5
+  PWM2: 1.5
+  PWM3: 1.5
+  PWM4: 1.5
+  
+  # Current sense - high weight (noise sensitive)
+  ISENSE_P: 2.0
+  ISENSE_N: 2.0
+  ISENSE_OUT: 1.8

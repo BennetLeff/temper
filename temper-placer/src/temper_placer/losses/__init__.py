@@ -17,6 +17,7 @@ Performance Objectives:
 - wirelength_loss: Half-perimeter wirelength (HPWL)
 - thermal_loss: Place heat sources near board edges
 - loop_area_loss: Minimize critical loop areas (gate drive, power)
+- power_path_loss: Minimize parasitic inductance in power paths
 - congestion_loss: Balance routing demand across board
 
 Regularization:
@@ -38,6 +39,7 @@ from temper_placer.losses.base import (
     LossContext,
     LossFunction,
     LossResult,
+    MountingRule,
     smooth_step,
     ThermalConstraint,
     WeightedLoss,
@@ -78,8 +80,16 @@ from temper_placer.losses.loop_area import (
 from temper_placer.losses.thermal import (
     compute_edge_distance,
     compute_thermal_penalty,
+    create_edge_preference_loss,
+    create_heat_sensitive_distance_loss,
     create_temper_thermal_constraints,
+    create_temper_thermal_losses,
+    create_thermal_spread_loss,
+    EdgePreferenceLoss,
+    HeatSensitiveDistanceLoss,
+    ThermalComponentConfig,
     ThermalLoss,
+    ThermalSpreadLoss,
 )
 
 # Zone membership loss
@@ -122,6 +132,72 @@ from temper_placer.losses.drc_loss import (
     DRCLoss,
 )
 
+# Functional grouping losses
+from temper_placer.losses.grouping import (
+    create_grouping_losses_from_constraints,
+    GroupClusterLoss,
+    GroupConfig,
+    GroupSeparationLoss,
+    ProximityLoss,
+    ProximityRule,
+)
+
+# Critical path length loss
+from temper_placer.losses.critical_path import (
+    compute_critical_path_penalty,
+    create_temper_critical_paths,
+    CriticalPath,
+    CriticalPathLengthLoss,
+)
+
+# Power path loss (Parasitic Inductance)
+from temper_placer.losses.power_path import (
+    PowerPathLoss,
+    create_power_path_loss,
+    HighCurrentPathConfig,
+    SwitchingLoopConfig,
+)
+
+# Return path loss (Current Return Path)
+from temper_placer.losses.return_path import (
+    CurrentReturnPathLoss,
+    create_return_path_loss,
+    ReturnPathConfig,
+)
+
+# Net class separation loss
+from temper_placer.losses.net_class import (
+    NetClassSeparationLoss,
+    create_net_class_loss,
+    NetClassRule,
+)
+
+# Crystal placement loss
+from temper_placer.losses.crystal import (
+    CrystalPlacementLoss,
+    create_crystal_loss,
+    CrystalRule,
+)
+
+# Mechanical mounting loss
+from temper_placer.losses.mechanical import (
+    MechanicalMountingLoss,
+    create_mechanical_loss,
+    MountingRule,
+)
+
+# Via Density loss
+from temper_placer.losses.via_density import (
+    ViaDensityLoss,
+)
+
+# Coil requirement loss
+from temper_placer.losses.coil import (
+    CoilRequirementLoss,
+    create_coil_loss,
+    CoilRule,
+)
+
 
 __all__ = [
     # Base classes
@@ -146,13 +222,44 @@ __all__ = [
     "LoopAreaLoss",
     # Design rule losses
     "ThermalLoss",
+    "ThermalSpreadLoss",
+    "HeatSensitiveDistanceLoss",
+    "EdgePreferenceLoss",
+    "ThermalComponentConfig",
     "ZoneMembershipLoss",
     "GroundCrossingLoss",
     "CongestionLoss",
+    "PowerPathLoss",
+    "create_power_path_loss",
+    "HighCurrentPathConfig",
+    "SwitchingLoopConfig",
+    "CurrentReturnPathLoss",
+    "create_return_path_loss",
+    "ReturnPathConfig",
+    "NetClassSeparationLoss",
+    "create_net_class_loss",
+    "NetClassRule",
+    "CrystalPlacementLoss",
+    "create_crystal_loss",
+    "CrystalRule",
+    "MechanicalMountingLoss",
+    "create_mechanical_loss",
+    "MountingRule",
+    "ViaDensityLoss",
+    "CoilRequirementLoss",
+    "create_coil_loss",
+    "CoilRule",
     # Regularization losses
     "SpreadLoss",
     "RotationEntropyLoss",
     "CenterOfMassLoss",
+    # Functional grouping losses
+    "GroupClusterLoss",
+    "ProximityLoss",
+    "GroupSeparationLoss",
+    "GroupConfig",
+    "ProximityRule",
+    "create_grouping_losses_from_constraints",
     # Standalone functions
     "compute_total_hpwl",
     "compute_overlap_penalty",
@@ -174,9 +281,18 @@ __all__ = [
     "create_temper_loop_constraints",
     "create_temper_thermal_constraints",
     "create_temper_zone_assignments",
+    "create_thermal_spread_loss",
+    "create_heat_sensitive_distance_loss",
+    "create_edge_preference_loss",
+    "create_temper_thermal_losses",
     "create_drc_loss",
     # DRC loss (non-differentiable, cached)
     "DRCLoss",
     "DRCCacheEntry",
     "DRCHistory",
+    # Critical path length loss
+    "CriticalPath",
+    "CriticalPathLengthLoss",
+    "compute_critical_path_penalty",
+    "create_temper_critical_paths",
 ]

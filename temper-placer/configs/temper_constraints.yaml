@@ -120,18 +120,55 @@ thermal:
     max_distance_from_edge_mm: 30
     description: "Buck converter - moderate heat, internal OK"
 
+# Extended thermal properties for advanced thermal management
+thermal_properties:
+  # High-power heat sources - spread these apart
+  high_power:
+    components: [Q1, Q2, D1, D2, R_SENSE_HIGH, R_SENSE_LOW, U_BUCK]
+    power_dissipation_w:
+      Q1: 50   # IGBT - peak dissipation during switching
+      Q2: 50   # IGBT - peak dissipation during switching
+      D1: 10   # Rectifier diode
+      D2: 10   # Rectifier diode
+      R_SENSE_HIGH: 5  # Current sense resistor
+      R_SENSE_LOW: 5   # Current sense resistor
+      U_BUCK: 3        # Buck converter IC
+    min_separation_mm: 15  # Minimum distance between high-power components
+
+  # Heat-sensitive components - keep away from heat sources
+  heat_sensitive:
+    components: [U_MCU, U_TEMP_SENSE, MAX31865, Y1]
+    max_temp_rise_c: 20  # Maximum acceptable temperature rise
+    min_distance_from_heat_sources_mm: 20  # Keep this far from IGBTs
+
+  # Thermal pad components - prefer board edges for heatsinking
+  thermal_pads:
+    components: [Q1, Q2, U_BUCK]
+    prefer_edge: true
+    preferred_edge_margin_mm: 10  # Should be within 10mm of a board edge
+
 # Component groups (keep together)
 groups:
   - name: mcu_decoupling
     components: [U_MCU, C_MCU_1, C_MCU_2, C_MCU_3, C_MCU_4]
     max_spread_mm: 15
     zone: MCU_ZONE
+    proximity:
+      - pair: [C_MCU_1, U_MCU]
+        max_distance_mm: 3
+      - pair: [C_MCU_2, U_MCU]
+        max_distance_mm: 3
     description: "MCU and decoupling capacitors"
     
   - name: gate_driver_local
     components: [U_GATE, C_BOOT, C_VCC, R_GATE_H, R_GATE_L]
     max_spread_mm: 20
     zone: HV_ZONE
+    proximity:
+      - pair: [C_VCC, U_GATE]
+        max_distance_mm: 5
+      - pair: [C_BOOT, U_GATE]
+        max_distance_mm: 8
     description: "Gate driver and associated components"
     
   - name: current_sensing
@@ -145,6 +182,15 @@ groups:
     max_spread_mm: 30
     zone: HV_ZONE
     description: "Voltage doubler rectifier"
+
+# Group separation rules (keep apart)
+group_separation:
+  - groups: [gate_driver_local, mcu_decoupling]
+    min_distance_mm: 20
+    description: "Keep power gate driver away from MCU"
+  - groups: [voltage_doubler, mcu_decoupling]
+    min_distance_mm: 25
+    description: "Keep high-voltage section away from MCU"
 
 # Fixed components (connectors, mounting holes)
 fixed_components:
@@ -180,3 +226,35 @@ net_classes:
   PGND: Power
   CGND: Power
   GND_ISO: Power
+
+# DRC Pass/Fail Thresholds
+# These thresholds predict whether a placement will pass KiCad DRC.
+# Based on correlation study: any non-zero overlap_loss indicates risk
+# of clearance/shorting violations in DRC.
+#
+# Methodology:
+# - Generated placements at 5 quality levels (perfect to terrible)
+# - Ran KiCad DRC on each
+# - Observed that overlap_loss > 0 correlates with DRC errors
+# - The "good" (optimizer converged) placements actually FAIL DRC
+#   because optimizer pushes components together for wirelength
+#
+# See: tests/validation/results/penalty_thresholds.json for raw data
+drc_thresholds:
+  # Overlap threshold: Any non-zero overlap indicates DRC risk
+  # Components with soft overlap in optimizer may have clearance violations
+  overlap_threshold: 0.0
+  
+  # Boundary threshold: Components should be fully within board
+  boundary_threshold: 0.0
+  
+  # Total loss is not a reliable predictor (high wirelength != DRC fail)
+  # This is informational only, not used for pass/fail decisions
+  total_loss_informational: 1300.0
+  
+  # Safety margin applied to thresholds (20%)
+  safety_margin: 0.2
+  
+  # Note: These thresholds are conservative. A placement passing these
+  # thresholds is LIKELY to pass DRC, but KiCad DRC should still be run
+  # for final verification before manufacturing.

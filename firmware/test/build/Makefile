@@ -205,6 +205,19 @@ test_pll_only/fast:
 .PHONY : test_pll_only/fast
 
 #=============================================================================
+# Target rules for targets named test_integration_only
+
+# Build rule for target.
+test_integration_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_integration_only
+.PHONY : test_integration_only
+
+# fast build rule for target.
+test_integration_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/build
+.PHONY : test_integration_only/fast
+
+#=============================================================================
 # Target rules for targets named run_tests
 
 # Build rule for target.
@@ -476,6 +489,7 @@ Users/bennet.leff/Documents/temper/firmware/main/state_machine.o: Users/bennet.l
 # target to build an object file
 Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.o
 .PHONY : Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.o
 
 Users/bennet.leff/Documents/temper/firmware/main/state_machine.i: Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.i
@@ -484,6 +498,7 @@ Users/bennet.leff/Documents/temper/firmware/main/state_machine.i: Users/bennet.l
 # target to preprocess a source file
 Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.i
 .PHONY : Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.i
 
 Users/bennet.leff/Documents/temper/firmware/main/state_machine.s: Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.s
@@ -492,6 +507,7 @@ Users/bennet.leff/Documents/temper/firmware/main/state_machine.s: Users/bennet.l
 # target to generate assembly for a file
 Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.s
 .PHONY : Users/bennet.leff/Documents/temper/firmware/main/state_machine.c.s
 
 pan_detect_logic.o: pan_detect_logic.c.o
@@ -524,6 +540,7 @@ state_machine_stubs.o: state_machine_stubs.c.o
 # target to build an object file
 state_machine_stubs.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/state_machine_stubs.c.o
 .PHONY : state_machine_stubs.c.o
 
 state_machine_stubs.i: state_machine_stubs.c.i
@@ -532,6 +549,7 @@ state_machine_stubs.i: state_machine_stubs.c.i
 # target to preprocess a source file
 state_machine_stubs.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/state_machine_stubs.c.i
 .PHONY : state_machine_stubs.c.i
 
 state_machine_stubs.s: state_machine_stubs.c.s
@@ -540,7 +558,32 @@ state_machine_stubs.s: state_machine_stubs.c.s
 # target to generate assembly for a file
 state_machine_stubs.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/state_machine_stubs.c.s
 .PHONY : state_machine_stubs.c.s
+
+test_integration.o: test_integration.c.o
+.PHONY : test_integration.o
+
+# target to build an object file
+test_integration.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/test_integration.c.o
+.PHONY : test_integration.c.o
+
+test_integration.i: test_integration.c.i
+.PHONY : test_integration.i
+
+# target to preprocess a source file
+test_integration.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/test_integration.c.i
+.PHONY : test_integration.c.i
+
+test_integration.s: test_integration.c.s
+.PHONY : test_integration.s
+
+# target to generate assembly for a file
+test_integration.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/test_integration.c.s
+.PHONY : test_integration.c.s
 
 test_main.o: test_main.c.o
 .PHONY : test_main.o
@@ -565,6 +608,30 @@ test_main.s: test_main.c.s
 test_main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/test_main.c.s
 .PHONY : test_main.c.s
+
+test_main_integration.o: test_main_integration.c.o
+.PHONY : test_main_integration.o
+
+# target to build an object file
+test_main_integration.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/test_main_integration.c.o
+.PHONY : test_main_integration.c.o
+
+test_main_integration.i: test_main_integration.c.i
+.PHONY : test_main_integration.i
+
+# target to preprocess a source file
+test_main_integration.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/test_main_integration.c.i
+.PHONY : test_main_integration.c.i
+
+test_main_integration.s: test_main_integration.c.s
+.PHONY : test_main_integration.s
+
+# target to generate assembly for a file
+test_main_integration.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/test_main_integration.c.s
+.PHONY : test_main_integration.c.s
 
 test_main_pan_detection.o: test_main_pan_detection.c.o
 .PHONY : test_main_pan_detection.o
@@ -823,6 +890,7 @@ unity/unity.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pan_detection_only.dir/build.make CMakeFiles/test_pan_detection_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/unity/unity.c.o
 .PHONY : unity/unity.c.o
 
 unity/unity.i: unity/unity.c.i
@@ -836,6 +904,7 @@ unity/unity.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pan_detection_only.dir/build.make CMakeFiles/test_pan_detection_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/unity/unity.c.i
 .PHONY : unity/unity.c.i
 
 unity/unity.s: unity/unity.c.s
@@ -849,6 +918,7 @@ unity/unity.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pan_detection_only.dir/build.make CMakeFiles/test_pan_detection_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_integration_only.dir/build.make CMakeFiles/test_integration_only.dir/unity/unity.c.s
 .PHONY : unity/unity.c.s
 
 # Help Target
@@ -862,6 +932,7 @@ help:
 	@echo "... test"
 	@echo "... run_tests"
 	@echo "... run_tests_verbose"
+	@echo "... test_integration_only"
 	@echo "... test_pan_detection_only"
 	@echo "... test_pid_only"
 	@echo "... test_pll_only"
@@ -904,9 +975,15 @@ help:
 	@echo "... state_machine_stubs.o"
 	@echo "... state_machine_stubs.i"
 	@echo "... state_machine_stubs.s"
+	@echo "... test_integration.o"
+	@echo "... test_integration.i"
+	@echo "... test_integration.s"
 	@echo "... test_main.o"
 	@echo "... test_main.i"
 	@echo "... test_main.s"
+	@echo "... test_main_integration.o"
+	@echo "... test_main_integration.i"
+	@echo "... test_main_integration.s"
 	@echo "... test_main_pan_detection.o"
 	@echo "... test_main_pan_detection.i"
 	@echo "... test_main_pan_detection.s"

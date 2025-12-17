@@ -1,0 +1,99 @@
+{
+  "description": "DRC Correlation Study Results",
+  "kicad_cli": "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+  "placements": [
+    {
+      "quality_level": "perfect",
+      "optimizer_metrics": {
+        "total_loss": 670.6004073991667,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 67.06004073991667
+      },
+      "drc_results": {
+        "ran_successfully": true,
+        "error_count": 0,
+        "warning_count": 4,
+        "violations_by_type": {
+          "lib_footprint_issues": 4
+        }
+      }
+    },
+    {
+      "quality_level": "good",
+      "optimizer_metrics": {
+        "total_loss": 280.5842374490252,
+        "overlap_loss": 0.05465183403939386,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 27.511905404508582
+      },
+      "drc_results": {
+        "ran_successfully": true,
+        "error_count": 6,
+        "warning_count": 4,
+        "violations_by_type": {
+          "clearance": 4,
+          "shorting_items": 1,
+          "solder_mask_bridge": 1,
+          "lib_footprint_issues": 4
+        }
+      }
+    },
+    {
+      "quality_level": "mediocre",
+      "optimizer_metrics": {
+        "total_loss": 278.2228622638907,
+        "overlap_loss": 0.25245495573303084,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 25.297736669058764
+      },
+      "drc_results": {
+        "ran_successfully": true,
+        "error_count": 10,
+        "warning_count": 4,
+        "violations_by_type": {
+          "shorting_items": 4,
+          "clearance": 2,
+          "solder_mask_bridge": 4,
+          "lib_footprint_issues": 4
+        }
+      }
+    },
+    {
+      "quality_level": "bad",
+      "optimizer_metrics": {
+        "total_loss": 516.849354897714,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 51.6849354897714
+      },
+      "drc_results": {
+        "ran_successfully": true,
+        "error_count": 0,
+        "warning_count": 4,
+        "violations_by_type": {
+          "lib_footprint_issues": 4
+        }
+      }
+    },
+    {
+      "quality_level": "terrible",
+      "optimizer_metrics": {
+        "total_loss": 562.2133409333273,
+        "overlap_loss": 1.011921121268379,
+        "boundary_loss": 0.0,
+        "wirelength_loss": 46.10212288064894
+      },
+      "drc_results": {
+        "ran_successfully": true,
+        "error_count": 2,
+        "warning_count": 4,
+        "violations_by_type": {
+          "shorting_items": 1,
+          "solder_mask_bridge": 1,
+          "lib_footprint_issues": 4
+        }
+      }
+    }
+  ]
+}

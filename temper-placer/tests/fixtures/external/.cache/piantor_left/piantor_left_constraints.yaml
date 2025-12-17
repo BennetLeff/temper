@@ -1,0 +1,99 @@
+board:
+  width_mm: 138.8
+  height_mm: 89.72
+  margin_mm: 2.0
+zones:
+- name: main
+  bounds:
+  - 0
+  - 0
+  - 138.8
+  - 89.72
+  net_classes:
+  - Signal
+  - Power
+groups:
+- name: k_components
+  components:
+  - K25
+  - K24
+  - K21
+  - K02
+  - K10
+  - K04
+  - K12
+  - K30
+  - K01
+  - K14
+  - K23
+  - K03
+  - K22
+  - K15
+  - K32
+  - K11
+  - K05
+  - K20
+  - K13
+  - K00
+  - K31
+  zone: main
+  max_spread_mm: 50.0
+- name: h_components
+  components:
+  - H4
+  - H2
+  - H4
+  - H4
+  - H1
+  - H3
+  - H1
+  zone: main
+  max_spread_mm: 24.0
+- name: mb_components
+  components:
+  - MB1
+  - MB3
+  - MB2
+  - MB4
+  zone: main
+  max_spread_mm: 18.0
+- name: resistors
+  components:
+  - R2
+  - R1
+  zone: main
+  max_spread_mm: 14.0
+net_weights:
+  /k25: 1.5
+  GND: 0.5
+  /k24: 1.5
+  /k21: 1.5
+  /k02: 1.5
+  /k10: 1.5
+  tx: 1.5
+  rx: 1.5
+  /k05: 1.5
+  /k04: 1.5
+  /k01: 1.5
+  /k00: 1.5
+  /k22: 1.5
+  /k23: 1.5
+  /k15: 1.5
+  /k14: 1.5
+  /k12: 1.5
+  /k13: 1.5
+  /k03: 1.5
+  /k32: 1.5
+  /k30: 1.5
+  /k31: 1.5
+  /k11: 1.5
+  /k20: 1.5
+  unconnected-(U2-Pad30): 1.5
+  unconnected-(U2-Pad31): 1.5
+  unconnected-(U2-Pad32): 1.5
+  vbus_sense: 1.5
+  unconnected-(U2-Pad35): 1.5
+  unconnected-(U2-Pad36): 1.5
+  unconnected-(U2-Pad37): 1.5
+  VCC: 0.5
+  VBUS: 1.5

@@ -140,20 +140,24 @@ class WirelengthLoss(LossFunction):
         x_coords = pin_positions[:, :, 0]
         y_coords = pin_positions[:, :, 1]
 
-        # For masked smooth max/min, we use the mask to set invalid values
-        # to -inf for max and +inf for min
-        large_val = 1e10
+        # For masked smooth max/min, we use -inf/+inf for proper logsumexp behavior.
+        # JAX's logsumexp correctly handles -inf (exp(-inf) = 0, contributes nothing).
+        #
+        # CRITICAL: We previously used large_val = 1e10, but with alpha=10,
+        # this computes exp(alpha * 1e10) = exp(1e11) = Inf, causing overflow.
+        # Using -inf/+inf is mathematically correct and numerically stable.
 
-        # Masked x coordinates
-        x_for_max = jnp.where(mask, x_coords, -large_val)
-        x_for_min = jnp.where(mask, x_coords, large_val)
+        # Masked x coordinates: invalid pins get -inf for max, +inf for min
+        x_for_max = jnp.where(mask, x_coords, -jnp.inf)
+        x_for_min = jnp.where(mask, x_coords, jnp.inf)
 
         # Masked y coordinates
-        y_for_max = jnp.where(mask, y_coords, -large_val)
-        y_for_min = jnp.where(mask, y_coords, large_val)
+        y_for_max = jnp.where(mask, y_coords, -jnp.inf)
+        y_for_min = jnp.where(mask, y_coords, jnp.inf)
 
         # Compute smooth max and min along pin dimension (axis=1)
         # Using LogSumExp: max ≈ (1/alpha) * log(sum(exp(alpha * x)))
+        # For min, we use: min(x) = -max(-x)
         x_max = jax.nn.logsumexp(self.alpha * x_for_max, axis=1) / self.alpha
         x_min = -jax.nn.logsumexp(-self.alpha * x_for_min, axis=1) / self.alpha
 

@@ -1,0 +1,213 @@
+# External PCB Test Fixtures Manifest
+#
+# This file defines open-source KiCad projects to download for testing.
+# These are production-quality PCBs from reputable sources that exercise
+# the full temper-placer pipeline (parsing, optimization, export).
+#
+# Each entry specifies:
+#   - repo: GitHub repository in "owner/name" format
+#   - ref: Git ref (branch, tag, or commit hash) for reproducibility
+#   - pcb_files: List of PCB files to extract (relative to repo root)
+#   - license: SPDX license identifier
+#   - description: What makes this a good test case
+#   - complexity: Estimated component count (small/medium/large/xlarge)
+#   - kicad_version: 5 or 6+ (affects parser compatibility)
+#
+# Selection criteria:
+#   1. Permissive open-source license (Apache-2.0, MIT, CERN-OHL-S, etc.)
+#   2. Real production hardware (not just tutorials)
+#   3. Variety of component types and board sizes
+#   4. KiCad native files (verified to exist in repo)
+#
+# NOTE: KiCad 5 format files (version 20171130) use 'module' instead of
+# 'footprint' and may not parse correctly with kiutils. These are marked
+# with kicad_version: 5 and tests should skip them.
+#
+# Usage:
+#   python -m tests.fixtures.external.download_pcbs
+#   pytest tests/integration/test_real_pcbs.py -m external
+#
+# All projects have been verified to have KiCad PCB files at the specified paths.
+
+version: 1
+
+# Cache directory relative to this file (auto-created)
+cache_dir: .cache
+
+# Default timeout for downloads (seconds)
+download_timeout: 120
+
+projects:
+  # ==========================================================================
+  # KEYBOARDS - Well-structured, grid-like placements
+  # ==========================================================================
+
+  piantor_left:
+    repo: beekeeb/piantor
+    ref: main
+    pcb_files:
+      - pcb/left/keyboard_pcb.kicad_pcb
+    license: CERN-OHL-S-2.0
+    kicad_version: 6
+    description: >
+      42-key split mechanical keyboard (left half). Simple design with diodes,
+      switches, and microcontroller. Good test for regular grid-like component
+      placement typical of keyboard matrices.
+    complexity: small
+    expected_components: 30-60
+
+  piantor_right:
+    repo: beekeeb/piantor
+    ref: main
+    pcb_files:
+      - pcb/right/keyboard_pcb.kicad_pcb
+    license: CERN-OHL-S-2.0
+    kicad_version: 6
+    description: >
+      42-key split mechanical keyboard (right half). Mirror of left half,
+      useful for testing placement symmetry handling.
+    complexity: small
+    expected_components: 30-60
+
+  # ==========================================================================
+  # POWER ELECTRONICS - Most relevant to temper project
+  # ==========================================================================
+
+  bitaxe_ultra:
+    repo: skot/bitaxe
+    ref: master
+    pcb_files:
+      - bitaxeUltra.kicad_pcb
+    license: CERN-OHL-S-2.0
+    kicad_version: 6
+    description: >
+      Bitcoin ASIC miner with BM1366 chip. Power electronics, ESP32-S3,
+      buck converters, and thermal management. Excellent test for power
+      electronics placement optimization (similar to temper project goals).
+      High current paths, thermal constraints, EMI considerations.
+    complexity: medium
+    expected_components: 80-150
+
+  libresolar_mppt:
+    repo: LibreSolar/mppt-1210-hus
+    ref: main
+    pcb_files:
+      - kicad/mppt-1210-hus.kicad_pcb
+    license: CERN-OHL-S-2.0
+    kicad_version: 5  # KiCad 5 format - may not parse with kiutils
+    description: >
+      Solar charge controller with MPPT (Maximum Power Point Tracking).
+      Power electronics design with MOSFETs, inductors, and current sensing.
+      Very relevant to temper's power electronics focus.
+    complexity: medium
+    expected_components: 50-100
+
+  libresolar_bms:
+    repo: LibreSolar/bms-c1
+    ref: main
+    pcb_files:
+      - kicad/bms-c1.kicad_pcb
+    license: CERN-OHL-S-2.0
+    kicad_version: 6
+    description: >
+      Battery Management System for lithium batteries. Cell balancing,
+      protection circuits, and CAN bus communication. Tests handling
+      of high-current paths and safety-critical component placement.
+    complexity: large
+    expected_components: 150-250
+
+  # ==========================================================================
+  # MOTOR CONTROL / INDUSTRIAL
+  # ==========================================================================
+
+  splitflap_driver:
+    repo: scottbez1/splitflap
+    ref: master
+    pcb_files:
+      - electronics/chainlinkDriver/chainlinkDriver.kicad_pcb
+    license: Apache-2.0
+    kicad_version: 5  # KiCad 5 format - may not parse with kiutils
+    description: >
+      Split-flap display driver board. Motor drivers, shift registers,
+      and power distribution. Good test for modular/repeated structures
+      and motor driver placement patterns.
+    complexity: medium
+    expected_components: 40-80
+
+  splitflap_sensor:
+    repo: scottbez1/splitflap
+    ref: master
+    pcb_files:
+      - electronics/sensor/sensor.kicad_pcb
+    license: Apache-2.0
+    kicad_version: 5  # KiCad 5 format - may not parse with kiutils
+    description: >
+      Hall effect sensor board for splitflap display. Small board with
+      sensor ICs and connectors. Tests handling of sensor placement
+      and tight board constraints.
+    complexity: small
+    expected_components: 10-30
+
+  # ==========================================================================
+  # MICROCONTROLLER DEVELOPMENT BOARDS
+  # ==========================================================================
+
+  olimex_esp32_poe:
+    repo: OLIMEX/ESP32-PoE
+    ref: master
+    pcb_files:
+      - HARDWARE/ESP32-PoE-hardware-revision-D/ESP32-PoE_Rev_D.kicad_pcb
+    license: Apache-2.0
+    kicad_version: 5  # KiCad 5 format - may not parse with kiutils
+    description: >
+      ESP32 with Power-over-Ethernet. Complex power management including
+      PoE circuitry, Ethernet magnetics, and ESP32 integration. Production
+      quality reference design from established hardware company.
+    complexity: medium
+    expected_components: 80-150
+
+  rp2040_designguide:
+    repo: Sleepdealr/RP2040-designguide
+    ref: main
+    pcb_files:
+      - PCB/RP2040-Guide.kicad_pcb
+    license: MIT
+    kicad_version: 6
+    description: >
+      RP2040 reference design board. USB-C, crystal oscillator, flash
+      memory, and power regulation. Clean minimal design useful as
+      baseline for testing basic functionality.
+    complexity: small
+    expected_components: 30-60
+
+  # ==========================================================================
+  # 3D PRINTER ELECTRONICS
+  # ==========================================================================
+
+  prusa_buddy_mini:
+    repo: prusa3d/Buddy-board-MINI-PCB
+    ref: master
+    pcb_files:
+      - rev.1.0.0/BUDDY_v1.0.0.kicad_pcb
+    license: GPL-3.0
+    kicad_version: 5  # KiCad 5 format - may not parse with kiutils
+    description: >
+      Prusa Mini 3D printer control board. STM32 microcontroller, stepper
+      motor drivers, power management, and various sensors. Production
+      hardware from major manufacturer, stress test for optimizer.
+    complexity: large
+    expected_components: 150-300
+
+# ==========================================================================
+# Projects that looked promising but were excluded:
+# ==========================================================================
+#
+# - but0n/Avem: No KiCad files, only images
+# - espressif/esp-dev-kits: No KiCad files, documentation only
+# - adafruit/*: Uses Eagle format, not KiCad
+# - ODrive: Uses Altium format
+# - kicad/kicad-symbols: Library only, no PCB files
+# - ai03-2725/Voyager: KiCad 5 format, may need conversion
+#
+# NOTE: KiCad 5 format projects (marked kicad_version: 5) do not parse
+# correctly with kiutils and will be skipped in tests.

@@ -35,7 +35,7 @@ from temper_placer.losses.base import (
     CompositeLoss,
     LossContext,
     WeightedLoss,
-    create_value_and_grad_fn,
+    create_value_and_grad_fn_with_breakdown,
 )
 from temper_placer.optimizer.config import OptimizerConfig
 from temper_placer.optimizer.scheduler import (
@@ -47,6 +47,86 @@ from temper_placer.optimizer.validation_callback import (
     ValidationCallback,
     ValidationResult,
 )
+
+
+class NumericalInstabilityError(RuntimeError):
+    """Raised when training encounters NaN or Inf values.
+
+    This indicates a numerical instability in the loss function or gradients,
+    often caused by:
+    - Learning rate too high
+    - Temperature too low (Gumbel-Softmax overflow)
+    - Invalid input data (e.g., zero-size components)
+    - Loss function overflow (e.g., large_val in wirelength)
+
+    Attributes:
+        epoch: The epoch where instability was detected.
+        loss_value: The problematic loss value (may be NaN or Inf).
+        loss_breakdown: Per-loss values to identify the source.
+        grad_norms: Gradient norms if available.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        epoch: int = -1,
+        loss_value: float = float("nan"),
+        loss_breakdown: Optional[Dict[str, float]] = None,
+        grad_norms: Optional[Dict[str, float]] = None,
+    ):
+        super().__init__(message)
+        self.epoch = epoch
+        self.loss_value = loss_value
+        self.loss_breakdown = loss_breakdown or {}
+        self.grad_norms = grad_norms or {}
+
+
+def _check_numerical_stability(
+    loss_value: float,
+    loss_breakdown: Dict[str, float],
+    grad_pos: Array,
+    grad_rot: Array,
+    epoch: int,
+) -> None:
+    """Check for NaN/Inf in loss and gradients, raise if found.
+
+    Args:
+        loss_value: Total loss value.
+        loss_breakdown: Per-loss component values.
+        grad_pos: Position gradients.
+        grad_rot: Rotation gradients.
+        epoch: Current epoch for error reporting.
+
+    Raises:
+        NumericalInstabilityError: If any value is NaN or Inf.
+    """
+    import math
+
+    # Check total loss
+    if not math.isfinite(loss_value):
+        # Find which loss component caused the issue
+        bad_components = [name for name, val in loss_breakdown.items() if not math.isfinite(val)]
+        raise NumericalInstabilityError(
+            f"Non-finite loss at epoch {epoch}: {loss_value}. "
+            f"Problematic components: {bad_components if bad_components else 'unknown (overflow in combination)'}",
+            epoch=epoch,
+            loss_value=loss_value,
+            loss_breakdown=loss_breakdown,
+        )
+
+    # Check gradients
+    grad_norm_pos = float(jnp.linalg.norm(grad_pos))
+    grad_norm_rot = float(jnp.linalg.norm(grad_rot))
+
+    if not math.isfinite(grad_norm_pos) or not math.isfinite(grad_norm_rot):
+        raise NumericalInstabilityError(
+            f"Non-finite gradients at epoch {epoch}: "
+            f"grad_pos_norm={grad_norm_pos}, grad_rot_norm={grad_norm_rot}",
+            epoch=epoch,
+            loss_value=loss_value,
+            loss_breakdown=loss_breakdown,
+            grad_norms={"position": grad_norm_pos, "rotation": grad_norm_rot},
+        )
 
 
 class TrainingMetrics(NamedTuple):
@@ -171,6 +251,11 @@ def initialize_training_state(
 
     Returns:
         Initialized TrainingState.
+
+    Note:
+        When initial_state is None, random positions are generated in ABSOLUTE
+        coordinates using board.origin. This ensures compatibility with KiCad
+        PCB files where the board is not at (0, 0).
     """
     rng_key = jax.random.PRNGKey(config.seed)
 
@@ -179,13 +264,14 @@ def initialize_training_state(
         positions = initial_state.positions
         rotation_logits = initial_state.rotation_logits
     else:
-        # Random initialization
+        # Random initialization in absolute coordinates
         rng_key, init_key = jax.random.split(rng_key)
         state = PlacementState.random_init(
             n_components=netlist.n_components,
             board_width=board.width,
             board_height=board.height,
             key=init_key,
+            origin=board.origin,  # Use board origin for absolute coordinates
         )
         positions = state.positions
         # Start with uniform logits (equal probability for all rotations)
@@ -219,7 +305,7 @@ def make_train_step(
     Create a JIT-compiled training step function.
 
     Args:
-        value_and_grad_fn: Function returning (loss, (grad_pos, grad_rot)).
+        value_and_grad_fn: Function returning ((loss, breakdown), (grad_pos, grad_rot)).
         opt_pos: Position optimizer.
         opt_rot: Rotation optimizer.
         total_epochs: Total training epochs (for curriculum).
@@ -236,7 +322,7 @@ def make_train_step(
         opt_state_pos: Any,
         opt_state_rot: Any,
         epoch: int,
-    ) -> Tuple[Array, Array, Array, Any, Any, Array, Array]:
+    ) -> Tuple[Array, Array, Array, Dict[str, Array], Any, Any, Array, Array]:
         """
         Single training step.
 
@@ -249,11 +335,13 @@ def make_train_step(
             epoch: Current epoch.
 
         Returns:
-            Tuple of (new_positions, new_logits, loss, new_opt_state_pos,
-                     new_opt_state_rot, grad_pos, grad_rot).
+            Tuple of (new_positions, new_logits, loss, breakdown,
+                     new_opt_state_pos, new_opt_state_rot, grad_pos, grad_rot).
         """
-        # Compute loss and gradients
-        loss, (grad_pos, grad_rot) = value_and_grad_fn(positions, rotations, epoch, total_epochs)
+        # Compute loss, breakdown, and gradients in a single forward pass
+        (loss, breakdown), (grad_pos, grad_rot) = value_and_grad_fn(
+            positions, rotations, epoch, total_epochs
+        )
 
         # Update positions
         updates_pos, new_opt_state_pos = opt_pos.update(grad_pos, opt_state_pos, positions)
@@ -267,6 +355,7 @@ def make_train_step(
             new_positions,
             new_rotation_logits,
             loss,
+            breakdown,
             new_opt_state_pos,
             new_opt_state_rot,
             grad_pos,
@@ -329,8 +418,8 @@ def train(
     # Initialize training state
     state = initialize_training_state(netlist, board, config, initial_state)
 
-    # Create value_and_grad function
-    value_and_grad_fn = create_value_and_grad_fn(composite_loss, context)
+    # Create value_and_grad function with breakdown
+    value_and_grad_fn = create_value_and_grad_fn_with_breakdown(composite_loss, context)
 
     # Create optimizers
     initial_lr = config.learning_rate.initial
@@ -367,11 +456,12 @@ def train(
         state.rng_key, sample_key = jax.random.split(state.rng_key)
         rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
 
-        # Run training step
+        # Run training step (returns breakdown alongside loss to avoid recomputation)
         (
             new_positions,
             new_rotation_logits,
             loss,
+            loss_breakdown_arrays,
             new_opt_state_pos,
             new_opt_state_rot,
             grad_pos,
@@ -393,6 +483,12 @@ def train(
 
         loss_value = float(loss)
 
+        # Convert breakdown for stability check
+        breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+
+        # Check for numerical instability (NaN/Inf)
+        _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
+
         # Track best
         if loss_value < best_loss - config.early_stopping.min_delta:
             best_loss = loss_value
@@ -410,9 +506,8 @@ def train(
             grad_norm_pos = float(jnp.linalg.norm(grad_pos))
             grad_norm_rot = float(jnp.linalg.norm(grad_rot))
 
-            # Get loss breakdown
-            result = composite_loss(state.positions, rotations, context, epoch, config.epochs)
-            breakdown = {k: float(v) for k, v in (result.breakdown or {}).items()}
+            # Use breakdown from train_step (no recomputation needed!)
+            breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
 
             epoch_time_ms = (time.time() - epoch_start) * 1000
 
@@ -575,8 +670,8 @@ def train_multiphase(
             # Create new composite loss
             composite_loss = loss_factory(weights)
 
-            # Create new value_and_grad function
-            value_and_grad_fn = create_value_and_grad_fn(composite_loss, context)
+            # Create new value_and_grad function with breakdown
+            value_and_grad_fn = create_value_and_grad_fn_with_breakdown(composite_loss, context)
 
             # Create optimizers with current learning rate
             lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
@@ -596,11 +691,12 @@ def train_multiphase(
         state.rng_key, sample_key = jax.random.split(state.rng_key)
         rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
 
-        # Run training step
+        # Run training step (returns breakdown alongside loss to avoid recomputation)
         (
             new_positions,
             new_rotation_logits,
             loss,
+            loss_breakdown_arrays,
             new_opt_state_pos,
             new_opt_state_rot,
             grad_pos,
@@ -622,6 +718,12 @@ def train_multiphase(
 
         loss_value = float(loss)
 
+        # Convert breakdown for stability check
+        breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+
+        # Check for numerical instability (NaN/Inf)
+        _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
+
         # Track best
         if loss_value < best_loss - config.early_stopping.min_delta:
             best_loss = loss_value
@@ -637,8 +739,8 @@ def train_multiphase(
             grad_norm_pos = float(jnp.linalg.norm(grad_pos))
             grad_norm_rot = float(jnp.linalg.norm(grad_rot))
 
-            result = composite_loss(state.positions, rotations, context, epoch, config.epochs)
-            breakdown = {k: float(v) for k, v in (result.breakdown or {}).items()}
+            # Use breakdown from train_step (no recomputation needed!)
+            breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
 
             epoch_time_ms = (time.time() - epoch_start) * 1000
 
