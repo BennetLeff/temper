@@ -236,20 +236,26 @@ class GroupSeparationLoss(LossFunction):
     This ensures that different functional blocks maintain adequate separation,
     e.g., keeping the power stage away from the MCU.
 
-    Uses centroid-to-centroid distance between groups.
+    Supports two distance metrics:
+    - centroid: Distance between group centroids (faster, smoother gradients)
+    - min_distance: Minimum distance between any component pair (stricter, more accurate)
     """
 
     def __init__(
         self,
         separations: List[Tuple[GroupConfig, GroupConfig, float]],
+        use_min_distance: bool = False,
     ):
         """
         Initialize GroupSeparationLoss.
 
         Args:
             separations: List of (group_a, group_b, min_distance_mm) tuples.
+            use_min_distance: If True, use minimum pairwise distance between groups.
+                If False (default), use centroid-to-centroid distance.
         """
         self.separations = separations
+        self.use_min_distance = use_min_distance
 
     @property
     def name(self) -> str:
@@ -281,13 +287,21 @@ class GroupSeparationLoss(LossFunction):
         breakdown: Dict[str, Array] = {}
 
         for i, (group_a, group_b, min_dist) in enumerate(self.separations):
-            # Compute centroids of each group
-            centroid_a = jnp.mean(positions[group_a.component_indices], axis=0)
-            centroid_b = jnp.mean(positions[group_b.component_indices], axis=0)
+            if self.use_min_distance:
+                # Compute minimum distance between any component pair
+                distance = self._min_inter_group_distance(
+                    positions,
+                    group_a.component_indices,
+                    group_b.component_indices,
+                )
+            else:
+                # Compute centroids of each group (faster, smoother gradients)
+                centroid_a = jnp.mean(positions[group_a.component_indices], axis=0)
+                centroid_b = jnp.mean(positions[group_b.component_indices], axis=0)
 
-            # Distance between centroids
-            diff = centroid_a - centroid_b
-            distance = jnp.sqrt(jnp.sum(diff**2) + 1e-12)
+                # Distance between centroids
+                diff = centroid_a - centroid_b
+                distance = jnp.sqrt(jnp.sum(diff**2) + 1e-12)
 
             # Penalty for being too close
             deficit = jax.nn.relu(min_dist - distance)
@@ -298,6 +312,41 @@ class GroupSeparationLoss(LossFunction):
             breakdown[f"sep_{group_a.name}_{group_b.name}_penalty"] = penalty
 
         return LossResult(value=total_penalty, breakdown=breakdown)
+
+    def _min_inter_group_distance(
+        self,
+        positions: Array,
+        group_a_indices: Array,
+        group_b_indices: Array,
+    ) -> Array:
+        """
+        Compute minimum distance between any component in group A and any in group B.
+
+        Uses vectorized computation for efficiency.
+
+        Args:
+            positions: (N, 2) all component positions.
+            group_a_indices: (M,) indices of components in group A.
+            group_b_indices: (K,) indices of components in group B.
+
+        Returns:
+            Scalar minimum distance.
+        """
+        # Get positions for each group
+        pos_a = positions[group_a_indices]  # (M, 2)
+        pos_b = positions[group_b_indices]  # (K, 2)
+
+        # Compute all pairwise distances
+        # pos_a[:, None, :] is (M, 1, 2)
+        # pos_b[None, :, :] is (1, K, 2)
+        # diff is (M, K, 2)
+        diff = pos_a[:, None, :] - pos_b[None, :, :]
+
+        # Euclidean distances (M, K)
+        distances = jnp.sqrt(jnp.sum(diff**2, axis=-1) + 1e-12)
+
+        # Return minimum distance
+        return jnp.min(distances)
 
 
 def create_grouping_losses_from_constraints(

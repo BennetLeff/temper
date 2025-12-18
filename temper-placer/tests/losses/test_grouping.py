@@ -242,6 +242,73 @@ class TestGroupSeparationLoss:
         result = loss_fn(positions, rotations, None)
         assert jnp.isclose(result.value, 0.0, atol=1e-5)
 
+    def test_min_distance_mode_strict_separation(self):
+        """Test use_min_distance=True mode uses minimum pairwise distance."""
+        group_a = GroupConfig(
+            name="group_a",
+            component_indices=jnp.array([0, 1]),
+            max_diameter_mm=10.0,
+        )
+        group_b = GroupConfig(
+            name="group_b",
+            component_indices=jnp.array([2, 3]),
+            max_diameter_mm=10.0,
+        )
+        loss_fn = GroupSeparationLoss([(group_a, group_b, 20.0)], use_min_distance=True)
+
+        # Centroids are 30mm apart, but closest components are only 10mm apart
+        # With use_min_distance=True, should use 10mm (not 30mm)
+        positions = jnp.array(
+            [
+                [0.0, 0.0],  # Group A
+                [10.0, 0.0],  # Group A
+                [20.0, 0.0],  # Group B (10mm from nearest A component)
+                [50.0, 0.0],  # Group B
+            ]
+        )
+        rotations = jnp.eye(4)
+
+        result = loss_fn(positions, rotations, None)
+        # Min distance is 10mm, requires 20mm, so deficit is 10mm
+        # Penalty is 10^2 = 100
+        assert jnp.isclose(result.value, 100.0, atol=1e-5)
+
+    def test_min_distance_vs_centroid_mode_difference(self):
+        """Verify min_distance mode is stricter than centroid mode."""
+        group_a = GroupConfig(
+            name="group_a",
+            component_indices=jnp.array([0, 1]),
+            max_diameter_mm=10.0,
+        )
+        group_b = GroupConfig(
+            name="group_b",
+            component_indices=jnp.array([2, 3]),
+            max_diameter_mm=10.0,
+        )
+
+        # Same positions for both tests
+        positions = jnp.array(
+            [
+                [0.0, 0.0],
+                [10.0, 0.0],
+                [20.0, 0.0],
+                [50.0, 0.0],
+            ]
+        )
+        rotations = jnp.eye(4)
+
+        # Centroid mode: centroids are at (5, 0) and (35, 0) -> 30mm apart
+        loss_centroid = GroupSeparationLoss([(group_a, group_b, 20.0)], use_min_distance=False)
+        result_centroid = loss_centroid(positions, rotations, None)
+        # 30mm >= 20mm, so no penalty
+        assert jnp.isclose(result_centroid.value, 0.0, atol=1e-5)
+
+        # Min distance mode: closest pair is (1, 2) -> 10mm apart
+        loss_min_dist = GroupSeparationLoss([(group_a, group_b, 20.0)], use_min_distance=True)
+        result_min_dist = loss_min_dist(positions, rotations, None)
+        # 10mm < 20mm, deficit = 10mm, penalty = 100
+        assert jnp.isclose(result_min_dist.value, 100.0, atol=1e-5)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
