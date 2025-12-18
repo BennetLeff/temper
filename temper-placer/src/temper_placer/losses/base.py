@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import NamedTuple, cast
+from typing import Any, NamedTuple, Optional, cast
 
 import jax
 import jax.numpy as jnp
@@ -26,172 +26,39 @@ from temper_placer.core.netlist import (
     build_adjacency_matrix,
     compute_eigenvector_centrality,
 )
-
-
-@dataclass(frozen=True)
-class LoopConstraint:
-    """
-    Defines a critical current loop to minimize.
-
-    Attributes:
-        name: Loop identifier (e.g., "gate_drive_high").
-        pins: List of (component_ref, pin_name) forming the loop in order.
-        max_area: Maximum allowed loop area in mm² (soft constraint).
-        weight: Importance weight for this loop.
-    """
-
-    name: str
-    pins: tuple[tuple[str, str], ...]  # Immutable for hashability
-    max_area: float = 100.0  # mm²
-    weight: float = 1.0
-
-
-@dataclass(frozen=True)
-class ThermalConstraint:
-    """
-    Defines thermal placement requirements for a component.
-
-    Attributes:
-        component_ref: Component reference (e.g., "Q1").
-        edge: Board edge for heatsink mounting ("TOP", "BOTTOM", "LEFT", "RIGHT").
-        max_distance: Maximum distance from edge in mm.
-        weight: Importance weight.
-    """
-
-    component_ref: str
-    edge: str  # "TOP", "BOTTOM", "LEFT", "RIGHT"
-    max_distance: float = 5.0  # mm
-    weight: float = 1.0
-
-
-@dataclass(frozen=True)
-class ClearanceRule:
-    """
-    Defines a minimum clearance between net classes.
-
-    Attributes:
-        net_class_a: First net class (e.g., "HighVoltage").
-        net_class_b: Second net class (e.g., "Signal").
-        min_clearance: Minimum distance in mm.
-        weight: Importance weight for violations.
-    """
-
-    net_class_a: str
-    net_class_b: str
-    min_clearance: float  # mm
-    weight: float = 1.0
-
-
-@dataclass(frozen=True)
-class MountingRule:
-    """
-    Defines mechanical placement constraints for a component.
-
-    Attributes:
-        component_idx: Index of the component.
-        rule_type: Type of rule ("edge", "near_mount", "fixed_position", "accessible").
-        edge: Board edge ("TOP", "BOTTOM", "LEFT", "RIGHT") for edge rule.
-        max_distance_mm: Max distance for edge/mount rules.
-        mount_positions: List of (x, y) tuples for mount points.
-        target_position: (x, y) target for fixed position.
-        weight: Importance weight.
-    """
-
-    component_idx: int
-    rule_type: str
-    edge: str | None = None
-    max_distance_mm: float | None = None
-    mount_positions: tuple[tuple[float, float], ...] | None = None  # Tuple for immutability
-    target_position: tuple[float, float] | None = None
-    weight: float = 1.0
+from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer.losses.types import (
+    ClearanceRule,
+    CriticalPathConstraint,
+    LoopConstraint,
+    LossContext as BaseLossContext,
+    LossResult,
+    MatchedLengthConstraint,
+    MountingRule,
+    ThermalConstraint,
+)
 
 
 @dataclass
-class LossContext:
+class LossContext(BaseLossContext):
     """
     Immutable context containing all data needed by loss functions.
 
-    This is passed to all loss functions and contains the netlist, board,
-    and constraint definitions. It also includes pre-computed arrays for
-    efficient JAX operations.
-
-    Attributes:
-        netlist: Complete netlist with components and nets.
-        board: Board definition with zones and ground domains.
-        bounds: (N, 2) array of component bounds (width, height).
-        fixed_mask: (N,) boolean array of fixed components.
-        hv_indices: Array of component indices in HighVoltage net class.
-        lv_indices: Array of component indices in Signal net class.
-        clearance_rules: List of clearance rules to enforce.
-        thermal_constraints: List of thermal placement constraints.
-        loop_constraints: List of critical loop constraints.
-        net_class_map: Dict mapping component ref to net class.
-
-        # Pre-computed arrays for JAX-compatible wirelength computation:
-        net_pin_indices: (M, P) padded array of component indices per net pin.
-        net_pin_offsets: (M, P, 2) padded array of pin offsets (x, y) per net.
-        net_pin_mask: (M, P) boolean mask for valid pins (False = padding).
-        net_weights: (M,) array of net weights.
-        max_pins_per_net: Maximum pins per net (P dimension).
-
-        # Pre-computed arrays for loop constraints:
-        loop_pin_indices: (L, Q) padded array of component indices per loop.
-        loop_pin_offsets: (L, Q, 2) padded array of pin offsets per loop.
-        loop_pin_mask: (L, Q) boolean mask for valid pins.
-        loop_max_areas: (L,) array of maximum allowed areas.
-        loop_weights: (L,) array of loop weights.
-
-        # Pre-computed arrays for clearance by net class:
-        net_class_indices: Dict mapping net class to array of component indices.
+    Extends BaseLossContext with factory methods.
     """
-
-    netlist: Netlist
-    board: Board
-    bounds: Array  # (N, 2) component bounds
-    fixed_mask: Array  # (N,) boolean
-
-    # Pre-computed indices for clearance checking
-    hv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
-    lv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
-
-    # Constraint definitions
-    clearance_rules: list[ClearanceRule] = field(default_factory=list)
-    thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
-    loop_constraints: list[LoopConstraint] = field(default_factory=list)
-    mounting_rules: list[MountingRule] = field(default_factory=list)
-
-    # Net class mapping
-    net_class_map: dict[str, str] = field(default_factory=dict)
-
-    # Pre-computed arrays for JAX-compatible wirelength (filled by from_netlist_and_board)
-    net_pin_indices: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.int32))
-    net_pin_offsets: Array = field(default_factory=lambda: jnp.zeros((0, 0, 2), dtype=jnp.float32))
-    net_pin_mask: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.bool_))
-    net_weights: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.float32))
-    max_pins_per_net: int = 0
-
-    # Pre-computed arrays for loop constraints
-    loop_pin_indices: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.int32))
-    loop_pin_offsets: Array = field(default_factory=lambda: jnp.zeros((0, 0, 2), dtype=jnp.float32))
-    loop_pin_mask: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.bool_))
-    loop_max_areas: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.float32))
-    loop_weights: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.float32))
-
-    # Pre-computed net class indices
-    net_class_indices: dict[str, Array] = field(default_factory=dict)
-
-    # Centrality weights for each component (N,)
-    centrality: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.float32))
 
     @classmethod
     def from_netlist_and_board(
         cls,
         netlist: Netlist,
         board: Board,
+        constraints: Optional[PlacementConstraints] = None,
         clearance_rules: list[ClearanceRule] | None = None,
         thermal_constraints: list[ThermalConstraint] | None = None,
         loop_constraints: list[LoopConstraint] | None = None,
         mounting_rules: list[MountingRule] | None = None,
+        path_constraints: list[CriticalPathConstraint] | None = None,
+        matched_groups: list[MatchedLengthConstraint] | None = None,
         use_centrality_weighting: bool = False,
     ) -> LossContext:
         """
@@ -200,10 +67,13 @@ class LossContext:
         Args:
             netlist: The netlist to use.
             board: The board definition.
+            constraints: Optional placement constraints.
             clearance_rules: Optional list of clearance rules.
             thermal_constraints: Optional list of thermal constraints.
             loop_constraints: Optional list of loop constraints.
             mounting_rules: Optional list of mounting rules.
+            path_constraints: Optional list of critical path constraints.
+            matched_groups: Optional list of matched length constraints.
             use_centrality_weighting: If True, scale weights and step sizes
                 by component centrality (hub prioritization).
 
@@ -261,9 +131,54 @@ class LossContext:
             )
         )
 
+        # Pre-compute critical path arrays
+        path_constraints = path_constraints or []
+        matched_groups = matched_groups or []
+
+        # If constraints object provided, extract critical paths
+        if constraints:
+            for pc in constraints.critical_paths:
+                # Convert CriticalPath to CriticalPathConstraint
+                # (Assuming pins are handled properly if pins is None)
+                from_pin = (pc.from_comp, pc.pins[0]) if pc.pins else (pc.from_comp, "1")
+                to_pin = (pc.to_comp, pc.pins[1]) if pc.pins else (pc.to_comp, "1")
+                
+                weight_map = {"critical": 10.0, "high": 5.0, "normal": 1.0}
+                weight = weight_map.get(pc.priority, 1.0)
+                
+                path_constraints.append(CriticalPathConstraint(
+                    name=pc.name,
+                    from_pin=from_pin,
+                    to_pin=to_pin,
+                    max_length=pc.max_length_mm,
+                    weight=weight,
+                    matched_group=pc.matched_length_group
+                ))
+            
+            # Map matched length groups
+            for mlg in constraints.matched_length_groups:
+                # Find indices of paths in this group
+                p_indices = [
+                    i for i, p in enumerate(path_constraints)
+                    if p.matched_group == mlg.name
+                ]
+                if p_indices:
+                    matched_groups.append(MatchedLengthConstraint(
+                        name=mlg.name,
+                        path_indices=tuple(p_indices),
+                        tolerance=mlg.tolerance_mm,
+                        weight=1.0 # Default
+                    ))
+
+        path_pin_indices, path_pin_offsets, path_max_lengths, path_weights = (
+            cls._precompute_path_arrays(
+                netlist, path_constraints, centrality if use_centrality_weighting else None
+            )
+        )
+
         # Validate constraints reference valid components/pins
         validation_errors = cls._validate_constraints(
-            netlist, thermal_constraints or [], loop_constraints
+            netlist, thermal_constraints or [], loop_constraints, path_constraints
         )
         if validation_errors:
             raise ValueError("Invalid constraint references:\n" + "\n".join(validation_errors))
@@ -271,6 +186,7 @@ class LossContext:
         return cls(
             netlist=netlist,
             board=board,
+            constraints=constraints,
             bounds=bounds,
             fixed_mask=fixed_mask,
             hv_indices=jnp.array(hv_indices, dtype=jnp.int32),
@@ -290,6 +206,11 @@ class LossContext:
             loop_pin_mask=loop_pin_mask,
             loop_max_areas=loop_max_areas,
             loop_weights=loop_weights,
+            path_pin_indices=path_pin_indices,
+            path_pin_offsets=path_pin_offsets,
+            path_max_lengths=path_max_lengths,
+            path_weights=path_weights,
+            matched_groups=matched_groups or [],
             net_class_indices=net_class_indices,
             centrality=centrality if use_centrality_weighting else jnp.array([]),
         )
@@ -470,10 +391,82 @@ class LossContext:
         )
 
     @staticmethod
+    def _precompute_path_arrays(
+        netlist: Netlist,
+        path_constraints: list[CriticalPathConstraint],
+        centrality: Array | None = None,
+    ) -> tuple[Array, Array, Array, Array]:
+        """
+        Pre-compute arrays for critical path constraints.
+
+        Returns:
+            path_pin_indices: (C, 2) component indices per path
+            path_pin_offsets: (C, 2, 2) pin offsets per path
+            path_max_lengths: (C,) max lengths per path
+            path_weights: (C,) weights per path
+        """
+        if not path_constraints:
+            return (
+                jnp.zeros((0, 2), dtype=jnp.int32),
+                jnp.zeros((0, 2, 2), dtype=jnp.float32),
+                jnp.zeros((0,), dtype=jnp.float32),
+                jnp.zeros((0,), dtype=jnp.float32),
+            )
+
+        indices = []
+        offsets = []
+        max_lengths = []
+        weights = []
+
+        n_components = netlist.n_components
+
+        for path in path_constraints:
+            try:
+                # From pin
+                from_ref, from_pin_name = path.from_pin
+                from_idx = netlist.get_component_index(from_ref)
+                from_comp = netlist.get_component(from_ref)
+                from_pin = from_comp.get_pin(from_pin_name)
+                from_offset = list(from_pin.position) if from_pin else [0.0, 0.0]
+
+                # To pin
+                to_ref, to_pin_name = path.to_pin
+                to_idx = netlist.get_component_index(to_ref)
+                to_comp = netlist.get_component(to_ref)
+                to_pin = to_comp.get_pin(to_pin_name)
+                to_offset = list(to_pin.position) if to_pin else [0.0, 0.0]
+
+                indices.append([from_idx, to_idx])
+                offsets.append([from_offset, to_offset])
+                max_lengths.append(path.max_length)
+
+                # Weight
+                weight = path.weight
+                if centrality is not None and centrality.shape[0] > 0:
+                    max_c = jnp.max(centrality[jnp.array([from_idx, to_idx])])
+                    weight = weight * (max_c * n_components)
+                weights.append(weight)
+
+            except KeyError:
+                # Component not found - will be caught in validation
+                indices.append([0, 0])
+                offsets.append([[0.0, 0.0], [0.0, 0.0]])
+                max_lengths.append(path.max_length)
+                weights.append(0.0)
+
+        return (
+            jnp.array(indices, dtype=jnp.int32),
+            jnp.array(offsets, dtype=jnp.float32),
+            jnp.array(max_lengths, dtype=jnp.float32),
+            jnp.array(weights, dtype=jnp.float32),
+        )
+
+    @staticmethod
     def _validate_constraints(
         netlist: Netlist,
         thermal_constraints: list[ThermalConstraint],
         loop_constraints: list[LoopConstraint],
+        path_constraints: list[CriticalPathConstraint],
     ) -> list[str]:
         """
         Validate that all constraint references are valid.
@@ -501,7 +494,21 @@ class LossContext:
                     pin = comp.get_pin(pin_name)
                     if pin is None:
                         # Warn but don't fail - will use component center
-                        pass  # Could log warning here
+                        pass
+
+        # Validate path constraints
+        for pc in path_constraints:
+            for comp_ref, pin_name in [pc.from_pin, pc.to_pin]:
+                if comp_ref not in valid_refs:
+                    errors.append(
+                        f"CriticalPathConstraint '{pc.name}' references unknown component: {comp_ref}"
+                    )
+                else:
+                    comp = netlist.get_component(comp_ref)
+                    pin = comp.get_pin(pin_name)
+                    if pin is None:
+                        # Warn but don't fail
+                        pass
 
         return errors
 

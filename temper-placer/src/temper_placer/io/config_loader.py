@@ -42,6 +42,44 @@ class CriticalLoop:
 
 
 @dataclass
+class CriticalPath:
+    """
+    Definition of a critical signal path between two components.
+
+    Attributes:
+        name: Unique name for the path.
+        from_comp: Starting component reference.
+        to_comp: Ending component reference.
+        pins: Optional tuple of (from_pin, to_pin) names.
+        max_length_mm: Maximum allowed length in mm.
+        priority: Priority level ('critical', 'high', 'normal').
+        matched_length_group: Optional name of matched length group.
+    """
+
+    name: str
+    from_comp: str
+    to_comp: str
+    pins: Optional[Tuple[str, str]] = None
+    max_length_mm: float = 50.0
+    priority: str = "normal"
+    matched_length_group: Optional[str] = None
+
+
+@dataclass
+class MatchedLengthGroup:
+    """
+    Group of signal paths that must have matched lengths.
+
+    Attributes:
+        name: Unique name for the group.
+        tolerance_mm: Maximum difference in length between any two paths in group.
+    """
+
+    name: str
+    tolerance_mm: float = 5.0
+
+
+@dataclass
 class ThermalConstraint:
     """Thermal placement constraint for heat-generating components."""
 
@@ -130,6 +168,12 @@ class PlacementConstraints:
 
     # Critical loops (EMI-sensitive)
     critical_loops: List[CriticalLoop] = field(default_factory=list)
+
+    # Critical paths (signal integrity)
+    critical_paths: List[CriticalPath] = field(default_factory=list)
+
+    # Matched length groups
+    matched_length_groups: List[MatchedLengthGroup] = field(default_factory=list)
 
     # Thermal constraints (basic)
     thermal_constraints: List[ThermalConstraint] = field(default_factory=list)
@@ -286,6 +330,30 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 description=loop_cfg.get("description", ""),
             )
             constraints.critical_loops.append(loop)
+
+    # Parse critical paths
+    if "critical_paths" in config:
+        for name, path_cfg in config["critical_paths"].items():
+            pins = path_cfg.get("pins")
+            path = CriticalPath(
+                name=name,
+                from_comp=path_cfg["from"],
+                to_comp=path_cfg["to"],
+                pins=tuple(pins) if pins and len(pins) >= 2 else None,
+                max_length_mm=path_cfg.get("max_length_mm", 50.0),
+                priority=path_cfg.get("priority", "normal"),
+                matched_length_group=path_cfg.get("matched_length_group"),
+            )
+            constraints.critical_paths.append(path)
+
+    # Parse matched length groups
+    if "matched_length_groups" in config:
+        for name, group_cfg in config["matched_length_groups"].items():
+            group = MatchedLengthGroup(
+                name=name,
+                tolerance_mm=group_cfg.get("tolerance_mm", 5.0),
+            )
+            constraints.matched_length_groups.append(group)
 
     # Parse thermal constraints
     if "thermal" in config:

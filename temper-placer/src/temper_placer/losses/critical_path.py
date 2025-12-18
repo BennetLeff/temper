@@ -78,14 +78,15 @@ class CriticalPathLengthLoss(LossFunction):
         >>> result = loss(positions, rotations, context)
     """
 
-    def __init__(self, critical_paths: List[CriticalPath]):
+    def __init__(self, critical_paths: Optional[List[CriticalPath]] = None):
         """
         Initialize CriticalPathLengthLoss.
 
         Args:
-            critical_paths: List of critical path constraints.
+            critical_paths: Optional list of critical path constraints.
+                If None, paths will be retrieved from LossContext.
         """
-        self.critical_paths = critical_paths
+        self.critical_paths = critical_paths or []
 
     @property
     def name(self) -> str:
@@ -104,38 +105,65 @@ class CriticalPathLengthLoss(LossFunction):
 
         Args:
             positions: (N, 2) component center positions in mm.
-            rotations: (N, 4) soft one-hot rotation indicators (unused).
-            context: LossContext with netlist for component index lookup.
+            rotations: (N, 4) soft one-hot rotation indicators.
+            context: LossContext with pre-computed critical path arrays.
 
         Returns:
             LossResult with total penalty value.
         """
-        if not self.critical_paths:
+        # Check if we have path constraints in context
+        if context.path_pin_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
 
-        total_penalty = jnp.array(0.0)
+        # Get pre-computed arrays
+        # indices: (C, 2) component indices for each path
+        # offsets: (C, 2, 2) pin offsets for each path
+        # max_lengths: (C,) max length limits
+        # weights: (C,) weights
 
-        for path in self.critical_paths:
-            # Get component indices
-            try:
-                from_idx = context.get_component_index(path.from_ref)
-                to_idx = context.get_component_index(path.to_ref)
-            except (KeyError, ValueError):
-                # Component not found - skip this path
-                continue
+        indices = context.path_pin_indices
+        offsets = context.path_pin_offsets
+        max_lengths = context.path_max_lengths
+        weights = context.path_weights
 
-            # Get positions
-            pos_from = positions[from_idx]
-            pos_to = positions[to_idx]
+        # Get component positions for all path endpoints: (C, 2, 2)
+        # indices has shape (C, 2), so positions[indices] has shape (C, 2, 2)
+        comp_positions = positions[indices]
 
-            # Compute Manhattan distance as routing estimate
-            length = jnp.abs(pos_from[0] - pos_to[0]) + jnp.abs(pos_from[1] - pos_to[1])
+        # Compute rotation angles from soft one-hot: (N,)
+        angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
+        comp_angles = jnp.sum(rotations * angles[None, :], axis=1)  # (N,)
 
-            # Compute penalty for excess length (quadratic)
-            excess = jnp.maximum(0.0, length - path.max_length_mm)
-            penalty = path.weight * excess**2
+        # Get angles for each path endpoint's component: (C, 2)
+        endpoint_angles = comp_angles[indices]
 
-            total_penalty = total_penalty + penalty
+        # Rotate pin offsets: (C, 2, 2)
+        cos_a = jnp.cos(endpoint_angles)  # (C, 2)
+        sin_a = jnp.sin(endpoint_angles)  # (C, 2)
+
+        px = offsets[:, :, 0]  # (C, 2)
+        py = offsets[:, :, 1]  # (C, 2)
+
+        rx = px * cos_a - py * sin_a  # (C, 2)
+        ry = px * sin_a + py * cos_a  # (C, 2)
+
+        rotated_offsets = jnp.stack([rx, ry], axis=-1)  # (C, 2, 2)
+
+        # Compute absolute pin positions: (C, 2, 2)
+        pin_positions = comp_positions + rotated_offsets
+
+        # Extract source and destination pin positions: (C, 2)
+        pos_from = pin_positions[:, 0, :]
+        pos_to = pin_positions[:, 1, :]
+
+        # Compute Manhattan distance as routing estimate
+        lengths = jnp.sum(jnp.abs(pos_from - pos_to), axis=1) # (C,)
+
+        # Compute penalty for excess length (quadratic)
+        excess = jnp.maximum(0.0, lengths - max_lengths)
+        penalties = weights * excess**2
+
+        total_penalty = jnp.sum(penalties)
 
         return LossResult(value=total_penalty)
 
