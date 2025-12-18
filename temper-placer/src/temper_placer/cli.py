@@ -96,6 +96,11 @@ def main() -> None:
     default=True,
     help="Use smart heuristic initialization (default: enabled).",
 )
+@click.option(
+    "--profile-dir",
+    type=click.Path(path_type=Path),
+    help="Save JAX profiler trace to this directory.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -108,6 +113,7 @@ def optimize(
     curriculum: bool,
     placements_json: Optional[Path],
     heuristics: bool,
+    profile_dir: Optional[Path],
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -310,6 +316,8 @@ def optimize(
 
     # Step 5: Run optimization
     console.print("\n[bold cyan]Step 5/5:[/] Running optimization...")
+    if profile_dir:
+        console.print(f"  [dim]JAX profiler enabled, saving to: {profile_dir}[/]")
 
     # Setup Ctrl+C handler for graceful interruption
     interrupted = False
@@ -348,6 +356,7 @@ def optimize(
             )
 
     try:
+        profile_dir_str = str(profile_dir) if profile_dir else None
         if curriculum and cfg.curriculum_phases:
             result = train_multiphase(
                 netlist,
@@ -357,6 +366,7 @@ def optimize(
                 cfg,
                 initial_state=initial_state,
                 callback=progress_callback,
+                profile_dir=profile_dir_str,
             )
         else:
             result = train(
@@ -367,6 +377,7 @@ def optimize(
                 cfg,
                 initial_state=initial_state,
                 callback=progress_callback,
+                profile_dir=profile_dir_str,
             )
 
         # Restore signal handler
@@ -751,6 +762,182 @@ def _print_issue(issue) -> None:
         console.print(f"  [red]✗ {issue.message}[/]")
         if issue.suggestion:
             console.print(f"    [dim]{issue.suggestion}[/]")
+
+
+@main.command()
+@click.option(
+    "--pcbs",
+    type=str,
+    default="all",
+    help="Comma-separated list of PCBs to benchmark (default: all).",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(path_type=Path),
+    help="Output report file (default: stdout).",
+)
+@click.option(
+    "--format",
+    type=click.Choice(["text", "json"]),
+    default="text",
+    help="Report format (default: text).",
+)
+@click.option(
+    "--epochs",
+    type=int,
+    default=2000,
+    help="Optimization epochs (default: 2000).",
+)
+def benchmark(
+    pcbs: str,
+    output: Optional[Path],
+    format: str,
+    epochs: int,
+) -> None:
+    """
+    Run placement benchmarks against human baselines.
+
+    Compares the optimizer's placement quality (wirelength, overlap, etc.)
+    against production-quality human designs.
+
+    Example:
+        temper-placer benchmark --pcbs piantor_left,bitaxe_ultra
+    """
+    from temper_placer.report.generator import (
+        BenchmarkSummary,
+        BenchmarkResult,
+        calculate_benchmark_result,
+        generate_text_report,
+        generate_json_report,
+    )
+    from temper_placer.io.reference_loader import list_reference_designs, load_reference_pcb
+    from temper_placer.optimizer import train, OptimizerConfig
+    from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
+    from temper_placer.losses import CompositeLoss, WeightedLoss, OverlapLoss, BoundaryLoss, WirelengthLoss, SpreadLoss
+    from temper_placer.losses.base import LossContext
+
+    console.print(Panel.fit(
+        "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
+        border_style="blue",
+    ))
+
+    # 1. Identify PCBs
+    design_dir = Path("tests/fixtures/external/.cache")
+    all_designs = []
+    seen_names = set()
+    
+    if design_dir.exists():
+        for p in design_dir.iterdir():
+            if p.is_dir() and p.name not in seen_names:
+                for pcb in p.glob("*.kicad_pcb"):
+                    all_designs.append({
+                        "name": p.name,
+                        "path": str(pcb)
+                    })
+                    seen_names.add(p.name)
+                    break # Only one PCB per project for now
+    
+    selected_names = [] if pcbs == "all" else [n.strip() for n in pcbs.split(",")]
+    targets = []
+    for d in all_designs:
+        if pcbs == "all" or d["name"] in selected_names:
+            targets.append(d)
+
+    if not targets:
+        console.print(f"[red]No matching PCBs found in {design_dir}[/]")
+        return
+
+    console.print(f"Found {len(targets)} benchmark targets.\n")
+
+    # 2. Setup Loss
+    default_weights = {"overlap": 100.0, "boundary": 50.0, "wirelength": 10.0, "spread": 5.0}
+    
+    def make_benchmark_loss(weights):
+        return CompositeLoss([
+            WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]),
+            WeightedLoss(BoundaryLoss(), weight=weights["boundary"]),
+            WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]),
+            WeightedLoss(SpreadLoss(), weight=weights["spread"]),
+        ])
+
+    composite_loss = make_benchmark_loss(default_weights)
+
+    # 3. Run Benchmarks
+    summary = BenchmarkSummary(total_pcbs=len(targets), passed=0, failed=0, better_than_human=0)
+    
+    for target in targets:
+        name = target["name"]
+        pcb_path = Path(target["path"])
+        console.print(f"Benchmarking [cyan]{name}[/]...")
+        
+        try:
+            # 1. Load Human Baseline
+            baseline_path = pcb_path.parent / f"{name}_benchmark.yaml"
+            if not baseline_path.exists():
+                # Try legacy name just in case
+                legacy_path = pcb_path.parent / f"{name}_baseline.yaml"
+                if legacy_path.exists():
+                    baseline_path = legacy_path
+                else:
+                    console.print(f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run baseline_extractor.py first.")
+                    continue
+                
+            with open(baseline_path) as f:
+                import yaml as yaml_module
+                baseline = yaml_module.safe_load(f)
+            
+            # 2. Setup Optimizer Data
+            ref_design = load_reference_pcb(pcb_path)
+            
+            # Load constraints (assumed to be in same dir)
+            config_path = pcb_path.parent / f"{name}_constraints.yaml"
+            if config_path.exists():
+                constraints = load_constraints(config_path)
+            else:
+                from temper_placer.io.config_loader import PlacementConstraints
+                constraints = PlacementConstraints()
+            
+            board = create_board_from_constraints(constraints)
+            context = LossContext.from_netlist_and_board(ref_design.netlist, board)
+            
+            # 3. Run Optimizer
+            cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs//10))
+            opt_result = train(ref_design.netlist, board, composite_loss, context, cfg)
+            
+            # 4. Compute Real Score
+            res = calculate_benchmark_result(name, opt_result, baseline, context)
+            
+            summary.results.append(res)
+            if res.status == "FAIL":
+                summary.failed += 1
+            else:
+                summary.passed += 1
+                if res.status == "BETTER":
+                    summary.better_than_human += 1
+            
+            console.print(f"  [green]✓[/] Result: {res.status} (WL: {res.wirelength_ratio:.2f}x)")
+            
+        except Exception as e:
+            console.print(f"  [red]Failed to benchmark {name}: {e}[/]")
+            summary.failed += 1
+            import traceback
+            console.print(traceback.format_exc())
+
+    # 4. Generate Report
+    if format == "text":
+        report_text = generate_text_report(summary)
+        if output:
+            output.write_text(report_text)
+            console.print(f"\n[green]✓[/] Report written to {output}")
+        else:
+            print(report_text)
+    else:
+        if output:
+            generate_json_report(summary, output)
+            console.print(f"\n[green]✓[/] JSON report written to {output}")
+        else:
+            console.print(json.dumps(summary.to_dict(), indent=2))
 
 
 @main.command()

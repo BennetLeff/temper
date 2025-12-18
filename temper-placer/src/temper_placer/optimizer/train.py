@@ -18,6 +18,7 @@ The training loop is designed to be:
 
 from __future__ import annotations
 
+import contextlib
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
@@ -201,7 +202,8 @@ def create_optimizer(
     """
     Create optax optimizers for positions and rotations.
 
-    Uses Adam by default with optional gradient clipping.
+    Uses Adam by default with optional gradient clipping. Learning rate is
+    injected as a hyperparameter so it can be updated during training.
 
     Args:
         config: Optimizer configuration.
@@ -229,7 +231,11 @@ def create_optimizer(
     else:
         transforms.append(optax.sgd(learning_rate=initial_lr))
 
-    optimizer = optax.chain(*transforms)
+    # Make learning rate injectable
+    # We must wrap the chain to ensure it's a simple GradientTransformation
+    # that inject_hyperparams can handle.
+    # Note: inject_hyperparams passes params as keyword args.
+    optimizer = optax.inject_hyperparams(lambda **kwargs: optax.chain(*transforms))()
 
     # Use same optimizer for both, but they could be different
     return optimizer, optimizer
@@ -332,6 +338,7 @@ def make_train_step(
         opt_state_pos: Any,
         opt_state_rot: Any,
         epoch: int,
+        learning_rate: float,
     ) -> Tuple[Array, Array, Array, Dict[str, Array], Any, Any, Array, Array]:
         """
         Single training step.
@@ -343,11 +350,16 @@ def make_train_step(
             opt_state_pos: Position optimizer state.
             opt_state_rot: Rotation optimizer state.
             epoch: Current epoch.
+            learning_rate: Current learning rate to apply.
 
         Returns:
             Tuple of (new_positions, new_logits, loss, breakdown,
                      new_opt_state_pos, new_opt_state_rot, grad_pos, grad_rot).
         """
+        # Update learning rate in optimizer state
+        opt_state_pos.hyperparams["learning_rate"] = learning_rate
+        opt_state_rot.hyperparams["learning_rate"] = learning_rate
+
         # Compute loss, breakdown, and gradients in a single forward pass
         (loss, breakdown), (grad_pos, grad_rot) = value_and_grad_fn(
             positions, rotations, epoch, total_epochs
@@ -384,6 +396,7 @@ def train(
     initial_state: Optional[PlacementState] = None,
     callback: Optional[Callable[[TrainingMetrics], None]] = None,
     validation_callback: Optional[ValidationCallback] = None,
+    profile_dir: Optional[str] = None,
 ) -> TrainingResult:
     """
     Run placement optimization training loop.
@@ -406,6 +419,7 @@ def train(
         initial_state: Optional initial placement to refine.
         callback: Optional function called after each logged epoch.
         validation_callback: Optional ValidationCallback for DRC/SPICE validation.
+        profile_dir: If provided, save JAX profiler trace to this directory.
 
     Returns:
         TrainingResult with final placement and training history.
@@ -442,6 +456,11 @@ def train(
     # Create JIT-compiled train step
     train_step = make_train_step(value_and_grad_fn, opt_pos, opt_rot, config.epochs)
 
+    # Optional: Enable JAX profiler
+    profile_ctx = (
+        jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
+    )
+
     # Training history
     history: List[TrainingMetrics] = []
 
@@ -456,107 +475,110 @@ def train(
     epochs_without_improvement = 0
 
     # Main training loop
-    for epoch in range(config.epochs):
-        epoch_start = time.time()
+    with profile_ctx:
+        for epoch in range(config.epochs):
+            epoch_start = time.time()
 
-        # Get current temperature
-        temperature = get_temperature(epoch, config.epochs, config.temperature)
-
-        # Sample rotations using Gumbel-Softmax
-        state.rng_key, sample_key = jax.random.split(state.rng_key)
-        rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
-
-        # Run training step (returns breakdown alongside loss to avoid recomputation)
-        (
-            new_positions,
-            new_rotation_logits,
-            loss,
-            loss_breakdown_arrays,
-            new_opt_state_pos,
-            new_opt_state_rot,
-            grad_pos,
-            grad_rot,
-        ) = train_step(
-            state.positions,
-            state.rotation_logits,
-            rotations,
-            state.opt_state_pos,
-            state.opt_state_rot,
-            epoch,
-        )
-
-        # Update state
-        state.positions = new_positions
-        state.rotation_logits = new_rotation_logits
-        state.opt_state_pos = new_opt_state_pos
-        state.opt_state_rot = new_opt_state_rot
-
-        loss_value = float(loss)
-
-        # Convert breakdown for stability check
-        breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
-
-        # Check for numerical instability (NaN/Inf)
-        _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
-
-        # Track best
-        if loss_value < best_loss - config.early_stopping.min_delta:
-            best_loss = loss_value
-            best_positions = state.positions
-            best_rotations = rotations
-            epochs_without_improvement = 0
-        else:
-            epochs_without_improvement += 1
-
-        # Log metrics at intervals
-        if epoch % config.log_interval == 0 or epoch == config.epochs - 1:
+            # Get current temperature and learning rate
+            temperature = get_temperature(epoch, config.epochs, config.temperature)
             lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
 
-            # Compute gradient norms
-            grad_norm_pos = float(jnp.linalg.norm(grad_pos))
-            grad_norm_rot = float(jnp.linalg.norm(grad_rot))
+            # Sample rotations using Gumbel-Softmax
+            state.rng_key, sample_key = jax.random.split(state.rng_key)
+            rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
 
-            # Use breakdown from train_step (no recomputation needed!)
-            breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
-
-            epoch_time_ms = (time.time() - epoch_start) * 1000
-
-            metrics = TrainingMetrics(
-                epoch=epoch,
-                loss=loss_value,
-                temperature=temperature,
-                learning_rate=lr,
-                loss_breakdown=breakdown,
-                grad_norm_pos=grad_norm_pos,
-                grad_norm_rot=grad_norm_rot,
-                elapsed_ms=epoch_time_ms,
+            # Run training step (returns breakdown alongside loss to avoid recomputation)
+            (
+                new_positions,
+                new_rotation_logits,
+                loss,
+                loss_breakdown_arrays,
+                new_opt_state_pos,
+                new_opt_state_rot,
+                grad_pos,
+                grad_rot,
+            ) = train_step(
+                state.positions,
+                state.rotation_logits,
+                rotations,
+                state.opt_state_pos,
+                state.opt_state_rot,
+                epoch,
+                lr,
             )
-            history.append(metrics)
 
-            if callback is not None:
-                callback(metrics)
+            # Update state
+            state.positions = new_positions
+            state.rotation_logits = new_rotation_logits
+            state.opt_state_pos = new_opt_state_pos
+            state.opt_state_rot = new_opt_state_rot
 
-        # Run validation callback (if configured)
-        if validation_callback is not None:
-            validation_result = validation_callback(
-                epoch=epoch,
-                positions=state.positions,
-                rotations=rotations,
-                context=context,
-            )
-            if validation_result is not None:
-                validation_history.append(validation_result)
-                # Check if validation failed and we should stop
-                if not validation_result.passed:
-                    stopped_by_validation = True
-                    break
+            loss_value = float(loss)
 
-        # Early stopping check
-        if (
-            config.early_stopping.enabled
-            and epochs_without_improvement >= config.early_stopping.patience
-        ):
-            break
+            # Convert breakdown for stability check
+            breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+
+            # Check for numerical instability (NaN/Inf)
+            _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
+
+            # Track best
+            if loss_value < best_loss - config.early_stopping.min_delta:
+                best_loss = loss_value
+                best_positions = state.positions
+                best_rotations = rotations
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+
+            # Log metrics at intervals
+            if epoch % config.log_interval == 0 or epoch == config.epochs - 1:
+                lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+
+                # Compute gradient norms
+                grad_norm_pos = float(jnp.linalg.norm(grad_pos))
+                grad_norm_rot = float(jnp.linalg.norm(grad_rot))
+
+                # Use breakdown from train_step (no recomputation needed!)
+                breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+
+                epoch_time_ms = (time.time() - epoch_start) * 1000
+
+                metrics = TrainingMetrics(
+                    epoch=epoch,
+                    loss=loss_value,
+                    temperature=temperature,
+                    learning_rate=lr,
+                    loss_breakdown=breakdown,
+                    grad_norm_pos=grad_norm_pos,
+                    grad_norm_rot=grad_norm_rot,
+                    elapsed_ms=epoch_time_ms,
+                )
+                history.append(metrics)
+
+                if callback is not None:
+                    callback(metrics)
+
+            # Run validation callback (if configured)
+            if validation_callback is not None:
+                validation_result = validation_callback(
+                    epoch=epoch,
+                    positions=state.positions,
+                    rotations=rotations,
+                    context=context,
+                )
+                if validation_result is not None:
+                    validation_history.append(validation_result)
+                    # Check if validation failed and we should stop
+                    if not validation_result.passed:
+                        stopped_by_validation = True
+                        break
+
+            # Early stopping check
+            if (
+                config.early_stopping.enabled
+                and epochs_without_improvement >= config.early_stopping.patience
+            ):
+                break
 
     # Create final placement state
     final_state = PlacementState(
@@ -601,6 +623,7 @@ def train_multiphase(
     initial_state: Optional[PlacementState] = None,
     callback: Optional[Callable[[TrainingMetrics], None]] = None,
     validation_callback: Optional[ValidationCallback] = None,
+    profile_dir: Optional[str] = None,
 ) -> TrainingResult:
     """
     Run multi-phase training with curriculum learning.
@@ -617,6 +640,7 @@ def train_multiphase(
         initial_state: Optional initial placement.
         callback: Optional callback for metrics.
         validation_callback: Optional ValidationCallback for DRC/SPICE validation.
+        profile_dir: If provided, save JAX profiler trace to this directory.
 
     Returns:
         TrainingResult with final placement.
@@ -659,137 +683,145 @@ def train_multiphase(
     # Track current phase for re-creating loss function
     current_phase_idx = -1
 
+    # Optional: Enable JAX profiler
+    profile_ctx = (
+        jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
+    )
+
     # Main training loop
-    for epoch in range(config.epochs):
-        epoch_start = time.time()
+    with profile_ctx:
+        for epoch in range(config.epochs):
+            epoch_start = time.time()
 
-        # Check if we need to update loss weights (phase change)
-        new_phase_idx = -1
-        for i, phase in enumerate(config.curriculum_phases):
-            if phase.start_epoch <= epoch < phase.end_epoch:
-                new_phase_idx = i
-                break
-
-        # Recreate loss and optimizer if phase changed
-        if new_phase_idx != current_phase_idx:
-            current_phase_idx = new_phase_idx
-
-            # Get current weights
-            weights = get_curriculum_weights(epoch, config.curriculum_phases, default_weights)
-
-            # Create new composite loss
-            composite_loss = loss_factory(weights)
-
-            # Create new value_and_grad function with breakdown
-            value_and_grad_fn = create_value_and_grad_fn_with_breakdown(composite_loss, context)
-
-            # Create optimizers with current learning rate
-            lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
-            opt_pos, opt_rot = create_optimizer(config, lr)
-
-            # Create new train step
-            train_step = make_train_step(value_and_grad_fn, opt_pos, opt_rot, config.epochs)
-
-            # Re-initialize optimizer states
-            state.opt_state_pos = opt_pos.init(state.positions)
-            state.opt_state_rot = opt_rot.init(state.rotation_logits)
-
-        # Get current temperature
-        temperature = get_temperature(epoch, config.epochs, config.temperature)
-
-        # Sample rotations
-        state.rng_key, sample_key = jax.random.split(state.rng_key)
-        rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
-
-        # Run training step (returns breakdown alongside loss to avoid recomputation)
-        (
-            new_positions,
-            new_rotation_logits,
-            loss,
-            loss_breakdown_arrays,
-            new_opt_state_pos,
-            new_opt_state_rot,
-            grad_pos,
-            grad_rot,
-        ) = train_step(
-            state.positions,
-            state.rotation_logits,
-            rotations,
-            state.opt_state_pos,
-            state.opt_state_rot,
-            epoch,
-        )
-
-        # Update state
-        state.positions = new_positions
-        state.rotation_logits = new_rotation_logits
-        state.opt_state_pos = new_opt_state_pos
-        state.opt_state_rot = new_opt_state_rot
-
-        loss_value = float(loss)
-
-        # Convert breakdown for stability check
-        breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
-
-        # Check for numerical instability (NaN/Inf)
-        _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
-
-        # Track best
-        if loss_value < best_loss - config.early_stopping.min_delta:
-            best_loss = loss_value
-            best_positions = state.positions
-            best_rotations = rotations
-            epochs_without_improvement = 0
-        else:
-            epochs_without_improvement += 1
-
-        # Log metrics
-        if epoch % config.log_interval == 0 or epoch == config.epochs - 1:
-            lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
-            grad_norm_pos = float(jnp.linalg.norm(grad_pos))
-            grad_norm_rot = float(jnp.linalg.norm(grad_rot))
-
-            # Use breakdown from train_step (no recomputation needed!)
-            breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
-
-            epoch_time_ms = (time.time() - epoch_start) * 1000
-
-            metrics = TrainingMetrics(
-                epoch=epoch,
-                loss=loss_value,
-                temperature=temperature,
-                learning_rate=lr,
-                loss_breakdown=breakdown,
-                grad_norm_pos=grad_norm_pos,
-                grad_norm_rot=grad_norm_rot,
-                elapsed_ms=epoch_time_ms,
-            )
-            history.append(metrics)
-
-            if callback is not None:
-                callback(metrics)
-
-        # Run validation callback (if configured)
-        if validation_callback is not None:
-            validation_result = validation_callback(
-                epoch=epoch,
-                positions=state.positions,
-                rotations=rotations,
-                context=context,
-            )
-            if validation_result is not None:
-                validation_history.append(validation_result)
-                # Check if validation failed and we should stop
-                if not validation_result.passed:
-                    stopped_by_validation = True
+            # Check if we need to update loss weights (phase change)
+            new_phase_idx = -1
+            for i, phase in enumerate(config.curriculum_phases):
+                if phase.start_epoch <= epoch < phase.end_epoch:
+                    new_phase_idx = i
                     break
 
-        # Early stopping
-        if (
-            config.early_stopping.enabled
-            and epochs_without_improvement >= config.early_stopping.patience
-        ):
-            break
+            # Recreate loss and optimizer if phase changed
+            if new_phase_idx != current_phase_idx:
+                current_phase_idx = new_phase_idx
+
+                # Get current weights
+                weights = get_curriculum_weights(epoch, config.curriculum_phases, default_weights)
+
+                # Create new composite loss
+                composite_loss = loss_factory(weights)
+
+                # Create new value_and_grad function with breakdown
+                value_and_grad_fn = create_value_and_grad_fn_with_breakdown(composite_loss, context)
+
+                # Create optimizers with current learning rate
+                lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+                opt_pos, opt_rot = create_optimizer(config, lr)
+
+                # Create new train step
+                train_step = make_train_step(value_and_grad_fn, opt_pos, opt_rot, config.epochs)
+
+                # Re-initialize optimizer states
+                state.opt_state_pos = opt_pos.init(state.positions)
+                state.opt_state_rot = opt_rot.init(state.rotation_logits)
+
+            # Get current temperature and learning rate
+            temperature = get_temperature(epoch, config.epochs, config.temperature)
+            lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+
+            # Sample rotations
+            state.rng_key, sample_key = jax.random.split(state.rng_key)
+            rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
+
+            # Run training step (returns breakdown alongside loss to avoid recomputation)
+            (
+                new_positions,
+                new_rotation_logits,
+                loss,
+                loss_breakdown_arrays,
+                new_opt_state_pos,
+                new_opt_state_rot,
+                grad_pos,
+                grad_rot,
+            ) = train_step(
+                state.positions,
+                state.rotation_logits,
+                rotations,
+                state.opt_state_pos,
+                state.opt_state_rot,
+                epoch,
+                lr,
+            )
+
+            # Update state
+            state.positions = new_positions
+            state.rotation_logits = new_rotation_logits
+            state.opt_state_pos = new_opt_state_pos
+            state.opt_state_rot = new_opt_state_rot
+
+            loss_value = float(loss)
+
+            # Convert breakdown for stability check
+            breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+
+            # Check for numerical instability (NaN/Inf)
+            _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
+
+            # Track best
+            if loss_value < best_loss - config.early_stopping.min_delta:
+                best_loss = loss_value
+                best_positions = state.positions
+                best_rotations = rotations
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+
+            # Log metrics
+            if epoch % config.log_interval == 0 or epoch == config.epochs - 1:
+                lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+                grad_norm_pos = float(jnp.linalg.norm(grad_pos))
+                grad_norm_rot = float(jnp.linalg.norm(grad_rot))
+
+                # Use breakdown from train_step (no recomputation needed!)
+                breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+
+                epoch_time_ms = (time.time() - epoch_start) * 1000
+
+                metrics = TrainingMetrics(
+                    epoch=epoch,
+                    loss=loss_value,
+                    temperature=temperature,
+                    learning_rate=lr,
+                    loss_breakdown=breakdown,
+                    grad_norm_pos=grad_norm_pos,
+                    grad_norm_rot=grad_norm_rot,
+                    elapsed_ms=epoch_time_ms,
+                )
+                history.append(metrics)
+
+                if callback is not None:
+                    callback(metrics)
+
+            # Run validation callback (if configured)
+            if validation_callback is not None:
+                validation_result = validation_callback(
+                    epoch=epoch,
+                    positions=state.positions,
+                    rotations=rotations,
+                    context=context,
+                )
+                if validation_result is not None:
+                    validation_history.append(validation_result)
+                    # Check if validation failed and we should stop
+                    if not validation_result.passed:
+                        stopped_by_validation = True
+                        break
+
+            # Early stopping
+            if (
+                config.early_stopping.enabled
+                and epochs_without_improvement >= config.early_stopping.patience
+            ):
+                break
 
     # Create final states
     final_state = PlacementState(

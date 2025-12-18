@@ -36,6 +36,7 @@ Example:
 
 from temper_placer.optimizer.config import (
     OptimizerConfig,
+    InitializationConfig,
     TemperatureSchedule,
     LearningRateSchedule,
     CurriculumPhase,
@@ -104,6 +105,7 @@ from temper_placer.optimizer.checkpoint import (
 __all__ = [
     # Config
     "OptimizerConfig",
+    "InitializationConfig",
     "TemperatureSchedule",
     "LearningRateSchedule",
     "CurriculumPhase",

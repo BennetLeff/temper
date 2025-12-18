@@ -218,6 +218,45 @@ test_pll_only/fast:
 .PHONY : test_pll_only/fast
 
 #=============================================================================
+# Target rules for targets named test_cascade_pid_only
+
+# Build rule for target.
+test_cascade_pid_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_cascade_pid_only
+.PHONY : test_cascade_pid_only
+
+# fast build rule for target.
+test_cascade_pid_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/build
+.PHONY : test_cascade_pid_only/fast
+
+#=============================================================================
+# Target rules for targets named test_cascade_pid_integration_only
+
+# Build rule for target.
+test_cascade_pid_integration_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_cascade_pid_integration_only
+.PHONY : test_cascade_pid_integration_only
+
+# fast build rule for target.
+test_cascade_pid_integration_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/build
+.PHONY : test_cascade_pid_integration_only/fast
+
+#=============================================================================
+# Target rules for targets named test_thermal_mass_only
+
+# Build rule for target.
+test_thermal_mass_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_thermal_mass_only
+.PHONY : test_thermal_mass_only
+
+# fast build rule for target.
+test_thermal_mass_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/build
+.PHONY : test_thermal_mass_only/fast
+
+#=============================================================================
 # Target rules for targets named test_adc_guard_only
 
 # Build rule for target.
@@ -308,6 +347,33 @@ run_tests_verbose/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_tests_verbose.dir/build.make CMakeFiles/run_tests_verbose.dir/build
 .PHONY : run_tests_verbose/fast
 
+Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o: Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o
+
+# target to build an object file
+Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
+
+Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.i: Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.i
+
+# target to preprocess a source file
+Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
+
+Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.s: Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.s
+
+# target to generate assembly for a file
+Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
+
 Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.o: Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.o
 
@@ -347,6 +413,9 @@ Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pid_only.dir/build.make CMakeFiles/test_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_low_temp_only.dir/build.make CMakeFiles/test_low_temp_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 
 Users/bennet/Desktop/temper/firmware/components/control/pid_control.i: Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
@@ -358,6 +427,9 @@ Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pid_only.dir/build.make CMakeFiles/test_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_low_temp_only.dir/build.make CMakeFiles/test_low_temp_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 
 Users/bennet/Desktop/temper/firmware/components/control/pid_control.s: Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
@@ -369,6 +441,9 @@ Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pid_only.dir/build.make CMakeFiles/test_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_low_temp_only.dir/build.make CMakeFiles/test_low_temp_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 
 Users/bennet/Desktop/temper/firmware/components/control/pll_control.o: Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
@@ -397,6 +472,30 @@ Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
+
+Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.o: Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.o
+
+# target to build an object file
+Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o
+
+Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.i: Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.i
+
+# target to preprocess a source file
+Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i
+
+Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.s: Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.s
+
+# target to generate assembly for a file
+Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s
 
 Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.o: Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.o
@@ -830,6 +929,30 @@ test_adc_guard.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_adc_guard_only.dir/build.make CMakeFiles/test_adc_guard_only.dir/test_adc_guard.c.s
 .PHONY : test_adc_guard.c.s
 
+test_cascade_pid.o: test_cascade_pid.c.o
+.PHONY : test_cascade_pid.o
+
+# target to build an object file
+test_cascade_pid.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/test_cascade_pid.c.o
+.PHONY : test_cascade_pid.c.o
+
+test_cascade_pid.i: test_cascade_pid.c.i
+.PHONY : test_cascade_pid.i
+
+# target to preprocess a source file
+test_cascade_pid.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/test_cascade_pid.c.i
+.PHONY : test_cascade_pid.c.i
+
+test_cascade_pid.s: test_cascade_pid.c.s
+.PHONY : test_cascade_pid.s
+
+# target to generate assembly for a file
+test_cascade_pid.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/test_cascade_pid.c.s
+.PHONY : test_cascade_pid.c.s
+
 test_coil_guard.o: test_coil_guard.c.o
 .PHONY : test_coil_guard.o
 
@@ -877,6 +1000,30 @@ test_fan_guard.s: test_fan_guard.c.s
 test_fan_guard.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_fan_guard_only.dir/build.make CMakeFiles/test_fan_guard_only.dir/test_fan_guard.c.s
 .PHONY : test_fan_guard.c.s
+
+test_integration_cascade_pid.o: test_integration_cascade_pid.c.o
+.PHONY : test_integration_cascade_pid.o
+
+# target to build an object file
+test_integration_cascade_pid.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/test_integration_cascade_pid.c.o
+.PHONY : test_integration_cascade_pid.c.o
+
+test_integration_cascade_pid.i: test_integration_cascade_pid.c.i
+.PHONY : test_integration_cascade_pid.i
+
+# target to preprocess a source file
+test_integration_cascade_pid.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/test_integration_cascade_pid.c.i
+.PHONY : test_integration_cascade_pid.c.i
+
+test_integration_cascade_pid.s: test_integration_cascade_pid.c.s
+.PHONY : test_integration_cascade_pid.s
+
+# target to generate assembly for a file
+test_integration_cascade_pid.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/test_integration_cascade_pid.c.s
+.PHONY : test_integration_cascade_pid.c.s
 
 test_low_temp_control.o: test_low_temp_control.c.o
 .PHONY : test_low_temp_control.o
@@ -953,6 +1100,30 @@ test_main_adc_guard.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_adc_guard_only.dir/build.make CMakeFiles/test_adc_guard_only.dir/test_main_adc_guard.c.s
 .PHONY : test_main_adc_guard.c.s
 
+test_main_cascade_pid.o: test_main_cascade_pid.c.o
+.PHONY : test_main_cascade_pid.o
+
+# target to build an object file
+test_main_cascade_pid.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/test_main_cascade_pid.c.o
+.PHONY : test_main_cascade_pid.c.o
+
+test_main_cascade_pid.i: test_main_cascade_pid.c.i
+.PHONY : test_main_cascade_pid.i
+
+# target to preprocess a source file
+test_main_cascade_pid.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/test_main_cascade_pid.c.i
+.PHONY : test_main_cascade_pid.c.i
+
+test_main_cascade_pid.s: test_main_cascade_pid.c.s
+.PHONY : test_main_cascade_pid.s
+
+# target to generate assembly for a file
+test_main_cascade_pid.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/test_main_cascade_pid.c.s
+.PHONY : test_main_cascade_pid.c.s
+
 test_main_coil_guard.o: test_main_coil_guard.c.o
 .PHONY : test_main_coil_guard.o
 
@@ -1000,6 +1171,30 @@ test_main_fan_guard.s: test_main_fan_guard.c.s
 test_main_fan_guard.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_fan_guard_only.dir/build.make CMakeFiles/test_fan_guard_only.dir/test_main_fan_guard.c.s
 .PHONY : test_main_fan_guard.c.s
+
+test_main_integration_cascade_pid.o: test_main_integration_cascade_pid.c.o
+.PHONY : test_main_integration_cascade_pid.o
+
+# target to build an object file
+test_main_integration_cascade_pid.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/test_main_integration_cascade_pid.c.o
+.PHONY : test_main_integration_cascade_pid.c.o
+
+test_main_integration_cascade_pid.i: test_main_integration_cascade_pid.c.i
+.PHONY : test_main_integration_cascade_pid.i
+
+# target to preprocess a source file
+test_main_integration_cascade_pid.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/test_main_integration_cascade_pid.c.i
+.PHONY : test_main_integration_cascade_pid.c.i
+
+test_main_integration_cascade_pid.s: test_main_integration_cascade_pid.c.s
+.PHONY : test_main_integration_cascade_pid.s
+
+# target to generate assembly for a file
+test_main_integration_cascade_pid.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/test_main_integration_cascade_pid.c.s
+.PHONY : test_main_integration_cascade_pid.c.s
 
 test_main_low_temp.o: test_main_low_temp.c.o
 .PHONY : test_main_low_temp.o
@@ -1193,6 +1388,30 @@ test_main_state_machine.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.s
 .PHONY : test_main_state_machine.c.s
 
+test_main_thermal_mass.o: test_main_thermal_mass.c.o
+.PHONY : test_main_thermal_mass.o
+
+# target to build an object file
+test_main_thermal_mass.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_main_thermal_mass.c.o
+.PHONY : test_main_thermal_mass.c.o
+
+test_main_thermal_mass.i: test_main_thermal_mass.c.i
+.PHONY : test_main_thermal_mass.i
+
+# target to preprocess a source file
+test_main_thermal_mass.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_main_thermal_mass.c.i
+.PHONY : test_main_thermal_mass.c.i
+
+test_main_thermal_mass.s: test_main_thermal_mass.c.s
+.PHONY : test_main_thermal_mass.s
+
+# target to generate assembly for a file
+test_main_thermal_mass.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_main_thermal_mass.c.s
+.PHONY : test_main_thermal_mass.c.s
+
 test_ntc_guard.o: test_ntc_guard.c.o
 .PHONY : test_ntc_guard.o
 
@@ -1367,6 +1586,30 @@ test_state_machine.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/test_state_machine.c.s
 .PHONY : test_state_machine.c.s
 
+test_thermal_mass.o: test_thermal_mass.c.o
+.PHONY : test_thermal_mass.o
+
+# target to build an object file
+test_thermal_mass.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_thermal_mass.c.o
+.PHONY : test_thermal_mass.c.o
+
+test_thermal_mass.i: test_thermal_mass.c.i
+.PHONY : test_thermal_mass.i
+
+# target to preprocess a source file
+test_thermal_mass.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_thermal_mass.c.i
+.PHONY : test_thermal_mass.c.i
+
+test_thermal_mass.s: test_thermal_mass.c.s
+.PHONY : test_thermal_mass.s
+
+# target to generate assembly for a file
+test_thermal_mass.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_thermal_mass.c.s
+.PHONY : test_thermal_mass.c.s
+
 unity/unity.o: unity/unity.c.o
 .PHONY : unity/unity.o
 
@@ -1379,6 +1622,9 @@ unity/unity.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pan_detection_only.dir/build.make CMakeFiles/test_pan_detection_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_adc_guard_only.dir/build.make CMakeFiles/test_adc_guard_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pwm_guard_only.dir/build.make CMakeFiles/test_pwm_guard_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ntc_guard_only.dir/build.make CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.o
@@ -1398,6 +1644,9 @@ unity/unity.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pan_detection_only.dir/build.make CMakeFiles/test_pan_detection_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_adc_guard_only.dir/build.make CMakeFiles/test_adc_guard_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pwm_guard_only.dir/build.make CMakeFiles/test_pwm_guard_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ntc_guard_only.dir/build.make CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.i
@@ -1417,6 +1666,9 @@ unity/unity.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pan_detection_only.dir/build.make CMakeFiles/test_pan_detection_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_adc_guard_only.dir/build.make CMakeFiles/test_adc_guard_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pwm_guard_only.dir/build.make CMakeFiles/test_pwm_guard_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ntc_guard_only.dir/build.make CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.s
@@ -1436,6 +1688,8 @@ help:
 	@echo "... run_tests"
 	@echo "... run_tests_verbose"
 	@echo "... test_adc_guard_only"
+	@echo "... test_cascade_pid_integration_only"
+	@echo "... test_cascade_pid_only"
 	@echo "... test_coil_guard_only"
 	@echo "... test_fan_guard_only"
 	@echo "... test_low_temp_only"
@@ -1447,6 +1701,10 @@ help:
 	@echo "... test_runner"
 	@echo "... test_safety_only"
 	@echo "... test_state_machine_only"
+	@echo "... test_thermal_mass_only"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.i"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.s"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.s"
@@ -1456,6 +1714,9 @@ help:
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/pll_control.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/pll_control.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/pll_control.s"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.o"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.i"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.s"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.s"
@@ -1507,12 +1768,18 @@ help:
 	@echo "... test_adc_guard.o"
 	@echo "... test_adc_guard.i"
 	@echo "... test_adc_guard.s"
+	@echo "... test_cascade_pid.o"
+	@echo "... test_cascade_pid.i"
+	@echo "... test_cascade_pid.s"
 	@echo "... test_coil_guard.o"
 	@echo "... test_coil_guard.i"
 	@echo "... test_coil_guard.s"
 	@echo "... test_fan_guard.o"
 	@echo "... test_fan_guard.i"
 	@echo "... test_fan_guard.s"
+	@echo "... test_integration_cascade_pid.o"
+	@echo "... test_integration_cascade_pid.i"
+	@echo "... test_integration_cascade_pid.s"
 	@echo "... test_low_temp_control.o"
 	@echo "... test_low_temp_control.i"
 	@echo "... test_low_temp_control.s"
@@ -1522,12 +1789,18 @@ help:
 	@echo "... test_main_adc_guard.o"
 	@echo "... test_main_adc_guard.i"
 	@echo "... test_main_adc_guard.s"
+	@echo "... test_main_cascade_pid.o"
+	@echo "... test_main_cascade_pid.i"
+	@echo "... test_main_cascade_pid.s"
 	@echo "... test_main_coil_guard.o"
 	@echo "... test_main_coil_guard.i"
 	@echo "... test_main_coil_guard.s"
 	@echo "... test_main_fan_guard.o"
 	@echo "... test_main_fan_guard.i"
 	@echo "... test_main_fan_guard.s"
+	@echo "... test_main_integration_cascade_pid.o"
+	@echo "... test_main_integration_cascade_pid.i"
+	@echo "... test_main_integration_cascade_pid.s"
 	@echo "... test_main_low_temp.o"
 	@echo "... test_main_low_temp.i"
 	@echo "... test_main_low_temp.s"
@@ -1552,6 +1825,9 @@ help:
 	@echo "... test_main_state_machine.o"
 	@echo "... test_main_state_machine.i"
 	@echo "... test_main_state_machine.s"
+	@echo "... test_main_thermal_mass.o"
+	@echo "... test_main_thermal_mass.i"
+	@echo "... test_main_thermal_mass.s"
 	@echo "... test_ntc_guard.o"
 	@echo "... test_ntc_guard.i"
 	@echo "... test_ntc_guard.s"
@@ -1573,6 +1849,9 @@ help:
 	@echo "... test_state_machine.o"
 	@echo "... test_state_machine.i"
 	@echo "... test_state_machine.s"
+	@echo "... test_thermal_mass.o"
+	@echo "... test_thermal_mass.i"
+	@echo "... test_thermal_mass.s"
 	@echo "... unity/unity.o"
 	@echo "... unity/unity.i"
 	@echo "... unity/unity.s"

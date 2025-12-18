@@ -178,6 +178,39 @@ add_executable(test_pll_only
 target_include_directories(test_pll_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pll_only m)
 
+# Cascade PID tests only
+add_executable(test_cascade_pid_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_cascade_pid.c
+)
+target_include_directories(test_cascade_pid_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_cascade_pid_only m)
+
+# Cascade PID integration tests
+add_executable(test_cascade_pid_integration_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_integration_cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_integration_cascade_pid.c
+)
+target_include_directories(test_cascade_pid_integration_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_cascade_pid_integration_only m)
+
+# Thermal mass estimation tests
+add_executable(test_thermal_mass_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_thermal_mass.c
+)
+target_include_directories(test_thermal_mass_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_thermal_mass_only m)
+
 
 # ADC Guard Tests
 add_executable(test_adc_guard_only
@@ -258,6 +291,9 @@ enable_testing()
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
 add_test(NAME pid_tests COMMAND test_pid_only)
+add_test(NAME cascade_pid_tests COMMAND test_cascade_pid_only)
+add_test(NAME cascade_pid_integration_tests COMMAND test_cascade_pid_integration_only)
+add_test(NAME thermal_mass_tests COMMAND test_thermal_mass_only)
 add_test(NAME low_temp_tests COMMAND test_low_temp_only)
 add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
