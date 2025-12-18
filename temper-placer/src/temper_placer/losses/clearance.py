@@ -110,8 +110,10 @@ class ClearanceLoss(LossFunction):
 
     def _compute_hv_lv_penalty(
         self,
+        positions: Array,
         widths: Array,
         heights: Array,
+        context: LossContext,
     ) -> Array:
         """
         Compute penalty for HV-LV clearance violations using pre-computed indices.
@@ -151,8 +153,10 @@ class ClearanceLoss(LossFunction):
 
     def _compute_rule_penalty_vectorized(
         self,
+        positions: Array,
         widths: Array,
         heights: Array,
+        context: LossContext,
         rule: ClearanceRule,
     ) -> Array:
         """
@@ -290,7 +294,10 @@ class ClearanceLoss(LossFunction):
         # Use jnp.maximum instead of Python max() for JAX compatibility
         progress = epoch / jnp.maximum(total_epochs, 1)
         # Use jnp.where instead of if/else for JAX compatibility
-        return jnp.where(progress < 0.2, 0.5, 1.0)
+        # We need to cast back to float/scalar context for type checker happiness
+        # though JAX will handle the array/scalar interoperability
+        result = jnp.where(progress < 0.2, 0.5, 1.0)
+        return result  # type: ignore
 
 
 def compute_clearance_penalty(

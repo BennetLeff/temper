@@ -320,6 +320,7 @@ def compute_overlap_penalty(
     widths: Array,
     heights: Array,
     margin: float = 0.0,
+    centrality: Optional[Array] = None,
 ) -> Array:
     """
     Standalone function to compute overlap penalty.
@@ -329,9 +330,10 @@ def compute_overlap_penalty(
         widths: (N,) component widths.
         heights: (N,) component heights.
         margin: Additional clearance margin.
+        centrality: Optional centrality weights.
 
     Returns:
         Scalar overlap penalty value.
     """
-    total, _ = _compute_pairwise_overlaps_optimized(positions, widths, heights, margin)
+    total, _ = _compute_pairwise_overlaps_optimized(positions, widths, heights, margin, centrality)
     return total

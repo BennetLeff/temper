@@ -82,6 +82,8 @@ def compute_zone_distance(
 
 
 def compute_zone_membership_penalty(
+    positions: Array,
+    context: LossContext,
     zone_assignments: Optional[Dict[str, str]] = None,
 ) -> Array:
     """
@@ -201,7 +203,8 @@ class ZoneMembershipLoss(LossFunction):
         """
         progress = epoch / jnp.maximum(total_epochs, 1)
         # Start at 3x weight for first 30% of training, then decay to 1x
-        return jnp.where(progress < 0.3, 3.0, 1.0)
+        result = jnp.where(progress < 0.3, 3.0, 1.0)
+        return result  # type: ignore
 
 
 def create_temper_zone_assignments() -> Dict[str, str]:
