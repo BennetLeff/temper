@@ -35,7 +35,8 @@
 # auto-start-daemon: true
 
 # Debounce interval for auto-flush (can also use BEADS_FLUSH_DEBOUNCE)
-# flush-debounce: "5s"
+# Increased to reduce sync loop noise with parallel agents
+flush-debounce: "10s"
 
 # Git branch for beads commits (bd sync will commit to this branch)
 # IMPORTANT: Set this for team projects so all clones use the same sync branch.

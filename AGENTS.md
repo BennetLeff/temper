@@ -410,10 +410,37 @@ git pull           # Get final changes if needed
 #### Rules for Agents
 
 - **ALWAYS use worktrees** for bd tasks - never work directly in main repo on task branches
+- **ALWAYS use `bd --sandbox`** in worktrees - disables daemon and auto-sync to prevent conflicts
 - **ALWAYS run `bd-pause`** before ending a session or switching machines
 - **NEVER delete worktrees** immediately after closing task - wait for PR merge
 - **Use `bd-worktrees`** to see what's currently active
 - **Run `bd-cleanup-worktrees`** periodically (e.g., weekly) to remove old worktrees
+
+#### Sandbox Mode for Parallel Agents
+
+When running multiple agents in worktrees, use **sandbox mode** to prevent sync conflicts:
+
+```bash
+# In worktrees, always use --sandbox flag
+bd --sandbox list
+bd --sandbox show temper-xxx
+bd --sandbox update temper-xxx --status in_progress
+
+# Read-only agents can use --readonly instead
+bd --readonly list
+bd --readonly show temper-xxx
+```
+
+**Why sandbox mode?**
+- Disables daemon RPC communication
+- Disables auto-sync (no file watcher loops)
+- Prevents multiple agents from fighting over the same database
+- Avoids "uncommitted local changes" warning spam
+
+**When to use each mode:**
+- `--sandbox` - For worker agents that may create/update issues
+- `--readonly` - For agents that only read issues (even faster)
+- No flag - Only in the main repo with a single agent
 
 #### Troubleshooting
 

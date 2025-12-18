@@ -77,7 +77,7 @@ The 30-second debounce provides a **transaction window** for batch operations - 
 
 **Protected branches**: Use `bd init --branch beads-metadata` to commit to separate branch. See [docs/PROTECTED_BRANCHES.md](docs/PROTECTED_BRANCHES.md).
 
-**Git worktrees**: Daemon mode NOT supported. Use `bd --no-daemon` for all commands. See [docs/GIT_INTEGRATION.md](docs/GIT_INTEGRATION.md).
+**Git worktrees**: Use `bd --sandbox` for all commands in worktrees. This disables daemon and auto-sync to prevent conflicts when multiple agents work in parallel. See [docs/GIT_INTEGRATION.md](docs/GIT_INTEGRATION.md).
 
 **Merge conflicts**: Rare with hash IDs. If conflicts occur, use `git checkout --theirs/.beads/beads.jsonl` and `bd import`. See [docs/GIT_INTEGRATION.md](docs/GIT_INTEGRATION.md).
 

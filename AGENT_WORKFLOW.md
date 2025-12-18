@@ -67,3 +67,45 @@ Ensure you have the `auto_assign.py` script ready.
 - **Atomic Tasks**: Give workers specific, contained tasks.
 - **Context Passing**: Explicitly mention input files the worker needs to read in the instruction.
 - **Output Verification**: Always read the output file produced by a worker before proceeding.
+
+## Parallel Agent Configuration
+
+When running multiple agents in parallel (e.g., in git worktrees), configure beads to avoid sync conflicts:
+
+### Sandbox Mode (Required for Worktrees)
+
+Worker agents in worktrees **MUST** use sandbox mode:
+
+```bash
+# In any worktree, use --sandbox flag for all bd commands
+bd --sandbox list
+bd --sandbox show temper-xxx
+bd --sandbox update temper-xxx --status in_progress
+bd --sandbox close temper-xxx --reason "Done"
+```
+
+### Read-Only Mode (For Read-Only Agents)
+
+Agents that only need to read issues can use read-only mode:
+
+```bash
+bd --readonly list
+bd --readonly show temper-xxx
+```
+
+### Why This Matters
+
+Without sandbox mode, multiple agents cause:
+- **Sync loop spam**: Daemon detects its own writes, triggers reimport every second
+- **Warning noise**: "Uncommitted local changes detected" warnings flood logs
+- **Database conflicts**: Multiple agents fighting over the same SQLite database
+- **Git conflicts**: Auto-sync commits colliding between worktrees
+
+### Configuration Reference
+
+The main repo's `.beads/config.yaml` has debounce settings:
+```yaml
+flush-debounce: "10s"  # Reduces sync frequency
+```
+
+For worker agents, always pass `--sandbox` to disable daemon entirely.
