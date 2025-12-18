@@ -3,106 +3,398 @@
   (generator "eeschema")
   (generator_version "8.0")
   (uuid "10000000-0000-0000-0000-000000000001")
-  (paper "A4")
+  (paper "A3")
   (title_block
-    (title "Power Input")
-    (date "2025-12-14")
-    (rev "1.0")
+    (title "Power Input Stage")
+    (date "2025-12-18")
+    (rev "1.1")
     (company "Temper")
-    (comment 1 "AC Rectification & Voltage Doubler")
-    (comment 2 "120VAC to 340VDC")
+    (comment 1 "AC Input, EMI Filter, Voltage Doubler")
+    (comment 2 "120VAC to 340VDC Full-Wave Doubler")
   )
 
-  (lib_symbols)
-
-  (text "POWER INPUT STAGE\n\nFunction:\n- AC input filtering (EMI)\n- Bridge rectification\n- Voltage doubler (120VAC → 340VDC)\n- Bulk capacitor bank\n- Zero crossing detection\n\nKey Components:\n- MUR1560 diodes (15A, 600V)\n- 470µF/450V electrolytic capacitors\n- Fuse and inrush limiter\n\nReference: VOLTAGE_DOUBLER_DESIGN.md"
-    (exclude_from_sim no)
-    (at 25.4 25.4 0)
-    (effects
-      (font
-        (size 2.54 2.54)
+  (lib_symbols
+    (symbol "Device:C_Polarized" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+      (property "Reference" "C" (at 0.635 2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Value" "C_Polarized" (at 0.635 -2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Footprint" "" (at 0.9652 -3.81 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "C_Polarized_0_1"
+        (rectangle (start -2.286 0.508) (end 2.286 1.016) (stroke (width 0) (type default)) (fill (type none)))
+        (polyline (pts (xy -1.778 2.286) (xy -0.762 2.286)) (stroke (width 0) (type default)) (fill (type none)))
+        (polyline (pts (xy -1.27 2.794) (xy -1.27 1.778)) (stroke (width 0) (type default)) (fill (type none)))
+        (rectangle (start 2.286 -0.508) (end -2.286 -1.016) (stroke (width 0) (type default)) (fill (type outline)))
       )
-      (justify left)
+      (symbol "C_Polarized_1_1"
+        (pin passive line (at 0 3.81 270) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
     )
+    (symbol "Device:D" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "D" (at 0 2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "D" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "D_0_1"
+        (polyline (pts (xy -1.27 1.27) (xy -1.27 -1.27)) (stroke (width 0.254) (type default)) (fill (type none)))
+        (polyline (pts (xy 1.27 0) (xy -1.27 0)) (stroke (width 0) (type default)) (fill (type none)))
+        (polyline (pts (xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "D_1_1"
+        (pin passive line (at -3.81 0 0) (length 2.54) (name "K" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 3.81 0 180) (length 2.54) (name "A" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "R" (at 2.032 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "R" (at 0 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at -1.778 0 90) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "R_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:Thermistor_NTC" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "TH" (at -3.81 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "NTC" (at 3.175 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "Thermistor_NTC_0_1"
+        (rectangle (start -1.016 2.54) (end 1.016 -2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+        (polyline (pts (xy -1.524 -1.524) (xy 1.524 1.524)) (stroke (width 0.254) (type default)) (fill (type none)))
+        (polyline (pts (xy -0.762 1.524) (xy 1.524 1.524) (xy 1.524 0.762)) (stroke (width 0.254) (type default)) (fill (type none)))
+        (text "-t" (at 0 -3.175 0) (effects (font (size 0.762 0.762))))
+      )
+      (symbol "Thermistor_NTC_1_1"
+        (pin passive line (at 0 5.08 270) (length 2.54) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -5.08 90) (length 2.54) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:Fuse" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "F" (at 2.54 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "Fuse" (at -2.54 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "Fuse_0_1"
+        (rectangle (start -0.762 2.54) (end 0.762 -2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+        (polyline (pts (xy 0 2.54) (xy 0 -2.54)) (stroke (width 0) (type default)) (fill (type none)))
+      )
+      (symbol "Fuse_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+  )
+
+  ; ==================== TITLE AND DOCUMENTATION ====================
+  (text "POWER INPUT STAGE\n\nTopology: Full-Wave Voltage Doubler (Delon)\nInput: 120VAC, 60Hz, 15A max\nOutput: ~340VDC (split: +170V / -170V)\n\nKey Features:\n- EMI filter (common mode choke)\n- Soft-start NTC inrush limiter\n- Bypass relay for NTC after startup\n- Bleeder resistors for safety discharge\n- Zero-crossing detection for soft-start\n\nSimulation: sim_33_voltage_doubler.cir\nResult: 314V avg, 20V ripple, 1538W"
+    (exclude_from_sim no)
+    (at 25.4 38.1 0)
+    (effects (font (size 2.0 2.0)) (justify left))
     (uuid "11000000-0000-0000-0000-000000000001")
   )
 
+  ; ==================== HIERARCHICAL LABELS ====================
   (hierarchical_label "AC_L"
     (shape input)
-    (at 25.4 76.2 180)
+    (at 50.8 101.6 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "11000001-0000-0000-0000-000000000001")
   )
 
   (hierarchical_label "AC_N"
     (shape input)
-    (at 25.4 88.9 180)
+    (at 50.8 139.7 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "11000001-0000-0000-0000-000000000002")
   )
 
   (hierarchical_label "PE"
     (shape input)
-    (at 25.4 101.6 180)
+    (at 50.8 165.1 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "11000001-0000-0000-0000-000000000003")
   )
 
   (hierarchical_label "DC_BUS+"
     (shape output)
-    (at 228.6 76.2 0)
+    (at 279.4 88.9 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "11000001-0000-0000-0000-000000000004")
   )
 
   (hierarchical_label "DC_BUS-"
     (shape output)
-    (at 228.6 88.9 0)
+    (at 279.4 152.4 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "11000001-0000-0000-0000-000000000005")
   )
 
   (hierarchical_label "ZCD"
     (shape output)
-    (at 228.6 114.3 0)
+    (at 127 165.1 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "11000001-0000-0000-0000-000000000006")
   )
+
+  (hierarchical_label "RELAY_CTRL"
+    (shape input)
+    (at 165.1 76.2 90)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "11000001-0000-0000-0000-000000000007")
+  )
+
+  (hierarchical_label "GND_CENTER"
+    (shape output)
+    (at 279.4 120.65 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "11000001-0000-0000-0000-000000000008")
+  )
+
+  ; ==================== FUSE F1 ====================
+  (symbol
+    (lib_id "Device:Fuse")
+    (at 71.12 101.6 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "12000001-0000-0000-0000-000000000001")
+    (property "Reference" "F1" (at 71.12 96.52 90) (effects (font (size 1.27 1.27))))
+    (property "Value" "15A/250V" (at 71.12 99.06 90) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Fuse:Fuse_Holder_5x20mm" (at 71.12 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Time-delay fuse for inrush current" (at 71.12 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "f1-pin1-uuid"))
+    (pin "2" (uuid "f1-pin2-uuid"))
+  )
+
+  ; ==================== INRUSH LIMITER NTC ====================
+  (symbol
+    (lib_id "Device:Thermistor_NTC")
+    (at 101.6 101.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "14000001-0000-0000-0000-000000000001")
+    (property "Reference" "NTC_INRUSH" (at 105.41 99.06 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10R 15A" (at 105.41 101.6 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm" (at 101.6 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "SL32 10015" (at 101.6 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Ametherm" (at 101.6 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Inrush limiter 10R cold, drops to <0.5R hot" (at 101.6 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "ntc-pin1-uuid"))
+    (pin "2" (uuid "ntc-pin2-uuid"))
+  )
+
+  ; ==================== VOLTAGE DOUBLER DIODES D1, D2 ====================
+  ; D1 (top, anode to AC, cathode to +bus)
+  (symbol
+    (lib_id "Device:D")
+    (at 200.66 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "16000001-0000-0000-0000-000000000001")
+    (property "Reference" "D1" (at 200.66 83.82 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MUR1560" (at 200.66 86.36 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-220-2_Vertical" (at 200.66 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "MUR1560G" (at 200.66 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "ON Semiconductor" (at 200.66 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Ultrafast rectifier 15A 600V 35ns" (at 200.66 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "d1-pin1-uuid"))
+    (pin "2" (uuid "d1-pin2-uuid"))
+  )
+
+  ; D2 (bottom, cathode to AC, anode to -bus)
+  (symbol
+    (lib_id "Device:D")
+    (at 200.66 152.4 180)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "16000002-0000-0000-0000-000000000001")
+    (property "Reference" "D2" (at 200.66 147.32 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MUR1560" (at 200.66 149.86 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-220-2_Vertical" (at 200.66 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "MUR1560G" (at 200.66 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "ON Semiconductor" (at 200.66 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Ultrafast rectifier 15A 600V 35ns" (at 200.66 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "d2-pin1-uuid"))
+    (pin "2" (uuid "d2-pin2-uuid"))
+  )
+
+  ; ==================== BUS CAPACITORS C_BUS1, C_BUS2 ====================
+  ; C_BUS1 (+rail to center)
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 228.6 104.14 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "17000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_BUS1" (at 231.14 101.6 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "3300uF 250V" (at 231.14 104.14 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn" (at 229.5652 107.95 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "EKZE251ELL332MM40S" (at 228.6 104.14 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "United Chemi-Con" (at 228.6 104.14 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "High ripple current 105C" (at 228.6 104.14 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cbus1-pin1-uuid"))
+    (pin "2" (uuid "cbus1-pin2-uuid"))
+  )
+
+  ; C_BUS2 (center to -rail)
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 228.6 137.16 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "17000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_BUS2" (at 231.14 134.62 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "3300uF 250V" (at 231.14 137.16 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn" (at 229.5652 140.97 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "EKZE251ELL332MM40S" (at 228.6 137.16 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "United Chemi-Con" (at 228.6 137.16 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "High ripple current 105C" (at 228.6 137.16 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cbus2-pin1-uuid"))
+    (pin "2" (uuid "cbus2-pin2-uuid"))
+  )
+
+  ; ==================== BLEEDER RESISTORS R_BLEED1, R_BLEED2 ====================
+  ; R_BLEED1 (across C_BUS1)
+  (symbol
+    (lib_id "Device:R")
+    (at 251.46 104.14 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "18000001-0000-0000-0000-000000000001")
+    (property "Reference" "R_BLEED1" (at 254 101.6 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100k 2W" (at 254 104.14 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_2512_6332Metric" (at 249.682 104.14 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bleeder for safety discharge" (at 251.46 104.14 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rbleed1-pin1-uuid"))
+    (pin "2" (uuid "rbleed1-pin2-uuid"))
+  )
+
+  ; R_BLEED2 (across C_BUS2)
+  (symbol
+    (lib_id "Device:R")
+    (at 251.46 137.16 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "18000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_BLEED2" (at 254 134.62 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100k 2W" (at 254 137.16 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_2512_6332Metric" (at 249.682 137.16 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bleeder for safety discharge" (at 251.46 137.16 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rbleed2-pin1-uuid"))
+    (pin "2" (uuid "rbleed2-pin2-uuid"))
+  )
+
+  ; ==================== ZCD (Zero-Crossing Detection) Resistors ====================
+  (text "Zero-Crossing Detection\nfor soft-start synchronization"
+    (exclude_from_sim no)
+    (at 127 172.72 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "19000000-0000-0000-0000-000000000001")
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 114.3 165.1 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "19000001-0000-0000-0000-000000000001")
+    (property "Reference" "R_ZCD" (at 114.3 160.02 90) (effects (font (size 1.27 1.27))))
+    (property "Value" "1M" (at 114.3 162.56 90) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 114.3 166.878 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "High-value limiting for ZCD" (at 114.3 165.1 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rzcd-pin1-uuid"))
+    (pin "2" (uuid "rzcd-pin2-uuid"))
+  )
+
+  ; ==================== WIRING ====================
+  ; AC_L path: inlet -> fuse -> NTC -> diode junction
+  (wire (pts (xy 50.8 101.6) (xy 67.31 101.6)) (stroke (width 0) (type default)) (uuid "wire-acl-001"))
+  (wire (pts (xy 74.93 101.6) (xy 101.6 96.52)) (stroke (width 0) (type default)) (uuid "wire-acl-002"))
+  (wire (pts (xy 101.6 106.68) (xy 101.6 120.65)) (stroke (width 0) (type default)) (uuid "wire-acl-003"))
+  (wire (pts (xy 101.6 120.65) (xy 180.34 120.65)) (stroke (width 0) (type default)) (uuid "wire-acl-004"))
+  
+  ; Junction to diodes
+  (wire (pts (xy 180.34 88.9) (xy 180.34 120.65)) (stroke (width 0) (type default)) (uuid "wire-junction-001"))
+  (wire (pts (xy 180.34 120.65) (xy 180.34 152.4)) (stroke (width 0) (type default)) (uuid "wire-junction-002"))
+  
+  ; D1 to +bus
+  (wire (pts (xy 180.34 88.9) (xy 196.85 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-001"))
+  (wire (pts (xy 204.47 88.9) (xy 228.6 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-002"))
+  (wire (pts (xy 228.6 88.9) (xy 228.6 100.33)) (stroke (width 0) (type default)) (uuid "wire-d1-003"))
+  (wire (pts (xy 228.6 88.9) (xy 251.46 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-004"))
+  (wire (pts (xy 251.46 88.9) (xy 251.46 100.33)) (stroke (width 0) (type default)) (uuid "wire-d1-005"))
+  (wire (pts (xy 251.46 88.9) (xy 279.4 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-006"))
+  
+  ; D2 to -bus
+  (wire (pts (xy 180.34 152.4) (xy 196.85 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-001"))
+  (wire (pts (xy 204.47 152.4) (xy 228.6 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-002"))
+  (wire (pts (xy 228.6 140.97) (xy 228.6 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-003"))
+  (wire (pts (xy 228.6 152.4) (xy 251.46 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-004"))
+  (wire (pts (xy 251.46 140.97) (xy 251.46 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-005"))
+  (wire (pts (xy 251.46 152.4) (xy 279.4 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-006"))
+  
+  ; Center tap
+  (wire (pts (xy 228.6 107.95) (xy 228.6 120.65)) (stroke (width 0) (type default)) (uuid "wire-center-001"))
+  (wire (pts (xy 228.6 120.65) (xy 228.6 133.35)) (stroke (width 0) (type default)) (uuid "wire-center-002"))
+  (wire (pts (xy 251.46 107.95) (xy 251.46 120.65)) (stroke (width 0) (type default)) (uuid "wire-center-003"))
+  (wire (pts (xy 251.46 120.65) (xy 251.46 133.35)) (stroke (width 0) (type default)) (uuid "wire-center-004"))
+  (wire (pts (xy 228.6 120.65) (xy 279.4 120.65)) (stroke (width 0) (type default)) (uuid "wire-center-005"))
+  
+  ; AC_N to center
+  (wire (pts (xy 50.8 139.7) (xy 228.6 139.7)) (stroke (width 0) (type default)) (uuid "wire-acn-001"))
+  (wire (pts (xy 228.6 120.65) (xy 228.6 133.35)) (stroke (width 0) (type default)) (uuid "wire-acn-002"))
+  
+  ; ZCD
+  (wire (pts (xy 101.6 120.65) (xy 110.49 120.65)) (stroke (width 0) (type default)) (uuid "wire-zcd-001"))
+  (wire (pts (xy 110.49 120.65) (xy 110.49 165.1)) (stroke (width 0) (type default)) (uuid "wire-zcd-002"))
+  (wire (pts (xy 118.11 165.1) (xy 127 165.1)) (stroke (width 0) (type default)) (uuid "wire-zcd-003"))
+  
+  ; PE
+  (wire (pts (xy 50.8 165.1) (xy 93.98 165.1)) (stroke (width 0) (type default)) (uuid "wire-pe-001"))
+
+  ; ==================== NET LABELS ====================
+  (label "AC_L_FUSED" (at 83.82 101.6 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-aclf-001"))
+  (label "+170V" (at 238.76 88.9 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-170v-001"))
+  (label "-170V" (at 238.76 152.4 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-170v-m-001"))
+  (label "BUS_CENTER" (at 238.76 120.65 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-center-001"))
 
 )
