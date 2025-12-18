@@ -705,22 +705,31 @@ def train(
             # Every 10 epochs, check for persistent collisions and ramp weights
             if config.adaptive_overlap_enabled and epoch % 10 == 0:
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
-                if per_comp_overlap is not None:
-                    # If component is in collision (>0.1 overlap score)
-                    collision_mask = per_comp_overlap > 0.1
-                    # Increment weight by 5%
+                per_comp_boundary = loss_breakdown_arrays.get("boundary_per_component")
+                
+                if per_comp_overlap is not None or per_comp_boundary is not None:
+                    # Initialize mask
+                    violation_mask = jnp.zeros(state.overlap_weights.shape, dtype=jnp.bool_)
+                    
+                    if per_comp_overlap is not None:
+                        violation_mask = jnp.logical_or(violation_mask, per_comp_overlap > 0.1)
+                    
+                    if per_comp_boundary is not None:
+                        violation_mask = jnp.logical_or(violation_mask, per_comp_boundary > 0.1)
+                        
+                    # Increment weight by 10% for any violation
                     state.overlap_weights = jnp.where(
-                        collision_mask,
-                        state.overlap_weights * 1.05,
+                        violation_mask,
+                        state.overlap_weights * 1.10,
                         state.overlap_weights
                     )
-                    # Cap at 20x
-                    state.overlap_weights = jnp.minimum(state.overlap_weights, 20.0)
+                    # Cap at 50x
+                    state.overlap_weights = jnp.minimum(state.overlap_weights, 50.0)
 
                     # Decouple cleared components?
-                    # Optionally slowly decay weights for non-colliding components
+                    # Optionally slowly decay weights for non-violating components
                     state.overlap_weights = jnp.where(
-                        ~collision_mask,
+                        ~violation_mask,
                         jnp.maximum(1.0, state.overlap_weights * 0.99),
                         state.overlap_weights
                     )
@@ -929,6 +938,7 @@ def train_multiphase(
     # Track current phase for re-creating loss function
     current_phase_idx = -1
     composite_loss: CompositeLoss | None = None
+    train_step = None
 
     # Optional: Enable JAX profiler
     profile_ctx = (
@@ -946,13 +956,20 @@ def train_multiphase(
                 if phase.start_epoch <= epoch < phase.end_epoch:
                     new_phase_idx = i
                     break
+            
+            # Special case: if we aren't in any phase, use default weights or the first phase
+            if new_phase_idx == -1 and config.curriculum_phases:
+                new_phase_idx = 0
 
-            # Recreate loss and optimizer if phase changed
-            if new_phase_idx != current_phase_idx:
+            # Recreate loss and optimizer if phase changed or not yet initialized
+            if new_phase_idx != current_phase_idx or composite_loss is None:
                 current_phase_idx = new_phase_idx
 
                 # Get current weights
-                weights = get_curriculum_weights(epoch, config.curriculum_phases, default_weights)
+                if config.curriculum_phases:
+                    weights = get_curriculum_weights(epoch, config.curriculum_phases, default_weights)
+                else:
+                    weights = default_weights
 
                 # Create new composite loss
                 composite_loss = loss_factory(weights)
@@ -1002,6 +1019,9 @@ def train_multiphase(
                 rotations = sample_rotation_batch(state.rotation_logits, sample_key, 1e-5)
 
             # Run training step (returns breakdown alongside loss to avoid recomputation)
+            if train_step is None:
+                raise RuntimeError(f"train_step not initialized at epoch {epoch}. Check curriculum phases.")
+
             (
                 new_positions,
                 new_rotation_logits,

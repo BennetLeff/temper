@@ -43,7 +43,7 @@ from temper_placer.losses import (
     WirelengthLoss,
     SpreadLoss,
 )
-from temper_placer.optimizer import train, OptimizerConfig
+from temper_placer.optimizer import train, OptimizerConfig, InitializationConfig
 from temper_placer.optimizer.config import LearningRateSchedule
 
 # Projects to test against
@@ -121,6 +121,9 @@ class TestGroundTruthComparison:
         assert result.board is not None, "Failed to parse board"
         netlist = result.netlist
         board = result.board
+        print(f"\n{project_name} Board Geometry:")
+        print(f"  Origin: ({board.origin[0]:.2f}, {board.origin[1]:.2f})")
+        print(f"  Size:   {board.width:.2f} x {board.height:.2f}")
 
         # Create state from original positions
         human_positions = jnp.array([c.initial_position for c in netlist.components])
@@ -132,7 +135,10 @@ class TestGroundTruthComparison:
         )
 
         human_metrics = self.calculate_metrics(netlist, board, human_state)
-        print(f"\n{project_name} Human Baseline Wirelength: {human_metrics['wirelength']:.4f}")
+        print(f"\n{project_name} Human Baseline Metrics:")
+        print(f"  Wirelength: {human_metrics['wirelength']:.4f}")
+        print(f"  Overlap:    {human_metrics['overlap']:.4f}")
+        print(f"  Boundary:   {human_metrics['boundary']:.4f}")
 
         # 2. Run Optimizer with improved settings for better convergence
         # Use much higher weights for hard constraints to eliminate violations
@@ -149,6 +155,7 @@ class TestGroundTruthComparison:
         config = OptimizerConfig(
             epochs=2000,  # Significantly more epochs for convergence
             seed=42,
+            initialization=InitializationConfig(method="spectral"),
             learning_rate=LearningRateSchedule(initial=0.1, final=0.01),
         )
 
@@ -192,17 +199,18 @@ class TestGroundTruthComparison:
         # Run Optimizer with very heavy penalties for hard constraints
         composite_loss = CompositeLoss(
             [
-                WeightedLoss(OverlapLoss(), weight=10000.0),  # Very hard constraint
-                WeightedLoss(BoundaryLoss(), weight=10000.0),  # Very hard constraint
-                WeightedLoss(WirelengthLoss(), weight=10.0),  # Moderate weight
+                WeightedLoss(OverlapLoss(), weight=5000.0),
+                WeightedLoss(BoundaryLoss(edge_margin=0.5), weight=5000.0),
+                WeightedLoss(WirelengthLoss(), weight=10.0),
             ]
         )
 
         context = LossContext.from_netlist_and_board(netlist, board)
         config = OptimizerConfig(
-            epochs=2000,  # More epochs for better convergence
+            epochs=8000,
             seed=42,
-            learning_rate=LearningRateSchedule(initial=0.1, final=0.01),
+            initialization=InitializationConfig(method="random"),
+            learning_rate=LearningRateSchedule(initial=0.05, final=0.001),
         )
 
         opt_result = train(
@@ -214,16 +222,14 @@ class TestGroundTruthComparison:
         )
 
         metrics = self.calculate_metrics(netlist, board, opt_result.final_state)
+        print(f"\n{project_name} Optimizer Metrics:")
+        print(f"  Overlap:  {metrics['overlap']:.4f}")
+        print(f"  Boundary: {metrics['boundary']:.4f}")
 
-        # Realistic thresholds based on human baseline analysis
-        # Human baselines often have significant violations (piantor_left: overlap=276, boundary=272)
-        # Optimizer should significantly improve over human baseline
-        human_baseline_overlap = 276.32  # From piantor_left baseline
-        human_baseline_boundary = 272.45  # From piantor_left baseline
-
-        # Optimizer should achieve <30% of human baseline violations (realistic target)
-        overlap_threshold = human_baseline_overlap * 0.3  # ~83
-        boundary_threshold = human_baseline_boundary * 0.3  # ~82
+        # Optimizer should achieve low violations (realistic target)
+        # Note: Some boards (piantor) have complex shapes that exceed bounding box model
+        overlap_threshold = 10.0
+        boundary_threshold = 20.0
 
         assert metrics["overlap"] < overlap_threshold, (
             f"Overlap too high: {metrics['overlap']} > {overlap_threshold}"
