@@ -317,3 +317,14 @@ add_custom_target(run_tests_verbose
     DEPENDS test_runner test_state_machine_only test_pid_only test_safety_only test_integration_only
     COMMENT "Running all tests with verbose output..."
 )
+
+# UI Tests
+add_executable(test_ui_only
+    ${UNITY_SOURCES}
+    test_main_ui.c
+    test_ui.c
+    ../main/ui.c
+    ../components/hal/mock/hal_encoder_mock.c
+)
+target_include_directories(test_ui_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_ui_only m)

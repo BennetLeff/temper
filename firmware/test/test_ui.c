@@ -1,0 +1,74 @@
+#include "unity.h"
+#include "ui.h"
+#include "hal_encoder.h"
+#include "state_machine.h"
+
+// Mock functions
+extern void hal_encoder_mock_set_count(int32_t count);
+extern void hal_encoder_mock_set_button(bool pressed);
+
+static uint32_t mock_tick_ms = 0;
+uint32_t hal_get_tick_ms(void) { return mock_tick_ms; }
+
+static float last_target_temp = 0;
+void state_machine_set_target_temp(float temp) { last_target_temp = temp; }
+
+static system_state_t current_system_state = STATE_IDLE;
+system_state_t state_machine_get_state(void) { return current_system_state; }
+
+static system_state_t last_forced_state = STATE_INIT;
+void state_machine_force_state(system_state_t s) { last_forced_state = s; }
+
+void state_machine_set_intensity(uint8_t level) {}
+
+void setUp(void) {
+    mock_tick_ms = 0;
+    ui_init();
+    hal_encoder_mock_set_count(0);
+    hal_encoder_mock_set_button(false);
+}
+
+void tearDown(void) {}
+
+void test_ui_init(void) {
+    TEST_ASSERT_EQUAL(UI_STATE_NORMAL, ui_get_state());
+}
+
+void test_ui_temperature_adjustment(void) {
+    // Start at 100C
+    hal_encoder_mock_set_count(5); // +5 clicks
+    ui_update();
+    
+    TEST_ASSERT_EQUAL_FLOAT(105.0f, last_target_temp);
+    
+    hal_encoder_mock_set_count(3); // -2 delta from last 5
+    ui_update();
+    TEST_ASSERT_EQUAL_FLOAT(103.0f, last_target_temp);
+}
+
+void test_ui_settings_transition(void) {
+    // Simulate long press
+    hal_encoder_mock_set_button(true);
+    ui_update();
+    
+    mock_tick_ms += 2100; // > 2000ms
+    hal_encoder_mock_set_button(false);
+    ui_update();
+    
+    TEST_ASSERT_EQUAL(UI_STATE_SETTINGS, ui_get_state());
+}
+
+void test_ui_menu_cycling(void) {
+    // Go to settings
+    test_ui_settings_transition();
+    
+    TEST_ASSERT_EQUAL(SETTING_TEMP, ui_get_selected_setting());
+    
+    hal_encoder_mock_set_count(1); // +1 click
+    ui_update();
+    TEST_ASSERT_EQUAL(SETTING_INTENSITY, ui_get_selected_setting());
+    
+    hal_encoder_mock_set_count(2); // +1 click
+    ui_update();
+    TEST_ASSERT_EQUAL(SETTING_TIMER, ui_get_selected_setting());
+}
