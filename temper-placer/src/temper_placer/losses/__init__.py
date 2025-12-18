@@ -179,6 +179,11 @@ from temper_placer.losses.net_class import (
     NetClassRule,
 )
 
+# Planarity loss
+from temper_placer.losses.planarity import (
+    EdgeCrossingLoss,
+)
+
 # Noise isolation loss
 from temper_placer.losses.noise_isolation import (
     NoiseSensitiveIsolationLoss,
@@ -253,6 +258,7 @@ __all__ = [
     "NetClassSeparationLoss",
     "create_net_class_loss",
     "NetClassRule",
+    "EdgeCrossingLoss",
     "NoiseSensitiveIsolationLoss",
     "CrystalPlacementLoss",
     "create_crystal_loss",
