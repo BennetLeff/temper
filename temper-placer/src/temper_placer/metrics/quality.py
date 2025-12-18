@@ -416,6 +416,76 @@ def compactness_score(
     return min(1.0, utilization)
 
 
+def connectivity_clustering_score(
+    state: PlacementState,
+    netlist: Netlist,
+    context: LossContext,
+) -> float:
+    """
+    Score connectivity clustering (0-1, higher is better).
+
+    Measures how well-clustered connected components are. For each net,
+    computes the ratio of actual pin bounding box area to the minimum
+    possible area (sum of component areas on that net).
+
+    Args:
+        state: Current placement state.
+        netlist: Design netlist.
+        context: Pre-computed loss context.
+
+    Returns:
+        Score in [0, 1] where 1.0 = perfectly clustered, 0.0 = spread out.
+    """
+    if not netlist.nets:
+        return 1.0
+
+    positions = state.positions
+    total_score = 0.0
+    count = 0
+
+    # We use the pre-computed net pin indices from context for efficiency
+    # net_pin_indices: (M, P)
+    # net_pin_mask: (M, P)
+    for i in range(context.net_pin_indices.shape[0]):
+        indices = context.net_pin_indices[i]
+        mask = context.net_pin_mask[i]
+        
+        # Filter valid pins
+        valid_indices = indices[mask]
+        if len(valid_indices) < 2:
+            continue
+            
+        # Get positions of components in this net
+        net_comp_positions = positions[valid_indices]
+        
+        # Compute actual bounding box of component centers
+        x_min = jnp.min(net_comp_positions[:, 0])
+        x_max = jnp.max(net_comp_positions[:, 0])
+        y_min = jnp.min(net_comp_positions[:, 1])
+        y_max = jnp.max(net_comp_positions[:, 1])
+        
+        # Add half-widths/heights to get component-aware bounding box
+        net_components = [netlist.components[idx] for idx in valid_indices.tolist()]
+        max_hw = max(c.width / 2 for c in net_components)
+        max_hh = max(c.height / 2 for c in net_components)
+        
+        bbox_width = (x_max - x_min) + 2 * max_hw
+        bbox_height = (y_max - y_min) + 2 * max_hh
+        actual_area = bbox_width * bbox_height
+        
+        # Compute minimum possible area (sum of component areas)
+        min_possible_area = sum(c.width * c.height for c in net_components)
+        
+        # Clustering ratio: min_area / actual_area (1.0 = optimal)
+        # We take max(min_possible_area, actual_area) to avoid > 1.0 due to overlaps
+        if actual_area > 0:
+            ratio = min_possible_area / max(actual_area, min_possible_area)
+            total_score += float(ratio)
+            count += 1
+
+    return total_score / count if count > 0 else 1.0
+
+
 def compute_quality_report(
     state: PlacementState,
     netlist: Netlist,
@@ -448,6 +518,7 @@ def compute_quality_report(
         - loop_area_score: float [0, 1]
         - congestion_score: float [0, 1]
         - compactness_score: float [0, 1]
+        - connectivity_clustering_score: float [0, 1]
         - overall_score: float [0, 1] (weighted average)
     """
     # Extract config
@@ -466,10 +537,11 @@ def compute_quality_report(
     loop = loop_area_score(state, netlist, context, loop_comps)
     congestion = congestion_score(state, netlist, board, context)
     compact = compactness_score(state, netlist, board)
+    clustering = connectivity_clustering_score(state, netlist, context)
 
     # Compute overall score (equal weighting of normalized scores)
     # Note: wirelength is not included since it's not normalized
-    normalized_scores = [thermal, zone, clearance, loop, congestion, compact]
+    normalized_scores = [thermal, zone, clearance, loop, congestion, compact, clustering]
     overall = sum(normalized_scores) / len(normalized_scores)
 
     return {
@@ -480,5 +552,6 @@ def compute_quality_report(
         "loop_area_score": loop,
         "congestion_score": congestion,
         "compactness_score": compact,
+        "connectivity_clustering_score": clustering,
         "overall_score": overall,
     }
