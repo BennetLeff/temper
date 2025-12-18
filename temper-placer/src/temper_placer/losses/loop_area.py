@@ -53,8 +53,7 @@ avoiding Python loops that would cause recompilation on every call.
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
+from typing import List, Optional, Tuple, cast
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -308,13 +307,19 @@ class LoopAreaLoss(LossFunction):
 
         Returns full weight after 40% of training.
         """
-        progress = epoch / max(total_epochs, 1)
-        if progress < 0.4:
-            return 0.0
-        elif progress < 0.6:
-            # Ramp up
-            return (progress - 0.4) / 0.2
-        return 1.0
+        progress = epoch / jnp.maximum(total_epochs, 1)
+        
+        # Use jnp.where to be JAX-compatible (avoid Python if/else on tracers)
+        weight = jnp.where(
+            progress < 0.4,
+            0.0,
+            jnp.where(
+                progress < 0.6,
+                (progress - 0.4) / 0.2,
+                1.0
+            )
+        )
+        return cast(float, weight)
 
 
 def compute_loop_area_penalty(
