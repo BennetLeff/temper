@@ -35,6 +35,7 @@ from temper_placer.losses.types import (
     LossResult,
     MatchedLengthConstraint,
     MountingRule,
+    NoiseIsolationConstraint,
     ThermalConstraint,
 )
 
@@ -134,12 +135,12 @@ class LossContext(BaseLossContext):
         # Pre-compute critical path arrays
         path_constraints = path_constraints or []
         matched_groups = matched_groups or []
+        noise_isolation_constraints = []
 
         # If constraints object provided, extract critical paths
         if constraints:
             for pc in constraints.critical_paths:
-                # Convert CriticalPath to CriticalPathConstraint
-                # (Assuming pins are handled properly if pins is None)
+                # ... existing pc logic ...
                 from_pin = (pc.from_comp, pc.pins[0]) if pc.pins else (pc.from_comp, "1")
                 to_pin = (pc.to_comp, pc.pins[1]) if pc.pins else (pc.to_comp, "1")
                 
@@ -157,7 +158,7 @@ class LossContext(BaseLossContext):
             
             # Map matched length groups
             for mlg in constraints.matched_length_groups:
-                # Find indices of paths in this group
+                # ... existing mlg logic ...
                 p_indices = [
                     i for i, p in enumerate(path_constraints)
                     if p.matched_group == mlg.name
@@ -168,6 +169,32 @@ class LossContext(BaseLossContext):
                         path_indices=tuple(p_indices),
                         tolerance=mlg.tolerance_mm,
                         weight=1.0 # Default
+                    ))
+
+            # Map noise isolation rules
+            import fnmatch
+            all_refs = [c.ref for c in netlist.components]
+            
+            for rule in constraints.noise_isolation:
+                # Expand globs for sensitive components
+                sensitive = []
+                for pattern in rule.sensitive_components:
+                    matches = fnmatch.filter(all_refs, pattern)
+                    sensitive.extend([netlist.get_component_index(m) for m in matches])
+                
+                # Expand globs for noise sources
+                sources = []
+                for pattern in rule.noise_sources:
+                    matches = fnmatch.filter(all_refs, pattern)
+                    sources.extend([netlist.get_component_index(m) for m in matches])
+                
+                if sensitive and sources:
+                    noise_isolation_constraints.append(NoiseIsolationConstraint(
+                        name=rule.name,
+                        sensitive_indices=tuple(sorted(list(set(sensitive)))),
+                        noise_source_indices=tuple(sorted(list(set(sources)))),
+                        min_distance=rule.min_distance_mm,
+                        weight=rule.weight
                     ))
 
         path_pin_indices, path_pin_offsets, path_max_lengths, path_weights = (
@@ -211,6 +238,7 @@ class LossContext(BaseLossContext):
             path_max_lengths=path_max_lengths,
             path_weights=path_weights,
             matched_groups=matched_groups or [],
+            noise_isolation_constraints=noise_isolation_constraints,
             net_class_indices=net_class_indices,
             centrality=centrality if use_centrality_weighting else jnp.array([]),
         )

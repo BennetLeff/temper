@@ -44,6 +44,16 @@ class MatchedLengthConstraint:
 
 
 @dataclass(frozen=True)
+class NoiseIsolationConstraint:
+    """Defines isolation requirement between sensitive components and noise sources."""
+    name: str
+    sensitive_indices: Tuple[int, ...]
+    noise_source_indices: Tuple[int, ...]
+    min_distance: float = 10.0
+    weight: float = 1.0
+
+
+@dataclass(frozen=True)
 class ThermalConstraint:
     """Defines thermal placement requirements for a component."""
     component_ref: str
@@ -110,6 +120,9 @@ class LossContext:
     # (Since groups have varying sizes, we use padding or a different structure)
     # For now, let's just store the indices
     matched_groups: List[MatchedLengthConstraint] = field(default_factory=list)
+
+    # Noise Isolation
+    noise_isolation_constraints: List[NoiseIsolationConstraint] = field(default_factory=list)
 
     net_class_indices: Dict[str, Array] = field(default_factory=dict)
     centrality: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.float32))

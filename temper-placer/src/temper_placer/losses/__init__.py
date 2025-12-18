@@ -172,6 +172,11 @@ from temper_placer.losses.net_class import (
     NetClassRule,
 )
 
+# Noise isolation loss
+from temper_placer.losses.noise_isolation import (
+    NoiseSensitiveIsolationLoss,
+)
+
 # Crystal placement loss
 from temper_placer.losses.crystal import (
     CrystalPlacementLoss,
@@ -239,6 +244,7 @@ __all__ = [
     "NetClassSeparationLoss",
     "create_net_class_loss",
     "NetClassRule",
+    "NoiseSensitiveIsolationLoss",
     "CrystalPlacementLoss",
     "create_crystal_loss",
     "CrystalRule",

@@ -80,6 +80,26 @@ class MatchedLengthGroup:
 
 
 @dataclass
+class NoiseIsolationRule:
+    """
+    Rule for physical isolation between sensitive components and noise sources.
+
+    Attributes:
+        name: Unique name for the rule.
+        sensitive_components: List of component refs (supports globs).
+        noise_sources: List of component refs (supports globs).
+        min_distance_mm: Minimum required separation.
+        weight: Importance of this rule.
+    """
+
+    name: str
+    sensitive_components: List[str]
+    noise_sources: List[str]
+    min_distance_mm: float = 10.0
+    weight: float = 1.0
+
+
+@dataclass
 class ThermalConstraint:
     """Thermal placement constraint for heat-generating components."""
 
@@ -174,6 +194,9 @@ class PlacementConstraints:
 
     # Matched length groups
     matched_length_groups: List[MatchedLengthGroup] = field(default_factory=list)
+
+    # Noise isolation rules
+    noise_isolation: List[NoiseIsolationRule] = field(default_factory=list)
 
     # Thermal constraints (basic)
     thermal_constraints: List[ThermalConstraint] = field(default_factory=list)
@@ -354,6 +377,18 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 tolerance_mm=group_cfg.get("tolerance_mm", 5.0),
             )
             constraints.matched_length_groups.append(group)
+
+    # Parse noise isolation
+    if "noise_isolation" in config:
+        for name, rule_cfg in config["noise_isolation"].items():
+            rule = NoiseIsolationRule(
+                name=name,
+                sensitive_components=rule_cfg["sensitive_components"],
+                noise_sources=rule_cfg["noise_sources"],
+                min_distance_mm=rule_cfg.get("min_distance_mm", 10.0),
+                weight=rule_cfg.get("weight", 1.0),
+            )
+            constraints.noise_isolation.append(rule)
 
     # Parse thermal constraints
     if "thermal" in config:
