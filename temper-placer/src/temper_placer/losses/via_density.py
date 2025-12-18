@@ -1,4 +1,5 @@
 from typing import Tuple
+import jax
 import jax.numpy as jnp
 from temper_placer.losses.base import LossFunction, LossResult, LossContext
 
@@ -29,7 +30,12 @@ class ViaDensityLoss(LossFunction):
         return "via_density"
 
     def __call__(
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         # 1. Get positions of all pins for all nets
         # indices: (M, P), offsets: (M, P, 2)
@@ -75,59 +81,57 @@ class ViaDensityLoss(LossFunction):
         min_b = net_min_xy[None, :, :]
         max_b = net_max_xy[None, :, :]
 
-        # Intersection condition: max(min_a, min_b) < min(max_a, max_b)
+        # Intersection area (approximate crossing severity)
         inter_min = jnp.maximum(min_a, min_b)
         inter_max = jnp.minimum(max_a, max_b)
-
-        # Check overlap in both X and Y
-        overlap_dim = inter_min < inter_max
-        overlap = jnp.logical_and(overlap_dim[..., 0], overlap_dim[..., 1])
-
-        # Remove diagonal (self-intersection)
-        # Using a trick: logical_and with ~eye
-        eye_mask = jnp.eye(overlap.shape[0], dtype=bool)
-        overlap = jnp.logical_and(overlap, ~eye_mask)
-
-        # Also remove invalid nets from calculation
-        valid_broadcast = valid_nets[:, None] & valid_nets[None, :]
-        overlap = jnp.logical_and(overlap, valid_broadcast)
-
-        # Count crossings (divide by 2 because matrix is symmetric)
-        # Using soft counting? No, crossing is boolean.
-        # But for gradient descent, we need differentiable signal.
-        # Boolean overlap has 0 gradient!
-
-        # Differentiable Overlap:
-        # Measures "depth" of overlap.
-        # depth = min(max_a, max_b) - max(min_a, min_b)
-        # if depth > 0, overlap exists.
-        # We want to minimize (depth_x * depth_y) if both > 0
-
-        depth = inter_max - inter_min  # (M, M, 2)
-
-        # Smooth activation for depth > 0
-        # ReLU-like: max(0, depth)
-        positive_depth = jnp.maximum(0.0, depth)
-
-        # Intersection area (approximate crossing severity)
+        positive_depth = jnp.maximum(0.0, inter_max - inter_min)
         intersection_area = positive_depth[..., 0] * positive_depth[..., 1]
 
-        # Mask diagonal
-        intersection_area = jnp.where(eye_mask, 0.0, intersection_area)
+        # 5. Refine with net directions (Planarity Proxy)
+        # For 2-pin nets, the direction is clear. 
+        # For N-pin, we use the vector from first to last valid pin as proxy direction.
+        
+        # Extract first and last valid pins for each net: (M, 2)
+        # We use context.net_pin_mask to find them.
+        def get_direction(pin_pos, mask):
+            # Masked positions
+            valid_pos = jnp.where(mask[..., None], pin_pos, 0.0)
+            
+            # Simple proxy: vector from first pin to center of others
+            first_pos = valid_pos[0]
+            center_pos = jnp.sum(valid_pos, axis=0) / jnp.maximum(jnp.sum(mask), 1.0)
+            return center_pos - first_pos
 
-        # Sum area as proxy for crossing count/severity
-        # (This is better than count for optimization)
-        total_crossing_severity = jnp.sum(intersection_area) / 2.0
+        # Vectorized across nets
+        net_vectors = jax.vmap(get_direction)(pin_positions, context.net_pin_mask)
+        
+        # Normalize vectors
+        norms = jnp.sqrt(jnp.sum(net_vectors**2, axis=-1) + 1e-9)
+        unit_vectors = net_vectors / norms[:, None]
+        
+        # Compute abs(sin(theta)) between all net pairs: |v1 x v2|
+        # (M, 1, 2) cross (1, M, 2) -> (M, M)
+        sin_theta = jnp.abs(
+            unit_vectors[:, None, 0] * unit_vectors[None, :, 1] - 
+            unit_vectors[:, None, 1] * unit_vectors[None, :, 0]
+        )
+
+        # Refined crossing severity: area * sin(theta)
+        # Parallel nets have sin(theta) = 0, so no crossing penalty
+        # Perpendicular nets have sin(theta) = 1, max penalty
+        refined_crossing = intersection_area * sin_theta
+
+        # Mask diagonal and invalid nets
+        eye_mask = jnp.eye(intersection_area.shape[0], dtype=bool)
+        valid_broadcast = valid_nets[:, None] & valid_nets[None, :]
+        
+        refined_crossing = jnp.where(eye_mask, 0.0, refined_crossing)
+        refined_crossing = jnp.where(valid_broadcast, refined_crossing, 0.0)
+
+        # Sum as proxy for crossing count/severity
+        total_crossing_severity = jnp.sum(refined_crossing) / 2.0
 
         # Combine
-        # Note: crossing_severity is in mm^2, so we might need to scale it to be comparable to "count".
-        # Let's say 100mm^2 overlap ~= 1 via worth of trouble?
-        # The prompt says "crossing_weight * crossings".
-        # If we use area, it drives nets apart.
-        # A hard count is hard to optimize. Area is good proxy.
-        # Let's normalize area by some factor, say 10mm^2 = 1 unit?
-        # Or just rely on the weight.
-
         total_loss = self.via_cost * (
             self.span_weight * total_span_vias + self.crossing_weight * total_crossing_severity
         )

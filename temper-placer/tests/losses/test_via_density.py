@@ -100,24 +100,58 @@ def test_via_density_crossing():
     # Let's add slight jitter to simulate "thick" nets or components.
 
     # Or test actual area overlap.
-    # Net A: (0, 0) -> (10, 10) (Box 10x10)
-    # Net B: (5, 5) -> (15, 15) (Box 10x10)
-    # Overlap: (5, 5) to (10, 10) -> 5x5 box = 25 area.
+    # Perpendicular crossing
+    # Net A: (0, 0) -> (10, 10) (Diagonal Up-Right)
+    # Net B: (0, 10) -> (10, 0) (Diagonal Down-Right)
+    # They cross at (5, 5).
+    # Both have AABB (0,0) to (10,10). Overlap Area = 100.
+    # sin(theta) should be 1.0 (90 deg between diagonals) - wait.
+    # Vector A = (10, 10), Vector B = (10, -10).
+    # Unit A = (0.707, 0.707), Unit B = (0.707, -0.707)
+    # sin = |0.707*-0.707 - 0.707*0.707| = |-0.5 - 0.5| = 1.0. Correct.
 
     positions_area = jnp.array(
         [
             [0.0, 0.0],
-            [10.0, 10.0],  # Net A bounds (0,0)->(10,10)
-            [5.0, 5.0],
-            [15.0, 15.0],  # Net B bounds (5,5)->(15,15)
+            [10.0, 10.0],  # Net A
+            [0.0, 10.0],
+            [10.0, 0.0],   # Net B
         ]
     )
 
     res = loss_fn(positions_area, None, context)
 
-    # Overlap Area = 25.0
-    # There are 2 pairs (A-B and B-A) -> Total sum = 50.0
-    # Code divides by 2.0 -> 25.0 severity.
-    # Weight 1.0, Cost 1.0 -> Loss 25.0
+    # Overlap Area = 100.0
+    # sin(theta) = 1.0
+    # Code divides by 2.0 -> 100.0 severity.
+    # Weight 1.0, Cost 1.0 -> Loss 100.0
 
-    assert jnp.isclose(res.value, 25.0, atol=1e-3)
+    assert jnp.isclose(res.value, 100.0, atol=1e-3)
+
+
+def test_via_density_refined_crossing():
+    """Verify that perpendicular nets have higher penalty than parallel ones."""
+    indices = jnp.array([[0, 1], [2, 3]], dtype=jnp.int32)
+    offsets = jnp.zeros((2, 2, 2), dtype=jnp.float32)
+    mask = jnp.ones((2, 2), dtype=bool)
+    context = MockContext(indices, offsets, mask)
+
+    loss_fn = ViaDensityLoss(via_cost=1.0, span_weight=0.0, crossing_weight=1.0)
+
+    # 1. Perpendicular case (Stronger penalty)
+    # Net A: (0, 0) -> (10, 10) (Diagonal Up-Right)
+    # Net B: (0, 10) -> (10, 0) (Diagonal Down-Right)
+    # sin(angle) should be 1.0 (90 deg)
+    pos_perp = jnp.array([[0.0, 0.0], [10.0, 10.0], [0.0, 10.0], [10.0, 0.0]])
+    res_perp = loss_fn(pos_perp, None, context)
+
+    # 2. Parallel case (Zero penalty)
+    # Net A: (0, 0) -> (10, 10)
+    # Net B: (1, 1) -> (11, 11) (Shifted copy)
+    # sin(angle) should be 0.0
+    pos_para = jnp.array([[0.0, 0.0], [10.0, 10.0], [1.0, 1.0], [11.0, 11.0]])
+    res_para = loss_fn(pos_para, None, context)
+
+    assert res_perp.value > 0
+    assert jnp.isclose(res_para.value, 0.0, atol=1e-4)
+    assert res_perp.value > res_para.value
