@@ -190,6 +190,9 @@ class OptimizerConfig:
     use_centrality_weighting: bool = False
     centrality_priority_scale: float = 2.0  # Max boost for hub components
 
+    # Soft-body inflation (temper-gcp.2)
+    inflation_ramp: float = 0.3  # Fraction of epochs to ramp component size 5%→100%
+
     @classmethod
     def fast_test(cls) -> "OptimizerConfig":
         """

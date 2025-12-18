@@ -285,7 +285,8 @@ def optimize(
             # rotation_invariant=True ensures overlap is detected regardless of rotation
             losses.append(
                 WeightedLoss(
-                    OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]
+                    OverlapLoss(margin=1.0, rotation_invariant=True, inflation_ramp=0.3),
+                    weight=weights["overlap"],
                 )
             )
         if "boundary" in weights:
@@ -880,27 +881,26 @@ def benchmark(
     from temper_placer.core.community import detect_communities
     import jax.numpy as jnp
 
-    console.print(Panel.fit(
-        "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
-        border_style="blue",
-    ))
+    console.print(
+        Panel.fit(
+            "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
+            border_style="blue",
+        )
+    )
 
     # 1. Identify PCBs
     design_dir = Path("tests/fixtures/external/.cache")
     all_designs = []
     seen_names = set()
-    
+
     if design_dir.exists():
         for p in design_dir.iterdir():
             if p.is_dir() and p.name not in seen_names:
                 for pcb in p.glob("*.kicad_pcb"):
-                    all_designs.append({
-                        "name": p.name,
-                        "path": str(pcb)
-                    })
+                    all_designs.append({"name": p.name, "path": str(pcb)})
                     seen_names.add(p.name)
-                    break # Only one PCB per project for now
-    
+                    break  # Only one PCB per project for now
+
     selected_names = [] if pcbs == "all" else [n.strip() for n in pcbs.split(",")]
     targets = []
     for d in all_designs:
@@ -916,7 +916,12 @@ def benchmark(
     # 2. Setup Loss Factory
     def make_benchmark_loss(weights, netlist=None, detected_communities=None):
         losses = []
-        losses.append(WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]))
+        losses.append(
+            WeightedLoss(
+                OverlapLoss(margin=1.0, rotation_invariant=True, inflation_ramp=0.3),
+                    weight=weights["overlap"]
+            )
+        )
         losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
         losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
         losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
@@ -941,12 +946,12 @@ def benchmark(
 
     # 3. Run Benchmarks
     summary = BenchmarkSummary(total_pcbs=len(targets), passed=0, failed=0, better_than_human=0)
-    
+
     for target in targets:
         name = target["name"]
         pcb_path = Path(target["path"])
         console.print(f"Benchmarking [cyan]{name}[/]...")
-        
+
         try:
             # 1. Load Human Baseline
             baseline_path = pcb_path.parent / f"{name}_benchmark.yaml"
@@ -956,27 +961,31 @@ def benchmark(
                 if legacy_path.exists():
                     baseline_path = legacy_path
                 else:
-                    console.print(f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run generate_unrouted_benchmarks.py first.")
+                    console.print(
+                        f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run generate_unrouted_benchmarks.py first."
+                    )
                     continue
-                
+
             with open(baseline_path) as f:
                 import yaml as yaml_module
+
                 baseline = yaml_module.safe_load(f)
-            
+
             # 2. Setup Optimizer Data
             ref_design = load_reference_pcb(pcb_path)
-            
+
             # Load constraints
             config_path = pcb_path.parent / f"{name}_constraints.yaml"
             if config_path.exists():
                 constraints = load_constraints(config_path)
             else:
                 from temper_placer.io.config_loader import PlacementConstraints
+
                 constraints = PlacementConstraints()
-            
+
             board = create_board_from_constraints(constraints)
             context = LossContext.from_netlist_and_board(ref_design.netlist, board)
-            
+
             # Community detection for auto-grouping
             detected = []
             if auto_group:
@@ -986,12 +995,12 @@ def benchmark(
             composite_loss = make_benchmark_loss(default_weights, ref_design.netlist, detected)
 
             # 3. Run Optimizer
-            cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs//10))
+            cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs // 10))
             opt_result = train(ref_design.netlist, board, composite_loss, context, cfg)
-            
+
             # 4. Compute Real Score
             res = calculate_benchmark_result(name, opt_result, baseline, context)
-            
+
             summary.results.append(res)
             if res.status == "FAIL":
                 summary.failed += 1
@@ -999,13 +1008,14 @@ def benchmark(
                 summary.passed += 1
                 if res.status == "BETTER":
                     summary.better_than_human += 1
-            
+
             console.print(f"  [green]✓[/] Result: {res.status} (WL: {res.wirelength_ratio:.2f}x)")
-            
+
         except Exception as e:
             console.print(f"  [red]Failed to benchmark {name}: {e}[/]")
             summary.failed += 1
             import traceback
+
             console.print(traceback.format_exc())
 
     # 4. Generate Report
