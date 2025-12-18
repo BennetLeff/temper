@@ -28,7 +28,10 @@ def test_edge_crossing_x():
     ])
     
     loss_fn = EdgeCrossingLoss()
-    res = loss_fn(positions, None, context)
+    # rotations: 4 components, all 0 degrees
+    rotations = jnp.eye(4)[jnp.zeros(4, dtype=jnp.int32)]
+    
+    res = loss_fn(positions, rotations, context)
     assert float(res.value) > 0
 
 def test_edge_crossing_parallel():
@@ -46,7 +49,10 @@ def test_edge_crossing_parallel():
     ])
     
     loss_fn = EdgeCrossingLoss()
-    res = loss_fn(positions, None, context)
+    # rotations: 4 components, all 0 degrees
+    rotations = jnp.eye(4)[jnp.zeros(4, dtype=jnp.int32)]
+    
+    res = loss_fn(positions, rotations, context)
     assert float(res.value) == pytest.approx(0.0, abs=1e-6)
 
 def test_edge_crossing_touching():
@@ -64,6 +70,9 @@ def test_edge_crossing_touching():
     context = MockContext(p_indices, p_offsets, p_mask)
     
     loss_fn = EdgeCrossingLoss()
-    res = loss_fn(positions, None, context)
+    # rotations: 4 components, all 0 degrees
+    rotations = jnp.eye(4)[jnp.zeros(4, dtype=jnp.int32)]
+    
+    res = loss_fn(positions, rotations, context)
     # They touch at (10,0), but s1*s2 = 0*val = 0.
     assert float(res.value) == pytest.approx(0.0, abs=1e-6)

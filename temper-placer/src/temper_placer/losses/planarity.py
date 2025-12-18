@@ -81,10 +81,31 @@ class EdgeCrossingLoss(LossFunction):
         p0_offset = offsets_2pin[:, 0]
         p1_offset = offsets_2pin[:, 1]
         
-        # Absolute positions (approximate - ignoring rotation for performance in crossing proxy)
-        # TODO: Add rotation handling if needed
-        p0_abs = positions[p0_idx] + p0_offset
-        p1_abs = positions[p1_idx] + p1_offset
+        # 3. Compute rotations
+        angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
+        
+        # Get rotation for each pin's component
+        # rotations is (N, 4), p0_idx is (M2,)
+        rot0 = rotations[p0_idx] # (M2, 4)
+        rot1 = rotations[p1_idx] # (M2, 4)
+        
+        a0 = jnp.sum(rot0 * angles[None, :], axis=1) # (M2,)
+        a1 = jnp.sum(rot1 * angles[None, :], axis=1) # (M2,)
+        
+        # Rotate pin offsets
+        def rotate_offset(offset, angle):
+            cos_a = jnp.cos(angle)
+            sin_a = jnp.sin(angle)
+            rx = offset[..., 0] * cos_a - offset[..., 1] * sin_a
+            ry = offset[..., 0] * sin_a + offset[..., 1] * cos_a
+            return jnp.stack([rx, ry], axis=-1)
+
+        r0 = rotate_offset(p0_offset, a0)
+        r1 = rotate_offset(p1_offset, a1)
+
+        # Absolute positions
+        p0_abs = positions[p0_idx] + r0
+        p1_abs = positions[p1_idx] + r1
         
         # Segment i: (A_i, B_i)
         A = p0_abs
