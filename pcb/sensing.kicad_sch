@@ -6,181 +6,685 @@
   (paper "A4")
   (title_block
     (title "Sensing")
-    (date "2025-12-14")
-    (rev "1.0")
+    (date "2025-12-18")
+    (rev "1.1")
     (company "Temper")
     (comment 1 "Current & Temperature Sensing")
-    (comment 2 "Isolated Measurement Interfaces")
+    (comment 2 "MAX31865 RTD + ADUM1250 I2C Isolator + CT")
   )
 
-  (lib_symbols)
+  (lib_symbols
+    (symbol "Device:C" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+      (property "Reference" "C" (at 0.635 2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Value" "C" (at 0.635 -2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Footprint" "" (at 0.9652 -3.81 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline (pts (xy -2.032 -0.762) (xy 2.032 -0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+        (polyline (pts (xy -2.032 0.762) (xy 2.032 0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+      )
+      (symbol "C_1_1"
+        (pin passive line (at 0 3.81 270) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "R" (at 2.032 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "R" (at 0 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at -1.778 0 90) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "R_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+  )
 
-  (text "SENSING SUBSYSTEM\n\nFunction:\n- Current transformer signal conditioning\n- RTD temperature measurement\n- Voltage sensing (DC bus)\n- I2C isolation for display/sensors\n\nKey Components:\n- Current transformer + burden resistor\n- MAX31865 RTD-to-digital converter\n- ADUM1250 I2C isolator\n- Voltage divider for OVP\n\nInterfaces:\n- SPI: MAX31865 (temperature)\n- I2C: ADUM1250 (isolated bus)\n- Analog: CT output, voltage divider\n\nReference:\n- CT_SENSING_DESIGN.md\n- MAX31865_Documentation.md\n- ADUM1250_Documentation.md"
+  ; ==================== TITLE AND DOCUMENTATION ====================
+  (text "SENSING SUBSYSTEM\n\nTemperature Sensing:\n- MAX31865 RTD-to-Digital (SPI)\n- PT100 4-wire configuration\n- R_REF = 430 ohm (PT100)\n\nCurrent Sensing:\n- CST-1005 CT (1:1000 ratio)\n- R_BURDEN = 66.5 ohm\n- 50A = 3.325V output\n\nI2C Isolation:\n- ADUM1250 hot-swappable isolator\n- 2.5kV RMS isolation\n- Bidirectional I2C\n\nReference:\n- CT_SENSING_DESIGN.md\n- MAX31865_Documentation.md"
     (exclude_from_sim no)
     (at 25.4 25.4 0)
-    (effects
-      (font
-        (size 2.54 2.54)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.8 1.8)) (justify left))
     (uuid "51000000-0000-0000-0000-000000000001")
   )
 
+  ; ==================== HIERARCHICAL LABELS ====================
   (hierarchical_label "+3.3V"
     (shape input)
-    (at 25.4 88.9 180)
+    (at 25.4 76.2 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000001")
   )
 
   (hierarchical_label "+5V_ISO"
     (shape input)
-    (at 25.4 101.6 180)
+    (at 25.4 213.36 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000002")
-  )
-
-  (hierarchical_label "SWITCH_NODE"
-    (shape input)
-    (at 25.4 114.3 180)
-    (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
-    (uuid "51000001-0000-0000-0000-000000000003")
   )
 
   (hierarchical_label "SPI_MOSI"
     (shape input)
-    (at 25.4 127 180)
+    (at 25.4 101.6 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000004")
   )
 
   (hierarchical_label "SPI_MISO"
     (shape output)
-    (at 228.6 88.9 0)
+    (at 25.4 106.68 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000005")
   )
 
   (hierarchical_label "SPI_SCK"
     (shape input)
-    (at 228.6 101.6 0)
+    (at 25.4 111.76 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000006")
   )
 
   (hierarchical_label "RTD_CS"
     (shape input)
-    (at 228.6 114.3 0)
+    (at 25.4 116.84 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000007")
   )
 
   (hierarchical_label "I2C_SDA"
     (shape bidirectional)
-    (at 228.6 127 0)
+    (at 25.4 228.6 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000008")
   )
 
   (hierarchical_label "I2C_SCL"
     (shape input)
-    (at 228.6 139.7 0)
+    (at 25.4 233.68 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "51000001-0000-0000-0000-000000000009")
   )
 
   (hierarchical_label "I_SENSE"
     (shape output)
-    (at 228.6 152.4 0)
+    (at 228.6 76.2 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "51000001-0000-0000-0000-00000000000A")
   )
 
-  (hierarchical_label "V_SENSE"
+  (hierarchical_label "NTC_SENSE"
     (shape output)
     (at 228.6 165.1 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "51000001-0000-0000-0000-00000000000B")
   )
 
-  (hierarchical_label "TEMP_FAULT"
+  (hierarchical_label "RTD_DRDY"
     (shape output)
-    (at 228.6 177.8 0)
+    (at 177.8 127 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "51000001-0000-0000-0000-00000000000C")
+  )
+
+  (hierarchical_label "I2C_SDA_ISO"
+    (shape bidirectional)
+    (at 228.6 228.6 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "51000001-0000-0000-0000-00000000000D")
+  )
+
+  (hierarchical_label "I2C_SCL_ISO"
+    (shape output)
+    (at 228.6 233.68 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "51000001-0000-0000-0000-00000000000E")
+  )
+
+  (hierarchical_label "GND"
+    (shape input)
+    (at 25.4 83.82 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "51000001-0000-0000-0000-00000000000F")
+  )
+
+  (hierarchical_label "GND_ISO"
+    (shape input)
+    (at 25.4 220.98 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "51000001-0000-0000-0000-000000000010")
+  )
+
+  ; ==================== POWER SYMBOLS ====================
+  (symbol
+    (lib_id "power:+3.3V")
+    (at 63.5 68.58 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "52000001-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR01" (at 63.5 72.39 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+3.3V" (at 63.5 64.77 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol
+    (lib_id "power:GND")
+    (at 101.6 152.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "52000001-0000-0000-0000-000000000002")
+    (property "Reference" "#PWR02" (at 101.6 158.75 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 101.6 156.21 0) (effects (font (size 1.27 1.27))))
+  )
+
+  ; ==================== MAX31865 RTD-TO-DIGITAL SECTION ====================
+  (text "RTD TEMPERATURE SENSING\nMAX31865ATP+ (TQFN-20)\nPT100 4-wire, R_REF=430ohm"
+    (exclude_from_sim no)
+    (at 76.2 88.9 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "53000000-0000-0000-0000-000000000001")
+  )
+
+  ; MAX31865 RTD-to-Digital Converter
+  (symbol
+    (lib_id "MAX31865:MAX31865ATP+")
+    (at 101.6 116.84 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "53000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_RTD1" (at 101.6 96.52 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MAX31865ATP+" (at 101.6 99.06 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_DFN_QFN:TQFN-20-1EP_4x4mm_P0.5mm_EP2.6x2.6mm" (at 101.6 139.7 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "MAX31865ATP+" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Analog Devices" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "RTD-to-Digital Converter, SPI, PT100/PT1000" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "urtd-pin1"))
+    (pin "2" (uuid "urtd-pin2"))
+    (pin "3" (uuid "urtd-pin3"))
+    (pin "4" (uuid "urtd-pin4"))
+    (pin "5" (uuid "urtd-pin5"))
+    (pin "6" (uuid "urtd-pin6"))
+    (pin "7" (uuid "urtd-pin7"))
+    (pin "8" (uuid "urtd-pin8"))
+    (pin "9" (uuid "urtd-pin9"))
+    (pin "10" (uuid "urtd-pin10"))
+    (pin "11" (uuid "urtd-pin11"))
+    (pin "12" (uuid "urtd-pin12"))
+    (pin "13" (uuid "urtd-pin13"))
+    (pin "14" (uuid "urtd-pin14"))
+    (pin "15" (uuid "urtd-pin15"))
+    (pin "16" (uuid "urtd-pin16"))
+    (pin "17" (uuid "urtd-pin17"))
+    (pin "18" (uuid "urtd-pin18"))
+    (pin "19" (uuid "urtd-pin19"))
+    (pin "20" (uuid "urtd-pin20"))
+    (pin "21" (uuid "urtd-pin21-ep"))
+  )
+
+  ; RTD Reference Resistor
+  (symbol
+    (lib_id "Device:R")
+    (at 139.7 101.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "53000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_REF" (at 142.24 99.06 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "430Ω 0.1%" (at 142.24 101.6 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 137.922 101.6 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 139.7 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-07430RL" (at 139.7 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 139.7 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Reference resistor for PT100 (Rref = 4 x R0)" (at 139.7 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rref-pin1"))
+    (pin "2" (uuid "rref-pin2"))
+  )
+
+  ; RTD Decoupling Capacitor
+  (symbol
+    (lib_id "Device:C")
+    (at 63.5 109.22 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "53000003-0000-0000-0000-000000000001")
+    (property "Reference" "C_DEC_RTD" (at 66.04 106.68 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 66.04 109.22 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 64.4652 113.03 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 63.5 109.22 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "crtd-pin1"))
+    (pin "2" (uuid "crtd-pin2"))
+  )
+
+  ; RTD Connector (4-wire PT100)
+  (text "RTD CONNECTOR\n4-Wire PT100 Probe\nRTD+, RTD-, FORCE+, FORCE-"
+    (exclude_from_sim no)
+    (at 157.48 116.84 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "53000004-0000-0000-0000-000000000001")
+  )
+
+  ; ==================== NTC THERMISTOR SECTION ====================
+  (text "NTC THERMISTOR\n10k @ 25C, B=3950\nIGBT heatsink temperature"
+    (exclude_from_sim no)
+    (at 177.8 152.4 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "54000000-0000-0000-0000-000000000001")
+  )
+
+  ; NTC Pull-up from 3.3V
+  (symbol
+    (lib_id "Device:R")
+    (at 195.58 162.56 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "54000001-0000-0000-0000-000000000001")
+    (property "Reference" "R_NTC_SENSE" (at 198.12 160.02 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ" (at 198.12 162.56 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 193.802 162.56 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-0710KL" (at 195.58 162.56 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Pull-up for NTC thermistor divider" (at 195.58 162.56 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rntc-pin1"))
+    (pin "2" (uuid "rntc-pin2"))
+  )
+
+  ; NTC Thermistor symbol placeholder
+  (text "NTC_IGBT\nNCU18XH103F6SRB\n10kΩ 0603"
+    (exclude_from_sim no)
+    (at 195.58 180.34 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "54000002-0000-0000-0000-000000000001")
+  )
+
+  ; ==================== CURRENT TRANSFORMER SECTION ====================
+  (text "CURRENT TRANSFORMER\nCST-1005 (1:1000)\nR_BURDEN = 66.5Ω\n50A → 3.325V"
+    (exclude_from_sim no)
+    (at 177.8 68.58 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "55000000-0000-0000-0000-000000000001")
+  )
+
+  ; CT Burden Resistor
+  (symbol
+    (lib_id "Device:R")
+    (at 195.58 83.82 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "55000001-0000-0000-0000-000000000001")
+    (property "Reference" "R_BURDEN" (at 198.12 81.28 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "66.5Ω" (at 198.12 83.82 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 193.802 83.82 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC1206FR-0766R5L" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "CT burden: 50A/1000 × 66.5Ω = 3.325V" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rburden-pin1"))
+    (pin "2" (uuid "rburden-pin2"))
+  )
+
+  ; ==================== ADUM1250 I2C ISOLATOR SECTION ====================
+  (text "I2C ISOLATOR\nADUM1250ARZ\n2.5kV RMS isolation\nHot-swappable"
+    (exclude_from_sim no)
+    (at 76.2 203.2 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "56000000-0000-0000-0000-000000000001")
+  )
+
+  ; ADUM1250 I2C Isolator
+  (symbol
+    (lib_id "ADUM1250:ADUM1250ARZ")
+    (at 139.7 228.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_ISO" (at 139.7 213.36 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "ADUM1250ARZ" (at 139.7 215.9 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (at 139.7 246.38 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/ADUM1250_1251.pdf" (at 139.7 228.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "ADUM1250ARZ" (at 139.7 228.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Analog Devices" (at 139.7 228.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Hot-Swappable I2C Isolator, 2.5kV RMS" (at 139.7 228.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uiso-pin1-vdd1"))
+    (pin "2" (uuid "uiso-pin2-sda1"))
+    (pin "3" (uuid "uiso-pin3-scl1"))
+    (pin "4" (uuid "uiso-pin4-gnd1"))
+    (pin "5" (uuid "uiso-pin5-gnd2"))
+    (pin "6" (uuid "uiso-pin6-scl2"))
+    (pin "7" (uuid "uiso-pin7-sda2"))
+    (pin "8" (uuid "uiso-pin8-vdd2"))
+  )
+
+  ; I2C Pull-up Resistors (MCU side)
+  (symbol
+    (lib_id "Device:R")
+    (at 88.9 220.98 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_SDA1" (at 91.44 218.44 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "4.7kΩ" (at 91.44 220.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 87.122 220.98 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-074K7L" (at 88.9 220.98 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rsda1-pin1"))
+    (pin "2" (uuid "rsda1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 101.6 220.98 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000003-0000-0000-0000-000000000001")
+    (property "Reference" "R_SCL1" (at 104.14 218.44 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "4.7kΩ" (at 104.14 220.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 99.822 220.98 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-074K7L" (at 101.6 220.98 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rscl1-pin1"))
+    (pin "2" (uuid "rscl1-pin2"))
+  )
+
+  ; I2C Pull-up Resistors (Isolated side)
+  (symbol
+    (lib_id "Device:R")
+    (at 177.8 220.98 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000004-0000-0000-0000-000000000001")
+    (property "Reference" "R_SDA2" (at 180.34 218.44 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "4.7kΩ" (at 180.34 220.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 176.022 220.98 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-074K7L" (at 177.8 220.98 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rsda2-pin1"))
+    (pin "2" (uuid "rsda2-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 190.5 220.98 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000005-0000-0000-0000-000000000001")
+    (property "Reference" "R_SCL2" (at 193.04 218.44 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "4.7kΩ" (at 193.04 220.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 188.722 220.98 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-074K7L" (at 190.5 220.98 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rscl2-pin1"))
+    (pin "2" (uuid "rscl2-pin2"))
+  )
+
+  ; Decoupling Capacitors for ADUM1250
+  (symbol
+    (lib_id "Device:C")
+    (at 114.3 236.22 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000006-0000-0000-0000-000000000001")
+    (property "Reference" "C_ISO1" (at 116.84 233.68 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 116.84 236.22 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 115.2652 240.03 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 114.3 236.22 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "ciso1-pin1"))
+    (pin "2" (uuid "ciso1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 165.1 236.22 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "56000007-0000-0000-0000-000000000001")
+    (property "Reference" "C_ISO2" (at 167.64 233.68 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 167.64 236.22 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 166.0652 240.03 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 165.1 236.22 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "ciso2-pin1"))
+    (pin "2" (uuid "ciso2-pin2"))
+  )
+
+  ; ==================== NET LABELS ====================
+  (label "SPI_MOSI"
+    (at 50.8 101.6 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-mosi-001")
+  )
+
+  (label "SPI_MISO"
+    (at 50.8 106.68 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-miso-001")
+  )
+
+  (label "SPI_SCK"
+    (at 50.8 111.76 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-sck-001")
+  )
+
+  (label "RTD_CS"
+    (at 50.8 116.84 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-cs-001")
+  )
+
+  (label "I_SENSE"
+    (at 208.28 76.2 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-isense-001")
+  )
+
+  (label "NTC_NODE"
+    (at 195.58 170.18 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-ntc-001")
+  )
+
+  (label "I2C_SDA"
+    (at 50.8 228.6 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-sda-001")
+  )
+
+  (label "I2C_SCL"
+    (at 50.8 233.68 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-scl-001")
+  )
+
+  (label "I2C_SDA_ISO"
+    (at 208.28 228.6 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-sdaiso-001")
+  )
+
+  (label "I2C_SCL_ISO"
+    (at 208.28 233.68 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-scliso-001")
+  )
+
+  ; ==================== WIRING ====================
+  ; Power connections
+  (wire
+    (pts (xy 25.4 76.2) (xy 63.5 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-001")
+  )
+  (wire
+    (pts (xy 63.5 76.2) (xy 63.5 68.58))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-002")
+  )
+  (wire
+    (pts (xy 63.5 76.2) (xy 63.5 105.41))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-003")
+  )
+
+  ; SPI connections to MAX31865
+  (wire
+    (pts (xy 25.4 101.6) (xy 78.74 101.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-mosi-001")
+  )
+  (wire
+    (pts (xy 25.4 106.68) (xy 78.74 106.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-miso-001")
+  )
+  (wire
+    (pts (xy 25.4 111.76) (xy 78.74 111.76))
+    (stroke (width 0) (type default))
+    (uuid "wire-sck-001")
+  )
+  (wire
+    (pts (xy 25.4 116.84) (xy 78.74 116.84))
+    (stroke (width 0) (type default))
+    (uuid "wire-cs-001")
+  )
+
+  ; CT burden to I_SENSE
+  (wire
+    (pts (xy 195.58 76.2) (xy 228.6 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-isense-001")
+  )
+  (wire
+    (pts (xy 195.58 80.01) (xy 195.58 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-isense-002")
+  )
+
+  ; NTC to NTC_SENSE
+  (wire
+    (pts (xy 195.58 165.1) (xy 228.6 165.1))
+    (stroke (width 0) (type default))
+    (uuid "wire-ntc-001")
+  )
+  (wire
+    (pts (xy 195.58 166.37) (xy 195.58 165.1))
+    (stroke (width 0) (type default))
+    (uuid "wire-ntc-002")
+  )
+
+  ; I2C connections (MCU side)
+  (wire
+    (pts (xy 25.4 228.6) (xy 88.9 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-sda1-001")
+  )
+  (wire
+    (pts (xy 88.9 224.79) (xy 88.9 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-sda1-002")
+  )
+  (wire
+    (pts (xy 88.9 228.6) (xy 127 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-sda1-003")
+  )
+
+  (wire
+    (pts (xy 25.4 233.68) (xy 101.6 233.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-scl1-001")
+  )
+  (wire
+    (pts (xy 101.6 224.79) (xy 101.6 233.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-scl1-002")
+  )
+  (wire
+    (pts (xy 101.6 233.68) (xy 127 233.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-scl1-003")
+  )
+
+  ; I2C connections (Isolated side)
+  (wire
+    (pts (xy 152.4 228.6) (xy 177.8 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-sda2-001")
+  )
+  (wire
+    (pts (xy 177.8 224.79) (xy 177.8 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-sda2-002")
+  )
+  (wire
+    (pts (xy 177.8 228.6) (xy 228.6 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-sda2-003")
+  )
+
+  (wire
+    (pts (xy 152.4 233.68) (xy 190.5 233.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-scl2-001")
+  )
+  (wire
+    (pts (xy 190.5 224.79) (xy 190.5 233.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-scl2-002")
+  )
+  (wire
+    (pts (xy 190.5 233.68) (xy 228.6 233.68))
+    (stroke (width 0) (type default))
+    (uuid "wire-scl2-003")
   )
 
 )

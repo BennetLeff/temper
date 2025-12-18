@@ -6,37 +6,74 @@
   (paper "A4")
   (title_block
     (title "Power Management")
-    (date "2025-12-14")
-    (rev "1.0")
+    (date "2025-12-18")
+    (rev "1.1")
     (company "Temper")
     (comment 1 "DC-DC Converters & LDOs")
-    (comment 2 "Multi-rail Power Distribution")
+    (comment 2 "LMR51430 Buck (DC_BUS→15V) + XC6220 LDO (15V→3.3V)")
   )
 
-  (lib_symbols)
+  (lib_symbols
+    ; Generic symbols for passives
+    (symbol "Device:C" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+      (property "Reference" "C" (at 0.635 2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Value" "C" (at 0.635 -2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Footprint" "" (at 0.9652 -3.81 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline (pts (xy -2.032 -0.762) (xy 2.032 -0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+        (polyline (pts (xy -2.032 0.762) (xy 2.032 0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+      )
+      (symbol "C_1_1"
+        (pin passive line (at 0 3.81 270) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "R" (at 2.032 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "R" (at 0 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at -1.778 0 90) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "R_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:L" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "L" (at -1.016 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "L" (at 1.524 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "L_0_1"
+        (arc (start 0 -2.54) (mid 0.6323 -1.905) (end 0 -1.27) (stroke (width 0) (type default)) (fill (type none)))
+        (arc (start 0 -1.27) (mid 0.6323 -0.635) (end 0 0) (stroke (width 0) (type default)) (fill (type none)))
+        (arc (start 0 0) (mid 0.6323 0.635) (end 0 1.27) (stroke (width 0) (type default)) (fill (type none)))
+        (arc (start 0 1.27) (mid 0.6323 1.905) (end 0 2.54) (stroke (width 0) (type default)) (fill (type none)))
+      )
+      (symbol "L_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+  )
 
-  (text "POWER MANAGEMENT\n\nFunction:\n- Buck converter (340V → 15V)\n- LDO regulator (15V → 3.3V)\n- Isolated DC-DC (for sensors)\n- Power sequencing\n- Power good indication\n\nKey Components:\n- LMR51430 buck (4.2-42V, 3A)\n- XC6220B331MR 3.3V LDO (700mA)\n- UCC14240-Q1 isolated DC-DC\n\nPower Rails:\n- +15V: Gate driver, safety logic\n- +3.3V: MCU, digital logic\n- +5V_ISO: Isolated sensors\n\nReference: BOM.md (Power Management section)"
+  ; ==================== TITLE AND DOCUMENTATION ====================
+  (text "POWER MANAGEMENT\n\nBuck Converter (LMR51430):\n- Input: DC_BUS (up to 36V from aux tap)\n- Output: +15V @ 1A\n- Switching: 2.1MHz\n- Sync buck topology\n\nLDO (XC6220):\n- Input: +15V (could also be 5V)\n- Output: +3.3V @ 700mA\n- Low noise: 6.5µV RMS\n\nReference:\n- LMR51430_THERMAL_ANALYSIS.md\n- BOM.md Section 2"
     (exclude_from_sim no)
     (at 25.4 25.4 0)
-    (effects
-      (font
-        (size 2.54 2.54)
-      )
-      (justify left)
-    )
+    (effects (font (size 2.0 2.0)) (justify left))
     (uuid "31000000-0000-0000-0000-000000000001")
   )
 
+  ; ==================== HIERARCHICAL LABELS ====================
   (hierarchical_label "DC_BUS+"
     (shape input)
     (at 25.4 88.9 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "31000001-0000-0000-0000-000000000001")
   )
 
@@ -44,52 +81,600 @@
     (shape output)
     (at 228.6 76.2 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "31000001-0000-0000-0000-000000000002")
   )
 
   (hierarchical_label "+3.3V"
     (shape output)
-    (at 228.6 88.9 0)
+    (at 228.6 152.4 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "31000001-0000-0000-0000-000000000003")
   )
 
-  (hierarchical_label "+5V_ISO"
-    (shape output)
-    (at 228.6 101.6 0)
+  (hierarchical_label "GND"
+    (shape input)
+    (at 25.4 127 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "31000001-0000-0000-0000-000000000004")
   )
 
   (hierarchical_label "PGOOD"
     (shape output)
-    (at 228.6 114.3 0)
+    (at 228.6 101.6 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "31000001-0000-0000-0000-000000000005")
+  )
+
+  ; ==================== POWER SYMBOLS ====================
+  (symbol
+    (lib_id "power:GND")
+    (at 101.6 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "32000001-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR01" (at 101.6 133.35 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 101.6 130.81 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol
+    (lib_id "power:GND")
+    (at 165.1 190.5 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "32000001-0000-0000-0000-000000000002")
+    (property "Reference" "#PWR02" (at 165.1 196.85 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 165.1 194.31 0) (effects (font (size 1.27 1.27))))
+  )
+
+  ; ==================== LMR51430 BUCK CONVERTER ====================
+  (symbol
+    (lib_id "LMR51430:LMR51430XDDCR")
+    (at 101.6 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "33000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_BUCK" (at 101.6 73.66 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "LMR51430XDDCR" (at 101.6 76.2 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-6" (at 101.6 106.68 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.ti.com/lit/ds/symlink/lmr51430.pdf" (at 101.6 109.22 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "LMR51430XDDCR" (at 101.6 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Texas Instruments" (at 101.6 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "4.5-36V 3A Sync Buck, 2.1MHz, SOT-23-6" (at 101.6 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "ubuck-pin1-vin"))
+    (pin "2" (uuid "ubuck-pin2-gnd"))
+    (pin "3" (uuid "ubuck-pin3-en"))
+    (pin "4" (uuid "ubuck-pin4-sw"))
+    (pin "5" (uuid "ubuck-pin5-boot"))
+    (pin "6" (uuid "ubuck-pin6-fb"))
+  )
+
+  ; ==================== BUCK INPUT CAPACITOR ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 63.5 96.52 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "34000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_IN_BUCK" (at 66.04 93.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "2.2µF 100V" (at 66.04 96.52 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_1210_3225Metric" (at 64.4652 100.33 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 63.5 96.52 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM32ER72A225KA35L" (at 63.5 96.52 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 63.5 96.52 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Input capacitor for buck converter" (at 63.5 96.52 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cinbuck-pin1"))
+    (pin "2" (uuid "cinbuck-pin2"))
+  )
+
+  ; ==================== BUCK BOOTSTRAP CAPACITOR ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 119.38 81.28 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "34000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_BOOT_BUCK" (at 121.92 78.74 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10nF 50V" (at 121.92 81.28 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 120.3452 85.09 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 119.38 81.28 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H103KA01D" (at 119.38 81.28 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 119.38 81.28 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bootstrap capacitor for high-side driver" (at 119.38 81.28 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cbootbuck-pin1"))
+    (pin "2" (uuid "cbootbuck-pin2"))
+  )
+
+  ; ==================== BUCK INDUCTOR ====================
+  (symbol
+    (lib_id "Device:L")
+    (at 139.7 76.2 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "35000001-0000-0000-0000-000000000001")
+    (property "Reference" "L_BUCK" (at 139.7 71.12 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "6.8µH" (at 139.7 73.66 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Inductor_SMD:L_Bourns_SRP1038A" (at 139.7 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 139.7 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "SRP1038A-6R8M" (at 139.7 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Bourns" (at 139.7 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "6.8µH 5.6A Shielded, 10x10mm" (at 139.7 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "lbuck-pin1"))
+    (pin "2" (uuid "lbuck-pin2"))
+  )
+
+  ; ==================== BUCK OUTPUT CAPACITORS (2x 22µF) ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 160.02 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "36000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_OUT_BUCK1" (at 162.56 86.36 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "22µF 25V" (at 162.56 88.9 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 160.9852 92.71 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 160.02 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM31CR61E226KE15L" (at 160.02 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 160.02 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "coutbuck1-pin1"))
+    (pin "2" (uuid "coutbuck1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 172.72 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "36000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_OUT_BUCK2" (at 175.26 86.36 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "22µF 25V" (at 175.26 88.9 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 173.6852 92.71 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 172.72 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM31CR61E226KE15L" (at 172.72 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 172.72 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "coutbuck2-pin1"))
+    (pin "2" (uuid "coutbuck2-pin2"))
+  )
+
+  ; ==================== FEEDBACK DIVIDER (15V output) ====================
+  ; Vout = 1.0V * (1 + R_FB1/R_FB2) = 1.0V * (1 + 100k/7.15k) = 15V
+  (symbol
+    (lib_id "Device:R")
+    (at 187.96 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "37000001-0000-0000-0000-000000000001")
+    (property "Reference" "R_FB1" (at 190.5 86.36 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100kΩ" (at 190.5 88.9 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 186.182 88.9 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 187.96 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-07100KL" (at 187.96 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 187.96 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Feedback divider high-side" (at 187.96 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rfb1-pin1"))
+    (pin "2" (uuid "rfb1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 187.96 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "37000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_FB2" (at 190.5 104.14 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "7.15kΩ" (at 190.5 106.68 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 186.182 106.68 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 187.96 106.68 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-077K15L" (at 187.96 106.68 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 187.96 106.68 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Feedback divider low-side" (at 187.96 106.68 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rfb2-pin1"))
+    (pin "2" (uuid "rfb2-pin2"))
+  )
+
+  ; ==================== XC6220 LDO (15V → 3.3V) ====================
+  (symbol
+    (lib_id "XC6220:XC6220B331MR-G")
+    (at 165.1 152.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "38000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_LDO" (at 165.1 139.7 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "XC6220B331MR-G" (at 165.1 142.24 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-25" (at 165.1 165.1 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.torexsemi.com/file/xc6220/XC6220.pdf" (at 165.1 167.64 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "XC6220B331MR-G" (at 165.1 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Torex" (at 165.1 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "3.3V 700mA Low-Noise LDO, 6.5µV RMS" (at 165.1 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uldo-pin1-vin"))
+    (pin "2" (uuid "uldo-pin2-vss"))
+    (pin "3" (uuid "uldo-pin3-ce"))
+    (pin "4" (uuid "uldo-pin4-nc"))
+    (pin "5" (uuid "uldo-pin5-vout"))
+  )
+
+  ; ==================== LDO INPUT CAPACITOR ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 137.16 160.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "39000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_IN_LDO" (at 139.7 157.48 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10µF 25V" (at 139.7 160.02 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 138.1252 163.83 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 137.16 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM21BR61E106KA73L" (at 137.16 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 137.16 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "LDO input capacitor" (at 137.16 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cinldo-pin1"))
+    (pin "2" (uuid "cinldo-pin2"))
+  )
+
+  ; ==================== LDO OUTPUT CAPACITOR ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 195.58 160.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "39000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_OUT_LDO" (at 198.12 157.48 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "22µF 10V" (at 198.12 160.02 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 196.5452 163.83 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 195.58 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM21BR61A226ME44L" (at 195.58 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 195.58 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "LDO output capacitor" (at 195.58 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "coutldo-pin1"))
+    (pin "2" (uuid "coutldo-pin2"))
+  )
+
+  ; ==================== WIRING / NETS ====================
+  ; Input power to buck
+  (wire
+    (pts (xy 25.4 88.9) (xy 63.5 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-input-001")
+  )
+  (wire
+    (pts (xy 63.5 88.9) (xy 63.5 92.71))
+    (stroke (width 0) (type default))
+    (uuid "wire-input-002")
+  )
+  (wire
+    (pts (xy 63.5 88.9) (xy 83.82 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-input-003")
+  )
+
+  ; Buck VIN pin connection
+  (wire
+    (pts (xy 83.82 88.9) (xy 83.82 83.82))
+    (stroke (width 0) (type default))
+    (uuid "wire-vin-001")
+  )
+  (wire
+    (pts (xy 83.82 83.82) (xy 88.9 83.82))
+    (stroke (width 0) (type default))
+    (uuid "wire-vin-002")
+  )
+
+  ; GND connections
+  (wire
+    (pts (xy 25.4 127) (xy 63.5 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-001")
+  )
+  (wire
+    (pts (xy 63.5 127) (xy 63.5 100.33))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-002")
+  )
+  (wire
+    (pts (xy 63.5 127) (xy 101.6 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-003")
+  )
+
+  ; Buck SW to inductor
+  (wire
+    (pts (xy 114.3 88.9) (xy 127 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-sw-001")
+  )
+  (wire
+    (pts (xy 127 88.9) (xy 127 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-sw-002")
+  )
+  (wire
+    (pts (xy 127 76.2) (xy 135.89 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-sw-003")
+  )
+
+  ; Bootstrap cap to SW node
+  (wire
+    (pts (xy 119.38 85.09) (xy 119.38 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-boot-001")
+  )
+  (wire
+    (pts (xy 119.38 88.9) (xy 127 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-boot-002")
+  )
+
+  ; Inductor to output
+  (wire
+    (pts (xy 143.51 76.2) (xy 160.02 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-lout-001")
+  )
+  (wire
+    (pts (xy 160.02 76.2) (xy 160.02 85.09))
+    (stroke (width 0) (type default))
+    (uuid "wire-lout-002")
+  )
+  (wire
+    (pts (xy 160.02 76.2) (xy 172.72 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-lout-003")
+  )
+  (wire
+    (pts (xy 172.72 76.2) (xy 172.72 85.09))
+    (stroke (width 0) (type default))
+    (uuid "wire-lout-004")
+  )
+  (wire
+    (pts (xy 172.72 76.2) (xy 187.96 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-lout-005")
+  )
+  (wire
+    (pts (xy 187.96 76.2) (xy 187.96 85.09))
+    (stroke (width 0) (type default))
+    (uuid "wire-lout-006")
+  )
+  (wire
+    (pts (xy 187.96 76.2) (xy 228.6 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-15v-out-001")
+  )
+
+  ; Output cap grounds
+  (wire
+    (pts (xy 160.02 92.71) (xy 160.02 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-cout-gnd-001")
+  )
+  (wire
+    (pts (xy 101.6 127) (xy 160.02 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-cout-gnd-002")
+  )
+  (wire
+    (pts (xy 172.72 92.71) (xy 172.72 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-cout-gnd-003")
+  )
+  (wire
+    (pts (xy 160.02 127) (xy 172.72 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-cout-gnd-004")
+  )
+
+  ; Feedback divider connections
+  (wire
+    (pts (xy 187.96 92.71) (xy 187.96 97.79))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-001")
+  )
+  (wire
+    (pts (xy 187.96 97.79) (xy 187.96 102.87))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-002")
+  )
+  (wire
+    (pts (xy 187.96 110.49) (xy 187.96 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-gnd-001")
+  )
+  (wire
+    (pts (xy 172.72 127) (xy 187.96 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-gnd-002")
+  )
+
+  ; FB pin connection
+  (wire
+    (pts (xy 114.3 93.98) (xy 121.92 93.98))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-pin-001")
+  )
+  (wire
+    (pts (xy 121.92 93.98) (xy 121.92 97.79))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-pin-002")
+  )
+  (wire
+    (pts (xy 121.92 97.79) (xy 187.96 97.79))
+    (stroke (width 0) (type default))
+    (uuid "wire-fb-pin-003")
+  )
+
+  ; +15V to LDO input
+  (wire
+    (pts (xy 187.96 76.2) (xy 187.96 137.16))
+    (stroke (width 0) (type default))
+    (uuid "wire-15v-ldo-001")
+  )
+  (wire
+    (pts (xy 137.16 137.16) (xy 187.96 137.16))
+    (stroke (width 0) (type default))
+    (uuid "wire-15v-ldo-002")
+  )
+  (wire
+    (pts (xy 137.16 137.16) (xy 137.16 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-15v-ldo-003")
+  )
+  (wire
+    (pts (xy 137.16 152.4) (xy 137.16 156.21))
+    (stroke (width 0) (type default))
+    (uuid "wire-15v-ldo-004")
+  )
+  (wire
+    (pts (xy 137.16 152.4) (xy 152.4 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-15v-ldo-005")
+  )
+
+  ; LDO CE (enable) tied to VIN
+  (wire
+    (pts (xy 152.4 157.48) (xy 147.32 157.48))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-ce-001")
+  )
+  (wire
+    (pts (xy 147.32 157.48) (xy 147.32 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-ce-002")
+  )
+  (wire
+    (pts (xy 147.32 152.4) (xy 152.4 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-ce-003")
+  )
+
+  ; LDO GND
+  (wire
+    (pts (xy 165.1 165.1) (xy 165.1 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-gnd-001")
+  )
+  (wire
+    (pts (xy 137.16 163.83) (xy 137.16 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-gnd-002")
+  )
+  (wire
+    (pts (xy 137.16 190.5) (xy 165.1 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-gnd-003")
+  )
+  (wire
+    (pts (xy 165.1 190.5) (xy 195.58 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-gnd-004")
+  )
+  (wire
+    (pts (xy 195.58 163.83) (xy 195.58 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ldo-gnd-005")
+  )
+
+  ; LDO output to 3.3V
+  (wire
+    (pts (xy 177.8 152.4) (xy 195.58 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-001")
+  )
+  (wire
+    (pts (xy 195.58 152.4) (xy 195.58 156.21))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-002")
+  )
+  (wire
+    (pts (xy 195.58 152.4) (xy 228.6 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-003")
+  )
+
+  ; ==================== NET LABELS ====================
+  (label "VIN"
+    (at 45.72 88.9 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-vin-001")
+  )
+
+  (label "+15V"
+    (at 200.66 76.2 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-15v-001")
+  )
+
+  (label "+3.3V"
+    (at 208.28 152.4 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-3v3-001")
+  )
+
+  (label "SW"
+    (at 119.38 76.2 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-sw-001")
+  )
+
+  (label "FB"
+    (at 182.88 97.79 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-fb-001")
+  )
+
+  ; ==================== DESIGN NOTES ====================
+  (text "BUCK CONVERTER DESIGN NOTES:\n\nVout = 1.0V × (1 + R_FB1/R_FB2)\n     = 1.0V × (1 + 100k/7.15k)\n     = 15.0V\n\nfsw = 2.1MHz (fixed)\nL = 6.8µH (SRP1038A)\nCout = 44µF (2×22µF)\nCin = 2.2µF 100V\n\nThermal: Rθja = 45°C/W (SOT-23-6)\nMax Pdiss at 85°C = 0.89W"
+    (exclude_from_sim no)
+    (at 25.4 170.18 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "text-design-notes-001")
+  )
+
+  (text "LDO DESIGN NOTES:\n\nXC6220B331MR-G\n- Fixed 3.3V output\n- 700mA max\n- 6.5µVrms noise\n- Dropout: 100mV @ 200mA\n\nCin = 10µF (low ESR)\nCout = 22µF (low ESR)\n\nPdiss = (Vin - Vout) × Iout\n      = (15V - 3.3V) × 0.3A\n      = 3.5W (needs heatsinking!)\n\nNote: Consider 5V intermediate\nrail to reduce LDO dissipation"
+    (exclude_from_sim no)
+    (at 25.4 200.66 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "text-ldo-notes-001")
   )
 
 )

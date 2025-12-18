@@ -3,145 +3,913 @@
   (generator "eeschema")
   (generator_version "8.0")
   (uuid "40000000-0000-0000-0000-000000000001")
-  (paper "A4")
+  (paper "A3")
   (title_block
     (title "Safety Interlock")
-    (date "2025-12-14")
-    (rev "1.0")
+    (date "2025-12-18")
+    (rev "1.1")
     (company "Temper")
     (comment 1 "Hardware Safety System")
-    (comment 2 "OCP + OVP + Thermal + Watchdog")
+    (comment 2 "OCP + OVP + Thermal + Watchdog + Fault Latch")
   )
 
-  (lib_symbols)
+  (lib_symbols
+    (symbol "Device:C" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+      (property "Reference" "C" (at 0.635 2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Value" "C" (at 0.635 -2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Footprint" "" (at 0.9652 -3.81 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline (pts (xy -2.032 -0.762) (xy 2.032 -0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+        (polyline (pts (xy -2.032 0.762) (xy 2.032 0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+      )
+      (symbol "C_1_1"
+        (pin passive line (at 0 3.81 270) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "R" (at 2.032 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "R" (at 0 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at -1.778 0 90) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "R_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+  )
 
-  (text "SAFETY INTERLOCK SYSTEM\n\nFunction:\n- Over-current protection (OCP)\n- Over-voltage protection (OVP)\n- Thermal shutdown\n- Hardware watchdog\n- Logic gate combination\n- Fault latching\n\nKey Components:\n- LM339 quad comparator\n- 74HC4075 triple OR gate\n- 74HC00 quad NAND gate\n- 74HC08 quad AND gate\n- 74HC04 hex inverter\n- TPS3823-33 watchdog\n\nProtection Thresholds:\n- OCP: 40A (2.0V), 60A (3.0V)\n- OVP: 390V (divider)\n- Thermal: 85°C trip, 75°C reset\n- Watchdog: 1.6s timeout\n\nReference: SAFETY_INTERLOCK_DESIGN.md"
+  ; ==================== TITLE AND DOCUMENTATION ====================
+  (text "SAFETY INTERLOCK SYSTEM\n\nProtection Layers:\n1. OCP: TLV3201 comparator, 50A threshold\n2. OVP: TLV3201 comparator, 390V threshold\n3. Thermal: TLV3201 w/ hysteresis, 85C trip\n4. Watchdog: TPS3823-33, 1.6s timeout\n\nFault Logic:\n- 74HC4075: Triple 3-input OR (fault combine)\n- 74HC00: Quad NAND (SR latch)\n- 74HC08: Quad AND (reset logic)\n- 74HC04: Hex inverter\n\nResponse Times:\n- OCP: 33ns detection + 50ns logic = 83ns\n- OVP: 9ns detection + 50ns logic = 59ns\n- Thermal: <1ms\n- WDT: 1.6s timeout\n\nReference: SAFETY_INTERLOCK_DESIGN.md"
     (exclude_from_sim no)
     (at 25.4 25.4 0)
-    (effects
-      (font
-        (size 2.54 2.54)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.8 1.8)) (justify left))
     (uuid "41000000-0000-0000-0000-000000000001")
   )
 
+  ; ==================== HIERARCHICAL LABELS ====================
   (hierarchical_label "+15V"
     (shape input)
-    (at 25.4 88.9 180)
+    (at 25.4 76.2 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "41000001-0000-0000-0000-000000000001")
   )
 
   (hierarchical_label "+3.3V"
     (shape input)
-    (at 25.4 101.6 180)
+    (at 25.4 83.82 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "41000001-0000-0000-0000-000000000002")
   )
 
   (hierarchical_label "I_SENSE"
     (shape input)
-    (at 25.4 114.3 180)
+    (at 25.4 101.6 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "41000001-0000-0000-0000-000000000003")
   )
 
-  (hierarchical_label "V_SENSE"
-    (shape input)
-    (at 25.4 127 180)
-    (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
-    (uuid "41000001-0000-0000-0000-000000000004")
-  )
-
-  (hierarchical_label "TEMP_FAULT"
-    (shape input)
-    (at 25.4 139.7 180)
-    (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
-    (uuid "41000001-0000-0000-0000-000000000005")
-  )
-
-  (hierarchical_label "MCU_ENABLE"
+  (hierarchical_label "DC_BUS+"
     (shape input)
     (at 25.4 152.4 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
-    (uuid "41000001-0000-0000-0000-000000000006")
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "41000001-0000-0000-0000-000000000004")
   )
 
-  (hierarchical_label "SHUTDOWN_N"
-    (shape output)
-    (at 228.6 88.9 0)
+  (hierarchical_label "NTC_SENSE"
+    (shape input)
+    (at 25.4 203.2 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
-    (uuid "41000001-0000-0000-0000-000000000007")
-  )
-
-  (hierarchical_label "FAULT_STATUS"
-    (shape output)
-    (at 228.6 101.6 0)
-    (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
-    (uuid "41000001-0000-0000-0000-000000000008")
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "41000001-0000-0000-0000-000000000005")
   )
 
   (hierarchical_label "WDT_KICK"
     (shape input)
-    (at 25.4 165.1 180)
+    (at 25.4 254 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "41000001-0000-0000-0000-000000000006")
+  )
+
+  (hierarchical_label "RESET_N"
+    (shape input)
+    (at 279.4 177.8 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "41000001-0000-0000-0000-000000000007")
+  )
+
+  (hierarchical_label "SHUTDOWN_N"
+    (shape output)
+    (at 381 127 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "41000001-0000-0000-0000-000000000008")
+  )
+
+  (hierarchical_label "FAULT_STATUS"
+    (shape output)
+    (at 381 139.7 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "41000001-0000-0000-0000-000000000009")
+  )
+
+  (hierarchical_label "GND"
+    (shape input)
+    (at 25.4 91.44 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "41000001-0000-0000-0000-000000000010")
+  )
+
+  ; ==================== POWER SYMBOLS ====================
+  (symbol
+    (lib_id "power:+5V")
+    (at 63.5 68.58 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "42000001-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR01" (at 63.5 72.39 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+5V" (at 63.5 64.77 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol
+    (lib_id "power:GND")
+    (at 63.5 132.08 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "42000001-0000-0000-0000-000000000002")
+    (property "Reference" "#PWR02" (at 63.5 138.43 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 63.5 135.89 0) (effects (font (size 1.27 1.27))))
+  )
+
+  ; ==================== OCP SECTION ====================
+  (text "OCP - OVERCURRENT PROTECTION\nThreshold: 50A (2.5V from CT)\nComparator: TLV3201 (40ns)"
+    (exclude_from_sim no)
+    (at 50.8 93.98 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "43000000-0000-0000-0000-000000000001")
+  )
+
+  ; OCP Comparator U_OCP
+  (symbol
+    (lib_id "Comparator:TLV3201")
+    (at 101.6 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "43000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_OCP" (at 101.6 99.06 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "TLV3201AIDBVR" (at 101.6 101.6 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 101.6 127 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.ti.com/lit/ds/symlink/tlv3201.pdf" (at 101.6 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "TLV3201AIDBVR" (at 101.6 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Texas Instruments" (at 101.6 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "40ns Rail-to-Rail Comparator" (at 101.6 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uocp-pin1"))
+    (pin "2" (uuid "uocp-pin2"))
+    (pin "3" (uuid "uocp-pin3"))
+    (pin "4" (uuid "uocp-pin4"))
+    (pin "5" (uuid "uocp-pin5"))
+  )
+
+  ; OCP Reference Voltage Divider (2.5V from 5V)
+  (symbol
+    (lib_id "Device:R")
+    (at 63.5 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "43000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_OCP_REF1" (at 66.04 104.14 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ" (at 66.04 106.68 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 61.722 106.68 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-0710KL" (at 63.5 106.68 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rocp1-pin1"))
+    (pin "2" (uuid "rocp1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 63.5 121.92 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "43000003-0000-0000-0000-000000000001")
+    (property "Reference" "R_OCP_REF2" (at 66.04 119.38 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ" (at 66.04 121.92 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 61.722 121.92 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-0710KL" (at 63.5 121.92 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rocp2-pin1"))
+    (pin "2" (uuid "rocp2-pin2"))
+  )
+
+  ; ==================== OVP SECTION ====================
+  (text "OVP - OVERVOLTAGE PROTECTION\nThreshold: 390V (3.86V after divider)\nDivider: 3x1MΩ + 30kΩ = 101:1"
+    (exclude_from_sim no)
+    (at 50.8 144.78 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "44000000-0000-0000-0000-000000000001")
+  )
+
+  ; OVP Comparator U_OVP
+  (symbol
+    (lib_id "Comparator:TLV3201")
+    (at 101.6 165.1 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_OVP" (at 101.6 152.4 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "TLV3201AIDBVR" (at 101.6 154.94 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 101.6 180.34 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "TLV3201AIDBVR" (at 101.6 165.1 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uovp-pin1"))
+    (pin "2" (uuid "uovp-pin2"))
+    (pin "3" (uuid "uovp-pin3"))
+    (pin "4" (uuid "uovp-pin4"))
+    (pin "5" (uuid "uovp-pin5"))
+  )
+
+  ; OVP HV Resistive Divider (3x 1MΩ series, 30kΩ to GND)
+  (symbol
+    (lib_id "Device:R")
+    (at 50.8 160.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_OVP1" (at 53.34 157.48 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "1MΩ" (at 53.34 160.02 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 49.022 160.02 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "CRCW12061M00FKEA" (at 50.8 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Vishay" (at 50.8 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "1MΩ 200V 1% 1206" (at 50.8 160.02 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rovp1-pin1"))
+    (pin "2" (uuid "rovp1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 50.8 172.72 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000003-0000-0000-0000-000000000001")
+    (property "Reference" "R_OVP2" (at 53.34 170.18 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "1MΩ" (at 53.34 172.72 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 49.022 172.72 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "CRCW12061M00FKEA" (at 50.8 172.72 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rovp2-pin1"))
+    (pin "2" (uuid "rovp2-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 50.8 185.42 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000004-0000-0000-0000-000000000001")
+    (property "Reference" "R_OVP3" (at 53.34 182.88 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "1MΩ" (at 53.34 185.42 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 49.022 185.42 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "CRCW12061M00FKEA" (at 50.8 185.42 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rovp3-pin1"))
+    (pin "2" (uuid "rovp3-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 50.8 198.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000005-0000-0000-0000-000000000001")
+    (property "Reference" "R_OVP4" (at 53.34 195.58 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "30kΩ" (at 53.34 198.12 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 49.022 198.12 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "CRCW120630K0FKEA" (at 50.8 198.12 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rovp4-pin1"))
+    (pin "2" (uuid "rovp4-pin2"))
+  )
+
+  ; OVP Reference Voltage Divider (3.85V from 5V)
+  (symbol
+    (lib_id "Device:R")
+    (at 76.2 160.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000006-0000-0000-0000-000000000001")
+    (property "Reference" "R_OVP_REF1" (at 78.74 157.48 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "2.3kΩ" (at 78.74 160.02 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 74.422 160.02 90) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rovpref1-pin1"))
+    (pin "2" (uuid "rovpref1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 76.2 175.26 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "44000007-0000-0000-0000-000000000001")
+    (property "Reference" "R_OVP_REF2" (at 78.74 172.72 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ" (at 78.74 175.26 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 74.422 175.26 90) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rovpref2-pin1"))
+    (pin "2" (uuid "rovpref2-pin2"))
+  )
+
+  ; ==================== THERMAL SECTION ====================
+  (text "THERMAL SHUTDOWN\nThreshold: 85C trip, 75C reset\nNTC: 10kΩ @ 25C, B=3950"
+    (exclude_from_sim no)
+    (at 50.8 213.36 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "45000000-0000-0000-0000-000000000001")
+  )
+
+  ; Thermal Comparator U_THERMAL
+  (symbol
+    (lib_id "Comparator:TLV3201")
+    (at 101.6 228.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "45000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_THERMAL" (at 101.6 215.9 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "TLV3201AIDBVR" (at 101.6 218.44 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 101.6 243.84 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "TLV3201AIDBVR" (at 101.6 228.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uthermal-pin1"))
+    (pin "2" (uuid "uthermal-pin2"))
+    (pin "3" (uuid "uthermal-pin3"))
+    (pin "4" (uuid "uthermal-pin4"))
+    (pin "5" (uuid "uthermal-pin5"))
+  )
+
+  ; NTC Pull-up Resistor
+  (symbol
+    (lib_id "Device:R")
+    (at 63.5 223.52 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "45000002-0000-0000-0000-000000000001")
+    (property "Reference" "R_NTC_PU" (at 66.04 220.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ" (at 66.04 223.52 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 61.722 223.52 90) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-0710KL" (at 63.5 223.52 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rntcpu-pin1"))
+    (pin "2" (uuid "rntcpu-pin2"))
+  )
+
+  ; Thermal Reference (0.5V trip threshold)
+  (symbol
+    (lib_id "Device:R")
+    (at 76.2 223.52 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "45000003-0000-0000-0000-000000000001")
+    (property "Reference" "R_TH_REF1" (at 78.74 220.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "90kΩ" (at 78.74 223.52 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 74.422 223.52 90) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rthref1-pin1"))
+    (pin "2" (uuid "rthref1-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 76.2 238.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "45000004-0000-0000-0000-000000000001")
+    (property "Reference" "R_TH_REF2" (at 78.74 236.22 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ" (at 78.74 238.76 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 74.422 238.76 90) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rthref2-pin1"))
+    (pin "2" (uuid "rthref2-pin2"))
+  )
+
+  ; ==================== WATCHDOG SECTION ====================
+  (text "HARDWARE WATCHDOG\nTPS3823-33: 1.6s timeout\nWDI: Toggle from MCU GPIO"
+    (exclude_from_sim no)
+    (at 50.8 261.62 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "46000000-0000-0000-0000-000000000001")
+  )
+
+  ; Watchdog IC TPS3823-33
+  (symbol
+    (lib_id "Timer:TPS3823-33")
+    (at 101.6 279.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "46000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_WDT" (at 101.6 266.7 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "TPS3823-33DBVR" (at 101.6 269.24 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5" (at 101.6 294.64 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps3823-33.pdf" (at 101.6 279.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "TPS3823-33DBVR" (at 101.6 279.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Texas Instruments" (at 101.6 279.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "1.6s Watchdog Timer, Push-Pull RESET" (at 101.6 279.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uwdt-pin1-vdd"))
+    (pin "2" (uuid "uwdt-pin2-gnd"))
+    (pin "3" (uuid "uwdt-pin3-mr"))
+    (pin "4" (uuid "uwdt-pin4-reset"))
+    (pin "5" (uuid "uwdt-pin5-wdi"))
+  )
+
+  ; Watchdog Decoupling
+  (symbol
+    (lib_id "Device:C")
+    (at 78.74 279.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "46000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_WDT" (at 81.28 276.86 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 81.28 279.4 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 79.7052 283.21 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM155R71H104KE14D" (at 78.74 279.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cwdt-pin1"))
+    (pin "2" (uuid "cwdt-pin2"))
+  )
+
+  ; ==================== FAULT LOGIC SECTION ====================
+  (text "FAULT LOGIC\n74HC4075: OR gates (fault combine)\n74HC00: NAND gates (SR latch)\n74HC08: AND gates (reset logic)\n74HC04: Inverters"
+    (exclude_from_sim no)
+    (at 177.8 93.98 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "47000000-0000-0000-0000-000000000001")
+  )
+
+  ; Triple 3-Input OR Gate 74HC4075
+  (symbol
+    (lib_id "74xx:74HC4075")
+    (at 215.9 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "47000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_OR" (at 215.9 114.3 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "74HC4075D" (at 215.9 116.84 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (at 215.9 142.24 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "74HC4075D" (at 215.9 127 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Nexperia" (at 215.9 127 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Triple 3-Input OR Gate" (at 215.9 127 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uor-pin1"))
+    (pin "2" (uuid "uor-pin2"))
+    (pin "3" (uuid "uor-pin3"))
+    (pin "4" (uuid "uor-pin4"))
+    (pin "5" (uuid "uor-pin5"))
+    (pin "6" (uuid "uor-pin6"))
+    (pin "7" (uuid "uor-pin7"))
+    (pin "8" (uuid "uor-pin8"))
+    (pin "9" (uuid "uor-pin9"))
+    (pin "10" (uuid "uor-pin10"))
+    (pin "11" (uuid "uor-pin11"))
+    (pin "12" (uuid "uor-pin12"))
+    (pin "13" (uuid "uor-pin13"))
+    (pin "14" (uuid "uor-pin14"))
+  )
+
+  ; Quad NAND Gate 74HC00 (SR Latch)
+  (symbol
+    (lib_id "74xx:74HC00")
+    (at 279.4 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "47000002-0000-0000-0000-000000000001")
+    (property "Reference" "U_NAND" (at 279.4 114.3 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "74HC00D" (at 279.4 116.84 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (at 279.4 142.24 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "74HC00D" (at 279.4 127 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Nexperia" (at 279.4 127 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Quad 2-Input NAND for SR Latch" (at 279.4 127 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "unand-pin1"))
+    (pin "2" (uuid "unand-pin2"))
+    (pin "3" (uuid "unand-pin3"))
+    (pin "4" (uuid "unand-pin4"))
+    (pin "5" (uuid "unand-pin5"))
+    (pin "6" (uuid "unand-pin6"))
+    (pin "7" (uuid "unand-pin7"))
+    (pin "8" (uuid "unand-pin8"))
+    (pin "9" (uuid "unand-pin9"))
+    (pin "10" (uuid "unand-pin10"))
+    (pin "11" (uuid "unand-pin11"))
+    (pin "12" (uuid "unand-pin12"))
+    (pin "13" (uuid "unand-pin13"))
+    (pin "14" (uuid "unand-pin14"))
+  )
+
+  ; Quad AND Gate 74HC08 (Reset Logic)
+  (symbol
+    (lib_id "74xx:74HC08")
+    (at 330.2 152.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "47000003-0000-0000-0000-000000000001")
+    (property "Reference" "U_AND" (at 330.2 139.7 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "74HC08D" (at 330.2 142.24 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (at 330.2 167.64 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "74HC08D" (at 330.2 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Nexperia" (at 330.2 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Quad 2-Input AND for Reset Logic" (at 330.2 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uand-pin1"))
+    (pin "2" (uuid "uand-pin2"))
+    (pin "3" (uuid "uand-pin3"))
+    (pin "4" (uuid "uand-pin4"))
+    (pin "5" (uuid "uand-pin5"))
+    (pin "6" (uuid "uand-pin6"))
+    (pin "7" (uuid "uand-pin7"))
+    (pin "8" (uuid "uand-pin8"))
+    (pin "9" (uuid "uand-pin9"))
+    (pin "10" (uuid "uand-pin10"))
+    (pin "11" (uuid "uand-pin11"))
+    (pin "12" (uuid "uand-pin12"))
+    (pin "13" (uuid "uand-pin13"))
+    (pin "14" (uuid "uand-pin14"))
+  )
+
+  ; Hex Inverter 74HC04
+  (symbol
+    (lib_id "74xx:74HC04")
+    (at 330.2 200.66 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "47000004-0000-0000-0000-000000000001")
+    (property "Reference" "U_INV" (at 330.2 187.96 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "74HC04D" (at 330.2 190.5 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (at 330.2 215.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "74HC04D" (at 330.2 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Nexperia" (at 330.2 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Hex Inverter" (at 330.2 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uinv-pin1"))
+    (pin "2" (uuid "uinv-pin2"))
+    (pin "3" (uuid "uinv-pin3"))
+    (pin "4" (uuid "uinv-pin4"))
+    (pin "5" (uuid "uinv-pin5"))
+    (pin "6" (uuid "uinv-pin6"))
+    (pin "7" (uuid "uinv-pin7"))
+    (pin "8" (uuid "uinv-pin8"))
+    (pin "9" (uuid "uinv-pin9"))
+    (pin "10" (uuid "uinv-pin10"))
+    (pin "11" (uuid "uinv-pin11"))
+    (pin "12" (uuid "uinv-pin12"))
+    (pin "13" (uuid "uinv-pin13"))
+    (pin "14" (uuid "uinv-pin14"))
+  )
+
+  ; ==================== DECOUPLING CAPACITORS ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 200.66 144.78 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "48000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_OR" (at 203.2 142.24 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 203.2 144.78 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 201.6252 148.59 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 200.66 144.78 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cor-pin1"))
+    (pin "2" (uuid "cor-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 264.16 144.78 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "48000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_NAND" (at 266.7 142.24 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 266.7 144.78 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 265.1252 148.59 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 264.16 144.78 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cnand-pin1"))
+    (pin "2" (uuid "cnand-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 314.96 170.18 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "48000003-0000-0000-0000-000000000001")
+    (property "Reference" "C_AND" (at 317.5 167.64 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 317.5 170.18 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 315.9252 173.99 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 314.96 170.18 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cand-pin1"))
+    (pin "2" (uuid "cand-pin2"))
+  )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 314.96 218.44 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "48000004-0000-0000-0000-000000000001")
+    (property "Reference" "C_INV" (at 317.5 215.9 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 317.5 218.44 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 315.9252 222.25 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 314.96 218.44 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cinv-pin1"))
+    (pin "2" (uuid "cinv-pin2"))
+  )
+
+  ; ==================== NET LABELS ====================
+  (label "OCP_FAULT"
+    (at 127 111.76 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-ocp-001")
+  )
+
+  (label "OVP_FAULT"
+    (at 127 165.1 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-ovp-001")
+  )
+
+  (label "THERMAL_FAULT"
+    (at 127 228.6 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-thermal-001")
+  )
+
+  (label "WDT_FAULT"
+    (at 127 279.4 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-wdt-001")
+  )
+
+  (label "FAULT_OR"
+    (at 243.84 127 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-faultor-001")
+  )
+
+  (label "LATCH_Q"
+    (at 307.34 127 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-latchq-001")
+  )
+
+  (label "GATE_DISABLE"
+    (at 358.14 127 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-gatedis-001")
+  )
+
+  ; ==================== WIRING (Key connections) ====================
+  ; I_SENSE to OCP comparator input
+  (wire
+    (pts (xy 25.4 101.6) (xy 88.9 101.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-isense-001")
+  )
+  (wire
+    (pts (xy 88.9 101.6) (xy 88.9 109.22))
+    (stroke (width 0) (type default))
+    (uuid "wire-isense-002")
+  )
+
+  ; OCP reference divider midpoint to comparator
+  (wire
+    (pts (xy 63.5 110.49) (xy 63.5 114.3))
+    (stroke (width 0) (type default))
+    (uuid "wire-ocpref-001")
+  )
+  (wire
+    (pts (xy 63.5 114.3) (xy 88.9 114.3))
+    (stroke (width 0) (type default))
+    (uuid "wire-ocpref-002")
+  )
+
+  ; OCP output to fault OR
+  (wire
+    (pts (xy 114.3 111.76) (xy 175.26 111.76))
+    (stroke (width 0) (type default))
+    (uuid "wire-ocpout-001")
+  )
+  (wire
+    (pts (xy 175.26 111.76) (xy 175.26 121.92))
+    (stroke (width 0) (type default))
+    (uuid "wire-ocpout-002")
+  )
+  (wire
+    (pts (xy 175.26 121.92) (xy 203.2 121.92))
+    (stroke (width 0) (type default))
+    (uuid "wire-ocpout-003")
+  )
+
+  ; DC_BUS+ to OVP divider
+  (wire
+    (pts (xy 25.4 152.4) (xy 50.8 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-dcbus-001")
+  )
+  (wire
+    (pts (xy 50.8 152.4) (xy 50.8 156.21))
+    (stroke (width 0) (type default))
+    (uuid "wire-dcbus-002")
+  )
+
+  ; OVP divider to comparator
+  (wire
+    (pts (xy 50.8 189.23) (xy 50.8 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpdiv-001")
+  )
+  (wire
+    (pts (xy 50.8 190.5) (xy 68.58 190.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpdiv-002")
+  )
+  (wire
+    (pts (xy 68.58 190.5) (xy 68.58 162.56))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpdiv-003")
+  )
+  (wire
+    (pts (xy 68.58 162.56) (xy 88.9 162.56))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpdiv-004")
+  )
+
+  ; OVP output to fault OR
+  (wire
+    (pts (xy 114.3 165.1) (xy 170.18 165.1))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpout-001")
+  )
+  (wire
+    (pts (xy 170.18 165.1) (xy 170.18 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpout-002")
+  )
+  (wire
+    (pts (xy 170.18 127) (xy 203.2 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-ovpout-003")
+  )
+
+  ; NTC_SENSE to thermal comparator
+  (wire
+    (pts (xy 25.4 203.2) (xy 40.64 203.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-ntc-001")
+  )
+  (wire
+    (pts (xy 40.64 203.2) (xy 40.64 226.06))
+    (stroke (width 0) (type default))
+    (uuid "wire-ntc-002")
+  )
+  (wire
+    (pts (xy 40.64 226.06) (xy 88.9 226.06))
+    (stroke (width 0) (type default))
+    (uuid "wire-ntc-003")
+  )
+
+  ; Thermal output to fault OR
+  (wire
+    (pts (xy 114.3 228.6) (xy 165.1 228.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-thermout-001")
+  )
+  (wire
+    (pts (xy 165.1 228.6) (xy 165.1 132.08))
+    (stroke (width 0) (type default))
+    (uuid "wire-thermout-002")
+  )
+  (wire
+    (pts (xy 165.1 132.08) (xy 203.2 132.08))
+    (stroke (width 0) (type default))
+    (uuid "wire-thermout-003")
+  )
+
+  ; WDT_KICK to watchdog WDI
+  (wire
+    (pts (xy 25.4 254) (xy 60.96 254))
+    (stroke (width 0) (type default))
+    (uuid "wire-wdtkick-001")
+  )
+  (wire
+    (pts (xy 60.96 254) (xy 60.96 284.48))
+    (stroke (width 0) (type default))
+    (uuid "wire-wdtkick-002")
+  )
+  (wire
+    (pts (xy 60.96 284.48) (xy 88.9 284.48))
+    (stroke (width 0) (type default))
+    (uuid "wire-wdtkick-003")
+  )
+
+  ; WDT RESET_N output (needs inversion for WDT_FAULT)
+  (wire
+    (pts (xy 114.3 279.4) (xy 147.32 279.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-wdtout-001")
+  )
+  (wire
+    (pts (xy 147.32 279.4) (xy 147.32 137.16))
+    (stroke (width 0) (type default))
+    (uuid "wire-wdtout-002")
+  )
+
+  ; OR gate output to latch
+  (wire
+    (pts (xy 228.6 127) (xy 266.7 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-orout-001")
+  )
+
+  ; Latch output to SHUTDOWN_N
+  (wire
+    (pts (xy 292.1 127) (xy 381 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-latchout-001")
+  )
+
+  ; FAULT_STATUS output
+  (wire
+    (pts (xy 358.14 139.7) (xy 381 139.7))
+    (stroke (width 0) (type default))
+    (uuid "wire-faultstatus-001")
   )
 
 )

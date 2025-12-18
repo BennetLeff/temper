@@ -3,119 +3,613 @@
   (generator "eeschema")
   (generator_version "8.0")
   (uuid "20000000-0000-0000-0000-000000000001")
-  (paper "A4")
+  (paper "A3")
   (title_block
-    (title "Half Bridge")
-    (date "2025-12-14")
-    (rev "1.0")
+    (title "Half Bridge Power Stage")
+    (date "2025-12-18")
+    (rev "1.1")
     (company "Temper")
-    (comment 1 "IGBT Half-Bridge with Gate Driver")
-    (comment 2 "1800W Induction Heating")
+    (comment 1 "IGBT Half-Bridge with Isolated Gate Driver")
+    (comment 2 "1800W Induction Heating - IKW40N120H3 + UCC21550")
   )
 
-  (lib_symbols)
-
-  (text "HALF-BRIDGE POWER STAGE\n\nFunction:\n- IGBT half-bridge (high-side + low-side)\n- Isolated gate driver (UCC21550)\n- Bootstrap power supply\n- Dead-time generation\n- Current sensing (CT)\n\nKey Components:\n- IKW40N120H3 IGBTs (40A, 1200V)\n- UCC21550 dual gate driver\n- Bootstrap diodes and capacitors\n- Current transformer\n\nReference:\n- SPLIT_RAIL_BOOTSTRAP_DESIGN.md\n- CT_SENSING_DESIGN.md\n- HALF_BRIDGE_VERIFICATION_REPORT.md"
-    (exclude_from_sim no)
-    (at 25.4 25.4 0)
-    (effects
-      (font
-        (size 2.54 2.54)
+  (lib_symbols
+    ; Include required symbols inline for portability
+    (symbol "Device:C" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+      (property "Reference" "C" (at 0.635 2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Value" "C" (at 0.635 -2.54 0) (effects (font (size 1.27 1.27)) (justify left)))
+      (property "Footprint" "" (at 0.9652 -3.81 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline (pts (xy -2.032 -0.762) (xy 2.032 -0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
+        (polyline (pts (xy -2.032 0.762) (xy 2.032 0.762)) (stroke (width 0.508) (type default)) (fill (type none)))
       )
-      (justify left)
+      (symbol "C_1_1"
+        (pin passive line (at 0 3.81 270) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 2.794) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
     )
+    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "R" (at 2.032 0 90) (effects (font (size 1.27 1.27))))
+      (property "Value" "R" (at 0 0 90) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at -1.778 0 90) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "R_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:D_Schottky" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "D" (at 0 2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "D_Schottky" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "D_Schottky_0_1"
+        (polyline (pts (xy 1.27 0) (xy -1.27 0)) (stroke (width 0) (type default)) (fill (type none)))
+        (polyline (pts (xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)) (stroke (width 0.254) (type default)) (fill (type none)))
+        (polyline (pts (xy -1.905 0.635) (xy -1.905 1.27) (xy -1.27 1.27) (xy -1.27 -1.27) (xy -0.635 -1.27) (xy -0.635 -0.635)) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "D_Schottky_1_1"
+        (pin passive line (at -3.81 0 0) (length 2.54) (name "K" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 3.81 0 180) (length 2.54) (name "A" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "Device:D_Zener" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "D" (at 0 2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "D_Zener" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "~" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "D_Zener_0_1"
+        (polyline (pts (xy 1.27 0) (xy -1.27 0)) (stroke (width 0) (type default)) (fill (type none)))
+        (polyline (pts (xy -1.27 -1.27) (xy -1.27 1.27) (xy -0.762 1.27)) (stroke (width 0.254) (type default)) (fill (type none)))
+        (polyline (pts (xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)) (stroke (width 0.254) (type default)) (fill (type none)))
+      )
+      (symbol "D_Zener_1_1"
+        (pin passive line (at -3.81 0 0) (length 2.54) (name "K" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 3.81 0 180) (length 2.54) (name "A" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
+  )
+
+  ; ==================== TITLE AND DOCUMENTATION ====================
+  (text "HALF-BRIDGE POWER STAGE\n\nTopology: Half-Bridge with Isolated Gate Driver\nPower: 1800W @ 340V DC Bus\nSwitching: 20-50 kHz\n\nKey Components:\n- Q1, Q2: IKW40N120H3 (40A, 1200V IGBT)\n- U1: UCC21550 Isolated Gate Driver\n- Bootstrap: 10µF + SiC Schottky (burst mode)\n- Negative bias: -5V via shifted ground\n\nReference Documents:\n- SPLIT_RAIL_BOOTSTRAP_DESIGN.md\n- HALF_BRIDGE_VERIFICATION_REPORT.md\n- MILLER_CURRENT_ANALYSIS.md"
+    (exclude_from_sim no)
+    (at 25.4 38.1 0)
+    (effects (font (size 2.0 2.0)) (justify left))
     (uuid "21000000-0000-0000-0000-000000000001")
   )
 
+  ; ==================== HIERARCHICAL LABELS (Interface to parent) ====================
   (hierarchical_label "DC_BUS+"
     (shape input)
-    (at 25.4 88.9 180)
+    (at 50.8 76.2 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "21000001-0000-0000-0000-000000000001")
   )
 
   (hierarchical_label "DC_BUS-"
     (shape input)
-    (at 25.4 101.6 180)
+    (at 50.8 177.8 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "21000001-0000-0000-0000-000000000002")
   )
 
   (hierarchical_label "PWM_H"
     (shape input)
-    (at 25.4 114.3 180)
+    (at 88.9 101.6 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "21000001-0000-0000-0000-000000000003")
   )
 
   (hierarchical_label "PWM_L"
     (shape input)
-    (at 25.4 127 180)
+    (at 88.9 106.68 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify right)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "21000001-0000-0000-0000-000000000004")
   )
 
   (hierarchical_label "SHUTDOWN_N"
     (shape input)
-    (at 228.6 127 0)
+    (at 88.9 114.3 180)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "21000001-0000-0000-0000-000000000005")
   )
 
   (hierarchical_label "SWITCH_NODE"
     (shape output)
-    (at 228.6 88.9 0)
+    (at 228.6 127 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "21000001-0000-0000-0000-000000000006")
   )
 
   (hierarchical_label "I_SENSE"
     (shape output)
-    (at 228.6 101.6 0)
+    (at 228.6 139.7 0)
     (fields_autoplaced yes)
-    (effects
-      (font
-        (size 1.27 1.27)
-      )
-      (justify left)
-    )
+    (effects (font (size 1.27 1.27)) (justify left))
     (uuid "21000001-0000-0000-0000-000000000007")
+  )
+
+  (hierarchical_label "+15V"
+    (shape input)
+    (at 88.9 88.9 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "21000001-0000-0000-0000-000000000008")
+  )
+
+  (hierarchical_label "GND"
+    (shape input)
+    (at 88.9 134.62 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "21000001-0000-0000-0000-000000000009")
+  )
+
+  ; ==================== POWER SYMBOLS ====================
+  (symbol
+    (lib_id "power:+15V")
+    (at 101.6 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "22000001-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR01" (at 101.6 92.71 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+15V" (at 101.6 85.09 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol
+    (lib_id "power:GND")
+    (at 101.6 134.62 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "22000001-0000-0000-0000-000000000002")
+    (property "Reference" "#PWR02" (at 101.6 140.97 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 101.6 138.43 0) (effects (font (size 1.27 1.27))))
+  )
+
+  ; ==================== GATE DRIVER UCC21550 ====================
+  (symbol
+    (lib_id "UCC21550:UCC21550DWK")
+    (at 127 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "23000001-0000-0000-0000-000000000001")
+    (property "Reference" "U1" (at 127 88.9 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "UCC21550BDWK" (at 127 91.44 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm" (at 127 138.43 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.ti.com/lit/ds/symlink/ucc21550.pdf" (at 127 140.97 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "UCC21550BDWK" (at 127 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Texas Instruments" (at 127 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "pin1-uuid-001"))
+    (pin "2" (uuid "pin2-uuid-001"))
+    (pin "3" (uuid "pin3-uuid-001"))
+    (pin "4" (uuid "pin4-uuid-001"))
+    (pin "5" (uuid "pin5-uuid-001"))
+    (pin "6" (uuid "pin6-uuid-001"))
+    (pin "7" (uuid "pin7-uuid-001"))
+    (pin "8" (uuid "pin8-uuid-001"))
+    (pin "9" (uuid "pin9-uuid-001"))
+    (pin "10" (uuid "pin10-uuid-001"))
+    (pin "11" (uuid "pin11-uuid-001"))
+    (pin "12" (uuid "pin12-uuid-001"))
+    (pin "13" (uuid "pin13-uuid-001"))
+    (pin "14" (uuid "pin14-uuid-001"))
+  )
+
+  ; ==================== HIGH-SIDE IGBT Q1 ====================
+  (symbol
+    (lib_id "IKW40N120H3:IKW40N120H3")
+    (at 190.5 101.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "24000001-0000-0000-0000-000000000001")
+    (property "Reference" "Q1" (at 195.58 99.06 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "IKW40N120H3" (at 195.58 101.6 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Package_TO_SOT_THT:TO-247-3_Vertical" (at 195.58 104.14 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.infineon.com/dgdl/Infineon-IKW40N120H3-DS-v01_20-EN.pdf" (at 190.5 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "IKW40N120H3FKSA1" (at 190.5 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Infineon" (at 190.5 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "q1-pin1-uuid"))
+    (pin "2" (uuid "q1-pin2-uuid"))
+    (pin "3" (uuid "q1-pin3-uuid"))
+  )
+
+  ; ==================== LOW-SIDE IGBT Q2 ====================
+  (symbol
+    (lib_id "IKW40N120H3:IKW40N120H3")
+    (at 190.5 152.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "24000002-0000-0000-0000-000000000001")
+    (property "Reference" "Q2" (at 195.58 149.86 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "IKW40N120H3" (at 195.58 152.4 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Package_TO_SOT_THT:TO-247-3_Vertical" (at 195.58 154.94 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.infineon.com/dgdl/Infineon-IKW40N120H3-DS-v01_20-EN.pdf" (at 190.5 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "IKW40N120H3FKSA1" (at 190.5 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Infineon" (at 190.5 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "q2-pin1-uuid"))
+    (pin "2" (uuid "q2-pin2-uuid"))
+    (pin "3" (uuid "q2-pin3-uuid"))
+  )
+
+  ; ==================== BOOTSTRAP DIODE D_BOOT (High-Side) ====================
+  (symbol
+    (lib_id "Device:D_Schottky")
+    (at 165.1 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "25000001-0000-0000-0000-000000000001")
+    (property "Reference" "D_BOOT" (at 165.1 71.12 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "UJ3D1210TS" (at 165.1 73.66 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-220-2_Vertical" (at 165.1 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://www.onsemi.com/pdf/datasheet/uj3d1210ts-d.pdf" (at 165.1 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "UJ3D1210TS" (at 165.1 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "onsemi" (at 165.1 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "1200V 10A SiC Schottky for bootstrap" (at 165.1 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "dboot-pin1-uuid"))
+    (pin "2" (uuid "dboot-pin2-uuid"))
+  )
+
+  ; ==================== BOOTSTRAP CAPACITOR C_BOOT (10µF for burst mode) ====================
+  (symbol
+    (lib_id "Device:C")
+    (at 177.8 83.82 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "26000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_BOOT" (at 180.34 81.28 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10µF 50V" (at 180.34 83.82 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_1210_3225Metric" (at 178.7652 87.63 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 177.8 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM32ER71H106KA12L" (at 177.8 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 177.8 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bootstrap capacitor for burst mode operation" (at 177.8 83.82 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cboot-pin1-uuid"))
+    (pin "2" (uuid "cboot-pin2-uuid"))
+  )
+
+  ; ==================== GATE RESISTORS RG_ON (Turn-on) ====================
+  ; High-side gate resistor
+  (symbol
+    (lib_id "Device:R")
+    (at 170.18 101.6 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "27000001-0000-0000-0000-000000000001")
+    (property "Reference" "RG_ON_H" (at 170.18 97.79 90) (effects (font (size 1.27 1.27))))
+    (property "Value" "2.2Ω" (at 170.18 99.06 90) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 170.18 103.378 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 170.18 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC1206FR-072R2L" (at 170.18 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 170.18 101.6 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rgon-h-pin1-uuid"))
+    (pin "2" (uuid "rgon-h-pin2-uuid"))
+  )
+
+  ; Low-side gate resistor
+  (symbol
+    (lib_id "Device:R")
+    (at 170.18 152.4 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "27000002-0000-0000-0000-000000000001")
+    (property "Reference" "RG_ON_L" (at 170.18 148.59 90) (effects (font (size 1.27 1.27))))
+    (property "Value" "2.2Ω" (at 170.18 149.86 90) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 170.18 154.178 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 170.18 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC1206FR-072R2L" (at 170.18 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 170.18 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rgon-l-pin1-uuid"))
+    (pin "2" (uuid "rgon-l-pin2-uuid"))
+  )
+
+  ; ==================== GATE-SOURCE PULL-DOWN RESISTORS RGS ====================
+  ; High-side pull-down
+  (symbol
+    (lib_id "Device:R")
+    (at 182.88 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "28000001-0000-0000-0000-000000000001")
+    (property "Reference" "RGS_H" (at 185.42 109.22 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "2.2kΩ" (at 185.42 111.76 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 181.102 111.76 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 182.88 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-072K2L" (at 182.88 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 182.88 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Gate pull-down for Miller protection" (at 182.88 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rgs-h-pin1-uuid"))
+    (pin "2" (uuid "rgs-h-pin2-uuid"))
+  )
+
+  ; Low-side pull-down
+  (symbol
+    (lib_id "Device:R")
+    (at 182.88 162.56 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "28000002-0000-0000-0000-000000000001")
+    (property "Reference" "RGS_L" (at 185.42 160.02 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "2.2kΩ" (at 185.42 162.56 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 181.102 162.56 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 182.88 162.56 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC0603FR-072K2L" (at 182.88 162.56 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 182.88 162.56 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Gate pull-down for Miller protection" (at 182.88 162.56 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rgs-l-pin1-uuid"))
+    (pin "2" (uuid "rgs-l-pin2-uuid"))
+  )
+
+  ; ==================== NEGATIVE BIAS ZENER (Shifted Ground Bootstrap) ====================
+  (symbol
+    (lib_id "Device:D_Zener")
+    (at 177.8 93.98 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "29000001-0000-0000-0000-000000000001")
+    (property "Reference" "D_NEG" (at 172.72 93.98 90) (effects (font (size 1.27 1.27))))
+    (property "Value" "5.1V" (at 175.26 93.98 90) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Diode_SMD:D_SOD-123" (at 177.8 93.98 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 177.8 93.98 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "BZT52C5V1-7-F" (at 177.8 93.98 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Diodes Inc" (at 177.8 93.98 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Negative bias for -5V gate OFF (Miller protection)" (at 177.8 93.98 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "dneg-pin1-uuid"))
+    (pin "2" (uuid "dneg-pin2-uuid"))
+  )
+
+  ; ==================== DECOUPLING CAPACITORS ====================
+  ; VCCI decoupling
+  (symbol
+    (lib_id "Device:C")
+    (at 106.68 96.52 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "30000001-0000-0000-0000-000000000001")
+    (property "Reference" "C_VCCI" (at 109.22 93.98 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 109.22 96.52 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 107.6452 100.33 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM188R71H104KA93D" (at 106.68 96.52 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Murata" (at 106.68 96.52 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cvcci-pin1-uuid"))
+    (pin "2" (uuid "cvcci-pin2-uuid"))
+  )
+
+  ; Dead-time capacitor (500ns = 5.1nF with R_DT)
+  (symbol
+    (lib_id "Device:C")
+    (at 106.68 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "30000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_DT" (at 109.22 109.22 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "5.1nF" (at 109.22 111.76 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 107.6452 115.57 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Sets dead-time to ~500ns" (at 106.68 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cdt-pin1-uuid"))
+    (pin "2" (uuid "cdt-pin2-uuid"))
+  )
+
+  ; ==================== CURRENT TRANSFORMER CT1 ====================
+  (text "Current Sensing (CT)\nCST-1005: 1:1000 ratio\nR_BURDEN: 66.5Ω for 50A → 3.3V"
+    (exclude_from_sim no)
+    (at 215.9 165.1 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "31000000-0000-0000-0000-000000000001")
+  )
+
+  ; CT Burden Resistor
+  (symbol
+    (lib_id "Device:R")
+    (at 215.9 152.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "31000001-0000-0000-0000-000000000001")
+    (property "Reference" "R_BURDEN" (at 218.44 149.86 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "66.5Ω" (at 218.44 152.4 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 214.122 152.4 90) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "~" (at 215.9 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RC1206FR-0766R5L" (at 215.9 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Yageo" (at 215.9 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "CT burden: 50A/1000 × 66.5Ω = 3.325V" (at 215.9 152.4 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "rburden-pin1-uuid"))
+    (pin "2" (uuid "rburden-pin2-uuid"))
+  )
+
+  ; ==================== RESONANT TANK CONNECTOR ====================
+  (text "To Resonant Tank:\n- L_TANK: 80µH Litz coil\n- C_TANK: 2×150nF FKP1\nf_res = 37.5kHz (with pan)"
+    (exclude_from_sim no)
+    (at 241.3 127 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "32000000-0000-0000-0000-000000000001")
+  )
+
+  ; ==================== WIRING / NETS ====================
+  ; DC_BUS+ to Q1 Collector
+  (wire
+    (pts (xy 50.8 76.2) (xy 193.04 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-dcbus-plus-001")
+  )
+  (wire
+    (pts (xy 193.04 76.2) (xy 193.04 93.98))
+    (stroke (width 0) (type default))
+    (uuid "wire-dcbus-plus-002")
+  )
+
+  ; Q1 Emitter to Q2 Collector (SWITCH_NODE)
+  (wire
+    (pts (xy 193.04 109.22) (xy 193.04 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-swnode-001")
+  )
+  (wire
+    (pts (xy 193.04 127) (xy 228.6 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-swnode-002")
+  )
+  (wire
+    (pts (xy 193.04 127) (xy 193.04 144.78))
+    (stroke (width 0) (type default))
+    (uuid "wire-swnode-003")
+  )
+
+  ; Q2 Emitter to DC_BUS-
+  (wire
+    (pts (xy 193.04 160.02) (xy 193.04 177.8))
+    (stroke (width 0) (type default))
+    (uuid "wire-dcbus-minus-001")
+  )
+  (wire
+    (pts (xy 50.8 177.8) (xy 193.04 177.8))
+    (stroke (width 0) (type default))
+    (uuid "wire-dcbus-minus-002")
+  )
+
+  ; Bootstrap supply path: +15V → D_BOOT → C_BOOT → VDDA
+  (wire
+    (pts (xy 101.6 88.9) (xy 161.29 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-boot-supply-001")
+  )
+  (wire
+    (pts (xy 161.29 88.9) (xy 161.29 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-boot-supply-002")
+  )
+
+  ; Gate driver outputs to gate resistors
+  (wire
+    (pts (xy 142.24 101.6) (xy 166.37 101.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-gate-h-001")
+  )
+  (wire
+    (pts (xy 173.99 101.6) (xy 185.42 101.6))
+    (stroke (width 0) (type default))
+    (uuid "wire-gate-h-002")
+  )
+
+  (wire
+    (pts (xy 142.24 119.38) (xy 160.02 119.38))
+    (stroke (width 0) (type default))
+    (uuid "wire-gate-l-001")
+  )
+  (wire
+    (pts (xy 160.02 119.38) (xy 160.02 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-gate-l-002")
+  )
+  (wire
+    (pts (xy 160.02 152.4) (xy 166.37 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-gate-l-003")
+  )
+  (wire
+    (pts (xy 173.99 152.4) (xy 185.42 152.4))
+    (stroke (width 0) (type default))
+    (uuid "wire-gate-l-004")
+  )
+
+  ; I_SENSE output
+  (wire
+    (pts (xy 215.9 139.7) (xy 228.6 139.7))
+    (stroke (width 0) (type default))
+    (uuid "wire-isense-001")
+  )
+  (wire
+    (pts (xy 215.9 148.59) (xy 215.9 139.7))
+    (stroke (width 0) (type default))
+    (uuid "wire-isense-002")
+  )
+
+  ; ==================== NET LABELS ====================
+  (label "DC_BUS+"
+    (at 76.2 76.2 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-dcbus-plus-001")
+  )
+
+  (label "DC_BUS-"
+    (at 76.2 177.8 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-dcbus-minus-001")
+  )
+
+  (label "SW_NODE"
+    (at 200.66 127 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-swnode-001")
+  )
+
+  (label "VCC_BOOT"
+    (at 177.8 76.2 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-vccboot-001")
+  )
+
+  (label "GATE_H"
+    (at 152.4 101.6 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-gate-h-001")
+  )
+
+  (label "GATE_L"
+    (at 152.4 119.38 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "label-gate-l-001")
   )
 
 )
