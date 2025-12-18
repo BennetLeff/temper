@@ -47,7 +47,6 @@ class MechanicalMountingLoss(LossFunction):
     def name(self) -> str:
         return "mechanical_mounting"
 
-    def __call__(
         self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
     ) -> LossResult:
         total_loss = jnp.array(0.0)

@@ -21,7 +21,13 @@ import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.core.board import Board, GroundDomain, Zone
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import (
+    Component,
+    Net,
+    Netlist,
+    build_adjacency_matrix,
+    compute_eigenvector_centrality,
+)
 
 
 @dataclass(frozen=True)
@@ -176,6 +182,9 @@ class LossContext:
     # Pre-computed net class indices
     net_class_indices: Dict[str, Array] = field(default_factory=dict)
 
+    # Centrality weights for each component (N,)
+    centrality: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.float32))
+
     @classmethod
     def from_netlist_and_board(
         cls,
@@ -185,6 +194,7 @@ class LossContext:
         thermal_constraints: Optional[List[ThermalConstraint]] = None,
         loop_constraints: Optional[List[LoopConstraint]] = None,
         mounting_rules: Optional[List[MountingRule]] = None,
+        use_centrality_weighting: bool = False,
     ) -> LossContext:
         """
         Create a LossContext from netlist and board with automatic index computation.
@@ -195,6 +205,9 @@ class LossContext:
             clearance_rules: Optional list of clearance rules.
             thermal_constraints: Optional list of thermal constraints.
             loop_constraints: Optional list of loop constraints.
+            mounting_rules: Optional list of mounting rules.
+            use_centrality_weighting: If True, scale weights and step sizes
+                by component centrality (hub prioritization).
 
         Returns:
             A new LossContext with pre-computed arrays.
@@ -230,15 +243,24 @@ class LossContext:
             for nc, indices in net_class_indices_dict.items()
         }
 
+        # Compute centrality (if enabled or needed for weighting)
+        if use_centrality_weighting:
+            adjacency = build_adjacency_matrix(netlist)
+            centrality = compute_eigenvector_centrality(adjacency)
+        else:
+            centrality = jnp.ones(netlist.n_components) / max(netlist.n_components, 1)
+
         # Pre-compute net pin arrays for JAX-compatible wirelength
         net_pin_indices, net_pin_offsets, net_pin_mask, net_weights, max_pins = (
-            cls._precompute_net_arrays(netlist)
+            cls._precompute_net_arrays(netlist, centrality if use_centrality_weighting else None)
         )
 
         # Pre-compute loop constraint arrays
         loop_constraints = loop_constraints or []
         loop_pin_indices, loop_pin_offsets, loop_pin_mask, loop_max_areas, loop_weights = (
-            cls._precompute_loop_arrays(netlist, loop_constraints)
+            cls._precompute_loop_arrays(
+                netlist, loop_constraints, centrality if use_centrality_weighting else None
+            )
         )
 
         # Validate constraints reference valid components/pins
@@ -271,11 +293,13 @@ class LossContext:
             loop_max_areas=loop_max_areas,
             loop_weights=loop_weights,
             net_class_indices=net_class_indices,
+            centrality=centrality if use_centrality_weighting else jnp.array([]),
         )
 
     @staticmethod
     def _precompute_net_arrays(
         netlist: Netlist,
+        centrality: Optional[Array] = None,
     ) -> Tuple[Array, Array, Array, Array, int]:
         """
         Pre-compute padded arrays for net pin positions.
@@ -301,6 +325,7 @@ class LossContext:
 
         max_pins = max(len(n.pins) for n in valid_nets)
         n_nets = len(valid_nets)
+        n_components = netlist.n_components
 
         # Initialize arrays
         indices = []
@@ -312,6 +337,9 @@ class LossContext:
             net_indices = []
             net_offsets = []
             net_mask = []
+            
+            # For centrality weighting
+            net_comp_indices = []
 
             for comp_ref, pin_name in net.pins:
                 comp_idx = netlist.get_component_index(comp_ref)
@@ -319,6 +347,7 @@ class LossContext:
                 pin = comp.get_pin(pin_name)
 
                 net_indices.append(comp_idx)
+                net_comp_indices.append(comp_idx)
                 if pin is not None:
                     net_offsets.append(list(pin.position))
                 else:
@@ -334,7 +363,16 @@ class LossContext:
             indices.append(net_indices)
             offsets.append(net_offsets)
             masks.append(net_mask)
-            weights.append(net.weight)
+            
+            # Compute effective net weight
+            weight = net.weight
+            if centrality is not None and centrality.shape[0] > 0:
+                # Boost net weight by max centrality of connected components
+                # Scale by N to keep average weight consistent (avg centrality is 1/N)
+                max_c = jnp.max(centrality[jnp.array(net_comp_indices)])
+                weight = weight * (max_c * n_components)
+
+            weights.append(weight)
 
         return (
             jnp.array(indices, dtype=jnp.int32),
@@ -348,6 +386,7 @@ class LossContext:
     def _precompute_loop_arrays(
         netlist: Netlist,
         loop_constraints: List[LoopConstraint],
+        centrality: Optional[Array] = None,
     ) -> Tuple[Array, Array, Array, Array, Array]:
         """
         Pre-compute padded arrays for loop constraint pin positions.
@@ -369,6 +408,7 @@ class LossContext:
             )
 
         max_pins = max(len(lc.pins) for lc in loop_constraints)
+        n_components = netlist.n_components
 
         indices = []
         offsets = []
@@ -380,6 +420,9 @@ class LossContext:
             loop_indices = []
             loop_offsets = []
             loop_mask = []
+            
+            # For centrality weighting
+            loop_comp_indices = []
 
             for comp_ref, pin_name in loop.pins:
                 try:
@@ -388,6 +431,7 @@ class LossContext:
                     pin = comp.get_pin(pin_name)
 
                     loop_indices.append(comp_idx)
+                    loop_comp_indices.append(comp_idx)
                     if pin is not None:
                         loop_offsets.append(list(pin.position))
                     else:
@@ -409,7 +453,15 @@ class LossContext:
             offsets.append(loop_offsets)
             masks.append(loop_mask)
             max_areas.append(loop.max_area)
-            weights.append(loop.weight)
+            
+            # Compute effective loop weight
+            weight = loop.weight
+            if centrality is not None and centrality.shape[0] > 0 and loop_comp_indices:
+                # Boost loop weight by max centrality of involved components
+                max_c = jnp.max(centrality[jnp.array(loop_comp_indices)])
+                weight = weight * (max_c * n_components)
+                
+            weights.append(weight)
 
         return (
             jnp.array(indices, dtype=jnp.int32),
@@ -490,7 +542,6 @@ class LossFunction(ABC):
         ...     def name(self) -> str:
         ...         return "my_loss"
         ...
-        ...     def __call__(self, positions, rotations, context) -> LossResult:
         ...         value = jnp.sum(positions ** 2)
         ...         return LossResult(value=value)
     """
@@ -507,6 +558,8 @@ class LossFunction(ABC):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute the loss value.
@@ -685,7 +738,7 @@ class CompositeLoss:
             # Note: We always compute the loss even if weight is low.
             # JAX tracing doesn't support conditional execution based on
             # traced values, and the weight will multiply the result anyway.
-            result = wloss.loss_fn(positions, rotations, context)
+            result = wloss.loss_fn(positions, rotations, context, epoch, total_epochs)
 
             # Apply normalization
             normalizer = wloss.get_normalizer(context)
@@ -698,6 +751,11 @@ class CompositeLoss:
             breakdown[wloss.loss_fn.name] = result.value
             breakdown[f"{wloss.loss_fn.name}_normalized"] = normalized_value
             breakdown[f"{wloss.loss_fn.name}_weighted"] = weighted_value
+            
+            # Merge sub-breakdowns (e.g., per-component metrics)
+            if result.breakdown:
+                for sub_key, sub_val in result.breakdown.items():
+                    breakdown[f"{wloss.loss_fn.name}_{sub_key}"] = sub_val
 
         return LossResult(value=total, breakdown=breakdown)
 

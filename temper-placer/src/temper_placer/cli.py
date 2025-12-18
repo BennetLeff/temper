@@ -97,6 +97,16 @@ def main() -> None:
     help="Use smart heuristic initialization (default: enabled).",
 )
 @click.option(
+    "--auto-group/--no-auto-group",
+    default=True,
+    help="Automatically detect and cluster functional blocks (default: enabled).",
+)
+@click.option(
+    "--centrality/--no-centrality",
+    default=False,
+    help="Use graph centrality to prioritize hub components (default: disabled).",
+)
+@click.option(
     "--profile-dir",
     type=click.Path(path_type=Path),
     help="Save JAX profiler trace to this directory.",
@@ -113,6 +123,8 @@ def optimize(
     curriculum: bool,
     placements_json: Optional[Path],
     heuristics: bool,
+    auto_group: bool,
+    centrality: bool,
     profile_dir: Optional[Path],
 ) -> None:
     """
@@ -138,6 +150,7 @@ def optimize(
     console.print(f"[bold]Seed:[/] {seed}")
     console.print(f"[bold]Curriculum:[/] {'enabled' if curriculum else 'disabled'}")
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
+    console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
 
     # Import heavy dependencies only when needed
     console.print("\n[dim]Loading JAX and optimizer modules...[/]")
@@ -161,10 +174,13 @@ def optimize(
             BoundaryLoss,
             WirelengthLoss,
             SpreadLoss,
+            GroupClusterLoss,
+            GroupConfig,
         )
         from temper_placer.losses.base import LossContext
         from temper_placer.heuristics import create_default_pipeline, PlacementContext
         from temper_placer.core.state import PlacementState
+        from temper_placer.core.community import detect_communities
     except ImportError as e:
         console.print(f"[red]Failed to import required modules: {e}[/]")
         console.print("Please ensure JAX and all dependencies are installed:")
@@ -244,6 +260,16 @@ def optimize(
     # Step 3: Create loss functions
     console.print("\n[bold cyan]Step 3/5:[/] Creating loss functions...")
 
+    # Run auto-grouping if requested
+    detected_communities = []
+    if auto_group:
+        console.print("  [dim]Detecting functional communities (Louvain)...[/]")
+        detected_communities = detect_communities(netlist)
+        if detected_communities:
+            console.print(f"  [green]✓[/] Detected {len(detected_communities)} functional blocks")
+            for comm in detected_communities:
+                console.print(f"    - {comm.name}: {len(comm.component_refs)} components")
+
     # Build composite loss with curriculum-aware weights
     def make_loss(weights: dict) -> CompositeLoss:
         """Factory function for curriculum learning."""
@@ -271,6 +297,22 @@ def optimize(
         if "spread" in weights:
             losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
 
+        # Auto-grouping clusters
+        if auto_group and detected_communities:
+            group_configs = []
+            for comm in detected_communities:
+                # Resolve refs to indices
+                indices = [netlist.get_component_index(ref) for ref in comm.component_refs]
+                group_configs.append(
+                    GroupConfig(
+                        name=comm.name,
+                        component_indices=jnp.array(indices, dtype=jnp.int32),
+                        max_diameter_mm=30.0,  # Default 30mm cluster size
+                        weight=1.0,
+                    )
+                )
+            losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
+
         # Add more losses based on constraints
         # (clearance, thermal, zone, loop_area, etc. can be added here)
 
@@ -290,7 +332,9 @@ def optimize(
     # Step 4: Create optimizer config and context
     console.print("\n[bold cyan]Step 4/5:[/] Initializing optimizer...")
 
-    context = LossContext.from_netlist_and_board(netlist, board)
+    context = LossContext.from_netlist_and_board(
+        netlist, board, use_centrality_weighting=centrality
+    )
 
     # Configure optimizer
     if curriculum:
@@ -300,6 +344,7 @@ def optimize(
             seed=seed,
             log_interval=max(1, epochs // 100),  # Log ~100 times
             curriculum_phases=phases,
+            use_centrality_weighting=centrality,
         )
         console.print(f"  [green]✓[/] Curriculum: {len(phases)} phases")
     else:
@@ -307,6 +352,7 @@ def optimize(
             epochs=epochs,
             seed=seed,
             log_interval=max(1, epochs // 100),
+            use_centrality_weighting=centrality,
         )
 
     console.print(
@@ -789,11 +835,17 @@ def _print_issue(issue) -> None:
     default=2000,
     help="Optimization epochs (default: 2000).",
 )
+@click.option(
+    "--auto-group/--no-auto-group",
+    default=False,
+    help="Enable automatic functional grouping (default: disabled).",
+)
 def benchmark(
     pcbs: str,
     output: Optional[Path],
     format: str,
     epochs: int,
+    auto_group: bool,
 ) -> None:
     """
     Run placement benchmarks against human baselines.
@@ -814,8 +866,19 @@ def benchmark(
     from temper_placer.io.reference_loader import list_reference_designs, load_reference_pcb
     from temper_placer.optimizer import train, OptimizerConfig
     from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
-    from temper_placer.losses import CompositeLoss, WeightedLoss, OverlapLoss, BoundaryLoss, WirelengthLoss, SpreadLoss
+    from temper_placer.losses import (
+        CompositeLoss,
+        WeightedLoss,
+        OverlapLoss,
+        BoundaryLoss,
+        WirelengthLoss,
+        SpreadLoss,
+        GroupClusterLoss,
+        GroupConfig,
+    )
     from temper_placer.losses.base import LossContext
+    from temper_placer.core.community import detect_communities
+    import jax.numpy as jnp
 
     console.print(Panel.fit(
         "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
@@ -850,18 +913,31 @@ def benchmark(
 
     console.print(f"Found {len(targets)} benchmark targets.\n")
 
-    # 2. Setup Loss
-    default_weights = {"overlap": 100.0, "boundary": 50.0, "wirelength": 10.0, "spread": 5.0}
-    
-    def make_benchmark_loss(weights):
-        return CompositeLoss([
-            WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]),
-            WeightedLoss(BoundaryLoss(), weight=weights["boundary"]),
-            WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]),
-            WeightedLoss(SpreadLoss(), weight=weights["spread"]),
-        ])
+    # 2. Setup Loss Factory
+    def make_benchmark_loss(weights, netlist=None, detected_communities=None):
+        losses = []
+        losses.append(WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]))
+        losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
+        losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
+        losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
 
-    composite_loss = make_benchmark_loss(default_weights)
+        if auto_group and detected_communities and netlist:
+            group_configs = []
+            for comm in detected_communities:
+                indices = [netlist.get_component_index(ref) for ref in comm.component_refs]
+                group_configs.append(
+                    GroupConfig(
+                        name=comm.name,
+                        component_indices=jnp.array(indices, dtype=jnp.int32),
+                        max_diameter_mm=30.0,
+                        weight=1.0,
+                    )
+                )
+            losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
+
+        return CompositeLoss(losses)
+
+    default_weights = {"overlap": 100.0, "boundary": 50.0, "wirelength": 10.0, "spread": 5.0}
 
     # 3. Run Benchmarks
     summary = BenchmarkSummary(total_pcbs=len(targets), passed=0, failed=0, better_than_human=0)
@@ -880,7 +956,7 @@ def benchmark(
                 if legacy_path.exists():
                     baseline_path = legacy_path
                 else:
-                    console.print(f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run baseline_extractor.py first.")
+                    console.print(f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run generate_unrouted_benchmarks.py first.")
                     continue
                 
             with open(baseline_path) as f:
@@ -890,7 +966,7 @@ def benchmark(
             # 2. Setup Optimizer Data
             ref_design = load_reference_pcb(pcb_path)
             
-            # Load constraints (assumed to be in same dir)
+            # Load constraints
             config_path = pcb_path.parent / f"{name}_constraints.yaml"
             if config_path.exists():
                 constraints = load_constraints(config_path)
@@ -901,6 +977,14 @@ def benchmark(
             board = create_board_from_constraints(constraints)
             context = LossContext.from_netlist_and_board(ref_design.netlist, board)
             
+            # Community detection for auto-grouping
+            detected = []
+            if auto_group:
+                detected = detect_communities(ref_design.netlist)
+
+            # Create loss for this specific board
+            composite_loss = make_benchmark_loss(default_weights, ref_design.netlist, detected)
+
             # 3. Run Optimizer
             cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs//10))
             opt_result = train(ref_design.netlist, board, composite_loss, context, cfg)

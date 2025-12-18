@@ -33,7 +33,6 @@ _VECTORIZED_THRESHOLD = 50
 
 
 def _compute_spread_penalty_vectorized(
-    positions: Array,
     bounds: Array,
     min_distance: float = 2.0,
 ) -> Array:
@@ -76,7 +75,6 @@ def _compute_spread_penalty_vectorized(
 
 
 def _compute_spread_penalty_chunked(
-    positions: Array,
     bounds: Array,
     min_distance: float = 2.0,
 ) -> Array:
@@ -135,7 +133,6 @@ def _compute_spread_penalty_chunked(
 
 
 def compute_spread_penalty(
-    positions: Array,
     bounds: Array,
     min_distance: float = 2.0,
 ) -> Array:
@@ -224,6 +221,8 @@ class SpreadLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute spread loss.
@@ -269,6 +268,8 @@ class RotationEntropyLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute rotation entropy loss.
@@ -325,11 +326,7 @@ class CenterOfMassLoss(LossFunction):
     def name(self) -> str:
         return "center_of_mass"
 
-    def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
     ) -> LossResult:
         """
         Compute center of mass deviation loss.

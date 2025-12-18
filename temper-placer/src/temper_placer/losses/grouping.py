@@ -74,11 +74,7 @@ class GroupClusterLoss(LossFunction):
     def name(self) -> str:
         return "group_cluster"
 
-    def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
     ) -> LossResult:
         """
         Compute total group cluster penalty.
@@ -182,11 +178,7 @@ class ProximityLoss(LossFunction):
     def name(self) -> str:
         return "proximity"
 
-    def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
     ) -> LossResult:
         """
         Compute total proximity penalty.
@@ -251,11 +243,7 @@ class GroupSeparationLoss(LossFunction):
     def name(self) -> str:
         return "group_separation"
 
-    def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
     ) -> LossResult:
         """
         Compute total group separation penalty.

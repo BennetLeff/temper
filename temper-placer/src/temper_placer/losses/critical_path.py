@@ -96,6 +96,8 @@ class CriticalPathLengthLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute total penalty for critical paths exceeding max length.
@@ -139,7 +141,6 @@ class CriticalPathLengthLoss(LossFunction):
 
 
 def compute_critical_path_penalty(
-    positions: Array,
     from_idx: int,
     to_idx: int,
     max_length_mm: float,

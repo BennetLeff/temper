@@ -85,7 +85,7 @@ class NumericalInstabilityError(RuntimeError):
 
 def _check_numerical_stability(
     loss_value: float,
-    loss_breakdown: Dict[str, float],
+    loss_breakdown: Dict[str, Any],
     grad_pos: Array,
     grad_rot: Array,
     epoch: int,
@@ -94,7 +94,7 @@ def _check_numerical_stability(
 
     Args:
         loss_value: Total loss value.
-        loss_breakdown: Per-loss component values.
+        loss_breakdown: Per-loss component values (may contain arrays).
         grad_pos: Position gradients.
         grad_rot: Rotation gradients.
         epoch: Current epoch for error reporting.
@@ -107,13 +107,20 @@ def _check_numerical_stability(
     # Check total loss
     if not math.isfinite(loss_value):
         # Find which loss component caused the issue
-        bad_components = [name for name, val in loss_breakdown.items() if not math.isfinite(val)]
+        bad_components = []
+        for name, val in loss_breakdown.items():
+            if not jnp.all(jnp.isfinite(val)):
+                bad_components.append(name)
+                
         raise NumericalInstabilityError(
             f"Non-finite loss at epoch {epoch}: {loss_value}. "
             f"Problematic components: {bad_components if bad_components else 'unknown (overflow in combination)'}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown=loss_breakdown,
+            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+                           for k, v in loss_breakdown.items()},
+            grad_norms={"position": float(jnp.linalg.norm(grad_pos)), 
+                        "rotation": float(jnp.linalg.norm(grad_rot))},
         )
 
     # Check gradients
@@ -126,7 +133,8 @@ def _check_numerical_stability(
             f"grad_pos_norm={grad_norm_pos}, grad_rot_norm={grad_norm_rot}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown=loss_breakdown,
+            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+                           for k, v in loss_breakdown.items()},
             grad_norms={"position": grad_norm_pos, "rotation": grad_norm_rot},
         )
 
@@ -172,6 +180,7 @@ class TrainingResult:
     elapsed_seconds: float = 0.0
     validation_history: List[ValidationResult] = field(default_factory=list)
     stopped_by_validation: bool = False
+    final_overlap_weights: Optional[Array] = None
 
 
 @dataclass
@@ -193,6 +202,8 @@ class TrainingState:
     best_positions: Optional[Array] = None
     best_rotations: Optional[Array] = None
     epochs_without_improvement: int = 0
+    position_delta_ema: float = 1.0  # EMA of component movement norm
+    overlap_weights: Optional[Array] = None  # (N,) adaptive multipliers
 
 
 def create_optimizer(
@@ -308,6 +319,7 @@ def initialize_training_state(
         opt_state_rot=opt_state_rot,
         rng_key=rng_key,
         epoch=0,
+        overlap_weights=jnp.ones((netlist.n_components,), dtype=jnp.float32),
     )
 
 
@@ -316,6 +328,8 @@ def make_train_step(
     opt_pos: optax.GradientTransformation,
     opt_rot: optax.GradientTransformation,
     total_epochs: int,
+    centrality: Optional[Array] = None,
+    priority_scale: float = 1.0,
 ):
     """
     Create a JIT-compiled training step function.
@@ -325,6 +339,8 @@ def make_train_step(
         opt_pos: Position optimizer.
         opt_rot: Rotation optimizer.
         total_epochs: Total training epochs (for curriculum).
+        centrality: Optional (N,) array of component centralities.
+        priority_scale: Max boost for hub components (1.0 = none).
 
     Returns:
         JIT-compiled train_step function.
@@ -339,7 +355,9 @@ def make_train_step(
         opt_state_rot: Any,
         epoch: int,
         learning_rate: float,
-    ) -> Tuple[Array, Array, Array, Dict[str, Array], Any, Any, Array, Array]:
+        position_delta_ema: float,
+        overlap_weights: Array,
+    ) -> Tuple[Array, Array, Array, Dict[str, Array], Any, Any, Array, Array, float]:
         """
         Single training step.
 
@@ -351,37 +369,81 @@ def make_train_step(
             opt_state_rot: Rotation optimizer state.
             epoch: Current epoch.
             learning_rate: Current learning rate to apply.
+            position_delta_ema: Current EMA of position updates.
+            overlap_weights: Per-component adaptive overlap weights.
 
         Returns:
             Tuple of (new_positions, new_logits, loss, breakdown,
-                     new_opt_state_pos, new_opt_state_rot, grad_pos, grad_rot).
+                     new_opt_state_pos, new_opt_state_rot, grad_pos, grad_rot, new_ema).
         """
         # Update learning rate in optimizer state
-        opt_state_pos.hyperparams["learning_rate"] = learning_rate
-        opt_state_rot.hyperparams["learning_rate"] = learning_rate
+        # optax.inject_hyperparams returns a state where hyperparams are in .hyperparams
+        # but the state itself is a tuple (inner_state, hyperparams)
+        new_opt_state_pos = opt_state_pos._replace(
+            hyperparams={**opt_state_pos.hyperparams, "learning_rate": learning_rate}
+        )
+        new_opt_state_rot = opt_state_rot._replace(
+            hyperparams={**opt_state_rot.hyperparams, "learning_rate": learning_rate}
+        )
 
         # Compute loss, breakdown, and gradients in a single forward pass
         (loss, breakdown), (grad_pos, grad_rot) = value_and_grad_fn(
             positions, rotations, epoch, total_epochs
         )
 
+        # Apply adaptive overlap weighting to gradients
+        # We multiply the overlap component of the gradient by the weights.
+        # Since we have the total gradient, we can't easily isolate the overlap part
+        # without calling grad() twice (expensive).
+        # Instead, we apply the weights to the ENTIRE gradient for stuck components.
+        # This effectively increases their 'mobility' and 'repulsion'.
+        grad_pos = grad_pos * overlap_weights[:, None]
+        grad_rot = grad_rot * overlap_weights[:, None]
+
+        # Apply centrality-based gradient scaling (Inertia/Priority)
+
+
+        # Apply centrality-based gradient scaling (Inertia/Priority)
+        if centrality is not None and centrality.shape[0] > 0 and priority_scale > 1.0:
+            # Scale by normalized centrality relative to max
+            # 1.0 for least central, priority_scale for most central
+            c_min = jnp.min(centrality)
+            c_max = jnp.max(centrality)
+            c_range = c_max - c_min
+            
+            # Avoid division by zero
+            c_range = jnp.where(c_range < 1e-10, 1.0, c_range)
+            
+            # Normalize to [0, 1] then scale to [1, priority_scale]
+            normalized_c = (centrality - c_min) / c_range
+            grad_scale = 1.0 + (priority_scale - 1.0) * normalized_c
+            
+            # Apply to gradients
+            grad_pos = grad_pos * grad_scale[:, None]
+            grad_rot = grad_rot * grad_scale[:, None]
+
         # Update positions
-        updates_pos, new_opt_state_pos = opt_pos.update(grad_pos, opt_state_pos, positions)
+        updates_pos, next_opt_state_pos = opt_pos.update(grad_pos, new_opt_state_pos, positions)
         new_positions = optax.apply_updates(positions, updates_pos)
 
         # Update rotation logits
-        updates_rot, new_opt_state_rot = opt_rot.update(grad_rot, opt_state_rot, rotation_logits)
+        updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
+
+        # Compute movement norm and update EMA
+        update_norm = jnp.linalg.norm(new_positions - positions)
+        new_ema = 0.9 * position_delta_ema + 0.1 * update_norm
 
         return (
             new_positions,
             new_rotation_logits,
             loss,
             breakdown,
-            new_opt_state_pos,
-            new_opt_state_rot,
+            next_opt_state_pos,
+            next_opt_state_rot,
             grad_pos,
             grad_rot,
+            new_ema,
         )
 
     return train_step
@@ -454,7 +516,15 @@ def train(
     state.opt_state_rot = opt_rot.init(state.rotation_logits)
 
     # Create JIT-compiled train step
-    train_step = make_train_step(value_and_grad_fn, opt_pos, opt_rot, config.epochs)
+    centrality = context.centrality if config.use_centrality_weighting else None
+    train_step = make_train_step(
+        value_and_grad_fn,
+        opt_pos,
+        opt_rot,
+        config.epochs,
+        centrality=centrality,
+        priority_scale=config.centrality_priority_scale,
+    )
 
     # Optional: Enable JAX profiler
     profile_ctx = (
@@ -497,6 +567,7 @@ def train(
                 new_opt_state_rot,
                 grad_pos,
                 grad_rot,
+                new_ema,
             ) = train_step(
                 state.positions,
                 state.rotation_logits,
@@ -505,6 +576,8 @@ def train(
                 state.opt_state_rot,
                 epoch,
                 lr,
+                state.position_delta_ema,
+                state.overlap_weights,
             )
 
             # Update state
@@ -512,14 +585,56 @@ def train(
             state.rotation_logits = new_rotation_logits
             state.opt_state_pos = new_opt_state_pos
             state.opt_state_rot = new_opt_state_rot
+            state.position_delta_ema = float(new_ema)
+
+            # Adaptive Overlap Weighting Logic
+            # Every 10 epochs, check for persistent collisions and ramp weights
+            if epoch % 10 == 0:
+                per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
+                if per_comp_overlap is not None:
+                    # If component is in collision (>0.1 overlap score)
+                    collision_mask = per_comp_overlap > 0.1
+                    # Increment weight by 5%
+                    state.overlap_weights = jnp.where(
+                        collision_mask,
+                        state.overlap_weights * 1.05,
+                        state.overlap_weights
+                    )
+                    # Cap at 20x
+                    state.overlap_weights = jnp.minimum(state.overlap_weights, 20.0)
+                    
+                    # Decouple cleared components?
+                    # Optionally slowly decay weights for non-colliding components
+                    state.overlap_weights = jnp.where(
+                        ~collision_mask,
+                        jnp.maximum(1.0, state.overlap_weights * 0.99),
+                        state.overlap_weights
+                    )
+
+            # Stochastic Perturbation (Jiggle) Logic
+
+            # Trigger if movement stalls (EMA < threshold) and we are past initial phase
+            # EMA threshold 1e-4 is approx 0.1mm total movement for 100 components
+            if state.position_delta_ema < 1e-4 and epoch > 100:
+                state.rng_key, jiggle_key = jax.random.split(state.rng_key)
+                # Sigma is 5% of board size
+                sigma = 0.05 * max(board.width, board.height)
+                # Scale noise by temperature (higher noise early, lower noise late)
+                noise_scale = sigma * (temperature / config.temperature.start)
+                
+                jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
+                state.positions = state.positions + jiggle
+                
+                # Reset EMA after jiggle to avoid immediate re-trigger
+                state.position_delta_ema = 1.0
+                
+                # Optional: Log jiggle event if needed
+
 
             loss_value = float(loss)
 
-            # Convert breakdown for stability check
-            breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
-
             # Check for numerical instability (NaN/Inf)
-            _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
+            _check_numerical_stability(loss_value, loss_breakdown_arrays, grad_pos, grad_rot, epoch)
 
             # Track best
             if loss_value < best_loss - config.early_stopping.min_delta:
@@ -539,7 +654,9 @@ def train(
                 grad_norm_rot = float(jnp.linalg.norm(grad_rot))
 
                 # Use breakdown from train_step (no recomputation needed!)
-                breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+                # Convert arrays to scalars for logging, keeping only the totals
+                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+                           for k, v in loss_breakdown_arrays.items()}
 
                 epoch_time_ms = (time.time() - epoch_start) * 1000
 
@@ -611,6 +728,7 @@ def train(
         elapsed_seconds=elapsed,
         validation_history=validation_history,
         stopped_by_validation=stopped_by_validation,
+        final_overlap_weights=state.overlap_weights,
     )
 
 
@@ -718,7 +836,15 @@ def train_multiphase(
                 opt_pos, opt_rot = create_optimizer(config, lr)
 
                 # Create new train step
-                train_step = make_train_step(value_and_grad_fn, opt_pos, opt_rot, config.epochs)
+                centrality = context.centrality if config.use_centrality_weighting else None
+                train_step = make_train_step(
+                    value_and_grad_fn,
+                    opt_pos,
+                    opt_rot,
+                    config.epochs,
+                    centrality=centrality,
+                    priority_scale=config.centrality_priority_scale,
+                )
 
                 # Re-initialize optimizer states
                 state.opt_state_pos = opt_pos.init(state.positions)
@@ -742,6 +868,7 @@ def train_multiphase(
                 new_opt_state_rot,
                 grad_pos,
                 grad_rot,
+                new_ema,
             ) = train_step(
                 state.positions,
                 state.rotation_logits,
@@ -750,6 +877,8 @@ def train_multiphase(
                 state.opt_state_rot,
                 epoch,
                 lr,
+                state.position_delta_ema,
+                state.overlap_weights,
             )
 
             # Update state
@@ -757,14 +886,39 @@ def train_multiphase(
             state.rotation_logits = new_rotation_logits
             state.opt_state_pos = new_opt_state_pos
             state.opt_state_rot = new_opt_state_rot
+            state.position_delta_ema = float(new_ema)
+
+            # Adaptive Overlap Weighting Logic
+            if epoch % 10 == 0:
+                per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
+                if per_comp_overlap is not None:
+                    collision_mask = per_comp_overlap > 0.1
+                    state.overlap_weights = jnp.where(
+                        collision_mask,
+                        state.overlap_weights * 1.05,
+                        state.overlap_weights
+                    )
+                    state.overlap_weights = jnp.minimum(state.overlap_weights, 20.0)
+                    state.overlap_weights = jnp.where(
+                        ~collision_mask,
+                        jnp.maximum(1.0, state.overlap_weights * 0.99),
+                        state.overlap_weights
+                    )
+
+            # Stochastic Perturbation (Jiggle) Logic
+            if state.position_delta_ema < 1e-4 and epoch > 100:
+                state.rng_key, jiggle_key = jax.random.split(state.rng_key)
+                sigma = 0.05 * max(board.width, board.height)
+                noise_scale = sigma * (temperature / config.temperature.start)
+                
+                jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
+                state.positions = state.positions + jiggle
+                state.position_delta_ema = 1.0
 
             loss_value = float(loss)
 
-            # Convert breakdown for stability check
-            breakdown_for_check = {k: float(v) for k, v in loss_breakdown_arrays.items()}
-
             # Check for numerical instability (NaN/Inf)
-            _check_numerical_stability(loss_value, breakdown_for_check, grad_pos, grad_rot, epoch)
+            _check_numerical_stability(loss_value, loss_breakdown_arrays, grad_pos, grad_rot, epoch)
 
             # Track best
             if loss_value < best_loss - config.early_stopping.min_delta:
@@ -782,7 +936,8 @@ def train_multiphase(
                 grad_norm_rot = float(jnp.linalg.norm(grad_rot))
 
                 # Use breakdown from train_step (no recomputation needed!)
-                breakdown = {k: float(v) for k, v in loss_breakdown_arrays.items()}
+                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+                           for k, v in loss_breakdown_arrays.items()}
 
                 epoch_time_ms = (time.time() - epoch_start) * 1000
 
@@ -853,4 +1008,5 @@ def train_multiphase(
         elapsed_seconds=elapsed,
         validation_history=validation_history,
         stopped_by_validation=stopped_by_validation,
+        final_overlap_weights=state.overlap_weights,
     )

@@ -260,9 +260,6 @@ class DRCLoss(LossFunction):
 
     def evaluate(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
         epoch: int = 0,
     ) -> DRCCacheEntry:
         """
@@ -343,11 +340,7 @@ class DRCLoss(LossFunction):
                 elapsed_ms=elapsed_ms,
             )
 
-    def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
     ) -> LossResult:
         """
         Compute DRC loss (returns cached value between evaluations).
@@ -383,9 +376,6 @@ class DRCLoss(LossFunction):
 
     def compute_with_epoch(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
         epoch: int,
     ) -> LossResult:
         """

@@ -186,6 +186,10 @@ class OptimizerConfig:
     adam_beta1: float = 0.9
     adam_beta2: float = 0.999
 
+    # Centrality-driven optimization (temper-s7g)
+    use_centrality_weighting: bool = False
+    centrality_priority_scale: float = 2.0  # Max boost for hub components
+
     @classmethod
     def fast_test(cls) -> "OptimizerConfig":
         """

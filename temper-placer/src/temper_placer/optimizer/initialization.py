@@ -18,66 +18,11 @@ import numpy as np
 from jax import Array
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
-
-
-def build_adjacency_matrix(netlist: Netlist) -> Array:
-    """
-    Build weighted adjacency matrix from netlist connectivity.
-
-    The adjacency matrix A is symmetric with A[i,j] equal to the number of nets
-    connecting components i and j. Components on the same net create edges between
-    all pairs of components on that net (complete subgraph).
-
-    Args:
-        netlist: Netlist with components and nets.
-
-    Returns:
-        (N, N) symmetric adjacency matrix where A[i,j] = number of nets
-        connecting components i and j. Returns (0,0) array for empty netlist.
-
-    Example:
-        For a netlist with 3 components:
-        - R1, R2 on NET1
-        - R2, R3 on NET2
-
-        Adjacency matrix:
-        [[0, 1, 0],   # R1: connected to R2 via NET1
-         [1, 0, 1],   # R2: connected to R1 via NET1, R3 via NET2
-         [0, 1, 0]]   # R3: connected to R2 via NET2
-    """
-    n = len(netlist.components)
-
-    if n == 0:
-        return jnp.array([]).reshape(0, 0)
-
-    # Build component ref -> index mapping
-    ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
-
-    # Initialize adjacency matrix
-    adj = np.zeros((n, n), dtype=np.float32)
-
-    # For each net, connect all component pairs
-    for net in netlist.nets:
-        # Get component indices for this net
-        comp_indices = []
-        for comp_ref, _ in net.pins:
-            if comp_ref in ref_to_idx:
-                comp_indices.append(ref_to_idx[comp_ref])
-
-        # Remove duplicates (component may have multiple pins on same net)
-        comp_indices = list(set(comp_indices))
-
-        # Add edges between all pairs (complete subgraph)
-        for i in range(len(comp_indices)):
-            for j in range(i + 1, len(comp_indices)):
-                idx_i = comp_indices[i]
-                idx_j = comp_indices[j]
-
-                adj[idx_i, idx_j] += 1
-                adj[idx_j, idx_i] += 1  # Symmetric
-
-    return jnp.array(adj)
+from temper_placer.core.netlist import (
+    Netlist,
+    build_adjacency_matrix,
+    compute_eigenvector_centrality,
+)
 
 
 def compute_spectral_coordinates(
@@ -294,51 +239,29 @@ class SpectralInitializer:
 
         Notes:
             - Deterministic for same netlist (no randomness).
-            - Handles disconnected components by embedding each separately.
             - Single components placed at center.
         """
         n = len(netlist.components)
         if n == 0:
             return jnp.zeros((0, 2))
+        if n == 1:
+            center_x = board.origin[0] + board.width / 2
+            center_y = board.origin[1] + board.height / 2
+            return jnp.array([[center_x, center_y]])
 
         # Build connectivity graph
         adjacency = build_adjacency_matrix(netlist)
 
-        # Find connected components
-        components = find_connected_components(adjacency)
-
-        # Initialize all coordinates (using numpy for indexing)
-        all_coords = np.zeros((n, 2))
-
-        for comp_indices in components:
-            if len(comp_indices) <= 1:
-                # Single node or empty: leave at (0, 0)
-                continue
-
-            # Extract sub-adjacency matrix
-            indices = np.array(comp_indices)
-            sub_adj = adjacency[np.ix_(indices, indices)]
-
-            # Compute spectral coordinates for this component
-            sub_coords = compute_spectral_coordinates(
-                sub_adj,
-                n_dims=2,
-                normalized=self.normalized_laplacian,
-            )
-
-            # Normalize sub_coords to [-0.5, 0.5] range to keep them centered relative
-            # to each other before global scaling.
-            c_min = jnp.min(sub_coords, axis=0)
-            c_max = jnp.max(sub_coords, axis=0)
-            c_range = c_max - c_min
-            # Avoid division by zero
-            c_range = jnp.where(c_range < 1e-10, 1.0, c_range)
-
-            sub_coords_norm = (sub_coords - c_min) / c_range - 0.5
-            all_coords[indices] = np.array(sub_coords_norm)
+        # Compute spectral coordinates for the entire graph at once
+        # This naturally handles disjoint subgraphs via multiple zero eigenvalues
+        all_coords = compute_spectral_coordinates(
+            adjacency,
+            n_dims=2,
+            normalized=self.normalized_laplacian,
+        )
 
         # Scale all coordinates to board bounds
-        positions = scale_to_board(jnp.array(all_coords), board, self.margin_fraction)
+        positions = scale_to_board(all_coords, board, self.margin_fraction)
 
         return positions
 

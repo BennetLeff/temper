@@ -82,8 +82,6 @@ def compute_zone_distance(
 
 
 def compute_zone_membership_penalty(
-    positions: Array,
-    context: LossContext,
     zone_assignments: Optional[Dict[str, str]] = None,
 ) -> Array:
     """
@@ -168,6 +166,8 @@ class ZoneMembershipLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute zone membership loss.

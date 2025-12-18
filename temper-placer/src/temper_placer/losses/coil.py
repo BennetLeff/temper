@@ -56,7 +56,12 @@ class CoilRequirementLoss(LossFunction):
         return "coil_requirement"
 
     def __call__(
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         total_centering_loss = 0.0
         total_keepout_loss = 0.0

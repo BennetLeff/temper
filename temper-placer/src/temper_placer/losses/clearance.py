@@ -67,6 +67,8 @@ class ClearanceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute total clearance violation penalty.
@@ -108,10 +110,8 @@ class ClearanceLoss(LossFunction):
 
     def _compute_hv_lv_penalty(
         self,
-        positions: Array,
         widths: Array,
         heights: Array,
-        context: LossContext,
     ) -> Array:
         """
         Compute penalty for HV-LV clearance violations using pre-computed indices.
@@ -151,10 +151,8 @@ class ClearanceLoss(LossFunction):
 
     def _compute_rule_penalty_vectorized(
         self,
-        positions: Array,
         widths: Array,
         heights: Array,
-        context: LossContext,
         rule: ClearanceRule,
     ) -> Array:
         """

@@ -146,6 +146,8 @@ class ThermalLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute thermal placement loss.
@@ -237,6 +239,8 @@ class ThermalSpreadLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute thermal spreading penalty.
@@ -331,6 +335,8 @@ class HeatSensitiveDistanceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute heat-sensitive distance penalty.
@@ -430,6 +436,8 @@ class EdgePreferenceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute edge preference penalty.

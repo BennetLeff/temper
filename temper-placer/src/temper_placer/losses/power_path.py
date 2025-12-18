@@ -92,11 +92,7 @@ class PowerPathLoss(LossFunction):
     def name(self) -> str:
         return "power_path"
 
-    def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
     ) -> LossResult:
         """
         Compute total power path loss.

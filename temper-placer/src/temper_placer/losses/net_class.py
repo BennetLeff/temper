@@ -32,7 +32,6 @@ class NetClassSeparationLoss(LossFunction):
     def name(self) -> str:
         return "net_class_separation"
 
-    def __call__(
         self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
     ) -> LossResult:
         # Placeholder for unresolved version
@@ -52,7 +51,6 @@ class ResolvedNetClassSeparationLoss(LossFunction):
     def name(self) -> str:
         return "net_class_separation"
 
-    def __call__(
         self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
     ) -> LossResult:
         total_loss = jnp.array(0.0)
