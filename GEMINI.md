@@ -23,14 +23,14 @@ OpenMemory is our project's long-term cognitive layer. Use it to bridge context 
 
 **1. Context Retrieval (Session Start)**
 Before starting any task, you MUST query OpenMemory:
-- Search for the issue ID: `GET /memory/query?query=<ISSUE_ID>`
-- Search for related documentation: `GET /memory/query?query=<TOPIC>` (e.g., "thermal budget", "resonant tank tuning")
+- Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
+- Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "thermal budget", "resonant tank tuning")
 - Review any **Reflections** left by previous agents on related components.
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:
 - Summarize what you learned, architectural decisions made, and hurdles encountered.
-- Use the reflection endpoint: `POST /lgm/reflection`
+- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "architecture"]}`
 - This ensures other agents (Claude, OpenCode) can benefit from your findings.
 
 ### Issue Tracking & Management
@@ -53,7 +53,7 @@ We use a multi-agent system where a **Master Agent** delegates to specialized **
 ### Landing the Plane (Session Completion)
 The session is **not** over until the plane has landed. You must execute this protocol before stopping:
 
-1.  **Post Reflection**: Call `POST /lgm/reflection` to OpenMemory.
+1.  **Post Reflection**: Call `POST /memories` (with tag "reflection") to OpenMemory.
 2.  **File Follow-ups**: Create issues for any work left unfinished or discovered.
 3.  **Verify Quality**: Run tests (`pytest`, `ctest`) and linters (`ruff`, `golangci-lint`).
 4.  **Update Issue State**: Close completed tasks and update progress on active ones.

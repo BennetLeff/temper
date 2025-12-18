@@ -21,14 +21,14 @@ To maintain context across different tasks and parallel sessions, we use two com
 
 **1. Context Retrieval (Session Start)**
 Before starting any task, you MUST query OpenMemory to gather relevant context:
-- Search for the issue ID: `GET /memory/query?query=<ISSUE_ID>`
-- Search for related documentation: `GET /memory/query?query=<TOPIC>`
+- Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
+- Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}`
 - Review any **Reflections** left by previous agents on related components.
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:
 - Summarize what you learned, architectural decisions made, and hurdles encountered.
-- Use the reflection endpoint: `POST /lgm/reflection`
+- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "architecture"]}`
 - This ensures the "agent hive mind" remains updated across sessions.
 
 ## 🆕 What's New?

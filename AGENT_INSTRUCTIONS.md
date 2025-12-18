@@ -99,7 +99,7 @@ When delegating, ensure your issue description (the instruction) follows these r
 ```bash
 # 1. Context Retrieval (MANDATORY)
 # Query OpenMemory for relevant facts/decisions
-GET /memory/query?query=auth_design_patterns
+POST /memories/search { "query": "auth_design_patterns", "userId": "temper-agent" }
 
 # 2. User/Master finds a complex task
 bd create "Design Secure Auth" -t task --label agent:architect
@@ -116,7 +116,7 @@ python3 tools/agents/auto_assign.py
 
 # 7. Reflection (MANDATORY)
 # Post what was learned to OpenMemory
-POST /lgm/reflection { "content": "Learned that auth-v2 requires..." }
+POST /memories { "content": "REFLECTION: Learned that auth-v2 requires...", "userId": "temper-agent", "tags": ["reflection"] }
 ```
 
 ## Landing the Plane
@@ -161,7 +161,7 @@ POST /lgm/reflection { "content": "Learned that auth-v2 requires..." }
 
 ```bash
 # 1. Gather Context
-mcp_openmemory_query("similar tasks to bd-42")
+POST /memories/search { "query": "similar tasks to bd-42", "userId": "temper-agent" }
 
 # 2. Claim Task
 bd update bd-42 --status in_progress
@@ -169,7 +169,7 @@ bd update bd-42 --status in_progress
 # 3. Work...
 
 # 4. Post Reflection
-mcp_openmemory_reflection("Found that component X has a hidden dependency on Y")
+POST /memories { "content": "REFLECTION: Found that component X has a hidden dependency on Y", "userId": "temper-agent", "tags": ["reflection"] }
 
 # 5. Force immediate sync at end of session
 bd sync
