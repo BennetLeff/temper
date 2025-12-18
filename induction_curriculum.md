@@ -8,7 +8,7 @@
 
 This curriculum guides engineers through the development of a production-grade, high-precision induction heating system—a functional clone of the benchmark Breville Control Freak. Unlike traditional hardware-first approaches, this curriculum employs a rigorous **Simulation-First** methodology where every subsystem is mathematically modeled, simulated, and validated in software before any physical components are purchased or assembled.
 
-The primary objective is the synthesis of a 1500W–2000W Half-Bridge Resonant Inverter controlled by the ESP32-S3 microcontroller, utilizing automotive-grade components for high efficiency and safety. The curriculum emphasizes metrological accuracy, robust thermal management, and strict adherence to industrial isolation standards.
+The primary objective is the synthesis of a 1500W–1800W Half-Bridge Resonant Inverter controlled by the ESP32-S3 microcontroller, utilizing automotive-grade components for high efficiency and safety. The curriculum emphasizes metrological accuracy, robust thermal management, and strict adherence to industrial isolation standards.
 
 ## Core Philosophy: Simulation Before Silicon
 
@@ -2548,7 +2548,7 @@ C_res coil_cold 0 470n
 
 ### Validation Checkpoint
 
-- [ ] Power to pan model matches target (1500–2000W)
+- [ ] Power to pan model matches target (1500–1800W)
 - [ ] Circulating current within IGBT ratings
 - [ ] Model responds correctly to coupling coefficient changes
 
@@ -3565,7 +3565,7 @@ Implement robust firmware safety mechanisms using the ESP32 Task Watchdog Timer 
 
 ### 1. Theory: Watchdog Timers in Power Electronics
 A Watchdog Timer (WDT) is a hardware timer that resets the MCU if the firmware fails to "pet" (reset) it periodically.
-In a 2000W induction cooker, a frozen MCU with the PWM stuck "ON" can destroy IGBTs or boil dry a pot in seconds.
+In a 1800W induction cooker, a frozen MCU with the PWM stuck "ON" can destroy IGBTs or boil dry a pot in seconds.
 - **Task Watchdog (TWDT):** Monitors individual FreeRTOS tasks. If a critical task (like the PID loop) starves or hangs, the WDT triggers.
 - **Interrupt Watchdog (IWDT):** Monitors ISR latency.
 

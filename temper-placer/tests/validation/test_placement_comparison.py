@@ -240,7 +240,7 @@ def run_optimizer_on_pcb(
     composite = CompositeLoss(
         [
             WeightedLoss(OverlapLoss(), weight=100.0),  # High weight - no overlap
-            WeightedLoss(BoundaryLoss(), weight=50.0),  # Medium weight - stay in bounds
+            WeightedLoss(BoundaryLoss(), weight=200.0),  # Highest weight - stay in bounds (hard constraint)
             WeightedLoss(WirelengthLoss(), weight=10.0),  # Lower weight - minimize wirelength
         ]
     )

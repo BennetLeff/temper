@@ -63,6 +63,8 @@ class WirelengthLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute total HPWL across all nets using vectorized operations.
@@ -121,7 +123,6 @@ class WirelengthLoss(LossFunction):
 
     def _compute_hpwl_vectorized(
         self,
-        pin_positions: Array,
         mask: Array,
         weights: Array,
     ) -> Array:
@@ -182,9 +183,6 @@ class WirelengthLoss(LossFunction):
 
 
 def compute_total_hpwl(
-    positions: Array,
-    rotations: Array,
-    context: LossContext,
     alpha: float = 10.0,
 ) -> Array:
     """

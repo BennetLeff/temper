@@ -1115,7 +1115,7 @@ f0 = 1 / (2π√(L_COIL × C_RES))
 
 **C_RES selection:**
 - **Material:** Polypropylene film (low loss, high current)
-- **Voltage rating:** ≥1.5× VDC (e.g., 630V for 300V DC bus, 1000V safer)
+- **Voltage rating:** ≥1.5× VDC (e.g., 1000V for 300V DC bus)
 - **Current rating:** Must handle RMS current (typically 10-30A)
 - **Example:** WIMA MKP4 series, 0.22µF, 1000V
 

@@ -1,0 +1,62 @@
+total_seeds_tested: 100
+pathological_count: 23
+pathological_rate: 0.23
+failure_patterns:
+  overlap_deadlock: 17
+  cluster_trap: 4
+  other: 2
+correlations:
+  init_overlap_vs_final_overlap: 0.05788236578443776
+  init_clustering_vs_final_loss: 0.09664502589268009
+  init_boundary_vs_final_boundary: 0.0
+worst_seeds:
+- seed: 1
+  failure_type: cluster_trap
+  init_overlap: 123.50743103027344
+  overlap_penalty: 1.2311746696275814
+  final_loss: 812.0306900973137
+- seed: 81
+  failure_type: other
+  init_overlap: 69.47936248779297
+  overlap_penalty: 0.0393851061539599
+  final_loss: 726.3787403590936
+- seed: 58
+  failure_type: other
+  init_overlap: 0.05819743871688843
+  overlap_penalty: 0.0034141513759563
+  final_loss: 605.4104318286605
+- seed: 42
+  failure_type: overlap_deadlock
+  init_overlap: 23.797779083251953
+  overlap_penalty: 4.030179337425361
+  final_loss: 563.5264439513841
+- seed: 14
+  failure_type: overlap_deadlock
+  init_overlap: 1.1081984043121338
+  overlap_penalty: 3.092129857534995
+  final_loss: 542.4480910332319
+- seed: 38
+  failure_type: overlap_deadlock
+  init_overlap: 53.5830078125
+  overlap_penalty: 1.0962806443174016
+  final_loss: 521.2014792233413
+- seed: 74
+  failure_type: cluster_trap
+  init_overlap: 85.87683868408203
+  overlap_penalty: 3.874738233689712
+  final_loss: 504.8646428866153
+- seed: 63
+  failure_type: overlap_deadlock
+  init_overlap: 0.0
+  overlap_penalty: 2.618720906357231
+  final_loss: 490.95231258635664
+- seed: 82
+  failure_type: overlap_deadlock
+  init_overlap: 133.81491088867188
+  overlap_penalty: 3.9700020277064274
+  final_loss: 453.3299393172237
+- seed: 97
+  failure_type: overlap_deadlock
+  init_overlap: 27.92438316345215
+  overlap_penalty: 6.513759513110492
+  final_loss: 449.84778405112314

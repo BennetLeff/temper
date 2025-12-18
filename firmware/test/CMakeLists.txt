@@ -65,6 +65,9 @@ set(MOCK_HAL_SOURCES
 # Note: state_machine.c has unique stub requirements and is tested separately
 set(FIRMWARE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pll_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/zvs_monitor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/safety.c
 )
 
@@ -72,6 +75,7 @@ set(FIRMWARE_SOURCES
 set(TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_safety.c
 )
 
@@ -113,6 +117,8 @@ target_link_libraries(test_runner m)
 add_executable(test_state_machine_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_state_machine.c
@@ -129,6 +135,17 @@ add_executable(test_pid_only
 )
 target_include_directories(test_pid_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pid_only m)
+
+# Low temperature control tests only
+add_executable(test_low_temp_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_low_temp.c
+)
+target_include_directories(test_low_temp_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_low_temp_only m)
 
 # Safety tests only
 add_executable(test_safety_only
@@ -161,16 +178,110 @@ add_executable(test_pll_only
 target_include_directories(test_pll_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pll_only m)
 
-# Integration tests (uses custom stubs like state machine tests)
-add_executable(test_integration_only
+# Cascade PID tests only
+add_executable(test_cascade_pid_only
     ${UNITY_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_integration.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_integration.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_cascade_pid.c
 )
-target_include_directories(test_integration_only PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(test_integration_only m)
+target_include_directories(test_cascade_pid_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_cascade_pid_only m)
+
+# Cascade PID integration tests
+add_executable(test_cascade_pid_integration_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_integration_cascade_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_integration_cascade_pid.c
+)
+target_include_directories(test_cascade_pid_integration_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_cascade_pid_integration_only m)
+
+# Thermal mass estimation tests
+add_executable(test_thermal_mass_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_thermal_mass.c
+)
+target_include_directories(test_thermal_mass_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_thermal_mass_only m)
+
+
+# ADC Guard Tests
+add_executable(test_adc_guard_only
+    ${UNITY_SOURCES}
+    test_main_adc_guard.c
+    test_adc_guard.c
+    ../components/safety/adc_guard.c
+    ../components/hal/mock/mock_adc.c
+)
+target_include_directories(test_adc_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+
+
+# PWM Guard Tests
+add_executable(test_pwm_guard_only
+    ${UNITY_SOURCES}
+    test_main_pwm_guard.c
+    test_pwm_guard.c
+    ../components/safety/pwm_guard.c
+)
+target_include_directories(test_pwm_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+
+
+# NTC Guard Tests
+add_executable(test_ntc_guard_only
+    ${UNITY_SOURCES}
+    test_main_ntc_guard.c
+    test_ntc_guard.c
+    ../components/safety/ntc_guard.c
+)
+target_include_directories(test_ntc_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+target_link_libraries(test_ntc_guard_only m)
+
+# Fan Guard Tests
+add_executable(test_fan_guard_only
+    ${UNITY_SOURCES}
+    test_main_fan_guard.c
+    test_fan_guard.c
+    ../components/safety/fan_guard.c
+)
+target_include_directories(test_fan_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+
+# Coil Guard Tests
+add_executable(test_coil_guard_only
+    ${UNITY_SOURCES}
+    test_main_coil_guard.c
+    test_coil_guard.c
+    ../components/safety/coil_guard.c
+)
+target_include_directories(test_coil_guard_only PRIVATE 
+    ../components/hal/include
+    ../components/safety/include
+    unity
+)
+target_link_libraries(test_coil_guard_only m)
+
 
 # ============================================================================
 # CTest integration
@@ -180,6 +291,10 @@ enable_testing()
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
 add_test(NAME pid_tests COMMAND test_pid_only)
+add_test(NAME cascade_pid_tests COMMAND test_cascade_pid_only)
+add_test(NAME cascade_pid_integration_tests COMMAND test_cascade_pid_integration_only)
+add_test(NAME thermal_mass_tests COMMAND test_thermal_mass_only)
+add_test(NAME low_temp_tests COMMAND test_low_temp_only)
 add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)

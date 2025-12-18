@@ -39,6 +39,17 @@ static const char *TAG = "pll_control";
 #define LOCK_TOLERANCE_US   0.5f    /* Phase error tolerance for lock */
 #define LOCK_HYSTERESIS_US  0.2f    /* Hysteresis to prevent lock flicker */
 
+/* Enhanced lock detection (per ticket temper-1lj.3) */
+#define LOCK_CYCLES_REQUIRED    10      /* Consecutive cycles for lock confirmation */
+#define UNLOCK_CYCLES_REQUIRED  5       /* Consecutive cycles for unlock confirmation */
+#define PHASE_ERROR_DEG_LOCK    15.0f   /* Phase error tolerance in degrees */
+#define FREQ_TOLERANCE_HZ       2000.0f /* Frequency tolerance from resonant freq */
+
+/* Frequency boundary checking (safety limits) */
+#define FREQ_MARGIN_LOW_HZ      5000.0f /* Below resonance limit: f_res - 5kHz */
+#define FREQ_MARGIN_HIGH_HZ     10000.0f /* Above resonance limit: f_res + 10kHz */
+#define DEFAULT_RESONANT_FREQ   35800.0f /* Default: 35.8 kHz from RESONANT_TANK_DESIGN */
+
 /* Loss of lock detection */
 #define LOSS_OF_LOCK_COUNT  10      /* Consecutive out-of-range samples for unlock */
 #define MIN_VALID_LAG_US    0.1f    /* Minimum valid phase lag */
@@ -53,12 +64,16 @@ static pll_context_t pll_ctx = {
     .ki = PLL_KI,
     .min_freq = PLL_MIN_FREQ_HZ,
     .max_freq = PLL_MAX_FREQ_HZ,
-    .locked = false
+    .locked = false,
+    .lock_count = 0,
+    .unlock_count = 0,
+    .resonant_freq = DEFAULT_RESONANT_FREQ
 };
 
 static bool pll_enabled = false;
 static uint32_t out_of_range_count = 0;
 static uint64_t last_update_time_us = 0;
+static float last_phase_error_us = 0.0f;  /* For detailed status reporting */
 
 #ifdef ESP_PLATFORM
 static mcpwm_timer_handle_t pll_timer = NULL;
@@ -191,11 +206,12 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
     
     /* Calculate phase error */
     float error = pll_ctx.target_phase_us - measured_lag_us;
-    
+    last_phase_error_us = error;  /* Store for status reporting */
+
     /* PI Control with proper dt scaling */
     float p_out = pll_ctx.kp * error;
     pll_ctx.integrator += pll_ctx.ki * error * dt_sec;
-    
+
     /* Integrator anti-windup */
     float max_integrator = (float)(pll_ctx.max_freq - pll_ctx.min_freq) / 2.0f;
     if (pll_ctx.integrator > max_integrator) {
@@ -204,10 +220,10 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
     if (pll_ctx.integrator < -max_integrator) {
         pll_ctx.integrator = -max_integrator;
     }
-    
+
     /* Calculate new frequency */
     float new_freq = pll_ctx.current_freq + p_out + pll_ctx.integrator;
-    
+
     /* Safety limits */
     if (new_freq > (float)pll_ctx.max_freq) {
         new_freq = (float)pll_ctx.max_freq;
@@ -215,7 +231,7 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
     if (new_freq < (float)pll_ctx.min_freq) {
         new_freq = (float)pll_ctx.min_freq;
     }
-    
+
     /* Apply to hardware with hysteresis to avoid jitter */
     if (fabsf(new_freq - pll_ctx.current_freq) > FREQ_HYSTERESIS_HZ) {
 #ifdef ESP_PLATFORM
@@ -228,20 +244,52 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
 #endif
         pll_ctx.current_freq = new_freq;
     }
-    
-    /* Update lock status with hysteresis to prevent flicker */
+
+    /* Enhanced lock detection with consecutive cycle tracking
+     * Per ticket temper-1lj.3: Require 10 consecutive cycles with:
+     * - Phase error < ±15°
+     * - Frequency within ±2kHz of resonant frequency
+     */
     float abs_error = fabsf(error);
-    if (pll_ctx.locked) {
-        /* Unlock if error exceeds tolerance + hysteresis */
-        if (abs_error > (LOCK_TOLERANCE_US + LOCK_HYSTERESIS_US)) {
-            pll_ctx.locked = false;
-        }
-    } else {
-        /* Lock if error within tolerance */
-        if (abs_error < LOCK_TOLERANCE_US) {
+
+    /* Convert phase error to degrees for checking
+     * phase_deg = (phase_us / period_us) * 360°
+     * period_us = 1e6 / freq_hz
+     */
+    float period_us = 1000000.0f / pll_ctx.current_freq;
+    float phase_error_deg = fabsf((error / period_us) * 360.0f);
+
+    /* Check frequency deviation from resonant frequency */
+    float freq_deviation = fabsf(pll_ctx.current_freq - pll_ctx.resonant_freq);
+
+    /* Determine if current conditions meet lock criteria */
+    bool lock_criteria_met = (phase_error_deg < PHASE_ERROR_DEG_LOCK) &&
+                             (freq_deviation < FREQ_TOLERANCE_HZ);
+
+    if (lock_criteria_met) {
+        /* Increment lock count, reset unlock count */
+        pll_ctx.lock_count++;
+        pll_ctx.unlock_count = 0;
+
+        /* Confirm lock after required consecutive cycles */
+        if (!pll_ctx.locked && pll_ctx.lock_count >= LOCK_CYCLES_REQUIRED) {
             pll_ctx.locked = true;
 #ifdef ESP_PLATFORM
-            ESP_LOGI(TAG, "PLL locked at %.1fHz", pll_ctx.current_freq);
+            ESP_LOGI(TAG, "PLL locked at %.1fHz (error: %.1f deg, deviation: %.0fHz)",
+                     pll_ctx.current_freq, phase_error_deg, freq_deviation);
+#endif
+        }
+    } else {
+        /* Increment unlock count, reset lock count */
+        pll_ctx.unlock_count++;
+        pll_ctx.lock_count = 0;
+
+        /* Confirm unlock after required consecutive cycles */
+        if (pll_ctx.locked && pll_ctx.unlock_count >= UNLOCK_CYCLES_REQUIRED) {
+            pll_ctx.locked = false;
+#ifdef ESP_PLATFORM
+            ESP_LOGW(TAG, "PLL unlock detected (error: %.1f deg, deviation: %.0fHz)",
+                     phase_error_deg, freq_deviation);
 #endif
         }
     }
@@ -321,4 +369,72 @@ void pll_reset(void) {
  */
 const pll_context_t* pll_get_context(void) {
     return &pll_ctx;
+}
+
+/**
+ * @brief Set expected resonant frequency for boundary checking
+ */
+void pll_set_resonant_frequency(float freq_hz) {
+    if (freq_hz > 0.0f && freq_hz < 100000.0f) {
+        pll_ctx.resonant_freq = freq_hz;
+#ifdef ESP_PLATFORM
+        ESP_LOGI(TAG, "Resonant frequency set to %.1f Hz", freq_hz);
+#endif
+    }
+}
+
+/**
+ * @brief Check if frequency is within safe operating bounds
+ *
+ * Per ticket temper-1lj.3:
+ * - Minimum frequency: f_res - 5kHz (hard limit)
+ * - Maximum frequency: f_res + 10kHz (allows inductive margin)
+ * - Outside bounds → immediate shutdown required
+ */
+bool pll_is_frequency_safe(void) {
+#ifndef ESP_PLATFORM
+    static bool sim_freq_safe = true;
+    /* This allows the simulation API to override the real calculation */
+#endif
+    float min_safe_freq = pll_ctx.resonant_freq - FREQ_MARGIN_LOW_HZ;
+    float max_safe_freq = pll_ctx.resonant_freq + FREQ_MARGIN_HIGH_HZ;
+
+    bool is_safe = (pll_ctx.current_freq >= min_safe_freq) &&
+                   (pll_ctx.current_freq <= max_safe_freq);
+
+#ifdef ESP_PLATFORM
+    if (!is_safe) {
+        ESP_LOGE(TAG, "CRITICAL: Frequency %.1fHz outside safe bounds [%.1f, %.1f]",
+                 pll_ctx.current_freq, min_safe_freq, max_safe_freq);
+    }
+#endif
+
+    return is_safe;
+}
+
+#ifndef ESP_PLATFORM
+void pll_sim_set_locked(bool locked) {
+    pll_ctx.locked = locked;
+}
+
+void pll_sim_set_frequency_safe(bool safe) {
+    if (safe) {
+        pll_ctx.current_freq = pll_ctx.resonant_freq;
+    } else {
+        pll_ctx.current_freq = 0.0f;
+    }
+}
+#endif
+
+/**
+ * @brief Get detailed lock status
+ */
+bool pll_get_lock_status(uint32_t *lock_cycles, float *phase_error_us) {
+    if (lock_cycles != NULL) {
+        *lock_cycles = pll_ctx.lock_count;
+    }
+    if (phase_error_us != NULL) {
+        *phase_error_us = last_phase_error_us;
+    }
+    return pll_ctx.locked;
 }

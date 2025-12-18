@@ -1,0 +1,1 @@
+# Manual Resolution - temper-f8v\n\nResearch performed manually due to Pro model quota limits.\n\n- Defined 4 voltage domains.\n- Established 8mm target for Reinforced isolation (Hazardous to SELV).\n- Created docs/PCB_SAFETY_DESIGN_RULES.md.

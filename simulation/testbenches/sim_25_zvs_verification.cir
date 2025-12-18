@@ -50,9 +50,9 @@
 ***************************************************************************
 * Operating point for ZVS: slightly above resonance
 .param VDC=320               ; DC bus voltage
-.param F_RES=35.8k           ; Resonant frequency of tank
-.param F_SW=38k              ; Switching frequency (above resonance for ZVS)
-.param PERIOD={1/F_SW}       ; ~26.3us
+.param F_RES=37.5k           ; 1.8kW Redesign: Resonant frequency with 300nF
+.param F_SW=40k              ; Switching frequency (above resonance for ZVS)
+.param PERIOD={1/F_SW}       ; ~25us
 .param DUTY=0.48             ; Near 50% duty for symmetric operation
 .param T_ON={PERIOD*DUTY}    ; On-time
 .param DT_NS=500             ; Dead-time in ns
@@ -63,7 +63,7 @@
 .param RG=5                  ; Gate resistor
 
 * Resonant tank parameters
-.param C_RES=330n            ; Resonant capacitor
+.param C_RES=300n            ; 1.8kW Redesign: 2x 150nF
 .param L_EFF=60u             ; Effective inductance (with pan coupled)
 .param R_LOAD=8              ; Reflected pan resistance
 
@@ -223,10 +223,10 @@ echo ""
 
 echo "CONFIGURATION:"
 echo "  DC Bus Voltage: 320V"
-echo "  Resonant frequency: 35.8 kHz (calculated)"
-echo "  Switching frequency: 38 kHz (above resonance)"
+echo "  Resonant frequency: 37.5 kHz (calculated)"
+echo "  Switching frequency: 40 kHz (above resonance)"
 echo "  Dead-time: 500 ns"
-echo "  Resonant cap: 330 nF"
+echo "  Resonant cap: 300 nF"
 echo "  Effective inductance: 60 uH"
 echo "  Reflected resistance: 8 ohm"
 echo ""

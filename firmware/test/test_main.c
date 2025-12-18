@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include "unity/unity.h"
 #include "test_common.h"
+#include "pll_control.h"
+#include "zvs_monitor.h"
 
 /* Forward declarations for Unity functions not in minimal header */
 int UnityBeginWrapper(void);
@@ -22,6 +24,7 @@ int UnityEndWrapper(void);
 
 /* Declare test modules */
 DECLARE_TEST_MODULE(pid_control);
+DECLARE_TEST_MODULE(low_temp_control);
 DECLARE_TEST_MODULE(safety);
 
 /* Unity required functions */
@@ -57,6 +60,9 @@ int main(void) {
     printf("--- PID Controller Tests ---\n");
     RUN_TEST_MODULE(pid_control);
     
+    printf("\n--- Low Temperature Control Tests ---\n");
+    RUN_TEST_MODULE(low_temp_control);
+    
     printf("\n--- Safety Module Tests ---\n");
     RUN_TEST_MODULE(safety);
     
@@ -78,6 +84,13 @@ void test_reset_all_mocks(void) {
     /* mock_adc_reset(); */
     /* mock_pwm_reset(); */
     /* mock_timer_reset(); */
+#endif
+
+#ifndef ESP_PLATFORM
+    /* Initialize PLL and ZVS to safe states for testing */
+    pll_sim_set_locked(true);
+    pll_sim_set_frequency_safe(true);
+    zvs_sim_set_status(ZVS_OK);
 #endif
 }
 

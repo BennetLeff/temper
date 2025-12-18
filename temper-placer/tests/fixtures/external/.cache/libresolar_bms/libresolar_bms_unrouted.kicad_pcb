@@ -241,7 +241,7 @@
   (net 142 "unconnected-(U4-DDSG-Pad32)")
 
   (footprint "LibreSolar:LIBRESOLAR_LOGO" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 95.6625 101.90225)
     (property "Reference" "LOGO2")
     (property "Value" "LIBRE_SOLAR")
@@ -3137,7 +3137,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 67.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -3176,7 +3176,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 198 60 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -3217,7 +3217,7 @@
   )
 
   (footprint "LibreSolar:C_1210_3225" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 149.5 89.2)
     (descr "Capacitor SMD 1210, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 1210")
@@ -3257,7 +3257,7 @@
   )
 
   (footprint "LibreSolar:C_1210_3225" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 154.5 90.5 180)
     (descr "Capacitor SMD 1210, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 1210")
@@ -3297,7 +3297,7 @@
   )
 
   (footprint "LibreSolar:C_1210_3225" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 154.5 87 180)
     (descr "Capacitor SMD 1210, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 1210")
@@ -3337,7 +3337,7 @@
   )
 
   (footprint "LibreSolar:Bourns_SRN8040TA" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 158 97 90)
     (tags "Inductors Bourns / Tayo Yuden 6045")
     (property "Reference" "L2")
@@ -3377,7 +3377,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 144 98 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -3418,7 +3418,7 @@
   )
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3305A" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 192 55.5 -90)
     (descr "https://www.e-switch.com/system/asset/product_line/data_sheet/213/TL3305.pdf")
     (tags "TL3305 Series Tact Switch")
@@ -3489,7 +3489,7 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_TopBottom" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 158 69)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
@@ -3512,7 +3512,7 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_TopBottom" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 84 54)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
@@ -3535,7 +3535,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 202 60 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -3576,7 +3576,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 148.9 101)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -3616,7 +3616,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 144.8 101)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -3657,7 +3657,7 @@
   )
 
   (footprint "Symbol:WEEE-Logo_4.2x6mm_SilkScreen" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 85.5 72.5)
     (descr "Waste Electrical and Electronic Equipment Directive")
     (tags "Logo WEEE")
@@ -4195,7 +4195,7 @@
   )
 
   (footprint "Symbol:OSHW-Logo_5.7x6mm_SilkScreen" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 84.5 64)
     (descr "Open Source Hardware Logo")
     (tags "Logo OSHW")
@@ -5576,7 +5576,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 79.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -5604,7 +5604,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 85 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -5644,7 +5644,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123F" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 141.7 91.9 180)
     (descr "SOD-123F")
     (tags "SOD-123F")
@@ -5696,7 +5696,7 @@
   )
 
   (footprint "LED_SMD:LED_0603_1608Metric" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 176 101 90)
     (descr "LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "LED")
@@ -5738,7 +5738,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 89 110.5 -90)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -5789,7 +5789,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 71.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -5828,7 +5828,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 150.6 71.8 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -5867,7 +5867,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 137 91 -90)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -5919,7 +5919,7 @@
   )
 
   (footprint "Connector_JST:JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 189 109 180)
     (descr "JST PH series connector, B4B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator")
     (tags "connector JST PH side entry")
@@ -5996,7 +5996,7 @@
   )
 
   (footprint "LibreSolar:C_1206_3216" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 169 90.5 180)
     (descr "Capacitor SMD 1206, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 1206")
@@ -6036,7 +6036,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 170.5 69 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -6076,7 +6076,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 84.4 98.5 -90)
     (descr "module CMS SOT223 4 pins")
     (tags "CMS SOT")
@@ -6123,7 +6123,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 142.5 110.5 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -6163,7 +6163,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 167.2 64.7)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -6202,7 +6202,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 67.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -6230,7 +6230,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 97.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -6258,7 +6258,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 106 72 -90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -6512,7 +6512,7 @@
   )
 
   (footprint "LibreSolar:R_1206_3216" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 201 106.5 180)
     (descr "Resistor SMD 1206, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 1206")
@@ -6551,7 +6551,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 138.5 75.5)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -6573,7 +6573,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 124 68 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -6612,7 +6612,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 87.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -6651,7 +6651,7 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_TopBottom" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 84 116)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
@@ -6674,7 +6674,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 91.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -6702,7 +6702,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 69.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -6741,7 +6741,7 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_TopBottom" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 211 54)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
@@ -6764,7 +6764,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 153.5 83)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -6786,7 +6786,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 192 102.5)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -6838,7 +6838,7 @@
   )
 
   (footprint "LibreSolar:R_Shunt_5931_Kelvin" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 163.5 57 180)
     (descr "Current Measurement Resistor SMD 2512, reflow soldering, Vishay WSLF or Bourns CCS2H")
     (tags "resistor 2512")
@@ -6956,7 +6956,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 86.5 104.5)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -6995,7 +6995,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 153.2 72.6 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -7034,7 +7034,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 81.5 72 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -7074,7 +7074,7 @@
   )
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3305A" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 139.5 116 180)
     (descr "https://www.e-switch.com/system/asset/product_line/data_sheet/213/TL3305.pdf")
     (tags "TL3305 Series Tact Switch")
@@ -7145,7 +7145,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 144 94.5 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -7186,7 +7186,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 73.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -7225,7 +7225,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 83.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -7265,7 +7265,7 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_TopBottom" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 140 104)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
@@ -7288,7 +7288,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 142.5 112 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -7329,7 +7329,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 147.5 108.5)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -7370,7 +7370,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 89.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -7398,7 +7398,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 83.5 106 -90)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -7450,7 +7450,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 166 97.5 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -7489,7 +7489,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 73.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -7517,7 +7517,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-23" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 104 116.9375 -90)
     (descr "SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOT TO_SOT_SMD")
@@ -7562,7 +7562,7 @@
   )
 
   (footprint "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 155 111.3)
     (descr "USB 2.0 Type C Receptacle, GCT, 16P, top mounted, horizontal, 5A: https://gct.co/files/drawings/usb4105.pdf")
     (tags "USB C Type-C Receptacle SMD USB 2.0 16P 16C USB4105-15-A USB4105-15-A-060 USB4105-15-A-120 USB4105-GF-A USB4105-GF-A-060 USB4105-GF-A-120")
@@ -7639,7 +7639,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 97.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -7678,7 +7678,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 100 90 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -7717,7 +7717,7 @@
   )
 
   (footprint "Espressif:ESP32-C3-MINI-1" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 170 109 180)
     (descr "ESP32-C3-MINI-1: https://www.espressif.com/sites/default/files/documentation/esp32-c3-mini-1_datasheet_en.pdf")
     (tags "ESP32-C3")
@@ -7903,7 +7903,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 85.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -7942,7 +7942,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-523" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 154.7 105.2 -90)
     (descr "SOD-523 https://www.nxp.com/docs/en/package-information/SOD523.pdf")
     (tags "Diode SOD523")
@@ -7988,7 +7988,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 124 90 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -8027,7 +8027,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 199.5 66)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -8078,7 +8078,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 118 72 -90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -8332,7 +8332,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-323" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 141 71.4 -90)
     (descr "SOD-323 https://www.infineon.com/dgdl/SOD323-Package_Overview.pdf?fileId=5546d462580663ef015806a03290044a")
     (tags "SOD-323")
@@ -8379,7 +8379,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 158.9 82.5 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -8418,7 +8418,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 182.4 103.8)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -8470,7 +8470,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 94 86 90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -8724,7 +8724,7 @@
   )
 
   (footprint "LibreSolar:Bourns_PWR163" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 116.206 56)
     (descr "TO-252 / DPAK SMD package, http://www.infineon.com/cms/en/product/packages/PG-TO252/PG-TO252-3-1/")
     (tags "DPAK TO-252 DPAK-3 TO-252-3 SOT-428")
@@ -8790,7 +8790,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 168.3 101 180)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -8812,7 +8812,7 @@
   )
 
   (footprint "LibreSolar:R_1206_3216" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 182.3 101.2)
     (descr "Resistor SMD 1206, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 1206")
@@ -8851,7 +8851,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 75.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -8890,7 +8890,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 154.5 65.5 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -8929,7 +8929,7 @@
   )
 
   (footprint "Connector_JST:JST_PH_B3B-PH-SM4-TB_1x03-1MP_P2.00mm_Vertical" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 96 114.5 180)
     (descr "JST PH series connector, B3B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator")
     (tags "connector JST PH side entry")
@@ -9000,7 +9000,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 91.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -9039,7 +9039,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 164.5 67.5 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9078,7 +9078,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 85.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -9106,7 +9106,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 77.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -9146,7 +9146,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 86.5 106.5 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9185,7 +9185,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 86.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -9225,7 +9225,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 162.2 88.6 90)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -9247,7 +9247,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 153.6 78.6)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -9269,7 +9269,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 104 111)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9308,7 +9308,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 139 79 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9347,7 +9347,7 @@
   )
 
   (footprint "Fiducial:Fiducial_1mm_Mask2mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 210 60 180)
     (descr "Circular Fiducial, 1mm bare copper, 2mm soldermask opening (Level A)")
     (tags "fiducial")
@@ -9369,7 +9369,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 178 109.1 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9408,7 +9408,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 82 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -9448,7 +9448,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 136.8 53)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -9488,7 +9488,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 71.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -9528,7 +9528,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 159.7 74 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9567,7 +9567,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 88 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -9607,7 +9607,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 81.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -9646,7 +9646,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 136 65 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -9685,7 +9685,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 106 86 90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -9939,7 +9939,7 @@
   )
 
   (footprint "Package_QFP:TQFP-48_7x7mm_P0.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 166 79 180)
     (descr "TQFP, 48 Pin (https://www.jedec.org/system/files/docs/MS-026D.pdf var ABC), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "TQFP QFP")
@@ -10098,7 +10098,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 148.2 91.5)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -10138,7 +10138,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 70 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -10178,7 +10178,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 174.5 101 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -10217,7 +10217,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 71.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -10245,7 +10245,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 130 86 90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -10499,7 +10499,7 @@
   )
 
   (footprint "Diode_SMD:D_SOD-128" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 152 96.5 90)
     (descr "D_SOD-128 (CFP5 SlimSMAW), https://assets.nexperia.com/documents/outline-drawing/SOD128.pdf")
     (tags "D_SOD-128")
@@ -10547,7 +10547,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 81.5 75.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -10587,7 +10587,7 @@
   )
 
   (footprint "LibreSolar:Wuerth_PowerOne_SMD_LF990005" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 94 57 180)
     (descr "PowerOne, Round, SMD,  9mm x 9mm, M5")
     (tags "Screw Terminal M5")
@@ -10661,7 +10661,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 140.4 67.6 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -10702,7 +10702,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 99.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -10741,7 +10741,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 161.5 113 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -10782,7 +10782,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 79 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -10822,7 +10822,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 159.7 80 -90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -10862,7 +10862,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 197 106.4)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -10884,7 +10884,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 81.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -10912,7 +10912,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 83.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -10951,7 +10951,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-523" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 156.3 105.2 -90)
     (descr "SOD-523 https://www.nxp.com/docs/en/package-information/SOD523.pdf")
     (tags "Diode SOD523")
@@ -10997,7 +10997,7 @@
   )
 
   (footprint "NetTie:NetTie-2_SMD_Pad0.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 188.25 62)
     (descr "Net tie, 2 pin, 0.5mm square SMD pads")
     (tags "net tie")
@@ -11023,7 +11023,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 108.9 109.1)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -11063,7 +11063,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 118 86 90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -11317,7 +11317,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 164.5 101 180)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -11339,7 +11339,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 139.6 94.4)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -11379,7 +11379,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 93.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -11418,7 +11418,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 95.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -11457,7 +11457,7 @@
   )
 
   (footprint "LibreSolar:Wuerth_PowerOne_SMD_LF990005" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 130 101)
     (descr "PowerOne, Round, SMD,  9mm x 9mm, M5")
     (tags "Screw Terminal M5")
@@ -11531,7 +11531,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 99.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -11559,7 +11559,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 87.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -11587,7 +11587,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 118.5 111.5 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -11626,7 +11626,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 75.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -11654,7 +11654,7 @@
   )
 
   (footprint "Connector_JST:JST_PH_B2B-PH-SM4-TB_1x02-1MP_P2.00mm_Vertical" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 200 55.5)
     (descr "JST PH series connector, B2B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator")
     (tags "connector JST PH side entry")
@@ -11719,7 +11719,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 206.5 63)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -11741,7 +11741,7 @@
   )
 
   (footprint "LibreSolar:D_SMC" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 133.5 57.5)
     (descr "Diode SMC Standard = DO-214AB")
     (tags "Diode SMC Standard DO-214AB")
@@ -11789,7 +11789,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 112 90 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -11828,7 +11828,7 @@
   )
 
   (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 115 113.5 -90)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
@@ -11884,7 +11884,7 @@
   )
 
   (footprint "LibreSolar:SOT-23" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 144 71.4 90)
     (descr "SOT-23, Standard")
     (tags "SOT-23")
@@ -11929,7 +11929,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 136 68 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -11968,7 +11968,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 77.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -12007,7 +12007,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 76 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -12047,7 +12047,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 172.5 101 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12086,7 +12086,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 86.5 90 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12125,7 +12125,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 104 112.5 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -12165,7 +12165,7 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3_Pad_TopBottom" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 211 116)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
@@ -12188,7 +12188,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 169.6 94.6)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -12210,7 +12210,7 @@
   )
 
   (footprint "LibreSolar:SOT-23" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 144.6 67.6 -90)
     (descr "SOT-23, Standard")
     (tags "SOT-23")
@@ -12254,7 +12254,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 113.3 118.5 180)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -12276,7 +12276,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 100 68 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12315,7 +12315,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 165.7 86 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12354,7 +12354,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 181.5 66 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -12394,7 +12394,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 173.5 73 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -12434,7 +12434,7 @@
   )
 
   (footprint "Connector_JST:JST_PH_B4B-PH-SM4-TB_1x04-1MP_P2.00mm_Vertical" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 127.1 114.4 180)
     (descr "JST PH series connector, B4B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator")
     (tags "connector JST PH side entry")
@@ -12511,7 +12511,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 140.5 96)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -12551,7 +12551,7 @@
   )
 
   (footprint "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 85 84.5)
     (descr "Wire Pad, Square, SMD Pad,  5mm x 10mm,")
     (tags "MesurementPoint Square SMDPad 5mmx10mm ")
@@ -12576,7 +12576,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 112 68 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12615,7 +12615,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 147.5 107)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12656,7 +12656,7 @@
   )
 
   (footprint "LibreSolar:Wuerth_PowerOne_SMD_LF990005" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 147 57 180)
     (descr "PowerOne, Round, SMD,  9mm x 9mm, M5")
     (tags "Screw Terminal M5")
@@ -12730,7 +12730,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 151.8 67 90)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -12783,7 +12783,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 146.8 71 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12822,7 +12822,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 166 96 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12861,7 +12861,7 @@
   )
 
   (footprint "Fiducial:Fiducial_1mm_Mask2mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 82.5 110.5)
     (descr "Circular Fiducial, 1mm bare copper, 2mm soldermask opening (Level A)")
     (tags "fiducial")
@@ -12883,7 +12883,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 164.5 71.5 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -12923,7 +12923,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 69.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -12951,7 +12951,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 163 67.5 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -12990,7 +12990,7 @@
   )
 
   (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 109 113.5 -90)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
@@ -13045,7 +13045,7 @@
   )
 
   (footprint "LibreSolar:C_0805_2012" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 180 112 -90)
     (descr "Capacitor SMD 0805, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0805")
@@ -13086,7 +13086,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 138.1 67.1 90)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -13138,7 +13138,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 199.5 63.5)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -13190,7 +13190,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 183.3 89.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -13229,7 +13229,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 83.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -13257,7 +13257,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 109.1 118.5)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -13279,7 +13279,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 164.5 70 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -13319,7 +13319,7 @@
   )
 
   (footprint "LibreSolar:Wuerth_PowerOne_SMD_LF990005" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 180 57 180)
     (descr "PowerOne, Round, SMD,  9mm x 9mm, M5")
     (tags "Screw Terminal M5")
@@ -13393,7 +13393,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 149.2 67 90)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -13445,7 +13445,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 95.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -13473,7 +13473,7 @@
   )
 
   (footprint "Connector_Molex:Molex_Micro-Fit_3.0_43045-2410_2x12-1MP_P3.00mm_Horizontal" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 202.5 85 -90)
     (descr "Molex Micro-Fit 3.0 Connector System, 43045-2410 (compatible alternatives: 43045-2411, 43045-2409), 12 Pins per row (http://www.molex.com/pdm_docs/sd/430450210_sd.pdf), generated with kicad-footprint-generator")
     (tags "connector Molex Micro-Fit_3.0 top entry")
@@ -13597,7 +13597,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 168.4 86.1 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -13637,7 +13637,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 153.2 75.8 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -13676,7 +13676,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 164.2 86 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -13715,7 +13715,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 149 83 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -13754,7 +13754,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 80.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -13794,7 +13794,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 184.5 66)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -13834,7 +13834,7 @@
   )
 
   (footprint "LibreSolar:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.4x3.1mm_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 147.5 96.5 -90)
     (descr "SOIC, 8 Pin (https://www.analog.com/media/en/technical-documentation/data-sheets/ada4898-1_4898-2.pdf#page=29), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
@@ -13910,7 +13910,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 68.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -13950,7 +13950,7 @@
   )
 
   (footprint "LibreSolar:D_SMC" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 142.1 85.7 90)
     (descr "Diode SMC Standard = DO-214AB")
     (tags "Diode SMC Standard DO-214AB")
@@ -13998,7 +13998,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 168.5 88.5 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14038,7 +14038,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-223" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 201.5 113.5 90)
     (descr "module CMS SOT223 4 pins")
     (tags "CMS SOT")
@@ -14085,7 +14085,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 178 112.5 -90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14126,7 +14126,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 150 74)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -14179,7 +14179,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 104 109.5 180)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -14218,7 +14218,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 150 76.6 180)
     (descr "SOD-123")
     (tags "SOD-123")
@@ -14271,7 +14271,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 175 74.5 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14311,7 +14311,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 172 67.5 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14351,7 +14351,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 156.5 76)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -14373,7 +14373,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 159.7 77.1 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14413,7 +14413,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 193 63)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -14435,7 +14435,7 @@
   )
 
   (footprint "LibreSolar:R_2010_5025" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 191 79.5 180)
     (descr "Resistor SMD 2010, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 2010")
@@ -14474,7 +14474,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 169 67.5 180)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14514,7 +14514,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 118.5 115 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14554,7 +14554,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 133.8 53)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -14594,7 +14594,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 77.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -14622,7 +14622,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 130 72 -90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -14876,7 +14876,7 @@
   )
 
   (footprint "LibreSolar:C_1210_3225" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 149.5 85.9)
     (descr "Capacitor SMD 1210, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 1210")
@@ -14916,7 +14916,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 142 67.6 90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -14955,7 +14955,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:Infineon_PG-HSOF-8-1_ThermalVias" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 94 72 -90)
     (descr "HSOF-8-1 [TOLL] power MOSFET (http://www.infineon.com/cms/en/product/packages/PG-HSOF/PG-HSOF-8-1/)")
     (tags "mosfet hsof toll thermal vias")
@@ -15209,7 +15209,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 179 93.5)
     (descr "SMD rectangular pad as test Point, square 1.0mm side length")
     (tags "test point SMD pad rectangle square")
@@ -15237,7 +15237,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 161.3 74 90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -15277,7 +15277,7 @@
   )
 
   (footprint "LibreSolar:D_SOD-123F" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 206 57 -90)
     (descr "SOD-123F")
     (tags "SOD-123F")
@@ -15329,7 +15329,7 @@
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.5mm" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 86.5 109)
     (descr "SMD pad as test Point, diameter 1.5mm")
     (tags "test point SMD pad")
@@ -15351,7 +15351,7 @@
   )
 
   (footprint "LibreSolar:R_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 88 90 -90)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -15390,7 +15390,7 @@
   )
 
   (footprint "LibreSolar:C_0603_1608" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 178 106 -90)
     (descr "Capacitor SMD 0603, reflow soldering, AVX (see smccp.pdf)")
     (tags "capacitor 0603")
@@ -15430,7 +15430,7 @@
   )
 
   (footprint "LED_SMD:LED_0603_1608Metric" (layer "F.Cu")
-    (tedit 69419843)
+    (tedit 6942ecf9)
     (at 171 101 90)
     (descr "LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "LED")

@@ -520,6 +520,39 @@ bd show bd-41 --json  # Verify merged content
     -p 2 --deps discovered-from:bd-X --json
   ```
 
+## Agentic Workflows & Delegation
+
+This project uses a tiered multi-agent system to optimize for reasoning depth and execution speed.
+
+### Tiered Model Strategy
+
+| Role | Model Tier | Responsibility |
+|------|------------|----------------|
+| **architect** | 🧠 **Thinking** (Pro) | High-level design, pattern selection, trade-off analysis. |
+| **security** | 🧠 **Thinking** (Pro) | Deep vulnerability analysis, security audits, paranoia. |
+| **coder** | ⚡ **Fast** (Flash) | Feature implementation, refactoring, code efficiency. |
+| **tester** | ⚡ **Fast** (Flash) | Unit test generation, edge case coverage, QA. |
+
+### How to Delegate Tasks
+
+You can delegate work to specialized agents using **Labels** in the `bd` issue tracker.
+
+1.  **Label an Issue**: Add a label like `agent:coder` or `agent:security` to an open issue.
+    ```bash
+    bd update temper-123 --label agent:security
+    ```
+2.  **Trigger Automation**: Run the auto-assign script to scan and dispatch.
+    ```bash
+    python3 tools/agents/auto_assign.py
+    ```
+3.  **Manual Assignment**: Use the assignment tool for direct control.
+    ```bash
+    python3 tools/agents/assign.py <issue_id> <role>
+    ```
+
+### Output & Implementation
+Agents save their work to `agent_outputs/<issue_id>_<role>_resolution.md`. The Master Agent (you) should review this output and implement/verify the changes.
+
 ## Development Guidelines
 
 > **📋 For complete development instructions**, see [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md)
@@ -1369,3 +1402,29 @@ For example: `bd create --help` shows `--parent`, `--deps`, `--assignee`, etc.
 
 For more details, see README.md and QUICKSTART.md.
 <!-- /bd onboard section -->
+
+## Landing the Plane (Session Completion)
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds

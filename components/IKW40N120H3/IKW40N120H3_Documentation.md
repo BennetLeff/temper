@@ -194,7 +194,7 @@ Components needed for one half-bridge:
 #### Step 1: DC Bus Setup
 ```
 1. Rectify AC mains to DC (bridge rectifier for 120V, voltage doubler optional)
-2. Add bulk capacitor: 100µF electrolytic (450V rated) + 2.2µF film (630V)  3. Expected DC voltage: ~300V (from 120V AC), ~380V (from 230V AC)
+2. Add bulk capacitor: 100µF electrolytic (450V rated) + 2.2µF film (1000V)  3. Expected DC voltage: ~300V (from 120V AC), ~380V (from 230V AC)
 4. Add bleeder resistor for discharge when unpowered (100kΩ, 5W)
 ```
 
@@ -332,7 +332,7 @@ ngspice IKW40N120H3_test.cir
 5. **DC Bus Current I(VDC)**
    - Pulsed current waveform
    - Average current = Output Power / VDC
-   - Example: 2000W / 300V ≈ 6.7A average
+   - Example: 1800W / 300V ≈ 6.0A average
 
 #### 4.4.2 Key Measurements
 

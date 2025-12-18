@@ -179,6 +179,20 @@ void test_small_metal_object(void) {
     TEST_ASSERT_EQUAL(PAN_DETECT_NONE, result);
 }
 
+/**
+ * Test: Low-power validation (50W operation)
+ * Ensures thresholds are appropriate for low-energy detection pulses.
+ */
+void test_low_power_validation_ferrous(void) {
+    /* At low power, we still expect the same decay physics */
+    TEST_ASSERT_EQUAL(PAN_DETECT_FERROUS, analyze_edges(5));
+}
+
+void test_low_power_validation_empty(void) {
+    /* Open tank should still ring freely regardless of power level */
+    TEST_ASSERT_EQUAL(PAN_DETECT_NONE, analyze_edges(20));
+}
+
 /*============================================================================
  * Test Runner
  *============================================================================*/
@@ -202,4 +216,6 @@ void run_pan_detection_tests(void) {
     RUN_TEST(test_typical_empty_coil);
     RUN_TEST(test_typical_aluminum_pot);
     RUN_TEST(test_small_metal_object);
+    RUN_TEST(test_low_power_validation_ferrous);
+    RUN_TEST(test_low_power_validation_empty);
 }

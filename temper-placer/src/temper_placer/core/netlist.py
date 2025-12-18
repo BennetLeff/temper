@@ -240,3 +240,91 @@ class Netlist:
                         errors.append(f"Net {net.name} references unknown pin {pin_name} on {ref}")
 
         return errors
+
+
+def build_adjacency_matrix(netlist: Netlist) -> Array:
+    """
+    Build weighted adjacency matrix from netlist connectivity.
+
+    The adjacency matrix A is symmetric with A[i,j] equal to the number of nets
+    connecting components i and j. Components on the same net create edges between
+    all pairs of components on that net (complete subgraph).
+
+    Args:
+        netlist: Netlist with components and nets.
+
+    Returns:
+        (N, N) symmetric adjacency matrix where A[i,j] = number of nets
+        connecting components i and j. Returns (0,0) array for empty netlist.
+    """
+    import numpy as np
+
+    n = len(netlist.components)
+
+    if n == 0:
+        return jnp.array([]).reshape(0, 0)
+
+    # Build component ref -> index mapping
+    ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
+
+    # Initialize adjacency matrix
+    adj = np.zeros((n, n), dtype=np.float32)
+
+    # For each net, connect all component pairs
+    for net in netlist.nets:
+        # Get component indices for this net
+        comp_indices = []
+        for comp_ref, _ in net.pins:
+            if comp_ref in ref_to_idx:
+                comp_indices.append(ref_to_idx[comp_ref])
+
+        # Remove duplicates (component may have multiple pins on same net)
+        comp_indices = list(set(comp_indices))
+
+        # Add edges between all pairs (complete subgraph)
+        for i in range(len(comp_indices)):
+            for j in range(i + 1, len(comp_indices)):
+                idx_i = comp_indices[i]
+                idx_j = comp_indices[j]
+
+                adj[idx_i, idx_j] += 1
+                adj[idx_j, idx_i] += 1  # Symmetric
+
+    return jnp.array(adj)
+
+
+def compute_eigenvector_centrality(adjacency: Array) -> Array:
+    """
+    Compute eigenvector centrality for each node in the graph.
+
+    Eigenvector centrality measures a node's importance based on the
+    importance of its neighbors. It corresponds to the eigenvector
+    associated with the largest eigenvalue of the adjacency matrix.
+
+    Args:
+        adjacency: (N, N) weighted adjacency matrix.
+
+    Returns:
+        (N,) array of centrality scores, normalized to sum to 1.0.
+    """
+    n = adjacency.shape[0]
+    if n == 0:
+        return jnp.array([])
+    if n == 1:
+        return jnp.array([1.0], dtype=jnp.float32)
+
+    # For symmetric matrices, eigh returns eigenvalues in ascending order
+    eigenvalues, eigenvectors = jnp.linalg.eigh(adjacency)
+
+    # The leading eigenvector is the last one (largest eigenvalue)
+    centrality = eigenvectors[:, -1]
+
+    # Eigenvector centrality should be non-negative (Perron-Frobenius theorem)
+    centrality = jnp.abs(centrality)
+
+    # Normalize so they sum to 1.0
+    total = jnp.sum(centrality)
+    if total > 0:
+        centrality = centrality / total
+
+    return centrality

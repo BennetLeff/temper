@@ -1,0 +1,80 @@
+"""
+Community detection for netlist functional grouping.
+
+This module provides functions to automatically identify functional clusters
+of components using graph community detection algorithms (Louvain).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict, List, Set, Tuple
+
+import networkx as nx
+import community as community_louvain
+import numpy as np
+
+from temper_placer.core.netlist import Netlist, Component
+from temper_placer.optimizer.initialization import build_adjacency_matrix
+
+@dataclass
+class Community:
+    """A detected functional cluster of components."""
+    name: str
+    component_refs: List[str]
+    modularity_score: float
+
+def detect_communities(netlist: Netlist) -> List[Community]:
+    """
+    Detect functional communities in the netlist using the Louvain algorithm.
+
+    Args:
+        netlist: The netlist to analyze.
+
+    Returns:
+        List of Community objects representing detected functional blocks.
+    """
+    if netlist.n_components == 0:
+        return []
+
+    # 1. Build adjacency matrix
+    # adjacency is a symmetric JAX Array (N, N)
+    adj_matrix = build_adjacency_matrix(netlist)
+    adj_np = np.array(adj_matrix)
+
+    # 2. Create NetworkX graph
+    G = nx.from_numpy_array(adj_np)
+    
+    # Map node indices back to component references
+    idx_to_ref = {i: comp.ref for i, comp in enumerate(netlist.components)}
+    
+    # 3. Apply Louvain algorithm for community detection
+    # partition is a dict: {node_idx: community_id}
+    partition = community_louvain.best_partition(G, weight='weight', random_state=42)
+    
+    # 4. Group by community ID
+    community_groups: Dict[int, List[str]] = {}
+    for node_idx, comm_id in partition.items():
+        if comm_id not in community_groups:
+            community_groups[comm_id] = []
+        community_groups[comm_id].append(idx_to_ref[node_idx])
+        
+    # 5. Compute modularity score
+    modularity = community_louvain.modularity(partition, G, weight='weight')
+    
+    # 6. Create Community objects
+    communities = []
+    for comm_id, refs in community_groups.items():
+        # Ignore single-component communities (noise)
+        if len(refs) > 1:
+            communities.append(Community(
+                name=f"auto_community_{comm_id}",
+                component_refs=refs,
+                modularity_score=modularity
+            ))
+            
+    return communities
+
+def get_community_component_indices(netlist: Netlist, community: Community) -> List[int]:
+    """Resolve component references in a community to netlist indices."""
+    return [netlist.get_component_index(ref) for ref in community.component_refs]

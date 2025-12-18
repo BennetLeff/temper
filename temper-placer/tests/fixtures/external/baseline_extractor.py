@@ -33,23 +33,20 @@ class BaselineMetrics:
     # Board info
     board_width_mm: float
     board_height_mm: float
+    kicad_version: int = 6
     board_origin_x: float = 0.0
     board_origin_y: float = 0.0
     component_count: int = 0
     net_count: int = 0
 
-    # Placement quality metrics
-    total_wirelength_mm: float = 0.0
-    overlap_loss: float = 0.0
-    boundary_loss: float = 0.0
+    # Human placement metrics (normalized 0-1 scores where 1.0 is ideal)
+    # Includes original positions and DRC results
+    human_placement: Dict[str, Any] = field(default_factory=dict)
 
-    # DRC metrics
+    # DRC metrics (redundant but useful at top level)
     drc_errors: int = 0
     drc_warnings: int = 0
     drc_available: bool = False
-
-    # Per-component data
-    component_positions: Dict[str, Dict[str, float]] = field(default_factory=dict)
 
     # Optional detailed metrics
     net_wirelengths: Dict[str, float] = field(default_factory=dict)
@@ -99,6 +96,7 @@ def _check_dependencies() -> bool:
 def extract_baseline_metrics(
     pcb_path: Path,
     project_name: str,
+    constraints_path: Optional[Path] = None,
 ) -> BaselineMetrics:
     """
     Extract placement quality metrics from a human-designed PCB.
@@ -109,6 +107,7 @@ def extract_baseline_metrics(
     Args:
         pcb_path: Path to the .kicad_pcb file
         project_name: Name for identification in the output
+        constraints_path: Optional path to the constraints YAML file
 
     Returns:
         BaselineMetrics containing all extracted quality metrics
@@ -118,10 +117,12 @@ def extract_baseline_metrics(
 
     from temper_placer.core import PlacementState
     from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.io.config_loader import load_constraints
     from temper_placer.losses import BoundaryLoss, OverlapLoss
     from temper_placer.losses.base import LossContext
     from temper_placer.losses.wirelength import compute_total_hpwl
     from temper_placer.validation.drc import KiCadDRCValidator
+    from temper_placer.metrics.quality import compute_quality_report
 
     warnings: List[str] = []
 
@@ -133,12 +134,20 @@ def extract_baseline_metrics(
     if board is None:
         raise ValueError(f"No board geometry found in {pcb_path}")
 
+    # Load constraints if available
+    constraints = None
+    if constraints_path and constraints_path.exists():
+        try:
+            constraints = load_constraints(constraints_path)
+        except Exception as e:
+            warnings.append(f"Failed to load constraints from {constraints_path}: {e}")
+
     # Get board origin for coordinate transformation
     # Parser stores positions as origin-relative, but loss functions expect absolute
     origin_x, origin_y = board.origin
 
     # Extract component positions from original placement
-    component_positions: Dict[str, Dict[str, float]] = {}
+    component_positions: Dict[str, List[float]] = {}
     positions_list: List[Tuple[float, float]] = []
     rotations_list: List[int] = []
 
@@ -153,23 +162,20 @@ def extract_baseline_metrics(
         if rot is None:
             rot = 0
 
-        # Store origin-relative coordinates in component_positions for human readability
-        component_positions[comp.ref] = {
-            "x": round(float(pos[0]), 3),
-            "y": round(float(pos[1]), 3),
-            "rotation": float(rot),
-            "width": round(float(comp.bounds[0]), 3),
-            "height": round(float(comp.bounds[1]), 3),
-        }
+        # Store origin-relative coordinates in [x, y, rotation] format
+        component_positions[comp.ref] = [
+            round(float(pos[0]), 3),
+            round(float(pos[1]), 3),
+            float(rot * 90),  # Store as degrees
+        ]
 
         # Convert to ABSOLUTE coordinates for loss computation
-        # The parser normalizes to origin-relative, but get_bounds_array() returns absolute
         abs_x = float(pos[0]) + origin_x
         abs_y = float(pos[1]) + origin_y
         positions_list.append((abs_x, abs_y))
 
         # Convert rotation to discrete index (0=0°, 1=90°, 2=180°, 3=270°)
-        rot_idx = int(rot / 90) % 4
+        rot_idx = int(rot) % 4
         rotations_list.append(rot_idx)
 
     # Build PlacementState from original positions (in absolute coordinates)
@@ -182,7 +188,6 @@ def extract_baseline_metrics(
         rotations_one_hot = rotations_one_hot.at[i, rot_idx].set(1.0)
 
     # Create PlacementState with rotation logits that match original rotations
-    # Use high logit for the original rotation to make it "selected"
     rotation_logits = jnp.zeros((n_components, 4), dtype=jnp.float32)
     for i, rot_idx in enumerate(rotations_list):
         rotation_logits = rotation_logits.at[i, rot_idx].set(10.0)  # High logit for selected
@@ -194,31 +199,6 @@ def extract_baseline_metrics(
 
     # Create LossContext from netlist and board
     context = LossContext.from_netlist_and_board(netlist, board)
-
-    # Calculate wirelength using HPWL directly
-    total_wirelength = float(
-        compute_total_hpwl(
-            positions_array,
-            rotations_one_hot,
-            context,
-        )
-    )
-
-    # Calculate overlap loss
-    overlap_loss_fn = OverlapLoss()
-    overlap_result = overlap_loss_fn(positions_array, rotations_one_hot, context)
-    overlap_loss = float(overlap_result.value)
-
-    if overlap_loss > 0.01:  # Small threshold for floating point
-        warnings.append(f"Original design has overlap loss: {overlap_loss:.4f}")
-
-    # Calculate boundary loss
-    boundary_loss_fn = BoundaryLoss()
-    boundary_result = boundary_loss_fn(positions_array, rotations_one_hot, context)
-    boundary_loss = float(boundary_result.value)
-
-    if boundary_loss > 0.01:  # Small threshold for floating point
-        warnings.append(f"Original design has boundary loss: {boundary_loss:.4f}")
 
     # Run DRC validation if KiCad is available
     drc_errors = 0
@@ -233,37 +213,71 @@ def extract_baseline_metrics(
             if drc_result.success:
                 drc_errors = drc_result.error_count
                 drc_warnings = drc_result.warning_count
-                if drc_errors > 0:
-                    warnings.append(f"DRC found {drc_errors} errors")
             else:
                 warnings.append(f"DRC failed: {drc_result.raw_output[:200]}")
         except Exception as e:
             warnings.append(f"DRC exception: {str(e)}")
-    else:
-        warnings.append("KiCad CLI not available - DRC metrics not computed")
 
-    # Compute per-net wirelengths
-    net_wirelengths: Dict[str, float] = {}
-    # TODO: Implement per-net HPWL computation if needed
+    # Compute high-level quality metrics
+    quality_config = {}
+    if constraints:
+        # Map constraints to quality_config
+        quality_config = {
+            "thermal_components": set(),
+            "hv_components": set(),
+            "lv_components": set(),
+            "zone_assignments": constraints.zone_assignments,
+            "loop_components": [[n for n in loop.nets] for loop in constraints.critical_loops],
+            "min_hv_lv_clearance": constraints.hv_clearance_mm,
+        }
+        
+        # Populate component sets from netlist and constraints
+        for comp in netlist.components:
+            if comp.net_class == "HighVoltage":
+                quality_config["hv_components"].add(comp.ref)
+            elif comp.net_class == "Signal":
+                quality_config["lv_components"].add(comp.ref)
+        
+        # Add thermal components from constraints
+        for tc in constraints.thermal_constraints:
+            for ref in tc.components:
+                quality_config["thermal_components"].add(ref)
+
+    quality_report = compute_quality_report(
+        state, netlist, board, context, quality_config
+    )
+
+    # Format human_placement dict according to requested schema
+    human_placement = {
+        "drc_errors": drc_errors,
+        "drc_warnings": drc_warnings,
+        "metrics": {
+            "total_wirelength_mm": round(float(quality_report["total_wirelength"]), 2),
+            "thermal_score": round(float(quality_report["thermal_score"]), 3),
+            "zone_compliance": round(float(quality_report["zone_compliance_score"]), 3),
+            "hv_lv_clearance": round(float(quality_report["hv_lv_clearance_score"]), 3),
+            "loop_area_score": round(float(quality_report["loop_area_score"]), 3),
+            "congestion_score": round(float(quality_report["congestion_score"]), 3),
+            "compactness_score": round(float(quality_report["compactness_score"]), 3),
+        },
+        "component_positions": component_positions,
+    }
 
     return BaselineMetrics(
         project=project_name,
         extracted_at=datetime.now().isoformat(),
         source_pcb=str(pcb_path),
+        kicad_version=6,
         board_width_mm=round(float(board.width), 2),
         board_height_mm=round(float(board.height), 2),
         board_origin_x=round(origin_x, 2),
         board_origin_y=round(origin_y, 2),
         component_count=n_components,
         net_count=len(netlist.nets),
-        total_wirelength_mm=round(total_wirelength, 2),
-        overlap_loss=round(overlap_loss, 6),
-        boundary_loss=round(boundary_loss, 6),
+        human_placement=human_placement,
         drc_errors=drc_errors,
         drc_warnings=drc_warnings,
         drc_available=drc_available,
-        component_positions=component_positions,
-        net_wirelengths=net_wirelengths,
         warnings=warnings,
     )
 
@@ -301,9 +315,14 @@ def extract_baseline_for_project(
         print(f"PCB not downloaded: {project_name}")
         return None
 
+    # Get constraints path
+    constraints_path = pcb_path.parent / f"{project_name}_constraints.yaml"
+    if not constraints_path.exists():
+        print(f"Constraints not found for {project_name}, some metrics will be zero.")
+
     # Extract baseline metrics
     try:
-        metrics = extract_baseline_metrics(pcb_path, project_name)
+        metrics = extract_baseline_metrics(pcb_path, project_name, constraints_path)
     except Exception as e:
         print(f"Failed to extract baseline for {project_name}: {e}")
         import traceback
@@ -315,18 +334,24 @@ def extract_baseline_for_project(
     if output_dir is None:
         output_dir = pcb_path.parent
 
-    output_path = output_dir / f"{project_name}_baseline.yaml"
+    # Save as _benchmark.yaml as requested
+    output_path = output_dir / f"{project_name}_benchmark.yaml"
     metrics.save(output_path)
 
-    print(f"Extracted baseline for {project_name}: {output_path}")
+    print(f"Extracted benchmark for {project_name}: {output_path}")
     print(f"  Board origin: ({metrics.board_origin_x}, {metrics.board_origin_y})")
     print(f"  Components: {metrics.component_count}, Nets: {metrics.net_count}")
-    print(f"  Wirelength: {metrics.total_wirelength_mm:.2f} mm")
-    print(f"  Overlap: {metrics.overlap_loss:.6f}, Boundary: {metrics.boundary_loss:.6f}")
+    
+    m = metrics.human_placement.get("metrics", {})
+    print(f"  Wirelength: {m.get('total_wirelength_mm', 0.0):.2f} mm")
+    print(f"  Thermal Score: {m.get('thermal_score', 0.0):.3f}")
+    print(f"  Zone Compliance: {m.get('zone_compliance', 0.0):.3f}")
+    
     if metrics.drc_available:
         print(f"  DRC: {metrics.drc_errors} errors, {metrics.drc_warnings} warnings")
     else:
         print(f"  DRC: not available")
+    
     if metrics.warnings:
         for w in metrics.warnings:
             print(f"  WARNING: {w}")

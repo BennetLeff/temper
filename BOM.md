@@ -1,9 +1,9 @@
 # Temper Induction Cooker - Bill of Materials (BOM)
 
 **Project:** Temper - Production-grade Induction Cooker  
-**Version:** 1.0  
-**Date:** 2025-12-14  
-**Status:** PCB Ready
+**Version:** 1.1  
+**Date:** 2025-12-17  
+**Status:** 1.8kW Redesign Complete
 
 ---
 
@@ -24,6 +24,8 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
+| J_IN | AC Mains Inlet | 4798.9000 | Schurter | 1 | Panel Mount | IEC C20, 16A/250V |
+| L_EMI | EMI Filter Choke | B82725S2183N040 | EPCOS/TDK | 1 | Through-hole | 2x4.7mH, 18A |
 | D1, D2 | Ultrafast Rectifier | MUR1560 | ON Semiconductor | 2 | TO-220 | 15A 600V 35ns |
 | C_BUS1, C_BUS2 | Bus Capacitors | EKZE251ELL332MM40S | United Chemi-Con | 2 | Radial | 3300µF 250V 105°C |
 | R_BLEED1, R_BLEED2 | Bleeder Resistors | - | - | 2 | 2512 | 100kΩ 2W |
@@ -35,7 +37,8 @@
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | L_TANK | Tank Inductor | Custom | - | 1 | - | 80µH, 50A, ferrite |
-| C_TANK | Tank Capacitor | - | - | 1-3 | - | 330nF total, 1200V |
+| C_TANK1, C_TANK2 | Tank Capacitor | FKP1T021506B00 | WIMA | 2 | Radial 37.5mm | 150nF 1600VDC/700VAC FKP1 |
+| C_TANK1, C_TANK2 (alt) | Tank Capacitor (alt) | R76MR3150AA00M | KEMET | 2 | Radial | 150nF 800VDC R76 |
 
 ---
 
@@ -96,8 +99,16 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| CT1 | Current Transformer | Application Specific | - | 1 | Toroid | 1:1000, 100kHz BW |
-| R_BURDEN | Burden Resistor | RC2512FK-0750RL | Yageo | 1 | 2512 | 50Ω 1% 1W |
+| CT1 | Current Transformer | CST-1005 | Coilcraft | 1 | SMD | 1:1000, 200kHz BW |
+| R_BURDEN | Burden Resistor | RC1206FR-0766R5L | Yageo | 1 | 1206 | 66.5Ω 1% 1/4W (50A -> 3.3V) |
+
+### 4.4 Redundant Overcurrent Protection (DC Bus Shunt)
+
+| Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
+|-----|-------------|-------------|--------------|-----|---------|-------|
+| R_SHUNT | Current Shunt | WSLP25122L000FEA | Vishay | 1 | 2512 | 2mΩ 1% 3W |
+| U_DIFF | Diff Amp | INA240A1QPWRQ1 | Texas Instruments | 1 | TSSOP-8 | G=20, 400kHz BW |
+| U_COMP2 | Dual Comparator | LM393DR | Texas Instruments | 1 | SOIC-8 | Secondary OCP |
 
 ---
 
@@ -127,14 +138,38 @@
 | U_WDT | Watchdog Timer | TPS3823-33DBVR | Texas Instruments | 1 | SOT-23-5 | 1.6s timeout |
 | C_WDT | Decoupling | GRM155R71H104KE14D | Murata | 1 | 0402 | 100nF 50V X7R |
 
-### 5.4 OVP Voltage Divider
+### 5.4 IGBT Desaturation Protection
+
+| Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
+|-----|-------------|-------------|--------------|-----|---------|-------|
+| D_DESAT_HS | DESAT Diode High-Side | STTH1R06 | STMicroelectronics | 1 | DO-201AD | 1200V 1A Fast |
+| D_DESAT_LS | DESAT Diode Low-Side | STTH1R06 | STMicroelectronics | 1 | DO-201AD | 1200V 1A Fast |
+| R_DESAT1_HS | Current Limit HS | ERJ-8ENF1004V | Panasonic | 1 | 1206 | 1MΩ 1% 0.25W |
+| R_DESAT1_LS | Current Limit LS | ERJ-8ENF1004V | Panasonic | 1 | 1206 | 1MΩ 1% 0.25W |
+| C_BLANK_HS | Blanking Cap HS | GRM1885C2A101JA01D | Murata | 1 | 0603 | 100pF 100V C0G |
+| C_BLANK_LS | Blanking Cap LS | GRM1885C2A101JA01D | Murata | 1 | 0603 | 100pF 100V C0G |
+| R_DIV1_HS | Voltage Divider High | ERJ-8ENF2203V | Panasonic | 1 | 1206 | 220kΩ 1% |
+| R_DIV1_LS | Voltage Divider High | ERJ-8ENF2203V | Panasonic | 1 | 1206 | 220kΩ 1% |
+| R_DIV2_HS | Voltage Divider Low | RC0603FR-0722KL | Yageo | 1 | 0603 | 22kΩ 1% |
+| R_DIV2_LS | Voltage Divider Low | RC0603FR-0722KL | Yageo | 1 | 0603 | 22kΩ 1% |
+| D_TVS_HS | Clamp Diode HS | SMBJ3.0CA | Littelfuse | 1 | SMB | 3.0V TVS |
+| D_TVS_LS | Clamp Diode LS | SMBJ3.0CA | Littelfuse | 1 | SMB | 3.0V TVS |
+| C_FILT_HS | Filter Cap HS | GRM155R71H104KE14D | Murata | 1 | 0402 | 100pF |
+| C_FILT_LS | Filter Cap LS | GRM155R71H104KE14D | Murata | 1 | 0402 | 100pF |
+| U_DESAT | Dual Comparator | LM393DR | Texas Instruments | 1 | SOIC-8 | 2 comparators |
+| R_REF1 | Ref Divider High | RC0603FR-074K7L | Yageo | 1 | 0603 | 4.7kΩ 1% |
+| R_REF2 | Ref Divider Low | RC0603FR-071KL | Yageo | 1 | 0603 | 1kΩ 1% |
+| R_PULL_HS | Pull-up Resistor HS | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ |
+| R_PULL_LS | Pull-up Resistor LS | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ |
+
+### 5.5 OVP Voltage Divider
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | R_OVP1-3 | HV Divider High | CRCW12061M00FKEA | Vishay | 3 | 1206 | 1MΩ 200V 1% |
 | R_OVP4 | HV Divider Low | CRCW120630K0FKEA | Vishay | 1 | 1206 | 30kΩ 1% |
 
-### 5.5 Thermal Protection
+### 5.6 Thermal Protection
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
@@ -212,6 +247,17 @@
 
 ---
 
+## 11. Mechanical & Thermal
+
+| Ref | Description | Part Number | Manufacturer | Qty | Notes |
+|-----|-------------|-------------|--------------|-----|-------|
+| HS1 | Heatsink | AVID 62960 | Aavid | 1 | 100x80x40mm, ~1.0°C/W |
+| FAN1 | Cooling Fan | NF-A8 PWM | Noctua | 1 | 80mm 12V PWM |
+| TIM1 | Graphite Pad | EYG-S091210 | Panasonic | 2 | 0.1mm, 700W/mK (XY), no service req |
+| FUSE1 | Thermal Fuse | SF152E | NEC/Schott | 1 | 157°C 15A 250V |
+
+---
+
 ## BOM Summary
 
 ### By Category
@@ -244,6 +290,7 @@
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2025-12-14 | Initial release |
+| 1.1 | 2025-12-17 | Updated for 1.8kW redesign: CST-1005 CT, 66.5Ω burden, 300nF FKP1 caps |
 
 ---
 

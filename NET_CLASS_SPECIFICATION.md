@@ -18,7 +18,7 @@ This document defines the net class hierarchy for the Temper induction cooker PC
 | HighVoltage | 3.0mm | 2.0mm | 1.2/0.6mm | 22A pk | Orange |
 | GateDrive | 0.5mm | 0.5mm | 0.8/0.4mm | 1.5A pk | Purple |
 | HighVoltageIsolated | 2.0mm | 6.0mm | 1.0/0.5mm | 2A | Magenta |
-| ACMains | 2.5mm | 3.0mm | 1.2/0.6mm | 16.7A | Yellow |
+| ACMains | 2.5mm | 3.0mm | 1.2/0.6mm | 15A | Yellow |
 
 ## 3. Net Class Definitions
 
@@ -155,7 +155,7 @@ This document defines the net class hierarchy for the Temper induction cooker PC
 - Trace Width: 2.5mm (100 mil) minimum
 - Clearance: 3.0mm (120 mil)
 - Via: 1.2mm pad / 0.6mm drill
-- Current Rating: 16.7A (2000W @ 120V)
+- Current Rating: 15A (1800W @ 120V)
 
 **Assigned Nets:**
 - AC_L (line)

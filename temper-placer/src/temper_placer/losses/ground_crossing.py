@@ -107,8 +107,6 @@ def compute_crossing_penalty_for_pair(
 
 
 def compute_ground_crossing_penalty(
-    positions: Array,
-    context: LossContext,
 ) -> Array:
     """
     Compute total ground crossing penalty for all nets.
@@ -203,6 +201,8 @@ class GroundCrossingLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute ground crossing loss.

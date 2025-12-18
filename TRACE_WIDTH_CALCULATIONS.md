@@ -240,7 +240,7 @@ Width = 8 / 2.74 = 3 mils (too thin for manufacturing)
 | +5V | 1.5A | 1 oz int | 20°C | 1.0mm | Power |
 | +3.3V | 1A pk | 2 oz ext | 20°C | 0.5mm | Power |
 | +15V | 0.5A | 2 oz ext | 20°C | 0.5mm | Power |
-| AC Mains | 16.7A | 2 oz ext | 40°C | 4.0mm pour | ACMains |
+| AC Mains | 15A | 2 oz ext | 40°C | 4.0mm pour | ACMains |
 
 ## 5. Via Requirements
 
@@ -249,7 +249,7 @@ Layer transitions for power paths require multiple vias:
 | Current | Via Size | Via Current | Vias Required |
 |---------|----------|-------------|---------------|
 | 22A | 0.6mm drill | 3A each | 8+ vias (array) |
-| 16.7A | 0.6mm drill | 3A each | 6+ vias (array) |
+| 15A | 0.6mm drill | 3A each | 6+ vias (array) |
 | 3A | 0.5mm drill | 2A each | 2 vias |
 | 1.5A | 0.4mm drill | 1.5A each | 2 vias |
 | 0.5A | 0.3mm drill | 1A each | 1 via |

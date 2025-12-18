@@ -24,6 +24,11 @@
 #define PID_DEFAULT_KI      0.05f
 #define PID_DEFAULT_KD      0.2f
 
+/* Optimized gains for low-temperature burst mode (30-50°C) */
+#define PID_LOW_TEMP_KP     0.5f
+#define PID_LOW_TEMP_KI     0.01f
+#define PID_LOW_TEMP_KD     0.1f
+
 /* Global PID instance for simplified API */
 static pid_handle_t g_pid = {
     .kp = PID_DEFAULT_KP,
@@ -93,6 +98,10 @@ void pid_set_tuning(float kp, float ki, float kd) {
         g_pid_initialized = true;
         g_last_update_time_us = get_time_us();
     }
+}
+
+void pid_apply_low_temp_tuning(void) {
+    pid_set_tuning(PID_LOW_TEMP_KP, PID_LOW_TEMP_KI, PID_LOW_TEMP_KD);
 }
 
 void pid_reset_integral(void) {

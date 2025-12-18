@@ -31,11 +31,13 @@ static const char *TAG = "state_machine";
 /* #include "pid_control.h" */
 /* #include "pll_control.h" */
 /* #include "safety.h" */
+/* #include "low_temp_control.h" */
+#include "../components/control/thermal_mass.h"
 
 /* Configuration */
 #define SAFE_IDLE_TEMP          50.0f   /* °C - safe to return to idle */
 #define MAX_TEMP                250.0f  /* °C - maximum allowed temperature */
-#define MIN_TEMP                50.0f   /* °C - minimum setpoint */
+#define MIN_TEMP                30.0f   /* °C - minimum setpoint */
 #define PAN_DETECT_TIMEOUT_MS   5000    /* 5 second pan detection timeout */
 #define NO_PAN_TIMEOUT_MS       3000    /* 3 second window to replace pan */
 #define PAN_DEBOUNCE_COUNT      10      /* Consecutive samples for debounce */
@@ -62,6 +64,7 @@ static struct {
     float target_temperature;
     uint32_t cooking_time_ms;
     bool cooking_timer_enabled;
+    uint8_t intensity_level;  /**< Heat rate limiter (1-10) */
     
     /* Non-blocking message display */
     bool message_pending;
@@ -70,6 +73,10 @@ static struct {
     
     /* Last update timestamp for timer decrement */
     uint32_t last_update_time_ms;
+
+    /* Thermal mass estimation */
+    thermal_mass_handle_t thermal_mass;
+    bool thermal_mass_estimation_done;
 
 } sm_ctx = {
     .current_state = STATE_INIT,
@@ -187,6 +194,7 @@ void state_machine_init(void) {
     sm_ctx.target_temperature = 100.0f;
     sm_ctx.cooking_time_ms = 0;
     sm_ctx.cooking_timer_enabled = false;
+    sm_ctx.intensity_level = 10;
     
     /* Reset message display state */
     sm_ctx.message_pending = false;
@@ -303,6 +311,16 @@ void state_machine_set_timer(bool enabled, uint32_t time_ms) {
     sm_ctx.cooking_time_ms = time_ms;
 }
 
+void state_machine_set_intensity(uint8_t level) {
+    if (level >= 1 && level <= 10) {
+        sm_ctx.intensity_level = level;
+    }
+}
+
+uint8_t state_machine_get_intensity(void) {
+    return sm_ctx.intensity_level;
+}
+
 void state_machine_force_state(system_state_t new_state) {
     transition_to(new_state);
 }
@@ -314,6 +332,10 @@ void state_machine_force_state(system_state_t new_state) {
 static void state_init_entry(void) {
     /* Initialize all peripherals */
     peripherals_init();
+
+    /* Initialize thermal mass estimation */
+    thermal_mass_init(&sm_ctx.thermal_mass, NULL);
+    sm_ctx.thermal_mass_estimation_done = false;
 
     /* Visual feedback */
     led_set_pattern(LED_BLINK_FAST);
@@ -445,6 +467,11 @@ static void state_pan_det_entry(void) {
     /* Reset detection state */
     sm_ctx.pan_detect_confidence = 0;
     sm_ctx.countdown_timer_ms = PAN_DETECT_TIMEOUT_MS;
+    sm_ctx.thermal_mass_estimation_done = false;
+
+    /* Start thermal mass estimation */
+    float initial_temp = read_pan_temperature();
+    thermal_mass_start_estimation(&sm_ctx.thermal_mass, initial_temp);
 
     /* Set watchdog */
     watchdog_set_timeout(2000);
@@ -454,11 +481,24 @@ static void state_pan_det_update(void) {
     /* Run pan detection */
     pan_status_t result = detect_pan_presence();
 
+    /* Update thermal mass estimation */
+    float current_temp = read_pan_temperature();
+    uint32_t current_time = get_time_ms();
+    bool estimation_complete = thermal_mass_update(&sm_ctx.thermal_mass, current_temp, current_time);
+
     if (result == PAN_PRESENT) {
         sm_ctx.pan_detect_confidence++;
         if (sm_ctx.pan_detect_confidence >= PAN_CONFIDENCE_REQUIRED) {
             /* Record initial pan impedance for tracking */
             sm_ctx.initial_pan_impedance = get_pan_impedance();
+            
+            /* Apply thermal mass estimated PID gains if available */
+            if (thermal_mass_is_classified(&sm_ctx.thermal_mass)) {
+                pid_gains_t gains = thermal_mass_get_pid_gains(&sm_ctx.thermal_mass);
+                pid_set_tuning(gains.kp, gains.ki, gains.kd);
+                sm_ctx.thermal_mass_estimation_done = true;
+            }
+            
             transition_to(STATE_PREHEAT);
             return;
         }
@@ -519,16 +559,21 @@ static void state_preheat_update(void) {
         return;
     }
     
-    /* Aggressive power control */
+    /* Aggressive power control with intensity limiting */
+    uint8_t requested_power = 0;
     if (temp_error > 50.0f) {
-        power_set_level(100);
+        requested_power = 100;
     } else if (temp_error > 10.0f) {
-        power_set_level(50);
+        requested_power = 50;
     } else {
         /* Close to target: switch to precision control */
         transition_to(STATE_HEATING);
         return;
     }
+
+    float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+    uint8_t clamped_power = (uint8_t)fminf((float)requested_power, intensity_max[sm_ctx.intensity_level - 1] * 100.0f);
+    power_set_level(clamped_power);
 
     /* Safety checks */
     check_safety_interlocks();
@@ -557,9 +602,16 @@ static void state_preheat_update(void) {
  * ============================================================================ */
 
 static void state_heating_entry(void) {
-    /* Switch to precision PID tuning */
-    pid_set_tuning(1.0f, 0.05f, 0.2f);
-    pid_reset_integral();
+    if (sm_ctx.target_temperature < 50.0f) {
+        /* low_temp_start(sm_ctx.target_temperature); */
+        /* Switch to precision PID tuning for low temp */
+        pid_set_tuning(0.5f, 0.01f, 0.1f);
+        pid_reset_integral();
+    } else {
+        /* Switch to precision PID tuning */
+        pid_set_tuning(1.0f, 0.05f, 0.2f);
+        pid_reset_integral();
+    }
 
     /* Visual feedback */
     display_show_message("HEATING");
@@ -579,9 +631,21 @@ static void state_heating_update(void) {
     /* Read current temperature */
     float current_temp = read_pan_temperature();
 
-    /* Run PID controller */
-    float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
-    power_set_level((uint8_t)pid_output);
+    if (sm_ctx.target_temperature < 50.0f) {
+        /* Run low-temperature burst control */
+        /* low_temp_update(current_temp); */
+        /* Use standard PID for now */
+        float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
+        power_set_level((uint8_t)(pid_output * 10));
+    } else {
+        /* Run standard PID controller */
+        float pid_output = pid_update(sm_ctx.target_temperature, current_temp);
+        
+        /* Apply intensity limiting */
+        float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+        float clamped_output = fminf(pid_output, intensity_max[sm_ctx.intensity_level - 1] * 100.0f);
+        power_set_level((uint8_t)clamped_output);
+    }
 
     /* Update PLL for ZVS tracking */
     pll_update();
@@ -655,6 +719,10 @@ static void state_no_pan_entry(void) {
 
     /* Start countdown */
     sm_ctx.countdown_timer_ms = NO_PAN_TIMEOUT_MS;
+
+    /* Reset thermal mass estimation for new pan */
+    thermal_mass_reset(&sm_ctx.thermal_mass);
+    sm_ctx.thermal_mass_estimation_done = false;
 
     /* Set watchdog */
     watchdog_set_timeout(5000);
@@ -821,11 +889,19 @@ static void state_fault_update(void) {
  * ============================================================================ */
 
 static void transition_to(system_state_t new_state) {
+    /* Stop low-temperature control if transitioning out of heating state */
+    if (sm_ctx.current_state == STATE_HEATING) {
+        /* low_temp_stop(); */
+    }
+
     /* Record previous state */
     sm_ctx.previous_state = sm_ctx.current_state;
     sm_ctx.current_state = new_state;
     sm_ctx.state_entry_time = get_time_ms();
     sm_ctx.state_duration = 0;
+
+    /* Reset burst mode on any transition */
+    /* low_temp_stop(); */
 
 #ifdef ESP_PLATFORM
     ESP_LOGI(TAG, "State transition: %s -> %s",

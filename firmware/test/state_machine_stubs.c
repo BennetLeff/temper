@@ -377,24 +377,6 @@ float get_pan_impedance(void) {
     return mock_sm_state.pan_impedance;
 }
 
-/* PID */
-void pid_set_tuning(float kp, float ki, float kd) {
-    (void)kp; (void)ki; (void)kd;
-}
-
-void pid_reset_integral(void) {
-    /* No-op */
-}
-
-float pid_update(float setpoint, float measurement) {
-    /* Simple mock: proportional output based on error */
-    float error = setpoint - measurement;
-    float output = error * 2.0f;  /* Kp = 2 */
-    if (output < 0) output = 0;
-    if (output > 100) output = 100;
-    return output;
-}
-
 /* PLL */
 void pll_enable(void) {
     mock_sm_state.pll_enabled = true;

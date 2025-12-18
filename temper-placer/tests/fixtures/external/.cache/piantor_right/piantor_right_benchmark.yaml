@@ -1,0 +1,159 @@
+project: piantor_right
+extracted_at: '2025-12-17T17:53:53.742320'
+source_pcb: /Users/bennet/Desktop/temper/temper-placer/tests/fixtures/external/.cache/piantor_right/keyboard_pcb.kicad_pcb
+board_width_mm: 138.8
+board_height_mm: 89.72
+kicad_version: 6
+board_origin_x: 66.44
+board_origin_y: 43.4
+component_count: 36
+net_count: 33
+human_placement:
+  drc_errors: 9
+  drc_warnings: 48
+  metrics:
+    total_wirelength_mm: 2064.52
+    thermal_score: 1.0
+    zone_compliance: 1.0
+    hv_lv_clearance: 0.41
+    loop_area_score: 1.0
+    congestion_score: 1.0
+    compactness_score: 0.336
+  component_positions:
+    K25:
+    - 38.8
+    - 50.6
+    - 0.0
+    K24:
+    - 56.8
+    - 48.6
+    - 0.0
+    K21:
+    - 110.8
+    - 60.6
+    - 0.0
+    K02:
+    - 92.8
+    - 14.6
+    - 0.0
+    K10:
+    - 128.8
+    - 43.6
+    - 0.0
+    U2:
+    - 12.097
+    - 33.308
+    - 0.0
+    K04:
+    - 56.8
+    - 14.6
+    - 0.0
+    K12:
+    - 92.8
+    - 31.6
+    - 0.0
+    K30:
+    - 61.8
+    - 69.6
+    - 0.0
+    K01:
+    - 110.8
+    - 26.6
+    - 0.0
+    K14:
+    - 56.8
+    - 31.6
+    - 0.0
+    K23:
+    - 74.8
+    - 43.6
+    - 0.0
+    K03:
+    - 74.8
+    - 9.6
+    - 0.0
+    K22:
+    - 92.8
+    - 48.6
+    - 0.0
+    J1:
+    - -0.05
+    - 65.6
+    - 90.0
+    K15:
+    - 38.8
+    - 33.6
+    - 0.0
+    K32:
+    - 18.8
+    - 77.6
+    - 0.0
+    K11:
+    - 110.8
+    - 43.6
+    - 0.0
+    K05:
+    - 38.8
+    - 16.6
+    - 0.0
+    K20:
+    - 128.8
+    - 60.6
+    - 0.0
+    K13:
+    - 74.8
+    - 26.6
+    - 0.0
+    K00:
+    - 128.8
+    - 26.6
+    - 0.0
+    K31:
+    - 39.8
+    - 70.6
+    - 0.0
+    R2:
+    - 10.37
+    - 20.71
+    - 180.0
+    H4:
+    - 119.8
+    - 35.1
+    - 180.0
+    H2:
+    - 28.3
+    - 23.6
+    - 180.0
+    MB1:
+    - 121.4
+    - 35.1
+    - 90.0
+    R1:
+    - 10.37
+    - 17.001
+    - 0.0
+    MB3:
+    - 121.4
+    - 65.035
+    - 90.0
+    MB2:
+    - 121.4
+    - 52.1
+    - 90.0
+    H1:
+    - 101.8
+    - 35.1
+    - 180.0
+    H3:
+    - 26.0
+    - 64.2
+    - 180.0
+    MB4:
+    - 121.4
+    - 22.135
+    - 90.0
+drc_errors: 9
+drc_warnings: 48
+drc_available: true
+net_wirelengths: {}
+warnings: []

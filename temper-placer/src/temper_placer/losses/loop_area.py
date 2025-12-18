@@ -148,6 +148,8 @@ class LoopAreaLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute total loop area penalty using vectorized operations.
@@ -209,7 +211,6 @@ class LoopAreaLoss(LossFunction):
 
     def _compute_loop_penalties_vectorized(
         self,
-        pin_positions: Array,
         mask: Array,
         max_areas: Array,
         weights: Array,
@@ -316,7 +317,6 @@ class LoopAreaLoss(LossFunction):
 
 
 def compute_loop_area_penalty(
-    pin_positions: Array,
     max_area: float,
     scale: float = 0.01,
 ) -> Array:
@@ -443,7 +443,6 @@ def create_temper_loop_constraints() -> List[LoopConstraint]:
 
 
 def validate_loop_ordering(
-    pin_positions: Array,
     loop_name: str = "unnamed",
 ) -> List[str]:
     """
