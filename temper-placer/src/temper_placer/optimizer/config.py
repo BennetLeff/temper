@@ -212,7 +212,7 @@ class OptimizerConfig:
     grad_norm: GradNormConfig = field(default_factory=GradNormConfig)
 
     # Centrality-driven optimization (temper-s7g)
-    use_centrality_weighting: bool = False
+    use_centrality_weighting: bool = True
     centrality_priority_scale: float = 2.0  # Max boost for hub components
 
     @classmethod

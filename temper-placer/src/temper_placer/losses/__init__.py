@@ -35,6 +35,7 @@ from temper_placer.losses.base import (
     CompositeLoss,
     create_jit_loss_fn,
     create_value_and_grad_fn,
+    create_value_and_grad_fn_with_breakdown,
     LoopConstraint,
     LossContext,
     LossFunction,
@@ -220,6 +221,7 @@ __all__ = [
     "smooth_step",
     "create_jit_loss_fn",
     "create_value_and_grad_fn",
+    "create_value_and_grad_fn_with_breakdown",
     "apply_fixed_mask_to_gradients",
     # Constraint types
     "ClearanceRule",
