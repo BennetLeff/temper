@@ -63,6 +63,12 @@ from temper_placer.losses.boundary import (
     compute_boundary_penalty,
 )
 
+# Grid alignment loss
+from temper_placer.losses.grid import (
+    compute_grid_penalty,
+    GridAlignmentLoss,
+)
+
 # Clearance loss (HV-LV)
 from temper_placer.losses.clearance import (
     ClearanceLoss,
@@ -223,6 +229,7 @@ __all__ = [
     "WirelengthLoss",
     "OverlapLoss",
     "BoundaryLoss",
+    "GridAlignmentLoss",
     "ClearanceLoss",
     "LoopAreaLoss",
     # Design rule losses
@@ -270,6 +277,7 @@ __all__ = [
     "compute_total_hpwl",
     "compute_overlap_penalty",
     "compute_boundary_penalty",
+    "compute_grid_penalty",
     "compute_clearance_penalty",
     "compute_loop_area_penalty",
     "compute_thermal_penalty",
