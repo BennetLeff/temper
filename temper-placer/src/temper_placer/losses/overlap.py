@@ -101,8 +101,8 @@ class OverlapLoss(LossFunction):
             # Calculate multiplier: 0.05 at start, 1.0 at ramp_end
             ramp_end = self.inflation_ramp * total_epochs
             progress = jnp.clip(epoch / jnp.maximum(ramp_end, 1.0), 0.0, 1.0)
-            # Quadratic ramp for smoother transition
-            multiplier = 0.05 + 0.95 * (progress**2)
+            # Linear ramp for gradient smoothness
+            multiplier = 0.05 + 0.95 * progress
             bounds = bounds * multiplier
 
         # Get effective bounds
