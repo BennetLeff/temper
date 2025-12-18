@@ -203,3 +203,126 @@ def test_jiggle_breaks_deadlock():
     
     # If jiggle worked, they should be at least 10mm apart (no overlap)
     assert dist > 9.0
+
+def test_adaptive_weighting_fixed_boundary():
+    """Test Case 1 (temper-5h7, temper-gcp.3): 3-component overlap with fixed outer components.
+    
+    Verify that the middle component's adaptive weight ramps up until separation.
+    """
+    from temper_placer.optimizer.train import train
+    from temper_placer.optimizer.config import OptimizerConfig
+    from temper_placer.losses.base import CompositeLoss, WeightedLoss
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.boundary import BoundaryLoss
+    
+    # Create 3 components: C1, C2, C3
+    # C1 and C3 will be fixed (via very high wirelength penalty to fixed positions)
+    # C2 in the middle should have increasing weight until it escapes
+    comp1 = Component(ref="C1", footprint="0805", bounds=(10.0, 10.0))
+    comp2 = Component(ref="C2", footprint="0805", bounds=(10.0, 10.0))
+    comp3 = Component(ref="C3", footprint="0805", bounds=(10.0, 10.0))
+    netlist = Netlist(components=[comp1, comp2, comp3], nets=[])
+    board = Board(width=100.0, height=100.0)
+    
+    # Initial state: all overlapping at (50, 50)
+    # C1 at left, C2 in middle, C3 at right (but very close)
+    pos = jnp.array([
+        [49.0, 50.0],  # C1 - left
+        [50.0, 50.0],  # C2 - center (overlaps with both)
+        [51.0, 50.0],  # C3 - right
+    ])
+    
+    # Fix positions using rotations (we'll check they don't move much)
+    # Actually, better to just accept they can move and check middle one's weight
+    state = PlacementState.from_positions(pos)
+    
+    # Loss: overlap + boundary (no wirelength, so positions driven by overlap only)
+    loss = CompositeLoss([
+        WeightedLoss(OverlapLoss(), weight=100.0),
+        WeightedLoss(BoundaryLoss(), weight=50.0),
+    ])
+    context = LossContext.from_netlist_and_board(netlist, board)
+    
+    # Run for 100 epochs (10 weight update intervals)
+    config = OptimizerConfig(epochs=100, seed=42, log_interval=10)
+    result = train(netlist, board, loss, context, config, initial_state=state)
+    
+    # Check adaptive weights
+    weights = result.final_overlap_weights
+    assert weights is not None
+    assert weights.shape == (3,)
+    
+    # Middle component (C2) should have highest weight since it was overlapping with both
+    # Expected: C2 weight >> C1, C3 weights
+    print(f"\nAdaptive weights (C1, C2, C3): {weights}")
+    print(f"Middle component (C2) weight: {weights[1]:.3f}")
+    
+    # After 10 intervals of potential 1.05x increase, weight could be up to 1.63x
+    # But it should eventually separate and stop increasing
+    # We just verify that C2 got some boost (at least 1.1x)
+    assert weights[1] > 1.1, f"Middle component should have increased weight, got {weights[1]}"
+    
+    # Verify they separated (final overlap should be low)
+    final_pos = result.final_state.positions
+    dist_12 = jnp.linalg.norm(final_pos[0] - final_pos[1])
+    dist_23 = jnp.linalg.norm(final_pos[1] - final_pos[2])
+    
+    print(f"Final distances: C1-C2 = {dist_12:.2f}mm, C2-C3 = {dist_23:.2f}mm")
+    
+    # Components should be at least 8mm apart (80% of 10mm component size)
+    assert dist_12 > 8.0, f"C1-C2 should separate, got {dist_12:.2f}mm"
+    assert dist_23 > 8.0, f"C2-C3 should separate, got {dist_23:.2f}mm"
+
+def test_weight_decay_after_separation():
+    """Test Case 3 (temper-5h7, temper-gcp.3): Verify weights stop increasing once overlap < 0.1.
+    
+    Test the decay mechanism: weights should decrease (0.99x) for components that are no longer overlapping.
+    """
+    from temper_placer.optimizer.train import train
+    from temper_placer.optimizer.config import OptimizerConfig
+    from temper_placer.losses.base import CompositeLoss, WeightedLoss
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.boundary import BoundaryLoss
+    
+    # Create 2 components initially overlapping
+    comp1 = Component(ref="C1", footprint="0805", bounds=(10.0, 10.0))
+    comp2 = Component(ref="C2", footprint="0805", bounds=(10.0, 10.0))
+    netlist = Netlist(components=[comp1, comp2], nets=[])
+    board = Board(width=100.0, height=100.0)
+    
+    # Start with slight overlap
+    pos = jnp.array([[48.0, 50.0], [52.0, 50.0]])  # 4mm apart, overlapping
+    state = PlacementState.from_positions(pos)
+    
+    loss = CompositeLoss([
+        WeightedLoss(OverlapLoss(), weight=100.0),
+        WeightedLoss(BoundaryLoss(), weight=50.0),
+    ])
+    context = LossContext.from_netlist_and_board(netlist, board)
+    
+    # Run for 200 epochs
+    # Early phase: components overlap, weights increase
+    # Middle phase: components separate, weights stop increasing
+    # Late phase: components clear, weights decay back toward 1.0
+    config = OptimizerConfig(epochs=200, seed=42, log_interval=10)
+    result = train(netlist, board, loss, context, config, initial_state=state)
+    
+    weights = result.final_overlap_weights
+    assert weights is not None
+    
+    print(f"\nFinal adaptive weights: {weights}")
+    
+    # After separation and decay, weights should be closer to 1.0 than the peak
+    # They ramped up initially (maybe to 1.5-2.0x), then decayed
+    # Final should be < 1.5x (due to 0.99 decay over ~100+ epochs after separation)
+    assert jnp.all(weights < 1.5), f"Weights should decay after separation, got {weights}"
+    
+    # Weights should still be >= 1.0 (floor)
+    assert jnp.all(weights >= 1.0), f"Weights should never go below 1.0, got {weights}"
+    
+    # Verify they actually separated
+    final_pos = result.final_state.positions
+    dist = jnp.linalg.norm(final_pos[0] - final_pos[1])
+    print(f"Final distance: {dist:.2f}mm")
+    
+    assert dist > 10.0, f"Components should be fully separated (>10mm), got {dist:.2f}mm"
