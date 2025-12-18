@@ -12,8 +12,10 @@ Congestion is estimated by:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Tuple
 
+import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -27,7 +29,7 @@ from temper_placer.losses.base import (
 def compute_routing_demand(
     positions: Array,
     context: LossContext,
-    grid_shape: tuple[int, int],
+    grid_shape: Tuple[int, int],
     board_bounds: Array,
 ) -> Array:
     """
@@ -126,7 +128,7 @@ def compute_routing_demand(
 def compute_congestion_penalty(
     positions: Array,
     context: LossContext,
-    grid_shape: tuple[int, int] = (10, 10),
+    grid_shape: Tuple[int, int] = (10, 10),
     capacity_per_cell: float = 10.0,
 ) -> Array:
     """
@@ -157,7 +159,7 @@ def compute_congestion_penalty(
 def get_congestion_field(
     positions: Array,
     context: LossContext,
-    grid_shape: tuple[int, int] = (20, 20),
+    grid_shape: Tuple[int, int] = (20, 20),
 ) -> Array:
     """
     Generate a spatial congestion field for use in other loss functions.
@@ -202,7 +204,7 @@ class CongestionLoss(LossFunction):
         capacity_per_cell: Maximum demand per cell before penalty.
     """
 
-    grid_shape: tuple[int, int] = (10, 10)
+    grid_shape: Tuple[int, int] = (10, 10)
     capacity_per_cell: float = 10.0
 
     @property
@@ -237,7 +239,7 @@ class CongestionLoss(LossFunction):
 def visualize_congestion(
     positions: Array,
     context: LossContext,
-    grid_shape: tuple[int, int] = (10, 10),
+    grid_shape: Tuple[int, int] = (10, 10),
 ) -> Array:
     """
     Generate congestion heatmap for visualization.

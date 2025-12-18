@@ -1,9 +1,8 @@
+from typing import List, Dict, Tuple, Optional, Union
 from dataclasses import dataclass
-
 import jax
 import jax.numpy as jnp
-
-from temper_placer.losses.base import LossContext, LossFunction, LossResult
+from temper_placer.losses.base import LossFunction, LossResult, LossContext
 
 
 @dataclass
@@ -23,7 +22,7 @@ class CurrentReturnPathLoss(LossFunction):
 
     def __init__(
         self,
-        critical_nets: list[ReturnPathConfig],
+        critical_nets: List[ReturnPathConfig],
         corridor_width: float = 3.0,
     ):
         # LossFunction doesn't take weight in init usually, it's handled by WeightedLoss wrapper
@@ -127,12 +126,17 @@ class ResolvedCurrentReturnPathLoss(LossFunction):
 
 def create_return_path_loss(
     netlist,
-    critical_nets: list[ReturnPathConfig],
+    critical_nets: List[Union[ReturnPathConfig, Dict]],
     corridor_width: float = 3.0,
 ) -> ResolvedCurrentReturnPathLoss:
     """
     Factory to resolve component names to indices.
     Returns an instance of ResolvedCurrentReturnPathLoss.
+
+    Args:
+        netlist: Netlist with components to resolve
+        critical_nets: List of ReturnPathConfig objects or dicts with 'source', 'dest', 'weight' keys
+        corridor_width: Width of the return path corridor
     """
     resolved_nets = []
     # Netlist might have different attribute for components ref
@@ -140,7 +144,7 @@ def create_return_path_loss(
     comp_map = {c.ref: i for i, c in enumerate(netlist.components)}
 
     for net in critical_nets:
-        # Handle both object and dictionary access for compatibility
+        # Handle both dict and ReturnPathConfig dataclass
         if isinstance(net, dict):
             s = net.get("source")
             d = net.get("dest")
