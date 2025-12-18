@@ -325,6 +325,7 @@ add_executable(test_ui_only
     test_ui.c
     ../main/ui.c
     ../components/hal/mock/hal_encoder_mock.c
+    ../components/hal/mock/hal_led_mock.c
 )
 target_include_directories(test_ui_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_ui_only m)

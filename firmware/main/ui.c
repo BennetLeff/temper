@@ -5,6 +5,7 @@
 
 #include "ui.h"
 #include "hal_encoder.h"
+#include "hal_led.h"
 #include "state_machine.h"
 #include <string.h>
 
@@ -35,6 +36,61 @@ void ui_init(void) {
     if (hal_encoder) {
         hal_encoder->reset_count();
         ui.last_encoder_count = hal_encoder->get_count();
+    }
+
+    if (hal_led) {
+        for (int i = 0; i < HAL_LED_COUNT; i++) {
+            hal_led->init(i, HAL_PIN_INVALID); // Pin assignment handled by HAL
+        }
+    }
+}
+
+static void ui_update_leds(void) {
+    if (!hal_led) return;
+
+    system_state_t sys_state = state_machine_get_state();
+    fault_code_t fault = state_machine_get_fault();
+
+    // Reset all LEDs to OFF initially (or dim)
+    for (int i = 0; i < HAL_LED_MASTER; i++) {
+        hal_led->set_pattern(i, HAL_LED_PATTERN_OFF);
+    }
+
+    // 1. Handle Faults (Highest Priority)
+    if (sys_state == STATE_FAULT || fault != FAULT_NONE) {
+        hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_BLINK_FAST);
+        
+        // Indicate specific fault
+        switch (fault) {
+            case FAULT_OVER_CURRENT: hal_led->set_pattern(HAL_LED_OCP, HAL_LED_PATTERN_ON); break;
+            case FAULT_OVER_TEMP:    hal_led->set_pattern(HAL_LED_THERMAL, HAL_LED_PATTERN_ON); break;
+            case FAULT_FAN_FAILURE:  hal_led->set_pattern(HAL_LED_WDT, HAL_LED_PATTERN_ON); break; // Reusing WDT for fan
+            case FAULT_WATCHDOG_RESET: hal_led->set_pattern(HAL_LED_WDT, HAL_LED_PATTERN_ON); break;
+            default: break;
+        }
+        return;
+    }
+
+    // 2. Handle System States
+    switch (sys_state) {
+        case STATE_IDLE:
+            hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_OFF);
+            break;
+        case STATE_PAN_DET:
+            hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_BLINK_SLOW);
+            break;
+        case STATE_PREHEAT:
+            hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_BLINK_FAST);
+            break;
+        case STATE_HEATING:
+            hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_ON);
+            break;
+        case STATE_COOLDOWN:
+            hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_DOUBLE_BLINK);
+            break;
+        default:
+            hal_led->set_pattern(HAL_LED_MASTER, HAL_LED_PATTERN_OFF);
+            break;
     }
 }
 
@@ -148,6 +204,9 @@ void ui_update(void) {
             // For now, we only handle on release or simplify.
         }
     }
+
+    // 3. Update LEDs
+    ui_update_leds();
 }
 
 ui_state_t ui_get_state(void) {
