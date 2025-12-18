@@ -151,11 +151,14 @@ class TestThermalClearanceConflict:
         assert hv_zone.bounds[3] == board.height  # HV zone at top
         assert lv_zone.bounds[3] == board.height  # LV zone at top
 
-    @pytest.mark.skip(
-        reason="Optimizer not converging well with thermal+overlap - needs tuning (temper-1my.2)"
-    )
     def test_conflict_produces_valid_placement(self, netlist: Netlist, board: Board) -> None:
-        """Even with conflicts, optimizer should find valid (no overlap, in bounds) placement."""
+        """Even with conflicts, optimizer should find valid (no overlap, in bounds) placement.
+
+        Tuning notes (temper-30w):
+        - 500 epochs + lr=1.0 needed for reliable convergence
+        - Thermal constraints push IGBTs to TOP edge
+        - Overlap/boundary weights must be high to ensure valid placement
+        """
         # Define thermal constraints for Q1, Q2
         thermal_constraints = [
             ThermalConstraint(component_ref="Q1", edge="TOP", max_distance=10.0, weight=10.0),
@@ -177,7 +180,7 @@ class TestThermalClearanceConflict:
         )
 
         config = OptimizerConfig.fast_test()
-        config.epochs = 200
+        config.epochs = 500  # Tuned: more epochs for reliable convergence
         config.seed = 42
         # Higher learning rate needed for zone crossing - components start in wrong zones
         # and need enough momentum to cross over to their assigned zones
@@ -192,13 +195,13 @@ class TestThermalClearanceConflict:
         q1_y = float(final_positions[0, 1])
         q2_y = float(final_positions[1, 1])
 
-        # "Near top" means within 50% of board height from top (more lenient for now)
-        # TODO: Once optimizer is tuned, tighten this to 25% (top_threshold = 0.75 * height)
-        top_threshold = board.height * 0.5
+        # "Near top" means within 25% of board height from top
+        # Board height = 80mm, so threshold = 60mm
+        top_threshold = board.height * 0.75
 
         # At least one IGBT should be near top
         assert q1_y > top_threshold or q2_y > top_threshold, (
-            f"IGBTs not near top: Q1 y={q1_y}, Q2 y={q2_y}, threshold={top_threshold}"
+            f"IGBTs not near top: Q1 y={q1_y:.1f}, Q2 y={q2_y:.1f}, threshold={top_threshold}"
         )
 
     @pytest.mark.skip(
@@ -288,11 +291,16 @@ class TestThermalClearanceConflict:
             f"overlap={overlap_penalty}, boundary={boundary_penalty}"
         )
 
-    @pytest.mark.skip(
-        reason="ThermalLoss not pushing strongly enough to edge - needs weight tuning"
-    )
     def test_thermal_loss_pushes_to_edge(self, netlist: Netlist, board: Board) -> None:
-        """Thermal loss alone should push HV components to board edge."""
+        """Thermal loss alone should push HV components to board edge.
+
+        Tuning notes (temper-30w):
+        - With 200 epochs, lr=0.5, thermal_w=50: only 35% pass rate (local minima)
+        - With 500 epochs, lr=1.0, thermal_w=50: 100% pass rate
+        - With 200 epochs, lr=0.5, thermal_w=200: 100% pass rate
+
+        We use 500 epochs + higher LR for better convergence reliability.
+        """
         thermal_constraints = [
             ThermalConstraint(component_ref="Q1", edge="TOP", max_distance=10.0, weight=50.0),
             ThermalConstraint(component_ref="Q2", edge="TOP", max_distance=10.0, weight=50.0),
@@ -312,8 +320,9 @@ class TestThermalClearanceConflict:
         )
 
         config = OptimizerConfig.fast_test()
-        config.epochs = 200
+        config.epochs = 500  # Tuned: 500 epochs needed for reliable convergence
         config.seed = 42
+        config.learning_rate.initial = 1.0  # Tuned: higher LR helps escape local minima
 
         result = train(netlist, board, loss_fn, context, config)
 
@@ -324,13 +333,13 @@ class TestThermalClearanceConflict:
         q1_y = float(final_positions[0, 1])
         q2_y = float(final_positions[1, 1])
 
-        # "Near top" means within 50% of board height from top (more lenient for now)
-        # TODO: Once optimizer is tuned, tighten this to 25% (top_threshold = 0.75 * height)
-        top_threshold = board.height * 0.5
+        # "Near top" means within 10mm of the 80mm board height top edge (y > 70)
+        # This matches the ThermalConstraint max_distance=10.0
+        top_threshold = board.height - 10.0  # 70mm for 80mm board
 
-        # At least one IGBT should be near top
-        assert q1_y > top_threshold or q2_y > top_threshold, (
-            f"IGBTs not near top: Q1 y={q1_y}, Q2 y={q2_y}, threshold={top_threshold}"
+        # Both IGBTs should be near top for thermal dissipation
+        assert q1_y > top_threshold and q2_y > top_threshold, (
+            f"IGBTs not near top: Q1 y={q1_y:.1f}, Q2 y={q2_y:.1f}, threshold={top_threshold}"
         )
 
 
