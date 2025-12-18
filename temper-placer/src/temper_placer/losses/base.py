@@ -14,16 +14,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, NamedTuple, Optional, Tuple, cast
+from typing import NamedTuple, cast
 
 import jax
 import jax.numpy as jnp
 from jax import Array
 
-from temper_placer.core.board import Board, GroundDomain, Zone
+from temper_placer.core.board import Board
 from temper_placer.core.netlist import (
-    Component,
-    Net,
     Netlist,
     build_adjacency_matrix,
     compute_eigenvector_centrality,
@@ -43,7 +41,7 @@ class LoopConstraint:
     """
 
     name: str
-    pins: Tuple[Tuple[str, str], ...]  # Immutable for hashability
+    pins: tuple[tuple[str, str], ...]  # Immutable for hashability
     max_area: float = 100.0  # mm²
     weight: float = 1.0
 
@@ -101,10 +99,10 @@ class MountingRule:
 
     component_idx: int
     rule_type: str
-    edge: Optional[str] = None
-    max_distance_mm: Optional[float] = None
-    mount_positions: Optional[Tuple[Tuple[float, float], ...]] = None  # Tuple for immutability
-    target_position: Optional[Tuple[float, float]] = None
+    edge: str | None = None
+    max_distance_mm: float | None = None
+    mount_positions: tuple[tuple[float, float], ...] | None = None  # Tuple for immutability
+    target_position: tuple[float, float] | None = None
     weight: float = 1.0
 
 
@@ -157,13 +155,13 @@ class LossContext:
     lv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
 
     # Constraint definitions
-    clearance_rules: List[ClearanceRule] = field(default_factory=list)
-    thermal_constraints: List[ThermalConstraint] = field(default_factory=list)
-    loop_constraints: List[LoopConstraint] = field(default_factory=list)
-    mounting_rules: List[MountingRule] = field(default_factory=list)
+    clearance_rules: list[ClearanceRule] = field(default_factory=list)
+    thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
+    loop_constraints: list[LoopConstraint] = field(default_factory=list)
+    mounting_rules: list[MountingRule] = field(default_factory=list)
 
     # Net class mapping
-    net_class_map: Dict[str, str] = field(default_factory=dict)
+    net_class_map: dict[str, str] = field(default_factory=dict)
 
     # Pre-computed arrays for JAX-compatible wirelength (filled by from_netlist_and_board)
     net_pin_indices: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.int32))
@@ -180,7 +178,7 @@ class LossContext:
     loop_weights: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.float32))
 
     # Pre-computed net class indices
-    net_class_indices: Dict[str, Array] = field(default_factory=dict)
+    net_class_indices: dict[str, Array] = field(default_factory=dict)
 
     # Centrality weights for each component (N,)
     centrality: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.float32))
@@ -190,10 +188,10 @@ class LossContext:
         cls,
         netlist: Netlist,
         board: Board,
-        clearance_rules: Optional[List[ClearanceRule]] = None,
-        thermal_constraints: Optional[List[ThermalConstraint]] = None,
-        loop_constraints: Optional[List[LoopConstraint]] = None,
-        mounting_rules: Optional[List[MountingRule]] = None,
+        clearance_rules: list[ClearanceRule] | None = None,
+        thermal_constraints: list[ThermalConstraint] | None = None,
+        loop_constraints: list[LoopConstraint] | None = None,
+        mounting_rules: list[MountingRule] | None = None,
         use_centrality_weighting: bool = False,
     ) -> LossContext:
         """
@@ -224,7 +222,7 @@ class LossContext:
         # Compute HV and LV indices
         hv_indices = []
         lv_indices = []
-        net_class_indices_dict: Dict[str, List[int]] = {}
+        net_class_indices_dict: dict[str, list[int]] = {}
 
         for i, comp in enumerate(netlist.components):
             if comp.net_class == "HighVoltage":
@@ -268,7 +266,7 @@ class LossContext:
             netlist, thermal_constraints or [], loop_constraints
         )
         if validation_errors:
-            raise ValueError(f"Invalid constraint references:\n" + "\n".join(validation_errors))
+            raise ValueError("Invalid constraint references:\n" + "\n".join(validation_errors))
 
         return cls(
             netlist=netlist,
@@ -299,8 +297,8 @@ class LossContext:
     @staticmethod
     def _precompute_net_arrays(
         netlist: Netlist,
-        centrality: Optional[Array] = None,
-    ) -> Tuple[Array, Array, Array, Array, int]:
+        centrality: Array | None = None,
+    ) -> tuple[Array, Array, Array, Array, int]:
         """
         Pre-compute padded arrays for net pin positions.
 
@@ -324,7 +322,7 @@ class LossContext:
             )
 
         max_pins = max(len(n.pins) for n in valid_nets)
-        n_nets = len(valid_nets)
+        len(valid_nets)
         n_components = netlist.n_components
 
         # Initialize arrays
@@ -337,7 +335,7 @@ class LossContext:
             net_indices = []
             net_offsets = []
             net_mask = []
-            
+
             # For centrality weighting
             net_comp_indices = []
 
@@ -363,7 +361,7 @@ class LossContext:
             indices.append(net_indices)
             offsets.append(net_offsets)
             masks.append(net_mask)
-            
+
             # Compute effective net weight
             weight = net.weight
             if centrality is not None and centrality.shape[0] > 0:
@@ -385,9 +383,9 @@ class LossContext:
     @staticmethod
     def _precompute_loop_arrays(
         netlist: Netlist,
-        loop_constraints: List[LoopConstraint],
-        centrality: Optional[Array] = None,
-    ) -> Tuple[Array, Array, Array, Array, Array]:
+        loop_constraints: list[LoopConstraint],
+        centrality: Array | None = None,
+    ) -> tuple[Array, Array, Array, Array, Array]:
         """
         Pre-compute padded arrays for loop constraint pin positions.
 
@@ -420,7 +418,7 @@ class LossContext:
             loop_indices = []
             loop_offsets = []
             loop_mask = []
-            
+
             # For centrality weighting
             loop_comp_indices = []
 
@@ -453,14 +451,14 @@ class LossContext:
             offsets.append(loop_offsets)
             masks.append(loop_mask)
             max_areas.append(loop.max_area)
-            
+
             # Compute effective loop weight
             weight = loop.weight
             if centrality is not None and centrality.shape[0] > 0 and loop_comp_indices:
                 # Boost loop weight by max centrality of involved components
                 max_c = jnp.max(centrality[jnp.array(loop_comp_indices)])
                 weight = weight * (max_c * n_components)
-                
+
             weights.append(weight)
 
         return (
@@ -474,9 +472,9 @@ class LossContext:
     @staticmethod
     def _validate_constraints(
         netlist: Netlist,
-        thermal_constraints: List[ThermalConstraint],
-        loop_constraints: List[LoopConstraint],
-    ) -> List[str]:
+        thermal_constraints: list[ThermalConstraint],
+        loop_constraints: list[LoopConstraint],
+    ) -> list[str]:
         """
         Validate that all constraint references are valid.
 
@@ -522,7 +520,7 @@ class LossResult(NamedTuple):
     """
 
     value: Array  # Scalar loss value
-    breakdown: Optional[Dict[str, Array]] = None
+    breakdown: dict[str, Array] | None = None
 
 
 class LossFunction(ABC):
@@ -633,7 +631,7 @@ class WeightedLoss:
     weight: float = 1.0
     schedule_start: float = 0.0  # Start at epoch 0
     schedule_end: float = 0.0  # Full weight from epoch 0
-    normalize_by: Optional[str | float] = None
+    normalize_by: str | float | None = None
 
     def get_weight(self, epoch: int, total_epochs: int) -> float:
         """Get effective weight at given epoch."""
@@ -700,7 +698,7 @@ class CompositeLoss:
         >>> result = composite(positions, rotations, context, epoch=500, total_epochs=1000)
     """
 
-    def __init__(self, losses: List[WeightedLoss]):
+    def __init__(self, losses: list[WeightedLoss]):
         """
         Initialize with list of weighted losses.
 
@@ -716,6 +714,7 @@ class CompositeLoss:
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        weight_overrides: Array | None = None,
     ) -> LossResult:
         """
         Compute total loss as weighted sum of individual losses.
@@ -726,18 +725,21 @@ class CompositeLoss:
             context: LossContext with all data.
             epoch: Current epoch for weight scheduling.
             total_epochs: Total epochs for weight scheduling.
+            weight_overrides: Optional (L,) array of weights to use instead of base weights.
 
         Returns:
             LossResult with total value and breakdown by loss name.
         """
         total = jnp.array(0.0)
-        breakdown: Dict[str, Array] = {}
+        breakdown: dict[str, Array] = {}
 
-        for wloss in self.losses:
-            weight = wloss.get_weight(epoch, total_epochs)
+        for i, wloss in enumerate(self.losses):
+            if weight_overrides is not None:
+                weight = weight_overrides[i]
+            else:
+                weight = wloss.get_weight(epoch, total_epochs)
+
             # Note: We always compute the loss even if weight is low.
-            # JAX tracing doesn't support conditional execution based on
-            # traced values, and the weight will multiply the result anyway.
             result = wloss.loss_fn(positions, rotations, context, epoch, total_epochs)
 
             # Apply normalization
@@ -751,7 +753,7 @@ class CompositeLoss:
             breakdown[wloss.loss_fn.name] = result.value
             breakdown[f"{wloss.loss_fn.name}_normalized"] = normalized_value
             breakdown[f"{wloss.loss_fn.name}_weighted"] = weighted_value
-            
+
             # Merge sub-breakdowns (e.g., per-component metrics)
             if result.breakdown:
                 for sub_key, sub_val in result.breakdown.items():
@@ -759,7 +761,7 @@ class CompositeLoss:
 
         return LossResult(value=total, breakdown=breakdown)
 
-    def get_loss_fn(self, name: str) -> Optional[LossFunction]:
+    def get_loss_fn(self, name: str) -> LossFunction | None:
         """Get a loss function by name."""
         for wloss in self.losses:
             if wloss.loss_fn.name == name:
@@ -767,7 +769,7 @@ class CompositeLoss:
         return None
 
     @property
-    def loss_names(self) -> List[str]:
+    def loss_names(self) -> list[str]:
         """Get names of all loss functions."""
         return [wloss.loss_fn.name for wloss in self.losses]
 
@@ -784,7 +786,7 @@ def create_jit_loss_fn(composite: CompositeLoss, context: LossContext):
         context: The LossContext (captured in closure).
 
     Returns:
-        JIT-compiled function: (positions, rotations, epoch, total_epochs) -> scalar
+        JIT-compiled function: (positions, rotations, epoch, total_epochs, weight_overrides) -> scalar
     """
 
     @jax.jit
@@ -793,8 +795,9 @@ def create_jit_loss_fn(composite: CompositeLoss, context: LossContext):
         rotations: Array,
         epoch: int,
         total_epochs: int,
+        weight_overrides: Array | None = None,
     ) -> Array:
-        result = composite(positions, rotations, context, epoch, total_epochs)
+        result = composite(positions, rotations, context, epoch, total_epochs, weight_overrides)
         return result.value
 
     return loss_fn
@@ -819,12 +822,18 @@ def create_value_and_grad_fn(
         apply_fixed_mask: If True, zero gradients for fixed components.
 
     Returns:
-        JIT-compiled function: (positions, rotations, epoch, total_epochs) -> (loss, (grad_pos, grad_rot))
+        JIT-compiled function: (positions, rotations, epoch, total_epochs, weight_overrides) -> (loss, (grad_pos, grad_rot))
     """
     fixed_mask = context.fixed_mask  # (N,) boolean array
 
-    def loss_fn(positions: Array, rotations: Array, epoch: int, total_epochs: int) -> Array:
-        result = composite(positions, rotations, context, epoch, total_epochs)
+    def loss_fn(
+        positions: Array,
+        rotations: Array,
+        epoch: int,
+        total_epochs: int,
+        weight_overrides: Array | None = None,
+    ) -> Array:
+        result = composite(positions, rotations, context, epoch, total_epochs, weight_overrides)
         return result.value
 
     def value_and_grad_fn(
@@ -832,10 +841,11 @@ def create_value_and_grad_fn(
         rotations: Array,
         epoch: int,
         total_epochs: int,
-    ) -> Tuple[Array, Tuple[Array, Array]]:
+        weight_overrides: Array | None = None,
+    ) -> tuple[Array, tuple[Array, Array]]:
         # Compute gradients w.r.t. both positions and rotations
         (loss, (grad_pos, grad_rot)) = jax.value_and_grad(loss_fn, argnums=(0, 1))(
-            positions, rotations, epoch, total_epochs
+            positions, rotations, epoch, total_epochs, weight_overrides
         )
 
         # Ensure types for mypy
@@ -869,7 +879,7 @@ def create_value_and_grad_fn_with_breakdown(
         apply_fixed_mask: If True, zero gradients for fixed components.
 
     Returns:
-        JIT-compiled function: (positions, rotations, epoch, total_epochs) ->
+        JIT-compiled function: (positions, rotations, epoch, total_epochs, weight_overrides) ->
             ((loss, breakdown_dict), (grad_pos, grad_rot))
 
         The breakdown_dict maps loss term names to their values.
@@ -877,9 +887,13 @@ def create_value_and_grad_fn_with_breakdown(
     fixed_mask = context.fixed_mask  # (N,) boolean array
 
     def loss_fn_with_aux(
-        positions: Array, rotations: Array, epoch: int, total_epochs: int
-    ) -> Tuple[Array, Dict[str, Array]]:
-        result = composite(positions, rotations, context, epoch, total_epochs)
+        positions: Array,
+        rotations: Array,
+        epoch: int,
+        total_epochs: int,
+        weight_overrides: Array | None = None,
+    ) -> tuple[Array, dict[str, Array]]:
+        result = composite(positions, rotations, context, epoch, total_epochs, weight_overrides)
         # Convert breakdown to dict of arrays for JIT compatibility
         breakdown = result.breakdown or {}
         return result.value, breakdown
@@ -889,12 +903,13 @@ def create_value_and_grad_fn_with_breakdown(
         rotations: Array,
         epoch: int,
         total_epochs: int,
-    ) -> Tuple[Tuple[Array, Dict[str, Array]], Tuple[Array, Array]]:
+        weight_overrides: Array | None = None,
+    ) -> tuple[tuple[Array, dict[str, Array]], tuple[Array, Array]]:
         # Compute gradients w.r.t. both positions and rotations
         # has_aux=True means the function returns (loss, aux) and we differentiate loss only
         ((loss, breakdown), (grad_pos, grad_rot)) = jax.value_and_grad(
             loss_fn_with_aux, argnums=(0, 1), has_aux=True
-        )(positions, rotations, epoch, total_epochs)
+        )(positions, rotations, epoch, total_epochs, weight_overrides)
 
         # Zero out gradients for fixed components
         if apply_fixed_mask:
@@ -910,7 +925,7 @@ def apply_fixed_mask_to_gradients(
     grad_pos: Array,
     grad_rot: Array,
     fixed_mask: Array,
-) -> Tuple[Array, Array]:
+) -> tuple[Array, Array]:
     """
     Zero out gradients for fixed components.
 

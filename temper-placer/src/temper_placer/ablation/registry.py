@@ -320,6 +320,7 @@ class TechniqueApplicator:
         config.use_gumbel_rotation = toggle.gumbel_softmax_rotation
         config.adaptive_overlap_enabled = toggle.adaptive_overlap_weighting
         config.jiggle_enabled = toggle.stochastic_perturbation
+        config.use_grad_norm = toggle.grad_norm
 
         # Centrality weighting
         config.use_centrality_weighting = toggle.centrality_gradient_scaling
@@ -359,6 +360,7 @@ class TechniqueApplicator:
             "temperature_annealing": config.temperature.start != config.temperature.end,
             "learning_rate_annealing": config.learning_rate.initial != config.learning_rate.final,
             "gradient_clipping": config.gradient_clip_norm is not None,
+            "grad_norm": config.use_grad_norm,
         }
 
     @staticmethod

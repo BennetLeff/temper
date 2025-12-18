@@ -111,6 +111,23 @@ def main() -> None:
     type=click.Path(path_type=Path),
     help="Save JAX profiler trace to this directory.",
 )
+@click.option(
+    "--grad-norm/--no-grad-norm",
+    default=False,
+    help="Use GradNorm adaptive loss weighting (default: disabled).",
+)
+@click.option(
+    "--grad-norm-alpha",
+    type=float,
+    default=1.5,
+    help="GradNorm asymmetry parameter (default: 1.5).",
+)
+@click.option(
+    "--grad-norm-lr",
+    type=float,
+    default=0.025,
+    help="GradNorm weight update learning rate (default: 0.025).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -126,6 +143,9 @@ def optimize(
     auto_group: bool,
     centrality: bool,
     profile_dir: Optional[Path],
+    grad_norm: bool,
+    grad_norm_alpha: float,
+    grad_norm_lr: float,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -337,6 +357,10 @@ def optimize(
     )
 
     # Configure optimizer
+    from temper_placer.optimizer.config import GradNormConfig
+    
+    gn_cfg = GradNormConfig(alpha=grad_norm_alpha, learning_rate=grad_norm_lr)
+
     if curriculum:
         phases = create_default_phases(epochs)
         cfg = OptimizerConfig(
@@ -345,6 +369,8 @@ def optimize(
             log_interval=max(1, epochs // 100),  # Log ~100 times
             curriculum_phases=phases,
             use_centrality_weighting=centrality,
+            use_grad_norm=grad_norm,
+            grad_norm=gn_cfg,
         )
         console.print(f"  [green]✓[/] Curriculum: {len(phases)} phases")
     else:
@@ -353,6 +379,8 @@ def optimize(
             seed=seed,
             log_interval=max(1, epochs // 100),
             use_centrality_weighting=centrality,
+            use_grad_norm=grad_norm,
+            grad_norm=gn_cfg,
         )
 
     console.print(

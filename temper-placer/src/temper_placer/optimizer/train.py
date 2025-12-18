@@ -20,13 +20,14 @@ from __future__ import annotations
 
 import contextlib
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, NamedTuple
 
 import jax
 import jax.numpy as jnp
-from jax import Array
 import optax
+from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -35,15 +36,13 @@ from temper_placer.geometry.transform import sample_rotation_batch
 from temper_placer.losses.base import (
     CompositeLoss,
     LossContext,
-    WeightedLoss,
     create_value_and_grad_fn_with_breakdown,
 )
 from temper_placer.optimizer.config import OptimizerConfig
 from temper_placer.optimizer.initialization import SpectralInitializer
 from temper_placer.optimizer.scheduler import (
-    get_temperature,
     get_learning_rate,
-    ScheduleState,
+    get_temperature,
 )
 from temper_placer.optimizer.validation_callback import (
     ValidationCallback,
@@ -73,8 +72,8 @@ class NumericalInstabilityError(RuntimeError):
         message: str,
         epoch: int = -1,
         loss_value: float = float("nan"),
-        loss_breakdown: Optional[Dict[str, float]] = None,
-        grad_norms: Optional[Dict[str, float]] = None,
+        loss_breakdown: dict[str, float] | None = None,
+        grad_norms: dict[str, float] | None = None,
     ):
         super().__init__(message)
         self.epoch = epoch
@@ -85,7 +84,7 @@ class NumericalInstabilityError(RuntimeError):
 
 def _check_numerical_stability(
     loss_value: float,
-    loss_breakdown: Dict[str, Any],
+    loss_breakdown: dict[str, Any],
     grad_pos: Array,
     grad_rot: Array,
     epoch: int,
@@ -111,15 +110,15 @@ def _check_numerical_stability(
         for name, val in loss_breakdown.items():
             if not jnp.all(jnp.isfinite(val)):
                 bad_components.append(name)
-                
+
         raise NumericalInstabilityError(
             f"Non-finite loss at epoch {epoch}: {loss_value}. "
             f"Problematic components: {bad_components if bad_components else 'unknown (overflow in combination)'}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
                            for k, v in loss_breakdown.items()},
-            grad_norms={"position": float(jnp.linalg.norm(grad_pos)), 
+            grad_norms={"position": float(jnp.linalg.norm(grad_pos)),
                         "rotation": float(jnp.linalg.norm(grad_rot))},
         )
 
@@ -133,7 +132,7 @@ def _check_numerical_stability(
             f"grad_pos_norm={grad_norm_pos}, grad_rot_norm={grad_norm_rot}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
                            for k, v in loss_breakdown.items()},
             grad_norms={"position": grad_norm_pos, "rotation": grad_norm_rot},
         )
@@ -146,10 +145,11 @@ class TrainingMetrics(NamedTuple):
     loss: float
     temperature: float
     learning_rate: float
-    loss_breakdown: Dict[str, float]
+    loss_breakdown: dict[str, float]
     grad_norm_pos: float
     grad_norm_rot: float
     elapsed_ms: float
+    loss_weights: dict[str, float] | None = None
 
 
 @dataclass
@@ -172,15 +172,15 @@ class TrainingResult:
 
     final_state: PlacementState
     final_loss: float
-    best_state: Optional[PlacementState] = None
+    best_state: PlacementState | None = None
     best_loss: float = float("inf")
-    history: List[TrainingMetrics] = field(default_factory=list)
+    history: list[TrainingMetrics] = field(default_factory=list)
     total_epochs: int = 0
     converged: bool = False
     elapsed_seconds: float = 0.0
-    validation_history: List[ValidationResult] = field(default_factory=list)
+    validation_history: list[ValidationResult] = field(default_factory=list)
     stopped_by_validation: bool = False
-    final_overlap_weights: Optional[Array] = None
+    final_overlap_weights: Array | None = None
 
 
 @dataclass
@@ -199,17 +199,19 @@ class TrainingState:
     rng_key: Array  # JAX random key
     epoch: int = 0
     best_loss: float = float("inf")
-    best_positions: Optional[Array] = None
-    best_rotations: Optional[Array] = None
+    best_positions: Array | None = None
+    best_rotations: Array | None = None
     epochs_without_improvement: int = 0
     position_delta_ema: float = 1.0  # EMA of component movement norm
-    overlap_weights: Optional[Array] = None  # (N,) adaptive multipliers
+    overlap_weights: Array | None = None  # (N,) adaptive multipliers
+    loss_weights: Array | None = None  # (L,) dynamic loss weights
+    initial_grad_norms: Array | None = None  # (L,) initial gradient norms for GradNorm
 
 
 def create_optimizer(
     config: OptimizerConfig,
     initial_lr: float,
-) -> Tuple[optax.GradientTransformation, optax.GradientTransformation]:
+) -> tuple[optax.GradientTransformation, optax.GradientTransformation]:
     """
     Create optax optimizers for positions and rotations.
 
@@ -256,7 +258,7 @@ def initialize_training_state(
     netlist: Netlist,
     board: Board,
     config: OptimizerConfig,
-    initial_state: Optional[PlacementState] = None,
+    initial_state: PlacementState | None = None,
 ) -> TrainingState:
     """
     Initialize training state with positions and rotation logits.
@@ -320,6 +322,8 @@ def initialize_training_state(
         rng_key=rng_key,
         epoch=0,
         overlap_weights=jnp.ones((netlist.n_components,), dtype=jnp.float32),
+        loss_weights=jnp.ones((1,), dtype=jnp.float32),  # Placeholder, will be resized if needed
+        initial_grad_norms=jnp.ones((1,), dtype=jnp.float32),
     )
 
 
@@ -328,8 +332,13 @@ def make_train_step(
     opt_pos: optax.GradientTransformation,
     opt_rot: optax.GradientTransformation,
     total_epochs: int,
-    centrality: Optional[Array] = None,
+    centrality: Array | None = None,
     priority_scale: float = 1.0,
+    use_grad_norm: bool = False,
+    grad_norm_alpha: float = 1.5,
+    grad_norm_lr: float = 0.025,
+    composite_loss: CompositeLoss | None = None,
+    loss_context: LossContext | None = None,
 ):
     """
     Create a JIT-compiled training step function.
@@ -341,6 +350,11 @@ def make_train_step(
         total_epochs: Total training epochs (for curriculum).
         centrality: Optional (N,) array of component centralities.
         priority_scale: Max boost for hub components (1.0 = none).
+        use_grad_norm: Whether to use GradNorm adaptive weighting.
+        grad_norm_alpha: Asymmetry parameter for GradNorm.
+        grad_norm_lr: Learning rate for weight updates.
+        composite_loss: Required if use_grad_norm is True.
+        loss_context: Required if use_grad_norm is True.
 
     Returns:
         JIT-compiled train_step function.
@@ -357,7 +371,9 @@ def make_train_step(
         learning_rate: float,
         position_delta_ema: float,
         overlap_weights: Array,
-    ) -> Tuple[Array, Array, Array, Dict[str, Array], Any, Any, Array, Array, float]:
+        loss_weights: Array,
+        initial_grad_norms: Array,
+    ) -> tuple[Array, Array, Array, dict[str, Array], Any, Any, Array, Array, float, Array, Array]:
         """
         Single training step.
 
@@ -371,14 +387,15 @@ def make_train_step(
             learning_rate: Current learning rate to apply.
             position_delta_ema: Current EMA of position updates.
             overlap_weights: Per-component adaptive overlap weights.
+            loss_weights: Current (L,) dynamic loss weights.
+            initial_grad_norms: (L,) initial gradient norms for GradNorm.
 
         Returns:
             Tuple of (new_positions, new_logits, loss, breakdown,
-                     new_opt_state_pos, new_opt_state_rot, grad_pos, grad_rot, new_ema).
+                     new_opt_state_pos, new_opt_state_rot, grad_pos, grad_rot,
+                     new_ema, new_loss_weights, new_initial_grad_norms).
         """
         # Update learning rate in optimizer state
-        # optax.inject_hyperparams returns a state where hyperparams are in .hyperparams
-        # but the state itself is a tuple (inner_state, hyperparams)
         new_opt_state_pos = opt_state_pos._replace(
             hyperparams={**opt_state_pos.hyperparams, "learning_rate": learning_rate}
         )
@@ -386,47 +403,120 @@ def make_train_step(
             hyperparams={**opt_state_rot.hyperparams, "learning_rate": learning_rate}
         )
 
-        # Compute loss, breakdown, and gradients in a single forward pass
-        (loss, breakdown), (grad_pos, grad_rot) = value_and_grad_fn(
-            positions, rotations, epoch, total_epochs
-        )
+        # Compute loss and gradients
+        if use_grad_norm and composite_loss is not None and loss_context is not None:
+            # GradNorm requires gradients of individual loss terms
+            # We compute gradients for each loss i: w_i * L_i
+
+            def get_individual_loss(i, pos, rot):
+                # Use jax.lax.switch to handle traced index i
+                def make_loss_thunk(wloss_idx):
+                    def thunk(p_r):
+                        pos_in, rot_in = p_r
+                        wloss = composite_loss.losses[wloss_idx]
+                        res = wloss.loss_fn(pos_in, rot_in, loss_context, epoch, total_epochs)
+                        return res.value / wloss.get_normalizer(loss_context)
+                    return thunk
+
+                thunks = [make_loss_thunk(idx) for idx in range(len(composite_loss.losses))]
+                return jax.lax.switch(i, thunks, (pos, rot))
+
+            # Compute individual gradients and their norms
+            # Note: This is computationally expensive, but needed for GradNorm
+            n_losses = len(composite_loss.losses)
+
+            def get_grad_norm(i):
+                # Gradient w.r.t. positions (index 1 of get_individual_loss call)
+                # We use argnums=1 to differentiate w.r.t pos
+                # But rotations also matter, so we use jax.grad(..., argnums=(1, 2))
+                # or just (1,) if we only care about position gradients for balancing.
+                # Standard GradNorm usually uses the norm of the gradient w.r.t shared parameters.
+                grad_fn = jax.grad(get_individual_loss, argnums=1)
+                g = grad_fn(i, positions, rotations)
+                # Apply fixed mask to match total gradient behavior
+                g = jnp.where(loss_context.fixed_mask[:, None], 0.0, g)
+                return jnp.linalg.norm(g)
+
+            curr_grad_norms = jax.vmap(get_grad_norm)(jnp.arange(n_losses))
+
+            # Update initial norms at epoch 0
+            new_initial_grad_norms = jnp.where(
+                epoch == 0,
+                curr_grad_norms,
+                initial_grad_norms
+            )
+            # Avoid division by zero
+            new_initial_grad_norms = jnp.maximum(new_initial_grad_norms, 1e-6)
+
+            # Compute total loss and breakdown using current dynamic weights
+            (loss, breakdown), (grad_pos, grad_rot) = value_and_grad_fn(
+                positions, rotations, epoch, total_epochs, loss_weights
+            )
+
+            # GradNorm weight update
+            # 1. Compute relative losses: r_i(t) = L_i(t) / L_i(0)
+            # We use moving average or initial loss. For simplicity, we'll use a fixed baseline.
+            # But since L_i is dynamic, we'll track initial losses.
+            # Actually, standard GradNorm uses L_i(t) / E[L_i(0)]
+            # We'll simplify: use relative improvement if possible, or just raw loss ratios.
+
+            loss_values = jnp.array([breakdown.get(f"{name}_normalized", 0.0)
+                                   for name in composite_loss.loss_names])
+
+            # 2. Compute target norms: G_avg(t) * [r_i(t)]^alpha
+            # where G_avg is mean of weighted gradient norms
+            gw_norms = loss_weights * curr_grad_norms
+            g_avg = jnp.mean(gw_norms)
+
+            # For relative losses, we need a baseline. Let's use epoch 0 losses.
+            # Since we don't track initial losses in state yet, we'll use a constant or simplified ratio.
+            # Standard GradNorm: r_i = L_i / L_i_init
+            # We'll use relative loss magnitudes for now.
+            relative_losses = loss_values / jnp.maximum(jnp.mean(loss_values), 1e-6)
+            inv_relative_losses = relative_losses / jnp.maximum(jnp.mean(relative_losses), 1e-6)
+
+            target_norms = g_avg * jnp.power(inv_relative_losses, grad_norm_alpha)
+
+            # 3. Update weights via gradient descent on L_grad = sum |w_i * G_i - target_i|
+            # We'll do a simple step here
+            jnp.abs(gw_norms - target_norms)
+
+            # Update weights: w = w - lr * grad_L_grad(w)
+            # grad(L_grad) w.r.t w_i is sign(w_i * G_i - target_i) * G_i
+            weight_grads = jnp.sign(gw_norms - target_norms) * curr_grad_norms
+            new_loss_weights = loss_weights - grad_norm_lr * weight_grads
+
+            # Post-update: Normalize weights to sum to n_losses (keep overall scale)
+            new_loss_weights = jnp.maximum(new_loss_weights, 1e-3)
+            new_loss_weights = new_loss_weights * (n_losses / jnp.sum(new_loss_weights))
+
+        else:
+            # Standard training
+            (loss, breakdown), (grad_pos, grad_rot) = value_and_grad_fn(
+                positions, rotations, epoch, total_epochs
+            )
+            new_loss_weights = loss_weights
+            new_initial_grad_norms = initial_grad_norms
 
         # Apply adaptive overlap weighting to gradients
-        # We multiply the overlap component of the gradient by the weights.
-        # Since we have the total gradient, we can't easily isolate the overlap part
-        # without calling grad() twice (expensive).
-        # Instead, we apply the weights to the ENTIRE gradient for stuck components.
-        # This effectively increases their 'mobility' and 'repulsion'.
         grad_pos = grad_pos * overlap_weights[:, None]
         grad_rot = grad_rot * overlap_weights[:, None]
 
         # Apply centrality-based gradient scaling (Inertia/Priority)
-
-
-        # Apply centrality-based gradient scaling (Inertia/Priority)
         if centrality is not None and centrality.shape[0] > 0 and priority_scale > 1.0:
-            # Scale by normalized centrality relative to max
-            # 1.0 for least central, priority_scale for most central
             c_min = jnp.min(centrality)
             c_max = jnp.max(centrality)
-            c_range = c_max - c_min
-            
-            # Avoid division by zero
-            c_range = jnp.where(c_range < 1e-10, 1.0, c_range)
-            
-            # Normalize to [0, 1] then scale to [1, priority_scale]
+            c_range = jnp.where(c_max - c_min < 1e-10, 1.0, c_max - c_min)
             normalized_c = (centrality - c_min) / c_range
             grad_scale = 1.0 + (priority_scale - 1.0) * normalized_c
-            
-            # Apply to gradients
+
             grad_pos = grad_pos * grad_scale[:, None]
             grad_rot = grad_rot * grad_scale[:, None]
 
-        # Update positions
+        # Update positions and rotations
         updates_pos, next_opt_state_pos = opt_pos.update(grad_pos, new_opt_state_pos, positions)
         new_positions = optax.apply_updates(positions, updates_pos)
 
-        # Update rotation logits
         updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
 
@@ -444,7 +534,11 @@ def make_train_step(
             grad_pos,
             grad_rot,
             new_ema,
+            new_loss_weights,
+            new_initial_grad_norms,
         )
+
+    return train_step
 
     return train_step
 
@@ -454,11 +548,11 @@ def train(
     board: Board,
     composite_loss: CompositeLoss,
     context: LossContext,
-    config: Optional[OptimizerConfig] = None,
-    initial_state: Optional[PlacementState] = None,
-    callback: Optional[Callable[[TrainingMetrics], None]] = None,
-    validation_callback: Optional[ValidationCallback] = None,
-    profile_dir: Optional[str] = None,
+    config: OptimizerConfig | None = None,
+    initial_state: PlacementState | None = None,
+    callback: Callable[[TrainingMetrics], None] | None = None,
+    validation_callback: ValidationCallback | None = None,
+    profile_dir: str | None = None,
 ) -> TrainingResult:
     """
     Run placement optimization training loop.
@@ -504,6 +598,11 @@ def train(
     # Initialize training state
     state = initialize_training_state(netlist, board, config, initial_state)
 
+    # Initialize dynamic loss weights for GradNorm
+    n_losses = len(composite_loss.losses)
+    state.loss_weights = jnp.ones((n_losses,), dtype=jnp.float32)
+    state.initial_grad_norms = jnp.zeros((n_losses,), dtype=jnp.float32)
+
     # Create value_and_grad function with breakdown
     value_and_grad_fn = create_value_and_grad_fn_with_breakdown(composite_loss, context)
 
@@ -524,6 +623,11 @@ def train(
         config.epochs,
         centrality=centrality,
         priority_scale=config.centrality_priority_scale,
+        use_grad_norm=config.use_grad_norm,
+        grad_norm_alpha=config.grad_norm.alpha,
+        grad_norm_lr=config.grad_norm.learning_rate,
+        composite_loss=composite_loss,
+        loss_context=context,
     )
 
     # Optional: Enable JAX profiler
@@ -532,10 +636,10 @@ def train(
     )
 
     # Training history
-    history: List[TrainingMetrics] = []
+    history: list[TrainingMetrics] = []
 
     # Validation tracking
-    validation_history: List[ValidationResult] = []
+    validation_history: list[ValidationResult] = []
     stopped_by_validation = False
 
     # Best tracking
@@ -572,6 +676,8 @@ def train(
                 grad_pos,
                 grad_rot,
                 new_ema,
+                new_loss_weights,
+                new_initial_grad_norms,
             ) = train_step(
                 state.positions,
                 state.rotation_logits,
@@ -582,6 +688,8 @@ def train(
                 lr,
                 state.position_delta_ema,
                 state.overlap_weights,
+                state.loss_weights,
+                state.initial_grad_norms,
             )
 
             # Update state
@@ -590,6 +698,8 @@ def train(
             state.opt_state_pos = new_opt_state_pos
             state.opt_state_rot = new_opt_state_rot
             state.position_delta_ema = float(new_ema)
+            state.loss_weights = new_loss_weights
+            state.initial_grad_norms = new_initial_grad_norms
 
             # Adaptive Overlap Weighting Logic
             # Every 10 epochs, check for persistent collisions and ramp weights
@@ -606,7 +716,7 @@ def train(
                     )
                     # Cap at 20x
                     state.overlap_weights = jnp.minimum(state.overlap_weights, 20.0)
-                    
+
                     # Decouple cleared components?
                     # Optionally slowly decay weights for non-colliding components
                     state.overlap_weights = jnp.where(
@@ -625,13 +735,13 @@ def train(
                 sigma = 0.05 * max(board.width, board.height)
                 # Scale noise by temperature (higher noise early, lower noise late)
                 noise_scale = sigma * (temperature / config.temperature.start)
-                
+
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
-                
+
                 # Reset EMA after jiggle to avoid immediate re-trigger
                 state.position_delta_ema = 1.0
-                
+
                 # Optional: Log jiggle event if needed
 
 
@@ -659,8 +769,16 @@ def train(
 
                 # Use breakdown from train_step (no recomputation needed!)
                 # Convert arrays to scalars for logging, keeping only the totals
-                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
                            for k, v in loss_breakdown_arrays.items()}
+
+                # Extract current loss weights for logging
+                logged_weights = None
+                if config.use_grad_norm and state.loss_weights is not None:
+                    logged_weights = {
+                        name: float(state.loss_weights[i])
+                        for i, name in enumerate(composite_loss.loss_names)
+                    }
 
                 epoch_time_ms = (time.time() - epoch_start) * 1000
 
@@ -673,6 +791,7 @@ def train(
                     grad_norm_pos=grad_norm_pos,
                     grad_norm_rot=grad_norm_rot,
                     elapsed_ms=epoch_time_ms,
+                    loss_weights=logged_weights,
                 )
                 history.append(metrics)
 
@@ -739,13 +858,13 @@ def train(
 def train_multiphase(
     netlist: Netlist,
     board: Board,
-    loss_factory: Callable[[Dict[str, float]], CompositeLoss],
+    loss_factory: Callable[[dict[str, float]], CompositeLoss],
     context: LossContext,
-    config: Optional[OptimizerConfig] = None,
-    initial_state: Optional[PlacementState] = None,
-    callback: Optional[Callable[[TrainingMetrics], None]] = None,
-    validation_callback: Optional[ValidationCallback] = None,
-    profile_dir: Optional[str] = None,
+    config: OptimizerConfig | None = None,
+    initial_state: PlacementState | None = None,
+    callback: Callable[[TrainingMetrics], None] | None = None,
+    validation_callback: ValidationCallback | None = None,
+    profile_dir: str | None = None,
 ) -> TrainingResult:
     """
     Run multi-phase training with curriculum learning.
@@ -779,8 +898,8 @@ def train_multiphase(
     if config is None:
         config = OptimizerConfig.default_curriculum()
 
-    from temper_placer.optimizer.scheduler import get_curriculum_weights
     from temper_placer.optimizer.config import get_default_loss_weights
+    from temper_placer.optimizer.scheduler import get_curriculum_weights
 
     default_weights = get_default_loss_weights()
 
@@ -789,11 +908,16 @@ def train_multiphase(
     # Initialize training state
     state = initialize_training_state(netlist, board, config, initial_state)
 
+    # Initialize dynamic loss weights for GradNorm
+    # We initialize with ones, but we'll resize if composite_loss size changes
+    state.loss_weights = jnp.ones((1,), dtype=jnp.float32)
+    state.initial_grad_norms = jnp.zeros((1,), dtype=jnp.float32)
+
     # Training history
-    history: List[TrainingMetrics] = []
+    history: list[TrainingMetrics] = []
 
     # Validation tracking
-    validation_history: List[ValidationResult] = []
+    validation_history: list[ValidationResult] = []
     stopped_by_validation = False
 
     # Best tracking
@@ -804,6 +928,7 @@ def train_multiphase(
 
     # Track current phase for re-creating loss function
     current_phase_idx = -1
+    composite_loss: CompositeLoss | None = None
 
     # Optional: Enable JAX profiler
     profile_ctx = (
@@ -831,6 +956,12 @@ def train_multiphase(
 
                 # Create new composite loss
                 composite_loss = loss_factory(weights)
+                n_losses = len(composite_loss.losses)
+
+                # Update state weights if size changed
+                if state.loss_weights.shape[0] != n_losses:
+                    state.loss_weights = jnp.ones((n_losses,), dtype=jnp.float32)
+                    state.initial_grad_norms = jnp.zeros((n_losses,), dtype=jnp.float32)
 
                 # Create new value_and_grad function with breakdown
                 value_and_grad_fn = create_value_and_grad_fn_with_breakdown(composite_loss, context)
@@ -848,6 +979,11 @@ def train_multiphase(
                     config.epochs,
                     centrality=centrality,
                     priority_scale=config.centrality_priority_scale,
+                    use_grad_norm=config.use_grad_norm,
+                    grad_norm_alpha=config.grad_norm.alpha,
+                    grad_norm_lr=config.grad_norm.learning_rate,
+                    composite_loss=composite_loss,
+                    loss_context=context,
                 )
 
                 # Re-initialize optimizer states
@@ -876,6 +1012,8 @@ def train_multiphase(
                 grad_pos,
                 grad_rot,
                 new_ema,
+                new_loss_weights,
+                new_initial_grad_norms,
             ) = train_step(
                 state.positions,
                 state.rotation_logits,
@@ -886,6 +1024,8 @@ def train_multiphase(
                 lr,
                 state.position_delta_ema,
                 state.overlap_weights,
+                state.loss_weights,
+                state.initial_grad_norms,
             )
 
             # Update state
@@ -894,6 +1034,8 @@ def train_multiphase(
             state.opt_state_pos = new_opt_state_pos
             state.opt_state_rot = new_opt_state_rot
             state.position_delta_ema = float(new_ema)
+            state.loss_weights = new_loss_weights
+            state.initial_grad_norms = new_initial_grad_norms
 
             # Adaptive Overlap Weighting Logic
             if config.adaptive_overlap_enabled and epoch % 10 == 0:
@@ -917,7 +1059,7 @@ def train_multiphase(
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
                 sigma = 0.05 * max(board.width, board.height)
                 noise_scale = sigma * (temperature / config.temperature.start)
-                
+
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
                 state.position_delta_ema = 1.0
@@ -943,8 +1085,16 @@ def train_multiphase(
                 grad_norm_rot = float(jnp.linalg.norm(grad_rot))
 
                 # Use breakdown from train_step (no recomputation needed!)
-                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v) 
+                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
                            for k, v in loss_breakdown_arrays.items()}
+
+                # Extract current loss weights for logging
+                logged_weights = None
+                if config.use_grad_norm and state.loss_weights is not None and composite_loss is not None:
+                    logged_weights = {
+                        name: float(state.loss_weights[i])
+                        for i, name in enumerate(composite_loss.loss_names)
+                    }
 
                 epoch_time_ms = (time.time() - epoch_start) * 1000
 
@@ -957,6 +1107,7 @@ def train_multiphase(
                     grad_norm_pos=grad_norm_pos,
                     grad_norm_rot=grad_norm_rot,
                     elapsed_ms=epoch_time_ms,
+                    loss_weights=logged_weights,
                 )
                 history.append(metrics)
 

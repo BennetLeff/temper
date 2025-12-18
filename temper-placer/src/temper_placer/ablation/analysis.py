@@ -205,6 +205,7 @@ class AblationAnalyzer:
             "temperature_annealing",
             "learning_rate_annealing",
             "gradient_clipping",
+            "grad_norm",
         }
 
         if component_name in heuristics:

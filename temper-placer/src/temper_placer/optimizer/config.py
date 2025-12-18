@@ -7,7 +7,6 @@ checkpointing settings.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -69,9 +68,9 @@ class CurriculumPhase:
     name: str
     start_epoch: int
     end_epoch: int
-    loss_weights: Dict[str, float] = field(default_factory=dict)
-    temperature_override: Optional[float] = None
-    learning_rate_override: Optional[float] = None
+    loss_weights: dict[str, float] = field(default_factory=dict)
+    temperature_override: float | None = None
+    learning_rate_override: float | None = None
 
 
 @dataclass
@@ -88,7 +87,7 @@ class CheckpointConfig:
     """
 
     enabled: bool = True
-    directory: Optional[str] = None
+    directory: str | None = None
     interval: int = 500
     keep_last_n: int = 3
     save_best: bool = True
@@ -110,6 +109,25 @@ class EarlyStoppingConfig:
     patience: int = 500
     min_delta: float = 1e-6
     monitor: str = "loss"
+
+
+@dataclass
+class GradNormConfig:
+    """
+    Configuration for GradNorm-based adaptive loss weighting.
+
+    GradNorm automatically balances multiple loss terms by adjusting their
+    weights so that their gradient norms are balanced.
+
+    Attributes:
+        alpha: Asymmetry parameter (higher = stronger balancing).
+        learning_rate: Learning rate for weight updates.
+        update_interval: Update weights every N epochs.
+    """
+
+    alpha: float = 1.5
+    learning_rate: float = 0.025
+    update_interval: int = 1
 
 
 @dataclass
@@ -168,7 +186,7 @@ class OptimizerConfig:
     learning_rate: LearningRateSchedule = field(default_factory=LearningRateSchedule)
 
     # Curriculum (optional - if empty, uses constant weights)
-    curriculum_phases: List[CurriculumPhase] = field(default_factory=list)
+    curriculum_phases: list[CurriculumPhase] = field(default_factory=list)
 
     # Checkpointing
     checkpoint: CheckpointConfig = field(default_factory=CheckpointConfig)
@@ -181,7 +199,7 @@ class OptimizerConfig:
     validate_interval: int = 500
 
     # Optimizer settings
-    gradient_clip_norm: Optional[float] = 1.0
+    gradient_clip_norm: float | None = 1.0
     use_adam: bool = True
     adam_beta1: float = 0.9
     adam_beta2: float = 0.999
@@ -190,6 +208,8 @@ class OptimizerConfig:
     use_gumbel_rotation: bool = True
     adaptive_overlap_enabled: bool = True
     jiggle_enabled: bool = True
+    use_grad_norm: bool = False
+    grad_norm: GradNormConfig = field(default_factory=GradNormConfig)
 
     # Centrality-driven optimization (temper-s7g)
     use_centrality_weighting: bool = False
@@ -313,7 +333,7 @@ class OptimizerConfig:
         )
 
 
-def get_default_loss_weights() -> Dict[str, float]:
+def get_default_loss_weights() -> dict[str, float]:
     """
     Get default loss weights for placement optimization.
 

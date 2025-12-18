@@ -40,6 +40,7 @@ class TestComponentToggle:
         assert toggle.temperature_annealing is True
         assert toggle.learning_rate_annealing is True
         assert toggle.gradient_clipping is True
+        assert toggle.grad_norm is True
 
     def test_get_enabled_heuristics(self):
         """Should return list of enabled heuristic names."""
@@ -64,7 +65,7 @@ class TestComponentToggle:
         toggle = ComponentToggle()
         enabled = toggle.get_enabled_techniques()
 
-        assert len(enabled) == 8
+        assert len(enabled) == 9
         assert "curriculum_learning" in enabled
         assert "adaptive_overlap_weighting" in enabled
 
@@ -73,7 +74,7 @@ class TestComponentToggle:
         toggle = ComponentToggle(curriculum_learning=False)
         enabled = toggle.get_enabled_techniques()
 
-        assert len(enabled) == 7
+        assert len(enabled) == 8
         assert "curriculum_learning" not in enabled
 
     def test_count_enabled(self):
@@ -82,7 +83,7 @@ class TestComponentToggle:
         h, t = toggle.count_enabled()
 
         assert h == 11
-        assert t == 8
+        assert t == 9
 
     def test_count_enabled_with_disabled(self):
         """Should count only enabled components."""
@@ -94,7 +95,7 @@ class TestComponentToggle:
         h, t = toggle.count_enabled()
 
         assert h == 9
-        assert t == 7
+        assert t == 8
 
     def test_to_dict(self):
         """Should convert to dictionary."""

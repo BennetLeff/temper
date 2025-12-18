@@ -122,11 +122,19 @@ def create_component_addition_matrix() -> list[ExperimentConfig]:
     for t in techniques:
         components = ComponentToggle.all_disabled()
         setattr(components, t, True)
+        
+        # Ensure GradNorm doesn't conflict with other techniques in isolation
+        if t == "grad_norm":
+            # For GradNorm addition test, we need some losses to balance
+            losses = LossToggle()
+        else:
+            losses = LossToggle.hard_constraints_only()
+            
         experiments.append(ExperimentConfig(
             name=f"add_{t}",
             description=f"Minimal with '{t}' technique added.",
             components=components,
-            losses=LossToggle.hard_constraints_only(),
+            losses=losses,
             tags=["addition", "technique"]
         ))
 

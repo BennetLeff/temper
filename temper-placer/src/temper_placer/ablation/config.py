@@ -84,6 +84,9 @@ class ComponentToggle:
     gradient_clipping: bool = True
     """Clip gradient norms to prevent instability"""
 
+    grad_norm: bool = True
+    """Use GradNorm for adaptive loss weighting"""
+
     # ========================
     # UTILITY METHODS
     # ========================
@@ -116,6 +119,7 @@ class ComponentToggle:
             "temperature_annealing",
             "learning_rate_annealing",
             "gradient_clipping",
+            "grad_norm",
         ]
         return [f for f in technique_fields if getattr(self, f)]
 
