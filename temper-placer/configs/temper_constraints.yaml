@@ -35,6 +35,7 @@ zones:
       - U_MCU  # ESP32-S3
       - U_USB  # USB-C connector
       - J_DEBUG  # Debug header
+      - MAX31865 # RTD-to-Digital converter
       
   - name: INTERFACE_ZONE
     bounds: [0, 80, 50, 150]
@@ -235,6 +236,7 @@ fixed_components:
 # Zone assignments (override for specific components)
 zone_assignments:
   U_MCU: MCU_ZONE
+  MAX31865: MCU_ZONE
   U_GATE: HV_ZONE
   Q1: HV_ZONE
   Q2: HV_ZONE

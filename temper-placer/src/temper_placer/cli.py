@@ -14,13 +14,12 @@ import json
 import signal
 import sys
 from pathlib import Path
-from typing import Optional
 
 import click
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-from rich.table import Table
 from rich.panel import Panel
+from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
+from rich.table import Table
 
 from temper_placer import __version__
 
@@ -56,6 +55,18 @@ def main() -> None:
     type=int,
     default=8000,
     help="Number of optimization epochs (default: 8000).",
+)
+@click.option(
+    "--weight-overlap",
+    type=float,
+    default=None,
+    help="Override overlap loss weight.",
+)
+@click.option(
+    "--weight-wirelength",
+    type=float,
+    default=None,
+    help="Override wirelength loss weight.",
 )
 @click.option(
     "--visualize",
@@ -133,16 +144,18 @@ def optimize(
     config: Path,
     output: Path,
     epochs: int,
+    weight_overlap: float | None,
+    weight_wirelength: float | None,
     visualize: bool,
     port: int,
     seed: int,
-    checkpoint: Optional[Path],
+    checkpoint: Path | None,
     curriculum: bool,
-    placements_json: Optional[Path],
+    placements_json: Path | None,
     heuristics: bool,
     auto_group: bool,
     centrality: bool,
-    profile_dir: Optional[Path],
+    profile_dir: Path | None,
     grad_norm: bool,
     grad_norm_alpha: float,
     grad_norm_lr: float,
@@ -178,29 +191,30 @@ def optimize(
     try:
         import jax
         import jax.numpy as jnp
+
+        from temper_placer.core.community import detect_communities
+        from temper_placer.core.state import PlacementState
+        from temper_placer.heuristics import PlacementContext, create_default_pipeline
+        from temper_placer.io.config_loader import create_board_from_constraints, load_constraints
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
         from temper_placer.io.kicad_writer import (
             export_placements,
             placements_to_json,
             state_to_placements,
         )
-        from temper_placer.optimizer import train, train_multiphase, OptimizerConfig
-        from temper_placer.optimizer.curriculum import create_default_phases, create_fast_phases
         from temper_placer.losses import (
-            CompositeLoss,
-            WeightedLoss,
-            OverlapLoss,
             BoundaryLoss,
-            WirelengthLoss,
-            SpreadLoss,
+            CompositeLoss,
             GroupClusterLoss,
             GroupConfig,
+            OverlapLoss,
+            SpreadLoss,
+            WeightedLoss,
+            WirelengthLoss,
         )
         from temper_placer.losses.base import LossContext
-        from temper_placer.heuristics import create_default_pipeline, PlacementContext
-        from temper_placer.core.state import PlacementState
-        from temper_placer.core.community import detect_communities
+        from temper_placer.optimizer import OptimizerConfig, train, train_multiphase
+        from temper_placer.optimizer.curriculum import create_default_phases, create_fast_phases
     except ImportError as e:
         console.print(f"[red]Failed to import required modules: {e}[/]")
         console.print("Please ensure JAX and all dependencies are installed:")
@@ -239,7 +253,7 @@ def optimize(
         sys.exit(1)
 
     # Step 2b: Run heuristic initialization (if enabled)
-    initial_state: Optional[PlacementState] = None
+    initial_state: PlacementState | None = None
     if heuristics:
         console.print("\n[bold cyan]Step 2b/5:[/] Running smart initialization heuristics...")
         try:
@@ -318,20 +332,45 @@ def optimize(
             losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
 
         # Auto-grouping clusters
-        if auto_group and detected_communities:
+        if auto_group and (detected_communities or constraints.component_groups):
             group_configs = []
-            for comm in detected_communities:
-                # Resolve refs to indices
-                indices = [netlist.get_component_index(ref) for ref in comm.component_refs]
-                group_configs.append(
-                    GroupConfig(
-                        name=comm.name,
-                        component_indices=jnp.array(indices, dtype=jnp.int32),
-                        max_diameter_mm=30.0,  # Default 30mm cluster size
-                        weight=1.0,
+
+            # Add auto-detected communities
+            if detected_communities:
+                for comm in detected_communities:
+                    # Resolve refs to indices
+                    indices = [netlist.get_component_index(ref) for ref in comm.component_refs]
+                    group_configs.append(
+                        GroupConfig(
+                            name=f"auto_{comm.name}",
+                            component_indices=jnp.array(indices, dtype=jnp.int32),
+                            max_diameter_mm=30.0,  # Default 30mm cluster size
+                            weight=1.0,
+                        )
                     )
-                )
-            losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
+
+            # Add explicit YAML-defined groups
+            if constraints.component_groups:
+                for group in constraints.component_groups:
+                    # Filter components that actually exist in the netlist
+                    valid_refs = [
+                        ref for ref in group.components if ref in netlist._component_index
+                    ]
+                    if not valid_refs:
+                        continue
+
+                    indices = [netlist.get_component_index(ref) for ref in valid_refs]
+                    group_configs.append(
+                        GroupConfig(
+                            name=group.name,
+                            component_indices=jnp.array(indices, dtype=jnp.int32),
+                            max_diameter_mm=group.max_spread_mm,
+                            weight=2.0,  # Give higher weight to explicit groups
+                        )
+                    )
+
+            if group_configs:
+                losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
 
         # Add more losses based on constraints
         # (clearance, thermal, zone, loop_area, etc. can be added here)
@@ -340,9 +379,9 @@ def optimize(
 
     # Default weights for non-curriculum mode
     default_weights = {
-        "overlap": 100.0,
+        "overlap": weight_overlap if weight_overlap is not None else 100.0,
         "boundary": 50.0,
-        "wirelength": 10.0,
+        "wirelength": weight_wirelength if weight_wirelength is not None else 10.0,
         "spread": 5.0,
     }
 
@@ -358,7 +397,7 @@ def optimize(
 
     # Configure optimizer
     from temper_placer.optimizer.config import GradNormConfig
-    
+
     gn_cfg = GradNormConfig(alpha=grad_norm_alpha, learning_rate=grad_norm_lr)
 
     if curriculum:
@@ -457,7 +496,7 @@ def optimize(
         # Restore signal handler
         signal.signal(signal.SIGINT, original_handler)
 
-        console.print(f"\n  [green]✓[/] Optimization complete!")
+        console.print("\n  [green]✓[/] Optimization complete!")
         console.print(f"    Final loss: {result.final_loss:.4f}")
         console.print(f"    Best loss: {result.best_loss:.4f}")
         console.print(f"    Epochs: {result.total_epochs}")
@@ -587,13 +626,14 @@ def export(
 
     try:
         import json
+
         from temper_placer.io.kicad_writer import (
             placements_from_json,
             write_placements_to_pcb,
         )
 
         # Load placements
-        with open(placements, "r") as f:
+        with open(placements) as f:
             placements_data = json.load(f)
 
         placements_dict = placements_from_json(placements_data)
@@ -657,7 +697,7 @@ def export(
 )
 def validate(
     input_pcb: Path,
-    config: Optional[Path],
+    config: Path | None,
     tools: bool,
     zones: bool,
     constraints: bool,
@@ -681,12 +721,11 @@ def validate(
         temper-placer validate optimized.kicad_pcb --drc
     """
     from temper_placer.validation.preflight import (
-        PreflightSeverity,
         PreflightResult,
-        check_external_tools,
-        check_zones_fit_on_board,
         check_components_have_zones,
+        check_external_tools,
         check_impossible_constraints,
+        check_zones_fit_on_board,
     )
 
     if not json_output:
@@ -810,7 +849,7 @@ def validate(
         if result.passed and (not strict or result.warning_count == 0):
             console.print("[bold green]✓ All checks passed[/]")
         else:
-            console.print(f"[bold red]✗ Validation failed[/]")
+            console.print("[bold red]✗ Validation failed[/]")
         console.print(
             f"  {result.error_count} errors, {result.warning_count} warnings, {result.info_count} info"
         )
@@ -870,7 +909,7 @@ def _print_issue(issue) -> None:
 )
 def benchmark(
     pcbs: str,
-    output: Optional[Path],
+    output: Path | None,
     format: str,
     epochs: int,
     auto_group: bool,
@@ -884,51 +923,50 @@ def benchmark(
     Example:
         temper-placer benchmark --pcbs piantor_left,bitaxe_ultra
     """
-    from temper_placer.report.generator import (
-        BenchmarkSummary,
-        BenchmarkResult,
-        calculate_benchmark_result,
-        generate_text_report,
-        generate_json_report,
-    )
-    from temper_placer.io.reference_loader import list_reference_designs, load_reference_pcb
-    from temper_placer.optimizer import train, OptimizerConfig
-    from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
-    from temper_placer.losses import (
-        CompositeLoss,
-        WeightedLoss,
-        OverlapLoss,
-        BoundaryLoss,
-        WirelengthLoss,
-        SpreadLoss,
-        GroupClusterLoss,
-        GroupConfig,
-    )
-    from temper_placer.losses.base import LossContext
-    from temper_placer.core.community import detect_communities
     import jax.numpy as jnp
 
-    console.print(Panel.fit(
-        "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
-        border_style="blue",
-    ))
+    from temper_placer.core.community import detect_communities
+    from temper_placer.io.config_loader import create_board_from_constraints, load_constraints
+    from temper_placer.io.reference_loader import load_reference_pcb
+    from temper_placer.losses import (
+        BoundaryLoss,
+        CompositeLoss,
+        GroupClusterLoss,
+        GroupConfig,
+        OverlapLoss,
+        SpreadLoss,
+        WeightedLoss,
+        WirelengthLoss,
+    )
+    from temper_placer.losses.base import LossContext
+    from temper_placer.optimizer import OptimizerConfig, train
+    from temper_placer.report.generator import (
+        BenchmarkSummary,
+        calculate_benchmark_result,
+        generate_json_report,
+        generate_text_report,
+    )
+
+    console.print(
+        Panel.fit(
+            "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
+            border_style="blue",
+        )
+    )
 
     # 1. Identify PCBs
     design_dir = Path("tests/fixtures/external/.cache")
     all_designs = []
     seen_names = set()
-    
+
     if design_dir.exists():
         for p in design_dir.iterdir():
             if p.is_dir() and p.name not in seen_names:
                 for pcb in p.glob("*.kicad_pcb"):
-                    all_designs.append({
-                        "name": p.name,
-                        "path": str(pcb)
-                    })
+                    all_designs.append({"name": p.name, "path": str(pcb)})
                     seen_names.add(p.name)
-                    break # Only one PCB per project for now
-    
+                    break  # Only one PCB per project for now
+
     selected_names = [] if pcbs == "all" else [n.strip() for n in pcbs.split(",")]
     targets = []
     for d in all_designs:
@@ -944,7 +982,11 @@ def benchmark(
     # 2. Setup Loss Factory
     def make_benchmark_loss(weights, netlist=None, detected_communities=None):
         losses = []
-        losses.append(WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]))
+        losses.append(
+            WeightedLoss(
+                OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]
+            )
+        )
         losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
         losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
         losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
@@ -969,12 +1011,12 @@ def benchmark(
 
     # 3. Run Benchmarks
     summary = BenchmarkSummary(total_pcbs=len(targets), passed=0, failed=0, better_than_human=0)
-    
+
     for target in targets:
         name = target["name"]
         pcb_path = Path(target["path"])
         console.print(f"Benchmarking [cyan]{name}[/]...")
-        
+
         try:
             # 1. Load Human Baseline
             baseline_path = pcb_path.parent / f"{name}_benchmark.yaml"
@@ -984,27 +1026,31 @@ def benchmark(
                 if legacy_path.exists():
                     baseline_path = legacy_path
                 else:
-                    console.print(f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run generate_unrouted_benchmarks.py first.")
+                    console.print(
+                        f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run generate_unrouted_benchmarks.py first."
+                    )
                     continue
-                
+
             with open(baseline_path) as f:
                 import yaml as yaml_module
+
                 baseline = yaml_module.safe_load(f)
-            
+
             # 2. Setup Optimizer Data
             ref_design = load_reference_pcb(pcb_path)
-            
+
             # Load constraints
             config_path = pcb_path.parent / f"{name}_constraints.yaml"
             if config_path.exists():
                 constraints = load_constraints(config_path)
             else:
                 from temper_placer.io.config_loader import PlacementConstraints
+
                 constraints = PlacementConstraints()
-            
+
             board = create_board_from_constraints(constraints)
             context = LossContext.from_netlist_and_board(ref_design.netlist, board)
-            
+
             # Community detection for auto-grouping
             detected = []
             if auto_group:
@@ -1014,12 +1060,12 @@ def benchmark(
             composite_loss = make_benchmark_loss(default_weights, ref_design.netlist, detected)
 
             # 3. Run Optimizer
-            cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs//10))
+            cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs // 10))
             opt_result = train(ref_design.netlist, board, composite_loss, context, cfg)
-            
+
             # 4. Compute Real Score
             res = calculate_benchmark_result(name, opt_result, baseline, context)
-            
+
             summary.results.append(res)
             if res.status == "FAIL":
                 summary.failed += 1
@@ -1027,13 +1073,14 @@ def benchmark(
                 summary.passed += 1
                 if res.status == "BETTER":
                     summary.better_than_human += 1
-            
+
             console.print(f"  [green]✓[/] Result: {res.status} (WL: {res.wirelength_ratio:.2f}x)")
-            
+
         except Exception as e:
             console.print(f"  [red]Failed to benchmark {name}: {e}[/]")
             summary.failed += 1
             import traceback
+
             console.print(traceback.format_exc())
 
     # 4. Generate Report
@@ -1174,8 +1221,8 @@ def info(input_pcb: Path) -> None:
 )
 def visualize(
     input_pcb: Path,
-    output: Optional[Path],
-    title: Optional[str],
+    output: Path | None,
+    title: str | None,
     no_refs: bool,
     no_zones: bool,
     show_traces: bool,
@@ -1184,7 +1231,7 @@ def visualize(
     grid: bool,
     width: int,
     height: int,
-    export_coords: Optional[Path],
+    export_coords: Path | None,
 ) -> None:
     """
     Visualize a KiCad PCB file in the browser.
@@ -1202,6 +1249,7 @@ def visualize(
 
     try:
         from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.visualization.board_renderer import board_to_html
         from temper_placer.visualization.model import (
             BoardView,
             ComponentView,
@@ -1210,7 +1258,6 @@ def visualize(
             TraceView,
             ZoneView,
         )
-        from temper_placer.visualization.board_renderer import board_to_html
     except ImportError as e:
         console.print(f"[red]Failed to import required modules: {e}[/]")
         sys.exit(1)
@@ -1334,7 +1381,7 @@ def visualize(
 
     # Debug output (optional)
     if debug:
-        console.print(f"\n[bold]Debug Info:[/]")
+        console.print("\n[bold]Debug Info:[/]")
         console.print(
             f"Board: {board_width:.1f} x {board_height:.1f} mm, "
             f"origin=({origin_x:.1f}, {origin_y:.1f})"
@@ -1396,7 +1443,7 @@ def visualize(
             f.write(html_content)
             temp_path = f.name
 
-        console.print(f"[green]✓[/] Opening in browser...")
+        console.print("[green]✓[/] Opening in browser...")
         webbrowser.open(f"file://{temp_path}")
 
     console.print("[bold green]Done![/]")
@@ -1440,7 +1487,7 @@ def visualize(
 def report(
     input_pcb: Path,
     output: Path,
-    loss_history: Optional[Path],
+    loss_history: Path | None,
     title: str,
     no_board: bool,
     no_components: bool,
@@ -1464,12 +1511,12 @@ def report(
         from temper_placer.visualization.model import (
             BoardView,
             ComponentView,
-            LossHistory,
             LossDataPoint,
+            LossHistory,
             Point,
             ZoneView,
         )
-        from temper_placer.visualization.report import generate_report, ReportConfig
+        from temper_placer.visualization.report import ReportConfig, generate_report
     except ImportError as e:
         console.print(f"[red]Failed to import required modules: {e}[/]")
         sys.exit(1)
@@ -1553,7 +1600,7 @@ def report(
     if loss_history:
         console.print("[dim]Loading loss history...[/]")
         try:
-            with open(loss_history, "r") as f:
+            with open(loss_history) as f:
                 loss_data = json.load(f)
 
             loss_hist = LossHistory()
@@ -1685,7 +1732,7 @@ def run(
     config_file: Path,
     resume: bool,
     retry_failed: bool,
-    parallel: Optional[int],
+    parallel: int | None,
     no_report: bool,
 ) -> None:
     """
@@ -1694,25 +1741,27 @@ def run(
     Executes multiple optimization runs with different components enabled/disabled
     to analyze their impact on placement quality.
     """
-    console.print(Panel.fit(
-        "[bold blue]temper-placer ablate run[/]\nExecuting ablation study pipeline",
-        border_style="blue",
-    ))
+    console.print(
+        Panel.fit(
+            "[bold blue]temper-placer ablate run[/]\nExecuting ablation study pipeline",
+            border_style="blue",
+        )
+    )
 
     try:
-        from temper_placer.ablation.config import AblationStudyConfig
-        from temper_placer.ablation.runner import ExperimentRunner
-        from temper_placer.ablation.metrics import MetricAggregator
         from temper_placer.ablation.analysis import AblationAnalyzer
+        from temper_placer.ablation.config import AblationStudyConfig
+        from temper_placer.ablation.metrics import MetricAggregator
         from temper_placer.ablation.report import AblationReportGenerator
+        from temper_placer.ablation.runner import ExperimentRunner
 
         # Load config
         console.print(f"[dim]Loading study config from {config_file}...[/]")
         study_cfg = AblationStudyConfig.load(config_file)
-        
+
         if parallel:
             study_cfg.parallel_workers = parallel
-            
+
         console.print(f"  [green]✓[/] Study: {study_cfg.study_name}")
         console.print(f"  [green]✓[/] Experiments: {len(study_cfg.experiments)}")
         console.print(f"  [green]✓[/] Seeds: {len(study_cfg.seeds)}")
@@ -1721,7 +1770,7 @@ def run(
 
         # Initialize runner
         runner = ExperimentRunner(study_cfg)
-        
+
         # Run experiments
         with Progress(
             SpinnerColumn(),
@@ -1731,14 +1780,12 @@ def run(
             console=console,
         ) as progress:
             total_task = progress.add_task("Total Progress", total=study_cfg.get_total_runs())
-            
+
             def update_progress(completed, total):
                 progress.update(total_task, completed=completed)
 
             results = runner.run_all(
-                resume=resume, 
-                retry_failed=retry_failed,
-                progress_callback=update_progress
+                resume=resume, retry_failed=retry_failed, progress_callback=update_progress
             )
 
         if not results:
@@ -1748,20 +1795,21 @@ def run(
         # Analyze and Report
         if not no_report:
             console.print("\n[bold cyan]Generating Analysis and Report...[/]")
-            
+
             aggregator = MetricAggregator()
             aggregated = aggregator.aggregate(results)
-            
+
             analyzer = AblationAnalyzer(aggregated)
-            
+
             report_gen = AblationReportGenerator(study_cfg.output_dir)
             report_path = report_gen.generate(study_cfg.study_name, aggregated, analyzer)
-            
+
             console.print(f"  [green]✓[/] Report saved to: {report_path}")
-            
+
     except Exception as e:
         console.print(f"[red]Ablation study failed: {e}[/]")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
@@ -1787,8 +1835,9 @@ def report(
 
     try:
         import pickle
-        from temper_placer.ablation.metrics import MetricAggregator
+
         from temper_placer.ablation.analysis import AblationAnalyzer
+        from temper_placer.ablation.metrics import MetricAggregator
         from temper_placer.ablation.report import AblationReportGenerator
 
         checkpoint_path = results_dir / "checkpoint.pkl"
@@ -1798,20 +1847,20 @@ def report(
 
         with open(checkpoint_path, "rb") as f:
             checkpoint = pickle.load(f)
-            
+
         results = checkpoint.results
         console.print(f"  [green]✓[/] Loaded {len(results)} experiment runs")
 
         aggregator = MetricAggregator()
         aggregated = aggregator.aggregate(results)
-        
+
         analyzer = AblationAnalyzer(aggregated)
-        
+
         report_gen = AblationReportGenerator(results_dir)
         report_path = report_gen.generate(name, aggregated, analyzer)
-        
+
         console.print(f"  [green]✓[/] Report saved to: {report_path}")
-        
+
     except Exception as e:
         console.print(f"[red]Report generation failed: {e}[/]")
         sys.exit(1)
