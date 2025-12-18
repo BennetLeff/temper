@@ -1,0 +1,30 @@
+study_name: "Standard Ablation Study"
+experiments:
+  - name: "baseline"
+    description: "Full pipeline"
+    components: {}
+    losses: {}
+    tags: ["baseline"]
+  - name: "ablate_spectral"
+    description: "Ablate spectral initialization"
+    components:
+      spectral_init: false
+    losses: {}
+    tags: ["ablation", "heuristic"]
+  - name: "ablate_curriculum"
+    description: "Ablate curriculum learning"
+    components:
+      curriculum_learning: false
+    losses: {}
+    tags: ["ablation", "technique"]
+  - name: "ablate_wirelength"
+    description: "Ablate wirelength loss"
+    components: {}
+    losses:
+      wirelength: false
+    tags: ["ablation", "loss"]
+seeds: [42, 123]
+test_cases:
+  - "tests/fixtures/minimal_board.kicad_pcb"
+output_dir: "ablation_results_sample"
+parallel_workers: 4

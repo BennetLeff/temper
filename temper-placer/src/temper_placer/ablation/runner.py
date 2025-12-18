@@ -1,21 +1,21 @@
 """Experiment runner for ablation study framework."""
 
-import time
 import logging
 import pickle
 import tempfile
+import time
+from collections.abc import Callable
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple, Callable
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from typing import Any
 
 import jax
-import jax.numpy as jnp
 
 from temper_placer.ablation.config import (
-    ExperimentConfig,
     AblationStudyConfig,
+    ExperimentConfig,
 )
 from temper_placer.ablation.registry import (
     HeuristicRegistry,
@@ -45,14 +45,14 @@ class ExperimentRun:
     best_loss: float
     """Best loss achieved during training"""
 
-    convergence_epoch: Optional[int]
+    convergence_epoch: int | None
     """Epoch when convergence was detected (if early stopped)"""
 
     epochs_completed: int
     """Total number of epochs completed"""
 
     # Quality metrics
-    quality_metrics: Dict[str, float]
+    quality_metrics: dict[str, float]
     """Computed quality metrics (wirelength, loop_area, etc.)"""
 
     # DRC validation
@@ -70,7 +70,7 @@ class ExperimentRun:
     final_state: Any
     """Final placement state"""
 
-    checkpoint_path: Optional[Path]
+    checkpoint_path: Path | None
     """Path to saved checkpoint (or None if not saved)"""
 
     # Metadata
@@ -88,13 +88,13 @@ class ExperimentCheckpoint:
     study_name: str
     """Name of the study"""
 
-    completed_runs: List[Tuple[str, int, str]]
+    completed_runs: list[tuple[str, int, str]]
     """List of (exp_name, seed, test_case) that completed successfully"""
 
-    failed_runs: List[Tuple[str, int, str, str]]
+    failed_runs: list[tuple[str, int, str, str]]
     """List of (exp_name, seed, test_case, error_message) that failed"""
 
-    results: List[ExperimentRun]
+    results: list[ExperimentRun]
     """List of all ExperimentRun results so far"""
 
     timestamp: datetime
@@ -143,8 +143,8 @@ class ExperimentRunner:
         self.logger = logging.getLogger(__name__)
 
         # Checkpoint state
-        self.checkpoint: Optional[ExperimentCheckpoint] = None
-        self._failed_runs: List[Tuple[str, int, str, str]] = []
+        self.checkpoint: ExperimentCheckpoint | None = None
+        self._failed_runs: list[tuple[str, int, str, str]] = []
         self._load_checkpoint()
 
     def _load_checkpoint(self) -> None:
@@ -160,7 +160,7 @@ class ExperimentRunner:
                 self.logger.warning(f"Failed to load checkpoint: {e}")
                 self.checkpoint = None
 
-    def _save_checkpoint(self, results: List[ExperimentRun]) -> None:
+    def _save_checkpoint(self, results: list[ExperimentRun]) -> None:
         """Save checkpoint with current progress.
 
         Args:
@@ -197,7 +197,7 @@ class ExperimentRunner:
         config_str = json.dumps(config_data, sort_keys=True)
         return hashlib.sha256(config_str.encode()).hexdigest()[:12]
 
-    def get_pending_tasks(self) -> List[Tuple[ExperimentConfig, int, Path]]:
+    def get_pending_tasks(self) -> list[tuple[ExperimentConfig, int, Path]]:
         """Get list of tasks that haven't been completed yet.
 
         Returns:
@@ -245,8 +245,8 @@ class ExperimentRunner:
         self,
         resume: bool = True,
         retry_failed: bool = False,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> List[ExperimentRun]:
+        progress_callback: Callable[[int, int], None] | None = None,
+    ) -> list[ExperimentRun]:
         """Run all experiments across all seeds and test cases.
 
         Args:
@@ -368,9 +368,9 @@ class ExperimentRunner:
             OptimizerConfig with default settings
         """
         from temper_placer.optimizer.config import (
+            LearningRateSchedule,
             OptimizerConfig,
             TemperatureSchedule,
-            LearningRateSchedule,
         )
 
         return OptimizerConfig(
@@ -444,8 +444,8 @@ class ExperimentRunner:
         """
         try:
             # Try to import and run DRC if available
-            from temper_placer.validation.drc import run_kicad_drc
             from temper_placer.io.exporter import export_placement
+            from temper_placer.validation.drc import run_kicad_drc
 
             with tempfile.NamedTemporaryFile(
                 suffix=".kicad_pcb", delete=False

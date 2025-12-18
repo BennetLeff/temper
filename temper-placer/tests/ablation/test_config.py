@@ -161,7 +161,7 @@ class TestLossToggle:
         toggle = LossToggle()
         enabled = toggle.get_enabled_losses()
 
-        assert len(enabled) == 20
+        assert len(enabled) == 24
         assert "overlap" in enabled
         assert "wirelength" in enabled
 
@@ -170,7 +170,7 @@ class TestLossToggle:
         toggle = LossToggle(overlap=False, wirelength=False)
         enabled = toggle.get_enabled_losses()
 
-        assert len(enabled) == 18
+        assert len(enabled) == 22
         assert "overlap" not in enabled
         assert "wirelength" not in enabled
 
@@ -179,14 +179,14 @@ class TestLossToggle:
         toggle = LossToggle()
         count = toggle.count_enabled()
 
-        assert count == 20
+        assert count == 24
 
     def test_count_enabled_with_disabled(self):
         """Should count only enabled losses."""
         toggle = LossToggle(overlap=False, boundary=False)
         count = toggle.count_enabled()
 
-        assert count == 18
+        assert count == 22
 
     def test_get_by_category(self):
         """Should return losses grouped by category."""

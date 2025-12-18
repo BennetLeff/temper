@@ -1,7 +1,6 @@
 """Statistical analysis for ablation study results."""
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
 
 import numpy as np
 from scipy import stats
@@ -63,7 +62,7 @@ class ComponentImportance:
     n_seeds: int
     """Number of seeds used in computation"""
 
-    test_cases: List[str]
+    test_cases: list[str]
     """Test cases analyzed"""
 
 
@@ -119,7 +118,7 @@ class SynergyPair:
 class AblationAnalyzer:
     """Statistical analysis of ablation study results."""
 
-    def __init__(self, aggregated_results: List[AggregatedMetrics]):
+    def __init__(self, aggregated_results: list[AggregatedMetrics]):
         """Initialize analyzer with aggregated metrics.
 
         Args:
@@ -191,6 +190,10 @@ class AblationAnalyzer:
             "mechanical",
             "via_density",
             "coil",
+            "drc",
+            "group_cluster",
+            "group_separation",
+            "proximity",
         }
 
         techniques = {
@@ -218,7 +221,7 @@ class AblationAnalyzer:
         component_name: str,
         ablated: AggregatedMetrics,
         baseline: AggregatedMetrics,
-        weights: Optional[Dict[str, float]] = None,
+        weights: dict[str, float] | None = None,
     ) -> ComponentImportance:
         """Compute importance for a single component.
 
@@ -291,7 +294,7 @@ class AblationAnalyzer:
 
         try:
             t_stat, p_value = stats.ttest_ind(baseline_vals, ablated_vals, equal_var=False)
-        except:
+        except Exception:
             p_value = 1.0  # Default to not significant on error
 
         # Effect size (Cohen's d)
@@ -342,8 +345,8 @@ class AblationAnalyzer:
 
     def rank_components_by_importance(
         self,
-        metric_weights: Optional[Dict[str, float]] = None,
-    ) -> List[ComponentImportance]:
+        metric_weights: dict[str, float] | None = None,
+    ) -> list[ComponentImportance]:
         """Rank all components by importance (vs baseline).
 
         Args:
@@ -375,7 +378,7 @@ class AblationAnalyzer:
 
     def detect_synergies(
         self, significance_threshold: float = 0.05
-    ) -> List[SynergyPair]:
+    ) -> list[SynergyPair]:
         """Detect synergistic and conflicting component pairs.
 
         Args:
@@ -443,7 +446,7 @@ class AblationAnalyzer:
                 )
                 expected_vals = np.array([expected_both] * len(combo_vals))
                 _, p_value = stats.ttest_ind(combo_vals, expected_vals, equal_var=False)
-            except:
+            except Exception:
                 p_value = 1.0
 
             # Description

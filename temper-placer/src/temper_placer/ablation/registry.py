@@ -1,32 +1,33 @@
 """Registries mapping toggles to component implementations."""
 
-from typing import Dict, List, Optional, Any, Type, Callable
 from copy import deepcopy
+from typing import Any
 
 from temper_placer.ablation.config import ComponentToggle, LossToggle
 from temper_placer.optimizer.config import (
+    LearningRateSchedule,
     OptimizerConfig,
     TemperatureSchedule,
-    LearningRateSchedule,
 )
+
 
 # Dynamic imports to avoid circular dependencies
 def _get_heuristics():
     """Get heuristic classes."""
     try:
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
         from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
-        from temper_placer.heuristics.structural import (
-            ConnectorEdgeSnappingHeuristic,
-            ThermalEdgePlacementHeuristic,
-            CriticalLoopHeuristic,
-        )
         from temper_placer.heuristics.organizational import (
-            FunctionalModuleClusteringHeuristic,
-            PowerFlowTopologyHeuristic,
             DecouplingCapHeuristic,
             DomainSeparationHeuristic,
+            FunctionalModuleClusteringHeuristic,
+            PowerFlowTopologyHeuristic,
             StarGroundTopologyHeuristic,
+        )
+        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
+        from temper_placer.heuristics.structural import (
+            ConnectorEdgeSnappingHeuristic,
+            CriticalLoopHeuristic,
+            ThermalEdgePlacementHeuristic,
         )
         from temper_placer.heuristics.style import SignalFlowPreservationHeuristic
 
@@ -56,28 +57,34 @@ def _get_heuristics():
 def _get_losses():
     """Get loss function classes."""
     try:
-        from temper_placer.losses.overlap import OverlapLoss
         from temper_placer.losses.boundary import BoundaryLoss
         from temper_placer.losses.clearance import ClearanceLoss
-        from temper_placer.losses.thermal import ThermalLoss
-        from temper_placer.losses.zone import ZoneMembershipLoss
-        from temper_placer.losses.ground_crossing import GroundCrossingLoss
-        from temper_placer.losses.net_class import NetClassSeparationLoss
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.losses.loop_area import LoopAreaLoss
-        from temper_placer.losses.congestion import CongestionLoss
-        from temper_placer.losses.power_path import PowerPathLoss
-        from temper_placer.losses.return_path import CurrentReturnPathLoss
-        from temper_placer.losses.critical_path import CriticalPathLengthLoss
-        from temper_placer.losses.regularization import (
-            SpreadLoss,
-            RotationEntropyLoss,
-            CenterOfMassLoss,
-        )
-        from temper_placer.losses.crystal import CrystalPlacementLoss
-        from temper_placer.losses.mechanical import MechanicalMountingLoss
-        from temper_placer.losses.via_density import ViaDensityLoss
         from temper_placer.losses.coil import CoilRequirementLoss
+        from temper_placer.losses.congestion import CongestionLoss
+        from temper_placer.losses.critical_path import CriticalPathLengthLoss
+        from temper_placer.losses.crystal import CrystalPlacementLoss
+        from temper_placer.losses.drc_loss import DRCLoss
+        from temper_placer.losses.ground_crossing import GroundCrossingLoss
+        from temper_placer.losses.grouping import (
+            GroupClusterLoss,
+            GroupSeparationLoss,
+            ProximityLoss,
+        )
+        from temper_placer.losses.loop_area import LoopAreaLoss
+        from temper_placer.losses.mechanical import MechanicalMountingLoss
+        from temper_placer.losses.net_class import NetClassSeparationLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.power_path import PowerPathLoss
+        from temper_placer.losses.regularization import (
+            CenterOfMassLoss,
+            RotationEntropyLoss,
+            SpreadLoss,
+        )
+        from temper_placer.losses.return_path import CurrentReturnPathLoss
+        from temper_placer.losses.thermal import ThermalLoss
+        from temper_placer.losses.via_density import ViaDensityLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.losses.zone import ZoneMembershipLoss
 
         return {
             "overlap": lambda: OverlapLoss(margin=1.0, rotation_invariant=True),
@@ -100,15 +107,20 @@ def _get_losses():
             "mechanical": MechanicalMountingLoss,
             "via_density": ViaDensityLoss,
             "coil": CoilRequirementLoss,
+            "drc": DRCLoss,
+            "group_cluster": GroupClusterLoss,
+            "group_separation": GroupSeparationLoss,
+            "proximity": ProximityLoss,
         }
     except ImportError:
         # Return mock classes for testing
-        return {name: lambda: type(name, (), {})() for name in [
+        return {name: (lambda n=name: type(n, (), {})()) for name in [
             "overlap", "boundary", "clearance", "thermal", "zone",
             "ground_crossing", "net_class", "wirelength", "loop_area",
             "congestion", "power_path", "return_path", "critical_path",
             "spread", "rotation_entropy", "center_of_mass", "crystal",
-            "mechanical", "via_density", "coil",
+            "mechanical", "via_density", "coil", "drc",
+            "group_cluster", "group_separation", "proximity",
         ]}
 
 
@@ -116,7 +128,7 @@ class HeuristicRegistry:
     """Registry mapping heuristic toggles to classes."""
 
     _heuristics = None
-    _heuristic_kwargs: Dict[str, Dict[str, Any]] = {
+    _heuristic_kwargs: dict[str, dict[str, Any]] = {
         "spectral_init": {"confidence": 0.1},
         "force_directed": {"iterations": 50, "confidence": 0.2},
         "connector_edge_snap": {"confidence": 0.9},
@@ -140,7 +152,7 @@ class HeuristicRegistry:
     def create_pipeline(
         cls,
         toggle: ComponentToggle,
-        constraints: Optional[Any] = None,
+        _constraints: Any | None = None,
         **override_kwargs: Any
     ) -> Any:
         """Create pipeline with only enabled heuristics."""
@@ -181,13 +193,13 @@ class HeuristicRegistry:
         return pipeline
 
     @classmethod
-    def list_heuristics(cls) -> List[str]:
+    def list_heuristics(cls) -> list[str]:
         """Return all registered heuristic names."""
         cls._init_heuristics()
         return list(cls._heuristics.keys())
 
     @classmethod
-    def get_heuristic_info(cls, name: str) -> Dict[str, Any]:
+    def get_heuristic_info(cls, name: str) -> dict[str, Any]:
         """Return metadata about a heuristic."""
         cls._init_heuristics()
         heuristic_cls = cls._heuristics[name]
@@ -203,7 +215,7 @@ class LossRegistry:
     """Registry mapping loss toggles to factory functions."""
 
     _losses = None
-    _default_weights: Dict[str, float] = {
+    _default_weights: dict[str, float] = {
         "overlap": 100.0,
         "boundary": 50.0,
         "clearance": 80.0,
@@ -224,6 +236,10 @@ class LossRegistry:
         "mechanical": 5.0,
         "via_density": 3.0,
         "coil": 10.0,
+        "drc": 50.0,
+        "group_cluster": 15.0,
+        "group_separation": 10.0,
+        "proximity": 20.0,
     }
 
     @classmethod
@@ -236,8 +252,8 @@ class LossRegistry:
     def create_composite_loss(
         cls,
         toggle: LossToggle,
-        weights: Optional[Dict[str, float]] = None,
-        **override_kwargs: Any
+        weights: dict[str, float] | None = None,
+        **_override_kwargs: Any
     ) -> Any:
         """Create composite loss with only enabled losses."""
         cls._init_losses()
@@ -274,12 +290,12 @@ class LossRegistry:
         return CompositeLoss(losses)
 
     @classmethod
-    def get_default_weights(cls) -> Dict[str, float]:
+    def get_default_weights(cls) -> dict[str, float]:
         """Return default loss weights."""
         return cls._default_weights.copy()
 
     @classmethod
-    def list_losses(cls) -> List[str]:
+    def list_losses(cls) -> list[str]:
         """Return all registered loss names."""
         cls._init_losses()
         return list(cls._losses.keys())
@@ -300,9 +316,10 @@ class TechniqueApplicator:
         if not toggle.curriculum_learning:
             config.curriculum_phases = []
 
-        # Note: Gumbel-Softmax rotation, adaptive overlap, and jiggle
-        # are handled in train() by checking toggles directly.
-        # These fields would need to be added to OptimizerConfig to support here.
+        # Techniques supported via OptimizerConfig flags
+        config.use_gumbel_rotation = toggle.gumbel_softmax_rotation
+        config.adaptive_overlap_enabled = toggle.adaptive_overlap_weighting
+        config.jiggle_enabled = toggle.stochastic_perturbation
 
         # Centrality weighting
         config.use_centrality_weighting = toggle.centrality_gradient_scaling
@@ -331,13 +348,13 @@ class TechniqueApplicator:
         return config
 
     @staticmethod
-    def get_technique_status(config: OptimizerConfig) -> Dict[str, bool]:
+    def get_technique_status(config: OptimizerConfig) -> dict[str, bool]:
         """Extract technique status from config."""
         return {
             "curriculum_learning": len(config.curriculum_phases) > 0,
-            "gumbel_softmax_rotation": not getattr(config, "use_hard_rotation", False),
-            "adaptive_overlap_weighting": getattr(config, "adaptive_overlap_enabled", True),
-            "stochastic_perturbation": getattr(config, "jiggle_enabled", True),
+            "gumbel_softmax_rotation": config.use_gumbel_rotation,
+            "adaptive_overlap_weighting": config.adaptive_overlap_enabled,
+            "stochastic_perturbation": config.jiggle_enabled,
             "centrality_gradient_scaling": config.use_centrality_weighting,
             "temperature_annealing": config.temperature.start != config.temperature.end,
             "learning_rate_annealing": config.learning_rate.initial != config.learning_rate.final,

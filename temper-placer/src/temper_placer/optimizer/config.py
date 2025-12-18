@@ -186,6 +186,11 @@ class OptimizerConfig:
     adam_beta1: float = 0.9
     adam_beta2: float = 0.999
 
+    # Advanced optimization techniques (ablation support)
+    use_gumbel_rotation: bool = True
+    adaptive_overlap_enabled: bool = True
+    jiggle_enabled: bool = True
+
     # Centrality-driven optimization (temper-s7g)
     use_centrality_weighting: bool = False
     centrality_priority_scale: float = 2.0  # Max boost for hub components

@@ -1,7 +1,7 @@
 # Instructions for AI Agents Working on Beads
 
 > **📖 For detailed development instructions**, see [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md)
->
+> 
 > This file provides a quick overview and reference. For in-depth operational details (development, testing, releases, git workflow), consult the detailed instructions.
 
 ## Project Overview
@@ -9,6 +9,27 @@
 This is **beads** (command: `bd`), an issue tracker designed for AI-supervised coding workflows. We dogfood our own tool!
 
 > **🤖 Using GitHub Copilot?** See [.github/copilot-instructions.md](.github/copilot-instructions.md) for a concise, Copilot-optimized version of these instructions that GitHub Copilot will automatically load.
+
+## 🧠 The Cognitive Stack: Beads + OpenMemory
+
+To maintain context across different tasks and parallel sessions, we use two complementary memory systems:
+
+1.  **Beads (Project Memory):** Use `bd` for task tracking, blockers, and feature-specific state. This is stored in Git.
+2.  **OpenMemory (Global Knowledge):** Use OpenMemory for long-term "facts" and project-wide documentation. This persists across all branches and worktrees.
+
+### 🔄 OpenMemory Integration Workflow
+
+**1. Context Retrieval (Session Start)**
+Before starting any task, you MUST query OpenMemory to gather relevant context:
+- Search for the issue ID: `GET /memory/query?query=<ISSUE_ID>`
+- Search for related documentation: `GET /memory/query?query=<TOPIC>`
+- Review any **Reflections** left by previous agents on related components.
+
+**2. Reflection (Session Wrap-up)**
+After completing a task or ending a session, you MUST post a reflection:
+- Summarize what you learned, architectural decisions made, and hurdles encountered.
+- Use the reflection endpoint: `POST /lgm/reflection`
+- This ensures the "agent hive mind" remains updated across sessions.
 
 ## 🆕 What's New?
 
@@ -614,7 +635,7 @@ bd deleted --json              # Machine-readable output
 
 - `0` - Critical (security, data loss, broken builds)
 - `1` - High (major features, important bugs)
-- `2` - Medium (nice-to-have features, minor bugs)
+- `2` - Medium (default, nice-to-have features, minor bugs)
 - `3` - Low (polish, optimization)
 - `4` - Backlog (future ideas)
 
@@ -625,7 +646,7 @@ bd deleted --json              # Machine-readable output
 - `parent-child` - Epic/subtask relationship
 - `discovered-from` - Track issues discovered during work (automatically inherits parent's `source_repo`)
 
-Only `blocks` dependencies affect the ready work queue.
+Only `blocks` dependencies affect the ready work queue. 
 
 **Note:** When creating an issue with a `discovered-from` dependency, the new issue automatically inherits the parent's `source_repo` field. This ensures discovered work stays in the same repository as the parent task.
 
@@ -705,7 +726,7 @@ bd import -i issues.jsonl --dedupe-after
 
    ```bash
    bd list --json | grep -i "authentication"
-   bd show bd-41 bd-42 --json  # Compare candidates
+bd show bd-41 bd-42 --json  # Compare candidates
    ```
 
 2. **Periodic duplicate scans**: Review issues by type or priority
@@ -976,10 +997,10 @@ cd temper-placer
 
 # With uv (recommended)
 uv venv
-uv pip install -e ".[dev]"
+uv pip install -e "(.[dev])"
 
 # With pip
-pip install -e ".[dev]"
+pip install -e "(.[dev])"
 ```
 
 **Running the optimizer:**
@@ -1253,7 +1274,7 @@ cd temper-placer
 
 # Setup environment
 uv venv
-uv pip install -e ".[dev]"
+uv pip install -e "(.[dev])"
 
 # Make changes to src/
 
@@ -1307,7 +1328,7 @@ make
 
 # Run tests
 ./test_state_machine_only   # Fast unit tests
-./test_integration_only     # Full integration tests
+./test_integration_only       # Full integration tests
 ctest --output-on-failure   # All tests
 
 # Make changes, rebuild, retest
@@ -1470,7 +1491,6 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed instructions on:
 - Link discoveries with `discovered-from` to maintain context
 - Check `bd ready` before asking "what next?"
 - Auto-sync batches changes in 30-second window - use `bd sync` to force immediate flush
-- Use `--no-auto-flush` or `--no-auto-import` to disable automatic sync if needed
 - Use `bd dep tree` to understand complex dependencies
 - Priority 0-1 issues are usually more important than 2-4
 - Use `--dry-run` to preview import changes before applying
@@ -1508,7 +1528,7 @@ bd create "Implement placement optimizer" -t epic -p 1  # Too vague, too big
 bd create "Implement placement optimizer" -t epic -p 1
 bd create "Implement geometric primitives (point, rect)" --parent <epic-id> -p 1
 bd create "Implement overlap detection" --parent <epic-id> -p 1
-bd create "Implement boundary loss function" --parent <epic-id> -p 1
+bd create "Implement boundary_loss function" --parent <epic-id> -p 1
 bd create "Add unit tests for geometry module" --parent <epic-id> -p 2
 # ... continue breaking down until each task is small and focused
 ```
@@ -1629,8 +1649,7 @@ bd automatically syncs with git:
 
 ### GitHub Copilot Integration
 
-If using GitHub Copilot, also create `.github/copilot-instructions.md` for automatic instruction loading.
-Run `bd onboard` to get the content, or see step 2 of the onboard instructions.
+If using GitHub Copilot, also create `.github/copilot-instructions.md` for automatic instruction loading. Run `bd onboard` to get the content, or see step 2 of the onboard instructions.
 
 ### MCP Server (Recommended)
 
@@ -1763,3 +1782,5 @@ To work on multiple tasks simultaneously without context-clobbering, we use Git 
 2. **Sandbox Mode (Mandatory):** In a worktree, always use `bd --sandbox`. This prevents the daemon from fighting over the shared database across different folders.
 3. **Cross-Pollination:** Before starting work in a new worktree, query **OpenMemory** for any relevant global context learned by other agents in parallel branches.
 4. **Completion:** Use `bd-done` to push and close.
+
+```

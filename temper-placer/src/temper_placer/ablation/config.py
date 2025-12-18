@@ -1,11 +1,11 @@
 """Configuration dataclasses for ablation study experiments."""
 
-from dataclasses import dataclass, field, fields, asdict
-from pathlib import Path
-from typing import Dict, List, Optional, Any
-from datetime import datetime
-import yaml
 import json
+from dataclasses import asdict, dataclass, field, fields
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 
 @dataclass
@@ -88,7 +88,7 @@ class ComponentToggle:
     # UTILITY METHODS
     # ========================
 
-    def get_enabled_heuristics(self) -> List[str]:
+    def get_enabled_heuristics(self) -> list[str]:
         """Return list of enabled heuristic names."""
         heuristic_fields = [
             "spectral_init",
@@ -105,7 +105,7 @@ class ComponentToggle:
         ]
         return [f for f in heuristic_fields if getattr(self, f)]
 
-    def get_enabled_techniques(self) -> List[str]:
+    def get_enabled_techniques(self) -> list[str]:
         """Return list of enabled technique names."""
         technique_fields = [
             "curriculum_learning",
@@ -123,12 +123,12 @@ class ComponentToggle:
         """Return (enabled_heuristics, enabled_techniques) counts."""
         return (len(self.get_enabled_heuristics()), len(self.get_enabled_techniques()))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ComponentToggle":
+    def from_dict(cls, data: dict[str, Any]) -> "ComponentToggle":
         """Create from dictionary."""
         return cls(**{k: v for k, v in data.items() if hasattr(cls, k)})
 
@@ -225,11 +225,23 @@ class LossToggle:
     coil: bool = True
     """Induction coil constraints (coil.py)"""
 
+    drc: bool = True
+    """Non-differentiable DRC penalty (drc_loss.py)"""
+
+    group_cluster: bool = True
+    """Cluster functional groups together (grouping.py)"""
+
+    group_separation: bool = True
+    """Separate different functional groups (grouping.py)"""
+
+    proximity: bool = True
+    """Enforce specific component proximity rules (grouping.py)"""
+
     # ========================
     # UTILITY METHODS
     # ========================
 
-    def get_enabled_losses(self) -> List[str]:
+    def get_enabled_losses(self) -> list[str]:
         """Return list of enabled loss names."""
         return [f.name for f in fields(self) if getattr(self, f.name)]
 
@@ -237,7 +249,7 @@ class LossToggle:
         """Return count of enabled losses."""
         return len(self.get_enabled_losses())
 
-    def get_by_category(self) -> Dict[str, List[str]]:
+    def get_by_category(self) -> dict[str, list[str]]:
         """Return enabled losses grouped by category."""
         categories = {
             "hard_constraints": ["overlap", "boundary", "clearance"],
@@ -254,16 +266,16 @@ class LossToggle:
             "domain_specific": ["crystal", "mechanical", "via_density", "coil"],
         }
         return {
-            cat: [l for l in losses if getattr(self, l, False)]
+            cat: [loss_name for loss_name in losses if getattr(self, loss_name, False)]
             for cat, losses in categories.items()
         }
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LossToggle":
+    def from_dict(cls, data: dict[str, Any]) -> "LossToggle":
         """Create from dictionary."""
         return cls(**{k: v for k, v in data.items() if hasattr(cls, k)})
 
@@ -285,28 +297,28 @@ class LossToggle:
 class HyperparameterOverrides:
     """Override specific hyperparameters for an experiment."""
 
-    loss_weights: Optional[Dict[str, float]] = None
+    loss_weights: dict[str, float] | None = None
     """Override default loss weights"""
 
-    learning_rate_initial: Optional[float] = None
+    learning_rate_initial: float | None = None
     """Override initial learning rate (default: 0.1)"""
 
-    learning_rate_final: Optional[float] = None
+    learning_rate_final: float | None = None
     """Override final learning rate (default: 0.01)"""
 
-    temperature_start: Optional[float] = None
+    temperature_start: float | None = None
     """Override Gumbel-Softmax start temperature (default: 5.0)"""
 
-    temperature_end: Optional[float] = None
+    temperature_end: float | None = None
     """Override Gumbel-Softmax end temperature (default: 0.1)"""
 
-    epochs: Optional[int] = None
+    epochs: int | None = None
     """Override number of training epochs (default: 8000)"""
 
-    overlap_margin: Optional[float] = None
+    overlap_margin: float | None = None
     """Override overlap loss margin (default: 1.0)"""
 
-    def merge_with_defaults(self, defaults: Dict[str, Any]) -> Dict[str, Any]:
+    def merge_with_defaults(self, defaults: dict[str, Any]) -> dict[str, Any]:
         """Merge overrides with defaults, preferring overrides."""
         result = defaults.copy()
         for field_name, value in asdict(self).items():
@@ -336,7 +348,7 @@ class ExperimentConfig:
     )
     """Hyperparameter overrides for this experiment"""
 
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     """Tags for filtering (e.g., ['single_ablation', 'heuristic'])"""
 
     def __post_init__(self):
@@ -344,7 +356,7 @@ class ExperimentConfig:
         if not self.name.replace("_", "").replace("-", "").isalnum():
             raise ValueError(f"Invalid experiment name: {self.name}")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to serializable dictionary."""
         return {
             "name": self.name,
@@ -356,7 +368,7 @@ class ExperimentConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ExperimentConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "ExperimentConfig":
         """Create from dictionary."""
         return cls(
             name=data["name"],
@@ -384,15 +396,15 @@ class AblationStudyConfig:
     study_name: str
     """Name of the study (used in reports and file paths)"""
 
-    experiments: List[ExperimentConfig]
+    experiments: list[ExperimentConfig]
     """List of experiments to run"""
 
-    seeds: List[int] = field(
+    seeds: list[int] = field(
         default_factory=lambda: [42, 123, 456, 789, 1024]
     )
     """Random seeds for reproducibility (5 seeds = good statistical power)"""
 
-    test_cases: List[Path] = field(default_factory=list)
+    test_cases: list[Path] = field(default_factory=list)
     """PCB files to test on"""
 
     output_dir: Path = field(default_factory=lambda: Path("ablation_results"))
@@ -404,7 +416,7 @@ class AblationStudyConfig:
     checkpoint_interval: int = 10
     """Save checkpoint every N completed runs"""
 
-    metrics_to_collect: List[str] = field(
+    metrics_to_collect: list[str] = field(
         default_factory=lambda: [
             "final_loss",
             "best_loss",
@@ -462,7 +474,7 @@ class AblationStudyConfig:
             metrics_to_collect=data.get("metrics_to_collect", []),
         )
 
-    def filter_experiments(self, tags: List[str]) -> "AblationStudyConfig":
+    def filter_experiments(self, tags: list[str]) -> "AblationStudyConfig":
         """Return new config with only experiments matching tags."""
         tag_set = set(tags)
         filtered = [e for e in self.experiments if tag_set & set(e.tags)]

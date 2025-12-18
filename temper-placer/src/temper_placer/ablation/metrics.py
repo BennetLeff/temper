@@ -1,8 +1,7 @@
 """Metrics aggregation for ablation study experiments."""
 
-from dataclasses import dataclass, field
-from typing import List, Tuple, Dict, Any
 from collections import defaultdict
+from dataclasses import dataclass, field
 
 import numpy as np
 from scipy import stats
@@ -31,7 +30,7 @@ class AggregatedMetrics:
     final_loss_std: float
     """Standard deviation of final loss"""
 
-    final_loss_ci95: Tuple[float, float]
+    final_loss_ci95: tuple[float, float]
     """95% confidence interval for final loss"""
 
     best_loss_mean: float
@@ -70,7 +69,7 @@ class AggregatedMetrics:
     wirelength_std: float
     """Standard deviation of wirelength"""
 
-    wirelength_ci95: Tuple[float, float]
+    wirelength_ci95: tuple[float, float]
     """95% confidence interval for wirelength"""
 
     loop_area_compliance_mean: float
@@ -87,7 +86,7 @@ class AggregatedMetrics:
     """Standard deviation of elapsed time"""
 
     # Raw seed values for detailed analysis
-    seed_values: Dict[str, List[float]] = field(default_factory=dict)
+    seed_values: dict[str, list[float]] = field(default_factory=dict)
     """Dictionary of metric names to lists of seed values"""
 
 
@@ -96,9 +95,9 @@ class MetricAggregator:
 
     def aggregate(
         self,
-        runs: List[ExperimentRun],
-        group_by: Tuple[str, str] = ("experiment_name", "test_case"),
-    ) -> List[AggregatedMetrics]:
+        runs: list[ExperimentRun],
+        _group_by: tuple[str, str] = ("experiment_name", "test_case"),
+    ) -> list[AggregatedMetrics]:
         """Aggregate runs by experiment and test case.
 
         Args:
@@ -128,7 +127,7 @@ class MetricAggregator:
         self,
         exp_name: str,
         test_case: str,
-        runs: List[ExperimentRun],
+        runs: list[ExperimentRun],
     ) -> AggregatedMetrics:
         """Compute statistics across seeds.
 
@@ -216,7 +215,7 @@ class MetricAggregator:
 
     def _confidence_interval(
         self, values: np.ndarray, confidence: float = 0.95
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Compute confidence interval using t-distribution.
 
         For small samples (n < 30), uses t-distribution instead of z.

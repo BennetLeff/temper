@@ -63,7 +63,7 @@ class TestLossRegistry:
         """Should list all loss names."""
         names = LossRegistry.list_losses()
 
-        assert len(names) == 20
+        assert len(names) == 24
         assert "overlap" in names
         assert "wirelength" in names
 

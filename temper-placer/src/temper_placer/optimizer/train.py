@@ -555,7 +555,11 @@ def train(
 
             # Sample rotations using Gumbel-Softmax
             state.rng_key, sample_key = jax.random.split(state.rng_key)
-            rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
+            if config.use_gumbel_rotation:
+                rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
+            else:
+                # Use hard rotations (argmax of logits)
+                rotations = sample_rotation_batch(state.rotation_logits, sample_key, 1e-5)
 
             # Run training step (returns breakdown alongside loss to avoid recomputation)
             (
@@ -589,7 +593,7 @@ def train(
 
             # Adaptive Overlap Weighting Logic
             # Every 10 epochs, check for persistent collisions and ramp weights
-            if epoch % 10 == 0:
+            if config.adaptive_overlap_enabled and epoch % 10 == 0:
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 if per_comp_overlap is not None:
                     # If component is in collision (>0.1 overlap score)
@@ -615,7 +619,7 @@ def train(
 
             # Trigger if movement stalls (EMA < threshold) and we are past initial phase
             # EMA threshold 1e-4 is approx 0.1mm total movement for 100 components
-            if state.position_delta_ema < 1e-4 and epoch > 100:
+            if config.jiggle_enabled and state.position_delta_ema < 1e-4 and epoch > 100:
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
                 # Sigma is 5% of board size
                 sigma = 0.05 * max(board.width, board.height)
@@ -856,7 +860,10 @@ def train_multiphase(
 
             # Sample rotations
             state.rng_key, sample_key = jax.random.split(state.rng_key)
-            rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
+            if config.use_gumbel_rotation:
+                rotations = sample_rotation_batch(state.rotation_logits, sample_key, temperature)
+            else:
+                rotations = sample_rotation_batch(state.rotation_logits, sample_key, 1e-5)
 
             # Run training step (returns breakdown alongside loss to avoid recomputation)
             (
@@ -889,7 +896,7 @@ def train_multiphase(
             state.position_delta_ema = float(new_ema)
 
             # Adaptive Overlap Weighting Logic
-            if epoch % 10 == 0:
+            if config.adaptive_overlap_enabled and epoch % 10 == 0:
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 if per_comp_overlap is not None:
                     collision_mask = per_comp_overlap > 0.1
@@ -906,7 +913,7 @@ def train_multiphase(
                     )
 
             # Stochastic Perturbation (Jiggle) Logic
-            if state.position_delta_ema < 1e-4 and epoch > 100:
+            if config.jiggle_enabled and state.position_delta_ema < 1e-4 and epoch > 100:
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
                 sigma = 0.05 * max(board.width, board.height)
                 noise_scale = sigma * (temperature / config.temperature.start)
