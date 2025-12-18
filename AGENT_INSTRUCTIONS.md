@@ -87,7 +87,7 @@ The 30-second debounce provides a **transaction window** for batch operations - 
 - **Dispatcher**: `tools/agents/dispatch_core.sh` routes tasks to Gemini Pro (Thinking) or Flash (Fast).
 - **Assigner**: `tools/agents/assign.py` bridges `bd` issues with the dispatcher.
 - **Automation**: `tools/agents/auto_assign.py` provides a label-driven autonomous loop.
-- **Memory**: OpenMemory (MCP) provides long-term cross-session knowledge.
+- **Memory**: Eco (MCP) provides long-term cross-session knowledge.
 
 ### Creating Instructions for Sub-Agents
 When delegating, ensure your issue description (the instruction) follows these rules:

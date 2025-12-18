@@ -17,20 +17,20 @@ This file establishes the context and best practices for Claude agents working o
 
 ## 3. Core Workflows
 
-### 🧠 OpenMemory Integration (MANDATORY)
-OpenMemory is our project's long-term cognitive layer. Use it to bridge context across sessions.
+### 🧠 Eco Integration (MANDATORY)
+Eco is our project's long-term cognitive layer. Use it to bridge context across sessions.
 
 **1. Context Retrieval (Session Start)**
-Before starting any task, you MUST query OpenMemory:
+Before starting any task, you MUST query Eco:
 - Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
-- Search for UI patterns or documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "dashboard colors", "chart.js integration")
-- Review any **Reflections** left by previous agents (Gemini, OpenCode) on related components.
+- Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "thermal budget", "resonant tank tuning")
+- Review any **Reflections** left by previous agents on related components.
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:
-- Summarize what you learned, component changes made, and any CSS/UX hurdles.
-- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "ux"]}`
-- This ensures other agents can benefit from your frontend insights.
+- Summarize what you learned, architectural decisions made, and hurdles encountered.
+- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent"}`
+- This ensures other agents (Claude, OpenCode) can benefit from your findings.
 
 ### Issue Tracking & Management
 We use **beads (`bd`)** for all task tracking. **Do not use markdown TODOs.**
