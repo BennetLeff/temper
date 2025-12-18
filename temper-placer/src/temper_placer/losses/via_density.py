@@ -28,6 +28,7 @@ class ViaDensityLoss(LossFunction):
     def name(self) -> str:
         return "via_density"
 
+    def __call__(
         self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
     ) -> LossResult:
         # 1. Get positions of all pins for all nets

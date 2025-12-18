@@ -1,12 +1,13 @@
 """
 Boundary loss function for keeping components within board outline.
 
-This loss penalizes components that extend beyond the board boundaries
+This loss penalizes components that extends beyond the board boundaries
 or intrude into keepout zones (mounting holes, restricted areas).
 """
 
 from __future__ import annotations
 
+from typing import Optional
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -138,9 +139,7 @@ class BoundaryLoss(LossFunction):
         top_violation = jax.nn.relu(comp_top - (y_max - self.edge_margin))
 
         # Sum of squared violations for each component
-        violations = (
-            left_violation**2 + right_violation**2 + bottom_violation**2 + top_violation**2
-        )
+        violations = left_violation**2 + right_violation**2 + bottom_violation**2 + top_violation**2
 
         # Apply centrality weighting if provided
         if centrality is not None and centrality.size > 0:
@@ -151,6 +150,7 @@ class BoundaryLoss(LossFunction):
 
     def _compute_keepout_violations(
         self,
+        positions: Array,
         widths: Array,
         heights: Array,
         board,
@@ -230,6 +230,7 @@ class BoundaryLoss(LossFunction):
 
 
 def compute_boundary_penalty(
+    positions: Array,
     widths: Array,
     heights: Array,
     board_bounds: Array,

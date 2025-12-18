@@ -12,6 +12,8 @@ Optimizations:
 
 from __future__ import annotations
 
+from typing import Optional, Tuple
+
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -124,11 +126,7 @@ class OverlapLoss(LossFunction):
             positions, widths, heights, self.margin, centrality
         )
 
-        return LossResult(
-            value=total_overlap,
-            breakdown={"per_component": per_component_overlap}
-        )
-
+        return LossResult(value=total_overlap, breakdown={"per_component": per_component_overlap})
 
     def weight_schedule(self, epoch: int, total_epochs: int) -> float:
         """
@@ -168,6 +166,7 @@ def _compute_overlap_for_pair(
 
 
 def _compute_pairwise_overlaps_vectorized(
+    positions: Array,
     widths: Array,
     heights: Array,
     margin: float,
@@ -224,6 +223,7 @@ def _compute_pairwise_overlaps_vectorized(
 
 
 def _compute_pairwise_overlaps_chunked(
+    positions: Array,
     widths: Array,
     heights: Array,
     margin: float,
@@ -285,6 +285,7 @@ def _compute_pairwise_overlaps_chunked(
 
 
 def _compute_pairwise_overlaps_optimized(
+    positions: Array,
     widths: Array,
     heights: Array,
     margin: float,
@@ -315,6 +316,7 @@ def _compute_pairwise_overlaps_optimized(
 
 
 def compute_overlap_penalty(
+    positions: Array,
     widths: Array,
     heights: Array,
     margin: float = 0.0,

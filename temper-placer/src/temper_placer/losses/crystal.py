@@ -38,7 +38,13 @@ class CrystalPlacementLoss(LossFunction):
     def name(self) -> str:
         return "crystal_placement"
 
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+    def __call__(
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         # Placeholder for unresolved version
         return LossResult(value=jnp.array(0.0))
@@ -70,7 +76,13 @@ class ResolvedCrystalPlacementLoss(LossFunction):
     def name(self) -> str:
         return "crystal_placement"
 
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+    def __call__(
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         total_loss = jnp.array(0.0)
 

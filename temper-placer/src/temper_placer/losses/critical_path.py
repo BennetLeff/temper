@@ -141,6 +141,7 @@ class CriticalPathLengthLoss(LossFunction):
 
 
 def compute_critical_path_penalty(
+    positions: Array,
     from_idx: int,
     to_idx: int,
     max_length_mm: float,

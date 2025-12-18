@@ -123,6 +123,7 @@ class WirelengthLoss(LossFunction):
 
     def _compute_hpwl_vectorized(
         self,
+        pin_positions: Array,
         mask: Array,
         weights: Array,
     ) -> Array:
@@ -183,6 +184,9 @@ class WirelengthLoss(LossFunction):
 
 
 def compute_total_hpwl(
+    positions: Array,
+    rotations: Array,
+    context: LossContext,
     alpha: float = 10.0,
 ) -> Array:
     """

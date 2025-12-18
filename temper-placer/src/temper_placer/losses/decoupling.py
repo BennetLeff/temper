@@ -54,7 +54,13 @@ class DecouplingCapProximityLoss(LossFunction):
     def name(self) -> str:
         return "decoupling_proximity"
 
+    def __call__(
         self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute decoupling proximity penalty.

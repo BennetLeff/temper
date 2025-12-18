@@ -28,6 +28,7 @@ class HeuristicPriority(IntEnum):
     Heuristics at the same priority level are applied in registration order.
     """
 
+    INITIALIZATION = -1  # Global layout algorithms (spectral, force-directed)
     HARD = 0  # Must satisfy: keep-outs, boundaries
     STRUCTURAL = 1  # Connectors, thermal components at edges
     ORGANIZATIONAL = 2  # Module clustering, decoupling caps

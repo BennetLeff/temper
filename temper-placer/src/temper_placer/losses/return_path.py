@@ -39,7 +39,13 @@ class CurrentReturnPathLoss(LossFunction):
     def name(self) -> str:
         return "current_return_path"
 
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+    def __call__(
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         # Placeholder, use factory to get Resolved version
         return LossResult(value=jnp.array(0.0))
@@ -54,7 +60,13 @@ class ResolvedCurrentReturnPathLoss(LossFunction):
     def name(self) -> str:
         return "current_return_path"
 
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+    def __call__(
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
     ) -> LossResult:
         total_loss = jnp.array(0.0)
 
