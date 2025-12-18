@@ -37,12 +37,15 @@ class WirelengthLoss(LossFunction):
         alpha: Smoothing parameter for LogSumExp. Higher = sharper approximation.
             Typically annealed from 1.0 to 20.0 during training.
         net_weight_scale: Global scaling factor for net weights.
+        net_weights: Optional dictionary mapping net names or net classes to
+            weight multipliers. e.g. {"GND": 0.1, "CLK": 5.0, "HighSpeed": 2.0}.
     """
 
     def __init__(
         self,
         alpha: float = 10.0,
         net_weight_scale: float = 1.0,
+        net_weights: Optional[dict[str, float]] = None,
     ):
         """
         Initialize WirelengthLoss.
@@ -50,9 +53,11 @@ class WirelengthLoss(LossFunction):
         Args:
             alpha: LogSumExp smoothing parameter.
             net_weight_scale: Global scaling factor for net weights.
+            net_weights: Optional mapping of net name/class to weight multiplier.
         """
         self.alpha = alpha
         self.net_weight_scale = net_weight_scale
+        self.net_weights = net_weights or {}
 
     @property
     def name(self) -> str:
@@ -80,6 +85,24 @@ class WirelengthLoss(LossFunction):
         # Check for empty nets
         if context.net_pin_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
+
+        # Compute effective weights (tracing time)
+        weights = context.net_weights
+        if self.net_weights:
+            # We must filter nets exactly as LossContext does
+            valid_nets = [n for n in context.netlist.nets if len(n.pins) >= 2]
+            
+            multipliers = []
+            for net in valid_nets:
+                # Check specific net name first, then net class, then default 1.0
+                w = self.net_weights.get(net.name)
+                if w is None:
+                    w = self.net_weights.get(net.net_class, 1.0)
+                multipliers.append(w)
+            
+            # Create constant array embedded in graph
+            mult_array = jnp.array(multipliers, dtype=jnp.float32)
+            weights = weights * mult_array
 
         # Get pre-computed arrays from context
         # net_pin_indices: (M, P) - component indices for each net's pins
@@ -116,7 +139,7 @@ class WirelengthLoss(LossFunction):
         total_hpwl = self._compute_hpwl_vectorized(
             pin_positions,
             context.net_pin_mask,
-            context.net_weights,
+            weights,
         )
 
         return LossResult(value=total_hpwl * self.net_weight_scale)
