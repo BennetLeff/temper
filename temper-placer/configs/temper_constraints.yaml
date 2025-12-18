@@ -100,6 +100,36 @@ critical_loops:
     weight: 1.0
     description: "Bootstrap capacitor charging loop"
 
+# Critical signal paths (Signal Integrity)
+critical_paths:
+  gate_drive_high:
+    from: U_GATE
+    to: Q1
+    pins: [OUTA, GATE]
+    max_length_mm: 20
+    priority: critical
+    
+  gate_drive_low:
+    from: U_GATE
+    to: Q2
+    pins: [OUTB, GATE]
+    max_length_mm: 20
+    priority: critical
+    
+  spi_temp_sense:
+    from: U_MCU
+    to: U_TEMP_SENSE
+    max_length_mm: 50
+    priority: high
+
+# Noise isolation rules
+noise_isolation:
+  analog_protection:
+    sensitive_components: [U_TEMP_SENSE, U_CT, U_MCU]
+    noise_sources: [Q1, Q2, D1, D2, U_BUCK]
+    min_distance_mm: 20.0
+    weight: 2.0
+
 # Thermal constraints (heat-generating components)
 thermal:
   - components: [Q1, Q2]
