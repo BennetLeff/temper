@@ -23,6 +23,12 @@ extern "C" {
 #endif
 
 /**
+ * @brief PWM channel identifier
+ */
+#define HAL_PWM_CHANNEL_GATE    0   /**< Half-bridge gate drive */
+#define HAL_PWM_CHANNEL_FAN     1   /**< PWM fan control */
+
+/**
  * @brief PWM channel state (for verification/testing)
  */
 typedef struct {

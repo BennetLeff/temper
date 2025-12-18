@@ -33,7 +33,8 @@ typedef enum {
     FAN_GUARD_WARN_RESTRICTED = 1, // Temp rising faster than expected
     FAN_GUARD_WARN_DEGRADED = 2,   // Equilibrium temp higher than expected
     FAN_GUARD_ERR_BLOCKED = 3,     // Critical airflow blockage detected
-    FAN_GUARD_ERR_NULL = 4
+    FAN_GUARD_ERR_FAILURE = 4,     // Fan not spinning (tachometer = 0)
+    FAN_GUARD_ERR_NULL = 5
 } fan_guard_status_t;
 
 /**
@@ -45,6 +46,9 @@ typedef struct {
     float current_power_w;
     float ambient_temp_c;
     bool fan_running;
+    float duty_cycle;              /**< Commanded duty cycle (0-1.0) */
+    uint32_t current_rpm;          /**< Actual measured RPM */
+    uint32_t expected_rpm;         /**< Expected RPM for duty cycle */
 } fan_guard_t;
 
 /**
@@ -52,6 +56,14 @@ typedef struct {
  * @param ctx Context
  */
 void fan_guard_init(fan_guard_t *ctx);
+
+/**
+ * @brief Calculate recommended fan duty cycle based on temperature
+ * 
+ * @param heatsink_temp_c Current temperature
+ * @return Duty cycle (0.3 - 1.0)
+ */
+float fan_guard_calculate_duty(float heatsink_temp_c);
 
 /**
  * @brief Update monitoring with latest data
@@ -62,10 +74,11 @@ void fan_guard_init(fan_guard_t *ctx);
  * @param heatsink_temp_c Current heatsink temperature
  * @param power_w Current input power
  * @param ambient_temp_c Current ambient temperature
- * @param fan_on Fan state
+ * @param fan_rpm Current measured RPM from tachometer
+ * @param duty_cycle Current commanded duty cycle
  * @return FAN_GUARD_OK or warning/error code
  */
-fan_guard_status_t fan_guard_update(fan_guard_t *ctx, float heatsink_temp_c, float power_w, float ambient_temp_c, bool fan_on);
+fan_guard_status_t fan_guard_update(fan_guard_t *ctx, float heatsink_temp_c, float power_w, float ambient_temp_c, uint32_t fan_rpm, float duty_cycle);
 
 #ifdef __cplusplus
 }
