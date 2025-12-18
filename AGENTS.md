@@ -20,6 +20,7 @@ bd info --whats-new --json   # Machine-readable output
 ```
 
 This shows the last 3 versions with workflow-impacting changes, avoiding the need to re-read all documentation. Examples:
+
 - New commands and flags that improve agent workflows
 - Breaking changes that require workflow updates
 - Performance improvements and bug fixes
@@ -107,6 +108,7 @@ bd hooks install
 **Why context minimization matters:**
 
 Even with 200k+ context windows, minimizing context is important:
+
 - **Compute cost scales with tokens** - More context = more expensive inference
 - **Latency increases with context** - Larger prompts take longer to process
 - **Energy consumption** - Every token has environmental impact
@@ -149,6 +151,7 @@ pip install beads-mcp
 ```
 
 Add to MCP config:
+
 ```json
 {
   "beads": {
@@ -159,11 +162,13 @@ Add to MCP config:
 ```
 
 **When to use MCP:**
+
 - ✅ Claude Desktop (no shell access)
 - ✅ MCP-only environments
 - ✅ Environments where CLI is unavailable
 
 **When to prefer CLI + hooks:**
+
 - ✅ Claude Code, Cursor, Windsurf, or any environment with shell access
 - ✅ When context efficiency matters (most cases)
 - ✅ Multi-editor workflows (CLI is universal)
@@ -197,6 +202,7 @@ bd config set import.orphan_handling "strict"     # Fail if parent is missing
 - Use `skip` rarely - only when you want to selectively import a subset
 
 **Override per command:**
+
 ```bash
 bd import -i issues.jsonl --orphan-handling resurrect  # One-time override
 bd sync  # Uses import.orphan_handling config setting
@@ -222,6 +228,7 @@ bd daemons killall --json       # Restart all daemons
 **NEW in v0.16+**: Event-driven mode replaces 5-second polling with instant reactivity (<500ms latency, 60% less CPU).
 
 **Enable globally:**
+
 ```bash
 export BEADS_DAEMON_MODE=events
 bd daemons killall  # Restart daemons to apply
@@ -293,14 +300,14 @@ source tools/bd-worktree-helpers.sh
 
 #### Helper Functions
 
-| Command | Description |
-|---------|-------------|
-| `bd-work <task-id>` | Start work on a task (creates/resumes worktree) |
-| `bd-pause` | Pause work (commit WIP and push for multi-machine sync) |
-| `bd-done [reason]` | Complete task (close in bd, remind about PR) |
-| `bd-cleanup-worktrees` | Remove worktrees for closed+merged tasks |
-| `bd-worktrees` | List active worktrees with status |
-| `bd-worktree-help` | Show detailed help |
+| Command                | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `bd-work <task-id>`    | Start work on a task (creates/resumes worktree)         |
+| `bd-pause`             | Pause work (commit WIP and push for multi-machine sync) |
+| `bd-done [reason]`     | Complete task (close in bd, remind about PR)            |
+| `bd-cleanup-worktrees` | Remove worktrees for closed+merged tasks                |
+| `bd-worktrees`         | List active worktrees with status                       |
+| `bd-worktree-help`     | Show detailed help                                      |
 
 #### Workflow
 
@@ -388,6 +395,7 @@ bd-cleanup-worktrees
 #### Multi-Machine Workflow
 
 **Machine A:**
+
 ```bash
 bd-work bd-123
 # ... make changes ...
@@ -395,6 +403,7 @@ bd-pause           # Push WIP
 ```
 
 **Machine B:**
+
 ```bash
 bd-work bd-123     # Automatically pulls latest WIP
 # ... continue work ...
@@ -402,6 +411,7 @@ bd-done            # Complete and close
 ```
 
 **Machine A (later):**
+
 ```bash
 cd ~/worktrees/temper/bd-123
 git pull           # Get final changes if needed
@@ -432,12 +442,14 @@ bd --readonly show temper-xxx
 ```
 
 **Why sandbox mode?**
+
 - Disables daemon RPC communication
 - Disables auto-sync (no file watcher loops)
 - Prevents multiple agents from fighting over the same database
 - Avoids "uncommitted local changes" warning spam
 
 **When to use each mode:**
+
 - `--sandbox` - For worker agents that may create/update issues
 - `--readonly` - For agents that only read issues (even faster)
 - No flag - Only in the main repo with a single agent
@@ -445,6 +457,7 @@ bd --readonly show temper-xxx
 #### Troubleshooting
 
 **Worktree already exists but corrupted:**
+
 ```bash
 # Manual cleanup
 git worktree remove ~/worktrees/temper/bd-123 --force
@@ -453,6 +466,7 @@ bd-work bd-123  # Recreate
 ```
 
 **Branch conflicts when resuming:**
+
 ```bash
 cd ~/worktrees/temper/bd-123
 git pull --rebase  # Rebase your changes on remote
@@ -461,6 +475,7 @@ git push
 ```
 
 **List all worktrees (git native):**
+
 ```bash
 git worktree list
 ```
@@ -515,6 +530,7 @@ bd create "Refactor code" -t task --json      # What code? Why refactor?
 **For multi-agent workflows only** - if multiple AI agents work on the same repository simultaneously, consider using Agent Mail for real-time coordination:
 
 **With Agent Mail enabled:**
+
 ```bash
 # Configure environment (one-time per session)
 export BEADS_AGENT_MAIL_URL=http://127.0.0.1:8765
@@ -529,6 +545,7 @@ bd close bd-42 "Done"                       # Releases reservation automatically
 ```
 
 **Without Agent Mail (git-only mode):**
+
 ```bash
 # No environment variables needed
 bd ready                                    # Shows available work
@@ -538,16 +555,19 @@ bd close bd-42 "Done"                       # Updates via git sync
 ```
 
 **Key differences:**
+
 - **Latency**: <100ms (Agent Mail) vs 2-5s (git-only)
 - **Collision prevention**: Instant reservation (Agent Mail) vs eventual consistency (git)
 - **Setup**: Requires server + env vars (Agent Mail) vs zero config (git-only)
 
 **When to use Agent Mail:**
+
 - ✅ Multiple agents working concurrently
 - ✅ Frequent status updates (high collision risk)
 - ✅ Real-time coordination needed
 
 **When to skip:**
+
 - ✅ Single agent workflows
 - ✅ Infrequent updates (low collision risk)
 - ✅ Simplicity preferred over latency
@@ -616,9 +636,11 @@ When breaking down large features into tasks, use **beads dependencies** to sequ
 **⚠️ COGNITIVE TRAP: Temporal Language Inverts Dependencies**
 
 Words like "Phase 1", "Step 1", "first", "before" trigger temporal reasoning that **flips dependency direction**. Your brain thinks:
+
 - "Phase 1 comes before Phase 2" → "Phase 1 blocks Phase 2" → `bd dep add phase1 phase2`
 
 But that's **backwards**! The correct mental model:
+
 - "Phase 2 **depends on** Phase 1" → `bd dep add phase2 phase1`
 
 **Solution: Use requirement language, not temporal language**
@@ -640,6 +662,7 @@ bd dep add msg-rendering buffer-layout  # msg-rendering NEEDS buffer-layout
 **Verification**: After adding deps, run `bd blocked` - tasks should be blocked by their prerequisites, not their dependents.
 
 **Example breakdown** (for a multi-part feature):
+
 ```bash
 # Create tasks named by what they do, not what order they're in
 bd create "Implement conversation region" -t task -p 1
@@ -748,12 +771,12 @@ This project uses a tiered multi-agent system to optimize for reasoning depth an
 
 ### Tiered Model Strategy
 
-| Role | Model Tier | Responsibility |
-|------|------------|----------------|
+| Role          | Model Tier            | Responsibility                                            |
+| ------------- | --------------------- | --------------------------------------------------------- |
 | **architect** | 🧠 **Thinking** (Pro) | High-level design, pattern selection, trade-off analysis. |
-| **security** | 🧠 **Thinking** (Pro) | Deep vulnerability analysis, security audits, paranoia. |
-| **coder** | ⚡ **Fast** (Flash) | Feature implementation, refactoring, code efficiency. |
-| **tester** | ⚡ **Fast** (Flash) | Unit test generation, edge case coverage, QA. |
+| **security**  | 🧠 **Thinking** (Pro) | Deep vulnerability analysis, security audits, paranoia.   |
+| **coder**     | ⚡ **Fast** (Flash)   | Feature implementation, refactoring, code efficiency.     |
+| **tester**    | ⚡ **Fast** (Flash)   | Unit test generation, edge case coverage, QA.             |
 
 ### How to Delegate Tasks
 
@@ -773,6 +796,7 @@ You can delegate work to specialized agents using **Labels** in the `bd` issue t
     ```
 
 ### Output & Implementation
+
 Agents save their work to `agent_outputs/<issue_id>_<role>_resolution.md`. The Master Agent (you) should review this output and implement/verify the changes.
 
 ## Development Guidelines
@@ -794,6 +818,7 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed workflows, testi
 **IMPORTANT**: Use [Conventional Commits](https://www.conventionalcommits.org/) format for ALL git commits in this project.
 
 **Format:**
+
 ```
 <type>(<scope>): <description>
 
@@ -803,6 +828,7 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed workflows, testi
 ```
 
 **Types:**
+
 - `feat`: New feature or functionality
 - `fix`: Bug fix
 - `docs`: Documentation changes only
@@ -815,10 +841,12 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed workflows, testi
 - `chore`: Maintenance tasks, tooling, etc.
 
 **Scope** (optional but recommended):
+
 - Use the module or component name (e.g., `firmware`, `pcb`, `placer`, `hal`, `safety`)
 - For temper-placer: `core`, `io`, `geometry`, `losses`, `optimizer`, `viz`, `cli`
 
 **Examples:**
+
 ```bash
 # Feature
 git commit -m "feat(placer): add Gumbel-Softmax rotation sampling"
@@ -846,6 +874,7 @@ git commit -m "feat(api)!: change placement output format"
 The `bd sync` command generates automatic commits for issue tracking changes. These are acceptable as-is since they track issue state, not code changes.
 
 **Why Conventional Commits?**
+
 - Enables automatic changelog generation
 - Makes git history scannable and searchable
 - Helps with semantic versioning decisions
@@ -856,6 +885,7 @@ The `bd sync` command generates automatic commits for issue tracking changes. Th
 ## Temper Project Overview
 
 This repository contains the **Temper induction cooker** - a high-power induction heating system with:
+
 - Half-bridge topology with IGBTs (IKW40N120H3)
 - ESP32-S3 MCU for control (state machine-driven firmware)
 - Resonant tank for induction heating
@@ -915,22 +945,23 @@ temper/
 
 ### Key Design Documents
 
-| Document | Purpose |
-|----------|---------|
-| `TEMPER_PLACER_DESIGN.md` | PCB placer architecture and algorithms |
-| `RESONANT_TANK_DESIGN.md` | LC tank calculations and tuning |
-| `HALF_BRIDGE_VERIFICATION_REPORT.md` | Power stage validation |
-| `GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md` | Bootstrap vs isolated supply |
-| `CT_SENSING_DESIGN.md` | Current transformer sensing circuit |
-| `THERMAL_DESIGN_GUIDE.md` | Thermal management strategy |
-| `SAFETY_INTERLOCK_DESIGN.md` | Protection circuit design |
-| `PCB_SPECIFICATION.md` | Board constraints and zones |
+| Document                                     | Purpose                                |
+| -------------------------------------------- | -------------------------------------- |
+| `TEMPER_PLACER_DESIGN.md`                    | PCB placer architecture and algorithms |
+| `RESONANT_TANK_DESIGN.md`                    | LC tank calculations and tuning        |
+| `HALF_BRIDGE_VERIFICATION_REPORT.md`         | Power stage validation                 |
+| `GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md` | Bootstrap vs isolated supply           |
+| `CT_SENSING_DESIGN.md`                       | Current transformer sensing circuit    |
+| `THERMAL_DESIGN_GUIDE.md`                    | Thermal management strategy            |
+| `SAFETY_INTERLOCK_DESIGN.md`                 | Protection circuit design              |
+| `PCB_SPECIFICATION.md`                       | Board constraints and zones            |
 
 ### temper-placer: PCB Placement Optimizer
 
 The placer is a JAX-based gradient descent optimizer for component placement with **validation-in-the-loop** integration with KiCad DRC and ngspice.
 
 **Key Features:**
+
 - **Gumbel-Softmax discrete rotation** - Differentiable 0°/90°/180°/270° rotation
 - **Multi-objective optimization** - 12+ loss functions (wirelength, overlap, thermal, EMI, etc.)
 - **Smart initialization** - 10 heuristics applied before gradient descent
@@ -939,6 +970,7 @@ The placer is a JAX-based gradient descent optimizer for component placement wit
 - **Validation-in-the-loop** - KiCad DRC and ngspice integration for electrical soundness
 
 **Installation:**
+
 ```bash
 cd temper-placer
 
@@ -951,6 +983,7 @@ pip install -e ".[dev]"
 ```
 
 **Running the optimizer:**
+
 ```bash
 # Basic optimization
 temper-placer optimize input.kicad_pcb -c constraints.yaml -o output.kicad_pcb
@@ -969,6 +1002,7 @@ temper-placer validate output.kicad_pcb
 ```
 
 **Key CLI flags:**
+
 - `--heuristics/--no-heuristics` - Smart initialization using 10 heuristics (default: enabled)
 - `--curriculum/--no-curriculum` - Multi-phase curriculum learning (default: enabled)
 - `--epochs N` - Number of optimization epochs (default: 8000)
@@ -980,14 +1014,17 @@ temper-placer validate output.kicad_pcb
 The placer uses 10 heuristics applied in priority order before gradient optimization:
 
 1. **HARD constraints:**
+
    - `KeepoutAwarenessHeuristic` - Respect keep-out zones
 
 2. **STRUCTURAL constraints:**
+
    - `ConnectorEdgeSnappingHeuristic` - Place connectors on board edges
    - `ThermalEdgePlacementHeuristic` - Place thermal components near edges
    - `CriticalLoopHeuristic` - Minimize switching loop areas
 
 3. **ORGANIZATIONAL constraints:**
+
    - `FunctionalModuleClusteringHeuristic` - Group related components
    - `PowerFlowTopologyHeuristic` - Arrange input → distribution → load
    - `DecouplingCapHeuristic` - Position decoupling caps near ICs
@@ -998,6 +1035,7 @@ The placer uses 10 heuristics applied in priority order before gradient optimiza
    - `SignalFlowPreservationHeuristic` - Left-to-right signal flow
 
 **Testing the placer:**
+
 ```bash
 cd temper-placer
 
@@ -1020,6 +1058,7 @@ ruff check src tests
 ```
 
 **Key modules:**
+
 - `temper_placer.heuristics` - Smart initialization (`create_default_pipeline()`)
 - `temper_placer.optimizer` - Training loop (`train`, `train_multiphase`)
 - `temper_placer.losses` - 12+ differentiable loss functions
@@ -1029,6 +1068,7 @@ ruff check src tests
 - `temper_placer.visualization` - HTML reports, board rendering
 
 **Documentation:**
+
 - See `temper-placer/README.md` for quick start
 - See `TEMPER_PLACER_DESIGN.md` for full design specification
 - See `temper-placer/docs/USAGE.md` for detailed usage guide
@@ -1046,6 +1086,7 @@ ngspice -b sim_01_ac_rectifier_softstart.cir
 ```
 
 **Simulation naming convention:**
+
 - `sim_XX_description.cir` - Testbench files
 - `sim_XX_description.md` - Result analysis
 
@@ -1054,12 +1095,14 @@ ngspice -b sim_01_ac_rectifier_softstart.cir
 The firmware uses ESP-IDF with a state machine-driven architecture. See `firmware/README.md` for complete documentation.
 
 **Architecture:**
+
 - **8-state state machine** (`main/state_machine.c`) - INIT, IDLE, PAN_DET, PREHEAT, HEATING, NO_PAN, COOLDOWN, FAULT
 - **Comprehensive testing** - 37 unit tests + 30 integration tests (Unity framework)
 - **Modular HAL** - Hardware abstraction for ADC, PWM, GPIO, SPI
 - **Safety-critical** - Multiple protection layers (OCP, OVP, thermal, watchdog)
 
 **Building for ESP32-S3:**
+
 ```bash
 cd firmware
 idf.py set-target esp32s3
@@ -1068,6 +1111,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
 **Running Tests (Host-Based):**
+
 ```bash
 cd firmware/test
 mkdir -p build && cd build
@@ -1083,6 +1127,7 @@ ctest --output-on-failure
 ```
 
 **Module structure:**
+
 - `components/hal/` - Hardware abstraction (ADC, PWM, GPIO, SPI, Timer)
   - `hal/esp32/` - ESP32-S3 specific implementations
   - `hal/mock/` - Mock implementations for testing
@@ -1092,6 +1137,7 @@ ctest --output-on-failure
 - `test/` - Unity-based tests with mock HAL
 
 **Safety Features:**
+
 1. **Hardware Watchdog** (TPS3823-33) - 1.6s timeout, external WDT
 2. **Software Watchdog** - State-specific timeouts (1-10s)
 3. **Over-Current Protection** - DC bus >35A triggers shutdown
@@ -1102,6 +1148,7 @@ ctest --output-on-failure
 8. **Pan Detection** - Impedance-based with confidence threshold
 
 **Key Configuration:**
+
 - Target temp range: 50-250°C
 - Pan detection timeout: 5s
 - Pan removal grace period: 3s
@@ -1111,6 +1158,7 @@ ctest --output-on-failure
 ## Current Project Status
 
 **Overall Progress** (as of latest `bd stats`):
+
 - **Total Issues**: 442
 - **Open**: 69
 - **In Progress**: 2
@@ -1120,6 +1168,7 @@ ctest --output-on-failure
 - **Avg Lead Time**: 7.0 hours
 
 Check current work with:
+
 ```bash
 bd stats                     # Overall project statistics
 bd ready --json              # Unblocked issues ready for work
@@ -1132,6 +1181,7 @@ bd show temper-37v           # Induction cooker development epic
 ### Key Active Areas
 
 1. **temper-placer** - PCB placement optimizer (PRIMARY FOCUS - P1)
+
    - ✅ Core optimizer operational with curriculum learning
    - ✅ 10 heuristics implemented and tested
    - ✅ DRC validation integration complete
@@ -1142,6 +1192,7 @@ bd show temper-37v           # Induction cooker development epic
    - **Related Epics**: temper-7t1, temper-1by, temper-1my, temper-jzq, temper-ft9, temper-c1e
 
 2. **Firmware** - ESP32-S3 control (COMPLETE - Core Implementation)
+
    - ✅ 8-state state machine implemented (`main/state_machine.c`)
    - ✅ 37 unit tests passing
    - ✅ 30 integration tests passing
@@ -1151,6 +1202,7 @@ bd show temper-37v           # Induction cooker development epic
    - **Related Epic**: temper-37v (ongoing development)
 
 3. **PCB Design** - KiCad schematics
+
    - ✅ Hierarchical design (7 subsystem sheets)
    - ✅ Component library complete (IKW40N120H3, UCC21550, LMR51430, MAX31865, etc.)
    - 🔄 Awaiting temper-placer optimization for layout
@@ -1189,11 +1241,13 @@ Based on `bd ready`, the following P1 issues have no blockers:
 ### Working with temper-placer
 
 **Before making changes:**
+
 1. Read `TEMPER_PLACER_DESIGN.md` for architecture overview
 2. Check `temper-placer/README.md` for CLI usage
 3. Review related bd issues: `bd list --label placer --status open`
 
 **Development workflow:**
+
 ```bash
 cd temper-placer
 
@@ -1220,6 +1274,7 @@ temper-placer optimize ../pcb/temper.kicad_pcb \
 ```
 
 **Testing requirements for temper-placer:**
+
 - All new loss functions MUST have unit tests
 - Heuristics MUST have integration tests
 - Geometry functions MUST have property-based tests where applicable
@@ -1228,11 +1283,13 @@ temper-placer optimize ../pcb/temper.kicad_pcb \
 ### Working with Firmware
 
 **Before making changes:**
+
 1. Read `firmware/README.md` for architecture overview
 2. Understand the state machine (`main/state_machine.c`)
 3. Check safety implications - this is safety-critical code
 
 **Development workflow:**
+
 ```bash
 cd firmware
 
@@ -1259,6 +1316,7 @@ cmake . && make && ./test_state_machine_only
 ```
 
 **Testing requirements for firmware:**
+
 - State machine changes MUST include unit tests
 - Safety-critical features MUST include fault injection tests
 - HAL changes MUST update both real and mock implementations
@@ -1268,11 +1326,13 @@ cmake . && make && ./test_state_machine_only
 ### Working with Simulations
 
 **Before adding simulations:**
+
 1. Check `simulation/results/` for existing similar sims
 2. Follow naming convention: `sim_XX_description.cir`
 3. Create corresponding `.md` report in `results/`
 
 **Running simulations:**
+
 ```bash
 cd simulation/testbenches
 
@@ -1285,6 +1345,7 @@ cat sim_01_ac_rectifier_verification.md  # Read analysis
 ```
 
 **Simulation requirements:**
+
 - All new circuits MUST have SPICE verification
 - Use realistic component models from `simulation/models/`
 - Document results with analysis in `results/*.md`
@@ -1295,20 +1356,24 @@ cat sim_01_ac_rectifier_verification.md  # Read analysis
 **When to create/update docs:**
 
 1. **Design decisions** → Create `*_DESIGN.md` or `*_DECISION.md`
+
    - Example: `GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md`
    - Include: rationale, alternatives considered, trade-offs
 
 2. **Verification results** → Create `*_VERIFICATION_REPORT.md`
+
    - Example: `HALF_BRIDGE_VERIFICATION_REPORT.md`
    - Include: test conditions, results, pass/fail criteria
 
 3. **Component analysis** → Update `components/*/.*_Documentation.md`
+
    - Include: electrical specs, thermal analysis, layout considerations
 
 4. **API changes** → Update module README.md
    - `firmware/README.md`, `temper-placer/README.md`, etc.
 
 **Documentation format:**
+
 - Use markdown with clear section headers
 - Include code examples for APIs
 - Add tables for specifications/comparisons
@@ -1318,6 +1383,7 @@ cat sim_01_ac_rectifier_verification.md  # Read analysis
 ### Testing Philosophy
 
 **For temper-placer (Python/JAX):**
+
 - Fast unit tests (<10ms each)
 - Integration tests run full pipelines
 - Property-based tests for geometry (hypothesis)
@@ -1325,6 +1391,7 @@ cat sim_01_ac_rectifier_verification.md  # Read analysis
 - Benchmark tests for performance regressions
 
 **For firmware (C/Unity):**
+
 - Unit tests with mocks (fast, isolated)
 - Integration tests with full system (realistic scenarios)
 - Fault injection tests (safety critical)
@@ -1332,6 +1399,7 @@ cat sim_01_ac_rectifier_verification.md  # Read analysis
 - Time-based tests use mock time advancement
 
 **Test naming convention:**
+
 ```python
 # Python (pytest)
 def test_overlap_loss_detects_simple_overlap():
@@ -1347,6 +1415,7 @@ void test_state_transition_idle_to_pan_det_on_start_button(void) {
 ### Common Workflows
 
 **Adding a new loss function to temper-placer:**
+
 1. Create issue: `bd create "Implement XyzLoss for ..." -t task -p 1 --parent temper-jzq`
 2. Read `TEMPER_PLACER_DESIGN.md` section on loss functions
 3. Implement in `src/temper_placer/losses/xyz.py`
@@ -1358,6 +1427,7 @@ void test_state_transition_idle_to_pan_det_on_start_button(void) {
 9. Close issue: `bd close <id> --reason "Implemented XyzLoss with unit tests"`
 
 **Adding a component to the library:**
+
 1. Create `components/PART_NUMBER/` directory
 2. Add KiCad symbol (`.kicad_sym`)
 3. Add SPICE model (`.lib` if available)
@@ -1370,6 +1440,7 @@ void test_state_transition_idle_to_pan_det_on_start_button(void) {
 6. Add verification simulation if power/critical component
 
 **Modifying the state machine:**
+
 1. **CRITICAL**: Understand safety implications first
 2. Update state diagram in `firmware/README.md` if adding states
 3. Modify `firmware/main/state_machine.c`
@@ -1411,6 +1482,7 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed instructions on:
 **IMPORTANT**: When planning work, strongly prefer creating many small, focused tasks over fewer large ones. This applies to both epics and individual issues.
 
 **Why small tasks?**
+
 - **Faster feedback loops**: Complete and verify work incrementally
 - **Easier resumption**: Sessions end unexpectedly; small tasks let you pick up easily
 - **Better tracking**: Clear progress visibility with `bd stats`
@@ -1418,17 +1490,20 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for detailed instructions on:
 - **Parallel work**: Multiple agents can work on different small tasks simultaneously
 
 **Guidelines:**
+
 - **Epics**: Break into 5-15 subtasks, each completable in one session
 - **Tasks**: Should be completable in 30-60 minutes of focused work
 - **If a task feels big**: Split it immediately with `bd create --parent <epic-id>`
 - **Create issues frequently**: When you discover work, create an issue right away
 
 **Example - BAD (monolithic):**
+
 ```bash
 bd create "Implement placement optimizer" -t epic -p 1  # Too vague, too big
 ```
 
 **Example - GOOD (granular):**
+
 ```bash
 bd create "Implement placement optimizer" -t epic -p 1
 bd create "Implement geometric primitives (point, rect)" --parent <epic-id> -p 1
@@ -1459,6 +1534,7 @@ See [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md) for complete details on:
 Happy coding! 🔗
 
 <!-- bd onboard section -->
+
 ## Issue Tracking with bd (beads)
 
 **IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
@@ -1546,6 +1622,7 @@ bd close bd-42 --reason "Completed" --json
 ### Auto-Sync
 
 bd automatically syncs with git:
+
 - Exports to `.beads/issues.jsonl` after changes (5s debounce)
 - Imports from JSONL when newer (e.g., after `git pull`)
 - No manual export/import needed!
@@ -1564,6 +1641,7 @@ pip install beads-mcp
 ```
 
 Add to MCP config (e.g., `~/.config/claude/config.json`):
+
 ```json
 {
   "beads": {
@@ -1578,6 +1656,7 @@ Then use `mcp__beads__*` functions instead of CLI commands.
 ### Managing AI-Generated Planning Documents
 
 AI assistants often create planning and design documents during development:
+
 - PLAN.md, IMPLEMENTATION.md, ARCHITECTURE.md
 - DESIGN.md, CODEBASE_SUMMARY.md, INTEGRATION_PLAN.md
 - TESTING_GUIDE.md, TECHNICAL_DESIGN.md, and similar files
@@ -1585,12 +1664,14 @@ AI assistants often create planning and design documents during development:
 **Best Practice: Use a dedicated directory for these ephemeral files**
 
 **Recommended approach:**
+
 - Create a `history/` directory in the project root
 - Store ALL AI-generated planning/design docs in `history/`
 - Keep the repository root clean and focused on permanent project files
 - Only access `history/` when explicitly asked to review past planning
 
 **Example .gitignore entry (optional):**
+
 ```
 # AI planning documents (ephemeral)
 history/
@@ -1623,6 +1704,7 @@ For example: `bd create --help` shows `--parent`, `--deps`, `--assignee`, etc.
 - ❌ Do NOT clutter repo root with planning documents
 
 For more details, see README.md and QUICKSTART.md.
+
 <!-- /bd onboard section -->
 
 ## Landing the Plane (Session Completion)
@@ -1646,7 +1728,38 @@ For more details, see README.md and QUICKSTART.md.
 7. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
+
 - Work is NOT complete until `git push` succeeds
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
+
+## 🧠 The Cognitive Stack: Beads + OpenMemory
+
+To maintain context across different tasks and parallel sessions, we use two complementary memory systems:
+
+1. **Beads (Project Memory):** Use `bd` for task tracking, blockers, and feature-specific state. This is stored in Git.
+2. **OpenMemory (Global Knowledge):** Use the OpenMemory MCP server for long-term "facts" (e.g., "The user prefers Rust for performance-critical modules"). This persists across all branches and worktrees.
+
+**Rule for Agents:** - If information is about a **task**, put it in a `bd` issue description.
+
+- If information is a **general project fact or user preference**, store it in **OpenMemory**.
+
+## 🌲 Parallel Execution with Git Worktrees
+
+To work on multiple tasks simultaneously without context-clobbering, we use Git Worktrees.
+
+### Worktree Directory Structure
+
+~/worktrees/
+└── temper/
+├── bd-123/ # Worktree for task bd-123
+├── bd-456/ # Worktree for task bd-456
+└── ...
+
+### 🛠 Workflow for Parallel Agents
+
+1. **Create Worktree:** Use the helper `bd-work <id>` to spin up a new directory and branch.
+2. **Sandbox Mode (Mandatory):** In a worktree, always use `bd --sandbox`. This prevents the daemon from fighting over the shared database across different folders.
+3. **Cross-Pollination:** Before starting work in a new worktree, query **OpenMemory** for any relevant global context learned by other agents in parallel branches.
+4. **Completion:** Use `bd-done` to push and close.
