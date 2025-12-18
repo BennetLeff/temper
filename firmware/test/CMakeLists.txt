@@ -328,3 +328,14 @@ add_executable(test_ui_only
 )
 target_include_directories(test_ui_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_ui_only m)
+
+# Probe Detection Tests
+add_executable(test_probe_detection_only
+    ${UNITY_SOURCES}
+    test_main_probe_detection.c
+    test_probe_detection.c
+    ../components/control/cascade_pid.c
+    ../components/control/pid_control.c
+)
+target_include_directories(test_probe_detection_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_probe_detection_only m)

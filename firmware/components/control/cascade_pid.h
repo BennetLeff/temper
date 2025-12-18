@@ -30,12 +30,23 @@ typedef enum {
 } cascade_mode_t;
 
 /**
+ * @brief Probe insertion state
+ */
+typedef enum {
+    PROBE_STATE_UNKNOWN,
+    PROBE_STATE_AIR,
+    PROBE_STATE_FOOD
+} probe_insertion_state_t;
+
+/**
  * @brief Cascade PID controller handle
  */
 typedef struct {
     /* Control mode */
     cascade_mode_t mode;           /**< Current control mode */
     bool probe_connected;          /**< Liquid probe status */
+    bool probe_in_food;            /**< Liquid probe in food status */
+    bool probe_detection_enabled;  /**< Enable probe insertion detection */
     
     /* PID controllers */
     pid_handle_t outer_pid;        /**< Outer loop: liquid temp → pan setpoint */
@@ -52,6 +63,9 @@ typedef struct {
     uint32_t last_probe_reading_time; /**< Timestamp of last valid probe reading */
     float last_pan_setpoint;       /**< Last pan setpoint for bumpless transfer */
     bool bumpless_transfer_pending; /**< Pending bumpless transfer */
+    float last_stable_temp;        /**< Temperature for delta-T check */
+    uint32_t probe_state_timer_ms;  /**< Timer for state transitions */
+    probe_insertion_state_t probe_state; /**< Current filtered state */
     
     /* Performance monitoring */
     float outer_error_sum;         /**< Accumulated outer loop error */
@@ -118,6 +132,22 @@ cascade_mode_t cascade_pid_get_mode(cascade_pid_handle_t *cascade);
  * @return true if probe is connected and providing valid readings
  */
 bool cascade_pid_probe_connected(cascade_pid_handle_t *cascade);
+
+/**
+ * @brief Check if probe is detected to be in food (high thermal mass)
+ * 
+ * @param cascade Pointer to cascade handle
+ * @return true if probe is in food
+ */
+bool cascade_pid_is_probe_in_food(cascade_pid_handle_t *cascade);
+
+/**
+ * @brief Enable or disable automatic probe insertion detection
+ * 
+ * @param cascade Pointer to cascade handle
+ * @param enabled true to enable
+ */
+void cascade_pid_set_probe_detection(cascade_pid_handle_t *cascade, bool enabled);
 
 /**
  * @brief Force single-loop mode (for testing or fallback)

@@ -54,6 +54,12 @@ void cascade_pid_test_advance_time_us(uint64_t delta_us) {
 }
 #endif
 
+/* Probe detection constants */
+#define PROBE_DETECTION_INTERVAL_MS 1000
+#define PROBE_DT_THRESHOLD_FOOD     0.5f    /**< Max degC/sec for food (high mass) */
+#define PROBE_DT_THRESHOLD_AIR      2.0f    /**< Min degC/sec for air (low mass) */
+#define PROBE_STABLE_TIME_MS        5000    /**< Time to confirm state */
+
 void cascade_pid_init(cascade_pid_handle_t *cascade,
                      float outer_kp, float outer_ki, float outer_kd,
                      float inner_kp, float inner_ki, float inner_kd) {
@@ -63,6 +69,9 @@ void cascade_pid_init(cascade_pid_handle_t *cascade,
     /* Set initial mode */
     cascade->mode = CASCADE_MODE_SINGLE;
     cascade->probe_connected = false;
+    cascade->probe_in_food = true; // Assume food until proven otherwise
+    cascade->probe_detection_enabled = true;
+    cascade->probe_state = PROBE_STATE_UNKNOWN;
     
     /* Initialize PID controllers */
     pid_init(&cascade->outer_pid, outer_kp, outer_ki, outer_kd);
@@ -105,6 +114,51 @@ void cascade_pid_configure(cascade_pid_handle_t *cascade,
     pid_set_output_limits(&cascade->outer_pid, pan_min, pan_max);
 }
 
+static void update_probe_detection(cascade_pid_handle_t *cascade, float liquid_actual, float pwm_output, float dt_sec) {
+    if (!cascade->probe_detection_enabled || !cascade->probe_connected) {
+        cascade->probe_in_food = true;
+        cascade->probe_state = PROBE_STATE_UNKNOWN;
+        return;
+    }
+
+    // Only run detection if heater is significantly ON (>20%)
+    if (pwm_output < 20.0f) {
+        // If power is low, we can't reliably detect thermal mass via dT/dt
+        // but we keep the last known state.
+        return;
+    }
+
+    float rate = (liquid_actual - cascade->last_stable_temp) / dt_sec;
+    cascade->last_stable_temp = liquid_actual;
+
+    // Filtered state detection
+    if (rate > PROBE_DT_THRESHOLD_AIR) {
+        // Temp rising very fast -> likely in air
+        if (cascade->probe_state != PROBE_STATE_AIR) {
+            cascade->probe_state = PROBE_STATE_AIR;
+            cascade->probe_state_timer_ms = 0;
+        }
+    } else if (rate < PROBE_DT_THRESHOLD_FOOD && rate > -0.1f) {
+        // Temp stable or rising slowly -> likely in food
+        if (cascade->probe_state != PROBE_STATE_FOOD) {
+            cascade->probe_state = PROBE_STATE_FOOD;
+            cascade->probe_state_timer_ms = 0;
+        }
+    }
+
+    // Update transition timer
+    cascade->probe_state_timer_ms += (uint32_t)(dt_sec * 1000.0f);
+
+    // Confirm state after stability period
+    if (cascade->probe_state_timer_ms >= PROBE_STABLE_TIME_MS) {
+        if (cascade->probe_state == PROBE_STATE_AIR) {
+            cascade->probe_in_food = false;
+        } else if (cascade->probe_state == PROBE_STATE_FOOD) {
+            cascade->probe_in_food = true;
+        }
+    }
+}
+
 float cascade_pid_update(cascade_pid_handle_t *cascade,
                         float liquid_target, float liquid_actual,
                         float pan_actual, float dt_sec) {
@@ -124,14 +178,22 @@ float cascade_pid_update(cascade_pid_handle_t *cascade,
     bool probe_valid = isfinite(liquid_actual) && liquid_actual > 5.0f && liquid_actual < 300.0f;
     
     if (probe_valid) {
+        if (!cascade->probe_connected) {
+            cascade->last_stable_temp = liquid_actual;
+            cascade->probe_state_timer_ms = 0;
+            cascade->probe_state = PROBE_STATE_UNKNOWN;
+        }
         cascade->probe_connected = true;
         cascade->last_probe_reading_time = (uint32_t)(now_us / 1000000);  /* Convert to seconds */
     } else {
         cascade->probe_connected = false;
+        cascade->probe_in_food = true; // Reset to safe default
     }
     
     /* Determine control mode */
-    cascade_mode_t new_mode = cascade->probe_connected ? CASCADE_MODE_DUAL : CASCADE_MODE_SINGLE;
+    // Fallback to single-loop if probe is not in food
+    bool use_dual = cascade->probe_connected && cascade->probe_in_food;
+    cascade_mode_t new_mode = use_dual ? CASCADE_MODE_DUAL : CASCADE_MODE_SINGLE;
     
     /* Handle mode transitions */
     if (new_mode != cascade->mode) {
@@ -142,8 +204,8 @@ float cascade_pid_update(cascade_pid_handle_t *cascade,
             cascade->bumpless_transfer_pending = true;
             cascade->last_pan_setpoint = pan_actual;  /* Start from current pan temp */
         } else if (cascade->mode == CASCADE_MODE_DUAL && new_mode == CASCADE_MODE_SINGLE) {
-            /* Switching to single loop - reset outer loop */
-            pid_reset_integral();  /* Reset outer loop integrator */
+            /* Switching to single loop - reset outer loop integrator */
+            cascade->outer_pid.integrator = 0.0f;
         }
         
         cascade->mode = new_mode;
@@ -180,12 +242,14 @@ float cascade_pid_update(cascade_pid_handle_t *cascade,
     } else {
         /* Single-loop control: Direct pan temperature control */
         pan_setpoint = liquid_target;  /* User target becomes pan target */
-        /* Don't reset integrator here - let the PID handle it naturally */
     }
     
     /* Inner loop: Pan temperature → PWM output */
     pwm_output = pid_compute(&cascade->inner_pid, pan_setpoint, pan_actual, dt_sec);
     
+    /* Update probe detection (using current PWM output for mass inference) */
+    update_probe_detection(cascade, liquid_actual, pwm_output, dt_sec);
+
     /* Update performance metrics */
     float outer_error = liquid_target - liquid_actual;
     float inner_error = pan_setpoint - pan_actual;
@@ -204,11 +268,22 @@ bool cascade_pid_probe_connected(cascade_pid_handle_t *cascade) {
     return cascade->probe_connected;
 }
 
+bool cascade_pid_is_probe_in_food(cascade_pid_handle_t *cascade) {
+    return cascade->probe_in_food;
+}
+
+void cascade_pid_set_probe_detection(cascade_pid_handle_t *cascade, bool enabled) {
+    cascade->probe_detection_enabled = enabled;
+    if (!enabled) {
+        cascade->probe_in_food = true;
+    }
+}
+
 void cascade_pid_force_single_loop(cascade_pid_handle_t *cascade) {
     cascade->mode = CASCADE_MODE_SINGLE;
     cascade->probe_connected = false;
     cascade->bumpless_transfer_pending = false;
-    pid_reset_integral();
+    cascade->outer_pid.integrator = 0.0f;
 }
 
 void cascade_pid_reset(cascade_pid_handle_t *cascade) {
