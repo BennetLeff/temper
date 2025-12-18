@@ -108,7 +108,7 @@ def run_optimization_with_seed(
     # Create composite loss with overlap, boundary, and wirelength
     composite = CompositeLoss(
         [
-            WeightedLoss(OverlapLoss(), weight=100.0),
+            WeightedLoss(OverlapLoss(inflation_ramp=0.3), weight=100.0),
             WeightedLoss(BoundaryLoss(), weight=50.0),
             WeightedLoss(WirelengthLoss(), weight=1.0),
         ]
@@ -116,6 +116,7 @@ def run_optimization_with_seed(
 
     # Create config with specific seed
     config = OptimizerConfig(
+        gradient_clip_norm=1.0,  # Gradient clipping for robustness
         epochs=epochs,
         seed=seed,
         log_interval=epochs,  # Only log at end to reduce overhead
