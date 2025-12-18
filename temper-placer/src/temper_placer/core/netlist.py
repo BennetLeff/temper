@@ -208,6 +208,70 @@ class Netlist:
         """Get (N,) boolean array of fixed components."""
         return jnp.array([c.fixed for c in self.components], dtype=jnp.bool_)
 
+    def find_isomorphic_groups(self, iterations: int = 2) -> List[List[int]]:
+        """
+        Find groups of components that are topologically isomorphic.
+        
+        Uses Weisfeiler-Lehman (WL) neighborhood hashing to identify components
+        with identical local connectivity and footprints.
+        
+        Args:
+            iterations: Number of neighborhood expansion steps.
+                1: Same footprint and same neighbor footprints.
+                2: Also considers neighbors of neighbors.
+                
+        Returns:
+            List of groups, where each group is a list of component indices.
+            Only groups with >1 member are returned.
+        """
+        import hashlib
+        
+        n = self.n_components
+        if n == 0:
+            return []
+            
+        # 1. Initial labels: Footprint + Ref Prefix (to distinguish R from C)
+        labels = []
+        for c in self.components:
+            # Extract ref prefix (all letters at start)
+            import re
+            match = re.match(r"^([a-zA-Z]+)", c.ref)
+            prefix = match.group(1) if match else ""
+            labels.append(f"{c.footprint}|{prefix}")
+        
+        # Build adjacency for hashing
+        adj = build_adjacency_matrix(self)
+        # Convert to list of neighbor indices for each component
+        neighbor_lists = []
+        for i in range(n):
+            # Components connected by any net
+            neighbors = jnp.where(adj[i] > 0)[0].tolist()
+            neighbor_lists.append(neighbors)
+            
+        # 2. Iterative Refinement (WL algorithm)
+        for _ in range(iterations):
+            new_labels = []
+            for i in range(n):
+                # Get labels of neighbors
+                neighbor_labels = sorted([labels[j] for j in neighbor_lists[i]])
+                
+                # Combine current label with neighbor labels
+                sig = f"{labels[i]}|{','.join(neighbor_labels)}"
+                # Hash to keep labels manageable
+                h = hashlib.md5(sig.encode()).hexdigest()
+                new_labels.append(h)
+            labels = new_labels
+            
+        # 3. Group by final labels
+        groups_dict: Dict[str, List[int]] = {}
+        for i, label in enumerate(labels):
+            if label not in groups_dict:
+                groups_dict[label] = []
+            groups_dict[label].append(i)
+            
+        # 4. Filter groups with >1 member
+        return [g for g in groups_dict.values() if len(g) > 1]
+
     def validate(self) -> List[str]:
         """
         Validate netlist consistency.

@@ -24,6 +24,7 @@ import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
+from temper_placer.core.netlist import Netlist, build_adjacency_matrix
 
 
 @dataclass
@@ -383,10 +384,127 @@ class GroupSeparationLoss(LossFunction):
         return jnp.min(distances)
 
 
+class SymmetryLoss(LossFunction):
+    """
+    Enforce geometric symmetry between topologically identical components.
+
+    If two sets of components are connected in the same way, they should
+    ideally have the same relative spacing and orientation.
+    """
+
+    def __init__(self, isomorphic_pairs: List[Tuple[int, int, int, int]]):
+        """
+        Initialize SymmetryLoss.
+
+        Args:
+            isomorphic_pairs: List of (idx_a1, idx_b1, idx_a2, idx_b2) tuples.
+                Represents two "isomorphic edges": (a1-b1) and (a2-b2).
+                We want vector(a1, b1) == vector(a2, b2).
+        """
+        self.pairs = isomorphic_pairs
+        if isomorphic_pairs:
+            self._a1 = jnp.array([p[0] for p in isomorphic_pairs], dtype=jnp.int32)
+            self._b1 = jnp.array([p[1] for p in isomorphic_pairs], dtype=jnp.int32)
+            self._a2 = jnp.array([p[2] for p in isomorphic_pairs], dtype=jnp.int32)
+            self._b2 = jnp.array([p[3] for p in isomorphic_pairs], dtype=jnp.int32)
+        else:
+            self._a1 = self._b1 = self._a2 = self._b2 = jnp.array([], dtype=jnp.int32)
+
+    @property
+    def name(self) -> str:
+        return "symmetry"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        if self._a1.shape[0] == 0:
+            return LossResult(value=jnp.array(0.0))
+
+        # Relative vectors for each isomorphic edge
+        v1 = positions[self._b1] - positions[self._a1]
+        v2 = positions[self._b2] - positions[self._a2]
+
+        # Penalty for deviation between corresponding vectors
+        # Squared Euclidean distance between vectors
+        penalty = jnp.sum((v1 - v2) ** 2)
+
+        return LossResult(value=penalty)
+
+
+def find_isomorphic_pairs(netlist: Netlist) -> List[Tuple[int, int, int, int]]:
+    """
+    Identify pairs of connections that are topologically identical.
+    
+    Used to populate SymmetryLoss.
+    """
+    # 1. Get isomorphic component groups
+    groups = netlist.find_isomorphic_groups(iterations=2)
+    if not groups:
+        return []
+        
+    # Build component -> group mapping
+    comp_to_group = {}
+    for i, group in enumerate(groups):
+        for idx in group:
+            comp_to_group[idx] = i
+            
+    # 2. Find connections (edges) between groups
+    adj = build_adjacency_matrix(netlist)
+    n = netlist.n_components
+    
+    edges = []
+    for i in range(n):
+        for j in range(i + 1, n):
+            if adj[i, j] > 0:
+                # Edge between i and j exists
+                # Check if both belong to isomorphic groups
+                if i in comp_to_group and j in comp_to_group:
+                    # Store as (group_i, group_j, i, j)
+                    edges.append((comp_to_group[i], comp_to_group[j], i, j))
+                    
+    # 3. Match edges that connect the SAME groups
+    # e.g. edge (R1, C1) and (R2, C2) both connect Group(R) and Group(C)
+    edge_types: Dict[Tuple[int, int], List[Tuple[int, int]]] = {}
+    for gi, gj, i, j in edges:
+        key = tuple(sorted((gi, gj)))
+        if key not in edge_types:
+            edge_types[key] = []
+        edge_types[key].append((i, j))
+        
+    # 4. Create isomorphic pairs from identical edge types
+    isomorphic_pairs = []
+    for members in edge_types.values():
+        if len(members) > 1:
+            # For each pair of edges in this group, add a symmetry constraint
+            # Use a chain: (0,1), (1,2), etc. to keep it O(N)
+            for k in range(len(members) - 1):
+                a1, b1 = members[k]
+                a2, b2 = members[k+1]
+                # Ensure consistent ordering? 
+                # (Need to make sure a1 corresponds to a2)
+                # We can check footprints
+                if netlist.components[a1].footprint != netlist.components[a2].footprint:
+                    # Swap
+                    a2, b2 = b2, a2
+                isomorphic_pairs.append((a1, b1, a2, b2))
+                
+    return isomorphic_pairs
+
+
 def create_grouping_losses_from_constraints(
     constraints,  # PlacementConstraints
     netlist,  # Netlist
-) -> Tuple[Optional[GroupClusterLoss], Optional[ProximityLoss], Optional[GroupSeparationLoss]]:
+) -> Tuple[
+    Optional[GroupClusterLoss],
+    Optional[ProximityLoss],
+    Optional[GroupSeparationLoss],
+    Optional[SymmetryLoss],
+]:
     """
     Create grouping loss functions from PlacementConstraints.
 
@@ -395,7 +513,7 @@ def create_grouping_losses_from_constraints(
         netlist: Netlist for resolving component refs to indices.
 
     Returns:
-        Tuple of (GroupClusterLoss, ProximityLoss, GroupSeparationLoss).
+        Tuple of (GroupClusterLoss, ProximityLoss, GroupSeparationLoss, SymmetryLoss).
         Any may be None if no constraints of that type exist.
     """
     # Build group configs
@@ -466,4 +584,10 @@ def create_grouping_losses_from_constraints(
     if separations:
         separation_loss = GroupSeparationLoss(separations)
 
-    return cluster_loss, proximity_loss, separation_loss
+    # Automatically detect isomorphic symmetry
+    symmetry_loss = None
+    isomorphic_pairs = find_isomorphic_pairs(netlist)
+    if isomorphic_pairs:
+        symmetry_loss = SymmetryLoss(isomorphic_pairs)
+
+    return cluster_loss, proximity_loss, separation_loss, symmetry_loss
