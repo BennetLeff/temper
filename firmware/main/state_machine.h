@@ -84,26 +84,30 @@ typedef enum {
     FAN_SPEED_MAX
 } fan_speed_t;
 
+/* Forward declarations */
+typedef struct cooking_profile_t cooking_profile_t;
+
 /**
- * @brief Initialize state machine
- * 
- * Sets initial state to STATE_INIT and prepares
- * for power-on self-test.
+ * @brief Initialize the state machine
  */
 void state_machine_init(void);
 
 /**
- * @brief Update state machine
- * 
- * Call this periodically (10-100Hz) from main loop.
- * Executes current state logic and handles transitions.
+ * @brief Update state machine (call periodically)
  */
 void state_machine_update(void);
 
 /**
- * @brief Set target temperature
+ * @brief Start a cooking profile
  * 
- * @param temp_celsius Target temperature (50-250°C)
+ * @param profile Pointer to profile definition
+ */
+void state_machine_start_profile(const cooking_profile_t *profile);
+
+/**
+ * @brief Set the target temperature
+ * 
+ * @param temp_celsius Target in °C
  */
 void state_machine_set_target_temp(float temp_celsius);
 

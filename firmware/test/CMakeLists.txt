@@ -340,3 +340,13 @@ add_executable(test_probe_detection_only
 )
 target_include_directories(test_probe_detection_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_probe_detection_only m)
+
+# Profile Tests
+add_executable(test_profiles_only
+    ${UNITY_SOURCES}
+    test_main_profiles.c
+    test_profiles.c
+    ../components/control/profiles.c
+)
+target_include_directories(test_profiles_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_profiles_only m)

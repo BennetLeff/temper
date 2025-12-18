@@ -33,6 +33,7 @@ static const char *TAG = "state_machine";
 /* #include "safety.h" */
 /* #include "low_temp_control.h" */
 #include "../components/control/thermal_mass.h"
+#include "../components/control/profiles.h"
 
 /* Configuration */
 #define SAFE_IDLE_TEMP          50.0f   /* °C - safe to return to idle */
@@ -65,6 +66,9 @@ static struct {
     uint32_t cooking_time_ms;
     bool cooking_timer_enabled;
     uint8_t intensity_level;  /**< Heat rate limiter (1-10) */
+    
+    /* Profile execution */
+    profile_status_t profile;
     
     /* Non-blocking message display */
     bool message_pending;
@@ -196,6 +200,9 @@ void state_machine_init(void) {
     sm_ctx.cooking_timer_enabled = false;
     sm_ctx.intensity_level = 10;
     
+    /* Reset profile */
+    profile_init_status(&sm_ctx.profile);
+
     /* Reset message display state */
     sm_ctx.message_pending = false;
     sm_ctx.message_next_state = STATE_INIT;
@@ -205,6 +212,13 @@ void state_machine_init(void) {
     sm_ctx.last_update_time_ms = 0;
     
     transition_to(STATE_INIT);
+}
+
+void state_machine_start_profile(const cooking_profile_t *profile) {
+    if (sm_ctx.current_state != STATE_IDLE) return;
+    
+    profile_start(&sm_ctx.profile, profile, get_time_ms());
+    transition_to(STATE_PAN_DET);
 }
 
 void state_machine_update(void) {
@@ -630,6 +644,32 @@ static void state_heating_entry(void) {
 static void state_heating_update(void) {
     /* Read current temperature */
     float current_temp = read_pan_temperature();
+    uint32_t now = get_time_ms();
+
+    /* 1. Update Profile if active */
+    if (sm_ctx.profile.active) {
+        bool stage_changed = profile_update(&sm_ctx.profile, current_temp, now);
+        
+        if (sm_ctx.profile.completed) {
+            show_message_then_transition("COMPLETE", STATE_COOLDOWN);
+            return;
+        }
+
+        if (stage_changed) {
+            buzzer_beep(200);
+            /* Optional: display new stage name/info */
+        }
+
+        /* Override user settings with profile settings */
+        float p_target;
+        uint8_t p_intensity;
+        bool p_use_probe;
+        profile_get_current_settings(&sm_ctx.profile, &p_target, &p_intensity, &p_use_probe);
+        
+        sm_ctx.target_temperature = p_target;
+        sm_ctx.intensity_level = p_intensity;
+        /* TODO: Handle p_use_probe for cascade control when integrated */
+    }
 
     if (sm_ctx.target_temperature < 50.0f) {
         /* Run low-temperature burst control */
