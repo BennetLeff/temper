@@ -211,6 +211,8 @@ class SpectralInitializer:
         normalized_laplacian: If True, use normalized Laplacian (better for
                             graphs with varying node degrees).
         margin_fraction: Fraction of board to leave as margin (default 10%).
+        separation_factor: Factor used to separate components that end up at
+                          the same position (default 0.05 = 5% of board size).
 
     Example:
         >>> initializer = SpectralInitializer(normalized_laplacian=True, margin_fraction=0.1)
@@ -219,6 +221,7 @@ class SpectralInitializer:
 
     normalized_laplacian: bool = True
     margin_fraction: float = 0.1
+    separation_factor: float = 0.05
 
     def initialize(
         self,
@@ -240,6 +243,8 @@ class SpectralInitializer:
         Notes:
             - Deterministic for same netlist (no randomness).
             - Single components placed at center.
+            - Components with identical spectral coordinates are separated
+              using their index as a deterministic offset.
         """
         n = len(netlist.components)
         if n == 0:
@@ -263,5 +268,75 @@ class SpectralInitializer:
         # Scale all coordinates to board bounds
         positions = scale_to_board(all_coords, board, self.margin_fraction)
 
+        # Separate components that ended up at identical positions
+        # (common for directly connected components in small subgraphs)
+        positions = self._separate_coincident_components(positions, board)
+
         return positions
 
+    def _separate_coincident_components(
+        self,
+        positions: Array,
+        board: Board,
+    ) -> Array:
+        """
+        Separate components that are at exactly the same position.
+
+        Uses deterministic spiral pattern based on component index to separate
+        coincident components while keeping them close together.
+
+        Args:
+            positions: (N, 2) initial positions (may have duplicates).
+            board: Board dimensions.
+
+        Returns:
+            (N, 2) positions with coincident components separated.
+        """
+        n = positions.shape[0]
+        if n <= 1:
+            return positions
+
+        # Separation distance (fraction of smaller board dimension)
+        sep = min(board.width, board.height) * self.separation_factor
+
+        # Convert to numpy for mutation
+        pos_np = np.array(positions)
+
+        # Find groups of coincident components
+        # Using a simple O(n^2) approach since n is typically small (<1000)
+        processed = np.zeros(n, dtype=bool)
+
+        for i in range(n):
+            if processed[i]:
+                continue
+
+            # Find all components at same position as i
+            dists = np.linalg.norm(pos_np - pos_np[i], axis=1)
+            coincident = np.where(dists < 1e-6)[0]
+
+            if len(coincident) <= 1:
+                processed[i] = True
+                continue
+
+            # Separate coincident components using spiral pattern
+            # This keeps them close together but not overlapping
+            center = pos_np[i].copy()
+            for k, idx in enumerate(coincident):
+                if k == 0:
+                    # First component stays at center
+                    pass
+                else:
+                    # Spiral outward: angle increases, radius increases
+                    angle = k * 2.618  # Golden angle in radians
+                    radius = sep * np.sqrt(k)  # Increasing radius
+                    offset = np.array(
+                        [
+                            np.cos(angle) * radius,
+                            np.sin(angle) * radius,
+                        ]
+                    )
+                    pos_np[idx] = center + offset
+
+                processed[idx] = True
+
+        return jnp.array(pos_np)
