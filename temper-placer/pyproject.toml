@@ -74,6 +74,8 @@ markers = [
     "monte_carlo: marks Monte Carlo simulation tests (require many iterations)",
     "external: marks tests that use external PCB fixtures (require download first)",
     "comparison: marks ground truth comparison tests",
+    "ci: marks tests suitable for fast CI validation",
+    "robustness: marks tests for optimizer robustness and convergence",
 ]
 
 [tool.ruff]
