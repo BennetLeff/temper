@@ -139,14 +139,22 @@ def create_return_path_loss(
     comp_map = {c.ref: i for i, c in enumerate(netlist.components)}
 
     for net in critical_nets:
-        s = net.source
-        d = net.dest
+        # Handle both object and dictionary access for compatibility
+        if isinstance(net, dict):
+            s = net.get("source")
+            d = net.get("dest")
+            w = net.get("weight", 1.0)
+        else:
+            s = net.source
+            d = net.dest
+            w = net.weight
+
         if s in comp_map and d in comp_map:
             resolved_nets.append(
                 {
                     "src_idx": comp_map[s],
                     "dst_idx": comp_map[d],
-                    "weight": float(net.weight),
+                    "weight": float(w),
                 }
             )
 

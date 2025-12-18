@@ -27,6 +27,8 @@ from temper_placer.losses.base import (
 
 
 def compute_routing_demand(
+    positions: Array,
+    context: LossContext,
     grid_shape: Tuple[int, int],
     board_bounds: Array,
 ) -> Array:
@@ -124,6 +126,8 @@ def compute_routing_demand(
 
 
 def compute_congestion_penalty(
+    positions: Array,
+    context: LossContext,
     grid_shape: Tuple[int, int] = (10, 10),
     capacity_per_cell: float = 10.0,
 ) -> Array:
@@ -204,6 +208,8 @@ class CongestionLoss(LossFunction):
 
 
 def visualize_congestion(
+    positions: Array,
+    context: LossContext,
     grid_shape: Tuple[int, int] = (10, 10),
 ) -> Array:
     """
