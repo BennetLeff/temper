@@ -26,11 +26,11 @@ def get_issue(issue_id):
     except Exception as e:
         return None, str(e)
 
-def search_memories(query):
+def search_memories(query, limit=5):
     payload = {
         "query": query,
         "userId": USER_ID,
-        "limit": 5,
+        "limit": limit,
         "minScore": 0.7
     }
     
@@ -39,7 +39,7 @@ def search_memories(query):
         req = urllib.request.Request(
             f"{BASE_URL}/memories/search", 
             data=data, 
-            headers={'Content-Type': 'application/json'},
+            headers={'Content-Type': 'application/json'}, 
             method='POST'
         )
         
@@ -76,11 +76,16 @@ def format_context(issue, memories):
     return "\n".join(output)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python3 tools/get_context.py <issue_id>")
-        sys.exit(1)
-        
-    issue_id = sys.argv[1]
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Fetch unified task and memory context.")
+    parser.add_argument("issue_id", help="The ID of the issue (e.g., temper-42)")
+    parser.add_argument("--limit", type=int, default=5, help="Number of memories to retrieve (default: 5)")
+    
+    args = parser.parse_args()
+    
+    issue_id = args.issue_id
+    limit = args.limit
     
     print(f"Fetching context for {issue_id}...")
     
@@ -104,9 +109,9 @@ if __name__ == "__main__":
     
     # Construct search query from title + keywords
     query = f"{issue['title']} {issue.get('issue_type', '')}"
-    print(f"Searching Eco for: '{query}'...")
+    print(f"Searching Eco for: '{query}' (limit: {limit})...")
     
-    memories, mem_err = search_memories(query)
+    memories, mem_err = search_memories(query, limit)
     if mem_err:
         print(f"Warning: Failed to search memories: {mem_err}")
     
