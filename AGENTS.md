@@ -251,6 +251,201 @@ bd monitor --port 3000      # Custom port
 5. **Complete**: `bd close <id> --reason "Implemented"`
 6. **Sync at end of session**: `bd sync` (see "Agent Session Workflow" below)
 
+### Git Worktree Workflow for Task Isolation
+
+**This project uses git worktrees to isolate work on bd tasks.** Each task gets its own worktree directory, enabling:
+
+- **Concurrent work**: Multiple agents/sessions working on different tasks simultaneously
+- **Clean isolation**: Each task starts with a fresh working directory
+- **Multi-machine sync**: Seamless hand-off between machines via git push/pull
+- **Easy cleanup**: Remove worktrees without affecting other work
+
+#### Directory Structure
+
+```
+~/worktrees/
+└── temper/
+    ├── bd-abc/      # worktree for task bd-abc
+    ├── bd-xyz/      # worktree for task bd-xyz
+    └── ...
+```
+
+**Configuration**: Set `BD_WORKTREE_ROOT` to change the worktree location (default: `~/worktrees`):
+
+```bash
+export BD_WORKTREE_ROOT=/path/to/your/worktrees
+```
+
+#### Setup (One-Time)
+
+Source the helper functions in your shell:
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc for persistence
+source ~/Documents/temper/tools/bd-worktree-helpers.sh
+```
+
+Or source manually each session:
+
+```bash
+source tools/bd-worktree-helpers.sh
+```
+
+#### Helper Functions
+
+| Command | Description |
+|---------|-------------|
+| `bd-work <task-id>` | Start work on a task (creates/resumes worktree) |
+| `bd-pause` | Pause work (commit WIP and push for multi-machine sync) |
+| `bd-done [reason]` | Complete task (close in bd, remind about PR) |
+| `bd-cleanup-worktrees` | Remove worktrees for closed+merged tasks |
+| `bd-worktrees` | List active worktrees with status |
+| `bd-worktree-help` | Show detailed help |
+
+#### Workflow
+
+**Starting work on a task:**
+
+```bash
+# Find ready work
+bd ready --json
+
+# Start work (creates worktree, claims task, creates branch)
+bd-work bd-123
+
+# Now you're in ~/worktrees/temper/bd-123 working on isolated branch
+```
+
+**What `bd-work` does:**
+
+1. Creates `~/worktrees/temper/<task-id>` directory
+2. Creates/checks out branch `<task-id>`
+3. If branch exists remotely, pulls latest changes
+4. If new task, creates branch from `main` and pushes immediately
+5. Runs `bd update <task-id> --status in_progress`
+
+**During work:**
+
+```bash
+# Work normally - make changes, commit, test
+git add -A
+git commit -m "feat: implement feature X"
+
+# Run tests, iterate, etc.
+```
+
+**Pausing work (switching machines or ending session):**
+
+```bash
+# Commit and push WIP
+bd-pause
+
+# This commits any changes with "WIP: progress on <task-id>"
+# Pushes to remote for multi-machine sync
+# Runs bd sync to sync issue state
+```
+
+**Resuming work (same or different machine):**
+
+```bash
+# On any machine with the repo
+bd-work bd-123
+
+# Automatically resumes from remote branch
+# You're now working with latest changes
+```
+
+**Completing a task:**
+
+```bash
+# Final push and close task
+bd-done "Implemented feature X"
+
+# This:
+# 1. Commits final changes
+# 2. Pushes to remote
+# 3. Closes task in bd
+# 4. Reminds you to create PR
+
+# Create PR
+gh pr create --fill
+
+# Worktree remains until PR merged (for review iterations)
+```
+
+**Periodic cleanup:**
+
+```bash
+# Remove worktrees for closed tasks with merged PRs
+bd-cleanup-worktrees
+
+# This only removes worktrees where:
+# - Task is closed in bd
+# - Branch is merged to main
+# - PR is complete
+```
+
+#### Multi-Machine Workflow
+
+**Machine A:**
+```bash
+bd-work bd-123
+# ... make changes ...
+bd-pause           # Push WIP
+```
+
+**Machine B:**
+```bash
+bd-work bd-123     # Automatically pulls latest WIP
+# ... continue work ...
+bd-done            # Complete and close
+```
+
+**Machine A (later):**
+```bash
+cd ~/worktrees/temper/bd-123
+git pull           # Get final changes if needed
+```
+
+#### Rules for Agents
+
+- **ALWAYS use worktrees** for bd tasks - never work directly in main repo on task branches
+- **ALWAYS run `bd-pause`** before ending a session or switching machines
+- **NEVER delete worktrees** immediately after closing task - wait for PR merge
+- **Use `bd-worktrees`** to see what's currently active
+- **Run `bd-cleanup-worktrees`** periodically (e.g., weekly) to remove old worktrees
+
+#### Troubleshooting
+
+**Worktree already exists but corrupted:**
+```bash
+# Manual cleanup
+git worktree remove ~/worktrees/temper/bd-123 --force
+git worktree prune
+bd-work bd-123  # Recreate
+```
+
+**Branch conflicts when resuming:**
+```bash
+cd ~/worktrees/temper/bd-123
+git pull --rebase  # Rebase your changes on remote
+# Resolve conflicts if any
+git push
+```
+
+**List all worktrees (git native):**
+```bash
+git worktree list
+```
+
+#### Benefits for AI Agents
+
+1. **No context switching**: Each task is in its own directory with its own state
+2. **Parallel execution**: Work on multiple tasks without interference
+3. **Clean state**: Start each task with clean working tree from main
+4. **Easy hand-off**: Push WIP, resume anywhere
+5. **Safe experimentation**: Worktree isolation means breaking one task doesn't affect others
+
 ### IMPORTANT: Always Include Issue Descriptions
 
 **Issues without descriptions lack context for future work.** When creating issues, always include a meaningful description with:
