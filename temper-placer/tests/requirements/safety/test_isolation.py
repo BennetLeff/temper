@@ -17,9 +17,10 @@ from unittest.mock import MagicMock
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
+# Add project root to path to allow importing from tests
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from temper_placer.tests.requirements.validators.isolation import (
+from tests.requirements.validators.isolation import (
     IsolationViolation,
     IsolationResult,
     check_isolation_slot,

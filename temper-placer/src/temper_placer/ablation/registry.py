@@ -152,7 +152,7 @@ class HeuristicRegistry:
     def create_pipeline(
         cls,
         toggle: ComponentToggle,
-        _constraints: Any | None = None,
+        constraints: Any | None = None,
         **override_kwargs: Any
     ) -> Any:
         """Create pipeline with only enabled heuristics."""

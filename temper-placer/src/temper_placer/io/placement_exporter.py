@@ -34,7 +34,7 @@ import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
-from temper_placer.losses.base import LossContext
+from temper_placer.losses.types import LossContext
 
 
 def soft_to_discrete_rotations(rotations: Array) -> Array:

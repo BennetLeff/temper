@@ -444,7 +444,7 @@ class ExperimentRunner:
         """
         try:
             # Try to import and run DRC if available
-            from temper_placer.io.exporter import export_placement
+            from temper_placer.io.kicad_writer import export_placements
             from temper_placer.validation.drc import run_kicad_drc
 
             with tempfile.NamedTemporaryFile(
@@ -453,7 +453,14 @@ class ExperimentRunner:
                 temp_pcb = Path(f.name)
 
             try:
-                export_placement(state, netlist, original_pcb, temp_pcb)
+                # Need component refs for export_placements
+                component_refs = [c.ref for c in netlist.components]
+                export_placements(
+                    template_pcb=original_pcb,
+                    output_pcb=temp_pcb,
+                    state=state,
+                    component_refs=component_refs
+                )
                 drc_result = run_kicad_drc(temp_pcb)
                 return (drc_result.error_count, drc_result.warning_count)
             finally:
@@ -492,19 +499,23 @@ class ExperimentRunner:
             # ========================
             # 1. PARSE TEST CASE
             # ========================
-            from temper_placer.io.parser import parse_kicad_pcb
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
 
             parse_result = parse_kicad_pcb(test_case)
             netlist = parse_result.netlist
             board = parse_result.board
 
             # Load constraints if available
+            from temper_placer.io.config_loader import load_constraints, PlacementConstraints
             constraints_path = test_case.with_suffix(".yaml")
-            constraints = None
             if constraints_path.exists():
-                # Load constraints if available
-                # For now, skip this as it's optional
-                pass
+                try:
+                    constraints = load_constraints(constraints_path)
+                except Exception as e:
+                    self.logger.warning(f"Failed to load constraints from {constraints_path}: {e}")
+                    constraints = PlacementConstraints()
+            else:
+                constraints = PlacementConstraints()
 
             # ========================
             # 2. RUN HEURISTIC INITIALIZATION
@@ -573,8 +584,17 @@ class ExperimentRunner:
                     use_centrality_weighting=experiment.components.centrality_gradient_scaling,
                 )
             except Exception as e:
-                self.logger.warning(f"LossContext creation failed: {e}, using None")
-                context = None
+                self.logger.warning(f"LossContext creation failed: {e}")
+                # Fallback to creating context without constraints if signature is still old
+                # (to debug why the kwarg is failing)
+                try:
+                    context = LossContext.from_netlist_and_board(
+                        netlist,
+                        board,
+                        use_centrality_weighting=experiment.components.centrality_gradient_scaling,
+                    )
+                except Exception:
+                    context = None
 
             # ========================
             # 6. RUN TRAINING

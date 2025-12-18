@@ -464,14 +464,25 @@ class AblationStudyConfig:
     @classmethod
     def load(cls, path: Path) -> "AblationStudyConfig":
         """Load configuration from YAML file."""
+        path = Path(path)
         data = yaml.safe_load(path.read_text())
+        
+        # Resolve test cases relative to config file if they aren't absolute
+        config_dir = path.parent.absolute()
+        test_cases = []
+        for tc in data.get("test_cases", []):
+            tc_path = Path(tc)
+            if not tc_path.is_absolute():
+                tc_path = (config_dir / tc_path).resolve()
+            test_cases.append(tc_path)
+
         return cls(
             study_name=data["study_name"],
             experiments=[
                 ExperimentConfig.from_dict(e) for e in data["experiments"]
             ],
             seeds=data.get("seeds", [42, 123, 456, 789, 1024]),
-            test_cases=[Path(tc) for tc in data.get("test_cases", [])],
+            test_cases=test_cases,
             output_dir=Path(data.get("output_dir", "ablation_results")),
             parallel_workers=data.get("parallel_workers", 4),
             checkpoint_interval=data.get("checkpoint_interval", 10),

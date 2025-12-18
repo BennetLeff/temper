@@ -145,13 +145,18 @@ class GroupClusterLoss(LossFunction):
         """
         Anneal grouping loss so it starts after initial spread.
         """
-        progress = epoch / jnp.maximum(total_epochs, 1)
-        if progress < self.anneal_start:
-            return 0.0
+        # Ensure total_epochs is at least 1 to avoid division by zero
+        total_epochs_safe = jnp.maximum(total_epochs, 1)
+        progress = epoch / total_epochs_safe
         
-        # Quadratic ramp for smooth introduction
-        ramp = (progress - self.anneal_start) / (1.0 - self.anneal_start)
-        return jnp.clip(ramp**2, 0.0, 1.0)
+        # Quadratic ramp for smooth introduction: (progress - start) / (1 - start)
+        # We use maximum(..., 1e-6) to avoid division by zero if anneal_start is 1.0
+        denom = jnp.maximum(1.0 - self.anneal_start, 1e-6)
+        ramp = (progress - self.anneal_start) / denom
+        ramp_val = jnp.clip(ramp**2, 0.0, 1.0)
+        
+        # Use jnp.where for conditional logic to be JIT-compatible
+        return jnp.where(progress < self.anneal_start, 0.0, ramp_val)
 
 
 def _compute_group_diameter(positions: Array) -> Array:

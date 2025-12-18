@@ -1,0 +1,40 @@
+study_name: "Optimizer Robustness and Seed Sensitivity"
+experiments:
+  - name: "baseline"
+    description: "Full suite: GradNorm, Jiggle, and Adaptive Overlap enabled"
+    components:
+      grad_norm: true
+      stochastic_perturbation: true
+      adaptive_overlap_weighting: true
+    tags: ["baseline"]
+
+  - name: "no_grad_norm"
+    description: "Ablate GradNorm (use fixed weights)"
+    components:
+      grad_norm: false
+      stochastic_perturbation: true
+      adaptive_overlap_weighting: true
+    tags: ["ablation", "robustness"]
+
+  - name: "no_jiggle"
+    description: "Ablate Stochastic Perturbation (Jiggle)"
+    components:
+      grad_norm: true
+      stochastic_perturbation: false
+      adaptive_overlap_weighting: true
+    tags: ["ablation", "robustness"]
+
+  - name: "no_adaptive_overlap"
+    description: "Ablate Adaptive Overlap Weighting"
+    components:
+      grad_norm: true
+      stochastic_perturbation: true
+      adaptive_overlap_weighting: false
+    tags: ["ablation", "robustness"]
+
+seeds: [42, 123, 456, 789, 1024]
+test_cases:
+  - "../tests/fixtures/medium_board.kicad_pcb"
+output_dir: "robustness_results"
+parallel_workers: 4
+checkpoint_interval: 1

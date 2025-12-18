@@ -106,8 +106,8 @@ class HeuristicPipeline:
         self,
         board: Board,
         netlist: Netlist,
-        constraints: PlacementConstraints,
-        key: Array,
+        constraints: Optional[PlacementConstraints] = None,
+        key: Optional[Array] = None,
         keep_out_mask: Optional[Array] = None,
     ) -> PipelineResult:
         """
@@ -116,13 +116,19 @@ class HeuristicPipeline:
         Args:
             board: Board geometry
             netlist: Components and nets
-            constraints: Placement constraints
+            constraints: Optional placement constraints
             key: JAX random key for stochastic decisions
             keep_out_mask: Optional (H, W) boolean mask of valid regions
 
         Returns:
             PipelineResult with final placements and JAX state
         """
+        if constraints is None:
+            constraints = PlacementConstraints()
+        
+        if key is None:
+            key = jax.random.PRNGKey(42)
+
         # Sort heuristics by priority
         sorted_heuristics = sorted(self.heuristics, key=lambda h: h.priority)
 

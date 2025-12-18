@@ -304,7 +304,7 @@ def _compute_pairwise_overlaps_optimized(
     # Note: We handle n < 2 inside the branches or via another cond to keep structure same
     return jax.lax.cond(
         n < 2,
-        lambda _: (jnp.array(0.0), jnp.zeros(n)),
+        lambda _: (jnp.array(0.0, dtype=positions.dtype), jnp.zeros(n, dtype=positions.dtype)),
         lambda args: jax.lax.cond(
             args[0].shape[0] < _VECTORIZED_THRESHOLD,
             lambda a: _compute_pairwise_overlaps_vectorized(*a),

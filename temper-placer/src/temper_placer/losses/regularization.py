@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from typing import List, Optional, cast
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -295,19 +296,25 @@ class RotationEntropyLoss(LossFunction):
         Early in training, entropy regularization helps exploration.
         Later, we want to converge to discrete rotations.
         """
-        if total_epochs <= 0:
-            return 1.0
+        # Use jnp.maximum to avoid division by zero and be JAX-compatible
+        epochs_safe = jnp.maximum(total_epochs, 1)
+        progress = epoch / epochs_safe
 
-        progress = epoch / total_epochs
-
-        if progress < self.anneal_start:
-            return 1.0
-        elif progress > self.anneal_end:
-            return 0.0
-        else:
-            # Linear annealing
-            t = (progress - self.anneal_start) / (self.anneal_end - self.anneal_start)
-            return 1.0 - t
+        # Use jnp.where to be JAX-compatible (avoid Python if/else on tracers)
+        # Linear annealing: 1.0 -> 0.0 between anneal_start and anneal_end
+        t = (progress - self.anneal_start) / jnp.maximum(self.anneal_end - self.anneal_start, 1e-6)
+        linear_val = jnp.clip(1.0 - t, 0.0, 1.0)
+        
+        result = jnp.where(
+            progress < self.anneal_start,
+            1.0,
+            jnp.where(
+                progress > self.anneal_end,
+                0.0,
+                linear_val
+            )
+        )
+        return cast(float, result)
 
 
 @dataclass
