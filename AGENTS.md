@@ -20,10 +20,15 @@ To maintain context across different tasks and parallel sessions, we use two com
 ### 🔄 OpenMemory Integration Workflow
 
 **1. Context Retrieval (Session Start)**
-Before starting any task, you MUST query OpenMemory to gather relevant context:
+Before starting any task, you MUST query OpenMemory to gather relevant context.
+**Recommended:** Use the unified context tool:
+```bash
+python3 tools/get_context.py <ISSUE_ID>
+```
+
+Alternatively, use the raw API:
 - Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
 - Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}`
-- Review any **Reflections** left by previous agents on related components.
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:

@@ -98,8 +98,8 @@ When delegating, ensure your issue description (the instruction) follows these r
 ### Workflow Example
 ```bash
 # 1. Context Retrieval (MANDATORY)
-# Query OpenMemory for relevant facts/decisions
-POST /memories/search { "query": "auth_design_patterns", "userId": "temper-agent" }
+# Use the unified context tool to get Task + Memory + Docs in one go
+python3 tools/get_context.py temper-42
 
 # 2. User/Master finds a complex task
 bd create "Design Secure Auth" -t task --label agent:architect
@@ -107,17 +107,33 @@ bd create "Design Secure Auth" -t task --label agent:architect
 # 3. Run automation
 python3 tools/agents/auto_assign.py
 
-# 4. Architect (Pro) produces design in agent_outputs/
-# 5. Master reviews design, then creates coding task
-bd create "Implement Auth" -t task --label agent:coder
-
-# 6. Run automation again
-python3 tools/agents/auto_assign.py
-
-# 7. Reflection (MANDATORY)
-# Post what was learned to OpenMemory
-POST /memories { "content": "REFLECTION: Learned that auth-v2 requires...", "userId": "temper-agent", "tags": ["reflection"] }
+# ... (rest of workflow)
 ```
+
+## Seamless Integration Tools
+
+To bridge the gap between **Beads** (Tasks) and **Eco** (Memory), use these specialized tools:
+
+### 1. Unified Context Fetcher
+Instead of manually querying both systems, use this tool to fetch the Issue details AND relevant memories in one shot:
+```bash
+python3 tools/get_context.py <ISSUE_ID>
+```
+This will:
+- Fetch the full issue description from Beads.
+- Semantic search Eco for related architectural decisions and past learnings.
+- Display a consolidated context report.
+
+### 2. Auto-Sync Tasks to Memory
+If you create or update many issues and want them reflected in Eco's semantic search immediately:
+```bash
+python3 tools/sync_beads_to_eco.py
+```
+This script:
+- Scans local `.beads/issues.jsonl`.
+- Detects changes since last sync.
+- Pushes updates to Eco as "Episodic" memories.
+- **Run this** if you just batch-created issues and want the Architect agent to "know" about them.
 
 ## Landing the Plane
 
