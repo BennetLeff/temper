@@ -16,8 +16,9 @@
 1. **Automate intelligent placement** for the Temper induction cooker PCB (~100 components)
 2. **Encode domain expertise** in constraints (HV clearance, thermal, EMI loops)
 3. **Provide repeatability** - same inputs produce same outputs
-4. **Enable iteration** - adjust constraints, re-run, compare results
-5. **Integrate with KiCad** - read/write native file formats via kiutils
+4. **Ensure Robustness** - achieve 100% convergence via soft-body inflation and adaptive weighting
+5. **Enable iteration** - adjust constraints, re-run, compare results
+6. **Integrate with KiCad** - read/write native file formats via kiutils
 
 ### Non-Goals (Deferred)
 
@@ -1626,7 +1627,43 @@ def train_with_validation(
 
 ---
 
-## 11. Future Extensions
+## 11. Optimizer Robustness Features
+
+To resolve local minima and "Overlap Deadlocks," the following advanced optimization strategies are implemented:
+
+### 11.1 Soft-Body Component Inflation
+
+**Concept**: Components start as small points and "inflate" to their true physical dimensions over time.
+
+**Implementation**:
+- Add `inflation_ramp` parameter to `OverlapLoss`.
+- Ramp the effective component size from a fraction (e.g., 0.3) to 1.0 over the first 30% of training.
+- **Benefit**: Allows components to "glide" through each other early in training to reach their assigned zones, avoiding early entanglement.
+
+### 11.2 Adaptive Per-Component Loss Weighting
+
+**Concept**: Dynamically increase the repulsion force for specific components that remain stuck in overlaps.
+
+**Implementation**:
+- Maintain a weight vector $W \in \mathbb{R}^N$ initialized to 1.0.
+- Every iteration, if component $i$ has an overlap violation $> \epsilon$:
+  $W_i \leftarrow W_i \times (1 + \text{rate})$
+- Use $W_i$ to scale the overlap gradient for component $i$.
+- **Benefit**: Breaks symmetric deadlocks where `WirelengthLoss` and `OverlapLoss` gradients cancel out.
+
+### 11.3 Stochastic Perturbation (Jiggle)
+
+**Concept**: Inject "thermal energy" into the system when optimization stalls.
+
+**Implementation**:
+- Monitor the Exponential Moving Average (EMA) of component displacement.
+- If $\text{EMA} < \text{threshold}$ AND constraints are still violated:
+  $\text{pos} \leftarrow \text{pos} + \mathcal{N}(0, \sigma)$
+- **Benefit**: Provides a mechanism to jump out of narrow local minima that gradient descent cannot escape.
+
+---
+
+## 12. Future Extensions
 
 1. **Global Routing:** Add Steiner tree estimation for better congestion modeling
 2. **Detailed Routing:** Integrate with FreeRouting or custom maze router
@@ -1637,7 +1674,7 @@ def train_with_validation(
 
 ---
 
-## 11. Dependencies
+## 13. Dependencies
 
 ```toml
 # pyproject.toml
@@ -1671,7 +1708,7 @@ dev = [
 
 ---
 
-## 12. Glossary
+## 14. Glossary
 
 | Term | Definition |
 |------|------------|

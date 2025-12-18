@@ -13,6 +13,10 @@ differentiable loss functions.
 - **Gumbel-Softmax discrete rotation** - Differentiable 0°/90°/180°/270° rotation
 - **Multi-objective optimization** - Wirelength, overlap, thermal, EMI, congestion
 - **Curriculum learning** - Progressive constraint introduction
+- **Optimizer Robustness** - Overlap deadlock prevention via:
+  - **Soft-Body Inflation**: Ramping component size to avoid early entanglement.
+  - **Adaptive Weighting**: Per-component loss balancing for stuck components.
+  - **Stochastic Jiggle**: Local minima escape via automated perturbations.
 - **Live visualization** - Browser-based training dashboard
 - **KiCad integration** - Native file format support via kiutils
 - **Validation-in-the-loop** - KiCad DRC and ngspice integration
