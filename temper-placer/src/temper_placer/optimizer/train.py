@@ -706,8 +706,9 @@ def train(
             if config.adaptive_overlap_enabled and epoch % 10 == 0:
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 per_comp_boundary = loss_breakdown_arrays.get("boundary_per_component")
+                per_comp_group = loss_breakdown_arrays.get("group_cluster_per_component")
                 
-                if per_comp_overlap is not None or per_comp_boundary is not None:
+                if per_comp_overlap is not None or per_comp_boundary is not None or per_comp_group is not None:
                     # Initialize mask
                     violation_mask = jnp.zeros(state.overlap_weights.shape, dtype=jnp.bool_)
                     
@@ -716,6 +717,9 @@ def train(
                     
                     if per_comp_boundary is not None:
                         violation_mask = jnp.logical_or(violation_mask, per_comp_boundary > 0.1)
+
+                    if per_comp_group is not None:
+                        violation_mask = jnp.logical_or(violation_mask, per_comp_group > 0.1)
                         
                     # Increment weight by 10% for any violation
                     state.overlap_weights = jnp.where(

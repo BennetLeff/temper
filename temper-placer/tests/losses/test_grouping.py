@@ -102,6 +102,43 @@ class TestGroupClusterLoss:
         result = loss_fn(positions, rotations, None)
         assert jnp.isclose(result.value, 0.0, atol=1e-5)
 
+    def test_group_cluster_per_component_breakdown(self):
+        """Verify per-component penalty breakdown."""
+        group = GroupConfig(
+            name="test_group",
+            component_indices=jnp.array([0, 1]),
+            max_diameter_mm=10.0,
+        )
+        loss_fn = GroupClusterLoss([group])
+
+        # Diameter is 20mm, excess is 10mm, penalty 100.0
+        positions = jnp.array([[0.0, 0.0], [20.0, 0.0], [100.0, 100.0]])
+        rotations = jnp.eye(4)
+
+        result = loss_fn(positions, rotations, None)
+        per_comp = result.breakdown["per_component"]
+        
+        # 100.0 penalty distributed over 2 components = 50.0 each
+        assert float(per_comp[0]) == pytest.approx(50.0)
+        assert float(per_comp[1]) == pytest.approx(50.0)
+        assert float(per_comp[2]) == 0.0
+
+    def test_group_cluster_weight_schedule(self):
+        """Verify weight annealing ramp."""
+        loss_fn = GroupClusterLoss([], anneal_start=0.5)
+        
+        # Before ramp
+        assert loss_fn.weight_schedule(0, 1000) == 0.0
+        assert loss_fn.weight_schedule(499, 1000) == 0.0
+        
+        # End of ramp
+        assert loss_fn.weight_schedule(1000, 1000) == 1.0
+        
+        # Middle of ramp (quadratic ramp)
+        # 75% of total epochs is halfway through the 50%-100% ramp
+        # halfway = 0.5, 0.5^2 = 0.25
+        assert loss_fn.weight_schedule(750, 1000) == pytest.approx(0.25, abs=0.01)
+
 
 class TestProximityLoss:
     """Tests for ProximityLoss."""

@@ -56,19 +56,26 @@ class GroupClusterLoss(LossFunction):
 
     This encourages related components (e.g., gate driver + IGBT + bootstrap cap)
     to be placed close together for better performance.
+
+    Attributes:
+        groups: List of GroupConfig defining groups and their max diameters.
+        anneal_start: Fraction of training (0.0-1.0) when this loss starts.
     """
 
     def __init__(
         self,
         groups: List[GroupConfig],
+        anneal_start: float = 0.3,
     ):
         """
         Initialize GroupClusterLoss.
 
         Args:
             groups: List of GroupConfig defining groups and their max diameters.
+            anneal_start: Fraction of training when grouping starts.
         """
         self.groups = groups
+        self.anneal_start = anneal_start
 
     @property
     def name(self) -> str:
@@ -93,8 +100,12 @@ class GroupClusterLoss(LossFunction):
         Returns:
             LossResult with sum of squared diameter excesses.
         """
+        n = positions.shape[0]
         total_penalty = jnp.array(0.0)
         breakdown: Dict[str, Array] = {}
+        
+        # Track per-component breakdown for adaptive weighting
+        per_component_penalty = jnp.zeros(n)
 
         for group in self.groups:
             # Get positions of components in this group
@@ -115,8 +126,31 @@ class GroupClusterLoss(LossFunction):
             total_penalty = total_penalty + penalty
             breakdown[f"group_{group.name}_diameter"] = group_diameter
             breakdown[f"group_{group.name}_penalty"] = penalty
+            
+            # Attribute penalty to all components in the group
+            # Use jax.lax.scatter or just indexing if safe
+            # For simplicity in loop, we'll do this:
+            per_component_penalty = per_component_penalty.at[group.component_indices].add(penalty / n_in_group)
 
-        return LossResult(value=total_penalty, breakdown=breakdown)
+        return LossResult(
+            value=total_penalty, 
+            breakdown={
+                **breakdown,
+                "per_component": per_component_penalty
+            }
+        )
+
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+        """
+        Anneal grouping loss so it starts after initial spread.
+        """
+        progress = epoch / jnp.maximum(total_epochs, 1)
+        if progress < self.anneal_start:
+            return 0.0
+        
+        # Quadratic ramp for smooth introduction
+        ramp = (progress - self.anneal_start) / (1.0 - self.anneal_start)
+        return jnp.clip(ramp**2, 0.0, 1.0)
 
 
 def _compute_group_diameter(positions: Array) -> Array:
