@@ -232,6 +232,9 @@ class SpectralInitializer:
         """
         Compute initial positions for all components using spectral embedding.
 
+        For disjoint subgraphs, places largest subgraph at center and smaller
+        subgraphs in corners/periphery to prevent overlap.
+
         Args:
             netlist: Components and connectivity.
             board: Board dimensions.
@@ -243,8 +246,7 @@ class SpectralInitializer:
         Notes:
             - Deterministic for same netlist (no randomness).
             - Single components placed at center.
-            - Components with identical spectral coordinates are separated
-              using their index as a deterministic offset.
+            - Disjoint subgraphs are partitioned and packed strategically.
         """
         n = len(netlist.components)
         if n == 0:
@@ -257,22 +259,22 @@ class SpectralInitializer:
         # Build connectivity graph
         adjacency = build_adjacency_matrix(netlist)
 
-        # Compute spectral coordinates for the entire graph at once
-        # This naturally handles disjoint subgraphs via multiple zero eigenvalues
-        all_coords = compute_spectral_coordinates(
-            adjacency,
-            n_dims=2,
-            normalized=self.normalized_laplacian,
-        )
+        # Find connected components (disjoint subgraphs)
+        components = find_connected_components(adjacency)
 
-        # Scale all coordinates to board bounds
-        positions = scale_to_board(all_coords, board, self.margin_fraction)
+        # If single connected graph, use unified spectral embedding
+        if len(components) == 1:
+            all_coords = compute_spectral_coordinates(
+                adjacency,
+                n_dims=2,
+                normalized=self.normalized_laplacian,
+            )
+            positions = scale_to_board(all_coords, board, self.margin_fraction)
+            positions = self._separate_coincident_components(positions, board)
+            return positions
 
-        # Separate components that ended up at identical positions
-        # (common for directly connected components in small subgraphs)
-        positions = self._separate_coincident_components(positions, board)
-
-        return positions
+        # Multiple disjoint subgraphs: handle each independently
+        return self._initialize_disjoint_subgraphs(adjacency, components, board)
 
     def _separate_coincident_components(
         self,
@@ -340,3 +342,227 @@ class SpectralInitializer:
                 processed[idx] = True
 
         return jnp.array(pos_np)
+
+    def _initialize_disjoint_subgraphs(
+        self,
+        adjacency: Array,
+        components: list[list[int]],
+        board: Board,
+    ) -> Array:
+        """
+        Initialize disjoint subgraphs independently and pack them strategically.
+
+        Strategy:
+        - Sort subgraphs by size (largest first)
+        - Largest subgraph at board center
+        - Smaller subgraphs placed in corners/spiral pattern
+        - Each subgraph gets its own spectral embedding
+
+        Args:
+            adjacency: (N, N) adjacency matrix.
+            components: List of component indices for each subgraph.
+            board: Board dimensions.
+
+        Returns:
+            (N, 2) positions for all components.
+        """
+        n = adjacency.shape[0]
+
+        # Sort subgraphs by size (largest first)
+        sorted_subgraphs = sorted(components, key=len, reverse=True)
+
+        # Compute spectral coordinates for each subgraph
+        subgraph_coords = []
+        for subgraph in sorted_subgraphs:
+            if len(subgraph) == 1:
+                # Single isolated component - just use zero coords
+                subgraph_coords.append(np.array([[0.0, 0.0]]))
+            else:
+                # Extract subgraph adjacency matrix
+                sub_adj = adjacency[np.ix_(subgraph, subgraph)]
+                # Compute spectral coordinates
+                coords = compute_spectral_coordinates(
+                    sub_adj,
+                    n_dims=2,
+                    normalized=self.normalized_laplacian,
+                )
+                subgraph_coords.append(np.array(coords))
+
+        # Pack subgraphs onto board
+        packed_positions = self._pack_subgraphs(sorted_subgraphs, subgraph_coords, board)
+
+        # Reconstruct positions in original component order
+        positions = np.zeros((n, 2))
+        for subgraph, coords in zip(sorted_subgraphs, packed_positions):
+            for idx, comp_idx in enumerate(subgraph):
+                positions[comp_idx] = coords[idx]
+
+        # Apply separation for coincident components within each subgraph
+        positions_jax = jnp.array(positions)
+        positions_jax = self._separate_coincident_components(positions_jax, board)
+
+        return positions_jax
+
+    def _pack_subgraphs(
+        self,
+        subgraphs: list[list[int]],
+        subgraph_coords: list[np.ndarray],
+        board: Board,
+    ) -> list[np.ndarray]:
+        """
+        Pack subgraphs strategically: largest at center, others in corners/spiral.
+
+        Packing strategy:
+        - Subgraph 0 (largest): Board center, full region
+        - Subgraph 1: Top-right corner (quadrant)
+        - Subgraph 2: Top-left corner (quadrant)
+        - Subgraph 3: Bottom-left corner (quadrant)
+        - Subgraph 4: Bottom-right corner (quadrant)
+        - Subgraph 5+: Spiral outward from corners
+
+        Args:
+            subgraphs: List of component indices (sorted by size).
+            subgraph_coords: List of spectral coordinates (normalized [-0.5, 0.5]).
+            board: Board dimensions.
+
+        Returns:
+            List of scaled positions for each subgraph.
+        """
+        packed = []
+
+        for i, (subgraph, coords) in enumerate(zip(subgraphs, subgraph_coords)):
+            if i == 0:
+                # Largest subgraph: center region with margin
+                region = self._get_board_region(board, "center", self.margin_fraction)
+            elif i == 1:
+                # Top-right corner
+                region = self._get_board_region(board, "top-right", self.margin_fraction)
+            elif i == 2:
+                # Top-left corner
+                region = self._get_board_region(board, "top-left", self.margin_fraction)
+            elif i == 3:
+                # Bottom-left corner
+                region = self._get_board_region(board, "bottom-left", self.margin_fraction)
+            elif i == 4:
+                # Bottom-right corner
+                region = self._get_board_region(board, "bottom-right", self.margin_fraction)
+            else:
+                # Fall back to center with offset (spiral pattern)
+                # This handles the rare case of 6+ disjoint subgraphs
+                angle = (i - 4) * 2.618  # Golden angle
+                radius = 0.3 * min(board.width, board.height)
+                offset_x = np.cos(angle) * radius
+                offset_y = np.sin(angle) * radius
+                region = self._get_board_region(
+                    board, "center", self.margin_fraction, offset=(offset_x, offset_y)
+                )
+
+            # Scale coordinates to region
+            scaled = self._scale_to_region(coords, region)
+            packed.append(scaled)
+
+        return packed
+
+    def _get_board_region(
+        self,
+        board: Board,
+        location: str,
+        margin: float,
+        offset: tuple[float, float] = (0.0, 0.0),
+    ) -> dict:
+        """
+        Get a rectangular region of the board.
+
+        Args:
+            board: Board dimensions.
+            location: "center", "top-left", "top-right", "bottom-left", "bottom-right".
+            margin: Margin fraction.
+            offset: Optional (x, y) offset from region center.
+
+        Returns:
+            Dict with 'x_min', 'x_max', 'y_min', 'y_max', 'center_x', 'center_y'.
+        """
+        margin_x = board.width * margin
+        margin_y = board.height * margin
+
+        if location == "center":
+            x_min = board.origin[0] + margin_x
+            x_max = board.origin[0] + board.width - margin_x
+            y_min = board.origin[1] + margin_y
+            y_max = board.origin[1] + board.height - margin_y
+        elif location == "top-right":
+            # Push further into corner (use 2/3 point, not midpoint)
+            x_min = board.origin[0] + board.width * 0.67
+            x_max = board.origin[0] + board.width - margin_x
+            y_min = board.origin[1] + board.height * 0.67
+            y_max = board.origin[1] + board.height - margin_y
+        elif location == "top-left":
+            x_min = board.origin[0] + margin_x
+            x_max = board.origin[0] + board.width * 0.33
+            y_min = board.origin[1] + board.height * 0.67
+            y_max = board.origin[1] + board.height - margin_y
+        elif location == "bottom-left":
+            x_min = board.origin[0] + margin_x
+            x_max = board.origin[0] + board.width * 0.33
+            y_min = board.origin[1] + margin_y
+            y_max = board.origin[1] + board.height * 0.33
+        elif location == "bottom-right":
+            x_min = board.origin[0] + board.width * 0.67
+            x_max = board.origin[0] + board.width - margin_x
+            y_min = board.origin[1] + margin_y
+            y_max = board.origin[1] + board.height * 0.33
+        else:
+            raise ValueError(f"Unknown location: {location}")
+
+        center_x = (x_min + x_max) / 2 + offset[0]
+        center_y = (y_min + y_max) / 2 + offset[1]
+
+        return {
+            "x_min": x_min,
+            "x_max": x_max,
+            "y_min": y_min,
+            "y_max": y_max,
+            "center_x": center_x,
+            "center_y": center_y,
+            "width": x_max - x_min,
+            "height": y_max - y_min,
+        }
+
+    def _scale_to_region(self, coords: np.ndarray, region: dict) -> np.ndarray:
+        """
+        Scale normalized coordinates to fit within a region.
+
+        Args:
+            coords: (N, 2) coordinates in normalized space (roughly [-0.5, 0.5]).
+            region: Dict with region bounds from _get_board_region.
+
+        Returns:
+            (N, 2) scaled coordinates.
+        """
+        if len(coords) == 0:
+            return coords
+
+        # Normalize to [0, 1]
+        min_c = np.min(coords, axis=0)
+        max_c = np.max(coords, axis=0)
+        range_c = max_c - min_c
+
+        # Avoid division by zero for degenerate cases
+        range_c = np.where(range_c < 1e-10, 1.0, range_c)
+
+        normalized = (coords - min_c) / range_c
+
+        # Scale to region with some internal margin (10% of region size)
+        internal_margin = 0.1
+        usable_width = region["width"] * (1 - 2 * internal_margin)
+        usable_height = region["height"] * (1 - 2 * internal_margin)
+
+        scaled = np.zeros_like(coords)
+        scaled[:, 0] = (
+            region["x_min"] + region["width"] * internal_margin + normalized[:, 0] * usable_width
+        )
+        scaled[:, 1] = (
+            region["y_min"] + region["height"] * internal_margin + normalized[:, 1] * usable_height
+        )
+
+        return scaled
