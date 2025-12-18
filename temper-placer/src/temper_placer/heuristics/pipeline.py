@@ -350,3 +350,30 @@ class HeuristicPipeline:
     def get_registered_heuristics(self) -> List[Tuple[str, HeuristicPriority]]:
         """Get list of registered heuristics with their priorities."""
         return [(h.name, h.priority) for h in self.heuristics]
+
+
+def create_default_pipeline(
+    conflict_strategy: ResolutionStrategy = ResolutionStrategy.NUDGE,
+) -> HeuristicPipeline:
+    """
+    Create a pipeline with standard heuristics.
+
+    This factory includes:
+    1. Spectral Layout (Initial global placement)
+    2. Force Directed Layout (Refinement)
+    3. (Other heuristics to be added...)
+    """
+    from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
+    from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
+
+    pipeline = HeuristicPipeline(conflict_strategy=conflict_strategy)
+
+    # Priority: INITIALIZATION (-1)
+    # Spectral first (global structure)
+    pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
+    # Force-directed second (refinement of spectral)
+    pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
+
+    # TODO: Add Hard, Structural, Organizational, Style heuristics
+
+    return pipeline
