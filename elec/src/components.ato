@@ -1,4 +1,10 @@
 # components.ato
+# Component definitions for Temper Induction Cooker
+# Reference: pcb/*.kicad_sch
+
+# ==============================================================================
+# POWER COMPONENTS
+# ==============================================================================
 
 component IKW40N120H3:
     """Infineon 1200V 40A IGBT"""
@@ -103,3 +109,334 @@ component Diode:
     current_rating: current
     signal K ~ pin 1
     signal A ~ pin 2
+
+# ==============================================================================
+# POWER INPUT COMPONENTS
+# ==============================================================================
+
+component Fuse:
+    """Fuse holder with fuse"""
+    footprint = "Fuse:Fuse_Holder_5x20mm"
+    current_rating: current
+    voltage_rating: voltage
+    mpn: str
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component NTC_Inrush:
+    """Inrush current limiter NTC"""
+    footprint = "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm"
+    resistance_cold: ohm
+    current_rating: current
+    mpn = "SL32 10015"
+    manufacturer = "Ametherm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component MUR1560:
+    """Ultrafast rectifier 15A 600V"""
+    footprint = "Package_TO_SOT_THT:TO-220-2_Vertical"
+    mpn = "MUR1560G"
+    manufacturer = "ON Semiconductor"
+    
+    # Ratings
+    voltage_rating = 600V
+    current_rating = 15A
+    t_rr = 35ns
+    
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component CapPolarized:
+    """Electrolytic capacitor"""
+    footprint: str
+    value: farad
+    voltage_rating: voltage
+    mpn: str
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component Relay_SPST:
+    """SPST relay for bypass"""
+    footprint: str
+    coil_voltage: voltage
+    contact_current: current
+    mpn: str
+    signal coil1 ~ pin 1
+    signal coil2 ~ pin 2
+    signal NO ~ pin 3
+    signal COM ~ pin 4
+
+# ==============================================================================
+# POWER MANAGEMENT COMPONENTS
+# ==============================================================================
+
+component LMR51430:
+    """TI 4.5-36V 3A Synchronous Buck Converter"""
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    mpn = "LMR51430XDDCR"
+    manufacturer = "Texas Instruments"
+    
+    # Ratings
+    v_in_max = 36V
+    v_out_max = 28V
+    i_out_max = 3A
+    
+    signal VIN ~ pin 1
+    signal GND ~ pin 2
+    signal FB ~ pin 3
+    signal EN ~ pin 4
+    signal SW ~ pin 5
+    signal BOOT ~ pin 6
+
+component XC6220:
+    """Torex 700mA Ultra Low Noise LDO"""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "XC6220B331MR-G"
+    manufacturer = "Torex Semiconductor"
+    
+    # Ratings
+    v_out = 3.3V
+    i_out_max = 700mA
+    v_dropout = 0.3V
+    noise = 30uVrms  # Ultra low noise
+    
+    signal VSS ~ pin 1
+    signal VIN ~ pin 2
+    signal CE ~ pin 3
+    signal NC ~ pin 4
+    signal VOUT ~ pin 5
+
+component Inductor:
+    """Power inductor"""
+    footprint: str
+    value: henry
+    current_rating: current
+    dcr: ohm
+    mpn: str
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+# ==============================================================================
+# SENSING COMPONENTS
+# ==============================================================================
+
+component MAX31865:
+    """RTD-to-Digital Converter, 15-bit ADC"""
+    footprint = "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm"
+    mpn = "MAX31865ATP+"
+    manufacturer = "Analog Devices"
+    
+    # Ratings
+    v_supply_max = 3.6V
+    resolution = 15  # bits
+    
+    # Pin definitions (SSOP-20)
+    signal DRDY ~ pin 1
+    signal DVDD ~ pin 2
+    signal VDD ~ pin 3
+    signal BIAS ~ pin 4
+    signal REFIN_P ~ pin 5
+    signal REFIN_N ~ pin 6
+    signal ISENSOR ~ pin 7
+    signal FORCE_P ~ pin 8
+    signal FORCE2 ~ pin 9
+    signal RTDIN_P ~ pin 10
+    signal RTDIN_N ~ pin 11
+    signal FORCE_N ~ pin 12
+    signal GND2 ~ pin 13
+    signal SDI ~ pin 14
+    signal SCLK ~ pin 15
+    signal CS_N ~ pin 16
+    signal SDO ~ pin 17
+    signal DGND ~ pin 18
+    signal GND1 ~ pin 19
+    signal NC3 ~ pin 20
+
+component ADUM1250:
+    """Hot-swappable I2C Isolator"""
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    mpn = "ADUM1250ARZ"
+    manufacturer = "Analog Devices"
+    
+    # Ratings
+    v_iso = 2500V
+    data_rate = 1MHz
+    
+    signal VDD1 ~ pin 1
+    signal SDA1 ~ pin 2
+    signal SCL1 ~ pin 3
+    signal GND1 ~ pin 4
+    signal GND2 ~ pin 5
+    signal SCL2 ~ pin 6
+    signal SDA2 ~ pin 7
+    signal VDD2 ~ pin 8
+
+# ==============================================================================
+# SAFETY INTERLOCK COMPONENTS
+# ==============================================================================
+
+component TLV3201:
+    """40ns Rail-to-Rail Comparator"""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "TLV3201AIDBVR"
+    manufacturer = "Texas Instruments"
+    
+    # Ratings
+    t_pd = 40ns  # Propagation delay
+    v_supply_max = 5.5V
+    
+    signal OUT ~ pin 1
+    signal GND ~ pin 2
+    signal INP ~ pin 3
+    signal INN ~ pin 4
+    signal VCC ~ pin 5
+
+component TPS3823:
+    """Supervisor with Watchdog, 1.6s timeout"""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "TPS3823-33DBVR"
+    manufacturer = "Texas Instruments"
+    
+    # Ratings
+    wdt_timeout = 1.6s
+    v_threshold = 3.08V  # Reset at 3.08V
+    
+    signal GND ~ pin 1
+    signal RESET_N ~ pin 2
+    signal MR_N ~ pin 3
+    signal WDI ~ pin 4
+    signal VDD ~ pin 5
+
+component SN74HC4075:
+    """Triple 3-Input OR Gate"""
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    mpn = "SN74HC4075DR"
+    manufacturer = "Texas Instruments"
+    
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal A2 ~ pin 3
+    signal B2 ~ pin 4
+    signal C2 ~ pin 5
+    signal Y2 ~ pin 6
+    signal GND ~ pin 7
+    signal Y3 ~ pin 8
+    signal A3 ~ pin 9
+    signal B3 ~ pin 10
+    signal C3 ~ pin 11
+    signal C1 ~ pin 12
+    signal Y1 ~ pin 13
+    signal VCC ~ pin 14
+
+component SN74HC00:
+    """Quad 2-Input NAND Gate"""
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    mpn = "SN74HC00DR"
+    manufacturer = "Texas Instruments"
+    
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal Y1 ~ pin 3
+    signal A2 ~ pin 4
+    signal B2 ~ pin 5
+    signal Y2 ~ pin 6
+    signal GND ~ pin 7
+    signal Y3 ~ pin 8
+    signal A3 ~ pin 9
+    signal B3 ~ pin 10
+    signal Y4 ~ pin 11
+    signal A4 ~ pin 12
+    signal B4 ~ pin 13
+    signal VCC ~ pin 14
+
+# ==============================================================================
+# MCU COMPONENTS  
+# ==============================================================================
+
+component ESP32_S3_WROOM_1:
+    """ESP32-S3 Module with WiFi/BLE"""
+    footprint = "ESP32-S3-WROOM-1"  # Custom footprint
+    mpn = "ESP32-S3-WROOM-1-N8R8"
+    manufacturer = "Espressif"
+    
+    # Key characteristics
+    flash_size = 8MB
+    psram_size = 8MB
+    
+    # Power pins
+    signal GND ~ pin 1
+    signal VCC3V3 ~ pin 2
+    
+    # SPI pins (remapped to avoid conflict with PWM/Control)
+    signal SPI_CLK ~ pin 12 # IO8
+    signal SPI_CS ~ pin 18  # IO10
+    signal SPI_MOSI ~ pin 19 # IO11
+    signal SPI_MISO ~ pin 20 # IO12
+    
+    # GPIO for PWM
+    signal GPIO16 ~ pin 9 # IO16
+    signal GPIO17 ~ pin 10 # IO17
+    
+    # ADC pins
+    signal GPIO1 ~ pin 39 # IO1
+    signal GPIO2 ~ pin 38 # IO2
+    signal GPIO3 ~ pin 15 # IO3
+    
+    # Control pins
+    signal GPIO18 ~ pin 11 # IO18
+    signal GPIO19 ~ pin 13 # IO19
+    signal GPIO20 ~ pin 14 # IO20
+    
+    # UART (debug)
+    signal TXD0 ~ pin 37 # TXD0
+    signal RXD0 ~ pin 36 # RXD0
+    
+    # Status LEDs
+    signal GPIO21 ~ pin 23 # IO21
+    signal GPIO35 ~ pin 28 # IO35
+    signal GPIO36 ~ pin 29 # IO36
+    signal GPIO37 ~ pin 30 # IO37
+    
+    # I2C
+    signal SDA ~ pin 4 # IO4 - Reassigning to valid pin
+    signal SCL ~ pin 5 # IO5 - Reassigning to valid pin
+    
+    # Enable/Reset
+    signal EN ~ pin 3
+
+    # Internal IOs for ref (not all exposed)
+    signal IO0 ~ pin 27
+    signal IO1 ~ pin 39
+    signal IO2 ~ pin 38
+    signal IO3 ~ pin 15
+    signal IO4 ~ pin 4
+    signal IO5 ~ pin 5
+    signal IO6 ~ pin 6
+    signal IO7 ~ pin 7
+    signal IO8 ~ pin 12
+    signal IO9 ~ pin 17
+    signal IO10 ~ pin 18
+    signal IO11 ~ pin 19
+    signal IO12 ~ pin 20
+    signal IO13 ~ pin 21
+    signal IO14 ~ pin 22
+    signal IO15 ~ pin 8
+    signal IO16 ~ pin 9
+    signal IO17 ~ pin 10
+    signal IO18 ~ pin 11
+    signal IO19 ~ pin 13
+    signal IO20 ~ pin 14
+    signal IO21 ~ pin 23
+    signal IO35 ~ pin 28
+    signal IO36 ~ pin 29
+    signal IO37 ~ pin 30
+    signal IO38 ~ pin 31
+    signal IO39 ~ pin 32
+    signal IO40 ~ pin 33
+    signal IO41 ~ pin 34
+    signal IO42 ~ pin 35
+    signal IO45 ~ pin 26
+    signal IO46 ~ pin 16
+    signal IO47 ~ pin 24
+    signal IO48 ~ pin 25

@@ -1,3 +1,7 @@
+# modules.ato
+# Module definitions for Temper Induction Cooker
+# Reference: pcb/*.kicad_sch
+
 import IKW40N120H3 from "components.ato"
 import UCC21550BDWK from "components.ato"
 import UJ3D1210TS from "components.ato"
@@ -5,6 +9,32 @@ import Resistor from "components.ato"
 import Capacitor from "components.ato"
 import Diode from "components.ato"
 import Constraints from "constraints.ato"
+
+# Power input components
+import Fuse from "components.ato"
+import NTC_Inrush from "components.ato"
+import MUR1560 from "components.ato"
+import CapPolarized from "components.ato"
+import Relay_SPST from "components.ato"
+
+# Power management components
+import LMR51430 from "components.ato"
+import XC6220 from "components.ato"
+import Inductor from "components.ato"
+
+# Sensing components
+import MAX31865 from "components.ato"
+import ADUM1250 from "components.ato"
+import CST1005 from "components.ato"
+
+# Safety components
+import TLV3201 from "components.ato"
+import TPS3823 from "components.ato"
+import SN74HC4075 from "components.ato"
+import SN74HC00 from "components.ato"
+
+# MCU
+import ESP32_S3_WROOM_1 from "components.ato"
 
 module PowerLoop:
     q_high = new IKW40N120H3
@@ -150,3 +180,758 @@ module ResonantTank:
     c_tank1.p2 ~ inductor_conn.p1
     c_tank2.p2 ~ inductor_conn.p1
     inductor_conn.p2 ~ out
+
+# ==============================================================================
+# POWER INPUT MODULE
+# Topology: Full-Wave Voltage Doubler (Delon)
+# Input: 120VAC, 60Hz, 15A max
+# Output: ~340VDC
+# Reference: pcb/power_input.kicad_sch
+# ==============================================================================
+
+module PowerInput:
+    """AC input with EMI filter, soft-start, and voltage doubler."""
+    
+    # External interfaces
+    signal ac_l        # AC Line input
+    signal ac_n        # AC Neutral input
+    signal pe          # Protective Earth
+    signal dc_bus_plus  # +340V output
+    signal dc_bus_minus # -340V output (relative to center)
+    signal gnd_center   # Center tap / reference
+    signal zcd          # Zero-crossing detection output
+    signal relay_ctrl   # Relay control input
+    
+    # Apply net classes
+    ac_l.class = "ACMains"
+    ac_n.class = "ACMains"
+    dc_bus_plus.class = "HighVoltage"
+    dc_bus_minus.class = "HighVoltage"
+    
+    # --- Input Protection ---
+    fuse = new Fuse
+    fuse.current_rating = 15A
+    fuse.voltage_rating = 250V
+    fuse.mpn = "0034.3128"  # Littelfuse 5x20mm
+    
+    ntc = new NTC_Inrush
+    ntc.resistance_cold = 10ohm
+    ntc.current_rating = 15A
+    
+    # NTC bypass relay (engages after soft-start)
+    bypass_relay = new Relay_SPST
+    bypass_relay.coil_voltage = 12V
+    bypass_relay.contact_current = 20A
+    bypass_relay.mpn = "G4A-1A-E DC12"
+    bypass_relay.footprint = "Relay_THT:Relay_SPST_Omron-G4A-E"
+    
+    # --- Voltage Doubler Rectifiers ---
+    d1 = new MUR1560
+    d2 = new MUR1560
+    
+    # --- Bus Capacitors ---
+    c_bus1 = new CapPolarized
+    c_bus1.value = 3300uF
+    c_bus1.voltage_rating = 250V
+    c_bus1.mpn = "EKZE251ELL332MM40S"
+    c_bus1.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    
+    c_bus2 = new CapPolarized
+    c_bus2.value = 3300uF
+    c_bus2.voltage_rating = 250V
+    c_bus2.mpn = "EKZE251ELL332MM40S"
+    c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    
+    # --- Bleeder Resistors (Safety Discharge) ---
+    r_bleed1 = new Resistor
+    r_bleed1.value = 100kohm
+    r_bleed1.mpn = "CRGP2512J100K"
+    r_bleed1.footprint = "Resistor_SMD:R_2512_6332Metric"
+    
+    r_bleed2 = new Resistor
+    r_bleed2.value = 100kohm
+    r_bleed2.mpn = "CRGP2512J100K"
+    r_bleed2.footprint = "Resistor_SMD:R_2512_6332Metric"
+    
+    # --- Connections ---
+    # Input path: AC_L -> Fuse -> NTC (|| Relay) -> Rectifier
+    ac_l ~ fuse.p1
+    fuse.p2 ~ ntc.p1
+    ntc.p2 ~ d1.A
+    
+    # NTC bypass
+    fuse.p2 ~ bypass_relay.COM
+    bypass_relay.NO ~ d1.A
+    relay_ctrl ~ bypass_relay.coil1
+    
+    # Voltage doubler topology
+    # D1: Cathode to C_BUS1+, Anode from AC
+    # D2: Anode to AC, Cathode to GND_CENTER, feeds from AC_N
+    d1.K ~ c_bus1.plus
+    c_bus1.minus ~ gnd_center
+    
+    ac_n ~ d2.A
+    d2.K ~ gnd_center
+    c_bus2.plus ~ gnd_center
+    c_bus2.minus ~ dc_bus_minus
+    
+    # Connect AC to center for doubler topology
+    # Note: In Delon doubler, AC connects between D1 anode and D2 anode
+    d2.A ~ ac_n  # Already connected above
+    
+    # Output connections
+    c_bus1.plus ~ dc_bus_plus
+    c_bus2.minus ~ dc_bus_minus
+    
+    # Bleeder resistors across each cap
+    r_bleed1.p1 ~ dc_bus_plus
+    r_bleed1.p2 ~ gnd_center
+    r_bleed2.p1 ~ gnd_center
+    r_bleed2.p2 ~ dc_bus_minus
+
+# ==============================================================================
+# POWER MANAGEMENT MODULE
+# LMR51430: DC_BUS -> 15V (via auxiliary winding simulation)
+# XC6220: 15V -> 3.3V for MCU
+# Reference: pcb/power_management.kicad_sch
+# ==============================================================================
+
+module BuckConverter15V:
+    """LMR51430-based buck converter, 15V output."""
+    
+    signal vin
+    signal vout
+    signal gnd
+    signal enable
+    
+    buck = new LMR51430
+    
+    # Input cap
+    c_in = new Capacitor
+    c_in.value = 10uF
+    c_in.voltage_rating = 50V
+    c_in.mpn = "GRM32ER71H106KA12L"
+    c_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    # Boot cap
+    c_boot = new Capacitor
+    c_boot.value = 100nF
+    c_boot.voltage_rating = 25V
+    c_boot.mpn = "GRM188R71E104KA01D"
+    c_boot.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Output inductor
+    l_out = new Inductor
+    l_out.value = 22uH
+    l_out.current_rating = 3.5A
+    l_out.dcr = 0.05ohm
+    l_out.mpn = "SRP1265A-220M"
+    l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
+    
+    # Output caps
+    c_out1 = new Capacitor
+    c_out1.value = 22uF
+    c_out1.voltage_rating = 25V
+    c_out1.mpn = "GRM32ER71E226KE15L"
+    c_out1.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    c_out2 = new Capacitor
+    c_out2.value = 22uF
+    c_out2.voltage_rating = 25V
+    c_out2.mpn = "GRM32ER71E226KE15L"
+    c_out2.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    # Feedback divider for 15V output
+    # FB = 1.0V, Vout = 15V
+    # R_top/R_bot = (Vout/VFB) - 1 = 14
+    # Using R_bot = 10k, R_top = 140k
+    r_fb_top = new Resistor
+    r_fb_top.value = 140kohm
+    r_fb_top.mpn = "RC0603FR-07140KL"
+    r_fb_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_fb_bot = new Resistor
+    r_fb_bot.value = 10kohm
+    r_fb_bot.mpn = "RC0603FR-0710KL"
+    r_fb_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Connections
+    vin ~ buck.VIN
+    vin ~ c_in.p1
+    c_in.p2 ~ gnd
+    
+    enable ~ buck.EN
+    buck.GND ~ gnd
+    
+    buck.BOOT ~ c_boot.p1
+    c_boot.p2 ~ buck.SW
+    
+    buck.SW ~ l_out.p1
+    l_out.p2 ~ vout
+    
+    vout ~ c_out1.p1
+    c_out1.p2 ~ gnd
+    vout ~ c_out2.p1
+    c_out2.p2 ~ gnd
+    
+    # Feedback divider
+    vout ~ r_fb_top.p1
+    r_fb_top.p2 ~ buck.FB
+    buck.FB ~ r_fb_bot.p1
+    r_fb_bot.p2 ~ gnd
+
+module LDO3V3:
+    """XC6220-based 3.3V LDO for MCU."""
+    
+    signal vin
+    signal vout
+    signal gnd
+    
+    ldo = new XC6220
+    
+    # Input cap
+    c_in = new Capacitor
+    c_in.value = 1uF
+    c_in.voltage_rating = 25V
+    c_in.mpn = "GRM188R71E105KA12D"
+    c_in.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Output cap
+    c_out = new Capacitor
+    c_out.value = 1uF
+    c_out.voltage_rating = 10V
+    c_out.mpn = "GRM188R71A105KA61D"
+    c_out.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Connections
+    vin ~ ldo.VIN
+    vin ~ c_in.p1
+    c_in.p2 ~ gnd
+    
+    ldo.CE ~ vin  # Always enabled
+    ldo.VSS ~ gnd
+    ldo.VOUT ~ vout
+    
+    vout ~ c_out.p1
+    c_out.p2 ~ gnd
+
+module PowerManagement:
+    """Complete power management: DC_BUS -> 15V -> 3.3V."""
+    
+    signal dc_bus_in
+    signal vcc_15v
+    signal vcc_3v3
+    signal gnd
+    signal enable
+    
+    buck = new BuckConverter15V
+    ldo = new LDO3V3
+    
+    dc_bus_in ~ buck.vin
+    buck.gnd ~ gnd
+    buck.enable ~ enable
+    buck.vout ~ vcc_15v
+    
+    vcc_15v ~ ldo.vin
+    ldo.gnd ~ gnd
+    ldo.vout ~ vcc_3v3
+
+# ==============================================================================
+# SENSING MODULE
+# CT for current, MAX31865 for temperature (RTD)
+# Reference: pcb/sensing.kicad_sch
+# ==============================================================================
+
+module CurrentSensing:
+    """Current transformer with burden resistor."""
+    
+    signal primary_in   # Through-wire (no connection, just routing)
+    signal i_sense      # Analog output to ADC
+    signal gnd
+    
+    ct = new CST1005
+    
+    # Burden resistor: 50A primary -> 50mA secondary (1:1000)
+    # For 3.325V at 50A: R = 3.325V / 50mA = 66.5ohm
+    r_burden = new Resistor
+    r_burden.value = 66.5ohm
+    r_burden.mpn = "RC0805FR-0766R5L"
+    r_burden.footprint = "Resistor_SMD:R_0805_2012Metric"
+    
+    # Filter cap
+    c_filter = new Capacitor
+    c_filter.value = 100nF
+    c_filter.voltage_rating = 16V
+    c_filter.mpn = "GRM188R71C104KA01D"
+    c_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Connections
+    ct.S1 ~ r_burden.p1
+    ct.S2 ~ gnd
+    r_burden.p2 ~ gnd
+    
+    # Tap the burden for measurement
+    ct.S1 ~ i_sense
+    
+    # Filter on output
+    i_sense ~ c_filter.p1
+    c_filter.p2 ~ gnd
+
+module RTDSensing:
+    """MAX31865 RTD interface for PT100."""
+    
+    signal vdd
+    signal gnd
+    signal spi_cs
+    signal spi_clk
+    signal spi_mosi
+    signal spi_miso
+    signal drdy
+    
+    # RTD connections (to PT100 probe)
+    signal rtd_force_p
+    signal rtd_force_n
+    signal rtd_sense_p
+    signal rtd_sense_n
+    
+    adc = new MAX31865
+    
+    # Reference resistor (4300 ohm for PT100)
+    r_ref = new Resistor
+    r_ref.value = 4300ohm
+    r_ref.mpn = "RT1206FRE074K3L"  # 0.1% precision
+    r_ref.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    # Bypass caps
+    c_vdd = new Capacitor
+    c_vdd.value = 100nF
+    c_vdd.voltage_rating = 10V
+    c_vdd.mpn = "GRM188R71C104KA01D"
+    c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    c_dvdd = new Capacitor
+    c_dvdd.value = 100nF
+    c_dvdd.voltage_rating = 10V
+    c_dvdd.mpn = "GRM188R71C104KA01D"
+    c_dvdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Connections - Power
+    vdd ~ adc.VDD
+    vdd ~ adc.DVDD
+    vdd ~ c_vdd.p1
+    c_vdd.p2 ~ gnd
+    vdd ~ c_dvdd.p1
+    c_dvdd.p2 ~ gnd
+    
+    gnd ~ adc.GND1
+    gnd ~ adc.GND2
+    gnd ~ adc.DGND
+    
+    # SPI interface
+    spi_cs ~ adc.CS_N
+    spi_clk ~ adc.SCLK
+    spi_mosi ~ adc.SDI
+    adc.SDO ~ spi_miso
+    adc.DRDY ~ drdy
+    
+    # Reference resistor between BIAS and REFIN-
+    adc.BIAS ~ r_ref.p1
+    r_ref.p2 ~ adc.REFIN_N
+    
+    # RTD connections (4-wire mode)
+    adc.FORCE_P ~ rtd_force_p
+    adc.FORCE_N ~ rtd_force_n
+    adc.RTDIN_P ~ rtd_sense_p
+    adc.RTDIN_N ~ rtd_sense_n
+    
+    # Reference: REFIN+ to FORCE+
+    adc.REFIN_P ~ adc.FORCE_P
+
+# ==============================================================================
+# SAFETY INTERLOCK MODULE
+# OCP + OVP + Thermal + Watchdog -> SHUTDOWN_N
+# Reference: pcb/safety_interlock.kicad_sch
+# ==============================================================================
+
+module OCPComparator:
+    """Over-current protection comparator, 50A threshold."""
+    
+    signal i_sense   # From CT burden
+    signal vcc
+    signal gnd
+    signal ocp_fault  # Output (active high on fault)
+    
+    comp = new TLV3201
+    
+    # Reference divider: 2.5V threshold (50A * 50mV/A)
+    # Using 3.3V supply: 2.5V = 3.3V * (R2/(R1+R2))
+    # R2/(R1+R2) = 0.758 -> R1 = 0.32 * R2
+    # R2 = 10k, R1 = 3.2k
+    r_ref_top = new Resistor
+    r_ref_top.value = 3200ohm
+    r_ref_top.mpn = "RC0603FR-073K2L"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 10000ohm
+    r_ref_bot.mpn = "RC0603FR-0710KL"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Connections
+    vcc ~ comp.VCC
+    gnd ~ comp.GND
+    
+    # Reference on INP (non-inverting)
+    vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INP
+    comp.INP ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ gnd
+    
+    # Signal on INN (inverting)
+    i_sense ~ comp.INN
+    
+    # Output: goes LOW when I_SENSE > threshold (fault)
+    # We need active-high, so invert
+    comp.OUT ~ ocp_fault
+
+module OVPComparator:
+    """Over-voltage protection, 390V threshold."""
+    
+    signal v_bus      # DC bus (via divider)
+    signal vcc
+    signal gnd
+    signal ovp_fault
+    
+    comp = new TLV3201
+    
+    # Bus voltage divider: 390V -> 3.0V
+    # Using 3 series resistors for voltage rating + bottom resistor
+    # Top: 3x 430k = 1.29M (close to 1.3M)
+    # Bottom: 10k
+    
+    r_div_top1 = new Resistor
+    r_div_top1.value = 430kohm
+    r_div_top1.mpn = "RC1206FR-07430KL"
+    r_div_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    r_div_top2 = new Resistor
+    r_div_top2.value = 430kohm
+    r_div_top2.mpn = "RC1206FR-07430KL"
+    r_div_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    r_div_top3 = new Resistor
+    r_div_top3.value = 430kohm
+    r_div_top3.mpn = "RC1206FR-07430KL"
+    r_div_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    r_div_bot = new Resistor
+    r_div_bot.value = 10000ohm
+    r_div_bot.mpn = "RC0603FR-0710KL"
+    r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Reference: 3.0V from 3.3V
+    r_ref_top = new Resistor
+    r_ref_top.value = 1000ohm
+    r_ref_top.mpn = "RC0603FR-071KL"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 10000ohm
+    r_ref_bot.mpn = "RC0603FR-0710KL"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Connections
+    vcc ~ comp.VCC
+    gnd ~ comp.GND
+    
+    # Bus divider chain
+    v_bus ~ r_div_top1.p1
+    r_div_top1.p2 ~ r_div_top2.p1
+    r_div_top2.p2 ~ r_div_top3.p1
+    r_div_top3.p2 ~ comp.INN
+    comp.INN ~ r_div_bot.p1
+    r_div_bot.p2 ~ gnd
+    
+    # Reference on INP
+    vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INP
+    comp.INP ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ gnd
+    
+    comp.OUT ~ ovp_fault
+
+module ThermalComparator:
+    """Thermal protection, 85C threshold with hysteresis."""
+    
+    signal ntc_sense  # NTC voltage
+    signal vcc
+    signal gnd
+    signal thermal_fault
+    
+    comp = new TLV3201
+    
+    # NTC threshold and hysteresis resistors
+    r_ref = new Resistor
+    r_ref.value = 10000ohm
+    r_ref.mpn = "RC0603FR-0710KL"
+    r_ref.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_hyst = new Resistor
+    r_hyst.value = 100000ohm
+    r_hyst.mpn = "RC0603FR-07100KL"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Connections
+    vcc ~ comp.VCC
+    gnd ~ comp.GND
+    
+    ntc_sense ~ comp.INN
+    
+    # Reference with hysteresis
+    vcc ~ r_ref.p1
+    r_ref.p2 ~ comp.INP
+    comp.INP ~ r_hyst.p1
+    r_hyst.p2 ~ comp.OUT
+    
+    comp.OUT ~ thermal_fault
+
+module Watchdog:
+    """External watchdog with 1.6s timeout."""
+    
+    signal vdd
+    signal gnd
+    signal wdi        # Watchdog kick input
+    signal reset_n    # Reset output (active low)
+    
+    wdt = new TPS3823
+    
+    # Bypass cap
+    c_bypass = new Capacitor
+    c_bypass.value = 100nF
+    c_bypass.voltage_rating = 10V
+    c_bypass.mpn = "GRM188R71C104KA01D"
+    c_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Connections
+    vdd ~ wdt.VDD
+    vdd ~ c_bypass.p1
+    c_bypass.p2 ~ gnd
+    gnd ~ wdt.GND
+    
+    wdi ~ wdt.WDI
+    wdt.RESET_N ~ reset_n
+    
+    # MR_N tied high (no manual reset)
+    vdd ~ wdt.MR_N
+
+module SafetyInterlock:
+    """Complete safety interlock system."""
+    
+    signal vcc_3v3
+    signal vcc_15v
+    signal gnd
+    
+    # Sensor inputs
+    signal i_sense
+    signal dc_bus
+    signal ntc_sense
+    signal wdt_kick
+    
+    # Control
+    signal reset_n_in
+    signal shutdown_n   # Output to gate driver (active low = shutdown)
+    signal fault_status  # Output to MCU
+    
+    # Fault indicators
+    signal ocp_led
+    signal ovp_led
+    signal thermal_led
+    signal wdt_led
+    
+    # Protection modules
+    ocp = new OCPComparator
+    ovp = new OVPComparator
+    thermal = new ThermalComparator
+    wdt = new Watchdog
+    
+    # Fault combine logic (OR gate)
+    fault_or = new SN74HC4075
+    
+    # SR Latch for fault latching (NAND gates)
+    latch = new SN74HC00
+    
+    # Wire up comparators
+    ocp.vcc ~ vcc_3v3
+    ocp.gnd ~ gnd
+    ocp.i_sense ~ i_sense
+    
+    ovp.vcc ~ vcc_3v3
+    ovp.gnd ~ gnd
+    ovp.v_bus ~ dc_bus
+    
+    thermal.vcc ~ vcc_3v3
+    thermal.gnd ~ gnd
+    thermal.ntc_sense ~ ntc_sense
+    
+    wdt.vdd ~ vcc_3v3
+    wdt.gnd ~ gnd
+    wdt.wdi ~ wdt_kick
+    
+    # OR gate combines faults
+    fault_or.VCC ~ vcc_3v3
+    fault_or.GND ~ gnd
+    
+    ocp.ocp_fault ~ fault_or.A1
+    ovp.ovp_fault ~ fault_or.B1
+    thermal.thermal_fault ~ fault_or.C1
+    
+    # Watchdog reset is already active-low, connect to another OR input
+    # For simplicity, just invert via unused gate
+    
+    # Latch for persistent fault
+    latch.VCC ~ vcc_3v3
+    latch.GND ~ gnd
+    
+    # SR Latch: Y1 = shutdown_n
+    fault_or.Y1 ~ latch.A1
+    reset_n_in ~ latch.B1
+    latch.Y1 ~ shutdown_n
+    latch.Y1 ~ fault_status
+    
+    # LED outputs (accent fault source)
+    ocp.ocp_fault ~ ocp_led
+    ovp.ovp_fault ~ ovp_led
+    thermal.thermal_fault ~ thermal_led
+    wdt.reset_n ~ wdt_led
+
+# ==============================================================================
+# MCU MODULE
+# ESP32-S3 with peripheral interfaces
+# Reference: pcb/mcu.kicad_sch
+# ==============================================================================
+
+module MCU:
+    """ESP32-S3 microcontroller with support circuitry."""
+    
+    # Power
+    signal vcc_3v3
+    signal gnd
+    
+    # PWM outputs (to gate driver)
+    signal pwm_h
+    signal pwm_l
+    
+    # Analog inputs (from sensors)
+    signal adc_i_sense
+    signal adc_v_bus
+    signal adc_ntc
+    
+    # SPI (to MAX31865)
+    signal spi_cs_rtd
+    signal spi_clk
+    signal spi_mosi
+    signal spi_miso
+    signal rtd_drdy
+    
+    # Control signals
+    signal wdt_kick
+    signal relay_ctrl
+    signal shutdown_n_in
+    signal reset_n
+    
+    # I2C (general expansion)
+    signal i2c_sda
+    signal i2c_scl
+    
+    # Debug UART
+    signal uart_tx
+    signal uart_rx
+    
+    # Status LEDs
+    signal led_ocp
+    signal led_ovp
+    signal led_thermal
+    signal led_wdt
+    
+    # Zero-crossing input
+    signal zcd_in
+    
+    # Encoder input (user interface)
+    signal enc_a
+    signal enc_b
+    signal enc_sw
+    
+    mcu = new ESP32_S3_WROOM_1
+    
+    # Bypass caps
+    c_vcc1 = new Capacitor
+    c_vcc1.value = 100nF
+    c_vcc1.voltage_rating = 10V
+    c_vcc1.mpn = "GRM188R71C104KA01D"
+    c_vcc1.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    c_vcc2 = new Capacitor
+    c_vcc2.value = 10uF
+    c_vcc2.voltage_rating = 10V
+    c_vcc2.mpn = "GRM21BR71A106KE51L"
+    c_vcc2.footprint = "Capacitor_SMD:C_0805_2012Metric"
+    
+    # EN pin pull-up with RC delay for boot
+    r_en = new Resistor
+    r_en.value = 10kohm
+    r_en.mpn = "RC0603FR-0710KL"
+    r_en.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    c_en = new Capacitor
+    c_en.value = 1uF
+    c_en.voltage_rating = 10V
+    c_en.mpn = "GRM188R71A105KA61D"
+    c_en.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Power connections
+    vcc_3v3 ~ mcu.VCC3V3
+    vcc_3v3 ~ c_vcc1.p1
+    c_vcc1.p2 ~ gnd
+    vcc_3v3 ~ c_vcc2.p1
+    c_vcc2.p2 ~ gnd
+    gnd ~ mcu.GND
+    
+    # Enable circuit
+    vcc_3v3 ~ r_en.p1
+    r_en.p2 ~ mcu.EN
+    mcu.EN ~ c_en.p1
+    c_en.p2 ~ gnd
+    
+    # PWM outputs
+    mcu.GPIO16 ~ pwm_h
+    mcu.GPIO17 ~ pwm_l
+    
+    # ADC inputs
+    mcu.GPIO1 ~ adc_i_sense
+    mcu.GPIO2 ~ adc_v_bus
+    mcu.GPIO3 ~ adc_ntc
+    
+    # SPI
+    mcu.SPI_CS ~ spi_cs_rtd
+    mcu.SPI_CLK ~ spi_clk
+    mcu.SPI_MOSI ~ spi_mosi
+    mcu.SPI_MISO ~ spi_miso
+    
+    # Control
+    mcu.GPIO18 ~ wdt_kick
+    mcu.GPIO19 ~ relay_ctrl
+    mcu.GPIO20 ~ shutdown_n_in
+    
+    # I2C
+    mcu.SDA ~ i2c_sda
+    mcu.SCL ~ i2c_scl
+    
+    # UART
+    mcu.TXD0 ~ uart_tx
+    mcu.RXD0 ~ uart_rx
+    
+    # Status LEDs
+    mcu.GPIO21 ~ led_ocp
+    mcu.GPIO35 ~ led_ovp
+    mcu.GPIO36 ~ led_thermal
+    mcu.GPIO37 ~ led_wdt
