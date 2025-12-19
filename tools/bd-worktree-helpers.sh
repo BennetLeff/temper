@@ -257,6 +257,16 @@ bd-done() {
     bd --sandbox close "$task_id" --reason "$reason"
     bd --sandbox sync
     
+    # Post reflection to Eco (auto-populated context)
+    if command -v python3 &>/dev/null && [[ -f "tools/gpbm/reflect.py" ]]; then
+        echo "Posting reflection to Eco..."
+        if python3 tools/gpbm/reflect.py --task "$task_id" --reason "$reason"; then
+            echo "  ✓ Reflection posted to Eco"
+        else
+            echo "  ⚠ Failed to post reflection (non-fatal)"
+        fi
+    fi
+    
     echo ""
     echo "✓ Task $task_id marked as complete"
     echo ""
