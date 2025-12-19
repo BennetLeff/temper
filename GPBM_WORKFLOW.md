@@ -221,9 +221,10 @@ bd update temper-xxx --label "req:REQ-FW-001"
 
 **Search requirements:**
 ```bash
-python3 tools/gpbm/requirements_parser.py search "thermal"
-python3 tools/gpbm/requirements_parser.py show REQ-FW-001
-python3 tools/gpbm/requirements_parser.py status  # Coverage report
+python3 tools/gpbm/requirements_parser.py --domain FW    # Filter by domain
+python3 tools/gpbm/requirements_parser.py --status       # Coverage report
+python3 tools/gpbm/requirements_parser.py --unlinked     # Unlinked requirements
+python3 tools/gpbm/requirements_parser.py --json         # Export as JSON
 ```
 
 ## Metrics System

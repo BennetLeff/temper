@@ -488,7 +488,7 @@ if [[ -n "$ZSH_VERSION" ]]; then
             '3:role:(architect coder tester)'
     }
     compdef _bd_plan_complete bd-plan
-fi
+fi 2>/dev/null  # Suppress compdef errors when sourced in bash
 
 # =============================================================================
 # GPBM Workflow Commands
@@ -585,14 +585,16 @@ bd-measure() {
     fi
     
     if [[ -z "$task_id" ]]; then
-        echo "Usage: bd-measure [task-id] [--json]"
+        local current_branch
+        current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+        
+        echo "Error: Not in a task branch (current branch: $current_branch)"
         echo ""
-        echo "If task-id is omitted, uses current git branch name."
+        echo "Either:"
+        echo "  1. Specify a task ID:    bd-measure temper-xxx"
+        echo "  2. Switch to a worktree: bd-work temper-xxx"
         echo ""
-        echo "Examples:"
-        echo "  bd-measure                  # Measure current task"
-        echo "  bd-measure temper-xxx       # Measure specific task"
-        echo "  bd-measure --json           # Output as JSON"
+        echo "To list available tasks: bd ready"
         return 1
     fi
     

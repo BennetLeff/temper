@@ -128,20 +128,79 @@ class MetricsRegistry:
         content = metrics_file.read_text()
 
         # Parse table rows: | `metric_id` | description | target | source | command |
-        # Simple regex to find metric definitions in tables
-        pattern = re.compile(
-            r"\|\s*`([\w_]+)`\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|"
-        )
+        # We need to handle commands that contain shell pipes (|)
+        # Strategy: Parse line by line, split on | but respect backtick-wrapped content
 
-        for match in pattern.finditer(content):
-            metric_id, desc, target, source, command = match.groups()
-            self.metrics[metric_id.strip()] = MetricDefinition(
-                id=metric_id.strip(),
-                description=desc.strip(),
-                target=target.strip(),
-                source=source.strip(),
-                command=command.strip(),
-            )
+        for line in content.split("\n"):
+            line = line.strip()
+
+            # Skip non-table lines and header separators
+            if not line.startswith("|") or "---" in line:
+                continue
+
+            # Check if this line has a metric ID (backtick-wrapped identifier)
+            if not re.search(r"\|\s*`[\w_]+`\s*\|", line):
+                continue
+
+            # Parse the line respecting backtick-wrapped content
+            metric = self._parse_metric_line(line)
+            if metric:
+                self.metrics[metric.id] = metric
+
+    def _parse_metric_line(self, line: str) -> Optional["MetricDefinition"]:
+        """Parse a single metric table line, handling backtick-wrapped commands with pipes.
+
+        Format: | `metric_id` | description | target | source | `command with | pipes` |
+        """
+        # Remove leading/trailing pipes and split carefully
+        line = line.strip()
+        if line.startswith("|"):
+            line = line[1:]
+        if line.endswith("|"):
+            line = line[:-1]
+
+        # Split on | but not inside backticks
+        # Use a state machine approach
+        parts = []
+        current = []
+        in_backticks = False
+
+        for char in line:
+            if char == "`":
+                in_backticks = not in_backticks
+                current.append(char)
+            elif char == "|" and not in_backticks:
+                parts.append("".join(current).strip())
+                current = []
+            else:
+                current.append(char)
+
+        # Don't forget the last part
+        if current:
+            parts.append("".join(current).strip())
+
+        # We expect 5 parts: metric_id, description, target, source, command
+        if len(parts) < 5:
+            return None
+
+        metric_id = parts[0].strip("` ")
+        desc = parts[1].strip()
+        target = parts[2].strip()
+        source = parts[3].strip()
+        command = parts[4].strip("` ")  # Remove backticks from command
+
+        # Validate metric_id is a valid identifier
+        if not re.match(r"^[\w_]+$", metric_id):
+            return None
+
+        return MetricDefinition(
+            id=metric_id,
+            description=desc,
+            target=target,
+            source=source,
+            # Unescape pipe characters that were escaped for markdown tables
+            command=command.replace("\\|", "|"),
+        )
 
     def get(self, metric_id: str) -> Optional[MetricDefinition]:
         """Get metric definition by ID."""
@@ -324,7 +383,10 @@ class MeasurementRunner:
         # Run the command
         success, stdout, stderr = self._run_command(command)
 
-        if not success:
+        # Some commands return non-zero but still have valid output
+        # (e.g., linters return 1 when they find issues)
+        # Only treat as hard failure if there's no stdout and there's stderr
+        if not success and not stdout and stderr:
             return MeasurementResult(
                 metric=metric_id,
                 value=0,
@@ -337,8 +399,9 @@ class MeasurementRunner:
                 details=stdout,
             )
 
-        # Extract value
-        value = self._extract_numeric_value(stdout, metric_id)
+        # Try to extract value from output (even if command returned non-zero)
+        output = stdout or stderr  # Some tools output to stderr
+        value = self._extract_numeric_value(output, metric_id)
         if value is None:
             return MeasurementResult(
                 metric=metric_id,

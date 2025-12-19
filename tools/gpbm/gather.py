@@ -124,7 +124,22 @@ class GatherContext:
                     ]
                 )
         else:
-            lines.append("_No relevant memories found._\n")
+            lines.extend(
+                [
+                    "_No relevant memories found in Eco semantic memory._",
+                    "",
+                    "**Note:** Eco memories are populated as agents work on tasks.",
+                    "To add knowledge to Eco:",
+                    "```bash",
+                    "# Post a learning/reflection",
+                    'python3 tools/gpbm/eco_client.py post "Learned that..." --role coder --domain firmware',
+                    "",
+                    "# Post shared knowledge",
+                    'python3 tools/gpbm/eco_client.py post "Project uses..." --role architect --shared',
+                    "```",
+                    "",
+                ]
+            )
 
         # Requirements section
         lines.extend(
