@@ -206,6 +206,65 @@ class WirelengthLoss(LossFunction):
         return 1.0
 
 
+class SteinerTreeLoss(WirelengthLoss):
+    """
+    Rectilinear Steiner Minimum Tree (RSMT) approximation loss.
+
+    RSMT provides a more accurate estimate of routed wirelength than HPWL,
+    especially for nets with many pins. This implementation uses a
+    differentiable correction factor based on the number of pins in each net.
+
+    Correction factor formula (empirical):
+    RSMT ≈ HPWL * (1.0 + 0.1 * log2(n_pins - 1)) for n_pins > 2
+    """
+
+    @property
+    def name(self) -> str:
+        return "steiner_wirelength"
+
+    def _compute_hpwl_vectorized(
+        self,
+        pin_positions: Array,
+        mask: Array,
+        weights: Array,
+    ) -> Array:
+        """
+        Compute RSMT approximation using HPWL and pin-count correction.
+        """
+        # Extract x and y coordinates: (M, P)
+        x_coords = pin_positions[:, :, 0]
+        y_coords = pin_positions[:, :, 1]
+
+        # Masked coordinates
+        x_for_max = jnp.where(mask, x_coords, -jnp.inf)
+        x_for_min = jnp.where(mask, x_coords, jnp.inf)
+        y_for_max = jnp.where(mask, y_coords, -jnp.inf)
+        y_for_min = jnp.where(mask, y_coords, jnp.inf)
+
+        # Compute smooth max and min
+        x_max = jax.nn.logsumexp(self.alpha * x_for_max, axis=1) / self.alpha
+        x_min = -jax.nn.logsumexp(-self.alpha * x_for_min, axis=1) / self.alpha
+        y_max = jax.nn.logsumexp(self.alpha * y_for_max, axis=1) / self.alpha
+        y_min = -jax.nn.logsumexp(-self.alpha * y_for_min, axis=1) / self.alpha
+
+        # HPWL per net: (M,)
+        hpwl_per_net = (x_max - x_min) + (y_max - y_min)
+
+        # Compute correction factors based on pin counts
+        # mask is (M, P), sum along P gives n_pins per net: (M,)
+        n_pins = jnp.sum(mask, axis=1)
+        
+        # Correction factor: 1.0 for 2-3 pins, increases logarithmically thereafter
+        # Using jnp.log2(n - 1) * 0.1 as a heuristic
+        # We use jnp.maximum to handle 1 or 2 pins safely
+        correction = 1.0 + 0.1 * jnp.log2(jnp.maximum(n_pins - 1, 1.0))
+        
+        # Weighted RSMT sum
+        total_steiner = jnp.sum(weights * hpwl_per_net * correction)
+
+        return total_steiner
+
+
 def compute_total_hpwl(
     positions: Array,
     rotations: Array,

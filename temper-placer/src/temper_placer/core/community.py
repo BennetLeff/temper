@@ -78,3 +78,58 @@ def detect_communities(netlist: Netlist) -> List[Community]:
 def get_community_component_indices(netlist: Netlist, community: Community) -> List[int]:
     """Resolve component references in a community to netlist indices."""
     return [netlist.get_component_index(ref) for ref in community.component_refs]
+
+
+def partition_netlist_min_cut(netlist: Netlist, n_parts: int = 2) -> List[List[int]]:
+    """
+    Partition the netlist into n_parts using recursive min-cut bisection.
+
+    Uses the Kernighan-Lin algorithm to find partitions that minimize
+    the number of nets crossing between them (cut size).
+
+    Args:
+        netlist: The netlist to partition.
+        n_parts: Number of partitions (must be power of 2 for simplicity).
+
+    Returns:
+        List of component index lists (one for each partition).
+    """
+    if netlist.n_components == 0:
+        return []
+
+    # 1. Build adjacency matrix and graph
+    adj_matrix = build_adjacency_matrix(netlist)
+    G = nx.from_numpy_array(np.array(adj_matrix))
+
+    # 2. Recursive bisection
+    def bisect(nodes):
+        if len(nodes) <= 1:
+            return [nodes]
+        # Kernighan-Lin bisection
+        subgraph = G.subgraph(nodes)
+        try:
+            part1, part2 = nx.community.kernighan_lin_bisection(subgraph, weight="weight")
+            return [list(part1), list(part2)]
+        except Exception:
+            # Fallback if KL fails
+            mid = len(nodes) // 2
+            return [nodes[:mid], nodes[mid:]]
+
+    # Start with all nodes
+    all_indices = list(range(netlist.n_components))
+    current_partitions = [all_indices]
+
+    # Bisect until we have enough parts
+    import math
+
+    steps = int(math.ceil(math.log2(n_parts)))
+    for _ in range(steps):
+        new_partitions = []
+        for part in current_partitions:
+            if len(part) > 1:
+                new_partitions.extend(bisect(part))
+            else:
+                new_partitions.append(part)
+        current_partitions = new_partitions
+
+    return current_partitions[:n_parts]

@@ -42,17 +42,11 @@ class PostProcessConfig:
 
     # Discrete rotation refinement settings
     rotation_refinement_enabled: bool = True
-    rotation_search_type: str = "greedy"  # "greedy" or "beam"
+    rotation_search_type: str = "greedy"  # "greedy", "beam", or "sa"
     beam_width: int = 3  # Only used if beam search
-
-    # Overlap resolution settings
-    resolve_overlaps: bool = True
-    max_overlap_iterations: int = 10
-    overlap_nudge_distance: float = 0.5  # mm
-
-    # Legalization settings
-    legalization_enabled: bool = True
-    legalization_margin: float = 0.1  # mm
+    sa_iterations: int = 200  # Only used if simulated annealing
+    sa_initial_temp: float = 1.0
+    sa_cooling_rate: float = 0.95
 
 
 @dataclass
@@ -334,11 +328,88 @@ def discrete_rotation_refinement_beam(
     return best_state, best_loss
 
 
+def discrete_rotation_refinement_sa(
+    state: PlacementState,
+    loss_fn: Callable[[PlacementState], float],
+    iterations: int = 200,
+    initial_temp: float = 1.0,
+    cooling_rate: float = 0.95,
+    fixed_components: Optional[List[int]] = None,
+    seed: int = 42,
+) -> Tuple[PlacementState, float]:
+    """
+    Refine rotations using Simulated Annealing (SA).
+
+    Explores the discrete rotation space by randomly flipping component
+    rotations and accepting them with a probability that decreases
+    over time.
+
+    Args:
+        state: Current placement state.
+        loss_fn: Function that computes total loss.
+        iterations: Number of SA iterations.
+        initial_temp: Starting temperature for SA.
+        cooling_rate: Factor to reduce temperature by each step.
+        fixed_components: List of component indices with fixed rotations.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        Tuple of (best_state, best_loss).
+    """
+    if fixed_components is None:
+        fixed_components = []
+
+    n_components = state.n_components
+    movable = [i for i in range(n_components) if i not in fixed_components]
+    if not movable:
+        return state, loss_fn(state)
+
+    current_state = state
+    current_loss = loss_fn(current_state)
+    best_state = current_state
+    best_loss = current_loss
+
+    rng_key = jax.random.PRNGKey(seed)
+    temp = initial_temp
+
+    logger.debug(f"Starting SA rotation refinement, iterations={iterations}")
+
+    for i in range(iterations):
+        rng_key, comp_key, rot_key, accept_key = jax.random.split(rng_key, 4)
+
+        # Pick random component and random new rotation
+        comp_idx = int(jax.random.choice(comp_key, jnp.array(movable)))
+        new_rot = int(jax.random.randint(rot_key, (), 0, 4))
+
+        # Test new state
+        test_state = set_rotation_index(current_state, comp_idx, new_rot)
+        test_loss = loss_fn(test_state)
+
+        # Metropolis criterion
+        delta = test_loss - current_loss
+        if delta < 0 or jax.random.uniform(accept_key) < jnp.exp(-delta / temp):
+            current_state = test_state
+            current_loss = test_loss
+
+            if current_loss < best_loss:
+                best_state = current_state
+                best_loss = current_loss
+
+        # Cool down
+        temp *= cooling_rate
+
+    logger.debug(f"SA refinement complete, final loss: {best_loss:.4f}")
+    return best_state, best_loss
+
+
 def discrete_rotation_refinement(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
     search_type: str = "greedy",
     beam_width: int = 3,
+    sa_iterations: int = 200,
+    sa_initial_temp: float = 1.0,
+    sa_cooling_rate: float = 0.95,
     fixed_components: Optional[List[int]] = None,
 ) -> Tuple[PlacementState, float]:
     """
@@ -351,22 +422,28 @@ def discrete_rotation_refinement(
     Args:
         state: PlacementState with soft rotation logits from optimization.
         loss_fn: Function(state) -> loss that evaluates placement quality.
-        search_type: "greedy" (fast, O(4N)) or "beam" (better, O(4N * beam_width)).
+        search_type: "greedy" (fast, O(4N)), "beam" (better, O(4N * beam_width)),
+                    or "sa" (Simulated Annealing).
         beam_width: Beam width if using beam search.
+        sa_iterations: Number of iterations for SA.
+        sa_initial_temp: Initial temperature for SA.
+        sa_cooling_rate: Cooling rate for SA.
         fixed_components: Component indices that should not be rotated.
 
     Returns:
         Tuple of (refined_state, final_loss) with discrete rotation logits.
-
-    Example:
-        >>> from temper_placer.losses import CompositeLoss
-        >>> loss = CompositeLoss(...)
-        >>> refined, final_loss = discrete_rotation_refinement(
-        ...     state, loss.compute, search_type="greedy"
-        ... )
     """
     if search_type == "beam":
         return discrete_rotation_refinement_beam(state, loss_fn, beam_width, fixed_components)
+    elif search_type == "sa":
+        return discrete_rotation_refinement_sa(
+            state,
+            loss_fn,
+            iterations=sa_iterations,
+            initial_temp=sa_initial_temp,
+            cooling_rate=sa_cooling_rate,
+            fixed_components=fixed_components,
+        )
     else:
         return discrete_rotation_refinement_greedy(state, loss_fn, fixed_components)
 
@@ -436,6 +513,9 @@ def postprocess(
             loss_fn,
             search_type=config.rotation_search_type,
             beam_width=config.beam_width,
+            sa_iterations=config.sa_iterations,
+            sa_initial_temp=config.sa_initial_temp,
+            sa_cooling_rate=config.sa_cooling_rate,
             fixed_components=fixed_components,
         )
         rotations_refined = True

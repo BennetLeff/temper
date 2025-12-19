@@ -79,17 +79,22 @@ class GridAlignmentLoss(LossFunction):
     def weight_schedule(self, epoch: int, total_epochs: int) -> float:
         """
         Ramp up grid alignment penalty in late training.
-        
-        Early on, components should move freely. Late in training, 
+
+        Early on, components should move freely. Late in training,
         they should snap to grid.
         """
-        progress = epoch / jnp.maximum(total_epochs, 1)
-        if progress < self.anneal_start:
-            return 0.0
-        
+        # Ensure total_epochs is at least 1 to avoid division by zero
+        total_epochs_safe = jnp.maximum(total_epochs, 1)
+        progress = epoch / total_epochs_safe
+
         # Linear ramp from anneal_start to 1.0
-        ramp = (progress - self.anneal_start) / (1.0 - self.anneal_start)
-        return jnp.clip(ramp, 0.0, 1.0)
+        # Use maximum(..., 1e-6) to avoid division by zero if anneal_start is 1.0
+        denom = jnp.maximum(1.0 - self.anneal_start, 1e-6)
+        ramp = (progress - self.anneal_start) / denom
+        ramp_val = jnp.clip(ramp, 0.0, 1.0)
+
+        # Use jnp.where for conditional logic to be JIT-compatible
+        return jnp.where(progress < self.anneal_start, 0.0, ramp_val)
 
 
 def compute_grid_penalty(

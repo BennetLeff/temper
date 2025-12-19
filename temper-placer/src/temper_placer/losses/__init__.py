@@ -49,6 +49,7 @@ from temper_placer.losses.base import (
 # Wirelength loss (HPWL)
 from temper_placer.losses.wirelength import (
     compute_total_hpwl,
+    SteinerTreeLoss,
     WirelengthLoss,
 )
 
@@ -267,6 +268,7 @@ __all__ = [
     "AlignmentLoss",
     "RotationConsistencyLoss",
     "EdgeCrossingLoss",
+    "SteinerTreeLoss",
     "NoiseSensitiveIsolationLoss",
     "CrystalPlacementLoss",
     "create_crystal_loss",
