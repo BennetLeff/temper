@@ -1,0 +1,516 @@
+#!/usr/bin/env python3
+"""
+Measurement system for GPBM workflow.
+
+Runs measurements defined in bd issue descriptions and logs results
+to metrics/measurements.jsonl.
+
+Usage:
+    # As library
+    from gpbm.measure import MeasurementRunner
+    runner = MeasurementRunner()
+    results = runner.run_for_task("temper-xxx")
+
+    # As CLI
+    python measure.py --task temper-xxx
+    python measure.py --task temper-xxx --json
+    python measure.py --metric fw_test_coverage
+"""
+
+import json
+import subprocess
+import re
+import sys
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import Dict, List, Optional, Any, Tuple
+from dataclasses import dataclass, field
+
+
+@dataclass
+class MeasurementTarget:
+    """A measurement target from an issue description."""
+
+    metric: str
+    target: str  # e.g., ">=80", "==0", "<1.0"
+
+    def evaluate(self, value: float) -> bool:
+        """Evaluate if value meets target."""
+        # Parse target expression
+        match = re.match(r"([<>=!]+)\s*(\d+\.?\d*)", self.target)
+        if not match:
+            return False
+
+        op, threshold = match.groups()
+        threshold = float(threshold)
+
+        ops = {
+            ">=": lambda v, t: v >= t,
+            "<=": lambda v, t: v <= t,
+            ">": lambda v, t: v > t,
+            "<": lambda v, t: v < t,
+            "==": lambda v, t: abs(v - t) < 0.001,
+            "!=": lambda v, t: abs(v - t) >= 0.001,
+        }
+
+        return ops.get(op, lambda v, t: False)(value, threshold)
+
+
+@dataclass
+class MeasurementResult:
+    """Result of a single measurement."""
+
+    metric: str
+    value: float
+    target: str
+    passed: bool
+    timestamp: str
+    task: str
+    commit: str = ""
+    details: str = ""
+    error: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON."""
+        return {
+            "timestamp": self.timestamp,
+            "metric": self.metric,
+            "value": self.value,
+            "target": self.target,
+            "pass": self.passed,
+            "task": self.task,
+            "commit": self.commit,
+            "details": self.details,
+            "error": self.error,
+        }
+
+    def to_jsonl(self) -> str:
+        """Convert to JSONL line."""
+        d = self.to_dict()
+        # Remove empty fields
+        d = {k: v for k, v in d.items() if v}
+        return json.dumps(d)
+
+
+@dataclass
+class MetricDefinition:
+    """Definition of a metric from METRICS.md."""
+
+    id: str
+    description: str
+    target: str
+    source: str
+    command: str
+
+
+class MetricsRegistry:
+    """Registry of metric definitions from METRICS.md."""
+
+    def __init__(self, project_root: Optional[Path] = None):
+        self.project_root = project_root or self._find_project_root()
+        self.metrics: Dict[str, MetricDefinition] = {}
+        self._load_metrics()
+
+    def _find_project_root(self) -> Path:
+        """Find project root."""
+        cwd = Path.cwd()
+        for parent in [cwd] + list(cwd.parents):
+            if (parent / ".git").exists():
+                return parent
+        return cwd
+
+    def _load_metrics(self):
+        """Load metrics from METRICS.md."""
+        metrics_file = self.project_root / "metrics" / "METRICS.md"
+        if not metrics_file.exists():
+            return
+
+        content = metrics_file.read_text()
+
+        # Parse table rows: | `metric_id` | description | target | source | command |
+        # Simple regex to find metric definitions in tables
+        pattern = re.compile(
+            r"\|\s*`([\w_]+)`\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|"
+        )
+
+        for match in pattern.finditer(content):
+            metric_id, desc, target, source, command = match.groups()
+            self.metrics[metric_id.strip()] = MetricDefinition(
+                id=metric_id.strip(),
+                description=desc.strip(),
+                target=target.strip(),
+                source=source.strip(),
+                command=command.strip(),
+            )
+
+    def get(self, metric_id: str) -> Optional[MetricDefinition]:
+        """Get metric definition by ID."""
+        return self.metrics.get(metric_id)
+
+    def list_all(self) -> List[str]:
+        """List all metric IDs."""
+        return list(self.metrics.keys())
+
+
+class MeasurementRunner:
+    """Run measurements for tasks."""
+
+    def __init__(self, project_root: Optional[Path] = None):
+        self.project_root = project_root or self._find_project_root()
+        self.registry = MetricsRegistry(self.project_root)
+        self.results: List[MeasurementResult] = []
+
+    def _find_project_root(self) -> Path:
+        """Find project root."""
+        cwd = Path.cwd()
+        for parent in [cwd] + list(cwd.parents):
+            if (parent / ".git").exists():
+                return parent
+        return cwd
+
+    def _get_git_commit(self) -> str:
+        """Get current git commit hash."""
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                capture_output=True,
+                text=True,
+                cwd=self.project_root,
+                timeout=5,
+            )
+            return result.stdout.strip()
+        except Exception:
+            return ""
+
+    def _get_task_description(self, task_id: str) -> str:
+        """Get task description from bd."""
+        try:
+            result = subprocess.run(
+                ["bd", "--sandbox", "show", task_id, "--json"],
+                capture_output=True,
+                text=True,
+                cwd=self.project_root,
+                timeout=10,
+            )
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                if isinstance(data, list) and data:
+                    return data[0].get("description", "")
+        except Exception:
+            pass
+        return ""
+
+    def _parse_measurement_targets(self, description: str) -> List[MeasurementTarget]:
+        """Parse measurement_targets from task description."""
+        targets = []
+
+        # Look for YAML-like measurement_targets block
+        # measurement_targets:
+        #   - metric: fw_test_coverage
+        #     target: ">=80"
+        pattern = re.compile(
+            r"measurement_targets:\s*\n((?:\s*-\s*metric:\s*\w+\s*\n\s*target:\s*[^\n]+\s*\n?)+)",
+            re.MULTILINE,
+        )
+
+        match = pattern.search(description)
+        if match:
+            block = match.group(1)
+            # Parse individual targets
+            target_pattern = re.compile(
+                r'-\s*metric:\s*(\w+)\s*\n\s*target:\s*["\']?([^"\'\n]+)["\']?',
+                re.MULTILINE,
+            )
+            for m in target_pattern.finditer(block):
+                targets.append(
+                    MeasurementTarget(
+                        metric=m.group(1).strip(), target=m.group(2).strip()
+                    )
+                )
+
+        return targets
+
+    def _run_command(self, command: str, timeout: int = 60) -> Tuple[bool, str, str]:
+        """Run a shell command and return (success, stdout, stderr)."""
+        try:
+            result = subprocess.run(
+                command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                cwd=self.project_root,
+                timeout=timeout,
+            )
+            return (
+                result.returncode == 0,
+                result.stdout.strip(),
+                result.stderr.strip(),
+            )
+        except subprocess.TimeoutExpired:
+            return False, "", f"Command timed out after {timeout}s"
+        except Exception as e:
+            return False, "", str(e)
+
+    def _extract_numeric_value(self, output: str, metric_id: str) -> Optional[float]:
+        """Extract numeric value from command output."""
+        # Try to find a number in the output
+        # Different metrics may need different extraction logic
+
+        # For test counts, look for patterns like "37 tests" or "Tests: 37"
+        if "test" in metric_id.lower():
+            match = re.search(r"(\d+)\s*(?:tests?|passed)", output, re.IGNORECASE)
+            if match:
+                return float(match.group(1))
+            # Also try just counting test lines
+            match = re.search(r"Test #(\d+)", output)
+            if match:
+                # Count all Test # occurrences
+                return float(len(re.findall(r"Test #\d+", output)))
+
+        # For coverage, look for percentage
+        if "coverage" in metric_id.lower() or "pct" in metric_id.lower():
+            match = re.search(r"(\d+\.?\d*)%", output)
+            if match:
+                return float(match.group(1))
+
+        # For counts (violations, errors), look for 0 or numbers
+        if "violation" in metric_id.lower() or "error" in metric_id.lower():
+            match = re.search(
+                r"(\d+)\s*(?:violation|error|warning)", output, re.IGNORECASE
+            )
+            if match:
+                return float(match.group(1))
+            # If output is empty or says "0", return 0
+            if not output.strip() or output.strip() == "0":
+                return 0.0
+
+        # For loss values
+        if "loss" in metric_id.lower():
+            match = re.search(r"(?:loss|value)[:\s]*(\d+\.?\d*)", output, re.IGNORECASE)
+            if match:
+                return float(match.group(1))
+
+        # Generic: try to find any float
+        match = re.search(r"(\d+\.?\d*)", output)
+        if match:
+            return float(match.group(1))
+
+        return None
+
+    def run_metric(
+        self, metric_id: str, task_id: str, target: Optional[str] = None
+    ) -> MeasurementResult:
+        """Run a single metric measurement."""
+        timestamp = datetime.now(timezone.utc).isoformat()
+        commit = self._get_git_commit()
+
+        # Get metric definition
+        metric_def = self.registry.get(metric_id)
+        if not metric_def:
+            return MeasurementResult(
+                metric=metric_id,
+                value=0,
+                target=target or "unknown",
+                passed=False,
+                timestamp=timestamp,
+                task=task_id,
+                commit=commit,
+                error=f"Unknown metric: {metric_id}",
+            )
+
+        target = target or metric_def.target
+        command = metric_def.command
+
+        # Run the command
+        success, stdout, stderr = self._run_command(command)
+
+        if not success:
+            return MeasurementResult(
+                metric=metric_id,
+                value=0,
+                target=target,
+                passed=False,
+                timestamp=timestamp,
+                task=task_id,
+                commit=commit,
+                error=stderr or "Command failed",
+                details=stdout,
+            )
+
+        # Extract value
+        value = self._extract_numeric_value(stdout, metric_id)
+        if value is None:
+            return MeasurementResult(
+                metric=metric_id,
+                value=0,
+                target=target,
+                passed=False,
+                timestamp=timestamp,
+                task=task_id,
+                commit=commit,
+                error="Could not extract numeric value from output",
+                details=stdout[:200],
+            )
+
+        # Evaluate against target
+        mt = MeasurementTarget(metric=metric_id, target=target)
+        passed = mt.evaluate(value)
+
+        return MeasurementResult(
+            metric=metric_id,
+            value=value,
+            target=target,
+            passed=passed,
+            timestamp=timestamp,
+            task=task_id,
+            commit=commit,
+            details=stdout[:200] if not passed else "",
+        )
+
+    def run_for_task(self, task_id: str) -> List[MeasurementResult]:
+        """Run all measurements defined in a task's description."""
+        description = self._get_task_description(task_id)
+        targets = self._parse_measurement_targets(description)
+
+        if not targets:
+            return []
+
+        results = []
+        for target in targets:
+            result = self.run_metric(target.metric, task_id, target.target)
+            results.append(result)
+
+        self.results = results
+        return results
+
+    def log_results(self, results: Optional[List[MeasurementResult]] = None):
+        """Append results to measurements.jsonl."""
+        results = results or self.results
+        if not results:
+            return
+
+        log_file = self.project_root / "metrics" / "measurements.jsonl"
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(log_file, "a") as f:
+            for result in results:
+                f.write(result.to_jsonl() + "\n")
+
+    def format_results(self, results: Optional[List[MeasurementResult]] = None) -> str:
+        """Format results for display."""
+        results = results or self.results
+        if not results:
+            return "No measurements to report."
+
+        lines = ["", "=" * 50, "MEASUREMENT RESULTS", "=" * 50, ""]
+
+        all_passed = True
+        for r in results:
+            icon = "✓" if r.passed else "✗"
+            if not r.passed:
+                all_passed = False
+
+            lines.append(f"{icon} {r.metric}")
+            lines.append(f"  Value:  {r.value}")
+            lines.append(f"  Target: {r.target}")
+            if r.error:
+                lines.append(f"  Error:  {r.error}")
+            lines.append("")
+
+        lines.append("=" * 50)
+        summary = "ALL PASSED" if all_passed else "SOME FAILED"
+        lines.append(f"Summary: {summary}")
+        lines.append("=" * 50)
+
+        return "\n".join(lines)
+
+
+def main():
+    """CLI interface for measurement runner."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Run measurements for GPBM workflow",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Run measurements for a task
+  python measure.py --task temper-xxx
+  
+  # Run a specific metric
+  python measure.py --metric fw_test_coverage --task temper-xxx
+  
+  # Output as JSON
+  python measure.py --task temper-xxx --json
+  
+  # List available metrics
+  python measure.py --list-metrics
+""",
+    )
+
+    parser.add_argument("--task", type=str, help="bd task ID to run measurements for")
+    parser.add_argument("--metric", type=str, help="Specific metric to run")
+    parser.add_argument("--target", type=str, help="Target value (e.g., '>=80')")
+    parser.add_argument("--json", action="store_true", help="Output results as JSON")
+    parser.add_argument(
+        "--no-log", action="store_true", help="Don't log results to measurements.jsonl"
+    )
+    parser.add_argument(
+        "--list-metrics", action="store_true", help="List available metrics"
+    )
+    parser.add_argument("--root", type=str, help="Project root directory")
+
+    args = parser.parse_args()
+
+    root = Path(args.root) if args.root else None
+    runner = MeasurementRunner(project_root=root)
+
+    if args.list_metrics:
+        print("Available metrics:\n")
+        for metric_id in sorted(runner.registry.list_all()):
+            metric = runner.registry.get(metric_id)
+            if metric:
+                print(f"  {metric_id}")
+                print(f"    {metric.description}")
+                print(f"    Target: {metric.target}")
+                print()
+        return
+
+    if not args.task:
+        parser.error("--task is required (or use --list-metrics)")
+
+    if args.metric:
+        # Run single metric
+        result = runner.run_metric(args.metric, args.task, args.target)
+        results = [result]
+    else:
+        # Run all measurements for task
+        results = runner.run_for_task(args.task)
+
+    if not results:
+        print(f"No measurement targets found for task {args.task}")
+        print("Add measurement_targets to the task description:")
+        print("""
+measurement_targets:
+  - metric: fw_test_coverage
+    target: ">=80"
+""")
+        sys.exit(0)
+
+    # Log results
+    if not args.no_log:
+        runner.log_results(results)
+
+    # Output
+    if args.json:
+        print(json.dumps([r.to_dict() for r in results], indent=2))
+    else:
+        print(runner.format_results(results))
+
+    # Exit code based on pass/fail
+    all_passed = all(r.passed for r in results)
+    sys.exit(0 if all_passed else 1)
+
+
+if __name__ == "__main__":
+    main()

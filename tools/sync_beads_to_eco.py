@@ -1,191 +1,384 @@
+#!/usr/bin/env python3
+"""
+Sync Beads issues to Eco semantic memory with multi-user routing.
+
+Routes issues to appropriate Eco user IDs based on labels:
+- agent:architect -> temper-architect
+- agent:coder -> temper-coder
+- agent:tester -> temper-tester
+- domain:firmware -> temper-firmware
+- domain:placer -> temper-placer
+- domain:pcb -> temper-pcb
+- (no label) -> temper-shared
+
+Usage:
+    python3 tools/sync_beads_to_eco.py           # Sync all changed issues
+    python3 tools/sync_beads_to_eco.py --force   # Force re-sync all issues
+    python3 tools/sync_beads_to_eco.py --dry-run # Preview without posting
+"""
+
 import json
 import os
+import sys
 import hashlib
-import urllib.request
-import urllib.error
 import time
+from typing import Optional, Dict, Any, List, Tuple
+
+# Add parent directory to path for gpbm imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from gpbm.eco_client import EcoClient, EcoConfig
 
 ISSUES_FILE = ".beads/issues.jsonl"
 STATE_FILE = ".beads/eco_sync_state.json"
-BASE_URL = "https://eco.bennetleff.workers.dev"
-USER_ID = "temper-agent"
 
-def load_issues():
+
+def load_issues() -> Dict[str, Any]:
+    """Load all issues from the JSONL file."""
     if not os.path.exists(ISSUES_FILE):
         return {}
-    
+
     issues = {}
-    with open(ISSUES_FILE, 'r') as f:
+    with open(ISSUES_FILE, "r") as f:
         for line in f:
             if line.strip():
                 try:
                     issue = json.loads(line)
-                    issues[issue['id']] = issue
+                    issues[issue["id"]] = issue
                 except json.JSONDecodeError:
                     continue
     return issues
 
-def load_state():
+
+def load_state() -> Dict[str, str]:
+    """Load sync state (issue_id -> content_hash mapping)."""
     if not os.path.exists(STATE_FILE):
         return {}
     try:
-        with open(STATE_FILE, 'r') as f:
+        with open(STATE_FILE, "r") as f:
             return json.load(f)
-    except:
+    except Exception:
         return {}
 
-def save_state(state):
-    # Ensure directory exists
+
+def save_state(state: Dict[str, str]) -> None:
+    """Save sync state."""
     os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
-    with open(STATE_FILE, 'w') as f:
+    with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=2)
 
-def hydrate_state_from_eco(state):
-    print("Hydrating state from Eco server...")
-    cursor = None
-    count = 0
-    pages = 0
-    limit = 100
-    
-    while True:
-        pages += 1
-        url = f"{BASE_URL}/memories?userId={USER_ID}&limit={limit}"
-        if cursor:
-            url += f"&cursor={cursor}"
-            
-        try:
-            print(f"  Fetching page {pages} (cursor: {cursor})...")
-            req = urllib.request.Request(url, headers={'User-Agent': 'TemperAgent/SyncHydrator'})
-            with urllib.request.urlopen(req, timeout=15) as response:
-                data = json.load(response)
-                memories = data.get("memories", [])
-                
-                if not memories:
-                    break
-                    
-                for mem in memories:
-                    tags = mem.get("tags", [])
-                    metadata = mem.get("metadata", {})
-                    if "beads" in tags and "issueId" in metadata and "syncHash" in metadata:
-                        issue_id = metadata["issueId"]
-                        sync_hash = metadata["syncHash"]
-                        # Store in state if not already newer
-                        if issue_id not in state:
-                            state[issue_id] = sync_hash
-                            count += 1
-                
-                next_cursor = data.get("cursor")
-                
-                # If no next cursor, or it hasn't advanced, we are done
-                if not next_cursor or next_cursor == cursor:
-                    break
-                    
-                cursor = next_cursor
-                
-                # If we got fewer memories than requested, it's the last page
-                if len(memories) < limit:
-                    break
-                    
-                # Safety break if we get stuck
-                if pages > 50:
-                    break
-                    
-        except Exception as e:
-            print(f"Error hydrating from Eco on page {pages}: {e}")
-            break
-            
-    print(f"Hydrated {count} entries from Eco.")
-    return state
 
-def compute_hash(issue):
-    # Compute hash of fields we care about for sync
+def compute_hash(issue: Dict) -> str:
+    """Compute hash of issue fields we care about for sync."""
     content = f"{issue.get('title')}|{issue.get('description')}|{issue.get('status')}|{issue.get('priority')}"
     return hashlib.sha256(content.encode()).hexdigest()
 
-def post_memory(content, tags, metadata):
-    payload = {
-        "content": content,
-        "userId": USER_ID,
-        "tags": tags,
-        "primary_sector": "episodic", # Updates are episodic events
-        "metadata": metadata
-    }
-    
-    try:
-        data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(
-            f"{BASE_URL}/memories", 
-            data=data, 
-            headers={'Content-Type': 'application/json', 'User-Agent': 'TemperAgent/Sync'},
-            method='POST'
-        )
-        
-        with urllib.request.urlopen(req, timeout=10) as response:
-            return response.status in [200, 201]
-    except Exception as e:
-        print(f"Error posting memory: {e}")
-        return False
 
-def sync():
+def extract_role_from_labels(labels: List[str]) -> Optional[str]:
+    """Extract agent role from issue labels.
+
+    Args:
+        labels: List of issue labels
+
+    Returns:
+        Role name (architect, coder, tester, human) or None
+    """
+    role_map = {
+        "agent:architect": "architect",
+        "agent:coder": "coder",
+        "agent:tester": "tester",
+        "agent:human": "human",
+    }
+
+    for label in labels:
+        if label in role_map:
+            return role_map[label]
+    return None
+
+
+def extract_domain_from_labels(labels: List[str]) -> Optional[str]:
+    """Extract project domain from issue labels.
+
+    Args:
+        labels: List of issue labels
+
+    Returns:
+        Domain name (firmware, placer, pcb) or None
+    """
+    domain_map = {
+        "domain:firmware": "firmware",
+        "domain:placer": "placer",
+        "domain:pcb": "pcb",
+    }
+
+    for label in labels:
+        if label in domain_map:
+            return domain_map[label]
+    return None
+
+
+def determine_user_id(
+    issue: Dict, config: EcoConfig
+) -> Tuple[str, Optional[str], Optional[str]]:
+    """Determine the appropriate Eco user ID for an issue.
+
+    Returns:
+        Tuple of (user_id, role, domain)
+    """
+    labels = issue.get("labels", [])
+
+    role = extract_role_from_labels(labels)
+    domain = extract_domain_from_labels(labels)
+
+    # Priority: role > domain > shared
+    if role and role in config.ROLES:
+        return config.ROLES[role], role, domain
+    elif domain and domain in config.DOMAINS:
+        return config.DOMAINS[domain], role, domain
+    else:
+        return config.SHARED, role, domain
+
+
+def hydrate_state_from_eco(client: EcoClient, state: Dict[str, str]) -> Dict[str, str]:
+    """Hydrate local state from Eco server to avoid double-syncing.
+
+    Queries all user IDs and extracts sync hashes from existing memories.
+    """
+    print("Hydrating state from Eco server...")
+    config = client.config
+
+    # All user IDs to check
+    all_user_ids = (
+        [config.SHARED] + list(config.ROLES.values()) + list(config.DOMAINS.values())
+    )
+
+    count = 0
+
+    for user_id in all_user_ids:
+        cursor = None
+        pages = 0
+
+        while pages < 10:  # Safety limit per user
+            pages += 1
+            endpoint = f"/memories?userId={user_id}&limit=100"
+            if cursor:
+                endpoint += f"&cursor={cursor}"
+
+            try:
+                result = client._make_request(endpoint)
+                if not result:
+                    break
+
+                memories = result.get("memories", [])
+                if not memories:
+                    break
+
+                for mem in memories:
+                    tags = mem.get("tags", [])
+                    metadata = mem.get("metadata", {})
+
+                    # Check if this is a beads sync memory
+                    if (
+                        "beads" in tags
+                        and "issueId" in metadata
+                        and "syncHash" in metadata
+                    ):
+                        issue_id = metadata["issueId"]
+                        sync_hash = metadata["syncHash"]
+
+                        # Only store if not already present
+                        if issue_id not in state:
+                            state[issue_id] = sync_hash
+                            count += 1
+
+                # Check for next page
+                next_cursor = result.get("cursor")
+                if not next_cursor or next_cursor == cursor:
+                    break
+                cursor = next_cursor
+
+                if len(memories) < 100:
+                    break
+
+            except Exception as e:
+                print(f"  Warning: Error hydrating from {user_id}: {e}")
+                break
+
+    print(f"  Hydrated {count} entries from Eco.")
+    return state
+
+
+def format_issue_memory(issue: Dict, action: str) -> str:
+    """Format issue as memory content for Eco."""
+    issue_id = issue.get("id", "unknown")
+    title = issue.get("title", "")
+    status = issue.get("status", "")
+    priority = issue.get("priority", "")
+    description = issue.get("description", "")
+    issue_type = issue.get("issue_type", "task")
+    labels = issue.get("labels", [])
+
+    if action == "CREATED":
+        desc = f"New {issue_type} {issue_id}: {title}"
+    else:
+        desc = f"Update on {issue_id} ({status}): {title}"
+
+    content = f"BEADS {action}: {desc}\n\n"
+    content += f"Status: {status}\n"
+    content += f"Priority: {priority}\n"
+    content += f"Type: {issue_type}\n"
+
+    if labels:
+        content += f"Labels: {', '.join(labels)}\n"
+
+    content += f"\n{description}"
+
+    # Truncate if too long
+    if len(content) > 5000:
+        content = content[:5000] + "... (truncated)"
+
+    return content
+
+
+def sync(force: bool = False, dry_run: bool = False) -> Tuple[int, int]:
+    """Sync all changed issues to Eco.
+
+    Args:
+        force: Force re-sync all issues (ignore state)
+        dry_run: Preview without posting
+
+    Returns:
+        Tuple of (updates, errors)
+    """
     print("Syncing Beads issues to Eco...")
+
+    client = EcoClient()
     issues = load_issues()
-    state = load_state()
-    
-    # If state is empty, try to hydrate from server to avoid double-syncing 600+ issues
-    if not state:
-        state = hydrate_state_from_eco(state)
-        if state:
-            save_state(state)
-    
+
+    if force:
+        state = {}
+    else:
+        state = load_state()
+
+        # Hydrate from server if state is empty
+        if not state:
+            state = hydrate_state_from_eco(client, state)
+            if state:
+                save_state(state)
+
     updates = 0
     errors = 0
-    
-    # Sort IDs to be deterministic
+
+    # Sort IDs for deterministic processing
     issue_ids = sorted(issues.keys())
-    
+
     for issue_id in issue_ids:
         issue = issues[issue_id]
         current_hash = compute_hash(issue)
         last_hash = state.get(issue_id)
-        
-        if current_hash != last_hash:
-            # Determine what changed (simple heuristic)
-            is_new = last_hash is None
-            
-            if is_new:
-                action = "CREATED"
-                desc = f"New Issue {issue_id}: {issue['title']}"
-            else:
-                action = "UPDATED"
-                desc = f"Update on {issue_id} ({issue['status']}): {issue['title']}"
-            
-            # Construct memory content
-            memory_content = f"BEADS {action}: {desc}\n\nStatus: {issue.get('status')}\nPriority: {issue.get('priority')}\n\n{issue.get('description', '')}"
-            
-            # Truncate if needed
-            if len(memory_content) > 5000:
-                memory_content = memory_content[:5000] + "... (truncated)"
-            
-            tags = ["beads", "sync", action.lower(), issue.get("issue_type", "task")]
-            metadata = {
-                "issueId": issue_id,
-                "syncHash": current_hash,
-                "timestamp": time.time()
-            }
-            
-            print(f"Syncing {issue_id} ({action})...")
-            if post_memory(memory_content, tags, metadata):
+
+        if current_hash == last_hash:
+            continue
+
+        # Determine action type
+        is_new = last_hash is None
+        action = "CREATED" if is_new else "UPDATED"
+
+        # Determine target user ID based on labels
+        user_id, role, domain = determine_user_id(issue, client.config)
+
+        # Format memory content
+        memory_content = format_issue_memory(issue, action)
+
+        # Build tags
+        tags = ["beads", "sync", action.lower(), issue.get("issue_type", "task")]
+        if role:
+            tags.append(f"role:{role}")
+        if domain:
+            tags.append(f"domain:{domain}")
+
+        # Build metadata
+        metadata = {
+            "issueId": issue_id,
+            "syncHash": current_hash,
+            "timestamp": time.time(),
+        }
+        if role:
+            metadata["role"] = role
+        if domain:
+            metadata["domain"] = domain
+
+        if dry_run:
+            print(f"[DRY RUN] Would sync {issue_id} ({action}) → {user_id}")
+            updates += 1
+        else:
+            print(f"Syncing {issue_id} ({action}) → {user_id}...")
+
+            success = client.post(
+                content=memory_content,
+                user_id=user_id,
+                tags=tags,
+                primary_sector="episodic",
+                metadata=metadata,
+            )
+
+            if success:
                 state[issue_id] = current_hash
                 updates += 1
-                # Small delay to avoid rate limits
+                # Rate limiting
                 time.sleep(0.2)
             else:
                 errors += 1
-    
-    if updates > 0:
+
+    if updates > 0 and not dry_run:
         save_state(state)
-        
+
     print(f"Sync complete. {updates} updates, {errors} errors.")
+    return updates, errors
+
+
+def main():
+    """CLI entry point."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Sync Beads issues to Eco semantic memory",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Multi-user routing based on labels:
+  agent:architect  → temper-architect
+  agent:coder      → temper-coder
+  agent:tester     → temper-tester
+  domain:firmware  → temper-firmware
+  domain:placer    → temper-placer
+  domain:pcb       → temper-pcb
+  (no label)       → temper-shared
+
+Examples:
+  python3 tools/sync_beads_to_eco.py           # Sync changed issues
+  python3 tools/sync_beads_to_eco.py --force   # Force re-sync all
+  python3 tools/sync_beads_to_eco.py --dry-run # Preview only
+""",
+    )
+
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-sync all issues (ignore cached state)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview what would be synced without posting",
+    )
+
+    args = parser.parse_args()
+
+    updates, errors = sync(force=args.force, dry_run=args.dry_run)
+
+    if errors > 0:
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sync()
+    main()
