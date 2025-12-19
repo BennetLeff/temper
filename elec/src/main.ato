@@ -1,46 +1,226 @@
+# main.ato
+# Temper Induction Cooker - Top Level Design
+# Reference: pcb/temper.kicad_sch
+#
+# System Overview:
+# - AC Input (120V) -> Voltage Doubler -> DC Bus (340V)
+# - DC Bus -> Half-Bridge -> Resonant Tank -> Coil
+# - ESP32-S3 controls PWM, monitors sensors, kicks watchdog
+# - Hardware safety interlock: OCP, OVP, Thermal, Watchdog -> SHUTDOWN_N
+#
+# Power Rails:
+# - DC_BUS: 340V nominal (rectified mains)
+# - +15V: Gate driver, safety logic (from auxiliary supply)
+# - +3.3V: MCU, digital logic (from LDO)
+
+# Module imports
 import HalfBridge from "modules.ato"
 import ResonantTank from "modules.ato"
+import PowerInput from "modules.ato"
+import PowerManagement from "modules.ato"
+import CurrentSensing from "modules.ato"
+import RTDSensing from "modules.ato"
+import SafetyInterlock from "modules.ato"
+import MCU from "modules.ato"
+
+# Footprint imports for FAC
 import IGBT_TO247 from "footprints.ato"
 import SOIC16W_Isolated from "footprints.ato"
 import LitzPad_15A from "footprints.ato"
 import CST1005_Footprint from "footprints.ato"
 
+# ==============================================================================
+# TOP-LEVEL MODULE: Complete Induction Cooker System
+# ==============================================================================
+
 module Top:
-    # System Operating Conditions
+    """Top-level Temper induction cooker assembly."""
+    
+    # --- System Operating Conditions ---
     v_bus_max = 340V
     v_bus_abs_max = 400V
     i_peak_max = 25A
-
-    hb = new HalfBridge
-    tank = new ResonantTank
-
-    # --- Safety Assertions ---
+    v_ac_nominal = 120V
+    power_max = 1800W
     
-    # IGBT Voltage Margin
+    # --- Power Rails ---
+    signal gnd          # System ground
+    signal dc_bus_plus  # +340V
+    signal dc_bus_minus # Ground reference for DC bus
+    signal vcc_15v      # Gate driver supply
+    signal vcc_3v3      # MCU supply
+    
+    # --- Module Instances ---
+    
+    # Power input (AC -> DC)
+    power_in = new PowerInput
+    
+    # Power management (DC_BUS -> 15V -> 3.3V)
+    power_mgmt = new PowerManagement
+    
+    # Half-bridge (power stage)
+    hb = new HalfBridge
+    
+    # Resonant tank (LC network + coil)
+    tank = new ResonantTank
+    
+    # Current sensing (CT on DC bus)
+    ct_sense = new CurrentSensing
+    
+    # Temperature sensing (RTD for pan/heatsink)
+    rtd_pan = new RTDSensing
+    
+    # Safety interlock
+    safety = new SafetyInterlock
+    
+    # Microcontroller
+    mcu = new MCU
+    
+    # ===========================================================================
+    # SAFETY ASSERTIONS
+    # These must pass at compile-time to ensure design safety margins
+    # ===========================================================================
+    
+    # IGBT Voltage Margin (>= 1.5x operating voltage)
     assert hb.power_loop.q_high.voltage_rating >= v_bus_max * 1.5
     assert hb.power_loop.q_low.voltage_rating >= v_bus_max * 1.5
-
-    # IGBT Current Margin
+    
+    # IGBT Current Margin (>= 1.5x peak current)
     assert hb.power_loop.q_high.current_rating >= i_peak_max * 1.5
     assert hb.power_loop.q_low.current_rating >= i_peak_max * 1.5
-
-    # Bootstrap Diode Rating
+    
+    # Bootstrap Diode Rating (must withstand full bus voltage)
     assert hb.gate_hs.boot_diode.voltage_rating >= v_bus_max
-
-    # Resonant Tank Capacitor Voltage
+    
+    # Resonant Tank Capacitor Voltage (>= 2x bus for resonant overshoot)
+    # Using 1000V minimum per design decision
     assert tank.c_tank1.voltage_rating >= 1000V
     assert tank.c_tank2.voltage_rating >= 1000V
-
-    # Design Voltage check
+    
+    # Bus capacitor voltage rating
+    assert power_in.c_bus1.voltage_rating >= v_bus_max * 0.75
+    assert power_in.c_bus2.voltage_rating >= v_bus_max * 0.75
+    
+    # Rectifier diode rating
+    assert power_in.d1.voltage_rating >= v_bus_max * 1.5
+    assert power_in.d2.voltage_rating >= v_bus_max * 1.5
+    
+    # Design bus voltage limit
     assert v_bus_max <= 400V
+    
+    # ===========================================================================
+    # POWER CONNECTIONS
+    # ===========================================================================
+    
+    # AC Input (external connectors)
+    # Note: AC_L, AC_N, PE come from external connector
+    
+    # Power input outputs
+    power_in.dc_bus_plus ~ dc_bus_plus
+    power_in.dc_bus_minus ~ dc_bus_minus
+    power_in.gnd_center ~ gnd
+    
+    # Power management chain
+    # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS
+    # For this model, we assume a separate input or pre-regulated source
+    power_mgmt.gnd ~ gnd
+    power_mgmt.vcc_15v ~ vcc_15v
+    power_mgmt.vcc_3v3 ~ vcc_3v3
+    
+    # ===========================================================================
+    # HALF-BRIDGE CONNECTIONS
+    # ===========================================================================
+    
+    hb.v_bus_plus ~ dc_bus_plus
+    hb.v_bus_minus ~ gnd
+    hb.vcc_15v ~ vcc_15v
+    hb.gnd ~ gnd
+    
+    # PWM from MCU
+    mcu.pwm_h ~ hb.pwm_h
+    mcu.pwm_l ~ hb.pwm_l
+    
+    # ===========================================================================
+    # RESONANT TANK CONNECTIONS
+    # ===========================================================================
+    
+    hb.switch_node ~ tank.in
+    tank.out ~ gnd  # Return path
+    
+    # ===========================================================================
+    # SENSING CONNECTIONS
+    # ===========================================================================
+    
+    # Current sensing
+    ct_sense.gnd ~ gnd
+    ct_sense.i_sense ~ mcu.adc_i_sense
+    ct_sense.i_sense ~ safety.i_sense
+    
+    # RTD temperature sensing (pan temperature)
+    rtd_pan.vdd ~ vcc_3v3
+    rtd_pan.gnd ~ gnd
+    rtd_pan.spi_cs ~ mcu.spi_cs_rtd
+    rtd_pan.spi_clk ~ mcu.spi_clk
+    rtd_pan.spi_mosi ~ mcu.spi_mosi
+    rtd_pan.spi_miso ~ mcu.spi_miso
+    rtd_pan.drdy ~ mcu.rtd_drdy
+    
+    # ===========================================================================
+    # SAFETY INTERLOCK CONNECTIONS
+    # ===========================================================================
+    
+    safety.vcc_3v3 ~ vcc_3v3
+    safety.vcc_15v ~ vcc_15v
+    safety.gnd ~ gnd
+    
+    # Sensor inputs to safety system
+    safety.dc_bus ~ dc_bus_plus
+    # safety.i_sense already connected above
+    # NTC for heatsink temperature monitoring
+    safety.ntc_sense ~ mcu.adc_ntc
+    
+    # Watchdog
+    mcu.wdt_kick ~ safety.wdt_kick
+    
+    # Shutdown output (active-low disables gate driver)
+    safety.shutdown_n ~ hb.gate_hs.driver.DIS
+    
+    # Fault status to MCU
+    safety.fault_status ~ mcu.shutdown_n_in
+    
+    # Fault LEDs
+    safety.ocp_led ~ mcu.led_ocp
+    safety.ovp_led ~ mcu.led_ovp
+    safety.thermal_led ~ mcu.led_thermal
+    safety.wdt_led ~ mcu.led_wdt
+    
+    # ===========================================================================
+    # MCU CONNECTIONS
+    # ===========================================================================
+    
+    mcu.vcc_3v3 ~ vcc_3v3
+    mcu.gnd ~ gnd
+    
+    # Relay control for soft-start bypass
+    mcu.relay_ctrl ~ power_in.relay_ctrl
+    
+    # Zero-crossing detection for soft-start timing
+    power_in.zcd ~ mcu.zcd_in
 
-# --- Footprint-as-Code Definitions ---
+# ==============================================================================
+# FOOTPRINT COMPILATION
+# Instantiate generative footprints to ensure they compile
+# ==============================================================================
+
 module Footprints:
-    # Instantiate generative footprints to ensure they are compiled
     igbt_fac = new IGBT_TO247
     driver_fac = new SOIC16W_Isolated
     litz_fac = new LitzPad_15A
     ct_fac = new CST1005_Footprint
+
+# ==============================================================================
+# TOP-LEVEL INSTANCES
+# ==============================================================================
 
 temper = new Top
 footprints = new Footprints

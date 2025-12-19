@@ -1,34 +1,44 @@
 # Net Class and Constraint Definitions for Temper
+# Reference: NET_CLASS_SPECIFICATION.md, PCB_SAFETY_DESIGN_RULES.md
 
 module Constraints:
+    # ===========================================================================
+    # NET CLASS DEFINITIONS
+    # ===========================================================================
+    
     # High Voltage Domain (DC Bus, Switch Node)
-    # 340V DC max, 15A RMS
+    # 340V DC max, 25A peak
     module HighVoltage:
         trace_width = 3.0mm
         clearance = 2.0mm
-        v_max = 340V
-        i_max = 22A
+        v_max = 400V  # Absolute max
+        i_max = 25A
+        creepage = 8.0mm   # IEC 60335-1 reinforced insulation
+        air_clearance = 6.0mm
 
     # AC Mains Input
     # 120V AC, 15A
     module ACMains:
         trace_width = 2.5mm
         clearance = 3.0mm
-        v_max = 135V # 120V + margin
+        v_max = 135V  # 120V + margin
         i_max = 15A
+        creepage = 5.0mm
+        air_clearance = 3.0mm
 
     # Isolated High Voltage (Bootstrap)
     module HighVoltageIsolated:
         trace_width = 2.0mm
         clearance = 6.0mm
-        v_max = 20V # Differential voltage
+        v_max = 20V  # Differential voltage
         i_max = 2A
+        isolation_barrier = True
 
     # Gate Drive Signals
     module GateDrive:
         trace_width = 0.5mm
         clearance = 0.5mm
-        i_max = 1.5A
+        i_max = 4A  # Peak drive current
 
     # Low Voltage Power (3.3V, 15V)
     module Power:
@@ -42,7 +52,62 @@ module Constraints:
         clearance = 0.2mm
         i_max = 0.5A
 
-    # Safety Assertions (Conceptual for future Enforcer integration)
-    # clearance(HighVoltage, Default) > 8.0mm
-    # clearance(HighVoltageIsolated, Default) > 6.0mm
-    # clearance(ACMains, Default) > 3.0mm
+    # ===========================================================================
+    # INTER-DOMAIN CLEARANCE REQUIREMENTS
+    # Per IEC 60335-1 and IPC-2221B
+    # ===========================================================================
+    
+    # HighVoltage to Default: Reinforced insulation
+    # Requires 8mm creepage, 6mm clearance, and isolation slot
+    module HV_to_LV:
+        min_clearance = 6.0mm
+        min_creepage = 8.0mm
+        requires_slot = True
+        slot_width = 1.0mm
+
+    # ACMains to Default: Basic insulation
+    module AC_to_LV:
+        min_clearance = 3.0mm
+        min_creepage = 5.0mm
+
+    # HighVoltage to HighVoltageIsolated: Across isolation barrier
+    module HV_to_ISO:
+        min_clearance = 6.0mm
+        min_creepage = 8.0mm
+        requires_slot = True
+
+    # ===========================================================================
+    # THERMAL CONSTRAINTS
+    # ===========================================================================
+    
+    module ThermalZones:
+        # IGBT zone - maximum heat generation
+        igbt_max_temp = 150C
+        igbt_derate_temp = 125C
+        
+        # Power inductor zone
+        inductor_max_temp = 125C
+        
+        # MCU zone - keep cool for reliability
+        mcu_max_temp = 85C
+        
+        # Electrolytic cap zone - life limited by temp
+        cap_max_temp = 105C
+
+    # ===========================================================================
+    # MECHANICAL CONSTRAINTS
+    # ===========================================================================
+    
+    module MechanicalLimits:
+        # Board dimensions (from PCB_SPECIFICATION.md)
+        board_width = 100mm
+        board_height = 150mm
+        board_thickness = 1.6mm
+        
+        # Keep-out zones
+        mounting_hole_keepout = 3.0mm
+        antenna_keepout = 15.0mm  # ESP32-S3 antenna area
+        
+        # Height constraints
+        max_component_height = 25mm  # Bus caps
+        standard_height_zone = 15mm
