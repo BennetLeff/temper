@@ -1,0 +1,46 @@
+import HalfBridge from "modules.ato"
+import ResonantTank from "modules.ato"
+import IGBT_TO247 from "footprints.ato"
+import SOIC16W_Isolated from "footprints.ato"
+import LitzPad_15A from "footprints.ato"
+import CST1005_Footprint from "footprints.ato"
+
+module Top:
+    # System Operating Conditions
+    v_bus_max = 340V
+    v_bus_abs_max = 400V
+    i_peak_max = 25A
+
+    hb = new HalfBridge
+    tank = new ResonantTank
+
+    # --- Safety Assertions ---
+    
+    # IGBT Voltage Margin
+    assert hb.power_loop.q_high.voltage_rating >= v_bus_max * 1.5
+    assert hb.power_loop.q_low.voltage_rating >= v_bus_max * 1.5
+
+    # IGBT Current Margin
+    assert hb.power_loop.q_high.current_rating >= i_peak_max * 1.5
+    assert hb.power_loop.q_low.current_rating >= i_peak_max * 1.5
+
+    # Bootstrap Diode Rating
+    assert hb.gate_hs.boot_diode.voltage_rating >= v_bus_max
+
+    # Resonant Tank Capacitor Voltage
+    assert tank.c_tank1.voltage_rating >= 1000V
+    assert tank.c_tank2.voltage_rating >= 1000V
+
+    # Design Voltage check
+    assert v_bus_max <= 400V
+
+# --- Footprint-as-Code Definitions ---
+module Footprints:
+    # Instantiate generative footprints to ensure they are compiled
+    igbt_fac = new IGBT_TO247
+    driver_fac = new SOIC16W_Isolated
+    litz_fac = new LitzPad_15A
+    ct_fac = new CST1005_Footprint
+
+temper = new Top
+footprints = new Footprints

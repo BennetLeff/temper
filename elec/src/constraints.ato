@@ -1,0 +1,48 @@
+# Net Class and Constraint Definitions for Temper
+
+module Constraints:
+    # High Voltage Domain (DC Bus, Switch Node)
+    # 340V DC max, 15A RMS
+    module HighVoltage:
+        trace_width = 3.0mm
+        clearance = 2.0mm
+        v_max = 340V
+        i_max = 22A
+
+    # AC Mains Input
+    # 120V AC, 15A
+    module ACMains:
+        trace_width = 2.5mm
+        clearance = 3.0mm
+        v_max = 135V # 120V + margin
+        i_max = 15A
+
+    # Isolated High Voltage (Bootstrap)
+    module HighVoltageIsolated:
+        trace_width = 2.0mm
+        clearance = 6.0mm
+        v_max = 20V # Differential voltage
+        i_max = 2A
+
+    # Gate Drive Signals
+    module GateDrive:
+        trace_width = 0.5mm
+        clearance = 0.5mm
+        i_max = 1.5A
+
+    # Low Voltage Power (3.3V, 15V)
+    module Power:
+        trace_width = 1.0mm
+        clearance = 0.5mm
+        i_max = 3A
+
+    # Default Signal Class
+    module Default:
+        trace_width = 0.2mm
+        clearance = 0.2mm
+        i_max = 0.5A
+
+    # Safety Assertions (Conceptual for future Enforcer integration)
+    # clearance(HighVoltage, Default) > 8.0mm
+    # clearance(HighVoltageIsolated, Default) > 6.0mm
+    # clearance(ACMains, Default) > 3.0mm

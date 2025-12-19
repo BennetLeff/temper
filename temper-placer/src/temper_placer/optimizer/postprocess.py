@@ -22,6 +22,8 @@ import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.core.state import PlacementState
+from temper_placer.losses.base import LossContext
+from temper_placer.optimizer.legalization import project_to_drc_feasible
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,10 @@ class PostProcessConfig:
     max_overlap_iterations: int = 10
     overlap_nudge_distance: float = 0.5  # mm
 
+    # Legalization settings
+    legalization_enabled: bool = True
+    legalization_margin: float = 0.1  # mm
+
 
 @dataclass
 class PostProcessResult:
@@ -57,6 +63,7 @@ class PostProcessResult:
     grid_snapped: bool
     rotations_refined: bool
     overlaps_resolved: int  # Number of overlaps fixed
+    legalized: bool = False
     final_loss: Optional[float] = None
 
 
@@ -370,13 +377,15 @@ def postprocess(
     config: Optional[PostProcessConfig] = None,
     component_sizes: Optional[Array] = None,
     fixed_components: Optional[List[int]] = None,
+    context: Optional[LossContext] = None,
 ) -> PostProcessResult:
     """
     Run full post-processing pipeline on optimized placement.
 
     Applies in order:
     1. Grid snap (align positions to placement grid)
-    2. Discrete rotation refinement (finalize rotation choices)
+    2. Legalization (resolve hard overlaps/boundaries)
+    3. Discrete rotation refinement (finalize rotation choices)
 
     Args:
         state: PlacementState from optimization.
@@ -384,6 +393,7 @@ def postprocess(
         config: Post-processing configuration.
         component_sizes: (N, 2) array of component sizes for overlap checking.
         fixed_components: Component indices that should not be modified.
+        context: LossContext for legalization rules.
 
     Returns:
         PostProcessResult with refined state and metadata.
@@ -398,6 +408,7 @@ def postprocess(
 
     current_state = state
     grid_snapped = False
+    legalized = False
     rotations_refined = False
     overlaps_fixed = 0
 
@@ -409,7 +420,15 @@ def postprocess(
         current_state = snap_to_grid(current_state, config.grid_size)
         grid_snapped = True
 
-    # Step 2: Discrete rotation refinement
+    # Step 2: Legalization
+    if config.legalization_enabled and context is not None:
+        logger.info("Running DRC-feasible projection (legalization)")
+        current_state = project_to_drc_feasible(
+            current_state, context, margin_mm=config.legalization_margin
+        )
+        legalized = True
+
+    # Step 3: Discrete rotation refinement
     if config.rotation_refinement_enabled:
         logger.info(f"Refining rotations using {config.rotation_search_type} search")
         current_state, final_loss = discrete_rotation_refinement(
@@ -428,6 +447,7 @@ def postprocess(
     return PostProcessResult(
         state=current_state,
         grid_snapped=grid_snapped,
+        legalized=legalized,
         rotations_refined=rotations_refined,
         overlaps_resolved=overlaps_fixed,
         final_loss=final_loss,

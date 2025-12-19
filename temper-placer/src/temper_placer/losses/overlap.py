@@ -178,13 +178,18 @@ def _compute_pairwise_overlaps_vectorized(
     Creates (N, N) matrices - efficient for small N but memory-intensive for large N.
     """
     n = positions.shape[0]
+    dtype = positions.dtype
 
     # Position differences: (N, N, 2)
     pos_diff = positions[:, None, :] - positions[None, :, :]
 
     # Half-widths and half-heights with margin
-    half_w = (widths + margin) / 2.0
-    half_h = (heights + margin) / 2.0
+    # Ensure widths/heights match positions dtype
+    widths_dt = widths.astype(dtype)
+    heights_dt = heights.astype(dtype)
+    
+    half_w = (widths_dt + margin) / 2.0
+    half_h = (heights_dt + margin) / 2.0
 
     # Combined half-dimensions for each pair: (N, N)
     combined_half_w = half_w[:, None] + half_w[None, :]
@@ -206,9 +211,10 @@ def _compute_pairwise_overlaps_vectorized(
 
     # Apply centrality weighting if provided
     if centrality is not None and centrality.shape[0] > 0:
+        centrality_dt = centrality.astype(dtype)
         # Boost overlap penalty based on max centrality of pair
         # Scale by n/2 to keep average weight consistent (avg centrality ~ 1/n)
-        pair_weight = (centrality[:, None] + centrality[None, :]) * (n / 2.0)
+        pair_weight = (centrality_dt[:, None] + centrality_dt[None, :]) * (n / 2.0)
         overlap_amount = overlap_amount * pair_weight
 
     # For total loss, only count upper triangle (i < j) to avoid double counting
@@ -217,7 +223,7 @@ def _compute_pairwise_overlaps_vectorized(
 
     # For per-component breakdown, sum across rows (all overlaps for each component)
     # We use the full symmetric matrix here but zero out diagonal
-    per_component_overlap = jnp.sum(overlap_amount * (1.0 - jnp.eye(n)), axis=1)
+    per_component_overlap = jnp.sum(overlap_amount * (jnp.array(1.0, dtype=dtype) - jnp.eye(n, dtype=dtype)), axis=1)
 
     return total_overlap, per_component_overlap
 
@@ -236,10 +242,15 @@ def _compute_pairwise_overlaps_chunked(
     Uses jax.lax.scan for efficient iteration.
     """
     n = positions.shape[0]
+    dtype = positions.dtype
 
     # Half-widths and half-heights with margin
-    half_w = (widths + margin) / 2.0
-    half_h = (heights + margin) / 2.0
+    # Ensure widths/heights match positions dtype
+    widths_dt = widths.astype(dtype)
+    heights_dt = heights.astype(dtype)
+    
+    half_w = (widths_dt + margin) / 2.0
+    half_h = (heights_dt + margin) / 2.0
 
     def process_i(carry, i):
         """Process component i and sum its overlaps with ALL other components."""
@@ -265,21 +276,22 @@ def _compute_pairwise_overlaps_chunked(
 
         # Apply centrality weighting if provided
         if centrality is not None and centrality.shape[0] > 0:
-            pair_weight = (centrality[i] + centrality) * (n / 2.0)
+            centrality_dt = centrality.astype(dtype)
+            pair_weight = (centrality_dt[i] + centrality_dt) * (n / 2.0)
             overlap_amount = overlap_amount * pair_weight
 
         # Sum overlaps for component i
-        comp_i_sum = jnp.sum(overlap_amount * (1.0 - jax.nn.one_hot(i, n)))
+        comp_i_sum = jnp.sum(overlap_amount * (1.0 - jax.nn.one_hot(i, n, dtype=dtype)))
 
         # For the total global sum, only count j > i
         j_indices = jnp.arange(n)
         upper_mask = j_indices > i
-        global_pair_sum = jnp.sum(jnp.where(upper_mask, overlap_amount, 0.0))
+        global_pair_sum = jnp.sum(jnp.where(upper_mask, overlap_amount, jnp.array(0.0, dtype=dtype)))
 
         return total_sum + global_pair_sum, comp_i_sum
 
     # total_global_sum: scalar, per_comp_sums: (N,) array
-    total_global_sum, per_comp_sums = jax.lax.scan(process_i, jnp.array(0.0), jnp.arange(n))
+    total_global_sum, per_comp_sums = jax.lax.scan(process_i, jnp.array(0.0, dtype=dtype), jnp.arange(n))
 
     return total_global_sum, per_comp_sums
 
@@ -299,19 +311,23 @@ def _compute_pairwise_overlaps_optimized(
     For large N (>= 50): Uses chunked approach for memory efficiency
     """
     n = positions.shape[0]
+    
+    # Ensure we use a float dtype even if positions are integers
+    if jnp.issubdtype(positions.dtype, jnp.integer):
+        dtype = jnp.float32
+    else:
+        dtype = positions.dtype
 
-    # Use lax.cond for dynamic dispatch based on n
-    # Note: We handle n < 2 inside the branches or via another cond to keep structure same
+    # Handle empty or single component boards (no overlaps possible)
+    if n < 2:
+        return jnp.array(0.0, dtype=dtype), jnp.zeros(n, dtype=dtype)
+
+    # Use lax.cond for dynamic dispatch based on n (vectorized vs chunked)
     return jax.lax.cond(
-        n < 2,
-        lambda _: (jnp.array(0.0, dtype=positions.dtype), jnp.zeros(n, dtype=positions.dtype)),
-        lambda args: jax.lax.cond(
-            args[0].shape[0] < _VECTORIZED_THRESHOLD,
-            lambda a: _compute_pairwise_overlaps_vectorized(*a),
-            lambda a: _compute_pairwise_overlaps_chunked(*a),
-            args,
-        ),
-        (positions, widths, heights, margin, centrality),
+        n < _VECTORIZED_THRESHOLD,
+        lambda a: _compute_pairwise_overlaps_vectorized(*a),
+        lambda a: _compute_pairwise_overlaps_chunked(*a),
+        (positions.astype(dtype), widths.astype(dtype), heights.astype(dtype), margin, centrality),
     )
 
 

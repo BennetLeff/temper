@@ -1,0 +1,75 @@
+import ThermalViaArray, HighCurrentPad, CreepageSlot from "fac_utils.ato"
+
+module LitzPad_15A:
+    """High-current pad for Litz wire (Resonant Tank)."""
+    pad = new HighCurrentPad
+    pad.drill_size = 2.5mm # Large for Litz bundles
+    pad.annular_ring = 1.5mm
+    pad.current_rating = 15A
+    
+    signal in ~ pad
+
+module CST1005_Footprint:
+    """Current Transformer footprint with HV primary clearance."""
+    # Secondary pins (burden resistor side)
+    sec_pad1 = new HighCurrentPad
+    sec_pad1.drill_size = 0.8mm
+    sec_pad1.annular_ring = 0.4mm
+    
+    sec_pad2 = new HighCurrentPad
+    sec_pad2.drill_size = 0.8mm
+    sec_pad2.annular_ring = 0.4mm
+    
+    # Primary 'pin' is just a large hole for the wire
+    primary_hole_dia = 5.0mm
+    
+    signal S1 ~ sec_pad1
+    signal S2 ~ sec_pad2
+
+module SOIC16W_Isolated:
+
+    """Isolated SOIC-16W footprint with integrated creepage slot."""
+    # Physical dimensions
+    body_width = 7.5mm
+    body_length = 10.3mm
+    pitch = 1.27mm
+    
+    # Isolation Barrier
+    # Reinforced insulation requires 8mm design target
+    isolation_slot = new CreepageSlot
+    isolation_slot.length = body_length + 2.0mm
+    isolation_slot.width = 1.0mm
+    
+    # Pads are generated here (conceptual placeholder)
+    # Signal mapping to standard SOIC-16W pins
+    signal pin1, pin2, pin3, pin4, pin5, pin6, pin7, pin8
+    signal pin9, pin10, pin11, pin12, pin13, pin14, pin15, pin16
+
+module IGBT_TO247:
+
+    """Generative TO-247 footprint for high-power IGBTs."""
+    # Pin Pitch
+    pitch = 5.45mm
+    
+    # Pads
+    gate_pad = new HighCurrentPad
+    gate_pad.drill_size = 1.2mm
+    gate_pad.annular_ring = 0.6mm
+    
+    collector_pad = new HighCurrentPad
+    collector_pad.drill_size = 1.2mm
+    collector_pad.annular_ring = 1.0mm # Larger for high current
+    
+    emitter_pad = new HighCurrentPad
+    emitter_pad.drill_size = 1.2mm
+    emitter_pad.annular_ring = 1.0mm
+
+    # Thermal Management
+    collector_thermal = new ThermalViaArray
+    collector_thermal.rows = 3
+    collector_thermal.cols = 3
+    
+    # Pin Mappings
+    signal G ~ gate_pad
+    signal C ~ collector_pad
+    signal E ~ emitter_pad

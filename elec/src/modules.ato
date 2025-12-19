@@ -1,0 +1,152 @@
+import IKW40N120H3 from "components.ato"
+import UCC21550BDWK from "components.ato"
+import UJ3D1210TS from "components.ato"
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import Diode from "components.ato"
+import Constraints from "constraints.ato"
+
+module PowerLoop:
+    q_high = new IKW40N120H3
+    q_low = new IKW40N120H3
+    
+    q_high.voltage_rating = 1200V
+    q_high.current_rating = 40A
+    q_low.voltage_rating = 1200V
+    q_low.current_rating = 40A
+
+module GateDriveHS:
+    driver = new UCC21550BDWK
+    rg_on = new Resistor
+    rgs = new Resistor
+    boot_diode = new UJ3D1210TS
+    boot_cap = new Capacitor
+    neg_bias_zener = new Diode
+
+    boot_cap.value = 10uF
+    boot_cap.voltage_rating = 50V
+    boot_cap.mpn = "GRM32ER71H106KA12L"
+    boot_cap.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    neg_bias_zener.voltage_rating = 5.1V
+    neg_bias_zener.mpn = "BZT52C5V1-7-F"
+    neg_bias_zener.footprint = "Diode_SMD:D_SOD-123"
+
+    rg_on.value = 2.2ohm
+    rg_on.mpn = "RC1206FR-072R2L"
+    rg_on.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    rgs.value = 2200ohm
+    rgs.mpn = "RC0603FR-072K2L"
+    rgs.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+module GateDriveLS:
+    rg_on = new Resistor
+    rgs = new Resistor
+
+    rg_on.value = 2.2ohm
+    rg_on.mpn = "RC1206FR-072R2L"
+    rg_on.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    rgs.value = 2200ohm
+    rgs.mpn = "RC0603FR-072K2L"
+    rgs.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+module HalfBridge:
+    # Interface
+    signal pwm_h
+    signal pwm_l
+    signal vcc_15v
+    signal gnd
+    signal v_bus_plus
+    signal v_bus_minus
+    signal switch_node
+
+    # Instances (Critical Loop Grouping)
+    power_loop = new PowerLoop
+    gate_hs = new GateDriveHS
+    gate_ls = new GateDriveLS
+
+    # Dead-time config
+    dt_cap = new Capacitor
+    dt_cap.value = 5.1nF
+    dt_cap.mpn = "GRM188R71H512KA01D"
+    dt_cap.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    dt_cap.p1 ~ gate_hs.driver.DT
+    dt_cap.p2 ~ gate_hs.driver.GNDI
+
+    # Constraint Assignments
+    v_bus_plus.v_max = Constraints.HighVoltage.v_max
+    v_bus_minus.v_max = Constraints.HighVoltage.v_max
+    switch_node.v_max = Constraints.HighVoltage.v_max
+    
+    v_bus_plus.class = "HighVoltage"
+    v_bus_minus.class = "HighVoltage"
+    switch_node.class = "HighVoltage"
+    vcc_15v.class = "Power"
+    gnd.class = "Power"
+    pwm_h.class = "GateDrive"
+    pwm_l.class = "GateDrive"
+
+    # Connections - Primary Side
+    pwm_h ~ gate_hs.driver.INA
+    pwm_l ~ gate_hs.driver.INB
+    vcc_15v ~ gate_hs.driver.VCCI_1
+    vcc_15v ~ gate_hs.driver.VCCI_2
+    gnd ~ gate_hs.driver.GNDI
+
+    # Power Stage Connections
+    v_bus_plus ~ power_loop.q_high.C
+    power_loop.q_high.E ~ switch_node
+    switch_node ~ power_loop.q_low.C
+    power_loop.q_low.E ~ v_bus_minus
+
+    # High Side Drive
+    gate_hs.driver.OUTA ~ gate_hs.rg_on.p1
+    gate_hs.rg_on.p2 ~ power_loop.q_high.G
+    gate_hs.rgs.p1 ~ power_loop.q_high.G
+    gate_hs.rgs.p2 ~ power_loop.q_high.E
+
+    # High Side Power (Bootstrap with Negative Bias)
+    vcc_15v ~ gate_hs.boot_diode.A
+    gate_hs.boot_diode.K ~ gate_hs.driver.VDDA
+    gate_hs.boot_cap.p1 ~ gate_hs.driver.VDDA
+    gate_hs.boot_cap.p2 ~ gate_hs.neg_bias_zener.K
+    gate_hs.neg_bias_zener.A ~ switch_node
+    gate_hs.driver.VSSA ~ gate_hs.boot_cap.p2
+
+    # Low Side Drive
+    gate_hs.driver.OUTB ~ gate_ls.rg_on.p1
+    gate_ls.rg_on.p2 ~ power_loop.q_low.G
+    gate_ls.rgs.p1 ~ power_loop.q_low.G
+    gate_ls.rgs.p2 ~ power_loop.q_low.E
+
+    # Low Side Power
+    vcc_15v ~ gate_hs.driver.VDDB
+    v_bus_minus ~ gate_hs.driver.VSSB
+
+module ResonantTank:
+    signal in
+    signal out
+    
+    c_tank1 = new Capacitor
+    c_tank1.value = 150nF
+    c_tank1.voltage_rating = 1600V
+    c_tank1.mpn = "FKP1U021507E00JSSD"
+    c_tank1.footprint = "Capacitor_THT:C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4"
+    
+    c_tank2 = new Capacitor
+    c_tank2.value = 150nF
+    c_tank2.voltage_rating = 1600V
+    c_tank2.mpn = "FKP1U021507E00JSSD"
+    c_tank2.footprint = "Capacitor_THT:C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4"
+    
+    inductor_conn = new Resistor # Placeholder for Litz interface
+    inductor_conn.mpn = "CUSTOM_LITZ_COIL"
+    inductor_conn.footprint = "LitzPad_15A"
+    
+    in ~ c_tank1.p1
+    in ~ c_tank2.p1
+    c_tank1.p2 ~ inductor_conn.p1
+    c_tank2.p2 ~ inductor_conn.p1
+    inductor_conn.p2 ~ out

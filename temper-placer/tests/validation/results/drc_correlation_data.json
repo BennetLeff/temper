@@ -9,27 +9,27 @@
     },
     {
       "quality_level": "good",
-      "overlap_loss": 0.05465183403939386,
-      "total_loss": 280.5842374490252,
-      "drc_errors": 6
+      "overlap_loss": 0.006840147254551869,
+      "total_loss": 247.22333088491348,
+      "drc_errors": 7
     },
     {
       "quality_level": "mediocre",
-      "overlap_loss": 0.25245495573303084,
-      "total_loss": 278.2228622638907,
-      "drc_errors": 10
+      "overlap_loss": 0.016646991357016614,
+      "total_loss": 286.5223405138696,
+      "drc_errors": 8
     },
     {
       "quality_level": "bad",
       "overlap_loss": 0.0,
-      "total_loss": 516.849354897714,
+      "total_loss": 584.9073152239345,
       "drc_errors": 0
     },
     {
       "quality_level": "terrible",
-      "overlap_loss": 1.011921121268379,
-      "total_loss": 562.2133409333273,
-      "drc_errors": 2
+      "overlap_loss": 0.0,
+      "total_loss": 1022.7358697853175,
+      "drc_errors": 0
     }
   ]
 }

@@ -739,26 +739,35 @@ def train(
                     )
 
             # Stochastic Perturbation (Jiggle) Logic
-
-            # Trigger if movement stalls (EMA < threshold) and we are past initial phase
-            # EMA threshold 1e-4 is approx 0.1mm total movement for 100 components
             if config.jiggle_enabled and state.position_delta_ema < 1e-4 and epoch > 100:
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
-                # Sigma is 5% of board size
                 sigma = 0.05 * max(board.width, board.height)
-                # Scale noise by temperature (higher noise early, lower noise late)
                 noise_scale = sigma * (temperature / config.temperature.start)
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
-
-                # Reset EMA after jiggle to avoid immediate re-trigger
                 state.position_delta_ema = 1.0
 
-                # Optional: Log jiggle event if needed
-
-
             loss_value = float(loss)
+
+            # Run validation callback (if configured)
+            if validation_callback is not None:
+                validation_result = validation_callback(
+                    epoch=epoch,
+                    positions=state.positions,
+                    rotations=rotations,
+                    context=context,
+                )
+                if validation_result is not None:
+                    validation_history.append(validation_result)
+                    # Add non-differentiable penalties to total loss
+                    loss_value += validation_result.drc_penalty
+                    loss_value += validation_result.routing_penalty
+                    
+                    # Check if validation failed and we should stop
+                    if not validation_result.passed:
+                        stopped_by_validation = True
+                        break
 
             # Check for numerical instability (NaN/Inf)
             _check_numerical_stability(loss_value, loss_breakdown_arrays, grad_pos, grad_rot, epoch)
@@ -810,21 +819,6 @@ def train(
 
                 if callback is not None:
                     callback(metrics)
-
-            # Run validation callback (if configured)
-            if validation_callback is not None:
-                validation_result = validation_callback(
-                    epoch=epoch,
-                    positions=state.positions,
-                    rotations=rotations,
-                    context=context,
-                )
-                if validation_result is not None:
-                    validation_history.append(validation_result)
-                    # Check if validation failed and we should stop
-                    if not validation_result.passed:
-                        stopped_by_validation = True
-                        break
 
             # Early stopping check
             if (
@@ -1090,6 +1084,25 @@ def train_multiphase(
 
             loss_value = float(loss)
 
+            # Run validation callback (if configured)
+            if validation_callback is not None:
+                validation_result = validation_callback(
+                    epoch=epoch,
+                    positions=state.positions,
+                    rotations=rotations,
+                    context=context,
+                )
+                if validation_result is not None:
+                    validation_history.append(validation_result)
+                    # Add non-differentiable penalties to total loss
+                    loss_value += validation_result.drc_penalty
+                    loss_value += validation_result.routing_penalty
+                    
+                    # Check if validation failed and we should stop
+                    if not validation_result.passed:
+                        stopped_by_validation = True
+                        break
+
             # Check for numerical instability (NaN/Inf)
             _check_numerical_stability(loss_value, loss_breakdown_arrays, grad_pos, grad_rot, epoch)
 
@@ -1101,57 +1114,6 @@ def train_multiphase(
                 epochs_without_improvement = 0
             else:
                 epochs_without_improvement += 1
-
-            # Log metrics
-            if epoch % config.log_interval == 0 or epoch == config.epochs - 1:
-                lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
-                grad_norm_pos = float(jnp.linalg.norm(grad_pos))
-                grad_norm_rot = float(jnp.linalg.norm(grad_rot))
-
-                # Use breakdown from train_step (no recomputation needed!)
-                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
-                           for k, v in loss_breakdown_arrays.items()}
-
-                # Extract current loss weights for logging
-                logged_weights = None
-                if config.use_grad_norm and state.loss_weights is not None and composite_loss is not None:
-                    logged_weights = {
-                        name: float(state.loss_weights[i])
-                        for i, name in enumerate(composite_loss.loss_names)
-                    }
-
-                epoch_time_ms = (time.time() - epoch_start) * 1000
-
-                metrics = TrainingMetrics(
-                    epoch=epoch,
-                    loss=loss_value,
-                    temperature=temperature,
-                    learning_rate=lr,
-                    loss_breakdown=breakdown,
-                    grad_norm_pos=grad_norm_pos,
-                    grad_norm_rot=grad_norm_rot,
-                    elapsed_ms=epoch_time_ms,
-                    loss_weights=logged_weights,
-                )
-                history.append(metrics)
-
-                if callback is not None:
-                    callback(metrics)
-
-            # Run validation callback (if configured)
-            if validation_callback is not None:
-                validation_result = validation_callback(
-                    epoch=epoch,
-                    positions=state.positions,
-                    rotations=rotations,
-                    context=context,
-                )
-                if validation_result is not None:
-                    validation_history.append(validation_result)
-                    # Check if validation failed and we should stop
-                    if not validation_result.passed:
-                        stopped_by_validation = True
-                        break
 
             # Early stopping
             if (

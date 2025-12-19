@@ -88,9 +88,9 @@ class LossContext:
     """Immutable context containing all data needed by loss functions."""
     netlist: Netlist
     board: Board
-    constraints: Optional[PlacementConstraints]
     bounds: Array
     fixed_mask: Array
+    constraints: Optional[PlacementConstraints] = None
 
     hv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
     lv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))

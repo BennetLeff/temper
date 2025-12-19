@@ -55,6 +55,9 @@ class ValidationConfig:
     drc_board_origin: Tuple[float, float] = (0.0, 0.0)
     fail_on_drc_errors: bool = False
     max_drc_errors: int = 0
+    routing_enabled: bool = False
+    routing_interval: int = 200
+    routing_jar_path: Optional[Path] = None
     spice_enabled: bool = False
     spice_interval: int = 200
     log_validation: bool = True
@@ -71,6 +74,8 @@ class ValidationResult:
         drc_penalty: DRC penalty value (if DRC was run).
         drc_errors: Number of DRC errors.
         drc_warnings: Number of DRC warnings.
+        routing_penalty: Routing penalty value (if routing was run).
+        routing_metrics: Detailed routing metrics.
         spice_results: SPICE validation results (if SPICE was run).
         passed: Whether validation passed all checks.
         messages: Any warning or error messages.
@@ -81,6 +86,8 @@ class ValidationResult:
     drc_penalty: float = 0.0
     drc_errors: int = 0
     drc_warnings: int = 0
+    routing_penalty: float = 0.0
+    routing_metrics: Optional[Dict[str, Any]] = None
     spice_results: Dict[str, float] = field(default_factory=dict)
     passed: bool = True
     messages: List[str] = field(default_factory=list)
@@ -93,6 +100,8 @@ class ValidationResult:
             "drc_penalty": self.drc_penalty,
             "drc_errors": self.drc_errors,
             "drc_warnings": self.drc_warnings,
+            "routing_penalty": self.routing_penalty,
+            "routing_metrics": self.routing_metrics,
             "spice_results": self.spice_results,
             "passed": self.passed,
             "messages": self.messages,
@@ -103,7 +112,7 @@ class ValidationCallback:
     """
     Callback for periodic validation during training.
 
-    This callback runs DRC and/or SPICE validation at configured intervals.
+    This callback runs DRC, Routing, and/or SPICE validation at configured intervals.
     It tracks validation history and can optionally stop training on failures.
 
     Example:
@@ -124,6 +133,7 @@ class ValidationCallback:
     Attributes:
         config: ValidationConfig instance.
         drc_loss: DRCLoss instance (created if DRC enabled).
+        routing_loss: RoutingLoss instance (created if routing enabled).
         history: List of ValidationResult from each run.
     """
 
@@ -131,6 +141,7 @@ class ValidationCallback:
         self,
         config: Optional[ValidationConfig] = None,
         drc_loss: Optional[DRCLoss] = None,
+        routing_loss: Optional[Any] = None,
         on_result: Optional[Callable[[ValidationResult], None]] = None,
     ):
         """
@@ -139,27 +150,29 @@ class ValidationCallback:
         Args:
             config: Validation configuration.
             drc_loss: Pre-configured DRCLoss (optional, created if None).
+            routing_loss: Pre-configured RoutingLoss (optional, created if None).
             on_result: Optional callback invoked after each validation.
         """
         self.config = config or ValidationConfig()
         self._drc_loss = drc_loss
+        self._routing_loss = routing_loss
         self._on_result = on_result
         self._history: List[ValidationResult] = []
         self._initialized = False
 
     def _lazy_init(self, context: LossContext) -> None:
-        """Initialize DRC components on first use."""
+        """Initialize DRC and Routing components on first use."""
         if self._initialized:
             return
+
+        # Import here to avoid circular dependency
+        from temper_placer.io.placement_exporter import create_pcb_exporter
 
         if self.config.drc_enabled and self._drc_loss is None:
             if self.config.drc_template_pcb is None:
                 logger.warning("DRC enabled but no template PCB path provided")
                 self.config.drc_enabled = False
             else:
-                # Import here to avoid circular dependency
-                from temper_placer.io.placement_exporter import create_pcb_exporter
-
                 # Create PCB exporter
                 exporter = create_pcb_exporter(
                     template_pcb=self.config.drc_template_pcb,
@@ -173,12 +186,41 @@ class ValidationCallback:
                     eval_interval=self.config.drc_interval,
                 )
 
+        if self.config.routing_enabled and self._routing_loss is None:
+            if self.config.routing_jar_path is None:
+                logger.warning("Routing enabled but no FreeRouting JAR path provided")
+                self.config.routing_enabled = False
+            elif self.config.drc_template_pcb is None:
+                logger.warning("Routing enabled but no template PCB path provided")
+                self.config.routing_enabled = False
+            else:
+                from temper_placer.routing.freerouting import FreeRoutingWrapper
+                from temper_placer.losses.routing_loss import RoutingLoss
+
+                # Create PCB exporter
+                exporter = create_pcb_exporter(
+                    template_pcb=self.config.drc_template_pcb,
+                    board_origin=self.config.drc_board_origin,
+                )
+
+                # Create RoutingLoss with exporter
+                self._routing_loss = RoutingLoss(
+                    router=FreeRoutingWrapper(jar_path=self.config.routing_jar_path),
+                    pcb_exporter=exporter,
+                    eval_interval=self.config.routing_interval,
+                )
+
         self._initialized = True
 
     @property
     def drc_loss(self) -> Optional[DRCLoss]:
-        """Get the DRCLoss instance (may be None if not configured)."""
+        """Get the DRCLoss instance."""
         return self._drc_loss
+
+    @property
+    def routing_loss(self) -> Optional[Any]:
+        """Get the RoutingLoss instance."""
+        return self._routing_loss
 
     @property
     def drc_history(self) -> Optional[DRCHistory]:
@@ -200,6 +242,11 @@ class ValidationCallback:
         # Check DRC interval
         if self.config.drc_enabled:
             if epoch == 0 or epoch % self.config.drc_interval == 0:
+                return True
+
+        # Check Routing interval
+        if self.config.routing_enabled:
+            if epoch == 0 or epoch % self.config.routing_interval == 0:
                 return True
 
         # Check SPICE interval
@@ -241,11 +288,13 @@ class ValidationCallback:
         drc_penalty = 0.0
         drc_errors = 0
         drc_warnings = 0
+        routing_penalty = 0.0
+        routing_metrics = None
         spice_results: Dict[str, float] = {}
 
         # Run DRC validation
         if self.config.drc_enabled and self._drc_loss is not None:
-            if self._drc_loss.is_available():
+            if self._drc_loss.should_evaluate(epoch):
                 try:
                     entry = self._drc_loss.evaluate(positions, rotations, context, epoch)
                     drc_penalty = entry.penalty
@@ -272,8 +321,29 @@ class ValidationCallback:
                     if self.config.log_validation:
                         logger.warning(f"[Epoch {epoch}] DRC failed: {e}")
             else:
-                if self.config.log_validation:
-                    logger.debug(f"[Epoch {epoch}] DRC not available (kicad-cli not found)")
+                drc_penalty = self._drc_loss.cached_penalty
+
+        # Run Routing validation
+        if self.config.routing_enabled and self._routing_loss is not None:
+            if self._routing_loss.should_evaluate(epoch):
+                try:
+                    entry = self._routing_loss.evaluate(positions, rotations, context, epoch)
+                    routing_penalty = entry.penalty
+                    routing_metrics = (
+                        entry.metrics.__dict__ if entry.metrics else None
+                    )
+
+                    if self.config.log_validation:
+                        logger.info(
+                            f"[Epoch {epoch}] Routing: penalty={routing_penalty:.2f}, "
+                            f"metrics={routing_metrics}"
+                        )
+                except Exception as e:
+                    messages.append(f"Routing validation failed: {e}")
+                    if self.config.log_validation:
+                        logger.warning(f"[Epoch {epoch}] Routing failed: {e}")
+            else:
+                routing_penalty = self._routing_loss._cache.penalty if self._routing_loss._cache else 0.0
 
         # Run SPICE validation (placeholder for future implementation)
         if self.config.spice_enabled:
@@ -288,6 +358,8 @@ class ValidationCallback:
             drc_penalty=drc_penalty,
             drc_errors=drc_errors,
             drc_warnings=drc_warnings,
+            routing_penalty=routing_penalty,
+            routing_metrics=routing_metrics,
             spice_results=spice_results,
             passed=passed,
             messages=messages,
@@ -301,10 +373,13 @@ class ValidationCallback:
         return result
 
     def reset(self) -> None:
-        """Reset validation history and DRC cache."""
+        """Reset validation history and caches."""
         self._history = []
         if self._drc_loss is not None:
             self._drc_loss.reset_cache()
+        if self._routing_loss is not None:
+            self._routing_loss._cache = None
+            self._routing_loss._last_eval_epoch = -1
 
     def summary(self) -> str:
         """Get a summary of validation history."""
@@ -323,9 +398,15 @@ class ValidationCallback:
                     f"last={drc_penalties[-1]:.2f}"
                 )
 
-            total_errors = sum(r.drc_errors for r in self._history)
-            if total_errors > 0:
-                lines.append(f"  Total DRC errors: {total_errors}")
+        # Routing summary
+        if self.config.routing_enabled:
+            routing_penalties = [r.routing_penalty for r in self._history if r.routing_penalty > 0]
+            if routing_penalties:
+                lines.append(
+                    f"  Routing penalty: min={min(routing_penalties):.2f}, "
+                    f"max={max(routing_penalties):.2f}, "
+                    f"last={routing_penalties[-1]:.2f}"
+                )
 
         # Pass/fail
         failed = [r for r in self._history if not r.passed]

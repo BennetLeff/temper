@@ -1,0 +1,105 @@
+# components.ato
+
+component IKW40N120H3:
+    """Infineon 1200V 40A IGBT"""
+    footprint = "IGBT_TO247"
+    mpn = "IKW40N120H3"
+    
+    # Ratings
+    voltage_rating = 1200V
+    current_rating = 40A
+
+    # Electrical parameters
+    v_ce_max = 1200V
+    i_c_max = 40A
+    v_ce_sat = 1.8V
+
+    signal G ~ pin 1
+    signal C ~ pin 2
+    signal E ~ pin 3
+
+component UCC21550BDWK:
+    """TI Isolated Dual Gate Driver"""
+    footprint = "SOIC16W_Isolated"
+    mpn = "UCC21550BDWK"
+    
+    # Ratings
+    voltage_rating = 5000V # Isolation
+
+    # Electrical parameters
+    v_iso = 5000V
+    i_source_peak = 4A
+    i_sink_peak = 6A
+    v_cci_max = 18V
+    v_cc_sec_max = 25V
+
+    # Primary side
+    signal INA ~ pin 1
+    signal INB ~ pin 2
+    signal VCCI_1 ~ pin 3
+    signal GNDI ~ pin 4
+    signal DIS ~ pin 5
+    signal DT ~ pin 6
+    signal NC_7 ~ pin 7
+    signal VCCI_2 ~ pin 8
+
+    # Secondary side
+    signal VSSB ~ pin 9
+    signal OUTB ~ pin 10
+    signal VDDB ~ pin 11
+    signal NC_12 ~ pin 12
+    signal NC_13 ~ pin 13
+    signal VSSA ~ pin 14
+    signal OUTA ~ pin 15
+    signal VDDA ~ pin 16
+
+component UJ3D1210TS:
+    """SiC Schottky Bootstrap Diode 1200V 10A"""
+    footprint = "Package_TO_SOT_THT:TO-220-2_Vertical"
+    mpn = "UJ3D1210TS"
+    
+    # Ratings
+    voltage_rating = 1200V
+    current_rating = 10A
+
+    # Electrical parameters
+    v_rrm = 1200V
+    i_f_max = 10A
+    v_f = 1.5V
+
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component CST1005:
+    """Current Transformer 1:1000"""
+    footprint = "CST1005_Footprint"
+    mpn = "CST-1005"
+    ratio = 1000
+    
+    signal S1 ~ pin 1
+    signal S2 ~ pin 2
+
+component Resistor:
+
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: ohm
+    mpn: str
+    power_rating: power
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Capacitor:
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: farad
+    mpn: str
+    voltage_rating: voltage
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Diode:
+    footprint = "Diode_SMD:D_SOD-123"
+    mpn: str
+    voltage_rating: voltage
+    current_rating: current
+    signal K ~ pin 1
+    signal A ~ pin 2
