@@ -318,6 +318,39 @@ _This is a GPBM approval gate task._
 
         return self.create_task(task, parent_id=epic_id)
 
+    def _infer_agent_role(self, task: PlannedTask) -> Optional[str]:
+        """Infer appropriate agent role from task content.
+
+        Uses keyword matching in priority order (security/architect take precedence).
+
+        Args:
+            task: Task to analyze
+
+        Returns:
+            Inferred role name or None if no clear match
+        """
+        text = f"{task.title} {task.description}".lower()
+
+        # Priority order matters - security/architect before coder
+        if any(
+            kw in text for kw in ["security", "vulnerability", "audit", "validation"]
+        ):
+            return "security"
+        elif any(
+            kw in text for kw in ["design", "architecture", "pattern", "tradeoff"]
+        ):
+            return "architect"
+        elif any(
+            kw in text for kw in ["test", "verify", "edge case", "coverage", "qa"]
+        ):
+            return "tester"
+        elif any(
+            kw in text for kw in ["implement", "refactor", "optimize", "code", "fix"]
+        ):
+            return "coder"
+
+        return None  # No clear role, can be manually assigned
+
     def execute_plan(self, plan: Plan, dry_run: bool = False) -> Dict[str, Any]:
         """Execute a plan by creating epic and tasks in bd.
 
@@ -384,6 +417,19 @@ _This is a GPBM approval gate task._
                 result["task_ids"].append(task_id)
                 task_id_map[task.title] = task_id
                 print(f"  Created: {task_id}")
+
+                # Auto-assign agent role based on task content
+                agent_role = self._infer_agent_role(task)
+                if agent_role:
+                    print(f"  Auto-assigning to {agent_role} agent")
+                    success, _, _ = self._run_bd(
+                        ["update", task_id, "--add-label", f"agent:{agent_role}"]
+                    )
+                    if not success:
+                        print(
+                            f"  Warning: Failed to add agent:{agent_role} label",
+                            file=sys.stderr,
+                        )
             else:
                 print(f"  Failed to create task")
 
