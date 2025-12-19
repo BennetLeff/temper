@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECO Namespace Dropdown Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 { color: #667eea; margin-bottom: 0.5rem; }
+    .subtitle { color: #888; margin-bottom: 2rem; font-size: 0.95rem; }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    input, select, button {
+      padding: 0.75rem 1rem;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    select { cursor: pointer; min-width: 200px; }
+    input::placeholder { color: #666; }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .info-box {
+      background: #1a1a1a;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      margin-top: 1rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .info-label {
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+    .info-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ECO Namespace Dropdown Test</h1>
+    <p class="subtitle">Testing namespace selection with presets and custom input</p>
+
+    <div class="controls">
+      <select id="namespaceSelect" style="min-width: 200px;">
+        <option value="temper-agent" selected>temper-agent (Legacy)</option>
+        <option value="temper-shared">temper-shared (Shared)</option>
+        <option value="temper-architect">temper-architect (Role)</option>
+        <option value="temper-coder">temper-coder (Role)</option>
+        <option value="temper-tester">temper-tester (Role)</option>
+        <option value="temper-firmware">temper-firmware (Domain)</option>
+        <option value="temper-placer">temper-placer (Domain)</option>
+        <option value="temper-pcb">temper-pcb (Domain)</option>
+        <option value="__custom__">Custom...</option>
+      </select>
+      <input type="text" id="customUserId" placeholder="Enter custom User ID" style="display: none;">
+      <button id="testBtn">Test getUserId()</button>
+      <button id="clearStorageBtn">Clear localStorage</button>
+    </div>
+
+    <div class="info-box">
+      <div class="info-label">Current User ID:</div>
+      <div class="info-value" id="currentUserId">Not set</div>
+    </div>
+
+    <div class="info-box" style="margin-top: 1rem;">
+      <div class="info-label">localStorage value:</div>
+      <div class="info-value" id="localStorageValue">Not set</div>
+    </div>
+
+    <div class="info-box" style="margin-top: 1rem;">
+      <div class="info-label">URL parameter (if set):</div>
+      <div class="info-value" id="urlParamValue">Not set</div>
+    </div>
+  </div>
+
+  <script>
+    // Get current User ID from dropdown or custom input
+    const getUserId = () => {
+      const select = document.getElementById('namespaceSelect');
+      const customInput = document.getElementById('customUserId');
+      
+      if (select.value === '__custom__') {
+        return customInput.value.trim();
+      }
+      return select.value;
+    };
+
+    // Initialize namespace selection from localStorage or URL
+    const initializeNamespace = () => {
+      const select = document.getElementById('namespaceSelect');
+      const customInput = document.getElementById('customUserId');
+      
+      // Try URL parameter first
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlUserId = urlParams.get('userId');
+      
+      // Try localStorage second
+      const savedUserId = localStorage.getItem('eco_userId');
+      
+      // Use URL > localStorage > default
+      const userId = urlUserId || savedUserId || 'temper-agent';
+      
+      // Check if it's a preset option
+      const options = Array.from(select.options);
+      const matchingOption = options.find(opt => opt.value === userId && opt.value !== '__custom__');
+      
+      if (matchingOption) {
+        select.value = userId;
+      } else {
+        // Custom value
+        select.value = '__custom__';
+        customInput.style.display = 'inline-block';
+        customInput.value = userId;
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('eco_userId', userId);
+      
+      // Update display
+      updateDisplay();
+    };
+
+    // Handle namespace dropdown change
+    const handleNamespaceChange = () => {
+      const select = document.getElementById('namespaceSelect');
+      const customInput = document.getElementById('customUserId');
+      
+      if (select.value === '__custom__') {
+        customInput.style.display = 'inline-block';
+        customInput.focus();
+      } else {
+        customInput.style.display = 'none';
+        // Save selection to localStorage
+        localStorage.setItem('eco_userId', select.value);
+      }
+      
+      updateDisplay();
+    };
+
+    // Update display of current values
+    const updateDisplay = () => {
+      const userId = getUserId();
+      const storedValue = localStorage.getItem('eco_userId');
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlUserId = urlParams.get('userId');
+      
+      document.getElementById('currentUserId').textContent = userId || 'Not set';
+      document.getElementById('localStorageValue').textContent = storedValue || 'Not set';
+      document.getElementById('urlParamValue').textContent = urlUserId || 'Not set';
+    };
+
+    // Event listeners
+    document.getElementById('namespaceSelect').addEventListener('change', handleNamespaceChange);
+    document.getElementById('customUserId').addEventListener('input', updateDisplay);
+    document.getElementById('customUserId').addEventListener('blur', () => {
+      const userId = getUserId();
+      if (userId) {
+        localStorage.setItem('eco_userId', userId);
+        updateDisplay();
+      }
+    });
+    
+    document.getElementById('testBtn').addEventListener('click', () => {
+      updateDisplay();
+      alert(`Current User ID: ${getUserId()}`);
+    });
+    
+    document.getElementById('clearStorageBtn').addEventListener('click', () => {
+      localStorage.removeItem('eco_userId');
+      alert('localStorage cleared! Reload to see default behavior.');
+      updateDisplay();
+    });
+
+    // Initialize on page load
+    initializeNamespace();
+  </script>
+</body>
+</html>
