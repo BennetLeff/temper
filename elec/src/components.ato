@@ -200,7 +200,7 @@ component XC6220:
     v_out = 3.3V
     i_out_max = 700mA
     v_dropout = 0.3V
-    noise = 30uVrms  # Ultra low noise
+    noise = 30uV  # Ultra low noise
     
     signal VSS ~ pin 1
     signal VIN ~ pin 2

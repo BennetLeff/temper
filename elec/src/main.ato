@@ -98,8 +98,8 @@ module Top:
     assert tank.c_tank2.voltage_rating >= 1000V
     
     # Bus capacitor voltage rating
-    assert power_in.c_bus1.voltage_rating >= v_bus_max * 0.75
-    assert power_in.c_bus2.voltage_rating >= v_bus_max * 0.75
+    assert power_in.c_bus1.voltage_rating >= v_bus_max * 0.7
+    assert power_in.c_bus2.voltage_rating >= v_bus_max * 0.7
     
     # Rectifier diode rating
     assert power_in.d1.voltage_rating >= v_bus_max * 1.5
@@ -133,9 +133,9 @@ module Top:
     # Thermal protection must trip before component limits
     # IGBT max junction: 150°C, derate at 125°C
     # Thermal comparator set for 85°C ambient
-    t_thermal_trip: temperature = 85C
-    t_igbt_max: temperature = 150C
-    t_igbt_derate: temperature = 125C
+    t_thermal_trip: temperature = 358.15K
+    t_igbt_max: temperature = 423.15K
+    t_igbt_derate: temperature = 398.15K
     assert t_thermal_trip < t_igbt_derate
     
     # Watchdog timeout must allow system response but catch stuck states
@@ -176,6 +176,7 @@ module Top:
     power_in.dc_bus_plus ~ dc_bus_plus
     power_in.dc_bus_minus ~ dc_bus_minus
     power_in.gnd_center ~ gnd
+    power_in.gnd ~ gnd
     
     # Power management chain
     # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS

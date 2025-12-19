@@ -141,6 +141,7 @@ module HalfBridge:
     # Wait - let's recalculate from datasheet figure
     # From UCC21550 datasheet Figure 36: at 5nF, t_dt ≈ 25ns
     t_dead_time: time = 25ns
+    assert t_dead_time within 20ns to 30ns
     
     # IKW40N120H3 IGBT timing from datasheet:
     # - Turn-off delay (td_off): 200ns typical
@@ -170,13 +171,6 @@ module HalfBridge:
     v_bus_minus.v_max = Constraints.HighVoltage.v_max
     switch_node.v_max = Constraints.HighVoltage.v_max
     
-    v_bus_plus.class = "HighVoltage"
-    v_bus_minus.class = "HighVoltage"
-    switch_node.class = "HighVoltage"
-    vcc_15v.class = "Power"
-    gnd.class = "Power"
-    pwm_h.class = "GateDrive"
-    pwm_l.class = "GateDrive"
 
     # Connections - Primary Side
     pwm_h ~ gate_hs.driver.INA
@@ -256,6 +250,7 @@ module PowerInput:
     signal ac_l        # AC Line input
     signal ac_n        # AC Neutral input
     signal pe          # Protective Earth
+    signal gnd         # System Ground
     signal dc_bus_plus  # +340V output
     signal dc_bus_minus # -340V output (relative to center)
     signal gnd_center   # Center tap / reference
@@ -263,10 +258,6 @@ module PowerInput:
     signal relay_ctrl   # Relay control input
     
     # Apply net classes
-    ac_l.class = "ACMains"
-    ac_n.class = "ACMains"
-    dc_bus_plus.class = "HighVoltage"
-    dc_bus_minus.class = "HighVoltage"
     
     # --- Input Protection ---
     fuse = new Fuse
@@ -350,7 +341,6 @@ module PowerInput:
     
     # Connect AC to center for doubler topology
     # Note: In Delon doubler, AC connects between D1 anode and D2 anode
-    d2.A ~ ac_n  # Already connected above
     
     # Output connections
     c_bus1.plus ~ dc_bus_plus
@@ -467,6 +457,9 @@ module BuckConverter15V:
     
     # Feedback divider equation: V_out = V_fb * (1 + R_top/R_bot)
     # Rearranged: R_top/R_bot = (V_out/V_fb) - 1
+    v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
+    assert v_out_calculated within 14.5V to 15.5V
+    
     assert r_fb_top.value / r_fb_bot.value within 13.5 to 14.5  # ratio ~14 for 15V
     
     # Output voltage must be within acceptable range (considering tolerances)
@@ -555,6 +548,18 @@ module CurrentSensing:
     
     # Power dissipation assertion (temper-ip1.3)
     i_ct_max: current = 50mA  # At 50A primary
+    
+    # ===========================================================================
+    # DERIVED EQUATION CONSTRAINTS (temper-ip1.2)
+    # Verify burden voltage at compile time
+    # ===========================================================================
+    
+    v_burden_max: voltage = i_ct_max * r_burden.value
+    assert v_burden_max within 3.2V to 3.5V
+    
+    # Verify burden voltage fits within 3.3V ADC range (with headroom)
+    assert v_burden_max within 3.0V to 3.5V
+    
     p_burden_max: power = 0.166W
     assert r_burden.power_rating >= p_burden_max * 1.5
     
@@ -800,9 +805,13 @@ module OVPComparator:
     
     # Total top resistance: 3 x 430k = 1.29M
     r_div_total_top: resistance = 1290kohm
+    assert r_div_total_top within 1280kohm to 1300kohm
     
     # Divider ratio: R_bot / (R_top + R_bot) = 10k / (1290k + 10k) = 0.00769
     # At 390V bus: V_divided = 390 * 0.00769 = 3.0V
+    v_bus_nominal: voltage = 340V
+    v_divided: voltage = v_bus_nominal * r_div_bot.value / (r_div_total_top + r_div_bot.value)
+    assert v_divided within 2.5V to 3.5V
     
     # Reference voltage: V_ref = V_supply * R_ref_bot / (R_ref_top + R_ref_bot)
     # V_ref = 3.3 * 10k / (1k + 10k) = 3.0V
@@ -1054,7 +1063,10 @@ module MCU:
     # EN threshold is ~0.75 * VDD (2.475V for 3.3V)
     # Time to reach threshold: t = -τ * ln(1 - 0.75) ≈ 1.39 * τ ≈ 13.9ms
     t_boot_rc: time = 10ms  # Time constant
+    assert t_boot_rc within 9ms to 11ms
+    
     t_boot_delay: time = 14ms  # Time to reach EN threshold
+    assert t_boot_delay within 13ms to 15ms
     
     # ESP32-S3 requirements:
     # - Minimum power-on time before EN goes high: 50µs (per datasheet)

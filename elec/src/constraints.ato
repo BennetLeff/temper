@@ -82,17 +82,17 @@ module Constraints:
     
     module ThermalZones:
         # IGBT zone - maximum heat generation
-        igbt_max_temp = 150C
-        igbt_derate_temp = 125C
+        igbt_max_temp = 423.15K
+        igbt_derate_temp = 398.15K
         
         # Power inductor zone
-        inductor_max_temp = 125C
+        inductor_max_temp = 398.15K
         
         # MCU zone - keep cool for reliability
-        mcu_max_temp = 85C
+        mcu_max_temp = 358.15K
         
         # Electrolytic cap zone - life limited by temp
-        cap_max_temp = 105C
+        cap_max_temp = 378.15K
 
     # ===========================================================================
     # MECHANICAL CONSTRAINTS
