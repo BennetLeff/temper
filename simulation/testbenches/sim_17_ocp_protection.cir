@@ -79,11 +79,13 @@ R_load comp_out 0 10k
 * Response time from fault onset
 .meas tran t_response PARAM='t_first_trip - 50u'
 
-* Normal operation peaks
+ * Normal operation peaks
 .meas tran v_abs_normal MAX v(abs_out) FROM=20u TO=45u
+  + COMMENT "Expected: 2.66V at 40A peak"
 
-* Fault peaks
+ * Fault peaks
 .meas tran v_abs_fault MAX v(abs_out) FROM=60u TO=100u
+  + COMMENT "Expected: 3.99V at 60A peak"
 
 * Count trips (measure time between first and second trip during fault)
 .meas tran t_second_trip WHEN v(comp_out)=2.5 RISE=2 FROM=50u
