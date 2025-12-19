@@ -10,30 +10,30 @@ This is **beads** (command: `bd`), an issue tracker designed for AI-supervised c
 
 > **🤖 Using GitHub Copilot?** See [.github/copilot-instructions.md](.github/copilot-instructions.md) for a concise, Copilot-optimized version of these instructions that GitHub Copilot will automatically load.
 
-## 🧠 The Cognitive Stack: Beads + OpenMemory
+## 🧠 The Cognitive Stack: Beads + ECO
 
 To maintain context across different tasks and parallel sessions, we use two complementary memory systems:
 
 1.  **Beads (Project Memory):** Use `bd` for task tracking, blockers, and feature-specific state. This is stored in Git.
-2.  **OpenMemory (Global Knowledge):** Use OpenMemory for long-term "facts" and project-wide documentation. This persists across all branches and worktrees.
+2.  **ECO (Global Knowledge):** Use ECO for long-term "facts" and project-wide documentation. This persists across all branches and worktrees. The ECO memory server runs remotely at **https://eco.bennetleff.workers.dev**.
 
-### 🔄 OpenMemory Integration Workflow
+### 🔄 ECO Integration Workflow
 
 **1. Context Retrieval (Session Start)**
-Before starting any task, you MUST query OpenMemory to gather relevant context.
+Before starting any task, you MUST query ECO to gather relevant context.
 **Recommended:** Use the unified context tool:
 ```bash
 python3 tools/get_context.py <ISSUE_ID>
 ```
 
 Alternatively, use the raw API:
-- Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
-- Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}`
+- Search for the issue ID: `POST https://eco.bennetleff.workers.dev/memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
+- Search for related documentation: `POST https://eco.bennetleff.workers.dev/memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}`
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:
 - Summarize what you learned, architectural decisions made, and hurdles encountered.
-- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "architecture"]}`
+- Use the memory endpoint: `POST https://eco.bennetleff.workers.dev/memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "architecture"]}`
 - This ensures the "agent hive mind" remains updated across sessions.
 
 ## 🆕 What's New?
@@ -1758,16 +1758,16 @@ For more details, see README.md and QUICKSTART.md.
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 
-## 🧠 The Cognitive Stack: Beads + OpenMemory
+## 🧠 The Cognitive Stack: Beads + ECO
 
 To maintain context across different tasks and parallel sessions, we use two complementary memory systems:
 
 1. **Beads (Project Memory):** Use `bd` for task tracking, blockers, and feature-specific state. This is stored in Git.
-2. **OpenMemory (Global Knowledge):** Use the OpenMemory MCP server for long-term "facts" (e.g., "The user prefers Rust for performance-critical modules"). This persists across all branches and worktrees.
+2. **ECO (Global Knowledge):** Use ECO for long-term "facts" (e.g., "The user prefers Rust for performance-critical modules"). This persists across all branches and worktrees. The ECO memory server runs remotely at **https://eco.bennetleff.workers.dev**.
 
 **Rule for Agents:** - If information is about a **task**, put it in a `bd` issue description.
 
-- If information is a **general project fact or user preference**, store it in **OpenMemory**.
+- If information is a **general project fact or user preference**, store it in **ECO**.
 
 ## 🌲 Parallel Execution with Git Worktrees
 
@@ -1785,7 +1785,7 @@ To work on multiple tasks simultaneously without context-clobbering, we use Git 
 
 1. **Create Worktree:** Use the helper `bd-work <id>` to spin up a new directory and branch.
 2. **Sandbox Mode (Mandatory):** In a worktree, always use `bd --sandbox`. This prevents the daemon from fighting over the shared database across different folders.
-3. **Cross-Pollination:** Before starting work in a new worktree, query **OpenMemory** for any relevant global context learned by other agents in parallel branches.
+3. **Cross-Pollination:** Before starting work in a new worktree, query **ECO** for any relevant global context learned by other agents in parallel branches.
 4. **Completion:** Use `bd-done` to push and close.
 
 ```

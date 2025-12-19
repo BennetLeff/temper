@@ -141,7 +141,7 @@ This script:
 
 **MANDATORY WORKFLOW - COMPLETE ALL STEPS:**
 
-1. **Post Reflection to OpenMemory** - Summarize architectural decisions and findings for the project's long-term memory.
+1. **Post Reflection to ECO** - Summarize architectural decisions and findings for the project's long-term memory.
 2. **File beads issues for any remaining work** that needs follow-up.
 3. **Ensure all quality gates pass** (only if code changes were made) - run tests, linters, builds (file P0 issues if broken).
 4. **Update beads issues** - close finished work, update status.
@@ -171,13 +171,13 @@ This script:
 
 ## Agent Session Workflow
 
-**IMPORTANT for AI agents:** When you start a session, always query OpenMemory for relevant context. When you finish making issue changes, always run `bd sync`.
+**IMPORTANT for AI agents:** When you start a session, always query ECO for relevant context. When you finish making issue changes, always run `bd sync`. The ECO memory server runs remotely at **https://eco.bennetleff.workers.dev**.
 
 **Example agent session:**
 
 ```bash
 # 1. Gather Context
-POST /memories/search { "query": "similar tasks to bd-42", "userId": "temper-agent" }
+POST https://eco.bennetleff.workers.dev/memories/search { "query": "similar tasks to bd-42", "userId": "temper-agent" }
 
 # 2. Claim Task
 bd update bd-42 --status in_progress
@@ -185,7 +185,7 @@ bd update bd-42 --status in_progress
 # 3. Work...
 
 # 4. Post Reflection
-POST /memories { "content": "REFLECTION: Found that component X has a hidden dependency on Y", "userId": "temper-agent", "tags": ["reflection"] }
+POST https://eco.bennetleff.workers.dev/memories { "content": "REFLECTION: Found that component X has a hidden dependency on Y", "userId": "temper-agent", "tags": ["reflection"] }
 
 # 5. Force immediate sync at end of session
 bd sync

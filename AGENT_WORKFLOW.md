@@ -24,7 +24,7 @@ We use a tiered model strategy to balance reasoning depth and speed.
 ### Workflow Example
 
 1. **Plan**: You receive a complex feature request.
-2. **Context**: Query OpenMemory for relevant architectural facts.
+2. **Context**: Query ECO for relevant architectural facts.
 3. **Design**: Delegate the design to the architect.
    ```bash
    ./tools/agents/dispatch.sh architect "Design the class structure for the new UserAuth module" docs/design/auth_design.md
@@ -34,7 +34,7 @@ We use a tiered model strategy to balance reasoning depth and speed.
    ```bash
    ./tools/agents/dispatch.sh coder "Implement the UserAuth class based on docs/design/auth_design.md" src/auth.py
    ```
-6. **Reflection**: Post architectural decisions to OpenMemory.
+6. **Reflection**: Post architectural decisions to ECO.
 
 ## Label-Driven Automation (Auto-Assign)
 
@@ -70,7 +70,7 @@ bd --sandbox close temper-xxx --reason "Done"
 
 ## 🎭 Multi-Agent Parallelism
 
-We employ a "Shared Knowledge, Isolated Execution" model. Agents operate in separate **Git Worktrees** but share a **Global OpenMemory** instance.
+We employ a "Shared Knowledge, Isolated Execution" model. Agents operate in separate **Git Worktrees** but share a **Global ECO** instance. The ECO memory server runs remotely at **https://eco.bennetleff.workers.dev**.
 
 ### Tiered Coordination Strategy
 
@@ -78,17 +78,17 @@ We employ a "Shared Knowledge, Isolated Execution" model. Agents operate in sepa
 | --------------------- | ------------------------ | ----------------------------------------- |
 | **Git Worktree**      | File system changes      | **Full Isolation** (Separate folders)     |
 | **Beads (--sandbox)** | Task status tracking     | **Synced via Git** (Eventual consistency) |
-| **OpenMemory**        | Global knowledge/wisdom  | **Shared** (Instant consistency)          |
+| **ECO**        | Global knowledge/wisdom  | **Shared** (Instant consistency)          |
 
 ### Parallel Worker Checklist
 
 When a Worker Agent is spawned in a new worktree, it must perform the following "Onboarding" sequence:
 
 1.  **Sync Local Task**: `bd --sandbox show <issue_id>` to get specific task constraints.
-2.  **Query Global Wisdom**: Search **OpenMemory** for project-wide standards and related documentation.
+2.  **Query Global Wisdom**: Search **ECO** for project-wide standards and related documentation.
 3.  **Review Reflections**: Read reflections left by previous agents on the components being modified.
 4.  **Execute**: Perform work using Conventional Commits.
-5.  **Post Reflection**: Save architectural decisions and hurdles to **OpenMemory**.
+5.  **Post Reflection**: Save architectural decisions and hurdles to **ECO**.
 6.  **Final Sync**: Run `bd sync` inside the worktree before ending the session.
 
 ### ⚠️ Conflict Resolution

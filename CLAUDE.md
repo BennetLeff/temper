@@ -18,18 +18,18 @@ This file establishes the context and best practices for Claude agents working o
 ## 3. Core Workflows
 
 ### 🧠 Eco Integration (MANDATORY)
-Eco is our project's long-term cognitive layer. Use it to bridge context across sessions.
+Eco is our project's long-term cognitive layer. Use it to bridge context across sessions. The ECO memory server runs remotely at **https://eco.bennetleff.workers.dev**.
 
 **1. Context Retrieval (Session Start)**
 Before starting any task, you MUST query Eco:
-- Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
-- Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "thermal budget", "resonant tank tuning")
+- Search for the issue ID: `POST https://eco.bennetleff.workers.dev/memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
+- Search for related documentation: `POST https://eco.bennetleff.workers.dev/memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "thermal budget", "resonant tank tuning")
 - Review any **Reflections** left by previous agents on related components.
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:
 - Summarize what you learned, architectural decisions made, and hurdles encountered.
-- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent"}`
+- Use the memory endpoint: `POST https://eco.bennetleff.workers.dev/memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent"}`
 - This ensures other agents (Claude, OpenCode) can benefit from your findings.
 
 ### Issue Tracking & Management
@@ -41,7 +41,7 @@ We use **beads (`bd`)** for all task tracking. **Do not use markdown TODOs.**
 ### Landing the Plane (Session Completion)
 The session is **not** over until the plane has landed. You must execute this protocol before stopping:
 
-1.  **Post Reflection**: Call `POST /memories` (with tag "reflection") to OpenMemory.
+1.  **Post Reflection**: Call `POST /memories` (with tag "reflection") to ECO.
 2.  **File Follow-ups**: Create issues for any work left unfinished or discovered.
 3.  **Verify Quality**: Run linting (`npm run lint`) and tests.
 4.  **Sync & Push (MANDATORY)**:

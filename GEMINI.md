@@ -18,19 +18,19 @@ This file establishes the context and best practices for Gemini agents working o
 
 ## 3. Core Workflows
 
-### 🧠 OpenMemory Integration (MANDATORY)
-OpenMemory is our project's long-term cognitive layer. Use it to bridge context across sessions.
+### 🧠 ECO Integration (MANDATORY)
+ECO is our project's long-term cognitive layer. Use it to bridge context across sessions. The ECO memory server runs remotely at **https://eco.bennetleff.workers.dev**.
 
 **1. Context Retrieval (Session Start)**
-Before starting any task, you MUST query OpenMemory:
-- Search for the issue ID: `POST /memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
-- Search for related documentation: `POST /memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "thermal budget", "resonant tank tuning")
+Before starting any task, you MUST query ECO:
+- Search for the issue ID: `POST https://eco.bennetleff.workers.dev/memories/search` with body `{"query": "<ISSUE_ID>", "userId": "temper-agent"}`
+- Search for related documentation: `POST https://eco.bennetleff.workers.dev/memories/search` with body `{"query": "<TOPIC>", "userId": "temper-agent"}` (e.g., "thermal budget", "resonant tank tuning")
 - Review any **Reflections** left by previous agents on related components.
 
 **2. Reflection (Session Wrap-up)**
 After completing a task or ending a session, you MUST post a reflection:
 - Summarize what you learned, architectural decisions made, and hurdles encountered.
-- Use the memory endpoint: `POST /memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "architecture"]}`
+- Use the memory endpoint: `POST https://eco.bennetleff.workers.dev/memories` with body `{"content": "REFLECTION: <summary>", "userId": "temper-agent", "tags": ["reflection", "architecture"]}`
 - This ensures other agents (Claude, OpenCode) can benefit from your findings.
 
 ### Issue Tracking & Management
@@ -53,7 +53,7 @@ We use a multi-agent system where a **Master Agent** delegates to specialized **
 ### Landing the Plane (Session Completion)
 The session is **not** over until the plane has landed. You must execute this protocol before stopping:
 
-1.  **Post Reflection**: Call `POST /memories` (with tag "reflection") to OpenMemory.
+1.  **Post Reflection**: Call `POST /memories` (with tag "reflection") to ECO.
 2.  **File Follow-ups**: Create issues for any work left unfinished or discovered.
 3.  **Verify Quality**: Run tests (`pytest`, `ctest`) and linters (`ruff`, `golangci-lint`).
 4.  **Update Issue State**: Close completed tasks and update progress on active ones.
