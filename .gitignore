@@ -1,33 +1,41 @@
 # Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+dist/
+build/
+.eggs/
+*.egg-info/
 *.py[cod]
 *$py.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-.env
-.venv
-env/
+
+# Virtual environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+.env
+
+# uv
+uv.lock
+
+# Package-specific
+packages/*/.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+temper-placer/.pytest_cache/
 
 # C/C++
 *.o
@@ -55,20 +63,10 @@ fp-info-cache
 *.txt
 !*results.txt
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-
 # Temper Specific
 firmware/build/
 firmware/test/build/
-temper-placer/.pytest_cache/
 temper-placer/.ruff_cache/
-temper-placer/research/*.png
-temper-placer/research/*.svg
 .beads/
 .gemini/
 *.kicad_pcb

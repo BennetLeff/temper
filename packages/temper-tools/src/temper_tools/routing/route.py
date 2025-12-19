@@ -2,18 +2,13 @@
 """
 Wrapper script for FreeRouting CLI.
 """
-import sys
+
 import os
+import sys
 from pathlib import Path
 
-# Add temper-placer/src to sys.path to import the wrapper
-sys.path.append(str(Path(__file__).parent.parent / "temper-placer" / "src"))
+from temper_placer.routing.freerouting import FreeRoutingWrapper
 
-try:
-    from temper_placer.routing.freerouting import FreeRoutingWrapper
-except ImportError as e:
-    print(f"Error: Could not import temper_placer. Check path: {e}")
-    sys.exit(1)
 
 def main():
     if len(sys.argv) < 3:
@@ -22,10 +17,10 @@ def main():
 
     pcb_path = Path(sys.argv[1])
     output_pcb = Path(sys.argv[2])
-    
+
     # Path to FreeRouting JAR - should be provided by environment or standard location
     jar_path = Path(os.environ.get("FREEROUTING_JAR", "bin/freerouting.jar"))
-    
+
     if not jar_path.exists():
         print(f"Error: FreeRouting JAR not found at {jar_path}")
         print("Please set FREEROUTING_JAR environment variable.")
@@ -33,9 +28,9 @@ def main():
 
     wrapper = FreeRoutingWrapper(jar_path=jar_path)
     print(f"Routing {pcb_path} -> {output_pcb}...")
-    
+
     routed_pcb, metrics = wrapper.route_pcb(pcb_path, output_pcb)
-    
+
     if routed_pcb:
         print(f"Routing successful!")
         print(f"Completion rate: {metrics.completion_rate * 100:.1f}%")
@@ -44,6 +39,7 @@ def main():
     else:
         print(f"Routing failed: {metrics.error_message}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

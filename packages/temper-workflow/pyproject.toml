@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "temper-workflow"
+version = "0.1.0"
+description = "GPBM workflow orchestration for Temper development"
+requires-python = ">=3.11"
+dependencies = [
+    "temper-placer",
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+temper-gather = "temper_workflow.gpbm.gather:main"
+temper-plan = "temper_workflow.gpbm.plan:main"
+temper-measure = "temper_workflow.gpbm.measure:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/temper_workflow"]

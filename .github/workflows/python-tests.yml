@@ -1,0 +1,62 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'pyproject.toml'
+      - '.github/workflows/python-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'pyproject.toml'
+      - '.github/workflows/python-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Set up Python
+        run: uv python install 3.12
+      
+      - name: Install dependencies
+        run: uv sync --all-packages
+      
+      - name: Run temper-placer tests (core only for CI speed)
+        run: uv run pytest packages/temper-placer/tests/core/ -v --tb=short
+      
+      - name: Lint with ruff
+        run: uv run ruff check packages/
+
+  type-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Set up Python
+        run: uv python install 3.12
+      
+      - name: Install dependencies
+        run: uv sync --all-packages
+      
+      - name: Type check temper-placer
+        run: uv run mypy packages/temper-placer/src --ignore-missing-imports
+        continue-on-error: true  # Don't fail on type errors for now

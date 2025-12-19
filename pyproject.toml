@@ -1,0 +1,20 @@
+[project]
+name = "temper-workspace"
+version = "0.1.0"
+description = "Temper induction cooker development workspace"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.0",
+    "ruff>=0.1.6",
+    "mypy>=1.7.0",
+]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+temper-placer = { workspace = true }
+temper-workflow = { workspace = true }
+temper-tools = { workspace = true }

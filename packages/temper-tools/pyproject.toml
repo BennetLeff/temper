@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "temper-tools"
+version = "0.1.0"
+description = "Utility tools for Temper development"
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "kiutils>=1.4.0",
+    "temper-placer",
+]
+
+[project.scripts]
+temper-fix-kicad = "temper_tools.kicad.fix_schematics:main"
+temper-ato-diff = "temper_tools.ato.diff:main"
+temper-eco-sync = "temper_tools.eco.sync_beads:main"
+temper-context = "temper_tools.eco.get_context:main"
+
+temper-route = "temper_tools.routing.route:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/temper_tools"]
