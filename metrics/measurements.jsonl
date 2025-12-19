@@ -1,0 +1,4 @@
+{"timestamp": "2025-12-19T15:01:46.608802+00:00", "metric": "fw_state_machine_tests", "target": ">=37", "task": "temper-test", "commit": "b61df26", "error": "/bin/sh: -c: line 0: unexpected EOF while looking for matching ``'\n/bin/sh: -c: line 1: syntax error: unexpected end of file"}
+{"timestamp": "2025-12-19T15:07:01.300351+00:00", "metric": "fw_state_machine_tests", "target": ">=37", "task": "temper-test", "commit": "b61df26", "details": "0", "error": "Command failed"}
+{"timestamp": "2025-12-19T15:07:06.817626+00:00", "metric": "py_lint_errors", "target": "==0", "task": "temper-test", "commit": "b61df26", "details": "1\tE902\tio-error\nFound 1 error.", "error": "Command failed"}
+{"timestamp": "2025-12-19T15:07:45.485672+00:00", "metric": "py_lint_errors", "value": 1.0, "target": "==0", "task": "temper-test", "commit": "b61df26", "details": "1\tE902\tio-error\nFound 1 error."}
