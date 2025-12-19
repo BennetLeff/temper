@@ -1740,23 +1740,54 @@ For more details, see README.md and QUICKSTART.md.
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
 2. **Run quality gates** (if code changed) - Tests, linters, builds
 3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+4. **POST REFLECTION TO ECO** - This is MANDATORY:
+   ```bash
+   # Use eco_client.py
+   python3 tools/gpbm/eco_client.py post \
+     --content "REFLECTION: <summary>" \
+     --user-id temper-agent \
+     --tags reflection,architecture
+   
+   # Or use Python directly
+   python3 << 'EOF'
+   import sys
+   sys.path.insert(0, 'tools/gpbm')
+   from eco_client import EcoClient
+   eco = EcoClient()
+   eco.post(
+     content="REFLECTION: Summary of work, decisions, learnings",
+     user_id="temper-agent",
+     tags=["reflection", "session-complete"]
+   )
+   EOF
+   ```
+   **What to include in reflection:**
+   - Tasks completed (IDs and brief descriptions)
+   - Architectural decisions made and rationale
+   - Technical learnings and discoveries
+   - Branches pushed and commit hashes
+   - Hurdles encountered and how resolved
+   - Next steps for future sessions
+
+5. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
    bd sync
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+6. **Clean up** - Clear stashes, prune remote branches
+7. **Verify** - All changes committed AND pushed, ECO reflection posted
+8. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
 
-- Work is NOT complete until `git push` succeeds
+- Work is NOT complete until BOTH `git push` AND ECO reflection succeed
 - NEVER stop before pushing - that leaves work stranded locally
+- NEVER skip ECO reflection - that breaks the agent hive mind
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
+- If ECO post fails, report error but continue with push
 
 ## 🧠 The Cognitive Stack: Beads + ECO
 
