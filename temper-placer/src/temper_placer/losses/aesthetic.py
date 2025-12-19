@@ -238,22 +238,25 @@ class ConsensusLayoutLoss(LossFunction):
 @dataclass
 class StackedRowLoss(LossFunction):
     """
-    Organizes a functional group into a 2D matrix of stacked rows.
+    Organizes a functional group into a 2D matrix of stacked rows with dynamic gutters.
 
     Useful for large banks of components (e.g., decoupling caps, LED drivers).
     Components are assigned to rows based on their index and stacked vertically.
+    The vertical distance between rows (gutter) grows if the area is congested.
 
     Attributes:
         component_indices: (M,) array of component indices in the group.
         cols: Number of columns in the matrix.
-        row_pitch: Desired vertical distance between rows.
+        min_row_pitch: Minimum vertical distance between rows.
         col_pitch: Desired horizontal distance between columns.
+        congestion_sensitivity: How much congestion increases the row pitch.
     """
 
     component_indices: Array
     cols: int
-    row_pitch: float
+    min_row_pitch: float
     col_pitch: float
+    congestion_sensitivity: float = 2.0
 
     @property
     def name(self) -> str:
@@ -270,22 +273,37 @@ class StackedRowLoss(LossFunction):
         if self.component_indices.shape[0] < 2:
             return LossResult(value=jnp.array(0.0))
 
+        from temper_placer.losses.congestion import get_congestion_field
+
         # 1. Get positions of group members
         group_pos = positions[self.component_indices]  # (M, 2)
         m = group_pos.shape[0]
-
-        # 2. Compute target relative offsets based on grid (row, col)
-        # component i is at (row, col)
-        indices = jnp.arange(m)
-        rows = indices // self.cols
-        cols = indices % self.cols
-
-        target_rel_x = cols * self.col_pitch
-        target_rel_y = rows * self.row_pitch
-        target_rel = jnp.stack([target_rel_x, target_rel_y], axis=-1)
-
-        # 3. Compute current centroid
         centroid = jnp.mean(group_pos, axis=0)
+
+        # 2. Dynamic Gutter Calculation
+        # Get congestion in the group's bounding box
+        congestion_grid = get_congestion_field(positions, context)
+        board_bounds = context.board.get_bounds_array()
+        x_min, y_min, x_max, y_max = board_bounds
+        rows_grid, cols_grid = congestion_grid.shape
+
+        # Map centroid to grid
+        gx = jnp.clip((centroid[0] - x_min) / (x_max - x_min) * cols_grid, 0, cols_grid - 1).astype(jnp.int32)
+        gy = jnp.clip((centroid[1] - y_min) / (y_max - y_min) * rows_grid, 0, rows_grid - 1).astype(jnp.int32)
+        
+        local_congestion = congestion_grid[gy, gx]
+        # row_pitch grows with congestion: min_pitch * (1 + sensitivity * congestion)
+        dynamic_row_pitch = self.min_row_pitch * (1.0 + self.congestion_sensitivity * jax.nn.relu(local_congestion - 0.5))
+
+        # 3. Compute target relative offsets based on grid (row, col)
+        indices = jnp.arange(m)
+        num_rows = (m + self.cols - 1) // self.cols
+        row_indices = indices // self.cols
+        col_indices = indices % self.cols
+
+        target_rel_x = col_indices * self.col_pitch
+        target_rel_y = row_indices * dynamic_row_pitch
+        target_rel = jnp.stack([target_rel_x, target_rel_y], axis=-1)
 
         # 4. Compute target absolute positions
         # Center the target matrix on the current group centroid
@@ -362,12 +380,14 @@ class PortFacingRotationLoss(LossFunction):
     electrical source/destination.
 
     Attributes:
-        groups: List of (indices, primary_pin_idx, target_pos) where
-            target_pos is the position of the external connection.
+        group_indices: (G, M) array of component indices in each group.
+        primary_pin_offsets: (G, 2) local (x,y) offset of the primary pin relative to group centroid.
+        target_positions: (G, 2) absolute (x,y) positions of the external source/destination.
     """
 
-    group_data: Array  # (G, 4) - [start_idx, end_idx, primary_pin_local_idx, target_x, target_y]
-    # Note: Complex to vectorize perfectly in one turn, using simplified logic first
+    group_indices: Array  # (G, M)
+    primary_pin_offsets: Array  # (G, 2)
+    target_positions: Array  # (G, 2)
 
     @property
     def name(self) -> str:
@@ -381,9 +401,57 @@ class PortFacingRotationLoss(LossFunction):
         epoch: int = 0,
         total_epochs: int = 1,
     ) -> LossResult:
-        # Implementation will calculate vector from group centroid to target_pos
-        # and penalize deviation of rotated primary_pin vector.
-        return LossResult(value=jnp.array(0.0))
+        if self.group_indices.shape[0] == 0:
+            return LossResult(value=jnp.array(0.0))
+
+        def compute_group_facing_loss(g_idx):
+            indices = self.group_indices[g_idx]
+            mask = indices != -1
+            safe_indices = jnp.where(mask, indices, 0)
+            
+            # 1. Get group centroid
+            group_pos = positions[safe_indices]
+            n_valid = jnp.sum(mask)
+            centroid = jnp.sum(group_pos * mask[:, None], axis=0) / jnp.maximum(n_valid, 1.0)
+            
+            # 2. Get target vector (centroid to target source)
+            target_vec = self.target_positions[g_idx] - centroid
+            target_angle = jnp.arctan2(target_vec[1], target_vec[0])
+            
+            # 3. Get group rotation (average or representative)
+            # For a rigid block, all components should share same discrete rotation
+            # We take the mean rotation angle
+            angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
+            group_rotations = rotations[safe_indices] # (M, 4)
+            comp_angles = jnp.sum(group_rotations * angles[None, :], axis=1) # (M,)
+            avg_angle = jnp.sum(comp_angles * mask) / jnp.maximum(n_valid, 1.0)
+            
+            # 4. Local primary pin vector (unrotated)
+            p_local = self.primary_pin_offsets[g_idx]
+            
+            # 5. Rotated primary pin vector
+            cos_a = jnp.cos(avg_angle)
+            sin_a = jnp.sin(avg_angle)
+            p_rotated = jnp.array([
+                p_local[0] * cos_a - p_local[1] * sin_a,
+                p_local[0] * sin_a + p_local[1] * cos_a
+            ])
+            
+            # 6. Penalize cosine distance between p_rotated and target_vec
+            # (Encourages them to point in same direction)
+            p_norm = p_rotated / (jnp.linalg.norm(p_rotated) + 1e-6)
+            t_norm = target_vec / (jnp.linalg.norm(target_vec) + 1e-6)
+            
+            # Cosine similarity is 1.0 if identical, -1.0 if opposite
+            # Penalty = 1.0 - cosine_similarity
+            penalty = 1.0 - jnp.dot(p_norm, t_norm)
+            
+            return penalty
+
+        # Sum over all groups
+        total_penalty = jnp.sum(jax.vmap(compute_group_facing_loss)(jnp.arange(self.group_indices.shape[0])))
+
+        return LossResult(value=total_penalty)
 
 
 def get_template_groups(netlist: Netlist, constraints: PlacementConstraints) -> Array:

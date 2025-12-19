@@ -370,14 +370,19 @@ def create_default_pipeline(
     3. (Other heuristics to be added...)
     """
     from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-    from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
+    from temper_placer.heuristics.force_directed import (
+        ForceDirectedHeuristic,
+        ForceDirectedUnfoldingHeuristic,
+    )
 
     pipeline = HeuristicPipeline(conflict_strategy=conflict_strategy)
 
     # Priority: INITIALIZATION (-1)
-    # Spectral first (global structure)
+    # 1. Unfold first (topology)
+    pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
+    # 2. Spectral (global structure)
     pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
-    # Force-directed second (refinement of spectral)
+    # 3. Force-directed (refinement)
     pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
 
     # TODO: Add Hard, Structural, Organizational, Style heuristics

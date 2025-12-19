@@ -336,25 +336,20 @@ def discrete_rotation_refinement_sa(
     cooling_rate: float = 0.95,
     fixed_components: Optional[List[int]] = None,
     seed: int = 42,
+    allow_swaps: bool = True,
+    allow_jiggles: bool = True,
+    grid_size: float = 0.5,
+    netlist: Optional[Netlist] = None,
 ) -> Tuple[PlacementState, float]:
     """
-    Refine rotations using Simulated Annealing (SA).
+    Refine placement using Simulated Annealing (SA) with micro-moves.
 
-    Explores the discrete rotation space by randomly flipping component
-    rotations and accepting them with a probability that decreases
-    over time.
+    Explores the search space by randomly applying:
+    1. Rotation flip
+    2. Jiggle (move +/- 1 grid unit)
+    3. Swap (swap two components with identical footprints)
 
-    Args:
-        state: Current placement state.
-        loss_fn: Function that computes total loss.
-        iterations: Number of SA iterations.
-        initial_temp: Starting temperature for SA.
-        cooling_rate: Factor to reduce temperature by each step.
-        fixed_components: List of component indices with fixed rotations.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Tuple of (best_state, best_loss).
+    Accepts moves based on the Metropolis criterion.
     """
     if fixed_components is None:
         fixed_components = []
@@ -364,6 +359,15 @@ def discrete_rotation_refinement_sa(
     if not movable:
         return state, loss_fn(state)
 
+    # Pre-group identical footprints for swapping
+    swap_groups = []
+    if allow_swaps and netlist:
+        from collections import defaultdict
+        fp_map = defaultdict(list)
+        for i in movable:
+            fp_map[netlist.components[i].footprint].append(i)
+        swap_groups = [indices for indices in fp_map.values() if len(indices) > 1]
+
     current_state = state
     current_loss = loss_fn(current_state)
     best_state = current_state
@@ -372,22 +376,49 @@ def discrete_rotation_refinement_sa(
     rng_key = jax.random.PRNGKey(seed)
     temp = initial_temp
 
-    logger.debug(f"Starting SA rotation refinement, iterations={iterations}")
+    logger.info(f"Starting micro-move SA refinement, iterations={iterations}")
 
     for i in range(iterations):
-        rng_key, comp_key, rot_key, accept_key = jax.random.split(rng_key, 4)
+        rng_key, move_key, comp_key, val_key, accept_key = jax.random.split(rng_key, 5)
 
-        # Pick random component and random new rotation
-        comp_idx = int(jax.random.choice(comp_key, jnp.array(movable)))
-        new_rot = int(jax.random.randint(rot_key, (), 0, 4))
+        # 1. Pick a move type
+        # 0: Rotation, 1: Jiggle, 2: Swap
+        move_types = [0]
+        if allow_jiggles: move_types.append(1)
+        if allow_swaps and swap_groups: move_types.append(2)
+        
+        move_type = int(jax.random.choice(move_key, jnp.array(move_types)))
+        test_state = current_state
 
-        # Test new state
-        test_state = set_rotation_index(current_state, comp_idx, new_rot)
-        test_loss = loss_fn(test_state)
+        if move_type == 0:
+            # Rotation flip
+            comp_idx = int(jax.random.choice(comp_key, jnp.array(movable)))
+            new_rot = int(jax.random.randint(val_key, (), 0, 4))
+            test_state = set_rotation_index(current_state, comp_idx, new_rot)
+        
+        elif move_type == 1:
+            # Jiggle
+            comp_idx = int(jax.random.choice(comp_key, jnp.array(movable)))
+            offset = jax.random.randint(val_key, (2,), -1, 2) * grid_size
+            new_pos = current_state.positions.at[comp_idx].add(offset)
+            test_state = PlacementState(new_pos, current_state.rotation_logits)
+            
+        elif move_type == 2:
+            # Swap
+            group_idx = int(jax.random.randint(comp_key, (), 0, len(swap_groups)))
+            indices = jnp.array(swap_groups[group_idx])
+            pair = jax.random.choice(val_key, indices, (2,), replace=False)
+            idx1, idx2 = int(pair[0]), int(pair[1])
+            
+            new_pos = current_state.positions
+            pos1, pos2 = new_pos[idx1], new_pos[idx2]
+            new_pos = new_pos.at[idx1].set(pos2).at[idx2].set(pos1)
+            test_state = PlacementState(new_pos, current_state.rotation_logits)
 
         # Metropolis criterion
+        test_loss = loss_fn(test_state)
         delta = test_loss - current_loss
-        if delta < 0 or jax.random.uniform(accept_key) < jnp.exp(-delta / temp):
+        if delta < 0 or jax.random.uniform(accept_key) < jnp.exp(-delta / jnp.maximum(temp, 1e-6)):
             current_state = test_state
             current_loss = test_loss
 
@@ -398,7 +429,7 @@ def discrete_rotation_refinement_sa(
         # Cool down
         temp *= cooling_rate
 
-    logger.debug(f"SA refinement complete, final loss: {best_loss:.4f}")
+    logger.info(f"Micro-move SA refinement complete, final loss: {best_loss:.4f}")
     return best_state, best_loss
 
 
@@ -411,6 +442,10 @@ def discrete_rotation_refinement(
     sa_initial_temp: float = 1.0,
     sa_cooling_rate: float = 0.95,
     fixed_components: Optional[List[int]] = None,
+    allow_swaps: bool = True,
+    allow_jiggles: bool = True,
+    grid_size: float = 0.5,
+    netlist: Optional[Netlist] = None,
 ) -> Tuple[PlacementState, float]:
     """
     Refine rotations to discrete values after continuous optimization.
@@ -429,6 +464,10 @@ def discrete_rotation_refinement(
         sa_initial_temp: Initial temperature for SA.
         sa_cooling_rate: Cooling rate for SA.
         fixed_components: Component indices that should not be rotated.
+        allow_swaps: Allow swapping identical footprints in SA.
+        allow_jiggles: Allow small position adjustments in SA.
+        grid_size: Grid size for jiggles.
+        netlist: Required for swap validation.
 
     Returns:
         Tuple of (refined_state, final_loss) with discrete rotation logits.
@@ -443,6 +482,10 @@ def discrete_rotation_refinement(
             initial_temp=sa_initial_temp,
             cooling_rate=sa_cooling_rate,
             fixed_components=fixed_components,
+            allow_swaps=allow_swaps,
+            allow_jiggles=allow_jiggles,
+            grid_size=grid_size,
+            netlist=netlist,
         )
     else:
         return discrete_rotation_refinement_greedy(state, loss_fn, fixed_components)
@@ -455,6 +498,7 @@ def postprocess(
     component_sizes: Optional[Array] = None,
     fixed_components: Optional[List[int]] = None,
     context: Optional[LossContext] = None,
+    netlist: Optional[Netlist] = None,
 ) -> PostProcessResult:
     """
     Run full post-processing pipeline on optimized placement.
@@ -471,14 +515,10 @@ def postprocess(
         component_sizes: (N, 2) array of component sizes for overlap checking.
         fixed_components: Component indices that should not be modified.
         context: LossContext for legalization rules.
+        netlist: Netlist for component-level refinement (swaps).
 
     Returns:
         PostProcessResult with refined state and metadata.
-
-    Example:
-        >>> result = postprocess(optimized_state, loss_fn)
-        >>> print(f"Final loss: {result.final_loss}")
-        >>> # result.state has grid-snapped positions and discrete rotations
     """
     if config is None:
         config = PostProcessConfig()
@@ -517,6 +557,10 @@ def postprocess(
             sa_initial_temp=config.sa_initial_temp,
             sa_cooling_rate=config.sa_cooling_rate,
             fixed_components=fixed_components,
+            allow_swaps=True,
+            allow_jiggles=True,
+            grid_size=config.grid_size,
+            netlist=netlist,
         )
         rotations_refined = True
     else:

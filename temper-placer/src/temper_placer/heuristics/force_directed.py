@@ -24,6 +24,107 @@ from temper_placer.heuristics.base import (
 from temper_placer.heuristics.graph_utils import GraphBuilder
 
 
+import networkx as nx
+import numpy as np
+import jax
+import jax.numpy as jnp
+from jax import Array
+
+from temper_placer.core.board import Board
+from temper_placer.core.state import PlacementState
+from temper_placer.losses.base import LossContext
+from temper_placer.core.netlist import build_adjacency_matrix
+
+
+class ForceDirectedUnfoldingHeuristic(Heuristic):
+    """
+    JAX-based Force-Directed 'Unfolding' phase.
+
+    This runs a preliminary physics simulation to untangle the graph topology
+    before starting the formal optimization or analytical solvers.
+    It uses simple differentiable repulsion and attraction.
+    """
+
+    def __init__(self, iterations: int = 500, learning_rate: float = 0.5):
+        self.iterations = iterations
+        self.lr = learning_rate
+
+    @property
+    def name(self) -> str:
+        return "force_directed_unfolding"
+
+    @property
+    def priority(self) -> HeuristicPriority:
+        return HeuristicPriority.INITIALIZATION
+
+    @property
+    def description(self) -> str:
+        return "JAX-based graph unfolding warm-up"
+
+    def apply(self, context: PlacementContext) -> HeuristicResult:
+        n = context.netlist.n_components
+        if n == 0:
+            return HeuristicResult(success=True)
+
+        # 1. Initialize from random or current if exists
+        rng_key = context.rng_key or jax.random.PRNGKey(42)
+        initial_pos = jnp.zeros((n, 2))
+        for ref, p in context.current_placements.items():
+            idx = context.netlist.get_component_index(ref)
+            initial_pos = initial_pos.at[idx].set(jnp.array(p.position))
+
+        if jnp.sum(jnp.abs(initial_pos)) < 1e-6:
+            # Random init if nothing placed
+            initial_state = PlacementState.random_init(
+                n, context.board.width, context.board.height, rng_key, context.board.origin
+            )
+            positions = initial_state.positions
+        else:
+            positions = initial_pos
+
+        # 2. Build Adjacency for attraction
+        adj = build_adjacency_matrix(context.netlist)
+
+        # 3. Physics Step
+        @jax.jit
+        def step(pos):
+            # Repulsion (all-pairs)
+            diff = pos[:, None, :] - pos[None, :, :]
+            dist_sq = jnp.sum(diff**2, axis=-1) + 1e-6
+            repulsion = jnp.sum(diff / dist_sq[:, :, None], axis=1)
+
+            # Attraction (connected only)
+            attraction = jnp.sum(adj[:, :, None] * -diff, axis=1)
+
+            # Update
+            new_pos = pos + self.lr * (repulsion + attraction)
+            return new_pos
+
+        # Run simulation
+        curr_pos = positions
+        for _ in range(self.iterations):
+            curr_pos = step(curr_pos)
+
+        # 4. Map back to placements
+        placements = {}
+        for i, comp in enumerate(context.netlist.components):
+            if comp.fixed:
+                continue
+            placements[comp.ref] = ComponentPlacement(
+                ref=comp.ref,
+                position=(float(curr_pos[i, 0]), float(curr_pos[i, 1])),
+                rotation=0,
+                confidence=0.3,
+                placed_by=self.name,
+            )
+
+        return HeuristicResult(
+            placements=placements,
+            success=True,
+            message=f"Unfolded graph over {self.iterations} iterations",
+        )
+
+
 class ForceDirectedHeuristic(Heuristic):
     """
     Refine placements using Force-Directed (Spring) Layout.
