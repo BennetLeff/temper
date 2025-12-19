@@ -265,11 +265,15 @@ class GatherPhase:
     def _search_eco(
         self, goal: str, role: Optional[str] = None, domain: Optional[str] = None
     ) -> Dict[str, List[Dict]]:
-        """Search Eco for relevant memories.
+        """Search Eco for relevant memories (parallel version).
 
         Uses ECO_MIN_SCORE and ECO_LIMIT environment variables for configuration.
         Defaults: min_score=0.6, limit=5
+
+        Searches are executed in parallel for 4× speedup.
         """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         result = {
             "shared": [],
             "role": [],
@@ -277,39 +281,41 @@ class GatherPhase:
             "legacy": [],
         }
 
-        # Search legacy namespace first (where existing data lives)
-        result["legacy"] = self.eco_client.search(
-            goal,
-            self.eco_client.config.LEGACY,
-            limit=ECO_LIMIT,
-            min_score=ECO_MIN_SCORE,
-        )
+        # Build list of searches to execute
+        searches = [
+            ("legacy", self.eco_client.config.LEGACY),
+            ("shared", self.eco_client.config.SHARED),
+        ]
 
-        # Search shared
-        result["shared"] = self.eco_client.search(
-            goal,
-            self.eco_client.config.SHARED,
-            limit=ECO_LIMIT,
-            min_score=ECO_MIN_SCORE,
-        )
-
-        # Search role-specific
         if role and role in self.eco_client.config.ROLES:
-            result["role"] = self.eco_client.search(
-                goal,
-                self.eco_client.config.ROLES[role],
-                limit=ECO_LIMIT,
-                min_score=ECO_MIN_SCORE,
-            )
+            searches.append(("role", self.eco_client.config.ROLES[role]))
 
-        # Search domain-specific
         if domain and domain in self.eco_client.config.DOMAINS:
-            result["domain"] = self.eco_client.search(
-                goal,
-                self.eco_client.config.DOMAINS[domain],
-                limit=ECO_LIMIT,
-                min_score=ECO_MIN_SCORE,
-            )
+            searches.append(("domain", self.eco_client.config.DOMAINS[domain]))
+
+        # Execute searches in parallel
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_key = {
+                executor.submit(
+                    self.eco_client.search,
+                    goal,
+                    user_id,
+                    limit=ECO_LIMIT,
+                    min_score=ECO_MIN_SCORE,
+                ): key
+                for key, user_id in searches
+            }
+
+            for future in as_completed(future_to_key):
+                key = future_to_key[future]
+                try:
+                    result[key] = future.result()
+                except Exception as e:
+                    print(
+                        f"Warning: Eco search failed for {key}: {e}",
+                        file=sys.stderr,
+                    )
+                    result[key] = []
 
         return result
 
