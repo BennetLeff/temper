@@ -612,6 +612,25 @@ function init() {
     // Connect to WebSocket
     connect();
     
+    // Initialize score threshold slider
+    const slider = document.getElementById('score-slider');
+    const scoreValue = document.getElementById('score-value');
+    
+    // Update value display
+    slider.addEventListener('input', () => {
+        scoreValue.textContent = parseFloat(slider.value).toFixed(2);
+    });
+    
+    // Send threshold to server on change
+    slider.addEventListener('change', () => {
+        const threshold = parseFloat(slider.value);
+        console.log(`Score threshold changed to ${threshold}`);
+        send({ type: 'set_score_threshold', threshold: threshold });
+    });
+    
+    // Initialize value display
+    scoreValue.textContent = parseFloat(slider.value).toFixed(2);
+    
     // Handle window resize
     window.addEventListener('resize', () => {
         Plotly.Plots.resize('board-view');
