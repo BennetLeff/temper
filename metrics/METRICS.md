@@ -69,6 +69,37 @@ measurement_targets:
 | `py_lint_errors` | Ruff lint error count | ==0 | ruff | `ruff check src --statistics` |
 | `c_lint_warnings` | cppcheck warning count | ==0 | cppcheck | `cppcheck --enable=all firmware/` |
 
+## Eco Memory Metrics
+
+Metrics for tracking semantic memory context costs in the GPBM workflow.
+
+| Metric ID | Description | Target | Source | Command |
+|-----------|-------------|--------|--------|---------|
+| `eco_gather_tokens` | GATHER output token estimate | <=1500 | gather.py | `python3 tools/gpbm/gather.py --goal "$GOAL" --domain $DOMAIN \| wc -c \| awk '{print int($1/4)}'` |
+| `eco_memories_returned` | Number of memories in GATHER | 3-10 | gather.py | `python3 tools/gpbm/gather.py --goal "$GOAL" --json \| python3 -c "import sys,json; d=json.load(sys.stdin); print(sum(len(v) for v in d['eco_memories'].values()))"` |
+| `eco_avg_memory_chars` | Average memory content length | <=500 | eco_client.py | Sampled from Eco API responses |
+| `eco_min_score` | Minimum similarity score threshold | 0.6-0.8 | eco_client.py | Configuration value |
+
+### Context Cost Analysis
+
+Token cost breakdown for GATHER phase context injection:
+
+| Component | Typical Size | Notes |
+|-----------|-------------|-------|
+| Eco memories (5) | 300-1500 tokens | Depends on memory sizes and count |
+| Requirements (5-10) | 100-300 tokens | Table format, compact |
+| Issues (10) | 200-400 tokens | List format with IDs |
+| Files (12) | 50-100 tokens | Path list only |
+| Boilerplate | ~200 tokens | Headers, formatting |
+| **Total** | **850-2500 tokens** | Target: <=1500 |
+
+### Optimization Levers
+
+1. **min_score threshold** - Higher = fewer but more relevant memories
+2. **limit per category** - Cap on memories returned
+3. **Content truncation** - Already truncated to 300 chars in markdown
+4. **Memory type filtering** - Could exclude ISSUE/BEADS mirrors, keep only REFLECTION
+
 ## Custom Metrics
 
 Projects can define custom metrics by:

@@ -31,6 +31,10 @@ class EcoConfig:
     base_url: str = "https://eco.bennetleff.workers.dev"
     timeout: int = 10
 
+    # Legacy user ID (where existing data lives per AGENTS.md)
+    # This is always searched to ensure we find historical memories
+    LEGACY: str = "temper-agent"
+
     # Shared user ID (read by all agents)
     SHARED: str = "temper-shared"
 
@@ -134,12 +138,13 @@ class EcoClient:
         role: Optional[str] = None,
         domain: Optional[str] = None,
         include_shared: bool = True,
+        include_legacy: bool = True,
         limit: int = 10,
         min_score: float = 0.7,
     ) -> List[Dict[str, Any]]:
         """Search across multiple relevant user IDs.
 
-        Searches shared + role-specific + domain-specific user IDs,
+        Searches shared + role-specific + domain-specific + legacy user IDs,
         deduplicates results, and returns sorted by score.
 
         Args:
@@ -147,6 +152,7 @@ class EcoClient:
             role: Agent role (architect, coder, tester, human)
             domain: Project domain (firmware, placer, pcb)
             include_shared: Include temper-shared in search
+            include_legacy: Include temper-agent (legacy namespace with existing data)
             limit: Maximum total results
             min_score: Minimum similarity score
 
@@ -154,6 +160,10 @@ class EcoClient:
             Deduplicated list of results sorted by score
         """
         user_ids = []
+
+        # Always include legacy namespace first (where most data lives)
+        if include_legacy:
+            user_ids.append(self.config.LEGACY)
 
         if include_shared:
             user_ids.append(self.config.SHARED)
@@ -164,9 +174,9 @@ class EcoClient:
         if domain and domain in self.config.DOMAINS:
             user_ids.append(self.config.DOMAINS[domain])
 
-        # If no specific user IDs, search all
+        # If no specific user IDs, at least search legacy
         if not user_ids:
-            user_ids = [self.config.SHARED]
+            user_ids = [self.config.LEGACY]
 
         # Collect results from all user IDs
         all_results = []
@@ -412,6 +422,9 @@ Examples:
     search_parser.add_argument(
         "--no-shared", action="store_true", help="Exclude shared memories"
     )
+    search_parser.add_argument(
+        "--no-legacy", action="store_true", help="Exclude legacy temper-agent namespace"
+    )
     search_parser.add_argument("--json", action="store_true", help="Output as JSON")
     search_parser.add_argument(
         "-v", "--verbose", action="store_true", help="Show full content"
@@ -459,6 +472,7 @@ Examples:
             role=args.role,
             domain=args.domain,
             include_shared=not args.no_shared,
+            include_legacy=not args.no_legacy,
             limit=args.limit,
             min_score=args.min_score,
         )
@@ -514,6 +528,7 @@ Examples:
 
     elif args.command == "ids":
         print("Available Eco User IDs:\n")
+        print(f"Legacy:   {client.config.LEGACY}  (where existing data lives)")
         print(f"Shared:   {client.config.SHARED}")
         print("\nRoles:")
         for role, uid in client.config.ROLES.items():

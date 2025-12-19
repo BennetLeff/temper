@@ -24,10 +24,15 @@ Usage:
 import json
 import subprocess
 import sys
+import os
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+
+# Configurable thresholds via environment variables
+ECO_MIN_SCORE = float(os.environ.get("ECO_MIN_SCORE", "0.6"))
+ECO_LIMIT = int(os.environ.get("ECO_LIMIT", "5"))
 
 # Import sibling modules
 try:
@@ -49,6 +54,7 @@ class GatherContext:
     role: Optional[str] = None
 
     # Eco memories
+    eco_legacy: List[Dict] = field(default_factory=list)
     eco_shared: List[Dict] = field(default_factory=list)
     eco_role: List[Dict] = field(default_factory=list)
     eco_domain: List[Dict] = field(default_factory=list)
@@ -72,6 +78,7 @@ class GatherContext:
             "domain": self.domain,
             "role": self.role,
             "eco_memories": {
+                "legacy": self.eco_legacy,
                 "shared": self.eco_shared,
                 "role": self.eco_role,
                 "domain": self.eco_domain,
@@ -108,7 +115,9 @@ class GatherContext:
             ]
         )
 
-        all_memories = self.eco_shared + self.eco_role + self.eco_domain
+        all_memories = (
+            self.eco_legacy + self.eco_shared + self.eco_role + self.eco_domain
+        )
         if all_memories:
             for i, mem in enumerate(all_memories[:10], 1):
                 memory = mem.get("memory", {})
@@ -256,28 +265,50 @@ class GatherPhase:
     def _search_eco(
         self, goal: str, role: Optional[str] = None, domain: Optional[str] = None
     ) -> Dict[str, List[Dict]]:
-        """Search Eco for relevant memories."""
+        """Search Eco for relevant memories.
+
+        Uses ECO_MIN_SCORE and ECO_LIMIT environment variables for configuration.
+        Defaults: min_score=0.6, limit=5
+        """
         result = {
             "shared": [],
             "role": [],
             "domain": [],
+            "legacy": [],
         }
+
+        # Search legacy namespace first (where existing data lives)
+        result["legacy"] = self.eco_client.search(
+            goal,
+            self.eco_client.config.LEGACY,
+            limit=ECO_LIMIT,
+            min_score=ECO_MIN_SCORE,
+        )
 
         # Search shared
         result["shared"] = self.eco_client.search(
-            goal, self.eco_client.config.SHARED, limit=5, min_score=0.6
+            goal,
+            self.eco_client.config.SHARED,
+            limit=ECO_LIMIT,
+            min_score=ECO_MIN_SCORE,
         )
 
         # Search role-specific
         if role and role in self.eco_client.config.ROLES:
             result["role"] = self.eco_client.search(
-                goal, self.eco_client.config.ROLES[role], limit=5, min_score=0.6
+                goal,
+                self.eco_client.config.ROLES[role],
+                limit=ECO_LIMIT,
+                min_score=ECO_MIN_SCORE,
             )
 
         # Search domain-specific
         if domain and domain in self.eco_client.config.DOMAINS:
             result["domain"] = self.eco_client.search(
-                goal, self.eco_client.config.DOMAINS[domain], limit=5, min_score=0.6
+                goal,
+                self.eco_client.config.DOMAINS[domain],
+                limit=ECO_LIMIT,
+                min_score=ECO_MIN_SCORE,
             )
 
         return result
@@ -439,6 +470,7 @@ class GatherPhase:
             timestamp=timestamp,
             domain=domain,
             role=role,
+            eco_legacy=eco_results["legacy"],
             eco_shared=eco_results["shared"],
             eco_role=eco_results["role"],
             eco_domain=eco_results["domain"],
@@ -536,7 +568,7 @@ Examples:
     print("=" * 50, file=sys.stderr)
     print("GATHER Summary:", file=sys.stderr)
     print(
-        f"  Eco memories: {len(context.eco_shared) + len(context.eco_role) + len(context.eco_domain)}",
+        f"  Eco memories: {len(context.eco_legacy) + len(context.eco_shared) + len(context.eco_role) + len(context.eco_domain)}",
         file=sys.stderr,
     )
     print(
