@@ -13,7 +13,6 @@ Each metric returns a score where:
 """
 
 from pathlib import Path
-from typing import Dict
 
 import pytest
 
@@ -22,10 +21,9 @@ jax = pytest.importorskip("jax")
 import jax.numpy as jnp
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Netlist, Component, Net
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.losses import LossContext
-
 
 # Test fixtures directory
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -592,10 +590,10 @@ class TestMetricsNormalization:
     def test_all_scores_in_range(self, simple_setup):
         """All metric scores should be in [0, 1] range."""
         from temper_placer.metrics.quality import (
+            compactness_score,
+            hv_lv_clearance_score,
             thermal_score,
             zone_compliance_score,
-            hv_lv_clearance_score,
-            compactness_score,
         )
 
         netlist, board, state, context = simple_setup

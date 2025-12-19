@@ -1,16 +1,17 @@
 """Tests for ablation study experiment runner."""
 
-import pytest
 import tempfile
-from pathlib import Path
 from datetime import datetime
-from unittest.mock import Mock, MagicMock, patch
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
 
 from temper_placer.ablation.config import (
-    ComponentToggle,
-    LossToggle,
-    ExperimentConfig,
     AblationStudyConfig,
+    ComponentToggle,
+    ExperimentConfig,
+    LossToggle,
 )
 from temper_placer.ablation.runner import ExperimentRun, ExperimentRunner
 from temper_placer.core.state import PlacementState

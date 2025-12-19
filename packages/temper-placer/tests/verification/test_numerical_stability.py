@@ -12,10 +12,8 @@ Test categories:
 5. Overlapping components
 """
 
-import pytest
 import jax
 import jax.numpy as jnp
-from jax import Array
 
 # Enable 64-bit precision for accurate gradient checks
 jax.config.update("jax_enable_x64", True)

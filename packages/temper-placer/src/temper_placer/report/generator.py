@@ -11,11 +11,12 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
+
 
 @dataclass
 class BenchmarkResult:
@@ -29,7 +30,7 @@ class BenchmarkResult:
     compactness_score: float
     overall_score: float
     status: str  # "BETTER", "PASS", "FAIL"
-    violations: List[str] = field(default_factory=list)
+    violations: list[str] = field(default_factory=list)
 
 @dataclass
 class BenchmarkSummary:
@@ -38,42 +39,42 @@ class BenchmarkSummary:
     passed: int
     failed: int
     better_than_human: int
-    results: List[BenchmarkResult] = field(default_factory=list)
+    results: list[BenchmarkResult] = field(default_factory=list)
     timestamp: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 def calculate_benchmark_result(
     name: str,
     opt_result: Any, # TrainingResult
-    baseline: Dict[str, Any],
+    baseline: dict[str, Any],
     context: Any, # LossContext
 ) -> BenchmarkResult:
     """Compute quantitative scores comparing optimizer to baseline."""
     # Handle both new and legacy schema
     human_p = baseline.get("human_placement", {})
     human_metrics = human_p.get("metrics", baseline.get("human_metrics", {}))
-    
+
     human_wl = human_metrics.get("total_wirelength_mm", human_metrics.get("total_hpwl_mm", 0.0))
-    
+
     # 1. Wirelength Ratio
     # result.history[-1] contains final metrics
     final_metrics = opt_result.history[-1]
     opt_wl = final_metrics.loss_breakdown.get("wirelength", 0.0)
     wl_ratio = opt_wl / human_wl if human_wl > 0 else 1.0
-    
+
     # 2. Hard Constraint Scores
     # We use 1.0 if violation is < 1.0, and decay exponentially
     overlap_val = final_metrics.loss_breakdown.get("overlap", 0.0)
     overlap_score = 1.0 if overlap_val < 1.0 else max(0.0, 1.0 - (overlap_val / 100.0))
-    
+
     boundary_val = final_metrics.loss_breakdown.get("boundary", 0.0)
     boundary_score = 1.0 if boundary_val < 1.0 else max(0.0, 1.0 - (boundary_val / 100.0))
-    
+
     # 3. Quality Scores
     thermal_val = final_metrics.loss_breakdown.get("thermal", 0.0)
     thermal_score = 1.0 / (1.0 + thermal_val / 10.0) if thermal_val > 0 else 1.0
-    
+
     compactness_score = human_metrics.get("compactness_score", human_metrics.get("density", 0.5))
-    
+
     # 4. Overall Score (Weighted)
     # Hard constraints must be satisfied for high score
     if overlap_score < 0.9 or boundary_score < 0.9:
@@ -86,14 +87,14 @@ def calculate_benchmark_result(
     violations = []
     if overlap_val > 10.0: violations.append(f"Overlap too high ({overlap_val:.1f})")
     if boundary_val > 10.0: violations.append(f"Boundary violation ({boundary_val:.1f})")
-    
+
     if violations:
         status = "FAIL"
     elif wl_ratio < 0.95:
         status = "BETTER"
     else:
         status = "PASS"
-        
+
     return BenchmarkResult(
         name=name,
         drc_errors=0, # Need kicad-cli for this
@@ -110,7 +111,7 @@ def calculate_benchmark_result(
 def generate_text_report(summary: BenchmarkSummary) -> str:
     """Generate a formatted text report using Rich."""
     console = Console(record=True, width=100)
-    
+
     console.print(Panel.fit(
         f"[bold blue]TEMPER-PLACER BENCHMARK REPORT[/]\nGenerated: {summary.timestamp}",
         border_style="blue",
@@ -136,13 +137,13 @@ def generate_text_report(summary: BenchmarkSummary) -> str:
 
     for res in summary.results:
         drc_text = "[green]✓[/]" if res.drc_errors == 0 else f"[red]✗ {res.drc_errors}[/]"
-        
+
         status_style = {
             "BETTER": "bold cyan",
             "PASS": "green",
             "FAIL": "red"
         }.get(res.status, "white")
-        
+
         table_res.add_row(
             res.name,
             drc_text,
@@ -152,7 +153,7 @@ def generate_text_report(summary: BenchmarkSummary) -> str:
             f"{res.overall_score*100:.0f}%",
             f"[{status_style}]{res.status}[/]"
         )
-    
+
     console.print(table_res)
 
     # Failures Section

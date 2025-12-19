@@ -4,10 +4,11 @@ This module analyzes the correlation between optimizer loss components
 and KiCad DRC violations to inform weight selection.
 """
 
-from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Sequence
 import math
 import statistics
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -35,13 +36,13 @@ class DRCResult:
 class CorrelationReport:
     """Results of correlation analysis."""
 
-    correlations: List[Dict[str, Any]]
-    recommendations: Dict[str, float]
+    correlations: list[dict[str, Any]]
+    recommendations: dict[str, float]
 
 
 def analyze_drc_correlation(
-    placements: List[PlacementResult],
-    drc_results: List[DRCResult],
+    placements: list[PlacementResult],
+    drc_results: list[DRCResult],
 ) -> CorrelationReport:
     """
     Analyze correlation between loss components and DRC violations.
@@ -118,7 +119,7 @@ def analyze_drc_correlation(
     return CorrelationReport(correlations=correlations, recommendations=recommendations)
 
 
-def compute_correlation(x: Sequence[float], y: Sequence[float]) -> Dict[str, float]:
+def compute_correlation(x: Sequence[float], y: Sequence[float]) -> dict[str, float]:
     """
     Compute Pearson and Spearman correlation coefficients.
 
@@ -197,7 +198,7 @@ def compute_spearman(x: Sequence[float], y: Sequence[float]) -> float:
     return compute_spearman_non_recursive(x, y)
 
 
-def rank_data(data: Sequence[float]) -> List[float]:
+def rank_data(data: Sequence[float]) -> list[float]:
     """Convert data to ranks (average ranks for ties)."""
     # Create (value, original_index) pairs
     indexed_data = [(value, i) for i, value in enumerate(data)]
@@ -212,7 +213,7 @@ def rank_data(data: Sequence[float]) -> List[float]:
     return ranks
 
 
-def generate_recommendations(correlations: List[Dict[str, Any]]) -> Dict[str, float]:
+def generate_recommendations(correlations: list[dict[str, Any]]) -> dict[str, float]:
     """
     Generate weight recommendations based on correlation analysis.
 

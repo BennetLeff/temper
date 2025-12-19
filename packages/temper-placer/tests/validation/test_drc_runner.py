@@ -4,18 +4,18 @@ Tests for kicad-cli DRC runner.
 TDD Task: temper-1my.5.1
 """
 
-import pytest
-import subprocess
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from temper_placer.validation.drc_runner import (
-    run_drc,
-    DrcResult,
     DrcError,
-    DrcWarning,
+    DrcResult,
     DrcRunnerError,
+    DrcWarning,
     is_kicad_cli_available,
+    run_drc,
 )
 
 
@@ -159,11 +159,10 @@ class TestDrcRunner:
 
         with patch(
             "temper_placer.validation.drc_runner._get_drc_json_path", return_value=json_file
+        ), patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
         ):
-            with patch(
-                "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
-            ):
-                result = run_drc(pcb_file)
+            result = run_drc(pcb_file)
 
         assert result.error_count == 0
         assert result.warning_count == 0
@@ -186,11 +185,10 @@ class TestDrcRunner:
 
         with patch(
             "temper_placer.validation.drc_runner._get_drc_json_path", return_value=json_file
+        ), patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
         ):
-            with patch(
-                "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
-            ):
-                result = run_drc(pcb_file)
+            result = run_drc(pcb_file)
 
         assert result.error_count == 2
 
@@ -216,11 +214,10 @@ class TestDrcRunner:
 
         with patch(
             "temper_placer.validation.drc_runner._get_drc_json_path", return_value=json_file
+        ), patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
         ):
-            with patch(
-                "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
-            ):
-                result = run_drc(pcb_file)
+            result = run_drc(pcb_file)
 
         # Find clearance error
         clearance_errors = [e for e in result.errors if e.rule == "clearance"]

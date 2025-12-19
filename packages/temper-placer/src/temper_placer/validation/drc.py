@@ -12,8 +12,6 @@ Requires KiCad 7+ with kicad-cli available in PATH or at standard location.
 from __future__ import annotations
 
 import json
-import os
-import re
 import shutil
 import subprocess
 import tempfile
@@ -21,7 +19,7 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -94,11 +92,11 @@ class DRCViolation(ValidationIssue):
 
     violation_type: DRCViolationType = DRCViolationType.OTHER
     rule_name: str = ""
-    position: Optional[Tuple[float, float]] = None
-    affected_items: List[str] = field(default_factory=list)
+    position: tuple[float, float] | None = None
+    affected_items: list[str] = field(default_factory=list)
     description: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         base = {
             "severity": self.severity.name.lower(),  # Use name for string
@@ -134,7 +132,7 @@ class DRCResult:
     """
 
     success: bool
-    violations: List[DRCViolation] = field(default_factory=list)
+    violations: list[DRCViolation] = field(default_factory=list)
     error_count: int = 0
     warning_count: int = 0
     exclusion_count: int = 0
@@ -158,7 +156,7 @@ class DRCResult:
         lines = [f"DRC {status}: {self.error_count} errors, {self.warning_count} warnings"]
 
         if self.violations:
-            lines.append(f"\nTop violations:")
+            lines.append("\nTop violations:")
             for v in self.violations[:5]:
                 lines.append(f"  [{v.severity.value}] {v.violation_type.value}: {v.message}")
 
@@ -181,7 +179,7 @@ KICAD_CLI_PATHS = [
 ]
 
 
-def find_kicad_cli() -> Optional[str]:
+def find_kicad_cli() -> str | None:
     """
     Find kicad-cli executable.
 
@@ -225,10 +223,10 @@ class KiCadDRCValidator(Validator):
 
     def __init__(
         self,
-        kicad_cli_path: Optional[str] = None,
+        kicad_cli_path: str | None = None,
         timeout_seconds: float = 120.0,
-        severity_weights: Optional[Dict[str, float]] = None,
-        violation_weights: Optional[Dict[str, float]] = None,
+        severity_weights: dict[str, float] | None = None,
+        violation_weights: dict[str, float] | None = None,
     ):
         """
         Initialize KiCad DRC validator.
@@ -260,7 +258,7 @@ class KiCadDRCValidator(Validator):
             "silk_clearance": 0.5,  # Less critical
         }
 
-        self._kicad_version: Optional[str] = None
+        self._kicad_version: str | None = None
 
     @property
     def name(self) -> str:
@@ -316,8 +314,8 @@ class KiCadDRCValidator(Validator):
             ValidationResult.
         """
         start_time = time.time()
-        issues: List[ValidationIssue] = []
-        metrics: Dict[str, float] = {}
+        issues: list[ValidationIssue] = []
+        metrics: dict[str, float] = {}
 
         if not self.is_available():
             issues.append(
@@ -461,7 +459,7 @@ class KiCadDRCValidator(Validator):
             if output_path.exists():
                 output_path.unlink()
 
-    def _parse_violations(self, drc_data: Dict[str, Any]) -> List[DRCViolation]:
+    def _parse_violations(self, drc_data: dict[str, Any]) -> list[DRCViolation]:
         """Parse violations from KiCad DRC JSON output."""
         violations = []
 
@@ -473,7 +471,7 @@ class KiCadDRCValidator(Validator):
 
         return violations
 
-    def _parse_single_violation(self, item: Dict[str, Any]) -> Optional[DRCViolation]:
+    def _parse_single_violation(self, item: dict[str, Any]) -> DRCViolation | None:
         """Parse a single violation from JSON."""
         try:
             # Get severity
@@ -562,8 +560,8 @@ class KiCadDRCValidator(Validator):
 
         Useful for integrating with CompositeValidator.
         """
-        issues: List[ValidationIssue] = list(result.violations)
-        metrics: Dict[str, float] = {
+        issues: list[ValidationIssue] = list(result.violations)
+        metrics: dict[str, float] = {
             "drc_errors": float(result.error_count),
             "drc_warnings": float(result.warning_count),
             "drc_penalty": self.compute_penalty(result),

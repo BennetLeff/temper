@@ -25,7 +25,7 @@ Example usage:
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 TEMPLATE_DIR = Path(__file__).parent
 
@@ -49,7 +49,7 @@ def load_template(name: str) -> str:
     return path.read_text()
 
 
-def get_available_templates() -> List[str]:
+def get_available_templates() -> list[str]:
     """List available template names.
 
     Returns:
@@ -58,7 +58,7 @@ def get_available_templates() -> List[str]:
     return sorted(p.stem for p in TEMPLATE_DIR.glob("*.cir"))
 
 
-def get_template_parameters(name: str) -> List[str]:
+def get_template_parameters(name: str) -> list[str]:
     """Extract parameter names from a template.
 
     Args:
@@ -76,7 +76,7 @@ def get_template_parameters(name: str) -> List[str]:
 
 
 # Template metadata: parameters and their descriptions
-TEMPLATE_PARAMETERS: Dict[str, Dict[str, str]] = {
+TEMPLATE_PARAMETERS: dict[str, dict[str, str]] = {
     "gate_drive": {
         "GATE_LOOP_INDUCTANCE": "Gate drive loop inductance in Henries (e.g., '50n' for 50nH)",
         "GATE_RESISTANCE": "External gate resistance in Ohms (e.g., '4.7')",
@@ -96,7 +96,7 @@ TEMPLATE_PARAMETERS: Dict[str, Dict[str, str]] = {
 
 # Validation thresholds for pass/fail determination
 # Each measurement has optional min/max limits and unit for display
-TEMPLATE_THRESHOLDS: Dict[str, Dict[str, Dict[str, Any]]] = {
+TEMPLATE_THRESHOLDS: dict[str, dict[str, dict[str, Any]]] = {
     "gate_drive": {
         # Overshoot should be <20% to avoid gate oxide stress
         "v_overshoot_pct": {"max": 20.0, "unit": "%", "description": "Gate voltage overshoot"},
@@ -135,7 +135,7 @@ TEMPLATE_THRESHOLDS: Dict[str, Dict[str, Dict[str, Any]]] = {
 
 
 # Default parameter values for testing (typical Temper design values)
-DEFAULT_PARAMETERS: Dict[str, Dict[str, str]] = {
+DEFAULT_PARAMETERS: dict[str, dict[str, str]] = {
     "gate_drive": {
         "GATE_LOOP_INDUCTANCE": "50n",  # 50nH typical for good layout
         "GATE_RESISTANCE": "4.7",  # 4.7 ohm external gate resistor
@@ -155,8 +155,8 @@ DEFAULT_PARAMETERS: Dict[str, Dict[str, str]] = {
 
 def check_thresholds(
     template_name: str,
-    measurements: Dict[str, float],
-) -> Dict[str, Dict[str, Any]]:
+    measurements: dict[str, float],
+) -> dict[str, dict[str, Any]]:
     """Check measurements against template thresholds.
 
     Args:
@@ -217,8 +217,8 @@ def check_thresholds(
 
 
 def compute_spice_penalty(
-    results: Dict[str, Dict[str, float]],
-    weights: Optional[Dict[str, float]] = None,
+    results: dict[str, dict[str, float]],
+    weights: dict[str, float] | None = None,
 ) -> float:
     """Compute aggregate penalty from SPICE simulation results.
 

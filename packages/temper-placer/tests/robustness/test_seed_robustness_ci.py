@@ -1,22 +1,23 @@
 
-import pytest
-import numpy as np
 from pathlib import Path
+
+import jax
+import numpy as np
+import pytest
+
 from temper_placer.core.board import Board
+from temper_placer.geometry.transform import sample_rotation_batch
 from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.wirelength import WirelengthLoss
 from temper_placer.optimizer import (
-    train, 
-    OptimizerConfig, 
-    TrainingState,
     CheckpointConfig,
-    EarlyStoppingConfig
+    EarlyStoppingConfig,
+    OptimizerConfig,
+    train,
 )
-from temper_placer.geometry.transform import sample_rotation_batch
-import jax
-import jax.numpy as jnp
+
 
 def create_test_netlist(n_components: int = 17):
     """Create a fixed test netlist for robustness analysis."""
@@ -41,7 +42,7 @@ def test_seed_robustness_ci():
     epochs = 200
     board = Board(width=100.0, height=100.0)
     netlist = create_test_netlist(n_components)
-    
+
     # Create loss context
     context = LossContext.from_netlist_and_board(netlist, board)
 
@@ -53,9 +54,9 @@ def test_seed_robustness_ci():
     ])
 
     results = []
-    
+
     print(f"\nRunning robustness CI test with {n_seeds} seeds...")
-    
+
     for seed in range(n_seeds):
         config = OptimizerConfig(
             epochs=epochs,
@@ -67,18 +68,18 @@ def test_seed_robustness_ci():
             checkpoint=CheckpointConfig(enabled=False),
             early_stopping=EarlyStoppingConfig(enabled=False)
         )
-        
+
         res = train(netlist, board, composite, context, config)
-        
+
         # Get final metrics
         positions = res.final_state.positions
         rotation_logits = res.final_state.rotation_logits
         key = jax.random.PRNGKey(0)
         rotations = sample_rotation_batch(rotation_logits, key, temperature=0.01)
-        
+
         overlap_val = float(OverlapLoss()(positions, rotations, context).value)
         boundary_val = float(BoundaryLoss()(positions, rotations, context).value)
-        
+
         results.append({
             "seed": seed,
             "loss": float(res.final_loss),
@@ -90,17 +91,17 @@ def test_seed_robustness_ci():
     # Assert 100% convergence
     failed_seeds = [r["seed"] for r in results if not r["converged"]]
     assert len(failed_seeds) == 0, f"Seeds failed to converge: {failed_seeds}"
-    
+
     # Check mean violations
     mean_overlap = np.mean([r["overlap"] for r in results])
     mean_boundary = np.mean([r["boundary"] for r in results])
-    
+
     assert mean_overlap < 0.1, f"Mean overlap {mean_overlap:.4f} exceeds 0.1"
     assert mean_boundary < 0.1, f"Mean boundary {mean_boundary:.4f} exceeds 0.1"
-    
+
     # Check CV of final loss
     losses = [r["loss"] for r in results]
     cv = np.std(losses) / np.mean(losses)
     assert cv < 0.3, f"Loss CV {cv:.4f} exceeds 0.3"
-    
+
     print(f"Robustness CI passed! Mean overlap: {mean_overlap:.4f}, CV: {cv:.4f}")

@@ -26,17 +26,12 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 from .model import (
     BoardView,
     ComponentStatus,
-    ComponentView,
     ConstraintStatus,
     LossHistory,
-    Violation,
-    ViolationType,
-    VisualizationState,
 )
 
 logger = logging.getLogger(__name__)
@@ -79,13 +74,13 @@ class ReportConfig:
 class ValidationResults:
     """Container for validation results to include in report."""
 
-    drc_passed: Optional[bool] = None
-    drc_errors: Optional[List[str]] = None
-    drc_warnings: Optional[List[str]] = None
+    drc_passed: bool | None = None
+    drc_errors: list[str] | None = None
+    drc_warnings: list[str] | None = None
 
-    spice_passed: Optional[bool] = None
-    spice_errors: Optional[List[str]] = None
-    spice_warnings: Optional[List[str]] = None
+    spice_passed: bool | None = None
+    spice_errors: list[str] | None = None
+    spice_warnings: list[str] | None = None
 
     def __post_init__(self):
         if self.drc_errors is None:
@@ -100,11 +95,11 @@ class ValidationResults:
 
 def generate_report(
     board_view: BoardView,
-    loss_history: Optional[LossHistory] = None,
-    constraints: Optional[ConstraintStatus] = None,
-    validation: Optional[ValidationResults] = None,
-    config: Optional[ReportConfig] = None,
-    output_path: Optional[str] = None,
+    loss_history: LossHistory | None = None,
+    constraints: ConstraintStatus | None = None,
+    validation: ValidationResults | None = None,
+    config: ReportConfig | None = None,
+    output_path: str | None = None,
 ) -> str:
     """
     Generate an HTML report for placement optimization results.
@@ -188,8 +183,8 @@ def _generate_header(config: ReportConfig) -> str:
 
 def _generate_summary_section(
     board_view: BoardView,
-    loss_history: Optional[LossHistory],
-    constraints: Optional[ConstraintStatus],
+    loss_history: LossHistory | None,
+    constraints: ConstraintStatus | None,
 ) -> str:
     """Generate the summary statistics section."""
     n_components = len(board_view.components)
@@ -526,7 +521,7 @@ def _generate_footer() -> str:
     """
 
 
-def _wrap_in_html_document(sections: List[str], config: ReportConfig) -> str:
+def _wrap_in_html_document(sections: list[str], config: ReportConfig) -> str:
     """Wrap sections in a complete HTML document."""
     content = "\n".join(sections)
 

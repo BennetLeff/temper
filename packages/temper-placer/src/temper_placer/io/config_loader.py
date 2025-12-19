@@ -13,11 +13,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
-from temper_placer.core.board import Board, Zone, GroundDomain, LayerStackup
+from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
 
 
 @dataclass
@@ -35,8 +34,8 @@ class CriticalLoop:
     """Definition of a critical current loop to minimize."""
 
     name: str
-    nets: List[str]
-    max_area_mm2: Optional[float] = None
+    nets: list[str]
+    max_area_mm2: float | None = None
     weight: float = 1.0
     description: str = ""
 
@@ -59,10 +58,10 @@ class CriticalPath:
     name: str
     from_comp: str
     to_comp: str
-    pins: Optional[Tuple[str, str]] = None
+    pins: tuple[str, str] | None = None
     max_length_mm: float = 50.0
     priority: str = "normal"
-    matched_length_group: Optional[str] = None
+    matched_length_group: str | None = None
 
 
 @dataclass
@@ -93,8 +92,8 @@ class NoiseIsolationRule:
     """
 
     name: str
-    sensitive_components: List[str]
-    noise_sources: List[str]
+    sensitive_components: list[str]
+    noise_sources: list[str]
     min_distance_mm: float = 10.0
     weight: float = 1.0
 
@@ -103,7 +102,7 @@ class NoiseIsolationRule:
 class ThermalConstraint:
     """Thermal placement constraint for heat-generating components."""
 
-    components: List[str]  # Component refs
+    components: list[str]  # Component refs
     prefer_edge: bool = True  # Place near board edge
     min_spacing_mm: float = 5.0  # Minimum spacing between thermal components
     max_distance_from_edge_mm: float = 20.0
@@ -122,17 +121,17 @@ class ThermalProperties:
     """
 
     # High-power heat sources
-    high_power_components: List[str] = field(default_factory=list)
-    power_dissipation_w: Dict[str, float] = field(default_factory=dict)
+    high_power_components: list[str] = field(default_factory=list)
+    power_dissipation_w: dict[str, float] = field(default_factory=dict)
     min_separation_mm: float = 15.0  # Between high-power components
 
     # Heat-sensitive components (MCU, sensors)
-    heat_sensitive_components: List[str] = field(default_factory=list)
+    heat_sensitive_components: list[str] = field(default_factory=list)
     max_temp_rise_c: float = 20.0
     min_distance_from_heat_sources_mm: float = 20.0
 
     # Thermal pad components (for edge preference)
-    thermal_pad_components: List[str] = field(default_factory=list)
+    thermal_pad_components: list[str] = field(default_factory=list)
     prefer_edge: bool = True
     preferred_edge_margin_mm: float = 10.0
 
@@ -167,7 +166,7 @@ class AestheticConstraints:
     rotation_consistency_weight: float = 1.0
     # Alignment groups: components with same prefix should align
     align_by_prefix: bool = True
-    prefix_exceptions: List[str] = field(default_factory=list)
+    prefix_exceptions: list[str] = field(default_factory=list)
     # The maximum allowed wirelength increase for beauty (default 2.5x)
     max_wirelength_tax: float = 2.5
     # Enforcement of identical layouts for isomorphic groups
@@ -179,15 +178,15 @@ class ComponentGroup:
     """Group of components that should be placed together."""
 
     name: str
-    components: List[str]
+    components: list[str]
     max_spread_mm: float = 30.0  # Maximum diameter of group bounding box
-    zone: Optional[str] = None  # Required zone
-    proximity_rules: List[ProximityRule] = field(default_factory=list)  # Proximity within group
+    zone: str | None = None  # Required zone
+    proximity_rules: list[ProximityRule] = field(default_factory=list)  # Proximity within group
     description: str = ""
     # Optional ID to force identical internal layouts with other groups sharing this ID
-    template_group: Optional[str] = None
+    template_group: str | None = None
     # Optional pin number/name that defines the 'front' of the group for rotation
-    primary_pin: Optional[str] = None
+    primary_pin: str | None = None
 
 
 @dataclass
@@ -200,53 +199,53 @@ class PlacementConstraints:
     board_margin_mm: float = 3.0
 
     # Zones
-    zones: List[Zone] = field(default_factory=list)
-    ground_domains: List[GroundDomain] = field(default_factory=list)
+    zones: list[Zone] = field(default_factory=list)
+    ground_domains: list[GroundDomain] = field(default_factory=list)
 
     # Clearance rules
-    clearances: List[ClearanceRule] = field(default_factory=list)
+    clearances: list[ClearanceRule] = field(default_factory=list)
     hv_clearance_mm: float = 10.0  # Default HV-LV clearance
 
     # Aesthetics
     aesthetics: AestheticConstraints = field(default_factory=AestheticConstraints)
 
     # Critical loops (EMI-sensitive)
-    critical_loops: List[CriticalLoop] = field(default_factory=list)
+    critical_loops: list[CriticalLoop] = field(default_factory=list)
 
     # Critical paths (signal integrity)
-    critical_paths: List[CriticalPath] = field(default_factory=list)
+    critical_paths: list[CriticalPath] = field(default_factory=list)
 
     # Matched length groups
-    matched_length_groups: List[MatchedLengthGroup] = field(default_factory=list)
+    matched_length_groups: list[MatchedLengthGroup] = field(default_factory=list)
 
     # Noise isolation rules
-    noise_isolation: List[NoiseIsolationRule] = field(default_factory=list)
+    noise_isolation: list[NoiseIsolationRule] = field(default_factory=list)
 
     # Thermal constraints (basic)
-    thermal_constraints: List[ThermalConstraint] = field(default_factory=list)
+    thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
 
     # Extended thermal properties (advanced)
-    thermal_properties: Optional[ThermalProperties] = None
+    thermal_properties: ThermalProperties | None = None
 
     # Component groups
-    component_groups: List[ComponentGroup] = field(default_factory=list)
+    component_groups: list[ComponentGroup] = field(default_factory=list)
 
     # Group separation rules
-    group_separations: List[GroupSeparation] = field(default_factory=list)
+    group_separations: list[GroupSeparation] = field(default_factory=list)
 
     # Fixed components (won't be optimized)
-    fixed_components: List[str] = field(default_factory=list)
+    fixed_components: list[str] = field(default_factory=list)
 
     # Zone assignments (component -> zone)
-    zone_assignments: Dict[str, str] = field(default_factory=dict)
+    zone_assignments: dict[str, str] = field(default_factory=dict)
 
     # Net class assignments (net_name -> class)
-    net_classes: Dict[str, str] = field(default_factory=dict)
+    net_classes: dict[str, str] = field(default_factory=dict)
 
     # Layer stackup
-    layer_stackup: Optional[LayerStackup] = None
+    layer_stackup: LayerStackup | None = None
 
-    def get_zone_for_component(self, ref: str) -> Optional[str]:
+    def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
         return self.zone_assignments.get(ref)
 
@@ -257,9 +256,7 @@ class PlacementConstraints:
 
         # Default rules based on net name
         upper = net_name.upper()
-        if "GND" in upper or "VSS" in upper:
-            return "Power"
-        elif (
+        if "GND" in upper or "VSS" in upper or (
             "VCC" in upper or "VDD" in upper or "+3V3" in upper or "+5V" in upper or "+15V" in upper
         ):
             return "Power"
@@ -318,7 +315,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         zone: LV_ZONE
     ```
     """
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config = yaml.safe_load(f)
 
     constraints = PlacementConstraints()

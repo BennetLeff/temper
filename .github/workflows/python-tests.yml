@@ -34,7 +34,16 @@ jobs:
         run: uv sync --all-packages
       
       - name: Run temper-placer tests (core only for CI speed)
-        run: uv run pytest packages/temper-placer/tests/core/ -v --tb=short
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/core/ -v --tb=short
+      
+      - name: Run temper-workflow tests
+        working-directory: packages/temper-workflow
+        run: uv run pytest tests/ -v --tb=short
+      
+      - name: Run temper-tools tests
+        working-directory: packages/temper-tools
+        run: uv run pytest tests/ -v --tb=short
       
       - name: Lint with ruff
         run: uv run ruff check packages/
@@ -60,3 +69,11 @@ jobs:
       - name: Type check temper-placer
         run: uv run mypy packages/temper-placer/src --ignore-missing-imports
         continue-on-error: true  # Don't fail on type errors for now
+      
+      - name: Type check temper-workflow
+        run: uv run mypy packages/temper-workflow/src --ignore-missing-imports
+        continue-on-error: true
+      
+      - name: Type check temper-tools
+        run: uv run mypy packages/temper-tools/src --ignore-missing-imports
+        continue-on-error: true

@@ -13,19 +13,17 @@ from __future__ import annotations
 import gc
 import json
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import jax
-import jax.numpy as jnp
 import psutil
 
-from temper_placer.core.netlist import Netlist
 from temper_placer.core.board import Board
-from temper_placer.optimizer import train, OptimizerConfig, LearningRateSchedule
-from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
-from temper_placer.losses import OverlapLoss, BoundaryLoss, WirelengthLoss
+from temper_placer.core.netlist import Netlist
+from temper_placer.losses import BoundaryLoss, OverlapLoss, WirelengthLoss
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.optimizer import LearningRateSchedule, OptimizerConfig, train
 
 
 @dataclass
@@ -39,12 +37,12 @@ class MemoryProfile:
     gc_collections: int
     runtime_seconds: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict) -> MemoryProfile:
+    def from_dict(cls, data: dict) -> MemoryProfile:
         """Create from dictionary."""
         return cls(**data)
 
@@ -61,7 +59,7 @@ class MemoryProfile:
         return cls.from_dict(data)
 
     @classmethod
-    def save_report(cls, profiles: List[MemoryProfile], path: Path):
+    def save_report(cls, profiles: list[MemoryProfile], path: Path):
         """Save multiple profiles as report."""
         data = {
             "profiles": [p.to_dict() for p in profiles]
@@ -75,15 +73,15 @@ class ThresholdResult:
     """Result of threshold checking."""
 
     passed: bool
-    violations: List[str]
+    violations: list[str]
 
 
 def profile_optimizer_memory(
     n_components: int,
     epochs: int,
     seed: int = 42,
-    netlist: Optional[Netlist] = None,
-    board: Optional[Board] = None,
+    netlist: Netlist | None = None,
+    board: Board | None = None,
 ) -> MemoryProfile:
     """
     Profile memory usage of optimizer run.
@@ -217,7 +215,7 @@ def profile_optimizer_memory(
 
 def check_memory_thresholds(
     profile: MemoryProfile,
-    custom_thresholds: Optional[Dict[int, Dict[str, float]]] = None,
+    custom_thresholds: dict[int, dict[str, float]] | None = None,
 ) -> ThresholdResult:
     """
     Check if memory profile passes thresholds.

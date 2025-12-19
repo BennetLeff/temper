@@ -725,20 +725,20 @@ def train(
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 per_comp_boundary = loss_breakdown_arrays.get("boundary_per_component")
                 per_comp_group = loss_breakdown_arrays.get("group_cluster_per_component")
-                
+
                 if per_comp_overlap is not None or per_comp_boundary is not None or per_comp_group is not None:
                     # Initialize mask
                     violation_mask = jnp.zeros(state.overlap_weights.shape, dtype=jnp.bool_)
-                    
+
                     if per_comp_overlap is not None:
                         violation_mask = jnp.logical_or(violation_mask, per_comp_overlap > 0.1)
-                    
+
                     if per_comp_boundary is not None:
                         violation_mask = jnp.logical_or(violation_mask, per_comp_boundary > 0.1)
 
                     if per_comp_group is not None:
                         violation_mask = jnp.logical_or(violation_mask, per_comp_group > 0.1)
-                        
+
                     # Increment weight by 10% for any violation
                     state.overlap_weights = jnp.where(
                         violation_mask,
@@ -781,7 +781,7 @@ def train(
                     # Add non-differentiable penalties to total loss
                     loss_value += validation_result.drc_penalty
                     loss_value += validation_result.routing_penalty
-                    
+
                     # Check if validation failed and we should stop
                     if not validation_result.passed:
                         stopped_by_validation = True
@@ -912,7 +912,7 @@ def train_parallel(
     for i in range(n_seeds):
         # Create a new config with a different seed
         seed_config = dataclass_replace(config, seed=base_seed + i)
-        
+
         # Run training
         res = train(netlist, board, composite_loss, context, seed_config, callback=callback)
         results.append(res)
@@ -925,7 +925,7 @@ def train_parallel(
     # Or just looking at the wirelength component of the best result vs the average.
     best_wl = best_result.history[-1].loss_breakdown.get("wirelength", 0.0)
     avg_wl = jnp.mean(jnp.array([r.history[-1].loss_breakdown.get("wirelength", 0.0) for r in results]))
-    
+
     # Aesthetic tax is best_wl / minimal_achieved_wl
     min_wl = min([r.history[-1].loss_breakdown.get("wirelength", 1e9) for r in results])
     aesthetic_tax = (best_wl / jnp.maximum(min_wl, 1e-6)) if min_wl > 0 else 1.0
@@ -1042,7 +1042,7 @@ def train_multiphase(
                 if phase.start_epoch <= epoch < phase.end_epoch:
                     new_phase_idx = i
                     break
-            
+
             # Special case: if we aren't in any phase, use default weights or the first phase
             if new_phase_idx == -1 and config.curriculum_phases:
                 new_phase_idx = 0
@@ -1185,7 +1185,7 @@ def train_multiphase(
                     # Add non-differentiable penalties to total loss
                     loss_value += validation_result.drc_penalty
                     loss_value += validation_result.routing_penalty
-                    
+
                     # Check if validation failed and we should stop
                     if not validation_result.passed:
                         stopped_by_validation = True

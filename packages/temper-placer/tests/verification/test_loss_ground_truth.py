@@ -16,15 +16,11 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import pytest
-from jax import Array
 
-from temper_placer.losses.overlap import compute_overlap_penalty
 from temper_placer.losses.boundary import compute_boundary_penalty
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.losses.thermal import compute_edge_distance, compute_thermal_penalty
 from temper_placer.losses.loop_area import compute_loop_area_penalty
-from temper_placer.losses.base import LossContext, ThermalConstraint
-
+from temper_placer.losses.overlap import compute_overlap_penalty
+from temper_placer.losses.thermal import compute_edge_distance
 
 # =============================================================================
 # Overlap Loss Ground Truth Tests

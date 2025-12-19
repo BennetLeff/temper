@@ -5,17 +5,14 @@ Tests the Checkpoint dataclass, CheckpointManager, and save/load functionality.
 """
 
 import tempfile
-from pathlib import Path
 
 import jax
 import jax.numpy as jnp
-import pytest
 
 from temper_placer.optimizer.checkpoint import (
     Checkpoint,
     CheckpointManager,
     create_checkpoint_from_training_state,
-    restore_training_state_from_checkpoint,
 )
 from temper_placer.optimizer.config import CheckpointConfig
 from temper_placer.optimizer.validation_callback import ValidationResult
@@ -285,7 +282,7 @@ class TestCreateCheckpointFromTrainingState:
     def test_create_from_training_state(self):
         """Test creating checkpoint from training state object."""
         from dataclasses import dataclass
-        from typing import Any, Optional
+        from typing import Any
 
         import jax.numpy as jnp
         from jax import Array
@@ -300,8 +297,8 @@ class TestCreateCheckpointFromTrainingState:
             rng_key: Array
             epoch: int = 0
             best_loss: float = float("inf")
-            best_positions: Optional[Array] = None
-            best_rotations: Optional[Array] = None
+            best_positions: Array | None = None
+            best_rotations: Array | None = None
 
         # Create mock training state
         state = MockTrainingState(

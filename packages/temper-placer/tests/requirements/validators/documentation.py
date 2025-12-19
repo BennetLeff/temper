@@ -5,9 +5,7 @@ This module provides validation functions for BOM, CPL, Gerber files, and DNP co
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Optional, Set, Tuple
 from enum import Enum
-import re
 
 
 class GerberLayerType(Enum):
@@ -68,17 +66,17 @@ class DocumentationValidationResult:
     """Result of documentation validation."""
 
     valid: bool
-    errors: List[str]
-    warnings: List[str]
-    missing_components: Set[str]
-    extra_components: Set[str]
-    coordinate_mismatches: List[Tuple[str, str]]  # (designator, reason)
-    missing_layers: List[GerberLayerType]
-    dnp_inconsistencies: List[Tuple[str, str]]  # (designator, reason)
+    errors: list[str]
+    warnings: list[str]
+    missing_components: set[str]
+    extra_components: set[str]
+    coordinate_mismatches: list[tuple[str, str]]  # (designator, reason)
+    missing_layers: list[GerberLayerType]
+    dnp_inconsistencies: list[tuple[str, str]]  # (designator, reason)
 
 
 def validate_bom_completeness(
-    bom: List[BOMEntry], netlist_refs: Set[str]
+    bom: list[BOMEntry], netlist_refs: set[str]
 ) -> DocumentationValidationResult:
     """
     Validate that all components in netlist are in BOM and vice versa.
@@ -145,7 +143,7 @@ def validate_bom_completeness(
 
 
 def validate_cpl_coordinates(
-    cpl: List[CPLEntry], placement_positions: Dict[str, Tuple[float, float]]
+    cpl: list[CPLEntry], placement_positions: dict[str, tuple[float, float]]
 ) -> DocumentationValidationResult:
     """
     Validate CPL coordinates match actual component placement.
@@ -213,7 +211,7 @@ def validate_cpl_coordinates(
     )
 
 
-def validate_gerber_layers(gerbers: List[GerberLayer]) -> DocumentationValidationResult:
+def validate_gerber_layers(gerbers: list[GerberLayer]) -> DocumentationValidationResult:
     """
     Validate that all required Gerber layers are present.
 
@@ -280,7 +278,7 @@ def validate_gerber_layers(gerbers: List[GerberLayer]) -> DocumentationValidatio
 
 
 def check_dnp_consistency(
-    bom: List[BOMEntry], cpl: List[CPLEntry]
+    bom: list[BOMEntry], cpl: list[CPLEntry]
 ) -> DocumentationValidationResult:
     """
     Check that DNP (Do Not Populate) flags are consistent between BOM and CPL.

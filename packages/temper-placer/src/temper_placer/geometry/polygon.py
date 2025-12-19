@@ -15,11 +15,10 @@ Key algorithms:
 - Convex hull for component bounding
 """
 
-import jax.numpy as jnp
-import jax
-from jax import Array
-from typing import Tuple, Optional
 
+import jax
+import jax.numpy as jnp
+from jax import Array
 
 # =============================================================================
 # Polygon Area (Shoelace Formula)
@@ -382,7 +381,7 @@ def loop_area_penalty(
 # =============================================================================
 
 
-def polygon_bounding_box(vertices: Array) -> Tuple[Array, Array]:
+def polygon_bounding_box(vertices: Array) -> tuple[Array, Array]:
     """
     Compute axis-aligned bounding box of a polygon.
 
@@ -397,7 +396,7 @@ def polygon_bounding_box(vertices: Array) -> Tuple[Array, Array]:
     return min_corner, max_corner
 
 
-def polygon_bounding_circle(vertices: Array) -> Tuple[Array, Array]:
+def polygon_bounding_circle(vertices: Array) -> tuple[Array, Array]:
     """
     Compute approximate bounding circle of a polygon.
 
@@ -483,7 +482,7 @@ def translate_polygon(vertices: Array, offset: Array) -> Array:
     return vertices + offset
 
 
-def scale_polygon(vertices: Array, scale: float, center: Optional[Array] = None) -> Array:
+def scale_polygon(vertices: Array, scale: float, center: Array | None = None) -> Array:
     """
     Scale a polygon around a center point.
 
@@ -504,7 +503,7 @@ def scale_polygon(vertices: Array, scale: float, center: Optional[Array] = None)
 def rotate_polygon(
     vertices: Array,
     angle: float,
-    center: Optional[Array] = None,
+    center: Array | None = None,
 ) -> Array:
     """
     Rotate a polygon around a center point.

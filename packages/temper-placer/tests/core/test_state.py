@@ -2,13 +2,12 @@
 
 import jax
 import jax.numpy as jnp
-import pytest
 
 from temper_placer.core.state import (
     PlacementState,
-    sample_rotation,
-    rotation_matrix,
     rotate_points,
+    rotation_matrix,
+    sample_rotation,
 )
 
 

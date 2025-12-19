@@ -8,23 +8,23 @@ of components using graph community detection algorithms (Louvain).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Set, Tuple
 
-import networkx as nx
 import community as community_louvain
+import networkx as nx
 import numpy as np
 
-from temper_placer.core.netlist import Netlist, Component
+from temper_placer.core.netlist import Netlist
 from temper_placer.optimizer.initialization import build_adjacency_matrix
+
 
 @dataclass
 class Community:
     """A detected functional cluster of components."""
     name: str
-    component_refs: List[str]
+    component_refs: list[str]
     modularity_score: float
 
-def detect_communities(netlist: Netlist) -> List[Community]:
+def detect_communities(netlist: Netlist) -> list[Community]:
     """
     Detect functional communities in the netlist using the Louvain algorithm.
 
@@ -44,24 +44,24 @@ def detect_communities(netlist: Netlist) -> List[Community]:
 
     # 2. Create NetworkX graph
     G = nx.from_numpy_array(adj_np)
-    
+
     # Map node indices back to component references
     idx_to_ref = {i: comp.ref for i, comp in enumerate(netlist.components)}
-    
+
     # 3. Apply Louvain algorithm for community detection
     # partition is a dict: {node_idx: community_id}
     partition = community_louvain.best_partition(G, weight='weight', random_state=42)
-    
+
     # 4. Group by community ID
-    community_groups: Dict[int, List[str]] = {}
+    community_groups: dict[int, list[str]] = {}
     for node_idx, comm_id in partition.items():
         if comm_id not in community_groups:
             community_groups[comm_id] = []
         community_groups[comm_id].append(idx_to_ref[node_idx])
-        
+
     # 5. Compute modularity score
     modularity = community_louvain.modularity(partition, G, weight='weight')
-    
+
     # 6. Create Community objects
     communities = []
     for comm_id, refs in community_groups.items():
@@ -72,15 +72,15 @@ def detect_communities(netlist: Netlist) -> List[Community]:
                 component_refs=refs,
                 modularity_score=modularity
             ))
-            
+
     return communities
 
-def get_community_component_indices(netlist: Netlist, community: Community) -> List[int]:
+def get_community_component_indices(netlist: Netlist, community: Community) -> list[int]:
     """Resolve component references in a community to netlist indices."""
     return [netlist.get_component_index(ref) for ref in community.component_refs]
 
 
-def partition_netlist_min_cut(netlist: Netlist, n_parts: int = 2) -> List[List[int]]:
+def partition_netlist_min_cut(netlist: Netlist, n_parts: int = 2) -> list[list[int]]:
     """
     Partition the netlist into n_parts using recursive min-cut bisection.
 

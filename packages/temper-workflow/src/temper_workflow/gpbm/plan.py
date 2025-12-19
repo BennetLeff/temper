@@ -20,13 +20,12 @@ Usage:
 """
 
 import json
+import re
 import subprocess
 import sys
-import re
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -37,12 +36,12 @@ class PlannedTask:
     description: str = ""
     task_type: str = "task"  # task, bug, feature, epic
     priority: int = 2  # 0-4
-    labels: List[str] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)  # Task titles to depend on
-    requirements: List[str] = field(default_factory=list)  # REQ-* IDs to link
-    measurement_targets: List[Dict[str, str]] = field(default_factory=list)
+    labels: list[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)  # Task titles to depend on
+    requirements: list[str] = field(default_factory=list)  # REQ-* IDs to link
+    measurement_targets: list[dict[str, str]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "title": self.title,
             "description": self.description,
@@ -61,12 +60,12 @@ class Plan:
 
     epic_title: str
     epic_description: str
-    tasks: List[PlannedTask]
-    domain: Optional[str] = None
-    role: Optional[str] = None
+    tasks: list[PlannedTask]
+    domain: str | None = None
+    role: str | None = None
     requires_approval: bool = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "epic": {
                 "title": self.epic_title,
@@ -139,7 +138,7 @@ class Plan:
                 "",
                 "To approve this plan and create the tasks, run:",
                 "```bash",
-                f"python plan.py --execute plan.json",
+                "python plan.py --execute plan.json",
                 "```",
                 "",
                 "Or review and modify `plan.json` before executing.",
@@ -152,7 +151,7 @@ class Plan:
 class PlanPhase:
     """PLAN phase implementation."""
 
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or self._find_project_root()
 
     def _find_project_root(self) -> Path:
@@ -163,7 +162,7 @@ class PlanPhase:
                 return parent
         return cwd
 
-    def _run_bd(self, args: List[str]) -> Tuple[bool, str, str]:
+    def _run_bd(self, args: list[str]) -> tuple[bool, str, str]:
         """Run bd command and return (success, stdout, stderr)."""
         try:
             result = subprocess.run(
@@ -186,8 +185,8 @@ class PlanPhase:
         title: str,
         description: str,
         priority: int = 1,
-        labels: Optional[List[str]] = None,
-    ) -> Optional[str]:
+        labels: list[str] | None = None,
+    ) -> str | None:
         """Create an epic in bd.
 
         Returns:
@@ -225,8 +224,8 @@ class PlanPhase:
         return None
 
     def create_task(
-        self, task: PlannedTask, parent_id: Optional[str] = None
-    ) -> Optional[str]:
+        self, task: PlannedTask, parent_id: str | None = None
+    ) -> str | None:
         """Create a task in bd.
 
         Returns:
@@ -289,7 +288,7 @@ class PlanPhase:
 
         return success
 
-    def create_approval_task(self, epic_id: str, plan_title: str) -> Optional[str]:
+    def create_approval_task(self, epic_id: str, plan_title: str) -> str | None:
         """Create a human approval task that blocks the epic's tasks."""
         task = PlannedTask(
             title=f"[APPROVAL] Review and approve: {plan_title}",
@@ -318,7 +317,7 @@ _This is a GPBM approval gate task._
 
         return self.create_task(task, parent_id=epic_id)
 
-    def execute_plan(self, plan: Plan, dry_run: bool = False) -> Dict[str, Any]:
+    def execute_plan(self, plan: Plan, dry_run: bool = False) -> dict[str, Any]:
         """Execute a plan by creating epic and tasks in bd.
 
         Args:
@@ -385,7 +384,7 @@ _This is a GPBM approval gate task._
                 task_id_map[task.title] = task_id
                 print(f"  Created: {task_id}")
             else:
-                print(f"  Failed to create task")
+                print("  Failed to create task")
 
         # Add dependencies between tasks
         for task in plan.tasks:
@@ -418,7 +417,7 @@ _This is a GPBM approval gate task._
 
     def suggest_tasks_from_context(
         self, context_file: Path, goal: str
-    ) -> List[PlannedTask]:
+    ) -> list[PlannedTask]:
         """Suggest tasks based on gathered context.
 
         This is a simple heuristic-based suggestion.
@@ -546,13 +545,13 @@ def main():
 Examples:
   # Create plan from goal (interactive)
   python plan.py --goal "Implement PID improvements" --domain firmware
-  
+
   # Create plan from context file
   python plan.py --context context.md --epic "PID Improvements"
-  
+
   # Execute a saved plan
   python plan.py --execute plan.json
-  
+
   # Dry run (preview without creating)
   python plan.py --goal "Fix bug" --dry-run
 """,
@@ -656,7 +655,7 @@ Examples:
         print(plan.to_markdown())
         print("\n" + "=" * 50)
         print("To execute this plan, save it and run:")
-        print(f"  python plan.py --execute plan.json")
+        print("  python plan.py --execute plan.json")
         print("\nOr pipe directly:")
         print(
             f"  python plan.py --goal '{args.goal}' --output plan.json && python plan.py --execute plan.json"

@@ -6,8 +6,6 @@ per REQ-SAFE-03 for proper warning symbols, polarity indicators, and identificat
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
-import re
 
 
 @dataclass
@@ -17,10 +15,10 @@ class MarkingViolation:
     component_ref: str
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"  # error, warning
-    required_symbol: Optional[str] = None
-    found_symbols: Optional[List[str]] = None
+    required_symbol: str | None = None
+    found_symbols: list[str] | None = None
 
 
 @dataclass
@@ -28,7 +26,7 @@ class MarkingResult:
     """Result of safety marking validation."""
 
     passed: bool
-    violations: List[MarkingViolation]
+    violations: list[MarkingViolation]
 
     @property
     def error_count(self) -> int:
@@ -40,8 +38,8 @@ class MarkingResult:
 
 
 def check_hv_warning_present(
-    silkscreen_text: List[str],
-    hv_zone: Tuple[float, float, float, float],  # (x, y, width, height)
+    silkscreen_text: list[str],
+    hv_zone: tuple[float, float, float, float],  # (x, y, width, height)
     min_height_mm: float = 10.0,
 ) -> MarkingResult:
     """
@@ -63,8 +61,8 @@ def check_hv_warning_present(
 
 
 def check_pe_symbol_present(
-    silkscreen_text: List[str],
-    pe_connection: Tuple[float, float],
+    silkscreen_text: list[str],
+    pe_connection: tuple[float, float],
     min_height_mm: float = 5.0,
 ) -> MarkingResult:
     """
@@ -85,8 +83,8 @@ def check_pe_symbol_present(
 
 
 def check_isolation_barrier_marked(
-    silkscreen_text: List[str],
-    barriers: List[Tuple[float, float, float, float]],  # [(x, y, width, height)]
+    silkscreen_text: list[str],
+    barriers: list[tuple[float, float, float, float]],  # [(x, y, width, height)]
 ) -> MarkingResult:
     """
     Check that isolation barriers are properly marked.
@@ -105,8 +103,8 @@ def check_isolation_barrier_marked(
 
 
 def check_polarity_markings(
-    silkscreen_text: List[str],
-    polarized_components: List[str],  # ["C1", "C2", "D1", "D2"]
+    silkscreen_text: list[str],
+    polarized_components: list[str],  # ["C1", "C2", "D1", "D2"]
 ) -> MarkingResult:
     """
     Check that polarized components have polarity markings.
@@ -125,9 +123,9 @@ def check_polarity_markings(
 
 
 def check_pin1_indicators(
-    silkscreen_text: List[str],
-    ics: List[str],  # ["U1", "U2", "U3"]
-    connectors: List[str],  # ["J1", "J2", "J3"]
+    silkscreen_text: list[str],
+    ics: list[str],  # ["U1", "U2", "U3"]
+    connectors: list[str],  # ["J1", "J2", "J3"]
 ) -> MarkingResult:
     """
     Check that all ICs and connectors have pin 1 indicators.
@@ -147,7 +145,7 @@ def check_pin1_indicators(
 
 
 def check_silkscreen_legibility(
-    silkscreen_text: List[Tuple[str, float, float, float]],  # [(text, x, y, height_mm)]
+    silkscreen_text: list[tuple[str, float, float, float]],  # [(text, x, y, height_mm)]
     min_height_mm: float = 1.0,
     min_line_width_mm: float = 0.15,
 ) -> MarkingResult:
@@ -171,8 +169,8 @@ def check_silkscreen_legibility(
 
 
 def check_component_identification(
-    silkscreen_text: List[str],
-    component_refs: List[str],
+    silkscreen_text: list[str],
+    component_refs: list[str],
 ) -> MarkingResult:
     """
     Check that all components have reference designators on silkscreen.
@@ -191,8 +189,8 @@ def check_component_identification(
 
 
 def check_safety_symbol_compliance(
-    silkscreen_text: List[str],
-    required_symbols: Dict[str, str],  # {"HV_WARNING": "IEC60417-5036", ...}
+    silkscreen_text: list[str],
+    required_symbols: dict[str, str],  # {"HV_WARNING": "IEC60417-5036", ...}
 ) -> MarkingResult:
     """
     Check that required safety symbols are present and compliant.

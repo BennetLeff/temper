@@ -1,9 +1,9 @@
 import jax
 import jax.numpy as jnp
 import pytest
+
+from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.losses.return_path import create_return_path_loss
-from temper_placer.core.netlist import Netlist, Component, Pin, Net
-from temper_placer.losses.base import LossContext
 
 
 @pytest.fixture

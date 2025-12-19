@@ -8,7 +8,7 @@ enabling automated testing without hand-crafting constraints for each board.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import yaml
 
@@ -20,11 +20,11 @@ except ImportError:
 
 
 def generate_constraints(
-    parse_result: "ParseResult",
+    parse_result: ParseResult,
     margin_mm: float = 2.0,
     power_net_weight: float = 0.5,
     signal_net_weight: float = 1.5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate placement constraints from a parsed PCB.
 
@@ -44,7 +44,7 @@ def generate_constraints(
     netlist = parse_result.netlist
 
     # Basic board constraints
-    constraints: Dict[str, Any] = {
+    constraints: dict[str, Any] = {
         "board": {
             "width_mm": round(board.width, 2),
             "height_mm": round(board.height, 2),
@@ -74,14 +74,14 @@ def generate_constraints(
     return constraints
 
 
-def _generate_component_groups(netlist) -> List[Dict[str, Any]]:
+def _generate_component_groups(netlist) -> list[dict[str, Any]]:
     """
     Generate component groups based on reference designator prefixes.
 
     Groups components like R1, R2, R3 into "resistors" group, etc.
     """
     # Categorize components by prefix
-    prefix_map: Dict[str, List[str]] = {}
+    prefix_map: dict[str, list[str]] = {}
 
     for comp in netlist.components:
         ref = comp.ref
@@ -140,7 +140,7 @@ def _generate_net_weights(
     netlist,
     power_weight: float,
     signal_weight: float,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Generate net weights based on net names.
 
@@ -196,7 +196,7 @@ def _generate_net_weights(
 
 
 def save_constraints(
-    constraints: Dict[str, Any],
+    constraints: dict[str, Any],
     output_path: Path,
 ) -> None:
     """
@@ -220,8 +220,8 @@ def save_constraints(
 
 def generate_constraints_for_project(
     project_name: str,
-    output_dir: Optional[Path] = None,
-) -> Optional[Path]:
+    output_dir: Path | None = None,
+) -> Path | None:
     """
     Generate and save constraints for a downloaded external PCB project.
 
@@ -232,8 +232,9 @@ def generate_constraints_for_project(
     Returns:
         Path to generated constraints file, or None if failed
     """
-    from .download_pcbs import get_cached_pcb_path, get_project_config
     from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+    from .download_pcbs import get_cached_pcb_path, get_project_config
 
     # Check project exists and is KiCad 6+
     config = get_project_config(project_name)
@@ -278,7 +279,6 @@ def generate_constraints_for_project(
 
 
 if __name__ == "__main__":
-    import sys
 
     # Generate constraints for all downloaded projects
     from .download_pcbs import load_manifest

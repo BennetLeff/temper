@@ -5,13 +5,13 @@ Unit tests for PowerPathLoss.
 import jax
 import jax.numpy as jnp
 import pytest
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.power_path import (
     HighCurrentPathConfig,
     SwitchingLoopConfig,
-    PowerPathLoss,
     create_power_path_loss,
 )
 

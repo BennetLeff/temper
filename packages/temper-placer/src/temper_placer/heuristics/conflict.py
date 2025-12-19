@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
 
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
 
@@ -71,8 +70,8 @@ class ConflictResolver:
         """
         self.strategy = strategy
         self.min_spacing_mm = min_spacing_mm
-        self.placements: Dict[str, ComponentPlacement] = {}
-        self.conflicts: List[Conflict] = []
+        self.placements: dict[str, ComponentPlacement] = {}
+        self.conflicts: list[Conflict] = []
 
     def add_placement(self, placement: ComponentPlacement) -> None:
         """
@@ -82,7 +81,7 @@ class ConflictResolver:
         """
         self.placements[placement.ref] = placement
 
-    def add_placements(self, placements: Dict[str, ComponentPlacement]) -> None:
+    def add_placements(self, placements: dict[str, ComponentPlacement]) -> None:
         """Add multiple placements."""
         for placement in placements.values():
             self.add_placement(placement)
@@ -93,7 +92,7 @@ class ConflictResolver:
         width: float,
         height: float,
         context: PlacementContext,
-    ) -> Optional[Tuple[str, float]]:
+    ) -> tuple[str, float] | None:
         """
         Check if a placement conflicts with existing placements.
 
@@ -136,7 +135,7 @@ class ConflictResolver:
         width: float,
         height: float,
         context: PlacementContext,
-    ) -> Tuple[Optional[ComponentPlacement], Optional[Conflict]]:
+    ) -> tuple[ComponentPlacement | None, Conflict | None]:
         """
         Resolve a placement against existing placements.
 
@@ -214,7 +213,7 @@ class ConflictResolver:
         context: PlacementContext,
         conflicting_ref: str,
         overlap_mm: float,
-    ) -> Tuple[Optional[ComponentPlacement], Optional[Conflict]]:
+    ) -> tuple[ComponentPlacement | None, Conflict | None]:
         """
         Try to nudge a placement to avoid overlap.
 
@@ -309,7 +308,7 @@ class ConflictResolver:
         self.conflicts.append(conflict)
         return (None, conflict)
 
-    def get_all_conflicts(self) -> List[Conflict]:
+    def get_all_conflicts(self) -> list[Conflict]:
         """Get all conflicts that have been recorded."""
         return self.conflicts.copy()
 

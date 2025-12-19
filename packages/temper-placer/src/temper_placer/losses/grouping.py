@@ -17,14 +17,13 @@ Functional grouping encodes expert PCB design knowledge:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
 from jax import Array
 
-from temper_placer.losses.base import LossContext, LossFunction, LossResult
 from temper_placer.core.netlist import Netlist, build_adjacency_matrix
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 
 @dataclass
@@ -65,7 +64,7 @@ class GroupClusterLoss(LossFunction):
 
     def __init__(
         self,
-        groups: List[GroupConfig],
+        groups: list[GroupConfig],
         anneal_start: float = 0.3,
     ):
         """
@@ -103,8 +102,8 @@ class GroupClusterLoss(LossFunction):
         """
         n = positions.shape[0]
         total_penalty = jnp.array(0.0)
-        breakdown: Dict[str, Array] = {}
-        
+        breakdown: dict[str, Array] = {}
+
         # Track per-component breakdown for adaptive weighting
         per_component_penalty = jnp.zeros(n)
 
@@ -127,14 +126,14 @@ class GroupClusterLoss(LossFunction):
             total_penalty = total_penalty + penalty
             breakdown[f"group_{group.name}_diameter"] = group_diameter
             breakdown[f"group_{group.name}_penalty"] = penalty
-            
+
             # Attribute penalty to all components in the group
             # Use jax.lax.scatter or just indexing if safe
             # For simplicity in loop, we'll do this:
             per_component_penalty = per_component_penalty.at[group.component_indices].add(penalty / n_in_group)
 
         return LossResult(
-            value=total_penalty, 
+            value=total_penalty,
             breakdown={
                 **breakdown,
                 "per_component": per_component_penalty
@@ -148,13 +147,13 @@ class GroupClusterLoss(LossFunction):
         # Ensure total_epochs is at least 1 to avoid division by zero
         total_epochs_safe = jnp.maximum(total_epochs, 1)
         progress = epoch / total_epochs_safe
-        
+
         # Quadratic ramp for smooth introduction: (progress - start) / (1 - start)
         # We use maximum(..., 1e-6) to avoid division by zero if anneal_start is 1.0
         denom = jnp.maximum(1.0 - self.anneal_start, 1e-6)
         ramp = (progress - self.anneal_start) / denom
         ramp_val = jnp.clip(ramp**2, 0.0, 1.0)
-        
+
         # Use jnp.where for conditional logic to be JIT-compatible
         return jnp.where(progress < self.anneal_start, 0.0, ramp_val)
 
@@ -196,7 +195,7 @@ class ProximityLoss(LossFunction):
 
     def __init__(
         self,
-        proximity_rules: List[ProximityRule],
+        proximity_rules: list[ProximityRule],
     ):
         """
         Initialize ProximityLoss.
@@ -283,7 +282,7 @@ class GroupSeparationLoss(LossFunction):
 
     def __init__(
         self,
-        separations: List[Tuple[GroupConfig, GroupConfig, float]],
+        separations: list[tuple[GroupConfig, GroupConfig, float]],
         use_min_distance: bool = False,
     ):
         """
@@ -324,7 +323,7 @@ class GroupSeparationLoss(LossFunction):
             return LossResult(value=jnp.array(0.0))
 
         total_penalty = jnp.array(0.0)
-        breakdown: Dict[str, Array] = {}
+        breakdown: dict[str, Array] = {}
 
         for i, (group_a, group_b, min_dist) in enumerate(self.separations):
             if self.use_min_distance:
@@ -397,7 +396,7 @@ class SymmetryLoss(LossFunction):
     ideally have the same relative spacing and orientation.
     """
 
-    def __init__(self, isomorphic_pairs: List[Tuple[int, int, int, int]]):
+    def __init__(self, isomorphic_pairs: list[tuple[int, int, int, int]]):
         """
         Initialize SymmetryLoss.
 
@@ -441,7 +440,7 @@ class SymmetryLoss(LossFunction):
         return LossResult(value=penalty)
 
 
-def find_isomorphic_pairs(netlist: Netlist) -> List[Tuple[int, int, int, int]]:
+def find_isomorphic_pairs(netlist: Netlist) -> list[tuple[int, int, int, int]]:
     """
     Identify pairs of connections that are topologically identical.
     
@@ -451,17 +450,17 @@ def find_isomorphic_pairs(netlist: Netlist) -> List[Tuple[int, int, int, int]]:
     groups = netlist.find_isomorphic_groups(iterations=2)
     if not groups:
         return []
-        
+
     # Build component -> group mapping
     comp_to_group = {}
     for i, group in enumerate(groups):
         for idx in group:
             comp_to_group[idx] = i
-            
+
     # 2. Find connections (edges) between groups
     adj = build_adjacency_matrix(netlist)
     n = netlist.n_components
-    
+
     edges = []
     for i in range(n):
         for j in range(i + 1, n):
@@ -471,16 +470,16 @@ def find_isomorphic_pairs(netlist: Netlist) -> List[Tuple[int, int, int, int]]:
                 if i in comp_to_group and j in comp_to_group:
                     # Store as (group_i, group_j, i, j)
                     edges.append((comp_to_group[i], comp_to_group[j], i, j))
-                    
+
     # 3. Match edges that connect the SAME groups
     # e.g. edge (R1, C1) and (R2, C2) both connect Group(R) and Group(C)
-    edge_types: Dict[Tuple[int, int], List[Tuple[int, int]]] = {}
+    edge_types: dict[tuple[int, int], list[tuple[int, int]]] = {}
     for gi, gj, i, j in edges:
         key = tuple(sorted((gi, gj)))
         if key not in edge_types:
             edge_types[key] = []
         edge_types[key].append((i, j))
-        
+
     # 4. Create isomorphic pairs from identical edge types
     isomorphic_pairs = []
     for members in edge_types.values():
@@ -490,25 +489,25 @@ def find_isomorphic_pairs(netlist: Netlist) -> List[Tuple[int, int, int, int]]:
             for k in range(len(members) - 1):
                 a1, b1 = members[k]
                 a2, b2 = members[k+1]
-                # Ensure consistent ordering? 
+                # Ensure consistent ordering?
                 # (Need to make sure a1 corresponds to a2)
                 # We can check footprints
                 if netlist.components[a1].footprint != netlist.components[a2].footprint:
                     # Swap
                     a2, b2 = b2, a2
                 isomorphic_pairs.append((a1, b1, a2, b2))
-                
+
     return isomorphic_pairs
 
 
 def create_grouping_losses_from_constraints(
     constraints,  # PlacementConstraints
     netlist,  # Netlist
-) -> Tuple[
-    Optional[GroupClusterLoss],
-    Optional[ProximityLoss],
-    Optional[GroupSeparationLoss],
-    Optional[SymmetryLoss],
+) -> tuple[
+    GroupClusterLoss | None,
+    ProximityLoss | None,
+    GroupSeparationLoss | None,
+    SymmetryLoss | None,
 ]:
     """
     Create grouping loss functions from PlacementConstraints.
@@ -522,8 +521,8 @@ def create_grouping_losses_from_constraints(
         Any may be None if no constraints of that type exist.
     """
     # Build group configs
-    group_configs: Dict[str, GroupConfig] = {}
-    all_proximity_rules: List[ProximityRule] = []
+    group_configs: dict[str, GroupConfig] = {}
+    all_proximity_rules: list[ProximityRule] = []
 
     for group in constraints.component_groups:
         # Resolve component refs to indices
@@ -574,7 +573,7 @@ def create_grouping_losses_from_constraints(
 
     # Build group separation loss
     separation_loss = None
-    separations: List[Tuple[GroupConfig, GroupConfig, float]] = []
+    separations: list[tuple[GroupConfig, GroupConfig, float]] = []
 
     for sep in constraints.group_separations:
         if sep.group_a in group_configs and sep.group_b in group_configs:

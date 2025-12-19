@@ -13,12 +13,12 @@ Test categories:
 4. Distance functions (point-to-line, point-to-rect)
 """
 
-import pytest
 import math
-import jax.numpy as jnp
 
 # Enable 64-bit precision for accurate tests
 import jax
+import jax.numpy as jnp
+import pytest
 
 jax.config.update("jax_enable_x64", True)
 

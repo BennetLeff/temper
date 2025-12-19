@@ -1,18 +1,14 @@
 """Tests for ablation study statistical analysis."""
 
-import pytest
-import numpy as np
-from datetime import datetime
-from unittest.mock import Mock
 
-from temper_placer.ablation.config import ExperimentConfig
-from temper_placer.ablation.metrics import AggregatedMetrics, MetricAggregator
-from temper_placer.ablation.runner import ExperimentRun
+import pytest
+
 from temper_placer.ablation.analysis import (
+    AblationAnalyzer,
     ComponentImportance,
     SynergyPair,
-    AblationAnalyzer,
 )
+from temper_placer.ablation.metrics import AggregatedMetrics
 
 
 class TestComponentImportance:

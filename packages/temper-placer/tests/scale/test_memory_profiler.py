@@ -8,18 +8,14 @@ Tests cover:
 - Result formatting and export
 """
 
-import pytest
 import json
-from pathlib import Path
-import tempfile
 
+from temper_placer.fixtures.synthetic import generate_200_component_netlist
 from temper_placer.scale.memory_profiler import (
     MemoryProfile,
-    profile_optimizer_memory,
     check_memory_thresholds,
+    profile_optimizer_memory,
 )
-from temper_placer.fixtures.synthetic import generate_200_component_netlist
-
 
 # =============================================================================
 # MemoryProfile Tests

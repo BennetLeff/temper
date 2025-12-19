@@ -19,32 +19,30 @@ Note:
 
 from __future__ import annotations
 
-import pytest
 import jax
 import jax.numpy as jnp
-from pathlib import Path
-from typing import Dict, Any, Tuple
+import pytest
+
+from temper_placer.core.state import PlacementState
+
+# Import temper-placer modules
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.losses import (
+    BoundaryLoss,
+    CompositeLoss,
+    LossContext,
+    OverlapLoss,
+    WeightedLoss,
+    WirelengthLoss,
+)
+from temper_placer.optimizer import InitializationConfig, OptimizerConfig, train
+from temper_placer.optimizer.config import LearningRateSchedule
 
 # Import external fixture helpers
 from tests.fixtures.external import (
     get_pcb_path,
     is_pcb_available,
 )
-
-# Import temper-placer modules
-from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.core.state import PlacementState
-from temper_placer.losses import (
-    LossContext,
-    CompositeLoss,
-    WeightedLoss,
-    OverlapLoss,
-    BoundaryLoss,
-    WirelengthLoss,
-    SpreadLoss,
-)
-from temper_placer.optimizer import train, OptimizerConfig, InitializationConfig
-from temper_placer.optimizer.config import LearningRateSchedule
 
 # Projects to test against
 COMPARISON_PROJECTS = [
@@ -66,7 +64,7 @@ class TestGroundTruthComparison:
     """Compare optimizer results against human baselines."""
 
     @pytest.fixture(scope="class")
-    def human_baseline_metrics(self) -> Dict[str, Dict[str, float]]:
+    def human_baseline_metrics(self) -> dict[str, dict[str, float]]:
         """
         Calculate metrics for the original human placements.
         Returns a dict mapping project_name -> {metric_name: value}.
@@ -78,7 +76,7 @@ class TestGroundTruthComparison:
         # This is just a placeholder structure
         return metrics
 
-    def calculate_metrics(self, netlist, board, state) -> Dict[str, float]:
+    def calculate_metrics(self, netlist, board, state) -> dict[str, float]:
         """Calculate quality metrics for a given placement state."""
         # Create a context for loss calculation
         context = LossContext.from_netlist_and_board(netlist, board)

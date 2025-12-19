@@ -11,7 +11,6 @@ These tests verify the complete optimization pipeline:
 These are marked as slow since they run actual optimization.
 """
 
-import json
 import os
 import tempfile
 from pathlib import Path
@@ -21,7 +20,6 @@ import pytest
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
 import jax.numpy as jnp
-
 
 # Test data paths
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "kicad-tutorials-a"
@@ -124,15 +122,15 @@ class TestOptimization:
     def test_simple_optimization(self):
         """Test optimization with synthetic data."""
         from temper_placer.core.board import Board
-        from temper_placer.core.netlist import Component, Pin, Net, Netlist
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.core.netlist import Component, Net, Netlist, Pin
         from temper_placer.losses import (
-            CompositeLoss,
-            WeightedLoss,
-            OverlapLoss,
             BoundaryLoss,
+            CompositeLoss,
+            OverlapLoss,
+            WeightedLoss,
         )
         from temper_placer.losses.base import LossContext
+        from temper_placer.optimizer import OptimizerConfig, train
 
         # Create simple netlist
         components = [
@@ -196,20 +194,20 @@ class TestOptimization:
     @pytest.mark.skipif(not MOSFET_DRIVER_PCB.exists(), reason="Test PCB not found")
     def test_real_pcb_optimization(self):
         """Test optimization with a real PCB file (slow test)."""
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.io.config_loader import (
             PlacementConstraints,
             create_board_from_constraints,
         )
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.losses import (
-            CompositeLoss,
-            WeightedLoss,
-            OverlapLoss,
             BoundaryLoss,
+            CompositeLoss,
+            OverlapLoss,
+            WeightedLoss,
             WirelengthLoss,
         )
         from temper_placer.losses.base import LossContext
+        from temper_placer.optimizer import OptimizerConfig, train
 
         # Parse PCB
         result = parse_kicad_pcb(MOSFET_DRIVER_PCB)
@@ -249,9 +247,9 @@ class TestExport:
     @pytest.mark.skipif(not MOSFET_DRIVER_PCB.exists(), reason="Test PCB not found")
     def test_export_to_json(self):
         """Test exporting placements to JSON."""
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.kicad_writer import state_to_placements, placements_to_json
         from temper_placer.core.state import PlacementState
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.io.kicad_writer import placements_to_json, state_to_placements
 
         # Parse PCB to get component refs
         result = parse_kicad_pcb(MOSFET_DRIVER_PCB)
@@ -279,9 +277,9 @@ class TestExport:
     @pytest.mark.skipif(not MOSFET_DRIVER_PCB.exists(), reason="Test PCB not found")
     def test_export_to_pcb(self):
         """Test exporting placements back to KiCad PCB."""
+        from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.io.kicad_writer import export_placements
-        from temper_placer.core.state import PlacementState
 
         # Parse PCB
         result = parse_kicad_pcb(MOSFET_DRIVER_PCB)
@@ -316,21 +314,21 @@ class TestEndToEnd:
     @pytest.mark.skipif(not MOSFET_DRIVER_PCB.exists(), reason="Test PCB not found")
     def test_full_pipeline(self):
         """Test the complete optimization pipeline."""
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.io.config_loader import (
             PlacementConstraints,
             create_board_from_constraints,
         )
-        from temper_placer.io.kicad_writer import export_placements, validate_output_pcb
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.io.kicad_writer import export_placements
         from temper_placer.losses import (
-            CompositeLoss,
-            WeightedLoss,
-            OverlapLoss,
             BoundaryLoss,
+            CompositeLoss,
+            OverlapLoss,
+            WeightedLoss,
             WirelengthLoss,
         )
         from temper_placer.losses.base import LossContext
+        from temper_placer.optimizer import OptimizerConfig, train
 
         # Step 1: Parse PCB
         parse_result = parse_kicad_pcb(MOSFET_DRIVER_PCB)
@@ -401,6 +399,7 @@ class TestCLI:
     def test_cli_help(self):
         """Test CLI help output."""
         from click.testing import CliRunner
+
         from temper_placer.cli import main
 
         runner = CliRunner()
@@ -415,6 +414,7 @@ class TestCLI:
     def test_optimize_help(self):
         """Test optimize command help."""
         from click.testing import CliRunner
+
         from temper_placer.cli import main
 
         runner = CliRunner()
@@ -429,6 +429,7 @@ class TestCLI:
     def test_info_command(self):
         """Test info command with real PCB."""
         from click.testing import CliRunner
+
         from temper_placer.cli import main
 
         runner = CliRunner()

@@ -25,23 +25,21 @@ Run with: pytest tests/sensitivity/ -v --slow
 from __future__ import annotations
 
 import csv
-import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar, List, Optional
+from typing import ClassVar
 
 import numpy as np
 import pytest
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Netlist
 from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer import train, OptimizerConfig
-
+from temper_placer.optimizer import OptimizerConfig, train
 
 # Results directory
 RESULTS_DIR = Path(__file__).parent / "results"
@@ -132,9 +130,9 @@ def run_optimization_with_seed(
 
     # Get loss breakdown from final state
     # We need to re-evaluate to get individual components
-    from temper_placer.geometry.transform import sample_rotation_batch
-    import jax.numpy as jnp
     import jax
+
+    from temper_placer.geometry.transform import sample_rotation_batch
 
     positions = result.final_state.positions
     rotation_logits = result.final_state.rotation_logits
@@ -164,7 +162,7 @@ def run_optimization_with_seed(
     )
 
 
-def coefficient_of_variation(values: List[float]) -> float:
+def coefficient_of_variation(values: list[float]) -> float:
     """
     Calculate coefficient of variation (CV = std/mean).
 
@@ -177,7 +175,7 @@ def coefficient_of_variation(values: List[float]) -> float:
     return float(np.std(arr) / mean)
 
 
-def save_results_csv(results: List[SeedRunResult], filepath: Path) -> None:
+def save_results_csv(results: list[SeedRunResult], filepath: Path) -> None:
     """Save results to CSV file."""
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
@@ -215,7 +213,7 @@ class TestSeedSensitivity:
     """Tests for optimizer seed sensitivity."""
 
     # Class variable to store results between tests
-    _monte_carlo_results: ClassVar[Optional[List[SeedRunResult]]] = None
+    _monte_carlo_results: ClassVar[list[SeedRunResult] | None] = None
 
     @pytest.fixture(scope="class")
     def netlist_and_board(self):
@@ -235,7 +233,7 @@ class TestSeedSensitivity:
         """
         netlist, board = netlist_and_board
 
-        results: List[SeedRunResult] = []
+        results: list[SeedRunResult] = []
         n_seeds = 100
         epochs = 400
 
@@ -276,7 +274,7 @@ class TestSeedSensitivity:
         losses = [r.final_loss for r in results]
         cv = coefficient_of_variation(losses)
 
-        print(f"\nFinal loss statistics:")
+        print("\nFinal loss statistics:")
         print(f"  Mean: {np.mean(losses):.4f}")
         print(f"  Std:  {np.std(losses):.4f}")
         print(f"  CV:   {cv:.4f}")
@@ -315,7 +313,7 @@ class TestSeedSensitivity:
 
         pass_rate = sum(valid_placements) / len(valid_placements)
 
-        print(f"\nConvergence statistics:")
+        print("\nConvergence statistics:")
         print(f"  Valid placements: {sum(valid_placements)}/{len(valid_placements)}")
         print(f"  Pass rate: {pass_rate:.1%}")
 
@@ -357,7 +355,7 @@ class TestSeedSensitivity:
         mean_overlap = np.mean(overlaps)
         mean_boundary = np.mean(boundaries)
 
-        print(f"\nQuality metric statistics:")
+        print("\nQuality metric statistics:")
         print(f"  Overlap:    mean={mean_overlap:.4f}, CV={cv_overlap:.4f}")
         print(f"  Boundary:   mean={mean_boundary:.4f}, CV={cv_boundary:.4f}")
         print(f"  Wirelength: mean={np.mean(wirelengths):.4f}, CV={cv_wirelength:.4f}")

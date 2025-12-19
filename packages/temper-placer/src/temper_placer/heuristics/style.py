@@ -12,13 +12,11 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
 import jax.numpy as jnp
-from jax import Array
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Netlist
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -28,7 +26,6 @@ from temper_placer.heuristics.base import (
 )
 from temper_placer.io.config_loader import PlacementConstraints
 
-
 # =============================================================================
 # Star Ground Topology Heuristic (STYLE priority)
 # =============================================================================
@@ -37,7 +34,7 @@ from temper_placer.io.config_loader import PlacementConstraints
 def identify_ground_domains(
     netlist: Netlist,
     constraints: PlacementConstraints,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Identify which ground domain each component belongs to.
 
@@ -49,7 +46,7 @@ def identify_ground_domains(
     Returns:
         Dict mapping component ref to ground domain name
     """
-    domains: Dict[str, str] = {}
+    domains: dict[str, str] = {}
 
     # Domain classification patterns
     power_patterns = [
@@ -127,7 +124,7 @@ class StarGroundTopologyHeuristic(Heuristic):
     Components are arranged in radial "slices" from the star point.
     """
 
-    def __init__(self, star_point: Optional[Tuple[float, float]] = None):
+    def __init__(self, star_point: tuple[float, float] | None = None):
         """
         Initialize star ground heuristic.
 
@@ -173,7 +170,7 @@ class StarGroundTopologyHeuristic(Heuristic):
         self,
         board: Board,
         constraints: PlacementConstraints,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Get the star ground point."""
         if self.star_point:
             return self.star_point
@@ -189,13 +186,13 @@ class StarGroundTopologyHeuristic(Heuristic):
 
     def _place_radially(
         self,
-        domains: Dict[str, str],
-        star_point: Tuple[float, float],
+        domains: dict[str, str],
+        star_point: tuple[float, float],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place components radially by ground domain."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
         sx, sy = star_point
 
         # Define angular sectors for each domain (in radians)
@@ -209,7 +206,7 @@ class StarGroundTopologyHeuristic(Heuristic):
         }
 
         # Group components by domain
-        domain_components: Dict[str, List[str]] = {"PGND": [], "DGND": [], "AGND": []}
+        domain_components: dict[str, list[str]] = {"PGND": [], "DGND": [], "AGND": []}
         for ref, domain in domains.items():
             if (
                 ref not in context.current_placements
@@ -274,7 +271,7 @@ class SignalChainNode:
 def extract_signal_chains(
     netlist: Netlist,
     constraints: PlacementConstraints,
-) -> List[SignalChainNode]:
+) -> list[SignalChainNode]:
     """
     Extract signal chains from netlist connectivity.
 
@@ -286,7 +283,7 @@ def extract_signal_chains(
     Returns:
         List of SignalChainNode with chain assignments
     """
-    nodes: List[SignalChainNode] = []
+    nodes: list[SignalChainNode] = []
 
     # Simple heuristic: trace from connectors through ICs
     # Find input connectors
@@ -297,7 +294,7 @@ def extract_signal_chains(
 
     # For each input, trace the signal path
     chain_id = 0
-    visited: Set[str] = set()
+    visited: set[str] = set()
 
     for start_ref in input_connectors:
         chain_components = _trace_signal_path(netlist, start_ref, visited)
@@ -312,9 +309,9 @@ def extract_signal_chains(
 def _trace_signal_path(
     netlist: Netlist,
     start_ref: str,
-    exclude: Set[str],
+    exclude: set[str],
     max_depth: int = 10,
-) -> List[str]:
+) -> list[str]:
     """Trace a signal path from a starting component."""
     path = [start_ref]
     current = start_ref
@@ -412,17 +409,17 @@ class SignalFlowPreservationHeuristic(Heuristic):
 
     def _place_by_flow(
         self,
-        chains: List[SignalChainNode],
+        chains: list[SignalChainNode],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place components according to signal flow."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
 
         # Group by chain
-        chain_groups: Dict[str, List[SignalChainNode]] = {}
+        chain_groups: dict[str, list[SignalChainNode]] = {}
         for node in chains:
             if node.chain_name not in chain_groups:
                 chain_groups[node.chain_name] = []

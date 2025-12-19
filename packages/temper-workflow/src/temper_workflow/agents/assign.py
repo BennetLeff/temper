@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import sys
 import json
 import subprocess
-import os
+import sys
 from pathlib import Path
+
 
 def run_command(command):
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
@@ -45,7 +45,7 @@ def main():
 
     title = issue.get("title", "")
     description = issue.get("description", "")
-    
+
     print(f"Assigning '{title}' to {role} agent.")
 
     # 2. Update Status
@@ -59,23 +59,23 @@ def main():
     output_dir = Path("agent_outputs")
     output_dir.mkdir(exist_ok=True)
     output_file = output_dir / f"{issue_id}_{role}_resolution.md"
-    
+
     dispatch_script = Path("tools/agents/dispatch_core.sh")
-    
+
     # Determine Tier
     if role in ["architect", "security", "product_manager"]:
         tier = "thinking"
     else:
         tier = "fast"
-    
+
     print(f"Dispatching to {role} ({tier} model)...")
-    
+
     # dispatch_core.sh syntax: ./dispatch_core.sh <role> <tier> "<instruction>" <output_file>
     try:
         cmd = [str(dispatch_script), role, tier, prompt, str(output_file)]
         subprocess.run(cmd, check=True)
         print(f"\n✅ Mission Accomplished.\nAgent output saved to: {output_file}")
-        print(f"Review this file and implement changes as needed.")
+        print("Review this file and implement changes as needed.")
     except subprocess.CalledProcessError as e:
         print(f"Agent dispatch failed: {e}")
         sys.exit(1)

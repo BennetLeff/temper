@@ -9,14 +9,14 @@ This module provides schedule functions for:
 All schedules are designed to be JAX-compatible and can be JIT-compiled.
 """
 
+
 import jax.numpy as jnp
 from jax import Array
-from typing import Tuple
 
 from temper_placer.optimizer.config import (
-    TemperatureSchedule,
-    LearningRateSchedule,
     CurriculumPhase,
+    LearningRateSchedule,
+    TemperatureSchedule,
 )
 
 
@@ -280,7 +280,7 @@ def get_curriculum_weights(
         return default_weights
 
     # Start with zeros
-    combined = {name: 0.0 for name in default_weights}
+    combined = dict.fromkeys(default_weights, 0.0)
     total_phase_weight = 0.0
 
     for phase in phases:

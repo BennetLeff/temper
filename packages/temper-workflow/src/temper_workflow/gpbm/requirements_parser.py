@@ -20,12 +20,12 @@ Usage:
     python requirements_parser.py --json
 """
 
-import re
 import json
-from pathlib import Path
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
+import re
+from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 
 class RequirementStatus(Enum):
@@ -57,13 +57,13 @@ class Requirement:
     status: RequirementStatus
     description: str = ""
     validation: str = ""
-    linked_issues: List[str] = field(default_factory=list)
+    linked_issues: list[str] = field(default_factory=list)
     source_file: str = ""
     line_number: int = 0
     domain: str = ""
     subsystem: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "id": self.id,
@@ -101,10 +101,10 @@ class RequirementsParser:
         "docs/requirements/PLACER_REQUIREMENTS.md",
     ]
 
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(self, project_root: Path | None = None):
         """Initialize parser with project root directory."""
         self.project_root = project_root or self._find_project_root()
-        self.requirements: Dict[str, Requirement] = {}
+        self.requirements: dict[str, Requirement] = {}
 
     def _find_project_root(self) -> Path:
         """Find project root by looking for .git or REQUIREMENTS.md."""
@@ -166,7 +166,7 @@ class RequirementsParser:
             return match.group(1).strip()
         return ""
 
-    def _parse_linked_issues(self, text: str) -> List[str]:
+    def _parse_linked_issues(self, text: str) -> list[str]:
         """Parse linked bd issues from text."""
         match = self.LINKED_ISSUES_PATTERN.search(text)
         if match:
@@ -185,7 +185,7 @@ class RequirementsParser:
             return issue_pattern.findall(issues_text)
         return []
 
-    def parse_file(self, filepath: Path) -> List[Requirement]:
+    def parse_file(self, filepath: Path) -> list[Requirement]:
         """Parse requirements from a single markdown file."""
         if not filepath.exists():
             return []
@@ -199,7 +199,7 @@ class RequirementsParser:
         current_req_id = None
         current_title = None
 
-        for i, section in enumerate(sections):
+        for _i, section in enumerate(sections):
             # Check if this is a header
             header_match = self.REQ_HEADER_PATTERN.match(section.strip())
             if header_match:
@@ -230,7 +230,7 @@ class RequirementsParser:
 
         return requirements
 
-    def parse_all(self, paths: Optional[List[str]] = None) -> Dict[str, Requirement]:
+    def parse_all(self, paths: list[str] | None = None) -> dict[str, Requirement]:
         """Parse all requirements from default or specified paths."""
         paths = paths or self.DEFAULT_PATHS
         self.requirements = {}
@@ -243,7 +243,7 @@ class RequirementsParser:
 
         return self.requirements
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """Get coverage statistics."""
         if not self.requirements:
             self.parse_all()
@@ -288,28 +288,28 @@ class RequirementsParser:
             "by_domain": by_domain,
         }
 
-    def get_unlinked(self) -> List[Requirement]:
+    def get_unlinked(self) -> list[Requirement]:
         """Get requirements not linked to any bd issues."""
         if not self.requirements:
             self.parse_all()
 
         return [req for req in self.requirements.values() if not req.linked_issues]
 
-    def get_by_status(self, status: RequirementStatus) -> List[Requirement]:
+    def get_by_status(self, status: RequirementStatus) -> list[Requirement]:
         """Get requirements by status."""
         if not self.requirements:
             self.parse_all()
 
         return [req for req in self.requirements.values() if req.status == status]
 
-    def get_by_priority(self, priority: RequirementPriority) -> List[Requirement]:
+    def get_by_priority(self, priority: RequirementPriority) -> list[Requirement]:
         """Get requirements by priority."""
         if not self.requirements:
             self.parse_all()
 
         return [req for req in self.requirements.values() if req.priority == priority]
 
-    def get_by_domain(self, domain: str) -> List[Requirement]:
+    def get_by_domain(self, domain: str) -> list[Requirement]:
         """Get requirements by domain."""
         if not self.requirements:
             self.parse_all()
@@ -320,7 +320,7 @@ class RequirementsParser:
             if req.domain.upper() == domain.upper()
         ]
 
-    def find_by_issue(self, issue_id: str) -> List[Requirement]:
+    def find_by_issue(self, issue_id: str) -> list[Requirement]:
         """Find requirements linked to a specific bd issue."""
         if not self.requirements:
             self.parse_all()
@@ -429,16 +429,16 @@ def main():
 Examples:
   # Show status report
   python requirements_parser.py --status
-  
+
   # Show unlinked requirements
   python requirements_parser.py --unlinked
-  
+
   # Export as JSON
   python requirements_parser.py --json > requirements.json
-  
+
   # Find requirements for a domain
   python requirements_parser.py --domain FW
-  
+
   # Find requirements linked to an issue
   python requirements_parser.py --issue temper-5xc.1.1
 """,

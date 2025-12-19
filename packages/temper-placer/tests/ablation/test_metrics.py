@@ -1,14 +1,13 @@
 """Tests for ablation study metrics aggregation."""
 
-import pytest
-import numpy as np
-from pathlib import Path
 from datetime import datetime
 from unittest.mock import Mock
 
-from temper_placer.ablation.config import ExperimentConfig
-from temper_placer.ablation.runner import ExperimentRun
+import numpy as np
+import pytest
+
 from temper_placer.ablation.metrics import AggregatedMetrics, MetricAggregator
+from temper_placer.ablation.runner import ExperimentRun
 
 
 class TestAggregatedMetrics:
@@ -360,7 +359,7 @@ class TestMetricAggregator:
 
         # Should have loop area metrics
         assert 0 <= metrics.loop_area_compliance_mean <= 1
-        assert 0 <= metrics.loop_area_violation_mean
+        assert metrics.loop_area_violation_mean >= 0
 
     def test_seed_values_stored(self, sample_runs):
         """Should store raw seed values for detailed analysis."""

@@ -5,25 +5,25 @@ These tests verify that test point validation functions work correctly
 and that placements meet test point accessibility requirements.
 """
 
-import pytest
-from pathlib import Path
 from dataclasses import dataclass
+
+import pytest
 
 # Import validators (will fail until implemented)
 VALIDATORS_AVAILABLE = False
 try:
     from tests.requirements.validators.test_points import (
-        check_test_point_coverage,
-        check_test_point_accessibility,
-        check_programming_header,
-        check_test_point_spacing,
         TestPoint,
-        TestPointViolation,
+        TestPointPadSize,
         TestPointResult,
         TestPointType,
-        TestPointPadSize,
-        get_required_test_points,
+        TestPointViolation,
+        check_programming_header,
+        check_test_point_accessibility,
+        check_test_point_coverage,
+        check_test_point_spacing,
         get_critical_nets,
+        get_required_test_points,
     )
 
     # Check if validators are actually implemented (not just stubs)

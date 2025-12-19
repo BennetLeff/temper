@@ -14,14 +14,11 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
-import jax
 import jax.numpy as jnp
-from jax import Array
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Netlist
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -29,8 +26,7 @@ from temper_placer.heuristics.base import (
     HeuristicResult,
     PlacementContext,
 )
-from temper_placer.io.config_loader import PlacementConstraints, ComponentGroup
-
+from temper_placer.io.config_loader import PlacementConstraints
 
 # =============================================================================
 # Functional Module Clustering Heuristic (ORGANIZATIONAL priority)
@@ -42,14 +38,14 @@ class FunctionalModule:
     """A group of components that form a functional unit."""
 
     name: str
-    components: List[str]  # Component refs
-    centroid: Optional[Tuple[float, float]] = None
+    components: list[str]  # Component refs
+    centroid: tuple[float, float] | None = None
 
 
 def identify_functional_modules(
     netlist: Netlist,
     constraints: PlacementConstraints,
-) -> List[FunctionalModule]:
+) -> list[FunctionalModule]:
     """
     Identify functional modules from netlist and constraints.
 
@@ -65,8 +61,8 @@ def identify_functional_modules(
     Returns:
         List of functional modules
     """
-    modules: List[FunctionalModule] = []
-    assigned_refs: Set[str] = set()
+    modules: list[FunctionalModule] = []
+    assigned_refs: set[str] = set()
 
     # From explicit config groups
     for group in constraints.component_groups:
@@ -83,7 +79,7 @@ def identify_functional_modules(
 
     # Auto-detect by reference prefix patterns
     # Group components like U1_*, R1_*, etc. (underscore-separated)
-    prefix_groups: Dict[str, List[str]] = {}
+    prefix_groups: dict[str, list[str]] = {}
     for comp in netlist.components:
         if comp.ref in assigned_refs or comp.fixed:
             continue
@@ -124,12 +120,12 @@ def identify_functional_modules(
 
 def _find_highly_connected_groups(
     netlist: Netlist,
-    exclude_refs: Set[str],
+    exclude_refs: set[str],
     min_shared_nets: int = 2,
-) -> List[Set[str]]:
+) -> list[set[str]]:
     """Find groups of components that share multiple nets."""
     # Build component-to-component connectivity
-    comp_connections: Dict[str, Dict[str, int]] = {}
+    comp_connections: dict[str, dict[str, int]] = {}
 
     for net in netlist.nets:
         refs = list(net.get_component_refs() - exclude_refs)
@@ -147,8 +143,8 @@ def _find_highly_connected_groups(
                 comp_connections[ref_b][ref_a] = comp_connections[ref_b].get(ref_a, 0) + 1
 
     # Find clusters of highly connected components using simple greedy
-    groups: List[Set[str]] = []
-    used: Set[str] = set()
+    groups: list[set[str]] = []
+    used: set[str] = set()
 
     for ref_a, connections in comp_connections.items():
         if ref_a in used:
@@ -225,12 +221,12 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
 
     def _place_modules(
         self,
-        modules: List[FunctionalModule],
+        modules: list[FunctionalModule],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place module components in clusters."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
 
         # Compute centroids for modules (grid layout)
@@ -267,11 +263,11 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
     def _place_module_components(
         self,
         module: FunctionalModule,
-        centroid: Tuple[float, float],
+        centroid: tuple[float, float],
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place components around module centroid."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
         cx, cy = centroid
 
         # Filter to unplaced components
@@ -331,7 +327,7 @@ class PowerFlowNode:
 def classify_power_topology(
     netlist: Netlist,
     constraints: PlacementConstraints,
-) -> List[PowerFlowNode]:
+) -> list[PowerFlowNode]:
     """
     Classify components into power flow roles.
 
@@ -347,7 +343,7 @@ def classify_power_topology(
     Returns:
         List of PowerFlowNode with role assignments
     """
-    nodes: List[PowerFlowNode] = []
+    nodes: list[PowerFlowNode] = []
 
     # Input patterns
     input_patterns = [
@@ -466,17 +462,17 @@ class PowerFlowTopologyHeuristic(Heuristic):
 
     def _place_power_flow(
         self,
-        nodes: List[PowerFlowNode],
+        nodes: list[PowerFlowNode],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place components by power flow stage."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
 
         # Group by stage
-        stages: Dict[int, List[str]] = {0: [], 1: [], 2: []}
+        stages: dict[int, list[str]] = {0: [], 1: [], 2: []}
         for node in nodes:
             if node.ref not in context.current_placements:
                 stages[node.stage].append(node.ref)
@@ -551,7 +547,7 @@ class PowerFlowTopologyHeuristic(Heuristic):
 
 def identify_decoupling_caps(
     netlist: Netlist,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Identify decoupling capacitors and their associated ICs.
 
@@ -563,7 +559,7 @@ def identify_decoupling_caps(
     Returns:
         Dict mapping capacitor ref to IC ref
     """
-    cap_to_ic: Dict[str, str] = {}
+    cap_to_ic: dict[str, str] = {}
 
     # Power net patterns
     power_patterns = ["VCC", "VDD", "VDDIO", "3V3", "5V", "+3V3", "+5V", "+15V"]
@@ -664,11 +660,11 @@ class DecouplingCapHeuristic(Heuristic):
 
     def _place_decoupling_caps(
         self,
-        cap_to_ic: Dict[str, str],
+        cap_to_ic: dict[str, str],
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place caps adjacent to their ICs."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
 
         for cap_ref, ic_ref in cap_to_ic.items():
             if cap_ref in context.current_placements:
@@ -718,7 +714,7 @@ class DecouplingCapHeuristic(Heuristic):
 def classify_signal_domains(
     netlist: Netlist,
     constraints: PlacementConstraints,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Classify components by signal domain.
 
@@ -730,7 +726,7 @@ def classify_signal_domains(
     Returns:
         Dict mapping component ref to domain
     """
-    domains: Dict[str, str] = {}
+    domains: dict[str, str] = {}
 
     # Digital patterns
     digital_patterns = [
@@ -850,12 +846,12 @@ class DomainSeparationHeuristic(Heuristic):
 
     def _place_by_domain(
         self,
-        domains: Dict[str, str],
+        domains: dict[str, str],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place components in domain regions."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
 
@@ -877,7 +873,7 @@ class DomainSeparationHeuristic(Heuristic):
         }
 
         # Group components by domain
-        domain_components: Dict[str, List[str]] = {"power": [], "digital": [], "analog": []}
+        domain_components: dict[str, list[str]] = {"power": [], "digital": [], "analog": []}
         for ref, domain in domains.items():
             if (
                 ref not in context.current_placements

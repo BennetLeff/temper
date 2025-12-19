@@ -1,6 +1,5 @@
 """Tests for ablation study component registries."""
 
-import pytest
 from temper_placer.ablation.config import ComponentToggle, LossToggle
 from temper_placer.ablation.registry import (
     HeuristicRegistry,
@@ -126,7 +125,7 @@ class TestTechniqueApplicator:
 
     def test_apply_toggles_disable_curriculum(self):
         """Should disable curriculum when toggled off."""
-        from temper_placer.optimizer.config import OptimizerConfig, CurriculumPhase
+        from temper_placer.optimizer.config import CurriculumPhase, OptimizerConfig
 
         # Create base config with curriculum phase
         base = OptimizerConfig()

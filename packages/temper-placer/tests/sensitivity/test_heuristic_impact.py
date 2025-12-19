@@ -20,7 +20,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
 
 import jax
 import jax.numpy as jnp
@@ -232,14 +231,14 @@ class TestHeuristicImpact:
         heuristic_result = run_optimization(netlist, board, "heuristic", seed=42, epochs=200)
 
         print("\n=== Single Seed Comparison (seed=42) ===")
-        print(f"\nRandom initialization:")
+        print("\nRandom initialization:")
         print(f"  Initial loss:  {random_result.initial_loss:.2f}")
         print(f"  Final loss:    {random_result.final_loss:.2f}")
         print(f"  Overlap:       {random_result.overlap_penalty:.4f}")
         print(f"  Converged:     {random_result.converged}")
         print(f"  Time:          {random_result.elapsed_seconds:.2f}s")
 
-        print(f"\nHeuristic initialization:")
+        print("\nHeuristic initialization:")
         print(f"  Initial loss:  {heuristic_result.initial_loss:.2f}")
         print(f"  Final loss:    {heuristic_result.final_loss:.2f}")
         print(f"  Overlap:       {heuristic_result.overlap_penalty:.4f}")
@@ -272,8 +271,8 @@ class TestHeuristicImpact:
         n_seeds = 20
         epochs = 400
 
-        random_results: List[RunResult] = []
-        heuristic_results: List[RunResult] = []
+        random_results: list[RunResult] = []
+        heuristic_results: list[RunResult] = []
 
         print(f"\n=== Multi-Seed Comparison ({n_seeds} seeds) ===")
 
@@ -290,7 +289,7 @@ class TestHeuristicImpact:
                 print(f"  Completed {seed + 1}/{n_seeds} seeds...")
 
         # Compute statistics
-        def stats(results: List[RunResult]) -> dict:
+        def stats(results: list[RunResult]) -> dict:
             losses = [r.final_loss for r in results]
             overlaps = [r.overlap_penalty for r in results]
             wirelengths = [r.wirelength for r in results]
@@ -381,7 +380,7 @@ class TestHeuristicImpact:
         avg_random = np.mean(random_initial_losses)
         avg_heuristic = np.mean(heuristic_initial_losses)
 
-        print(f"\n=== Initial Loss Comparison ===")
+        print("\n=== Initial Loss Comparison ===")
         print(f"Random avg:     {avg_random:.2f}")
         print(f"Heuristic avg:  {avg_heuristic:.2f}")
         print(f"Advantage:      {(avg_random - avg_heuristic) / avg_random * 100:.1f}%")

@@ -14,11 +14,10 @@ The exception is total_wirelength which returns raw mm value (lower is better).
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import jax
 import jax.numpy as jnp
-from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -62,7 +61,7 @@ def thermal_score(
     state: PlacementState,
     netlist: Netlist,
     board: Board,
-    thermal_components: Set[str],
+    thermal_components: set[str],
     target_edge: str = "TOP",
     max_distance: float = 10.0,
 ) -> float:
@@ -126,7 +125,7 @@ def zone_compliance_score(
     state: PlacementState,
     netlist: Netlist,
     board: Board,
-    zone_assignments: Dict[str, str],
+    zone_assignments: dict[str, str],
 ) -> float:
     """
     Score zone membership compliance (0-1, higher is better).
@@ -179,8 +178,8 @@ def zone_compliance_score(
 def hv_lv_clearance_score(
     state: PlacementState,
     netlist: Netlist,
-    hv_components: Set[str],
-    lv_components: Set[str],
+    hv_components: set[str],
+    lv_components: set[str],
     min_clearance: float = 8.0,
 ) -> float:
     """
@@ -261,7 +260,7 @@ def loop_area_score(
     state: PlacementState,
     netlist: Netlist,
     context: LossContext,
-    loop_components: List[List[str]],
+    loop_components: list[list[str]],
     max_area: float = 100.0,
 ) -> float:
     """
@@ -449,33 +448,33 @@ def connectivity_clustering_score(
     for i in range(context.net_pin_indices.shape[0]):
         indices = context.net_pin_indices[i]
         mask = context.net_pin_mask[i]
-        
+
         # Filter valid pins
         valid_indices = indices[mask]
         if len(valid_indices) < 2:
             continue
-            
+
         # Get positions of components in this net
         net_comp_positions = positions[valid_indices]
-        
+
         # Compute actual bounding box of component centers
         x_min = jnp.min(net_comp_positions[:, 0])
         x_max = jnp.max(net_comp_positions[:, 0])
         y_min = jnp.min(net_comp_positions[:, 1])
         y_max = jnp.max(net_comp_positions[:, 1])
-        
+
         # Add half-widths/heights to get component-aware bounding box
         net_components = [netlist.components[idx] for idx in valid_indices.tolist()]
         max_hw = max(c.width / 2 for c in net_components)
         max_hh = max(c.height / 2 for c in net_components)
-        
+
         bbox_width = (x_max - x_min) + 2 * max_hw
         bbox_height = (y_max - y_min) + 2 * max_hh
         actual_area = bbox_width * bbox_height
-        
+
         # Compute minimum possible area (sum of component areas)
         min_possible_area = sum(c.width * c.height for c in net_components)
-        
+
         # Clustering ratio: min_area / actual_area (1.0 = optimal)
         # We take max(min_possible_area, actual_area) to avoid > 1.0 due to overlaps
         if actual_area > 0:
@@ -491,8 +490,8 @@ def compute_quality_report(
     netlist: Netlist,
     board: Board,
     context: LossContext,
-    config: Dict[str, Any],
-) -> Dict[str, float]:
+    config: dict[str, Any],
+) -> dict[str, float]:
     """
     Compute comprehensive quality report with all metrics.
 

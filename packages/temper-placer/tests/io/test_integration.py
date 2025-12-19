@@ -11,15 +11,14 @@ from pathlib import Path
 import pytest
 
 from temper_placer.io import (
-    parse_kicad_schematic,
-    load_constraints,
-    create_board_from_constraints,
-    write_placements_to_pcb,
-    placements_to_json,
-    placements_from_json,
     PlacementUpdate,
+    create_board_from_constraints,
+    load_constraints,
+    parse_kicad_schematic,
+    placements_from_json,
+    placements_to_json,
+    write_placements_to_pcb,
 )
-
 
 # Path to the Temper project root (relative to this test file)
 TEMPER_ROOT = Path(__file__).parent.parent.parent.parent
@@ -238,6 +237,7 @@ class TestCoordinateRoundTrip:
     def test_state_to_placements_adds_origin(self):
         """Test that state_to_placements adds origin back."""
         import jax.numpy as jnp
+
         from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_writer import state_to_placements
 
@@ -257,10 +257,11 @@ class TestCoordinateRoundTrip:
 
     def test_full_round_trip_preserves_positions(self, pcb_with_nonzero_origin, tmp_path):
         """Test that parse -> export -> parse preserves positions."""
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.kicad_writer import write_placements_to_pcb, state_to_placements
-        from temper_placer.core.state import PlacementState
         import jax.numpy as jnp
+
+        from temper_placer.core.state import PlacementState
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.io.kicad_writer import state_to_placements, write_placements_to_pcb
 
         # Step 1: Parse original PCB
         result = parse_kicad_pcb(pcb_with_nonzero_origin)

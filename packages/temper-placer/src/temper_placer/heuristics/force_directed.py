@@ -8,12 +8,14 @@ connected nodes attract each other (minimizing wirelength).
 
 from __future__ import annotations
 
-from typing import Dict, Tuple, Optional
-
+import jax
+import jax.numpy as jnp
 import networkx as nx
 import numpy as np
 
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import build_adjacency_matrix
+from temper_placer.core.state import PlacementState
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -22,18 +24,6 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.heuristics.graph_utils import GraphBuilder
-
-
-import networkx as nx
-import numpy as np
-import jax
-import jax.numpy as jnp
-from jax import Array
-
-from temper_placer.core.board import Board
-from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import LossContext
-from temper_placer.core.netlist import build_adjacency_matrix
 
 
 class ForceDirectedUnfoldingHeuristic(Heuristic):
@@ -137,7 +127,7 @@ class ForceDirectedHeuristic(Heuristic):
     and uses them as the starting state for the simulation.
     """
 
-    def __init__(self, confidence: float = 0.2, iterations: int = 50, k: Optional[float] = None):
+    def __init__(self, confidence: float = 0.2, iterations: int = 50, k: float | None = None):
         """
         Initialize force-directed placement.
 
@@ -245,10 +235,10 @@ class ForceDirectedHeuristic(Heuristic):
         )
 
     def _scale_to_board(
-        self, raw_pos: Dict[str, np.ndarray], board: Board, context: PlacementContext
-    ) -> Dict[str, ComponentPlacement]:
+        self, raw_pos: dict[str, np.ndarray], board: Board, context: PlacementContext
+    ) -> dict[str, ComponentPlacement]:
         """Scale normalized coordinates to board dimensions."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
 
         # Board geometry
         ox, oy = board.origin

@@ -6,24 +6,24 @@ in temper_placer.visualization.model.
 """
 
 import json
-import math
+
 import pytest
 
 from temper_placer.visualization.model import (
-    Point,
-    Rectangle,
-    ComponentView,
-    ComponentStatus,
-    ZoneView,
     BoardView,
+    ComponentStatus,
+    ComponentView,
+    ConstraintStatus,
     LossDataPoint,
     LossHistory,
+    Point,
+    Rectangle,
     Violation,
     ViolationType,
-    ConstraintStatus,
     VisualizationState,
-    create_component_view,
+    ZoneView,
     create_board_view_from_state,
+    create_component_view,
     create_loss_data_point_from_metrics,
 )
 

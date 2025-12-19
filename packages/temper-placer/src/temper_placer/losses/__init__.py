@@ -29,34 +29,26 @@ The total loss is a weighted sum with curriculum learning for weight scheduling.
 """
 
 # Base classes and interfaces
+# Aesthetic losses
+from temper_placer.losses.aesthetic import (
+    AlignmentLoss,
+    RotationConsistencyLoss,
+)
 from temper_placer.losses.base import (
-    apply_fixed_mask_to_gradients,
     ClearanceRule,
     CompositeLoss,
-    create_jit_loss_fn,
-    create_value_and_grad_fn,
-    create_value_and_grad_fn_with_breakdown,
     LoopConstraint,
     LossContext,
     LossFunction,
     LossResult,
     MountingRule,
-    smooth_step,
     ThermalConstraint,
     WeightedLoss,
-)
-
-# Wirelength loss (HPWL)
-from temper_placer.losses.wirelength import (
-    compute_total_hpwl,
-    SteinerTreeLoss,
-    WirelengthLoss,
-)
-
-# Overlap loss
-from temper_placer.losses.overlap import (
-    compute_overlap_penalty,
-    OverlapLoss,
+    apply_fixed_mask_to_gradients,
+    create_jit_loss_fn,
+    create_value_and_grad_fn,
+    create_value_and_grad_fn_with_breakdown,
+    smooth_step,
 )
 
 # Boundary loss
@@ -65,124 +57,92 @@ from temper_placer.losses.boundary import (
     compute_boundary_penalty,
 )
 
-# Grid alignment loss
-from temper_placer.losses.grid import (
-    compute_grid_penalty,
-    GridAlignmentLoss,
-)
-
 # Clearance loss (HV-LV)
 from temper_placer.losses.clearance import (
     ClearanceLoss,
     compute_clearance_penalty,
 )
 
-# Loop area loss
-from temper_placer.losses.loop_area import (
-    compute_loop_area_penalty,
-    create_temper_loop_constraints,
-    LoopAreaLoss,
-)
-
-# Thermal loss
-from temper_placer.losses.thermal import (
-    compute_edge_distance,
-    compute_thermal_penalty,
-    create_edge_preference_loss,
-    create_heat_sensitive_distance_loss,
-    create_temper_thermal_constraints,
-    create_temper_thermal_losses,
-    create_thermal_spread_loss,
-    EdgePreferenceLoss,
-    HeatSensitiveDistanceLoss,
-    ThermalComponentConfig,
-    ThermalLoss,
-    ThermalSpreadLoss,
-)
-
-# Zone membership loss
-from temper_placer.losses.zone import (
-    compute_zone_distance,
-    compute_zone_membership_penalty,
-    create_temper_zone_assignments,
-    ZoneMembershipLoss,
-)
-
-# Ground crossing loss
-from temper_placer.losses.ground_crossing import (
-    compute_ground_crossing_penalty,
-    detect_ground_domain_violations,
-    GroundCrossingLoss,
+# Coil requirement loss
+from temper_placer.losses.coil import (
+    CoilRequirementLoss,
+    CoilRule,
+    create_coil_loss,
 )
 
 # Congestion loss
 from temper_placer.losses.congestion import (
+    CongestionLoss,
     compute_congestion_penalty,
     compute_routing_demand,
-    CongestionLoss,
     visualize_congestion,
 )
 
-# Regularization losses
-from temper_placer.losses.regularization import (
-    CenterOfMassLoss,
-    compute_rotation_entropy,
-    compute_spread_penalty,
-    RotationEntropyLoss,
-    SpreadLoss,
+# Critical path length loss
+from temper_placer.losses.critical_path import (
+    CriticalPath,
+    CriticalPathLengthLoss,
+    compute_critical_path_penalty,
+    create_temper_critical_paths,
+)
+
+# Crystal placement loss
+from temper_placer.losses.crystal import (
+    CrystalPlacementLoss,
+    CrystalRule,
+    create_crystal_loss,
 )
 
 # DRC loss (non-differentiable, cached)
 from temper_placer.losses.drc_loss import (
-    create_drc_loss,
     DRCCacheEntry,
     DRCHistory,
     DRCLoss,
+    create_drc_loss,
+)
+
+# Grid alignment loss
+from temper_placer.losses.grid import (
+    GridAlignmentLoss,
+    compute_grid_penalty,
+)
+
+# Ground crossing loss
+from temper_placer.losses.ground_crossing import (
+    GroundCrossingLoss,
+    compute_ground_crossing_penalty,
+    detect_ground_domain_violations,
 )
 
 # Functional grouping losses
 from temper_placer.losses.grouping import (
-    create_grouping_losses_from_constraints,
     GroupClusterLoss,
     GroupConfig,
     GroupSeparationLoss,
     ProximityLoss,
     ProximityRule,
+    create_grouping_losses_from_constraints,
 )
 
-# Critical path length loss
-from temper_placer.losses.critical_path import (
-    compute_critical_path_penalty,
-    create_temper_critical_paths,
-    CriticalPath,
-    CriticalPathLengthLoss,
+# Loop area loss
+from temper_placer.losses.loop_area import (
+    LoopAreaLoss,
+    compute_loop_area_penalty,
+    create_temper_loop_constraints,
 )
 
-# Power path loss (Parasitic Inductance)
-from temper_placer.losses.power_path import (
-    PowerPathLoss,
-    create_power_path_loss,
-    HighCurrentPathConfig,
-    SwitchingLoopConfig,
-)
-
-# Return path loss (Current Return Path)
-from temper_placer.losses.return_path import (
-    CurrentReturnPathLoss,
-    create_return_path_loss,
-    ReturnPathConfig,
+# Mechanical mounting loss
+from temper_placer.losses.mechanical import (
+    MechanicalMountingLoss,
+    MountingRule,
+    create_mechanical_loss,
 )
 
 # Net class separation loss
 from temper_placer.losses.net_class import (
+    NetClassRule,
     NetClassSeparationLoss,
     create_net_class_loss,
-    NetClassRule,
-)
-
-# Planarity loss
-from temper_placer.losses.planarity import (
-    EdgeCrossingLoss,
 )
 
 # Noise isolation loss
@@ -190,18 +150,55 @@ from temper_placer.losses.noise_isolation import (
     NoiseSensitiveIsolationLoss,
 )
 
-# Crystal placement loss
-from temper_placer.losses.crystal import (
-    CrystalPlacementLoss,
-    create_crystal_loss,
-    CrystalRule,
+# Overlap loss
+from temper_placer.losses.overlap import (
+    OverlapLoss,
+    compute_overlap_penalty,
 )
 
-# Mechanical mounting loss
-from temper_placer.losses.mechanical import (
-    MechanicalMountingLoss,
-    create_mechanical_loss,
-    MountingRule,
+# Planarity loss
+from temper_placer.losses.planarity import (
+    EdgeCrossingLoss,
+)
+
+# Power path loss (Parasitic Inductance)
+from temper_placer.losses.power_path import (
+    HighCurrentPathConfig,
+    PowerPathLoss,
+    SwitchingLoopConfig,
+    create_power_path_loss,
+)
+
+# Regularization losses
+from temper_placer.losses.regularization import (
+    CenterOfMassLoss,
+    RotationEntropyLoss,
+    SpreadLoss,
+    compute_rotation_entropy,
+    compute_spread_penalty,
+)
+
+# Return path loss (Current Return Path)
+from temper_placer.losses.return_path import (
+    CurrentReturnPathLoss,
+    ReturnPathConfig,
+    create_return_path_loss,
+)
+
+# Thermal loss
+from temper_placer.losses.thermal import (
+    EdgePreferenceLoss,
+    HeatSensitiveDistanceLoss,
+    ThermalComponentConfig,
+    ThermalLoss,
+    ThermalSpreadLoss,
+    compute_edge_distance,
+    compute_thermal_penalty,
+    create_edge_preference_loss,
+    create_heat_sensitive_distance_loss,
+    create_temper_thermal_constraints,
+    create_temper_thermal_losses,
+    create_thermal_spread_loss,
 )
 
 # Via Density loss
@@ -209,19 +206,20 @@ from temper_placer.losses.via_density import (
     ViaDensityLoss,
 )
 
-# Aesthetic losses
-from temper_placer.losses.aesthetic import (
-    AlignmentLoss,
-    RotationConsistencyLoss,
+# Wirelength loss (HPWL)
+from temper_placer.losses.wirelength import (
+    SteinerTreeLoss,
+    WirelengthLoss,
+    compute_total_hpwl,
 )
 
-# Coil requirement loss
-from temper_placer.losses.coil import (
-    CoilRequirementLoss,
-    create_coil_loss,
-    CoilRule,
+# Zone membership loss
+from temper_placer.losses.zone import (
+    ZoneMembershipLoss,
+    compute_zone_distance,
+    compute_zone_membership_penalty,
+    create_temper_zone_assignments,
 )
-
 
 __all__ = [
     # Base classes

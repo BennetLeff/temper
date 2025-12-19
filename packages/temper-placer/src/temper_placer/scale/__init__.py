@@ -6,9 +6,9 @@ This module provides tools for testing optimizer performance at scale.
 
 from temper_placer.scale.memory_profiler import (
     MemoryProfile,
-    profile_optimizer_memory,
-    check_memory_thresholds,
     ThresholdResult,
+    check_memory_thresholds,
+    profile_optimizer_memory,
 )
 
 __all__ = [

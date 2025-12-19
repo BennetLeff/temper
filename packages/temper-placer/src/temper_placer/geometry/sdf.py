@@ -15,10 +15,9 @@ Key advantages:
 All functions are JAX-compatible for automatic differentiation.
 """
 
+
 import jax.numpy as jnp
 from jax import Array
-from typing import Optional
-
 
 # =============================================================================
 # Basic Shape SDFs
@@ -304,7 +303,6 @@ def sdf_convex_polygon(point: Array, vertices: Array) -> Array:
 
 # Need to import jax.vmap for the convex polygon function
 import jax
-
 
 # =============================================================================
 # SDF Combination Operations

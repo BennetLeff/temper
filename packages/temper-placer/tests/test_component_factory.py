@@ -5,7 +5,8 @@ Validates that the footprint library integration with test fixtures works correc
 """
 
 import pytest
-from temper_placer.core.netlist import Component, Pin
+
+from temper_placer.core.netlist import Pin
 
 
 def test_component_factory_basic(component_factory):

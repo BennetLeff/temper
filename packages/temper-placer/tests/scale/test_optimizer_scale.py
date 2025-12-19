@@ -12,26 +12,26 @@ TDD Tasks: temper-1my.3.2 (100 components), temper-1my.3.4 (convergence benchmar
 
 from __future__ import annotations
 
-import pytest
 import time
-import jax.numpy as jnp
-from typing import Tuple
 
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.overlap import OverlapLoss, compute_overlap_penalty
-from temper_placer.losses.boundary import BoundaryLoss, compute_boundary_penalty
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer import train, OptimizerConfig
+import jax.numpy as jnp
+import pytest
 
 # Import from fixtures using relative import pattern
 from tests.fixtures.generators.synthetic_netlist import generate_netlist
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.losses.boundary import BoundaryLoss, compute_boundary_penalty
+from temper_placer.losses.overlap import OverlapLoss, compute_overlap_penalty
+from temper_placer.losses.wirelength import WirelengthLoss
+from temper_placer.optimizer import OptimizerConfig, train
+
 
 def create_scale_setup(
     n_components: int, board_scale: float = 1.0, seed: int = 42
-) -> Tuple[Netlist, Board, LossContext, CompositeLoss]:
+) -> tuple[Netlist, Board, LossContext, CompositeLoss]:
     """
     Create a complete optimizer setup for scale testing.
 

@@ -14,44 +14,44 @@ Heuristics are applied in priority order:
 """
 
 from temper_placer.heuristics.base import (
+    ComponentPlacement,
     Heuristic,
     HeuristicPriority,
     HeuristicResult,
     PlacementContext,
-    ComponentPlacement,
+)
+from temper_placer.heuristics.conflict import ConflictResolver, ResolutionStrategy
+
+# Organizational heuristics
+from temper_placer.heuristics.organizational import (
+    DecouplingCapHeuristic,
+    DomainSeparationHeuristic,
+    FunctionalModuleClusteringHeuristic,
+    PowerFlowTopologyHeuristic,
+    classify_power_topology,
+    classify_signal_domains,
+    identify_decoupling_caps,
+    identify_functional_modules,
 )
 from temper_placer.heuristics.pipeline import HeuristicPipeline, PipelineResult
-from temper_placer.heuristics.conflict import ConflictResolver, ResolutionStrategy
 
 # Structural heuristics
 from temper_placer.heuristics.structural import (
-    KeepoutAwarenessHeuristic,
     ConnectorEdgeSnappingHeuristic,
-    ThermalEdgePlacementHeuristic,
     CriticalLoopHeuristic,
+    KeepoutAwarenessHeuristic,
+    ThermalEdgePlacementHeuristic,
     create_keepout_mask,
     identify_connectors,
     identify_thermal_components,
 )
 
-# Organizational heuristics
-from temper_placer.heuristics.organizational import (
-    FunctionalModuleClusteringHeuristic,
-    PowerFlowTopologyHeuristic,
-    DecouplingCapHeuristic,
-    DomainSeparationHeuristic,
-    identify_functional_modules,
-    classify_power_topology,
-    identify_decoupling_caps,
-    classify_signal_domains,
-)
-
 # Style heuristics
 from temper_placer.heuristics.style import (
-    StarGroundTopologyHeuristic,
     SignalFlowPreservationHeuristic,
-    identify_ground_domains,
+    StarGroundTopologyHeuristic,
     extract_signal_chains,
+    identify_ground_domains,
 )
 
 

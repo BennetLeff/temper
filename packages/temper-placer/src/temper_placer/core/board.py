@@ -10,7 +10,6 @@ This module defines the PCB board geometry and placement zones:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -27,7 +26,7 @@ class MountingHole:
         keepout_radius: Radius of keepout zone around hole in mm.
     """
 
-    position: Tuple[float, float]
+    position: tuple[float, float]
     diameter: float
     keepout_radius: float = 3.0  # Default 3mm keepout
 
@@ -66,7 +65,7 @@ class LayerStackup:
         thickness: Total board thickness in mm.
     """
 
-    layers: List[Layer] = field(default_factory=list)
+    layers: list[Layer] = field(default_factory=list)
     thickness: float = 1.6  # mm
 
     @classmethod
@@ -82,7 +81,7 @@ class LayerStackup:
             thickness=1.6,
         )
 
-    def routable_layers(self, net_class: str = "Signal") -> List[int]:
+    def routable_layers(self, net_class: str = "Signal") -> list[int]:
         """
         Return layer indices where this net class can route.
 
@@ -148,10 +147,10 @@ class Zone:
     """
 
     name: str
-    bounds: Tuple[float, float, float, float]  # (x_min, y_min, x_max, y_max)
-    components: List[str] = field(default_factory=list)
-    net_classes: List[str] = field(default_factory=lambda: ["Signal"])
-    polygon: Optional[List[Tuple[float, float]]] = None
+    bounds: tuple[float, float, float, float]  # (x_min, y_min, x_max, y_max)
+    components: list[str] = field(default_factory=list)
+    net_classes: list[str] = field(default_factory=lambda: ["Signal"])
+    polygon: list[tuple[float, float]] | None = None
 
     @property
     def width(self) -> float:
@@ -164,7 +163,7 @@ class Zone:
         return self.bounds[3] - self.bounds[1]
 
     @property
-    def center(self) -> Tuple[float, float]:
+    def center(self) -> tuple[float, float]:
         """Zone center point."""
         return (
             (self.bounds[0] + self.bounds[2]) / 2,
@@ -201,8 +200,8 @@ class GroundDomain:
     """
 
     name: str
-    bounds: Tuple[float, float, float, float]
-    star_point: Optional[Tuple[float, float]] = None
+    bounds: tuple[float, float, float, float]
+    star_point: tuple[float, float] | None = None
 
     def contains_point(self, x: float, y: float) -> bool:
         """Check if a point is inside this ground domain."""
@@ -231,20 +230,20 @@ class Board:
 
     width: float
     height: float
-    origin: Tuple[float, float] = (0.0, 0.0)
+    origin: tuple[float, float] = (0.0, 0.0)
     corner_radius: float = 0.0
-    outline_polygon: Optional[List[Tuple[float, float]]] = None
-    mounting_holes: List[MountingHole] = field(default_factory=list)
+    outline_polygon: list[tuple[float, float]] | None = None
+    mounting_holes: list[MountingHole] = field(default_factory=list)
     layer_stackup: LayerStackup = field(default_factory=LayerStackup.default_4layer)
-    zones: List[Zone] = field(default_factory=list)
-    ground_domains: List[GroundDomain] = field(default_factory=list)
-    keepout_regions: List[Tuple[float, float, float, float]] = field(default_factory=list)
+    zones: list[Zone] = field(default_factory=list)
+    ground_domains: list[GroundDomain] = field(default_factory=list)
+    keepout_regions: list[tuple[float, float, float, float]] = field(default_factory=list)
 
     # Zone index (populated by build_indices)
     _zone_index: dict[str, int] = field(default_factory=dict, repr=False)
 
     # Cached polygon data for JAX operations
-    _polygon_array: Optional[Array] = field(default=None, repr=False)
+    _polygon_array: Array | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         """Build indices after initialization."""
@@ -262,14 +261,14 @@ class Board:
         return self.outline_polygon is not None
 
     @property
-    def polygon_array(self) -> Optional[Array]:
+    def polygon_array(self) -> Array | None:
         """Get polygon outline as JAX array (N, 2)."""
         return self._polygon_array
 
     @classmethod
     def from_polygon(
         cls,
-        outline: List[Tuple[float, float]],
+        outline: list[tuple[float, float]],
         **kwargs,
     ) -> Board:
         """
@@ -328,14 +327,14 @@ class Board:
         """Get a zone by name."""
         return self.zones[self._zone_index[name]]
 
-    def get_zone_for_point(self, x: float, y: float) -> Optional[Zone]:
+    def get_zone_for_point(self, x: float, y: float) -> Zone | None:
         """Get the zone containing a point, or None if outside all zones."""
         for zone in self.zones:
             if zone.contains_point(x, y):
                 return zone
         return None
 
-    def get_ground_domain(self, x: float, y: float) -> Optional[GroundDomain]:
+    def get_ground_domain(self, x: float, y: float) -> GroundDomain | None:
         """Get the ground domain containing a point."""
         for domain in self.ground_domains:
             if domain.contains_point(x, y):

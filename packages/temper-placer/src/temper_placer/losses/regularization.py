@@ -15,8 +15,8 @@ Optimizations:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
-from typing import List, Optional, cast
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -25,9 +25,7 @@ from temper_placer.losses.base import (
     LossContext,
     LossFunction,
     LossResult,
-    smooth_step,
 )
-
 
 # Threshold for switching between full vectorized and chunked computation
 _VECTORIZED_THRESHOLD = 50
@@ -304,7 +302,7 @@ class RotationEntropyLoss(LossFunction):
         # Linear annealing: 1.0 -> 0.0 between anneal_start and anneal_end
         t = (progress - self.anneal_start) / jnp.maximum(self.anneal_end - self.anneal_start, 1e-6)
         linear_val = jnp.clip(1.0 - t, 0.0, 1.0)
-        
+
         result = jnp.where(
             progress < self.anneal_start,
             1.0,

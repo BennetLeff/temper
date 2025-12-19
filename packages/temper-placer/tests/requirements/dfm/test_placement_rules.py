@@ -5,29 +5,28 @@ These tests verify that pick-and-place placement validation functions work corre
 and that placements meet automated assembly requirements.
 """
 
+
 import pytest
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
 
 # Import validators (will fail until implemented)
 VALIDATORS_AVAILABLE = False
 try:
     from tests.requirements.validators.pick_and_place import (
-        check_component_spacing,
-        check_component_orientation,
-        check_fiducial_placement,
-        check_antenna_keepout,
-        check_pick_and_place_compliance,
-        get_spacing_requirements,
-        PlacementViolation,
-        PlacementResult,
-        Fiducial,
-        PackageType,
-        ComponentOrientation,
-        get_package_type,
-        SPACING_REQUIREMENTS,
         ESP32_ANTENNA_KEEPOUT_MM,
         ESP32_MODULE_SIZE_MM,
+        SPACING_REQUIREMENTS,
+        ComponentOrientation,
+        Fiducial,
+        PackageType,
+        PlacementResult,
+        PlacementViolation,
+        check_antenna_keepout,
+        check_component_orientation,
+        check_component_spacing,
+        check_fiducial_placement,
+        check_pick_and_place_compliance,
+        get_package_type,
+        get_spacing_requirements,
     )
 
     # Check if validators are actually implemented (not just stubs)

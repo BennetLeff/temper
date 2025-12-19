@@ -6,8 +6,8 @@ requirements for board dimensions, layer stack, critical loops, and ground plane
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Optional, Dict, Any
 from enum import Enum
+from typing import Any
 
 
 class LayoutViolationType(Enum):
@@ -27,9 +27,9 @@ class LayoutViolation:
     code: str
     message: str
     violation_type: LayoutViolationType
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"  # error, warning, critical
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 @dataclass
@@ -37,7 +37,7 @@ class LayoutReviewResult:
     """Result of layout review checklist validation."""
 
     passed: bool
-    violations: List[LayoutViolation]
+    violations: list[LayoutViolation]
 
     @property
     def error_count(self) -> int:

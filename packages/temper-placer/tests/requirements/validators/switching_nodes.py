@@ -6,7 +6,6 @@ per REQ-EMC-04 to minimize radiated EMI from high dV/dt nodes.
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
 
 
 @dataclass
@@ -14,11 +13,11 @@ class SwitchingNodeViolation:
     """A switching node containment violation."""
 
     node_type: str  # "HALF_BRIDGE_SW", "BUCK_SW", "GATE_DRIVER"
-    component_refs: List[str]
+    component_refs: list[str]
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
-    area_mm2: Optional[float] = None
+    location: tuple[float, float] | None = None
+    area_mm2: float | None = None
     severity: str = "error"  # error, warning
 
 
@@ -27,7 +26,7 @@ class SwitchingNodeResult:
     """Result of switching node containment validation."""
 
     passed: bool
-    violations: List[SwitchingNodeViolation]
+    violations: list[SwitchingNodeViolation]
 
     @property
     def error_count(self) -> int:
@@ -39,8 +38,8 @@ class SwitchingNodeResult:
 
 
 def check_half_bridge_switch_node_area(
-    sw_node_components: List[str],
-    sw_node_position: Tuple[float, float],
+    sw_node_components: list[str],
+    sw_node_position: tuple[float, float],
     max_area_mm2: float = 100.0,  # 1 cm²
 ) -> SwitchingNodeResult:
     """
@@ -62,9 +61,9 @@ def check_half_bridge_switch_node_area(
 
 
 def check_ground_plane_shielding_under_switching_nodes(
-    switching_node_positions: Dict[str, Tuple[float, float]],
-    ground_plane_zones: List[Tuple[float, float, float, float]],  # (x, y, width, height)
-    via_stitching_positions: List[Tuple[float, float]],
+    switching_node_positions: dict[str, tuple[float, float]],
+    ground_plane_zones: list[tuple[float, float, float, float]],  # (x, y, width, height)
+    via_stitching_positions: list[tuple[float, float]],
     max_via_spacing_mm: float = 5.0,
 ) -> SwitchingNodeResult:
     """
@@ -87,9 +86,9 @@ def check_ground_plane_shielding_under_switching_nodes(
 
 
 def check_snubber_placement(
-    igbt_position: Tuple[float, float],
-    snubber_components: List[str],
-    snubber_positions: Dict[str, Tuple[float, float]],
+    igbt_position: tuple[float, float],
+    snubber_components: list[str],
+    snubber_positions: dict[str, tuple[float, float]],
     max_distance_mm: float = 10.0,
 ) -> SwitchingNodeResult:
     """
@@ -112,11 +111,11 @@ def check_snubber_placement(
 
 
 def check_no_power_planes_under_switching_nodes(
-    switching_node_positions: Dict[str, Tuple[float, float]],
-    power_plane_zones: Dict[
-        str, List[Tuple[float, float, float, float]]
+    switching_node_positions: dict[str, tuple[float, float]],
+    power_plane_zones: dict[
+        str, list[tuple[float, float, float, float]]
     ],  # {voltage: [(x, y, w, h)]}
-    switching_node_types: Dict[str, str],  # {node_ref: "HALF_BRIDGE_SW"|"BUCK_SW"|"GATE_DRIVER"}
+    switching_node_types: dict[str, str],  # {node_ref: "HALF_BRIDGE_SW"|"BUCK_SW"|"GATE_DRIVER"}
 ) -> SwitchingNodeResult:
     """
     Check that no 5V/3.3V power islands exist under switching nodes.
@@ -137,8 +136,8 @@ def check_no_power_planes_under_switching_nodes(
 
 
 def check_buck_converter_switching_node(
-    buck_switch_position: Tuple[float, float],
-    buck_components: List[str],  # LMR51430, inductor, diode, caps
+    buck_switch_position: tuple[float, float],
+    buck_components: list[str],  # LMR51430, inductor, diode, caps
     max_area_mm2: float = 50.0,  # Smaller area for buck (170V vs 340V)
 ) -> SwitchingNodeResult:
     """
@@ -160,8 +159,8 @@ def check_buck_converter_switching_node(
 
 
 def check_gate_driver_outputs(
-    gate_driver_positions: Dict[str, Tuple[float, float]],  # {gate_driver_ref: (x, y)}
-    gate_output_nets: Dict[str, List[str]],  # {driver_ref: [net_names]}
+    gate_driver_positions: dict[str, tuple[float, float]],  # {gate_driver_ref: (x, y)}
+    gate_output_nets: dict[str, list[str]],  # {driver_ref: [net_names]}
     max_area_mm2: float = 25.0,  # Small area for gate drives (0-20V, ~5 V/ns)
 ) -> SwitchingNodeResult:
     """
@@ -183,8 +182,8 @@ def check_gate_driver_outputs(
 
 
 def check_switching_frequency_harmonics(
-    switching_nodes: Dict[str, Dict],  # {node_ref: {type, frequency, position}}
-    board_dimensions: Tuple[float, float],  # (width, height)
+    switching_nodes: dict[str, dict],  # {node_ref: {type, frequency, position}}
+    board_dimensions: tuple[float, float],  # (width, height)
 ) -> SwitchingNodeResult:
     """
     Check that switching node placement considers frequency harmonics.

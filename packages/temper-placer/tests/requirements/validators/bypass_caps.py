@@ -6,7 +6,6 @@ per REQ-EMC-02.
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
 
 
 @dataclass
@@ -14,10 +13,10 @@ class BypassCapViolation:
     """A bypass capacitor placement violation."""
 
     ic_ref: str
-    cap_ref: Optional[str]
+    cap_ref: str | None
     code: str
     message: str
-    distance_mm: Optional[float] = None
+    distance_mm: float | None = None
     severity: str = "error"
 
 
@@ -26,7 +25,7 @@ class BypassCapResult:
     """Result of bypass capacitor validation."""
 
     passed: bool
-    violations: List[BypassCapViolation]
+    violations: list[BypassCapViolation]
 
     @property
     def error_count(self) -> int:
@@ -38,9 +37,9 @@ class BypassCapResult:
 
 
 def check_decoupling_distance(
-    ic_position: Tuple[float, float],
+    ic_position: tuple[float, float],
     ic_ref: str,
-    cap_positions: Dict[str, Tuple[float, float]],
+    cap_positions: dict[str, tuple[float, float]],
     max_distance_mm: float = 3.0,
 ) -> BypassCapResult:
     """
@@ -62,10 +61,10 @@ def check_decoupling_distance(
 
 
 def check_bypass_loop_area(
-    ic_position: Tuple[float, float],
-    ic_power_pin: Tuple[float, float],
-    cap_position: Tuple[float, float],
-    cap_ground_via: Tuple[float, float],
+    ic_position: tuple[float, float],
+    ic_power_pin: tuple[float, float],
+    cap_position: tuple[float, float],
+    cap_ground_via: tuple[float, float],
     max_area_mm2: float = 10.0,
 ) -> BypassCapResult:
     """
@@ -88,9 +87,9 @@ def check_bypass_loop_area(
 
 
 def check_via_at_cap_ground(
-    cap_position: Tuple[float, float],
+    cap_position: tuple[float, float],
     cap_ref: str,
-    ground_vias: List[Tuple[float, float]],
+    ground_vias: list[tuple[float, float]],
     max_distance_mm: float = 0.5,
 ) -> BypassCapResult:
     """
@@ -113,10 +112,10 @@ def check_via_at_cap_ground(
 
 def check_component_specific_requirements(
     component_type: str,
-    ic_position: Tuple[float, float],
+    ic_position: tuple[float, float],
     ic_ref: str,
-    cap_positions: Dict[str, Tuple[float, float]],
-    cap_values: Dict[str, str],
+    cap_positions: dict[str, tuple[float, float]],
+    cap_values: dict[str, str],
 ) -> BypassCapResult:
     """
     Check component-specific bypass capacitor requirements.

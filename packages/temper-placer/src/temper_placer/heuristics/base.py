@@ -10,9 +10,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Dict, List, Optional, Set, Tuple
 
-import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.core.board import Board
@@ -50,7 +48,7 @@ class ComponentPlacement:
     """
 
     ref: str
-    position: Tuple[float, float]
+    position: tuple[float, float]
     rotation: int = 0
     confidence: float = 1.0
     placed_by: str = ""
@@ -68,8 +66,8 @@ class HeuristicResult:
         message: Optional message describing the result
     """
 
-    placements: Dict[str, ComponentPlacement] = field(default_factory=dict)
-    conflicts: List[str] = field(default_factory=list)
+    placements: dict[str, ComponentPlacement] = field(default_factory=dict)
+    conflicts: list[str] = field(default_factory=list)
     success: bool = True
     message: str = ""
 
@@ -111,16 +109,16 @@ class PlacementContext:
     board: Board
     netlist: Netlist
     constraints: PlacementConstraints
-    current_placements: Dict[str, ComponentPlacement] = field(default_factory=dict)
-    keep_out_mask: Optional[Array] = None
-    rng_key: Optional[Array] = None
+    current_placements: dict[str, ComponentPlacement] = field(default_factory=dict)
+    keep_out_mask: Array | None = None
+    rng_key: Array | None = None
 
-    def get_unplaced_components(self) -> List[Component]:
+    def get_unplaced_components(self) -> list[Component]:
         """Get components that haven't been placed yet."""
         placed_refs = set(self.current_placements.keys())
         return [c for c in self.netlist.components if c.ref not in placed_refs and not c.fixed]
 
-    def get_placed_refs(self) -> Set[str]:
+    def get_placed_refs(self) -> set[str]:
         """Get set of already-placed component references."""
         return set(self.current_placements.keys())
 
@@ -165,7 +163,7 @@ class PlacementContext:
         y: float,
         width: float,
         height: float,
-        exclude_refs: Optional[Set[str]] = None,
+        exclude_refs: set[str] | None = None,
     ) -> bool:
         """
         Check if a position would overlap with already-placed components.
@@ -251,7 +249,7 @@ class Heuristic(ABC):
         """
         pass
 
-    def identify_target_components(self, context: PlacementContext) -> List[Component]:
+    def identify_target_components(self, context: PlacementContext) -> list[Component]:
         """
         Identify which components this heuristic should place.
 

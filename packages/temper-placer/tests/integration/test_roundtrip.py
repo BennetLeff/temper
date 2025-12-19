@@ -12,25 +12,21 @@ Key verifications:
 5. Idempotent exports produce identical files
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
 import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
 
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
 from temper_placer.io.kicad_writer import (
     PlacementUpdate,
-    write_placements_to_pcb,
-    state_to_placements,
     export_placements,
+    write_placements_to_pcb,
 )
-
 
 # Test fixtures
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

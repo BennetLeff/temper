@@ -9,19 +9,19 @@ and KiCad DRC violations to inform weight selection.
 import json
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from temper_placer.analysis.drc_correlation import (
-    analyze_drc_correlation,
-    PlacementResult,
     DRCResult,
+    PlacementResult,
+    analyze_drc_correlation,
 )
 
 
-def load_existing_data() -> tuple[List[PlacementResult], List[DRCResult]]:
+def load_existing_data() -> tuple[list[PlacementResult], list[DRCResult]]:
     """Load existing DRC correlation data from test results."""
     # Load the existing correlation data
     data_path = (
@@ -78,7 +78,7 @@ def load_existing_data() -> tuple[List[PlacementResult], List[DRCResult]]:
     return placements, drc_results
 
 
-def load_detailed_drc_data() -> tuple[List[PlacementResult], List[DRCResult]]:
+def load_detailed_drc_data() -> tuple[list[PlacementResult], list[DRCResult]]:
     """Load detailed DRC data from the correlation report."""
     report_path = (
         Path(__file__).parent.parent.parent.parent
@@ -130,8 +130,8 @@ def load_detailed_drc_data() -> tuple[List[PlacementResult], List[DRCResult]]:
 
 
 def generate_report(
-    placements: List[PlacementResult], drc_results: List[DRCResult]
-) -> Dict[str, Any]:
+    placements: list[PlacementResult], drc_results: list[DRCResult]
+) -> dict[str, Any]:
     """Generate comprehensive correlation analysis report."""
     print("Running DRC-Loss Correlation Analysis...")
     print(f"Analyzing {len(placements)} placement samples")
@@ -173,7 +173,7 @@ def generate_report(
     return output
 
 
-def generate_interpretation(correlations: List[Dict[str, Any]]) -> Dict[str, str]:
+def generate_interpretation(correlations: list[dict[str, Any]]) -> dict[str, str]:
     """Generate human-readable interpretation of correlations."""
     interpretation = {}
 
@@ -210,18 +210,18 @@ def generate_interpretation(correlations: List[Dict[str, Any]]) -> Dict[str, str
     return interpretation
 
 
-def print_report(report: Dict[str, Any]) -> None:
+def print_report(report: dict[str, Any]) -> None:
     """Print formatted report to console."""
     print("\n" + "=" * 70)
     print("DRC-Loss Correlation Analysis")
     print("=" * 70)
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Placements analyzed: {report['summary']['placements_analyzed']}")
     print(f"  Correlations computed: {report['summary']['correlations_computed']}")
     print(f"  Data quality: {report['summary']['data_quality']}")
 
-    print(f"\nCorrelation Results:")
+    print("\nCorrelation Results:")
     print(
         f"{'Loss Component':<18} {'Pearson r':<12} {'Spearman ρ':<12} {'p-value':<10} {'DRC Type'}"
     )
@@ -236,18 +236,18 @@ def print_report(report: Dict[str, Any]) -> None:
             f"{corr['drc_type']}"
         )
 
-    print(f"\nRecommended Initial Weights:")
+    print("\nRecommended Initial Weights:")
     for loss_type, weight in report["recommendations"].items():
         print(f"  {loss_type.capitalize():<12}: {weight:>6.1f}")
 
-    print(f"\nInterpretation:")
+    print("\nInterpretation:")
     for component, interp in report["interpretation"].items():
         print(f"  {component}: {interp}")
 
     print("=" * 70)
 
 
-def save_report(report: Dict[str, Any], output_path: Path) -> None:
+def save_report(report: dict[str, Any], output_path: Path) -> None:
     """Save report to JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
 

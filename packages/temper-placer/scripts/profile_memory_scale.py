@@ -12,15 +12,14 @@ Usage:
 """
 
 import argparse
-from pathlib import Path
-import sys
 import json
+import sys
 from datetime import datetime
+from pathlib import Path
 
 from temper_placer.scale.memory_profiler import (
-    profile_optimizer_memory,
     check_memory_thresholds,
-    MemoryProfile,
+    profile_optimizer_memory,
 )
 
 
@@ -79,7 +78,7 @@ def main():
                 seed=args.seed,
             )
 
-            print(f"\n  Results:")
+            print("\n  Results:")
             print(f"    Peak RSS:        {profile.peak_rss_mb:.1f} MB")
             print(f"    JAX Device:      {profile.jax_device_mb:.1f} MB")
             print(f"    Memory Growth:   {profile.memory_growth_mb_per_100_epochs:.2f} MB/100 epochs")
@@ -90,9 +89,9 @@ def main():
             result = check_memory_thresholds(profile)
 
             if result.passed:
-                print(f"\n  ✓ PASSED - Memory usage within thresholds")
+                print("\n  ✓ PASSED - Memory usage within thresholds")
             else:
-                print(f"\n  ✗ FAILED - Memory threshold violations:")
+                print("\n  ✗ FAILED - Memory threshold violations:")
                 for violation in result.violations:
                     print(f"      - {violation}")
                 all_passed = False
@@ -136,7 +135,7 @@ def main():
         if len(profiles) >= 2:
             max_growth = max(p.memory_growth_mb_per_100_epochs for p in profiles)
             if max_growth > 1.0:
-                print(f"\n  ⚠️  WARNING: Potential memory leak detected")
+                print("\n  ⚠️  WARNING: Potential memory leak detected")
                 print(f"      Max growth: {max_growth:.2f} MB/100 epochs")
             else:
                 print(f"\n  ✓ No memory leaks detected (max growth: {max_growth:.2f} MB/100 epochs)")

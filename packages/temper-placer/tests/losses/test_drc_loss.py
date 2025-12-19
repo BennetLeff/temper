@@ -4,7 +4,7 @@ Tests for DRC loss function with caching.
 
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import jax.numpy as jnp
 import pytest
@@ -15,14 +15,13 @@ from temper_placer.losses.drc_loss import (
     DRCLoss,
     create_drc_loss,
 )
+from temper_placer.validation.base import ValidationSeverity
 from temper_placer.validation.drc import (
     DRCResult,
     DRCViolation,
     DRCViolationType,
     KiCadDRCValidator,
 )
-from temper_placer.validation.base import ValidationSeverity
-
 
 # =============================================================================
 # DRCCacheEntry Tests
@@ -500,7 +499,7 @@ class TestDRCLossIntegration:
 
         # Create minimal context
         from temper_placer.core.board import Board
-        from temper_placer.core.netlist import Component, Netlist, Pin
+        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.losses.base import LossContext
 
         components = [

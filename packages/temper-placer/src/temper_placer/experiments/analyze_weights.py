@@ -14,18 +14,17 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, List
 
 import numpy as np
 
 
-def load_results(json_path: Path) -> Dict:
+def load_results(json_path: Path) -> dict:
     """Load weight search results from JSON file."""
     with open(json_path) as f:
         return json.load(f)
 
 
-def analyze_weight_correlations(results: Dict) -> None:
+def analyze_weight_correlations(results: dict) -> None:
     """
     Analyze correlation between individual weights and DRC pass rate.
 
@@ -84,7 +83,7 @@ def analyze_weight_correlations(results: Dict) -> None:
     perfect_configs = [c for c, rate in zip(all_configs, drc_pass_rates) if rate == 1.0]
 
     if perfect_configs:
-        for weight_name in weight_arrays.keys():
+        for weight_name in weight_arrays:
             values = [c[weight_name] for c in perfect_configs]
             print(
                 f"  {weight_name:20s}: min={min(values):.1f}, max={max(values):.1f}, "
@@ -94,7 +93,7 @@ def analyze_weight_correlations(results: Dict) -> None:
         print("  No configurations achieved 100% DRC pass rate")
 
 
-def analyze_pcb_difficulty(results: Dict) -> None:
+def analyze_pcb_difficulty(results: dict) -> None:
     """
     Analyze which PCBs are hardest to optimize.
 
@@ -106,7 +105,7 @@ def analyze_pcb_difficulty(results: Dict) -> None:
     print("=" * 80)
 
     # Group results by PCB
-    pcb_stats: Dict[str, List[int]] = {}
+    pcb_stats: dict[str, list[int]] = {}
 
     for entry in results["results"]:
         for pcb_result in entry["pcb_results"]:
@@ -132,7 +131,7 @@ def analyze_pcb_difficulty(results: Dict) -> None:
         print(f"{pcb_name:<30} {pass_rate:>6.1f}%      {best_errors:<14} {worst_errors}")
 
 
-def print_summary(results: Dict, top_k: int = 10) -> None:
+def print_summary(results: dict, top_k: int = 10) -> None:
     """Print summary statistics."""
     print("\n" + "=" * 80)
     print("WEIGHT SEARCH SUMMARY")

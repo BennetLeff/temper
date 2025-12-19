@@ -53,12 +53,12 @@ avoiding Python loops that would cause recompilation on every call.
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, cast
+from typing import cast
+
 import jax
 import jax.numpy as jnp
 from jax import Array
 
-from temper_placer.geometry.polygon import polygon_area
 from temper_placer.losses.base import LoopConstraint, LossContext, LossFunction, LossResult
 
 
@@ -214,8 +214,8 @@ class LoopAreaLoss(LossFunction):
         mask: Array,
         max_areas: Array,
         weights: Array,
-        loop_constraints: List[LoopConstraint],
-    ) -> Tuple[Array, dict]:
+        loop_constraints: list[LoopConstraint],
+    ) -> tuple[Array, dict]:
         """
         Compute loop area penalties for all loops in parallel.
 
@@ -308,7 +308,7 @@ class LoopAreaLoss(LossFunction):
         Returns full weight after 40% of training.
         """
         progress = epoch / jnp.maximum(total_epochs, 1)
-        
+
         # Use jnp.where to be JAX-compatible (avoid Python if/else on tracers)
         weight = jnp.where(
             progress < 0.4,
@@ -368,7 +368,7 @@ def compute_loop_area_penalty(
     return scale * violation**2
 
 
-def create_temper_loop_constraints() -> List[LoopConstraint]:
+def create_temper_loop_constraints() -> list[LoopConstraint]:
     """
     Create loop constraints for the Temper induction cooker.
 
@@ -452,7 +452,7 @@ def create_temper_loop_constraints() -> List[LoopConstraint]:
 def validate_loop_ordering(
     pin_positions: Array,
     loop_name: str = "unnamed",
-) -> List[str]:
+) -> list[str]:
     """
     Validate that pin positions form a simple (non-self-intersecting) polygon.
 

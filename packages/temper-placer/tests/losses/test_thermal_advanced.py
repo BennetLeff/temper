@@ -8,23 +8,22 @@ Tests cover:
 - Factory functions for creating losses from configs
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.losses.thermal import (
-    ThermalSpreadLoss,
-    HeatSensitiveDistanceLoss,
-    EdgePreferenceLoss,
-    ThermalComponentConfig,
-    create_thermal_spread_loss,
-    create_heat_sensitive_distance_loss,
-    create_edge_preference_loss,
-    create_temper_thermal_losses,
-)
-from temper_placer.losses.base import LossContext
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
+from temper_placer.core.netlist import Component, Netlist, Pin
+from temper_placer.losses.base import LossContext
+from temper_placer.losses.thermal import (
+    EdgePreferenceLoss,
+    HeatSensitiveDistanceLoss,
+    ThermalComponentConfig,
+    ThermalSpreadLoss,
+    create_edge_preference_loss,
+    create_heat_sensitive_distance_loss,
+    create_temper_thermal_losses,
+    create_thermal_spread_loss,
+)
 
 # =============================================================================
 # Fixtures

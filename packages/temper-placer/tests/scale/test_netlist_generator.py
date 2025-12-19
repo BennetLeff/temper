@@ -4,10 +4,9 @@ Tests for synthetic netlist generator for scale testing.
 TDD Task: temper-1my.3.1
 """
 
-import pytest
 from collections import Counter
 
-from temper_placer.core.netlist import Netlist, Component, Net
+from temper_placer.core.netlist import Netlist
 
 
 class TestSyntheticNetlistGenerator:

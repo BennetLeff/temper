@@ -11,14 +11,12 @@ TDD Task: temper-1by.12
 """
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
 from temper_placer.cli import main
-
 
 # Test fixtures paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

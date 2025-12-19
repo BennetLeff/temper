@@ -7,9 +7,7 @@ of a layout, which correlates with manufacturability and ease of inspection.
 
 from __future__ import annotations
 
-import jax.numpy as jnp
 import numpy as np
-from jax import Array
 
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.aesthetic import get_prefix_groups
@@ -46,7 +44,7 @@ def compute_aesthetic_score(
     y_off = np.mod(positions[:, 1], grid_size)
     dist_x = np.minimum(x_off, grid_size - x_off)
     dist_y = np.minimum(y_off, grid_size - y_off)
-    
+
     # Components within 0.01mm of grid are considered "snapped"
     snapped = (dist_x < 0.01) & (dist_y < 0.01)
     grid_score = np.mean(snapped)
@@ -57,7 +55,7 @@ def compute_aesthetic_score(
     counts = np.bincount(rotation_indices, minlength=4)
     probs = counts / n
     entropy = -np.sum(probs * np.log(probs + 1e-8))
-    
+
     # Normalized entropy (max is log(4) approx 1.38)
     # Score is 1.0 if all same rotation, ~0.0 if perfectly mixed
     orientation_score = np.clip(1.0 - (entropy / 1.386), 0.0, 1.0)
@@ -77,9 +75,9 @@ def compute_aesthetic_score(
         group_pos = positions[group]
         var = np.var(group_pos, axis=0)
         # If variance in either axis is very low (< 0.1mm), it's aligned
-        is_aligned = np.min(var) < 0.01 
+        is_aligned = np.min(var) < 0.01
         alignment_scores.append(1.0 if is_aligned else 0.0)
-    
+
     alignment_score = np.mean(alignment_scores) if alignment_scores else 1.0
 
     # Aggregate

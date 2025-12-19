@@ -23,7 +23,7 @@ Usage:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 # Package directory
 EXTERNAL_DIR = Path(__file__).parent
@@ -35,7 +35,7 @@ MANIFEST_PATH = EXTERNAL_DIR / "manifest.yaml"
 CACHE_DIR = EXTERNAL_DIR / ".cache"
 
 
-def get_pcb_path(project_name: str, pcb_index: int = 0) -> Optional[Path]:
+def get_pcb_path(project_name: str, pcb_index: int = 0) -> Path | None:
     """
     Get the local path to a downloaded PCB file.
 
@@ -66,7 +66,7 @@ def is_pcb_available(project_name: str, pcb_index: int = 0) -> bool:
     return path is not None and path.exists()
 
 
-def list_available_projects() -> List[str]:
+def list_available_projects() -> list[str]:
     """
     List all projects defined in the manifest.
 
@@ -79,7 +79,7 @@ def list_available_projects() -> List[str]:
     return list(manifest.get("projects", {}).keys())
 
 
-def list_downloaded_projects() -> List[str]:
+def list_downloaded_projects() -> list[str]:
     """
     List projects that have been downloaded to the cache.
 

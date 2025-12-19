@@ -1,8 +1,7 @@
-import pytest
-import networkx as nx
-from typing import List
 
-from temper_placer.core.netlist import Netlist, Net, Component, Pin
+import pytest
+
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.heuristics.graph_utils import GraphBuilder
 
 

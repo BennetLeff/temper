@@ -9,7 +9,6 @@ JAX-compatible for automatic differentiation.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
 
 import jax
 import jax.numpy as jnp
@@ -63,7 +62,7 @@ class PlacementState:
         board_height: float,
         key: Array,
         margin: float = 10.0,
-        origin: Tuple[float, float] = (0.0, 0.0),
+        origin: tuple[float, float] = (0.0, 0.0),
     ) -> PlacementState:
         """
         Create a random initial placement within board bounds.
@@ -133,7 +132,7 @@ class PlacementState:
         angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
         return jnp.sum(rotations * angles, axis=-1)
 
-    def to_discrete(self) -> Tuple[Array, Array]:
+    def to_discrete(self) -> tuple[Array, Array]:
         """
         Convert to discrete placement (argmax rotations).
 

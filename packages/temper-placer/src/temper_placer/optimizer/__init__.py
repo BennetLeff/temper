@@ -34,72 +34,66 @@ Example:
     >>> print(f"Final loss: {result.final_loss:.4f}")
 """
 
-from temper_placer.optimizer.config import (
-    OptimizerConfig,
-    InitializationConfig,
-    TemperatureSchedule,
-    LearningRateSchedule,
-    CurriculumPhase,
-    CheckpointConfig,
-    EarlyStoppingConfig,
-    get_default_loss_weights,
-)
-
-from temper_placer.optimizer.scheduler import (
-    get_temperature,
-    get_learning_rate,
-    get_temperature_jax,
-    get_learning_rate_jax,
-    get_curriculum_weights,
-    ScheduleState,
-)
-
-from temper_placer.optimizer.curriculum import (
-    create_default_phases,
-    create_fast_phases,
-    get_active_phase,
-    get_phase_progress,
-    smooth_transition_weights,
-    CurriculumState,
-)
-
-from temper_placer.optimizer.train import (
-    train,
-    train_multiphase,
-    TrainingResult,
-    TrainingMetrics,
-    TrainingState,
-    initialize_training_state,
-    NumericalInstabilityError,
-)
-
-from temper_placer.optimizer.validation_callback import (
-    ValidationConfig,
-    ValidationResult,
-    ValidationCallback,
-    create_validation_callback,
-)
-
-from temper_placer.optimizer.postprocess import (
-    PostProcessConfig,
-    PostProcessResult,
-    snap_to_grid,
-    snap_to_grid_with_overlap_check,
-    discrete_rotation_refinement,
-    discrete_rotation_refinement_greedy,
-    discrete_rotation_refinement_beam,
-    postprocess,
-    finalize_placement,
-    get_rotation_index,
-    set_rotation_index,
-    DEFAULT_GRID_SIZE,
-)
-
 from temper_placer.optimizer.checkpoint import (
     Checkpoint,
     CheckpointManager,
     create_checkpoint_from_training_state,
     restore_training_state_from_checkpoint,
+)
+from temper_placer.optimizer.config import (
+    CheckpointConfig,
+    CurriculumPhase,
+    EarlyStoppingConfig,
+    InitializationConfig,
+    LearningRateSchedule,
+    OptimizerConfig,
+    TemperatureSchedule,
+    get_default_loss_weights,
+)
+from temper_placer.optimizer.curriculum import (
+    CurriculumState,
+    create_default_phases,
+    create_fast_phases,
+    get_active_phase,
+    get_phase_progress,
+    smooth_transition_weights,
+)
+from temper_placer.optimizer.postprocess import (
+    DEFAULT_GRID_SIZE,
+    PostProcessConfig,
+    PostProcessResult,
+    discrete_rotation_refinement,
+    discrete_rotation_refinement_beam,
+    discrete_rotation_refinement_greedy,
+    finalize_placement,
+    get_rotation_index,
+    postprocess,
+    set_rotation_index,
+    snap_to_grid,
+    snap_to_grid_with_overlap_check,
+)
+from temper_placer.optimizer.scheduler import (
+    ScheduleState,
+    get_curriculum_weights,
+    get_learning_rate,
+    get_learning_rate_jax,
+    get_temperature,
+    get_temperature_jax,
+)
+from temper_placer.optimizer.train import (
+    NumericalInstabilityError,
+    TrainingMetrics,
+    TrainingResult,
+    TrainingState,
+    initialize_training_state,
+    train,
+    train_multiphase,
+)
+from temper_placer.optimizer.validation_callback import (
+    ValidationCallback,
+    ValidationConfig,
+    ValidationResult,
+    create_validation_callback,
 )
 
 __all__ = [

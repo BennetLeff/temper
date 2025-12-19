@@ -8,10 +8,8 @@ for testing placement optimizer scalability.
 from __future__ import annotations
 
 import random
-from typing import List, Tuple
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
 
 # Component definitions: (prefix, footprints, bounds, net_class)
 COMPONENT_TYPES = {
@@ -70,15 +68,11 @@ DISTRIBUTION = {
 
 
 def _generate_ic_pins(
-    footprint: str, bounds: Tuple[float, float]
-) -> List[Tuple[str, str, Tuple[float, float]]]:
+    footprint: str, bounds: tuple[float, float]
+) -> list[tuple[str, str, tuple[float, float]]]:
     """Generate pins for an IC based on footprint."""
     # Extract pin count from footprint name
-    if "SOIC-" in footprint:
-        n_pins = int(footprint.split("-")[1])
-    elif "QFN-" in footprint:
-        n_pins = int(footprint.split("-")[1])
-    elif "TSSOP-" in footprint:
+    if "SOIC-" in footprint or "QFN-" in footprint or "TSSOP-" in footprint:
         n_pins = int(footprint.split("-")[1])
     else:
         n_pins = 8
@@ -102,8 +96,8 @@ def _generate_ic_pins(
 
 
 def _generate_connector_pins(
-    footprint: str, bounds: Tuple[float, float]
-) -> List[Tuple[str, str, Tuple[float, float]]]:
+    footprint: str, bounds: tuple[float, float]
+) -> list[tuple[str, str, tuple[float, float]]]:
     """Generate pins for a connector based on footprint."""
     # Extract pin count from footprint name (e.g., Conn_01x04 -> 4)
     n_pins = int(footprint.split("x")[1])
@@ -132,7 +126,7 @@ def generate_netlist(n_components: int, seed: int = 42) -> Netlist:
     """
     rng = random.Random(seed)
 
-    components: List[Component] = []
+    components: list[Component] = []
     component_counters: dict[str, int] = {}
 
     # Calculate how many of each type
@@ -182,14 +176,14 @@ def generate_netlist(n_components: int, seed: int = 42) -> Netlist:
             )
 
     # Generate nets
-    nets: List[Net] = []
+    nets: list[Net] = []
 
     # 1. Power rails (VCC, GND) - connect to ICs and some passives
     ic_refs = [c.ref for c in components if c.footprint.startswith(("SOIC", "QFN", "TSSOP"))]
     power_refs = [c.ref for c in components if c.footprint.startswith(("TO-247", "TO-220"))]
 
     # VCC net
-    vcc_pins: List[Tuple[str, str]] = []
+    vcc_pins: list[tuple[str, str]] = []
     for ref in ic_refs:
         comp = next(c for c in components if c.ref == ref)
         # Use a pin (typically pin 8 or highest numbered for VCC)
@@ -202,7 +196,7 @@ def generate_netlist(n_components: int, seed: int = 42) -> Netlist:
         nets.append(Net("VCC", vcc_pins, net_class="Power", weight=1.0))
 
     # GND net
-    gnd_pins: List[Tuple[str, str]] = []
+    gnd_pins: list[tuple[str, str]] = []
     for ref in ic_refs:
         comp = next(c for c in components if c.ref == ref)
         if comp.pins and len(comp.pins) > 1:
@@ -240,7 +234,7 @@ def generate_netlist(n_components: int, seed: int = 42) -> Netlist:
         signal_net_count += 1
         net_name = f"NET_{signal_net_count}"
 
-        net_pins: List[Tuple[str, str]] = []
+        net_pins: list[tuple[str, str]] = []
         for ref in net_refs:
             comp = next(c for c in components if c.ref == ref)
             if comp.pins:

@@ -1,8 +1,7 @@
-import jax
+import time
+
 import jax.numpy as jnp
 from jax import grad, jit, vmap
-import numpy as np
-import time
 
 # --- Models to Evaluate ---
 

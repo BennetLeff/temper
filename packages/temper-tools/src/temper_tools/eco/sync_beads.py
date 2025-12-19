@@ -17,29 +17,26 @@ Usage:
     python3 tools/sync_beads_to_eco.py --dry-run # Preview without posting
 """
 
+import hashlib
 import json
 import os
 import sys
-import hashlib
 import time
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Any
 
-# Add parent directory to path for gpbm imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from gpbm.eco_client import EcoClient, EcoConfig
+from temper_workflow.gpbm.eco_client import EcoClient, EcoConfig
 
 ISSUES_FILE = ".beads/issues.jsonl"
 STATE_FILE = ".beads/eco_sync_state.json"
 
 
-def load_issues() -> Dict[str, Any]:
+def load_issues() -> dict[str, Any]:
     """Load all issues from the JSONL file."""
     if not os.path.exists(ISSUES_FILE):
         return {}
 
     issues = {}
-    with open(ISSUES_FILE, "r") as f:
+    with open(ISSUES_FILE) as f:
         for line in f:
             if line.strip():
                 try:
@@ -50,31 +47,31 @@ def load_issues() -> Dict[str, Any]:
     return issues
 
 
-def load_state() -> Dict[str, str]:
+def load_state() -> dict[str, str]:
     """Load sync state (issue_id -> content_hash mapping)."""
     if not os.path.exists(STATE_FILE):
         return {}
     try:
-        with open(STATE_FILE, "r") as f:
+        with open(STATE_FILE) as f:
             return json.load(f)
     except Exception:
         return {}
 
 
-def save_state(state: Dict[str, str]) -> None:
+def save_state(state: dict[str, str]) -> None:
     """Save sync state."""
     os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
     with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=2)
 
 
-def compute_hash(issue: Dict) -> str:
+def compute_hash(issue: dict) -> str:
     """Compute hash of issue fields we care about for sync."""
     content = f"{issue.get('title')}|{issue.get('description')}|{issue.get('status')}|{issue.get('priority')}"
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def extract_role_from_labels(labels: List[str]) -> Optional[str]:
+def extract_role_from_labels(labels: list[str]) -> str | None:
     """Extract agent role from issue labels.
 
     Args:
@@ -96,7 +93,7 @@ def extract_role_from_labels(labels: List[str]) -> Optional[str]:
     return None
 
 
-def extract_domain_from_labels(labels: List[str]) -> Optional[str]:
+def extract_domain_from_labels(labels: list[str]) -> str | None:
     """Extract project domain from issue labels.
 
     Args:
@@ -117,9 +114,7 @@ def extract_domain_from_labels(labels: List[str]) -> Optional[str]:
     return None
 
 
-def determine_user_id(
-    issue: Dict, config: EcoConfig
-) -> Tuple[str, Optional[str], Optional[str]]:
+def determine_user_id(issue: dict, config: EcoConfig) -> tuple[str, str | None, str | None]:
     """Determine the appropriate Eco user ID for an issue.
 
     Returns:
@@ -139,7 +134,7 @@ def determine_user_id(
         return config.SHARED, role, domain
 
 
-def hydrate_state_from_eco(client: EcoClient, state: Dict[str, str]) -> Dict[str, str]:
+def hydrate_state_from_eco(client: EcoClient, state: dict[str, str]) -> dict[str, str]:
     """Hydrate local state from Eco server to avoid double-syncing.
 
     Queries all user IDs and extracts sync hashes from existing memories.
@@ -148,9 +143,7 @@ def hydrate_state_from_eco(client: EcoClient, state: Dict[str, str]) -> Dict[str
     config = client.config
 
     # All user IDs to check
-    all_user_ids = (
-        [config.SHARED] + list(config.ROLES.values()) + list(config.DOMAINS.values())
-    )
+    all_user_ids = [config.SHARED] + list(config.ROLES.values()) + list(config.DOMAINS.values())
 
     count = 0
 
@@ -178,11 +171,7 @@ def hydrate_state_from_eco(client: EcoClient, state: Dict[str, str]) -> Dict[str
                     metadata = mem.get("metadata", {})
 
                     # Check if this is a beads sync memory
-                    if (
-                        "beads" in tags
-                        and "issueId" in metadata
-                        and "syncHash" in metadata
-                    ):
+                    if "beads" in tags and "issueId" in metadata and "syncHash" in metadata:
                         issue_id = metadata["issueId"]
                         sync_hash = metadata["syncHash"]
 
@@ -208,7 +197,7 @@ def hydrate_state_from_eco(client: EcoClient, state: Dict[str, str]) -> Dict[str
     return state
 
 
-def format_issue_memory(issue: Dict, action: str) -> str:
+def format_issue_memory(issue: dict, action: str) -> str:
     """Format issue as memory content for Eco."""
     issue_id = issue.get("id", "unknown")
     title = issue.get("title", "")
@@ -240,7 +229,7 @@ def format_issue_memory(issue: Dict, action: str) -> str:
     return content
 
 
-def sync(force: bool = False, dry_run: bool = False) -> Tuple[int, int]:
+def sync(force: bool = False, dry_run: bool = False) -> tuple[int, int]:
     """Sync all changed issues to Eco.
 
     Args:

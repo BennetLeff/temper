@@ -10,18 +10,17 @@ These tests verify:
 - Loop inductance estimation helper
 """
 
-import pytest
-import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+
+import pytest
 
 from temper_placer.validation.spice import (
     NgspiceValidator,
     SpiceMeasurement,
     SpiceResult,
-    estimate_loop_inductance,
     create_validation_netlist,
+    estimate_loop_inductance,
 )
 
 
@@ -459,10 +458,11 @@ class TestValidatorInterface:
 
     def test_validate_returns_result(self):
         """Test that validate() returns ValidationResult."""
-        from temper_placer.core.state import PlacementState
-        from temper_placer.core.netlist import Netlist
-        from temper_placer.core.board import Board
         import jax.numpy as jnp
+
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Netlist
+        from temper_placer.core.state import PlacementState
 
         validator = NgspiceValidator()
 
@@ -640,8 +640,8 @@ class TestPlacementSpiceValidation:
     def test_compute_total_spice_penalty(self, validator, sample_positions):
         """Test total penalty computation."""
         from temper_placer.validation.spice import (
-            run_all_placement_validations,
             compute_total_spice_penalty,
+            run_all_placement_validations,
         )
 
         results = run_all_placement_validations(validator, sample_positions)

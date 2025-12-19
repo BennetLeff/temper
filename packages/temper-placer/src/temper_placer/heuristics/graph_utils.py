@@ -7,9 +7,8 @@ suitable for spectral analysis and force-directed layout algorithms.
 
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
-
 import networkx as nx
+
 from temper_placer.core.netlist import Netlist
 
 

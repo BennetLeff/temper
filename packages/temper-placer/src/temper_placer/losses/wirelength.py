@@ -13,13 +13,10 @@ avoiding Python loops that would cause recompilation on every call.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import jax
 import jax.numpy as jnp
 from jax import Array
 
-from temper_placer.geometry.smooth import smooth_max, smooth_min
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 
@@ -45,7 +42,7 @@ class WirelengthLoss(LossFunction):
         self,
         alpha: float = 10.0,
         net_weight_scale: float = 1.0,
-        net_weights: Optional[dict[str, float]] = None,
+        net_weights: dict[str, float] | None = None,
     ):
         """
         Initialize WirelengthLoss.
@@ -91,7 +88,7 @@ class WirelengthLoss(LossFunction):
         if self.net_weights:
             # We must filter nets exactly as LossContext does
             valid_nets = [n for n in context.netlist.nets if len(n.pins) >= 2]
-            
+
             multipliers = []
             for net in valid_nets:
                 # Check specific net name first, then net class, then default 1.0
@@ -99,7 +96,7 @@ class WirelengthLoss(LossFunction):
                 if w is None:
                     w = self.net_weights.get(net.net_class, 1.0)
                 multipliers.append(w)
-            
+
             # Create constant array embedded in graph
             mult_array = jnp.array(multipliers, dtype=jnp.float32)
             weights = weights * mult_array
@@ -322,12 +319,12 @@ class SteinerTreeLoss(WirelengthLoss):
         # Compute correction factors based on pin counts
         # mask is (M, P), sum along P gives n_pins per net: (M,)
         n_pins = jnp.sum(mask, axis=1)
-        
+
         # Correction factor: 1.0 for 2-3 pins, increases logarithmically thereafter
         # Using jnp.log2(n - 1) * 0.1 as a heuristic
         # We use jnp.maximum to handle 1 or 2 pins safely
         correction = 1.0 + 0.1 * jnp.log2(jnp.maximum(n_pins - 1, 1.0))
-        
+
         # Weighted RSMT sum
         total_steiner = jnp.sum(weights * hpwl_per_net * correction)
 

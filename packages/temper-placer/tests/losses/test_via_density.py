@@ -1,8 +1,6 @@
-from typing import List
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
+
 from temper_placer.losses.via_density import ViaDensityLoss
-import pytest
 
 
 # Minimal mock context

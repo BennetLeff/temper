@@ -8,7 +8,6 @@ switching nodes or high di/dt paths.
 
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
 from jax import Array
 

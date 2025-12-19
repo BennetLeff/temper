@@ -9,7 +9,6 @@ Tests cover:
 
 import jax
 import jax.numpy as jnp
-import pytest
 
 from temper_placer.core.state import PlacementState
 from temper_placer.optimizer.postprocess import (
@@ -24,7 +23,6 @@ from temper_placer.optimizer.postprocess import (
     postprocess,
     set_rotation_index,
     snap_to_grid,
-    snap_to_grid_with_overlap_check,
 )
 
 

@@ -12,15 +12,12 @@ Optimizations:
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 import jax
 import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.geometry.transform import batch_get_rotated_bounds
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
-
 
 # Threshold for switching between full vectorized and chunked computation
 _VECTORIZED_THRESHOLD = 50
@@ -170,8 +167,8 @@ def _compute_pairwise_overlaps_vectorized(
     widths: Array,
     heights: Array,
     margin: float,
-    centrality: Optional[Array] = None,
-) -> Tuple[Array, Array]:
+    centrality: Array | None = None,
+) -> tuple[Array, Array]:
     """
     Compute sum of squared overlaps using full vectorized approach.
 
@@ -187,7 +184,7 @@ def _compute_pairwise_overlaps_vectorized(
     # Ensure widths/heights match positions dtype
     widths_dt = widths.astype(dtype)
     heights_dt = heights.astype(dtype)
-    
+
     half_w = (widths_dt + margin) / 2.0
     half_h = (heights_dt + margin) / 2.0
 
@@ -233,8 +230,8 @@ def _compute_pairwise_overlaps_chunked(
     widths: Array,
     heights: Array,
     margin: float,
-    centrality: Optional[Array] = None,
-) -> Tuple[Array, Array]:
+    centrality: Array | None = None,
+) -> tuple[Array, Array]:
     """
     Compute sum of squared overlaps using chunked approach for memory efficiency.
 
@@ -248,7 +245,7 @@ def _compute_pairwise_overlaps_chunked(
     # Ensure widths/heights match positions dtype
     widths_dt = widths.astype(dtype)
     heights_dt = heights.astype(dtype)
-    
+
     half_w = (widths_dt + margin) / 2.0
     half_h = (heights_dt + margin) / 2.0
 
@@ -301,8 +298,8 @@ def _compute_pairwise_overlaps_optimized(
     widths: Array,
     heights: Array,
     margin: float,
-    centrality: Optional[Array] = None,
-) -> Tuple[Array, Array]:
+    centrality: Array | None = None,
+) -> tuple[Array, Array]:
     """
     Compute sum of squared overlaps using the most efficient method for the given N.
 
@@ -311,7 +308,7 @@ def _compute_pairwise_overlaps_optimized(
     For large N (>= 50): Uses chunked approach for memory efficiency
     """
     n = positions.shape[0]
-    
+
     # Ensure we use a float dtype even if positions are integers
     if jnp.issubdtype(positions.dtype, jnp.integer):
         dtype = jnp.float32
@@ -336,7 +333,7 @@ def compute_overlap_penalty(
     widths: Array,
     heights: Array,
     margin: float = 0.0,
-    centrality: Optional[Array] = None,
+    centrality: Array | None = None,
 ) -> Array:
     """
     Standalone function to compute overlap penalty.

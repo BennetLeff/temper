@@ -14,9 +14,7 @@ Zones separate the board into regions with specific electrical properties:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
 
-import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -84,7 +82,7 @@ def compute_zone_distance(
 def compute_zone_membership_penalty(
     positions: Array,
     context: LossContext,
-    zone_assignments: Optional[Dict[str, str]] = None,
+    zone_assignments: dict[str, str] | None = None,
 ) -> Array:
     """
     Compute zone membership violation penalty.
@@ -114,7 +112,7 @@ def compute_zone_membership_penalty(
         return jnp.array(0.0)
 
     # Build zone lookup
-    zone_lookup: Dict[str, Zone] = {z.name: z for z in context.board.zones}
+    zone_lookup: dict[str, Zone] = {z.name: z for z in context.board.zones}
 
     total_penalty = jnp.array(0.0)
 
@@ -157,7 +155,7 @@ class ZoneMembershipLoss(LossFunction):
             If None, uses zone.components from board definition.
     """
 
-    zone_assignments: Optional[Dict[str, str]] = None
+    zone_assignments: dict[str, str] | None = None
 
     @property
     def name(self) -> str:
@@ -207,7 +205,7 @@ class ZoneMembershipLoss(LossFunction):
         return result  # type: ignore
 
 
-def create_temper_zone_assignments() -> Dict[str, str]:
+def create_temper_zone_assignments() -> dict[str, str]:
     """
     Create default zone assignments for Temper board.
 

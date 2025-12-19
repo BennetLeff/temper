@@ -1,8 +1,8 @@
-from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
-import jax
+
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
+
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 
 @dataclass
@@ -22,8 +22,8 @@ class NetClassSeparationLoss(LossFunction):
 
     def __init__(
         self,
-        net_class_rules: List[NetClassRule],
-        component_net_classes: Dict[int, str],
+        net_class_rules: list[NetClassRule],
+        component_net_classes: dict[int, str],
     ):
         self.rules = net_class_rules
         self.component_net_classes = component_net_classes
@@ -89,9 +89,9 @@ class ResolvedNetClassSeparationLoss(LossFunction):
 
 def create_net_class_loss(
     netlist,
-    net_class_rules: List[NetClassRule],
+    net_class_rules: list[NetClassRule],
     # Optional override for manual classification
-    component_classes: Optional[Dict[str, str]] = None,
+    component_classes: dict[str, str] | None = None,
 ) -> ResolvedNetClassSeparationLoss:
     """
     Factory to resolve net classes and component indices.

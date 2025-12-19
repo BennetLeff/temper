@@ -9,42 +9,38 @@ Tests cover:
 - Edge cases (empty inputs, zero loss conditions)
 """
 
-import pytest
 import jax
 import jax.numpy as jnp
+import pytest
+
+# Import core types for fixtures
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # Import loss functions
 from temper_placer.losses.base import (
-    ClearanceRule,
     CompositeLoss,
-    LoopConstraint,
     LossContext,
     LossResult,
     ThermalConstraint,
     WeightedLoss,
     smooth_step,
 )
-from temper_placer.losses.wirelength import WirelengthLoss, compute_total_hpwl
-from temper_placer.losses.overlap import OverlapLoss, compute_overlap_penalty
-from temper_placer.losses.boundary import BoundaryLoss, compute_boundary_penalty
-from temper_placer.losses.clearance import ClearanceLoss, compute_clearance_penalty
-from temper_placer.losses.loop_area import LoopAreaLoss, compute_loop_area_penalty
-from temper_placer.losses.thermal import ThermalLoss, compute_thermal_penalty
-from temper_placer.losses.zone import ZoneMembershipLoss, compute_zone_membership_penalty
+from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.clearance import ClearanceLoss
+from temper_placer.losses.congestion import CongestionLoss
 from temper_placer.losses.ground_crossing import GroundCrossingLoss
-from temper_placer.losses.congestion import CongestionLoss, compute_congestion_penalty
+from temper_placer.losses.loop_area import LoopAreaLoss, compute_loop_area_penalty
+from temper_placer.losses.overlap import OverlapLoss, compute_overlap_penalty
 from temper_placer.losses.regularization import (
-    SpreadLoss,
-    RotationEntropyLoss,
     CenterOfMassLoss,
+    RotationEntropyLoss,
+    SpreadLoss,
     compute_spread_penalty,
-    compute_rotation_entropy,
 )
-
-# Import core types for fixtures
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
+from temper_placer.losses.thermal import ThermalLoss
+from temper_placer.losses.wirelength import WirelengthLoss
+from temper_placer.losses.zone import ZoneMembershipLoss
 
 # =============================================================================
 # Fixtures
@@ -1030,8 +1026,8 @@ class TestSpreadLoss:
         This validates the chunking optimization for SpreadLoss (temper-r2i.5).
         """
         from temper_placer.losses.regularization import (
-            _compute_spread_penalty_vectorized,
             _compute_spread_penalty_chunked,
+            _compute_spread_penalty_vectorized,
         )
 
         # Create a test case with positions that will have spread penalties
@@ -1071,8 +1067,8 @@ class TestSpreadLoss:
     def test_spread_chunked_gradient_correct(self):
         """Test that gradients are correct with chunked computation."""
         from temper_placer.losses.regularization import (
-            _compute_spread_penalty_vectorized,
             _compute_spread_penalty_chunked,
+            _compute_spread_penalty_vectorized,
         )
 
         key = jax.random.PRNGKey(99)

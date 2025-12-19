@@ -20,7 +20,6 @@ from temper_placer.io.placement_exporter import (
     rotation_index_to_degrees,
     soft_to_discrete_rotations,
 )
-from temper_placer.io.kicad_writer import PlacementUpdate
 
 
 class TestSoftToDiscreteRotations:

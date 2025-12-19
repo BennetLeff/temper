@@ -11,25 +11,24 @@ These tests verify:
 - Power domain separation
 """
 
-import pytest
-from unittest.mock import MagicMock
-
-import sys
 import os
+import sys
+
+import pytest
 
 # Add project root to path to allow importing from tests
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from tests.requirements.validators.isolation import (
-    IsolationViolation,
     IsolationResult,
+    IsolationViolation,
+    check_adum1250_barrier,
+    check_clearance_distances,
+    check_ground_plane_split,
     check_isolation_slot,
     check_no_traces_across_barrier,
-    check_ucc21550_barrier,
-    check_adum1250_barrier,
-    check_ground_plane_split,
-    check_clearance_distances,
     check_power_domain_separation,
+    check_ucc21550_barrier,
 )
 
 

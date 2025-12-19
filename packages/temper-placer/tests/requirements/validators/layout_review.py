@@ -6,7 +6,6 @@ Layout Review Checklist.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional, Set
 from pathlib import Path
 
 
@@ -21,8 +20,8 @@ class ComponentPlacement:
     y: float  # mm
     rotation: float  # degrees
     layer: str  # "F.Cu", "B.Cu", etc.
-    part_number: Optional[str] = None
-    thermal_zone: Optional[str] = None  # "HV", "LV", "ANALOG", "DIGITAL"
+    part_number: str | None = None
+    thermal_zone: str | None = None  # "HV", "LV", "ANALOG", "DIGITAL"
     is_heatsink_component: bool = False
     is_power_component: bool = False
 
@@ -52,8 +51,8 @@ class ViaInfo:
     y: float
     drill: float  # mm
     size: float  # mm
-    layers: Tuple[str, str]  # (from_layer, to_layer)
-    net_name: Optional[str] = None
+    layers: tuple[str, str]  # (from_layer, to_layer)
+    net_name: str | None = None
 
 
 @dataclass
@@ -63,7 +62,7 @@ class PlaneInfo:
     net_name: str
     layer: str
     copper_pour: bool = True
-    stitching_vias: List[ViaInfo] = field(default_factory=list)
+    stitching_vias: list[ViaInfo] = field(default_factory=list)
     thermal_relief: bool = True
 
 
@@ -74,10 +73,10 @@ class LayoutViolation:
     code: str
     message: str
     severity: str = "error"  # "error", "warning", "info"
-    component_ref: Optional[str] = None
-    net_name: Optional[str] = None
-    coordinates: Optional[Tuple[float, float]] = None
-    details: Optional[str] = None
+    component_ref: str | None = None
+    net_name: str | None = None
+    coordinates: tuple[float, float] | None = None
+    details: str | None = None
 
 
 @dataclass
@@ -85,8 +84,8 @@ class LayoutReviewResult:
     """Result of layout review validation."""
 
     passed: bool
-    violations: List[LayoutViolation]
-    warnings: List[str] = field(default_factory=list)
+    violations: list[LayoutViolation]
+    warnings: list[str] = field(default_factory=list)
 
     @property
     def error_count(self) -> int:
@@ -107,8 +106,8 @@ class LayoutReviewResult:
 
 
 def check_thermal_management(
-    components: List[ComponentPlacement],
-    thermal_zones: Dict[str, str],  # zone_name: temperature_target
+    components: list[ComponentPlacement],
+    thermal_zones: dict[str, str],  # zone_name: temperature_target
 ) -> LayoutReviewResult:
     """
     Check thermal management in component placement.
@@ -131,7 +130,7 @@ def check_thermal_management(
 
 
 def check_component_clearances(
-    components: List[ComponentPlacement],
+    components: list[ComponentPlacement],
     min_clearance: float = 0.2,  # mm
 ) -> LayoutReviewResult:
     """
@@ -155,8 +154,8 @@ def check_component_clearances(
 
 
 def check_component_orientation(
-    components: List[ComponentPlacement],
-    preferred_orientations: Optional[Dict[str, List[float]]] = None,
+    components: list[ComponentPlacement],
+    preferred_orientations: dict[str, list[float]] | None = None,
 ) -> LayoutReviewResult:
     """
     Check component orientation consistency.
@@ -179,8 +178,8 @@ def check_component_orientation(
 
 
 def check_power_component_placement(
-    components: List[ComponentPlacement],
-    power_nets: List[str],
+    components: list[ComponentPlacement],
+    power_nets: list[str],
 ) -> LayoutReviewResult:
     """
     Check power component placement optimization.
@@ -203,8 +202,8 @@ def check_power_component_placement(
 
 
 def check_heatsink_clearance(
-    components: List[ComponentPlacement],
-    heatsink_zones: List[Tuple[float, float, float, float]],  # [(x, y, width, height)]
+    components: list[ComponentPlacement],
+    heatsink_zones: list[tuple[float, float, float, float]],  # [(x, y, width, height)]
 ) -> LayoutReviewResult:
     """
     Check heatsink component clearances.
@@ -232,8 +231,8 @@ def check_heatsink_clearance(
 
 
 def check_trace_widths(
-    traces: List[TraceInfo],
-    min_widths: Dict[str, float],  # net_class: min_width_mm
+    traces: list[TraceInfo],
+    min_widths: dict[str, float],  # net_class: min_width_mm
 ) -> LayoutReviewResult:
     """
     Check trace widths meet requirements.
@@ -256,7 +255,7 @@ def check_trace_widths(
 
 
 def check_trace_spacing(
-    traces: List[TraceInfo],
+    traces: list[TraceInfo],
     min_spacing: float = 0.15,  # mm
 ) -> LayoutReviewResult:
     """
@@ -280,8 +279,8 @@ def check_trace_spacing(
 
 
 def check_impedance_control(
-    traces: List[TraceInfo],
-    controlled_impedance_nets: List[str],
+    traces: list[TraceInfo],
+    controlled_impedance_nets: list[str],
     target_impedance: float = 50.0,  # ohms
     tolerance: float = 0.10,  # ±10%
 ) -> LayoutReviewResult:
@@ -308,9 +307,9 @@ def check_impedance_control(
 
 
 def check_via_usage(
-    traces: List[TraceInfo],
-    vias: List[ViaInfo],
-    critical_nets: List[str],
+    traces: list[TraceInfo],
+    vias: list[ViaInfo],
+    critical_nets: list[str],
 ) -> LayoutReviewResult:
     """
     Check via usage optimization.
@@ -334,8 +333,8 @@ def check_via_usage(
 
 
 def check_differential_pairs(
-    traces: List[TraceInfo],
-    diff_pairs: List[Tuple[str, str]],  # [(net1, net2), ...]
+    traces: list[TraceInfo],
+    diff_pairs: list[tuple[str, str]],  # [(net1, net2), ...]
 ) -> LayoutReviewResult:
     """
     Check differential pair routing.
@@ -363,8 +362,8 @@ def check_differential_pairs(
 
 
 def check_power_planes(
-    planes: List[PlaneInfo],
-    power_nets: List[str],
+    planes: list[PlaneInfo],
+    power_nets: list[str],
 ) -> LayoutReviewResult:
     """
     Check power plane integrity.
@@ -387,7 +386,7 @@ def check_power_planes(
 
 
 def check_copper_pours(
-    planes: List[PlaneInfo],
+    planes: list[PlaneInfo],
     min_coverage: float = 0.50,  # 50% minimum coverage
 ) -> LayoutReviewResult:
     """
@@ -411,7 +410,7 @@ def check_copper_pours(
 
 
 def check_stitching_vias(
-    planes: List[PlaneInfo],
+    planes: list[PlaneInfo],
     min_vias_per_plane: int = 4,
 ) -> LayoutReviewResult:
     """
@@ -440,9 +439,9 @@ def check_stitching_vias(
 
 
 def check_creepage_distances(
-    components: List[ComponentPlacement],
-    traces: List[TraceInfo],
-    hv_nets: List[str],
+    components: list[ComponentPlacement],
+    traces: list[TraceInfo],
+    hv_nets: list[str],
     min_creepage: float = 8.0,  # mm for 340V DC
 ) -> LayoutReviewResult:
     """
@@ -468,9 +467,9 @@ def check_creepage_distances(
 
 
 def check_clearance_distances(
-    components: List[ComponentPlacement],
-    traces: List[TraceInfo],
-    hv_nets: List[str],
+    components: list[ComponentPlacement],
+    traces: list[TraceInfo],
+    hv_nets: list[str],
     min_clearance: float = 5.0,  # mm for 340V DC
 ) -> LayoutReviewResult:
     """
@@ -496,8 +495,8 @@ def check_clearance_distances(
 
 
 def check_isolation_barriers(
-    components: List[ComponentPlacement],
-    isolation_zones: List[Tuple[float, float, float, float]],  # [(x, y, width, height)]
+    components: list[ComponentPlacement],
+    isolation_zones: list[tuple[float, float, float, float]],  # [(x, y, width, height)]
 ) -> LayoutReviewResult:
     """
     Check isolation barrier placement.
@@ -525,9 +524,9 @@ def check_isolation_barriers(
 
 
 def check_loop_areas(
-    components: List[ComponentPlacement],
-    traces: List[TraceInfo],
-    critical_loops: List[List[str]],  # List of net lists defining loops
+    components: list[ComponentPlacement],
+    traces: list[TraceInfo],
+    critical_loops: list[list[str]],  # List of net lists defining loops
     max_loop_area: float = 5.0,  # cm²
 ) -> LayoutReviewResult:
     """
@@ -553,9 +552,9 @@ def check_loop_areas(
 
 
 def check_shielding_effectiveness(
-    components: List[ComponentPlacement],
-    traces: List[TraceInfo],
-    shielding_zones: List[str],  # Zone names with shielding
+    components: list[ComponentPlacement],
+    traces: list[TraceInfo],
+    shielding_zones: list[str],  # Zone names with shielding
 ) -> LayoutReviewResult:
     """
     Check EMI shielding effectiveness.
@@ -579,8 +578,8 @@ def check_shielding_effectiveness(
 
 
 def check_filter_placement(
-    components: List[ComponentPlacement],
-    filter_components: List[str],  # Component refs for filters
+    components: list[ComponentPlacement],
+    filter_components: list[str],  # Component refs for filters
 ) -> LayoutReviewResult:
     """
     Check EMI filter component placement.
@@ -609,7 +608,7 @@ def check_filter_placement(
 
 def check_drc_compliance(
     pcb_path: Path,
-    drc_rules: Optional[Dict[str, float]] = None,
+    drc_rules: dict[str, float] | None = None,
 ) -> LayoutReviewResult:
     """
     Check Design Rule Check (DRC) compliance.
@@ -632,8 +631,8 @@ def check_drc_compliance(
 
 
 def check_minimum_features(
-    traces: List[TraceInfo],
-    vias: List[ViaInfo],
+    traces: list[TraceInfo],
+    vias: list[ViaInfo],
     min_trace_width: float = 0.15,  # mm (6 mil)
     min_via_drill: float = 0.3,  # mm (12 mil)
 ) -> LayoutReviewResult:
@@ -660,8 +659,8 @@ def check_minimum_features(
 
 
 def check_panel_utilization(
-    board_outline: Tuple[float, float, float, float],  # (x, y, width, height)
-    panel_size: Tuple[float, float],  # (width, height)
+    board_outline: tuple[float, float, float, float],  # (x, y, width, height)
+    panel_size: tuple[float, float],  # (width, height)
     board_count: int = 1,
 ) -> LayoutReviewResult:
     """
@@ -691,7 +690,7 @@ def check_panel_utilization(
 
 
 def check_reference_designators(
-    components: List[ComponentPlacement],
+    components: list[ComponentPlacement],
     silkscreen_layer: str = "F.SilkS",
 ) -> LayoutReviewResult:
     """
@@ -715,8 +714,8 @@ def check_reference_designators(
 
 
 def check_polarity_marks(
-    components: List[ComponentPlacement],
-    polarized_components: List[str],  # Component refs that need polarity marks
+    components: list[ComponentPlacement],
+    polarized_components: list[str],  # Component refs that need polarity marks
 ) -> LayoutReviewResult:
     """
     Check polarity marking for polarized components.
@@ -739,9 +738,9 @@ def check_polarity_marks(
 
 
 def check_test_point_accessibility(
-    components: List[ComponentPlacement],
-    test_points: List[str],  # Component refs for test points
-    probe_access_zones: List[Tuple[float, float, float, float]],
+    components: list[ComponentPlacement],
+    test_points: list[str],  # Component refs for test points
+    probe_access_zones: list[tuple[float, float, float, float]],
 ) -> LayoutReviewResult:
     """
     Check test point accessibility for manufacturing and test.

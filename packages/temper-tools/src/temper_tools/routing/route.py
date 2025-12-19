@@ -32,7 +32,7 @@ def main():
     routed_pcb, metrics = wrapper.route_pcb(pcb_path, output_pcb)
 
     if routed_pcb:
-        print(f"Routing successful!")
+        print("Routing successful!")
         print(f"Completion rate: {metrics.completion_rate * 100:.1f}%")
         print(f"Wirelength: {metrics.wirelength_mm:.1f} mm")
         print(f"Vias: {metrics.via_count}")

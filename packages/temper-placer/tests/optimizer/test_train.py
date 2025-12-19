@@ -8,32 +8,29 @@ These tests verify:
 - Training loop with simple test cases
 """
 
-import pytest
-import jax
 import jax.numpy as jnp
+import pytest
 
 from temper_placer.optimizer.config import (
+    CurriculumPhase,
+    LearningRateSchedule,
     OptimizerConfig,
     TemperatureSchedule,
-    LearningRateSchedule,
-    CurriculumPhase,
     get_default_loss_weights,
 )
-from temper_placer.optimizer.scheduler import (
-    get_temperature,
-    get_learning_rate,
-    get_curriculum_weights,
-    get_phase_weight,
-)
 from temper_placer.optimizer.curriculum import (
+    CurriculumState,
     create_default_phases,
     create_fast_phases,
     get_active_phase,
     get_phase_progress,
     smooth_transition_weights,
-    CurriculumState,
 )
-
+from temper_placer.optimizer.scheduler import (
+    get_learning_rate,
+    get_phase_weight,
+    get_temperature,
+)
 
 # =============================================================================
 # Config Tests
@@ -329,12 +326,11 @@ class TestTrainingIntegration:
     @pytest.fixture
     def simple_setup(self):
         """Create simple netlist and board for testing."""
-        from temper_placer.core.netlist import Component, Net, Netlist, Pin
         from temper_placer.core.board import Board
-        from temper_placer.losses.base import LossContext
-        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
         from temper_placer.losses.boundary import BoundaryLoss
-        from temper_placer.losses.base import CompositeLoss, WeightedLoss
+        from temper_placer.losses.overlap import OverlapLoss
 
         # Create simple components
         components = [
@@ -357,7 +353,7 @@ class TestTrainingIntegration:
 
     def test_training_runs(self, simple_setup):
         """Test that training loop runs without error."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         netlist, board, context, composite = simple_setup
         config = OptimizerConfig.fast_test()
@@ -377,7 +373,7 @@ class TestTrainingIntegration:
 
     def test_training_reduces_loss(self, simple_setup):
         """Test that training reduces loss over time."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         netlist, board, context, composite = simple_setup
         config = OptimizerConfig(
@@ -399,7 +395,7 @@ class TestTrainingIntegration:
 
     def test_history_recorded(self, simple_setup):
         """Test that training history is recorded."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         netlist, board, context, composite = simple_setup
         config = OptimizerConfig(
@@ -422,7 +418,7 @@ class TestTrainingIntegration:
 
     def test_callback_called(self, simple_setup):
         """Test that callback is called during training."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         netlist, board, context, composite = simple_setup
         config = OptimizerConfig(
@@ -449,12 +445,11 @@ class TestValidationCallbackIntegration:
     @pytest.fixture
     def simple_setup(self):
         """Create simple netlist and board for testing."""
-        from temper_placer.core.netlist import Component, Net, Netlist, Pin
         from temper_placer.core.board import Board
-        from temper_placer.losses.base import LossContext
-        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
         from temper_placer.losses.boundary import BoundaryLoss
-        from temper_placer.losses.base import CompositeLoss, WeightedLoss
+        from temper_placer.losses.overlap import OverlapLoss
 
         # Create simple components
         components = [
@@ -477,7 +472,7 @@ class TestValidationCallbackIntegration:
 
     def test_validation_callback_called_at_intervals(self, simple_setup):
         """Test that validation callback is called at configured intervals."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
         from temper_placer.optimizer.validation_callback import (
             ValidationCallback,
             ValidationConfig,
@@ -527,7 +522,7 @@ class TestValidationCallbackIntegration:
 
     def test_validation_history_in_result(self, simple_setup):
         """Test that validation history is included in TrainingResult."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
         from temper_placer.optimizer.validation_callback import (
             ValidationCallback,
             ValidationConfig,
@@ -578,7 +573,7 @@ class TestValidationCallbackIntegration:
 
     def test_validation_failure_stops_training(self, simple_setup):
         """Test that validation failure stops training when configured."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
         from temper_placer.optimizer.validation_callback import (
             ValidationCallback,
             ValidationConfig,
@@ -629,7 +624,7 @@ class TestValidationCallbackIntegration:
 
     def test_no_validation_callback_works(self, simple_setup):
         """Test that training works without validation callback."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         netlist, board, context, composite = simple_setup
         config = OptimizerConfig(
@@ -668,6 +663,7 @@ class TestGradientClipping:
     def test_optimizer_chain_includes_clipping(self):
         """Test that optimizer chain includes gradient clipping when enabled."""
         import optax
+
         from temper_placer.optimizer.config import OptimizerConfig
 
         config = OptimizerConfig(gradient_clip_norm=1.0)
@@ -688,12 +684,12 @@ class TestGradientClipping:
 
     def test_training_with_gradient_clipping(self):
         """Test that training runs successfully with gradient clipping."""
-        from temper_placer.optimizer import train, OptimizerConfig
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
-        from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
-        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
         from temper_placer.losses.boundary import BoundaryLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.optimizer import OptimizerConfig, train
 
         components = [
             Component(ref=f"U{i}", footprint="Package_SO:SOIC-8", bounds=(10.0, 10.0))
@@ -743,11 +739,11 @@ class TestNumericalStability:
     @pytest.fixture
     def simple_setup(self):
         """Create simple netlist and board for testing."""
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
-        from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
-        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
         from temper_placer.losses.boundary import BoundaryLoss
+        from temper_placer.losses.overlap import OverlapLoss
 
         components = [
             Component(ref=f"U{i}", footprint="Package_SO:SOIC-8", bounds=(10.0, 10.0))
@@ -802,8 +798,8 @@ class TestNumericalStability:
 
     def test_check_numerical_stability_raises_for_nan_loss(self):
         """Test that _check_numerical_stability raises for NaN loss."""
-        from temper_placer.optimizer.train import _check_numerical_stability
         from temper_placer.optimizer import NumericalInstabilityError
+        from temper_placer.optimizer.train import _check_numerical_stability
 
         with pytest.raises(NumericalInstabilityError) as exc_info:
             _check_numerical_stability(
@@ -821,8 +817,8 @@ class TestNumericalStability:
 
     def test_check_numerical_stability_raises_for_inf_loss(self):
         """Test that _check_numerical_stability raises for Inf loss."""
-        from temper_placer.optimizer.train import _check_numerical_stability
         from temper_placer.optimizer import NumericalInstabilityError
+        from temper_placer.optimizer.train import _check_numerical_stability
 
         with pytest.raises(NumericalInstabilityError) as exc_info:
             _check_numerical_stability(
@@ -838,8 +834,8 @@ class TestNumericalStability:
 
     def test_check_numerical_stability_raises_for_nan_gradient(self):
         """Test that _check_numerical_stability raises for NaN gradients."""
-        from temper_placer.optimizer.train import _check_numerical_stability
         from temper_placer.optimizer import NumericalInstabilityError
+        from temper_placer.optimizer.train import _check_numerical_stability
 
         with pytest.raises(NumericalInstabilityError) as exc_info:
             _check_numerical_stability(
@@ -856,8 +852,8 @@ class TestNumericalStability:
 
     def test_check_numerical_stability_raises_for_inf_gradient(self):
         """Test that _check_numerical_stability raises for Inf gradients."""
-        from temper_placer.optimizer.train import _check_numerical_stability
         from temper_placer.optimizer import NumericalInstabilityError
+        from temper_placer.optimizer.train import _check_numerical_stability
 
         with pytest.raises(NumericalInstabilityError) as exc_info:
             _check_numerical_stability(
@@ -873,7 +869,7 @@ class TestNumericalStability:
 
     def test_training_with_valid_setup_succeeds(self, simple_setup):
         """Test that normal training succeeds without NaN errors."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         netlist, board, context, composite = simple_setup
         config = OptimizerConfig(

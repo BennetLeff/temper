@@ -13,8 +13,8 @@ All loss functions must be JAX-compatible (work with jit, grad, vmap).
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, NamedTuple, Optional, cast
+from dataclasses import dataclass
+from typing import NamedTuple, cast
 
 import jax
 import jax.numpy as jnp
@@ -31,12 +31,14 @@ from temper_placer.losses.types import (
     ClearanceRule,
     CriticalPathConstraint,
     LoopConstraint,
-    LossContext as BaseLossContext,
     LossResult,
     MatchedLengthConstraint,
     MountingRule,
     NoiseIsolationConstraint,
     ThermalConstraint,
+)
+from temper_placer.losses.types import (
+    LossContext as BaseLossContext,
 )
 
 
@@ -53,7 +55,7 @@ class LossContext(BaseLossContext):
         cls,
         netlist: Netlist,
         board: Board,
-        constraints: Optional[PlacementConstraints] = None,
+        constraints: PlacementConstraints | None = None,
         clearance_rules: list[ClearanceRule] | None = None,
         thermal_constraints: list[ThermalConstraint] | None = None,
         loop_constraints: list[LoopConstraint] | None = None,
@@ -143,10 +145,10 @@ class LossContext(BaseLossContext):
                 # ... existing pc logic ...
                 from_pin = (pc.from_comp, pc.pins[0]) if pc.pins else (pc.from_comp, "1")
                 to_pin = (pc.to_comp, pc.pins[1]) if pc.pins else (pc.to_comp, "1")
-                
+
                 weight_map = {"critical": 10.0, "high": 5.0, "normal": 1.0}
                 weight = weight_map.get(pc.priority, 1.0)
-                
+
                 path_constraints.append(CriticalPathConstraint(
                     name=pc.name,
                     from_pin=from_pin,
@@ -155,7 +157,7 @@ class LossContext(BaseLossContext):
                     weight=weight,
                     matched_group=pc.matched_length_group
                 ))
-            
+
             # Map matched length groups
             for mlg in constraints.matched_length_groups:
                 # ... existing mlg logic ...
@@ -174,20 +176,20 @@ class LossContext(BaseLossContext):
             # Map noise isolation rules
             import fnmatch
             all_refs = [c.ref for c in netlist.components]
-            
+
             for rule in constraints.noise_isolation:
                 # Expand globs for sensitive components
                 sensitive = []
                 for pattern in rule.sensitive_components:
                     matches = fnmatch.filter(all_refs, pattern)
                     sensitive.extend([netlist.get_component_index(m) for m in matches])
-                
+
                 # Expand globs for noise sources
                 sources = []
                 for pattern in rule.noise_sources:
                     matches = fnmatch.filter(all_refs, pattern)
                     sources.extend([netlist.get_component_index(m) for m in matches])
-                
+
                 if sensitive and sources:
                     noise_isolation_constraints.append(NoiseIsolationConstraint(
                         name=rule.name,

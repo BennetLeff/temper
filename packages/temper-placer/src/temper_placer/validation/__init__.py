@@ -17,6 +17,19 @@ Validation can be run:
 - Before optimization (preflight) to catch configuration issues
 """
 
+from temper_placer.validation.base import (
+    ValidationResult,
+    ValidationSeverity,
+    Validator,
+)
+from temper_placer.validation.drc import (
+    DRCResult,
+    DRCSeverity,
+    DRCViolation,
+    DRCViolationType,
+    KiCadDRCValidator,
+    find_kicad_cli,
+)
 from temper_placer.validation.geometric import (
     GeometricValidator,
     GeometricViolation,
@@ -27,25 +40,17 @@ from temper_placer.validation.metrics import (
     PlacementMetrics,
     compute_metrics,
 )
-from temper_placer.validation.base import (
-    ValidationResult,
-    ValidationSeverity,
-    Validator,
-)
-from temper_placer.validation.spice import (
-    NgspiceValidator,
-    SpiceMeasurement,
-    SpiceResult,
-    estimate_loop_inductance,
-    create_validation_netlist,
-)
-from temper_placer.validation.drc import (
-    KiCadDRCValidator,
-    DRCResult,
-    DRCViolation,
-    DRCSeverity,
-    DRCViolationType,
-    find_kicad_cli,
+from temper_placer.validation.preflight import (
+    PreflightIssue,
+    PreflightResult,
+    PreflightSeverity,
+    check_components_have_zones,
+    check_external_tools,
+    check_impossible_constraints,
+    check_kicad_cli,
+    check_ngspice,
+    check_zones_fit_on_board,
+    run_all_preflight_checks,
 )
 from temper_placer.validation.scheduler import (
     DRCScheduleConfig,
@@ -56,17 +61,12 @@ from temper_placer.validation.scheduler import (
     create_default_config,
     load_validation_config,
 )
-from temper_placer.validation.preflight import (
-    PreflightSeverity,
-    PreflightIssue,
-    PreflightResult,
-    check_external_tools,
-    check_kicad_cli,
-    check_ngspice,
-    check_components_have_zones,
-    check_zones_fit_on_board,
-    check_impossible_constraints,
-    run_all_preflight_checks,
+from temper_placer.validation.spice import (
+    NgspiceValidator,
+    SpiceMeasurement,
+    SpiceResult,
+    create_validation_netlist,
+    estimate_loop_inductance,
 )
 
 __all__ = [

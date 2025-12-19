@@ -5,21 +5,21 @@ These tests verify that clearance and creepage distance validation functions wor
 and that placements meet IEC 60335-2-6 safety requirements.
 """
 
+
 import pytest
-from pathlib import Path
 
 # Import validators (will fail until implemented)
 VALIDATORS_AVAILABLE = False
 try:
     from tests.requirements.validators.clearance import (
-        check_domain_clearance,
-        check_creepage_path,
-        verify_iec60335_compliance,
-        ClearanceViolation,
         ClearanceResult,
-        VoltageDomain,
+        ClearanceViolation,
         InsulationType,
+        VoltageDomain,
+        check_creepage_path,
+        check_domain_clearance,
         get_requirement_matrix,
+        verify_iec60335_compliance,
     )
 
     # Check if validators are actually implemented (not just stubs)

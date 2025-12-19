@@ -14,9 +14,10 @@ from __future__ import annotations
 
 import tempfile
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import jax.numpy as jnp
 from jax import Array
@@ -43,7 +44,7 @@ class DRCCacheEntry:
 
     penalty: float
     epoch: int
-    result: Optional[DRCResult] = None
+    result: DRCResult | None = None
     elapsed_ms: float = 0.0
 
 
@@ -61,8 +62,8 @@ class DRCHistory:
         total_time_ms: Total time spent on DRC.
     """
 
-    entries: List[Tuple[int, float]] = field(default_factory=list)
-    violation_counts: List[Tuple[int, int, int]] = field(default_factory=list)
+    entries: list[tuple[int, float]] = field(default_factory=list)
+    violation_counts: list[tuple[int, int, int]] = field(default_factory=list)
     total_evaluations: int = 0
     total_time_ms: float = 0.0
 
@@ -171,8 +172,8 @@ class DRCLoss(LossFunction):
 
     def __init__(
         self,
-        validator: Optional[KiCadDRCValidator] = None,
-        pcb_exporter: Optional[Callable[[Array, Array, LossContext], Path]] = None,
+        validator: KiCadDRCValidator | None = None,
+        pcb_exporter: Callable[[Array, Array, LossContext], Path] | None = None,
         eval_interval: int = 50,
         base_penalty: float = 0.0,
         cache_results: bool = False,
@@ -198,7 +199,7 @@ class DRCLoss(LossFunction):
         self._fail_penalty = fail_penalty
 
         # Cache state
-        self._cache: Optional[DRCCacheEntry] = None
+        self._cache: DRCCacheEntry | None = None
         self._history = DRCHistory()
 
         # Track last evaluation epoch
@@ -236,7 +237,7 @@ class DRCLoss(LossFunction):
         return self._cache.penalty
 
     @property
-    def cached_result(self) -> Optional[DRCResult]:
+    def cached_result(self) -> DRCResult | None:
         """Get the cached DRC result (if cache_results=True)."""
         if self._cache is None:
             return None
@@ -334,7 +335,7 @@ class DRCLoss(LossFunction):
 
             return entry
 
-        except Exception as e:
+        except Exception:
             elapsed_ms = (time.time() - start_time) * 1000
             return DRCCacheEntry(
                 penalty=self._fail_penalty,
@@ -367,7 +368,7 @@ class DRCLoss(LossFunction):
         """
         penalty = self.cached_penalty
 
-        breakdown: Dict[str, Array] = {
+        breakdown: dict[str, Array] = {
             "drc_penalty": jnp.array(penalty),
             "drc_cached_epoch": jnp.array(self._last_eval_epoch, dtype=jnp.float32),
         }
@@ -430,7 +431,7 @@ class DRCLoss(LossFunction):
         self._last_eval_epoch = -1
         self._history = DRCHistory()
 
-    def get_violations(self) -> List[DRCViolation]:
+    def get_violations(self) -> list[DRCViolation]:
         """
         Get violations from the last DRC run.
 
@@ -441,7 +442,7 @@ class DRCLoss(LossFunction):
             return []
         return self._cache.result.violations
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Get DRC loss state as a dictionary.
 
@@ -463,10 +464,10 @@ class DRCLoss(LossFunction):
 
 
 def create_drc_loss(
-    pcb_template_path: Optional[Path] = None,
+    pcb_template_path: Path | None = None,
     eval_interval: int = 50,
-    severity_weights: Optional[Dict[str, float]] = None,
-    violation_weights: Optional[Dict[str, float]] = None,
+    severity_weights: dict[str, float] | None = None,
+    violation_weights: dict[str, float] | None = None,
 ) -> DRCLoss:
     """
     Factory function to create a DRCLoss with common settings.

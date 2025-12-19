@@ -6,12 +6,10 @@ requirements including design file verification, Gerber file inspection,
 design rule validation, and manufacturing notes compliance.
 """
 
-import os
 import re
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
 from enum import Enum
+from pathlib import Path
 
 
 class ValidationSeverity(Enum):
@@ -29,8 +27,8 @@ class ValidationIssue:
     severity: ValidationSeverity
     code: str
     message: str
-    file_path: Optional[str] = None
-    line_number: Optional[int] = None
+    file_path: str | None = None
+    line_number: int | None = None
 
 
 @dataclass
@@ -38,7 +36,7 @@ class ValidationResult:
     """Result of validation checks."""
 
     passed: bool
-    issues: List[ValidationIssue]
+    issues: list[ValidationIssue]
 
     @property
     def error_count(self) -> int:
@@ -58,8 +56,8 @@ class DesignRuleSpec:
     """Specification for a design rule."""
 
     name: str
-    value: Union[str, float]
-    unit: Optional[str] = None
+    value: str | float
+    unit: str | None = None
     verified: bool = False
 
 
@@ -72,7 +70,7 @@ class ManufacturingSpec:
     verified: bool = False
 
 
-def validate_design_files_complete(project_dir: Union[str, Path]) -> ValidationResult:
+def validate_design_files_complete(project_dir: str | Path) -> ValidationResult:
     """
     Validate that all required design files are present and complete.
 
@@ -192,7 +190,7 @@ def validate_design_files_complete(project_dir: Union[str, Path]) -> ValidationR
     )
 
 
-def validate_gerber_alignment(gerber_dir: Union[str, Path]) -> ValidationResult:
+def validate_gerber_alignment(gerber_dir: str | Path) -> ValidationResult:
     """
     Validate Gerber file alignment and completeness.
 
@@ -305,7 +303,7 @@ def validate_gerber_alignment(gerber_dir: Union[str, Path]) -> ValidationResult:
 
 
 def validate_drill_file(
-    drill_file: Union[str, Path], pad_locations: Optional[List[Tuple[float, float]]] = None
+    drill_file: str | Path, pad_locations: list[tuple[float, float]] | None = None
 ) -> ValidationResult:
     """
     Validate drill file format and content.
@@ -344,7 +342,7 @@ def validate_drill_file(
 
     # Read and validate drill file content
     try:
-        with open(drill_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(drill_path, encoding="utf-8", errors="ignore") as f:
             content = f.read()
 
         # Check for common drill file headers
@@ -431,7 +429,7 @@ def validate_drill_file(
 
 
 def check_design_rules_documented(
-    drc_rules: Dict[str, DesignRuleSpec], spec: Dict[str, ManufacturingSpec]
+    drc_rules: dict[str, DesignRuleSpec], spec: dict[str, ManufacturingSpec]
 ) -> ValidationResult:
     """
     Validate that design rules are properly documented and verified.
@@ -567,7 +565,7 @@ def check_design_rules_documented(
     )
 
 
-def validate_silkscreen_quality(silkscreen_files: List[Path]) -> ValidationResult:
+def validate_silkscreen_quality(silkscreen_files: list[Path]) -> ValidationResult:
     """
     Validate silkscreen layer quality and readability.
 
@@ -606,7 +604,7 @@ def validate_silkscreen_quality(silkscreen_files: List[Path]) -> ValidationResul
             continue
 
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 content = f.read()
 
             # Check for text elements (silkscreen should have text)
@@ -655,7 +653,7 @@ def validate_silkscreen_quality(silkscreen_files: List[Path]) -> ValidationResul
     )
 
 
-def validate_solder_mask(mask_files: List[Path]) -> ValidationResult:
+def validate_solder_mask(mask_files: list[Path]) -> ValidationResult:
     """
     Validate solder mask layer completeness.
 
@@ -738,7 +736,7 @@ def validate_solder_mask(mask_files: List[Path]) -> ValidationResult:
     )
 
 
-def run_prefab_validation(project_dir: Union[str, Path]) -> ValidationResult:
+def run_prefab_validation(project_dir: str | Path) -> ValidationResult:
     """
     Run complete pre-fabrication validation.
 

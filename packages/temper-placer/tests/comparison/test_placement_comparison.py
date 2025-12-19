@@ -15,9 +15,8 @@ Acceptance criteria:
 Tests use realistic configurations matching the Temper board constraints.
 """
 
-from pathlib import Path
-from typing import Dict, Optional, Tuple
 import json
+from pathlib import Path
 
 import pytest
 
@@ -26,18 +25,17 @@ jax = pytest.importorskip("jax")
 import jax.numpy as jnp
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Netlist, Component, Net
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.losses import (
-    LossContext,
-    CompositeLoss,
-    WeightedLoss,
-    OverlapLoss,
     BoundaryLoss,
+    CompositeLoss,
+    LossContext,
+    OverlapLoss,
+    WeightedLoss,
     WirelengthLoss,
 )
 from temper_placer.metrics import compute_quality_report
-
 
 # Test fixtures and results directories
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -128,7 +126,7 @@ def create_temper_board() -> Board:
     return Board(width=100.0, height=80.0, origin=(50.0, 40.0), zones=zones)
 
 
-def create_temper_config() -> Dict:
+def create_temper_config() -> dict:
     """
     Create the quality metrics configuration for Temper board.
 
@@ -195,7 +193,7 @@ class PlacementFactory:
     def heuristic_placement(
         netlist: Netlist,
         board: Board,
-        config: Dict,
+        config: dict,
     ) -> PlacementState:
         """
         Create a reasonable heuristic placement (simulates hand-placed).
@@ -316,7 +314,7 @@ class TestRunOptimizerSameConstraints:
         self, netlist: Netlist, board: Board, context: LossContext
     ):
         """Optimizer should produce a valid placement within board bounds."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         # Use fast config for testing
         config = OptimizerConfig.fast_test()
@@ -340,7 +338,7 @@ class TestRunOptimizerSameConstraints:
 
     def test_optimizer_reduces_loss(self, netlist: Netlist, board: Board, context: LossContext):
         """Optimizer should reduce loss compared to random initialization."""
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         config = OptimizerConfig.fast_test()
         composite = CompositeLoss(
@@ -375,7 +373,7 @@ class TestCompareWirelength:
         return LossContext.from_netlist_and_board(netlist, board)
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_heuristic_better_than_random(
@@ -383,7 +381,7 @@ class TestCompareWirelength:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic placement should have shorter wirelength than random."""
         from temper_placer.metrics import total_wirelength
@@ -406,7 +404,7 @@ class TestCompareWirelength:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """
         Good placement wirelength should be within threshold of heuristic.
@@ -414,7 +412,7 @@ class TestCompareWirelength:
         Target: optimizer within 120% of heuristic wirelength.
         """
         from temper_placer.metrics import total_wirelength
-        from temper_placer.optimizer import train, OptimizerConfig
+        from temper_placer.optimizer import OptimizerConfig, train
 
         # Get heuristic baseline
         heuristic_state = PlacementFactory.heuristic_placement(netlist, board, config)
@@ -455,14 +453,14 @@ class TestCompareThermal:
         return create_temper_board()
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_heuristic_thermal_score(
         self,
         netlist: Netlist,
         board: Board,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic placement should have good thermal score (IGBTs near edge)."""
         from temper_placer.metrics import thermal_score
@@ -479,7 +477,7 @@ class TestCompareThermal:
         self,
         netlist: Netlist,
         board: Board,
-        config: Dict,
+        config: dict,
     ):
         """Centered placement should have poor thermal score."""
         from temper_placer.metrics import thermal_score
@@ -503,14 +501,14 @@ class TestCompareZoneCompliance:
         return create_temper_board()
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_heuristic_zone_compliance(
         self,
         netlist: Netlist,
         board: Board,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic placement should have high zone compliance."""
         from temper_placer.metrics import zone_compliance_score
@@ -534,14 +532,14 @@ class TestCompareHVLVClearance:
         return create_temper_board()
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_heuristic_clearance_maintained(
         self,
         netlist: Netlist,
         board: Board,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic placement should maintain HV-LV clearance."""
         from temper_placer.metrics import hv_lv_clearance_score
@@ -562,7 +560,7 @@ class TestCompareHVLVClearance:
         self,
         netlist: Netlist,
         board: Board,
-        config: Dict,
+        config: dict,
     ):
         """Centered placement should violate HV-LV clearance."""
         from temper_placer.metrics import hv_lv_clearance_score
@@ -596,7 +594,7 @@ class TestCompareLoopArea:
         return LossContext.from_netlist_and_board(netlist, board)
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_heuristic_loop_area_small(
@@ -604,7 +602,7 @@ class TestCompareLoopArea:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic placement should have small gate drive loop area."""
         from temper_placer.metrics import loop_area_score
@@ -632,7 +630,7 @@ class TestOverallQualityScore:
         return LossContext.from_netlist_and_board(netlist, board)
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_heuristic_overall_quality(
@@ -640,7 +638,7 @@ class TestOverallQualityScore:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic placement should have reasonable overall quality."""
         heuristic_state = PlacementFactory.heuristic_placement(netlist, board, config)
@@ -658,7 +656,7 @@ class TestOverallQualityScore:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """Heuristic should outperform random on overall quality."""
         heuristic_state = PlacementFactory.heuristic_placement(netlist, board, config)
@@ -680,7 +678,7 @@ class TestOverallQualityScore:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """Quality report should be JSON serializable."""
         heuristic_state = PlacementFactory.heuristic_placement(netlist, board, config)
@@ -709,7 +707,7 @@ class TestComparisonReport:
         return LossContext.from_netlist_and_board(netlist, board)
 
     @pytest.fixture
-    def config(self) -> Dict:
+    def config(self) -> dict:
         return create_temper_config()
 
     def test_generate_comparison_dict(
@@ -717,7 +715,7 @@ class TestComparisonReport:
         netlist: Netlist,
         board: Board,
         context: LossContext,
-        config: Dict,
+        config: dict,
     ):
         """Generate a comparison dict between placements."""
         heuristic_state = PlacementFactory.heuristic_placement(netlist, board, config)

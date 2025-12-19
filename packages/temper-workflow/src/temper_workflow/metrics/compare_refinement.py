@@ -8,13 +8,10 @@ SA vs Greedy for discrete rotation refinement.
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 
-import jax
 import jax.numpy as jnp
-
 from temper_placer.core.state import PlacementState
 from temper_placer.io.config_loader import (
     create_board_from_constraints,

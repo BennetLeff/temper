@@ -5,19 +5,19 @@ These tests verify that ground plane continuity validation functions work correc
 and that placements meet EMC/EMI requirements.
 """
 
+
 import pytest
-from pathlib import Path
 
 # Import validators (will fail until implemented)
 VALIDATORS_AVAILABLE = False
 try:
     from tests.requirements.validators.ground_plane import (
-        check_slot_lengths,
-        check_signal_ground_reference,
-        check_star_ground_point,
-        check_via_stitching,
         GroundPlaneResult,
         GroundPlaneViolation,
+        check_signal_ground_reference,
+        check_slot_lengths,
+        check_star_ground_point,
+        check_via_stitching,
     )
 
     # Check if validators are actually implemented (not just stubs)

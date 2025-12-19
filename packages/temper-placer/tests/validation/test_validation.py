@@ -4,20 +4,18 @@ Tests for the validation module.
 Tests geometric validation, metrics computation, and validation base classes.
 """
 
-import pytest
-import jax.numpy as jnp
 import jax
+import jax.numpy as jnp
+import pytest
 
+from temper_placer.core.board import Board, MountingHole, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
-from temper_placer.core.netlist import Component, Netlist, Net, Pin
-from temper_placer.core.board import Board, Zone, MountingHole
-
 from temper_placer.validation.base import (
-    ValidationSeverity,
+    CompositeValidator,
     ValidationIssue,
     ValidationResult,
-    Validator,
-    CompositeValidator,
+    ValidationSeverity,
 )
 from temper_placer.validation.geometric import (
     GeometricValidator,
@@ -26,10 +24,8 @@ from temper_placer.validation.geometric import (
     validate_placement,
 )
 from temper_placer.validation.metrics import (
-    PlacementMetrics,
     compute_metrics,
 )
-
 
 # =============================================================================
 # Fixtures

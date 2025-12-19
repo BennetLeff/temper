@@ -14,9 +14,9 @@ Test categories:
 7. Extreme learning rates and temperatures
 """
 
-import pytest
 import jax
 import jax.numpy as jnp
+import pytest
 from jax import Array
 
 # Enable 64-bit precision for accurate numerical checks
@@ -230,10 +230,10 @@ class TestSinglePinNetWirelength:
 
     def test_single_pin_net_loss_finite(self):
         """Single-pin net produces finite wirelength (no divide by zero)."""
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.losses.base import LossContext
         from temper_placer.core.board import Board
-        from temper_placer.core.netlist import Netlist, Component, Net, Pin
+        from temper_placer.core.netlist import Component, Net, Netlist, Pin
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
 
         # Create minimal netlist with single-pin net
         comp = Component(
@@ -259,10 +259,10 @@ class TestSinglePinNetWirelength:
 
     def test_empty_net_loss_finite(self):
         """Empty nets don't cause errors in wirelength computation."""
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.losses.base import LossContext
         from temper_placer.core.board import Board
-        from temper_placer.core.netlist import Netlist, Component, Pin
+        from temper_placer.core.netlist import Component, Netlist, Pin
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
 
         # Netlist with no nets
         comp = Component(
@@ -425,7 +425,7 @@ class TestOptimizerNumericalStability:
 
         # Apply updates and check result is finite
         new_params: Array = optax.apply_updates(params, updates)  # type: ignore[assignment]
-        assert jnp.all(jnp.isfinite(jnp.array(new_params))), f"High LR params not finite"
+        assert jnp.all(jnp.isfinite(jnp.array(new_params))), "High LR params not finite"
 
         # Very low learning rate
         optimizer = optax.adam(1e-10)
@@ -433,7 +433,7 @@ class TestOptimizerNumericalStability:
         updates, _ = optimizer.update(grads, opt_state, params)
 
         new_params = optax.apply_updates(params, updates)  # type: ignore[assignment]
-        assert jnp.all(jnp.isfinite(jnp.array(new_params))), f"Low LR params not finite"
+        assert jnp.all(jnp.isfinite(jnp.array(new_params))), "Low LR params not finite"
 
 
 class TestNumericalInstabilityDetection:
@@ -454,8 +454,8 @@ class TestNumericalInstabilityDetection:
     def test_check_stability_detects_nan_loss(self):
         """NaN in loss is detected and raises error."""
         from temper_placer.optimizer.train import (
-            _check_numerical_stability,
             NumericalInstabilityError,
+            _check_numerical_stability,
         )
 
         loss_value = float("nan")
@@ -472,8 +472,8 @@ class TestNumericalInstabilityDetection:
     def test_check_stability_detects_inf_gradient(self):
         """Inf in gradients is detected and raises error."""
         from temper_placer.optimizer.train import (
-            _check_numerical_stability,
             NumericalInstabilityError,
+            _check_numerical_stability,
         )
 
         loss_value = 10.0

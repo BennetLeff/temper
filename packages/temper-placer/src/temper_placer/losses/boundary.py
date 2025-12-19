@@ -7,7 +7,6 @@ or intrude into keepout zones (mounting holes, restricted areas).
 
 from __future__ import annotations
 
-from typing import Optional
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -135,7 +134,7 @@ class BoundaryLoss(LossFunction):
         heights: Array,
         board,
         margin: float,
-        centrality: Optional[Array] = None,
+        centrality: Array | None = None,
     ) -> Array:
         """
         Compute penalty for components extending beyond board edges.
@@ -183,7 +182,7 @@ class BoundaryLoss(LossFunction):
         widths: Array,
         heights: Array,
         board,
-        centrality: Optional[Array] = None,
+        centrality: Array | None = None,
     ) -> Array:
         """
         Compute penalty for components overlapping keepout zones.
@@ -268,7 +267,7 @@ class BoundaryLoss(LossFunction):
         widths: Array,
         heights: Array,
         board,
-        centrality: Optional[Array] = None,
+        centrality: Array | None = None,
     ) -> Array:
         """
         Compute penalty for components overlapping keepout zones.

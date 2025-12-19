@@ -10,73 +10,59 @@ Tests cover:
 - JAX gradient compatibility
 """
 
-import pytest
 import jax
 import jax.numpy as jnp
 from jax import grad
-import math
 
-# Import geometry functions
-from temper_placer.geometry.primitives import (
-    point_distance,
-    point_distance_squared,
-    points_centroid,
-    rect_center,
-    rect_corners,
-    rect_area,
-    aabb_from_points,
-    aabb_union,
-    aabb_intersects,
-    distance_to_rect_edge,
-    distance_to_specific_edge,
-    distance_to_board_boundary,
-)
-from temper_placer.geometry.smooth import (
-    smooth_min,
-    smooth_max,
-    smooth_min_pair,
-    smooth_max_pair,
-    smooth_relu,
-    smooth_abs,
-    hpwl_smooth,
-)
-from temper_placer.geometry.transform import (
-    ROTATION_ANGLES,
-    get_rotation_matrix,
-    rotate_point,
-    rotate_points,
-    rotation_index_to_onehot,
-    onehot_to_rotation_degrees,
-    get_rotated_bounds,
-    gumbel_softmax,
-    sample_rotation,
-    sample_rotation_batch,
-)
 from temper_placer.geometry.overlap import (
     box_box_distance,
-    component_overlap_amount,
-    compute_overlap_penalty,
     check_clearance_violation,
-)
-from temper_placer.geometry.sdf import (
-    sdf_circle,
-    sdf_rectangle,
-    sdf_rounded_rectangle,
-    sdf_union,
-    sdf_intersection,
-    sdf_smooth_union,
+    component_overlap_amount,
 )
 from temper_placer.geometry.polygon import (
-    polygon_area,
-    polygon_signed_area,
-    polygon_centroid,
-    polygon_perimeter,
     point_in_polygon_soft,
     point_in_polygon_winding,
+    polygon_area,
+    polygon_centroid,
+    polygon_perimeter,
     rotate_polygon,
     scale_polygon,
 )
 
+# Import geometry functions
+from temper_placer.geometry.primitives import (
+    distance_to_rect_edge,
+    distance_to_specific_edge,
+    point_distance,
+    point_distance_squared,
+    points_centroid,
+    rect_area,
+    rect_center,
+)
+from temper_placer.geometry.sdf import (
+    sdf_circle,
+    sdf_intersection,
+    sdf_rectangle,
+    sdf_union,
+)
+from temper_placer.geometry.smooth import (
+    hpwl_smooth,
+    smooth_abs,
+    smooth_max,
+    smooth_max_pair,
+    smooth_min,
+    smooth_min_pair,
+    smooth_relu,
+)
+from temper_placer.geometry.transform import (
+    get_rotation_matrix,
+    gumbel_softmax,
+    onehot_to_rotation_degrees,
+    rotate_point,
+    rotation_index_to_onehot,
+    sample_rotation,
+    sample_rotation_batch,
+)
 
 # =============================================================================
 # Primitives Tests

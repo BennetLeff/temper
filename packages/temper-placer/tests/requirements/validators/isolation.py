@@ -7,7 +7,7 @@ high-voltage and low-voltage circuits.
 """
 
 from dataclasses import dataclass
-from typing import Tuple, Optional, List, Dict, Any
+from typing import Any
 
 
 @dataclass
@@ -15,12 +15,12 @@ class IsolationViolation:
     """An isolation barrier violation."""
 
     barrier_type: str  # "MAIN_HV_LV", "UCC21550", "ADUM1250"
-    component_refs: List[str]
+    component_refs: list[str]
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
-    clearance_mm: Optional[float] = None
-    slot_width_mm: Optional[float] = None
+    location: tuple[float, float] | None = None
+    clearance_mm: float | None = None
+    slot_width_mm: float | None = None
     severity: str = "error"  # error, warning
 
 
@@ -29,7 +29,7 @@ class IsolationResult:
     """Result of isolation barrier validation."""
 
     passed: bool
-    violations: List[IsolationViolation]
+    violations: list[IsolationViolation]
 
     @property
     def error_count(self) -> int:
@@ -41,7 +41,7 @@ class IsolationResult:
 
 
 def check_isolation_slot(
-    barrier: Dict[str, Any],
+    barrier: dict[str, Any],
     min_width_mm: float = 2.0,
 ) -> IsolationResult:
     """
@@ -67,8 +67,8 @@ def check_isolation_slot(
 
 
 def check_no_traces_across_barrier(
-    traces: List[Dict[str, Any]],
-    barrier: Dict[str, Any],
+    traces: list[dict[str, Any]],
+    barrier: dict[str, Any],
 ) -> IsolationResult:
     """
     Check that no traces cross the isolation barrier.
@@ -96,7 +96,7 @@ def check_no_traces_across_barrier(
 
 
 def check_ucc21550_barrier(
-    driver_position: Tuple[float, float],
+    driver_position: tuple[float, float],
 ) -> IsolationResult:
     """
     Check UCC21550 gate driver isolation requirements.
@@ -117,7 +117,7 @@ def check_ucc21550_barrier(
 
 
 def check_adum1250_barrier(
-    isolator_position: Tuple[float, float],
+    isolator_position: tuple[float, float],
 ) -> IsolationResult:
     """
     Check ADUM1250 I2C isolator isolation requirements.
@@ -138,8 +138,8 @@ def check_adum1250_barrier(
 
 
 def check_ground_plane_split(
-    ground_planes: Dict[str, List[Tuple[float, float, float, float]]],
-    barriers: List[Dict[str, Any]],
+    ground_planes: dict[str, list[tuple[float, float, float, float]]],
+    barriers: list[dict[str, Any]],
 ) -> IsolationResult:
     """
     Check that ground planes are properly split at isolation barriers.
@@ -159,8 +159,8 @@ def check_ground_plane_split(
 
 
 def check_clearance_distances(
-    components: Dict[str, Dict[str, Any]],
-    barriers: List[Dict[str, Any]],
+    components: dict[str, dict[str, Any]],
+    barriers: list[dict[str, Any]],
     min_clearance_mm: float = 10.0,
 ) -> IsolationResult:
     """
@@ -182,8 +182,8 @@ def check_clearance_distances(
 
 
 def check_power_domain_separation(
-    power_supplies: Dict[str, Dict[str, Any]],
-    isolation_components: List[str],
+    power_supplies: dict[str, dict[str, Any]],
+    isolation_components: list[str],
 ) -> IsolationResult:
     """
     Check that power domains are properly separated by isolation.

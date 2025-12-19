@@ -19,10 +19,8 @@ Key insight from DRC analysis:
 - Components can have non-overlapping bounding boxes but overlapping pads
 """
 
-from dataclasses import dataclass
-from pathlib import Path
 import tempfile
-from typing import Tuple
+from pathlib import Path
 
 import pytest
 
@@ -33,33 +31,31 @@ import jax.numpy as jnp
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
 from temper_placer.losses import (
+    BoundaryLoss,
     CompositeLoss,
-    WeightedLoss,
     LossContext,
     OverlapLoss,
-    BoundaryLoss,
+    WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.optimizer import train, OptimizerConfig
+from temper_placer.optimizer import OptimizerConfig, train
 from temper_placer.optimizer.config import (
-    TemperatureSchedule,
-    LearningRateSchedule,
     CheckpointConfig,
     EarlyStoppingConfig,
+    LearningRateSchedule,
+    TemperatureSchedule,
 )
 
 # Import DRC infrastructure (use relative import within tests package)
 from .test_drc_correlation import (
-    run_kicad_drc,
-    requires_kicad,
+    create_perfect_placement,
     export_placement_to_pcb,
     random_init_absolute,
-    evaluate_placement,
-    create_perfect_placement,
+    requires_kicad,
+    run_kicad_drc,
 )
-
 
 # Paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

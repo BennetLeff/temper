@@ -11,8 +11,7 @@ pass/fail status. Useful for:
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from dataclasses import dataclass
 
 import jax.numpy as jnp
 from jax import Array
@@ -22,7 +21,6 @@ from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.overlap import (
     compute_pairwise_distances,
-    compute_total_overlap,
 )
 from temper_placer.geometry.transform import get_rotated_bounds
 
@@ -87,7 +85,7 @@ class PlacementMetrics:
         ]
         return "\n".join(lines)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
         return {
             "overlap_count": self.overlap_count,

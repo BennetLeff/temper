@@ -17,15 +17,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 import jax.numpy as jnp
-from jax import Array
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Net, Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
 
 
 @dataclass
@@ -49,13 +47,13 @@ class ReferenceDesign:
     netlist: Netlist
     board: Board
     parse_result: ParseResult
-    stats: Dict
+    stats: dict
 
 
 def load_reference_pcb(
     pcb_path: Path | str,
-    name: Optional[str] = None,
-    source: Optional[str] = None,
+    name: str | None = None,
+    source: str | None = None,
 ) -> ReferenceDesign:
     """
     Load a KiCad PCB file as a reference design for benchmarking.
@@ -104,7 +102,7 @@ def load_reference_pcb(
 
 def netlist_to_placement_state(
     netlist: Netlist,
-    board: Optional[Board] = None,
+    board: Board | None = None,
 ) -> PlacementState:
     """
     Convert a parsed Netlist to PlacementState.
@@ -151,7 +149,7 @@ def netlist_to_placement_state(
     )
 
 
-def compute_design_stats(result: ParseResult) -> Dict:
+def compute_design_stats(result: ParseResult) -> dict:
     """
     Compute statistics about a parsed design.
 
@@ -207,9 +205,9 @@ def compute_design_stats(result: ParseResult) -> Dict:
 
 def filter_components(
     design: ReferenceDesign,
-    refs: Optional[Set[str]] = None,
-    footprint_pattern: Optional[str] = None,
-    min_size_mm2: Optional[float] = None,
+    refs: set[str] | None = None,
+    footprint_pattern: str | None = None,
+    min_size_mm2: float | None = None,
 ) -> ReferenceDesign:
     """
     Create a filtered view of a reference design.
@@ -293,7 +291,7 @@ def filter_components(
     )
 
 
-def infer_quality_config(design: ReferenceDesign) -> Dict:
+def infer_quality_config(design: ReferenceDesign) -> dict:
     """
     Infer a reasonable quality config from a reference design.
 
@@ -320,15 +318,11 @@ def infer_quality_config(design: ReferenceDesign) -> Dict:
         area = w * h
 
         # Thermal: Large packages (TO-247, D2PAK, modules)
-        if any(pkg in fp_lower for pkg in ["to-247", "to-220", "d2pak", "module", "heatsink"]):
-            thermal.add(comp.ref)
-        elif area > 100:  # Large components (>100mm²)
+        if any(pkg in fp_lower for pkg in ["to-247", "to-220", "d2pak", "module", "heatsink"]) or area > 100:
             thermal.add(comp.ref)
 
         # HV: Power transistors, diodes, bulk caps
-        if ref_upper.startswith(("Q", "D", "TR", "U")) and area > 50:
-            hv.add(comp.ref)
-        elif "igbt" in fp_lower or "mosfet" in fp_lower:
+        if ref_upper.startswith(("Q", "D", "TR", "U")) and area > 50 or "igbt" in fp_lower or "mosfet" in fp_lower:
             hv.add(comp.ref)
 
         # LV: Small ICs, MCUs, sensors
@@ -356,7 +350,7 @@ def infer_quality_config(design: ReferenceDesign) -> Dict:
     }
 
 
-def list_reference_designs(directory: Path | str) -> List[Dict]:
+def list_reference_designs(directory: Path | str) -> list[dict]:
     """
     Scan a directory for KiCad PCB files that can be used as references.
 
@@ -376,7 +370,7 @@ def list_reference_designs(directory: Path | str) -> List[Dict]:
 
         try:
             # Quick scan: just count footprints
-            with open(pcb_path, "r") as f:
+            with open(pcb_path) as f:
                 content = f.read()
 
             # Count footprints by looking for (footprint patterns
@@ -398,7 +392,7 @@ def list_reference_designs(directory: Path | str) -> List[Dict]:
                     "complexity": complexity,
                 }
             )
-        except Exception as e:
+        except Exception:
             # Skip files that can't be read
             continue
 

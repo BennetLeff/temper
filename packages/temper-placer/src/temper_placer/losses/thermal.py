@@ -17,8 +17,7 @@ For the Temper induction cooker:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
@@ -227,7 +226,7 @@ class ThermalSpreadLoss(LossFunction):
 
     high_power_indices: Array
     min_separation_mm: float = 15.0
-    power_weights: Optional[Array] = None
+    power_weights: Array | None = None
     margin: float = 2.0
 
     @property
@@ -323,7 +322,7 @@ class HeatSensitiveDistanceLoss(LossFunction):
     sensitive_indices: Array
     heat_source_indices: Array
     min_distance_mm: float = 20.0
-    heat_source_powers: Optional[Array] = None
+    heat_source_powers: Array | None = None
     margin: float = 2.0
 
     @property
@@ -493,10 +492,10 @@ class EdgePreferenceLoss(LossFunction):
 
 
 def create_thermal_spread_loss(
-    component_configs: List[ThermalComponentConfig],
+    component_configs: list[ThermalComponentConfig],
     netlist,
     min_separation_mm: float = 15.0,
-) -> Optional[ThermalSpreadLoss]:
+) -> ThermalSpreadLoss | None:
     """
     Create a ThermalSpreadLoss from component configurations.
 
@@ -531,11 +530,11 @@ def create_thermal_spread_loss(
 
 
 def create_heat_sensitive_distance_loss(
-    sensitive_refs: List[str],
-    heat_source_configs: List[ThermalComponentConfig],
+    sensitive_refs: list[str],
+    heat_source_configs: list[ThermalComponentConfig],
     netlist,
     min_distance_mm: float = 20.0,
-) -> Optional[HeatSensitiveDistanceLoss]:
+) -> HeatSensitiveDistanceLoss | None:
     """
     Create a HeatSensitiveDistanceLoss from component references.
 
@@ -579,12 +578,12 @@ def create_heat_sensitive_distance_loss(
 
 
 def create_edge_preference_loss(
-    thermal_pad_refs: List[str],
+    thermal_pad_refs: list[str],
     netlist,
     board_width: float,
     board_height: float,
     preferred_margin_mm: float = 10.0,
-) -> Optional[EdgePreferenceLoss]:
+) -> EdgePreferenceLoss | None:
     """
     Create an EdgePreferenceLoss from component references.
 

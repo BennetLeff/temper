@@ -13,12 +13,9 @@ Usage:
 """
 
 import re
-import os
-import sys
-import math
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -39,7 +36,7 @@ class Symbol:
 
     lib_id: str
     name: str
-    pins: List[Pin] = field(default_factory=list)
+    pins: list[Pin] = field(default_factory=list)
     raw_content: str = ""
 
 
@@ -82,7 +79,7 @@ class SExpressionParser:
     """Simple S-expression parser for KiCad files."""
 
     @staticmethod
-    def parse(text: str) -> List:
+    def parse(text: str) -> list:
         """Parse S-expression text into nested lists."""
         # Remove comments (lines starting with ;)
         lines = text.split("\n")
@@ -103,7 +100,7 @@ class SExpressionParser:
         return result
 
     @staticmethod
-    def _tokenize(text: str) -> List[str]:
+    def _tokenize(text: str) -> list[str]:
         """Tokenize S-expression text."""
         tokens = []
         i = 0
@@ -137,7 +134,7 @@ class SExpressionParser:
         return tokens
 
     @staticmethod
-    def _parse_tokens(tokens: List[str], pos: int) -> Tuple[Any, int]:
+    def _parse_tokens(tokens: list[str], pos: int) -> tuple[Any, int]:
         """Parse tokens into nested structure."""
         if pos >= len(tokens):
             return None, pos
@@ -161,7 +158,7 @@ class KiCadSchematicFixer:
         self.project_root = project_root
         self.pcb_dir = project_root / "pcb"
         self.components_dir = project_root / "components"
-        self.symbol_cache: Dict[str, str] = {}  # lib_id -> raw symbol content
+        self.symbol_cache: dict[str, str] = {}  # lib_id -> raw symbol content
 
     def load_symbol_libraries(self):
         """Load all symbol definitions from component libraries."""
@@ -288,15 +285,15 @@ class KiCadSchematicFixer:
 
         return "\n".join(clean_lines)
 
-    def _find_referenced_libs(self, content: str) -> List[str]:
+    def _find_referenced_libs(self, content: str) -> list[str]:
         """Find all lib_id references in schematic."""
         pattern = r'\(lib_id\s+"([^"]+)"\)'
         matches = re.findall(pattern, content)
         return list(set(matches))
 
     def _find_missing_symbols(
-        self, content: str, referenced_libs: List[str]
-    ) -> List[str]:
+        self, content: str, referenced_libs: list[str]
+    ) -> list[str]:
         """Find which referenced symbols are not in lib_symbols section."""
         missing = []
 
@@ -316,7 +313,6 @@ class KiCadSchematicFixer:
                 continue
 
             # Check if symbol is defined
-            symbol_name = lib_id.replace(":", "_").replace("-", "_")
             # Also check for the actual lib_id pattern
             if f'symbol "{lib_id}"' not in lib_symbols_content:
                 # Check if we have this symbol in cache
@@ -327,7 +323,7 @@ class KiCadSchematicFixer:
 
         return missing
 
-    def _embed_symbols(self, content: str, symbols: List[str]) -> str:
+    def _embed_symbols(self, content: str, symbols: list[str]) -> str:
         """Embed symbol definitions into lib_symbols section."""
         for lib_id in symbols:
             if lib_id not in self.symbol_cache:
@@ -385,7 +381,7 @@ class KiCadSchematicFixer:
         print(f"Fixed {fixed_count} schematic files")
 
 
-def create_device_symbols() -> Dict[str, str]:
+def create_device_symbols() -> dict[str, str]:
     """Create standard Device library symbols that may be missing."""
     symbols = {}
 

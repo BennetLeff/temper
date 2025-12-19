@@ -10,20 +10,19 @@ Tests cover:
 - Edge cases (missing components, empty paths)
 """
 
-import pytest
 import jax
 import jax.numpy as jnp
+import pytest
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.losses.base import LossContext, LossResult
 from temper_placer.losses.critical_path import (
     CriticalPath,
     CriticalPathLengthLoss,
     compute_critical_path_penalty,
     create_temper_critical_paths,
 )
-from temper_placer.losses.base import LossContext, LossResult
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
 
 # =============================================================================
 # Fixtures

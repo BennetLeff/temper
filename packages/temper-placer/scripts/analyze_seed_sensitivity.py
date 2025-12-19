@@ -12,22 +12,20 @@ Usage:
 """
 
 import argparse
-import json
-import time
-from dataclasses import dataclass, asdict
-from pathlib import Path
-from typing import List, Dict
 import sys
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
 
 import numpy as np
 import yaml
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.optimizer import train, OptimizerConfig, LearningRateSchedule
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses import OverlapLoss, BoundaryLoss, WirelengthLoss
 from temper_placer.io.kicad_pcb import parse_kicad_pcb
+from temper_placer.losses import BoundaryLoss, OverlapLoss, WirelengthLoss
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.optimizer import LearningRateSchedule, OptimizerConfig, train
 
 
 @dataclass
@@ -95,6 +93,7 @@ def run_single_seed(
 
     # Evaluate individual losses
     import jax
+
     from temper_placer.geometry.transform import sample_rotation_batch
 
     positions = result.final_state.positions
@@ -124,7 +123,7 @@ def run_single_seed(
     )
 
 
-def compute_statistics(results: List[SeedResult], metric: str = "final_loss", failure_threshold: float = 2.0) -> Statistics:
+def compute_statistics(results: list[SeedResult], metric: str = "final_loss", failure_threshold: float = 2.0) -> Statistics:
     """Compute statistical metrics from results."""
     values = np.array([getattr(r, metric) for r in results])
 
@@ -171,7 +170,7 @@ def analyze_board(
     board: Board,
     n_seeds: int,
     epochs: int,
-) -> Dict:
+) -> dict:
     """Analyze seed sensitivity for one board."""
     print(f"\n{'=' * 80}")
     print(f"Analyzing {board_name}")
@@ -242,14 +241,14 @@ def analyze_board(
     }
 
     # Print summary
-    print(f"\n  Results Summary:")
+    print("\n  Results Summary:")
     print(f"    Final Loss:    mean={final_loss_stats.mean:.2f}, CV={final_loss_stats.cv:.3f}")
     print(f"    Overlap Loss:  mean={overlap_stats.mean:.2f}, failure_rate={overlap_stats.failure_rate:.1%}")
     print(f"    Boundary Loss: mean={boundary_stats.mean:.2f}, failure_rate={boundary_stats.failure_rate:.1%}")
     print(f"    Success Rate:  {success_rate:.1%}")
 
     # Check acceptance criteria
-    print(f"\n  Acceptance Criteria:")
+    print("\n  Acceptance Criteria:")
     cv_pass = final_loss_stats.cv < 0.3
     failure_pass = final_loss_stats.failure_rate < 0.10
 
@@ -344,7 +343,7 @@ def main():
         all_cv = [report["final_loss"]["cv"] for report in all_results.values()]
         all_success = [report["success_rate"] for report in all_results.values()]
 
-        print(f"\nOverall Summary:")
+        print("\nOverall Summary:")
         print(f"  Boards analyzed: {len(all_results)}")
         print(f"  Average CV: {np.mean(all_cv):.3f}")
         print(f"  Average success rate: {np.mean(all_success):.1%}")

@@ -10,10 +10,9 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
 
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.footprint_library import load_footprint_library
 
 
@@ -45,7 +44,7 @@ class NetTopology:
 class SyntheticNetlistResult:
     """Result of synthetic netlist generation."""
     netlist: Netlist
-    board: Optional[Board] = None
+    board: Board | None = None
 
 
 def generate_200_component_netlist(

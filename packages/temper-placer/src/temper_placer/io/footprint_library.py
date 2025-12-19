@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional, Tuple
 
 import yaml
 
@@ -31,10 +30,10 @@ class FootprintSpec:
     """
 
     name: str
-    bounds: Tuple[float, float]
+    bounds: tuple[float, float]
     courtyard_margin: float = 0.0
     thermal_pad: bool = False
-    pin_1_offset: Optional[Tuple[float, float]] = None
+    pin_1_offset: tuple[float, float] | None = None
 
     @property
     def width(self) -> float:
@@ -69,7 +68,7 @@ class FootprintLibrary:
 
     def __init__(self):
         """Initialize an empty footprint library."""
-        self.footprints: Dict[str, FootprintSpec] = {}
+        self.footprints: dict[str, FootprintSpec] = {}
 
     def add(self, spec: FootprintSpec) -> None:
         """
@@ -83,7 +82,7 @@ class FootprintLibrary:
     def get(
         self,
         name: str,
-        default: Optional[FootprintSpec] = None,
+        default: FootprintSpec | None = None,
     ) -> FootprintSpec:
         """
         Get a footprint specification by name.

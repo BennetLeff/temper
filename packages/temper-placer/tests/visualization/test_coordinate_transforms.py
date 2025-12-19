@@ -8,10 +8,7 @@ These tests verify that:
 4. Round-trip parsing -> visualization maintains coordinate accuracy
 """
 
-import math
-from pathlib import Path
 
-import pytest
 
 from temper_placer.visualization.model import (
     BoardView,

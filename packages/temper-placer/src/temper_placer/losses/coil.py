@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -9,7 +8,6 @@ from temper_placer.losses.base import (
     LossFunction,
     LossResult,
     WeightedLoss,
-    create_jit_loss_fn,
 )
 
 
@@ -30,10 +28,10 @@ class CoilRule:
     """
 
     coil_ref: str
-    target_position: Tuple[float, float]
+    target_position: tuple[float, float]
     keepout_radius: float = 50.0  # mm
-    sensitive_refs: Tuple[str, ...] = tuple()
-    tank_capacitor_refs: Tuple[str, ...] = tuple()
+    sensitive_refs: tuple[str, ...] = tuple()
+    tank_capacitor_refs: tuple[str, ...] = tuple()
     weight_centering: float = 1.0
     weight_keepout: float = 1.0
     weight_symmetry: float = 1.0
@@ -48,7 +46,7 @@ class CoilRequirementLoss(LossFunction):
     3. Symmetry: Tank capacitors symmetric relative to Coil
     """
 
-    def __init__(self, rules: List[CoilRule]):
+    def __init__(self, rules: list[CoilRule]):
         self.rules = rules
 
     @property
@@ -129,7 +127,7 @@ class CoilRequirementLoss(LossFunction):
         )
 
 
-def create_coil_loss(rules: List[CoilRule], weight: float = 1.0) -> WeightedLoss:
+def create_coil_loss(rules: list[CoilRule], weight: float = 1.0) -> WeightedLoss:
     """Create a weighted CoilRequirementLoss."""
     return WeightedLoss(
         CoilRequirementLoss(rules),

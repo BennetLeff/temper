@@ -1,7 +1,9 @@
 
-import pytest
 import jax.numpy as jnp
+import pytest
+
 from temper_placer.losses.planarity import EdgeCrossingLoss
+
 
 class MockContext:
     def __init__(self, indices, offsets, mask):
@@ -19,18 +21,18 @@ def test_edge_crossing_x():
     p_indices = jnp.zeros((2, 4), dtype=jnp.int32).at[:, :2].set(indices)
     p_offsets = jnp.zeros((2, 4, 2))
     p_mask = jnp.zeros((2, 4), dtype=bool).at[:, :2].set(True)
-    
+
     context = MockContext(p_indices, p_offsets, p_mask)
-    
+
     positions = jnp.array([
         [0.0, 10.0], [20.0, 10.0], # Net A
         [10.0, 0.0], [10.0, 20.0]  # Net B
     ])
-    
+
     loss_fn = EdgeCrossingLoss()
     # rotations: 4 components, all 0 degrees
     rotations = jnp.eye(4)[jnp.zeros(4, dtype=jnp.int32)]
-    
+
     res = loss_fn(positions, rotations, context)
     assert float(res.value) > 0
 
@@ -41,17 +43,17 @@ def test_edge_crossing_parallel():
     p_offsets = jnp.zeros((2, 4, 2))
     p_mask = jnp.zeros((2, 4), dtype=bool).at[:, :2].set(True)
     context = MockContext(p_indices, p_offsets, p_mask)
-    
+
     # Parallel lines
     positions = jnp.array([
         [0.0, 0.0], [10.0, 0.0], # Net A
         [0.0, 5.0], [10.0, 5.0]  # Net B
     ])
-    
+
     loss_fn = EdgeCrossingLoss()
     # rotations: 4 components, all 0 degrees
     rotations = jnp.eye(4)[jnp.zeros(4, dtype=jnp.int32)]
-    
+
     res = loss_fn(positions, rotations, context)
     assert float(res.value) == pytest.approx(0.0, abs=1e-6)
 
@@ -62,17 +64,17 @@ def test_edge_crossing_touching():
         [0.0, 0.0], [10.0, 0.0], # Net A
         [10.0, 0.0], [10.0, 10.0] # Net B
     ])
-    
+
     indices = jnp.array([[0, 1], [2, 3]], dtype=jnp.int32)
     p_indices = jnp.zeros((2, 4), dtype=jnp.int32).at[:, :2].set(indices)
     p_offsets = jnp.zeros((2, 4, 2))
     p_mask = jnp.zeros((2, 4), dtype=bool).at[:, :2].set(True)
     context = MockContext(p_indices, p_offsets, p_mask)
-    
+
     loss_fn = EdgeCrossingLoss()
     # rotations: 4 components, all 0 degrees
     rotations = jnp.eye(4)[jnp.zeros(4, dtype=jnp.int32)]
-    
+
     res = loss_fn(positions, rotations, context)
     # They touch at (10,0), but s1*s2 = 0*val = 0.
     assert float(res.value) == pytest.approx(0.0, abs=1e-6)

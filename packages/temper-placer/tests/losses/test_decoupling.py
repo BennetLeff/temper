@@ -2,14 +2,13 @@
 Unit tests for DecouplingCapProximityLoss.
 """
 
-import jax
 import jax.numpy as jnp
 import pytest
+
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.decoupling import (
-    DecouplingCapProximityLoss,
     DecouplingRule,
     create_decoupling_loss,
 )

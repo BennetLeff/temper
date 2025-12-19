@@ -1,7 +1,8 @@
-from typing import List, Tuple, Any
 from dataclasses import dataclass, field
+
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
+
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 
 @dataclass
@@ -10,8 +11,8 @@ class CrystalRule:
 
     crystal_ref: str
     mcu_ref: str
-    load_cap_refs: List[str]
-    noise_source_refs: List[str] = field(default_factory=list)
+    load_cap_refs: list[str]
+    noise_source_refs: list[str] = field(default_factory=list)
 
     max_mcu_distance_mm: float = 10.0
     max_cap_distance_mm: float = 3.0
@@ -31,7 +32,7 @@ class CrystalPlacementLoss(LossFunction):
     - Noise sources far from crystal
     """
 
-    def __init__(self, rules: List[CrystalRule]):
+    def __init__(self, rules: list[CrystalRule]):
         self.rules = rules
 
     @property
@@ -69,7 +70,7 @@ class ResolvedCrystalRule:
 
 
 class ResolvedCrystalPlacementLoss(LossFunction):
-    def __init__(self, rules: List[ResolvedCrystalRule]):
+    def __init__(self, rules: list[ResolvedCrystalRule]):
         self.rules = rules
 
     @property
@@ -130,7 +131,7 @@ class ResolvedCrystalPlacementLoss(LossFunction):
 
 def create_crystal_loss(
     netlist,
-    rules: List[CrystalRule],
+    rules: list[CrystalRule],
 ) -> ResolvedCrystalPlacementLoss:
     """
     Factory to resolve component references to indices.

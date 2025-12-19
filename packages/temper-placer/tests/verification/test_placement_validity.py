@@ -24,28 +24,26 @@ import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
-from temper_placer.core.state import PlacementState
-from temper_placer.optimizer import train, OptimizerConfig
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.io.placement_exporter import cleanup_temp_pcb, export_positions_to_temp_pcb
 from temper_placer.losses import (
-    CompositeLoss,
-    WeightedLoss,
-    OverlapLoss,
     BoundaryLoss,
+    CompositeLoss,
+    OverlapLoss,
+    WeightedLoss,
     WirelengthLoss,
 )
 from temper_placer.losses.base import (
+    ClearanceRule,
     LossContext,
     ThermalConstraint,
-    ClearanceRule,
 )
-from temper_placer.losses.thermal import ThermalLoss, compute_thermal_penalty
+from temper_placer.losses.boundary import compute_boundary_penalty
 from temper_placer.losses.clearance import ClearanceLoss
 from temper_placer.losses.overlap import compute_overlap_penalty
-from temper_placer.losses.boundary import compute_boundary_penalty
-from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli, DRCResult
-from temper_placer.io.placement_exporter import export_positions_to_temp_pcb, cleanup_temp_pcb
-
+from temper_placer.losses.thermal import ThermalLoss, compute_thermal_penalty
+from temper_placer.optimizer import OptimizerConfig, train
+from temper_placer.validation.drc import DRCResult, KiCadDRCValidator, find_kicad_cli
 
 # Test fixtures
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -249,10 +247,10 @@ class TestDRCValidation:
         # Parse and optimize
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.optimizer.config import (
-            TemperatureSchedule,
-            LearningRateSchedule,
             CheckpointConfig,
             EarlyStoppingConfig,
+            LearningRateSchedule,
+            TemperatureSchedule,
         )
 
         parse_result = parse_kicad_pcb(MINIMAL_PCB)

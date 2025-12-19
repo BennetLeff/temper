@@ -8,13 +8,9 @@ to optimize the pin-count-dependent correction factor.
 
 import argparse
 import json
-import os
-import sys
 from pathlib import Path
 
 import jax.numpy as jnp
-import numpy as np
-
 from temper_placer.io.config_loader import (
     create_board_from_constraints,
     load_constraints,
@@ -22,6 +18,7 @@ from temper_placer.io.config_loader import (
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.wirelength import SteinerTreeLoss, WirelengthLoss
+
 from temper_workflow.routing.route_and_measure import measure_copper_length
 
 
@@ -30,7 +27,7 @@ def run_correlation_study(pcb_path: Path, config_path: Path):
     # 1. Measure real copper
     print(f"Measuring real copper for {pcb_path}...")
     real_metrics = measure_copper_length(pcb_path)
-    real_net_lengths = real_metrics["net_lengths_mm"]
+    # real_net_lengths available via real_metrics["net_lengths_mm"] if needed
 
     # 2. Compute HPWL and Steiner estimates
     parse_result = parse_kicad_pcb(pcb_path)

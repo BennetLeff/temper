@@ -12,39 +12,29 @@ Key findings from correlation study:
   which can push components too close together)
 """
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
-import json
-from typing import Dict, List, Optional, Tuple
 
 import pytest
 import yaml
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
 
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
-from temper_placer.core.state import PlacementState
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
-from temper_placer.losses import LossContext, OverlapLoss, BoundaryLoss
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
+from temper_placer.losses import LossContext
 
 # Import DRC infrastructure from correlation tests (same directory)
 from .test_drc_correlation import (
-    run_kicad_drc,
-    kicad_cli_available,
-    requires_kicad,
+    RESULTS_DIR,
     create_perfect_placement,
-    create_optimized_placement,
-    create_random_placement,
-    random_init_absolute,
     evaluate_placement,
     export_placement_to_pcb,
-    DRC_PLACEMENTS_DIR,
-    RESULTS_DIR,
+    random_init_absolute,
+    requires_kicad,
+    run_kicad_drc,
 )
-
 
 # Paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -85,7 +75,7 @@ class DRCThresholds:
         return overlap_loss <= self.overlap_threshold and boundary_loss <= self.boundary_threshold
 
 
-def load_correlation_results() -> Optional[Dict]:
+def load_correlation_results() -> dict | None:
     """Load the results from the correlation study."""
     results_file = RESULTS_DIR / "penalty_thresholds.json"
     if not results_file.exists():
@@ -143,7 +133,7 @@ class TestThresholdPredictions:
         return DRCThresholds.from_yaml(CONSTRAINTS_FILE)
 
     @pytest.fixture
-    def correlation_results(self) -> Dict:
+    def correlation_results(self) -> dict:
         """Load correlation study results."""
         results = load_correlation_results()
         if results is None:
@@ -151,7 +141,7 @@ class TestThresholdPredictions:
         return results
 
     def test_thresholds_match_correlation_study(
-        self, thresholds: DRCThresholds, correlation_results: Dict
+        self, thresholds: DRCThresholds, correlation_results: dict
     ):
         """
         Verify documented thresholds match correlation study findings.
@@ -179,7 +169,7 @@ class TestThresholdPredictions:
         )
 
     def test_prediction_accuracy_on_known_data(
-        self, thresholds: DRCThresholds, correlation_results: Dict
+        self, thresholds: DRCThresholds, correlation_results: dict
     ):
         """
         Test prediction accuracy on the correlation study data.
@@ -422,7 +412,7 @@ class TestMultipleSeedValidation:
                 if temp_path.exists():
                     temp_path.unlink()
 
-        print(f"\nDRC results for 10 threshold-passing placements:")
+        print("\nDRC results for 10 threshold-passing placements:")
         print(f"  Passed: {10 - len(drc_failures)}")
         print(f"  Failed: {len(drc_failures)}")
 

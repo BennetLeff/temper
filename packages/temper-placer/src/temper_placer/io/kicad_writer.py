@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
@@ -30,7 +29,7 @@ class WriteResult:
     output_path: Path
     components_updated: int
     components_skipped: int
-    warnings: List[str]
+    warnings: list[str]
 
     @property
     def has_warnings(self) -> bool:
@@ -46,7 +45,7 @@ class StrippingResult:
     vias_removed: int
     zones_removed: int
     components_preserved: int
-    warnings: List[str]
+    warnings: list[str]
 
     @property
     def has_warnings(self) -> bool:
@@ -74,7 +73,7 @@ class PlacementUpdate:
 def write_placements_to_pcb(
     template_pcb: Path,
     output_pcb: Path,
-    placements: Dict[str, PlacementUpdate],
+    placements: dict[str, PlacementUpdate],
     preserve_unmatched: bool = True,
 ) -> WriteResult:
     """
@@ -96,7 +95,7 @@ def write_placements_to_pcb(
     Returns:
         WriteResult with statistics and any warnings.
     """
-    warnings: List[str] = []
+    warnings: list[str] = []
     components_updated = 0
     components_skipped = 0
 
@@ -151,10 +150,10 @@ def write_placements_to_pcb(
 
 def state_to_placements(
     state: PlacementState,
-    component_refs: List[str],
-    origin: Tuple[float, float] = (0.0, 0.0),
-    original_angles: Optional[Dict[str, float]] = None,
-) -> Dict[str, PlacementUpdate]:
+    component_refs: list[str],
+    origin: tuple[float, float] = (0.0, 0.0),
+    original_angles: dict[str, float] | None = None,
+) -> dict[str, PlacementUpdate]:
     """
     Convert a PlacementState to placement updates.
 
@@ -171,7 +170,7 @@ def state_to_placements(
     Returns:
         Dictionary mapping component ref to PlacementUpdate.
     """
-    placements: Dict[str, PlacementUpdate] = {}
+    placements: dict[str, PlacementUpdate] = {}
 
     # Get discrete rotations (to_discrete returns (positions, rotation_indices))
     _, rotation_indices = state.to_discrete()
@@ -204,7 +203,7 @@ def state_to_placements(
     return placements
 
 
-def extract_original_angles(components: List) -> Dict[str, float]:
+def extract_original_angles(components: list) -> dict[str, float]:
     """
     Extract original angles from component attributes.
 
@@ -218,7 +217,7 @@ def extract_original_angles(components: List) -> Dict[str, float]:
         Dictionary mapping component ref to original angle in degrees.
         Only includes components that had non-90° rotations.
     """
-    angles: Dict[str, float] = {}
+    angles: dict[str, float] = {}
     for comp in components:
         if hasattr(comp, "attributes") and "_original_angle" in comp.attributes:
             try:
@@ -228,7 +227,7 @@ def extract_original_angles(components: List) -> Dict[str, float]:
     return angles
 
 
-def placements_to_json(placements: Dict[str, PlacementUpdate]) -> Dict:
+def placements_to_json(placements: dict[str, PlacementUpdate]) -> dict:
     """
     Convert placements to a JSON-serializable dictionary.
 
@@ -248,7 +247,7 @@ def placements_to_json(placements: Dict[str, PlacementUpdate]) -> Dict:
     }
 
 
-def placements_from_json(data: Dict) -> Dict[str, PlacementUpdate]:
+def placements_from_json(data: dict) -> dict[str, PlacementUpdate]:
     """
     Load placements from a JSON-deserialized dictionary.
 
@@ -273,8 +272,8 @@ def export_placements(
     template_pcb: Path,
     output_pcb: Path,
     state: PlacementState,
-    component_refs: List[str],
-    origin: Tuple[float, float] = (0.0, 0.0),
+    component_refs: list[str],
+    origin: tuple[float, float] = (0.0, 0.0),
 ) -> WriteResult:
     """
     High-level function to export optimized state to KiCad PCB.
@@ -296,7 +295,7 @@ def export_placements(
     return write_placements_to_pcb(template_pcb, output_pcb, placements)
 
 
-def _get_footprint_reference(fp: Footprint) -> Optional[str]:
+def _get_footprint_reference(fp: Footprint) -> str | None:
     """Extract reference designator from footprint."""
     # In kiutils, properties is a dict with key 'Reference'
     props = getattr(fp, "properties", {})
@@ -319,7 +318,7 @@ def _get_footprint_reference(fp: Footprint) -> Optional[str]:
     return None
 
 
-def validate_output_pcb(output_pcb: Path) -> Tuple[bool, List[str]]:
+def validate_output_pcb(output_pcb: Path) -> tuple[bool, list[str]]:
     """
     Validate that the output PCB file is readable.
 
@@ -329,7 +328,7 @@ def validate_output_pcb(output_pcb: Path) -> Tuple[bool, List[str]]:
     Returns:
         Tuple of (is_valid, error_messages).
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     if not output_pcb.exists():
         errors.append(f"Output file does not exist: {output_pcb}")
@@ -391,7 +390,7 @@ def strip_routing(
     Returns:
         StrippingResult with statistics about what was removed.
     """
-    warnings: List[str] = []
+    warnings: list[str] = []
     traces_removed = 0
     vias_removed = 0
     zones_removed = 0
@@ -485,7 +484,7 @@ def strip_routing_preserve_nets(
     except Exception as e:
         raise ValueError(f"Failed to load input PCB: {e}")
 
-    input_net_assignments: Dict[str, Dict[str, str]] = {}  # ref -> {pad_num -> net_name}
+    input_net_assignments: dict[str, dict[str, str]] = {}  # ref -> {pad_num -> net_name}
     for fp in ki_input.footprints:
         ref = _get_footprint_reference(fp)
         if ref:
@@ -521,7 +520,7 @@ def strip_routing_preserve_nets(
     return result
 
 
-def get_routing_statistics(pcb_path: Path) -> Dict[str, int]:
+def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
     """
     Get statistics about routing in a PCB file.
 

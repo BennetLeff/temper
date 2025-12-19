@@ -15,12 +15,11 @@ Each phase has different loss weights that transition smoothly.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from temper_placer.optimizer.config import CurriculumPhase, get_default_loss_weights
 
 
-def create_default_phases(total_epochs: int = 8000) -> List[CurriculumPhase]:
+def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
     """
     Create the default 5-phase curriculum for Temper PCB placement.
 
@@ -113,7 +112,7 @@ def create_default_phases(total_epochs: int = 8000) -> List[CurriculumPhase]:
     ]
 
 
-def create_fast_phases(total_epochs: int = 100) -> List[CurriculumPhase]:
+def create_fast_phases(total_epochs: int = 100) -> list[CurriculumPhase]:
     """
     Create a fast 3-phase curriculum for testing.
 
@@ -161,8 +160,8 @@ def create_fast_phases(total_epochs: int = 100) -> List[CurriculumPhase]:
 
 def get_active_phase(
     epoch: int,
-    phases: List[CurriculumPhase],
-) -> Optional[CurriculumPhase]:
+    phases: list[CurriculumPhase],
+) -> CurriculumPhase | None:
     """
     Get the currently active phase for a given epoch.
 
@@ -201,10 +200,10 @@ def get_phase_progress(
 
 
 def interpolate_weights(
-    weights_a: Dict[str, float],
-    weights_b: Dict[str, float],
+    weights_a: dict[str, float],
+    weights_b: dict[str, float],
     t: float,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Interpolate between two weight dictionaries.
 
@@ -227,9 +226,9 @@ def interpolate_weights(
 
 def smooth_transition_weights(
     epoch: int,
-    phases: List[CurriculumPhase],
+    phases: list[CurriculumPhase],
     transition_epochs: int = 100,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Get weights with smooth transitions between phases.
 
@@ -295,12 +294,12 @@ class CurriculumState:
         current_phase_idx: Index of current phase.
     """
 
-    phases: List[CurriculumPhase]
+    phases: list[CurriculumPhase]
     transition_epochs: int = 100
-    current_phase_name: Optional[str] = None
+    current_phase_name: str | None = None
     current_phase_idx: int = -1
 
-    def get_weights(self, epoch: int) -> Dict[str, float]:
+    def get_weights(self, epoch: int) -> dict[str, float]:
         """
         Get loss weights for the current epoch.
 

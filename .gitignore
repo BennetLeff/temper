@@ -18,8 +18,8 @@ venv/
 ENV/
 .env
 
-# uv
-uv.lock
+# uv - per-package locks (root uv.lock should be tracked)
+packages/*/uv.lock
 
 # Package-specific
 packages/*/.venv/

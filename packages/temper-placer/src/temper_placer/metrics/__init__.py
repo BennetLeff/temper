@@ -7,8 +7,8 @@ All metrics return normalized scores in [0, 1] where higher is better
 """
 
 from temper_placer.metrics.quality import (
-    compute_quality_report,
     compactness_score,
+    compute_quality_report,
     congestion_score,
     hv_lv_clearance_score,
     loop_area_score,

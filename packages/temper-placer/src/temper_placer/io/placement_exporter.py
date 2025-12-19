@@ -27,8 +27,8 @@ Example usage:
 from __future__ import annotations
 
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -62,9 +62,9 @@ def rotation_index_to_degrees(index: int) -> float:
 def positions_to_placements(
     positions: Array,
     rotations: Array,
-    component_refs: List[str],
-    origin: Tuple[float, float] = (0.0, 0.0),
-) -> Dict[str, PlacementUpdate]:
+    component_refs: list[str],
+    origin: tuple[float, float] = (0.0, 0.0),
+) -> dict[str, PlacementUpdate]:
     """
     Convert position/rotation arrays to PlacementUpdate dictionary.
 
@@ -98,7 +98,7 @@ def positions_to_placements(
     # Convert soft rotations to discrete indices
     rotation_indices = soft_to_discrete_rotations(rotations)
 
-    placements: Dict[str, PlacementUpdate] = {}
+    placements: dict[str, PlacementUpdate] = {}
 
     for i, ref in enumerate(component_refs):
         # Get position (add origin offset)
@@ -124,8 +124,8 @@ def export_positions_to_temp_pcb(
     rotations: Array,
     context: LossContext,
     template_pcb: Path,
-    board_origin: Tuple[float, float] = (0.0, 0.0),
-    temp_dir: Optional[Path] = None,
+    board_origin: tuple[float, float] = (0.0, 0.0),
+    temp_dir: Path | None = None,
 ) -> Path:
     """
     Export current placement state to a temporary PCB file for DRC.
@@ -219,8 +219,8 @@ PCBExporterFn = Callable[[Array, Array, LossContext], Path]
 
 def create_pcb_exporter(
     template_pcb: Path,
-    board_origin: Tuple[float, float] = (0.0, 0.0),
-    temp_dir: Optional[Path] = None,
+    board_origin: tuple[float, float] = (0.0, 0.0),
+    temp_dir: Path | None = None,
 ) -> PCBExporterFn:
     """
     Factory function to create a PCB exporter for DRCLoss.

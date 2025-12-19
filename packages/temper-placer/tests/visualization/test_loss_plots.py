@@ -6,14 +6,15 @@ is not installed.
 """
 
 import json
+
 import pytest
 
-from temper_placer.visualization.model import LossDataPoint, LossHistory
 from temper_placer.visualization.loss_plots import (
-    PLOTLY_AVAILABLE,
     LOSS_TERM_COLORS,
+    PLOTLY_AVAILABLE,
     get_term_color,
 )
+from temper_placer.visualization.model import LossDataPoint, LossHistory
 
 # Skip all tests in this module if Plotly is not available
 pytestmark = pytest.mark.skipif(

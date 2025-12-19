@@ -4,14 +4,15 @@ Tests for KiCad footprint parser - extract courtyard bounds from .kicad_mod file
 TDD Task: temper-1my.1.1
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Module under test - will be implemented
 from temper_placer.io.footprint_parser import (
-    parse_footprint_courtyard,
     FootprintBounds,
     FootprintParseError,
+    parse_footprint_courtyard,
 )
 
 

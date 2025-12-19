@@ -8,8 +8,7 @@ conflicts.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Type
+from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
@@ -18,7 +17,6 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -27,6 +25,7 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.heuristics.conflict import ConflictResolver, ResolutionStrategy
+from temper_placer.io.config_loader import PlacementConstraints
 
 
 @dataclass
@@ -42,11 +41,11 @@ class PipelineResult:
         unplaced: Components that couldn't be placed by any heuristic
     """
 
-    placements: Dict[str, ComponentPlacement]
+    placements: dict[str, ComponentPlacement]
     state: PlacementState
-    conflicts: List[str]
-    heuristic_stats: Dict[str, Dict]
-    unplaced: List[str]
+    conflicts: list[str]
+    heuristic_stats: dict[str, dict]
+    unplaced: list[str]
 
 
 class HeuristicPipeline:
@@ -81,7 +80,7 @@ class HeuristicPipeline:
             conflict_strategy: How to resolve placement conflicts
             min_spacing_mm: Minimum spacing between components
         """
-        self.heuristics: List[Heuristic] = []
+        self.heuristics: list[Heuristic] = []
         self.conflict_strategy = conflict_strategy
         self.min_spacing_mm = min_spacing_mm
 
@@ -93,7 +92,7 @@ class HeuristicPipeline:
         """
         self.heuristics.append(heuristic)
 
-    def register_all(self, heuristics: List[Heuristic]) -> None:
+    def register_all(self, heuristics: list[Heuristic]) -> None:
         """Register multiple heuristics."""
         for h in heuristics:
             self.register(h)
@@ -106,9 +105,9 @@ class HeuristicPipeline:
         self,
         board: Board,
         netlist: Netlist,
-        constraints: Optional[PlacementConstraints] = None,
-        key: Optional[Array] = None,
-        keep_out_mask: Optional[Array] = None,
+        constraints: PlacementConstraints | None = None,
+        key: Array | None = None,
+        keep_out_mask: Array | None = None,
     ) -> PipelineResult:
         """
         Run all heuristics to generate an initial placement.
@@ -125,7 +124,7 @@ class HeuristicPipeline:
         """
         if constraints is None:
             constraints = PlacementConstraints()
-        
+
         if key is None:
             key = jax.random.PRNGKey(42)
 
@@ -149,8 +148,8 @@ class HeuristicPipeline:
         )
 
         # Track stats
-        heuristic_stats: Dict[str, Dict] = {}
-        all_conflicts: List[str] = []
+        heuristic_stats: dict[str, dict] = {}
+        all_conflicts: list[str] = []
 
         # Run each heuristic
         for heuristic in sorted_heuristics:
@@ -353,7 +352,7 @@ class HeuristicPipeline:
 
         return PlacementState(positions=positions, rotation_logits=rotation_logits)
 
-    def get_registered_heuristics(self) -> List[Tuple[str, HeuristicPriority]]:
+    def get_registered_heuristics(self) -> list[tuple[str, HeuristicPriority]]:
         """Get list of registered heuristics with their priorities."""
         return [(h.name, h.priority) for h in self.heuristics]
 
@@ -369,11 +368,11 @@ def create_default_pipeline(
     2. Force Directed Layout (Refinement)
     3. (Other heuristics to be added...)
     """
-    from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
     from temper_placer.heuristics.force_directed import (
         ForceDirectedHeuristic,
         ForceDirectedUnfoldingHeuristic,
     )
+    from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
 
     pipeline = HeuristicPipeline(conflict_strategy=conflict_strategy)
 

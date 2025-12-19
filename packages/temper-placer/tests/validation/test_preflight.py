@@ -2,32 +2,30 @@
 Tests for preflight validation checks.
 """
 
-import pytest
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
 from unittest.mock import patch
 
-from temper_placer.validation.preflight import (
-    PreflightSeverity,
-    PreflightIssue,
-    PreflightResult,
-    check_kicad_cli,
-    check_ngspice,
-    check_external_tools,
-    check_components_have_zones,
-    check_zones_fit_on_board,
-    check_impossible_constraints,
-    run_all_preflight_checks,
-    _zones_overlap,
-)
+import pytest
+
 from temper_placer.core.board import Zone
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.io.config_loader import (
-    PlacementConstraints,
     ComponentGroup,
+    PlacementConstraints,
     ThermalConstraint,
 )
-
+from temper_placer.validation.preflight import (
+    PreflightIssue,
+    PreflightResult,
+    PreflightSeverity,
+    _zones_overlap,
+    check_components_have_zones,
+    check_external_tools,
+    check_impossible_constraints,
+    check_kicad_cli,
+    check_ngspice,
+    check_zones_fit_on_board,
+    run_all_preflight_checks,
+)
 
 # =============================================================================
 # Test Fixtures
@@ -454,14 +452,13 @@ class TestCombinedPreflightChecks:
         """Test running all preflight checks."""
         with patch(
             "temper_placer.validation.preflight.find_kicad_cli", return_value="/usr/bin/kicad-cli"
-        ):
-            with patch("shutil.which", return_value="/usr/bin/ngspice"):
-                result = run_all_preflight_checks(
-                    netlist=simple_netlist,
-                    constraints=simple_constraints,
-                    check_tools=True,
-                    require_zone_assignments=True,
-                )
+        ), patch("shutil.which", return_value="/usr/bin/ngspice"):
+            result = run_all_preflight_checks(
+                netlist=simple_netlist,
+                constraints=simple_constraints,
+                check_tools=True,
+                require_zone_assignments=True,
+            )
 
         assert result.passed is True
         assert len(result.issues) > 0
@@ -493,13 +490,12 @@ class TestCombinedPreflightChecks:
         """Test running without constraints only checks tools."""
         with patch(
             "temper_placer.validation.preflight.find_kicad_cli", return_value="/usr/bin/kicad-cli"
-        ):
-            with patch("shutil.which", return_value="/usr/bin/ngspice"):
-                result = run_all_preflight_checks(
-                    netlist=simple_netlist,
-                    constraints=None,
-                    check_tools=True,
-                )
+        ), patch("shutil.which", return_value="/usr/bin/ngspice"):
+            result = run_all_preflight_checks(
+                netlist=simple_netlist,
+                constraints=None,
+                check_tools=True,
+            )
 
         assert result.passed is True
         assert result.info_count == 2  # kicad-cli and ngspice found

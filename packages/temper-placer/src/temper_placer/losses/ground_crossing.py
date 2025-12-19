@@ -17,7 +17,6 @@ or cross only at designated star points.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -32,8 +31,8 @@ from temper_placer.losses.base import (
 
 def _get_domain_for_position(
     position: Array,
-    domains: List[GroundDomain],
-) -> Optional[str]:
+    domains: list[GroundDomain],
+) -> str | None:
     """
     Get the ground domain containing a position.
 
@@ -54,8 +53,8 @@ def _get_domain_for_position(
 def compute_crossing_penalty_for_pair(
     pos1: Array,
     pos2: Array,
-    domains: List[GroundDomain],
-    star_points: Dict[str, Array],
+    domains: list[GroundDomain],
+    star_points: dict[str, Array],
     penalty_weight: float = 1.0,
 ) -> Array:
     """
@@ -134,7 +133,7 @@ def compute_ground_crossing_penalty(
     domains = context.board.ground_domains
 
     # Build star points dict
-    star_points: Dict[str, Array] = {}
+    star_points: dict[str, Array] = {}
     for domain in domains:
         if domain.star_point is not None:
             star_points[domain.name] = jnp.array(domain.star_point, dtype=jnp.float32)
@@ -224,7 +223,7 @@ class GroundCrossingLoss(LossFunction):
 def detect_ground_domain_violations(
     positions: Array,
     context: LossContext,
-) -> List[Dict]:
+) -> list[dict]:
     """
     Detect and report all ground domain violations for debugging.
 

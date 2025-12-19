@@ -20,7 +20,7 @@ import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -50,11 +50,11 @@ class SpiceMeasurement:
     name: str
     value: float
     unit: str = ""
-    targ: Optional[float] = None
-    trig: Optional[float] = None
+    targ: float | None = None
+    trig: float | None = None
     raw_line: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "name": self.name,
@@ -82,13 +82,13 @@ class SpiceResult:
     """
 
     success: bool
-    measurements: Dict[str, SpiceMeasurement] = field(default_factory=dict)
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    measurements: dict[str, SpiceMeasurement] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
     stdout: str = ""
     stderr: str = ""
     elapsed_ms: float = 0.0
-    netlist_path: Optional[Path] = None
+    netlist_path: Path | None = None
 
     def get_value(self, name: str, default: float = 0.0) -> float:
         """Get a measurement value by name."""
@@ -142,9 +142,9 @@ class NgspiceValidator(Validator):
 
     def __init__(
         self,
-        ngspice_path: Optional[str] = None,
+        ngspice_path: str | None = None,
         timeout_seconds: float = 60.0,
-        working_dir: Optional[Path] = None,
+        working_dir: Path | None = None,
     ):
         """
         Initialize ngspice validator.
@@ -199,8 +199,8 @@ class NgspiceValidator(Validator):
             actual validation requires running specific simulations).
         """
         start_time = time.time()
-        issues: List[ValidationIssue] = []
-        metrics: Dict[str, float] = {}
+        issues: list[ValidationIssue] = []
+        metrics: dict[str, float] = {}
 
         if not self.is_available():
             issues.append(
@@ -233,7 +233,7 @@ class NgspiceValidator(Validator):
     def run_simulation(
         self,
         netlist_path: Path,
-        include_paths: Optional[List[Path]] = None,
+        include_paths: list[Path] | None = None,
     ) -> SpiceResult:
         """
         Run an ngspice simulation on a netlist file.
@@ -316,8 +316,8 @@ class NgspiceValidator(Validator):
     def run_template(
         self,
         template: str,
-        parameters: Dict[str, str],
-        include_paths: Optional[List[Path]] = None,
+        parameters: dict[str, str],
+        include_paths: list[Path] | None = None,
         cleanup: bool = True,
     ) -> SpiceResult:
         """
@@ -364,7 +364,7 @@ class NgspiceValidator(Validator):
     def run_netlist_string(
         self,
         netlist: str,
-        include_paths: Optional[List[Path]] = None,
+        include_paths: list[Path] | None = None,
         cleanup: bool = True,
     ) -> SpiceResult:
         """
@@ -389,7 +389,7 @@ class NgspiceValidator(Validator):
             if cleanup:
                 shutil.rmtree(temp_dir, ignore_errors=True)
 
-    def _parse_measurements(self, output: str) -> Dict[str, SpiceMeasurement]:
+    def _parse_measurements(self, output: str) -> dict[str, SpiceMeasurement]:
         """Parse .meas output from ngspice stdout."""
         measurements = {}
 
@@ -420,7 +420,7 @@ class NgspiceValidator(Validator):
 
         return measurements
 
-    def _parse_errors(self, output: str) -> List[str]:
+    def _parse_errors(self, output: str) -> list[str]:
         """Parse error messages from ngspice output."""
         errors = []
         for line in output.split("\n"):
@@ -428,7 +428,7 @@ class NgspiceValidator(Validator):
                 errors.append(line.strip())
         return errors
 
-    def _parse_warnings(self, output: str) -> List[str]:
+    def _parse_warnings(self, output: str) -> list[str]:
         """Parse warning messages from ngspice output."""
         warnings = []
         for line in output.split("\n"):
@@ -479,8 +479,8 @@ class NgspiceValidator(Validator):
 
 
 def estimate_loop_inductance(
-    component_positions: Dict[str, Tuple[float, float]],
-    loop_components: List[str],
+    component_positions: dict[str, tuple[float, float]],
+    loop_components: list[str],
     trace_height_mm: float = 0.035,  # 1oz copper
 ) -> float:
     """
@@ -536,7 +536,7 @@ def estimate_loop_inductance(
 
 def create_validation_netlist(
     base_template: str,
-    placement_params: Dict[str, str],
+    placement_params: dict[str, str],
 ) -> str:
     """
     Create a validation netlist from template and placement parameters.
@@ -572,9 +572,9 @@ class PlacementSpiceResult:
 
     spice_result: SpiceResult
     template_name: str
-    threshold_results: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    threshold_results: dict[str, dict[str, Any]] = field(default_factory=dict)
     penalty: float = 0.0
-    placement_params: Dict[str, str] = field(default_factory=dict)
+    placement_params: dict[str, str] = field(default_factory=dict)
 
     @property
     def passed(self) -> bool:
@@ -609,8 +609,8 @@ class PlacementSpiceResult:
 
 def run_gate_drive_simulation(
     validator: NgspiceValidator,
-    component_positions: Dict[str, Tuple[float, float]],
-    gate_loop_components: Optional[List[str]] = None,
+    component_positions: dict[str, tuple[float, float]],
+    gate_loop_components: list[str] | None = None,
     gate_resistance: float = 4.7,
     check_thresholds: bool = True,
 ) -> PlacementSpiceResult:
@@ -632,9 +632,11 @@ def run_gate_drive_simulation(
         PlacementSpiceResult with simulation results and threshold checks.
     """
     from temper_placer.validation.spice_templates import (
-        load_template,
         check_thresholds as check_thresholds_fn,
+    )
+    from temper_placer.validation.spice_templates import (
         compute_spice_penalty,
+        load_template,
     )
 
     if gate_loop_components is None:
@@ -682,8 +684,8 @@ def run_gate_drive_simulation(
 
 def run_bootstrap_simulation(
     validator: NgspiceValidator,
-    component_positions: Dict[str, Tuple[float, float]],
-    bootstrap_loop_components: Optional[List[str]] = None,
+    component_positions: dict[str, tuple[float, float]],
+    bootstrap_loop_components: list[str] | None = None,
     bootstrap_capacitance: float = 1e-6,
     bootstrap_resistance: float = 0.5,
     check_thresholds: bool = True,
@@ -707,9 +709,11 @@ def run_bootstrap_simulation(
         PlacementSpiceResult with simulation results and threshold checks.
     """
     from temper_placer.validation.spice_templates import (
-        load_template,
         check_thresholds as check_thresholds_fn,
+    )
+    from temper_placer.validation.spice_templates import (
         compute_spice_penalty,
+        load_template,
     )
 
     if bootstrap_loop_components is None:
@@ -758,8 +762,8 @@ def run_bootstrap_simulation(
 
 def run_power_integrity_simulation(
     validator: NgspiceValidator,
-    component_positions: Dict[str, Tuple[float, float]],
-    dc_bus_components: Optional[List[str]] = None,
+    component_positions: dict[str, tuple[float, float]],
+    dc_bus_components: list[str] | None = None,
     decap_esr: float = 0.05,
     decap_value: float = 100e-6,
     check_thresholds: bool = True,
@@ -783,9 +787,11 @@ def run_power_integrity_simulation(
         PlacementSpiceResult with simulation results and threshold checks.
     """
     from temper_placer.validation.spice_templates import (
-        load_template,
         check_thresholds as check_thresholds_fn,
+    )
+    from temper_placer.validation.spice_templates import (
         compute_spice_penalty,
+        load_template,
     )
 
     if dc_bus_components is None:
@@ -834,9 +840,9 @@ def run_power_integrity_simulation(
 
 def run_all_placement_validations(
     validator: NgspiceValidator,
-    component_positions: Dict[str, Tuple[float, float]],
-    config: Optional[Dict[str, Any]] = None,
-) -> Dict[str, PlacementSpiceResult]:
+    component_positions: dict[str, tuple[float, float]],
+    config: dict[str, Any] | None = None,
+) -> dict[str, PlacementSpiceResult]:
     """
     Run all placement-dependent SPICE validations.
 
@@ -891,8 +897,8 @@ def run_all_placement_validations(
 
 
 def compute_total_spice_penalty(
-    results: Dict[str, PlacementSpiceResult],
-    weights: Optional[Dict[str, float]] = None,
+    results: dict[str, PlacementSpiceResult],
+    weights: dict[str, float] | None = None,
 ) -> float:
     """
     Compute total penalty from all SPICE validation results.

@@ -25,22 +25,21 @@ Note:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+
 import pytest
+
+# Import temper-placer modules
+from temper_placer.io.kicad_parser import parse_kicad_pcb
 
 # Import external fixture helpers
 from tests.fixtures.external import (
+    CACHE_DIR,
     get_pcb_path,
     is_pcb_available,
     list_available_projects,
     list_downloaded_projects,
-    CACHE_DIR,
 )
-from tests.fixtures.external.download_pcbs import get_project_config, load_manifest
-
-# Import temper-placer modules
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
-
+from tests.fixtures.external.download_pcbs import get_project_config
 
 # =============================================================================
 # Test Configuration
@@ -79,7 +78,7 @@ EXPECTED_COMPONENTS = {
 # =============================================================================
 
 
-def get_kicad_version(project_name: str) -> Optional[int]:
+def get_kicad_version(project_name: str) -> int | None:
     """Get KiCad version for a project from manifest."""
     config = get_project_config(project_name)
     if config is None:
@@ -344,13 +343,13 @@ class TestExternalFixtureSummary:
         available = list_available_projects()
         downloaded = list_downloaded_projects()
 
-        print(f"\n\nExternal PCB Fixtures Summary:")
+        print("\n\nExternal PCB Fixtures Summary:")
         print(f"  Total defined in manifest: {len(available)}")
         print(f"  Downloaded and cached: {len(downloaded)}")
         print(f"  Missing: {len(available) - len(downloaded)}")
 
         if downloaded:
-            print(f"\n  Downloaded projects:")
+            print("\n  Downloaded projects:")
             for name in downloaded:
                 version = get_kicad_version(name)
                 version_str = f"(KiCad {version})" if version else ""
@@ -358,7 +357,7 @@ class TestExternalFixtureSummary:
 
         missing = set(available) - set(downloaded)
         if missing:
-            print(f"\n  Missing projects (run download_pcbs.py --all):")
+            print("\n  Missing projects (run download_pcbs.py --all):")
             for name in missing:
                 print(f"    - {name}")
 
@@ -393,17 +392,16 @@ import jax.numpy as jnp
 
 from temper_placer.core.state import PlacementState
 from temper_placer.losses import (
-    LossContext,
-    CompositeLoss,
-    WeightedLoss,
-    OverlapLoss,
     BoundaryLoss,
-    WirelengthLoss,
+    CompositeLoss,
+    LossContext,
+    OverlapLoss,
     SpreadLoss,
+    WeightedLoss,
+    WirelengthLoss,
 )
-from temper_placer.optimizer import train, OptimizerConfig
+from temper_placer.optimizer import OptimizerConfig, train
 from temper_placer.optimizer.config import LearningRateSchedule
-
 
 # Smaller project for quick optimization tests (fewer components = faster)
 SMALL_PROJECTS = ["piantor_left", "piantor_right", "rp2040_designguide"]
@@ -590,10 +588,11 @@ class TestRealPCBOptimization:
 # =============================================================================
 
 import tempfile
+
 from temper_placer.io.kicad_writer import (
     PlacementUpdate,
-    write_placements_to_pcb,
     export_placements,
+    write_placements_to_pcb,
 )
 
 
@@ -867,9 +866,9 @@ class TestRealPCBLossImprovement:
 # Import DRC infrastructure
 try:
     from tests.validation.test_drc_correlation import (
-        run_kicad_drc,
-        kicad_cli_available,
         export_placement_to_pcb,
+        kicad_cli_available,
+        run_kicad_drc,
     )
 
     HAS_DRC_INFRASTRUCTURE = True

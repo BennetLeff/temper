@@ -22,15 +22,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import yaml
-
 
 # Package paths
 EXTERNAL_DIR = Path(__file__).parent
@@ -38,7 +36,7 @@ MANIFEST_PATH = EXTERNAL_DIR / "manifest.yaml"
 DEFAULT_CACHE_DIR = EXTERNAL_DIR / ".cache"
 
 
-def load_manifest() -> Dict[str, Any]:
+def load_manifest() -> dict[str, Any]:
     """Load the manifest.yaml file."""
     if not MANIFEST_PATH.exists():
         raise FileNotFoundError(f"Manifest not found: {MANIFEST_PATH}")
@@ -56,14 +54,14 @@ def get_cache_dir() -> Path:
     return cache_dir
 
 
-def get_project_config(project_name: str) -> Optional[Dict[str, Any]]:
+def get_project_config(project_name: str) -> dict[str, Any] | None:
     """Get configuration for a specific project."""
     manifest = load_manifest()
     projects = manifest.get("projects", {})
     return projects.get(project_name)
 
 
-def get_cached_pcb_path(project_name: str, pcb_index: int = 0) -> Optional[Path]:
+def get_cached_pcb_path(project_name: str, pcb_index: int = 0) -> Path | None:
     """
     Get the local cache path for a PCB file.
 
@@ -137,7 +135,7 @@ def download_file(url: str, dest: Path, timeout: int = 120) -> bool:
         return False
 
 
-def download_project(project_name: str, force: bool = False, timeout: int = 120) -> Tuple[int, int]:
+def download_project(project_name: str, force: bool = False, timeout: int = 120) -> tuple[int, int]:
     """
     Download all PCB files for a project.
 
@@ -186,7 +184,7 @@ def download_project(project_name: str, force: bool = False, timeout: int = 120)
     return (success, failed)
 
 
-def download_all(force: bool = False, timeout: int = 120) -> Tuple[int, int]:
+def download_all(force: bool = False, timeout: int = 120) -> tuple[int, int]:
     """
     Download all projects defined in manifest.
 
@@ -237,7 +235,7 @@ def list_projects(show_status: bool = True) -> None:
         print(f"      complexity: {complexity}, license: {license_id}")
 
 
-def verify_downloads() -> Tuple[int, int]:
+def verify_downloads() -> tuple[int, int]:
     """
     Verify all cached files are valid KiCad PCBs.
 

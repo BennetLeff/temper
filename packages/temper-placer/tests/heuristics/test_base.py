@@ -9,18 +9,16 @@ Tests the base classes and data structures for the placement heuristics system:
 """
 
 import pytest
-import jax
-import jax.numpy as jnp
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.heuristics.base import (
+    ComponentPlacement,
     Heuristic,
     HeuristicPriority,
     HeuristicResult,
     PlacementContext,
-    ComponentPlacement,
 )
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
 from temper_placer.io.config_loader import PlacementConstraints
 
 

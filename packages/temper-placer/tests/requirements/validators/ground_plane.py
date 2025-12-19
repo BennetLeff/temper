@@ -6,7 +6,6 @@ per REQ-EMC-01.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
 
 
 @dataclass
@@ -15,7 +14,7 @@ class GroundPlaneViolation:
 
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"  # error, warning
 
 
@@ -24,7 +23,7 @@ class GroundPlaneResult:
     """Result of ground plane validation."""
 
     passed: bool
-    violations: List[GroundPlaneViolation]
+    violations: list[GroundPlaneViolation]
 
     @property
     def error_count(self) -> int:

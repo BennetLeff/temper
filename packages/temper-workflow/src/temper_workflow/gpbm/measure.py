@@ -18,13 +18,13 @@ Usage:
 """
 
 import json
-import subprocess
 import re
+import subprocess
 import sys
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, field
+from typing import Any, Optional
 
 
 @dataclass
@@ -70,7 +70,7 @@ class MeasurementResult:
     details: str = ""
     error: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON."""
         return {
             "timestamp": self.timestamp,
@@ -106,9 +106,9 @@ class MetricDefinition:
 class MetricsRegistry:
     """Registry of metric definitions from METRICS.md."""
 
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or self._find_project_root()
-        self.metrics: Dict[str, MetricDefinition] = {}
+        self.metrics: dict[str, MetricDefinition] = {}
         self._load_metrics()
 
     def _find_project_root(self) -> Path:
@@ -202,11 +202,11 @@ class MetricsRegistry:
             command=command.replace("\\|", "|"),
         )
 
-    def get(self, metric_id: str) -> Optional[MetricDefinition]:
+    def get(self, metric_id: str) -> MetricDefinition | None:
         """Get metric definition by ID."""
         return self.metrics.get(metric_id)
 
-    def list_all(self) -> List[str]:
+    def list_all(self) -> list[str]:
         """List all metric IDs."""
         return list(self.metrics.keys())
 
@@ -214,10 +214,10 @@ class MetricsRegistry:
 class MeasurementRunner:
     """Run measurements for tasks."""
 
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or self._find_project_root()
         self.registry = MetricsRegistry(self.project_root)
-        self.results: List[MeasurementResult] = []
+        self.results: list[MeasurementResult] = []
 
     def _find_project_root(self) -> Path:
         """Find project root."""
@@ -259,7 +259,7 @@ class MeasurementRunner:
             pass
         return ""
 
-    def _parse_measurement_targets(self, description: str) -> List[MeasurementTarget]:
+    def _parse_measurement_targets(self, description: str) -> list[MeasurementTarget]:
         """Parse measurement_targets from task description."""
         targets = []
 
@@ -289,7 +289,7 @@ class MeasurementRunner:
 
         return targets
 
-    def _run_command(self, command: str, timeout: int = 60) -> Tuple[bool, str, str]:
+    def _run_command(self, command: str, timeout: int = 60) -> tuple[bool, str, str]:
         """Run a shell command and return (success, stdout, stderr)."""
         try:
             result = subprocess.run(
@@ -310,7 +310,7 @@ class MeasurementRunner:
         except Exception as e:
             return False, "", str(e)
 
-    def _extract_numeric_value(self, output: str, metric_id: str) -> Optional[float]:
+    def _extract_numeric_value(self, output: str, metric_id: str) -> float | None:
         """Extract numeric value from command output."""
         # Try to find a number in the output
         # Different metrics may need different extraction logic
@@ -357,10 +357,10 @@ class MeasurementRunner:
         return None
 
     def run_metric(
-        self, metric_id: str, task_id: str, target: Optional[str] = None
+        self, metric_id: str, task_id: str, target: str | None = None
     ) -> MeasurementResult:
         """Run a single metric measurement."""
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         commit = self._get_git_commit()
 
         # Get metric definition
@@ -430,7 +430,7 @@ class MeasurementRunner:
             details=stdout[:200] if not passed else "",
         )
 
-    def run_for_task(self, task_id: str) -> List[MeasurementResult]:
+    def run_for_task(self, task_id: str) -> list[MeasurementResult]:
         """Run all measurements defined in a task's description."""
         description = self._get_task_description(task_id)
         targets = self._parse_measurement_targets(description)
@@ -446,7 +446,7 @@ class MeasurementRunner:
         self.results = results
         return results
 
-    def log_results(self, results: Optional[List[MeasurementResult]] = None):
+    def log_results(self, results: list[MeasurementResult] | None = None):
         """Append results to measurements.jsonl."""
         results = results or self.results
         if not results:
@@ -459,7 +459,7 @@ class MeasurementRunner:
             for result in results:
                 f.write(result.to_jsonl() + "\n")
 
-    def format_results(self, results: Optional[List[MeasurementResult]] = None) -> str:
+    def format_results(self, results: list[MeasurementResult] | None = None) -> str:
         """Format results for display."""
         results = results or self.results
         if not results:
@@ -499,13 +499,13 @@ def main():
 Examples:
   # Run measurements for a task
   python measure.py --task temper-xxx
-  
+
   # Run a specific metric
   python measure.py --metric fw_test_coverage --task temper-xxx
-  
+
   # Output as JSON
   python measure.py --task temper-xxx --json
-  
+
   # List available metrics
   python measure.py --list-metrics
 """,

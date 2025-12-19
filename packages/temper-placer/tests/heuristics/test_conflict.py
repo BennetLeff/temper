@@ -7,19 +7,18 @@ Tests conflict resolution between component placements:
 """
 
 import pytest
-import jax
 
-from temper_placer.heuristics.conflict import (
-    ConflictResolver,
-    ResolutionStrategy,
-    Conflict,
-)
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     PlacementContext,
 )
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
+from temper_placer.heuristics.conflict import (
+    Conflict,
+    ConflictResolver,
+    ResolutionStrategy,
+)
 from temper_placer.io.config_loader import PlacementConstraints
 
 

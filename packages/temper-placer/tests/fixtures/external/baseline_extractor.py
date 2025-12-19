@@ -10,15 +10,13 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
 if TYPE_CHECKING:
-    from jax import Array
 
-    from temper_placer.core import Board, Component, Netlist, PlacementState
-    from temper_placer.io.kicad_parser import ParseResult
+    pass
 
 
 @dataclass
@@ -41,7 +39,7 @@ class BaselineMetrics:
 
     # Human placement metrics (normalized 0-1 scores where 1.0 is ideal)
     # Includes original positions and DRC results
-    human_placement: Dict[str, Any] = field(default_factory=dict)
+    human_placement: dict[str, Any] = field(default_factory=dict)
 
     # DRC metrics (redundant but useful at top level)
     drc_errors: int = 0
@@ -49,10 +47,10 @@ class BaselineMetrics:
     drc_available: bool = False
 
     # Optional detailed metrics
-    net_wirelengths: Dict[str, float] = field(default_factory=dict)
-    warnings: List[str] = field(default_factory=list)
+    net_wirelengths: dict[str, float] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for YAML serialization."""
         return asdict(self)
 
@@ -69,7 +67,7 @@ class BaselineMetrics:
             )
 
     @classmethod
-    def load(cls, input_path: Path) -> "BaselineMetrics":
+    def load(cls, input_path: Path) -> BaselineMetrics:
         """Load metrics from YAML file."""
         with open(input_path) as f:
             data = yaml.safe_load(f)
@@ -96,7 +94,7 @@ def _check_dependencies() -> bool:
 def extract_baseline_metrics(
     pcb_path: Path,
     project_name: str,
-    constraints_path: Optional[Path] = None,
+    constraints_path: Path | None = None,
 ) -> BaselineMetrics:
     """
     Extract placement quality metrics from a human-designed PCB.
@@ -116,15 +114,13 @@ def extract_baseline_metrics(
     import jax.numpy as jnp
 
     from temper_placer.core import PlacementState
-    from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.config_loader import load_constraints
-    from temper_placer.losses import BoundaryLoss, OverlapLoss
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.losses.base import LossContext
-    from temper_placer.losses.wirelength import compute_total_hpwl
-    from temper_placer.validation.drc import KiCadDRCValidator
     from temper_placer.metrics.quality import compute_quality_report
+    from temper_placer.validation.drc import KiCadDRCValidator
 
-    warnings: List[str] = []
+    warnings: list[str] = []
 
     # Parse the PCB
     result = parse_kicad_pcb(pcb_path)
@@ -147,9 +143,9 @@ def extract_baseline_metrics(
     origin_x, origin_y = board.origin
 
     # Extract component positions from original placement
-    component_positions: Dict[str, List[float]] = {}
-    positions_list: List[Tuple[float, float]] = []
-    rotations_list: List[int] = []
+    component_positions: dict[str, list[float]] = {}
+    positions_list: list[tuple[float, float]] = []
+    rotations_list: list[int] = []
 
     for comp in netlist.components:
         pos = comp.initial_position
@@ -230,14 +226,14 @@ def extract_baseline_metrics(
             "loop_components": [[n for n in loop.nets] for loop in constraints.critical_loops],
             "min_hv_lv_clearance": constraints.hv_clearance_mm,
         }
-        
+
         # Populate component sets from netlist and constraints
         for comp in netlist.components:
             if comp.net_class == "HighVoltage":
                 quality_config["hv_components"].add(comp.ref)
             elif comp.net_class == "Signal":
                 quality_config["lv_components"].add(comp.ref)
-        
+
         # Add thermal components from constraints
         for tc in constraints.thermal_constraints:
             for ref in tc.components:
@@ -284,8 +280,8 @@ def extract_baseline_metrics(
 
 def extract_baseline_for_project(
     project_name: str,
-    output_dir: Optional[Path] = None,
-) -> Optional[Path]:
+    output_dir: Path | None = None,
+) -> Path | None:
     """
     Extract and save baseline metrics for a downloaded external PCB project.
 
@@ -341,17 +337,17 @@ def extract_baseline_for_project(
     print(f"Extracted benchmark for {project_name}: {output_path}")
     print(f"  Board origin: ({metrics.board_origin_x}, {metrics.board_origin_y})")
     print(f"  Components: {metrics.component_count}, Nets: {metrics.net_count}")
-    
+
     m = metrics.human_placement.get("metrics", {})
     print(f"  Wirelength: {m.get('total_wirelength_mm', 0.0):.2f} mm")
     print(f"  Thermal Score: {m.get('thermal_score', 0.0):.3f}")
     print(f"  Zone Compliance: {m.get('zone_compliance', 0.0):.3f}")
-    
+
     if metrics.drc_available:
         print(f"  DRC: {metrics.drc_errors} errors, {metrics.drc_warnings} warnings")
     else:
-        print(f"  DRC: not available")
-    
+        print("  DRC: not available")
+
     if metrics.warnings:
         for w in metrics.warnings:
             print(f"  WARNING: {w}")
@@ -359,7 +355,7 @@ def extract_baseline_for_project(
     return output_path
 
 
-def extract_all_baselines() -> Dict[str, Path]:
+def extract_all_baselines() -> dict[str, Path]:
     """
     Extract baselines for all downloaded KiCad 6 projects.
 
@@ -371,7 +367,7 @@ def extract_all_baselines() -> Dict[str, Path]:
     manifest = load_manifest()
     projects = manifest.get("projects", {})
 
-    results: Dict[str, Path] = {}
+    results: dict[str, Path] = {}
 
     for name, config in projects.items():
         if config.get("kicad_version", 6) == 5:

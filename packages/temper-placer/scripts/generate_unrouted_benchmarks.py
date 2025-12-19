@@ -11,9 +11,8 @@ This script:
 """
 
 import logging
-import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import yaml
 
@@ -34,7 +33,7 @@ MANIFEST_PATH = EXTERNAL_DIR / "manifest.yaml"
 CACHE_DIR = EXTERNAL_DIR / ".cache"
 
 
-def load_manifest() -> Dict[str, Any]:
+def load_manifest() -> dict[str, Any]:
     with open(MANIFEST_PATH) as f:
         return yaml.safe_load(f)
 
@@ -83,8 +82,6 @@ def generate_unrouted_benchmarks():
             context = LossContext.from_netlist_and_board(parse_result.netlist, parse_result.board)
 
             # Using alpha=20 for sharp HPWL estimate matching human layout
-            from jax import Array
-            import jax.numpy as jnp
 
             # We need a dummy rotation array (N, 4) - human rotations are fixed in state
             n = parse_result.netlist.n_components

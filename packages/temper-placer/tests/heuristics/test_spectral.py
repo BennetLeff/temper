@@ -1,12 +1,10 @@
-import pytest
-import numpy as np
-import networkx as nx
-from typing import List, Tuple
 
-from temper_placer.core.netlist import Netlist, Net, Component, Pin
-from temper_placer.core.board import Board, Zone
+import numpy as np
+
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.heuristics.base import PlacementConstraints, PlacementContext
 from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-from temper_placer.heuristics.base import PlacementContext, HeuristicResult, PlacementConstraints
 
 
 class TestSpectralHeuristic:

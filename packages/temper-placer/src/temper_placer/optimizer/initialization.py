@@ -11,7 +11,6 @@ Implements temper-1my.7: Spectral/Analytical Initialization
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 import jax.numpy as jnp
 import numpy as np
@@ -21,7 +20,6 @@ from temper_placer.core.board import Board
 from temper_placer.core.netlist import (
     Netlist,
     build_adjacency_matrix,
-    compute_eigenvector_centrality,
 )
 
 
@@ -227,7 +225,7 @@ class SpectralInitializer:
         self,
         netlist: Netlist,
         board: Board,
-        rng_key: Optional[Array] = None,
+        rng_key: Array | None = None,
     ) -> Array:
         """
         Compute initial positions for all components using spectral embedding.

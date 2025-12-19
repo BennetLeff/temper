@@ -13,7 +13,7 @@ and produce interactive HTML visualizations that can be:
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # Plotly is an optional dependency for testing without full install
 try:
@@ -32,16 +32,13 @@ from temper_placer.visualization.model import (
     ComponentView,
     ConstraintStatus,
     PadView,
-    Point,
     Rectangle,
     TraceView,
-    ViolationType,
     ZoneView,
 )
 
-
 # Color scheme for component status
-STATUS_COLORS: Dict[ComponentStatus, str] = {
+STATUS_COLORS: dict[ComponentStatus, str] = {
     ComponentStatus.OK: "#4CAF50",  # Green
     ComponentStatus.WARNING: "#FF9800",  # Orange
     ComponentStatus.ERROR: "#F44336",  # Red
@@ -49,7 +46,7 @@ STATUS_COLORS: Dict[ComponentStatus, str] = {
 }
 
 # Color scheme for zones
-ZONE_COLORS: Dict[str, str] = {
+ZONE_COLORS: dict[str, str] = {
     "keepout": "rgba(255, 0, 0, 0.2)",
     "copper": "rgba(255, 215, 0, 0.3)",
     "ground": "rgba(0, 128, 0, 0.2)",
@@ -62,7 +59,7 @@ BOARD_BACKGROUND = "#1a472a"  # Dark green (PCB color)
 BOARD_BORDER = "#2d5a3d"
 
 # Colors for copper layers
-LAYER_COLORS: Dict[str, str] = {
+LAYER_COLORS: dict[str, str] = {
     "F.Cu": "#FFD700",  # Gold for front copper
     "B.Cu": "#4169E1",  # Royal blue for back copper
     "*.Cu": "#CD853F",  # Peru (brownish) for through-hole
@@ -71,7 +68,7 @@ LAYER_COLORS: Dict[str, str] = {
 }
 
 # Pad colors
-PAD_COLORS: Dict[str, str] = {
+PAD_COLORS: dict[str, str] = {
     "smd": "#C0C0C0",  # Silver for SMD
     "thru_hole": "#CD7F32",  # Bronze for through-hole
     "*.Cu": "#CD7F32",  # Bronze for through-hole
@@ -92,7 +89,7 @@ def get_rectangle_shape(
     line_color: str = "#000000",
     line_width: float = 1.0,
     opacity: float = 0.8,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create a Plotly shape dict for a rotated rectangle.
 
@@ -126,7 +123,7 @@ def get_rectangle_shape(
 def get_component_shape(
     component: ComponentView,
     show_status_color: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create a Plotly shape for a component.
 
@@ -160,7 +157,7 @@ def get_component_shape(
     )
 
 
-def get_zone_shape(zone: ZoneView) -> Dict[str, Any]:
+def get_zone_shape(zone: ZoneView) -> dict[str, Any]:
     """
     Create a Plotly shape for a zone.
 
@@ -193,9 +190,9 @@ def get_zone_shape(zone: ZoneView) -> Dict[str, Any]:
 
 
 def get_trace_shapes(
-    traces: Tuple[TraceView, ...],
-    layer_filter: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+    traces: tuple[TraceView, ...],
+    layer_filter: str | None = None,
+) -> list[dict[str, Any]]:
     """
     Create Plotly shapes for trace segments.
 
@@ -234,9 +231,9 @@ def get_trace_shapes(
 
 
 def get_pad_shapes(
-    pads: Tuple[PadView, ...],
-    layer_filter: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+    pads: tuple[PadView, ...],
+    layer_filter: str | None = None,
+) -> list[dict[str, Any]]:
     """
     Create Plotly shapes for pads.
 
@@ -348,8 +345,8 @@ def get_pad_shapes(
 
 
 def create_trace_hover_data(
-    traces: Tuple[TraceView, ...],
-) -> Tuple[List[float], List[float], List[str]]:
+    traces: tuple[TraceView, ...],
+) -> tuple[list[float], list[float], list[str]]:
     """
     Create hover data for traces (at midpoints).
 
@@ -371,7 +368,7 @@ def create_trace_hover_data(
         y_coords.append(mid_y)
 
         # Build hover text
-        hover = f"<b>Trace</b><br>"
+        hover = "<b>Trace</b><br>"
         hover += f"Layer: {trace.layer}<br>"
         hover += f"Width: {trace.width:.3f} mm<br>"
         if trace.net:
@@ -382,8 +379,8 @@ def create_trace_hover_data(
 
 
 def create_pad_hover_data(
-    pads: Tuple[PadView, ...],
-) -> Tuple[List[float], List[float], List[str]]:
+    pads: tuple[PadView, ...],
+) -> tuple[list[float], list[float], list[str]]:
     """
     Create hover data for pads.
 
@@ -417,10 +414,10 @@ def create_pad_hover_data(
 
 
 def create_component_annotations(
-    components: Tuple[ComponentView, ...],
+    components: tuple[ComponentView, ...],
     show_refs: bool = True,
     font_size: int = 10,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Create annotations for component reference designators.
 
@@ -456,8 +453,8 @@ def create_component_annotations(
 
 
 def create_component_hover_data(
-    components: Tuple[ComponentView, ...],
-) -> Tuple[List[float], List[float], List[str]]:
+    components: tuple[ComponentView, ...],
+) -> tuple[list[float], list[float], list[str]]:
     """
     Create hover data for components.
 
@@ -489,7 +486,7 @@ def create_component_hover_data(
         if comp.zone:
             hover += f"<br>Zone: {comp.zone}"
         if comp.violations:
-            hover += f"<br><b>Violations:</b><br>"
+            hover += "<br><b>Violations:</b><br>"
             for v in comp.violations:
                 hover += f"  • {v}<br>"
         hover_texts.append(hover)
@@ -498,7 +495,7 @@ def create_component_hover_data(
 
 
 def _add_legend_traces(
-    fig: "go.Figure",
+    fig: go.Figure,
     board: BoardView,
     show_traces: bool,
     show_pads: bool,
@@ -605,7 +602,7 @@ def _add_legend_traces(
 
 def render_board(
     board: BoardView,
-    title: Optional[str] = None,
+    title: str | None = None,
     show_refs: bool = True,
     show_status_colors: bool = True,
     show_zones: bool = True,
@@ -615,7 +612,7 @@ def render_board(
     show_legend: bool = True,
     width: int = 800,
     height: int = 600,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render a board view as a Plotly figure.
 
@@ -797,10 +794,10 @@ def render_board(
 def render_board_with_violations(
     board: BoardView,
     constraints: ConstraintStatus,
-    title: Optional[str] = None,
+    title: str | None = None,
     highlight_violations: bool = True,
     **kwargs: Any,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render a board view with violation highlights.
 
@@ -862,10 +859,10 @@ def render_board_with_violations(
 def render_board_comparison(
     board_before: BoardView,
     board_after: BoardView,
-    title: Optional[str] = None,
+    title: str | None = None,
     width: int = 1200,
     height: int = 500,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render a side-by-side comparison of two board states.
 
@@ -954,7 +951,7 @@ def render_board_comparison(
 
 def board_to_html(
     board: BoardView,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     include_plotlyjs: bool = True,
     **kwargs: Any,
 ) -> str:

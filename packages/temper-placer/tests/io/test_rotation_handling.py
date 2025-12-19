@@ -6,14 +6,12 @@ with the original angle offset preserved for export.
 """
 
 import jax.numpy as jnp
-import pytest
 
-from temper_placer.core.netlist import Component, Pin
+from temper_placer.core.netlist import Component
 from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_writer import (
-    state_to_placements,
     extract_original_angles,
-    PlacementUpdate,
+    state_to_placements,
 )
 
 

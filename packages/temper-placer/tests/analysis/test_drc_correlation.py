@@ -1,21 +1,18 @@
 """Tests for DRC correlation analysis."""
 
 import json
-import tempfile
-from pathlib import Path
-from typing import List, Dict, Any
 import sys
+from pathlib import Path
 
 # Add src to path so we can import temper_placer modules
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-import pytest
 
 from temper_placer.analysis.drc_correlation import (
-    analyze_drc_correlation,
     CorrelationReport,
-    PlacementResult,
     DRCResult,
+    PlacementResult,
+    analyze_drc_correlation,
 )
 
 
@@ -88,8 +85,8 @@ class TestAnalyzeDRCCorrelation:
 
     def test_analyze_with_empty_data(self):
         """Should handle empty data gracefully."""
-        placements: List[PlacementResult] = []
-        drc_results: List[DRCResult] = []
+        placements: list[PlacementResult] = []
+        drc_results: list[DRCResult] = []
 
         report = analyze_drc_correlation(placements, drc_results)
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import yaml
 
@@ -36,7 +36,7 @@ class DRCScheduleConfig:
     fail_on_errors: bool = False  # Stop training on errors
     max_errors: int = 0  # Maximum allowed errors
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "enabled": self.enabled,
             "interval": self.interval,
@@ -55,11 +55,11 @@ class SpiceSimulationConfig:
     enabled: bool = True
     weight: float = 1.0
     # Component refs for loop inductance calculation
-    loop_components: List[str] = field(default_factory=list)
+    loop_components: list[str] = field(default_factory=list)
     # Additional parameters
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "enabled": self.enabled,
@@ -76,7 +76,7 @@ class SpiceScheduleConfig:
     enabled: bool = False  # Disabled by default (expensive)
     interval: int = 200  # Run every N epochs
     final_phase_interval: int = 50  # More frequent in final phase
-    simulations: List[SpiceSimulationConfig] = field(default_factory=list)
+    simulations: list[SpiceSimulationConfig] = field(default_factory=list)
     fail_on_errors: bool = False
 
     def __post_init__(self):
@@ -112,15 +112,15 @@ class SpiceScheduleConfig:
                 ),
             ]
 
-    def get_enabled_simulations(self) -> List[SpiceSimulationConfig]:
+    def get_enabled_simulations(self) -> list[SpiceSimulationConfig]:
         """Get list of enabled simulations."""
         return [sim for sim in self.simulations if sim.enabled]
 
-    def get_weights(self) -> Dict[str, float]:
+    def get_weights(self) -> dict[str, float]:
         """Get weights dict for penalty computation."""
         return {sim.name: sim.weight for sim in self.simulations if sim.enabled}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "enabled": self.enabled,
             "interval": self.interval,
@@ -181,11 +181,11 @@ class ValidationScheduleConfig:
     spice: SpiceScheduleConfig = field(default_factory=SpiceScheduleConfig)
 
     # DRC-specific paths (loaded separately or via config)
-    drc_template_pcb: Optional[Path] = None
+    drc_template_pcb: Path | None = None
     drc_board_origin: tuple = (0.0, 0.0)
 
     @classmethod
-    def from_dict(cls, config: Dict[str, Any]) -> "ValidationScheduleConfig":
+    def from_dict(cls, config: dict[str, Any]) -> ValidationScheduleConfig:
         """Create config from dictionary."""
         schedule = cls()
 
@@ -244,16 +244,16 @@ class ValidationScheduleConfig:
         return schedule
 
     @classmethod
-    def load(cls, config_path: Path) -> "ValidationScheduleConfig":
+    def load(cls, config_path: Path) -> ValidationScheduleConfig:
         """Load configuration from YAML file."""
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             raw_config = yaml.safe_load(f)
 
         # Config may be at top level or under 'validation' key
         config = raw_config.get("validation", raw_config)
         return cls.from_dict(config)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "enabled": self.enabled,
@@ -311,8 +311,8 @@ class ValidationScheduler:
         self.total_epochs = total_epochs
 
         # Track what has been run
-        self._drc_epochs: Set[int] = set()
-        self._spice_epochs: Set[int] = set()
+        self._drc_epochs: set[int] = set()
+        self._spice_epochs: set[int] = set()
 
     def is_final_phase(self, epoch: int) -> bool:
         """Check if we're in the final phase of training."""
@@ -365,18 +365,18 @@ class ValidationScheduler:
         """Mark that SPICE was run at this epoch."""
         self._spice_epochs.add(epoch)
 
-    def get_spice_config(self, simulation_name: str) -> Optional[SpiceSimulationConfig]:
+    def get_spice_config(self, simulation_name: str) -> SpiceSimulationConfig | None:
         """Get configuration for a specific SPICE simulation."""
         for sim in self.config.spice.simulations:
             if sim.name == simulation_name:
                 return sim
         return None
 
-    def get_enabled_spice_simulations(self) -> List[SpiceSimulationConfig]:
+    def get_enabled_spice_simulations(self) -> list[SpiceSimulationConfig]:
         """Get list of enabled SPICE simulations."""
         return self.config.spice.get_enabled_simulations()
 
-    def get_spice_weights(self) -> Dict[str, float]:
+    def get_spice_weights(self) -> dict[str, float]:
         """Get penalty weights for SPICE simulations."""
         return self.config.spice.get_weights()
 

@@ -12,6 +12,14 @@ dependencies = [
     "requests>=2.28.0",
     "kiutils>=1.4.0",
     "temper-placer",
+    "temper-workflow",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "ruff>=0.1.6",
+    "mypy>=1.7.0",
 ]
 
 [project.scripts]
@@ -19,8 +27,29 @@ temper-fix-kicad = "temper_tools.kicad.fix_schematics:main"
 temper-ato-diff = "temper_tools.ato.diff:main"
 temper-eco-sync = "temper_tools.eco.sync_beads:main"
 temper-context = "temper_tools.eco.get_context:main"
-
 temper-route = "temper_tools.routing.route:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/temper_tools"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["temper_tools"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

@@ -9,12 +9,10 @@ Tests cover:
 """
 
 import pytest
+
 from temper_placer.fixtures.synthetic import (
     generate_200_component_netlist,
-    ComponentDistribution,
-    NetTopology,
 )
-
 
 # =============================================================================
 # Component Distribution Tests

@@ -7,7 +7,6 @@ manufacturing grid (e.g., 0.5mm or 1.0mm).
 
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -58,15 +57,15 @@ class GridAlignmentLoss(LossFunction):
         # x_offset in [0, grid_size)
         x_offset = jnp.mod(positions[:, 0], self.grid_size)
         y_offset = jnp.mod(positions[:, 1], self.grid_size)
-        
+
         # Wrap to nearest grid (if offset is 0.4 and grid is 0.5, dist is 0.1)
         dist_x = jnp.minimum(x_offset, self.grid_size - x_offset)
         dist_y = jnp.minimum(y_offset, self.grid_size - y_offset)
-        
+
         # Sum of squared distances
         # We use squared distance for smooth gradients toward grid points
         penalty_per_comp = dist_x**2 + dist_y**2
-        
+
         total = jnp.sum(penalty_per_comp)
 
         return LossResult(

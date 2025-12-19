@@ -10,9 +10,9 @@ This module contains the fundamental data structures that all other modules depe
 All position arrays use jax.Array for differentiability.
 """
 
+from temper_placer.core.board import Board, LayerStackup, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
-from temper_placer.core.board import Board, Zone, LayerStackup
 
 __all__ = [
     "PlacementState",

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, NamedTuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class LoopConstraint:
     """Defines a critical current loop to minimize."""
     name: str
-    pins: Tuple[Tuple[str, str], ...]
+    pins: tuple[tuple[str, str], ...]
     max_area: float = 100.0
     weight: float = 1.0
 
@@ -27,18 +27,18 @@ class LoopConstraint:
 class CriticalPathConstraint:
     """Defines a critical signal path requirement between two pins."""
     name: str
-    from_pin: Tuple[str, str]  # (component_ref, pin_name)
-    to_pin: Tuple[str, str]
+    from_pin: tuple[str, str]  # (component_ref, pin_name)
+    to_pin: tuple[str, str]
     max_length: float = 50.0
     weight: float = 1.0
-    matched_group: Optional[str] = None
+    matched_group: str | None = None
 
 
 @dataclass(frozen=True)
 class MatchedLengthConstraint:
     """Defines a group of paths that must have matched lengths."""
     name: str
-    path_indices: Tuple[int, ...]
+    path_indices: tuple[int, ...]
     tolerance: float = 5.0
     weight: float = 1.0
 
@@ -47,8 +47,8 @@ class MatchedLengthConstraint:
 class NoiseIsolationConstraint:
     """Defines isolation requirement between sensitive components and noise sources."""
     name: str
-    sensitive_indices: Tuple[int, ...]
-    noise_source_indices: Tuple[int, ...]
+    sensitive_indices: tuple[int, ...]
+    noise_source_indices: tuple[int, ...]
     min_distance: float = 10.0
     weight: float = 1.0
 
@@ -76,10 +76,10 @@ class MountingRule:
     """Defines mechanical placement constraints for a component."""
     component_idx: int
     rule_type: str
-    edge: Optional[str] = None
-    max_distance_mm: Optional[float] = None
-    mount_positions: Optional[Tuple[Tuple[float, float], ...]] = None
-    target_position: Optional[Tuple[float, float]] = None
+    edge: str | None = None
+    max_distance_mm: float | None = None
+    mount_positions: tuple[tuple[float, float], ...] | None = None
+    target_position: tuple[float, float] | None = None
     weight: float = 1.0
 
 
@@ -90,15 +90,15 @@ class LossContext:
     board: Board
     bounds: Array
     fixed_mask: Array
-    constraints: Optional[PlacementConstraints] = None
+    constraints: PlacementConstraints | None = None
 
     hv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
     lv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
-    clearance_rules: List[ClearanceRule] = field(default_factory=list)
-    thermal_constraints: List[ThermalConstraint] = field(default_factory=list)
-    loop_constraints: List[LoopConstraint] = field(default_factory=list)
-    mounting_rules: List[MountingRule] = field(default_factory=list)
-    net_class_map: Dict[str, str] = field(default_factory=dict)
+    clearance_rules: list[ClearanceRule] = field(default_factory=list)
+    thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
+    loop_constraints: list[LoopConstraint] = field(default_factory=list)
+    mounting_rules: list[MountingRule] = field(default_factory=list)
+    net_class_map: dict[str, str] = field(default_factory=dict)
     net_pin_indices: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.int32))
     net_pin_offsets: Array = field(default_factory=lambda: jnp.zeros((0, 0, 2), dtype=jnp.float32))
     net_pin_mask: Array = field(default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.bool_))
@@ -119,16 +119,16 @@ class LossContext:
     # Matched Length Groups
     # (Since groups have varying sizes, we use padding or a different structure)
     # For now, let's just store the indices
-    matched_groups: List[MatchedLengthConstraint] = field(default_factory=list)
+    matched_groups: list[MatchedLengthConstraint] = field(default_factory=list)
 
     # Noise Isolation
-    noise_isolation_constraints: List[NoiseIsolationConstraint] = field(default_factory=list)
+    noise_isolation_constraints: list[NoiseIsolationConstraint] = field(default_factory=list)
 
-    net_class_indices: Dict[str, Array] = field(default_factory=dict)
+    net_class_indices: dict[str, Array] = field(default_factory=dict)
     centrality: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.float32))
 
 
 class LossResult(NamedTuple):
     """Result from a loss function evaluation."""
     value: Array
-    breakdown: Optional[Dict[str, Array]] = None
+    breakdown: dict[str, Array] | None = None

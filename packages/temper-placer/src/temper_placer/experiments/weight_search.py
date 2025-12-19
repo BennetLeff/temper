@@ -27,9 +27,7 @@ import multiprocessing as mp
 from dataclasses import asdict, dataclass
 from itertools import product
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
-import jax.numpy as jnp
 import numpy as np
 from tqdm import tqdm
 
@@ -44,12 +42,12 @@ class WeightConfig:
     wirelength_weight: float
     thermal_weight: float
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary for JSON serialization."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, float]) -> WeightConfig:
+    def from_dict(cls, d: dict[str, float]) -> WeightConfig:
         """Create from dictionary."""
         return cls(**d)
 
@@ -74,7 +72,7 @@ class PCBResult:
     final_loss: float
     runtime_seconds: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
         return {
             "pcb_name": self.pcb_name,
@@ -88,7 +86,7 @@ class PCBResult:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict) -> PCBResult:
+    def from_dict(cls, d: dict) -> PCBResult:
         """Create from dictionary."""
         return cls(
             pcb_name=d["pcb_name"],
@@ -102,7 +100,7 @@ class PCBResult:
         )
 
 
-def score_config(results: List[PCBResult]) -> float:
+def score_config(results: list[PCBResult]) -> float:
     """
     Compute aggregate score for a weight configuration across multiple PCBs.
 
@@ -194,7 +192,7 @@ def run_single_experiment(
             runtime_seconds=runtime,
         )
 
-    except Exception as e:
+    except Exception:
         # Return failure result
         runtime = time.time() - start_time
         return PCBResult(
@@ -210,15 +208,15 @@ def run_single_experiment(
 
 
 def run_weight_search(
-    pcb_paths: List[Path],
-    weight_space: Dict[str, List[float]],
+    pcb_paths: list[Path],
+    weight_space: dict[str, list[float]],
     epochs: int = 2000,
     parallel: int = 4,
-    output_path: Optional[Path] = None,
+    output_path: Path | None = None,
     use_heuristics: bool = True,
     use_curriculum: bool = True,
     seed: int = 42,
-) -> List[Tuple[WeightConfig, List[PCBResult], float]]:
+) -> list[tuple[WeightConfig, list[PCBResult], float]]:
     """
     Run grid search over loss weight configurations.
 
@@ -264,7 +262,7 @@ def run_weight_search(
     ]
 
     # Run experiments
-    all_results: Dict[int, List[PCBResult]] = {i: [] for i in range(len(weight_configs))}
+    all_results: dict[int, list[PCBResult]] = {i: [] for i in range(len(weight_configs))}
 
     # Prepare experiment arguments
     experiment_args = []
@@ -297,7 +295,7 @@ def run_weight_search(
         all_results[config_idx].append(result)
 
     # Score each configuration
-    scored_configs: List[Tuple[WeightConfig, List[PCBResult], float]] = []
+    scored_configs: list[tuple[WeightConfig, list[PCBResult], float]] = []
     for config_idx, config in enumerate(weight_configs):
         results = all_results[config_idx]
         score = score_config(results)
@@ -332,7 +330,7 @@ def run_weight_search(
 
 
 def print_top_configs(
-    scored_configs: List[Tuple[WeightConfig, List[PCBResult], float]],
+    scored_configs: list[tuple[WeightConfig, list[PCBResult], float]],
     top_k: int = 10,
 ) -> None:
     """
@@ -444,7 +442,7 @@ if __name__ == "__main__":
     pcb_paths = [Path(name.strip()) for name in pcb_names]
 
     # Default weight search space (from issue requirements)
-    WEIGHT_SPACE: Dict[str, List[float]] = {
+    WEIGHT_SPACE: dict[str, list[float]] = {
         "overlap_weight": [50.0, 100.0, 150.0, 200.0],
         "boundary_weight": [25.0, 50.0, 75.0, 100.0],
         "clearance_weight": [100.0, 150.0, 200.0, 300.0],

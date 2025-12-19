@@ -5,22 +5,22 @@ These tests verify that EMI filter component placement meets EN 55014-1
 requirements for conducted emissions.
 """
 
+
 import pytest
-from pathlib import Path
 
 try:
     from tests.requirements.validators.emi_filter import (
-        FilterComponent,
-        check_filter_signal_flow,
-        check_filter_component_order,
-        check_x_cap_placement,
-        check_y_cap_placement,
-        check_mov_placement,
-        check_cm_choke_placement,
-        check_pe_trace_requirements,
-        check_line_neutral_pe_spacing,
         EMIFilterResult,
         EMIFilterViolation,
+        FilterComponent,
+        check_cm_choke_placement,
+        check_filter_component_order,
+        check_filter_signal_flow,
+        check_line_neutral_pe_spacing,
+        check_mov_placement,
+        check_pe_trace_requirements,
+        check_x_cap_placement,
+        check_y_cap_placement,
     )
 
     VALIDATORS_AVAILABLE = True

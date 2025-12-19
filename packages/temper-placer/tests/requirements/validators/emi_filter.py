@@ -6,7 +6,6 @@ requirements per REQ-EMC-03.
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
 from enum import Enum
 
 
@@ -30,7 +29,7 @@ class EMIFilterViolation:
     component: str
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"
 
 
@@ -39,7 +38,7 @@ class EMIFilterResult:
     """Result of EMI filter validation."""
 
     passed: bool
-    violations: List[EMIFilterViolation]
+    violations: list[EMIFilterViolation]
 
     @property
     def error_count(self) -> int:
@@ -47,8 +46,8 @@ class EMIFilterResult:
 
 
 def check_filter_signal_flow(
-    component_positions: Dict[FilterComponent, Tuple[float, float]],
-    input_connector_position: Tuple[float, float],
+    component_positions: dict[FilterComponent, tuple[float, float]],
+    input_connector_position: tuple[float, float],
 ) -> EMIFilterResult:
     """
     Check that filter components follow left-to-right signal flow.
@@ -66,7 +65,7 @@ def check_filter_signal_flow(
 
 
 def check_filter_component_order(
-    component_positions: Dict[FilterComponent, Tuple[float, float]],
+    component_positions: dict[FilterComponent, tuple[float, float]],
 ) -> EMIFilterResult:
     """
     Check that filter components are in correct topology order.
@@ -90,10 +89,10 @@ def check_filter_component_order(
 
 
 def check_x_cap_placement(
-    x_cap_positions: Dict[str, Tuple[float, float]],
-    line_trace: List[Tuple[float, float]],
-    neutral_trace: List[Tuple[float, float]],
-    pe_trace: List[Tuple[float, float]],
+    x_cap_positions: dict[str, tuple[float, float]],
+    line_trace: list[tuple[float, float]],
+    neutral_trace: list[tuple[float, float]],
+    pe_trace: list[tuple[float, float]],
 ) -> EMIFilterResult:
     """
     Check X-capacitor placement requirements.
@@ -116,9 +115,9 @@ def check_x_cap_placement(
 
 
 def check_y_cap_placement(
-    y_cap_positions: Dict[str, Tuple[float, float]],
-    y_cap_values: Dict[str, float],  # Capacitance in nF
-    pe_connection: Tuple[float, float],
+    y_cap_positions: dict[str, tuple[float, float]],
+    y_cap_values: dict[str, float],  # Capacitance in nF
+    pe_connection: tuple[float, float],
     max_total_capacitance_nf: float = 4.4,
 ) -> EMIFilterResult:
     """
@@ -143,11 +142,11 @@ def check_y_cap_placement(
 
 
 def check_mov_placement(
-    mov_position: Tuple[float, float],
-    fuse_position: Tuple[float, float],
-    input_connector: Tuple[float, float],
-    line_trace: List[Tuple[float, float]],
-    neutral_trace: List[Tuple[float, float]],
+    mov_position: tuple[float, float],
+    fuse_position: tuple[float, float],
+    input_connector: tuple[float, float],
+    line_trace: list[tuple[float, float]],
+    neutral_trace: list[tuple[float, float]],
 ) -> EMIFilterResult:
     """
     Check MOV (Metal Oxide Varistor) placement.
@@ -171,9 +170,9 @@ def check_mov_placement(
 
 
 def check_cm_choke_placement(
-    cm_choke_position: Tuple[float, float],
-    x_cap_positions: Dict[str, Tuple[float, float]],
-    y_cap_positions: Dict[str, Tuple[float, float]],
+    cm_choke_position: tuple[float, float],
+    x_cap_positions: dict[str, tuple[float, float]],
+    y_cap_positions: dict[str, tuple[float, float]],
 ) -> EMIFilterResult:
     """
     Check common-mode choke placement.
@@ -195,9 +194,9 @@ def check_cm_choke_placement(
 
 
 def check_pe_trace_requirements(
-    pe_trace: List[Tuple[float, float]],
-    pe_connection: Tuple[float, float],
-    earth_stud: Tuple[float, float],
+    pe_trace: list[tuple[float, float]],
+    pe_connection: tuple[float, float],
+    earth_stud: tuple[float, float],
     min_width_mm: float = 2.0,
 ) -> EMIFilterResult:
     """
@@ -221,9 +220,9 @@ def check_pe_trace_requirements(
 
 
 def check_line_neutral_pe_spacing(
-    line_trace: List[Tuple[float, float]],
-    neutral_trace: List[Tuple[float, float]],
-    pe_trace: List[Tuple[float, float]],
+    line_trace: list[tuple[float, float]],
+    neutral_trace: list[tuple[float, float]],
+    pe_trace: list[tuple[float, float]],
     min_spacing_mm: float = 6.0,
 ) -> EMIFilterResult:
     """

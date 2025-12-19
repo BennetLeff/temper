@@ -2,7 +2,7 @@
 
 import pytest
 
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 
 class TestPin:

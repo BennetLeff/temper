@@ -506,7 +506,7 @@ class ExperimentRunner:
             board = parse_result.board
 
             # Load constraints if available
-            from temper_placer.io.config_loader import load_constraints, PlacementConstraints
+            from temper_placer.io.config_loader import PlacementConstraints, load_constraints
             constraints_path = test_case.with_suffix(".yaml")
             if constraints_path.exists():
                 try:

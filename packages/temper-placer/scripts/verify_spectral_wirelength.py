@@ -1,10 +1,9 @@
 
-import jax.numpy as jnp
-import numpy as np
-from temper_placer.optimizer.initialization import SpectralInitializer
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
+from temper_placer.optimizer.initialization import SpectralInitializer
+
 
 def create_chain_netlist(n=100):
     components = []
@@ -18,7 +17,7 @@ def create_chain_netlist(n=100):
                 Pin("2", "2", (0, 0), net=f"N{i+1}")
             ]
         ))
-    
+
     nets = []
     for i in range(n + 1):
         pins = []
@@ -27,7 +26,7 @@ def create_chain_netlist(n=100):
         if i < n:
             pins.append((f"R{i}", "1"))
         nets.append(Net(name=f"N{i}", pins=pins))
-        
+
     return Netlist(components=components, nets=nets)
 
 def calculate_wirelength(positions, netlist):
@@ -50,23 +49,23 @@ def main():
     n = 100
     netlist = create_chain_netlist(n)
     board = Board(width=100, height=100)
-    
+
     # Spectral
     initializer = SpectralInitializer()
     pos_spectral = initializer.initialize(netlist, board)
     wl_spectral = calculate_wirelength(pos_spectral, netlist)
-    
+
     # Random
     import jax
     key = jax.random.PRNGKey(42)
     state_random = PlacementState.random_init(n, board.width, board.height, key)
     pos_random = state_random.positions
     wl_random = calculate_wirelength(pos_random, netlist)
-    
+
     print(f"Spectral Wirelength: {wl_spectral:.2f}")
     print(f"Random Wirelength: {wl_random:.2f}")
     print(f"Ratio: {wl_spectral / wl_random:.4f}")
-    
+
     if wl_spectral < 0.5 * wl_random:
         print("SUCCESS: Spectral wirelength is less than 50% of random.")
     else:

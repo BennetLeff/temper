@@ -12,13 +12,12 @@ Key features:
 - Smooth penalties suitable for loss functions
 """
 
+
 import jax.numpy as jnp
 from jax import Array
-from typing import Tuple
 
-from temper_placer.geometry.transform import get_rotated_bounds, get_rotated_aabb
 from temper_placer.geometry.smooth import smooth_relu
-
+from temper_placer.geometry.transform import get_rotated_bounds
 
 # =============================================================================
 # Core Box-Box Distance Functions
@@ -452,7 +451,7 @@ def get_worst_overlap(
     rotations: Array,
     widths: Array,
     heights: Array,
-) -> Tuple[Array, int, int]:
+) -> tuple[Array, int, int]:
     """
     Find the worst (most severe) overlap between any two components.
 

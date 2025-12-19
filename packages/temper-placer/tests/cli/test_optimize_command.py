@@ -13,8 +13,6 @@ would have been caught by these tests.
 """
 
 import json
-import os
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -24,7 +22,6 @@ from click.testing import CliRunner
 jax = pytest.importorskip("jax")
 
 from temper_placer.cli import main
-
 
 # Test fixtures paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

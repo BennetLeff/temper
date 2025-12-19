@@ -18,13 +18,13 @@ For each placement, we record:
 - Export to .kicad_pcb for KiCad DRC testing
 """
 
+import json
+import shutil
+import subprocess
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-import tempfile
-import json
-import subprocess
-import shutil
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any
 
 import pytest
 
@@ -35,29 +35,25 @@ import jax.numpy as jnp
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
 from temper_placer.io.kicad_writer import (
-    PlacementUpdate,
-    write_placements_to_pcb,
-    state_to_placements,
     export_placements,
 )
 from temper_placer.losses import (
+    BoundaryLoss,
     CompositeLoss,
-    WeightedLoss,
     LossContext,
     OverlapLoss,
-    BoundaryLoss,
+    WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.optimizer import train, OptimizerConfig
+from temper_placer.optimizer import OptimizerConfig, train
 from temper_placer.optimizer.config import (
-    TemperatureSchedule,
-    LearningRateSchedule,
     CheckpointConfig,
     EarlyStoppingConfig,
+    LearningRateSchedule,
+    TemperatureSchedule,
 )
-
 
 # Test fixtures
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -77,9 +73,9 @@ class PlacementMetrics:
     wirelength_loss: float
     epochs_run: int
     converged: bool
-    positions: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    positions: dict[str, tuple[float, float]] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
         return {
             "quality_level": self.quality_level,
@@ -111,7 +107,7 @@ KICAD_CLI_PATHS = [
 RESULTS_DIR = Path(__file__).parent / "results"
 
 
-def find_kicad_cli() -> Optional[str]:
+def find_kicad_cli() -> str | None:
     """
     Find the kicad-cli executable.
 
@@ -136,10 +132,10 @@ class DRCViolation:
     type: str  # e.g., "courtyards_overlap", "clearance", "edge_clearance"
     severity: str  # "error" or "warning"
     description: str
-    items: List[Dict[str, Any]] = field(default_factory=list)
+    items: list[dict[str, Any]] = field(default_factory=list)
 
     @classmethod
-    def from_json(cls, data: Dict) -> "DRCViolation":
+    def from_json(cls, data: dict) -> "DRCViolation":
         """Create from KiCad JSON output."""
         return cls(
             type=data.get("type", "unknown"),
@@ -154,11 +150,11 @@ class DRCResult:
     """Results of running KiCad DRC on a PCB file."""
 
     pcb_file: Path
-    violations: List[DRCViolation] = field(default_factory=list)
+    violations: list[DRCViolation] = field(default_factory=list)
     error_count: int = 0
     warning_count: int = 0
     ran_successfully: bool = False
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     @property
     def total_violations(self) -> int:
@@ -168,14 +164,14 @@ class DRCResult:
     def has_errors(self) -> bool:
         return self.error_count > 0
 
-    def violations_by_type(self) -> Dict[str, int]:
+    def violations_by_type(self) -> dict[str, int]:
         """Count violations by type."""
-        counts: Dict[str, int] = {}
+        counts: dict[str, int] = {}
         for v in self.violations:
             counts[v.type] = counts.get(v.type, 0) + 1
         return counts
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
         return {
             "pcb_file": str(self.pcb_file),
@@ -190,8 +186,8 @@ class DRCResult:
 
 def run_kicad_drc(
     pcb_file: Path,
-    output_file: Optional[Path] = None,
-    kicad_cli: Optional[str] = None,
+    output_file: Path | None = None,
+    kicad_cli: str | None = None,
 ) -> DRCResult:
     """
     Run KiCad DRC on a PCB file and return the results.
@@ -301,7 +297,7 @@ def create_composite_loss() -> CompositeLoss:
 def evaluate_placement(
     state: PlacementState,
     context: LossContext,
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     """
     Evaluate a placement state and return loss breakdown.
 
@@ -330,7 +326,7 @@ def evaluate_placement(
 def create_perfect_placement(
     netlist: Netlist,
     board: Board,
-) -> Tuple[PlacementState, PlacementMetrics]:
+) -> tuple[PlacementState, PlacementMetrics]:
     """
     Create a hand-crafted "perfect" placement with components arranged in a grid.
 
@@ -418,7 +414,7 @@ def create_optimized_placement(
     epochs: int,
     quality_level: str,
     seed: int = 42,
-) -> Tuple[PlacementState, PlacementMetrics]:
+) -> tuple[PlacementState, PlacementMetrics]:
     """
     Create an optimized placement by running the optimizer.
 
@@ -528,7 +524,7 @@ def create_random_placement(
     netlist: Netlist,
     board: Board,
     seed: int = 12345,
-) -> Tuple[PlacementState, PlacementMetrics]:
+) -> tuple[PlacementState, PlacementMetrics]:
     """
     Create a random placement with no optimization.
 
@@ -977,7 +973,7 @@ class TestDRCCorrelation:
     """
 
     @pytest.fixture
-    def drc_placements(self) -> List[Tuple[str, Path]]:
+    def drc_placements(self) -> list[tuple[str, Path]]:
         """Get list of DRC test placement files."""
         if not DRC_PLACEMENTS_DIR.exists():
             pytest.skip("DRC placements not generated. Run test_generate_drc_placements first.")
@@ -995,7 +991,7 @@ class TestDRCCorrelation:
         return placements
 
     @pytest.fixture
-    def metrics_data(self) -> Dict:
+    def metrics_data(self) -> dict:
         """Load the metrics.json file."""
         metrics_path = DRC_PLACEMENTS_DIR / "metrics.json"
         if not metrics_path.exists():
@@ -1006,9 +1002,9 @@ class TestDRCCorrelation:
 
     @requires_kicad
     @pytest.mark.slow
-    def test_run_drc_on_all_placements(self, drc_placements: List[Tuple[str, Path]]):
+    def test_run_drc_on_all_placements(self, drc_placements: list[tuple[str, Path]]):
         """Run DRC on all 5 quality levels and report results."""
-        results: Dict[str, DRCResult] = {}
+        results: dict[str, DRCResult] = {}
 
         for quality_level, pcb_path in drc_placements:
             result = run_kicad_drc(pcb_path)
@@ -1035,8 +1031,8 @@ class TestDRCCorrelation:
     @pytest.mark.slow
     def test_drc_errors_increase_with_penalty(
         self,
-        drc_placements: List[Tuple[str, Path]],
-        metrics_data: Dict,
+        drc_placements: list[tuple[str, Path]],
+        metrics_data: dict,
     ):
         """
         Test correlation: more optimizer penalty → more DRC errors.
@@ -1045,7 +1041,7 @@ class TestDRCCorrelation:
         A strong positive correlation means our penalties predict real DRC issues.
         """
         # Run DRC on all placements
-        drc_results: Dict[str, DRCResult] = {}
+        drc_results: dict[str, DRCResult] = {}
         for quality_level, pcb_path in drc_placements:
             result = run_kicad_drc(pcb_path)
             if result.ran_successfully:
@@ -1055,7 +1051,7 @@ class TestDRCCorrelation:
         metrics_by_level = {m["quality_level"]: m for m in metrics_data.get("placements", [])}
 
         # Build correlation data
-        data_points: List[Tuple[str, float, float, int]] = []  # (level, overlap, total, drc_errors)
+        data_points: list[tuple[str, float, float, int]] = []  # (level, overlap, total, drc_errors)
 
         for level, result in drc_results.items():
             if level in metrics_by_level:
@@ -1114,8 +1110,8 @@ class TestDRCCorrelation:
     @pytest.mark.slow
     def test_overlap_penalty_vs_courtyard_overlap(
         self,
-        drc_placements: List[Tuple[str, Path]],
-        metrics_data: Dict,
+        drc_placements: list[tuple[str, Path]],
+        metrics_data: dict,
     ):
         """
         Test if our overlap penalty correlates with KiCad courtyard overlap violations.
@@ -1123,7 +1119,7 @@ class TestDRCCorrelation:
         KiCad DRC violation type: "courtyards_overlap"
         """
         # Run DRC and count courtyard overlaps
-        courtyard_violations: Dict[str, int] = {}
+        courtyard_violations: dict[str, int] = {}
         for quality_level, pcb_path in drc_placements:
             result = run_kicad_drc(pcb_path)
             if result.ran_successfully:
@@ -1153,8 +1149,8 @@ class TestDRCCorrelation:
     @pytest.mark.slow
     def test_boundary_penalty_vs_edge_clearance(
         self,
-        drc_placements: List[Tuple[str, Path]],
-        metrics_data: Dict,
+        drc_placements: list[tuple[str, Path]],
+        metrics_data: dict,
     ):
         """
         Test if our boundary penalty correlates with KiCad edge clearance violations.
@@ -1162,7 +1158,7 @@ class TestDRCCorrelation:
         KiCad DRC violation types: "silk_edge_clearance", "copper_edge_clearance"
         """
         # Run DRC and count edge violations
-        edge_violations: Dict[str, int] = {}
+        edge_violations: dict[str, int] = {}
         for quality_level, pcb_path in drc_placements:
             result = run_kicad_drc(pcb_path)
             if result.ran_successfully:
@@ -1200,7 +1196,7 @@ class TestDRCCorrelationAnalysis:
     """
 
     @pytest.fixture
-    def drc_placements(self) -> List[Tuple[str, Path]]:
+    def drc_placements(self) -> list[tuple[str, Path]]:
         """Get list of DRC test placement files."""
         if not DRC_PLACEMENTS_DIR.exists():
             pytest.skip("DRC placements not generated")
@@ -1214,7 +1210,7 @@ class TestDRCCorrelationAnalysis:
         return placements
 
     @pytest.fixture
-    def metrics_data(self) -> Dict:
+    def metrics_data(self) -> dict:
         """Load metrics.json."""
         metrics_path = DRC_PLACEMENTS_DIR / "metrics.json"
         if not metrics_path.exists():
@@ -1226,8 +1222,8 @@ class TestDRCCorrelationAnalysis:
     @pytest.mark.slow
     def test_generate_correlation_report(
         self,
-        drc_placements: List[Tuple[str, Path]],
-        metrics_data: Dict,
+        drc_placements: list[tuple[str, Path]],
+        metrics_data: dict,
     ):
         """
         Generate a comprehensive DRC correlation report.
@@ -1302,8 +1298,8 @@ class TestDRCCorrelationAnalysis:
     @pytest.mark.slow
     def test_identify_penalty_thresholds(
         self,
-        drc_placements: List[Tuple[str, Path]],
-        metrics_data: Dict,
+        drc_placements: list[tuple[str, Path]],
+        metrics_data: dict,
     ):
         """
         Analyze the data to identify penalty thresholds that predict DRC pass.

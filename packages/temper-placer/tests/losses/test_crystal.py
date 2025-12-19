@@ -1,9 +1,6 @@
-from typing import List, Tuple, Any
 from dataclasses import dataclass, field
+
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
-import pytest
-from unittest.mock import MagicMock
 
 
 @dataclass
@@ -22,8 +19,8 @@ class CrystalRule:
 
     crystal_ref: str
     mcu_ref: str
-    load_cap_refs: List[str]
-    noise_source_refs: List[str] = field(default_factory=list)
+    load_cap_refs: list[str]
+    noise_source_refs: list[str] = field(default_factory=list)
 
     max_mcu_distance_mm: float = 10.0
     max_cap_distance_mm: float = 3.0
@@ -43,9 +40,11 @@ class CrystalRule:
 
 try:
     from temper_placer.losses.crystal import (
+        CrystalRule as RealCrystalRule,
+    )
+    from temper_placer.losses.crystal import (
         ResolvedCrystalPlacementLoss,
         create_crystal_loss,
-        CrystalRule as RealCrystalRule,
     )
 
     # If successful, use the real one.

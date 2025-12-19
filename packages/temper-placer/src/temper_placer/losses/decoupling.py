@@ -9,7 +9,6 @@ power integrity and high-frequency noise suppression.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 import jax
 import jax.numpy as jnp
@@ -33,7 +32,7 @@ class DecouplingRule:
     cap_ref: str
     ic_ref: str
     max_distance_mm: float = 3.0
-    power_pin: Optional[str] = None
+    power_pin: str | None = None
 
 
 @dataclass
@@ -103,7 +102,7 @@ class DecouplingCapProximityLoss(LossFunction):
 
 def create_decoupling_loss(
     netlist,  # Type: Netlist
-    rules: List[DecouplingRule],
+    rules: list[DecouplingRule],
     margin: float = 1.0,
 ) -> DecouplingCapProximityLoss:
     """Factory to create DecouplingCapProximityLoss from rules."""
@@ -130,7 +129,7 @@ def create_decoupling_loss(
 def auto_detect_decoupling(
     netlist,  # Type: Netlist
     default_max_dist: float = 3.0,
-) -> List[DecouplingRule]:
+) -> list[DecouplingRule]:
     """
     Auto-detect decoupling capacitor associations from netlist.
 

@@ -8,9 +8,8 @@ These tests verify:
 5. Penalty computation aggregates violations properly
 """
 
+
 import pytest
-from unittest.mock import Mock, patch
-from pathlib import Path
 
 
 class TestTemplateLoading:
@@ -316,8 +315,8 @@ class TestTemplateSimulation:
     def test_gate_drive_simulation(self, validator):
         """Should run gate_drive template with default parameters."""
         from temper_placer.validation.spice_templates import (
-            load_template,
             DEFAULT_PARAMETERS,
+            load_template,
         )
 
         template = load_template("gate_drive")
@@ -339,8 +338,8 @@ class TestTemplateSimulation:
     def test_bootstrap_charging_simulation(self, validator):
         """Should run bootstrap_charging template with default parameters."""
         from temper_placer.validation.spice_templates import (
-            load_template,
             DEFAULT_PARAMETERS,
+            load_template,
         )
 
         template = load_template("bootstrap_charging")
@@ -362,8 +361,8 @@ class TestTemplateSimulation:
     def test_power_integrity_simulation(self, validator):
         """Should run power_integrity template with default parameters."""
         from temper_placer.validation.spice_templates import (
-            load_template,
             DEFAULT_PARAMETERS,
+            load_template,
         )
 
         template = load_template("power_integrity")
@@ -390,9 +389,9 @@ class TestEndToEndValidation:
         """Gate drive with good layout (50nH) should pass all thresholds."""
         from temper_placer.validation.spice import NgspiceValidator
         from temper_placer.validation.spice_templates import (
-            load_template,
-            check_thresholds,
             DEFAULT_PARAMETERS,
+            check_thresholds,
+            load_template,
         )
 
         validator = NgspiceValidator()
@@ -421,9 +420,8 @@ class TestEndToEndValidation:
         """Gate drive with bad layout (500nH) should fail thresholds."""
         from temper_placer.validation.spice import NgspiceValidator
         from temper_placer.validation.spice_templates import (
-            load_template,
-            check_thresholds,
             compute_spice_penalty,
+            load_template,
         )
 
         validator = NgspiceValidator()

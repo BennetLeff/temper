@@ -1,8 +1,9 @@
-from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
+
 import jax
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
+
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 
 @dataclass
@@ -22,7 +23,7 @@ class CurrentReturnPathLoss(LossFunction):
 
     def __init__(
         self,
-        critical_nets: List[ReturnPathConfig],
+        critical_nets: list[ReturnPathConfig],
         corridor_width: float = 3.0,
     ):
         # LossFunction doesn't take weight in init usually, it's handled by WeightedLoss wrapper
@@ -126,7 +127,7 @@ class ResolvedCurrentReturnPathLoss(LossFunction):
 
 def create_return_path_loss(
     netlist,
-    critical_nets: List[ReturnPathConfig],
+    critical_nets: list[ReturnPathConfig],
     corridor_width: float = 3.0,
 ) -> ResolvedCurrentReturnPathLoss:
     """

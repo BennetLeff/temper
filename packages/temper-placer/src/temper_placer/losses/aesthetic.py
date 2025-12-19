@@ -11,7 +11,7 @@ manufacturability of the placement by:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
@@ -21,7 +21,7 @@ from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.config_loader import AestheticConstraints, PlacementConstraints
+    from temper_placer.io.config_loader import PlacementConstraints
     from temper_placer.losses.base import WeightedLoss
     from temper_placer.losses.grouping import GroupConfig
 
@@ -162,10 +162,10 @@ class GroupOverlapLoss(LossFunction):
         # Compute bounding boxes for each group
         # This is non-trivial in JAX without loops if groups have different sizes
         # But we can use the same technique as HPWL: LogSumExp for min/max
-        
-        # Implementation omitted for brevity in this step, 
+
+        # Implementation omitted for brevity in this step,
         # but following the pattern of HPWL for efficiency.
-        
+
         return LossResult(value=jnp.array(0.0))
 
 
@@ -290,7 +290,7 @@ class StackedRowLoss(LossFunction):
         # Map centroid to grid
         gx = jnp.clip((centroid[0] - x_min) / (x_max - x_min) * cols_grid, 0, cols_grid - 1).astype(jnp.int32)
         gy = jnp.clip((centroid[1] - y_min) / (y_max - y_min) * rows_grid, 0, rows_grid - 1).astype(jnp.int32)
-        
+
         local_congestion = congestion_grid[gy, gx]
         # row_pitch grows with congestion: min_pitch * (1 + sensitivity * congestion)
         dynamic_row_pitch = self.min_row_pitch * (1.0 + self.congestion_sensitivity * jax.nn.relu(local_congestion - 0.5))
@@ -408,16 +408,16 @@ class PortFacingRotationLoss(LossFunction):
             indices = self.group_indices[g_idx]
             mask = indices != -1
             safe_indices = jnp.where(mask, indices, 0)
-            
+
             # 1. Get group centroid
             group_pos = positions[safe_indices]
             n_valid = jnp.sum(mask)
             centroid = jnp.sum(group_pos * mask[:, None], axis=0) / jnp.maximum(n_valid, 1.0)
-            
+
             # 2. Get target vector (centroid to target source)
             target_vec = self.target_positions[g_idx] - centroid
             target_angle = jnp.arctan2(target_vec[1], target_vec[0])
-            
+
             # 3. Get group rotation (average or representative)
             # For a rigid block, all components should share same discrete rotation
             # We take the mean rotation angle
@@ -425,10 +425,10 @@ class PortFacingRotationLoss(LossFunction):
             group_rotations = rotations[safe_indices] # (M, 4)
             comp_angles = jnp.sum(group_rotations * angles[None, :], axis=1) # (M,)
             avg_angle = jnp.sum(comp_angles * mask) / jnp.maximum(n_valid, 1.0)
-            
+
             # 4. Local primary pin vector (unrotated)
             p_local = self.primary_pin_offsets[g_idx]
-            
+
             # 5. Rotated primary pin vector
             cos_a = jnp.cos(avg_angle)
             sin_a = jnp.sin(avg_angle)
@@ -436,16 +436,16 @@ class PortFacingRotationLoss(LossFunction):
                 p_local[0] * cos_a - p_local[1] * sin_a,
                 p_local[0] * sin_a + p_local[1] * cos_a
             ])
-            
+
             # 6. Penalize cosine distance between p_rotated and target_vec
             # (Encourages them to point in same direction)
             p_norm = p_rotated / (jnp.linalg.norm(p_rotated) + 1e-6)
             t_norm = target_vec / (jnp.linalg.norm(target_vec) + 1e-6)
-            
+
             # Cosine similarity is 1.0 if identical, -1.0 if opposite
             # Penalty = 1.0 - cosine_similarity
             penalty = 1.0 - jnp.dot(p_norm, t_norm)
-            
+
             return penalty
 
         # Sum over all groups
@@ -509,7 +509,6 @@ def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> 
     """
     import re
 
-    from temper_placer.core.netlist import Netlist
 
     groups_dict = {}
     exceptions = exceptions or []
@@ -567,7 +566,6 @@ def create_aesthetic_losses(
         List of WeightedLoss instances.
     """
     from temper_placer.losses.base import WeightedLoss
-    from temper_placer.losses.grid import GridAlignmentLoss
 
     losses = []
     aesthetic_cfg = constraints.aesthetics

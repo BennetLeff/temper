@@ -1,9 +1,8 @@
-import sys
 import json
-import urllib.request
-import urllib.error
 import subprocess
-import os
+import sys
+import urllib.error
+import urllib.request
 
 BASE_URL = "https://eco.bennetleff.workers.dev"
 USER_ID = "temper-agent"
@@ -15,13 +14,13 @@ def get_issue(issue_id):
         # We will use 'bd show <id> --json'
         # Assuming 'bd' is in PATH or we use the local script if available
         # The user seems to use 'bd' command.
-        
+
         cmd = ["bd", "show", issue_id, "--json"]
         result = subprocess.run(cmd, capture_output=True, text=True)
-        
+
         if result.returncode != 0:
             return None, f"Error calling bd: {result.stderr}"
-            
+
         return json.loads(result.stdout), None
     except Exception as e:
         return None, str(e)
@@ -33,16 +32,16 @@ def search_memories(query, limit=5):
         "limit": limit,
         "minScore": 0.7
     }
-    
+
     try:
         data = json.dumps(payload).encode('utf-8')
         req = urllib.request.Request(
-            f"{BASE_URL}/memories/search", 
-            data=data, 
-            headers={'Content-Type': 'application/json'}, 
+            f"{BASE_URL}/memories/search",
+            data=data,
+            headers={'Content-Type': 'application/json'},
             method='POST'
         )
-        
+
         with urllib.request.urlopen(req, timeout=5) as response:
             if response.status == 200:
                 return json.load(response).get("results", []), None
@@ -53,7 +52,7 @@ def search_memories(query, limit=5):
 
 def format_context(issue, memories):
     output = []
-    
+
     # 1. Task Context (from Beads)
     output.append(f"# TASK: {issue['id']} - {issue['title']}")
     output.append(f"Status: {issue['status'].upper()} | Priority: {issue['priority']}")
@@ -61,7 +60,7 @@ def format_context(issue, memories):
     output.append("-" * 40)
     output.append(issue.get('description', '(No description)'))
     output.append("-" * 40)
-    
+
     # 2. Memory Context (from Eco)
     output.append("\n# RELEVANT MEMORIES (Eco)")
     if not memories:
@@ -72,23 +71,23 @@ def format_context(issue, memories):
             score = item['score']
             output.append(f"\n[{i+1}] (Score: {score:.2f}) {mem['content'][:200]}...")
             output.append(f"    Full content: {mem['content']}")
-            
+
     return "\n".join(output)
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Fetch unified task and memory context.")
     parser.add_argument("issue_id", help="The ID of the issue (e.g., temper-42)")
     parser.add_argument("--limit", type=int, default=5, help="Number of memories to retrieve (default: 5)")
-    
+
     args = parser.parse_args()
-    
+
     issue_id = args.issue_id
     limit = args.limit
-    
+
     print(f"Fetching context for {issue_id}...")
-    
+
     # Parallel fetch could be better, but sequential is safer for a simple script
     issue, err = get_issue(issue_id)
     if err:
@@ -97,24 +96,24 @@ if __name__ == "__main__":
     if not issue: # bd show might return empty list or null if not found
         print("Issue not found")
         sys.exit(1)
-        
+
     # If issue is a list (bd show can return list), take first
     if isinstance(issue, list):
         if not issue:
             print("Issue not found")
             sys.exit(1)
         issue = issue[0]
-        
+
     print(f"Found task: {issue['title']}")
-    
+
     # Construct search query from title + keywords
     query = f"{issue['title']} {issue.get('issue_type', '')}"
     print(f"Searching Eco for: '{query}' (limit: {limit})...")
-    
+
     memories, mem_err = search_memories(query, limit)
     if mem_err:
         print(f"Warning: Failed to search memories: {mem_err}")
-    
+
     print("\n" + "="*60)
     print(format_context(issue, memories))
     print("="*60)

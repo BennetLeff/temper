@@ -19,29 +19,24 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-import pytest
-from jax import Array
 
-# Import geometry functions
-from temper_placer.geometry.primitives import (
-    point_distance,
-    pairwise_distances,
-    batch_point_distance,
-    point_to_line_distance,
-    aabb_overlap_area,
-)
 from temper_placer.geometry.polygon import (
     polygon_area,
     polygon_centroid,
-    polygon_perimeter,
 )
+
+# Import geometry functions
+from temper_placer.geometry.primitives import (
+    pairwise_distances,
+    point_distance,
+    point_to_line_distance,
+)
+from temper_placer.losses.boundary import compute_boundary_penalty
+from temper_placer.losses.loop_area import compute_loop_area_penalty
 
 # Import loss functions
 from temper_placer.losses.overlap import compute_overlap_penalty
-from temper_placer.losses.boundary import compute_boundary_penalty
 from temper_placer.losses.thermal import compute_edge_distance
-from temper_placer.losses.loop_area import compute_loop_area_penalty
-
 
 # =============================================================================
 # Configuration

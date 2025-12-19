@@ -1,12 +1,19 @@
 
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 # Add project root to path to allow sibling imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from tests.validation.test_placement_comparison import get_project_paths, run_optimizer_on_pcb, compare_metrics, BaselineMetrics
+from tests.validation.test_placement_comparison import (
+    BaselineMetrics,
+    compare_metrics,
+    get_project_paths,
+    run_optimizer_on_pcb,
+)
+
 
 @pytest.mark.external
 @pytest.mark.slow

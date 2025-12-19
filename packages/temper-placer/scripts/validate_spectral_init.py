@@ -21,9 +21,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import jax
 import jax.numpy as jnp
+
+from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.optimizer.initialization import SpectralInitializer
-from temper_placer.core.state import PlacementState
 
 
 def load_libresolar_bms():

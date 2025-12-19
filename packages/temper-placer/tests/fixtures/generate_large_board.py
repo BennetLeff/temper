@@ -13,10 +13,9 @@ Run this script to regenerate the fixture:
     python3 tests/fixtures/generate_large_board.py
 """
 
+import random
 import uuid
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
-import random
 
 # Seed for reproducibility
 random.seed(42)
@@ -30,13 +29,13 @@ class Component:
     value: str
     footprint: str
     footprint_lib: str
-    bounds: Tuple[float, float]  # (width, height) in mm
-    pins: List[Tuple[str, Tuple[float, float], str]]  # (number, offset, net)
-    position: Tuple[float, float] = (0, 0)
+    bounds: tuple[float, float]  # (width, height) in mm
+    pins: list[tuple[str, tuple[float, float], str]]  # (number, offset, net)
+    position: tuple[float, float] = (0, 0)
     rotation: float = 0
 
 
-def generate_qfp_pins(pin_count: int, body_size: float, pitch: float) -> List[Tuple[str, float]]:
+def generate_qfp_pins(pin_count: int, body_size: float, pitch: float) -> list[tuple[str, float]]:
     """Generate pin positions for QFP packages."""
     pins_per_side = pin_count // 4
     edge_offset = 4.65  # Distance from center to pad
@@ -218,8 +217,8 @@ class LargeBoardGenerator:
     """Generator for large PCB fixture."""
 
     def __init__(self):
-        self.components: List[dict] = []
-        self.nets: List[str] = [""]  # Net 0 is empty
+        self.components: list[dict] = []
+        self.nets: list[str] = [""]  # Net 0 is empty
         self.net_index = 1
         self.comp_index = 1
 
@@ -242,7 +241,7 @@ class LargeBoardGenerator:
         x: float,
         y: float,
         rotation: float = 0,
-        pin_nets: Optional[List[str]] = None,
+        pin_nets: list[str] | None = None,
     ):
         """Add a component to the board."""
         fp = FOOTPRINTS[footprint_type]
@@ -469,7 +468,7 @@ class LargeBoardGenerator:
 
     def generate_header(self) -> str:
         """Generate KiCad PCB header."""
-        return f"""(kicad_pcb (version 20221018) (generator pcbnew)
+        return """(kicad_pcb (version 20221018) (generator pcbnew)
 
   (general
     (thickness 1.6)

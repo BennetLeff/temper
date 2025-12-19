@@ -7,7 +7,7 @@ including total loss, per-term breakdown, and curriculum phase boundaries.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Plotly is an optional dependency for testing without full install
 try:
@@ -22,9 +22,8 @@ except ImportError:
 
 from temper_placer.visualization.model import LossHistory
 
-
 # Color palette for loss terms
-LOSS_TERM_COLORS: Dict[str, str] = {
+LOSS_TERM_COLORS: dict[str, str] = {
     "overlap": "#F44336",  # Red
     "boundary": "#2196F3",  # Blue
     "wirelength": "#4CAF50",  # Green
@@ -57,13 +56,13 @@ def get_term_color(term_name: str) -> str:
 
 def render_loss_curves(
     history: LossHistory,
-    title: Optional[str] = None,
+    title: str | None = None,
     show_breakdown: bool = True,
     show_phases: bool = True,
     log_scale: bool = False,
     width: int = 800,
     height: int = 400,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render loss curves as a Plotly figure.
 
@@ -190,11 +189,11 @@ def render_loss_curves(
 
 def render_loss_breakdown_bar(
     history: LossHistory,
-    epoch: Optional[int] = None,
-    title: Optional[str] = None,
+    epoch: int | None = None,
+    title: str | None = None,
     width: int = 400,
     height: int = 300,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render a bar chart showing loss breakdown at a specific epoch.
 
@@ -278,10 +277,10 @@ def render_loss_breakdown_bar(
 
 def render_loss_heatmap(
     history: LossHistory,
-    title: Optional[str] = None,
+    title: str | None = None,
     width: int = 800,
     height: int = 400,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render a heatmap showing loss term evolution over time.
 
@@ -353,10 +352,10 @@ def render_loss_heatmap(
 
 def render_training_dashboard(
     history: LossHistory,
-    title: Optional[str] = None,
+    title: str | None = None,
     width: int = 1000,
     height: int = 600,
-) -> "go.Figure":
+) -> go.Figure:
     """
     Render a comprehensive training dashboard with multiple views.
 
@@ -531,7 +530,7 @@ def render_training_dashboard(
 
 def loss_history_to_html(
     history: LossHistory,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     include_plotlyjs: bool = True,
     dashboard: bool = False,
     **kwargs: Any,

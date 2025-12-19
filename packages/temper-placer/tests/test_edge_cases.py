@@ -11,18 +11,18 @@ These tests verify graceful handling of edge cases that may occur in real usage:
 Reference: temper-r2i.7 - Add defensive edge-case tests
 """
 
-import pytest
 import jax
 import jax.numpy as jnp
+import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import LossContext
-from temper_placer.losses.overlap import OverlapLoss, compute_overlap_penalty
-from temper_placer.losses.boundary import BoundaryLoss, compute_boundary_penalty
+from temper_placer.losses.boundary import compute_boundary_penalty
+from temper_placer.losses.overlap import compute_overlap_penalty
+from temper_placer.losses.regularization import compute_spread_penalty
 from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.losses.regularization import SpreadLoss, compute_spread_penalty
 
 
 class TestEmptyNetlist:

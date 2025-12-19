@@ -9,7 +9,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -32,9 +32,9 @@ class ValidationIssue:
     severity: ValidationSeverity
     code: str  # Machine-readable code (e.g., "OVERLAP_001")
     message: str  # Human-readable description
-    component_refs: List[str] = field(default_factory=list)  # Affected components
-    location: Optional[tuple] = None  # (x, y) location if applicable
-    details: Dict[str, Any] = field(default_factory=dict)  # Additional data
+    component_refs: list[str] = field(default_factory=list)  # Affected components
+    location: tuple | None = None  # (x, y) location if applicable
+    details: dict[str, Any] = field(default_factory=dict)  # Additional data
 
 
 @dataclass
@@ -42,8 +42,8 @@ class ValidationResult:
     """Result of running validation checks."""
 
     valid: bool  # True if no errors/critical issues
-    issues: List[ValidationIssue] = field(default_factory=list)
-    metrics: Dict[str, float] = field(default_factory=dict)  # Quality metrics
+    issues: list[ValidationIssue] = field(default_factory=list)
+    metrics: dict[str, float] = field(default_factory=dict)  # Quality metrics
     elapsed_ms: float = 0.0  # Time taken for validation
     validator_name: str = ""  # Name of validator that ran
 
@@ -128,7 +128,7 @@ class Validator(ABC):
 class CompositeValidator(Validator):
     """Runs multiple validators and combines results."""
 
-    def __init__(self, validators: List[Validator]):
+    def __init__(self, validators: list[Validator]):
         self.validators = validators
 
     @property

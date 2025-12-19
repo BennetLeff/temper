@@ -17,9 +17,10 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 from jax import Array
 
@@ -51,13 +52,13 @@ class ValidationConfig:
     enabled: bool = True
     drc_enabled: bool = True
     drc_interval: int = 100
-    drc_template_pcb: Optional[Path] = None
-    drc_board_origin: Tuple[float, float] = (0.0, 0.0)
+    drc_template_pcb: Path | None = None
+    drc_board_origin: tuple[float, float] = (0.0, 0.0)
     fail_on_drc_errors: bool = False
     max_drc_errors: int = 0
     routing_enabled: bool = False
     routing_interval: int = 200
-    routing_jar_path: Optional[Path] = None
+    routing_jar_path: Path | None = None
     spice_enabled: bool = False
     spice_interval: int = 200
     log_validation: bool = True
@@ -87,12 +88,12 @@ class ValidationResult:
     drc_errors: int = 0
     drc_warnings: int = 0
     routing_penalty: float = 0.0
-    routing_metrics: Optional[Dict[str, Any]] = None
-    spice_results: Dict[str, float] = field(default_factory=dict)
+    routing_metrics: dict[str, Any] | None = None
+    spice_results: dict[str, float] = field(default_factory=dict)
     passed: bool = True
-    messages: List[str] = field(default_factory=list)
+    messages: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging/serialization."""
         return {
             "epoch": self.epoch,
@@ -139,10 +140,10 @@ class ValidationCallback:
 
     def __init__(
         self,
-        config: Optional[ValidationConfig] = None,
-        drc_loss: Optional[DRCLoss] = None,
-        routing_loss: Optional[Any] = None,
-        on_result: Optional[Callable[[ValidationResult], None]] = None,
+        config: ValidationConfig | None = None,
+        drc_loss: DRCLoss | None = None,
+        routing_loss: Any | None = None,
+        on_result: Callable[[ValidationResult], None] | None = None,
     ):
         """
         Initialize validation callback.
@@ -157,7 +158,7 @@ class ValidationCallback:
         self._drc_loss = drc_loss
         self._routing_loss = routing_loss
         self._on_result = on_result
-        self._history: List[ValidationResult] = []
+        self._history: list[ValidationResult] = []
         self._initialized = False
 
     def _lazy_init(self, context: LossContext) -> None:
@@ -194,8 +195,8 @@ class ValidationCallback:
                 logger.warning("Routing enabled but no template PCB path provided")
                 self.config.routing_enabled = False
             else:
-                from temper_placer.routing.freerouting import FreeRoutingWrapper
                 from temper_placer.losses.routing_loss import RoutingLoss
+                from temper_placer.routing.freerouting import FreeRoutingWrapper
 
                 # Create PCB exporter
                 exporter = create_pcb_exporter(
@@ -213,24 +214,24 @@ class ValidationCallback:
         self._initialized = True
 
     @property
-    def drc_loss(self) -> Optional[DRCLoss]:
+    def drc_loss(self) -> DRCLoss | None:
         """Get the DRCLoss instance."""
         return self._drc_loss
 
     @property
-    def routing_loss(self) -> Optional[Any]:
+    def routing_loss(self) -> Any | None:
         """Get the RoutingLoss instance."""
         return self._routing_loss
 
     @property
-    def drc_history(self) -> Optional[DRCHistory]:
+    def drc_history(self) -> DRCHistory | None:
         """Get DRC evaluation history."""
         if self._drc_loss is not None:
             return self._drc_loss.history
         return None
 
     @property
-    def history(self) -> List[ValidationResult]:
+    def history(self) -> list[ValidationResult]:
         """Get all validation results."""
         return self._history
 
@@ -262,7 +263,7 @@ class ValidationCallback:
         positions: Array,
         rotations: Array,
         context: LossContext,
-    ) -> Optional[ValidationResult]:
+    ) -> ValidationResult | None:
         """
         Run validation if scheduled for this epoch.
 
@@ -281,7 +282,7 @@ class ValidationCallback:
         self._lazy_init(context)
 
         start_time = time.time()
-        messages: List[str] = []
+        messages: list[str] = []
         passed = True
 
         # Initialize result values
@@ -290,7 +291,7 @@ class ValidationCallback:
         drc_warnings = 0
         routing_penalty = 0.0
         routing_metrics = None
-        spice_results: Dict[str, float] = {}
+        spice_results: dict[str, float] = {}
 
         # Run DRC validation
         if self.config.drc_enabled and self._drc_loss is not None:
@@ -419,10 +420,10 @@ class ValidationCallback:
 
 
 def create_validation_callback(
-    template_pcb: Optional[Path] = None,
-    board_origin: Tuple[float, float] = (0.0, 0.0),
+    template_pcb: Path | None = None,
+    board_origin: tuple[float, float] = (0.0, 0.0),
     drc_interval: int = 100,
-    on_result: Optional[Callable[[ValidationResult], None]] = None,
+    on_result: Callable[[ValidationResult], None] | None = None,
 ) -> ValidationCallback:
     """
     Factory function to create a ValidationCallback for DRC.

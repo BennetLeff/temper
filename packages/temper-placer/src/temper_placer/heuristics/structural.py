@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -29,7 +28,6 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.io.config_loader import PlacementConstraints
-
 
 # =============================================================================
 # Keep-out Zone Heuristic (HARD priority)
@@ -191,7 +189,7 @@ class KeepoutAwarenessHeuristic(Heuristic):
 def identify_connectors(
     netlist: Netlist,
     constraints: PlacementConstraints,
-) -> List[Tuple[Component, str]]:
+) -> list[tuple[Component, str]]:
     """
     Identify connector components and classify their purpose.
 
@@ -343,7 +341,7 @@ class ConnectorEdgeSnappingHeuristic(Heuristic):
             )
 
         # Group connectors by target edge
-        edge_assignments: Dict[str, List[Tuple[Component, str]]] = {
+        edge_assignments: dict[str, list[tuple[Component, str]]] = {
             "left": [],
             "right": [],
             "top": [],
@@ -358,8 +356,8 @@ class ConnectorEdgeSnappingHeuristic(Heuristic):
             edge_assignments[edge].append((comp, purpose))
 
         # Place connectors on each edge
-        placements: Dict[str, ComponentPlacement] = {}
-        conflicts: List[str] = []
+        placements: dict[str, ComponentPlacement] = {}
+        conflicts: list[str] = []
 
         for edge, comps in edge_assignments.items():
             edge_placements = self._place_on_edge(
@@ -391,10 +389,10 @@ class ConnectorEdgeSnappingHeuristic(Heuristic):
     def _place_on_edge(
         self,
         edge: str,
-        components: List[Tuple[Component, str]],
+        components: list[tuple[Component, str]],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place components along a board edge."""
         if not components:
             return {}
@@ -470,7 +468,7 @@ def identify_thermal_components(
     netlist: Netlist,
     constraints: PlacementConstraints,
     power_threshold_w: float = 1.0,
-) -> List[Component]:
+) -> list[Component]:
     """
     Identify high-power/thermal components that need edge placement.
 
@@ -487,7 +485,7 @@ def identify_thermal_components(
     Returns:
         List of thermal components
     """
-    thermal_refs: Set[str] = set()
+    thermal_refs: set[str] = set()
 
     # From explicit config
     if constraints.thermal_properties:
@@ -609,10 +607,10 @@ class ThermalEdgePlacementHeuristic(Heuristic):
 
     def _place_thermal_components(
         self,
-        components: List[Component],
+        components: list[Component],
         board: Board,
         context: PlacementContext,
-    ) -> Dict[str, ComponentPlacement]:
+    ) -> dict[str, ComponentPlacement]:
         """Place thermal components along edge with spacing."""
         placements = {}
         ox, oy = board.origin
@@ -725,7 +723,7 @@ class CriticalLoopHeuristic(Heuristic):
                 message="No critical loops defined",
             )
 
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
 
         for loop in critical_loops:
             loop_placements = self._place_loop_components(
@@ -747,15 +745,15 @@ class CriticalLoopHeuristic(Heuristic):
     def _place_loop_components(
         self,
         loop_name: str,
-        loop_nets: List[str],
+        loop_nets: list[str],
         netlist: Netlist,
         board: Board,
         context: PlacementContext,
-        existing_placements: Dict[str, ComponentPlacement],
-    ) -> Dict[str, ComponentPlacement]:
+        existing_placements: dict[str, ComponentPlacement],
+    ) -> dict[str, ComponentPlacement]:
         """Place components belonging to a critical loop."""
         # Find all components connected to loop nets
-        loop_components: Set[str] = set()
+        loop_components: set[str] = set()
         for net_name in loop_nets:
             try:
                 net = netlist.get_net(net_name)

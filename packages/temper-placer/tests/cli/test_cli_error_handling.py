@@ -19,9 +19,7 @@ Verification goals:
 
 import os
 import stat
-import tempfile
 from pathlib import Path
-from unittest import mock
 
 import pytest
 from click.testing import CliRunner
@@ -30,7 +28,6 @@ from click.testing import CliRunner
 jax = pytest.importorskip("jax")
 
 from temper_placer.cli import main
-
 
 # Test fixtures paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

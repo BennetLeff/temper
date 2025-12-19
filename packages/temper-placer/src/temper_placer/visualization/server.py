@@ -27,12 +27,11 @@ import asyncio
 import json
 import logging
 import threading
-import weakref
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any
 
 from .model import VisualizationState
 
@@ -75,7 +74,7 @@ class ServerConfig:
 
     host: str = "localhost"
     port: int = 8765
-    static_dir: Optional[Path] = None  # Directory containing HTML/JS files
+    static_dir: Path | None = None  # Directory containing HTML/JS files
     update_interval_ms: int = 100  # Minimum time between updates
     max_clients: int = 10
     open_browser: bool = True
@@ -87,8 +86,8 @@ class ServerState:
 
     is_running: bool = False
     is_paused: bool = False
-    last_state: Optional[VisualizationState] = None
-    connected_clients: Set[Any] = field(default_factory=set)
+    last_state: VisualizationState | None = None
+    connected_clients: set[Any] = field(default_factory=set)
     step_count: int = 0
 
 
@@ -106,12 +105,12 @@ class LiveServer:
         self,
         host: str = "localhost",
         port: int = 8765,
-        static_dir: Optional[Path] = None,
+        static_dir: Path | None = None,
         update_interval_ms: int = 100,
         open_browser: bool = True,
-        on_pause: Optional[Callable[[], None]] = None,
-        on_resume: Optional[Callable[[], None]] = None,
-        on_step: Optional[Callable[[int], None]] = None,
+        on_pause: Callable[[], None] | None = None,
+        on_resume: Callable[[], None] | None = None,
+        on_step: Callable[[int], None] | None = None,
     ):
         """
         Initialize the live server.
@@ -144,16 +143,16 @@ class LiveServer:
         self._on_step = on_step
 
         # Threading
-        self._server_thread: Optional[threading.Thread] = None
-        self._event_loop: Optional[asyncio.AbstractEventLoop] = None
-        self._ws_server: Optional[Any] = None
+        self._server_thread: threading.Thread | None = None
+        self._event_loop: asyncio.AbstractEventLoop | None = None
+        self._ws_server: Any | None = None
         self._stop_event = threading.Event()
 
         # Rate limiting
         self._last_update_time = 0.0
 
         # Connected clients (weakref set for automatic cleanup)
-        self._clients: Set[Any] = set()
+        self._clients: set[Any] = set()
         self._clients_lock = threading.Lock()
 
     def _check_dependencies(self) -> None:
@@ -263,7 +262,7 @@ class LiveServer:
             message = self._create_message(MessageType.TRAINING_STOPPED)
             asyncio.run_coroutine_threadsafe(self._broadcast(message), self._event_loop)
 
-    def send_training_complete(self, final_state: Optional[VisualizationState] = None) -> None:
+    def send_training_complete(self, final_state: VisualizationState | None = None) -> None:
         """Notify clients that training is complete."""
         if self._event_loop and self.state.is_running:
             data = final_state.to_dict() if final_state else None
@@ -403,7 +402,7 @@ class LiveServer:
                 for client in dead_clients:
                     self._clients.discard(client)
 
-    def _create_message(self, msg_type: MessageType, data: Optional[Dict[str, Any]] = None) -> str:
+    def _create_message(self, msg_type: MessageType, data: dict[str, Any] | None = None) -> str:
         """Create a JSON message."""
         message = {"type": msg_type.value}
         if data is not None:
@@ -433,7 +432,7 @@ class MockLiveServer:
             **{k: v for k, v in kwargs.items() if k in ServerConfig.__dataclass_fields__}
         )
         self.state = ServerState()
-        self._updates: List[VisualizationState] = []
+        self._updates: list[VisualizationState] = []
 
     @property
     def url(self) -> str:
@@ -459,7 +458,7 @@ class MockLiveServer:
     def send_training_stopped(self) -> None:
         pass
 
-    def send_training_complete(self, final_state: Optional[VisualizationState] = None) -> None:
+    def send_training_complete(self, final_state: VisualizationState | None = None) -> None:
         pass
 
     @property

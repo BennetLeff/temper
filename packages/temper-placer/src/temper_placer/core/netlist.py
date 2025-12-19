@@ -9,7 +9,6 @@ electrical connectivity, and Netlist aggregates everything.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -29,14 +28,14 @@ class Pin:
 
     name: str
     number: str
-    position: Tuple[float, float]
-    net: Optional[str] = None
+    position: tuple[float, float]
+    net: str | None = None
 
     def absolute_position(
         self,
-        component_pos: Tuple[float, float],
+        component_pos: tuple[float, float],
         rotation_angle: float,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Get absolute pin position given component placement.
 
@@ -77,14 +76,14 @@ class Component:
 
     ref: str
     footprint: str
-    bounds: Tuple[float, float]  # (width, height) in mm
-    pins: List[Pin] = field(default_factory=list)
+    bounds: tuple[float, float]  # (width, height) in mm
+    pins: list[Pin] = field(default_factory=list)
     net_class: str = "Signal"
-    zone: Optional[str] = None
+    zone: str | None = None
     fixed: bool = False
-    initial_position: Optional[Tuple[float, float]] = None
-    initial_rotation: Optional[int] = None
-    attributes: Dict[str, str] = field(default_factory=dict)
+    initial_position: tuple[float, float] | None = None
+    initial_rotation: int | None = None
+    attributes: dict[str, str] = field(default_factory=dict)
 
     @property
     def width(self) -> float:
@@ -96,14 +95,14 @@ class Component:
         """Component height in mm."""
         return self.bounds[1]
 
-    def get_pin(self, name_or_number: str) -> Optional[Pin]:
+    def get_pin(self, name_or_number: str) -> Pin | None:
         """Get a pin by name or number."""
         for pin in self.pins:
             if pin.name == name_or_number or pin.number == name_or_number:
                 return pin
         return None
 
-    def get_pins_for_net(self, net_name: str) -> List[Pin]:
+    def get_pins_for_net(self, net_name: str) -> list[Pin]:
         """Get all pins connected to a given net."""
         return [p for p in self.pins if p.net == net_name]
 
@@ -122,7 +121,7 @@ class Net:
     """
 
     name: str
-    pins: List[Tuple[str, str]]  # [(component_ref, pin_name), ...]
+    pins: list[tuple[str, str]]  # [(component_ref, pin_name), ...]
     net_class: str = "Signal"
     weight: float = 1.0
 
@@ -131,7 +130,7 @@ class Net:
         """Number of pins in this net."""
         return len(self.pins)
 
-    def get_component_refs(self) -> Set[str]:
+    def get_component_refs(self) -> set[str]:
         """Get unique component references in this net."""
         return {ref for ref, _ in self.pins}
 
@@ -146,13 +145,13 @@ class Netlist:
         nets: List of all nets.
     """
 
-    components: List[Component] = field(default_factory=list)
-    nets: List[Net] = field(default_factory=list)
+    components: list[Component] = field(default_factory=list)
+    nets: list[Net] = field(default_factory=list)
 
     # Computed indices (populated by build_indices)
-    _component_index: Dict[str, int] = field(default_factory=dict, repr=False)
-    _net_index: Dict[str, int] = field(default_factory=dict, repr=False)
-    _component_nets: Dict[str, List[str]] = field(default_factory=dict, repr=False)
+    _component_index: dict[str, int] = field(default_factory=dict, repr=False)
+    _net_index: dict[str, int] = field(default_factory=dict, repr=False)
+    _component_nets: dict[str, list[str]] = field(default_factory=dict, repr=False)
 
     def __post_init__(self) -> None:
         """Build indices after initialization."""
@@ -182,11 +181,11 @@ class Netlist:
         """Get a net by name."""
         return self.nets[self._net_index[name]]
 
-    def get_component_nets(self, ref: str) -> List[str]:
+    def get_component_nets(self, ref: str) -> list[str]:
         """Get all net names connected to a component."""
         return self._component_nets.get(ref, [])
 
-    def get_net_pins(self, net_name: str) -> List[Tuple[str, str]]:
+    def get_net_pins(self, net_name: str) -> list[tuple[str, str]]:
         """Get all (component_ref, pin_name) for a net."""
         return self.get_net(net_name).pins
 
@@ -208,7 +207,7 @@ class Netlist:
         """Get (N,) boolean array of fixed components."""
         return jnp.array([c.fixed for c in self.components], dtype=jnp.bool_)
 
-    def find_isomorphic_groups(self, iterations: int = 2) -> List[List[int]]:
+    def find_isomorphic_groups(self, iterations: int = 2) -> list[list[int]]:
         """
         Find groups of components that are topologically isomorphic.
         
@@ -225,11 +224,11 @@ class Netlist:
             Only groups with >1 member are returned.
         """
         import hashlib
-        
+
         n = self.n_components
         if n == 0:
             return []
-            
+
         # 1. Initial labels: Footprint + Ref Prefix (to distinguish R from C)
         labels = []
         for c in self.components:
@@ -238,7 +237,7 @@ class Netlist:
             match = re.match(r"^([a-zA-Z]+)", c.ref)
             prefix = match.group(1) if match else ""
             labels.append(f"{c.footprint}|{prefix}")
-        
+
         # Build adjacency for hashing
         adj = build_adjacency_matrix(self)
         # Convert to list of neighbor indices for each component
@@ -247,32 +246,32 @@ class Netlist:
             # Components connected by any net
             neighbors = jnp.where(adj[i] > 0)[0].tolist()
             neighbor_lists.append(neighbors)
-            
+
         # 2. Iterative Refinement (WL algorithm)
         for _ in range(iterations):
             new_labels = []
             for i in range(n):
                 # Get labels of neighbors
                 neighbor_labels = sorted([labels[j] for j in neighbor_lists[i]])
-                
+
                 # Combine current label with neighbor labels
                 sig = f"{labels[i]}|{','.join(neighbor_labels)}"
                 # Hash to keep labels manageable
                 h = hashlib.md5(sig.encode()).hexdigest()
                 new_labels.append(h)
             labels = new_labels
-            
+
         # 3. Group by final labels
-        groups_dict: Dict[str, List[int]] = {}
+        groups_dict: dict[str, list[int]] = {}
         for i, label in enumerate(labels):
             if label not in groups_dict:
                 groups_dict[label] = []
             groups_dict[label].append(i)
-            
+
         # 4. Filter groups with >1 member
         return [g for g in groups_dict.values() if len(g) > 1]
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """
         Validate netlist consistency.
 

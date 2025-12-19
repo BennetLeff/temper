@@ -31,7 +31,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pytest
 import yaml
@@ -86,7 +86,7 @@ class BaselineMetrics:
     boundary_loss: float
 
     @classmethod
-    def from_yaml(cls, path: Path) -> "BaselineMetrics":
+    def from_yaml(cls, path: Path) -> BaselineMetrics:
         """Load from baseline YAML file."""
         with open(path) as f:
             data = yaml.safe_load(f)
@@ -129,9 +129,9 @@ class ComparisonResult:
 
     # Pass/fail
     passed: bool
-    failure_reasons: List[str]
+    failure_reasons: list[str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "project": self.project,
@@ -160,7 +160,7 @@ class ComparisonResult:
         }
 
 
-def get_project_paths(project_name: str) -> Tuple[Optional[Path], Optional[Path], Optional[Path]]:
+def get_project_paths(project_name: str) -> tuple[Path | None, Path | None, Path | None]:
     """
     Get paths to unrouted PCB, baseline, and constraints for a project.
 
@@ -174,7 +174,7 @@ def get_project_paths(project_name: str) -> Tuple[Optional[Path], Optional[Path]
         return None, None, None
 
     # Find unrouted PCB
-    unrouted_path: Optional[Path] = project_dir / f"{project_name}_unrouted.kicad_pcb"
+    unrouted_path: Path | None = project_dir / f"{project_name}_unrouted.kicad_pcb"
     if not unrouted_path.exists():
         # Try alternate naming
         for f in project_dir.glob("*_unrouted.kicad_pcb"):
@@ -184,12 +184,12 @@ def get_project_paths(project_name: str) -> Tuple[Optional[Path], Optional[Path]
             unrouted_path = None
 
     # Find baseline
-    baseline_path: Optional[Path] = project_dir / f"{project_name}_baseline.yaml"
+    baseline_path: Path | None = project_dir / f"{project_name}_baseline.yaml"
     if not baseline_path.exists():
         baseline_path = None
 
     # Find constraints
-    constraints_path: Optional[Path] = project_dir / f"{project_name}_constraints.yaml"
+    constraints_path: Path | None = project_dir / f"{project_name}_constraints.yaml"
     if not constraints_path.exists():
         constraints_path = None
 
@@ -204,10 +204,10 @@ def is_project_available(project_name: str) -> bool:
 
 def run_optimizer_on_pcb(
     pcb_path: Path,
-    constraints_path: Optional[Path] = None,
+    constraints_path: Path | None = None,
     epochs: int = 100,
     learning_rate: float = 0.5,
-) -> Tuple[PlacementState, OptimizerMetrics, LossContext]:
+) -> tuple[PlacementState, OptimizerMetrics, LossContext]:
     """
     Run the optimizer on an unrouted PCB.
 
@@ -314,7 +314,7 @@ def compare_metrics(
     Returns:
         ComparisonResult with pass/fail determination
     """
-    failure_reasons: List[str] = []
+    failure_reasons: list[str] = []
 
     # Wirelength ratio
     if baseline.total_wirelength_mm > 0:
@@ -357,7 +357,7 @@ def compare_metrics(
     )
 
 
-def generate_comparison_report(results: List[ComparisonResult]) -> Dict[str, Any]:
+def generate_comparison_report(results: list[ComparisonResult]) -> dict[str, Any]:
     """
     Generate a summary report from multiple comparison results.
 
@@ -441,7 +441,7 @@ class TestOptimizerOnUnroutedPCB:
     """Tests for running optimizer on unrouted PCBs."""
 
     @pytest.fixture
-    def fast_optimizer_config(self) -> Dict[str, Any]:
+    def fast_optimizer_config(self) -> dict[str, Any]:
         """Configuration for fast testing."""
         return {
             "epochs": 50,  # Reduced for testing speed
@@ -452,7 +452,7 @@ class TestOptimizerOnUnroutedPCB:
     @pytest.mark.slow
     @pytest.mark.parametrize("project_name", TESTABLE_PROJECTS)
     def test_optimizer_runs_on_project(
-        self, project_name: str, fast_optimizer_config: Dict[str, Any]
+        self, project_name: str, fast_optimizer_config: dict[str, Any]
     ):
         """Test that optimizer runs without crashing on each project."""
         unrouted_path, baseline_path, constraints_path = get_project_paths(project_name)
@@ -559,7 +559,7 @@ class TestCompareAgainstBaseline:
         print(f"Project: {project_name}")
         print(f"Components: {baseline.component_count}, Nets: {baseline.net_count}")
         print(f"{'=' * 60}")
-        print(f"Metric           | Baseline    | Optimizer   | Status")
+        print("Metric           | Baseline    | Optimizer   | Status")
         print(f"{'-' * 60}")
         print(
             f"Wirelength (mm)  | {baseline.total_wirelength_mm:>10.1f} | "
@@ -595,7 +595,7 @@ class TestGenerateComparisonReport:
     @pytest.mark.slow
     def test_generate_full_report(self):
         """Generate comparison report for all available projects."""
-        results: List[ComparisonResult] = []
+        results: list[ComparisonResult] = []
 
         for project_name in TESTABLE_PROJECTS:
             unrouted_path, baseline_path, constraints_path = get_project_paths(project_name)

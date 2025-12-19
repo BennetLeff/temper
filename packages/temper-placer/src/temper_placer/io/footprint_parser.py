@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 
 class FootprintParseError(Exception):
@@ -32,7 +31,7 @@ class FootprintBounds:
 
     width: float
     height: float
-    center_offset: Tuple[float, float] = (0.0, 0.0)
+    center_offset: tuple[float, float] = (0.0, 0.0)
 
 
 def parse_footprint_courtyard(path: Path) -> FootprintBounds:
@@ -59,7 +58,7 @@ def parse_footprint_courtyard(path: Path) -> FootprintBounds:
         raise FootprintParseError(f"Error reading {path}: {e}")
 
     # Collect all courtyard points
-    points: List[Tuple[float, float]] = []
+    points: list[tuple[float, float]] = []
 
     # Parse fp_line elements on F.CrtYd or B.CrtYd layers
     # Format: (fp_line (start X Y) (end X Y) (layer "F.CrtYd") ...)
@@ -123,7 +122,7 @@ def parse_footprint_courtyard(path: Path) -> FootprintBounds:
     )
 
 
-def parse_footprint_directory(directory: Path) -> Dict[str, FootprintBounds]:
+def parse_footprint_directory(directory: Path) -> dict[str, FootprintBounds]:
     """
     Parse all .kicad_mod files in a directory.
 
@@ -134,7 +133,7 @@ def parse_footprint_directory(directory: Path) -> Dict[str, FootprintBounds]:
         Dict mapping footprint name (filename without extension) to bounds.
     """
     directory = Path(directory)
-    results: Dict[str, FootprintBounds] = {}
+    results: dict[str, FootprintBounds] = {}
 
     for fp_file in directory.glob("*.kicad_mod"):
         name = fp_file.stem

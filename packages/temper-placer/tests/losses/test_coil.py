@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.coil import CoilRequirementLoss, CoilRule, create_coil_loss
 

@@ -6,8 +6,8 @@ requirements for probe access, coverage, and spacing.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Optional, Dict, Any, Set
 from enum import Enum
+from typing import Any
 
 
 class TestPointType(Enum):
@@ -33,7 +33,7 @@ class TestPoint:
 
     name: str
     net: str
-    position: Tuple[float, float]
+    position: tuple[float, float]
     test_point_type: TestPointType
     pad_size_mm: float
     is_hv: bool = False  # High voltage indicator
@@ -46,12 +46,12 @@ class TestPointViolation:
 
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"  # error, warning
-    test_point_name: Optional[str] = None
-    missing_net: Optional[str] = None
-    measured_spacing_mm: Optional[float] = None
-    required_spacing_mm: Optional[float] = None
+    test_point_name: str | None = None
+    missing_net: str | None = None
+    measured_spacing_mm: float | None = None
+    required_spacing_mm: float | None = None
 
 
 @dataclass
@@ -59,7 +59,7 @@ class TestPointResult:
     """Result of test point validation."""
 
     passed: bool
-    violations: List[TestPointViolation]
+    violations: list[TestPointViolation]
 
     @property
     def error_count(self) -> int:
@@ -137,8 +137,8 @@ REQUIRED_TEST_POINTS = {
 
 
 def check_test_point_coverage(
-    test_points: List[TestPoint],
-    critical_nets: Set[str],
+    test_points: list[TestPoint],
+    critical_nets: set[str],
 ) -> TestPointResult:
     """
     Check that all critical nets have test point coverage.
@@ -188,8 +188,8 @@ def check_test_point_coverage(
 
 
 def check_test_point_accessibility(
-    test_points: List[TestPoint],
-    components: List[Dict[str, Any]],
+    test_points: list[TestPoint],
+    components: list[dict[str, Any]],
 ) -> TestPointResult:
     """
     Check that test points are accessible for probing (not blocked by components).
@@ -237,7 +237,7 @@ def check_test_point_accessibility(
     )
 
 
-def check_programming_header(header_position: Optional[Tuple[float, float]]) -> TestPointResult:
+def check_programming_header(header_position: tuple[float, float] | None) -> TestPointResult:
     """
     Check that UART programming header is properly positioned.
 
@@ -282,7 +282,7 @@ def check_programming_header(header_position: Optional[Tuple[float, float]]) -> 
 
 
 def check_test_point_spacing(
-    test_points: List[TestPoint],
+    test_points: list[TestPoint],
     min_spacing_mm: float = 2.54,
 ) -> TestPointResult:
     """
@@ -324,7 +324,7 @@ def check_test_point_spacing(
     )
 
 
-def get_required_test_points() -> Dict[str, TestPoint]:
+def get_required_test_points() -> dict[str, TestPoint]:
     """
     Get the dictionary of required test points per REQ-DFM-02.
 
@@ -334,7 +334,7 @@ def get_required_test_points() -> Dict[str, TestPoint]:
     return REQUIRED_TEST_POINTS.copy()
 
 
-def get_critical_nets() -> Set[str]:
+def get_critical_nets() -> set[str]:
     """
     Get the set of critical nets that require test points.
 

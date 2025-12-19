@@ -12,15 +12,14 @@ from __future__ import annotations
 import json
 import shutil
 import tempfile
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
 from jax import Array
 
-from temper_placer.core.state import PlacementState
 from temper_placer.optimizer.config import CheckpointConfig
 from temper_placer.optimizer.validation_callback import ValidationResult
 
@@ -51,10 +50,10 @@ class Checkpoint:
     optimizer_state_rot: Any
     rng_key: Array
     best_loss: float
-    best_positions: Optional[Array] = None
-    best_rotation_logits: Optional[Array] = None
-    validation_history: List[ValidationResult] = None
-    config_hash: Optional[str] = None
+    best_positions: Array | None = None
+    best_rotation_logits: Array | None = None
+    validation_history: list[ValidationResult] = None
+    config_hash: str | None = None
 
     def __post_init__(self):
         if self.validation_history is None:
@@ -80,9 +79,9 @@ class CheckpointManager:
             config: Checkpoint configuration.
         """
         self.config = config
-        self._checkpoint_dir: Optional[Path] = None
-        self._checkpoints: List[Path] = []
-        self._best_checkpoint: Optional[Path] = None
+        self._checkpoint_dir: Path | None = None
+        self._checkpoints: list[Path] = []
+        self._best_checkpoint: Path | None = None
         self._best_loss: float = float("inf")
 
         if config.enabled:
@@ -98,7 +97,7 @@ class CheckpointManager:
             self._checkpoint_dir = Path(tempfile.mkdtemp(prefix="temper_placer_"))
 
     @property
-    def checkpoint_dir(self) -> Optional[Path]:
+    def checkpoint_dir(self) -> Path | None:
         """Get checkpoint directory path."""
         return self._checkpoint_dir
 
@@ -120,7 +119,7 @@ class CheckpointManager:
         self,
         checkpoint: Checkpoint,
         is_best: bool = False,
-    ) -> Optional[Path]:
+    ) -> Path | None:
         """
         Save a checkpoint to disk.
 
@@ -213,7 +212,7 @@ class CheckpointManager:
             if old_checkpoint.exists():
                 old_checkpoint.unlink()
 
-    def load(self, path: Optional[Path] = None) -> Optional[Checkpoint]:
+    def load(self, path: Path | None = None) -> Checkpoint | None:
         """
         Load a checkpoint from disk.
 
@@ -231,7 +230,7 @@ class CheckpointManager:
 
         return self._load_from_file(path)
 
-    def load_best(self) -> Optional[Checkpoint]:
+    def load_best(self) -> Checkpoint | None:
         """
         Load the best checkpoint.
 
@@ -313,7 +312,7 @@ class CheckpointManager:
             config_hash=config_hash,
         )
 
-    def get_latest_checkpoint(self) -> Optional[Path]:
+    def get_latest_checkpoint(self) -> Path | None:
         """
         Get path to the latest checkpoint.
 
@@ -328,7 +327,7 @@ class CheckpointManager:
             return checkpoints[-1]
         return None
 
-    def list_checkpoints(self) -> List[Path]:
+    def list_checkpoints(self) -> list[Path]:
         """
         List all available checkpoints.
 
@@ -385,8 +384,8 @@ def _deserialize_opt_state(data: np.ndarray) -> Any:
 
 def create_checkpoint_from_training_state(
     training_state: Any,  # TrainingState from train.py
-    validation_history: List[ValidationResult],
-    config_hash: Optional[str] = None,
+    validation_history: list[ValidationResult],
+    config_hash: str | None = None,
 ) -> Checkpoint:
     """
     Create a Checkpoint from current training state.
@@ -419,7 +418,7 @@ def create_checkpoint_from_training_state(
 def restore_training_state_from_checkpoint(
     checkpoint: Checkpoint,
     training_state: Any,  # TrainingState from train.py
-) -> Tuple[Any, List[ValidationResult]]:
+) -> tuple[Any, list[ValidationResult]]:
     """
     Restore training state from a checkpoint.
 

@@ -7,8 +7,6 @@ optimal relative placement that minimizes total squared wirelength.
 
 from __future__ import annotations
 
-from typing import Dict, Tuple
-
 import networkx as nx
 import numpy as np
 
@@ -84,10 +82,10 @@ class SpectralPlacementHeuristic(Heuristic):
         )
 
     def _scale_to_board(
-        self, raw_pos: Dict[str, np.ndarray], board: Board, context: PlacementContext
-    ) -> Dict[str, ComponentPlacement]:
+        self, raw_pos: dict[str, np.ndarray], board: Board, context: PlacementContext
+    ) -> dict[str, ComponentPlacement]:
         """Scale unit coordinates to board dimensions."""
-        placements: Dict[str, ComponentPlacement] = {}
+        placements: dict[str, ComponentPlacement] = {}
 
         # Board geometry
         ox, oy = board.origin

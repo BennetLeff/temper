@@ -9,26 +9,24 @@ Implements temper-1my.4.4: Test initialization strategies
 """
 
 import time
-import jax
-import jax.numpy as jnp
-import numpy as np
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
+from temper_placer.io.config_loader import create_board_from_constraints, load_constraints
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
-from temper_placer.optimizer import train, OptimizerConfig, InitializationConfig
 from temper_placer.losses import (
-    CompositeLoss,
-    WeightedLoss,
-    OverlapLoss,
     BoundaryLoss,
-    WirelengthLoss,
+    CompositeLoss,
+    OverlapLoss,
     SpreadLoss,
+    WeightedLoss,
+    WirelengthLoss,
 )
 from temper_placer.losses.base import LossContext
+from temper_placer.optimizer import InitializationConfig, OptimizerConfig, train
 
 console = Console()
 
@@ -49,15 +47,15 @@ def run_trial(netlist, board, composite_loss, context, method, seed, epochs=500)
         initialization=InitializationConfig(method=method),
         log_interval=100
     )
-    
+
     start_time = time.time()
     result = train(netlist, board, composite_loss, context, config)
     elapsed = time.time() - start_time
-    
+
     # Get final metrics
     final_metrics = result.history[-1]
     overlap = final_metrics.loss_breakdown.get("overlap", 0.0)
-    
+
     return {
         "method": method,
         "seed": seed,
@@ -72,7 +70,7 @@ def main():
     fixtures_dir = Path("tests/fixtures")
     pcb_path = fixtures_dir / "minimal_board.kicad_pcb"
     config_path = fixtures_dir / "constraints_minimal.yaml"
-    
+
     if not pcb_path.exists():
         console.print(f"[red]Error: PCB file not found at {pcb_path}[/]")
         return
@@ -83,16 +81,16 @@ def main():
     constraints = load_constraints(config_path)
     board = create_board_from_constraints(constraints)
     context = LossContext.from_netlist_and_board(netlist, board)
-    
+
     default_weights = {"overlap": 100.0, "boundary": 50.0, "wirelength": 10.0, "spread": 5.0}
     composite_loss = make_loss(default_weights)
-    
+
     methods = ["random", "spectral"]
     seeds = [42, 123, 777, 2024, 9999]
-    
+
     results = []
-    
-    console.print(f"[bold blue]Starting Initialization Strategy Comparison[/]")
+
+    console.print("[bold blue]Starting Initialization Strategy Comparison[/]")
     console.print(f"PCB: {pcb_path.name} ({netlist.n_components} components)")
     console.print(f"Trials: {len(methods)} methods x {len(seeds)} seeds = {len(methods) * len(seeds)} total runs")
     console.print("-" * 50)
@@ -111,7 +109,7 @@ def main():
         "final_overlap": ["mean", "std"],
         "time_s": ["mean"]
     }).round(2)
-    
+
     # Display Table
     table = Table(title="Initialization Strategy Comparison (Summary)")
     table.add_column("Method", style="cyan")
@@ -119,7 +117,7 @@ def main():
     table.add_column("Std Dev Loss", justify="right")
     table.add_column("Mean Overlap", justify="right")
     table.add_column("Mean Time (s)", justify="right")
-    
+
     for method in methods:
         row = summary.loc[method]
         table.add_row(
@@ -129,14 +127,14 @@ def main():
             str(row[("final_overlap", "mean")]),
             str(row[("time_s", "mean")])
         )
-    
+
     console.print("\n")
     console.print(table)
-    
+
     # Recommendation
     best_method = summary[("final_loss", "mean")].idxmin()
     improvement = (summary.loc["random", ("final_loss", "mean")] - summary.loc["spectral", ("final_loss", "mean")]) / summary.loc["random", ("final_loss", "mean")] * 100
-    
+
     console.print(f"\n[bold green]Recommendation:[/] Use [bold cyan]{best_method}[/] initialization.")
     console.print(f"Reasoning: Spectral initialization achieved a [bold]{improvement:.1f}%[/] lower mean loss compared to random initialization on this board.")
 

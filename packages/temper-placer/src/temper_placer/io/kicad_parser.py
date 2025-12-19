@@ -9,40 +9,38 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 from kiutils.board import Board as KiBoard
-from kiutils.schematic import Schematic
 from kiutils.footprint import Footprint
-from kiutils.symbol import SymbolLib
+from kiutils.schematic import Schematic
 
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
-from temper_placer.core.board import Board, Zone, MountingHole
+from temper_placer.core.board import Board, MountingHole, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 
 @dataclass
 class TraceData:
     """Data for a PCB trace segment."""
 
-    start: Tuple[float, float]  # (x, y) in mm, absolute coords
-    end: Tuple[float, float]  # (x, y) in mm, absolute coords
+    start: tuple[float, float]  # (x, y) in mm, absolute coords
+    end: tuple[float, float]  # (x, y) in mm, absolute coords
     width: float  # trace width in mm
     layer: str  # e.g., 'F.Cu', 'B.Cu'
-    net: Optional[str] = None  # net name
+    net: str | None = None  # net name
 
 
 @dataclass
 class PadData:
     """Data for a component pad."""
 
-    position: Tuple[float, float]  # (x, y) in mm, absolute coords
-    size: Tuple[float, float]  # (width, height) in mm
+    position: tuple[float, float]  # (x, y) in mm, absolute coords
+    size: tuple[float, float]  # (width, height) in mm
     shape: str  # 'rect', 'circle', 'oval', 'roundrect', 'thru_hole'
     rotation: float = 0.0  # degrees
     layer: str = "F.Cu"  # primary layer
     number: str = ""  # pad number
-    net: Optional[str] = None  # net name
-    component_ref: Optional[str] = None  # parent component ref
+    net: str | None = None  # net name
+    component_ref: str | None = None  # parent component ref
 
 
 @dataclass
@@ -50,10 +48,10 @@ class ParseResult:
     """Result of parsing KiCad files."""
 
     netlist: Netlist
-    board: Optional[Board]
-    warnings: List[str]
-    traces: List[TraceData] = None  # type: ignore[assignment]
-    pads: List[PadData] = None  # type: ignore[assignment]
+    board: Board | None
+    warnings: list[str]
+    traces: list[TraceData] = None  # type: ignore[assignment]
+    pads: list[PadData] = None  # type: ignore[assignment]
 
     def __post_init__(self):
         if self.traces is None:
@@ -85,7 +83,7 @@ def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
         optimizer which works in [0, board_width] x [0, board_height] space.
         The kicad_writer adds the origin back when exporting.
     """
-    warnings: List[str] = []
+    warnings: list[str] = []
 
     # Load the KiCad board
     ki_board = KiBoard.from_file(str(pcb_path))
@@ -122,14 +120,14 @@ def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult
     Returns:
         ParseResult containing netlist and any warnings.
     """
-    warnings: List[str] = []
+    warnings: list[str] = []
 
     # Load the schematic
     schematic = Schematic.from_file(str(sch_path))
 
     # Track all components and nets across sheets
-    all_components: List[Component] = []
-    all_nets: Dict[str, Net] = {}
+    all_components: list[Component] = []
+    all_nets: dict[str, Net] = {}
 
     # Parse the main sheet
     _parse_schematic_sheet(
@@ -141,7 +139,7 @@ def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult
     return ParseResult(netlist=netlist, board=None, warnings=warnings)
 
 
-def _extract_board_geometry(ki_board: KiBoard, warnings: List[str]) -> Board:
+def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
     """Extract board outline and geometry from KiCad board."""
 
     # Get board outline from Edge.Cuts layer
@@ -177,7 +175,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: List[str]) -> Board:
         origin = (x_min, y_min)
 
     # Extract mounting holes (footprints with MountingHole in name or specific patterns)
-    mounting_holes: List[MountingHole] = []
+    mounting_holes: list[MountingHole] = []
     for fp in ki_board.footprints:
         fp_name = fp.libId or ""
         if "MountingHole" in fp_name or "mounting" in fp_name.lower():
@@ -191,7 +189,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: List[str]) -> Board:
             mounting_holes.append(MountingHole(pos, diameter, keepout_radius=diameter + 2.0))
 
     # Extract zones (copper zones for placement constraints)
-    zones: List[Zone] = []
+    zones: list[Zone] = []
     for zone in ki_board.zones:
         # Handle kiutils API change: layerName (older) vs layers (1.4.8+)
         zone_layers = getattr(zone, "layers", None) or getattr(zone, "layerName", None)
@@ -238,9 +236,9 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: List[str]) -> Board:
 
 def _extract_components_from_pcb(
     ki_board: KiBoard,
-    warnings: List[str],
-    board_origin: Tuple[float, float] = (0.0, 0.0),
-) -> List[Component]:
+    warnings: list[str],
+    board_origin: tuple[float, float] = (0.0, 0.0),
+) -> list[Component]:
     """
     Extract components from KiCad board footprints.
 
@@ -253,7 +251,7 @@ def _extract_components_from_pcb(
     Returns:
         List of Component objects with origin-relative positions.
     """
-    components: List[Component] = []
+    components: list[Component] = []
     origin_x, origin_y = board_origin
 
     for fp in ki_board.footprints:
@@ -293,7 +291,7 @@ def _extract_components_from_pcb(
                 )
 
         # Extract pins from pads
-        pins: List[Pin] = []
+        pins: list[Pin] = []
         for pad in fp.pads:
             pad_pos = (pad.position.X, pad.position.Y) if pad.position else (0.0, 0.0)
             pin = Pin(
@@ -351,15 +349,15 @@ def _extract_components_from_pcb(
 
 
 def _extract_nets_from_pcb(
-    ki_board: KiBoard, components: List[Component], warnings: List[str]
-) -> List[Net]:
+    ki_board: KiBoard, components: list[Component], warnings: list[str]
+) -> list[Net]:
     """Extract nets from KiCad board."""
 
     # Build component lookup
     comp_by_ref = {c.ref: c for c in components}
 
     # Collect nets from pads
-    nets_dict: Dict[str, List[Tuple[str, str]]] = {}
+    nets_dict: dict[str, list[tuple[str, str]]] = {}
 
     for fp in ki_board.footprints:
         ref = _get_footprint_reference(fp)
@@ -374,7 +372,7 @@ def _extract_nets_from_pcb(
                 nets_dict[net_name].append((ref, pad.number or ""))
 
     # Create Net objects
-    nets: List[Net] = []
+    nets: list[Net] = []
     for net_name, pins in nets_dict.items():
         if len(pins) < 2:
             continue  # Skip single-pin nets (unconnected)
@@ -382,9 +380,7 @@ def _extract_nets_from_pcb(
         # Determine net class
         net_class = "Signal"
         upper_name = net_name.upper()
-        if "GND" in upper_name or "VSS" in upper_name:
-            net_class = "Power"
-        elif (
+        if "GND" in upper_name or "VSS" in upper_name or (
             "VCC" in upper_name
             or "VDD" in upper_name
             or "+3V3" in upper_name
@@ -408,14 +404,13 @@ def _extract_nets_from_pcb(
     return nets
 
 
-def _extract_traces_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[TraceData]:
+def _extract_traces_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[TraceData]:
     """Extract trace segments from KiCad board."""
-    import math
 
-    traces: List[TraceData] = []
+    traces: list[TraceData] = []
 
     # Build net name lookup from board nets
-    net_names: Dict[int, str] = {}
+    net_names: dict[int, str] = {}
     for net in getattr(ki_board, "nets", []):
         if hasattr(net, "number") and hasattr(net, "name"):
             net_names[net.number] = net.name
@@ -471,11 +466,11 @@ def _extract_traces_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[Tra
     return traces
 
 
-def _extract_pads_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[PadData]:
+def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadData]:
     """Extract pads from KiCad board footprints with absolute coordinates."""
     import math
 
-    pads: List[PadData] = []
+    pads: list[PadData] = []
 
     for fp in ki_board.footprints:
         ref = _get_footprint_reference(fp)
@@ -564,9 +559,9 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: List[str]) -> List[PadDa
 def _parse_schematic_sheet(
     schematic: Schematic,
     base_path: Path,
-    all_components: List[Component],
-    all_nets: Dict[str, Net],
-    warnings: List[str],
+    all_components: list[Component],
+    all_nets: dict[str, Net],
+    warnings: list[str],
     recursive: bool = True,
     sheet_prefix: str = "",
 ) -> None:
@@ -594,7 +589,7 @@ def _parse_schematic_sheet(
         full_ref = f"{sheet_prefix}{ref}" if sheet_prefix else ref
 
         # Get pins from symbol (need to map to footprint later)
-        pins: List[Pin] = []
+        pins: list[Pin] = []
         for pin in getattr(symbol, "pins", []):
             pin_name = getattr(pin, "name", "") or str(len(pins) + 1)
             pin_num = getattr(pin, "number", "") or pin_name
@@ -678,7 +673,7 @@ def _parse_schematic_sheet(
                     warnings.append(f"Sub-sheet file not found: {sub_path}")
 
 
-def _get_footprint_reference(fp: Footprint) -> Optional[str]:
+def _get_footprint_reference(fp: Footprint) -> str | None:
     """Extract reference designator from footprint."""
     # In kiutils, properties is a dict with key 'Reference'
     props = getattr(fp, "properties", {})
@@ -701,7 +696,7 @@ def _get_footprint_reference(fp: Footprint) -> Optional[str]:
     return None
 
 
-def _get_footprint_bounds(fp: Footprint) -> Tuple[float, float]:
+def _get_footprint_bounds(fp: Footprint) -> tuple[float, float]:
     """Get footprint bounding box from courtyard or pads."""
 
     x_min, y_min = float("inf"), float("inf")

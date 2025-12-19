@@ -13,8 +13,6 @@ The implementation uses:
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
 import jax
 import jax.numpy as jnp
 from jax import Array

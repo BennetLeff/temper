@@ -15,7 +15,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Optional, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -25,7 +24,6 @@ from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.overlap import (
     compute_pairwise_distances,
-    count_overlaps,
 )
 from temper_placer.geometry.transform import get_rotated_bounds
 from temper_placer.validation.base import (
@@ -113,7 +111,7 @@ class GeometricValidator(Validator):
             ValidationResult with any violations found.
         """
         start_time = time.time()
-        issues: List[ValidationIssue] = []
+        issues: list[ValidationIssue] = []
         metrics: dict = {}
 
         # Extract component data
@@ -188,7 +186,7 @@ class GeometricValidator(Validator):
         widths: Array,
         heights: Array,
         netlist: Netlist,
-    ) -> Tuple[List[GeometricViolation], int, float]:
+    ) -> tuple[list[GeometricViolation], int, float]:
         """Check for component overlaps."""
         issues = []
 
@@ -248,7 +246,7 @@ class GeometricValidator(Validator):
         heights: Array,
         netlist: Netlist,
         board: Board,
-    ) -> Tuple[List[GeometricViolation], int]:
+    ) -> tuple[list[GeometricViolation], int]:
         """Check for components outside board boundaries."""
         issues = []
         violation_count = 0
@@ -328,7 +326,7 @@ class GeometricValidator(Validator):
         widths: Array,
         heights: Array,
         netlist: Netlist,
-    ) -> Tuple[List[GeometricViolation], int]:
+    ) -> tuple[list[GeometricViolation], int]:
         """Check for HV-LV clearance violations."""
         issues = []
         violation_count = 0
@@ -401,7 +399,7 @@ class GeometricValidator(Validator):
         positions: Array,
         netlist: Netlist,
         board: Board,
-    ) -> Tuple[List[GeometricViolation], int]:
+    ) -> tuple[list[GeometricViolation], int]:
         """Check for components in wrong zones."""
         issues = []
         violation_count = 0
@@ -467,7 +465,7 @@ class GeometricValidator(Validator):
         heights: Array,
         netlist: Netlist,
         board: Board,
-    ) -> Tuple[List[GeometricViolation], int]:
+    ) -> tuple[list[GeometricViolation], int]:
         """Check for components in keepout regions or too close to mounting holes."""
         issues = []
         violation_count = 0

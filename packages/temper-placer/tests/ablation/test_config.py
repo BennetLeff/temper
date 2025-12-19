@@ -1,13 +1,14 @@
 """Tests for ablation study configuration dataclasses."""
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from temper_placer.ablation.config import (
-    ComponentToggle,
-    LossToggle,
-    ExperimentConfig,
     AblationStudyConfig,
-    HyperparameterOverrides,
+    ComponentToggle,
+    ExperimentConfig,
+    LossToggle,
 )
 
 

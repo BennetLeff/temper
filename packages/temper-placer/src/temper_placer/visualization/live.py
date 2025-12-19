@@ -35,9 +35,9 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -48,7 +48,6 @@ from .model import (
     LossDataPoint,
     LossHistory,
     Point,
-    Rectangle,
     Violation,
     ViolationType,
     VisualizationState,
@@ -58,7 +57,6 @@ from .server import (
     WEBSOCKETS_AVAILABLE,
     LiveServer,
     MockLiveServer,
-    create_server,
 )
 
 logger = logging.getLogger(__name__)
@@ -127,9 +125,9 @@ class LiveVisualizer:
         log_interval: int = 100,
         headless: bool = False,
         verbose: bool = True,
-        on_pause: Optional[Callable[[], None]] = None,
-        on_resume: Optional[Callable[[], None]] = None,
-        on_step: Optional[Callable[[int], None]] = None,
+        on_pause: Callable[[], None] | None = None,
+        on_resume: Callable[[], None] | None = None,
+        on_step: Callable[[int], None] | None = None,
     ):
         """
         Initialize the LiveVisualizer.
@@ -162,11 +160,11 @@ class LiveVisualizer:
         self._on_step = on_step
 
         # Server (created on start)
-        self._server: Optional[Union[LiveServer, MockLiveServer]] = None
+        self._server: LiveServer | MockLiveServer | None = None
 
         # State
         self._loss_history = LossHistory()
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
         self._is_running = False
         self._last_log_epoch = -1
 
@@ -282,14 +280,14 @@ class LiveVisualizer:
         rotations: np.ndarray,
         widths: np.ndarray,
         heights: np.ndarray,
-        refs: List[str],
+        refs: list[str],
         board_width: float,
         board_height: float,
-        losses: Dict[str, float],
+        losses: dict[str, float],
         epoch: int,
-        zones: Optional[List[Dict[str, Any]]] = None,
-        component_types: Optional[List[str]] = None,
-        component_groups: Optional[List[str]] = None,
+        zones: list[dict[str, Any]] | None = None,
+        component_types: list[str] | None = None,
+        component_groups: list[str] | None = None,
     ) -> None:
         """
         Send an update to the visualization.
@@ -369,9 +367,9 @@ class LiveVisualizer:
         self,
         positions: np.ndarray,
         rotations: np.ndarray,
-        component_info: Dict[str, Any],
-        board_info: Dict[str, float],
-        loss_info: Dict[str, float],
+        component_info: dict[str, Any],
+        board_info: dict[str, float],
+        loss_info: dict[str, float],
         epoch: int,
     ) -> None:
         """
@@ -408,12 +406,12 @@ class LiveVisualizer:
         rotations: np.ndarray,
         widths: np.ndarray,
         heights: np.ndarray,
-        refs: List[str],
+        refs: list[str],
         board_width: float,
         board_height: float,
-        zones: Optional[List[Dict[str, Any]]] = None,
-        component_types: Optional[List[str]] = None,
-        component_groups: Optional[List[str]] = None,
+        zones: list[dict[str, Any]] | None = None,
+        component_types: list[str] | None = None,
+        component_groups: list[str] | None = None,
     ) -> BoardView:
         """Build a BoardView from raw arrays."""
         # Handle different position formats
@@ -445,7 +443,7 @@ class LiveVisualizer:
 
         # Build zone views
         # ZoneView expects polygon: Tuple[Point, ...], we convert from rect bounds
-        zone_views: List[ZoneView] = []
+        zone_views: list[ZoneView] = []
         if zones:
             for zone in zones:
                 # Convert rectangular bounds to polygon points
@@ -480,10 +478,10 @@ class LiveVisualizer:
         heights: np.ndarray,
         board_width: float,
         board_height: float,
-        losses: Dict[str, float],
+        losses: dict[str, float],
     ) -> ConstraintStatus:
         """Detect constraint violations from loss values."""
-        violations: List[Violation] = []
+        violations: list[Violation] = []
 
         # Count violations based on loss thresholds
         overlap_count = 0
@@ -538,7 +536,7 @@ class LiveVisualizer:
         board: BoardView,
         epoch: int,
         is_training: bool,
-        constraints: Optional[ConstraintStatus] = None,
+        constraints: ConstraintStatus | None = None,
     ) -> VisualizationState:
         """Create a visualization state object."""
         elapsed = time.time() - self._start_time if self._start_time else 0.0

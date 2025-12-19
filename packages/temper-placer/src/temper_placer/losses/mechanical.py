@@ -1,8 +1,8 @@
-from typing import List, Optional, Tuple, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext, MountingRule
-from temper_placer.core.board import Board
+
+from temper_placer.losses.base import LossContext, LossFunction, LossResult, MountingRule
 
 
 @dataclass
@@ -40,7 +40,7 @@ class MechanicalMountingLoss(LossFunction):
     - Accessibility
     """
 
-    def __init__(self, rules: List[ResolvedMountingRule]):
+    def __init__(self, rules: list[ResolvedMountingRule]):
         self.rules = rules
 
     @property
@@ -128,7 +128,7 @@ class MechanicalMountingLoss(LossFunction):
 
 def create_mechanical_loss(
     netlist,
-    mounting_rules: List[MountingRule],
+    mounting_rules: list[MountingRule],
 ) -> MechanicalMountingLoss:
     """
     Factory to resolve component references to indices and create loss.

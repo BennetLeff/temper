@@ -8,7 +8,6 @@ provides a strong global starting point for gradient-based refinement.
 
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
 from jax import Array
 

@@ -6,28 +6,29 @@ is not installed.
 """
 
 import json
+
 import pytest
 
+from temper_placer.visualization.board_renderer import (
+    PLOTLY_AVAILABLE,
+    STATUS_COLORS,
+    ZONE_COLORS,
+    create_component_annotations,
+    create_component_hover_data,
+    get_component_shape,
+    get_rectangle_shape,
+    get_zone_shape,
+)
 from temper_placer.visualization.model import (
     BoardView,
-    ComponentView,
     ComponentStatus,
+    ComponentView,
     ConstraintStatus,
     Point,
     Violation,
     ViolationType,
     ZoneView,
     create_board_view_from_state,
-)
-from temper_placer.visualization.board_renderer import (
-    PLOTLY_AVAILABLE,
-    STATUS_COLORS,
-    ZONE_COLORS,
-    get_rectangle_shape,
-    get_component_shape,
-    get_zone_shape,
-    create_component_annotations,
-    create_component_hover_data,
 )
 
 # Skip all tests in this module if Plotly is not available

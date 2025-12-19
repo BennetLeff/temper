@@ -1,15 +1,11 @@
 """Tests for core.board module."""
 
-import pytest
-import jax.numpy as jnp
 
 from temper_placer.core.board import (
-    Board,
-    Zone,
-    Layer,
+    GroundDomain,
     LayerStackup,
     MountingHole,
-    GroundDomain,
+    Zone,
 )
 
 

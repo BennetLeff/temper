@@ -22,13 +22,13 @@ Usage:
 """
 
 import json
+import os
 import subprocess
 import sys
-import os
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 # Configurable thresholds via environment variables
 ECO_MIN_SCORE = float(os.environ.get("ECO_MIN_SCORE", "0.6"))
@@ -50,27 +50,27 @@ class GatherContext:
 
     goal: str
     timestamp: str
-    domain: Optional[str] = None
-    role: Optional[str] = None
+    domain: str | None = None
+    role: str | None = None
 
     # Eco memories
-    eco_legacy: List[Dict] = field(default_factory=list)
-    eco_shared: List[Dict] = field(default_factory=list)
-    eco_role: List[Dict] = field(default_factory=list)
-    eco_domain: List[Dict] = field(default_factory=list)
+    eco_legacy: list[dict] = field(default_factory=list)
+    eco_shared: list[dict] = field(default_factory=list)
+    eco_role: list[dict] = field(default_factory=list)
+    eco_domain: list[dict] = field(default_factory=list)
 
     # Requirements
-    related_requirements: List[Dict] = field(default_factory=list)
-    unverified_requirements: List[Dict] = field(default_factory=list)
+    related_requirements: list[dict] = field(default_factory=list)
+    unverified_requirements: list[dict] = field(default_factory=list)
 
     # bd issues
-    related_issues: List[Dict] = field(default_factory=list)
-    blocking_issues: List[Dict] = field(default_factory=list)
+    related_issues: list[dict] = field(default_factory=list)
+    blocking_issues: list[dict] = field(default_factory=list)
 
     # Codebase
-    relevant_files: List[str] = field(default_factory=list)
+    relevant_files: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "goal": self.goal,
@@ -248,7 +248,7 @@ class GatherContext:
 class GatherPhase:
     """GATHER phase implementation."""
 
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or self._find_project_root()
         self.eco_client = EcoClient()
         self.req_parser = RequirementsParser(self.project_root)
@@ -263,8 +263,8 @@ class GatherPhase:
         return cwd
 
     def _search_eco(
-        self, goal: str, role: Optional[str] = None, domain: Optional[str] = None
-    ) -> Dict[str, List[Dict]]:
+        self, goal: str, role: str | None = None, domain: str | None = None
+    ) -> dict[str, list[dict]]:
         """Search Eco for relevant memories.
 
         Uses ECO_MIN_SCORE and ECO_LIMIT environment variables for configuration.
@@ -314,8 +314,8 @@ class GatherPhase:
         return result
 
     def _search_requirements(
-        self, goal: str, domain: Optional[str] = None
-    ) -> Dict[str, List[Dict]]:
+        self, goal: str, domain: str | None = None
+    ) -> dict[str, list[dict]]:
         """Search requirements related to goal."""
         result = {
             "related": [],
@@ -348,8 +348,8 @@ class GatherPhase:
         return result
 
     def _search_issues(
-        self, goal: str, domain: Optional[str] = None
-    ) -> Dict[str, List[Dict]]:
+        self, goal: str, domain: str | None = None
+    ) -> dict[str, list[dict]]:
         """Search bd issues related to goal."""
         result = {
             "related": [],
@@ -383,7 +383,7 @@ class GatherPhase:
                 # Check domain label
                 labels = issue.get("labels", [])
                 domain_match = domain and any(
-                    f"domain:{domain}" in l.lower() for l in labels
+                    f"domain:{domain}" in label.lower() for label in labels
                 )
 
                 if matches >= 2 or domain_match:
@@ -402,8 +402,8 @@ class GatherPhase:
         return result
 
     def _find_relevant_files(
-        self, goal: str, domain: Optional[str] = None
-    ) -> List[str]:
+        self, goal: str, domain: str | None = None
+    ) -> list[str]:
         """Find potentially relevant files based on goal and domain."""
         files = []
 
@@ -445,7 +445,7 @@ class GatherPhase:
         return files[:20]
 
     def gather(
-        self, goal: str, domain: Optional[str] = None, role: Optional[str] = None
+        self, goal: str, domain: str | None = None, role: str | None = None
     ) -> GatherContext:
         """Gather context for a goal.
 
@@ -493,13 +493,13 @@ def main():
 Examples:
   # Gather context for a goal
   python gather.py --goal "Implement PID improvements"
-  
+
   # Gather with domain and role
   python gather.py --goal "Fix boundary loss" --domain placer --role architect
-  
+
   # Output to file
   python gather.py --goal "Add new safety check" --domain firmware --output context.md
-  
+
   # Output as JSON
   python gather.py --goal "Optimize heuristics" --json
 """,

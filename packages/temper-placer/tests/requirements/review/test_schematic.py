@@ -5,37 +5,25 @@ These tests verify that schematic validation functions correctly identify
 design rule violations per the Temper PCB design requirements.
 """
 
+
 import pytest
-from pathlib import Path
-from typing import List
 
 from tests.requirements.validators.schematic import (
     ComponentSpec,
     NetInfo,
-    SchematicViolation,
-    SchematicReviewResult,
-    check_power_supply_voltages,
-    check_decoupling_present,
     check_bulk_capacitors,
-    check_power_sequencing,
-    check_current_voltage_ratings,
     check_component_part_numbers,
-    check_footprints_assigned,
-    check_temperature_ratings,
-    check_obsolete_parts,
-    check_net_naming_convention,
+    check_current_voltage_ratings,
+    check_decoupling_present,
     check_duplicate_net_names,
-    check_hierarchical_connections,
-    check_global_labels,
-    check_safety_circuit_values,
-    check_ocp_circuit,
-    check_ovp_circuit,
-    check_thermal_shutdown,
+    check_footprints_assigned,
     check_gate_driver_enable,
+    check_net_naming_convention,
+    check_ocp_circuit,
+    check_power_supply_voltages,
+    check_temperature_ratings,
     check_watchdog_timer,
-    check_fault_latch,
 )
-
 
 # =============================================================================
 # Fixtures

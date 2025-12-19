@@ -1,13 +1,14 @@
 """Tests for visualization/status.py - constraint status panel rendering."""
 
 import json
+
 import pytest
 
 from temper_placer.visualization.model import (
     ConstraintStatus,
+    Point,
     Violation,
     ViolationType,
-    Point,
 )
 
 # Check if Plotly is available

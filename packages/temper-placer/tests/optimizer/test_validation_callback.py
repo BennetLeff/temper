@@ -5,9 +5,8 @@ Tests the ValidationCallback class and related functionality for
 integrating DRC validation into the training loop.
 """
 
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import jax.numpy as jnp
 import pytest

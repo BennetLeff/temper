@@ -1,9 +1,8 @@
-from typing import List, Tuple, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext, MountingRule
-from temper_placer.core.board import Board
-import pytest
+
+from temper_placer.losses.base import LossContext, MountingRule
 
 
 @dataclass
@@ -33,8 +32,8 @@ class MockNetlist:
 try:
     from temper_placer.losses.mechanical import (
         MechanicalMountingLoss,
-        create_mechanical_loss,
         ResolvedMountingRule,
+        create_mechanical_loss,
     )
 except ImportError:
     pass

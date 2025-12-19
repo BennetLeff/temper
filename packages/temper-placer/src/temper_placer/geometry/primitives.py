@@ -11,11 +11,10 @@ All functions are designed to be compatible with jax.jit and jax.grad
 for use in differentiable optimization.
 """
 
-import jax.numpy as jnp
-import jax.nn
-from jax import Array
-from typing import Tuple
 
+import jax.nn
+import jax.numpy as jnp
+from jax import Array
 
 # =============================================================================
 # Point Operations
@@ -121,7 +120,7 @@ def point_to_line_distance(point: Array, line_start: Array, line_end: Array) -> 
 # =============================================================================
 
 
-def rect_from_center(center: Array, width: float, height: float) -> Tuple[Array, Array]:
+def rect_from_center(center: Array, width: float, height: float) -> tuple[Array, Array]:
     """
     Create rectangle corners from center point and dimensions.
 
@@ -154,7 +153,7 @@ def rect_center(min_corner: Array, max_corner: Array) -> Array:
     return (min_corner + max_corner) / 2.0
 
 
-def rect_dimensions(min_corner: Array, max_corner: Array) -> Tuple[Array, Array]:
+def rect_dimensions(min_corner: Array, max_corner: Array) -> tuple[Array, Array]:
     """
     Compute dimensions of rectangle from corners.
 
@@ -241,7 +240,7 @@ def rect_corners(center: Array, width: float, height: float) -> Array:
 # =============================================================================
 
 
-def aabb_from_points(points: Array) -> Tuple[Array, Array]:
+def aabb_from_points(points: Array) -> tuple[Array, Array]:
     """
     Compute axis-aligned bounding box for a set of points.
 
@@ -296,7 +295,7 @@ def aabb_overlap_area(min1: Array, max1: Array, min2: Array, max2: Array) -> Arr
     return overlap_x * overlap_y
 
 
-def aabb_union(min1: Array, max1: Array, min2: Array, max2: Array) -> Tuple[Array, Array]:
+def aabb_union(min1: Array, max1: Array, min2: Array, max2: Array) -> tuple[Array, Array]:
     """
     Compute union bounding box of two AABBs.
 
@@ -312,7 +311,7 @@ def aabb_union(min1: Array, max1: Array, min2: Array, max2: Array) -> Tuple[Arra
     return min_corner, max_corner
 
 
-def aabb_expand(min_corner: Array, max_corner: Array, margin: float) -> Tuple[Array, Array]:
+def aabb_expand(min_corner: Array, max_corner: Array, margin: float) -> tuple[Array, Array]:
     """
     Expand an AABB by a margin in all directions.
 

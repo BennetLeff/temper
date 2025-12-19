@@ -14,8 +14,8 @@ manufacturing-ready placements that conform to design rules.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
@@ -58,7 +58,7 @@ class PostProcessResult:
     rotations_refined: bool
     overlaps_resolved: int  # Number of overlaps fixed
     legalized: bool = False
-    final_loss: Optional[float] = None
+    final_loss: float | None = None
 
 
 def snap_to_grid(
@@ -90,9 +90,9 @@ def snap_to_grid(
 def snap_to_grid_with_overlap_check(
     state: PlacementState,
     grid_size: float = DEFAULT_GRID_SIZE,
-    component_sizes: Optional[Array] = None,
-    check_overlap_fn: Optional[Callable] = None,
-) -> Tuple[PlacementState, int]:
+    component_sizes: Array | None = None,
+    check_overlap_fn: Callable | None = None,
+) -> tuple[PlacementState, int]:
     """
     Snap to grid while trying to avoid introducing overlaps.
 
@@ -214,8 +214,8 @@ def set_rotation_index(
 def discrete_rotation_refinement_greedy(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
-    fixed_components: Optional[List[int]] = None,
-) -> Tuple[PlacementState, float]:
+    fixed_components: list[int] | None = None,
+) -> tuple[PlacementState, float]:
     """
     Refine rotations by trying all options for each component (greedy).
 
@@ -276,8 +276,8 @@ def discrete_rotation_refinement_beam(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
     beam_width: int = 3,
-    fixed_components: Optional[List[int]] = None,
-) -> Tuple[PlacementState, float]:
+    fixed_components: list[int] | None = None,
+) -> tuple[PlacementState, float]:
     """
     Refine rotations using beam search over all combinations.
 
@@ -299,7 +299,7 @@ def discrete_rotation_refinement_beam(
     n_components = state.n_components
 
     # Initialize beam with current state
-    beam: List[Tuple[PlacementState, float]] = [(state, loss_fn(state))]
+    beam: list[tuple[PlacementState, float]] = [(state, loss_fn(state))]
 
     logger.debug(f"Starting beam search rotation refinement, beam_width={beam_width}")
 
@@ -308,7 +308,7 @@ def discrete_rotation_refinement_beam(
             continue
 
         # Expand each candidate in beam
-        candidates: List[Tuple[PlacementState, float]] = []
+        candidates: list[tuple[PlacementState, float]] = []
 
         for current_state, _ in beam:
             for rot_idx in range(4):
@@ -334,13 +334,13 @@ def discrete_rotation_refinement_sa(
     iterations: int = 200,
     initial_temp: float = 1.0,
     cooling_rate: float = 0.95,
-    fixed_components: Optional[List[int]] = None,
+    fixed_components: list[int] | None = None,
     seed: int = 42,
     allow_swaps: bool = True,
     allow_jiggles: bool = True,
     grid_size: float = 0.5,
-    netlist: Optional[Netlist] = None,
-) -> Tuple[PlacementState, float]:
+    netlist: Netlist | None = None,
+) -> tuple[PlacementState, float]:
     """
     Refine placement using Simulated Annealing (SA) with micro-moves.
 
@@ -386,7 +386,7 @@ def discrete_rotation_refinement_sa(
         move_types = [0]
         if allow_jiggles: move_types.append(1)
         if allow_swaps and swap_groups: move_types.append(2)
-        
+
         move_type = int(jax.random.choice(move_key, jnp.array(move_types)))
         test_state = current_state
 
@@ -395,21 +395,21 @@ def discrete_rotation_refinement_sa(
             comp_idx = int(jax.random.choice(comp_key, jnp.array(movable)))
             new_rot = int(jax.random.randint(val_key, (), 0, 4))
             test_state = set_rotation_index(current_state, comp_idx, new_rot)
-        
+
         elif move_type == 1:
             # Jiggle
             comp_idx = int(jax.random.choice(comp_key, jnp.array(movable)))
             offset = jax.random.randint(val_key, (2,), -1, 2) * grid_size
             new_pos = current_state.positions.at[comp_idx].add(offset)
             test_state = PlacementState(new_pos, current_state.rotation_logits)
-            
+
         elif move_type == 2:
             # Swap
             group_idx = int(jax.random.randint(comp_key, (), 0, len(swap_groups)))
             indices = jnp.array(swap_groups[group_idx])
             pair = jax.random.choice(val_key, indices, (2,), replace=False)
             idx1, idx2 = int(pair[0]), int(pair[1])
-            
+
             new_pos = current_state.positions
             pos1, pos2 = new_pos[idx1], new_pos[idx2]
             new_pos = new_pos.at[idx1].set(pos2).at[idx2].set(pos1)
@@ -441,12 +441,12 @@ def discrete_rotation_refinement(
     sa_iterations: int = 200,
     sa_initial_temp: float = 1.0,
     sa_cooling_rate: float = 0.95,
-    fixed_components: Optional[List[int]] = None,
+    fixed_components: list[int] | None = None,
     allow_swaps: bool = True,
     allow_jiggles: bool = True,
     grid_size: float = 0.5,
-    netlist: Optional[Netlist] = None,
-) -> Tuple[PlacementState, float]:
+    netlist: Netlist | None = None,
+) -> tuple[PlacementState, float]:
     """
     Refine rotations to discrete values after continuous optimization.
 
@@ -494,11 +494,11 @@ def discrete_rotation_refinement(
 def postprocess(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
-    config: Optional[PostProcessConfig] = None,
-    component_sizes: Optional[Array] = None,
-    fixed_components: Optional[List[int]] = None,
-    context: Optional[LossContext] = None,
-    netlist: Optional[Netlist] = None,
+    config: PostProcessConfig | None = None,
+    component_sizes: Array | None = None,
+    fixed_components: list[int] | None = None,
+    context: LossContext | None = None,
+    netlist: Netlist | None = None,
 ) -> PostProcessResult:
     """
     Run full post-processing pipeline on optimized placement.
@@ -582,8 +582,8 @@ def finalize_placement(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
     grid_size: float = DEFAULT_GRID_SIZE,
-    fixed_components: Optional[List[int]] = None,
-) -> Tuple[Array, Array, float]:
+    fixed_components: list[int] | None = None,
+) -> tuple[Array, Array, float]:
     """
     Convenience function to get final positions and rotation indices.
 

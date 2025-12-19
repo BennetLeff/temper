@@ -8,13 +8,10 @@ the L2 displacement required to legalize the board.
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import jax
 import jax.numpy as jnp
-import numpy as np
-
 from temper_placer.core.state import PlacementState
 from temper_placer.io.config_loader import (
     create_board_from_constraints,

@@ -1,12 +1,11 @@
 import jax.numpy as jnp
-import pytest
+
+from temper_placer.losses.base import LossContext
 from temper_placer.losses.net_class import (
     NetClassRule,
-    NetClassSeparationLoss,
     ResolvedNetClassSeparationLoss,
     create_net_class_loss,
 )
-from temper_placer.losses.base import LossContext
 
 
 class MockComponent:

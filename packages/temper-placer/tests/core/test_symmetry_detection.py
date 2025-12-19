@@ -1,8 +1,10 @@
 
-import pytest
 import jax.numpy as jnp
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+import pytest
+
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.losses.grouping import SymmetryLoss, find_isomorphic_pairs
+
 
 def test_symmetry_detection_rc_channels():
     """Verify that identical RC channels are detected as isomorphic."""
@@ -18,14 +20,14 @@ def test_symmetry_detection_rc_channels():
         Net(name="N2", pins=[("R2", "1"), ("C2", "1")]),
     ]
     netlist = Netlist(components=components, nets=nets)
-    
+
     # 1. Component grouping
     groups = netlist.find_isomorphic_groups()
     # Expect 2 groups: [R1, R2] and [C1, C2]
     assert len(groups) == 2
     for g in groups:
         assert len(g) == 2
-        
+
     # 2. Pair matching
     pairs = find_isomorphic_pairs(netlist)
     # Should find 1 set of isomorphic edges: (R1-C1) and (R2-C2)
@@ -42,7 +44,7 @@ def test_symmetry_loss_values():
     # Pairs: (0,1) and (2,3)
     pairs = [(0, 1, 2, 3)]
     loss_fn = SymmetryLoss(pairs)
-    
+
     # 1. Perfectly symmetric
     # Vector (0->1) = [10, 0]
     # Vector (2->3) = [10, 0]
@@ -52,7 +54,7 @@ def test_symmetry_loss_values():
     ])
     res_sym = loss_fn(pos_sym, None, None)
     assert float(res_sym.value) == pytest.approx(0.0)
-    
+
     # 2. Asymmetric
     # Vector (0->1) = [10, 0]
     # Vector (2->3) = [5, 5]

@@ -16,11 +16,11 @@ Expected behavior:
 """
 
 from pathlib import Path
+
 import pytest
 
 # Import parser
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-
 
 # Test fixtures directory
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

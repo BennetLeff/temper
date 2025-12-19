@@ -2,15 +2,15 @@
 Pytest configuration and shared fixtures for temper-placer tests.
 """
 
-import pytest
-import jax
-import jax.numpy as jnp
 from pathlib import Path
 
+import jax
+import pytest
+
+from temper_placer.core.board import Board, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
-from temper_placer.core.board import Board, Zone, LayerStackup
-from temper_placer.io.footprint_library import load_footprint_library, FootprintLibrary
+from temper_placer.io.footprint_library import load_footprint_library
 
 
 @pytest.fixture

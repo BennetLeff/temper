@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Sequence, Tuple, cast
+from typing import Any, cast
 
 
 class ComponentStatus(Enum):
@@ -45,11 +45,11 @@ class Point:
     x: float
     y: float
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y}
 
     @classmethod
-    def from_tuple(cls, t: Tuple[float, float]) -> "Point":
+    def from_tuple(cls, t: tuple[float, float]) -> Point:
         return cls(x=t[0], y=t[1])
 
 
@@ -62,7 +62,7 @@ class Rectangle:
     height: float
     rotation: float = 0.0  # Degrees
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "center": self.center.to_dict(),
             "width": self.width,
@@ -71,7 +71,7 @@ class Rectangle:
         }
 
     @property
-    def corners(self) -> List[Point]:
+    def corners(self) -> list[Point]:
         """Get the four corners of the rectangle (for rendering)."""
         import math
 
@@ -117,12 +117,12 @@ class ComponentView:
     width: float
     height: float
     status: ComponentStatus = ComponentStatus.OK
-    zone: Optional[str] = None
-    footprint: Optional[str] = None
-    value: Optional[str] = None
-    violations: Tuple[str, ...] = ()
+    zone: str | None = None
+    footprint: str | None = None
+    value: str | None = None
+    violations: tuple[str, ...] = ()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "ref": self.ref,
             "position": self.position.to_dict(),
@@ -160,11 +160,11 @@ class ZoneView:
     """
 
     name: str
-    polygon: Tuple[Point, ...]
+    polygon: tuple[Point, ...]
     zone_type: str = "generic"
-    color: Optional[str] = None
+    color: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "polygon": [p.to_dict() for p in self.polygon],
@@ -190,9 +190,9 @@ class TraceView:
     end: Point
     width: float = 0.25
     layer: str = "F.Cu"
-    net: Optional[str] = None
+    net: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "start": self.start.to_dict(),
             "end": self.end.to_dict(),
@@ -219,15 +219,15 @@ class PadView:
     """
 
     position: Point
-    size: Tuple[float, float]
+    size: tuple[float, float]
     shape: str = "rect"
     rotation: float = 0.0
     layer: str = "F.Cu"
     number: str = ""
-    net: Optional[str] = None
-    component_ref: Optional[str] = None
+    net: str | None = None
+    component_ref: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "position": self.position.to_dict(),
             "size": list(self.size),
@@ -258,14 +258,14 @@ class BoardView:
 
     width: float
     height: float
-    components: Tuple[ComponentView, ...] = ()
-    zones: Tuple[ZoneView, ...] = ()
-    traces: Tuple[TraceView, ...] = ()
-    pads: Tuple[PadView, ...] = ()
+    components: tuple[ComponentView, ...] = ()
+    zones: tuple[ZoneView, ...] = ()
+    traces: tuple[TraceView, ...] = ()
+    pads: tuple[PadView, ...] = ()
     origin: Point = field(default_factory=lambda: Point(0.0, 0.0))
-    title: Optional[str] = None
+    title: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "width": self.width,
             "height": self.height,
@@ -287,11 +287,11 @@ class LossDataPoint:
 
     epoch: int
     total_loss: float
-    breakdown: Dict[str, float] = field(default_factory=dict)
-    temperature: Optional[float] = None
-    learning_rate: Optional[float] = None
+    breakdown: dict[str, float] = field(default_factory=dict)
+    temperature: float | None = None
+    learning_rate: float | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "epoch": self.epoch,
             "total_loss": self.total_loss,
@@ -314,15 +314,15 @@ class LossHistory:
         phase_names: Names of curriculum phases.
     """
 
-    data_points: List[LossDataPoint] = field(default_factory=list)
-    phase_boundaries: List[int] = field(default_factory=list)
-    phase_names: List[str] = field(default_factory=list)
+    data_points: list[LossDataPoint] = field(default_factory=list)
+    phase_boundaries: list[int] = field(default_factory=list)
+    phase_names: list[str] = field(default_factory=list)
 
     def add_point(self, point: LossDataPoint):
         """Add a new data point."""
         self.data_points.append(point)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "data_points": [p.to_dict() for p in self.data_points],
             "phase_boundaries": self.phase_boundaries,
@@ -333,21 +333,21 @@ class LossHistory:
         return json.dumps(self.to_dict())
 
     @property
-    def epochs(self) -> List[int]:
+    def epochs(self) -> list[int]:
         """Get list of epoch numbers."""
         return [p.epoch for p in self.data_points]
 
     @property
-    def losses(self) -> List[float]:
+    def losses(self) -> list[float]:
         """Get list of total losses."""
         return [p.total_loss for p in self.data_points]
 
-    def get_term_history(self, term_name: str) -> List[float]:
+    def get_term_history(self, term_name: str) -> list[float]:
         """Get history for a specific loss term."""
         return [p.breakdown.get(term_name, 0.0) for p in self.data_points]
 
     @property
-    def loss_terms(self) -> List[str]:
+    def loss_terms(self) -> list[str]:
         """Get names of all loss terms."""
         if not self.data_points:
             return []
@@ -369,11 +369,11 @@ class Violation:
 
     violation_type: ViolationType
     severity: float
-    component_refs: Tuple[str, ...] = ()
+    component_refs: tuple[str, ...] = ()
     message: str = ""
-    location: Optional[Point] = None
+    location: Point | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": self.violation_type.value,
             "severity": self.severity,
@@ -397,14 +397,14 @@ class ConstraintStatus:
         drc_errors: Number of DRC errors (if DRC validation enabled).
     """
 
-    violations: Tuple[Violation, ...] = ()
+    violations: tuple[Violation, ...] = ()
     overlap_count: int = 0
     boundary_violations: int = 0
     clearance_violations: int = 0
     thermal_warnings: int = 0
     drc_errors: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "violations": [v.to_dict() for v in self.violations],
             "summary": {
@@ -450,7 +450,7 @@ class VisualizationState:
     elapsed_seconds: float = 0.0
     is_training: bool = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "board": self.board.to_dict(),
             "loss_history": self.loss_history.to_dict(),
@@ -469,12 +469,12 @@ class VisualizationState:
 
 def create_component_view(
     ref: str,
-    position: Tuple[float, float],
+    position: tuple[float, float],
     rotation_degrees: float,
-    bounds: Tuple[float, float],
-    footprint: Optional[str] = None,
+    bounds: tuple[float, float],
+    footprint: str | None = None,
     status: ComponentStatus = ComponentStatus.OK,
-    violations: Optional[List[str]] = None,
+    violations: list[str] | None = None,
 ) -> ComponentView:
     """
     Create a ComponentView from raw data.
@@ -506,12 +506,12 @@ def create_component_view(
 def create_board_view_from_state(
     board_width: float,
     board_height: float,
-    component_refs: List[str],
-    positions: List[Tuple[float, float]],
-    rotations: List[float],
-    bounds: List[Tuple[float, float]],
-    footprints: Optional[List[str]] = None,
-    statuses: Optional[List[ComponentStatus]] = None,
+    component_refs: list[str],
+    positions: list[tuple[float, float]],
+    rotations: list[float],
+    bounds: list[tuple[float, float]],
+    footprints: list[str] | None = None,
+    statuses: list[ComponentStatus] | None = None,
 ) -> BoardView:
     """
     Create a BoardView from placement state arrays.
@@ -531,8 +531,8 @@ def create_board_view_from_state(
     """
     n = len(component_refs)
     # Use explicit typing to handle None list - cast to satisfy type checker
-    fp_list: List[Optional[str]] = cast(
-        List[Optional[str]], footprints if footprints else [None] * n
+    fp_list: list[str | None] = cast(
+        list[str | None], footprints if footprints else [None] * n
     )
     status_list = statuses if statuses else [ComponentStatus.OK] * n
 

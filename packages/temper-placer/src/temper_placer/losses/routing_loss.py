@@ -13,9 +13,9 @@ returns a cached penalty value based on real routing results.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -29,7 +29,7 @@ class RoutingCacheEntry:
     """Cached routing results."""
     penalty: float
     epoch: int
-    metrics: Optional[RoutingMetrics] = None
+    metrics: RoutingMetrics | None = None
     elapsed_s: float = 0.0
 
 class RoutingLoss(LossFunction):
@@ -49,7 +49,7 @@ class RoutingLoss(LossFunction):
     def __init__(
         self,
         router: FreeRoutingWrapper,
-        pcb_exporter: Optional[Callable[[Array, Array, LossContext], Path]] = None,
+        pcb_exporter: Callable[[Array, Array, LossContext], Path] | None = None,
         eval_interval: int = 200,
         base_penalty: float = 0.0,
         weight_wirelength: float = 0.1,
@@ -64,9 +64,9 @@ class RoutingLoss(LossFunction):
         self._weight_vias = weight_vias
         self._weight_unrouted = weight_unrouted
 
-        self._cache: Optional[RoutingCacheEntry] = None
+        self._cache: RoutingCacheEntry | None = None
         self._last_eval_epoch: int = -1
-        self.history: List[Tuple[int, RoutingMetrics]] = []
+        self.history: list[tuple[int, RoutingMetrics]] = []
 
     @property
     def name(self) -> str:
@@ -93,10 +93,10 @@ class RoutingLoss(LossFunction):
         try:
             # 1. Export to KiCad PCB
             pcb_path = self._pcb_exporter(positions, rotations, context)
-            
+
             # 2. Run Router
             routed_pcb, metrics = self._router.route_pcb(pcb_path)
-            
+
             # 3. Compute Penalty
             if metrics.success:
                 # Penalty = w_l * length + w_v * vias + w_u * unrouted
@@ -107,16 +107,16 @@ class RoutingLoss(LossFunction):
                 )
             else:
                 penalty = 1000.0  # High penalty for total failure
-                
+
             elapsed_s = time.time() - start_time
             entry = RoutingCacheEntry(penalty, epoch, metrics, elapsed_s)
-            
+
             self._cache = entry
             self._last_eval_epoch = epoch
             self.history.append((epoch, metrics))
-            
+
             return entry
-            
+
         except Exception as e:
             print(f"Routing evaluation failed: {e}")
             return RoutingCacheEntry(1000.0, epoch)
@@ -130,12 +130,12 @@ class RoutingLoss(LossFunction):
         total_epochs: int = 1,
     ) -> LossResult:
         penalty = self._cache.penalty if self._cache else self._base_penalty
-        
+
         breakdown = {
             "routing_penalty": jnp.array(penalty),
             "routing_cached_epoch": jnp.array(self._last_eval_epoch, dtype=jnp.float32)
         }
-        
+
         if self._cache and self._cache.metrics:
             m = self._cache.metrics
             breakdown["routed_wirelength"] = jnp.array(m.wirelength_mm)

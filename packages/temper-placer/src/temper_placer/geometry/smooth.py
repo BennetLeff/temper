@@ -18,7 +18,6 @@ import jax.numpy as jnp
 from jax import Array
 from jax.scipy.special import logsumexp
 
-
 # =============================================================================
 # Smooth Maximum Functions
 # =============================================================================

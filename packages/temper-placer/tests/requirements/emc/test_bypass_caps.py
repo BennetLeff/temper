@@ -5,18 +5,18 @@ These tests verify that bypass capacitor placement validation functions work cor
 and that placements meet EMC/EMI requirements.
 """
 
+
 import pytest
-from pathlib import Path
 
 # Import validators
 try:
     from tests.requirements.validators.bypass_caps import (
-        check_decoupling_distance,
-        check_bypass_loop_area,
-        check_via_at_cap_ground,
-        check_component_specific_requirements,
         BypassCapResult,
         BypassCapViolation,
+        check_bypass_loop_area,
+        check_component_specific_requirements,
+        check_decoupling_distance,
+        check_via_at_cap_ground,
     )
 
     VALIDATORS_AVAILABLE = True

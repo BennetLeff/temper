@@ -16,10 +16,8 @@ from __future__ import annotations
 import shutil
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
-from temper_placer.core.board import Board, Zone
+from temper_placer.core.board import Zone
 from temper_placer.core.netlist import Netlist
 from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.validation.drc import find_kicad_cli
@@ -41,8 +39,8 @@ class PreflightIssue:
     code: str  # Machine-readable code (e.g., "ZONE_001")
     message: str  # Human-readable description
     suggestion: str = ""  # Actionable suggestion for fixing
-    components: List[str] = field(default_factory=list)  # Affected components
-    details: Dict = field(default_factory=dict)  # Additional data
+    components: list[str] = field(default_factory=list)  # Affected components
+    details: dict = field(default_factory=dict)  # Additional data
 
 
 @dataclass
@@ -50,7 +48,7 @@ class PreflightResult:
     """Result of running all preflight checks."""
 
     passed: bool  # True if no ERROR-level issues
-    issues: List[PreflightIssue] = field(default_factory=list)
+    issues: list[PreflightIssue] = field(default_factory=list)
 
     @property
     def error_count(self) -> int:
@@ -188,7 +186,7 @@ def check_components_have_zones(
     netlist_refs = {c.ref for c in netlist.components}
 
     # Get components assigned to zones (from constraints)
-    assigned_refs: Set[str] = set()
+    assigned_refs: set[str] = set()
 
     # From zone_assignments dict
     assigned_refs.update(constraints.zone_assignments.keys())
@@ -479,8 +477,8 @@ def check_impossible_constraints(
 
 
 def run_all_preflight_checks(
-    netlist: Optional[Netlist],
-    constraints: Optional[PlacementConstraints],
+    netlist: Netlist | None,
+    constraints: PlacementConstraints | None,
     check_tools: bool = True,
     require_zone_assignments: bool = False,
 ) -> PreflightResult:

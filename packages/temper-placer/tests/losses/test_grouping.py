@@ -117,7 +117,7 @@ class TestGroupClusterLoss:
 
         result = loss_fn(positions, rotations, None)
         per_comp = result.breakdown["per_component"]
-        
+
         # 100.0 penalty distributed over 2 components = 50.0 each
         assert float(per_comp[0]) == pytest.approx(50.0)
         assert float(per_comp[1]) == pytest.approx(50.0)
@@ -126,14 +126,14 @@ class TestGroupClusterLoss:
     def test_group_cluster_weight_schedule(self):
         """Verify weight annealing ramp."""
         loss_fn = GroupClusterLoss([], anneal_start=0.5)
-        
+
         # Before ramp
         assert loss_fn.weight_schedule(0, 1000) == 0.0
         assert loss_fn.weight_schedule(499, 1000) == 0.0
-        
+
         # End of ramp
         assert loss_fn.weight_schedule(1000, 1000) == 1.0
-        
+
         # Middle of ramp (quadratic ramp)
         # 75% of total epochs is halfway through the 50%-100% ramp
         # halfway = 0.5, 0.5^2 = 0.25

@@ -22,14 +22,13 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-import pytest
-from jax import Array
 import optax
+from jax import Array
+
+from temper_placer.losses.boundary import compute_boundary_penalty
 
 # Import loss functions
 from temper_placer.losses.overlap import compute_overlap_penalty
-from temper_placer.losses.boundary import compute_boundary_penalty
-
 
 # =============================================================================
 # Helper Functions

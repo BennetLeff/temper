@@ -13,9 +13,8 @@ import math
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import List, Optional, Tuple
 
-from .model import BoardView, ComponentView, PadView, Point, TraceView
+from .model import BoardView
 
 
 @dataclass
@@ -42,7 +41,7 @@ class ValidationResult:
     """Result of coordinate validation."""
 
     is_valid: bool
-    discrepancies: List[CoordinateDiscrepancy]
+    discrepancies: list[CoordinateDiscrepancy]
     tolerance: float
     components_checked: int
     traces_checked: int
@@ -68,10 +67,10 @@ class ValidationResult:
 
 def validate_coordinates(
     board_view: BoardView,
-    original_components: List[Tuple[str, float, float, float]],  # (ref, x, y, rotation)
-    original_traces: Optional[List[Tuple[float, float, float, float]]] = None,  # (x1, y1, x2, y2)
-    original_pads: Optional[List[Tuple[str, float, float]]] = None,  # (ref, x, y)
-    origin: Tuple[float, float] = (0.0, 0.0),
+    original_components: list[tuple[str, float, float, float]],  # (ref, x, y, rotation)
+    original_traces: list[tuple[float, float, float, float]] | None = None,  # (x1, y1, x2, y2)
+    original_pads: list[tuple[str, float, float]] | None = None,  # (ref, x, y)
+    origin: tuple[float, float] = (0.0, 0.0),
     tolerance: float = 0.01,
 ) -> ValidationResult:
     """
@@ -91,7 +90,7 @@ def validate_coordinates(
     Returns:
         ValidationResult with discrepancies exceeding tolerance.
     """
-    discrepancies: List[CoordinateDiscrepancy] = []
+    discrepancies: list[CoordinateDiscrepancy] = []
     origin_x, origin_y = origin
 
     # Build lookup for board_view components
@@ -248,8 +247,8 @@ def validate_coordinates(
 
 def export_coordinates_csv(
     board_view: BoardView,
-    origin: Tuple[float, float] = (0.0, 0.0),
-    output_path: Optional[Path] = None,
+    origin: tuple[float, float] = (0.0, 0.0),
+    output_path: Path | None = None,
 ) -> str:
     """
     Export all coordinates to CSV for external comparison.
@@ -383,7 +382,7 @@ def export_coordinates_csv(
     return csv_content
 
 
-def check_components_in_bounds(board_view: BoardView) -> List[str]:
+def check_components_in_bounds(board_view: BoardView) -> list[str]:
     """
     Check that all components are within board boundaries.
 
@@ -416,7 +415,7 @@ def check_components_in_bounds(board_view: BoardView) -> List[str]:
 def check_trace_connectivity(
     board_view: BoardView,
     tolerance: float = 0.5,
-) -> List[Tuple[str, str, float]]:
+) -> list[tuple[str, str, float]]:
     """
     Check that trace endpoints are near pad positions.
 

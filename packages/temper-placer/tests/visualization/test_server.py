@@ -1,15 +1,14 @@
 """Tests for visualization/server.py - WebSocket server for live updates."""
 
 import json
+
 import pytest
-import threading
-import time
 
 from temper_placer.visualization.model import (
-    VisualizationState,
     BoardView,
-    LossHistory,
     ConstraintStatus,
+    LossHistory,
+    VisualizationState,
 )
 
 # Check if websockets is available
@@ -44,8 +43,8 @@ def state_with_data():
     """Create a visualization state with some data."""
     from temper_placer.visualization.model import (
         ComponentView,
-        Point,
         LossDataPoint,
+        Point,
         Violation,
         ViolationType,
     )
@@ -258,7 +257,7 @@ class TestCreateServer:
     """Tests for create_server factory function."""
 
     def test_create_server_returns_instance(self):
-        from temper_placer.visualization.server import create_server, MockLiveServer
+        from temper_placer.visualization.server import create_server
 
         server = create_server(open_browser=False)
         # Returns either LiveServer or MockLiveServer depending on deps
@@ -501,7 +500,7 @@ class TestLiveServerIntegration:
                     data = json.loads(msg)
                     assert data["type"] == "state_update"
                     assert "data" in data
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pytest.skip("WebSocket message not received (timing issue)")
 
         try:

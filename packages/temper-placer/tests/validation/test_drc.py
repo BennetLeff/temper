@@ -9,22 +9,19 @@ These tests verify:
 - Error handling (missing kicad-cli, invalid PCB file)
 """
 
-import pytest
-import json
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
+import pytest
+
+from temper_placer.validation.base import ValidationSeverity
 from temper_placer.validation.drc import (
-    KiCadDRCValidator,
     DRCResult,
     DRCViolation,
-    DRCSeverity,
     DRCViolationType,
+    KiCadDRCValidator,
     find_kicad_cli,
-    KICAD_CLI_PATHS,
 )
-from temper_placer.validation.base import ValidationSeverity
 
 
 class TestDRCViolation:
@@ -388,10 +385,11 @@ class TestValidatorInterface:
 
     def test_validate_returns_result(self):
         """Test that validate() returns ValidationResult."""
-        from temper_placer.core.state import PlacementState
-        from temper_placer.core.netlist import Netlist
-        from temper_placer.core.board import Board
         import jax.numpy as jnp
+
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Netlist
+        from temper_placer.core.state import PlacementState
 
         validator = KiCadDRCValidator()
 

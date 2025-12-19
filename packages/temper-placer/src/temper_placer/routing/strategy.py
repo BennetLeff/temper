@@ -8,7 +8,6 @@ for human or automated routing.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List
 
 from temper_placer.io.config_loader import load_constraints
 from temper_placer.io.kicad_parser import parse_kicad_pcb

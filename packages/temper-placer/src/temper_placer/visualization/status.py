@@ -14,7 +14,7 @@ The panel shows:
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .model import (
     ConstraintStatus,
@@ -35,7 +35,7 @@ except ImportError:
 
 
 # Color scheme for violation types
-VIOLATION_COLORS: Dict[ViolationType, str] = {
+VIOLATION_COLORS: dict[ViolationType, str] = {
     ViolationType.OVERLAP: "#e74c3c",  # Red
     ViolationType.BOUNDARY: "#e67e22",  # Orange
     ViolationType.CLEARANCE: "#f1c40f",  # Yellow
@@ -236,7 +236,7 @@ def render_violation_summary_bar(
 
 
 def render_violation_list(
-    violations: List[Violation],
+    violations: list[Violation],
     max_items: int = 10,
     width: int = 500,
     height: int = 300,
@@ -549,7 +549,7 @@ def render_constraint_status(
     return fig
 
 
-def get_affected_component_refs(status: ConstraintStatus) -> List[str]:
+def get_affected_component_refs(status: ConstraintStatus) -> list[str]:
     """
     Get list of component references affected by violations.
 
@@ -569,7 +569,7 @@ def get_affected_component_refs(status: ConstraintStatus) -> List[str]:
 
 def get_violations_by_component(
     status: ConstraintStatus,
-) -> Dict[str, List[Violation]]:
+) -> dict[str, list[Violation]]:
     """
     Group violations by component reference.
 
@@ -579,7 +579,7 @@ def get_violations_by_component(
     Returns:
         Dict mapping component ref to list of violations.
     """
-    by_component: Dict[str, List[Violation]] = {}
+    by_component: dict[str, list[Violation]] = {}
     for violation in status.violations:
         for ref in violation.component_refs:
             if ref not in by_component:
@@ -590,7 +590,7 @@ def get_violations_by_component(
 
 def get_violations_by_type(
     status: ConstraintStatus,
-) -> Dict[ViolationType, List[Violation]]:
+) -> dict[ViolationType, list[Violation]]:
     """
     Group violations by type.
 
@@ -600,7 +600,7 @@ def get_violations_by_type(
     Returns:
         Dict mapping violation type to list of violations.
     """
-    by_type: Dict[ViolationType, List[Violation]] = {}
+    by_type: dict[ViolationType, list[Violation]] = {}
     for violation in status.violations:
         vtype = violation.violation_type
         if vtype not in by_type:

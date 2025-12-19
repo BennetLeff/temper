@@ -1,17 +1,9 @@
 """Tests for visualization/live.py - LiveVisualizer integration."""
 
-import numpy as np
-import pytest
-import time
 import threading
 
-from temper_placer.visualization.model import (
-    BoardView,
-    LossHistory,
-    ConstraintStatus,
-    VisualizationState,
-)
-
+import numpy as np
+import pytest
 
 # ============================================================================
 # Test fixtures

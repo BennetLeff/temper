@@ -1,7 +1,7 @@
-from typing import Tuple
 import jax
 import jax.numpy as jnp
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
+
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 
 class ViaDensityLoss(LossFunction):
@@ -88,15 +88,15 @@ class ViaDensityLoss(LossFunction):
         intersection_area = positive_depth[..., 0] * positive_depth[..., 1]
 
         # 5. Refine with net directions (Planarity Proxy)
-        # For 2-pin nets, the direction is clear. 
+        # For 2-pin nets, the direction is clear.
         # For N-pin, we use the vector from first to last valid pin as proxy direction.
-        
+
         # Extract first and last valid pins for each net: (M, 2)
         # We use context.net_pin_mask to find them.
         def get_direction(pin_pos, mask):
             # Masked positions
             valid_pos = jnp.where(mask[..., None], pin_pos, 0.0)
-            
+
             # Simple proxy: vector from first pin to center of others
             first_pos = valid_pos[0]
             center_pos = jnp.sum(valid_pos, axis=0) / jnp.maximum(jnp.sum(mask), 1.0)
@@ -104,15 +104,15 @@ class ViaDensityLoss(LossFunction):
 
         # Vectorized across nets
         net_vectors = jax.vmap(get_direction)(pin_positions, context.net_pin_mask)
-        
+
         # Normalize vectors
         norms = jnp.sqrt(jnp.sum(net_vectors**2, axis=-1) + 1e-9)
         unit_vectors = net_vectors / norms[:, None]
-        
+
         # Compute abs(sin(theta)) between all net pairs: |v1 x v2|
         # (M, 1, 2) cross (1, M, 2) -> (M, M)
         sin_theta = jnp.abs(
-            unit_vectors[:, None, 0] * unit_vectors[None, :, 1] - 
+            unit_vectors[:, None, 0] * unit_vectors[None, :, 1] -
             unit_vectors[:, None, 1] * unit_vectors[None, :, 0]
         )
 
@@ -124,7 +124,7 @@ class ViaDensityLoss(LossFunction):
         # Mask diagonal and invalid nets
         eye_mask = jnp.eye(intersection_area.shape[0], dtype=bool)
         valid_broadcast = valid_nets[:, None] & valid_nets[None, :]
-        
+
         refined_crossing = jnp.where(eye_mask, 0.0, refined_crossing)
         refined_crossing = jnp.where(valid_broadcast, refined_crossing, 0.0)
 

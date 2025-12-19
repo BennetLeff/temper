@@ -6,7 +6,6 @@ Schematic Review Checklist.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional, Set
 from pathlib import Path
 
 
@@ -17,13 +16,13 @@ class ComponentSpec:
     ref: str
     value: str
     footprint: str
-    part_number: Optional[str] = None
-    voltage_rating: Optional[float] = None  # Volts
-    current_rating: Optional[float] = None  # Amps
-    power_rating: Optional[float] = None  # Watts
-    temp_rating: Optional[int] = None  # Celsius
-    supply_voltage: Optional[float] = None  # Operating voltage
-    pins: Dict[str, str] = field(default_factory=dict)  # pin_number: net_name
+    part_number: str | None = None
+    voltage_rating: float | None = None  # Volts
+    current_rating: float | None = None  # Amps
+    power_rating: float | None = None  # Watts
+    temp_rating: int | None = None  # Celsius
+    supply_voltage: float | None = None  # Operating voltage
+    pins: dict[str, str] = field(default_factory=dict)  # pin_number: net_name
 
 
 @dataclass
@@ -31,10 +30,10 @@ class NetInfo:
     """Net information from schematic."""
 
     name: str
-    pins: List[Tuple[str, str]]  # [(ref, pin_number), ...]
+    pins: list[tuple[str, str]]  # [(ref, pin_number), ...]
     is_power: bool = False
     is_ground: bool = False
-    voltage_level: Optional[float] = None
+    voltage_level: float | None = None
 
 
 @dataclass
@@ -44,9 +43,9 @@ class SchematicViolation:
     code: str
     message: str
     severity: str = "error"  # "error", "warning", "info"
-    component_ref: Optional[str] = None
-    net_name: Optional[str] = None
-    details: Optional[str] = None
+    component_ref: str | None = None
+    net_name: str | None = None
+    details: str | None = None
 
 
 @dataclass
@@ -54,8 +53,8 @@ class SchematicReviewResult:
     """Result of schematic review validation."""
 
     passed: bool
-    violations: List[SchematicViolation]
-    warnings: List[str] = field(default_factory=list)
+    violations: list[SchematicViolation]
+    warnings: list[str] = field(default_factory=list)
 
     @property
     def error_count(self) -> int:
@@ -76,8 +75,8 @@ class SchematicReviewResult:
 
 
 def check_power_supply_voltages(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check that all ICs have correct supply voltage.
@@ -99,9 +98,9 @@ def check_power_supply_voltages(
 
 
 def check_decoupling_present(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
-    ics: List[str],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
+    ics: list[str],
 ) -> SchematicReviewResult:
     """
     Check that decoupling capacitors are present on every IC power pin.
@@ -124,9 +123,9 @@ def check_decoupling_present(
 
 
 def check_bulk_capacitors(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
-    power_entry_nets: List[str],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
+    power_entry_nets: list[str],
 ) -> SchematicReviewResult:
     """
     Check that bulk capacitors are present at power entry points.
@@ -149,8 +148,8 @@ def check_bulk_capacitors(
 
 
 def check_power_sequencing(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check power sequencing requirements (if applicable).
@@ -169,7 +168,7 @@ def check_power_sequencing(
 
 
 def check_current_voltage_ratings(
-    components: List[ComponentSpec],
+    components: list[ComponentSpec],
     safety_margin_voltage: float = 0.20,  # 20% margin
     safety_margin_current: float = 0.30,  # 30% margin
 ) -> SchematicReviewResult:
@@ -199,7 +198,7 @@ def check_current_voltage_ratings(
 
 
 def check_component_part_numbers(
-    components: List[ComponentSpec],
+    components: list[ComponentSpec],
 ) -> SchematicReviewResult:
     """
     Check that all components have valid part numbers.
@@ -220,7 +219,7 @@ def check_component_part_numbers(
 
 
 def check_footprints_assigned(
-    components: List[ComponentSpec],
+    components: list[ComponentSpec],
 ) -> SchematicReviewResult:
     """
     Check that all components have footprints assigned.
@@ -241,7 +240,7 @@ def check_footprints_assigned(
 
 
 def check_temperature_ratings(
-    components: List[ComponentSpec],
+    components: list[ComponentSpec],
     min_power_temp: int = 125,  # °C
     min_logic_temp: int = 85,  # °C
 ) -> SchematicReviewResult:
@@ -266,8 +265,8 @@ def check_temperature_ratings(
 
 
 def check_obsolete_parts(
-    components: List[ComponentSpec],
-    obsolete_list: Optional[Set[str]] = None,
+    components: list[ComponentSpec],
+    obsolete_list: set[str] | None = None,
 ) -> SchematicReviewResult:
     """
     Check for obsolete or EOL (End-of-Life) parts.
@@ -294,9 +293,9 @@ def check_obsolete_parts(
 
 
 def check_net_naming_convention(
-    nets: List[NetInfo],
-    power_net_patterns: Optional[List[str]] = None,
-    ground_net_patterns: Optional[List[str]] = None,
+    nets: list[NetInfo],
+    power_net_patterns: list[str] | None = None,
+    ground_net_patterns: list[str] | None = None,
 ) -> SchematicReviewResult:
     """
     Check that nets follow naming conventions.
@@ -320,7 +319,7 @@ def check_net_naming_convention(
 
 
 def check_duplicate_net_names(
-    nets: List[NetInfo],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check for duplicate net names with different meanings.
@@ -362,7 +361,7 @@ def check_hierarchical_connections(
 
 
 def check_global_labels(
-    nets: List[NetInfo],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check that global labels are used appropriately.
@@ -388,11 +387,11 @@ def check_global_labels(
 
 
 def check_safety_circuit_values(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
-    ocp_threshold: Optional[float] = None,  # Amps
-    ovp_threshold: Optional[float] = None,  # Volts
-    thermal_threshold: Optional[float] = None,  # °C
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
+    ocp_threshold: float | None = None,  # Amps
+    ovp_threshold: float | None = None,  # Volts
+    thermal_threshold: float | None = None,  # °C
 ) -> SchematicReviewResult:
     """
     Check safety circuit component values.
@@ -420,8 +419,8 @@ def check_safety_circuit_values(
 
 
 def check_ocp_circuit(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
     threshold_amps: float,
     tolerance: float = 0.10,  # 10% tolerance
 ) -> SchematicReviewResult:
@@ -448,8 +447,8 @@ def check_ocp_circuit(
 
 
 def check_ovp_circuit(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
     threshold_volts: float,
     tolerance: float = 0.10,  # 10% tolerance
 ) -> SchematicReviewResult:
@@ -476,8 +475,8 @@ def check_ovp_circuit(
 
 
 def check_thermal_shutdown(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
     threshold_celsius: float,
 ) -> SchematicReviewResult:
     """
@@ -502,8 +501,8 @@ def check_thermal_shutdown(
 
 
 def check_gate_driver_enable(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check gate driver enable/disable logic.
@@ -526,8 +525,8 @@ def check_gate_driver_enable(
 
 
 def check_watchdog_timer(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check watchdog timer configuration.
@@ -550,8 +549,8 @@ def check_watchdog_timer(
 
 
 def check_fault_latch(
-    components: List[ComponentSpec],
-    nets: List[NetInfo],
+    components: list[ComponentSpec],
+    nets: list[NetInfo],
 ) -> SchematicReviewResult:
     """
     Check fault latch operation.

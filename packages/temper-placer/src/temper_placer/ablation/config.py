@@ -466,7 +466,7 @@ class AblationStudyConfig:
         """Load configuration from YAML file."""
         path = Path(path)
         data = yaml.safe_load(path.read_text())
-        
+
         # Resolve test cases relative to config file if they aren't absolute
         config_dir = path.parent.absolute()
         test_cases = []

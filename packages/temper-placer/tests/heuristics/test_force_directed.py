@@ -1,15 +1,14 @@
 """Tests for force-directed layout heuristic."""
 
-import pytest
-import numpy as np
+
 import jax.random as random
-from unittest.mock import MagicMock
+import pytest
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist, Component, Net, Pin
-from temper_placer.io.config_loader import PlacementConstraints
-from temper_placer.heuristics.base import PlacementContext, ComponentPlacement
+from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
 from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
+from temper_placer.io.config_loader import PlacementConstraints
 
 
 @pytest.fixture

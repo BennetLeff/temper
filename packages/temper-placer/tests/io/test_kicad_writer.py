@@ -1,11 +1,9 @@
 """Tests for KiCad PCB writer."""
 
 import json
-import tempfile
 from pathlib import Path
 
-import pytest
-
+from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_writer import (
     PlacementUpdate,
     WriteResult,
@@ -13,7 +11,6 @@ from temper_placer.io.kicad_writer import (
     placements_to_json,
     state_to_placements,
 )
-from temper_placer.core.state import PlacementState
 
 
 class TestPlacementUpdate:

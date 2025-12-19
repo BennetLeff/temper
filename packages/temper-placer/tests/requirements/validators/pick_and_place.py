@@ -7,9 +7,8 @@ fiducial placement, and ESP32-S3-WROOM specific constraints.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Optional, Dict, Any, Set
 from enum import Enum
-from pathlib import Path
+from typing import Any
 
 
 class PackageType(Enum):
@@ -41,7 +40,7 @@ class Fiducial:
     """Fiducial marker definition."""
 
     ref: str
-    position: Tuple[float, float]
+    position: tuple[float, float]
     size_mm: float = 1.0
     mask_opening_mm: float = 2.0
     clearance_mm: float = 3.0
@@ -54,12 +53,12 @@ class PlacementViolation:
 
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"  # error, warning
-    component_ref: Optional[str] = None
-    violation_type: Optional[str] = None  # spacing, orientation, fiducial, antenna
-    measured_value: Optional[float] = None
-    required_value: Optional[float] = None
+    component_ref: str | None = None
+    violation_type: str | None = None  # spacing, orientation, fiducial, antenna
+    measured_value: float | None = None
+    required_value: float | None = None
 
 
 @dataclass
@@ -67,7 +66,7 @@ class PlacementResult:
     """Result of pick-and-place placement validation."""
 
     passed: bool
-    violations: List[PlacementViolation]
+    violations: list[PlacementViolation]
 
     @property
     def error_count(self) -> int:
@@ -142,8 +141,8 @@ def get_package_type(footprint: str) -> PackageType:
 
 
 def check_component_spacing(
-    placement: Dict[str, Any],
-    package_rules: Optional[Dict[PackageType, Dict[str, float]]] = None,
+    placement: dict[str, Any],
+    package_rules: dict[PackageType, dict[str, float]] | None = None,
 ) -> PlacementResult:
     """
     Check minimum spacing between SMD components per REQ-DFM-01.
@@ -170,7 +169,7 @@ def check_component_spacing(
 
 
 def check_component_orientation(
-    placement: Dict[str, Any],
+    placement: dict[str, Any],
 ) -> PlacementResult:
     """
     Check component orientation consistency per REQ-DFM-01.
@@ -198,8 +197,8 @@ def check_component_orientation(
 
 
 def check_fiducial_placement(
-    fiducials: List[Fiducial],
-    board_dimensions: Optional[Tuple[float, float]] = None,
+    fiducials: list[Fiducial],
+    board_dimensions: tuple[float, float] | None = None,
 ) -> PlacementResult:
     """
     Check fiducial placement per REQ-DFM-01 requirements.
@@ -230,9 +229,9 @@ def check_fiducial_placement(
 
 
 def check_antenna_keepout(
-    esp32_position: Tuple[float, float],
-    copper_pours: List[Dict[str, Any]],
-    board_dimensions: Tuple[float, float],
+    esp32_position: tuple[float, float],
+    copper_pours: list[dict[str, Any]],
+    board_dimensions: tuple[float, float],
 ) -> PlacementResult:
     """
     Check ESP32-S3-WROOM antenna keepout requirements.
@@ -262,9 +261,9 @@ def check_antenna_keepout(
 
 
 def check_pick_and_place_compliance(
-    placement: Dict[str, Any],
-    fiducials: List[Fiducial],
-    board_dimensions: Tuple[float, float],
+    placement: dict[str, Any],
+    fiducials: list[Fiducial],
+    board_dimensions: tuple[float, float],
 ) -> PlacementResult:
     """
     Verify complete REQ-DFM-01 compliance for pick-and-place assembly.
@@ -309,7 +308,7 @@ def check_pick_and_place_compliance(
     return PlacementResult(passed=passed, violations=violations)
 
 
-def get_spacing_requirements() -> Dict[str, Dict[str, float]]:
+def get_spacing_requirements() -> dict[str, dict[str, float]]:
     """
     Get the REQ-DFM-01 component spacing requirements matrix.
 

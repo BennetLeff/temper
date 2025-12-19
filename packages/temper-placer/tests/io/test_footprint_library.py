@@ -8,18 +8,16 @@ Tests cover:
 - Integration with Component creation
 """
 
+
 import pytest
-from pathlib import Path
-import tempfile
 import yaml
 
+from temper_placer.core.netlist import Component
 from temper_placer.io.footprint_library import (
     FootprintLibrary,
     FootprintSpec,
     load_footprint_library,
 )
-from temper_placer.core.netlist import Component
-
 
 # =============================================================================
 # Fixtures

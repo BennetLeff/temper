@@ -16,12 +16,12 @@ Usage:
     python eco_client.py post "Learned that..." --role coder --domain firmware
 """
 
-import json
-import urllib.request
-import urllib.error
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, field
 import hashlib
+import json
+import urllib.error
+import urllib.request
+from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -39,7 +39,7 @@ class EcoConfig:
     SHARED: str = "temper-shared"
 
     # Role-specific user IDs
-    ROLES: Dict[str, str] = field(
+    ROLES: dict[str, str] = field(
         default_factory=lambda: {
             "architect": "temper-architect",
             "coder": "temper-coder",
@@ -49,7 +49,7 @@ class EcoConfig:
     )
 
     # Domain-specific user IDs
-    DOMAINS: Dict[str, str] = field(
+    DOMAINS: dict[str, str] = field(
         default_factory=lambda: {
             "firmware": "temper-firmware",
             "placer": "temper-placer",
@@ -58,7 +58,7 @@ class EcoConfig:
     )
 
     def get_user_id(
-        self, role: Optional[str] = None, domain: Optional[str] = None
+        self, role: str | None = None, domain: str | None = None
     ) -> str:
         """Get the appropriate user ID for a role/domain combination."""
         if role and role in self.ROLES:
@@ -71,12 +71,12 @@ class EcoConfig:
 class EcoClient:
     """Client for Eco semantic memory with multi-user support."""
 
-    def __init__(self, config: Optional[EcoConfig] = None):
+    def __init__(self, config: EcoConfig | None = None):
         self.config = config or EcoConfig()
 
     def _make_request(
-        self, endpoint: str, method: str = "GET", data: Optional[Dict] = None
-    ) -> Optional[Dict]:
+        self, endpoint: str, method: str = "GET", data: dict | None = None
+    ) -> dict | None:
         """Make HTTP request to Eco server."""
         url = f"{self.config.base_url}{endpoint}"
 
@@ -108,7 +108,7 @@ class EcoClient:
 
     def search(
         self, query: str, user_id: str, limit: int = 5, min_score: float = 0.7
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search memories for a single user ID.
 
         Args:
@@ -135,13 +135,13 @@ class EcoClient:
     def search_comprehensive(
         self,
         query: str,
-        role: Optional[str] = None,
-        domain: Optional[str] = None,
+        role: str | None = None,
+        domain: str | None = None,
         include_shared: bool = True,
         include_legacy: bool = True,
         limit: int = 10,
         min_score: float = 0.7,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search across multiple relevant user IDs.
 
         Searches shared + role-specific + domain-specific + legacy user IDs,
@@ -187,7 +187,7 @@ class EcoClient:
             all_results.extend(results)
 
         # Dedupe by content hash, keep highest score
-        seen: Dict[str, Dict] = {}
+        seen: dict[str, dict] = {}
         for r in all_results:
             # Get content hash from result or compute it
             memory = r.get("memory", {})
@@ -211,9 +211,9 @@ class EcoClient:
         self,
         content: str,
         user_id: str,
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         primary_sector: str = "episodic",
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Post a memory to a specific user ID.
 
@@ -242,10 +242,10 @@ class EcoClient:
         self,
         content: str,
         role: str,
-        domain: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        domain: str | None = None,
+        tags: list[str] | None = None,
         also_shared: bool = False,
-        task_id: Optional[str] = None,
+        task_id: str | None = None,
     ) -> bool:
         """Post a reflection to the appropriate user ID(s).
 
@@ -298,11 +298,11 @@ class EcoClient:
     def get_context_for_task(
         self,
         task_id: str,
-        goal: Optional[str] = None,
-        role: Optional[str] = None,
-        domain: Optional[str] = None,
+        goal: str | None = None,
+        role: str | None = None,
+        domain: str | None = None,
         limit: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get comprehensive context for a task.
 
         Searches Eco for relevant memories based on task ID and goal,
@@ -351,7 +351,7 @@ class EcoClient:
         return context
 
 
-def format_results(results: List[Dict], verbose: bool = False) -> str:
+def format_results(results: list[dict], verbose: bool = False) -> str:
     """Format search results for display."""
     if not results:
         return "No results found."
@@ -388,13 +388,13 @@ def main():
 Examples:
   # Search across all relevant user IDs
   python eco_client.py search "PID tuning algorithm" --role coder --domain firmware
-  
+
   # Post a reflection
   python eco_client.py post "Learned that PID gains need..." --role coder --domain firmware
-  
+
   # Post to shared knowledge
   python eco_client.py post "Project uses JAX for optimization" --role architect --shared
-  
+
   # Get context for a task
   python eco_client.py context temper-xxx --goal "Implement PID improvements"
 """,
@@ -461,7 +461,7 @@ Examples:
     context_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # User IDs command (informational)
-    ids_parser = subparsers.add_parser("ids", help="List available user IDs")
+    subparsers.add_parser("ids", help="List available user IDs")
 
     args = parser.parse_args()
     client = EcoClient()

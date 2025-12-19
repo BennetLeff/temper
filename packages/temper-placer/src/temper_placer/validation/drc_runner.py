@@ -10,10 +10,8 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Tuple
 
 
 class DrcRunnerError(Exception):
@@ -37,9 +35,9 @@ class DrcError:
 
     rule: str
     severity: str
-    location: Tuple[float, float]
+    location: tuple[float, float]
     message: str
-    components: List[str] = field(default_factory=list)
+    components: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -57,9 +55,9 @@ class DrcWarning:
 
     rule: str
     severity: str
-    location: Tuple[float, float]
+    location: tuple[float, float]
     message: str
-    components: List[str] = field(default_factory=list)
+    components: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -76,8 +74,8 @@ class DrcResult:
 
     error_count: int
     warning_count: int
-    errors: List[DrcError] = field(default_factory=list)
-    warnings: List[DrcWarning] = field(default_factory=list)
+    errors: list[DrcError] = field(default_factory=list)
+    warnings: list[DrcWarning] = field(default_factory=list)
 
 
 def is_kicad_cli_available() -> bool:
@@ -112,8 +110,8 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
     with open(json_path) as f:
         data = json.load(f)
 
-    errors: List[DrcError] = []
-    warnings: List[DrcWarning] = []
+    errors: list[DrcError] = []
+    warnings: list[DrcWarning] = []
 
     for violation in data.get("violations", []):
         rule = violation.get("type", "unknown")

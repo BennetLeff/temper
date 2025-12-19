@@ -7,12 +7,9 @@ Establish the 'Professional Standard' by scoring high-quality human designs.
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import jax.numpy as jnp
-import numpy as np
-
 from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.metrics.aesthetic import compute_aesthetic_score
@@ -24,7 +21,6 @@ def score_human_design(pcb_path: Path):
     netlist = result.netlist
 
     # Extract positions and rotations from the parsed components
-    n = netlist.n_components
     positions = []
     rotations = []
 

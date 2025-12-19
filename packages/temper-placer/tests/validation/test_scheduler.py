@@ -14,7 +14,6 @@ import tempfile
 from pathlib import Path
 
 import pytest
-import yaml
 
 from temper_placer.validation.scheduler import (
     DRCScheduleConfig,

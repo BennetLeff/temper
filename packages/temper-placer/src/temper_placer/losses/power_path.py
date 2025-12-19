@@ -17,9 +17,7 @@ It implements a hybrid model:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Optional
 
-import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -41,7 +39,7 @@ class HighCurrentPathConfig:
     """
 
     name: str
-    nets: List[str]
+    nets: list[str]
     current_a: float
     weight: float = 1.0
 
@@ -59,7 +57,7 @@ class SwitchingLoopConfig:
     """
 
     name: str
-    components: List[str]
+    components: list[str]
     weight: float = 1.0
 
 
@@ -198,8 +196,8 @@ class PowerPathLoss(LossFunction):
 
 def create_power_path_loss(
     netlist: Netlist,
-    path_configs: List[HighCurrentPathConfig],
-    loop_configs: List[SwitchingLoopConfig] = [],
+    path_configs: list[HighCurrentPathConfig],
+    loop_configs: list[SwitchingLoopConfig] = [],
     alpha: float = 10.0,
 ) -> PowerPathLoss:
     """

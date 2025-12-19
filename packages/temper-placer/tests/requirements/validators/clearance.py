@@ -6,8 +6,8 @@ for creepage and clearance distances per REQ-SAFE-01.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Optional, Dict, Any
 from enum import Enum
+from typing import Any
 
 
 class InsulationType(Enum):
@@ -34,14 +34,14 @@ class ClearanceViolation:
 
     code: str
     message: str
-    location: Optional[Tuple[float, float]] = None
+    location: tuple[float, float] | None = None
     severity: str = "error"  # error, warning
-    boundary: Optional[str] = None
-    insulation_type: Optional[InsulationType] = None
-    measured_clearance_mm: Optional[float] = None
-    measured_creepage_mm: Optional[float] = None
-    required_clearance_mm: Optional[float] = None
-    required_creepage_mm: Optional[float] = None
+    boundary: str | None = None
+    insulation_type: InsulationType | None = None
+    measured_clearance_mm: float | None = None
+    measured_creepage_mm: float | None = None
+    required_clearance_mm: float | None = None
+    required_creepage_mm: float | None = None
 
 
 @dataclass
@@ -49,7 +49,7 @@ class ClearanceResult:
     """Result of clearance/creepage validation."""
 
     passed: bool
-    violations: List[ClearanceViolation]
+    violations: list[ClearanceViolation]
 
     @property
     def error_count(self) -> int:
@@ -96,7 +96,7 @@ IEC60335_REQUIREMENTS = {
 
 
 def check_domain_clearance(
-    placement: Dict[str, Any],
+    placement: dict[str, Any],
     domain_a: VoltageDomain,
     domain_b: VoltageDomain,
     min_mm: float,
@@ -120,7 +120,7 @@ def check_domain_clearance(
 
 
 def check_creepage_path(
-    placement: Dict[str, Any],
+    placement: dict[str, Any],
     domain_a: VoltageDomain,
     domain_b: VoltageDomain,
     min_mm: float,
@@ -145,8 +145,8 @@ def check_creepage_path(
 
 
 def verify_iec60335_compliance(
-    placement: Dict[str, Any],
-    voltage_domains: Dict[str, VoltageDomain],
+    placement: dict[str, Any],
+    voltage_domains: dict[str, VoltageDomain],
 ) -> ClearanceResult:
     """
     Verify complete IEC 60335-2-6 compliance for all voltage domain boundaries.
@@ -164,7 +164,7 @@ def verify_iec60335_compliance(
     raise NotImplementedError("IEC 60335-2-6 compliance verification not yet implemented")
 
 
-def get_requirement_matrix() -> Dict[Tuple[str, str, str], Dict[str, float]]:
+def get_requirement_matrix() -> dict[tuple[str, str, str], dict[str, float]]:
     """
     Get the IEC 60335-2-6 requirements matrix.
 

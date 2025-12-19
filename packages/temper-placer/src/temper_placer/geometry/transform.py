@@ -13,12 +13,11 @@ Rotation encoding:
 All rotations are counter-clockwise around a center point.
 """
 
+import math
+
 import jax
 import jax.numpy as jnp
 from jax import Array
-from typing import Tuple, Optional
-import math
-
 
 # =============================================================================
 # Rotation Matrices
@@ -68,7 +67,7 @@ def get_rotation_matrix(rotation_onehot: Array) -> Array:
     return jnp.einsum("r,rij->ij", rotation_onehot, ROTATION_MATRICES)
 
 
-def rotate_point(point: Array, rotation_onehot: Array, center: Optional[Array] = None) -> Array:
+def rotate_point(point: Array, rotation_onehot: Array, center: Array | None = None) -> Array:
     """
     Rotate a point around a center using one-hot rotation encoding.
 
@@ -94,7 +93,7 @@ def rotate_point(point: Array, rotation_onehot: Array, center: Optional[Array] =
     return point_rotated + center
 
 
-def rotate_points(points: Array, rotation_onehot: Array, center: Optional[Array] = None) -> Array:
+def rotate_points(points: Array, rotation_onehot: Array, center: Array | None = None) -> Array:
     """
     Rotate multiple points around a center.
 
@@ -127,7 +126,7 @@ def rotate_points(points: Array, rotation_onehot: Array, center: Optional[Array]
 # =============================================================================
 
 
-def get_rotated_bounds(width: float, height: float, rotation_onehot: Array) -> Tuple[Array, Array]:
+def get_rotated_bounds(width: float, height: float, rotation_onehot: Array) -> tuple[Array, Array]:
     """
     Get width and height after rotation.
 
@@ -195,7 +194,7 @@ def rotate_rectangle_corners(
 
 def get_rotated_aabb(
     center: Array, width: float, height: float, rotation_onehot: Array
-) -> Tuple[Array, Array]:
+) -> tuple[Array, Array]:
     """
     Get axis-aligned bounding box of a rotated rectangle.
 
@@ -271,7 +270,7 @@ def transform_pin_positions(
 
 def batch_get_rotated_bounds(
     widths: Array, heights: Array, rotation_onehots: Array
-) -> Tuple[Array, Array]:
+) -> tuple[Array, Array]:
     """
     Get rotated bounds for multiple components.
 

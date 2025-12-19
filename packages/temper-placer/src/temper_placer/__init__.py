@@ -22,9 +22,9 @@ See TEMPER_PLACER_DESIGN.md for full specification.
 __version__ = "0.1.0"
 __author__ = "Temper Project"
 
-from temper_placer.core.state import PlacementState
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
 from temper_placer.core.board import Board, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.state import PlacementState
 
 __all__ = [
     "__version__",

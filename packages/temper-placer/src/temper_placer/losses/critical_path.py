@@ -14,13 +14,12 @@ approximation for PCB routing since traces typically follow rectilinear paths.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Literal
+from typing import Literal
 
 import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
-
 
 # Priority type for type safety
 Priority = Literal["critical", "high", "normal"]
@@ -78,7 +77,7 @@ class CriticalPathLengthLoss(LossFunction):
         >>> result = loss(positions, rotations, context)
     """
 
-    def __init__(self, critical_paths: Optional[List[CriticalPath]] = None):
+    def __init__(self, critical_paths: Optional[list[CriticalPath]] = None):
         """
         Initialize CriticalPathLengthLoss.
 
@@ -201,7 +200,7 @@ def compute_critical_path_penalty(
     return weight * excess**2
 
 
-def create_temper_critical_paths() -> List[CriticalPath]:
+def create_temper_critical_paths() -> list[CriticalPath]:
     """
     Create default critical path constraints for Temper induction cooker.
 

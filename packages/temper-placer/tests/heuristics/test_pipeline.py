@@ -8,28 +8,26 @@ Tests the HeuristicPipeline orchestrator:
 - Conversion to PlacementState
 """
 
-from typing import Dict, List, Optional
 
-import pytest
-import jax
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.heuristics.pipeline import (
-    HeuristicPipeline,
-    PipelineResult,
-)
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.state import PlacementState
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.heuristics.base import (
+    ComponentPlacement,
     Heuristic,
     HeuristicPriority,
     HeuristicResult,
     PlacementContext,
-    ComponentPlacement,
 )
 from temper_placer.heuristics.conflict import ResolutionStrategy
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Pin, Net, Netlist
-from temper_placer.core.state import PlacementState
+from temper_placer.heuristics.pipeline import (
+    HeuristicPipeline,
+    PipelineResult,
+)
 from temper_placer.io.config_loader import PlacementConstraints
 
 
@@ -40,8 +38,8 @@ class MockHeuristic(Heuristic):
         self,
         name: str,
         priority: HeuristicPriority,
-        placements: Optional[Dict[str, ComponentPlacement]] = None,
-        record_execution: Optional[List[str]] = None,
+        placements: dict[str, ComponentPlacement] | None = None,
+        record_execution: list[str] | None = None,
     ):
         self._name = name
         self._priority = priority

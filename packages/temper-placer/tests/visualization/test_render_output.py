@@ -7,8 +7,6 @@ These tests verify that:
 3. Roundtrip parsing maintains coordinate integrity
 """
 
-import math
-from pathlib import Path
 
 import pytest
 

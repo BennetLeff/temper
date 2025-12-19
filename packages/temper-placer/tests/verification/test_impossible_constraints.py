@@ -9,25 +9,24 @@ Tests that the optimizer:
 3. Handles edge cases gracefully without crashing
 """
 
-import pytest
 import jax.numpy as jnp
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.board import Board, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.losses.base import (
     CompositeLoss,
-    WeightedLoss,
     LossContext,
     ThermalConstraint,
+    WeightedLoss,
 )
 from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.clearance import ClearanceLoss
+from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.thermal import ThermalLoss
-from temper_placer.losses.zone import ZoneMembershipLoss
 from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer.train import train
+from temper_placer.losses.zone import ZoneMembershipLoss
 from temper_placer.optimizer.config import OptimizerConfig
+from temper_placer.optimizer.train import train
 
 
 class TestBoardTooSmall:
