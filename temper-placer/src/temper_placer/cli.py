@@ -156,6 +156,12 @@ def main() -> None:
     default=False,
     help="Show detailed loss breakdown in console during optimization.",
 )
+@click.option(
+    "--parallel-seeds",
+    type=int,
+    default=1,
+    help="Number of random seeds to run in parallel (default: 1).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -179,6 +185,7 @@ def optimize(
     loss_history: Path | None,
     log_all_epochs: bool,
     verbose_losses: bool,
+    parallel_seeds: int,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -398,7 +405,7 @@ def optimize(
         # Add aesthetic losses
         from temper_placer.losses.aesthetic import create_aesthetic_losses
 
-        aes_losses = create_aesthetic_losses(netlist, constraints.aesthetics)
+        aes_losses = create_aesthetic_losses(netlist, constraints)
         losses.extend(aes_losses)
 
         return CompositeLoss(losses)
@@ -515,7 +522,32 @@ def optimize(
 
     try:
         profile_dir_str = str(profile_dir) if profile_dir else None
-        if curriculum and cfg.curriculum_phases:
+        
+        if parallel_seeds > 1:
+            from temper_placer.optimizer.train import train_parallel
+            parallel_result = train_parallel(
+                netlist,
+                board,
+                composite_loss,
+                context,
+                cfg,
+                n_seeds=parallel_seeds,
+                callback=progress_callback,
+            )
+            result = parallel_result.best_result
+            
+            console.print("\n[bold cyan]Parallel Optimization Summary:[/]")
+            console.print(f"  Confidence Score: {parallel_result.confidence_score:.2%}")
+            
+            tax_color = "red" if parallel_result.aesthetic_tax > constraints.aesthetics.max_wirelength_tax else "green"
+            console.print(f"  Aesthetic Tax: [{tax_color}]{parallel_result.aesthetic_tax:.2f}x[/] wirelength")
+            
+            if parallel_result.aesthetic_tax > constraints.aesthetics.max_wirelength_tax:
+                console.print(f"\n[bold red]Warning:[/] Aesthetic tax exceeds threshold of {constraints.aesthetics.max_wirelength_tax}x.")
+                if not click.confirm("Do you want to proceed with this high-cost layout?"):
+                    sys.exit(0)
+        
+        elif curriculum and cfg.curriculum_phases:
             result = train_multiphase(
                 netlist,
                 board,

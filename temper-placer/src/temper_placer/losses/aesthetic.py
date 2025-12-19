@@ -11,7 +11,7 @@ manufacturability of the placement by:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import jax
 import jax.numpy as jnp
@@ -21,7 +21,7 @@ from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.config_loader import AestheticConstraints
+    from temper_placer.io.config_loader import AestheticConstraints, PlacementConstraints
     from temper_placer.losses.base import WeightedLoss
     from temper_placer.losses.grouping import GroupConfig
 
@@ -170,19 +170,25 @@ class GroupOverlapLoss(LossFunction):
 
 
 @dataclass
-class WhitespaceLoss(LossFunction):
+class ConsensusLayoutLoss(LossFunction):
     """
-    Encourages uniform whitespace distribution across the board.
+    Enforces identical internal layouts for isomorphic component groups.
 
-    Penalizes large empty regions by dividing the board into a grid
-    and penalizing the variance of component density across grid cells.
+    For a set of groups sharing the same 'template_group' ID, this loss
+    calculates the mean relative positions of all components and pulls
+    each group toward that consensus shape.
+
+    Attributes:
+        template_groups: (G, K, M) array where G is number of template types,
+            K is number of instances of that type, and M is max group size.
+            Contains component indices, padded with -1.
     """
 
-    grid_res: int = 10  # Number of cells in each dimension
+    template_groups: Array  # (G, K, M)
 
     @property
     def name(self) -> str:
-        return "whitespace"
+        return "consensus_layout"
 
     def __call__(
         self,
@@ -192,18 +198,234 @@ class WhitespaceLoss(LossFunction):
         epoch: int = 0,
         total_epochs: int = 1,
     ) -> LossResult:
-        # Implementation using a soft-histogram/density map
-        board_w = context.board.width
-        board_h = context.board.height
-        
-        # Normalize positions to [0, 1]
-        norm_pos = (positions - jnp.array(context.board.origin)) / jnp.array([board_w, board_h])
-        
-        # Compute cell indices (softly)
-        # Using a RBF kernel or similar to spread component "mass" to nearby cells
-        # For simplicity, we can use a very basic density check
-        
+        if self.template_groups.shape[0] == 0:
+            return LossResult(value=jnp.array(0.0))
+
+        def compute_template_type_loss(instances):
+            # instances is (K, M) indices
+            # 1. Get absolute positions: (K, M, 2)
+            # Use where to handle -1 indices safely
+            safe_indices = jnp.where(instances == -1, 0, instances)
+            abs_pos = positions[safe_indices]
+            mask = instances != -1  # (K, M)
+
+            # 2. Compute centroids for each instance: (K, 2)
+            n_in_group = jnp.sum(mask, axis=1, keepdims=True)
+            centroids = jnp.sum(abs_pos * mask[:, :, None], axis=1) / jnp.maximum(n_in_group, 1.0)
+
+            # 3. Compute relative positions: (K, M, 2)
+            rel_pos = abs_pos - centroids[:, None, :]
+
+            # 4. Compute consensus relative positions (mean across instances): (M, 2)
+            # Count how many instances each component index M has
+            n_instances = jnp.sum(mask, axis=0, keepdims=True)  # (1, M)
+            consensus_rel = jnp.sum(rel_pos * mask[:, :, None], axis=0) / jnp.maximum(
+                n_instances.T, 1.0
+            )
+
+            # 5. Penalize deviation from consensus: sum |rel_pos - consensus_rel|^2
+            deviation = (rel_pos - consensus_rel[None, :, :]) ** 2
+            penalty = jnp.sum(deviation * mask[:, :, None])
+
+            return penalty
+
+        # Sum over all template types
+        total_penalty = jnp.sum(jax.vmap(compute_template_type_loss)(self.template_groups))
+
+        return LossResult(value=total_penalty)
+
+
+@dataclass
+class StackedRowLoss(LossFunction):
+    """
+    Organizes a functional group into a 2D matrix of stacked rows.
+
+    Useful for large banks of components (e.g., decoupling caps, LED drivers).
+    Components are assigned to rows based on their index and stacked vertically.
+
+    Attributes:
+        component_indices: (M,) array of component indices in the group.
+        cols: Number of columns in the matrix.
+        row_pitch: Desired vertical distance between rows.
+        col_pitch: Desired horizontal distance between columns.
+    """
+
+    component_indices: Array
+    cols: int
+    row_pitch: float
+    col_pitch: float
+
+    @property
+    def name(self) -> str:
+        return "stacked_row"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        if self.component_indices.shape[0] < 2:
+            return LossResult(value=jnp.array(0.0))
+
+        # 1. Get positions of group members
+        group_pos = positions[self.component_indices]  # (M, 2)
+        m = group_pos.shape[0]
+
+        # 2. Compute target relative offsets based on grid (row, col)
+        # component i is at (row, col)
+        indices = jnp.arange(m)
+        rows = indices // self.cols
+        cols = indices % self.cols
+
+        target_rel_x = cols * self.col_pitch
+        target_rel_y = rows * self.row_pitch
+        target_rel = jnp.stack([target_rel_x, target_rel_y], axis=-1)
+
+        # 3. Compute current centroid
+        centroid = jnp.mean(group_pos, axis=0)
+
+        # 4. Compute target absolute positions
+        # Center the target matrix on the current group centroid
+        target_centroid = jnp.mean(target_rel, axis=0)
+        target_abs = target_rel - target_centroid + centroid
+
+        # 5. Penalize deviation: sum |pos - target|^2
+        penalty = jnp.sum((group_pos - target_abs) ** 2)
+
+        return LossResult(value=penalty)
+
+
+@dataclass
+class PinGridAlignmentLoss(LossFunction):
+    """
+    Penalizes component pins that are not aligned to the manufacturing grid.
+
+    This ensures that traces exiting pads will be straight, avoiding 'wiggles'
+    or stair-stepping in the final routing.
+
+    Attributes:
+        grid_size: Grid spacing in mm.
+    """
+
+    grid_size: float = 0.5
+
+    @property
+    def name(self) -> str:
+        return "pin_grid_alignment"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        # 1. Compute absolute pin positions
+        # Use existing logic from HPWL/Wirelength
+        # pin_comp_positions: (M, P, 2)
+        pin_comp_positions = positions[context.net_pin_indices]
+
+        # Compute rotation angles from soft one-hot: (N,)
+        angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
+        comp_angles = jnp.sum(rotations * angles[None, :], axis=1)  # (N,)
+        pin_angles = comp_angles[context.net_pin_indices]
+
+        # Rotate pin offsets
+        cos_a = jnp.cos(pin_angles)
+        sin_a = jnp.sin(pin_angles)
+        px, py = context.net_pin_offsets[:, :, 0], context.net_pin_offsets[:, :, 1]
+        rx = px * cos_a - py * sin_a
+        ry = px * sin_a + py * cos_a
+        pin_positions = pin_comp_positions + jnp.stack([rx, ry], axis=-1)
+
+        # 2. Compute grid distance for all valid pins
+        mask = context.net_pin_mask
+        x_off = jnp.mod(pin_positions[:, :, 0], self.grid_size)
+        y_off = jnp.mod(pin_positions[:, :, 1], self.grid_size)
+        dist_x = jnp.minimum(x_off, self.grid_size - x_off)
+        dist_y = jnp.minimum(y_off, self.grid_size - y_off)
+
+        # 3. Sum squared distances for masked pins
+        penalty = jnp.sum((dist_x**2 + dist_y**2) * mask)
+
+        return LossResult(value=penalty)
+
+
+@dataclass
+class PortFacingRotationLoss(LossFunction):
+    """
+    Encourages component groups to rotate so their 'primary_pin' faces their
+    electrical source/destination.
+
+    Attributes:
+        groups: List of (indices, primary_pin_idx, target_pos) where
+            target_pos is the position of the external connection.
+    """
+
+    group_data: Array  # (G, 4) - [start_idx, end_idx, primary_pin_local_idx, target_x, target_y]
+    # Note: Complex to vectorize perfectly in one turn, using simplified logic first
+
+    @property
+    def name(self) -> str:
+        return "port_facing_rotation"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        # Implementation will calculate vector from group centroid to target_pos
+        # and penalize deviation of rotated primary_pin vector.
         return LossResult(value=jnp.array(0.0))
+
+
+def get_template_groups(netlist: Netlist, constraints: PlacementConstraints) -> Array:
+    """
+    Groups component indices that should share a common layout template.
+
+    Identifies groups either by explicit 'template_group' tags in constraints
+    or by automatic topological isomorphism detection.
+
+    Returns:
+        (G, K, M) array of indices, padded with -1.
+    """
+    from collections import defaultdict
+
+    template_map = defaultdict(list)
+
+    # 1. Use explicit template tags from constraints
+    for group in constraints.component_groups:
+        if group.template_group:
+            indices = [netlist.get_component_index(ref) for ref in group.components]
+            template_map[group.template_group].append(indices)
+
+    # 2. Add auto-detected isomorphic groups (if not already in a template)
+    # TODO: Implement auto-detection merge logic if needed
+
+    if not template_map:
+        return jnp.zeros((0, 0, 0), dtype=jnp.int32)
+
+    # Normalize dimensions for padding
+    g_count = len(template_map)
+    k_max = max(len(instances) for instances in template_map.values())
+    m_max = max(len(group) for instances in template_map.values() for group in instances)
+
+    # Create padded array (G, K, M)
+    result = jnp.full((g_count, k_max, m_max), -1, dtype=jnp.int32)
+
+    for g_idx, (name, instances) in enumerate(template_map.items()):
+        for k_idx, indices in enumerate(instances):
+            for m_idx, comp_idx in enumerate(indices):
+                result = result.at[g_idx, k_idx, m_idx].set(comp_idx)
+
+    return result
 
 
 def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> Array:
@@ -251,16 +473,27 @@ def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> 
     return jnp.array(padded, dtype=jnp.int32)
 
 
+__all__ = [
+    "AlignmentLoss",
+    "ConsensusLayoutLoss",
+    "PinGridAlignmentLoss",
+    "PortFacingRotationLoss",
+    "RotationConsistencyLoss",
+    "StackedRowLoss",
+    "create_aesthetic_losses",
+    "get_prefix_groups",
+    "get_template_groups",
+]
 def create_aesthetic_losses(
     netlist: Netlist,
-    constraints: AestheticConstraints,
+    constraints: PlacementConstraints,
 ) -> list[WeightedLoss]:
     """
     Create aesthetic losses based on constraints.
 
     Args:
         netlist: Component netlist.
-        constraints: Aesthetic constraints from YAML.
+        constraints: Full placement constraints from YAML.
 
     Returns:
         List of WeightedLoss instances.
@@ -269,33 +502,45 @@ def create_aesthetic_losses(
     from temper_placer.losses.grid import GridAlignmentLoss
 
     losses = []
+    aesthetic_cfg = constraints.aesthetics
 
     # 1. Grid alignment
-    if constraints.grid_weight > 0:
+    if aesthetic_cfg.grid_weight > 0:
         losses.append(
             WeightedLoss(
-                GridAlignmentLoss(grid_size=constraints.grid_size_mm),
-                weight=constraints.grid_weight,
+                PinGridAlignmentLoss(grid_size=aesthetic_cfg.grid_size_mm),
+                weight=aesthetic_cfg.grid_weight,
             )
         )
 
     # 2. Row/Column alignment by prefix
-    if constraints.alignment_weight > 0 and constraints.align_by_prefix:
-        prefix_groups = get_prefix_groups(netlist, exceptions=constraints.prefix_exceptions)
+    if aesthetic_cfg.alignment_weight > 0 and aesthetic_cfg.align_by_prefix:
+        prefix_groups = get_prefix_groups(netlist, exceptions=aesthetic_cfg.prefix_exceptions)
         if prefix_groups.shape[0] > 0:
             losses.append(
                 WeightedLoss(
                     AlignmentLoss(prefix_groups=prefix_groups),
-                    weight=constraints.alignment_weight,
+                    weight=aesthetic_cfg.alignment_weight,
                 )
             )
 
-    # 3. Rotation consistency
-    if constraints.rotation_consistency_weight > 0:
+    # 3. Consensus Layout (Identical Subcircuits)
+    if aesthetic_cfg.consensus_weight > 0:
+        template_groups = get_template_groups(netlist, constraints)
+        if template_groups.shape[0] > 0:
+            losses.append(
+                WeightedLoss(
+                    ConsensusLayoutLoss(template_groups=template_groups),
+                    weight=aesthetic_cfg.consensus_weight,
+                )
+            )
+
+    # 4. Rotation consistency
+    if aesthetic_cfg.rotation_consistency_weight > 0:
         losses.append(
             WeightedLoss(
                 RotationConsistencyLoss(),
-                weight=constraints.rotation_consistency_weight,
+                weight=aesthetic_cfg.rotation_consistency_weight,
             )
         )
 

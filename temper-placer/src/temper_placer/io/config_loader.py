@@ -158,18 +158,6 @@ class GroupSeparation:
 
 
 @dataclass
-class ComponentGroup:
-    """Group of components that should be placed together."""
-
-    name: str
-    components: List[str]
-    max_spread_mm: float = 30.0  # Maximum diameter of group bounding box
-    zone: Optional[str] = None  # Required zone
-    proximity_rules: List[ProximityRule] = field(default_factory=list)  # Proximity within group
-    description: str = ""
-
-
-@dataclass
 class AestheticConstraints:
     """Aesthetic and professional layout constraints."""
 
@@ -180,6 +168,26 @@ class AestheticConstraints:
     # Alignment groups: components with same prefix should align
     align_by_prefix: bool = True
     prefix_exceptions: List[str] = field(default_factory=list)
+    # The maximum allowed wirelength increase for beauty (default 2.5x)
+    max_wirelength_tax: float = 2.5
+    # Enforcement of identical layouts for isomorphic groups
+    consensus_weight: float = 1.0
+
+
+@dataclass
+class ComponentGroup:
+    """Group of components that should be placed together."""
+
+    name: str
+    components: List[str]
+    max_spread_mm: float = 30.0  # Maximum diameter of group bounding box
+    zone: Optional[str] = None  # Required zone
+    proximity_rules: List[ProximityRule] = field(default_factory=list)  # Proximity within group
+    description: str = ""
+    # Optional ID to force identical internal layouts with other groups sharing this ID
+    template_group: Optional[str] = None
+    # Optional pin number/name that defines the 'front' of the group for rotation
+    primary_pin: Optional[str] = None
 
 
 @dataclass
@@ -483,6 +491,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 zone=group_cfg.get("zone"),
                 proximity_rules=proximity_rules,
                 description=group_cfg.get("description", ""),
+                template_group=group_cfg.get("template_group"),
+                primary_pin=group_cfg.get("primary_pin"),
             )
             constraints.component_groups.append(group)
 
@@ -522,6 +532,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         )
         constraints.aesthetics.align_by_prefix = aes.get("align_by_prefix", True)
         constraints.aesthetics.prefix_exceptions = aes.get("prefix_exceptions", [])
+        constraints.aesthetics.max_wirelength_tax = aes.get("max_wirelength_tax", 2.5)
+        constraints.aesthetics.consensus_weight = aes.get("consensus_weight", 1.0)
 
     return constraints
 

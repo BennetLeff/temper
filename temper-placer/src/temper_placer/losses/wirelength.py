@@ -214,13 +214,82 @@ class SteinerTreeLoss(WirelengthLoss):
     especially for nets with many pins. This implementation uses a
     differentiable correction factor based on the number of pins in each net.
 
+    Additionally, it can incorporate a congestion penalty that scales wirelength
+    cost by the local density of components, discouraging nets from passing
+    through highly congested areas.
+
     Correction factor formula (empirical):
     RSMT ≈ HPWL * (1.0 + 0.1 * log2(n_pins - 1)) for n_pins > 2
     """
 
+    use_congestion_penalty: bool = True
+
     @property
     def name(self) -> str:
         return "steiner_wirelength"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        # Standard Steiner computation
+        res = super().__call__(positions, rotations, context, epoch, total_epochs)
+
+        if not self.use_congestion_penalty:
+            return res
+
+        # Apply congestion penalty
+        from temper_placer.losses.congestion import get_congestion_field
+
+        # Get spatial congestion map
+        congestion_grid = get_congestion_field(positions, context)
+
+        # For each net, estimate its congestion cost
+        # We simplify by taking the average congestion of the net's bounding box
+        # net_pin_indices: (M, P)
+        pin_comp_positions = positions[context.net_pin_indices]
+        all_positions = pin_comp_positions + context.net_pin_offsets
+
+        # Masked bounding boxes (M, 2)
+        masked_positions = jnp.where(
+            context.net_pin_mask[:, :, None],
+            all_positions,
+            jnp.array([jnp.inf, jnp.inf]),
+        )
+        masked_positions_max = jnp.where(
+            context.net_pin_mask[:, :, None],
+            all_positions,
+            jnp.array([-jnp.inf, -jnp.inf]),
+        )
+
+        bb_min = jnp.min(masked_positions, axis=1)
+        bb_max = jnp.max(masked_positions_max, axis=1)
+        bb_center = (bb_min + bb_max) / 2.0
+
+        # Map centers to grid coordinates
+        board_bounds = context.board.get_bounds_array()
+        x_min, y_min, x_max, y_max = board_bounds
+        rows, cols = congestion_grid.shape
+
+        grid_x = jnp.clip((bb_center[:, 0] - x_min) / (x_max - x_min) * cols, 0, cols - 1).astype(
+            jnp.int32
+        )
+        grid_y = jnp.clip((bb_center[:, 1] - y_min) / (y_max - y_min) * rows, 0, rows - 1).astype(
+            jnp.int32
+        )
+
+        # Extract congestion at each net's center
+        net_congestion = congestion_grid[grid_y, grid_x]
+
+        # Final cost is Steiner length * (1.0 + congestion_impact)
+        # Using a soft multiplier
+        total_cost = res.value * (1.0 + 0.5 * jnp.mean(net_congestion))
+
+        return LossResult(value=total_cost)
 
     def _compute_hpwl_vectorized(
         self,

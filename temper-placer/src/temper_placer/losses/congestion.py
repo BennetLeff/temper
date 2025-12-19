@@ -156,6 +156,35 @@ def compute_congestion_penalty(
     return penalty
 
 
+def get_congestion_field(
+    positions: Array,
+    context: LossContext,
+    grid_shape: Tuple[int, int] = (20, 20),
+) -> Array:
+    """
+    Generate a spatial congestion field for use in other loss functions.
+
+    Returns a grid where each cell value represents the normalized congestion level.
+    1.0 means the cell is at its estimated capacity.
+
+    Args:
+        positions: (N, 2) component positions.
+        context: LossContext.
+        grid_shape: Resolution of the congestion field.
+
+    Returns:
+        (rows, cols) normalized congestion field.
+    """
+    board_bounds = context.board.get_bounds_array()
+    demand = compute_routing_demand(positions, context, grid_shape, board_bounds)
+
+    # Simple normalization: assume average demand is a baseline
+    avg_demand = jnp.mean(demand) + 1e-6
+    normalized_field = demand / avg_demand
+
+    return normalized_field
+
+
 @dataclass
 class CongestionLoss(LossFunction):
     """

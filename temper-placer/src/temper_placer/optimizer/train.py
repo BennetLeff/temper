@@ -184,6 +184,24 @@ class TrainingResult:
 
 
 @dataclass
+class ParallelTrainingResult:
+    """
+    Aggregated result from multiple parallel training seeds.
+
+    Attributes:
+        best_result: The TrainingResult with the lowest aesthetic loss.
+        aesthetic_tax: The percentage increase in wirelength due to aesthetics.
+        confidence_score: 0.0-1.0 score based on how many seeds reached the same state.
+        all_results: List of all individual TrainingResult instances.
+    """
+
+    best_result: TrainingResult
+    aesthetic_tax: float
+    confidence_score: float
+    all_results: list[TrainingResult]
+
+
+@dataclass
 class TrainingState:
     """
     Internal state during training.
@@ -860,6 +878,76 @@ def train(
         stopped_by_validation=stopped_by_validation,
         final_overlap_weights=state.overlap_weights,
     )
+
+
+def train_parallel(
+    netlist: Netlist,
+    board: Board,
+    composite_loss: CompositeLoss,
+    context: LossContext,
+    config: OptimizerConfig,
+    n_seeds: int = 4,
+    callback: Callable[[TrainingMetrics], None] | None = None,
+) -> ParallelTrainingResult:
+    """
+    Run optimization across multiple random seeds in parallel (or sequence).
+
+    Identifies the best placement and calculates aesthetic tax.
+
+    Args:
+        netlist: Component netlist.
+        board: Board definition.
+        composite_loss: The full aesthetic loss.
+        context: Loss context.
+        config: Optimizer configuration.
+        n_seeds: Number of seeds to run.
+        callback: Optional callback for progress tracking.
+
+    Returns:
+        ParallelTrainingResult.
+    """
+    results = []
+    base_seed = config.seed
+
+    for i in range(n_seeds):
+        # Create a new config with a different seed
+        seed_config = dataclass_replace(config, seed=base_seed + i)
+        
+        # Run training
+        res = train(netlist, board, composite_loss, context, seed_config, callback=callback)
+        results.append(res)
+
+    # 1. Identify best result
+    best_result = min(results, key=lambda r: r.best_loss)
+
+    # 2. Calculate Aesthetic Tax
+    # We estimate the tax by comparing total wirelength vs a hypothetical minimum
+    # Or just looking at the wirelength component of the best result vs the average.
+    best_wl = best_result.history[-1].loss_breakdown.get("wirelength", 0.0)
+    avg_wl = jnp.mean(jnp.array([r.history[-1].loss_breakdown.get("wirelength", 0.0) for r in results]))
+    
+    # Aesthetic tax is best_wl / minimal_achieved_wl
+    min_wl = min([r.history[-1].loss_breakdown.get("wirelength", 1e9) for r in results])
+    aesthetic_tax = (best_wl / jnp.maximum(min_wl, 1e-6)) if min_wl > 0 else 1.0
+
+    # 3. Calculate Confidence Score
+    # Fraction of seeds that reached within 10% of the best loss
+    threshold = best_result.best_loss * 1.10
+    confident_seeds = sum(1 for r in results if r.best_loss < threshold)
+    confidence_score = confident_seeds / n_seeds
+
+    return ParallelTrainingResult(
+        best_result=best_result,
+        aesthetic_tax=float(aesthetic_tax),
+        confidence_score=float(confidence_score),
+        all_results=results,
+    )
+
+
+def dataclass_replace(obj, **kwargs):
+    """Simple helper to replace fields in a dataclass."""
+    from dataclasses import replace
+    return replace(obj, **kwargs)
 
 
 def train_multiphase(
