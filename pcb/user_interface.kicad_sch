@@ -100,7 +100,6 @@
   )
 
 
-  ; LED_OCP - Red LED for Over-Current Protection fault
   (symbol
     (lib_id "Device:LED")
     (at 114.3 63.5 0)
@@ -118,7 +117,6 @@
     (pin "2" (uuid "71100001-0002-0000-0000-000000000001"))
   )
 
-  ; R_LED_OCP - Current limiting resistor
   (symbol
     (lib_id "Device:R")
     (at 132.08 63.5 90)
@@ -137,7 +135,6 @@
     (pin "2" (uuid "71200001-0002-0000-0000-000000000001"))
   )
 
-  ; LED_OVP - Yellow LED for Over-Voltage Protection fault
   (symbol
     (lib_id "Device:LED")
     (at 114.3 81.28 0)
@@ -155,7 +152,6 @@
     (pin "2" (uuid "71100002-0002-0000-0000-000000000001"))
   )
 
-  ; R_LED_OVP - Current limiting resistor
   (symbol
     (lib_id "Device:R")
     (at 132.08 81.28 90)
@@ -174,7 +170,6 @@
     (pin "2" (uuid "71200002-0002-0000-0000-000000000001"))
   )
 
-  ; LED_THERMAL - Orange LED for Over-Temperature fault
   (symbol
     (lib_id "Device:LED")
     (at 114.3 99.06 0)
@@ -192,7 +187,6 @@
     (pin "2" (uuid "71100003-0002-0000-0000-000000000001"))
   )
 
-  ; R_LED_THERMAL - Current limiting resistor
   (symbol
     (lib_id "Device:R")
     (at 132.08 99.06 90)
@@ -211,7 +205,6 @@
     (pin "2" (uuid "71200003-0002-0000-0000-000000000001"))
   )
 
-  ; LED_WDT - Blue LED for Watchdog Timeout fault
   (symbol
     (lib_id "Device:LED")
     (at 114.3 116.84 0)
@@ -229,7 +222,6 @@
     (pin "2" (uuid "71100004-0002-0000-0000-000000000001"))
   )
 
-  ; R_LED_WDT - Current limiting resistor
   (symbol
     (lib_id "Device:R")
     (at 132.08 116.84 90)
@@ -248,7 +240,6 @@
     (pin "2" (uuid "71200004-0002-0000-0000-000000000001"))
   )
 
-  ; LED_MASTER - Red 3mm LED for Master Fault (panel mount)
   (symbol
     (lib_id "Device:LED")
     (at 114.3 134.62 0)
@@ -266,7 +257,6 @@
     (pin "2" (uuid "71100005-0002-0000-0000-000000000001"))
   )
 
-  ; R_LED_MASTER - Current limiting resistor
   (symbol
     (lib_id "Device:R")
     (at 132.08 134.62 90)
@@ -285,7 +275,6 @@
     (pin "2" (uuid "71200005-0002-0000-0000-000000000001"))
   )
 
-  ; Reset button
   (symbol
     (lib_id "Switch:SW_Push")
     (at 114.3 165.1 0)
@@ -304,7 +293,6 @@
   )
 
 
-  ; Power symbols - GND for LED cathodes
   (symbol
     (lib_id "power:GND")
     (at 101.6 63.5 270)
@@ -401,7 +389,6 @@
     (pin "1" (uuid "71400006-0001-0000-0000-000000000001"))
   )
 
-  ; Hierarchical labels
   (hierarchical_label "+3.3V"
     (shape input)
     (at 152.4 50.8 0)
@@ -458,32 +445,26 @@
     (uuid "71000001-0000-0000-0000-000000000007")
   )
 
-  ; Wires - LED_OCP chain: GND -> LED -> R -> signal
   (wire (pts (xy 101.6 63.5) (xy 110.49 63.5)) (stroke (width 0) (type default)) (uuid "71500001-0000-0000-0000-000000000001"))
   (wire (pts (xy 118.11 63.5) (xy 128.27 63.5)) (stroke (width 0) (type default)) (uuid "71500002-0000-0000-0000-000000000001"))
   (wire (pts (xy 135.89 63.5) (xy 152.4 63.5)) (stroke (width 0) (type default)) (uuid "71500003-0000-0000-0000-000000000001"))
 
-  ; Wires - LED_OVP chain
   (wire (pts (xy 101.6 81.28) (xy 110.49 81.28)) (stroke (width 0) (type default)) (uuid "71500004-0000-0000-0000-000000000001"))
   (wire (pts (xy 118.11 81.28) (xy 128.27 81.28)) (stroke (width 0) (type default)) (uuid "71500005-0000-0000-0000-000000000001"))
   (wire (pts (xy 135.89 81.28) (xy 152.4 81.28)) (stroke (width 0) (type default)) (uuid "71500006-0000-0000-0000-000000000001"))
 
-  ; Wires - LED_THERMAL chain
   (wire (pts (xy 101.6 99.06) (xy 110.49 99.06)) (stroke (width 0) (type default)) (uuid "71500007-0000-0000-0000-000000000001"))
   (wire (pts (xy 118.11 99.06) (xy 128.27 99.06)) (stroke (width 0) (type default)) (uuid "71500008-0000-0000-0000-000000000001"))
   (wire (pts (xy 135.89 99.06) (xy 152.4 99.06)) (stroke (width 0) (type default)) (uuid "71500009-0000-0000-0000-000000000001"))
 
-  ; Wires - LED_WDT chain
   (wire (pts (xy 101.6 116.84) (xy 110.49 116.84)) (stroke (width 0) (type default)) (uuid "7150000A-0000-0000-0000-000000000001"))
   (wire (pts (xy 118.11 116.84) (xy 128.27 116.84)) (stroke (width 0) (type default)) (uuid "7150000B-0000-0000-0000-000000000001"))
   (wire (pts (xy 135.89 116.84) (xy 152.4 116.84)) (stroke (width 0) (type default)) (uuid "7150000C-0000-0000-0000-000000000001"))
 
-  ; Wires - LED_MASTER chain
   (wire (pts (xy 101.6 134.62) (xy 110.49 134.62)) (stroke (width 0) (type default)) (uuid "7150000D-0000-0000-0000-000000000001"))
   (wire (pts (xy 118.11 134.62) (xy 128.27 134.62)) (stroke (width 0) (type default)) (uuid "7150000E-0000-0000-0000-000000000001"))
   (wire (pts (xy 135.89 134.62) (xy 152.4 134.62)) (stroke (width 0) (type default)) (uuid "7150000F-0000-0000-0000-000000000001"))
 
-  ; Wires - Reset button
   (wire (pts (xy 101.6 165.1) (xy 109.22 165.1)) (stroke (width 0) (type default)) (uuid "71500010-0000-0000-0000-000000000001"))
   (wire (pts (xy 119.38 165.1) (xy 127 165.1)) (stroke (width 0) (type default)) (uuid "71500011-0000-0000-0000-000000000001"))
 

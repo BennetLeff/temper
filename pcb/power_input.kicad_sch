@@ -90,7 +90,6 @@
     )
   )
 
-  ; ==================== TITLE AND DOCUMENTATION ====================
   (text "POWER INPUT STAGE\n\nTopology: Full-Wave Voltage Doubler (Delon)\nInput: 120VAC, 60Hz, 15A max\nOutput: ~340VDC (split: +170V / -170V)\n\nKey Features:\n- EMI filter (common mode choke)\n- Soft-start NTC inrush limiter\n- Bypass relay for NTC after startup\n- Bleeder resistors for safety discharge\n- Zero-crossing detection for soft-start\n\nSimulation: sim_33_voltage_doubler.cir\nResult: 314V avg, 20V ripple, 1538W"
     (exclude_from_sim no)
     (at 25.4 38.1 0)
@@ -98,7 +97,6 @@
     (uuid "11000000-0000-0000-0000-000000000001")
   )
 
-  ; ==================== HIERARCHICAL LABELS ====================
   (hierarchical_label "AC_L"
     (shape input)
     (at 50.8 101.6 180)
@@ -163,7 +161,6 @@
     (uuid "11000001-0000-0000-0000-000000000008")
   )
 
-  ; ==================== FUSE F1 ====================
   (symbol
     (lib_id "Device:Fuse")
     (at 71.12 101.6 90)
@@ -181,7 +178,6 @@
     (pin "2" (uuid "f1-pin2-uuid"))
   )
 
-  ; ==================== INRUSH LIMITER NTC ====================
   (symbol
     (lib_id "Device:Thermistor_NTC")
     (at 101.6 101.6 0)
@@ -201,8 +197,6 @@
     (pin "2" (uuid "ntc-pin2-uuid"))
   )
 
-  ; ==================== VOLTAGE DOUBLER DIODES D1, D2 ====================
-  ; D1 (top, anode to AC, cathode to +bus)
   (symbol
     (lib_id "Device:D")
     (at 200.66 88.9 0)
@@ -222,7 +216,6 @@
     (pin "2" (uuid "d1-pin2-uuid"))
   )
 
-  ; D2 (bottom, cathode to AC, anode to -bus)
   (symbol
     (lib_id "Device:D")
     (at 200.66 152.4 180)
@@ -242,8 +235,6 @@
     (pin "2" (uuid "d2-pin2-uuid"))
   )
 
-  ; ==================== BUS CAPACITORS C_BUS1, C_BUS2 ====================
-  ; C_BUS1 (+rail to center)
   (symbol
     (lib_id "Device:C_Polarized")
     (at 228.6 104.14 0)
@@ -263,7 +254,6 @@
     (pin "2" (uuid "cbus1-pin2-uuid"))
   )
 
-  ; C_BUS2 (center to -rail)
   (symbol
     (lib_id "Device:C_Polarized")
     (at 228.6 137.16 0)
@@ -283,8 +273,6 @@
     (pin "2" (uuid "cbus2-pin2-uuid"))
   )
 
-  ; ==================== BLEEDER RESISTORS R_BLEED1, R_BLEED2 ====================
-  ; R_BLEED1 (across C_BUS1)
   (symbol
     (lib_id "Device:R")
     (at 251.46 104.14 0)
@@ -302,7 +290,6 @@
     (pin "2" (uuid "rbleed1-pin2-uuid"))
   )
 
-  ; R_BLEED2 (across C_BUS2)
   (symbol
     (lib_id "Device:R")
     (at 251.46 137.16 0)
@@ -320,7 +307,6 @@
     (pin "2" (uuid "rbleed2-pin2-uuid"))
   )
 
-  ; ==================== ZCD (Zero-Crossing Detection) Resistors ====================
   (text "Zero-Crossing Detection\nfor soft-start synchronization"
     (exclude_from_sim no)
     (at 127 172.72 0)
@@ -345,18 +331,14 @@
     (pin "2" (uuid "rzcd-pin2-uuid"))
   )
 
-  ; ==================== WIRING ====================
-  ; AC_L path: inlet -> fuse -> NTC -> diode junction
   (wire (pts (xy 50.8 101.6) (xy 67.31 101.6)) (stroke (width 0) (type default)) (uuid "wire-acl-001"))
   (wire (pts (xy 74.93 101.6) (xy 101.6 96.52)) (stroke (width 0) (type default)) (uuid "wire-acl-002"))
   (wire (pts (xy 101.6 106.68) (xy 101.6 120.65)) (stroke (width 0) (type default)) (uuid "wire-acl-003"))
   (wire (pts (xy 101.6 120.65) (xy 180.34 120.65)) (stroke (width 0) (type default)) (uuid "wire-acl-004"))
   
-  ; Junction to diodes
   (wire (pts (xy 180.34 88.9) (xy 180.34 120.65)) (stroke (width 0) (type default)) (uuid "wire-junction-001"))
   (wire (pts (xy 180.34 120.65) (xy 180.34 152.4)) (stroke (width 0) (type default)) (uuid "wire-junction-002"))
   
-  ; D1 to +bus
   (wire (pts (xy 180.34 88.9) (xy 196.85 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-001"))
   (wire (pts (xy 204.47 88.9) (xy 228.6 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-002"))
   (wire (pts (xy 228.6 88.9) (xy 228.6 100.33)) (stroke (width 0) (type default)) (uuid "wire-d1-003"))
@@ -364,7 +346,6 @@
   (wire (pts (xy 251.46 88.9) (xy 251.46 100.33)) (stroke (width 0) (type default)) (uuid "wire-d1-005"))
   (wire (pts (xy 251.46 88.9) (xy 279.4 88.9)) (stroke (width 0) (type default)) (uuid "wire-d1-006"))
   
-  ; D2 to -bus
   (wire (pts (xy 180.34 152.4) (xy 196.85 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-001"))
   (wire (pts (xy 204.47 152.4) (xy 228.6 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-002"))
   (wire (pts (xy 228.6 140.97) (xy 228.6 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-003"))
@@ -372,26 +353,21 @@
   (wire (pts (xy 251.46 140.97) (xy 251.46 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-005"))
   (wire (pts (xy 251.46 152.4) (xy 279.4 152.4)) (stroke (width 0) (type default)) (uuid "wire-d2-006"))
   
-  ; Center tap
   (wire (pts (xy 228.6 107.95) (xy 228.6 120.65)) (stroke (width 0) (type default)) (uuid "wire-center-001"))
   (wire (pts (xy 228.6 120.65) (xy 228.6 133.35)) (stroke (width 0) (type default)) (uuid "wire-center-002"))
   (wire (pts (xy 251.46 107.95) (xy 251.46 120.65)) (stroke (width 0) (type default)) (uuid "wire-center-003"))
   (wire (pts (xy 251.46 120.65) (xy 251.46 133.35)) (stroke (width 0) (type default)) (uuid "wire-center-004"))
   (wire (pts (xy 228.6 120.65) (xy 279.4 120.65)) (stroke (width 0) (type default)) (uuid "wire-center-005"))
   
-  ; AC_N to center
   (wire (pts (xy 50.8 139.7) (xy 228.6 139.7)) (stroke (width 0) (type default)) (uuid "wire-acn-001"))
   (wire (pts (xy 228.6 120.65) (xy 228.6 133.35)) (stroke (width 0) (type default)) (uuid "wire-acn-002"))
   
-  ; ZCD
   (wire (pts (xy 101.6 120.65) (xy 110.49 120.65)) (stroke (width 0) (type default)) (uuid "wire-zcd-001"))
   (wire (pts (xy 110.49 120.65) (xy 110.49 165.1)) (stroke (width 0) (type default)) (uuid "wire-zcd-002"))
   (wire (pts (xy 118.11 165.1) (xy 127 165.1)) (stroke (width 0) (type default)) (uuid "wire-zcd-003"))
   
-  ; PE
   (wire (pts (xy 50.8 165.1) (xy 93.98 165.1)) (stroke (width 0) (type default)) (uuid "wire-pe-001"))
 
-  ; ==================== NET LABELS ====================
   (label "AC_L_FUSED" (at 83.82 101.6 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-aclf-001"))
   (label "+170V" (at 238.76 88.9 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-170v-001"))
   (label "-170V" (at 238.76 152.4 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-170v-m-001"))

@@ -43,7 +43,6 @@
     )
   )
 
-  ; ==================== TITLE AND DOCUMENTATION ====================
   (text "SAFETY INTERLOCK SYSTEM\n\nProtection Layers:\n1. OCP: TLV3201 comparator, 50A threshold\n2. OVP: TLV3201 comparator, 390V threshold\n3. Thermal: TLV3201 w/ hysteresis, 85C trip\n4. Watchdog: TPS3823-33, 1.6s timeout\n\nFault Logic:\n- 74HC4075: Triple 3-input OR (fault combine)\n- 74HC00: Quad NAND (SR latch)\n- 74HC08: Quad AND (reset logic)\n- 74HC04: Hex inverter\n\nResponse Times:\n- OCP: 33ns detection + 50ns logic = 83ns\n- OVP: 9ns detection + 50ns logic = 59ns\n- Thermal: <1ms\n- WDT: 1.6s timeout\n\nReference: SAFETY_INTERLOCK_DESIGN.md"
     (exclude_from_sim no)
     (at 25.4 25.4 0)
@@ -51,7 +50,6 @@
     (uuid "41000000-0000-0000-0000-000000000001")
   )
 
-  ; ==================== HIERARCHICAL LABELS ====================
   (hierarchical_label "+15V"
     (shape input)
     (at 25.4 76.2 180)
@@ -132,7 +130,6 @@
     (uuid "41000001-0000-0000-0000-000000000010")
   )
 
-  ; ==================== POWER SYMBOLS ====================
   (symbol
     (lib_id "power:+5V")
     (at 63.5 68.58 0)
@@ -157,7 +154,6 @@
     (property "Value" "GND" (at 63.5 135.89 0) (effects (font (size 1.27 1.27))))
   )
 
-  ; ==================== OCP SECTION ====================
   (text "OCP - OVERCURRENT PROTECTION\nThreshold: 50A (2.5V from CT)\nComparator: TLV3201 (40ns)"
     (exclude_from_sim no)
     (at 50.8 93.98 0)
@@ -165,7 +161,6 @@
     (uuid "43000000-0000-0000-0000-000000000001")
   )
 
-  ; OCP Comparator U_OCP
   (symbol
     (lib_id "Comparator:TLV3201")
     (at 101.6 111.76 0)
@@ -189,7 +184,6 @@
     (pin "5" (uuid "uocp-pin5"))
   )
 
-  ; OCP Reference Voltage Divider (2.5V from 5V)
   (symbol
     (lib_id "Device:R")
     (at 63.5 106.68 0)
@@ -224,7 +218,6 @@
     (pin "2" (uuid "rocp2-pin2"))
   )
 
-  ; ==================== OVP SECTION ====================
   (text "OVP - OVERVOLTAGE PROTECTION\nThreshold: 390V (3.86V after divider)\nDivider: 3x1MΩ + 30kΩ = 101:1"
     (exclude_from_sim no)
     (at 50.8 144.78 0)
@@ -232,7 +225,6 @@
     (uuid "44000000-0000-0000-0000-000000000001")
   )
 
-  ; OVP Comparator U_OVP
   (symbol
     (lib_id "Comparator:TLV3201")
     (at 101.6 165.1 0)
@@ -253,7 +245,6 @@
     (pin "5" (uuid "uovp-pin5"))
   )
 
-  ; OVP HV Resistive Divider (3x 1MΩ series, 30kΩ to GND)
   (symbol
     (lib_id "Device:R")
     (at 50.8 160.02 0)
@@ -324,7 +315,6 @@
     (pin "2" (uuid "rovp4-pin2"))
   )
 
-  ; OVP Reference Voltage Divider (3.85V from 5V)
   (symbol
     (lib_id "Device:R")
     (at 76.2 160.02 0)
@@ -357,7 +347,6 @@
     (pin "2" (uuid "rovpref2-pin2"))
   )
 
-  ; ==================== THERMAL SECTION ====================
   (text "THERMAL SHUTDOWN\nThreshold: 85C trip, 75C reset\nNTC: 10kΩ @ 25C, B=3950"
     (exclude_from_sim no)
     (at 50.8 213.36 0)
@@ -365,7 +354,6 @@
     (uuid "45000000-0000-0000-0000-000000000001")
   )
 
-  ; Thermal Comparator U_THERMAL
   (symbol
     (lib_id "Comparator:TLV3201")
     (at 101.6 228.6 0)
@@ -386,7 +374,6 @@
     (pin "5" (uuid "uthermal-pin5"))
   )
 
-  ; NTC Pull-up Resistor
   (symbol
     (lib_id "Device:R")
     (at 63.5 223.52 0)
@@ -404,7 +391,6 @@
     (pin "2" (uuid "rntcpu-pin2"))
   )
 
-  ; Thermal Reference (0.5V trip threshold)
   (symbol
     (lib_id "Device:R")
     (at 76.2 223.52 0)
@@ -437,7 +423,6 @@
     (pin "2" (uuid "rthref2-pin2"))
   )
 
-  ; ==================== WATCHDOG SECTION ====================
   (text "HARDWARE WATCHDOG\nTPS3823-33: 1.6s timeout\nWDI: Toggle from MCU GPIO"
     (exclude_from_sim no)
     (at 50.8 261.62 0)
@@ -445,7 +430,6 @@
     (uuid "46000000-0000-0000-0000-000000000001")
   )
 
-  ; Watchdog IC TPS3823-33
   (symbol
     (lib_id "Timer:TPS3823-33")
     (at 101.6 279.4 0)
@@ -469,7 +453,6 @@
     (pin "5" (uuid "uwdt-pin5-wdi"))
   )
 
-  ; Watchdog Decoupling
   (symbol
     (lib_id "Device:C")
     (at 78.74 279.4 0)
@@ -487,7 +470,6 @@
     (pin "2" (uuid "cwdt-pin2"))
   )
 
-  ; ==================== FAULT LOGIC SECTION ====================
   (text "FAULT LOGIC\n74HC4075: OR gates (fault combine)\n74HC00: NAND gates (SR latch)\n74HC08: AND gates (reset logic)\n74HC04: Inverters"
     (exclude_from_sim no)
     (at 177.8 93.98 0)
@@ -495,7 +477,6 @@
     (uuid "47000000-0000-0000-0000-000000000001")
   )
 
-  ; Triple 3-Input OR Gate 74HC4075
   (symbol
     (lib_id "74xx:74HC4075")
     (at 215.9 127 0)
@@ -527,7 +508,6 @@
     (pin "14" (uuid "uor-pin14"))
   )
 
-  ; Quad NAND Gate 74HC00 (SR Latch)
   (symbol
     (lib_id "74xx:74HC00")
     (at 279.4 127 0)
@@ -559,7 +539,6 @@
     (pin "14" (uuid "unand-pin14"))
   )
 
-  ; Quad AND Gate 74HC08 (Reset Logic)
   (symbol
     (lib_id "74xx:74HC08")
     (at 330.2 152.4 0)
@@ -591,7 +570,6 @@
     (pin "14" (uuid "uand-pin14"))
   )
 
-  ; Hex Inverter 74HC04
   (symbol
     (lib_id "74xx:74HC04")
     (at 330.2 200.66 0)
@@ -623,7 +601,6 @@
     (pin "14" (uuid "uinv-pin14"))
   )
 
-  ; ==================== DECOUPLING CAPACITORS ====================
   (symbol
     (lib_id "Device:C")
     (at 200.66 144.78 0)
@@ -692,7 +669,6 @@
     (pin "2" (uuid "cinv-pin2"))
   )
 
-  ; ==================== NET LABELS ====================
   (label "OCP_FAULT"
     (at 127 111.76 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -735,8 +711,6 @@
     (uuid "label-gatedis-001")
   )
 
-  ; ==================== WIRING (Key connections) ====================
-  ; I_SENSE to OCP comparator input
   (wire
     (pts (xy 25.4 101.6) (xy 88.9 101.6))
     (stroke (width 0) (type default))
@@ -748,7 +722,6 @@
     (uuid "wire-isense-002")
   )
 
-  ; OCP reference divider midpoint to comparator
   (wire
     (pts (xy 63.5 110.49) (xy 63.5 114.3))
     (stroke (width 0) (type default))
@@ -760,7 +733,6 @@
     (uuid "wire-ocpref-002")
   )
 
-  ; OCP output to fault OR
   (wire
     (pts (xy 114.3 111.76) (xy 175.26 111.76))
     (stroke (width 0) (type default))
@@ -777,7 +749,6 @@
     (uuid "wire-ocpout-003")
   )
 
-  ; DC_BUS+ to OVP divider
   (wire
     (pts (xy 25.4 152.4) (xy 50.8 152.4))
     (stroke (width 0) (type default))
@@ -789,7 +760,6 @@
     (uuid "wire-dcbus-002")
   )
 
-  ; OVP divider to comparator
   (wire
     (pts (xy 50.8 189.23) (xy 50.8 190.5))
     (stroke (width 0) (type default))
@@ -811,7 +781,6 @@
     (uuid "wire-ovpdiv-004")
   )
 
-  ; OVP output to fault OR
   (wire
     (pts (xy 114.3 165.1) (xy 170.18 165.1))
     (stroke (width 0) (type default))
@@ -828,7 +797,6 @@
     (uuid "wire-ovpout-003")
   )
 
-  ; NTC_SENSE to thermal comparator
   (wire
     (pts (xy 25.4 203.2) (xy 40.64 203.2))
     (stroke (width 0) (type default))
@@ -845,7 +813,6 @@
     (uuid "wire-ntc-003")
   )
 
-  ; Thermal output to fault OR
   (wire
     (pts (xy 114.3 228.6) (xy 165.1 228.6))
     (stroke (width 0) (type default))
@@ -862,7 +829,6 @@
     (uuid "wire-thermout-003")
   )
 
-  ; WDT_KICK to watchdog WDI
   (wire
     (pts (xy 25.4 254) (xy 60.96 254))
     (stroke (width 0) (type default))
@@ -879,7 +845,6 @@
     (uuid "wire-wdtkick-003")
   )
 
-  ; WDT RESET_N output (needs inversion for WDT_FAULT)
   (wire
     (pts (xy 114.3 279.4) (xy 147.32 279.4))
     (stroke (width 0) (type default))
@@ -891,21 +856,18 @@
     (uuid "wire-wdtout-002")
   )
 
-  ; OR gate output to latch
   (wire
     (pts (xy 228.6 127) (xy 266.7 127))
     (stroke (width 0) (type default))
     (uuid "wire-orout-001")
   )
 
-  ; Latch output to SHUTDOWN_N
   (wire
     (pts (xy 292.1 127) (xy 381 127))
     (stroke (width 0) (type default))
     (uuid "wire-latchout-001")
   )
 
-  ; FAULT_STATUS output
   (wire
     (pts (xy 358.14 139.7) (xy 381 139.7))
     (stroke (width 0) (type default))
