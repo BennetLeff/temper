@@ -170,6 +170,19 @@ class ComponentGroup:
 
 
 @dataclass
+class AestheticConstraints:
+    """Aesthetic and professional layout constraints."""
+
+    grid_size_mm: float = 0.5
+    grid_weight: float = 1.0
+    alignment_weight: float = 1.0
+    rotation_consistency_weight: float = 1.0
+    # Alignment groups: components with same prefix should align
+    align_by_prefix: bool = True
+    prefix_exceptions: List[str] = field(default_factory=list)
+
+
+@dataclass
 class PlacementConstraints:
     """Complete set of placement constraints."""
 
@@ -185,6 +198,9 @@ class PlacementConstraints:
     # Clearance rules
     clearances: List[ClearanceRule] = field(default_factory=list)
     hv_clearance_mm: float = 10.0  # Default HV-LV clearance
+
+    # Aesthetics
+    aesthetics: AestheticConstraints = field(default_factory=AestheticConstraints)
 
     # Critical loops (EMI-sensitive)
     critical_loops: List[CriticalLoop] = field(default_factory=list)
@@ -494,6 +510,18 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     # Parse net classes
     if "net_classes" in config:
         constraints.net_classes = config["net_classes"]
+
+    # Parse aesthetics
+    if "aesthetics" in config:
+        aes = config["aesthetics"]
+        constraints.aesthetics.grid_size_mm = aes.get("grid_size_mm", 0.5)
+        constraints.aesthetics.grid_weight = aes.get("grid_weight", 1.0)
+        constraints.aesthetics.alignment_weight = aes.get("alignment_weight", 1.0)
+        constraints.aesthetics.rotation_consistency_weight = aes.get(
+            "rotation_consistency_weight", 1.0
+        )
+        constraints.aesthetics.align_by_prefix = aes.get("align_by_prefix", True)
+        constraints.aesthetics.prefix_exceptions = aes.get("prefix_exceptions", [])
 
     return constraints
 

@@ -139,6 +139,23 @@ def main() -> None:
     default=0.025,
     help="GradNorm weight update learning rate (default: 0.025).",
 )
+@click.option(
+    "--loss-history",
+    type=click.Path(path_type=Path),
+    help="Save full loss history to JSON file.",
+)
+@click.option(
+    "--log-all-epochs",
+    is_flag=True,
+    default=False,
+    help="Record metrics for every epoch (warning: increases file size).",
+)
+@click.option(
+    "--verbose-losses",
+    is_flag=True,
+    default=False,
+    help="Show detailed loss breakdown in console during optimization.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -159,6 +176,9 @@ def optimize(
     grad_norm: bool,
     grad_norm_alpha: float,
     grad_norm_lr: float,
+    loss_history: Path | None,
+    log_all_epochs: bool,
+    verbose_losses: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -375,6 +395,12 @@ def optimize(
         # Add more losses based on constraints
         # (clearance, thermal, zone, loop_area, etc. can be added here)
 
+        # Add aesthetic losses
+        from temper_placer.losses.aesthetic import create_aesthetic_losses
+
+        aes_losses = create_aesthetic_losses(netlist, constraints.aesthetics)
+        losses.extend(aes_losses)
+
         return CompositeLoss(losses)
 
     # Default weights for non-curriculum mode
@@ -400,12 +426,14 @@ def optimize(
 
     gn_cfg = GradNormConfig(alpha=grad_norm_alpha, learning_rate=grad_norm_lr)
 
+    log_interval = 1 if log_all_epochs else max(1, epochs // 100)
+
     if curriculum:
         phases = create_default_phases(epochs)
         cfg = OptimizerConfig(
             epochs=epochs,
             seed=seed,
-            log_interval=max(1, epochs // 100),  # Log ~100 times
+            log_interval=log_interval,
             curriculum_phases=phases,
             use_centrality_weighting=centrality,
             use_grad_norm=grad_norm,
@@ -416,7 +444,7 @@ def optimize(
         cfg = OptimizerConfig(
             epochs=epochs,
             seed=seed,
-            log_interval=max(1, epochs // 100),
+            log_interval=log_interval,
             use_centrality_weighting=centrality,
             use_grad_norm=grad_norm,
             grad_norm=gn_cfg,
@@ -426,6 +454,8 @@ def optimize(
         f"  [green]✓[/] Temperature: {cfg.temperature.start:.1f} → {cfg.temperature.end:.2f}"
     )
     console.print(f"  [green]✓[/] Learning rate: {cfg.learning_rate.initial:.4f}")
+    if log_all_epochs:
+        console.print("  [green]✓[/] Logging: all epochs")
 
     # Step 5: Run optimization
     console.print("\n[bold cyan]Step 5/5:[/] Running optimization...")
@@ -450,16 +480,17 @@ def optimize(
         if interrupted:
             raise KeyboardInterrupt()
 
-        # Print every 10% of epochs
-        print_interval = max(1, epochs // 10)
+        # Print every 10% of epochs (unless verbose)
+        print_interval = 10 if verbose_losses else max(1, epochs // 10)
         if metrics.epoch % print_interval == 0 or metrics.epoch == epochs - 1:
             phase_name = ""
             if curriculum and cfg.curriculum_phases:
                 for p in cfg.curriculum_phases:
                     if p.start_epoch <= metrics.epoch < p.end_epoch:
-                        phase_name = f" [{p.name}]"
+                        phase_name = f" [[bold]{p.name}[/]]"
                         break
 
+            # Format total loss line
             console.print(
                 f"  Epoch {metrics.epoch:5d}/{epochs}: "
                 f"loss={metrics.loss:8.2f}, "
@@ -467,6 +498,20 @@ def optimize(
                 f"lr={metrics.learning_rate:.5f}"
                 f"{phase_name}"
             )
+
+            # Format breakdown if verbose
+            if verbose_losses and metrics.loss_breakdown:
+                # Group by major categories
+                sorted_keys = sorted(metrics.loss_breakdown.keys())
+                breakdown_str = "    "
+                for i, k in enumerate(sorted_keys):
+                    val = metrics.loss_breakdown[k]
+                    if val > 0.01:  # Hide near-zero losses
+                        breakdown_str += f"{k}={val:6.2f}  "
+                        if (i + 1) % 4 == 0:
+                            breakdown_str += "\n    "
+                if breakdown_str.strip():
+                    console.print(f"[dim]{breakdown_str}[/]")
 
     try:
         profile_dir_str = str(profile_dir) if profile_dir else None
@@ -520,6 +565,39 @@ def optimize(
 
     # Export results
     console.print("\n[bold cyan]Exporting results...[/]")
+
+    # Save loss history if requested
+    if loss_history:
+        try:
+            from temper_placer.visualization.model import (
+                LossDataPoint,
+                LossHistory,
+            )
+
+            history_obj = LossHistory()
+            for m in result.history:
+                history_obj.add_point(
+                    LossDataPoint(
+                        epoch=m.epoch,
+                        total_loss=m.loss,
+                        breakdown=m.loss_breakdown,
+                        temperature=m.temperature,
+                        learning_rate=m.learning_rate,
+                    )
+                )
+
+            # Add phase boundaries
+            if curriculum and cfg.curriculum_phases:
+                history_obj.phase_boundaries = [p.start_epoch for p in cfg.curriculum_phases]
+                history_obj.phase_names = [p.name for p in cfg.curriculum_phases]
+
+            loss_history.parent.mkdir(parents=True, exist_ok=True)
+            with open(loss_history, "w") as f:
+                json.dump(history_obj.to_dict(), f, indent=2)
+
+            console.print(f"  [green]✓[/] Wrote {loss_history}")
+        except Exception as e:
+            console.print(f"  [yellow]Warning:[/] Failed to save loss history: {e}")
 
     # Get component refs in order
     component_refs = [c.ref for c in netlist.components]

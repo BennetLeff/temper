@@ -1115,6 +1115,43 @@ def train_multiphase(
             else:
                 epochs_without_improvement += 1
 
+            # Log metrics at intervals
+            if epoch % config.log_interval == 0 or epoch == config.epochs - 1:
+                # Compute gradient norms
+                grad_norm_pos = float(jnp.linalg.norm(grad_pos))
+                grad_norm_rot = float(jnp.linalg.norm(grad_rot))
+
+                # Use breakdown from train_step (no recomputation needed!)
+                # Convert arrays to scalars for logging, keeping only the totals
+                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
+                           for k, v in loss_breakdown_arrays.items()}
+
+                # Extract current loss weights for logging
+                logged_weights = None
+                if config.use_grad_norm and state.loss_weights is not None:
+                    logged_weights = {
+                        name: float(state.loss_weights[i])
+                        for i, name in enumerate(composite_loss.loss_names)
+                    }
+
+                epoch_time_ms = (time.time() - epoch_start) * 1000
+
+                metrics = TrainingMetrics(
+                    epoch=epoch,
+                    loss=loss_value,
+                    temperature=temperature,
+                    learning_rate=lr,
+                    loss_breakdown=breakdown,
+                    grad_norm_pos=grad_norm_pos,
+                    grad_norm_rot=grad_norm_rot,
+                    elapsed_ms=epoch_time_ms,
+                    loss_weights=logged_weights,
+                )
+                history.append(metrics)
+
+                if callback is not None:
+                    callback(metrics)
+
             # Early stopping
             if (
                 config.early_stopping.enabled

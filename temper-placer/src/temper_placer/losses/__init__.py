@@ -208,6 +208,12 @@ from temper_placer.losses.via_density import (
     ViaDensityLoss,
 )
 
+# Aesthetic losses
+from temper_placer.losses.aesthetic import (
+    AlignmentLoss,
+    RotationConsistencyLoss,
+)
+
 # Coil requirement loss
 from temper_placer.losses.coil import (
     CoilRequirementLoss,
@@ -258,6 +264,8 @@ __all__ = [
     "NetClassSeparationLoss",
     "create_net_class_loss",
     "NetClassRule",
+    "AlignmentLoss",
+    "RotationConsistencyLoss",
     "EdgeCrossingLoss",
     "NoiseSensitiveIsolationLoss",
     "CrystalPlacementLoss",
