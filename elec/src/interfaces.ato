@@ -1,0 +1,129 @@
+# interfaces.ato
+# Standard interface definitions for Temper Induction Cooker
+# Reference: atopile stdlib (https://docs.atopile.io/atopile/api-reference/interfaces)
+#
+# NOTE: This file requires atopile >= 0.2.0 with experimental features enabled.
+# To use these interfaces, add the following pragmas to the importing file:
+#
+#   #pragma experiment("MODULE_TEMPLATING")
+#   #pragma experiment("TRAITS")
+#
+# STATUS: DRAFT - Not yet integrated into main design (temper-ip1.5)
+# These interfaces are provided as a reference for future refactoring.
+
+# ==============================================================================
+# FUTURE INTEGRATION PLAN (temper-ip1.5)
+# ==============================================================================
+#
+# Phase 1: Power interfaces
+#   - Replace signal gnd / vcc_3v3 / vcc_15v with ElectricPower interfaces
+#   - Add voltage assertions (e.g., assert power_3v3.voltage within 3.3V +/- 5%)
+#
+# Phase 2: Communication interfaces
+#   - Replace raw SPI signals with SPI interface in RTDSensing
+#   - Replace raw I2C signals with I2C interface (future expansion)
+#
+# Phase 3: Analog signals
+#   - Replace raw analog signals with ElectricSignal interfaces
+#   - Add voltage range constraints
+#
+# Example migration pattern:
+#
+# BEFORE (current):
+#   module RTDSensing:
+#       signal vdd
+#       signal gnd
+#       signal spi_cs
+#       signal spi_clk
+#       signal spi_mosi
+#       signal spi_miso
+#
+# AFTER (with interfaces):
+#   import SPI, ElectricPower
+#   module RTDSensing:
+#       power = new ElectricPower
+#       assert power.voltage within 3.3V +/- 10%
+#       spi = new SPI
+#       spi.sclk.reference ~ power
+#       spi.miso.reference ~ power
+#       spi.mosi.reference ~ power
+#       cs = new ElectricLogic
+#       cs.reference ~ power
+
+# ==============================================================================
+# INTERFACE IMPORTS (for reference)
+# ==============================================================================
+# When ready to integrate, use these imports:
+#
+# import ElectricPower    # Power rails with voltage/current attributes
+# import ElectricLogic    # Digital signals with reference
+# import ElectricSignal   # Analog signals with reference
+# import SPI              # SPI bus (sclk, miso, mosi as ElectricLogic)
+# import I2C              # I2C bus (scl, sda as ElectricLogic)
+# import UART             # UART (tx, rx as ElectricLogic)
+
+# ==============================================================================
+# CUSTOM INTERFACES FOR TEMPER
+# ==============================================================================
+
+# High-voltage interface for DC bus connections
+# Custom interface since stdlib doesn't have high-voltage specific interface
+interface HighVoltageBus:
+    """High voltage DC bus interface (340V typical)."""
+    signal hv_plus   # Positive rail
+    signal hv_minus  # Negative rail / return
+    signal gnd_ref   # Ground reference
+    
+    # Attributes for constraint checking
+    v_nominal: voltage
+    v_max: voltage
+    class = "HighVoltage"
+
+# Gate drive interface
+interface GateDrive:
+    """Gate driver output interface for IGBTs."""
+    signal out      # Gate drive output
+    signal vss      # Source reference (high-side: bootstrap, low-side: gnd)
+    signal vdd      # Gate driver supply
+    
+    v_on: voltage   # Turn-on voltage
+    v_off: voltage  # Turn-off voltage (negative for enhanced turn-off)
+
+# Analog sensing interface
+interface AnalogSense:
+    """Analog sensing signal with reference."""
+    signal sense    # Analog sense line
+    signal gnd      # Ground reference
+    
+    v_max: voltage  # Maximum input voltage
+    v_min: voltage  # Minimum input voltage (can be negative for CT)
+    bandwidth: frequency  # Signal bandwidth
+
+# Current transformer interface
+interface CTInterface:
+    """Current transformer secondary interface."""
+    signal s_plus   # Secondary positive
+    signal s_minus  # Secondary negative (usually to burden resistor)
+    
+    ratio: dimensionless      # Turns ratio
+    i_secondary_max: current  # Max secondary current
+
+# ==============================================================================
+# USAGE NOTES
+# ==============================================================================
+#
+# 1. The stdlib interfaces (ElectricPower, SPI, I2C) provide:
+#    - Automatic reference/ground propagation
+#    - Type checking at connection points
+#    - Cleaner, more readable code
+#
+# 2. Custom interfaces above are defined for Temper-specific needs:
+#    - HighVoltageBus: For DC bus connections with clearance requirements
+#    - GateDrive: For IGBT gate drive with negative bias support
+#    - AnalogSense: For ADC input signals with range constraints
+#    - CTInterface: For current transformer connections
+#
+# 3. Migration strategy:
+#    - Start with leaf modules (RTDSensing, CurrentSensing)
+#    - Work up to higher-level modules (PowerManagement, SafetyInterlock)
+#    - Update Top module last to ensure all interfaces align

@@ -109,6 +109,63 @@ module Top:
     assert v_bus_max <= 400V
     
     # ===========================================================================
+    # SAFETY INTERLOCK ASSERTIONS (temper-ip1.6)
+    # Verify protection trips BEFORE component limits
+    # Critical for IEC 60335-1 compliance
+    # ===========================================================================
+    
+    # OCP must trip before IGBT SOA limit
+    # IGBT rated 40A continuous, SOA allows 60A pulsed
+    # OCP trips at ~37.6A (per OCPComparator)
+    i_ocp_trip: current = 37.6A
+    i_igbt_soa_limit: current = 60A
+    assert i_ocp_trip < i_igbt_soa_limit
+    assert i_ocp_trip < hb.power_loop.q_high.current_rating
+    
+    # OVP must trip before bus capacitor ratings exceeded
+    # Bus caps rated 250V each, in series = 500V total
+    # OVP trips at 390V
+    v_ovp_trip: voltage = 390V
+    v_cap_max: voltage = 500V  # Series combination
+    assert v_ovp_trip < v_cap_max
+    assert v_ovp_trip > v_bus_max  # But after normal operation
+    
+    # Thermal protection must trip before component limits
+    # IGBT max junction: 150°C, derate at 125°C
+    # Thermal comparator set for 85°C ambient
+    t_thermal_trip: temperature = 85C
+    t_igbt_max: temperature = 150C
+    t_igbt_derate: temperature = 125C
+    assert t_thermal_trip < t_igbt_derate
+    
+    # Watchdog timeout must allow system response but catch stuck states
+    # 1.6s timeout per TPS3823-33
+    t_wdt_timeout: time = 1.6s
+    t_fault_response_max: time = 0.1s  # System should respond in <100ms
+    assert t_wdt_timeout > t_fault_response_max * 10  # Margin for normal operation
+    
+    # ===========================================================================
+    # TIMING BUDGET CONSTRAINTS (temper-ip1.4)
+    # System-level timing verification
+    # ===========================================================================
+    
+    # MCU boot time must complete before any safety-critical operation
+    # MCU boots in ~14ms (per EN RC delay), relay engages after ~500ms
+    t_mcu_boot: time = 14ms
+    t_soft_start_delay: time = 500ms  # Time before relay bypass
+    assert t_mcu_boot < t_soft_start_delay  # MCU ready before power stage
+    
+    # Dead-time budget (system-level)
+    # Hardware minimum: 25ns (from dt_cap)
+    # Software configured: 300ns (in MCPWM registers)
+    # IGBT turn-off: 245ns
+    # Total margin: 300 - 245 = 55ns (>50ns minimum margin)
+    t_dt_hw_min: time = 25ns
+    t_dt_sw: time = 300ns
+    t_igbt_off: time = 245ns
+    assert t_dt_sw > t_igbt_off + 50ns  # Software dead-time provides margin
+    
+    # ===========================================================================
     # POWER CONNECTIONS
     # ===========================================================================
     

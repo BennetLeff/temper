@@ -27,7 +27,7 @@ component IKW40N120H3:
 component UCC21550BDWK:
     """TI Isolated Dual Gate Driver"""
     footprint = "SOIC16W_Isolated"
-    mpn = "UCC21550BDWK"
+    mpn = "UCC21550BDW"  # Fixed: was UCC21550BDWK (14-pin), now correct 16-pin DW package (temper-3q4)
     
     # Ratings
     voltage_rating = 5000V # Isolation
@@ -182,12 +182,13 @@ component LMR51430:
     v_out_max = 28V
     i_out_max = 3A
     
-    signal VIN ~ pin 1
-    signal GND ~ pin 2
-    signal FB ~ pin 3
-    signal EN ~ pin 4
-    signal SW ~ pin 5
-    signal BOOT ~ pin 6
+    # Pin mapping fixed per datasheet (temper-ifo)
+    signal GND ~ pin 1   # Fixed: was VIN
+    signal SW ~ pin 2    # Fixed: was GND
+    signal VIN ~ pin 3   # Fixed: was FB
+    signal FB ~ pin 4    # Fixed: was EN
+    signal EN ~ pin 5    # Fixed: was SW
+    signal BOOT ~ pin 6  # Correct
 
 component XC6220:
     """Torex 700mA Ultra Low Noise LDO"""
@@ -264,12 +265,12 @@ component ADUM1250:
     data_rate = 1MHz
     
     signal VDD1 ~ pin 1
-    signal SDA1 ~ pin 2
-    signal SCL1 ~ pin 3
+    signal SCL1 ~ pin 2  # Fixed: was SDA1 (temper-7gv)
+    signal SDA1 ~ pin 3  # Fixed: was SCL1 (temper-7gv)
     signal GND1 ~ pin 4
     signal GND2 ~ pin 5
-    signal SCL2 ~ pin 6
-    signal SDA2 ~ pin 7
+    signal SDA2 ~ pin 6  # Fixed: was SCL2 (temper-qwk)
+    signal SCL2 ~ pin 7  # Fixed: was SDA2 (temper-qwk)
     signal VDD2 ~ pin 8
 
 # ==============================================================================
