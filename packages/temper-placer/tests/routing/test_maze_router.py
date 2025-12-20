@@ -527,6 +527,365 @@ class TestViaHandling:
 
 
 # =============================================================================
+# Tests for Pin Escape Routes (BDD - Bug Fix for Pin Isolation)
+# =============================================================================
+
+
+class TestPinEscapeRoutes:
+    """Tests for ensuring pins have escape routes after component blocking.
+
+    BDD Scenario: Pins should remain routable after blocking components
+    Given: Components placed on a board with pins at their edges
+    When: Components are blocked on the routing grid
+    Then: Pin locations should have at least one unblocked neighbor for escape
+
+    This addresses the bug where component blocking creates isolated pin pockets,
+    making routing impossible even though pins are technically unblocked.
+    """
+
+    def test_pin_has_escape_route_after_blocking(self):
+        """Pin cells should have at least one free neighbor after component blocking.
+
+        Given: A component with a pin at its edge
+        When: The component is blocked
+        Then: The pin's grid cell should have at least one unblocked neighbor
+        """
+        from temper_placer.routing.maze_router import MazeRouter, GridCell
+
+        # Create a simple board
+        board = Board(width=50.0, height=50.0, origin=(0.0, 0.0), zones=[])
+
+        # Create a component with pin at edge (typical SMD package)
+        # Component: 10x10mm, centered at (25, 25)
+        # Pin at offset (5, 0) -> absolute position (30, 25) - at right edge
+        component = Component(
+            ref="U1",
+            footprint="QFP-44",
+            bounds=(10.0, 10.0),
+            pins=[Pin("1", "1", (5.0, 0.0), net="NET_A")],  # Pin at right edge
+            initial_position=(25.0, 25.0),
+        )
+
+        router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
+        positions = jnp.array([[25.0, 25.0]])
+
+        # Block the component
+        router.block_components([component], positions)
+
+        # Get pin grid position
+        pin_world = (25.0 + 5.0, 25.0 + 0.0)  # (30, 25)
+        pin_grid = router._world_to_grid(pin_world[0], pin_world[1])
+
+        # Temporarily unblock the pin cell (as route_net would do)
+        router.occupancy = router.occupancy.at[pin_grid[0], pin_grid[1], 0].set(0)
+
+        # Check neighbors
+        neighbors = router._get_neighbors(
+            GridCell(pin_grid[0], pin_grid[1], 0),
+            allow_layer_change=False,
+        )
+
+        # EXPECTED TO FAIL: Currently pins get isolated
+        assert len(neighbors) >= 1, (
+            f"Pin at grid {pin_grid} has no escape route! "
+            f"Occupancy around pin: blocked neighbors prevent routing."
+        )
+
+    def test_pins_at_component_edges_remain_accessible(self):
+        """Pins placed at standard SMD package edges should be routable.
+
+        Given: Two components with pins facing each other
+        When: Both components are blocked
+        Then: A path should exist between the pins
+        """
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), zones=[])
+
+        # Two SOIC-8 packages (5x4mm) with pins facing each other
+        # U1 at (20, 50), pin at right edge (+2.5, 0) -> absolute (22.5, 50)
+        # U2 at (80, 50), pin at left edge (-2.5, 0) -> absolute (77.5, 50)
+        components = [
+            Component(
+                ref="U1",
+                footprint="SOIC-8",
+                bounds=(5.0, 4.0),
+                pins=[Pin("1", "1", (2.5, 0.0), net="NET_A")],  # Right edge
+                initial_position=(20.0, 50.0),
+            ),
+            Component(
+                ref="U2",
+                footprint="SOIC-8",
+                bounds=(5.0, 4.0),
+                pins=[Pin("1", "1", (-2.5, 0.0), net="NET_A")],  # Left edge
+                initial_position=(80.0, 50.0),
+            ),
+        ]
+
+        netlist = Netlist(
+            components=components,
+            nets=[Net("NET_A", [("U1", "1"), ("U2", "1")])],
+        )
+
+        router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
+        positions = jnp.array([[20.0, 50.0], [80.0, 50.0]])
+
+        # Block components
+        router.block_components(components, positions)
+
+        # Try to route between pins
+        pin_positions = [(22.5, 50.0), (77.5, 50.0)]
+        assignment = LayerAssignment(
+            net="NET_A",
+            primary_layer=Layer.L1_TOP,
+            allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+            vias_required=False,
+            reason="Test",
+        )
+
+        result = router.route_net("NET_A", pin_positions, assignment)
+
+        # EXPECTED TO FAIL: Currently fails due to pin isolation
+        assert result.success, (
+            f"Failed to route between pins: {result.failure_reason}. "
+            f"Pins should have escape routes after component blocking."
+        )
+        assert result.length > 0, "Routed path should have non-zero length"
+
+    def test_real_world_component_routing(self):
+        """Test routing with realistic component dimensions from Temper project.
+
+        This test uses actual component sizes from the Temper induction cooker
+        to verify the router handles real PCB layouts.
+        """
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+
+        # Temper board: 100x150mm
+        board = Board(width=100.0, height=150.0, origin=(0.0, 0.0), zones=[])
+
+        # Realistic components:
+        # - IGBT (IKW40N120H3): ~27x16mm TO-247 package
+        # - Gate driver (UCC21550): ~5x4mm SOIC-8
+        # - Decoupling cap: ~3x1.5mm 0805
+        components = [
+            Component(
+                ref="Q1",
+                footprint="TO-247",
+                bounds=(27.0, 16.0),
+                pins=[
+                    Pin("1", "G", (0.0, -8.0), net="GATE"),  # Gate at bottom
+                    Pin("2", "C", (-10.0, 0.0), net="DC_BUS"),  # Collector
+                ],
+                initial_position=(50.0, 100.0),
+            ),
+            Component(
+                ref="U1",
+                footprint="SOIC-8",
+                bounds=(5.0, 4.0),
+                pins=[
+                    Pin("7", "OUTL", (2.5, 0.0), net="GATE"),  # Output at right edge
+                ],
+                initial_position=(30.0, 100.0),
+            ),
+        ]
+
+        netlist = Netlist(
+            components=components,
+            nets=[Net("GATE", [("Q1", "G"), ("U1", "OUTL")])],
+        )
+
+        router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
+        positions = jnp.array([[50.0, 100.0], [30.0, 100.0]])
+
+        router.block_components(components, positions)
+
+        # Pin positions:
+        # Q1.G = (50, 100) + (0, -8) = (50, 92)
+        # U1.OUTL = (30, 100) + (2.5, 0) = (32.5, 100)
+        pin_positions = [(50.0, 92.0), (32.5, 100.0)]
+
+        assignment = LayerAssignment(
+            net="GATE",
+            primary_layer=Layer.L1_TOP,
+            allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+            vias_required=False,
+            reason="Gate signal",
+        )
+
+        result = router.route_net("GATE", pin_positions, assignment)
+
+        assert result.success, (
+            f"Failed to route GATE net: {result.failure_reason}. "
+            f"Real-world component routing should succeed."
+        )
+
+        router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
+        positions = jnp.array([[25.0, 25.0]])
+
+        # Block the component
+        router.block_components([component], positions)
+
+        # Get pin grid position
+        pin_world = (25.0 + 5.0, 25.0 + 0.0)  # (30, 25)
+        pin_grid = router._world_to_grid(pin_world[0], pin_world[1])
+
+        # The pin should NOT be blocked (or should be unblockable)
+        # AND at least one neighbor should be free
+        neighbors = router._get_neighbors(
+            router.GridCell(pin_grid[0], pin_grid[1], 0)
+            if hasattr(router, "GridCell")
+            else __import__("temper_placer.routing.maze_router", fromlist=["GridCell"]).GridCell(
+                pin_grid[0], pin_grid[1], 0
+            ),
+            allow_layer_change=False,
+        )
+
+        # EXPECTED TO FAIL: Currently pins get isolated
+        assert len(neighbors) >= 1, (
+            f"Pin at grid {pin_grid} has no escape route! "
+            f"Occupancy around pin: blocked neighbors prevent routing."
+        )
+
+    def test_pins_at_component_edges_remain_accessible(self):
+        """Pins placed at standard SMD package edges should be routable.
+
+        Given: Two components with pins facing each other
+        When: Both components are blocked
+        Then: A path should exist between the pins
+        """
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+        from temper_placer.core.netlist import Component, Net, Netlist, Pin
+        from temper_placer.core.board import Board
+        import jax.numpy as jnp
+
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), zones=[])
+
+        # Two SOIC-8 packages (5x4mm) with pins facing each other
+        # U1 at (20, 50), pin at right edge (+2.5, 0) -> absolute (22.5, 50)
+        # U2 at (80, 50), pin at left edge (-2.5, 0) -> absolute (77.5, 50)
+        components = [
+            Component(
+                ref="U1",
+                footprint="SOIC-8",
+                bounds=(5.0, 4.0),
+                pins=[Pin("1", "1", (2.5, 0.0), net="NET_A")],  # Right edge
+                initial_position=(20.0, 50.0),
+            ),
+            Component(
+                ref="U2",
+                footprint="SOIC-8",
+                bounds=(5.0, 4.0),
+                pins=[Pin("1", "1", (-2.5, 0.0), net="NET_A")],  # Left edge
+                initial_position=(80.0, 50.0),
+            ),
+        ]
+
+        netlist = Netlist(
+            components=components,
+            nets=[Net("NET_A", [("U1", "1"), ("U2", "1")])],
+        )
+
+        router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
+        positions = jnp.array([[20.0, 50.0], [80.0, 50.0]])
+
+        # Block components
+        router.block_components(components, positions)
+
+        # Try to route between pins
+        pin_positions = [(22.5, 50.0), (77.5, 50.0)]
+        assignment = LayerAssignment(
+            net="NET_A",
+            primary_layer=Layer.L1_TOP,
+            allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+            vias_required=False,
+            reason="Test",
+        )
+
+        result = router.route_net("NET_A", pin_positions, assignment)
+
+        # EXPECTED TO FAIL: Currently fails due to pin isolation
+        assert result.success, (
+            f"Failed to route between pins: {result.failure_reason}. "
+            f"Pins should have escape routes after component blocking."
+        )
+        assert result.length > 0, "Routed path should have non-zero length"
+
+    def test_real_world_component_routing(self):
+        """Test routing with realistic component dimensions from Temper project.
+
+        This test uses actual component sizes from the Temper induction cooker
+        to verify the router handles real PCB layouts.
+        """
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+        from temper_placer.core.netlist import Component, Net, Netlist, Pin
+        from temper_placer.core.board import Board
+        import jax.numpy as jnp
+
+        # Temper board: 100x150mm
+        board = Board(width=100.0, height=150.0, origin=(0.0, 0.0), zones=[])
+
+        # Realistic components:
+        # - IGBT (IKW40N120H3): ~27x16mm TO-247 package
+        # - Gate driver (UCC21550): ~5x4mm SOIC-8
+        # - Decoupling cap: ~3x1.5mm 0805
+        components = [
+            Component(
+                ref="Q1",
+                footprint="TO-247",
+                bounds=(27.0, 16.0),
+                pins=[
+                    Pin("1", "G", (0.0, -8.0), net="GATE"),  # Gate at bottom
+                    Pin("2", "C", (-10.0, 0.0), net="DC_BUS"),  # Collector
+                ],
+                initial_position=(50.0, 100.0),
+            ),
+            Component(
+                ref="U1",
+                footprint="SOIC-8",
+                bounds=(5.0, 4.0),
+                pins=[
+                    Pin("7", "OUTL", (2.5, 0.0), net="GATE"),  # Output at right edge
+                ],
+                initial_position=(30.0, 100.0),
+            ),
+        ]
+
+        netlist = Netlist(
+            components=components,
+            nets=[Net("GATE", [("Q1", "G"), ("U1", "OUTL")])],
+        )
+
+        router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
+        positions = jnp.array([[50.0, 100.0], [30.0, 100.0]])
+
+        router.block_components(components, positions)
+
+        # Pin positions:
+        # Q1.G = (50, 100) + (0, -8) = (50, 92)
+        # U1.OUTL = (30, 100) + (2.5, 0) = (32.5, 100)
+        pin_positions = [(50.0, 92.0), (32.5, 100.0)]
+
+        assignment = LayerAssignment(
+            net="GATE",
+            primary_layer=Layer.L1_TOP,
+            allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+            vias_required=False,
+            reason="Gate signal",
+        )
+
+        result = router.route_net("GATE", pin_positions, assignment)
+
+        assert result.success, (
+            f"Failed to route GATE net: {result.failure_reason}. "
+            f"Real-world component routing should succeed."
+        )
+
+
+# =============================================================================
 # Tests for Routing Completion
 # =============================================================================
 

@@ -180,13 +180,18 @@ class MazeRouter:
         positions: Array,
         margin: float = 0.5,
     ) -> None:
-        """Block cells occupied by components.
+        """Block cells occupied by components, leaving escape routes for pins.
+
+        This method blocks component bodies but creates escape routes from each pin
+        to the nearest board edge. Without escape routes, pins would be completely
+        surrounded by blocked cells and unreachable by the router.
 
         Args:
             components: List of components to block
             positions: (N, 2) array of component center positions
             margin: Extra margin around components in mm
         """
+        # First pass: block all component bodies
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
             half_w = comp.bounds[0] / 2 + margin
@@ -203,6 +208,65 @@ class MazeRouter:
 
             # Block on all layers (components are obstacles on all layers)
             self.block_rect(x_min, y_min, width, height, layer=-1)
+
+        # Second pass: create escape routes from pins
+        for i, comp in enumerate(components):
+            cx, cy = float(positions[i, 0]), float(positions[i, 1])
+            self._create_pin_escape_routes(comp, cx, cy)
+
+    def _create_pin_escape_routes(
+        self,
+        comp: Component,
+        cx: float,
+        cy: float,
+    ) -> None:
+        """Create escape routes from component pins.
+
+        For each pin, unblocks the pin cell and creates a path outward from the
+        component center. This ensures pins are reachable by the router.
+
+        The escape route extends from the pin position outward (away from component
+        center) for a few cells, creating a clear channel for routing.
+
+        Args:
+            comp: Component with pins
+            cx: Component center X position
+            cy: Component center Y position
+        """
+        for pin in comp.pins:
+            # Compute absolute pin position
+            pin_x = cx + pin.position[0]
+            pin_y = cy + pin.position[1]
+
+            # Convert to grid coordinates
+            pin_gx, pin_gy = self._world_to_grid(pin_x, pin_y)
+
+            # Determine escape direction (outward from component center)
+            dx = pin.position[0]
+            dy = pin.position[1]
+
+            # Normalize to get primary direction
+            if abs(dx) >= abs(dy):
+                # Horizontal escape
+                step_x = 1 if dx >= 0 else -1
+                step_y = 0
+            else:
+                # Vertical escape
+                step_x = 0
+                step_y = 1 if dy >= 0 else -1
+
+            # Create escape route: unblock pin cell and 2-3 cells in escape direction
+            escape_length = max(3, int(2.0 / self.cell_size) + 1)  # At least 2mm
+
+            for step in range(escape_length):
+                gx = pin_gx + step * step_x
+                gy = pin_gy + step * step_y
+
+                # Bounds check
+                if 0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]:
+                    # Unblock on all layers
+                    for layer in range(self.num_layers):
+                        self.occupancy = self.occupancy.at[gx, gy, layer].set(0)
 
     def _world_to_grid(self, x: float, y: float) -> tuple[int, int]:
         """Convert world coordinates to grid coordinates."""

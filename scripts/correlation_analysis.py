@@ -93,11 +93,12 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
             "-o",
             str(output_path),
             "--epochs",
-            "100",  # Reduced for faster testing
+            "50",  # Low epochs to maintain position variation across seeds
             "--seed",
             str(seed),
             "--loss-history",
             str(loss_history_path),
+            "--no-heuristics",  # Disable deterministic heuristics for seed variation
         ]
 
         # Remove -c option if no config provided
@@ -167,35 +168,58 @@ def run_routing_verification(pcb_path: Path, quick: bool = False) -> Optional[Ro
 
     Args:
         pcb_path: Path to placed KiCad PCB
-        quick: If True, skip routing and return dummy result
+        quick: If True, use faster GEOMETRIC level; otherwise use MAZE level
 
     Returns:
         RoutingResult or None if routing failed
     """
-    # For now, always return dummy results
-    # TODO: Implement full routing verification when API is stable
-    if True:  # Always quick mode for now
-        # Quick mode: Skip routing, return dummy success result
-        # In quick mode, we can't compute actual routing metrics
-        # Just return successful completion for correlation purposes
-        return RoutingResult(completion_pct=100.0, wirelength_mm=0.0, via_count=0, routable=True)
-
-    # Full routing verification - not yet implemented
-    print(f"Warning: Full routing verification not yet implemented", file=sys.stderr)
-    return None
-
-    # Full routing verification
     try:
-        config = RoutingVerifierConfig(level=VerificationLevel.GEOMETRIC, timeout_seconds=300)
+        # Import additional modules needed for routing
+        from temper_placer.core.loop import LoopCollection
+        import jax.numpy as jnp
 
+        # Parse the placed PCB
+        parse_result = parse_kicad_pcb(pcb_path)
+
+        # Check that we have a valid board
+        if parse_result.board is None:
+            print(f"Warning: No board found in {pcb_path}", file=sys.stderr)
+            return None
+
+        # Extract positions from placed components
+        positions = jnp.array([c.initial_position for c in parse_result.netlist.components])
+
+        # Create empty loop collection (no critical loops defined)
+        loops = LoopCollection(loops=[])
+
+        # Configure verifier based on quick mode
+        if quick:
+            # GEOMETRIC is faster but less accurate
+            level = VerificationLevel.GEOMETRIC
+        else:
+            # MAZE does actual A* pathfinding
+            level = VerificationLevel.MAZE
+
+        config = RoutingVerifierConfig(
+            level=level,
+            cell_size_mm=1.0,  # 1mm grid for balance of speed/accuracy
+            num_layers=2,
+        )
         verifier = RoutingVerifier(config)
-        result = verifier.verify(pcb_path)
+
+        # Run verification
+        result = verifier.verify(
+            netlist=parse_result.netlist,
+            positions=positions,
+            board=parse_result.board,
+            loops=loops,
+        )
 
         return RoutingResult(
-            completion_pct=result.completion_pct,
-            wirelength_mm=result.total_wirelength_mm,
-            via_count=result.via_count,
-            routable=result.routable,
+            completion_pct=result.completion_rate * 100.0,
+            wirelength_mm=result.total_wirelength,
+            via_count=result.total_vias,
+            routable=result.feasible,
         )
 
     except Exception as e:
