@@ -19,6 +19,13 @@ const CONFIG = {
 
     // Chart colors
     colors: {
+    maxReconnectAttempts: 10,
+
+    // UI
+    updateThrottle: 50,  // ms between UI updates
+
+    // Chart colors
+    colors: {
         primary: '#3b82f6',
         secondary: '#8b5cf6',
         success: '#4ade80',
@@ -611,6 +618,16 @@ function init() {
         Plotly.Plots.resize('loss-curves');
         Plotly.Plots.resize('loss-breakdown');
     });
+
+    // Initialize namespace filter
+    const namespaceFilter = document.getElementById('namespace-filter');
+    if (namespaceFilter) {
+        namespaceFilter.addEventListener('change', function() {
+            const selected = this.value;
+            send({ type: 'namespace_filter', namespace: selected });
+            console.log('Namespace filter changed to:', selected || 'All Namespaces');
+        });
+    }
 }
 
 function initEmptyCharts() {

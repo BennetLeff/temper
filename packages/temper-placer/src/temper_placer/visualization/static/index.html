@@ -241,23 +241,34 @@
             background: #059669;
         }
 
-        /* Step input */
-        .step-control {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .step-control input {
-            width: 60px;
-            padding: 6px 8px;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background: #1a1a2e;
-            color: white;
-            font-size: 0.9rem;
-            text-align: center;
-        }
+            /* Namespace filter */
+            #namespace-filter {
+                padding: 4px 8px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                background: #1a1a2e;
+                color: white;
+                font-size: 0.9rem;
+                margin-right: 12px;
+            }
+            
+            /* Step input */
+            .step-control {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .step-control input {
+                width: 60px;
+                padding: 6px 8px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                background: #1a1a2e;
+                color: white;
+                font-size: 0.9rem;
+                text-align: center;
+            }
 
         /* Constraint indicators */
         .constraint-indicators {
@@ -344,10 +355,27 @@
     <div class="container">
         <header>
             <h1>Temper Placer - Live Visualization</h1>
-            <div class="status-indicator">
-                <span class="status-dot" id="status-dot"></span>
-                <span id="status-text">Disconnected</span>
-            </div>
+                <div class="status-indicator">
+                    <span class="status-dot" id="status-dot"></span>
+                    <select id="namespace-filter">
+                        <option value="">All Namespaces</option>
+                        <option value="reflective">Reflective</option>
+                        <option value="procedural">Procedural</option>
+                        <option value="semantic">Semantic</option>
+                        <option value="temporality">Temporality</option>
+                        <option value="episodic">Episodic</option>
+                        <option value="planner">Planner</option>
+                        <option value="coder">Coder</option>
+                        <option value="architect">Architect</option>
+                        <option value="temper-placer">Temper-Placer</option>
+                        <option value="firmware">Firmware</option>
+                        <option value="design">Design</option>
+                        <option value="research">Research</option>
+                        <option value="meeting-notes">Meeting Notes</option>
+                        <option value="project-tracking">Project Tracking</option>
+                    </select>
+                    <span id="status-text">Disconnected</span>
+                </div>
         </header>
 
         <div class="board-panel">
