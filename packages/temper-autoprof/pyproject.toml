@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "temper-autoprof"
+dynamic = ["version"]
+description = "Automated profiling infrastructure for Temper project"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+keywords = ["profiling", "performance", "optimization", "pcb", "eda"]
+authors = [
+  {name = "Temper Project", email = "info@temper.pcb"},
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+]
+dependencies = [
+  "psutil",
+  "click",
+]
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+  "mypy",
+]
+[project.urls]
+Homepage = "https://github.com/BennetLeff/temper"
+Repository = "https://github.com/BennetLeff/temper"
+Issues = "https://github.com/BennetLeff/temper/issues"
+
+[project.scripts]
+temper-autoprof = "temper_autoprof.cli:main"
+
+[tool.hatch.version]
+path = "src/temper_autoprof/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/temper_autoprof"]
