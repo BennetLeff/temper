@@ -1,0 +1,22 @@
+# Minimal working config for Temper PCB correlation analysis
+# Based on pcb/temper.kicad_pcb board dimensions
+
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+# Basic losses with default weights
+losses:
+  overlap:
+    weight: 1000.0
+  boundary:
+    weight: 100.0
+  wirelength:
+    weight: 1.0
+  clearance:
+    weight: 50.0
+
+# No zones or groups needed for basic optimization
+zones: []
+groups: []

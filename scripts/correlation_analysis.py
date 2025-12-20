@@ -79,6 +79,8 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
     loss_history_path = Path(output_dir) / f"loss_history_seed_{seed}.json"
 
     try:
+        print(f"  Starting optimization with seed {seed}...", flush=True)
+
         # Build command to run temper-placer optimize via CLI
         cmd = [
             sys.executable,
@@ -91,7 +93,7 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
             "-o",
             str(output_path),
             "--epochs",
-            "2000",
+            "100",  # Reduced for faster testing
             "--seed",
             str(seed),
             "--loss-history",
@@ -102,24 +104,43 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
         if not config_path:
             cmd = [c for i, c in enumerate(cmd) if c != "-c" and (i == 0 or cmd[i - 1] != "-c")]
 
-        # Run optimizer
-        result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=600, cwd=output_path.parent.parent
-        )
+        # Run optimizer (no cwd change - use absolute paths)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+
+        print(f"  Seed {seed}: return code = {result.returncode}", flush=True)
 
         if result.returncode != 0:
-            print(
-                f"Warning: Optimization with seed {seed} failed: {result.stderr}", file=sys.stderr
-            )
+            error_msg = f"Optimization with seed {seed} failed:\nSTDOUT: {result.stdout[:500]}\nSTDERR: {result.stderr[:500]}"
+            print(f"Warning: {error_msg}", file=sys.stderr, flush=True)
             return OptimizationResult(seed=seed, loss_values={}, output_pcb_path=output_path)
 
         # Load loss history from JSON
         loss_values = {}
         if loss_history_path.exists():
+            print(f"  Seed {seed}: loading loss history from {loss_history_path}", flush=True)
             with open(loss_history_path) as f:
                 loss_history = json.load(f)
-                if isinstance(loss_history, list) and len(loss_history) > 0:
-                    # Get final epoch losses
+
+                # Handle new format: {"data_points": [{"epoch": ..., "breakdown": {...}}]}
+                if isinstance(loss_history, dict) and "data_points" in loss_history:
+                    data_points = loss_history["data_points"]
+                    if len(data_points) > 0:
+                        final_epoch = data_points[-1]
+                        if "breakdown" in final_epoch:
+                            # Extract non-normalized loss values
+                            loss_values = {
+                                k: float(v)
+                                for k, v in final_epoch["breakdown"].items()
+                                if isinstance(v, (int, float))
+                                and not k.endswith("_normalized")
+                                and not k.endswith("_weighted")
+                            }
+                            print(
+                                f"  Seed {seed}: extracted {len(loss_values)} loss values",
+                                flush=True,
+                            )
+                # Handle old format: [{"loss1": ..., "loss2": ...}, ...]
+                elif isinstance(loss_history, list) and len(loss_history) > 0:
                     final_losses = loss_history[-1]
                     if isinstance(final_losses, dict):
                         loss_values = {
@@ -127,6 +148,11 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
                             for k, v in final_losses.items()
                             if isinstance(v, (int, float))
                         }
+                        print(
+                            f"  Seed {seed}: extracted {len(loss_values)} loss values", flush=True
+                        )
+        else:
+            print(f"  Seed {seed}: loss history file not found!", flush=True)
 
         return OptimizationResult(seed=seed, loss_values=loss_values, output_pcb_path=output_path)
 
@@ -278,6 +304,11 @@ def run_correlation_analysis(
     print(f"Starting correlation analysis with {n_samples} samples...")
     print(f"Mode: {'quick (no routing)' if quick else 'full (with routing)'}")
 
+    # Convert paths to absolute for subprocess calls
+    pcb_path = pcb_path.resolve()
+    if config_path:
+        config_path = config_path.resolve()
+
     # Create temporary directory for outputs
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
@@ -288,8 +319,11 @@ def run_correlation_analysis(
             (pcb_path, config_path, seed, temp_path) for seed in range(1, n_samples + 1)
         ]
 
-        with mp.Pool(processes=min(mp.cpu_count(), 4)) as pool:
-            optimization_results = pool.map(run_single_optimization, optimization_args)
+        # Run optimizations sequentially for now (multiprocessing has issues with subprocess)
+        optimization_results = []
+        for args in optimization_args:
+            result = run_single_optimization(args)
+            optimization_results.append(result)
 
         # Filter out failed runs
         valid_results = [r for r in optimization_results if r.loss_values]
