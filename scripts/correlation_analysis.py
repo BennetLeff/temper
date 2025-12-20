@@ -246,6 +246,12 @@ def compute_correlations(
         if not loss_values or len(loss_values) < 3:
             continue  # Need at least 3 samples for correlation
 
+        # Skip constant losses (std = 0) - they cannot correlate with anything
+        loss_std = np.std(loss_values)
+        if loss_std < 1e-10:
+            print(f"  Skipping constant loss '{loss_name}' (std={loss_std:.2e})", flush=True)
+            continue
+
         loss_corrs = {}
         for metric_name, metric_values in routing_data.items():
             if len(metric_values) != len(loss_values):

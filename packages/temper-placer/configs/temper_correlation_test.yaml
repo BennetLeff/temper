@@ -1,0 +1,36 @@
+# Test config for correlation analysis with keepout zones
+# Adds artificial keepout zones to force boundary violations during random initialization
+# This creates variation in boundary loss for meaningful correlation analysis
+
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+# Basic losses with default weights
+losses:
+  overlap:
+    weight: 1000.0
+  boundary:
+    weight: 100.0
+  wirelength:
+    weight: 1.0
+  clearance:
+    weight: 50.0
+
+# Add keepout zones to increase probability of boundary violations
+zones:
+  - name: "center_keepout"
+    type: "keepout"
+    bounds: [40, 60, 60, 90]  # 20mm × 30mm in center (x1, y1, x2, y2)
+    
+  - name: "left_edge_keepout"
+    type: "keepout"
+    bounds: [0, 0, 10, 150]   # 10mm strip along left edge
+    
+  - name: "top_edge_keepout"
+    type: "keepout"
+    bounds: [0, 0, 100, 10]   # 10mm strip along top edge
+
+# No functional groups needed
+groups: []
