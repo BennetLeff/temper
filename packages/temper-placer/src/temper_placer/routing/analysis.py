@@ -7,7 +7,7 @@ identifying potential bottlenecks and providing actionable advice.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import jax.numpy as jnp
 from jax import Array
@@ -15,6 +15,23 @@ from jax import Array
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.congestion import compute_routing_demand
 
+
+from enum import Enum
+
+class FailureType(Enum):
+    """Types of routing failures."""
+    NO_PATH = 'no_path'
+    CONGESTION = 'congestion'
+    CLEARANCE = 'clearance'
+
+@dataclass
+class RoutingDiagnostic:
+    """Diagnostic info for a routing failure."""
+    failure_type: FailureType
+    net: str | None = None
+    blocking_elements: list[str] = field(default_factory=list)
+    location: tuple[float, float] | None = None
+    message: str = ""
 
 @dataclass
 class RoutabilityReport:
@@ -24,6 +41,8 @@ class RoutabilityReport:
     bottleneck_cells: list[tuple[int, int, float]]
     unrouted_estimate: int
     advice: list[str]
+    feasible: bool = True
+    diagnostics: list[RoutingDiagnostic] = field(default_factory=list)
 
 def analyze_routability(
     positions: Array,

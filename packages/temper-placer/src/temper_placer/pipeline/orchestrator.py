@@ -250,8 +250,13 @@ class PipelineOrchestrator:
     
     def _run_refinement(self, state: PipelineState) -> PipelineState:
         """Iterative refinement loop."""
-        # For now, just a placeholder for the iteration logic
-        return state
+        from temper_placer.pipeline.feedback import run_feedback_loop
+        
+        return run_feedback_loop(
+            state, 
+            max_iterations=self.config.max_iterations,
+            on_iteration=self.on_iteration
+        )
     
     def _run_output(self, state: PipelineState) -> PipelineState:
         """Generate final outputs."""

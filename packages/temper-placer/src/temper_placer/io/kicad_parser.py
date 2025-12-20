@@ -292,7 +292,7 @@ def _extract_nets_from_pcb(
                 continue
 
             if pin.net not in nets_dict:
-                nets_dict[pin.net] = Net(name=pin.net)
+                nets_dict[pin.net] = Net(name=pin.net, pins=[])
 
             nets_dict[pin.net].pins.append((comp.ref, pin.name))
 
