@@ -26,14 +26,33 @@ Public API:
     Base class:
         - BaseConstraint: Abstract base for all constraints
 
+    Parser functions:
+        - parse_pcl_file: Load constraints from YAML file
+        - parse_constraint_dict: Parse single constraint from dict
+        - load_pcl_collection: Load all YAML files from directory
+
+    Collections:
+        - ConstraintCollection: Collection with validation methods
+
+    Exceptions:
+        - PCLParseError: Error parsing constraint definition
+        - PCLValidationError: Error validating references
+
 Example:
-    >>> from temper_placer.pcl import AdjacentConstraint, ConstraintTier
+    >>> from temper_placer.pcl import AdjacentConstraint, ConstraintTier, parse_pcl_file
+    >>>
+    >>> # Create constraint directly
     >>> constraint = AdjacentConstraint(
     ...     a="Q1", b="Q2",
     ...     max_distance_mm=10.0,
     ...     tier=ConstraintTier.HARD,
     ...     because="Minimize commutation loop for half-bridge"
     ... )
+    >>>
+    >>> # Or load from YAML
+    >>> collection = parse_pcl_file("constraints.yaml")
+    >>> print(len(collection))
+    12
 """
 
 from .constraints import (
@@ -56,6 +75,18 @@ from .constraints import (
     EdgeType,
 )
 
+from .parser import (
+    # Parser functions
+    parse_pcl_file,
+    parse_constraint_dict,
+    load_pcl_collection,
+    # Collection class
+    ConstraintCollection,
+    # Exceptions
+    PCLParseError,
+    PCLValidationError,
+)
+
 __all__ = [
     # Base class
     "BaseConstraint",
@@ -74,4 +105,13 @@ __all__ = [
     "Axis",
     "BoardSide",
     "EdgeType",
+    # Parser functions
+    "parse_pcl_file",
+    "parse_constraint_dict",
+    "load_pcl_collection",
+    # Collection class
+    "ConstraintCollection",
+    # Exceptions
+    "PCLParseError",
+    "PCLValidationError",
 ]

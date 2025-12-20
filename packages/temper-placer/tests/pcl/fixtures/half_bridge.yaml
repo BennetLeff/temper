@@ -1,0 +1,74 @@
+version: "1.0"
+
+metadata:
+  description: "Half-bridge induction cooker constraints"
+  author: "Test Suite"
+  date: "2025-12-19"
+
+constraints:
+  # Critical adjacency for commutation loop
+  - type: adjacent
+    a: Q1
+    b: Q2
+    max_distance_mm: 10
+    metric: edge_to_edge
+    tier: 1
+    because: "Half-bridge pair must be close to minimize commutation loop area"
+  
+  # Gate driver proximity to high-side IGBT
+  - type: adjacent
+    a: U_GATE_DRV
+    b: Q1
+    max_distance_mm: 15
+    metric: pin_to_pin
+    pin_a: OUT_HS
+    pin_b: GATE
+    tier: 2
+    because: "Minimize gate drive loop inductance for fast switching"
+  
+  # HV/LV isolation
+  - type: separated
+    a: HV_ZONE
+    b: MCU_ZONE
+    min_distance_mm: 10
+    tier: 1
+    because: "IEC 60335-1 reinforced isolation requirement"
+  
+  # HV components must stay in HV zone
+  - type: enclosing
+    outer: HV_ZONE
+    inner: [Q1, Q2, D1, C_DC]
+    margin_mm: 2
+    tier: 1
+    because: "All high voltage components must stay in HV safety zone with clearance"
+  
+  # Align decoupling capacitors
+  - type: aligned
+    components: [C1, C2, C3, C4]
+    axis: x
+    tolerance_mm: 0.5
+    tier: 3
+    because: "Align decoupling capacitors for visual consistency and routing"
+  
+  # Connectors on left edge
+  - type: on_side
+    components: [J_AC, J_COIL]
+    side: left
+    edge: flush
+    max_distance_mm: 2
+    tier: 1
+    because: "AC and coil connectors must be on left edge for enclosure access"
+  
+  # MCU anchored to center of MCU zone
+  - type: anchored
+    component: U_MCU
+    region: [20, 20, 40, 40]
+    tier: 2
+    because: "MCU centered in MCU zone for antenna clearance and routing"
+  
+  # Commutation loop area limit
+  - type: loop_area
+    loop_name: commutation
+    max_area_mm2: 500
+    tier: 2
+    because: "Minimize commutation loop to reduce voltage overshoot and EMI"
