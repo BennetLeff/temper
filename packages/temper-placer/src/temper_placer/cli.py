@@ -162,6 +162,12 @@ def main() -> None:
     default=1,
     help="Number of random seeds to run in parallel (default: 1).",
 )
+@click.option(
+    "--skip-topological",
+    is_flag=True,
+    default=False,
+    help="Skip topological initialization heuristic (default: enabled).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -186,6 +192,7 @@ def optimize(
     log_all_epochs: bool,
     verbose_losses: bool,
     parallel_seeds: int,
+    skip_topological: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -284,7 +291,11 @@ def optimize(
     if heuristics:
         console.print("\n[bold cyan]Step 2b/5:[/] Running smart initialization heuristics...")
         try:
-            pipeline = create_default_pipeline()
+            # Skip topological if requested
+            include_topological = not skip_topological
+            pipeline = create_default_pipeline(include_topological=include_topological)
+            if skip_topological:
+                console.print("  [dim]Topological initialization: skipped[/]")
             heuristic_key = jax.random.PRNGKey(seed)
 
             pipeline_result = pipeline.run(
@@ -2353,6 +2364,365 @@ def pcl_show(
             table.add_row(cid, ctype, ctier, details, because)
 
         console.print(table)
+
+
+@main.command()
+@click.argument("component")
+@click.option(
+    "--trace", type=click.Path(exists=True, path_type=Path), help="Path to decision trace JSON"
+)
+@click.option("--history", is_flag=True, help="Show complete decision history")
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
+def why(
+    component: str, trace: Path | None, history: bool, output_json: bool, verbose: bool
+) -> None:
+    """Explain why a component is at its current position.
+
+    Example:
+        temper-placer why Q1
+        temper-placer why Q1 --trace decisions.json --history
+    """
+    from temper_placer.explainability import load_trace
+
+    # Find trace file
+    if trace is None:
+        trace = Path(".temper-placer/decisions.json")
+        if not trace.exists():
+            console.print(
+                "[red]Error:[/] No decision trace found. Run optimization first or specify --trace."
+            )
+            sys.exit(1)
+
+    # Load trace
+    try:
+        decision_trace = load_trace(trace)
+    except Exception as e:
+        console.print(f"[red]Error loading trace:[/] {e}")
+        sys.exit(1)
+
+    # Get explanation
+    if history:
+        explanation = decision_trace.history(component)
+    else:
+        explanation = decision_trace.why(component)
+
+    if output_json:
+        # Get decisions for component
+        decisions = [d for d in decision_trace.decisions if d.subject == component]
+        output = {
+            "component": component,
+            "decision_count": len(decisions),
+            "decisions": [
+                {
+                    "type": d.decision_type.value,
+                    "phase": d.phase.value if d.phase else None,
+                    "value": d.value,
+                    "reason": d.reason,
+                    "epoch": d.epoch,
+                }
+                for d in decisions
+            ],
+        }
+        print(json.dumps(output, indent=2))
+    else:
+        console.print(explanation)
+
+
+@main.command()
+@click.argument("component")
+@click.argument("position")
+@click.option(
+    "--trace", type=click.Path(exists=True, path_type=Path), help="Path to decision trace JSON"
+)
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
+def why_not(
+    component: str, position: str, trace: Path | None, output_json: bool, verbose: bool
+) -> None:
+    """Explain why a particular position was rejected.
+
+    Example:
+        temper-placer why-not Q1 "(50, 10)"
+        temper-placer why-not Q1 50,10
+    """
+    from temper_placer.explainability import load_trace
+
+    # Parse position string
+    try:
+        # Handle formats: "(50, 10)", "50,10", "(50.0, 10.0)"
+        cleaned = position.strip().replace("(", "").replace(")", "")
+        parts = cleaned.split(",")
+        pos_tuple = (float(parts[0].strip()), float(parts[1].strip()))
+    except (ValueError, IndexError):
+        console.print(f"[red]Error:[/] Invalid position format: {position}")
+        console.print("Expected format: '(x, y)' or 'x,y'")
+        sys.exit(1)
+
+    # Find trace file
+    if trace is None:
+        trace = Path(".temper-placer/decisions.json")
+        if not trace.exists():
+            console.print(
+                "[red]Error:[/] No decision trace found. Run optimization first or specify --trace."
+            )
+            sys.exit(1)
+
+    # Load trace
+    try:
+        decision_trace = load_trace(trace)
+    except Exception as e:
+        console.print(f"[red]Error loading trace:[/] {e}")
+        sys.exit(1)
+
+    # Get explanation
+    explanation = decision_trace.why_not(component, pos_tuple)
+
+    if output_json:
+        # Find the decision with rejected alternatives
+        relevant_decision = None
+        for d in decision_trace.decisions:
+            if d.subject == component:
+                for alt in d.alternatives:
+                    if (
+                        abs(alt.value[0] - pos_tuple[0]) < 0.1
+                        and abs(alt.value[1] - pos_tuple[1]) < 0.1
+                    ):
+                        relevant_decision = d
+                        break
+
+        if relevant_decision:
+            matching_alts = [
+                {
+                    "value": alt.value,
+                    "rejection_reason": alt.rejection_reason,
+                    "constraint_violated": alt.constraint_violated,
+                    "loss_if_chosen": alt.loss_if_chosen,
+                }
+                for alt in relevant_decision.alternatives
+                if abs(alt.value[0] - pos_tuple[0]) < 0.1 and abs(alt.value[1] - pos_tuple[1]) < 0.1
+            ]
+            output = {
+                "component": component,
+                "position": pos_tuple,
+                "rejected": len(matching_alts) > 0,
+                "alternatives": matching_alts,
+            }
+        else:
+            output = {
+                "component": component,
+                "position": pos_tuple,
+                "rejected": False,
+                "alternatives": [],
+            }
+
+        print(json.dumps(output, indent=2))
+    else:
+        console.print(explanation)
+
+
+@main.command()
+@click.option(
+    "--trace", type=click.Path(exists=True, path_type=Path), help="Path to decision trace JSON"
+)
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+def trace_info(trace: Path | None, output_json: bool) -> None:
+    """Show summary of a decision trace.
+
+    Example:
+        temper-placer trace-info
+        temper-placer trace-info --trace decisions.json
+    """
+    from temper_placer.explainability import load_trace
+
+    # Find trace file
+    if trace is None:
+        trace = Path(".temper-placer/decisions.json")
+        if not trace.exists():
+            console.print(
+                "[red]Error:[/] No decision trace found. Run optimization first or specify --trace."
+            )
+            sys.exit(1)
+
+    # Load trace
+    try:
+        decision_trace = load_trace(trace)
+    except Exception as e:
+        console.print(f"[red]Error loading trace:[/] {e}")
+        sys.exit(1)
+
+    # Get summary
+    summary = decision_trace.summary()
+
+    if output_json:
+        print(json.dumps(summary, indent=2))
+    else:
+        console.print(f"[bold]Decision Trace Summary[/]\n")
+        console.print(f"Run ID: {summary.get('run_id', 'N/A')}")
+        console.print(f"Total Decisions: {summary.get('total_decisions', 0)}")
+        console.print(f"Components: {summary.get('component_count', 0)}")
+
+        if "decisions_by_type" in summary:
+            console.print("\n[bold]Decisions by Type:[/]")
+            for dtype, count in summary["decisions_by_type"].items():
+                console.print(f"  {dtype}: {count}")
+
+        if "decisions_by_phase" in summary:
+            console.print("\n[bold]Decisions by Phase:[/]")
+            for phase, count in summary["decisions_by_phase"].items():
+                console.print(f"  {phase}: {count}")
+
+        if "final_metrics" in summary:
+            console.print("\n[bold]Final Metrics:[/]")
+            for key, value in summary["final_metrics"].items():
+                console.print(f"  {key}: {value}")
+
+
+@main.command()
+@click.option(
+    "--trace", type=click.Path(exists=True, path_type=Path), help="Path to decision trace JSON"
+)
+@click.option("--component", help="Filter by component")
+@click.option("--phase", help="Filter by phase")
+@click.option("--type", "dtype", help="Filter by decision type")
+@click.option("--limit", type=int, help="Limit number of results")
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+def trace_list(
+    trace: Path | None,
+    component: str | None,
+    phase: str | None,
+    dtype: str | None,
+    limit: int | None,
+    output_json: bool,
+) -> None:
+    """List all decisions in a trace.
+
+    Example:
+        temper-placer trace-list --component Q1
+        temper-placer trace-list --phase GEOMETRIC --limit 10
+    """
+    from temper_placer.explainability import load_trace
+
+    # Find trace file
+    if trace is None:
+        trace = Path(".temper-placer/decisions.json")
+        if not trace.exists():
+            console.print(
+                "[red]Error:[/] No decision trace found. Run optimization first or specify --trace."
+            )
+            sys.exit(1)
+
+    # Load trace
+    try:
+        decision_trace = load_trace(trace)
+    except Exception as e:
+        console.print(f"[red]Error loading trace:[/] {e}")
+        sys.exit(1)
+
+    # Apply filters
+    decisions = decision_trace.decisions
+    if component:
+        decisions = [d for d in decisions if d.subject == component]
+    if phase:
+        decisions = [d for d in decisions if d.phase and d.phase.value == phase]
+    if dtype:
+        decisions = [d for d in decisions if d.decision_type.value == dtype]
+    if limit:
+        decisions = decisions[:limit]
+
+    if output_json:
+        output = [
+            {
+                "subject": d.subject,
+                "type": d.decision_type.value,
+                "phase": d.phase.value if d.phase else None,
+                "value": d.value,
+                "reason": d.reason,
+                "timestamp": d.timestamp.isoformat(),
+            }
+            for d in decisions
+        ]
+        print(json.dumps(output, indent=2))
+    else:
+        console.print(
+            f"[bold]Decisions:[/] (showing {len(decisions)} of {len(decision_trace.decisions)} total)\n"
+        )
+
+        for d in decisions:
+            phase_str = f"[{d.phase.value}]" if d.phase else ""
+            console.print(f"• {d.subject} {phase_str} - {d.decision_type.value}")
+            console.print(f"  Value: {d.value}")
+            console.print(f"  Reason: {d.reason}")
+            console.print()
+
+
+@main.command()
+@click.option(
+    "--trace",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to decision trace JSON",
+)
+@click.option(
+    "--format",
+    type=click.Choice(["markdown", "html", "json"]),
+    default="markdown",
+    help="Output format",
+)
+@click.option(
+    "-o", "--output", type=click.Path(path_type=Path), help="Output file (stdout if not specified)"
+)
+def trace_export(trace: Path, format: str, output: Path | None) -> None:
+    """Export decision trace to various formats.
+
+    Example:
+        temper-placer trace-export --trace decisions.json --format html -o report.html
+        temper-placer trace-export --trace decisions.json --format markdown
+    """
+    from temper_placer.explainability import (
+        generate_html_report,
+        load_trace,
+        render_markdown_report,
+        save_html_report,
+        save_markdown_report,
+        trace_to_json,
+    )
+
+    # Load trace
+    try:
+        decision_trace = load_trace(trace)
+    except Exception as e:
+        console.print(f"[red]Error loading trace:[/] {e}")
+        sys.exit(1)
+
+    # Generate output based on format
+    try:
+        if format == "json":
+            json_str = trace_to_json(decision_trace)
+            if output:
+                output.write_text(json_str)
+                console.print(f"[green]✓[/] JSON exported to {output}")
+            else:
+                print(json_str)
+
+        elif format == "markdown":
+            if output:
+                save_markdown_report(decision_trace, output)
+                console.print(f"[green]✓[/] Markdown report exported to {output}")
+            else:
+                md_content = render_markdown_report(decision_trace)
+                print(md_content)
+
+        elif format == "html":
+            if not output:
+                console.print("[red]Error:[/] HTML format requires --output flag")
+                sys.exit(1)
+            save_html_report(decision_trace, output)
+            console.print(f"[green]✓[/] HTML report exported to {output}")
+
+    except Exception as e:
+        console.print(f"[red]Error exporting trace:[/] {e}")
+        sys.exit(1)
 
 
 @main.command()

@@ -27,6 +27,24 @@ from temper_placer.topological.propagation import ConstraintPropagator
 from temper_placer.topological.zone_solver import ZoneAssignment, ZoneSolver
 
 
+from dataclasses import dataclass, field
+
+
+@dataclass
+class FeasibilityResult:
+    """Result of feasibility checking.
+
+    Attributes:
+        is_feasible: Whether placement is feasible
+        message: Human-readable description of result
+        conflicts: List of specific conflict descriptions
+    """
+
+    is_feasible: bool
+    message: str = ""
+    conflicts: list[str] = field(default_factory=list)
+
+
 class TopologicalInitializationHeuristic(Heuristic):
     """Heuristic that generates initial placements from topological analysis.
 
@@ -98,6 +116,15 @@ class TopologicalInitializationHeuristic(Heuristic):
             return HeuristicResult(
                 success=True,
                 message="No components to place",
+            )
+
+        # Fail-fast feasibility check
+        feasibility = self._check_feasibility(context, unplaced_refs)
+        if not feasibility.is_feasible:
+            return HeuristicResult(
+                success=False,
+                message=feasibility.message,
+                conflicts=feasibility.conflicts,
             )
 
         # Build topological graph from constraints/netlist
@@ -265,4 +292,91 @@ class TopologicalInitializationHeuristic(Heuristic):
             assignments=assignments,
             unassigned=unassigned,
             conflicts=[],
+        )
+
+    def _check_feasibility(
+        self,
+        context: PlacementContext,
+        component_refs: set[str],
+    ) -> FeasibilityResult:
+        """Check if placement is feasible before attempting.
+
+        Performs fail-fast checks:
+        1. Any component larger than available zones/board
+        2. Total component area exceeds zone area
+
+        Args:
+            context: Placement context
+            component_refs: Components to place
+
+        Returns:
+            FeasibilityResult with is_feasible flag and conflicts
+        """
+        conflicts: list[str] = []
+
+        # Get component sizes
+        component_sizes: dict[str, tuple[float, float]] = {}
+        for c in context.netlist.components:
+            if c.ref in component_refs:
+                component_sizes[c.ref] = (c.width, c.height)
+
+        # Get available placement area (zones or board)
+        zones = context.board.zones
+        if zones:
+            # Calculate zone bounds: list of (x, y, width, height)
+            zone_bounds = []
+            for zone in zones:
+                zx, zy, zw, zh = zone.bounds
+                zone_bounds.append((zw, zh))
+        else:
+            # Use board bounds
+            zone_bounds = [(context.board.width, context.board.height)]
+
+        # Apply margin if constraints specify one
+        margin = 0.0
+        if context.constraints and hasattr(context.constraints, "board_margin_mm"):
+            margin = context.constraints.board_margin_mm or 0.0
+
+        # Check 1: Is any component larger than all zones?
+        for ref, (cw, ch) in component_sizes.items():
+            fits_in_any_zone = False
+            for zw, zh in zone_bounds:
+                # Subtract margin from zone dimensions
+                available_w = zw - 2 * margin
+                available_h = zh - 2 * margin
+
+                # Check if component fits (either orientation)
+                if (cw <= available_w and ch <= available_h) or (
+                    ch <= available_w and cw <= available_h
+                ):
+                    fits_in_any_zone = True
+                    break
+
+            if not fits_in_any_zone:
+                conflicts.append(
+                    f"Component {ref} ({cw:.1f}x{ch:.1f}mm) is larger than available placement area"
+                )
+
+        # Check 2: Total component area vs total zone area
+        total_component_area = sum(w * h for w, h in component_sizes.values())
+        total_zone_area = sum((w - 2 * margin) * (h - 2 * margin) for w, h in zone_bounds)
+
+        # Use a packing efficiency estimate (70% is typical for rectangular packing)
+        PACKING_EFFICIENCY = 0.7
+        if total_component_area > total_zone_area * PACKING_EFFICIENCY:
+            conflicts.append(
+                f"Total component area ({total_component_area:.1f}mm²) exceeds "
+                f"~{PACKING_EFFICIENCY * 100:.0f}% of available zone area ({total_zone_area:.1f}mm²)"
+            )
+
+        if conflicts:
+            return FeasibilityResult(
+                is_feasible=False,
+                message=f"Placement infeasible: {len(conflicts)} conflict(s) detected",
+                conflicts=conflicts,
+            )
+
+        return FeasibilityResult(
+            is_feasible=True,
+            message="Feasibility check passed",
         )

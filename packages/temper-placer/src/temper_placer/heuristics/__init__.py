@@ -7,6 +7,7 @@ This subpackage provides intelligent initial placement heuristics that:
 - Produce engineer-like placements that are more reviewable
 
 Heuristics are applied in priority order:
+0. Initialization: Topological analysis and initial placement (optional)
 1. Hard constraints: Keep-out zones, board boundaries
 2. Structural: Connectors at edges, thermal components at edges
 3. Organizational: Module clustering, decoupling cap positioning
@@ -54,14 +55,22 @@ from temper_placer.heuristics.style import (
     identify_ground_domains,
 )
 
+# Topological initialization heuristic
+from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
 
-def create_default_pipeline() -> HeuristicPipeline:
+
+def create_default_pipeline(
+    include_topological: bool = True,
+    topological_force_iterations: int = 100,
+    topological_backend: str = "numpy",
+) -> HeuristicPipeline:
     """
     Create a pipeline with all default heuristics registered.
 
     This sets up a complete pipeline with all standard heuristics
     in the recommended configuration:
 
+    0. INITIALIZATION: TopologicalInitializationHeuristic (optional) - Topological analysis
     1. HARD: KeepoutAwarenessHeuristic - Creates placement mask
     2. STRUCTURAL: ConnectorEdgeSnappingHeuristic - Connectors on edges
     3. STRUCTURAL: ThermalEdgePlacementHeuristic - Thermal components on edges
@@ -73,6 +82,14 @@ def create_default_pipeline() -> HeuristicPipeline:
     9. STYLE: StarGroundTopologyHeuristic - Star ground arrangement
     10. STYLE: SignalFlowPreservationHeuristic - Signal flow direction
 
+    Args:
+        include_topological: Whether to include TopologicalInitializationHeuristic.
+            Set to False to skip topological analysis (e.g., for faster iteration).
+        topological_force_iterations: Number of force refinement iterations for
+            topological placement (default: 100).
+        topological_backend: Computation backend for topological placement
+            ("numpy" or "jax", default: "numpy").
+
     Returns:
         Configured HeuristicPipeline ready to use.
     """
@@ -82,6 +99,15 @@ def create_default_pipeline() -> HeuristicPipeline:
         conflict_strategy=ResolutionStrategy.NUDGE,
         min_spacing_mm=0.5,
     )
+
+    # INITIALIZATION: Topological analysis (optional, runs first at priority -1)
+    if include_topological:
+        pipeline.register(
+            TopologicalInitializationHeuristic(
+                force_iterations=topological_force_iterations,
+                backend=topological_backend,
+            )
+        )
 
     # Register heuristics in priority order
     # HARD constraints
@@ -118,6 +144,8 @@ __all__ = [
     "ConflictResolver",
     "ResolutionStrategy",
     "create_default_pipeline",
+    # Topological initialization
+    "TopologicalInitializationHeuristic",
     # Structural heuristics
     "KeepoutAwarenessHeuristic",
     "ConnectorEdgeSnappingHeuristic",
