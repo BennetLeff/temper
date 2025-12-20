@@ -24,6 +24,10 @@ from temper_placer.topological.propagation import (
     DistanceBound,
     ConstraintPropagator,
 )
+from temper_placer.topological.zone_solver import (
+    ZoneAssignment,
+    ZoneSolver,
+)
 
 __all__ = [
     "TopologicalGraph",
@@ -32,4 +36,6 @@ __all__ = [
     "build_topological_graph",
     "DistanceBound",
     "ConstraintPropagator",
+    "ZoneAssignment",
+    "ZoneSolver",
 ]
