@@ -1,0 +1,80 @@
+# 15V Buck Converter Switching Loop Template
+# Auxiliary power supply for gate drivers
+#
+# This is the switching loop for the auxiliary buck converter
+# (e.g., LMR51430) that generates the 15V supply for gate drivers.
+#
+# Target: Keep small (<25mm²) for good EMI at high frequency.
+
+name: buck_15v
+loop_type: buck_switch
+
+description: |
+  Auxiliary buck converter switching loop for 15V gate driver supply.
+  
+  Current path (during switch ON):
+  C_IN(+) → U_BUCK(VIN) → U_BUCK(SW) → L_BUCK(1) → 
+  L_BUCK(2) → VOUT → (load) → C_IN(-)
+  
+  During switch OFF, the inductor current freewheels through
+  the internal synchronous rectifier.
+  
+  Design rules:
+  - Input cap should be closest to VIN/PGND pins
+  - SW node trace should be short but can handle current
+  - High frequency operation (2.4 MHz) requires careful layout
+  - Use short, wide traces for power path
+
+components:
+  - U_BUCK     # Buck converter IC (e.g., LMR51430)
+  - L_BUCK     # Buck inductor (typically 4.7-10µH)
+  - C_IN_BUCK  # Input capacitor (10-22µF ceramic)
+
+pins:
+  - component: C_IN_BUCK
+    pin: "+"
+    net: VIN_BUCK
+  - component: U_BUCK
+    pin: VIN
+    net: VIN_BUCK
+  - component: U_BUCK
+    pin: SW
+    net: SW_BUCK
+  - component: L_BUCK
+    pin: "1"
+    net: SW_BUCK
+  - component: L_BUCK
+    pin: "2"
+    net: VCC_15V
+  - component: C_IN_BUCK
+    pin: "-"
+    net: PGND
+  - component: U_BUCK
+    pin: GND
+    net: PGND
+
+nets:
+  - VIN_BUCK
+  - SW_BUCK
+  - VCC_15V
+  - PGND
+
+max_area_mm2: 25
+priority: high
+
+events:
+  di_dt: 0.2e+9          # Moderate current slew
+  dv_dt: 2.0e+9          # Fast switching
+  frequency_hz: 2400000 # 2.4 MHz typical for LMR51430
+  peak_current_a: 2     # Peak switch current
+
+return_layer: L2_GND
+return_net: PGND
+
+placement_hints:
+  tight_cluster: true
+  prefer_edge: false
+  thermal_sensitive: false      # IC has internal thermal shutdown
+  keep_together:
+    - [U_BUCK, C_IN_BUCK]       # Input cap touching IC
+    - [U_BUCK, L_BUCK]          # Inductor near IC SW pin

@@ -1,0 +1,83 @@
+# Commutation Loop Template
+# Main power switching loop for half-bridge topology
+#
+# This is THE most critical loop for EMI in power electronics.
+# Current flows from DC bus positive through high-side switch,
+# through low-side switch (during commutation), back to DC bus
+# negative through the bus capacitors.
+#
+# Target: Minimize this loop area as much as physically possible.
+# Typical constraint: <500mm² for high-power induction cookers.
+
+name: commutation
+loop_type: commutation
+
+description: |
+  Main power switching loop for half-bridge topology.
+  
+  Current path during high-side turn-off:
+  DC_BUS+ → Q1(collector) → Q1(emitter) → SW_NODE → 
+  Q2(collector) → Q2(emitter) → DC_BUS- → C_BUS(-)→ C_BUS(+) → DC_BUS+
+  
+  This loop carries the full switching current at high di/dt rates.
+  Loop inductance directly determines voltage spikes on the switches.
+  
+  Design rules:
+  - Place Q1, Q2, and C_BUS as close together as possible
+  - Use wide, short traces or copper pours
+  - Minimize vias in the power path
+  - Consider using direct copper connections where possible
+
+components:
+  - C_BUS1    # DC bus capacitor (primary)
+  - C_BUS2    # DC bus capacitor (paralleled, optional)
+  - Q1        # High-side IGBT/MOSFET
+  - Q2        # Low-side IGBT/MOSFET
+
+pins:
+  - component: C_BUS1
+    pin: "+"
+    net: DC_BUS+
+  - component: Q1
+    pin: COLLECTOR
+    net: DC_BUS+
+  - component: Q1
+    pin: EMITTER
+    net: SW_NODE
+  - component: Q2
+    pin: COLLECTOR
+    net: SW_NODE
+  - component: Q2
+    pin: EMITTER
+    net: DC_BUS-
+  - component: C_BUS1
+    pin: "-"
+    net: DC_BUS-
+
+nets:
+  - DC_BUS+
+  - SW_NODE
+  - DC_BUS-
+
+max_area_mm2: 500
+priority: critical
+
+events:
+  di_dt: 1.0e+9         # 1 A/ns - typical IGBT hard switching
+  dv_dt: 5.0e+9         # 5 V/ns - switch node voltage slew
+  frequency_hz: 25000   # 25 kHz switching frequency
+  peak_current_a: 50    # Peak resonant current
+  rms_current_a: 25     # RMS current at full power
+
+return_layer: L2_GND    # Power ground plane
+return_net: PGND
+
+# Component placement hints (used by heuristics)
+placement_hints:
+  tight_cluster: true           # All components should be clustered
+  prefer_edge: false            # Can be in board center
+  thermal_sensitive: true       # IGBTs need heatsinking
+  keep_together:
+    - [Q1, Q2]                  # IGBTs adjacent
+    - [C_BUS1, C_BUS2]          # Bus caps adjacent
+    - [Q1, C_BUS1]              # IGBT near bus cap

@@ -1,0 +1,78 @@
+# Bootstrap Charging Loop Template
+# Bootstrap diode and capacitor charging path
+#
+# When the low-side switch is ON, current flows through the
+# bootstrap diode to charge the bootstrap capacitor. This
+# capacitor powers the high-side gate driver.
+#
+# Target: Keep reasonably small (<50mm²), but less critical than gate drive.
+
+name: bootstrap
+loop_type: bootstrap
+
+description: |
+  Bootstrap capacitor charging loop.
+  
+  Current path (when low-side is ON, SW_NODE ≈ 0V):
+  VCC_15V → D_BOOT(A) → D_BOOT(K) → C_BOOT(+) → 
+  C_BOOT(-) → SW_NODE → Q2(collector) → ...
+  
+  The bootstrap capacitor (C_BOOT) provides the floating supply
+  voltage for the high-side driver. It's charged through D_BOOT
+  when the low-side is conducting.
+  
+  Design rules:
+  - D_BOOT should be fast recovery or Schottky
+  - C_BOOT should be low ESR ceramic
+  - Place C_BOOT close to driver VCC2 pin
+  - Keep D_BOOT close to C_BOOT
+
+components:
+  - D_BOOT     # Bootstrap diode
+  - C_BOOT     # Bootstrap capacitor (typically 100nF-1µF)
+  - U_GATE     # Gate driver IC
+
+pins:
+  - component: D_BOOT
+    pin: ANODE
+    net: VCC_15V
+  - component: D_BOOT
+    pin: CATHODE
+    net: VBS
+  - component: C_BOOT
+    pin: "+"
+    net: VBS
+  - component: C_BOOT
+    pin: "-"
+    net: SW_NODE
+  - component: U_GATE
+    pin: VCC2
+    net: VBS
+  - component: U_GATE
+    pin: GND2
+    net: SW_NODE
+
+nets:
+  - VCC_15V
+  - VBS
+  - SW_NODE
+
+max_area_mm2: 50
+priority: high
+
+events:
+  di_dt: 0.1e+9          # Relatively slow charging
+  dv_dt: null
+  frequency_hz: 25000   # Charged once per switching cycle
+  peak_current_a: 0.5   # Bootstrap charge current
+
+return_layer: null      # Floating reference
+return_net: SW_NODE
+
+placement_hints:
+  tight_cluster: true
+  prefer_edge: false
+  thermal_sensitive: false
+  keep_together:
+    - [D_BOOT, C_BOOT]      # Diode and cap together
+    - [C_BOOT, U_GATE]      # Cap near driver

@@ -1,0 +1,77 @@
+# High-Side Gate Drive Loop Template
+# Gate driver to high-side IGBT gate path
+#
+# Critical for switching speed and EMI. The gate drive loop inductance
+# determines gate current ringing and can cause spurious turn-on.
+#
+# Target: Keep this loop as small as possible (<100mm²).
+
+name: gate_drive_high
+loop_type: gate_drive_high
+
+description: |
+  High-side gate drive loop for isolated/bootstrap driver topology.
+  
+  Current path:
+  U_GATE(OUTA) → RG_H(1) → RG_H(2) → Q1(GATE) → 
+  Q1(EMITTER) → U_GATE(VSS2/GND2)
+  
+  The emitter is connected to the floating switch node (SW_NODE),
+  which serves as the reference for the high-side driver.
+  
+  Design rules:
+  - Gate resistor should be physically touching the IGBT
+  - Route gate and emitter traces as differential pair
+  - Keep driver close to IGBT
+  - Use shortest possible trace length
+  - Consider 4-layer stackup with tight coupling
+
+components:
+  - U_GATE     # Gate driver IC (e.g., UCC21550)
+  - RG_H       # High-side gate resistor
+  - Q1         # High-side IGBT
+
+pins:
+  - component: U_GATE
+    pin: OUTA
+    net: GATE_H_DRV
+  - component: RG_H
+    pin: "1"
+    net: GATE_H_DRV
+  - component: RG_H
+    pin: "2"
+    net: GATE_H
+  - component: Q1
+    pin: GATE
+    net: GATE_H
+  - component: Q1
+    pin: EMITTER
+    net: SW_NODE
+  - component: U_GATE
+    pin: VSS2
+    net: SW_NODE
+
+nets:
+  - GATE_H_DRV
+  - GATE_H
+  - SW_NODE
+
+max_area_mm2: 100
+priority: critical
+
+events:
+  di_dt: 0.5e+9          # 0.5 A/ns gate current
+  dv_dt: null           # Not applicable for gate
+  frequency_hz: 25000   # Switching frequency
+  peak_current_a: 4     # Gate driver peak source/sink
+
+return_layer: null      # Floating - return is SW_NODE (no plane)
+return_net: SW_NODE
+
+placement_hints:
+  tight_cluster: true
+  prefer_edge: false
+  thermal_sensitive: false
+  keep_together:
+    - [U_GATE, RG_H]        # Driver near gate resistor
+    - [RG_H, Q1]            # Gate resistor touching IGBT

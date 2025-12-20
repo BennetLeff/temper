@@ -1,0 +1,76 @@
+# Low-Side Gate Drive Loop Template
+# Gate driver to low-side IGBT gate path
+#
+# Similar to high-side but referenced to power ground (PGND).
+# Critical for switching speed and EMI.
+#
+# Target: Keep this loop as small as possible (<100mm²).
+
+name: gate_drive_low
+loop_type: gate_drive_low
+
+description: |
+  Low-side gate drive loop referenced to power ground.
+  
+  Current path:
+  U_GATE(OUTB) → RG_L(1) → RG_L(2) → Q2(GATE) → 
+  Q2(EMITTER) → PGND → U_GATE(VSS1/GND1)
+  
+  The emitter is connected to power ground, which also serves
+  as the low-side driver reference.
+  
+  Design rules:
+  - Gate resistor should be physically touching the IGBT
+  - Route gate and emitter traces as differential pair
+  - Keep driver close to IGBT
+  - Ensure solid ground connection to PGND plane
+
+components:
+  - U_GATE     # Gate driver IC (e.g., UCC21550)
+  - RG_L       # Low-side gate resistor
+  - Q2         # Low-side IGBT
+
+pins:
+  - component: U_GATE
+    pin: OUTB
+    net: GATE_L_DRV
+  - component: RG_L
+    pin: "1"
+    net: GATE_L_DRV
+  - component: RG_L
+    pin: "2"
+    net: GATE_L
+  - component: Q2
+    pin: GATE
+    net: GATE_L
+  - component: Q2
+    pin: EMITTER
+    net: PGND
+  - component: U_GATE
+    pin: VSS1
+    net: PGND
+
+nets:
+  - GATE_L_DRV
+  - GATE_L
+  - PGND
+
+max_area_mm2: 100
+priority: critical
+
+events:
+  di_dt: 0.5e+9          # 0.5 A/ns gate current
+  dv_dt: null
+  frequency_hz: 25000
+  peak_current_a: 4     # Gate driver peak source/sink
+
+return_layer: L2_GND    # Return via power ground plane
+return_net: PGND
+
+placement_hints:
+  tight_cluster: true
+  prefer_edge: false
+  thermal_sensitive: false
+  keep_together:
+    - [U_GATE, RG_L]
+    - [RG_L, Q2]
