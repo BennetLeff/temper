@@ -16,6 +16,7 @@ from temper_placer.metrics.quality import (
     total_wirelength,
     zone_compliance_score,
 )
+from temper_placer.metrics.quality_score import QualityScore, compute_quality_score
 
 __all__ = [
     "total_wirelength",
@@ -26,4 +27,6 @@ __all__ = [
     "congestion_score",
     "compactness_score",
     "compute_quality_report",
+    "QualityScore",
+    "compute_quality_score",
 ]
