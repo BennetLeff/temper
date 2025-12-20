@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper-placer.dev/schemas/pcl-v1.schema.json",
+  "title": "Placement Constraint Language (PCL) v1.0",
+  "description": "Schema for declarative PCB placement constraints with mandatory rationale and tiered priorities",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Schema version (e.g., '1.0')"
+    },
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Constraint"
+      },
+      "description": "List of placement constraints"
+    }
+  },
+  "required": ["version", "constraints"],
+  "additionalProperties": false,
+
+  "$defs": {
+    "Metadata": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the constraint set"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author or team name"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Creation or last modified date (YYYY-MM-DD)"
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "ComponentRef": {
+      "type": "string",
+      "pattern": "^[A-Z]+[0-9]*(_[A-Z0-9_]+)?$",
+      "description": "Component reference designator (e.g., Q1, U_GATE_DRV, C_DC) or zone name (e.g., HV_ZONE, MCU_ZONE)",
+      "examples": ["Q1", "U_GATE_DRV", "C_BUS1", "J_AC", "U_MCU", "J_COIL", "HV_ZONE", "MCU_ZONE"]
+    },
+
+    "DistanceMetric": {
+      "type": "string",
+      "enum": ["edge_to_edge", "center_to_center", "pin_to_pin"],
+      "description": "How to measure distance between components"
+    },
+
+    "Axis": {
+      "type": "string",
+      "enum": ["x", "y", "major", "minor"],
+      "description": "Alignment axis: x=horizontal, y=vertical, major/minor=component-relative"
+    },
+
+    "BoardSide": {
+      "type": "string",
+      "enum": ["top", "bottom", "left", "right"],
+      "description": "Board edge side: top=+Y, bottom=-Y, left=-X, right=+X"
+    },
+
+    "EdgeType": {
+      "type": "string",
+      "enum": ["flush", "inset", "overhang"],
+      "description": "Edge placement type: flush=on edge, inset=inside board, overhang=past edge"
+    },
+
+    "Tier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "description": "Constraint priority tier: 1=HARD (never violate), 2=STRONG (heavy penalty), 3=SOFT (preference)"
+    },
+
+    "Because": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Mandatory rationale explaining why this constraint exists (electrical, thermal, EMI, safety, etc.)"
+    },
+
+    "Constraint": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["adjacent", "separated", "enclosing", "aligned", "on_side", "anchored", "loop_area"]
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        },
+        "because": {
+          "$ref": "#/$defs/Because"
+        }
+      },
+      "required": ["type", "tier", "because"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "adjacent"}
+            }
+          },
+          "then": {
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/ComponentRef",
+                "description": "First component reference"
+              },
+              "b": {
+                "$ref": "#/$defs/ComponentRef",
+                "description": "Second component reference"
+              },
+              "max_distance_mm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Maximum allowed distance in millimeters"
+              },
+              "metric": {
+                "$ref": "#/$defs/DistanceMetric",
+                "default": "edge_to_edge"
+              },
+              "pin_a": {
+                "type": "string",
+                "description": "Optional specific pin on component a (requires metric=pin_to_pin)"
+              },
+              "pin_b": {
+                "type": "string",
+                "description": "Optional specific pin on component b (requires metric=pin_to_pin)"
+              }
+            },
+            "required": ["a", "b", "max_distance_mm"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "separated"}
+            }
+          },
+          "then": {
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/ComponentRef",
+                "description": "First component or zone reference"
+              },
+              "b": {
+                "$ref": "#/$defs/ComponentRef",
+                "description": "Second component or zone reference"
+              },
+              "min_distance_mm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Minimum required distance in millimeters"
+              },
+              "metric": {
+                "$ref": "#/$defs/DistanceMetric",
+                "default": "edge_to_edge"
+              }
+            },
+            "required": ["a", "b", "min_distance_mm"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "enclosing"}
+            }
+          },
+          "then": {
+            "properties": {
+              "outer": {
+                "$ref": "#/$defs/ComponentRef",
+                "description": "Enclosing zone reference (must end with _ZONE)"
+              },
+              "inner": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/ComponentRef"
+                },
+                "minItems": 1,
+                "description": "Components that must be inside the zone"
+              },
+              "margin_mm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Required margin from zone edge (default: 0)"
+              }
+            },
+            "required": ["outer", "inner"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "aligned"}
+            }
+          },
+          "then": {
+            "properties": {
+              "components": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/ComponentRef"
+                },
+                "minItems": 2,
+                "description": "Components to align"
+              },
+              "axis": {
+                "$ref": "#/$defs/Axis",
+                "description": "Axis to align components along"
+              },
+              "tolerance_mm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Alignment tolerance in millimeters (default: 0.1)"
+              }
+            },
+            "required": ["components", "axis"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "on_side"}
+            }
+          },
+          "then": {
+            "properties": {
+              "components": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/ComponentRef"
+                },
+                "minItems": 1,
+                "description": "Components to place on board edge"
+              },
+              "side": {
+                "$ref": "#/$defs/BoardSide",
+                "description": "Which board edge"
+              },
+              "edge": {
+                "$ref": "#/$defs/EdgeType",
+                "description": "How to place relative to edge"
+              },
+              "max_distance_mm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Maximum distance from edge (for inset/flush)"
+              }
+            },
+            "required": ["components", "side", "edge"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "anchored"}
+            }
+          },
+          "then": {
+            "properties": {
+              "component": {
+                "$ref": "#/$defs/ComponentRef",
+                "description": "Component to anchor"
+              },
+              "region": {
+                "type": "array",
+                "items": {"type": "number"},
+                "minItems": 4,
+                "maxItems": 4,
+                "description": "Bounding box [x_min, y_min, x_max, y_max] in millimeters"
+              },
+              "position": {
+                "type": "array",
+                "items": {"type": "number"},
+                "minItems": 2,
+                "maxItems": 2,
+                "description": "Exact position [x, y] in millimeters"
+              }
+            },
+            "required": ["component"],
+            "oneOf": [
+              {"required": ["region"]},
+              {"required": ["position"]}
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "loop_area"}
+            }
+          },
+          "then": {
+            "properties": {
+              "loop_name": {
+                "type": "string",
+                "description": "Identifier for the current loop (e.g., 'commutation', 'gate_drive')"
+              },
+              "max_area_mm2": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Maximum loop area in square millimeters"
+              }
+            },
+            "required": ["loop_name", "max_area_mm2"]
+          }
+        }
+      ]
+    }
+  }
+}
