@@ -18,13 +18,15 @@ members = ["packages/*"]
 temper-placer = { workspace = true }
 temper-workflow = { workspace = true }
 temper-tools = { workspace = true }
+temper-drc = { workspace = true }
 
 [tool.pytest.ini_options]
-testpaths = ["packages/temper-placer/tests", "packages/temper-workflow/tests", "packages/temper-tools/tests"]
+testpaths = ["packages/temper-placer/tests", "packages/temper-workflow/tests", "packages/temper-tools/tests", "packages/temper-drc/tests"]
 pythonpath = [
     "packages/temper-placer/src",
-    "packages/temper-workflow/src", 
-    "packages/temper-tools/src"
+    "packages/temper-workflow/src",
+    "packages/temper-tools/src",
+    "packages/temper-drc/src"
 ]
 addopts = ["-v", "--tb=short"]
 
