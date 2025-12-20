@@ -225,15 +225,15 @@ Placement quality score: 94.0 (excellent)
 ✓ Task completed successfully
 ```
 
-### correlation_analysis.py (Planned)
+### correlation_analysis.py
 
 **Purpose:** Empirically determine which loss functions predict routing success.
 
-**Status:** Not yet implemented (see temper-xlm.5)
+**Status:** ✅ Implemented (temper-xlm.5)
 
 **Location:** `scripts/correlation_analysis.py`
 
-**Planned CLI:**
+**CLI Usage:**
 
 ```bash
 # Run correlation analysis on a PCB
@@ -290,15 +290,15 @@ python scripts/correlation_analysis.py \
 }
 ```
 
-### tune_loss_weights.py (Planned)
+### tune_loss_weights.py
 
 **Purpose:** Suggest improved loss weights based on correlation analysis.
 
-**Status:** Not yet implemented (see temper-xlm.6)
+**Status:** ✅ Implemented (temper-xlm.6)
 
 **Location:** `scripts/tune_loss_weights.py`
 
-**Planned CLI:**
+**CLI Usage:**
 
 ```bash
 # Generate tuned weights
