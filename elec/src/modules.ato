@@ -225,6 +225,11 @@ module ResonantTank:
     c_tank2.mpn = "FKP1U021507E00JSSD"
     c_tank2.footprint = "Capacitor_THT:C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4"
     
+    # Voltage derating for film capacitors (70% derating per IPC-2221B)
+    v_tank_peak: voltage = 400V  # Peak resonant voltage
+    assert c_tank1.voltage_rating >= v_tank_peak * 1.43  # 400V * 1.43 = 572V min
+    assert c_tank2.voltage_rating >= v_tank_peak * 1.43
+    
     inductor_conn = new Resistor # Placeholder for Litz interface
     inductor_conn.mpn = "CUSTOM_LITZ_COIL"
     inductor_conn.footprint = "LitzPad_15A"
@@ -316,6 +321,10 @@ module PowerInput:
     assert r_bleed1.power_rating >= p_bleed_actual * 1.5
     assert r_bleed2.power_rating >= p_bleed_actual * 1.5
     
+    # Voltage derating for electrolytic capacitors (80% derating per IPC-2221B)
+    assert c_bus1.voltage_rating >= v_bus_half * 1.25  # 170V * 1.25 = 212.5V min
+    assert c_bus2.voltage_rating >= v_bus_half * 1.25
+    
     # --- Connections ---
     # Input path: AC_L -> Fuse -> NTC (|| Relay) -> Rectifier
     ac_l ~ fuse.p1
@@ -404,6 +413,12 @@ module BuckConverter15V:
     c_out2.mpn = "GRM32ER71E226KE15L"
     c_out2.footprint = "Capacitor_SMD:C_1210_3225Metric"
     
+    # Voltage derating for ceramic X5R/X7R (50% derating for DC bias)
+    # Note: 25V caps at 15V = 60% utilization, acceptable for X7R
+    v_out_buck: voltage = 15V
+    assert c_out1.voltage_rating >= v_out_buck * 1.65  # 15V * 1.65 = 24.75V min
+    assert c_out2.voltage_rating >= v_out_buck * 1.65
+    
     # Feedback divider for 15V output
     # FB = 1.0V, Vout = 15V
     # R_top/R_bot = (Vout/VFB) - 1 = 14
@@ -487,6 +502,10 @@ module LDO3V3:
     c_out.voltage_rating = 10V
     c_out.mpn = "GRM188R71A105KA61D"
     c_out.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Voltage derating for ceramic X5R/X7R (50% derating for DC bias)
+    v_out_ldo: voltage = 3.3V
+    assert c_out.voltage_rating >= v_out_ldo * 2.0  # 3.3V * 2.0 = 6.6V min
     
     # Connections
     vin ~ ldo.VIN
