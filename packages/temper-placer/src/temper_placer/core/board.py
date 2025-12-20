@@ -98,59 +98,54 @@ class LayerStackup:
             # Power traces on L1 or L4
             return [i for i, l in enumerate(self.layers) if l.is_routable]
         else:
-            # Signal traces on any routable layer
+            # Signal traces can route on any routable layer
             return [i for i, l in enumerate(self.layers) if l.is_routable]
 
     def tracks_per_cell(self, grid_size: float, net_class: str = "Signal") -> float:
         """
-        Estimate routing tracks per grid cell for congestion modeling.
+        Estimate routing capacity per routing cell.
 
         Args:
-            grid_size: Grid cell size in mm.
-            net_class: Net class for determining trace width/clearance.
+            grid_size: Size of routing estimation cell in mm.
+            net_class: Net class being routed.
 
         Returns:
-            Estimated number of tracks that fit in a grid cell.
+            Number of tracks that can cross a cell boundary.
         """
-        # Typical trace widths and clearances by net class
+        # Minimum track width + spacing defaults (mm)
+        # These would ideally come from KiCad net class constraints
         if net_class == "HighVoltage":
-            trace_width = 1.0  # mm (wide for current)
-            clearance = 2.0  # mm (HV clearance)
+            width, space = 1.0, 1.0  # Wide HV traces
         elif net_class == "Power":
-            trace_width = 0.5  # mm
-            clearance = 0.3  # mm
+            width, space = 0.5, 0.3
         else:
-            trace_width = 0.2  # mm
-            clearance = 0.15  # mm
+            width, space = 0.2, 0.2
 
-        pitch = trace_width + clearance
-        n_routable = len(self.routable_layers(net_class))
+        pitch = width + space
+        layers = len(self.routable_layers(net_class))
 
-        return (grid_size / pitch) * n_routable
+        # Tracks per layer = grid_size / pitch
+        return (grid_size / pitch) * layers
 
 
 @dataclass
 class Zone:
     """
-    A placement zone on the PCB.
-
-    Zones define named regions where specific components should be placed.
-    For example: "HV_ZONE" for high-voltage components, "MCU_ZONE" for
-    microcontroller and peripherals.
+    A placement zone with specific constraints.
 
     Attributes:
-        name: Zone name (e.g., "HV_ZONE", "LV_ZONE", "MCU_ZONE").
-        bounds: (x_min, y_min, x_max, y_max) rectangular bounds in mm.
-        components: List of component refs that should be in this zone.
+        name: Unique zone name.
+        bounds: (x_min, y_min, x_max, y_max) relative to board origin.
         net_classes: Allowed net classes in this zone.
-        polygon: Optional polygon vertices for non-rectangular zones.
+        components: Mandatory components for this zone.
+        weight: Priority weight for zone constraints.
     """
 
     name: str
-    bounds: tuple[float, float, float, float]  # (x_min, y_min, x_max, y_max)
-    components: list[str] = field(default_factory=list)
+    bounds: tuple[float, float, float, float]
     net_classes: list[str] = field(default_factory=lambda: ["Signal"])
-    polygon: list[tuple[float, float]] | None = None
+    components: list[str] = field(default_factory=list)
+    weight: float = 1.0
 
     @property
     def width(self) -> float:
@@ -164,7 +159,7 @@ class Zone:
 
     @property
     def center(self) -> tuple[float, float]:
-        """Zone center point."""
+        """(x, y) center position of the zone."""
         return (
             (self.bounds[0] + self.bounds[2]) / 2,
             (self.bounds[1] + self.bounds[3]) / 2,
@@ -176,27 +171,21 @@ class Zone:
         return self.width * self.height
 
     def contains_point(self, x: float, y: float) -> bool:
-        """Check if a point is inside this zone."""
-        x_min, y_min, x_max, y_max = self.bounds
-        return x_min <= x <= x_max and y_min <= y <= y_max
+        """Check if a point is within zone boundaries."""
+        return self.bounds[0] <= x <= self.bounds[2] and self.bounds[1] <= y <= self.bounds[3]
 
 
 @dataclass
 class GroundDomain:
     """
-    A ground domain region for split-ground designs.
+    A ground plane domain (e.g., AGND, PGND).
 
-    The Temper board has multiple ground domains:
-    - PGND: Power ground (HV section)
-    - CGND: Control ground (LV digital)
-    - ISOGND: Isolated ground (gate driver)
-
-    Signals should not cross between domains except at the star ground point.
+    Used to detect and penalize traces crossing ground splits.
 
     Attributes:
-        name: Domain name (e.g., "PGND", "CGND", "ISOGND").
-        bounds: (x_min, y_min, x_max, y_max) rectangular bounds.
-        star_point: Optional (x, y) location of star ground connection.
+        name: Domain name.
+        bounds: Polygon or bounding box.
+        star_point: (x, y) location where this domain connects to main GND.
     """
 
     name: str
@@ -204,170 +193,152 @@ class GroundDomain:
     star_point: tuple[float, float] | None = None
 
     def contains_point(self, x: float, y: float) -> bool:
-        """Check if a point is inside this ground domain."""
-        x_min, y_min, x_max, y_max = self.bounds
-        return x_min <= x <= x_max and y_min <= y <= y_max
+        """Check if a point is within ground domain boundaries."""
+        return self.bounds[0] <= x <= self.bounds[2] and self.bounds[1] <= y <= self.bounds[3]
 
 
 @dataclass
 class Board:
     """
-    PCB board definition.
+    The PCB board geometry and constraints.
 
     Attributes:
-        width: Board width in mm (for rectangular boards).
-        height: Board height in mm (for rectangular boards).
-        origin: (x, y) origin offset in mm (typically (0, 0)).
-        corner_radius: Corner radius for rounded boards in mm.
-        outline_polygon: Optional list of (x, y) vertices for non-rectangular boards.
-            When set, width/height are derived from polygon bounding box.
-        mounting_holes: List of mounting holes.
-        layer_stackup: Layer stackup definition.
+        width: Board width in mm.
+        height: Board height in mm.
+        origin: (x, y) origin point in mm (for absolute coordinates).
         zones: List of placement zones.
-        ground_domains: List of ground domains for split-ground designs.
-        keepout_regions: List of (x_min, y_min, x_max, y_max) keepout areas.
+        mounting_holes: List of mounting holes (keep-outs).
+        ground_domains: List of ground plane domains.
+        layer_stackup: Layer definition.
+        outline_polygon: Optional list of (x, y) points for non-rectangular boards.
     """
 
     width: float
     height: float
     origin: tuple[float, float] = (0.0, 0.0)
-    corner_radius: float = 0.0
-    outline_polygon: list[tuple[float, float]] | None = None
-    mounting_holes: list[MountingHole] = field(default_factory=list)
-    layer_stackup: LayerStackup = field(default_factory=LayerStackup.default_4layer)
     zones: list[Zone] = field(default_factory=list)
+    mounting_holes: list[MountingHole] = field(default_factory=list)
+    keepout_regions: list[tuple[float, float, float, float]] = field(default_factory=list)  # (x_min, y_min, x_max, y_max)
     ground_domains: list[GroundDomain] = field(default_factory=list)
-    keepout_regions: list[tuple[float, float, float, float]] = field(default_factory=list)
+    layer_stackup: LayerStackup | None = None
+    outline_polygon: list[tuple[float, float]] | None = None
 
-    # Zone index (populated by build_indices)
-    _zone_index: dict[str, int] = field(default_factory=dict, repr=False)
-
-    # Cached polygon data for JAX operations
-    _polygon_array: Array | None = field(default=None, repr=False)
+    # Fast lookup caches
+    _zone_map: dict[str, Zone] = field(init=False, default_factory=dict)
 
     def __post_init__(self) -> None:
-        """Build indices after initialization."""
+        """Initialize caches and defaults."""
+        if not self.layer_stackup:
+            self.layer_stackup = LayerStackup.default_4layer()
         self.build_indices()
-        if self.outline_polygon is not None:
-            self._polygon_array = jnp.array(self.outline_polygon, dtype=jnp.float32)
 
     def build_indices(self) -> None:
-        """Build lookup indices."""
-        self._zone_index = {z.name: i for i, z in enumerate(self.zones)}
+        """Build name -> object map for zones."""
+        self._zone_map = {z.name: z for z in self.zones}
 
     @property
     def has_polygon_outline(self) -> bool:
-        """Check if board uses polygon outline instead of rectangular."""
-        return self.outline_polygon is not None
+        """True if the board has a non-rectangular outline."""
+        return self.outline_polygon is not None and len(self.outline_polygon) > 2
 
-    @property
     def polygon_array(self) -> Array | None:
-        """Get polygon outline as JAX array (N, 2)."""
-        return self._polygon_array
+        """Get outline as a (P, 2) JAX array."""
+        if not self.outline_polygon:
+            return None
+        return jnp.array(self.outline_polygon, dtype=jnp.float32)
 
     @classmethod
     def from_polygon(
         cls,
-        outline: list[tuple[float, float]],
-        **kwargs,
+        polygon: list[tuple[float, float]],
+        origin: tuple[float, float] = (0.0, 0.0),
     ) -> Board:
         """
-        Create a board from a polygon outline.
+        Create a board from an arbitrary polygon outline.
 
-        The width/height are derived from the polygon bounding box.
+        Automatically computes width and height from polygon bounds.
 
         Args:
-            outline: List of (x, y) polygon vertices in order (CCW for positive area).
-            **kwargs: Additional Board constructor arguments.
+            polygon: List of (x, y) vertices.
+            origin: Board origin in mm.
 
         Returns:
-            Board instance with polygon outline.
+            Initialized Board instance.
         """
-        xs = [p[0] for p in outline]
-        ys = [p[1] for p in outline]
+        xs = [p[0] for p in polygon]
+        ys = [p[1] for p in polygon]
         x_min, x_max = min(xs), max(xs)
         y_min, y_max = min(ys), max(ys)
 
         return cls(
             width=x_max - x_min,
             height=y_max - y_min,
-            origin=(x_min, y_min),
-            outline_polygon=outline,
-            **kwargs,
+            origin=origin,
+            outline_polygon=polygon,
         )
 
     @classmethod
     def temper_default(cls) -> Board:
-        """Create default board for Temper induction cooker."""
+        """Create a default board matching the Temper induction cooker specs."""
         return cls(
-            width=100.0,  # mm
-            height=150.0,  # mm
+            width=100.0,
+            height=150.0,
             origin=(0.0, 0.0),
-            corner_radius=3.0,
             mounting_holes=[
-                MountingHole((5.0, 5.0), 3.2, keepout_radius=5.0),
-                MountingHole((95.0, 5.0), 3.2, keepout_radius=5.0),
-                MountingHole((5.0, 145.0), 3.2, keepout_radius=5.0),
-                MountingHole((95.0, 145.0), 3.2, keepout_radius=5.0),
-            ],
-            layer_stackup=LayerStackup.default_4layer(),
-            zones=[
-                Zone("HV_ZONE", (0, 0, 50, 80), net_classes=["HighVoltage", "Power"]),
-                Zone("LV_ZONE", (50, 0, 100, 80), net_classes=["Signal", "Power"]),
-                Zone("MCU_ZONE", (50, 80, 100, 150), net_classes=["Signal"]),
-                Zone("INTERFACE_ZONE", (0, 80, 50, 150), net_classes=["Signal"]),
-            ],
-            ground_domains=[
-                GroundDomain("PGND", (0, 0, 50, 80)),
-                GroundDomain("CGND", (50, 0, 100, 150), star_point=(50, 40)),
+                MountingHole((5, 5), 3.2),
+                MountingHole((95, 5), 3.2),
+                MountingHole((5, 145), 3.2),
+                MountingHole((95, 145), 3.2),
             ],
         )
 
     def get_zone(self, name: str) -> Zone:
-        """Get a zone by name."""
-        return self.zones[self._zone_index[name]]
+        """Get zone by name."""
+        return self._zone_map[name]
 
     def get_zone_for_point(self, x: float, y: float) -> Zone | None:
-        """Get the zone containing a point, or None if outside all zones."""
+        """Find the first zone that contains the given point."""
         for zone in self.zones:
             if zone.contains_point(x, y):
                 return zone
         return None
 
     def get_ground_domain(self, x: float, y: float) -> GroundDomain | None:
-        """Get the ground domain containing a point."""
+        """Find the ground domain at the given point."""
         for domain in self.ground_domains:
             if domain.contains_point(x, y):
                 return domain
         return None
 
     def contains_point(self, x: float, y: float) -> bool:
-        """Check if a point is within board bounds."""
-        ox, oy = self.origin
-        return ox <= x <= ox + self.width and oy <= y <= oy + self.height
+        """Check if a point is within the board boundaries."""
+        return 0 <= x - self.origin[0] <= self.width and 0 <= y - self.origin[1] <= self.height
 
     def point_in_keepout(self, x: float, y: float) -> bool:
-        """Check if a point is in a keepout region."""
-        # Check mounting hole keepouts
+        """
+        Check if a point is inside a restricted keep-out area.
+
+        Includes mounting holes and user-defined keep-out zones.
+
+        Args:
+            x, y: Point to check.
+
+        Returns:
+            True if the point is restricted.
+        """
+        # Check mounting holes
         for hole in self.mounting_holes:
-            hx, hy = hole.position
-            dist_sq = (x - hx) ** 2 + (y - hy) ** 2
+            dist_sq = (x - hole.position[0]) ** 2 + (y - hole.position[1]) ** 2
             if dist_sq < hole.keepout_radius**2:
                 return True
-
-        # Check rectangular keepouts
-        for x_min, y_min, x_max, y_max in self.keepout_regions:
-            if x_min <= x <= x_max and y_min <= y <= y_max:
-                return True
-
         return False
 
     def get_bounds_array(self) -> Array:
-        """Get board bounds as JAX array: [x_min, y_min, x_max, y_max]."""
+        """Get [x_min, y_min, x_max, y_max] absolute board bounds."""
         ox, oy = self.origin
         return jnp.array([ox, oy, ox + self.width, oy + self.height], dtype=jnp.float32)
 
     @property
     def area(self) -> float:
-        """Board area in mm²."""
+        """Total board area in mm²."""
         return self.width * self.height

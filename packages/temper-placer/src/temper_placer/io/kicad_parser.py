@@ -246,7 +246,7 @@ def _extract_components_from_pcb(
 
         comp = Component(
             ref=ref,
-            footprint=fp.libraryID or "",
+            footprint=fp.libId or "",
             bounds=(width, height),
             initial_position=(fp.position.X - ox, fp.position.Y - oy),
             initial_rotation=rot_idx,
@@ -256,7 +256,7 @@ def _extract_components_from_pcb(
         # Extract pins (pads)
         for pad in fp.pads:
             pin = Pin(
-                name=pad.name or "",
+                name=getattr(pad, "name", ""),
                 number=pad.number or "",
                 position=(pad.position.X, pad.position.Y),
                 net=pad.net.name if pad.net else None,
@@ -379,6 +379,11 @@ def _get_footprint_reference(fp: Footprint) -> str | None:
     Returns:
         Reference string (e.g., "U1") or None.
     """
+    # Check properties first (KiCad 6+)
+    if hasattr(fp, "properties") and isinstance(fp.properties, dict):
+        if "Reference" in fp.properties:
+            return fp.properties["Reference"]
+
     # Reference is typically in graphicItems as a text item with type 'reference'
     for item in fp.graphicItems:
         if hasattr(item, "type") and item.type == "reference":
