@@ -20,6 +20,17 @@ from temper_placer.core.loop import (
     LoopPriority,
     LoopType,
 )
+from temper_placer.core.loop_extractor import (
+    auto_extract_loops,
+    classify_component,
+    merge_loops,
+)
+from temper_placer.core.loop_ownership import (
+    ComponentLoopInfo,
+    LoopMembership,
+    LoopOwnershipMap,
+    build_ownership_map,
+)
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 
@@ -42,4 +53,13 @@ __all__ = [
     "LoopPin",
     "LoopPriority",
     "LoopType",
+    # Loop extraction
+    "auto_extract_loops",
+    "classify_component",
+    "merge_loops",
+    # Loop ownership
+    "ComponentLoopInfo",
+    "LoopMembership",
+    "LoopOwnershipMap",
+    "build_ownership_map",
 ]
