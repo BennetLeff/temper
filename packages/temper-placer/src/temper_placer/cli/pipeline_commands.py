@@ -1,7 +1,10 @@
-import click
 import json
 from pathlib import Path
-from temper_placer.pipeline.orchestrator import PipelineOrchestrator, PipelineConfig, PipelinePhase
+
+import click
+
+from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+
 
 @click.command()
 @click.argument("input_pcb", type=click.Path(exists=True))
@@ -31,7 +34,7 @@ def pipeline(
     verbose: bool
 ):
     """Run the full placement pipeline."""
-    
+
     config = PipelineConfig(
         input_pcb=Path(input_pcb),
         loops_yaml=Path(loops) if loops else None,
@@ -45,16 +48,16 @@ def pipeline(
         fab_preset=fab,
         dry_run=dry_run,
     )
-    
+
     orchestrator = PipelineOrchestrator(config)
-    
+
     if verbose:
         orchestrator.on_phase_start = lambda p, s: click.echo(f"Starting {p.value}...")
         orchestrator.on_phase_complete = lambda p, s: click.echo(f"Completed {p.value}")
         orchestrator.on_iteration = lambda i, s: click.echo(f"Iteration {i}")
-    
+
     result = orchestrator.run()
-    
+
     if result.success:
         click.echo(click.style("SUCCESS", fg="green"))
         if output:
@@ -79,18 +82,18 @@ def semantic(input_pcb: str, loops: str, output: str):
         loops_yaml=Path(loops) if loops else None
     )
     orchestrator = PipelineOrchestrator(config)
-    
+
     # Run input phase first
     state = orchestrator.phases[PipelinePhase.INPUT](orchestrator.state)
     # Run semantic phase
     state = orchestrator.phases[PipelinePhase.SEMANTIC](state)
-    
+
     # Output result (loops)
     result = {
         "loops": state.loops, # Assuming loop extraction populates this
         "success": state.success
     }
-    
+
     if output:
         with open(output, 'w') as f:
             json.dump(result, f, indent=2, default=str)
@@ -108,13 +111,13 @@ def topological(input_pcb: str, constraints: str, output: str):
         constraints_yaml=Path(constraints) if constraints else None
     )
     orchestrator = PipelineOrchestrator(config)
-    
+
     state = orchestrator.phases[PipelinePhase.INPUT](orchestrator.state)
     state = orchestrator.phases[PipelinePhase.TOPOLOGICAL](state)
-    
+
     # TODO: Serialize topological result
     result = {"status": "topological phase completed (placeholder)"}
-    
+
     if output:
         with open(output, 'w') as f:
             json.dump(result, f, indent=2)
@@ -136,14 +139,14 @@ def geometric(input_pcb: str, epochs: int, seed: int, visualize: bool, output: s
         seed=seed
     )
     orchestrator = PipelineOrchestrator(config)
-    
+
     state = orchestrator.phases[PipelinePhase.INPUT](orchestrator.state)
-    
+
     if visualize:
         click.echo("Visualization not yet integrated in pipeline phase command.")
-        
+
     state = orchestrator.phases[PipelinePhase.GEOMETRIC](state)
-    
+
     # To save output, we need to run OUTPUT phase or call export manually
     if output and state.placement_state:
         from temper_placer.io.kicad_writer import export_placements
@@ -167,24 +170,25 @@ def routing(input_pcb: str, level: int, output: str):
         input_pcb=Path(input_pcb)
     )
     orchestrator = PipelineOrchestrator(config)
-    
+
     state = orchestrator.phases[PipelinePhase.INPUT](orchestrator.state)
-    # We need placement state for routing check. 
+    # We need placement state for routing check.
     # But routing phase usually runs AFTER geometric.
     # If we run it on input_pcb, we assume input_pcb is already placed?
     # The current pipeline assumes placement is generated in GEOMETRIC phase.
-    
+
     # If the user wants to check an existing PCB, we need to load placements from it.
     # parse_kicad_pcb loads positions into netlist/board.
     # We need to construct PlacementState from that.
-    
+
     # For now, we'll try to run routing phase.
     # _run_routing needs state.placement_state.
-    
+
     # Create pseudo placement state from input
-    from temper_placer.core.state import PlacementState
     import jax.numpy as jnp
-    
+
+    from temper_placer.core.state import PlacementState
+
     # Extract positions from loaded components
     positions = []
     # We need to sort by component index to match netlist order
@@ -192,14 +196,14 @@ def routing(input_pcb: str, level: int, output: str):
     for comp in state.netlist.components:
         pos = comp.initial_position or (0.0, 0.0)
         positions.append(pos)
-    
+
     state.placement_state = PlacementState(
         positions=jnp.array(positions),
         rotation_logits=jnp.zeros((len(positions), 4), dtype=jnp.float32)
     )
-    
+
     state = orchestrator.phases[PipelinePhase.ROUTING](state)
-    
+
     if output:
         # TODO: Save routing report
         with open(output, 'w') as f:

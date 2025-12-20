@@ -34,7 +34,8 @@ def main() -> None:
     pass
 
 
-from .pipeline_commands import pipeline, phase
+from .pipeline_commands import phase, pipeline
+
 main.add_command(pipeline)
 main.add_command(phase)
 
@@ -2044,7 +2045,7 @@ def pcl_validate(
     """
     import json as json_module
 
-    from temper_placer.pcl import parse_pcl_file, PCLParseError, PCLValidationError
+    from temper_placer.pcl import PCLParseError, PCLValidationError, parse_pcl_file
 
     results = {
         "file": str(pcl_file),
@@ -2283,7 +2284,7 @@ def pcl_show(
     """
     import json as json_module
 
-    from temper_placer.pcl import parse_pcl_file, ConstraintTier, ConstraintType
+    from temper_placer.pcl import ConstraintTier, ConstraintType, parse_pcl_file
 
     try:
         collection = parse_pcl_file(pcl_file)
