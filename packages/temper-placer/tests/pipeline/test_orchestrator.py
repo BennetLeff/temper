@@ -8,7 +8,7 @@ from temper_placer.pipeline.orchestrator import PipelineOrchestrator, PipelineCo
 
 @pytest.fixture
 def minimal_pcb():
-    return Path("tests/fixtures/minimal_board.kicad_pcb")
+    return Path(__file__).parent.parent / "fixtures" / "minimal_board.kicad_pcb"
 
 def test_orchestrator_dry_run(minimal_pcb):
     # We need to run from packages/temper-placer to find the relative path

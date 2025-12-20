@@ -21,6 +21,7 @@ from temper_placer.core.state import PlacementState
 from temper_placer.pcl.parser import parse_pcl_file, ConstraintCollection
 from temper_placer.losses.base import LossContext
 from temper_placer.pipeline.convergence import ConvergenceChecker, TerminationReason
+from temper_placer.pipeline.explainability import DecisionLogger
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.kicad_writer import export_placements
 from temper_placer.pipeline.preflight import PreflightChecker, PreflightReport, PreflightResult
@@ -91,6 +92,7 @@ class PipelineState:
     preflight_report: Optional[PreflightReport] = None
     routing_report: Optional[Any] = None # Will be RoutabilityReport
     context: Optional[LossContext] = None
+    decision_trace: Optional[Any] = None # Will be DecisionTrace
     
     # Status
     success: bool = False
@@ -104,6 +106,7 @@ class PipelineOrchestrator:
         self.config = config
         self.state = PipelineState(config=config)
         self.convergence_checker = ConvergenceChecker()
+        self.decision_logger = DecisionLogger()
         
         # Phase handlers
         self.phases = {
@@ -178,15 +181,30 @@ class PipelineOrchestrator:
                 break
             
             # 4. Refinement (Feedback)
+            if self.config.skip_routing:
+                # Can't refine without routing results
+                self.state.success = True # Consider it success if we skipped routing
+                break
+
             if not self._execute_phase(PipelinePhase.REFINEMENT):
                 break
                 
-            # 5. Re-optimize
+            # 5. Escalate constraints if needed
+            if self.convergence_checker.escalate_constraints(self.state.constraints, iteration):
+                if self.on_iteration:
+                    self.on_iteration(iteration, self.state) # Refresh with escalated tiers
+
+            # 6. Re-optimize
             if not self._execute_phase(PipelinePhase.GEOMETRIC):
                 break
         
         # Phase 2: Final output
         self._execute_phase(PipelinePhase.OUTPUT)
+        
+        # 3. Finalize decision trace
+        self.state.decision_trace = self.decision_logger.finish(
+            metrics={"final_loss": float(self.state.placement_state.loss)} if hasattr(self.state.placement_state, 'loss') else {}
+        )
         
         return self.state
 
@@ -246,7 +264,20 @@ class PipelineOrchestrator:
         """Topological reasoning/placement phase."""
         if self.config.skip_topological:
             return state
-        # Placeholder for topological placement
+            
+        from .topology_phase import run_topological_phase, generate_initial_placement
+        
+        # 1. Solve topological relationships
+        solution = run_topological_phase(state.netlist, state.board, state.constraints)
+        
+        if not solution.feasible:
+            state.failure_reason = f"Topological infeasibility: {', '.join(solution.infeasibility_reasons)}"
+            return state
+            
+        # 2. Generate initial geometric placement from topology
+        # This gives geometric optimizer a better starting point
+        state.placement_state = generate_initial_placement(solution, state.board, state.netlist)
+        
         return state
     
     def _run_preflight(self, state: PipelineState) -> PipelineState:
@@ -276,6 +307,7 @@ class PipelineOrchestrator:
             GroupClusterLoss
         )
         from temper_placer.optimizer.curriculum import create_default_phases
+        from temper_placer.pcl.loss_bridge import constraint_to_loss
         
         # 1. Detect functional groups for better clustering
         detected_communities = detect_communities(state.netlist)
@@ -285,7 +317,7 @@ class PipelineOrchestrator:
             """Factory function for curriculum learning."""
             losses = []
 
-            # Core feasibility losses
+            # Core feasibility losses (standard)
             if "overlap" in weights:
                 losses.append(
                     WeightedLoss(
@@ -295,28 +327,48 @@ class PipelineOrchestrator:
             if "boundary" in weights:
                 losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
 
-            # Performance losses
+            # Performance losses (standard)
             if "wirelength" in weights:
                 losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
             if "spread" in weights:
                 losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
 
-            # Auto-grouping clusters
-            if detected_communities or state.constraints.component_groups:
-                group_configs = []
-
-                if detected_communities:
-                    for comm in detected_communities:
-                        indices = [state.netlist.get_component_index(ref) for ref in comm.component_refs]
-                        group_configs.append(
-                            GroupConfig(
-                                name=f"auto_{comm.name}",
-                                component_indices=jnp.array(indices, dtype=jnp.int32),
-                                max_diameter_mm=30.0,
-                                weight=1.0,
-                            )
+            # 3. Add PCL constraints from collection
+            if state.constraints:
+                for pcl_constraint in state.constraints.constraints:
+                    try:
+                        # Skip if not appropriate for current phase (TODO: tier-based filtering)
+                        loss_fn = constraint_to_loss(
+                            pcl_constraint, 
+                            state.netlist, 
+                            state.board,
+                            zones={}, # TODO: Pass actual zones
+                            loops={}  # TODO: Pass actual loops
                         )
+                        # We use the weight from the bridge which already maps tier -> weight
+                        # but we wrap it in a WeightedLoss so CompositeLoss can handle it.
+                        # Note: tier_to_weight is already called inside constraint_to_loss for some types,
+                        # but others return a base LossFunction. 
+                        # We should ideally rely on the tier from PCL.
+                        from temper_placer.pcl.loss_bridge import tier_to_weight
+                        losses.append(WeightedLoss(loss_fn, weight=tier_to_weight(pcl_constraint.tier)))
+                    except Exception as e:
+                        import logging
+                        logging.warning(f"Failed to convert PCL constraint {pcl_constraint.id} to loss: {e}")
 
+            # Auto-grouping clusters (heuristic)
+            if detected_communities:
+                group_configs = []
+                for comm in detected_communities:
+                    indices = [state.netlist.get_component_index(ref) for ref in comm.component_refs]
+                    group_configs.append(
+                        GroupConfig(
+                            name=f"auto_{comm.name}",
+                            component_indices=jnp.array(indices, dtype=jnp.int32),
+                            max_diameter_mm=30.0,
+                            weight=1.0,
+                        )
+                    )
                 if group_configs:
                     losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
 

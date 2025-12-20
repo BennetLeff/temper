@@ -152,6 +152,16 @@ class BaseConstraint(ABC):
         """Convert constraint to dictionary for serialization."""
         pass
 
+    def escalate(self) -> None:
+        """Escalate the constraint to the next tier.
+        
+        SOFT -> STRONG -> HARD
+        """
+        if self.tier == ConstraintTier.SOFT:
+            self.tier = ConstraintTier.STRONG
+        elif self.tier == ConstraintTier.STRONG:
+            self.tier = ConstraintTier.HARD
+
 
 class AdjacentConstraint(BaseConstraint):
     """Constraint requiring two components to be close together.

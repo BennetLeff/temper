@@ -90,22 +90,33 @@ def analyze_routability(
         advice.append(f"Estimated {unrouted_estimate} nets may be difficult to route due to congestion.")
 
     # Find components near bottlenecks
+    diagnostics = []
     for r, c, val in bottlenecks[:3]:
         # Convert cell to coordinates
-        cell_x = board_bounds[0] + (c + 0.5) * (board_bounds[2] - board_bounds[0]) / grid_shape[1]
-        cell_y = board_bounds[1] + (r + 0.5) * (board_bounds[3] - board_bounds[1]) / grid_shape[0]
+        cell_x = float(board_bounds[0] + (c + 0.5) * (board_bounds[2] - board_bounds[0]) / grid_shape[1])
+        cell_y = float(board_bounds[1] + (r + 0.5) * (board_bounds[3] - board_bounds[1]) / grid_shape[0])
 
         # Find nearest component
         dists = jnp.linalg.norm(positions - jnp.array([cell_x, cell_y]), axis=1)
-        nearest_idx = jnp.argmin(dists)
+        nearest_idx = int(jnp.argmin(dists))
         nearest_ref = context.netlist.components[nearest_idx].ref
 
-        advice.append(f"Congestion hotspot at ({cell_x:.1f}, {cell_y:.1f}) near {nearest_ref}. Move {nearest_ref} slightly to relieve.")
+        msg = f"Congestion hotspot at ({cell_x:.1f}, {cell_y:.1f}) near {nearest_ref}. Move {nearest_ref} slightly to relieve."
+        advice.append(msg)
+        
+        diagnostics.append(RoutingDiagnostic(
+            failure_type=FailureType.CONGESTION,
+            blocking_elements=[nearest_ref],
+            location=(cell_x, cell_y),
+            message=msg
+        ))
 
     return RoutabilityReport(
         total_congestion=total_congestion,
         max_congestion=max_congestion,
         bottleneck_cells=bottlenecks,
         unrouted_estimate=unrouted_estimate,
-        advice=advice
+        advice=advice,
+        feasible=total_congestion < 1.0, # Simple feasibility heuristic
+        diagnostics=diagnostics
     )

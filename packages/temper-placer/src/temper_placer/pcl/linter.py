@@ -74,11 +74,12 @@ def lint_constraints(
 
     # Build component ref set for validation
     valid_refs = {comp.ref for comp in netlist.components}
+    valid_zones = {zone.name for zone in board.zones}
 
     # Check each constraint
     for constraint in constraints:
         # Check invalid component references
-        _check_invalid_refs(constraint, valid_refs, result)
+        _check_invalid_refs(constraint, valid_refs, valid_zones, result)
 
         # Check constraint-specific issues
         if isinstance(constraint, AlignedConstraint):
@@ -98,9 +99,10 @@ def lint_constraints(
 def _check_invalid_refs(
     constraint: BaseConstraint,
     valid_refs: set[str],
+    valid_zones: set[str],
     result: LintResult,
 ) -> None:
-    """Check for invalid component references in a constraint."""
+    """Check for invalid component or zone references in a constraint."""
     refs_to_check: list[str] = []
 
     if isinstance(constraint, AdjacentConstraint):
@@ -108,6 +110,14 @@ def _check_invalid_refs(
     elif isinstance(constraint, SeparatedConstraint):
         refs_to_check = [constraint.a, constraint.b]
     elif isinstance(constraint, EnclosingConstraint):
+        # outer must be a zone
+        if constraint.outer not in valid_zones:
+            result.errors.append(
+                LintError(
+                    message=f"Zone '{constraint.outer}' not found in board",
+                    constraint_ids=[constraint.id],
+                )
+            )
         refs_to_check = constraint.inner
     elif isinstance(constraint, AlignedConstraint):
         refs_to_check = constraint.components
@@ -117,11 +127,20 @@ def _check_invalid_refs(
         refs_to_check = [constraint.component]
 
     for ref in refs_to_check:
-        if ref not in valid_refs:
+        # Check if it's a zone ref (should be in valid_zones if it is one)
+        if ref.isupper() and "_ZONE" in ref:
+            if ref not in valid_zones:
+                result.errors.append(
+                    LintError(
+                        message=f"Zone '{ref}' not found in board",
+                        constraint_ids=[constraint.id],
+                    )
+                )
+        elif ref not in valid_refs:
             result.errors.append(
                 LintError(
                     message=f"Component '{ref}' not found in netlist",
-                    constraint_ids=[constraint.id] if hasattr(constraint, "id") else None,
+                    constraint_ids=[constraint.id],
                 )
             )
 

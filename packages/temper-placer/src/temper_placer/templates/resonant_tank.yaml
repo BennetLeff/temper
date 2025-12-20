@@ -1,0 +1,18 @@
+topology: resonant_tank
+
+components:
+  tank_cap:
+    type: film_capacitor
+    ref_pattern: 'C_TANK.*'
+    
+  coil_connector:
+    type: high_current_connector
+    ref_pattern: 'J_COIL'
+    
+constraints:
+  - type: adjacent
+    a: tank_cap
+    b: coil_connector
+    max_distance_mm: 20.0
+    tier: 2
+    because: 'Minimize resonant loop inductance'

@@ -1,0 +1,20 @@
+component: UCC21550
+type: isolated_gate_driver
+
+pins:
+  VCC1: low_side_supply
+  GND1: low_side_ground  
+  INA: low_side_input
+  INB: low_side_input
+  VCC2: high_side_supply
+  GND2: high_side_ground
+  OUTA: high_side_output
+  OUTB: low_side_output
+
+constraints:
+  - type: separated
+    a: [VCC1, GND1, INA, INB]
+    b: [VCC2, GND2, OUTA, OUTB]
+    min_distance_mm: 5.0
+    tier: 1
+    because: 'Maintain isolation barrier integrity'

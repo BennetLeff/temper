@@ -35,9 +35,11 @@ def main() -> None:
 
 
 from .pipeline_commands import phase, pipeline
+from .trace_commands import trace
 
 main.add_command(pipeline)
 main.add_command(phase)
+main.add_command(trace)
 
 
 @main.command()

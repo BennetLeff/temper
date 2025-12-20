@@ -1,0 +1,18 @@
+topology: ct_sensing
+
+components:
+  current_transformer:
+    type: CT
+    ref_pattern: 'CT1|T_SENSE'
+    
+  burden_resistor:
+    type: precision_resistor
+    ref_pattern: 'R_BURDEN'
+
+constraints:
+  - type: adjacent
+    a: current_transformer
+    b: burden_resistor
+    max_distance_mm: 5.0
+    tier: 2
+    because: 'Minimize lead inductance affecting measurement'

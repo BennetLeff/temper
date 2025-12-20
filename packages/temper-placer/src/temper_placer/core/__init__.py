@@ -33,10 +33,25 @@ from temper_placer.core.loop_ownership import (
 )
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
+from temper_placer.core.topology import TopologicalGraph, TopologicalSolution, ComponentCluster
+from temper_placer.core.decision import Decision, DecisionTrace, Alternative
+from temper_placer.core.manufacturing import FabPreset, inflated_clearance, inflated_width
 
 __all__ = [
     # State
     "PlacementState",
+    # Topology
+    "TopologicalGraph",
+    "TopologicalSolution",
+    "ComponentCluster",
+    # Decisions
+    "Decision",
+    "DecisionTrace",
+    "Alternative",
+    # Manufacturing
+    "FabPreset",
+    "inflated_clearance",
+    "inflated_width",
     # Components and nets
     "Component",
     "Pin",

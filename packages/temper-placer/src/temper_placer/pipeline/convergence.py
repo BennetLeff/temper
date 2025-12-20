@@ -24,12 +24,22 @@ class TerminationReason(Enum):
     NO_PROGRESS = 'no_progress'
     USER_ABORT = 'user_abort'
 
+class EscalationPolicy(Enum):
+    """Policies for escalating constraint tiers."""
+    NONE = 'none'
+    ON_STAGNATION = 'on_stagnation'
+    ON_ITERATION = 'on_iteration'
+
 @dataclass
 class ConvergenceCriteria:
     """Define when the pipeline should stop iterating."""
     # Iteration limits
     max_iterations: int = 5
     max_refinement_iterations: int = 3
+    
+    # Escalation
+    escalation_policy: EscalationPolicy = EscalationPolicy.ON_ITERATION
+    escalation_start_iteration: int = 2
     
     # Time limits (seconds)
     timeout_seconds: float = 600.0  # 10 minutes total
@@ -159,6 +169,33 @@ class ConvergenceChecker:
         if board_area > 0 and total_comp_area > board_area * 0.85:
             return True, f"Components ({total_comp_area:.1f}mm2) exceed 85% of board area ({board_area:.1f}mm2)"
             
-        # Other checks (contradictory constraints, etc.) would be called here
+        # Check 2: Contradictory constraints via linter
+        lint_result = constraints.lint(netlist, board)
+        if not lint_result.passed:
+            return True, f"Constraint contradictions: {lint_result.errors[0].message}"
         
         return False, None
+
+    def escalate_constraints(
+        self,
+        constraints: ConstraintCollection,
+        iteration: int
+    ) -> bool:
+        """Escalate constraint tiers based on policy.
+        
+        Returns True if any constraints were escalated.
+        """
+        if self.criteria.escalation_policy == EscalationPolicy.NONE:
+            return False
+            
+        if self.criteria.escalation_policy == EscalationPolicy.ON_ITERATION:
+            if iteration >= self.criteria.escalation_start_iteration:
+                any_escalated = False
+                for c in constraints.constraints:
+                    old_tier = c.tier
+                    c.escalate()
+                    if c.tier != old_tier:
+                        any_escalated = True
+                return any_escalated
+                
+        return False
