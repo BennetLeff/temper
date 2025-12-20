@@ -58,7 +58,6 @@ class ValidationConfig:
     max_drc_errors: int = 0
     routing_enabled: bool = False
     routing_interval: int = 200
-    routing_jar_path: Path | None = None
     spice_enabled: bool = False
     spice_interval: int = 200
     log_validation: bool = True
@@ -188,28 +187,13 @@ class ValidationCallback:
                 )
 
         if self.config.routing_enabled and self._routing_loss is None:
-            if self.config.routing_jar_path is None:
-                logger.warning("Routing enabled but no FreeRouting JAR path provided")
-                self.config.routing_enabled = False
-            elif self.config.drc_template_pcb is None:
-                logger.warning("Routing enabled but no template PCB path provided")
-                self.config.routing_enabled = False
-            else:
-                from temper_placer.losses.routing_loss import RoutingLoss
-                from temper_placer.routing.freerouting import FreeRoutingWrapper
-
-                # Create PCB exporter
-                exporter = create_pcb_exporter(
-                    template_pcb=self.config.drc_template_pcb,
-                    board_origin=self.config.drc_board_origin,
-                )
-
-                # Create RoutingLoss with exporter
-                self._routing_loss = RoutingLoss(
-                    router=FreeRoutingWrapper(jar_path=self.config.routing_jar_path),
-                    pcb_exporter=exporter,
-                    eval_interval=self.config.routing_interval,
-                )
+            # Routing requires a pre-configured RoutingLoss with a router implementation.
+            # Pass routing_loss to ValidationCallback constructor to enable routing validation.
+            logger.warning(
+                "Routing enabled but no routing_loss provided. "
+                "Pass a configured RoutingLoss to ValidationCallback constructor."
+            )
+            self.config.routing_enabled = False
 
         self._initialized = True
 
@@ -344,7 +328,7 @@ class ValidationCallback:
                     if self.config.log_validation:
                         logger.warning(f"[Epoch {epoch}] Routing failed: {e}")
             else:
-                routing_penalty = self._routing_loss._cache.penalty if self._routing_loss._cache else 0.0
+                routing_penalty = self._routing_loss.cached_penalty
 
         # Run SPICE validation (placeholder for future implementation)
         if self.config.spice_enabled:
@@ -379,8 +363,7 @@ class ValidationCallback:
         if self._drc_loss is not None:
             self._drc_loss.reset_cache()
         if self._routing_loss is not None:
-            self._routing_loss._cache = None
-            self._routing_loss._last_eval_epoch = -1
+            self._routing_loss.reset_cache()
 
     def summary(self) -> str:
         """Get a summary of validation history."""
