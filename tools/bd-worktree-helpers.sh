@@ -169,6 +169,85 @@ bd-pause() {
     echo "  Resume on any machine with: bd-work $task_id"
 }
 
+# Run placement quality check for placer-related tasks
+_run_placer_quality_check() {
+    local task_id="$1"
+    
+    # Check if task has placer-related labels
+    local labels
+    labels=$(bd --sandbox show "$task_id" --json 2>/dev/null | jq -r '.labels // [] | join(",")' 2>/dev/null)
+    
+    if [[ "$labels" != *"placer"* && "$labels" != *"domain:placer"* ]]; then
+        return 0  # Not a placer task, skip
+    fi
+    
+    echo ""
+    echo "Running placement quality check..."
+    
+    # Find a test PCB in the worktree (exclude backups and caches)
+    local pcb_file
+    pcb_file=$(find . -name "*.kicad_pcb" \
+        -not -path "*/backup/*" \
+        -not -path "*/backups/*" \
+        -not -path "*/.cache/*" \
+        -not -path "*/cache/*" \
+        -not -path "*/node_modules/*" \
+        | head -1)
+    
+    if [[ -z "$pcb_file" ]]; then
+        echo "  Note: No PCB file found, skipping quality check"
+        return 0
+    fi
+    
+    if [[ ! -f "scripts/placement_quality_report.py" ]]; then
+        echo "  Note: placement_quality_report.py not found, skipping"
+        return 0
+    fi
+    
+    # Determine Python command (try venv first, then system)
+    local python_cmd="python3"
+    if [[ -f "packages/temper-placer/.venv/bin/python" ]]; then
+        python_cmd="packages/temper-placer/.venv/bin/python"
+    fi
+    
+    local report_file="/tmp/quality_report_${task_id}.json"
+    
+    echo "  Analyzing: $pcb_file"
+    
+    if "$python_cmd" scripts/placement_quality_report.py \
+        --pcb "$pcb_file" \
+        --json \
+        --output "$report_file" 2>/tmp/quality_report_${task_id}.log; then
+        
+        local score interpretation pass_quality
+        score=$(jq -r '.quality_score // 0' "$report_file" 2>/dev/null)
+        interpretation=$(jq -r '.quality_interpretation // "unknown"' "$report_file" 2>/dev/null)
+        pass_quality=$(jq -r '.pass // false' "$report_file" 2>/dev/null)
+        
+        echo "  Quality Score: $score/100 ($interpretation)"
+        
+        if [[ "$pass_quality" == "false" ]] || (( $(echo "$score < 60" | bc -l 2>/dev/null || echo 0) )); then
+            echo "  ⚠️  WARNING: Quality score below threshold (60)"
+            echo "      This placement may need improvement before merging"
+            echo "      Review report: $report_file"
+        else
+            echo "  ✓ Quality check passed"
+        fi
+        
+        # Show DRC summary
+        local drc_errors drc_warnings
+        drc_errors=$(jq -r '.drc_metrics.errors // 0' "$report_file" 2>/dev/null)
+        drc_warnings=$(jq -r '.drc_metrics.warnings // 0' "$report_file" 2>/dev/null)
+        echo "  DRC: $drc_errors errors, $drc_warnings warnings"
+        
+    else
+        echo "  Note: Quality report failed (non-blocking)"
+        echo "        See log: /tmp/quality_report_${task_id}.log"
+    fi
+    
+    echo ""
+}
+
 # Complete task (close in bd, remind about PR)
 bd-done() {
     local reason="${1:-Completed}"
@@ -235,6 +314,9 @@ bd-done() {
             fi
         fi
     fi
+    
+    # Run placer quality check if applicable (after measurements, before final commit)
+    _run_placer_quality_check "$task_id"
     
     # Final commit if needed
     if ! git diff --quiet || ! git diff --cached --quiet; then
