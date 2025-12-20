@@ -38,6 +38,14 @@ Public API:
         - PCLParseError: Error parsing constraint definition
         - PCLValidationError: Error validating references
 
+    Tier system:
+        - EscalationReason: Why constraint was escalated
+        - ConstraintStatus: Runtime status with violation history
+        - EscalationConfig: Configuration for escalation behavior
+        - TieredConstraintManager: Manages tiers during optimization
+        - calculate_penalty: Penalty calculation by tier
+        - check_hard_constraints: Verify hard constraints satisfied
+
 Example:
     >>> from temper_placer.pcl import AdjacentConstraint, ConstraintTier, parse_pcl_file
     >>>
@@ -87,6 +95,16 @@ from .parser import (
     PCLValidationError,
 )
 
+from .tiers import (
+    # Tier system
+    EscalationReason,
+    ConstraintStatus,
+    EscalationConfig,
+    TieredConstraintManager,
+    calculate_penalty,
+    check_hard_constraints,
+)
+
 __all__ = [
     # Base class
     "BaseConstraint",
@@ -114,4 +132,11 @@ __all__ = [
     # Exceptions
     "PCLParseError",
     "PCLValidationError",
+    # Tier system
+    "EscalationReason",
+    "ConstraintStatus",
+    "EscalationConfig",
+    "TieredConstraintManager",
+    "calculate_penalty",
+    "check_hard_constraints",
 ]
