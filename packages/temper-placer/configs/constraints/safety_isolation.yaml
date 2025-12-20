@@ -1,0 +1,118 @@
+# Safety Isolation Constraints
+# IEC 60335-1 compliant isolation for mains-powered equipment
+# Reinforced isolation requirements for consumer appliances
+
+version: "1.0"
+
+metadata:
+  name: "Safety Isolation Constraints"
+  description: "IEC 60335-1 compliant isolation for mains-powered induction equipment"
+  standard: "IEC_60335_1"
+  voltage_rating: "400V_AC_working"
+  author: "Temper Project"
+  date: "2025-12-19"
+
+zones:
+  - name: HV_ZONE
+    type: hv
+    description: "Contains mains AC and DC bus voltage circuits (>50V)"
+    
+  - name: LV_ZONE
+    type: lv
+    description: "Contains user-interface and microcontroller control circuits (<50V)"
+    
+  - name: ISOLATION_BARRIER
+    type: keepout
+    description: "Physical separation zone between HV and LV for reinforced isolation"
+
+constraints:
+  # ============================================================
+  # REINFORCED ISOLATION (IEC 60335-1)
+  # ============================================================
+  
+  - type: separated
+    a: HV_ZONE
+    b: LV_ZONE
+    min_distance_mm: 10.0
+    tier: 1
+    because: "IEC 60335-1 Table 16 requires 10mm creepage and clearance for reinforced isolation at 400V working voltage."
+
+  - type: separated
+    a: J_AC  # Mains input connector
+    b: MCU_ZONE
+    min_distance_mm: 15.0
+    tier: 1
+    because: "AC input connector at mains potential requires >10mm isolation from control circuits plus safety margin."
+
+  - type: separated
+    a: C_BUS1  # High voltage DC bus caps
+    b: U_MCU
+    min_distance_mm: 12.0
+    tier: 1
+    because: "DC bus capacitors at 400V require reinforced isolation from microcontroller circuits for safety."
+
+  - type: separated
+    a: C_BUS2
+    b: U_MCU
+    min_distance_mm: 12.0
+    tier: 1
+    because: "Second bus capacitor also at high voltage, requires same isolation as C_BUS1 for safety compliance."
+
+  # ============================================================
+  # EMI ISOLATION - HIGH di/dt COMPONENTS
+  # ============================================================
+  
+  - type: separated
+    a: U_MCU
+    b: Q1  # High-side IGBT
+    min_distance_mm: 30
+    tier: 2
+    because: "MCU requires clean environment away from IGBT switching noise (>1000V/µs dv/dt) for reliable operation."
+
+  - type: separated
+    a: U_MCU
+    b: Q2  # Low-side IGBT
+    min_distance_mm: 30
+    tier: 2
+    because: "Low-side switch also generates significant switching noise and EMI that can disrupt microcontroller."
+
+  - type: separated
+    a: U_GATE  # Gate driver IC
+    b: U_MCU
+    min_distance_mm: 20
+    tier: 2
+    because: "Gate driver outputs have fast edges (10-50V/ns) that can couple into digital signals without separation."
+
+  # ============================================================
+  # SENSING CIRCUIT ISOLATION
+  # ============================================================
+  
+  - type: separated
+    a: CT1  # Current transformer
+    b: U_MCU
+    min_distance_mm: 10
+    tier: 2
+    because: "CT carries high di/dt switching current and can induce noise in nearby traces without proper separation."
+
+  - type: separated
+    a: R_BURDEN  # CT burden resistor
+    b: U_MCU
+    min_distance_mm: 8
+    tier: 3
+    because: "Burden resistor develops voltage from CT current and should have some isolation from digital circuits."
+
+  # ============================================================
+  # ZONE ENCLOSURES
+  # ============================================================
+  
+  - type: enclosing
+    outer: HV_ZONE
+    inner: [Q1, Q2, C_BUS1, C_BUS2, J_AC, J_COIL, U_GATE, D_BOOT, C_BOOT]
+    tier: 1
+    because: "All high-voltage power components must be contained within designated HV zone for safety and isolation."
+
+  - type: enclosing
+    outer: LV_ZONE
+    inner: [U_MCU, U_RTD, U_SPI_FLASH, J_DEBUG, J_USER_IF]
+    tier: 1
+    because: "All low-voltage control and interface components must be in designated safe LV zone for user safety."

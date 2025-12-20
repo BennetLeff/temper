@@ -1,0 +1,133 @@
+# Half-Bridge Base Constraints
+# Core placement rules for half-bridge power stage topologies
+# Applicable to: half-bridge, full-bridge, synchronous buck
+
+version: "1.0"
+
+metadata:
+  name: "Half-Bridge Base Constraints"
+  description: "Core placement rules for half-bridge power stage"
+  applicable_to: ["half_bridge", "full_bridge", "synchronous_buck"]
+  author: "Temper Project"
+  date: "2025-12-19"
+
+constraints:
+  # ============================================================
+  # CRITICAL LOOP CONSTRAINTS
+  # ============================================================
+  
+  - type: loop_area
+    loop_name: commutation_loop
+    max_area_mm2: 500
+    tier: 1
+    because: "Commutation loop EMI scales with area. 500mm² max for acceptable EMI at 25kHz switching frequency."
+
+  - type: loop_area
+    loop_name: gate_drive_high
+    max_area_mm2: 100
+    tier: 1
+    because: "Gate drive loop affects switching speed and noise immunity. <100mm² required for clean switching."
+
+  - type: loop_area
+    loop_name: gate_drive_low
+    max_area_mm2: 100
+    tier: 1
+    because: "Low-side gate loop equally critical to high-side for symmetrical switching performance."
+
+  # ============================================================
+  # COMPONENT ADJACENCY - POWER STAGE
+  # ============================================================
+  
+  - type: adjacent
+    a: Q1  # High-side switch
+    b: Q2  # Low-side switch
+    max_distance_mm: 10
+    metric: edge_to_edge
+    tier: 1
+    because: "IGBTs share heatsink and must minimize commutation loop inductance. <10mm edge-to-edge required."
+
+  - type: adjacent
+    a: U_GATE
+    b: Q1
+    max_distance_mm: 15
+    metric: edge_to_edge
+    tier: 1
+    because: "Gate driver must be close to high-side switch for short gate drive loops and fast switching."
+
+  - type: adjacent
+    a: U_GATE
+    b: Q2
+    max_distance_mm: 15
+    metric: edge_to_edge
+    tier: 2
+    because: "Gate driver also needs proximity to low-side switch, but slightly less critical than high-side."
+
+  - type: adjacent
+    a: C_BUS1
+    b: Q1
+    max_distance_mm: 20
+    metric: edge_to_edge
+    tier: 2
+    because: "Bus capacitors close to switches for low-inductance commutation path and good decoupling."
+
+  - type: adjacent
+    a: C_BUS2
+    b: Q2
+    max_distance_mm: 20
+    metric: edge_to_edge
+    tier: 2
+    because: "Second bus capacitor near low-side for symmetrical current sharing and low loop inductance."
+
+  # ============================================================
+  # DECOUPLING CAPACITORS
+  # ============================================================
+  
+  - type: adjacent
+    a: U_GATE
+    b: C_VCC1
+    max_distance_mm: 3
+    pin_a: VCC1
+    metric: pin_to_pin
+    tier: 1
+    because: "Gate driver low-side supply decoupling must be immediate (<3mm) for noise immunity and clean switching."
+
+  - type: adjacent
+    a: U_GATE
+    b: C_VCC2
+    max_distance_mm: 3
+    pin_a: VCC2
+    metric: pin_to_pin
+    tier: 1
+    because: "Gate driver high-side supply decoupling critical for bootstrap charging and high-side operation."
+
+  # ============================================================
+  # BOOTSTRAP CIRCUIT
+  # ============================================================
+  
+  - type: adjacent
+    a: D_BOOT
+    b: C_BOOT
+    max_distance_mm: 5
+    metric: edge_to_edge
+    tier: 1
+    because: "Bootstrap diode and capacitor form tight loop for fast charging during low-side on-time."
+
+  - type: adjacent
+    a: C_BOOT
+    b: U_GATE
+    max_distance_mm: 5
+    pin_a: VCC2
+    metric: pin_to_pin
+    tier: 1
+    because: "Bootstrap capacitor is high-side supply and must be very close to gate driver VCC2 pin."
+
+  # ============================================================
+  # ALIGNMENT - AESTHETICS
+  # ============================================================
+  
+  - type: aligned
+    components: [C_BUS1, C_BUS2]
+    axis: horizontal
+    tolerance_mm: 1.0
+    tier: 3
+    because: "Bus capacitors aligned for clean appearance and symmetrical current paths for manufacturing."

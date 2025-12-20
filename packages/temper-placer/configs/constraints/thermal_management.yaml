@@ -1,0 +1,125 @@
+# Thermal Management Constraints
+# Placement rules for thermal performance and reliability
+# Ensures proper heat dissipation and thermal isolation
+
+version: "1.0"
+
+metadata:
+  name: "Thermal Management Constraints"
+  description: "Placement rules for thermal performance and component derating"
+  max_junction_temp: "175C"
+  ambient_temp: "50C"
+  author: "Temper Project"
+  date: "2025-12-19"
+
+constraints:
+  # ============================================================
+  # HEATSINK MOUNTING - TO-247 PACKAGES
+  # ============================================================
+  
+  - type: on_side
+    components: [Q1, Q2]
+    side: top
+    edge: flush
+    tier: 1
+    because: "TO-247 IGBT packages require board edge mounting for external heatsink access and thermal management."
+
+  - type: aligned
+    components: [Q1, Q2]
+    axis: horizontal
+    tolerance_mm: 1.0
+    tier: 2
+    because: "IGBTs aligned horizontally for shared heatsink mounting and symmetrical thermal design for manufacturing."
+
+  # ============================================================
+  # TEMPERATURE-SENSITIVE COMPONENTS
+  # ============================================================
+  
+  - type: separated
+    a: Q1
+    b: U_RTD  # RTD (PT1000) interface IC
+    min_distance_mm: 40
+    tier: 2
+    because: "IGBT heat (>30W dissipation) affects RTD measurement accuracy. Need 40mm+ separation for <1°C error."
+
+  - type: separated
+    a: Q2
+    b: U_RTD
+    min_distance_mm: 40
+    tier: 2
+    because: "Both IGBTs are primary heat sources (60W total). RTD must be isolated from both for accurate sensing."
+
+  - type: separated
+    a: Q1
+    b: U_MCU
+    min_distance_mm: 25
+    tier: 3
+    because: "MCU reliability degrades above 85°C. Keep away from IGBT heat for junction temp margin and reliability."
+
+  - type: separated
+    a: Q2
+    b: U_MCU
+    min_distance_mm: 25
+    tier: 3
+    because: "MCU needs cool operating environment for reliable digital operation and long-term reliability."
+
+  # ============================================================
+  # POWER RESISTORS AND DISSIPATIVE COMPONENTS
+  # ============================================================
+  
+  - type: separated
+    a: R_SNUB  # Snubber resistor (can dissipate 1-2W)
+    b: C_SNUB  # Snubber capacitor
+    min_distance_mm: 5
+    tier: 3
+    because: "Snubber resistor dissipates heat during switching. Keep capacitor away to prevent electrolyte degradation."
+
+  - type: separated
+    a: R_GATE_HIGH  # Gate resistor (2-5W)
+    b: C_VCC2  # Bootstrap cap
+    min_distance_mm: 8
+    tier: 3
+    because: "Gate resistors can get hot during high-frequency switching. Keep away from temperature-sensitive caps."
+
+  - type: separated
+    a: R_GATE_LOW
+    b: C_VCC1
+    min_distance_mm: 8
+    tier: 3
+    because: "Low-side gate resistor also dissipates power. Protect decoupling caps from heat for reliability."
+
+  # ============================================================
+  # ELECTROLYTIC CAPACITORS - THERMAL DERATING
+  # ============================================================
+  
+  - type: separated
+    a: C_BUS1  # Electrolytic DC bus cap
+    b: Q1
+    min_distance_mm: 15
+    tier: 2
+    because: "Electrolytic capacitor lifetime halves every 10°C. Keep 15mm+ from IGBTs to stay below 85°C for lifetime."
+
+  - type: separated
+    a: C_BUS2
+    b: Q2
+    min_distance_mm: 15
+    tier: 2
+    because: "Second bus cap also electrolytic and temperature-sensitive. Same thermal derating requirements apply."
+
+  # ============================================================
+  # THERMAL SENSOR PLACEMENT
+  # ============================================================
+  
+  - type: adjacent
+    a: Q1
+    b: TH_HEATSINK  # Thermistor on heatsink
+    max_distance_mm: 10
+    tier: 2
+    because: "Heatsink thermistor must be close to heat source for accurate thermal protection and fast response."
+
+  - type: on_side
+    components: [TH_HEATSINK]
+    side: top
+    edge: flush
+    tier: 2
+    because: "Thermistor on same board edge as IGBTs for direct heatsink thermal coupling and accurate monitoring."

@@ -1,0 +1,272 @@
+# Temper Induction Cooker - Complete Constraint Set
+# Production-ready constraints for the Temper induction cooker project
+# Combines half-bridge, safety, and thermal constraints with project-specific rules
+
+version: "1.0"
+
+metadata:
+  name: "Temper Induction Cooker Constraints"
+  description: "Complete constraint set for Temper induction cooker PCB placement"
+  project: "temper"
+  version: "1.0.0"
+  board_size: "120mm x 80mm"
+  layer_count: 4
+  author: "Temper Project"
+  date: "2025-12-19"
+
+# Import base constraint sets
+# Note: 'extends' mechanism to be implemented in parser (Epic 2 scope)
+# For now, constraints are inlined below
+
+zones:
+  # High-voltage power zone
+  - name: HV_ZONE
+    type: hv
+    description: "High-voltage power stage (IGBTs, gate driver, DC bus)"
+    polygon: [[0, 0], [60, 0], [60, 80], [0, 80]]
+    
+  # Low-voltage control zone
+  - name: MCU_ZONE
+    type: lv
+    description: "Microcontroller and low-voltage control circuits"
+    polygon: [[70, 0], [120, 0], [120, 80], [70, 80]]
+  
+  # Isolation barrier
+  - name: ISOLATION_BARRIER
+    type: keepout
+    description: "10mm isolation barrier between HV and LV zones"
+    polygon: [[60, 0], [70, 0], [70, 80], [60, 80]]
+
+constraints:
+  # ============================================================
+  # LOOP AREA CONSTRAINTS (Critical for EMI)
+  # ============================================================
+  
+  - type: loop_area
+    loop_name: commutation_loop
+    max_area_mm2: 500
+    tier: 1
+    because: "Commutation loop EMI scales with area. 500mm² max for acceptable EMI at 25kHz switching frequency."
+
+  - type: loop_area
+    loop_name: gate_drive_high
+    max_area_mm2: 100
+    tier: 1
+    because: "Gate drive loop affects switching speed and noise immunity. <100mm² required for clean switching."
+
+  - type: loop_area
+    loop_name: gate_drive_low
+    max_area_mm2: 100
+    tier: 1
+    because: "Low-side gate loop equally critical to high-side for symmetrical switching performance."
+
+  # ============================================================
+  # POWER STAGE ADJACENCY
+  # ============================================================
+  
+  - type: adjacent
+    a: Q1
+    b: Q2
+    max_distance_mm: 10
+    metric: edge_to_edge
+    tier: 1
+    because: "IGBTs IKW40N120H3 share heatsink and must minimize commutation loop. <10mm edge-to-edge required."
+
+  - type: adjacent
+    a: U_GATE
+    b: Q1
+    max_distance_mm: 15
+    metric: edge_to_edge
+    tier: 1
+    because: "Gate driver UCC21550 must be close to high-side switch for short gate drive loops and fast switching."
+
+  - type: adjacent
+    a: C_BUS1
+    b: Q1
+    max_distance_mm: 20
+    tier: 2
+    because: "Bus capacitors close to switches for low-inductance commutation path and good decoupling."
+
+  - type: adjacent
+    a: C_BUS2
+    b: Q2
+    max_distance_mm: 20
+    tier: 2
+    because: "Second bus capacitor near low-side for symmetrical current sharing and low loop inductance."
+
+  # ============================================================
+  # DECOUPLING AND BOOTSTRAP
+  # ============================================================
+  
+  - type: adjacent
+    a: U_GATE
+    b: C_VCC1
+    max_distance_mm: 3
+    pin_a: VCC1
+    metric: pin_to_pin
+    tier: 1
+    because: "Gate driver low-side supply decoupling must be immediate (<3mm) for noise immunity and clean switching."
+
+  - type: adjacent
+    a: U_GATE
+    b: C_VCC2
+    max_distance_mm: 3
+    pin_a: VCC2
+    metric: pin_to_pin
+    tier: 1
+    because: "Gate driver high-side supply decoupling critical for bootstrap charging and high-side operation."
+
+  - type: adjacent
+    a: D_BOOT
+    b: C_BOOT
+    max_distance_mm: 5
+    tier: 1
+    because: "Bootstrap diode and capacitor form tight loop for fast charging during low-side on-time."
+
+  # ============================================================
+  # SAFETY ISOLATION (IEC 60335-1)
+  # ============================================================
+  
+  - type: separated
+    a: HV_ZONE
+    b: MCU_ZONE
+    min_distance_mm: 10.0
+    tier: 1
+    because: "IEC 60335-1 requires 10mm creepage/clearance for reinforced isolation at 400V working voltage."
+
+  - type: separated
+    a: J_AC
+    b: U_MCU
+    min_distance_mm: 15.0
+    tier: 1
+    because: "AC input connector at mains potential requires >10mm isolation from MCU plus safety margin."
+
+  - type: separated
+    a: U_MCU
+    b: Q1
+    min_distance_mm: 30
+    tier: 2
+    because: "MCU needs clean environment away from IGBT switching noise (>1000V/µs dv/dt) for reliable operation."
+
+  - type: separated
+    a: U_MCU
+    b: Q2
+    min_distance_mm: 30
+    tier: 2
+    because: "Both IGBTs generate switching noise. MCU isolated from both for reliable digital operation."
+
+  # ============================================================
+  # THERMAL MANAGEMENT
+  # ============================================================
+  
+  - type: on_side
+    components: [Q1, Q2]
+    side: top
+    edge: flush
+    tier: 1
+    because: "TO-247 packages require board edge mounting for external heatsink access and thermal management."
+
+  - type: aligned
+    components: [Q1, Q2]
+    axis: horizontal
+    tolerance_mm: 1.0
+    tier: 2
+    because: "IGBTs aligned horizontally for shared heatsink mounting and symmetrical thermal design."
+
+  - type: separated
+    a: Q1
+    b: U_RTD
+    min_distance_mm: 40
+    tier: 2
+    because: "RTD accuracy affected by IGBT heat (>30W dissipation). 40mm+ separation needed for <1°C error."
+
+  - type: separated
+    a: C_BUS1
+    b: Q1
+    min_distance_mm: 15
+    tier: 2
+    because: "Electrolytic capacitor lifetime halves every 10°C. Keep 15mm+ from IGBTs to stay below 85°C."
+
+  # ============================================================
+  # CONNECTOR PLACEMENT
+  # ============================================================
+  
+  - type: on_side
+    components: [J_AC, J_COIL]
+    side: top
+    edge: overhang
+    tier: 1
+    because: "AC mains input and coil output connectors at top board edge for enclosure access and cable routing."
+
+  - type: separated
+    a: J_AC
+    b: J_COIL
+    min_distance_mm: 20
+    tier: 2
+    because: "AC input and coil output separated for independent cable routing and reduced magnetic coupling."
+
+  - type: on_side
+    components: [J_FAN]
+    side: right
+    edge: overhang
+    tier: 2
+    because: "Fan connector on right side for internal wiring to cooling fan inside enclosure."
+
+  - type: on_side
+    components: [J_DEBUG]
+    side: bottom
+    edge: overhang
+    tier: 3
+    because: "Debug connector at bottom edge for development access without interfering with power connections."
+
+  # ============================================================
+  # RESONANT TANK
+  # ============================================================
+  
+  - type: adjacent
+    a: C_TANK
+    b: J_COIL
+    max_distance_mm: 25
+    tier: 2
+    because: "Resonant capacitor close to coil connector to minimize resonant loop inductance at 25kHz."
+
+  - type: on_side
+    components: [C_TANK]
+    side: top
+    edge: near
+    tier: 3
+    because: "Tank capacitor near top edge close to coil connection for short high-current path."
+
+  # ============================================================
+  # CURRENT SENSING
+  # ============================================================
+  
+  - type: adjacent
+    a: CT1
+    b: R_BURDEN
+    max_distance_mm: 5
+    tier: 2
+    because: "Current transformer secondary must have minimal lead inductance to burden resistor for accurate sensing."
+
+  - type: separated
+    a: CT1
+    b: U_MCU
+    min_distance_mm: 10
+    tier: 2
+    because: "CT carries high di/dt current and can induce noise in nearby traces without proper separation."
+
+  # ============================================================
+  # ZONE ENCLOSURES
+  # ============================================================
+  
+  - type: enclosing
+    outer: HV_ZONE
+    inner: [Q1, Q2, C_BUS1, C_BUS2, J_AC, J_COIL, U_GATE, D_BOOT, C_BOOT, C_TANK]
+    tier: 1
+    because: "All high-voltage components contained in HV zone for safety isolation and EMI management."
+
+  - type: enclosing
+    outer: MCU_ZONE
+    inner: [U_MCU, U_RTD, U_SPI_FLASH, J_DEBUG]
+    tier: 1
+    because: "All low-voltage control components in MCU zone for user safety and signal integrity."
