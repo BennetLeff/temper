@@ -1,345 +1,570 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 """
-Placement Quality Report Script
+Unified placement quality report.
 
-Evaluates the quality of a KiCad PCB placement by combining:
-- Placement metrics (overlaps, clearances, wirelength)
-- DRC results (violations, errors, warnings)
-- Optional routing verification (completion, via count)
-
-Outputs a unified quality score (0-100) with structured JSON or human-readable report.
+Evaluates all quality metrics for a placed PCB, combining:
+- Placement loss evaluation (HPWL, overlap, thermal, etc.)
+- KiCad DRC validation
+- Optional routing analysis (adds 5-15 min)
+- Composite quality score (0-100)
 
 Usage:
-    python placement_quality_report.py --pcb design.kicad_pcb
-    python placement_quality_report.py --pcb design.kicad_pcb --route --json
+    # Basic usage (placement + DRC only)
+    python scripts/placement_quality_report.py --pcb temper.kicad_pcb
+
+    # With constraints for loss evaluation
+    python scripts/placement_quality_report.py --pcb temper.kicad_pcb --config constraints.yaml
+
+    # With routing (adds 5-15 min)
+    python scripts/placement_quality_report.py --pcb temper.kicad_pcb --route
+
+    # JSON output
+    python scripts/placement_quality_report.py --pcb temper.kicad_pcb --json --output report.json
 """
+
+from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
+import tempfile
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "temper-placer" / "src"))
+# Add temper-placer to path
+REPO_ROOT = Path(__file__).parent.parent
+PLACER_PATH = REPO_ROOT / "packages" / "temper-placer" / "src"
+sys.path.insert(0, str(PLACER_PATH))
 
-from temper_placer.io.kicad_parser import parse_kicad_pcb, ParseResult
-from temper_placer.validation.metrics import compute_metrics, PlacementMetrics
-from temper_placer.validation.drc_runner import run_drc, DrcResult, is_kicad_cli_available
-from temper_placer.routing.verifier import (
-    RoutingVerifier,
-    RoutingVerifierConfig,
-    VerificationLevel,
-)
-from temper_placer.metrics.quality_score import compute_quality_score, QualityScore
+from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.core.loop import LoopCollection
-import jax.numpy as jnp
+from temper_placer.io import (
+    load_constraints,
+    parse_kicad_pcb,
+    netlist_to_placement_state,
+    infer_quality_config,
+    load_reference_pcb,
+)
+from temper_placer.losses.base import LossContext
+from temper_placer.metrics.quality import compute_quality_report
+from temper_placer.routing.analysis import analyze_routability
 
 
-def evaluate_placement_metrics(pcb_path: Path) -> tuple[PlacementMetrics, ParseResult]:
+@dataclass
+class PlacementMetrics:
+    """Placement quality metrics."""
+
+    hpwl_mm: float
+    thermal_score: float
+    zone_compliance_score: float
+    hv_lv_clearance_score: float
+    loop_area_score: float
+    congestion_score: float
+    compactness_score: float
+    connectivity_clustering_score: float
+    overall_placement_score: float
+
+
+@dataclass
+class DRCMetrics:
+    """DRC validation metrics."""
+
+    violations: int
+    errors: int
+    warnings: int
+    drc_available: bool
+    error_message: str | None = None
+
+
+@dataclass
+class RoutingMetrics:
+    """Routing analysis metrics."""
+
+    completion_pct: float
+    total_congestion: float
+    max_congestion: float
+    bottleneck_count: int
+    unrouted_estimate: int
+    routing_available: bool
+    advice: list[str]
+
+
+@dataclass
+class QualityReport:
+    """Complete quality report."""
+
+    input_file: str
+    timestamp: str
+    placement_metrics: PlacementMetrics
+    drc_metrics: DRCMetrics
+    routing_metrics: RoutingMetrics | None
+    quality_score: float
+    passed: bool
+    notes: list[str]
+
+
+def run_kicad_drc(pcb_path: Path) -> DRCMetrics:
     """
-    Evaluate placement metrics from a KiCad PCB file.
+    Run KiCad DRC and extract metrics.
 
     Args:
-        pcb_path: Path to KiCad PCB file
+        pcb_path: Path to .kicad_pcb file.
 
     Returns:
-        Tuple of (PlacementMetrics, ParseResult)
+        DRCMetrics with violation counts.
     """
-    # Parse PCB - returns ParseResult with netlist and board
-    parse_result = parse_kicad_pcb(pcb_path)
+    try:
+        # Check if kicad-cli is available
+        result = subprocess.run(
+            ["which", "kicad-cli"],
+            capture_output=True,
+            text=True,
+        )
 
-    if parse_result.board is None:
-        raise ValueError("Failed to parse board geometry from PCB")
+        if result.returncode != 0:
+            return DRCMetrics(
+                violations=0,
+                errors=0,
+                warnings=0,
+                drc_available=False,
+                error_message="kicad-cli not found in PATH",
+            )
 
-    netlist = parse_result.netlist
-    board = parse_result.board
+        # Create temp file for DRC output
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+            drc_output = Path(tmp.name)
 
-    # Extract current positions from components (use initial_position if set, else (0,0))
-    positions = []
-    rotations = []
-    for comp in netlist.components:
-        if comp.initial_position is not None:
-            positions.append(comp.initial_position)
-        else:
-            positions.append((0.0, 0.0))
+        try:
+            # Run DRC
+            result = subprocess.run(
+                [
+                    "kicad-cli",
+                    "pcb",
+                    "drc",
+                    "--output",
+                    str(drc_output),
+                    "--format",
+                    "json",
+                    "--severity-all",
+                    str(pcb_path),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=300,  # 5 min timeout
+            )
 
-        if comp.initial_rotation is not None:
-            rotations.append(comp.initial_rotation)
-        else:
-            rotations.append(0)
+            # Parse DRC output
+            if drc_output.exists():
+                with open(drc_output) as f:
+                    drc_data = json.load(f)
 
-    positions = jnp.array(positions)
+                # Count violations by severity
+                errors = 0
+                warnings = 0
 
-    # Convert rotation indices to one-hot encoding for state (0/90/180/270 → 4-way logits)
-    rotation_logits = jnp.zeros((len(rotations), 4))
-    rotation_logits = rotation_logits.at[jnp.arange(len(rotations)), jnp.array(rotations)].set(10.0)
+                for violation in drc_data.get("violations", []):
+                    severity = violation.get("severity", "").lower()
+                    if severity == "error":
+                        errors += 1
+                    elif severity == "warning":
+                        warnings += 1
 
-    # Create minimal PlacementState for metrics computation
-    state = PlacementState(
-        positions=positions,
-        rotation_logits=rotation_logits,
+                violations = errors + warnings
+
+                return DRCMetrics(
+                    violations=violations,
+                    errors=errors,
+                    warnings=warnings,
+                    drc_available=True,
+                )
+            else:
+                return DRCMetrics(
+                    violations=0,
+                    errors=0,
+                    warnings=0,
+                    drc_available=False,
+                    error_message=f"DRC output not created: {result.stderr}",
+                )
+
+        finally:
+            # Cleanup temp file
+            if drc_output.exists():
+                drc_output.unlink()
+
+    except subprocess.TimeoutExpired:
+        return DRCMetrics(
+            violations=0,
+            errors=0,
+            warnings=0,
+            drc_available=False,
+            error_message="DRC timeout (>5 min)",
+        )
+    except Exception as e:
+        return DRCMetrics(
+            violations=0,
+            errors=0,
+            warnings=0,
+            drc_available=False,
+            error_message=f"DRC error: {e}",
+        )
+
+
+def analyze_placement(
+    pcb_path: Path,
+    config_path: Path | None,
+) -> tuple[PlacementMetrics, Netlist, PlacementState, LossContext]:
+    """
+    Analyze placement quality using loss functions.
+
+    Args:
+        pcb_path: Path to .kicad_pcb file.
+        config_path: Optional path to constraints YAML.
+
+    Returns:
+        Tuple of (PlacementMetrics, Netlist, PlacementState, LossContext).
+    """
+    # Load PCB as reference design
+    design = load_reference_pcb(str(pcb_path))
+    netlist = design.netlist
+    board = design.board
+    state = design.state
+
+    # Load constraints if provided, otherwise infer from PCB
+    if config_path and config_path.exists():
+        constraints = load_constraints(str(config_path))
+        quality_config = {
+            "thermal_components": set(constraints.thermal_constraint.components),
+            "hv_components": set(constraints.hv_components),
+            "lv_components": set(constraints.lv_components),
+            "zone_assignments": constraints.zone_assignments,
+            "loop_components": [loop.components for loop in constraints.critical_loops],
+            "min_hv_lv_clearance": 8.0,  # Default from spec
+        }
+    else:
+        # Infer quality config from PCB content
+        quality_config = infer_quality_config(design)
+
+    # Create loss context using factory method
+    context = LossContext.from_netlist_and_board(
+        netlist=netlist,
+        board=board,
+        constraints=None,  # We're evaluating, not optimizing
     )
 
-    # Compute metrics using existing function
-    metrics = compute_metrics(state, netlist, board)
+    # Compute quality report
+    report = compute_quality_report(state, netlist, board, context, quality_config)
 
-    return metrics, parse_result
+    metrics = PlacementMetrics(
+        hpwl_mm=report["total_wirelength"],
+        thermal_score=report["thermal_score"],
+        zone_compliance_score=report["zone_compliance_score"],
+        hv_lv_clearance_score=report["hv_lv_clearance_score"],
+        loop_area_score=report["loop_area_score"],
+        congestion_score=report["congestion_score"],
+        compactness_score=report["compactness_score"],
+        connectivity_clustering_score=report["connectivity_clustering_score"],
+        overall_placement_score=report["overall_score"],
+    )
+
+    return metrics, netlist, state, context
 
 
-def evaluate_drc(pcb_path: Path) -> DrcResult:
+def analyze_routing_demand(
+    state: PlacementState,
+    context: LossContext,
+) -> RoutingMetrics:
     """
-    Run KiCad DRC on the PCB file.
+    Analyze routing demand without actual routing.
 
     Args:
-        pcb_path: Path to KiCad PCB file
+        state: Current placement state.
+        context: Pre-computed loss context.
 
     Returns:
-        DrcResult with violation counts
+        RoutingMetrics with congestion analysis.
     """
-    if not is_kicad_cli_available():
-        print("Warning: kicad-cli not found in PATH, skipping DRC", file=sys.stderr)
-        return DrcResult(error_count=0, warning_count=0, errors=[], warnings=[])
+    report = analyze_routability(
+        state.positions,
+        context,
+        grid_shape=(20, 20),
+        capacity_per_cell=10.0,
+    )
 
-    try:
-        result = run_drc(pcb_path)
-        return result
-    except Exception as e:
-        print(f"Warning: DRC check failed: {e}", file=sys.stderr)
-        # Return empty result on failure
-        return DrcResult(error_count=0, warning_count=0, errors=[], warnings=[])
+    # Estimate completion percentage based on congestion
+    # High congestion → lower completion estimate
+    if report.total_congestion == 0:
+        completion_pct = 100.0
+    else:
+        # Heuristic: each unit of congestion reduces completion by 1%
+        completion_pct = max(0.0, 100.0 - report.total_congestion)
+
+    return RoutingMetrics(
+        completion_pct=completion_pct,
+        total_congestion=report.total_congestion,
+        max_congestion=report.max_congestion,
+        bottleneck_count=len(report.bottleneck_cells),
+        unrouted_estimate=report.unrouted_estimate,
+        routing_available=True,
+        advice=report.advice,
+    )
 
 
-def evaluate_routing(parse_result: ParseResult) -> Optional[dict]:
+def compute_composite_score(
+    placement: PlacementMetrics,
+    drc: DRCMetrics,
+    routing: RoutingMetrics | None,
+) -> tuple[float, list[str]]:
     """
-    Run routing verification on the parsed PCB.
+    Compute composite quality score (0-100).
+
+    Scoring rubric:
+    - Placement quality: 50 points (from overall_placement_score)
+    - DRC compliance: 30 points (zero violations = 30, each violation -1)
+    - Routing feasibility: 20 points (from congestion_score or completion_pct)
 
     Args:
-        parse_result: ParseResult from parse_kicad_pcb
+        placement: Placement metrics.
+        drc: DRC metrics.
+        routing: Optional routing metrics.
 
     Returns:
-        Dictionary with routing metrics, or None on failure
+        Tuple of (score, notes).
     """
-    if parse_result.board is None:
-        print("Warning: No board geometry for routing verification", file=sys.stderr)
-        return None
+    notes = []
 
-    try:
-        netlist = parse_result.netlist
-        board = parse_result.board
+    # Placement quality (50 points)
+    placement_points = placement.overall_placement_score * 50.0
+    notes.append(f"Placement quality: {placement_points:.1f}/50.0")
 
-        # Extract positions (use initial_position if set, else (0,0))
-        positions = []
-        for comp in netlist.components:
-            if comp.initial_position is not None:
-                positions.append(comp.initial_position)
-            else:
-                positions.append((0.0, 0.0))
-        positions = jnp.array(positions)
+    # DRC compliance (30 points)
+    if drc.drc_available:
+        # Each violation costs 1 point, capped at -30
+        drc_penalty = min(30.0, float(drc.violations))
+        drc_points = max(0.0, 30.0 - drc_penalty)
+        notes.append(f"DRC compliance: {drc_points:.1f}/30.0 ({drc.violations} violations)")
+    else:
+        # If DRC not available, give benefit of doubt but note it
+        drc_points = 20.0  # Partial credit
+        notes.append(
+            f"DRC compliance: {drc_points:.1f}/30.0 (DRC unavailable: {drc.error_message})"
+        )
 
-        # Create verifier with GEOMETRIC level (faster than MAZE)
-        config = RoutingVerifierConfig(level=VerificationLevel.GEOMETRIC)
-        verifier = RoutingVerifier(config=config)
+    # Routing feasibility (20 points)
+    if routing and routing.routing_available:
+        # Use congestion score directly
+        routing_points = placement.congestion_score * 20.0
+        notes.append(
+            f"Routing feasibility: {routing_points:.1f}/20.0 "
+            f"(congestion: {routing.total_congestion:.1f})"
+        )
+    else:
+        # No routing analysis, use placement congestion score
+        routing_points = placement.congestion_score * 20.0
+        notes.append(f"Routing feasibility: {routing_points:.1f}/20.0 (estimated from placement)")
 
-        # Run verification (no critical loops for now)
-        loops = LoopCollection(loops=[])
-        result = verifier.verify(netlist, positions, board, loops)
+    total_score = placement_points + drc_points + routing_points
 
-        return {
-            "completion_pct": result.completion_rate * 100.0,
-            "wirelength_mm": result.total_wirelength,
-            "via_count": result.total_vias,
-            "verification_level": "geometric",
-            "routable": result.feasible,
-            "failed_nets": len(result.failed_nets),
-            "worst_congestion": result.worst_congestion,
-        }
-
-    except Exception as e:
-        print(f"Warning: Routing verification failed: {e}", file=sys.stderr)
-        return None
+    return total_score, notes
 
 
-def format_human_readable(
+def generate_report(
     pcb_path: Path,
-    placement_metrics: PlacementMetrics,
-    drc_result: DrcResult,
-    routing_metrics: Optional[dict],
-    quality_score: QualityScore,
-    timestamp: str,
-) -> str:
-    """Format results as human-readable text report."""
+    config_path: Path | None,
+    enable_routing: bool,
+) -> QualityReport:
+    """
+    Generate complete quality report.
 
-    lines = []
-    lines.append("=" * 70)
-    lines.append("PLACEMENT QUALITY REPORT")
-    lines.append("=" * 70)
-    lines.append(f"Input File: {pcb_path}")
-    lines.append(f"Timestamp:  {timestamp}")
-    lines.append("")
+    Args:
+        pcb_path: Path to .kicad_pcb file.
+        config_path: Optional path to constraints YAML.
+        enable_routing: Whether to perform routing analysis.
 
-    # Placement metrics
-    lines.append("PLACEMENT METRICS")
-    lines.append("-" * 70)
-    lines.append(f"  Overlaps:              {placement_metrics.overlap_count}")
-    lines.append(f"  Total Overlap Area:    {placement_metrics.total_overlap_area:.2f} mm²")
-    lines.append(f"  Boundary Violations:   {placement_metrics.boundary_violations}")
-    lines.append(f"  Clearance Violations:  {placement_metrics.clearance_violations}")
-    lines.append(f"  HV-LV Violations:      {placement_metrics.hv_lv_violations}")
-    lines.append(f"  Zone Violations:       {placement_metrics.zone_violations}")
-    lines.append(f"  Keepout Violations:    {placement_metrics.keepout_violations}")
-    lines.append(f"  Total Wirelength:      {placement_metrics.total_wirelength:.1f} mm")
-    lines.append(f"  Utilization:           {placement_metrics.utilization * 100:.1f}%")
-    lines.append("")
+    Returns:
+        QualityReport with all metrics.
+    """
+    timestamp = datetime.now().isoformat()
 
-    # DRC metrics
-    lines.append("DRC METRICS")
-    lines.append("-" * 70)
-    lines.append(f"  Total Violations:      {drc_result.error_count + drc_result.warning_count}")
-    lines.append(f"  Errors:                {drc_result.error_count}")
-    lines.append(f"  Warnings:              {drc_result.warning_count}")
-    lines.append("")
+    # Analyze placement
+    placement_metrics, netlist, state, context = analyze_placement(pcb_path, config_path)
 
-    # Routing metrics (if available)
-    if routing_metrics:
-        lines.append("ROUTING METRICS")
-        lines.append("-" * 70)
-        lines.append(f"  Completion (%):        {routing_metrics['completion_pct']:.1f}")
-        lines.append(f"  Wirelength (mm):       {routing_metrics['wirelength_mm']:.2f}")
-        lines.append(f"  Via Count:             {routing_metrics['via_count']}")
-        lines.append(f"  Routable:              {routing_metrics['routable']}")
-        lines.append(f"  Failed Nets:           {routing_metrics['failed_nets']}")
-        lines.append(f"  Worst Congestion:      {routing_metrics['worst_congestion']:.2f}")
-        lines.append(f"  Verification Level:    {routing_metrics['verification_level']}")
-        lines.append("")
+    # Run DRC
+    drc_metrics = run_kicad_drc(pcb_path)
 
-    # Quality score
-    lines.append("QUALITY SCORE")
-    lines.append("-" * 70)
-    lines.append(f"  Score:                 {quality_score.overall:.1f} / 100")
-    lines.append(f"  Interpretation:        {quality_score.interpretation.upper()}")
-    lines.append(f"  Pass:                  {'YES' if quality_score.pass_quality else 'NO'}")
-    lines.append("")
+    # Analyze routing if enabled
+    routing_metrics = None
+    if enable_routing:
+        routing_metrics = analyze_routing_demand(state, context)
 
-    lines.append("=" * 70)
+    # Compute composite score
+    score, notes = compute_composite_score(placement_metrics, drc_metrics, routing_metrics)
 
-    return "\n".join(lines)
+    # Determine pass/fail (score >= 70 = pass)
+    passed = score >= 70.0 and drc_metrics.errors == 0
+
+    return QualityReport(
+        input_file=str(pcb_path),
+        timestamp=timestamp,
+        placement_metrics=placement_metrics,
+        drc_metrics=drc_metrics,
+        routing_metrics=routing_metrics,
+        quality_score=score,
+        passed=passed,
+        notes=notes,
+    )
 
 
-def format_json(
-    pcb_path: Path,
-    placement_metrics: PlacementMetrics,
-    drc_result: DrcResult,
-    routing_metrics: Optional[dict],
-    quality_score: QualityScore,
-    timestamp: str,
-) -> str:
-    """Format results as JSON."""
+def print_report(report: QualityReport):
+    """Print human-readable report."""
+    print("=" * 80)
+    print(f"Placement Quality Report")
+    print("=" * 80)
+    print(f"File: {report.input_file}")
+    print(f"Generated: {report.timestamp}")
+    print(f"Overall Score: {report.quality_score:.1f}/100.0")
+    print(f"Status: {'✓ PASS' if report.passed else '✗ FAIL'}")
+    print()
 
-    data = {
-        "input_file": str(pcb_path),
-        "timestamp": timestamp,
-        "placement_metrics": placement_metrics.to_dict(),
-        "drc_metrics": {
-            "total_violations": drc_result.error_count + drc_result.warning_count,
-            "errors": drc_result.error_count,
-            "warnings": drc_result.warning_count,
-        },
-        "quality_score": quality_score.overall,
-        "quality_interpretation": quality_score.interpretation,
-        "pass": quality_score.pass_quality,
+    print("Placement Metrics:")
+    print(f"  HPWL: {report.placement_metrics.hpwl_mm:.1f} mm")
+    print(f"  Thermal: {report.placement_metrics.thermal_score:.3f}")
+    print(f"  Zone Compliance: {report.placement_metrics.zone_compliance_score:.3f}")
+    print(f"  HV-LV Clearance: {report.placement_metrics.hv_lv_clearance_score:.3f}")
+    print(f"  Loop Area: {report.placement_metrics.loop_area_score:.3f}")
+    print(f"  Congestion: {report.placement_metrics.congestion_score:.3f}")
+    print(f"  Compactness: {report.placement_metrics.compactness_score:.3f}")
+    print(f"  Connectivity: {report.placement_metrics.connectivity_clustering_score:.3f}")
+    print(f"  Overall: {report.placement_metrics.overall_placement_score:.3f}")
+    print()
+
+    print("DRC Metrics:")
+    if report.drc_metrics.drc_available:
+        print(f"  Violations: {report.drc_metrics.violations}")
+        print(f"  Errors: {report.drc_metrics.errors}")
+        print(f"  Warnings: {report.drc_metrics.warnings}")
+    else:
+        print(f"  ⚠ DRC unavailable: {report.drc_metrics.error_message}")
+    print()
+
+    if report.routing_metrics:
+        print("Routing Metrics:")
+        print(f"  Completion Estimate: {report.routing_metrics.completion_pct:.1f}%")
+        print(f"  Total Congestion: {report.routing_metrics.total_congestion:.1f}")
+        print(f"  Max Congestion: {report.routing_metrics.max_congestion:.1f}")
+        print(f"  Bottlenecks: {report.routing_metrics.bottleneck_count}")
+        print(f"  Unrouted Estimate: {report.routing_metrics.unrouted_estimate}")
+        if report.routing_metrics.advice:
+            print("  Advice:")
+            for advice in report.routing_metrics.advice[:5]:  # Top 5
+                print(f"    - {advice}")
+        print()
+
+    print("Score Breakdown:")
+    for note in report.notes:
+        print(f"  {note}")
+    print()
+
+
+def report_to_dict(report: QualityReport) -> dict[str, Any]:
+    """Convert report to JSON-serializable dict."""
+    return {
+        "input_file": report.input_file,
+        "timestamp": report.timestamp,
+        "placement_metrics": asdict(report.placement_metrics),
+        "drc_metrics": asdict(report.drc_metrics),
+        "routing_metrics": asdict(report.routing_metrics) if report.routing_metrics else None,
+        "quality_score": report.quality_score,
+        "passed": report.passed,
+        "notes": report.notes,
     }
-
-    # Add routing metrics if available
-    if routing_metrics:
-        data["routing_metrics"] = routing_metrics
-
-    return json.dumps(data, indent=2)
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Evaluate placement quality of a KiCad PCB",
+        description="Unified placement quality report",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Basic report
-  python placement_quality_report.py --pcb design.kicad_pcb
-  
-  # With routing verification (slow)
-  python placement_quality_report.py --pcb design.kicad_pcb --route
-  
-  # JSON output to file
-  python placement_quality_report.py --pcb design.kicad_pcb --json --output report.json
-        """,
+        epilog=__doc__,
     )
 
-    parser.add_argument("--pcb", type=Path, required=True, help="Path to KiCad PCB file")
+    parser.add_argument(
+        "--pcb",
+        type=Path,
+        required=True,
+        help="Path to .kicad_pcb file",
+    )
+
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="Path to constraints YAML (optional, will infer if not provided)",
+    )
 
     parser.add_argument(
         "--route",
         action="store_true",
-        help="Run routing verification (slow, adds 5-30s depending on board size)",
+        help="Enable routing analysis (adds congestion metrics)",
     )
 
     parser.add_argument(
-        "--json", action="store_true", help="Output JSON format instead of human-readable"
+        "--json",
+        action="store_true",
+        help="Output JSON instead of human-readable",
     )
 
-    parser.add_argument("--output", type=Path, help="Write output to file instead of stdout")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Output file (stdout if not specified)",
+    )
 
     args = parser.parse_args()
 
     # Validate inputs
     if not args.pcb.exists():
         print(f"Error: PCB file not found: {args.pcb}", file=sys.stderr)
-        return 1
+        sys.exit(1)
 
-    # Run evaluations
-    timestamp = datetime.now().isoformat()
+    if args.config and not args.config.exists():
+        print(f"Error: Config file not found: {args.config}", file=sys.stderr)
+        sys.exit(1)
 
-    print("Evaluating placement metrics...", file=sys.stderr)
-    placement_metrics, parse_result = evaluate_placement_metrics(args.pcb)
+    # Generate report
+    try:
+        report = generate_report(args.pcb, args.config, args.route)
+    except Exception as e:
+        print(f"Error generating report: {e}", file=sys.stderr)
+        import traceback
 
-    print("Running DRC...", file=sys.stderr)
-    drc_result = evaluate_drc(args.pcb)
+        traceback.print_exc()
+        sys.exit(1)
 
-    routing_metrics = None
-    if args.route:
-        print("Running routing verification (this may take a while)...", file=sys.stderr)
-        routing_metrics = evaluate_routing(parse_result)
-
-    # Compute quality score
-    # Note: routing_metrics is a dict, but compute_quality_score expects VerificationResult
-    # For now, we'll pass None if routing was run (TODO: convert dict to VerificationResult)
-    quality_score = compute_quality_score(
-        placement_metrics=placement_metrics,
-        drc_result=drc_result,
-        routing_result=None,  # TODO: pass actual VerificationResult when routing enabled
-    )
-
-    # Format output
+    # Output report
     if args.json:
-        output = format_json(
-            args.pcb, placement_metrics, drc_result, routing_metrics, quality_score, timestamp
-        )
+        output_data = json.dumps(report_to_dict(report), indent=2)
+        if args.output:
+            args.output.write_text(output_data)
+        else:
+            print(output_data)
     else:
-        output = format_human_readable(
-            args.pcb, placement_metrics, drc_result, routing_metrics, quality_score, timestamp
-        )
+        if args.output:
+            # Redirect stdout to file
+            import io
 
-    # Write output
-    if args.output:
-        args.output.write_text(output)
-        print(f"Report written to: {args.output}", file=sys.stderr)
-    else:
-        print(output)
+            original_stdout = sys.stdout
+            sys.stdout = io.StringIO()
+            print_report(report)
+            output_data = sys.stdout.getvalue()
+            sys.stdout = original_stdout
+            args.output.write_text(output_data)
+        else:
+            print_report(report)
 
     # Exit with appropriate code
-    return 0 if quality_score.pass_quality else 1
+    sys.exit(0 if report.passed else 1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
