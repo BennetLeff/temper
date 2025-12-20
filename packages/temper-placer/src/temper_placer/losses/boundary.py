@@ -79,6 +79,17 @@ class BoundaryLoss(LossFunction):
         Returns:
             LossResult with sum of boundary violation penalties.
         """
+        n = positions.shape[0]
+        if n == 0:
+            return LossResult(
+                value=jnp.array(0.0),
+                breakdown={
+                    "edge_violation": jnp.array(0.0),
+                    "keepout_violation": jnp.array(0.0),
+                    "per_component": jnp.array([]),
+                }
+            )
+
         bounds = context.bounds  # (N, 2)
         board = context.board
         centrality = context.centrality if hasattr(context, "centrality") else None
@@ -138,9 +149,6 @@ class BoundaryLoss(LossFunction):
     ) -> Array:
         """
         Compute penalty for components extending beyond board edges.
-
-        Uses signed distance from component edges to board edges.
-        Positive penalty when any part of component is outside board.
         """
         # Board bounds
         board_bounds = board.get_bounds_array()  # [x_min, y_min, x_max, y_max]
@@ -157,21 +165,16 @@ class BoundaryLoss(LossFunction):
         comp_bottom = positions[:, 1] - half_h
         comp_top = positions[:, 1] + half_h
 
-        # Violations: how much each edge exceeds board boundary
-        # Positive value means violation
+        # Violations
         left_violation = jax.nn.relu((x_min + margin) - comp_left)
         right_violation = jax.nn.relu(comp_right - (x_max - margin))
         bottom_violation = jax.nn.relu((y_min + margin) - comp_bottom)
         top_violation = jax.nn.relu(comp_top - (y_max - margin))
 
-        # Linear + Quadratic penalty for each edge
-        # The linear term ensures a strong gradient even for small violations
         violations = 10.0 * (left_violation + right_violation + bottom_violation + top_violation)
         violations += left_violation**2 + right_violation**2 + bottom_violation**2 + top_violation**2
 
-        # Apply centrality weighting if provided
         if centrality is not None and centrality.size > 0:
-            # Scale by normalized centrality relative to average (sum=1, so avg=1/n)
             violations = violations * (centrality * n)
 
         return violations
@@ -186,65 +189,50 @@ class BoundaryLoss(LossFunction):
     ) -> Array:
         """
         Compute penalty for components overlapping keepout zones.
-
-        Checks mounting holes and rectangular keepout regions.
-        Uses proper box-to-circle distance for mounting holes.
         """
         n = positions.shape[0]
         total_violations = jnp.zeros(n)
 
-        # Component half-dimensions
         half_w = widths / 2.0
         half_h = heights / 2.0
 
-        # Check mounting holes using proper box-circle distance
         for hole in board.mounting_holes:
             hx, hy = hole.position
             keepout_r = hole.keepout_radius
 
-            # Closest point on box to circle center (clamped)
-            dx = positions[:, 0] - hx
-            dy = positions[:, 1] - hy
-
-            # Clamp to box extent
             closest_x = jnp.clip(hx, positions[:, 0] - half_w, positions[:, 0] + half_w)
             closest_y = jnp.clip(hy, positions[:, 1] - half_h, positions[:, 1] + half_h)
 
-            # Distance from closest point to circle center
             dist_x = hx - closest_x
             dist_y = hy - closest_y
             dist_to_circle_center = jnp.sqrt(dist_x**2 + dist_y**2 + 1e-8)
 
-            # Distance from box edge to circle edge (negative = overlap)
             edge_dist = dist_to_circle_center - keepout_r
-
-            # Violation: positive when overlapping
             violation = jax.nn.relu(-edge_dist)
             total_violations = total_violations + violation**2
 
-        # Check rectangular keepout regions
-        for keepout in board.keepout_regions:
-            kx_min, ky_min, kx_max, ky_max = keepout
+        # Check rectangular keepout regions if present
+        if hasattr(board, 'keepout_regions'):
+            for keepout in board.keepout_regions:
+                kx_min, ky_min, kx_max, ky_max = keepout
+                kw = kx_max - kx_min
+                kh = ky_max - ky_min
+                kcx = (kx_min + kx_max) / 2.0
+                kcy = (ky_min + ky_max) / 2.0
 
-            kw = kx_max - kx_min
-            kh = ky_max - ky_min
-            kcx = (kx_min + kx_max) / 2.0
-            kcy = (ky_min + ky_max) / 2.0
+                dx = jnp.abs(positions[:, 0] - kcx)
+                dy = jnp.abs(positions[:, 1] - kcy)
 
-            dx = jnp.abs(positions[:, 0] - kcx)
-            dy = jnp.abs(positions[:, 1] - kcy)
+                combined_half_w = half_w + kw / 2.0
+                combined_half_h = half_h + kh / 2.0
 
-            combined_half_w = half_w + kw / 2.0
-            combined_half_h = half_h + kh / 2.0
+                sep_x = dx - combined_half_w
+                sep_y = dy - combined_half_h
 
-            sep_x = dx - combined_half_w
-            sep_y = dy - combined_half_h
+                signed_dist = jnp.maximum(sep_x, sep_y)
+                violation = jax.nn.relu(-signed_dist)
+                total_violations = total_violations + violation**2
 
-            signed_dist = jnp.maximum(sep_x, sep_y)
-            violation = jax.nn.relu(-signed_dist)
-            total_violations = total_violations + violation**2
-
-        # Apply centrality weighting if provided
         if centrality is not None and centrality.size > 0:
             total_violations = total_violations * (centrality * n)
 
@@ -260,88 +248,6 @@ class BoundaryLoss(LossFunction):
         return jnp.where(progress < 0.75, 1.0, 1.0 + 9.0 * (progress - 0.75) * 4.0)
 
 
-
-    def _compute_keepout_violations(
-        self,
-        positions: Array,
-        widths: Array,
-        heights: Array,
-        board,
-        centrality: Array | None = None,
-    ) -> Array:
-        """
-        Compute penalty for components overlapping keepout zones.
-
-        Checks mounting holes and rectangular keepout regions.
-        Uses proper box-to-circle distance for mounting holes.
-        """
-        n = positions.shape[0]
-        total_violations = jnp.zeros(n)
-
-        # Component half-dimensions
-        half_w = widths / 2.0
-        half_h = heights / 2.0
-
-        # Check mounting holes using proper box-circle distance
-        for hole in board.mounting_holes:
-            hx, hy = hole.position
-            keepout_r = hole.keepout_radius
-
-            # Closest point on box to circle center (clamped)
-            dx = positions[:, 0] - hx
-            dy = positions[:, 1] - hy
-
-            # Clamp to box extent
-            closest_x = jnp.clip(hx, positions[:, 0] - half_w, positions[:, 0] + half_w)
-            closest_y = jnp.clip(hy, positions[:, 1] - half_h, positions[:, 1] + half_h)
-
-            # Distance from closest point to circle center
-            dist_x = hx - closest_x
-            dist_y = hy - closest_y
-            dist_to_circle_center = jnp.sqrt(dist_x**2 + dist_y**2 + 1e-8)
-
-            # Distance from box edge to circle edge (negative = overlap)
-            edge_dist = dist_to_circle_center - keepout_r
-
-            # Violation: positive when overlapping
-            violation = jax.nn.relu(-edge_dist)
-            total_violations = total_violations + violation**2
-
-        # Check rectangular keepout regions
-        for keepout in board.keepout_regions:
-            kx_min, ky_min, kx_max, ky_max = keepout
-
-            kw = kx_max - kx_min
-            kh = ky_max - ky_min
-            kcx = (kx_min + kx_max) / 2.0
-            kcy = (ky_min + ky_max) / 2.0
-
-            dx = jnp.abs(positions[:, 0] - kcx)
-            dy = jnp.abs(positions[:, 1] - kcy)
-
-            combined_half_w = half_w + kw / 2.0
-            combined_half_h = half_h + kh / 2.0
-
-            sep_x = dx - combined_half_w
-            sep_y = dy - combined_half_h
-
-            signed_dist = jnp.maximum(sep_x, sep_y)
-            violation = jax.nn.relu(-signed_dist)
-            total_violations = total_violations + violation**2
-
-        # Apply centrality weighting if provided
-        if centrality is not None and centrality.size > 0:
-            total_violations = total_violations * (centrality * n)
-
-        return total_violations
-
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
-        """
-        Boundary is a hard constraint - full weight throughout training.
-        """
-        return 1.0
-
-
 def compute_boundary_penalty(
     positions: Array,
     widths: Array,
@@ -351,16 +257,6 @@ def compute_boundary_penalty(
 ) -> Array:
     """
     Standalone function to compute boundary penalty.
-
-    Args:
-        positions: (N, 2) component positions.
-        widths: (N,) component widths.
-        heights: (N,) component heights.
-        board_bounds: [x_min, y_min, x_max, y_max].
-        margin: Edge margin.
-
-    Returns:
-        Scalar boundary penalty value.
     """
     x_min, y_min, x_max, y_max = board_bounds
 

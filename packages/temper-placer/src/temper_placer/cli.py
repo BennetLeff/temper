@@ -3,6 +3,7 @@ Command-line interface for temper-placer.
 
 Usage:
     temper-placer optimize INPUT -c CONFIG -o OUTPUT [--visualize]
+    temper-placer pipeline INPUT --dry-run --constraints PCL
     temper-placer validate INPUT [--drc] [--ngspice]
     temper-placer export --placements PLACEMENTS --pcb TEMPLATE -o OUTPUT
     temper-placer info INPUT
@@ -31,6 +32,59 @@ console = Console()
 def main() -> None:
     """temper-placer: JAX-based PCB placement optimizer."""
     pass
+
+
+@main.command()
+@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "-c",
+    "--constraints",
+    "constraints_file",
+    type=click.Path(exists=True, path_type=Path),
+    help="PCL constraint configuration YAML file.",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Perform preflight feasibility checks only.",
+)
+@click.option(
+    "--fab",
+    "fab_preset",
+    type=str,
+    default="jlcpcb_standard",
+    help="Fabrication capability preset.",
+)
+def pipeline(
+    input_pcb: Path,
+    constraints_file: Path | None,
+    dry_run: bool,
+    fab_preset: str,
+) -> None:
+    """
+    Run the full placement pipeline.
+
+    Optionally performs a dry run with preflight feasibility checks
+    to identify issues before starting optimization.
+    """
+    if dry_run:
+        from temper_placer.pipeline.preflight import run_preflight
+
+        console.print(f"[bold blue]Dry Run:[/] {input_pcb}")
+        try:
+            report = run_preflight(input_pcb, constraints_file, fab_preset)
+            console.print(report.summary())
+
+            if not report.passed:
+                sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]Preflight failed: {e}[/]")
+            sys.exit(1)
+        return
+
+    # Normal pipeline logic (future task)
+    console.print("[yellow]Full pipeline not yet implemented. Use --dry-run for feasibility checks.[/]")
 
 
 @main.command()
