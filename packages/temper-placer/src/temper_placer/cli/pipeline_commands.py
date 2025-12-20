@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 
 from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+from temper_placer.pipeline.visualization import TerminalProgress, RichDashboard
 
 
 @click.command()
@@ -19,6 +20,7 @@ from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestr
 @click.option("--seed", type=int, default=42, help="Random seed")
 @click.option("--dry-run", is_flag=True, help="Check feasibility only")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+@click.option("--visualize", is_flag=True, help="Show real-time dashboard")
 def pipeline(
     input_pcb: str,
     loops: str,
@@ -31,7 +33,8 @@ def pipeline(
     epochs: int,
     seed: int,
     dry_run: bool,
-    verbose: bool
+    verbose: bool,
+    visualize: bool
 ):
     """Run the full placement pipeline."""
 
@@ -51,12 +54,31 @@ def pipeline(
 
     orchestrator = PipelineOrchestrator(config)
 
-    if verbose:
-        orchestrator.on_phase_start = lambda p, s: click.echo(f"Starting {p.value}...")
-        orchestrator.on_phase_complete = lambda p, s: click.echo(f"Completed {p.value}")
-        orchestrator.on_iteration = lambda i, s: click.echo(f"Iteration {i}")
+    if visualize:
+        from rich.live import Live
+        dashboard = RichDashboard()
+        orchestrator.on_phase_start = dashboard.on_phase_start
+        orchestrator.on_iteration = dashboard.on_iteration
+        orchestrator.on_epoch = dashboard.on_epoch
+        
+        with Live(dashboard.create_layout(), refresh_per_second=4) as live:
+            # Wrap on_epoch to also refresh the live display
+            orig_on_epoch = orchestrator.on_epoch
+            def on_epoch_wrapper(metrics):
+                orig_on_epoch(metrics)
+                dashboard.update()
+            orchestrator.on_epoch = on_epoch_wrapper
+            
+            result = orchestrator.run()
+    else:
+        if verbose:
+            progress = TerminalProgress(total_phases=8)
+            orchestrator.on_phase_start = progress.on_phase_start
+            orchestrator.on_phase_complete = progress.on_phase_complete
+            orchestrator.on_iteration = progress.on_iteration
+            orchestrator.on_epoch = progress.on_epoch
 
-    result = orchestrator.run()
+        result = orchestrator.run()
 
     if result.success:
         click.echo(click.style("SUCCESS", fg="green"))
