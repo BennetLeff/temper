@@ -30,6 +30,11 @@ from temper_placer.explainability.decision import (
     DecisionTrace,
     DecisionType,
 )
+from temper_placer.explainability.markdown_report import (
+    render_component_report,
+    render_markdown_report,
+    save_markdown_report,
+)
 from temper_placer.explainability.serialization import (
     deserialize_decision,
     deserialize_trace,
@@ -57,4 +62,8 @@ __all__ = [
     "serialize_trace",
     "trace_from_json",
     "trace_to_json",
+    # Markdown reports
+    "render_component_report",
+    "render_markdown_report",
+    "save_markdown_report",
 ]
