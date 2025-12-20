@@ -20,10 +20,16 @@ from temper_placer.topological.graph import (
     TopologicalEdge,
     build_topological_graph,
 )
+from temper_placer.topological.propagation import (
+    DistanceBound,
+    ConstraintPropagator,
+)
 
 __all__ = [
     "TopologicalGraph",
     "TopologicalNode",
     "TopologicalEdge",
     "build_topological_graph",
+    "DistanceBound",
+    "ConstraintPropagator",
 ]
