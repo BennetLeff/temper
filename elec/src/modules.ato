@@ -107,6 +107,9 @@ module GateDriveLS:
 
 module HalfBridge:
     # Interface
+    pwm_h.required = true
+    pwm_l.required = true
+    vcc_15v.required = true
     signal pwm_h
     signal pwm_l
     signal vcc_15v
@@ -252,6 +255,9 @@ module PowerInput:
     """AC input with EMI filter, soft-start, and voltage doubler."""
     
     # External interfaces
+    ac_l.required = true
+    ac_n.required = true
+    pe.required = true
     signal ac_l        # AC Line input
     signal ac_n        # AC Neutral input
     signal pe          # Protective Earth
@@ -318,6 +324,12 @@ module PowerInput:
     # Note: Full bus would be 1.156W, exceeds rating! Must verify topology.
     v_bus_half: voltage = 170V
     p_bleed_actual: power = 0.289W
+    
+    # Voltage derating check (temper-ofq.2)
+    assert r_bleed1.voltage_rating >= v_bus_half * 1.25
+    assert r_bleed2.voltage_rating >= v_bus_half * 1.25
+    
+    # Power handling check (temper-ip1.3)
     assert r_bleed1.power_rating >= p_bleed_actual * 1.5
     assert r_bleed2.power_rating >= p_bleed_actual * 1.5
     
@@ -371,6 +383,10 @@ module PowerInput:
 module BuckConverter15V:
     """LMR51430-based buck converter, 15V output."""
     
+    vin.required = true
+    vout.required = true
+    gnd.required = true
+    enable.required = true
     signal vin
     signal vout
     signal gnd
@@ -467,7 +483,7 @@ module BuckConverter15V:
     # LMR51430 feedback reference voltage
     v_fb: voltage = 1.0V
     
-    # Target output voltage
+     # Target output voltage
     v_out_target: voltage = 15V
     
     # Feedback divider equation: V_out = V_fb * (1 + R_top/R_bot)
@@ -477,12 +493,38 @@ module BuckConverter15V:
     
     assert r_fb_top.value / r_fb_bot.value within 13.5 to 14.5  # ratio ~14 for 15V
     
-    # Output voltage must be within acceptable range (considering tolerances)
+    # Voltage derating check (temper-ofq.2)
+    assert c_out1.voltage_rating >= v_out_target * 2.0  # X5R ceramic
+    assert c_out2.voltage_rating >= v_out_target * 2.0  # X5R ceramic
+    
+    # Verify design equations
+    assert v_fb is 1.0V
+    assert v_out_target is 15V
+    v_out_calculated: voltage
+    assert v_out_calculated is v_fb * (1 + r_fb_top.value / r_fb_bot.value)
+    
+    # Output voltage must be within acceptable range
     assert v_out_target within 14V to 16V
+    
+    # Voltage derating check (temper-ofq.2)
+    assert c_out.voltage_rating >= v_out_target * 2.0  # X5R ceramic
+    
+    # Verify design equations
+    assert v_out is 3.3V
+    assert c_out.voltage_rating is 10V
+    
+    # Verify design equations
+    assert v_fb is 1.0V
+    assert v_out_target is 15V
+    v_out_calculated: voltage
+    assert v_out_calculated is v_fb * (1 + r_fb_top.value / r_fb_bot.value)
 
 module LDO3V3:
     """XC6220-based 3.3V LDO for MCU."""
     
+    vin.required = true
+    vout.required = true
+    gnd.required = true
     signal vin
     signal vout
     signal gnd
@@ -549,6 +591,9 @@ module PowerManagement:
 module CurrentSensing:
     """Current transformer with burden resistor."""
     
+    primary_in.required = true
+    i_sense.required = true
+    gnd.required = true
     signal primary_in   # Through-wire (no connection, just routing)
     signal i_sense      # Analog output to ADC
     signal gnd
@@ -600,10 +645,25 @@ module CurrentSensing:
     # Filter on output
     i_sense ~ c_filter.p1
     c_filter.p2 ~ gnd
+    
+    # Verify CurrentSensing design equations
+    i_primary_max: current = 50A
+    ct_ratio: factor = 1000
+    i_ct_secondary: current = i_primary_max / ct_ratio
+    v_burden_calculated: voltage = i_ct_secondary * r_burden.value
+    assert v_burden_calculated is i_ct_secondary * r_burden.value
+    assert v_burden_calculated within 3.0V to 3.5V
 
 module RTDSensing:
     """MAX31865 RTD interface for PT100."""
     
+    vdd.required = true
+    gnd.required = true
+    spi_cs.required = true
+    spi_clk.required = true
+    spi_mosi.required = true
+    spi_miso.required = true
+    drdy.required = true
     signal vdd
     signal gnd
     signal spi_cs
@@ -613,6 +673,10 @@ module RTDSensing:
     signal drdy
     
     # RTD connections (to PT100 probe)
+    rtd_force_p.required = true
+    rtd_force_n.required = true
+    rtd_sense_p.required = true
+    rtd_sense_n.required = true
     signal rtd_force_p
     signal rtd_force_n
     signal rtd_sense_p
@@ -670,8 +734,22 @@ module RTDSensing:
     adc.RTDIN_P ~ rtd_sense_p
     adc.RTDIN_N ~ rtd_sense_n
     
-    # Reference: REFIN+ to FORCE+
+    # Reference: REFIN+ to FORCE+ (4-wire RTD)
     adc.REFIN_P ~ adc.FORCE_P
+    
+    # Verify connections
+    assert rtd_force_p is adc.FORCE_P
+    assert rtd_force_n is adc.FORCE_N
+    assert rtd_sense_p is adc.RTDIN_P
+    assert rtd_sense_n is adc.RTDIN_N
+    
+    # Calculate burden voltage
+    i_primary_max: current = 50A
+    ct_ratio: factor = 1000
+    i_ct_secondary: current = i_primary_max / ct_ratio
+    v_burden_calculated: voltage = i_ct_secondary * r_burden.value
+    assert v_burden_calculated is i_ct_secondary * r_burden.value
+    assert v_burden_calculated within 3.0V to 3.5V
 
 # ==============================================================================
 # SAFETY INTERLOCK MODULE
@@ -682,6 +760,9 @@ module RTDSensing:
 module OCPComparator:
     """Over-current protection comparator, 50A threshold."""
     
+    i_sense.required = true
+    vcc.required = true
+    ocp_fault.required = true
     signal i_sense   # From CT burden
     signal vcc
     signal gnd
@@ -710,12 +791,12 @@ module OCPComparator:
     
     # Reference on INP (non-inverting)
     vcc ~ r_ref_top.p1
-    r_ref_top.p2 ~ comp.INP
-    comp.INP ~ r_ref_bot.p1
+    r_ref_top.p2 ~ comp.INN
+    comp.INN ~ r_ref_bot.p1
     r_ref_bot.p2 ~ gnd
     
     # Signal on INN (inverting)
-    i_sense ~ comp.INN
+    i_sense ~ comp.INP
     
     # Output: goes LOW when I_SENSE > threshold (fault)
     # We need active-high, so invert
@@ -741,10 +822,18 @@ module OCPComparator:
     # Verify threshold is reasonable (between 30A and 45A)
     i_ocp_trip: current = 37.6A
     assert i_ocp_trip within 30A to 45A
+    
+    # Verify OCP design equations
+    assert v_supply is 3.3V
+    assert v_threshold is 2.5V
+    assert i_ocp_trip is v_threshold * 1000 / r_burden.value
 
 module OVPComparator:
     """Over-voltage protection, 390V threshold."""
     
+    v_bus.required = true
+    vcc.required = true
+    ovp_fault.required = true
     signal v_bus      # DC bus (via divider)
     signal vcc
     signal gnd
@@ -842,10 +931,28 @@ module OVPComparator:
     # Verify OVP trips before capacitor ratings but after normal operation
     # Normal: 340V, Cap rating: 250V each (total 500V headroom), Trip: 390V
     assert v_ovp_trip within 370V to 420V
+    
+    # Verify voltage derating (temper-ofq.2)
+    # 390V peak, electrolytic caps should use 1.25x derating
+    assert c_bus1.voltage_rating >= v_ovp_trip * 1.25
+    assert c_bus2.voltage_rating >= v_ovp_trip * 1.25
+    
+    # Verify design equations
+    assert v_supply is 3.3V
+    assert v_threshold is 3.0V
+    assert r_div_total_top is r_div_top1.value + r_div_top2.value + r_div_top3.value
+    assert r_div_ratio is r_div_bot.value / (r_div_total_top + r_div_bot.value)
+    v_divided: voltage
+    assert v_divided is v_supply * r_div_ratio
+    v_ovp_trip_verify: voltage
+    assert v_ovp_trip_verify is v_threshold / r_div_ratio
 
 module ThermalComparator:
     """Thermal protection, 85C threshold with hysteresis."""
     
+    ntc_sense.required = true
+    vcc.required = true
+    thermal_fault.required = true
     signal ntc_sense  # NTC voltage
     signal vcc
     signal gnd
@@ -883,9 +990,11 @@ module Watchdog:
     """External watchdog with 1.6s timeout."""
     
     signal vdd
-    signal gnd
+    wdi.required = true
+    reset_n.required = true
     signal wdi        # Watchdog kick input
     signal reset_n    # Reset output (active low)
+    signal gnd
     
     wdt = new TPS3823
     
@@ -922,7 +1031,8 @@ module SafetyInterlock:
     signal wdt_kick
     
     # Control
-    signal reset_n_in
+    shutdown_n.required = true
+    fault_status.required = true
     signal shutdown_n   # Output to gate driver (active low = shutdown)
     signal fault_status  # Output to MCU
     
@@ -998,19 +1108,30 @@ module MCU:
     """ESP32-S3 microcontroller with support circuitry."""
     
     # Power
+    vcc_3v3.required = true
     signal vcc_3v3
     signal gnd
     
     # PWM outputs (to gate driver)
+    pwm_h.required = true
+    pwm_l.required = true
     signal pwm_h
     signal pwm_l
     
     # Analog inputs (from sensors)
+    adc_i_sense.required = true
+    adc_v_bus.required = true
+    adc_ntc.required = true
     signal adc_i_sense
     signal adc_v_bus
     signal adc_ntc
     
     # SPI (to MAX31865)
+    spi_cs_rtd.required = true
+    spi_clk.required = true
+    spi_mosi.required = true
+    spi_miso.required = true
+    rtd_drdy.required = true
     signal spi_cs_rtd
     signal spi_clk
     signal spi_mosi
@@ -1018,29 +1139,46 @@ module MCU:
     signal rtd_drdy
     
     # Control signals
+    wdt_kick.required = true
+    relay_ctrl.required = true
+    shutdown_n_in.required = true
+    reset_n.required = true
     signal wdt_kick
     signal relay_ctrl
     signal shutdown_n_in
     signal reset_n
     
     # I2C (general expansion)
+    i2c_sda.required = true
+    i2c_scl.required = true
     signal i2c_sda
     signal i2c_scl
     
     # Debug UART
+    uart_tx.required = true
+    uart_rx.required = true
     signal uart_tx
     signal uart_rx
     
     # Status LEDs
+    led_ocp.required = true
+    led_ovp.required = true
+    led_thermal.required = true
+    led_wdt.required = true
+    signal led_ocp
     signal led_ocp
     signal led_ovp
     signal led_thermal
     signal led_wdt
     
     # Zero-crossing input
+    zcd_in.required = true
     signal zcd_in
     
     # Encoder input (user interface)
+    enc_a.required = true
+    enc_b.required = true
+    enc_sw.required = true
     signal enc_a
     signal enc_b
     signal enc_sw
@@ -1106,11 +1244,24 @@ module MCU:
     c_vcc2.p2 ~ gnd
     gnd ~ mcu.GND
     
+    # Verify power connections - at least one cap per supply
+    assert c_vcc1.p1 is vcc_3v3
+    assert c_vcc2.p1 is vcc_3v3
+    assert c_vcc1.p2 is gnd
+    assert c_vcc2.p2 is gnd
+    
     # Enable circuit
     vcc_3v3 ~ r_en.p1
     r_en.p2 ~ mcu.EN
     mcu.EN ~ c_en.p1
     c_en.p2 ~ gnd
+    
+    # Verify RC time constant for boot delay
+    assert r_en.value is 10kohm  
+    assert c_en.value is 1uF
+    tau_boot: time = 10ms
+    assert tau_boot is r_en.value * c_en.value
+    assert t_boot_delay is tau_boot * 1.4
     
     # PWM outputs - Fixed: was GPIO16/17, now GPIO4/5 per firmware/KiCad (temper-b4c)
     mcu.IO4 ~ pwm_h

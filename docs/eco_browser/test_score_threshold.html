@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECO Score Threshold Slider Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 { color: #667eea; margin-bottom: 0.5rem; }
+    .subtitle { color: #888; margin-bottom: 2rem; font-size: 0.95rem; }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: #1a1a1a;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    
+    label {
+      color: #888;
+      font-size: 0.9rem;
+      min-width: 80px;
+    }
+    
+    input[type="range"] {
+      flex: 1;
+      max-width: 400px;
+      height: 6px;
+      border-radius: 3px;
+      background: #333;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      cursor: pointer;
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      cursor: pointer;
+      border: none;
+    }
+    
+    .value-display {
+      color: #667eea;
+      font-weight: 600;
+      min-width: 50px;
+      font-size: 1.1rem;
+    }
+    
+    .info-box {
+      background: #1a1a1a;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      margin-top: 1rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    
+    .info-label {
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+    
+    .info-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+    
+    button {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 1rem;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    .threshold-indicator {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #1a1a1a;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    
+    .threshold-label {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .threshold-bands {
+      display: flex;
+      height: 30px;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .band {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .band-low { background: #ef444420; color: #f87171; }
+    .band-medium { background: #f59e0b20; color: #fbbf24; }
+    .band-high { background: #10b98120; color: #34d399; }
+    
+    .threshold-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: white;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transition: left 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ECO Score Threshold Slider Test</h1>
+    <p class="subtitle">Testing score threshold slider with persistence and API integration</p>
+
+    <div class="slider-container">
+      <label for="minScoreSlider">Min Score:</label>
+      <input type="range" id="minScoreSlider" min="0.5" max="1.0" step="0.05" value="0.7">
+      <span class="value-display" id="minScoreValue">0.70</span>
+    </div>
+
+    <div class="threshold-indicator">
+      <div class="threshold-label">Relevance Interpretation</div>
+      <div class="threshold-bands">
+        <div class="band band-low">Low (0.5-0.7)</div>
+        <div class="band band-medium">Med (0.7-0.85)</div>
+        <div class="band band-high">High (0.85-1.0)</div>
+        <div class="threshold-marker" id="thresholdMarker"></div>
+      </div>
+    </div>
+
+    <button id="clearStorageBtn">Clear localStorage</button>
+
+    <div class="info-box">
+      <div class="info-label">Current Threshold:</div>
+      <div class="info-value" id="currentThreshold">Not set</div>
+    </div>
+
+    <div class="info-box" style="margin-top: 1rem;">
+      <div class="info-label">localStorage value (eco_minScore):</div>
+      <div class="info-value" id="localStorageValue">Not set</div>
+    </div>
+
+    <div class="info-box" style="margin-top: 1rem;">
+      <div class="info-label">Filter effect (results that would pass):</div>
+      <div class="info-value" id="filterEffect">-</div>
+    </div>
+  </div>
+
+  <script>
+    let minScoreThreshold = parseFloat(localStorage.getItem('eco_minScore') || '0.7');
+
+    // Example scores for testing filter effect
+    const exampleScores = [0.95, 0.87, 0.78, 0.65, 0.55, 0.48];
+
+    // Initialize slider
+    const initializeMinScore = () => {
+      const slider = document.getElementById('minScoreSlider');
+      const valueDisplay = document.getElementById('minScoreValue');
+      
+      // Set from localStorage or default
+      slider.value = minScoreThreshold.toString();
+      valueDisplay.textContent = minScoreThreshold.toFixed(2);
+      
+      // Update display
+      updateDisplay();
+      updateMarker();
+      
+      // Update on change
+      slider.addEventListener('input', (e) => {
+        minScoreThreshold = parseFloat(e.target.value);
+        valueDisplay.textContent = minScoreThreshold.toFixed(2);
+        localStorage.setItem('eco_minScore', minScoreThreshold.toString());
+        updateDisplay();
+        updateMarker();
+      });
+    };
+
+    // Update display of current values
+    const updateDisplay = () => {
+      const storedValue = localStorage.getItem('eco_minScore');
+      
+      document.getElementById('currentThreshold').textContent = minScoreThreshold.toFixed(2);
+      document.getElementById('localStorageValue').textContent = storedValue || 'Not set';
+      
+      // Show filter effect
+      const passCount = exampleScores.filter(score => score >= minScoreThreshold).length;
+      const failCount = exampleScores.length - passCount;
+      document.getElementById('filterEffect').textContent = 
+        `${passCount}/${exampleScores.length} results pass (${failCount} filtered out)`;
+    };
+
+    // Update threshold marker position
+    const updateMarker = () => {
+      const marker = document.getElementById('thresholdMarker');
+      // Map 0.5-1.0 range to 0-100%
+      const percent = ((minScoreThreshold - 0.5) / 0.5) * 100;
+      marker.style.left = `${percent}%`;
+    };
+
+    // Clear storage button
+    document.getElementById('clearStorageBtn').addEventListener('click', () => {
+      localStorage.removeItem('eco_minScore');
+      alert('localStorage cleared! Reload to see default behavior (0.7).');
+      updateDisplay();
+    });
+
+    // Initialize on page load
+    initializeMinScore();
+  </script>
+</body>
+</html>
