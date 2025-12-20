@@ -30,11 +30,31 @@ from temper_placer.explainability.decision import (
     DecisionTrace,
     DecisionType,
 )
+from temper_placer.explainability.serialization import (
+    deserialize_decision,
+    deserialize_trace,
+    load_trace,
+    save_trace,
+    serialize_decision,
+    serialize_trace,
+    trace_from_json,
+    trace_to_json,
+)
 
 __all__ = [
+    # Data structures
     "Alternative",
     "Decision",
     "DecisionPhase",
     "DecisionTrace",
     "DecisionType",
+    # Serialization
+    "deserialize_decision",
+    "deserialize_trace",
+    "load_trace",
+    "save_trace",
+    "serialize_decision",
+    "serialize_trace",
+    "trace_from_json",
+    "trace_to_json",
 ]
