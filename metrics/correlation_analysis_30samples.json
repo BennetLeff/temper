@@ -1,0 +1,175 @@
+{
+  "pcb": "/Users/bennet.leff/Documents/temper/pcb/temper.kicad_pcb",
+  "n_samples": 30,
+  "routing_mode": "full",
+  "timestamp": "2025-12-20T18:10:26.601757",
+  "correlations": {
+    "alignment": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "alignment_per_group": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_1_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_1_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_4_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_4_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_5_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_5_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_per_component": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "overlap": {
+      "vs_completion": -0.37705385314066464,
+      "vs_wirelength": 0.0,
+      "vs_via_count": -0.37363406697290635
+    },
+    "overlap_per_component": {
+      "vs_completion": -0.3770538991285095,
+      "vs_wirelength": 0.0,
+      "vs_via_count": -0.3736340995575626
+    },
+    "pin_grid_alignment": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "rotation_consistency": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "spread": {
+      "vs_completion": -0.3982891142241656,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "wirelength": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.47497782519426757,
+      "vs_via_count": 0.0
+    }
+  },
+  "recommendations": [
+    {
+      "loss": "alignment",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "alignment_per_group",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_1_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_1_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_4_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_4_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_5_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_5_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_per_component",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "overlap",
+      "action": "keep",
+      "reason": "Moderate correlation with completion (r=-0.38)"
+    },
+    {
+      "loss": "overlap_per_component",
+      "action": "keep",
+      "reason": "Moderate correlation with completion (r=-0.38)"
+    },
+    {
+      "loss": "pin_grid_alignment",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "rotation_consistency",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "spread",
+      "action": "keep",
+      "reason": "Moderate correlation with completion (r=-0.40)"
+    },
+    {
+      "loss": "wirelength",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    }
+  ],
+  "statistics": {
+    "mean_completion_pct": 26.521739130434778,
+    "std_completion_pct": 5.74879926982861,
+    "failed_routes": 30
+  }
+}
