@@ -18,9 +18,11 @@ Usage:
 """
 
 import json
+import os
 import re
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -282,9 +284,7 @@ class MeasurementRunner:
             )
             for m in target_pattern.finditer(block):
                 targets.append(
-                    MeasurementTarget(
-                        metric=m.group(1).strip(), target=m.group(2).strip()
-                    )
+                    MeasurementTarget(metric=m.group(1).strip(), target=m.group(2).strip())
                 )
 
         return targets
@@ -334,9 +334,7 @@ class MeasurementRunner:
 
         # For counts (violations, errors), look for 0 or numbers
         if "violation" in metric_id.lower() or "error" in metric_id.lower():
-            match = re.search(
-                r"(\d+)\s*(?:violation|error|warning)", output, re.IGNORECASE
-            )
+            match = re.search(r"(\d+)\s*(?:violation|error|warning)", output, re.IGNORECASE)
             if match:
                 return float(match.group(1))
             # If output is empty or says "0", return 0
@@ -430,8 +428,79 @@ class MeasurementRunner:
             details=stdout[:200] if not passed else "",
         )
 
+    def run_metric_with_retry(
+        self,
+        metric_id: str,
+        task_id: str,
+        target: Optional[str] = None,
+        max_retries: Optional[int] = None,
+    ) -> MeasurementResult:
+        """Run a metric measurement with retry on transient failures.
+
+        Args:
+            metric_id: Metric ID from registry
+            task_id: Task ID for context
+            target: Target expression (e.g., ">=80")
+            max_retries: Max retry attempts (defaults to GPBM_MAX_RETRIES env var or 2)
+
+        Returns:
+            MeasurementResult with success/failure details
+        """
+        if max_retries is None:
+            max_retries = int(os.environ.get("GPBM_MAX_RETRIES", "2"))
+
+        # List of error patterns that indicate transient failures worth retrying
+        transient_patterns = [
+            "timeout",
+            "timed out",
+            "connection",
+            "temporarily unavailable",
+            "locked",
+            "busy",
+            "resource unavailable",
+            "try again",
+        ]
+
+        result: MeasurementResult | None = None
+        for attempt in range(max_retries + 1):
+            result = self.run_metric(metric_id, task_id, target)
+
+            # Success or result without error - return immediately
+            if result.passed or not result.error:
+                if attempt > 0:
+                    print(
+                        f"  ✓ {metric_id} succeeded on attempt {attempt + 1}",
+                        file=sys.stderr,
+                    )
+                return result
+
+            # Check if error is transient
+            error_lower = result.error.lower()
+            is_transient = any(pattern in error_lower for pattern in transient_patterns)
+
+            # Don't retry if this is the last attempt or error is permanent
+            if not is_transient or attempt >= max_retries:
+                if not is_transient and attempt == 0:
+                    print(
+                        f"  ⊗ {metric_id} failed with permanent error (no retry)",
+                        file=sys.stderr,
+                    )
+                return result
+
+            # Exponential backoff: 1s, 2s, 4s
+            wait = 2**attempt
+            print(
+                f"  ⟳ Retrying {metric_id} in {wait}s (attempt {attempt + 2}/{max_retries + 1})",
+                file=sys.stderr,
+            )
+            time.sleep(wait)
+
+        # Should never reach here, but satisfy type checker
+        assert result is not None
+        return result
+
     def run_for_task(self, task_id: str) -> list[MeasurementResult]:
-        """Run all measurements defined in a task's description."""
+        """Run all measurements defined in a task's description (with retry)."""
         description = self._get_task_description(task_id)
         targets = self._parse_measurement_targets(description)
 
@@ -440,7 +509,7 @@ class MeasurementRunner:
 
         results = []
         for target in targets:
-            result = self.run_metric(target.metric, task_id, target.target)
+            result = self.run_metric_with_retry(target.metric, task_id, target.target)
             results.append(result)
 
         self.results = results
@@ -518,9 +587,7 @@ Examples:
     parser.add_argument(
         "--no-log", action="store_true", help="Don't log results to measurements.jsonl"
     )
-    parser.add_argument(
-        "--list-metrics", action="store_true", help="List available metrics"
-    )
+    parser.add_argument("--list-metrics", action="store_true", help="List available metrics")
     parser.add_argument("--root", type=str, help="Project root directory")
 
     args = parser.parse_args()
