@@ -1,0 +1,22 @@
+# Structural Constraints for Testing
+board:
+  width_mm: 100.0
+  height_mm: 100.0
+  margin_mm: 5.0
+
+zones:
+  - name: main
+    bounds: [0, 0, 100, 100]
+    net_classes: ["Signal", "Power"]
+
+groups:
+  - name: port_group
+    components: ["U1"]
+    primary_pin: "U1:1"
+    description: "IC that should face its connector"
+
+  - name: bank
+    components: ["R1", "R2", "C1"]
+    template_group: "passive_bank"
+    stacked_layout: true
+    description: "A bank of passives that should be stacked"

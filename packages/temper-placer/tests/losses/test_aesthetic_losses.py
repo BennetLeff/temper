@@ -1,13 +1,80 @@
 
+from dataclasses import dataclass
 import jax.numpy as jnp
 import pytest
-from temper_placer.losses.aesthetic import PortFacingRotationLoss
+from jax import Array
+from temper_placer.losses.aesthetic import PortFacingRotationLoss, StackedRowLoss
 from temper_placer.losses.base import LossContext, LossResult
 
 @pytest.fixture
-def mock_context():
-    # Minimal mock context
-    return None 
+def mock_loss_context():
+    @dataclass
+    class MockContext:
+        net_pin_indices: Array
+        net_pin_mask: Array
+        net_weights: Array
+    
+    # Setup context with 1 net crossing between Row 0 and Row 1
+    # Group components: 0, 1, 2 (Row 0), 3, 4, 5 (Row 1)
+    # Net 0 connects component 0 to component 3
+    return MockContext(
+        net_pin_indices=jnp.array([[0, 3], [1, 2]]),
+        net_pin_mask=jnp.array([[True, True], [True, True]]),
+        net_weights=jnp.array([1.0, 1.0])
+    )
+
+def test_stacked_row_gutter_calculation(mock_loss_context):
+    """Test that gutters expand with net crossings."""
+    # 6 components in 3 columns -> 2 rows
+    # Row 0: 0, 1, 2
+    # Row 1: 3, 4, 5
+    comp_indices = jnp.arange(6)
+    
+    # Case 1: No crossing weight
+    loss_fn_no_weight = StackedRowLoss(
+        component_indices=comp_indices,
+        cols=3,
+        min_row_pitch=10.0,
+        col_pitch=10.0,
+        net_crossing_weight=0.0
+    )
+    
+    positions = jnp.zeros((6, 2))
+    rotations = jnp.zeros((6, 4))
+    
+    result_no_weight = loss_fn_no_weight(positions, rotations, mock_loss_context)
+    # Breakdown should have crossing_counts
+    counts = result_no_weight.breakdown["crossing_counts"]
+    # Net 0 (0-3) crosses Row 0-1. Net 1 (1-2) does NOT cross (both in Row 0).
+    # So count should be 1.
+    assert counts[0] == 1
+    
+    # Case 2: With crossing weight
+    loss_fn_weight = StackedRowLoss(
+        component_indices=comp_indices,
+        cols=3,
+        min_row_pitch=10.0,
+        col_pitch=10.0,
+        net_crossing_weight=5.0
+    )
+    
+    # We can't easily check internal row_offsets from result.value without math.
+    # Row 0 is at y=0. Row 1 is at y = 10 + 5*1 = 15.
+    # Target positions: 
+    # Row 0: (0,0), (10,0), (20,0)
+    # Row 1: (0,15), (10,15), (20,15)
+    # Target Centroid: (10, 7.5)
+    # Let's check if the penalty is 0 when components are at these positions.
+    
+    target_pos = jnp.array([
+        [0, 0], [10, 0], [20, 0],
+        [0, 15], [10, 15], [20, 15]
+    ])
+    # Center them
+    target_pos = target_pos - jnp.mean(target_pos, axis=0)
+    
+    result = loss_fn_weight(target_pos, rotations, mock_loss_context)
+    assert result.value < 1e-4
 
 def test_port_facing_rotation_aligned():
     """Test that aligned pins have zero loss."""

@@ -1,18 +1,30 @@
 
 import argparse
 import logging
+import time
 from pathlib import Path
+from dataclasses import replace
+
 import jax
 import jax.numpy as jnp
 import pandas as pd
-from tabulate import table
 
 from temper_placer.core.netlist import Netlist
-from temper_placer.io.config_loader import load_constraints, PlacementConstraints, create_board_from_constraints
+from temper_placer.core.board import Board
+from temper_placer.io.config_loader import (
+    load_constraints, 
+    PlacementConstraints, 
+    create_board_from_constraints
+)
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.optimizer.config import OptimizerConfig
-from temper_placer.optimizer.train import train_placement
-from temper_placer.validation.metrics import compute_total_hpwl, compute_overlap_area
+from temper_placer.optimizer.train import train_multiphase
+from temper_placer.optimizer.postprocess import PostProcessConfig, postprocess
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.losses.aesthetic import create_aesthetic_losses
+from temper_placer.losses.overlap import OverlapLoss
+from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.wirelength import WirelengthLoss
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,100 +32,146 @@ logger = logging.getLogger(__name__)
 def run_experiment(
     netlist: Netlist, 
     constraints: PlacementConstraints, 
-    enable_port_facing: bool = True,
+    config: OptimizerConfig,
+    post_config: PostProcessConfig,
     seed: int = 0
 ):
-    # Configure optimizer
-    config = OptimizerConfig(
-        total_epochs=2000,
-        learning_rate=0.1,
-        use_gumbel_rotation=True,
-    )
-    
-    # Modify constraints based on flags
-    # To disable port facing, we can clear primary_pin from groups
-    # or set weight to 0. But weight is hardcoded in create_aesthetic_losses currently
-    # unless we modify aesthetic_cfg.
-    
-    # We will modify the constraints object in place (copying would be better but expensive)
-    original_groups = constraints.component_groups
-    if not enable_port_facing:
-        # Clear primary_pin from all groups to disable the loss generation
-        new_groups = []
-        for g in constraints.component_groups:
-            # Create a shallow copy with primary_pin=None
-            # Dataclass replace would be cleaner
-            from dataclasses import replace
-            new_g = replace(g, primary_pin=None)
-            new_groups.append(new_g)
-        constraints.component_groups = new_groups
+    start_time = time.time()
     
     # Create board
     board = create_board_from_constraints(constraints)
     
-    # Run optimization
-    rng_key = jax.random.PRNGKey(seed)
-    result = train_placement(netlist, board, constraints, config, rng_key)
+    # Create Context
+    context = LossContext.from_netlist_and_board(netlist, board)
     
-    # Restore constraints (if we modified the object passed in)
-    if not enable_port_facing:
-        constraints.component_groups = original_groups
+    # Loss factory for curriculum
+    def loss_factory(weights: dict[str, float]) -> CompositeLoss:
+        losses = []
+        if "overlap" in weights:
+            losses.append(WeightedLoss(OverlapLoss(rotation_invariant=True), weight=weights["overlap"]))
+        if "boundary" in weights:
+            losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
+        if "wirelength" in weights:
+            losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
+            
+        # Add aesthetic losses (structural)
+        aesthetic_losses = create_aesthetic_losses(netlist, constraints)
+        losses.extend(aesthetic_losses)
         
-    return result
-
-def measure_metrics(result, netlist, board):
-    state = result.final_state
+        return CompositeLoss(losses)
     
-    # Convert logits to discrete rotations
-    rotation_indices = jnp.argmax(state.rotation_logits, axis=-1)
-    rotations = jax.nn.one_hot(rotation_indices, 4)
+    # Run optimization
+    result = train_multiphase(
+        netlist=netlist,
+        board=board,
+        loss_factory=loss_factory,
+        context=context,
+        config=config,
+    )
     
-    hpwl = compute_total_hpwl(state.positions, rotations, None) # Context needed? 
-    # Actually compute_total_hpwl needs context with net_pin_indices etc.
-    # We can use the context from the result if available, or create one.
-    # train_placement returns PlacementResult which has final_loss (scalar).
+    duration = time.time() - start_time
     
-    # Let's trust the loss value for now, or re-compute if we had the context.
-    # Re-creating context is complex.
-    
-    return result.final_loss
+    return {
+        "final_loss": float(result.final_loss),
+        "duration": duration,
+        "converged": result.converged,
+        "result": result
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="Measure structural placement improvements")
+    parser = argparse.ArgumentParser(description="Structural Placement Measurement Suite")
     parser.add_argument("pcb_file", type=Path, help="Path to KiCad PCB file")
     parser.add_argument("config_file", type=Path, help="Path to constraints YAML")
-    parser.add_argument("--seeds", type=int, default=3, help="Number of seeds")
+    parser.add_argument("--seeds", type=int, default=3, help="Number of seeds per experiment")
+    parser.add_argument("--output", type=Path, default="structural_metrics.csv", help="CSV output path")
     args = parser.parse_args()
     
     logger.info(f"Loading {args.pcb_file}...")
-    netlist, _, _ = parse_kicad_pcb(args.pcb_file)
-    constraints = load_constraints(args.config_file)
+    parse_res = parse_kicad_pcb(args.pcb_file)
+    netlist = parse_res.netlist
     
-    results = []
+    # Base Optimizer Config
+    base_opt_config = OptimizerConfig(
+        epochs=1000, # Faster for measurement
+        seed=42,
+        use_gumbel_rotation=True,
+    )
+    # Ensure some curriculum exists or use default
+    base_opt_config = OptimizerConfig.default_curriculum()
+    base_opt_config.epochs = 1000 # Override for speed
     
-    for seed in range(args.seeds):
-        logger.info(f"Running Seed {seed}...")
-        
-        # 1. Baseline (Port Facing Disabled)
-        logger.info("  Baseline...")
-        res_base = run_experiment(netlist, constraints, enable_port_facing=False, seed=seed)
-        
-        # 2. With Port Facing
-        logger.info("  Port Facing...")
-        res_pf = run_experiment(netlist, constraints, enable_port_facing=True, seed=seed)
-        
-        results.append({
-            "seed": seed,
-            "baseline_loss": float(res_base.final_loss),
-            "port_facing_loss": float(res_pf.final_loss),
-            "delta": float(res_base.final_loss - res_pf.final_loss)
+    # Base PostProcess Config
+    base_post_config = PostProcessConfig(
+        rotation_refinement_enabled=True,
+        rotation_search_type="greedy"
+    )
+    
+    experiments = [
+        ("Baseline", {}),
+        ("PortFacing", {"port_facing": True}),
+        ("StackedRow", {"stacked_layout": True}),
+        ("ForceDirected", {"force_directed": True}),
+        ("SA_Refinement", {"search_type": "sa"}),
+        ("Full_Structural", {
+            "port_facing": True, 
+            "stacked_layout": True,
+            "force_directed": True,
+            "search_type": "sa"
         })
+    ]
+    
+    all_results = []
+    
+    for exp_name, flags in experiments:
+        logger.info(f"=== Experiment: {exp_name} ===")
         
-    df = pd.DataFrame(results)
-    print("\nResults:")
-    print(df)
-    print("\nSummary:")
-    print(df.describe())
+        # Setup Optimizer Config
+        exp_opt_config = replace(base_opt_config)
+        if flags.get("force_directed"):
+            # Enable force-directed unfolding
+            exp_opt_config.initialization = replace(exp_opt_config.initialization,
+                force_directed=replace(exp_opt_config.initialization.force_directed, enabled=True)
+            )
+        
+        # Setup PostProcess Config
+        exp_post_config = replace(base_post_config, 
+            rotation_search_type=flags.get("search_type", "greedy")
+        )
+        
+        for seed in range(args.seeds):
+            logger.info(f"  Seed {seed}...")
+            
+            # Setup constraints for this seed (clean copy)
+            exp_constraints = load_constraints(args.config_file)
+            
+            if not flags.get("port_facing"):
+                # Disable Port Facing
+                for g in exp_constraints.component_groups:
+                    g.primary_pin = None
+            
+            if not flags.get("stacked_layout"):
+                # Disable Stacked Layout
+                for g in exp_constraints.component_groups:
+                    g.stacked_layout = False
+            
+            res = run_experiment(netlist, exp_constraints, exp_opt_config, exp_post_config, seed=seed)
+            
+            all_results.append({
+                "experiment": exp_name,
+                "seed": seed,
+                "loss": res["final_loss"],
+                "duration": res["duration"],
+                "converged": res["converged"]
+            })
+            
+    df = pd.DataFrame(all_results)
+    df.to_csv(args.output, index=False)
+    
+    print("\nResults Summary:")
+    summary = df.groupby("experiment")["loss"].agg(["mean", "std", "min"]).round(4)
+    print(summary)
+    
+    logger.info(f"Full results saved to {args.output}")
 
 if __name__ == "__main__":
     main()

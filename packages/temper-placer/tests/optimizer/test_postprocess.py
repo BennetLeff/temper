@@ -244,30 +244,86 @@ class TestDiscreteRotationRefinementBeam:
         assert final_loss == 0.0
 
 
-class TestDiscreteRotationRefinement:
-    """Tests for the unified rotation refinement interface."""
+class TestDiscreteRotationRefinementSA:
+    """Tests for simulated annealing rotation refinement."""
 
-    def test_greedy_mode(self):
-        """Test selecting greedy search mode."""
+    def test_sa_refinement_simple(self):
+        """Test SA refinement finds optimal rotation."""
         positions = jnp.array([[0.0, 0.0]])
-        state = PlacementState.from_positions(positions)
+        # Start with wrong rotation
+        rotation_logits = jnp.array([[-10.0, 10.0, -10.0, -10.0]])
+        state = PlacementState(positions=positions, rotation_logits=rotation_logits)
 
         def loss_fn(s):
-            return float(get_rotation_index(s.rotation_logits)[0])
+            indices = get_rotation_index(s.rotation_logits)
+            return float(indices[0])  # Prefer 0
 
-        refined, _ = discrete_rotation_refinement(state, loss_fn, search_type="greedy")
+        refined, final_loss = discrete_rotation_refinement(
+            state, loss_fn, search_type="sa", sa_iterations=100
+        )
+
         assert get_rotation_index(refined.rotation_logits)[0] == 0
+        assert final_loss == 0.0
 
-    def test_beam_mode(self):
-        """Test selecting beam search mode."""
-        positions = jnp.array([[0.0, 0.0]])
+    def test_sa_jiggle_move(self):
+        """Test SA can improve position via jiggles."""
+        positions = jnp.array([[1.0, 1.0]])
         state = PlacementState.from_positions(positions)
 
+        # Loss prefers (0,0)
         def loss_fn(s):
-            return float(get_rotation_index(s.rotation_logits)[0])
+            return float(jnp.sum(s.positions**2))
 
-        refined, _ = discrete_rotation_refinement(state, loss_fn, search_type="beam", beam_width=2)
-        assert get_rotation_index(refined.rotation_logits)[0] == 0
+        # Run SA with only jiggles enabled
+        refined, final_loss = discrete_rotation_refinement(
+            state,
+            loss_fn,
+            search_type="sa",
+            sa_iterations=100,
+            allow_swaps=False,
+            grid_size=0.5,
+        )
+
+        # Should move closer to 0,0
+        assert jnp.sum(refined.positions**2) < jnp.sum(positions**2)
+
+    def test_sa_swap_move(self):
+        """Test SA can swap components with identical footprints."""
+        from temper_placer.core.netlist import Component, Netlist
+
+        # Two identical components R1 and R2
+        c1 = Component(ref="R1", footprint="R_0603", bounds=(1, 1))
+        c2 = Component(ref="R2", footprint="R_0603", bounds=(1, 1))
+        netlist = Netlist(components=[c1, c2])
+
+        # R1 at (10, 10), R2 at (0, 0)
+        positions = jnp.array([[10.0, 10.0], [0.0, 0.0]])
+        state = PlacementState.from_positions(positions)
+
+        # Loss prefers R1 at (0,0) and R2 at (10,10)
+        def loss_fn(s):
+            # Target for R1 (index 0) is (0,0)
+            # Target for R2 (index 1) is (10,10)
+            loss = jnp.sum(s.positions[0] ** 2) + jnp.sum((s.positions[1] - 10.0) ** 2)
+            return float(loss)
+
+        initial_loss = loss_fn(state)
+
+        # Run SA with swaps enabled
+        refined, final_loss = discrete_rotation_refinement(
+            state,
+            loss_fn,
+            search_type="sa",
+            sa_iterations=100,
+            allow_jiggles=False,
+            netlist=netlist,
+        )
+
+        # Swapping should give loss 0
+        assert final_loss < initial_loss
+        if final_loss == 0:
+            assert jnp.allclose(refined.positions[0], jnp.array([0.0, 0.0]))
+            assert jnp.allclose(refined.positions[1], jnp.array([10.0, 10.0]))
 
 
 class TestPostprocess:

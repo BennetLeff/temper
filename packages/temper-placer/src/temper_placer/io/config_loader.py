@@ -253,6 +253,8 @@ class ComponentGroup:
     template_group: str | None = None
     # Optional pin number/name that defines the 'front' of the group for rotation
     primary_pin: str | None = None
+    # Whether to organize the group in a 2D matrix with dynamic gutters
+    stacked_layout: bool = False
 
 
 @dataclass
@@ -567,6 +569,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 description=group_cfg.get("description", ""),
                 template_group=group_cfg.get("template_group"),
                 primary_pin=group_cfg.get("primary_pin"),
+                stacked_layout=group_cfg.get("stacked_layout", False),
             )
             constraints.component_groups.append(group)
 

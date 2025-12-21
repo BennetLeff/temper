@@ -40,6 +40,10 @@ class PostProcessConfig:
     grid_snap_enabled: bool = True
     grid_size: float = DEFAULT_GRID_SIZE  # mm
 
+    # Legalization settings
+    legalization_enabled: bool = True
+    legalization_margin: float = 0.5  # mm
+
     # Discrete rotation refinement settings
     rotation_refinement_enabled: bool = True
     rotation_search_type: str = "greedy"  # "greedy", "beam", or "sa"
@@ -47,6 +51,8 @@ class PostProcessConfig:
     sa_iterations: int = 200  # Only used if simulated annealing
     sa_initial_temp: float = 1.0
     sa_cooling_rate: float = 0.95
+    allow_swaps: bool = True
+    allow_jiggles: bool = True
 
 
 @dataclass
@@ -376,7 +382,7 @@ def discrete_rotation_refinement_sa(
     rng_key = jax.random.PRNGKey(seed)
     temp = initial_temp
 
-    logger.info(f"Starting micro-move SA refinement, iterations={iterations}")
+    logger.debug(f"Starting micro-move SA refinement, iterations={iterations}")
 
     for i in range(iterations):
         rng_key, move_key, comp_key, val_key, accept_key = jax.random.split(rng_key, 5)
@@ -429,7 +435,7 @@ def discrete_rotation_refinement_sa(
         # Cool down
         temp *= cooling_rate
 
-    logger.info(f"Micro-move SA refinement complete, final loss: {best_loss:.4f}")
+    logger.debug(f"Micro-move SA refinement complete, final loss: {best_loss:.4f}")
     return best_state, best_loss
 
 
@@ -557,8 +563,8 @@ def postprocess(
             sa_initial_temp=config.sa_initial_temp,
             sa_cooling_rate=config.sa_cooling_rate,
             fixed_components=fixed_components,
-            allow_swaps=True,
-            allow_jiggles=True,
+            allow_swaps=config.allow_swaps,
+            allow_jiggles=config.allow_jiggles,
             grid_size=config.grid_size,
             netlist=netlist,
         )

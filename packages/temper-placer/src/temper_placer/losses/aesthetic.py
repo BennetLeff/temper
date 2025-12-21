@@ -241,22 +241,22 @@ class StackedRowLoss(LossFunction):
     Organizes a functional group into a 2D matrix of stacked rows with dynamic gutters.
 
     Useful for large banks of components (e.g., decoupling caps, LED drivers).
-    Components are assigned to rows based on their index and stacked vertically.
-    The vertical distance between rows (gutter) grows if the area is congested.
+    The vertical distance between rows (gutter) grows based on the number of
+    nets passing between rows.
 
     Attributes:
         component_indices: (M,) array of component indices in the group.
         cols: Number of columns in the matrix.
         min_row_pitch: Minimum vertical distance between rows.
         col_pitch: Desired horizontal distance between columns.
-        congestion_sensitivity: How much congestion increases the row pitch.
+        net_crossing_weight: mm of extra gutter per net crossing.
     """
 
     component_indices: Array
     cols: int
     min_row_pitch: float
     col_pitch: float
-    congestion_sensitivity: float = 2.0
+    net_crossing_weight: float = 0.5
 
     @property
     def name(self) -> str:
@@ -273,47 +273,60 @@ class StackedRowLoss(LossFunction):
         if self.component_indices.shape[0] < 2:
             return LossResult(value=jnp.array(0.0))
 
-        from temper_placer.losses.congestion import get_congestion_field
-
-        # 1. Get positions of group members
-        group_pos = positions[self.component_indices]  # (M, 2)
-        m = group_pos.shape[0]
-        centroid = jnp.mean(group_pos, axis=0)
-
-        # 2. Dynamic Gutter Calculation
-        # Get congestion in the group's bounding box
-        congestion_grid = get_congestion_field(positions, context)
-        board_bounds = context.board.get_bounds_array()
-        x_min, y_min, x_max, y_max = board_bounds
-        rows_grid, cols_grid = congestion_grid.shape
-
-        # Map centroid to grid
-        gx = jnp.clip((centroid[0] - x_min) / (x_max - x_min) * cols_grid, 0, cols_grid - 1).astype(jnp.int32)
-        gy = jnp.clip((centroid[1] - y_min) / (y_max - y_min) * rows_grid, 0, rows_grid - 1).astype(jnp.int32)
-
-        local_congestion = congestion_grid[gy, gx]
-        # row_pitch grows with congestion: min_pitch * (1 + sensitivity * congestion)
-        dynamic_row_pitch = self.min_row_pitch * (1.0 + self.congestion_sensitivity * jax.nn.relu(local_congestion - 0.5))
-
-        # 3. Compute target relative offsets based on grid (row, col)
-        indices = jnp.arange(m)
+        # 1. Map group components to row indices
+        m = self.component_indices.shape[0]
         num_rows = (m + self.cols - 1) // self.cols
-        row_indices = indices // self.cols
-        col_indices = indices % self.cols
+        indices = jnp.arange(m)
+        group_row_indices = indices // self.cols
+        group_col_indices = indices % self.cols
 
-        target_rel_x = col_indices * self.col_pitch
-        target_rel_y = row_indices * dynamic_row_pitch
+        # 2. Count nets crossing each gutter
+        # A gutter exists between row i and i+1
+        n_comps = positions.shape[0]
+        comp_to_row = jnp.full((n_comps,), -1)
+        comp_to_row = comp_to_row.at[self.component_indices].set(group_row_indices)
+
+        # Row assignments for all pins in all nets
+        pin_rows = comp_to_row[context.net_pin_indices]
+        pin_rows = jnp.where(context.net_pin_mask, pin_rows, -1)
+
+        def count_crossings(gutter_idx):
+            # Net crosses if it has pins in row <= gutter_idx AND pins elsewhere
+            # (either in a higher row or outside the group)
+            has_below = jnp.any((pin_rows <= gutter_idx) & (pin_rows != -1), axis=1)
+            has_above_or_out = jnp.any((pin_rows > gutter_idx) | (pin_rows == -1), axis=1)
+            # Only count nets that actually connect to this set of components
+            return jnp.sum(has_below & has_above_or_out)
+
+        # Calculate row offsets
+        if num_rows > 1:
+            crossing_counts = jax.vmap(count_crossings)(jnp.arange(num_rows - 1))
+            gutters = self.min_row_pitch + self.net_crossing_weight * crossing_counts
+            row_offsets = jnp.concatenate([jnp.array([0.0]), jnp.cumsum(gutters)])
+        else:
+            row_offsets = jnp.array([0.0])
+            crossing_counts = jnp.array([])
+
+        # 3. Compute target positions
+        target_rel_x = group_col_indices * self.col_pitch
+        target_rel_y = row_offsets[group_row_indices]
         target_rel = jnp.stack([target_rel_x, target_rel_y], axis=-1)
 
-        # 4. Compute target absolute positions
-        # Center the target matrix on the current group centroid
+        # 4. Center the target matrix on the current group centroid
+        group_pos = positions[self.component_indices]
+        centroid = jnp.mean(group_pos, axis=0)
         target_centroid = jnp.mean(target_rel, axis=0)
         target_abs = target_rel - target_centroid + centroid
 
         # 5. Penalize deviation: sum |pos - target|^2
         penalty = jnp.sum((group_pos - target_abs) ** 2)
 
-        return LossResult(value=penalty)
+        return LossResult(
+            value=penalty,
+            breakdown={
+                "crossing_counts": crossing_counts,
+            },
+        )
 
 
 @dataclass
@@ -773,5 +786,25 @@ def create_aesthetic_losses(
                 weight=weight * 5.0,  # Boost weight as this is usually critical
             )
         )
+
+    # 6. Stacked Row Layout
+    for group in constraints.component_groups:
+        if group.stacked_layout:
+            indices = jnp.array([netlist.get_component_index(ref) for ref in group.components])
+            if indices.shape[0] >= 2:
+                # Default parameters for stacking
+                # These could be made configurable in ComponentGroup later
+                losses.append(
+                    WeightedLoss(
+                        StackedRowLoss(
+                            component_indices=indices,
+                            cols=int(jnp.sqrt(indices.shape[0])), # Approx square matrix by default
+                            min_row_pitch=10.0,
+                            col_pitch=10.0,
+                            net_crossing_weight=0.5
+                        ),
+                        weight=aesthetic_cfg.consensus_weight * 2.0,
+                    )
+                )
 
     return losses
