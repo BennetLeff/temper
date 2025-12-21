@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 if TYPE_CHECKING:
     from temper_placer.optimizer.train import TrainingResult
@@ -46,6 +46,7 @@ class ImprovementMetrics(NamedTuple):
         velocity: Rate of change of improvement rate (acceleration).
         is_improving: Whether loss is decreasing.
         is_stagnating: Whether improvement has stalled.
+        plateau_event: PlateauEvent if a plateau was just detected, else None.
     """
 
     epoch: int
@@ -58,6 +59,37 @@ class ImprovementMetrics(NamedTuple):
     velocity: float
     is_improving: bool
     is_stagnating: bool
+    plateau_event: PlateauEvent | None = None
+
+
+@dataclass
+class PlateauEvent:
+    """Event emitted when a plateau is detected.
+
+    A plateau occurs when the improvement rate falls below the threshold
+    for a configurable number of consecutive epochs.
+
+    Attributes:
+        start_epoch: First epoch of the plateau.
+        end_epoch: Last epoch of the plateau (current epoch when detected).
+        duration: Number of epochs in the plateau.
+        avg_loss: Average loss during the plateau.
+        min_loss: Minimum loss during the plateau.
+        avg_improvement_rate: Average improvement rate during plateau.
+    """
+
+    start_epoch: int
+    end_epoch: int
+    duration: int
+    avg_loss: float
+    min_loss: float
+    avg_improvement_rate: float
+
+    def __repr__(self) -> str:
+        return (
+            f"PlateauEvent(epochs={self.start_epoch}-{self.end_epoch}, "
+            f"duration={self.duration}, avg_loss={self.avg_loss:.4f})"
+        )
 
 
 @dataclass
@@ -92,6 +124,9 @@ class LossImprovementTracker:
     _improvement_rate_history: list[float] = field(default_factory=list, repr=False)
     _epoch: int = field(default=0, repr=False)
     _low_improvement_count: int = field(default=0, repr=False)
+    _plateau_start_epoch: int | None = field(default=None, repr=False)
+    _plateau_events: list[PlateauEvent] = field(default_factory=list, repr=False)
+    _plateau_detected_this_epoch: bool = field(default=False, repr=False)
 
     def __post_init__(self) -> None:
         """Initialize internal buffers."""
@@ -106,6 +141,9 @@ class LossImprovementTracker:
         self._improvement_rate_history.clear()
         self._epoch = 0
         self._low_improvement_count = 0
+        self._plateau_start_epoch = None
+        self._plateau_events.clear()
+        self._plateau_detected_this_epoch = False
 
         for buffer in self._delta_buffers.values():
             buffer.clear()
@@ -167,13 +205,31 @@ class LossImprovementTracker:
         # Determine if improving
         is_improving = delta < 0
 
-        # Determine if stagnating
+        # Determine if stagnating and track plateau events
+        plateau_event = None
+        was_stagnating = self._low_improvement_count >= self.stagnation_epochs
+
         if improvement_rate < self.stagnation_threshold:
             self._low_improvement_count += 1
+
+            # Track plateau start
+            if self._low_improvement_count == 1:
+                self._plateau_start_epoch = epoch
         else:
+            # Exiting a plateau - emit event if we were in one
+            if was_stagnating and self._plateau_start_epoch is not None:
+                plateau_event = self._create_plateau_event(epoch - 1)
+                self._plateau_events.append(plateau_event)
+
             self._low_improvement_count = 0
+            self._plateau_start_epoch = None
 
         is_stagnating = self._low_improvement_count >= self.stagnation_epochs
+
+        # Emit plateau event when first entering stagnation
+        if is_stagnating and not was_stagnating and self._plateau_start_epoch is not None:
+            plateau_event = self._create_plateau_event(epoch)
+            # Don't add to events yet - still ongoing
 
         return ImprovementMetrics(
             epoch=epoch,
@@ -186,6 +242,36 @@ class LossImprovementTracker:
             velocity=velocity,
             is_improving=is_improving,
             is_stagnating=is_stagnating,
+            plateau_event=plateau_event,
+        )
+
+    def _create_plateau_event(self, end_epoch: int) -> PlateauEvent:
+        """Create a PlateauEvent for the current/recent plateau.
+
+        Args:
+            end_epoch: The last epoch of the plateau.
+
+        Returns:
+            PlateauEvent with computed statistics.
+        """
+        start = self._plateau_start_epoch or 0
+        duration = end_epoch - start + 1
+
+        # Get losses and rates during plateau
+        plateau_losses = self._loss_history[start : end_epoch + 1]
+        plateau_rates = self._improvement_rate_history[start : end_epoch + 1]
+
+        avg_loss = sum(plateau_losses) / len(plateau_losses) if plateau_losses else 0.0
+        min_loss = min(plateau_losses) if plateau_losses else 0.0
+        avg_rate = sum(plateau_rates) / len(plateau_rates) if plateau_rates else 0.0
+
+        return PlateauEvent(
+            start_epoch=start,
+            end_epoch=end_epoch,
+            duration=duration,
+            avg_loss=avg_loss,
+            min_loss=min_loss,
+            avg_improvement_rate=avg_rate,
         )
 
     def _compute_velocity(self) -> float:
@@ -254,7 +340,22 @@ class LossImprovementTracker:
             return -1
         return self._loss_history.index(min(self._loss_history))
 
-    def get_summary(self) -> dict[str, float]:
+    @property
+    def plateau_events(self) -> list[PlateauEvent]:
+        """Get all detected plateau events."""
+        return list(self._plateau_events)
+
+    @property
+    def current_plateau(self) -> PlateauEvent | None:
+        """Get the current ongoing plateau, if any."""
+        if (
+            self._low_improvement_count >= self.stagnation_epochs
+            and self._plateau_start_epoch is not None
+        ):
+            return self._create_plateau_event(self._epoch - 1)
+        return None
+
+    def get_summary(self) -> dict[str, Any]:
         """Get a summary of convergence statistics.
 
         Returns:
@@ -268,6 +369,9 @@ class LossImprovementTracker:
             - total_improvement_rate: Total improvement as fraction
             - avg_improvement_rate: Mean improvement rate per epoch
             - final_velocity: Velocity at last epoch
+            - n_plateaus: Number of plateau events detected
+            - total_plateau_epochs: Total epochs spent in plateaus
+            - plateaus: List of plateau event dictionaries
         """
         if not self._loss_history:
             return {
@@ -280,6 +384,9 @@ class LossImprovementTracker:
                 "total_improvement_rate": 0.0,
                 "avg_improvement_rate": 0.0,
                 "final_velocity": 0.0,
+                "n_plateaus": 0,
+                "total_plateau_epochs": 0,
+                "plateaus": [],
             }
 
         initial_loss = self._loss_history[0]
@@ -297,6 +404,20 @@ class LossImprovementTracker:
             else 0.0
         )
 
+        # Plateau statistics
+        plateau_dicts = [
+            {
+                "start_epoch": p.start_epoch,
+                "end_epoch": p.end_epoch,
+                "duration": p.duration,
+                "avg_loss": p.avg_loss,
+                "min_loss": p.min_loss,
+                "avg_improvement_rate": p.avg_improvement_rate,
+            }
+            for p in self._plateau_events
+        ]
+        total_plateau_epochs = sum(p.duration for p in self._plateau_events)
+
         return {
             "total_epochs": len(self._loss_history),
             "initial_loss": initial_loss,
@@ -307,6 +428,9 @@ class LossImprovementTracker:
             "total_improvement_rate": total_improvement_rate,
             "avg_improvement_rate": avg_improvement_rate,
             "final_velocity": self._compute_velocity(),
+            "n_plateaus": len(self._plateau_events),
+            "total_plateau_epochs": total_plateau_epochs,
+            "plateaus": plateau_dicts,
         }
 
 
@@ -399,11 +523,12 @@ class ConvergenceAnalyzer:
         """
         summary = self.tracker.get_summary()
 
-        if summary["total_epochs"] < 10:
+        total_epochs = int(summary["total_epochs"])
+        if total_epochs < 10:
             return 0.0
 
         # Component 1: Total improvement (0 to 0.4)
-        improvement_rate = summary["total_improvement_rate"]
+        improvement_rate = float(summary["total_improvement_rate"])
         improvement_score = min(0.4, improvement_rate * 0.5)  # Cap at 0.4, 80% improvement = max
 
         # Component 2: Smoothness (0 to 0.3)
@@ -443,7 +568,7 @@ class ConvergenceAnalyzer:
         if len(self.tracker._delta_history) < 20:
             return []
 
-        transitions = []
+        transitions: list[int] = []
         deltas = self.tracker._delta_history
 
         # Compute local statistics in sliding windows

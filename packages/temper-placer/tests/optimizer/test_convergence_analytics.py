@@ -8,6 +8,7 @@ from temper_placer.optimizer.convergence_analytics import (
     ConvergenceAnalyzer,
     ImprovementMetrics,
     LossImprovementTracker,
+    PlateauEvent,
 )
 
 
@@ -338,6 +339,230 @@ class TestConvergenceAnalyzer:
         # Should detect transition around epoch 30
         assert len(transitions) >= 1
         assert any(25 <= t <= 35 for t in transitions)
+
+
+class TestPlateauEvent:
+    """Tests for PlateauEvent dataclass."""
+
+    def test_create_plateau_event(self):
+        """Should create plateau event with all fields."""
+        event = PlateauEvent(
+            start_epoch=10,
+            end_epoch=25,
+            duration=16,
+            avg_loss=50.5,
+            min_loss=49.0,
+            avg_improvement_rate=0.00005,
+        )
+
+        assert event.start_epoch == 10
+        assert event.end_epoch == 25
+        assert event.duration == 16
+        assert event.avg_loss == 50.5
+        assert event.min_loss == 49.0
+        assert event.avg_improvement_rate == 0.00005
+
+    def test_plateau_event_repr(self):
+        """Repr should show key info."""
+        event = PlateauEvent(
+            start_epoch=5,
+            end_epoch=15,
+            duration=11,
+            avg_loss=42.123,
+            min_loss=41.0,
+            avg_improvement_rate=0.0001,
+        )
+
+        repr_str = repr(event)
+        assert "5-15" in repr_str
+        assert "duration=11" in repr_str
+        assert "42.1" in repr_str
+
+
+class TestPlateauDetection:
+    """Tests for plateau/stagnation detection in LossImprovementTracker."""
+
+    def test_plateau_event_emitted_on_stagnation_entry(self):
+        """Should emit plateau_event when entering stagnation."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        # Initial improvement
+        tracker.update(100.0)
+        tracker.update(90.0)
+
+        # Start stagnating (tiny changes)
+        for i in range(10):
+            metrics = tracker.update(89.999)
+            if i == 4:  # 5th stagnating epoch
+                # Should emit event when first entering stagnation
+                assert metrics.is_stagnating is True
+                assert metrics.plateau_event is not None
+                assert metrics.plateau_event.duration >= 5
+
+    def test_plateau_event_emitted_on_stagnation_exit(self):
+        """Should emit plateau_event when exiting stagnation."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        # Initial value
+        tracker.update(100.0)
+        tracker.update(90.0)
+
+        # Stagnate
+        for _ in range(10):
+            tracker.update(89.999)
+
+        # Exit stagnation with big improvement
+        metrics = tracker.update(80.0)
+
+        # Should emit plateau event on exit
+        assert metrics.is_stagnating is False
+        assert metrics.plateau_event is not None
+        assert metrics.plateau_event.start_epoch == 2  # First stagnating epoch
+
+    def test_plateau_events_property(self):
+        """plateau_events should return completed plateau events."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        # Start - epoch 0 (counts as stagnating since improvement_rate=0)
+        tracker.update(100.0)
+
+        # Continue stagnating
+        for _ in range(10):
+            tracker.update(99.999)
+
+        # Improvement (exits first plateau) - epoch 11
+        tracker.update(80.0)
+
+        # Second plateau starts at epoch 12
+        for _ in range(10):
+            tracker.update(79.999)
+
+        # Improvement (exits second plateau)
+        tracker.update(60.0)
+
+        events = tracker.plateau_events
+        assert len(events) == 2
+        # First plateau starts at epoch 0 (first update has improvement_rate=0)
+        assert events[0].start_epoch == 0
+        # Second plateau starts at epoch 12
+        assert events[1].start_epoch == 12
+
+    def test_current_plateau_during_stagnation(self):
+        """current_plateau should return ongoing plateau."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        # Epoch 0 (counts as stagnating since improvement_rate=0)
+        tracker.update(100.0)
+
+        # Continue stagnating
+        for _ in range(10):
+            tracker.update(99.999)
+
+        # Should have current plateau starting at epoch 0
+        current = tracker.current_plateau
+        assert current is not None
+        assert current.start_epoch == 0
+        assert current.duration >= 5
+
+    def test_current_plateau_none_when_not_stagnating(self):
+        """current_plateau should be None when not stagnating."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        # Continuous improvement
+        loss = 100.0
+        for _ in range(10):
+            loss *= 0.9
+            tracker.update(loss)
+
+        assert tracker.current_plateau is None
+
+    def test_plateau_in_summary(self):
+        """get_summary should include plateau statistics."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        tracker.update(100.0)
+
+        # Plateau
+        for _ in range(10):
+            tracker.update(99.999)
+
+        # Exit plateau
+        tracker.update(80.0)
+
+        summary = tracker.get_summary()
+        assert "n_plateaus" in summary
+        assert "total_plateau_epochs" in summary
+        assert "plateaus" in summary
+        assert summary["n_plateaus"] == 1
+        assert summary["total_plateau_epochs"] >= 5
+
+    def test_plateau_dict_format(self):
+        """Plateaus in summary should be proper dicts."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        tracker.update(100.0)
+        for _ in range(10):
+            tracker.update(99.999)
+        tracker.update(80.0)
+
+        summary = tracker.get_summary()
+        plateau_dicts = summary["plateaus"]
+
+        assert len(plateau_dicts) == 1
+        p = plateau_dicts[0]
+        assert "start_epoch" in p
+        assert "end_epoch" in p
+        assert "duration" in p
+        assert "avg_loss" in p
+        assert "min_loss" in p
+        assert "avg_improvement_rate" in p
+
+    def test_metrics_plateau_event_default_none(self):
+        """plateau_event should default to None in ImprovementMetrics."""
+        tracker = LossImprovementTracker()
+        metrics = tracker.update(100.0)
+
+        assert metrics.plateau_event is None
+
+    def test_reset_clears_plateau_state(self):
+        """reset() should clear plateau tracking state."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+
+        tracker.update(100.0)
+        for _ in range(10):
+            tracker.update(99.999)
+        tracker.update(80.0)  # Exit plateau
+
+        assert len(tracker.plateau_events) == 1
+
+        tracker.reset()
+
+        assert len(tracker.plateau_events) == 0
+        assert tracker.current_plateau is None
 
 
 class TestIntegration:
