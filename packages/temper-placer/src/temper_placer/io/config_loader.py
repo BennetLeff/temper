@@ -157,6 +157,72 @@ class GroupSeparation:
 
 
 @dataclass
+class LossConfig:
+    """Configuration for a single loss function.
+
+    Attributes:
+        weight: Weight/importance of this loss in the composite (default: 1.0)
+        enabled: Whether this loss is active (default: True)
+        margin: Optional margin parameter (for overlap/boundary losses)
+    """
+
+    weight: float = 1.0
+    enabled: bool = True
+    margin: float | None = None
+
+
+@dataclass
+class LossesConfig:
+    """Configuration for all loss functions.
+
+    Only losses explicitly specified here will be used by the optimizer.
+    Unspecified losses are NOT included (no hardcoded defaults).
+
+    Example YAML:
+        losses:
+          overlap:
+            weight: 100.0
+          boundary:
+            weight: 50.0
+          wirelength:
+            weight: 10.0
+    """
+
+    overlap: LossConfig | None = None
+    boundary: LossConfig | None = None
+    wirelength: LossConfig | None = None
+    spread: LossConfig | None = None
+    group_cluster: LossConfig | None = None
+    thermal: LossConfig | None = None
+    zone: LossConfig | None = None
+    clearance: LossConfig | None = None
+    loop_area: LossConfig | None = None
+
+    def get_active_losses(self) -> dict[str, LossConfig]:
+        """Return dict of loss_name -> LossConfig for all enabled losses."""
+        result = {}
+        for name in [
+            "overlap",
+            "boundary",
+            "wirelength",
+            "spread",
+            "group_cluster",
+            "thermal",
+            "zone",
+            "clearance",
+            "loop_area",
+        ]:
+            config = getattr(self, name)
+            if config is not None and config.enabled:
+                result[name] = config
+        return result
+
+    def get_weights(self) -> dict[str, float]:
+        """Return dict of loss_name -> weight for all enabled losses."""
+        return {name: cfg.weight for name, cfg in self.get_active_losses().items()}
+
+
+@dataclass
 class AestheticConstraints:
     """Aesthetic and professional layout constraints."""
 
@@ -245,6 +311,9 @@ class PlacementConstraints:
     # Layer stackup
     layer_stackup: LayerStackup | None = None
 
+    # Loss function configuration (explicit control over which losses are used)
+    losses: LossesConfig | None = None
+
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
         return self.zone_assignments.get(ref)
@@ -256,8 +325,16 @@ class PlacementConstraints:
 
         # Default rules based on net name
         upper = net_name.upper()
-        if "GND" in upper or "VSS" in upper or (
-            "VCC" in upper or "VDD" in upper or "+3V3" in upper or "+5V" in upper or "+15V" in upper
+        if (
+            "GND" in upper
+            or "VSS" in upper
+            or (
+                "VCC" in upper
+                or "VDD" in upper
+                or "+3V3" in upper
+                or "+5V" in upper
+                or "+15V" in upper
+            )
         ):
             return "Power"
         elif "HV" in upper or "BUS" in upper or "DC_BUS" in upper:
@@ -531,6 +608,43 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.aesthetics.prefix_exceptions = aes.get("prefix_exceptions", [])
         constraints.aesthetics.max_wirelength_tax = aes.get("max_wirelength_tax", 2.5)
         constraints.aesthetics.consensus_weight = aes.get("consensus_weight", 1.0)
+
+    # Parse losses configuration
+    if "losses" in config:
+        losses_cfg = config["losses"]
+        if losses_cfg:  # Not None or empty dict
+            losses_config = LossesConfig()
+
+            # Parse each loss type
+            for loss_name in [
+                "overlap",
+                "boundary",
+                "wirelength",
+                "spread",
+                "group_cluster",
+                "thermal",
+                "zone",
+                "clearance",
+                "loop_area",
+            ]:
+                if loss_name in losses_cfg:
+                    loss_data = losses_cfg[loss_name]
+                    if loss_data is None:
+                        # Explicit null = disabled
+                        continue
+                    elif isinstance(loss_data, dict):
+                        loss_config = LossConfig(
+                            weight=loss_data.get("weight", 1.0),
+                            enabled=loss_data.get("enabled", True),
+                            margin=loss_data.get("margin"),
+                        )
+                    else:
+                        # Simple value = just the weight
+                        loss_config = LossConfig(weight=float(loss_data))
+
+                    setattr(losses_config, loss_name, loss_config)
+
+            constraints.losses = losses_config
 
     return constraints
 

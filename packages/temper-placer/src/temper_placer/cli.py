@@ -421,15 +421,31 @@ def optimize(
 
         return CompositeLoss(losses)
 
-    # Default weights for non-curriculum mode
-    default_weights = {
-        "overlap": weight_overlap if weight_overlap is not None else 100.0,
-        "boundary": 50.0,
-        "wirelength": weight_wirelength if weight_wirelength is not None else 10.0,
-        "spread": 5.0,
-    }
+    # Build weights from config, CLI overrides, or defaults
+    # Priority: CLI flags > config file > hardcoded defaults
+    if constraints.losses is not None:
+        # Use config-specified losses
+        config_weights = constraints.losses.get_weights()
+        console.print(f"  [dim]Using losses from config: {list(config_weights.keys())}[/]")
 
-    composite_loss = make_loss(default_weights)
+        # Apply CLI overrides if specified
+        if weight_overlap is not None:
+            config_weights["overlap"] = weight_overlap
+        if weight_wirelength is not None:
+            config_weights["wirelength"] = weight_wirelength
+
+        weights = config_weights
+    else:
+        # Fall back to hardcoded defaults (legacy behavior)
+        console.print("  [dim]No losses in config, using defaults[/]")
+        weights = {
+            "overlap": weight_overlap if weight_overlap is not None else 100.0,
+            "boundary": 50.0,
+            "wirelength": weight_wirelength if weight_wirelength is not None else 10.0,
+            "spread": 5.0,
+        }
+
+    composite_loss = make_loss(weights)
     console.print(f"  [green]✓[/] Created {len(composite_loss.losses)} loss functions")
 
     # Step 4: Create optimizer config and context

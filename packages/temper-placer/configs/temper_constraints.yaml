@@ -6,6 +6,23 @@ board:
   height_mm: 150
   margin_mm: 3
 
+# Loss function configuration (optional)
+# If specified, ONLY these losses are used (no hardcoded defaults).
+# If omitted or empty, defaults are used (overlap, boundary, wirelength, spread).
+# Note: curriculum mode ignores this section and uses its own phase-specific weights.
+#
+# losses:
+#   overlap:
+#     weight: 100.0
+#   boundary:
+#     weight: 50.0
+#   wirelength:
+#     weight: 10.0
+#   spread:
+#     weight: 5.0
+#   # Additional losses available:
+#   # group_cluster, thermal, zone, clearance, loop_area
+
 # Zone definitions
 zones:
   - name: HV_ZONE
