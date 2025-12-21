@@ -1,41 +1,33 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-dist/
-build/
-.eggs/
-*.egg-info/
 *.py[cod]
 *$py.class
 *.so
-
-# Virtual environments
-.venv/
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+.venv
+env/
 venv/
 ENV/
-.env
-
-# uv - per-package locks (root uv.lock should be tracked)
-packages/*/uv.lock
-
-# Package-specific
-packages/*/.venv/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-
-temper-placer/.pytest_cache/
+env.bak/
+venv.bak/
 
 # C/C++
 *.o
@@ -63,12 +55,19 @@ fp-info-cache
 *.txt
 !*results.txt
 
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
 # Temper Specific
 firmware/build/
 firmware/test/build/
+temper-placer/.pytest_cache/
 temper-placer/.ruff_cache/
-.beads/
+temper-placer/research/*.png
+temper-placer/research/*.svg
 .gemini/
-*.kicad_pcb
-*.html
-opencode.json
+.beads/
