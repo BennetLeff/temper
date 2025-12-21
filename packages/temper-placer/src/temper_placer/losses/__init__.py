@@ -131,6 +131,16 @@ from temper_placer.losses.loop_area import (
     create_temper_loop_constraints,
 )
 
+# Manufacturing margin loss
+from temper_placer.losses.manufacturing_margin import (
+    ManufacturingMarginConfig,
+    ManufacturingMarginLoss,
+    compute_manufacturability_score,
+    compute_margin_loss,
+    compute_pairwise_clearances,
+    create_manufacturing_margin_loss,
+)
+
 # Mechanical mounting loss
 from temper_placer.losses.mechanical import (
     MechanicalMountingLoss,
@@ -325,4 +335,11 @@ __all__ = [
     "CriticalPathLengthLoss",
     "compute_critical_path_penalty",
     "create_temper_critical_paths",
+    # Manufacturing margin loss
+    "ManufacturingMarginConfig",
+    "ManufacturingMarginLoss",
+    "compute_manufacturability_score",
+    "compute_margin_loss",
+    "compute_pairwise_clearances",
+    "create_manufacturing_margin_loss",
 ]
