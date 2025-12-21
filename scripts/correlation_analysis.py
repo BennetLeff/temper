@@ -60,6 +60,7 @@ class CorrelationReport:
     correlations: dict[str, dict[str, float]]
     recommendations: list[dict[str, str]]
     statistics: dict[str, float]
+    raw_data: Optional[dict[str, dict[str, list[float]]]] = None  # For inter-loss analysis
 
 
 def run_single_optimization(args: tuple) -> OptimizationResult:
@@ -276,6 +277,57 @@ def compute_correlations(
     return correlations
 
 
+def compute_inter_loss_correlations(
+    loss_data: dict[str, list[float]],
+) -> dict[str, dict[str, float]]:
+    """
+    Compute pairwise Pearson correlations between all loss functions.
+
+    This helps identify confounded losses (pairs that correlate strongly
+    with each other, meaning they may measure similar things).
+
+    Args:
+        loss_data: Dict mapping loss name to list of values across samples
+
+    Returns:
+        Dict mapping loss_a -> loss_b -> correlation coefficient
+        The matrix is symmetric (r(a,b) == r(b,a)) with diagonal = 1.0
+    """
+    loss_names = sorted(loss_data.keys())
+    matrix: dict[str, dict[str, float]] = {}
+
+    for loss_a in loss_names:
+        matrix[loss_a] = {}
+        values_a = loss_data[loss_a]
+
+        # Skip if too few samples or constant
+        if len(values_a) < 3 or np.std(values_a) < 1e-10:
+            for loss_b in loss_names:
+                matrix[loss_a][loss_b] = 0.0 if loss_a != loss_b else 1.0
+            continue
+
+        for loss_b in loss_names:
+            if loss_a == loss_b:
+                matrix[loss_a][loss_b] = 1.0
+                continue
+
+            values_b = loss_data[loss_b]
+
+            # Skip if constant or length mismatch
+            if len(values_b) != len(values_a) or np.std(values_b) < 1e-10:
+                matrix[loss_a][loss_b] = 0.0
+                continue
+
+            try:
+                result = stats.pearsonr(values_a, values_b)
+                r_value = result[0]  # correlation coefficient
+                matrix[loss_a][loss_b] = float(r_value)  # type: ignore[arg-type]
+            except Exception:
+                matrix[loss_a][loss_b] = 0.0
+
+    return matrix
+
+
 def generate_recommendations(correlations: dict[str, dict[str, float]]) -> list[dict[str, str]]:
     """
     Generate actionable recommendations based on correlation coefficients.
@@ -412,6 +464,12 @@ def run_correlation_analysis(
         print(f"\nFound {len(correlations)} loss functions with significant correlations")
         print(f"Generated {len(recommendations)} recommendations")
 
+        # Build raw_data for downstream analysis (e.g., inter-loss correlations)
+        raw_data = {
+            "losses": loss_data,
+            "routing": routing_data,
+        }
+
         return CorrelationReport(
             pcb=str(pcb_path),
             n_samples=len(routing_results),
@@ -419,6 +477,7 @@ def run_correlation_analysis(
             correlations=correlations,
             recommendations=recommendations,
             statistics=statistics,
+            raw_data=raw_data,
         )
 
 
@@ -465,6 +524,7 @@ def main():
             "correlations": report.correlations,
             "recommendations": report.recommendations,
             "statistics": report.statistics,
+            "raw_data": report.raw_data,
         }
 
         # Output

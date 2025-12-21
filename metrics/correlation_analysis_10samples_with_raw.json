@@ -1,0 +1,457 @@
+{
+  "pcb": "/Users/bennet.leff/Documents/temper/pcb/temper.kicad_pcb",
+  "n_samples": 10,
+  "routing_mode": "full",
+  "timestamp": "2025-12-20T19:04:46.825487",
+  "correlations": {
+    "alignment": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "alignment_per_group": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_1_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_1_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_4_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_4_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_5_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_5_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_per_component": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "overlap": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "overlap_per_component": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "pin_grid_alignment": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "rotation_consistency": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "spread": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "wirelength": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.7755328105944752,
+      "vs_via_count": 0.0
+    }
+  },
+  "recommendations": [
+    {
+      "loss": "alignment",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "alignment_per_group",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_1_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_1_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_4_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_4_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_5_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_5_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_per_component",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "overlap",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "overlap_per_component",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "pin_grid_alignment",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "rotation_consistency",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "spread",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "wirelength",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    }
+  ],
+  "statistics": {
+    "mean_completion_pct": 28.260869565217394,
+    "std_completion_pct": 6.5618732885053745,
+    "failed_routes": 10
+  },
+  "raw_data": {
+    "losses": {
+      "alignment": [
+        1983.1903076171875,
+        1708.0733642578125,
+        1925.6500244140625,
+        1903.90625,
+        2808.200439453125,
+        1587.5439453125,
+        1852.5909423828125,
+        2710.486572265625,
+        1039.331787109375,
+        2574.4716796875
+      ],
+      "alignment_per_group": [
+        1983.1903076171875,
+        1708.0733642578125,
+        1925.6500244140625,
+        1903.90625,
+        2808.200439453125,
+        1587.5439453125,
+        1852.5909423828125,
+        2710.486572265625,
+        1039.331787109375,
+        2574.4716796875
+      ],
+      "boundary": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_edge_violation": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_keepout_violation": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_per_component": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "group_cluster": [
+        24807.888671875,
+        18815.4375,
+        21142.92578125,
+        12006.3017578125,
+        16933.818359375,
+        13323.31640625,
+        21488.6875,
+        19555.041015625,
+        11267.48828125,
+        26915.458984375
+      ],
+      "group_cluster_group_auto_auto_community_1_diameter": [
+        132.60623168945312,
+        102.25067901611328,
+        127.8884506225586,
+        97.54828643798828,
+        108.43486022949219,
+        96.60826110839844,
+        113.62638092041016,
+        102.5211181640625,
+        78.54328155517578,
+        126.50189208984375
+      ],
+      "group_cluster_group_auto_auto_community_1_penalty": [
+        10528.0390625,
+        5220.16064453125,
+        9582.1484375,
+        4562.77099609375,
+        6152.02734375,
+        4436.66064453125,
+        6993.37158203125,
+        5259.3125,
+        2356.4501953125,
+        9312.615234375
+      ],
+      "group_cluster_group_auto_auto_community_4_diameter": [
+        125.64952850341797,
+        125.75135803222656,
+        109.54983520507812,
+        104.03910827636719,
+        116.41290283203125,
+        92.07524108886719,
+        123.63162231445312,
+        130.081787109375,
+        112.06068420410156,
+        128.40328979492188
+      ],
+      "group_cluster_group_auto_auto_community_4_penalty": [
+        9148.83203125,
+        9168.322265625,
+        6328.17626953125,
+        5481.78955078125,
+        7467.18994140625,
+        3853.33544921875,
+        8766.880859375,
+        10016.3642578125,
+        6733.9560546875,
+        9683.20703125
+      ],
+      "group_cluster_group_auto_auto_community_5_diameter": [
+        101.63111877441406,
+        96.53535461425781,
+        102.33672332763672,
+        74.29154205322266,
+        87.57257080078125,
+        100.94589233398438,
+        105.68643188476562,
+        95.4168472290039,
+        76.65921783447266,
+        118.99234008789062
+      ],
+      "group_cluster_group_auto_auto_community_5_penalty": [
+        5131.01708984375,
+        4426.95361328125,
+        5232.6015625,
+        1961.74072265625,
+        3314.600830078125,
+        5033.31982421875,
+        5728.43603515625,
+        4279.36376953125,
+        2177.08251953125,
+        7919.63671875
+      ],
+      "group_cluster_per_component": [
+        24807.88671875,
+        18815.4375,
+        21142.92578125,
+        12006.302734375,
+        16933.818359375,
+        13323.31640625,
+        21488.689453125,
+        19555.041015625,
+        11267.48828125,
+        26915.462890625
+      ],
+      "overlap": [
+        208.3881378173828,
+        94.17984008789062,
+        94.16010284423828,
+        246.3504638671875,
+        160.6066436767578,
+        211.57078552246094,
+        57.500389099121094,
+        257.1772155761719,
+        479.067138671875,
+        120.82425689697266
+      ],
+      "overlap_per_component": [
+        416.7762451171875,
+        188.35968017578125,
+        188.32020568847656,
+        492.7009582519531,
+        321.21331787109375,
+        423.1415710449219,
+        115.00077819824219,
+        514.3544921875,
+        958.13427734375,
+        241.64849853515625
+      ],
+      "pin_grid_alignment": [
+        4.844901084899902,
+        5.4429121017456055,
+        5.262645244598389,
+        4.250649929046631,
+        4.112552642822266,
+        4.4919753074646,
+        4.119825839996338,
+        4.320617198944092,
+        3.804718494415283,
+        4.569711685180664
+      ],
+      "rotation_consistency": [
+        1.2838542461395264,
+        1.3594228029251099,
+        1.35000479221344,
+        1.3777716159820557,
+        1.3255233764648438,
+        1.3306872844696045,
+        1.3564140796661377,
+        1.2539000511169434,
+        1.350254774093628,
+        1.35000479221344
+      ],
+      "spread": [
+        367.2520751953125,
+        110.96720123291016,
+        104.67601013183594,
+        370.29632568359375,
+        174.61398315429688,
+        255.13905334472656,
+        107.9649658203125,
+        424.60382080078125,
+        566.07763671875,
+        228.5804901123047
+      ],
+      "wirelength": [
+        1724.9100341796875,
+        1407.23974609375,
+        1946.3924560546875,
+        1994.7601318359375,
+        2496.257080078125,
+        1807.701416015625,
+        1797.9674072265625,
+        2211.988037109375,
+        1645.24169921875,
+        1896.8916015625
+      ]
+    },
+    "routing": {
+      "completion": [
+        17.391304347826086,
+        26.08695652173913,
+        34.78260869565217,
+        30.434782608695656,
+        30.434782608695656,
+        26.08695652173913,
+        34.78260869565217,
+        34.78260869565217,
+        17.391304347826086,
+        30.434782608695656
+      ],
+      "wirelength": [
+        218.0,
+        356.0,
+        616.0,
+        677.0,
+        729.0,
+        559.0,
+        550.0,
+        764.0,
+        250.0,
+        377.0
+      ],
+      "via_count": [
+        2.0,
+        6.0,
+        4.0,
+        5.0,
+        3.0,
+        6.0,
+        7.0,
+        7.0,
+        0.0,
+        4.0
+      ]
+    }
+  }
+}

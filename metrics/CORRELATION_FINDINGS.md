@@ -193,5 +193,76 @@ Full correlation data saved to: `metrics/correlation_analysis_30samples.json`
 
 ---
 
+## Inter-Loss Correlation Analysis (temper-h0n9.8)
+
+**Date:** 2025-12-20  
+**Issue:** temper-h0n9.8  
+**Data:** 10 samples with raw loss values  
+
+### Key Finding: Overlap and Spread are Confounded
+
+The inter-loss correlation analysis revealed a critical finding:
+
+| Pair | Correlation | Interpretation |
+|------|-------------|----------------|
+| **overlap ↔ spread** | **r = 0.939** | Nearly perfectly correlated! |
+| overlap ↔ overlap_per_component | r = 1.000 | Expected (same metric) |
+| alignment ↔ alignment_per_group | r = 1.000 | Expected (same metric) |
+| group_cluster ↔ group_cluster_per_component | r = 1.000 | Expected (same metric) |
+
+### Implication
+
+The high correlation between overlap and spread means:
+1. They measure essentially the same thing on this board
+2. The negative correlation of spread with routing is **explained by overlap**
+3. **Spread loss is redundant** - consider removing it
+
+### Redundant Losses to Consider Removing
+
+| Loss | Redundant With | Correlation |
+|------|----------------|-------------|
+| alignment_per_group | alignment | r = 1.00 |
+| overlap_per_component | overlap | r = 1.00 |
+| group_cluster_per_component | group_cluster | r = 1.00 |
+| spread | overlap | r = 0.94 |
+| wirelength | alignment | r = 0.76 |
+| group_cluster_*_diameter | group_cluster_*_penalty | r > 0.99 |
+
+### Recommended Configuration Simplification
+
+```yaml
+# Current: Too many redundant losses
+losses:
+  overlap: 1.0
+  overlap_per_component: 1.0      # REMOVE - redundant
+  spread: 1.0                      # REMOVE - redundant with overlap
+  alignment: 1.0
+  alignment_per_group: 1.0         # REMOVE - redundant
+  wirelength: 1.0                  # KEEP - different semantic meaning
+  group_cluster: 1.0
+  group_cluster_per_component: 1.0 # REMOVE - redundant
+  # ... many group_cluster sub-metrics
+
+# Simplified: Independent losses only
+losses:
+  overlap: 2.0          # Primary routing predictor
+  wirelength: 1.0       # Semantic value for trace length
+  alignment: 0.5        # Keep for aesthetics
+  group_cluster: 1.0    # Functional grouping
+  boundary: 1.0         # Constraint satisfaction
+```
+
+### Script and Data
+
+- Analysis script: `scripts/inter_loss_correlation.py`
+- Data with raw values: `metrics/correlation_analysis_10samples_with_raw.json`
+
+Run analysis:
+```bash
+python scripts/inter_loss_correlation.py metrics/correlation_analysis_10samples_with_raw.json
+```
+
+---
+
 *Analysis performed by correlation_analysis.py*  
 *30 samples, 50 epochs each, with FreeRouting verification*
