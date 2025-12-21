@@ -50,9 +50,9 @@ X1 ina inb outa outb vdd2 0 UCC21550 PARAMS: CDEL={DT_CAP}
 .tran 10n 12u
 
 .control
-* Sweep DT_CAP from 100p to 1000p (Approx 70ns to 700ns)
+* Sweep DT_CAP from 100p to 5.1n (Approx 70ns to 25ns? - need to verify figure)
 * Loop simulation
-foreach val 100p 200p 500p 1000p
+foreach val 100p 200p 500p 1000p 5.1n
   alterparam DT_CAP=$val
   reset
   run

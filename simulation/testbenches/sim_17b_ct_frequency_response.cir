@@ -18,8 +18,8 @@ I_primary pri_p 0 AC 1
 * Current transformer (1:1000 ratio)
 X_ct pri_p 0 sec_p 0 CURRENT_TRANSFORMER N=1000 LM=10m LL=100u RW=50
 
-* Burden resistor (50 ohm)
-R_burden sec_p 0 50
+* Burden resistor (66.5 ohm)
+R_burden sec_p 0 66.5
 
 ***************************************************************************
 * AC ANALYSIS: Frequency sweep
@@ -28,14 +28,14 @@ R_burden sec_p 0 50
 
 ***************************************************************************
 * Expected Results:
-* At 1A primary, with 1:1000 ratio and 50 ohm burden:
-* V_out = 1A / 1000 * 50 = 50mV
+* At 1A primary, with 1:1000 ratio and 66.5 ohm burden:
+* V_out = 1A / 1000 * 66.5 = 66.5mV
 * 
 * Low frequency rolloff due to magnetizing inductance:
-* f_low = R_burden / (2*pi*Lm) = 50 / (2*pi*10m) = 796 Hz
+* f_low = R_burden / (2*pi*Lm) = 66.5 / (2*pi*10m) = 1.06 kHz
 *
 * High frequency rolloff due to leakage inductance:
-* f_high = R_burden / (2*pi*Ll) = 50 / (2*pi*100u) = 79.6 kHz
+* f_high = R_burden / (2*pi*Ll) = 66.5 / (2*pi*100u) = 105.8 kHz
 ***************************************************************************
 
 .control

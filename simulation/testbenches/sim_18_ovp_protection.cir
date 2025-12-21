@@ -11,7 +11,7 @@
 ***************************************************************************
 * POWER SUPPLIES
 ***************************************************************************
-V_vcc vcc 0 DC 5
+V_vcc vcc 0 DC 3.3
 
 ***************************************************************************
 * DC BUS VOLTAGE SOURCE
@@ -25,32 +25,32 @@ V_dcbus dcbus 0 PWL(
 + 250u 310)
 
 ***************************************************************************
-* HIGH-VOLTAGE RESISTIVE DIVIDER (101:1)
+* HIGH-VOLTAGE RESISTIVE DIVIDER (130:1)
 ***************************************************************************
-R_div1 dcbus div_mid1 1Meg
-R_div2 div_mid1 div_mid2 1Meg
-R_div3 div_mid2 div_out 1Meg
-R_div4 div_out 0 30k
+* Using 3 series resistors for voltage rating + bottom resistor
+* 3 x 430k = 1.29M. Bottom: 10k. Total = 1.3M.
+R_div1 dcbus div_mid1 430k
+R_div2 div_mid1 div_mid2 430k
+R_div3 div_mid2 div_out 430k
+R_div4 div_out 0 10k
 
 ***************************************************************************
 * COMPARATOR (simplified, no hysteresis for cleaner response)
 ***************************************************************************
-* Reference for 400V threshold: V_ref = 400 * 30k / 3.03M = 3.96V
-* Use slightly lower reference (3.85V) for ~390V trip with margin
-
-R_ref1 vcc v_ref 3k
+* Reference for 390V threshold: 3.0V (from 3.3V supply)
+R_ref1 vcc v_ref 1k
 R_ref2 v_ref 0 10k
-* v_ref = 5 * 10k / (3k + 10k) = 3.85V (trips at ~390V)
+* v_ref = 3.3 * 10k / (1k + 10k) = 3.0V (trips at 390V)
 
 * Comparator: Output HIGH when div_out > v_ref
-B_comp comp_int 0 V = {5 * (1 + tanh((V(div_out) - V(v_ref)) * 100)) / 2}
+B_comp comp_int 0 V = {3.3 * (1 + tanh((V(div_out) - V(v_ref)) * 100)) / 2}
 
 * Propagation delay (40ns)
 R_delay comp_int delay_node 1k
 C_delay delay_node 0 40p
 
 * Output buffer
-B_out fault_out 0 V = {V(delay_node) > 2.5 ? 5.0 : 0.0}
+B_out fault_out 0 V = {V(delay_node) > 1.65 ? 3.3 : 0.0}
 
 * Load
 R_load fault_out 0 10k

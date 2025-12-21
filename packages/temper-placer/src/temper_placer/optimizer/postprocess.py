@@ -54,6 +54,11 @@ class PostProcessConfig:
     allow_swaps: bool = True
     allow_jiggles: bool = True
 
+    # Detailed local search settings (greedy refinement)
+    local_search_enabled: bool = True
+    local_search_iterations: int = 2
+    local_search_neighbors: int = 4  # Number of neighbors to try for swaps
+
 
 @dataclass
 class PostProcessResult:
@@ -334,6 +339,105 @@ def discrete_rotation_refinement_beam(
     return best_state, best_loss
 
 
+def detailed_local_search(
+    state: PlacementState,
+    loss_fn: Callable[[PlacementState], float],
+    grid_size: float = 0.5,
+    iterations: int = 2,
+    num_neighbors: int = 4,
+    fixed_components: list[int] | None = None,
+    allow_swaps: bool = True,
+    allow_displacements: bool = True,
+) -> tuple[PlacementState, float]:
+    """
+    Greedy hill-climbing local search for detailed placement refinement.
+
+    Attempts deterministic micro-moves and accepts only those that reduce loss.
+    This step helps recover from quantization errors after grid snapping.
+
+    Moves:
+    1. Adjacent Swap: Swap component with its nearest neighbors.
+    2. Small Displacement: Move +/- 1 grid unit in X and Y.
+
+    Args:
+        state: Current placement state.
+        loss_fn: Function to evaluate loss.
+        grid_size: Placement grid resolution (mm).
+        iterations: Number of full passes over all components.
+        num_neighbors: Number of nearest neighbors to check for swaps.
+        fixed_components: Indices of components to skip.
+        allow_swaps: Enable/disable component swaps.
+        allow_displacements: Enable/disable grid-unit movements.
+
+    Returns:
+        Tuple of (improved_state, final_loss).
+    """
+    if fixed_components is None:
+        fixed_components = []
+
+    n_components = state.n_components
+    current_state = state
+    current_loss = loss_fn(current_state)
+
+    logger.debug(f"Starting detailed local search, initial loss: {current_loss:.4f}")
+
+    for iter_idx in range(iterations):
+        improved = False
+
+        for i in range(n_components):
+            if i in fixed_components:
+                continue
+
+            # 1. Try Small Displacements (+/- 1 grid unit)
+            if allow_displacements:
+                offsets = jnp.array(
+                    [[grid_size, 0], [-grid_size, 0], [0, grid_size], [0, -grid_size]]
+                )
+                for offset in offsets:
+                    new_pos = current_state.positions.at[i].add(offset)
+                    test_state = PlacementState(new_pos, current_state.rotation_logits)
+                    test_loss = loss_fn(test_state)
+
+                    if test_loss < current_loss - 1e-6:
+                        current_state = test_state
+                        current_loss = test_loss
+                        improved = True
+                        logger.debug(f"Comp {i} displaced, new loss: {current_loss:.4f}")
+
+            # 2. Try Adjacent Swaps
+            if allow_swaps and n_components > 1:
+                # Find nearest neighbors by centroid distance
+                pos = current_state.positions[i]
+                dists = jnp.sum((current_state.positions - pos) ** 2, axis=1)
+                # Sort indices by distance, skip self (index 0 is self)
+                neighbor_indices = jnp.argsort(dists)[1 : num_neighbors + 1]
+
+                for j in neighbor_indices:
+                    j = int(j)
+                    if j in fixed_components:
+                        continue
+
+                    # Try swap i and j
+                    new_pos = current_state.positions
+                    pos_i, pos_j = new_pos[i], new_pos[j]
+                    new_pos = new_pos.at[i].set(pos_j).at[j].set(pos_i)
+
+                    test_state = PlacementState(new_pos, current_state.rotation_logits)
+                    test_loss = loss_fn(test_state)
+
+                    if test_loss < current_loss - 1e-6:
+                        current_state = test_state
+                        current_loss = test_loss
+                        improved = True
+                        logger.debug(f"Swapped {i} and {j}, new loss: {current_loss:.4f}")
+
+        if not improved:
+            break
+
+    logger.debug(f"Detailed local search complete, final loss: {current_loss:.4f}")
+    return current_state, current_loss
+
+
 def discrete_rotation_refinement_sa(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
@@ -571,6 +675,19 @@ def postprocess(
         rotations_refined = True
     else:
         final_loss = loss_fn(current_state)
+
+    # Step 4: Detailed local search (Greedy hill climbing)
+    if config.local_search_enabled:
+        logger.info("Running detailed local search refinement")
+        current_state, final_loss = detailed_local_search(
+            current_state,
+            loss_fn,
+            grid_size=config.grid_size,
+            iterations=config.local_search_iterations,
+            num_neighbors=config.local_search_neighbors,
+            fixed_components=fixed_components,
+            allow_swaps=config.allow_swaps,
+        )
 
     logger.info(f"Post-processing complete, final loss: {final_loss:.4f}")
 

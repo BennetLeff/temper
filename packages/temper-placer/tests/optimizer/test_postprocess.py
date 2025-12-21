@@ -326,6 +326,53 @@ class TestDiscreteRotationRefinementSA:
             assert jnp.allclose(refined.positions[1], jnp.array([10.0, 10.0]))
 
 
+class TestDetailedLocalSearch:
+    """Tests for detailed placement local search."""
+
+    def test_local_search_improves_positions(self):
+        """Test that local search can move components to better grid positions."""
+        # Component at (1.1, 1.1), optimal is (0, 0)
+        # Grid snap would put it at (1.0, 1.0)
+        positions = jnp.array([[1.1, 1.1]])
+        state = PlacementState.from_positions(positions)
+
+        # Loss is distance to origin
+        def loss_fn(s):
+            return float(jnp.sum(s.positions**2))
+
+        # First snap to grid
+        state = snap_to_grid(state, grid_size=1.0) # -> (1.0, 1.0)
+        assert jnp.allclose(state.positions[0], jnp.array([1.0, 1.0]))
+
+        # Run local search
+        from temper_placer.optimizer.postprocess import detailed_local_search
+        refined, _ = detailed_local_search(state, loss_fn, grid_size=1.0, iterations=1)
+
+        # Should have moved to (0.0, 0.0)
+        assert jnp.allclose(refined.positions[0], jnp.array([0.0, 0.0]))
+
+    def test_local_search_swaps(self):
+        """Test that local search can swap adjacent components to reduce loss."""
+        # R1 at (10, 0), R2 at (0, 0)
+        # Loss prefers R1 at (0, 0) and R2 at (10, 0)
+        positions = jnp.array([[10.0, 0.0], [0.0, 0.0]])
+        state = PlacementState.from_positions(positions)
+
+        def loss_fn(s):
+            # Penalize R1 (index 0) if not at 0,0
+            # Penalize R2 (index 1) if not at 10,0
+            l = jnp.sum(s.positions[0]**2) + jnp.sum((s.positions[1] - jnp.array([10.0, 0.0]))**2)
+            return float(l)
+
+        from temper_placer.optimizer.postprocess import detailed_local_search
+        # Enable swaps
+        refined, _ = detailed_local_search(state, loss_fn, allow_swaps=True, iterations=1)
+
+        # Should have swapped them
+        assert jnp.allclose(refined.positions[0], jnp.array([0.0, 0.0]))
+        assert jnp.allclose(refined.positions[1], jnp.array([10.0, 0.0]))
+
+
 class TestPostprocess:
     """Tests for the full post-processing pipeline."""
 

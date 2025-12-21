@@ -131,6 +131,22 @@ class GradNormConfig:
 
 
 @dataclass
+class ForceDirectedConfig:
+    """
+    Configuration for force-directed pre-optimization.
+
+    Attributes:
+        enabled: Whether to run force-directed unfolding.
+        iterations: Number of physics steps.
+        learning_rate: Step size for updates.
+    """
+
+    enabled: bool = False
+    iterations: int = 500
+    learning_rate: float = 0.5
+
+
+@dataclass
 class InitializationConfig:
     """
     Component placement initialization configuration.
@@ -139,11 +155,58 @@ class InitializationConfig:
         method: Initialization method ("random" or "spectral").
         spectral_normalized: If True, use normalized Laplacian for spectral.
         spectral_margin: Fraction of board to leave as margin for spectral.
+        force_directed: Force-directed unfolding configuration.
     """
 
     method: str = "random"  # "random" or "spectral"
     spectral_normalized: bool = True
     spectral_margin: float = 0.1
+    force_directed: ForceDirectedConfig = field(default_factory=ForceDirectedConfig)
+
+
+@dataclass
+class AdaptiveOverlapConfig:
+    """
+    Configuration for adaptive overlap weight ramping.
+
+    Helps resolve deadlocks by selectively increasing weights for
+    components that are persistent in collision.
+
+    Attributes:
+        enabled: Whether to use adaptive weighting.
+        ramp_rate: Multiplier for weight increase (e.g., 1.05 = 5%).
+        update_interval: Epochs between weight updates.
+        max_cap: Maximum weight multiplier allowed.
+        decay_rate: Multiplier for weight reduction when no collision.
+        collision_threshold: Overlap amount (mm) to trigger ramping.
+    """
+
+    enabled: bool = True
+    ramp_rate: float = 1.10
+    update_interval: int = 10
+    max_cap: float = 20.0
+    decay_rate: float = 0.95
+    collision_threshold: float = 0.1
+
+
+@dataclass
+class JiggleConfig:
+    """
+    Configuration for stochastic perturbation (jiggling).
+
+    Helps escape local minima by adding noise when training stalls.
+
+    Attributes:
+        enabled: Whether to use jiggling.
+        ema_threshold: Trigger jiggle when movement EMA falls below this.
+        sigma_fraction: Noise magnitude as fraction of board size (e.g. 0.05).
+        min_epoch: Don't jiggle before this epoch.
+    """
+
+    enabled: bool = True
+    ema_threshold: float = 5e-4
+    sigma_fraction: float = 0.10
+    min_epoch: int = 100
 
 
 @dataclass
@@ -164,7 +227,7 @@ class OptimizerConfig:
         learning_rate: Learning rate schedule.
         curriculum_phases: List of curriculum phases (optional).
         checkpoint: Checkpoint configuration.
-        early_stopping: Early stopping configuration.
+        early_stopping: Early Stopping configuration.
         log_interval: Log metrics every N epochs.
         validate_interval: Run validation every N epochs.
         gradient_clip_norm: Max gradient norm (None = no clipping).
@@ -206,8 +269,10 @@ class OptimizerConfig:
 
     # Advanced optimization techniques (ablation support)
     use_gumbel_rotation: bool = True
-    adaptive_overlap_enabled: bool = True
-    jiggle_enabled: bool = True
+    adaptive_overlap_enabled: bool = True  # Keep for backward compat
+    adaptive_overlap: AdaptiveOverlapConfig = field(default_factory=AdaptiveOverlapConfig)
+    jiggle_enabled: bool = True  # Keep for backward compat
+    jiggle: JiggleConfig = field(default_factory=JiggleConfig)
     use_grad_norm: bool = False
     grad_norm: GradNormConfig = field(default_factory=GradNormConfig)
 

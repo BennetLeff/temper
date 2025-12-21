@@ -25,14 +25,14 @@
 .param DT=500n              ; Dead-time
 
 * Resonant tank parameters
-.param C_RES=330n           ; Resonant capacitor
+.param C_RES=300n           ; Resonant capacitor (2x 150nF)
 .param L_EFF=60u            ; Effective inductance (with pan)
 .param R_PAN=8              ; Cast iron pan reflected resistance
 .param R_COIL=0.22          ; Coil AC resistance at 80°C
 
 * Gate drive
 .param VGE_ON=15
-.param RG=5
+.param RG=2.2
 
 ***************************************************************************
 * EXPECTED VALUES (for verification)
@@ -153,7 +153,7 @@ echo "OPERATING POINT"
 echo "============================================================"
 echo ""
 echo "Switching frequency: 38 kHz"
-echo "Resonant frequency: ~35.8 kHz"
+echo "Resonant frequency: ~37.5 kHz"
 echo "Dead-time: 500 ns"
 echo ""
 
