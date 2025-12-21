@@ -1,0 +1,51 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "bash": {
+      "bd *": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "grep *": "allow",
+      "find *": "allow",
+      "echo *": "allow",
+      "git *": "allow",
+      "pwd": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "which *": "allow",
+      "python3 *": "allow",
+      "pytest *": "allow",
+      "make *": "allow",
+      "cd *": "allow",
+      "mkdir *": "allow",
+      "rm *": "ask",
+      "mv *": "ask"
+    }
+  },
+  "agent": {
+    "fast-build": {
+      "description": "Fast agent for building, testing, and quick iterations. Use for compilation, test runs, and rapid prototyping.",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "prompt": "You are a fast build agent optimized for quick iterations. Focus on:\n- Running builds and tests efficiently\n- Quick bug fixes and small changes\n- Rapid prototyping and experimentation\n- Minimal context gathering - get straight to work\n\nPrefer speed over extensive analysis. Make changes, test, iterate."
+    },
+    "worker-bee": {
+      "description": "Efficient worker agent powered by NVIDIA Nemotron for parallel task execution and rapid development.",
+      "model": "openrouter/qwen/qwen3-235b-a22b-2507",
+      "prompt": "You are a worker bee agent optimized for getting things done quickly. Focus on:\n- Executing tasks efficiently and independently\n- Following instructions precisely\n- Testing and validating your work\n- Moving fast without overthinking\n\nYou're part of a swarm - stay focused on your assigned task."
+    }
+  },
+  "provider": {
+    "openrouter": {
+      "models": {
+        "qwen/qwen3-235b-a22b-2507": {
+          "name": "qwen/qwen3-235b-a22b-2507",
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
