@@ -10,26 +10,25 @@ This module defines the explicit stages of the optimization pipeline:
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, List, Optional
+from typing import TYPE_CHECKING
 
-import jax
 import jax.numpy as jnp
-from jax import Array
 
 from temper_placer.core.state import PlacementState
 from temper_placer.pipeline.topology_phase import (
-    run_topological_phase,
     generate_initial_placement,
+    run_topological_phase,
 )
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-    from temper_placer.pcl.parser import ConstraintCollection
-    from temper_placer.optimizer.config import OptimizerConfig
     from temper_placer.losses.base import CompositeLoss, LossContext
+    from temper_placer.optimizer.config import OptimizerConfig
+    from temper_placer.pcl.parser import ConstraintCollection
 
 
 class PhaseStatus(Enum):
@@ -46,8 +45,8 @@ class PhaseResult:
     """Result of a pipeline phase execution."""
     status: PhaseStatus
     duration_seconds: float
-    state: Optional[PlacementState] = None
-    error: Optional[str] = None
+    state: PlacementState | None = None
+    error: str | None = None
     diagnostics: list[str] = field(default_factory=list)
 
 
@@ -56,8 +55,8 @@ class PipelineResult:
     """Final result of the optimization pipeline."""
     success: bool
     phases: list[PhaseResult]
-    final_state: Optional[PlacementState] = None
-    error: Optional[str] = None
+    final_state: PlacementState | None = None
+    error: str | None = None
 
 
 class TopologicalPhase:
@@ -71,10 +70,10 @@ class TopologicalPhase:
         netlist: Netlist,
         board: Board,
         constraints: ConstraintCollection,
-        initial_state: Optional[PlacementState] = None,
+        initial_state: PlacementState | None = None,
     ) -> PhaseResult:
         start_time = time.time()
-        
+
         if self.skip:
             return PhaseResult(
                 status=PhaseStatus.SKIPPED,
@@ -85,17 +84,17 @@ class TopologicalPhase:
         try:
             # 1. Run topological analysis
             solution = run_topological_phase(netlist, board, constraints)
-            
+
             if not solution.feasible:
                 return PhaseResult(
                     status=PhaseStatus.FAILED,
                     duration_seconds=time.time() - start_time,
-                    error=f"Topological infeasibility detected"
+                    error="Topological infeasibility detected"
                 )
 
             # 2. Generate initial placement
             state = generate_initial_placement(solution, board, netlist)
-            
+
             return PhaseResult(
                 status=PhaseStatus.SUCCESS,
                 duration_seconds=time.time() - start_time,
@@ -138,7 +137,7 @@ class GeometricPhase:
                 config=self.config,
                 initial_state=initial_state
             )
-            
+
             return PhaseResult(
                 status=PhaseStatus.SUCCESS,
                 duration_seconds=time.time() - start_time,
@@ -169,9 +168,9 @@ class NsgaPhase:
         self,
         netlist: Netlist,
         board: Board,
-        objectives: List[Callable],
+        objectives: list[Callable],
         context: LossContext,
-        initial_state: Optional[PlacementState] = None,
+        initial_state: PlacementState | None = None,
     ) -> PhaseResult:
         from temper_placer.optimizer.nsga2 import NSGAOptimizer
         start_time = time.time()
@@ -186,15 +185,15 @@ class NsgaPhase:
                 generations=self.generations,
                 initial_state=initial_state
             )
-            
+
             # For now, we pick the individual with the best sum of objectives
             best_idx = int(jnp.argmin(jnp.sum(result.objectives, axis=1)))
-            
+
             best_state = PlacementState(
                 positions=result.population_positions[best_idx],
                 rotation_logits=result.population_rotations[best_idx]
             )
-            
+
             return PhaseResult(
                 status=PhaseStatus.SUCCESS,
                 duration_seconds=time.time() - start_time,
@@ -233,29 +232,29 @@ class OptimizationPipeline:
         self.opt_config = opt_config
         self.loss_factory = loss_factory
         self.context = context
-        
+
         self.topological_phase = TopologicalPhase()
         self.nsga_phase = NsgaPhase() if use_nsga else None
         self.geometric_phase = GeometricPhase(opt_config)
 
     def run(self) -> PipelineResult:
         phases = []
-        
+
         # 1. Topological Phase
         topo_res = self.topological_phase.run(
             self.netlist, self.board, self.constraints
         )
         phases.append(topo_res)
-        
+
         if topo_res.status == PhaseStatus.FAILED:
             return PipelineResult(success=False, phases=phases, error=topo_res.error)
-            
+
         current_state = topo_res.state
 
         # 1.5 NSGA Phase (Optional)
         if self.nsga_phase:
             sample_weights = {
-                "overlap": 1.0, "boundary": 1.0, "wirelength": 1.0, 
+                "overlap": 1.0, "boundary": 1.0, "wirelength": 1.0,
                 "thermal": 1.0, "aesthetic": 1.0
             }
             composite = self.loss_factory(sample_weights)
@@ -265,25 +264,25 @@ class OptimizationPipeline:
                 self.netlist, self.board, objectives, self.context, current_state
             )
             phases.append(nsga_res)
-            
+
             if nsga_res.status == PhaseStatus.FAILED:
                 return PipelineResult(success=False, phases=phases, error=nsga_res.error)
-            
+
             current_state = nsga_res.state
 
         # 2. Geometric Phase
         geo_res = self.geometric_phase.run(
-            self.netlist, 
-            self.board, 
-            self.loss_factory, 
-            self.context, 
+            self.netlist,
+            self.board,
+            self.loss_factory,
+            self.context,
             current_state
         )
         phases.append(geo_res)
-        
+
         if geo_res.status == PhaseStatus.FAILED:
             return PipelineResult(success=False, phases=phases, error=geo_res.error)
-            
+
         return PipelineResult(
             success=True,
             phases=phases,

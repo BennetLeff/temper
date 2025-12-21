@@ -290,6 +290,8 @@ class LossDataPoint:
     breakdown: dict[str, float] = field(default_factory=dict)
     temperature: float | None = None
     learning_rate: float | None = None
+    positions: list[tuple[float, float]] | None = None
+    rotations: list[float] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -298,6 +300,8 @@ class LossDataPoint:
             "breakdown": self.breakdown,
             "temperature": self.temperature,
             "learning_rate": self.learning_rate,
+            "positions": self.positions,
+            "rotations": self.rotations,
         }
 
 

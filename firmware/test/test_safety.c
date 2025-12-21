@@ -187,6 +187,17 @@ static void test_interlocks_fail_fan(void) {
     TEST_ASSERT_FALSE(ok);
 }
 
+static void test_external_watchdog_fault(void) {
+    safety_sim_reset();
+    safety_sim_set_wdt_reset(true);
+    
+    bool ok = check_hardware_interlocks();
+    TEST_ASSERT_FALSE(ok);
+    
+    safety_status_t status = run_safety_check();
+    TEST_ASSERT_EQUAL_INT(SAFETY_INTERLOCK_TRIP, status);
+}
+
 /* ============================================================================
  * Sensor Validation Tests
  * ============================================================================ */
@@ -344,6 +355,7 @@ void run_safety_tests(void) {
     RUN_TEST(test_interlocks_fail_over_temp);
     RUN_TEST(test_interlocks_fail_over_current);
     RUN_TEST(test_interlocks_fail_fan);
+    RUN_TEST(test_external_watchdog_fault);
     
     /* Sensor validation */
     RUN_TEST(test_sensors_valid_normal);

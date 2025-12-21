@@ -8,7 +8,7 @@
 
 component IKW40N120H3:
     """Infineon 1200V 40A IGBT"""
-    footprint = "IGBT_TO247"
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
     mpn = "IKW40N120H3"
     
     # Ratings
@@ -99,6 +99,7 @@ component Capacitor:
     value: farad
     mpn: str
     voltage_rating: voltage
+    dielectric: str
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

@@ -2,3 +2,18 @@
 {"timestamp": "2025-12-19T15:07:01.300351+00:00", "metric": "fw_state_machine_tests", "target": ">=37", "task": "temper-test", "commit": "b61df26", "details": "0", "error": "Command failed"}
 {"timestamp": "2025-12-19T15:07:06.817626+00:00", "metric": "py_lint_errors", "target": "==0", "task": "temper-test", "commit": "b61df26", "details": "1\tE902\tio-error\nFound 1 error.", "error": "Command failed"}
 {"timestamp": "2025-12-19T15:07:45.485672+00:00", "metric": "py_lint_errors", "value": 1.0, "target": "==0", "task": "temper-test", "commit": "b61df26", "details": "1\tE902\tio-error\nFound 1 error."}
+{"timestamp": "2025-12-20T10:00:00Z", "metric": "placer_overlap_loss", "value": 0.0, "task": "task-1"}
+{"timestamp": "2025-12-20T10:00:01Z", "metric": "placer_wirelength_mm", "value": 1000.0, "task": "task-1"}
+{"timestamp": "2025-12-20T10:00:02Z", "metric": "routing_completion_pct", "value": 100.0, "task": "task-1"}
+{"timestamp": "2025-12-20T10:01:00Z", "metric": "placer_overlap_loss", "value": 10.0, "task": "task-2"}
+{"timestamp": "2025-12-20T10:01:01Z", "metric": "placer_wirelength_mm", "value": 900.0, "task": "task-2"}
+{"timestamp": "2025-12-20T10:01:02Z", "metric": "routing_completion_pct", "value": 85.0, "task": "task-2"}
+{"timestamp": "2025-12-20T10:02:00Z", "metric": "placer_overlap_loss", "value": 50.0, "task": "task-3"}
+{"timestamp": "2025-12-20T10:02:01Z", "metric": "placer_wirelength_mm", "value": 800.0, "task": "task-3"}
+{"timestamp": "2025-12-20T10:02:02Z", "metric": "routing_completion_pct", "value": 60.0, "task": "task-3"}
+{"timestamp": "2025-12-20T10:03:00Z", "metric": "placer_overlap_loss", "value": 5.0, "task": "task-4"}
+{"timestamp": "2025-12-20T10:03:01Z", "metric": "placer_wirelength_mm", "value": 1100.0, "task": "task-4"}
+{"timestamp": "2025-12-20T10:03:02Z", "metric": "routing_completion_pct", "value": 95.0, "task": "task-4"}
+{"timestamp": "2025-12-20T10:04:00Z", "metric": "placer_overlap_loss", "value": 100.0, "task": "task-5"}
+{"timestamp": "2025-12-20T10:04:01Z", "metric": "placer_wirelength_mm", "value": 700.0, "task": "task-5"}
+{"timestamp": "2025-12-20T10:04:02Z", "metric": "routing_completion_pct", "value": 40.0, "task": "task-5"}

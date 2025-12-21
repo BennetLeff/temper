@@ -1,5 +1,6 @@
 # Placement Quality Validation Workflow
 
+<<<<<<< HEAD
 Comprehensive guide for validating PCB placement quality using the temper-placer metrics system.
 
 ## Overview
@@ -747,3 +748,69 @@ QUALITY SCORE
 | `routable` | Routing feasibility check | true | Routing attempt |
 
 **Note:** Routing metrics require `--route` flag and are significantly slower than placement metrics.
+=======
+This document describes the systematic workflow for validating that the placement optimizer improvements actually translate to better routed boards.
+
+## Overview
+
+The workflow follows the **Ground-truth Placement Benchmark Model (GPBM)** approach:
+1. **Optimize** placement using `temper-placer`.
+2. **Evaluate** placement quality using `scripts/placement_quality_report.py`.
+3. **Route** the board using FreeRouting.
+4. **Collect** metrics into `metrics/measurements.jsonl`.
+5. **Correlate** placement losses with routing success.
+6. **Tune** loss weights based on empirical data.
+
+## Step 1: Quality Reporting
+
+After optimizing a placement, run the unified quality report:
+
+```bash
+python scripts/placement_quality_report.py --pcb pcb/temper_optimized.kicad_pcb --route
+```
+
+This will:
+- Compute HPWL, Overlap, and Boundary losses.
+- Check thermal and safety (HV-LV) compliance.
+- Run FreeRouting to measure real completion rate and wirelength.
+- Output a composite **Quality Score (0-100)**.
+
+## Step 2: Automated Collection
+
+The `bd-done` workflow automatically triggers measurements if a task has `measurement_targets` in its description.
+
+Example `bd` task:
+```yaml
+measurement_targets:
+  - metric: routing_completion_pct
+    target: "==100"
+  - metric: routing_quality_score
+    target: ">=80"
+```
+
+## Step 3: Correlation Analysis
+
+Once you have collected data from multiple optimization runs, identify which loss functions are actually predicting routing success:
+
+```bash
+python scripts/correlation_analysis.py
+```
+
+Look for high absolute correlation values. If a loss function has low correlation with routing success, it might be over-weighted or its mathematical model might not reflect physical routing constraints.
+
+## Step 4: Weight Tuning
+
+Use the tuning script to get suggestions for the next iteration of the optimizer:
+
+```bash
+python scripts/tune_loss_weights.py
+```
+
+Adjust the weights in `packages/temper-placer/src/temper_placer/optimizer/config.py` or through the CLI flags.
+
+## Troubleshooting
+
+- **No path found for net**: If routing completion is low, check for `overlap_loss` hotspots.
+- **Vias too high**: Consider increasing `via_density_loss` weight.
+- **Unreachable components**: Check `boundary_loss` and `zone_compliance`.
+>>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)

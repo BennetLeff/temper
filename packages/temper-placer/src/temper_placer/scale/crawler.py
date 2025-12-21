@@ -10,7 +10,6 @@ import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.validation.drc import KiCadDRCValidator
@@ -27,7 +26,7 @@ class PcbCrawler:
         self.dataset_dir.mkdir(parents=True, exist_ok=True)
         self.temp_dir.mkdir(parents=True, exist_ok=True)
 
-    def _find_pcb_files(self, project_dir: Path) -> List[Path]:
+    def _find_pcb_files(self, project_dir: Path) -> list[Path]:
         """Find all .kicad_pcb files in a directory recursively."""
         return list(project_dir.rglob("*.kicad_pcb"))
 
@@ -35,7 +34,7 @@ class PcbCrawler:
         """Clone a repository and process all PCB files found."""
         repo_name = repo_url.split("/")[-1].replace(".git", "")
         repo_dir = self.temp_dir / repo_name
-        
+
         logger.info(f"Cloning {repo_url}...")
         try:
             if repo_dir.exists():
@@ -62,7 +61,7 @@ class PcbCrawler:
         try:
             # 1. Parse Netlist and Placement
             parse_result = parse_kicad_pcb(pcb_path)
-            
+
             # 2. Run DRC for labels
             validator = KiCadDRCValidator()
             if validator.is_available():
@@ -86,12 +85,12 @@ class PcbCrawler:
                 },
                 "drc": drc_data
             }
-            
+
             (output_dir / "metadata.json").write_text(json.dumps(data, indent=2))
-            
+
             # Copy PCB for reference
             shutil.copy(pcb_path, output_dir / "board.kicad_pcb")
-            
+
             logger.info(f"Successfully processed {design_id}")
 
         except Exception as e:
@@ -103,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=Path, required=True, help="Output directory")
     parser.add_argument("--repo", type=str, required=True, help="GitHub repo URL")
     args = parser.parse_args()
-    
+
     logging.basicConfig(level=logging.INFO)
     crawler = PcbCrawler(dataset_dir=args.dataset)
     crawler.process_repository(args.repo)

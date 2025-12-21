@@ -151,6 +151,8 @@ target_link_libraries(test_low_temp_only m)
 add_executable(test_safety_only
     ${UNITY_SOURCES}
     ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pll_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/zvs_monitor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/safety.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_safety.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_safety.c

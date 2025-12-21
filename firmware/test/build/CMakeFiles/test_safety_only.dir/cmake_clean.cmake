@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o"
+  "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o.d"
+  "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o"
+  "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o.d"
   "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.o"
   "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.o.d"
   "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.c.o"

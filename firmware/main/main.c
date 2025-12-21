@@ -178,7 +178,7 @@ void app_main(void) {
     safety_wdt_init();
     
     /* Check boot reason (watchdog reset handling) */
-    /* check_boot_reason(); */
+    check_boot_reason();
     
     /* Create control task (highest priority) */
     xTaskCreatePinnedToCore(

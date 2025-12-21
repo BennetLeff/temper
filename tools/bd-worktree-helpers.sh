@@ -297,10 +297,10 @@ bd-done() {
         local has_measurements
         has_measurements=$(bd --sandbox show "$task_id" --json 2>/dev/null | grep -c 'measurement_targets' || echo "0")
         
-        if [[ "$has_measurements" -gt 0 ]]; then
-            echo "Task has measurement targets - running measurements..."
-            if command -v python3 &>/dev/null && [[ -f "tools/gpbm/measure.py" ]]; then
-                if ! python3 tools/gpbm/measure.py --task "$task_id" --json; then
+        if [[ "$has_measurements" -gt 0 || "$task_id" == *"placer"* ]]; then
+            echo "Running measurements for $task_id..."
+            if command -v temper-measure &>/dev/null; then
+                if ! temper-measure --task "$task_id"; then
                     echo ""
                     echo "Warning: Some measurements failed!"
                     read -p "Continue closing anyway? [y/N] " confirm
@@ -310,7 +310,7 @@ bd-done() {
                     fi
                 fi
             else
-                echo "Note: measure.py not found, skipping measurements"
+                echo "Note: temper-measure not found, skipping measurements"
             fi
         fi
     fi
