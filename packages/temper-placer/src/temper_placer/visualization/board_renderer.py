@@ -13,7 +13,7 @@ and produce interactive HTML visualizations that can be:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional, TYPE_CHECKING
 
 # Plotly is an optional dependency for testing without full install
 try:
@@ -36,6 +36,9 @@ from temper_placer.visualization.model import (
     TraceView,
     ZoneView,
 )
+
+if TYPE_CHECKING:
+    from temper_placer.core.loop import LoopCollection
 
 # Color scheme for component status
 STATUS_COLORS: dict[ComponentStatus, str] = {
@@ -610,6 +613,7 @@ def render_board(
     show_traces: bool = True,
     show_pads: bool = True,
     show_legend: bool = True,
+    loops: LoopCollection | None = None,
     width: int = 800,
     height: int = 600,
 ) -> go.Figure:
@@ -626,6 +630,7 @@ def render_board(
         show_traces: Whether to show copper traces.
         show_pads: Whether to show component pads.
         show_legend: Whether to show color legend.
+        loops: Optional LoopCollection to overlay on the board.
         width: Figure width in pixels.
         height: Figure height in pixels.
 
@@ -736,6 +741,11 @@ def render_board(
                     name="Pads",
                 )
             )
+
+    # Add loops if provided
+    if loops:
+        from .loop_viz import add_loops_to_plotly
+        add_loops_to_plotly(fig, loops, board)
 
     # Add legend traces (dummy markers for legend display)
     if show_legend:
@@ -903,13 +913,13 @@ def render_board_comparison(
     # Copy shapes to appropriate subplot
     all_shapes = []
     for shape in fig_before.layout.shapes:
-        shape_dict = dict(shape)
+        shape_dict = shape.to_plotly_json() if hasattr(shape, "to_plotly_json") else dict(shape)
         shape_dict["xref"] = "x1"
         shape_dict["yref"] = "y1"
         all_shapes.append(shape_dict)
 
     for shape in fig_after.layout.shapes:
-        shape_dict = dict(shape)
+        shape_dict = shape.to_plotly_json() if hasattr(shape, "to_plotly_json") else dict(shape)
         shape_dict["xref"] = "x2"
         shape_dict["yref"] = "y2"
         all_shapes.append(shape_dict)

@@ -72,28 +72,13 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         else:
             positions = initial_pos
 
-        # 2. Build Adjacency for attraction
-        adj = build_adjacency_matrix(context.netlist)
-
-        # 3. Physics Step
-        @jax.jit
-        def step(pos):
-            # Repulsion (all-pairs)
-            diff = pos[:, None, :] - pos[None, :, :]
-            dist_sq = jnp.sum(diff**2, axis=-1) + 1e-6
-            repulsion = jnp.sum(diff / dist_sq[:, :, None], axis=1)
-
-            # Attraction (connected only)
-            attraction = jnp.sum(adj[:, :, None] * -diff, axis=1)
-
-            # Update
-            new_pos = pos + self.lr * (repulsion + attraction)
-            return new_pos
-
-        # Run simulation
-        curr_pos = positions
-        for _ in range(self.iterations):
-            curr_pos = step(curr_pos)
+        # 2. Run simulation
+        curr_pos = compute_force_directed_layout(
+            context.netlist,
+            positions,
+            iterations=self.iterations,
+            learning_rate=self.lr
+        )
 
         # 4. Map back to placements
         placements = {}
@@ -113,6 +98,54 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             success=True,
             message=f"Unfolded graph over {self.iterations} iterations",
         )
+
+
+def compute_force_directed_layout(
+    netlist,
+    initial_positions: jnp.ndarray,
+    iterations: int = 500,
+    learning_rate: float = 0.5,
+) -> jnp.ndarray:
+    """
+    Run JAX-based force-directed simulation.
+    
+    Args:
+        netlist: Netlist object with n_components and adjacency building capability.
+        initial_positions: (N, 2) array of starting positions.
+        iterations: Number of simulation steps.
+        learning_rate: Step size for updates.
+        
+    Returns:
+        (N, 2) array of refined positions.
+    """
+    # Build Adjacency for attraction
+    adj = build_adjacency_matrix(netlist)
+
+    # Physics Step
+    @jax.jit
+    def step(pos):
+        # Repulsion (all-pairs)
+        diff = pos[:, None, :] - pos[None, :, :]
+        # Add epsilon to dist_sq to avoid division by zero
+        dist_sq = jnp.sum(diff**2, axis=-1) + 1e-6
+        # Add epsilon to dist_sq in division to be safe, though 1e-6 above handles it
+        repulsion = jnp.sum(diff / dist_sq[:, :, None], axis=1)
+
+        # Attraction (connected only)
+        # Attraction force is proportional to distance (Hooke's law: F = -k*x)
+        # Here we use F = -diff, so force increases with distance
+        attraction = jnp.sum(adj[:, :, None] * -diff, axis=1)
+
+        # Update
+        new_pos = pos + learning_rate * (repulsion + attraction)
+        return new_pos
+
+    # Run simulation
+    curr_pos = initial_positions
+    for _ in range(iterations):
+        curr_pos = step(curr_pos)
+        
+    return curr_pos
 
 
 class ForceDirectedHeuristic(Heuristic):

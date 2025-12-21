@@ -50,7 +50,8 @@ static const char *TAG = "safety";
  */
 #ifdef ESP_PLATFORM
 #include "driver/gpio.h"
-#define WDI_GPIO_NUM            GPIO_NUM_4  /* Configure as needed */
+#define WDI_GPIO_NUM            GPIO_NUM_4  /* Heartbeat output to TPS3823 */
+#define WDT_RESET_GPIO_NUM      GPIO_NUM_6  /* Input from TPS3823 RESET_N */
 #endif
 
 /* Module state */
@@ -70,6 +71,7 @@ static struct {
     float rtd_resistance;
     bool fan_running;
     bool strict_mode;           /* If true, always return fault */
+    bool wdt_reset_active;      /* Simulated state of external WDT reset */
     safety_status_t injected_fault;
     uint32_t wdt_feed_count;
 } sim_state = {
@@ -78,6 +80,7 @@ static struct {
     .rtd_resistance = 110.0f,   /* ~25°C for PT100 */
     .fan_running = true,        /* Fan OK */
     .strict_mode = false,
+    .wdt_reset_active = false,
     .injected_fault = SAFETY_OK,
     .wdt_feed_count = 0
 };
@@ -89,15 +92,22 @@ void safety_sim_set_rtd(float resistance) { sim_state.rtd_resistance = resistanc
 void safety_sim_set_fan(bool running) { sim_state.fan_running = running; }
 void safety_sim_set_strict_mode(bool strict) { sim_state.strict_mode = strict; }
 void safety_sim_inject_fault(safety_status_t fault) { sim_state.injected_fault = fault; }
+void safety_sim_set_wdt_reset(bool active) { sim_state.wdt_reset_active = active; }
 void safety_sim_reset(void) {
     sim_state.heatsink_temp = 25.0f;
     sim_state.dc_bus_current = 0.0f;
     sim_state.rtd_resistance = 110.0f;
     sim_state.fan_running = true;
     sim_state.strict_mode = false;
+    sim_state.wdt_reset_active = false;
     sim_state.injected_fault = SAFETY_OK;
     sim_state.wdt_feed_count = 0;
     safe_mode_active = false;
+    
+    /* Reset PLL and ZVS simulation state */
+    pll_sim_set_locked(true);
+    pll_sim_set_frequency_safe(true);
+    zvs_sim_set_status(ZVS_OK);
 }
 uint32_t safety_sim_get_wdt_feeds(void) { return sim_state.wdt_feed_count; }
 
@@ -186,8 +196,21 @@ void secure_wdt_reset(void) {
 void check_boot_reason(void) {
 #ifdef ESP_PLATFORM
     esp_reset_reason_t reason = esp_reset_reason();
+    
+    /* Check internal watchdog reset reason */
     if (reason == ESP_RST_TASK_WDT || reason == ESP_RST_WDT) {
-        ESP_LOGE(TAG, "Rebooted due to Watchdog Timeout! Entering SAFE MODE.");
+        ESP_LOGE(TAG, "Rebooted due to INTERNAL Watchdog Timeout! Entering SAFE MODE.");
+        enter_safe_mode();
+    }
+    
+    /* Check external hardware watchdog (TPS3823-33) via GPIO6
+     * RESET_N is active-low. If it triggered the last reset, it might
+     * still be low during early boot, or we can check the latch state.
+     * Note: This requires the reset signal to also be tied to ESP32 EN pin
+     * or for the MCU to read it immediately on startup.
+     */
+    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
+        ESP_LOGE(TAG, "Rebooted due to EXTERNAL Hardware Watchdog! Entering SAFE MODE.");
         enter_safe_mode();
     }
 #endif
@@ -222,6 +245,9 @@ bool check_hardware_interlocks(void) {
     if (sim_state.injected_fault != SAFETY_OK) {
         return false;  /* Fail if fault injected */
     }
+    if (sim_state.wdt_reset_active) {
+        return false;
+    }
 #endif
 
     /* Over-temperature check with NaN protection */
@@ -249,6 +275,14 @@ bool check_hardware_interlocks(void) {
 #endif
         return false;
     }
+    
+    /* Check external hardware watchdog state */
+#ifdef ESP_PLATFORM
+    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
+        ESP_LOGW(TAG, "External watchdog fault active");
+        return false;
+    }
+#endif
     
     return true;
 }
@@ -299,6 +333,9 @@ safety_status_t run_safety_check(void) {
     if (sim_state.injected_fault != SAFETY_OK) {
         return sim_state.injected_fault;
     }
+    if (sim_state.wdt_reset_active) {
+        return SAFETY_INTERLOCK_TRIP;
+    }
 #endif
 
     /* Temperature check with NaN protection */
@@ -322,6 +359,13 @@ safety_status_t run_safety_check(void) {
     if (!check_sensors_valid()) {
         return SAFETY_SENSOR_FAULT;
     }
+
+    /* Check external hardware watchdog state */
+#ifdef ESP_PLATFORM
+    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
+        return SAFETY_INTERLOCK_TRIP;
+    }
+#endif
 
     /* PLL safety check (per ticket temper-1lj.3) */
     safety_status_t pll_status = check_pll_safety();
@@ -412,17 +456,30 @@ void trigger_hardware_shutdown(void) {
 
 void watchdog_hardware_init(void) {
 #ifdef ESP_PLATFORM
-    gpio_config_t io_conf = {
+    /* Configure WDI output */
+    gpio_config_t wdi_conf = {
         .pin_bit_mask = (1ULL << WDI_GPIO_NUM),
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE,
     };
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_config(&wdi_conf));
     gpio_set_level(WDI_GPIO_NUM, 0);
+    
+    /* Configure RESET_N input from TPS3823 */
+    gpio_config_t reset_conf = {
+        .pin_bit_mask = (1ULL << WDT_RESET_GPIO_NUM),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,  /* TPS3823 is push-pull, but pullup safe */
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&reset_conf));
+    
     wdi_state = false;
-    ESP_LOGI(TAG, "Hardware watchdog WDI initialized on GPIO%d", WDI_GPIO_NUM);
+    ESP_LOGI(TAG, "Hardware watchdog WDI on GPIO%d, RESET_N on GPIO%d", 
+             WDI_GPIO_NUM, WDT_RESET_GPIO_NUM);
 #else
     /* Simulation: just reset state */
     wdi_state = false;

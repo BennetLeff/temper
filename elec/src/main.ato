@@ -43,12 +43,52 @@ module Top:
     v_ac_nominal = 120V
     power_max = 1800W
     
+    # --- Operating Envelope Assertions (temper-ofq.4) ---
+    assert v_ac_nominal within 100V to 130V  # NEMA 5-15 tolerance
+    
+    # Verify against constraints (temper-ofq.6)
+    assert v_bus_max <= Constraints.HighVoltage.v_max
+    assert i_peak_max <= Constraints.HighVoltage.i_max
+    
+    f_line: frequency = 60Hz
+    assert f_line within 59Hz to 61Hz  # US grid tolerance
+    
+    v_bus_nominal: voltage = 340V
+    assert v_bus_nominal within 280V to 380V  # Doubler output range
+    
+    v_bus_ripple_max: voltage = 20V
+    assert v_bus_ripple_max < v_bus_nominal * 0.1  # <10% ripple
+    
+    f_switching: frequency = 35kHz
+    assert f_switching within 20kHz to 100kHz  # Resonant tracking range
+    
+    f_resonant_nominal: frequency = 25kHz
+    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range
+    
+    t_ambient_max: temperature = 323.15K  # 50°C
+    t_ambient_min: temperature = 273.15K  # 0°C
+    assert t_ambient_max within 313.15K to 333.15K  # 40°C to 60°C
+    
+    p_output_max: power = 1800W
+    assert p_output_max within 1500W to 1800W  # 15A circuit limit
+    
+    p_standby_max: power = 1W
+    assert p_standby_max < 5W  # Energy Star standby
+    
+    eta_min: dimensionless = 0.90
+    assert eta_min >= 0.85  # Minimum efficiency target
+    
     # --- Power Rails ---
     signal gnd          # System ground
+    gnd.override_net_name = "GND"
     signal dc_bus_plus  # +340V
+    dc_bus_plus.override_net_name = "+340V_BUS"
     signal dc_bus_minus # Ground reference for DC bus
+    dc_bus_minus.override_net_name = "DC_BUS_RTN"
     signal vcc_15v      # Gate driver supply
+    vcc_15v.override_net_name = "+15V"
     signal vcc_3v3      # MCU supply
+    vcc_3v3.override_net_name = "+3V3"
     
     # --- Module Instances ---
     
@@ -134,9 +174,7 @@ module Top:
     # IGBT max junction: 150°C, derate at 125°C
     # Thermal comparator set for 85°C ambient
     t_thermal_trip: temperature = 358.15K
-    t_igbt_max: temperature = 423.15K
-    t_igbt_derate: temperature = 398.15K
-    assert t_thermal_trip < t_igbt_derate
+    assert t_thermal_trip < Constraints.ThermalZones.igbt_derate_temp
     
     # Watchdog timeout must allow system response but catch stuck states
     # 1.6s timeout per TPS3823-33
@@ -197,12 +235,16 @@ module Top:
     # PWM from MCU
     mcu.pwm_h ~ hb.pwm_h
     mcu.pwm_l ~ hb.pwm_l
+    hb.pwm_h.override_net_name = "PWM_HS"
+    hb.pwm_l.override_net_name = "PWM_LS"
     
     # ===========================================================================
     # RESONANT TANK CONNECTIONS
     # ===========================================================================
     
     hb.switch_node ~ tank.in
+    hb.switch_node.override_net_name = "SW_NODE"
+    tank.in.override_net_name = "TANK_IN"
     tank.out ~ gnd  # Return path
     
     # ===========================================================================
@@ -213,6 +255,7 @@ module Top:
     ct_sense.gnd ~ gnd
     ct_sense.i_sense ~ mcu.adc_i_sense
     ct_sense.i_sense ~ safety.i_sense
+    ct_sense.i_sense.override_net_name = "I_SENSE"
     
     # RTD temperature sensing (pan temperature)
     rtd_pan.vdd ~ vcc_3v3
@@ -222,6 +265,12 @@ module Top:
     rtd_pan.spi_mosi ~ mcu.spi_mosi
     rtd_pan.spi_miso ~ mcu.spi_miso
     rtd_pan.drdy ~ mcu.rtd_drdy
+    rtd_pan.drdy.override_net_name = "RTD_DRDY"
+    
+    rtd_pan.spi_clk.override_net_name = "RTD_SCK"
+    rtd_pan.spi_mosi.override_net_name = "RTD_SDI"
+    rtd_pan.spi_miso.override_net_name = "RTD_SDO"
+    rtd_pan.spi_cs.override_net_name = "RTD_CS_N"
     
     # ===========================================================================
     # SAFETY INTERLOCK CONNECTIONS
@@ -236,15 +285,27 @@ module Top:
     # safety.i_sense already connected above
     # NTC for heatsink temperature monitoring
     safety.ntc_sense ~ mcu.adc_ntc
+    mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
     
     # Watchdog
     mcu.wdt_kick ~ safety.wdt_kick
+    mcu.wdt_kick.override_net_name = "WDT_KICK"
+    safety.wdt_reset_n ~ mcu.reset_n
+    safety.wdt_reset_n.override_net_name = "WDT_RESET_N"
     
     # Shutdown output (active-low disables gate driver)
     safety.shutdown_n ~ hb.gate_hs.driver.DIS
+    safety.shutdown_n.override_net_name = "SHUTDOWN_N"
     
     # Fault status to MCU
     safety.fault_status ~ mcu.shutdown_n_in
+    safety.fault_status.override_net_name = "FAULT"
+    
+    # Gate HS/LS
+    hb.gate_hs.driver.OUTA.override_net_name = "GATE_HS"
+    # Gate LS is RG_ON.p2 in the task description
+    # hb.gate_ls.rg_on.p2 doesn't exist directly in Top, but we can access it via hb
+    hb.gate_ls.rg_on.p2.override_net_name = "GATE_LS"
     
     # Fault LEDs
     safety.ocp_led ~ mcu.led_ocp
@@ -261,9 +322,11 @@ module Top:
     
     # Relay control for soft-start bypass
     mcu.relay_ctrl ~ power_in.relay_ctrl
+    mcu.relay_ctrl.override_net_name = "RELAY_CTRL"
     
     # Zero-crossing detection for soft-start timing
     power_in.zcd ~ mcu.zcd_in
+    power_in.zcd.override_net_name = "ZCD"
 
 # ==============================================================================
 # FOOTPRINT COMPILATION

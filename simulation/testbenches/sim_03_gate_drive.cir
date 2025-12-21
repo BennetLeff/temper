@@ -9,7 +9,7 @@ C_gate_weak gate_weak 0 2.7n
 
 * Strong drive (gate driver simulation)
 V_strong pulse_in2 0 PULSE(0 15 0 10n 10n 20u 40u)
-R_strong pulse_in2 gate_strong 5
+R_strong pulse_in2 gate_strong 2.2
 C_gate_strong gate_strong 0 2.7n
 
 * Analysis

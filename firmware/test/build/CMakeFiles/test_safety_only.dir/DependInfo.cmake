@@ -8,6 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o" "gcc" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o.d"
+  "/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o" "gcc" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o.d"
   "/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.o" "gcc" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.o.d"
   "/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.c" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.c.o" "gcc" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.c.o.d"
   "/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_gpio.c" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_gpio.c.o" "gcc" "CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_gpio.c.o.d"

@@ -17,10 +17,10 @@ I_primary pri_p 0 SIN(0 50 35k)
 * Current transformer (1:1000 ratio)
 X_ct pri_p 0 sec_p 0 CURRENT_TRANSFORMER N=1000 LM=10m LL=100u RW=50
 
-* Burden resistor (50 ohm)
-R_burden sec_p 0 50
+* Burden resistor (66.5 ohm)
+R_burden sec_p 0 66.5
 
-* Expected: V_out = 50A / 1000 * 50Ω = 2.5V peak
+* Expected: V_out = 50A / 1000 * 66.5Ω = 3.325V peak
 
 ***************************************************************************
 * ANALYSIS

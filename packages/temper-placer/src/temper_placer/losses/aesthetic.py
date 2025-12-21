@@ -17,6 +17,7 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from temper_placer.geometry.transform import batch_get_rotated_bounds
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
 if TYPE_CHECKING:
@@ -24,6 +25,102 @@ if TYPE_CHECKING:
     from temper_placer.io.config_loader import PlacementConstraints
     from temper_placer.losses.base import WeightedLoss
     from temper_placer.losses.grouping import GroupConfig
+
+
+@dataclass
+class WhitespaceLoss(LossFunction):
+    """
+    Penalize uneven distribution of empty space.
+
+    Calculates component density on a grid using differentiable overlap.
+    Minimizes the variance of the free space ratio per cell.
+
+    Attributes:
+        grid_shape: (rows, cols) grid resolution.
+        target_density: Optional target density. If None, aims for uniform.
+    """
+
+    grid_shape: tuple[int, int] = (10, 10)
+    target_density: float | None = None
+
+    @property
+    def name(self) -> str:
+        return "whitespace"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        # Get component bounds
+        bounds = context.netlist.get_bounds_array()
+        widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+        
+        # Grid setup
+        board_bounds = context.board.get_bounds_array()
+        x_min, y_min, x_max, y_max = board_bounds
+        rows, cols = self.grid_shape
+        
+        # Calculate cell bounds
+        cell_w = (x_max - x_min) / cols
+        cell_h = (y_max - y_min) / rows
+        cell_area = cell_w * cell_h
+        
+        # Grid centers
+        grid_x = jnp.linspace(x_min + cell_w/2, x_max - cell_w/2, cols)
+        grid_y = jnp.linspace(y_min + cell_h/2, y_max - cell_h/2, rows)
+        
+        # Differentiable overlap calculation
+        # Component boxes: [pos_x - w/2, pos_y - h/2, pos_x + w/2, pos_y + h/2]
+        c_min_x = positions[:, 0] - widths / 2
+        c_max_x = positions[:, 0] + widths / 2
+        c_min_y = positions[:, 1] - heights / 2
+        c_max_y = positions[:, 1] + heights / 2
+        
+        # Cell boxes
+        g_min_x = grid_x - cell_w / 2
+        g_max_x = grid_x + cell_w / 2
+        g_min_y = grid_y - cell_h / 2
+        g_max_y = grid_y + cell_h / 2
+        
+        # Compute overlap for each (comp, cell_x) and (comp, cell_y)
+        # Smooth max/min for gradients: 
+        # overlap_1d = soft_relu(min(c_max, g_max) - max(c_min, g_min))
+        # Using simpler approximation: Gaussian or Sigmoid?
+        # Let's use soft_relu of the linear overlap for simplicity and robustness.
+        
+        def soft_relu(x):
+            return jnp.logaddexp(0.0, x * 10.0) / 10.0  # sharpen factor 10
+            
+        # Broadcast: (N, 1) vs (1, Cols)
+        overlap_x_raw = jnp.minimum(c_max_x[:, None], g_max_x[None, :]) - \
+                        jnp.maximum(c_min_x[:, None], g_min_x[None, :])
+        overlap_x = soft_relu(overlap_x_raw) # (N, Cols)
+        
+        # Broadcast: (N, 1) vs (1, Rows)
+        overlap_y_raw = jnp.minimum(c_max_y[:, None], g_max_y[None, :]) - \
+                        jnp.maximum(c_min_y[:, None], g_min_y[None, :])
+        overlap_y = soft_relu(overlap_y_raw) # (N, Rows)
+        
+        # Outer product to get (N, Rows, Cols)
+        # Area = overlap_x * overlap_y
+        area_grid = overlap_y[:, :, None] * overlap_x[:, None, :] # (N, Rows, Cols)
+        
+        # Sum occupied area per cell
+        occupied_area = jnp.sum(area_grid, axis=0) # (Rows, Cols)
+        
+        # Density (fraction occupied)
+        density = occupied_area / cell_area
+        
+        # Coefficient of Variation of density (std / mean)
+        mean_den = jnp.mean(density) + 1e-6
+        std_den = jnp.std(density)
+        cv = std_den / mean_den
+        
+        return LossResult(value=cv)
 
 
 @dataclass
@@ -134,19 +231,26 @@ class RotationConsistencyLoss(LossFunction):
 
 
 @dataclass
-class GroupOverlapLoss(LossFunction):
+class MirrorSymmetryLoss(LossFunction):
     """
-    Penalizes functional groups whose bounding boxes overlap.
+    Enforces mirror symmetry between pairs of components.
 
-    Encourages "clear boundaries" between functional blocks by treating
-    each group as a soft rectangle and penalizing intersections.
+    For each pair (a, b), requires that 'b' is the reflection of 'a' 
+    across a specified axis and center line.
+
+    Attributes:
+        pairs: (P, 2) array of component indices (a, b).
+        axis: 0 for X-axis (vertical reflection), 1 for Y-axis (horizontal reflection).
+        center: The coordinate of the reflection line.
     """
 
-    groups: list[GroupConfig]
+    pairs: Array  # (P, 2)
+    axis: int = 0
+    center: float = 0.0
 
     @property
     def name(self) -> str:
-        return "group_overlap"
+        return "mirror_symmetry"
 
     def __call__(
         self,
@@ -156,17 +260,132 @@ class GroupOverlapLoss(LossFunction):
         epoch: int = 0,
         total_epochs: int = 1,
     ) -> LossResult:
-        if not self.groups:
+        if self.pairs.shape[0] < 1:
             return LossResult(value=jnp.array(0.0))
 
-        # Compute bounding boxes for each group
-        # This is non-trivial in JAX without loops if groups have different sizes
-        # But we can use the same technique as HPWL: LogSumExp for min/max
+        idx_a = self.pairs[:, 0]
+        idx_b = self.pairs[:, 1]
 
-        # Implementation omitted for brevity in this step,
-        # but following the pattern of HPWL for efficiency.
+        pos_a = positions[idx_a]
+        pos_b = positions[idx_b]
 
-        return LossResult(value=jnp.array(0.0))
+        # Calculate expected position of b (reflected a)
+        # reflected_x = 2 * center - x
+        expected_pos_b = pos_a.at[:, self.axis].set(2 * self.center - pos_a[:, self.axis])
+        
+        # In other axis, they should match
+        # reflected_y = y (if axis=0)
+        # So we just compare the whole vector.
+        
+        diff = pos_b - expected_pos_b
+        penalty = jnp.sum(diff**2)
+
+        return LossResult(value=penalty)
+
+
+@dataclass
+class VisualGroupingLoss(LossFunction):
+    """
+    Promotes tight functional clustering with clear boundaries between groups.
+
+    1. Intra-group: Minimizes the variance of components within each group (tight clusters).
+    2. Inter-group: Penalizes overlap/proximity between different functional groups.
+
+    Attributes:
+        group_indices: (G, M) array of component indices in each group, padded with -1.
+        min_gap: Minimum desired gap between different groups (mm).
+        intra_weight: Relative weight of tight clustering vs separation.
+    """
+
+    group_indices: Array  # (G, M) array, padded with -1
+    min_gap: float = 10.0
+    intra_weight: float = 1.0
+
+    @property
+    def name(self) -> str:
+        return "visual_grouping"
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> LossResult:
+        if self.group_indices.shape[0] < 1:
+            return LossResult(value=jnp.array(0.0))
+
+        def compute_group_metrics(indices):
+            mask = indices != -1
+            group_pos = positions[jnp.where(mask, indices, 0)]
+            n_valid = jnp.sum(mask)
+            
+            # 1. Intra-group clustering (Variance)
+            centroid = jnp.sum(group_pos * mask[:, None], axis=0) / jnp.maximum(n_valid, 1.0)
+            diff_sq = (group_pos - centroid) ** 2 * mask[:, None]
+            variance = jnp.sum(diff_sq) / jnp.maximum(n_valid, 1.0)
+            
+            # 2. Group Bounding Box (via LogSumExp for differentiability)
+            # bb = [min_x, min_y, max_x, max_y]
+            alpha = 10.0 # sharpness
+            
+            # Mask out invalid components by setting to very high/low values for min/max
+            pos_x = group_pos[:, 0]
+            pos_y = group_pos[:, 1]
+            
+            # Soft Min/Max (stable)
+            min_x = -jax.scipy.special.logsumexp(-alpha * pos_x, b=mask) / alpha
+            max_x = jax.scipy.special.logsumexp(alpha * pos_x, b=mask) / alpha
+            min_y = -jax.scipy.special.logsumexp(-alpha * pos_y, b=mask) / alpha
+            max_y = jax.scipy.special.logsumexp(alpha * pos_y, b=mask) / alpha
+            
+            return variance, jnp.array([min_x, min_y, max_x, max_y])
+
+        # Vmap over all groups
+        intra_losses, group_bbs = jax.vmap(compute_group_metrics)(self.group_indices)
+        
+        total_intra = jnp.sum(intra_losses)
+        
+        # Inter-group separation
+        # Penalize if group_bbs are closer than min_gap
+        n_groups = self.group_indices.shape[0]
+        total_inter = 0.0
+        
+        if n_groups > 1:
+            # Pairwise group distance
+            # bb: [min_x, min_y, max_x, max_y]
+            # dist_x = max(0, max(bb1_min_x, bb2_min_x) - min(bb1_max_x, bb2_max_x))
+            # But we want separation, so:
+            # dist_x = max(bb2_min_x - bb1_max_x, bb1_min_x - bb2_max_x)
+            
+            def group_dist_sq(i, j):
+                bb1 = group_bbs[i]
+                bb2 = group_bbs[j]
+                
+                # Max of separation in X and Y
+                dx = jnp.maximum(bb2[0] - bb1[2], bb1[0] - bb2[2])
+                dy = jnp.maximum(bb2[1] - bb1[3], bb1[1] - bb2[3])
+                
+                # If both are negative, they overlap.
+                # Distance is max(dx, dy)
+                dist = jnp.maximum(dx, dy)
+                
+                # Penalty if distance < min_gap
+                return jnp.square(jnp.maximum(0.0, self.min_gap - dist))
+
+            # Sum over all pairs
+            i_indices, j_indices = jnp.triu_indices(n_groups, k=1)
+            pair_penalties = jax.vmap(lambda i, j: group_dist_sq(i, j))(i_indices, j_indices)
+            total_inter = jnp.sum(pair_penalties)
+
+        return LossResult(
+            value=self.intra_weight * total_intra + total_inter,
+            breakdown={
+                "intra_group": total_intra,
+                "inter_group": total_inter,
+            }
+        )
 
 
 @dataclass
@@ -241,22 +460,22 @@ class StackedRowLoss(LossFunction):
     Organizes a functional group into a 2D matrix of stacked rows with dynamic gutters.
 
     Useful for large banks of components (e.g., decoupling caps, LED drivers).
-    Components are assigned to rows based on their index and stacked vertically.
-    The vertical distance between rows (gutter) grows if the area is congested.
+    The vertical distance between rows (gutter) grows based on the number of
+    nets passing between rows.
 
     Attributes:
         component_indices: (M,) array of component indices in the group.
         cols: Number of columns in the matrix.
         min_row_pitch: Minimum vertical distance between rows.
         col_pitch: Desired horizontal distance between columns.
-        congestion_sensitivity: How much congestion increases the row pitch.
+        net_crossing_weight: mm of extra gutter per net crossing.
     """
 
     component_indices: Array
     cols: int
     min_row_pitch: float
     col_pitch: float
-    congestion_sensitivity: float = 2.0
+    net_crossing_weight: float = 0.5
 
     @property
     def name(self) -> str:
@@ -273,47 +492,60 @@ class StackedRowLoss(LossFunction):
         if self.component_indices.shape[0] < 2:
             return LossResult(value=jnp.array(0.0))
 
-        from temper_placer.losses.congestion import get_congestion_field
-
-        # 1. Get positions of group members
-        group_pos = positions[self.component_indices]  # (M, 2)
-        m = group_pos.shape[0]
-        centroid = jnp.mean(group_pos, axis=0)
-
-        # 2. Dynamic Gutter Calculation
-        # Get congestion in the group's bounding box
-        congestion_grid = get_congestion_field(positions, context)
-        board_bounds = context.board.get_bounds_array()
-        x_min, y_min, x_max, y_max = board_bounds
-        rows_grid, cols_grid = congestion_grid.shape
-
-        # Map centroid to grid
-        gx = jnp.clip((centroid[0] - x_min) / (x_max - x_min) * cols_grid, 0, cols_grid - 1).astype(jnp.int32)
-        gy = jnp.clip((centroid[1] - y_min) / (y_max - y_min) * rows_grid, 0, rows_grid - 1).astype(jnp.int32)
-
-        local_congestion = congestion_grid[gy, gx]
-        # row_pitch grows with congestion: min_pitch * (1 + sensitivity * congestion)
-        dynamic_row_pitch = self.min_row_pitch * (1.0 + self.congestion_sensitivity * jax.nn.relu(local_congestion - 0.5))
-
-        # 3. Compute target relative offsets based on grid (row, col)
-        indices = jnp.arange(m)
+        # 1. Map group components to row indices
+        m = self.component_indices.shape[0]
         num_rows = (m + self.cols - 1) // self.cols
-        row_indices = indices // self.cols
-        col_indices = indices % self.cols
+        indices = jnp.arange(m)
+        group_row_indices = indices // self.cols
+        group_col_indices = indices % self.cols
 
-        target_rel_x = col_indices * self.col_pitch
-        target_rel_y = row_indices * dynamic_row_pitch
+        # 2. Count nets crossing each gutter
+        # A gutter exists between row i and i+1
+        n_comps = positions.shape[0]
+        comp_to_row = jnp.full((n_comps,), -1)
+        comp_to_row = comp_to_row.at[self.component_indices].set(group_row_indices)
+
+        # Row assignments for all pins in all nets
+        pin_rows = comp_to_row[context.net_pin_indices]
+        pin_rows = jnp.where(context.net_pin_mask, pin_rows, -1)
+
+        def count_crossings(gutter_idx):
+            # Net crosses if it has pins in row <= gutter_idx AND pins elsewhere
+            # (either in a higher row or outside the group)
+            has_below = jnp.any((pin_rows <= gutter_idx) & (pin_rows != -1), axis=1)
+            has_above_or_out = jnp.any((pin_rows > gutter_idx) | (pin_rows == -1), axis=1)
+            # Only count nets that actually connect to this set of components
+            return jnp.sum(has_below & has_above_or_out)
+
+        # Calculate row offsets
+        if num_rows > 1:
+            crossing_counts = jax.vmap(count_crossings)(jnp.arange(num_rows - 1))
+            gutters = self.min_row_pitch + self.net_crossing_weight * crossing_counts
+            row_offsets = jnp.concatenate([jnp.array([0.0]), jnp.cumsum(gutters)])
+        else:
+            row_offsets = jnp.array([0.0])
+            crossing_counts = jnp.array([])
+
+        # 3. Compute target positions
+        target_rel_x = group_col_indices * self.col_pitch
+        target_rel_y = row_offsets[group_row_indices]
         target_rel = jnp.stack([target_rel_x, target_rel_y], axis=-1)
 
-        # 4. Compute target absolute positions
-        # Center the target matrix on the current group centroid
+        # 4. Center the target matrix on the current group centroid
+        group_pos = positions[self.component_indices]
+        centroid = jnp.mean(group_pos, axis=0)
         target_centroid = jnp.mean(target_rel, axis=0)
         target_abs = target_rel - target_centroid + centroid
 
         # 5. Penalize deviation: sum |pos - target|^2
         penalty = jnp.sum((group_pos - target_abs) ** 2)
 
-        return LossResult(value=penalty)
+        return LossResult(
+            value=penalty,
+            breakdown={
+                "crossing_counts": crossing_counts,
+            },
+        )
 
 
 @dataclass
@@ -382,12 +614,12 @@ class PortFacingRotationLoss(LossFunction):
     Attributes:
         group_indices: (G, M) array of component indices in each group.
         primary_pin_offsets: (G, 2) local (x,y) offset of the primary pin relative to group centroid.
-        target_positions: (G, 2) absolute (x,y) positions of the external source/destination.
+        target_indices: (G, K) indices of target components to face (e.g., connected net).
     """
 
     group_indices: Array  # (G, M)
     primary_pin_offsets: Array  # (G, 2)
-    target_positions: Array  # (G, 2)
+    target_indices: Array  # (G, K)
 
     @property
     def name(self) -> str:
@@ -409,47 +641,56 @@ class PortFacingRotationLoss(LossFunction):
             mask = indices != -1
             safe_indices = jnp.where(mask, indices, 0)
 
-            # 1. Get group centroid
+            # 1. Get Group Centroid
             group_pos = positions[safe_indices]
             n_valid = jnp.sum(mask)
             centroid = jnp.sum(group_pos * mask[:, None], axis=0) / jnp.maximum(n_valid, 1.0)
 
-            # 2. Get target vector (centroid to target source)
-            target_vec = self.target_positions[g_idx] - centroid
-            target_angle = jnp.arctan2(target_vec[1], target_vec[0])
-
-            # 3. Get group rotation (average or representative)
-            # For a rigid block, all components should share same discrete rotation
-            # We take the mean rotation angle
+            # 2. Get Group Rotation (Average)
             angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
-            group_rotations = rotations[safe_indices] # (M, 4)
-            comp_angles = jnp.sum(group_rotations * angles[None, :], axis=1) # (M,)
+            group_rotations = rotations[safe_indices]  # (M, 4)
+            comp_angles = jnp.sum(group_rotations * angles[None, :], axis=1)  # (M,)
             avg_angle = jnp.sum(comp_angles * mask) / jnp.maximum(n_valid, 1.0)
 
-            # 4. Local primary pin vector (unrotated)
-            p_local = self.primary_pin_offsets[g_idx]
+            # 3. Get Target Centroid
+            t_indices = self.target_indices[g_idx]
+            t_mask = t_indices != -1
+            t_safe_indices = jnp.where(t_mask, t_indices, 0)
 
-            # 5. Rotated primary pin vector
+            target_pos_arr = positions[t_safe_indices]
+            n_targets = jnp.sum(t_mask)
+            target_centroid = jnp.sum(target_pos_arr * t_mask[:, None], axis=0) / jnp.maximum(
+                n_targets, 1.0
+            )
+
+            # 4. Vector from Group to Target
+            target_vec = target_centroid - centroid
+
+            # 5. Rotated Primary Pin Vector
+            p_local = self.primary_pin_offsets[g_idx]
             cos_a = jnp.cos(avg_angle)
             sin_a = jnp.sin(avg_angle)
-            p_rotated = jnp.array([
-                p_local[0] * cos_a - p_local[1] * sin_a,
-                p_local[0] * sin_a + p_local[1] * cos_a
-            ])
+            p_rotated = jnp.array(
+                [
+                    p_local[0] * cos_a - p_local[1] * sin_a,
+                    p_local[0] * sin_a + p_local[1] * cos_a,
+                ]
+            )
 
-            # 6. Penalize cosine distance between p_rotated and target_vec
-            # (Encourages them to point in same direction)
+            # 6. Cosine Distance
             p_norm = p_rotated / (jnp.linalg.norm(p_rotated) + 1e-6)
             t_norm = target_vec / (jnp.linalg.norm(target_vec) + 1e-6)
 
-            # Cosine similarity is 1.0 if identical, -1.0 if opposite
-            # Penalty = 1.0 - cosine_similarity
+            # Penalty = 1.0 - cosine_similarity (0 if aligned, 2 if opposite)
             penalty = 1.0 - jnp.dot(p_norm, t_norm)
 
-            return penalty
+            # Zero out penalty if no targets
+            return jnp.where(n_targets > 0, penalty, 0.0)
 
         # Sum over all groups
-        total_penalty = jnp.sum(jax.vmap(compute_group_facing_loss)(jnp.arange(self.group_indices.shape[0])))
+        total_penalty = jnp.sum(
+            jax.vmap(compute_group_facing_loss)(jnp.arange(self.group_indices.shape[0]))
+        )
 
         return LossResult(value=total_penalty)
 
@@ -540,17 +781,157 @@ def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> 
     return jnp.array(padded, dtype=jnp.int32)
 
 
+def get_port_facing_data(
+    netlist: Netlist, constraints: PlacementConstraints
+) -> tuple[Array, Array, Array]:
+    """
+    Prepare data for PortFacingRotationLoss.
+
+    Returns:
+        group_indices: (G, M) array of component indices in each group.
+        primary_pin_offsets: (G, 2) local (x,y) offset of the primary pin relative to group centroid.
+        target_indices: (G, K) indices of target components to face.
+    """
+    groups_with_pin = [g for g in constraints.component_groups if g.primary_pin]
+    if not groups_with_pin:
+        return (
+            jnp.zeros((0, 0), dtype=jnp.int32),
+            jnp.zeros((0, 2), dtype=jnp.float32),
+            jnp.zeros((0, 0), dtype=jnp.int32),
+        )
+
+    # 1. Prepare lists for construction
+    g_indices_list = []
+    pin_offsets_list = []
+    t_indices_list = []
+
+    for group in groups_with_pin:
+        # Get group component indices
+        g_comp_indices = [netlist.get_component_index(ref) for ref in group.components]
+        g_indices_list.append(g_comp_indices)
+
+        # Find primary pin component and offset
+        pin_comp_ref = None
+        pin_name = group.primary_pin
+        
+        # Check if primary_pin is "Ref:Pin" or just "Pin" (implying unique in group?)
+        # Constraint documentation usually implies "PinName" on one of the components.
+        # But which one? The group might have multiple components.
+        # We assume primary_pin format is either "PinName" (and we search) or "Ref:PinName".
+        
+        target_comp = None
+        target_pin_obj = None
+
+        if ":" in pin_name:
+            ref, pin = pin_name.split(":")
+            if ref in group.components:
+                target_comp = netlist.get_component(ref)
+                target_pin_obj = target_comp.get_pin(pin)
+        else:
+            # Search all components in group for this pin
+            for ref in group.components:
+                comp = netlist.get_component(ref)
+                p = comp.get_pin(pin_name)
+                if p:
+                    target_comp = comp
+                    target_pin_obj = p
+                    break
+        
+        if not target_comp or not target_pin_obj:
+            # Skip invalid groups (warn in logs in real app)
+            continue
+            
+        # Calculate approximate group centroid for offset calculation
+        # We rely on initial_positions if available, else assume 0
+        # If components don't have initial positions, we treat the pin-bearing component as center
+        
+        # Collect available positions
+        positions = []
+        for ref in group.components:
+            c = netlist.get_component(ref)
+            if c.initial_position:
+                positions.append(c.initial_position)
+            elif c == target_comp:
+                 positions.append((0.0, 0.0)) # Relative origin
+        
+        if positions:
+            centroid_x = sum(p[0] for p in positions) / len(positions)
+            centroid_y = sum(p[1] for p in positions) / len(positions)
+        else:
+            centroid_x, centroid_y = 0.0, 0.0
+            
+        # Target component position (relative to world 0 if using initial positions)
+        # But we need relative to centroid.
+        
+        comp_x, comp_y = 0.0, 0.0
+        if target_comp.initial_position:
+             comp_x, comp_y = target_comp.initial_position
+        
+        # Pin offset relative to component center
+        px, py = target_pin_obj.position
+        
+        # Pin offset relative to group centroid
+        # P_global = C_global + P_local_to_C
+        # P_rel_G = P_global - G_global = (C_global - G_global) + P_local_to_C
+        
+        off_x = (comp_x - centroid_x) + px
+        off_y = (comp_y - centroid_y) + py
+        
+        pin_offsets_list.append([off_x, off_y])
+        
+        # Find targets (components connected to this pin, EXCLUDING group members)
+        net_name = target_pin_obj.net
+        targets = []
+        if net_name:
+            net = netlist.get_net(net_name)
+            for ref, _ in net.pins:
+                if ref not in group.components:
+                    targets.append(netlist.get_component_index(ref))
+        
+        t_indices_list.append(targets)
+
+    # Pad and convert to arrays
+    if not g_indices_list:
+         return (
+            jnp.zeros((0, 0), dtype=jnp.int32),
+            jnp.zeros((0, 2), dtype=jnp.float32),
+            jnp.zeros((0, 0), dtype=jnp.int32),
+        )
+
+    # Pad groups
+    max_g = max(len(g) for g in g_indices_list)
+    g_arr = jnp.array([g + [-1] * (max_g - len(g)) for g in g_indices_list], dtype=jnp.int32)
+    
+    # Offsets
+    off_arr = jnp.array(pin_offsets_list, dtype=jnp.float32)
+    
+    # Pad targets
+    max_t = max(len(t) for t in t_indices_list) if t_indices_list else 0
+    if max_t == 0:
+         t_arr = jnp.full((len(t_indices_list), 0), -1, dtype=jnp.int32)
+    else:
+         t_arr = jnp.array([t + [-1] * (max_t - len(t)) for t in t_indices_list], dtype=jnp.int32)
+         
+    return g_arr, off_arr, t_arr
+
+
 __all__ = [
     "AlignmentLoss",
     "ConsensusLayoutLoss",
+    "MirrorSymmetryLoss",
     "PinGridAlignmentLoss",
     "PortFacingRotationLoss",
     "RotationConsistencyLoss",
     "StackedRowLoss",
+    "VisualGroupingLoss",
+    "WhitespaceLoss",
     "create_aesthetic_losses",
     "get_prefix_groups",
     "get_template_groups",
+    "get_port_facing_data",
 ]
+
+
 def create_aesthetic_losses(
     netlist: Netlist,
     constraints: PlacementConstraints,
@@ -609,5 +990,108 @@ def create_aesthetic_losses(
                 weight=aesthetic_cfg.rotation_consistency_weight,
             )
         )
+
+    # 5. Port Facing Rotation
+    # Use a high default weight for structural constraints if not explicitly configured
+    # Reuse consensus_weight as it is also a structural constraint
+    weight = aesthetic_cfg.consensus_weight if aesthetic_cfg.consensus_weight > 0 else 1.0
+    
+    group_indices, pin_offsets, target_indices = get_port_facing_data(netlist, constraints)
+    if group_indices.shape[0] > 0:
+        losses.append(
+            WeightedLoss(
+                PortFacingRotationLoss(
+                    group_indices=group_indices,
+                    primary_pin_offsets=pin_offsets,
+                    target_indices=target_indices,
+                ),
+                weight=weight * 5.0,  # Boost weight as this is usually critical
+            )
+        )
+
+    # 6. Stacked Row Layout
+    for group in constraints.component_groups:
+        if group.stacked_layout:
+            indices = jnp.array([netlist.get_component_index(ref) for ref in group.components])
+            if indices.shape[0] >= 2:
+                # Default parameters for stacking
+                # These could be made configurable in ComponentGroup later
+                losses.append(
+                    WeightedLoss(
+                        StackedRowLoss(
+                            component_indices=indices,
+                            cols=int(jnp.sqrt(indices.shape[0])), # Approx square matrix by default
+                            min_row_pitch=10.0,
+                            col_pitch=10.0,
+                            net_crossing_weight=0.5
+                        ),
+                        weight=aesthetic_cfg.consensus_weight * 2.0,
+                    )
+                )
+
+    # 7. Whitespace Distribution
+    if aesthetic_cfg.whitespace_weight > 0:
+        losses.append(
+            WeightedLoss(
+                WhitespaceLoss(grid_shape=(10, 10)),
+                weight=aesthetic_cfg.whitespace_weight,
+            )
+        )
+
+    # 8. Visual Grouping
+    if aesthetic_cfg.grouping_weight > 0 and constraints.component_groups:
+        # Prepare group indices
+        g_indices = []
+        for group in constraints.component_groups:
+            indices = [netlist.get_component_index(ref) for ref in group.components]
+            g_indices.append(indices)
+        
+        # Pad
+        max_len = max(len(g) for g in g_indices)
+        padded = [g + [-1] * (max_len - len(g)) for g in g_indices]
+        group_arr = jnp.array(padded, dtype=jnp.int32)
+        
+        losses.append(
+            WeightedLoss(
+                VisualGroupingLoss(group_indices=group_arr, min_gap=10.0),
+                weight=aesthetic_cfg.grouping_weight,
+            )
+        )
+
+    # 9. Mirror Symmetry
+    if aesthetic_cfg.symmetry_weight > 0:
+        from temper_placer.losses.grouping import find_isomorphic_pairs
+        isomorphic_pairs = find_isomorphic_pairs(netlist)
+        if isomorphic_pairs:
+            # find_isomorphic_pairs returns (a1, b1, a2, b2) 
+            # We can treat (a1, a2) and (b1, b2) as symmetric pairs
+            pairs = []
+            for a1, b1, a2, b2 in isomorphic_pairs:
+                pairs.append([a1, a2])
+                pairs.append([b1, b2])
+            
+            # Remove duplicates and convert to array
+            unique_pairs = []
+            seen = set()
+            for p in pairs:
+                p_tuple = tuple(sorted(p))
+                if p_tuple not in seen:
+                    unique_pairs.append(p)
+                    seen.add(p_tuple)
+            
+            if unique_pairs:
+                board_bounds = jnp.array([0.0, 0.0, constraints.board_width_mm, constraints.board_height_mm])
+                center_x = (board_bounds[0] + board_bounds[2]) / 2.0
+                
+                losses.append(
+                    WeightedLoss(
+                        MirrorSymmetryLoss(
+                            pairs=jnp.array(unique_pairs),
+                            axis=0, # Vertical axis (mirror X)
+                            center=center_x
+                        ),
+                        weight=aesthetic_cfg.symmetry_weight,
+                    )
+                )
 
     return losses

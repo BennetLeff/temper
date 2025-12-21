@@ -7,6 +7,7 @@ optimal relative placement that minimizes total squared wirelength.
 
 from __future__ import annotations
 
+import logging
 import networkx as nx
 import numpy as np
 
@@ -19,6 +20,8 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.heuristics.graph_utils import GraphBuilder
+
+logger = logging.getLogger(__name__)
 
 
 class SpectralPlacementHeuristic(Heuristic):
@@ -56,7 +59,7 @@ class SpectralPlacementHeuristic(Heuristic):
         return "Global spectral layout minimizing squared wirelength"
 
     def apply(self, context: PlacementContext) -> HeuristicResult:
-        """Apply spectral layout."""
+        """Apply enhanced spectral layout."""
         # Build the graph
         builder = GraphBuilder(context.netlist)
         G = builder.build_graph()
@@ -64,54 +67,80 @@ class SpectralPlacementHeuristic(Heuristic):
         if len(G) == 0:
             return HeuristicResult(success=True, message="Empty graph")
 
-        # Compute spectral layout
-        # This returns a dict {node: array([x, y])} in unit scale [-1, 1]
-        try:
-            # weight='weight' uses the edge weights we defined in GraphBuilder
-            raw_pos = nx.spectral_layout(G, weight="weight", dim=2)
-        except Exception as e:
-            return HeuristicResult(success=False, message=f"Spectral layout failed: {str(e)}")
+        # Handle connected components independently
+        components = list(nx.connected_components(G))
+        all_raw_pos = {}
+        
+        # We need to distribute these components on the board
+        # A simple approach: divide board into a grid based on number of components
+        n_comps = len(components)
+        cols = int(np.ceil(np.sqrt(n_comps)))
+        rows = int(np.ceil(n_comps / cols))
+        
+        board = context.board
+        ox, oy = board.origin
+        margin = context.constraints.board_margin_mm
+        w_eff = (board.width - 2 * margin) / cols
+        h_eff = (board.height - 2 * margin) / rows
 
-        # Scale to board dimensions
-        placements = self._scale_to_board(raw_pos, context.board, context)
+        for i, node_set in enumerate(components):
+            subgraph = G.subgraph(node_set)
+            
+            if len(node_set) == 1:
+                # Single node
+                ref = list(node_set)[0]
+                all_raw_pos[ref] = np.array([0.0, 0.0]) # Local center
+            else:
+                try:
+                    # weight='weight' uses the edge weights we defined in GraphBuilder
+                    pos = nx.spectral_layout(subgraph, weight="weight", dim=2)
+                    all_raw_pos.update(pos)
+                except Exception as e:
+                    logger.warning(f"Spectral layout failed for component {i}: {e}")
+                    # Fallback to random for this component
+                    for ref in node_set:
+                        all_raw_pos[ref] = np.random.uniform(-1, 1, (2,))
+
+            # Local scaling and translation for this connected component
+            # Grid cell center
+            grid_x = (i % cols) * w_eff + w_eff / 2 + ox + margin
+            grid_y = (i // cols) * h_eff + h_eff / 2 + oy + margin
+            
+            # Map nodes in this set to their grid cell
+            nodes_in_set = list(node_set)
+            coords = np.array([all_raw_pos[n] for n in nodes_in_set])
+            
+            if len(coords) > 1:
+                c_min = coords.min(axis=0)
+                c_max = coords.max(axis=0)
+                c_rng = np.maximum(c_max - c_min, 1e-6)
+                
+                # Scale to fit in 80% of grid cell
+                scale = np.array([w_eff, h_eff]) * 0.8 / c_rng
+                for n in nodes_in_set:
+                    # (pos - center) * scale + grid_center
+                    all_raw_pos[n] = (all_raw_pos[n] - (c_min + c_max)/2) * scale + np.array([grid_x, grid_y])
+            else:
+                all_raw_pos[nodes_in_set[0]] = np.array([grid_x, grid_y])
+
+        # Convert to final placements
+        placements = self._convert_to_placements(all_raw_pos, context)
 
         return HeuristicResult(
             placements=placements,
             success=True,
-            message=f"Spectrally placed {len(placements)} components",
+            message=f"Spectrally placed {len(placements)} components in {n_comps} clusters",
         )
 
-    def _scale_to_board(
-        self, raw_pos: dict[str, np.ndarray], board: Board, context: PlacementContext
+    def _convert_to_placements(
+        self, raw_pos: dict[str, np.ndarray], context: PlacementContext
     ) -> dict[str, ComponentPlacement]:
-        """Scale unit coordinates to board dimensions."""
+        """Convert scaled coordinates to final placements with bounds checking."""
         placements: dict[str, ComponentPlacement] = {}
-
-        # Board geometry
+        board = context.board
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
 
-        # Usable area
-        width = board.width - 2 * margin
-        height = board.height - 2 * margin
-        center_x = ox + margin + width / 2
-        center_y = oy + margin + height / 2
-
-        # Find raw bounds to normalize
-        coords = np.array(list(raw_pos.values()))
-        if len(coords) == 0:
-            return {}
-
-        min_x, min_y = coords.min(axis=0)
-        max_x, max_y = coords.max(axis=0)
-        rng_x = max_x - min_x if max_x > min_x else 1.0
-        rng_y = max_y - min_y if max_y > min_y else 1.0
-
-        # Scale factor: use 80% of board to leave some room
-        scale_x = (width * 0.8) / rng_x
-        scale_y = (height * 0.8) / rng_y
-
-        # Assign placements
         for ref, pos in raw_pos.items():
             # Skip if already placed or fixed
             if ref in context.current_placements:
@@ -121,15 +150,7 @@ class SpectralPlacementHeuristic(Heuristic):
             if comp.fixed:
                 continue
 
-            # Normalize to centered board coordinates
-            # (pos - min) -> [0, range]
-            # - range/2 -> [-range/2, range/2]
-            # * scale -> scaled centered
-            # + board_center -> final position
-
-            x = (pos[0] - min_x - rng_x / 2) * scale_x + center_x
-            y = (pos[1] - min_y - rng_y / 2) * scale_y + center_y
-
+            x, y = pos
             # Ensure within bounds
             x = max(
                 ox + margin + comp.width / 2, min(x, ox + board.width - margin - comp.width / 2)

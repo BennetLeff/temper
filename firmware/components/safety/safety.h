@@ -171,6 +171,7 @@ void safety_sim_set_current(float current);
 void safety_sim_set_rtd(float resistance);
 void safety_sim_set_fan(bool running);
 void safety_sim_set_strict_mode(bool strict);
+void safety_sim_set_wdt_reset(bool active);
 void safety_sim_inject_fault(safety_status_t fault);
 void safety_sim_reset(void);
 uint32_t safety_sim_get_wdt_feeds(void);

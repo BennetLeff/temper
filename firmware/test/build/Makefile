@@ -347,6 +347,45 @@ run_tests_verbose/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_tests_verbose.dir/build.make CMakeFiles/run_tests_verbose.dir/build
 .PHONY : run_tests_verbose/fast
 
+#=============================================================================
+# Target rules for targets named test_ui_only
+
+# Build rule for target.
+test_ui_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_ui_only
+.PHONY : test_ui_only
+
+# fast build rule for target.
+test_ui_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/build
+.PHONY : test_ui_only/fast
+
+#=============================================================================
+# Target rules for targets named test_probe_detection_only
+
+# Build rule for target.
+test_probe_detection_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_probe_detection_only
+.PHONY : test_probe_detection_only
+
+# fast build rule for target.
+test_probe_detection_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/build
+.PHONY : test_probe_detection_only/fast
+
+#=============================================================================
+# Target rules for targets named test_profiles_only
+
+# Build rule for target.
+test_profiles_only: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_profiles_only
+.PHONY : test_profiles_only
+
+# fast build rule for target.
+test_profiles_only/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/build
+.PHONY : test_profiles_only/fast
+
 Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o: Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o
 
@@ -354,6 +393,7 @@ Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o: Users/ben
 Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.o
 
 Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.i: Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
@@ -363,6 +403,7 @@ Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.i: Users/ben
 Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.i
 
 Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.s: Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
@@ -372,6 +413,7 @@ Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.s: Users/ben
 Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.c.s
 
 Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.o: Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o
@@ -416,6 +458,7 @@ Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
 
 Users/bennet/Desktop/temper/firmware/components/control/pid_control.i: Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
@@ -430,6 +473,7 @@ Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.i
 
 Users/bennet/Desktop/temper/firmware/components/control/pid_control.s: Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
@@ -444,6 +488,7 @@ Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_only.dir/build.make CMakeFiles/test_cascade_pid_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cascade_pid_integration_only.dir/build.make CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 
 Users/bennet/Desktop/temper/firmware/components/control/pll_control.o: Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
@@ -452,6 +497,7 @@ Users/bennet/Desktop/temper/firmware/components/control/pll_control.o: Users/ben
 # target to build an object file
 Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.o
 
@@ -461,6 +507,7 @@ Users/bennet/Desktop/temper/firmware/components/control/pll_control.i: Users/ben
 # target to preprocess a source file
 Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.i
 
@@ -470,8 +517,33 @@ Users/bennet/Desktop/temper/firmware/components/control/pll_control.s: Users/ben
 # target to generate assembly for a file
 Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/pll_control.c.s
+
+Users/bennet/Desktop/temper/firmware/components/control/profiles.o: Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/profiles.o
+
+# target to build an object file
+Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o
+
+Users/bennet/Desktop/temper/firmware/components/control/profiles.i: Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/profiles.i
+
+# target to preprocess a source file
+Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i
+
+Users/bennet/Desktop/temper/firmware/components/control/profiles.s: Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/profiles.s
+
+# target to generate assembly for a file
+Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s
 
 Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.o: Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.o
@@ -503,6 +575,7 @@ Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.o: Users/ben
 # target to build an object file
 Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.o
 
 Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.i: Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i
@@ -511,6 +584,7 @@ Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.i: Users/ben
 # target to preprocess a source file
 Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.i
 
 Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.s: Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s
@@ -519,7 +593,32 @@ Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.s: Users/ben
 # target to generate assembly for a file
 Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.c.s
+
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.o: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.o
+
+# target to build an object file
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.o
+
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.i: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.i
+
+# target to preprocess a source file
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.i
+
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.s: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.s
+
+# target to generate assembly for a file
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.c.s
 
 Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.o: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.o
@@ -547,6 +646,30 @@ Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_runner.dir/build.make CMakeFiles/test_runner.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_safety_only.dir/build.make CMakeFiles/test_safety_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.c.s
+
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.o: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.o
+
+# target to build an object file
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.o
+
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.i: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.i
+
+# target to preprocess a source file
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.i
+
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.s: Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.s
+
+# target to generate assembly for a file
+Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.c.s
 
 Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.o: Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.c.o
 .PHONY : Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.o
@@ -856,6 +979,30 @@ Users/bennet/Desktop/temper/firmware/main/state_machine.s: Users/bennet/Desktop/
 Users/bennet/Desktop/temper/firmware/main/state_machine.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_state_machine_only.dir/build.make CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/main/state_machine.c.s
 .PHONY : Users/bennet/Desktop/temper/firmware/main/state_machine.c.s
+
+Users/bennet/Desktop/temper/firmware/main/ui.o: Users/bennet/Desktop/temper/firmware/main/ui.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/main/ui.o
+
+# target to build an object file
+Users/bennet/Desktop/temper/firmware/main/ui.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/main/ui.c.o
+.PHONY : Users/bennet/Desktop/temper/firmware/main/ui.c.o
+
+Users/bennet/Desktop/temper/firmware/main/ui.i: Users/bennet/Desktop/temper/firmware/main/ui.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/main/ui.i
+
+# target to preprocess a source file
+Users/bennet/Desktop/temper/firmware/main/ui.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/main/ui.c.i
+.PHONY : Users/bennet/Desktop/temper/firmware/main/ui.c.i
+
+Users/bennet/Desktop/temper/firmware/main/ui.s: Users/bennet/Desktop/temper/firmware/main/ui.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/main/ui.s
+
+# target to generate assembly for a file
+Users/bennet/Desktop/temper/firmware/main/ui.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/Users/bennet/Desktop/temper/firmware/main/ui.c.s
+.PHONY : Users/bennet/Desktop/temper/firmware/main/ui.c.s
 
 pan_detect_logic.o: pan_detect_logic.c.o
 .PHONY : pan_detect_logic.o
@@ -1316,6 +1463,54 @@ test_main_pll.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/test_main_pll.c.s
 .PHONY : test_main_pll.c.s
 
+test_main_probe_detection.o: test_main_probe_detection.c.o
+.PHONY : test_main_probe_detection.o
+
+# target to build an object file
+test_main_probe_detection.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/test_main_probe_detection.c.o
+.PHONY : test_main_probe_detection.c.o
+
+test_main_probe_detection.i: test_main_probe_detection.c.i
+.PHONY : test_main_probe_detection.i
+
+# target to preprocess a source file
+test_main_probe_detection.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/test_main_probe_detection.c.i
+.PHONY : test_main_probe_detection.c.i
+
+test_main_probe_detection.s: test_main_probe_detection.c.s
+.PHONY : test_main_probe_detection.s
+
+# target to generate assembly for a file
+test_main_probe_detection.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/test_main_probe_detection.c.s
+.PHONY : test_main_probe_detection.c.s
+
+test_main_profiles.o: test_main_profiles.c.o
+.PHONY : test_main_profiles.o
+
+# target to build an object file
+test_main_profiles.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/test_main_profiles.c.o
+.PHONY : test_main_profiles.c.o
+
+test_main_profiles.i: test_main_profiles.c.i
+.PHONY : test_main_profiles.i
+
+# target to preprocess a source file
+test_main_profiles.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/test_main_profiles.c.i
+.PHONY : test_main_profiles.c.i
+
+test_main_profiles.s: test_main_profiles.c.s
+.PHONY : test_main_profiles.s
+
+# target to generate assembly for a file
+test_main_profiles.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/test_main_profiles.c.s
+.PHONY : test_main_profiles.c.s
+
 test_main_pwm_guard.o: test_main_pwm_guard.c.o
 .PHONY : test_main_pwm_guard.o
 
@@ -1411,6 +1606,30 @@ test_main_thermal_mass.s: test_main_thermal_mass.c.s
 test_main_thermal_mass.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_main_thermal_mass.c.s
 .PHONY : test_main_thermal_mass.c.s
+
+test_main_ui.o: test_main_ui.c.o
+.PHONY : test_main_ui.o
+
+# target to build an object file
+test_main_ui.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/test_main_ui.c.o
+.PHONY : test_main_ui.c.o
+
+test_main_ui.i: test_main_ui.c.i
+.PHONY : test_main_ui.i
+
+# target to preprocess a source file
+test_main_ui.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/test_main_ui.c.i
+.PHONY : test_main_ui.c.i
+
+test_main_ui.s: test_main_ui.c.s
+.PHONY : test_main_ui.s
+
+# target to generate assembly for a file
+test_main_ui.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/test_main_ui.c.s
+.PHONY : test_main_ui.c.s
 
 test_ntc_guard.o: test_ntc_guard.c.o
 .PHONY : test_ntc_guard.o
@@ -1511,6 +1730,54 @@ test_pll_control.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_pll_only.dir/build.make CMakeFiles/test_pll_only.dir/test_pll_control.c.s
 .PHONY : test_pll_control.c.s
 
+test_probe_detection.o: test_probe_detection.c.o
+.PHONY : test_probe_detection.o
+
+# target to build an object file
+test_probe_detection.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/test_probe_detection.c.o
+.PHONY : test_probe_detection.c.o
+
+test_probe_detection.i: test_probe_detection.c.i
+.PHONY : test_probe_detection.i
+
+# target to preprocess a source file
+test_probe_detection.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/test_probe_detection.c.i
+.PHONY : test_probe_detection.c.i
+
+test_probe_detection.s: test_probe_detection.c.s
+.PHONY : test_probe_detection.s
+
+# target to generate assembly for a file
+test_probe_detection.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/test_probe_detection.c.s
+.PHONY : test_probe_detection.c.s
+
+test_profiles.o: test_profiles.c.o
+.PHONY : test_profiles.o
+
+# target to build an object file
+test_profiles.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/test_profiles.c.o
+.PHONY : test_profiles.c.o
+
+test_profiles.i: test_profiles.c.i
+.PHONY : test_profiles.i
+
+# target to preprocess a source file
+test_profiles.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/test_profiles.c.i
+.PHONY : test_profiles.c.i
+
+test_profiles.s: test_profiles.c.s
+.PHONY : test_profiles.s
+
+# target to generate assembly for a file
+test_profiles.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/test_profiles.c.s
+.PHONY : test_profiles.c.s
+
 test_pwm_guard.o: test_pwm_guard.c.o
 .PHONY : test_pwm_guard.o
 
@@ -1610,6 +1877,30 @@ test_thermal_mass.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_thermal_mass_only.dir/build.make CMakeFiles/test_thermal_mass_only.dir/test_thermal_mass.c.s
 .PHONY : test_thermal_mass.c.s
 
+test_ui.o: test_ui.c.o
+.PHONY : test_ui.o
+
+# target to build an object file
+test_ui.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/test_ui.c.o
+.PHONY : test_ui.c.o
+
+test_ui.i: test_ui.c.i
+.PHONY : test_ui.i
+
+# target to preprocess a source file
+test_ui.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/test_ui.c.i
+.PHONY : test_ui.c.i
+
+test_ui.s: test_ui.c.s
+.PHONY : test_ui.s
+
+# target to generate assembly for a file
+test_ui.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/test_ui.c.s
+.PHONY : test_ui.c.s
+
 unity/unity.o: unity/unity.c.o
 .PHONY : unity/unity.o
 
@@ -1630,6 +1921,9 @@ unity/unity.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ntc_guard_only.dir/build.make CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_fan_guard_only.dir/build.make CMakeFiles/test_fan_guard_only.dir/unity/unity.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_coil_guard_only.dir/build.make CMakeFiles/test_coil_guard_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/unity/unity.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/unity/unity.c.o
 .PHONY : unity/unity.c.o
 
 unity/unity.i: unity/unity.c.i
@@ -1652,6 +1946,9 @@ unity/unity.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ntc_guard_only.dir/build.make CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_fan_guard_only.dir/build.make CMakeFiles/test_fan_guard_only.dir/unity/unity.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_coil_guard_only.dir/build.make CMakeFiles/test_coil_guard_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/unity/unity.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/unity/unity.c.i
 .PHONY : unity/unity.c.i
 
 unity/unity.s: unity/unity.c.s
@@ -1674,6 +1971,9 @@ unity/unity.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ntc_guard_only.dir/build.make CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_fan_guard_only.dir/build.make CMakeFiles/test_fan_guard_only.dir/unity/unity.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_coil_guard_only.dir/build.make CMakeFiles/test_coil_guard_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_ui_only.dir/build.make CMakeFiles/test_ui_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_probe_detection_only.dir/build.make CMakeFiles/test_probe_detection_only.dir/unity/unity.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_profiles_only.dir/build.make CMakeFiles/test_profiles_only.dir/unity/unity.c.s
 .PHONY : unity/unity.c.s
 
 # Help Target
@@ -1697,11 +1997,14 @@ help:
 	@echo "... test_pan_detection_only"
 	@echo "... test_pid_only"
 	@echo "... test_pll_only"
+	@echo "... test_probe_detection_only"
+	@echo "... test_profiles_only"
 	@echo "... test_pwm_guard_only"
 	@echo "... test_runner"
 	@echo "... test_safety_only"
 	@echo "... test_state_machine_only"
 	@echo "... test_thermal_mass_only"
+	@echo "... test_ui_only"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/cascade_pid.s"
@@ -1714,15 +2017,24 @@ help:
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/pll_control.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/pll_control.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/pll_control.s"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/profiles.o"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/profiles.i"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/control/profiles.s"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.s"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/control/zvs_monitor.s"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.o"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.i"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_encoder_mock.s"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_init_mock.s"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.o"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.i"
+	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/hal_led_mock.s"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/components/hal/mock/mock_adc.s"
@@ -1759,6 +2071,9 @@ help:
 	@echo "... Users/bennet/Desktop/temper/firmware/main/state_machine.o"
 	@echo "... Users/bennet/Desktop/temper/firmware/main/state_machine.i"
 	@echo "... Users/bennet/Desktop/temper/firmware/main/state_machine.s"
+	@echo "... Users/bennet/Desktop/temper/firmware/main/ui.o"
+	@echo "... Users/bennet/Desktop/temper/firmware/main/ui.i"
+	@echo "... Users/bennet/Desktop/temper/firmware/main/ui.s"
 	@echo "... pan_detect_logic.o"
 	@echo "... pan_detect_logic.i"
 	@echo "... pan_detect_logic.s"
@@ -1816,6 +2131,12 @@ help:
 	@echo "... test_main_pll.o"
 	@echo "... test_main_pll.i"
 	@echo "... test_main_pll.s"
+	@echo "... test_main_probe_detection.o"
+	@echo "... test_main_probe_detection.i"
+	@echo "... test_main_probe_detection.s"
+	@echo "... test_main_profiles.o"
+	@echo "... test_main_profiles.i"
+	@echo "... test_main_profiles.s"
 	@echo "... test_main_pwm_guard.o"
 	@echo "... test_main_pwm_guard.i"
 	@echo "... test_main_pwm_guard.s"
@@ -1828,6 +2149,9 @@ help:
 	@echo "... test_main_thermal_mass.o"
 	@echo "... test_main_thermal_mass.i"
 	@echo "... test_main_thermal_mass.s"
+	@echo "... test_main_ui.o"
+	@echo "... test_main_ui.i"
+	@echo "... test_main_ui.s"
 	@echo "... test_ntc_guard.o"
 	@echo "... test_ntc_guard.i"
 	@echo "... test_ntc_guard.s"
@@ -1840,6 +2164,12 @@ help:
 	@echo "... test_pll_control.o"
 	@echo "... test_pll_control.i"
 	@echo "... test_pll_control.s"
+	@echo "... test_probe_detection.o"
+	@echo "... test_probe_detection.i"
+	@echo "... test_probe_detection.s"
+	@echo "... test_profiles.o"
+	@echo "... test_profiles.i"
+	@echo "... test_profiles.s"
 	@echo "... test_pwm_guard.o"
 	@echo "... test_pwm_guard.i"
 	@echo "... test_pwm_guard.s"
@@ -1852,6 +2182,9 @@ help:
 	@echo "... test_thermal_mass.o"
 	@echo "... test_thermal_mass.i"
 	@echo "... test_thermal_mass.s"
+	@echo "... test_ui.o"
+	@echo "... test_ui.i"
+	@echo "... test_ui.s"
 	@echo "... unity/unity.o"
 	@echo "... unity/unity.i"
 	@echo "... unity/unity.s"

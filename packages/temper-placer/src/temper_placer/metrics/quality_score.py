@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Composite quality score for placement evaluation.
 
@@ -209,3 +210,80 @@ def _compute_routing_score(
         score += via_score
 
     return max(0.0, min(100.0, score))
+=======
+from __future__ import annotations
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class QualityInputs:
+    """Inputs for quality score computation."""
+    # Hard constraints (binary)
+    drc_violations: int = 0
+    overlap_loss: float = 0.0
+    boundary_loss: float = 0.0
+    
+    # Routing (optional)
+    routing_completion_pct: float = 100.0
+    
+    # Efficiency
+    hpwl_mm: float = 0.0
+    hpwl_target_mm: Optional[float] = None  # If None, skip this component
+    
+    # Safety/compliance
+    hv_clearance_ok: bool = True
+    thermal_compliance: bool = True
+    zone_compliance_pct: float = 100.0
+
+
+def compute_quality_score(inputs: QualityInputs) -> float:
+    """
+    Compute composite placement quality score (0-100).
+    
+    Weight breakdown:
+    - 40 pts: DRC pass (hard gate - 0 if any violations)
+    - 20 pts: Routing completion percentage
+    - 15 pts: Wirelength efficiency (HPWL vs target)
+    - 10 pts: HV clearance compliance
+    - 10 pts: Thermal compliance  
+    - 5 pts: Zone compliance percentage
+    
+    Returns:
+        Score from 0-100. 
+        Interpretation: 0-60=poor, 60-80=acceptable, 80+=good
+    """
+    score = 0.0
+    
+    # Hard gate: DRC must pass
+    if inputs.drc_violations == 0 and inputs.overlap_loss < 1.0 and inputs.boundary_loss < 1.0:
+        score += 40.0
+    
+    # Routing completion
+    score += 20.0 * (inputs.routing_completion_pct / 100.0)
+    
+    # Wirelength efficiency
+    if inputs.hpwl_target_mm and inputs.hpwl_mm > 0:
+        efficiency = min(1.0, inputs.hpwl_target_mm / inputs.hpwl_mm)
+        score += 15.0 * efficiency
+    else:
+        score += 15.0  # Full points if not measuring
+    
+    # Safety compliance
+    score += 10.0 if inputs.hv_clearance_ok else 0.0
+    score += 10.0 if inputs.thermal_compliance else 0.0
+    
+    # Zone compliance
+    score += 5.0 * (inputs.zone_compliance_pct / 100.0)
+    
+    return score
+
+
+def interpret_score(score: float) -> str:
+    """Human-readable interpretation."""
+    if score >= 80:
+        return "good"
+    elif score >= 60:
+        return "acceptable"
+    else:
+        return "poor"
+>>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)

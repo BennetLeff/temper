@@ -32,7 +32,7 @@ E_rect n_rect 0 VALUE={ABS(V(n_sec))}
 
 * Low Pass Filter (RC)
 R_filt n_rect n_adc 1k
-C_filt n_adc 0 1.6n
+C_filt n_adc 0 100n
 
 ***************************************************************************
 * ANALYSIS

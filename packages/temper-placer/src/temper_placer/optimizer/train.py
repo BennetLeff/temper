@@ -19,6 +19,7 @@ The training loop is designed to be:
 from __future__ import annotations
 
 import contextlib
+import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -49,54 +50,34 @@ from temper_placer.optimizer.validation_callback import (
     ValidationResult,
 )
 
+logger = logging.getLogger(__name__)
 
-class NumericalInstabilityError(RuntimeError):
-    """Raised when training encounters NaN or Inf values.
 
-    This indicates a numerical instability in the loss function or gradients,
-    often caused by:
-    - Learning rate too high
-    - Temperature too low (Gumbel-Softmax overflow)
-    - Invalid input data (e.g., zero-size components)
-    - Loss function overflow (e.g., large_val in wirelength)
-
-    Attributes:
-        epoch: The epoch where instability was detected.
-        loss_value: The problematic loss value (may be NaN or Inf).
-        loss_breakdown: Per-loss values to identify the source.
-        grad_norms: Gradient norms if available.
-    """
+class NumericalInstabilityError(Exception):
+    """Exception raised when training becomes numerically unstable (NaN/Inf)."""
 
     def __init__(
         self,
         message: str,
-        epoch: int = -1,
-        loss_value: float = float("nan"),
+        epoch: int,
+        loss_value: float | None = None,
         loss_breakdown: dict[str, float] | None = None,
-        grad_norms: dict[str, float] | None = None,
     ):
         super().__init__(message)
         self.epoch = epoch
         self.loss_value = loss_value
         self.loss_breakdown = loss_breakdown or {}
-        self.grad_norms = grad_norms or {}
 
 
 def _check_numerical_stability(
     loss_value: float,
-    loss_breakdown: dict[str, Any],
+    loss_breakdown: dict[str, Array],
     grad_pos: Array,
     grad_rot: Array,
     epoch: int,
 ) -> None:
-    """Check for NaN/Inf in loss and gradients, raise if found.
-
-    Args:
-        loss_value: Total loss value.
-        loss_breakdown: Per-loss component values (may contain arrays).
-        grad_pos: Position gradients.
-        grad_rot: Rotation gradients.
-        epoch: Current epoch for error reporting.
+    """
+    Check for NaN/Inf values in loss or gradients.
 
     Raises:
         NumericalInstabilityError: If any value is NaN or Inf.
@@ -113,28 +94,18 @@ def _check_numerical_stability(
 
         raise NumericalInstabilityError(
             f"Non-finite loss at epoch {epoch}: {loss_value}. "
-            f"Problematic components: {bad_components if bad_components else 'unknown (overflow in combination)'}",
+            f"Problematic components: {bad_components if bad_components else 'unknown'}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
-                           for k, v in loss_breakdown.items()},
-            grad_norms={"position": float(jnp.linalg.norm(grad_pos)),
-                        "rotation": float(jnp.linalg.norm(grad_rot))},
+            loss_breakdown={k: float(jnp.sum(v)) for k, v in loss_breakdown.items() if hasattr(v, 'shape')},
         )
 
     # Check gradients
-    grad_norm_pos = float(jnp.linalg.norm(grad_pos))
-    grad_norm_rot = float(jnp.linalg.norm(grad_rot))
-
-    if not math.isfinite(grad_norm_pos) or not math.isfinite(grad_norm_rot):
+    if not jnp.all(jnp.isfinite(grad_pos)) or not jnp.all(jnp.isfinite(grad_rot)):
         raise NumericalInstabilityError(
-            f"Non-finite gradients at epoch {epoch}: "
-            f"grad_pos_norm={grad_norm_pos}, grad_rot_norm={grad_norm_rot}",
+            f"Non-finite gradients at epoch {epoch}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown={k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
-                           for k, v in loss_breakdown.items()},
-            grad_norms={"position": grad_norm_pos, "rotation": grad_norm_rot},
         )
 
 
@@ -150,6 +121,8 @@ class TrainingMetrics(NamedTuple):
     grad_norm_rot: float
     elapsed_ms: float
     loss_weights: dict[str, float] | None = None
+    positions: Array | None = None
+    rotations: Array | None = None
 
 
 @dataclass
@@ -323,6 +296,15 @@ def initialize_training_state(
 
         # Start with uniform logits (equal probability for all rotations)
         rotation_logits = jnp.zeros((netlist.n_components, 4))
+
+    # Apply force-directed unfolding if enabled
+    if config.initialization.force_directed.enabled:
+        positions = compute_force_directed_layout(
+            netlist=netlist,
+            initial_positions=positions,
+            iterations=config.initialization.force_directed.iterations,
+            learning_rate=config.initialization.force_directed.learning_rate,
+        )
 
     # Create optimizers
     initial_lr = config.learning_rate.initial
@@ -721,7 +703,9 @@ def train(
 
             # Adaptive Overlap Weighting Logic
             # Every 10 epochs, check for persistent collisions and ramp weights
-            if config.adaptive_overlap_enabled and epoch % 10 == 0:
+            # Adaptive Overlap Weighting
+            ao_cfg = config.adaptive_overlap
+            if ao_cfg.enabled and epoch % ao_cfg.update_interval == 0:
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 per_comp_boundary = loss_breakdown_arrays.get("boundary_per_component")
                 per_comp_group = loss_breakdown_arrays.get("group_cluster_per_component")
@@ -731,40 +715,32 @@ def train(
                     violation_mask = jnp.zeros(state.overlap_weights.shape, dtype=jnp.bool_)
 
                     if per_comp_overlap is not None:
-                        violation_mask = jnp.logical_or(violation_mask, per_comp_overlap > 0.1)
+                        violation_mask = jnp.logical_or(violation_mask, per_comp_overlap > ao_cfg.collision_threshold)
 
                     if per_comp_boundary is not None:
-                        violation_mask = jnp.logical_or(violation_mask, per_comp_boundary > 0.1)
+                        violation_mask = jnp.logical_or(violation_mask, per_comp_boundary > ao_cfg.collision_threshold)
 
                     if per_comp_group is not None:
-                        violation_mask = jnp.logical_or(violation_mask, per_comp_group > 0.1)
+                        violation_mask = jnp.logical_or(violation_mask, per_comp_group > ao_cfg.collision_threshold)
 
-                    # Increment weight by 10% for any violation
+                    # Increment weight for any violation
                     state.overlap_weights = jnp.where(
                         violation_mask,
-                        state.overlap_weights * 1.10,
+                        state.overlap_weights * ao_cfg.ramp_rate,
                         state.overlap_weights
                     )
-                    # Cap at 50x
-                    state.overlap_weights = jnp.minimum(state.overlap_weights, 50.0)
-
-                    # Decouple cleared components?
-                    # Optionally slowly decay weights for non-violating components
-                    state.overlap_weights = jnp.where(
-                        ~violation_mask,
-                        jnp.maximum(1.0, state.overlap_weights * 0.99),
-                        state.overlap_weights
-                    )
-
+                    state.overlap_weights = jnp.minimum(state.overlap_weights, ao_cfg.max_cap)
             # Stochastic Perturbation (Jiggle) Logic
-            if config.jiggle_enabled and state.position_delta_ema < 1e-4 and epoch > 100:
+            j_cfg = config.jiggle
+            if j_cfg.enabled and state.position_delta_ema < j_cfg.ema_threshold and epoch > j_cfg.min_epoch:
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
-                sigma = 0.05 * max(board.width, board.height)
+                sigma = j_cfg.sigma_fraction * max(board.width, board.height)
                 noise_scale = sigma * (temperature / config.temperature.start)
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
                 state.position_delta_ema = 1.0
+                logger.debug(f"Epoch {epoch}: Jiggle triggered")
 
             loss_value = float(loss)
 
@@ -832,6 +808,8 @@ def train(
                     grad_norm_rot=grad_norm_rot,
                     elapsed_ms=epoch_time_ms,
                     loss_weights=logged_weights,
+                    positions=state.positions,
+                    rotations=rotations,
                 )
                 history.append(metrics)
 
@@ -1144,31 +1122,36 @@ def train_multiphase(
             state.initial_grad_norms = new_initial_grad_norms
 
             # Adaptive Overlap Weighting Logic
-            if config.adaptive_overlap_enabled and epoch % 10 == 0:
+            # Adaptive Overlap Weighting
+            ao_cfg = config.adaptive_overlap
+            if ao_cfg.enabled and epoch % ao_cfg.update_interval == 0:
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 if per_comp_overlap is not None:
-                    collision_mask = per_comp_overlap > 0.1
+                    collision_mask = per_comp_overlap > ao_cfg.collision_threshold
                     state.overlap_weights = jnp.where(
                         collision_mask,
-                        state.overlap_weights * 1.05,
+                        state.overlap_weights * ao_cfg.ramp_rate,
                         state.overlap_weights
                     )
-                    state.overlap_weights = jnp.minimum(state.overlap_weights, 20.0)
+                    state.overlap_weights = jnp.minimum(state.overlap_weights, ao_cfg.max_cap)
                     state.overlap_weights = jnp.where(
                         ~collision_mask,
-                        jnp.maximum(1.0, state.overlap_weights * 0.99),
+                        jnp.maximum(1.0, state.overlap_weights * ao_cfg.decay_rate),
                         state.overlap_weights
                     )
 
             # Stochastic Perturbation (Jiggle) Logic
-            if config.jiggle_enabled and state.position_delta_ema < 1e-4 and epoch > 100:
+            # Stochastic Perturbation (Jiggle) Logic
+            j_cfg = config.jiggle
+            if j_cfg.enabled and state.position_delta_ema < j_cfg.ema_threshold and epoch > j_cfg.min_epoch:
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
-                sigma = 0.05 * max(board.width, board.height)
+                sigma = j_cfg.sigma_fraction * max(board.width, board.height)
                 noise_scale = sigma * (temperature / config.temperature.start)
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
                 state.position_delta_ema = 1.0
+                logger.debug(f"Epoch {epoch}: Jiggle triggered")
 
             loss_value = float(loss)
 
@@ -1234,6 +1217,8 @@ def train_multiphase(
                     grad_norm_rot=grad_norm_rot,
                     elapsed_ms=epoch_time_ms,
                     loss_weights=logged_weights,
+                    positions=state.positions,
+                    rotations=rotations,
                 )
                 history.append(metrics)
 

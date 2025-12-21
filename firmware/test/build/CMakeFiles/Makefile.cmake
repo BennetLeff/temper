@@ -65,4 +65,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test_coil_guard_only.dir/DependInfo.cmake"
   "CMakeFiles/run_tests.dir/DependInfo.cmake"
   "CMakeFiles/run_tests_verbose.dir/DependInfo.cmake"
+  "CMakeFiles/test_ui_only.dir/DependInfo.cmake"
+  "CMakeFiles/test_probe_detection_only.dir/DependInfo.cmake"
+  "CMakeFiles/test_profiles_only.dir/DependInfo.cmake"
   )

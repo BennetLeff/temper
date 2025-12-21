@@ -70,6 +70,7 @@ class DRCViolationType(Enum):
     DUPLICATE_FOOTPRINT = "duplicate_footprint"
     EXTRA_FOOTPRINT = "extra_footprint"
     SCHEMATIC_PARITY = "schematic_parity"
+    LIB_FOOTPRINT_ISSUES = "lib_footprint_issues"
 
     # Catch-all
     OTHER = "other"
@@ -377,12 +378,12 @@ class KiCadDRCValidator(Validator):
 
         start_time = time.time()
 
-        # Create temp file for JSON output
+        # Get output path for JSON report
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
-            output_path = Path(tmp.name)
+            output_path = Path(tmp.name).absolute()
 
         try:
-            # Build command
+            # Build command with absolute paths
             cmd = [
                 self.kicad_cli_path,
                 "pcb",
@@ -400,7 +401,7 @@ class KiCadDRCValidator(Validator):
             if schematic_parity:
                 cmd.append("--schematic-parity")
 
-            cmd.append(str(pcb_path))
+            cmd.append(str(pcb_path.absolute()))
 
             # Run DRC
             proc = subprocess.run(
@@ -408,7 +409,7 @@ class KiCadDRCValidator(Validator):
                 capture_output=True,
                 text=True,
                 timeout=self.timeout_seconds,
-                cwd=pcb_path.parent,
+                cwd=pcb_path.parent.absolute(),
             )
 
             elapsed_ms = (time.time() - start_time) * 1000

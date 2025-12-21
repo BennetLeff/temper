@@ -38,6 +38,7 @@ dependencies = [
     "python-louvain>=0.16",
     "psutil>=5.9.0",
     "jsonschema>=4.20.0",
+    "flax>=0.7.0",
 ]
 
 [project.optional-dependencies]

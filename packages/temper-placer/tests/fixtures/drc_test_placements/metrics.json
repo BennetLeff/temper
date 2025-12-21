@@ -1,121 +1,121 @@
 {
   "description": "DRC correlation test placements",
-  "source_pcb": "/Users/bennet/Desktop/temper/temper-placer/tests/fixtures/minimal_board.kicad_pcb",
+  "source_pcb": "/Users/bennet/Desktop/temper/packages/temper-placer/tests/fixtures/minimal_board.kicad_pcb",
   "placements": [
     {
       "quality_level": "perfect",
-      "total_loss": 670.6004073991667,
+      "total_loss": 695.8476837715108,
       "overlap_loss": 0.0,
       "boundary_loss": 0.0,
-      "wirelength_loss": 67.06004073991667,
+      "wirelength_loss": 69.58476837715108,
       "epochs_run": 0,
       "converged": true,
       "component_positions": {
         "R1": {
           "x": 101.66666666666667,
-          "y": 78.33333333333333
+          "y": 78.5
         },
         "R2": {
           "x": 115.0,
-          "y": 78.33333333333333
+          "y": 78.5
         },
         "C1": {
           "x": 101.66666666666667,
-          "y": 85.0
+          "y": 85.5
         },
         "U1": {
           "x": 115.0,
-          "y": 85.0
+          "y": 85.5
         }
       }
     },
     {
       "quality_level": "good",
-      "total_loss": 247.22333088491348,
-      "overlap_loss": 0.006840147254551869,
+      "total_loss": 361.22807772731016,
+      "overlap_loss": 0.038116010681923135,
       "boundary_loss": 0.0,
-      "wirelength_loss": 24.65393161594583,
+      "wirelength_loss": 35.741647665911785,
       "epochs_run": 400,
       "converged": false,
       "component_positions": {
         "R1": {
-          "x": 113.62545238394127,
-          "y": 85.3403145720717
+          "x": 112.20253642997243,
+          "y": 80.97299149972149
         },
         "R2": {
-          "x": 116.34986399963223,
-          "y": 85.36405016889019
+          "x": 114.51042163898184,
+          "y": 88.28898059624889
         },
         "C1": {
-          "x": 118.0775760806629,
-          "y": 84.34710723176667
+          "x": 121.99947175406614,
+          "y": 81.6278695582765
         },
         "U1": {
-          "x": 114.34950811745598,
-          "y": 82.69385059944486
+          "x": 117.08303911998921,
+          "y": 83.4187993119311
         }
       }
     },
     {
       "quality_level": "mediocre",
-      "total_loss": 286.5223405138696,
-      "overlap_loss": 0.016646991357016614,
+      "total_loss": 381.2289312805482,
+      "overlap_loss": 0.028620244756199342,
       "boundary_loss": 0.0,
-      "wirelength_loss": 28.485764137816794,
+      "wirelength_loss": 37.83669068049282,
       "epochs_run": 200,
       "converged": false,
       "component_positions": {
         "R1": {
-          "x": 109.748772873673,
-          "y": 83.51630763178666
+          "x": 109.2375696681596,
+          "y": 83.813663969133
         },
         "R2": {
-          "x": 115.75346853965091,
-          "y": 83.72662510139175
+          "x": 119.0270611652515,
+          "y": 84.5077808807559
         },
         "C1": {
-          "x": 115.7157243442622,
-          "y": 82.38670351602337
+          "x": 119.09572640595019,
+          "y": 79.57992738646347
         },
         "U1": {
-          "x": 112.37346147158888,
-          "y": 83.39433088178711
+          "x": 114.1311600303306,
+          "y": 81.68765534822172
         }
       }
     },
     {
       "quality_level": "bad",
-      "total_loss": 584.9073152239345,
+      "total_loss": 875.6632475474527,
       "overlap_loss": 0.0,
       "boundary_loss": 0.0,
-      "wirelength_loss": 58.490731522393446,
+      "wirelength_loss": 87.56632475474527,
       "epochs_run": 40,
       "converged": false,
       "component_positions": {
         "R1": {
-          "x": 117.68600773709271,
-          "y": 87.98380544119928
+          "x": 116.35638005863797,
+          "y": 87.80869163833357
         },
         "R2": {
-          "x": 113.4687740581351,
-          "y": 88.525071262886
+          "x": 110.48367752286903,
+          "y": 88.41958527991564
         },
         "C1": {
-          "x": 105.64002169838206,
-          "y": 88.09579868189847
+          "x": 105.44702806716187,
+          "y": 88.32778524588291
         },
         "U1": {
-          "x": 126.9941903301225,
-          "y": 88.03294687515965
+          "x": 126.96142770887181,
+          "y": 87.09398971757665
         }
       }
     },
     {
       "quality_level": "terrible",
-      "total_loss": 1022.7358697853175,
+      "total_loss": 1179.946757716746,
       "overlap_loss": 0.0,
       "boundary_loss": 0.0,
-      "wirelength_loss": 102.27358697853175,
+      "wirelength_loss": 117.99467577167462,
       "epochs_run": 0,
       "converged": false,
       "component_positions": {

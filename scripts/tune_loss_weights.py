@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+<<<<<<< HEAD
 Tune loss function weights based on correlation analysis.
 
 This script reads a correlation report (from correlation_analysis.py) and
@@ -299,3 +300,37 @@ Examples:
 
 if __name__ == "__main__":
     main()
+=======
+Loss weight tuning script.
+Suggests loss weight adjustments based on correlation with routing success.
+"""
+
+import json
+from pathlib import Path
+import argparse
+import sys
+
+# Simplified logic for suggestion
+# High absolute correlation -> Increase weight if it's not high enough
+# Positive correlation with failure (higher loss = higher completion) -> Something is wrong
+# Negative correlation with failure (higher loss = lower completion) -> Increase weight
+
+def main():
+    parser = argparse.ArgumentParser(description="Suggest loss weight adjustments")
+    parser.add_argument("--data", type=str, default="metrics/measurements.jsonl", help="Path to measurements.jsonl")
+    args = parser.parse_args()
+
+    # In a real implementation, this would use the output of correlation_analysis.py
+    # and provide specific numerical suggestions.
+    
+    print("Loss Weight Suggestions (Experimental)")
+    print("-" * 40)
+    print("1. Increase 'overlap_loss' weight if completion < 100%")
+    print("2. Increase 'boundary_loss' weight if components are off-board")
+    print("3. Decrease 'wirelength_loss' if it causes massive overlap pileups")
+    print("\nRun 'scripts/correlation_analysis.py' to see empirical data.")
+
+if __name__ == "__main__":
+    main()
+
+>>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)

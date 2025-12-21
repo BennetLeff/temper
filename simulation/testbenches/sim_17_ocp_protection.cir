@@ -18,7 +18,7 @@
 ***************************************************************************
 * POWER SUPPLIES
 ***************************************************************************
-V_vcc vcc 0 DC 5
+V_vcc vcc 0 DC 3.3
 
 ***************************************************************************
 * SIMULATED TANK CURRENT
@@ -48,8 +48,8 @@ C_filt filt_out 0 10p
 ***************************************************************************
 * COMPARATOR (TLV3201 behavioral model)
 ***************************************************************************
-* Reference: 2.5V for 50A threshold
-R_ref1 vcc v_ref 10k
+* Reference: 2.5V for 50A threshold (with 3.3V supply)
+R_ref1 vcc v_ref 3.2k
 R_ref2 v_ref 0 10k
 
 * Hysteresis (~10%)
@@ -57,10 +57,10 @@ R_hyst comp_out hyst_node 470k
 R_in filt_out hyst_node 47k
 
 * Comparator with 40ns propagation delay
-B_comp comp_int 0 V = {5 * (1 + tanh((V(hyst_node) - V(v_ref)) * 50)) / 2}
+B_comp comp_int 0 V = {3.3 * (1 + tanh((V(hyst_node) - V(v_ref)) * 50)) / 2}
 R_delay comp_int delay_node 1k
 C_delay delay_node 0 40p
-B_out comp_out 0 V = {V(delay_node) > 2.5 ? 5.0 : 0.0}
+B_out comp_out 0 V = {V(delay_node) > 1.65 ? 3.3 : 0.0}
 
 * Load
 R_load comp_out 0 10k

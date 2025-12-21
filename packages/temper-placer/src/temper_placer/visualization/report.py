@@ -26,6 +26,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .model import (
     BoardView,
@@ -33,6 +34,9 @@ from .model import (
     ConstraintStatus,
     LossHistory,
 )
+
+if TYPE_CHECKING:
+    from temper_placer.core.loop import LoopCollection
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +102,7 @@ def generate_report(
     loss_history: LossHistory | None = None,
     constraints: ConstraintStatus | None = None,
     validation: ValidationResults | None = None,
+    loops: LoopCollection | None = None,
     config: ReportConfig | None = None,
     output_path: str | None = None,
 ) -> str:
@@ -109,6 +114,7 @@ def generate_report(
         loss_history: Optional loss history for plotting curves.
         constraints: Optional constraint status summary.
         validation: Optional validation results (DRC, SPICE).
+        loops: Optional LoopCollection for loop analysis.
         config: Optional report configuration.
         output_path: Optional path to write HTML file. If None, returns HTML string.
 
@@ -132,11 +138,16 @@ def generate_report(
 
     # Board visualization
     if config.include_board_view:
-        sections.append(_generate_board_section(board_view, config))
+        sections.append(_generate_board_section(board_view, config, loops))
 
     # Loss curves
     if config.include_loss_curves and loss_history:
         sections.append(_generate_loss_section(loss_history, config))
+
+    # Loop Analysis section
+    if loops:
+        from .loop_viz import render_loop_summary_table
+        sections.append(render_loop_summary_table(loops, board_view))
 
     # Constraint summary
     if config.include_constraint_summary and constraints:
@@ -245,7 +256,9 @@ def _generate_summary_section(
     """
 
 
-def _generate_board_section(board_view: BoardView, config: ReportConfig) -> str:
+def _generate_board_section(
+    board_view: BoardView, config: ReportConfig, loops: LoopCollection | None = None
+) -> str:
     """Generate the board visualization section."""
     if not PLOTLY_AVAILABLE:
         return """
@@ -259,7 +272,7 @@ def _generate_board_section(board_view: BoardView, config: ReportConfig) -> str:
     try:
         from .board_renderer import render_board
 
-        fig = render_board(board_view)
+        fig = render_board(board_view, loops=loops)
         fig.update_layout(height=config.board_chart_height)
         chart_html = fig.to_html(full_html=False, include_plotlyjs="cdn")
     except Exception as e:
@@ -745,6 +758,16 @@ def _get_css_styles() -> str:
         .warning { color: var(--color-warning); }
         .error { color: var(--color-error); }
         .info { color: var(--color-text-muted); font-style: italic; }
+
+        /* Loop analysis */
+        .loop-summary-table .exceeded {
+            background: #fee2e2;
+            color: var(--color-error);
+        }
+        .loop-summary-table .ok {
+            background: #dcfce7;
+            color: var(--color-success);
+        }
 
         /* Footer */
         footer {
