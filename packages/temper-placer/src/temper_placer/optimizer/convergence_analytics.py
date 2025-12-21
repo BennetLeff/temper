@@ -594,3 +594,416 @@ class ConvergenceAnalyzer:
                     transitions.append(i)
 
         return transitions
+
+
+class ConvergenceConfidence(NamedTuple):
+    """Convergence confidence metrics for a single epoch.
+
+    Attributes:
+        epoch: Current epoch number.
+        confidence: Overall convergence confidence (0.0 to 1.0).
+        improvement_confidence: Confidence from improvement rate trend.
+        stability_confidence: Confidence from loss stability.
+        plateau_confidence: Confidence from plateau detection.
+        gradient_confidence: Confidence from gradient norms (if available).
+        is_converged: Whether confidence exceeds threshold.
+        reason: Human-readable explanation of confidence level.
+    """
+
+    epoch: int
+    confidence: float
+    improvement_confidence: float
+    stability_confidence: float
+    plateau_confidence: float
+    gradient_confidence: float
+    is_converged: bool
+    reason: str
+
+
+@dataclass
+class ConvergenceConfidenceScorer:
+    """Real-time convergence confidence estimation.
+
+    Computes a probabilistic estimate of whether optimization has converged
+    based on multiple signals:
+    - Improvement rate trend (declining improvement suggests convergence)
+    - Loss stability (low variance in recent losses suggests convergence)
+    - Plateau detection (sustained plateaus increase confidence)
+    - Gradient norms (small gradients suggest convergence, if provided)
+
+    The scorer can be used during training to decide when to stop early.
+
+    Attributes:
+        improvement_weight: Weight for improvement rate signal (default: 0.3).
+        stability_weight: Weight for loss stability signal (default: 0.3).
+        plateau_weight: Weight for plateau detection signal (default: 0.25).
+        gradient_weight: Weight for gradient norm signal (default: 0.15).
+        stability_window: Window size for stability computation (default: 20).
+        improvement_threshold: Improvement rate below this is "converged" (default: 0.001).
+        stability_threshold: Variance below this is "stable" (default: 0.01).
+        convergence_threshold: Confidence above this triggers is_converged (default: 0.8).
+
+    Example:
+        >>> scorer = ConvergenceConfidenceScorer()
+        >>> tracker = LossImprovementTracker()
+        >>>
+        >>> for epoch in range(epochs):
+        ...     loss = train_step(...)
+        ...     metrics = tracker.update(loss)
+        ...     confidence = scorer.update(tracker, grad_norm=compute_grad_norm())
+        ...
+        ...     if confidence.is_converged:
+        ...         print(f"Converged at epoch {epoch}: {confidence.reason}")
+        ...         break
+    """
+
+    # Weights for combining signals (must sum to 1.0)
+    improvement_weight: float = 0.30
+    stability_weight: float = 0.30
+    plateau_weight: float = 0.25
+    gradient_weight: float = 0.15
+
+    # Thresholds
+    stability_window: int = 20
+    improvement_threshold: float = 0.001  # 0.1% improvement
+    stability_threshold: float = 0.01  # Normalized variance threshold
+    convergence_threshold: float = 0.8  # Confidence to declare converged
+
+    # Internal state
+    _gradient_history: list[float] = field(default_factory=list, repr=False)
+    _confidence_history: list[float] = field(default_factory=list, repr=False)
+    _epoch: int = field(default=0, repr=False)
+
+    def reset(self) -> None:
+        """Reset the scorer to initial state."""
+        self._gradient_history.clear()
+        self._confidence_history.clear()
+        self._epoch = 0
+
+    def update(
+        self,
+        tracker: LossImprovementTracker,
+        grad_norm: float | None = None,
+    ) -> ConvergenceConfidence:
+        """Compute convergence confidence based on current tracker state.
+
+        Args:
+            tracker: LossImprovementTracker with current optimization state.
+            grad_norm: Optional gradient norm for current epoch.
+
+        Returns:
+            ConvergenceConfidence with detailed confidence breakdown.
+        """
+        epoch = self._epoch
+        self._epoch += 1
+
+        # Store gradient if provided
+        if grad_norm is not None:
+            self._gradient_history.append(grad_norm)
+
+        # Compute individual confidence signals
+        improvement_conf = self._compute_improvement_confidence(tracker)
+        stability_conf = self._compute_stability_confidence(tracker)
+        plateau_conf = self._compute_plateau_confidence(tracker)
+        gradient_conf = self._compute_gradient_confidence()
+
+        # Combine signals with weights
+        # Adjust weights if gradient not available
+        if not self._gradient_history:
+            # Redistribute gradient weight to other signals
+            total_weight = self.improvement_weight + self.stability_weight + self.plateau_weight
+            improvement_w = self.improvement_weight / total_weight
+            stability_w = self.stability_weight / total_weight
+            plateau_w = self.plateau_weight / total_weight
+            gradient_w = 0.0
+        else:
+            improvement_w = self.improvement_weight
+            stability_w = self.stability_weight
+            plateau_w = self.plateau_weight
+            gradient_w = self.gradient_weight
+
+        confidence = (
+            improvement_w * improvement_conf
+            + stability_w * stability_conf
+            + plateau_w * plateau_conf
+            + gradient_w * gradient_conf
+        )
+
+        # Clamp to [0, 1]
+        confidence = max(0.0, min(1.0, confidence))
+        self._confidence_history.append(confidence)
+
+        # Determine if converged
+        is_converged = confidence >= self.convergence_threshold
+
+        # Generate reason
+        reason = self._generate_reason(
+            confidence,
+            improvement_conf,
+            stability_conf,
+            plateau_conf,
+            gradient_conf,
+            is_converged,
+        )
+
+        return ConvergenceConfidence(
+            epoch=epoch,
+            confidence=confidence,
+            improvement_confidence=improvement_conf,
+            stability_confidence=stability_conf,
+            plateau_confidence=plateau_conf,
+            gradient_confidence=gradient_conf,
+            is_converged=is_converged,
+            reason=reason,
+        )
+
+    def _compute_improvement_confidence(self, tracker: LossImprovementTracker) -> float:
+        """Compute confidence from improvement rate trend.
+
+        Low improvement rate = high confidence in convergence.
+        Also considers velocity (slowing improvement = higher confidence).
+
+        Returns:
+            Confidence value from 0.0 to 1.0.
+        """
+        if tracker.current_epoch < 2:
+            return 0.0
+
+        rates = tracker.improvement_rate_history
+        if len(rates) < 5:
+            return 0.0
+
+        # Use recent improvement rate
+        recent_window = min(20, len(rates))
+        recent_rates = rates[-recent_window:]
+        avg_rate = sum(recent_rates) / len(recent_rates)
+
+        # Map improvement rate to confidence
+        # Below threshold = high confidence, above = low confidence
+        if avg_rate <= 0:
+            # Negative or zero improvement = definitely converged (or stuck)
+            rate_confidence = 1.0
+        elif avg_rate < self.improvement_threshold:
+            # Below threshold, high confidence
+            rate_confidence = 1.0 - (avg_rate / self.improvement_threshold) * 0.3
+        elif avg_rate < self.improvement_threshold * 10:
+            # Moderate improvement, moderate confidence
+            rate_confidence = (
+                0.7
+                - (avg_rate - self.improvement_threshold) / (self.improvement_threshold * 9) * 0.5
+            )
+        else:
+            # High improvement, low confidence
+            rate_confidence = max(0.0, 0.2 - avg_rate * 0.1)
+
+        # Boost confidence if velocity is negative (improvement slowing)
+        velocity = tracker._compute_velocity()
+        if velocity < 0:
+            # Slowing down, boost confidence
+            velocity_boost = min(0.2, abs(velocity) * 10)
+            rate_confidence = min(1.0, rate_confidence + velocity_boost)
+
+        return rate_confidence
+
+    def _compute_stability_confidence(self, tracker: LossImprovementTracker) -> float:
+        """Compute confidence from loss stability.
+
+        Low variance in recent losses = high confidence.
+
+        Returns:
+            Confidence value from 0.0 to 1.0.
+        """
+        losses = tracker.loss_history
+        if len(losses) < self.stability_window:
+            return 0.0
+
+        recent_losses = losses[-self.stability_window :]
+        mean_loss = sum(recent_losses) / len(recent_losses)
+
+        if abs(mean_loss) < 1e-10:
+            # Near-zero loss, consider stable
+            return 1.0
+
+        # Compute coefficient of variation (normalized std dev)
+        variance = sum((x - mean_loss) ** 2 for x in recent_losses) / len(recent_losses)
+        std_dev = variance**0.5
+        cv = std_dev / abs(mean_loss)
+
+        # Map CV to confidence
+        # Low CV = high stability = high confidence
+        if cv < self.stability_threshold:
+            return 1.0
+        elif cv < self.stability_threshold * 5:
+            stability_conf = 1.0 - (cv - self.stability_threshold) / (self.stability_threshold * 4)
+            return float(stability_conf)
+        else:
+            stability_conf = 0.2 - cv * 0.1
+            return stability_conf if stability_conf > 0.0 else 0.0
+
+    def _compute_plateau_confidence(self, tracker: LossImprovementTracker) -> float:
+        """Compute confidence from plateau detection.
+
+        Currently in plateau = high confidence.
+        Multiple past plateaus = moderate confidence boost.
+
+        Returns:
+            Confidence value from 0.0 to 1.0.
+        """
+        # Check if currently in a plateau
+        current_plateau = tracker.current_plateau
+        if current_plateau is not None:
+            # Currently in plateau - high confidence
+            # Longer plateau = higher confidence
+            duration_factor = min(1.0, current_plateau.duration / 100)
+            return 0.7 + 0.3 * duration_factor
+
+        # Not currently in plateau, but check history
+        past_plateaus = tracker.plateau_events
+        if not past_plateaus:
+            return 0.0
+
+        # Recent plateau exit still suggests near-convergence
+        last_plateau = past_plateaus[-1]
+        epochs_since_plateau = tracker.current_epoch - last_plateau.end_epoch
+
+        if epochs_since_plateau < 10:
+            # Recently exited plateau
+            plateau_conf = 0.6 - epochs_since_plateau * 0.03
+            return plateau_conf if plateau_conf > 0.3 else 0.3
+        else:
+            # Long time since plateau
+            plateau_conf = 0.3 - (epochs_since_plateau - 10) * 0.01
+            return plateau_conf if plateau_conf > 0.0 else 0.0
+
+    def _compute_gradient_confidence(self) -> float:
+        """Compute confidence from gradient norms.
+
+        Small gradient norms = high confidence.
+
+        Returns:
+            Confidence value from 0.0 to 1.0.
+        """
+        if not self._gradient_history:
+            return 0.0
+
+        # Use recent gradient history
+        recent_window = min(10, len(self._gradient_history))
+        recent_grads = self._gradient_history[-recent_window:]
+        avg_grad = sum(recent_grads) / len(recent_grads)
+
+        # Also check if gradients are decreasing
+        if len(self._gradient_history) >= 5:
+            early_grads = self._gradient_history[:5]
+            early_avg = sum(early_grads) / len(early_grads)
+
+            if early_avg > 1e-10:
+                grad_ratio = avg_grad / early_avg
+            else:
+                grad_ratio = 1.0
+        else:
+            grad_ratio = 1.0
+
+        # Map gradient magnitude to confidence
+        # This is heuristic - actual thresholds depend on problem scale
+        # Use relative decrease as primary signal
+        if grad_ratio < 0.01:
+            magnitude_conf = 1.0
+        elif grad_ratio < 0.1:
+            magnitude_conf = 0.8 + 0.2 * (0.1 - grad_ratio) / 0.09
+        elif grad_ratio < 0.5:
+            magnitude_conf = 0.4 + 0.4 * (0.5 - grad_ratio) / 0.4
+        else:
+            magnitude_conf = 0.4 * (1.0 - grad_ratio)
+            return magnitude_conf if magnitude_conf > 0.0 else 0.0
+
+        return magnitude_conf
+
+    def _generate_reason(
+        self,
+        confidence: float,
+        improvement_conf: float,
+        stability_conf: float,
+        plateau_conf: float,
+        gradient_conf: float,
+        is_converged: bool,
+    ) -> str:
+        """Generate a human-readable reason for the confidence level.
+
+        Returns:
+            Explanation string.
+        """
+        if is_converged:
+            # Find dominant signal
+            signals = [
+                ("low improvement rate", improvement_conf),
+                ("stable loss", stability_conf),
+                ("plateau detected", plateau_conf),
+                ("small gradients", gradient_conf),
+            ]
+            signals.sort(key=lambda x: x[1], reverse=True)
+
+            top_reasons = [s[0] for s in signals[:2] if s[1] > 0.5]
+            if top_reasons:
+                return f"Converged: {', '.join(top_reasons)}"
+            else:
+                return "Converged: multiple weak signals"
+        else:
+            if confidence < 0.3:
+                return "Not converged: still improving significantly"
+            elif confidence < 0.5:
+                return "Not converged: moderate improvement continues"
+            elif confidence < 0.7:
+                return "Approaching convergence: improvement slowing"
+            else:
+                return "Near convergence: minor adjustments continue"
+
+    @property
+    def confidence_history(self) -> list[float]:
+        """Get the full confidence history."""
+        return list(self._confidence_history)
+
+    @property
+    def gradient_history(self) -> list[float]:
+        """Get the full gradient norm history."""
+        return list(self._gradient_history)
+
+    def get_summary(self) -> dict[str, Any]:
+        """Get a summary of convergence confidence statistics.
+
+        Returns:
+            Dictionary with summary statistics.
+        """
+        if not self._confidence_history:
+            return {
+                "total_epochs": 0,
+                "final_confidence": 0.0,
+                "max_confidence": 0.0,
+                "avg_confidence": 0.0,
+                "epochs_above_threshold": 0,
+                "first_convergence_epoch": -1,
+            }
+
+        final_conf = self._confidence_history[-1]
+        max_conf = max(self._confidence_history)
+        avg_conf = sum(self._confidence_history) / len(self._confidence_history)
+
+        # Count epochs above threshold
+        above_threshold = sum(
+            1 for c in self._confidence_history if c >= self.convergence_threshold
+        )
+
+        # Find first convergence epoch
+        first_conv = -1
+        for i, c in enumerate(self._confidence_history):
+            if c >= self.convergence_threshold:
+                first_conv = i
+                break
+
+        return {
+            "total_epochs": len(self._confidence_history),
+            "final_confidence": final_conf,
+            "max_confidence": max_conf,
+            "avg_confidence": avg_conf,
+            "epochs_above_threshold": above_threshold,
+            "first_convergence_epoch": first_conv,
+        }

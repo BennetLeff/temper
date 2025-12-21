@@ -52,8 +52,11 @@ from temper_placer.optimizer.config import (
 )
 from temper_placer.optimizer.convergence_analytics import (
     ConvergenceAnalyzer,
+    ConvergenceConfidence,
+    ConvergenceConfidenceScorer,
     ImprovementMetrics,
     LossImprovementTracker,
+    PlateauEvent,
 )
 from temper_placer.optimizer.curriculum import (
     CurriculumState,
@@ -115,6 +118,9 @@ __all__ = [
     "LossImprovementTracker",
     "ImprovementMetrics",
     "ConvergenceAnalyzer",
+    "PlateauEvent",
+    "ConvergenceConfidence",
+    "ConvergenceConfidenceScorer",
     # Scheduler
     "get_temperature",
     "get_learning_rate",

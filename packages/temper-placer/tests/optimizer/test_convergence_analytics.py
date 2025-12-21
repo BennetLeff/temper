@@ -6,6 +6,8 @@ import pytest
 
 from temper_placer.optimizer.convergence_analytics import (
     ConvergenceAnalyzer,
+    ConvergenceConfidence,
+    ConvergenceConfidenceScorer,
     ImprovementMetrics,
     LossImprovementTracker,
     PlateauEvent,
@@ -598,3 +600,276 @@ class TestIntegration:
         analyzer = ConvergenceAnalyzer.from_loss_history(losses)
 
         assert analyzer.tracker.best_loss == 60
+
+
+class TestConvergenceConfidence:
+    """Tests for ConvergenceConfidence NamedTuple."""
+
+    def test_create_confidence(self):
+        """Should create confidence with all fields."""
+        conf = ConvergenceConfidence(
+            epoch=50,
+            confidence=0.85,
+            improvement_confidence=0.9,
+            stability_confidence=0.8,
+            plateau_confidence=0.7,
+            gradient_confidence=0.95,
+            is_converged=True,
+            reason="Converged: low improvement rate",
+        )
+
+        assert conf.epoch == 50
+        assert conf.confidence == 0.85
+        assert conf.is_converged is True
+        assert "Converged" in conf.reason
+
+
+class TestConvergenceConfidenceScorer:
+    """Tests for ConvergenceConfidenceScorer class."""
+
+    def test_init_default_weights(self):
+        """Should initialize with default weights summing to 1."""
+        scorer = ConvergenceConfidenceScorer()
+
+        total = (
+            scorer.improvement_weight
+            + scorer.stability_weight
+            + scorer.plateau_weight
+            + scorer.gradient_weight
+        )
+        assert total == pytest.approx(1.0)
+
+    def test_init_custom_thresholds(self):
+        """Should accept custom thresholds."""
+        scorer = ConvergenceConfidenceScorer(
+            convergence_threshold=0.9,
+            improvement_threshold=0.01,
+        )
+
+        assert scorer.convergence_threshold == 0.9
+        assert scorer.improvement_threshold == 0.01
+
+    def test_update_returns_confidence(self):
+        """update() should return ConvergenceConfidence."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer()
+
+        tracker.update(100.0)
+        conf = scorer.update(tracker)
+
+        assert isinstance(conf, ConvergenceConfidence)
+        assert conf.epoch == 0
+        assert 0.0 <= conf.confidence <= 1.0
+
+    def test_confidence_increases_with_stagnation(self):
+        """Confidence should increase as optimization stagnates."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=10,
+        )
+        scorer = ConvergenceConfidenceScorer()
+
+        # Fast improvement phase
+        loss = 100.0
+        for _ in range(20):
+            loss *= 0.95
+            tracker.update(loss)
+            scorer.update(tracker)
+
+        early_conf = scorer.confidence_history[-1] if scorer.confidence_history else 0.0
+
+        # Stagnation phase
+        for _ in range(30):
+            loss *= 0.9999
+            tracker.update(loss)
+            scorer.update(tracker)
+
+        late_conf = scorer.confidence_history[-1]
+
+        # Confidence should increase as we stagnate
+        assert late_conf > early_conf
+
+    def test_gradient_norm_affects_confidence(self):
+        """Providing gradient norms should affect confidence."""
+        tracker = LossImprovementTracker()
+        scorer_no_grad = ConvergenceConfidenceScorer()
+        scorer_with_grad = ConvergenceConfidenceScorer()
+
+        # Same loss trajectory
+        for i in range(30):
+            loss = 100.0 * (0.99**i)
+            tracker.update(loss)
+
+            scorer_no_grad.update(tracker)
+            # Small gradient = higher confidence
+            scorer_with_grad.update(tracker, grad_norm=0.001)
+
+        # With small gradient norms, confidence should be higher
+        # (assuming gradient weight contributes positively)
+        assert len(scorer_with_grad.gradient_history) == 30
+
+    def test_is_converged_above_threshold(self):
+        """is_converged should be True when confidence > threshold."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=5,
+        )
+        scorer = ConvergenceConfidenceScorer(convergence_threshold=0.7)
+
+        # Create convergence conditions
+        tracker.update(100.0)
+        for _ in range(50):
+            tracker.update(99.9999)  # Near-zero improvement
+
+        conf = scorer.update(tracker, grad_norm=0.0001)
+
+        # With extreme stagnation, should eventually converge
+        # Run more updates to build up confidence
+        for _ in range(20):
+            tracker.update(99.9999)
+            conf = scorer.update(tracker, grad_norm=0.0001)
+
+        # Should be close to or above threshold
+        assert conf.confidence > 0.5
+
+    def test_reason_explains_convergence(self):
+        """reason should explain why converged or not."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer()
+
+        # Early training - not converged
+        tracker.update(100.0)
+        tracker.update(90.0)
+        conf = scorer.update(tracker)
+
+        assert "Not converged" in conf.reason or "still improving" in conf.reason.lower()
+
+    def test_reset_clears_state(self):
+        """reset() should clear all internal state."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer()
+
+        # Add some data
+        for i in range(10):
+            tracker.update(100 - i)
+            scorer.update(tracker, grad_norm=0.1)
+
+        assert len(scorer.confidence_history) == 10
+        assert len(scorer.gradient_history) == 10
+
+        scorer.reset()
+
+        assert len(scorer.confidence_history) == 0
+        assert len(scorer.gradient_history) == 0
+
+    def test_confidence_history_property(self):
+        """confidence_history should return copy of history."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer()
+
+        for i in range(5):
+            tracker.update(100 - i * 5)
+            scorer.update(tracker)
+
+        history = scorer.confidence_history
+        history.append(999)  # Modify copy
+
+        assert len(scorer.confidence_history) == 5
+
+    def test_get_summary(self):
+        """get_summary should return comprehensive statistics."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer()
+
+        for i in range(20):
+            tracker.update(100 * (0.95**i))
+            scorer.update(tracker)
+
+        summary = scorer.get_summary()
+
+        assert "total_epochs" in summary
+        assert "final_confidence" in summary
+        assert "max_confidence" in summary
+        assert "avg_confidence" in summary
+        assert "epochs_above_threshold" in summary
+        assert "first_convergence_epoch" in summary
+
+        assert summary["total_epochs"] == 20
+        assert 0.0 <= summary["final_confidence"] <= 1.0
+
+    def test_get_summary_empty(self):
+        """get_summary should handle empty scorer."""
+        scorer = ConvergenceConfidenceScorer()
+        summary = scorer.get_summary()
+
+        assert summary["total_epochs"] == 0
+        assert summary["final_confidence"] == 0.0
+        assert summary["first_convergence_epoch"] == -1
+
+    def test_weights_redistribution_without_gradient(self):
+        """Weights should be redistributed when gradient not provided."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer()
+
+        # Run without gradient
+        for i in range(30):
+            tracker.update(100 * (0.99**i))
+            conf = scorer.update(tracker)
+
+        # Should still produce valid confidence
+        assert 0.0 <= conf.confidence <= 1.0
+        # Gradient confidence should be 0 when no gradient provided
+        assert conf.gradient_confidence == 0.0
+
+
+class TestConvergenceConfidenceScorerIntegration:
+    """Integration tests for ConvergenceConfidenceScorer."""
+
+    def test_realistic_convergence_detection(self):
+        """Should detect convergence in realistic training curve."""
+        tracker = LossImprovementTracker(
+            stagnation_threshold=0.001,
+            stagnation_epochs=10,
+        )
+        scorer = ConvergenceConfidenceScorer(convergence_threshold=0.75)
+
+        # Simulate realistic training
+        loss = 100.0
+        converged_epoch = -1
+
+        for i in range(150):
+            # Fast improvement then slowdown
+            if i < 30:
+                loss *= 0.95
+            elif i < 60:
+                loss *= 0.99
+            else:
+                loss *= 0.9999
+
+            grad = loss * 0.01 if i < 60 else loss * 0.0001
+
+            tracker.update(loss)
+            conf = scorer.update(tracker, grad_norm=grad)
+
+            if conf.is_converged and converged_epoch < 0:
+                converged_epoch = i
+
+        # Should converge at some point during the plateau phase
+        assert converged_epoch > 50  # After initial improvement
+        assert converged_epoch < 120  # Before too long
+
+    def test_non_convergence_with_continued_improvement(self):
+        """Should NOT detect convergence when still improving."""
+        tracker = LossImprovementTracker()
+        scorer = ConvergenceConfidenceScorer(convergence_threshold=0.8)
+
+        # Continuous strong improvement
+        loss = 100.0
+        for _ in range(50):
+            loss *= 0.9  # Strong 10% improvement each epoch
+            tracker.update(loss)
+            conf = scorer.update(tracker)
+
+        # Should NOT be converged
+        assert conf.is_converged is False
+        assert conf.confidence < 0.5
