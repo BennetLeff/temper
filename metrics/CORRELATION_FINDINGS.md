@@ -5,6 +5,24 @@
 **Samples:** 30 placements with routing verification  
 **Config:** temper_minimal.yaml  
 
+## ⚠️ CAUTION: Preliminary Results - Do Not Act On Yet
+
+**Status:** These findings require validation before use.
+
+The analysis revealed several methodological issues that must be resolved:
+
+| Issue | Concern | Tracking |
+|-------|---------|----------|
+| Config mismatch | 16 losses measured but config only specifies 4 | temper-h0n9.5 |
+| Spread paradox | Spread hurts routing (counterintuitive) | temper-h0n9.6 |
+| Weak effect size | R² < 20% for all predictors | temper-h0n9.7 |
+| No success cases | All 30 samples failed routing (26% mean) | temper-h0n9.7 |
+| Potential confounding | Losses may correlate with each other | temper-h0n9.8 |
+
+**Action:** Complete investigation tasks (temper-h0n9.5 through temper-h0n9.9) before proceeding to weight tuning (temper-h0n9.4).
+
+---
+
 ## Executive Summary
 
 The correlation analysis with 30 samples reveals that only a few loss functions have meaningful correlation with routing success. Most losses show zero or near-zero correlation, indicating they may not meaningfully impact routability.
@@ -133,12 +151,41 @@ losses:
 | boundary | Strong negative | Constant | ⚠️ Not testable |
 | group_cluster | Moderate positive | Zero | ⚠️ Need investigation |
 
-## Next Steps
+## Next Steps (Scientific Method)
 
-1. **temper-h0n9.2:** Investigate constant losses (boundary, alignment, etc.)
-2. **temper-h0n9.3:** Validate correlation results with different configs
-3. **temper-h0n9.4:** Apply weight tuning based on these findings
-4. **Consider:** Re-running with more samples (50+) for higher confidence
+### Required Before Weight Tuning
+
+| Task | Purpose | Priority |
+|------|---------|----------|
+| temper-h0n9.5 | Verify optimizer respects config (why 16 losses?) | P1 |
+| temper-h0n9.6 | Investigate spread loss definition (inverted?) | P1 |
+| temper-h0n9.9 | Enhance script to save raw data | P2 |
+| temper-h0n9.8 | Compute inter-loss correlations (confounding?) | P1 |
+| temper-h0n9.7 | Increase variance for better signal | P2 |
+
+### Blocked Until Investigation Complete
+
+| Task | Purpose | Blocked By |
+|------|---------|------------|
+| temper-h0n9.4 | Apply weight tuning | h0n9.5, h0n9.6, h0n9.8 |
+
+### Investigation Questions
+
+1. **Why does the optimizer report 16 losses when config specifies 4?**
+   - Are there hardcoded defaults?
+   - Is the config being applied correctly?
+
+2. **Why does spread loss hurt routing?**
+   - Is "spread" measuring something different than expected?
+   - Is it confounded with another variable?
+
+3. **Are losses correlated with each other?**
+   - If spread and overlap correlate, one may be redundant
+   - Need raw data to compute inter-loss correlations
+
+4. **Can we get more variance in routing outcomes?**
+   - Current: 15-38% completion range
+   - Need: Include some 50%+ success cases
 
 ## Raw Data Reference
 
