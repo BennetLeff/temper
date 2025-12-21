@@ -116,10 +116,11 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
         print(f"  Starting optimization with seed {seed}, epochs={epochs}...", flush=True)
 
         # Build command to run temper-placer optimize via CLI
+        # Use the temper-placer command from venv instead of -m
+        venv_bin = Path(sys.executable).parent
+        temper_placer_cmd = venv_bin / "temper-placer"
         cmd = [
-            sys.executable,
-            "-m",
-            "temper_placer.cli",
+            str(temper_placer_cmd),
             "optimize",
             str(pcb_path),
             "-c",
