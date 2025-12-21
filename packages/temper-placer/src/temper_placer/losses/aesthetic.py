@@ -382,12 +382,12 @@ class PortFacingRotationLoss(LossFunction):
     Attributes:
         group_indices: (G, M) array of component indices in each group.
         primary_pin_offsets: (G, 2) local (x,y) offset of the primary pin relative to group centroid.
-        target_positions: (G, 2) absolute (x,y) positions of the external source/destination.
+        target_indices: (G, K) indices of target components to face (e.g., connected net).
     """
 
     group_indices: Array  # (G, M)
     primary_pin_offsets: Array  # (G, 2)
-    target_positions: Array  # (G, 2)
+    target_indices: Array  # (G, K)
 
     @property
     def name(self) -> str:
@@ -409,47 +409,56 @@ class PortFacingRotationLoss(LossFunction):
             mask = indices != -1
             safe_indices = jnp.where(mask, indices, 0)
 
-            # 1. Get group centroid
+            # 1. Get Group Centroid
             group_pos = positions[safe_indices]
             n_valid = jnp.sum(mask)
             centroid = jnp.sum(group_pos * mask[:, None], axis=0) / jnp.maximum(n_valid, 1.0)
 
-            # 2. Get target vector (centroid to target source)
-            target_vec = self.target_positions[g_idx] - centroid
-            target_angle = jnp.arctan2(target_vec[1], target_vec[0])
-
-            # 3. Get group rotation (average or representative)
-            # For a rigid block, all components should share same discrete rotation
-            # We take the mean rotation angle
+            # 2. Get Group Rotation (Average)
             angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
-            group_rotations = rotations[safe_indices] # (M, 4)
-            comp_angles = jnp.sum(group_rotations * angles[None, :], axis=1) # (M,)
+            group_rotations = rotations[safe_indices]  # (M, 4)
+            comp_angles = jnp.sum(group_rotations * angles[None, :], axis=1)  # (M,)
             avg_angle = jnp.sum(comp_angles * mask) / jnp.maximum(n_valid, 1.0)
 
-            # 4. Local primary pin vector (unrotated)
-            p_local = self.primary_pin_offsets[g_idx]
+            # 3. Get Target Centroid
+            t_indices = self.target_indices[g_idx]
+            t_mask = t_indices != -1
+            t_safe_indices = jnp.where(t_mask, t_indices, 0)
 
-            # 5. Rotated primary pin vector
+            target_pos_arr = positions[t_safe_indices]
+            n_targets = jnp.sum(t_mask)
+            target_centroid = jnp.sum(target_pos_arr * t_mask[:, None], axis=0) / jnp.maximum(
+                n_targets, 1.0
+            )
+
+            # 4. Vector from Group to Target
+            target_vec = target_centroid - centroid
+
+            # 5. Rotated Primary Pin Vector
+            p_local = self.primary_pin_offsets[g_idx]
             cos_a = jnp.cos(avg_angle)
             sin_a = jnp.sin(avg_angle)
-            p_rotated = jnp.array([
-                p_local[0] * cos_a - p_local[1] * sin_a,
-                p_local[0] * sin_a + p_local[1] * cos_a
-            ])
+            p_rotated = jnp.array(
+                [
+                    p_local[0] * cos_a - p_local[1] * sin_a,
+                    p_local[0] * sin_a + p_local[1] * cos_a,
+                ]
+            )
 
-            # 6. Penalize cosine distance between p_rotated and target_vec
-            # (Encourages them to point in same direction)
+            # 6. Cosine Distance
             p_norm = p_rotated / (jnp.linalg.norm(p_rotated) + 1e-6)
             t_norm = target_vec / (jnp.linalg.norm(target_vec) + 1e-6)
 
-            # Cosine similarity is 1.0 if identical, -1.0 if opposite
-            # Penalty = 1.0 - cosine_similarity
+            # Penalty = 1.0 - cosine_similarity (0 if aligned, 2 if opposite)
             penalty = 1.0 - jnp.dot(p_norm, t_norm)
 
-            return penalty
+            # Zero out penalty if no targets
+            return jnp.where(n_targets > 0, penalty, 0.0)
 
         # Sum over all groups
-        total_penalty = jnp.sum(jax.vmap(compute_group_facing_loss)(jnp.arange(self.group_indices.shape[0])))
+        total_penalty = jnp.sum(
+            jax.vmap(compute_group_facing_loss)(jnp.arange(self.group_indices.shape[0]))
+        )
 
         return LossResult(value=total_penalty)
 
@@ -540,6 +549,140 @@ def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> 
     return jnp.array(padded, dtype=jnp.int32)
 
 
+def get_port_facing_data(
+    netlist: Netlist, constraints: PlacementConstraints
+) -> tuple[Array, Array, Array]:
+    """
+    Prepare data for PortFacingRotationLoss.
+
+    Returns:
+        group_indices: (G, M) array of component indices in each group.
+        primary_pin_offsets: (G, 2) local (x,y) offset of the primary pin relative to group centroid.
+        target_indices: (G, K) indices of target components to face.
+    """
+    groups_with_pin = [g for g in constraints.component_groups if g.primary_pin]
+    if not groups_with_pin:
+        return (
+            jnp.zeros((0, 0), dtype=jnp.int32),
+            jnp.zeros((0, 2), dtype=jnp.float32),
+            jnp.zeros((0, 0), dtype=jnp.int32),
+        )
+
+    # 1. Prepare lists for construction
+    g_indices_list = []
+    pin_offsets_list = []
+    t_indices_list = []
+
+    for group in groups_with_pin:
+        # Get group component indices
+        g_comp_indices = [netlist.get_component_index(ref) for ref in group.components]
+        g_indices_list.append(g_comp_indices)
+
+        # Find primary pin component and offset
+        pin_comp_ref = None
+        pin_name = group.primary_pin
+        
+        # Check if primary_pin is "Ref:Pin" or just "Pin" (implying unique in group?)
+        # Constraint documentation usually implies "PinName" on one of the components.
+        # But which one? The group might have multiple components.
+        # We assume primary_pin format is either "PinName" (and we search) or "Ref:PinName".
+        
+        target_comp = None
+        target_pin_obj = None
+
+        if ":" in pin_name:
+            ref, pin = pin_name.split(":")
+            if ref in group.components:
+                target_comp = netlist.get_component(ref)
+                target_pin_obj = target_comp.get_pin(pin)
+        else:
+            # Search all components in group for this pin
+            for ref in group.components:
+                comp = netlist.get_component(ref)
+                p = comp.get_pin(pin_name)
+                if p:
+                    target_comp = comp
+                    target_pin_obj = p
+                    break
+        
+        if not target_comp or not target_pin_obj:
+            # Skip invalid groups (warn in logs in real app)
+            continue
+            
+        # Calculate approximate group centroid for offset calculation
+        # We rely on initial_positions if available, else assume 0
+        # If components don't have initial positions, we treat the pin-bearing component as center
+        
+        # Collect available positions
+        positions = []
+        for ref in group.components:
+            c = netlist.get_component(ref)
+            if c.initial_position:
+                positions.append(c.initial_position)
+            elif c == target_comp:
+                 positions.append((0.0, 0.0)) # Relative origin
+        
+        if positions:
+            centroid_x = sum(p[0] for p in positions) / len(positions)
+            centroid_y = sum(p[1] for p in positions) / len(positions)
+        else:
+            centroid_x, centroid_y = 0.0, 0.0
+            
+        # Target component position (relative to world 0 if using initial positions)
+        # But we need relative to centroid.
+        
+        comp_x, comp_y = 0.0, 0.0
+        if target_comp.initial_position:
+             comp_x, comp_y = target_comp.initial_position
+        
+        # Pin offset relative to component center
+        px, py = target_pin_obj.position
+        
+        # Pin offset relative to group centroid
+        # P_global = C_global + P_local_to_C
+        # P_rel_G = P_global - G_global = (C_global - G_global) + P_local_to_C
+        
+        off_x = (comp_x - centroid_x) + px
+        off_y = (comp_y - centroid_y) + py
+        
+        pin_offsets_list.append([off_x, off_y])
+        
+        # Find targets (components connected to this pin, EXCLUDING group members)
+        net_name = target_pin_obj.net
+        targets = []
+        if net_name:
+            net = netlist.get_net(net_name)
+            for ref, _ in net.pins:
+                if ref not in group.components:
+                    targets.append(netlist.get_component_index(ref))
+        
+        t_indices_list.append(targets)
+
+    # Pad and convert to arrays
+    if not g_indices_list:
+         return (
+            jnp.zeros((0, 0), dtype=jnp.int32),
+            jnp.zeros((0, 2), dtype=jnp.float32),
+            jnp.zeros((0, 0), dtype=jnp.int32),
+        )
+
+    # Pad groups
+    max_g = max(len(g) for g in g_indices_list)
+    g_arr = jnp.array([g + [-1] * (max_g - len(g)) for g in g_indices_list], dtype=jnp.int32)
+    
+    # Offsets
+    off_arr = jnp.array(pin_offsets_list, dtype=jnp.float32)
+    
+    # Pad targets
+    max_t = max(len(t) for t in t_indices_list) if t_indices_list else 0
+    if max_t == 0:
+         t_arr = jnp.full((len(t_indices_list), 0), -1, dtype=jnp.int32)
+    else:
+         t_arr = jnp.array([t + [-1] * (max_t - len(t)) for t in t_indices_list], dtype=jnp.int32)
+         
+    return g_arr, off_arr, t_arr
+
+
 __all__ = [
     "AlignmentLoss",
     "ConsensusLayoutLoss",
@@ -550,7 +693,10 @@ __all__ = [
     "create_aesthetic_losses",
     "get_prefix_groups",
     "get_template_groups",
+    "get_port_facing_data",
 ]
+
+
 def create_aesthetic_losses(
     netlist: Netlist,
     constraints: PlacementConstraints,
@@ -607,6 +753,24 @@ def create_aesthetic_losses(
             WeightedLoss(
                 RotationConsistencyLoss(),
                 weight=aesthetic_cfg.rotation_consistency_weight,
+            )
+        )
+
+    # 5. Port Facing Rotation
+    # Use a high default weight for structural constraints if not explicitly configured
+    # Reuse consensus_weight as it is also a structural constraint
+    weight = aesthetic_cfg.consensus_weight if aesthetic_cfg.consensus_weight > 0 else 1.0
+    
+    group_indices, pin_offsets, target_indices = get_port_facing_data(netlist, constraints)
+    if group_indices.shape[0] > 0:
+        losses.append(
+            WeightedLoss(
+                PortFacingRotationLoss(
+                    group_indices=group_indices,
+                    primary_pin_offsets=pin_offsets,
+                    target_indices=target_indices,
+                ),
+                weight=weight * 5.0,  # Boost weight as this is usually critical
             )
         )
 
