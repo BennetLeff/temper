@@ -4,6 +4,9 @@ board:
   height_mm: 100.0
   margin_mm: 5.0
 
+aesthetics:
+  consensus_weight: 20.0 # Boost for testing PortFacing
+
 zones:
   - name: main
     bounds: [0, 0, 100, 100]
