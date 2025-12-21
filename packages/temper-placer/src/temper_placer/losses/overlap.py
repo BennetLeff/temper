@@ -91,6 +91,9 @@ class OverlapLoss(LossFunction):
             LossResult with sum of squared overlap amounts.
         """
         n = positions.shape[0]
+        if n == 0:
+            return LossResult(value=jnp.array(0.0), breakdown={"per_component": jnp.array([])})
+
         bounds = context.bounds  # (N, 2) - (width, height)
 
         # Apply soft-body inflation ramp

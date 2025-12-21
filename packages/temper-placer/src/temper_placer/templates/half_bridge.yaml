@@ -1,0 +1,68 @@
+topology: half_bridge
+
+components:
+  high_side_switch:
+    type: IGBT
+    ref_pattern: 'Q1|Q_H|Q_HIGH'
+    thermal: edge_mount
+    
+  low_side_switch:
+    type: IGBT
+    ref_pattern: 'Q2|Q_L|Q_LOW'
+    thermal: edge_mount
+    
+  gate_driver:
+    type: isolated_gate_driver
+    ref_pattern: 'U_GD|U_GATE|U1'
+    
+  bootstrap_diode:
+    type: fast_diode
+    ref_pattern: 'D_BOOT|D1'
+    
+  bootstrap_cap:
+    type: capacitor
+    ref_pattern: 'C_BOOT|C1'
+
+loops:
+  commutation:
+    type: commutation
+    path: [high_side_switch.C, low_side_switch.E] # Simplified
+    max_area_mm2: 500
+    priority: critical
+    
+  gate_drive_high:
+    type: gate_drive
+    path: [gate_driver.OUTA, high_side_switch.G, high_side_switch.E, gate_driver.VSSA]
+    max_area_mm2: 100
+    priority: critical
+    
+  gate_drive_low:
+    type: gate_drive
+    path: [gate_driver.OUTB, low_side_switch.G, low_side_switch.E, gate_driver.VSSB]
+    max_area_mm2: 100
+    priority: critical
+
+constraints:
+  # IGBTs adjacent for heatsink
+  - type: adjacent
+    a: high_side_switch
+    b: low_side_switch
+    max_distance_mm: 10
+    tier: 1
+    because: 'Share heatsink, minimize commutation loop'
+    
+  # Gate driver close to IGBTs
+  - type: adjacent
+    a: gate_driver
+    b: high_side_switch
+    max_distance_mm: 15
+    tier: 2
+    because: 'Minimize gate drive loop inductance'
+    
+  # Bootstrap components near gate driver
+  - type: adjacent
+    a: bootstrap_diode
+    b: gate_driver
+    max_distance_mm: 5
+    tier: 2
+    because: 'Fast bootstrap charging'

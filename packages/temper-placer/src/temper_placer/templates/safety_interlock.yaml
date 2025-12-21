@@ -1,0 +1,13 @@
+topology: safety_interlock
+
+components:
+  watchdog:
+    type: TPS3823
+    ref_pattern: 'U_WDT'
+
+constraints:
+  - type: enclosing
+    outer: MCU_ZONE
+    inner: [watchdog]
+    tier: 2
+    because: 'Safety logic with control circuits'

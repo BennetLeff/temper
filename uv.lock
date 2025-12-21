@@ -1172,6 +1172,7 @@ dependencies = [
     { name = "click" },
     { name = "jax" },
     { name = "jaxlib" },
+    { name = "jsonschema" },
     { name = "kiutils" },
     { name = "networkx" },
     { name = "numpy" },
@@ -1186,7 +1187,6 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
-    { name = "jsonschema" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -1208,7 +1208,7 @@ requires-dist = [
     { name = "jax", specifier = ">=0.4.20" },
     { name = "jax", extras = ["cuda12-pip"], marker = "extra == 'gpu'", specifier = ">=0.4.20" },
     { name = "jaxlib", specifier = ">=0.4.20" },
-    { name = "jsonschema", marker = "extra == 'dev'", specifier = ">=4.20.0" },
+    { name = "jsonschema", specifier = ">=4.20.0" },
     { name = "kiutils", specifier = ">=1.4.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "networkx", specifier = ">=3.0" },

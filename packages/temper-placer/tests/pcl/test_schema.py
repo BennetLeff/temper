@@ -17,7 +17,7 @@ import pytest
 from jsonschema import validate, ValidationError, Draft202012Validator
 
 # Path to schema and fixtures
-SCHEMA_PATH = Path(__file__).parent.parent.parent / "configs" / "schemas" / "pcl.schema.json"
+SCHEMA_PATH = Path(__file__).parent.parent.parent / "src" / "temper_placer" / "pcl" / "schemas" / "pcl.schema.json"
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 

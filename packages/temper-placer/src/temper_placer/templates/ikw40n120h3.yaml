@@ -1,0 +1,11 @@
+component: IKW40N120H3
+type: IGBT
+package: TO-247
+
+constraints:
+  - type: on_side
+    side: top
+    edge: flush
+    max_distance_mm: 5.0
+    tier: 1
+    because: 'TO-247 requires board edge mounting for heatsink'

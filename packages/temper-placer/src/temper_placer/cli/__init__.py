@@ -3,6 +3,7 @@ Command-line interface for temper-placer.
 
 Usage:
     temper-placer optimize INPUT -c CONFIG -o OUTPUT [--visualize]
+    temper-placer pipeline INPUT --dry-run --constraints PCL
     temper-placer validate INPUT [--drc] [--ngspice]
     temper-placer export --placements PLACEMENTS --pcb TEMPLATE -o OUTPUT
     temper-placer info INPUT
@@ -31,6 +32,14 @@ console = Console()
 def main() -> None:
     """temper-placer: JAX-based PCB placement optimizer."""
     pass
+
+
+from .pipeline_commands import phase, pipeline
+from .trace_commands import trace
+
+main.add_command(pipeline)
+main.add_command(phase)
+main.add_command(trace)
 
 
 @main.command()
@@ -2067,7 +2076,7 @@ def pcl_validate(
     """
     import json as json_module
 
-    from temper_placer.pcl import parse_pcl_file, PCLParseError, PCLValidationError
+    from temper_placer.pcl import PCLParseError, PCLValidationError, parse_pcl_file
 
     results = {
         "file": str(pcl_file),
@@ -2306,7 +2315,7 @@ def pcl_show(
     """
     import json as json_module
 
-    from temper_placer.pcl import parse_pcl_file, ConstraintTier, ConstraintType
+    from temper_placer.pcl import ConstraintTier, ConstraintType, parse_pcl_file
 
     try:
         collection = parse_pcl_file(pcl_file)

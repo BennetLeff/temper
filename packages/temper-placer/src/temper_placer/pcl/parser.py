@@ -19,11 +19,14 @@ Example usage:
     ...     print(f"Found {len(errors)} validation errors")
 """
 
+from __future__ import annotations
 from pathlib import Path
 from typing import Any, List, Dict, Optional
 from dataclasses import dataclass
 
 import yaml
+import json
+from jsonschema import validate, ValidationError
 
 from temper_placer.pcl.constraints import (
     BaseConstraint,
@@ -55,6 +58,40 @@ class PCLValidationError(Exception):
     pass
 
 
+def load_pcl_schema() -> Dict[str, Any]:
+    """Load the PCL JSON schema from the package resources."""
+    import importlib.resources as pkg_resources
+
+    try:
+        # Use files() API (KiCad 6+ / Python 3.9+)
+        schema_file = pkg_resources.files("temper_placer.pcl.schemas").joinpath("pcl.schema.json")
+        schema_text = schema_file.read_text()
+        return json.loads(schema_text)
+    except Exception as e:
+        # Fallback for development/non-installed runs
+        schema_path = Path(__file__).parent / "schemas" / "pcl.schema.json"
+        if schema_path.exists():
+            with open(schema_path) as f:
+                return json.load(f)
+        raise RuntimeError(f"Could not load PCL schema: {e}")
+
+
+def validate_pcl_dict(data: Dict[str, Any]) -> None:
+    """Validate a PCL dictionary against the JSON schema.
+
+    Args:
+        data: PCL dictionary to validate
+
+    Raises:
+        PCLValidationError: If data does not match the schema
+    """
+    schema = load_pcl_schema()
+    try:
+        validate(instance=data, schema=schema)
+    except ValidationError as e:
+        raise PCLValidationError(f"PCL schema validation failed: {e.message}") from e
+
+
 @dataclass
 class ConstraintCollection:
     """Collection of PCL constraints with validation methods.
@@ -77,6 +114,19 @@ class ConstraintCollection:
         """Return number of constraints."""
         return len(self.constraints)
 
+    def copy(self) -> ConstraintCollection:
+        """Create a deep copy of the collection."""
+        import copy
+        return ConstraintCollection(
+            constraints=copy.deepcopy(self.constraints),
+            version=self.version,
+            metadata=copy.deepcopy(self.metadata)
+        )
+
+    def add(self, constraint: BaseConstraint) -> None:
+        """Add a constraint to the collection."""
+        self.constraints.append(constraint)
+
     def by_type(self, constraint_type: ConstraintType) -> List[BaseConstraint]:
         """Filter constraints by type."""
         return [c for c in self.constraints if c.constraint_type == constraint_type]
@@ -84,6 +134,19 @@ class ConstraintCollection:
     def by_tier(self, tier: ConstraintTier) -> List[BaseConstraint]:
         """Filter constraints by tier."""
         return [c for c in self.constraints if c.tier == tier]
+
+    def lint(self, netlist: Netlist, board: Board) -> Any:
+        """Lint the constraint collection.
+        
+        Args:
+            netlist: Netlist for component reference validation
+            board: Board for geometry validation
+            
+        Returns:
+            LintResult with errors and warnings
+        """
+        from .linter import lint_constraints
+        return lint_constraints(self.constraints, netlist, board)
 
     def involving_component(self, component: str) -> List[BaseConstraint]:
         """Get all constraints involving a component."""
@@ -419,6 +482,12 @@ def parse_pcl_file(path: Path | str) -> ConstraintCollection:
 
     if not isinstance(data, dict):
         raise PCLParseError(f"Expected YAML dict at top level, got {type(data)}")
+
+    # Validate against schema
+    try:
+        validate_pcl_dict(data)
+    except PCLValidationError as e:
+        raise PCLParseError(str(e)) from e
 
     # Parse version
     version = data.get("version", "1.0")

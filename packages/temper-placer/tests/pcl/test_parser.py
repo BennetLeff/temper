@@ -423,7 +423,7 @@ def test_parse_pcl_file_missing_constraints_key():
         yaml.dump({"version": "1.0"}, f)
         f.flush()
 
-        with pytest.raises(PCLParseError, match="Missing 'constraints' key"):
+        with pytest.raises(PCLParseError, match="constraints"):
             parse_pcl_file(f.name)
 
 

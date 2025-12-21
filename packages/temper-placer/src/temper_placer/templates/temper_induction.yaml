@@ -1,0 +1,16 @@
+name: temper_induction_cooker
+extends:
+  - half_bridge
+  - ucc21550
+  - ikw40n120h3
+  - resonant_tank
+  - ct_sensing
+  - safety_interlock
+
+constraints:
+  - type: separated
+    a: HV_ZONE
+    b: MCU_ZONE
+    min_distance_mm: 10.0
+    tier: 1
+    because: 'IEC 60335-1 reinforced isolation'

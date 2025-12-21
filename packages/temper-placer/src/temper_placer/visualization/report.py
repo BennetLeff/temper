@@ -257,9 +257,9 @@ def _generate_board_section(board_view: BoardView, config: ReportConfig) -> str:
 
     # Import board renderer
     try:
-        from .board_renderer import render_board_plotly
+        from .board_renderer import render_board
 
-        fig = render_board_plotly(board_view)
+        fig = render_board(board_view)
         fig.update_layout(height=config.board_chart_height)
         chart_html = fig.to_html(full_html=False, include_plotlyjs="cdn")
     except Exception as e:
@@ -295,9 +295,9 @@ def _generate_loss_section(loss_history: LossHistory, config: ReportConfig) -> s
         """
 
     try:
-        from .loss_plots import create_loss_dashboard
+        from .loss_plots import render_training_dashboard
 
-        fig = create_loss_dashboard(loss_history)
+        fig = render_training_dashboard(loss_history)
         fig.update_layout(height=config.loss_chart_height)
         chart_html = fig.to_html(full_html=False, include_plotlyjs="cdn")
     except Exception as e:
