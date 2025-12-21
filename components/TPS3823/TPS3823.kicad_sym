@@ -2,7 +2,7 @@
   (version 20231120)
   (generator "kicad_symbol_editor")
   (generator_version "8.0")
-  (symbol "TPS3823-33DBVR"
+  (symbol "TPS3823-33"
     (pin_names
       (offset 0.254)
     )
@@ -10,15 +10,15 @@
     (in_bom yes)
     (on_board yes)
     (property "Reference" "U"
-      (at 0 6.35 0)
+      (at 0 7.62 0)
       (effects
         (font
           (size 1.27 1.27)
         )
       )
     )
-    (property "Value" "TPS3823-33DBVR"
-      (at 0 -6.35 0)
+    (property "Value" "TPS3823-33"
+      (at 0 -7.62 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -26,7 +26,7 @@
       )
     )
     (property "Footprint" "Package_TO_SOT_SMD:SOT-23-5"
-      (at 0 -8.89 0)
+      (at 0 -10.16 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -35,7 +35,7 @@
       )
     )
     (property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps3823.pdf"
-      (at 0 -11.43 0)
+      (at 0 -12.7 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -43,8 +43,8 @@
         (hide yes)
       )
     )
-    (property "Description" "Processor Supervisory Circuit with Watchdog, 1.6s timeout, SOT-23-5"
-      (at 0 -13.97 0)
+    (property "Description" "Supervisor with Watchdog, 1.6s timeout, 2.93V threshold"
+      (at 0 -15.24 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -53,7 +53,7 @@
       )
     )
     (property "MPN" "TPS3823-33DBVR"
-      (at 0 -16.51 0)
+      (at 0 -17.78 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -62,7 +62,7 @@
       )
     )
     (property "Manufacturer" "Texas Instruments"
-      (at 0 -19.05 0)
+      (at 0 -20.32 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -70,28 +70,10 @@
         (hide yes)
       )
     )
-    (property "ki_keywords" "Supervisor Watchdog Reset"
-      (at 0 0 0)
-      (effects
-        (font
-          (size 1.27 1.27)
-        )
-        (hide yes)
-      )
-    )
-    (property "ki_fp_filters" "SOT?23*"
-      (at 0 0 0)
-      (effects
-        (font
-          (size 1.27 1.27)
-        )
-        (hide yes)
-      )
-    )
-    (symbol "TPS3823-33DBVR_0_1"
+    (symbol "TPS3823-33_0_1"
       (rectangle
-        (start -5.08 5.08)
-        (end 5.08 -5.08)
+        (start -5.08 6.35)
+        (end 5.08 -6.35)
         (stroke
           (width 0.254)
           (type default)
@@ -101,9 +83,9 @@
         )
       )
     )
-    (symbol "TPS3823-33DBVR_1_1"
+    (symbol "TPS3823-33_1_1"
       (pin power_in line
-        (at 0 -7.62 90)
+        (at 0 -8.89 90)
         (length 2.54)
         (name "GND"
           (effects
@@ -121,7 +103,7 @@
         )
       )
       (pin output line
-        (at 7.62 0 180)
+        (at 7.62 -2.54 180)
         (length 2.54)
         (name "RESET_N"
           (effects
@@ -157,7 +139,7 @@
         )
       )
       (pin input line
-        (at -7.62 -2.54 0)
+        (at -7.62 0 0)
         (length 2.54)
         (name "WDI"
           (effects
@@ -175,7 +157,7 @@
         )
       )
       (pin power_in line
-        (at 0 7.62 270)
+        (at 0 8.89 270)
         (length 2.54)
         (name "VDD"
           (effects
