@@ -447,11 +447,173 @@ _This is a GPBM approval gate task._
         result["success"] = True
         return result
 
-    def suggest_tasks_from_context(self, context_file: Path, goal: str) -> list[PlannedTask]:
-        """Suggest tasks based on gathered context.
+    def suggest_tasks_from_context(
+        self,
+        context_file: Path,
+        goal: str,
+        role: str | None = None,
+        domain: str | None = None,
+    ) -> list[PlannedTask]:
+        """Use LLM to generate intelligent task breakdown from context.
+
+        Attempts to use Gemini API for smart task decomposition. Falls back
+        to heuristics if LLM is unavailable or fails.
+
+        Args:
+            context_file: Path to gathered context file
+            goal: Task goal/objective
+            role: Agent role (for context)
+            domain: Project domain (for context)
+
+        Returns:
+            List of PlannedTask objects
+        """
+        # Try LLM-based planning first
+        try:
+            llm_tasks = self._suggest_tasks_llm(context_file, goal, role, domain)
+            if llm_tasks:
+                print("✓ Using LLM-generated task breakdown", file=sys.stderr)
+                return llm_tasks
+        except Exception as e:
+            print(
+                f"⚠ LLM planning failed ({e}), falling back to heuristics",
+                file=sys.stderr,
+            )
+
+        # Fallback to heuristics
+        return self._suggest_tasks_heuristic(context_file, goal)
+
+    def _suggest_tasks_llm(
+        self,
+        context_file: Path,
+        goal: str,
+        role: str | None = None,
+        domain: str | None = None,
+    ) -> list[PlannedTask] | None:
+        """Call LLM API to generate task breakdown.
+
+        Returns None if LLM unavailable or response invalid.
+        """
+        import os
+
+        # Check if GEMINI_API_KEY is available
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            return None
+
+        # Read context (truncate to avoid token limits)
+        context = ""
+        if context_file.exists():
+            context = context_file.read_text()[:3000]  # Max 3000 chars
+
+        # Build prompt
+        prompt = f"""You are a planning assistant for the GPBM (Gather-Plan-Build-Measure) workflow.
+
+CONTEXT:
+{context}
+
+GOAL: {goal}
+DOMAIN: {domain or "general"}
+ROLE: {role or "general"}
+
+Break this goal into 3-8 specific, actionable tasks. Consider:
+- Complexity of the domain
+- Related requirements and issues in the context
+- Past learnings from Eco memories
+- Natural dependencies between tasks
+- Task types: bug, feature, task (use "task" for general work items)
+- Priorities: 0 (critical) to 4 (backlog)
+
+Output ONLY valid JSON array (no markdown, no explanations):
+[
+  {{
+    "title": "Clear, specific task title without redundant goal text",
+    "description": "Detailed description with acceptance criteria",
+    "priority": 1,
+    "type": "task",
+    "dependencies": ["Title of prerequisite task"],
+    "requirements": ["REQ-ID-001"]
+  }}
+]
+
+IMPORTANT:
+- Keep task titles concise (don't repeat the full goal in every title)
+- Make dependencies logical (design before implement, implement before test)
+- Set realistic priorities (don't make everything P0/P1)
+- Include acceptance criteria in descriptions
+"""
+
+        # Call Gemini API
+        try:
+            import urllib.request
+            import json as json_module
+
+            url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
+            headers = {
+                "Content-Type": "application/json",
+            }
+
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "maxOutputTokens": 2048,
+                },
+            }
+
+            encoded = json_module.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                f"{url}?key={api_key}", data=encoded, headers=headers, method="POST"
+            )
+
+            with urllib.request.urlopen(req, timeout=30) as response:
+                result = json_module.load(response)
+
+                # Extract text from response
+                if "candidates" in result and result["candidates"]:
+                    text = result["candidates"][0]["content"]["parts"][0]["text"]
+
+                    # Clean up markdown code blocks if present
+                    text = text.strip()
+                    if text.startswith("```json"):
+                        text = text[7:]
+                    if text.startswith("```"):
+                        text = text[3:]
+                    if text.endswith("```"):
+                        text = text[:-3]
+                    text = text.strip()
+
+                    # Parse JSON
+                    tasks_data = json_module.loads(text)
+
+                    # Convert to PlannedTask objects
+                    tasks = []
+                    for t in tasks_data:
+                        tasks.append(
+                            PlannedTask(
+                                title=t.get("title", "Untitled task"),
+                                description=t.get("description", ""),
+                                task_type=t.get("type", "task"),
+                                priority=t.get("priority", 2),
+                                dependencies=t.get("dependencies", []),
+                                requirements=t.get("requirements", []),
+                                labels=t.get("labels", []),
+                            )
+                        )
+
+                    return tasks if tasks else None
+
+        except Exception as e:
+            print(f"LLM API call failed: {e}", file=sys.stderr)
+            return None
+
+        return None
+
+    def _suggest_tasks_heuristic(self, context_file: Path, goal: str) -> list[PlannedTask]:
+        """Suggest tasks based on gathered context (heuristic fallback).
 
         This is a simple heuristic-based suggestion.
-        A more sophisticated version could use LLM.
+        Used as fallback when LLM is unavailable.
         """
         tasks = []
 
@@ -652,8 +814,8 @@ Examples:
     epic_title = args.epic or args.goal
     context_file = Path(args.context) if args.context else Path("/dev/null")
 
-    # Generate suggested tasks
-    tasks = planner.suggest_tasks_from_context(context_file, args.goal)
+    # Generate suggested tasks (use LLM if available, fallback to heuristics)
+    tasks = planner.suggest_tasks_from_context(context_file, args.goal, args.role, args.domain)
 
     # Create plan
     plan = Plan(
