@@ -35,6 +35,7 @@ import SN74HC00 from "components.ato"
 
 # MCU
 import ESP32_S3_WROOM_1 from "components.ato"
+import TestPoint from "components.ato"
 
 module PowerLoop:
     q_high = new IKW40N120H3
@@ -1097,6 +1098,13 @@ module SafetyInterlock:
     ovp.ovp_fault ~ ovp_led
     thermal.thermal_fault ~ thermal_led
     wdt.reset_n ~ wdt_led
+
+    # --- Test Points ---
+    tp_shutdown = new TestPoint
+    tp_shutdown.p1 ~ shutdown_n
+    
+    tp_fault = new TestPoint
+    tp_fault.p1 ~ fault_status
 
 # ==============================================================================
 # MCU MODULE

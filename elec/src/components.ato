@@ -442,3 +442,17 @@ component ESP32_S3_WROOM_1:
     signal IO46 ~ pin 16
     signal IO47 ~ pin 24
     signal IO48 ~ pin 25
+
+# ==============================================================================
+# MISC COMPONENTS
+# ==============================================================================
+
+component TestPoint:
+    """Surface mount or through-hole test point"""
+    footprint = "TestPoint:TestPoint_Pad_D1.0mm"
+    mpn = "GENERIC_TEST_POINT"
+    
+    # Custom attribute for BOM generators to skip this component
+    bom_exclude = true
+    
+    signal p1 ~ pin 1
