@@ -32,7 +32,11 @@ The total loss is a weighted sum with curriculum learning for weight scheduling.
 # Aesthetic losses
 from temper_placer.losses.aesthetic import (
     AlignmentLoss,
+    MirrorSymmetryLoss,
     RotationConsistencyLoss,
+    StackedRowLoss,
+    VisualGroupingLoss,
+    WhitespaceLoss,
 )
 from temper_placer.losses.base import (
     ClearanceRule,
@@ -129,6 +133,12 @@ from temper_placer.losses.loop_area import (
     LoopAreaLoss,
     compute_loop_area_penalty,
     create_temper_loop_constraints,
+)
+
+# Manufacturing margin loss
+from temper_placer.losses.manufacturing_margin import (
+    ManufacturingMarginLoss,
+    create_manufacturing_losses,
 )
 
 # Mechanical mounting loss
@@ -264,7 +274,12 @@ __all__ = [
     "create_net_class_loss",
     "NetClassRule",
     "AlignmentLoss",
+    "MirrorSymmetryLoss",
+    "VisualGroupingLoss",
+    "WhitespaceLoss",
+    "StackedRowLoss",
     "RotationConsistencyLoss",
+    "ManufacturingMarginLoss",
     "EdgeCrossingLoss",
     "SteinerTreeLoss",
     "NoiseSensitiveIsolationLoss",
@@ -316,6 +331,7 @@ __all__ = [
     "create_edge_preference_loss",
     "create_temper_thermal_losses",
     "create_drc_loss",
+    "create_manufacturing_losses",
     # DRC loss (non-differentiable, cached)
     "DRCLoss",
     "DRCCacheEntry",

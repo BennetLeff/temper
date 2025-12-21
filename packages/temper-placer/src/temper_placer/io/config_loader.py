@@ -237,6 +237,21 @@ class AestheticConstraints:
     max_wirelength_tax: float = 2.5
     # Enforcement of identical layouts for isomorphic groups
     consensus_weight: float = 1.0
+    # Professional whitespace distribution
+    whitespace_weight: float = 0.0
+    # Visual grouping and separation
+    grouping_weight: float = 0.0
+    # Symmetry enforcement
+    symmetry_weight: float = 0.0
+
+
+@dataclass
+class ManufacturingConstraints:
+    """Manufacturing margin and variability constraints."""
+
+    target_margin_mm: float = 0.1
+    margin_weight: float = 0.0
+    etch_tolerance_mm: float = 0.02
 
 
 @dataclass
@@ -276,6 +291,9 @@ class PlacementConstraints:
 
     # Aesthetics
     aesthetics: AestheticConstraints = field(default_factory=AestheticConstraints)
+
+    # Manufacturing
+    manufacturing: ManufacturingConstraints = field(default_factory=ManufacturingConstraints)
 
     # Critical loops (EMI-sensitive)
     critical_loops: list[CriticalLoop] = field(default_factory=list)
@@ -611,6 +629,16 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.aesthetics.prefix_exceptions = aes.get("prefix_exceptions", [])
         constraints.aesthetics.max_wirelength_tax = aes.get("max_wirelength_tax", 2.5)
         constraints.aesthetics.consensus_weight = aes.get("consensus_weight", 1.0)
+        constraints.aesthetics.whitespace_weight = aes.get("whitespace_weight", 0.0)
+        constraints.aesthetics.grouping_weight = aes.get("grouping_weight", 0.0)
+        constraints.aesthetics.symmetry_weight = aes.get("symmetry_weight", 0.0)
+
+    # Parse manufacturing
+    if "manufacturing" in config:
+        mfg = config["manufacturing"]
+        constraints.manufacturing.target_margin_mm = mfg.get("target_margin_mm", 0.1)
+        constraints.manufacturing.margin_weight = mfg.get("margin_weight", 0.0)
+        constraints.manufacturing.etch_tolerance_mm = mfg.get("etch_tolerance_mm", 0.02)
 
     # Parse losses configuration
     if "losses" in config:

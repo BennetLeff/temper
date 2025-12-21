@@ -189,3 +189,54 @@ def test_multiple_groups():
     
     # Total loss = 0.0 + 2.0 = 2.0
     assert abs(result.value - 2.0) < 1e-4
+
+def test_create_aesthetic_losses_instantiation():
+    """Verify that new aesthetic losses are instantiated from constraints."""
+    from temper_placer.core.netlist import Component, Net, Netlist
+    from temper_placer.io.config_loader import PlacementConstraints, AestheticConstraints, ComponentGroup
+    from temper_placer.losses.aesthetic import create_aesthetic_losses
+    
+    # 1. Setup minimal netlist
+    components = [
+        Component(ref="R1", footprint="0603", bounds=(1.6, 0.8)),
+        Component(ref="R2", footprint="0603", bounds=(1.6, 0.8)),
+    ]
+    netlist = Netlist(components=components)
+    
+    # 2. Setup constraints with all new weights > 0
+    constraints = PlacementConstraints(
+        aesthetics=AestheticConstraints(
+            whitespace_weight=1.0,
+            grouping_weight=1.0,
+            symmetry_weight=1.0
+        ),
+        component_groups=[
+            ComponentGroup(name="test_group", components=["R1", "R2"])
+        ]
+    )
+    
+    # 3. Create losses
+    losses = create_aesthetic_losses(netlist, constraints)
+    
+    # 4. Check for existence of expected loss types
+    loss_names = [w.loss_fn.name for w in losses]
+    assert "whitespace" in loss_names
+    assert "visual_grouping" in loss_names
+    
+    # Let's add more components and nets to test symmetry
+    components = [
+        Component(ref="R1", footprint="0603", bounds=(1.6, 0.8)),
+        Component(ref="C1", footprint="0603", bounds=(1.6, 0.8)),
+        Component(ref="R2", footprint="0603", bounds=(1.6, 0.8)),
+        Component(ref="C2", footprint="0603", bounds=(1.6, 0.8)),
+    ]
+    netlist = Netlist(components=components)
+    netlist.nets = [
+        Net(name="N1", pins=[("R1", "1"), ("C1", "1")]),
+        Net(name="N2", pins=[("R2", "1"), ("C2", "1")])
+    ]
+    netlist.build_indices()
+    
+    losses = create_aesthetic_losses(netlist, constraints)
+    loss_names = [w.loss_fn.name for w in losses]
+    assert "mirror_symmetry" in loss_names

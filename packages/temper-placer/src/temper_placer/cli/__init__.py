@@ -429,6 +429,12 @@ def optimize(
         aes_losses = create_aesthetic_losses(netlist, constraints)
         losses.extend(aes_losses)
 
+        # Add manufacturing losses
+        from temper_placer.losses.manufacturing_margin import create_manufacturing_losses
+
+        mfg_losses = create_manufacturing_losses(constraints)
+        losses.extend(mfg_losses)
+
         return CompositeLoss(losses)
 
     # Build weights from config, CLI overrides, or defaults
@@ -654,6 +660,14 @@ def optimize(
 
             history_obj = LossHistory()
             for m in result.history:
+                # Convert JAX arrays to lists for JSON serialization
+                positions_list = m.positions.tolist() if m.positions is not None else None
+                # rotations are logits in TrainingMetrics? No, they are soft one-hot or discrete.
+                # In train.py, they were 'rotations' which is soft one-hot (N, 4).
+                # For visualization, we might want degrees.
+                # But let's just save whatever is in the metrics for now.
+                rotations_list = m.rotations.tolist() if m.rotations is not None else None
+
                 history_obj.add_point(
                     LossDataPoint(
                         epoch=m.epoch,
@@ -661,6 +675,8 @@ def optimize(
                         breakdown=m.loss_breakdown,
                         temperature=m.temperature,
                         learning_rate=m.learning_rate,
+                        positions=positions_list,
+                        rotations=rotations_list,
                     )
                 )
 
@@ -1310,6 +1326,74 @@ def info(input_pcb: Path) -> None:
 
     except Exception as e:
         console.print(f"[red]Failed to parse PCB: {e}[/]")
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("history_file", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--pcb",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Reference PCB file to get board dimensions and component info.",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(path_type=Path),
+    help="Output HTML file path.",
+)
+def progression(
+    history_file: Path,
+    pcb: Path,
+    output: Path | None,
+) -> None:
+    """
+    Visualize placement evolution from history file.
+
+    Generates an interactive HTML visualization of how component positions
+    changed during optimization.
+    """
+    console.print(f"[bold blue]Visualizing Progression:[/] {history_file}")
+
+    try:
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.visualization.progression import render_progression_html
+
+        # 1. Get PCB info
+        result = parse_kicad_pcb(pcb)
+        netlist = result.netlist
+        board = result.board
+
+        pcb_info = {
+            "width": board.width,
+            "height": board.height,
+            "refs": [c.ref for c in netlist.components],
+            "widths": [c.width for c in netlist.components],
+            "heights": [c.height for c in netlist.components],
+        }
+
+        # 2. Render HTML
+        html_content = render_progression_html(history_file, pcb_info)
+
+        # 3. Save or open
+        if output:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(html_content)
+            console.print(f"[green]✓[/] Wrote {output}")
+        else:
+            import tempfile
+            import webbrowser
+
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False) as f:
+                f.write(html_content)
+                temp_path = f.name
+
+            console.print("[green]✓[/] Opening in browser...")
+            webbrowser.open(f"file://{temp_path}")
+
+    except Exception as e:
+        console.print(f"[red]Failed: {e}[/]")
         sys.exit(1)
 
 
