@@ -155,6 +155,11 @@ from temper_placer.losses.net_class import (
     create_net_class_loss,
 )
 
+# Net centroid attraction loss
+from temper_placer.losses.net_centroid import (
+    NetCentroidAttractionLoss,
+)
+
 # Noise isolation loss
 from temper_placer.losses.noise_isolation import (
     NoiseSensitiveIsolationLoss,
@@ -273,6 +278,7 @@ __all__ = [
     "NetClassSeparationLoss",
     "create_net_class_loss",
     "NetClassRule",
+    "NetCentroidAttractionLoss",
     "AlignmentLoss",
     "MirrorSymmetryLoss",
     "VisualGroupingLoss",
