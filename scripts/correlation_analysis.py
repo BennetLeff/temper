@@ -8,6 +8,7 @@ batch optimizations and correlating loss values with routing outcomes.
 Usage:
     python scripts/correlation_analysis.py --pcb design.kicad_pcb --config constraints.yaml --samples 30
     python scripts/correlation_analysis.py --pcb design.kicad_pcb --samples 10 --quick
+    python scripts/correlation_analysis.py --pcb design.kicad_pcb --samples 90 --epoch-tiers 25,100,200
 """
 
 import argparse
@@ -36,6 +37,7 @@ class OptimizationResult:
     """Result from a single optimization run."""
 
     seed: int
+    epochs: int
     loss_values: dict[str, float]
     output_pcb_path: Path
 
@@ -63,24 +65,55 @@ class CorrelationReport:
     raw_data: Optional[dict[str, dict[str, list[float]]]] = None  # For inter-loss analysis
 
 
+def get_epochs_for_sample(
+    sample_idx: int, epoch_tiers: Optional[list[int]] = None, n_samples: int = 90
+) -> int:
+    """
+    Determine epoch count for a sample based on tier configuration.
+
+    Args:
+        sample_idx: 0-based sample index
+        epoch_tiers: List of epoch counts for each tier (e.g., [25, 100, 200])
+                    If None, returns default of 50 epochs.
+        n_samples: Total number of samples (used to divide evenly across tiers)
+
+    Returns:
+        Number of epochs to use for this sample.
+
+    Example:
+        With epoch_tiers=[25, 100, 200] and 90 samples:
+        - Samples 0-29: 25 epochs (under-optimized)
+        - Samples 30-59: 100 epochs (standard)
+        - Samples 60-89: 200 epochs (well-optimized)
+    """
+    if epoch_tiers is None:
+        return 50  # Default
+
+    n_tiers = len(epoch_tiers)
+    samples_per_tier = n_samples // n_tiers
+    tier_idx = sample_idx // samples_per_tier
+    tier_idx = min(tier_idx, n_tiers - 1)  # Clamp to last tier
+    return epoch_tiers[tier_idx]
+
+
 def run_single_optimization(args: tuple) -> OptimizationResult:
     """
     Run a single optimization with a given seed using CLI.
 
     Args:
-        args: Tuple of (pcb_path, config_path, seed, output_dir)
+        args: Tuple of (pcb_path, config_path, seed, output_dir, epochs)
 
     Returns:
         OptimizationResult with loss values and output path
     """
-    pcb_path, config_path, seed, output_dir = args
+    pcb_path, config_path, seed, output_dir, epochs = args
 
     # Create unique output paths for this seed
     output_path = Path(output_dir) / f"placement_seed_{seed}.kicad_pcb"
     loss_history_path = Path(output_dir) / f"loss_history_seed_{seed}.json"
 
     try:
-        print(f"  Starting optimization with seed {seed}...", flush=True)
+        print(f"  Starting optimization with seed {seed}, epochs={epochs}...", flush=True)
 
         # Build command to run temper-placer optimize via CLI
         cmd = [
@@ -94,7 +127,7 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
             "-o",
             str(output_path),
             "--epochs",
-            "50",  # Low epochs to maintain position variation across seeds
+            str(epochs),  # Use variable epochs
             "--seed",
             str(seed),
             "--loss-history",
@@ -114,7 +147,9 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
         if result.returncode != 0:
             error_msg = f"Optimization with seed {seed} failed:\nSTDOUT: {result.stdout[:500]}\nSTDERR: {result.stderr[:500]}"
             print(f"Warning: {error_msg}", file=sys.stderr, flush=True)
-            return OptimizationResult(seed=seed, loss_values={}, output_pcb_path=output_path)
+            return OptimizationResult(
+                seed=seed, epochs=epochs, loss_values={}, output_pcb_path=output_path
+            )
 
         # Load loss history from JSON
         loss_values = {}
@@ -156,11 +191,15 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
         else:
             print(f"  Seed {seed}: loss history file not found!", flush=True)
 
-        return OptimizationResult(seed=seed, loss_values=loss_values, output_pcb_path=output_path)
+        return OptimizationResult(
+            seed=seed, epochs=epochs, loss_values=loss_values, output_pcb_path=output_path
+        )
 
     except Exception as e:
         print(f"Warning: Optimization with seed {seed} failed: {e}", file=sys.stderr)
-        return OptimizationResult(seed=seed, loss_values={}, output_pcb_path=output_path)
+        return OptimizationResult(
+            seed=seed, epochs=epochs, loss_values={}, output_pcb_path=output_path
+        )
 
 
 def run_routing_verification(pcb_path: Path, quick: bool = False) -> Optional[RoutingResult]:
@@ -518,7 +557,11 @@ def generate_recommendations(correlations: dict[str, dict[str, float]]) -> list[
 
 
 def run_correlation_analysis(
-    pcb_path: Path, config_path: Optional[Path], n_samples: int, quick: bool = False
+    pcb_path: Path,
+    config_path: Optional[Path],
+    n_samples: int,
+    quick: bool = False,
+    epoch_tiers: Optional[list[int]] = None,
 ) -> CorrelationReport:
     """
     Run full correlation analysis.
@@ -528,12 +571,15 @@ def run_correlation_analysis(
         config_path: Path to constraints YAML (optional)
         n_samples: Number of optimization samples to run
         quick: If True, skip routing verification
+        epoch_tiers: List of epoch counts for variance experiment (e.g., [25, 100, 200])
 
     Returns:
         CorrelationReport with correlations and recommendations
     """
     print(f"Starting correlation analysis with {n_samples} samples...")
     print(f"Mode: {'quick (no routing)' if quick else 'full (with routing)'}")
+    if epoch_tiers:
+        print(f"Epoch tiers: {epoch_tiers} (samples per tier: {n_samples // len(epoch_tiers)})")
 
     # Convert paths to absolute for subprocess calls
     pcb_path = pcb_path.resolve()
@@ -546,9 +592,10 @@ def run_correlation_analysis(
 
         # Step 1: Run batch optimizations in parallel
         print("\n[1/3] Running batch optimizations...")
-        optimization_args = [
-            (pcb_path, config_path, seed, temp_path) for seed in range(1, n_samples + 1)
-        ]
+        optimization_args = []
+        for idx, seed in enumerate(range(1, n_samples + 1)):
+            epochs = get_epochs_for_sample(idx, epoch_tiers, n_samples)
+            optimization_args.append((pcb_path, config_path, seed, temp_path, epochs))
 
         # Run optimizations sequentially for now (multiprocessing has issues with subprocess)
         optimization_results = []
@@ -607,11 +654,41 @@ def run_correlation_analysis(
         statistics = {
             "mean_completion_pct": float(np.mean(completion_values)),
             "std_completion_pct": float(np.std(completion_values, ddof=1)),
+            "min_completion_pct": float(np.min(completion_values)),
+            "max_completion_pct": float(np.max(completion_values)),
             "failed_routes": sum(1 for r in routing_results if not r.routable),
+            "samples_above_50pct": sum(1 for c in completion_values if c > 50.0),
         }
+
+        # Add per-tier statistics if using epoch tiers
+        if epoch_tiers:
+            matched_results = list(zip(valid_results[: len(routing_results)], routing_results))
+            tier_stats = {}
+            for tier_idx, tier_epochs in enumerate(epoch_tiers):
+                tier_completions = [
+                    rr.completion_pct for opt, rr in matched_results if opt.epochs == tier_epochs
+                ]
+                if tier_completions:
+                    tier_stats[f"tier_{tier_epochs}_epochs"] = {
+                        "n": len(tier_completions),
+                        "mean": float(np.mean(tier_completions)),
+                        "std": float(np.std(tier_completions, ddof=1))
+                        if len(tier_completions) > 1
+                        else 0.0,
+                        "min": float(np.min(tier_completions)),
+                        "max": float(np.max(tier_completions)),
+                    }
+            statistics["tier_breakdown"] = tier_stats
 
         print(f"\nFound {len(correlations)} loss functions with significant correlations")
         print(f"Generated {len(recommendations)} recommendations")
+        print(
+            f"Routing completion: mean={statistics['mean_completion_pct']:.1f}%, std={statistics['std_completion_pct']:.1f}%"
+        )
+        print(
+            f"Range: {statistics['min_completion_pct']:.1f}% - {statistics['max_completion_pct']:.1f}%"
+        )
+        print(f"Samples >50% completion: {statistics['samples_above_50pct']}")
 
         # Build raw_data for downstream analysis (e.g., inter-loss correlations)
         raw_data = {
@@ -643,6 +720,12 @@ def main():
     parser.add_argument(
         "--quick", action="store_true", help="Skip routing verification for faster iteration"
     )
+    parser.add_argument(
+        "--epoch-tiers",
+        type=str,
+        help="Comma-separated epoch counts for variance experiment (e.g., '25,100,200'). "
+        "Samples will be split evenly across tiers.",
+    )
     parser.add_argument("--output", type=Path, help="Output JSON file (default: stdout)")
 
     args = parser.parse_args()
@@ -660,9 +743,33 @@ def main():
         print("Error: Need at least 3 samples for correlation analysis", file=sys.stderr)
         sys.exit(1)
 
+    # Parse epoch tiers
+    epoch_tiers = None
+    if args.epoch_tiers:
+        try:
+            epoch_tiers = [int(x.strip()) for x in args.epoch_tiers.split(",")]
+            if len(epoch_tiers) < 2:
+                print("Error: --epoch-tiers requires at least 2 tiers", file=sys.stderr)
+                sys.exit(1)
+            # Validate sample count is divisible by tiers (or close to it)
+            samples_per_tier = args.samples // len(epoch_tiers)
+            if samples_per_tier < 3:
+                print(
+                    f"Error: Need at least 3 samples per tier. "
+                    f"With {len(epoch_tiers)} tiers, need at least {3 * len(epoch_tiers)} samples.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            print(f"Using epoch tiers: {epoch_tiers} ({samples_per_tier} samples per tier)")
+        except ValueError:
+            print(f"Error: Invalid epoch-tiers format: {args.epoch_tiers}", file=sys.stderr)
+            sys.exit(1)
+
     try:
         # Run analysis
-        report = run_correlation_analysis(args.pcb, args.config, args.samples, quick=args.quick)
+        report = run_correlation_analysis(
+            args.pcb, args.config, args.samples, quick=args.quick, epoch_tiers=epoch_tiers
+        )
 
         # Convert to JSON
         report_json = {
