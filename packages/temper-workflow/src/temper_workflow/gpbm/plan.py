@@ -25,7 +25,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
 @dataclass
@@ -223,9 +223,7 @@ class PlanPhase:
         print(f"Error creating epic: {stderr}", file=sys.stderr)
         return None
 
-    def create_task(
-        self, task: PlannedTask, parent_id: str | None = None
-    ) -> str | None:
+    def create_task(self, task: PlannedTask, parent_id: str | None = None) -> str | None:
         """Create a task in bd.
 
         Returns:
@@ -275,13 +273,9 @@ class PlanPhase:
         print(f"Error creating task '{task.title}': {stderr}", file=sys.stderr)
         return None
 
-    def add_dependency(
-        self, from_id: str, to_id: str, dep_type: str = "blocks"
-    ) -> bool:
+    def add_dependency(self, from_id: str, to_id: str, dep_type: str = "blocks") -> bool:
         """Add dependency between tasks."""
-        success, _, stderr = self._run_bd(
-            ["dep", "add", from_id, to_id, "--type", dep_type]
-        )
+        success, _, stderr = self._run_bd(["dep", "add", from_id, to_id, "--type", dep_type])
 
         if not success:
             print(f"Error adding dependency: {stderr}", file=sys.stderr)
@@ -316,6 +310,31 @@ _This is a GPBM approval gate task._
         )
 
         return self.create_task(task, parent_id=epic_id)
+
+    def _infer_agent_role(self, task: PlannedTask) -> Optional[str]:
+        """Infer appropriate agent role from task content.
+
+        Uses keyword matching in priority order (security/architect take precedence).
+
+        Args:
+            task: Task to analyze
+
+        Returns:
+            Inferred role name or None if no clear match
+        """
+        text = f"{task.title} {task.description}".lower()
+
+        # Priority order matters - security/architect before coder
+        if any(kw in text for kw in ["security", "vulnerability", "audit", "validation"]):
+            return "security"
+        elif any(kw in text for kw in ["design", "architecture", "pattern", "tradeoff"]):
+            return "architect"
+        elif any(kw in text for kw in ["test", "verify", "edge case", "coverage", "qa"]):
+            return "tester"
+        elif any(kw in text for kw in ["implement", "refactor", "optimize", "code", "fix"]):
+            return "coder"
+
+        return None  # No clear role, can be manually assigned
 
     def execute_plan(self, plan: Plan, dry_run: bool = False) -> dict[str, Any]:
         """Execute a plan by creating epic and tasks in bd.
@@ -383,6 +402,19 @@ _This is a GPBM approval gate task._
                 result["task_ids"].append(task_id)
                 task_id_map[task.title] = task_id
                 print(f"  Created: {task_id}")
+
+                # Auto-assign agent role based on task content
+                agent_role = self._infer_agent_role(task)
+                if agent_role:
+                    print(f"  Auto-assigning to {agent_role} agent")
+                    success, _, _ = self._run_bd(
+                        ["update", task_id, "--add-label", f"agent:{agent_role}"]
+                    )
+                    if not success:
+                        print(
+                            f"  Warning: Failed to add agent:{agent_role} label",
+                            file=sys.stderr,
+                        )
             else:
                 print("  Failed to create task")
 
@@ -415,9 +447,7 @@ _This is a GPBM approval gate task._
         result["success"] = True
         return result
 
-    def suggest_tasks_from_context(
-        self, context_file: Path, goal: str
-    ) -> list[PlannedTask]:
+    def suggest_tasks_from_context(self, context_file: Path, goal: str) -> list[PlannedTask]:
         """Suggest tasks based on gathered context.
 
         This is a simple heuristic-based suggestion.
@@ -558,12 +588,8 @@ Examples:
     )
 
     parser.add_argument("--goal", "-g", type=str, help="Goal to create plan for")
-    parser.add_argument(
-        "--context", "-c", type=str, help="Context file from GATHER phase"
-    )
-    parser.add_argument(
-        "--epic", "-e", type=str, help="Epic title (default: derived from goal)"
-    )
+    parser.add_argument("--context", "-c", type=str, help="Context file from GATHER phase")
+    parser.add_argument("--epic", "-e", type=str, help="Epic title (default: derived from goal)")
     parser.add_argument(
         "--domain",
         "-d",
@@ -580,12 +606,8 @@ Examples:
     )
     parser.add_argument("--execute", type=str, help="Execute plan from JSON file")
     parser.add_argument("--output", "-o", type=str, help="Output plan file (JSON)")
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Preview without creating"
-    )
-    parser.add_argument(
-        "--no-approval", action="store_true", help="Skip approval gate task"
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Preview without creating")
+    parser.add_argument("--no-approval", action="store_true", help="Skip approval gate task")
     parser.add_argument("--root", type=str, help="Project root directory")
 
     args = parser.parse_args()
