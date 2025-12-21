@@ -53,7 +53,14 @@ HUMAN                    AGENTS                      SYSTEMS
 └─────────┘         └──────────────┘          └───────────────┘
 ```
 
-## The Four Phases
+## The Four Phases (Extended to Six for Experiments)
+
+The standard workflow has 4 phases. For `experiment` and `validation` work, use the extended 6-phase workflow with HYPOTHESIZE and ANALYZE phases.
+
+```
+Standard:    GATHER → PLAN → BUILD → MEASURE
+Experiments: GATHER → HYPOTHESIZE → PLAN → BUILD → MEASURE → ANALYZE
+```
 
 ### 1. GATHER Phase
 
@@ -78,6 +85,42 @@ bd-gather "Add unit tests for state machine" tester firmware
 **Outputs:**
 - Context markdown file at `/tmp/gather_context_*.md`
 - Human approval task (blocks planning until approved)
+
+### 1.5. HYPOTHESIZE Phase (Experiments Only)
+
+**For `experiment` and `validation` labeled issues only.**
+
+Pre-registers predictions before running experiments to ensure scientific rigor:
+
+- **Null Hypothesis (H0)** - What we expect if no effect
+- **Alternative Hypothesis (H1)** - What we expect if there is an effect
+- **Expected Effect Size** - Minimum meaningful change
+- **Predictions** - Specific, testable predictions
+- **Decision Criteria** - When to accept H0, H1, or declare inconclusive
+
+**Command:**
+```bash
+# Create hypothesis interactively
+python3 packages/temper-workflow/src/temper_workflow/gpbm/hypothesize.py create --goal "Test spread_loss effect" --interactive
+
+# Validate existing issue has proper hypothesis structure
+python3 packages/temper-workflow/src/temper_workflow/gpbm/hypothesize.py validate temper-xxx
+
+# Validate all experiment-labeled issues
+python3 packages/temper-workflow/src/temper_workflow/gpbm/hypothesize.py validate-label experiment
+```
+
+**Outputs:**
+- Hypothesis markdown for issue description
+- YAML block with hypothesis parameters
+
+**Template:** See `docs/HYPOTHESIS_TEMPLATE.md` for full template.
+
+**Why Pre-Registration?**
+- Prevents p-hacking (running many tests until one is significant)
+- Prevents HARKing (Hypothesizing After Results are Known)
+- Forces clear thinking about what success looks like
+- Makes results more credible and reproducible
 
 ### 2. PLAN Phase
 
@@ -167,6 +210,69 @@ measurement_targets:
   fw_test_coverage: ">=80"
   fw_compile_warnings: "==0"
 ```
+
+### 4.5. ANALYZE Phase (Experiments Only)
+
+**For `experiment` and `validation` labeled issues only.**
+
+Compares measured results against pre-registered predictions with statistical rigor:
+
+- **Summary Statistics** - Mean, std, 95% confidence intervals
+- **Effect Sizes** - Cohen's d with interpretation (negligible/small/medium/large)
+- **Statistical Tests** - Welch's t-test with p-values
+- **Multiple Comparison Correction** - Holm-Bonferroni when >3 comparisons
+- **Prediction Comparison** - Match predictions to observed results
+- **Verdict** - Accept H0, Accept H1, or Inconclusive
+
+**Command:**
+```bash
+# Analyze measurements for a task
+python3 packages/temper-workflow/src/temper_workflow/gpbm/analyze.py task temper-xxx
+
+# Compare to baseline
+python3 packages/temper-workflow/src/temper_workflow/gpbm/analyze.py task temper-xxx --baseline temper-baseline
+
+# Compare multiple conditions with correction
+python3 packages/temper-workflow/src/temper_workflow/gpbm/analyze.py compare \
+    baseline:85.2,84.1,86.0 \
+    treatment_a:90.1,89.5,91.2 \
+    treatment_b:87.3,88.1,86.9
+
+# Calculate bootstrap confidence interval
+python3 packages/temper-workflow/src/temper_workflow/gpbm/analyze.py ci 85.2 84.1 86.0 89.5 90.1
+```
+
+**Output Example:**
+```
+Analysis Report: temper-xxx
+
+Summary Statistics:
+- N: 10
+- Mean: 87.50
+- Std Dev: 2.34
+- 95% CI: [85.12, 89.88]
+
+Comparison to Baseline:
+- Baseline Mean: 82.00
+- Effect Size: 0.85 (large)
+
+Statistical Test: Welch's t-test
+- Statistic: 3.42
+- p-value: 0.0034
+- Significant (α=0.05): Yes
+
+Verdict: ACCEPT H1
+Rationale: Significant improvement detected (p=0.0034, d=0.85)
+```
+
+**Statistical Rigor Features:**
+
+| Feature | Description |
+|---------|-------------|
+| Bootstrap CI | 1000 resamples for 95% confidence intervals |
+| Holm-Bonferroni | Step-down correction for multiple comparisons |
+| Effect Sizes | Cohen's d with interpretation thresholds |
+| Threats to Validity | Automatic detection of small samples, high variability |
 
 ## Eco User IDs
 
@@ -266,6 +372,20 @@ metrics/
 | `bd-gather "goal" [role] [domain]` | Collect context |
 | `bd-plan <file> "title" [role]` | Create epic/tasks |
 | `bd-measure [task] [--json]` | Run measurements |
+
+### Scientific Method Commands (Experiments Only)
+| Command | Description |
+|---------|-------------|
+| `hypothesize.py create --goal "..." -i` | Create hypothesis interactively |
+| `hypothesize.py validate <task-id>` | Validate issue hypothesis structure |
+| `hypothesize.py validate-label experiment` | Validate all experiment issues |
+| `hypothesize.py template --goal "..."` | Generate hypothesis template |
+| `analyze.py task <task-id>` | Analyze measurements vs predictions |
+| `analyze.py task <id> --baseline <id>` | Compare to baseline task |
+| `analyze.py compare cond1:v1,v2 cond2:v1,v2` | Multi-condition comparison |
+| `analyze.py ci <values...>` | Calculate bootstrap confidence interval |
+
+**Full path:** `python3 packages/temper-workflow/src/temper_workflow/gpbm/<script>.py`
 
 ### Flags
 | Flag | For | Description |

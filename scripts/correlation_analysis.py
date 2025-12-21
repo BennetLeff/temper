@@ -228,11 +228,119 @@ def run_routing_verification(pcb_path: Path, quick: bool = False) -> Optional[Ro
         return None
 
 
+def bootstrap_correlation_ci(
+    x: list[float],
+    y: list[float],
+    n_bootstrap: int = 1000,
+    confidence: float = 0.95,
+) -> tuple[float, float]:
+    """
+    Compute bootstrap confidence interval for Pearson correlation.
+
+    Args:
+        x: First variable values
+        y: Second variable values
+        n_bootstrap: Number of bootstrap samples
+        confidence: Confidence level (default 0.95 for 95% CI)
+
+    Returns:
+        Tuple of (lower_bound, upper_bound) for the correlation CI
+    """
+    n = len(x)
+    if n < 3:
+        return (0.0, 0.0)
+
+    x_arr = np.array(x)
+    y_arr = np.array(y)
+    bootstrap_rs = []
+
+    rng = np.random.default_rng(42)  # Reproducible bootstrap
+    for _ in range(n_bootstrap):
+        indices = rng.choice(n, size=n, replace=True)
+        x_sample = x_arr[indices]
+        y_sample = y_arr[indices]
+
+        # Check for constant samples (can't compute correlation)
+        if np.std(x_sample) < 1e-10 or np.std(y_sample) < 1e-10:
+            continue
+
+        try:
+            result = stats.pearsonr(x_sample, y_sample)
+            r = float(result.statistic)  # type: ignore[union-attr]
+            bootstrap_rs.append(r)
+        except Exception:
+            continue
+
+    if len(bootstrap_rs) < n_bootstrap * 0.5:
+        return (0.0, 0.0)  # Too many failures
+
+    bootstrap_rs.sort()
+    alpha = 1 - confidence
+    lower_idx = int(len(bootstrap_rs) * alpha / 2)
+    upper_idx = int(len(bootstrap_rs) * (1 - alpha / 2))
+
+    return (bootstrap_rs[lower_idx], bootstrap_rs[upper_idx])
+
+
+def holm_bonferroni_correction(
+    p_values: list[float], alpha: float = 0.05
+) -> list[tuple[float, bool, float]]:
+    """
+    Apply Holm-Bonferroni correction for multiple comparisons (step-down procedure).
+
+    More powerful than Bonferroni while still controlling family-wise error rate.
+
+    Args:
+        p_values: List of p-values from multiple tests
+        alpha: Overall significance level
+
+    Returns:
+        List of (p_value, significant, adjusted_alpha) tuples in original order
+    """
+    m = len(p_values)
+    if m == 0:
+        return []
+
+    # Index and sort by p-value
+    indexed = [(p, i) for i, p in enumerate(p_values)]
+    indexed.sort()
+
+    results: list[tuple[float, bool, float]] = [(0.0, False, 0.0)] * m
+    rejected = True
+
+    for rank, (p, orig_idx) in enumerate(indexed, 1):
+        adjusted_alpha = alpha / (m - rank + 1)
+        if rejected and p < adjusted_alpha:
+            results[orig_idx] = (p, True, adjusted_alpha)
+        else:
+            rejected = False
+            results[orig_idx] = (p, False, adjusted_alpha)
+
+    return results
+
+
+@dataclass
+class CorrelationResult:
+    """Detailed result for a single correlation test."""
+
+    loss_name: str
+    metric_name: str
+    r: float
+    p_value: float
+    significant: bool
+    corrected_alpha: float
+    ci_lower: float
+    ci_upper: float
+
+
 def compute_correlations(
     loss_data: dict[str, list[float]], routing_data: dict[str, list[float]]
 ) -> dict[str, dict[str, float]]:
     """
     Compute Pearson correlations between loss values and routing metrics.
+
+    Uses Holm-Bonferroni correction for multiple comparisons and reports
+    bootstrap confidence intervals.
 
     Args:
         loss_data: Dict mapping loss name to list of values across samples
@@ -242,6 +350,9 @@ def compute_correlations(
         Dict mapping loss name to dict of correlations vs each routing metric
     """
     correlations = {}
+
+    # First pass: collect all p-values for correction
+    all_tests: list[CorrelationResult] = []
 
     for loss_name, loss_values in loss_data.items():
         if not loss_values or len(loss_values) < 3:
@@ -253,26 +364,64 @@ def compute_correlations(
             print(f"  Skipping constant loss '{loss_name}' (std={loss_std:.2e})", flush=True)
             continue
 
-        loss_corrs = {}
         for metric_name, metric_values in routing_data.items():
             if len(metric_values) != len(loss_values):
                 continue
 
             try:
-                r_value, p_value_result = stats.pearsonr(loss_values, metric_values)
-                r = float(r_value)  # type: ignore
-                p = float(p_value_result)  # type: ignore
+                result = stats.pearsonr(loss_values, metric_values)
+                r = float(result.statistic)  # type: ignore[union-attr]
+                p = float(result.pvalue)  # type: ignore[union-attr]
 
-                # Only include if statistically significant (p < 0.05)
-                if p < 0.05:
-                    loss_corrs[f"vs_{metric_name}"] = r
-                else:
-                    loss_corrs[f"vs_{metric_name}"] = 0.0  # Not significant
+                # Compute bootstrap CI
+                ci_lower, ci_upper = bootstrap_correlation_ci(loss_values, metric_values)
+
+                all_tests.append(
+                    CorrelationResult(
+                        loss_name=loss_name,
+                        metric_name=metric_name,
+                        r=r,
+                        p_value=p,
+                        significant=False,  # Will be updated after correction
+                        corrected_alpha=0.05,  # Will be updated
+                        ci_lower=ci_lower,
+                        ci_upper=ci_upper,
+                    )
+                )
             except Exception:
-                loss_corrs[f"vs_{metric_name}"] = 0.0
+                pass
 
-        if loss_corrs:
-            correlations[loss_name] = loss_corrs
+    # Apply Holm-Bonferroni correction
+    if all_tests:
+        p_values = [t.p_value for t in all_tests]
+        corrections = holm_bonferroni_correction(p_values, alpha=0.05)
+
+        for i, (p, sig, adj_alpha) in enumerate(corrections):
+            all_tests[i].significant = sig
+            all_tests[i].corrected_alpha = adj_alpha
+
+        # Report multiple comparison correction
+        n_sig_before = sum(1 for t in all_tests if t.p_value < 0.05)
+        n_sig_after = sum(1 for t in all_tests if t.significant)
+        if n_sig_before != n_sig_after:
+            print(
+                f"  Multiple comparison correction: {n_sig_before} -> {n_sig_after} significant tests "
+                f"(Holm-Bonferroni, family α=0.05)",
+                flush=True,
+            )
+
+    # Build output dictionary
+    for test in all_tests:
+        if test.loss_name not in correlations:
+            correlations[test.loss_name] = {}
+
+        key = f"vs_{test.metric_name}"
+        if test.significant:
+            correlations[test.loss_name][key] = test.r
+            # Also store CI for significant results
+            correlations[test.loss_name][f"{key}_ci"] = [test.ci_lower, test.ci_upper]
+        else:
+            correlations[test.loss_name][key] = 0.0  # Not significant after correction
 
     return correlations
 
