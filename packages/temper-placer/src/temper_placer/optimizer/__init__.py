@@ -50,6 +50,11 @@ from temper_placer.optimizer.config import (
     TemperatureSchedule,
     get_default_loss_weights,
 )
+from temper_placer.optimizer.convergence_analytics import (
+    ConvergenceAnalyzer,
+    ImprovementMetrics,
+    LossImprovementTracker,
+)
 from temper_placer.optimizer.curriculum import (
     CurriculumState,
     create_default_phases,
@@ -106,6 +111,10 @@ __all__ = [
     "CheckpointConfig",
     "EarlyStoppingConfig",
     "get_default_loss_weights",
+    # Convergence Analytics
+    "LossImprovementTracker",
+    "ImprovementMetrics",
+    "ConvergenceAnalyzer",
     # Scheduler
     "get_temperature",
     "get_learning_rate",
