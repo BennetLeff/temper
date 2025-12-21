@@ -357,7 +357,8 @@ def optimize(
             # rotation_invariant=True ensures overlap is detected regardless of rotation
             losses.append(
                 WeightedLoss(
-                    OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]
+                    OverlapLoss(margin=1.0, rotation_invariant=True, inflation_ramp=0.3),
+                    weight=weights["overlap"],
                 )
             )
         if "boundary" in weights:
@@ -1130,7 +1131,8 @@ def benchmark(
         losses = []
         losses.append(
             WeightedLoss(
-                OverlapLoss(margin=1.0, rotation_invariant=True), weight=weights["overlap"]
+                OverlapLoss(margin=1.0, rotation_invariant=True, inflation_ramp=0.3),
+                weight=weights["overlap"],
             )
         )
         losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
