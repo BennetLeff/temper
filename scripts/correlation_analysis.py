@@ -65,6 +65,34 @@ class CorrelationReport:
     raw_data: Optional[dict[str, dict[str, list[float]]]] = None  # For inter-loss analysis
 
 
+def perturb_positions(positions: np.ndarray, seed: int, magnitude: float = 2.0) -> np.ndarray:
+    """
+    Add random perturbation to component positions.
+
+    This creates variance in optimized placements for correlation analysis
+    when the optimizer converges to similar solutions across seeds.
+
+    Args:
+        positions: (N, 2) array of component positions in mm
+        seed: Random seed for reproducibility
+        magnitude: Max perturbation in mm (default 2mm). Set to 0 for no perturbation.
+
+    Returns:
+        Perturbed positions with noise in range [-magnitude, magnitude]
+
+    Example:
+        >>> positions = np.array([[50.0, 50.0], [25.0, 75.0]])
+        >>> perturbed = perturb_positions(positions, seed=42, magnitude=2.0)
+        >>> # Each component is shifted by up to 2mm in x and y
+    """
+    if magnitude == 0.0:
+        return positions.copy()
+
+    rng = np.random.default_rng(seed)
+    noise = rng.uniform(-magnitude, magnitude, size=positions.shape)
+    return positions + noise
+
+
 def get_epochs_for_sample(
     sample_idx: int, epoch_tiers: Optional[list[int]] = None, n_samples: int = 90
 ) -> int:
@@ -203,13 +231,20 @@ def run_single_optimization(args: tuple) -> OptimizationResult:
         )
 
 
-def run_routing_verification(pcb_path: Path, quick: bool = False) -> Optional[RoutingResult]:
+def run_routing_verification(
+    pcb_path: Path,
+    quick: bool = False,
+    perturb_seed: Optional[int] = None,
+    perturb_magnitude: float = 0.0,
+) -> Optional[RoutingResult]:
     """
     Run routing verification on a placed PCB.
 
     Args:
         pcb_path: Path to placed KiCad PCB
         quick: If True, use faster GEOMETRIC level; otherwise use MAZE level
+        perturb_seed: If provided, apply position perturbation with this seed
+        perturb_magnitude: Max perturbation in mm (default 0 = no perturbation)
 
     Returns:
         RoutingResult or None if routing failed
@@ -229,6 +264,14 @@ def run_routing_verification(pcb_path: Path, quick: bool = False) -> Optional[Ro
 
         # Extract positions from placed components
         positions = jnp.array([c.initial_position for c in parse_result.netlist.components])
+
+        # Apply perturbation if requested (for variance in correlation analysis)
+        if perturb_seed is not None and perturb_magnitude > 0:
+            positions_np = np.array(positions)
+            positions_np = perturb_positions(
+                positions_np, seed=perturb_seed, magnitude=perturb_magnitude
+            )
+            positions = jnp.array(positions_np)
 
         # Create empty loop collection (no critical loops defined)
         loops = LoopCollection(loops=[])
@@ -563,6 +606,7 @@ def run_correlation_analysis(
     n_samples: int,
     quick: bool = False,
     epoch_tiers: Optional[list[int]] = None,
+    perturb_magnitude: float = 0.0,
 ) -> CorrelationReport:
     """
     Run full correlation analysis.
@@ -573,6 +617,7 @@ def run_correlation_analysis(
         n_samples: Number of optimization samples to run
         quick: If True, skip routing verification
         epoch_tiers: List of epoch counts for variance experiment (e.g., [25, 100, 200])
+        perturb_magnitude: Max position perturbation in mm (default 0 = no perturbation)
 
     Returns:
         CorrelationReport with correlations and recommendations
@@ -581,6 +626,8 @@ def run_correlation_analysis(
     print(f"Mode: {'quick (no routing)' if quick else 'full (with routing)'}")
     if epoch_tiers:
         print(f"Epoch tiers: {epoch_tiers} (samples per tier: {n_samples // len(epoch_tiers)})")
+    if perturb_magnitude > 0:
+        print(f"Position perturbation: ±{perturb_magnitude}mm")
 
     # Convert paths to absolute for subprocess calls
     pcb_path = pcb_path.resolve()
@@ -615,7 +662,13 @@ def run_correlation_analysis(
         print("\n[2/3] Running routing verification...")
         routing_results = []
         for opt_result in valid_results:
-            routing_result = run_routing_verification(opt_result.output_pcb_path, quick=quick)
+            # Use seed as perturb_seed for reproducibility
+            routing_result = run_routing_verification(
+                opt_result.output_pcb_path,
+                quick=quick,
+                perturb_seed=opt_result.seed if perturb_magnitude > 0 else None,
+                perturb_magnitude=perturb_magnitude,
+            )
             if routing_result:
                 routing_results.append(routing_result)
 
@@ -728,6 +781,13 @@ def main():
         "Samples will be split evenly across tiers.",
     )
     parser.add_argument("--output", type=Path, help="Output JSON file (default: stdout)")
+    parser.add_argument(
+        "--perturb",
+        type=float,
+        default=0.0,
+        help="Apply random position perturbation (in mm) after optimization. "
+        "Useful when optimizer converges to similar placements. Default: 0 (disabled).",
+    )
 
     args = parser.parse_args()
 
@@ -769,7 +829,12 @@ def main():
     try:
         # Run analysis
         report = run_correlation_analysis(
-            args.pcb, args.config, args.samples, quick=args.quick, epoch_tiers=epoch_tiers
+            args.pcb,
+            args.config,
+            args.samples,
+            quick=args.quick,
+            epoch_tiers=epoch_tiers,
+            perturb_magnitude=args.perturb,
         )
 
         # Convert to JSON

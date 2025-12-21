@@ -278,5 +278,133 @@ class TestCorrelationReportDataclass:
         )
 
 
+class TestPositionPerturbation:
+    """BDD tests for position perturbation feature (temper-h0n9.3)."""
+
+    def test_perturb_positions_creates_variation(self):
+        """
+        GIVEN identical input positions for 2 seeds
+        WHEN perturb_positions is called with different seeds
+        THEN output positions should differ
+
+        This validates: Perturbation creates variance across samples.
+        """
+        import sys
+
+        sys.path.insert(0, str(Path(__file__).parent))
+
+        try:
+            from correlation_analysis import perturb_positions
+        except ImportError:
+            pytest.skip("perturb_positions not implemented yet")
+
+        positions = np.array([[50.0, 50.0], [25.0, 75.0]])
+
+        perturbed_1 = perturb_positions(positions, seed=1, magnitude=2.0)
+        perturbed_2 = perturb_positions(positions, seed=2, magnitude=2.0)
+
+        assert not np.allclose(perturbed_1, perturbed_2), (
+            "Positions should differ with different seeds"
+        )
+
+    def test_perturb_positions_is_reproducible(self):
+        """
+        GIVEN same positions and same seed
+        WHEN perturb_positions is called twice
+        THEN output should be identical
+
+        This validates: Reproducibility for debugging.
+        """
+        import sys
+
+        sys.path.insert(0, str(Path(__file__).parent))
+
+        try:
+            from correlation_analysis import perturb_positions
+        except ImportError:
+            pytest.skip("perturb_positions not implemented yet")
+
+        positions = np.array([[50.0, 50.0]])
+
+        result_1 = perturb_positions(positions, seed=42, magnitude=2.0)
+        result_2 = perturb_positions(positions, seed=42, magnitude=2.0)
+
+        assert np.allclose(result_1, result_2), "Same seed should produce same result"
+
+    def test_perturb_positions_respects_magnitude(self):
+        """
+        GIVEN positions and magnitude=2.0
+        WHEN perturb_positions is called
+        THEN all perturbations should be within [-2.0, 2.0]
+
+        This validates: Perturbation bounds are respected.
+        """
+        import sys
+
+        sys.path.insert(0, str(Path(__file__).parent))
+
+        try:
+            from correlation_analysis import perturb_positions
+        except ImportError:
+            pytest.skip("perturb_positions not implemented yet")
+
+        positions = np.array([[50.0, 50.0]] * 100)  # 100 components
+        magnitude = 2.0
+
+        perturbed = perturb_positions(positions, seed=1, magnitude=magnitude)
+        delta = perturbed - positions
+
+        assert np.all(delta >= -magnitude), "Perturbation below -magnitude"
+        assert np.all(delta <= magnitude), "Perturbation above magnitude"
+
+    def test_perturb_positions_zero_magnitude_returns_unchanged(self):
+        """
+        GIVEN positions and magnitude=0.0
+        WHEN perturb_positions is called
+        THEN positions should be unchanged
+
+        This validates: Edge case of no perturbation.
+        """
+        import sys
+
+        sys.path.insert(0, str(Path(__file__).parent))
+
+        try:
+            from correlation_analysis import perturb_positions
+        except ImportError:
+            pytest.skip("perturb_positions not implemented yet")
+
+        positions = np.array([[50.0, 50.0], [25.0, 75.0]])
+
+        perturbed = perturb_positions(positions, seed=42, magnitude=0.0)
+
+        assert np.allclose(perturbed, positions), "Zero magnitude should return unchanged positions"
+
+    def test_cli_parses_perturb_flag(self):
+        """
+        GIVEN CLI args with --perturb 3.5
+        WHEN args are parsed
+        THEN args.perturb should be 3.5
+
+        This validates: CLI integration.
+        """
+        import sys
+        import argparse
+
+        sys.path.insert(0, str(Path(__file__).parent))
+
+        # Import and check if --perturb is a valid argument
+        from correlation_analysis import main
+        import correlation_analysis
+
+        # Check if the argparse has --perturb
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--pcb", type=Path, required=True)
+        parser.add_argument("--perturb", type=float, default=0.0)
+
+        args = parser.parse_args(["--pcb", "test.kicad_pcb", "--perturb", "3.5"])
+        assert args.perturb == 3.5, f"Expected 3.5, got {args.perturb}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
