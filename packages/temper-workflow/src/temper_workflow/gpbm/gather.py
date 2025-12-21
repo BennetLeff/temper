@@ -115,9 +115,7 @@ class GatherContext:
             ]
         )
 
-        all_memories = (
-            self.eco_legacy + self.eco_shared + self.eco_role + self.eco_domain
-        )
+        all_memories = self.eco_legacy + self.eco_shared + self.eco_role + self.eco_domain
         if all_memories:
             for i, mem in enumerate(all_memories[:10], 1):
                 memory = mem.get("memory", {})
@@ -177,9 +175,7 @@ class GatherContext:
                 ]
             )
             for req in self.unverified_requirements[:10]:
-                lines.append(
-                    f"- **{req['id']}**: {req['title'][:50]} [{req['status']}]"
-                )
+                lines.append(f"- **{req['id']}**: {req['title'][:50]} [{req['status']}]")
             lines.append("")
 
         # Issues section
@@ -265,11 +261,15 @@ class GatherPhase:
     def _search_eco(
         self, goal: str, role: str | None = None, domain: str | None = None
     ) -> dict[str, list[dict]]:
-        """Search Eco for relevant memories.
+        """Search Eco for relevant memories (parallel version).
 
         Uses ECO_MIN_SCORE and ECO_LIMIT environment variables for configuration.
         Defaults: min_score=0.6, limit=5
+
+        Searches are executed in parallel for 4× speedup.
         """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         result = {
             "shared": [],
             "role": [],
@@ -277,45 +277,45 @@ class GatherPhase:
             "legacy": [],
         }
 
-        # Search legacy namespace first (where existing data lives)
-        result["legacy"] = self.eco_client.search(
-            goal,
-            self.eco_client.config.LEGACY,
-            limit=ECO_LIMIT,
-            min_score=ECO_MIN_SCORE,
-        )
+        # Build list of searches to execute
+        searches = [
+            ("legacy", self.eco_client.config.LEGACY),
+            ("shared", self.eco_client.config.SHARED),
+        ]
 
-        # Search shared
-        result["shared"] = self.eco_client.search(
-            goal,
-            self.eco_client.config.SHARED,
-            limit=ECO_LIMIT,
-            min_score=ECO_MIN_SCORE,
-        )
-
-        # Search role-specific
         if role and role in self.eco_client.config.ROLES:
-            result["role"] = self.eco_client.search(
-                goal,
-                self.eco_client.config.ROLES[role],
-                limit=ECO_LIMIT,
-                min_score=ECO_MIN_SCORE,
-            )
+            searches.append(("role", self.eco_client.config.ROLES[role]))
 
-        # Search domain-specific
         if domain and domain in self.eco_client.config.DOMAINS:
-            result["domain"] = self.eco_client.search(
-                goal,
-                self.eco_client.config.DOMAINS[domain],
-                limit=ECO_LIMIT,
-                min_score=ECO_MIN_SCORE,
-            )
+            searches.append(("domain", self.eco_client.config.DOMAINS[domain]))
+
+        # Execute searches in parallel
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_key = {
+                executor.submit(
+                    self.eco_client.search,
+                    goal,
+                    user_id,
+                    limit=ECO_LIMIT,
+                    min_score=ECO_MIN_SCORE,
+                ): key
+                for key, user_id in searches
+            }
+
+            for future in as_completed(future_to_key):
+                key = future_to_key[future]
+                try:
+                    result[key] = future.result()
+                except Exception as e:
+                    print(
+                        f"Warning: Eco search failed for {key}: {e}",
+                        file=sys.stderr,
+                    )
+                    result[key] = []
 
         return result
 
-    def _search_requirements(
-        self, goal: str, domain: str | None = None
-    ) -> dict[str, list[dict]]:
+    def _search_requirements(self, goal: str, domain: str | None = None) -> dict[str, list[dict]]:
         """Search requirements related to goal."""
         result = {
             "related": [],
@@ -347,9 +347,7 @@ class GatherPhase:
 
         return result
 
-    def _search_issues(
-        self, goal: str, domain: str | None = None
-    ) -> dict[str, list[dict]]:
+    def _search_issues(self, goal: str, domain: str | None = None) -> dict[str, list[dict]]:
         """Search bd issues related to goal."""
         result = {
             "related": [],
@@ -401,9 +399,7 @@ class GatherPhase:
 
         return result
 
-    def _find_relevant_files(
-        self, goal: str, domain: str | None = None
-    ) -> list[str]:
+    def _find_relevant_files(self, goal: str, domain: str | None = None) -> list[str]:
         """Find potentially relevant files based on goal and domain."""
         files = []
 
@@ -526,12 +522,8 @@ Examples:
         choices=["architect", "coder", "tester"],
         help="Agent role",
     )
-    parser.add_argument(
-        "--output", "-o", type=str, help="Output file path (default: stdout)"
-    )
-    parser.add_argument(
-        "--json", action="store_true", help="Output as JSON instead of markdown"
-    )
+    parser.add_argument("--output", "-o", type=str, help="Output file path (default: stdout)")
+    parser.add_argument("--json", action="store_true", help="Output as JSON instead of markdown")
     parser.add_argument("--root", type=str, help="Project root directory")
 
     args = parser.parse_args()
@@ -571,9 +563,7 @@ Examples:
         f"  Eco memories: {len(context.eco_legacy) + len(context.eco_shared) + len(context.eco_role) + len(context.eco_domain)}",
         file=sys.stderr,
     )
-    print(
-        f"  Related requirements: {len(context.related_requirements)}", file=sys.stderr
-    )
+    print(f"  Related requirements: {len(context.related_requirements)}", file=sys.stderr)
     print(f"  Related issues: {len(context.related_issues)}", file=sys.stderr)
     print(f"  Relevant files: {len(context.relevant_files)}", file=sys.stderr)
     print("=" * 50, file=sys.stderr)
