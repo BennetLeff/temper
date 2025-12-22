@@ -14,8 +14,8 @@ from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.schematic import Schematic
 
-from temper_placer.core.board import Board, MountingHole, Zone
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.board import Board, MountingHole, Pad, Zone, Trace
+from temper_placer.core.netlist import Net, Netlist, Pin, Component
 
 
 @dataclass
@@ -181,8 +181,21 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
     mounting_holes = []
     for fp in ki_board.footprints:
         # Components without reference designators (e.g. REF**) are often mounting holes
-        # Or check if footprint has 'MountingHole' in its name
-        if "MountingHole" in fp.graphicItems[0].text if fp.graphicItems else False:
+        # Or check if footprint has 'MountingHole' in its name/text
+        is_mounting_hole = False
+        
+        # Check Value/Name (entryName in kiutils)
+        if hasattr(fp, "entryName") and "MountingHole" in fp.entryName:
+            is_mounting_hole = True
+        
+        # Check graphic text items
+        if not is_mounting_hole and fp.graphicItems:
+            for item in fp.graphicItems:
+                if hasattr(item, "text") and "MountingHole" in item.text:
+                    is_mounting_hole = True
+                    break
+        
+        if is_mounting_hole:
             mounting_holes.append(MountingHole(position=(fp.position.X, fp.position.Y), diameter=3.2))
 
     # 3. Extract Zones
@@ -190,17 +203,20 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
     for ki_zone in ki_board.zones:
         # Kiutils zone boundary is a list of points
         if ki_zone.polygons:
-            pts = ki_zone.polygons[0].points
+            poly = ki_zone.polygons[0]
+            # Try points or pts based on kiutils version
+            pts = getattr(poly, "points", None) or getattr(poly, "pts", [])
             x_pts = [p.X for p in pts]
             y_pts = [p.Y for p in pts]
-            bounds = (min(x_pts), min(y_pts), max(x_pts), max(y_pts))
-            zones.append(
-                Zone(
-                    name=ki_zone.name or f"Zone_{len(zones)}",
-                    bounds=bounds,
-                    net_classes=[ki_zone.netName] if ki_zone.netName else ["Signal"],
+            if x_pts and y_pts:
+                bounds = (min(x_pts), min(y_pts), max(x_pts), max(y_pts))
+                zones.append(
+                    Zone(
+                        name=ki_zone.name or f"Zone_{len(zones)}",
+                        bounds=bounds,
+                        net_classes=[ki_zone.netName] if ki_zone.netName else ["Signal"],
+                    )
                 )
-            )
 
     return Board(
         width=x_max - x_min,
@@ -235,33 +251,70 @@ def _extract_components_from_pcb(
         if not ref or ref.startswith("REF**"):
             continue
 
-        # Get bounding box from footprint library if possible
-        # For now, use a simplified estimation based on graphics
-        width, height = _get_footprint_bounds(fp)
-
         # Map Kiutils rotation (degrees) to 0-3 index
         # Note: KiCad uses counter-clockwise rotation
         rot_deg = fp.position.angle or 0.0
         rot_idx = round(rot_deg / 90.0) % 4
 
+        # Calculate approximate bounds from graphics
+        # Default to 5x5mm if no graphics
+        width, height = 5.0, 5.0
+        
+        if fp.graphicItems:
+            x_min, y_min = float("inf"), float("inf")
+            x_max, y_max = float("-inf"), float("-inf")
+            has_graphics = False
+            
+            for item in fp.graphicItems:
+                # Basic bounding box logic for lines/rects
+                if hasattr(item, "start") and hasattr(item, "end"):
+                    x_min = min(x_min, item.start.X, item.end.X)
+                    y_min = min(y_min, item.start.Y, item.end.Y)
+                    x_max = max(x_max, item.start.X, item.end.X)
+                    y_max = max(y_max, item.start.Y, item.end.Y)
+                    has_graphics = True
+            
+            if has_graphics:
+                width = max(1.0, x_max - x_min)
+                height = max(1.0, y_max - y_min)
+
+        # Extract pins
+        pins = []
+        import math
+        angle_rad = math.radians(fp.position.angle if fp.position.angle else 0.0)
+        cos_a = math.cos(-angle_rad) # Rotate back
+        sin_a = math.sin(-angle_rad)
+
+        for pad in fp.pads:
+            # Absolute position difference
+            dx = pad.position.X - fp.position.X
+            dy = pad.position.Y - fp.position.Y
+            
+            # Rotate back to component local frame
+            ox_p = dx * cos_a - dy * sin_a
+            oy_p = dx * sin_a + dy * cos_a
+            
+            pins.append(
+                Pin(
+                    name=pad.number or "",
+                    number=pad.number or "",
+                    position=(ox_p, oy_p),
+                    net=pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None
+                )
+            )
+
         comp = Component(
             ref=ref,
             footprint=fp.libId or "",
             bounds=(width, height),
-            initial_position=(fp.position.X - ox, fp.position.Y - oy),
-            initial_rotation=rot_idx,
+            pins=pins,
+            initial_position=(
+                fp.position.X - board_origin[0],
+                fp.position.Y - board_origin[1],
+            ),
             fixed=fp.locked,
+            initial_rotation=rot_idx
         )
-
-        # Extract pins (pads)
-        for pad in fp.pads:
-            pin = Pin(
-                name=getattr(pad, "name", ""),
-                number=pad.number or "",
-                position=(pad.position.X, pad.position.Y),
-                net=pad.net.name if pad.net else None,
-            )
-            comp.pins.append(pin)
 
         components.append(comp)
 
@@ -314,15 +367,17 @@ def _extract_traces_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[Tra
     traces = []
     # In Kiutils, traces are in 'traceItems' list
     for track in ki_board.traceItems:
-        traces.append(
-            TraceData(
-                start=(track.start.X, track.start.Y),
-                end=(track.end.X, track.end.Y),
-                width=track.width,
-                layer=track.layer,
-                net=track.net.name if track.net else None,
+        # Only process tracks, skip vias (which don't have start/end)
+        if hasattr(track, "start") and hasattr(track, "end"):
+            traces.append(
+                TraceData(
+                    start=(track.start.X, track.start.Y),
+                    end=(track.end.X, track.end.Y),
+                    width=track.width,
+                    layer=track.layer,
+                    net=track.net.name if track.net and hasattr(track.net, "name") else str(track.net) if track.net else None,
+                )
             )
-        )
     return traces
 
 
@@ -349,7 +404,7 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadDa
                     rotation=pad.position.angle or 0.0,
                     layer=pad.layers[0] if pad.layers else "F.Cu",
                     number=pad.number or "",
-                    net=pad.net.name if pad.net else None,
+                    net=pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None,
                     component_ref=ref,
                 )
             )
@@ -379,15 +434,32 @@ def _get_footprint_reference(fp: Footprint) -> str | None:
     Returns:
         Reference string (e.g., "U1") or None.
     """
-    # Check properties first (KiCad 6+)
-    if hasattr(fp, "properties") and isinstance(fp.properties, dict):
-        if "Reference" in fp.properties:
-            return fp.properties["Reference"]
+    # 1. Check Reference property (most reliable in KiCad 6+)
+    if hasattr(fp, "properties"):
+        props = fp.properties
+        if isinstance(props, dict):
+            if "Reference" in props:
+                return props["Reference"]
+        elif isinstance(props, list):
+            for p in props:
+                if getattr(p, "name", "") == "Reference":
+                    return getattr(p, "value", None)
 
-    # Reference is typically in graphicItems as a text item with type 'reference'
+    # 2. Check graphicItems for reference
     for item in fp.graphicItems:
         if hasattr(item, "type") and item.type == "reference":
             return item.text
+
+    # 3. Fallback to ref attribute if available
+    ref = getattr(fp, "ref", None)
+    if ref and not ref.startswith("REF**"):
+        return ref
+        
+    # 4. Last resort: entryName if it looks like a ref (e.g. U1, R5)
+    ename = getattr(fp, "entryName", None)
+    if ename and not ename.startswith("REF**") and ":" not in ename and len(ename) < 10:
+        return ename
+            
     return None
 
 

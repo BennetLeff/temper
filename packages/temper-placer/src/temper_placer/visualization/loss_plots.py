@@ -354,7 +354,7 @@ def render_training_dashboard(
     history: LossHistory,
     title: str | None = None,
     width: int = 1000,
-    height: int = 600,
+    height: int = 900,
 ) -> go.Figure:
     """
     Render a comprehensive training dashboard with multiple views.
@@ -371,19 +371,22 @@ def render_training_dashboard(
     check_plotly_available()
 
     fig = make_subplots(
-        rows=2,
+        rows=3,
         cols=2,
         subplot_titles=(
             "Training Loss",
             "Loss Breakdown (Latest)",
             "Loss Term Evolution",
+            "Convergence Confidence",
             "Learning Rate / Temperature",
+            "Relative Improvement (EMA)",
         ),
         specs=[
             [{"type": "scatter"}, {"type": "bar"}],
             [{"type": "heatmap"}, {"type": "scatter"}],
+            [{"type": "scatter"}, {"type": "scatter"}],
         ],
-        vertical_spacing=0.15,
+        vertical_spacing=0.1,
         horizontal_spacing=0.1,
     )
 
@@ -452,7 +455,7 @@ def render_training_dashboard(
             col=2,
         )
 
-    # 3. Heatmap (bottom-left)
+    # 3. Heatmap (middle-left)
     if history.loss_terms:
         z_data = []
         for term in history.loss_terms:
@@ -476,7 +479,25 @@ def render_training_dashboard(
             col=1,
         )
 
-    # 4. Learning rate / temperature (bottom-right)
+    # 4. Convergence Confidence (middle-right)
+    conf_data = [p.convergence_confidence for p in history.data_points if p.convergence_confidence is not None]
+    if conf_data:
+        conf_epochs = [p.epoch for p in history.data_points if p.convergence_confidence is not None]
+        fig.add_trace(
+            go.Scatter(
+                x=conf_epochs,
+                y=conf_data,
+                mode="lines",
+                name="Confidence",
+                line={"color": "#4CAF50", "width": 2},
+                showlegend=False,
+            ),
+            row=2,
+            col=2,
+        )
+        fig.update_yaxes(range=[0, 1.05], row=2, col=2)
+
+    # 5. Learning rate / temperature (bottom-left)
     lr_data = [p.learning_rate for p in history.data_points if p.learning_rate]
     temp_data = [p.temperature for p in history.data_points if p.temperature]
 
@@ -491,8 +512,8 @@ def render_training_dashboard(
                 line={"color": "#2196F3"},
                 showlegend=False,
             ),
-            row=2,
-            col=2,
+            row=3,
+            col=1,
         )
 
     if temp_data:
@@ -504,12 +525,30 @@ def render_training_dashboard(
                 mode="lines",
                 name="Temperature",
                 line={"color": "#F44336", "dash": "dash"},
-                yaxis="y8",  # Secondary y-axis
+                yaxis="y8",  # Note: subplot numbering might be different now
                 showlegend=False,
             ),
-            row=2,
+            row=3,
+            col=1,
+        )
+
+    # 6. Relative Improvement EMA (bottom-right)
+    imp_data = [p.improvement_ema for p in history.data_points if p.improvement_ema is not None]
+    if imp_data:
+        imp_epochs = [p.epoch for p in history.data_points if p.improvement_ema is not None]
+        fig.add_trace(
+            go.Scatter(
+                x=imp_epochs,
+                y=imp_data,
+                mode="lines",
+                name="Improvement EMA",
+                line={"color": "#FF9800"},
+                showlegend=False,
+            ),
+            row=3,
             col=2,
         )
+        fig.update_yaxes(type="log", row=3, col=2)
 
     # Update layout
     fig.update_layout(

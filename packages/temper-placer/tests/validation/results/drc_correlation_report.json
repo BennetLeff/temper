@@ -5,10 +5,10 @@
     {
       "quality_level": "perfect",
       "optimizer_metrics": {
-        "total_loss": 695.8476837715108,
+        "total_loss": 16822.319575814035,
         "overlap_loss": 0.0,
         "boundary_loss": 0.0,
-        "wirelength_loss": 69.58476837715108
+        "wirelength_loss": 1682.2319575814035
       },
       "drc_results": {
         "ran_successfully": true,
@@ -22,16 +22,18 @@
     {
       "quality_level": "good",
       "optimizer_metrics": {
-        "total_loss": 361.22807772731016,
-        "overlap_loss": 0.038116010681923135,
+        "total_loss": 12212.25381598242,
+        "overlap_loss": 0.0,
         "boundary_loss": 0.0,
-        "wirelength_loss": 35.741647665911785
+        "wirelength_loss": 1221.225381598242
       },
       "drc_results": {
         "ran_successfully": true,
-        "error_count": 0,
+        "error_count": 8,
         "warning_count": 4,
         "violations_by_type": {
+          "shorting_items": 4,
+          "solder_mask_bridge": 4,
           "lib_footprint_mismatch": 4
         }
       }
@@ -39,10 +41,10 @@
     {
       "quality_level": "mediocre",
       "optimizer_metrics": {
-        "total_loss": 381.2289312805482,
-        "overlap_loss": 0.028620244756199342,
+        "total_loss": 11847.953289297655,
+        "overlap_loss": 0.0,
         "boundary_loss": 0.0,
-        "wirelength_loss": 37.83669068049282
+        "wirelength_loss": 1184.7953289297654
       },
       "drc_results": {
         "ran_successfully": true,
@@ -58,16 +60,18 @@
     {
       "quality_level": "bad",
       "optimizer_metrics": {
-        "total_loss": 875.6632475474527,
+        "total_loss": 10783.502538673672,
         "overlap_loss": 0.0,
         "boundary_loss": 0.0,
-        "wirelength_loss": 87.56632475474527
+        "wirelength_loss": 1078.3502538673672
       },
       "drc_results": {
         "ran_successfully": true,
-        "error_count": 0,
+        "error_count": 8,
         "warning_count": 4,
         "violations_by_type": {
+          "shorting_items": 4,
+          "solder_mask_bridge": 4,
           "lib_footprint_mismatch": 4
         }
       }
@@ -75,10 +79,10 @@
     {
       "quality_level": "terrible",
       "optimizer_metrics": {
-        "total_loss": 1179.946757716746,
+        "total_loss": 16311.017098466082,
         "overlap_loss": 0.0,
         "boundary_loss": 0.0,
-        "wirelength_loss": 117.99467577167462
+        "wirelength_loss": 1631.1017098466082
       },
       "drc_results": {
         "ran_successfully": true,

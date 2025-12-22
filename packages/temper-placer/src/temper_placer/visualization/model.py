@@ -290,6 +290,8 @@ class LossDataPoint:
     breakdown: dict[str, float] = field(default_factory=dict)
     temperature: float | None = None
     learning_rate: float | None = None
+    convergence_confidence: float | None = None
+    improvement_ema: float | None = None
     positions: list[tuple[float, float]] | None = None
     rotations: list[float] | None = None
 
@@ -300,6 +302,8 @@ class LossDataPoint:
             "breakdown": self.breakdown,
             "temperature": self.temperature,
             "learning_rate": self.learning_rate,
+            "convergence_confidence": self.convergence_confidence,
+            "improvement_ema": self.improvement_ema,
             "positions": self.positions,
             "rotations": self.rotations,
         }
@@ -576,4 +580,6 @@ def create_loss_data_point_from_metrics(metrics: Any) -> LossDataPoint:
         breakdown=dict(metrics.loss_breakdown) if metrics.loss_breakdown else {},
         temperature=metrics.temperature,
         learning_rate=metrics.learning_rate,
+        convergence_confidence=getattr(metrics, "convergence_confidence", None),
+        improvement_ema=getattr(metrics, "loss_improvement_ema", None),
     )

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """
 Composite quality score for placement evaluation.
 
@@ -9,10 +8,32 @@ of different placements.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 from temper_placer.routing.verifier import VerificationResult
 from temper_placer.validation.drc_runner import DrcResult
 from temper_placer.validation.metrics import PlacementMetrics
+
+
+@dataclass
+class QualityInputs:
+    """Inputs for quality score computation."""
+    # Hard constraints (binary)
+    drc_violations: int = 0
+    overlap_loss: float = 0.0
+    boundary_loss: float = 0.0
+    
+    # Routing (optional)
+    routing_completion_pct: float = 100.0
+    
+    # Efficiency
+    hpwl_mm: float = 0.0
+    hpwl_target_mm: Optional[float] = None
+    
+    # Safety/compliance
+    hv_clearance_ok: bool = True
+    thermal_compliance: bool = True
+    zone_compliance_pct: float = 100.0
 
 
 @dataclass
@@ -93,15 +114,7 @@ def compute_quality_score(
         overall = 0.4 * placement_score + 0.4 * drc_score + 0.2 * routing_score
 
     # Determine interpretation
-    if overall >= 90:
-        interpretation = "excellent"
-    elif overall >= 80:
-        interpretation = "good"
-    elif overall >= 60:
-        interpretation = "ok"
-    else:
-        interpretation = "poor"
-
+    interpretation = interpret_score(overall)
     pass_quality = overall >= 60
 
     return QualityScore(
@@ -117,17 +130,6 @@ def compute_quality_score(
 def _compute_placement_score(metrics: PlacementMetrics) -> float:
     """
     Compute placement quality score (0-100).
-
-    Deductions:
-    - Overlaps: -20 per overlap (severe)
-    - Boundary violations: -15 per violation (severe)
-    - HV-LV clearance violations: -25 per violation (critical)
-    - Other clearance violations: -5 per violation
-    - Zone violations: -10 per violation
-    - Keepout violations: -10 per violation
-    - Wirelength penalty: deduct for excessive wirelength (relative to ideal)
-
-    Score is clamped to [0, 100].
     """
     score = 100.0
 
@@ -141,11 +143,14 @@ def _compute_placement_score(metrics: PlacementMetrics) -> float:
     score -= (metrics.clearance_violations - metrics.hv_lv_violations) * 5
     score -= metrics.zone_violations * 10
 
-    # Wirelength penalty (less critical, aesthetic)
-    # Assume wirelength > 2x ideal is problematic
-    # For simplicity, just penalize if avg net length > 50mm
-    if metrics.avg_net_length > 50:
-        score -= min(10, (metrics.avg_net_length - 50) / 10)
+    # Wirelength penalty
+    if metrics.total_wirelength > 0:
+        # Assume avg net length > 50mm is problematic
+        avg_len = metrics.total_wirelength / max(1, metrics.overlap_count + 1) # This was avg_net_length
+        # Wait, metrics has avg_net_length?
+        avg_len = getattr(metrics, "avg_net_length", 0.0)
+        if avg_len > 50:
+            score -= min(10, (avg_len - 50) / 10)
 
     return max(0.0, min(100.0, score))
 
@@ -153,18 +158,10 @@ def _compute_placement_score(metrics: PlacementMetrics) -> float:
 def _compute_drc_score(drc_result: DrcResult) -> float:
     """
     Compute DRC quality score (0-100).
-
-    Deductions:
-    - DRC errors: -15 per error (must fix)
-    - DRC warnings: -3 per warning (should fix)
-
-    Score is clamped to [0, 100].
     """
     score = 100.0
-
     score -= drc_result.error_count * 15
     score -= drc_result.warning_count * 3
-
     return max(0.0, min(100.0, score))
 
 
@@ -173,117 +170,33 @@ def _compute_routing_score(
 ) -> float:
     """
     Compute routing quality score (0-100).
-
-    Based on:
-    - Completion rate (most important): 0-70 points
-    - Wirelength ratio (routed / HPWL): 0-20 points
-    - Via count (fewer is better): 0-10 points
-
-    Args:
-        result: Routing verification result.
-        placement_metrics: Placement metrics (for HPWL baseline).
-
-    Returns:
-        Routing score (0-100).
     """
     score = 0.0
-
     # Completion rate: 70 points max
-    # 100% completion = 70 points, linear scaling
     score += result.completion_rate * 70
 
     # Wirelength ratio: 20 points max
-    # Ratio of 1.0 (optimal) = 20 points, degrades linearly
-    # Ratio > 2.0 = 0 points
     if result.total_wirelength > 0 and placement_metrics.total_wirelength > 0:
         wl_ratio = result.total_wirelength / placement_metrics.total_wirelength
-        # Clamp ratio to [1.0, 2.0]
         wl_ratio = max(1.0, min(2.0, wl_ratio))
-        # Score: 20 points at 1.0, 0 points at 2.0
         wl_score = 20 * (2.0 - wl_ratio)
         score += wl_score
 
     # Via count: 10 points max
-    # Fewer vias = better (estimate: 0 vias = 10 points, 100 vias = 0 points)
     if result.total_vias <= 50:
         via_score = 10 * (1.0 - result.total_vias / 50)
         score += via_score
 
     return max(0.0, min(100.0, score))
-=======
-from __future__ import annotations
-from dataclasses import dataclass
-from typing import Optional
-
-@dataclass
-class QualityInputs:
-    """Inputs for quality score computation."""
-    # Hard constraints (binary)
-    drc_violations: int = 0
-    overlap_loss: float = 0.0
-    boundary_loss: float = 0.0
-    
-    # Routing (optional)
-    routing_completion_pct: float = 100.0
-    
-    # Efficiency
-    hpwl_mm: float = 0.0
-    hpwl_target_mm: Optional[float] = None  # If None, skip this component
-    
-    # Safety/compliance
-    hv_clearance_ok: bool = True
-    thermal_compliance: bool = True
-    zone_compliance_pct: float = 100.0
-
-
-def compute_quality_score(inputs: QualityInputs) -> float:
-    """
-    Compute composite placement quality score (0-100).
-    
-    Weight breakdown:
-    - 40 pts: DRC pass (hard gate - 0 if any violations)
-    - 20 pts: Routing completion percentage
-    - 15 pts: Wirelength efficiency (HPWL vs target)
-    - 10 pts: HV clearance compliance
-    - 10 pts: Thermal compliance  
-    - 5 pts: Zone compliance percentage
-    
-    Returns:
-        Score from 0-100. 
-        Interpretation: 0-60=poor, 60-80=acceptable, 80+=good
-    """
-    score = 0.0
-    
-    # Hard gate: DRC must pass
-    if inputs.drc_violations == 0 and inputs.overlap_loss < 1.0 and inputs.boundary_loss < 1.0:
-        score += 40.0
-    
-    # Routing completion
-    score += 20.0 * (inputs.routing_completion_pct / 100.0)
-    
-    # Wirelength efficiency
-    if inputs.hpwl_target_mm and inputs.hpwl_mm > 0:
-        efficiency = min(1.0, inputs.hpwl_target_mm / inputs.hpwl_mm)
-        score += 15.0 * efficiency
-    else:
-        score += 15.0  # Full points if not measuring
-    
-    # Safety compliance
-    score += 10.0 if inputs.hv_clearance_ok else 0.0
-    score += 10.0 if inputs.thermal_compliance else 0.0
-    
-    # Zone compliance
-    score += 5.0 * (inputs.zone_compliance_pct / 100.0)
-    
-    return score
 
 
 def interpret_score(score: float) -> str:
     """Human-readable interpretation."""
-    if score >= 80:
+    if score >= 90:
+        return "excellent"
+    elif score >= 80:
         return "good"
     elif score >= 60:
-        return "acceptable"
+        return "ok"
     else:
         return "poor"
->>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)

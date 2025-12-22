@@ -44,6 +44,11 @@ class ValidationConfig:
         drc_board_origin: Board origin offset (x, y) in mm.
         fail_on_drc_errors: Stop training if DRC has errors above threshold.
         max_drc_errors: Maximum allowed DRC errors before stopping.
+        routing_enabled: Enable routing metrics.
+        routing_interval: Run routing analysis every N epochs.
+        ml_routing_enabled: Enable ML-based routing prediction.
+        ml_routing_model_path: Path to pre-trained GNN model.
+        ml_routing_interval: Run ML routing prediction every N epochs.
         spice_enabled: Enable SPICE validation (requires ngspice).
         spice_interval: Run SPICE validation every N epochs.
         log_validation: Log validation results to console.
@@ -58,6 +63,9 @@ class ValidationConfig:
     max_drc_errors: int = 0
     routing_enabled: bool = False
     routing_interval: int = 200
+    ml_routing_enabled: bool = False
+    ml_routing_model_path: Path | str | None = "models/routing_predictor.pkl"
+    ml_routing_interval: int = 50
     spice_enabled: bool = False
     spice_interval: int = 200
     log_validation: bool = True
@@ -76,6 +84,7 @@ class ValidationResult:
         drc_warnings: Number of DRC warnings.
         routing_penalty: Routing penalty value (if routing was run).
         routing_metrics: Detailed routing metrics.
+        ml_routing_score: Score from GNN routing predictor (0-1).
         spice_results: SPICE validation results (if SPICE was run).
         passed: Whether validation passed all checks.
         messages: Any warning or error messages.
@@ -88,6 +97,7 @@ class ValidationResult:
     drc_warnings: int = 0
     routing_penalty: float = 0.0
     routing_metrics: dict[str, Any] | None = None
+    ml_routing_score: float | None = None
     spice_results: dict[str, float] = field(default_factory=dict)
     passed: bool = True
     messages: list[str] = field(default_factory=list)
@@ -234,6 +244,11 @@ class ValidationCallback:
             if epoch == 0 or epoch % self.config.routing_interval == 0:
                 return True
 
+        # Check ML Routing interval
+        if self.config.ml_routing_enabled:
+            if epoch == 0 or epoch % self.config.ml_routing_interval == 0:
+                return True
+
         # Check SPICE interval
         if self.config.spice_enabled:
             if epoch == 0 or epoch % self.config.spice_interval == 0:
@@ -275,6 +290,7 @@ class ValidationCallback:
         drc_warnings = 0
         routing_penalty = 0.0
         routing_metrics = None
+        ml_routing_score = None
         spice_results: dict[str, float] = {}
 
         # Run DRC validation
@@ -335,6 +351,45 @@ class ValidationCallback:
             # TODO: Implement SPICE validation integration
             pass
 
+        # Run ML Routing Predictor
+        if self.config.ml_routing_enabled and epoch % self.config.ml_routing_interval == 0:
+            try:
+                import pickle
+                from temper_placer.ml.routing_predictor import RoutingDifficultyGNN
+                from temper_placer.core.netlist import build_adjacency_matrix
+                import jax.numpy as jnp
+                import numpy as np
+
+                model_path = Path(self.config.ml_routing_model_path)
+                if model_path.exists():
+                    with open(model_path, "rb") as f:
+                        params = pickle.load(f)
+                    
+                    # Extract features
+                    # Node features: [Area, PinCount, Density, CenterDist]
+                    adj = build_adjacency_matrix(context.netlist)
+                    edges = jnp.array(np.where(np.array(adj) > 0)).T
+                    
+                    n = context.netlist.n_components
+                    areas = jnp.array([c.width * c.height for c in context.netlist.components])
+                    pin_counts = jnp.array([len(c.pins) for c in context.netlist.components])
+                    
+                    # Norm features
+                    areas = areas / jnp.maximum(jnp.max(areas), 1e-6)
+                    
+                    nodes = jnp.stack([areas, pin_counts], axis=-1)
+                    
+                    # Edge features (Placeholder for now)
+                    edge_features = jnp.ones((edges.shape[0], 1))
+                    
+                    model = RoutingDifficultyGNN()
+                    ml_routing_score = float(model.apply({'params': params}, nodes, edges, edge_features))
+                    
+                    if self.config.log_validation:
+                        logger.info(f"[Epoch {epoch}] ML Routing Score: {ml_routing_score:.4f}")
+            except Exception as e:
+                logger.warning(f"ML Routing prediction failed: {e}")
+
         elapsed_ms = (time.time() - start_time) * 1000
 
         result = ValidationResult(
@@ -345,6 +400,7 @@ class ValidationCallback:
             drc_warnings=drc_warnings,
             routing_penalty=routing_penalty,
             routing_metrics=routing_metrics,
+            ml_routing_score=ml_routing_score,
             spice_results=spice_results,
             passed=passed,
             messages=messages,

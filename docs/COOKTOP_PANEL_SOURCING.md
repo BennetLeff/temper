@@ -1,53 +1,44 @@
-# Cooktop Panel Sourcing Specification
+# Component Specification: Glass-Ceramic Cooktop Panel
 
-**Project:** Temper Induction Cooker  
-**Task:** REQ-MECH-04 / temper-5xc.2.4  
-**Date:** 2025-12-17  
-**Status:** SOURCING COMPLETE
+## 1. Overview
+The glass-ceramic panel is the primary user interface surface and structural boundary for the induction heating coil. It must permit the magnetic field to pass through without heating itself, while withstanding the intense heat conducted back from the cooking pan.
 
----
+## 2. Requirements (REQ-MECH-04)
+- **Material**: Glass-ceramic (LAS - Lithium Aluminum Silicate) or equal.
+- **Thickness**: 4.0mm ± 0.2mm.
+- **Temperature Range**: -40°C to +700°C (thermal shock resistant).
+- **Dimensions**: 200mm Diameter (Round) or 200mm x 200mm (Square) depending on 12A3 cutout.
+- **Edge Finish**: Polished C-edge (to prevent stress concentration and cuts).
+- **Safety**: Must meet impact resistance standards for household appliances.
 
-## 1. Sourcing Options
+## 3. Recommended Part
+| Parameter | Specification |
+|-----------|---------------|
+| Manufacturer | Schott |
+| Brand | Ceran® |
+| Part Category | Custom cut to size |
+| Color | Black or Transparent Dark Brown |
 
-Two tiers of sourcing are provided: a premium industrial option and a cost-effective prototype option.
+## 4. Sourcing Options
 
-### 1.1 Option A: Premium Industrial (Schott Ceran®)
-- **Supplier:** [SCHOTT AG](https://www.schott.com/en-us/products/ceran) (via custom fabrication partners like Swift Glass or Hawco)
-- **Material:** Schott Ceran® Glass-Ceramic
-- **Dimensions:** 200mm x 200mm Square (Custom Cut)
-- **Thickness:** 4.0 mm
-- **Finish:** Polished edges, black ceramic coating (optional)
-- **Pros:** Original equipment quality, zero thermal expansion, high durability.
-- **Cons:** High cost for single-unit custom cut ($100+).
+### 4.1 Production Sourcing (Custom)
+- **Supplier**: Swift Glass or specialized glass-ceramic fabricators.
+- **Lead Time**: 2-4 weeks.
+- **Cost**: ~$45-60 per piece in single quantity.
 
-### 1.2 Option B: Cost-Effective Prototype (Heat-Resistant Glass)
-- **Supplier:** [ZYLtech](https://www.zyltech.com/new-3mm-heat-resistant-glass-round-200mm-diameter-for-3d-printer-heated-bed/) (or similar 3D printer bed suppliers)
-- **Material:** Borosilicate or Aluminosilicate Heat-Resistant Glass
-- **Dimensions:** 200mm Diameter Round
-- **Thickness:** 3.0 mm
-- **Pros:** Inexpensive (~$15), off-the-shelf availability, fits RCA 12A3 top opening.
-- **Cons:** Lower thermal shock resistance than Ceran, 3mm is thinner than standard.
+### 4.2 Prototype Sourcing (Standard Sizes)
+- **Supplier**: Amazon or AliExpress (Search: "Replacement Induction Cooker Glass").
+- **Typical Size**: 200mm Diameter circular panel.
+- **Cost**: ~$15-25.
+- **Risk**: Quality varies; must verify it is true glass-ceramic and not tempered glass.
 
----
+## 5. Mounting and Installation
+- **Support**: 5mm wide rabbet or lip around the chassis cutout.
+- **Gasket**: High-temp Red RTV silicone or a custom high-temp EPDM gasket.
+- **Allowance**: 0.5mm expansion gap around the perimeter.
+- **Fixing**: 4x Z-brackets on the underside to prevent the glass from lifting.
 
-## 2. Mechanical Integration
-
-### 2.1 Mounting Method
-- **Configuration:** Top-mount lip.
-- **Sealing:** High-temperature RTV Silicone (e.g., Permatex 81160 Red) to provide waterproof seal and allow for thermal expansion.
-- **Opening Size:** 195mm diameter (for round) or 195mm square (for square) to provide 2.5mm supporting lip.
-
-### 2.2 Safety Markings
-- A high-temperature vinyl or etched circle should be applied to indicate the induction zone.
-- Text: "CAUTION: HOT SURFACE" must be visible near the panel.
-
----
-
-## 3. Sourcing Recommendation
-
-For the **Initial Functional Prototype**, use **Option B (200mm Round Heat-Resistant Glass)**. It is readily available and matches the circular induction coil geometry well.
-
-For the **Production/Alpha Build**, move to **Option A (Custom Schott Ceran)** once the chassis mounting dimensions are finalized in CAD.
-
----
-**Sourcing Complete.** Ready for procurement.
+## 6. Verification
+- **Magnetic Test**: Verify 0.0Ω resistance across the surface (non-conductive).
+- **Thermal Test**: Heat a pan to 200°C, then splash 20°C water on the adjacent glass. It must not crack.
+- **Dimensions**: Must fit 12A3 chassis opening with < 1mm total gap.

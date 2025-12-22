@@ -103,12 +103,18 @@ class EarlyStoppingConfig:
         patience: Epochs without improvement before stopping.
         min_delta: Minimum change to qualify as improvement.
         monitor: Metric to monitor ("loss", "overlap", "wirelength").
+        use_convergence: If True, also stop when convergence confidence hits threshold.
+        confidence_threshold: Confidence (0-1) to trigger stopping.
+        improvement_threshold: Relative improvement EMA threshold (e.g. 1e-5).
     """
 
     enabled: bool = True
     patience: int = 500
     min_delta: float = 1e-6
     monitor: str = "loss"
+    use_convergence: bool = True
+    confidence_threshold: float = 0.95
+    improvement_threshold: float = 1e-5
 
 
 @dataclass
@@ -152,15 +158,17 @@ class InitializationConfig:
     Component placement initialization configuration.
 
     Attributes:
-        method: Initialization method ("random" or "spectral").
+        method: Initialization method ("random", "spectral", or "learned").
         spectral_normalized: If True, use normalized Laplacian for spectral.
         spectral_margin: Fraction of board to leave as margin for spectral.
+        learned_model_path: Path to pre-trained model for 'learned' init.
         force_directed: Force-directed unfolding configuration.
     """
 
-    method: str = "random"  # "random" or "spectral"
+    method: str = "random"  # "random", "spectral", "learned"
     spectral_normalized: bool = True
     spectral_margin: float = 0.1
+    learned_model_path: str | None = "models/learned_init.pkl"
     force_directed: ForceDirectedConfig = field(default_factory=ForceDirectedConfig)
 
 

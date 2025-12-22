@@ -1,52 +1,56 @@
-# REQ-MECH-01: Spring-Loaded Pan Sensor Mount Design
+# Design Specification: Spring-Loaded Pan Sensor Mount
 
 ## 1. Overview
-Design of a spring-loaded mounting mechanism for the glass-contact RTD temperature sensor (PT100) for the Temper induction cooker.
+The pan sensor mount is a critical mechanical component that ensures the RTD (PT100) sensor maintains consistent physical and thermal contact with the underside of the glass-ceramic cooktop. This is essential for accurate closed-loop temperature control.
 
-## 2. Specifications
-- **Contact Force**: 2N to 5N (adjustable via spring selection)
-- **Travel Range**: 8mm total (5mm working range)
-- **Sensor**: PT100 RTD (disk or button type)
-- **Material**: Aluminum 6061 (thermal button), PTFE (guide bushing), Stainless Steel (spring)
-- **Thermal Resistance**: Target < 0.5 K/W
+## 2. Requirements (REQ-MECH-01)
+- **Contact Force**: ≥ 2N (to ensure thermal interface contact).
+- **Travel Range**: ≥ 5mm (to accommodate chassis flex and glass tolerances).
+- **Thermal Resistance**: < 0.5 K/W from glass to sensor element.
+- **Sensor Compatibility**: PT100 RTD (1/10 DIN accuracy preferred).
+- **Material**: Non-magnetic (Aluminum, PTFE, or high-temp plastics).
+- **Service Life**: 10,000+ thermal/mechanical cycles.
 
 ## 3. Mechanical Design
-The mount consists of:
-1.  **Thermal Button**: 15mm diameter aluminum disk with integrated RTD pocket.
-2.  **Plunger**: 6mm diameter shaft attached to the button.
-3.  **Guide Bushing**: Low-friction PTFE sleeve mounted to the chassis.
-4.  **Compression Spring**: Stainless steel, $k \approx 500 N/m$.
-5.  **Retention Clip**: Prevents plunger from falling out.
 
-### 3.1 Force Calculation
-- Spring Constant ($k$): 500 N/m
-- Pre-load ($x_0$): 2mm
-- Working Compression ($\Delta x$): 4mm (for 4mm glass)
-- Total Force ($F$): $k * (x_0 + \Delta x) = 500 * (0.002 + 0.004) = 3.0N$
-- This meets the >2N requirement.
+### 3.1 Components
+1. **Sensor Button**: Aluminum 6061 or Copper disk (Ø12mm, 3mm thick).
+2. **Spring**: Stainless steel compression spring (non-magnetic).
+3. **Guide Housing**: PTFE or PEEK sleeve to minimize friction and handle high temperatures.
+4. **Base Plate**: Aluminum bracket attached to the main RCA 12A3 chassis.
+
+### 3.2 Spring Specification
+- **Free Length**: 15mm
+- **Spring Rate**: 0.5 N/mm
+- **Pre-load**: 2.5mm (to provide 1.25N at contact)
+- **Compressed Force**: 3.75N at 5mm travel (safety margin included)
+
+### 3.3 Assembly Stack-up
+```
+[ Pan ]
+------------------- [ Glass-Ceramic (4mm) ]
+      (Thermal Grease)
+   [ Aluminum Button ]
+   [ PT100 Element ]
+   [ PTFE Guide Sleeve ]
+   [ Compression Spring ]
+   [ Chassis Base Plate ]
+```
 
 ## 4. Thermal Analysis
-- **Button Area ($A$)**: $1.76 \times 10^{-4} m^2$ (15mm diameter)
-- **Aluminum Conductivity ($k$):** 205 W/mK
-- **Button Thickness ($L$):** 3mm (path from glass to RTD)
-- **Conduction Resistance ($R_{cond}$):** $L / (k * A) = 0.003 / (205 * 1.76 \times 10^{-4}) \approx 0.083 K/W$
-- **Interface Resistance ($R_{int}$):** Estimated 0.2 K/W with high-performance thermal grease.
-- **Total Resistance ($R_{total}$):** $\approx 0.28 K/W$
-- This meets the <0.5 K/W requirement.
+- **Interface**: A thin layer of boron nitride-filled thermal grease is applied between the button and glass.
+- **Button Material**: Aluminum 6061 (k = 167 W/m·K) provides rapid response.
+- **Isolation**: The PTFE sleeve acts as a thermal insulator to prevent chassis heat-sinking from affecting the measurement.
 
 ## 5. Bill of Materials (BOM)
+| Item | Part Number | Description | Material |
+|------|-------------|-------------|----------|
+| Sensor Disk | Custom | Ø12mm x 3mm Disk | Aluminum 6061 |
+| Spring | 9657K274 | Comp. Spring, 0.5 N/mm | 302 Stainless |
+| Housing | Custom | Ø14mm ID Guide | PTFE |
+| Sensor | PT100 | Thin-film Platinum RTD | Alumina/Platinum |
 
-| Item | Description | Material | Quantity | Source |
-|------|-------------|----------|----------|--------|
-| 1    | Thermal Button | Al 6061 | 1        | Custom (Machined) |
-| 2    | Guide Bushing | PTFE | 1        | McMaster 6807K14 |
-| 3    | Compression Spring | 0.25" OD, 1" L, 2.8 lb/in | 302 SS | 1 | McMaster 9657K274 |
-| 4    | RTD Sensor | PT100, 2x2mm Class A | Ceramic | 1 | Digikey 223-1631-ND |
-| 5    | Thermal Grease | Arctic Silver 5 | - | 1 | |
-
-## 6. Assembly Instructions
-1. Bond RTD into the pocket of the Thermal Button using thermally conductive epoxy (e.g., MG Chemicals 832TC).
-2. Insert Plunger into the Guide Bushing.
-3. Place Spring over the Plunger.
-4. Secure assembly to the chassis using M3 screws.
-5. Apply a thin layer of thermal grease to the top of the button before installing the glass.
+## 6. Manufacturing Notes
+- The button surface in contact with the glass must be polished to < 0.8µm Ra.
+- Clearance between button and sleeve should be 0.1mm to allow free movement while preventing tilting.
+- Silicone potting can be used to secure the RTD element inside the aluminum button.
