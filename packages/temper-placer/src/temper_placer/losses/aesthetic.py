@@ -25,6 +25,10 @@ if TYPE_CHECKING:
     from temper_placer.io.config_loader import PlacementConstraints
     from temper_placer.losses.base import WeightedLoss
     from temper_placer.losses.grouping import GroupConfig
+    from temper_placer.losses.grid import GridAlignmentLoss
+
+
+from temper_placer.losses.grid import GridAlignmentLoss
 
 
 @dataclass
@@ -58,68 +62,70 @@ class WhitespaceLoss(LossFunction):
         # Get component bounds
         bounds = context.netlist.get_bounds_array()
         widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
-        
+
         # Grid setup
         board_bounds = context.board.get_bounds_array()
         x_min, y_min, x_max, y_max = board_bounds
         rows, cols = self.grid_shape
-        
+
         # Calculate cell bounds
         cell_w = (x_max - x_min) / cols
         cell_h = (y_max - y_min) / rows
         cell_area = cell_w * cell_h
-        
+
         # Grid centers
-        grid_x = jnp.linspace(x_min + cell_w/2, x_max - cell_w/2, cols)
-        grid_y = jnp.linspace(y_min + cell_h/2, y_max - cell_h/2, rows)
-        
+        grid_x = jnp.linspace(x_min + cell_w / 2, x_max - cell_w / 2, cols)
+        grid_y = jnp.linspace(y_min + cell_h / 2, y_max - cell_h / 2, rows)
+
         # Differentiable overlap calculation
         # Component boxes: [pos_x - w/2, pos_y - h/2, pos_x + w/2, pos_y + h/2]
         c_min_x = positions[:, 0] - widths / 2
         c_max_x = positions[:, 0] + widths / 2
         c_min_y = positions[:, 1] - heights / 2
         c_max_y = positions[:, 1] + heights / 2
-        
+
         # Cell boxes
         g_min_x = grid_x - cell_w / 2
         g_max_x = grid_x + cell_w / 2
         g_min_y = grid_y - cell_h / 2
         g_max_y = grid_y + cell_h / 2
-        
+
         # Compute overlap for each (comp, cell_x) and (comp, cell_y)
-        # Smooth max/min for gradients: 
+        # Smooth max/min for gradients:
         # overlap_1d = soft_relu(min(c_max, g_max) - max(c_min, g_min))
         # Using simpler approximation: Gaussian or Sigmoid?
         # Let's use soft_relu of the linear overlap for simplicity and robustness.
-        
+
         def soft_relu(x):
             return jnp.logaddexp(0.0, x * 10.0) / 10.0  # sharpen factor 10
-            
+
         # Broadcast: (N, 1) vs (1, Cols)
-        overlap_x_raw = jnp.minimum(c_max_x[:, None], g_max_x[None, :]) - \
-                        jnp.maximum(c_min_x[:, None], g_min_x[None, :])
-        overlap_x = soft_relu(overlap_x_raw) # (N, Cols)
-        
+        overlap_x_raw = jnp.minimum(c_max_x[:, None], g_max_x[None, :]) - jnp.maximum(
+            c_min_x[:, None], g_min_x[None, :]
+        )
+        overlap_x = soft_relu(overlap_x_raw)  # (N, Cols)
+
         # Broadcast: (N, 1) vs (1, Rows)
-        overlap_y_raw = jnp.minimum(c_max_y[:, None], g_max_y[None, :]) - \
-                        jnp.maximum(c_min_y[:, None], g_min_y[None, :])
-        overlap_y = soft_relu(overlap_y_raw) # (N, Rows)
-        
+        overlap_y_raw = jnp.minimum(c_max_y[:, None], g_max_y[None, :]) - jnp.maximum(
+            c_min_y[:, None], g_min_y[None, :]
+        )
+        overlap_y = soft_relu(overlap_y_raw)  # (N, Rows)
+
         # Outer product to get (N, Rows, Cols)
         # Area = overlap_x * overlap_y
-        area_grid = overlap_y[:, :, None] * overlap_x[:, None, :] # (N, Rows, Cols)
-        
+        area_grid = overlap_y[:, :, None] * overlap_x[:, None, :]  # (N, Rows, Cols)
+
         # Sum occupied area per cell
-        occupied_area = jnp.sum(area_grid, axis=0) # (Rows, Cols)
-        
+        occupied_area = jnp.sum(area_grid, axis=0)  # (Rows, Cols)
+
         # Density (fraction occupied)
         density = occupied_area / cell_area
-        
+
         # Coefficient of Variation of density (std / mean)
         mean_den = jnp.mean(density) + 1e-6
         std_den = jnp.std(density)
         cv = std_den / mean_den
-        
+
         return LossResult(value=cv)
 
 
@@ -235,7 +241,7 @@ class MirrorSymmetryLoss(LossFunction):
     """
     Enforces mirror symmetry between pairs of components.
 
-    For each pair (a, b), requires that 'b' is the reflection of 'a' 
+    For each pair (a, b), requires that 'b' is the reflection of 'a'
     across a specified axis and center line.
 
     Attributes:
@@ -272,11 +278,11 @@ class MirrorSymmetryLoss(LossFunction):
         # Calculate expected position of b (reflected a)
         # reflected_x = 2 * center - x
         expected_pos_b = pos_a.at[:, self.axis].set(2 * self.center - pos_a[:, self.axis])
-        
+
         # In other axis, they should match
         # reflected_y = y (if axis=0)
         # So we just compare the whole vector.
-        
+
         diff = pos_b - expected_pos_b
         penalty = jnp.sum(diff**2)
 
@@ -320,57 +326,57 @@ class VisualGroupingLoss(LossFunction):
             mask = indices != -1
             group_pos = positions[jnp.where(mask, indices, 0)]
             n_valid = jnp.sum(mask)
-            
+
             # 1. Intra-group clustering (Variance)
             centroid = jnp.sum(group_pos * mask[:, None], axis=0) / jnp.maximum(n_valid, 1.0)
             diff_sq = (group_pos - centroid) ** 2 * mask[:, None]
             variance = jnp.sum(diff_sq) / jnp.maximum(n_valid, 1.0)
-            
+
             # 2. Group Bounding Box (via LogSumExp for differentiability)
             # bb = [min_x, min_y, max_x, max_y]
-            alpha = 10.0 # sharpness
-            
+            alpha = 10.0  # sharpness
+
             # Mask out invalid components by setting to very high/low values for min/max
             pos_x = group_pos[:, 0]
             pos_y = group_pos[:, 1]
-            
+
             # Soft Min/Max (stable)
             min_x = -jax.scipy.special.logsumexp(-alpha * pos_x, b=mask) / alpha
             max_x = jax.scipy.special.logsumexp(alpha * pos_x, b=mask) / alpha
             min_y = -jax.scipy.special.logsumexp(-alpha * pos_y, b=mask) / alpha
             max_y = jax.scipy.special.logsumexp(alpha * pos_y, b=mask) / alpha
-            
+
             return variance, jnp.array([min_x, min_y, max_x, max_y])
 
         # Vmap over all groups
         intra_losses, group_bbs = jax.vmap(compute_group_metrics)(self.group_indices)
-        
+
         total_intra = jnp.sum(intra_losses)
-        
+
         # Inter-group separation
         # Penalize if group_bbs are closer than min_gap
         n_groups = self.group_indices.shape[0]
         total_inter = 0.0
-        
+
         if n_groups > 1:
             # Pairwise group distance
             # bb: [min_x, min_y, max_x, max_y]
             # dist_x = max(0, max(bb1_min_x, bb2_min_x) - min(bb1_max_x, bb2_max_x))
             # But we want separation, so:
             # dist_x = max(bb2_min_x - bb1_max_x, bb1_min_x - bb2_max_x)
-            
+
             def group_dist_sq(i, j):
                 bb1 = group_bbs[i]
                 bb2 = group_bbs[j]
-                
+
                 # Max of separation in X and Y
                 dx = jnp.maximum(bb2[0] - bb1[2], bb1[0] - bb2[2])
                 dy = jnp.maximum(bb2[1] - bb1[3], bb1[1] - bb2[3])
-                
+
                 # If both are negative, they overlap.
                 # Distance is max(dx, dy)
                 dist = jnp.maximum(dx, dy)
-                
+
                 # Penalty if distance < min_gap
                 return jnp.square(jnp.maximum(0.0, self.min_gap - dist))
 
@@ -384,7 +390,7 @@ class VisualGroupingLoss(LossFunction):
             breakdown={
                 "intra_group": total_intra,
                 "inter_group": total_inter,
-            }
+            },
         )
 
 
@@ -750,7 +756,6 @@ def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> 
     """
     import re
 
-
     groups_dict = {}
     exceptions = exceptions or []
 
@@ -813,12 +818,12 @@ def get_port_facing_data(
         # Find primary pin component and offset
         pin_comp_ref = None
         pin_name = group.primary_pin
-        
+
         # Check if primary_pin is "Ref:Pin" or just "Pin" (implying unique in group?)
         # Constraint documentation usually implies "PinName" on one of the components.
         # But which one? The group might have multiple components.
         # We assume primary_pin format is either "PinName" (and we search) or "Ref:PinName".
-        
+
         target_comp = None
         target_pin_obj = None
 
@@ -836,15 +841,15 @@ def get_port_facing_data(
                     target_comp = comp
                     target_pin_obj = p
                     break
-        
+
         if not target_comp or not target_pin_obj:
             # Skip invalid groups (warn in logs in real app)
             continue
-            
+
         # Calculate approximate group centroid for offset calculation
         # We rely on initial_positions if available, else assume 0
         # If components don't have initial positions, we treat the pin-bearing component as center
-        
+
         # Collect available positions
         positions = []
         for ref in group.components:
@@ -852,33 +857,33 @@ def get_port_facing_data(
             if c.initial_position:
                 positions.append(c.initial_position)
             elif c == target_comp:
-                 positions.append((0.0, 0.0)) # Relative origin
-        
+                positions.append((0.0, 0.0))  # Relative origin
+
         if positions:
             centroid_x = sum(p[0] for p in positions) / len(positions)
             centroid_y = sum(p[1] for p in positions) / len(positions)
         else:
             centroid_x, centroid_y = 0.0, 0.0
-            
+
         # Target component position (relative to world 0 if using initial positions)
         # But we need relative to centroid.
-        
+
         comp_x, comp_y = 0.0, 0.0
         if target_comp.initial_position:
-             comp_x, comp_y = target_comp.initial_position
-        
+            comp_x, comp_y = target_comp.initial_position
+
         # Pin offset relative to component center
         px, py = target_pin_obj.position
-        
+
         # Pin offset relative to group centroid
         # P_global = C_global + P_local_to_C
         # P_rel_G = P_global - G_global = (C_global - G_global) + P_local_to_C
-        
+
         off_x = (comp_x - centroid_x) + px
         off_y = (comp_y - centroid_y) + py
-        
+
         pin_offsets_list.append([off_x, off_y])
-        
+
         # Find targets (components connected to this pin, EXCLUDING group members)
         net_name = target_pin_obj.net
         targets = []
@@ -887,12 +892,12 @@ def get_port_facing_data(
             for ref, _ in net.pins:
                 if ref not in group.components:
                     targets.append(netlist.get_component_index(ref))
-        
+
         t_indices_list.append(targets)
 
     # Pad and convert to arrays
     if not g_indices_list:
-         return (
+        return (
             jnp.zeros((0, 0), dtype=jnp.int32),
             jnp.zeros((0, 2), dtype=jnp.float32),
             jnp.zeros((0, 0), dtype=jnp.int32),
@@ -901,17 +906,17 @@ def get_port_facing_data(
     # Pad groups
     max_g = max(len(g) for g in g_indices_list)
     g_arr = jnp.array([g + [-1] * (max_g - len(g)) for g in g_indices_list], dtype=jnp.int32)
-    
+
     # Offsets
     off_arr = jnp.array(pin_offsets_list, dtype=jnp.float32)
-    
+
     # Pad targets
     max_t = max(len(t) for t in t_indices_list) if t_indices_list else 0
     if max_t == 0:
-         t_arr = jnp.full((len(t_indices_list), 0), -1, dtype=jnp.int32)
+        t_arr = jnp.full((len(t_indices_list), 0), -1, dtype=jnp.int32)
     else:
-         t_arr = jnp.array([t + [-1] * (max_t - len(t)) for t in t_indices_list], dtype=jnp.int32)
-         
+        t_arr = jnp.array([t + [-1] * (max_t - len(t)) for t in t_indices_list], dtype=jnp.int32)
+
     return g_arr, off_arr, t_arr
 
 
@@ -951,7 +956,16 @@ def create_aesthetic_losses(
     losses = []
     aesthetic_cfg = constraints.aesthetics
 
-    # 1. Grid alignment
+    # 1. Grid alignment (Component Centers)
+    if aesthetic_cfg.grid_weight > 0:
+        losses.append(
+            WeightedLoss(
+                GridAlignmentLoss(grid_size=aesthetic_cfg.grid_size_mm),
+                weight=aesthetic_cfg.grid_weight,
+            )
+        )
+
+    # 1b. Pin Grid alignment
     if aesthetic_cfg.grid_weight > 0:
         losses.append(
             WeightedLoss(
@@ -995,7 +1009,7 @@ def create_aesthetic_losses(
     # Use a high default weight for structural constraints if not explicitly configured
     # Reuse consensus_weight as it is also a structural constraint
     weight = aesthetic_cfg.consensus_weight if aesthetic_cfg.consensus_weight > 0 else 1.0
-    
+
     group_indices, pin_offsets, target_indices = get_port_facing_data(netlist, constraints)
     if group_indices.shape[0] > 0:
         losses.append(
@@ -1020,10 +1034,10 @@ def create_aesthetic_losses(
                     WeightedLoss(
                         StackedRowLoss(
                             component_indices=indices,
-                            cols=int(jnp.sqrt(indices.shape[0])), # Approx square matrix by default
+                            cols=int(jnp.sqrt(indices.shape[0])),  # Approx square matrix by default
                             min_row_pitch=10.0,
                             col_pitch=10.0,
-                            net_crossing_weight=0.5
+                            net_crossing_weight=0.5,
                         ),
                         weight=aesthetic_cfg.consensus_weight * 2.0,
                     )
@@ -1045,12 +1059,12 @@ def create_aesthetic_losses(
         for group in constraints.component_groups:
             indices = [netlist.get_component_index(ref) for ref in group.components]
             g_indices.append(indices)
-        
+
         # Pad
         max_len = max(len(g) for g in g_indices)
         padded = [g + [-1] * (max_len - len(g)) for g in g_indices]
         group_arr = jnp.array(padded, dtype=jnp.int32)
-        
+
         losses.append(
             WeightedLoss(
                 VisualGroupingLoss(group_indices=group_arr, min_gap=10.0),
@@ -1061,15 +1075,16 @@ def create_aesthetic_losses(
     # 9. Mirror Symmetry
     if aesthetic_cfg.symmetry_weight > 0:
         from temper_placer.losses.grouping import find_isomorphic_pairs
+
         isomorphic_pairs = find_isomorphic_pairs(netlist)
         if isomorphic_pairs:
-            # find_isomorphic_pairs returns (a1, b1, a2, b2) 
+            # find_isomorphic_pairs returns (a1, b1, a2, b2)
             # We can treat (a1, a2) and (b1, b2) as symmetric pairs
             pairs = []
             for a1, b1, a2, b2 in isomorphic_pairs:
                 pairs.append([a1, a2])
                 pairs.append([b1, b2])
-            
+
             # Remove duplicates and convert to array
             unique_pairs = []
             seen = set()
@@ -1078,17 +1093,19 @@ def create_aesthetic_losses(
                 if p_tuple not in seen:
                     unique_pairs.append(p)
                     seen.add(p_tuple)
-            
+
             if unique_pairs:
-                board_bounds = jnp.array([0.0, 0.0, constraints.board_width_mm, constraints.board_height_mm])
+                board_bounds = jnp.array(
+                    [0.0, 0.0, constraints.board_width_mm, constraints.board_height_mm]
+                )
                 center_x = (board_bounds[0] + board_bounds[2]) / 2.0
-                
+
                 losses.append(
                     WeightedLoss(
                         MirrorSymmetryLoss(
                             pairs=jnp.array(unique_pairs),
-                            axis=0, # Vertical axis (mirror X)
-                            center=center_x
+                            axis=0,  # Vertical axis (mirror X)
+                            center=center_x,
                         ),
                         weight=aesthetic_cfg.symmetry_weight,
                     )
