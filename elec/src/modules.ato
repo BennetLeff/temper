@@ -642,18 +642,60 @@ module RTDSensing:
     c_vdd.mpn = "GRM188R71C104KA01D"
     c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
-    power.vcc ~ adc.VDD
-    power.vcc ~ adc.DVDD
-    power.vcc ~ c_vdd.p1
+    # EMI Filtering (temper-en5)
+    # Series resistors on SPI lines to dampen ringing
+    r_sclk = new Resistor
+    r_mosi = new Resistor
+    r_cs = new Resistor
+    r_miso = new Resistor
+    
+    r_sclk.value = 33ohm +/- 5%
+    r_sclk.mpn = "RC0402FR-0733RL"
+    r_sclk.footprint = "Resistor_SMD:R_0402_1005Metric"
+    
+    r_mosi.value = 33ohm +/- 5%
+    r_mosi.mpn = "RC0402FR-0733RL"
+    r_mosi.footprint = "Resistor_SMD:R_0402_1005Metric"
+    
+    r_cs.value = 33ohm +/- 5%
+    r_cs.mpn = "RC0402FR-0733RL"
+    r_cs.footprint = "Resistor_SMD:R_0402_1005Metric"
+    
+    r_miso.value = 33ohm +/- 5%
+    r_miso.mpn = "RC0402FR-0733RL"
+    r_miso.footprint = "Resistor_SMD:R_0402_1005Metric"
+    
+    # Ferrite bead on power input for high frequency noise rejection (temper-en5)
+    # Target: ~120ohm @ 100MHz
+    fb_power = new Resistor # Using Resistor component as generic placeholder for Ferrite Bead
+    fb_power.value = 120ohm 
+    fb_power.mpn = "BLM18AG121SN1D"
+    fb_power.footprint = "Inductor_SMD:L_0603_1608Metric"
+    
+    # Power connections through Ferrite Bead
+    power.vcc ~ fb_power.p1
+    fb_power.p2 ~ adc.VDD
+    fb_power.p2 ~ adc.DVDD
+    fb_power.p2 ~ c_vdd.p1 # Decoupling cap after bead
+    
     c_vdd.p2 ~ power.gnd
     power.gnd ~ adc.GND1
     power.gnd ~ adc.GND2
     power.gnd ~ adc.DGND
     
-    cs.line ~ adc.CS_N
-    spi.sclk ~ adc.SCLK
-    spi.mosi ~ adc.SDI
-    adc.SDO ~ spi.miso
+    # SPI connections through Series Resistors
+    cs.line ~ r_cs.p1
+    r_cs.p2 ~ adc.CS_N
+    
+    spi.sclk ~ r_sclk.p1
+    r_sclk.p2 ~ adc.SCLK
+    
+    spi.mosi ~ r_mosi.p1
+    r_mosi.p2 ~ adc.SDI
+    
+    adc.SDO ~ r_miso.p1
+    r_miso.p2 ~ spi.miso
+    
     adc.DRDY ~ drdy.line
     
     adc.BIAS ~ r_ref.p1
