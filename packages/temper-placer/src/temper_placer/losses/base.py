@@ -308,6 +308,7 @@ class LossContext(BaseLossContext):
             star_has_anchor=star_has_anchor,
             fiducial_indices=fiducial_indices,
             component_type_indices=component_type_indices,
+            is_star_net=jnp.array([n.name in [c.net_name for c in star_ground_constraints] for n in [net for net in netlist.nets if len(net.pins) >= 2]], dtype=jnp.bool_),
         )
 
     @staticmethod
@@ -684,6 +685,11 @@ class LossFunction(ABC):
         ...         value = jnp.sum(positions ** 2)
         ...         return LossResult(value=value)
     """
+    @property
+    def supports_virtual_nodes(self) -> bool:
+        """Whether this loss function accepts net_virtual_nodes as an argument."""
+        return False
+
 
     @property
     @abstractmethod
@@ -884,15 +890,24 @@ class CompositeLoss:
             else:
                 weight = wloss.get_weight(epoch, total_epochs)
 
-            # Note: We always compute the loss even if weight is low.
-            result = wloss.loss_fn(
-                positions, 
-                rotations, 
-                context, 
-                epoch, 
-                total_epochs,
-                net_virtual_nodes=net_virtual_nodes
-            )
+            # Conditionally pass net_virtual_nodes if the loss function supports it
+            if wloss.loss_fn.supports_virtual_nodes:
+                result = wloss.loss_fn(
+                    positions, 
+                    rotations, 
+                    context, 
+                    epoch, 
+                    total_epochs,
+                    net_virtual_nodes=net_virtual_nodes
+                )
+            else:
+                result = wloss.loss_fn(
+                    positions, 
+                    rotations, 
+                    context, 
+                    epoch, 
+                    total_epochs
+                )
 
             # Apply normalization
             normalizer = wloss.get_normalizer(context)
@@ -924,6 +939,39 @@ class CompositeLoss:
     def loss_names(self) -> list[str]:
         """Get names of all loss functions."""
         return [wloss.loss_fn.name for wloss in self.losses]
+
+    def record_timings(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        net_virtual_nodes: Array | None = None,
+    ) -> dict[str, float]:
+        """
+        Record wall-clock execution time for each sub-loss.
+        
+        Note: This executes sub-losses synchronously with block_until_ready()
+        to ensure accurate timing for JAX async dispatch.
+        """
+        import time
+        timings = {}
+        
+        for weighted in self.losses:
+            name = weighted.loss_fn.name
+            start = time.perf_counter()
+            # We call the loss function directly to avoid the overhead of CompositeLoss logic
+            res = weighted.loss_fn(
+                positions, 
+                rotations, 
+                context, 
+                net_virtual_nodes=net_virtual_nodes
+            )
+            # Explicitly block to wait for JAX async dispatch
+            res.value.block_until_ready()
+            end = time.perf_counter()
+            timings[name] = (end - start) * 1000.0 # ms
+            
+        return timings
 
 
 def create_jit_loss_fn(composite: CompositeLoss, context: LossContext):

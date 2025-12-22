@@ -142,6 +142,7 @@ class LossContext:
     domain_bounds: Array = field(default_factory=lambda: jnp.zeros((0, 4), dtype=jnp.float32))
     domain_star_points: Array = field(default_factory=lambda: jnp.zeros((0, 2), dtype=jnp.float32))
     domain_has_star: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.bool_))
+    is_star_net: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.bool_))
 
     # Star Ground Constraints (Pre-computed)
     # Indices of net virtual nodes that are constrained

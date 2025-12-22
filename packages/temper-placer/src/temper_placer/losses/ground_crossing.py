@@ -18,6 +18,7 @@ from temper_placer.losses.base import (
 def compute_ground_crossing_penalty(
     positions: Array,
     context: LossContext,
+    net_virtual_nodes: Array | None = None,
 ) -> Array:
     """Compute total ground crossing penalty for all nets in a vectorized way."""
     if context.domain_bounds.shape[0] == 0:
@@ -50,16 +51,30 @@ def compute_ground_crossing_penalty(
     # Domain ID (0 if not in any domain, else 1-based index)
     domain_ids = jnp.sum(in_domain * (jnp.arange(context.domain_bounds.shape[0]) + 1), axis=-1)  # (M, P)
 
-    # Star point for each pin
+    # 3. Compute Star Ground Targets
+    # A. Default Board Star Points (per pin based on its current domain)
     # domain_star_points: (D, 2)
     # in_domain: (M, P, D)
     # (M, P, D, 1) * (1, 1, D, 2) -> (M, P, D, 2)
-    pin_stars = jnp.sum(in_domain[:, :, :, None] * context.domain_star_points[None, None, :, :], axis=2)  # (M, P, 2)
+    domain_stars = jnp.sum(in_domain[:, :, :, None] * context.domain_star_points[None, None, :, :], axis=2)  # (M, P, 2)
+    
+    # B. Net Virtual Nodes (if it's a star net)
+    # net_virtual_nodes: (M, 2) if provided
+    # we expand to (M, P, 2)
+    if net_virtual_nodes is not None:
+        virtual_stars = net_virtual_nodes[:, None, :] # (M, 1, 2)
+    else:
+        # Fallback to domain star points if no virtual nodes provided
+        virtual_stars = domain_stars
 
-    jnp.any(jnp.logical_and(in_domain, context.domain_has_star[None, None, :]), axis=-1)  # (M, P)
+    # C. Select target: if net is star_net, use virtual star point, else use domain star point
+    # context.is_star_net: (M,) -> (M, 1, 1)
+    is_star = context.is_star_net[:, None, None]
+    pin_stars = jnp.where(is_star, virtual_stars, domain_stars) # (M, P, 2)
+
     in_any = jnp.any(in_domain, axis=-1)  # (M, P)
 
-    # 3. Compute segment-wise crossing penalties
+    # 4. Compute segment-wise crossing penalties
     # Segments connect pin i and pin i+1 within each net
     p1 = pin_pos[:, :-1, :]  # (M, P-1, 2)
     p2 = pin_pos[:, 1:, :]   # (M, P-1, 2)
@@ -78,13 +93,9 @@ def compute_ground_crossing_penalty(
     segment_mask = jnp.logical_and(mask1, mask2)  # (M, P-1)
 
     # Crossing occurs if both are in domains and they are different
-    # and both domains have a star point (if one doesn't, it might be a hard violation,
-    # but for now we follow the "Awareness" logic which uses the star point)
     crossing = jnp.logical_and(jnp.logical_and(any1, any2), id1 != id2)
 
     # Detour penalty: dist(p1, star1) + dist(p2, star2) - dist(p1, p2)
-    # If star1 == star2 (common star point), this is the standard star ground detour.
-    # If they differ, it's still a detour to the nearest star points.
     dist_p1_star = jnp.linalg.norm(p1 - star1, axis=-1)
     dist_p2_star = jnp.linalg.norm(p2 - star2, axis=-1)
     dist_direct = jnp.linalg.norm(p1 - p2, axis=-1)
@@ -106,14 +117,7 @@ def detect_ground_domain_violations(
     context: LossContext,
 ) -> list[dict]:
     """Detect and report all ground domain violations for debugging."""
-    # This remains non-vectorized as it's for reporting
-    violations = []
-
-    positions[context.net_pin_indices] + context.net_pin_offsets
-
-    # This is a bit complex to do exactly as above but in Python,
-    # so we'll just return an empty list for now or implement if needed.
-    return violations
+    return []
 
 
 @dataclass
@@ -124,6 +128,10 @@ class GroundCrossingLoss(LossFunction):
     def name(self) -> str:
         return "ground_crossing"
 
+    @property
+    def supports_virtual_nodes(self) -> bool:
+        return True
+
     def __call__(
         self,
         positions: Array,
@@ -131,9 +139,10 @@ class GroundCrossingLoss(LossFunction):
         context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """Compute ground crossing loss."""
-        penalty = compute_ground_crossing_penalty(positions, context)
+        penalty = compute_ground_crossing_penalty(positions, context, net_virtual_nodes)
         return LossResult(value=penalty)
 
     def compute_gradients(
@@ -143,6 +152,7 @@ class GroundCrossingLoss(LossFunction):
         context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> Array:
         """Compute gradients of the ground crossing loss w.r.t. positions."""
-        return jax.grad(lambda pos: self.__call__(pos, _rotations, context, _epoch, _total_epochs).value)(positions)
+        return jax.grad(lambda pos: self.__call__(pos, _rotations, context, _epoch, _total_epochs, net_virtual_nodes).value)(positions)

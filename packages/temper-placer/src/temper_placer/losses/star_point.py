@@ -29,6 +29,10 @@ class StarPointLoss(LossFunction):
     def name(self) -> str:
         return "star_point"
 
+    @property
+    def supports_virtual_nodes(self) -> bool:
+        return True
+
     def __call__(
         self,
         positions: Array,

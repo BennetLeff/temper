@@ -1,0 +1,11 @@
+{
+  "pcb": "pcb/temper.kicad_pcb",
+  "components": 33,
+  "metrics": {
+    "overlap": { "mean_ms": 66.0, "margin_rel": 0.15 },
+    "spread": { "mean_ms": 57.0, "margin_rel": 0.15 },
+    "wirelength": { "mean_ms": 2.1, "margin_rel": 0.20 },
+    "boundary": { "mean_ms": 1.4, "margin_rel": 0.20 },
+    "total_step_ms": { "mean_ms": 130.0, "margin_rel": 0.15 }
+  }
+}
