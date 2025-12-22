@@ -39,6 +39,7 @@ from temper_placer.losses.base import (
     LossContext,
     create_value_and_grad_fn_with_breakdown,
 )
+from temper_placer.heuristics.force_directed import compute_force_directed_layout
 from temper_placer.optimizer.config import OptimizerConfig
 from temper_placer.optimizer.initialization import SpectralInitializer
 from temper_placer.optimizer.scheduler import (
@@ -53,7 +54,7 @@ from temper_placer.optimizer.validation_callback import (
 logger = logging.getLogger(__name__)
 
 
-class NumericalInstabilityError(Exception):
+class NumericalInstabilityError(RuntimeError):
     """Exception raised when training becomes numerically unstable (NaN/Inf)."""
 
     def __init__(
@@ -62,11 +63,13 @@ class NumericalInstabilityError(Exception):
         epoch: int,
         loss_value: float | None = None,
         loss_breakdown: dict[str, float] | None = None,
+        grad_norms: dict[str, float] | None = None,
     ):
         super().__init__(message)
         self.epoch = epoch
         self.loss_value = loss_value
         self.loss_breakdown = loss_breakdown or {}
+        self.grad_norms = grad_norms or {}
 
 
 def _check_numerical_stability(
@@ -97,15 +100,31 @@ def _check_numerical_stability(
             f"Problematic components: {bad_components if bad_components else 'unknown'}",
             epoch=epoch,
             loss_value=loss_value,
-            loss_breakdown={k: float(jnp.sum(v)) for k, v in loss_breakdown.items() if hasattr(v, 'shape')},
+            loss_breakdown={
+                k: float(jnp.sum(v)) if hasattr(v, "shape") else float(v)
+                for k, v in loss_breakdown.items()
+            },
+            grad_norms={
+                "position": float(jnp.linalg.norm(grad_pos)),
+                "rotation": float(jnp.linalg.norm(grad_rot)),
+            },
         )
 
     # Check gradients
-    if not jnp.all(jnp.isfinite(grad_pos)) or not jnp.all(jnp.isfinite(grad_rot)):
+    if not (jnp.all(jnp.isfinite(grad_pos)) and jnp.all(jnp.isfinite(grad_rot))):
         raise NumericalInstabilityError(
-            f"Non-finite gradients at epoch {epoch}",
+            f"Non-finite gradients at epoch {epoch}. "
+            f"grad_pos_norm: {jnp.linalg.norm(grad_pos)}, grad_rot_norm: {jnp.linalg.norm(grad_rot)}",
             epoch=epoch,
             loss_value=loss_value,
+            loss_breakdown={
+                k: float(jnp.sum(v)) if hasattr(v, "shape") else float(v)
+                for k, v in loss_breakdown.items()
+            },
+            grad_norms={
+                "position": float(jnp.linalg.norm(grad_pos)),
+                "rotation": float(jnp.linalg.norm(grad_rot)),
+            },
         )
 
 
@@ -120,6 +139,9 @@ class TrainingMetrics(NamedTuple):
     grad_norm_pos: float
     grad_norm_rot: float
     elapsed_ms: float
+    loss_improvement_ema: float = 0.0
+    convergence_confidence: float = 0.0
+    is_plateau: bool = False
     loss_weights: dict[str, float] | None = None
     positions: Array | None = None
     rotations: Array | None = None
@@ -141,6 +163,7 @@ class TrainingResult:
         elapsed_seconds: Total training time.
         validation_history: List of ValidationResult from validation runs.
         stopped_by_validation: Whether training stopped due to validation failure.
+        convergence_reached: Whether the convergence confidence reached the threshold.
     """
 
     final_state: PlacementState
@@ -154,6 +177,7 @@ class TrainingResult:
     validation_history: list[ValidationResult] = field(default_factory=list)
     stopped_by_validation: bool = False
     final_overlap_weights: Array | None = None
+    convergence_reached: bool = False
 
 
 @dataclass
@@ -194,6 +218,8 @@ class TrainingState:
     best_rotations: Array | None = None
     epochs_without_improvement: int = 0
     position_delta_ema: float = 1.0  # EMA of component movement norm
+    loss_ema: float | None = None  # EMA of the total loss
+    improvement_ema: float = 0.0  # EMA of the relative loss improvement
     overlap_weights: Array | None = None  # (N,) adaptive multipliers
     loss_weights: Array | None = None  # (L,) dynamic loss weights
     initial_grad_norms: Array | None = None  # (L,) initial gradient norms for GradNorm
@@ -280,6 +306,12 @@ def initialize_training_state(
             initializer = SpectralInitializer(
                 normalized_laplacian=config.initialization.spectral_normalized,
                 margin_fraction=config.initialization.spectral_margin,
+            )
+            positions = initializer.initialize(netlist, board)
+        elif config.initialization.method == "learned":
+            from temper_placer.optimizer.initialization import LearnedInitializer
+            initializer = LearnedInitializer(
+                model_path=config.initialization.learned_model_path
             )
             positions = initializer.initialize(netlist, board)
         else:
@@ -641,6 +673,7 @@ def train(
     # Validation tracking
     validation_history: list[ValidationResult] = []
     stopped_by_validation = False
+    convergence_reached = False
 
     # Best tracking
     best_loss = float("inf")
@@ -701,8 +734,27 @@ def train(
             state.loss_weights = new_loss_weights
             state.initial_grad_norms = new_initial_grad_norms
 
+            # --- Convergence Tracking ---
+            loss_value = float(loss)
+            
+            # Update loss EMA
+            if state.loss_ema is None:
+                state.loss_ema = loss_value
+            else:
+                state.loss_ema = 0.95 * state.loss_ema + 0.05 * loss_value
+            
+            # Calculate relative improvement
+            improvement = (state.loss_ema - loss_value) / max(abs(state.loss_ema), 1e-6)
+            state.improvement_ema = 0.9 * state.improvement_ema + 0.1 * max(0.0, improvement)
+            
+            # Use configured thresholds
+            es_cfg = config.early_stopping
+            conv_threshold = es_cfg.improvement_threshold
+            confidence = 1.0 - (state.improvement_ema / max(conv_threshold, 1e-12))
+            confidence = max(0.0, min(1.0, confidence))
+            is_plateau = state.improvement_ema < conv_threshold
+
             # Adaptive Overlap Weighting Logic
-            # Every 10 epochs, check for persistent collisions and ramp weights
             # Adaptive Overlap Weighting
             ao_cfg = config.adaptive_overlap
             if ao_cfg.enabled and epoch % ao_cfg.update_interval == 0:
@@ -807,6 +859,9 @@ def train(
                     grad_norm_pos=grad_norm_pos,
                     grad_norm_rot=grad_norm_rot,
                     elapsed_ms=epoch_time_ms,
+                    loss_improvement_ema=float(state.improvement_ema),
+                    convergence_confidence=float(confidence),
+                    is_plateau=bool(is_plateau),
                     loss_weights=logged_weights,
                     positions=state.positions,
                     rotations=rotations,
@@ -817,11 +872,21 @@ def train(
                     callback(metrics)
 
             # Early stopping check
-            if (
-                config.early_stopping.enabled
-                and epochs_without_improvement >= config.early_stopping.patience
-            ):
-                break
+            if config.early_stopping.enabled:
+                # 1. Traditional patience-based stopping
+                if epochs_without_improvement >= config.early_stopping.patience:
+                    convergence_reached = True
+                    break
+                    
+                # 2. Convergence-based stopping
+                if (
+                    config.early_stopping.use_convergence 
+                    and confidence >= config.early_stopping.confidence_threshold
+                    and epoch > config.early_stopping.patience // 2  # Warmup
+                ):
+                    logger.info(f"Epoch {epoch}: Early stopping due to convergence confidence ({confidence:.4f})")
+                    convergence_reached = True
+                    break
 
     # Create final placement state
     final_state = PlacementState(
@@ -850,11 +915,12 @@ def train(
         best_loss=best_loss,
         history=history,
         total_epochs=epoch + 1,
-        converged=epochs_without_improvement >= config.early_stopping.patience,
+        converged=epochs_without_improvement >= config.early_stopping.patience or convergence_reached,
         elapsed_seconds=elapsed,
         validation_history=validation_history,
         stopped_by_validation=stopped_by_validation,
         final_overlap_weights=state.overlap_weights,
+        convergence_reached=convergence_reached,
     )
 
 
@@ -992,6 +1058,7 @@ def train_multiphase(
     # Validation tracking
     validation_history: list[ValidationResult] = []
     stopped_by_validation = False
+    convergence_reached = False
 
     # Best tracking
     best_loss = float("inf")
@@ -1121,6 +1188,24 @@ def train_multiphase(
             state.loss_weights = new_loss_weights
             state.initial_grad_norms = new_initial_grad_norms
 
+            # --- Convergence Tracking ---
+            loss_value = float(loss)
+            
+            # Update loss EMA
+            if state.loss_ema is None:
+                state.loss_ema = loss_value
+            else:
+                state.loss_ema = 0.95 * state.loss_ema + 0.05 * loss_value
+            
+            # Calculate relative improvement
+            improvement = (state.loss_ema - loss_value) / max(abs(state.loss_ema), 1e-6)
+            state.improvement_ema = 0.9 * state.improvement_ema + 0.1 * max(0.0, improvement)
+            
+            conv_threshold = 1e-5
+            confidence = 1.0 - (state.improvement_ema / conv_threshold)
+            confidence = max(0.0, min(1.0, confidence))
+            is_plateau = state.improvement_ema < conv_threshold
+
             # Adaptive Overlap Weighting Logic
             # Adaptive Overlap Weighting
             ao_cfg = config.adaptive_overlap
@@ -1216,6 +1301,9 @@ def train_multiphase(
                     grad_norm_pos=grad_norm_pos,
                     grad_norm_rot=grad_norm_rot,
                     elapsed_ms=epoch_time_ms,
+                    loss_improvement_ema=float(state.improvement_ema),
+                    convergence_confidence=float(confidence),
+                    is_plateau=bool(is_plateau),
                     loss_weights=logged_weights,
                     positions=state.positions,
                     rotations=rotations,
@@ -1226,11 +1314,21 @@ def train_multiphase(
                     callback(metrics)
 
             # Early stopping
-            if (
-                config.early_stopping.enabled
-                and epochs_without_improvement >= config.early_stopping.patience
-            ):
-                break
+            if config.early_stopping.enabled:
+                # 1. Traditional patience-based stopping
+                if epochs_without_improvement >= config.early_stopping.patience:
+                    convergence_reached = True
+                    break
+                    
+                # 2. Convergence-based stopping
+                if (
+                    config.early_stopping.use_convergence 
+                    and confidence >= config.early_stopping.confidence_threshold
+                    and epoch > config.early_stopping.patience // 2  # Warmup
+                ):
+                    logger.info(f"Epoch {epoch}: Early stopping due to convergence confidence ({confidence:.4f})")
+                    convergence_reached = True
+                    break
 
     # Create final states
     final_state = PlacementState(
@@ -1258,9 +1356,10 @@ def train_multiphase(
         best_loss=best_loss,
         history=history,
         total_epochs=epoch + 1,
-        converged=epochs_without_improvement >= config.early_stopping.patience,
+        converged=epochs_without_improvement >= config.early_stopping.patience or convergence_reached,
         elapsed_seconds=elapsed,
         validation_history=validation_history,
         stopped_by_validation=stopped_by_validation,
         final_overlap_weights=state.overlap_weights,
+        convergence_reached=convergence_reached,
     )

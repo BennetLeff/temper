@@ -57,7 +57,7 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             return HeuristicResult(success=True)
 
         # 1. Initialize from random or current if exists
-        rng_key = context.rng_key or jax.random.PRNGKey(42)
+        rng_key = context.rng_key if context.rng_key is not None else jax.random.PRNGKey(42)
         initial_pos = jnp.zeros((n, 2))
         for ref, p in context.current_placements.items():
             idx = context.netlist.get_component_index(ref)

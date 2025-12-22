@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import NamedTuple, cast
+from typing import cast
 
 import jax
 import jax.numpy as jnp
@@ -193,8 +193,8 @@ class LossContext(BaseLossContext):
                 if sensitive and sources:
                     noise_isolation_constraints.append(NoiseIsolationConstraint(
                         name=rule.name,
-                        sensitive_indices=tuple(sorted(list(set(sensitive)))),
-                        noise_source_indices=tuple(sorted(list(set(sources)))),
+                        sensitive_indices=tuple(sorted(set(sensitive))),
+                        noise_source_indices=tuple(sorted(set(sources))),
                         min_distance=rule.min_distance_mm,
                         weight=rule.weight
                     ))
@@ -211,6 +211,20 @@ class LossContext(BaseLossContext):
         )
         if validation_errors:
             raise ValueError("Invalid constraint references:\n" + "\n".join(validation_errors))
+
+        # Pre-compute ground domain arrays
+        domains = board.ground_domains
+        if domains:
+            domain_bounds = jnp.array([d.bounds for d in domains], dtype=jnp.float32)
+            domain_star_points = jnp.array(
+                [d.star_point if d.star_point else [0.0, 0.0] for d in domains],
+                dtype=jnp.float32
+            )
+            domain_has_star = jnp.array([d.star_point is not None for d in domains], dtype=jnp.bool_)
+        else:
+            domain_bounds = jnp.zeros((0, 4), dtype=jnp.float32)
+            domain_star_points = jnp.zeros((0, 2), dtype=jnp.float32)
+            domain_has_star = jnp.zeros((0,), dtype=jnp.bool_)
 
         return cls(
             netlist=netlist,
@@ -243,6 +257,9 @@ class LossContext(BaseLossContext):
             noise_isolation_constraints=noise_isolation_constraints,
             net_class_indices=net_class_indices,
             centrality=centrality if use_centrality_weighting else jnp.array([]),
+            domain_bounds=domain_bounds,
+            domain_star_points=domain_star_points,
+            domain_has_star=domain_has_star,
         )
 
     @staticmethod
@@ -547,19 +564,6 @@ class LossContext(BaseLossContext):
         return self.netlist.get_component_index(ref)
 
 
-class LossResult(NamedTuple):
-    """
-    Result from a loss function evaluation.
-
-    Attributes:
-        value: The scalar loss value (differentiable).
-        breakdown: Optional dict with per-component or per-item breakdown.
-    """
-
-    value: Array  # Scalar loss value
-    breakdown: dict[str, Array] | None = None
-
-
 class LossFunction(ABC):
     """
     Abstract base class for loss functions.
@@ -609,7 +613,7 @@ class LossFunction(ABC):
         """
         ...
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, _epoch: int, _total_epochs: int) -> float:
         """
         Get the weight multiplier for this loss at a given epoch.
 

@@ -10,10 +10,12 @@ Implements temper-1my.7: Spectral/Analytical Initialization
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import jax.numpy as jnp
 import numpy as np
+import pickle
+from pathlib import Path
 from jax import Array
 
 from temper_placer.core.board import Board
@@ -21,6 +23,7 @@ from temper_placer.core.netlist import (
     Netlist,
     build_adjacency_matrix,
 )
+from temper_placer.ml.learned_init import LearnedInitializerGNN
 
 
 def compute_spectral_coordinates(
@@ -564,3 +567,85 @@ class SpectralInitializer:
         )
 
         return scaled
+
+
+@dataclass
+class LearnedInitializer:
+    """
+    Initialize positions using a pre-trained GNN model.
+
+    The model predicts [X, Y] coordinates in [0, 1] range based on
+    netlist graph features.
+
+    Attributes:
+        model_path: Path to the pre-trained model parameter file (.pkl).
+        fallback: Initializer to use if model loading fails.
+    """
+
+    model_path: str | Path | None = "models/learned_init.pkl"
+    fallback: SpectralInitializer = field(default_factory=SpectralInitializer)
+
+    def initialize(
+        self,
+        netlist: Netlist,
+        board: Board,
+        rng_key: Array | None = None,
+    ) -> Array:
+        """
+        Predict initial positions using GNN inference.
+
+        Args:
+            netlist: Component netlist.
+            board: Board dimensions.
+            rng_key: Random key (unused).
+
+        Returns:
+            (N, 2) positions in board coordinates.
+        """
+        # 1. Attempt to load model parameters
+        params = self._load_params()
+        if params is None:
+            return self.fallback.initialize(netlist, board, rng_key)
+
+        # 2. Build graph features
+        adjacency = build_adjacency_matrix(netlist)
+        edges = jnp.array(np.where(np.array(adjacency) > 0)).T
+        
+        # Node features: [Area, PinCount, Fixed, Centrality]
+        n = netlist.n_components
+        areas = jnp.array([c.width * c.height for c in netlist.components])
+        pin_counts = jnp.array([len(c.pins) for c in netlist.components])
+        fixed = jnp.array([c.fixed for c in netlist.components], dtype=jnp.float32)
+        
+        # Compute centrality for features
+        degrees = jnp.sum(adjacency, axis=1)
+        
+        # Normalize features
+        areas = areas / jnp.maximum(jnp.max(areas), 1e-6)
+        pin_counts = pin_counts / jnp.maximum(jnp.max(pin_counts), 1e-6)
+        
+        nodes = jnp.stack([areas, pin_counts, fixed, degrees], axis=-1)
+
+        # 3. Run Inference
+        model = LearnedInitializerGNN()
+        norm_positions = model.apply({"params": params}, nodes, edges)
+
+        # 4. Scale to board
+        positions = scale_to_board(norm_positions, board, margin_fraction=0.1)
+        
+        return positions
+
+    def _load_params(self) -> dict | None:
+        """Load model parameters from disk."""
+        if self.model_path is None:
+            return None
+            
+        path = Path(self.model_path)
+        if not path.exists():
+            return None
+            
+        try:
+            with open(path, "rb") as f:
+                return pickle.load(f)
+        except Exception:
+            return None

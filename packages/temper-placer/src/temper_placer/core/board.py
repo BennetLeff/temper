@@ -32,6 +32,72 @@ class MountingHole:
 
 
 @dataclass
+class Pad:
+    """
+    A component pad.
+
+    Attributes:
+        position: (x, y) relative to component center.
+        size: (width, height) in mm.
+        shape: 'rect', 'circle', 'oval', 'roundrect'.
+        layer: Layer name.
+        number: Pad number.
+        net_name: Name of connected net.
+    """
+    position: tuple[float, float]
+    size: tuple[float, float]
+    shape: str = "rect"
+    layer: str = "F.Cu"
+    number: str = ""
+    net_name: str | None = None
+
+
+@dataclass
+class Component:
+    """
+    A PCB component footprint.
+
+    Attributes:
+        ref: Reference designator (e.g. U1).
+        position: (x, y) center position.
+        rotation: Rotation in degrees.
+        width: Bounding box width.
+        height: Bounding box height.
+        pads: List of pads.
+        layer: Layer name.
+        fixed: Whether the component is locked.
+    """
+    ref: str
+    position: tuple[float, float]
+    rotation: float
+    width: float
+    height: float
+    footprint: str | None = None
+    pads: list[Pad] = field(default_factory=list)
+    layer: str = "F.Cu"
+    fixed: bool = False
+
+
+@dataclass
+class Trace:
+    """
+    A routed trace segment.
+
+    Attributes:
+        start: (x, y) start point.
+        end: (x, y) end point.
+        width: Trace width in mm.
+        layer: Layer name.
+        net: Net name.
+    """
+    start: tuple[float, float]
+    end: tuple[float, float]
+    width: float
+    layer: str
+    net: str | None = None
+
+
+@dataclass
 class Layer:
     """
     A PCB layer definition.
@@ -96,10 +162,10 @@ class LayerStackup:
             return [0]
         elif net_class == "Power":
             # Power traces on L1 or L4
-            return [i for i, l in enumerate(self.layers) if l.is_routable]
+            return [i for i, layer in enumerate(self.layers) if layer.is_routable]
         else:
             # Signal traces can route on any routable layer
-            return [i for i, l in enumerate(self.layers) if l.is_routable]
+            return [i for i, layer in enumerate(self.layers) if layer.is_routable]
 
     def tracks_per_cell(self, grid_size: float, net_class: str = "Signal") -> float:
         """
@@ -284,11 +350,21 @@ class Board:
             width=100.0,
             height=150.0,
             origin=(0.0, 0.0),
+            zones=[
+                Zone("HV_ZONE", (0, 0, 50, 80)),
+                Zone("POWER_ZONE", (50, 0, 100, 80)),
+                Zone("MCU_ZONE", (0, 80, 100, 130)),
+                Zone("UI_ZONE", (0, 130, 100, 150)),
+            ],
             mounting_holes=[
                 MountingHole((5, 5), 3.2),
                 MountingHole((95, 5), 3.2),
                 MountingHole((5, 145), 3.2),
                 MountingHole((95, 145), 3.2),
+            ],
+            ground_domains=[
+                GroundDomain("PGND", (0, 0, 50, 150), star_point=(50, 75)),
+                GroundDomain("CGND", (50, 0, 100, 150), star_point=(50, 75)),
             ],
         )
 

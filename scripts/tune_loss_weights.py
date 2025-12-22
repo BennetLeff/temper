@@ -1,336 +1,166 @@
 #!/usr/bin/env python3
 """
-<<<<<<< HEAD
-Tune loss function weights based on correlation analysis.
+Loss Weight Tuning Script
 
-This script reads a correlation report (from correlation_analysis.py) and
-adjusts loss function weights in a configuration file based on how strongly
-each loss correlates with routing quality metrics.
+Adjusts loss function weights based on correlation analysis results.
+Automatically updates configuration files to improve optimizer performance.
 
-Algorithm:
-- Strong correlation (|r| > 0.7): Increase weight by 1.5x
-- Moderate correlation (0.3 <= |r| < 0.7): Keep weight unchanged
-- Weak correlation (|r| < 0.3): Reduce weight by 0.5x
-
-Safety rules:
-- Hard constraints (overlap, boundary, clearance, zone_membership): Never reduce
-- All multipliers capped at [0.25x, 4.0x]
-- Preserves USER: keep comments (doesn't modify those losses)
+Usage:
+    python scripts/tune_loss_weights.py --correlation-report correlation_report.json --config current_config.yaml
 """
 
 import argparse
 import json
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any
 
 import yaml
 
 
-# Hard constraints that should never be reduced
-HARD_CONSTRAINTS = {"overlap", "boundary", "clearance", "zone_membership"}
+def load_correlation_report(report_path: Path) -> dict[str, Any]:
+    """Load correlation analysis JSON report."""
+    with open(report_path) as f:
+        return json.load(f)
 
 
-def _compute_multiplier(r_completion: float, loss_name: str, is_hard_constraint: bool) -> float:
+def load_config(config_path: Path) -> dict[str, Any]:
+    """Load optimizer configuration YAML."""
+    with open(config_path) as f:
+        return yaml.safe_load(f)
+
+
+def tune_weights(
+    current_config: dict[str, Any],
+    report: dict[str, Any],
+    learning_rate: float = 0.1,
+    max_multiplier: float = 10.0,
+    min_multiplier: float = 0.1,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """
-    Compute weight multiplier based on correlation coefficient.
+    Adjust weights based on correlations.
 
-    Args:
-        r_completion: Correlation coefficient with routing completion
-        loss_name: Name of the loss function
-        is_hard_constraint: Whether this is a hard constraint
-
-    Returns:
-        Multiplier in range [0.25, 4.0] (or [1.0, 4.0] for hard constraints)
+    Strategy:
+    - Weight_new = Weight_old * (1.0 - correlation * learning_rate)
+    - If correlation is negative (Loss ↑, Completion ↓), weight increases.
+    - If correlation is positive, weight decreases.
     """
-    abs_r = abs(r_completion)
+    new_config = current_config.copy()
+    if "losses" not in new_config:
+        new_config["losses"] = {}
 
-    # Determine base multiplier
-    if abs_r > 0.7:
-        multiplier = 1.5  # Strong correlation
-    elif abs_r >= 0.3:
-        multiplier = 1.0  # Moderate correlation
-    else:
-        multiplier = 0.5  # Weak correlation
-
-    # Hard constraints: never reduce
-    if is_hard_constraint and multiplier < 1.0:
-        multiplier = 1.0
-
-    # Cap multipliers
-    multiplier = max(0.25 if not is_hard_constraint else 1.0, multiplier)
-    multiplier = min(4.0, multiplier)
-
-    return multiplier
-
-
-def _get_correlation(report: dict, loss_name: str) -> float:
-    """Get completion correlation for a loss from report."""
-    correlations = report.get("correlations", {})
-    loss_data = correlations.get(loss_name, {})
-    return loss_data.get("vs_completion", 0.0)
-
-
-def _is_hard_constraint(loss_name: str) -> bool:
-    """Check if loss is a hard constraint."""
-    return loss_name in HARD_CONSTRAINTS
-
-
-def _generate_header(report_path: Path, timestamp: str) -> str:
-    """Generate YAML header comment."""
-    return (
-        f"# Auto-tuned weights based on correlation analysis\n"
-        f"# Generated: {timestamp}\n"
-        f"# Source: {report_path}\n\n"
-    )
-
-
-def _generate_loss_comment(
-    loss_name: str,
-    original_weight: float,
-    new_weight: float,
-    r_completion: float,
-    multiplier: float,
-) -> str:
-    """Generate comment explaining weight change."""
-    if multiplier > 1.0:
-        action = f"Increased {multiplier}x"
-    elif multiplier < 1.0:
-        action = f"Reduced {multiplier}x"
-    else:
-        action = "Unchanged"
-
-    return f"  # {action}: r={r_completion:.2f} with completion\n  # Original: {original_weight}"
-
-
-def _generate_hard_constraint_comment(loss_name: str) -> str:
-    """Generate comment for hard constraint."""
-    return "  # Unchanged - hard constraint"
-
-
-def _tune_weights(report: dict, base_config: dict) -> Tuple[dict, list]:
-    """
-    Tune weights based on correlation report.
-
-    Args:
-        report: Correlation analysis report
-        base_config: Base configuration with current weights
-
-    Returns:
-        Tuple of (tuned_config, changes_list)
-        changes_list: [(loss_name, original, new, reason), ...]
-    """
-    tuned = {"losses": {}}
     changes = []
+    correlations = report["correlations"]
 
-    for loss_name, loss_config in base_config.get("losses", {}).items():
-        original_weight = loss_config.get("weight", 1.0)
-        r_completion = _get_correlation(report, loss_name)
-        is_hard = _is_hard_constraint(loss_name)
+    for loss_name, metrics in correlations.items():
+        if loss_name == "total_loss":
+            continue
 
-        multiplier = _compute_multiplier(r_completion, loss_name, is_hard)
-        new_weight = original_weight * multiplier
+        # Use completion correlation as primary signal
+        corr = metrics["completion"]
+        
+        # Skip low correlations
+        if abs(corr) < 0.1:
+            continue
 
-        tuned["losses"][loss_name] = {"weight": new_weight}
+        # Get current weight
+        old_weight = current_config.get("losses", {}).get(loss_name, 1.0)
+        
+        # Compute multiplier
+        # Negative correlation -> Increase weight
+        multiplier = 1.0 - (corr * learning_rate)
+        multiplier = max(min_multiplier, min(max_multiplier, multiplier))
+        
+        new_weight = old_weight * multiplier
+        
+        # Don't reduce weights of known hard constraints below 1.0
+        hard_constraints = {"overlap", "boundary", "clearance"}
+        if loss_name in hard_constraints:
+            new_weight = max(1.0, new_weight)
 
-        # Track change
-        if multiplier > 1.0:
-            reason = f"Increased {multiplier}x (r={r_completion:.2f})"
-        elif multiplier < 1.0:
-            reason = f"Reduced {multiplier}x (r={r_completion:.2f})"
-        elif is_hard:
-            reason = "Unchanged - hard constraint"
-        else:
-            reason = f"Unchanged (r={r_completion:.2f})"
+        new_config["losses"][loss_name] = round(float(new_weight), 4)
+        
+        changes.append({
+            "loss": loss_name,
+            "old": old_weight,
+            "new": new_config["losses"][loss_name],
+            "correlation": corr,
+            "change_pct": (multiplier - 1.0) * 100.0
+        })
 
-        changes.append((loss_name, original_weight, new_weight, reason))
+    return new_config, changes
 
-    return tuned, changes
+
+def _display_dry_run(changes: list[dict[str, Any]], output_path: Path):
+    """Print proposed changes without writing."""
+    print(f"=== Proposed Weight Tuning for {output_path.name} ===")
+    print(f"{ 'Loss Function':<25} | { 'Old':>8} | { 'New':>8} | { 'Corr':>6} | {'Change'}")
+    print("-" * 65)
+    
+    for c in sorted(changes, key=lambda x: abs(x["change_pct"]), reverse=True):
+        print(f"{c['loss']:<25} | {c['old']:>8.2f} | {c['new']:>8.2f} | {c['correlation']:>6.2f} | {c['change_pct']:>+6.1f}%")
 
 
 def _write_tuned_config(
-    tuned_config: dict,
-    base_config: dict,
-    report: dict,
+    new_config: dict[str, Any],
+    base_config: dict[str, Any],
+    report: dict[str, Any],
     report_path: Path,
-    output_path: Path,
-) -> None:
-    """Write tuned configuration to YAML file with explanatory comments."""
-    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    output_path: Path
+):
+    """Write updated configuration with metadata."""
+    # Add metadata about tuning
+    if "metadata" not in new_config:
+        new_config["metadata"] = {}
+    
+    new_config["metadata"]["tuned_from"] = report_path.name
+    new_config["metadata"]["tuned_at"] = datetime.now().isoformat()
+    new_config["metadata"]["samples"] = report["n_samples"]
 
-    # Build YAML content manually to include comments
-    lines = []
-    lines.append(_generate_header(report_path, timestamp))
-    lines.append("losses:\n")
-
-    # Group hard constraints first
-    hard_losses = []
-    soft_losses = []
-
-    for loss_name in tuned_config["losses"]:
-        if _is_hard_constraint(loss_name):
-            hard_losses.append(loss_name)
-        else:
-            soft_losses.append(loss_name)
-
-    # Write hard constraints
-    if hard_losses:
-        lines.append("  # HARD CONSTRAINTS (never reduced)\n")
-        for loss_name in sorted(hard_losses):
-            original_weight = base_config["losses"][loss_name]["weight"]
-            new_weight = tuned_config["losses"][loss_name]["weight"]
-            lines.append(f"  {loss_name}:\n")
-            lines.append(f"    weight: {new_weight}\n")
-            lines.append(_generate_hard_constraint_comment(loss_name) + "\n")
-            lines.append("\n")
-
-    # Write tuned weights
-    if soft_losses:
-        lines.append("  # TUNED WEIGHTS\n")
-        for loss_name in sorted(soft_losses):
-            original_weight = base_config["losses"][loss_name]["weight"]
-            new_weight = tuned_config["losses"][loss_name]["weight"]
-            r_completion = _get_correlation(report, loss_name)
-            is_hard = _is_hard_constraint(loss_name)
-            multiplier = _compute_multiplier(r_completion, loss_name, is_hard)
-
-            lines.append(f"  {loss_name}:\n")
-            lines.append(f"    weight: {new_weight}\n")
-            lines.append(
-                _generate_loss_comment(
-                    loss_name, original_weight, new_weight, r_completion, multiplier
-                )
-                + "\n"
-            )
-            lines.append("\n")
-
-    # Write to file
-    output_path.write_text("".join(lines))
+    with open(output_path, "w") as f:
+        # Header comment
+        f.write(f"# Auto-tuned weights based on {report_path.name}\n")
+        f.write(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        yaml.dump(new_config, f, sort_keys=False)
 
 
-def _display_dry_run(changes: list, output_path: Path) -> None:
-    """Display changes without writing file."""
-    print(f"\n{'=' * 70}")
-    print(f"DRY RUN - Changes would be written to: {output_path}")
-    print(f"{'=' * 70}\n")
-
-    for loss_name, original, new, reason in changes:
-        print(f"  {loss_name:20s}: {original:8.2f} → {new:8.2f}  ({reason})")
-
-    print()
-
-
-def main() -> None:
-    """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Tune loss weights based on correlation analysis",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Tune weights from correlation report
-  %(prog)s --correlation-report correlation_report.json \\
-           --base-config configs/temper_constraints.yaml \\
-           --output configs/temper_constraints_tuned.yaml
-
-  # Preview changes without writing
-  %(prog)s --correlation-report correlation_report.json \\
-           --base-config configs/temper_constraints.yaml \\
-           --output configs/temper_constraints_tuned.yaml \\
-           --dry-run
-        """,
-    )
-
-    parser.add_argument(
-        "--correlation-report",
-        type=Path,
-        required=True,
-        help="Path to correlation analysis JSON report",
-    )
-
-    parser.add_argument(
-        "--base-config",
-        type=Path,
-        required=True,
-        help="Path to base configuration YAML",
-    )
-
-    parser.add_argument(
-        "--output",
-        type=Path,
-        required=True,
-        help="Path to output tuned configuration YAML",
-    )
-
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show changes without writing output file",
-    )
+def main():
+    from datetime import datetime
+    parser = argparse.ArgumentParser(description="Tune loss weights based on correlation analysis.")
+    parser.add_argument("--correlation-report", "-r", type=str, required=True, help="JSON report from analysis")
+    parser.add_argument("--config", "-c", type=str, required=True, help="Current configuration YAML")
+    parser.add_argument("--output", "-o", type=str, help="Output configuration file")
+    parser.add_argument("--lr", type=float, default=0.2, help="Adjustment sensitivity")
+    parser.add_argument("--dry-run", action="store_true", help="Display changes without writing")
 
     args = parser.parse_args()
 
-    # Load correlation report
-    if not args.correlation_report.exists():
-        parser.error(f"Correlation report not found: {args.correlation_report}")
+    report_path = Path(args.correlation_report)
+    config_path = Path(args.config)
+    output_path = Path(args.output) if args.output else config_path
 
-    with open(args.correlation_report) as f:
-        report = json.load(f)
+    if not report_path.exists():
+        print(f"Error: Report not found: {report_path}")
+        sys.exit(1)
+    
+    if not config_path.exists():
+        print(f"Error: Config not found: {config_path}")
+        sys.exit(1)
 
-    # Load base config
-    if not args.base_config.exists():
-        parser.error(f"Base config not found: {args.base_config}")
+    # Load data
+    report = load_correlation_report(report_path)
+    base_config = load_config(config_path)
 
-    with open(args.base_config) as f:
-        base_config = yaml.safe_load(f)
-
-    if "losses" not in base_config:
-        parser.error(f"Base config missing 'losses' section: {args.base_config}")
-
-    # Tune weights
-    tuned_config, changes = _tune_weights(report, base_config)
+    # Tune
+    tuned_config, changes = tune_weights(base_config, report, learning_rate=args.lr)
 
     # Display or write
     if args.dry_run:
-        _display_dry_run(changes, args.output)
+        _display_dry_run(changes, output_path)
     else:
-        _write_tuned_config(tuned_config, base_config, report, args.correlation_report, args.output)
-        print(f"✓ Tuned configuration written to: {args.output}")
+        _write_tuned_config(tuned_config, base_config, report, report_path, output_path)
+        print(f"✓ Tuned configuration written to: {output_path}")
         print(f"  {len(changes)} losses adjusted based on correlation analysis")
 
 
 if __name__ == "__main__":
     main()
-=======
-Loss weight tuning script.
-Suggests loss weight adjustments based on correlation with routing success.
-"""
-
-import json
-from pathlib import Path
-import argparse
-import sys
-
-# Simplified logic for suggestion
-# High absolute correlation -> Increase weight if it's not high enough
-# Positive correlation with failure (higher loss = higher completion) -> Something is wrong
-# Negative correlation with failure (higher loss = lower completion) -> Increase weight
-
-def main():
-    parser = argparse.ArgumentParser(description="Suggest loss weight adjustments")
-    parser.add_argument("--data", type=str, default="metrics/measurements.jsonl", help="Path to measurements.jsonl")
-    args = parser.parse_args()
-
-    # In a real implementation, this would use the output of correlation_analysis.py
-    # and provide specific numerical suggestions.
-    
-    print("Loss Weight Suggestions (Experimental)")
-    print("-" * 40)
-    print("1. Increase 'overlap_loss' weight if completion < 100%")
-    print("2. Increase 'boundary_loss' weight if components are off-board")
-    print("3. Decrease 'wirelength_loss' if it causes massive overlap pileups")
-    print("\nRun 'scripts/correlation_analysis.py' to see empirical data.")
-
-if __name__ == "__main__":
-    main()
-
->>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)

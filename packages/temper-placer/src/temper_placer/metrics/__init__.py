@@ -17,11 +17,7 @@ from temper_placer.metrics.quality import (
     total_wirelength,
     zone_compliance_score,
 )
-<<<<<<< HEAD
-from temper_placer.metrics.quality_score import QualityScore, compute_quality_score
-=======
 from temper_placer.metrics.quality_score import QualityInputs, compute_quality_score, interpret_score
->>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)
 
 __all__ = [
     "total_wirelength",
@@ -33,12 +29,7 @@ __all__ = [
     "compactness_score",
     "connectivity_clustering_score",
     "compute_quality_report",
-<<<<<<< HEAD
-    "QualityScore",
-    "compute_quality_score",
-=======
     "QualityInputs",
     "compute_quality_score",
     "interpret_score",
->>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)
 ]

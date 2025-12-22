@@ -211,26 +211,31 @@ module Top:
     # Note: AC_L, AC_N, PE come from external connector
     
     # Power input outputs
-    power_in.dc_bus_plus ~ dc_bus_plus
-    power_in.dc_bus_minus ~ dc_bus_minus
-    power_in.gnd_center ~ gnd
+    power_in.dc_bus.hv_plus ~ dc_bus_plus
+    power_in.dc_bus.hv_minus ~ dc_bus_minus
+    power_in.dc_bus.gnd_ref ~ gnd
     power_in.gnd ~ gnd
     
     # Power management chain
     # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS
     # For this model, we assume a separate input or pre-regulated source
-    power_mgmt.gnd ~ gnd
-    power_mgmt.vcc_15v ~ vcc_15v
-    power_mgmt.vcc_3v3 ~ vcc_3v3
+    power_mgmt.power_15v.vcc ~ vcc_15v
+    power_mgmt.power_15v.gnd ~ gnd
+    
+    power_mgmt.power_3v3.vcc ~ vcc_3v3
+    power_mgmt.power_3v3.gnd ~ gnd
+    
+    # Input ground reference
+    power_mgmt.power_in_hv.gnd ~ gnd
     
     # ===========================================================================
     # HALF-BRIDGE CONNECTIONS
     # ===========================================================================
     
-    hb.v_bus_plus ~ dc_bus_plus
-    hb.v_bus_minus ~ gnd
-    hb.vcc_15v ~ vcc_15v
-    hb.gnd ~ gnd
+    hb.dc_bus.hv_plus ~ dc_bus_plus
+    hb.dc_bus.hv_minus ~ dc_bus_minus
+    hb.power_15v.vcc ~ vcc_15v
+    hb.power_15v.gnd ~ gnd
     
     # PWM from MCU
     mcu.pwm_h ~ hb.pwm_h
@@ -252,25 +257,25 @@ module Top:
     # ===========================================================================
     
     # Current sensing
-    ct_sense.gnd ~ gnd
-    ct_sense.i_sense ~ mcu.adc_i_sense
+    ct_sense.i_sense.reference ~ gnd
+    ct_sense.i_sense.line ~ mcu.adc_i_sense
     ct_sense.i_sense ~ safety.i_sense
-    ct_sense.i_sense.override_net_name = "I_SENSE"
+    ct_sense.i_sense.line.override_net_name = "I_SENSE"
     
     # RTD temperature sensing (pan temperature)
-    rtd_pan.vdd ~ vcc_3v3
-    rtd_pan.gnd ~ gnd
-    rtd_pan.spi_cs ~ mcu.spi_cs_rtd
-    rtd_pan.spi_clk ~ mcu.spi_clk
-    rtd_pan.spi_mosi ~ mcu.spi_mosi
-    rtd_pan.spi_miso ~ mcu.spi_miso
-    rtd_pan.drdy ~ mcu.rtd_drdy
-    rtd_pan.drdy.override_net_name = "RTD_DRDY"
+    rtd_pan.power.vcc ~ vcc_3v3
+    rtd_pan.power.gnd ~ gnd
+    rtd_pan.cs.line ~ mcu.cs_rtd.line
+    rtd_pan.spi.sclk ~ mcu.spi.sclk
+    rtd_pan.spi.mosi ~ mcu.spi.mosi
+    rtd_pan.spi.miso ~ mcu.spi.miso
+    rtd_pan.drdy.line ~ mcu.rtd_drdy.line
+    rtd_pan.drdy.line.override_net_name = "RTD_DRDY"
     
-    rtd_pan.spi_clk.override_net_name = "RTD_SCK"
-    rtd_pan.spi_mosi.override_net_name = "RTD_SDI"
-    rtd_pan.spi_miso.override_net_name = "RTD_SDO"
-    rtd_pan.spi_cs.override_net_name = "RTD_CS_N"
+    rtd_pan.spi.sclk.override_net_name = "RTD_SCK"
+    rtd_pan.spi.mosi.override_net_name = "RTD_SDI"
+    rtd_pan.spi.miso.override_net_name = "RTD_SDO"
+    rtd_pan.cs.line.override_net_name = "RTD_CS_N"
     
     # ===========================================================================
     # SAFETY INTERLOCK CONNECTIONS
@@ -281,16 +286,18 @@ module Top:
     safety.gnd ~ gnd
     
     # Sensor inputs to safety system
-    safety.dc_bus ~ dc_bus_plus
+    safety.dc_bus.line ~ dc_bus_plus
+    safety.dc_bus.reference ~ gnd
     # safety.i_sense already connected above
     # NTC for heatsink temperature monitoring
-    safety.ntc_sense ~ mcu.adc_ntc
+    safety.ntc_sense.line ~ mcu.adc_ntc
+    safety.ntc_sense.reference ~ gnd
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
     
     # Watchdog
-    mcu.wdt_kick ~ safety.wdt_kick
-    mcu.wdt_kick.override_net_name = "WDT_KICK"
-    safety.wdt_reset_n ~ mcu.reset_n
+    mcu.wdt_kick.line ~ safety.wdt_kick
+    mcu.wdt_kick.line.override_net_name = "WDT_KICK"
+    safety.wdt_reset_n ~ mcu.reset_n.line
     safety.wdt_reset_n.override_net_name = "WDT_RESET_N"
     
     # Shutdown output (active-low disables gate driver)
@@ -298,7 +305,7 @@ module Top:
     safety.shutdown_n.override_net_name = "SHUTDOWN_N"
     
     # Fault status to MCU
-    safety.fault_status ~ mcu.shutdown_n_in
+    safety.fault_status ~ mcu.shutdown_n_in.line
     safety.fault_status.override_net_name = "FAULT"
     
     # Gate HS/LS
@@ -317,12 +324,12 @@ module Top:
     # MCU CONNECTIONS
     # ===========================================================================
     
-    mcu.vcc_3v3 ~ vcc_3v3
-    mcu.gnd ~ gnd
+    mcu.power.vcc ~ vcc_3v3
+    mcu.power.gnd ~ gnd
     
     # Relay control for soft-start bypass
-    mcu.relay_ctrl ~ power_in.relay_ctrl
-    mcu.relay_ctrl.override_net_name = "RELAY_CTRL"
+    mcu.relay_ctrl.line ~ power_in.relay_ctrl
+    mcu.relay_ctrl.line.override_net_name = "RELAY_CTRL"
     
     # Zero-crossing detection for soft-start timing
     power_in.zcd ~ mcu.zcd_in

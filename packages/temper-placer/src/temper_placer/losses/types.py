@@ -127,6 +127,11 @@ class LossContext:
     net_class_indices: dict[str, Array] = field(default_factory=dict)
     centrality: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.float32))
 
+    # Ground Domains
+    domain_bounds: Array = field(default_factory=lambda: jnp.zeros((0, 4), dtype=jnp.float32))
+    domain_star_points: Array = field(default_factory=lambda: jnp.zeros((0, 2), dtype=jnp.float32))
+    domain_has_star: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.bool_))
+
 
 class LossResult(NamedTuple):
     """Result from a loss function evaluation."""

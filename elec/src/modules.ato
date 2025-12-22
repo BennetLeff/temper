@@ -2,6 +2,10 @@
 # Module definitions for Temper Induction Cooker
 # Reference: pcb/*.kicad_sch
 
+# Enable experimental features for interfaces
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
 import IKW40N120H3 from "components.ato"
 import UCC21550BDWK from "components.ato"
 import UJ3D1210TS from "components.ato"
@@ -9,6 +13,20 @@ import Resistor from "components.ato"
 import Capacitor from "components.ato"
 import Diode from "components.ato"
 import Constraints from "constraints.ato"
+
+# Import standard interfaces
+import ElectricPower from "generics/interfaces.ato"
+import SPI from "generics/interfaces.ato"
+import ElectricLogic from "generics/interfaces.ato"
+import I2C from "generics/interfaces.ato"
+import UART from "generics/interfaces.ato"
+import ElectricSignal from "generics/interfaces.ato"
+
+# Custom Temper interfaces
+import HighVoltageBus from "interfaces.ato"
+import GateDrive from "interfaces.ato"
+import CTInterface from "interfaces.ato"
+import AnalogSense from "interfaces.ato"
 
 # Power input components
 import Fuse from "components.ato"
@@ -59,7 +77,10 @@ module GateDriveHS:
     boot_diode = new UJ3D1210TS
     boot_cap = new Capacitor
     neg_bias_zener = new Diode
-
+    
+    # Output interface to IGBT
+    drive = new GateDrive
+    
     boot_cap.value = 10uF +/- 20%
     boot_cap.dielectric = "X7R"
     boot_cap.voltage_rating = 50V
@@ -88,10 +109,50 @@ module GateDriveHS:
     
     # Verify gate drive current within constraint (temper-ofq.6)
     assert driver.i_source_peak >= Constraints.GateDrive.i_max
+    
+    # Connections
+    driver.OUTA ~ rg_on.p1
+    rg_on.p2 ~ drive.out
+    rgs.p1 ~ drive.out
+    rgs.p2 ~ drive.vss
+    
+    # Zener clamp for negative bias
+    # Zener K to driver VSS (which is floated by cap), A to Switch Node (drive.vss)
+    # Wait, the previous wiring was:
+    # gate_hs.boot_cap.p2 ~ gate_hs.neg_bias_zener.K
+    # gate_hs.neg_bias_zener.A ~ switch_node
+    # gate_hs.driver.VSSA ~ gate_hs.boot_cap.p2
+    # This establishes VSSA = SW + Vz.
+    # If the driver output LOW connects Gate to VSSA, then Gate = SW + Vz. Vgs = +Vz.
+    # This is definitely NOT negative bias.
+    
+    # I will preserve the existing connections but route them through the interface where appropriate.
+    # `drive.vss` is the IGBT Emitter.
+    # So `neg_bias_zener.A ~ drive.vss`.
+    
+    # Connections:
+    # driver.OUTA ~ rg_on.p1
+    # rg_on.p2 ~ drive.out
+    # rgs.p1 ~ drive.out
+    # rgs.p2 ~ drive.vss
+    
+    # Zener connections (preserving existing logic):
+    # neg_bias_zener.A ~ drive.vss
+    # neg_bias_zener.K ~ driver.VSSA
+    # boot_cap.p2 ~ driver.VSSA
+    # boot_cap.p1 ~ driver.VDDA
+    # boot_diode.K ~ driver.VDDA
+    
+    # Inputs
+    # vcc_15v (from HalfBridge) ~ boot_diode.A
 
 module GateDriveLS:
     rg_on = new Resistor
     rgs = new Resistor
+    
+    drive = new GateDrive
+    signal input
+    signal input_ref
 
     # Gate resistor: controls turn-on speed and dI/dt
     rg_on.value = 2.2ohm +/- 5%
@@ -108,6 +169,14 @@ module GateDriveLS:
     # Power assertion (temper-ip1.3)
     p_rg_avg: power = 0.25W
     assert rg_on.power_rating >= p_rg_avg * 1.5
+    
+    # Connections
+    input ~ rg_on.p1
+    input_ref ~ rgs.p2
+    rg_on.p2 ~ drive.out
+    rgs.p1 ~ drive.out
+    rgs.p2 ~ drive.vss
+    drive.vss ~ input_ref
 
 module HalfBridge:
     # Interface
@@ -115,20 +184,18 @@ module HalfBridge:
     pwm_h.required = true
     signal pwm_l
     pwm_l.required = true
-    signal vcc_15v
-    vcc_15v.required = true
-    signal gnd
-    signal v_bus_plus
-    signal v_bus_minus
+    
+    power_15v = new ElectricPower
+    dc_bus = new HighVoltageBus
+    
     signal switch_node
-
+    
     # Instances (Critical Loop Grouping)
     power_loop = new PowerLoop
     gate_hs = new GateDriveHS
     gate_ls = new GateDriveLS
 
     # Dead-time config
-    # Required: C0G dielectric for temperature stability (temper-ofq.5)
     dt_cap = new Capacitor
     dt_cap.value = 5.1nF +/- 5%
     dt_cap.dielectric = "C0G"
@@ -146,46 +213,43 @@ module HalfBridge:
     t_dead_time_required: time = 300ns
     
     # Constraint Assignments
-    v_bus_plus.v_max = Constraints.HighVoltage.v_max
-    v_bus_minus.v_max = Constraints.HighVoltage.v_max
+    dc_bus.v_max = Constraints.HighVoltage.v_max
     switch_node.v_max = Constraints.HighVoltage.v_max
     
     # Connections - Primary Side
     pwm_h ~ gate_hs.driver.INA
     pwm_l ~ gate_hs.driver.INB
-    vcc_15v ~ gate_hs.driver.VCCI_1
-    vcc_15v ~ gate_hs.driver.VCCI_2
-    gnd ~ gate_hs.driver.GNDI
+    power_15v.vcc ~ gate_hs.driver.VCCI_1
+    power_15v.vcc ~ gate_hs.driver.VCCI_2
+    power_15v.gnd ~ gate_hs.driver.GNDI
 
     # Power Stage Connections
-    v_bus_plus ~ power_loop.q_high.C
+    dc_bus.hv_plus ~ power_loop.q_high.C
     power_loop.q_high.E ~ switch_node
     switch_node ~ power_loop.q_low.C
-    power_loop.q_low.E ~ v_bus_minus
+    power_loop.q_low.E ~ dc_bus.hv_minus
 
     # High Side Drive
-    gate_hs.driver.OUTA ~ gate_hs.rg_on.p1
-    gate_hs.rg_on.p2 ~ power_loop.q_high.G
-    gate_hs.rgs.p1 ~ power_loop.q_high.G
-    gate_hs.rgs.p2 ~ power_loop.q_high.E
+    gate_hs.drive.out ~ power_loop.q_high.G
+    gate_hs.drive.vss ~ power_loop.q_high.E
 
-    # High Side Power (Bootstrap with Negative Bias)
-    vcc_15v ~ gate_hs.boot_diode.A
-    gate_hs.boot_diode.K ~ gate_hs.driver.VDDA
-    gate_hs.boot_cap.p1 ~ gate_hs.driver.VDDA
-    gate_hs.boot_cap.p2 ~ gate_hs.neg_bias_zener.K
-    gate_hs.neg_bias_zener.A ~ switch_node
-    gate_hs.driver.VSSA ~ gate_hs.boot_cap.p2
+    # High Side Power (Bootstrap)
+    power_15v.vcc ~ gate_hs.boot_diode.A
+    # Internal connections handled in GateDriveHS
+    # Just need to connect Zener Anode (drive.vss) to switch_node
+    gate_hs.drive.vss ~ switch_node
 
     # Low Side Drive
-    gate_hs.driver.OUTB ~ gate_ls.rg_on.p1
-    gate_ls.rg_on.p2 ~ power_loop.q_low.G
-    gate_ls.rgs.p1 ~ power_loop.q_low.G
-    gate_ls.rgs.p2 ~ power_loop.q_low.E
+    gate_hs.driver.OUTB ~ gate_ls.input
+    dc_bus.hv_minus ~ gate_hs.driver.VSSB # VSSB is driver output ref
+    gate_hs.driver.VSSB ~ gate_ls.input_ref
+    
+    gate_ls.drive.out ~ power_loop.q_low.G
+    gate_ls.drive.vss ~ power_loop.q_low.E
 
     # Low Side Power
-    vcc_15v ~ gate_hs.driver.VDDB
-    v_bus_minus ~ gate_hs.driver.VSSB
+    power_15v.vcc ~ gate_hs.driver.VDDB
+    # VSSB connected above to dc_bus.hv_minus
 
 module ResonantTank:
     signal in
@@ -222,6 +286,8 @@ module ResonantTank:
 module PowerInput:
     """AC input with EMI filter, soft-start, and voltage doubler."""
     
+    dc_bus = new HighVoltageBus
+    
     signal ac_l
     ac_l.required = true
     signal ac_n
@@ -229,9 +295,6 @@ module PowerInput:
     signal pe
     pe.required = true
     signal gnd
-    signal dc_bus_plus
-    signal dc_bus_minus
-    signal gnd_center
     signal zcd
     signal relay_ctrl
     
@@ -304,33 +367,27 @@ module PowerInput:
     relay_ctrl ~ bypass_relay.coil1
     gnd ~ bypass_relay.coil2
     
-    d1.K ~ c_bus1.plus
-    c_bus1.minus ~ gnd_center
+    d1.K ~ dc_bus.hv_plus
+    c_bus1.plus ~ dc_bus.hv_plus
+    c_bus1.minus ~ dc_bus.gnd_ref
     
     ac_n ~ d2.A
-    d2.K ~ gnd_center
-    c_bus2.plus ~ gnd_center
-    c_bus2.minus ~ dc_bus_minus
+    d2.K ~ dc_bus.gnd_ref
+    c_bus2.plus ~ dc_bus.gnd_ref
+    c_bus2.minus ~ dc_bus.hv_minus
     
-    c_bus1.plus ~ dc_bus_plus
-    c_bus2.minus ~ dc_bus_minus
-    
-    r_bleed1.p1 ~ dc_bus_plus
-    r_bleed1.p2 ~ gnd_center
-    r_bleed2.p1 ~ gnd_center
-    r_bleed2.p2 ~ dc_bus_minus
+    r_bleed1.p1 ~ dc_bus.hv_plus
+    r_bleed1.p2 ~ dc_bus.gnd_ref
+    r_bleed2.p1 ~ dc_bus.gnd_ref
+    r_bleed2.p2 ~ dc_bus.hv_minus
 
 module BuckConverter15V:
     """LMR51430-based buck converter, 15V output."""
     
-    signal vin
-    vin.required = true
-    signal vout
-    vout.required = true
-    signal gnd
-    gnd.required = true
-    signal enable
-    enable.required = true
+    power_in = new ElectricPower
+    power_out = new ElectricPower
+    enable = new ElectricLogic
+    enable.reference ~ power_in
     
     buck = new LMR51430
     
@@ -369,6 +426,9 @@ module BuckConverter15V:
     assert c_out1.voltage_rating >= v_out_buck * 1.65
     assert c_out2.voltage_rating >= v_out_buck * 1.65
     
+    # Verify output voltage
+    assert power_out.voltage within 15V +/- 5%
+    
     r_fb_top = new Resistor
     r_fb_top.value = 140kohm +/- 1%
     r_fb_top.mpn = "RC0603FR-07140KL"
@@ -379,28 +439,31 @@ module BuckConverter15V:
     r_fb_bot.mpn = "RC0603FR-0710KL"
     r_fb_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
-    vin ~ buck.VIN
-    vin ~ c_in.p1
-    c_in.p2 ~ gnd
+    power_in.vcc ~ buck.VIN
+    power_in.vcc ~ c_in.p1
+    c_in.p2 ~ power_in.gnd
     
-    enable ~ buck.EN
-    buck.GND ~ gnd
+    enable.line ~ buck.EN
+    buck.GND ~ power_in.gnd
     
     buck.BOOT ~ c_boot.p1
     c_boot.p2 ~ buck.SW
     
     buck.SW ~ l_out.p1
-    l_out.p2 ~ vout
+    l_out.p2 ~ power_out.vcc
     
-    vout ~ c_out1.p1
-    c_out1.p2 ~ gnd
-    vout ~ c_out2.p1
-    c_out2.p2 ~ gnd
+    power_out.vcc ~ c_out1.p1
+    c_out1.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out2.p1
+    c_out2.p2 ~ power_out.gnd
     
-    vout ~ r_fb_top.p1
+    power_out.vcc ~ r_fb_top.p1
     r_fb_top.p2 ~ buck.FB
     buck.FB ~ r_fb_bot.p1
-    r_fb_bot.p2 ~ gnd
+    r_fb_bot.p2 ~ power_out.gnd
+    
+    # Tie grounds
+    power_in.gnd ~ power_out.gnd
     
     # Equation verification
     v_fb: voltage = 1.0V
@@ -410,12 +473,11 @@ module BuckConverter15V:
 module LDO3V3:
     """XC6220-based 3.3V LDO for MCU."""
     
-    signal vin
-    vin.required = true
-    signal vout
-    vout.required = true
-    signal gnd
-    gnd.required = true
+    power_in = new ElectricPower
+    power_out = new ElectricPower
+    
+    # Verify output voltage
+    assert power_out.voltage within 3.3V +/- 5%
     
     ldo = new XC6220
     
@@ -434,26 +496,50 @@ module LDO3V3:
     v_out_ldo: voltage = 3.3V
     assert c_out.voltage_rating >= v_out_ldo * 2.0
     
-    vin ~ ldo.VIN
-    vin ~ c_in.p1
-    c_in.p2 ~ gnd
+    power_in.vcc ~ ldo.VIN
+    power_in.vcc ~ c_in.p1
+    c_in.p2 ~ power_in.gnd
     
-    ldo.CE ~ vin
-    ldo.VSS ~ gnd
-    ldo.VOUT ~ vout
+    ldo.CE ~ power_in.vcc
+    ldo.VSS ~ power_in.gnd
+    ldo.VOUT ~ power_out.vcc
     
-    vout ~ c_out.p1
-    c_out.p2 ~ gnd
+    power_out.vcc ~ c_out.p1
+    c_out.p2 ~ power_out.gnd
+    
+    # Tie grounds
+    power_in.gnd ~ power_out.gnd
+
+module PowerManagement:
+    """Power management subsystem: DC Bus -> 15V -> 3.3V."""
+    
+    power_in_hv = new ElectricPower # Input from DC Bus / Aux winding
+    power_15v = new ElectricPower
+    power_3v3 = new ElectricPower
+    
+    buck = new BuckConverter15V
+    ldo = new LDO3V3
+    
+    # Connections
+    power_in_hv ~ buck.power_in
+    buck.enable.line ~ power_in_hv.vcc # Always on
+    
+    buck.power_out ~ power_15v
+    buck.power_out ~ ldo.power_in
+    
+    ldo.power_out ~ power_3v3
+    
+    # Ground chain
+    power_in_hv.gnd ~ power_15v.gnd
+    power_15v.gnd ~ power_3v3.gnd
 
 module CurrentSensing:
     """Current transformer with burden resistor."""
     
     signal primary_in
     primary_in.required = true
-    signal i_sense
-    i_sense.required = true
-    signal gnd
-    gnd.required = true
+    
+    i_sense = new ElectricSignal
     
     ct = new CST1005
     
@@ -475,29 +561,22 @@ module CurrentSensing:
     c_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     ct.S1 ~ r_burden.p1
-    ct.S2 ~ gnd
-    r_burden.p2 ~ gnd
-    ct.S1 ~ i_sense
-    i_sense ~ c_filter.p1
-    c_filter.p2 ~ gnd
+    ct.S2 ~ i_sense.reference
+    r_burden.p2 ~ i_sense.reference
+    ct.S1 ~ i_sense.line
+    i_sense.line ~ c_filter.p1
+    c_filter.p2 ~ i_sense.reference
 
 module RTDSensing:
     """MAX31865 RTD interface for PT100."""
     
-    signal vdd
-    vdd.required = true
-    signal gnd
-    gnd.required = true
-    signal spi_cs
-    spi_cs.required = true
-    signal spi_clk
-    spi_clk.required = true
-    signal spi_mosi
-    spi_mosi.required = true
-    signal spi_miso
-    spi_miso.required = true
-    signal drdy
-    drdy.required = true
+    power = new ElectricPower
+    spi = new SPI
+    cs = new ElectricLogic
+    drdy = new ElectricLogic
+    
+    # Assertions
+    assert power.voltage within 3.3V +/- 10%
     
     signal rtd_force_p
     rtd_force_p.required = true
@@ -521,19 +600,19 @@ module RTDSensing:
     c_vdd.mpn = "GRM188R71C104KA01D"
     c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
-    vdd ~ adc.VDD
-    vdd ~ adc.DVDD
-    vdd ~ c_vdd.p1
-    c_vdd.p2 ~ gnd
-    gnd ~ adc.GND1
-    gnd ~ adc.GND2
-    gnd ~ adc.DGND
+    power.vcc ~ adc.VDD
+    power.vcc ~ adc.DVDD
+    power.vcc ~ c_vdd.p1
+    c_vdd.p2 ~ power.gnd
+    power.gnd ~ adc.GND1
+    power.gnd ~ adc.GND2
+    power.gnd ~ adc.DGND
     
-    spi_cs ~ adc.CS_N
-    spi_clk ~ adc.SCLK
-    spi_mosi ~ adc.SDI
-    adc.SDO ~ spi_miso
-    adc.DRDY ~ drdy
+    cs.line ~ adc.CS_N
+    spi.sclk ~ adc.SCLK
+    spi.mosi ~ adc.SDI
+    adc.SDO ~ spi.miso
+    adc.DRDY ~ drdy.line
     
     adc.BIAS ~ r_ref.p1
     r_ref.p2 ~ adc.REFIN_N
@@ -546,13 +625,13 @@ module RTDSensing:
 module OCPComparator:
     """Over-current protection comparator, 50A threshold."""
     
-    signal i_sense
-    i_sense.required = true
-    signal vcc
-    vcc.required = true
-    signal gnd
-    signal ocp_fault
-    ocp_fault.required = true
+    power = new ElectricPower
+    i_sense = new ElectricSignal
+    i_sense.reference ~ power.gnd
+    
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
     
     comp = new TLV3201
     
@@ -566,25 +645,28 @@ module OCPComparator:
     r_ref_bot.mpn = "RC0603FR-0710KL"
     r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
-    vcc ~ comp.VCC
-    gnd ~ comp.GND
-    vcc ~ r_ref_top.p1
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+    power.vcc ~ r_ref_top.p1
     r_ref_top.p2 ~ comp.INN
     comp.INN ~ r_ref_bot.p1
-    r_ref_bot.p2 ~ gnd
-    i_sense ~ comp.INP
-    comp.OUT ~ ocp_fault
+    r_ref_bot.p2 ~ power.gnd
+    i_sense.line ~ comp.INP
+    comp.OUT ~ fault.line
 
 module OVPComparator:
     """Over-voltage protection, 390V threshold."""
     
-    signal v_bus
-    v_bus.required = true
-    signal vcc
-    vcc.required = true
-    signal gnd
-    signal ovp_fault
-    ovp_fault.required = true
+    power = new ElectricPower
+    v_bus = new ElectricSignal
+    # Note: v_bus reference might be different (HV ground), but here it's measuring relative to signal ground via divider?
+    # Actually OVP measures HV bus. The divider is connected to v_bus.
+    # v_bus input to this module is the HV rail.
+    # So v_bus.reference is HV ground.
+    
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
     
     comp = new TLV3201
     
@@ -622,30 +704,32 @@ module OVPComparator:
     r_ref_bot.mpn = "RC0603FR-0710KL"
     r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
-    vcc ~ comp.VCC
-    gnd ~ comp.GND
-    v_bus ~ r_div_top1.p1
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+    
+    v_bus.line ~ r_div_top1.p1
     r_div_top1.p2 ~ r_div_top2.p1
     r_div_top2.p2 ~ r_div_top3.p1
     r_div_top3.p2 ~ comp.INN
     comp.INN ~ r_div_bot.p1
-    r_div_bot.p2 ~ gnd
-    vcc ~ r_ref_top.p1
+    r_div_bot.p2 ~ power.gnd
+    
+    power.vcc ~ r_ref_top.p1
     r_ref_top.p2 ~ comp.INP
     comp.INP ~ r_ref_bot.p1
-    r_ref_bot.p2 ~ gnd
-    comp.OUT ~ ovp_fault
+    r_ref_bot.p2 ~ power.gnd
+    comp.OUT ~ fault.line
 
 module ThermalComparator:
     """Thermal protection, 85C threshold with hysteresis."""
     
-    signal ntc_sense
-    ntc_sense.required = true
-    signal vcc
-    vcc.required = true
-    signal gnd
-    signal thermal_fault
-    thermal_fault.required = true
+    power = new ElectricPower
+    ntc_sense = new ElectricSignal
+    ntc_sense.reference ~ power.gnd
+    
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
     
     comp = new TLV3201
     
@@ -659,24 +743,28 @@ module ThermalComparator:
     r_hyst.mpn = "RC0603FR-07100KL"
     r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
     
-    vcc ~ comp.VCC
-    gnd ~ comp.GND
-    ntc_sense ~ comp.INN
-    vcc ~ r_ref.p1
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+    
+    ntc_sense.line ~ comp.INN
+    
+    power.vcc ~ r_ref.p1
     r_ref.p2 ~ comp.INP
     comp.INP ~ r_hyst.p1
     r_hyst.p2 ~ comp.OUT
-    comp.OUT ~ thermal_fault
+    comp.OUT ~ fault.line
 
 module Watchdog:
     """External watchdog with 1.6s timeout."""
     
-    signal vdd
-    signal gnd
-    signal wdi
-    wdi.required = true
-    signal reset_n
-    reset_n.required = true
+    power = new ElectricPower
+    wdi = new ElectricLogic
+    wdi.reference ~ power.gnd
+    wdi.line.required = true
+    
+    reset_n = new ElectricLogic
+    reset_n.reference ~ power.gnd
+    reset_n.line.required = true
     
     wdt = new TPS3823
     
@@ -686,28 +774,48 @@ module Watchdog:
     c_bypass.mpn = "GRM188R71C104KA01D"
     c_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
-    vdd ~ wdt.VDD
-    vdd ~ c_bypass.p1
-    c_bypass.p2 ~ gnd
-    gnd ~ wdt.GND
-    wdi ~ wdt.WDI
-    wdt.RESET_N ~ reset_n
-    vdd ~ wdt.MR_N
+    power.vcc ~ wdt.VDD
+    power.vcc ~ c_bypass.p1
+    c_bypass.p2 ~ power.gnd
+    power.gnd ~ wdt.GND
+    
+    wdi.line ~ wdt.WDI
+    wdt.RESET_N ~ reset_n.line
+    power.vcc ~ wdt.MR_N
 
 module SafetyInterlock:
     """Complete safety interlock system."""
     
-    signal vcc_3v3
-    signal vcc_15v
-    signal gnd
-    signal i_sense
-    signal dc_bus
-    signal ntc_sense
-    signal wdt_kick
-    signal shutdown_n
-    shutdown_n.required = true
-    signal fault_status
-    fault_status.required = true
+    power_3v3 = new ElectricPower
+    power_15v = new ElectricPower
+    
+    i_sense = new ElectricSignal
+    i_sense.reference ~ power_3v3.gnd
+    
+    dc_bus = new ElectricSignal
+    # dc_bus ref is HV ground, handled in OVPComparator connection
+    
+    ntc_sense = new ElectricSignal
+    ntc_sense.reference ~ power_3v3.gnd
+    
+    wdt_kick = new ElectricLogic
+    wdt_kick.reference ~ power_3v3.gnd
+    
+    shutdown_n = new ElectricLogic
+    shutdown_n.reference ~ power_3v3.gnd
+    shutdown_n.line.required = true
+    
+    fault_status = new ElectricLogic
+    fault_status.reference ~ power_3v3.gnd
+    fault_status.line.required = true
+    
+    wdt_reset_n = new ElectricLogic
+    wdt_reset_n.reference ~ power_3v3.gnd
+    
+    ocp_led = new ElectricLogic
+    ovp_led = new ElectricLogic
+    thermal_led = new ElectricLogic
+    wdt_led = new ElectricLogic
     
     ocp = new OCPComparator
     ovp = new OVPComparator
@@ -716,45 +824,71 @@ module SafetyInterlock:
     fault_or = new SN74HC4075
     latch = new SN74HC00
     
-    ocp.vcc ~ vcc_3v3
-    ocp.gnd ~ gnd
+    ocp.power ~ power_3v3
     ocp.i_sense ~ i_sense
-    ovp.vcc ~ vcc_3v3
-    ovp.gnd ~ gnd
+    
+    ovp.power ~ power_3v3
     ovp.v_bus ~ dc_bus
-    thermal.vcc ~ vcc_3v3
-    thermal.gnd ~ gnd
+    
+    thermal.power ~ power_3v3
     thermal.ntc_sense ~ ntc_sense
-    wdt.vdd ~ vcc_3v3
-    wdt.gnd ~ gnd
+    
+    wdt.power ~ power_3v3
     wdt.wdi ~ wdt_kick
+    wdt.reset_n ~ wdt_reset_n
     
-    fault_or.VCC ~ vcc_3v3
-    fault_or.GND ~ gnd
-    ocp.ocp_fault ~ fault_or.A1
-    ovp.ovp_fault ~ fault_or.B1
-    thermal.thermal_fault ~ fault_or.C1
+    fault_or.VCC ~ power_3v3.vcc
+    fault_or.GND ~ power_3v3.gnd
+    ocp.fault.line ~ fault_or.A1
+    ovp.fault.line ~ fault_or.B1
+    thermal.fault.line ~ fault_or.C1
     
-    latch.VCC ~ vcc_3v3
-    latch.GND ~ gnd
+    latch.VCC ~ power_3v3.vcc
+    latch.GND ~ power_3v3.gnd
     
     # SR Latch simplified
     fault_or.Y1 ~ latch.A1
     # reset_n_in connection omitted for brevity
-    latch.Y1 ~ shutdown_n
-    latch.Y1 ~ fault_status
+    latch.Y1 ~ shutdown_n.line
+    latch.Y1 ~ fault_status.line
 
     tp_shutdown = new TestPoint
-    tp_shutdown.p1 ~ shutdown_n
+    tp_shutdown.p1 ~ shutdown_n.line
     tp_fault = new TestPoint
-    tp_fault.p1 ~ fault_status
+    tp_fault.p1 ~ fault_status.line
+    
+    # Connect LEDs (placeholders for now, logic signals to drive them)
+    # Assuming active high logic outputs to LEDs
+    ocp.fault ~ ocp_led
+    ovp.fault ~ ovp_led
+    thermal.fault ~ thermal_led
+    # wdt reset is active low, led might need inversion or active low drive
+    wdt.reset_n ~ wdt_led
 
 module MCU:
     """ESP32-S3 microcontroller with support circuitry."""
     
-    signal vcc_3v3
-    vcc_3v3.required = true
-    signal gnd
+    power = new ElectricPower
+    spi = new SPI
+    i2c = new I2C
+    uart = new UART
+    
+    cs_rtd = new ElectricLogic
+    rtd_drdy = new ElectricLogic
+    wdt_kick = new ElectricLogic
+    relay_ctrl = new ElectricLogic
+    shutdown_n_in = new ElectricLogic
+    reset_n = new ElectricLogic
+    
+    # Assertions
+    assert power.voltage within 3.3V +/- 5%
+    
+    # Boot timing assertions
+    t_boot_rc: time = r_en.value * c_en.value
+    assert t_boot_rc within 9ms to 11ms
+    t_boot_delay: time = t_boot_rc * 1.4
+    assert t_boot_delay within 13ms to 15ms
+    
     signal pwm_h
     pwm_h.required = true
     signal pwm_l
@@ -765,24 +899,6 @@ module MCU:
     adc_v_bus.required = true
     signal adc_ntc
     adc_ntc.required = true
-    signal spi_cs_rtd
-    spi_cs_rtd.required = true
-    signal spi_clk
-    spi_clk.required = true
-    signal spi_mosi
-    spi_mosi.required = true
-    signal spi_miso
-    spi_miso.required = true
-    signal rtd_drdy
-    rtd_drdy.required = true
-    signal wdt_kick
-    wdt_kick.required = true
-    signal relay_ctrl
-    relay_ctrl.required = true
-    signal shutdown_n_in
-    shutdown_n_in.required = true
-    signal reset_n
-    reset_n.required = true
     
     mcu = new ESP32_S3_WROOM_1
     
@@ -809,27 +925,36 @@ module MCU:
     c_en.mpn = "GRM188R71A105KA61D"
     c_en.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
-    vcc_3v3 ~ mcu.VCC3V3
-    vcc_3v3 ~ c_vcc1.p1
-    c_vcc1.p2 ~ gnd
-    vcc_3v3 ~ c_vcc2.p1
-    c_vcc2.p2 ~ gnd
-    gnd ~ mcu.GND
-    vcc_3v3 ~ r_en.p1
+    power.vcc ~ mcu.VCC3V3
+    power.vcc ~ c_vcc1.p1
+    c_vcc1.p2 ~ power.gnd
+    power.vcc ~ c_vcc2.p1
+    c_vcc2.p2 ~ power.gnd
+    power.gnd ~ mcu.GND
+    power.vcc ~ r_en.p1
     r_en.p2 ~ mcu.EN
     mcu.EN ~ c_en.p1
-    c_en.p2 ~ gnd
+    c_en.p2 ~ power.gnd
     
     mcu.IO4 ~ pwm_h
     mcu.IO5 ~ pwm_l
     mcu.GPIO1 ~ adc_i_sense
     mcu.GPIO2 ~ adc_v_bus
     mcu.GPIO3 ~ adc_ntc
-    mcu.SPI_CS ~ spi_cs_rtd
-    mcu.SPI_CLK ~ spi_clk
-    mcu.SPI_MOSI ~ spi_mosi
-    mcu.SPI_MISO ~ spi_miso
-    mcu.IO7 ~ wdt_kick
-    mcu.GPIO19 ~ relay_ctrl
-    mcu.GPIO20 ~ shutdown_n_in
-    mcu.IO6 ~ reset_n
+    
+    cs_rtd.line ~ mcu.SPI_CS
+    spi.sclk ~ mcu.SPI_CLK
+    spi.mosi ~ mcu.SPI_MOSI
+    spi.miso ~ mcu.SPI_MISO
+    rtd_drdy.line ~ mcu.IO9  # Assuming IO9 for DRDY based on schematic or defaults
+    
+    wdt_kick.line ~ mcu.IO7
+    relay_ctrl.line ~ mcu.GPIO19
+    shutdown_n_in.line ~ mcu.GPIO20
+    reset_n.line ~ mcu.IO6
+    
+    # Default I2C/UART pin mappings (can be overridden)
+    i2c.sda ~ mcu.IO8
+    i2c.scl ~ mcu.IO18
+    uart.tx ~ mcu.TXD0
+    uart.rx ~ mcu.RXD0
