@@ -22,9 +22,8 @@ class ClearanceRule:
         """Check if this rule applies to two net classes."""
         if self.from_class == "*" or self.to_class == "*":
             return True
-        return (
-            (self.from_class == class_a and self.to_class == class_b) or
-            (self.from_class == class_b and self.to_class == class_a)
+        return (self.from_class == class_a and self.to_class == class_b) or (
+            self.from_class == class_b and self.to_class == class_a
         )
 
 
@@ -130,60 +129,87 @@ class ConstraintSet:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ConstraintSet:
         """Create constraints from dictionary."""
-        # Parse clearances
+        # Parse clearances - support both formats
         clearances = []
-        for rule in data.get("clearances", []):
-            clearances.append(ClearanceRule(
-                from_class=rule.get("from", "*"),
-                to_class=rule.get("to", "*"),
-                min_mm=rule.get("clearance_mm", 0.0),
-                description=rule.get("description", ""),
-            ))
+        clearances_data = data.get("clearances", [])
+
+        # Format 1: Dict with "Class1-Class2" keys (simplified)
+        if isinstance(clearances_data, dict):
+            for key, value in clearances_data.items():
+                parts = key.split("-")
+                if len(parts) == 2:
+                    clearances.append(
+                        ClearanceRule(
+                            from_class=parts[0],
+                            to_class=parts[1],
+                            min_mm=float(value),
+                            description="",
+                        )
+                    )
+        # Format 2: List of rule dicts (PCL format)
+        elif isinstance(clearances_data, list):
+            for rule in clearances_data:
+                clearances.append(
+                    ClearanceRule(
+                        from_class=rule.get("from", "*"),
+                        to_class=rule.get("to", "*"),
+                        min_mm=rule.get("clearance_mm", 0.0),
+                        description=rule.get("description", ""),
+                    )
+                )
 
         # Parse zones
         zones = []
         for zone_data in data.get("zones", []):
             bounds = zone_data.get("bounds", [0, 0, 100, 100])
-            zones.append(ZoneDefinition(
-                name=zone_data["name"],
-                bounds=tuple(bounds),
-                net_classes=zone_data.get("net_classes", []),
-                components=zone_data.get("components", []),
-            ))
+            zones.append(
+                ZoneDefinition(
+                    name=zone_data["name"],
+                    bounds=tuple(bounds),
+                    net_classes=zone_data.get("net_classes", []),
+                    components=zone_data.get("components", []),
+                )
+            )
 
         # Parse critical loops
         loops = []
         for loop_data in data.get("critical_loops", []):
-            loops.append(LoopConstraint(
-                name=loop_data["name"],
-                nets=loop_data.get("nets", []),
-                max_area_mm2=loop_data.get("max_area_mm2", 100.0),
-                weight=loop_data.get("weight", 1.0),
-                description=loop_data.get("description", ""),
-            ))
+            loops.append(
+                LoopConstraint(
+                    name=loop_data["name"],
+                    nets=loop_data.get("nets", []),
+                    max_area_mm2=loop_data.get("max_area_mm2", 100.0),
+                    weight=loop_data.get("weight", 1.0),
+                    description=loop_data.get("description", ""),
+                )
+            )
 
         # Parse thermal constraints
         thermal = []
         for t_data in data.get("thermal", []):
-            thermal.append(ThermalConstraint(
-                components=t_data.get("components", []),
-                prefer_edge=t_data.get("prefer_edge", False),
-                min_spacing_mm=t_data.get("min_spacing_mm", 0.0),
-                max_distance_from_edge_mm=t_data.get("max_distance_from_edge_mm", 100.0),
-                description=t_data.get("description", ""),
-            ))
+            thermal.append(
+                ThermalConstraint(
+                    components=t_data.get("components", []),
+                    prefer_edge=t_data.get("prefer_edge", False),
+                    min_spacing_mm=t_data.get("min_spacing_mm", 0.0),
+                    max_distance_from_edge_mm=t_data.get("max_distance_from_edge_mm", 100.0),
+                    description=t_data.get("description", ""),
+                )
+            )
 
         # Parse groups
         groups = []
         for g_data in data.get("groups", []):
-            groups.append(GroupConstraint(
-                name=g_data["name"],
-                components=g_data.get("components", []),
-                max_spread_mm=g_data.get("max_spread_mm", 100.0),
-                zone=g_data.get("zone"),
-                proximity_rules=g_data.get("proximity", []),
-                description=g_data.get("description", ""),
-            ))
+            groups.append(
+                GroupConstraint(
+                    name=g_data["name"],
+                    components=g_data.get("components", []),
+                    max_spread_mm=g_data.get("max_spread_mm", 100.0),
+                    zone=g_data.get("zone"),
+                    proximity_rules=g_data.get("proximity", []),
+                    description=g_data.get("description", ""),
+                )
+            )
 
         # Board dimensions
         board = data.get("board", {})
