@@ -286,7 +286,7 @@ class ManufacturingMarginLoss(LossFunction):
         """
         progress = epoch / jnp.maximum(total_epochs, 1)
         result = jnp.where(progress < 0.3, 0.5 + progress * (0.5 / 0.3), 1.0)
-        return float(result)  # type: ignore[return-value]
+        return result  # Return JAX array, not Python float
 
 
 def create_manufacturing_margin_loss(

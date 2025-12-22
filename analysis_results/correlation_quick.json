@@ -1,0 +1,758 @@
+{
+  "pcb": "/Users/bennet.leff/Documents/temper/pcb/temper.kicad_pcb",
+  "n_samples": 10,
+  "routing_mode": "quick",
+  "timestamp": "2025-12-22T08:45:59.271960",
+  "correlations": {
+    "alignment": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "alignment_per_group": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_1_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_1_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_4_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_4_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_5_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_auto_auto_community_5_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_current_sensing_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_current_sensing_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_gate_driver_local_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_gate_driver_local_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_mcu_decoupling_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_mcu_decoupling_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_voltage_doubler_diameter": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_group_voltage_doubler_penalty": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "group_cluster_per_component": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "manufacturing_margin": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "manufacturing_margin_mean_margin": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "manufacturing_margin_min_margin": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "manufacturing_margin_n_tight_margins": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "manufacturing_margin_n_violations": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "overlap": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "overlap_per_component": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "pin_grid_alignment": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "rotation_consistency": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "spread": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    },
+    "wirelength": {
+      "vs_completion": 0.0,
+      "vs_wirelength": 0.0,
+      "vs_via_count": 0.0
+    }
+  },
+  "recommendations": [
+    {
+      "loss": "alignment",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "alignment_per_group",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_1_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_1_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_4_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_4_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_5_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_auto_auto_community_5_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_current_sensing_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_current_sensing_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_gate_driver_local_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_gate_driver_local_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_mcu_decoupling_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_mcu_decoupling_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_voltage_doubler_diameter",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_group_voltage_doubler_penalty",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "group_cluster_per_component",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "manufacturing_margin",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "manufacturing_margin_mean_margin",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "manufacturing_margin_min_margin",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "manufacturing_margin_n_tight_margins",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "manufacturing_margin_n_violations",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "overlap",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "overlap_per_component",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "pin_grid_alignment",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "rotation_consistency",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "spread",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    },
+    {
+      "loss": "wirelength",
+      "action": "review",
+      "reason": "Weak correlation with routing metrics (r=0.00) - may not impact routability"
+    }
+  ],
+  "statistics": {
+    "mean_completion_pct": 100.0,
+    "std_completion_pct": 0.0,
+    "min_completion_pct": 100.0,
+    "max_completion_pct": 100.0,
+    "failed_routes": 10,
+    "samples_above_50pct": 10
+  },
+  "raw_data": {
+    "losses": {
+      "alignment": [
+        1976.0950927734375,
+        1676.75146484375,
+        1908.1356201171875,
+        1882.08642578125,
+        2773.80810546875,
+        1593.61572265625,
+        1827.8292236328125,
+        2608.025634765625,
+        1023.8779296875,
+        2551.23046875
+      ],
+      "alignment_per_group": [
+        1976.0950927734375,
+        1676.75146484375,
+        1908.1356201171875,
+        1882.08642578125,
+        2773.80810546875,
+        1593.61572265625,
+        1827.8292236328125,
+        2608.025634765625,
+        1023.8779296875,
+        2551.23046875
+      ],
+      "boundary": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_edge_violation": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_keepout_violation": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_per_component": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "group_cluster": [
+        65269.3203125,
+        59855.5625,
+        53278.33203125,
+        38341.7109375,
+        73090.671875,
+        38503.6875,
+        55884.125,
+        60141.1953125,
+        41178.16796875,
+        73988.8203125
+      ],
+      "group_cluster_group_auto_auto_community_1_diameter": [
+        132.59555053710938,
+        102.36128997802734,
+        126.9893569946289,
+        97.57516479492188,
+        106.6146011352539,
+        96.11620330810547,
+        113.4193344116211,
+        101.56815338134766,
+        75.28175354003906,
+        126.33963775634766
+      ],
+      "group_cluster_group_auto_auto_community_1_penalty": [
+        10525.8466796875,
+        5236.15625,
+        9406.935546875,
+        4566.40283203125,
+        5869.796875,
+        4371.3525390625,
+        6958.78515625,
+        5122.00048828125,
+        2050.437255859375,
+        9281.326171875
+      ],
+      "group_cluster_group_auto_auto_community_4_diameter": [
+        124.5416259765625,
+        125.05482482910156,
+        109.52996063232422,
+        104.01936340332031,
+        116.3944320678711,
+        92.06193542480469,
+        123.78427124023438,
+        130.2838134765625,
+        112.0488510131836,
+        128.44723510742188
+      ],
+      "group_cluster_group_auto_auto_community_4_penalty": [
+        8938.119140625,
+        9035.419921875,
+        6325.0146484375,
+        5478.8662109375,
+        7463.998046875,
+        3851.683837890625,
+        8795.4892578125,
+        10056.8427734375,
+        6732.01416015625,
+        9691.8583984375
+      ],
+      "group_cluster_group_auto_auto_community_5_diameter": [
+        101.56025695800781,
+        96.35375213623047,
+        101.84501647949219,
+        72.72785949707031,
+        87.38240051269531,
+        100.9385757446289,
+        105.65164947509766,
+        95.2484359741211,
+        76.69967651367188,
+        119.33902740478516
+      ],
+      "group_cluster_group_auto_auto_community_5_penalty": [
+        5120.87060546875,
+        4402.8203125,
+        5161.70654296875,
+        1825.669921875,
+        3292.739990234375,
+        5032.28173828125,
+        5723.171875,
+        4257.3583984375,
+        2180.85986328125,
+        7981.4619140625
+      ],
+      "group_cluster_group_current_sensing_diameter": [
+        69.19672393798828,
+        90.20662689208984,
+        38.08116912841797,
+        62.199073791503906,
+        116.8355712890625,
+        70.08256530761719,
+        79.90133666992188,
+        55.87451171875,
+        62.968406677246094,
+        114.36890411376953
+      ],
+      "group_cluster_group_current_sensing_penalty": [
+        3906.700927734375,
+        8503.80859375,
+        342.2339782714844,
+        2767.542236328125,
+        16867.544921875,
+        4064.87548828125,
+        6028.3134765625,
+        1906.470947265625,
+        2883.19970703125,
+        15973.6015625
+      ],
+      "group_cluster_group_gate_driver_local_diameter": [
+        112.76810455322266,
+        91.52976989746094,
+        101.41219329833984,
+        97.57516479492188,
+        90.13965606689453,
+        52.34025955200195,
+        92.33717346191406,
+        88.11518859863281,
+        66.87122344970703,
+        85.0013656616211
+      ],
+      "group_cluster_group_gate_driver_local_penalty": [
+        17211.841796875,
+        10233.015625,
+        13255.890625,
+        12035.8125,
+        9839.142578125,
+        2091.78466796875,
+        10465.3330078125,
+        9279.357421875,
+        4393.8232421875,
+        8450.35546875
+      ],
+      "group_cluster_group_mcu_decoupling_diameter": [
+        101.21945190429688,
+        117.19781494140625,
+        109.52996063232422,
+        81.77198028564453,
+        110.1412353515625,
+        92.06193542480469,
+        101.01519012451172,
+        129.39646911621094,
+        112.0488510131836,
+        115.74769592285156
+      ],
+      "group_cluster_group_mcu_decoupling_penalty": [
+        14867.587890625,
+        20888.787109375,
+        17871.826171875,
+        8916.9951171875,
+        18103.708984375,
+        11877.083984375,
+        14797.2255859375,
+        26173.103515625,
+        18836.958984375,
+        20300.197265625
+      ],
+      "group_cluster_group_voltage_doubler_diameter": [
+        78.46830749511719,
+        57.888675689697266,
+        51.386016845703125,
+        67.08382415771484,
+        106.33394622802734,
+        90.0609130859375,
+        69.47028350830078,
+        70.90267944335938,
+        75.28175354003906,
+        63.98548889160156
+      ],
+      "group_cluster_group_voltage_doubler_penalty": [
+        4698.353515625,
+        1555.5565185546875,
+        914.7234497070312,
+        2750.419921875,
+        11653.7431640625,
+        7214.62646484375,
+        3115.806640625,
+        3346.058349609375,
+        4100.87451171875,
+        2310.02685546875
+      ],
+      "group_cluster_per_component": [
+        65269.3203125,
+        59855.56640625,
+        53278.328125,
+        38341.7109375,
+        73090.671875,
+        38503.69140625,
+        55884.125,
+        60141.1875,
+        41178.171875,
+        73988.828125
+      ],
+      "manufacturing_margin": [
+        7950.091796875,
+        1884.62109375,
+        0.000489607104100287,
+        6030.59130859375,
+        473.89544677734375,
+        10181.8642578125,
+        463.90008544921875,
+        17561.19140625,
+        0.03740166127681732,
+        3444.6748046875
+      ],
+      "manufacturing_margin_mean_margin": [
+        50.194236755371094,
+        43.617279052734375,
+        47.74771499633789,
+        42.88639831542969,
+        48.85240936279297,
+        47.14419174194336,
+        49.62125778198242,
+        52.97159194946289,
+        45.18280792236328,
+        55.61209487915039
+      ],
+      "manufacturing_margin_min_margin": [
+        -2.390728712081909,
+        -1.1452491283416748,
+        0.19848936796188354,
+        -2.218418836593628,
+        -0.48239022493362427,
+        -2.3511874675750732,
+        -0.47553426027297974,
+        -2.7159621715545654,
+        0.11196058988571167,
+        -1.0269668102264404
+      ],
+      "manufacturing_margin_n_pairs": [
+        528.0,
+        528.0,
+        528.0,
+        528.0,
+        528.0,
+        528.0,
+        528.0,
+        528.0,
+        528.0,
+        528.0
+      ],
+      "manufacturing_margin_n_tight_margins": [
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "manufacturing_margin_n_violations": [
+        4.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        3.0,
+        1.0,
+        7.0,
+        0.0,
+        4.0
+      ],
+      "overlap": [
+        13.246170043945312,
+        3.9033758640289307,
+        0.25151291489601135,
+        8.956504821777344,
+        1.4039677381515503,
+        15.856781005859375,
+        1.6028401851654053,
+        28.770904541015625,
+        0.5941678881645203,
+        8.50789737701416
+      ],
+      "overlap_per_component": [
+        26.492341995239258,
+        7.806751728057861,
+        0.5030258297920227,
+        17.913009643554688,
+        2.8079354763031006,
+        31.71356201171875,
+        3.2056803703308105,
+        57.54180908203125,
+        1.1883357763290405,
+        17.01579475402832
+      ],
+      "pin_grid_alignment": [
+        6.176173210144043,
+        4.457052707672119,
+        2.93109130859375,
+        4.9718403816223145,
+        3.9293787479400635,
+        4.109533309936523,
+        2.8646023273468018,
+        4.12339448928833,
+        3.898212194442749,
+        4.748011112213135
+      ],
+      "rotation_consistency": [
+        1.3172011375427246,
+        1.3811454772949219,
+        1.333722710609436,
+        1.3811454772949219,
+        1.294509768486023,
+        1.314347505569458,
+        1.3632205724716187,
+        1.2596940994262695,
+        1.3730038404464722,
+        1.35000479221344
+      ],
+      "spread": [
+        119.47088623046875,
+        42.25606918334961,
+        7.811367034912109,
+        82.98159790039062,
+        16.840940475463867,
+        69.57290649414062,
+        38.48957061767578,
+        182.59268188476562,
+        35.187835693359375,
+        87.36714935302734
+      ],
+      "wirelength": [
+        2024.275634765625,
+        1739.5623779296875,
+        2369.74951171875,
+        2358.60302734375,
+        2834.692626953125,
+        2121.287109375,
+        2282.43212890625,
+        2594.15771484375,
+        1820.9605712890625,
+        2302.520263671875
+      ]
+    },
+    "routing": {
+      "completion": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "wirelength": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "via_count": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  }
+}

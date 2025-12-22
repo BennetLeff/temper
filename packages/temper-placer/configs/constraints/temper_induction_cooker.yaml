@@ -21,21 +21,21 @@ metadata:
 zones:
   # High-voltage power zone
   - name: HV_ZONE
+    bounds: [0, 0, 60, 80]
     type: hv
     description: "High-voltage power stage (IGBTs, gate driver, DC bus)"
-    polygon: [[0, 0], [60, 0], [60, 80], [0, 80]]
-    
+
   # Low-voltage control zone
   - name: MCU_ZONE
+    bounds: [70, 0, 50, 80]
     type: lv
     description: "Microcontroller and low-voltage control circuits"
-    polygon: [[70, 0], [120, 0], [120, 80], [70, 80]]
-  
+
   # Isolation barrier
   - name: ISOLATION_BARRIER
+    bounds: [60, 0, 10, 80]
     type: keepout
     description: "10mm isolation barrier between HV and LV zones"
-    polygon: [[60, 0], [70, 0], [70, 80], [60, 80]]
 
 constraints:
   # ============================================================

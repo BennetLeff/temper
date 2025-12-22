@@ -430,10 +430,11 @@ def optimize(
         losses.extend(aes_losses)
 
         # Add manufacturing losses
-        from temper_placer.losses.manufacturing_margin import create_manufacturing_losses
+        from temper_placer.losses.manufacturing_margin import create_manufacturing_margin_loss
 
-        mfg_losses = create_manufacturing_losses(constraints)
-        losses.extend(mfg_losses)
+        mfg_loss_fn = create_manufacturing_margin_loss()
+        if mfg_loss_fn:
+            losses.append(WeightedLoss(mfg_loss_fn, weight=5.0))
 
         return CompositeLoss(losses)
 

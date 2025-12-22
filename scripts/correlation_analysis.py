@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-<<<<<<< HEAD
 Correlation Analysis Script
 
 Empirically determines which loss functions predict routing success by running
@@ -862,94 +861,7 @@ def main():
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
-=======
-Correlation analysis script for placement losses vs routing success.
-Identifies which loss functions are best predictors of routability.
-"""
-
-import json
-import math
-from pathlib import Path
-import argparse
-import sys
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Analyze correlation between placement losses and routing")
-    parser.add_argument("--data", type=str, default="metrics/measurements.jsonl", help="Path to measurements.jsonl")
-    return parser.parse_args()
-
-def calculate_correlation(x, y):
-    """Simple Pearson correlation coefficient."""
-    n = len(x)
-    if n < 2: return 0.0
-    
-    mean_x = sum(x) / n
-    mean_y = sum(y) / n
-    
-    numerator = sum((x[i] - mean_x) * (y[i] - mean_y) for i in range(n))
-    sum_sq_x = sum((x[i] - mean_x)**2 for i in range(n))
-    sum_sq_y = sum((y[i] - mean_y)**2 for i in range(n))
-    
-    if sum_sq_x == 0 or sum_sq_y == 0:
-        return 0.0
-        
-    return numerator / math.sqrt(sum_sq_x * sum_sq_y)
-
-def main():
-    args = parse_args()
-    data_path = Path(args.data)
-    
-    if not data_path.exists():
-        print(f"Error: Data file not found: {data_path}")
-        return
-
-    # Load and group data by task
-    tasks = {}
-    with open(data_path) as f:
-        for line in f:
-            try:
-                record = json.loads(line)
-                task_id = record.get("task")
-                if not task_id: continue
-                
-                if task_id not in tasks:
-                    tasks[task_id] = {}
-                
-                tasks[task_id][record["metric"]] = record["value"]
-            except:
-                continue
-
-    # Identify relevant metrics
-    all_metrics = set().union(*[t.keys() for t in tasks.values()])
-    placer_metrics = [m for m in all_metrics if m.startswith("placer_")]
-    routing_success = "routing_completion_pct"
-    
-    if not routing_success in set().union(*[t.keys() for t in tasks.values()]):
-        print(f"Error: {routing_success} not found in data. Run more routing evaluations first.")
-        return
-
-    print(f"Analyzing correlation with {routing_success} across {len(tasks)} tasks...\n")
-    print(f"{'Metric':<30} | {'Correlation':<12}")
-    print("-" * 45)
-
-    correlations = []
-    for metric in placer_metrics:
-        x, y = [], []
-        for t_id, metrics in tasks.items():
-            if metric in metrics and routing_success in metrics:
-                x.append(metrics[metric])
-                y.append(metrics[routing_success])
-        
-        if len(x) >= 3:
-            corr = calculate_correlation(x, y)
-            correlations.append((metric, corr))
-
-    # Sort by absolute correlation
-    correlations.sort(key=lambda c: abs(c[1]), reverse=True)
-
-    for metric, corr in correlations:
-        print(f"{metric:<30} | {corr:>11.4f}")
->>>>>>> 2d319f0 (feat(placer): NSGA-II, Crawler, NetCentroidLoss, and structural refinements)
 
 if __name__ == "__main__":
     main()
+
