@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize regression
+.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression
 
 all: build
 
@@ -67,5 +67,9 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 regression:
-	@echo "Running optimization regression suite..."
+	@echo "Running optimization quality regression suite..."
 	uv run python3 scripts/check_regression.py
+
+perf-regression:
+	@echo "Running optimization performance regression suite..."
+	uv run python3 scripts/check_perf_regression.py

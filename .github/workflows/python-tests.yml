@@ -76,6 +76,11 @@ jobs:
         run: make regression
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+      
+      - name: Run performance regression check
+        run: make perf-regression
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 
   type-check:
     runs-on: ubuntu-latest
