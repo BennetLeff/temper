@@ -1,0 +1,32 @@
+{
+  "description": "Baseline performance metrics for temper-placer optimizer regression testing.",
+  "updated": "2025-12-22",
+  "strategy": "Spectral",
+  "config": "temper_constraints.yaml",
+  "metrics": {
+    "init_loss": {
+      "mean": 3366.4,
+      "std": 0.0,
+      "margin_rel": 0.05,
+      "margin_abs": 100.0
+    },
+    "final_loss": {
+      "mean": 4309.7,
+      "std": 640.0,
+      "margin_rel": 0.10,
+      "margin_abs": 500.0
+    },
+    "epochs": {
+      "mean": 1146.0,
+      "std": 315.0,
+      "margin_rel": 0.20,
+      "margin_abs": 300.0
+    },
+    "hpwl_final": {
+      "mean": 3967.0,
+      "std": 540.0,
+      "margin_rel": 0.10,
+      "margin_abs": 400.0
+    }
+  }
+}
