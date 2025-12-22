@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temper - Control Freak Clone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TEMPER</h1>
+            <div class="status-indicator">
+                <span id="status-dot" class="dot"></span>
+                <span id="status-text">DISCONNECTED</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="dashboard">
+                <div class="gauge-container">
+                    <div class="gauge">
+                        <div class="gauge-label">CURRENT TEMP</div>
+                        <div class="gauge-value"><span id="curr-temp">--</span>°C</div>
+                    </div>
+                    <div class="gauge">
+                        <div class="gauge-label">TARGET TEMP</div>
+                        <div class="gauge-value"><span id="target-temp">--</span>°C</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="btn-start" class="btn btn-primary">START</button>
+                    <button id="btn-stop" class="btn btn-danger">STOP</button>
+                </div>
+            </section>
+
+            <section class="settings">
+                <h2>SETTINGS</h2>
+                <div class="setting-item">
+                    <label>Intensity</label>
+                    <input type="range" id="intensity" min="1" max="10" value="5">
+                    <span id="intensity-val">5</span>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
