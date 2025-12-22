@@ -31,10 +31,10 @@
     },
     {
       "quality_level": "good",
-      "total_loss": 12212.25381598242,
+      "total_loss": 16389.11963790402,
       "overlap_loss": 0.0,
       "boundary_loss": 0.0,
-      "wirelength_loss": 1221.225381598242,
+      "wirelength_loss": 1638.911963790402,
       "epochs_run": 400,
       "converged": false,
       "component_positions": {
@@ -58,10 +58,10 @@
     },
     {
       "quality_level": "mediocre",
-      "total_loss": 11847.953289297655,
+      "total_loss": 10893.037067250087,
       "overlap_loss": 0.0,
       "boundary_loss": 0.0,
-      "wirelength_loss": 1184.7953289297654,
+      "wirelength_loss": 1089.3037067250086,
       "epochs_run": 200,
       "converged": false,
       "component_positions": {
@@ -85,10 +85,10 @@
     },
     {
       "quality_level": "bad",
-      "total_loss": 10783.502538673672,
+      "total_loss": 16771.089605493147,
       "overlap_loss": 0.0,
       "boundary_loss": 0.0,
-      "wirelength_loss": 1078.3502538673672,
+      "wirelength_loss": 1677.1089605493146,
       "epochs_run": 40,
       "converged": false,
       "component_positions": {

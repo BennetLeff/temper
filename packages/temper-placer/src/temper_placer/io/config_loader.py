@@ -99,6 +99,15 @@ class NoiseIsolationRule:
 
 
 @dataclass
+class StarGroundConfig:
+    """Definition of a star ground constraint."""
+    net: str
+    weight: float = 1.0
+    anchor: tuple[float, float] | None = None
+    description: str = ""
+
+
+@dataclass
 class ThermalConstraint:
     """Thermal placement constraint for heat-generating components."""
 
@@ -196,7 +205,9 @@ class LossesConfig:
     thermal: LossConfig | None = None
     zone: LossConfig | None = None
     clearance: LossConfig | None = None
+    clearance: LossConfig | None = None
     loop_area: LossConfig | None = None
+    star_point: LossConfig | None = None
 
     def get_active_losses(self) -> dict[str, LossConfig]:
         """Return dict of loss_name -> LossConfig for all enabled losses."""
@@ -210,7 +221,9 @@ class LossesConfig:
             "thermal",
             "zone",
             "clearance",
+            "clearance",
             "loop_area",
+            "star_point",
         ]:
             config = getattr(self, name)
             if config is not None and config.enabled:
@@ -306,6 +319,9 @@ class PlacementConstraints:
 
     # Noise isolation rules
     noise_isolation: list[NoiseIsolationRule] = field(default_factory=list)
+
+    # Star grounds
+    star_grounds: list[StarGroundConfig] = field(default_factory=list)
 
     # Thermal constraints (basic)
     thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
@@ -508,6 +524,18 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.noise_isolation.append(rule)
 
+    # Parse star grounds
+    if "star_grounds" in config:
+        for sg_cfg in config["star_grounds"]:
+            anchor = tuple(sg_cfg["anchor"]) if "anchor" in sg_cfg else None
+            sg = StarGroundConfig(
+                net=sg_cfg["net"],
+                weight=sg_cfg.get("weight", 1.0),
+                anchor=anchor,
+                description=sg_cfg.get("description", ""),
+            )
+            constraints.star_grounds.append(sg)
+
     # Parse thermal constraints
     if "thermal" in config:
         for thermal_cfg in config["thermal"]:
@@ -656,7 +684,10 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 "thermal",
                 "zone",
                 "clearance",
+                "zone",
+                "clearance",
                 "loop_area",
+                "star_point",
             ]:
                 if loss_name in losses_cfg:
                     loss_data = losses_cfg[loss_name]

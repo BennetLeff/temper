@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Optimization Report</title>
+    <style>
+        
+        :root {
+            --color-primary: #2563eb;
+            --color-success: #16a34a;
+            --color-warning: #ca8a04;
+            --color-error: #dc2626;
+            --color-bg: #f8fafc;
+            --color-card: #ffffff;
+            --color-border: #e2e8f0;
+            --color-text: #1e293b;
+            --color-text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        header h1 {
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .timestamp {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        section {
+            background: var(--color-card);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: var(--color-text);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        h3 {
+            color: var(--color-text);
+            margin: 1rem 0 0.5rem;
+        }
+
+        h4 {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin: 0.75rem 0 0.25rem;
+        }
+
+        /* Summary stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background: var(--color-bg);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-box.status-ok .stat-value { color: var(--color-success); }
+        .stat-box.status-warning .stat-value { color: var(--color-warning); }
+        .stat-box.status-error .stat-value { color: var(--color-error); }
+
+        /* Charts */
+        .chart-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background: var(--color-bg);
+            font-weight: 600;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr:hover {
+            background: var(--color-bg);
+        }
+
+        /* Status classes */
+        .status-ok { }
+        .status-warning td:first-child { border-left: 3px solid var(--color-warning); }
+        .status-error td:first-child { border-left: 3px solid var(--color-error); }
+        .status-fixed td:first-child { border-left: 3px solid var(--color-text-muted); }
+
+        .severity-high td { color: var(--color-error); }
+        .severity-medium td { color: var(--color-warning); }
+        .severity-low td { color: var(--color-text-muted); }
+
+        /* Constraint summary */
+        .constraint-summary {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .constraint-summary li {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .constraint-summary li.ok {
+            background: #dcfce7;
+            color: var(--color-success);
+        }
+
+        .constraint-summary li.error {
+            background: #fee2e2;
+            color: var(--color-error);
+        }
+
+        /* Validation results */
+        .validation-result {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--color-bg);
+            border-radius: 6px;
+        }
+
+        .validation-result h3 {
+            margin-top: 0;
+        }
+
+        .error-list, .warning-list {
+            margin-left: 1.5rem;
+        }
+
+        .error-list li { color: var(--color-error); }
+        .warning-list li { color: var(--color-warning); }
+
+        /* Utility classes */
+        .success { color: var(--color-success); }
+        .warning { color: var(--color-warning); }
+        .error { color: var(--color-error); }
+        .info { color: var(--color-text-muted); font-style: italic; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            table {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+    <header>
+        <h1>Placement Optimization Report</h1>
+        <p class="timestamp">Generated: 2025-12-18 17:41:16</p>
+    </header>
+    
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-value">33</span>
+                <span class="stat-label">Components</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">100.0 x 150.0</span>
+                <span class="stat-label">Board Size (mm)</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">5.7%</span>
+                <span class="stat-label">Area Coverage</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">N/A</span>
+                <span class="stat-label">Final Loss</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">N/A</span>
+                <span class="stat-label">Epochs</span>
+            </div>
+            <div class="stat-box status-ok">
+                <span class="stat-value">Valid</span>
+                <span class="stat-label">Placement Status</span>
+            </div>
+        </div>
+    </section>
+    
+
+    <section class="board-view">
+        <h2>Board Visualization</h2>
+        <div class="chart-container">
+            <p class="error">Failed to render board: cannot import name &#x27;render_board_plotly&#x27; from &#x27;temper_placer.visualization.board_renderer&#x27; (/Users/bennet/Desktop/temper/temper-placer/src/temper_placer/visualization/board_renderer.py)</p>
+        </div>
+    </section>
+    
+
+    <section class="component-table">
+        <h2>Component Placements</h2>
+        
+        <table class="placements-table">
+            <thead>
+                <tr>
+                    <th>Ref</th>
+                    <th>X (mm)</th>
+                    <th>Y (mm)</th>
+                    <th>Rotation</th>
+                    <th>Size (mm)</th>
+                    <th>Footprint</th>
+                    <th>Status</th>
+                    <th>Violations</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr class="status-ok">
+                <td>J_AC_IN</td>
+                <td>39.50</td>
+                <td>116.33</td>
+                <td>0</td>
+                <td>3.50 x 23.50</td>
+                <td>Connector_IEC:IEC_C14_Male</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>D1</td>
+                <td>52.07</td>
+                <td>140.00</td>
+                <td>0</td>
+                <td>17.74 x 2.50</td>
+                <td>Diode_THT:D_DO-201AD_P15.24mm_Horizontal</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>D2</td>
+                <td>65.00</td>
+                <td>143.50</td>
+                <td>0</td>
+                <td>17.74 x 2.50</td>
+                <td>Diode_THT:D_DO-201AD_P15.24mm_Horizontal</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_BUS1</td>
+                <td>68.50</td>
+                <td>75.00</td>
+                <td>0</td>
+                <td>10.50 x 3.00</td>
+                <td>Capacitor_THT:CP_Radial_D18.0mm_P7.50mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_BUS2</td>
+                <td>39.44</td>
+                <td>135.75</td>
+                <td>0</td>
+                <td>10.50 x 3.00</td>
+                <td>Capacitor_THT:CP_Radial_D18.0mm_P7.50mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>Q1</td>
+                <td>20.00</td>
+                <td>140.00</td>
+                <td>0</td>
+                <td>14.40 x 3.50</td>
+                <td>Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>Q2</td>
+                <td>35.00</td>
+                <td>140.00</td>
+                <td>0</td>
+                <td>14.40 x 3.50</td>
+                <td>Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_GATE</td>
+                <td>76.50</td>
+                <td>33.67</td>
+                <td>0</td>
+                <td>11.00 x 9.49</td>
+                <td>Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_BOOT</td>
+                <td>31.25</td>
+                <td>143.48</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Capacitor_SMD:C_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_VCC</td>
+                <td>60.50</td>
+                <td>33.67</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Capacitor_SMD:C_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>R_GATE_H</td>
+                <td>27.50</td>
+                <td>136.25</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Resistor_SMD:R_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>R_GATE_L</td>
+                <td>38.75</td>
+                <td>143.48</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Resistor_SMD:R_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_BUCK</td>
+                <td>80.00</td>
+                <td>140.00</td>
+                <td>0</td>
+                <td>3.20 x 2.50</td>
+                <td>Package_TO_SOT_SMD:SOT-23-6</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_LDO_3V3</td>
+                <td>76.50</td>
+                <td>116.33</td>
+                <td>0</td>
+                <td>5.80 x 5.20</td>
+                <td>Package_TO_SOT_SMD:SOT-223-3_TabPin2</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_LDO_5V</td>
+                <td>60.50</td>
+                <td>116.33</td>
+                <td>0</td>
+                <td>5.80 x 5.20</td>
+                <td>Package_TO_SOT_SMD:SOT-223-3_TabPin2</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_MCU</td>
+                <td>39.50</td>
+                <td>33.67</td>
+                <td>0</td>
+                <td>7.70 x 6.77</td>
+                <td>Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_1</td>
+                <td>33.97</td>
+                <td>41.28</td>
+                <td>0</td>
+                <td>1.60 x 1.00</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_2</td>
+                <td>25.03</td>
+                <td>38.37</td>
+                <td>0</td>
+                <td>1.60 x 1.00</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_3</td>
+                <td>25.03</td>
+                <td>28.96</td>
+                <td>0</td>
+                <td>1.60 x 1.00</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_4</td>
+                <td>33.97</td>
+                <td>26.06</td>
+                <td>0</td>
+                <td>1.60 x 1.00</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_USB</td>
+                <td>31.50</td>
+                <td>124.33</td>
+                <td>0</td>
+                <td>5.00 x 1.00</td>
+                <td>Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_DEBUG</td>
+                <td>23.50</td>
+                <td>116.33</td>
+                <td>0</td>
+                <td>1.70 x 14.40</td>
+                <td>Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_CT</td>
+                <td>39.50</td>
+                <td>75.00</td>
+                <td>0</td>
+                <td>7.20 x 6.30</td>
+                <td>Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>R_BURDEN</td>
+                <td>31.50</td>
+                <td>83.00</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Resistor_SMD:R_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_CT_FILT</td>
+                <td>23.50</td>
+                <td>75.00</td>
+                <td>0</td>
+                <td>2.45 x 1.00</td>
+                <td>Capacitor_SMD:C_0603_1608Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_OPAMP_CT</td>
+                <td>31.50</td>
+                <td>67.00</td>
+                <td>0</td>
+                <td>6.55 x 4.41</td>
+                <td>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MAX31865</td>
+                <td>58.65</td>
+                <td>74.50</td>
+                <td>0</td>
+                <td>7.20 x 6.30</td>
+                <td>Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_COIL</td>
+                <td>23.75</td>
+                <td>143.75</td>
+                <td>0</td>
+                <td>5.81 x 2.00</td>
+                <td>Connector_Phoenix_MC:PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_NTC</td>
+                <td>31.50</td>
+                <td>108.33</td>
+                <td>0</td>
+                <td>4.24 x 1.70</td>
+                <td>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH1</td>
+                <td>85.25</td>
+                <td>74.50</td>
+                <td>0</td>
+                <td>5.00 x 5.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH2</td>
+                <td>61.75</td>
+                <td>103.50</td>
+                <td>0</td>
+                <td>5.00 x 5.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH3</td>
+                <td>85.25</td>
+                <td>103.50</td>
+                <td>0</td>
+                <td>5.00 x 5.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH4</td>
+                <td>61.75</td>
+                <td>132.50</td>
+                <td>0</td>
+                <td>5.00 x 5.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            </tbody>
+        </table>
+    </section>
+    
+
+    <footer>
+        <p>Generated by temper-placer visualization module</p>
+    </footer>
+    
+    </div>
+</body>
+</html>

@@ -11,7 +11,7 @@ manufacturability of the placement by:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import jax
 import jax.numpy as jnp
@@ -58,6 +58,7 @@ class WhitespaceLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         # Get component bounds
         bounds = context.netlist.get_bounds_array()
@@ -152,6 +153,7 @@ class AlignmentLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute alignment penalty for each prefix group.
@@ -219,21 +221,48 @@ class RotationConsistencyLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
-        Compute entropy of the global rotation distribution.
+        Compute entropy of the rotation distribution, optionally grouped by type.
         """
-        # rotations is (N, 4) soft one-hot
-        # Compute the mean rotation distribution across all components
+        # (N, 4) soft one-hot
+        
+        total_entropy = jnp.array(0.0)
+        
+        # 1. Global consistency (default fallback or weighted component)
         global_dist = jnp.mean(rotations, axis=0)  # (4,)
-
-        # Normalize to ensure valid probability distribution
         probs = global_dist / (jnp.sum(global_dist) + 1e-8)
+        global_entropy = -jnp.sum(probs * jnp.log(probs + 1e-8))
+        
+        # 2. Per-type consistency (if available)
+        if context.component_type_indices:
+            type_entropy_sum = jnp.array(0.0)
+            count = 0.0
+            
+            for type_name, indices in context.component_type_indices.items():
+                if len(indices) < 2:
+                    continue
+                    
+                # Extract rotations for this group
+                type_rots = rotations[indices] # (K, 4)
+                type_dist = jnp.mean(type_rots, axis=0)
+                type_probs = type_dist / (jnp.sum(type_dist) + 1e-8)
+                type_entropy = -jnp.sum(type_probs * jnp.log(type_probs + 1e-8))
+                
+                type_entropy_sum += type_entropy
+                count += 1.0
+                
+            # If we have types, mix type entropy with global entropy
+            # Weight type entropy more heavily as it is more specific
+            if count > 0:
+                total_entropy = type_entropy_sum / count
+            else:
+                total_entropy = global_entropy
+        else:
+            total_entropy = global_entropy
 
-        # Compute entropy (high entropy = mixed rotations, low = consistent)
-        entropy = -jnp.sum(probs * jnp.log(probs + 1e-8))
-
-        return LossResult(value=entropy)
+        return LossResult(value=total_entropy)
 
 
 @dataclass
@@ -265,6 +294,7 @@ class MirrorSymmetryLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         if self.pairs.shape[0] < 1:
             return LossResult(value=jnp.array(0.0))
@@ -318,6 +348,7 @@ class VisualGroupingLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] < 1:
             return LossResult(value=jnp.array(0.0))
@@ -422,6 +453,7 @@ class ConsensusLayoutLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         if self.template_groups.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
@@ -494,6 +526,7 @@ class StackedRowLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         if self.component_indices.shape[0] < 2:
             return LossResult(value=jnp.array(0.0))
@@ -579,6 +612,7 @@ class PinGridAlignmentLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         # 1. Compute absolute pin positions
         # Use existing logic from HPWL/Wirelength
@@ -638,6 +672,7 @@ class PortFacingRotationLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))

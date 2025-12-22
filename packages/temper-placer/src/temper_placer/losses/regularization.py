@@ -15,6 +15,7 @@ Optimizations:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 from typing import cast
 
 import jax
@@ -225,6 +226,7 @@ class SpreadLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute spread loss.

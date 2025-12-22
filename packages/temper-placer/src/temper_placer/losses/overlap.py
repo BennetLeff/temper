@@ -12,6 +12,8 @@ Optimizations:
 
 from __future__ import annotations
 
+from typing import Any
+
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -76,6 +78,7 @@ class OverlapLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total overlap penalty.

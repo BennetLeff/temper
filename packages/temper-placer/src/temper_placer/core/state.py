@@ -31,12 +31,14 @@ class PlacementState:
 
     positions: Array  # (N, 2) float32
     rotation_logits: Array  # (N, 4) float32
+    net_virtual_nodes: Array | None = None  # (M, 2) float32, optional for backward compat
 
     @classmethod
     def from_positions(
         cls,
         positions: Array,
         rotation_logits: Array | None = None,
+        net_virtual_nodes: Array | None = None,
     ) -> PlacementState:
         """
         Create a PlacementState from positions, with optional initial rotation logits.
@@ -45,6 +47,7 @@ class PlacementState:
             positions: (N, 2) array of component positions.
             rotation_logits: Optional (N, 4) array. If None, initialized to zeros
                 (uniform distribution over rotations).
+            net_virtual_nodes: Optional (M, 2) array of net virtual nodes.
 
         Returns:
             New PlacementState instance.
@@ -52,7 +55,11 @@ class PlacementState:
         n_components = positions.shape[0]
         if rotation_logits is None:
             rotation_logits = jnp.zeros((n_components, 4), dtype=jnp.float32)
-        return cls(positions=positions, rotation_logits=rotation_logits)
+        return cls(
+            positions=positions,
+            rotation_logits=rotation_logits,
+            net_virtual_nodes=net_virtual_nodes,
+        )
 
     @classmethod
     def random_init(
@@ -63,6 +70,7 @@ class PlacementState:
         key: Array,
         margin: float = 10.0,
         origin: tuple[float, float] = (0.0, 0.0),
+        n_nets: int = 0,
     ) -> PlacementState:
         """
         Create a random initial placement within board bounds.
@@ -76,6 +84,8 @@ class PlacementState:
             origin: Board origin offset (ox, oy) in mm. Positions will be in
                 absolute coordinates: [origin[0] + margin, origin[0] + width - margin].
                 Default (0, 0) gives relative coordinates for backward compatibility.
+            n_nets: Number of nets for virtual node initialization. If 0,
+                net_virtual_nodes will be None.
 
         Returns:
             New PlacementState with random positions and uniform rotation logits.
@@ -85,7 +95,7 @@ class PlacementState:
             When optimizing for DRC compliance, use the board's actual origin to
             ensure positions are in absolute coordinates that match the PCB file.
         """
-        key1, key2 = jax.random.split(key)
+        key1, key2, key3, key4 = jax.random.split(key, 4)
         ox, oy = origin
 
         # Random positions within margins (absolute coordinates)
@@ -100,7 +110,23 @@ class PlacementState:
         # Uniform rotation logits (zeros = equal probability)
         rotation_logits = jnp.zeros((n_components, 4), dtype=jnp.float32)
 
-        return cls(positions=positions, rotation_logits=rotation_logits)
+        # Initialize net virtual nodes if requested
+        net_virtual_nodes = None
+        if n_nets > 0:
+            # Randomly place net nodes on board too
+            nx = jax.random.uniform(
+                key3, (n_nets,), minval=ox + margin, maxval=ox + board_width - margin
+            )
+            ny = jax.random.uniform(
+                key4, (n_nets,), minval=oy + margin, maxval=oy + board_height - margin
+            )
+            net_virtual_nodes = jnp.stack([nx, ny], axis=-1)
+
+        return cls(
+            positions=positions,
+            rotation_logits=rotation_logits,
+            net_virtual_nodes=net_virtual_nodes,
+        )
 
     def get_rotations(self, temperature: float, key: Array) -> Array:
         """
@@ -140,6 +166,7 @@ class PlacementState:
             Tuple of (positions, rotation_indices) where rotation_indices
             are integers 0-3 representing 0°, 90°, 180°, 270°.
         """
+        # Helper for returning just clean positions/rotations
         rotation_indices = jnp.argmax(self.rotation_logits, axis=-1)
         return self.positions, rotation_indices
 

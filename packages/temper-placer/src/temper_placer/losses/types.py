@@ -63,6 +63,16 @@ class ThermalConstraint:
 
 
 @dataclass(frozen=True)
+class StarGroundConstraint:
+    """Defines a star ground topology for a specific net."""
+    net_name: str
+    max_distance: float = 0.0  # Ideally 0
+    weight: float = 1.0
+    anchor_position: tuple[float, float] | None = None  # Optional fixed anchor
+
+
+
+@dataclass(frozen=True)
 class ClearanceRule:
     """Defines a minimum clearance between net classes."""
     net_class_a: str
@@ -96,6 +106,7 @@ class LossContext:
     lv_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
     clearance_rules: list[ClearanceRule] = field(default_factory=list)
     thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
+    star_ground_constraints: list[StarGroundConstraint] = field(default_factory=list)
     loop_constraints: list[LoopConstraint] = field(default_factory=list)
     mounting_rules: list[MountingRule] = field(default_factory=list)
     net_class_map: dict[str, str] = field(default_factory=dict)
@@ -131,6 +142,20 @@ class LossContext:
     domain_bounds: Array = field(default_factory=lambda: jnp.zeros((0, 4), dtype=jnp.float32))
     domain_star_points: Array = field(default_factory=lambda: jnp.zeros((0, 2), dtype=jnp.float32))
     domain_has_star: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.bool_))
+
+    # Star Ground Constraints (Pre-computed)
+    # Indices of net virtual nodes that are constrained
+    star_net_indices: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.int32))
+    # Weights for each star constraint
+    star_weights: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.float32))
+    # Anchor positions (if any, use NaN or mask for unanchored?) 
+    # Better: star_anchor_pos (S, 2) and star_has_anchor (S,)
+    star_anchor_pos: Array = field(default_factory=lambda: jnp.zeros((0, 2), dtype=jnp.float32))
+    star_has_anchor: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.bool_))
+
+    # Manufacturing features
+    fiducial_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
+    component_type_indices: dict[str, Array] = field(default_factory=dict)
 
 
 class LossResult(NamedTuple):

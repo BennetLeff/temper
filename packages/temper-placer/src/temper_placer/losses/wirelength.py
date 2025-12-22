@@ -16,6 +16,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 from jax import Array
+from typing import Any
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
@@ -67,6 +68,7 @@ class WirelengthLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total HPWL across all nets using vectorized operations.
@@ -232,9 +234,10 @@ class SteinerTreeLoss(WirelengthLoss):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         # Standard Steiner computation
-        res = super().__call__(positions, rotations, context, epoch, total_epochs)
+        res = super().__call__(positions, rotations, context, epoch, total_epochs, **kwargs)
 
         if not self.use_congestion_penalty:
             return res

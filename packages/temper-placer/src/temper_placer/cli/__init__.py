@@ -422,6 +422,11 @@ def optimize(
 
         # Add more losses based on constraints
         # (clearance, thermal, zone, loop_area, etc. can be added here)
+        if "star_point" in weights or (constraints.star_grounds):
+             from temper_placer.losses.star_point import StarPointLoss
+             weight = weights.get("star_point", 1.0)
+             # Default internal weights, could be configured via kwargs if needed
+             losses.append(WeightedLoss(StarPointLoss(), weight=weight))
 
         # Add aesthetic losses
         from temper_placer.losses.aesthetic import create_aesthetic_losses
@@ -2673,6 +2678,9 @@ def trace_info(trace: Path | None, output_json: bool) -> None:
         console.print(f"Run ID: {summary.get('run_id', 'N/A')}")
         console.print(f"Total Decisions: {summary.get('total_decisions', 0)}")
         console.print(f"Components: {summary.get('component_count', 0)}")
+        
+        if summary.get("unique_subjects"):
+            console.print(f"Subject List: {', '.join(sorted(summary['unique_subjects']))}")
 
         if "decisions_by_type" in summary:
             console.print("\n[bold]Decisions by Type:[/]")
@@ -2762,7 +2770,7 @@ def trace_list(
 
         for d in decisions:
             phase_str = f"[{d.phase.value}]" if d.phase else ""
-            console.print(f"• {d.subject} {phase_str} - {d.decision_type.value}")
+            console.print(f"• {d.subject} {phase_str} - {d.decision_type.value} ({d.id})")
             console.print(f"  Value: {d.value}")
             console.print(f"  Reason: {d.reason}")
             console.print()

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import jax.numpy as jnp
+from typing import Any
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
@@ -351,6 +352,7 @@ class DRCLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute DRC loss (returns cached value between evaluations).

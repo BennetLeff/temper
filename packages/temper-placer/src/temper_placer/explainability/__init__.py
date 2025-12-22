@@ -35,6 +35,10 @@ from temper_placer.explainability.markdown_report import (
     render_markdown_report,
     save_markdown_report,
 )
+from temper_placer.explainability.html_viewer import (
+    generate_html_report,
+    save_html_report,
+)
 from temper_placer.explainability.serialization import (
     deserialize_decision,
     deserialize_trace,
@@ -66,4 +70,7 @@ __all__ = [
     "render_component_report",
     "render_markdown_report",
     "save_markdown_report",
+    # HTML viewer
+    "generate_html_report",
+    "save_html_report",
 ]

@@ -19,7 +19,7 @@ Related issues: temper-6vj.6
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import jax
 import jax.numpy as jnp
@@ -54,6 +54,8 @@ class ManufacturingMarginConfig:
     violation_penalty_scale: float = 100.0
     use_tolerances: bool = True
     etch_tolerance_mm: float = 0.05
+    fiducial_regex: str = "^FID"
+    fiducial_margin_mm: float = 1.0
 
 
 def compute_margin_loss(
@@ -210,6 +212,7 @@ class ManufacturingMarginLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """Compute manufacturing margin loss.
 
@@ -231,9 +234,32 @@ class ManufacturingMarginLoss(LossFunction):
         clearances, idx_i, idx_j = compute_pairwise_clearances(positions, widths, heights)
 
         # Determine required clearance for each pair
-        # For now, use uniform minimum clearance
-        # Future: could use net class-specific requirements
+        # Default: use uniform minimum clearance
         base_required = jnp.full_like(clearances, self.min_clearance_mm)
+        
+        # Apply fiducial clearance if present
+        if context.fiducial_indices is not None and len(context.fiducial_indices) > 0:
+            n_comp = positions.shape[0]
+            
+            # Create boolean mask for fiducials (N,)
+            is_fiducial = jnp.zeros((n_comp,), dtype=jnp.bool_)
+            is_fiducial = is_fiducial.at[context.fiducial_indices].set(True)
+            
+            # Get fiducial status for each pair (i, j)
+            # idx_i and idx_j come from compute_pairwise_clearances
+            # Only apply if ONE or BOTH are fiducials? 
+            # Usually we want clearance *around* fiducial from *other* components.
+            # So if either is fiducial, use larger margin.
+            is_fid_i = is_fiducial[idx_i]
+            is_fid_j = is_fiducial[idx_j]
+            is_fid_pair = is_fid_i | is_fid_j
+            
+            # Use fiducial margin where applicable
+            base_required = jnp.where(
+                is_fid_pair,
+                self.config.fiducial_margin_mm, 
+                base_required
+            )
 
         # Optionally add etch tolerance to requirements
         if self.config.use_tolerances:

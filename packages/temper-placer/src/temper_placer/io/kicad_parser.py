@@ -108,8 +108,18 @@ def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
     # Extract nets
     nets = _extract_nets_from_pcb(ki_board, components, warnings)
 
+    # Build net ID to name map
+    net_map = {}
+    if hasattr(ki_board, "nets"):
+        for n in ki_board.nets:
+            # kiutils might store number as int or str
+            if hasattr(n, "number") and hasattr(n, "name"):
+                net_map[str(n.number)] = n.name
+            elif hasattr(n, "code") and hasattr(n, "name"): # Older kiutils?
+                net_map[str(n.code)] = n.name
+
     # Extract traces and pads (optional but useful for visualization)
-    traces = _extract_traces_from_pcb(ki_board, warnings)
+    traces = _extract_traces_from_pcb(ki_board, warnings, net_map)
     pads = _extract_pads_from_pcb(ki_board, warnings)
 
     netlist = Netlist(components=components, nets=nets)
@@ -183,20 +193,26 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
         # Components without reference designators (e.g. REF**) are often mounting holes
         # Or check if footprint has 'MountingHole' in its name/text
         is_mounting_hole = False
-        
+
         # Check Value/Name (entryName in kiutils)
         if hasattr(fp, "entryName") and "MountingHole" in fp.entryName:
             is_mounting_hole = True
-        
+
         # Check graphic text items
         if not is_mounting_hole and fp.graphicItems:
             for item in fp.graphicItems:
                 if hasattr(item, "text") and "MountingHole" in item.text:
                     is_mounting_hole = True
                     break
-        
+
         if is_mounting_hole:
-            mounting_holes.append(MountingHole(position=(fp.position.X, fp.position.Y), diameter=3.2))
+            # Normalize to board origin
+            mounting_holes.append(
+                MountingHole(
+                    position=(fp.position.X - x_min, fp.position.Y - y_min),
+                    diameter=3.2
+                )
+            )
 
     # 3. Extract Zones
     zones = []
@@ -206,8 +222,8 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
             poly = ki_zone.polygons[0]
             # Try points or pts based on kiutils version
             pts = getattr(poly, "points", None) or getattr(poly, "pts", [])
-            x_pts = [p.X for p in pts]
-            y_pts = [p.Y for p in pts]
+            x_pts = [p.X - x_min for p in pts]
+            y_pts = [p.Y - y_min for p in pts]
             if x_pts and y_pts:
                 bounds = (min(x_pts), min(y_pts), max(x_pts), max(y_pts))
                 zones.append(
@@ -217,6 +233,9 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
                         net_classes=[ki_zone.netName] if ki_zone.netName else ["Signal"],
                     )
                 )
+
+    # 4. Extract Ground Domains
+    # (Simplified: logic for ground domains could be added here if present in PCB)
 
     return Board(
         width=x_max - x_min,
@@ -353,29 +372,57 @@ def _extract_nets_from_pcb(
     return [n for n in nets_dict.values() if len(n.pins) >= 2]
 
 
-def _extract_traces_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[TraceData]:
+def _extract_traces_from_pcb(
+    ki_board: KiBoard, 
+    warnings: list[str],
+    net_map: dict[str, str] | None = None
+) -> list[TraceData]:
     """
     Extract copper trace segments from board.
 
     Args:
         ki_board: Parsed board.
         warnings: List for warning messages.
+        net_map: Dictionary mapping net ID (str) to net name.
 
     Returns:
         List of TraceData.
     """
+    if net_map is None:
+        net_map = {}
+        
     traces = []
     # In Kiutils, traces are in 'traceItems' list
+    # print(f"DEBUG: Extracting traces. found {len(ki_board.traceItems)} trace items.")
     for track in ki_board.traceItems:
         # Only process tracks, skip vias (which don't have start/end)
         if hasattr(track, "start") and hasattr(track, "end"):
+            net_name = None
+            # Resolve net name
+            if track.net:
+                # Try to get from object if populated
+                if hasattr(track.net, "name") and track.net.name:
+                    net_name = track.net.name
+                else:
+                    # Fallback to map lookup using ID
+                    net_id = str(track.net) # track.net might be int or object relying on str()
+                    # If it has 'number' attribute, use that
+                    if hasattr(track.net, "number"):
+                        net_id = str(track.net.number)
+                    
+                    net_name = net_map.get(net_id)
+                    
+                    # If failed, use the ID itself as fallback
+                    if not net_name:
+                         net_name = net_id
+                         
             traces.append(
                 TraceData(
                     start=(track.start.X, track.start.Y),
                     end=(track.end.X, track.end.Y),
                     width=track.width,
                     layer=track.layer,
-                    net=track.net.name if track.net and hasattr(track.net, "name") else str(track.net) if track.net else None,
+                    net=net_name,
                 )
             )
     return traces

@@ -8,6 +8,7 @@ manufacturing grid (e.g., 0.5mm or 1.0mm).
 from __future__ import annotations
 
 import jax.numpy as jnp
+from typing import Any
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
@@ -41,6 +42,7 @@ class GridAlignmentLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total grid misalignment penalty.

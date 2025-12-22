@@ -10,6 +10,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 from jax import Array
+from typing import Any
 
 from temper_placer.geometry.transform import batch_get_rotated_bounds
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
@@ -67,6 +68,7 @@ class BoundaryLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total boundary violation penalty.

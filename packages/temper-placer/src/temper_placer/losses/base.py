@@ -35,6 +35,7 @@ from temper_placer.losses.types import (
     MatchedLengthConstraint,
     MountingRule,
     NoiseIsolationConstraint,
+    StarGroundConstraint,
     ThermalConstraint,
 )
 from temper_placer.losses.types import (
@@ -58,6 +59,7 @@ class LossContext(BaseLossContext):
         constraints: PlacementConstraints | None = None,
         clearance_rules: list[ClearanceRule] | None = None,
         thermal_constraints: list[ThermalConstraint] | None = None,
+        star_ground_constraints: list[StarGroundConstraint] | None = None,
         loop_constraints: list[LoopConstraint] | None = None,
         mounting_rules: list[MountingRule] | None = None,
         path_constraints: list[CriticalPathConstraint] | None = None,
@@ -103,10 +105,34 @@ class LossContext(BaseLossContext):
             elif comp.net_class in ("Signal", "LowVoltage"):
                 lv_indices.append(i)
 
-            # Build net class -> indices mapping
             if comp.net_class not in net_class_indices_dict:
                 net_class_indices_dict[comp.net_class] = []
             net_class_indices_dict[comp.net_class].append(i)
+
+        # Identify fiducials
+        fiducial_indices_list = []
+        # Identify component types
+        comp_type_map: dict[str, list[int]] = {}
+        import re
+
+        for i, comp in enumerate(netlist.components):
+            if comp.ref.startswith("FID"):
+                fiducial_indices_list.append(i)
+            
+            # Component type (first letter or prefix)
+            match = re.match(r"^([A-Za-z]+)", comp.ref)
+            if match:
+                prefix = match.group(1)
+                if prefix not in comp_type_map:
+                    comp_type_map[prefix] = []
+                comp_type_map[prefix].append(i)
+
+        # Convert indices to JAX arrays
+        fiducial_indices = jnp.array(fiducial_indices_list, dtype=jnp.int32)
+        component_type_indices = {
+            t: jnp.array(idxs, dtype=jnp.int32) 
+            for t, idxs in comp_type_map.items()
+        }
 
         # Convert net class indices to JAX arrays
         net_class_indices = {
@@ -199,6 +225,15 @@ class LossContext(BaseLossContext):
                         weight=rule.weight
                     ))
 
+            # Map star grounds
+            for sg_cfg in constraints.star_grounds:
+                star_ground_constraints = star_ground_constraints or []
+                star_ground_constraints.append(StarGroundConstraint(
+                    net_name=sg_cfg.net,
+                    weight=sg_cfg.weight,
+                    anchor_position=sg_cfg.anchor
+                ))
+
         path_pin_indices, path_pin_offsets, path_max_lengths, path_weights = (
             cls._precompute_path_arrays(
                 netlist, path_constraints, centrality if use_centrality_weighting else None
@@ -211,6 +246,12 @@ class LossContext(BaseLossContext):
         )
         if validation_errors:
             raise ValueError("Invalid constraint references:\n" + "\n".join(validation_errors))
+
+        # Pre-compute star ground constraints
+        star_ground_constraints = star_ground_constraints or []
+        star_net_indices, star_weights, star_anchor_pos, star_has_anchor = (
+            cls._precompute_star_ground_arrays(netlist, star_ground_constraints)
+        )
 
         # Pre-compute ground domain arrays
         domains = board.ground_domains
@@ -236,6 +277,7 @@ class LossContext(BaseLossContext):
             lv_indices=jnp.array(lv_indices, dtype=jnp.int32),
             clearance_rules=clearance_rules or [],
             thermal_constraints=thermal_constraints or [],
+            star_ground_constraints=star_ground_constraints,
             loop_constraints=loop_constraints,
             mounting_rules=mounting_rules or [],
             net_class_map=net_class_map,
@@ -260,6 +302,12 @@ class LossContext(BaseLossContext):
             domain_bounds=domain_bounds,
             domain_star_points=domain_star_points,
             domain_has_star=domain_has_star,
+            star_net_indices=star_net_indices,
+            star_weights=star_weights,
+            star_anchor_pos=star_anchor_pos,
+            star_has_anchor=star_has_anchor,
+            fiducial_indices=fiducial_indices,
+            component_type_indices=component_type_indices,
         )
 
     @staticmethod
@@ -559,6 +607,58 @@ class LossContext(BaseLossContext):
 
         return errors
 
+    @staticmethod
+    def _precompute_star_ground_arrays(
+        netlist: Netlist,
+        constraints: list[StarGroundConstraint],
+    ) -> tuple[Array, Array, Array, Array]:
+        """
+        Pre-compute arrays for star ground constraints.
+
+        Returns:
+            star_net_indices: (S,) net indices
+            star_weights: (S,) weights
+            star_anchor_pos: (S, 2) anchor positions
+            star_has_anchor: (S,) boolean mask
+        """
+        if not constraints:
+            return (
+                jnp.zeros((0,), dtype=jnp.int32),
+                jnp.zeros((0,), dtype=jnp.float32),
+                jnp.zeros((0, 2), dtype=jnp.float32),
+                jnp.zeros((0,), dtype=jnp.bool_),
+            )
+
+        indices = []
+        weights = []
+        anchors = []
+        has_anchors = []
+
+        # Build net name map for fast lookup
+        net_map = {n.name: i for i, n in enumerate(netlist.nets)}
+
+        for sc in constraints:
+            if sc.net_name not in net_map:
+                # Skip invalid nets (would be caught by validation ideally)
+                continue
+            
+            indices.append(net_map[sc.net_name])
+            weights.append(sc.weight)
+            
+            if sc.anchor_position is not None:
+                anchors.append(list(sc.anchor_position))
+                has_anchors.append(True)
+            else:
+                anchors.append([0.0, 0.0])
+                has_anchors.append(False)
+
+        return (
+            jnp.array(indices, dtype=jnp.int32),
+            jnp.array(weights, dtype=jnp.float32),
+            jnp.array(anchors, dtype=jnp.float32),
+            jnp.array(has_anchors, dtype=jnp.bool_),
+        )
+
     def get_component_index(self, ref: str) -> int:
         """Get array index for a component by reference."""
         return self.netlist.get_component_index(ref)
@@ -599,6 +699,7 @@ class LossFunction(ABC):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute the loss value.
@@ -607,6 +708,7 @@ class LossFunction(ABC):
             positions: (N, 2) array of component center positions in mm.
             rotations: (N, 4) soft one-hot rotation indicators from Gumbel-Softmax.
             context: LossContext with netlist, board, and constraints.
+            net_virtual_nodes: Optional (M, 2) array of net virtual nodes.
 
         Returns:
             LossResult with scalar loss value and optional breakdown.
@@ -756,6 +858,7 @@ class CompositeLoss:
         epoch: int = 0,
         total_epochs: int = 1,
         weight_overrides: Array | None = None,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute total loss as weighted sum of individual losses.
@@ -767,6 +870,7 @@ class CompositeLoss:
             epoch: Current epoch for weight scheduling.
             total_epochs: Total epochs for weight scheduling.
             weight_overrides: Optional (L,) array of weights to use instead of base weights.
+            net_virtual_nodes: Optional (M, 2) net virtual nodes.
 
         Returns:
             LossResult with total value and breakdown by loss name.
@@ -781,7 +885,14 @@ class CompositeLoss:
                 weight = wloss.get_weight(epoch, total_epochs)
 
             # Note: We always compute the loss even if weight is low.
-            result = wloss.loss_fn(positions, rotations, context, epoch, total_epochs)
+            result = wloss.loss_fn(
+                positions, 
+                rotations, 
+                context, 
+                epoch, 
+                total_epochs,
+                net_virtual_nodes=net_virtual_nodes
+            )
 
             # Apply normalization
             normalizer = wloss.get_normalizer(context)
@@ -920,8 +1031,8 @@ def create_value_and_grad_fn_with_breakdown(
         apply_fixed_mask: If True, zero gradients for fixed components.
 
     Returns:
-        JIT-compiled function: (positions, rotations, epoch, total_epochs, weight_overrides) ->
-            ((loss, breakdown_dict), (grad_pos, grad_rot))
+        JIT-compiled function: (positions, rotations, net_virtual_nodes, epoch, total_epochs, weight_overrides) ->
+            ((loss, breakdown_dict), (grad_pos, grad_rot, grad_vn))
 
         The breakdown_dict maps loss term names to their values.
     """
@@ -930,11 +1041,20 @@ def create_value_and_grad_fn_with_breakdown(
     def loss_fn_with_aux(
         positions: Array,
         rotations: Array,
+        net_virtual_nodes: Array,
         epoch: int,
         total_epochs: int,
         weight_overrides: Array | None = None,
     ) -> tuple[Array, dict[str, Array]]:
-        result = composite(positions, rotations, context, epoch, total_epochs, weight_overrides)
+        result = composite(
+            positions, 
+            rotations, 
+            context, 
+            epoch, 
+            total_epochs, 
+            weight_overrides, 
+            net_virtual_nodes
+        )
         # Convert breakdown to dict of arrays for JIT compatibility
         breakdown = result.breakdown or {}
         return result.value, breakdown
@@ -942,22 +1062,23 @@ def create_value_and_grad_fn_with_breakdown(
     def value_and_grad_fn(
         positions: Array,
         rotations: Array,
+        net_virtual_nodes: Array,
         epoch: int,
         total_epochs: int,
         weight_overrides: Array | None = None,
-    ) -> tuple[tuple[Array, dict[str, Array]], tuple[Array, Array]]:
-        # Compute gradients w.r.t. both positions and rotations
+    ) -> tuple[tuple[Array, dict[str, Array]], tuple[Array, Array, Array]]:
+        # Compute gradients w.r.t. both positions, rotations and virtual nodes (indices 0, 1, 2)
         # has_aux=True means the function returns (loss, aux) and we differentiate loss only
-        ((loss, breakdown), (grad_pos, grad_rot)) = jax.value_and_grad(
-            loss_fn_with_aux, argnums=(0, 1), has_aux=True
-        )(positions, rotations, epoch, total_epochs, weight_overrides)
+        ((loss, breakdown), (grad_pos, grad_rot, grad_vn)) = jax.value_and_grad(
+            loss_fn_with_aux, argnums=(0, 1, 2), has_aux=True
+        )(positions, rotations, net_virtual_nodes, epoch, total_epochs, weight_overrides)
 
         # Zero out gradients for fixed components
         if apply_fixed_mask:
             grad_pos = jnp.where(fixed_mask[:, None], 0.0, grad_pos)
             grad_rot = jnp.where(fixed_mask[:, None], 0.0, grad_rot)
 
-        return (loss, breakdown), (cast(Array, grad_pos), cast(Array, grad_rot))
+        return (loss, breakdown), (cast(Array, grad_pos), cast(Array, grad_rot), cast(Array, grad_vn))
 
     return jax.jit(value_and_grad_fn)
 

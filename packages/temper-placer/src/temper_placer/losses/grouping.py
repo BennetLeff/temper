@@ -17,6 +17,7 @@ Functional grouping encodes expert PCB design knowledge:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -88,6 +89,7 @@ class GroupClusterLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total group cluster penalty.
@@ -230,6 +232,7 @@ class ProximityLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total proximity penalty.
@@ -307,6 +310,7 @@ class GroupSeparationLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         """
         Compute total group separation penalty.
@@ -425,6 +429,7 @@ class SymmetryLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        **kwargs: Any,
     ) -> LossResult:
         if self._a1.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))

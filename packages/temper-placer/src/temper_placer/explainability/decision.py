@@ -262,7 +262,10 @@ class DecisionTrace:
             return f"No decisions recorded for {subject}"
 
         last = decisions[-1]
-        return f"{subject} is at {last.value} because: {last.reason}"
+        msg = f"{subject} is at {last.value} because: {last.reason}"
+        if last.constraint_refs:
+            msg += f" (Constraints: {', '.join(last.constraint_refs)})"
+        return msg
 
     def why_not(self, subject: str, value: Any) -> str:
         """Explain why a particular value wasn't chosen.
@@ -278,11 +281,21 @@ class DecisionTrace:
             Explanation of why the value was rejected, or indication
             that it wasn't found in the decision history
         """
+        def values_match(v1, v2):
+            if isinstance(v1, (list, tuple)) and isinstance(v2, (list, tuple)):
+                return list(v1) == list(v2)
+            return v1 == v2
+
         decisions = self.query_subject(subject)
         for d in decisions:
             for alt in d.alternatives:
-                if alt.value == value:
-                    return f"{value} was rejected: {alt.rejection_reason}"
+                if values_match(alt.value, value):
+                    msg = f"{value} was rejected: {alt.rejection_reason}"
+                    if alt.constraint_violated:
+                        msg += f" (Constraint violated: {alt.constraint_violated})"
+                    if alt.loss_if_chosen is not None:
+                        msg += f" (Loss if chosen: {alt.loss_if_chosen:.4f})"
+                    return msg
         return f"No record of {value} being considered for {subject}"
 
     def history(self, subject: str) -> list[tuple[Any, str]]:
@@ -343,12 +356,14 @@ class DecisionTrace:
         return {
             "run_id": self.run_id,
             "total_decisions": len(self.decisions),
-            "unique_subjects": len(subjects),
-            "by_phase": by_phase,
-            "by_type": by_type,
+            "unique_subjects": list(subjects),
+            "component_count": len(subjects),
+            "decisions_by_phase": by_phase,
+            "decisions_by_type": by_type,
             "duration_seconds": (
                 (self.end_time - self.start_time).total_seconds() if self.end_time else None
             ),
+            "final_metrics": self.final_metrics,
         }
 
     def __len__(self) -> int:

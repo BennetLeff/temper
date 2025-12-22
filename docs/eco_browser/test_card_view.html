@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECO Memory Browser - Ultimate View</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --color-bg: #0f0f0f;
+      --color-card: #1a1a1a;
+      --color-border: #333;
+      --color-primary: #667eea;
+      --color-text: #e0e0e0;
+      --color-text-muted: #888;
+      --color-accent: #764ba2;
+      --color-selected: #2a2a3a;
+      --color-success: #48bb78;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      padding: 2rem;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex; gap: 1rem; margin-bottom: 2rem;
+      border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;
+    }
+    .nav-tab {
+      padding: 0.5rem 1.5rem; cursor: pointer; border-radius: 6px;
+      transition: background 0.2s; font-weight: 500; color: var(--color-text-muted);
+    }
+    .nav-tab.active { background: var(--color-primary); color: white; }
+
+    h1 { color: var(--color-primary); margin-bottom: 1rem; }
+
+    /* Views */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Gather Simulator */
+    .simulator-form {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      padding: 2rem; border-radius: 12px; margin-bottom: 2rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group label { font-size: 0.8rem; text-transform: uppercase; color: var(--color-text-muted); }
+    input, select {
+      padding: 0.75rem; background: #0a0a0a; border: 1px solid var(--color-border);
+      color: white; border-radius: 6px; font-size: 1rem;
+    }
+    .btn-simulate {
+      background: var(--color-primary); color: white; border: none; padding: 1rem;
+      border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: auto;
+    }
+
+    .gather-output {
+      background: #050505; border: 1px solid var(--color-border);
+      padding: 1.5rem; border-radius: 12px; font-family: monospace;
+      white-space: pre-wrap; line-height: 1.4; color: var(--color-success);
+    }
+
+    /* Existing Styles */
+    .selection-bar {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .main-layout { display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+    .sidebar {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      border-radius: 12px; padding: 1.5rem; height: fit-content; position: sticky; top: 2rem;
+    }
+    .sidebar-section { margin-bottom: 2rem; }
+    .sidebar h3 {
+      font-size: 0.8rem; text-transform: uppercase; color: var(--color-text-muted);
+      margin-bottom: 1rem; letter-spacing: 1px; border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.5rem;
+    }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+    .memory-card {
+      background: var(--color-card); border: 1px solid var(--color-border);
+      border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
+    }
+    .memory-card.selected { background: var(--color-selected); border-color: var(--color-primary); }
+    .card-header { padding: 1rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; }
+    .card-body { padding: 1rem; flex-grow: 1; }
+    .tag-chip { font-size: 0.7rem; padding: 2px 6px; background: rgba(102, 126, 234, 0.1); color: var(--color-primary); border-radius: 4px; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
+    .chart-card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ECO Memory Browser</h1>
+    
+    <nav class="nav-tabs">
+      <div class="nav-tab active" data-view="browser" onclick="switchView('browser')">Browser</div>
+      <div class="nav-tab" data-view="analytics" onclick="switchView('analytics')">Analytics</div>
+      <div class="nav-tab" data-view="simulator" onclick="switchView('simulator')">GATHER Simulator</div>
+    </nav>
+
+    <!-- Browser View -->
+    <div id="view-browser" class="view active">
+      <div class="selection-bar">
+        <div id="selection-count">0 memories selected</div>
+        <div id="token-estimate">Estimated Tokens: 0</div>
+      </div>
+      <div class="main-layout">
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <h3>Namespaces</h3>
+            <div id="namespace-filters" class="namespace-list">
+              <label class="checkbox-item"><input type="checkbox" value="temper-agent" checked onchange="updateUI()"> <span>temper-agent</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="temper-shared" checked onchange="updateUI()"> <span>temper-shared</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="legacy" checked onchange="updateUI()"> <span>legacy</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="temper-coder" onchange="updateUI()"> <span>temper-coder</span></label>
+            </div>
+          </div>
+          <div class="sidebar-section">
+            <h3>Tags</h3>
+            <div id="tag-filters" class="tag-list"></div>
+          </div>
+        </aside>
+        <main id="results" class="results-grid"></main>
+      </div>
+    </div>
+
+    <!-- Analytics View -->
+    <div id="view-analytics" class="view">
+      <div class="dashboard-grid">
+        <div class="chart-card"><h3>Namespaces</h3><canvas id="chart-ns"></canvas></div>
+        <div class="chart-card"><h3>Top Tags</h3><canvas id="chart-tags"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Simulator View -->
+    <div id="view-simulator" class="view">
+      <div class="simulator-form">
+        <div class="form-group"><label>Goal / Query</label><input type="text" id="sim-goal" placeholder="e.g. PID tuning"></div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="sim-role">
+            <option value="coder">Coder</option>
+            <option value="architect">Architect</option>
+            <option value="tester">Tester</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Domain</label>
+          <select id="sim-domain">
+            <option value="placer">Placer</option>
+            <option value="firmware">Firmware</option>
+            <option value="pcb">PCB</option>
+          </select>
+        </div>
+        <button class="btn-simulate" onclick="runSimulation()">SIMULATE GATHER</button>
+      </div>
+      <div class="gather-output" id="sim-output">Results will appear here...</div>
+    </div>
+  </div>
+
+  <script>
+    const sampleMemories = [
+      { id: "eco-76532", content: "REFLECTION: Implemented PortFacingRotationLoss for subcircuit rigid-body rotation (temper-4bv.2).", userId: "temper-agent", score: 0.92, tags: ["reflection", "placer"], createdAt: Date.now() - 7200000 },
+      { id: "eco-abc123", content: "BEADS CREATED: New Issue temper-wna.4\nStatus: closed\nImplemented A* pathfinder.", userId: "legacy", score: 0.82, tags: ["beads", "sync"], createdAt: Date.now() - 86400000 },
+      { id: "eco-xy99", content: "Short note about resistor values. Using 66.5 ohm burden.", userId: "temper-coder", score: 0.75, tags: ["resistor", "val"], createdAt: Date.now() - 259200000 }
+    ];
+
+    let currentTag = null;
+    let selectedIds = new Set();
+    let charts = {};
+
+    function switchView(view) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(`view-${view}`).classList.add('active');
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[data-view="${view}"]`).classList.add('active');
+      if (view === 'analytics') renderCharts();
+    }
+
+    function updateUI() {
+      const namespaces = Array.from(document.querySelectorAll('#namespace-filters input:checked')).map(cb => cb.value);
+      const filtered = sampleMemories.filter(m => namespaces.includes(m.userId) && (!currentTag || m.tags.includes(currentTag)));
+      
+      // Render Cards
+      document.getElementById('results').innerHTML = filtered.map(m => `
+        <div class="memory-card ${selectedIds.has(m.id) ? 'selected' : ''}" onclick="toggleSelect('${m.id}')">
+          <div class="card-header"><span class="memory-id">${m.id}</span><span>${m.userId}</span></div>
+          <div class="card-body">${m.content}</div>
+          <div class="card-footer">${m.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}</div>
+        </div>
+      `).join('');
+
+      // Render Tags
+      const counts = {};
+      sampleMemories.filter(m => namespaces.includes(m.userId)).forEach(m => m.tags.forEach(t => counts[t] = (counts[t] || 0) + 1));
+      document.getElementById('tag-filters').innerHTML = `<div class="filter-tag ${!currentTag ? 'active' : ''}" onclick="setTag(null)"><span>All</span><span>${sampleMemories.filter(m => namespaces.includes(m.userId)).length}</span></div>` +
+        Object.entries(counts).map(([t, c]) => `<div class="filter-tag ${currentTag === t ? 'active' : ''}" onclick="setTag('${t}')"><span>#${t}</span><span>${c}</span></div>`).join('');
+    }
+
+    function setTag(t) { currentTag = t; updateUI(); }
+    function toggleSelect(id) { if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id); updateUI(); updateCounter(); }
+    function updateSelection() { updateUI(); updateCounter(); }
+    function updateCounter() {
+      document.getElementById('selection-count').textContent = `${selectedIds.size} selected`;
+      let tokens = 0;
+      sampleMemories.forEach(m => { if (selectedIds.has(m.id)) tokens += Math.ceil(m.content.length / 4); });
+      document.getElementById('token-estimate').textContent = `Estimated Tokens: ${tokens}`;
+    }
+
+    function renderCharts() {
+      if (charts.ns) charts.ns.destroy();
+      const nsCounts = {}; sampleMemories.forEach(m => nsCounts[m.userId] = (nsCounts[m.userId] || 0) + 1);
+      charts.ns = new Chart(document.getElementById('chart-ns'), { type: 'bar', data: { labels: Object.keys(nsCounts), datasets: [{ label: 'Memories', data: Object.values(nsCounts), backgroundColor: '#667eea' }] } });
+    }
+
+    function runSimulation() {
+      const goal = document.getElementById('sim-goal').value;
+      const role = document.getElementById('sim-role').value;
+      const domain = document.getElementById('sim-domain').value;
+      
+      const relevant = sampleMemories.filter(m => m.userId === 'legacy' || m.userId === `temper-${role}` || m.userId === `temper-${domain}`);
+      const output = relevant.map(m => `--- MEMORY ${m.id} ---
+Source: ${m.userId} | Score: ${m.score}
+Content: ${m.content}
+`).join('\n');
+      
+      document.getElementById('sim-output').textContent = `SIMULATED GATHER OUTPUT (Goal: "${goal}")\n\n${output}\nTOTAL ESTIMATED TOKENS: ${Math.ceil(output.length / 4)}`;
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>

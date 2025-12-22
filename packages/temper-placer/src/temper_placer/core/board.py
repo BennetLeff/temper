@@ -414,6 +414,10 @@ class Board:
         ox, oy = self.origin
         return jnp.array([ox, oy, ox + self.width, oy + self.height], dtype=jnp.float32)
 
+    def get_relative_bounds_array(self) -> Array:
+        """Get [0, 0, width, height] relative board bounds."""
+        return jnp.array([0.0, 0.0, self.width, self.height], dtype=jnp.float32)
+
     @property
     def area(self) -> float:
         """Total board area in mm²."""
