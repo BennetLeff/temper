@@ -1,4 +1,3 @@
-from typing import Any
 from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue, Severity, Location
 from temper_drc.input.constraints import ConstraintSet

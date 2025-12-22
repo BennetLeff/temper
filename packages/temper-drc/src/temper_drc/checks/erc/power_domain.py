@@ -1,5 +1,5 @@
 from temper_drc.core.check import Check
-from temper_drc.core.result import CheckResult, Issue, Severity, Location
+from temper_drc.core.result import CheckResult, Issue, Severity
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
 
