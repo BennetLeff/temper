@@ -22,7 +22,7 @@
 
 ### Non-Goals (Deferred)
 
-- Full autorouting (separate tool, future work)
+- Routing (internal maze router, in-progress)
 - 3D model generation
 - Schematic generation (separate kiutils-based tool)
 
@@ -1666,7 +1666,7 @@ To resolve local minima and "Overlap Deadlocks," the following advanced optimiza
 ## 12. Future Extensions
 
 1. **Global Routing:** Add Steiner tree estimation for better congestion modeling
-2. **Detailed Routing:** Integrate with FreeRouting or custom maze router
+2. **Detailed Routing:** Integrate with custom maze router
 3. **Learning from Examples:** Train cost function weights from human-placed boards
 4. **Multi-board Optimization:** Panelization, assembly optimization
 5. **Thermal Simulation:** Integrate FEM thermal solver into loss function

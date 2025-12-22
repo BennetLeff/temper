@@ -93,7 +93,7 @@
   (net 26 "USB_D-")
 
   (footprint "Connector_IEC:IEC_C14_Male" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000001-0001-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000001-0001-0000-0000-000000000001)
     (at 39.5 44.0 270.0)
     (property "Reference" "J_AC_IN")
     (property "Value" "IEC_C14")
@@ -108,7 +108,7 @@
   )
 
   (footprint "Diode_THT:D_DO-201AD_P15.24mm_Horizontal" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000001-0002-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000001-0002-0000-0000-000000000001)
     (at 16.03411102294922 95.06977844238281 0.0)
     (property "Reference" "D1")
     (property "Value" "1N5408")
@@ -121,7 +121,7 @@
   )
 
   (footprint "Diode_THT:D_DO-201AD_P15.24mm_Horizontal" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000001-0002-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000001-0002-0000-0000-000000000002)
     (at 70.5 103.5 180.0)
     (property "Reference" "D2")
     (property "Value" "1N5408")
@@ -134,7 +134,7 @@
   )
 
   (footprint "Capacitor_THT:CP_Radial_D18.0mm_P7.50mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000001-0003-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000001-0003-0000-0000-000000000001)
     (at 24.634014129638672 75.07418823242188 0.0)
     (property "Reference" "C_BUS1")
     (property "Value" "330uF/400V")
@@ -147,7 +147,7 @@
   )
 
   (footprint "Capacitor_THT:CP_Radial_D18.0mm_P7.50mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000001-0003-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000001-0003-0000-0000-000000000002)
     (at 13.562675476074219 77.37336730957031 270.0)
     (property "Reference" "C_BUS2")
     (property "Value" "330uF/400V")
@@ -160,7 +160,7 @@
   )
 
   (footprint "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0001-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000002-0001-0000-0000-000000000001)
     (at 20.0 140.0 0.0)
     (property "Reference" "Q1")
     (property "Value" "IKW40N120H3")
@@ -175,7 +175,7 @@
   )
 
   (footprint "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0001-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000002-0001-0000-0000-000000000002)
     (at 80.0 140.0 180.0)
     (property "Reference" "Q2")
     (property "Value" "IKW40N120H3")
@@ -190,7 +190,7 @@
   )
 
   (footprint "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0002-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000002-0002-0000-0000-000000000001)
     (at 16.338924407958984 55.536136627197266 180.0)
     (property "Reference" "U_GATE")
     (property "Value" "UCC21550")
@@ -230,7 +230,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0805_2012Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0003-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000002-0003-0000-0000-000000000001)
     (at 24.481613159179688 69.07418823242188 180.0)
     (property "Reference" "C_BOOT")
     (property "Value" "10uF")
@@ -242,7 +242,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0805_2012Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0003-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000002-0003-0000-0000-000000000002)
     (at 11.597684860229492 83.37336730957031 90.0)
     (property "Reference" "C_VCC")
     (property "Value" "10uF")
@@ -254,7 +254,7 @@
   )
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0004-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000002-0004-0000-0000-000000000001)
     (at 76.5 106.0 0.0)
     (property "Reference" "R_GATE_H")
     (property "Value" "4.7R")
@@ -266,7 +266,7 @@
   )
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000002-0004-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000002-0004-0000-0000-000000000002)
     (at 60.5 106.0000228881836 0.0)
     (property "Reference" "R_GATE_L")
     (property "Value" "4.7R")
@@ -278,7 +278,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000003-0001-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000003-0001-0000-0000-000000000001)
     (at 39.5 106.0 270.0)
     (property "Reference" "U_BUCK")
     (property "Value" "LMR51430")
@@ -298,7 +298,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000003-0002-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000003-0002-0000-0000-000000000001)
     (at 21.73088836669922 63.07418441772461 270.0)
     (property "Reference" "U_LDO_3V3")
     (property "Value" "AMS1117-3.3")
@@ -314,7 +314,7 @@
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000003-0002-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000003-0002-0000-0000-000000000002)
     (at 27.50001335144043 112.92820739746094 90.0)
     (property "Reference" "U_LDO_5V")
     (property "Value" "AMS1117-5.0")
@@ -330,7 +330,7 @@
   )
 
   (footprint "Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0001-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000004-0001-0000-0000-000000000001)
     (at 27.49997329711914 99.07180786132812 90.0)
     (property "Reference" "U_MCU")
     (property "Value" "ESP32-S3-WROOM-1")
@@ -362,7 +362,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0402_1005Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0002-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000004-0002-0000-0000-000000000001)
     (at 22.191116333007812 87.07418823242188 270.0)
     (property "Reference" "C_MCU_1")
     (property "Value" "100nF")
@@ -374,7 +374,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0402_1005Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0002-0000-0000-000000000002)
+    (tedit 6949583c) (tstamp 00000004-0002-0000-0000-000000000002)
     (at 16.191116333007812 89.06977844238281 180.0)
     (property "Reference" "C_MCU_2")
     (property "Value" "100nF")
@@ -386,7 +386,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0402_1005Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0002-0000-0000-000000000003)
+    (tedit 6949583c) (tstamp 00000004-0002-0000-0000-000000000003)
     (at 10.611261367797852 89.48169708251953 0.0)
     (property "Reference" "C_MCU_3")
     (property "Value" "100nF")
@@ -398,7 +398,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0402_1005Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0002-0000-0000-000000000004)
+    (tedit 6949583c) (tstamp 00000004-0002-0000-0000-000000000004)
     (at 4.6175971031188965 87.56350708007812 0.0)
     (property "Reference" "C_MCU_4")
     (property "Value" "10uF")
@@ -410,7 +410,7 @@
   )
 
   (footprint "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0003-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000004-0003-0000-0000-000000000001)
     (at 8.28609561920166 70.38282775878906 180.0)
     (property "Reference" "J_USB")
     (property "Value" "USB_C")
@@ -427,7 +427,7 @@
   )
 
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000004-0004-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000004-0004-0000-0000-000000000001)
     (at 5.597684383392334 79.87367248535156 90.0)
     (property "Reference" "J_DEBUG")
     (property "Value" "Debug")
@@ -448,7 +448,7 @@
   )
 
   (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000005-0001-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000005-0001-0000-0000-000000000001)
     (at 15.973796844482422 61.536136627197266 90.0)
     (property "Reference" "U_CT")
     (property "Value" "MAX31865")
@@ -468,7 +468,7 @@
   )
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000005-0002-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000005-0002-0000-0000-000000000001)
     (at 9.973796844482422 62.074275970458984 180.0)
     (property "Reference" "R_BURDEN")
     (property "Value" "33R")
@@ -480,7 +480,7 @@
   )
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000005-0003-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000005-0003-0000-0000-000000000001)
     (at 26.1549072265625 81.07418823242188 90.0)
     (property "Reference" "C_CT_FILT")
     (property "Value" "100pF")
@@ -492,7 +492,7 @@
   )
 
   (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000005-0004-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000005-0004-0000-0000-000000000001)
     (at 16.442047119140625 69.3001480102539 180.0)
     (property "Reference" "U_OPAMP_CT")
     (property "Value" "LM358")
@@ -516,7 +516,7 @@
   )
 
   (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000005-0005-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000005-0005-0000-0000-000000000001)
     (at -0.38794243335723877 70.84899139404297 90.0)
     (property "Reference" "MAX31865")
     (property "Value" "MAX31865")
@@ -536,7 +536,7 @@
   )
 
   (footprint "Connector_Phoenix_MC:PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000006-0001-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000006-0001-0000-0000-000000000001)
     (at 23.5 44.00001907348633 0.0)
     (property "Reference" "J_COIL")
     (property "Value" "Coil")
@@ -549,7 +549,7 @@
   )
 
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000006-0002-0000-0000-000000000001)
+    (tedit 6949583c) (tstamp 00000006-0002-0000-0000-000000000001)
     (at -0.8818145990371704 76.61583709716797 90.0)
     (property "Reference" "J_NTC")
     (property "Value" "NTC")
@@ -562,8 +562,8 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000007-0001-0000-0000-000000000001)
-    (at 70.0 75.0 180.0)
+    (tedit 6949583c) (tstamp 00000007-0001-0000-0000-000000000001)
+    (at 90.0 75.0 180.0)
     (property "Reference" "MH1")
     (property "Value" "MountingHole_3.2mm_M3")
     (property "Footprint" "MountingHole:MountingHole_3.2mm_M3")
@@ -571,8 +571,8 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000007-0001-0000-0000-000000000002)
-    (at 50.0 75.0 90.0)
+    (tedit 6949583c) (tstamp 00000007-0001-0000-0000-000000000002)
+    (at 70.0 75.0 90.0)
     (property "Reference" "MH2")
     (property "Value" "MountingHole_3.2mm_M3")
     (property "Footprint" "MountingHole:MountingHole_3.2mm_M3")
@@ -580,8 +580,8 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000007-0001-0000-0000-000000000003)
-    (at 90.0 75.0 270.0)
+    (tedit 6949583c) (tstamp 00000007-0001-0000-0000-000000000003)
+    (at 30.634014129638672 75.0 270.0)
     (property "Reference" "MH3")
     (property "Value" "MountingHole_3.2mm_M3")
     (property "Footprint" "MountingHole:MountingHole_3.2mm_M3")
@@ -589,8 +589,8 @@
   )
 
   (footprint "MountingHole:MountingHole_3.2mm_M3" (layer "F.Cu")
-    (tedit 69495563) (tstamp 00000007-0001-0000-0000-000000000004)
-    (at 30.634014129638672 75.0 90.0)
+    (tedit 6949583c) (tstamp 00000007-0001-0000-0000-000000000004)
+    (at 50.0 75.0 90.0)
     (property "Reference" "MH4")
     (property "Value" "MountingHole_3.2mm_M3")
     (property "Footprint" "MountingHole:MountingHole_3.2mm_M3")

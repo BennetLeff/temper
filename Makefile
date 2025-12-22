@@ -50,9 +50,8 @@ PCB_FILE = pcb/temper.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
 route: netlist
-	@echo "Running FreeRouting autorouter..."
-	# FREEROUTING_JAR should be set in environment
-	./tools/route.py $(PCB_FILE) $(ROUTED_PCB)
+	@echo "Running internal maze router..."
+	uv run python3 scripts/internal_route.py $(PCB_FILE) -o $(ROUTED_PCB) --cell-size 0.2
 
 drc:
 	@echo "Running KiCad DRC..."

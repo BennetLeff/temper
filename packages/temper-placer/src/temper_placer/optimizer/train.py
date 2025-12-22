@@ -518,18 +518,15 @@ def make_train_step(
                 positions, rotations, net_virtual_nodes, epoch, total_epochs, loss_weights
             )
 
-            # GradNorm weight update (Simplified - assuming it doesn't need grad_vn for now or balances them equally)
-            # ... (Skipping complex update for brevity, assuming it works on shared backbone if any)
-            # For now, we'll just proceed with standard flow
+            # GradNorm weight update
+            # 1. Compute weighted gradient norms: w_i * ||grad(L_i)||
+            gw_norms = loss_weights * curr_grad_norms
             
-            # ... (GradNorm logic omitted for brevity in this patch, assuming it's handled or we keep it simple)
-            # If we need to fix it:
-            # We need to update get_grad_norm to handle 3 args.
+            # 2. Compute target norm: mean(gw_i)
+            # (Simplified version without inverse training rate for now)
+            target_norms = jnp.mean(gw_norms)
             
-            # Standard GradNorm logic reuse...
-            # For this patch, let's just use the updated value_and_grad
-
-            jnp.abs(gw_norms - target_norms)
+            # 3. Compute gradient of GradNorm loss (L_grad = sum |gw_i - target_i|)
             weight_grads = jnp.sign(gw_norms - target_norms) * curr_grad_norms
             new_loss_weights = loss_weights - grad_norm_lr * weight_grads
             new_loss_weights = jnp.maximum(new_loss_weights, 1e-3)

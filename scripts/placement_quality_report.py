@@ -234,14 +234,20 @@ def analyze_placement(
 
     # Load constraints if provided, otherwise infer from PCB
     if config_path and config_path.exists():
-        constraints = load_constraints(str(config_path))
+        constraints = load_constraints(config_path)
+        
+        # Flatten components from all thermal constraints
+        thermal_components = set()
+        for tc in constraints.thermal_constraints:
+            thermal_components.update(tc.components)
+            
         quality_config = {
-            "thermal_components": set(constraints.thermal_constraint.components),
-            "hv_components": set(constraints.hv_components),
-            "lv_components": set(constraints.lv_components),
+            "thermal_components": thermal_components,
+            "hv_components": set(), # Not explicitly in config, will be inferred or empty
+            "lv_components": set(),
             "zone_assignments": constraints.zone_assignments,
-            "loop_components": [loop.components for loop in constraints.critical_loops],
-            "min_hv_lv_clearance": 8.0,  # Default from spec
+            "loop_components": [loop.nets for loop in constraints.critical_loops], # critical_loops has .nets not .components
+            "min_hv_lv_clearance": constraints.hv_clearance_mm,
         }
     else:
         # Infer quality config from PCB content

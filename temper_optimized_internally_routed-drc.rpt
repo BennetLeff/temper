@@ -1,0 +1,1606 @@
+** Drc report for temper_optimized_internally_routed.kicad_pcb **
+** Created on 2025-12-22T14:33:59-0600 **
+
+** Found 321 DRC violations **
+[shorting_items]: Items shorting two nets (nets AC_N and GND)
+    Local override; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+[shorting_items]: Items shorting two nets (nets AC_N and GND)
+    Local override; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+[shorting_items]: Items shorting two nets (nets AC_N and GND)
+    Local override; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+[shorting_items]: Items shorting two nets (nets AC_N and GND)
+    Local override; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1740 mm)
+    Rule: netclass 'Default'; error
+    @(13.5627 mm, 77.3734 mm): PTH pad 1 [DC_BUS+] of C_BUS2
+    @(13.2177 mm, 79.8737 mm): PTH pad 4 [<no net>] of J_DEBUG
+[shorting_items]: Items shorting two nets (nets PGND and +15V)
+    Local override; error
+    @(13.5627 mm, 84.8734 mm): PTH pad 2 [PGND] of C_BUS2
+    @(11.5977 mm, 84.3734 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[shorting_items]: Items shorting two nets (nets +15V and GND)
+    Local override; error
+    @(20.8389 mm, 59.9811 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(21.7309 mm, 60.7742 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+[shorting_items]: Items shorting two nets (nets GATE_H and +3V3)
+    Local override; error
+    @(11.8389 mm, 58.7111 mm): Pad 15 [GATE_H] of U_GATE on F.Cu
+    @(13.0488 mm, 58.6361 mm): Pad 20 [+3V3] of U_CT on F.Cu
+[shorting_items]: Items shorting two nets (nets GND and +5V)
+    Local override; error
+    @(38.5500 mm, 104.9000 mm): Pad 1 [GND] of U_BUCK on F.Cu
+    @(39.5000 mm, 104.9000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+[shorting_items]: Items shorting two nets (nets +5V and +15V)
+    Local override; error
+    @(39.5000 mm, 104.9000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+    @(40.4500 mm, 104.9000 mm): Pad 3 [+15V] of U_BUCK on F.Cu
+[shorting_items]: Items shorting two nets (nets +5V and GND)
+    Local override; error
+    @(40.4500 mm, 107.1000 mm): Pad 4 [+5V] of U_BUCK on F.Cu
+    @(39.5000 mm, 107.1000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(30.3000 mm, 102.5218 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(29.9000 mm, 102.5218 mm): Pad 2 [GND] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets PWM_H and PWM_L)
+    Local override; error
+    @(25.9000 mm, 102.5218 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(25.5000 mm, 102.5218 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets PWM_H and I_SENSE)
+    Local override; error
+    @(25.9000 mm, 102.5218 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(25.1000 mm, 102.5218 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and I_SENSE)
+    Local override; error
+    @(25.5000 mm, 102.5218 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(25.1000 mm, 102.5218 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MOSI)
+    Local override; error
+    @(24.0500 mm, 101.4718 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(24.0500 mm, 101.4718 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_MISO)
+    Local override; error
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CS_TEMP)
+    Local override; error
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(24.0500 mm, 100.2718 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(24.0500 mm, 100.2718 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets USB_D+ and USB_D-)
+    Local override; error
+    @(27.5000 mm, 95.6218 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(27.9000 mm, 95.6218 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1000 mm)
+    Rule: netclass 'Default'; error
+    @(8.2861 mm, 70.3828 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(7.8861 mm, 70.3828 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MOSI)
+    Local override; error
+    @(13.0488 mm, 64.4361 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(13.0488 mm, 64.4361 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_MISO)
+    Local override; error
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CS_TEMP)
+    Local override; error
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(14.9988 mm, 64.4361 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+    @(14.9988 mm, 64.4361 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MOSI)
+    Local override; error
+    @(-3.3129 mm, 73.7490 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(-3.3129 mm, 73.7490 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_MISO)
+    Local override; error
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and TEMP_SENSE)
+    Local override; error
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MISO and TEMP_SENSE)
+    Local override; error
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MISO and GND)
+    Local override; error
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+    @(-0.8818 mm, 74.0758 mm): PTH pad 2 [GND] of J_NTC
+[shorting_items]: Items shorting two nets (nets TEMP_SENSE and GND)
+    Local override; error
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+    @(-0.8818 mm, 74.0758 mm): PTH pad 2 [GND] of J_NTC
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(83.7500 mm, 0.7500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(83.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(83.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(82.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(82.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(81.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(81.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(80.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(80.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(79.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(79.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(78.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(78.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(77.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(77.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(76.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(76.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(75.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(75.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(74.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(74.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(73.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(73.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(72.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(72.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(71.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(71.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(70.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(70.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(69.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(69.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(68.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(68.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(67.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(67.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(66.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(66.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(65.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(65.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(64.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(64.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(63.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(63.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(62.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(62.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(61.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(61.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(60.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(60.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(59.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(59.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(58.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(58.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(57.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(57.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(56.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(56.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(55.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(55.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(54.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(54.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(53.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(53.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(52.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(52.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(51.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(51.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(50.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(50.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(49.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(49.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(48.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(48.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(47.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(47.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(46.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(46.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(45.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(45.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(44.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(44.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(43.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(43.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(42.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(42.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(41.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(41.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(40.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(40.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(39.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(39.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(38.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(38.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(37.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(37.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(36.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(36.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(35.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(35.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(34.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(34.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(33.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(33.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(32.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(32.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(31.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(31.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(30.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(30.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(29.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(29.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(28.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(28.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(27.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(27.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(26.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(26.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(25.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(25.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(24.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(24.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(23.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(23.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(22.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(22.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(21.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(21.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(20.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(20.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(19.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(19.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(18.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(18.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(17.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(17.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(16.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(16.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(15.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(15.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(14.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(14.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(13.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(13.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(12.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(12.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(11.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(11.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(10.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(10.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(9.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(9.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(8.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(8.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(7.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(7.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(6.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(6.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(5.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(5.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(4.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(4.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(3.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(3.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(2.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(2.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(1.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(1.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.7500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 127.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 127.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 126.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 126.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 125.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 125.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 124.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 124.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 123.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 123.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 122.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 122.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 121.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 121.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 120.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 120.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 119.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 119.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 118.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 118.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 117.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 117.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 116.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 116.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 115.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 115.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 114.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 114.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 113.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 113.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[copper_edge_clearance]: Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.1500 mm)
+    Rule: board setup constraints edge; error
+    @(0.0000 mm, 0.0000 mm): Rectangle on Edge.Cuts
+    @(0.2500 mm, 112.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.5627 mm, 77.3734 mm): PTH pad 1 [DC_BUS+] of C_BUS2
+    @(13.2177 mm, 79.8737 mm): PTH pad 4 [<no net>] of J_DEBUG
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.5627 mm, 77.3734 mm): PTH pad 1 [DC_BUS+] of C_BUS2
+    @(13.2177 mm, 79.8737 mm): PTH pad 4 [<no net>] of J_DEBUG
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.5627 mm, 84.8734 mm): PTH pad 2 [PGND] of C_BUS2
+    @(11.5977 mm, 84.3734 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(20.8389 mm, 59.9811 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(21.7309 mm, 60.7742 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(11.8389 mm, 58.7111 mm): Pad 15 [GATE_H] of U_GATE on F.Cu
+    @(13.0488 mm, 58.6361 mm): Pad 20 [+3V3] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(38.5500 mm, 104.9000 mm): Pad 1 [GND] of U_BUCK on F.Cu
+    @(39.5000 mm, 104.9000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(39.5000 mm, 104.9000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+    @(40.4500 mm, 104.9000 mm): Pad 3 [+15V] of U_BUCK on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.4500 mm, 107.1000 mm): Pad 4 [+5V] of U_BUCK on F.Cu
+    @(39.5000 mm, 107.1000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.3000 mm, 102.5218 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(29.9000 mm, 102.5218 mm): Pad 2 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.9000 mm, 102.5218 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(25.5000 mm, 102.5218 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.9000 mm, 102.5218 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(25.1000 mm, 102.5218 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.5000 mm, 102.5218 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(25.1000 mm, 102.5218 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(24.0500 mm, 101.4718 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(24.0500 mm, 101.4718 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(24.0500 mm, 100.2718 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(24.0500 mm, 100.2718 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.5000 mm, 95.6218 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(27.9000 mm, 95.6218 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(8.2861 mm, 70.3828 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(7.8861 mm, 70.3828 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.0488 mm, 64.4361 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.0488 mm, 64.4361 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(14.9988 mm, 64.4361 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+    @(14.9988 mm, 64.4361 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-3.3129 mm, 73.7490 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-3.3129 mm, 73.7490 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+    @(-0.8818 mm, 74.0758 mm): PTH pad 2 [GND] of J_NTC
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+    @(-0.8818 mm, 74.0758 mm): PTH pad 2 [GND] of J_NTC
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(83.7500 mm, 4.7500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(28.2500 mm, 112.7500 mm): Track [DC_BUS+] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(49.2500 mm, 138.2500 mm): Track [DC_BUS+] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(0.2500 mm, 127.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(0.2500 mm, 80.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(37.2500 mm, 114.2500 mm): Track [PWM_H] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(29.2500 mm, 130.2500 mm): Track [PWM_H] on B.Cu, length 0.5000 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(28.7500 mm, 130.2500 mm): Track [PWM_H] on F.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(0.7500 mm, 130.2500 mm): Track [PWM_H] on F.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(37.2500 mm, 112.7500 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(29.2500 mm, 129.7500 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(28.7500 mm, 129.7500 mm): Track [PWM_L] on F.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(0.7500 mm, 129.7500 mm): Track [PWM_L] on F.Cu, length 0.5000 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(0.2500 mm, 129.7500 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(73.7500 mm, 4.7500 mm): Track [AC_N] on F.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(99.2500 mm, 149.7500 mm): Track [AC_N] on F.Cu, length 0.5000 mm
+[holes_co_located]: Drilled holes co-located
+    Local override; warning
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; warning
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; warning
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+    @(0.0000 mm, 0.0000 mm): Via [AC_L] on F.Cu - B.Cu
+[lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_IEC'.
+    Local override; warning
+    @(39.5000 mm, 44.0000 mm): Footprint J_AC_IN
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Diode_THT.pretty'.
+    Local override; warning
+    @(16.0341 mm, 95.0698 mm): Footprint D1
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Diode_THT.pretty'.
+    Local override; warning
+    @(70.5000 mm, 103.5000 mm): Footprint D2
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_THT.pretty'.
+    Local override; warning
+    @(24.6340 mm, 75.0742 mm): Footprint C_BUS1
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_THT.pretty'.
+    Local override; warning
+    @(13.5627 mm, 77.3734 mm): Footprint C_BUS2
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(20.0000 mm, 140.0000 mm): Footprint Q1
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(80.0000 mm, 140.0000 mm): Footprint Q2
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(16.3389 mm, 55.5361 mm): Footprint U_GATE
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(24.4816 mm, 69.0742 mm): Footprint C_BOOT
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(11.5977 mm, 83.3734 mm): Footprint C_VCC
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(76.5000 mm, 106.0000 mm): Footprint R_GATE_H
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(60.5000 mm, 106.0000 mm): Footprint R_GATE_L
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(39.5000 mm, 106.0000 mm): Footprint U_BUCK
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(21.7309 mm, 63.0742 mm): Footprint U_LDO_3V3
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(27.5000 mm, 112.9282 mm): Footprint U_LDO_5V
+[lib_footprint_issues]: The footprint library 'Package_DFN_QFN' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_DFN_QFN.pretty'.
+    Local override; warning
+    @(27.5000 mm, 99.0718 mm): Footprint U_MCU
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(22.1911 mm, 87.0742 mm): Footprint C_MCU_1
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(16.1911 mm, 89.0698 mm): Footprint C_MCU_2
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(10.6113 mm, 89.4817 mm): Footprint C_MCU_3
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(4.6176 mm, 87.5635 mm): Footprint C_MCU_4
+[lib_footprint_issues]: The footprint library 'Connector_USB' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_USB.pretty'.
+    Local override; warning
+    @(8.2861 mm, 70.3828 mm): Footprint J_USB
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(5.5977 mm, 79.8737 mm): Footprint J_DEBUG
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(15.9738 mm, 61.5361 mm): Footprint U_CT
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(9.9738 mm, 62.0743 mm): Footprint R_BURDEN
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(26.1549 mm, 81.0742 mm): Footprint C_CT_FILT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(16.4420 mm, 69.3001 mm): Footprint U_OPAMP_CT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(-0.3879 mm, 70.8490 mm): Footprint MAX31865
+[lib_footprint_issues]: The footprint library 'Connector_Phoenix_MC' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_Phoenix_MC.pretty'.
+    Local override; warning
+    @(23.5000 mm, 44.0000 mm): Footprint J_COIL
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(-0.8818 mm, 76.6158 mm): Footprint J_NTC
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(70.0000 mm, 75.0000 mm): Footprint MH1
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(50.0000 mm, 75.0000 mm): Footprint MH2
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(90.0000 mm, 75.0000 mm): Footprint MH3
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(30.6340 mm, 75.0000 mm): Footprint MH4
+
+** Found 91 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(-0.8818 mm, 74.0758 mm): PTH pad 2 [GND] of J_NTC
+    @(2.5371 mm, 73.7490 mm): Pad 10 [GND] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(2.5371 mm, 73.7490 mm): Pad 10 [GND] of MAX31865 on F.Cu
+    @(5.5977 mm, 79.8737 mm): PTH pad 1 [GND] of J_DEBUG
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(5.1176 mm, 87.5635 mm): Pad 2 [GND] of C_MCU_4 on F.Cu
+    @(11.1113 mm, 89.4817 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(5.1176 mm, 87.5635 mm): Pad 2 [GND] of C_MCU_4 on F.Cu
+    @(5.5977 mm, 79.8737 mm): PTH pad 1 [GND] of J_DEBUG
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(5.9361 mm, 70.3828 mm): Pad A12 [GND] of J_USB on F.Cu
+    @(10.6361 mm, 70.3828 mm): Pad A1 [GND] of J_USB on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(5.9361 mm, 70.3828 mm): Pad A12 [GND] of J_USB on F.Cu
+    @(2.5371 mm, 73.7490 mm): Pad 10 [GND] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(10.6361 mm, 70.3828 mm): Pad A1 [GND] of J_USB on F.Cu
+    @(8.9738 mm, 62.0743 mm): Pad 2 [GND] of R_BURDEN on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.1113 mm, 89.4817 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(15.6911 mm, 89.0698 mm): Pad 2 [GND] of C_MCU_2 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(15.6911 mm, 89.0698 mm): Pad 2 [GND] of C_MCU_2 on F.Cu
+    @(22.1911 mm, 87.5742 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.8988 mm, 64.4361 mm): Pad 10 [GND] of U_CT on F.Cu
+    @(21.7309 mm, 60.7742 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.9170 mm, 67.3951 mm): Pad 4 [GND] of U_OPAMP_CT on F.Cu
+    @(18.8988 mm, 64.4361 mm): Pad 10 [GND] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.9170 mm, 67.3951 mm): Pad 4 [GND] of U_OPAMP_CT on F.Cu
+    @(10.6361 mm, 70.3828 mm): Pad A1 [GND] of J_USB on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(19.5000 mm, 44.0000 mm): PTH pad 3 [GND] of J_AC_IN
+    @(21.7309 mm, 60.7742 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.1911 mm, 87.5742 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(26.1549 mm, 80.2492 mm): Pad 2 [GND] of C_CT_FILT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.1911 mm, 87.5742 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(27.5000 mm, 99.0718 mm): Pad 57 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.3100 mm, 44.0000 mm): PTH pad 2 [GND] of J_COIL
+    @(19.5000 mm, 44.0000 mm): PTH pad 3 [GND] of J_AC_IN
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.5000 mm, 99.0718 mm): Pad 57 [GND] of U_MCU on F.Cu
+    @(29.9000 mm, 102.5218 mm): Pad 2 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.5000 mm, 115.2282 mm): Pad 1 [GND] of U_LDO_5V on F.Cu
+    @(29.9000 mm, 102.5218 mm): Pad 2 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.9000 mm, 102.5218 mm): Pad 2 [GND] of U_MCU on F.Cu
+    @(38.5500 mm, 104.9000 mm): Pad 1 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(38.5500 mm, 104.9000 mm): Pad 1 [GND] of U_BUCK on F.Cu
+    @(38.5500 mm, 107.1000 mm): Pad 6 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.8389 mm, 54.9011 mm): Pad 12 [PGND] of U_GATE on F.Cu
+    @(11.8389 mm, 56.1711 mm): Pad 13 [PGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(13.5627 mm, 84.8734 mm): PTH pad 2 [PGND] of C_BUS2
+    @(32.1340 mm, 75.0742 mm): PTH pad 2 [PGND] of C_BUS1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(32.1340 mm, 75.0742 mm): PTH pad 2 [PGND] of C_BUS1
+    @(11.8389 mm, 56.1711 mm): Pad 13 [PGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(74.5500 mm, 140.0000 mm): PTH pad 2 [PGND] of Q2
+    @(32.1340 mm, 75.0742 mm): PTH pad 2 [PGND] of C_BUS1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.5977 mm, 82.3734 mm): Pad 2 [CGND] of C_VCC on F.Cu
+    @(20.8389 mm, 54.9011 mm): Pad 5 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(20.8389 mm, 52.3611 mm): Pad 7 [CGND] of U_GATE on F.Cu
+    @(20.8389 mm, 51.0911 mm): Pad 8 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(20.8389 mm, 53.6311 mm): Pad 6 [CGND] of U_GATE on F.Cu
+    @(20.8389 mm, 52.3611 mm): Pad 7 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(20.8389 mm, 54.9011 mm): Pad 5 [CGND] of U_GATE on F.Cu
+    @(20.8389 mm, 53.6311 mm): Pad 6 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(4.1176 mm, 87.5635 mm): Pad 1 [+3V3] of C_MCU_4 on F.Cu
+    @(10.1113 mm, 89.4817 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(8.1377 mm, 79.8737 mm): PTH pad 2 [+3V3] of J_DEBUG
+    @(4.1176 mm, 87.5635 mm): Pad 1 [+3V3] of C_MCU_4 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(8.1377 mm, 79.8737 mm): PTH pad 2 [+3V3] of J_DEBUG
+    @(-3.3129 mm, 67.9490 mm): Pad 20 [+3V3] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(13.0488 mm, 58.6361 mm): Pad 20 [+3V3] of U_CT on F.Cu
+    @(-3.3129 mm, 67.9490 mm): Pad 20 [+3V3] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(16.6911 mm, 89.0698 mm): Pad 1 [+3V3] of C_MCU_2 on F.Cu
+    @(10.1113 mm, 89.4817 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(21.7309 mm, 63.0742 mm): Pad 2 [+3V3] of U_LDO_3V3 on F.Cu
+    @(13.0488 mm, 58.6361 mm): Pad 20 [+3V3] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.1911 mm, 86.5742 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+    @(16.6911 mm, 89.0698 mm): Pad 1 [+3V3] of C_MCU_2 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.1911 mm, 86.5742 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+    @(30.3000 mm, 102.5218 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.9309 mm, 63.0742 mm): Pad 4 [+3V3] of U_LDO_3V3 on F.Cu
+    @(21.7309 mm, 63.0742 mm): Pad 2 [+3V3] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(13.9670 mm, 69.9351 mm): Pad 7 [+5V] of U_OPAMP_CT on F.Cu
+    @(13.9670 mm, 71.2051 mm): Pad 8 [+5V] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(21.7309 mm, 65.3742 mm): Pad 3 [+5V] of U_LDO_3V3 on F.Cu
+    @(13.9670 mm, 69.9351 mm): Pad 7 [+5V] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.3000 mm, 112.9282 mm): Pad 4 [+5V] of U_LDO_5V on F.Cu
+    @(27.5000 mm, 112.9282 mm): Pad 2 [+5V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.5000 mm, 112.9282 mm): Pad 2 [+5V] of U_LDO_5V on F.Cu
+    @(40.4500 mm, 107.1000 mm): Pad 4 [+5V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 104.9000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+    @(13.9670 mm, 71.2051 mm): Pad 8 [+5V] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.4500 mm, 107.1000 mm): Pad 4 [+5V] of U_BUCK on F.Cu
+    @(39.5000 mm, 104.9000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.5977 mm, 84.3734 mm): Pad 1 [+15V] of C_VCC on F.Cu
+    @(20.8389 mm, 59.9811 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.5977 mm, 84.3734 mm): Pad 1 [+15V] of C_VCC on F.Cu
+    @(27.5000 mm, 110.6282 mm): Pad 3 [+15V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(20.8389 mm, 59.9811 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(11.8389 mm, 53.6311 mm): Pad 11 [+15V] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.5000 mm, 110.6282 mm): Pad 3 [+15V] of U_LDO_5V on F.Cu
+    @(40.4500 mm, 104.9000 mm): Pad 3 [+15V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.8389 mm, 57.4411 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(25.4816 mm, 69.0742 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.6340 mm, 75.0742 mm): PTH pad 1 [DC_BUS+] of C_BUS1
+    @(13.5627 mm, 77.3734 mm): PTH pad 1 [DC_BUS+] of C_BUS2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(31.2741 mm, 95.0698 mm): PTH pad 2 [DC_BUS+] of D1
+    @(28.2500 mm, 112.7500 mm): Track [DC_BUS+] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(31.2741 mm, 95.0698 mm): PTH pad 2 [DC_BUS+] of D1
+    @(24.6340 mm, 75.0742 mm): PTH pad 1 [DC_BUS+] of C_BUS1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.8389 mm, 51.0911 mm): Pad 9 [SW_NODE] of U_GATE on F.Cu
+    @(11.8389 mm, 59.9811 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.8389 mm, 59.9811 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+    @(23.4816 mm, 69.0742 mm): Pad 2 [SW_NODE] of C_BOOT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(23.4816 mm, 69.0742 mm): Pad 2 [SW_NODE] of C_BOOT on F.Cu
+    @(25.4500 mm, 140.0000 mm): PTH pad 2 [SW_NODE] of Q1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(23.5000 mm, 44.0000 mm): PTH pad 1 [SW_NODE] of J_COIL
+    @(11.8389 mm, 51.0911 mm): Pad 9 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.4500 mm, 140.0000 mm): PTH pad 2 [SW_NODE] of Q1
+    @(69.1000 mm, 140.0000 mm): PTH pad 3 [SW_NODE] of Q2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.8389 mm, 58.7111 mm): Pad 15 [GATE_H] of U_GATE on F.Cu
+    @(75.5000 mm, 106.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.5000 mm, 106.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+    @(20.0000 mm, 140.0000 mm): PTH pad 1 [GATE_H] of Q1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(77.5000 mm, 106.0000 mm): Pad 2 [GATE_H] of R_GATE_H on F.Cu
+    @(75.5000 mm, 106.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(11.8389 mm, 52.3611 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+    @(59.5000 mm, 106.0000 mm): Pad 1 [GATE_L] of R_GATE_L on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(61.5000 mm, 106.0000 mm): Pad 2 [GATE_L] of R_GATE_L on F.Cu
+    @(59.5000 mm, 106.0000 mm): Pad 1 [GATE_L] of R_GATE_L on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(80.0000 mm, 140.0000 mm): PTH pad 1 [GATE_L] of Q2
+    @(61.5000 mm, 106.0000 mm): Pad 2 [GATE_L] of R_GATE_L on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(20.8389 mm, 58.7111 mm): Pad 2 [PWM_H] of U_GATE on F.Cu
+    @(25.9000 mm, 102.5218 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.2500 mm, 130.2500 mm): Track [PWM_H] on B.Cu, length 0.5000 mm
+    @(28.7500 mm, 130.2500 mm): Track [PWM_H] on F.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.2500 mm, 114.2500 mm): Track [PWM_H] on B.Cu, length 0.5000 mm
+    @(25.9000 mm, 102.5218 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(0.2500 mm, 129.7500 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+    @(0.7500 mm, 129.7500 mm): Track [PWM_L] on F.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.5000 mm, 102.5218 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(20.8389 mm, 57.4411 mm): Pad 3 [PWM_L] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.2500 mm, 129.7500 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+    @(28.7500 mm, 129.7500 mm): Track [PWM_L] on F.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.2500 mm, 112.7500 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+    @(25.5000 mm, 102.5218 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(10.9738 mm, 62.0743 mm): Pad 1 [I_SENSE] of R_BURDEN on F.Cu
+    @(13.9670 mm, 67.3951 mm): Pad 5 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(13.9670 mm, 67.3951 mm): Pad 5 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(13.9670 mm, 68.6651 mm): Pad 6 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.9170 mm, 68.6651 mm): Pad 3 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(13.9670 mm, 68.6651 mm): Pad 6 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.9170 mm, 69.9351 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(18.9170 mm, 71.2051 mm): Pad 1 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.9170 mm, 69.9351 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(18.9170 mm, 68.6651 mm): Pad 3 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(18.9170 mm, 71.2051 mm): Pad 1 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(26.1549 mm, 81.8992 mm): Pad 1 [I_SENSE] of C_CT_FILT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.1000 mm, 102.5218 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+    @(26.1549 mm, 81.8992 mm): Pad 1 [I_SENSE] of C_CT_FILT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(-1.3629 mm, 73.7490 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+    @(-0.8818 mm, 76.6158 mm): PTH pad 1 [TEMP_SENSE] of J_NTC
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(16.0341 mm, 95.0698 mm): PTH pad 1 [AC_L] of D1
+    @(39.5000 mm, 44.0000 mm): PTH pad 1 [AC_L] of J_AC_IN
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.2500 mm, 0.2500 mm): Track [AC_L] on F.Cu, length 0.5000 mm
+    @(39.5000 mm, 44.0000 mm): PTH pad 1 [AC_L] of J_AC_IN
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.5000 mm, 44.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(73.7500 mm, 44.2500 mm): Track [AC_N] on F.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.7500 mm, 100.2500 mm): Track [AC_N] on F.Cu, length 0.5000 mm
+    @(55.2600 mm, 103.5000 mm): PTH pad 2 [AC_N] of D2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(13.0488 mm, 64.4361 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+    @(-3.3129 mm, 73.7490 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.0500 mm, 101.4718 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(13.0488 mm, 64.4361 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(-2.6629 mm, 73.7490 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.0500 mm, 101.0718 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(13.6988 mm, 64.4361 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+    @(24.0500 mm, 100.6718 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(14.3488 mm, 64.4361 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+    @(-2.0129 mm, 73.7490 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(14.9988 mm, 64.4361 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(0.2500 mm, 80.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.0500 mm, 100.2718 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+    @(0.2500 mm, 100.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(8.2861 mm, 70.3828 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(27.5000 mm, 95.6218 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(7.8861 mm, 70.3828 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+    @(27.9000 mm, 95.6218 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+
+** Found 0 Footprint errors **
+
+** End of Report **

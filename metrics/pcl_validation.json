@@ -1,0 +1,30 @@
+{
+  "input_file": "pcb/temper.kicad_pcb",
+  "timestamp": "2025-12-22T14:27:28.388110",
+  "placement_metrics": {
+    "hpwl_mm": 198.66848754882812,
+    "thermal_score": 1.0,
+    "zone_compliance_score": 1.0,
+    "hv_lv_clearance_score": 1.0,
+    "loop_area_score": 1.0,
+    "congestion_score": 0.5217391304347826,
+    "compactness_score": 0.05989110707803993,
+    "connectivity_clustering_score": 0.14089321774309096,
+    "overall_placement_score": 0.674646207893702
+  },
+  "drc_metrics": {
+    "violations": 0,
+    "errors": 0,
+    "warnings": 0,
+    "drc_available": false,
+    "error_message": "DRC error: Expecting value: line 1 column 1 (char 0)"
+  },
+  "routing_metrics": null,
+  "quality_score": 64.16709300338076,
+  "passed": false,
+  "notes": [
+    "Placement quality: 33.7/50.0",
+    "DRC compliance: 20.0/30.0 (DRC unavailable: DRC error: Expecting value: line 1 column 1 (char 0))",
+    "Routing feasibility: 10.4/20.0 (estimated from placement)"
+  ]
+}

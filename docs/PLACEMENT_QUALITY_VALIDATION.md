@@ -30,7 +30,7 @@ Extracted from `kicad-cli` design rule checks.
 - **Exclusion Count**: Explicitly ignored issues.
 
 ### Routing Metrics (Slow)
-Requires running a router (FreeRouting) to completion.
+Requires running a router (MazeRouter) to completion.
 - **Completion %**: Percentage of nets successfully routed.
 - **Routed Length**: Real trace length (mm).
 - **Via Count**: Number of layer-to-layer transitions.
