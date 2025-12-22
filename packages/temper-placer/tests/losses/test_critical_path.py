@@ -23,6 +23,7 @@ from temper_placer.losses.critical_path import (
     compute_critical_path_penalty,
     create_temper_critical_paths,
 )
+from temper_placer.losses.types import CriticalPathConstraint
 
 # =============================================================================
 # Fixtures
@@ -161,8 +162,16 @@ class TestCriticalPathLengthLoss:
         )
 
         path = CriticalPath("gate_high", "U_GATE", "Q1", max_length_mm=15.0)
+
+        # Must rebuild context with paths for pre-computation
+        context = LossContext.from_netlist_and_board(
+            simple_context.netlist,
+            simple_context.board,
+            path_constraints=[_path_to_constraint(path)]
+        )
+
         loss = CriticalPathLengthLoss([path])
-        result = loss(positions, sample_rotations, simple_context)
+        result = loss(positions, sample_rotations, context)
 
         # Distance is 10mm, max is 15mm -> no penalty
         assert float(result.value) == pytest.approx(0.0, abs=1e-6)
@@ -176,8 +185,16 @@ class TestCriticalPathLengthLoss:
         )
 
         path = CriticalPath("gate_high", "U_GATE", "Q1", max_length_mm=15.0, priority="normal")
+
+        # Must rebuild context with paths for pre-computation
+        context = LossContext.from_netlist_and_board(
+            simple_context.netlist,
+            simple_context.board,
+            path_constraints=[_path_to_constraint(path)]
+        )
+
         loss = CriticalPathLengthLoss([path])
-        result = loss(positions, sample_rotations, simple_context)
+        result = loss(positions, sample_rotations, context)
 
         # Distance is 50mm, max is 15mm, excess = 35mm
         # Penalty = 1.0 * 35^2 = 1225
@@ -197,11 +214,20 @@ class TestCriticalPathLengthLoss:
             "gate", "U_GATE", "Q1", max_length_mm=15.0, priority="critical"
         )
 
+        context_normal = LossContext.from_netlist_and_board(
+            simple_context.netlist, simple_context.board,
+            path_constraints=[_path_to_constraint(path_normal)]
+        )
+        context_critical = LossContext.from_netlist_and_board(
+            simple_context.netlist, simple_context.board,
+            path_constraints=[_path_to_constraint(path_critical)]
+        )
+
         loss_normal = CriticalPathLengthLoss([path_normal])
         loss_critical = CriticalPathLengthLoss([path_critical])
 
-        result_normal = loss_normal(positions, sample_rotations, simple_context)
-        result_critical = loss_critical(positions, sample_rotations, simple_context)
+        result_normal = loss_normal(positions, sample_rotations, context_normal)
+        result_critical = loss_critical(positions, sample_rotations, context_critical)
 
         # Critical should be 10x normal
         assert float(result_critical.value) == pytest.approx(
@@ -222,8 +248,13 @@ class TestCriticalPathLengthLoss:
             CriticalPath("gate_high", "U_GATE", "Q1", max_length_mm=15.0, priority="normal"),
             CriticalPath("gate_low", "U_GATE", "Q2", max_length_mm=15.0, priority="normal"),
         ]
+        context = LossContext.from_netlist_and_board(
+            simple_context.netlist, simple_context.board,
+            path_constraints=[_path_to_constraint(p) for p in paths]
+        )
+
         loss = CriticalPathLengthLoss(paths)
-        result = loss(positions, sample_rotations, simple_context)
+        result = loss(positions, sample_rotations, context)
 
         # Penalty 1: (20 - 15)^2 = 25
         # Penalty 2: (40 - 15)^2 = 625
@@ -231,23 +262,19 @@ class TestCriticalPathLengthLoss:
         expected = (20.0 - 15.0) ** 2 + (40.0 - 15.0) ** 2
         assert float(result.value) == pytest.approx(expected, rel=1e-5)
 
-    def test_missing_component_skipped(self, sample_rotations, simple_context):
-        """Test that paths with missing components are skipped."""
-        positions = jnp.array(
-            [[10.0, 10.0], [30.0, 10.0], [30.0, 30.0], [80.0, 20.0]],
-            dtype=jnp.float32,
-        )
-
+    def test_missing_component_skipped(self, _sample_rotations, simple_context):
+        """Test that paths with missing components are caught during context creation."""
         paths = [
             CriticalPath("valid", "U_GATE", "Q1", max_length_mm=15.0),
             CriticalPath("invalid", "U_GATE", "NONEXISTENT", max_length_mm=15.0),
         ]
-        loss = CriticalPathLengthLoss(paths)
-        result = loss(positions, sample_rotations, simple_context)
 
-        # Only valid path should contribute
-        # Distance U_GATE -> Q1 = 20mm, excess = 5mm, penalty = 25
-        assert float(result.value) == pytest.approx(25.0, rel=1e-5)
+        # In current implementation, invalid paths are caught during context building
+        with pytest.raises(ValueError, match="unknown component: NONEXISTENT"):
+            LossContext.from_netlist_and_board(
+                simple_context.netlist, simple_context.board,
+                path_constraints=[_path_to_constraint(p) for p in paths]
+            )
 
     def test_gradient_computation(self, sample_rotations, simple_context):
         """Test that gradients can be computed for optimization."""
@@ -257,10 +284,15 @@ class TestCriticalPathLengthLoss:
         )
 
         path = CriticalPath("gate", "U_GATE", "Q1", max_length_mm=15.0)
+        context = LossContext.from_netlist_and_board(
+            simple_context.netlist, simple_context.board,
+            path_constraints=[_path_to_constraint(path)]
+        )
+
         loss = CriticalPathLengthLoss([path])
 
         def loss_wrapper(pos):
-            return loss(pos, sample_rotations, simple_context).value
+            return loss(pos, sample_rotations, context).value
 
         grad = jax.grad(loss_wrapper)(positions)
 
@@ -287,14 +319,34 @@ class TestCriticalPathLengthLoss:
         )
 
         path = CriticalPath("gate", "U_GATE", "Q1", max_length_mm=15.0)
+        context = LossContext.from_netlist_and_board(
+            simple_context.netlist, simple_context.board,
+            path_constraints=[_path_to_constraint(path)]
+        )
+
         loss = CriticalPathLengthLoss([path])
 
         @jax.jit
         def jit_loss(pos):
-            return loss(pos, sample_rotations, simple_context).value
+            return loss(pos, sample_rotations, context).value
 
         result = jit_loss(positions)
         assert jnp.isfinite(result)
+
+
+# =============================================================================
+# Helper for converting paths to constraints
+# =============================================================================
+
+def _path_to_constraint(path: CriticalPath) -> CriticalPathConstraint:
+    """Convert test CriticalPath to CriticalPathConstraint for context building."""
+    return CriticalPathConstraint(
+        name=path.name,
+        from_pin=(path.from_ref, "1"),
+        to_pin=(path.to_ref, "1"),
+        max_length=path.max_length_mm,
+        weight=path.weight
+    )
 
 
 # =============================================================================

@@ -15,8 +15,7 @@ Optimizations:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 import jax
 import jax.numpy as jnp
@@ -134,9 +133,46 @@ def _compute_spread_penalty_chunked(
     return total
 
 
+def _compute_edge_spread_penalty(
+    positions: Array,
+    bounds: Array,
+    board_bounds: Array,
+    min_distance: float = 2.0,
+) -> Array:
+    """
+    Compute spread penalty against board edges.
+
+    This treats each board edge as a fixed obstacle, providing a repulsive
+    force to components near the boundary. This balances the 'edge effect'
+    where components at the perimeter have fewer neighbors to push them inwards.
+    """
+    x_min, y_min, x_max, y_max = board_bounds
+    # Use half-diagonal for consistency with pairwise spread computation
+    half_diag = jnp.sqrt(jnp.sum(bounds**2, axis=-1)) / 2  # (N,)
+
+    # Distance from center to each edge
+    dist_left = positions[:, 0] - x_min
+    dist_right = x_max - positions[:, 0]
+    dist_bottom = positions[:, 1] - y_min
+    dist_top = y_max - positions[:, 1]
+
+    # Required distance = component radius + min_distance
+    req = half_diag + min_distance
+
+    # Soft penalty for being too close to any edge
+    # We use squared penalty to match pairwise spread penalty
+    penalty_left = jnp.maximum(0.0, req - dist_left) ** 2
+    penalty_right = jnp.maximum(0.0, req - dist_right) ** 2
+    penalty_bottom = jnp.maximum(0.0, req - dist_bottom) ** 2
+    penalty_top = jnp.maximum(0.0, req - dist_top) ** 2
+
+    return jnp.sum(penalty_left + penalty_right + penalty_bottom + penalty_top)
+
+
 def compute_spread_penalty(
     positions: Array,
     bounds: Array,
+    board_bounds: Array | None = None,
     min_distance: float = 2.0,
 ) -> Array:
     """
@@ -155,19 +191,31 @@ def compute_spread_penalty(
         min_distance: Minimum desired center-to-center distance.
 
     Returns:
-        Total spread penalty (scalar).
+        Total spread penalty (scalar) including boundary repulsion if board_bounds provided.
     """
     n = positions.shape[0]
     if n < 2:
+        # Still compute edge penalty even for single component
+        if board_bounds is not None:
+            return _compute_edge_spread_penalty(positions, bounds, board_bounds, min_distance)
         return jnp.array(0.0)
 
+    # Pairwise component-to-component spread
     # Use lax.cond for dynamic dispatch based on n
-    # We pass explicit lambda arguments to avoid tuple unpacking issues
-    return jax.lax.cond(
+    pairwise_penalty = jax.lax.cond(
         n < _VECTORIZED_THRESHOLD,
         lambda: _compute_spread_penalty_vectorized(positions, bounds, min_distance),
         lambda: _compute_spread_penalty_chunked(positions, bounds, min_distance),
     )
+
+    # Component-to-edge spread (optional)
+    edge_penalty = jnp.array(0.0)
+    if board_bounds is not None:
+        edge_penalty = _compute_edge_spread_penalty(
+            positions, bounds, board_bounds, min_distance
+        )
+
+    return pairwise_penalty + edge_penalty
 
 
 def compute_rotation_entropy(
@@ -222,11 +270,11 @@ class SpreadLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        **kwargs: Any,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        **_kwargs: Any,
     ) -> LossResult:
         """
         Compute spread loss.
@@ -234,12 +282,15 @@ class SpreadLoss(LossFunction):
         Args:
             positions: (N, 2) component positions.
             rotations: (N, 4) soft one-hot rotations (unused).
-            context: LossContext with component bounds.
+            context: LossContext with component bounds and board.
 
         Returns:
             LossResult with total spread penalty.
         """
-        penalty = compute_spread_penalty(positions, context.bounds, self.min_distance)
+        board_bounds = context.board.get_bounds_array()
+        penalty = compute_spread_penalty(
+            positions, context.bounds, board_bounds, self.min_distance
+        )
         return LossResult(value=penalty)
 
 
@@ -269,11 +320,11 @@ class RotationEntropyLoss(LossFunction):
 
     def __call__(
         self,
-        positions: Array,
+        _positions: Array,
         rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute rotation entropy loss.
@@ -339,10 +390,10 @@ class CenterOfMassLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
     ) -> LossResult:
         """
         Compute center of mass deviation loss.

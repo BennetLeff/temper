@@ -84,8 +84,11 @@ class TestGroupClusterLoss:
         rotations = jnp.eye(4)[:2]
 
         result = loss_fn(positions, rotations, None)
-        # Excess is 10mm, penalty is 10^2 = 100
-        assert jnp.isclose(result.value, 100.0, atol=1e-5)
+        # Excess is 10mm, diameter_penalty is 10^2 = 100
+        # RoG penalty is also added:
+        # Centroid is (10, 0), rog_sq = 100, target_rog_sq = 25
+        # rog_penalty = 75, total = 100 + 5.0 * 75 = 475
+        assert jnp.isclose(result.value, 475.0, atol=1e-5)
 
     def test_single_component_group_zero_penalty(self):
         """Single component group has zero diameter, zero penalty."""
@@ -118,9 +121,9 @@ class TestGroupClusterLoss:
         result = loss_fn(positions, rotations, None)
         per_comp = result.breakdown["per_component"]
 
-        # 100.0 penalty distributed over 2 components = 50.0 each
-        assert float(per_comp[0]) == pytest.approx(50.0)
-        assert float(per_comp[1]) == pytest.approx(50.0)
+        # 475.0 penalty distributed over 2 components = 237.5 each
+        assert float(per_comp[0]) == pytest.approx(237.5)
+        assert float(per_comp[1]) == pytest.approx(237.5)
         assert float(per_comp[2]) == 0.0
 
     def test_group_cluster_weight_schedule(self):

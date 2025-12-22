@@ -38,13 +38,13 @@ import yaml
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
 
 from temper_placer.core.state import PlacementState
 from temper_placer.losses import (
     BoundaryLoss,
     CompositeLoss,
     OverlapLoss,
+    SpreadLoss,
     WeightedLoss,
     WirelengthLoss,
 )
@@ -55,6 +55,8 @@ from temper_placer.optimizer.config import (
     OptimizerConfig,
     TemperatureSchedule,
 )
+
+import jax.numpy as jnp
 
 # Test fixtures directory
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "external"
@@ -90,15 +92,21 @@ class BaselineMetrics:
         """Load from baseline YAML file."""
         with open(path) as f:
             data = yaml.safe_load(f)
+
+        # Handle nested metrics structure if present
+        metrics = data.get("metrics", {})
+        if not metrics and "human_placement" in data:
+            metrics = data["human_placement"].get("metrics", {})
+
         return cls(
             project=data["project"],
             component_count=data["component_count"],
             net_count=data["net_count"],
             board_width_mm=data["board_width_mm"],
             board_height_mm=data["board_height_mm"],
-            total_wirelength_mm=data["total_wirelength_mm"],
-            overlap_loss=data["overlap_loss"],
-            boundary_loss=data["boundary_loss"],
+            total_wirelength_mm=metrics.get("total_wirelength_mm", data.get("total_wirelength_mm", 0.0)),
+            overlap_loss=metrics.get("overlap_loss", data.get("overlap_loss", 0.0)),
+            boundary_loss=metrics.get("boundary_loss", data.get("boundary_loss", 0.0)),
         )
 
 
@@ -186,7 +194,9 @@ def get_project_paths(project_name: str) -> tuple[Path | None, Path | None, Path
     # Find baseline
     baseline_path: Path | None = project_dir / f"{project_name}_baseline.yaml"
     if not baseline_path.exists():
-        baseline_path = None
+        baseline_path = project_dir / f"{project_name}_benchmark.yaml"
+        if not baseline_path.exists():
+            baseline_path = None
 
     # Find constraints
     constraints_path: Path | None = project_dir / f"{project_name}_constraints.yaml"
@@ -204,7 +214,7 @@ def is_project_available(project_name: str) -> bool:
 
 def run_optimizer_on_pcb(
     pcb_path: Path,
-    constraints_path: Path | None = None,
+    _constraints_path: Path | None = None,
     epochs: int = 100,
     learning_rate: float = 0.5,
 ) -> tuple[PlacementState, OptimizerMetrics, LossContext]:
@@ -240,8 +250,9 @@ def run_optimizer_on_pcb(
     composite = CompositeLoss(
         [
             WeightedLoss(OverlapLoss(), weight=100.0),  # High weight - no overlap
-            WeightedLoss(BoundaryLoss(), weight=200.0),  # Highest weight - stay in bounds (hard constraint)
-            WeightedLoss(WirelengthLoss(), weight=10.0),  # Lower weight - minimize wirelength
+            WeightedLoss(BoundaryLoss(), weight=200.0),  # Highest weight - stay in bounds
+            WeightedLoss(WirelengthLoss(), weight=10.0),  # Minimize wirelength
+            WeightedLoss(SpreadLoss(), weight=20.0),     # Uniform distribution
         ]
     )
 
@@ -266,7 +277,6 @@ def run_optimizer_on_pcb(
     # Compute metrics on final state using one-hot rotations
     # Use argmax to get discrete rotation indices, then create one-hot
     rotation_indices = jnp.argmax(final_state.rotation_logits, axis=-1)
-    n_components = final_state.n_components
     rotations = jax.nn.one_hot(rotation_indices, 4)
 
     # Wirelength

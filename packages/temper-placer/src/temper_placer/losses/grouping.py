@@ -117,22 +117,37 @@ class GroupClusterLoss(LossFunction):
             if n_in_group < 2:
                 # Single component has diameter 0
                 group_diameter = jnp.array(0.0)
+                group_penalty = jnp.array(0.0)
             else:
-                # Compute maximum pairwise distance (diameter)
+                # 1. Diameter-based penalty (Original)
+                # This ensures the hard diameter constraint is eventually met
                 group_diameter = _compute_group_diameter(group_positions)
+                excess = jax.nn.relu(group_diameter - group.max_diameter_mm)
+                diameter_penalty = excess**2
 
-            # Penalty for exceeding max diameter
-            excess = jax.nn.relu(group_diameter - group.max_diameter_mm)
-            penalty = group.weight * excess**2
+                # 2. Radius of gyration penalty (New - Dense Gradient)
+                # Pulls ALL components towards the group centroid.
+                # This provides a smoother gradient than just the furthest pair.
+                centroid = jnp.mean(group_positions, axis=0)
+                # Mean squared distance from centroid
+                rog_sq = jnp.mean(jnp.sum((group_positions - centroid) ** 2, axis=-1))
+                # Target RoG: for a uniform circle, RoG = diameter / (2 * sqrt(2)) approx diameter / 2.82
+                # We use a conservative target to keep the cluster compact
+                target_rog_sq = (group.max_diameter_mm / 2.0) ** 2
+                rog_excess = jax.nn.relu(rog_sq - target_rog_sq)
+                rog_penalty = rog_excess  # Linear in squared distance = quadratic distance
 
-            total_penalty = total_penalty + penalty
+                # Total group penalty
+                group_penalty = group.weight * (diameter_penalty + 5.0 * rog_penalty)
+
+            total_penalty = total_penalty + group_penalty
             breakdown[f"group_{group.name}_diameter"] = group_diameter
-            breakdown[f"group_{group.name}_penalty"] = penalty
+            breakdown[f"group_{group.name}_penalty"] = group_penalty
 
             # Attribute penalty to all components in the group
-            # Use jax.lax.scatter or just indexing if safe
-            # For simplicity in loop, we'll do this:
-            per_component_penalty = per_component_penalty.at[group.component_indices].add(penalty / n_in_group)
+            per_component_penalty = per_component_penalty.at[group.component_indices].add(
+                group_penalty / n_in_group
+            )
 
         return LossResult(
             value=total_penalty,
@@ -329,7 +344,7 @@ class GroupSeparationLoss(LossFunction):
         total_penalty = jnp.array(0.0)
         breakdown: dict[str, Array] = {}
 
-        for i, (group_a, group_b, min_dist) in enumerate(self.separations):
+        for _i, (group_a, group_b, min_dist) in enumerate(self.separations):
             if self.use_min_distance:
                 # Compute minimum distance between any component pair
                 distance = self._min_inter_group_distance(
@@ -469,12 +484,9 @@ def find_isomorphic_pairs(netlist: Netlist) -> list[tuple[int, int, int, int]]:
     edges = []
     for i in range(n):
         for j in range(i + 1, n):
-            if adj[i, j] > 0:
-                # Edge between i and j exists
-                # Check if both belong to isomorphic groups
-                if i in comp_to_group and j in comp_to_group:
-                    # Store as (group_i, group_j, i, j)
-                    edges.append((comp_to_group[i], comp_to_group[j], i, j))
+            if adj[i, j] > 0 and i in comp_to_group and j in comp_to_group:
+                # Store as (group_i, group_j, i, j)
+                edges.append((comp_to_group[i], comp_to_group[j], i, j))
 
     # 3. Match edges that connect the SAME groups
     # e.g. edge (R1, C1) and (R2, C2) both connect Group(R) and Group(C)
