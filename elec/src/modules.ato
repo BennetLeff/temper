@@ -78,6 +78,48 @@ module GateDriveHS:
     boot_cap = new Capacitor
     neg_bias_zener = new Diode
     
+    # EMI Filters (temper-jf7)
+    # 51Ω + 220pF provides >15dB attenuation @ 100MHz
+    r_filt_a = new Resistor
+    c_filt_a = new Capacitor
+    r_filt_b = new Resistor
+    c_filt_b = new Capacitor
+    
+    r_filt_a.value = 51ohm +/- 1%
+    r_filt_a.mpn = "RC0402FR-0751RL"
+    r_filt_a.footprint = "Resistor_SMD:R_0402_1005Metric"
+    
+    r_filt_b.value = 51ohm +/- 1%
+    r_filt_b.mpn = "RC0402FR-0751RL"
+    r_filt_b.footprint = "Resistor_SMD:R_0402_1005Metric"
+
+    c_filt_a.value = 220pF +/- 5%
+    c_filt_a.dielectric = "C0G"
+    c_filt_a.voltage_rating = 50V
+    c_filt_a.mpn = "GRM1555C1H221JA01D"
+    c_filt_a.footprint = "Capacitor_SMD:C_0402_1005Metric"
+    
+    c_filt_b.value = 220pF +/- 5%
+    c_filt_b.dielectric = "C0G"
+    c_filt_b.voltage_rating = 50V
+    c_filt_b.mpn = "GRM1555C1H221JA01D"
+    c_filt_b.footprint = "Capacitor_SMD:C_0402_1005Metric"
+
+    # Input Signals
+    signal pwm_in_a
+    signal pwm_in_b
+
+    # Filter Connections
+    pwm_in_a ~ r_filt_a.p1
+    r_filt_a.p2 ~ driver.INA
+    driver.INA ~ c_filt_a.p1
+    c_filt_a.p2 ~ driver.GNDI
+    
+    pwm_in_b ~ r_filt_b.p1
+    r_filt_b.p2 ~ driver.INB
+    driver.INB ~ c_filt_b.p1
+    c_filt_b.p2 ~ driver.GNDI
+
     # Output interface to IGBT
     drive = new GateDrive
     
@@ -137,11 +179,11 @@ module GateDriveHS:
     # rgs.p2 ~ drive.vss
     
     # Zener connections (preserving existing logic):
-    # neg_bias_zener.A ~ drive.vss
-    # neg_bias_zener.K ~ driver.VSSA
-    # boot_cap.p2 ~ driver.VSSA
-    # boot_cap.p1 ~ driver.VDDA
-    # boot_diode.K ~ driver.VDDA
+    neg_bias_zener.A ~ drive.vss
+    neg_bias_zener.K ~ driver.VSSA
+    boot_cap.p2 ~ driver.VSSA
+    boot_cap.p1 ~ driver.VDDA
+    boot_diode.K ~ driver.VDDA
     
     # Inputs
     # vcc_15v (from HalfBridge) ~ boot_diode.A
@@ -217,8 +259,8 @@ module HalfBridge:
     switch_node.v_max = Constraints.HighVoltage.v_max
     
     # Connections - Primary Side
-    pwm_h ~ gate_hs.driver.INA
-    pwm_l ~ gate_hs.driver.INB
+    pwm_h ~ gate_hs.pwm_in_a
+    pwm_l ~ gate_hs.pwm_in_b
     power_15v.vcc ~ gate_hs.driver.VCCI_1
     power_15v.vcc ~ gate_hs.driver.VCCI_2
     power_15v.gnd ~ gate_hs.driver.GNDI

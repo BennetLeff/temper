@@ -52,17 +52,17 @@ R_ESP32_OUT_C N_PWM_C N_GPIO_C 25
 ***************************************************************************
 * RC Filter - Recommended by UCC21550 datasheet
 ***************************************************************************
-* Channel A filter (INA)
+* Channel A filter (INA) - Production (220pF)
 R_FILTER_A N_GPIO_A N_INA_FILTERED 51
-C_FILTER_A N_INA_FILTERED 0 33p
+C_FILTER_A N_INA_FILTERED 0 220p
 
-* Channel B filter (INB)  
+* Channel B filter (INB) - Testing freq response
 R_FILTER_B N_GPIO_B N_INB_FILTERED 51
-C_FILTER_B N_INB_FILTERED 0 33p
+C_FILTER_B N_INB_FILTERED 0 220p
 
-* Channel C filter (for comparison test)
+* Channel C filter (INC) - Testing freq response
 R_FILTER_C N_GPIO_C N_INC_FILTERED 51
-C_FILTER_C N_INC_FILTERED 0 33p
+C_FILTER_C N_INC_FILTERED 0 220p
 
 ***************************************************************************
 * Test Cases for Noise Immunity
@@ -73,6 +73,8 @@ V_NOISE N_NOISE 0 SIN(0 0.5 100MEG)
 
 * Couple noise onto Channel A input (before filter)
 C_NOISE_COUPLE N_NOISE N_GPIO_A 5p
+C_NOISE_COUPLE_B N_NOISE N_GPIO_B 5p
+C_NOISE_COUPLE_C N_NOISE N_GPIO_C 5p
 
 ***************************************************************************
 * UCC21550 Gate Driver IC
@@ -204,7 +206,7 @@ let t_fall_gpio = t_gpio_10f - t_gpio_90f
 echo "ESP32-S3 GPIO Output (before filter):"
 print t_rise_gpio t_fall_gpio
 
-* Measure after RC filter
+* Measure after RC filter (Channel A - 33pF)
 meas tran t_filt_10 WHEN V(N_INA_FILTERED)=0.33 RISE=1
 meas tran t_filt_90 WHEN V(N_INA_FILTERED)=2.97 RISE=1
 let t_rise_filtered = t_filt_90 - t_filt_10
@@ -214,25 +216,31 @@ meas tran t_filt_10f WHEN V(N_INA_FILTERED)=0.33 FALL=1
 let t_fall_filtered = t_filt_10f - t_filt_90f
 
 echo ""
-echo "After RC Filter (R=51Ω, C=33pF):"
+echo "After RC Filter A (33pF):"
 print t_rise_filtered t_fall_filtered
 
-let filter_slowdown = t_rise_filtered - t_rise_gpio
-echo ""
-echo "Rise time increase due to RC filter:"
-print filter_slowdown
+* Measure after RC filter (Channel C - 220pF)
+meas tran t_filt_c_10 WHEN V(N_INC_FILTERED)=0.33 RISE=1
+meas tran t_filt_c_90 WHEN V(N_INC_FILTERED)=2.97 RISE=1
+let t_rise_c = t_filt_c_90 - t_filt_c_10
 
-* Check if rise/fall times are acceptable (should be < 50ns for clean switching)
-if t_rise_filtered < 50e-9
-  echo "✓ PASS: Rise time < 50ns"
+meas tran t_filt_c_90f WHEN V(N_INC_FILTERED)=2.97 FALL=1
+meas tran t_filt_c_10f WHEN V(N_INC_FILTERED)=0.33 FALL=1
+let t_fall_c = t_filt_c_10f - t_filt_c_90f
+
+echo "After RC Filter C (220pF):"
+print t_rise_c t_fall_c
+
+* Check pass criteria for 220pF
+if t_rise_c < 50e-9
+  echo "✓ PASS: 220pF Rise time < 50ns"
 else
-  echo "⚠ WARNING: Rise time > 50ns"
+  echo "⚠ WARNING: 220pF Rise time > 50ns"
 end
-
-if t_fall_filtered < 50e-9
-  echo "✓ PASS: Fall time < 50ns"
+if t_fall_c < 50e-9
+  echo "✓ PASS: 220pF Fall time < 50ns"
 else
-  echo "⚠ WARNING: Fall time > 50ns"
+  echo "⚠ WARNING: 220pF Fall time > 50ns"
 end
 
 ***************************************************************************
@@ -305,8 +313,8 @@ echo "  50kHz (Channel B): "
 print swing_50k
 
 * RC filter should have minimal impact at these frequencies
-* Corner frequency fc = 1/(2π×R×C) = 1/(2π×51×33e-12) ≈ 94MHz
-let fc_calculated = 1 / (2 * 3.14159 * 51 * 33e-12)
+* Corner frequency fc = 1/(2π×R×C) = 1/(2π×51×220e-12) ≈ 14.2MHz
+let fc_calculated = 1 / (2 * 3.14159 * 51 * 220e-12)
 echo ""
 echo "RC Filter Corner Frequency (calculated):"
 print fc_calculated
@@ -335,28 +343,43 @@ meas tran noise_gpio PP V(N_GPIO_A) FROM=10u TO=11u
 echo "Noise amplitude at GPIO output (before RC filter):"
 print noise_gpio
 
-* Measure noise amplitude after filter
-meas tran noise_filtered PP V(N_INA_FILTERED) FROM=10u TO=11u
-echo "Noise amplitude after RC filter:"
-print noise_filtered
+* Measure filtered noise amplitudes
+meas tran noise_filtered_a PP V(N_INA_FILTERED) FROM=10u TO=11u
+meas tran noise_filtered_b PP V(N_INB_FILTERED) FROM=10u TO=11u
+meas tran noise_filtered_c PP V(N_INC_FILTERED) FROM=10u TO=11u
 
 * Measure noise on unfiltered channel (direct connection)
 meas tran noise_direct PP V(N_DIRECT) FROM=10u TO=11u
-echo "Noise amplitude without filter (direct connection):"
+
+echo "Noise Amplitudes:"
+echo "  Unfiltered: "
 print noise_direct
+echo "  Ch A (33pF): "
+print noise_filtered_a
+echo "  Ch B (100pF): "
+print noise_filtered_b
+echo "  Ch C (220pF): "
+print noise_filtered_c
 
 * Calculate attenuation
-let noise_attenuation_db = 20 * log10(noise_gpio / noise_filtered)
-echo ""
-echo "Noise attenuation (dB):"
-print noise_attenuation_db
+let atten_db_a = 20 * log10(noise_gpio / noise_filtered_a)
+let atten_db_b = 20 * log10(noise_gpio / noise_filtered_b)
+let atten_db_c = 20 * log10(noise_gpio / noise_filtered_c)
 
-* At 100MHz, RC filter should provide significant attenuation
-* Expected: -20dB to -30dB at 100MHz (fc ≈ 94MHz)
-if noise_attenuation_db > 15
-  echo "✓ PASS: Effective EMI filtering (>15dB attenuation)"
+echo ""
+echo "Noise Attenuation (dB):"
+echo "  Ch A (33pF): "
+print atten_db_a
+echo "  Ch B (100pF): "
+print atten_db_b
+echo "  Ch C (220pF): "
+print atten_db_c
+
+* Check pass criteria (>15dB)
+if atten_db_a > 15
+  echo "✓ PASS: 220pF provides >15dB attenuation"
 else
-  echo "⚠ WARNING: Limited EMI filtering"
+  echo "⚠ WARNING: Attenuation target not met"
 end
 
 ***************************************************************************
