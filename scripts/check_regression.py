@@ -147,6 +147,31 @@ def main():
         if not passed:
             failures.append(base_key)
             
+    import os
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_file:
+        with open(summary_file, "a") as f:
+            f.write("## Optimizer Regression Check Results\n\n")
+            f.write("| Metric | Baseline | Current (Mean) | Margin | Status |\n")
+            f.write("| --- | --- | --- | --- | --- |\n")
+            for stat_key, base_key in mapping:
+                actual = stats[stat_key]
+                spec = metrics_spec.get(base_key)
+                if not spec: continue
+                target = spec["mean"]
+                margin_rel = spec.get("margin_rel", 0.1)
+                margin_abs = spec.get("margin_abs", 0.0)
+                allowed_delta = max(target * margin_rel, margin_abs)
+                status = "❌ FAIL" if actual > target + allowed_delta else "✅ PASS"
+                f.write(f"| {base_key} | {target:.2f} | {actual:.2f} | {margin_rel*100:.0f}% | {status} |\n")
+            
+            if failures:
+                f.write("\n> [!CAUTION]\n")
+                f.write(f"> Regression detected in: {', '.join(failures)}\n")
+            else:
+                f.write("\n> [!IMPORTANT]\n")
+                f.write("> All metrics are within performance limits.\n")
+
     if failures:
         console.print(f"\n[bold red]REGRESSION DETECTED in: {', '.join(failures)}[/]")
         sys.exit(1)
