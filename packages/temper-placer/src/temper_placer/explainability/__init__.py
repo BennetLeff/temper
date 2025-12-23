@@ -30,6 +30,10 @@ from temper_placer.explainability.decision import (
     DecisionTrace,
     DecisionType,
 )
+from temper_placer.explainability.trace import (
+    Entry,
+    Trace,
+)
 from temper_placer.explainability.markdown_report import (
     render_component_report,
     render_markdown_report,
@@ -51,12 +55,15 @@ from temper_placer.explainability.serialization import (
 )
 
 __all__ = [
-    # Data structures
+    # Data structures (legacy)
     "Alternative",
     "Decision",
     "DecisionPhase",
     "DecisionTrace",
     "DecisionType",
+    # Functional trace (new)
+    "Entry",
+    "Trace",
     # Serialization
     "deserialize_decision",
     "deserialize_trace",
