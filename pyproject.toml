@@ -9,6 +9,8 @@ dev = [
     "pytest>=7.4.0",
     "ruff>=0.1.6",
     "mypy>=1.7.0",
+    "pytest-bdd>=8.1.0",
+    "hypothesis>=6.148.7",
 ]
 
 [tool.uv.workspace]

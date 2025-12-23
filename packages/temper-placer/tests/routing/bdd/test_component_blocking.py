@@ -6,14 +6,13 @@ routing grid cells, including margin requirements, layer-specific blocking,
 and escape route generation.
 """
 
-import pytest
-from pytest_bdd import scenarios, given, when, then, parsers
 import jax.numpy as jnp
+import pytest
+from pytest_bdd import given, parsers, scenarios, then, when
 
-from temper_placer.routing.maze_router import MazeRouter, GridCell
-from temper_placer.core.netlist import Component, Pin
 from temper_placer.core.board import Board
-
+from temper_placer.core.netlist import Component, Pin
+from temper_placer.routing.maze_router import MazeRouter
 
 # Load all scenarios from feature file
 scenarios('../features/component_blocking.feature')
@@ -55,6 +54,7 @@ def component():
 @given(parsers.parse("a {width:d}mm x {height:d}mm board with {cell_size:d}mm grid cells"))
 def board_setup(width, height, cell_size):
     """Board setup."""
+    _ = cell_size  # Injected by pytest-bdd parser
     return Board(
         width=float(width),
         height=float(height),
@@ -116,6 +116,7 @@ def verify_routing_corridors(router):
 @then(parsers.parse("all pins should have escape routes of at least {length:d} cells"))
 def verify_all_pins_escape(router, dense_cluster, length):
     """Verify escape routes for all components in cluster."""
+    _ = length  # Injected by pytest-bdd parser
     comps, positions = dense_cluster
     for i, comp in enumerate(comps):
         cx, cy = float(positions[i, 0]), float(positions[i, 1])
@@ -123,7 +124,7 @@ def verify_all_pins_escape(router, dense_cluster, length):
         pin_x = cx + pin.position[0]
         pin_y = cy + pin.position[1]
         pin_gx, pin_gy = router._world_to_grid(pin_x, pin_y)
-        
+
         # Check center cell is free
         assert int(router.occupancy[pin_gx, pin_gy, 0]) == 0, \
             f"Pin for {comp.ref} at ({pin_gx}, {pin_gy}) is blocked"
@@ -183,11 +184,11 @@ def pin_has_escape_route(router, component_at_position, pin_num, length):
     comp, pos = component_at_position
     cx, cy = float(pos[0, 0]), float(pos[0, 1])
     pin = comp.pins[pin_num - 1]
-    
+
     pin_x = cx + pin.position[0]
     pin_y = cy + pin.position[1]
     pin_gx, pin_gy = router._world_to_grid(pin_x, pin_y)
-    
+
     # Determine escape direction
     dx, dy = pin.position[0], pin.position[1]
     if abs(dx) >= abs(dy):
@@ -196,16 +197,19 @@ def pin_has_escape_route(router, component_at_position, pin_num, length):
     else:
         step_x = 0
         step_y = 1 if dy >= 0 else -1
-    
+
     # Count free cells in escape direction
     free_count = 0
     for step in range(length):
         gx = pin_gx + step * step_x
         gy = pin_gy + step * step_y
-        if 0 <= gx < router.grid_size[0] and 0 <= gy < router.grid_size[1]:
-            if int(router.occupancy[gx, gy, 0]) == 0:
-                free_count += 1
-    
+        if (
+            0 <= gx < router.grid_size[0]
+            and 0 <= gy < router.grid_size[1]
+            and int(router.occupancy[gx, gy, 0]) == 0
+        ):
+            free_count += 1
+
     assert free_count >= length, \
         f"Pin {pin_num} should have {length} free cells in escape route, found {free_count}"
 
@@ -228,9 +232,10 @@ def verify_blocked_cell_count(router, count):
 @then(parsers.parse("pin ({x:g}, {y:g}) should have an escape route of at least {length:d} cells"))
 def pin_at_coord_has_escape_route(router, x, y, length):
     """Verify pin at specific coordinate has escape route."""
+    _ = length  # Injected by pytest-bdd parser
     pin_x, pin_y = float(x), float(y)
     pin_gx, pin_gy = router._world_to_grid(pin_x, pin_y)
-    
+
     # Check if pin cell itself is free (start of escape route)
     assert int(router.occupancy[pin_gx, pin_gy, 0]) == 0, \
          f"Pin at ({pin_gx}, {pin_gy}) is blocked"

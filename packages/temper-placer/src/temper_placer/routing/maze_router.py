@@ -22,17 +22,17 @@ Example usage:
     ...     print(f"Routed {len(result.cells)} cells")
 """
 
-import time
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 import heapq
 import math
+import time
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import jax.numpy as jnp
 from jax import Array
 
-from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Netlist
 
 if TYPE_CHECKING:
     from temper_placer.routing.layer_assignment import LayerAssignment
@@ -135,7 +135,7 @@ class MazeRouter:
         # Occupancy grid: (width, height, layers)
         # 0=free, 1=blocked, 2=routed
         self.occupancy = jnp.zeros((grid_size[0], grid_size[1], num_layers), dtype=jnp.int32)
-        
+
         # Statistics
         self.stats = RoutingStats()
 
@@ -200,8 +200,8 @@ class MazeRouter:
 
         if layer == -1:
             # Block all layers
-            for l in range(self.num_layers):
-                self.occupancy = self.occupancy.at[x_start:x_end, y_start:y_end, l].set(1)
+            for layer_idx in range(self.num_layers):
+                self.occupancy = self.occupancy.at[x_start:x_end, y_start:y_end, layer_idx].set(1)
         else:
             self.occupancy = self.occupancy.at[x_start:x_end, y_start:y_end, layer].set(1)
 
@@ -211,6 +211,7 @@ class MazeRouter:
         positions: Array,
         margin: float = 0.5,
         layer_specific: bool = False,
+        escape_length: int | None = None,
     ) -> None:
         """Block cells occupied by components, leaving escape routes for pins.
 
@@ -223,6 +224,7 @@ class MazeRouter:
             positions: (N, 2) array of component center positions
             margin: Extra margin around components in mm
             layer_specific: If True, block only the component's layer (assumed L1_TOP/0)
+            escape_length: Length of escape routes in cells. If None, calculated based on cell size.
         """
         # First pass: block all component bodies
         for i, comp in enumerate(components):
@@ -248,13 +250,14 @@ class MazeRouter:
         # Second pass: create escape routes from pins
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
-            self._create_pin_escape_routes(comp, cx, cy)
+            self._create_pin_escape_routes(comp, cx, cy, escape_length)
 
     def _create_pin_escape_routes(
         self,
         comp: Component,
         cx: float,
         cy: float,
+        escape_length: int | None = None,
     ) -> None:
         """Create escape routes from component pins.
 
@@ -268,6 +271,7 @@ class MazeRouter:
             comp: Component with pins
             cx: Component center X position
             cy: Component center Y position
+            escape_length: Optional explicit length for escape routes
         """
         for pin in comp.pins:
             # Compute absolute pin position
@@ -291,10 +295,14 @@ class MazeRouter:
                 step_x = 0
                 step_y = 1 if dy >= 0 else -1
 
-            # Create escape route: unblock pin cell and 2-3 cells in escape direction
-            escape_length = max(3, int(2.0 / self.cell_size) + 1)  # At least 2mm
+            # Create escape route: unblock pin cell and several cells in escape direction
+            if escape_length is not None:
+                escape_len = escape_length
+            else:
+                # Default: at least 5 cells or 4mm
+                escape_len = max(5, int(4.0 / self.cell_size) + 1)
 
-            for step in range(escape_length):
+            for step in range(escape_len):
                 gx = pin_gx + step * step_x
                 gy = pin_gy + step * step_y
 
@@ -324,17 +332,19 @@ class MazeRouter:
         # 4-connected neighbors on same layer
         for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             nx, ny = cell.x + dx, cell.y + dy
-            if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
-                # Check if free (0) - not blocked (1) or routed (2)
-                if int(self.occupancy[nx, ny, cell.layer]) == 0:
-                    neighbors.append(GridCell(nx, ny, cell.layer))
+            # Check if free (0) - not blocked (1) or routed (2)
+            if (
+                0 <= nx < self.grid_size[0]
+                and 0 <= ny < self.grid_size[1]
+                and int(self.occupancy[nx, ny, cell.layer]) == 0
+            ):
+                neighbors.append(GridCell(nx, ny, cell.layer))
 
         # Layer transitions (vias)
         if allow_layer_change and self.num_layers > 1:
             for new_layer in range(self.num_layers):
-                if new_layer != cell.layer:
-                    if int(self.occupancy[cell.x, cell.y, new_layer]) == 0:
-                        neighbors.append(GridCell(cell.x, cell.y, new_layer))
+                if new_layer != cell.layer and int(self.occupancy[cell.x, cell.y, new_layer]) == 0:
+                    neighbors.append(GridCell(cell.x, cell.y, new_layer))
 
         return neighbors
 
@@ -365,9 +375,9 @@ class MazeRouter:
         if int(self.occupancy[end[0], end[1], layer]) != 0:
             # Try other layers for end point
             found_end = False
-            for l in range(self.num_layers):
-                if int(self.occupancy[end[0], end[1], l]) == 0:
-                    end_cell = GridCell(end[0], end[1], l)
+            for layer_idx in range(self.num_layers):
+                if int(self.occupancy[end[0], end[1], layer_idx]) == 0:
+                    end_cell = GridCell(end[0], end[1], layer_idx)
                     found_end = True
                     break
             if not found_end:
@@ -386,7 +396,7 @@ class MazeRouter:
 
         while open_set:
             _, _, current = heapq.heappop(open_set)
-            
+
             # Count iterations for stats
             self.stats.total_astar_iterations += 1
 
@@ -465,11 +475,11 @@ class MazeRouter:
         # inside component footprint)
         original_values: list[tuple[int, int, int, int]] = []
         for gx, gy in grid_pins:
-            for l in range(self.num_layers):
-                val = int(self.occupancy[gx, gy, l])
+            for layer_idx in range(self.num_layers):
+                val = int(self.occupancy[gx, gy, layer_idx])
                 if val == 1:  # Blocked
-                    original_values.append((gx, gy, l, val))
-                    self.occupancy = self.occupancy.at[gx, gy, l].set(0)
+                    original_values.append((gx, gy, layer_idx, val))
+                    self.occupancy = self.occupancy.at[gx, gy, layer_idx].set(0)
 
         # Route from first pin to all others (star topology)
         all_cells: list[GridCell] = []
@@ -545,7 +555,7 @@ class MazeRouter:
         for net_name in net_order:
             if net_name not in net_by_name:
                 continue
-            
+
             net_start = time.perf_counter()
             net = net_by_name[net_name]
 
@@ -570,7 +580,7 @@ class MazeRouter:
             # Get assignment
             assignment = assignments.get(net_name)
             if assignment is None:
-                from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+                from temper_placer.routing.layer_assignment import Layer, LayerAssignment
 
                 assignment = LayerAssignment(
                     net=net_name,
@@ -583,7 +593,7 @@ class MazeRouter:
             # Route the net
             result = self.route_net(net_name, pin_positions, assignment)
             results[net_name] = result
-            
+
             net_end = time.perf_counter()
             times_per_net.append((net_end - net_start) * 1000.0) # ms
 
@@ -592,11 +602,11 @@ class MazeRouter:
         self.stats.total_time_ms = total_time
         self.stats.nets_routed = sum(1 for r in results.values() if r.success)
         self.stats.nets_failed = len(results) - self.stats.nets_routed
-        
+
         if times_per_net:
             self.stats.avg_time_per_net_ms = sum(times_per_net) / len(times_per_net)
             self.stats.max_time_per_net_ms = max(times_per_net)
-            
+
         if self.stats.nets_routed > 0:
             self.stats.avg_iterations_per_path = (
                 self.stats.total_astar_iterations / self.stats.nets_routed
