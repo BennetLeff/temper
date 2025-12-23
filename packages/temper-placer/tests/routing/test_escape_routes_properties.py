@@ -43,7 +43,7 @@ def component_with_pins(draw):
     
     return Component(
         ref="U1",
-        value="TEST",
+        attributes={"value": "TEST"},
         footprint="TEST",
         bounds=(width, height),
         pins=pins,
@@ -68,7 +68,7 @@ class TestEscapeRouteProperties:
     )
     def test_all_pins_have_escape_routes(self, component, position, escape_length):
         """Property: All pins must have escape routes of specified length."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         router.block_components([component], position, margin=0.1, escape_length=escape_length)
@@ -107,7 +107,7 @@ class TestEscapeRouteProperties:
     )
     def test_escape_routes_are_connected(self, component, position):
         """Property: Escape routes must form connected path from pin."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         router.block_components([component], position, margin=0.1, escape_length=5)
@@ -141,7 +141,7 @@ class TestEscapeRouteProperties:
     )
     def test_escape_routes_extend_beyond_margin(self, component, position, margin):
         """Property: Escape routes must extend beyond component margin."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         router.block_components([component], position, margin=margin, escape_length=5)
@@ -179,13 +179,13 @@ class TestEscapeRouteEdgeCases:
 
     def test_escape_routes_at_board_edge(self):
         """Escape routes should handle components near board edges."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         # Component near left edge
         component = Component(
             ref="U1",
-            value="TEST",
+            attributes={"value": "TEST"},
             footprint="TEST",
             bounds=(10.0, 10.0),
             pins=[
@@ -213,13 +213,13 @@ class TestEscapeRouteEdgeCases:
 
     def test_escape_routes_with_dense_components(self):
         """Escape routes should work with densely packed components."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         # Three components in a row
         component = Component(
             ref="U1",
-            value="TEST",
+            attributes={"value": "TEST"},
             footprint="TEST",
             bounds=(8.0, 8.0),
             pins=[

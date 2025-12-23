@@ -18,7 +18,10 @@ def main():
     project_root = Path(__file__).resolve().parent.parent.parent.parent
     
     # Find PCB file
-    pcb_path = project_root / "pcb/temper.kicad_pcb"
+    if len(sys.argv) > 1:
+        pcb_path = Path(sys.argv[1])
+    else:
+        pcb_path = project_root / "pcb/temper.kicad_pcb"
             
     if not pcb_path.exists():
         print(f"Error: {pcb_path} not found")
@@ -51,10 +54,10 @@ def main():
     # Initialize Router
     cell_size = 0.5 
     print(f"Initializing MazeRouter (cell_size={cell_size}mm)...")
-    router = MazeRouter.from_board(board, cell_size_mm=cell_size, num_layers=2)
+    router = MazeRouter.from_board(board, cell_size_mm=cell_size, num_layers=4)
     
     print("Blocking components...")
-    router.block_components(netlist.components, positions)
+    router.block_components(netlist.components, positions, margin=0.1, layer_specific=True)
     
     print("Routing nets...")
     router.route_all_nets(netlist, positions, net_order, assignments)
