@@ -220,10 +220,10 @@ def _compute_pairwise_overlaps_vectorized(
     mask = jnp.triu(jnp.ones((n, n), dtype=jnp.bool_), k=1)
     total_overlap = jnp.sum(overlap_amount * mask)
 
-    # For per-component breakdown, sum across rows (all overlaps for each component)
-    # We use the full symmetric matrix here but zero out diagonal
-    # Divide by 2 because each overlap is shared by two components
-    per_component_overlap = jnp.sum(overlap_amount * (jnp.array(1.0, dtype=dtype) - jnp.eye(n, dtype=dtype)), axis=1) / 2.0
+    # For per-component breakdown, use same triangle logic (temper-p11g.4)
+    # Component i's overlap = sum of overlaps where i is involved in upper triangle
+    # This means: sum over j>i (as row) + sum over j<i (as column)
+    per_component_overlap = jnp.sum(overlap_amount * mask, axis=1) + jnp.sum(overlap_amount * mask, axis=0)
 
     return total_overlap, per_component_overlap
 

@@ -580,6 +580,14 @@ def make_train_step(
                 positions,
                 new_positions
             )
+            
+            # Zero out optimizer state for fixed components to prevent drift (temper-p11g.6)
+            # Adam optimizer maintains momentum (mu) and variance (nu) which can accumulate
+            if hasattr(next_opt_state_pos, 'mu'):
+                next_opt_state_pos = next_opt_state_pos._replace(
+                    mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.mu),
+                    nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.nu),
+                )
 
         updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
@@ -591,6 +599,13 @@ def make_train_step(
                 rotation_logits,
                 new_rotation_logits
             )
+            
+            # Zero out optimizer state for fixed components (temper-p11g.6)
+            if hasattr(next_opt_state_rot, 'mu'):
+                next_opt_state_rot = next_opt_state_rot._replace(
+                    mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.mu),
+                    nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.nu),
+                )
 
         updates_vn, next_opt_state_vn = opt_vn.update(grad_vn, new_opt_state_vn, net_virtual_nodes)
         new_net_virtual_nodes = optax.apply_updates(net_virtual_nodes, updates_vn)
@@ -850,7 +865,13 @@ def train(
                         state.overlap_weights * ao_cfg.ramp_rate,
                         state.overlap_weights
                     )
+                    # Cap is critical to prevent explosion (temper-taaj.1)
                     state.overlap_weights = jnp.minimum(state.overlap_weights, ao_cfg.max_cap)
+                    
+                    # Log when weights approach cap for debugging
+                    max_weight = float(jnp.max(state.overlap_weights))
+                    if max_weight > ao_cfg.max_cap * 0.9:
+                        logger.debug(f"Epoch {epoch}: Adaptive weight near cap: {max_weight:.2f}/{ao_cfg.max_cap}")
             # Stochastic Perturbation (Jiggle) Logic
             j_cfg = config.jiggle
             if j_cfg.enabled and state.position_delta_ema < j_cfg.ema_threshold and epoch > j_cfg.min_epoch:
