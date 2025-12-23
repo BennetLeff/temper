@@ -1,114 +1,99 @@
 # Reference Layouts for Validation
 
-This directory contains hand-placed PCB layouts used as ground truth for validating optimizer output.
+This directory contains reference PCB layouts used as ground truth for validating optimizer output.
 
-## Layouts
+## Directory Structure
 
-### 1. temper_final.kicad_pcb
-**Description:** Final hand-routed Temper induction cooker PCB
+```
+reference_layouts/
+├── simple/              # 10-50 components
+├── medium/             # 50-100 components
+├── complex/             # 100-200 components
+└── very_complex/         # 200+ components
+```
 
-**Status:** TODO - Create from actual Temper design
+## Sources for Reference Layouts
 
-**Contents should include:**
-- Full half-bridge topology with IKW40N120H3 IGBTs
-- UCC21550 gate drivers with bootstrap supplies
-- ESP32-S3 MCU with all peripherals
-- LMR51430 buck converters for auxiliary power
-- MAX31865 RTD interface
-- Sensing circuits (current transformers, voltage dividers)
-- Safety interlocks (watchdog, protection circuits)
-- All power and signal routing complete
-- Proper clearances for HV (high voltage) sections
-- Thermal reliefs for heat-generating components
+**Excluded (ill-conceived):**
+- KiCad Tutorials Repository - These are simplified examples, not production-quality layouts
 
-**Metrics (estimated):**
-- Components: ~80
-- Nets: ~150
-- Board size: ~150mm × 100mm
-- Layers: 4 (top, bottom, internal power, internal signal)
-- Total wirelength: ~2500 mm
-- DRC violations: 0
-- Routing completion: 100%
+**Focus on Quality Sources:**
 
----
+1. **KiCad Official Examples**
+   - Repository: KiCad/kicad-source-mirror
+   - Filter for: documented, hand-placed, DRC-clean, complete projects
+   - Search terms: "complete board", "production", "manual routing"
 
-### 2. half_bridge.kicad_pcb
-**Description:** Simplified power stage only (no MCU, no control)
+2. **SparkFun KiCad Files**
+   - Repository: SparkFun/KiCad_Files
+   - Well-documented reference designs
+   - Hand-placed professional boards
+   - Good documentation and schematics
 
-**Status:** TODO - Create
+3. **Adafruit Learning System**
+   - Repository: adafruit/learning-system
+   - Educational, hand-placed designs
+   - Good documentation and schematics
+   - Filter for production-quality boards
 
-**Contents should include:**
-- Half-bridge topology (2x IKW40N120H3 IGBTs)
-- UCC21550 gate drivers
-- DC bus input terminals
-- Output inductor terminals
-- Bootstrap capacitors and diodes
-- Gate drive power supply
-- Current sense circuitry
+4. **Popular KiCad Projects**
+   - Search: "kicad project hand placed"
+   - Filter for: stars >= 100, active maintenance
+   - Prefer projects with documentation
 
-**Metrics (estimated):**
-- Components: ~20
-- Nets: ~30
-- Board size: ~80mm × 60mm
-- Layers: 2 (top, bottom)
-- Total wirelength: ~600 mm
-- DRC violations: 0
-- Routing completion: 100%
+## Search Strategy
 
----
+**Exclude from search:**
+- Tutorials, examples labeled "example", "learning"
+- Single-component boards, test fixtures
+- Auto-routed or poorly documented projects
 
-### 3. gate_driver.kicad_pcb
-**Description:** UCC21550 gate driver evaluation board
+**Include in search:**
+- Complete projects (not just components)
+- Reference designs, production boards
+- "final", "rev2+", "production" in name/description
+- Boards with documentation (README, schematics, BOM)
+- Manual routing or well-documented auto-routing
+- DRC-clean designs
 
-**Status:** TODO - Create
+## Acceptance Criteria
 
-**Contents should include:**
-- UCC21550 gate driver IC
-- Input logic (PWM, enable signals)
-- Bootstrap capacitor
-- Gate resistors
-- Output clamp diodes
-- Test points for measurements
-- Power supply decoupling
+- At least 3 examples per complexity tier (12+ total)
+- All examples are hand-placed (not auto-routed)
+- Range from ~20 components (simple) to ~200+ (very complex)
+- Metrics documented for all layouts
+- Source repository credited
+- Each layout passes DRC (violations = 0)
 
-**Metrics (estimated):**
-- Components: ~15
-- Nets: ~25
-- Board size: ~50mm × 50mm
-- Layers: 2 (top, bottom)
-- Total wirelength: ~200 mm
-- DRC violations: 0
-- Routing completion: 100%
+## Complexity Tiers
 
----
+### Simple (10-50 components)
+- LED blinkers, simple power supplies
+- Example targets: adafruit/learning-system LED boards
 
-## Creating Reference Layouts
+### Medium (50-100 components)
+- Motor drivers, sensor boards
+- Example targets: SparkFun motor driver boards
 
-To create actual reference layouts from the existing KiCad schematics:
+### Complex (100-200 components)
+- Complete subsystems
+- Example targets: Complete microcontroller boards
 
-1. **Layout the board in KiCad:**
-   - Open corresponding schematic (e.g., `pcb/half_bridge.kicad_sch`)
-   - Create netlist: Tools → Generate Netlist
-   - Switch to PCB editor
-   - Update PCB from netlist: Tools → Update PCB
-   - Place components manually following best practices
-   - Route all nets (auto-route with manual touch-up)
-   - Run DRC: Inspection → DRC (Alt+D)
-   - Fix all violations
+### Very Complex (200+ components)
+- Full systems, mixed-signal boards
+- Example: Temper final layout (temper_final.kicad_pcb)
 
-2. **Export to this directory:**
-   - File → Export → PCB
-   - Save as `temper_final.kicad_pcb` (or appropriate name)
-   - Place in this `data/reference_layouts/` directory
+## Metrics to Document
 
-3. **Document metrics:**
-   - Component count
-   - Net count
-   - Board dimensions
-   - Layer count
-   - Wirelength summary
-   - DRC violation count
-   - Routing completion rate
+For each reference layout:
+- Component count
+- Net count
+- Board dimensions
+- Layer count
+- Estimated wirelength
+- DRC violation count (run: `kicad-cli drc file.kicad_pcb --output -`)
+- Routing completion rate
+- Source repository URL
 
 ## Validation Usage
 
@@ -117,29 +102,35 @@ Once reference layouts exist, use them with `temper-validate` CLI:
 ```bash
 # Compare optimizer output against hand-placed reference
 temper-validate compare optimized.kicad_pcb \
-    data/reference_layouts/temper_final.kicad_pcb \
+    data/reference_layouts/complex/example.kicad_pcb \
     --output comparison.md \
     --format markdown
 
 # Score optimizer placement
 temper-validate score optimized.kicad_pcb \
-    --reference data/reference_layouts/temper_final.kicad_pcb
+    --reference data/reference_layouts/complex/example.kicad_pcb
 
 # Generate visual comparison
 temper-validate visualize \
-    data/reference_layouts/temper_final.kicad_pcb \
+    data/reference_layouts/complex/example.kicad_pcb \
     optimized.kicad_pcb \
     --output comparison.html
 ```
 
 ## Notes
 
-- These are **hand-placed** layouts, not optimizer output
-- They represent the "gold standard" for validation
+- These are **hand-placed** layouts, representing the "gold standard"
+- They represent quality targets for optimizer validation
 - Optimizer should aim for:
   - Wirelength within 10% of reference
-  - DRC score ≥ 80
-  - Routing completion ≥ 95%
-  - Aggregate score ≥ 80
+  - DRC score >= 80
+  - Routing completion >= 95%
+  - Aggregate score >= 80
 
-- TODO: Create actual `.kicad_pcb` files from existing schematics
+## Current Status
+
+- ✅ Directory structure created
+- ⏳ Searching GitHub for reference layouts
+- ⏳ Downloading and categorizing layouts
+- ⏳ Running DRC checks
+- ⏳ Documenting metrics
