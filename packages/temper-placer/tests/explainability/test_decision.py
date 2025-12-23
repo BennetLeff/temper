@@ -317,10 +317,10 @@ class TestDecisionTrace:
 
         summary = trace.summary()
         assert summary["total_decisions"] == 4
-        assert summary["unique_subjects"] == 3
-        assert summary["by_phase"]["geometric"] == 3
-        assert summary["by_phase"]["routing"] == 1
-        assert summary["by_type"]["initial_position"] == 2
+        assert len(summary["unique_subjects"]) == 3
+        assert summary["decisions_by_phase"]["geometric"] == 3
+        assert summary["decisions_by_phase"]["routing"] == 1
+        assert summary["decisions_by_type"]["initial_position"] == 2
         assert summary["duration_seconds"] is not None
 
     def test_iteration(self):
@@ -410,6 +410,6 @@ class TestIntegration:
 
         # Check summary
         summary = trace.summary()
-        assert summary["unique_subjects"] == 2
-        assert summary["by_phase"]["semantic"] == 2
-        assert summary["by_phase"]["geometric"] == 2
+        assert len(summary["unique_subjects"]) == 2
+        assert summary["decisions_by_phase"]["semantic"] == 2
+        assert summary["decisions_by_phase"]["geometric"] == 2

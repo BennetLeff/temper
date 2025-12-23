@@ -18,17 +18,19 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 import statistics
 
-# Board dimensions from config (matches medium_board.kicad_pcb)
+# Board dimensions and origin (matches medium_board.kicad_pcb)
 BOARD_WIDTH = 60.0  # mm
 BOARD_HEIGHT = 40.0  # mm
+BOARD_ORIGIN_X = 100.0  # mm
+BOARD_ORIGIN_Y = 85.0   # mm
 
 
 def compute_edge_distance(x: float, y: float) -> float:
     """Compute minimum distance to any board edge."""
-    dist_left = x
-    dist_right = BOARD_WIDTH - x
-    dist_bottom = y
-    dist_top = BOARD_HEIGHT - y
+    dist_left = x - BOARD_ORIGIN_X
+    dist_right = (BOARD_ORIGIN_X + BOARD_WIDTH) - x
+    dist_bottom = y - BOARD_ORIGIN_Y
+    dist_top = (BOARD_ORIGIN_Y + BOARD_HEIGHT) - y
     return min(dist_left, dist_right, dist_bottom, dist_top)
 
 
