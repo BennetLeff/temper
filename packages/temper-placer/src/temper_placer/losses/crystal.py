@@ -102,7 +102,7 @@ class ResolvedCrystalPlacementLoss(LossFunction):
             total_loss = total_loss + (violation_mcu**2 * rule.mcu_dist_weight)
 
             # 2. Load Caps to Crystal distance
-            if len(rule.load_cap_indices) > 0:
+            if rule.load_cap_indices.shape[0] > 0:
                 caps_pos = positions[rule.load_cap_indices]
                 # Broadcasting: crystal_pos (2,) - caps_pos (N, 2) -> (N, 2)
                 diff_caps = crystal_pos[None, :] - caps_pos
@@ -114,7 +114,7 @@ class ResolvedCrystalPlacementLoss(LossFunction):
                 total_loss = total_loss + jnp.sum(violation_caps**2) * rule.cap_dist_weight
 
             # 3. Noise Sources to Crystal distance (Must be FAR)
-            if len(rule.noise_source_indices) > 0:
+            if rule.noise_source_indices.shape[0] > 0:
                 noise_pos = positions[rule.noise_source_indices]
                 # Broadcasting: crystal_pos (2,) - noise_pos (M, 2) -> (M, 2)
                 diff_noise = crystal_pos[None, :] - noise_pos

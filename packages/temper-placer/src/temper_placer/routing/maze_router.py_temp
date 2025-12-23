@@ -1,0 +1,78 @@
+    def block_components(
+        self,
+        components: list[Component],
+        positions: Array,
+        margin: float = 0.5,
+        layer_specific: bool = False,
+        escape_length: int | None = None,
+    ) -> None:
+        """Block cells occupied by components, leaving escape routes for pins.
+
+        This method blocks component bodies but creates escape routes from each pin
+        to the nearest board edge. Without escape routes, pins would be completely
+        surrounded by blocked cells and unreachable by the router.
+
+        Args:
+            components: List of components to block
+            positions: (N, 2) array of component center positions
+            margin: Extra margin around components in mm
+            layer_specific: If True, block only the component's layer (assumed L1_TOP/0)
+            escape_length: Length of escape routes in cells. If None, calculated based on cell size.
+        """
+        if margin < 0:
+            raise ValueError("margin must be non-negative")
+
+        # First pass: block all component bodies
+        for i, comp in enumerate(components):
+            cx, cy = float(positions[i, 0]), float(positions[i, 1])
+            half_w = comp.bounds[0] / 2 + margin
+            half_h = comp.bounds[1] / 2 + margin
+
+            # Convert to grid coordinates (using round to block cells whose centers are covered)
+            x_min = int(round((cx - half_w - self.origin[0]) / self.cell_size))
+            x_max = int(round((cx + half_w - self.origin[0]) / self.cell_size))
+            y_min = int(round((cy - half_h - self.origin[1]) / self.cell_size))
+            y_max = int(round((cy + half_h - self.origin[1]) / self.cell_size))
+
+            width = x_max - x_min
+            height = y_max - y_min
+
+            # Determine layer to block
+            # For now, if layer_specific is True, we assume components are on layer 0
+            block_layer = 0 if layer_specific else -1
+
+            self.block_rect(x_min, y_min, width, height, layer=block_layer)
+
+        # Second pass: create escape routes from pins
+        for i, comp in enumerate(components):
+            cx, cy = float(positions[i, 0]), float(positions[i, 1])
+            self._create_pin_escape_routes(comp, cx, cy, escape_length)
+
+    def _create_pin_escape_routes(
+        self,
+        comp: Component,
+        cx: float,
+        cy: float,
+        escape_length: int | None = None,
+    ) -> None:
+        """Create escape routes from component pins.
+
+        For each pin, unblocks the pin cell and creates a path outward from the
+        component center. This ensures pins are reachable by the router.
+
+        The escape route extends from the pin position outward (away from component
+        center) for a few cells, creating a clear channel for routing.
+
+        Args:
+            comp: Component with pins
+            cx: Component center X position
+            cy: Component center Y position
+            escape_length: Optional explicit length for escape routes
+        """
+        # Note: MazeRouter currently assumes 0 degree rotation for blocking
+        # but pins should be rotated correctly.
+        for pin in comp.pins:
+            # Compute absolute pin position (simple rotation logic for now)
+            # TODO: MazeRouter should accept rotations array in block_components
+            pin_x = cx + pin.position[0]
+            pin_y = cy + pin.position[1]

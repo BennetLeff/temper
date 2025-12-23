@@ -15,7 +15,7 @@ from temper_placer.core.board import Board
 
 @pytest.fixture
 def board():
-    return Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+    return Board(width=100.0, height=100.0, origin=(0.0, 0.0))
 
 
 @pytest.fixture
@@ -28,7 +28,6 @@ def simple_component():
     """10mm x 10mm component with 4 pins."""
     return Component(
         ref="U1",
-        value="TEST",
         footprint="TEST_10x10",
         bounds=(10.0, 10.0),
         pins=[
@@ -90,8 +89,8 @@ class TestBlockingMargin:
 
     def test_margin_affects_all_components(self, router):
         """Margin should apply consistently to all components."""
-        comp1 = Component(ref="U1", value="A", footprint="5x5", bounds=(5.0, 5.0), pins=[])
-        comp2 = Component(ref="U2", value="B", footprint="8x8", bounds=(8.0, 8.0), pins=[])
+        comp1 = Component(ref="U1", footprint="5x5", bounds=(5.0, 5.0), pins=[])
+        comp2 = Component(ref="U2", footprint="8x8", bounds=(8.0, 8.0), pins=[])
         
         positions = jnp.array([[30.0, 30.0], [70.0, 70.0]])
         router.block_components([comp1, comp2], positions, margin=0.2)
@@ -117,7 +116,7 @@ class TestMarginEdgeCases:
 
     def test_margin_larger_than_component(self, router):
         """Margin larger than component should still work."""
-        tiny_comp = Component(ref="R1", value="1k", footprint="0603", bounds=(1.6, 0.8), pins=[])
+        tiny_comp = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8), pins=[])
         positions = jnp.array([[50.0, 50.0]])
         
         # 5mm margin on 1.6mm component

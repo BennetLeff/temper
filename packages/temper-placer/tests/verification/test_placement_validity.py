@@ -308,10 +308,54 @@ class TestDRCValidation:
 
             assert drc_result.success, f"DRC should run successfully: {drc_result.raw_output}"
             assert drc_result.error_count == 0, (
-                f"Should have no DRC errors, got {drc_result.error_count}:\n{drc_result.summary()}"
+                f"Should have no DRC errors, got {drc_result.error_count}:\n" + drc_result.summary()
             )
         finally:
             cleanup_temp_pcb(temp_pcb)
+
+    def test_hard_clamping_enforcement(self, simple_netlist, simple_board):
+        """Test that positions are strictly clamped to board bounds (temper-p11g.2)."""
+        from temper_placer.optimizer.train import train
+        from temper_placer.optimizer.config import OptimizerConfig, LearningRateSchedule, EarlyStoppingConfig
+        from temper_placer.losses.base import CompositeLoss, WeightedLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.losses.base import LossContext
+
+        # Create a loss that pulls EVERYTHING to the far right (outside board)
+        # We'll use a custom loss or just a very high weight on something at the edge
+        # Actually, let's just use random init and a VERY high LR
+        
+        loss_fn = CompositeLoss([WeightedLoss(WirelengthLoss(), weight=1.0)])
+        context = LossContext.from_netlist_and_board(simple_netlist, simple_board)
+        
+        # High learning rate that would normally push components out of bounds
+        config = OptimizerConfig(
+            epochs=10,
+            learning_rate=LearningRateSchedule(initial=1000.0, decay_type="constant"),
+            early_stopping=EarlyStoppingConfig(enabled=False),
+            seed=42
+        )
+        
+        result = train(simple_netlist, simple_board, loss_fn, context, config)
+        
+        # All components must be strictly within [ox, oy, ox+width, oy+height]
+        ox, oy = simple_board.origin
+        max_x = ox + simple_board.width
+        max_y = oy + simple_board.height
+        
+        positions = result.final_state.positions
+        assert jnp.all(positions[:, 0] >= ox)
+        assert jnp.all(positions[:, 0] <= max_x)
+        assert jnp.all(positions[:, 1] >= oy)
+        assert jnp.all(positions[:, 1] <= max_y)
+        
+        # Check net virtual nodes too
+        if result.final_state.net_virtual_nodes is not None:
+            vn = result.final_state.net_virtual_nodes
+            assert jnp.all(vn[:, 0] >= ox)
+            assert jnp.all(vn[:, 0] <= max_x)
+            assert jnp.all(vn[:, 1] >= oy)
+            assert jnp.all(vn[:, 1] <= max_y)
 
     def test_drc_no_courtyard_overlaps(self):
         """Verify no component courtyard overlaps after optimization."""

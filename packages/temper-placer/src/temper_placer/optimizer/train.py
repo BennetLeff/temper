@@ -564,11 +564,29 @@ def make_train_step(
         updates_pos, next_opt_state_pos = opt_pos.update(grad_pos, new_opt_state_pos, positions)
         new_positions = optax.apply_updates(positions, updates_pos)
 
+        # Hard clamping to board bounds (temper-p11g.2)
+        if loss_context is not None:
+            board_bounds = loss_context.board.get_bounds_array()
+            new_positions = jnp.clip(
+                new_positions,
+                min=board_bounds[:2],
+                max=board_bounds[2:]
+            )
+
         updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
         
         updates_vn, next_opt_state_vn = opt_vn.update(grad_vn, new_opt_state_vn, net_virtual_nodes)
         new_net_virtual_nodes = optax.apply_updates(net_virtual_nodes, updates_vn)
+        
+        # Hard clamping for virtual nodes
+        if loss_context is not None:
+            board_bounds = loss_context.board.get_bounds_array()
+            new_net_virtual_nodes = jnp.clip(
+                new_net_virtual_nodes,
+                min=board_bounds[:2],
+                max=board_bounds[2:]
+            )
 
         # Compute movement norm and update EMA
         update_norm = jnp.linalg.norm(new_positions - positions)

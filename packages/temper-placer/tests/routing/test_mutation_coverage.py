@@ -66,11 +66,11 @@ class TestMutationCoverage:
         from temper_placer.core.netlist import Component
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -94,7 +94,7 @@ class TestMutationCoverage:
         from temper_placer.core.board import Board
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         # Test boundary check: 0 <= x < width
@@ -120,11 +120,11 @@ class TestMutationCoverage:
         from temper_placer.core.netlist import Component
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -152,11 +152,11 @@ class TestInvariantViolationDetection:
         from temper_placer.core.netlist import Component
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -172,7 +172,7 @@ class TestInvariantViolationDetection:
         """Invariant: Grid size must match board dimensions."""
         from temper_placer.core.board import Board
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         expected_width = int(100.0 / 1.0)
@@ -191,11 +191,11 @@ class TestInvariantViolationDetection:
         from temper_placer.core.netlist import Component
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         cx, cy = 50.0, 50.0
@@ -222,11 +222,11 @@ class TestRegressionDetection:
         from temper_placer.core.netlist import Component
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -246,11 +246,11 @@ class TestRegressionDetection:
         from temper_placer.core.netlist import Component, Pin
         import jax.numpy as jnp
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0),
             pins=[
                 Pin(name="1", number="1", position=(5.0, 0.0)),
@@ -284,10 +284,10 @@ class TestPerformanceRegression:
         from temper_placer.core.netlist import Component
         import jax.numpy as jnp
         
-        board = Board(width=200.0, height=200.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=200.0, height=200.0, origin=(0.0, 0.0))
         
         components = [
-            Component(ref=f"U{i}", value="TEST", footprint="TEST", bounds=(5.0, 5.0), pins=[])
+            Component(ref=f"U{i}", footprint="TEST", bounds=(5.0, 5.0), pins=[])
             for i in range(100)
         ]
         
@@ -312,7 +312,7 @@ class TestPerformanceRegression:
         """Benchmark: Finding path across board should complete in < 100ms."""
         from temper_placer.core.board import Board
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         start = (0, 0)

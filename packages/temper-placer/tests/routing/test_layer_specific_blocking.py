@@ -15,7 +15,7 @@ from temper_placer.core.board import Board
 
 @pytest.fixture
 def board():
-    return Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+    return Board(width=100.0, height=100.0, origin=(0.0, 0.0))
 
 
 @pytest.fixture
@@ -28,7 +28,6 @@ def top_layer_component():
     """Component on top layer (L1)."""
     return Component(
         ref="U1",
-        value="IC",
         footprint="QFP",
         bounds=(10.0, 10.0),
         layer=0,  # Top layer
@@ -41,7 +40,6 @@ def bottom_layer_component():
     """Component on bottom layer (L4)."""
     return Component(
         ref="U2",
-        value="IC",
         footprint="QFP",
         bounds=(10.0, 10.0),
         layer=1,  # Bottom layer

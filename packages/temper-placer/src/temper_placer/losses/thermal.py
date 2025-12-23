@@ -252,7 +252,7 @@ class ThermalSpreadLoss(LossFunction):
         Returns:
             LossResult with total spreading penalty.
         """
-        n_hp = len(self.high_power_indices)
+        n_hp = self.high_power_indices.shape[0]
         if n_hp < 2:
             return LossResult(value=jnp.array(0.0))
 
@@ -348,8 +348,8 @@ class HeatSensitiveDistanceLoss(LossFunction):
         Returns:
             LossResult with total distance penalty.
         """
-        n_sensitive = len(self.sensitive_indices)
-        n_sources = len(self.heat_source_indices)
+        n_sensitive = self.sensitive_indices.shape[0]
+        n_sources = self.heat_source_indices.shape[0]
 
         if n_sensitive == 0 or n_sources == 0:
             return LossResult(value=jnp.array(0.0))
@@ -449,7 +449,7 @@ class EdgePreferenceLoss(LossFunction):
         Returns:
             LossResult with total edge preference penalty.
         """
-        if len(self.thermal_pad_indices) == 0:
+        if self.thermal_pad_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
 
         # Get positions of thermal pad components

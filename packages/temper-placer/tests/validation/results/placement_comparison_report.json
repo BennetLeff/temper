@@ -1,15 +1,15 @@
 {
-  "generated_at": "2025-12-17T12:13:07.114407",
+  "generated_at": "2025-12-23T13:18:11.658329",
   "summary": {
     "total_projects": 5,
-    "passed": 4,
-    "failed": 1,
-    "pass_rate": "80.0%"
+    "passed": 0,
+    "failed": 5,
+    "pass_rate": "0.0%"
   },
   "aggregate_metrics": {
-    "avg_wirelength_ratio": 1.008,
-    "overlap_improvements": "5/5",
-    "boundary_improvements": "5/5"
+    "avg_wirelength_ratio": 8.656,
+    "overlap_improvements": "0/5",
+    "boundary_improvements": "0/5"
   },
   "projects": [
     {
@@ -17,101 +17,115 @@
       "baseline": {
         "component_count": 36,
         "net_count": 33,
-        "wirelength_mm": 1884.15,
-        "overlap_loss": 276.321594,
-        "boundary_loss": 272.448395
+        "wirelength_mm": 1907.47,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0
       },
       "optimizer": {
-        "wirelength_mm": 1365.28076171875,
-        "overlap_loss": 2.0934855937957764,
-        "boundary_loss": 54.95850372314453,
+        "wirelength_mm": 7091.760971707439,
+        "overlap_loss": 526.9532166379396,
+        "boundary_loss": 120.20387457500073,
         "epochs": 100,
-        "final_loss": 16615.8359375,
-        "time_s": 0.5457088947296143
+        "final_loss": 586317.8352909465,
+        "time_s": 1.6709270477294922
       },
       "comparison": {
-        "wirelength_ratio": 0.7246136250928801,
-        "overlap_improved": true,
-        "boundary_improved": true
+        "wirelength_ratio": 3.7178886020264743,
+        "overlap_improved": false,
+        "boundary_improved": false
       },
-      "passed": true,
-      "failure_reasons": []
+      "passed": false,
+      "failure_reasons": [
+        "Wirelength 3.72x baseline (threshold: 1.5x)",
+        "Overlap 526.95 > threshold 10.0",
+        "Boundary 120.20 > threshold 100.0"
+      ]
     },
     {
       "project": "piantor_right",
       "baseline": {
         "component_count": 36,
         "net_count": 33,
-        "wirelength_mm": 2058.57,
-        "overlap_loss": 276.321747,
-        "boundary_loss": 272.448303
+        "wirelength_mm": 2064.52,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0
       },
       "optimizer": {
-        "wirelength_mm": 1386.1090087890625,
-        "overlap_loss": 1.713164210319519,
-        "boundary_loss": 54.71278381347656,
+        "wirelength_mm": 6195.450889175302,
+        "overlap_loss": 544.0894032787464,
+        "boundary_loss": 2514.8158194999514,
         "epochs": 100,
-        "final_loss": 16787.79296875,
-        "time_s": 0.5031588077545166
+        "final_loss": 849730.383134893,
+        "time_s": 1.6416010856628418
       },
       "comparison": {
-        "wirelength_ratio": 0.67333586362818,
-        "overlap_improved": true,
-        "boundary_improved": true
+        "wirelength_ratio": 3.0009158977269785,
+        "overlap_improved": false,
+        "boundary_improved": false
       },
-      "passed": true,
-      "failure_reasons": []
+      "passed": false,
+      "failure_reasons": [
+        "Wirelength 3.00x baseline (threshold: 1.5x)",
+        "Overlap 544.09 > threshold 10.0",
+        "Boundary 2514.82 > threshold 100.0"
+      ]
     },
     {
       "project": "bitaxe_ultra",
       "baseline": {
         "component_count": 137,
         "net_count": 61,
-        "wirelength_mm": 1981.43,
-        "overlap_loss": 407.616852,
-        "boundary_loss": 95.287643
+        "wirelength_mm": 1907.71,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0
       },
       "optimizer": {
-        "wirelength_mm": 2313.823974609375,
-        "overlap_loss": 5.129100799560547,
-        "boundary_loss": 0.47245725989341736,
+        "wirelength_mm": 19071.161178253336,
+        "overlap_loss": 852.468229762,
+        "boundary_loss": 65379.50441653341,
         "epochs": 100,
-        "final_loss": 23722.369140625,
-        "time_s": 0.6167399883270264
+        "final_loss": 15971527.509513916,
+        "time_s": 2.0149919986724854
       },
       "comparison": {
-        "wirelength_ratio": 1.1677545886603993,
-        "overlap_improved": true,
-        "boundary_improved": true
+        "wirelength_ratio": 9.996886936826527,
+        "overlap_improved": false,
+        "boundary_improved": false
       },
-      "passed": true,
-      "failure_reasons": []
+      "passed": false,
+      "failure_reasons": [
+        "Wirelength 10.00x baseline (threshold: 1.5x)",
+        "Overlap 852.47 > threshold 10.0",
+        "Boundary 65379.50 > threshold 100.0"
+      ]
     },
     {
       "project": "libresolar_bms",
       "baseline": {
         "component_count": 209,
         "net_count": 118,
-        "wirelength_mm": 3901.49,
-        "overlap_loss": 435.32431,
-        "boundary_loss": 287.81015
+        "wirelength_mm": 3612.44,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0
       },
       "optimizer": {
-        "wirelength_mm": 8403.8798828125,
-        "overlap_loss": 33.16687774658203,
-        "boundary_loss": 38.4682502746582,
+        "wirelength_mm": 49566.31281945151,
+        "overlap_loss": 1652.5828735215052,
+        "boundary_loss": 45380.45907989179,
         "epochs": 100,
-        "final_loss": 89517.5625,
-        "time_s": 0.6566028594970703
+        "final_loss": 11886351.835930424,
+        "time_s": 1.5599157810211182
       },
       "comparison": {
-        "wirelength_ratio": 2.154018050235295,
-        "overlap_improved": true,
-        "boundary_improved": true
+        "wirelength_ratio": 13.72100652729222,
+        "overlap_improved": false,
+        "boundary_improved": false
       },
       "passed": false,
       "failure_reasons": [
-        "Wirelength 2.15x baseline (threshold: 1.5x)"
+        "Wirelength 13.72x baseline (threshold: 1.5x)",
+        "Overlap 1652.58 > threshold 10.0",
+        "Boundary 45380.46 > threshold 100.0"
       ]
     },
     {
@@ -119,25 +133,29 @@
       "baseline": {
         "component_count": 36,
         "net_count": 56,
-        "wirelength_mm": 2931.97,
-        "overlap_loss": 7.744979,
-        "boundary_loss": 340.814392
+        "wirelength_mm": 1820.23,
+        "overlap_loss": 0.0,
+        "boundary_loss": 0.0
       },
       "optimizer": {
-        "wirelength_mm": 941.6102294921875,
-        "overlap_loss": 7.7359843254089355,
-        "boundary_loss": 0.24690447747707367,
+        "wirelength_mm": 23380.0554164704,
+        "overlap_loss": 16.127758581836257,
+        "boundary_loss": 480801.47858026903,
         "epochs": 100,
-        "final_loss": 10300.9970703125,
-        "time_s": 0.310683012008667
+        "final_loss": 107670669.44985375,
+        "time_s": 0.8839449882507324
       },
       "comparison": {
-        "wirelength_ratio": 0.3211527503665411,
-        "overlap_improved": true,
-        "boundary_improved": true
+        "wirelength_ratio": 12.844561081000974,
+        "overlap_improved": false,
+        "boundary_improved": false
       },
-      "passed": true,
-      "failure_reasons": []
+      "passed": false,
+      "failure_reasons": [
+        "Wirelength 12.84x baseline (threshold: 1.5x)",
+        "Overlap 16.13 > threshold 10.0",
+        "Boundary 480801.48 > threshold 100.0"
+      ]
     }
   ]
 }

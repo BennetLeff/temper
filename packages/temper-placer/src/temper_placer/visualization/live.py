@@ -417,7 +417,7 @@ class LiveVisualizer:
         # Handle different position formats
         if len(positions.shape) == 1:
             # Assume it's flattened [x0, y0, x1, y1, ...]
-            n = len(positions) // 2
+            n = positions.shape[0] // 2
             x_pos = positions[:n]
             y_pos = positions[n : 2 * n]
         elif positions.shape[1] == 2:
@@ -435,7 +435,7 @@ class LiveVisualizer:
             comp = ComponentView(
                 ref=ref,
                 position=Point(float(x_pos[i]), float(y_pos[i])),
-                rotation=float(rotations[i]) if i < len(rotations) else 0.0,
+                rotation=float(rotations[i]) if i < rotations.shape[0] else 0.0,
                 width=float(widths[i]),
                 height=float(heights[i]),
             )

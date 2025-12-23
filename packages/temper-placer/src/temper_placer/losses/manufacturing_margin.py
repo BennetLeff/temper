@@ -238,7 +238,7 @@ class ManufacturingMarginLoss(LossFunction):
         base_required = jnp.full_like(clearances, self.min_clearance_mm)
         
         # Apply fiducial clearance if present
-        if context.fiducial_indices is not None and len(context.fiducial_indices) > 0:
+        if context.fiducial_indices is not None and context.fiducial_indices.shape[0] > 0:
             n_comp = positions.shape[0]
             
             # Create boolean mask for fiducials (N,)

@@ -66,7 +66,12 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         if jnp.sum(jnp.abs(initial_pos)) < 1e-6:
             # Random init if nothing placed
             initial_state = PlacementState.random_init(
-                n, context.board.width, context.board.height, rng_key, context.board.origin
+                n_components=n,
+                board_width=context.board.width,
+                board_height=context.board.height,
+                key=rng_key,
+                origin=context.board.origin,
+                margin=context.constraints.board_margin_mm,
             )
             positions = initial_state.positions
         else:

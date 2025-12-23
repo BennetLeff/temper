@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "temper-testing"
+version = "0.1.0"
+description = "Testing toolkit for numerical optimization and placement verification"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "hypothesis>=6.100.0",
+    "pytest>=8.0.0",
+    "numpy>=1.26.0",
+    "jax>=0.4.20",
+    "rich>=13.0.0",  # For pretty printing
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-benchmark",
+    "pytest-timeout",
+    "pytest-randomly",
+    "mutmut",
+]
+contracts = [
+    "icontract",
+    "deal",
+]
+symbolic = [
+    "crosshair-tool",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/temper_testing"]
+
+[tool.pytest.ini_options]
+addopts = "-v --tb=short"
+testpaths = ["tests"]
+
+[tool.hypothesis]
+database = ".hypothesis"

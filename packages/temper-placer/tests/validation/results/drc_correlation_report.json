@@ -5,9 +5,9 @@
     {
       "quality_level": "perfect",
       "optimizer_metrics": {
-        "total_loss": 16822.319575814035,
+        "total_loss": 1593016.7640202586,
         "overlap_loss": 0.0,
-        "boundary_loss": 0.0,
+        "boundary_loss": 31523.88888888889,
         "wirelength_loss": 1682.2319575814035
       },
       "drc_results": {
@@ -22,18 +22,18 @@
     {
       "quality_level": "good",
       "optimizer_metrics": {
-        "total_loss": 16389.11963790402,
-        "overlap_loss": 0.0,
-        "boundary_loss": 0.0,
-        "wirelength_loss": 1638.911963790402
+        "total_loss": 331318.68985625345,
+        "overlap_loss": 1.3542910512746411,
+        "boundary_loss": 6409.407325370979,
+        "wirelength_loss": 1071.2894482577017
       },
       "drc_results": {
         "ran_successfully": true,
-        "error_count": 8,
+        "error_count": 10,
         "warning_count": 4,
         "violations_by_type": {
-          "shorting_items": 4,
-          "solder_mask_bridge": 4,
+          "shorting_items": 5,
+          "solder_mask_bridge": 5,
           "lib_footprint_mismatch": 4
         }
       }
@@ -41,10 +41,10 @@
     {
       "quality_level": "mediocre",
       "optimizer_metrics": {
-        "total_loss": 10893.037067250087,
+        "total_loss": 921904.2560657464,
         "overlap_loss": 0.0,
-        "boundary_loss": 0.0,
-        "wirelength_loss": 1089.3037067250086
+        "boundary_loss": 18154.745459104583,
+        "wirelength_loss": 1416.6983110517285
       },
       "drc_results": {
         "ran_successfully": true,
@@ -60,10 +60,10 @@
     {
       "quality_level": "bad",
       "optimizer_metrics": {
-        "total_loss": 16771.089605493147,
-        "overlap_loss": 0.0,
-        "boundary_loss": 0.0,
-        "wirelength_loss": 1677.1089605493146
+        "total_loss": 1694029.994215716,
+        "overlap_loss": 0.6248144522527681,
+        "boundary_loss": 33642.57503782829,
+        "wirelength_loss": 1183.8760879076308
       },
       "drc_results": {
         "ran_successfully": true,
@@ -79,9 +79,9 @@
     {
       "quality_level": "terrible",
       "optimizer_metrics": {
-        "total_loss": 16311.017098466082,
+        "total_loss": 2044651.1232953593,
         "overlap_loss": 0.0,
-        "boundary_loss": 0.0,
+        "boundary_loss": 40566.802123937865,
         "wirelength_loss": 1631.1017098466082
       },
       "drc_results": {

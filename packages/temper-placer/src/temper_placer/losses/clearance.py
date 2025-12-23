@@ -121,7 +121,7 @@ class ClearanceLoss(LossFunction):
         hv_indices = context.hv_indices
         lv_indices = context.lv_indices
 
-        if len(hv_indices) == 0 or len(lv_indices) == 0:
+        if hv_indices.shape[0] == 0 or lv_indices.shape[0] == 0:
             return jnp.array(0.0)
 
         # Get positions and half-dimensions for HV and LV components
@@ -168,7 +168,7 @@ class ClearanceLoss(LossFunction):
 
         if indices_a is None or indices_b is None:
             return jnp.array(0.0)
-        if len(indices_a) == 0 or len(indices_b) == 0:
+        if indices_a.shape[0] == 0 or indices_b.shape[0] == 0:
             return jnp.array(0.0)
 
         # Get positions and half-dimensions
@@ -193,7 +193,7 @@ class ClearanceLoss(LossFunction):
         # Handle case where net classes are the same (avoid double counting)
         if rule.net_class_a == rule.net_class_b:
             # Use upper triangle mask
-            n = len(indices_a)
+            n = indices_a.shape[0]
             mask = jnp.triu(jnp.ones((n, n), dtype=jnp.bool_), k=1)
             edge_dist = jnp.where(mask, edge_dist, jnp.inf)
 
@@ -326,13 +326,13 @@ def compute_clearance_penalty(
     """
     # Default to point-to-point if no dimensions provided
     if half_w_a is None:
-        half_w_a = jnp.zeros(len(positions_a))
+        half_w_a = jnp.zeros(positions_a.shape[0])
     if half_h_a is None:
-        half_h_a = jnp.zeros(len(positions_a))
+        half_h_a = jnp.zeros(positions_a.shape[0])
     if half_w_b is None:
-        half_w_b = jnp.zeros(len(positions_b))
+        half_w_b = jnp.zeros(positions_b.shape[0])
     if half_h_b is None:
-        half_h_b = jnp.zeros(len(positions_b))
+        half_h_b = jnp.zeros(positions_b.shape[0])
 
     # Position differences
     diff = positions_a[:, None, :] - positions_b[None, :, :]

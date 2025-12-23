@@ -56,8 +56,8 @@
   (net 4 "SIG2")
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
-    (tedit 69492319) (tstamp 00000000-0000-0000-0000-000000000001)
-    (at 186.91073359716347 148.9497742597683 270.0)
+    (tedit 694a94c4) (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 169.4893702821547 133.00261733309864 90.0)
     (property "Reference" "R1")
     (property "Value" "10k")
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric")
@@ -69,8 +69,8 @@
   )
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
-    (tedit 69492319) (tstamp 00000000-0000-0000-0000-000000000002)
-    (at 209.58405890750464 159.54938949343563 270.0)
+    (tedit 694a94c4) (tstamp 00000000-0000-0000-0000-000000000002)
+    (at 197.06575616552115 139.69270442474038 180.0)
     (property "Reference" "R2")
     (property "Value" "4.7k")
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric")
@@ -82,8 +82,8 @@
   )
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "F.Cu")
-    (tedit 69492319) (tstamp 00000000-0000-0000-0000-000000000003)
-    (at 211.1511315029556 146.63530564857916 90.0)
+    (tedit 694a94c4) (tstamp 00000000-0000-0000-0000-000000000003)
+    (at 198.1497315978143 125.54342349336588 0.0)
     (property "Reference" "C1")
     (property "Value" "100nF")
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric")
@@ -95,8 +95,8 @@
   )
 
   (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
-    (tedit 69492319) (tstamp 00000000-0000-0000-0000-000000000004)
-    (at 206.36288493972353 153.08851482101375 270.0)
+    (tedit 694a94c4) (tstamp 00000000-0000-0000-0000-000000000004)
+    (at 177.02590206250323 132.07108369440687 90.0)
     (property "Reference" "U1")
     (property "Value" "LM358")
     (property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")

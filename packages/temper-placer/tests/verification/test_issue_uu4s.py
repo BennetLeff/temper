@@ -27,25 +27,22 @@ def test_boundary_loss_with_non_zero_origin():
     # Boundary Loss
     loss_fn = BoundaryLoss(edge_margin=0.0)
     
-    # Case 1: Component at board-relative (25, 25)
+    # Case 1: Component at board-relative (25, 25) -> absolute (125, 125)
     # This should have ZERO loss because it's in the middle of the board
-    pos_relative = jnp.array([[25.0, 25.0]])
+    pos_absolute = jnp.array([[125.0, 125.0]])
     rot = jnp.array([[1.0, 0.0, 0.0, 0.0]]) # 0 degrees
     
-    result = loss_fn(pos_relative, rot, context)
-    print(f"Loss at relative (25, 25): {result.value}")
+    result = loss_fn(pos_absolute, rot, context)
+    print(f"Loss at absolute (125, 125): {result.value}")
     
-    # Case 2: Component at absolute (125, 125)
-    # If the optimizer is accidentally working in absolute coords, this would be 0
-    pos_absolute = jnp.array([[125.0, 125.0]])
-    result_abs = loss_fn(pos_absolute, rot, context)
-    print(f"Loss at absolute (125, 125): {result_abs.value}")
+    # Case 2: Component at absolute (25, 25)
+    # This should have high loss because it's far from board starting at (100, 100)
+    pos_outside = jnp.array([[25.0, 25.0]])
+    result_outside = loss_fn(pos_outside, rot, context)
+    print(f"Loss at absolute (25, 25): {result_outside.value}")
     
-    # EXPECTATION for temper-uu4s fix:
-    # Case 1 should have 0 loss.
-    # Case 2 should have high loss (since 125 > width=50).
-    
-    assert result.value == 0.0, f"Expected 0 loss for relative position (25,25), got {result.value}"
+    assert result.value == 0.0, f"Expected 0 loss for absolute position (125,125), got {result.value}"
+    assert result_outside.value > 0.0, f"Expected positive loss for absolute position (25,25), got {result_outside.value}"
 
 def test_boundary_loss_with_medium_board_fixture():
     """
@@ -71,15 +68,16 @@ def test_boundary_loss_with_medium_board_fixture():
     # Boundary Loss
     loss_fn = BoundaryLoss(edge_margin=0.0)
     
-    # Test a position that should be INSIDE the board (relative to its origin)
+    # Test a position that should be INSIDE the board (absolute center)
     # e.g., center of the board
-    pos_relative = jnp.array([[board.width / 2, board.height / 2]] * netlist.n_components)
+    ox, oy = board.origin
+    pos_absolute = jnp.array([[ox + board.width / 2, oy + board.height / 2]] * netlist.n_components)
     rot = jnp.zeros((netlist.n_components, 4)).at[:, 0].set(1.0)
     
-    res = loss_fn(pos_relative, rot, context)
-    print(f"Loss at relative center: {res.value}")
+    res = loss_fn(pos_absolute, rot, context)
+    print(f"Loss at absolute center: {res.value}")
     
-    assert res.value == 0.0, f"Expected 0 loss at relative center, got {res.value}"
+    assert res.value == 0.0, f"Expected 0 loss at absolute center, got {res.value}"
 
 if __name__ == "__main__":
     test_boundary_loss_with_non_zero_origin()

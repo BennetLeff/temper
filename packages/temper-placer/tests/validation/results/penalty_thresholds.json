@@ -1,41 +1,41 @@
 {
   "overlap_threshold": 0.0,
-  "boundary_threshold": 0.0,
-  "total_loss_threshold": 20186.783490976843,
+  "boundary_threshold": 48680.162548725435,
+  "total_loss_threshold": 2453581.347954431,
   "safety_margin": 0.2,
   "data_points": [
     {
       "quality_level": "perfect",
       "overlap_loss": 0.0,
-      "boundary_loss": 0.0,
-      "total_loss": 16822.319575814035,
+      "boundary_loss": 31523.88888888889,
+      "total_loss": 1593016.7640202586,
       "drc_errors": 0,
       "drc_warnings": 4,
       "drc_pass": true
     },
     {
       "quality_level": "good",
-      "overlap_loss": 0.0,
-      "boundary_loss": 0.0,
-      "total_loss": 16389.11963790402,
-      "drc_errors": 8,
+      "overlap_loss": 1.3542910512746411,
+      "boundary_loss": 6409.407325370979,
+      "total_loss": 331318.68985625345,
+      "drc_errors": 10,
       "drc_warnings": 4,
       "drc_pass": false
     },
     {
       "quality_level": "mediocre",
       "overlap_loss": 0.0,
-      "boundary_loss": 0.0,
-      "total_loss": 10893.037067250087,
+      "boundary_loss": 18154.745459104583,
+      "total_loss": 921904.2560657464,
       "drc_errors": 8,
       "drc_warnings": 4,
       "drc_pass": false
     },
     {
       "quality_level": "bad",
-      "overlap_loss": 0.0,
-      "boundary_loss": 0.0,
-      "total_loss": 16771.089605493147,
+      "overlap_loss": 0.6248144522527681,
+      "boundary_loss": 33642.57503782829,
+      "total_loss": 1694029.994215716,
       "drc_errors": 8,
       "drc_warnings": 4,
       "drc_pass": false
@@ -43,8 +43,8 @@
     {
       "quality_level": "terrible",
       "overlap_loss": 0.0,
-      "boundary_loss": 0.0,
-      "total_loss": 16311.017098466082,
+      "boundary_loss": 40566.802123937865,
+      "total_loss": 2044651.1232953593,
       "drc_errors": 0,
       "drc_warnings": 4,
       "drc_pass": true

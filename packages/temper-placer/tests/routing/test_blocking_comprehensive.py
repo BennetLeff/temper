@@ -52,9 +52,9 @@ class TestBlockingMetamorphicProperties:
         """Metamorphic: Larger margin should block >= cells than smaller margin."""
         assume(margin2 > margin1 + 0.1)  # Ensure meaningful difference
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0),
             pins=[Pin(name="1", number="1", position=(5.0, 0.0))]
         )
@@ -80,9 +80,9 @@ class TestBlockingMetamorphicProperties:
         """Metamorphic: Finer grid should block more cells for same component."""
         assume(cell_size2 < cell_size1 * 0.8)  # Significantly finer
         
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -106,11 +106,11 @@ class TestBlockingMetamorphicProperties:
     @settings(max_examples=200)
     def test_more_components_block_more_cells(self, num_components):
         """Metamorphic: More components should block more cells (non-overlapping)."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(5.0, 5.0), pins=[]
         )
         
@@ -136,9 +136,9 @@ class TestBlockingMetamorphicProperties:
     @settings(max_examples=200)
     def test_longer_escape_routes_free_more_cells(self, escape_length):
         """Metamorphic: Longer escape routes should free more cells."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0),
             pins=[Pin(name="1", number="1", position=(5.0, 0.0))]
         )
@@ -168,11 +168,11 @@ class TestBlockingContractInvariants:
     @settings(max_examples=500)
     def test_contract_blocked_area_contains_component(self, margin, cx, cy):
         """Contract: All cells within component+margin must be blocked."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[cx, cy]])
@@ -196,11 +196,11 @@ class TestBlockingContractInvariants:
     @settings(max_examples=300)
     def test_contract_pin_cells_are_free(self, margin):
         """Contract: Pin cells must be free (escape routes)."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0),
             pins=[
                 Pin(name="1", number="1", position=(5.0, 0.0)),
@@ -228,11 +228,11 @@ class TestBlockingContractInvariants:
     @settings(max_examples=200)
     def test_contract_layer_blocking_consistency(self, layer_specific):
         """Contract: Layer blocking must be consistent with specification."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), layer=0, pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -257,11 +257,11 @@ class TestBlockingContractInvariants:
     @settings(max_examples=100)
     def test_contract_idempotence(self, num_calls):
         """Contract: Blocking same component multiple times should be idempotent."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -290,12 +290,12 @@ class TestBlockingSymmetryProperties:
     @settings(max_examples=200)
     def test_square_component_rotation_invariance(self, rotation):
         """Symmetry: Square component blocking should be rotation-invariant."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         # Square component
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[], rotation=rotation
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -315,11 +315,11 @@ class TestBlockingSymmetryProperties:
     @settings(max_examples=100)
     def test_symmetric_component_mirror_invariance(self, mirror):
         """Symmetry: Symmetric component should be mirror-invariant."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         
         # Symmetric component (square with symmetric pins)
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0),
             pins=[
                 Pin(name="1", number="1", position=(5.0, 0.0)),
@@ -335,7 +335,7 @@ class TestBlockingSymmetryProperties:
         # Mirror component (swap pin positions)
         if mirror:
             component_mirror = Component(
-                ref="U1", value="TEST", footprint="TEST",
+                ref="U1", footprint="TEST",
                 bounds=(10.0, 10.0),
                 pins=[
                     Pin(name="1", number="1", position=(-5.0, 0.0)),
@@ -364,11 +364,11 @@ class TestBlockingBoundaryConditions:
     @settings(max_examples=200)
     def test_component_at_board_edges(self, edge, offset):
         """Boundary: Components at board edges should be clipped correctly."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         
@@ -395,11 +395,11 @@ class TestBlockingBoundaryConditions:
     @settings(max_examples=200)
     def test_extreme_component_sizes(self, component_size):
         """Boundary: Extreme component sizes should be handled correctly."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(component_size, component_size), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])

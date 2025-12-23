@@ -10,7 +10,6 @@ import jax.numpy as jnp
 from pathlib import Path
 
 from temper_placer.routing.maze_router import MazeRouter
-from temper_placer.routing.push_shove import PushShoveRouter
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Pin, Net
@@ -22,21 +21,21 @@ class TestRealWorldScenarios:
     def test_scenario_power_supply_routing(self):
         """Real scenario: Power supply with high-current traces."""
         # Simplified power supply: rectifier + caps + regulator
-        board = Board(width=50.0, height=50.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=50.0, height=50.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.2, num_layers=2)
         
         # Components
-        d1 = Component(ref="D1", value="RECTIFIER", footprint="DO-214", 
+        d1 = Component(ref="D1", footprint="DO-214", 
                       bounds=(4.0, 2.0), pins=[
                           Pin("1", "1", (-2.0, 0.0)),
                           Pin("2", "2", (2.0, 0.0)),
                       ])
-        c1 = Component(ref="C1", value="1000uF", footprint="CAP_ELEC",
+        c1 = Component(ref="C1", footprint="CAP_ELEC",
                       bounds=(8.0, 8.0), pins=[
                           Pin("+", "1", (0.0, 3.5)),
                           Pin("-", "2", (0.0, -3.5)),
                       ])
-        u1 = Component(ref="U1", value="LM7805", footprint="TO-220",
+        u1 = Component(ref="U1", footprint="TO-220",
                       bounds=(10.0, 4.0), pins=[
                           Pin("IN", "1", (-4.0, 0.0)),
                           Pin("GND", "2", (0.0, 0.0)),
@@ -74,16 +73,16 @@ class TestRealWorldScenarios:
 
     def test_scenario_differential_pair_routing(self):
         """Real scenario: USB differential pair (D+/D-)."""
-        board = Board(width=30.0, height=20.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=30.0, height=20.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.1, num_layers=2)
         
         # USB connector and MCU
-        j1 = Component(ref="J1", value="USB", footprint="USB_MICRO",
+        j1 = Component(ref="J1", footprint="USB_MICRO",
                       bounds=(7.5, 2.5), pins=[
                           Pin("D+", "2", (0.65, 0.0)),
                           Pin("D-", "3", (-0.65, 0.0)),
                       ])
-        u1 = Component(ref="U1", value="MCU", footprint="QFP48",
+        u1 = Component(ref="U1", footprint="QFP48",
                       bounds=(7.0, 7.0), pins=[
                           Pin("D+", "12", (-3.5, 1.0)),
                           Pin("D-", "13", (-3.5, -1.0)),
@@ -120,7 +119,7 @@ class TestRealWorldScenarios:
 
     def test_scenario_dense_bga_fanout(self):
         """Real scenario: BGA fanout with vias."""
-        board = Board(width=40.0, height=40.0, origin=(0.0, 0.0), layer_count=4)
+        board = Board(width=40.0, height=40.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.15, num_layers=4)
         
         # BGA component (simplified 8x8 grid)
@@ -132,7 +131,7 @@ class TestRealWorldScenarios:
                 y = (row - 3.5) * pitch
                 pins.append(Pin(f"A{row+1}{col+1}", f"{row*8+col+1}", (x, y)))
         
-        bga = Component(ref="U1", value="FPGA", footprint="BGA64",
+        bga = Component(ref="U1", footprint="BGA64",
                        bounds=(12.0, 12.0), pins=pins)
         
         positions = jnp.array([[20.0, 20.0]])
@@ -163,25 +162,25 @@ class TestRealWorldScenarios:
 
     def test_scenario_analog_digital_separation(self):
         """Real scenario: Analog/digital ground separation."""
-        board = Board(width=60.0, height=40.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=60.0, height=40.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         # Analog section (left)
-        adc = Component(ref="U1", value="ADC", footprint="SOIC8",
+        adc = Component(ref="U1", footprint="SOIC8",
                        bounds=(5.0, 4.0), pins=[
                            Pin("AGND", "4", (0.0, -1.5)),
                            Pin("VIN", "1", (0.0, 1.5)),
                        ])
         
         # Digital section (right)
-        mcu = Component(ref="U2", value="MCU", footprint="QFP32",
+        mcu = Component(ref="U2", footprint="QFP32",
                        bounds=(7.0, 7.0), pins=[
                            Pin("DGND", "8", (-3.0, 0.0)),
                            Pin("DATA", "12", (3.0, 0.0)),
                        ])
         
         # Single point ground connection
-        ferrite = Component(ref="FB1", value="FERRITE", footprint="0805",
+        ferrite = Component(ref="FB1", footprint="0805",
                            bounds=(2.0, 1.25), pins=[
                                Pin("1", "1", (-0.8, 0.0)),
                                Pin("2", "2", (0.8, 0.0)),
@@ -216,15 +215,15 @@ class TestRealWorldScenarios:
 
     def test_scenario_high_speed_impedance_control(self):
         """Real scenario: High-speed trace with impedance control."""
-        board = Board(width=50.0, height=30.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=50.0, height=30.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.1, num_layers=2)
         
         # Driver and receiver
-        driver = Component(ref="U1", value="DRIVER", footprint="SOIC8",
+        driver = Component(ref="U1", footprint="SOIC8",
                           bounds=(5.0, 4.0), pins=[
                               Pin("OUT", "3", (1.0, 0.0)),
                           ])
-        receiver = Component(ref="U2", value="RECEIVER", footprint="SOIC8",
+        receiver = Component(ref="U2", footprint="SOIC8",
                             bounds=(5.0, 4.0), pins=[
                                 Pin("IN", "2", (-1.0, 0.0)),
                             ])
@@ -269,16 +268,16 @@ class TestEndToEndPipeline:
     def test_pipeline_complete_routing_flow(self):
         """End-to-end: Parse PCB -> Block -> Route -> Verify."""
         # Create a simple test PCB
-        board = Board(width=50.0, height=50.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=50.0, height=50.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         # Simple circuit: LED + resistor
-        led = Component(ref="D1", value="LED", footprint="LED_0805",
+        led = Component(ref="D1", footprint="LED_0805",
                        bounds=(2.0, 1.25), pins=[
                            Pin("A", "1", (-0.8, 0.0)),
                            Pin("K", "2", (0.8, 0.0)),
                        ])
-        res = Component(ref="R1", value="330R", footprint="R_0805",
+        res = Component(ref="R1", footprint="R_0805",
                        bounds=(2.0, 1.25), pins=[
                            Pin("1", "1", (-0.8, 0.0)),
                            Pin("2", "2", (0.8, 0.0)),
@@ -316,7 +315,7 @@ class TestEndToEndPipeline:
 
     def test_pipeline_with_optimization(self):
         """End-to-end: Route -> Optimize -> Verify improvement."""
-        board = Board(width=40.0, height=40.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=40.0, height=40.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         
         # Create a path with unnecessary detour

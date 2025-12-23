@@ -41,7 +41,6 @@ def random_component(draw):
     
     return Component(
         ref="FUZZ",
-        value="TEST",
         footprint="FUZZ",
         bounds=(width, height),
         pins=pins,
@@ -95,7 +94,7 @@ class TestFuzzingRobustness:
     @settings(max_examples=1000, deadline=None)
     def test_fuzz_pathfinding_never_crashes(self, width, height, cell_size, start_x, start_y, end_x, end_y):
         """Fuzz: pathfinding should never crash on valid inputs."""
-        board = Board(width=width, height=height, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=width, height=height, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=cell_size, num_layers=2)
         
         # Clamp to grid bounds
@@ -126,7 +125,7 @@ class TestFuzzingRobustness:
     @settings(max_examples=200, deadline=None)
     def test_fuzz_dense_component_packing(self, num_components, board_size):
         """Fuzz: Dense component packing should not cause issues."""
-        board = Board(width=board_size, height=board_size, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=board_size, height=board_size, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         # Random components
@@ -137,7 +136,6 @@ class TestFuzzingRobustness:
             comp_size = 5.0  # Fixed size for simplicity
             component = Component(
                 ref=f"U{i}",
-                value="TEST",
                 footprint="TEST",
                 bounds=(comp_size, comp_size),
                 pins=[],
@@ -167,7 +165,7 @@ class RouterStateMachine(RuleBasedStateMachine):
 
     def __init__(self):
         super().__init__()
-        self.board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        self.board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         self.router = MazeRouter.from_board(self.board, cell_size_mm=1.0, num_layers=2)
         self.components_blocked = 0
         self.paths_routed = 0
@@ -182,7 +180,6 @@ class RouterStateMachine(RuleBasedStateMachine):
         """Rule: Block a random component."""
         component = Component(
             ref=f"U{self.components_blocked}",
-            value="TEST",
             footprint="TEST",
             bounds=(comp_size, comp_size),
             pins=[],
@@ -224,13 +221,13 @@ class TestChaosEngineering:
 
     def test_chaos_extremely_fine_grid(self):
         """Chaos: Extremely fine grid (0.01mm cells)."""
-        board = Board(width=10.0, height=10.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=10.0, height=10.0, origin=(0.0, 0.0))
         
         # This creates a 1000x1000 grid
         router = MazeRouter.from_board(board, cell_size_mm=0.01, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(1.0, 1.0), pins=[]
         )
         positions = jnp.array([[5.0, 5.0]])
@@ -242,13 +239,13 @@ class TestChaosEngineering:
 
     def test_chaos_extremely_coarse_grid(self):
         """Chaos: Extremely coarse grid (10mm cells)."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         
         # This creates a 10x10 grid
         router = MazeRouter.from_board(board, cell_size_mm=10.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(5.0, 5.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
@@ -260,12 +257,12 @@ class TestChaosEngineering:
 
     def test_chaos_component_larger_than_board(self):
         """Chaos: Component larger than board."""
-        board = Board(width=10.0, height=10.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=10.0, height=10.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         # Huge component
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(50.0, 50.0), pins=[]
         )
         positions = jnp.array([[5.0, 5.0]])
@@ -280,11 +277,11 @@ class TestChaosEngineering:
 
     def test_chaos_negative_coordinates(self):
         """Chaos: Negative board origin."""
-        board = Board(width=100.0, height=100.0, origin=(-50.0, -50.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(-50.0, -50.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         # Component at origin (which is -50, -50 in world coords)
@@ -296,11 +293,11 @@ class TestChaosEngineering:
 
     def test_chaos_floating_point_precision(self):
         """Chaos: Floating point precision edge cases."""
-        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), layer_count=2)
+        board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.333333, num_layers=2)
         
         component = Component(
-            ref="U1", value="TEST", footprint="TEST",
+            ref="U1", footprint="TEST",
             bounds=(3.141592, 2.718281), pins=[]
         )
         positions = jnp.array([[50.123456, 50.654321]])
