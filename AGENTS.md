@@ -1398,6 +1398,10 @@ cat sim_01_ac_rectifier_verification.md  # Read analysis
 4. **API changes** → Update module README.md
    - `firmware/README.md`, `temper-placer/README.md`, etc.
 
+5. **Experiments** → Create `experiments/temper-XXX/REPORT.md`
+   - Include: Overview, Hypotheses, Methodology, Results (with stats), and Conclusions.
+   - See `experiments/temper-a98v/REPORT.md` for an example.
+
 **Documentation format:**
 
 - Use markdown with clear section headers
