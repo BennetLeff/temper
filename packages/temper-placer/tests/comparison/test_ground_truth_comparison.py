@@ -207,8 +207,8 @@ class TestGroundTruthComparison:
         config = OptimizerConfig(
             epochs=8000,
             seed=42,
-            initialization=InitializationConfig(method="random"),
-            learning_rate=LearningRateSchedule(initial=0.05, final=0.001),
+            initialization=InitializationConfig(method="spectral"),
+            learning_rate=LearningRateSchedule(initial=0.1, final=0.001),
         )
 
         opt_result = train(

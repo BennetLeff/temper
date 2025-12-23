@@ -30,7 +30,7 @@ def test_ema_decay_on_stall():
 
     # Setup
     opt = optax.adam(0.1)
-    train_step = make_train_step(mock_vg, opt, opt, total_epochs=1000)
+    train_step = make_train_step(mock_vg, opt, opt, opt, total_epochs=1000)
 
     pos = jnp.array([[10.0, 10.0], [20.0, 20.0]])
     rot_logits = jnp.zeros((2, 4))
@@ -127,9 +127,9 @@ def test_adaptive_overlap_weighting():
     weights = result.final_overlap_weights
     assert weights is not None
     assert weights.shape == (2,)
-    # Initial weights were 1.0. After 5 intervals of 1.05x, should be ~1.27
-    assert jnp.all(weights > 1.2)
-    assert jnp.all(weights < 1.3)
+    # Initial weights were 1.0. After 5 intervals of 1.10x, should be ~1.61
+    assert jnp.all(weights > 1.5)
+    assert jnp.all(weights < 1.7)
 
 def test_soft_body_inflation():
     """Test Case 5: Verify components start small and inflate."""

@@ -363,7 +363,9 @@ class GroupSeparationLoss(LossFunction):
 
             # Penalty for being too close
             deficit = jax.nn.relu(min_dist - distance)
-            penalty = deficit**2
+            # Use maximum weight from both groups
+            weight = jnp.maximum(group_a.weight, group_b.weight)
+            penalty = weight * deficit**2
 
             total_penalty = total_penalty + penalty
             breakdown[f"sep_{group_a.name}_{group_b.name}_dist"] = distance

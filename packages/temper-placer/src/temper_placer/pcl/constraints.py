@@ -44,17 +44,13 @@ from abc import ABC, abstractmethod
 
 
 class ConstraintTier(Enum):
-    """Priority tier for constraints.
+    """
+    Priority tier for a constraint.
 
-    Constraints are tiered to balance competing requirements:
-    - HARD: Inviolable constraints (safety, clearance). Optimizer fails if violated.
-    - STRONG: Strong preference (electrical performance, EMI). Heavy penalty.
-    - SOFT: Nice-to-have (aesthetics, convention). Light penalty.
-
-    The tier maps to loss function weights:
-    - HARD: 10.0 (or fail-fast check)
-    - STRONG: 1.0
-    - SOFT: 0.1
+    Tiers determine the penalty weight in the optimization objective:
+    - HARD (1): weight=1e6 (Must be satisfied)
+    - STRONG (2): weight=1e3 (Should be satisfied)
+    - SOFT (3): weight=1e1 (Nice to have)
     """
 
     HARD = 1  # Never violate, fail if impossible

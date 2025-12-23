@@ -105,7 +105,8 @@ class EarlyStoppingConfig:
         monitor: Metric to monitor ("loss", "overlap", "wirelength").
         use_convergence: If True, also stop when convergence confidence hits threshold.
         confidence_threshold: Confidence (0-1) to trigger stopping.
-        improvement_threshold: Relative improvement EMA threshold (e.g. 1e-5).
+        stagnation_threshold: Relative improvement threshold for stagnation (default 1e-4).
+        stagnation_epochs: Number of epochs of low improvement before stagnation (default 50).
     """
 
     enabled: bool = True
@@ -114,7 +115,9 @@ class EarlyStoppingConfig:
     monitor: str = "loss"
     use_convergence: bool = True
     confidence_threshold: float = 0.95
-    improvement_threshold: float = 1e-5
+    stagnation_threshold: float = 1e-4
+    stagnation_epochs: int = 50
+    improvement_threshold: float = 1e-5  # Keep for backward compatibility
 
 
 @dataclass

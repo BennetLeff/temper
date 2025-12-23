@@ -93,6 +93,10 @@ class BoundaryLoss(LossFunction):
                 }
             )
 
+        # Guard against NaN/Inf in inputs
+        positions = jnp.nan_to_num(positions, nan=0.0, posinf=1e6, neginf=-1e6)
+        rotations = jnp.nan_to_num(rotations, nan=0.25, posinf=0.25, neginf=0.25)
+
         bounds = context.bounds  # (N, 2)
         board = context.board
         centrality = context.centrality if hasattr(context, "centrality") else None

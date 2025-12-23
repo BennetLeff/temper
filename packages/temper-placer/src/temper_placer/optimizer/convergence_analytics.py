@@ -24,6 +24,7 @@ Usage:
 
 from __future__ import annotations
 
+import math
 from collections import deque
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, NamedTuple
@@ -130,6 +131,10 @@ class LossImprovementTracker:
 
     def __post_init__(self) -> None:
         """Initialize internal buffers."""
+        # Ensure stagnation_epochs is valid
+        if self.stagnation_epochs < 1:
+            self.stagnation_epochs = 1
+            
         # Pre-allocate deques for efficient rolling window computation
         self._delta_buffers: dict[int, deque[float]] = {w: deque(maxlen=w) for w in self.windows}
         self._improvement_rate_buffer: deque[float] = deque(maxlen=self.velocity_window)
@@ -167,13 +172,19 @@ class LossImprovementTracker:
         # Compute delta (negative = improvement)
         if len(self._loss_history) >= 2:
             prev_loss = self._loss_history[-2]
-            delta = loss - prev_loss
 
-            # Compute improvement rate (positive = improvement)
-            if abs(prev_loss) > 1e-10:
-                improvement_rate = -delta / abs(prev_loss)
-            else:
+            # Guard against non-finite values
+            if not math.isfinite(loss) or not math.isfinite(prev_loss):
+                delta = 0.0
                 improvement_rate = 0.0
+            else:
+                delta = loss - prev_loss
+
+                # Compute improvement rate (positive = improvement)
+                if abs(prev_loss) > 1e-10:
+                    improvement_rate = -delta / abs(prev_loss)
+                else:
+                    improvement_rate = 0.0
         else:
             # First epoch - no delta yet
             delta = 0.0
@@ -208,6 +219,7 @@ class LossImprovementTracker:
         # Determine if stagnating and track plateau events
         plateau_event = None
         was_stagnating = self._low_improvement_count >= self.stagnation_epochs
+        self._plateau_detected_this_epoch = False
 
         if improvement_rate < self.stagnation_threshold:
             self._low_improvement_count += 1
@@ -220,6 +232,7 @@ class LossImprovementTracker:
             if was_stagnating and self._plateau_start_epoch is not None:
                 plateau_event = self._create_plateau_event(epoch - 1)
                 self._plateau_events.append(plateau_event)
+                self._plateau_detected_this_epoch = True
 
             self._low_improvement_count = 0
             self._plateau_start_epoch = None
@@ -229,6 +242,7 @@ class LossImprovementTracker:
         # Emit plateau event when first entering stagnation
         if is_stagnating and not was_stagnating and self._plateau_start_epoch is not None:
             plateau_event = self._create_plateau_event(epoch)
+            self._plateau_detected_this_epoch = True
             # Don't add to events yet - still ongoing
 
         return ImprovementMetrics(

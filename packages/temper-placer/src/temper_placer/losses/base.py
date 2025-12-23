@@ -913,6 +913,9 @@ class CompositeLoss:
             normalizer = wloss.get_normalizer(context)
             normalized_value = result.value / normalizer
 
+            # NaN/Inf guard: prevent one loss from poisoning the entire sum
+            normalized_value = jnp.nan_to_num(normalized_value, nan=1e6, posinf=1e6, neginf=1e6)
+
             weighted_value = weight * normalized_value
             total = total + weighted_value
 

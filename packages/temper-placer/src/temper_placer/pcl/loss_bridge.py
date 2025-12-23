@@ -5,9 +5,9 @@ This module translates PCL constraints into differentiable JAX loss functions.
 This is an MVP that focuses on tier mapping and basic constraint translation.
 
 Tier Mapping:
-- HARD (tier=1): weight=10.0
-- STRONG (tier=2): weight=1.0
-- SOFT (tier=3): weight=0.1
+- HARD (tier=1): weight=1e6
+- STRONG (tier=2): weight=1e3
+- SOFT (tier=3): weight=1e1
 
 Note: Full constraint translation requires additional work to map all PCL
 constraint types to appropriate loss functions with correct constructors.
@@ -41,6 +41,8 @@ def tier_to_weight(tier: ConstraintTier) -> float:
     """
     Convert constraint tier to loss function weight.
 
+    Weights are aligned with tiers.py for consistency.
+
     Args:
         tier: Constraint tier (HARD, STRONG, or SOFT).
 
@@ -48,11 +50,51 @@ def tier_to_weight(tier: ConstraintTier) -> float:
         Weight multiplier for loss function.
     """
     weight_map = {
-        ConstraintTier.HARD: 10.0,
-        ConstraintTier.STRONG: 1.0,
-        ConstraintTier.SOFT: 0.1,
+        ConstraintTier.HARD: 1000000.0,
+        ConstraintTier.STRONG: 1000.0,
+        ConstraintTier.SOFT: 10.0,
     }
     return weight_map[tier]
+
+
+def _resolve_to_indices(
+    name: str,
+    netlist: Netlist,
+    board: Board | None = None,
+) -> list[int]:
+    """
+    Resolve a name (component ref or zone name) to component indices.
+
+    Args:
+        name: Component reference (e.g., 'Q1') or zone name (e.g., 'HV_ZONE').
+        netlist: Netlist for component lookup.
+        board: Optional board for zone component lookup.
+
+    Returns:
+        List of component indices.
+    """
+    ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
+
+    # 1. Check if it's a direct component reference
+    if name in ref_to_idx:
+        return [ref_to_idx[name]]
+
+    # 2. Check if it's a zone name in the board definition
+    if board and board.zones:
+        for zone in board.zones:
+            if zone.name == name:
+                indices = []
+                for comp_ref in zone.components:
+                    if comp_ref in ref_to_idx:
+                        indices.append(ref_to_idx[comp_ref])
+                return indices
+
+    # 3. Handle fallback case (e.g., zone name not yet in board.zones)
+    # This happens during early optimization phases
+    if "_ZONE" in name:
+        return []
+
+    raise ValueError(f"Could not resolve '{name}' to any components in netlist or board zones")
 
 
 def adjacent_to_proximity_loss(
@@ -97,7 +139,7 @@ def adjacent_to_proximity_loss(
 def separated_to_separation_loss(
     constraint: SeparatedConstraint,
     netlist: Netlist,
-    zones: dict[str, Any] | None = None,
+    board: Board | None = None,
 ) -> LossFunction:
     """
     Convert Separated constraint to GroupSeparationLoss.
@@ -105,24 +147,33 @@ def separated_to_separation_loss(
     Args:
         constraint: Separated constraint specifying min distance.
         netlist: Netlist for component/zone lookup.
-        zones: Optional zone definitions.
+        board: Optional board for zone lookup.
 
     Returns:
         GroupSeparationLoss enforcing min distance.
     """
-    from temper_placer.losses.grouping import GroupSeparationLoss, GroupConfig
+    from temper_placer.losses.grouping import GroupConfig, GroupSeparationLoss
 
-    # MVP: Return empty separation loss
-    # TODO: Implement proper zone/component group mapping
+    indices_a = _resolve_to_indices(constraint.a, netlist, board)
+    indices_b = _resolve_to_indices(constraint.b, netlist, board)
+
+    if not indices_a or not indices_b:
+        # Return empty loss if one group is empty (e.g., empty zone)
+        return GroupSeparationLoss(separations=[])
+
+    weight = tier_to_weight(constraint.tier)
+
     group_a = GroupConfig(
         name=constraint.a,
-        component_indices=jnp.array([], dtype=jnp.int32),
+        component_indices=jnp.array(indices_a, dtype=jnp.int32),
         max_diameter_mm=0.0,
+        weight=weight,
     )
     group_b = GroupConfig(
         name=constraint.b,
-        component_indices=jnp.array([], dtype=jnp.int32),
+        component_indices=jnp.array(indices_b, dtype=jnp.int32),
         max_diameter_mm=0.0,
+        weight=weight,
     )
 
     return GroupSeparationLoss(
@@ -133,7 +184,6 @@ def separated_to_separation_loss(
 def enclosing_to_zone_loss(
     constraint: EnclosingConstraint,
     netlist: Netlist,
-    zones: dict[str, Any],
 ) -> LossFunction:
     """
     Convert Enclosing constraint to ZoneMembershipLoss.
@@ -141,41 +191,24 @@ def enclosing_to_zone_loss(
     Args:
         constraint: Enclosing constraint (outer zone, inner components).
         netlist: Netlist for component lookup.
-        zones: Zone definitions with polygons.
 
     Returns:
         ZoneMembershipLoss enforcing zone membership.
     """
-    # MVP: Return a simple custom loss
-    # TODO: Integrate with actual ZoneMembershipLoss constructor
+    from temper_placer.losses.zone import ZoneMembershipLoss
+
     ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
 
-    inner_indices = []
+    zone_assignments = {}
     for comp_ref in constraint.inner:
         if comp_ref not in ref_to_idx:
             raise ValueError(f"Component {comp_ref} not found in netlist")
-        inner_indices.append(ref_to_idx[comp_ref])
+        zone_assignments[comp_ref] = constraint.outer
 
-    weight = tier_to_weight(constraint.tier)
-
-    class ZoneLoss(LossFunction):
-        @property
-        def name(self) -> str:
-            return f"zone_{constraint.outer}"
-
-        def __call__(
-            self,
-            positions: Array,
-            rotations: Array,
-            context: LossContext,
-            epoch: int = 0,
-            total_epochs: int = 1,
-        ) -> LossResult:
-            # MVP: Return zero loss
-            # TODO: Implement actual zone containment check
-            return LossResult(value=jnp.array(0.0))
-
-    return ZoneLoss()
+    # Note: ZoneMembershipLoss weight scheduling is handled internally
+    # but we could wrap it if we wanted to apply PCL tier weights here.
+    # For now, we trust the internal schedule.
+    return ZoneMembershipLoss(zone_assignments=zone_assignments)
 
 
 def aligned_to_alignment_loss(
@@ -400,12 +433,10 @@ def constraint_to_loss(
         return adjacent_to_proximity_loss(constraint, netlist)
 
     elif isinstance(constraint, SeparatedConstraint):
-        return separated_to_separation_loss(constraint, netlist, zones)
+        return separated_to_separation_loss(constraint, netlist, board)
 
     elif isinstance(constraint, EnclosingConstraint):
-        if zones is None:
-            raise ValueError("zones dict required for EnclosingConstraint")
-        return enclosing_to_zone_loss(constraint, netlist, zones)
+        return enclosing_to_zone_loss(constraint, netlist)
 
     elif isinstance(constraint, AlignedConstraint):
         return aligned_to_alignment_loss(constraint, netlist)

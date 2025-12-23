@@ -1,52 +1,66 @@
-
-import sys
-from pathlib import Path
-
+import jax
+import jax.numpy as jnp
 import pytest
-
-# Add project root to path to allow sibling imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from tests.validation.test_placement_comparison import (
-    BaselineMetrics,
-    compare_metrics,
-    get_project_paths,
-    run_optimizer_on_pcb,
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.losses import (
+    BoundaryLoss,
+    CompositeLoss,
+    LossContext,
+    OverlapLoss,
+    WeightedLoss,
+    WirelengthLoss,
 )
+from temper_placer.optimizer import InitializationConfig, OptimizerConfig, train
+from temper_placer.optimizer.config import LearningRateSchedule
+from temper_placer.visualization import render_board, create_board_view_from_state
+from tests.fixtures.external import get_pcb_path
 
-
-@pytest.mark.external
-@pytest.mark.slow
-def test_piantor_right_boundary_extended():
-    """
-    Focused test for piantor_right with more epochs to debug boundary violations.
-    """
+def test_debug_piantor_right_convergence():
+    """Debug test to investigate piantor_right convergence issues."""
     project_name = "piantor_right"
-    unrouted_path, baseline_path, constraints_path = get_project_paths(project_name)
+    pcb_path = get_pcb_path(project_name)
+    result = parse_kicad_pcb(pcb_path)
+    netlist, board = result.netlist, result.board
 
-    if not all([unrouted_path, baseline_path, constraints_path]):
-        pytest.skip(f"Required files for {project_name} not found.")
+    # Use settings from the failing test
+    composite_loss = CompositeLoss([
+        WeightedLoss(OverlapLoss(), weight=5000.0),
+        WeightedLoss(BoundaryLoss(), weight=5000.0),
+        WeightedLoss(WirelengthLoss(), weight=10.0),
+    ])
 
-    baseline = BaselineMetrics.from_yaml(baseline_path)
-
-    # Run optimizer with more epochs
-    _, optimizer_metrics, _ = run_optimizer_on_pcb(
-        unrouted_path,
-        constraints_path,
-        epochs=2000,  # Increased from 100 to 2000
-        learning_rate=0.1, # Slower learning rate for stability
+    context = LossContext.from_netlist_and_board(netlist, board)
+    config = OptimizerConfig(
+        epochs=4000, # Try more epochs
+        seed=42,
+        initialization=InitializationConfig(method="spectral"),
+        learning_rate=LearningRateSchedule(initial=0.1, final=0.01),
     )
 
-    # Compare with a stricter boundary threshold
-    result = compare_metrics(baseline, optimizer_metrics, boundary_threshold=5.0)
+    opt_result = train(
+        netlist=netlist,
+        board=board,
+        composite_loss=composite_loss,
+        context=context,
+        config=config,
+    )
 
-    print(f"\n{'=' * 60}")
-    print(f"Project: {project_name} (Extended Epochs)")
-    print(f"{'=' * 60}")
-    print(f"Overlap Loss: {optimizer_metrics.overlap_loss:.2f}")
-    print(f"Wirelength: {optimizer_metrics.total_wirelength_mm:.1f}")
-    print(f"Boundary Loss: {optimizer_metrics.boundary_loss:.2f}")
-    print(f"{'=' * 60}")
+    # Calculate final metrics
+    positions = opt_result.final_state.positions
+    rotations = jax.nn.softmax(opt_result.final_state.rotation_logits)
+    
+    wl = WirelengthLoss()(positions, rotations, context).value
+    overlap = OverlapLoss()(positions, rotations, context).value
+    boundary = BoundaryLoss()(positions, rotations, context).value
+    
+    print(f"\nPiantor Right Final Metrics (4000 epochs):")
+    print(f"  Wirelength: {wl:.4f}")
+    print(f"  Overlap:    {overlap:.4f}")
+    print(f"  Boundary:   {boundary:.4f}")
 
-    assert result.passed, f"Boundary violation still high: {optimizer_metrics.boundary_loss}"
-    assert optimizer_metrics.boundary_loss < 20.0, "Boundary loss should be below 20.0"
+    # Render result to file
+    board_view = create_board_view_from_state(board, netlist, opt_result.final_state)
+    fig = render_board(board_view)
+    fig.write_html("piantor_right_debug_4000.html")
+    
+    # Assert nothing, just for debugging

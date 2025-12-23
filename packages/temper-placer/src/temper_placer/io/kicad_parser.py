@@ -280,20 +280,47 @@ def _extract_components_from_pcb(
         width, height = 5.0, 5.0
         
         if fp.graphicItems:
+            # Filter items by layer to avoid including silkscreen in bounds
+            # Courtyard (.CrtYd) is best, then Fabrication (.Fab)
+            # Silk layers often extend outside board or overlap unhelpfully
+            layers_priority = ["F.CrtYd", "B.CrtYd", "F.Fab", "B.Fab"]
+            
+            # Try to get items from priority layers
+            items_to_use = [g for g in fp.graphicItems if hasattr(g, "layer") and g.layer in layers_priority]
+            
+            if not items_to_use:
+                # Fallback: ignore Silk layers
+                items_to_use = [g for g in fp.graphicItems if hasattr(g, "layer") and "Silk" not in g.layer]
+                
+            if not items_to_use:
+                # Final fallback: use all items
+                items_to_use = fp.graphicItems
+
             x_min, y_min = float("inf"), float("inf")
             x_max, y_max = float("-inf"), float("-inf")
-            has_graphics = False
+            has_valid_items = False
             
-            for item in fp.graphicItems:
-                # Basic bounding box logic for lines/rects
+            for item in items_to_use:
+                # Basic bounding box logic for lines/rects/arcs
                 if hasattr(item, "start") and hasattr(item, "end"):
-                    x_min = min(x_min, item.start.X, item.end.X)
-                    y_min = min(y_min, item.start.Y, item.end.Y)
-                    x_max = max(x_max, item.start.X, item.end.X)
-                    y_max = max(y_max, item.start.Y, item.end.Y)
-                    has_graphics = True
+                    for pt in [item.start, item.end]:
+                        x_min = min(x_min, pt.X)
+                        y_min = min(y_min, pt.Y)
+                        x_max = max(x_max, pt.X)
+                        y_max = max(y_max, pt.Y)
+                    has_valid_items = True
+                
+                # Arcs and other items might have center/radius or points
+                if hasattr(item, "center") and hasattr(item, "radius"):
+                    # Approximate with bounding box of circle
+                    cx, cy, r = item.center.X, item.center.Y, item.radius
+                    x_min = min(x_min, cx - r)
+                    y_min = min(y_min, cy - r)
+                    x_max = max(x_max, cx + r)
+                    y_max = max(y_max, cy + r)
+                    has_valid_items = True
             
-            if has_graphics:
+            if has_valid_items:
                 width = max(1.0, x_max - x_min)
                 height = max(1.0, y_max - y_min)
 

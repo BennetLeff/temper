@@ -232,6 +232,9 @@ def _parse_distance_with_unit(value: Any) -> float:
     except ValueError:
         raise PCLParseError(f"Invalid distance value: {value}")
 
+    if number < 0:
+        raise PCLParseError(f"Distance cannot be negative: {value}")
+
     # Convert to mm
     if unit_str in ("mm", ""):
         return number
@@ -427,9 +430,12 @@ def parse_constraint_dict(data: Dict[str, Any]) -> BaseConstraint:
         )
 
     elif constraint_type == "loop_area":
+        max_area = float(data["max_area_mm2"])
+        if max_area < 0:
+            raise PCLParseError(f"max_area_mm2 cannot be negative: {max_area}")
         return LoopAreaConstraint(
             loop_name=data["loop_name"],
-            max_area_mm2=float(data["max_area_mm2"]),
+            max_area_mm2=max_area,
             tier=tier,
             because=because,
             id=constraint_id,

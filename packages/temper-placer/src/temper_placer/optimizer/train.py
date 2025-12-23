@@ -41,6 +41,10 @@ from temper_placer.losses.base import (
 )
 from temper_placer.heuristics.force_directed import compute_force_directed_layout
 from temper_placer.optimizer.config import OptimizerConfig
+from temper_placer.optimizer.convergence_analytics import (
+    ConvergenceConfidenceScorer,
+    LossImprovementTracker,
+)
 from temper_placer.optimizer.initialization import SpectralInitializer
 from temper_placer.optimizer.scheduler import (
     get_learning_rate,
@@ -333,14 +337,15 @@ def initialize_training_state(
             )
             positions = state.positions
             net_virtual_nodes = state.net_virtual_nodes
-
-    # Start with uniform logits (equal probability for all rotations)
-    rotation_logits = jnp.zeros((netlist.n_components, 4))
+        
+        # Initialize uniform rotation logits if not starting from existing state
+        rotation_logits = jnp.zeros((netlist.n_components, 4))
 
     # Initialize virtual nodes if not present
     if net_virtual_nodes is None:
          ox, oy = board.origin
-         margin = 10.0
+         # Use 10mm margin but cap it at 20% of board dimensions to handle small boards
+         margin = min(10.0, board.width * 0.2, board.height * 0.2)
          key_vn_x, key_vn_y = jax.random.split(rng_key, 2)
          nx = jax.random.uniform(key_vn_x, (netlist.n_nets,), minval=ox+margin, maxval=ox+board.width-margin)
          ny = jax.random.uniform(key_vn_y, (netlist.n_nets,), minval=oy+margin, maxval=oy+board.height-margin)
@@ -700,6 +705,16 @@ def train(
     best_rotations = jnp.eye(4)[jnp.zeros(netlist.n_components, dtype=jnp.int32)]
     epochs_without_improvement = 0
 
+    # Convergence tracking
+    tracker = LossImprovementTracker(
+        stagnation_threshold=config.early_stopping.stagnation_threshold,
+        stagnation_epochs=config.early_stopping.stagnation_epochs,
+    )
+    scorer = ConvergenceConfidenceScorer(
+        convergence_threshold=config.early_stopping.confidence_threshold,
+        improvement_threshold=config.early_stopping.stagnation_threshold,
+    )
+
     # Main training loop
     with profile_ctx:
         for epoch in range(config.epochs):
@@ -763,22 +778,15 @@ def train(
             # --- Convergence Tracking ---
             loss_value = float(loss)
             
-            # Update loss EMA
-            if state.loss_ema is None:
-                state.loss_ema = loss_value
-            else:
-                state.loss_ema = 0.95 * state.loss_ema + 0.05 * loss_value
+            # Update specialized trackers
+            conv_metrics = tracker.update(loss_value)
+            # Use gradient norm for confidence if enabled
+            grad_norm = float(jnp.linalg.norm(grad_pos))
+            conv_confidence = scorer.update(tracker, grad_norm=grad_norm)
             
-            # Calculate relative improvement
-            improvement = (state.loss_ema - loss_value) / max(abs(state.loss_ema), 1e-6)
-            state.improvement_ema = 0.9 * state.improvement_ema + 0.1 * max(0.0, improvement)
-            
-            # Use configured thresholds
-            es_cfg = config.early_stopping
-            conv_threshold = es_cfg.improvement_threshold
-            confidence = 1.0 - (state.improvement_ema / max(conv_threshold, 1e-12))
-            confidence = max(0.0, min(1.0, confidence))
-            is_plateau = state.improvement_ema < conv_threshold
+            confidence = conv_confidence.confidence
+            is_plateau = conv_metrics.is_stagnating
+            state.improvement_ema = conv_metrics.improvement_rate # Use rate as EMA proxy for backward compat if needed
 
             # Adaptive Overlap Weighting Logic
             # Adaptive Overlap Weighting
@@ -1092,6 +1100,16 @@ def train_multiphase(
     best_rotations = jnp.eye(4)[jnp.zeros(netlist.n_components, dtype=jnp.int32)]
     epochs_without_improvement = 0
 
+    # Convergence tracking
+    tracker = LossImprovementTracker(
+        stagnation_threshold=config.early_stopping.stagnation_threshold,
+        stagnation_epochs=config.early_stopping.stagnation_epochs,
+    )
+    scorer = ConvergenceConfidenceScorer(
+        convergence_threshold=config.early_stopping.confidence_threshold,
+        improvement_threshold=config.early_stopping.stagnation_threshold,
+    )
+
     # Track current phase for re-creating loss function
     current_phase_idx = -1
     composite_loss: CompositeLoss | None = None
@@ -1226,20 +1244,15 @@ def train_multiphase(
             # --- Convergence Tracking ---
             loss_value = float(loss)
             
-            # Update loss EMA
-            if state.loss_ema is None:
-                state.loss_ema = loss_value
-            else:
-                state.loss_ema = 0.95 * state.loss_ema + 0.05 * loss_value
+            # Update specialized trackers
+            conv_metrics = tracker.update(loss_value)
+            # Use gradient norm for confidence if enabled
+            grad_norm = float(jnp.linalg.norm(grad_pos))
+            conv_confidence = scorer.update(tracker, grad_norm=grad_norm)
             
-            # Calculate relative improvement
-            improvement = (state.loss_ema - loss_value) / max(abs(state.loss_ema), 1e-6)
-            state.improvement_ema = 0.9 * state.improvement_ema + 0.1 * max(0.0, improvement)
-            
-            conv_threshold = 1e-5
-            confidence = 1.0 - (state.improvement_ema / conv_threshold)
-            confidence = max(0.0, min(1.0, confidence))
-            is_plateau = state.improvement_ema < conv_threshold
+            confidence = conv_confidence.confidence
+            is_plateau = conv_metrics.is_stagnating
+            state.improvement_ema = conv_metrics.improvement_rate # Use rate as EMA proxy for backward compat if needed
 
             # Adaptive Overlap Weighting Logic
             # Adaptive Overlap Weighting

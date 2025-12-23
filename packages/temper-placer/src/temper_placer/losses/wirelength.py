@@ -86,6 +86,10 @@ class WirelengthLoss(LossFunction):
         if context.net_pin_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
 
+        # Guard against NaN/Inf in inputs
+        positions = jnp.nan_to_num(positions, nan=0.0, posinf=1e6, neginf=-1e6)
+        rotations = jnp.nan_to_num(rotations, nan=0.25, posinf=0.25, neginf=0.25)
+
         # Compute effective weights (tracing time)
         weights = context.net_weights
         if self.net_weights:

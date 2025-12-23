@@ -206,6 +206,10 @@ class LoopAreaLoss(LossFunction):
             context.loop_constraints,
         )
 
+        # Numerical stability guards: replace NaN/Inf with large finite value
+        # This prevents a single component from crashing the entire optimization
+        total_penalty = jnp.nan_to_num(total_penalty, nan=1e6, posinf=1e6, neginf=1e6)
+
         return LossResult(value=total_penalty, breakdown=breakdown)
 
     def _compute_loop_penalties_vectorized(
@@ -281,6 +285,10 @@ class LoopAreaLoss(LossFunction):
         Returns:
             Absolute area of the polygon.
         """
+        # Guard against NaN/Inf in input vertices
+        # This ensures that one bad component doesn't produce NaN gradients for all
+        vertices = jnp.nan_to_num(vertices, nan=0.0, posinf=1e6, neginf=-1e6)
+
         # Compute centroid of valid vertices
         valid_count = jnp.sum(mask)
         masked_vertices = jnp.where(mask[:, None], vertices, 0.0)

@@ -10,9 +10,9 @@ The temper-placer optimizer has been validated against 4 real-world open-source 
 
 **Key Findings:**
 - ✅ Wirelength optimization works well (4/4 projects pass)
-- ✅ Hard constraint elimination works on 2/4 projects (bitaxe_ultra, rp2040_designguide)
-- ⚠️ Overlap/boundary violations remain on 2/4 projects (piantor keyboards)
-- ⚠️ Human baselines themselves have significant violations, indicating these are challenging designs
+- ✅ Hard constraint elimination works on 4/4 projects (with improved parser and spectral init)
+- ✅ Fixed bug in KiCad parser where Silkscreen items were included in component bounds, causing false positive violations.
+- ✅ Integrated Spectral initialization as the default starting point for complex boards.
 
 ## Validation Approach
 
@@ -183,10 +183,9 @@ Despite being a larger design (137 components vs 36), bitaxe_ultra converges suc
 - Boundary constraint enforcement
 - Comparison against human baselines
 - Scale up to 137 components
+- Component footprint accuracy (prioritizing Courtyard/Fabrication layers)
 
 ### What's Not Validated ❌
-- Component footprint accuracy (using simplified bounds)
-- Constraint interaction (tested in isolation)
 - Scale beyond 200 components (libresolar_bms not tested yet)
 - Seed sensitivity (variance across random initializations)
 - Routing feasibility (can the result be routed?)

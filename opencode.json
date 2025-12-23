@@ -32,6 +32,11 @@
       "description": "Efficient worker agent powered by NVIDIA Nemotron for parallel task execution and rapid development.",
       "model": "openrouter/qwen/qwen3-235b-a22b-2507",
       "prompt": "You are a worker bee agent optimized for getting things done quickly. Focus on:\n- Executing tasks efficiently and independently\n- Following instructions precisely\n- Testing and validating your work\n- Moving fast without overthinking\n\nYou're part of a swarm - stay focused on your assigned task."
+    },
+    "nemotron": {
+      "description": "Worker agent powered by NVIDIA Nemotron 3 Nano via OpenRouter.",
+      "model": "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "prompt": "You are a worker agent powered by NVIDIA Nemotron 3 Nano. Focus on:\n- Executing tasks efficiently and independently\n- Following instructions precisely\n- Testing and validating your work\n- Moving fast without overthinking\n\nYou're part of a swarm - stay focused on your assigned task."
     }
   },
   "provider": {
@@ -39,6 +44,14 @@
       "models": {
         "qwen/qwen3-235b-a22b-2507": {
           "name": "qwen/qwen3-235b-a22b-2507",
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        },
+        "nvidia/nemotron-3-nano-30b-a3b:free": {
+          "name": "nvidia/nemotron-3-nano-30b-a3b:free",
           "options": {
             "provider": {
               "allow_fallbacks": true
