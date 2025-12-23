@@ -68,15 +68,34 @@ Typical optimization times for 8,000 epochs with all loss functions enabled:
 
 | Components | ms/epoch | Total (8k epochs) |
 |------------|----------|-------------------|
-| 50         | ~2.1ms   | ~17s              |
-| 100        | ~2.2ms   | ~18s              |
-| 200        | ~2.8ms   | ~23s              |
+| 50         | ~0.57ms  | ~4.5s             |
+| 100        | ~0.68ms  | ~5.4s             |
+| 200        | ~1.17ms  | ~9.4s             |
+
+*Note: Initial run includes JAX compilation time (usually 2-5 seconds).*
+
+### Memory Usage
+
+Memory scales quadratically with component count due to pairwise distance matrices, but uses chunking for $N \ge 50$ to maintain a linear-ish profile for common designs.
+
+| Components | Expected Peak RAM |
+|------------|-------------------|
+| 50         | < 500MB           |
+| 100        | < 1.0GB           |
+| 200        | < 2.0GB           |
+| 500        | < 4.0GB           |
+
+### CPU vs GPU Performance
+
+- **CPU (Apple M-series/Modern x86)**: Excellent for designs up to 200 components. JAX leverages AMX/AVX instructions for high throughput.
+- **GPU (NVIDIA/Metal)**: Recommended for $N > 500$. Expect 5-10x speedup on overlap and wirelength calculations. For small designs, the overhead of host-to-device transfers may make CPU faster.
 
 ### Optimization Tips
 
-- **JIT Warmup**: The first run is always slower due to compilation.
-- **GPU Acceleration**: For very large designs (500+ components), JAX can utilize CUDA or Metal for significant speedups.
-- **Chunked Overlap**: Automatically scales to $O(N)$ memory for $N \ge 50$ components to avoid memory explosion.
+- **Curriculum Stages**: Reduce epochs in early curriculum stages (e.g., 500 instead of 2000) to speed up initial coarse placement.
+- **Selective Loss**: Disable expensive losses like `CongestionLoss` or `ThermalLoss` during early exploration if they are not critical.
+- **Device Specification**: Use `--device gpu` to force execution on a specific accelerator if JAX doesn't auto-detect it correctly.
+- **Chunk Size**: For very large designs, adjust `overlap_chunk_size` in the config to balance memory vs speed.
 
 ## Documentation
 
