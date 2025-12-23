@@ -117,3 +117,43 @@ pytest --cov=temper_validation tests/
 # See which tests fail
 pytest tests/comparison/test_wirelength.py -v 2>&1 | grep FAILED
 ```
+
+## Agent Delegation (Nemotron)
+
+All TDD tasks are delegated to the Nemotron agent (labeled `agent:nemotron`).
+
+### Nemotron Configuration
+
+```
+Model: openrouter/nvidia/nemotron-3-nano-30b-a3b:free
+Role: Efficient parallel task execution
+Focus: Execute tasks efficiently, follow instructions, validate work
+```
+
+### Delegated Tasks (8 total)
+
+| Module | RED Task | GREEN Task | Agent Status |
+|---------|-----------|-------------|--------------|
+| Wirelength | temper-1mmr.2.1 | temper-1mmr.2.2 | 📋 Ready |
+| DRC Compliance | temper-1mmr.3.1 | temper-1mmr.3.2 | 📋 Ready |
+| Stress Runner | temper-8ggu.2.1 | temper-8ggu.2.2 | 📋 Ready |
+| Database | temper-j84e.1.1 | temper-j84e.1.2 | 📋 Ready |
+
+### Agent Workflow
+
+1. Nemotron picks up task labeled `agent:nemotron`
+2. Reviews task description and test expectations
+3. Implements work (write tests or implement code)
+4. Runs pytest to verify
+5. Reports completion with commit hash
+
+### Legend
+
+- ✅ Done - Task complete (tests written or implementation passes)
+- 🔄 In Progress - Agent is currently working on task
+- 📋 Ready - Task labeled, waiting for agent pickup
+- 🔴 TODO - Not started
+
+---
+
+*Updated: 2025-12-23 - Agent delegation configured*
