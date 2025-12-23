@@ -26,7 +26,6 @@ def board():
         width=100.0,
         height=100.0,
         origin=(0.0, 0.0),
-        layer_count=2,
     )
 
 
@@ -41,7 +40,7 @@ def component():
     """Standard test component (10mm x 10mm)."""
     return Component(
         ref="U1",
-        value="TEST",
+        attributes={"value": "TEST"},
         footprint="TEST_10x10",
         bounds=(10.0, 10.0),
         pins=[
@@ -53,13 +52,90 @@ def component():
     )
 
 
-@given("a router with default blocking margin")
+@given(parsers.parse("a {width:d}mm x {height:d}mm board with {cell_size:d}mm grid cells"))
+def board_setup(width, height, cell_size):
+    """Board setup."""
+    return Board(
+        width=float(width),
+        height=float(height),
+        origin=(0.0, 0.0),
+    )
+
+@given(parsers.parse("a component at position ({x:g}, {y:g}) with size {w:g}x{h:g}"), target_fixture="component_at_position")
+def component_at_position_with_size(component, x, y, w, h):
+    """Component positioned at given coordinates with size."""
+    component.bounds = (float(w), float(h))
+    return (component, jnp.array([[float(x), float(y)]]))
+
+@given(parsers.parse("the component has pins at offsets ({x1:g}, {y1:g}), ({x2:g}, {y2:g}), ({x3:g}, {y3:g}), ({x4:g}, {y4:g})"))
+def component_with_pins(component, x1, y1, x2, y2, x3, y3, x4, y4):
+    """Component with specific pin offsets."""
+    component.pins = [
+        Pin(name="1", number="1", position=(float(x1), float(y1))),
+        Pin(name="2", number="2", position=(float(x2), float(y2))),
+        Pin(name="3", number="3", position=(float(x3), float(y3))),
+        Pin(name="4", number="4", position=(float(x4), float(y4))),
+    ]
+    return component
+
+@given(parsers.parse("components at positions ({x1:g}, {y1:g}), ({x2:g}, {y2:g}), ({x3:g}, {y3:g}) with size {w:g}x{h:g}"), target_fixture="dense_cluster")
+def dense_cluster(x1, y1, x2, y2, x3, y3, w, h):
+    """Cluster of identical components."""
+    comps = []
+    positions = []
+    w, h = float(w), float(h)
+    for i, (x, y) in enumerate([(x1, y1), (x2, y2), (x3, y3)]):
+        comp = Component(
+            ref=f"U{i+1}",
+            attributes={"value": "TEST"},
+            footprint="TEST_8x8",
+            bounds=(w, h),
+            pins=[Pin(name="1", number="1", position=(0.0, 0.0))]
+        )
+        comps.append(comp)
+        positions.append([float(x), float(y)])
+    return (comps, jnp.array(positions))
+
+@when("I block all components on all layers")
+def block_all_components(router, dense_cluster):
+    """Block multiple components."""
+    comps, positions = dense_cluster
+    router.block_components(comps, positions, margin=router.blocking_margin)
+
+@then("there should be routing corridors between components")
+def verify_routing_corridors(router):
+    """Verify space exists between blocked areas."""
+    # Check midpoint between 30,30 and 40,30 -> 35,30
+    # Component width 8, margin 0.1 -> half width 4.1
+    # 30+4.1 = 34.1 (end of U1), 40-4.1 = 35.9 (start of U2)
+    # Gap is 34.1 to 35.9 -> ~1.8mm. Cell 35 should be free.
+    mid_x, mid_y = 35, 30
+    assert int(router.occupancy[mid_x, mid_y, 0]) == 0, \
+        f"Corridor at ({mid_x}, {mid_y}) is blocked"
+
+@then(parsers.parse("all pins should have escape routes of at least {length:d} cells"))
+def verify_all_pins_escape(router, dense_cluster, length):
+    """Verify escape routes for all components in cluster."""
+    comps, positions = dense_cluster
+    for i, comp in enumerate(comps):
+        cx, cy = float(positions[i, 0]), float(positions[i, 1])
+        pin = comp.pins[0]
+        pin_x = cx + pin.position[0]
+        pin_y = cy + pin.position[1]
+        pin_gx, pin_gy = router._world_to_grid(pin_x, pin_y)
+        
+        # Check center cell is free
+        assert int(router.occupancy[pin_gx, pin_gy, 0]) == 0, \
+            f"Pin for {comp.ref} at ({pin_gx}, {pin_gy}) is blocked"
+
+@given("a router with default blocking margin", target_fixture="router")
 def router_default_margin(router):
     """Router with default 0.5mm margin."""
+    router.blocking_margin = 0.5
     return router
 
 
-@given(parsers.parse("a router with {margin:f}mm blocking margin"))
+@given(parsers.parse("a router with {margin:f}mm blocking margin"), target_fixture="router")
 def router_custom_margin(board, margin):
     """Router with custom margin."""
     router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
@@ -67,7 +143,7 @@ def router_custom_margin(board, margin):
     return router
 
 
-@given(parsers.parse("a component at position ({x:f}, {y:f})"))
+@given(parsers.parse("a component at position ({x:f}, {y:f})"), target_fixture="component_at_position")
 def component_at_position(component, x, y):
     """Component positioned at given coordinates."""
     return (component, jnp.array([[x, y]]))
@@ -141,3 +217,20 @@ def verify_blocked_area_size(router, width, height):
     expected = width * height
     assert int(blocked_cells) == expected, \
         f"Expected {expected} blocked cells, found {blocked_cells}"
+
+@then(parsers.parse("the blocked cell count should be {count:d}"))
+def verify_blocked_cell_count(router, count):
+    """Verify total blocked cells count."""
+    blocked_cells = jnp.sum(router.occupancy[:, :, 0] == 1)
+    assert int(blocked_cells) == count, \
+        f"Expected {count} blocked cells, found {blocked_cells}"
+
+@then(parsers.parse("pin ({x:g}, {y:g}) should have an escape route of at least {length:d} cells"))
+def pin_at_coord_has_escape_route(router, x, y, length):
+    """Verify pin at specific coordinate has escape route."""
+    pin_x, pin_y = float(x), float(y)
+    pin_gx, pin_gy = router._world_to_grid(pin_x, pin_y)
+    
+    # Check if pin cell itself is free (start of escape route)
+    assert int(router.occupancy[pin_gx, pin_gy, 0]) == 0, \
+         f"Pin at ({pin_gx}, {pin_gy}) is blocked"

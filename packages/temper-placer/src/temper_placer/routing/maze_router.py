@@ -210,6 +210,7 @@ class MazeRouter:
         components: list[Component],
         positions: Array,
         margin: float = 0.5,
+        layer_specific: bool = False,
     ) -> None:
         """Block cells occupied by components, leaving escape routes for pins.
 
@@ -221,6 +222,7 @@ class MazeRouter:
             components: List of components to block
             positions: (N, 2) array of component center positions
             margin: Extra margin around components in mm
+            layer_specific: If True, block only the component's layer (assumed L1_TOP/0)
         """
         # First pass: block all component bodies
         for i, comp in enumerate(components):
@@ -228,17 +230,20 @@ class MazeRouter:
             half_w = comp.bounds[0] / 2 + margin
             half_h = comp.bounds[1] / 2 + margin
 
-            # Convert to grid coordinates
-            x_min = int((cx - half_w - self.origin[0]) / self.cell_size)
-            x_max = int((cx + half_w - self.origin[0]) / self.cell_size) + 1
-            y_min = int((cy - half_h - self.origin[1]) / self.cell_size)
-            y_max = int((cy + half_h - self.origin[1]) / self.cell_size) + 1
+            # Convert to grid coordinates (using round to block cells whose centers are covered)
+            x_min = int(round((cx - half_w - self.origin[0]) / self.cell_size))
+            x_max = int(round((cx + half_w - self.origin[0]) / self.cell_size))
+            y_min = int(round((cy - half_h - self.origin[1]) / self.cell_size))
+            y_max = int(round((cy + half_h - self.origin[1]) / self.cell_size))
 
             width = x_max - x_min
             height = y_max - y_min
 
-            # Block on all layers (components are obstacles on all layers)
-            self.block_rect(x_min, y_min, width, height, layer=-1)
+            # Determine layer to block
+            # For now, if layer_specific is True, we assume components are on layer 0
+            block_layer = 0 if layer_specific else -1
+
+            self.block_rect(x_min, y_min, width, height, layer=block_layer)
 
         # Second pass: create escape routes from pins
         for i, comp in enumerate(components):
