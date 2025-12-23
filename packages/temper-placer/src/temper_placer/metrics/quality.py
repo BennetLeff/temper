@@ -86,7 +86,7 @@ def thermal_score(
     if not thermal_components:
         return 1.0  # Perfect score if nothing to optimize
 
-    board_bounds = board.get_bounds_array()
+    board_bounds = board.get_relative_bounds_array()
     x_min, y_min, x_max, y_max = board_bounds
 
     total_score = 0.0
@@ -342,7 +342,7 @@ def congestion_score(
     """
     from temper_placer.losses.congestion import compute_routing_demand
 
-    board_bounds = board.get_bounds_array()
+    board_bounds = board.get_relative_bounds_array()
     demand = compute_routing_demand(state.positions, context, grid_shape, board_bounds)
 
     # Compute overflow ratio

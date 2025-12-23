@@ -124,6 +124,15 @@ class TestBoard:
         assert not simple_board.contains_point(-1.0, 50.0)
         assert not simple_board.contains_point(50.0, 101.0)
 
+    def test_contains_point_non_zero_origin(self):
+        """Test board boundary checking with non-zero origin."""
+        from temper_placer.core.board import Board
+        board = Board(width=50.0, height=50.0, origin=(100.0, 100.0))
+        # (25, 25) is relative position, should be inside
+        assert board.contains_point(25.0, 25.0)
+        # (125, 125) is absolute position, should be outside relative bounds [0, 50]
+        assert not board.contains_point(125.0, 125.0)
+
     def test_point_in_keepout(self, temper_board):
         """Test keepout region checking."""
         # Point near mounting hole (5, 5) should be in keepout

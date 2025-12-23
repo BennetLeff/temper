@@ -387,8 +387,13 @@ class Board:
         return None
 
     def contains_point(self, x: float, y: float) -> bool:
-        """Check if a point is within the board boundaries."""
-        return 0 <= x - self.origin[0] <= self.width and 0 <= y - self.origin[1] <= self.height
+        """
+        Check if a point is within the board boundaries.
+
+        Args:
+            x, y: Board-relative coordinates.
+        """
+        return 0 <= x <= self.width and 0 <= y <= self.height
 
     def point_in_keepout(self, x: float, y: float) -> bool:
         """

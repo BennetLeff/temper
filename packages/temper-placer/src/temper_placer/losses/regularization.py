@@ -285,7 +285,7 @@ class SpreadLoss(LossFunction):
         Returns:
             LossResult with total spread penalty.
         """
-        board_bounds = context.board.get_bounds_array()
+        board_bounds = context.board.get_relative_bounds_array()
         penalty = compute_spread_penalty(positions, context.bounds, board_bounds, self.min_distance)
         return LossResult(value=penalty)
 
@@ -408,8 +408,8 @@ class CenterOfMassLoss(LossFunction):
             # Use board center
             target = jnp.array(
                 [
-                    context.board.origin[0] + context.board.width / 2,
-                    context.board.origin[1] + context.board.height / 2,
+                    context.board.width / 2,
+                    context.board.height / 2,
                 ],
                 dtype=jnp.float32,
             )
@@ -473,10 +473,10 @@ class EdgeAvoidanceLoss(LossFunction):
         half_h = bounds[:, 1] / 2.0  # (N,)
 
         # Board boundaries
-        x_min = context.board.origin[0]
-        y_min = context.board.origin[1]
-        x_max = x_min + context.board.width
-        y_max = y_min + context.board.height
+        x_min = 0.0
+        y_min = 0.0
+        x_max = context.board.width
+        y_max = context.board.height
 
         # Distance from component edges to board edges
         # Positive = safe, negative = component extends beyond board

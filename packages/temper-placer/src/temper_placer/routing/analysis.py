@@ -8,6 +8,7 @@ identifying potential bottlenecks and providing actionable advice.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 
 import jax.numpy as jnp
 from jax import Array
@@ -15,8 +16,6 @@ from jax import Array
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.congestion import compute_routing_demand
 
-
-from enum import Enum
 
 class FailureType(Enum):
     """Types of routing failures."""
@@ -62,7 +61,7 @@ def analyze_routability(
     Returns:
         RoutabilityReport with metrics and advice.
     """
-    board_bounds = context.board.get_bounds_array()
+    board_bounds = context.board.get_relative_bounds_array()
     demand = compute_routing_demand(positions, context, grid_shape, board_bounds)
 
     total_congestion = float(jnp.sum(jnp.maximum(0.0, demand - capacity_per_cell)))
@@ -103,7 +102,7 @@ def analyze_routability(
 
         msg = f"Congestion hotspot at ({cell_x:.1f}, {cell_y:.1f}) near {nearest_ref}. Move {nearest_ref} slightly to relieve."
         advice.append(msg)
-        
+
         diagnostics.append(RoutingDiagnostic(
             failure_type=FailureType.CONGESTION,
             blocking_elements=[nearest_ref],

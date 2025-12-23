@@ -24,7 +24,6 @@ if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.config_loader import PlacementConstraints
     from temper_placer.losses.base import WeightedLoss
-    from temper_placer.losses.grouping import GroupConfig
     from temper_placer.losses.grid import GridAlignmentLoss
 
 
@@ -65,7 +64,7 @@ class WhitespaceLoss(LossFunction):
         widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
 
         # Grid setup
-        board_bounds = context.board.get_bounds_array()
+        board_bounds = context.board.get_relative_bounds_array()
         x_min, y_min, x_max, y_max = board_bounds
         rows, cols = self.grid_shape
 
@@ -227,32 +226,32 @@ class RotationConsistencyLoss(LossFunction):
         Compute entropy of the rotation distribution, optionally grouped by type.
         """
         # (N, 4) soft one-hot
-        
+
         total_entropy = jnp.array(0.0)
-        
+
         # 1. Global consistency (default fallback or weighted component)
         global_dist = jnp.mean(rotations, axis=0)  # (4,)
         probs = global_dist / (jnp.sum(global_dist) + 1e-8)
         global_entropy = -jnp.sum(probs * jnp.log(probs + 1e-8))
-        
+
         # 2. Per-type consistency (if available)
         if context.component_type_indices:
             type_entropy_sum = jnp.array(0.0)
             count = 0.0
-            
+
             for type_name, indices in context.component_type_indices.items():
                 if len(indices) < 2:
                     continue
-                    
+
                 # Extract rotations for this group
                 type_rots = rotations[indices] # (K, 4)
                 type_dist = jnp.mean(type_rots, axis=0)
                 type_probs = type_dist / (jnp.sum(type_dist) + 1e-8)
                 type_entropy = -jnp.sum(type_probs * jnp.log(type_probs + 1e-8))
-                
+
                 type_entropy_sum += type_entropy
                 count += 1.0
-                
+
             # If we have types, mix type entropy with global entropy
             # Weight type entropy more heavily as it is more specific
             if count > 0:

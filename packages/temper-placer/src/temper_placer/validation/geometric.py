@@ -251,10 +251,9 @@ class GeometricValidator(Validator):
         issues = []
         violation_count = 0
 
-        # Board bounds
-        ox, oy = board.origin
-        board_min = jnp.array([ox, oy])
-        board_max = jnp.array([ox + board.width, oy + board.height])
+        # Board bounds (relative to board origin)
+        board_min = jnp.array([0.0, 0.0])
+        board_max = jnp.array([board.width, board.height])
 
         n = positions.shape[0]
 

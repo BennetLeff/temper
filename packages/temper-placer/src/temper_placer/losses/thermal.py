@@ -91,7 +91,7 @@ def compute_thermal_penalty(
     if not context.thermal_constraints:
         return jnp.array(0.0)
 
-    board_bounds = context.board.get_bounds_array()
+    board_bounds = context.board.get_relative_bounds_array()
     total_penalty = jnp.array(0.0)
 
     for tc in context.thermal_constraints:

@@ -7,10 +7,11 @@ or intrude into keepout zones (mounting holes, restricted areas).
 
 from __future__ import annotations
 
+from typing import Any
+
 import jax
 import jax.numpy as jnp
 from jax import Array
-from typing import Any
 
 from temper_placer.geometry.transform import batch_get_rotated_bounds
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
@@ -153,7 +154,7 @@ class BoundaryLoss(LossFunction):
         Compute penalty for components extending beyond board edges.
         """
         # Board bounds
-        board_bounds = board.get_bounds_array()  # [x_min, y_min, x_max, y_max]
+        board_bounds = board.get_relative_bounds_array()  # [0, 0, width, height]
         x_min, y_min, x_max, y_max = board_bounds
         n = positions.shape[0]
 

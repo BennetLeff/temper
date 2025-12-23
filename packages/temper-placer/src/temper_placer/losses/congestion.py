@@ -12,10 +12,8 @@ Congestion is estimated by:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Tuple
+from dataclasses import dataclass
 
-import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -29,7 +27,7 @@ from temper_placer.losses.base import (
 def compute_routing_demand(
     positions: Array,
     context: LossContext,
-    grid_shape: Tuple[int, int],
+    grid_shape: tuple[int, int],
     board_bounds: Array,
 ) -> Array:
     """
@@ -128,7 +126,7 @@ def compute_routing_demand(
 def compute_congestion_penalty(
     positions: Array,
     context: LossContext,
-    grid_shape: Tuple[int, int] = (10, 10),
+    grid_shape: tuple[int, int] = (10, 10),
     capacity_per_cell: float = 10.0,
 ) -> Array:
     """
@@ -145,7 +143,7 @@ def compute_congestion_penalty(
     Returns:
         Total congestion penalty (scalar).
     """
-    board_bounds = context.board.get_bounds_array()
+    board_bounds = context.board.get_relative_bounds_array()
     demand = compute_routing_demand(positions, context, grid_shape, board_bounds)
 
     # Smooth overflow penalty
@@ -159,7 +157,7 @@ def compute_congestion_penalty(
 def get_congestion_field(
     positions: Array,
     context: LossContext,
-    grid_shape: Tuple[int, int] = (20, 20),
+    grid_shape: tuple[int, int] = (20, 20),
 ) -> Array:
     """
     Generate a spatial congestion field for use in other loss functions.
@@ -175,7 +173,7 @@ def get_congestion_field(
     Returns:
         (rows, cols) normalized congestion field.
     """
-    board_bounds = context.board.get_bounds_array()
+    board_bounds = context.board.get_relative_bounds_array()
     demand = compute_routing_demand(positions, context, grid_shape, board_bounds)
 
     # Simple normalization: assume average demand is a baseline
@@ -204,7 +202,7 @@ class CongestionLoss(LossFunction):
         capacity_per_cell: Maximum demand per cell before penalty.
     """
 
-    grid_shape: Tuple[int, int] = (10, 10)
+    grid_shape: tuple[int, int] = (10, 10)
     capacity_per_cell: float = 10.0
 
     @property
@@ -239,7 +237,7 @@ class CongestionLoss(LossFunction):
 def visualize_congestion(
     positions: Array,
     context: LossContext,
-    grid_shape: Tuple[int, int] = (10, 10),
+    grid_shape: tuple[int, int] = (10, 10),
 ) -> Array:
     """
     Generate congestion heatmap for visualization.
@@ -252,5 +250,5 @@ def visualize_congestion(
     Returns:
         (rows, cols) demand array for plotting.
     """
-    board_bounds = context.board.get_bounds_array()
+    board_bounds = context.board.get_relative_bounds_array()
     return compute_routing_demand(positions, context, grid_shape, board_bounds)

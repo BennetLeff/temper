@@ -262,7 +262,7 @@ class TestCriticalPathLengthLoss:
         expected = (20.0 - 15.0) ** 2 + (40.0 - 15.0) ** 2
         assert float(result.value) == pytest.approx(expected, rel=1e-5)
 
-    def test_missing_component_skipped(self, _sample_rotations, simple_context):
+    def test_missing_component_skipped(self, sample_rotations, simple_context):
         """Test that paths with missing components are caught during context creation."""
         paths = [
             CriticalPath("valid", "U_GATE", "Q1", max_length_mm=15.0),

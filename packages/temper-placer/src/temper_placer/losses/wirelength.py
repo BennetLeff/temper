@@ -13,10 +13,11 @@ avoiding Python loops that would cause recompilation on every call.
 
 from __future__ import annotations
 
+from typing import Any
+
 import jax
 import jax.numpy as jnp
 from jax import Array
-from typing import Any
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
@@ -271,7 +272,7 @@ class SteinerTreeLoss(WirelengthLoss):
         bb_center = (bb_min + bb_max) / 2.0
 
         # Map centers to grid coordinates
-        board_bounds = context.board.get_bounds_array()
+        board_bounds = context.board.get_relative_bounds_array()
         x_min, y_min, x_max, y_max = board_bounds
         rows, cols = congestion_grid.shape
 
