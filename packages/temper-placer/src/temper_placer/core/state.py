@@ -96,14 +96,12 @@ class PlacementState:
             ensure positions are in absolute coordinates that match the PCB file.
         """
         key1, key2, key3, key4 = jax.random.split(key, 4)
-        ox, oy = origin
-
-        # Random positions within margins (absolute coordinates)
+        # Random positions within margins (relative coordinates [0, width] x [0, height])
         x = jax.random.uniform(
-            key1, (n_components,), minval=ox + margin, maxval=ox + board_width - margin
+            key1, (n_components,), minval=margin, maxval=board_width - margin
         )
         y = jax.random.uniform(
-            key2, (n_components,), minval=oy + margin, maxval=oy + board_height - margin
+            key2, (n_components,), minval=margin, maxval=board_height - margin
         )
         positions = jnp.stack([x, y], axis=-1)
 
@@ -113,12 +111,12 @@ class PlacementState:
         # Initialize net virtual nodes if requested
         net_virtual_nodes = None
         if n_nets > 0:
-            # Randomly place net nodes on board too
+            # Randomly place net nodes on board too (relative)
             nx = jax.random.uniform(
-                key3, (n_nets,), minval=ox + margin, maxval=ox + board_width - margin
+                key3, (n_nets,), minval=margin, maxval=board_width - margin
             )
             ny = jax.random.uniform(
-                key4, (n_nets,), minval=oy + margin, maxval=oy + board_height - margin
+                key4, (n_nets,), minval=margin, maxval=board_height - margin
             )
             net_virtual_nodes = jnp.stack([nx, ny], axis=-1)
 

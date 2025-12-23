@@ -157,8 +157,8 @@ class BoundaryLoss(LossFunction):
         """
         Compute penalty for components extending beyond board edges.
         """
-        # Board bounds
-        board_bounds = board.get_bounds_array()  # [x_min, y_min, x_max, y_max]
+        # Board bounds (relative coordinates)
+        board_bounds = board.get_relative_bounds_array()  # [0, 0, width, height]
         x_min, y_min, x_max, y_max = board_bounds
         n = positions.shape[0]
 

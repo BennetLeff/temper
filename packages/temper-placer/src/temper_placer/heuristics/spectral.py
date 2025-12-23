@@ -78,7 +78,6 @@ class SpectralPlacementHeuristic(Heuristic):
         rows = int(np.ceil(n_comps / cols))
         
         board = context.board
-        ox, oy = board.origin
         margin = context.constraints.board_margin_mm
         w_eff = (board.width - 2 * margin) / cols
         h_eff = (board.height - 2 * margin) / rows
@@ -102,9 +101,9 @@ class SpectralPlacementHeuristic(Heuristic):
                         all_raw_pos[ref] = np.random.uniform(-1, 1, (2,))
 
             # Local scaling and translation for this connected component
-            # Grid cell center
-            grid_x = (i % cols) * w_eff + w_eff / 2 + ox + margin
-            grid_y = (i // cols) * h_eff + h_eff / 2 + oy + margin
+            # Grid cell center (relative)
+            grid_x = (i % cols) * w_eff + w_eff / 2 + margin
+            grid_y = (i // cols) * h_eff + h_eff / 2 + margin
             
             # Map nodes in this set to their grid cell
             nodes_in_set = list(node_set)
@@ -138,7 +137,6 @@ class SpectralPlacementHeuristic(Heuristic):
         """Convert scaled coordinates to final placements with bounds checking."""
         placements: dict[str, ComponentPlacement] = {}
         board = context.board
-        ox, oy = board.origin
         margin = context.constraints.board_margin_mm
 
         for ref, pos in raw_pos.items():
@@ -151,12 +149,12 @@ class SpectralPlacementHeuristic(Heuristic):
                 continue
 
             x, y = pos
-            # Ensure within bounds
+            # Ensure within bounds (relative [0, width])
             x = max(
-                ox + margin + comp.width / 2, min(x, ox + board.width - margin - comp.width / 2)
+                margin + comp.width / 2, min(x, board.width - margin - comp.width / 2)
             )
             y = max(
-                oy + margin + comp.height / 2, min(y, oy + board.height - margin - comp.height / 2)
+                margin + comp.height / 2, min(y, board.height - margin - comp.height / 2)
             )
 
             placements[ref] = ComponentPlacement(

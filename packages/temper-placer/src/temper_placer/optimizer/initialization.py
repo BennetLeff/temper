@@ -171,9 +171,9 @@ def scale_to_board(
     is_degenerate = range_coords < 1e-10
 
     if jnp.all(is_degenerate):
-        # All coordinates the same → place all components at board center
-        center_x = board.origin[0] + board.width / 2
-        center_y = board.origin[1] + board.height / 2
+        # All coordinates the same → place all components at board center (relative)
+        center_x = board.width / 2
+        center_y = board.height / 2
         positions = jnp.full((n, 2), jnp.array([center_x, center_y]))
     else:
         # Normal case: normalize and scale
@@ -188,9 +188,9 @@ def scale_to_board(
         usable_width = board.width * (1 - 2 * margin_fraction)
         usable_height = board.height * (1 - 2 * margin_fraction)
 
-        # Compute offset (margin)
-        offset_x = board.origin[0] + board.width * margin_fraction
-        offset_y = board.origin[1] + board.height * margin_fraction
+        # Compute offset (margin) - relative to board (0,0)
+        offset_x = board.width * margin_fraction
+        offset_y = board.height * margin_fraction
 
         # Scale to board
         positions = normalized * jnp.array([usable_width, usable_height])
@@ -253,8 +253,8 @@ class SpectralInitializer:
         if n == 0:
             return jnp.zeros((0, 2))
         if n == 1:
-            center_x = board.origin[0] + board.width / 2
-            center_y = board.origin[1] + board.height / 2
+            center_x = board.width / 2
+            center_y = board.height / 2
             return jnp.array([[center_x, center_y]])
 
         # Build connectivity graph
@@ -487,31 +487,31 @@ class SpectralInitializer:
         margin_y = board.height * margin
 
         if location == "center":
-            x_min = board.origin[0] + margin_x
-            x_max = board.origin[0] + board.width - margin_x
-            y_min = board.origin[1] + margin_y
-            y_max = board.origin[1] + board.height - margin_y
+            x_min = margin_x
+            x_max = board.width - margin_x
+            y_min = margin_y
+            y_max = board.height - margin_y
         elif location == "top-right":
             # Push further into corner (use 2/3 point, not midpoint)
-            x_min = board.origin[0] + board.width * 0.67
-            x_max = board.origin[0] + board.width - margin_x
-            y_min = board.origin[1] + board.height * 0.67
-            y_max = board.origin[1] + board.height - margin_y
+            x_min = board.width * 0.67
+            x_max = board.width - margin_x
+            y_min = board.height * 0.67
+            y_max = board.height - margin_y
         elif location == "top-left":
-            x_min = board.origin[0] + margin_x
-            x_max = board.origin[0] + board.width * 0.33
-            y_min = board.origin[1] + board.height * 0.67
-            y_max = board.origin[1] + board.height - margin_y
+            x_min = margin_x
+            x_max = board.width * 0.33
+            y_min = board.height * 0.67
+            y_max = board.height - margin_y
         elif location == "bottom-left":
-            x_min = board.origin[0] + margin_x
-            x_max = board.origin[0] + board.width * 0.33
-            y_min = board.origin[1] + margin_y
-            y_max = board.origin[1] + board.height * 0.33
+            x_min = margin_x
+            x_max = board.width * 0.33
+            y_min = margin_y
+            y_max = board.height * 0.33
         elif location == "bottom-right":
-            x_min = board.origin[0] + board.width * 0.67
-            x_max = board.origin[0] + board.width - margin_x
-            y_min = board.origin[1] + margin_y
-            y_max = board.origin[1] + board.height * 0.33
+            x_min = board.width * 0.67
+            x_max = board.width - margin_x
+            y_min = margin_y
+            y_max = board.height * 0.33
         else:
             raise ValueError(f"Unknown location: {location}")
 

@@ -70,7 +70,7 @@ def create_test_netlist(n_components: int = 17) -> Netlist:
 
 
 def random_initial_state(netlist: Netlist, board: Board, seed: int) -> PlacementState:
-    """Generate random initial positions within board bounds."""
+    """Generate random initial positions within board bounds (relative)."""
     key = jax.random.PRNGKey(seed)
     n = netlist.n_components
 
@@ -78,11 +78,10 @@ def random_initial_state(netlist: Netlist, board: Board, seed: int) -> Placement
     margin = 5.0
     key, k1, k2 = jax.random.split(key, 3)
 
-    ox, oy = board.origin
     positions = jnp.stack(
         [
-            jax.random.uniform(k1, (n,), minval=ox + margin, maxval=ox + board.width - margin),
-            jax.random.uniform(k2, (n,), minval=oy + margin, maxval=oy + board.height - margin),
+            jax.random.uniform(k1, (n,), minval=margin, maxval=board.width - margin),
+            jax.random.uniform(k2, (n,), minval=margin, maxval=board.height - margin),
         ],
         axis=-1,
     )

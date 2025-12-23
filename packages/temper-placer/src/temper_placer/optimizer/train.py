@@ -325,14 +325,13 @@ def initialize_training_state(
             positions = initializer.initialize(netlist, board)
             net_virtual_nodes = None
         else:
-            # Default: Random initialization in absolute coordinates
+            # Default: Random initialization in relative coordinates
             rng_key, init_key = jax.random.split(rng_key)
             state = PlacementState.random_init(
                 n_components=netlist.n_components,
                 board_width=board.width,
                 board_height=board.height,
                 key=init_key,
-                origin=board.origin,  # Use board origin for absolute coordinates
                 n_nets=netlist.n_nets,
             )
             positions = state.positions
@@ -555,7 +554,8 @@ def make_train_step(
             c_max = jnp.max(centrality)
             c_range = jnp.where(c_max - c_min < 1e-10, 1.0, c_max - c_min)
             normalized_c = (centrality - c_min) / c_range
-            grad_scale = 1.0 + (priority_scale - 1.0) * normalized_c
+            # Invert: hubs (normalized_c=1) get scale 1.0, leaves (normalized_c=0) get scale priority_scale
+            grad_scale = 1.0 + (priority_scale - 1.0) * (1.0 - normalized_c)
 
             grad_pos = grad_pos * grad_scale[:, None]
             grad_rot = grad_rot * grad_scale[:, None]
@@ -566,22 +566,38 @@ def make_train_step(
 
         # Hard clamping to board bounds (temper-p11g.2)
         if loss_context is not None:
-            board_bounds = loss_context.board.get_bounds_array()
+            board_bounds = loss_context.board.get_relative_bounds_array()
             new_positions = jnp.clip(
                 new_positions,
                 min=board_bounds[:2],
                 max=board_bounds[2:]
             )
 
+        # Ensure fixed components don't move (temper-p11g.6)
+        if loss_context is not None:
+            new_positions = jnp.where(
+                loss_context.fixed_mask[:, None],
+                positions,
+                new_positions
+            )
+
         updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
         
+        # Fixed components don't rotate either
+        if loss_context is not None:
+            new_rotation_logits = jnp.where(
+                loss_context.fixed_mask[:, None],
+                rotation_logits,
+                new_rotation_logits
+            )
+
         updates_vn, next_opt_state_vn = opt_vn.update(grad_vn, new_opt_state_vn, net_virtual_nodes)
         new_net_virtual_nodes = optax.apply_updates(net_virtual_nodes, updates_vn)
         
         # Hard clamping for virtual nodes
         if loss_context is not None:
-            board_bounds = loss_context.board.get_bounds_array()
+            board_bounds = loss_context.board.get_relative_bounds_array()
             new_net_virtual_nodes = jnp.clip(
                 new_net_virtual_nodes,
                 min=board_bounds[:2],
@@ -720,7 +736,8 @@ def train(
     # Best tracking
     best_loss = float("inf")
     best_positions = state.positions
-    best_rotations = jnp.eye(4)[jnp.zeros(netlist.n_components, dtype=jnp.int32)]
+    # Initialize best_rotations from initial state (temper-p11g.7)
+    best_rotations = jax.nn.one_hot(jnp.argmax(state.rotation_logits, axis=-1), 4)
     epochs_without_improvement = 0
 
     # Convergence tracking
@@ -843,7 +860,7 @@ def train(
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
-                state.position_delta_ema = 1.0
+                # We don't reset EMA to 1.0 anymore (temper-p11g.9)
                 logger.debug(f"Epoch {epoch}: Jiggle triggered")
 
             loss_value = float(loss)
@@ -1115,7 +1132,8 @@ def train_multiphase(
     # Best tracking
     best_loss = float("inf")
     best_positions = state.positions
-    best_rotations = jnp.eye(4)[jnp.zeros(netlist.n_components, dtype=jnp.int32)]
+    # Initialize best_rotations from initial state (temper-p11g.7)
+    best_rotations = jax.nn.one_hot(jnp.argmax(state.rotation_logits, axis=-1), 4)
     epochs_without_improvement = 0
 
     # Convergence tracking
@@ -1301,7 +1319,7 @@ def train_multiphase(
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
-                state.position_delta_ema = 1.0
+                # We don't reset EMA to 1.0 anymore (temper-p11g.9)
                 logger.debug(f"Epoch {epoch}: Jiggle triggered")
 
             loss_value = float(loss)

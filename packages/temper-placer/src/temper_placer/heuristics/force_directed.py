@@ -85,6 +85,15 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             learning_rate=self.lr
         )
 
+        # 3. Clamp to board bounds (temper-p11g.1)
+        ox, oy = context.board.origin
+        margin = context.constraints.board_margin_mm
+        curr_pos = jnp.clip(
+            curr_pos,
+            min=jnp.array([margin, margin]),
+            max=jnp.array([context.board.width - margin, context.board.height - margin])
+        )
+
         # 4. Map back to placements
         placements = {}
         for i, comp in enumerate(context.netlist.components):

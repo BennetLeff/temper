@@ -216,21 +216,14 @@ def _compute_pairwise_overlaps_vectorized(
     # Squared overlap penalty
     overlap_amount = jax.nn.relu(-signed_dist) ** 2
 
-    # Apply centrality weighting if provided
-    if centrality is not None and centrality.shape[0] > 0:
-        centrality_dt = centrality.astype(dtype)
-        # Boost overlap penalty based on max centrality of pair
-        # Scale by n/2 to keep average weight consistent (avg centrality ~ 1/n)
-        pair_weight = (centrality_dt[:, None] + centrality_dt[None, :]) * (n / 2.0)
-        overlap_amount = overlap_amount * pair_weight
-
     # For total loss, only count upper triangle (i < j) to avoid double counting
     mask = jnp.triu(jnp.ones((n, n), dtype=jnp.bool_), k=1)
     total_overlap = jnp.sum(overlap_amount * mask)
 
     # For per-component breakdown, sum across rows (all overlaps for each component)
     # We use the full symmetric matrix here but zero out diagonal
-    per_component_overlap = jnp.sum(overlap_amount * (jnp.array(1.0, dtype=dtype) - jnp.eye(n, dtype=dtype)), axis=1)
+    # Divide by 2 because each overlap is shared by two components
+    per_component_overlap = jnp.sum(overlap_amount * (jnp.array(1.0, dtype=dtype) - jnp.eye(n, dtype=dtype)), axis=1) / 2.0
 
     return total_overlap, per_component_overlap
 
@@ -280,12 +273,6 @@ def _compute_pairwise_overlaps_chunked(
 
         signed_dist = jnp.maximum(sep_x, sep_y)
         overlap_amount = jax.nn.relu(-signed_dist) ** 2
-
-        # Apply centrality weighting if provided
-        if centrality is not None and centrality.shape[0] > 0:
-            centrality_dt = centrality.astype(dtype)
-            pair_weight = (centrality_dt[i] + centrality_dt) * (n / 2.0)
-            overlap_amount = overlap_amount * pair_weight
 
         # Sum overlaps for component i
         comp_i_sum = jnp.sum(overlap_amount * (1.0 - jax.nn.one_hot(i, n, dtype=dtype)))
