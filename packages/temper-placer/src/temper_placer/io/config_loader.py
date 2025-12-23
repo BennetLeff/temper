@@ -101,6 +101,7 @@ class NoiseIsolationRule:
 @dataclass
 class StarGroundConfig:
     """Definition of a star ground constraint."""
+
     net: str
     weight: float = 1.0
     anchor: tuple[float, float] | None = None
@@ -201,10 +202,10 @@ class LossesConfig:
     boundary: LossConfig | None = None
     wirelength: LossConfig | None = None
     spread: LossConfig | None = None
+    edge_avoidance: LossConfig | None = None
     group_cluster: LossConfig | None = None
     thermal: LossConfig | None = None
     zone: LossConfig | None = None
-    clearance: LossConfig | None = None
     clearance: LossConfig | None = None
     loop_area: LossConfig | None = None
     star_point: LossConfig | None = None
@@ -217,10 +218,10 @@ class LossesConfig:
             "boundary",
             "wirelength",
             "spread",
+            "edge_avoidance",
             "group_cluster",
             "thermal",
             "zone",
-            "clearance",
             "clearance",
             "loop_area",
             "star_point",

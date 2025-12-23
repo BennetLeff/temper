@@ -1,0 +1,21 @@
+# Option A condition for temper-a98v experiment
+# spread_weight = 0.3, edge_avoidance_weight = 0.0
+
+board:
+  width_mm: 100.0
+  height_mm: 80.0
+  margin_mm: 5.0
+
+losses:
+  overlap:
+    weight: 100.0
+    enabled: true
+  boundary:
+    weight: 50.0
+    enabled: true
+  wirelength:
+    weight: 10.0
+    enabled: true
+  spread:
+    weight: 0.3  # OPTION A: reduced spread weight
+    enabled: true
