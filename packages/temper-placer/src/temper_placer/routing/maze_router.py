@@ -22,6 +22,7 @@ Example usage:
     ...     print(f"Routed {len(result.cells)} cells")
 """
 
+import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 import heapq
@@ -55,6 +56,19 @@ class GridCell:
 
     def __hash__(self) -> int:
         return hash((self.x, self.y, self.layer))
+
+
+@dataclass
+class RoutingStats:
+    """Statistics collected during routing."""
+
+    total_time_ms: float = 0.0
+    nets_routed: int = 0
+    nets_failed: int = 0
+    avg_time_per_net_ms: float = 0.0
+    max_time_per_net_ms: float = 0.0
+    total_astar_iterations: int = 0
+    avg_iterations_per_path: float = 0.0
 
 
 @dataclass
@@ -92,6 +106,7 @@ class MazeRouter:
         num_layers: Number of routing layers
         occupancy: 3D array of occupancy values (width, height, layers)
         origin: Board origin coordinates
+        stats: Collected routing statistics
     """
 
     def __init__(
@@ -100,6 +115,7 @@ class MazeRouter:
         cell_size_mm: float = 1.0,
         num_layers: int = 1,
         origin: tuple[float, float] = (0.0, 0.0),
+        via_cost: float = 1.0,
     ):
         """Initialize maze router.
 
@@ -108,15 +124,20 @@ class MazeRouter:
             cell_size_mm: Physical size of each cell
             num_layers: Number of routing layers
             origin: Board origin coordinates
+            via_cost: Penalty cost for layer transitions
         """
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
         self.num_layers = num_layers
         self.origin = origin
+        self.via_cost = via_cost
 
         # Occupancy grid: (width, height, layers)
         # 0=free, 1=blocked, 2=routed
         self.occupancy = jnp.zeros((grid_size[0], grid_size[1], num_layers), dtype=jnp.int32)
+        
+        # Statistics
+        self.stats = RoutingStats()
 
     @classmethod
     def from_board(
@@ -124,6 +145,7 @@ class MazeRouter:
         board: Board,
         cell_size_mm: float = 1.0,
         num_layers: int = 1,
+        via_cost: float = 1.0,
     ) -> "MazeRouter":
         """Create router from board specification.
 
@@ -131,6 +153,7 @@ class MazeRouter:
             board: Board with dimensions
             cell_size_mm: Grid cell size
             num_layers: Number of routing layers
+            via_cost: Penalty cost for layer transitions
 
         Returns:
             Initialized MazeRouter
@@ -143,7 +166,15 @@ class MazeRouter:
             cell_size_mm=cell_size_mm,
             num_layers=num_layers,
             origin=board.origin,
+            via_cost=via_cost,
         )
+
+    def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell) -> float:
+        """Get cost of moving from current to neighbor cell."""
+        base_cost = 1.0
+        if current.layer != neighbor.layer:
+            return base_cost + self.via_cost
+        return base_cost
 
     def block_rect(
         self,
@@ -350,6 +381,9 @@ class MazeRouter:
 
         while open_set:
             _, _, current = heapq.heappop(open_set)
+            
+            # Count iterations for stats
+            self.stats.total_astar_iterations += 1
 
             if current in visited:
                 continue
@@ -368,8 +402,8 @@ class MazeRouter:
                 if neighbor in visited:
                     continue
 
-                # Cost: 1 for same layer move, 2 for via
-                move_cost = 1 if neighbor.layer == current.layer else 2
+                # Use dynamic neighbor cost (includes via penalty)
+                move_cost = self._get_neighbor_cost(current, neighbor)
                 tentative_g = g_score[current] + move_cost
 
                 if neighbor not in g_score or tentative_g < g_score[neighbor]:
@@ -493,7 +527,9 @@ class MazeRouter:
         Returns:
             Dictionary mapping net names to RoutePath results
         """
+        start_time = time.perf_counter()
         results: dict[str, RoutePath] = {}
+        times_per_net: list[float] = []
 
         # Build component index
         comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
@@ -504,7 +540,8 @@ class MazeRouter:
         for net_name in net_order:
             if net_name not in net_by_name:
                 continue
-
+            
+            net_start = time.perf_counter()
             net = net_by_name[net_name]
 
             # Collect pin positions
@@ -541,6 +578,24 @@ class MazeRouter:
             # Route the net
             result = self.route_net(net_name, pin_positions, assignment)
             results[net_name] = result
+            
+            net_end = time.perf_counter()
+            times_per_net.append((net_end - net_start) * 1000.0) # ms
+
+        # Update stats
+        total_time = (time.perf_counter() - start_time) * 1000.0
+        self.stats.total_time_ms = total_time
+        self.stats.nets_routed = sum(1 for r in results.values() if r.success)
+        self.stats.nets_failed = len(results) - self.stats.nets_routed
+        
+        if times_per_net:
+            self.stats.avg_time_per_net_ms = sum(times_per_net) / len(times_per_net)
+            self.stats.max_time_per_net_ms = max(times_per_net)
+            
+        if self.stats.nets_routed > 0:
+            self.stats.avg_iterations_per_path = (
+                self.stats.total_astar_iterations / self.stats.nets_routed
+            )
 
         return results
 
