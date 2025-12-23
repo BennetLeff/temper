@@ -363,24 +363,23 @@ class MazeRouter:
             escape_length: Length of escape route in cells
         
         Returns:
-            True if route was successfully created, False if blocked
+            True if route was successfully created, False if out of bounds
         """
         pin_gx, pin_gy = self._world_to_grid(pin_x, pin_y)
         
-        # Check if route is viable (not blocked)
+        # Check if route is viable (within bounds)
+        # NOTE: We don't check if cells are blocked because block_components()
+        # runs first and blocks component bodies. We need to unblock the escape
+        # path to create a corridor from the pin to the board routing area.
         for step in range(escape_length):
             check_gx = pin_gx + step * step_x
             check_gy = pin_gy + step * step_y
             
-            # Bounds check
+            # Bounds check only - don't check blocking status
             if not (0 <= check_gx < self.grid_size[0] and 0 <= check_gy < self.grid_size[1]):
                 return False
-            
-            # Check if blocked
-            if int(self.occupancy[check_gx, check_gy, 0]) == 1:
-                return False
         
-        # Route is viable, unblock it
+        # Route is viable, unblock it (this carves through blocked component body)
         for step in range(escape_length):
             unblock_gx = pin_gx + step * step_x
             unblock_gy = pin_gy + step * step_y
