@@ -39,19 +39,16 @@ run_placement() {
     
     echo ">>> Running: $condition #$run_num (seed=$seed)"
     
-    cd packages/temper-placer
-    python3.11 -m temper_placer.cli optimize \
-        "../../$INPUT_PCB" \
-        -c "../../$config_file" \
-        -o "../../$output_pcb" \
+    temper-placer optimize \
+        "$INPUT_PCB" \
+        -c "$config_file" \
+        -o "$output_pcb" \
         --epochs "$EPOCHS" \
         --seed "$seed" \
-        --placements-json "../../$placements_json" \
+        --placements-json "$placements_json" \
         --no-curriculum \
         --no-heuristics \
-        2>&1 | tee "../../$log_file"
-    
-    cd ../..
+        2>&1 | tee "$log_file"
     
     echo "✓ Complete: $output_pcb"
     echo
