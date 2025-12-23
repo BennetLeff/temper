@@ -211,9 +211,7 @@ def compute_spread_penalty(
     # Component-to-edge spread (optional)
     edge_penalty = jnp.array(0.0)
     if board_bounds is not None:
-        edge_penalty = _compute_edge_spread_penalty(
-            positions, bounds, board_bounds, min_distance
-        )
+        edge_penalty = _compute_edge_spread_penalty(positions, bounds, board_bounds, min_distance)
 
     return pairwise_penalty + edge_penalty
 
@@ -288,9 +286,7 @@ class SpreadLoss(LossFunction):
             LossResult with total spread penalty.
         """
         board_bounds = context.board.get_bounds_array()
-        penalty = compute_spread_penalty(
-            positions, context.bounds, board_bounds, self.min_distance
-        )
+        penalty = compute_spread_penalty(positions, context.bounds, board_bounds, self.min_distance)
         return LossResult(value=penalty)
 
 
@@ -359,11 +355,7 @@ class RotationEntropyLoss(LossFunction):
         result = jnp.where(
             progress < self.anneal_start,
             1.0,
-            jnp.where(
-                progress > self.anneal_end,
-                0.0,
-                linear_val
-            )
+            jnp.where(progress > self.anneal_end, 0.0, linear_val),
         )
         return cast(float, result)
 
@@ -426,3 +418,88 @@ class CenterOfMassLoss(LossFunction):
         penalty = jnp.sum((com - target) ** 2)
 
         return LossResult(value=penalty)
+
+
+@dataclass
+class EdgeAvoidanceLoss(LossFunction):
+    """
+    Loss function penalizing components near board edges.
+
+    This counteracts the edge-pushing effect of SpreadLoss, which can hurt
+    routing completion by placing components in hard-to-route edge locations.
+
+    The loss increases quadratically as components approach within 'margin'
+    of any board edge, encouraging an internal placement region.
+
+    Attributes:
+        margin: Distance from edge (in mm) within which penalty applies.
+            Components further than margin from all edges have zero penalty.
+    """
+
+    margin: float = 10.0
+
+    @property
+    def name(self) -> str:
+        return "edge_avoidance"
+
+    def __call__(
+        self,
+        positions: Array,
+        _rotations: Array,
+        context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        **_kwargs: Any,
+    ) -> LossResult:
+        """
+        Compute edge avoidance loss.
+
+        Args:
+            positions: (N, 3) component positions (x, y, rotation_idx).
+            _rotations: (N, 4) soft one-hot rotations (unused).
+            context: LossContext with board and bounds info.
+            _epoch: Current epoch (unused).
+            _total_epochs: Total epochs (unused).
+
+        Returns:
+            LossResult with total edge avoidance penalty.
+        """
+        # Extract x, y positions (ignore rotation index in positions[:, 2])
+        xy = positions[:, :2]  # (N, 2)
+        bounds = context.bounds  # (N, 2)
+
+        # Component half-widths and half-heights
+        half_w = bounds[:, 0] / 2.0  # (N,)
+        half_h = bounds[:, 1] / 2.0  # (N,)
+
+        # Board boundaries
+        x_min = context.board.origin[0]
+        y_min = context.board.origin[1]
+        x_max = x_min + context.board.width
+        y_max = y_min + context.board.height
+
+        # Distance from component edges to board edges
+        # Positive = safe, negative = component extends beyond board
+        dist_left = xy[:, 0] - half_w - x_min  # (N,)
+        dist_right = x_max - (xy[:, 0] + half_w)  # (N,)
+        dist_bottom = xy[:, 1] - half_h - y_min  # (N,)
+        dist_top = y_max - (xy[:, 1] + half_h)  # (N,)
+
+        # Deficit = how far component is within the margin zone
+        # Positive deficit = within margin, needs penalty
+        deficit_left = self.margin - dist_left  # (N,)
+        deficit_right = self.margin - dist_right  # (N,)
+        deficit_bottom = self.margin - dist_bottom  # (N,)
+        deficit_top = self.margin - dist_top  # (N,)
+
+        # Quadratic penalty for being within margin
+        # max(0, deficit)^2 ensures penalty only when deficit > 0
+        penalty_left = jnp.maximum(0.0, deficit_left) ** 2
+        penalty_right = jnp.maximum(0.0, deficit_right) ** 2
+        penalty_bottom = jnp.maximum(0.0, deficit_bottom) ** 2
+        penalty_top = jnp.maximum(0.0, deficit_top) ** 2
+
+        # Sum across all edges and all components
+        total_penalty = jnp.sum(penalty_left + penalty_right + penalty_bottom + penalty_top)
+
+        return LossResult(value=total_penalty)

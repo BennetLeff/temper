@@ -191,6 +191,7 @@ from temper_placer.losses.power_path import (
 # Regularization losses
 from temper_placer.losses.regularization import (
     CenterOfMassLoss,
+    EdgeAvoidanceLoss,
     RotationEntropyLoss,
     SpreadLoss,
     compute_rotation_entropy,
@@ -305,6 +306,7 @@ __all__ = [
     "CoilRule",
     # Regularization losses
     "SpreadLoss",
+    "EdgeAvoidanceLoss",
     "RotationEntropyLoss",
     "CenterOfMassLoss",
     # Functional grouping losses
