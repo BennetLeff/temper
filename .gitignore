@@ -71,3 +71,8 @@ temper-placer/research/*.png
 temper-placer/research/*.svg
 .gemini/
 .beads/
+
+# Experiment artifacts (generated files)
+experiments/temper-a98v/*.kicad_pcb
+experiments/temper-a98v/*.json
+experiments/temper-a98v/*.log
