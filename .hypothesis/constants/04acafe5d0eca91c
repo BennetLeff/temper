@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/losses/aesthetic.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-08, 1e-06, 0.5, 1.0, 2.0, 5.0, 10.0, ':', 'AlignmentLoss', 'ConsensusLayoutLoss', 'MirrorSymmetryLoss', 'PinGridAlignmentLoss', 'StackedRowLoss', 'VisualGroupingLoss', 'WhitespaceLoss', '^([a-zA-Z]+)', 'alignment', 'consensus_layout', 'crossing_counts', 'get_port_facing_data', 'get_prefix_groups', 'get_template_groups', 'inter_group', 'intra_group', 'mirror_symmetry', 'per_group', 'pin_grid_alignment', 'port_facing_rotation', 'rotation_consistency', 'stacked_row', 'visual_grouping', 'whitespace']

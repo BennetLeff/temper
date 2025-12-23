@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/losses/thermal.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-12, 1.0, 2.0, 3.0, 5.0, 10.0, 15.0, 20.0, 50.0, 100.0, 150.0, 1000.0, 'BOTTOM', 'D1', 'D2', 'LEFT', 'MAX31865', 'Q1', 'Q2', 'RIGHT', 'R_SENSE_HIGH', 'R_SENSE_LOW', 'TOP', 'U_BUCK', 'U_MCU', 'U_TEMP_SENSE', 'Y1', 'edge_preference', 'thermal', 'thermal_spread']

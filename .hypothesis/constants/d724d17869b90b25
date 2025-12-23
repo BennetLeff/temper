@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/diagnostics.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-06, 0.1, 0.3, 0.4, 0.5, 0.7, 0.9, 1.0, 3.0, '## Diagnostics', '## Failed Nets', '## Summary', 'L1', 'L2', 'L3', 'L4', 'RoutePath', 'Unknown failure', 'clearance', 'congestion', 'critical', 'down', 'layer_conflict', 'left', 'no_path', 'right', 'up', 'via_count', 'warning', '✅ Feasible', '❌ Not Feasible']

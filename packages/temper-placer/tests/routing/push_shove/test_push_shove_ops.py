@@ -15,8 +15,7 @@ from temper_placer.routing.push_shove import (
 )
 
 
-@pytest.fixture
-def horizontal_path():
+def get_horizontal_path():
     """Simple horizontal path."""
     return Path(
         segments=[Segment(start=(0.0, 10.0), end=(20.0, 10.0))],
@@ -26,11 +25,10 @@ def horizontal_path():
     )
 
 
-@pytest.fixture
-def vertical_path():
-    """Simple vertical path."""
+def get_vertical_path():
+    """Simple vertical path that is close to but doesn't cross horizontal path."""
     return Path(
-        segments=[Segment(start=(10.0, 0.0), end=(10.0, 20.0))],
+        segments=[Segment(start=(10.0, 10.2), end=(10.0, 20.0))],
         width=0.2,
         clearance=0.2,
         net="NET2",
@@ -40,8 +38,9 @@ def vertical_path():
 class TestPushPath:
     """Tests for push_path operation."""
 
-    def test_push_path_up(self, horizontal_path):
+    def test_push_path_up(self):
         """Pushing path up should move it vertically."""
+        horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
         
         # Path should be moved up by 2mm
@@ -49,8 +48,9 @@ class TestPushPath:
         assert pushed.segments[0].end[1] == 12.0, "End should move up"
         assert pushed.segments[0].start[0] == 0.0, "X should not change"
 
-    def test_push_path_preserves_connectivity(self, horizontal_path):
+    def test_push_path_preserves_connectivity(self):
         """Pushed path should maintain connectivity."""
+        horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
         
         # Segments should still be connected
@@ -59,21 +59,24 @@ class TestPushPath:
             assert pushed.segments[i].end == pushed.segments[i + 1].start, \
                 "Segments should remain connected"
 
-    def test_push_path_preserves_width_and_clearance(self, horizontal_path):
+    def test_push_path_preserves_width_and_clearance(self):
         """Pushed path should maintain width and clearance."""
+        horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
         
         assert pushed.width == horizontal_path.width
         assert pushed.clearance == horizontal_path.clearance
 
-    def test_push_path_preserves_net(self, horizontal_path):
+    def test_push_path_preserves_net(self):
         """Pushed path should maintain net assignment."""
+        horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
         
         assert pushed.net == horizontal_path.net
 
-    def test_push_path_zero_distance_is_identity(self, horizontal_path):
+    def test_push_path_zero_distance_is_identity(self):
         """Pushing by zero distance should return equivalent path."""
+        horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=0.0)
         
         assert pushed == horizontal_path
@@ -81,8 +84,9 @@ class TestPushPath:
     @given(
         distance=st.floats(min_value=0.1, max_value=10.0),
     )
-    def test_push_path_is_reversible(self, horizontal_path, distance):
+    def test_push_path_is_reversible(self, distance):
         """Property: Pushing and pulling should be reversible."""
+        horizontal_path = get_horizontal_path()
         # Push up
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=distance)
         # Pull down
@@ -96,8 +100,9 @@ class TestPushPath:
             assert abs(seg.end[0] - orig_seg.end[0]) < 1e-6
             assert abs(seg.end[1] - orig_seg.end[1]) < 1e-6
 
-    def test_push_path_diagonal(self, horizontal_path):
+    def test_push_path_diagonal(self):
         """Pushing diagonally should work."""
+        horizontal_path = get_horizontal_path()
         # Normalize diagonal direction
         import math
         dx, dy = 1.0, 1.0
@@ -118,11 +123,11 @@ class TestPushPath:
 class TestShovePaths:
     """Tests for shove_paths operation."""
 
-    def test_shove_single_path(self, horizontal_path, vertical_path):
+    def test_shove_single_path(self):
         """Shoving should push colliding path aside."""
         # Paths collide at (10, 10)
-        existing_paths = [horizontal_path]
-        new_path = vertical_path
+        existing_paths = [get_horizontal_path()]
+        new_path = get_vertical_path()
         
         result = shove_paths(existing_paths, new_path)
         
@@ -134,8 +139,9 @@ class TestShovePaths:
         assert not detect_collision(shoved, new_path), \
             "Shoved path should not collide with new path"
 
-    def test_shove_preserves_all_paths(self, horizontal_path):
+    def test_shove_preserves_all_paths(self):
         """Shove should preserve all paths (no deletion)."""
+        horizontal_path = get_horizontal_path()
         path2 = replace(horizontal_path, net="NET2")
         path2 = replace(path2, segments=[Segment(start=(0.0, 12.0), end=(20.0, 12.0))])
         
@@ -151,10 +157,11 @@ class TestShovePaths:
         
         assert len(result.paths) == 2, "Should preserve all existing paths"
 
-    def test_shove_minimal_displacement(self, horizontal_path, vertical_path):
+    def test_shove_minimal_displacement(self):
         """Shove should minimize displacement."""
+        horizontal_path = get_horizontal_path()
         existing_paths = [horizontal_path]
-        new_path = vertical_path
+        new_path = get_vertical_path()
         
         result = shove_paths(existing_paths, new_path)
         
@@ -204,7 +211,7 @@ class TestShovePaths:
             assert not detect_collision(shoved, new_path), \
                 f"Path {i} should not collide after shove"
 
-    def test_shove_maintains_connectivity(self, horizontal_path):
+    def test_shove_maintains_connectivity(self):
         """Shove should maintain path connectivity."""
         # Multi-segment path
         multi_seg = Path(
@@ -259,9 +266,10 @@ class TestPushShoveProperties:
         distance=st.floats(min_value=0.1, max_value=5.0),
         angle=st.floats(min_value=0.0, max_value=6.28),  # 0 to 2π
     )
-    def test_push_preserves_path_length(self, horizontal_path, distance, angle):
+    def test_push_preserves_path_length(self, distance, angle):
         """Property: Pushing should preserve path length."""
         import math
+        horizontal_path = get_horizontal_path()
         direction = (math.cos(angle), math.sin(angle))
         
         pushed = push_path(horizontal_path, direction=direction, distance=distance)

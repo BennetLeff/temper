@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/core/loop.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-09, 1e-07, 1e-06, 0.001, 0.2, 100.0, 1000000.0, 1000000000.0, 100, 'auxiliary_supply', 'boost_switch', 'bootstrap', 'buck_switch', 'commutation', 'compliant_count', 'critical', 'critical_count', 'custom', 'decoupling', 'feedback', 'flyback_primary', 'flyback_secondary', 'gate_drive_high', 'gate_drive_low', 'high', 'high_priority_count', 'low', 'manual', 'medium', 'non_compliant_count', 'sensing', 'total_loops', 'unique_components', 'unique_nets', 'unknown_count']

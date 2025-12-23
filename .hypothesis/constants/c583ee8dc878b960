@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/losses/grouping.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-12, 1e-06, 0.3, 1.0, 2.0, 5.0, 'group_cluster', 'group_separation', 'per_component', 'proximity', 'proximity_distances', 'proximity_penalties', 'symmetry']

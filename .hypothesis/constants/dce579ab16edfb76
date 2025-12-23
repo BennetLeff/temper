@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/validation/geometric.py
+# hypothesis_version: 6.148.7
+
+[0.0, 0.01, 0.2, 0.5, 1.0, 5.0, 10.0, 1000, ', ', 'GEO_BOUNDARY', 'GEO_CLEARANCE', 'GEO_HV_LV_CLEARANCE', 'GEO_KEEPOUT', 'GEO_MOUNTING_HOLE', 'GEO_OVERLAP', 'GEO_ZONE_UNDEFINED', 'GEO_ZONE_VIOLATION', 'GeometricValidator', 'HighVoltage', 'actual_distance_mm', 'actual_zone', 'bottom', 'boundary_violations', 'clearance_violations', 'distance', 'distance_to_hole', 'hole_position', 'is_hv_lv', 'keepout_bounds', 'keepout_violations', 'left', 'max_violation_mm', 'outside all zones', 'overlap_count', 'overlap_mm', 'required_distance', 'required_zone', 'right', 'shortage_mm', 'top', 'total_overlap_area', 'violations', 'zone_violations']

@@ -13,8 +13,7 @@ from dataclasses import FrozenInstanceError
 from temper_placer.routing.push_shove import Path, Segment, to_sdf, detect_collision
 
 
-@pytest.fixture
-def simple_path():
+def get_simple_path():
     """Simple L-shaped path."""
     return Path(
         segments=[
@@ -27,8 +26,7 @@ def simple_path():
     )
 
 
-@pytest.fixture
-def straight_path():
+def get_straight_path():
     """Straight horizontal path."""
     return Path(
         segments=[Segment(start=(0.0, 5.0), end=(20.0, 5.0))],
@@ -41,25 +39,28 @@ def straight_path():
 class TestPathImmutability:
     """Tests for Path immutability."""
 
-    def test_path_is_frozen(self, simple_path):
+    def test_path_is_frozen(self):
         """Path should be immutable (frozen dataclass)."""
+        path = get_simple_path()
         with pytest.raises(FrozenInstanceError):
-            simple_path.width = 0.5
+            path.width = 0.5
 
-    def test_segments_are_immutable(self, simple_path):
+    def test_segments_are_immutable(self):
         """Segments should be immutable."""
+        path = get_simple_path()
         with pytest.raises((FrozenInstanceError, AttributeError)):
-            simple_path.segments[0].start = (1.0, 1.0)
+            path.segments[0].start = (1.0, 1.0)
 
-    def test_path_copy_is_independent(self, simple_path):
+    def test_path_copy_is_independent(self):
         """Copying path creates independent instance."""
         from dataclasses import replace
+        path = get_simple_path()
         
-        new_path = replace(simple_path, width=0.5)
+        new_path = replace(path, width=0.5)
         
         assert new_path.width == 0.5
-        assert simple_path.width == 0.2
-        assert new_path.segments == simple_path.segments
+        assert path.width == 0.2
+        assert new_path.segments == path.segments
 
     def test_path_equality(self):
         """Paths with same data should be equal."""
@@ -78,51 +79,56 @@ class TestPathImmutability:
         
         assert path1 == path2
 
-    def test_path_hashing(self, simple_path):
+    def test_path_hashing(self):
         """Frozen paths should be hashable."""
-        path_set = {simple_path}
-        assert simple_path in path_set
+        path = get_simple_path()
+        path_set = {path}
+        assert path in path_set
 
 
 class TestPathSDF:
     """Tests for Path SDF (Signed Distance Function) generation."""
 
-    def test_sdf_at_path_center_is_negative(self, straight_path):
+    def test_sdf_at_path_center_is_negative(self):
         """SDF should be negative inside path."""
-        sdf = to_sdf(straight_path)
+        path = get_straight_path()
+        sdf = to_sdf(path)
         
         # Point at center of path
         distance = sdf((10.0, 5.0))
         
         assert distance < 0, "SDF should be negative inside path"
 
-    def test_sdf_at_path_edge_is_zero(self, straight_path):
-        """SDF should be ~0 at path edge."""
-        sdf = to_sdf(straight_path)
+    def test_sdf_at_path_edge_is_zero(self):
+        """SDF should be ~0 at path edge (including clearance)."""
+        path = get_straight_path()
+        sdf = to_sdf(path)
         
-        # Point at edge (width/2 from center)
-        distance = sdf((10.0, 5.0 + 0.1))  # width=0.2, so edge at ±0.1
+        # Point at edge (radius = width/2 + clearance/2 = 0.1 + 0.1 = 0.2)
+        distance = sdf((10.0, 5.0 + 0.2))
         
         assert abs(distance) < 0.05, f"SDF at edge should be ~0, got {distance}"
 
-    def test_sdf_outside_path_is_positive(self, straight_path):
+    def test_sdf_outside_path_is_positive(self):
         """SDF should be positive outside path."""
-        sdf = to_sdf(straight_path)
+        path = get_straight_path()
+        sdf = to_sdf(path)
         
         # Point far from path
         distance = sdf((10.0, 10.0))
         
         assert distance > 0, "SDF should be positive outside path"
 
-    def test_sdf_distance_is_euclidean(self, straight_path):
+    def test_sdf_distance_is_euclidean(self):
         """SDF should return Euclidean distance to nearest point."""
-        sdf = to_sdf(straight_path)
+        path = get_straight_path()
+        sdf = to_sdf(path)
         
         # Point 5mm above path center
         distance = sdf((10.0, 10.0))
         
-        # Distance to path edge = 5.0 - width/2 = 5.0 - 0.1 = 4.9
-        expected = 4.9
+        # Distance to path boundary = 5.0 - radius = 5.0 - 0.2 = 4.8
+        expected = 4.8
         assert abs(distance - expected) < 0.1, \
             f"Expected distance ~{expected}, got {distance}"
 
@@ -142,9 +148,10 @@ class TestPathSDF:
         
         assert abs(distance) < 0.05, "SDF should include clearance"
 
-    def test_sdf_for_multi_segment_path(self, simple_path):
+    def test_sdf_for_multi_segment_path(self):
         """SDF should handle multi-segment paths."""
-        sdf = to_sdf(simple_path)
+        path = get_simple_path()
+        sdf = to_sdf(path)
         
         # Point near corner
         distance = sdf((10.0, 0.0))
@@ -155,9 +162,10 @@ class TestPathSDF:
         x=st.floats(min_value=-5.0, max_value=25.0),
         y=st.floats(min_value=-5.0, max_value=15.0),
     )
-    def test_sdf_is_continuous(self, straight_path, x, y):
+    def test_sdf_is_continuous(self, x, y):
         """Property: SDF should be continuous everywhere."""
-        sdf = to_sdf(straight_path)
+        path = get_straight_path()
+        sdf = to_sdf(path)
         
         distance = sdf((x, y))
         
@@ -214,9 +222,10 @@ class TestCollisionDetection:
             clearance=0.2,
             net="NET1",
         )
-        # Path2 at distance = width/2 + clearance/2 = 0.2 (exactly touching)
+        # Required distance = (0.2 + 0.2 + 0.2 + 0.2) / 2 = 0.4
+        # Path2 at distance = 0.39 (colliding)
         path2 = Path(
-            segments=[Segment(start=(0.0, 0.4), end=(20.0, 0.4))],
+            segments=[Segment(start=(0.0, 0.39), end=(20.0, 0.39))],
             width=0.2,
             clearance=0.2,
             net="NET2",
@@ -224,7 +233,7 @@ class TestCollisionDetection:
         
         collision = detect_collision(path1, path2)
         
-        assert collision, "Touching paths should collide"
+        assert collision, "Paths within clearance should collide"
 
     def test_same_net_no_collision(self):
         """Paths on same net should not collide."""
@@ -245,10 +254,12 @@ class TestCollisionDetection:
         
         assert not collision, "Same net paths should not collide"
 
-    def test_collision_is_symmetric(self, simple_path, straight_path):
+    def test_collision_is_symmetric(self):
         """Property: Collision detection should be symmetric."""
-        collision_12 = detect_collision(simple_path, straight_path)
-        collision_21 = detect_collision(straight_path, simple_path)
+        path1 = get_simple_path()
+        path2 = get_straight_path()
+        collision_12 = detect_collision(path1, path2)
+        collision_21 = detect_collision(path2, path1)
         
         assert collision_12 == collision_21, "Collision should be symmetric"
 

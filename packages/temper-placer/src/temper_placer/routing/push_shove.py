@@ -319,7 +319,7 @@ def to_sdf(path: Path) -> Callable[[Tuple[float, float]], float]:
     return sdf_func
 
 
-def detect_collision(path1: Path, path2: Path, num_samples: int = 20) -> bool:
+def detect_collision(path1: Path, path2: Path, num_samples: int = 21) -> bool:
     """
     Detect collision between two paths using SDF sampling.
 
@@ -335,29 +335,35 @@ def detect_collision(path1: Path, path2: Path, num_samples: int = 20) -> bool:
     if path1.net == path2.net:
         return False
 
-    sdf1 = to_sdf(path1)
-    sdf2 = to_sdf(path2)
+    # Total required separation between center lines
+    # (W1/2 + C1/2) + (W2/2 + C2/2)
+    required_dist = (path1.width + path1.clearance + path2.width + path2.clearance) / 2.0
 
-    # Sample points along path2 and check against path1's SDF
-    for seg in path2.segments:
+    # Sample points along path2 and check against path1's segments
+    for seg2 in path2.segments:
         for i in range(num_samples):
             t = i / (num_samples - 1) if num_samples > 1 else 0.5
-            x = seg.start[0] + t * (seg.end[0] - seg.start[0])
-            y = seg.start[1] + t * (seg.end[1] - seg.start[1])
+            px = seg2.start[0] + t * (seg2.end[0] - seg2.start[0])
+            py = seg2.start[1] + t * (seg2.end[1] - seg2.start[1])
 
-            # If point is inside path1's clearance zone, collision
-            if sdf1((x, y)) < 0:
-                return True
+            # Check distance to all segments in path1
+            for seg1 in path1.segments:
+                # Segment SDF with 0 radius gives distance to segment
+                dist = segment_sdf((px, py), seg1, 0.0)
+                if dist < required_dist - 1e-6:  # Small epsilon for stability
+                    return True
 
-    # Sample points along path1 and check against path2's SDF
-    for seg in path1.segments:
+    # Sample points along path1 and check against path2's segments
+    for seg1 in path1.segments:
         for i in range(num_samples):
             t = i / (num_samples - 1) if num_samples > 1 else 0.5
-            x = seg.start[0] + t * (seg.end[0] - seg.start[0])
-            y = seg.start[1] + t * (seg.end[1] - seg.start[1])
+            px = seg1.start[0] + t * (seg1.end[0] - seg1.start[0])
+            py = seg1.start[1] + t * (seg1.end[1] - seg1.start[1])
 
-            if sdf2((x, y)) < 0:
-                return True
+            for seg2 in path2.segments:
+                dist = segment_sdf((px, py), seg2, 0.0)
+                if dist < required_dist - 1e-6:
+                    return True
 
     return False
 
@@ -463,7 +469,9 @@ def shove_paths(
             direction = compute_push_direction(path, new_path)
 
             # Minimum push distance = clearance requirement
-            min_distance = (path.width + path.clearance + new_path.width + new_path.clearance) / 2.0
+            min_distance = (
+                path.width + path.clearance + new_path.width + new_path.clearance
+            ) / 2.0 + 1e-3
 
             # Push by minimum distance
             pushed_path = push_path(path, direction, min_distance)

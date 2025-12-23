@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/core/loop_extractor.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-06, 0.001, 0.5, 0.7, 0.8, 0.9, 1.0, 30.0, 50.0, 100.0, 500.0, 25000.0, 1000000.0, 100000000.0, 1000000000.0, 5000000000.0, 100, '+', '-', '1', 'ACPL', 'BOOT', 'BSC', 'C', 'COLLECTOR', 'D', 'DRAIN', 'E', 'EMITTER', 'F', 'FET', 'FGA', 'FOD', 'G', 'GATE', 'G_', 'H', 'HCPL', 'IHW', 'IK', 'IPP', 'IRF', 'IRG', 'IRGP', 'ISO', 'L2_GND', 'MPN', 'NF', 'PF', 'PGND', 'Q', 'R', 'S', 'SI', 'SI82', 'SI827', 'SOURCE', 'STGP', 'STP', 'TO-220', 'TO-247', 'TO-263', 'U', 'UCC', 'UF', '_G', 'auto_', 'auto_bootstrap', 'auto_commutation', 'bootstrap', 'bus', 'capacitor', 'decoupling', 'diode', 'gate', 'gate_driver', 'igbt', 'mosfet', 'other', 'power_switch', 'resistor', 'schottky', 'unknown', 'value', 'µF']

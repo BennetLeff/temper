@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/validation/scheduler.py
+# hypothesis_version: 6.148.7
+
+[0.0, 1e-06, 0.0001, 0.05, 0.5, 1.0, 4.7, 100, 200, 500, 5000, '\nDRC:', '\nSPICE:', 'C_BOOT', 'C_DC', 'D_BOOT', 'Q1', 'Q2', 'R_GATE', 'U_GD', 'bootstrap_charging', 'bootstrap_resistance', 'decap_esr', 'decap_value', 'drc', 'drc_board_origin', 'drc_template_pcb', 'enabled', 'fail_on_errors', 'final_phase_epochs', 'final_phase_interval', 'gate_drive', 'gate_resistance', 'interval', 'log_results', 'loop_components', 'max_errors', 'name', 'parameters', 'power_integrity', 'simulations', 'spice', 'validation', 'w', 'weight', '✓', '✗']

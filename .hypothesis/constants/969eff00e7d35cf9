@@ -1,0 +1,4 @@
+# file: /Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/validation/metrics.py
+# hypothesis_version: 6.148.7
+
+[0.0, 0.2, 0.5, 10.0, 1000, 'HighVoltage', 'avg_congestion', 'avg_net_length', 'boundary_violations', 'center_of_mass', 'clearance_violations', 'computation_time_ms', 'hv_lv_violations', 'inf', 'keepout_violations', 'max_congestion', 'max_net_length', 'min_hv_lv_clearance', 'overlap_count', 'spread_score', 'total_overlap_area', 'total_wirelength', 'utilization', 'worst_overlap', 'zone_violations']
