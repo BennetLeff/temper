@@ -71,6 +71,7 @@ temper-placer/research/*.png
 temper-placer/research/*.svg
 .gemini/
 .beads/
+!.beads/issues.jsonl
 
 # Experiment artifacts (generated files)
 experiments/temper-a98v/*.kicad_pcb
