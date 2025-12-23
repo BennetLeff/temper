@@ -92,6 +92,26 @@ class RoutePath:
     failure_reason: str | None = None
 
 
+@dataclass
+class NetMetrics:
+    """Metrics for net ordering heuristic (temper-74wg.3).
+    
+    Attributes:
+        net_name: Name of the net
+        pin_count: Number of pins in the net
+        bounding_box_area: Area of bounding box in mm²
+        estimated_wirelength: Estimated wirelength in mm (half-perimeter)
+        is_power: True if this is a power net
+        is_ground: True if this is a ground net
+    """
+    net_name: str
+    pin_count: int
+    bounding_box_area: float
+    estimated_wirelength: float
+    is_power: bool
+    is_ground: bool
+
+
 class MazeRouter:
     """Grid-based maze router using A* pathfinding.
 
@@ -135,6 +155,9 @@ class MazeRouter:
         # Occupancy grid: (width, height, layers)
         # 0=free, 1=blocked, 2=routed
         self.occupancy = jnp.zeros((grid_size[0], grid_size[1], num_layers), dtype=jnp.int32)
+
+        # Component positions for density computation (temper-74wg.1)
+        self._component_positions: Array | None = None
 
         # Statistics
         self.stats = RoutingStats()
@@ -226,6 +249,9 @@ class MazeRouter:
             layer_specific: If True, block only the component's layer (assumed L1_TOP/0)
             escape_length: Length of escape routes in cells. If None, calculated based on cell size.
         """
+        # Store component positions for density computation (temper-74wg.1)
+        self._component_positions = positions
+        
         # First pass: block all component bodies
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
@@ -252,6 +278,118 @@ class MazeRouter:
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
             self._create_pin_escape_routes(comp, cx, cy, escape_length)
 
+    def _compute_local_density(self, x: float, y: float, radius: float = 10.0) -> float:
+        """Compute component density within radius of point (temper-74wg.1).
+        
+        Args:
+            x: X coordinate in mm
+            y: Y coordinate in mm
+            radius: Search radius in mm
+        
+        Returns:
+            Density from 0.0 (empty) to 1.0 (fully packed)
+        """
+        if self._component_positions is None or len(self._component_positions) == 0:
+            return 0.0
+        
+        # Compute distances to all components
+        point = jnp.array([x, y])
+        distances = jnp.sqrt(jnp.sum((self._component_positions - point)**2, axis=1))
+        count_within_radius = int(jnp.sum(distances <= radius))
+        
+        # Normalize by expected max components in area
+        area = jnp.pi * radius**2
+        avg_component_area = 100.0  # mm², typical component size
+        max_components = area / avg_component_area
+        
+        return float(jnp.clip(count_within_radius / max_components, 0.0, 1.0))
+    
+    def _compute_escape_length(self, pin_x: float, pin_y: float) -> int:
+        """Compute adaptive escape length based on local density (temper-74wg.1).
+        
+        Args:
+            pin_x: Pin X coordinate in mm
+            pin_y: Pin Y coordinate in mm
+        
+        Returns:
+            Escape route length in cells
+        """
+        density = self._compute_local_density(pin_x, pin_y)
+        base_length = 3
+        
+        if density < 0.3:
+            # Sparse area: longer escapes for better routing options
+            return base_length + 4  # 7 cells
+        elif density > 0.7:
+            # Dense area: shorter escapes to avoid interference
+            return base_length  # 3 cells
+        else:
+            # Medium density
+            return base_length + 2  # 5 cells
+    
+    def _get_primary_escape_direction(self, pin_offset: tuple[float, float]) -> tuple[int, int]:
+        """Get primary escape direction from pin offset (temper-74wg.2).
+        
+        Args:
+            pin_offset: (dx, dy) pin offset from component center
+        
+        Returns:
+            (step_x, step_y) primary escape direction
+        """
+        dx, dy = pin_offset
+        
+        if abs(dx) >= abs(dy):
+            # Horizontal escape
+            return (1 if dx >= 0 else -1, 0)
+        else:
+            # Vertical escape
+            return (0, 1 if dy >= 0 else -1)
+    
+    def _try_escape_route(
+        self,
+        pin_x: float,
+        pin_y: float,
+        step_x: int,
+        step_y: int,
+        escape_length: int,
+    ) -> bool:
+        """Try to create escape route in given direction (temper-74wg.2).
+        
+        Args:
+            pin_x: Pin X coordinate in mm
+            pin_y: Pin Y coordinate in mm
+            step_x: X step direction (-1, 0, or 1)
+            step_y: Y step direction (-1, 0, or 1)
+            escape_length: Length of escape route in cells
+        
+        Returns:
+            True if route was successfully created, False if blocked
+        """
+        pin_gx, pin_gy = self._world_to_grid(pin_x, pin_y)
+        
+        # Check if route is viable (not blocked)
+        for step in range(escape_length):
+            check_gx = pin_gx + step * step_x
+            check_gy = pin_gy + step * step_y
+            
+            # Bounds check
+            if not (0 <= check_gx < self.grid_size[0] and 0 <= check_gy < self.grid_size[1]):
+                return False
+            
+            # Check if blocked
+            if int(self.occupancy[check_gx, check_gy, 0]) == 1:
+                return False
+        
+        # Route is viable, unblock it
+        for step in range(escape_length):
+            unblock_gx = pin_gx + step * step_x
+            unblock_gy = pin_gy + step * step_y
+            
+            for layer in range(self.num_layers):
+                self.occupancy = self.occupancy.at[unblock_gx, unblock_gy, layer].set(0)
+        
+        return True
+    
     def _create_pin_escape_routes(
         self,
         comp: Component,
@@ -259,13 +397,11 @@ class MazeRouter:
         cy: float,
         escape_length: int | None = None,
     ) -> None:
-        """Create escape routes from component pins.
+        """Create escape routes from component pins with multi-direction support.
 
-        For each pin, unblocks the pin cell and creates a path outward from the
-        component center. This ensures pins are reachable by the router.
-
-        The escape route extends from the pin position outward (away from component
-        center) for a few cells, creating a clear channel for routing.
+        For each pin, tries to create an escape route in the primary direction
+        (outward from component center). If blocked, tries perpendicular directions.
+        This handles corner pins that may be blocked on their primary escape.
 
         Args:
             comp: Component with pins
@@ -278,44 +414,36 @@ class MazeRouter:
             pin_x = cx + pin.position[0]
             pin_y = cy + pin.position[1]
 
-            # Convert to grid coordinates
-            pin_gx, pin_gy = self._world_to_grid(pin_x, pin_y)
-
-            # Determine escape direction (outward from component center)
-            dx = pin.position[0]
-            dy = pin.position[1]
-
-            # Normalize to get primary direction
-            if abs(dx) >= abs(dy):
-                # Horizontal escape
-                step_x = 1 if dx >= 0 else -1
-                step_y = 0
-            else:
-                # Vertical escape
-                step_x = 0
-                step_y = 1 if dy >= 0 else -1
-
-            # Create escape route: unblock pin cell and several cells in escape direction
+            # Compute adaptive escape length (temper-74wg.1)
             if escape_length is not None:
                 escape_len = escape_length
             else:
-                # Default: at least 5 cells or 4mm
-                escape_len = max(5, int(4.0 / self.cell_size) + 1)
-
-            for step in range(escape_len):
-                gx = pin_gx + step * step_x
-                gy = pin_gy + step * step_y
-
-                # Bounds check
-                if 0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]:
-                    # Unblock on all layers
-                    for layer in range(self.num_layers):
-                        self.occupancy = self.occupancy.at[gx, gy, layer].set(0)
+                escape_len = self._compute_escape_length(pin_x, pin_y)
+            
+            # Get primary escape direction (temper-74wg.2)
+            primary_x, primary_y = self._get_primary_escape_direction(pin.position)
+            
+            # Try directions: primary, then perpendiculars (temper-74wg.2)
+            directions = [
+                (primary_x, primary_y),  # Primary
+                (primary_y, -primary_x),  # 90° clockwise
+                (-primary_y, primary_x),  # 90° counter-clockwise
+            ]
+            
+            # Try each direction until one succeeds
+            for step_x, step_y in directions:
+                if self._try_escape_route(pin_x, pin_y, step_x, step_y, escape_len):
+                    break  # Success, move to next pin
 
     def _world_to_grid(self, x: float, y: float) -> tuple[int, int]:
-        """Convert world coordinates to grid coordinates."""
-        gx = int((x - self.origin[0]) / self.cell_size)
-        gy = int((y - self.origin[1]) / self.cell_size)
+        """Convert world coordinates to grid coordinates.
+        
+        Uses rounding to ensure cells at boundaries are handled consistently.
+        This prevents floating-point precision issues where coordinates very
+        close to cell boundaries might map to unexpected cells.
+        """
+        gx = int(round((x - self.origin[0]) / self.cell_size))
+        gy = int(round((y - self.origin[1]) / self.cell_size))
         return (
             max(0, min(gx, self.grid_size[0] - 1)),
             max(0, min(gy, self.grid_size[1] - 1)),
@@ -629,3 +757,108 @@ def compute_completion_rate(results: dict[str, RoutePath]) -> float:
 
     successful = sum(1 for r in results.values() if r.success)
     return successful / len(results)
+
+
+def compute_net_metrics(
+    net_name: str,
+    pin_positions: list[tuple[float, float]],
+) -> NetMetrics:
+    """Compute metrics for a single net (temper-74wg.3).
+    
+    Args:
+        net_name: Name of the net
+        pin_positions: List of (x, y) pin positions in mm
+    
+    Returns:
+        NetMetrics with computed values
+    """
+    if len(pin_positions) < 2:
+        return NetMetrics(
+            net_name=net_name,
+            pin_count=len(pin_positions),
+            bounding_box_area=0.0,
+            estimated_wirelength=0.0,
+            is_power=_is_power_net(net_name),
+            is_ground=_is_ground_net(net_name),
+        )
+    
+    xs = [p[0] for p in pin_positions]
+    ys = [p[1] for p in pin_positions]
+    
+    # Bounding box
+    bbox_width = max(xs) - min(xs)
+    bbox_height = max(ys) - min(ys)
+    bbox_area = bbox_width * bbox_height
+    
+    # Wirelength estimate: half-perimeter of bounding box
+    wirelength = bbox_width + bbox_height
+    
+    return NetMetrics(
+        net_name=net_name,
+        pin_count=len(pin_positions),
+        bounding_box_area=bbox_area,
+        estimated_wirelength=wirelength,
+        is_power=_is_power_net(net_name),
+        is_ground=_is_ground_net(net_name),
+    )
+
+
+def _is_power_net(net_name: str) -> bool:
+    """Check if net is a power net."""
+    power_names = ['VCC', 'VDD', '3V3', '5V', '12V', 'VBUS', 'VBAT', 'V+']
+    return any(name in net_name.upper() for name in power_names)
+
+
+def _is_ground_net(net_name: str) -> bool:
+    """Check if net is a ground net."""
+    ground_names = ['GND', 'VSS', 'AGND', 'DGND', 'PGND', 'V-']
+    return any(name in net_name.upper() for name in ground_names)
+
+
+def order_nets_for_routing(
+    net_names: list[str],
+    net_pin_positions: dict[str, list[tuple[float, float]]],
+    strategy: str = 'shortest_first',
+) -> list[str]:
+    """Order nets for routing using specified strategy (temper-74wg.3).
+    
+    Args:
+        net_names: List of net names to order
+        net_pin_positions: Dict mapping net names to pin positions
+        strategy: Ordering strategy:
+            - 'shortest_first': Route shortest nets first (by wirelength)
+            - 'smallest_bbox': Route nets with smallest bounding box first
+            - 'power_first': Route power/ground nets first, then by wirelength
+            - 'arbitrary': No reordering (original order)
+    
+    Returns:
+        Ordered list of net names
+    """
+    if strategy == 'arbitrary':
+        return net_names
+    
+    # Compute metrics for all nets
+    metrics_list = [
+        compute_net_metrics(name, net_pin_positions.get(name, []))
+        for name in net_names
+    ]
+    
+    # Create (net_name, metrics) pairs
+    net_metrics_pairs = list(zip(net_names, metrics_list))
+    
+    if strategy == 'shortest_first':
+        net_metrics_pairs.sort(key=lambda x: x[1].estimated_wirelength)
+    elif strategy == 'smallest_bbox':
+        net_metrics_pairs.sort(key=lambda x: x[1].bounding_box_area)
+    elif strategy == 'power_first':
+        # Separate power/ground from signal nets
+        power_nets = [(n, m) for n, m in net_metrics_pairs if m.is_power or m.is_ground]
+        signal_nets = [(n, m) for n, m in net_metrics_pairs if not m.is_power and not m.is_ground]
+        
+        # Sort signals by wirelength
+        signal_nets.sort(key=lambda x: x[1].estimated_wirelength)
+        
+        # Power/ground first, then signals
+        net_metrics_pairs = power_nets + signal_nets
+    
+    return [name for name, _ in net_metrics_pairs]
