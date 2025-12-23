@@ -379,6 +379,12 @@ def optimize(
         if "spread" in weights:
             losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
 
+        # Regularization losses
+        if "edge_avoidance" in weights and weights["edge_avoidance"] > 0:
+            from temper_placer.losses.regularization import EdgeAvoidanceLoss
+
+            losses.append(WeightedLoss(EdgeAvoidanceLoss(), weight=weights["edge_avoidance"]))
+
         # Auto-grouping clusters
         if auto_group and (detected_communities or constraints.component_groups):
             group_configs = []
@@ -423,10 +429,11 @@ def optimize(
         # Add more losses based on constraints
         # (clearance, thermal, zone, loop_area, etc. can be added here)
         if "star_point" in weights or (constraints.star_grounds):
-             from temper_placer.losses.star_point import StarPointLoss
-             weight = weights.get("star_point", 1.0)
-             # Default internal weights, could be configured via kwargs if needed
-             losses.append(WeightedLoss(StarPointLoss(), weight=weight))
+            from temper_placer.losses.star_point import StarPointLoss
+
+            weight = weights.get("star_point", 1.0)
+            # Default internal weights, could be configured via kwargs if needed
+            losses.append(WeightedLoss(StarPointLoss(), weight=weight))
 
         # Add aesthetic losses
         from temper_placer.losses.aesthetic import create_aesthetic_losses
@@ -2678,7 +2685,7 @@ def trace_info(trace: Path | None, output_json: bool) -> None:
         console.print(f"Run ID: {summary.get('run_id', 'N/A')}")
         console.print(f"Total Decisions: {summary.get('total_decisions', 0)}")
         console.print(f"Components: {summary.get('component_count', 0)}")
-        
+
         if summary.get("unique_subjects"):
             console.print(f"Subject List: {', '.join(sorted(summary['unique_subjects']))}")
 

@@ -436,4 +436,5 @@ def get_default_loss_weights() -> dict[str, float]:
         "spread": 5.0,
         "rotation_entropy": 1.0,
         "center_of_mass": 1.0,
+        "edge_avoidance": 0.0,  # Disabled by default (experimental, see temper-a98v)
     }
