@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 import jax.numpy as jnp
 from jax import Array
 
+from temper_placer.core.units import Radians
+
 
 @dataclass
 class Pin:
@@ -34,14 +36,14 @@ class Pin:
     def absolute_position(
         self,
         component_pos: tuple[float, float],
-        rotation_angle: float,
+        rotation_angle: Radians,
     ) -> tuple[float, float]:
         """
         Get absolute pin position given component placement.
 
         Args:
-            component_pos: (x, y) component center position.
-            rotation_angle: Component rotation in radians.
+            component_pos: (x, y) component center position in mm.
+            rotation_angle: Component rotation in radians. Use deg_to_rad() if needed.
 
         Returns:
             (x, y) absolute pin position.
@@ -210,15 +212,15 @@ class Netlist:
     def find_isomorphic_groups(self, iterations: int = 2) -> list[list[int]]:
         """
         Find groups of components that are topologically isomorphic.
-        
+
         Uses Weisfeiler-Lehman (WL) neighborhood hashing to identify components
         with identical local connectivity and footprints.
-        
+
         Args:
             iterations: Number of neighborhood expansion steps.
                 1: Same footprint and same neighbor footprints.
                 2: Also considers neighbors of neighbors.
-                
+
         Returns:
             List of groups, where each group is a list of component indices.
             Only groups with >1 member are returned.

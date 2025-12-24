@@ -19,6 +19,8 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from temper_placer.core.units import Degrees, DegreesArray, RadiansArray
+
 # =============================================================================
 # Rotation Matrices
 # =============================================================================
@@ -341,7 +343,7 @@ def rotation_index_to_onehot(index: int) -> Array:
     return jnp.eye(4)[index]
 
 
-def rotation_degrees_to_onehot(degrees: float) -> Array:
+def rotation_degrees_to_onehot(degrees: float | Degrees | DegreesArray) -> Array:
     """
     Convert rotation in degrees to one-hot vector.
 
@@ -354,14 +356,16 @@ def rotation_degrees_to_onehot(degrees: float) -> Array:
         One-hot vector of shape (4,)
     """
     # Normalize to 0-360
-    degrees = degrees % 360.0
+    degrees_val = jnp.array(degrees) % 360.0
 
     # Find nearest valid rotation
-    index = int(round(degrees / 90.0)) % 4
-    return rotation_index_to_onehot(index)
+    index = jnp.round(degrees_val / 90.0).astype(jnp.int32) % 4
+    if index.ndim == 0:
+        return rotation_index_to_onehot(int(index))
+    return jax.nn.one_hot(index, 4)
 
 
-def onehot_to_rotation_degrees(rotation_onehot: Array) -> Array:
+def onehot_to_rotation_degrees(rotation_onehot: Array) -> DegreesArray:
     """
     Convert one-hot rotation vector to degrees.
 
@@ -376,7 +380,7 @@ def onehot_to_rotation_degrees(rotation_onehot: Array) -> Array:
     return jnp.dot(rotation_onehot, ROTATION_ANGLES_DEG)
 
 
-def onehot_to_rotation_radians(rotation_onehot: Array) -> Array:
+def onehot_to_rotation_radians(rotation_onehot: Array) -> RadiansArray:
     """
     Convert one-hot rotation vector to radians.
 
