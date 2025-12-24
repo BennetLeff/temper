@@ -22,6 +22,10 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
+from temper_placer.geometry.constraints import (
+    compute_boundary_violation,
+    point_in_zone,
+)
 from temper_placer.geometry.overlap import (
     compute_pairwise_distances,
 )
@@ -251,9 +255,10 @@ class GeometricValidator(Validator):
         issues = []
         violation_count = 0
 
-        # Board bounds (relative to board origin)
-        board_min = jnp.array([0.0, 0.0])
-        board_max = jnp.array([board.width, board.height])
+        # Board bounds
+        board_x_min, board_y_min = board.origin
+        board_x_max = board_x_min + board.width
+        board_y_max = board_y_min + board.height
 
         n = positions.shape[0]
 
@@ -266,33 +271,34 @@ class GeometricValidator(Validator):
             pos = positions[i]
             comp = netlist.components[i]
 
-            # Check each edge
-            violations = []
+            # Use shared predicate to compute boundary violation
+            boundary_violation = compute_boundary_violation(
+                position_x=float(pos[0]),
+                position_y=float(pos[1]),
+                component_half_width=half_w,
+                component_half_height=half_h,
+                board_x_min=board_x_min,
+                board_y_min=board_y_min,
+                board_x_max=board_x_max,
+                board_y_max=board_y_max,
+            )
 
-            # Left edge
-            left_violation = float(board_min[0] - (pos[0] - half_w))
-            if left_violation > 0:
-                violations.append(("left", left_violation))
-
-            # Right edge
-            right_violation = float((pos[0] + half_w) - board_max[0])
-            if right_violation > 0:
-                violations.append(("right", right_violation))
-
-            # Bottom edge
-            bottom_violation = float(board_min[1] - (pos[1] - half_h))
-            if bottom_violation > 0:
-                violations.append(("bottom", bottom_violation))
-
-            # Top edge
-            top_violation = float((pos[1] + half_h) - board_max[1])
-            if top_violation > 0:
-                violations.append(("top", top_violation))
-
-            if violations:
+            if boundary_violation.has_violation:
                 violation_count += 1
-                max_violation = max(v[1] for v in violations)
+
+                # Build list of violated edges
+                violations = []
+                if boundary_violation.left > 0:
+                    violations.append(("left", boundary_violation.left))
+                if boundary_violation.right > 0:
+                    violations.append(("right", boundary_violation.right))
+                if boundary_violation.bottom > 0:
+                    violations.append(("bottom", boundary_violation.bottom))
+                if boundary_violation.top > 0:
+                    violations.append(("top", boundary_violation.top))
+
                 edges = ", ".join(v[0] for v in violations)
+                max_violation = boundary_violation.max_violation
 
                 severity = (
                     ValidationSeverity.CRITICAL
@@ -432,7 +438,11 @@ class GeometricValidator(Validator):
                 )
                 continue
 
-            if not required_zone.contains_point(x, y):
+            # Use shared predicate to check zone membership
+            zone_x_min, zone_y_min, zone_x_max, zone_y_max = required_zone.bounds
+            in_zone = point_in_zone(x, y, zone_x_min, zone_y_min, zone_x_max, zone_y_max)
+
+            if not in_zone:
                 violation_count += 1
 
                 # Find actual zone if any

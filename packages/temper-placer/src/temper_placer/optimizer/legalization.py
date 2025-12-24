@@ -16,6 +16,7 @@ import numpy as np
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
+from temper_placer.geometry.constraints import compute_valid_bounds
 from temper_placer.losses.base import LossContext
 
 logger = logging.getLogger(__name__)
@@ -31,10 +32,10 @@ def clamp_to_bounds(
 ) -> np.ndarray:
     """
     Clamp component positions to stay within board bounds.
-    
+
     Pure functional operation: positions -> positions.
     Does not modify inputs.
-    
+
     Args:
         positions: (N, 2) array of component center positions.
         widths: (N,) array of component widths.
@@ -42,30 +43,34 @@ def clamp_to_bounds(
         board: Board object containing dimensions and origin.
         margin: Additional margin from board edge.
         fixed_mask: Optional (N,) boolean mask for fixed components.
-        
+
     Returns:
         (N, 2) array of clamped positions.
     """
     result = positions.copy()
     n = positions.shape[0]
     origin_x, origin_y = board.origin
-    
+
     for i in range(n):
         if fixed_mask is not None and fixed_mask[i]:
             continue
-            
+
         hw, hh = widths[i] / 2, heights[i] / 2
-        
-        # Compute valid range for component center
-        x_min = origin_x + hw + margin
-        x_max = origin_x + board.width - hw - margin
-        y_min = origin_y + hh + margin
-        y_max = origin_y + board.height - hh - margin
-        
-        # Clamp
-        result[i, 0] = np.clip(result[i, 0], x_min, x_max)
-        result[i, 1] = np.clip(result[i, 1], y_min, y_max)
-    
+
+        # Use shared predicate to compute valid bounds
+        valid_bounds = compute_valid_bounds(
+            component_half_width=hw,
+            component_half_height=hh,
+            region_x_min=origin_x,
+            region_y_min=origin_y,
+            region_x_max=origin_x + board.width,
+            region_y_max=origin_y + board.height,
+            margin=margin,
+        )
+
+        # Clamp using shared predicate
+        result[i, 0], result[i, 1] = valid_bounds.clamp_point(result[i, 0], result[i, 1])
+
     return result
 
 
@@ -77,53 +82,51 @@ def clamp_to_zones(
 ) -> np.ndarray:
     """
     Clamp component positions to their assigned zones.
-    
+
     For each component with a zone assignment, ensures its position
     falls within the zone bounds. This enforces perfect zone compliance
     as a hard constraint.
-    
+
     Args:
         positions: (N, 2) array of component center positions.
         netlist: Netlist with components and their zone assignments.
         board: Board with zone definitions.
         fixed_mask: Optional (N,) boolean mask for fixed components.
-        
+
     Returns:
         (N, 2) array of clamped positions.
     """
     if not board.zones:
         return positions
-    
+
     result = positions.copy()
     zone_lookup = {z.name: z for z in board.zones}
-    
+
     for i, comp in enumerate(netlist.components):
         if fixed_mask is not None and fixed_mask[i]:
             continue
-            
+
         if comp.zone and comp.zone in zone_lookup:
             zone = zone_lookup[comp.zone]
             x_min, y_min, x_max, y_max = zone.bounds
-            
+
             # Account for component size
             hw, hh = comp.bounds[0] / 2, comp.bounds[1] / 2
-            
-            # Compute valid range for component center within zone
-            zone_x_min = x_min + hw
-            zone_x_max = x_max - hw
-            zone_y_min = y_min + hh
-            zone_y_max = y_max - hh
-            
-            # Ensure min < max (in case component is larger than zone)
-            if zone_x_min > zone_x_max:
-                zone_x_min = zone_x_max = (x_min + x_max) / 2
-            if zone_y_min > zone_y_max:
-                zone_y_min = zone_y_max = (y_min + y_max) / 2
-            
-            # Clamp to zone bounds
-            result[i, 0] = np.clip(result[i, 0], zone_x_min, zone_x_max)
-            result[i, 1] = np.clip(result[i, 1], zone_y_min, zone_y_max)
-    
+
+            # Use shared predicate to compute valid bounds within zone
+            valid_bounds = compute_valid_bounds(
+                component_half_width=hw,
+                component_half_height=hh,
+                region_x_min=x_min,
+                region_y_min=y_min,
+                region_x_max=x_max,
+                region_y_max=y_max,
+                margin=0.0,
+            )
+
+            # Clamp using shared predicate
+            result[i, 0], result[i, 1] = valid_bounds.clamp_point(result[i, 0], result[i, 1])
+
     return result
 
 
