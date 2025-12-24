@@ -353,15 +353,21 @@ def optimize(
     # Step 3: Create loss functions
     console.print("\n[bold cyan]Step 3/5:[/] Creating loss functions...")
 
-    # Run auto-grouping if requested
+    # Run auto-grouping if requested AND no manual groups defined
     detected_communities = []
     if auto_group:
-        console.print("  [dim]Detecting functional communities (Louvain)...[/]")
-        detected_communities = detect_communities(netlist)
-        if detected_communities:
-            console.print(f"  [green]✓[/] Detected {len(detected_communities)} functional blocks")
-            for comm in detected_communities:
-                console.print(f"    - {comm.name}: {len(comm.component_refs)} components")
+        # Skip auto-detect if user has defined manual groups (trust their design)
+        if constraints.component_groups:
+            console.print(
+                f"  [dim]Skipping auto-detection ({len(constraints.component_groups)} manual groups defined)[/]"
+            )
+        else:
+            console.print("  [dim]Detecting functional communities (Louvain)...[/]")
+            detected_communities = detect_communities(netlist)
+            if detected_communities:
+                console.print(f"  [green]✓[/] Detected {len(detected_communities)} functional blocks")
+                for comm in detected_communities:
+                    console.print(f"    - {comm.name}: {len(comm.component_refs)} components")
 
     # Build composite loss with curriculum-aware weights
     def make_loss(weights: dict) -> CompositeLoss:
