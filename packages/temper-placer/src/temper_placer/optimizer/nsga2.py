@@ -19,6 +19,7 @@ from jax import Array
 
 logger = logging.getLogger(__name__)
 
+
 def fast_non_dominated_sort(objectives: Array) -> list[list[int]]:
     """
     Standard NSGA-II fast non-dominated sorting algorithm.
@@ -76,6 +77,7 @@ def fast_non_dominated_sort(objectives: Array) -> list[list[int]]:
 
     return fronts
 
+
 def calculate_crowding_distance(objectives: Array) -> Array:
     """
     Calculate crowding distance for individuals in objective space.
@@ -93,7 +95,7 @@ def calculate_crowding_distance(objectives: Array) -> Array:
     if n == 0:
         return jnp.array([])
     if n <= 2:
-        return jnp.full(n, float('inf'))
+        return jnp.full(n, float("inf"))
 
     distances = jnp.zeros(n)
 
@@ -102,8 +104,8 @@ def calculate_crowding_distance(objectives: Array) -> Array:
         sorted_indices = jnp.argsort(objectives[:, obj_idx])
 
         # Extremes get infinite distance
-        distances = distances.at[sorted_indices[0]].set(float('inf'))
-        distances = distances.at[sorted_indices[-1]].set(float('inf'))
+        distances = distances.at[sorted_indices[0]].set(float("inf"))
+        distances = distances.at[sorted_indices[-1]].set(float("inf"))
 
         # Range of the objective
         obj_range = objectives[sorted_indices[-1], obj_idx] - objectives[sorted_indices[0], obj_idx]
@@ -112,10 +114,14 @@ def calculate_crowding_distance(objectives: Array) -> Array:
 
         # Calculate normalized distance for intermediate points
         for i in range(1, n - 1):
-            dist = (objectives[sorted_indices[i+1], obj_idx] - objectives[sorted_indices[i-1], obj_idx]) / obj_range
+            dist = (
+                objectives[sorted_indices[i + 1], obj_idx]
+                - objectives[sorted_indices[i - 1], obj_idx]
+            ) / obj_range
             distances = distances.at[sorted_indices[i]].add(dist)
 
     return distances
+
 
 def evaluate_population(
     population_positions: Array,
@@ -123,7 +129,7 @@ def evaluate_population(
     objectives: list[Callable],
     context: Any,
     epoch: int,
-    total_epochs: int
+    total_epochs: int,
 ) -> Array:
     """
     Evaluate all individuals in the population against multiple objectives.
@@ -139,6 +145,7 @@ def evaluate_population(
     Returns:
         (PopSize, M) array of objective values.
     """
+
     def eval_individual(pos, rot):
         vals = []
         for obj in objectives:
@@ -148,17 +155,14 @@ def evaluate_population(
 
     return jax.vmap(eval_individual)(population_positions, population_rotations)
 
+
 def tournament_selection(
-    ranks: Array,
-    distances: Array,
-    key: Array,
-    num_selected: int,
-    tournament_size: int = 2
+    ranks: Array, distances: Array, key: Array, num_selected: int, tournament_size: int = 2
 ) -> Array:
     """
     Perform tournament selection based on NSGA-II crowded-comparison operator.
 
-    Individuals are compared first by rank (lower is better), 
+    Individuals are compared first by rank (lower is better),
     then by crowding distance (higher is better).
 
     Returns:
@@ -176,8 +180,9 @@ def tournament_selection(
         # If ranks are tied, winner is the one with largest distance
         best_idx = 0
         for i in range(1, tournament_size):
-            is_better = (c_ranks[i] < c_ranks[best_idx]) | \
-                        ((c_ranks[i] == c_ranks[best_idx]) & (c_dists[i] > c_dists[best_idx]))
+            is_better = (c_ranks[i] < c_ranks[best_idx]) | (
+                (c_ranks[i] == c_ranks[best_idx]) & (c_dists[i] > c_dists[best_idx])
+            )
             best_idx = jnp.where(is_better, i, best_idx)
 
         return candidates[best_idx]
@@ -185,12 +190,8 @@ def tournament_selection(
     keys = jax.random.split(key, num_selected)
     return jax.vmap(select_one)(keys)
 
-def crossover_blx_alpha(
-    parent1: Array,
-    parent2: Array,
-    key: Array,
-    alpha: float = 0.5
-) -> Array:
+
+def crossover_blx_alpha(parent1: Array, parent2: Array, key: Array, alpha: float = 0.5) -> Array:
     """
     Blend Crossover (BLX-alpha) for continuous variables.
     """
@@ -203,12 +204,8 @@ def crossover_blx_alpha(
 
     return jax.random.uniform(key, parent1.shape, minval=low, maxval=high)
 
-def mutate_gaussian(
-    positions: Array,
-    key: Array,
-    sigma: float = 1.0,
-    rate: float = 0.1
-) -> Array:
+
+def mutate_gaussian(positions: Array, key: Array, sigma: float = 1.0, rate: float = 0.1) -> Array:
     """
     Gaussian mutation for positions.
     """
@@ -218,14 +215,17 @@ def mutate_gaussian(
 
     return jnp.where(mask[:, None], positions + noise, positions)
 
+
 @dataclass
 class NSGAResult:
     """Result of NSGA-II optimization."""
+
     population_positions: Array
     population_rotations: Array
     objectives: Array
     fronts: list[list[int]]
-    best_indices: list[int] # Indices of individuals in the first front
+    best_indices: list[int]  # Indices of individuals in the first front
+
 
 class NSGAOptimizer:
     """Multi-objective optimizer using NSGA-II."""
@@ -250,24 +250,27 @@ class NSGAOptimizer:
         context: Any,
         generations: int = 100,
         initial_state: Any | None = None,
-        seed: int = 42
+        seed: int = 42,
     ) -> NSGAResult:
         """Run the evolutionary process."""
         rng_key = jax.random.PRNGKey(seed)
         n_comps = netlist.n_components
 
         # 1. Initialize Population
-        rng_key, init_key = jax.random.split(rng_key)
+        rng_key, init_key, init_rot_key = jax.random.split(rng_key, 3)
         if initial_state:
             # Perturb initial state to create population
             pop_pos = jnp.repeat(initial_state.positions[None, :, :], self.pop_size, axis=0)
             noise = jax.random.normal(init_key, pop_pos.shape) * 5.0
             pop_pos = pop_pos + noise
             pop_rot = jnp.repeat(initial_state.rotation_logits[None, :, :], self.pop_size, axis=0)
+            rot_noise = jax.random.normal(init_rot_key, pop_rot.shape) * 0.5
+            pop_rot = pop_rot + rot_noise
         else:
             # Random initialization
             def get_random_state(k):
                 from temper_placer.core.state import PlacementState
+
                 state = PlacementState.random_init(n_comps, board.width, board.height, k)
                 return state.positions, state.rotation_logits
 
@@ -277,9 +280,7 @@ class NSGAOptimizer:
         # 2. Main Evolution Loop
         for gen in range(generations):
             # Evaluate
-            obj_vals = evaluate_population(
-                pop_pos, pop_rot, objectives, context, gen, generations
-            )
+            obj_vals = evaluate_population(pop_pos, pop_rot, objectives, context, gen, generations)
 
             # Non-dominated sort
             fronts = fast_non_dominated_sort(obj_vals)
@@ -290,10 +291,15 @@ class NSGAOptimizer:
 
             # Tournament selection for parents
             parent_indices = tournament_selection(
-                jnp.array([next(i for i, f in enumerate(fronts) if idx in f) for idx in range(self.pop_size)]),
+                jnp.array(
+                    [
+                        next(i for i, f in enumerate(fronts) if idx in f)
+                        for idx in range(self.pop_size)
+                    ]
+                ),
                 distances,
                 select_key,
-                self.pop_size
+                self.pop_size,
             )
 
             # Crossover (pairs of parents)
@@ -301,24 +307,25 @@ class NSGAOptimizer:
             p2_idx = parent_indices[1::2]
             cross_keys = jax.random.split(cross_key, len(p1_idx))
 
-            child_pos = jax.vmap(lambda p1, p2, k: crossover_blx_alpha(p1, p2, k, self.crossover_alpha))(
-                pop_pos[p1_idx], pop_pos[p2_idx], cross_keys
-            )
+            child_pos = jax.vmap(
+                lambda p1, p2, k: crossover_blx_alpha(p1, p2, k, self.crossover_alpha)
+            )(pop_pos[p1_idx], pop_pos[p2_idx], cross_keys)
+            child_rot = jax.vmap(
+                lambda p1, p2, k: crossover_blx_alpha(p1, p2, k, self.crossover_alpha)
+            )(pop_rot[p1_idx], pop_rot[p2_idx], cross_keys)
 
             # Mutation
-            mutate_keys = jax.random.split(mutate_key, self.pop_size // 2)
-            child_pos = jax.vmap(lambda p, k: mutate_gaussian(p, k, self.mutation_sigma, self.mutation_rate))(
-                child_pos, mutate_keys
+            mutate_keys_pos, mutate_keys_rot = jax.random.split(mutate_key, 2)
+            mutate_keys_pos = jax.random.split(mutate_keys_pos, self.pop_size // 2)
+            mutate_keys_rot = jax.random.split(mutate_keys_rot, self.pop_size // 2)
+            child_pos = jax.vmap(
+                lambda p, k: mutate_gaussian(p, k, self.mutation_sigma, self.mutation_rate)
+            )(child_pos, mutate_keys_pos)
+            child_rot = jax.vmap(lambda p, k: mutate_gaussian(p, k, 0.3, self.mutation_rate))(
+                child_rot, mutate_keys_rot
             )
 
-            # Combine Parents + Children (NSGA-II uses Elitism)
-            # For simplicity in this initial implementation, we'll just replace?
-            # No, NSGA-II needs to combine and pick best N.
-
-            # Simplified combine for now:
-            # Combine pop_pos and child_pos
             # Re-evaluate children
-            child_rot = pop_rot[p1_idx] # Keep rotations from first parent for now
             child_obj_vals = evaluate_population(
                 child_pos, child_rot, objectives, context, gen, generations
             )
@@ -352,7 +359,9 @@ class NSGAOptimizer:
             logger.info(f"Generation {gen}: Front 0 size = {len(combined_fronts[0])}")
 
         # Final evaluation and sort
-        final_obj = evaluate_population(pop_pos, pop_rot, objectives, context, generations, generations)
+        final_obj = evaluate_population(
+            pop_pos, pop_rot, objectives, context, generations, generations
+        )
         final_fronts = fast_non_dominated_sort(final_obj)
 
         return NSGAResult(
@@ -360,41 +369,43 @@ class NSGAOptimizer:
             population_rotations=pop_rot,
             objectives=final_obj,
             fronts=final_fronts,
-            best_indices=final_fronts[0]
+            best_indices=final_fronts[0],
         )
+
 
 def select_knee_point(objectives: Array, weights: Array | None = None) -> int:
     """
     Select the knee point from a Pareto front using normalized ideal distance.
-    
+
     Args:
         objectives: (N, M) array of objective values for the Pareto front.
         weights: (M,) array of weights for each objective, used to steer selection.
-        
+
     Returns:
         Index of the knee point in the input array.
     """
     if objectives.shape[0] == 0:
         return 0
-        
+
     # 1. Normalize objectives to [0, 1]
     f_min = jnp.min(objectives, axis=0)
     f_max = jnp.max(objectives, axis=0)
-    
+
     # Avoid division by zero for fixed objectives
     f_range = jnp.maximum(f_max - f_min, 1e-6)
-    
+
     norm_objs = (objectives - f_min) / f_range
-    
+
     # 2. Apply weights if provided
     if weights is not None:
         norm_objs = norm_objs * weights
-    
-    # 3. Heuristic: point that minimizes the L2 norm of (weighted) normalized objectives
-    # This is the point closest to the ideal point in the normalized space.
+
+    # 3. Heuristic: point that minimizes L2 norm of (weighted) normalized objectives
+    # This is the point closest to the ideal point in normalized space.
     scores = jnp.linalg.norm(norm_objs, axis=1)
-    
+
     return int(jnp.argmin(scores))
+
 
 def plot_pareto_front(result: NSGAResult, objective_names: list[str]):
     """
@@ -411,11 +422,22 @@ def plot_pareto_front(result: NSGAResult, objective_names: list[str]):
     df["id"] = [f"Sol {i}" for i in range(len(indices))]
 
     if len(objective_names) == 2:
-        fig = px.scatter(df, x=objective_names[0], y=objective_names[1], hover_name="id",
-                         title="NSGA-II Pareto Frontier")
+        fig = px.scatter(
+            df,
+            x=objective_names[0],
+            y=objective_names[1],
+            hover_name="id",
+            title="NSGA-II Pareto Frontier",
+        )
     elif len(objective_names) == 3:
-        fig = px.scatter_3d(df, x=objective_names[0], y=objective_names[1], z=objective_names[2],
-                            hover_name="id", title="NSGA-II Pareto Frontier")
+        fig = px.scatter_3d(
+            df,
+            x=objective_names[0],
+            y=objective_names[1],
+            z=objective_names[2],
+            hover_name="id",
+            title="NSGA-II Pareto Frontier",
+        )
     else:
         # High dimensional: use parallel coordinates
         fig = px.parallel_coordinates(df, color=objective_names[0])
