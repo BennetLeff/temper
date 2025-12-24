@@ -23,12 +23,21 @@ Usage:
 
 import json
 import os
-import subprocess
+
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+try:
+    from ..utils import CommandRunner, BDCommand
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
+    from temper_workflow.utils import CommandRunner, BDCommand
+
 
 # Configurable thresholds via environment variables
 ECO_MIN_SCORE = float(os.environ.get("ECO_MIN_SCORE", "0.6"))
@@ -245,18 +254,12 @@ class GatherPhase:
     """GATHER phase implementation."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or self._find_project_root()
+        self.project_root = project_root or CommandRunner._find_project_root()
         self.eco_client = EcoClient()
+        self.cmd_runner = CommandRunner(cwd=self.project_root)
         self.req_parser = RequirementsParser(self.project_root)
         self.req_parser.parse_all()
 
-    def _find_project_root(self) -> Path:
-        """Find project root."""
-        cwd = Path.cwd()
-        for parent in [cwd] + list(cwd.parents):
-            if (parent / ".git").exists():
-                return parent
-        return cwd
 
     def _search_eco(
         self, goal: str, role: str | None = None, domain: str | None = None
@@ -354,20 +357,13 @@ class GatherPhase:
             "blocking": [],
         }
 
+        cmd_result = BDCommand.list_issues(status="open", cwd=self.project_root, timeout=10)
+
+        if not cmd_result.success:
+            return result
+
         try:
-            # Get open issues
-            proc = subprocess.run(
-                ["bd", "--sandbox", "list", "--status", "open", "--json"],
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=10,
-            )
-
-            if proc.returncode != 0:
-                return result
-
-            issues = json.loads(proc.stdout)
+            issues = json.loads(cmd_result.stdout)
             keywords = goal.lower().split()
 
             for issue in issues:

@@ -21,11 +21,20 @@ Usage:
 
 import json
 import re
-import subprocess
+
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
+
+try:
+    from ..utils import CommandRunner
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
+    from temper_workflow.utils import CommandRunner
+
 
 
 @dataclass
@@ -152,33 +161,14 @@ class PlanPhase:
     """PLAN phase implementation."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or self._find_project_root()
+        self.project_root = project_root or CommandRunner._find_project_root()
+        self.cmd_runner = CommandRunner(cwd=self.project_root)
 
-    def _find_project_root(self) -> Path:
-        """Find project root."""
-        cwd = Path.cwd()
-        for parent in [cwd] + list(cwd.parents):
-            if (parent / ".git").exists():
-                return parent
-        return cwd
 
     def _run_bd(self, args: list[str]) -> tuple[bool, str, str]:
         """Run bd command and return (success, stdout, stderr)."""
-        try:
-            result = subprocess.run(
-                ["bd", "--sandbox"] + args,
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=30,
-            )
-            return (
-                result.returncode == 0,
-                result.stdout.strip(),
-                result.stderr.strip(),
-            )
-        except Exception as e:
-            return False, "", str(e)
+        result = self.cmd_runner.run(["bd", "--sandbox"] + args)
+        return (result.success, result.stdout, result.stderr)
 
     def create_epic(
         self,

@@ -27,12 +27,21 @@ import json
 import math
 import os
 import random
-import subprocess
+
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+
+try:
+    from ..utils import CommandRunner
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
+    from temper_workflow.utils import CommandRunner
+
 
 
 @dataclass
@@ -283,21 +292,8 @@ class AnalyzePhase:
 
     def __init__(self, repo_root: Optional[Path] = None):
         """Initialize analyze phase."""
-        self.repo_root = repo_root or self._find_repo_root()
+        self.repo_root = repo_root or CommandRunner._find_project_root()
         self.measurements_file = self.repo_root / "metrics" / "measurements.jsonl"
-
-    def _find_repo_root(self) -> Path:
-        """Find repository root."""
-        try:
-            result = subprocess.run(
-                ["git", "rev-parse", "--show-toplevel"],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            return Path(result.stdout.strip())
-        except subprocess.CalledProcessError:
-            return Path.cwd()
 
     def bootstrap_ci(
         self,

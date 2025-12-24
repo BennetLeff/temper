@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+import sys
+import re
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "temper-workflow" / "src"))
+from temper_workflow.utils import BDCommand
+from typing import Dict, List
+
 """
 Auto-assign tasks to specialized agents based on labels.
 
@@ -11,41 +19,30 @@ This script:
 3. Updates task status if needed
 """
 
-import subprocess
-import json
+
+
 import sys
-from typing import Dict, List
+
 
 
 def get_labeled_tasks(label: str) -> List[Dict]:
     """Get open tasks with a specific label."""
-    try:
-        result = subprocess.run(
-            ["bd", "list", "--label", label, "--status", "open", "--json"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+    result = BDCommand.list_issues()
+    if result.success:
+        import json
         return json.loads(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Error listing tasks: {e.stderr}", file=sys.stderr)
-        return []
+    print(f"❌ Error listing tasks: {result.stderr}", file=sys.stderr)
+    return []
 
 
 def assign_task(task_id: str, assignee: str) -> bool:
     """Assign a task to an agent."""
-    try:
-        result = subprocess.run(
-            ["bd", "update", task_id, "-a", assignee, "--json"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+    result = BDCommand.update(task_id, labels=[f"assignee:{assignee}"])
+    if result.success:
         print(f"✅ Assigned {task_id} to {assignee}")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Error assigning {task_id}: {e.stderr}", file=sys.stderr)
-        return False
+    print(f"❌ Error assigning {task_id}: {result.stderr}", file=sys.stderr)
+    return False
 
 
 def main():

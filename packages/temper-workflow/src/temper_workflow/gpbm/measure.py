@@ -20,13 +20,22 @@ Usage:
 import json
 import os
 import re
-import subprocess
+
 import sys
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Optional
+
+try:
+    from ..utils import CommandRunner, BDCommand
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
+    from temper_workflow.utils import CommandRunner, BDCommand
+
 
 
 @dataclass
@@ -109,17 +118,10 @@ class MetricsRegistry:
     """Registry of metric definitions from METRICS.md."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or self._find_project_root()
+        self.project_root = project_root or CommandRunner._find_project_root()
         self.metrics: dict[str, MetricDefinition] = {}
         self._load_metrics()
 
-    def _find_project_root(self) -> Path:
-        """Find project root."""
-        cwd = Path.cwd()
-        for parent in [cwd] + list(cwd.parents):
-            if (parent / ".git").exists():
-                return parent
-        return cwd
 
     def _load_metrics(self):
         """Load metrics from METRICS.md."""
@@ -217,48 +219,27 @@ class MeasurementRunner:
     """Run measurements for tasks."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or self._find_project_root()
+        self.project_root = project_root or CommandRunner._find_project_root()
         self.registry = MetricsRegistry(self.project_root)
+        self.cmd_runner = CommandRunner(cwd=self.project_root)
         self.results: list[MeasurementResult] = []
 
-    def _find_project_root(self) -> Path:
-        """Find project root."""
-        cwd = Path.cwd()
-        for parent in [cwd] + list(cwd.parents):
-            if (parent / ".git").exists():
-                return parent
-        return cwd
 
     def _get_git_commit(self) -> str:
         """Get current git commit hash."""
-        try:
-            result = subprocess.run(
-                ["git", "rev-parse", "--short", "HEAD"],
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=5,
-            )
-            return result.stdout.strip()
-        except Exception:
-            return ""
+        result = self.cmd_runner.run(["git", "rev-parse", "--short", "HEAD"], timeout=5)
+        return result.stdout if result.success else ""
 
     def _get_task_description(self, task_id: str) -> str:
         """Get task description from bd."""
-        try:
-            result = subprocess.run(
-                ["bd", "--sandbox", "show", task_id, "--json"],
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=10,
-            )
-            if result.returncode == 0:
+        result = BDCommand.show(task_id, cwd=self.project_root, timeout=10)
+        if result.success:
+            try:
                 data = json.loads(result.stdout)
                 if isinstance(data, list) and data:
                     return data[0].get("description", "")
-        except Exception:
-            pass
+            except Exception:
+                pass
         return ""
 
     def _parse_measurement_targets(self, description: str) -> list[MeasurementTarget]:
@@ -291,24 +272,8 @@ class MeasurementRunner:
 
     def _run_command(self, command: str, timeout: int = 60) -> tuple[bool, str, str]:
         """Run a shell command and return (success, stdout, stderr)."""
-        try:
-            result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=timeout,
-            )
-            return (
-                result.returncode == 0,
-                result.stdout.strip(),
-                result.stderr.strip(),
-            )
-        except subprocess.TimeoutExpired:
-            return False, "", f"Command timed out after {timeout}s"
-        except Exception as e:
-            return False, "", str(e)
+        result = self.cmd_runner.run(command, shell=True, timeout=timeout)
+        return (result.success, result.stdout, result.stderr)
 
     def _extract_numeric_value(self, output: str, metric_id: str) -> float | None:
         """Extract numeric value from command output."""
