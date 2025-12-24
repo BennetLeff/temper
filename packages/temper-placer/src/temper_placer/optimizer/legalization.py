@@ -130,6 +130,107 @@ def clamp_to_zones(
     return result
 
 
+def legalize_individual_fast(
+    positions: np.ndarray,
+    widths: np.ndarray,
+    heights: np.ndarray,
+    board: Board,
+    fixed_mask: np.ndarray | None = None,
+    margin: float = 0.5,
+    max_overlap_iterations: int = 10,
+) -> np.ndarray:
+    """
+    Fast legalization for a single individual during NSGA evolution.
+
+    This is a lightweight corrector used after mutation to ensure the
+    individual satisfies basic DRC constraints (bounds + no severe overlaps).
+    It's optimized for speed over perfection - used in the inner loop.
+
+    This function is the "secret sauce" from PowerSynth: every child
+    produced by crossover/mutation is immediately corrected to be valid.
+
+    Algorithm:
+    1. Clamp all positions to board bounds
+    2. Quick overlap detection and push-apart (limited iterations)
+
+    Args:
+        positions: (N, 2) array of component positions
+        widths: (N,) array of component widths
+        heights: (N,) array of component heights
+        board: Board with dimensions
+        fixed_mask: Optional (N,) boolean mask for fixed components.
+            Fixed components will not be moved during overlap resolution.
+        margin: Minimum clearance between components
+        max_overlap_iterations: Max iterations for overlap resolution
+
+    Returns:
+        (N, 2) array of legalized positions
+    """
+    # 1. Clamp to bounds (fast, vectorized)
+    result = clamp_to_bounds(positions, widths, heights, board, margin=margin)
+
+    n = result.shape[0]
+    if n < 2:
+        return result
+
+    # 2. Quick overlap resolution (simplified, fewer iterations)
+    for _ in range(max_overlap_iterations):
+        overlaps_found = False
+
+        # Check all pairs
+        for i in range(n):
+            hw_i, hh_i = widths[i] / 2, heights[i] / 2
+
+            for j in range(i + 1, n):
+                hw_j, hh_j = widths[j] / 2, heights[j] / 2
+
+                # Axis-aligned bounding box overlap check
+                dx = abs(result[i, 0] - result[j, 0])
+                dy = abs(result[i, 1] - result[j, 1])
+
+                overlap_x = (hw_i + hw_j + margin) - dx
+                overlap_y = (hh_i + hh_j + margin) - dy
+
+                if overlap_x > 0 and overlap_y > 0:
+                    overlaps_found = True
+
+                    # Push apart along minimum overlap axis
+                    if overlap_x < overlap_y:
+                        # Push horizontally
+                        push = overlap_x / 2 + 0.1
+                        if result[i, 0] < result[j, 0]:
+                            if fixed_mask is None or not fixed_mask[i]:
+                                result[i, 0] -= push
+                            if fixed_mask is None or not fixed_mask[j]:
+                                result[j, 0] += push
+                        else:
+                            if fixed_mask is None or not fixed_mask[i]:
+                                result[i, 0] += push
+                            if fixed_mask is None or not fixed_mask[j]:
+                                result[j, 0] -= push
+                    else:
+                        # Push vertically
+                        push = overlap_y / 2 + 0.1
+                        if result[i, 1] < result[j, 1]:
+                            if fixed_mask is None or not fixed_mask[i]:
+                                result[i, 1] -= push
+                            if fixed_mask is None or not fixed_mask[j]:
+                                result[j, 1] += push
+                        else:
+                            if fixed_mask is None or not fixed_mask[i]:
+                                result[i, 1] += push
+                            if fixed_mask is None or not fixed_mask[j]:
+                                result[j, 1] -= push
+
+        if not overlaps_found:
+            break
+
+        # Re-clamp after pushing
+        result = clamp_to_bounds(result, widths, heights, board, margin=margin)
+
+    return result
+
+
 
 
 

@@ -493,6 +493,373 @@ def mutate_gaussian(positions: Array, key: Array, sigma: float = 1.0, rate: floa
     return jnp.where(mask[:, None], positions + noise, positions)
 
 
+# =============================================================================
+# Geometry-Aware Mutation Operators (PowerSynth-style)
+# =============================================================================
+
+
+def mutate_swap_positions(
+    positions: Array, key: Array, rate: float = 0.1
+) -> tuple[Array, bool]:
+    """
+    Swap positions of two randomly selected components.
+
+    This mutation preserves the overall layout structure while exploring
+    different component orderings. Unlike Gaussian noise, it makes discrete
+    structural changes that can escape local optima.
+
+    Args:
+        positions: (N, 2) array of component positions
+        key: JAX random key
+        rate: Probability of applying this mutation (default: 0.1)
+
+    Returns:
+        Tuple of (mutated positions, whether mutation was applied)
+    """
+    n = positions.shape[0]
+    if n < 2:
+        return positions, False
+
+    key_apply, key_idx = jax.random.split(key)
+
+    # Decide whether to apply mutation
+    apply_mutation = jax.random.uniform(key_apply) < rate
+    if not apply_mutation:
+        return positions, False
+
+    # Select two distinct indices
+    indices = jax.random.choice(key_idx, n, shape=(2,), replace=False)
+    i, j = int(indices[0]), int(indices[1])
+
+    # Swap positions
+    new_positions = positions.at[i].set(positions[j])
+    new_positions = new_positions.at[j].set(positions[i])
+
+    return new_positions, True
+
+
+def mutate_slide_to_neighbor(
+    positions: Array,
+    key: Array,
+    adjacency: Array,
+    rate: float = 0.1,
+    slide_fraction: float = 0.3,
+) -> tuple[Array, bool]:
+    """
+    Slide a component toward its most connected neighbor.
+
+    This mutation improves wirelength by moving components closer to their
+    connected neighbors. The movement is a fraction of the distance to avoid
+    collisions.
+
+    Args:
+        positions: (N, 2) array of component positions
+        key: JAX random key
+        adjacency: (N, N) connectivity matrix (weights or binary)
+        rate: Probability of applying this mutation (default: 0.1)
+        slide_fraction: Fraction of distance to slide (default: 0.3)
+
+    Returns:
+        Tuple of (mutated positions, whether mutation was applied)
+    """
+    n = positions.shape[0]
+    if n < 2:
+        return positions, False
+
+    key_apply, key_comp = jax.random.split(key)
+
+    apply_mutation = jax.random.uniform(key_apply) < rate
+    if not apply_mutation:
+        return positions, False
+
+    # Select random component to move
+    comp_idx = jax.random.randint(key_comp, (), 0, n)
+
+    # Find most connected neighbor
+    connections = adjacency[comp_idx]
+    # Zero out self-connection
+    connections = connections.at[comp_idx].set(0.0)
+
+    if jnp.sum(connections) == 0:
+        return positions, False
+
+    neighbor_idx = jnp.argmax(connections)
+
+    # Compute direction toward neighbor
+    direction = positions[neighbor_idx] - positions[comp_idx]
+    distance = jnp.linalg.norm(direction)
+
+    if distance < 1e-6:
+        return positions, False
+
+    # Slide toward neighbor
+    move = direction * slide_fraction
+    new_positions = positions.at[comp_idx].add(move)
+
+    return new_positions, True
+
+
+def mutate_rotate_smart(
+    rotations: Array,
+    key: Array,
+    rate: float = 0.1,
+) -> tuple[Array, bool]:
+    """
+    Rotate a random component by 90 degrees.
+
+    This is a discrete rotation mutation that explores different component
+    orientations. Uses one-hot rotation logits where argmax gives rotation.
+
+    Args:
+        rotations: (N, 4) array of rotation logits
+        key: JAX random key
+        rate: Probability of applying this mutation (default: 0.1)
+
+    Returns:
+        Tuple of (mutated rotations, whether mutation was applied)
+    """
+    n = rotations.shape[0]
+    if n == 0:
+        return rotations, False
+
+    key_apply, key_comp, key_dir = jax.random.split(key, 3)
+
+    apply_mutation = jax.random.uniform(key_apply) < rate
+    if not apply_mutation:
+        return rotations, False
+
+    # Select random component
+    comp_idx = jax.random.randint(key_comp, (), 0, n)
+
+    # Current rotation (argmax of logits)
+    current_rot = jnp.argmax(rotations[comp_idx])
+
+    # Rotate by 90° (either +1 or -1)
+    direction = jax.random.choice(key_dir, jnp.array([-1, 1]))
+    new_rot = (current_rot + direction) % 4
+
+    # Set new rotation as one-hot
+    new_logits = jnp.zeros(4).at[new_rot].set(1.0)
+    new_rotations = rotations.at[comp_idx].set(new_logits)
+
+    return new_rotations, True
+
+
+def mutate_align_to_grid(
+    positions: Array,
+    key: Array,
+    grid_size: float = 2.54,  # 100 mil standard grid
+    rate: float = 0.05,
+) -> tuple[Array, bool]:
+    """
+    Snap a random component to the nearest grid point.
+
+    This mutation improves manufacturability by aligning components to
+    standard grid spacing. Useful for creating cleaner layouts.
+
+    Args:
+        positions: (N, 2) array of component positions
+        key: JAX random key
+        grid_size: Grid spacing in mm (default: 2.54 = 100 mil)
+        rate: Probability of applying per-component (default: 0.05)
+
+    Returns:
+        Tuple of (mutated positions, whether any mutation was applied)
+    """
+    n = positions.shape[0]
+    if n == 0:
+        return positions, False
+
+    key_mask, _ = jax.random.split(key)
+
+    # Randomly select components to snap
+    mask = jax.random.uniform(key_mask, (n,)) < rate
+
+    if not jnp.any(mask):
+        return positions, False
+
+    # Snap to grid
+    snapped = jnp.round(positions / grid_size) * grid_size
+
+    # Apply only to selected components
+    new_positions = jnp.where(mask[:, None], snapped, positions)
+
+    return new_positions, True
+
+
+def mutate_push_to_edge(
+    positions: Array,
+    key: Array,
+    board_width: float,
+    board_height: float,
+    thermal_mask: Array | None = None,
+    rate: float = 0.1,
+    push_fraction: float = 0.3,
+) -> tuple[Array, bool]:
+    """
+    Push a component toward the nearest board edge.
+
+    This mutation improves thermal dissipation by moving hot components
+    toward board edges where heat can escape more easily.
+
+    Args:
+        positions: (N, 2) array of component positions
+        key: JAX random key
+        board_width: Board width in mm
+        board_height: Board height in mm
+        thermal_mask: (N,) boolean array indicating thermal components.
+                      If None, any component can be pushed.
+        rate: Probability of applying this mutation (default: 0.1)
+        push_fraction: Fraction of distance to push (default: 0.3)
+
+    Returns:
+        Tuple of (mutated positions, whether mutation was applied)
+    """
+    n = positions.shape[0]
+    if n == 0:
+        return positions, False
+
+    key_apply, key_comp = jax.random.split(key)
+
+    apply_mutation = jax.random.uniform(key_apply) < rate
+    if not apply_mutation:
+        return positions, False
+
+    # If thermal mask provided, only consider thermal components
+    if thermal_mask is not None:
+        thermal_indices = jnp.where(thermal_mask)[0]
+        if len(thermal_indices) == 0:
+            return positions, False
+        comp_idx = thermal_indices[jax.random.randint(key_comp, (), 0, len(thermal_indices))]
+    else:
+        comp_idx = jax.random.randint(key_comp, (), 0, n)
+
+    pos = positions[comp_idx]
+
+    # Find nearest edge
+    dist_left = pos[0]
+    dist_right = board_width - pos[0]
+    dist_bottom = pos[1]
+    dist_top = board_height - pos[1]
+
+    distances = jnp.array([dist_left, dist_right, dist_bottom, dist_top])
+    nearest_edge = jnp.argmin(distances)
+
+    # Compute push direction
+    directions = jnp.array([
+        [-1.0, 0.0],  # left
+        [1.0, 0.0],   # right
+        [0.0, -1.0],  # bottom
+        [0.0, 1.0],   # top
+    ])
+    direction = directions[nearest_edge]
+
+    # Push toward edge
+    min_dist = distances[nearest_edge]
+    move = direction * min_dist * push_fraction
+    new_positions = positions.at[comp_idx].add(move)
+
+    return new_positions, True
+
+
+def apply_mutation_pool(
+    positions: Array,
+    rotations: Array,
+    key: Array,
+    board_width: float,
+    board_height: float,
+    adjacency: Array | None = None,
+    thermal_mask: Array | None = None,
+    fixed_mask: Array | None = None,
+    gaussian_sigma: float = 2.0,
+    gaussian_rate: float = 0.1,
+    operator_weights: tuple[float, ...] = (0.5, 0.15, 0.15, 0.1, 0.05, 0.05),
+) -> tuple[Array, Array]:
+    """
+    Apply mutations from a pool of geometry-aware operators.
+
+    This replaces pure Gaussian mutation with a weighted selection of
+    domain-specific operators. The operators are:
+    1. Gaussian: Random perturbation (exploration)
+    2. Swap: Exchange two component positions (topology change)
+    3. Slide: Move toward connected neighbor (wirelength)
+    4. Rotate: Change component orientation (routing)
+    5. Grid: Snap to grid (manufacturability)
+    6. Push to edge: Move toward board edge (thermal)
+
+    Args:
+        positions: (N, 2) array of component positions
+        rotations: (N, 4) array of rotation logits
+        key: JAX random key
+        board_width: Board width in mm
+        board_height: Board height in mm
+        adjacency: (N, N) connectivity matrix (optional)
+        thermal_mask: (N,) boolean mask for thermal components (optional)
+        fixed_mask: (N,) boolean mask for fixed/anchored components (optional).
+            If provided, fixed components will not be mutated.
+        gaussian_sigma: Sigma for Gaussian mutation
+        gaussian_rate: Rate for Gaussian mutation
+        operator_weights: Weights for operator selection (must sum to 1.0)
+            Order: [gaussian, swap, slide, rotate, grid, push_to_edge]
+
+    Returns:
+        Tuple of (mutated positions, mutated rotations)
+    """
+    key_op, key_gaussian, key_swap, key_slide, key_rotate, key_grid, key_push = (
+        jax.random.split(key, 7)
+    )
+
+    # Select which operator to apply
+    weights = jnp.array(operator_weights)
+    weights = weights / jnp.sum(weights)  # Normalize
+    operator_idx = jax.random.choice(key_op, jnp.arange(len(weights)), p=weights)
+
+    # Define operator functions for jax.lax.switch
+    def op_gaussian(_):
+        pos = mutate_gaussian(positions, key_gaussian, gaussian_sigma, gaussian_rate)
+        rot = mutate_gaussian(rotations, key_rotate, 0.3, gaussian_rate)
+        return pos, rot
+
+    def op_swap(_):
+        pos, _ = mutate_swap_positions(positions, key_swap, rate=1.0)
+        return pos, rotations
+
+    def op_slide(_):
+        if adjacency is not None:
+            pos, _ = mutate_slide_to_neighbor(
+                positions, key_slide, adjacency, rate=1.0
+            )
+        else:
+            # Fall back to Gaussian if no adjacency
+            pos = mutate_gaussian(positions, key_gaussian, gaussian_sigma, gaussian_rate)
+        return pos, rotations
+
+    def op_rotate(_):
+        rot, _ = mutate_rotate_smart(rotations, key_rotate, rate=1.0)
+        return positions, rot
+
+    def op_grid(_):
+        pos, _ = mutate_align_to_grid(positions, key_grid, rate=1.0)
+        return pos, rotations
+
+    def op_push(_):
+        pos, _ = mutate_push_to_edge(
+            positions, key_push, board_width, board_height, thermal_mask, rate=1.0
+        )
+        return pos, rotations
+
+    # Use jax.lax.switch for JIT-compatible branching
+    branches = [op_gaussian, op_swap, op_slide, op_rotate, op_grid, op_push]
+    new_positions, new_rotations = jax.lax.switch(operator_idx, branches, None)
+
+    # Enforce fixed components (JAX-idiomatic pattern)
+    if fixed_mask is not None:
+        new_positions = jnp.where(fixed_mask[:, None], positions, new_positions)
+        new_rotations = jnp.where(fixed_mask[:, None], rotations, new_rotations)
+
+    return new_positions, new_rotations
+
+
 @dataclass
 class NSGAResult:
     """
@@ -601,11 +968,13 @@ class NSGAOptimizer:
         mutation_rate: float = 0.1,
         mutation_sigma: float = 2.0,
         crossover_alpha: float = 0.5,
+        use_geometry_operators: bool = False,  # Disabled by default - operators need JIT refinement
     ):
         self.pop_size = population_size
         self.mutation_rate = mutation_rate
         self.mutation_sigma = mutation_sigma
         self.crossover_alpha = crossover_alpha
+        self.use_geometry_operators = use_geometry_operators
 
     def evolve(
         self,
@@ -740,16 +1109,50 @@ class NSGAOptimizer:
                 lambda p1, p2, k: crossover_blx_alpha(p1, p2, k, self.crossover_alpha)
             )(pop_rot[p1_idx], pop_rot[p2_idx], cross_keys)
 
+            # Enforce fixed components after crossover
+            fixed_mask = getattr(context, 'fixed_mask', None)
+            if fixed_mask is not None:
+                # Children of fixed parents should stay at parent positions
+                child_pos = jnp.where(fixed_mask[:, None], pop_pos[:self.pop_size // 2], child_pos)
+                child_rot = jnp.where(fixed_mask[:, None], pop_rot[:self.pop_size // 2], child_rot)
+
             # Mutation
             mutate_keys_pos, mutate_keys_rot = jax.random.split(mutate_key, 2)
             mutate_keys_pos = jax.random.split(mutate_keys_pos, self.pop_size // 2)
             mutate_keys_rot = jax.random.split(mutate_keys_rot, self.pop_size // 2)
-            child_pos = jax.vmap(
-                lambda p, k: mutate_gaussian(p, k, self.mutation_sigma, self.mutation_rate)
-            )(child_pos, mutate_keys_pos)
-            child_rot = jax.vmap(lambda p, k: mutate_gaussian(p, k, 0.3, self.mutation_rate))(
-                child_rot, mutate_keys_rot
-            )
+            
+            if self.use_geometry_operators:
+                # Use geometry-aware mutation pool
+                # Extract adjacency matrix if available
+                adjacency = getattr(context, 'adjacency_matrix', None)
+                # Extract thermal mask if available (could also check component properties)
+                thermal_mask = None
+                # Extract fixed mask from context
+                fixed_mask = getattr(context, 'fixed_mask', None)
+                
+                # Apply mutation pool to each child
+                def mutate_individual(pos, rot, k):
+                    return apply_mutation_pool(
+                        pos, rot, k,
+                        board.width, board.height,
+                        adjacency=adjacency,
+                        thermal_mask=thermal_mask,
+                        fixed_mask=fixed_mask,
+                        gaussian_sigma=self.mutation_sigma,
+                        gaussian_rate=self.mutation_rate,
+                    )
+                
+                child_pos, child_rot = jax.vmap(mutate_individual)(
+                    child_pos, child_rot, mutate_keys_pos
+                )
+            else:
+                # Original Gaussian mutation
+                child_pos = jax.vmap(
+                    lambda p, k: mutate_gaussian(p, k, self.mutation_sigma, self.mutation_rate)
+                )(child_pos, mutate_keys_pos)
+                child_rot = jax.vmap(lambda p, k: mutate_gaussian(p, k, 0.3, self.mutation_rate))(
+                    child_rot, mutate_keys_rot
+                )
 
             # Re-evaluate children
             child_obj_vals = evaluate_population(
