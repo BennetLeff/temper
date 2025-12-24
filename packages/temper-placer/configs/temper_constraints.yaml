@@ -70,15 +70,17 @@ groups:
       - pair: ["C_VCC", "U_GATE"]
         max_distance_mm: 5.0
       - pair: ["R_GATE_H", "Q1"]
-        max_distance_mm: 10.0
+        max_distance_mm: 8.0
+        weight: 30.0
       - pair: ["R_GATE_L", "Q2"]
-        max_distance_mm: 10.0
+        max_distance_mm: 8.0
+        weight: 30.0
       - pair: ["U_GATE", "Q1"]
-        max_distance_mm: 20.0
-        weight: 50.0  # Tight spec for fast switching
+        max_distance_mm: 15.0
+        weight: 200.0  # CRITICAL - gate drive loop inductance
       - pair: ["U_GATE", "Q2"]
-        max_distance_mm: 20.0
-        weight: 50.0
+        max_distance_mm: 15.0
+        weight: 200.0  # CRITICAL - gate drive loop inductance
     zone: "driver_zone"
     description: "Isolated gate driver with bootstrap. Minimize gate drive loop area."
 
@@ -88,11 +90,14 @@ groups:
     max_spread_mm: 25.0
     proximity:
       - pair: ["C_BUS1", "Q1"]
-        max_distance_mm: 10.0
-        weight: 50.0  # Critical for low-ESL commutation loop
+        max_distance_mm: 8.0
+        weight: 100.0  # CRITICAL - commutation loop ESL
       - pair: ["C_BUS2", "Q2"]
-        max_distance_mm: 10.0
-        weight: 50.0
+        max_distance_mm: 8.0
+        weight: 100.0  # CRITICAL - commutation loop ESL
+      - pair: ["C_BUS1", "C_BUS2"]
+        max_distance_mm: 15.0
+        weight: 30.0
     zone: "power_zone"
     description: "Voltage doubler bulk caps. Must be <10mm from IGBTs for low inductance."
 
@@ -241,17 +246,29 @@ net_classes:
 
 aesthetics:
   grid_size_mm: 0.5
-  grid_weight: 1.0
-  alignment_weight: 1.0
+  grid_weight: 2.0
+  alignment_weight: 10.0  # Increased for clean rows/columns
   grouping_weight: 10.0
-  symmetry_weight: 5.0
+  symmetry_weight: 3.0
 
-# Fixed components (don't optimize)
+# Loss weight overrides for power electronics
+loss_weights:
+  zone_membership: 50.0  # Force zone compliance
+  overlap: 200.0         # Strict no-overlap
+  wirelength: 15.0       # Incentivize short traces
+
+# Fixed components (don't optimize position)
 fixed_components:
   - "MH1"
   - "MH2"
   - "MH3"
   - "MH4"
+  # Connectors must be at board edges
+  - "J_AC_IN"
+  - "J_COIL"
+  - "J_NTC"
+  - "J_USB"
+  - "J_DEBUG"
 
 # Force connectors to board edges for professional layout
 fixed_positions:
