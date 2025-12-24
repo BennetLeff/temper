@@ -720,6 +720,41 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     setattr(losses_config, loss_name, loss_config)
 
             constraints.losses = losses_config
+    
+    # Parse loss_weights as a shorthand (simple dict of loss_name -> weight)
+    if "loss_weights" in config and constraints.losses is None:
+        loss_weights = config["loss_weights"]
+        if loss_weights:  # Not None or empty dict
+            losses_config = LossesConfig()
+            
+            # Map common weight names to loss names
+            weight_name_map = {
+                "zone_membership": "zone",
+                "zone": "zone",
+                "overlap": "overlap",
+                "boundary": "boundary",
+                "wirelength": "wirelength",
+                "spread": "spread",
+                "edge_avoidance": "edge_avoidance",
+                "group_cluster": "group_cluster",
+                "thermal": "thermal",
+                "clearance": "clearance",
+                "loop_area": "loop_area",
+                "star_point": "star_point",
+            }
+            
+            for weight_key, weight_value in loss_weights.items():
+                loss_name = weight_name_map.get(weight_key, weight_key)
+                if loss_name in [
+                    "overlap", "boundary", "wirelength", "spread",
+                    "edge_avoidance", "group_cluster", "thermal", "zone",
+                    "clearance", "loop_area", "star_point"
+                ]:
+                    loss_config = LossConfig(weight=float(weight_value))
+                    setattr(losses_config, loss_name, loss_config)
+            
+            constraints.losses = losses_config
+
 
     return constraints
 
