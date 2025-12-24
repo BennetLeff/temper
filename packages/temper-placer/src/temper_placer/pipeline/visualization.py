@@ -21,7 +21,7 @@ Usage:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from rich.console import Console
 from rich.layout import Layout
@@ -162,7 +162,7 @@ class RichDashboard(ProgressCallback):
     current_phase: str = "Starting..."
     iteration: int = 0
     metrics: dict[str, Any] = field(default_factory=dict)
-    _layout: Optional[Layout] = field(default=None, repr=False)
+    _layout: Layout | None = field(default=None, repr=False)
 
     def create_layout(self) -> Layout:
         """Create the dashboard layout.

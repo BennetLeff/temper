@@ -6,17 +6,16 @@ adjustments, and the feedback loop that iterates until feasible.
 TDD: Write tests first, then implement feedback.py to pass them.
 """
 
+
 import pytest
-from dataclasses import dataclass
-from typing import Callable
 
 # We'll import from the feedback module we're about to create
 # These imports will fail until we implement feedback.py
 from temper_placer.pipeline.feedback import (
+    AdjustmentApplier,
     AdjustmentType,
     FeedbackAdjustment,
     FeedbackGenerator,
-    AdjustmentApplier,
     FeedbackLoopConfig,
     FeedbackLoopResult,
     run_feedback_loop,
@@ -27,9 +26,7 @@ from temper_placer.routing import (
     FailureType,
     RoutingDiagnostic,
     RoutingReport,
-    PlacementAdjustment,
 )
-
 
 # =============================================================================
 # Test Fixtures

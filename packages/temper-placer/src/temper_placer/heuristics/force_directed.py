@@ -158,7 +158,7 @@ def compute_force_directed_layout(
     curr_pos = initial_positions
     for _ in range(iterations):
         curr_pos = step(curr_pos)
-        
+
     return curr_pos
 
 

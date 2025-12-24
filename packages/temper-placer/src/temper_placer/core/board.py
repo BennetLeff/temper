@@ -134,6 +134,12 @@ class LayerStackup:
     layers: list[Layer] = field(default_factory=list)
     thickness: float = 1.6  # mm
 
+    def is_plane_layer(self, layer_idx: int) -> bool:
+        """Check if a layer is a plane layer."""
+        if 0 <= layer_idx < len(self.layers):
+            return self.layers[layer_idx].layer_type == "plane"
+        return False
+
     @classmethod
     def default_4layer(cls) -> LayerStackup:
         """Create default 4-layer stackup for Temper board."""

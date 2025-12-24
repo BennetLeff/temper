@@ -64,42 +64,40 @@ Example:
 """
 
 from .constraints import (
-    # Base class
-    BaseConstraint,
     # Constraint types
     AdjacentConstraint,
-    SeparatedConstraint,
-    EnclosingConstraint,
     AlignedConstraint,
-    OnSideConstraint,
     AnchoredConstraint,
-    LoopAreaConstraint,
+    Axis,
+    # Base class
+    BaseConstraint,
+    BoardSide,
     # Enums
     ConstraintTier,
     ConstraintType,
     DistanceMetric,
-    Axis,
-    BoardSide,
     EdgeType,
+    EnclosingConstraint,
+    LoopAreaConstraint,
+    OnSideConstraint,
+    SeparatedConstraint,
 )
-
 from .parser import (
-    # Parser functions
-    parse_pcl_file,
-    parse_constraint_dict,
-    load_pcl_collection,
     # Collection class
     ConstraintCollection,
     # Exceptions
     PCLParseError,
     PCLValidationError,
+    load_pcl_collection,
+    parse_constraint_dict,
+    # Parser functions
+    parse_pcl_file,
 )
-
 from .tiers import (
-    # Tier system
-    EscalationReason,
     ConstraintStatus,
     EscalationConfig,
+    # Tier system
+    EscalationReason,
     TieredConstraintManager,
     calculate_penalty,
     check_hard_constraints,

@@ -25,9 +25,85 @@ Example:
       - Minimize commutation loop for half-bridge
 """
 
-from typing import Any, Callable
-from temper_placer.explainability.trace import Trace
+from collections.abc import Callable
+from contextvars import ContextVar
+from functools import wraps
+from typing import Any, Optional
+
 import jax.numpy as jnp
+
+from temper_placer.explainability.trace import Trace
+
+# Global context for active tracing.
+# This allows @traced decorators to automatically find the current context.
+_active_traced_ctx: ContextVar[Optional["TracedLossContext"]] = ContextVar(
+    "active_traced_ctx", default=None
+)
+
+
+def traced(
+    _func: Callable | None = None,
+    *,
+    subject: str | None = None,
+    because: str | None = None,
+    threshold: float = 1e-6,
+):
+    """Decorator to automatically trace function execution.
+    
+    If running within a TracedLossContext, it automatically adds the result
+    to the context and returns the original result.
+    If NOT in a context, it returns a (result, trace) tuple.
+    
+    Args:
+        subject: Subject for the trace (defaults to function name)
+        because: Reason for the trace
+        threshold: Minimum value to record a trace entry (default 1e-6)
+        
+    Example:
+        >>> @traced(subject="Q1", because="Overlap penalty")
+        ... def compute_overlap(pos):
+        ...     return jnp.sum(pos)
+        ...
+        >>> # Standalone usage
+        >>> val, trace = compute_overlap(pos)
+        >>>
+        >>> # Context usage
+        >>> with TracedLossContext() as ctx:
+        ...     val = compute_overlap(pos) # Result is added to ctx automatically
+    """
+    def decorator(func: Callable):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Execute original function
+            result = func(*args, **kwargs)
+
+            # Prepare trace
+            final_subject = subject or func.__name__
+            final_because = because or f"Result of {func.__name__}"
+
+            # Create trace entry if value is significant
+            trace = Trace.empty()
+            try:
+                val_float = float(result)
+                if val_float > threshold:
+                    trace = trace.add(final_subject, val_float, final_because)
+            except (TypeError, ValueError):
+                # If result is not a float (e.g. specialized object), record it anyway
+                trace = trace.add(final_subject, result, final_because)
+
+            # Handle context
+            ctx = _active_traced_ctx.get()
+            if ctx is not None:
+                ctx.add(result, trace)
+                return result # Return original result within context
+
+            return result, trace # Return tuple standalone
+
+        return wrapper
+
+    if _func is None:
+        return decorator
+    return decorator(_func)
 
 
 def traced_loss(
@@ -44,32 +120,18 @@ def traced_loss(
         
     Returns:
         Wrapped function returning (loss, trace) tuple
-        
-    Example:
-        >>> def adjacency_loss(positions):
-        ...     return jnp.sum((positions[0] - positions[1]) ** 2)
-        >>>
-        >>> traced_fn = traced_loss(
-        ...     adjacency_loss,
-        ...     subject="Q1",
-        ...     because="Minimize commutation loop"
-        ... )
-        >>>
-        >>> loss, trace = traced_fn(positions)
-        >>> print(trace.why("Q1"))
-        Q1 moved because:
-          - Minimize commutation loop
     """
+    @wraps(loss_fn)
     def wrapper(*args, **kwargs):
         loss_value = loss_fn(*args, **kwargs)
-        
+
         # Create trace entry if loss is significant
         trace = Trace.empty()
         if float(loss_value) > 1e-6:  # Only trace if constraint is active
             trace = trace.add(subject, float(loss_value), because)
-        
+
         return loss_value, trace
-    
+
     return wrapper
 
 
@@ -83,27 +145,18 @@ def combine_traced_losses(
         
     Returns:
         (total_loss, combined_trace) tuple
-        
-    Example:
-        >>> results = [
-        ...     (loss1, trace1),
-        ...     (loss2, trace2),
-        ...     (loss3, trace3),
-        ... ]
-        >>> total_loss, combined_trace = combine_traced_losses(results)
-        >>> # combined_trace has all entries from trace1, trace2, trace3
     """
     if not traced_results:
         return 0.0, Trace.empty()
-    
+
     # Sum losses
     total_loss = sum(loss for loss, _ in traced_results)
-    
+
     # Combine traces (monoid!)
     combined_trace = Trace.empty()
     for _, trace in traced_results:
         combined_trace = combined_trace + trace
-    
+
     return total_loss, combined_trace
 
 
@@ -119,21 +172,6 @@ def constraint_to_traced_loss(
         
     Returns:
         Traced loss function returning (loss, trace)
-        
-    Example:
-        >>> constraint = AdjacentConstraint(
-        ...     a="Q1", b="Q2",
-        ...     max_distance_mm=15,
-        ...     tier=ConstraintTier.HARD,
-        ...     because="Minimize commutation loop"
-        ... )
-        >>>
-        >>> def compute_adjacency_loss(c, positions):
-        ...     dist = jnp.linalg.norm(positions[c.a] - positions[c.b])
-        ...     return jnp.maximum(0, dist - c.max_distance_mm) ** 2
-        >>>
-        >>> traced_fn = constraint_to_traced_loss(constraint, compute_adjacency_loss)
-        >>> loss, trace = traced_fn(positions)
     """
     # Get subject from constraint
     if hasattr(constraint, 'a'):
@@ -144,10 +182,10 @@ def constraint_to_traced_loss(
         subject = constraint.components[0] if constraint.components else "unknown"
     else:
         subject = "unknown"
-    
+
     # Get because from constraint
     because = constraint.because if hasattr(constraint, 'because') else "constraint"
-    
+
     # Wrap loss function
     return traced_loss(
         lambda *args, **kwargs: loss_fn(constraint, *args, **kwargs),
@@ -156,7 +194,6 @@ def constraint_to_traced_loss(
     )
 
 
-# Example: Traced loss context for optimizer
 class TracedLossContext:
     """Context manager for collecting traced losses during optimization.
     
@@ -167,31 +204,37 @@ class TracedLossContext:
         ...         ctx.add(loss, trace)
         ...
         >>> total_loss, combined_trace = ctx.result()
-        >>> print(combined_trace.why("Q1"))
     """
     def __init__(self):
         self.losses = []
         self.traces = []
-    
+        self._token = None
+
     def __enter__(self):
+        self._token = _active_traced_ctx.set(self)
         return self
-    
-    def __exit__(self, *args):
-        pass
-    
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._token:
+            _active_traced_ctx.reset(self._token)
+
     def add(self, loss: Any, trace: Trace):
         """Add a traced loss result."""
         self.losses.append(loss)
         self.traces.append(trace)
-    
+
     def result(self) -> tuple[Any, Trace]:
         """Get combined result."""
         if not self.losses:
             return 0.0, Trace.empty()
-        
-        total_loss = sum(self.losses)
+
+        # Ensure we handle JAX arrays correctly during sum
+        total_loss = jnp.zeros(())
+        for loss in self.losses:
+            total_loss = total_loss + loss
+
         combined_trace = Trace.empty()
         for trace in self.traces:
             combined_trace = combined_trace + trace
-        
+
         return total_loss, combined_trace

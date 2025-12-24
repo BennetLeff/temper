@@ -13,7 +13,7 @@ and produce interactive HTML visualizations that can be:
 
 from __future__ import annotations
 
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 # Plotly is an optional dependency for testing without full install
 try:

@@ -12,23 +12,22 @@ Tests cover:
 """
 
 import pytest
+
 from temper_placer.pcl import (
-    BaseConstraint,
     AdjacentConstraint,
-    SeparatedConstraint,
-    EnclosingConstraint,
     AlignedConstraint,
-    OnSideConstraint,
     AnchoredConstraint,
-    LoopAreaConstraint,
+    Axis,
+    BoardSide,
     ConstraintTier,
     ConstraintType,
     DistanceMetric,
-    Axis,
-    BoardSide,
     EdgeType,
+    EnclosingConstraint,
+    LoopAreaConstraint,
+    OnSideConstraint,
+    SeparatedConstraint,
 )
-
 
 # ============================================================================
 # Enum Tests

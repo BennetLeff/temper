@@ -14,11 +14,12 @@ Pipeline Phases:
     8. OUTPUT - Write placed PCB, reports
 """
 
+import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional
-import time
+from typing import Any
 
 
 class PipelinePhase(Enum):
@@ -42,7 +43,7 @@ class PipelineError(Exception):
         phase: The phase where the error occurred (optional)
     """
 
-    def __init__(self, message: str, phase: Optional[PipelinePhase] = None):
+    def __init__(self, message: str, phase: PipelinePhase | None = None):
         super().__init__(message)
         self.phase = phase
 
@@ -71,13 +72,13 @@ class PipelineConfig:
     input_pcb: Path
 
     # Optional input files
-    constraints_yaml: Optional[Path] = None
-    loops_yaml: Optional[Path] = None
+    constraints_yaml: Path | None = None
+    loops_yaml: Path | None = None
 
     # Optional output files
-    output_pcb: Optional[Path] = None
-    output_report: Optional[Path] = None
-    output_trace: Optional[Path] = None
+    output_pcb: Path | None = None
+    output_report: Path | None = None
+    output_trace: Path | None = None
 
     # Phase control
     skip_topological: bool = False
@@ -129,8 +130,8 @@ class PipelineState:
 
     # Status
     success: bool = False
-    failure_reason: Optional[str] = None
-    failed_phase: Optional[PipelinePhase] = None
+    failure_reason: str | None = None
+    failed_phase: PipelinePhase | None = None
 
     # Timing
     elapsed_time_s: float = 0.0
@@ -188,9 +189,9 @@ class PipelineOrchestrator:
         }
 
         # Callbacks
-        self.on_phase_start: Optional[Callable[[PipelinePhase, PipelineState], None]] = None
-        self.on_phase_complete: Optional[Callable[[PipelinePhase, PipelineState], None]] = None
-        self.on_iteration: Optional[Callable[[int, PipelineState], None]] = None
+        self.on_phase_start: Callable[[PipelinePhase, PipelineState], None] | None = None
+        self.on_phase_complete: Callable[[PipelinePhase, PipelineState], None] | None = None
+        self.on_iteration: Callable[[int, PipelineState], None] | None = None
 
     def get_phase_order(self) -> list[PipelinePhase]:
         """Get the ordered list of phases to execute based on config.

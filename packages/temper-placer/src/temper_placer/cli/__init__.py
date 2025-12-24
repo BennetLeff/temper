@@ -251,6 +251,7 @@ def optimize(
             GroupClusterLoss,
             GroupConfig,
             OverlapLoss,
+            RoutabilityLoss,
             SpreadLoss,
             WeightedLoss,
             WirelengthLoss,
@@ -378,6 +379,12 @@ def optimize(
             losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
         if "spread" in weights:
             losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
+
+        if "routability" in weights:
+            losses.append(WeightedLoss(RoutabilityLoss(), weight=weights["routability"]))
+        elif "congestion" in weights:
+            # Map congestion to the new layer-aware routability loss
+            losses.append(WeightedLoss(RoutabilityLoss(), weight=weights["congestion"]))
 
         # Regularization losses
         if "edge_avoidance" in weights and weights["edge_avoidance"] > 0:
@@ -2681,7 +2688,7 @@ def trace_info(trace: Path | None, output_json: bool) -> None:
     if output_json:
         print(json.dumps(summary, indent=2))
     else:
-        console.print(f"[bold]Decision Trace Summary[/]\n")
+        console.print("[bold]Decision Trace Summary[/]\n")
         console.print(f"Run ID: {summary.get('run_id', 'N/A')}")
         console.print(f"Total Decisions: {summary.get('total_decisions', 0)}")
         console.print(f"Components: {summary.get('component_count', 0)}")
@@ -2859,10 +2866,10 @@ def trace_export(trace: Path, format: str, output: Path | None) -> None:
 from temper_placer.pipeline import (
     PipelineConfig,
     PipelineOrchestrator,
-    PipelineState,
     PipelinePhase,
-    TerminalProgress,
+    PipelineState,
     RichDashboard,
+    TerminalProgress,
     create_progress_display,
 )
 

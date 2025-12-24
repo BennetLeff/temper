@@ -52,8 +52,8 @@ def legalize_abacus(
 
     positions = np.array(state.positions)
     n = positions.shape[0]
-    widths = np.array([c.bounds[0] for c in context.netlist.components])
-    heights = np.array([c.bounds[1] for c in context.netlist.components])
+    # widths = np.array([c.bounds[0] for c in context.netlist.components])
+    # heights = np.array([c.bounds[1] for c in context.netlist.components])
 
     board_h = context.board.height
     row_height = board_h / n_rows
@@ -67,7 +67,7 @@ def legalize_abacus(
         row_idx = int(np.clip((positions[i, 1] - origin_y) / row_height, 0, n_rows - 1))
         row_assignments[row_idx].append(i)
 
-    new_positions = positions.copy()
+    # new_positions = positions.copy()
 
     # 2. Process each row independently
     for row_idx in range(n_rows):
@@ -115,14 +115,14 @@ def legalize_abacus(
                     break
             clusters.append(c)
 
-        # 3. Update positions from clusters
-        for cluster in clusters:
-            curr_x = cluster.x_pos
-            # Use original indices from sorted list?
-            # Wait, the cluster needs to track which components it contains.
-            # Simplified: re-iterate through comp_indices for this cluster
-            # Actually, I should store the indices in the cluster.
-            pass
+    # 3. Update positions from clusters
+    # for cluster in clusters:
+    #     curr_x = cluster.x_pos
+    #     # Use original indices from sorted list?
+    #     # Wait, the cluster needs to track which components it contains.
+    #     # Simplified: re-iterate through comp_indices for this cluster
+    #     # Actually, I should store the indices in the cluster.
+    #     pass
 
     # Note: Full Abacus is complex. This is a placeholder for the logic.
     # I'll implement a simpler version that works for PCB components.
@@ -141,6 +141,7 @@ def project_to_drc_feasible(
     
     This function iteratively resolves overlaps and clearance violations
     by moving components apart. It implements a simple geometric projection.
+    Uses NumPy for efficiency (avoids JAX dispatch overhead for iterative updates).
     
     Args:
         state: Current placement state.
@@ -151,20 +152,27 @@ def project_to_drc_feasible(
     Returns:
         Feasible (or improved) PlacementState.
     """
-    positions = state.positions
+    import numpy as np
+
+    # Convert to numpy for mutable updates
+    positions = np.array(state.positions)
     n = positions.shape[0]
 
     # Get component sizes
-    widths = jnp.array([c.bounds[0] for c in context.netlist.components])
-    heights = jnp.array([c.bounds[1] for c in context.netlist.components])
+    widths = np.array([c.bounds[0] for c in context.netlist.components])
+    heights = np.array([c.bounds[1] for c in context.netlist.components])
+    fixed_mask = np.array(context.fixed_mask)
 
-    current_positions = positions
+    board_w, board_height = context.board.width, context.board.height
+    origin_x, origin_y = context.board.origin
+
+    current_positions = positions.copy()
 
     for iteration in range(max_iterations):
         violations_found = 0
-        new_positions = current_positions
 
         # 1. Resolve Overlaps (Hard constraint)
+        # Naive pair loop is fast enough for N=100 in logic
         for i in range(n):
             for j in range(i + 1, n):
                 pos_i = current_positions[i]
@@ -182,49 +190,46 @@ def project_to_drc_feasible(
                 overlap_x = (hw_i + hw_j + margin_mm) - abs(dx)
                 overlap_y = (hh_i + hh_j + margin_mm) - abs(dy)
 
-                if overlap_x > 0 and overlap_y > 0:
+                if overlap_x > 1e-6 and overlap_y > 1e-6:
                     violations_found += 1
                     # Move components apart along the axis of least overlap
                     if overlap_x < overlap_y:
                         # Move in X
                         move = (overlap_x / 2) * (1 if dx < 0 else -1)
-                        if not context.fixed_mask[i]:
-                            new_positions = new_positions.at[i, 0].add(move)
-                        if not context.fixed_mask[j]:
-                            new_positions = new_positions.at[j, 0].add(-move)
+                        if not fixed_mask[i]:
+                            current_positions[i, 0] += move
+                        if not fixed_mask[j]:
+                            current_positions[j, 0] -= move
                     else:
                         # Move in Y
                         move = (overlap_y / 2) * (1 if dy < 0 else -1)
-                        if not context.fixed_mask[i]:
-                            new_positions = new_positions.at[i, 1].add(move)
-                        if not context.fixed_mask[j]:
-                            new_positions = new_positions.at[j, 1].add(-move)
+                        if not fixed_mask[i]:
+                            current_positions[i, 1] += move
+                        if not fixed_mask[j]:
+                            current_positions[j, 1] -= move
 
         # 2. Enforce Board Boundaries
-        board_w, board_height = context.board.width, context.board.height
-        origin_x, origin_y = context.board.origin
-
         for i in range(n):
-            if context.fixed_mask[i]:
+            if fixed_mask[i]:
                 continue
 
-            pos = new_positions[i]
+            pos = current_positions[i]
             hw, hh = widths[i] / 2, heights[i] / 2
 
             # Left/Right
             if pos[0] - hw < origin_x:
-                new_positions = new_positions.at[i, 0].set(origin_x + hw)
+                current_positions[i, 0] = origin_x + hw
             elif pos[0] + hw > origin_x + board_w:
-                new_positions = new_positions.at[i, 0].set(origin_x + board_w - hw)
+                current_positions[i, 0] = origin_x + board_w - hw
 
             # Top/Bottom
             if pos[1] - hh < origin_y:
-                new_positions = new_positions.at[i, 1].set(origin_y + hh)
+                current_positions[i, 1] = origin_y + hh
             elif pos[1] + hh > origin_y + board_height:
-                new_positions = new_positions.at[i, 1].set(origin_y + board_height - hh)
+                current_positions[i, 1] = origin_y + board_height - hh
 
-        current_positions = new_positions
         if violations_found == 0:
             break
 
-    return PlacementState(current_positions, state.rotation_logits)
+    # Convert back to JAX array
+    return PlacementState(jnp.array(current_positions), state.rotation_logits)

@@ -19,13 +19,12 @@ Example usage:
     ...     print(f"{diag.net}: {diag.failure_type} - {diag.suggested_fix}")
 """
 
-from dataclasses import dataclass, field
+import math
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
-import math
 
 from jax import Array
-import jax.numpy as jnp
 
 from temper_placer.core.netlist import Component
 

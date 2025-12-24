@@ -8,9 +8,8 @@ manufacturing failure modes using statistical sampling of process variations.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import jax
 import jax.numpy as jnp
 import jax.random as random
 from jax import Array
@@ -22,19 +21,19 @@ class DistributionParams:
     mean: float
     std_dev: float = 0.0
     distribution: str = 'normal'  # 'normal', 'uniform'
-    min_val: Optional[float] = None
-    max_val: Optional[float] = None
+    min_val: float | None = None
+    max_val: float | None = None
 
 
 @dataclass
 class ManufacturingVariables:
     """All manufacturing parameters that vary during production."""
-    etch_tolerance: Optional[DistributionParams] = None
-    drill_tolerance: Optional[DistributionParams] = None
-    registration_x: Optional[DistributionParams] = None
-    registration_y: Optional[DistributionParams] = None
-    copper_thickness: Optional[DistributionParams] = None
-    dielectric_thickness: Optional[DistributionParams] = None
+    etch_tolerance: DistributionParams | None = None
+    drill_tolerance: DistributionParams | None = None
+    registration_x: DistributionParams | None = None
+    registration_y: DistributionParams | None = None
+    copper_thickness: DistributionParams | None = None
+    dielectric_thickness: DistributionParams | None = None
 
 
 @dataclass
@@ -50,8 +49,8 @@ class MonteCarloResult:
     """Results of a statistical tolerance simulation."""
     num_samples: int
     yield_probability: float
-    failure_modes: List[tuple[str, float]] = field(default_factory=list)
-    stats: Dict[str, Any] = field(default_factory=dict)
+    failure_modes: list[tuple[str, float]] = field(default_factory=list)
+    stats: dict[str, Any] = field(default_factory=dict)
 
 
 class MonteCarloSimulator:
@@ -66,7 +65,7 @@ class MonteCarloSimulator:
         self.config = config
         self._key = random.PRNGKey(config.seed)
 
-    def sample_parameters(self, n: int) -> Dict[str, Array]:
+    def sample_parameters(self, n: int) -> dict[str, Array]:
         """
         Generate n samples of all manufacturing parameters.
 
@@ -80,7 +79,7 @@ class MonteCarloSimulator:
         curr_key = self._key
 
         for name in [
-            'etch_tolerance', 'drill_tolerance', 'registration_x', 
+            'etch_tolerance', 'drill_tolerance', 'registration_x',
             'registration_y', 'copper_thickness', 'dielectric_thickness'
         ]:
             params = getattr(self.variables, name)
@@ -123,50 +122,50 @@ class MonteCarloSimulator:
         """
         n_samples = self.config.num_samples
         samples = self.sample_parameters(n_samples)
-        
+
         # 1. Expand dimensions for vectorization
         # [S, N, 2]
         etch = samples.get('etch_tolerance', jnp.zeros(n_samples))
         reg_x = samples.get('registration_x', jnp.zeros(n_samples))
         reg_y = samples.get('registration_y', jnp.zeros(n_samples))
-        
+
         # Apply registration to positions: [S, N, 2]
         s_pos = positions[None, :, :] + jnp.stack([reg_x, reg_y], axis=-1)[:, None, :]
-        
+
         # Apply etching to bounds: [S, N, 2]
         # Etching reduces clearance (effectively expands components)
         s_widths = bounds[None, :, 0] + 2 * etch[:, None]
         s_heights = bounds[None, :, 1] + 2 * etch[:, None]
-        
+
         # 2. Vectorized overlap check for each sample
         # This is memory intensive: [S, N, N]
         # But for small N and S=1000 it's fine.
-        
+
         dx = jnp.abs(s_pos[:, :, None, 0] - s_pos[:, None, :, 0])
         dy = jnp.abs(s_pos[:, :, None, 1] - s_pos[:, None, :, 1])
-        
+
         mw = (s_widths[:, :, None] + s_widths[:, None, :]) / 2.0
         mh = (s_heights[:, :, None] + s_heights[:, None, :]) / 2.0
-        
+
         # Separation
         sep_x = dx - mw
         sep_y = dy - mh
-        
+
         # Sample distance = max(sep_x, sep_y)
         dist = jnp.maximum(sep_x, sep_y)
-        
+
         # Mask out self-comparison (set to high value)
         n = positions.shape[0]
         mask = jnp.eye(n, dtype=bool)[None, :, :]
         dist = jnp.where(mask, 1e6, dist)
-        
+
         # Check if min distance < required_clearance for each sample
         # [S]
         min_dists = jnp.min(dist, axis=(1, 2))
         passes = min_dists >= required_clearance
-        
+
         yield_prob = jnp.mean(passes.astype(jnp.float32))
-        
+
         return MonteCarloResult(
             num_samples=n_samples,
             yield_probability=float(yield_prob),

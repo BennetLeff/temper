@@ -39,6 +39,8 @@ import yaml
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
 
+import jax.numpy as jnp
+
 from temper_placer.core.state import PlacementState
 from temper_placer.losses import (
     BoundaryLoss,
@@ -55,8 +57,6 @@ from temper_placer.optimizer.config import (
     OptimizerConfig,
     TemperatureSchedule,
 )
-
-import jax.numpy as jnp
 
 # Test fixtures directory
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "external"

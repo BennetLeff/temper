@@ -6,7 +6,6 @@ import pytest
 
 from temper_placer.core.loop import LoopCollection, LoopPriority, LoopType
 from temper_placer.core.loop_extractor import (
-    ComponentClassification,
     auto_extract_loops,
     classify_component,
     detect_half_bridge_topology,

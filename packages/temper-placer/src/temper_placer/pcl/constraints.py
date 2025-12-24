@@ -37,10 +37,9 @@ Example usage:
     True
 """
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Tuple
-from abc import ABC, abstractmethod
 
 
 class ConstraintTier(Enum):
@@ -196,8 +195,8 @@ class AdjacentConstraint(BaseConstraint):
         tier: ConstraintTier,
         because: str,
         metric: DistanceMetric = DistanceMetric.EDGE_TO_EDGE,
-        pin_a: Optional[str] = None,
-        pin_b: Optional[str] = None,
+        pin_a: str | None = None,
+        pin_b: str | None = None,
         id: str = "",
     ):
         self.a = a
@@ -342,7 +341,7 @@ class EnclosingConstraint(BaseConstraint):
     def __init__(
         self,
         outer: str,
-        inner: List[str],
+        inner: list[str],
         tier: ConstraintTier,
         because: str,
         margin_mm: float = 0.0,
@@ -408,7 +407,7 @@ class AlignedConstraint(BaseConstraint):
 
     def __init__(
         self,
-        components: List[str],
+        components: list[str],
         axis: Axis,
         tier: ConstraintTier,
         because: str,
@@ -481,7 +480,7 @@ class OnSideConstraint(BaseConstraint):
 
     def __init__(
         self,
-        components: List[str],
+        components: list[str],
         side: BoardSide,
         edge: EdgeType,
         tier: ConstraintTier,
@@ -555,8 +554,8 @@ class AnchoredConstraint(BaseConstraint):
         component: str,
         tier: ConstraintTier,
         because: str,
-        region: Optional[Tuple[float, float, float, float]] = None,
-        position: Optional[Tuple[float, float]] = None,
+        region: tuple[float, float, float, float] | None = None,
+        position: tuple[float, float] | None = None,
         id: str = "",
     ):
         if region is None and position is None:

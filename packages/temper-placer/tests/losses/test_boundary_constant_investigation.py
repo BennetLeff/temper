@@ -8,10 +8,10 @@ and explain why it's constant (zero) on temper.kicad_pcb.
 import jax.numpy as jnp
 import pytest
 
-from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.core.board import Board, MountingHole
 from temper_placer.core.netlist import Netlist
 from temper_placer.losses.base import LossContext
+from temper_placer.losses.boundary import BoundaryLoss
 
 
 def create_minimal_context(board: Board, bounds: jnp.ndarray) -> LossContext:
@@ -144,9 +144,11 @@ class TestTemperBoardSparsity:
 
         This explains why boundary loss is constant=0 in correlation analysis.
         """
-        import jax
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from pathlib import Path
+
+        import jax
+
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
 
         # Load real temper board
         parse_result = parse_kicad_pcb(
@@ -208,9 +210,11 @@ class TestCorrelationWithSmallBoard:
 
         This demonstrates the fix: use smaller board or add keepout zones.
         """
-        import jax
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from pathlib import Path
+
+        import jax
+
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
 
         # Load components from temper board
         parse_result = parse_kicad_pcb(

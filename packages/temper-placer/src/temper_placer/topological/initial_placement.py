@@ -145,7 +145,7 @@ def identify_clusters(
 
     # Union-find data structures
     parent: dict[str, str] = {c: c for c in components}
-    rank: dict[str, int] = {c: 0 for c in components}
+    rank: dict[str, int] = dict.fromkeys(components, 0)
 
     def find(x: str) -> str:
         if parent[x] != x:

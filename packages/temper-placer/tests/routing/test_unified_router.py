@@ -2,8 +2,8 @@
 Tests for unified router that integrates maze and push-shove routing.
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
@@ -11,8 +11,8 @@ from temper_placer.routing.layer_assignment import Layer, LayerAssignment
 from temper_placer.routing.unified_router import (
     RoutingConfig,
     RoutingStrategy,
-    UnifiedRouter,
     UnifiedRoutePath,
+    UnifiedRouter,
 )
 
 

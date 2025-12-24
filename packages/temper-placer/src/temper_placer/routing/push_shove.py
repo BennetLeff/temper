@@ -11,12 +11,12 @@ The router is designed for PCB trace routing with the ability to
 push existing traces aside to make room for new connections.
 """
 
-from dataclasses import dataclass, field, replace
-from typing import List, Tuple, Set, Optional, Callable, Dict
-from heapq import heappush, heappop
-import jax.numpy as jnp
 import math
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from heapq import heappop, heappush
 
+import jax.numpy as jnp
 
 # =============================================================================
 # Core Data Structures
@@ -39,8 +39,8 @@ class GridCell:
 class Segment:
     """Immutable path segment from start to end."""
 
-    start: Tuple[float, float]
-    end: Tuple[float, float]
+    start: tuple[float, float]
+    end: tuple[float, float]
 
     def __hash__(self):
         return hash((self.start, self.end))
@@ -50,7 +50,7 @@ class Segment:
 class Path:
     """Immutable path representation with segments, width, and clearance."""
 
-    segments: Tuple[Segment, ...]  # Tuple for immutability and hashing
+    segments: tuple[Segment, ...]  # Tuple for immutability and hashing
     width: float  # Trace width in mm
     clearance: float  # Clearance around trace in mm
     net: str  # Net name
@@ -76,7 +76,7 @@ class Grid:
     height: int  # Grid height in cells
     layers: int  # Number of routing layers
     occupancy: jnp.ndarray = field(default=None, compare=False)
-    path_map: Dict[Tuple[int, int, int], str] = field(default_factory=dict)
+    path_map: dict[tuple[int, int, int], str] = field(default_factory=dict)
 
     def __init__(self, width, height, layers, occupancy=None, path_map=None):
         object.__setattr__(self, "width", width)
@@ -116,7 +116,7 @@ class PathResult:
     """Result of pathfinding operation."""
 
     success: bool
-    path: List[GridCell]
+    path: list[GridCell]
     cost: float = 0.0
 
     def __init__(self, success, path, cost=0.0):
@@ -130,7 +130,7 @@ class ShoveResult:
     """Result of shove operation."""
 
     success: bool
-    paths: List[Path]
+    paths: list[Path]
     iterations: int = 0
 
     def __init__(self, success, paths, iterations=0):
@@ -144,12 +144,12 @@ class ShoveResult:
 # =============================================================================
 
 
-def get_cell(grid: Grid, pos: Tuple[int, int], layer: int = 0) -> GridCell:
+def get_cell(grid: Grid, pos: tuple[int, int], layer: int = 0) -> GridCell:
     """Get grid cell at position (pure function)."""
     return GridCell(pos[0], pos[1], layer)
 
 
-def is_occupied(grid: Grid, pos: Tuple[int, int], layer: int = 0) -> bool:
+def is_occupied(grid: Grid, pos: tuple[int, int], layer: int = 0) -> bool:
     """Check if cell is occupied (pure function)."""
     x, y = pos
 
@@ -160,7 +160,7 @@ def is_occupied(grid: Grid, pos: Tuple[int, int], layer: int = 0) -> bool:
     return int(grid.occupancy[x, y, layer]) != 0
 
 
-def get_neighbors(grid: Grid, cell: GridCell, allow_layer_change: bool = True) -> List[GridCell]:
+def get_neighbors(grid: Grid, cell: GridCell, allow_layer_change: bool = True) -> list[GridCell]:
     """Get valid neighbor cells (pure function)."""
     neighbors = []
 
@@ -209,9 +209,9 @@ def find_path(
     # Priority queue: (f_score, counter, current, g_score)
     counter = 0
     open_set = [(0.0, counter, start, 0.0)]
-    closed_set: Set[GridCell] = set()
-    came_from: Dict[GridCell, GridCell] = {}
-    g_score: Dict[GridCell, float] = {start: 0.0}
+    closed_set: set[GridCell] = set()
+    came_from: dict[GridCell, GridCell] = {}
+    g_score: dict[GridCell, float] = {start: 0.0}
 
     while open_set:
         _, _, current, current_g = heappop(open_set)
@@ -257,7 +257,7 @@ def find_path(
 # =============================================================================
 
 
-def segment_sdf(point: Tuple[float, float], seg: Segment, radius: float) -> float:
+def segment_sdf(point: tuple[float, float], seg: Segment, radius: float) -> float:
     """
     Signed distance from point to line segment with radius.
 
@@ -298,7 +298,7 @@ def segment_sdf(point: Tuple[float, float], seg: Segment, radius: float) -> floa
     return dist - radius
 
 
-def to_sdf(path: Path) -> Callable[[Tuple[float, float]], float]:
+def to_sdf(path: Path) -> Callable[[tuple[float, float]], float]:
     """
     Convert path to signed distance function.
 
@@ -307,7 +307,7 @@ def to_sdf(path: Path) -> Callable[[Tuple[float, float]], float]:
     # Total radius = width/2 + clearance/2
     radius = (path.width + path.clearance) / 2.0
 
-    def sdf_func(point: Tuple[float, float]) -> float:
+    def sdf_func(point: tuple[float, float]) -> float:
         """SDF function for this path."""
         # Union of all segments (min distance)
         min_dist = float("inf")
@@ -373,7 +373,7 @@ def detect_collision(path1: Path, path2: Path, num_samples: int = 21) -> bool:
 # =============================================================================
 
 
-def push_path(path: Path, direction: Tuple[float, float], distance: float) -> Path:
+def push_path(path: Path, direction: tuple[float, float], distance: float) -> Path:
     """
     Push path in direction by distance (returns new Path).
 
@@ -400,7 +400,7 @@ def push_path(path: Path, direction: Tuple[float, float], distance: float) -> Pa
     )
 
 
-def compute_push_direction(path: Path, new_path: Path) -> Tuple[float, float]:
+def compute_push_direction(path: Path, new_path: Path) -> tuple[float, float]:
     """
     Compute direction to push path away from new_path.
 
@@ -430,9 +430,9 @@ def compute_push_direction(path: Path, new_path: Path) -> Tuple[float, float]:
 
 
 def shove_paths(
-    existing_paths: List[Path],
+    existing_paths: list[Path],
     new_path: Path,
-    board_bounds: Optional[Tuple[float, float]] = None,
+    board_bounds: tuple[float, float] | None = None,
     max_iterations: int = 10,
 ) -> ShoveResult:
     """
@@ -510,7 +510,7 @@ def shove_paths(
 
 
 def grid_from_paths(
-    width: int, height: int, layers: int, paths: List[Path], cell_size: float = 1.0
+    width: int, height: int, layers: int, paths: list[Path], cell_size: float = 1.0
 ) -> Grid:
     """
     Create grid from existing paths.

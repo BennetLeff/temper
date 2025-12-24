@@ -1,8 +1,8 @@
 import numpy as np
-import pytest
+
 from temper_placer.core.board import Board, LayerStackup
 from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.heuristics.base import PlacementConstraints, PlacementContext, ComponentPlacement
+from temper_placer.heuristics.base import ComponentPlacement, PlacementConstraints, PlacementContext
 from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
 
 
@@ -100,22 +100,22 @@ class TestSpectralHeuristic:
             Net(name="B", pins=[("R3", "1"), ("R4", "1")]),
         ]
         netlist = Netlist(components=components, nets=nets)
-        board = Board(width=100, height=100, origin=(0, 0), zones=[], ground_domains=[], 
+        board = Board(width=100, height=100, origin=(0, 0), zones=[], ground_domains=[],
                       layer_stackup=LayerStackup.default_4layer())
-        
+
         from temper_placer.io.config_loader import PlacementConstraints
         constraints = PlacementConstraints(board_margin_mm=5.0)
         context = PlacementContext(netlist=netlist, board=board, constraints=constraints)
-        
+
         heuristic = SpectralPlacementHeuristic()
         result = heuristic.apply(context)
-        
+
         assert result.success is True
         assert len(result.placements) == 4
-        
+
         pos1 = result.placements["R1"].position
         pos3 = result.placements["R3"].position
-        
+
         dist = ((pos1[0] - pos3[0])**2 + (pos1[1] - pos3[1])**2)**0.5
         # If they are stacked at origin or center, dist might be 0.
         assert dist > 1.0, f"Disconnected components stacked at {pos1} and {pos3}"
@@ -139,16 +139,16 @@ class TestSpectralHeuristic:
         board = Board(width=100, height=100)
         from temper_placer.io.config_loader import PlacementConstraints
         context = PlacementContext(netlist=netlist, board=board, constraints=PlacementConstraints())
-        
+
         heuristic = SpectralPlacementHeuristic()
         result = heuristic.apply(context)
-        
+
         # Check that Cluster A and Cluster B are far apart
         # Mean of A
         pos_a = np.mean([result.placements[f"U{i}"].position for i in range(1, 4)], axis=0)
         # Mean of B
         pos_b = np.mean([result.placements[f"U{i}"].position for i in range(4, 7)], axis=0)
-        
+
         dist = np.linalg.norm(pos_a - pos_b)
         # They should be significantly separated on the 100x100 board
         assert dist > 20.0, f"Clusters not well separated: dist={dist}"

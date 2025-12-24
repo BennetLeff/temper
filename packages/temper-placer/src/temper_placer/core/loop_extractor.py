@@ -21,7 +21,6 @@ Example usage:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from .loop import (
     Loop,
@@ -31,7 +30,7 @@ from .loop import (
     LoopPriority,
     LoopType,
 )
-from .netlist import Component, Net, Netlist, Pin
+from .netlist import Component, Netlist
 
 
 @dataclass

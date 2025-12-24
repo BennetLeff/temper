@@ -1,6 +1,7 @@
-import click
 import json
-from pathlib import Path
+
+import click
+
 
 @click.group()
 def trace():
@@ -14,13 +15,13 @@ def why(trace_file: str, subject: str):
     """Explain why a decision was made for a component or net."""
     with open(trace_file) as f:
         data = json.load(f)
-        
+
     decisions = [d for d in data.get("decisions", []) if d.get("subject") == subject]
-    
+
     if not decisions:
         click.echo(f"No decisions found for {subject}")
         return
-        
+
     click.echo(f"Decisions for {subject}:")
     for d in decisions:
         click.echo(f"- [{d['phase']}] {d['decision_type']}: {d['value']}")
@@ -36,9 +37,9 @@ def why_not(trace_file: str, subject: str, value: str):
     """Explain why a particular value wasn't chosen for a subject."""
     with open(trace_file) as f:
         data = json.load(f)
-        
+
     decisions = [d for d in data.get("decisions", []) if d.get("subject") == subject]
-    
+
     for d in decisions:
         for alt in d.get("alternatives_considered", []):
             if str(alt.get("value")) == value:
@@ -47,7 +48,7 @@ def why_not(trace_file: str, subject: str, value: str):
                 if alt.get('constraint_violated'):
                     click.echo(f"Constraint Violated: {alt['constraint_violated']}")
                 return
-                
+
     click.echo(f"Value {value} was not explicitly considered as an alternative for {subject}")
 
 @trace.command()
@@ -55,13 +56,14 @@ def why_not(trace_file: str, subject: str, value: str):
 @click.option("--output", "-o", type=click.Path(), help="Output Markdown file")
 def report(trace_file: str, output: str):
     """Generate a Markdown report from a decision trace."""
-    from temper_placer.core.decision import DecisionTrace, Decision, Alternative
-    from temper_placer.pipeline.explainability import generate_markdown_report
     from datetime import datetime
-    
+
+    from temper_placer.core.decision import Alternative, Decision, DecisionTrace
+    from temper_placer.pipeline.explainability import generate_markdown_report
+
     with open(trace_file) as f:
         data = json.load(f)
-        
+
     # Reconstruct objects for report generator
     trace = DecisionTrace(
         run_id=data["run_id"],
@@ -69,7 +71,7 @@ def report(trace_file: str, output: str):
         end_time=datetime.fromisoformat(data["end_time"]) if data.get("end_time") else None,
         final_metrics=data.get("final_metrics", {})
     )
-    
+
     for d_data in data.get("decisions", []):
         decision = Decision(
             id=d_data["id"],
@@ -90,9 +92,9 @@ def report(trace_file: str, output: str):
             ]
         )
         trace.add_decision(decision)
-        
+
     report_text = generate_markdown_report(trace)
-    
+
     if output:
         with open(output, 'w') as f:
             f.write(report_text)

@@ -5,7 +5,7 @@ This module provides TypeAliases for common physical units used in the project,
 specifically targeting the ambiguity between degrees and radians for rotations.
 """
 
-from typing import Annotated, TypeAlias, NewType
+from typing import NewType, TypeAlias
 
 import jax.numpy as jnp
 from jax import Array

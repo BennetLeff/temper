@@ -12,13 +12,11 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import plotly.graph_objects as go
 
 from temper_placer.visualization.board_renderer import render_board
 from temper_placer.visualization.model import (
     BoardView,
     ComponentView,
-    LossHistory,
     Point,
 )
 
@@ -61,7 +59,7 @@ def render_progression_html(
             continue
 
         epochs.append(epoch)
-        
+
         # Convert rotations if needed (N, 4) -> (N,) degrees
         rot_array = np.array(rotations)
         if len(rot_array.shape) == 2 and rot_array.shape[1] == 4:
@@ -101,11 +99,11 @@ def render_progression_html(
     # (Plotly animation with shapes is complex because shapes aren't natively animatable via 'frames')
     # We'll use a more robust approach: re-creating the entire figure layout for each frame
     # and using Plotly's slider to switch between them.
-    
+
     # Actually, easier to use Plotly's native animation if we use Scatter markers for components
-    # But we use shapes for rectangles. 
-    
+    # But we use shapes for rectangles.
+
     # Alternative: Generate a set of figures and wrap in custom HTML with a slider.
     # For now, let's just render the final state and provide a simple animation.
-    
+
     return fig.to_html() # Placeholder for full animation

@@ -1,5 +1,5 @@
-import pytest
 import jax.numpy as jnp
+
 from temper_placer.routing.maze_router import GridCell, MazeRouter
 
 # =============================================================================
@@ -12,7 +12,7 @@ def test_gridcell_equality_reflexive():
     c2 = GridCell(10, 20, 0)
     c3 = GridCell(10, 20, 1)
     c4 = GridCell(11, 20, 0)
-    
+
     assert c1 == c2
     assert c1 != c3
     assert c1 != c4
@@ -22,10 +22,10 @@ def test_gridcell_hash_consistency():
     """Verify GridCell hashing."""
     c1 = GridCell(10, 20, 0)
     c2 = GridCell(10, 20, 0)
-    
+
     # Same cells must have same hash
     assert hash(c1) == hash(c2)
-    
+
     # Store in set
     s = {c1, c2}
     assert len(s) == 1
@@ -35,11 +35,11 @@ def test_neighbors_returns_exactly_4_cardinal():
     # Note: _get_neighbors is an internal method of MazeRouter
     router = MazeRouter(grid_size=(10, 10))
     cell = GridCell(5, 5, 0)
-    
+
     # On a single layer, empty grid, should have 4 neighbors
     neighbors = router._get_neighbors(cell)
     assert len(neighbors) == 4
-    
+
     # Check coords
     coords = {(n.x, n.y) for n in neighbors}
     assert coords == {(5, 6), (5, 4), (6, 5), (4, 5)}
@@ -48,11 +48,11 @@ def test_neighbors_with_layers():
     """Verify neighbors including layer transitions."""
     router = MazeRouter(grid_size=(10, 10), num_layers=2)
     cell = GridCell(5, 5, 0)
-    
+
     # allow_layer_change=True should add layer 1 neighbor
     neighbors = router._get_neighbors(cell, allow_layer_change=True)
     assert len(neighbors) == 5 # 4 cardinal + 1 via
-    
+
     layers = {n.layer for n in neighbors}
     assert 0 in layers
     assert 1 in layers
@@ -66,7 +66,7 @@ def test_straight_line_horizontal():
     router = MazeRouter(grid_size=(3, 3))
     start = (0, 1)
     end = (2, 1)
-    
+
     path = router.find_path(start, end)
     assert path is not None
     assert len(path) == 3
@@ -79,7 +79,7 @@ def test_straight_line_vertical():
     router = MazeRouter(grid_size=(3, 3))
     start = (1, 0)
     end = (1, 2)
-    
+
     path = router.find_path(start, end)
     assert path is not None
     assert len(path) == 3
@@ -92,7 +92,7 @@ def test_diagonal_manhattan():
     router = MazeRouter(grid_size=(3, 3))
     start = (0, 0)
     end = (2, 2)
-    
+
     path = router.find_path(start, end)
     assert path is not None
     # Manhattan distance 2+2=4, so path length is 5 cells (inclusive)
@@ -103,7 +103,7 @@ def test_same_start_goal():
     router = MazeRouter(grid_size=(3, 3))
     start = (1, 1)
     end = (1, 1)
-    
+
     path = router.find_path(start, end)
     assert path is not None
     assert len(path) == 1
@@ -118,10 +118,10 @@ def test_obstacle_forces_one_step_detour():
     router = MazeRouter(grid_size=(5, 5))
     start = (0, 2)
     end = (4, 2)
-    
+
     # Block (2, 2) which is on the straight line
     router.occupancy = router.occupancy.at[2, 2, 0].set(1)
-    
+
     path = router.find_path(start, end)
     assert path is not None
     # Straight path would be (0,2)-(1,2)-(2,2)-(3,2)-(4,2) - 5 cells
@@ -137,10 +137,10 @@ def test_obstacle_blocks_only_path_returns_none():
     router = MazeRouter(grid_size=(3, 3))
     start = (0, 1)
     end = (2, 1)
-    
+
     # Block entire column 1
     router.occupancy = router.occupancy.at[1, :, 0].set(1)
-    
+
     path = router.find_path(start, end)
     assert path is None
 
@@ -149,7 +149,7 @@ def test_obstacle_at_start_returns_none():
     router = MazeRouter(grid_size=(3, 3))
     start = (1, 1)
     end = (2, 2)
-    
+
     router.occupancy = router.occupancy.at[1, 1, 0].set(1)
     path = router.find_path(start, end)
     assert path is None
@@ -164,7 +164,7 @@ def test_obstacle_at_goal_returns_none():
 
     end = (1, 1)
 
-    
+
 
     router.occupancy = router.occupancy.at[1, 1, 0].set(1)
 
@@ -186,11 +186,10 @@ def test_pin_escapes_perpendicular():
 
     """Verify that a pin on component edge escapes perpendicularly."""
 
+
     from temper_placer.core.netlist import Component, Pin
 
-    from jax import Array
 
-    
 
     # 10x10 board, 1mm cells
 
@@ -204,7 +203,7 @@ def test_pin_escapes_perpendicular():
 
     ])
 
-    
+
 
     # Block component
 
@@ -212,7 +211,7 @@ def test_pin_escapes_perpendicular():
 
     router.block_components([comp], positions, margin=0.0, escape_length=3)
 
-    
+
 
     # Pin is at (7, 5)
 
@@ -226,7 +225,7 @@ def test_pin_escapes_perpendicular():
 
     assert int(router.occupancy[9, 5, 0]) == 0
 
-    
+
 
     # Check that a cell deep inside component is still blocked
 
@@ -240,7 +239,7 @@ def test_corner_pin_escapes():
 
     from temper_placer.core.netlist import Component, Pin
 
-    
+
 
     router = MazeRouter(grid_size=(10, 10))
 
@@ -250,7 +249,7 @@ def test_corner_pin_escapes():
 
     ])
 
-    
+
 
     positions = jnp.array([[5.0, 5.0]])
 
@@ -260,7 +259,7 @@ def test_corner_pin_escapes():
 
     router.block_components([comp], positions, margin=0.0, escape_length=2)
 
-    
+
 
     # Direction: outward from center. dx=2, dy=2. Primary is vertical (abs(dx)==abs(dy))
 
@@ -279,16 +278,16 @@ def test_corner_pin_escapes():
 def test_two_parallel_nets_both_succeed():
     """Verify that two parallel nets can both be routed."""
     from temper_placer.routing.layer_assignment import Layer, LayerAssignment
-    
+
     router = MazeRouter(grid_size=(10, 10))
     # Net 1: (1,1) to (8,1)
     # Net 2: (1,3) to (8,3)
-    
+
     assign = LayerAssignment("N1", Layer.L1_TOP, {Layer.L1_TOP})
-    
+
     res1 = router.route_net("N1", [(1.0, 1.0), (8.0, 1.0)], assign)
     res2 = router.route_net("N2", [(1.0, 3.0), (8.0, 3.0)], assign)
-    
+
     assert res1.success
     assert res2.success
     # Check that paths don't overlap
@@ -299,19 +298,19 @@ def test_two_parallel_nets_both_succeed():
 def test_crossing_nets_one_uses_via():
     """Verify that crossing nets use different layers if available."""
     from temper_placer.routing.layer_assignment import Layer, LayerAssignment
-    
+
     router = MazeRouter(grid_size=(5, 5), num_layers=2)
     # Net 1: (0,2) to (4,2) - horizontal
     # Net 2: (2,0) to (2,4) - vertical, crossing at (2,2)
-    
+
     # N1 restricted to TOP
     assign1 = LayerAssignment("N1", Layer.L1_TOP, {Layer.L1_TOP})
     # N2 allowed to use BOTTOM
     assign2 = LayerAssignment("N2", Layer.L1_TOP, {Layer.L1_TOP, Layer.L4_BOT})
-    
+
     res1 = router.route_net("N1", [(0.0, 2.0), (4.0, 2.0)], assign1)
     res2 = router.route_net("N2", [(2.0, 0.0), (2.0, 4.0)], assign2)
-    
+
     assert res1.success
     assert res2.success
     assert res2.via_count > 0 # Must have used a via to cross N1

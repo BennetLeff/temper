@@ -4,8 +4,6 @@ This module tests the HTML viewer that generates interactive visualizations
 of decision traces for exploration and debugging.
 """
 
-import re
-from datetime import datetime, timedelta
 
 import pytest
 
@@ -25,7 +23,6 @@ from temper_placer.explainability.html_viewer import (
     render_search_panel,
     save_html_report,
 )
-
 
 # =============================================================================
 # Fixtures

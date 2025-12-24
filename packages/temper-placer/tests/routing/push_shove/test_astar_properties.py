@@ -5,11 +5,12 @@ Tests verify A* returns optimal paths, maintains immutability,
 and satisfies pathfinding invariants.
 """
 
-import pytest
-from hypothesis import given, strategies as st, assume
 import jax.numpy as jnp
+import pytest
+from hypothesis import assume, given
+from hypothesis import strategies as st
 
-from temper_placer.routing.push_shove import Grid, GridCell, find_path, PathResult
+from temper_placer.routing.push_shove import Grid, GridCell, find_path
 
 
 def get_empty_grid():
@@ -33,12 +34,12 @@ class TestPathfindingOptimality:
         grid = get_empty_grid()
         start = GridCell(0, 0, 0)
         end = GridCell(10, 0, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         assert result.success, "Should find path"
         assert len(result.path) == 11, "Path should be 11 cells (0-10 inclusive)"
-        
+
         # Verify path is straight
         for i, cell in enumerate(result.path):
             assert cell.x == i, "Path should be straight horizontal"
@@ -49,11 +50,11 @@ class TestPathfindingOptimality:
         grid = get_grid_with_wall()
         start = GridCell(5, 10, 0)
         end = GridCell(15, 10, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         assert result.success, "Should find path around wall"
-        
+
         # Optimal path goes around wall (up or down)
         # Distance: 5 (to wall) + detour (up/down) + 5 (from wall) + detour back
         # Minimum detour = 2 cells (one up/down, one back)
@@ -66,12 +67,12 @@ class TestPathfindingOptimality:
         grid = get_grid_with_wall()
         for y in range(0, 20):
             grid = grid.with_obstacle(GridCell(10, y, 0))
-        
+
         start = GridCell(5, 10, 0)
         end = GridCell(15, 10, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         assert not result.success, "Should fail when no path exists"
         assert result.path == [], "Failed path should be empty"
 
@@ -84,13 +85,13 @@ class TestPathfindingOptimality:
     def test_path_length_is_minimal(self, start_x, start_y, end_x, end_y):
         """Property: Path length should be minimal (Manhattan distance)."""
         assume(start_x != end_x or start_y != end_y)  # Not same cell
-        
+
         grid = get_empty_grid()
         start = GridCell(start_x, start_y, 0)
         end = GridCell(end_x, end_y, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         if result.success:
             manhattan = abs(end_x - start_x) + abs(end_y - start_y)
             # Path length should be manhattan + 1 (inclusive of both endpoints)
@@ -112,9 +113,9 @@ class TestPathfindingInvariants:
         grid = get_empty_grid()
         start = GridCell(start_x, start_y, 0)
         end = GridCell(end_x, end_y, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         if result.success:
             assert result.path[0] == start, "Path should start at start cell"
             assert result.path[-1] == end, "Path should end at end cell"
@@ -130,14 +131,14 @@ class TestPathfindingInvariants:
         grid = get_empty_grid()
         start = GridCell(start_x, start_y, 0)
         end = GridCell(end_x, end_y, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         if result.success and len(result.path) > 1:
             for i in range(len(result.path) - 1):
                 curr = result.path[i]
                 next_cell = result.path[i + 1]
-                
+
                 # Cells should be adjacent (Manhattan distance = 1)
                 manhattan = abs(next_cell.x - curr.x) + abs(next_cell.y - curr.y)
                 assert manhattan == 1, \
@@ -154,9 +155,9 @@ class TestPathfindingInvariants:
         grid = get_empty_grid()
         start = GridCell(start_x, start_y, 0)
         end = GridCell(end_x, end_y, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         if result.success:
             visited = set()
             for cell in result.path:
@@ -168,9 +169,9 @@ class TestPathfindingInvariants:
         grid = get_grid_with_wall()
         start = GridCell(5, 10, 0)
         end = GridCell(15, 10, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         if result.success:
             for cell in result.path:
                 from temper_placer.routing.push_shove import is_occupied
@@ -185,12 +186,12 @@ class TestPathfindingImmutability:
         """find_path should not modify input grid."""
         grid = get_empty_grid()
         original_state = grid.occupancy.copy()
-        
+
         start = GridCell(0, 0, 0)
         end = GridCell(10, 10, 0)
-        
+
         _ = find_path(grid, start, end)
-        
+
         assert jnp.array_equal(grid.occupancy, original_state), \
             "find_path should not modify grid"
 
@@ -199,9 +200,9 @@ class TestPathfindingImmutability:
         grid = get_empty_grid()
         start = GridCell(0, 0, 0)
         end = GridCell(10, 0, 0)
-        
+
         result = find_path(grid, start, end)
-        
+
         from dataclasses import FrozenInstanceError
         with pytest.raises(FrozenInstanceError):
             result.success = False
@@ -211,10 +212,10 @@ class TestPathfindingImmutability:
         grid = get_empty_grid()
         start1, end1 = GridCell(0, 0, 0), GridCell(5, 0, 0)
         start2, end2 = GridCell(0, 10, 0), GridCell(5, 10, 0)
-        
+
         result1 = find_path(grid, start1, end1)
         result2 = find_path(grid, start2, end2)
-        
+
         # Both should succeed independently
         assert result1.success and result2.success
         assert result1.path != result2.path, "Paths should be different"
@@ -226,18 +227,18 @@ class TestPathfindingWithVias:
     def test_via_when_blocked_on_layer(self):
         """Should use via when path blocked on current layer."""
         grid = Grid(width=20, height=20, layers=2)
-        
+
         # Block horizontal path on layer 0 completely from top to bottom
         for y in range(0, 20):
             grid = grid.with_obstacle(GridCell(10, y, 0))
-        
+
         start = GridCell(0, 10, 0)
         end = GridCell(19, 10, 0)
-        
+
         result = find_path(grid, start, end, allow_layer_change=True)
-        
+
         assert result.success, "Should find path using via"
-        
+
         # Path should include layer change
         layers_used = {cell.layer for cell in result.path}
         assert len(layers_used) > 1, "Path should use multiple layers"
@@ -245,21 +246,21 @@ class TestPathfindingWithVias:
     def test_via_count_is_minimal(self):
         """Should minimize number of vias."""
         grid = Grid(width=20, height=20, layers=2)
-        
+
         # Small obstacle requiring one via
         grid = grid.with_obstacle(GridCell(10, 10, 0))
-        
+
         start = GridCell(5, 10, 0)
         end = GridCell(15, 10, 0)
-        
+
         result = find_path(grid, start, end, allow_layer_change=True)
-        
+
         if result.success:
             # Count layer changes
             vias = 0
             for i in range(len(result.path) - 1):
                 if result.path[i].layer != result.path[i + 1].layer:
                     vias += 1
-            
+
             # Should use minimal vias (2 for one obstacle: down and back up)
             assert vias <= 4, f"Should use minimal vias, got {vias}"

@@ -17,19 +17,19 @@ Usage:
         assert False, "Path not found"
 """
 
-from typing import Optional, List, Tuple, Set
-import jax.numpy as jnp
+
+
 from temper_placer.routing.maze_router import GridCell, MazeRouter
 
 
 def render_grid(
     router: MazeRouter,
-    path: Optional[List[GridCell]] = None,
-    start: Optional[Tuple[int, int]] = None,
-    end: Optional[Tuple[int, int]] = None,
+    path: list[GridCell] | None = None,
+    start: tuple[int, int] | None = None,
+    end: tuple[int, int] | None = None,
     layer: int = 0,
-    pins: Optional[Set[Tuple[int, int]]] = None,
-    components: Optional[Set[Tuple[int, int]]] = None,
+    pins: set[tuple[int, int]] | None = None,
+    components: set[tuple[int, int]] | None = None,
     max_size: int = 40,
 ) -> str:
     """
@@ -59,21 +59,21 @@ def render_grid(
         ASCII art string representation of the grid
     """
     width, height = router.grid_size
-    
+
     # Safety check
     if width > max_size or height > max_size:
         return f"Grid too large to render ({width}x{height} > {max_size}x{max_size})"
-    
+
     # Convert path to set of coordinates for fast lookup
     path_coords = set()
     if path:
         path_coords = {(cell.x, cell.y) for cell in path if cell.layer == layer}
-    
+
     # Build grid
     lines = []
     lines.append(f"Grid {width}x{height}, Layer {layer}")
     lines.append("  " + "".join(str(x % 10) for x in range(width)))
-    
+
     for y in range(height):
         row = f"{y:2d}"
         for x in range(width):
@@ -93,19 +93,19 @@ def render_grid(
             else:
                 row += "."
         lines.append(row)
-    
+
     # Add legend
     lines.append("")
     lines.append("Legend: . = free, # = blocked, P = pin, C = component, * = path, S = start, E = end")
-    
+
     return "\n".join(lines)
 
 
 def render_multi_layer(
     router: MazeRouter,
-    path: Optional[List[GridCell]] = None,
-    start: Optional[Tuple[int, int]] = None,
-    end: Optional[Tuple[int, int]] = None,
+    path: list[GridCell] | None = None,
+    start: tuple[int, int] | None = None,
+    end: tuple[int, int] | None = None,
     max_size: int = 40,
 ) -> str:
     """
@@ -123,15 +123,15 @@ def render_multi_layer(
     """
     width, height = router.grid_size
     num_layers = router.occupancy.shape[2]
-    
+
     if width > max_size or height > max_size:
         return f"Grid too large to render ({width}x{height} > {max_size}x{max_size})"
-    
+
     # Render each layer
     layer_renders = []
     for layer in range(num_layers):
         layer_renders.append(render_grid(router, path, start, end, layer=layer, max_size=max_size))
-    
+
     # Show via transitions if path exists
     via_info = []
     if path:
@@ -139,20 +139,20 @@ def render_multi_layer(
             next_cell = path[i + 1]
             if cell.layer != next_cell.layer:
                 via_info.append(f"  Via at ({cell.x}, {cell.y}): L{cell.layer} → L{next_cell.layer}")
-    
+
     result = "\n\n".join(layer_renders)
-    
+
     if via_info:
         result += "\n\nVia Transitions:\n" + "\n".join(via_info)
-    
+
     return result
 
 
 def print_grid_on_failure(
     router: MazeRouter,
-    path: Optional[List[GridCell]],
-    start: Tuple[int, int],
-    end: Tuple[int, int],
+    path: list[GridCell] | None,
+    start: tuple[int, int],
+    end: tuple[int, int],
     expected_success: bool = True,
 ) -> None:
     """
@@ -176,21 +176,21 @@ def print_grid_on_failure(
     print("=" * 60)
     print(f"Start: {start}, End: {end}")
     print(f"Expected success: {expected_success}, Got: {path is not None}")
-    
+
     if router.occupancy.shape[2] > 1:
         print(render_multi_layer(router, path, start, end))
     else:
         print(render_grid(router, path, start, end))
-    
+
     print("=" * 60)
 
 
 def render_path_comparison(
     router: MazeRouter,
-    actual_path: Optional[List[GridCell]],
-    expected_path: Optional[List[GridCell]],
-    start: Tuple[int, int],
-    end: Tuple[int, int],
+    actual_path: list[GridCell] | None,
+    expected_path: list[GridCell] | None,
+    start: tuple[int, int],
+    end: tuple[int, int],
 ) -> str:
     """
     Render two paths side-by-side for comparison.
@@ -206,23 +206,23 @@ def render_path_comparison(
         Side-by-side comparison string
     """
     width, height = router.grid_size
-    
+
     # Convert paths to coordinate sets
     actual_coords = set()
     if actual_path:
         actual_coords = {(cell.x, cell.y) for cell in actual_path}
-    
+
     expected_coords = set()
     if expected_path:
         expected_coords = {(cell.x, cell.y) for cell in expected_path}
-    
+
     # Build comparison grid
     lines = []
     lines.append(f"Path Comparison - Grid {width}x{height}")
     lines.append("Legend: . = free, # = blocked, A = actual only, E = expected only, B = both, S = start, G = end")
     lines.append("")
     lines.append("  " + "".join(str(x % 10) for x in range(width)))
-    
+
     for y in range(height):
         row = f"{y:2d}"
         for x in range(width):
@@ -241,7 +241,7 @@ def render_path_comparison(
             else:
                 row += "."
         lines.append(row)
-    
+
     # Add path length comparison
     lines.append("")
     actual_len = len(actual_path) if actual_path else 0
@@ -251,5 +251,5 @@ def render_path_comparison(
     if actual_len and expected_len:
         diff = actual_len - expected_len
         lines.append(f"Difference: {diff:+d} cells")
-    
+
     return "\n".join(lines)

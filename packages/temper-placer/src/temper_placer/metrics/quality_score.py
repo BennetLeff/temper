@@ -8,7 +8,6 @@ of different placements.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from temper_placer.routing.verifier import VerificationResult
 from temper_placer.validation.drc_runner import DrcResult
@@ -22,14 +21,14 @@ class QualityInputs:
     drc_violations: int = 0
     overlap_loss: float = 0.0
     boundary_loss: float = 0.0
-    
+
     # Routing (optional)
     routing_completion_pct: float = 100.0
-    
+
     # Efficiency
     hpwl_mm: float = 0.0
-    hpwl_target_mm: Optional[float] = None
-    
+    hpwl_target_mm: float | None = None
+
     # Safety/compliance
     hv_clearance_ok: bool = True
     thermal_compliance: bool = True

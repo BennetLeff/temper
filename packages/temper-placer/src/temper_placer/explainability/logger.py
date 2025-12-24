@@ -23,8 +23,9 @@ Example:
 from __future__ import annotations
 
 import math
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING
 
 from temper_placer.explainability.decision import (
     Alternative,

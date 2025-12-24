@@ -5,22 +5,20 @@ Detects impossible constraint combinations, invalid references,
 and other issues before optimization.
 """
 
-from dataclasses import dataclass, field
-from typing import Any
 import math
+from dataclasses import dataclass, field
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
     AnchoredConstraint,
     BaseConstraint,
     EnclosingConstraint,
-    LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
 )
-from temper_placer.core.netlist import Netlist
-from temper_placer.core.board import Board
 
 
 @dataclass
@@ -105,9 +103,7 @@ def _check_invalid_refs(
     """Check for invalid component or zone references in a constraint."""
     refs_to_check: list[str] = []
 
-    if isinstance(constraint, AdjacentConstraint):
-        refs_to_check = [constraint.a, constraint.b]
-    elif isinstance(constraint, SeparatedConstraint):
+    if isinstance(constraint, AdjacentConstraint) or isinstance(constraint, SeparatedConstraint):
         refs_to_check = [constraint.a, constraint.b]
     elif isinstance(constraint, EnclosingConstraint):
         # outer must be a zone
@@ -119,9 +115,7 @@ def _check_invalid_refs(
                 )
             )
         refs_to_check = constraint.inner
-    elif isinstance(constraint, AlignedConstraint):
-        refs_to_check = constraint.components
-    elif isinstance(constraint, OnSideConstraint):
+    elif isinstance(constraint, AlignedConstraint) or isinstance(constraint, OnSideConstraint):
         refs_to_check = constraint.components
     elif isinstance(constraint, AnchoredConstraint):
         refs_to_check = [constraint.component]

@@ -9,7 +9,6 @@ import pytest
 
 from temper_placer.core.loop import (
     Loop,
-    LoopCollection,
     LoopPriority,
     LoopType,
 )

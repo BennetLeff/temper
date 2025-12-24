@@ -1,11 +1,10 @@
 """Tests for constraint propagation solver."""
 
-import pytest
-from temper_placer.topological.propagation import (
-    DistanceBound,
-    ConstraintPropagator,
-)
 from temper_placer.topological.graph import TopologicalGraph
+from temper_placer.topological.propagation import (
+    ConstraintPropagator,
+    DistanceBound,
+)
 
 
 class TestDistanceBound:

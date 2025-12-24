@@ -1,17 +1,18 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 
 import json
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any
+
 
 @dataclass
 class Alternative:
     """A rejected alternative for a decision."""
     value: Any
     rejection_reason: str
-    constraint_violated: Optional[str] = None
-    loss_if_chosen: Optional[float] = None
+    constraint_violated: str | None = None
+    loss_if_chosen: float | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -30,14 +31,14 @@ class Decision:
     timestamp: datetime = field(default_factory=datetime.now)
     phase: str = "geometric" # 'topological', 'geometric', 'routing'
     decision_type: str = "placement" # 'placement', 'rotation', 'layer', etc.
-    
+
     # Why
     reason: str = ""
-    constraint_refs: List[str] = field(default_factory=list)
+    constraint_refs: list[str] = field(default_factory=list)
     loss_contribution: float = 0.0
-    
+
     # Alternatives
-    alternatives_considered: List[Alternative] = field(default_factory=list)
+    alternatives_considered: list[Alternative] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -58,30 +59,30 @@ class DecisionTrace:
     """Complete audit trail for a placement/routing run."""
     run_id: str
     start_time: datetime = field(default_factory=datetime.now)
-    end_time: Optional[datetime] = None
-    decisions: List[Decision] = field(default_factory=list)
-    final_metrics: Dict[str, float] = field(default_factory=dict)
-    
+    end_time: datetime | None = None
+    decisions: list[Decision] = field(default_factory=list)
+    final_metrics: dict[str, float] = field(default_factory=dict)
+
     def add_decision(self, decision: Decision) -> None:
         """Add a decision to the trace."""
         self.decisions.append(decision)
-        
-    def query(self, subject: str) -> List[Decision]:
+
+    def query(self, subject: str) -> list[Decision]:
         """Get all decisions about a subject."""
         return [d for d in self.decisions if d.subject == subject]
-    
+
     def why_not(self, subject: str, value: Any) -> str:
         """Explain why a particular value wasn't chosen."""
         # Search for subject decisions
         subject_decisions = self.query(subject)
         if not subject_decisions:
             return f"No decisions found for {subject}"
-            
+
         for d in subject_decisions:
             for alt in d.alternatives_considered:
                 if alt.value == value:
                     return f"Rejected because: {alt.rejection_reason}"
-                    
+
         return f"Value {value} was not explicitly considered as an alternative for {subject}"
 
     def to_dict(self) -> dict:

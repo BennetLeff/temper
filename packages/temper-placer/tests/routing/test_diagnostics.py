@@ -15,7 +15,6 @@ import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -92,7 +91,7 @@ class TestRoutingDiagnostic:
 
     def test_diagnostic_creation(self):
         """Should create a valid diagnostic."""
-        from temper_placer.routing.diagnostics import RoutingDiagnostic, FailureType
+        from temper_placer.routing.diagnostics import FailureType, RoutingDiagnostic
 
         diag = RoutingDiagnostic(
             net="NET_A",
@@ -114,7 +113,7 @@ class TestRoutingDiagnostic:
 
     def test_diagnostic_severity_levels(self):
         """Severity should be critical, warning, or info."""
-        from temper_placer.routing.diagnostics import RoutingDiagnostic, FailureType
+        from temper_placer.routing.diagnostics import FailureType, RoutingDiagnostic
 
         for severity in ["critical", "warning", "info"]:
             diag = RoutingDiagnostic(
@@ -191,8 +190,8 @@ class TestDiagnosticGeneration:
     def test_generate_no_path_diagnostic(self):
         """Should generate diagnostic for blocked path."""
         from temper_placer.routing.diagnostics import (
-            generate_no_path_diagnostic,
             FailureType,
+            generate_no_path_diagnostic,
         )
 
         diag = generate_no_path_diagnostic(
@@ -210,8 +209,8 @@ class TestDiagnosticGeneration:
     def test_generate_congestion_diagnostic(self):
         """Should generate diagnostic for congestion."""
         from temper_placer.routing.diagnostics import (
-            generate_congestion_diagnostic,
             FailureType,
+            generate_congestion_diagnostic,
         )
 
         diag = generate_congestion_diagnostic(
@@ -228,8 +227,8 @@ class TestDiagnosticGeneration:
     def test_generate_layer_conflict_diagnostic(self):
         """Should generate diagnostic for layer conflicts."""
         from temper_placer.routing.diagnostics import (
-            generate_layer_conflict_diagnostic,
             FailureType,
+            generate_layer_conflict_diagnostic,
         )
 
         diag = generate_layer_conflict_diagnostic(
@@ -253,8 +252,9 @@ class TestBlockingElementDetection:
 
     def test_find_blocking_components(self, sample_netlist):
         """Should identify components blocking a path."""
-        from temper_placer.routing.diagnostics import find_blocking_components
         import jax.numpy as jnp
+
+        from temper_placer.routing.diagnostics import find_blocking_components
 
         positions = jnp.array(
             [
@@ -276,8 +276,9 @@ class TestBlockingElementDetection:
 
     def test_find_no_blockers_clear_path(self, sample_netlist):
         """Should return empty list when path is clear."""
-        from temper_placer.routing.diagnostics import find_blocking_components
         import jax.numpy as jnp
+
+        from temper_placer.routing.diagnostics import find_blocking_components
 
         # Move C1 out of the way
         positions = jnp.array(
@@ -388,9 +389,9 @@ class TestMarkdownReport:
     def test_generate_markdown_report(self):
         """Should generate a valid markdown report."""
         from temper_placer.routing.diagnostics import (
-            RoutingReport,
-            RoutingDiagnostic,
             FailureType,
+            RoutingDiagnostic,
+            RoutingReport,
             generate_markdown_report,
         )
 

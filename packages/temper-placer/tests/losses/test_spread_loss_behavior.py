@@ -245,10 +245,10 @@ class TestSpreadLossCorrelationHypothesis:
         )
 
         # Document the finding
-        print(f"\nSpread loss behavior:")
+        print("\nSpread loss behavior:")
         print(f"  Clustered placement: spread_loss = {float(initial_loss):.2f}")
         print(f"  Spread placement:    spread_loss = {float(optimized_loss):.2f}")
-        print(f"  Optimizer SUCCESS means LOW spread loss = SPREAD-OUT placement")
+        print("  Optimizer SUCCESS means LOW spread loss = SPREAD-OUT placement")
 
     def test_correlation_interpretation(self):
         """

@@ -1,13 +1,12 @@
 import sys
-import os
 from pathlib import Path
 
 # Add src and tests to path
 sys.path.append(str(Path("src").absolute()))
 sys.path.append(str(Path(".").absolute()))
 
-import jax.numpy as jnp
-import jax
+from tests.fixtures.external import get_pcb_path
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.losses import (
     BoundaryLoss,
@@ -19,8 +18,7 @@ from temper_placer.losses import (
 )
 from temper_placer.optimizer import InitializationConfig, OptimizerConfig, train
 from temper_placer.optimizer.config import LearningRateSchedule
-from temper_placer.visualization import render_board, create_board_view_from_state
-from tests.fixtures.external import get_pcb_path
+from temper_placer.visualization import create_board_view_from_state, render_board
 
 project_name = "piantor_right"
 pcb_path = get_pcb_path(project_name)
@@ -57,4 +55,4 @@ fig.write_html("piantor_right_debug.html")
 
 print(f"Final Loss: {opt_result.final_loss:.4f}")
 print(f"Total Epochs: {opt_result.total_epochs}")
-print(f"Result saved to piantor_right_debug.html")
+print("Result saved to piantor_right_debug.html")

@@ -14,9 +14,8 @@ Example:
       - Via at (23.4, 15.2) to avoid obstacle
 """
 
-from typing import Any
 from temper_placer.explainability.trace import Trace
-from temper_placer.routing.maze_router import MazeRouter, RoutePath, GridCell
+from temper_placer.routing.maze_router import GridCell, MazeRouter
 
 
 def explain_layer_assignment(net_class: str, allowed_layers: list[int]) -> str:
@@ -106,7 +105,7 @@ def route_net_with_trace(
           - Power net can route on signal layers L1, L4
     """
     trace = Trace.empty()
-    
+
     # Layer assignment decision
     if allow_layer_change:
         # In future, get from LayerStackup
@@ -116,10 +115,10 @@ def route_net_with_trace(
             allowed_layers,
             explain_layer_assignment(net_class, allowed_layers)
         )
-    
+
     # Route the path
     path = router.find_path(start, end, layer, allow_layer_change)
-    
+
     if path is None:
         # Routing failed
         trace = trace.add(
@@ -128,7 +127,7 @@ def route_net_with_trace(
             explain_route_failure(net_name, "blocked or unreachable")
         )
         return None, trace
-    
+
     # Analyze path for vias
     via_count = 0
     for i in range(len(path) - 1):
@@ -141,7 +140,7 @@ def route_net_with_trace(
                 via_pos,
                 explain_via(path[i].layer, path[i+1].layer)
             )
-    
+
     # Record successful routing
     if via_count == 0:
         trace = trace.add(
@@ -149,7 +148,7 @@ def route_net_with_trace(
             len(path),
             f"Direct path on L{layer+1} ({len(path)} cells)"
         )
-    
+
     return path, trace
 
 
@@ -179,7 +178,7 @@ def route_all_with_trace(
     """
     routes = {}
     combined_trace = Trace.empty()
-    
+
     for net_name, start, end in net_routes:
         path, trace = route_net_with_trace(
             router, net_name, start, end,
@@ -187,7 +186,7 @@ def route_all_with_trace(
         )
         routes[net_name] = path
         combined_trace = combined_trace + trace  # Monoid composition!
-    
+
     return routes, combined_trace
 
 
@@ -212,25 +211,25 @@ def analyze_route_path(
           - Vias: 2
     """
     trace = Trace.empty()
-    
+
     # Count vias
     via_count = sum(
         1 for i in range(len(path) - 1)
         if path[i].layer != path[i+1].layer
     )
-    
+
     # Record path characteristics
     trace = trace.add(
         net_name,
         len(path),
         f"Path length: {len(path)} cells"
     )
-    
+
     if via_count > 0:
         trace = trace.add(
             net_name,
             via_count,
             f"Used {via_count} via{'s' if via_count > 1 else ''}"
         )
-    
+
     return trace

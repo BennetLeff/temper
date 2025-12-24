@@ -57,7 +57,7 @@ def compute_ground_crossing_penalty(
     # in_domain: (M, P, D)
     # (M, P, D, 1) * (1, 1, D, 2) -> (M, P, D, 2)
     domain_stars = jnp.sum(in_domain[:, :, :, None] * context.domain_star_points[None, None, :, :], axis=2)  # (M, P, 2)
-    
+
     # B. Net Virtual Nodes (if it's a star net)
     # net_virtual_nodes: (M, 2) if provided
     # we expand to (M, P, 2)

@@ -7,16 +7,16 @@ into KiCad PCB segments and vias using kiutils.
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING
-import uuid
 
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
 
 if TYPE_CHECKING:
-    from temper_placer.routing.maze_router import RoutePath, GridCell
+    from temper_placer.routing.maze_router import RoutePath
 
 
 def write_traces_to_pcb(

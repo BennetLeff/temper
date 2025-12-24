@@ -6,14 +6,13 @@ regardless of specific input values, providing stronger confidence than
 example-based tests alone.
 """
 
-import pytest
-from hypothesis import given, strategies as st, assume, settings
 import jax.numpy as jnp
-from typing import List, Tuple
+from hypothesis import assume, given, settings
+from hypothesis import strategies as st
 
-from temper_placer.routing.maze_router import MazeRouter, GridCell
-from temper_placer.core.netlist import Component, Pin
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Pin
+from temper_placer.routing.maze_router import MazeRouter
 
 
 # Contract decorators for design-by-contract testing
@@ -51,7 +50,7 @@ class TestBlockingMetamorphicProperties:
     def test_larger_margin_blocks_more_cells(self, margin1, margin2):
         """Metamorphic: Larger margin should block >= cells than smaller margin."""
         assume(margin2 > margin1 + 0.1)  # Ensure meaningful difference
-        
+
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         component = Component(
             ref="U1", footprint="TEST",
@@ -59,15 +58,15 @@ class TestBlockingMetamorphicProperties:
             pins=[Pin(name="1", number="1", position=(5.0, 0.0))]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         router1 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router1.block_components([component], positions, margin=margin1)
         blocked1 = jnp.sum(router1.occupancy == 1)
-        
+
         router2 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router2.block_components([component], positions, margin=margin2)
         blocked2 = jnp.sum(router2.occupancy == 1)
-        
+
         assert blocked2 >= blocked1, \
             f"Larger margin {margin2} should block >= cells than {margin1}"
 
@@ -79,26 +78,26 @@ class TestBlockingMetamorphicProperties:
     def test_finer_grid_blocks_more_cells(self, cell_size1, cell_size2):
         """Metamorphic: Finer grid should block more cells for same component."""
         assume(cell_size2 < cell_size1 * 0.8)  # Significantly finer
-        
+
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         router1 = MazeRouter.from_board(board, cell_size_mm=cell_size1, num_layers=2)
         router1.block_components([component], positions, margin=0.5)
         blocked1 = jnp.sum(router1.occupancy == 1)
-        
+
         router2 = MazeRouter.from_board(board, cell_size_mm=cell_size2, num_layers=2)
         router2.block_components([component], positions, margin=0.5)
         blocked2 = jnp.sum(router2.occupancy == 1)
-        
+
         # Finer grid should have more cells blocked (approximately proportional to area ratio)
         ratio = (cell_size1 / cell_size2) ** 2
         assert blocked2 >= blocked1 * 0.8 * ratio, \
-            f"Finer grid should block proportionally more cells"
+            "Finer grid should block proportionally more cells"
 
     @given(
         num_components=st.integers(min_value=1, max_value=5),
@@ -108,22 +107,22 @@ class TestBlockingMetamorphicProperties:
         """Metamorphic: More components should block more cells (non-overlapping)."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(5.0, 5.0), pins=[]
         )
-        
+
         # Place components in non-overlapping grid
         components = [component] * num_components
         positions = jnp.array([
             [20.0 + (i % 3) * 20.0, 20.0 + (i // 3) * 20.0]
             for i in range(num_components)
         ])
-        
+
         router.block_components(components, positions, margin=0.1)
         blocked = jnp.sum(router.occupancy == 1)
-        
+
         # Should be roughly proportional to number of components
         # Each component blocks ~(5+0.2)^2 / 1.0^2 = ~27 cells
         expected_min = num_components * 20  # Conservative estimate
@@ -143,18 +142,18 @@ class TestBlockingMetamorphicProperties:
             pins=[Pin(name="1", number="1", position=(5.0, 0.0))]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         router1 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router1.block_components([component], positions, margin=0.1, escape_length=3)
         blocked1 = jnp.sum(router1.occupancy == 1)
-        
+
         router2 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router2.block_components([component], positions, margin=0.1, escape_length=escape_length)
         blocked2 = jnp.sum(router2.occupancy == 1)
-        
+
         # Longer escape routes should free more cells (or at least not block more)
         assert blocked2 <= blocked1, \
-            f"Longer escape routes should not increase blocked cells"
+            "Longer escape routes should not increase blocked cells"
 
 
 class TestBlockingContractInvariants:
@@ -170,19 +169,19 @@ class TestBlockingContractInvariants:
         """Contract: All cells within component+margin must be blocked."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[cx, cy]])
-        
+
         router.block_components([component], positions, margin=margin)
-        
+
         # Check all cells within component+margin are blocked
         half_w = 5.0 + margin
         half_h = 5.0 + margin
-        
+
         for x in jnp.arange(cx - half_w, cx + half_w, 0.5):
             for y in jnp.arange(cy - half_h, cy + half_h, 0.5):
                 gx, gy = router._world_to_grid(float(x), float(y))
@@ -198,7 +197,7 @@ class TestBlockingContractInvariants:
         """Contract: Pin cells must be free (escape routes)."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0),
@@ -210,15 +209,15 @@ class TestBlockingContractInvariants:
             ]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         router.block_components([component], positions, margin=margin, escape_length=5)
-        
+
         # All pin cells must be free
         for pin in component.pins:
             pin_x = 50.0 + pin.position[0]
             pin_y = 50.0 + pin.position[1]
             gx, gy = router._world_to_grid(pin_x, pin_y)
-            
+
             assert int(router.occupancy[gx, gy, 0]) == 0, \
                 f"Pin {pin.name} cell ({gx}, {gy}) must be free"
 
@@ -230,18 +229,18 @@ class TestBlockingContractInvariants:
         """Contract: Layer blocking must be consistent with specification."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), layer=0, pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         router.block_components([component], positions, margin=0.1, layer_specific=layer_specific)
-        
+
         # Check center cell
         gx, gy = router._world_to_grid(50.0, 50.0)
-        
+
         if layer_specific:
             # Should only block component's layer
             assert int(router.occupancy[gx, gy, 0]) == 1, "Component layer should be blocked"
@@ -259,24 +258,24 @@ class TestBlockingContractInvariants:
         """Contract: Blocking same component multiple times should be idempotent."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         # Block multiple times
         for _ in range(num_calls):
             router.block_components([component], positions, margin=0.1)
-        
+
         blocked = jnp.sum(router.occupancy == 1)
-        
+
         # Create fresh router and block once
         router_fresh = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         router_fresh.block_components([component], positions, margin=0.1)
         blocked_fresh = jnp.sum(router_fresh.occupancy == 1)
-        
+
         assert blocked == blocked_fresh, \
             "Multiple blocking calls should be idempotent"
 
@@ -292,17 +291,17 @@ class TestBlockingSymmetryProperties:
         """Symmetry: Square component blocking should be rotation-invariant."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
-        
+
         # Square component
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[], rotation=rotation
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         router.block_components([component], positions, margin=0.1)
         blocked = jnp.sum(router.occupancy == 1)
-        
+
         # Should block same number of cells regardless of rotation
         # (for square component)
         expected = 121  # Approximately (10+0.2)^2 cells
@@ -316,7 +315,7 @@ class TestBlockingSymmetryProperties:
     def test_symmetric_component_mirror_invariance(self, mirror):
         """Symmetry: Symmetric component should be mirror-invariant."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
-        
+
         # Symmetric component (square with symmetric pins)
         component = Component(
             ref="U1", footprint="TEST",
@@ -326,12 +325,12 @@ class TestBlockingSymmetryProperties:
                 Pin(name="2", number="2", position=(-5.0, 0.0)),
             ]
         )
-        
+
         router1 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         positions1 = jnp.array([[50.0, 50.0]])
         router1.block_components([component], positions1, margin=0.1, escape_length=5)
         blocked1 = jnp.sum(router1.occupancy == 1)
-        
+
         # Mirror component (swap pin positions)
         if mirror:
             component_mirror = Component(
@@ -344,12 +343,12 @@ class TestBlockingSymmetryProperties:
             )
         else:
             component_mirror = component
-        
+
         router2 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         positions2 = jnp.array([[50.0, 50.0]])
         router2.block_components([component_mirror], positions2, margin=0.1, escape_length=5)
         blocked2 = jnp.sum(router2.occupancy == 1)
-        
+
         assert blocked1 == blocked2, \
             "Symmetric component should block same cells when mirrored"
 
@@ -366,12 +365,12 @@ class TestBlockingBoundaryConditions:
         """Boundary: Components at board edges should be clipped correctly."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(10.0, 10.0), pins=[]
         )
-        
+
         # Place component near edge
         if edge == "left":
             pos = jnp.array([[offset, 50.0]])
@@ -381,10 +380,10 @@ class TestBlockingBoundaryConditions:
             pos = jnp.array([[50.0, offset]])
         else:  # bottom
             pos = jnp.array([[50.0, 100.0 - offset]])
-        
+
         # Should not raise error
         router.block_components([component], pos, margin=0.5)
-        
+
         # Verify no out-of-bounds blocking
         assert jnp.all(router.occupancy >= 0), "No negative occupancy values"
         assert jnp.all(router.occupancy <= 2), "No invalid occupancy values"
@@ -397,18 +396,18 @@ class TestBlockingBoundaryConditions:
         """Boundary: Extreme component sizes should be handled correctly."""
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
         router = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
-        
+
         component = Component(
             ref="U1", footprint="TEST",
             bounds=(component_size, component_size), pins=[]
         )
         positions = jnp.array([[50.0, 50.0]])
-        
+
         # Should handle without error
         router.block_components([component], positions, margin=0.1)
-        
+
         blocked = jnp.sum(router.occupancy == 1)
-        
+
         # Sanity check: blocked cells should be reasonable
         max_possible = router.grid_size[0] * router.grid_size[1]
         assert 0 < blocked <= max_possible, \

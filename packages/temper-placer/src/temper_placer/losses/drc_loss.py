@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import Any
 
 import jax.numpy as jnp
-from typing import Any
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult

@@ -1,17 +1,16 @@
-import time
-import jax
-import jax.numpy as jnp
-import pandas as pd
-import numpy as np
 from dataclasses import replace
-from temper_placer.optimizer.train import train
-from temper_placer.optimizer.config import OptimizerConfig, AdaptiveOverlapConfig
+
+import pandas as pd
+
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Netlist, Net
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.wirelength import WirelengthLoss
+from temper_placer.optimizer.config import AdaptiveOverlapConfig, OptimizerConfig
+from temper_placer.optimizer.train import train
+
 
 def run_tuning_trial(
     ramp_rate: float,
@@ -28,24 +27,24 @@ def run_tuning_trial(
         Component(ref="C4", footprint="F", bounds=(10, 10), fixed=False, initial_position=(55.0, 50.0)),
         Component(ref="C5", footprint="F", bounds=(10, 10), fixed=True, initial_position=(60.0, 50.0)),
     ]
-    
+
     netlist = Netlist(components=components)
     board = Board(width=100, height=100)
-    
+
     nets = [
         Net(name="SANDWICH", pins=[("C1", "1"), ("C2", "1"), ("C3", "1"), ("C4", "1"), ("C5", "1")]),
     ]
     netlist.nets = nets
     netlist.build_indices()
-    
+
     composite = CompositeLoss([
         WeightedLoss(OverlapLoss(margin=0.5), weight=1.0), # Low baseline
         WeightedLoss(WirelengthLoss(), weight=1000.0), # Strong pull to center!
         WeightedLoss(BoundaryLoss(), weight=50.0),
     ])
-    
+
     context = LossContext.from_netlist_and_board(netlist, board)
-    
+
     config = OptimizerConfig(
         epochs=2000,
         seed=seed,
@@ -60,12 +59,12 @@ def run_tuning_trial(
         checkpoint=replace(OptimizerConfig().checkpoint, enabled=False),
         validate_interval=2500
     )
-    
+
     result = train(netlist, board, composite, context, config)
-    
+
     last_overlap = result.history[-1].loss_breakdown.get("overlap", 0.0)
     resolved = last_overlap < 1e-3
-    
+
     return {
         "ramp_rate": ramp_rate,
         "max_cap": max_cap,
@@ -77,7 +76,7 @@ def run_tuning_trial(
 def main():
     print("Starting Adaptive Weight Tuning Sweep...")
     results = []
-    
+
     # Ramp Rate Sweep
     for rate in [1.02, 1.05, 1.10, 1.20]:
         print(f"  Testing ramp_rate={rate}...")
@@ -85,7 +84,7 @@ def main():
             res = run_tuning_trial(ramp_rate=rate, max_cap=50.0, update_interval=50, threshold=0.1, seed=seed)
             res["experiment"] = "ramp_rate"
             results.append(res)
-            
+
     df = pd.DataFrame(results)
     print("\nSummary by Ramp Rate:")
     print(df.groupby("ramp_rate")[["epochs", "resolved", "final_weight"]].mean())

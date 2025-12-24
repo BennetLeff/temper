@@ -8,7 +8,6 @@ This module defines when the pipeline should stop iterating, including:
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class TerminationReason(Enum):
@@ -94,8 +93,8 @@ class ConvergenceState:
 
     # Status
     terminated: bool = False
-    termination_reason: Optional[TerminationReason] = None
-    failure_message: Optional[str] = None
+    termination_reason: TerminationReason | None = None
+    failure_message: str | None = None
 
 
 class ConvergenceChecker:

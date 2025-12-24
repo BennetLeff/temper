@@ -162,6 +162,42 @@ class ThermalLoss(LossFunction):
         penalty = compute_thermal_penalty(positions, context, self.margin)
         return LossResult(value=penalty)
 
+    def trace(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> tuple[Array, Trace]:
+        """Generate a natural language trace for thermal constraints."""
+        from temper_placer.explainability.trace import Trace
+
+        board_bounds = context.board.get_relative_bounds_array()
+        total_penalty = jnp.array(0.0)
+        trace = Trace.empty()
+
+        for tc in context.thermal_constraints:
+            comp_idx = context.get_component_index(tc.component_ref)
+            position = positions[comp_idx]
+
+            # Distance to required edge
+            distance = compute_edge_distance(position, board_bounds, tc.edge)
+
+            # Penalty calculation (simplified for trace significant check)
+            excess = distance - tc.max_distance
+            penalty = float(tc.weight * jnp.maximum(0, excess)**2)
+
+            total_penalty = total_penalty + penalty
+            if penalty > 1e-3:
+                trace = trace.add(
+                    tc.component_ref,
+                    penalty,
+                    tc.because or f"Must be within {tc.max_distance}mm of {tc.edge} edge for cooling"
+                )
+
+        return total_penalty, trace
+
 
 def create_temper_thermal_constraints() -> list[ThermalConstraint]:
     """

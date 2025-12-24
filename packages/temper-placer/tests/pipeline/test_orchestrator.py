@@ -3,12 +3,8 @@
 Tests written BEFORE implementation.
 """
 
-import pytest
 from pathlib import Path
-from dataclasses import dataclass
-from typing import Any
-from unittest.mock import Mock, MagicMock, patch
-
+from unittest.mock import Mock
 
 # =============================================================================
 # Tests for PipelinePhase Enum
@@ -190,16 +186,15 @@ class TestPipelineState:
 
     def test_pipeline_state_exists(self):
         """PipelineState should exist."""
-        from temper_placer.pipeline.orchestrator import PipelineState, PipelineConfig
+        from temper_placer.pipeline.orchestrator import PipelineState
 
         assert PipelineState is not None
 
     def test_pipeline_state_requires_config(self):
         """PipelineState requires a PipelineConfig."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineState,
             PipelineConfig,
-            PipelinePhase,
+            PipelineState,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -209,9 +204,9 @@ class TestPipelineState:
     def test_pipeline_state_default_phase(self):
         """PipelineState starts at INPUT phase."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineState,
             PipelineConfig,
             PipelinePhase,
+            PipelineState,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -220,7 +215,7 @@ class TestPipelineState:
 
     def test_pipeline_state_default_iteration(self):
         """PipelineState starts at iteration 0."""
-        from temper_placer.pipeline.orchestrator import PipelineState, PipelineConfig
+        from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineState
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
         state = PipelineState(config=config)
@@ -228,7 +223,7 @@ class TestPipelineState:
 
     def test_pipeline_state_default_success(self):
         """PipelineState starts with success=False."""
-        from temper_placer.pipeline.orchestrator import PipelineState, PipelineConfig
+        from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineState
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
         state = PipelineState(config=config)
@@ -236,7 +231,7 @@ class TestPipelineState:
 
     def test_pipeline_state_has_data_fields(self):
         """PipelineState has fields for data populated by phases."""
-        from temper_placer.pipeline.orchestrator import PipelineState, PipelineConfig
+        from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineState
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
         state = PipelineState(config=config)
@@ -252,7 +247,7 @@ class TestPipelineState:
 
     def test_pipeline_state_failure_reason(self):
         """PipelineState has failure_reason field."""
-        from temper_placer.pipeline.orchestrator import PipelineState, PipelineConfig
+        from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineState
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
         state = PipelineState(config=config)
@@ -315,8 +310,8 @@ class TestPipelineOrchestratorInit:
     def test_orchestrator_requires_config(self):
         """PipelineOrchestrator requires a PipelineConfig."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -326,8 +321,8 @@ class TestPipelineOrchestratorInit:
     def test_orchestrator_creates_state(self):
         """PipelineOrchestrator creates initial PipelineState."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelineState,
         )
 
@@ -339,8 +334,8 @@ class TestPipelineOrchestratorInit:
     def test_orchestrator_has_phase_handlers(self):
         """PipelineOrchestrator has handlers for all phases."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -355,8 +350,8 @@ class TestPipelineOrchestratorInit:
     def test_orchestrator_callbacks_none_by_default(self):
         """PipelineOrchestrator callbacks are None by default."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -378,8 +373,8 @@ class TestPhaseSequencing:
     def test_default_phase_order(self):
         """Phases should execute in correct order."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -402,8 +397,8 @@ class TestPhaseSequencing:
     def test_skip_topological_removes_phase(self):
         """skip_topological=True removes TOPOLOGICAL from phase order."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -416,8 +411,8 @@ class TestPhaseSequencing:
     def test_skip_routing_removes_phases(self):
         """skip_routing=True removes ROUTING and REFINEMENT from phase order."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -440,8 +435,8 @@ class TestPipelineExecution:
     def test_run_returns_state(self):
         """run() should return PipelineState."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelineState,
         )
 
@@ -458,8 +453,8 @@ class TestPipelineExecution:
     def test_run_executes_all_phases(self):
         """run() should execute all phases in order."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -487,8 +482,8 @@ class TestPipelineExecution:
     def test_run_updates_current_phase(self):
         """run() should update current_phase during execution."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -517,8 +512,8 @@ class TestPipelineExecution:
     def test_run_sets_success_true_on_completion(self):
         """run() should set success=True when all phases complete."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -543,9 +538,9 @@ class TestErrorHandling:
     def test_pipeline_error_stops_execution(self):
         """PipelineError should stop pipeline and set failure_reason."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
             PipelineError,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -571,9 +566,9 @@ class TestErrorHandling:
     def test_error_records_failed_phase(self):
         """Error should record which phase failed."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
             PipelineError,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -596,9 +591,9 @@ class TestErrorHandling:
     def test_phases_after_error_not_executed(self):
         """Phases after an error should not be executed."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
             PipelineError,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -644,9 +639,8 @@ class TestCallbacks:
     def test_on_phase_start_called(self):
         """on_phase_start callback should be called before each phase."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
-            PipelinePhase,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -671,9 +665,8 @@ class TestCallbacks:
     def test_on_phase_complete_called(self):
         """on_phase_complete callback should be called after each phase."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
-            PipelinePhase,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -698,8 +691,8 @@ class TestCallbacks:
     def test_on_phase_complete_receives_updated_state(self):
         """on_phase_complete should receive state updated by the phase."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -734,8 +727,8 @@ class TestCallbacks:
     def test_on_iteration_called_during_refinement(self):
         """on_iteration callback should be called during refinement loops."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -781,8 +774,8 @@ class TestPhaseSkipping:
     def test_input_phase_always_runs(self):
         """INPUT phase should always run, cannot be skipped."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -799,8 +792,8 @@ class TestPhaseSkipping:
     def test_output_phase_always_runs(self):
         """OUTPUT phase should always run, cannot be skipped."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -826,8 +819,8 @@ class TestPipelineResult:
     def test_state_has_elapsed_time(self):
         """PipelineState should track elapsed time."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -845,8 +838,8 @@ class TestPipelineResult:
     def test_state_has_phase_timings(self):
         """PipelineState should track time per phase."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
         )
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
@@ -873,8 +866,8 @@ class TestDryRunMode:
     def test_dry_run_stops_after_preflight(self):
         """dry_run=True should stop after PREFLIGHT phase."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 
@@ -904,8 +897,8 @@ class TestDryRunMode:
     def test_dry_run_phase_order(self):
         """dry_run mode should have reduced phase order."""
         from temper_placer.pipeline.orchestrator import (
-            PipelineOrchestrator,
             PipelineConfig,
+            PipelineOrchestrator,
             PipelinePhase,
         )
 

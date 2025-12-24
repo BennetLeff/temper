@@ -134,7 +134,7 @@ class LossImprovementTracker:
         # Ensure stagnation_epochs is valid
         if self.stagnation_epochs < 1:
             self.stagnation_epochs = 1
-            
+
         # Pre-allocate deques for efficient rolling window computation
         self._delta_buffers: dict[int, deque[float]] = {w: deque(maxlen=w) for w in self.windows}
         self._improvement_rate_buffer: deque[float] = deque(maxlen=self.velocity_window)

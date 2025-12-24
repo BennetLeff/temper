@@ -15,7 +15,6 @@ import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -100,7 +99,7 @@ class TestLayerConstraint:
 
     def test_constraint_creation(self):
         """Should create a valid layer constraint."""
-        from temper_placer.routing.layer_assignment import LayerConstraint, Layer
+        from temper_placer.routing.layer_assignment import Layer, LayerConstraint
 
         constraint = LayerConstraint(
             net_pattern=r"DC_BUS_.*",
@@ -116,7 +115,7 @@ class TestLayerConstraint:
 
     def test_constraint_pattern_matching(self):
         """Should match net names against pattern."""
-        from temper_placer.routing.layer_assignment import LayerConstraint, Layer, matches_pattern
+        from temper_placer.routing.layer_assignment import Layer, LayerConstraint, matches_pattern
 
         constraint = LayerConstraint(
             net_pattern=r"DC_BUS_.*|HV_.*|SW_NODE",
@@ -143,7 +142,7 @@ class TestLayerAssignment:
 
     def test_assignment_creation(self):
         """Should create a valid layer assignment."""
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
 
         assignment = LayerAssignment(
             net="DC_BUS_P",
@@ -234,7 +233,7 @@ class TestAssignLayers:
 
     def test_assign_layers_hv_to_l1(self, sample_netlist):
         """High-voltage nets should be assigned to L1 only."""
-        from temper_placer.routing.layer_assignment import assign_layers, Layer
+        from temper_placer.routing.layer_assignment import Layer, assign_layers
 
         assignments = assign_layers(sample_netlist)
 
@@ -244,7 +243,7 @@ class TestAssignLayers:
 
     def test_assign_layers_signal_to_l4(self, sample_netlist):
         """Signal nets should prefer L4 (bottom)."""
-        from temper_placer.routing.layer_assignment import assign_layers, Layer
+        from temper_placer.routing.layer_assignment import Layer, assign_layers
 
         assignments = assign_layers(sample_netlist)
 
@@ -275,9 +274,9 @@ class TestAssignLayers:
     def test_assign_layers_with_custom_constraints(self, sample_netlist):
         """Should respect custom constraints when provided."""
         from temper_placer.routing.layer_assignment import (
-            assign_layers,
-            LayerConstraint,
             Layer,
+            LayerConstraint,
+            assign_layers,
         )
 
         # Force all nets to L1
@@ -328,8 +327,8 @@ class TestLayerConflictDetection:
     def test_detect_hv_lv_crossing_conflict(self):
         """Should detect when HV and LV nets would cross on same layer."""
         from temper_placer.routing.layer_assignment import (
-            LayerAssignment,
             Layer,
+            LayerAssignment,
             find_layer_conflicts,
         )
 
@@ -371,7 +370,7 @@ class TestViaRequirements:
 
     def test_multi_layer_net_requires_vias(self):
         """Nets that span multiple layers require vias."""
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
 
         # A net that must use both L1 and L4
         assignment = LayerAssignment(

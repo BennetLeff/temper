@@ -1,6 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+
+from dataclasses import dataclass
+
 
 @dataclass
 class FabPreset:
@@ -12,7 +13,7 @@ class FabPreset:
     etch_undercut_mm: float = 0.05       # Always positive
     layer_registration_mm: float = 0.1   # ±0.1mm
     drill_tolerance_mm: float = 0.05     # ±0.05mm
-    
+
     @classmethod
     def jlcpcb_standard(cls) -> FabPreset:
         return cls(
@@ -23,7 +24,7 @@ class FabPreset:
             etch_undercut_mm=0.05,
             layer_registration_mm=0.1
         )
-        
+
     @classmethod
     def jlcpcb_hdi(cls) -> FabPreset:
         return cls(
@@ -34,7 +35,7 @@ class FabPreset:
             etch_undercut_mm=0.03,
             layer_registration_mm=0.05
         )
-        
+
     @classmethod
     def oshpark(cls) -> FabPreset:
         return cls(
@@ -45,7 +46,7 @@ class FabPreset:
             etch_undercut_mm=0.04
         )
 
-def get_fab_presets() -> Dict[str, FabPreset]:
+def get_fab_presets() -> dict[str, FabPreset]:
     """Get all pre-configured fab house presets."""
     return {
         "jlcpcb_standard": FabPreset.jlcpcb_standard(),

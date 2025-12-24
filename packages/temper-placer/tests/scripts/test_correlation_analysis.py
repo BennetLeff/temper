@@ -4,8 +4,6 @@ Tests for correlation_analysis.py script.
 Tests the core correlation computation logic using TDD approach.
 """
 
-import json
-from pathlib import Path
 
 import numpy as np
 import pytest

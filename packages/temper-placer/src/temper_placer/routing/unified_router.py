@@ -19,13 +19,12 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
 
-import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.routing.maze_router import MazeRouter, RoutePath
 from temper_placer.routing import push_shove as ps
+from temper_placer.routing.maze_router import MazeRouter
 
 if TYPE_CHECKING:
     from temper_placer.routing.layer_assignment import LayerAssignment

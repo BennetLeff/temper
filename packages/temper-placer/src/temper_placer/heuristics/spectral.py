@@ -8,10 +8,10 @@ optimal relative placement that minimizes total squared wirelength.
 from __future__ import annotations
 
 import logging
+
 import networkx as nx
 import numpy as np
 
-from temper_placer.core.board import Board
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -70,13 +70,13 @@ class SpectralPlacementHeuristic(Heuristic):
         # Handle connected components independently
         components = list(nx.connected_components(G))
         all_raw_pos = {}
-        
+
         # We need to distribute these components on the board
         # A simple approach: divide board into a grid based on number of components
         n_comps = len(components)
         cols = int(np.ceil(np.sqrt(n_comps)))
         rows = int(np.ceil(n_comps / cols))
-        
+
         board = context.board
         margin = context.constraints.board_margin_mm
         w_eff = (board.width - 2 * margin) / cols
@@ -84,7 +84,7 @@ class SpectralPlacementHeuristic(Heuristic):
 
         for i, node_set in enumerate(components):
             subgraph = G.subgraph(node_set)
-            
+
             if len(node_set) == 1:
                 # Single node
                 ref = list(node_set)[0]
@@ -104,16 +104,16 @@ class SpectralPlacementHeuristic(Heuristic):
             # Grid cell center (relative)
             grid_x = (i % cols) * w_eff + w_eff / 2 + margin
             grid_y = (i // cols) * h_eff + h_eff / 2 + margin
-            
+
             # Map nodes in this set to their grid cell
             nodes_in_set = list(node_set)
             coords = np.array([all_raw_pos[n] for n in nodes_in_set])
-            
+
             if len(coords) > 1:
                 c_min = coords.min(axis=0)
                 c_max = coords.max(axis=0)
                 c_rng = np.maximum(c_max - c_min, 1e-6)
-                
+
                 # Scale to fit in 80% of grid cell
                 scale = np.array([w_eff, h_eff]) * 0.8 / c_rng
                 for n in nodes_in_set:

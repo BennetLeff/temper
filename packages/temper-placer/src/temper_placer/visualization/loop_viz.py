@@ -5,15 +5,14 @@ Loop visualization utilities for Plotly and HTML reports.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING
 
-import numpy as np
-
-from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
+from temper_placer.core.loop import Loop, LoopCollection, LoopType
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
-    from .model import BoardView, ComponentView
+
+    from .model import BoardView
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,7 @@ LOOP_COLORS = {
 }
 
 
-def get_loop_points(loop: Loop, board_view: BoardView) -> List[tuple[float, float]]:
+def get_loop_points(loop: Loop, board_view: BoardView) -> list[tuple[float, float]]:
     """
     Get the sequence of points (x, y) forming the loop from placements.
 
@@ -76,7 +75,7 @@ def get_loop_points(loop: Loop, board_view: BoardView) -> List[tuple[float, floa
     return points
 
 
-def calculate_loop_area(points: List[tuple[float, float]]) -> float:
+def calculate_loop_area(points: list[tuple[float, float]]) -> float:
     """
     Calculate area of a closed loop using the shoelace formula.
 
@@ -100,8 +99,8 @@ def calculate_loop_area(points: List[tuple[float, float]]) -> float:
 
 
 def add_loops_to_plotly(
-    fig: go.Figure, 
-    loops: LoopCollection, 
+    fig: go.Figure,
+    loops: LoopCollection,
     board_view: BoardView
 ) -> None:
     """
@@ -128,7 +127,7 @@ def add_loops_to_plotly(
 
         # Status text for hover
         status = "OK" if not is_violation else "EXCEEDED"
-        
+
         # Add trace
         fig.add_trace(
             go.Scatter(
@@ -136,8 +135,8 @@ def add_loops_to_plotly(
                 y=y,
                 mode="lines+markers",
                 line=dict(
-                    color=color, 
-                    width=2 if is_violation else 1.5, 
+                    color=color,
+                    width=2 if is_violation else 1.5,
                     dash="dash"
                 ),
                 marker=dict(size=4, color=color),
@@ -174,11 +173,11 @@ def render_loop_summary_table(
     for loop in loops.loops:
         points = get_loop_points(loop, board_view)
         area = calculate_loop_area(points)
-        
+
         is_ok = area <= loop.max_area_mm2
         status_icon = "✓" if is_ok else "✗"
         status_class = "ok" if is_ok else "exceeded"
-        
+
         margin = loop.max_area_mm2 - area
         margin_pct = (margin / loop.max_area_mm2 * 100) if loop.max_area_mm2 > 0 else 0
 

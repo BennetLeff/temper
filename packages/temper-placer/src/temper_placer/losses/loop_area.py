@@ -212,6 +212,37 @@ class LoopAreaLoss(LossFunction):
 
         return LossResult(value=total_penalty, breakdown=breakdown)
 
+    def trace(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+    ) -> tuple[Array, Trace]:
+        """Generate a natural language trace for critical loops."""
+        from temper_placer.explainability.trace import Trace
+
+        if context.loop_pin_indices.shape[0] == 0:
+            return jnp.array(0.0), Trace.empty()
+
+        result = self(positions, rotations, context, epoch, total_epochs)
+        trace = Trace.empty()
+
+        for loop in context.loop_constraints:
+            area = result.breakdown.get(loop.name, 0.0)
+            penalty = float(loop.weight * jnp.maximum(0, area - loop.max_area)**2 * self.area_penalty_scale)
+
+            if penalty > 1e-4:
+                trace = trace.add(
+                    f"Loop:{loop.name}",
+                    penalty,
+                    loop.because or f"Critical current loop {loop.name} (area: {float(area):.1f}mm²)"
+                )
+
+        return result.value, trace
+
+
     def _compute_loop_penalties_vectorized(
         self,
         pin_positions: Array,

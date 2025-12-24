@@ -17,7 +17,11 @@ from temper_placer.metrics.quality import (
     total_wirelength,
     zone_compliance_score,
 )
-from temper_placer.metrics.quality_score import QualityInputs, compute_quality_score, interpret_score
+from temper_placer.metrics.quality_score import (
+    QualityInputs,
+    compute_quality_score,
+    interpret_score,
+)
 
 __all__ = [
     "total_wirelength",

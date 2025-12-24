@@ -3,7 +3,11 @@ import jax.numpy as jnp
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.optimizer.config import InitializationConfig, OptimizerConfig, ForceDirectedConfig
+from temper_placer.optimizer.config import (
+    ForceDirectedConfig,
+    InitializationConfig,
+    OptimizerConfig,
+)
 from temper_placer.optimizer.train import initialize_training_state
 
 
@@ -44,6 +48,6 @@ def test_force_directed_integration():
 
     # Positions should be different
     assert not jnp.allclose(state_base.positions, state_fd.positions)
-    
+
     # Check that positions are still valid (not NaN)
     assert jnp.all(jnp.isfinite(state_fd.positions))

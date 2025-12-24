@@ -20,6 +20,10 @@ from typing import Any
 import jax.numpy as jnp
 from jax import Array
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
+from temper_placer.losses.grouping import ProximityLoss, ProximityRule
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
@@ -31,10 +35,6 @@ from temper_placer.pcl.constraints import (
     OnSideConstraint,
     SeparatedConstraint,
 )
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
-from temper_placer.losses.base import LossContext, LossFunction, LossResult
-from temper_placer.losses.grouping import ProximityLoss, ProximityRule
 
 
 def tier_to_weight(tier: ConstraintTier) -> float:
@@ -380,7 +380,6 @@ def loop_area_to_loop_loss(
         LoopAreaLoss minimizing loop area.
     """
     from temper_placer.losses.loop_area import LoopAreaLoss
-    from temper_placer.losses.base import LoopConstraint
 
     if constraint.loop_name not in loops:
         raise ValueError(f"Loop {constraint.loop_name} not found in loop definitions")

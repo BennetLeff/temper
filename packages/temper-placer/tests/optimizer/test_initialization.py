@@ -158,7 +158,7 @@ def test_eigenvalue_computation_disjoint():
     assert jnp.all(positions[:, 1] >= 0), "All y positions should be on board"
     assert jnp.all(positions[:, 1] <= board.height), "All y positions should be on board"
 
-    print(f"\n✓ Eigenvalue computation succeeded for disjoint graph")
+    print("\n✓ Eigenvalue computation succeeded for disjoint graph")
     print(f"Positions: {positions}")
 
 
@@ -167,8 +167,9 @@ def test_eigenvalue_computation_disjoint():
 
 def test_find_components_empty():
     """Empty graph returns empty list."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     adjacency = jnp.zeros((0, 0))
     result = find_connected_components(adjacency)
@@ -177,8 +178,9 @@ def test_find_components_empty():
 
 def test_find_components_single():
     """Single node returns [[0]]."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     adjacency = jnp.zeros((1, 1))
     result = find_connected_components(adjacency)
@@ -187,8 +189,9 @@ def test_find_components_single():
 
 def test_find_components_fully_connected():
     """Fully connected graph returns single component."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     # 4 nodes, all connected
     adjacency = jnp.array(
@@ -206,8 +209,9 @@ def test_find_components_fully_connected():
 
 def test_find_components_two_pairs():
     """Two separate pairs [[0,1], [2,3]]."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     adjacency = jnp.array(
         [
@@ -226,8 +230,9 @@ def test_find_components_two_pairs():
 
 def test_find_components_chain():
     """Chain 0-1-2-3 returns single component."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     adjacency = jnp.array(
         [
@@ -244,8 +249,9 @@ def test_find_components_chain():
 
 def test_find_components_star():
     """Star topology (center connected to all) returns single component."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     # Node 0 is center, connected to 1, 2, 3
     adjacency = jnp.array(
@@ -263,8 +269,9 @@ def test_find_components_star():
 
 def test_find_components_mixed():
     """Mix of connected + isolated components."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     # 0-1-2 connected, 3 isolated, 4-5 connected
     adjacency = jnp.array(
@@ -289,8 +296,9 @@ def test_find_components_mixed():
 
 def test_find_components_weighted():
     """Weighted edges (all >0 should connect)."""
-    from temper_placer.optimizer.initialization import find_connected_components
     import jax.numpy as jnp
+
+    from temper_placer.optimizer.initialization import find_connected_components
 
     # 0-1 with weight 0.5, 2-3 with weight 2.0
     adjacency = jnp.array(

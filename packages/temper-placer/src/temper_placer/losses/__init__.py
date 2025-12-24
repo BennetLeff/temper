@@ -152,16 +152,16 @@ from temper_placer.losses.mechanical import (
     create_mechanical_loss,
 )
 
+# Net centroid attraction loss
+from temper_placer.losses.net_centroid import (
+    NetCentroidAttractionLoss,
+)
+
 # Net class separation loss
 from temper_placer.losses.net_class import (
     NetClassRule,
     NetClassSeparationLoss,
     create_net_class_loss,
-)
-
-# Net centroid attraction loss
-from temper_placer.losses.net_centroid import (
-    NetCentroidAttractionLoss,
 )
 
 # Noise isolation loss
@@ -203,6 +203,11 @@ from temper_placer.losses.return_path import (
     CurrentReturnPathLoss,
     ReturnPathConfig,
     create_return_path_loss,
+)
+
+# Routability loss
+from temper_placer.losses.routability import (
+    RoutabilityLoss,
 )
 
 # Thermal loss
@@ -273,6 +278,7 @@ __all__ = [
     "ZoneMembershipLoss",
     "GroundCrossingLoss",
     "CongestionLoss",
+    "RoutabilityLoss",
     "PowerPathLoss",
     "create_power_path_loss",
     "HighCurrentPathConfig",

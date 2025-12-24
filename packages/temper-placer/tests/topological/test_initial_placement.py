@@ -10,24 +10,23 @@ Following TDD: these tests are written BEFORE implementation.
 from __future__ import annotations
 
 import math
+
 import pytest
-from dataclasses import dataclass
 
 # These imports will fail until implementation exists
 from temper_placer.core.board import Zone
 from temper_placer.topological.graph import TopologicalGraph
-from temper_placer.topological.zone_solver import ZoneAssignment
 
 # Imports that will be implemented
 from temper_placer.topological.initial_placement import (
     InitialPlacement,
     PlacementError,
-    place_components_in_zone,
+    generate_initial_placement,
     identify_clusters,
     place_cluster,
-    generate_initial_placement,
+    place_components_in_zone,
 )
-
+from temper_placer.topological.zone_solver import ZoneAssignment
 
 # =============================================================================
 # Test Fixtures
@@ -938,14 +937,14 @@ class TestEdgeCases:
     def test_very_large_component_count(self, simple_zone):
         """Handle many components without error."""
         components = [f"C{i}" for i in range(100)]
-        sizes = {c: (2.0, 2.0) for c in components}
+        sizes = dict.fromkeys(components, (2.0, 2.0))
 
         graph = TopologicalGraph()
         for c in components:
             graph.add_component(c)
 
         assignment = ZoneAssignment(
-            assignments={c: "TEST_ZONE" for c in components},
+            assignments=dict.fromkeys(components, "TEST_ZONE"),
             unassigned=[],
             conflicts=[],
         )

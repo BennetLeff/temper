@@ -29,15 +29,15 @@ Example usage:
     ...     print("Routing feasible after", result.iterations, "iterations")
 """
 
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Any
+from typing import Any
 
 from temper_placer.routing.diagnostics import (
     FailureType,
     RoutingDiagnostic,
     RoutingReport,
-    PlacementAdjustment,
     compute_clear_direction,
 )
 

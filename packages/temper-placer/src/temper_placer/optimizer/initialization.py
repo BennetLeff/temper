@@ -10,12 +10,12 @@ Implements temper-1my.7: Spectral/Analytical Initialization
 
 from __future__ import annotations
 
+import pickle
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
-import pickle
-from pathlib import Path
 from jax import Array
 
 from temper_placer.core.board import Board
@@ -610,20 +610,20 @@ class LearnedInitializer:
         # 2. Build graph features
         adjacency = build_adjacency_matrix(netlist)
         edges = jnp.array(np.where(np.array(adjacency) > 0)).T
-        
+
         # Node features: [Area, PinCount, Fixed, Centrality]
         n = netlist.n_components
         areas = jnp.array([c.width * c.height for c in netlist.components])
         pin_counts = jnp.array([len(c.pins) for c in netlist.components])
         fixed = jnp.array([c.fixed for c in netlist.components], dtype=jnp.float32)
-        
+
         # Compute centrality for features
         degrees = jnp.sum(adjacency, axis=1)
-        
+
         # Normalize features
         areas = areas / jnp.maximum(jnp.max(areas), 1e-6)
         pin_counts = pin_counts / jnp.maximum(jnp.max(pin_counts), 1e-6)
-        
+
         nodes = jnp.stack([areas, pin_counts, fixed, degrees], axis=-1)
 
         # 3. Run Inference
@@ -632,18 +632,18 @@ class LearnedInitializer:
 
         # 4. Scale to board
         positions = scale_to_board(norm_positions, board, margin_fraction=0.1)
-        
+
         return positions
 
     def _load_params(self) -> dict | None:
         """Load model parameters from disk."""
         if self.model_path is None:
             return None
-            
+
         path = Path(self.model_path)
         if not path.exists():
             return None
-            
+
         try:
             with open(path, "rb") as f:
                 return pickle.load(f)

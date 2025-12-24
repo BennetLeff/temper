@@ -8,20 +8,18 @@ Following TDD: these tests are written BEFORE implementation changes.
 
 from __future__ import annotations
 
-import pytest
 import jax
 import jax.numpy as jnp
+import pytest
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Netlist, Net
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.heuristics import (
-    HeuristicPipeline,
     HeuristicPriority,
     create_default_pipeline,
 )
 from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
 from temper_placer.io.config_loader import PlacementConstraints
-
 
 # =============================================================================
 # Test Fixtures

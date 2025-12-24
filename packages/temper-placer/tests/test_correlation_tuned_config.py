@@ -10,10 +10,10 @@ These tests verify that:
 Related issue: temper-h0n9.4
 """
 
-import yaml
 from pathlib import Path
 
 import pytest
+import yaml
 
 
 class TestTunedConfigStructure:

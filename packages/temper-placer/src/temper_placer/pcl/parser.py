@@ -20,29 +20,30 @@ Example usage:
 """
 
 from __future__ import annotations
-from pathlib import Path
-from typing import Any, List, Dict, Optional
+
+import json
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 import yaml
-import json
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 from temper_placer.pcl.constraints import (
-    BaseConstraint,
     AdjacentConstraint,
-    SeparatedConstraint,
-    EnclosingConstraint,
     AlignedConstraint,
-    OnSideConstraint,
     AnchoredConstraint,
-    LoopAreaConstraint,
+    Axis,
+    BaseConstraint,
+    BoardSide,
     ConstraintTier,
     ConstraintType,
     DistanceMetric,
-    Axis,
-    BoardSide,
     EdgeType,
+    EnclosingConstraint,
+    LoopAreaConstraint,
+    OnSideConstraint,
+    SeparatedConstraint,
 )
 
 
@@ -58,7 +59,7 @@ class PCLValidationError(Exception):
     pass
 
 
-def load_pcl_schema() -> Dict[str, Any]:
+def load_pcl_schema() -> dict[str, Any]:
     """Load the PCL JSON schema from the package resources."""
     import importlib.resources as pkg_resources
 
@@ -76,7 +77,7 @@ def load_pcl_schema() -> Dict[str, Any]:
         raise RuntimeError(f"Could not load PCL schema: {e}")
 
 
-def validate_pcl_dict(data: Dict[str, Any]) -> None:
+def validate_pcl_dict(data: dict[str, Any]) -> None:
     """Validate a PCL dictionary against the JSON schema.
 
     Args:
@@ -102,9 +103,9 @@ class ConstraintCollection:
         metadata: Optional metadata from YAML file
     """
 
-    constraints: List[BaseConstraint]
+    constraints: list[BaseConstraint]
     version: str = "1.0"
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -127,11 +128,11 @@ class ConstraintCollection:
         """Add a constraint to the collection."""
         self.constraints.append(constraint)
 
-    def by_type(self, constraint_type: ConstraintType) -> List[BaseConstraint]:
+    def by_type(self, constraint_type: ConstraintType) -> list[BaseConstraint]:
         """Filter constraints by type."""
         return [c for c in self.constraints if c.constraint_type == constraint_type]
 
-    def by_tier(self, tier: ConstraintTier) -> List[BaseConstraint]:
+    def by_tier(self, tier: ConstraintTier) -> list[BaseConstraint]:
         """Filter constraints by tier."""
         return [c for c in self.constraints if c.tier == tier]
 
@@ -148,11 +149,11 @@ class ConstraintCollection:
         from .linter import lint_constraints
         return lint_constraints(self.constraints, netlist, board)
 
-    def involving_component(self, component: str) -> List[BaseConstraint]:
+    def involving_component(self, component: str) -> list[BaseConstraint]:
         """Get all constraints involving a component."""
         return [c for c in self.constraints if c.involves_component(component)]
 
-    def validate_component_refs(self, component_refs: List[str]) -> List[str]:
+    def validate_component_refs(self, component_refs: list[str]) -> list[str]:
         """Validate that all component references exist in the netlist.
 
         Args:
@@ -274,7 +275,7 @@ def _parse_tier(tier_value: Any) -> ConstraintTier:
     raise PCLParseError(f"Tier must be integer or string, got {type(tier_value)}")
 
 
-def _parse_metric(metric_value: Optional[str]) -> DistanceMetric:
+def _parse_metric(metric_value: str | None) -> DistanceMetric:
     """Parse distance metric from string."""
     if metric_value is None:
         return DistanceMetric.EDGE_TO_EDGE  # Default
@@ -329,7 +330,7 @@ def _parse_edge_type(edge_value: str) -> EdgeType:
     raise PCLParseError(f"Invalid edge type: {edge_value}. Valid: flush, near, overhang")
 
 
-def parse_constraint_dict(data: Dict[str, Any]) -> BaseConstraint:
+def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
     """Parse a single constraint from a dictionary.
 
     Args:
@@ -481,7 +482,7 @@ def parse_pcl_file(path: Path | str) -> ConstraintCollection:
         raise PCLParseError(f"File not found: {path}")
 
     try:
-        with open(path, "r") as f:
+        with open(path) as f:
             data = yaml.safe_load(f)
     except yaml.YAMLError as e:
         raise PCLParseError(f"YAML parse error in {path}: {e}")

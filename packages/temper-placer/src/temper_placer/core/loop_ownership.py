@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .loop import Loop, LoopCollection, LoopPriority
+    from .loop import Loop, LoopCollection
     from .netlist import Component, Netlist
 
 from .loop_extractor import classify_component
@@ -92,7 +92,7 @@ class ComponentLoopInfo:
             for m in self.memberships
         )
 
-    def get_priority_weight(self, loop_collection: "LoopCollection") -> float:
+    def get_priority_weight(self, loop_collection: LoopCollection) -> float:
         """
         Calculate placement priority weight based on loop memberships.
 
@@ -191,7 +191,7 @@ class LoopOwnershipMap:
         return list(loops_a & loops_b)
 
     def components_share_loop(
-        self, ref_a: str, ref_b: str, loop_collection: "LoopCollection | None" = None
+        self, ref_a: str, ref_b: str, loop_collection: LoopCollection | None = None
     ) -> bool:
         """
         Check if two components share any loop.
@@ -207,7 +207,7 @@ class LoopOwnershipMap:
         return len(self.get_shared_loops(ref_a, ref_b)) > 0
 
     def components_share_critical_loop(
-        self, ref_a: str, ref_b: str, loop_collection: "LoopCollection"
+        self, ref_a: str, ref_b: str, loop_collection: LoopCollection
     ) -> bool:
         """
         Check if two components share a CRITICAL priority loop.
@@ -230,7 +230,7 @@ class LoopOwnershipMap:
         return False
 
 
-def classify_role(component: "Component", loop: "Loop") -> str:
+def classify_role(component: Component, loop: Loop) -> str:
     """
     Classify a component's role within a loop.
 
@@ -265,7 +265,7 @@ def classify_role(component: "Component", loop: "Loop") -> str:
         return "other"
 
 
-def build_ownership_map(loops: "LoopCollection", netlist: "Netlist") -> LoopOwnershipMap:
+def build_ownership_map(loops: LoopCollection, netlist: Netlist) -> LoopOwnershipMap:
     """
     Build bidirectional ownership map from loops and netlist.
 

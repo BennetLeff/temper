@@ -21,15 +21,15 @@ Example usage:
     ...         print(f"Bottleneck at ({b.x}, {b.y}): {b.utilization:.1%}")
 """
 
+import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-import math
 
 import jax.numpy as jnp
 from jax import Array
 
-from temper_placer.core.netlist import Netlist
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
 
 if TYPE_CHECKING:
     from temper_placer.routing.layer_assignment import LayerAssignment

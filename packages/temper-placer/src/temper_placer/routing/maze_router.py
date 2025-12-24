@@ -264,7 +264,7 @@ class MazeRouter:
         """
         # Store component positions for density computation (temper-74wg.1)
         self._component_positions = positions
-        
+
         # First pass: block all component bodies
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
@@ -304,19 +304,19 @@ class MazeRouter:
         """
         if self._component_positions is None or len(self._component_positions) == 0:
             return 0.0
-        
+
         # Compute distances to all components
         point = jnp.array([x, y])
         distances = jnp.sqrt(jnp.sum((self._component_positions - point)**2, axis=1))
         count_within_radius = int(jnp.sum(distances <= radius))
-        
+
         # Normalize by expected max components in area
         area = jnp.pi * radius**2
         avg_component_area = 100.0  # mm², typical component size
         max_components = area / avg_component_area
-        
+
         return float(jnp.clip(count_within_radius / max_components, 0.0, 1.0))
-    
+
     def _compute_escape_length(self, pin_x: float, pin_y: float) -> int:
         """Compute adaptive escape length based on local density (temper-74wg.1).
         
@@ -329,7 +329,7 @@ class MazeRouter:
         """
         density = self._compute_local_density(pin_x, pin_y)
         base_length = 3
-        
+
         if density < 0.3:
             # Sparse area: longer escapes for better routing options
             return base_length + 4  # 7 cells
@@ -339,7 +339,7 @@ class MazeRouter:
         else:
             # Medium density
             return base_length + 2  # 5 cells
-    
+
     def _get_primary_escape_direction(self, pin_offset: tuple[float, float]) -> tuple[int, int]:
         """Get primary escape direction from pin offset (temper-74wg.2).
         
@@ -350,14 +350,14 @@ class MazeRouter:
             (step_x, step_y) primary escape direction
         """
         dx, dy = pin_offset
-        
+
         if abs(dx) >= abs(dy):
             # Horizontal escape
             return (1 if dx >= 0 else -1, 0)
         else:
             # Vertical escape
             return (0, 1 if dy >= 0 else -1)
-    
+
     def _try_escape_route(
         self,
         pin_x: float,
@@ -379,7 +379,7 @@ class MazeRouter:
             True if route was successfully created, False if out of bounds
         """
         pin_gx, pin_gy = self._world_to_grid(pin_x, pin_y)
-        
+
         # Check if route is viable (within bounds)
         # NOTE: We don't check if cells are blocked because block_components()
         # runs first and blocks component bodies. We need to unblock the escape
@@ -387,21 +387,21 @@ class MazeRouter:
         for step in range(escape_length):
             check_gx = pin_gx + step * step_x
             check_gy = pin_gy + step * step_y
-            
+
             # Bounds check only - don't check blocking status
             if not (0 <= check_gx < self.grid_size[0] and 0 <= check_gy < self.grid_size[1]):
                 return False
-        
+
         # Route is viable, unblock it (this carves through blocked component body)
         for step in range(escape_length):
             unblock_gx = pin_gx + step * step_x
             unblock_gy = pin_gy + step * step_y
-            
+
             for layer in range(self.num_layers):
                 self.occupancy = self.occupancy.at[unblock_gx, unblock_gy, layer].set(0)
-        
+
         return True
-    
+
     def _create_pin_escape_routes(
         self,
         comp: Component,
@@ -431,17 +431,17 @@ class MazeRouter:
                 escape_len = escape_length
             else:
                 escape_len = self._compute_escape_length(pin_x, pin_y)
-            
+
             # Get primary escape direction (temper-74wg.2)
             primary_x, primary_y = self._get_primary_escape_direction(pin.position)
-            
+
             # Try directions: primary, then perpendiculars (temper-74wg.2)
             directions = [
                 (primary_x, primary_y),  # Primary
                 (primary_y, -primary_x),  # 90° clockwise
                 (-primary_y, primary_x),  # 90° counter-clockwise
             ]
-            
+
             # Try each direction until one succeeds
             for step_x, step_y in directions:
                 if self._try_escape_route(pin_x, pin_y, step_x, step_y, escape_len):
@@ -488,16 +488,18 @@ class MazeRouter:
             allowed_layers = list(range(self.num_layers))
 
         # 4-connected neighbors on same layer
-        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-            nx, ny = cell.x + dx, cell.y + dy
-            # Check if free (0) - not blocked (1) or routed (2)
-            if (
-                0 <= nx < self.grid_size[0]
-                and 0 <= ny < self.grid_size[1]
-                and cell.layer in allowed_layers  # Check current layer is allowed
-                and int(self.occupancy[nx, ny, cell.layer]) == 0
-            ):
-                neighbors.append(GridCell(nx, ny, cell.layer))
+        # Prohibit horizontal routing on plane layers (via-only policy)
+        if not self.layer_stackup.is_plane_layer(cell.layer):
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                nx, ny = cell.x + dx, cell.y + dy
+                # Check if free (0) - not blocked (1) or routed (2)
+                if (
+                    0 <= nx < self.grid_size[0]
+                    and 0 <= ny < self.grid_size[1]
+                    and cell.layer in allowed_layers  # Check current layer is allowed
+                    and int(self.occupancy[nx, ny, cell.layer]) == 0
+                ):
+                    neighbors.append(GridCell(nx, ny, cell.layer))
 
         # Layer transitions (vias)
         if allow_layer_change and self.num_layers > 1:
@@ -814,18 +816,18 @@ def compute_net_metrics(
             is_power=_is_power_net(net_name),
             is_ground=_is_ground_net(net_name),
         )
-    
+
     xs = [p[0] for p in pin_positions]
     ys = [p[1] for p in pin_positions]
-    
+
     # Bounding box
     bbox_width = max(xs) - min(xs)
     bbox_height = max(ys) - min(ys)
     bbox_area = bbox_width * bbox_height
-    
+
     # Wirelength estimate: half-perimeter of bounding box
     wirelength = bbox_width + bbox_height
-    
+
     return NetMetrics(
         net_name=net_name,
         pin_count=len(pin_positions),
@@ -869,16 +871,16 @@ def order_nets_for_routing(
     """
     if strategy == 'arbitrary':
         return net_names
-    
+
     # Compute metrics for all nets
     metrics_list = [
         compute_net_metrics(name, net_pin_positions.get(name, []))
         for name in net_names
     ]
-    
+
     # Create (net_name, metrics) pairs
     net_metrics_pairs = list(zip(net_names, metrics_list))
-    
+
     if strategy == 'shortest_first':
         net_metrics_pairs.sort(key=lambda x: x[1].estimated_wirelength)
     elif strategy == 'smallest_bbox':
@@ -887,11 +889,11 @@ def order_nets_for_routing(
         # Separate power/ground from signal nets
         power_nets = [(n, m) for n, m in net_metrics_pairs if m.is_power or m.is_ground]
         signal_nets = [(n, m) for n, m in net_metrics_pairs if not m.is_power and not m.is_ground]
-        
+
         # Sort signals by wirelength
         signal_nets.sort(key=lambda x: x[1].estimated_wirelength)
-        
+
         # Power/ground first, then signals
         net_metrics_pairs = power_nets + signal_nets
-    
+
     return [name for name, _ in net_metrics_pairs]

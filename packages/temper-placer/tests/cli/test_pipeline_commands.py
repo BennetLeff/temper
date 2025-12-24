@@ -10,21 +10,16 @@ This module tests the CLI integration for the full placement pipeline:
 """
 
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import json
+from unittest.mock import Mock, patch
 
 import pytest
 from click.testing import CliRunner
 
 from temper_placer.cli import main
 from temper_placer.pipeline import (
-    PipelinePhase,
     PipelineConfig,
+    PipelinePhase,
     PipelineState,
-    PipelineOrchestrator,
-    PreflightResult,
-    PreflightCheck,
-    PreflightReport,
 )
 
 # Test fixtures paths

@@ -13,8 +13,9 @@ The schema enables IDE autocompletion and future CLI validation commands.
 
 import json
 from pathlib import Path
+
 import pytest
-from jsonschema import validate, ValidationError, Draft202012Validator
+from jsonschema import Draft202012Validator, ValidationError, validate
 
 # Path to schema and fixtures
 SCHEMA_PATH = Path(__file__).parent.parent.parent / "src" / "temper_placer" / "pcl" / "schemas" / "pcl.schema.json"

@@ -9,7 +9,8 @@ a good starting point for the placement optimization.
 
 from __future__ import annotations
 
-from temper_placer.core.board import Zone
+from dataclasses import dataclass, field
+
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -17,17 +18,12 @@ from temper_placer.heuristics.base import (
     HeuristicResult,
     PlacementContext,
 )
-from temper_placer.topological.graph import TopologicalGraph, build_topological_graph
+from temper_placer.topological.graph import TopologicalGraph
 from temper_placer.topological.initial_placement import (
-    InitialPlacement,
     PlacementError,
     generate_initial_placement,
 )
-from temper_placer.topological.propagation import ConstraintPropagator
-from temper_placer.topological.zone_solver import ZoneAssignment, ZoneSolver
-
-
-from dataclasses import dataclass, field
+from temper_placer.topological.zone_solver import ZoneAssignment
 
 
 @dataclass
@@ -152,7 +148,7 @@ class TopologicalInitializationHeuristic(Heuristic):
             )
             # Create virtual zone assignment to _BOARD_
             zone_assignment = ZoneAssignment(
-                assignments={ref: "_BOARD_" for ref in unplaced_refs},
+                assignments=dict.fromkeys(unplaced_refs, "_BOARD_"),
                 unassigned=[],
                 conflicts=[],
             )

@@ -1,6 +1,5 @@
 """Tests for the explainability.decision module."""
 
-import pytest
 from datetime import datetime
 
 from temper_placer.explainability import (

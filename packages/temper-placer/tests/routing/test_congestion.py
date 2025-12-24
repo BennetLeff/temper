@@ -11,12 +11,11 @@ Grid Model:
 - Bottleneck = demand > supply
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.board import Board
-
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # =============================================================================
 # Test Fixtures
@@ -392,8 +391,9 @@ class TestPositionBasedAnalysis:
 
     def test_analyze_with_positions(self, sample_netlist, simple_board):
         """Should use provided positions instead of initial_position."""
-        from temper_placer.routing.congestion import analyze_congestion
         import jax.numpy as jnp
+
+        from temper_placer.routing.congestion import analyze_congestion
 
         # Create positions array (N, 2)
         positions = jnp.array(
@@ -410,8 +410,9 @@ class TestPositionBasedAnalysis:
 
     def test_analysis_changes_with_positions(self, sample_netlist, simple_board):
         """Different positions should produce different congestion maps."""
-        from temper_placer.routing.congestion import analyze_congestion
         import jax.numpy as jnp
+
+        from temper_placer.routing.congestion import analyze_congestion
 
         # Clustered positions (all components close together)
         clustered = jnp.array(

@@ -118,7 +118,7 @@ class LossContext(BaseLossContext):
         for i, comp in enumerate(netlist.components):
             if comp.ref.startswith("FID"):
                 fiducial_indices_list.append(i)
-            
+
             # Component type (first letter or prefix)
             match = re.match(r"^([A-Za-z]+)", comp.ref)
             if match:
@@ -130,7 +130,7 @@ class LossContext(BaseLossContext):
         # Convert indices to JAX arrays
         fiducial_indices = jnp.array(fiducial_indices_list, dtype=jnp.int32)
         component_type_indices = {
-            t: jnp.array(idxs, dtype=jnp.int32) 
+            t: jnp.array(idxs, dtype=jnp.int32)
             for t, idxs in comp_type_map.items()
         }
 
@@ -148,8 +148,8 @@ class LossContext(BaseLossContext):
             centrality = jnp.ones(netlist.n_components) / max(netlist.n_components, 1)
 
         # Pre-compute net pin arrays for JAX-compatible wirelength
-        net_pin_indices, net_pin_offsets, net_pin_mask, net_weights, max_pins = (
-            cls._precompute_net_arrays(netlist, centrality if use_centrality_weighting else None)
+        net_pin_indices, net_pin_offsets, net_pin_mask, net_weights, net_layer_counts, max_pins = (
+            cls._precompute_net_arrays(netlist, board, centrality if use_centrality_weighting else None)
         )
 
         # Pre-compute loop constraint arrays
@@ -181,7 +181,8 @@ class LossContext(BaseLossContext):
                     to_pin=to_pin,
                     max_length=pc.max_length_mm,
                     weight=weight,
-                    matched_group=pc.matched_length_group
+                    matched_group=pc.matched_length_group,
+                    because=pc.name  # Use name as a fallback for because
                 ))
 
             # Map matched length groups
@@ -222,7 +223,8 @@ class LossContext(BaseLossContext):
                         sensitive_indices=tuple(sorted(set(sensitive))),
                         noise_source_indices=tuple(sorted(set(sources))),
                         min_distance=rule.min_distance_mm,
-                        weight=rule.weight
+                        weight=rule.weight,
+                        because=rule.name
                     ))
 
             # Map star grounds
@@ -231,7 +233,8 @@ class LossContext(BaseLossContext):
                 star_ground_constraints.append(StarGroundConstraint(
                     net_name=sg_cfg.net,
                     weight=sg_cfg.weight,
-                    anchor_position=sg_cfg.anchor
+                    anchor_position=sg_cfg.anchor,
+                    because=sg_cfg.description or f"Star ground for net {sg_cfg.net}"
                 ))
 
         path_pin_indices, path_pin_offsets, path_max_lengths, path_weights = (
@@ -309,13 +312,20 @@ class LossContext(BaseLossContext):
             fiducial_indices=fiducial_indices,
             component_type_indices=component_type_indices,
             is_star_net=jnp.array([n.name in [c.net_name for c in star_ground_constraints] for n in [net for net in netlist.nets if len(net.pins) >= 2]], dtype=jnp.bool_),
+            net_layer_counts=net_layer_counts,
+            routable_layers=len(board.layer_stackup.routable_layers()) if board.layer_stackup else 1,
+            net_class_layer_counts={
+                nc: len(board.layer_stackup.routable_layers(nc))
+                for nc in ("Signal", "Power", "HighVoltage")
+            } if board.layer_stackup else {"Signal": 1, "Power": 1, "HighVoltage": 1},
         )
 
     @staticmethod
     def _precompute_net_arrays(
         netlist: Netlist,
+        board: Board,
         centrality: Array | None = None,
-    ) -> tuple[Array, Array, Array, Array, int]:
+    ) -> tuple[Array, Array, Array, Array, Array, int]:
         """
         Pre-compute padded arrays for net pin positions.
 
@@ -335,6 +345,7 @@ class LossContext(BaseLossContext):
                 jnp.zeros((0, 0, 2), dtype=jnp.float32),
                 jnp.zeros((0, 0), dtype=jnp.bool_),
                 jnp.zeros((0,), dtype=jnp.float32),
+                jnp.zeros((0,), dtype=jnp.int32),
                 0,
             )
 
@@ -347,6 +358,7 @@ class LossContext(BaseLossContext):
         offsets = []
         masks = []
         weights = []
+        layer_counts = []
 
         for net in valid_nets:
             net_indices = []
@@ -389,11 +401,19 @@ class LossContext(BaseLossContext):
 
             weights.append(weight)
 
+            # Layer count for RHWL
+            if board.layer_stackup:
+                lc = len(board.layer_stackup.routable_layers(net.net_class or "Signal"))
+            else:
+                lc = 1
+            layer_counts.append(lc)
+
         return (
             jnp.array(indices, dtype=jnp.int32),
             jnp.array(offsets, dtype=jnp.float32),
             jnp.array(masks, dtype=jnp.bool_),
             jnp.array(weights, dtype=jnp.float32),
+            jnp.array(layer_counts, dtype=jnp.int32),
             max_pins,
         )
 
@@ -642,10 +662,10 @@ class LossContext(BaseLossContext):
             if sc.net_name not in net_map:
                 # Skip invalid nets (would be caught by validation ideally)
                 continue
-            
+
             indices.append(net_map[sc.net_name])
             weights.append(sc.weight)
-            
+
             if sc.anchor_position is not None:
                 anchors.append(list(sc.anchor_position))
                 has_anchors.append(True)
@@ -893,19 +913,19 @@ class CompositeLoss:
             # Conditionally pass net_virtual_nodes if the loss function supports it
             if wloss.loss_fn.supports_virtual_nodes:
                 result = wloss.loss_fn(
-                    positions, 
-                    rotations, 
-                    context, 
-                    epoch, 
+                    positions,
+                    rotations,
+                    context,
+                    epoch,
                     total_epochs,
                     net_virtual_nodes=net_virtual_nodes
                 )
             else:
                 result = wloss.loss_fn(
-                    positions, 
-                    rotations, 
-                    context, 
-                    epoch, 
+                    positions,
+                    rotations,
+                    context,
+                    epoch,
                     total_epochs
                 )
 
@@ -930,6 +950,76 @@ class CompositeLoss:
                     breakdown[f"{wloss.loss_fn.name}_{sub_key}"] = sub_val
 
         return LossResult(value=total, breakdown=breakdown)
+
+    def trace(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
+    ) -> tuple[Array, Trace]:
+        """
+        Evaluate all losses and collect a natural language trace.
+        
+        This is a non-differentiable method intended for use after optimization
+        to generate an explanation of the final result.
+        
+        Args:
+            positions: (N, 2) component positions.
+            rotations: (N, 4) soft rotations.
+            context: LossContext with PCL constraints.
+            epoch: Final epoch.
+            total_epochs: Total epochs.
+            net_virtual_nodes: Optional (M, 2) virtual nodes.
+            
+        Returns:
+            (total_loss, combined_trace)
+        """
+        from temper_placer.explainability.trace import Trace
+        from temper_placer.explainability.traced_loss import TracedLossContext
+
+        with TracedLossContext() as ctx:
+            for wloss in self.losses:
+                weight = wloss.get_weight(epoch, total_epochs)
+
+                # Evaluate sub-loss with tracing if supported
+                if hasattr(wloss.loss_fn, "trace"):
+                    if wloss.loss_fn.supports_virtual_nodes:
+                        val, sub_trace = wloss.loss_fn.trace(
+                            positions, rotations, context, epoch, total_epochs, net_virtual_nodes
+                        )
+                    else:
+                        val, sub_trace = wloss.loss_fn.trace(
+                            positions, rotations, context, epoch, total_epochs
+                        )
+                else:
+                    # Fallback: standard call
+                    if wloss.loss_fn.supports_virtual_nodes:
+                        result = wloss.loss_fn(
+                            positions, rotations, context, epoch, total_epochs, net_virtual_nodes
+                        )
+                    else:
+                        result = wloss.loss_fn(
+                            positions, rotations, context, epoch, total_epochs
+                        )
+                    val = result.value
+                    sub_trace = Trace.empty().add(
+                        wloss.loss_fn.name,
+                        float(val),
+                        f"Weighted component of {wloss.loss_fn.name} loss"
+                    )
+
+                # Apply normalization and weight to the value
+                normalizer = wloss.get_normalizer(context)
+                weighted_val = weight * (val / normalizer)
+
+                # Add to context (ctx.add handles the aggregation)
+                ctx.add(weighted_val, sub_trace)
+
+        total_loss, combined_trace = ctx.result()
+        return total_loss, combined_trace
 
     def get_loss_fn(self, name: str) -> LossFunction | None:
         """Get a loss function by name."""
@@ -958,22 +1048,22 @@ class CompositeLoss:
         """
         import time
         timings = {}
-        
+
         for weighted in self.losses:
             name = weighted.loss_fn.name
             start = time.perf_counter()
             # We call the loss function directly to avoid the overhead of CompositeLoss logic
             res = weighted.loss_fn(
-                positions, 
-                rotations, 
-                context, 
+                positions,
+                rotations,
+                context,
                 net_virtual_nodes=net_virtual_nodes
             )
             # Explicitly block to wait for JAX async dispatch
             res.value.block_until_ready()
             end = time.perf_counter()
             timings[name] = (end - start) * 1000.0 # ms
-            
+
         return timings
 
 
@@ -1098,12 +1188,12 @@ def create_value_and_grad_fn_with_breakdown(
         weight_overrides: Array | None = None,
     ) -> tuple[Array, dict[str, Array]]:
         result = composite(
-            positions, 
-            rotations, 
-            context, 
-            epoch, 
-            total_epochs, 
-            weight_overrides, 
+            positions,
+            rotations,
+            context,
+            epoch,
+            total_epochs,
+            weight_overrides,
             net_virtual_nodes
         )
         # Convert breakdown to dict of arrays for JIT compatibility

@@ -15,33 +15,33 @@ Phases:
 This module bridges PCL constraints and geometric optimization.
 """
 
+from temper_placer.topological.force_refinement import (
+    apply_force_refinement,
+    compute_adjacency_force,
+    compute_boundary_force,
+    compute_separation_force,
+)
 from temper_placer.topological.graph import (
+    TopologicalEdge,
     TopologicalGraph,
     TopologicalNode,
-    TopologicalEdge,
     build_topological_graph,
-)
-from temper_placer.topological.propagation import (
-    DistanceBound,
-    ConstraintPropagator,
-)
-from temper_placer.topological.zone_solver import (
-    ZoneAssignment,
-    ZoneSolver,
 )
 from temper_placer.topological.initial_placement import (
     InitialPlacement,
     PlacementError,
-    place_components_in_zone,
+    generate_initial_placement,
     identify_clusters,
     place_cluster,
-    generate_initial_placement,
+    place_components_in_zone,
 )
-from temper_placer.topological.force_refinement import (
-    compute_adjacency_force,
-    compute_separation_force,
-    compute_boundary_force,
-    apply_force_refinement,
+from temper_placer.topological.propagation import (
+    ConstraintPropagator,
+    DistanceBound,
+)
+from temper_placer.topological.zone_solver import (
+    ZoneAssignment,
+    ZoneSolver,
 )
 
 __all__ = [

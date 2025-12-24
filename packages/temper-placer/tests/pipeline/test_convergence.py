@@ -3,11 +3,7 @@
 Tests written BEFORE implementation.
 """
 
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
-import time
-
 
 # =============================================================================
 # Tests for TerminationReason Enum

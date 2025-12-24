@@ -10,13 +10,12 @@ Verification Levels:
 - MAZE (Level 3): Actual pathfinding (~10s)
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.board import Board
-from temper_placer.core.loop import Loop, LoopType, LoopPriority, LoopCollection
-
+from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # =============================================================================
 # Test Fixtures
@@ -385,8 +384,8 @@ class TestPlacementFeedback:
 
     def test_generate_feedback_from_failures(self, sample_netlist, simple_board, sample_loops):
         """Should generate placement hints from routing failures."""
-        from temper_placer.routing.verifier import RoutingVerifier, RoutingVerifierConfig
         from temper_placer.routing.diagnostics import RoutingReport
+        from temper_placer.routing.verifier import RoutingVerifier
 
         verifier = RoutingVerifier()
 
@@ -409,13 +408,13 @@ class TestPlacementFeedback:
 
     def test_feedback_sorted_by_priority(self):
         """Placement hints should be sorted by priority."""
-        from temper_placer.routing.verifier import RoutingVerifier
         from temper_placer.routing.diagnostics import (
-            RoutingReport,
-            RoutingDiagnostic,
             FailureType,
             PlacementAdjustment,
+            RoutingDiagnostic,
+            RoutingReport,
         )
+        from temper_placer.routing.verifier import RoutingVerifier
 
         verifier = RoutingVerifier()
 

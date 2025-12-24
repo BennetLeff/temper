@@ -1,10 +1,9 @@
 """Tests for topological graph data structure."""
 
-import pytest
 from temper_placer.topological.graph import (
+    TopologicalEdge,
     TopologicalGraph,
     TopologicalNode,
-    TopologicalEdge,
 )
 
 
@@ -325,8 +324,8 @@ class TestBuildTopologicalGraph:
     def test_build_from_separated_constraints(self):
         """Separated constraints create separation edges."""
         from temper_placer.pcl.constraints import (
-            SeparatedConstraint,
             ConstraintTier,
+            SeparatedConstraint,
         )
         from temper_placer.pcl.parser import ConstraintCollection
 
@@ -349,8 +348,8 @@ class TestBuildTopologicalGraph:
         from temper_placer.pcl.constraints import (
             AdjacentConstraint,
             AlignedConstraint,
-            ConstraintTier,
             Axis,
+            ConstraintTier,
         )
         from temper_placer.pcl.parser import ConstraintCollection
 

@@ -5,21 +5,18 @@ automatically capturing placement decisions during optimizer training
 and heuristic application.
 """
 
-import math
 import time
 
 import pytest
 
 from temper_placer.explainability import (
     Alternative,
-    Decision,
     DecisionPhase,
     DecisionTrace,
     DecisionType,
 )
 from temper_placer.explainability.logger import DecisionLogger
 from temper_placer.explainability.serialization import serialize_trace
-
 
 # =============================================================================
 # TestLoggerBasics - Core functionality
@@ -812,10 +809,9 @@ class TestContextManagers:
         logger.set_phase(DecisionPhase.SEMANTIC)
         logger.set_epoch(50)
 
-        with pytest.raises(ValueError):
-            with logger.phase(DecisionPhase.ROUTING):
-                with logger.epoch(999):
-                    raise ValueError("Test exception")
+        with pytest.raises(ValueError), logger.phase(DecisionPhase.ROUTING):
+            with logger.epoch(999):
+                raise ValueError("Test exception")
 
         # Both restored despite exception
         assert logger.current_phase == DecisionPhase.SEMANTIC

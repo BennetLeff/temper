@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 
 from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
-from temper_placer.pipeline.visualization import TerminalProgress, RichDashboard
+from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress
 
 
 @click.command()
@@ -60,7 +60,7 @@ def pipeline(
         orchestrator.on_phase_start = dashboard.on_phase_start
         orchestrator.on_iteration = dashboard.on_iteration
         orchestrator.on_epoch = dashboard.on_epoch
-        
+
         with Live(dashboard.create_layout(), refresh_per_second=4) as live:
             # Wrap on_epoch to also refresh the live display
             orig_on_epoch = orchestrator.on_epoch
@@ -68,7 +68,7 @@ def pipeline(
                 orig_on_epoch(metrics)
                 dashboard.update()
             orchestrator.on_epoch = on_epoch_wrapper
-            
+
             result = orchestrator.run()
     else:
         if verbose:

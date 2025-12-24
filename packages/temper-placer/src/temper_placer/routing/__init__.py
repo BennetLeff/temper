@@ -21,12 +21,11 @@ Example usage:
     ...     print("Placement cannot be routed!")
 """
 
-from temper_placer.routing.verifier import (
-    RoutingVerifier,
-    RoutingVerifierConfig,
-    VerificationLevel,
-    VerificationResult,
-    parse_verification_level,
+from temper_placer.routing.congestion import (
+    Bottleneck,
+    CongestionGrid,
+    CongestionResult,
+    analyze_congestion,
 )
 from temper_placer.routing.diagnostics import (
     FailureType,
@@ -36,30 +35,31 @@ from temper_placer.routing.diagnostics import (
     generate_diagnostics_from_results,
     generate_markdown_report,
 )
+from temper_placer.routing.layer_assignment import (
+    Layer,
+    LayerAssignment,
+    LayerConflict,
+    LayerConstraint,
+    assign_layers,
+    find_layer_conflicts,
+)
 from temper_placer.routing.maze_router import (
     GridCell,
     MazeRouter,
     RoutePath,
     compute_completion_rate,
 )
-from temper_placer.routing.layer_assignment import (
-    Layer,
-    LayerAssignment,
-    LayerConstraint,
-    LayerConflict,
-    assign_layers,
-    find_layer_conflicts,
-)
 from temper_placer.routing.net_ordering import (
     NetClass,
     NetPriority,
     order_nets,
 )
-from temper_placer.routing.congestion import (
-    Bottleneck,
-    CongestionGrid,
-    CongestionResult,
-    analyze_congestion,
+from temper_placer.routing.verifier import (
+    RoutingVerifier,
+    RoutingVerifierConfig,
+    VerificationLevel,
+    VerificationResult,
+    parse_verification_level,
 )
 
 __all__ = [

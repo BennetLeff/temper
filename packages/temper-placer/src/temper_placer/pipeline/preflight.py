@@ -21,10 +21,10 @@ Example usage:
     ...     print(report.summary())
 """
 
-from dataclasses import dataclass, field
+import time
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol
-import time
 
 
 class PreflightResult(Enum):

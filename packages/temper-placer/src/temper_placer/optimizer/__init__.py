@@ -41,6 +41,7 @@ from temper_placer.optimizer.checkpoint import (
     restore_training_state_from_checkpoint,
 )
 from temper_placer.optimizer.config import (
+    AdaptiveOverlapConfig,
     CheckpointConfig,
     CurriculumPhase,
     EarlyStoppingConfig,
@@ -114,6 +115,7 @@ __all__ = [
     "CurriculumPhase",
     "CheckpointConfig",
     "EarlyStoppingConfig",
+    "AdaptiveOverlapConfig",
     "get_default_loss_weights",
     # Convergence Analytics
     "LossImprovementTracker",

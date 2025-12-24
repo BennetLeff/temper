@@ -5,12 +5,12 @@ Tests verify that the blocking margin parameter correctly affects
 grid cell blocking calculations.
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.routing.maze_router import MazeRouter
-from temper_placer.core.netlist import Component, Pin
 from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Pin
+from temper_placer.routing.maze_router import MazeRouter
 
 
 @pytest.fixture
@@ -44,7 +44,7 @@ class TestBlockingMargin:
         """Default margin should be 0.5mm."""
         positions = jnp.array([[50.0, 50.0]])
         router.block_components([simple_component], positions)
-        
+
         # Component is 10x10mm centered at (50, 50)
         # With 0.5mm margin: 11x11mm total
         # Grid cells: (50-5.5)/1.0 to (50+5.5)/1.0 = 44.5 to 55.5 = cells 44-55 (12 cells)
@@ -56,7 +56,7 @@ class TestBlockingMargin:
         """Custom 0.1mm margin should reduce blocked area."""
         positions = jnp.array([[50.0, 50.0]])
         router.block_components([simple_component], positions, margin=0.1)
-        
+
         # Component is 10x10mm centered at (50, 50)
         # With 0.1mm margin: 10.2x10.2mm total
         # Grid cells: (50-5.1)/1.0 to (50+5.1)/1.0 = 44.9 to 55.1 = cells 44-55 (12 cells)
@@ -68,7 +68,7 @@ class TestBlockingMargin:
         """Zero margin should block only component footprint."""
         positions = jnp.array([[50.0, 50.0]])
         router.block_components([simple_component], positions, margin=0.0)
-        
+
         # Component is 10x10mm centered at (50, 50)
         # Grid cells: (50-5)/1.0 to (50+5)/1.0 = 45 to 55 = cells 45-54 (10 cells)
         assert int(router.occupancy[45, 50, 0]) == 1, "Component edge should be blocked"
@@ -79,7 +79,7 @@ class TestBlockingMargin:
         """Large 2mm margin should significantly increase blocked area."""
         positions = jnp.array([[50.0, 50.0]])
         router.block_components([simple_component], positions, margin=2.0)
-        
+
         # Component is 10x10mm centered at (50, 50)
         # With 2mm margin: 14x14mm total
         # Grid cells: (50-7)/1.0 to (50+7)/1.0 = 43 to 57 = cells 43-56 (14 cells)
@@ -91,15 +91,15 @@ class TestBlockingMargin:
         """Margin should apply consistently to all components."""
         comp1 = Component(ref="U1", footprint="5x5", bounds=(5.0, 5.0), pins=[])
         comp2 = Component(ref="U2", footprint="8x8", bounds=(8.0, 8.0), pins=[])
-        
+
         positions = jnp.array([[30.0, 30.0], [70.0, 70.0]])
         router.block_components([comp1, comp2], positions, margin=0.2)
-        
+
         # Both components should have 0.2mm margin applied
         # Verify by checking blocked cell counts are proportional to component size + margin
         blocked_1 = jnp.sum(router.occupancy[25:35, 25:35, 0] == 1)
         blocked_2 = jnp.sum(router.occupancy[65:75, 65:75, 0] == 1)
-        
+
         assert blocked_1 > 0, "First component should block cells"
         assert blocked_2 > 0, "Second component should block cells"
         assert blocked_2 > blocked_1, "Larger component should block more cells"
@@ -118,10 +118,10 @@ class TestMarginEdgeCases:
         """Margin larger than component should still work."""
         tiny_comp = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8), pins=[])
         positions = jnp.array([[50.0, 50.0]])
-        
+
         # 5mm margin on 1.6mm component
         router.block_components([tiny_comp], positions, margin=5.0)
-        
+
         # Should block large area around tiny component
         blocked_count = jnp.sum(router.occupancy[:, :, 0] == 1)
         assert blocked_count > 100, "Large margin should block many cells"
@@ -131,7 +131,7 @@ class TestMarginEdgeCases:
         # Place component at board edge
         positions = jnp.array([[5.0, 5.0]])
         router.block_components([simple_component], positions, margin=2.0)
-        
+
         # Should not block cells outside board (negative indices)
         # Verify no errors and blocking stops at board edge
         assert int(router.occupancy[0, 0, 0]) in [0, 1], "Board corner should be valid"

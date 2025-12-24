@@ -25,8 +25,8 @@ from dataclasses import dataclass
 from enum import IntEnum
 from functools import total_ordering
 
-from temper_placer.core.netlist import Netlist
 from temper_placer.core.loop import LoopCollection, LoopPriority
+from temper_placer.core.netlist import Netlist
 
 
 class NetClass(IntEnum):

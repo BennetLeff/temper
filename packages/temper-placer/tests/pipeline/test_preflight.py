@@ -6,18 +6,17 @@ to catch infeasible designs early without full optimization.
 TDD: Write tests first, then implement preflight.py to pass them.
 """
 
-import pytest
 from dataclasses import dataclass, field
 
+import pytest
 
 # We'll import from the preflight module we're about to create
 from temper_placer.pipeline.preflight import (
-    PreflightResult,
     PreflightCheck,
-    PreflightReport,
     PreflightChecker,
+    PreflightReport,
+    PreflightResult,
 )
-
 
 # =============================================================================
 # Mock Types for Testing (standalone, no external dependencies)

@@ -9,22 +9,22 @@ Following TDD: these tests are written BEFORE implementation.
 from __future__ import annotations
 
 import math
-import pytest
+
 import numpy as np
+import pytest
 
 # These imports will fail until implementation exists
 from temper_placer.core.board import Zone
-from temper_placer.topological.graph import TopologicalGraph
 
 # Imports that will be implemented
 from temper_placer.topological.force_refinement import (
+    _force_refine_numpy,
     apply_force_refinement,
     compute_adjacency_force,
-    compute_separation_force,
     compute_boundary_force,
-    _force_refine_numpy,
+    compute_separation_force,
 )
-
+from temper_placer.topological.graph import TopologicalGraph
 
 # =============================================================================
 # Test Fixtures
@@ -454,7 +454,7 @@ class TestApplyForceRefinement:
             "C": (30.0, 75.0),  # Close to A (but should be separated)
             "D": (70.0, 75.0),
         }
-        zone_assignments = {k: "TEST_ZONE" for k in positions}
+        zone_assignments = dict.fromkeys(positions, "TEST_ZONE")
         zones = {"TEST_ZONE": simple_zone}
 
         refined = apply_force_refinement(

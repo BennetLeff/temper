@@ -7,12 +7,7 @@ This module tests the visualization classes for pipeline progress:
 - Progress callback integration
 """
 
-from io import StringIO
-from unittest.mock import Mock, patch, MagicMock
-import sys
-
-import pytest
-
+from unittest.mock import Mock
 
 # =============================================================================
 # TerminalProgress Tests
@@ -459,9 +454,8 @@ class TestVisualizationIntegration:
 
     def test_terminal_progress_as_callback(self):
         """TerminalProgress should work as orchestrator callback."""
+
         from temper_placer.pipeline.visualization import TerminalProgress
-        from temper_placer.pipeline import PipelineOrchestrator, PipelineConfig
-        from pathlib import Path
 
         progress = TerminalProgress()
 
@@ -506,8 +500,8 @@ class TestCreateProgressDisplay:
     def test_create_terminal_progress(self):
         """create_progress_display('terminal') should return TerminalProgress."""
         from temper_placer.pipeline.visualization import (
-            create_progress_display,
             TerminalProgress,
+            create_progress_display,
         )
 
         progress = create_progress_display("terminal")
@@ -516,8 +510,8 @@ class TestCreateProgressDisplay:
     def test_create_rich_dashboard(self):
         """create_progress_display('rich') should return RichDashboard."""
         from temper_placer.pipeline.visualization import (
-            create_progress_display,
             RichDashboard,
+            create_progress_display,
         )
 
         dashboard = create_progress_display("rich")
@@ -526,8 +520,8 @@ class TestCreateProgressDisplay:
     def test_create_default_returns_terminal(self):
         """create_progress_display() should default to terminal."""
         from temper_placer.pipeline.visualization import (
-            create_progress_display,
             TerminalProgress,
+            create_progress_display,
         )
 
         progress = create_progress_display()

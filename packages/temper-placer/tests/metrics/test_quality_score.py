@@ -2,11 +2,10 @@
 Tests for quality_score module.
 """
 
-import pytest
 
+from temper_placer.metrics.quality_score import QualityScore, compute_quality_score
 from temper_placer.validation.drc_runner import DrcResult
 from temper_placer.validation.metrics import PlacementMetrics
-from temper_placer.metrics.quality_score import compute_quality_score, QualityScore
 
 
 def test_compute_quality_score_perfect_placement():

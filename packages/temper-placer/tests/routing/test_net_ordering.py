@@ -14,9 +14,8 @@ Priority order (highest to lowest):
 
 import pytest
 
+from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.core.loop import Loop, LoopType, LoopPriority, LoopCollection
-
 
 # =============================================================================
 # Test Fixtures
@@ -168,7 +167,7 @@ class TestNetPriority:
 
     def test_priority_comparison_by_loop_criticality(self):
         """Loop criticality should be the first tiebreaker."""
-        from temper_placer.routing.net_ordering import NetPriority, NetClass
+        from temper_placer.routing.net_ordering import NetClass, NetPriority
 
         # Critical loop net beats non-critical
         critical = NetPriority(
@@ -190,7 +189,7 @@ class TestNetPriority:
 
     def test_priority_comparison_by_net_class(self):
         """Net class should be the second tiebreaker (after loop criticality)."""
-        from temper_placer.routing.net_ordering import NetPriority, NetClass
+        from temper_placer.routing.net_ordering import NetClass, NetPriority
 
         hv_net = NetPriority(
             loop_criticality=2,
@@ -211,7 +210,7 @@ class TestNetPriority:
 
     def test_priority_comparison_by_pin_count(self):
         """Fewer pins should route first (same loop criticality and net class)."""
-        from temper_placer.routing.net_ordering import NetPriority, NetClass
+        from temper_placer.routing.net_ordering import NetClass, NetPriority
 
         few_pins = NetPriority(
             loop_criticality=2,
@@ -232,7 +231,7 @@ class TestNetPriority:
 
     def test_priority_comparison_by_bbox_area(self):
         """Smaller bounding box should route first (after pin count)."""
-        from temper_placer.routing.net_ordering import NetPriority, NetClass
+        from temper_placer.routing.net_ordering import NetClass, NetPriority
 
         small_bbox = NetPriority(
             loop_criticality=2,
@@ -253,7 +252,7 @@ class TestNetPriority:
 
     def test_priority_comparison_alphabetical_tiebreaker(self):
         """Alphabetical order is the final tiebreaker."""
-        from temper_placer.routing.net_ordering import NetPriority, NetClass
+        from temper_placer.routing.net_ordering import NetClass, NetPriority
 
         net_a = NetPriority(
             loop_criticality=2,
@@ -274,7 +273,7 @@ class TestNetPriority:
 
     def test_priority_equality(self):
         """Identical priorities should be equal."""
-        from temper_placer.routing.net_ordering import NetPriority, NetClass
+        from temper_placer.routing.net_ordering import NetClass, NetPriority
 
         p1 = NetPriority(
             loop_criticality=1,
@@ -410,7 +409,7 @@ class TestNetClassMapping:
 
     def test_string_to_netclass_mapping(self):
         """Should correctly map string net classes to NetClass enum."""
-        from temper_placer.routing.net_ordering import get_net_class_from_string, NetClass
+        from temper_placer.routing.net_ordering import NetClass, get_net_class_from_string
 
         assert get_net_class_from_string("HighVoltage") == NetClass.HIGH_VOLTAGE
         assert get_net_class_from_string("Power") == NetClass.POWER
@@ -419,7 +418,7 @@ class TestNetClassMapping:
 
     def test_unknown_net_class_defaults_to_signal(self):
         """Unknown net class strings should default to Signal."""
-        from temper_placer.routing.net_ordering import get_net_class_from_string, NetClass
+        from temper_placer.routing.net_ordering import NetClass, get_net_class_from_string
 
         assert get_net_class_from_string("Unknown") == NetClass.SIGNAL
         assert get_net_class_from_string("") == NetClass.SIGNAL

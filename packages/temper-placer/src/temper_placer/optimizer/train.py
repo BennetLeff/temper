@@ -33,13 +33,14 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
+from temper_placer.explainability.trace import Trace
 from temper_placer.geometry.transform import sample_rotation_batch
+from temper_placer.heuristics.force_directed import compute_force_directed_layout
 from temper_placer.losses.base import (
     CompositeLoss,
     LossContext,
     create_value_and_grad_fn_with_breakdown,
 )
-from temper_placer.heuristics.force_directed import compute_force_directed_layout
 from temper_placer.optimizer.config import OptimizerConfig
 from temper_placer.optimizer.convergence_analytics import (
     ConvergenceConfidenceScorer,
@@ -182,6 +183,7 @@ class TrainingResult:
     stopped_by_validation: bool = False
     final_overlap_weights: Array | None = None
     convergence_reached: bool = False
+    trace: Trace | None = None
 
 
 @dataclass
@@ -336,7 +338,7 @@ def initialize_training_state(
             )
             positions = state.positions
             net_virtual_nodes = state.net_virtual_nodes
-        
+
         # Initialize uniform rotation logits if not starting from existing state
         rotation_logits = jnp.zeros((netlist.n_components, 4))
 
@@ -362,7 +364,7 @@ def initialize_training_state(
     # Create optimizers
     initial_lr = config.learning_rate.initial
     opt_pos, opt_rot = create_optimizer(config, initial_lr)
-    
+
     # Create optimizer for virtual nodes (reuse generic optimizer config)
     opt_vn, _ = create_optimizer(config, initial_lr)
 
@@ -525,11 +527,11 @@ def make_train_step(
             # GradNorm weight update
             # 1. Compute weighted gradient norms: w_i * ||grad(L_i)||
             gw_norms = loss_weights * curr_grad_norms
-            
+
             # 2. Compute target norm: mean(gw_i)
             # (Simplified version without inverse training rate for now)
             target_norms = jnp.mean(gw_norms)
-            
+
             # 3. Compute gradient of GradNorm loss (L_grad = sum |gw_i - target_i|)
             weight_grads = jnp.sign(gw_norms - target_norms) * curr_grad_norms
             new_loss_weights = loss_weights - grad_norm_lr * weight_grads
@@ -580,7 +582,7 @@ def make_train_step(
                 positions,
                 new_positions
             )
-            
+
             # Zero out optimizer state for fixed components to prevent drift (temper-p11g.6)
             # Adam optimizer maintains momentum (mu) and variance (nu) which can accumulate
             if hasattr(next_opt_state_pos, 'mu'):
@@ -591,7 +593,7 @@ def make_train_step(
 
         updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
-        
+
         # Fixed components don't rotate either
         if loss_context is not None:
             new_rotation_logits = jnp.where(
@@ -599,7 +601,7 @@ def make_train_step(
                 rotation_logits,
                 new_rotation_logits
             )
-            
+
             # Zero out optimizer state for fixed components (temper-p11g.6)
             if hasattr(next_opt_state_rot, 'mu'):
                 next_opt_state_rot = next_opt_state_rot._replace(
@@ -609,7 +611,7 @@ def make_train_step(
 
         updates_vn, next_opt_state_vn = opt_vn.update(grad_vn, new_opt_state_vn, net_virtual_nodes)
         new_net_virtual_nodes = optax.apply_updates(net_virtual_nodes, updates_vn)
-        
+
         # Hard clamping for virtual nodes
         if loss_context is not None:
             board_bounds = loss_context.board.get_relative_bounds_array()
@@ -827,13 +829,13 @@ def train(
 
             # --- Convergence Tracking ---
             loss_value = float(loss)
-            
+
             # Update specialized trackers
             conv_metrics = tracker.update(loss_value)
             # Use gradient norm for confidence if enabled
             grad_norm = float(jnp.linalg.norm(grad_pos))
             conv_confidence = scorer.update(tracker, grad_norm=grad_norm)
-            
+
             confidence = conv_confidence.confidence
             is_plateau = conv_metrics.is_stagnating
             state.improvement_ema = conv_metrics.improvement_rate # Use rate as EMA proxy for backward compat if needed
@@ -867,7 +869,7 @@ def train(
                     )
                     # Cap is critical to prevent explosion (temper-taaj.1)
                     state.overlap_weights = jnp.minimum(state.overlap_weights, ao_cfg.max_cap)
-                    
+
                     # Log when weights approach cap for debugging
                     max_weight = float(jnp.max(state.overlap_weights))
                     if max_weight > ao_cfg.max_cap * 0.9:
@@ -967,10 +969,10 @@ def train(
                 if epochs_without_improvement >= config.early_stopping.patience:
                     convergence_reached = True
                     break
-                    
+
                 # 2. Convergence-based stopping
                 if (
-                    config.early_stopping.use_convergence 
+                    config.early_stopping.use_convergence
                     and confidence >= config.early_stopping.confidence_threshold
                     and epoch > config.early_stopping.patience // 2  # Warmup
                 ):
@@ -1011,6 +1013,14 @@ def train(
         stopped_by_validation=stopped_by_validation,
         final_overlap_weights=state.overlap_weights,
         convergence_reached=convergence_reached,
+        trace=composite_loss.trace(
+            best_positions,
+            best_rotations,
+            context,
+            epoch=epoch,
+            total_epochs=config.epochs,
+            net_virtual_nodes=state.net_virtual_nodes
+        )[1],
     )
 
 
@@ -1300,13 +1310,13 @@ def train_multiphase(
 
             # --- Convergence Tracking ---
             loss_value = float(loss)
-            
+
             # Update specialized trackers
             conv_metrics = tracker.update(loss_value)
             # Use gradient norm for confidence if enabled
             grad_norm = float(jnp.linalg.norm(grad_pos))
             conv_confidence = scorer.update(tracker, grad_norm=grad_norm)
-            
+
             confidence = conv_confidence.confidence
             is_plateau = conv_metrics.is_stagnating
             state.improvement_ema = conv_metrics.improvement_rate # Use rate as EMA proxy for backward compat if needed
@@ -1424,10 +1434,10 @@ def train_multiphase(
                 if epochs_without_improvement >= config.early_stopping.patience:
                     convergence_reached = True
                     break
-                    
+
                 # 2. Convergence-based stopping
                 if (
-                    config.early_stopping.use_convergence 
+                    config.early_stopping.use_convergence
                     and confidence >= config.early_stopping.confidence_threshold
                     and epoch > config.early_stopping.patience // 2  # Warmup
                 ):
@@ -1467,4 +1477,12 @@ def train_multiphase(
         stopped_by_validation=stopped_by_validation,
         final_overlap_weights=state.overlap_weights,
         convergence_reached=convergence_reached,
+        trace=composite_loss.trace(
+            best_positions,
+            best_rotations,
+            context,
+            epoch=epoch,
+            total_epochs=config.epochs,
+            net_virtual_nodes=state.net_virtual_nodes
+        )[1],
     )

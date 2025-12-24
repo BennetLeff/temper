@@ -4,9 +4,11 @@ Pytest fixtures and helpers for routing tests.
 Provides common test utilities including grid visualization on failures.
 """
 
+
 import pytest
-from typing import Optional, List, Tuple
+
 from temper_placer.routing.maze_router import GridCell, MazeRouter
+
 from .grid_viz import print_grid_on_failure, render_grid
 
 
@@ -21,12 +23,12 @@ def assert_path_found():
             path = router.find_path((0, 0), (9, 9))
             assert_path_found(router, path, (0, 0), (9, 9))
     """
-    def _assert(router: MazeRouter, path: Optional[List[GridCell]], 
-                start: Tuple[int, int], end: Tuple[int, int]):
+    def _assert(router: MazeRouter, path: list[GridCell] | None,
+                start: tuple[int, int], end: tuple[int, int]):
         if path is None:
             print_grid_on_failure(router, path, start, end, expected_success=True)
         assert path is not None, f"Expected path from {start} to {end}, got None"
-    
+
     return _assert
 
 
@@ -42,12 +44,12 @@ def assert_no_path():
             path = router.find_path((0, 0), (9, 9))
             assert_no_path(router, path, (0, 0), (9, 9))
     """
-    def _assert(router: MazeRouter, path: Optional[List[GridCell]], 
-                start: Tuple[int, int], end: Tuple[int, int]):
+    def _assert(router: MazeRouter, path: list[GridCell] | None,
+                start: tuple[int, int], end: tuple[int, int]):
         if path is not None:
             print_grid_on_failure(router, path, start, end, expected_success=False)
         assert path is None, f"Expected no path from {start} to {end}, but found one with {len(path)} cells"
-    
+
     return _assert
 
 
@@ -72,11 +74,11 @@ def visualize_on_failure(request):
             self.start = None
             self.end = None
             self.path = None
-    
+
     helper = VisualizerHelper()
-    
+
     yield helper
-    
+
     # After test runs, check if it failed
     if request.node.rep_call.failed if hasattr(request.node, 'rep_call') else False:
         if helper.router is not None:

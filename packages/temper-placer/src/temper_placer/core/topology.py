@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
+
 
 @dataclass
 class TopologicalGraph:
@@ -8,13 +9,13 @@ class TopologicalGraph:
     
     This structure is used to reason about placement before assigning coordinates.
     """
-    nodes: List[str] = field(default_factory=list)
+    nodes: list[str] = field(default_factory=list)
     # (a, b, max_distance_mm)
-    adjacency_edges: List[Tuple[str, str, float]] = field(default_factory=list)
+    adjacency_edges: list[tuple[str, str, float]] = field(default_factory=list)
     # (a, b, min_distance_mm)
-    separation_edges: List[Tuple[str, str, float]] = field(default_factory=list)
+    separation_edges: list[tuple[str, str, float]] = field(default_factory=list)
     # outer zone/component -> [inner components]
-    enclosure: Dict[str, List[str]] = field(default_factory=dict)
+    enclosure: dict[str, list[str]] = field(default_factory=dict)
 
     def add_node(self, ref: str) -> None:
         """Add a component reference as a node."""
@@ -42,7 +43,7 @@ class TopologicalGraph:
         if inner not in self.enclosure[outer]:
             self.enclosure[outer].append(inner)
 
-    def get_clusters(self) -> List[Set[str]]:
+    def get_clusters(self) -> list[set[str]]:
         """Identify connected components in the adjacency graph.
         
         Connected components represent clusters of components that must stay
@@ -67,7 +68,7 @@ class TopologicalGraph:
             union(a, b)
 
         # Group by root
-        clusters_dict: Dict[str, Set[str]] = {}
+        clusters_dict: dict[str, set[str]] = {}
         for node in self.nodes:
             root = find(node)
             if root not in clusters_dict:
@@ -80,14 +81,14 @@ class TopologicalGraph:
 class ComponentCluster:
     """A cluster of components that stay together."""
     name: str
-    components: Set[str]
-    parent_zone: Optional[str] = None
+    components: set[str]
+    parent_zone: str | None = None
 
 @dataclass
 class TopologicalSolution:
     """Output of the topological placement phase."""
-    clusters: List[ComponentCluster] = field(default_factory=list)
-    cluster_adjacencies: List[Tuple[str, str]] = field(default_factory=list)
-    cluster_separations: List[Tuple[str, str, float]] = field(default_factory=list)
+    clusters: list[ComponentCluster] = field(default_factory=list)
+    cluster_adjacencies: list[tuple[str, str]] = field(default_factory=list)
+    cluster_separations: list[tuple[str, str, float]] = field(default_factory=list)
     feasible: bool = True
-    infeasibility_reasons: List[str] = field(default_factory=list)
+    infeasibility_reasons: list[str] = field(default_factory=list)

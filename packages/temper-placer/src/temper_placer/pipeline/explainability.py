@@ -1,30 +1,31 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
-from datetime import datetime
-import uuid
 
-from temper_placer.core.decision import Decision, DecisionTrace, Alternative
+import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
+
+from temper_placer.core.decision import Alternative, Decision, DecisionTrace
 
 if TYPE_CHECKING:
-    from temper_placer.pipeline.orchestrator import PipelineState
+    pass
 
 class DecisionLogger:
     """Logs decisions during the placement and routing process."""
-    
-    def __init__(self, run_id: Optional[str] = None):
+
+    def __init__(self, run_id: str | None = None):
         self.trace = DecisionTrace(
             run_id=run_id or str(uuid.uuid4()),
             start_time=datetime.now()
         )
-        
+
     def log_placement(
         self,
         component: str,
         value: Any,
         reason: str,
         phase: str = "geometric",
-        constraints: List[str] = None,
-        alternatives: List[Alternative] = None
+        constraints: list[str] = None,
+        alternatives: list[Alternative] = None
     ) -> None:
         """Log a component placement decision."""
         decision = Decision(
@@ -38,14 +39,14 @@ class DecisionLogger:
             alternatives_considered=alternatives or []
         )
         self.trace.add_decision(decision)
-        
+
     def log_routing(
         self,
         net: str,
         value: Any,
         reason: str,
         phase: str = "routing",
-        constraints: List[str] = None
+        constraints: list[str] = None
     ) -> None:
         """Log a routing decision."""
         decision = Decision(
@@ -58,8 +59,8 @@ class DecisionLogger:
             constraint_refs=constraints or []
         )
         self.trace.add_decision(decision)
-        
-    def finish(self, metrics: Dict[str, float]) -> DecisionTrace:
+
+    def finish(self, metrics: dict[str, float]) -> DecisionTrace:
         """Finalize the trace with metrics and end time."""
         self.trace.end_time = datetime.now()
         self.trace.final_metrics = metrics
@@ -74,20 +75,20 @@ def generate_markdown_report(trace: DecisionTrace) -> str:
         "",
         "## Summary Metrics",
     ]
-    
+
     for k, v in trace.final_metrics.items():
         lines.append(f"- **{k}**: {v:.4f}" if isinstance(v, float) else f"- **{k}**: {v}")
-        
+
     lines.append("")
     lines.append("## Decisions")
-    
+
     # Group decisions by subject
-    by_subject: Dict[str, List[Decision]] = {}
+    by_subject: dict[str, list[Decision]] = {}
     for d in trace.decisions:
         if d.subject not in by_subject:
             by_subject[d.subject] = []
         by_subject[d.subject].append(d)
-        
+
     for subject, decisions in by_subject.items():
         lines.append(f"### {subject}")
         for d in decisions:
@@ -96,7 +97,7 @@ def generate_markdown_report(trace: DecisionTrace) -> str:
             lines.append(f"- **Reason**: {d.reason}")
             if d.constraint_refs:
                 lines.append(f"- **Constraints**: {', '.join(d.constraint_refs)}")
-            
+
             if d.alternatives_considered:
                 lines.append("  #### Alternatives Rejected")
                 for i, alt in enumerate(d.alternatives_considered, 1):
@@ -104,5 +105,5 @@ def generate_markdown_report(trace: DecisionTrace) -> str:
                     if alt.constraint_violated:
                         lines.append(f"     - Violated: {alt.constraint_violated}")
         lines.append("")
-        
+
     return "\n".join(lines)

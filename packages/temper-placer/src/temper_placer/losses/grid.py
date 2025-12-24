@@ -7,8 +7,9 @@ manufacturing grid (e.g., 0.5mm or 1.0mm).
 
 from __future__ import annotations
 
-import jax.numpy as jnp
 from typing import Any
+
+import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult

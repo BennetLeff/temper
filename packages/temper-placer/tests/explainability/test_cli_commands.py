@@ -19,7 +19,6 @@ from temper_placer.explainability import (
 )
 from temper_placer.explainability.serialization import save_trace
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================

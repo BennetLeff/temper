@@ -7,7 +7,6 @@ import pytest
 from temper_placer.core.loop import (
     Loop,
     LoopCollection,
-    LoopEvent,
     LoopPin,
     LoopPriority,
     LoopType,
@@ -19,7 +18,7 @@ from temper_placer.core.loop_ownership import (
     build_ownership_map,
     classify_role,
 )
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Netlist, Pin
 
 
 @pytest.fixture

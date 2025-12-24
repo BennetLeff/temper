@@ -9,8 +9,8 @@ Tests cover:
 - LoopCollection management and queries
 """
 
-import math
 import pytest
+
 from temper_placer.core.loop import (
     Loop,
     LoopCollection,

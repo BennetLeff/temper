@@ -13,6 +13,7 @@ This module builds a graph representation that enables:
 
 from dataclasses import dataclass, field
 from typing import Any
+
 import networkx as nx
 
 
@@ -254,9 +255,6 @@ class TopologicalGraph:
         from temper_placer.pcl.constraints import (
             AdjacentConstraint,
             SeparatedConstraint,
-            AlignedConstraint,
-            EnclosingConstraint,
-            OnSideConstraint,
         )
 
         graph = TopologicalGraph()

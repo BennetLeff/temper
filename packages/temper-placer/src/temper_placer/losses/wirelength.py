@@ -140,19 +140,27 @@ class WirelengthLoss(LossFunction):
         pin_positions = pin_comp_positions + rotated_offsets
 
         # Compute HPWL for each net using masked operations
-        total_hpwl = self._compute_hpwl_vectorized(
+        hpwl_per_net = self._compute_hpwl_vectorized(
             pin_positions,
             context.net_pin_mask,
             weights,
+            return_sum=False,
         )
 
-        return LossResult(value=total_hpwl * self.net_weight_scale)
+        # RHWL = HPWL / layer_count
+        # This prevents over-penalizing wirelength on boards with many routing layers.
+        rhwl_per_net = hpwl_per_net / jnp.maximum(1, context.net_layer_counts)
+
+        total_loss = jnp.sum(rhwl_per_net)
+
+        return LossResult(value=total_loss * self.net_weight_scale)
 
     def _compute_hpwl_vectorized(
         self,
         pin_positions: Array,
         mask: Array,
         weights: Array,
+        return_sum: bool = True,
     ) -> Array:
         """
         Compute HPWL for all nets in parallel using masked LogSumExp.
@@ -161,20 +169,14 @@ class WirelengthLoss(LossFunction):
             pin_positions: (M, P, 2) pin positions for all nets.
             mask: (M, P) boolean mask for valid pins.
             weights: (M,) weights for each net.
+            return_sum: If True, return scalar total. Otherwise return (M,) array.
 
         Returns:
-            Scalar total weighted HPWL.
+            Scalar total weighted HPWL or (M,) array of weighted HPWLs.
         """
-        # Extract x and y coordinates: (M, P)
+        # ... existing coordinate extraction ...
         x_coords = pin_positions[:, :, 0]
         y_coords = pin_positions[:, :, 1]
-
-        # For masked smooth max/min, we use -inf/+inf for proper logsumexp behavior.
-        # JAX's logsumexp correctly handles -inf (exp(-inf) = 0, contributes nothing).
-        #
-        # CRITICAL: We previously used large_val = 1e10, but with alpha=10,
-        # this computes exp(alpha * 1e10) = exp(1e11) = Inf, causing overflow.
-        # Using -inf/+inf is mathematically correct and numerically stable.
 
         # Masked x coordinates: invalid pins get -inf for max, +inf for min
         x_for_max = jnp.where(mask, x_coords, -jnp.inf)
@@ -185,8 +187,6 @@ class WirelengthLoss(LossFunction):
         y_for_min = jnp.where(mask, y_coords, jnp.inf)
 
         # Compute smooth max and min along pin dimension (axis=1)
-        # Using LogSumExp: max ≈ (1/alpha) * log(sum(exp(alpha * x)))
-        # For min, we use: min(x) = -max(-x)
         x_max = jax.nn.logsumexp(self.alpha * x_for_max, axis=1) / self.alpha
         x_min = -jax.nn.logsumexp(-self.alpha * x_for_min, axis=1) / self.alpha
 
@@ -196,10 +196,12 @@ class WirelengthLoss(LossFunction):
         # HPWL for each net: (M,)
         hpwl_per_net = (x_max - x_min) + (y_max - y_min)
 
-        # Weighted sum
-        total_hpwl = jnp.sum(weights * hpwl_per_net)
+        # Weighted values
+        weighted_hpwl = weights * hpwl_per_net
 
-        return total_hpwl
+        if return_sum:
+            return jnp.sum(weighted_hpwl)
+        return weighted_hpwl
 
     def weight_schedule(self, epoch: int, total_epochs: int) -> float:
         """

@@ -5,14 +5,12 @@ Tests verify push_path and shove_paths maintain connectivity,
 preserve topology, and are reversible.
 """
 
-import pytest
-from hypothesis import given, strategies as st
-import jax.numpy as jnp
 from dataclasses import replace
 
-from temper_placer.routing.push_shove import (
-    Path, Segment, push_path, shove_paths, detect_collision
-)
+from hypothesis import given
+from hypothesis import strategies as st
+
+from temper_placer.routing.push_shove import Path, Segment, detect_collision, push_path, shove_paths
 
 
 def get_horizontal_path():
@@ -42,7 +40,7 @@ class TestPushPath:
         """Pushing path up should move it vertically."""
         horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
-        
+
         # Path should be moved up by 2mm
         assert pushed.segments[0].start[1] == 12.0, "Start should move up"
         assert pushed.segments[0].end[1] == 12.0, "End should move up"
@@ -52,7 +50,7 @@ class TestPushPath:
         """Pushed path should maintain connectivity."""
         horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
-        
+
         # Segments should still be connected
         assert len(pushed.segments) == len(horizontal_path.segments)
         for i in range(len(pushed.segments) - 1):
@@ -63,7 +61,7 @@ class TestPushPath:
         """Pushed path should maintain width and clearance."""
         horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
-        
+
         assert pushed.width == horizontal_path.width
         assert pushed.clearance == horizontal_path.clearance
 
@@ -71,14 +69,14 @@ class TestPushPath:
         """Pushed path should maintain net assignment."""
         horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=2.0)
-        
+
         assert pushed.net == horizontal_path.net
 
     def test_push_path_zero_distance_is_identity(self):
         """Pushing by zero distance should return equivalent path."""
         horizontal_path = get_horizontal_path()
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=0.0)
-        
+
         assert pushed == horizontal_path
 
     @given(
@@ -91,7 +89,7 @@ class TestPushPath:
         pushed = push_path(horizontal_path, direction=(0.0, 1.0), distance=distance)
         # Pull down
         restored = push_path(pushed, direction=(0.0, -1.0), distance=distance)
-        
+
         # Should be back to original (within floating point tolerance)
         for i, seg in enumerate(restored.segments):
             orig_seg = horizontal_path.segments[i]
@@ -108,14 +106,14 @@ class TestPushPath:
         dx, dy = 1.0, 1.0
         length = math.sqrt(dx**2 + dy**2)
         direction = (dx / length, dy / length)
-        
+
         pushed = push_path(horizontal_path, direction=direction, distance=2.0)
-        
+
         # Path should move diagonally by 2mm
         # Each component moves by 2 * direction
         expected_dx = 2.0 * direction[0]
         expected_dy = 2.0 * direction[1]
-        
+
         assert abs(pushed.segments[0].start[0] - (0.0 + expected_dx)) < 1e-6
         assert abs(pushed.segments[0].start[1] - (10.0 + expected_dy)) < 1e-6
 
@@ -128,12 +126,12 @@ class TestShovePaths:
         # Paths collide at (10, 10)
         existing_paths = [get_horizontal_path()]
         new_path = get_vertical_path()
-        
+
         result = shove_paths(existing_paths, new_path)
-        
+
         assert result.success, "Shove should succeed"
         assert len(result.paths) == 1, "Should return updated path"
-        
+
         # Updated path should not collide with new path
         shoved = result.paths[0]
         assert not detect_collision(shoved, new_path), \
@@ -144,7 +142,7 @@ class TestShovePaths:
         horizontal_path = get_horizontal_path()
         path2 = replace(horizontal_path, net="NET2")
         path2 = replace(path2, segments=[Segment(start=(0.0, 12.0), end=(20.0, 12.0))])
-        
+
         existing_paths = [horizontal_path, path2]
         new_path = Path(
             segments=[Segment(start=(10.0, 5.0), end=(10.0, 15.0))],
@@ -152,9 +150,9 @@ class TestShovePaths:
             clearance=0.2,
             net="NET3",
         )
-        
+
         result = shove_paths(existing_paths, new_path)
-        
+
         assert len(result.paths) == 2, "Should preserve all existing paths"
 
     def test_shove_minimal_displacement(self):
@@ -162,17 +160,17 @@ class TestShovePaths:
         horizontal_path = get_horizontal_path()
         existing_paths = [horizontal_path]
         new_path = get_vertical_path()
-        
+
         result = shove_paths(existing_paths, new_path)
-        
+
         if result.success:
             shoved = result.paths[0]
-            
+
             # Calculate displacement
             orig_y = horizontal_path.segments[0].start[1]
             new_y = shoved.segments[0].start[1]
             displacement = abs(new_y - orig_y)
-            
+
             # Displacement should be just enough to clear
             # Minimum = width/2 + clearance/2 + width/2 + clearance/2 = 0.4mm
             assert displacement >= 0.4, "Should move enough to clear"
@@ -193,19 +191,19 @@ class TestShovePaths:
             segments=[Segment(start=(0.0, 11.0), end=(20.0, 11.0))],
             width=0.2, clearance=0.2, net="NET3"
         )
-        
+
         existing_paths = [path1, path2, path3]
-        
+
         # New path crosses all three
         new_path = Path(
             segments=[Segment(start=(10.0, 9.0), end=(10.0, 12.0))],
             width=0.2, clearance=0.2, net="CROSS"
         )
-        
+
         result = shove_paths(existing_paths, new_path)
-        
+
         assert result.success, "Ripple shove should succeed"
-        
+
         # All paths should be moved
         for i, shoved in enumerate(result.paths):
             assert not detect_collision(shoved, new_path), \
@@ -222,17 +220,17 @@ class TestShovePaths:
             ],
             width=0.2, clearance=0.2, net="NET1"
         )
-        
+
         new_path = Path(
             segments=[Segment(start=(5.0, 5.0), end=(5.0, 15.0))],
             width=0.2, clearance=0.2, net="NET2"
         )
-        
+
         result = shove_paths([multi_seg], new_path)
-        
+
         if result.success:
             shoved = result.paths[0]
-            
+
             # Verify connectivity
             for i in range(len(shoved.segments) - 1):
                 assert shoved.segments[i].end == shoved.segments[i + 1].start, \
@@ -245,15 +243,15 @@ class TestShovePaths:
             segments=[Segment(start=(0.0, 0.0), end=(20.0, 0.0))],
             width=0.2, clearance=0.2, net="NET1"
         )
-        
+
         # New path that would require shoving beyond board edge
         new_path = Path(
             segments=[Segment(start=(10.0, -1.0), end=(10.0, 1.0))],
             width=0.2, clearance=0.2, net="NET2"
         )
-        
+
         result = shove_paths([edge_path], new_path, board_bounds=(20.0, 20.0))
-        
+
         # Should either succeed with valid shove or fail gracefully
         if not result.success:
             assert result.paths == [edge_path], "Should preserve original on failure"
@@ -271,9 +269,9 @@ class TestPushShoveProperties:
         import math
         horizontal_path = get_horizontal_path()
         direction = (math.cos(angle), math.sin(angle))
-        
+
         pushed = push_path(horizontal_path, direction=direction, distance=distance)
-        
+
         # Calculate path lengths
         def path_length(path):
             total = 0.0
@@ -282,10 +280,10 @@ class TestPushShoveProperties:
                 dy = seg.end[1] - seg.start[1]
                 total += math.sqrt(dx**2 + dy**2)
             return total
-        
+
         orig_length = path_length(horizontal_path)
         pushed_length = path_length(pushed)
-        
+
         assert abs(orig_length - pushed_length) < 1e-6, \
             "Push should preserve path length"
 
@@ -302,14 +300,14 @@ class TestPushShoveProperties:
                 width=0.2, clearance=0.2, net=f"NET{i}"
             )
             paths.append(path)
-        
+
         new_path = Path(
             segments=[Segment(start=(10.0, 5.0), end=(10.0, 20.0))],
             width=0.2, clearance=0.2, net="CROSS"
         )
-        
+
         result = shove_paths(paths, new_path)
-        
+
         if result.success:
             assert len(result.paths) == num_paths, \
                 "Shove should preserve path count"

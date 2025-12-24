@@ -1,6 +1,5 @@
 import jax
-import jax.numpy as jnp
-import pytest
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.losses import (
     BoundaryLoss,
@@ -12,8 +11,9 @@ from temper_placer.losses import (
 )
 from temper_placer.optimizer import InitializationConfig, OptimizerConfig, train
 from temper_placer.optimizer.config import LearningRateSchedule
-from temper_placer.visualization import render_board, create_board_view_from_state
+from temper_placer.visualization import create_board_view_from_state, render_board
 from tests.fixtures.external import get_pcb_path
+
 
 def test_debug_piantor_right_convergence():
     """Debug test to investigate piantor_right convergence issues."""
@@ -48,12 +48,12 @@ def test_debug_piantor_right_convergence():
     # Calculate final metrics
     positions = opt_result.final_state.positions
     rotations = jax.nn.softmax(opt_result.final_state.rotation_logits)
-    
+
     wl = WirelengthLoss()(positions, rotations, context).value
     overlap = OverlapLoss()(positions, rotations, context).value
     boundary = BoundaryLoss()(positions, rotations, context).value
-    
-    print(f"\nPiantor Right Final Metrics (4000 epochs):")
+
+    print("\nPiantor Right Final Metrics (4000 epochs):")
     print(f"  Wirelength: {wl:.4f}")
     print(f"  Overlap:    {overlap:.4f}")
     print(f"  Boundary:   {boundary:.4f}")
@@ -62,5 +62,5 @@ def test_debug_piantor_right_convergence():
     board_view = create_board_view_from_state(board, netlist, opt_result.final_state)
     fig = render_board(board_view)
     fig.write_html("piantor_right_debug_4000.html")
-    
+
     # Assert nothing, just for debugging

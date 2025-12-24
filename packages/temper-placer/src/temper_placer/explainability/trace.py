@@ -35,7 +35,7 @@ class Entry:
     subject: str
     value: Any
     because: str
-    
+
     def __repr__(self) -> str:
         return f"Entry({self.subject!r}, {self.value!r}, {self.because!r})"
 
@@ -60,7 +60,7 @@ class Trace:
         2
     """
     entries: tuple[Entry, ...] = ()
-    
+
     @staticmethod
     def empty() -> "Trace":
         """Return empty trace (monoid identity).
@@ -69,7 +69,7 @@ class Trace:
             Empty trace with no entries
         """
         return Trace(())
-    
+
     def add(self, subject: str, value: Any, because: str) -> "Trace":
         """Add entry to trace, returning NEW trace (immutable).
         
@@ -88,7 +88,7 @@ class Trace:
             1
         """
         return Trace(self.entries + (Entry(subject, value, because),))
-    
+
     def __add__(self, other: "Trace") -> "Trace":
         """Compose traces (monoid operation).
         
@@ -106,7 +106,7 @@ class Trace:
             2
         """
         return Trace(self.entries + other.entries)
-    
+
     def for_subject(self, subject: str) -> "Trace":
         """Filter trace to specific subject.
         
@@ -126,7 +126,7 @@ class Trace:
             2
         """
         return Trace(tuple(e for e in self.entries if e.subject == subject))
-    
+
     def why(self, subject: str, max_reasons: int = 3) -> str:
         """Generate natural language explanation for subject.
         
@@ -150,39 +150,39 @@ class Trace:
               - Thermal edge constraint
         """
         entries = self.for_subject(subject).entries
-        
+
         if not entries:
             return f"No decisions recorded for {subject}"
-        
+
         # Get final value
         final = entries[-1]
-        
+
         # Format value nicely
         if isinstance(final.value, tuple) and len(final.value) == 2:
             value_str = f"({final.value[0]:.1f}, {final.value[1]:.1f})"
         else:
             value_str = str(final.value)
-        
+
         # Build explanation
         lines = [f"{subject} is at {value_str} because:"]
-        
+
         # Show top N reasons
         for entry in entries[:max_reasons]:
             lines.append(f"  - {entry.because}")
-        
+
         # Indicate if there are more
         if len(entries) > max_reasons:
             lines.append(f"  ... and {len(entries) - max_reasons} more reasons")
-        
+
         return "\n".join(lines)
-    
+
     def __len__(self) -> int:
         """Return number of entries in trace."""
         return len(self.entries)
-    
+
     def __bool__(self) -> bool:
         """Return True if trace has entries."""
         return len(self.entries) > 0
-    
+
     def __repr__(self) -> str:
         return f"Trace({len(self.entries)} entries)"

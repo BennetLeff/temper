@@ -7,6 +7,8 @@ actionable error messages.
 
 import pytest
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
@@ -20,13 +22,10 @@ from temper_placer.pcl.linter import (
     LintWarning,
     lint_constraints,
 )
-from temper_placer.core.netlist import Component, Netlist
-from temper_placer.core.board import Board
 
 
 def _create_simple_netlist(component_refs: list[str]) -> Netlist:
     """Create a minimal netlist for testing."""
-    from temper_placer.core.netlist import Component
 
     components = [
         Component(

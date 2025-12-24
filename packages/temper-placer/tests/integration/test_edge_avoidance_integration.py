@@ -96,8 +96,9 @@ def test_edge_avoidance_gradient_direction():
     positions = jnp.array([[7.0, 50.0]])
     rotations = jnp.eye(4)[jnp.zeros(1, dtype=jnp.int32)]
 
-    from temper_placer.losses.base import LossContext
     import jax
+
+    from temper_placer.losses.base import LossContext
 
     context = LossContext.from_netlist_and_board(netlist, board)
 

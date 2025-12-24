@@ -7,7 +7,6 @@ soft → strong → hard based on violation severity or persistence.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from .constraints import BaseConstraint, ConstraintTier
 
@@ -34,7 +33,7 @@ class ConstraintStatus:
     original_tier: ConstraintTier
     current_tier: ConstraintTier
     violation_history: list[float]
-    escalation_reason: Optional[EscalationReason] = None
+    escalation_reason: EscalationReason | None = None
 
     @property
     def is_escalated(self) -> bool:

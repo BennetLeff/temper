@@ -8,10 +8,10 @@ This package provides tolerance analysis for manufacturing variability:
 
 from temper_placer.manufacturing.tolerances import (
     CopperWeight,
-    LayerType,
-    ToleranceTable,
     FeatureTolerance,
+    LayerType,
     ToleranceAnalyzer,
+    ToleranceTable,
 )
 
 __all__ = [

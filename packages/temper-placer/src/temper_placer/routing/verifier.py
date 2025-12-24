@@ -20,14 +20,13 @@ Example usage:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING
 
-import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
 from temper_placer.core.loop import LoopCollection
+from temper_placer.core.netlist import Netlist
+from temper_placer.routing.congestion import analyze_congestion
 from temper_placer.routing.diagnostics import (
     PlacementAdjustment,
     RoutingDiagnostic,
@@ -35,9 +34,8 @@ from temper_placer.routing.diagnostics import (
     generate_diagnostics_from_results,
 )
 from temper_placer.routing.layer_assignment import LayerAssignment, assign_layers
-from temper_placer.routing.net_ordering import order_nets
-from temper_placer.routing.congestion import analyze_congestion
 from temper_placer.routing.maze_router import MazeRouter, compute_completion_rate
+from temper_placer.routing.net_ordering import order_nets
 
 
 class VerificationLevel(Enum):

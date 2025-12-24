@@ -11,6 +11,13 @@ Tests cover:
 """
 
 import pytest
+
+from temper_placer.pcl.constraints import (
+    AdjacentConstraint,
+    ConstraintTier,
+    DistanceMetric,
+    SeparatedConstraint,
+)
 from temper_placer.pcl.tiers import (
     ConstraintStatus,
     EscalationConfig,
@@ -18,12 +25,6 @@ from temper_placer.pcl.tiers import (
     TieredConstraintManager,
     calculate_penalty,
     check_hard_constraints,
-)
-from temper_placer.pcl.constraints import (
-    ConstraintTier,
-    AdjacentConstraint,
-    SeparatedConstraint,
-    DistanceMetric,
 )
 
 

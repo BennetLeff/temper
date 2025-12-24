@@ -15,6 +15,7 @@ Example:
 """
 
 from typing import Any
+
 from temper_placer.explainability.trace import Trace
 
 
@@ -79,13 +80,13 @@ def traced_pipeline_example(
     """
     # Phase 1: Placement
     placement_result, placement_trace = placement_fn(*args, **kwargs)
-    
+
     # Phase 2: Routing (uses placement result)
     routing_result, routing_trace = routing_fn(placement_result, *args, **kwargs)
-    
+
     # Compose traces (monoid!)
     combined_trace = placement_trace + routing_trace
-    
+
     # Return final result and combined trace
     return (placement_result, routing_result), combined_trace
 
@@ -103,11 +104,11 @@ class TracedPipeline:
         >>> result, trace = pipeline.run(initial_data)
         >>> print(trace.why("Q1"))
     """
-    
+
     def __init__(self):
         self.stages = []
         self.stage_names = []
-    
+
     def add_stage(self, name: str, fn):
         """Add a stage to the pipeline.
         
@@ -121,7 +122,7 @@ class TracedPipeline:
         self.stages.append(fn)
         self.stage_names.append(name)
         return self
-    
+
     def run(self, initial_data: Any) -> tuple[Any, Trace]:
         """Run the pipeline and return combined result and trace.
         
@@ -133,11 +134,11 @@ class TracedPipeline:
         """
         result = initial_data
         combined_trace = Trace.empty()
-        
+
         for stage_name, stage_fn in zip(self.stage_names, self.stages):
             result, trace = stage_fn(result)
             combined_trace = combined_trace + trace
-        
+
         return result, combined_trace
 
 
@@ -148,7 +149,7 @@ def example_placement_optimizer(components) -> tuple[Any, Trace]:
     In reality, this would call the actual optimizer with traced losses.
     """
     trace = Trace.empty()
-    
+
     # Simulate placement decisions
     for comp in components:
         trace = trace.add(
@@ -156,7 +157,7 @@ def example_placement_optimizer(components) -> tuple[Any, Trace]:
             (10.0, 20.0),  # Mock position
             f"Placed {comp} to minimize wirelength"
         )
-    
+
     return {"positions": "mock"}, trace
 
 
@@ -166,14 +167,14 @@ def example_router(placement_result) -> tuple[Any, Trace]:
     In reality, this would call route_all_with_trace.
     """
     trace = Trace.empty()
-    
+
     # Simulate routing decisions
     trace = trace.add(
         "VCC",
         ["L1", "L4"],
         "Power net can route on signal layers L1, L4"
     )
-    
+
     return {"routes": "mock"}, trace
 
 
@@ -186,13 +187,13 @@ def demo_pipeline():
         >>> print(trace.why("VCC"))
     """
     components = ["Q1", "Q2", "U1"]
-    
+
     # Build pipeline
     pipeline = TracedPipeline()
     pipeline.add_stage("placement", example_placement_optimizer)
     pipeline.add_stage("routing", example_router)
-    
+
     # Run pipeline
     result, trace = pipeline.run(components)
-    
+
     return result, trace

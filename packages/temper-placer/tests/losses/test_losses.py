@@ -512,14 +512,14 @@ class TestClearanceLoss:
             hv_indices=jnp.array([], dtype=jnp.int32),
             lv_indices=jnp.array([], dtype=jnp.int32)
         )
-        
+
         loss_fn = ClearanceLoss()
-        
+
         # This should not raise TypeError: len() of unsized object
         @jax.jit
         def compute(p, r):
             return loss_fn(p, r, context).value
-            
+
         result = compute(sample_positions, sample_rotations)
         assert float(result) == 0.0
 
@@ -533,13 +533,13 @@ class TestClearanceLoss:
             hv_indices=jnp.array([3], dtype=jnp.int32),  # Q1
             lv_indices=jnp.array([0, 1, 2], dtype=jnp.int32)  # U1, R1, C1
         )
-        
+
         loss_fn = ClearanceLoss(default_hv_lv_clearance=10.0)
-        
+
         @jax.jit
         def compute(p, r):
             return loss_fn(p, r, context).value
-            
+
         result = compute(sample_positions, sample_rotations)
         # Q1 is at (25, 60), others at y=20. Dist ~40. Satisfied.
         assert float(result) < 1.0

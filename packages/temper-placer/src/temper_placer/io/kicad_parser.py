@@ -14,8 +14,8 @@ from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.schematic import Schematic
 
-from temper_placer.core.board import Board, MountingHole, Pad, Zone, Trace
-from temper_placer.core.netlist import Net, Netlist, Pin, Component
+from temper_placer.core.board import Board, MountingHole, Zone
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 
 @dataclass
@@ -278,20 +278,20 @@ def _extract_components_from_pcb(
         # Calculate approximate bounds from graphics
         # Default to 5x5mm if no graphics
         width, height = 5.0, 5.0
-        
+
         if fp.graphicItems:
             # Filter items by layer to avoid including silkscreen in bounds
             # Courtyard (.CrtYd) is best, then Fabrication (.Fab)
             # Silk layers often extend outside board or overlap unhelpfully
             layers_priority = ["F.CrtYd", "B.CrtYd", "F.Fab", "B.Fab"]
-            
+
             # Try to get items from priority layers
             items_to_use = [g for g in fp.graphicItems if hasattr(g, "layer") and g.layer in layers_priority]
-            
+
             if not items_to_use:
                 # Fallback: ignore Silk layers
                 items_to_use = [g for g in fp.graphicItems if hasattr(g, "layer") and "Silk" not in g.layer]
-                
+
             if not items_to_use:
                 # Final fallback: use all items
                 items_to_use = fp.graphicItems
@@ -299,7 +299,7 @@ def _extract_components_from_pcb(
             x_min, y_min = float("inf"), float("inf")
             x_max, y_max = float("-inf"), float("-inf")
             has_valid_items = False
-            
+
             for item in items_to_use:
                 # Basic bounding box logic for lines/rects/arcs
                 if hasattr(item, "start") and hasattr(item, "end"):
@@ -309,7 +309,7 @@ def _extract_components_from_pcb(
                         x_max = max(x_max, pt.X)
                         y_max = max(y_max, pt.Y)
                     has_valid_items = True
-                
+
                 # Arcs and other items might have center/radius or points
                 if hasattr(item, "center") and hasattr(item, "radius"):
                     # Approximate with bounding box of circle
@@ -319,7 +319,7 @@ def _extract_components_from_pcb(
                     x_max = max(x_max, cx + r)
                     y_max = max(y_max, cy + r)
                     has_valid_items = True
-            
+
             if has_valid_items:
                 width = max(1.0, x_max - x_min)
                 height = max(1.0, y_max - y_min)
@@ -335,11 +335,11 @@ def _extract_components_from_pcb(
             # Absolute position difference
             dx = pad.position.X - fp.position.X
             dy = pad.position.Y - fp.position.Y
-            
+
             # Rotate back to component local frame
             ox_p = dx * cos_a - dy * sin_a
             oy_p = dx * sin_a + dy * cos_a
-            
+
             pins.append(
                 Pin(
                     name=pad.number or "",
@@ -400,7 +400,7 @@ def _extract_nets_from_pcb(
 
 
 def _extract_traces_from_pcb(
-    ki_board: KiBoard, 
+    ki_board: KiBoard,
     warnings: list[str],
     net_map: dict[str, str] | None = None
 ) -> list[TraceData]:
@@ -417,7 +417,7 @@ def _extract_traces_from_pcb(
     """
     if net_map is None:
         net_map = {}
-        
+
     traces = []
     # In Kiutils, traces are in 'traceItems' list
     # print(f"DEBUG: Extracting traces. found {len(ki_board.traceItems)} trace items.")
@@ -436,13 +436,13 @@ def _extract_traces_from_pcb(
                     # If it has 'number' attribute, use that
                     if hasattr(track.net, "number"):
                         net_id = str(track.net.number)
-                    
+
                     net_name = net_map.get(net_id)
-                    
+
                     # If failed, use the ID itself as fallback
                     if not net_name:
                          net_name = net_id
-                         
+
             traces.append(
                 TraceData(
                     start=(track.start.X, track.start.Y),
@@ -528,12 +528,12 @@ def _get_footprint_reference(fp: Footprint) -> str | None:
     ref = getattr(fp, "ref", None)
     if ref and not ref.startswith("REF**"):
         return ref
-        
+
     # 4. Last resort: entryName if it looks like a ref (e.g. U1, R5)
     ename = getattr(fp, "entryName", None)
     if ename and not ename.startswith("REF**") and ":" not in ename and len(ename) < 10:
         return ename
-            
+
     return None
 
 

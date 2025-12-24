@@ -21,6 +21,7 @@ class LoopConstraint:
     pins: tuple[tuple[str, str], ...]
     max_area: float = 100.0
     weight: float = 1.0
+    because: str = ""
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,7 @@ class CriticalPathConstraint:
     max_length: float = 50.0
     weight: float = 1.0
     matched_group: str | None = None
+    because: str = ""
 
 
 @dataclass(frozen=True)
@@ -41,6 +43,7 @@ class MatchedLengthConstraint:
     path_indices: tuple[int, ...]
     tolerance: float = 5.0
     weight: float = 1.0
+    because: str = ""
 
 
 @dataclass(frozen=True)
@@ -51,6 +54,7 @@ class NoiseIsolationConstraint:
     noise_source_indices: tuple[int, ...]
     min_distance: float = 10.0
     weight: float = 1.0
+    because: str = ""
 
 
 @dataclass(frozen=True)
@@ -60,6 +64,7 @@ class ThermalConstraint:
     edge: str
     max_distance: float = 5.0
     weight: float = 1.0
+    because: str = ""
 
 
 @dataclass(frozen=True)
@@ -69,6 +74,7 @@ class StarGroundConstraint:
     max_distance: float = 0.0  # Ideally 0
     weight: float = 1.0
     anchor_position: tuple[float, float] | None = None  # Optional fixed anchor
+    because: str = ""
 
 
 
@@ -79,6 +85,7 @@ class ClearanceRule:
     net_class_b: str
     min_clearance: float
     weight: float = 1.0
+    because: str = ""
 
 
 @dataclass(frozen=True)
@@ -91,6 +98,7 @@ class MountingRule:
     mount_positions: tuple[tuple[float, float], ...] | None = None
     target_position: tuple[float, float] | None = None
     weight: float = 1.0
+    because: str = ""
 
 
 @dataclass
@@ -149,14 +157,21 @@ class LossContext:
     star_net_indices: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.int32))
     # Weights for each star constraint
     star_weights: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.float32))
-    # Anchor positions (if any, use NaN or mask for unanchored?) 
+    # Anchor positions (if any, use NaN or mask for unanchored?)
     # Better: star_anchor_pos (S, 2) and star_has_anchor (S,)
     star_anchor_pos: Array = field(default_factory=lambda: jnp.zeros((0, 2), dtype=jnp.float32))
     star_has_anchor: Array = field(default_factory=lambda: jnp.zeros((0,), dtype=jnp.bool_))
 
+    # Net info
+    net_layer_counts: Array = field(default_factory=lambda: jnp.ones((0,), dtype=jnp.int32))
+
     # Manufacturing features
     fiducial_indices: Array = field(default_factory=lambda: jnp.array([], dtype=jnp.int32))
     component_type_indices: dict[str, Array] = field(default_factory=dict)
+
+    # Layer Stackup Info
+    routable_layers: int = 1
+    net_class_layer_counts: dict[str, int] = field(default_factory=lambda: {"Signal": 1})
 
 
 class LossResult(NamedTuple):

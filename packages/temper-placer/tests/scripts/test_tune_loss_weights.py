@@ -4,12 +4,10 @@ Tests for tune_loss_weights.py script.
 Tests the weight adjustment logic using TDD approach.
 """
 
-import json
 from pathlib import Path
 
 import pytest
 import yaml
-
 
 # Hard constraints that should never be reduced
 HARD_CONSTRAINTS = {"overlap", "boundary", "clearance", "zone_membership"}

@@ -4,13 +4,13 @@ TDD tests for EdgeAvoidanceLoss.
 These tests define the expected behavior before implementation per temper-a98v requirements.
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.losses.regularization import EdgeAvoidanceLoss
-from temper_placer.losses.base import LossContext
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist, Pin
+from temper_placer.losses.base import LossContext
+from temper_placer.losses.regularization import EdgeAvoidanceLoss
 
 
 @pytest.fixture

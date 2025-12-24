@@ -15,38 +15,36 @@ Test coverage:
 - LoopArea constraint -> LoopAreaLoss
 """
 
-import pytest
 import jax.numpy as jnp
-from jax import Array
+import pytest
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
+from temper_placer.losses.base import LossContext, LossFunction
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
-    SeparatedConstraint,
-    EnclosingConstraint,
     AlignedConstraint,
-    OnSideConstraint,
     AnchoredConstraint,
-    LoopAreaConstraint,
-    ConstraintTier,
-    DistanceMetric,
     Axis,
     BoardSide,
+    ConstraintTier,
     EdgeType,
+    EnclosingConstraint,
+    LoopAreaConstraint,
+    OnSideConstraint,
+    SeparatedConstraint,
 )
 from temper_placer.pcl.loss_bridge import (
-    constraint_to_loss,
-    tier_to_weight,
     adjacent_to_proximity_loss,
-    separated_to_separation_loss,
-    enclosing_to_zone_loss,
     aligned_to_alignment_loss,
-    onside_to_edge_loss,
     anchored_to_positional_loss,
+    constraint_to_loss,
+    enclosing_to_zone_loss,
     loop_area_to_loop_loss,
+    onside_to_edge_loss,
+    separated_to_separation_loss,
+    tier_to_weight,
 )
-from temper_placer.losses.base import LossFunction, LossContext
-from temper_placer.core.netlist import Netlist
-from temper_placer.core.board import Board
 
 
 class TestTierToWeight:

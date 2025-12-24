@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING
 
 from temper_placer.explainability.decision import (
     Decision,
-    DecisionPhase,
     DecisionTrace,
     DecisionType,
 )

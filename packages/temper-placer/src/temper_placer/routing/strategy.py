@@ -1,15 +1,15 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Dict, Tuple, Optional
-from dataclasses import dataclass
+
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.core.netlist import Netlist, Net
     from temper_placer.core.loop import LoopCollection
+    from temper_placer.core.netlist import Net, Netlist
 
 def get_net_priority(
     net: Net,
-    loops: Optional[LoopCollection] = None
-) -> Tuple[int, int, int, str]:
+    loops: LoopCollection | None = None
+) -> tuple[int, int, int, str]:
     """Calculate deterministic priority for a net.
     
     Priority order:
@@ -31,7 +31,7 @@ def get_net_priority(
             in_loop = 1
     else:
         in_loop = 1
-        
+
     # 2. Net Class
     class_map = {
         "HighVoltage": 1,
@@ -40,31 +40,31 @@ def get_net_priority(
         "Signal": 4
     }
     class_pri = class_map.get(net.net_class, 5)
-    
+
     # 3. Pin Count (descending, so we use -count)
     pin_count_pri = -len(net.pins)
-    
+
     # 4. Alphabetical
     name_pri = net.name
-    
+
     return (in_loop, class_pri, pin_count_pri, name_pri)
 
 def order_nets(
     netlist: Netlist,
-    loops: Optional[LoopCollection] = None
-) -> List[str]:
+    loops: LoopCollection | None = None
+) -> list[str]:
     """Order nets for deterministic routing verification."""
     nets = list(netlist.nets)
-    
+
     # Sort by priority
     nets.sort(key=lambda n: get_net_priority(n, loops))
-    
+
     return [n.name for n in nets]
 
 def assign_layers(
     netlist: Netlist,
-    ordered_nets: List[str]
-) -> Dict[str, int]:
+    ordered_nets: list[str]
+) -> dict[str, int]:
     """Assign layers to nets based on constraints and priority.
     
     Rules (4-layer induction cooker):
@@ -74,19 +74,17 @@ def assign_layers(
     - Signal -> Prefer L4, then L1
     """
     assignments = {}
-    
+
     # 0-based indices: 0=L1, 1=L2(GND), 2=L3(PWR), 3=L4
-    
+
     for net_name in ordered_nets:
         net = netlist.get_net(net_name)
-        
+
         if net.net_class == "HighVoltage":
             assignments[net_name] = 0
-        elif net.net_class == "GateDrive":
-            assignments[net_name] = 0 # Prefer L1
-        elif net.net_class == "Power":
+        elif net.net_class == "GateDrive" or net.net_class == "Power":
             assignments[net_name] = 0 # Prefer L1
         else:
             assignments[net_name] = 3 # Prefer L4
-            
+
     return assignments

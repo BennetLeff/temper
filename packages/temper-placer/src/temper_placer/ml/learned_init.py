@@ -7,9 +7,9 @@ based on netlist topology and component features.
 
 from __future__ import annotations
 
-import jax.numpy as jnp
-from jax import Array
 from flax import linen as nn
+from jax import Array
+
 from .gnn_predictor import GNNBlock
 
 
@@ -31,21 +31,21 @@ class LearnedInitializerGNN(nn.Module):
     def __call__(self, nodes: Array, edges: Array) -> Array:
         # nodes: (N, F)
         # edges: (E, 2)
-        
+
         x = nodes
-        
+
         # 1. Graph Convolution Layers
         for _ in range(self.n_layers):
             x = GNNBlock(self.hidden_dim)(x, edges)
             x = nn.relu(x)
             x = nn.LayerNorm()(x)
-        
+
         # 2. Per-node output head (Position Prediction)
         # Output is (N, 2)
         x = nn.Dense(self.hidden_dim)(x)
         x = nn.relu(x)
         positions = nn.Dense(2)(x)
-        
+
         # Normalize to [0, 1] range using sigmoid
         return nn.sigmoid(positions)
 

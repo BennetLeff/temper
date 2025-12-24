@@ -6,8 +6,6 @@ import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import pytest
-
 from temper_placer.explainability.decision import (
     Alternative,
     Decision,

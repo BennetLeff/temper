@@ -11,12 +11,11 @@ Features:
 - Via support for layer transitions
 """
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.board import Board
-
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # =============================================================================
 # Test Fixtures
@@ -129,7 +128,7 @@ class TestRoutePath:
 
     def test_route_path_successful(self):
         """Should create a successful route path."""
-        from temper_placer.routing.maze_router import RoutePath, GridCell
+        from temper_placer.routing.maze_router import GridCell, RoutePath
 
         path = RoutePath(
             net="NET_A",
@@ -232,8 +231,9 @@ class TestComponentBlocking:
 
     def test_block_components_from_netlist(self, sample_netlist, simple_board):
         """Should block all component areas from netlist."""
-        from temper_placer.routing.maze_router import MazeRouter
         import jax.numpy as jnp
+
+        from temper_placer.routing.maze_router import MazeRouter
 
         router = MazeRouter.from_board(simple_board, cell_size_mm=1.0)
 
@@ -323,8 +323,8 @@ class TestSingleNetRouting:
 
     def test_route_two_pin_net(self, simple_board):
         """Should successfully route a 2-pin net."""
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
         from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
 
         router = MazeRouter.from_board(simple_board, cell_size_mm=1.0)
 
@@ -347,8 +347,8 @@ class TestSingleNetRouting:
 
     def test_route_net_marks_cells_routed(self, simple_board):
         """Routing should mark cells as used."""
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
         from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
 
         router = MazeRouter.from_board(simple_board, cell_size_mm=1.0)
 
@@ -380,11 +380,12 @@ class TestMultiNetRouting:
 
     def test_route_all_nets(self, sample_netlist, simple_board):
         """Should route all nets in priority order."""
-        from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import assign_layers
-        from temper_placer.routing.net_ordering import order_nets
-        from temper_placer.core.loop import LoopCollection
         import jax.numpy as jnp
+
+        from temper_placer.core.loop import LoopCollection
+        from temper_placer.routing.layer_assignment import assign_layers
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.net_ordering import order_nets
 
         router = MazeRouter.from_board(simple_board, cell_size_mm=1.0)
 
@@ -404,11 +405,12 @@ class TestMultiNetRouting:
 
     def test_route_all_nets_reports_failures(self, simple_board):
         """Should report which nets failed to route."""
-        from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import assign_layers
-        from temper_placer.routing.net_ordering import order_nets
-        from temper_placer.core.loop import LoopCollection
         import jax.numpy as jnp
+
+        from temper_placer.core.loop import LoopCollection
+        from temper_placer.routing.layer_assignment import assign_layers
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.net_ordering import order_nets
 
         # Create an impossible routing scenario
         # Two nets that must cross but both on same layer
@@ -474,8 +476,8 @@ class TestViaHandling:
 
     def test_route_with_via_allowed(self, simple_board):
         """Should use via when allowed and beneficial."""
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
         from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
 
         router = MazeRouter(grid_size=(20, 20), cell_size_mm=1.0, num_layers=2)
 
@@ -503,7 +505,7 @@ class TestViaHandling:
 
     def test_count_vias_in_path(self):
         """Should correctly count layer transitions as vias."""
-        from temper_placer.routing.maze_router import RoutePath, GridCell
+        from temper_placer.routing.maze_router import GridCell, RoutePath
 
         # Path that changes layers twice
         cells = [
@@ -550,7 +552,7 @@ class TestPinEscapeRoutes:
         When: The component is blocked
         Then: The pin's grid cell should have at least one unblocked neighbor
         """
-        from temper_placer.routing.maze_router import MazeRouter, GridCell
+        from temper_placer.routing.maze_router import GridCell, MazeRouter
 
         # Create a simple board
         board = Board(width=50.0, height=50.0, origin=(0.0, 0.0), zones=[])
@@ -598,8 +600,8 @@ class TestPinEscapeRoutes:
         When: Both components are blocked
         Then: A path should exist between the pins
         """
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
         from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
 
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), zones=[])
 
@@ -659,8 +661,8 @@ class TestPinEscapeRoutes:
         This test uses actual component sizes from the Temper induction cooker
         to verify the router handles real PCB layouts.
         """
+        from temper_placer.routing.layer_assignment import Layer, LayerAssignment
         from temper_placer.routing.maze_router import MazeRouter
-        from temper_placer.routing.layer_assignment import LayerAssignment, Layer
 
         # Temper board: 100x150mm
         board = Board(width=100.0, height=150.0, origin=(0.0, 0.0), zones=[])
@@ -732,11 +734,12 @@ class TestRoutingCompletion:
 
     def test_completion_rate_all_routed(self, sample_netlist, simple_board):
         """100% completion when all nets routed."""
-        from temper_placer.routing.maze_router import MazeRouter, compute_completion_rate
-        from temper_placer.routing.layer_assignment import assign_layers
-        from temper_placer.routing.net_ordering import order_nets
-        from temper_placer.core.loop import LoopCollection
         import jax.numpy as jnp
+
+        from temper_placer.core.loop import LoopCollection
+        from temper_placer.routing.layer_assignment import assign_layers
+        from temper_placer.routing.maze_router import MazeRouter, compute_completion_rate
+        from temper_placer.routing.net_ordering import order_nets
 
         router = MazeRouter.from_board(simple_board, cell_size_mm=1.0)
         # Use positions matching fixture (3, 10) and (17, 10)

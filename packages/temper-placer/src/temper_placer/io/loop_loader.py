@@ -172,7 +172,7 @@ def load_loop_template(path: str | Path) -> Loop:
         raise FileNotFoundError(f"Loop template not found: {path}")
 
     try:
-        with open(path, "r") as f:
+        with open(path) as f:
             data = yaml.safe_load(f)
     except yaml.YAMLError as e:
         raise LoopLoadError(f"Invalid YAML in {path}: {e}")

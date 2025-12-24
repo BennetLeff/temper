@@ -24,7 +24,6 @@ from temper_placer.explainability.decision import (
     Decision,
     DecisionPhase,
     DecisionTrace,
-    DecisionType,
 )
 
 

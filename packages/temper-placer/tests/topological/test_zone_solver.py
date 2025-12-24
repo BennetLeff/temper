@@ -1,17 +1,13 @@
 """Tests for zone assignment solver."""
 
-import pytest
+from temper_placer.core.board import Zone
+from temper_placer.pcl.constraints import (
+    ConstraintTier,
+    EnclosingConstraint,
+)
 from temper_placer.topological.zone_solver import (
     ZoneAssignment,
     ZoneSolver,
-)
-from temper_placer.core.board import Zone
-from temper_placer.pcl.constraints import (
-    EnclosingConstraint,
-    OnSideConstraint,
-    ConstraintTier,
-    BoardSide,
-    EdgeType,
 )
 
 

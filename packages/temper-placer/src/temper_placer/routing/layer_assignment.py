@@ -20,9 +20,9 @@ Example usage:
     ...     print(f"{net_name}: {assignment.primary_layer.name}")
 """
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
-import re
 
 from temper_placer.core.netlist import Netlist
 

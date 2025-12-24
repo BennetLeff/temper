@@ -12,6 +12,7 @@ All position arrays use jax.Array for differentiability.
 """
 
 from temper_placer.core.board import Board, LayerStackup, Zone
+from temper_placer.core.decision import Alternative, Decision, DecisionTrace
 from temper_placer.core.loop import (
     Loop,
     LoopCollection,
@@ -31,11 +32,10 @@ from temper_placer.core.loop_ownership import (
     LoopOwnershipMap,
     build_ownership_map,
 )
+from temper_placer.core.manufacturing import FabPreset, inflated_clearance, inflated_width
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
-from temper_placer.core.topology import TopologicalGraph, TopologicalSolution, ComponentCluster
-from temper_placer.core.decision import Decision, DecisionTrace, Alternative
-from temper_placer.core.manufacturing import FabPreset, inflated_clearance, inflated_width
+from temper_placer.core.topology import ComponentCluster, TopologicalGraph, TopologicalSolution
 
 __all__ = [
     # State

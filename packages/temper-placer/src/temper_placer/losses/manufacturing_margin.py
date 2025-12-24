@@ -236,28 +236,28 @@ class ManufacturingMarginLoss(LossFunction):
         # Determine required clearance for each pair
         # Default: use uniform minimum clearance
         base_required = jnp.full_like(clearances, self.min_clearance_mm)
-        
+
         # Apply fiducial clearance if present
         if context.fiducial_indices is not None and context.fiducial_indices.shape[0] > 0:
             n_comp = positions.shape[0]
-            
+
             # Create boolean mask for fiducials (N,)
             is_fiducial = jnp.zeros((n_comp,), dtype=jnp.bool_)
             is_fiducial = is_fiducial.at[context.fiducial_indices].set(True)
-            
+
             # Get fiducial status for each pair (i, j)
             # idx_i and idx_j come from compute_pairwise_clearances
-            # Only apply if ONE or BOTH are fiducials? 
+            # Only apply if ONE or BOTH are fiducials?
             # Usually we want clearance *around* fiducial from *other* components.
             # So if either is fiducial, use larger margin.
             is_fid_i = is_fiducial[idx_i]
             is_fid_j = is_fiducial[idx_j]
             is_fid_pair = is_fid_i | is_fid_j
-            
+
             # Use fiducial margin where applicable
             base_required = jnp.where(
                 is_fid_pair,
-                self.config.fiducial_margin_mm, 
+                self.config.fiducial_margin_mm,
                 base_required
             )
 

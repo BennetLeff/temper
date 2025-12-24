@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
@@ -24,6 +25,9 @@ from jax import Array
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import LossContext
 from temper_placer.optimizer.legalization import project_to_drc_feasible
+
+if TYPE_CHECKING:
+    from temper_placer.core.netlist import Netlist
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +47,7 @@ class PostProcessConfig:
     # Legalization settings
     legalization_enabled: bool = True
     legalization_margin: float = 0.5  # mm
+    legalization_iterations: int = 100
 
     # Discrete rotation refinement settings
     rotation_refinement_enabled: bool = True
@@ -134,8 +139,6 @@ def snap_to_grid_with_overlap_check(
 
     for i in range(n_components):
         pos = snapped[i]
-        original = positions[i]
-
         # Try snapped position first
         test_positions = snapped.at[i].set(pos)
         if check_overlap_fn(test_positions, component_sizes) == 0:
@@ -381,7 +384,7 @@ def detailed_local_search(
 
     logger.debug(f"Starting detailed local search, initial loss: {current_loss:.4f}")
 
-    for iter_idx in range(iterations):
+    for _iter_idx in range(iterations):
         improved = False
 
         for i in range(n_components):
@@ -488,14 +491,16 @@ def discrete_rotation_refinement_sa(
 
     logger.debug(f"Starting micro-move SA refinement, iterations={iterations}")
 
-    for i in range(iterations):
+    for _i in range(iterations):
         rng_key, move_key, comp_key, val_key, accept_key = jax.random.split(rng_key, 5)
 
         # 1. Pick a move type
         # 0: Rotation, 1: Jiggle, 2: Swap
         move_types = [0]
-        if allow_jiggles: move_types.append(1)
-        if allow_swaps and swap_groups: move_types.append(2)
+        if allow_jiggles:
+            move_types.append(1)
+        if allow_swaps and swap_groups:
+            move_types.append(2)
 
         move_type = int(jax.random.choice(move_key, jnp.array(move_types)))
         test_state = current_state
@@ -605,10 +610,10 @@ def postprocess(
     state: PlacementState,
     loss_fn: Callable[[PlacementState], float],
     config: PostProcessConfig | None = None,
-    component_sizes: Array | None = None,
+    component_sizes: Array | None = None,  # noqa: ARG001
     fixed_components: list[int] | None = None,
     context: LossContext | None = None,
-    netlist: Netlist | None = None,
+    netlist: "Netlist | None" = None,
 ) -> PostProcessResult:
     """
     Run full post-processing pipeline on optimized placement.
@@ -649,9 +654,12 @@ def postprocess(
 
     # Step 2: Legalization
     if config.legalization_enabled and context is not None:
-        logger.info("Running DRC-feasible projection (legalization)")
+        logger.info(f"Running DRC-feasible projection (legalization) with {config.legalization_iterations} iterations")
         current_state = project_to_drc_feasible(
-            current_state, context, margin_mm=config.legalization_margin
+            current_state,
+            context,
+            margin_mm=config.legalization_margin,
+            max_iterations=config.legalization_iterations,
         )
         legalized = True
 

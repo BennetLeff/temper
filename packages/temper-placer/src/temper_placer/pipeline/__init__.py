@@ -4,38 +4,38 @@ Provides orchestration for the full placement pipeline:
     Input -> Semantic -> Topological -> Preflight -> Geometric -> Routing -> Refinement -> Output
 """
 
-from temper_placer.pipeline.orchestrator import (
-    PipelinePhase,
-    PipelineConfig,
-    PipelineState,
-    PipelineError,
-    PipelineOrchestrator,
-)
 from temper_placer.pipeline.convergence import (
-    TerminationReason,
+    ConvergenceChecker,
     ConvergenceCriteria,
     ConvergenceState,
-    ConvergenceChecker,
+    TerminationReason,
 )
 from temper_placer.pipeline.feedback import (
+    AdjustmentApplier,
     AdjustmentType,
     FeedbackAdjustment,
     FeedbackGenerator,
-    AdjustmentApplier,
     FeedbackLoopConfig,
     FeedbackLoopResult,
     run_feedback_loop,
 )
+from temper_placer.pipeline.orchestrator import (
+    PipelineConfig,
+    PipelineError,
+    PipelineOrchestrator,
+    PipelinePhase,
+    PipelineState,
+)
 from temper_placer.pipeline.preflight import (
-    PreflightResult,
     PreflightCheck,
-    PreflightReport,
     PreflightChecker,
+    PreflightReport,
+    PreflightResult,
 )
 from temper_placer.pipeline.visualization import (
     ProgressCallback,
-    TerminalProgress,
     RichDashboard,
+    TerminalProgress,
     create_progress_display,
 )
 
