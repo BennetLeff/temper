@@ -495,7 +495,7 @@ class TestLazyCrowdingDistance:
 
         crowding_savings = (crowding_all_time - crowding_partial_time) / crowding_all_time * 100
 
-        print(f"\\nLazy total time: {lazy_total_time * 1000:.1f}ms")
+        print(f"\nLazy total time: {lazy_total_time * 1000:.1f}ms")
         print(
             f"Crowding all: {crowding_all_time * 1000:.1f}ms, partial: {crowding_partial_time * 1000:.1f}ms"
         )

@@ -27,6 +27,7 @@
  *     }
  *     
  *     fan_guard_status_t fan_guard_update(fan_guard_t *ctx, ...) {
+ *         uint32_t now_ms = hal_get_tick_ms();
  *         if (!guard_should_update(&ctx->base, now_ms)) {
  *             return FAN_GUARD_OK;
  *         }
@@ -45,7 +46,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-// Forward declaration for HAL time function (to avoid circular dependency)
+// Forward declaration for HAL time function
 extern uint32_t hal_get_tick_ms(void);
 
 /* ================================
@@ -54,7 +55,7 @@ extern uint32_t hal_get_tick_ms(void);
  * 
  * Each guard can define its own status codes, but this provides
  * a base set for consistency. Guard-specific codes should extend
- * from these base values.
+ * from these base values (start from 100 to avoid conflicts).
  */
 typedef enum {
     GUARD_OK = 0,
@@ -104,9 +105,9 @@ typedef struct {
  * Guards can use these or provide custom values.
  */
 
-#define GUARD_CONFIG_FAST { .check_interval_ms = 100, .timeout_ms = 1000, .history_size = 8, .enabled = true }
-#define GUARD_CONFIG_NORMAL { .check_interval_ms = 500, .timeout_ms = 5000, .history_size = 8, .enabled = true }
-#define GUARD_CONFIG_SLOW { .check_interval_ms = 1000, .timeout_ms = 10000, .history_size = 16, .enabled = true }
+#define GUARD_CONFIG_FAST_INITIALIZER { .check_interval_ms = 100, .timeout_ms = 1000, .history_size = 8, .enabled = true }
+#define GUARD_CONFIG_NORMAL_INITIALIZER { .check_interval_ms = 500, .timeout_ms = 5000, .history_size = 8, .enabled = true }
+#define GUARD_CONFIG_SLOW_INITIALIZER { .check_interval_ms = 1000, .timeout_ms = 10000, .history_size = 16, .enabled = true }
 
 /* ================================
  * Base Functions - Implementation
@@ -126,7 +127,7 @@ typedef struct {
  * - Resets error counter
  * 
  * Usage:
- *     guard_base_init(&fan_guard->base, &GUARD_CONFIG_NORMAL);
+ *     guard_base_init(&fan_guard->base, &GUARD_CONFIG_NORMAL_INITIALIZER);
  *     guard_base_init(&adc_guard->base, NULL);  // Use defaults
  */
 static inline void guard_base_init(guard_context_t *ctx, const guard_config_t *cfg) {
@@ -139,7 +140,7 @@ static inline void guard_base_init(guard_context_t *ctx, const guard_config_t *c
     if (cfg) {
         ctx->config = *cfg;
     } else {
-        ctx->config = GUARD_CONFIG_NORMAL;
+        ctx->config = (guard_config_t)GUARD_CONFIG_NORMAL_INITIALIZER;
     }
     
     // Initialize timing to current time
@@ -261,31 +262,6 @@ static inline bool guard_is_enabled(guard_context_t *ctx) {
     return ctx->config.enabled;
 }
 
-/* ================================
- * Utility Macros
- * ================================
- */
-
-/**
- * @brief Get current time and check if update needed
- * 
- * Usage in guard update function:
- *     uint32_t now_ms = hal_get_tick_ms();
- *     if (!guard_should_update(&ctx->base, now_ms)) {
- *         return GUARD_OK;
- *     }
- *     // ... guard logic ...
- *     guard_mark_updated(&ctx->base, now_ms);
- */
-#define GUARD_UPDATE_BEGIN(ctx) \
-    uint32_t now_ms = hal_get_tick_ms(); \
-    if (!guard_should_update(&ctx->base, now_ms)) { \
-        return GUARD_OK; \
-    }
-
-#define GUARD_UPDATE_END(ctx) \
-    guard_mark_updated(&ctx->base, now_ms);
-
 /**
  * @brief Check guard state and return error if NULL
  * 
@@ -302,12 +278,27 @@ static inline bool guard_is_enabled(guard_context_t *ctx) {
  * @brief Return early if guard is stale
  * 
  * Usage:
- *     GUARD_CHECK_STALE(ctx);
+ *     if (guard_is_stale(&ctx->base, hal_get_tick_ms())) {
+ *         return YOUR_STALE_STATUS_CODE;
+ *     }
  *     // ... continue only if fresh
  */
-#define GUARD_CHECK_STALE(ctx, stale_status) \
-    if (guard_is_stale(&ctx->base, hal_get_tick_ms())) { \
-        return stale_status; \
-    }
+#define GUARD_CHECK_STALE_WITH_STATUS(ctx, stale_status) \
+    do { \
+        if (guard_is_stale(&ctx->base, hal_get_tick_ms())) { \
+            return stale_status; \
+        } \
+    } while (0)
+
+/**
+ * @brief Check guard state (return early if NULL or stale)
+ * 
+ * Usage:
+ *     GUARD_VALIDATE(ctx, GUARD_ERR_STALE);
+ *     // ... guard logic
+ */
+#define GUARD_VALIDATE(ctx, stale_status) \
+    GUARD_CHECK_PTR(ctx); \
+    GUARD_CHECK_STALE_WITH_STATUS(ctx, stale_status)
 
 #endif /* GUARD_BASE_H */
