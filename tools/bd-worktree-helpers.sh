@@ -7,9 +7,32 @@
 #   - Validates task exists before creating worktree
 #   - Extracts task ID from git branch (not directory name)
 #   - Supports both Bash and Zsh completion
+#
+# Multi-Agent Coordination:
+#   - Checks claim status before starting work
+#   - Prevents working on issues claimed by other agents
+#   - Offers takeover for stale claims
+#   - See tools/bd-multiagent.sh for details
 
 # Configuration
 BD_WORKTREE_ROOT="${BD_WORKTREE_ROOT:-$HOME/worktrees}"
+
+# Source multi-agent utilities if available
+# Handle both interactive sourcing and script execution
+if [[ -n "${BASH_SOURCE[0]}" ]]; then
+    _BD_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+    # Fallback: try to find tools directory from git root
+    _BD_SCRIPT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)/tools"
+fi
+
+if [[ -f "$_BD_SCRIPT_DIR/bd-multiagent.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "$_BD_SCRIPT_DIR/bd-multiagent.sh"
+    _BD_MULTIAGENT_ENABLED=true
+else
+    _BD_MULTIAGENT_ENABLED=false
+fi
 
 # Get project name from git remote
 _bd_get_project_name() {
@@ -63,6 +86,28 @@ bd-work() {
         return 1
     fi
     
+    # Check if multi-agent hooks are installed (prompt if not)
+    if [[ "$_BD_MULTIAGENT_ENABLED" == "true" ]] && ! _bd_hooks_installed 2>/dev/null; then
+        echo ""
+        echo "⚠ Multi-agent hooks not installed."
+        echo "  Hooks prevent conflicts when multiple agents work simultaneously."
+        echo ""
+        read -p "  Install multi-agent hooks now? [Y/n] " confirm
+        if [[ "$confirm" != "n" && "$confirm" != "N" ]]; then
+            local hook_installer="$_BD_SCRIPT_DIR/git-hooks/install-multiagent.sh"
+            if [[ -f "$hook_installer" ]]; then
+                if bash "$hook_installer"; then
+                    echo "  ✓ Hooks installed"
+                else
+                    echo "  ⚠ Hook installation failed (continuing anyway)"
+                fi
+            else
+                echo "  ⚠ Hook installer not found: $hook_installer"
+            fi
+        fi
+        echo ""
+    fi
+    
     # Validate task exists in bd before creating worktree
     echo "Validating task $task_id..."
     if ! _bd_validate_task "$task_id"; then
@@ -71,6 +116,63 @@ bd-work() {
         echo "Did you mean one of these?"
         bd --sandbox list --status open --json 2>/dev/null | grep -o '"id":"[^"]*"' | cut -d'"' -f4 | grep -i "${task_id:0:3}" | head -5 || echo "  (no similar tasks found)"
         return 1
+    fi
+    
+    # Multi-agent claim check (if enabled)
+    if [[ "$_BD_MULTIAGENT_ENABLED" == "true" ]] && _bd_is_issue_branch "$task_id"; then
+        echo "Checking claim status..."
+        git fetch origin "$task_id" 2>/dev/null || true
+        
+        local status_output
+        local status
+        local owner
+        local is_stale
+        local last_activity
+        local my_agent
+        
+        status_output=$(_bd_check_claim_status "$task_id")
+        status=$(echo "$status_output" | grep "^status=" | cut -d= -f2)
+        owner=$(echo "$status_output" | grep "^owner=" | cut -d= -f2)
+        is_stale=$(echo "$status_output" | grep "^stale=" | cut -d= -f2)
+        last_activity=$(echo "$status_output" | grep "^last_activity=" | cut -d= -f2)
+        my_agent=$(_bd_get_agent_id)
+        
+        case "$status" in
+            claimed)
+                if [[ "$is_stale" == "true" ]]; then
+                    echo ""
+                    echo "Issue $task_id was claimed by $owner (STALE: $last_activity)"
+                    echo ""
+                    if [[ "$BEADS_AUTO_TAKEOVER" == "true" ]]; then
+                        echo "Auto-takeover enabled, proceeding..."
+                    else
+                        read -p "Take over this stale claim? [y/N] " confirm
+                        if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+                            echo "Aborted. Use 'bd ready' to find other work."
+                            return 1
+                        fi
+                    fi
+                    echo "Taking over from $owner..."
+                else
+                    echo ""
+                    echo "Issue $task_id is claimed by $owner (active: $last_activity)"
+                    echo ""
+                    echo "You cannot start work on an issue claimed by another agent."
+                    echo ""
+                    echo "Options:"
+                    echo "  1. Pick a different issue: bd ready"
+                    echo "  2. Wait for $owner to finish"
+                    echo "  3. Force takeover: bd-takeover $task_id --force"
+                    return 1
+                fi
+                ;;
+            mine)
+                echo "You already own this issue."
+                ;;
+            unclaimed)
+                echo "Issue is unclaimed, proceeding..."
+                ;;
+        esac
     fi
     
     local project
@@ -349,12 +451,35 @@ bd-done() {
         fi
     fi
     
+    # Auto-create PR if enabled and gh CLI available
+    local pr_url=""
+    if [[ "${BEADS_AUTO_PR:-false}" == "true" ]] && command -v gh &>/dev/null; then
+        echo "Creating pull request..."
+        pr_url=$(gh pr create --fill 2>&1)
+        if [[ $? -eq 0 ]]; then
+            echo "  ✓ PR created: $pr_url"
+        else
+            echo "  ⚠ PR creation failed: $pr_url"
+            pr_url=""
+        fi
+    fi
+    
     echo ""
     echo "✓ Task $task_id marked as complete"
     echo ""
     echo "Next steps:"
-    echo "  1. Create PR: gh pr create --fill"
-    echo "  2. After PR merged, cleanup: bd-cleanup-worktrees"
+    if [[ -n "$pr_url" ]]; then
+        echo "  1. PR created: $pr_url"
+        echo "  2. After PR merged, cleanup: bd-cleanup-worktrees"
+    elif command -v gh &>/dev/null; then
+        echo "  1. Create PR: gh pr create --fill"
+        echo "  2. After PR merged, cleanup: bd-cleanup-worktrees"
+        echo ""
+        echo "  Tip: Set BEADS_AUTO_PR=true for automatic PR creation"
+    else
+        echo "  1. Create PR manually on GitHub"
+        echo "  2. After PR merged, cleanup: bd-cleanup-worktrees"
+    fi
     echo ""
     echo "  Or return to main repo: cd \$(git rev-parse --show-toplevel)"
 }
@@ -466,6 +591,13 @@ Git Worktree Helper Functions for bd Task Isolation
   bd-worktrees                List active worktrees with status
   bd-worktree-help            Show this help message
 
+=== Multi-Agent Coordination ===
+
+  bd-claims                   List all active issue claims
+  bd-claim-status <id>        Check claim status of a specific issue
+  bd-takeover <id>            Take over a stale claim from another agent
+  bd-multiagent-help          Show multi-agent coordination help
+
 === GPBM Workflow Commands ===
 
   bd-gather "goal" [role] [domain]     GATHER: Collect context for a goal
@@ -481,14 +613,27 @@ Configuration:
 
   BD_WORKTREE_ROOT            Root directory for worktrees (default: ~/worktrees)
                               Set with: export BD_WORKTREE_ROOT=/path/to/worktrees
+  BEADS_AGENT_ID              Your agent identifier (default: $USER)
+  BEADS_STALE_MINUTES         Minutes before a claim is stale (default: 30)
+  BEADS_AUTO_TAKEOVER         Auto-takeover stale claims (default: false)
 
 === Worktree Workflow ===
 
-  1. bd-work <id>     → Validates task, creates worktree, claims task
+  1. bd-work <id>     → Validates task, checks claim, creates worktree
   2. ... code ...     → Work in isolated directory
   3. bd-pause         → Commit+push WIP (optional, for multi-machine)
   4. bd-done          → Run measurements, close task, push, create PR
   5. bd-cleanup...    → Remove worktree after PR merged
+
+=== Multi-Agent Workflow ===
+
+  1. bd ready              → See available (unclaimed) issues
+  2. bd-claims             → See what others are working on
+  3. bd-work <id>          → Claim and start work (blocks if claimed)
+  4. ... work ...          → Commits update your claim heartbeat
+  5. bd-done               → Release claim, close issue
+
+  If an issue is stale (no commits for >30min), you can take it over.
 
 === GPBM Workflow ===
 
@@ -518,11 +663,12 @@ Multi-machine sync:
   - bd-work <id> on machine B pulls latest changes
   - Both machines work on same task seamlessly
 
-GPBM Integration Notes:
+Integration Notes:
 
   - All bd commands use --sandbox flag (prevents daemon conflicts)
   - Task ID extracted from git branch (works from any subdirectory)
   - Task validation before worktree creation (prevents orphan worktrees)
+  - Multi-agent claim checking prevents concurrent work conflicts
   - Measurement integration in bd-done (if task has measurement_targets)
 
 EOF

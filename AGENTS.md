@@ -313,15 +313,26 @@ export BD_WORKTREE_ROOT=/path/to/your/worktrees
 
 Source the helper functions in your shell:
 
+**Bash/Zsh:**
 ```bash
 # Add to ~/.bashrc or ~/.zshrc for persistence
 source ~/Documents/temper/tools/bd-worktree-helpers.sh
 ```
 
+**Fish:**
+```fish
+# Add to ~/.config/fish/config.fish for persistence
+source ~/Documents/temper/tools/bd-worktree-helpers.fish
+```
+
 Or source manually each session:
 
 ```bash
+# Bash/Zsh
 source tools/bd-worktree-helpers.sh
+
+# Fish
+source tools/bd-worktree-helpers.fish
 ```
 
 #### Helper Functions
@@ -479,6 +490,142 @@ bd --readonly show temper-xxx
 - `--sandbox` - For worker agents that may create/update issues
 - `--readonly` - For agents that only read issues (even faster)
 - No flag - Only in the main repo with a single agent
+
+#### Multi-Agent Claim Coordination
+
+When multiple agents work on the same repository, we use **git branches as atomic locks** to prevent conflicts. This system is enforced via git hooks.
+
+**How it works:**
+
+1. **Branch = Claim**: The existence of a remote branch (e.g., `origin/temper-123`) means someone is working on that issue
+2. **First Push Wins**: When you run `bd-work`, it pushes your branch immediately - git's atomic push ensures only one agent can claim
+3. **Commit = Heartbeat**: Your commits prove you're actively working; no commits for >30 minutes = "stale" claim
+4. **Hooks Enforce Rules**: Pre-push hook blocks pushing to branches owned by other agents
+
+**Quick Setup (Recommended):**
+
+```bash
+# One-time setup - installs hooks, configures agent ID, updates shell
+bd-setup-multiagent
+
+# Or with all defaults (non-interactive)
+bd-setup-multiagent --yes
+```
+
+**Manual Setup:**
+
+```bash
+# Install multi-agent hooks (one-time per clone)
+./tools/git-hooks/install-multiagent.sh
+
+# Set your agent ID (add to ~/.bashrc)
+export BEADS_AGENT_ID="your-name"  # Default: auto-detected
+
+# Optional: adjust stale threshold (default: 30 minutes)
+export BEADS_STALE_MINUTES=30
+```
+
+**Agent ID Auto-Detection:**
+
+The system automatically detects your agent ID from CI/CD environments:
+
+| Environment | Detection Variable | Agent ID Format |
+|-------------|-------------------|-----------------|
+| GitHub Actions | `GITHUB_ACTOR` | `gh-<username>` |
+| GitLab CI | `GITLAB_USER_LOGIN` | `gl-<username>` |
+| CircleCI | `CIRCLE_USERNAME` | `circle-<username>` |
+| Jenkins | `BUILD_USER` | `jenkins-<user>` |
+| Azure DevOps | `BUILD_REQUESTEDFOR` | `azure-<user>` |
+| Buildkite | `BUILDKITE_BUILD_CREATOR` | `bk-<user>` |
+| Local | `USER` | `<username>` |
+
+**Commands:**
+
+```bash
+# One-time setup wizard
+bd-setup-multiagent
+
+# See all active claims
+bd-claims
+
+# Check status of specific issue
+bd-claim-status temper-123
+
+# Take over a stale claim
+bd-takeover temper-123
+
+# Start work (automatically checks claims)
+bd-work temper-123
+
+# Get help on multi-agent commands
+bd-multiagent-help
+```
+
+**Workflow Example:**
+
+```bash
+# Agent A starts work
+$ bd-work temper-123
+Validating task temper-123...
+Checking claim status...
+Issue is unclaimed, proceeding...
+✓ Claimed temper-123
+
+# Agent B tries to work on same issue
+$ bd-work temper-123
+Validating task temper-123...
+Checking claim status...
+
+Issue temper-123 is claimed by agent-a (active: 5m ago)
+
+You cannot start work on an issue claimed by another agent.
+
+Options:
+  1. Pick a different issue: bd ready
+  2. Wait for agent-a to finish
+  3. Force takeover: bd-takeover temper-123 --force
+
+# Agent B picks different work
+$ bd ready
+temper-456: Fix bug Y (unclaimed)
+temper-789: Refactor Z (unclaimed)
+```
+
+**Stale Claim Takeover:**
+
+If an agent crashes or abandons work without completing, their claim becomes stale after 30 minutes:
+
+```bash
+$ bd-work temper-123
+Issue temper-123 was claimed by agent-a (STALE: 2h ago)
+
+Take over this stale claim? [y/N] y
+Taking over from agent-a...
+✓ Taken over temper-123
+```
+
+**Auto-PR Creation:**
+
+Enable automatic PR creation when completing tasks:
+
+```bash
+# Enable auto-PR (add to ~/.bashrc)
+export BEADS_AUTO_PR=true
+
+# Now bd-done will automatically create a PR
+bd-done "Completed feature"
+# ✓ PR created: https://github.com/...
+```
+
+**Environment Variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BEADS_AGENT_ID` | auto-detected | Your unique agent identifier |
+| `BEADS_STALE_MINUTES` | `30` | Minutes before a claim is stale |
+| `BEADS_AUTO_TAKEOVER` | `false` | Auto-takeover stale claims without prompting |
+| `BEADS_AUTO_PR` | `false` | Auto-create PR on `bd-done` |
+| `BEADS_ISSUE_PATTERN` | `^(temper-\|bd-)` | Regex for issue branch names |
 
 #### Troubleshooting
 

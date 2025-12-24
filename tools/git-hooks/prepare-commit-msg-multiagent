@@ -1,0 +1,37 @@
+#!/bin/bash
+# Multi-Agent Prepare-Commit-Msg Hook
+#
+# This hook automatically adds an [agent: xxx] tag to the first commit
+# on an issue branch, enabling ownership tracking.
+#
+# Installation:
+#   Copy to .git/hooks/prepare-commit-msg
+#   Or run: tools/git-hooks/install-multiagent.sh
+
+set -e
+
+# Prepare-commit-msg receives: msg file, source, SHA
+MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip for merge commits, squash, etc.
+if [[ -n "$COMMIT_SOURCE" && "$COMMIT_SOURCE" != "message" ]]; then
+    exit 0
+fi
+
+# Find repo root
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+
+# Source multi-agent utilities
+MULTIAGENT_SCRIPT="$REPO_ROOT/tools/bd-multiagent.sh"
+if [[ ! -f "$MULTIAGENT_SCRIPT" ]]; then
+    exit 0
+fi
+
+# shellcheck source=/dev/null
+source "$MULTIAGENT_SCRIPT" 2>/dev/null
+
+# Add agent tag if applicable
+_bd_prepare_commit_msg "$MSG_FILE"
+
+exit 0

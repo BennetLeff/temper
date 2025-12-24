@@ -1,0 +1,42 @@
+#!/bin/bash
+# Multi-Agent Pre-Push Hook
+#
+# This hook extends the standard beads pre-push hook with multi-agent
+# coordination. It prevents pushing to branches claimed by other agents.
+#
+# Installation:
+#   Append this to your existing .git/hooks/pre-push
+#   Or run: tools/git-hooks/install-multiagent.sh
+#
+# Requirements:
+#   - tools/bd-multiagent.sh must be sourced or available
+#
+# Configuration (environment variables):
+#   BEADS_AGENT_ID        - Your agent identifier (default: $USER)
+#   BEADS_STALE_MINUTES   - Minutes before a claim is stale (default: 30)
+#   BEADS_ISSUE_PATTERN   - Regex for issue branches (default: ^(temper-|bd-))
+
+set -e
+
+# Find repo root
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+
+# Source multi-agent utilities
+MULTIAGENT_SCRIPT="$REPO_ROOT/tools/bd-multiagent.sh"
+if [[ ! -f "$MULTIAGENT_SCRIPT" ]]; then
+    # Not a multi-agent repo, skip
+    exit 0
+fi
+
+# shellcheck source=/dev/null
+source "$MULTIAGENT_SCRIPT" 2>/dev/null
+
+# Run the pre-push check
+if ! _bd_prepush_check; then
+    echo ""
+    echo "Push blocked by multi-agent coordination."
+    echo "Run 'bd-multiagent-help' for more information."
+    exit 1
+fi
+
+exit 0
