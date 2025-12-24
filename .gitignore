@@ -70,8 +70,17 @@ temper-placer/.ruff_cache/
 temper-placer/research/*.png
 temper-placer/research/*.svg
 .gemini/
-.beads/
+
+# Beads issue tracking - ignore runtime files, track JSONL and config
+# Use .beads/* instead of .beads/ to allow negation patterns to work
+.beads/*
+!.beads/.gitignore
+!.beads/.local_version
 !.beads/issues.jsonl
+!.beads/deletions.jsonl
+!.beads/config.yaml
+!.beads/metadata.json
+!.beads/README.md
 
 # Experiment artifacts (generated files)
 experiments/temper-a98v/*.kicad_pcb
