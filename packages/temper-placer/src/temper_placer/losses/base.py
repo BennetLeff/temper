@@ -39,11 +39,14 @@ from temper_placer.losses.types import (
     ThermalConstraint,
 )
 from temper_placer.losses.types import (
+    GeometryContext,
+    NetlistContext,
+    ConstraintContext,
     LossContext as BaseLossContext,
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class LossContext(BaseLossContext):
     """
     Immutable context containing all data needed by loss functions.
@@ -270,25 +273,37 @@ class LossContext(BaseLossContext):
             domain_star_points = jnp.zeros((0, 2), dtype=jnp.float32)
             domain_has_star = jnp.zeros((0,), dtype=jnp.bool_)
 
-        return cls(
-            netlist=netlist,
-            board=board,
-            constraints=constraints,
+        # 1. Create GeometryContext
+        geometry_context = GeometryContext(
             bounds=bounds,
             fixed_mask=fixed_mask,
-            hv_indices=jnp.array(hv_indices, dtype=jnp.int32),
-            lv_indices=jnp.array(lv_indices, dtype=jnp.int32),
-            clearance_rules=clearance_rules or [],
-            thermal_constraints=thermal_constraints or [],
-            star_ground_constraints=star_ground_constraints,
-            loop_constraints=loop_constraints,
-            mounting_rules=mounting_rules or [],
-            net_class_map=net_class_map,
+            origin=jnp.array(getattr(board, 'origin', (0.0, 0.0)), dtype=jnp.float32),
+            width=float(board.width),
+            height=float(board.height),
+            board_margin=float(getattr(board, 'board_margin', 0.0))
+        )
+
+        # 2. Create NetlistContext
+        netlist_context = NetlistContext(
             net_pin_indices=net_pin_indices,
             net_pin_offsets=net_pin_offsets,
             net_pin_mask=net_pin_mask,
             net_weights=net_weights,
+            net_layer_counts=net_layer_counts,
             max_pins_per_net=max_pins,
+            centrality=centrality,
+            hv_indices=jnp.array(hv_indices, dtype=jnp.int32),
+            lv_indices=jnp.array(lv_indices, dtype=jnp.int32),
+            fiducial_indices=fiducial_indices
+        )
+
+        # 3. Create ConstraintContext
+        is_star_net = jnp.array([
+            n.name in [c.net_name for c in star_ground_constraints]
+            for n in [net for net in netlist.nets if len(net.pins) >= 2]
+        ], dtype=jnp.bool_)
+
+        constraint_context = ConstraintContext(
             loop_pin_indices=loop_pin_indices,
             loop_pin_offsets=loop_pin_offsets,
             loop_pin_mask=loop_pin_mask,
@@ -298,26 +313,32 @@ class LossContext(BaseLossContext):
             path_pin_offsets=path_pin_offsets,
             path_max_lengths=path_max_lengths,
             path_weights=path_weights,
-            matched_groups=matched_groups or [],
-            noise_isolation_constraints=noise_isolation_constraints,
-            net_class_indices=net_class_indices,
-            centrality=centrality if use_centrality_weighting else jnp.array([]),
-            domain_bounds=domain_bounds,
-            domain_star_points=domain_star_points,
-            domain_has_star=domain_has_star,
             star_net_indices=star_net_indices,
             star_weights=star_weights,
             star_anchor_pos=star_anchor_pos,
             star_has_anchor=star_has_anchor,
-            fiducial_indices=fiducial_indices,
+            domain_bounds=domain_bounds,
+            domain_star_points=domain_star_points,
+            domain_has_star=domain_has_star,
+            is_star_net=is_star_net,
+        )
+
+        return cls(
+            netlist=netlist,
+            board=board,
+            bounds=geometry_context.bounds,
+            fixed_mask=geometry_context.fixed_mask,
+            geometry=geometry_context,
+            netlist_data=netlist_context,
+            constraints_data=constraint_context,
+            constraints_config=constraints,
+            thermal_constraints=thermal_constraints or [],
+            loop_constraints=loop_constraints or [],
+            matched_groups=matched_groups or [],
+            clearance_rules=clearance_rules or [],
+            star_ground_constraints=star_ground_constraints or [],
             component_type_indices=component_type_indices,
-            is_star_net=jnp.array([n.name in [c.net_name for c in star_ground_constraints] for n in [net for net in netlist.nets if len(net.pins) >= 2]], dtype=jnp.bool_),
-            net_layer_counts=net_layer_counts,
-            routable_layers=len(board.layer_stackup.routable_layers()) if board.layer_stackup else 1,
-            net_class_layer_counts={
-                nc: len(board.layer_stackup.routable_layers(nc))
-                for nc in ("Signal", "Power", "HighVoltage")
-            } if board.layer_stackup else {"Signal": 1, "Power": 1, "HighVoltage": 1},
+            net_class_indices=net_class_indices,
         )
 
     @staticmethod

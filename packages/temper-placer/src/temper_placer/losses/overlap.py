@@ -223,7 +223,7 @@ def _compute_pairwise_overlaps_vectorized(
     # For per-component breakdown, use same triangle logic (temper-p11g.4)
     # Component i's overlap = sum of overlaps where i is involved in upper triangle
     # This means: sum over j>i (as row) + sum over j<i (as column)
-    per_component_overlap = jnp.sum(overlap_amount * mask, axis=1) + jnp.sum(overlap_amount * mask, axis=0)
+    per_component_overlap = (jnp.sum(overlap_amount * mask, axis=1) + jnp.sum(overlap_amount * mask, axis=0)) / 2.0
 
     return total_overlap, per_component_overlap
 
@@ -287,7 +287,7 @@ def _compute_pairwise_overlaps_chunked(
     # total_global_sum: scalar, per_comp_sums: (N,) array
     total_global_sum, per_comp_sums = jax.lax.scan(process_i, jnp.array(0.0, dtype=dtype), jnp.arange(n))
 
-    return total_global_sum, per_comp_sums
+    return total_global_sum, per_comp_sums / 2.0
 
 
 def _compute_pairwise_overlaps_optimized(

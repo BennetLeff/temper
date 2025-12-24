@@ -91,6 +91,6 @@ def test_per_component_breakdown_chunked():
     # Run chunked
     _, per_comp_c = _compute_pairwise_overlaps_chunked(positions, widths, heights, 0.0)
 
-    # Verify sum of per_component is 2x total (since each pair i,j added to both i and j)
+    # Verify sum of per_component is 1x total (we divide by 2 for consistency)
     total_c, _ = _compute_pairwise_overlaps_chunked(positions, widths, heights, 0.0)
-    assert jnp.allclose(jnp.sum(per_comp_c), 2.0 * total_c, rtol=1e-4)
+    assert jnp.allclose(jnp.sum(per_comp_c), total_c, rtol=1e-4)

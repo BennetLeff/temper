@@ -199,18 +199,26 @@ def test_loop_area_loss_vectorized_oracles():
     loop_max_areas = jnp.array([100.0])
     loop_weights = jnp.array([1.0])
 
-    class MockContext(LossContext):
-        def __init__(self):
-            self.loop_pin_indices = loop_pin_indices
-            self.loop_pin_offsets = loop_pin_offsets
-            self.loop_pin_mask = loop_pin_mask
-            self.loop_max_areas = loop_max_areas
-            self.loop_weights = loop_weights
-            self.loop_constraints = loop_constraints
-            self.component_names = ["C0", "C1"]
-            self.pin_map = {} # Not used by LoopAreaLoss directly
-
-    context = MockContext()
+    from temper_placer.losses.types import ConstraintContext, NetlistContext, GeometryContext
+    
+    constraints_data = ConstraintContext(
+        loop_pin_indices=loop_pin_indices,
+        loop_pin_offsets=loop_pin_offsets,
+        loop_pin_mask=loop_pin_mask,
+        loop_max_areas=loop_max_areas,
+        loop_weights=loop_weights,
+    )
+    
+    from temper_placer.core.board import Board
+    board = Board(100.0, 100.0)
+    context = LossContext(
+        netlist=None,
+        board=board,
+        geometry=GeometryContext(bounds=jnp.zeros((2, 2)), fixed_mask=jnp.zeros(2, dtype=jnp.bool_)),
+        netlist_data=NetlistContext(),
+        constraints_data=constraints_data,
+        loop_constraints=loop_constraints
+    )
     loss_fn = LoopAreaLoss(area_penalty_scale=1.0)
 
     # Expected area = 20 * 10 = 200.

@@ -14,7 +14,7 @@ import jax.numpy as jnp
 import pytest
 
 # Import core types for fixtures
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, LayerStackup, Layer
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # Import loss functions
@@ -222,7 +222,7 @@ class TestWirelengthLoss:
         ]
         nets = [Net("NET", [("A", "1"), ("B", "1")])]
         netlist = Netlist(components=components, nets=nets)
-        board = Board(width=100.0, height=100.0)
+        board = Board(width=100.0, height=100.0, layer_stackup=LayerStackup(layers=[Layer("F.Cu", "signal")]))
         context = LossContext.from_netlist_and_board(netlist, board)
 
         loss_fn = WirelengthLoss(alpha=10.0)
@@ -264,7 +264,7 @@ class TestWirelengthLoss:
         ]
         nets = [Net("NET", [("A", "1"), ("B", "1")])]
         netlist = Netlist(components=components, nets=nets)
-        board = Board(width=100.0, height=100.0)
+        board = Board(width=100.0, height=100.0, layer_stackup=LayerStackup(layers=[Layer("F.Cu", "signal")]))
         context = LossContext.from_netlist_and_board(netlist, board)
 
         # Test with high alpha values that would have caused overflow before
@@ -303,7 +303,7 @@ class TestWirelengthLoss:
         # Net only includes A and B, not C
         nets = [Net("NET", [("A", "1"), ("B", "1")])]
         netlist = Netlist(components=components, nets=nets)
-        board = Board(width=200.0, height=200.0)
+        board = Board(width=200.0, height=200.0, layer_stackup=LayerStackup(layers=[Layer("F.Cu", "signal")]))
         context = LossContext.from_netlist_and_board(netlist, board)
 
         loss_fn = WirelengthLoss(alpha=10.0)
@@ -507,11 +507,12 @@ class TestClearanceLoss:
         context = LossContext.from_netlist_and_board(simple_netlist, simple_board)
         # Manually override to empty
         import dataclasses
-        context = dataclasses.replace(
-            context,
+        netlist_data = dataclasses.replace(
+            context.netlist_data,
             hv_indices=jnp.array([], dtype=jnp.int32),
             lv_indices=jnp.array([], dtype=jnp.int32)
         )
+        context = dataclasses.replace(context, netlist_data=netlist_data)
 
         loss_fn = ClearanceLoss()
 
@@ -528,11 +529,12 @@ class TestClearanceLoss:
         context = LossContext.from_netlist_and_board(simple_netlist, simple_board)
         # Ensure only 1 HV component
         import dataclasses
-        context = dataclasses.replace(
-            context,
+        netlist_data = dataclasses.replace(
+            context.netlist_data,
             hv_indices=jnp.array([3], dtype=jnp.int32),  # Q1
             lv_indices=jnp.array([0, 1, 2], dtype=jnp.int32)  # U1, R1, C1
         )
+        context = dataclasses.replace(context, netlist_data=netlist_data)
 
         loss_fn = ClearanceLoss(default_hv_lv_clearance=10.0)
 

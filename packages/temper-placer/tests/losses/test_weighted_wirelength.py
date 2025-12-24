@@ -2,7 +2,7 @@
 import jax.numpy as jnp
 import pytest
 
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, LayerStackup, Layer
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.wirelength import WirelengthLoss
@@ -10,7 +10,9 @@ from temper_placer.losses.wirelength import WirelengthLoss
 
 @pytest.fixture
 def simple_context():
-    board = Board(width=100.0, height=100.0)
+    # Explicitly use 1-layer stackup to avoid RHWL scaling (division by 2)
+    layer_stackup = LayerStackup(layers=[Layer("F.Cu", "signal", is_routable=True)])
+    board = Board(width=100.0, height=100.0, layer_stackup=layer_stackup)
 
     c1 = Component("C1", "R0603", (1.0, 0.5), pins=[Pin("1", "1", (-0.5, 0)), Pin("2", "2", (0.5, 0))])
     c2 = Component("C2", "R0603", (1.0, 0.5), pins=[Pin("1", "1", (-0.5, 0)), Pin("2", "2", (0.5, 0))])

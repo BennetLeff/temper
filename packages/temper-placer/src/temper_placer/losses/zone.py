@@ -104,9 +104,15 @@ def compute_zone_membership_penalty(
     # Build zone assignments from component.zone if not provided
     if zone_assignments is None:
         zone_assignments = {}
+        # 1. Check components themselves for explicit zone assignments
         for comp in context.netlist.components:
             if comp.zone:
                 zone_assignments[comp.ref] = comp.zone
+        
+        # 2. Check board zones for mandatory component lists
+        for zone in context.board.zones:
+            for comp_ref in zone.components:
+                zone_assignments[comp_ref] = zone.name
 
     if not zone_assignments:
         return jnp.array(0.0)

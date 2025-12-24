@@ -6,6 +6,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+from dataclasses import replace
 from temper_placer.core.board import Board, GroundDomain
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.losses.base import LossContext
@@ -61,12 +62,22 @@ def star_aware_context():
             net2_idx = i
             break
 
-    # Update context with star info
-    context.star_net_indices = jnp.array([net2_idx], dtype=jnp.int32)
-    context.is_star_net = jnp.zeros((netlist.n_nets,), dtype=jnp.bool_).at[net2_idx].set(True)
-    context.star_weights = jnp.array([1.0], dtype=jnp.float32)
-    context.star_anchor_pos = jnp.zeros((1, 2), dtype=jnp.float32) # Not used for crossing
-    context.star_has_anchor = jnp.array([False], dtype=jnp.bool_)
+    # Create ConstraintContext with star info
+    constraints_data = replace(
+        context.constraints_data,
+        star_net_indices=jnp.array([net2_idx], dtype=jnp.int32),
+        is_star_net=jnp.zeros((netlist.n_nets,), dtype=jnp.bool_).at[net2_idx].set(True),
+        star_weights=jnp.array([1.0], dtype=jnp.float32),
+        star_anchor_pos=jnp.zeros((1, 2), dtype=jnp.float32),
+        star_has_anchor=jnp.array([False], dtype=jnp.bool_)
+    )
+
+    # Update context with star info (both sub-context and for symmetry, the legacy fields)
+    context = replace(
+        context,
+        constraints_data=constraints_data,
+        # Properties should handle it now, but if the test uses replace on these...
+    )
 
     return context
 
