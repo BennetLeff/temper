@@ -136,6 +136,7 @@ class MazeRouter:
         num_layers: int = 1,
         origin: tuple[float, float] = (0.0, 0.0),
         via_cost: float = 1.0,
+        layer_stackup: "LayerStackup | None" = None,
     ):
         """Initialize maze router.
 
@@ -145,12 +146,20 @@ class MazeRouter:
             num_layers: Number of routing layers
             origin: Board origin coordinates
             via_cost: Penalty cost for layer transitions
+            layer_stackup: PCB layer stackup (optional, defaults to 4-layer)
         """
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
         self.num_layers = num_layers
         self.origin = origin
         self.via_cost = via_cost
+
+        # Layer stackup for layer-aware routing
+        if layer_stackup is None:
+            from temper_placer.core.board import LayerStackup
+            self.layer_stackup = LayerStackup.default_4layer()
+        else:
+            self.layer_stackup = layer_stackup
 
         # Occupancy grid: (width, height, layers)
         # 0=free, 1=blocked, 2=routed
@@ -184,12 +193,16 @@ class MazeRouter:
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
 
+        # Use board's layer stackup if available
+        layer_stackup = getattr(board, 'layer_stackup', None)
+
         return cls(
             grid_size=(width_cells, height_cells),
             cell_size_mm=cell_size_mm,
             num_layers=num_layers,
             origin=board.origin,
             via_cost=via_cost,
+            layer_stackup=layer_stackup,
         )
 
     def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell) -> float:
