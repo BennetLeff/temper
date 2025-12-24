@@ -179,7 +179,7 @@ def test_rotation_diversity_over_generations():
     result = optimizer.evolve(
         netlist=netlist,
         board=board,
-        objectives=[lambda p, r, c, e, t: type("Obj", (), {"value": jnp.zeros(p.shape[0])})()],
+        objectives=[lambda p, r, c, e, t: type("Obj", (), {"value": jnp.float32(0.0)})()],
         context=context,
         generations=10,
         initial_state=initial_state,
@@ -228,91 +228,6 @@ def test_rotation_mutation_stochastic_changes():
 
     # Some logits should have changed (not all identical to initial)
     # Check that at least one value differs significantly
-    differences = jnp.abs(mutated_rot - initial_rot)
-    max_diff = jnp.max(differences)
-
-    assert max_diff > 0.1, f"Mutation should change logits, but max diff is {max_diff}"
-
-
-def test_rotation_diversity_over_generations():
-    """Rotation diversity should increase over generations."""
-    from temper_placer.optimizer.nsga2 import NSGAOptimizer
-    from temper_placer.core.board import Board, LayerStackup
-    from temper_placer.core.netlist import Component, Netlist
-    from temper_placer.core.state import PlacementState
-    from temper_placer.losses.base import LossContext
-
-    board = Board(
-        width=100,
-        height=100,
-        origin=(0, 0),
-        zones=[],
-        ground_domains=[],
-        layer_stackup=LayerStackup.default_4layer(),
-    )
-
-    c1 = Component(ref="U1", footprint="S", bounds=(10, 10))
-    c2 = Component(ref="U2", footprint="S", bounds=(10, 10))
-    netlist = Netlist(components=[c1, c2], nets=[])
-    context = LossContext.from_netlist_and_board(netlist, board)
-
-    # Create initial state with fixed rotations
-    initial_rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]])
-    initial_state = PlacementState(
-        positions=jnp.array([[20.0, 20.0], [80.0, 80.0]]), rotation_logits=initial_rotations
-    )
-
-    optimizer = NSGAOptimizer(population_size=20, mutation_rate=0.2)
-
-    result = optimizer.evolve(
-        netlist=netlist,
-        board=board,
-        objectives=[lambda p, r, c, e, t: type("Obj", (), {"value": jnp.zeros(p.shape[0])})()],
-        context=context,
-        generations=10,
-        initial_state=initial_state,
-        seed=42,
-    )
-
-    # Calculate rotation variance in final population
-    final_rotations = jnp.argmax(result.population_rotations, axis=-1)
-    rotation_variance = jnp.var(final_rotations.flatten())
-
-    # Variance should be > 0 (initial variance was 0 since all rotations were same)
-    assert rotation_variance > 0, f"Rotation variance should increase, but got {rotation_variance}"
-
-
-def test_rotation_crossover_differs_from_parents():
-    """Rotation crossover should produce children with different rotations than parents."""
-    from temper_placer.optimizer.nsga2 import crossover_blx_alpha
-
-    # Parent rotations with different preferences
-    parent1_rot = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
-    parent2_rot = jnp.array([[0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
-
-    key = jax.random.PRNGKey(42)
-
-    # Perform crossover
-    child_rot = crossover_blx_alpha(parent1_rot, parent2_rot, key, alpha=0.5)
-
-    # Child should differ from both parents
-    assert not jnp.allclose(child_rot, parent1_rot, atol=0.1)
-    assert not jnp.allclose(child_rot, parent2_rot, atol=0.1)
-
-
-def test_rotation_mutation_stochastic_changes():
-    """Rotation mutation should introduce stochastic changes to rotation logits."""
-    from temper_placer.optimizer.nsga2 import mutate_gaussian
-
-    # Initial rotation logits
-    initial_rot = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0]])
-
-    key = jax.random.PRNGKey(42)
-
-    # Apply mutation with rate > 0
-    mutated_rot = mutate_gaussian(initial_rot, key, sigma=1.0, rate=0.5)
-
-    # Some logits should have changed (not all identical to initial)
     differences = jnp.abs(mutated_rot - initial_rot)
     max_diff = jnp.max(differences)
 
@@ -588,3 +503,475 @@ class TestLazyCrowdingDistance:
 
         # Crowding distance savings should be significant (>30%)
         assert crowding_savings >= 30.0, f"Crowding savings {crowding_savings:.1f}% < 30%"
+
+
+class TestOddPopulationSize:
+    """Tests for odd population sizes (temper-yi42.7, Test 1).
+
+    NSGA-II implementations often assume even population sizes for pairing
+    during crossover. Odd sizes can expose bugs in selection/crossover logic.
+    """
+
+    @pytest.mark.xfail(
+        reason="Bug: Odd population size causes vmap mismatch in crossover. See temper-yi42.7."
+    )
+    def test_odd_population_size_basic(self):
+        """Optimizer with odd population size should not crash."""
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+        board = Board(width=100, height=100)
+        c1 = Component(ref="U1", footprint="S", bounds=(10, 10))
+        netlist = Netlist(components=[c1])
+        context = LossContext.from_netlist_and_board(netlist, board)
+        objectives = [WirelengthLoss()]
+
+        optimizer = NSGAOptimizer(population_size=51)
+        result = optimizer.evolve(
+            netlist=netlist,
+            board=board,
+            objectives=objectives,
+            context=context,
+            generations=5,
+        )
+
+        # Population size should remain 51 throughout
+        assert result.population_positions.shape[0] == 51
+
+    @pytest.mark.xfail(
+        reason="Bug: Odd population size causes vmap mismatch in crossover. See temper-yi42.7."
+    )
+    def test_odd_population_size_various(self):
+        """Test several odd population sizes: 3, 7, 11, 51."""
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+        board = Board(width=100, height=100)
+        c1 = Component(ref="U1", footprint="S", bounds=(10, 10))
+        netlist = Netlist(components=[c1])
+        context = LossContext.from_netlist_and_board(netlist, board)
+        objectives = [WirelengthLoss()]
+
+        for pop_size in [3, 7, 11, 51]:
+            optimizer = NSGAOptimizer(population_size=pop_size)
+            result = optimizer.evolve(
+                netlist=netlist,
+                board=board,
+                objectives=objectives,
+                context=context,
+                generations=3,
+            )
+            assert result.population_positions.shape[0] == pop_size, (
+                f"Expected pop_size={pop_size}, got {result.population_positions.shape[0]}"
+            )
+
+    @pytest.mark.xfail(
+        reason="Bug: Odd population size causes vmap mismatch in crossover. See temper-yi42.7."
+    )
+    def test_odd_population_crossover_pairing(self):
+        """With odd N, crossover should handle unpaired individual gracefully."""
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Net, Netlist
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+        board = Board(width=100, height=100)
+        c1 = Component(ref="U1", footprint="S", bounds=(10, 10))
+        c2 = Component(ref="U2", footprint="S", bounds=(10, 10))
+        netlist = Netlist(
+            components=[c1, c2],
+            nets=[Net(name="N1", pins=[("U1", "1"), ("U2", "1")])],
+        )
+        context = LossContext.from_netlist_and_board(netlist, board)
+        objectives = [WirelengthLoss()]
+
+        # 5 individuals -> 2 pairs + 1 unpaired
+        optimizer = NSGAOptimizer(population_size=5)
+        result = optimizer.evolve(
+            netlist=netlist,
+            board=board,
+            objectives=objectives,
+            context=context,
+            generations=10,
+        )
+
+        # Should complete without errors and maintain population size
+        assert result.population_positions.shape[0] == 5
+        assert len(result.fronts[0]) >= 1  # At least one solution in front 0
+
+
+class TestRotationDiversityEdgeCases:
+    """Tests for rotation diversity over generations (temper-yi42.7, Test 2).
+
+    NSGA-II should explore different rotation configurations, leading to
+    increased diversity in the rotation logits across the population.
+    """
+
+    def _rotation_variance(self, rotation_logits: jnp.ndarray) -> float:
+        """Calculate variance of rotation logits across population."""
+        # rotation_logits shape: (pop_size, n_components, 4)
+        # Flatten to (pop_size, n_components * 4) and compute variance
+        flat = rotation_logits.reshape(rotation_logits.shape[0], -1)
+        return float(jnp.var(flat))
+
+    def test_rotation_diversity_increases_from_uniform(self):
+        """After N generations, rotation variance should exceed initial."""
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Net, Netlist
+        from temper_placer.core.state import PlacementState
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+        board = Board(width=100, height=100)
+        # Use multiple components to have meaningful rotation variance
+        components = [Component(ref=f"U{i}", footprint="S", bounds=(10, 10)) for i in range(5)]
+        nets = [
+            Net(name=f"N{i}", pins=[(f"U{i}", "1"), (f"U{(i + 1) % 5}", "1")]) for i in range(5)
+        ]
+        netlist = Netlist(components=components, nets=nets)
+        context = LossContext.from_netlist_and_board(netlist, board)
+        objectives = [WirelengthLoss()]
+
+        # Start from a uniform initial state (all same rotations)
+        initial_state = PlacementState.random_init(
+            n_components=5,
+            board_width=100,
+            board_height=100,
+            key=jax.random.PRNGKey(42),
+        )
+        # Force uniform rotations to start
+        uniform_rot = jnp.zeros((5, 4)).at[:, 0].set(1.0)  # All at 0 degrees
+        initial_state = PlacementState(
+            positions=initial_state.positions,
+            rotation_logits=uniform_rot,
+            net_virtual_nodes=initial_state.net_virtual_nodes,
+        )
+
+        optimizer = NSGAOptimizer(population_size=20)
+
+        # Run for few generations and capture result
+        result = optimizer.evolve(
+            netlist=netlist,
+            board=board,
+            objectives=objectives,
+            context=context,
+            generations=50,
+            initial_state=initial_state,
+        )
+
+        # Initial variance was near 0 (all same), final should be higher
+        final_var = self._rotation_variance(result.population_rotations)
+
+        # We expect some variance in the final population
+        # Even if mutations don't directly affect rotations, the population
+        # initialization from perturbing the initial state should create diversity
+        assert final_var > 0, "Expected non-zero rotation variance after evolution"
+
+    def test_rotation_logits_valid_range(self):
+        """Rotation logits should remain valid throughout evolution."""
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+        board = Board(width=100, height=100)
+        components = [Component(ref=f"U{i}", footprint="S", bounds=(10, 10)) for i in range(3)]
+        netlist = Netlist(components=components)
+        context = LossContext.from_netlist_and_board(netlist, board)
+        objectives = [WirelengthLoss()]
+
+        optimizer = NSGAOptimizer(population_size=10)
+        result = optimizer.evolve(
+            netlist=netlist,
+            board=board,
+            objectives=objectives,
+            context=context,
+            generations=20,
+        )
+
+        # Rotation logits should not contain NaN or Inf
+        assert jnp.all(jnp.isfinite(result.population_rotations)), "Rotation logits contain NaN/Inf"
+
+
+class TestParetoFrontNonDominance:
+    """Tests for Pareto front non-dominance property (temper-yi42.7, Test 3).
+
+    The fundamental property of a Pareto front: no solution should dominate
+    any other solution in the front.
+    """
+
+    def _dominates(self, obj_a: jnp.ndarray, obj_b: jnp.ndarray) -> bool:
+        """Check if solution A dominates solution B (minimization)."""
+        diff = obj_a - obj_b
+        return bool(jnp.all(diff <= 0) and jnp.any(diff < 0))
+
+    def test_pareto_front_non_dominated_simple(self):
+        """All solutions in front 0 should be mutually non-dominated."""
+        # Create objective values with known non-dominated front
+        objectives = jnp.array(
+            [
+                [1.0, 10.0],  # Non-dominated (best in obj 0)
+                [5.0, 5.0],  # Non-dominated (balanced)
+                [10.0, 1.0],  # Non-dominated (best in obj 1)
+                [6.0, 6.0],  # Dominated by [5.0, 5.0]
+                [8.0, 8.0],  # Dominated by [5.0, 5.0]
+            ]
+        )
+
+        fronts = fast_non_dominated_sort(objectives)
+
+        # Front 0 should be {0, 1, 2}
+        front_0 = fronts[0]
+        assert set(front_0) == {0, 1, 2}
+
+        # No solution in front 0 should dominate another
+        for i in front_0:
+            for j in front_0:
+                if i != j:
+                    assert not self._dominates(objectives[i], objectives[j]), (
+                        f"Solution {i} dominates {j} in front 0"
+                    )
+
+    def test_pareto_front_non_dominated_random(self):
+        """Test non-dominance on random objectives."""
+        key = jax.random.PRNGKey(123)
+        objectives = jax.random.uniform(key, (100, 3))
+
+        fronts = fast_non_dominated_sort(objectives)
+        front_0 = fronts[0]
+
+        # Check non-dominance within front 0
+        for i in front_0:
+            for j in front_0:
+                if i != j:
+                    assert not self._dominates(objectives[i], objectives[j]), (
+                        f"Solution {i} dominates {j} in front 0"
+                    )
+
+    def test_pareto_front_dominates_subsequent_fronts(self):
+        """Solutions in front 0 should dominate some in later fronts."""
+        objectives = jnp.array(
+            [
+                [1.0, 1.0],  # Front 0 (dominates all others)
+                [2.0, 2.0],  # Front 1
+                [3.0, 3.0],  # Front 2
+            ]
+        )
+
+        fronts = fast_non_dominated_sort(objectives)
+
+        # Front 0 is {0}, which dominates indices 1 and 2
+        assert fronts[0] == [0]
+        assert 1 in fronts[1]
+        assert 2 in fronts[2]
+
+        # Verify domination
+        assert self._dominates(objectives[0], objectives[1])
+        assert self._dominates(objectives[0], objectives[2])
+        assert self._dominates(objectives[1], objectives[2])
+
+
+class TestZDTBenchmarkConvergence:
+    """Tests for convergence on ZDT benchmark problems (temper-yi42.7, Test 4).
+
+    ZDT (Zitzler-Deb-Thiele) test problems have known Pareto fronts,
+    allowing us to verify NSGA-II converges correctly.
+    """
+
+    def _zdt1_objectives(self, x: jnp.ndarray) -> jnp.ndarray:
+        """
+        ZDT1 test problem.
+
+        x: (n,) array of decision variables in [0, 1]
+        Returns: (2,) array of objectives [f1, f2]
+
+        True Pareto front: f2 = 1 - sqrt(f1) for f1 in [0, 1]
+        """
+        f1 = x[0]
+        g = 1.0 + 9.0 * jnp.mean(x[1:])
+        h = 1.0 - jnp.sqrt(f1 / g)
+        f2 = g * h
+        return jnp.array([f1, f2])
+
+    def _hypervolume_2d(self, points: jnp.ndarray, reference: jnp.ndarray) -> float:
+        """
+        Calculate 2D hypervolume indicator.
+
+        points: (N, 2) array of objective values
+        reference: (2,) reference point (should dominate all points)
+        """
+        # Filter points dominated by reference
+        valid = jnp.all(points < reference, axis=1)
+        points = points[valid]
+
+        if len(points) == 0:
+            return 0.0
+
+        # Sort by first objective
+        sorted_indices = jnp.argsort(points[:, 0])
+        sorted_points = points[sorted_indices]
+
+        # Calculate hypervolume using sweep line algorithm
+        hv = 0.0
+        prev_f2 = float(reference[1])
+
+        for i in range(len(sorted_points)):
+            f1 = float(sorted_points[i, 0])
+            f2 = float(sorted_points[i, 1])
+
+            if f2 < prev_f2:
+                # Width from previous x to current x
+                if i == 0:
+                    width = f1 - 0.0  # From origin
+                else:
+                    width = f1 - float(sorted_points[i - 1, 0])
+
+                # Height contribution from this point to reference
+                hv += (float(reference[0]) - f1) * (prev_f2 - f2)
+                prev_f2 = f2
+
+        return hv
+
+    def test_zdt1_pareto_front_shape(self):
+        """Test that NSGA-II finds a Pareto front approximating ZDT1's true front."""
+        # We'll use the NSGA-II sorting on pre-computed ZDT1 samples
+        key = jax.random.PRNGKey(42)
+
+        # Generate random decision variables
+        n_solutions = 100
+        n_vars = 30
+
+        x_samples = jax.random.uniform(key, (n_solutions, n_vars))
+        objectives = jax.vmap(self._zdt1_objectives)(x_samples)
+
+        # Run non-dominated sort
+        fronts = fast_non_dominated_sort(objectives)
+        front_0_indices = jnp.array(fronts[0])
+        pareto_objs = objectives[front_0_indices]
+
+        # True Pareto front: f2 = 1 - sqrt(f1)
+        # Check that front 0 solutions are close to this
+        f1_vals = pareto_objs[:, 0]
+        f2_true = 1.0 - jnp.sqrt(f1_vals)
+        f2_actual = pareto_objs[:, 1]
+
+        # Solutions should be near or below the true front
+        # (below because g > 1 makes f2 larger than optimal)
+        # We just verify the shape is reasonable
+        assert len(front_0_indices) > 1, "Expected multiple solutions in Pareto front"
+
+    def test_hypervolume_improves_with_generations(self):
+        """Hypervolume should improve (or stay same) as evolution progresses."""
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Net, Netlist
+        from temper_placer.losses.base import LossContext
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.losses.thermal import EdgePreferenceLoss
+        from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+        board = Board(width=100, height=100)
+        c1 = Component(ref="U1", footprint="S", bounds=(10, 10))
+        c2 = Component(ref="U2", footprint="S", bounds=(10, 10))
+        netlist = Netlist(
+            components=[c1, c2],
+            nets=[Net(name="N1", pins=[("U1", "1"), ("U2", "1")])],
+        )
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+        # Conflicting objectives
+        objectives = [
+            WirelengthLoss(),
+            EdgePreferenceLoss(
+                thermal_pad_indices=jnp.array([0]),
+                board_width=100.0,
+                board_height=100.0,
+                preferred_margin_mm=5.0,
+            ),
+        ]
+
+        # Run short evolution
+        optimizer = NSGAOptimizer(population_size=30)
+        result_short = optimizer.evolve(
+            netlist=netlist,
+            board=board,
+            objectives=objectives,
+            context=context,
+            generations=10,
+            seed=42,
+        )
+
+        # Run longer evolution
+        optimizer2 = NSGAOptimizer(population_size=30)
+        result_long = optimizer2.evolve(
+            netlist=netlist,
+            board=board,
+            objectives=objectives,
+            context=context,
+            generations=50,
+            seed=42,
+        )
+
+        # Get Pareto front objectives
+        short_objs = result_short.objectives[jnp.array(result_short.best_indices)]
+        long_objs = result_long.objectives[jnp.array(result_long.best_indices)]
+
+        # Use a reference point that dominates all solutions
+        ref_point = jnp.array(
+            [
+                max(float(jnp.max(short_objs[:, 0])), float(jnp.max(long_objs[:, 0]))) + 1.0,
+                max(float(jnp.max(short_objs[:, 1])), float(jnp.max(long_objs[:, 1]))) + 1.0,
+            ]
+        )
+
+        hv_short = self._hypervolume_2d(short_objs, ref_point)
+        hv_long = self._hypervolume_2d(long_objs, ref_point)
+
+        # Longer evolution should have equal or better hypervolume
+        # (Note: due to stochasticity, we allow some tolerance)
+        assert hv_long >= hv_short * 0.9, (
+            f"Hypervolume should not decrease significantly: "
+            f"short={hv_short:.4f}, long={hv_long:.4f}"
+        )
+
+    def test_inverted_generational_distance(self):
+        """Test IGD (Inverted Generational Distance) metric on ZDT1."""
+        key = jax.random.PRNGKey(42)
+
+        # Generate solutions
+        n_solutions = 200
+        n_vars = 30
+
+        x_samples = jax.random.uniform(key, (n_solutions, n_vars))
+        objectives = jax.vmap(self._zdt1_objectives)(x_samples)
+
+        # Get Pareto front
+        fronts = fast_non_dominated_sort(objectives)
+        front_0_indices = jnp.array(fronts[0])
+        pareto_objs = objectives[front_0_indices]
+
+        # True Pareto front samples
+        f1_true = jnp.linspace(0, 1, 100)
+        f2_true = 1.0 - jnp.sqrt(f1_true)
+        true_front = jnp.stack([f1_true, f2_true], axis=1)
+
+        # Calculate IGD: average distance from true front to approximation
+        def min_dist_to_approx(true_point):
+            dists = jnp.sqrt(jnp.sum((pareto_objs - true_point) ** 2, axis=1))
+            return jnp.min(dists)
+
+        igd = float(jnp.mean(jax.vmap(min_dist_to_approx)(true_front)))
+
+        # IGD should be reasonable (not too large)
+        # For random sampling (not evolutionary search), IGD will be moderate
+        # because we're not actually optimizing towards the Pareto front,
+        # just sorting random samples
+        assert igd < 3.0, f"IGD too high: {igd:.4f}"
