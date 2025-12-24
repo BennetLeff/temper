@@ -772,7 +772,7 @@ def optimize(
             np.array(result.best_state.positions),
             netlist,
             board,
-            max_iterations=300,  # Increased for better convergence
+            max_iterations=1000,  # Increased from 300 for better convergence
             min_separation=0.5,
             damping=0.8,  # Damping to prevent oscillation
             fixed_mask=np.array(context.fixed_mask),
