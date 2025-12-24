@@ -18,6 +18,249 @@ from temper_placer.losses.base import LossContext
 logger = logging.getLogger(__name__)
 
 
+def clamp_to_bounds(
+    positions: "np.ndarray",
+    widths: "np.ndarray",
+    heights: "np.ndarray",
+    board_origin: tuple[float, float],
+    board_width: float,
+    board_height: float,
+    margin: float = 0.0,
+    fixed_mask: "np.ndarray | None" = None,
+) -> "np.ndarray":
+    """
+    Clamp component positions to stay within board bounds.
+    
+    Pure functional operation: positions -> positions.
+    Does not modify inputs.
+    
+    Args:
+        positions: (N, 2) array of component center positions.
+        widths: (N,) array of component widths.
+        heights: (N,) array of component heights.
+        board_origin: (x, y) of board origin (lower-left corner).
+        board_width: Board width in mm.
+        board_height: Board height in mm.
+        margin: Additional margin from board edge.
+        fixed_mask: Optional (N,) boolean mask for fixed components.
+        
+    Returns:
+        (N, 2) array of clamped positions.
+    """
+    import numpy as np
+    
+    result = positions.copy()
+    n = positions.shape[0]
+    origin_x, origin_y = board_origin
+    
+    for i in range(n):
+        if fixed_mask is not None and fixed_mask[i]:
+            continue
+            
+        hw, hh = widths[i] / 2, heights[i] / 2
+        
+        # Compute valid range for component center
+        x_min = origin_x + hw + margin
+        x_max = origin_x + board_width - hw - margin
+        y_min = origin_y + hh + margin
+        y_max = origin_y + board_height - hh - margin
+        
+        # Clamp
+        result[i, 0] = np.clip(result[i, 0], x_min, x_max)
+        result[i, 1] = np.clip(result[i, 1], y_min, y_max)
+    
+    return result
+
+
+def clamp_to_zones(
+    positions: "np.ndarray",
+    netlist: "Netlist",
+    board: "Board",
+    fixed_mask: "np.ndarray | None" = None,
+) -> "np.ndarray":
+    """
+    Clamp component positions to their assigned zones.
+    
+    For each component with a zone assignment, ensures its position
+    falls within the zone bounds. This enforces perfect zone compliance
+    as a hard constraint.
+    
+    Args:
+        positions: (N, 2) array of component center positions.
+        netlist: Netlist with components and their zone assignments.
+        board: Board with zone definitions.
+        fixed_mask: Optional (N,) boolean mask for fixed components.
+        
+    Returns:
+        (N, 2) array of clamped positions.
+    """
+    import numpy as np
+    
+    if not board.zones:
+        return positions
+    
+    result = positions.copy()
+    zone_lookup = {z.name: z for z in board.zones}
+    
+    for i, comp in enumerate(netlist.components):
+        if fixed_mask is not None and fixed_mask[i]:
+            continue
+            
+        if comp.zone and comp.zone in zone_lookup:
+            zone = zone_lookup[comp.zone]
+            x_min, y_min, x_max, y_max = zone.bounds
+            
+            # Account for component size
+            hw, hh = comp.bounds[0] / 2, comp.bounds[1] / 2
+            
+            # Compute valid range for component center within zone
+            zone_x_min = x_min + hw
+            zone_x_max = x_max - hw
+            zone_y_min = y_min + hh
+            zone_y_max = y_max - hh
+            
+            # Ensure min < max (in case component is larger than zone)
+            if zone_x_min > zone_x_max:
+                zone_x_min = zone_x_max = (x_min + x_max) / 2
+            if zone_y_min > zone_y_max:
+                zone_y_min = zone_y_max = (y_min + y_max) / 2
+            
+            # Clamp to zone bounds
+            result[i, 0] = np.clip(result[i, 0], zone_x_min, zone_x_max)
+            result[i, 1] = np.clip(result[i, 1], zone_y_min, zone_y_max)
+    
+    return result
+
+
+def resolve_overlaps(
+    positions: "np.ndarray",
+    netlist: "Netlist",
+    board: "Board",
+    fixed_mask: "np.ndarray | None" = None,
+    max_iterations: int = 300,  # Increased from 100
+    min_separation: float = 0.5,
+    damping: float = 0.8,  # Damping factor to prevent oscillation
+) -> "np.ndarray":
+    """
+    Resolve overlapping components using iterative push-apart algorithm with damping.
+    
+    This function is critical for post-legalization cleanup. After zone clamping,
+    components may overlap because zone boundaries are enforced without considering
+    neighboring components. This function iteratively pushes overlapping components
+    apart until no overlaps remain.
+    
+    Algorithm:
+    1. Find all overlapping pairs
+    2. For each pair, compute push force proportional to overlap
+    3. Apply damped push along separation vector
+    4. Ensure components stay within board bounds
+    5. Repeat until no overlaps or max iterations reached
+    
+    Damping prevents oscillation by reducing push strength each iteration.
+    
+    Args:
+        positions: (N, 2) array of component center positions.
+        netlist: Netlist with component bounds.
+        board: Board with dimensions.
+        fixed_mask: Optional (N,) boolean mask for fixed components.
+        max_iterations: Maximum number of push-apart iterations.
+        min_separation: Minimum clearance between components in mm.
+        damping: Damping factor (0.5-1.0). Lower = more stable but slower.
+        
+    Returns:
+        (N, 2) array of overlap-free positions.
+    """
+    import numpy as np
+    
+    result = positions.copy()
+    n_components = len(netlist.components)
+    
+    # Multi-pass: coarse adjustment first, then fine-tuning
+    for iteration in range(max_iterations):
+        # Compute forces for all components
+        forces = np.zeros((n_components, 2))
+        overlaps_found = False
+        
+        # Check all pairs for overlaps
+        for i in range(n_components):
+            # Don't skip fixed components here - they still cause overlaps!
+            
+            comp_i = netlist.components[i]
+            pos_i = result[i]
+            hw_i, hh_i = comp_i.bounds[0] / 2, comp_i.bounds[1] / 2
+            
+            for j in range(i + 1, n_components):
+                comp_j = netlist.components[j]
+                pos_j = result[j]
+                hw_j, hh_j = comp_j.bounds[0] / 2, comp_j.bounds[1] / 2
+                
+                # Compute bounding box overlap
+                dx = pos_i[0] - pos_j[0]
+                dy = pos_i[1] - pos_j[1]
+                dist = np.sqrt(dx**2 + dy**2)
+                
+                # Minimum required separation
+                min_dx = hw_i + hw_j + min_separation
+                min_dy = hh_i + hh_j + min_separation
+                min_dist = np.sqrt(min_dx**2 + min_dy**2)
+                
+                # Check if overlapping (use radial distance for smoother behavior)
+                if dist < min_dist:
+                    overlaps_found = True
+                    
+                    # Avoid division by zero
+                    if dist < 1e-6:
+                        # Components exactly on top - push in random direction
+                        angle = np.random.rand() * 2 * np.pi
+                        dir_x, dir_y = np.cos(angle), np.sin(angle)
+                        overlap = min_dist
+                    else:
+                        # Normal case - push along separation vector
+                        dir_x, dir_y = dx / dist, dy / dist
+                        overlap = min_dist - dist
+                    
+                    # Force proportional to overlap (spring-like)
+                    force_mag = overlap * 0.5  # Half to each component
+                    
+                    # Apply damping based on iteration (stronger damping later)
+                    iteration_damping = damping ** (iteration / 50)
+                    force_mag *= iteration_damping
+                    
+                    # Accumulate forces
+                    forces[i, 0] += force_mag * dir_x
+                    forces[i, 1] += force_mag * dir_y
+                    
+                    if fixed_mask is None or not fixed_mask[j]:
+                        forces[j, 0] -= force_mag * dir_x
+                        forces[j, 1] -= force_mag * dir_y
+        
+        # Apply forces to update positions
+        for i in range(n_components):
+            if fixed_mask is not None and fixed_mask[i]:
+                continue
+            result[i] += forces[i]
+        
+        # Clamp to board bounds after applying forces
+        result = clamp_to_bounds(
+            result,
+            np.array([c.bounds[0] for c in netlist.components]),
+            np.array([c.bounds[1] for c in netlist.components]),
+            (0, 0),
+            board.width,
+            board.height,
+            margin=2.0,
+        )
+        
+        if not overlaps_found:
+            logger.info(f"Overlap resolution converged in {iteration + 1} iterations")
+            break
+    
+    if overlaps_found:
+        logger.warning(f"Overlap resolution did not fully converge after {max_iterations} iterations")
+    
+    return result
+
+
 @dataclass
 class AbacusCluster:
     """A cluster of components in the Abacus algorithm."""
@@ -230,6 +473,18 @@ def project_to_drc_feasible(
 
         if violations_found == 0:
             break
+
+    # Final boundary enforcement - ensure no components are OOB after overlap resolution
+    current_positions = clamp_to_bounds(
+        positions=current_positions,
+        widths=widths,
+        heights=heights,
+        board_origin=(origin_x, origin_y),
+        board_width=board_w,
+        board_height=board_height,
+        margin=0.0,
+        fixed_mask=fixed_mask,
+    )
 
     # Convert back to JAX array
     return PlacementState(jnp.array(current_positions), state.rotation_logits)

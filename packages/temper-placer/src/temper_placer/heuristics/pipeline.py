@@ -310,8 +310,6 @@ class HeuristicPipeline:
     ) -> PlacementState:
         """
         Convert placements to a JAX PlacementState.
-
-        Components are ordered according to their index in the netlist.
         """
         n_components = netlist.n_components
         positions = jnp.zeros((n_components, 2), dtype=jnp.float32)
@@ -333,6 +331,7 @@ class HeuristicPipeline:
             elif comp.initial_position is not None:
                 # Use initial position from netlist
                 positions = positions.at[idx].set(jnp.array(comp.initial_position))
+                
                 if comp.initial_rotation is not None:
                     rot_idx = comp.initial_rotation
                     logits = jnp.array([-10.0, -10.0, -10.0, -10.0])

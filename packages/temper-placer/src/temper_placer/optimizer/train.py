@@ -1349,6 +1349,10 @@ def train_multiphase(
                 noise_scale = sigma * (temperature / config.temperature.start)
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
+                
+                # Apply mask to jiggle
+                jiggle = jnp.where(context.fixed_mask[:, None], 0.0, jiggle)
+                
                 state.positions = state.positions + jiggle
                 # We don't reset EMA to 1.0 anymore (temper-p11g.9)
                 logger.debug(f"Epoch {epoch}: Jiggle triggered")

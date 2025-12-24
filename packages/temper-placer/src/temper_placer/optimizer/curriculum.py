@@ -57,8 +57,8 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
             end_epoch=int(3000 * scale),
             loss_weights={
                 "spread": 5.0,
-                "overlap": 100.0,  # Strong overlap penalty
-                "boundary": 50.0,  # Keep in bounds
+                "overlap": 1000.0,  # CRITICAL: Must never overlap
+                "boundary": 500.0,  # Strong boundary enforcement
                 "rotation_entropy": 1.0,  # Reduce entropy
             },
         ),
@@ -68,11 +68,11 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
             start_epoch=int(3000 * scale),
             end_epoch=int(5000 * scale),
             loss_weights={
-                "overlap": 100.0,
-                "boundary": 50.0,
+                "overlap": 1000.0,  # CRITICAL: Must never overlap
+                "boundary": 500.0,  # Strong boundary enforcement
                 "clearance": 80.0,  # HV-LV clearance (safety critical)
                 "thermal": 30.0,  # IGBT near edge
-                "zone": 20.0,  # Components in zones
+                "zone": 50.0,  # Components in zones (lower than overlap)
             },
         ),
         # Phase 4: Performance (62.5-87.5%)
@@ -81,11 +81,11 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
             start_epoch=int(5000 * scale),
             end_epoch=int(7000 * scale),
             loss_weights={
-                "overlap": 100.0,
-                "boundary": 50.0,
+                "overlap": 1000.0,  # CRITICAL: Must never overlap
+                "boundary": 500.0,  # Strong boundary enforcement
                 "clearance": 80.0,
                 "thermal": 30.0,
-                "zone": 20.0,
+                "zone": 50.0,  # Components in zones (lower than overlap)
                 "wirelength": 10.0,  # Minimize total wirelength
                 "loop_area": 40.0,  # Minimize gate drive loops
                 "congestion": 5.0,  # Balance routing
@@ -97,11 +97,11 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
             start_epoch=int(7000 * scale),
             end_epoch=int(8000 * scale),
             loss_weights={
-                "overlap": 100.0,
-                "boundary": 50.0,
+                "overlap": 1000.0,  # CRITICAL: Must never overlap
+                "boundary": 500.0,  # Strong boundary enforcement
                 "clearance": 80.0,
                 "thermal": 30.0,
-                "zone": 20.0,
+                "zone": 50.0,  # Components in zones (lower than overlap)
                 "wirelength": 10.0,
                 "loop_area": 40.0,
                 "congestion": 5.0,

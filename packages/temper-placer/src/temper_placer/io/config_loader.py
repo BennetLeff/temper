@@ -338,6 +338,10 @@ class PlacementConstraints:
 
     # Fixed components (won't be optimized)
     fixed_components: list[str] = field(default_factory=list)
+    
+    # Fixed positions (component ref -> (x, y) in mm)
+    # Components in this dict will be placed at exact coordinates and marked as fixed
+    fixed_positions: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     # Zone assignments (component -> zone)
     zone_assignments: dict[str, str] = field(default_factory=dict)
@@ -636,6 +640,15 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     # Parse fixed components
     if "fixed_components" in config:
         constraints.fixed_components = config["fixed_components"]
+    
+    # Parse fixed positions (component ref -> [x, y] in mm)
+    if "fixed_positions" in config:
+        for ref, pos in config["fixed_positions"].items():
+            if isinstance(pos, (list, tuple)) and len(pos) >= 2:
+                constraints.fixed_positions[ref] = (float(pos[0]), float(pos[1]))
+                # Also add to fixed_components list if not already there
+                if ref not in constraints.fixed_components:
+                    constraints.fixed_components.append(ref)
 
     # Parse zone assignments
     if "zone_assignments" in config:
@@ -729,3 +742,51 @@ def create_board_from_constraints(constraints: PlacementConstraints) -> Board:
         ground_domains=constraints.ground_domains,
         layer_stackup=constraints.layer_stackup or LayerStackup.default_4layer(),
     )
+
+
+def apply_zones_to_netlist(
+    netlist: Netlist, constraints: PlacementConstraints
+) -> None:
+    """
+    Apply zone assignments from component groups to components in the netlist.
+    
+    For each component group that has a zone assignment, sets the corresponding
+    component's zone field. This is required for ZoneLoss to work.
+    
+    Args:
+        netlist: The netlist to modify.
+        constraints: Placement constraints containing component groups with zones.
+    """
+    for group in constraints.component_groups:
+        if group.zone:
+            for comp_ref in group.components:
+                comp = next((c for c in netlist.components if c.ref == comp_ref), None)
+                if comp:
+                    comp.zone = group.zone
+
+
+def apply_fixed_components_to_netlist(netlist, constraints: PlacementConstraints) -> None:
+    """
+    Apply fixed_components list from constraints to netlist.
+    
+    Sets Component.fixed = True for all components whose ref appears
+    in constraints.fixed_components.
+    
+    Args:
+    args:
+        netlist: Netlist object with components to mark as fixed.
+        constraints: Placement constraints containing fixed_components list.
+    """
+    if not constraints.fixed_components and not constraints.fixed_positions:
+        return
+    
+    fixed_set = set(constraints.fixed_components)
+    for comp in netlist.components:
+        if comp.ref in fixed_set:
+            comp.fixed = True
+        
+        # Apply fixed position if defined
+        if comp.ref in constraints.fixed_positions:
+            pos = constraints.fixed_positions[comp.ref]
+            comp.initial_position = pos
+            comp.fixed = True  # Ensure it's marked fixed

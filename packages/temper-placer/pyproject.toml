@@ -122,5 +122,7 @@ ignore_missing_imports = true
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.148.7",
     "pytest>=9.0.2",
+    "pytest-bdd>=8.1.0",
 ]

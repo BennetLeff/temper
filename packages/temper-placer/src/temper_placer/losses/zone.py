@@ -93,7 +93,7 @@ def compute_zone_membership_penalty(
         positions: (N, 2) component center positions.
         context: LossContext with board zones.
         zone_assignments: Optional dict mapping component_ref -> zone_name.
-            If None, uses zone.components from board definition.
+            If None, builds from component.zone fields in netlist.
 
     Returns:
         Total zone violation penalty (scalar).
@@ -101,12 +101,12 @@ def compute_zone_membership_penalty(
     if not context.board.zones:
         return jnp.array(0.0)
 
-    # Build zone assignments from board zones if not provided
+    # Build zone assignments from component.zone if not provided
     if zone_assignments is None:
         zone_assignments = {}
-        for zone in context.board.zones:
-            for comp_ref in zone.components:
-                zone_assignments[comp_ref] = zone.name
+        for comp in context.netlist.components:
+            if comp.zone:
+                zone_assignments[comp.ref] = comp.zone
 
     if not zone_assignments:
         return jnp.array(0.0)

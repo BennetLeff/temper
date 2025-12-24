@@ -238,7 +238,12 @@ def optimize(
         from temper_placer.core.community import detect_communities
         from temper_placer.core.state import PlacementState
         from temper_placer.heuristics import PlacementContext, create_default_pipeline
-        from temper_placer.io.config_loader import create_board_from_constraints, load_constraints
+        from temper_placer.io.config_loader import (
+            apply_fixed_components_to_netlist,
+            apply_zones_to_netlist,
+            create_board_from_constraints,
+            load_constraints,
+        )
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.io.kicad_writer import (
             export_placements,
@@ -288,6 +293,12 @@ def optimize(
     try:
         constraints = load_constraints(config)
         board = create_board_from_constraints(constraints)
+        
+        # Apply fixed_components to netlist
+        apply_fixed_components_to_netlist(netlist, constraints)
+        
+        # Apply zone assignments from groups to components
+        apply_zones_to_netlist(netlist, constraints)
 
         console.print(f"  [green]✓[/] Board: {board.width:.1f}mm x {board.height:.1f}mm")
         console.print(f"  [green]✓[/] Zones: {len(board.zones)}")
@@ -441,6 +452,15 @@ def optimize(
             weight = weights.get("star_point", 1.0)
             # Default internal weights, could be configured via kwargs if needed
             losses.append(WeightedLoss(StarPointLoss(), weight=weight))
+
+        # Add zone membership loss if zones are defined
+        if board.zones:
+            from temper_placer.losses.zone import ZoneMembershipLoss
+
+            # Zone assignments come from component.zone (set by apply_zones_to_netlist)
+            # ZoneMembershipLoss will use zone.components from board definition
+            zone_weight = weights.get("zone", 10.0)  # High priority for zone enforcement
+            losses.append(WeightedLoss(ZoneMembershipLoss(), weight=zone_weight))
 
         # Add aesthetic losses
         from temper_placer.losses.aesthetic import create_aesthetic_losses
@@ -718,6 +738,47 @@ def optimize(
 
     # Get board origin
     origin = board_from_pcb.origin if board_from_pcb else (0.0, 0.0)
+
+    # Apply zone legalization for perfect zone compliance
+    if board.zones:
+        from temper_placer.optimizer.legalization import clamp_to_zones
+        import numpy as np
+        
+        # Get positions from best state and apply zone clamping
+        legalized_positions = clamp_to_zones(
+            np.array(result.best_state.positions),
+            netlist,
+            board,
+            fixed_mask=np.array(context.fixed_mask),
+        )
+        # Update best_state with legalized positions
+        result.best_state = PlacementState.from_positions(
+            positions=legalized_positions,
+            rotation_logits=result.best_state.rotation_logits,
+            net_virtual_nodes=result.best_state.net_virtual_nodes,
+        )
+        console.print("  [green]✓[/] Applied zone legalization for perfect compliance")
+        
+        # Apply overlap resolution to fix any overlaps created by zone clamping
+        from temper_placer.optimizer.legalization import resolve_overlaps
+        
+        overlap_free_positions = resolve_overlaps(
+            np.array(result.best_state.positions),
+            netlist,
+            board,
+            max_iterations=300,  # Increased for better convergence
+            min_separation=0.5,
+            damping=0.8,  # Damping to prevent oscillation
+            fixed_mask=np.array(context.fixed_mask),
+        )
+        
+        # Update best_state with overlap-free positions
+        result.best_state = PlacementState.from_positions(
+            positions=overlap_free_positions,
+            rotation_logits=result.best_state.rotation_logits,
+            net_virtual_nodes=result.best_state.net_virtual_nodes,
+        )
+        console.print("  [green]✓[/] Applied overlap resolution")
 
     try:
         # Export to KiCad PCB
@@ -1480,6 +1541,13 @@ def progression(
     default=None,
     help="Export coordinates to CSV file for external comparison.",
 )
+@click.option(
+    "-c",
+    "--constraints",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Load zones from constraints YAML file.",
+)
 def visualize(
     input_pcb: Path,
     output: Path | None,
@@ -1493,6 +1561,7 @@ def visualize(
     width: int,
     height: int,
     export_coords: Path | None,
+    constraints: Path | None,
 ) -> None:
     """
     Visualize a KiCad PCB file in the browser.
@@ -1576,7 +1645,51 @@ def visualize(
 
     # Convert zones to ZoneView (if available)
     zone_views = []
-    if board_geom and board_geom.zones:
+    
+    # Load zones from constraints file if provided
+    if constraints:
+        try:
+            from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
+            
+            constraints_obj = load_constraints(constraints)
+            board_with_zones = create_board_from_constraints(constraints_obj)
+            
+            # Define zone colors for visualization (rgba format for Plotly)
+            zone_colors = {
+                "power_zone": "rgba(255, 0, 0, 0.1)",  # Red with 10% opacity
+                "driver_zone": "rgba(255, 255, 0, 0.1)",  # Yellow with 10% opacity
+                "control_zone": "rgba(0, 0, 255, 0.1)",  # Blue with 10% opacity
+                "interface_zone": "rgba(0, 255, 0, 0.1)",  # Green with 10% opacity
+            }
+            
+            if board_with_zones.zones:
+                for zone in board_with_zones.zones:
+                    # Zone uses bounds (x_min, y_min, x_max, y_max), convert to polygon
+                    # Transform to board-relative coordinates
+                    x_min, y_min, x_max, y_max = zone.bounds
+                    polygon_points = (
+                        Point(x_min - origin_x, y_min - origin_y),
+                        Point(x_max - origin_x, y_min - origin_y),
+                        Point(x_max - origin_x, y_max - origin_y),
+                        Point(x_min - origin_x, y_max - origin_y),
+                    )
+                    
+                    # Get color for this zone, default to gray if not defined
+                    zone_color = zone_colors.get(zone.name, "rgba(128, 128, 128, 0.1)")
+                    
+                    zone_views.append(
+                        ZoneView(
+                            name=zone.name,
+                            polygon=polygon_points,
+                            zone_type="placement",
+                            color=zone_color,
+                        )
+                    )
+        except Exception as e:
+            console.print(f"  [yellow]Warning:[/] Failed to load zones from constraints: {e}")
+    
+    # Fall back to zones from PCB file if no constraints provided
+    elif board_geom and board_geom.zones:
         for zone in board_geom.zones:
             # Zone uses bounds (x_min, y_min, x_max, y_max), convert to polygon
             # Transform to board-relative coordinates
@@ -1609,6 +1722,7 @@ def visualize(
         )
 
     # Convert pads to PadView (transform to board-relative coords)
+    # Note: p.position is already in absolute world coordinates
     pad_views = []
     for p in result.pads:
         pad_views.append(

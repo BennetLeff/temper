@@ -134,6 +134,8 @@ def compute_force_directed_layout(
     """
     # Build Adjacency for attraction
     adj = build_adjacency_matrix(netlist)
+    # Get fixed mask
+    fixed_mask = netlist.get_fixed_mask()
 
     # Physics Step
     @jax.jit
@@ -152,6 +154,11 @@ def compute_force_directed_layout(
 
         # Update
         new_pos = pos + learning_rate * (repulsion + attraction)
+        
+        # Determine strict bounds for updates
+        # Ensure fixed components do not move
+        new_pos = jnp.where(fixed_mask[:, None], pos, new_pos)
+        
         return new_pos
 
     # Run simulation
