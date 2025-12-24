@@ -51,11 +51,19 @@ class PhaseResult:
 
 
 @dataclass
+class ParetoFrontResult(PhaseResult):
+    """Phase result containing a Pareto front of solutions."""
+    states: list[PlacementState] = field(default_factory=list)
+    objectives: jnp.ndarray | None = None  # (N, M) objective values for these states
+
+
+@dataclass
 class PipelineResult:
     """Final result of the optimization pipeline."""
     success: bool
     phases: list[PhaseResult]
     final_state: PlacementState | None = None
+    final_states: list[PlacementState] = field(default_factory=list)
     error: str | None = None
 
 
@@ -186,21 +194,38 @@ class NsgaPhase:
                 initial_state=initial_state
             )
 
-            # For now, we pick the individual with the best sum of objectives
-            best_idx = int(jnp.argmin(jnp.sum(result.objectives, axis=1)))
-
-            best_state = PlacementState(
-                positions=result.population_positions[best_idx],
-                rotation_logits=result.population_rotations[best_idx]
+            from temper_placer.optimizer.nsga2 import select_knee_point
+            
+            # Extract the Pareto front
+            front_indices = jnp.array(result.best_indices)
+            front_objectives = result.objectives[front_indices]
+            
+            # Use knee-point selection to pick the "best" representative state
+            knee_idx_in_front = select_knee_point(front_objectives)
+            knee_idx = int(front_indices[knee_idx_in_front])
+            
+            representative_state = PlacementState(
+                positions=result.population_positions[knee_idx],
+                rotation_logits=result.population_rotations[knee_idx]
             )
+            
+            all_front_states = [
+                PlacementState(
+                    positions=result.population_positions[idx],
+                    rotation_logits=result.population_rotations[idx]
+                ) for idx in result.best_indices
+            ]
 
-            return PhaseResult(
+            return ParetoFrontResult(
                 status=PhaseStatus.SUCCESS,
                 duration_seconds=time.time() - start_time,
-                state=best_state,
+                state=representative_state,
+                states=all_front_states,
+                objectives=front_objectives,
                 diagnostics=[
                     f"Pareto front size: {len(result.best_indices)}",
-                    f"Best individual sum: {jnp.sum(result.objectives[best_idx]):.4f}"
+                    f"Knee point index: {knee_idx}",
+                    f"Knee point sum: {jnp.sum(result.objectives[knee_idx]):.4f}"
                 ]
             )
         except Exception as e:
@@ -283,8 +308,20 @@ class OptimizationPipeline:
         if geo_res.status == PhaseStatus.FAILED:
             return PipelineResult(success=False, phases=phases, error=geo_res.error)
 
+        # Handle multiple final states if NSGA was used
+        final_states = []
+        for res in phases:
+            if isinstance(res, ParetoFrontResult):
+                final_states = res.states
+                break
+        
+        # If no Pareto result, just return the single final state
+        if not final_states:
+            final_states = [geo_res.state]
+
         return PipelineResult(
             success=True,
             phases=phases,
-            final_state=geo_res.state
+            final_state=geo_res.state,
+            final_states=final_states
         )

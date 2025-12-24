@@ -14,6 +14,7 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 from jax import Array
 
 logger = logging.getLogger(__name__)
@@ -361,6 +362,39 @@ class NSGAOptimizer:
             fronts=final_fronts,
             best_indices=final_fronts[0]
         )
+
+def select_knee_point(objectives: Array, weights: Array | None = None) -> int:
+    """
+    Select the knee point from a Pareto front using normalized ideal distance.
+    
+    Args:
+        objectives: (N, M) array of objective values for the Pareto front.
+        weights: (M,) array of weights for each objective, used to steer selection.
+        
+    Returns:
+        Index of the knee point in the input array.
+    """
+    if objectives.shape[0] == 0:
+        return 0
+        
+    # 1. Normalize objectives to [0, 1]
+    f_min = jnp.min(objectives, axis=0)
+    f_max = jnp.max(objectives, axis=0)
+    
+    # Avoid division by zero for fixed objectives
+    f_range = jnp.maximum(f_max - f_min, 1e-6)
+    
+    norm_objs = (objectives - f_min) / f_range
+    
+    # 2. Apply weights if provided
+    if weights is not None:
+        norm_objs = norm_objs * weights
+    
+    # 3. Heuristic: point that minimizes the L2 norm of (weighted) normalized objectives
+    # This is the point closest to the ideal point in the normalized space.
+    scores = jnp.linalg.norm(norm_objs, axis=1)
+    
+    return int(jnp.argmin(scores))
 
 def plot_pareto_front(result: NSGAResult, objective_names: list[str]):
     """
