@@ -465,9 +465,27 @@ class MazeRouter:
         """Manhattan distance heuristic for A*."""
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.layer - b.layer) * 2
 
-    def _get_neighbors(self, cell: GridCell, allow_layer_change: bool = False) -> list[GridCell]:
-        """Get valid neighboring cells for pathfinding."""
+    def _get_neighbors(
+        self,
+        cell: GridCell,
+        allow_layer_change: bool = False,
+        allowed_layers: list[int] | None = None,
+    ) -> list[GridCell]:
+        """Get valid neighboring cells for pathfinding.
+        
+        Args:
+            cell: Current cell
+            allow_layer_change: Whether to allow layer transitions (vias)
+            allowed_layers: List of layer indices that can be used (None = all layers)
+        
+        Returns:
+            List of valid neighbor cells
+        """
         neighbors: list[GridCell] = []
+
+        # Determine which layers are allowed
+        if allowed_layers is None:
+            allowed_layers = list(range(self.num_layers))
 
         # 4-connected neighbors on same layer
         for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
@@ -476,13 +494,14 @@ class MazeRouter:
             if (
                 0 <= nx < self.grid_size[0]
                 and 0 <= ny < self.grid_size[1]
+                and cell.layer in allowed_layers  # Check current layer is allowed
                 and int(self.occupancy[nx, ny, cell.layer]) == 0
             ):
                 neighbors.append(GridCell(nx, ny, cell.layer))
 
         # Layer transitions (vias)
         if allow_layer_change and self.num_layers > 1:
-            for new_layer in range(self.num_layers):
+            for new_layer in allowed_layers:  # Only consider allowed layers
                 if new_layer != cell.layer and int(self.occupancy[cell.x, cell.y, new_layer]) == 0:
                     neighbors.append(GridCell(cell.x, cell.y, new_layer))
 
@@ -494,6 +513,7 @@ class MazeRouter:
         end: tuple[int, int],
         layer: int = 0,
         allow_layer_change: bool = False,
+        allowed_layers: list[int] | None = None,
     ) -> list[GridCell] | None:
         """Find path between two points using A*.
 
@@ -502,6 +522,7 @@ class MazeRouter:
             end: (x, y) end position in grid coordinates
             layer: Starting layer
             allow_layer_change: Whether to allow layer transitions
+            allowed_layers: List of layer indices that can be used (None = all layers)
 
         Returns:
             List of GridCells forming the path, or None if no path exists
@@ -553,7 +574,7 @@ class MazeRouter:
                 path.reverse()
                 return path
 
-            for neighbor in self._get_neighbors(current, allow_layer_change):
+            for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
                 if neighbor in visited:
                     continue
 
