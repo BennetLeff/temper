@@ -7,7 +7,7 @@ the internal Netlist representation used by temper-placer.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
@@ -59,15 +59,8 @@ class ParseResult:
     netlist: Netlist
     board: Board | None
     warnings: list[str]
-    traces: list[TraceData] = None  # type: ignore[assignment]
-    pads: list[PadData] = None  # type: ignore[assignment]
-
-    def __post_init__(self):
-        """Initialize optional collections."""
-        if self.traces is None:
-            self.traces = []
-        if self.pads is None:
-            self.pads = []
+    traces: list[TraceData] = field(default_factory=list)
+    pads: list[PadData] = field(default_factory=list)
 
     @property
     def has_warnings(self) -> bool:
@@ -115,7 +108,7 @@ def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
             # kiutils might store number as int or str
             if hasattr(n, "number") and hasattr(n, "name"):
                 net_map[str(n.number)] = n.name
-            elif hasattr(n, "code") and hasattr(n, "name"): # Older kiutils?
+            elif hasattr(n, "code") and hasattr(n, "name"):  # Older kiutils?
                 net_map[str(n.code)] = n.name
 
     # Extract traces and pads (optional but useful for visualization)
@@ -152,7 +145,9 @@ def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult
     # Convert nets dict to list of Net objects
     nets = [Net(name=name, pins=pins) for name, pins in nets_dict.items()]
 
-    return ParseResult(netlist=Netlist(components=components, nets=nets), board=None, warnings=warnings)
+    return ParseResult(
+        netlist=Netlist(components=components, nets=nets), board=None, warnings=warnings
+    )
 
 
 def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
@@ -208,10 +203,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
         if is_mounting_hole:
             # Normalize to board origin
             mounting_holes.append(
-                MountingHole(
-                    position=(fp.position.X - x_min, fp.position.Y - y_min),
-                    diameter=3.2
-                )
+                MountingHole(position=(fp.position.X - x_min, fp.position.Y - y_min), diameter=3.2)
             )
 
     # 3. Extract Zones
@@ -275,77 +267,27 @@ def _extract_components_from_pcb(
         rot_deg = fp.position.angle or 0.0
         rot_idx = round(rot_deg / 90.0) % 4
 
-        # Calculate approximate bounds from graphics
-        # Default to 5x5mm if no graphics
-        width, height = 5.0, 5.0
-
-        if fp.graphicItems:
-            # Filter items by layer to avoid including silkscreen in bounds
-            # Courtyard (.CrtYd) is best, then Fabrication (.Fab)
-            # Silk layers often extend outside board or overlap unhelpfully
-            layers_priority = ["F.CrtYd", "B.CrtYd", "F.Fab", "B.Fab"]
-
-            # Try to get items from priority layers
-            items_to_use = [g for g in fp.graphicItems if hasattr(g, "layer") and g.layer in layers_priority]
-
-            if not items_to_use:
-                # Fallback: ignore Silk layers
-                items_to_use = [g for g in fp.graphicItems if hasattr(g, "layer") and "Silk" not in g.layer]
-
-            if not items_to_use:
-                # Final fallback: use all items
-                items_to_use = fp.graphicItems
-
-            x_min, y_min = float("inf"), float("inf")
-            x_max, y_max = float("-inf"), float("-inf")
-            has_valid_items = False
-
-            for item in items_to_use:
-                # Basic bounding box logic for lines/rects/arcs
-                if hasattr(item, "start") and hasattr(item, "end"):
-                    for pt in [item.start, item.end]:
-                        x_min = min(x_min, pt.X)
-                        y_min = min(y_min, pt.Y)
-                        x_max = max(x_max, pt.X)
-                        y_max = max(y_max, pt.Y)
-                    has_valid_items = True
-
-                # Arcs and other items might have center/radius or points
-                if hasattr(item, "center") and hasattr(item, "radius"):
-                    # Approximate with bounding box of circle
-                    cx, cy, r = item.center.X, item.center.Y, item.radius
-                    x_min = min(x_min, cx - r)
-                    y_min = min(y_min, cy - r)
-                    x_max = max(x_max, cx + r)
-                    y_max = max(y_max, cy + r)
-                    has_valid_items = True
-
-            if has_valid_items:
-                width = max(1.0, x_max - x_min)
-                height = max(1.0, y_max - y_min)
+        # Calculate component bounds - prefer courtyard graphics, fallback to pads
+        width, height = _calculate_footprint_bounds(fp)
 
         # Extract pins
+        # Note: In kiutils, pad.position is ALREADY in footprint-local coordinates
         pins = []
-        import math
-        angle_rad = math.radians(fp.position.angle if fp.position.angle else 0.0)
-        cos_a = math.cos(-angle_rad) # Rotate back
-        sin_a = math.sin(-angle_rad)
-
         for pad in fp.pads:
-            # Absolute position difference
-            dx = pad.position.X - fp.position.X
-            dy = pad.position.Y - fp.position.Y
-
-            # Rotate back to component local frame
-            ox_p = dx * cos_a - dy * sin_a
-            oy_p = dx * sin_a + dy * cos_a
+            # pad.position is local to footprint center (already)
+            local_x = pad.position.X
+            local_y = pad.position.Y
 
             pins.append(
                 Pin(
                     name=pad.number or "",
                     number=pad.number or "",
-                    position=(ox_p, oy_p),
-                    net=pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None
+                    position=(local_x, local_y),
+                    net=pad.net.name
+                    if pad.net and hasattr(pad.net, "name")
+                    else str(pad.net)
+                    if pad.net
+                    else None,
                 )
             )
 
@@ -359,7 +301,7 @@ def _extract_components_from_pcb(
                 fp.position.Y - board_origin[1],
             ),
             fixed=fp.locked,
-            initial_rotation=rot_idx
+            initial_rotation=rot_idx,
         )
 
         components.append(comp)
@@ -400,9 +342,7 @@ def _extract_nets_from_pcb(
 
 
 def _extract_traces_from_pcb(
-    ki_board: KiBoard,
-    warnings: list[str],
-    net_map: dict[str, str] | None = None
+    ki_board: KiBoard, warnings: list[str], net_map: dict[str, str] | None = None
 ) -> list[TraceData]:
     """
     Extract copper trace segments from board.
@@ -432,7 +372,7 @@ def _extract_traces_from_pcb(
                     net_name = track.net.name
                 else:
                     # Fallback to map lookup using ID
-                    net_id = str(track.net) # track.net might be int or object relying on str()
+                    net_id = str(track.net)  # track.net might be int or object relying on str()
                     # If it has 'number' attribute, use that
                     if hasattr(track.net, "number"):
                         net_id = str(track.net.number)
@@ -441,7 +381,7 @@ def _extract_traces_from_pcb(
 
                     # If failed, use the ID itself as fallback
                     if not net_name:
-                         net_name = net_id
+                        net_name = net_id
 
             traces.append(
                 TraceData(
@@ -478,7 +418,11 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadDa
                     rotation=pad.position.angle or 0.0,
                     layer=pad.layers[0] if pad.layers else "F.Cu",
                     number=pad.number or "",
-                    net=pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None,
+                    net=pad.net.name
+                    if pad.net and hasattr(pad.net, "name")
+                    else str(pad.net)
+                    if pad.net
+                    else None,
                     component_ref=ref,
                 )
             )
@@ -547,6 +491,82 @@ def _get_footprint_bounds(fp: Footprint) -> tuple[float, float]:
     Returns:
         (width, height) in mm.
     """
-    # Simplified estimation: look for Fab or Silk bounding box
-    # Real implementation should use library lookups
-    return (5.0, 5.0)  # Default 5x5mm
+    return _calculate_footprint_bounds(fp)
+
+
+def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
+    """
+    Calculate footprint bounding box from courtyard graphics or pads.
+
+    Priority:
+    1. Courtyard layer (F.CrtYd, B.CrtYd) - most accurate
+    2. Fabrication layer (F.Fab, B.Fab) - body outline
+    3. Pads - minimum required area for DRC
+
+    Args:
+        fp: Kiutils Footprint item.
+
+    Returns:
+        (width, height) in mm.
+    """
+    # Try courtyard/fab layers first
+    if fp.graphicItems:
+        layers_priority = ["F.CrtYd", "B.CrtYd", "F.Fab", "B.Fab"]
+
+        items_to_use = [
+            g for g in fp.graphicItems if hasattr(g, "layer") and g.layer in layers_priority
+        ]
+
+        if not items_to_use:
+            # Fallback: ignore Silk layers
+            items_to_use = [
+                g for g in fp.graphicItems if hasattr(g, "layer") and "Silk" not in g.layer
+            ]
+
+        if items_to_use:
+            x_min, y_min = float("inf"), float("inf")
+            x_max, y_max = float("-inf"), float("-inf")
+            has_valid_items = False
+
+            for item in items_to_use:
+                if hasattr(item, "start") and hasattr(item, "end"):
+                    for pt in [item.start, item.end]:
+                        x_min = min(x_min, pt.X)
+                        y_min = min(y_min, pt.Y)
+                        x_max = max(x_max, pt.X)
+                        y_max = max(y_max, pt.Y)
+                    has_valid_items = True
+
+                if hasattr(item, "center") and hasattr(item, "radius"):
+                    cx, cy, r = item.center.X, item.center.Y, item.radius
+                    x_min = min(x_min, cx - r)
+                    y_min = min(y_min, cy - r)
+                    x_max = max(x_max, cx + r)
+                    y_max = max(y_max, cy + r)
+                    has_valid_items = True
+
+            if has_valid_items:
+                return (max(0.5, x_max - x_min), max(0.5, y_max - y_min))
+
+    # Fallback: Calculate bounds from pads
+    # In kiutils, pad.position is in footprint-local coordinates
+    if fp.pads:
+        x_min, y_min = float("inf"), float("inf")
+        x_max, y_max = float("-inf"), float("-inf")
+
+        for pad in fp.pads:
+            # pad.position is local to footprint center
+            px, py = pad.position.X, pad.position.Y
+            pw, ph = pad.size.X, pad.size.Y
+
+            # Extend bounds by pad position +/- half pad size
+            x_min = min(x_min, px - pw / 2)
+            y_min = min(y_min, py - ph / 2)
+            x_max = max(x_max, px + pw / 2)
+            y_max = max(y_max, py + ph / 2)
+
+        if x_min != float("inf"):
+            return (max(0.5, x_max - x_min), max(0.5, y_max - y_min))
+
+    # Ultimate fallback - should rarely happen
+    return (2.0, 2.0)
