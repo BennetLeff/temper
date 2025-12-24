@@ -43,11 +43,13 @@ from temper_placer.routing.layer_assignment import (
     assign_layers,
     find_layer_conflicts,
 )
-from temper_placer.routing.maze_router import (
+from temper_placer.routing.heuristics import (
     GridCell,
+    compute_completion_rate,
+)
+from temper_placer.routing.maze_router import (
     MazeRouter,
     RoutePath,
-    compute_completion_rate,
 )
 from temper_placer.routing.net_ordering import (
     NetClass,

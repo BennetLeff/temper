@@ -262,6 +262,9 @@ class MazeRouter:
             layer_specific: If True, block only the component's layer (assumed L1_TOP/0)
             escape_length: Length of escape routes in cells. If None, calculated based on cell size.
         """
+        if margin < 0:
+            raise ValueError("margin must be non-negative")
+
         # Store component positions for density computation (temper-74wg.1)
         self._component_positions = positions
 

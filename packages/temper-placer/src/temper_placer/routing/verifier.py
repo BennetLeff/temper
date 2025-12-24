@@ -33,8 +33,9 @@ from temper_placer.routing.diagnostics import (
     RoutingReport,
     generate_diagnostics_from_results,
 )
+from temper_placer.routing.heuristics import compute_completion_rate
 from temper_placer.routing.layer_assignment import LayerAssignment, assign_layers
-from temper_placer.routing.maze_router import MazeRouter, compute_completion_rate
+from temper_placer.routing.maze_router import MazeRouter
 from temper_placer.routing.net_ordering import order_nets
 
 

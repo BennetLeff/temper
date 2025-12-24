@@ -11,7 +11,10 @@ import logging
 from dataclasses import dataclass
 
 import jax.numpy as jnp
+import numpy as np
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import LossContext
 
@@ -19,15 +22,13 @@ logger = logging.getLogger(__name__)
 
 
 def clamp_to_bounds(
-    positions: "np.ndarray",
-    widths: "np.ndarray",
-    heights: "np.ndarray",
-    board_origin: tuple[float, float],
-    board_width: float,
-    board_height: float,
+    positions: np.ndarray,
+    widths: np.ndarray,
+    heights: np.ndarray,
+    board: Board,
     margin: float = 0.0,
-    fixed_mask: "np.ndarray | None" = None,
-) -> "np.ndarray":
+    fixed_mask: np.ndarray | None = None,
+) -> np.ndarray:
     """
     Clamp component positions to stay within board bounds.
     
@@ -38,20 +39,16 @@ def clamp_to_bounds(
         positions: (N, 2) array of component center positions.
         widths: (N,) array of component widths.
         heights: (N,) array of component heights.
-        board_origin: (x, y) of board origin (lower-left corner).
-        board_width: Board width in mm.
-        board_height: Board height in mm.
+        board: Board object containing dimensions and origin.
         margin: Additional margin from board edge.
         fixed_mask: Optional (N,) boolean mask for fixed components.
         
     Returns:
         (N, 2) array of clamped positions.
     """
-    import numpy as np
-    
     result = positions.copy()
     n = positions.shape[0]
-    origin_x, origin_y = board_origin
+    origin_x, origin_y = board.origin
     
     for i in range(n):
         if fixed_mask is not None and fixed_mask[i]:
@@ -61,9 +58,9 @@ def clamp_to_bounds(
         
         # Compute valid range for component center
         x_min = origin_x + hw + margin
-        x_max = origin_x + board_width - hw - margin
+        x_max = origin_x + board.width - hw - margin
         y_min = origin_y + hh + margin
-        y_max = origin_y + board_height - hh - margin
+        y_max = origin_y + board.height - hh - margin
         
         # Clamp
         result[i, 0] = np.clip(result[i, 0], x_min, x_max)
@@ -73,11 +70,11 @@ def clamp_to_bounds(
 
 
 def clamp_to_zones(
-    positions: "np.ndarray",
-    netlist: "Netlist",
-    board: "Board",
-    fixed_mask: "np.ndarray | None" = None,
-) -> "np.ndarray":
+    positions: np.ndarray,
+    netlist: Netlist,
+    board: Board,
+    fixed_mask: np.ndarray | None = None,
+) -> np.ndarray:
     """
     Clamp component positions to their assigned zones.
     
@@ -94,8 +91,6 @@ def clamp_to_zones(
     Returns:
         (N, 2) array of clamped positions.
     """
-    import numpy as np
-    
     if not board.zones:
         return positions
     
@@ -130,6 +125,9 @@ def clamp_to_zones(
             result[i, 1] = np.clip(result[i, 1], zone_y_min, zone_y_max)
     
     return result
+
+
+
 
 
 def resolve_overlaps(
@@ -170,8 +168,6 @@ def resolve_overlaps(
     Returns:
         (N, 2) array of overlap-free positions.
     """
-    import numpy as np
-    
     result = positions.copy()
     n_components = len(netlist.components)
     
@@ -210,8 +206,8 @@ def resolve_overlaps(
                     
                     # Avoid division by zero
                     if dist < 1e-6:
-                        # Components exactly on top - push in random direction
-                        angle = np.random.rand() * 2 * np.pi
+                        # Components exactly on top - push in deterministic direction based on indices
+                        angle = (i + j) * 0.1
                         dir_x, dir_y = np.cos(angle), np.sin(angle)
                         overlap = min_dist
                     else:
@@ -245,9 +241,7 @@ def resolve_overlaps(
             result,
             np.array([c.bounds[0] for c in netlist.components]),
             np.array([c.bounds[1] for c in netlist.components]),
-            (0, 0),
-            board.width,
-            board.height,
+            board,
             margin=2.0,
         )
         
@@ -295,7 +289,7 @@ def legalize_abacus(
 
     positions = np.array(state.positions)
     n = positions.shape[0]
-    # widths = np.array([c.bounds[0] for c in context.netlist.components])
+    widths = np.array([c.bounds[0] for c in context.netlist.components])
     # heights = np.array([c.bounds[1] for c in context.netlist.components])
 
     board_h = context.board.height
@@ -395,96 +389,19 @@ def project_to_drc_feasible(
     Returns:
         Feasible (or improved) PlacementState.
     """
-    import numpy as np
-
     # Convert to numpy for mutable updates
     positions = np.array(state.positions)
-    n = positions.shape[0]
-
-    # Get component sizes
-    widths = np.array([c.bounds[0] for c in context.netlist.components])
-    heights = np.array([c.bounds[1] for c in context.netlist.components])
-    fixed_mask = np.array(context.fixed_mask)
-
-    board_w, board_height = context.board.width, context.board.height
-    origin_x, origin_y = context.board.origin
-
-    current_positions = positions.copy()
-
-    for iteration in range(max_iterations):
-        violations_found = 0
-
-        # 1. Resolve Overlaps (Hard constraint)
-        # Naive pair loop is fast enough for N=100 in logic
-        for i in range(n):
-            for j in range(i + 1, n):
-                pos_i = current_positions[i]
-                pos_j = current_positions[j]
-
-                # Half-extents
-                hw_i, hh_i = widths[i] / 2, heights[i] / 2
-                hw_j, hh_j = widths[j] / 2, heights[j] / 2
-
-                # Distance between centers
-                dx = pos_j[0] - pos_i[0]
-                dy = pos_j[1] - pos_i[1]
-
-                # Overlap amount
-                overlap_x = (hw_i + hw_j + margin_mm) - abs(dx)
-                overlap_y = (hh_i + hh_j + margin_mm) - abs(dy)
-
-                if overlap_x > 1e-6 and overlap_y > 1e-6:
-                    violations_found += 1
-                    # Move components apart along the axis of least overlap
-                    if overlap_x < overlap_y:
-                        # Move in X
-                        move = (overlap_x / 2) * (1 if dx < 0 else -1)
-                        if not fixed_mask[i]:
-                            current_positions[i, 0] += move
-                        if not fixed_mask[j]:
-                            current_positions[j, 0] -= move
-                    else:
-                        # Move in Y
-                        move = (overlap_y / 2) * (1 if dy < 0 else -1)
-                        if not fixed_mask[i]:
-                            current_positions[i, 1] += move
-                        if not fixed_mask[j]:
-                            current_positions[j, 1] -= move
-
-        # 2. Enforce Board Boundaries
-        for i in range(n):
-            if fixed_mask[i]:
-                continue
-
-            pos = current_positions[i]
-            hw, hh = widths[i] / 2, heights[i] / 2
-
-            # Left/Right
-            if pos[0] - hw < origin_x:
-                current_positions[i, 0] = origin_x + hw
-            elif pos[0] + hw > origin_x + board_w:
-                current_positions[i, 0] = origin_x + board_w - hw
-
-            # Top/Bottom
-            if pos[1] - hh < origin_y:
-                current_positions[i, 1] = origin_y + hh
-            elif pos[1] + hh > origin_y + board_height:
-                current_positions[i, 1] = origin_y + board_height - hh
-
-        if violations_found == 0:
-            break
-
-    # Final boundary enforcement - ensure no components are OOB after overlap resolution
-    current_positions = clamp_to_bounds(
-        positions=current_positions,
-        widths=widths,
-        heights=heights,
-        board_origin=(origin_x, origin_y),
-        board_width=board_w,
-        board_height=board_height,
-        margin=0.0,
-        fixed_mask=fixed_mask,
+    
+    # 1. Resolve Overlaps and Enforce Boundaries
+    # resolve_overlaps already calls clamp_to_bounds internally
+    final_positions = resolve_overlaps(
+        positions=positions,
+        netlist=context.netlist,
+        board=context.board,
+        fixed_mask=context.fixed_mask,
+        max_iterations=max_iterations,
+        min_separation=margin_mm,
     )
 
     # Convert back to JAX array
-    return PlacementState(jnp.array(current_positions), state.rotation_logits)
+    return PlacementState(jnp.array(final_positions), state.rotation_logits)

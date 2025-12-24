@@ -15,7 +15,8 @@ Example:
 """
 
 from temper_placer.explainability.trace import Trace
-from temper_placer.routing.maze_router import GridCell, MazeRouter
+from temper_placer.routing.heuristics import GridCell
+from temper_placer.routing.maze_router import MazeRouter
 
 
 def explain_layer_assignment(net_class: str, allowed_layers: list[int]) -> str:

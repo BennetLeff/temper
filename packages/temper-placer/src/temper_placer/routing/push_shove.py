@@ -18,21 +18,11 @@ from heapq import heappop, heappush
 
 import jax.numpy as jnp
 
+from temper_placer.routing.heuristics import GridCell, manhattan_heuristic
+
 # =============================================================================
 # Core Data Structures
 # =============================================================================
-
-
-@dataclass(frozen=True)
-class GridCell:
-    """Immutable grid cell coordinate."""
-
-    x: int
-    y: int
-    layer: int
-
-    def __hash__(self):
-        return hash((self.x, self.y, self.layer))
 
 
 @dataclass(frozen=True)
@@ -186,11 +176,6 @@ def get_neighbors(grid: Grid, cell: GridCell, allow_layer_change: bool = True) -
 # =============================================================================
 
 
-def manhattan_distance(a: GridCell, b: GridCell) -> float:
-    """Manhattan distance heuristic."""
-    return abs(a.x - b.x) + abs(a.y - b.y)
-
-
 def find_path(
     grid: Grid, start: GridCell, end: GridCell, allow_layer_change: bool = False
 ) -> PathResult:
@@ -244,7 +229,7 @@ def find_path(
             if neighbor not in g_score or tentative_g < g_score[neighbor]:
                 came_from[neighbor] = current
                 g_score[neighbor] = tentative_g
-                f_score = tentative_g + manhattan_distance(neighbor, end)
+                f_score = tentative_g + manhattan_heuristic(neighbor, end)
                 counter += 1
                 heappush(open_set, (f_score, counter, neighbor, tentative_g))
 
