@@ -747,46 +747,61 @@ def optimize(
 
     # Apply zone legalization for perfect zone compliance
     if board.zones:
-        from temper_placer.optimizer.legalization import clamp_to_zones
-        import numpy as np
-        
-        # Get positions from best state and apply zone clamping
-        legalized_positions = clamp_to_zones(
-            np.array(result.best_state.positions),
-            netlist,
-            board,
-            fixed_mask=np.array(context.fixed_mask),
-        )
-        # Update best_state with legalized positions
-        result.best_state = PlacementState.from_positions(
-            positions=legalized_positions,
-            rotation_logits=result.best_state.rotation_logits,
-            net_virtual_nodes=result.best_state.net_virtual_nodes,
-        )
-        console.print("  [green]✓[/] Applied zone legalization for perfect compliance")
+        try:
+            from temper_placer.optimizer.legalization import clamp_to_zones
+            import numpy as np
+            
+            console.print("  [dim]Applying zone legalization...[/]")
+            # Get positions from best state and apply zone clamping
+            legalized_positions = clamp_to_zones(
+                np.array(result.best_state.positions),
+                netlist,
+                board,
+                fixed_mask=np.array(context.fixed_mask),
+            )
+            # Update best_state with legalized positions
+            result.best_state = PlacementState.from_positions(
+                positions=legalized_positions,
+                rotation_logits=result.best_state.rotation_logits,
+                net_virtual_nodes=result.best_state.net_virtual_nodes,
+            )
+            console.print("  [green]✓[/] Applied zone legalization for perfect compliance")
+        except Exception as e:
+            console.print(f"  [red]✗[/] Zone legalization failed: {e}")
+            import traceback
+            traceback.print_exc()
+            console.print("  [yellow]Warning:[/] Continuing without zone legalization")
         
         # Apply overlap resolution to fix any overlaps created by zone clamping
-        from temper_placer.optimizer.legalization import resolve_overlaps
-        
-        overlap_free_positions = resolve_overlaps(
-            np.array(result.best_state.positions),
-            netlist,
-            board,
-            max_iterations=1000,  # Increased from 300 for better convergence
-            min_separation=0.5,
-            damping=0.8,  # Damping to prevent oscillation
-            fixed_mask=np.array(context.fixed_mask),
-        )
-        
-        # Update best_state with overlap-free positions
-        result.best_state = PlacementState.from_positions(
-            positions=overlap_free_positions,
-            rotation_logits=result.best_state.rotation_logits,
-            net_virtual_nodes=result.best_state.net_virtual_nodes,
-        )
-        console.print("  [green]✓[/] Applied overlap resolution")
+        try:
+            from temper_placer.optimizer.legalization import resolve_overlaps
+            
+            console.print("  [dim]Resolving overlaps (max 1000 iterations)...[/]")
+            overlap_free_positions = resolve_overlaps(
+                np.array(result.best_state.positions),
+                netlist,
+                board,
+                max_iterations=1000,  # Increased from 300 for better convergence
+                min_separation=0.5,
+                damping=0.8,  # Damping to prevent oscillation
+                fixed_mask=np.array(context.fixed_mask),
+            )
+            
+            # Update best_state with overlap-free positions
+            result.best_state = PlacementState.from_positions(
+                positions=overlap_free_positions,
+                rotation_logits=result.best_state.rotation_logits,
+                net_virtual_nodes=result.best_state.net_virtual_nodes,
+            )
+            console.print("  [green]✓[/] Applied overlap resolution")
+        except Exception as e:
+            console.print(f"  [red]✗[/] Overlap resolution failed: {e}")
+            import traceback
+            traceback.print_exc()
+            console.print("  [yellow]Warning:[/] Continuing with overlaps present")
 
     try:
+        console.print("  [dim]Exporting to KiCad PCB...[/]")
         # Export to KiCad PCB
         write_result = export_placements(
             template_pcb=input_pcb,
