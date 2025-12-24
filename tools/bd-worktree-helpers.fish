@@ -167,11 +167,29 @@ function bd-work
         git worktree add $worktree_dir -b $task_id
         cd $worktree_dir
         
-        echo "Pushing branch to remote..."
-        git push -u origin $task_id; or echo "Warning: Initial push failed"
+        # Push branch immediately - THIS IS THE ATOMIC CLAIM
+        # If another agent already pushed this branch, we'll fail here
+        echo "Claiming branch (atomic push)..."
+        if not git push -u origin $task_id 2>/dev/null
+            echo ""
+            echo "✗ Failed to claim $task_id - another agent may have claimed it first"
+            echo ""
+            echo "Cleaning up worktree..."
+            cd -
+            git worktree remove $worktree_dir --force 2>/dev/null
+            git branch -D $task_id 2>/dev/null
+            echo ""
+            echo "Options:"
+            echo "  1. Check who has it: bd-claim-status $task_id"
+            echo "  2. Pick different work: bd ready"
+            echo "  3. If stale, takeover: bd-takeover $task_id"
+            return 1
+        end
+        echo "✓ Branch claimed successfully"
     end
     
-    echo "Claiming task $task_id"
+    # Only update bd status AFTER successful git push (the atomic lock)
+    echo "Updating task status in bd..."
     bd --sandbox update $task_id --status in_progress
     
     echo ""
