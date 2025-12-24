@@ -15,7 +15,7 @@ Usage:
 
 import argparse
 import json
-import subprocess
+
 import sys
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
@@ -29,34 +29,15 @@ class TaskReflector:
     """Generate and post reflections for completed tasks."""
 
     def __init__(self, project_root: Optional[Path] = None):
-        self.project_root = project_root or self._find_project_root()
+        self.project_root = project_root or CommandRunner._find_project_root()
         self.eco_client = EcoClient()
+        self.cmd_runner = CommandRunner(cwd=self.project_root)
 
-    def _find_project_root(self) -> Path:
-        """Find project root by looking for .git directory."""
-        cwd = Path.cwd()
-        for parent in [cwd] + list(cwd.parents):
-            if (parent / ".git").exists():
-                return parent
-        return cwd
 
     def _run_command(self, cmd: List[str], timeout: int = 10) -> Tuple[bool, str, str]:
         """Run a shell command and return (success, stdout, stderr)."""
-        try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=timeout,
-            )
-            return (
-                result.returncode == 0,
-                result.stdout.strip(),
-                result.stderr.strip(),
-            )
-        except subprocess.TimeoutExpired:
-            return False, "", f"Command timed out after {timeout}s"
+        result = self.cmd_runner.run(cmd, timeout=timeout)
+        return (result.success, result.stdout, result.stderr)            return False, "", f"Command timed out after {timeout}s"
         except Exception as e:
             return False, "", str(e)
 

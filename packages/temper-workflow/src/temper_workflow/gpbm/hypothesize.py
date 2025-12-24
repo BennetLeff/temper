@@ -25,12 +25,21 @@ Usage:
 import argparse
 import json
 import os
-import subprocess
+
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+
+try:
+    from ..utils import CommandRunner, BDCommand
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
+    from temper_workflow.utils import CommandRunner, BDCommand
+
 
 
 @dataclass
@@ -347,20 +356,8 @@ class HypothesizePhase:
 
     def __init__(self, repo_root: Optional[Path] = None):
         """Initialize hypothesize phase."""
-        self.repo_root = repo_root or self._find_repo_root()
+        self.repo_root = repo_root or CommandRunner._find_project_root()
 
-    def _find_repo_root(self) -> Path:
-        """Find repository root."""
-        try:
-            result = subprocess.run(
-                ["git", "rev-parse", "--show-toplevel"],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            return Path(result.stdout.strip())
-        except subprocess.CalledProcessError:
-            return Path.cwd()
 
     def create(
         self,
@@ -431,8 +428,7 @@ class HypothesizePhase:
         """Validate that an issue has proper hypothesis structure."""
         # Get issue from bd
         try:
-            result = subprocess.run(
-                ["bd", "--sandbox", "show", issue_id, "--json"],
+            result = BDCommand.show(issue_id, "--json"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -447,7 +443,7 @@ class HypothesizePhase:
                     score=0.0,
                 )
             issue = issues[0]
-        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+        except ( json.JSONDecodeError) as e:
             return ValidationResult(
                 issue_id=issue_id,
                 is_valid=False,
@@ -509,183 +505,18 @@ class HypothesizePhase:
     def validate_issues_by_label(self, label: str) -> list[ValidationResult]:
         """Validate all issues with a given label."""
         try:
-            result = subprocess.run(
-                ["bd", "--sandbox", "list", f"--label-any={label}", "--json"],
-                capture_output=True,
-                text=True,
-                check=True,
-                cwd=str(self.repo_root),
-            )
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
+            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+
             issues = json.loads(result.stdout)
-        except (subprocess.CalledProcessError, json.JSONDecodeError):
-            return []
-
-        results = []
-        for issue in issues:
-            validation = self.validate_issue(issue["id"])
-            results.append(validation)
-
-        return results
-
-    def generate_template(self, goal: str) -> str:
-        """Generate a hypothesis template markdown."""
-        template_path = self.repo_root / "docs" / "HYPOTHESIS_TEMPLATE.md"
-        if template_path.exists():
-            # Extract just the template section
-            content = template_path.read_text()
-            # Return the template markdown structure
-            return f"""# Hypothesis: {goal}
-
-## Hypotheses
-
-### Null Hypothesis (H0)
-> [State what you expect if there is NO effect]
-
-### Alternative Hypothesis (H1)
-> [State what you expect if there IS an effect]
-
-### Expected Effect Size
-[Quantify the minimum meaningful change]
-
-## Pre-Registration
-
-### Predictions
-1. [Specific, testable prediction]
-2. [Another prediction]
-
-### Decision Criteria
-- **Accept H1 if:** [threshold, e.g., "p < 0.05 AND effect > 5%"]
-- **Accept H0 if:** [threshold]
-- **Inconclusive if:** [conditions]
-
-## Statistical Design
-
-- **Sample size:** [N] runs per condition
-- **Random seeds:** [42, 123, 456, ...]
-
-## Control Conditions
-
-| Variable | Value | Rationale |
-|----------|-------|-----------|
-| [var1]   | [value] | [why] |
-
-## Independent Variables
-
-| Variable | Levels | Description |
-|----------|--------|-------------|
-| [var]    | [A, B] | [what each means] |
-
-## Dependent Variables
-
-| Metric | Definition | Target |
-|--------|------------|--------|
-| [metric] | [how measured] | [success threshold] |
-"""
-        else:
-            return self.create(
-                goal=goal,
-                h0="[Define null hypothesis]",
-                h1="[Define alternative hypothesis]",
-                effect_size="[Define expected effect size]",
-            ).to_markdown()
-
-
-def main():
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="HYPOTHESIZE phase - Create and validate hypothesis structures"
-    )
-    subparsers = parser.add_subparsers(dest="command", help="Commands")
-
-    # Create command
-    create_parser = subparsers.add_parser("create", help="Create a new hypothesis")
-    create_parser.add_argument("--goal", required=True, help="Experiment goal")
-    create_parser.add_argument("--h0", help="Null hypothesis")
-    create_parser.add_argument("--h1", help="Alternative hypothesis")
-    create_parser.add_argument("--effect-size", help="Expected effect size")
-    create_parser.add_argument("--domain", help="Domain (placer, firmware, pcb)")
-    create_parser.add_argument("--sample-size", type=int, default=10, help="Runs per condition")
-    create_parser.add_argument("--interactive", "-i", action="store_true", help="Interactive mode")
-    create_parser.add_argument("--output", "-o", help="Output file path")
-    create_parser.add_argument("--json", action="store_true", help="Output as JSON")
-
-    # Validate command
-    validate_parser = subparsers.add_parser("validate", help="Validate issue hypothesis")
-    validate_parser.add_argument("issue_id", help="Issue ID to validate")
-    validate_parser.add_argument("--json", action="store_true", help="Output as JSON")
-
-    # Validate-label command
-    vlabel_parser = subparsers.add_parser("validate-label", help="Validate all issues with label")
-    vlabel_parser.add_argument("label", help="Label to filter (e.g., experiment)")
-    vlabel_parser.add_argument("--json", action="store_true", help="Output as JSON")
-
-    # Template command
-    template_parser = subparsers.add_parser("template", help="Generate hypothesis template")
-    template_parser.add_argument("--goal", default="[Experiment Goal]", help="Goal description")
-
-    args = parser.parse_args()
-
-    hyp = HypothesizePhase()
-
-    if args.command == "create":
-        if args.interactive:
-            hypothesis = hyp.create_interactive(args.goal, domain=args.domain)
-        else:
-            if not all([args.h0, args.h1, args.effect_size]):
-                parser.error("--h0, --h1, and --effect-size required (or use --interactive)")
-            hypothesis = hyp.create(
-                goal=args.goal,
-                h0=args.h0,
-                h1=args.h1,
-                effect_size=args.effect_size,
-                domain=args.domain,
-                sample_size=args.sample_size,
-            )
-
-        if args.json:
-            print(json.dumps(hypothesis.to_dict(), indent=2))
-        else:
-            output = hypothesis.to_markdown()
-            if args.output:
-                Path(args.output).write_text(output)
-                print(f"Saved to {args.output}")
-            else:
-                print(output)
-
-    elif args.command == "validate":
-        result = hyp.validate_issue(args.issue_id)
-        if args.json:
-            print(json.dumps(result.to_dict(), indent=2))
-        else:
-            status = "VALID" if result.is_valid else "INVALID"
-            print(f"\n{args.issue_id}: {status} (score: {result.score:.0%})")
-            if result.missing_fields:
-                print(f"  Missing: {', '.join(result.missing_fields)}")
-            if result.warnings:
-                for w in result.warnings:
-                    print(f"  Warning: {w}")
-
-    elif args.command == "validate-label":
-        results = hyp.validate_issues_by_label(args.label)
-        if args.json:
-            print(json.dumps([r.to_dict() for r in results], indent=2))
-        else:
-            valid = sum(1 for r in results if r.is_valid)
-            print(f"\n=== Validation Results for label '{args.label}' ===")
-            print(f"Valid: {valid}/{len(results)}")
-            print()
-            for r in results:
-                status = "VALID" if r.is_valid else "INVALID"
-                print(f"  {r.issue_id}: {status} ({r.score:.0%})")
-                if r.missing_fields:
-                    print(f"    Missing: {', '.join(r.missing_fields)}")
-
-    elif args.command == "template":
-        print(hyp.generate_template(args.goal))
-
-    else:
-        parser.print_help()
-
-
-if __name__ == "__main__":
-    main()
