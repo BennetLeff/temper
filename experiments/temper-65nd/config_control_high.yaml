@@ -1,0 +1,25 @@
+# Experiment temper-65nd: Wirelength Loss Alpha Annealing
+# Control A: Constant high alpha (20.0)
+#
+# Purpose: Test if high alpha alone provides benefit, or if the
+# annealing schedule is what improves results.
+
+board:
+  width_mm: 60.0
+  height_mm: 40.0
+  margin_mm: 5.0
+
+losses:
+  overlap:
+    weight: 100.0
+    enabled: true
+  boundary:
+    weight: 50.0
+    enabled: true
+  wirelength:
+    weight: 10.0
+    enabled: true
+    alpha: 20.0  # CONTROL: constant high alpha
+  spread:
+    weight: 1.0
+    enabled: true
