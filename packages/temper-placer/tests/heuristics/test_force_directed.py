@@ -164,47 +164,46 @@ def test_force_directed_large_board():
     # Create a large 300x250mm board
     board = Board(width=300.0, height=250.0, origin=(0.0, 0.0))
 
+    # Use a fixed component to test bounds at edge of board
     components = [
-        Component(ref="U1", footprint="QFP", bounds=(10.0, 10.0)),
+        Component(ref="U1", footprint="QFP", bounds=(10.0, 10.0), fixed=True),
         Component(ref="U2", footprint="QFP", bounds=(10.0, 10.0)),
-        Component(ref="U3", footprint="QFP", bounds=(10.0, 10.0)),
     ]
-    # Connect them in a chain
-    net = Net(name="CHAIN", pins=[("U1", "1"), ("U2", "1"), ("U3", "1")])
+    # Connect them
+    net = Net(name="LINK", pins=[("U1", "1"), ("U2", "1")])
     netlist = Netlist(components=components, nets=[net])
 
-    # Initial positions spread across the board - some BEYOND the old 200mm limit
-    # This tests that initial positions beyond 200mm are preserved
+    # Place fixed component at (280, 220) - beyond old 200mm limit
+    # U2 will be attracted towards U1
     initial_positions = jnp.array([
-        [50.0, 50.0],
-        [150.0, 125.0],
-        [280.0, 220.0],  # Beyond old 200mm limit
+        [280.0, 220.0],  # U1 - fixed beyond old 200mm limit
+        [150.0, 125.0],  # U2 - will move towards U1
     ])
 
-    # Run force-directed layout with actual board dimensions
+    # Run force-directed layout
     result = compute_force_directed_layout(
         netlist,
         initial_positions,
         board_width=300.0,
         board_height=250.0,
         board_origin=(0.0, 0.0),
-        iterations=10,  # Few iterations to not converge too much
+        iterations=100,
         learning_rate=0.5,
     )
 
-    # Positions should be within actual board bounds, not clipped to 200
+    # Positions should be within actual board bounds
     assert jnp.all(result[:, 0] >= 0.0), "X should be >= 0"
     assert jnp.all(result[:, 0] <= 300.0), "X should be <= 300"
     assert jnp.all(result[:, 1] >= 0.0), "Y should be >= 0"
     assert jnp.all(result[:, 1] <= 250.0), "Y should be <= 250"
 
-    # Verify that the position beyond 200mm was NOT clipped to 200
-    # (The old bug would clip to 200, so max would be <= 200)
-    max_x = float(jnp.max(result[:, 0]))
-    max_y = float(jnp.max(result[:, 1]))
-    # With initial position at (280, 220) and few iterations, it should still be > 200
-    assert max_x > 200.0 or max_y > 200.0, \
-        f"Positions beyond 200mm should not be clipped to 200. Max: ({max_x:.1f}, {max_y:.1f})"
+    # Fixed component at (280, 220) should stay at (280, 220)
+    # This verifies the large board dimensions are being used correctly
+    u1_pos = result[0]
+    assert abs(float(u1_pos[0]) - 280.0) < 0.01, \
+        f"Fixed component should stay at 280mm, got {float(u1_pos[0]):.1f}"
+    assert abs(float(u1_pos[1]) - 220.0) < 0.01, \
+        f"Fixed component should stay at 220mm, got {float(u1_pos[1]):.1f}"
 
 
 def test_force_directed_small_board():

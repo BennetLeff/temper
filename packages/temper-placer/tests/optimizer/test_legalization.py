@@ -155,9 +155,7 @@ def test_diagonal_adjacency_no_false_positive():
     board = Board(width=100, height=100)
 
     # Two 10x10 components placed diagonally with separation
-    # Component A centered at (5, 5), B centered at (16, 16)
-    # A spans (0,0)-(10,10), B spans (11,11)-(21,21)
-    # They are diagonally separated by 1mm on each axis
+    # Position them away from board edges to avoid margin clamping
     components = [
         Component(ref="A", footprint="10x10", bounds=(10.0, 10.0)),
         Component(ref="B", footprint="10x10", bounds=(10.0, 10.0)),
@@ -165,11 +163,13 @@ def test_diagonal_adjacency_no_false_positive():
     netlist = Netlist(components=components, nets=[])
 
     # Position centers so there's a 1mm gap on each axis
-    # A center at (5, 5), B center at (16, 16)
-    # Gap: x-axis: 16 - 5 - 5 - 5 = 1mm, y-axis: 16 - 5 - 5 - 5 = 1mm
+    # A center at (20, 20), B center at (31, 31)
+    # A spans (15,15)-(25,25), B spans (26,26)-(36,36)
+    # Gap: 1mm on each axis
+    # Both are well within board bounds (away from margin clamping)
     positions = np.array([
-        [5.0, 5.0],    # A center
-        [16.0, 16.0],  # B center - 1mm gap on each axis
+        [20.0, 20.0],  # A center
+        [31.0, 31.0],  # B center - 1mm gap on each axis
     ])
 
     # With 0.5mm separation requirement, these should NOT overlap
@@ -239,11 +239,12 @@ def test_edge_touching_no_false_positive():
     netlist = Netlist(components=components, nets=[])
 
     # Position so they have 1mm gap between edges horizontally
-    # A center at (5, 50), B center at (16, 50)
-    # A spans x: 0-10, B spans x: 11-21 (1mm gap between them)
+    # Both away from board edges to avoid margin clamping
+    # A center at (20, 50), B center at (31, 50)
+    # A spans x: 15-25, B spans x: 26-36 (1mm gap between them)
     positions = np.array([
-        [5.0, 50.0],
-        [16.0, 50.0],  # 1mm gap on x-axis
+        [20.0, 50.0],  # A center
+        [31.0, 50.0],  # B center - 1mm gap on x-axis
     ])
 
     # With 0.5mm separation required, 1mm gap should be sufficient
