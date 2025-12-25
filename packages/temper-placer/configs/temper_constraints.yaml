@@ -274,6 +274,21 @@ fixed_components:
   - "U_GATE"
   - "C_BOOT"
   - "C_VCC"
+  - "R_GATE_H"
+  - "R_GATE_L"
+  # Current sensing - FIXED to avoid overlaps
+  - "U_CT"
+  - "R_BURDEN"
+  - "C_CT_FILT"
+  # MCU and decoupling - FIXED for tight clustering
+  - "U_MCU"
+  - "C_MCU_1"
+  - "C_MCU_2"
+  - "C_MCU_3"
+  - "C_MCU_4"
+  # LDOs - FIXED to avoid overlaps
+  - "U_LDO_3V3"
+  - "U_LDO_5V"
   # Connectors must be at board edges
   - "J_AC_IN"
   - "J_COIL"
@@ -315,6 +330,27 @@ fixed_positions:
   C_BOOT: [37.0, 132.0]  # Above U_GATE
   C_VCC: [43.0, 132.0]   # Above U_GATE
   
+  # Gate resistors - spaced properly (3mm wide each)
+  R_GATE_H: [60.0, 112.0]  # Near U_GATE
+  R_GATE_L: [66.0, 112.0]  # 6mm right of R_GATE_H
+  
+  # Current sensing - space U_CT away from J_COIL and LDOs
+  # U_CT is 7.2mm wide, J_COIL is at (50, 75)
+  U_CT: [35.0, 80.0]       # Left of J_COIL, in driver zone
+  R_BURDEN: [28.0, 80.0]   # Left of U_CT
+  C_CT_FILT: [35.0, 86.0]  # Above U_CT
+  
+  # MCU decoupling - cluster near U_MCU (target: <15mm spread)
+  U_MCU: [50.0, 45.0]      # Center of control zone
+  C_MCU_1: [45.0, 50.0]    # 5mm from MCU
+  C_MCU_2: [55.0, 50.0]    # 5mm from MCU
+  C_MCU_3: [45.0, 40.0]    # 5mm from MCU
+  C_MCU_4: [55.0, 40.0]    # 5mm from MCU
+  
+  # LDOs - space away from U_CT
+  U_LDO_3V3: [25.0, 55.0]  # Left side of control zone
+  U_LDO_5V: [25.0, 65.0]   # Above U_LDO_3V3
+  
   # Mounting holes (corners)
   MH1: [3.5, 3.5]
   MH2: [96.5, 3.5]
@@ -324,7 +360,7 @@ fixed_positions:
   # Power Connectors (Top Edge - Power Zone)
   J_AC_IN: [10.0, 75.0]  # AC Input (Top Left)
   J_NTC: [20.0, 75.0]    # Temp Sensor (Near Power)
-  J_COIL: [50.0, 75.0]   # Induction Coil (Top Center)
+  J_COIL: [50.0, 85.0]   # Induction Coil (moved up to avoid U_CT overlap)
   
   # Control Connectors (Bottom Edge - Control Zone)
   J_USB: [50.0, 5.0]     # USB (Bottom Center)

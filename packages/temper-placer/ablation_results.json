@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Minimal (5 epochs)",
+    "fixed_drift_mm": 0.0,
+    "overlap_count": 5,
+    "wirelength_mm": 699.1431591193498,
+    "zone_compliance_pct": 100.0,
+    "group_spread_mm": 47.70901298522949,
+    "notes": ""
+  },
+  {
+    "name": "Medium (50 epochs)",
+    "fixed_drift_mm": 0.0,
+    "overlap_count": 5,
+    "wirelength_mm": 699.014742999002,
+    "zone_compliance_pct": 100.0,
+    "group_spread_mm": 47.581634521484375,
+    "notes": ""
+  },
+  {
+    "name": "Optimizer Only (100 ep)",
+    "fixed_drift_mm": 107.19691701043044,
+    "overlap_count": 6,
+    "wirelength_mm": 529.0050289147946,
+    "zone_compliance_pct": 40.0,
+    "group_spread_mm": 59.16374588012695,
+    "notes": ""
+  },
+  {
+    "name": "Heuristics Focus (1 ep)",
+    "fixed_drift_mm": 0.0,
+    "overlap_count": 5,
+    "wirelength_mm": 699.1468067453576,
+    "zone_compliance_pct": 100.0,
+    "group_spread_mm": 47.713008880615234,
+    "notes": ""
+  },
+  {
+    "name": "Full (300 epochs)",
+    "fixed_drift_mm": 0.0,
+    "overlap_count": 4,
+    "wirelength_mm": 683.2286902470163,
+    "zone_compliance_pct": 100.0,
+    "group_spread_mm": 26.983787536621094,
+    "notes": ""
+  }
+]

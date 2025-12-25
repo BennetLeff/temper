@@ -25,6 +25,64 @@ from temper_placer.heuristics.base import (
 )
 from temper_placer.heuristics.graph_utils import GraphBuilder
 
+DEFAULT_NET_CLASS_WEIGHTS: dict[str, float] = {
+    "Signal": 1.0,
+    "Clock": 2.0,
+    "Critical": 1.5,
+    "HighSpeed": 1.5,
+    "Power": 0.5,
+    "GND": 0.3,
+}
+
+
+def build_weighted_adjacency_matrix(
+    netlist,
+    net_class_weights: dict[str, float] | None = None,
+) -> jnp.ndarray:
+    """
+    Build weighted adjacency matrix from netlist.
+
+    Weights are based on:
+    1. Net weight/priority (from netlist)
+    2. Net class multiplier (Clock, Critical, Power, etc.)
+    3. Inverse of pin count (high-fanout nets weighted lower per-edge)
+
+    Args:
+        netlist: Netlist with components and nets.
+        net_class_weights: Optional overrides for net class multipliers.
+
+    Returns:
+        (N, N) weighted adjacency matrix as JAX array.
+    """
+    if net_class_weights is None:
+        net_class_weights = DEFAULT_NET_CLASS_WEIGHTS
+
+    n = netlist.n_components
+    adj = np.zeros((n, n), dtype=np.float32)
+
+    for net in netlist.nets:
+        base_weight = net.weight
+
+        class_multiplier = net_class_weights.get(net.net_class, 1.0)
+        base_weight *= class_multiplier
+
+        n_pins = net.pin_count
+        if n_pins > 2:
+            edge_weight = base_weight / np.sqrt(n_pins - 1)
+        else:
+            edge_weight = base_weight
+
+        comp_refs = net.get_component_refs()
+        comp_indices = [netlist.get_component_index(ref) for ref in comp_refs]
+
+        for i in range(len(comp_indices)):
+            for j in range(i + 1, len(comp_indices)):
+                ci, cj = comp_indices[i], comp_indices[j]
+                adj[ci, cj] = max(adj[ci, cj], edge_weight)
+                adj[cj, ci] = max(adj[cj, ci], edge_weight)
+
+    return jnp.array(adj)
+
 
 class ForceDirectedUnfoldingHeuristic(Heuristic):
     """
@@ -90,7 +148,8 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             idx = context.netlist.get_component_index(ref)
             positions = positions.at[idx].set(jnp.array(p.position))
 
-        # 2. Run simulation
+        # 2. Run simulation with weighted adjacency
+        weighted_adj = build_weighted_adjacency_matrix(context.netlist)
         curr_pos = compute_force_directed_layout(
             context.netlist,
             positions,
@@ -101,6 +160,7 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             learning_rate=self.lr,
             repulsion_k=optimal_k,
             repulsion_power=self.repulsion_power,
+            weighted_adj=weighted_adj,
         )
 
         # 3. Clamp to board bounds (temper-p11g.1)
@@ -145,6 +205,11 @@ def compute_force_directed_layout(
     learning_rate: float = 0.5,
     repulsion_k: float = 10.0,
     repulsion_power: float = 1.0,
+    weighted_adj: jnp.ndarray | None = None,
+    attraction_k: float = 0.1,
+    initial_temp: float | None = None,
+    cooling_factor: float = 0.97,
+    min_temp: float = 0.1,
 ) -> jnp.ndarray:
     """
     Run JAX-based force-directed simulation using standard Fruchterman-Reingold.
@@ -152,6 +217,7 @@ def compute_force_directed_layout(
     Standard F-R uses:
     - Repulsion: F = k² / d (force magnitude proportional to 1/distance)
     - Attraction: F = d (spring force proportional to distance)
+    - Temperature annealing: displacement is clamped by decreasing temperature
 
     Args:
         netlist: Netlist object with n_components and adjacency building capability.
@@ -165,12 +231,24 @@ def compute_force_directed_layout(
                      If not provided, computed from board area.
         repulsion_power: Power for distance falloff. 1.0 = standard F-R (1/r),
                         2.0 = quadratic (1/r²), values < 1.0 for stronger long-range repulsion.
+        weighted_adj: Optional pre-computed weighted adjacency matrix. If None,
+                     uses binary adjacency from netlist.
+        attraction_k: Spring constant for attraction forces. Higher = stronger pull.
+        initial_temp: Initial temperature for annealing. If None, computed from board diagonal.
+                     Components can move up to this distance per iteration early on.
+        cooling_factor: Temperature multiplier per iteration. Lower = faster cooling.
+        min_temp: Minimum temperature (displacement won't shrink below this).
 
     Returns:
         (N, 2) array of refined positions.
     """
     n = len(initial_positions)
-    adj = build_adjacency_matrix(netlist)
+
+    if weighted_adj is None:
+        adj = build_adjacency_matrix(netlist)
+    else:
+        adj = weighted_adj
+
     fixed_mask = netlist.get_fixed_mask()
 
     origin_x, origin_y = board_origin
@@ -181,8 +259,12 @@ def compute_force_directed_layout(
         board_area = board_width * board_height
         repulsion_k = jnp.sqrt(board_area / n)
 
+    if initial_temp is None:
+        board_diagonal = jnp.sqrt(board_width**2 + board_height**2)
+        initial_temp = board_diagonal / 10.0
+
     @jax.jit
-    def step(pos):
+    def step(pos, temp):
         diff = pos[:, None, :] - pos[None, :, :]
         dist_sq = jnp.sum(diff**2, axis=-1) + 1e-6
         dist = jnp.sqrt(dist_sq)
@@ -196,20 +278,30 @@ def compute_force_directed_layout(
         repulsion = jnp.clip(repulsion, -100.0, 100.0)
 
         attraction = jnp.sum(adj[:, :, None] * -diff, axis=1)
+        attraction = attraction * attraction_k
         attraction = jnp.clip(attraction, -100.0, 100.0)
 
-        velocity = learning_rate * (repulsion + attraction)
-        velocity = jnp.clip(velocity, -10.0, 10.0)
-        new_pos = pos + velocity
+        displacement = repulsion + attraction
+
+        disp_magnitude = jnp.sqrt(jnp.sum(displacement**2, axis=-1, keepdims=True))
+
+        clamped_disp = jnp.where(
+            disp_magnitude > temp, displacement * (temp / (disp_magnitude + 1e-6)), displacement
+        )
+
+        new_pos = pos + learning_rate * clamped_disp
 
         new_pos = jnp.clip(new_pos, bounds_min, bounds_max)
         new_pos = jnp.where(fixed_mask[:, None], pos, new_pos)
 
-        return new_pos
+        new_temp = jnp.maximum(temp * cooling_factor, min_temp)
+
+        return new_pos, new_temp
 
     curr_pos = initial_positions
+    temp = initial_temp
     for _ in range(iterations):
-        curr_pos = step(curr_pos)
+        curr_pos, temp = step(curr_pos, temp)
 
     return curr_pos
 

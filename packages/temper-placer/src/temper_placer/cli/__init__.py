@@ -781,18 +781,30 @@ def optimize(
             console.print("  [yellow]Warning:[/] Continuing without zone legalization")
         
         # Apply overlap resolution to fix any overlaps created by zone clamping
+        # Use Abacus algorithm for provably optimal legalization (minimal displacement)
         try:
-            from temper_placer.optimizer.legalization import resolve_overlaps
+            from temper_placer.optimizer.legalization import legalize_abacus, resolve_overlaps_priority
             
-            console.print("  [dim]Resolving overlaps (max 1000 iterations)...[/]")
-            overlap_free_positions = resolve_overlaps(
-                np.array(result.best_state.positions),
+            console.print("  [dim]Applying Abacus legalization for optimal overlap-free placement...[/]")
+            
+            # First try Abacus (optimal 1D legalization per row)
+            legalized_state = legalize_abacus(
+                result.best_state,
+                context,
+                n_rows=20,  # More rows for finer control
+                spacing=0.5,
+            )
+            
+            # Then apply priority-based overlap resolution for any remaining 2D overlaps
+            from temper_placer.optimizer.legalization import resolve_overlaps_priority
+            overlap_free_positions = resolve_overlaps_priority(
+                np.array(legalized_state.positions),
                 netlist,
                 board,
-                max_iterations=1000,  # Increased from 300 for better convergence
-                min_separation=0.5,
-                damping=0.8,  # Damping to prevent oscillation
                 fixed_mask=np.array(context.fixed_mask),
+                max_iterations=500,
+                min_separation=0.5,
+                damping=0.9,
             )
             
             # Update best_state with overlap-free positions
@@ -801,7 +813,7 @@ def optimize(
                 rotation_logits=result.best_state.rotation_logits,
                 net_virtual_nodes=result.best_state.net_virtual_nodes,
             )
-            console.print("  [green]✓[/] Applied overlap resolution")
+            console.print("  [green]✓[/] Applied Abacus + priority overlap resolution")
         except Exception as e:
             console.print(f"  [red]✗[/] Overlap resolution failed: {e}")
             import traceback
