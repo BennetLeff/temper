@@ -990,3 +990,20 @@ def test_nsga2_population_size_validation():
     for even_size in [2, 4, 50, 100, 1000]:
         optimizer = NSGAOptimizer(population_size=even_size)
         assert optimizer.pop_size == even_size
+
+
+def test_nsga2_geometry_operators_enabled_by_default():
+    """Verify that geometry operators are enabled by default."""
+    from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+    # Default should enable geometry operators
+    optimizer = NSGAOptimizer()
+    assert optimizer.use_geometry_operators is True
+
+    # Explicit enable
+    optimizer_enabled = NSGAOptimizer(use_geometry_operators=True)
+    assert optimizer_enabled.use_geometry_operators is True
+
+    # Explicit disable
+    optimizer_disabled = NSGAOptimizer(use_geometry_operators=False)
+    assert optimizer_disabled.use_geometry_operators is False
