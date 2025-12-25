@@ -282,6 +282,7 @@ fixed_components:
   - "U_CT"
   - "R_BURDEN"
   - "C_CT_FILT"
+  - "U_OPAMP_CT"  # NEW: Op-amp for CT signal conditioning
   # MCU and decoupling - FIXED for tight clustering
   - "U_MCU"
   - "C_MCU_1"
@@ -291,6 +292,9 @@ fixed_components:
   # LDOs - FIXED to avoid overlaps
   - "U_LDO_3V3"
   - "U_LDO_5V"
+  - "U_BUCK"      # NEW: Buck converter for power
+  # Temperature sensing
+  - "MAX31865"    # NEW: RTD interface near J_NTC
   # Connectors must be at board edges
   - "J_AC_IN"
   - "J_COIL"
@@ -341,6 +345,7 @@ fixed_positions:
   U_CT: [35.0, 80.0]       # Left of J_COIL, in driver zone
   R_BURDEN: [28.0, 80.0]   # Left of U_CT
   C_CT_FILT: [35.0, 86.0]  # Above U_CT
+  U_OPAMP_CT: [28.0, 86.0] # NEW: Near U_CT for signal path
   
   # MCU decoupling - cluster near U_MCU (target: <15mm spread)
   U_MCU: [50.0, 45.0]      # Center of control zone
@@ -352,6 +357,10 @@ fixed_positions:
   # LDOs - space away from U_CT
   U_LDO_3V3: [25.0, 55.0]  # Left side of control zone
   U_LDO_5V: [25.0, 65.0]   # Above U_LDO_3V3
+  U_BUCK: [80.0, 65.0]     # NEW: Right side, near power stage
+  
+  # Temperature sensing
+  MAX31865: [15.0, 80.0]   # Near J_NTC but spaced to avoid overlap
   
   # Mounting holes (corners)
   MH1: [3.5, 3.5]
