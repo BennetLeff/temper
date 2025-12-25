@@ -313,10 +313,18 @@ def optimize(
         console.print("\n[bold cyan]Step 2b/5:[/] Running smart initialization heuristics...")
         try:
             # Skip topological if requested
-            include_topological = not skip_topological
-            pipeline = create_default_pipeline(include_topological=include_topological)
-            if skip_topological:
-                console.print("  [dim]Topological initialization: skipped[/]")
+            # Choose pipeline based on config
+            # If placement_priority is defined, use priority pipeline (professional workflow)
+            if constraints.placement_priority:
+                from temper_placer.heuristics.pipeline import create_priority_pipeline
+                pipeline = create_priority_pipeline()
+                console.print("  [dim]Using priority-based pipeline (power stage template)[/]")
+            else:
+                # Skip topological if requested
+                include_topological = not skip_topological
+                pipeline = create_default_pipeline(include_topological=include_topological)
+                if skip_topological:
+                    console.print("  [dim]Topological initialization: skipped[/]")
             heuristic_key = jax.random.PRNGKey(seed)
 
             pipeline_result = pipeline.run(
