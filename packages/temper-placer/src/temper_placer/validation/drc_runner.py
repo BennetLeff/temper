@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -182,7 +183,8 @@ def run_drc(pcb_path: Path) -> DrcResult:
         )
 
     # Get output path for JSON report
-    json_path = _get_drc_json_path(pcb_path)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+        json_path = Path(tmp.name)
 
     try:
         # Run kicad-cli DRC

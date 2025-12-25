@@ -139,9 +139,10 @@ class TestDrcRunner:
             ],
         }
 
+    @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_on_clean_board(
-        self, mock_run: MagicMock, mock_clean_drc_output: dict, tmp_path: Path
+        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_clean_drc_output: dict, tmp_path: Path
     ) -> None:
         """Clean board should return 0 errors."""
         import json
@@ -157,9 +158,13 @@ class TestDrcRunner:
         # Mock subprocess.run to simulate kicad-cli execution
         mock_run.return_value = MagicMock(returncode=0)
 
+        # Mock temp file context manager
+        mock_ctx = MagicMock()
+        mock_ctx.name = str(json_file)
+        mock_ctx.__enter__.return_value = mock_ctx
+        mock_temp_file.return_value = mock_ctx
+
         with patch(
-            "temper_placer.validation.drc_runner._get_drc_json_path", return_value=json_file
-        ), patch(
             "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
         ):
             result = run_drc(pcb_file)
@@ -168,9 +173,10 @@ class TestDrcRunner:
         assert result.warning_count == 0
         assert len(result.errors) == 0
 
+    @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_detects_overlap(
-        self, mock_run: MagicMock, mock_error_drc_output: dict, tmp_path: Path
+        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_error_drc_output: dict, tmp_path: Path
     ) -> None:
         """Board with overlapping footprints should have errors."""
         import json
@@ -183,9 +189,13 @@ class TestDrcRunner:
 
         mock_run.return_value = MagicMock(returncode=0)
 
+        # Mock temp file context manager
+        mock_ctx = MagicMock()
+        mock_ctx.name = str(json_file)
+        mock_ctx.__enter__.return_value = mock_ctx
+        mock_temp_file.return_value = mock_ctx
+
         with patch(
-            "temper_placer.validation.drc_runner._get_drc_json_path", return_value=json_file
-        ), patch(
             "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
         ):
             result = run_drc(pcb_file)
@@ -197,9 +207,10 @@ class TestDrcRunner:
         assert len(courtyard_errors) == 1
         assert "R1" in courtyard_errors[0].components
 
+    @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_detects_clearance(
-        self, mock_run: MagicMock, mock_error_drc_output: dict, tmp_path: Path
+        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_error_drc_output: dict, tmp_path: Path
     ) -> None:
         """Board with clearance violations should have errors."""
         import json
@@ -212,9 +223,13 @@ class TestDrcRunner:
 
         mock_run.return_value = MagicMock(returncode=0)
 
+        # Mock temp file context manager
+        mock_ctx = MagicMock()
+        mock_ctx.name = str(json_file)
+        mock_ctx.__enter__.return_value = mock_ctx
+        mock_temp_file.return_value = mock_ctx
+
         with patch(
-            "temper_placer.validation.drc_runner._get_drc_json_path", return_value=json_file
-        ), patch(
             "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
         ):
             result = run_drc(pcb_file)

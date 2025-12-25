@@ -218,6 +218,7 @@ class Zone:
     net_classes: list[str] = field(default_factory=lambda: ["Signal"])
     components: list[str] = field(default_factory=list)
     weight: float = 1.0
+    polygon: list[tuple[float, float]] | None = None  # Optional polygon vertices for non-rectangular zones
 
     @property
     def width(self) -> float:

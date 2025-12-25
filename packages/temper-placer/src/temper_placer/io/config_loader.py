@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+import math
 
 import yaml
 
@@ -388,6 +389,16 @@ class PlacementConstraints:
             return "Signal"
 
 
+def _validate_weight(weight: float, name: str) -> None:
+    """Validate that loss weight is within acceptable bounds."""
+    if not math.isfinite(weight):
+        raise ValueError(f"Loss weight for '{name}' must be finite (got {weight}).")
+    if weight < 0:
+        raise ValueError(f"Loss weight for '{name}' must be positive (got {weight}).")
+    if weight > 1e6:
+        raise ValueError(f"Loss weight for '{name}' must be less than 1e6 (got {weight}).")
+
+
 def load_constraints(config_path: Path) -> PlacementConstraints:
     """
     Load placement constraints from a YAML configuration file.
@@ -712,14 +723,18 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                         # Explicit null = disabled
                         continue
                     elif isinstance(loss_data, dict):
+                        w = float(loss_data.get("weight", 1.0))
+                        _validate_weight(w, loss_name)
                         loss_config = LossConfig(
-                            weight=loss_data.get("weight", 1.0),
+                            weight=w,
                             enabled=loss_data.get("enabled", True),
                             margin=loss_data.get("margin"),
                         )
                     else:
                         # Simple value = just the weight
-                        loss_config = LossConfig(weight=float(loss_data))
+                        w = float(loss_data)
+                        _validate_weight(w, loss_name)
+                        loss_config = LossConfig(weight=w)
 
                     setattr(losses_config, loss_name, loss_config)
 
@@ -754,7 +769,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     "edge_avoidance", "group_cluster", "thermal", "zone",
                     "clearance", "loop_area", "star_point"
                 ]:
-                    loss_config = LossConfig(weight=float(weight_value))
+                    w = float(weight_value)
+                    _validate_weight(w, loss_name)
+                    loss_config = LossConfig(weight=w)
                     setattr(losses_config, loss_name, loss_config)
             
             constraints.losses = losses_config

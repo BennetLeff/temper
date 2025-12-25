@@ -218,11 +218,31 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
             y_pts = [p.Y - y_min for p in pts]
             if x_pts and y_pts:
                 bounds = (min(x_pts), min(y_pts), max(x_pts), max(y_pts))
+                polygon = list(zip(x_pts, y_pts))
+
+                # Check for complex geometry warning
+                bbox_area = (bounds[2] - bounds[0]) * (bounds[3] - bounds[1])
+                poly_area = 0.0
+                if len(polygon) > 2:
+                    # Shoelace formula
+                    for i in range(len(polygon)):
+                        j = (i + 1) % len(polygon)
+                        poly_area += polygon[i][0] * polygon[j][1]
+                        poly_area -= polygon[j][0] * polygon[i][1]
+                    poly_area = abs(poly_area) / 2.0
+
+                if bbox_area > 0 and abs(bbox_area - poly_area) / bbox_area > 0.05:
+                    warnings.append(
+                        f"Zone '{ki_zone.name or 'Unnamed'}' is non-rectangular. "
+                        f"Approximating polygon (area={poly_area:.1f}) with bounding box (area={bbox_area:.1f})."
+                    )
+
                 zones.append(
                     Zone(
                         name=ki_zone.name or f"Zone_{len(zones)}",
                         bounds=bounds,
                         net_classes=[ki_zone.netName] if ki_zone.netName else ["Signal"],
+                        polygon=polygon,
                     )
                 )
 

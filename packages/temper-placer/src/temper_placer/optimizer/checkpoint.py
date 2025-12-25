@@ -87,6 +87,14 @@ class CheckpointManager:
         if config.enabled:
             self._setup_directory()
 
+    def __enter__(self) -> CheckpointManager:
+        """Enable context manager support."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Cleanup on exit."""
+        self.cleanup()
+
     def _setup_directory(self):
         """Set up checkpoint directory."""
         if self.config.directory is not None:
