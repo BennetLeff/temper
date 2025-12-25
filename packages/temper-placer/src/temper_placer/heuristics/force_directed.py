@@ -35,9 +35,17 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
     It uses simple differentiable repulsion and attraction.
     """
 
-    def __init__(self, iterations: int = 500, learning_rate: float = 0.5):
+    def __init__(
+        self,
+        iterations: int = 500,
+        learning_rate: float = 0.5,
+        repulsion_k: float | None = None,
+        repulsion_power: float = 1.0,
+    ):
         self.iterations = iterations
         self.lr = learning_rate
+        self.repulsion_k = repulsion_k
+        self.repulsion_power = repulsion_power
 
     @property
     def name(self) -> str:
@@ -56,10 +64,17 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         if n == 0:
             return HeuristicResult(success=True)
 
+        # Compute optimal k from board area if not provided
+        board_area = context.board.width * context.board.height
+        if self.repulsion_k is None:
+            optimal_k = float(jnp.sqrt(board_area / n))
+        else:
+            optimal_k = self.repulsion_k
+
         # 1. Initialize positions - use random for ALL, then override with placed components
         # This ensures unplaced components have valid non-zero positions for physics
         rng_key = context.rng_key if context.rng_key is not None else jax.random.PRNGKey(42)
-        
+
         initial_state = PlacementState.random_init(
             n_components=n,
             board_width=context.board.width,
@@ -69,7 +84,7 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             margin=context.constraints.board_margin_mm,
         )
         positions = initial_state.positions
-        
+
         # Override with positions from already-placed components
         for ref, p in context.current_placements.items():
             idx = context.netlist.get_component_index(ref)
@@ -84,6 +99,8 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             board_origin=context.board.origin,
             iterations=self.iterations,
             learning_rate=self.lr,
+            repulsion_k=optimal_k,
+            repulsion_power=self.repulsion_power,
         )
 
         # 3. Clamp to board bounds (temper-p11g.1)
@@ -92,7 +109,7 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         curr_pos = jnp.clip(
             curr_pos,
             min=jnp.array([margin, margin]),
-            max=jnp.array([context.board.width - margin, context.board.height - margin])
+            max=jnp.array([context.board.width - margin, context.board.height - margin]),
         )
 
         # 4. Map back to placements
@@ -126,9 +143,15 @@ def compute_force_directed_layout(
     board_origin: tuple[float, float] = (0.0, 0.0),
     iterations: int = 500,
     learning_rate: float = 0.5,
+    repulsion_k: float = 10.0,
+    repulsion_power: float = 1.0,
 ) -> jnp.ndarray:
     """
-    Run JAX-based force-directed simulation.
+    Run JAX-based force-directed simulation using standard Fruchterman-Reingold.
+
+    Standard F-R uses:
+    - Repulsion: F = k² / d (force magnitude proportional to 1/distance)
+    - Attraction: F = d (spring force proportional to distance)
 
     Args:
         netlist: Netlist object with n_components and adjacency building capability.
@@ -138,48 +161,52 @@ def compute_force_directed_layout(
         board_origin: Board origin (x, y) in mm. Defaults to (0, 0).
         iterations: Number of simulation steps.
         learning_rate: Step size for updates.
+        repulsion_k: Repulsion strength parameter. Optimal k = sqrt(area / n).
+                     If not provided, computed from board area.
+        repulsion_power: Power for distance falloff. 1.0 = standard F-R (1/r),
+                        2.0 = quadratic (1/r²), values < 1.0 for stronger long-range repulsion.
 
     Returns:
         (N, 2) array of refined positions.
     """
-    # Build Adjacency for attraction
+    n = len(initial_positions)
     adj = build_adjacency_matrix(netlist)
-    # Get fixed mask
     fixed_mask = netlist.get_fixed_mask()
 
-    # Compute actual board bounds
     origin_x, origin_y = board_origin
     bounds_min = jnp.array([origin_x, origin_y])
     bounds_max = jnp.array([origin_x + board_width, origin_y + board_height])
 
-    # Physics Step - use closure to capture bounds
+    if repulsion_k is None:
+        board_area = board_width * board_height
+        repulsion_k = jnp.sqrt(board_area / n)
+
     @jax.jit
     def step(pos):
-        # Repulsion (all-pairs) - normalized by number of nodes
         diff = pos[:, None, :] - pos[None, :, :]
         dist_sq = jnp.sum(diff**2, axis=-1) + 1e-6
-        # Clamp repulsion force to prevent explosion
-        repulsion = jnp.sum(diff / dist_sq[:, :, None], axis=1)
+        dist = jnp.sqrt(dist_sq)
+
+        unit_diff = diff / (dist[:, :, None] + 1e-6)
+
+        repulsion_mag = repulsion_k**2 / (dist**repulsion_power + 1e-6)
+        repulsion_mag = repulsion_mag.at[jnp.arange(n), jnp.arange(n)].set(0.0)
+
+        repulsion = jnp.sum(unit_diff * repulsion_mag[:, :, None], axis=1)
         repulsion = jnp.clip(repulsion, -100.0, 100.0)
 
-        # Attraction (connected only)
         attraction = jnp.sum(adj[:, :, None] * -diff, axis=1)
         attraction = jnp.clip(attraction, -100.0, 100.0)
 
-        # Update with velocity clamping
         velocity = learning_rate * (repulsion + attraction)
-        velocity = jnp.clip(velocity, -10.0, 10.0)  # Max 10mm per step
+        velocity = jnp.clip(velocity, -10.0, 10.0)
         new_pos = pos + velocity
 
-        # Clamp to actual board bounds every step to prevent explosion
         new_pos = jnp.clip(new_pos, bounds_min, bounds_max)
-
-        # Ensure fixed components do not move
         new_pos = jnp.where(fixed_mask[:, None], pos, new_pos)
 
         return new_pos
 
-    # Run simulation
     curr_pos = initial_positions
     for _ in range(iterations):
         curr_pos = step(curr_pos)
