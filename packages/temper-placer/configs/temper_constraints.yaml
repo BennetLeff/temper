@@ -300,18 +300,20 @@ component_groups:
 
 # Force connectors to board edges for professional layout
 fixed_positions:
-  # Power stage - half_bridge_vertical template at anchor [75, 120]
-  Q1: [75.0, 125.0]    # High-side IGBT (anchor + 0,+5)
-  Q2: [75.0, 115.0]    # Low-side IGBT (anchor + 0,-5)
-  D1: [71.0, 125.0]    # High-side diode - TIGHTER (anchor + -4,+5)
-  D2: [71.0, 115.0]    # Low-side diode - TIGHTER (anchor + -4,-5)
-  C_BUS1: [79.0, 125.0]  # Bus cap near high-side - TIGHTER (anchor + 4,+5)
-  C_BUS2: [79.0, 115.0]  # Bus cap near low-side - TIGHTER (anchor + 4,-5)
+  # Power stage - RECALCULATED for actual component sizes:
+  # Q1/Q2: 14.4mm wide, D1/D2: 17.7mm wide, C_BUS: 10.5mm wide
+  # Layout: D -- Q -- C_BUS with proper spacing (1mm margin)
+  Q1: [75.0, 130.0]    # High-side IGBT (centered X, upper row)
+  Q2: [75.0, 118.0]    # Low-side IGBT (centered X, lower row, 12mm apart)
+  D1: [58.0, 130.0]    # High-side diode (17mm left of Q1)
+  D2: [58.0, 118.0]    # Low-side diode (17mm left of Q2)
+  C_BUS1: [89.0, 130.0]  # Bus cap (14mm right of Q1)
+  C_BUS2: [89.0, 118.0]  # Bus cap (14mm right of Q2)
   
-  # Gate driver - NEAR power stage for low gate loop inductance
-  U_GATE: [60.0, 120.0]  # 15mm from Q1 (was ~40mm)
-  C_BOOT: [58.0, 122.0]  # Adjacent to U_GATE VCC_BOOT pin
-  C_VCC: [62.0, 122.0]   # Adjacent to U_GATE VCC pin
+  # Gate driver - left of power stage, clear of diodes
+  U_GATE: [40.0, 124.0]  # 18mm left of D1 (U_GATE is 11mm wide)
+  C_BOOT: [37.0, 132.0]  # Above U_GATE
+  C_VCC: [43.0, 132.0]   # Above U_GATE
   
   # Mounting holes (corners)
   MH1: [3.5, 3.5]

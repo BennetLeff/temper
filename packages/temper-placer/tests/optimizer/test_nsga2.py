@@ -975,3 +975,18 @@ class TestZDTBenchmarkConvergence:
         # because we're not actually optimizing towards the Pareto front,
         # just sorting random samples
         assert igd < 3.0, f"IGD too high: {igd:.4f}"
+
+
+def test_nsga2_population_size_validation():
+    """Verify that odd population sizes are rejected."""
+    from temper_placer.optimizer.nsga2 import NSGAOptimizer
+
+    # Test various odd sizes
+    for odd_size in [1, 3, 51, 101, 999]:
+        with pytest.raises(ValueError, match="must be even"):
+            NSGAOptimizer(population_size=odd_size)
+
+    # Test various even sizes (should all work)
+    for even_size in [2, 4, 50, 100, 1000]:
+        optimizer = NSGAOptimizer(population_size=even_size)
+        assert optimizer.pop_size == even_size

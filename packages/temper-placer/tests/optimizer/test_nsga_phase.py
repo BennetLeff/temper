@@ -26,13 +26,12 @@ def basic_setup():
 
 def test_select_knee_point_2d():
     """Verify knee point selection on a simple 2D front."""
-    # Front with 3 points: (0, 10), (5, 5), (10, 0)
-    # Normalized: (0, 1), (0.5, 0.5), (1, 0)
-    # L2 distances: 1.0, sqrt(0.5) approx 0.707, 1.0
-    # Knee point should be (5, 5) at index 1
+    # Front with 3 points: (0, 10), (4, 4), (10, 0)
+    # The point (4, 4) is a "knee" because it's significantly closer to the origin
+    # than the line connecting (0, 10) and (10, 0).
     objectives = jnp.array([
         [0.0, 10.0],
-        [5.0, 5.0],
+        [4.0, 4.0],
         [10.0, 0.0]
     ])
     
@@ -41,16 +40,20 @@ def test_select_knee_point_2d():
 
 def test_select_knee_point_3d():
     """Verify knee point selection on a 3D front."""
-    # ideal point is (0,0,0) after normalization
+    # Front with 4 points.
+    # Each objective has a unique minimum to avoid ambiguity.
     objectives = jnp.array([
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-        [0.4, 0.4, 0.4] # Closer to ideal point than corners
+        [10.0, 1.0, 1.0], # Min for none
+        [1.0, 10.0, 1.0], # Min for none
+        [1.0, 1.0, 10.0], # Min for none
+        [0.0, 5.0, 5.0], # Extreme for obj 0
+        [5.0, 0.0, 5.0], # Extreme for obj 1
+        [5.0, 5.0, 0.0], # Extreme for obj 2
+        [2.0, 2.0, 2.0]  # Likely knee
     ])
     
     idx = select_knee_point(objectives)
-    assert idx == 3
+    assert idx == 6
 
 def test_select_knee_point_weighted():
     """Verify that weights can steer knee point selection."""

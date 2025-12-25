@@ -31,7 +31,8 @@ def test_force_directed_equilibrium_known():
         netlist,
         initial_pos,
         iterations=1000,
-        learning_rate=0.01
+        learning_rate=0.01,
+        repulsion_k=1.0
     )
 
     dist = jnp.sqrt(jnp.sum((final_pos[0] - final_pos[1])**2))

@@ -589,13 +589,13 @@ def mutate_slide_to_neighbor(
             # Compute direction toward neighbor
             direction = positions[neighbor_idx] - positions[comp_idx]
             distance = jnp.linalg.norm(direction)
-            
+
             is_valid_dist = distance > 1e-6
-            
+
             def final_move(_):
                 move = direction * slide_fraction
                 return positions.at[comp_idx].add(move), True
-                
+
             return jax.lax.cond(is_valid_dist, final_move, lambda _: (positions, False), None)
 
         return jax.lax.cond(has_connections, perform_slide, lambda _: (positions, False), None)
@@ -677,13 +677,15 @@ def mutate_align_to_grid(
     if n == 0:
         return positions, False
 
+    key_apply = key
+
     # Decide which components to align
     mask = jax.random.uniform(key_apply, (n,)) < rate
 
     def do_align(_):
         # Snap positions to grid
         grid_pos = jnp.round(positions / grid_size) * grid_size
-        
+
         # Apply only where mask is True
         new_pos = jnp.where(mask[:, None], grid_pos, positions)
         return new_pos, True
@@ -732,21 +734,21 @@ def mutate_push_to_edge(
     apply_mutation = jax.random.uniform(key_apply) < rate
 
     def do_push(_):
-        # If thermal mask provided, only consider thermal components
-        def get_comp_idx(_):
-            thermal_indices = jnp.where(thermal_mask)[0]
-            # Use dynamic slice or searchsorted for safety if we wanted to be fully robust,
-            # but let's stick to the logic provided.
-            # We assume thermal_indices is not empty if thermal_mask is provided and has True.
-            return thermal_indices[jax.random.randint(key_comp, (), 0, jnp.maximum(1, len(thermal_indices)))]
+        # Determine component index to push
+        if thermal_mask is not None:
+            # Use thermal mask to filter
+            thermal_indices = jnp.where(thermal_mask, size=n, fill_value=-1)[0]
+            num_thermal = jnp.sum(thermal_mask)
 
-        # We need another cond here if thermal_mask is a tracer
-        comp_idx = jax.lax.cond(
-            thermal_mask is not None,
-            get_comp_idx,
-            lambda _: jax.random.randint(key_comp, (), 0, n),
-            None
-        )
+            # Select random from valid thermal indices
+            # We use a simple way to pick from valid ones: random index in [0, num_thermal-1]
+            # then map back to original indices.
+            # Simplified: just pick any and hope it's thermal for now, or use better sampling.
+            # Actually, let's use the provided logic but make it tracer-safe.
+            rand_idx = jax.random.randint(key_comp, (), 0, jnp.maximum(1, num_thermal))
+            comp_idx = thermal_indices[rand_idx]
+        else:
+            comp_idx = jax.random.randint(key_comp, (), 0, n)
 
         pos = positions[comp_idx]
 
@@ -985,8 +987,14 @@ class NSGAOptimizer:
         mutation_rate: float = 0.1,
         mutation_sigma: float = 2.0,
         crossover_alpha: float = 0.5,
-        use_geometry_operators: bool = False,  # Disabled by default - operators need JIT refinement
+        use_geometry_operators: bool = True,  # Enabled by default for better solution diversity
     ):
+        # Validate population size is even (required for crossover pairing)
+        if population_size % 2 != 0:
+            raise ValueError(
+                f"Population size must be even for NSGA-II crossover, got {population_size}. "
+                f"Consider using {population_size + 1} or {population_size - 1}."
+            )
         self.pop_size = population_size
         self.mutation_rate = mutation_rate
         self.mutation_sigma = mutation_sigma
@@ -1073,10 +1081,21 @@ class NSGAOptimizer:
         if initial_state:
             # Perturb initial state to create population
             pop_pos = jnp.repeat(initial_state.positions[None, :, :], self.pop_size, axis=0)
-            noise = jax.random.normal(init_key, pop_pos.shape) * 5.0
-            pop_pos = pop_pos + noise
             pop_rot = jnp.repeat(initial_state.rotation_logits[None, :, :], self.pop_size, axis=0)
+
+            # Add noise to positions
+            noise = jax.random.normal(init_key, pop_pos.shape) * 5.0
+            # Add noise to rotations
             rot_noise = jax.random.normal(init_rot_key, pop_rot.shape) * 0.5
+
+            # Extract fixed mask
+            fixed_mask = getattr(context, "fixed_mask", None)
+            if fixed_mask is not None:
+                # Zero out noise for fixed components
+                noise = jnp.where(fixed_mask[None, :, None], 0.0, noise)
+                rot_noise = jnp.where(fixed_mask[None, :, None], 0.0, rot_noise)
+
+            pop_pos = pop_pos + noise
             pop_rot = pop_rot + rot_noise
         else:
             # Random initialization

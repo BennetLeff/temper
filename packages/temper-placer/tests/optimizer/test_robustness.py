@@ -190,10 +190,11 @@ def test_fixed_components_adaptive_weighting():
 
     # Create context with fixed mask for outer components (C1 and C3)
     context = LossContext.from_netlist_and_board(netlist, board)
-    # Create a new context with the desired fixed_mask
-    context = LossContext(
-        netlist=context.netlist,
-        board=context.board,
+    
+    # Use dataclasses.replace to update fixed_mask while preserving other fields
+    import dataclasses
+    context = dataclasses.replace(
+        context,
         fixed_mask=jnp.array([True, False, True])  # Fix C1 and C3
     )
 
