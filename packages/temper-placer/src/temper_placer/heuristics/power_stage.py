@@ -8,13 +8,18 @@ correct topology for common power converter configurations.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
 
 from temper_placer.core.priority import POWER_STAGE_TEMPLATES, PlacementPhaseConfig
-from temper_placer.heuristics.base import BaseHeuristic, PlacementContext
+from temper_placer.heuristics.base import (
+    ComponentPlacement,
+    Heuristic,
+    HeuristicPriority,
+    HeuristicResult,
+    PlacementContext,
+)
 
 if TYPE_CHECKING:
     pass
@@ -22,8 +27,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class PowerStageTemplateHeuristic(BaseHeuristic):
+class PowerStageTemplateHeuristic(Heuristic):
     """
     Place power stage components using fixed templates.
     
@@ -32,19 +36,28 @@ class PowerStageTemplateHeuristic(BaseHeuristic):
     - Full-bridge
     - Custom templates from config
     
-    Components are placed at fixed positions relative to an anchor point,
-    and marked as fixed to prevent optimizer from moving them.
+    Components are placed at fixed positions relative to an anchor point.
     """
     
-    name: str = "power_stage_template"
+    @property
+    def name(self) -> str:
+        return "power_stage_template"
     
-    def run(self, ctx: PlacementContext) -> PlacementContext:
+    @property
+    def priority(self) -> HeuristicPriority:
+        # Run before everything else - INITIALIZATION priority
+        return HeuristicPriority.INITIALIZATION
+    
+    def apply(self, context: PlacementContext) -> HeuristicResult:
         """Apply power stage template placement."""
+        result = HeuristicResult()
+        
         # Get power stage config from constraints
-        phase_config = self._get_phase_config(ctx)
+        phase_config = self._get_phase_config(context)
         if phase_config is None:
             logger.debug("No power stage config found, skipping template heuristic")
-            return ctx
+            result.message = "No power stage config found"
+            return result
         
         # Get template
         template_name = phase_config.template or "half_bridge_vertical"
@@ -57,17 +70,20 @@ class PowerStageTemplateHeuristic(BaseHeuristic):
         anchor = phase_config.anchor
         if anchor is None:
             # Default to center-right of board
-            anchor = (ctx.board.width * 0.75, ctx.board.height * 0.5)
+            anchor = (context.board.width * 0.75, context.board.height * 0.75)
             logger.info(f"No anchor specified, using default ({anchor[0]:.1f}, {anchor[1]:.1f})")
         
         # Place components from template
-        placed_count = 0
         for ref, offset in template.items():
             # Check if component exists in netlist
             try:
-                idx = ctx.netlist.get_component_index(ref)
+                comp = context.netlist.get_component(ref)
             except (KeyError, ValueError):
                 logger.debug(f"Component {ref} not found in netlist, skipping")
+                continue
+            
+            # Skip if already placed
+            if ref in context.current_placements:
                 continue
             
             # Calculate position
@@ -75,61 +91,50 @@ class PowerStageTemplateHeuristic(BaseHeuristic):
             y = anchor[1] + offset[1]
             
             # Clamp to board bounds
-            comp = ctx.netlist.components[idx]
+            margin = context.constraints.board_margin_mm
             half_w = comp.width / 2
             half_h = comp.height / 2
-            x = np.clip(x, half_w, ctx.board.width - half_w)
-            y = np.clip(y, half_h, ctx.board.height - half_h)
+            x = np.clip(x, margin + half_w, context.board.width - margin - half_w)
+            y = np.clip(y, margin + half_h, context.board.height - margin - half_h)
             
-            # Apply position
-            ctx.positions[idx] = (x, y)
-            ctx.placed[idx] = True
-            
-            # Mark as fixed so optimizer doesn't move it
-            if hasattr(ctx, 'fixed_mask') and ctx.fixed_mask is not None:
-                ctx.fixed_mask[idx] = True
-            
-            placed_count += 1
+            # Create placement
+            placement = ComponentPlacement(
+                ref=ref,
+                position=(float(x), float(y)),
+                rotation=0,
+                confidence=1.0,
+                placed_by=self.name,
+            )
+            result.placements[ref] = placement
             logger.debug(f"Placed {ref} at ({x:.1f}, {y:.1f})")
         
-        # Record stats
-        ctx.heuristic_stats[self.name] = {
-            "placed": placed_count,
-            "template": template_name,
-            "anchor": anchor,
-        }
-        
-        logger.info(f"Power stage template: placed {placed_count} components using '{template_name}'")
-        return ctx
+        result.message = f"Placed {len(result.placements)} components using '{template_name}'"
+        logger.info(f"Power stage template: {result.message}")
+        return result
     
-    def _get_phase_config(self, ctx: PlacementContext) -> PlacementPhaseConfig | None:
+    def _get_phase_config(self, context: PlacementContext) -> PlacementPhaseConfig | None:
         """Extract power phase config from constraints."""
-        if not hasattr(ctx, 'constraints') or ctx.constraints is None:
+        if not hasattr(context, 'constraints') or context.constraints is None:
             return None
         
-        # Check for priority_config
-        if hasattr(ctx.constraints, 'priority_config'):
-            from temper_placer.core.priority import PlacementPriority
-            return ctx.constraints.priority_config.get_placement_phase(PlacementPriority.POWER)
-        
         # Fall back to placement_priority dict
-        if hasattr(ctx.constraints, 'placement_priority'):
-            power_cfg = ctx.constraints.placement_priority.get('power')
+        if hasattr(context.constraints, 'placement_priority'):
+            power_cfg = context.constraints.placement_priority.get('power')
             if power_cfg:
+                anchor = power_cfg.get('anchor')
                 return PlacementPhaseConfig(
                     name="power",
                     priority=1,
                     components=power_cfg.get('components', []),
                     method=power_cfg.get('method', 'template'),
                     template=power_cfg.get('template', 'half_bridge_vertical'),
-                    anchor=tuple(power_cfg.get('anchor', [])) if power_cfg.get('anchor') else None,
+                    anchor=tuple(anchor) if anchor else None,
                 )
         
         return None
 
 
-@dataclass  
-class DriverProximityHeuristic(BaseHeuristic):
+class DriverProximityHeuristic(Heuristic):
     """
     Place gate driver components near the power stage.
     
@@ -137,42 +142,60 @@ class DriverProximityHeuristic(BaseHeuristic):
     gate resistors) within a specified distance of the power stage.
     """
     
-    name: str = "driver_proximity"
+    @property
+    def name(self) -> str:
+        return "driver_proximity"
     
-    def run(self, ctx: PlacementContext) -> PlacementContext:
+    @property
+    def priority(self) -> HeuristicPriority:
+        # Run right after power stage template
+        return HeuristicPriority.INITIALIZATION
+    
+    def apply(self, context: PlacementContext) -> HeuristicResult:
         """Apply driver proximity placement."""
+        result = HeuristicResult()
+        
         # Get driver phase config
-        phase_config = self._get_phase_config(ctx)
+        phase_config = self._get_phase_config(context)
         if phase_config is None:
             logger.debug("No driver config found, skipping proximity heuristic")
-            return ctx
+            result.message = "No driver config found"
+            return result
         
         # Find reference component (usually Q1 or center of power stage)
         ref_name = phase_config.reference or "Q1"
-        try:
-            ref_idx = ctx.netlist.get_component_index(ref_name)
-            ref_pos = ctx.positions[ref_idx]
-        except (KeyError, ValueError):
+        ref_pos = None
+        
+        if ref_name in context.current_placements:
+            ref_pos = context.current_placements[ref_name].position
+        else:
+            # Try to get from netlist initial position
+            try:
+                comp = context.netlist.get_component(ref_name)
+                if comp.initial_position:
+                    ref_pos = comp.initial_position
+            except (KeyError, ValueError):
+                pass
+        
+        if ref_pos is None:
             logger.warning(f"Reference component {ref_name} not found, using board center")
-            ref_pos = (ctx.board.width / 2, ctx.board.height / 2)
+            ref_pos = (context.board.width / 2, context.board.height / 2)
         
         # Place driver components in a cluster near reference
         max_dist = phase_config.max_distance_mm or 20.0
-        placed_count = 0
         
         for ref in phase_config.components:
-            try:
-                idx = ctx.netlist.get_component_index(ref)
-            except (KeyError, ValueError):
+            # Skip if already placed
+            if ref in context.current_placements:
                 continue
-            
-            if ctx.placed[idx]:
+                
+            try:
+                comp = context.netlist.get_component(ref)
+            except (KeyError, ValueError):
                 continue
             
             # Place at offset from reference
             # Gate driver goes to the control side, resistors between driver and IGBTs
-            comp = ctx.netlist.components[idx]
-            
             if "U_GATE" in ref:
                 # Gate driver IC - offset towards control zone
                 offset = (-max_dist * 0.8, 0)
@@ -184,41 +207,38 @@ class DriverProximityHeuristic(BaseHeuristic):
                 offset = (-max_dist * 0.4, 3 if "H" in ref else -3)
             else:
                 # Default - cluster near driver
-                offset = (-max_dist * 0.6, np.random.uniform(-5, 5))
+                offset = (-max_dist * 0.6, 0)
             
             x = ref_pos[0] + offset[0]
             y = ref_pos[1] + offset[1]
             
             # Clamp to board
+            margin = context.constraints.board_margin_mm
             half_w = comp.width / 2
             half_h = comp.height / 2
-            x = np.clip(x, half_w, ctx.board.width - half_w)
-            y = np.clip(y, half_h, ctx.board.height - half_h)
+            x = np.clip(x, margin + half_w, context.board.width - margin - half_w)
+            y = np.clip(y, margin + half_h, context.board.height - margin - half_h)
             
-            ctx.positions[idx] = (x, y)
-            ctx.placed[idx] = True
-            placed_count += 1
+            placement = ComponentPlacement(
+                ref=ref,
+                position=(float(x), float(y)),
+                rotation=0,
+                confidence=0.9,
+                placed_by=self.name,
+            )
+            result.placements[ref] = placement
         
-        ctx.heuristic_stats[self.name] = {
-            "placed": placed_count,
-            "reference": ref_name,
-            "max_distance_mm": max_dist,
-        }
-        
-        logger.info(f"Driver proximity: placed {placed_count} components near {ref_name}")
-        return ctx
+        result.message = f"Placed {len(result.placements)} driver components near {ref_name}"
+        logger.info(f"Driver proximity: {result.message}")
+        return result
     
-    def _get_phase_config(self, ctx: PlacementContext) -> PlacementPhaseConfig | None:
+    def _get_phase_config(self, context: PlacementContext) -> PlacementPhaseConfig | None:
         """Extract driver phase config from constraints."""
-        if not hasattr(ctx, 'constraints') or ctx.constraints is None:
+        if not hasattr(context, 'constraints') or context.constraints is None:
             return None
         
-        if hasattr(ctx.constraints, 'priority_config'):
-            from temper_placer.core.priority import PlacementPriority
-            return ctx.constraints.priority_config.get_placement_phase(PlacementPriority.DRIVER)
-        
-        if hasattr(ctx.constraints, 'placement_priority'):
-            driver_cfg = ctx.constraints.placement_priority.get('driver')
+        if hasattr(context.constraints, 'placement_priority'):
+            driver_cfg = context.constraints.placement_priority.get('driver')
             if driver_cfg:
                 return PlacementPhaseConfig(
                     name="driver",
