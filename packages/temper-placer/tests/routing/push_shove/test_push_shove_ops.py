@@ -275,12 +275,13 @@ class TestPushShoveProperties:
         angle=st.floats(min_value=0.0, max_value=6.28),  # 0 to 2π
     )
     def test_push_preserves_path_length(self, distance, angle):
-        """Property: Pushing should preserve path length."""
+        """Property: Pushing should preserve path length (without endpoint preservation)."""
         import math
         horizontal_path = get_horizontal_path()
         direction = (math.cos(angle), math.sin(angle))
 
-        pushed = push_path(horizontal_path, direction=direction, distance=distance)
+        # Use preserve_endpoints=False to test pure translation
+        pushed = push_path(horizontal_path, direction=direction, distance=distance, preserve_endpoints=False)
 
         # Calculate path lengths
         def path_length(path):
