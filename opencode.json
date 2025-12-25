@@ -57,6 +57,14 @@
               "allow_fallbacks": true
             }
           }
+        },
+        "minimax/minimax-m2.1": {
+          "name": "minimax/minimax-m2.1",
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
         }
       }
     }

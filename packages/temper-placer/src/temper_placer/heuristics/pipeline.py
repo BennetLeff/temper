@@ -318,7 +318,16 @@ class HeuristicPipeline:
         for comp in netlist.components:
             idx = netlist.get_component_index(comp.ref)
 
-            if comp.ref in context.current_placements:
+            # Fixed components ALWAYS use their configured position (highest priority)
+            if comp.fixed and comp.initial_position is not None:
+                positions = positions.at[idx].set(jnp.array(comp.initial_position))
+                if comp.initial_rotation is not None:
+                    rot_idx = comp.initial_rotation
+                    logits = jnp.array([-10.0, -10.0, -10.0, -10.0])
+                    logits = logits.at[rot_idx].set(10.0)
+                    rotation_logits = rotation_logits.at[idx].set(logits)
+
+            elif comp.ref in context.current_placements:
                 placement = context.current_placements[comp.ref]
                 positions = positions.at[idx].set(jnp.array(placement.position))
 
@@ -329,7 +338,7 @@ class HeuristicPipeline:
                 rotation_logits = rotation_logits.at[idx].set(logits)
 
             elif comp.initial_position is not None:
-                # Use initial position from netlist
+                # Use initial position from netlist (non-fixed components)
                 positions = positions.at[idx].set(jnp.array(comp.initial_position))
                 
                 if comp.initial_rotation is not None:
