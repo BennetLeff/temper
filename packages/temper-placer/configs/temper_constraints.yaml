@@ -263,6 +263,13 @@ fixed_components:
   - "MH2"
   - "MH3"
   - "MH4"
+  # Power stage - FIXED for correct topology
+  - "Q1"
+  - "Q2"
+  - "D1"
+  - "D2"
+  - "C_BUS1"
+  - "C_BUS2"
   # Connectors must be at board edges
   - "J_AC_IN"
   - "J_COIL"
@@ -272,11 +279,19 @@ fixed_components:
 
 # Force connectors to board edges for professional layout
 fixed_positions:
+  # Power stage - half_bridge_vertical template at anchor [75, 120]
+  Q1: [75.0, 125.0]    # High-side IGBT (anchor + 0,+5)
+  Q2: [75.0, 115.0]    # Low-side IGBT (anchor + 0,-5)
+  D1: [67.0, 125.0]    # High-side diode (anchor + -8,+5)
+  D2: [67.0, 115.0]    # Low-side diode (anchor + -8,-5)
+  C_BUS1: [83.0, 125.0]  # Bus cap near high-side (anchor + 8,+5)
+  C_BUS2: [83.0, 115.0]  # Bus cap near low-side (anchor + 8,-5)
+  
   # Mounting holes (corners)
   MH1: [3.5, 3.5]
   MH2: [96.5, 3.5]
-  MH3: [3.5, 76.5]
-  MH4: [96.5, 76.5]
+  MH3: [3.5, 146.5]   # Fixed for 150mm board
+  MH4: [96.5, 146.5]  # Fixed for 150mm board
   
   # Power Connectors (Top Edge - Power Zone)
   J_AC_IN: [10.0, 75.0]  # AC Input (Top Left)
