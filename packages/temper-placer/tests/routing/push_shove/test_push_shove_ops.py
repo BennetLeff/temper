@@ -556,3 +556,144 @@ class TestMultiSegmentPushDirection:
         # The exact direction depends on relative positions
         assert abs(direction[0]) > 0.1 or abs(direction[1]) > 0.1, \
             "Should have meaningful push direction"
+
+
+class TestAdaptiveCollisionSampling:
+    """Tests for adaptive collision sampling (temper-loms.4)."""
+
+    def test_long_segment_gets_more_samples(self):
+        """Long segments should get proportionally more samples."""
+        from temper_placer.routing.push_shove import segment_length
+
+        # Long 50mm segment
+        long_seg = Segment(start=(0.0, 0.0), end=(50.0, 0.0))
+        long_path = Path(
+            segments=[long_seg],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        # Short 5mm segment
+        short_seg = Segment(start=(0.0, 5.0), end=(5.0, 5.0))
+        short_path = Path(
+            segments=[short_seg],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # Verify segment lengths
+        assert segment_length(long_seg) == 50.0
+        assert segment_length(short_seg) == 5.0
+
+        # With samples_per_mm=2.0, long segment gets 100 samples (clamped by max)
+        # Short segment gets 10 samples
+        # Both should successfully run collision detection
+        result = detect_collision(long_path, short_path, samples_per_mm=2.0)
+        # These paths don't collide (5mm apart, need 0.4mm total clearance)
+        assert result is False
+
+    def test_min_samples_respected(self):
+        """Very short segments should respect minimum samples."""
+        # Very short 0.5mm segment
+        tiny_seg = Segment(start=(0.0, 0.0), end=(0.5, 0.0))
+        tiny_path = Path(
+            segments=[tiny_seg],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        other_seg = Segment(start=(0.0, 5.0), end=(5.0, 5.0))
+        other_path = Path(
+            segments=[other_seg],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # With samples_per_mm=2.0, tiny segment would get 1 sample
+        # But min_samples=5 should ensure at least 5 samples
+        result = detect_collision(tiny_path, other_path, samples_per_mm=2.0, min_samples=5)
+        assert result is False  # No collision
+
+    def test_max_samples_respected(self):
+        """Very long segments should respect maximum samples."""
+        # Very long 200mm segment
+        huge_seg = Segment(start=(0.0, 0.0), end=(200.0, 0.0))
+        huge_path = Path(
+            segments=[huge_seg],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        other_seg = Segment(start=(100.0, 5.0), end=(100.0, 10.0))
+        other_path = Path(
+            segments=[other_seg],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # With samples_per_mm=2.0, huge segment would get 400 samples
+        # But max_samples=100 should cap it
+        result = detect_collision(huge_path, other_path, samples_per_mm=2.0, max_samples=100)
+        assert result is False  # No collision
+
+    def test_fixed_num_samples_overrides_adaptive(self):
+        """Explicit num_samples should override adaptive sampling."""
+        long_seg = Segment(start=(0.0, 0.0), end=(50.0, 0.0))
+        long_path = Path(
+            segments=[long_seg],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        short_seg = Segment(start=(25.0, 5.0), end=(25.0, 10.0))
+        short_path = Path(
+            segments=[short_seg],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # Explicit num_samples=10 should override adaptive
+        result = detect_collision(long_path, short_path, num_samples=10)
+        assert result is False  # No collision
+
+    def test_no_missed_collision_on_long_segment(self):
+        """Adaptive sampling should not miss collision on long segment middle."""
+        # Long 50mm horizontal segment
+        long_path = Path(
+            segments=[Segment(start=(0.0, 0.0), end=(50.0, 0.0))],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        # Vertical segment crossing at middle (x=25mm)
+        crossing_path = Path(
+            segments=[Segment(start=(25.0, -1.0), end=(25.0, 1.0))],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # Should detect collision in the middle
+        result = detect_collision(long_path, crossing_path, samples_per_mm=2.0)
+        assert result is True, "Should detect collision in middle of long segment"
+
+    def test_collision_detection_with_adaptive_is_symmetric(self):
+        """Collision detection should be symmetric with adaptive sampling."""
+        path1 = Path(
+            segments=[Segment(start=(0.0, 0.0), end=(30.0, 0.0))],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+        path2 = Path(
+            segments=[Segment(start=(15.0, -1.0), end=(15.0, 1.0))],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        result_12 = detect_collision(path1, path2, samples_per_mm=2.0)
+        result_21 = detect_collision(path2, path1, samples_per_mm=2.0)
+
+        assert result_12 == result_21, "Collision detection should be symmetric"
+        assert result_12 is True  # These paths cross
+
+    def test_same_net_no_collision_with_adaptive(self):
+        """Same net should not collide even with adaptive sampling."""
+        path1 = Path(
+            segments=[Segment(start=(0.0, 0.0), end=(50.0, 0.0))],
+            width=0.2, clearance=0.2, net="SAME_NET"
+        )
+        path2 = Path(
+            segments=[Segment(start=(25.0, 0.0), end=(25.0, 10.0))],
+            width=0.2, clearance=0.2, net="SAME_NET"
+        )
+
+        # Crossing paths on same net should not report collision
+        result = detect_collision(path1, path2, samples_per_mm=2.0)
+        assert result is False

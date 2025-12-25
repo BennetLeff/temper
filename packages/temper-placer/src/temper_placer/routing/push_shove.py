@@ -304,14 +304,27 @@ def to_sdf(path: Path) -> Callable[[tuple[float, float]], float]:
     return sdf_func
 
 
-def detect_collision(path1: Path, path2: Path, num_samples: int = 21) -> bool:
+def detect_collision(
+    path1: Path,
+    path2: Path,
+    num_samples: int | None = None,
+    samples_per_mm: float = 2.0,
+    min_samples: int = 5,
+    max_samples: int = 100,
+) -> bool:
     """
-    Detect collision between two paths using SDF sampling.
+    Detect collision between two paths using adaptive SDF sampling.
+
+    Sampling resolution is proportional to segment length to avoid missing
+    collisions on long segments while not over-sampling short segments.
 
     Args:
         path1: First path
         path2: Second path
-        num_samples: Number of sample points per segment
+        num_samples: Fixed samples per segment (overrides adaptive if set)
+        samples_per_mm: Samples per millimeter of segment length (adaptive mode)
+        min_samples: Minimum samples per segment
+        max_samples: Maximum samples per segment
 
     Returns:
         True if paths collide (violate clearance)
@@ -324,10 +337,19 @@ def detect_collision(path1: Path, path2: Path, num_samples: int = 21) -> bool:
     # (W1/2 + C1/2) + (W2/2 + C2/2)
     required_dist = (path1.width + path1.clearance + path2.width + path2.clearance) / 2.0
 
+    def _get_num_samples(seg: Segment) -> int:
+        """Get number of samples for a segment (adaptive or fixed)."""
+        if num_samples is not None:
+            return num_samples
+        seg_len = segment_length(seg)
+        n = int(seg_len * samples_per_mm)
+        return max(min_samples, min(n, max_samples))
+
     # Sample points along path2 and check against path1's segments
     for seg2 in path2.segments:
-        for i in range(num_samples):
-            t = i / (num_samples - 1) if num_samples > 1 else 0.5
+        n_samples = _get_num_samples(seg2)
+        for i in range(n_samples):
+            t = i / (n_samples - 1) if n_samples > 1 else 0.5
             px = seg2.start[0] + t * (seg2.end[0] - seg2.start[0])
             py = seg2.start[1] + t * (seg2.end[1] - seg2.start[1])
 
@@ -340,8 +362,9 @@ def detect_collision(path1: Path, path2: Path, num_samples: int = 21) -> bool:
 
     # Sample points along path1 and check against path2's segments
     for seg1 in path1.segments:
-        for i in range(num_samples):
-            t = i / (num_samples - 1) if num_samples > 1 else 0.5
+        n_samples = _get_num_samples(seg1)
+        for i in range(n_samples):
+            t = i / (n_samples - 1) if n_samples > 1 else 0.5
             px = seg1.start[0] + t * (seg1.end[0] - seg1.start[0])
             py = seg1.start[1] + t * (seg1.end[1] - seg1.start[1])
 

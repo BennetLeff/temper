@@ -5,6 +5,7 @@ This module provides net class and design rule specifications for
 controlling trace widths, clearances, and via sizes during routing.
 """
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 
 
@@ -80,12 +81,13 @@ class DesignRules:
         if net_class and net_class in self.net_classes:
             return self.net_classes[net_class]
 
+        # Check if net name matches a known ground net pattern (before power)
+        if self._is_ground_net(net_name) and "GND" in self.net_classes:
+            return self.net_classes["GND"]
+
         # Check if net name matches a known power net pattern
-        if self._is_power_net(net_name):
-            if "Power" in self.net_classes:
-                return self.net_classes["Power"]
-            if "GND" in self.net_classes and "GND" in net_name.upper():
-                return self.net_classes["GND"]
+        if self._is_power_net(net_name) and "Power" in self.net_classes:
+            return self.net_classes["Power"]
 
         # Return default rules
         return NetClassRules(
@@ -96,12 +98,23 @@ class DesignRules:
             via_drill=self.default_via_drill,
         )
 
-    def _is_power_net(self, net_name: str) -> bool:
-        """Check if net name matches common power net patterns."""
+    def _is_ground_net(self, net_name: str) -> bool:
+        """Check if net name matches common ground net patterns."""
         upper = net_name.upper()
+        ground_patterns = ["GND", "GROUND", "VSS", "AGND", "DGND", "PGND"]
+        for pattern in ground_patterns:
+            if pattern in upper or upper.startswith(pattern):
+                return True
+        return False
+
+    def _is_power_net(self, net_name: str) -> bool:
+        """Check if net name matches common power net patterns (excluding ground)."""
+        upper = net_name.upper()
+        # Exclude ground nets - they are handled separately
+        if self._is_ground_net(net_name):
+            return False
         power_patterns = [
             "VCC", "VDD", "V+", "V-", "VBAT", "VIN", "VOUT",
-            "GND", "GROUND", "VSS", "AGND", "DGND", "PGND",
             "+5V", "+3.3V", "+12V", "-12V", "+3V3", "+5V0",
         ]
         for pattern in power_patterns:
@@ -165,5 +178,5 @@ def create_temper_design_rules() -> DesignRules:
         default_clearance=0.15,
         default_via_diameter=0.6,
         default_via_drill=0.3,
-        net_classes=dict(TEMPER_NET_CLASSES),
+        net_classes=deepcopy(TEMPER_NET_CLASSES),
     )
