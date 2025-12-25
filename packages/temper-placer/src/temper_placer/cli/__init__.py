@@ -417,6 +417,71 @@ def optimize(
 
             losses.append(WeightedLoss(EdgeAvoidanceLoss(), weight=weights["edge_avoidance"]))
 
+        # Decoupling capacitor proximity loss
+        if "decoupling" in weights:
+            from temper_placer.losses.decoupling import (
+                DecouplingRule,
+                create_decoupling_loss,
+            )
+            
+            # Auto-detect decoupling rules from MCU caps
+            decoupling_rules = []
+            mcu_refs = [c.ref for c in netlist.components if c.ref.startswith("U_MCU") or c.ref == "U_MCU"]
+            cap_refs = [c.ref for c in netlist.components if c.ref.startswith("C_MCU")]
+            
+            for mcu in mcu_refs:
+                for cap in cap_refs:
+                    decoupling_rules.append(DecouplingRule(
+                        cap_ref=cap,
+                        ic_ref=mcu,
+                        max_distance_mm=5.0,  # 5mm max for decoupling
+                    ))
+            
+            if decoupling_rules:
+                decoupling_loss = create_decoupling_loss(netlist, decoupling_rules)
+                losses.append(WeightedLoss(decoupling_loss, weight=weights["decoupling"]))
+
+        # Power path loss (high-current path optimization)
+        if "power_path" in weights:
+            from temper_placer.losses.power_path import (
+                HighCurrentPathConfig,
+                SwitchingLoopConfig,
+                create_power_path_loss,
+            )
+            
+            # Configure power paths based on common high-current nets
+            power_paths = []
+            power_nets = ["+340V_BUS", "DC_BUS_RTN", "SW_NODE", "+15V", "PGND"]
+            for net in power_nets:
+                if any(net in n.name for n in netlist.nets):
+                    power_paths.append(HighCurrentPathConfig(
+                        name=f"path_{net}",
+                        nets=[net],
+                        current_a=10.0,  # Default
+                        weight=1.0,
+                    ))
+            
+            # Configure switching loops
+            switching_loops = [
+                SwitchingLoopConfig(
+                    name="half_bridge_commutation",
+                    components=["Q1", "Q2", "C_BUS1"],
+                    weight=2.0,  # High priority
+                ),
+            ]
+            
+            if power_paths or switching_loops:
+                power_loss = create_power_path_loss(
+                    netlist, 
+                    power_paths, 
+                    [loop for loop in switching_loops if all(
+                        any(c.ref == comp for c in netlist.components) 
+                        for comp in loop.components
+                    )],
+                )
+                losses.append(WeightedLoss(power_loss, weight=weights["power_path"]))
+
+
         # Auto-grouping clusters
         if auto_group and (detected_communities or constraints.component_groups):
             group_configs = []

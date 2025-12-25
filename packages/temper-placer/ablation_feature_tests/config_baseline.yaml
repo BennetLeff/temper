@@ -1,0 +1,481 @@
+aesthetics:
+  alignment_weight: 10.0
+  grid_size_mm: 0.5
+  grid_weight: 2.0
+  grouping_weight: 10.0
+  symmetry_weight: 3.0
+board:
+  height_mm: 150.0
+  margin_mm: 3.0
+  width_mm: 100.0
+component_groups:
+- followers:
+  - C_MCU_1
+  - C_MCU_2
+  - C_MCU_3
+  - C_MCU_4
+  leader: U_MCU
+  max_distance: 5.0
+  name: mcu_decoupling
+- followers:
+  - U_CT
+  - MAX31865
+  leader: U_MCU
+  max_distance: 20.0
+  name: spi_chain
+- followers:
+  - U_MCU
+  leader: J_USB
+  max_distance: 15.0
+  name: usb_interface
+critical_loops:
+- description: High-side gate drive loop
+  max_area_mm2: 100.0
+  name: high_side_gate_loop
+  nets:
+  - GATE_HS
+  - SW_NODE
+  weight: 10.0
+- description: Low-side gate drive loop
+  max_area_mm2: 100.0
+  name: low_side_gate_loop
+  nets:
+  - GATE_LS
+  - DC_BUS_RTN
+  weight: 10.0
+- description: Main commutation loop - most critical for EMI
+  max_area_mm2: 500.0
+  name: power_stage_commutation
+  nets:
+  - +340V_BUS
+  - SW_NODE
+  - DC_BUS_RTN
+  weight: 15.0
+- description: Bus capacitors to half-bridge
+  max_area_mm2: 800.0
+  name: dc_bus_bypass
+  nets:
+  - +340V_BUS
+  - DC_BUS_RTN
+  weight: 8.0
+fixed_components:
+- MH1
+- MH2
+- MH3
+- MH4
+- Q1
+- Q2
+- D1
+- D2
+- C_BUS1
+- C_BUS2
+- U_GATE
+- C_BOOT
+- C_VCC
+- R_GATE_H
+- R_GATE_L
+- U_CT
+- R_BURDEN
+- C_CT_FILT
+- U_MCU
+- C_MCU_1
+- C_MCU_2
+- C_MCU_3
+- C_MCU_4
+- U_LDO_3V3
+- U_LDO_5V
+- J_AC_IN
+- J_COIL
+- J_NTC
+- J_USB
+- J_DEBUG
+fixed_positions:
+  C_BOOT:
+  - 37.0
+  - 132.0
+  C_BUS1:
+  - 89.0
+  - 130.0
+  C_BUS2:
+  - 89.0
+  - 118.0
+  C_CT_FILT:
+  - 35.0
+  - 86.0
+  C_MCU_1:
+  - 45.0
+  - 50.0
+  C_MCU_2:
+  - 55.0
+  - 50.0
+  C_MCU_3:
+  - 45.0
+  - 40.0
+  C_MCU_4:
+  - 55.0
+  - 40.0
+  C_VCC:
+  - 43.0
+  - 132.0
+  D1:
+  - 58.0
+  - 130.0
+  D2:
+  - 58.0
+  - 118.0
+  J_AC_IN:
+  - 10.0
+  - 75.0
+  J_COIL:
+  - 50.0
+  - 85.0
+  J_DEBUG:
+  - 70.0
+  - 5.0
+  J_NTC:
+  - 20.0
+  - 75.0
+  J_USB:
+  - 50.0
+  - 5.0
+  MH1:
+  - 3.5
+  - 3.5
+  MH2:
+  - 96.5
+  - 3.5
+  MH3:
+  - 3.5
+  - 146.5
+  MH4:
+  - 96.5
+  - 146.5
+  Q1:
+  - 75.0
+  - 130.0
+  Q2:
+  - 75.0
+  - 118.0
+  R_BURDEN:
+  - 28.0
+  - 80.0
+  R_GATE_H:
+  - 60.0
+  - 112.0
+  R_GATE_L:
+  - 66.0
+  - 112.0
+  U_CT:
+  - 35.0
+  - 80.0
+  U_GATE:
+  - 40.0
+  - 124.0
+  U_LDO_3V3:
+  - 25.0
+  - 55.0
+  U_LDO_5V:
+  - 25.0
+  - 65.0
+  U_MCU:
+  - 50.0
+  - 45.0
+group_separation:
+- description: Isolate 340V/40A switching from MCU
+  groups:
+  - igbt_power_stage
+  - mcu_subsystem
+  min_distance_mm: 35.0
+- description: Gate driver switching edges create noise
+  groups:
+  - gate_driver_circuit
+  - mcu_subsystem
+  min_distance_mm: 20.0
+- description: High ripple current in bus caps
+  groups:
+  - dc_bus_capacitors
+  - mcu_subsystem
+  min_distance_mm: 25.0
+- description: LDOs away from switching noise
+  groups:
+  - power_supply_ldos
+  - igbt_power_stage
+  min_distance_mm: 20.0
+groups:
+- components:
+  - Q1
+  - Q2
+  - D1
+  - D2
+  description: Half-bridge IGBTs and rectifier diodes. Keep tight for low ESL.
+  max_spread_mm: 25.0
+  name: igbt_power_stage
+  proximity:
+  - max_distance_mm: 20.0
+    pair:
+    - Q1
+    - Q2
+    weight: 100.0
+  - max_distance_mm: 12.0
+    pair:
+    - D1
+    - Q1
+    weight: 40.0
+  - max_distance_mm: 12.0
+    pair:
+    - D2
+    - Q2
+    weight: 40.0
+  - max_distance_mm: 15.0
+    pair:
+    - D1
+    - D2
+    weight: 20.0
+  zone: power_zone
+- components:
+  - U_GATE
+  - C_BOOT
+  - R_GATE_H
+  - R_GATE_L
+  - C_VCC
+  description: Isolated gate driver with bootstrap. Minimize gate drive loop area.
+  max_spread_mm: 20.0
+  name: gate_driver_circuit
+  proximity:
+  - max_distance_mm: 5.0
+    pair:
+    - C_BOOT
+    - U_GATE
+  - max_distance_mm: 5.0
+    pair:
+    - C_VCC
+    - U_GATE
+  - max_distance_mm: 8.0
+    pair:
+    - R_GATE_H
+    - Q1
+    weight: 30.0
+  - max_distance_mm: 8.0
+    pair:
+    - R_GATE_L
+    - Q2
+    weight: 30.0
+  - max_distance_mm: 15.0
+    pair:
+    - U_GATE
+    - Q1
+    weight: 200.0
+  - max_distance_mm: 15.0
+    pair:
+    - U_GATE
+    - Q2
+    weight: 200.0
+  zone: driver_zone
+- components:
+  - C_BUS1
+  - C_BUS2
+  description: Voltage doubler bulk caps. Must be <10mm from IGBTs for low inductance.
+  max_spread_mm: 25.0
+  name: dc_bus_capacitors
+  proximity:
+  - max_distance_mm: 8.0
+    pair:
+    - C_BUS1
+    - Q1
+    weight: 100.0
+  - max_distance_mm: 8.0
+    pair:
+    - C_BUS2
+    - Q2
+    weight: 100.0
+  - max_distance_mm: 15.0
+    pair:
+    - C_BUS1
+    - C_BUS2
+    weight: 30.0
+  zone: power_zone
+- components:
+  - U_CT
+  - R_BURDEN
+  - C_CT_FILT
+  - U_OPAMP_CT
+  description: Current transformer sensing circuit.
+  max_spread_mm: 15.0
+  name: current_sensing
+  proximity:
+  - max_distance_mm: 5.0
+    pair:
+    - R_BURDEN
+    - U_CT
+  zone: driver_zone
+- components:
+  - U_MCU
+  - C_MCU_1
+  - C_MCU_2
+  - C_MCU_3
+  - C_MCU_4
+  description: ESP32-S3 MCU with decoupling caps.
+  max_spread_mm: 15.0
+  name: mcu_subsystem
+  proximity:
+  - max_distance_mm: 3.0
+    pair:
+    - C_MCU_1
+    - U_MCU
+  - max_distance_mm: 3.0
+    pair:
+    - C_MCU_2
+    - U_MCU
+  - max_distance_mm: 3.0
+    pair:
+    - C_MCU_3
+    - U_MCU
+  - max_distance_mm: 3.0
+    pair:
+    - C_MCU_4
+    - U_MCU
+  zone: control_zone
+- components:
+  - U_LDO_3V3
+  - U_LDO_5V
+  - U_BUCK
+  description: Power supply regulators.
+  max_spread_mm: 25.0
+  name: power_supply_ldos
+  zone: control_zone
+- components:
+  - MAX31865
+  description: RTD temperature sensing. Near gate driver for thermal monitoring.
+  max_spread_mm: 10.0
+  name: rtd_sensing
+  zone: driver_zone
+- components:
+  - J_AC_IN
+  - J_COIL
+  - J_NTC
+  description: Power connectors at top-left edge. AC input and coil output.
+  max_spread_mm: 30.0
+  name: interface_connectors
+  zone: interface_zone
+- components:
+  - J_USB
+  - J_DEBUG
+  description: USB and debug at bottom for MCU access.
+  max_spread_mm: 20.0
+  name: debug_connectors
+  zone: control_zone
+hv_clearance_mm: 10.0
+loss_weights:
+  overlap: 200.0
+  wirelength: 60.0
+  zone_membership: 50.0
+net_classes:
+  +15V: Power
+  +340V_BUS: HighVoltage
+  +3V3: Power
+  DC_BUS_RTN: HighVoltage
+  GATE_HS: GateDrive
+  GATE_LS: GateDrive
+  GND: Ground
+  SW_NODE: HighVoltage
+placement_priority:
+  auto:
+    method: optimize
+  driver:
+    components:
+    - U_GATE
+    - C_BOOT
+    - R_GATE_H
+    - R_GATE_L
+    - C_VCC
+    max_distance_mm: 20.0
+    method: proximity
+    reference: Q1
+  high_speed:
+    components:
+    - U_MCU
+    - Y1
+    method: optimize
+    zone: control_zone
+  power:
+    anchor:
+    - 75
+    - 62
+    components:
+    - Q1
+    - Q2
+    - D1
+    - D2
+    - C_BUS1
+    - C_BUS2
+    method: template
+    template: half_bridge_vertical
+routing_priority:
+  auto:
+    priority: 10
+  gate_drive:
+    nets:
+    - GATE_H
+    - GATE_L
+    - +15V
+    - CGND
+    priority: 2
+    trace_width_mm: 0.5
+  high_speed:
+    nets:
+    - SPI_*
+    - I2C_*
+    - USB_*
+    priority: 3
+    trace_width_mm: 0.25
+  power:
+    nets:
+    - +340V_BUS
+    - DC_BUS_RTN
+    - SW_NODE
+    priority: 1
+    trace_width_mm: 2.0
+thermal:
+- components:
+  - Q1
+  - Q2
+  description: IGBTs dissipate 20-50W each
+  max_distance_from_edge_mm: 10.0
+  min_spacing_mm: 15.0
+  prefer_edge: true
+- components:
+  - D1
+  - D2
+  description: Rectifier diodes
+  max_distance_from_edge_mm: 15.0
+  min_spacing_mm: 10.0
+  prefer_edge: true
+zones:
+- bounds:
+  - 0
+  - 110
+  - 100
+  - 150
+  description: Power stage only - 340V/40A switching components
+  name: power_zone
+- bounds:
+  - 0
+  - 70
+  - 100
+  - 110
+  description: Gate drivers and current sensing - isolated from MCU
+  name: driver_zone
+- bounds:
+  - 0
+  - 0
+  - 100
+  - 70
+  description: MCU and low-voltage control - separated from power stage
+  name: control_zone
+- bounds:
+  - 0
+  - 131
+  - 15
+  - 150
+  description: Connectors and interfaces at board edge for easy access
+  name: interface_zone

@@ -255,7 +255,9 @@ aesthetics:
 loss_weights:
   zone_membership: 50.0  # Force zone compliance
   overlap: 200.0         # Strict no-overlap
-  wirelength: 60.0       # Doubled from 30.0 - prioritize short traces (reduce ratsnest)
+  wirelength: 60.0       # Doubled from 30.0 - prioritize short traces
+  decoupling: 20.0       # NEW: Cap-to-IC proximity (MCU decoupling)
+  power_path: 30.0       # NEW: Power delivery path optimization
 
 # Fixed components (don't optimize position)
 fixed_components:
