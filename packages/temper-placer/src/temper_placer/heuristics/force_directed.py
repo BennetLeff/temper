@@ -56,26 +56,24 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         if n == 0:
             return HeuristicResult(success=True)
 
-        # 1. Initialize from random or current if exists
+        # 1. Initialize positions - use random for ALL, then override with placed components
+        # This ensures unplaced components have valid non-zero positions for physics
         rng_key = context.rng_key if context.rng_key is not None else jax.random.PRNGKey(42)
-        initial_pos = jnp.zeros((n, 2))
+        
+        initial_state = PlacementState.random_init(
+            n_components=n,
+            board_width=context.board.width,
+            board_height=context.board.height,
+            key=rng_key,
+            origin=context.board.origin,
+            margin=context.constraints.board_margin_mm,
+        )
+        positions = initial_state.positions
+        
+        # Override with positions from already-placed components
         for ref, p in context.current_placements.items():
             idx = context.netlist.get_component_index(ref)
-            initial_pos = initial_pos.at[idx].set(jnp.array(p.position))
-
-        if jnp.sum(jnp.abs(initial_pos)) < 1e-6:
-            # Random init if nothing placed
-            initial_state = PlacementState.random_init(
-                n_components=n,
-                board_width=context.board.width,
-                board_height=context.board.height,
-                key=rng_key,
-                origin=context.board.origin,
-                margin=context.constraints.board_margin_mm,
-            )
-            positions = initial_state.positions
-        else:
-            positions = initial_pos
+            positions = positions.at[idx].set(jnp.array(p.position))
 
         # 2. Run simulation
         curr_pos = compute_force_directed_layout(
@@ -143,22 +141,25 @@ def compute_force_directed_layout(
     # Physics Step
     @jax.jit
     def step(pos):
-        # Repulsion (all-pairs)
+        # Repulsion (all-pairs) - normalized by number of nodes
         diff = pos[:, None, :] - pos[None, :, :]
-        # Add epsilon to dist_sq to avoid division by zero
         dist_sq = jnp.sum(diff**2, axis=-1) + 1e-6
-        # Add epsilon to dist_sq in division to be safe, though 1e-6 above handles it
+        # Clamp repulsion force to prevent explosion
         repulsion = jnp.sum(diff / dist_sq[:, :, None], axis=1)
+        repulsion = jnp.clip(repulsion, -100.0, 100.0)
 
         # Attraction (connected only)
-        # Attraction force is proportional to distance (Hooke's law: F = -k*x)
-        # Here we use F = -diff, so force increases with distance
         attraction = jnp.sum(adj[:, :, None] * -diff, axis=1)
+        attraction = jnp.clip(attraction, -100.0, 100.0)
 
-        # Update
-        new_pos = pos + learning_rate * (repulsion + attraction)
+        # Update with velocity clamping
+        velocity = learning_rate * (repulsion + attraction)
+        velocity = jnp.clip(velocity, -10.0, 10.0)  # Max 10mm per step
+        new_pos = pos + velocity
         
-        # Determine strict bounds for updates
+        # Clamp to board bounds every step to prevent explosion
+        new_pos = jnp.clip(new_pos, 0.0, 200.0)  # Reasonable board size
+        
         # Ensure fixed components do not move
         new_pos = jnp.where(fixed_mask[:, None], pos, new_pos)
         
