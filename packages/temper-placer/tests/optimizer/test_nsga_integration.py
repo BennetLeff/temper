@@ -83,6 +83,19 @@ def test_nsga_fixed_components_never_move():
     # Verify fixed mask is correct
     assert jnp.all(context.fixed_mask == jnp.array([True, False]))
 
+    # Create initial state with fixed components at correct positions
+    from temper_placer.core.state import PlacementState
+
+    n_comps = netlist.n_components
+    initial_pos = jnp.zeros((n_comps, 2))
+    initial_pos = initial_pos.at[0].set(jnp.array(fixed_position))  # U1 at (50, 50)
+    initial_pos = initial_pos.at[1].set(jnp.array([25.0, 25.0]))  # U2 somewhere else
+
+    initial_state = PlacementState(
+        positions=initial_pos,
+        rotation_logits=jnp.ones((n_comps, 4)) * 0.25,  # Uniform rotation
+    )
+
     objectives = [WirelengthLoss()]
 
     optimizer = NSGAOptimizer(population_size=20)
@@ -91,6 +104,7 @@ def test_nsga_fixed_components_never_move():
         board=board,
         objectives=objectives,
         context=context,
+        initial_state=initial_state,
         generations=30,
         seed=42,
     )

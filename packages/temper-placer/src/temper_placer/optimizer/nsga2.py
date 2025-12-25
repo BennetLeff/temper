@@ -520,20 +520,24 @@ def mutate_swap_positions(positions: Array, key: Array, rate: float = 0.1) -> tu
 
     key_apply, key_idx = jax.random.split(key)
 
-    # Decide whether to apply mutation
+    # Decide whether to apply mutation using jax.lax.cond to avoid TracerBoolConversionError
     apply_mutation = jax.random.uniform(key_apply) < rate
-    if not apply_mutation:
+
+    def do_mutate(_):
+        # Select two distinct indices
+        indices = jax.random.choice(key_idx, n, shape=(2,), replace=False)
+        # Note: choice returns Array, we use dynamic indexing with at[].set()
+        i, j = indices[0], indices[1]
+
+        # Swap positions
+        new_pos = positions.at[i].set(positions[j])
+        new_pos = new_pos.at[j].set(positions[i])
+        return new_pos, True
+
+    def no_mutate(_):
         return positions, False
 
-    # Select two distinct indices
-    indices = jax.random.choice(key_idx, n, shape=(2,), replace=False)
-    i, j = int(indices[0]), int(indices[1])
-
-    # Swap positions
-    new_positions = positions.at[i].set(positions[j])
-    new_positions = new_positions.at[j].set(positions[i])
-
-    return new_positions, True
+    return jax.lax.cond(apply_mutation, do_mutate, no_mutate, None)
 
 
 def mutate_slide_to_neighbor(
@@ -567,34 +571,39 @@ def mutate_slide_to_neighbor(
     key_apply, key_comp = jax.random.split(key)
 
     apply_mutation = jax.random.uniform(key_apply) < rate
-    if not apply_mutation:
+
+    def do_mutate(_):
+        # Select random component to move
+        comp_idx = jax.random.randint(key_comp, (), 0, n)
+
+        # Find most connected neighbor
+        connections = adjacency[comp_idx]
+        # Zero out self-connection
+        connections = connections.at[comp_idx].set(0.0)
+
+        # We can't use Python if here either for traced values
+        has_connections = jnp.sum(connections) > 0
+
+        def perform_slide(_):
+            neighbor_idx = jnp.argmax(connections)
+            # Compute direction toward neighbor
+            direction = positions[neighbor_idx] - positions[comp_idx]
+            distance = jnp.linalg.norm(direction)
+            
+            is_valid_dist = distance > 1e-6
+            
+            def final_move(_):
+                move = direction * slide_fraction
+                return positions.at[comp_idx].add(move), True
+                
+            return jax.lax.cond(is_valid_dist, final_move, lambda _: (positions, False), None)
+
+        return jax.lax.cond(has_connections, perform_slide, lambda _: (positions, False), None)
+
+    def no_mutate(_):
         return positions, False
 
-    # Select random component to move
-    comp_idx = jax.random.randint(key_comp, (), 0, n)
-
-    # Find most connected neighbor
-    connections = adjacency[comp_idx]
-    # Zero out self-connection
-    connections = connections.at[comp_idx].set(0.0)
-
-    if jnp.sum(connections) == 0:
-        return positions, False
-
-    neighbor_idx = jnp.argmax(connections)
-
-    # Compute direction toward neighbor
-    direction = positions[neighbor_idx] - positions[comp_idx]
-    distance = jnp.linalg.norm(direction)
-
-    if distance < 1e-6:
-        return positions, False
-
-    # Slide toward neighbor
-    move = direction * slide_fraction
-    new_positions = positions.at[comp_idx].add(move)
-
-    return new_positions, True
+    return jax.lax.cond(apply_mutation, do_mutate, no_mutate, None)
 
 
 def mutate_rotate_smart(
@@ -620,27 +629,27 @@ def mutate_rotate_smart(
     if n == 0:
         return rotations, False
 
-    key_apply, key_comp, key_dir = jax.random.split(key, 3)
+    key_apply, key_comp, key_rot = jax.random.split(key, 3)
 
     apply_mutation = jax.random.uniform(key_apply) < rate
-    if not apply_mutation:
+
+    def do_mutate(_):
+        # Select random component to rotate
+        comp_idx = jax.random.randint(key_comp, (), 0, n)
+
+        # Select new random rotation (0-3)
+        new_rot_idx = jax.random.randint(key_rot, (), 0, 4)
+
+        # Create new one-hot rotation vector
+        new_rot_vec = jax.nn.one_hot(new_rot_idx, 4)
+
+        # Update rotations
+        return rotations.at[comp_idx].set(new_rot_vec), True
+
+    def no_mutate(_):
         return rotations, False
 
-    # Select random component
-    comp_idx = jax.random.randint(key_comp, (), 0, n)
-
-    # Current rotation (argmax of logits)
-    current_rot = jnp.argmax(rotations[comp_idx])
-
-    # Rotate by 90° (either +1 or -1)
-    direction = jax.random.choice(key_dir, jnp.array([-1, 1]))
-    new_rot = (current_rot + direction) % 4
-
-    # Set new rotation as one-hot
-    new_logits = jnp.zeros(4).at[new_rot].set(1.0)
-    new_rotations = rotations.at[comp_idx].set(new_logits)
-
-    return new_rotations, True
+    return jax.lax.cond(apply_mutation, do_mutate, no_mutate, None)
 
 
 def mutate_align_to_grid(
@@ -668,21 +677,22 @@ def mutate_align_to_grid(
     if n == 0:
         return positions, False
 
-    key_mask, _ = jax.random.split(key)
+    # Decide which components to align
+    mask = jax.random.uniform(key_apply, (n,)) < rate
 
-    # Randomly select components to snap
-    mask = jax.random.uniform(key_mask, (n,)) < rate
+    def do_align(_):
+        # Snap positions to grid
+        grid_pos = jnp.round(positions / grid_size) * grid_size
+        
+        # Apply only where mask is True
+        new_pos = jnp.where(mask[:, None], grid_pos, positions)
+        return new_pos, True
 
-    if not jnp.any(mask):
+    def no_align(_):
         return positions, False
 
-    # Snap to grid
-    snapped = jnp.round(positions / grid_size) * grid_size
-
-    # Apply only to selected components
-    new_positions = jnp.where(mask[:, None], snapped, positions)
-
-    return new_positions, True
+    # Use any(mask) to decide if we should do anything, but any(mask) is also a tracer
+    return jax.lax.cond(jnp.any(mask), do_align, no_align, None)
 
 
 def mutate_push_to_edge(
@@ -1158,6 +1168,13 @@ class NSGAOptimizer:
                     child_rot, mutate_keys_rot
                 )
 
+            # Re-enforce fixed components after mutation
+            # Mutation can move components, so we need to restore fixed positions
+            fixed_mask = getattr(context, "fixed_mask", None)
+            if fixed_mask is not None:
+                child_pos = jnp.where(fixed_mask[None, :, None], pop_pos[p1_idx], child_pos)
+                child_rot = jnp.where(fixed_mask[None, :, None], pop_rot[p1_idx], child_rot)
+
             # Re-evaluate children
             child_obj_vals = evaluate_population(
                 child_pos, child_rot, objectives, context, gen, generations
@@ -1170,6 +1187,51 @@ class NSGAOptimizer:
             # Use lazy selection (only computes crowding distance for partial front)
             # This is also more correct per standard NSGA-II (Deb et al. 2002)
             next_indices = select_next_generation_lazy(combined_obj, self.pop_size)
+
+            # Preserve individuals with fixed components
+            # Fixed-component individuals may have worse objective values but represent
+            # valid solutions with constraints that must be tracked
+            fixed_mask = getattr(context, "fixed_mask", None)
+            if fixed_mask is not None and jnp.any(fixed_mask):
+                n_parents = self.pop_size
+                n_children = child_pos.shape[0]
+
+                # Find children that have fixed components at correct positions
+                # (matching their parent's fixed component positions)
+                children_with_fixed = []
+                for i in range(n_children):
+                    parent_idx = p1_idx[i]
+                    parent_pos = pop_pos[parent_idx]
+                    child_pos_i = combined_pos[n_parents + i]
+
+                    # Check if all fixed components match parent positions
+                    fixed_match = True
+                    for j in range(len(fixed_mask)):
+                        if fixed_mask[j]:
+                            if not jnp.allclose(child_pos_i[j], parent_pos[j], atol=1e-5):
+                                fixed_match = False
+                                break
+                    if fixed_match:
+                        children_with_fixed.append(n_parents + i)
+
+                # Ensure at least one child with fixed components is preserved
+                if children_with_fixed:
+                    fixed_child_idx = children_with_fixed[0]  # Pick first one
+                    if fixed_child_idx not in next_indices:
+                        # Replace the worst-selected individual with our fixed child
+                        # Find individual with worst objective value
+                        worst_idx = next_indices[0]
+                        worst_obj = combined_obj[worst_idx]
+                        for idx in next_indices:
+                            if combined_obj[idx, 0] > worst_obj[0]:  # Wirelength is first objective
+                                worst_idx = idx
+                                worst_obj = combined_obj[idx]
+
+                        # Replace worst with fixed child
+                        next_indices = [
+                            idx if idx != worst_idx else fixed_child_idx for idx in next_indices
+                        ]
+                        next_indices = jnp.array(next_indices)
 
             pop_pos = combined_pos[jnp.array(next_indices)]
             pop_rot = combined_rot[jnp.array(next_indices)]
