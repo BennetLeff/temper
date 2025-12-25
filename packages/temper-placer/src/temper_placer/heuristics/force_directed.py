@@ -99,6 +99,9 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         for i, comp in enumerate(context.netlist.components):
             if comp.fixed:
                 continue
+            # Skip components already placed by higher-priority heuristics
+            if comp.ref in context.current_placements:
+                continue
             placements[comp.ref] = ComponentPlacement(
                 ref=comp.ref,
                 position=(float(curr_pos[i, 0]), float(curr_pos[i, 1])),
@@ -312,6 +315,9 @@ class ForceDirectedHeuristic(Heuristic):
             # Don't move fixed components
             comp = context.netlist.get_component(ref)
             if comp.fixed:
+                continue
+            # Skip components already placed by higher-priority heuristics
+            if comp.ref in context.current_placements:
                 continue
 
             # pos is roughly in [0, 1] (because we set center=0.5,0.5)
