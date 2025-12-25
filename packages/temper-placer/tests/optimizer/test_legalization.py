@@ -1,8 +1,11 @@
 import jax.numpy as jnp
+import numpy as np
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import LossContext
-from temper_placer.optimizer.legalization import legalize_abacus, project_to_drc_feasible
+from temper_placer.optimizer.legalization import legalize_abacus, project_to_drc_feasible, resolve_overlaps
 
 
 def test_no_overlap_after_legalization(simple_netlist, simple_board):
@@ -134,3 +137,125 @@ def test_legalization_order_dependence():
 
     for i in range(1, 5):
         assert jnp.allclose(results[0], results[i])
+
+
+# =============================================================================
+# Regression tests for temper-bl6q.1: SAT-based overlap detection
+# =============================================================================
+
+def test_diagonal_adjacency_no_false_positive():
+    """
+    Regression test for temper-bl6q.1: Diagonally adjacent components
+    should NOT be detected as overlapping.
+
+    The old radial distance check incorrectly flagged diagonally-adjacent
+    components as overlapping. The SAT-based check correctly identifies
+    that they don't overlap on both axes simultaneously.
+    """
+    board = Board(width=100, height=100)
+
+    # Two 10x10 components placed diagonally adjacent
+    # Component A at (0, 0) to (10, 10)
+    # Component B at (10, 10) to (20, 20)
+    # They share only a corner point - no actual overlap!
+    components = [
+        Component(ref="A", footprint="10x10", bounds=(10.0, 10.0)),
+        Component(ref="B", footprint="10x10", bounds=(10.0, 10.0)),
+    ]
+    netlist = Netlist(components=components, nets=[])
+
+    # Position centers so edges touch diagonally
+    # A center at (5, 5), B center at (15, 15)
+    # A spans (0,0)-(10,10), B spans (10,10)-(20,20)
+    positions = np.array([
+        [5.0, 5.0],    # A center
+        [15.0, 15.0],  # B center
+    ])
+
+    # With 0.5mm separation requirement, these should NOT overlap
+    # because they only touch at a corner
+    result = resolve_overlaps(
+        positions=positions,
+        netlist=netlist,
+        board=board,
+        min_separation=0.5,
+        max_iterations=10,
+    )
+
+    # Components should not have moved significantly (no overlap to resolve)
+    displacement = np.sqrt(np.sum((result - positions)**2, axis=1))
+    assert np.max(displacement) < 1.0, \
+        f"Diagonally adjacent components should not be pushed apart, but moved {np.max(displacement):.2f}mm"
+
+
+def test_actual_overlap_is_detected():
+    """
+    Verify that actual overlapping components ARE detected and resolved.
+
+    This ensures the SAT fix didn't break detection of true overlaps.
+    """
+    board = Board(width=100, height=100)
+
+    components = [
+        Component(ref="A", footprint="10x10", bounds=(10.0, 10.0)),
+        Component(ref="B", footprint="10x10", bounds=(10.0, 10.0)),
+    ]
+    netlist = Netlist(components=components, nets=[])
+
+    # Position both at center - definite overlap
+    positions = np.array([
+        [50.0, 50.0],
+        [52.0, 50.0],  # 2mm apart, but 10mm wide each = 8mm overlap
+    ])
+
+    result = resolve_overlaps(
+        positions=positions,
+        netlist=netlist,
+        board=board,
+        min_separation=0.5,
+        max_iterations=50,
+    )
+
+    # After resolution, components should be separated
+    dx = abs(result[0, 0] - result[1, 0])
+    dy = abs(result[0, 1] - result[1, 1])
+
+    # With 10mm wide components and 0.5mm separation, need at least 10.5mm apart on one axis
+    assert dx >= 10.4 or dy >= 10.4, \
+        f"Overlapping components should be separated. dx={dx:.2f}, dy={dy:.2f}"
+
+
+def test_edge_touching_no_false_positive():
+    """
+    Components that are edge-touching (not overlapping) should not be
+    pushed apart unnecessarily.
+    """
+    board = Board(width=100, height=100)
+
+    components = [
+        Component(ref="A", footprint="10x10", bounds=(10.0, 10.0)),
+        Component(ref="B", footprint="10x10", bounds=(10.0, 10.0)),
+    ]
+    netlist = Netlist(components=components, nets=[])
+
+    # Position so they are exactly edge-touching horizontally
+    # A center at (5, 50), B center at (15, 50)
+    # A spans x: 0-10, B spans x: 10-20 (edge touch at x=10)
+    positions = np.array([
+        [5.0, 50.0],
+        [15.0, 50.0],
+    ])
+
+    # With 0mm separation, edges touching should be legal
+    result = resolve_overlaps(
+        positions=positions,
+        netlist=netlist,
+        board=board,
+        min_separation=0.0,  # No separation required
+        max_iterations=10,
+    )
+
+    # Should not have moved (edge touching is legal with 0 separation)
+    displacement = np.sqrt(np.sum((result - positions)**2, axis=1))
+    assert np.max(displacement) < 0.5, \
+        f"Edge-touching components should not be pushed apart with 0 separation"

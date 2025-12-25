@@ -1,13 +1,18 @@
 """Tests for force-directed layout heuristic."""
 
 
+import jax.numpy as jnp
 import jax.random as random
 import pytest
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Component, Net, Netlist, build_adjacency_matrix
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
+from temper_placer.heuristics.force_directed import (
+    ForceDirectedHeuristic,
+    ForceDirectedUnfoldingHeuristic,
+    compute_force_directed_layout,
+)
 from temper_placer.io.config_loader import PlacementConstraints
 
 
@@ -142,3 +147,172 @@ def test_force_directed_fixed_components(simple_context):
     assert "U1" not in result.placements
     assert "R1" in result.placements
     assert "C1" in result.placements
+
+
+# =============================================================================
+# Regression tests for temper-bl6q.3: Board dimension handling
+# =============================================================================
+
+def test_force_directed_large_board():
+    """
+    Regression test for temper-bl6q.3: Force-directed layout should work
+    correctly with boards larger than 200mm.
+
+    The old code hard-coded a 200mm clip, which compressed layouts on
+    larger boards. The fix uses actual board dimensions.
+    """
+    # Create a large 300x250mm board
+    board = Board(width=300.0, height=250.0, origin=(0.0, 0.0))
+
+    components = [
+        Component(ref="U1", footprint="QFP", bounds=(10.0, 10.0)),
+        Component(ref="U2", footprint="QFP", bounds=(10.0, 10.0)),
+        Component(ref="U3", footprint="QFP", bounds=(10.0, 10.0)),
+    ]
+    # Connect them in a chain
+    net = Net(name="CHAIN", pins=[("U1", "1"), ("U2", "1"), ("U3", "1")])
+    netlist = Netlist(components=components, nets=[net])
+
+    # Initial positions spread across the board
+    initial_positions = jnp.array([
+        [50.0, 50.0],
+        [150.0, 125.0],
+        [250.0, 200.0],
+    ])
+
+    # Run force-directed layout with actual board dimensions
+    result = compute_force_directed_layout(
+        netlist,
+        initial_positions,
+        board_width=300.0,
+        board_height=250.0,
+        board_origin=(0.0, 0.0),
+        iterations=100,
+        learning_rate=0.5,
+    )
+
+    # Positions should be within actual board bounds, not clipped to 200
+    assert jnp.all(result[:, 0] >= 0.0), "X should be >= 0"
+    assert jnp.all(result[:, 0] <= 300.0), "X should be <= 300"
+    assert jnp.all(result[:, 1] >= 0.0), "Y should be >= 0"
+    assert jnp.all(result[:, 1] <= 250.0), "Y should be <= 250"
+
+    # At least one component should be beyond 200mm (using the full board)
+    # This verifies the fix is actually using the larger bounds
+    max_x = float(jnp.max(result[:, 0]))
+    max_y = float(jnp.max(result[:, 1]))
+    assert max_x > 200.0 or max_y > 200.0, \
+        f"Components should spread beyond old 200mm limit. Max: ({max_x:.1f}, {max_y:.1f})"
+
+
+def test_force_directed_small_board():
+    """
+    Test that force-directed layout respects small board boundaries.
+
+    On boards smaller than 200mm, components should stay within actual bounds.
+    """
+    # Create a small 50x50mm board
+    board = Board(width=50.0, height=50.0, origin=(0.0, 0.0))
+
+    components = [
+        Component(ref="U1", footprint="0603", bounds=(2.0, 1.0)),
+        Component(ref="U2", footprint="0603", bounds=(2.0, 1.0)),
+    ]
+    net = Net(name="NET", pins=[("U1", "1"), ("U2", "1")])
+    netlist = Netlist(components=components, nets=[net])
+
+    # Initial positions
+    initial_positions = jnp.array([
+        [25.0, 25.0],
+        [30.0, 30.0],
+    ])
+
+    result = compute_force_directed_layout(
+        netlist,
+        initial_positions,
+        board_width=50.0,
+        board_height=50.0,
+        board_origin=(0.0, 0.0),
+        iterations=100,
+    )
+
+    # All positions should be within 50x50 bounds
+    assert jnp.all(result[:, 0] >= 0.0), "X should be >= 0"
+    assert jnp.all(result[:, 0] <= 50.0), "X should be <= 50"
+    assert jnp.all(result[:, 1] >= 0.0), "Y should be >= 0"
+    assert jnp.all(result[:, 1] <= 50.0), "Y should be <= 50"
+
+
+def test_force_directed_nonzero_origin():
+    """
+    Test that force-directed layout respects non-zero board origin.
+
+    The old code assumed origin=(0,0). The fix correctly handles
+    boards with arbitrary origins.
+    """
+    # Board with origin at (10, 20)
+    board = Board(width=100.0, height=100.0, origin=(10.0, 20.0))
+
+    components = [
+        Component(ref="U1", footprint="QFP", bounds=(5.0, 5.0)),
+        Component(ref="U2", footprint="QFP", bounds=(5.0, 5.0)),
+    ]
+    net = Net(name="NET", pins=[("U1", "1"), ("U2", "1")])
+    netlist = Netlist(components=components, nets=[net])
+
+    # Initial positions within the offset board
+    initial_positions = jnp.array([
+        [60.0, 70.0],  # Within (10,20) to (110,120)
+        [70.0, 80.0],
+    ])
+
+    result = compute_force_directed_layout(
+        netlist,
+        initial_positions,
+        board_width=100.0,
+        board_height=100.0,
+        board_origin=(10.0, 20.0),
+        iterations=100,
+    )
+
+    # Positions should be within offset bounds: (10, 20) to (110, 120)
+    assert jnp.all(result[:, 0] >= 10.0), f"X should be >= 10 (origin), got min {float(jnp.min(result[:, 0]))}"
+    assert jnp.all(result[:, 0] <= 110.0), f"X should be <= 110 (origin + width), got max {float(jnp.max(result[:, 0]))}"
+    assert jnp.all(result[:, 1] >= 20.0), f"Y should be >= 20 (origin), got min {float(jnp.min(result[:, 1]))}"
+    assert jnp.all(result[:, 1] <= 120.0), f"Y should be <= 120 (origin + height), got max {float(jnp.max(result[:, 1]))}"
+
+
+def test_force_directed_unfolding_uses_board_dimensions():
+    """
+    Test that ForceDirectedUnfoldingHeuristic passes correct board dimensions.
+    """
+    # Large board
+    board = Board(width=300.0, height=250.0, origin=(0.0, 0.0))
+
+    components = [
+        Component(ref="U1", footprint="QFP", bounds=(10.0, 10.0)),
+        Component(ref="U2", footprint="QFP", bounds=(10.0, 10.0)),
+    ]
+    net = Net(name="NET", pins=[("U1", "1"), ("U2", "1")])
+    netlist = Netlist(components=components, nets=[net])
+
+    constraints = PlacementConstraints(board_margin_mm=5.0)
+
+    context = PlacementContext(
+        board=board,
+        netlist=netlist,
+        constraints=constraints,
+        current_placements={},
+        rng_key=random.PRNGKey(42),
+    )
+
+    heuristic = ForceDirectedUnfoldingHeuristic(iterations=50)
+    result = heuristic.apply(context)
+
+    assert result.success
+
+    # Verify placements respect large board bounds
+    for ref, placement in result.placements.items():
+        x, y = placement.position
+        assert x >= 0.0 and x <= 300.0, f"X={x} out of bounds for 300mm board"
+        assert y >= 0.0 and y <= 250.0, f"Y={y} out of bounds for 250mm board"

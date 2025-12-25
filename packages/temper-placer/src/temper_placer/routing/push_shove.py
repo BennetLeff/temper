@@ -358,7 +358,12 @@ def detect_collision(path1: Path, path2: Path, num_samples: int = 21) -> bool:
 # =============================================================================
 
 
-def push_path(path: Path, direction: tuple[float, float], distance: float) -> Path:
+def push_path(
+    path: Path,
+    direction: tuple[float, float],
+    distance: float,
+    preserve_endpoints: bool = True,
+) -> Path:
     """
     Push path in direction by distance (returns new Path).
 
@@ -366,19 +371,67 @@ def push_path(path: Path, direction: tuple[float, float], distance: float) -> Pa
         path: Original path
         direction: Normalized direction vector
         distance: Distance to push
+        preserve_endpoints: If True, keep first segment's start and last segment's
+            end fixed at original positions (pad locations). Adds transition
+            segments to reconnect pushed middle portion. Defaults to True.
 
     Returns:
-        New path pushed by distance
+        New path pushed by distance, with endpoints preserved if requested
     """
     dx = direction[0] * distance
     dy = direction[1] * distance
 
-    # Push all segments
-    new_segments = []
-    for seg in path.segments:
-        new_start = (seg.start[0] + dx, seg.start[1] + dy)
-        new_end = (seg.end[0] + dx, seg.end[1] + dy)
-        new_segments.append(Segment(new_start, new_end))
+    segments = list(path.segments)
+    n = len(segments)
+
+    if not preserve_endpoints or n == 0:
+        # Simple case: push everything (backwards compatibility)
+        new_segments = [
+            Segment(
+                (seg.start[0] + dx, seg.start[1] + dy),
+                (seg.end[0] + dx, seg.end[1] + dy),
+            )
+            for seg in segments
+        ]
+    elif n == 1:
+        # Single segment: keep both endpoints fixed, insert pushed middle point
+        seg = segments[0]
+        start_anchor = seg.start
+        end_anchor = seg.end
+
+        # Compute midpoint and push it
+        mid_x = (seg.start[0] + seg.end[0]) / 2 + dx
+        mid_y = (seg.start[1] + seg.end[1]) / 2 + dy
+        mid_pushed = (mid_x, mid_y)
+
+        # Create two segments: start->mid, mid->end
+        new_segments = [
+            Segment(start_anchor, mid_pushed),
+            Segment(mid_pushed, end_anchor),
+        ]
+    else:
+        # Multi-segment path: preserve first start and last end
+        start_anchor = segments[0].start  # First pad location
+        end_anchor = segments[-1].end  # Last pad location
+
+        new_segments = []
+
+        # First segment: anchor start, push end
+        first_seg = segments[0]
+        pushed_first_end = (first_seg.end[0] + dx, first_seg.end[1] + dy)
+        new_segments.append(Segment(start_anchor, pushed_first_end))
+
+        # Middle segments: push both endpoints
+        for i in range(1, n - 1):
+            seg = segments[i]
+            new_start = (seg.start[0] + dx, seg.start[1] + dy)
+            new_end = (seg.end[0] + dx, seg.end[1] + dy)
+            new_segments.append(Segment(new_start, new_end))
+
+        # Last segment: push start, anchor end
+        last_seg = segments[-1]
+        pushed_last_start = (last_seg.start[0] + dx, last_seg.start[1] + dy)
+        new_segments.append(Segment(pushed_last_start, end_anchor))
 
     return Path(
         segments=tuple(new_segments), width=path.width, clearance=path.clearance, net=path.net

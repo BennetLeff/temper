@@ -79,8 +79,11 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
         curr_pos = compute_force_directed_layout(
             context.netlist,
             positions,
+            board_width=context.board.width,
+            board_height=context.board.height,
+            board_origin=context.board.origin,
             iterations=self.iterations,
-            learning_rate=self.lr
+            learning_rate=self.lr,
         )
 
         # 3. Clamp to board bounds (temper-p11g.1)
@@ -118,18 +121,24 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
 def compute_force_directed_layout(
     netlist,
     initial_positions: jnp.ndarray,
+    board_width: float = 100.0,
+    board_height: float = 100.0,
+    board_origin: tuple[float, float] = (0.0, 0.0),
     iterations: int = 500,
     learning_rate: float = 0.5,
 ) -> jnp.ndarray:
     """
     Run JAX-based force-directed simulation.
-    
+
     Args:
         netlist: Netlist object with n_components and adjacency building capability.
         initial_positions: (N, 2) array of starting positions.
+        board_width: Actual board width in mm.
+        board_height: Actual board height in mm.
+        board_origin: Board origin (x, y) in mm. Defaults to (0, 0).
         iterations: Number of simulation steps.
         learning_rate: Step size for updates.
-        
+
     Returns:
         (N, 2) array of refined positions.
     """
@@ -138,7 +147,12 @@ def compute_force_directed_layout(
     # Get fixed mask
     fixed_mask = netlist.get_fixed_mask()
 
-    # Physics Step
+    # Compute actual board bounds
+    origin_x, origin_y = board_origin
+    bounds_min = jnp.array([origin_x, origin_y])
+    bounds_max = jnp.array([origin_x + board_width, origin_y + board_height])
+
+    # Physics Step - use closure to capture bounds
     @jax.jit
     def step(pos):
         # Repulsion (all-pairs) - normalized by number of nodes
@@ -156,13 +170,13 @@ def compute_force_directed_layout(
         velocity = learning_rate * (repulsion + attraction)
         velocity = jnp.clip(velocity, -10.0, 10.0)  # Max 10mm per step
         new_pos = pos + velocity
-        
-        # Clamp to board bounds every step to prevent explosion
-        new_pos = jnp.clip(new_pos, 0.0, 200.0)  # Reasonable board size
-        
+
+        # Clamp to actual board bounds every step to prevent explosion
+        new_pos = jnp.clip(new_pos, bounds_min, bounds_max)
+
         # Ensure fixed components do not move
         new_pos = jnp.where(fixed_mask[:, None], pos, new_pos)
-        
+
         return new_pos
 
     # Run simulation

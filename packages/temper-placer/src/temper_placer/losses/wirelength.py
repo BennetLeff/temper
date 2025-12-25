@@ -33,8 +33,11 @@ class WirelengthLoss(LossFunction):
     from LossContext for efficient vectorized computation without Python loops.
 
     Attributes:
-        alpha: Smoothing parameter for LogSumExp. Higher = sharper approximation.
-            Typically annealed from 1.0 to 20.0 during training.
+        alpha: LogSumExp smoothing parameter. Higher = sharper approximation.
+            For dynamic annealing, use alpha_start/alpha_end/alpha_warmup.
+        alpha_start: Starting alpha value for annealing (default: 1.0).
+        alpha_end: Ending alpha value for annealing (default: 20.0).
+        alpha_warmup: Fraction of epochs at alpha_start before annealing begins (default: 0.2).
         net_weight_scale: Global scaling factor for net weights.
         net_weights: Optional dictionary mapping net names or net classes to
             weight multipliers. e.g. {"GND": 0.1, "CLK": 5.0, "HighSpeed": 2.0}.
@@ -42,7 +45,10 @@ class WirelengthLoss(LossFunction):
 
     def __init__(
         self,
-        alpha: float = 10.0,
+        alpha: float | None = None,
+        alpha_start: float = 1.0,
+        alpha_end: float = 20.0,
+        alpha_warmup: float = 0.2,
         net_weight_scale: float = 1.0,
         net_weights: dict[str, float] | None = None,
     ):
@@ -50,13 +56,56 @@ class WirelengthLoss(LossFunction):
         Initialize WirelengthLoss.
 
         Args:
-            alpha: LogSumExp smoothing parameter.
+            alpha: Legacy parameter. If provided, overrides alpha_start/alpha_end
+                for constant alpha behavior (backward compatible).
+            alpha_start: Starting alpha value for annealing. Low alpha gives
+                smooth approximation with good gradients.
+            alpha_end: Ending alpha value for annealing. High alpha gives sharp
+                approximation close to true HPWL.
+            alpha_warmup: Fraction of training at alpha_start before annealing begins.
+                For example, 0.2 means first 20% of epochs use constant alpha_start.
             net_weight_scale: Global scaling factor for net weights.
             net_weights: Optional mapping of net name/class to weight multiplier.
         """
-        self.alpha = alpha
+        # Handle legacy alpha parameter for backward compatibility
+        if alpha is not None:
+            self.alpha_start = alpha
+            self.alpha_end = alpha
+            self.alpha_warmup = 1.0  # No annealing if constant alpha
+        else:
+            self.alpha_start = alpha_start
+            self.alpha_end = alpha_end
+            self.alpha_warmup = alpha_warmup
+
         self.net_weight_scale = net_weight_scale
         self.net_weights = net_weights or {}
+
+    def _get_alpha(self, epoch: int, total_epochs: int) -> float:
+        """
+        Compute alpha based on current epoch for annealing.
+
+        Strategy:
+        - Warmup phase (0 to alpha_warmup): Constant low alpha for smooth gradients
+        - Annealing phase: Linear interpolation to high alpha for sharp HPWL
+
+        Args:
+            epoch: Current epoch index.
+            total_epochs: Total number of epochs.
+
+        Returns:
+            Current alpha value for LogSumExp computation.
+        """
+        warmup_end = self.alpha_warmup * total_epochs
+
+        # Compute annealing progress (used when past warmup phase)
+        anneal_duration = jnp.maximum((1 - self.alpha_warmup) * total_epochs, 1.0)
+        progress = (epoch - warmup_end) / anneal_duration
+        progress = jnp.clip(progress, 0.0, 1.0)
+        
+        annealed_alpha = self.alpha_start + progress * (self.alpha_end - self.alpha_start)
+        
+        # Use jnp.where for JAX tracing compatibility (not Python if)
+        return jnp.where(epoch < warmup_end, self.alpha_start, annealed_alpha)
 
     @property
     def name(self) -> str:
@@ -69,7 +118,7 @@ class WirelengthLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        **kwargs: Any,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute total HPWL across all nets using vectorized operations.
@@ -78,6 +127,8 @@ class WirelengthLoss(LossFunction):
             positions: (N, 2) component center positions.
             rotations: (N, 4) soft one-hot rotation indicators.
             context: LossContext with pre-computed net pin arrays.
+            epoch: Current epoch for alpha annealing.
+            total_epochs: Total epochs for alpha annealing.
 
         Returns:
             LossResult with total HPWL value.
@@ -85,6 +136,9 @@ class WirelengthLoss(LossFunction):
         # Check for empty nets
         if context.net_pin_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
+
+        # Get dynamic alpha based on epoch (supports annealing)
+        alpha = self._get_alpha(epoch, total_epochs)
 
         # Guard against NaN/Inf in inputs
         positions = jnp.nan_to_num(positions, nan=0.0, posinf=1e6, neginf=-1e6)
@@ -144,6 +198,7 @@ class WirelengthLoss(LossFunction):
             pin_positions,
             context.net_pin_mask,
             weights,
+            alpha=alpha,
             return_sum=False,
         )
 
@@ -160,6 +215,7 @@ class WirelengthLoss(LossFunction):
         pin_positions: Array,
         mask: Array,
         weights: Array,
+        alpha: float,
         return_sum: bool = True,
     ) -> Array:
         """
@@ -169,6 +225,7 @@ class WirelengthLoss(LossFunction):
             pin_positions: (M, P, 2) pin positions for all nets.
             mask: (M, P) boolean mask for valid pins.
             weights: (M,) weights for each net.
+            alpha: LogSumExp smoothing parameter.
             return_sum: If True, return scalar total. Otherwise return (M,) array.
 
         Returns:
@@ -187,11 +244,11 @@ class WirelengthLoss(LossFunction):
         y_for_min = jnp.where(mask, y_coords, jnp.inf)
 
         # Compute smooth max and min along pin dimension (axis=1)
-        x_max = jax.nn.logsumexp(self.alpha * x_for_max, axis=1) / self.alpha
-        x_min = -jax.nn.logsumexp(-self.alpha * x_for_min, axis=1) / self.alpha
+        x_max = jax.nn.logsumexp(alpha * x_for_max, axis=1) / alpha
+        x_min = -jax.nn.logsumexp(-alpha * x_for_min, axis=1) / alpha
 
-        y_max = jax.nn.logsumexp(self.alpha * y_for_max, axis=1) / self.alpha
-        y_min = -jax.nn.logsumexp(-self.alpha * y_for_min, axis=1) / self.alpha
+        y_max = jax.nn.logsumexp(alpha * y_for_max, axis=1) / alpha
+        y_min = -jax.nn.logsumexp(-alpha * y_for_min, axis=1) / alpha
 
         # HPWL for each net: (M,)
         hpwl_per_net = (x_max - x_min) + (y_max - y_min)
@@ -241,10 +298,12 @@ class SteinerTreeLoss(WirelengthLoss):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        **kwargs: Any,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         # Standard Steiner computation
-        res = super().__call__(positions, rotations, context, epoch, total_epochs, **kwargs)
+        res = super().__call__(
+            positions, rotations, context, epoch, total_epochs, net_virtual_nodes
+        )
 
         if not self.use_congestion_penalty:
             return res
@@ -303,6 +362,8 @@ class SteinerTreeLoss(WirelengthLoss):
         pin_positions: Array,
         mask: Array,
         weights: Array,
+        alpha: float,
+        return_sum: bool = True,
     ) -> Array:
         """
         Compute RSMT approximation using HPWL and pin-count correction.
@@ -317,11 +378,11 @@ class SteinerTreeLoss(WirelengthLoss):
         y_for_max = jnp.where(mask, y_coords, -jnp.inf)
         y_for_min = jnp.where(mask, y_coords, jnp.inf)
 
-        # Compute smooth max and min
-        x_max = jax.nn.logsumexp(self.alpha * x_for_max, axis=1) / self.alpha
-        x_min = -jax.nn.logsumexp(-self.alpha * x_for_min, axis=1) / self.alpha
-        y_max = jax.nn.logsumexp(self.alpha * y_for_max, axis=1) / self.alpha
-        y_min = -jax.nn.logsumexp(-self.alpha * y_for_min, axis=1) / self.alpha
+        # Compute smooth max and min using dynamic alpha
+        x_max = jax.nn.logsumexp(alpha * x_for_max, axis=1) / alpha
+        x_min = -jax.nn.logsumexp(-alpha * x_for_min, axis=1) / alpha
+        y_max = jax.nn.logsumexp(alpha * y_for_max, axis=1) / alpha
+        y_min = -jax.nn.logsumexp(-alpha * y_for_min, axis=1) / alpha
 
         # HPWL per net: (M,)
         hpwl_per_net = (x_max - x_min) + (y_max - y_min)
@@ -335,10 +396,12 @@ class SteinerTreeLoss(WirelengthLoss):
         # We use jnp.maximum to handle 1 or 2 pins safely
         correction = 1.0 + 0.1 * jnp.log2(jnp.maximum(n_pins - 1, 1.0))
 
-        # Weighted RSMT sum
-        total_steiner = jnp.sum(weights * hpwl_per_net * correction)
+        # Weighted values
+        weighted_hpwl = weights * hpwl_per_net * correction
 
-        return total_steiner
+        if return_sum:
+            return jnp.sum(weighted_hpwl)
+        return weighted_hpwl
 
 
 def compute_total_hpwl(

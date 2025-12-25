@@ -294,45 +294,37 @@ def resolve_overlaps(
                 pos_j = result[j]
                 hw_j, hh_j = comp_j.bounds[0] / 2, comp_j.bounds[1] / 2
                 
-                # Compute bounding box overlap
+                # Compute axis-aligned bounding box overlap using Separating Axis Theorem
+                # Two AABBs overlap iff they overlap on BOTH axes
                 dx = pos_i[0] - pos_j[0]
                 dy = pos_i[1] - pos_j[1]
-                dist = np.sqrt(dx**2 + dy**2)
-                
-                # Minimum required separation
-                min_dx = hw_i + hw_j + min_separation
-                min_dy = hh_i + hh_j + min_separation
-                min_dist = np.sqrt(min_dx**2 + min_dy**2)
-                
-                # Check if overlapping (use radial distance for smoother behavior)
-                if dist < min_dist:
+
+                # Per-axis overlap computation (SAT)
+                overlap_x = (hw_i + hw_j + min_separation) - abs(dx)
+                overlap_y = (hh_i + hh_j + min_separation) - abs(dy)
+
+                # Check if overlapping - must overlap on BOTH axes
+                if overlap_x > 0 and overlap_y > 0:
                     overlaps_found = True
-                    
-                    # Avoid division by zero
-                    if dist < 1e-6:
-                        # Components exactly on top - push in deterministic direction based on indices
-                        angle = (i + j) * 0.1
-                        dir_x, dir_y = np.cos(angle), np.sin(angle)
-                        overlap = min_dist
-                    else:
-                        # Normal case - push along separation vector
-                        dir_x, dir_y = dx / dist, dy / dist
-                        overlap = min_dist - dist
-                    
-                    # Force proportional to overlap (spring-like)
-                    force_mag = overlap * 0.5  # Half to each component
-                    
+
                     # Apply damping based on iteration (stronger damping later)
                     iteration_damping = damping ** (iteration / 50)
-                    force_mag *= iteration_damping
-                    
-                    # Accumulate forces
-                    forces[i, 0] += force_mag * dir_x
-                    forces[i, 1] += force_mag * dir_y
-                    
-                    if fixed_mask is None or not fixed_mask[j]:
-                        forces[j, 0] -= force_mag * dir_x
-                        forces[j, 1] -= force_mag * dir_y
+
+                    # Push along minimum overlap axis for cleaner separation
+                    if overlap_x < overlap_y:
+                        # Push horizontally (smaller overlap)
+                        force_mag = overlap_x * 0.5 * iteration_damping
+                        dir_x = np.sign(dx) if abs(dx) > 1e-6 else 1.0
+                        forces[i, 0] += force_mag * dir_x
+                        if fixed_mask is None or not fixed_mask[j]:
+                            forces[j, 0] -= force_mag * dir_x
+                    else:
+                        # Push vertically (smaller overlap)
+                        force_mag = overlap_y * 0.5 * iteration_damping
+                        dir_y = np.sign(dy) if abs(dy) > 1e-6 else 1.0
+                        forces[i, 1] += force_mag * dir_y
+                        if fixed_mask is None or not fixed_mask[j]:
+                            forces[j, 1] -= force_mag * dir_y
         
         # Apply forces to update positions
         for i in range(n_components):
