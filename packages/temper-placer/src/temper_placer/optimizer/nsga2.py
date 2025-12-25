@@ -498,9 +498,7 @@ def mutate_gaussian(positions: Array, key: Array, sigma: float = 1.0, rate: floa
 # =============================================================================
 
 
-def mutate_swap_positions(
-    positions: Array, key: Array, rate: float = 0.1
-) -> tuple[Array, bool]:
+def mutate_swap_positions(positions: Array, key: Array, rate: float = 0.1) -> tuple[Array, bool]:
     """
     Swap positions of two randomly selected components.
 
@@ -746,12 +744,14 @@ def mutate_push_to_edge(
     nearest_edge = jnp.argmin(distances)
 
     # Compute push direction
-    directions = jnp.array([
-        [-1.0, 0.0],  # left
-        [1.0, 0.0],   # right
-        [0.0, -1.0],  # bottom
-        [0.0, 1.0],   # top
-    ])
+    directions = jnp.array(
+        [
+            [-1.0, 0.0],  # left
+            [1.0, 0.0],  # right
+            [0.0, -1.0],  # bottom
+            [0.0, 1.0],  # top
+        ]
+    )
     direction = directions[nearest_edge]
 
     # Push toward edge
@@ -805,8 +805,8 @@ def apply_mutation_pool(
     Returns:
         Tuple of (mutated positions, mutated rotations)
     """
-    key_op, key_gaussian, key_swap, key_slide, key_rotate, key_grid, key_push = (
-        jax.random.split(key, 7)
+    key_op, key_gaussian, key_swap, key_slide, key_rotate, key_grid, key_push = jax.random.split(
+        key, 7
     )
 
     # Select which operator to apply
@@ -826,9 +826,7 @@ def apply_mutation_pool(
 
     def op_slide(_):
         if adjacency is not None:
-            pos, _ = mutate_slide_to_neighbor(
-                positions, key_slide, adjacency, rate=1.0
-            )
+            pos, _ = mutate_slide_to_neighbor(positions, key_slide, adjacency, rate=1.0)
         else:
             # Fall back to Gaussian if no adjacency
             pos = mutate_gaussian(positions, key_gaussian, gaussian_sigma, gaussian_rate)
@@ -1110,38 +1108,44 @@ class NSGAOptimizer:
             )(pop_rot[p1_idx], pop_rot[p2_idx], cross_keys)
 
             # Enforce fixed components after crossover
-            fixed_mask = getattr(context, 'fixed_mask', None)
+            fixed_mask = getattr(context, "fixed_mask", None)
             if fixed_mask is not None:
-                # Children of fixed parents should stay at parent positions
-                child_pos = jnp.where(fixed_mask[:, None], pop_pos[:self.pop_size // 2], child_pos)
-                child_rot = jnp.where(fixed_mask[:, None], pop_rot[:self.pop_size // 2], child_rot)
+                # Children should inherit fixed component positions from their actual parents
+                # Use p1_idx (first parent of each pair) for fixed component restoration
+                # This fixes a bug where the code previously used pop_pos[:pop_size // 2]
+                # which is the first half of the population, not the actual parents
+                child_pos = jnp.where(fixed_mask[None, :, None], pop_pos[p1_idx], child_pos)
+                child_rot = jnp.where(fixed_mask[None, :, None], pop_rot[p1_idx], child_rot)
 
             # Mutation
             mutate_keys_pos, mutate_keys_rot = jax.random.split(mutate_key, 2)
             mutate_keys_pos = jax.random.split(mutate_keys_pos, self.pop_size // 2)
             mutate_keys_rot = jax.random.split(mutate_keys_rot, self.pop_size // 2)
-            
+
             if self.use_geometry_operators:
                 # Use geometry-aware mutation pool
                 # Extract adjacency matrix if available
-                adjacency = getattr(context, 'adjacency_matrix', None)
+                adjacency = getattr(context, "adjacency_matrix", None)
                 # Extract thermal mask if available (could also check component properties)
                 thermal_mask = None
                 # Extract fixed mask from context
-                fixed_mask = getattr(context, 'fixed_mask', None)
-                
+                fixed_mask = getattr(context, "fixed_mask", None)
+
                 # Apply mutation pool to each child
                 def mutate_individual(pos, rot, k):
                     return apply_mutation_pool(
-                        pos, rot, k,
-                        board.width, board.height,
+                        pos,
+                        rot,
+                        k,
+                        board.width,
+                        board.height,
                         adjacency=adjacency,
                         thermal_mask=thermal_mask,
                         fixed_mask=fixed_mask,
                         gaussian_sigma=self.mutation_sigma,
                         gaussian_rate=self.mutation_rate,
                     )
-                
+
                 child_pos, child_rot = jax.vmap(mutate_individual)(
                     child_pos, child_rot, mutate_keys_pos
                 )

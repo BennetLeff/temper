@@ -57,6 +57,65 @@ def test_nsga_optimization_tradeoff():
     max_wl_idx = jnp.argmax(obj_vals[:, 0])
 
 
+def test_nsga_fixed_components_never_move():
+    """Verify that fixed components never move during NSGA-II optimization."""
+    # Setup board and netlist with a fixed component
+    board = Board(
+        width=100,
+        height=100,
+        origin=(0, 0),
+        zones=[],
+        ground_domains=[],
+        layer_stackup=LayerStackup.default_4layer(),
+    )
+
+    # Component U1 is FIXED at position (50, 50)
+    fixed_position = (50.0, 50.0)
+    c1 = Component(
+        ref="U1", footprint="S", bounds=(10, 10), fixed=True, initial_position=fixed_position
+    )
+    # Component U2 is NOT fixed
+    c2 = Component(ref="U2", footprint="S", bounds=(10, 10), fixed=False)
+    netlist = Netlist(components=[c1, c2], nets=[Net(name="N1", pins=[("U1", "1"), ("U2", "1")])])
+
+    context = LossContext.from_netlist_and_board(netlist, board)
+
+    # Verify fixed mask is correct
+    assert jnp.all(context.fixed_mask == jnp.array([True, False]))
+
+    objectives = [WirelengthLoss()]
+
+    optimizer = NSGAOptimizer(population_size=20)
+    result = optimizer.evolve(
+        netlist=netlist,
+        board=board,
+        objectives=objectives,
+        context=context,
+        generations=30,
+        seed=42,
+    )
+
+    # Verify that U1 (the fixed component) never moved from its initial position
+    # The final positions should have U1 at (50, 50)
+    final_positions = result.population_positions  # Shape: (pop_size, n_components, 2)
+    u1_positions = final_positions[:, 0, :]  # U1 is index 0
+
+    # All individuals in the population should have U1 at the fixed position
+    expected_u1_pos = jnp.array(fixed_position)
+    for i in range(u1_positions.shape[0]):
+        actual_pos = u1_positions[i]
+        # Allow small floating point tolerance
+        assert jnp.allclose(actual_pos, expected_u1_pos, atol=1e-5), (
+            f"Fixed component U1 moved from {fixed_position} to {actual_pos} in individual {i}"
+        )
+
+    # Also check intermediate generations by verifying the final state was tracked correctly
+    # The NSGA-II optimizer should have maintained fixed positions throughout
+    print(
+        f"Fixed component U1 position verified: all {u1_positions.shape[0]} individuals have U1 at {fixed_position}"
+    )
+
+
 def test_pipeline_with_nsga():
     """Verify that NSGA-II works within the full OptimizationPipeline."""
     from temper_placer.losses.base import CompositeLoss

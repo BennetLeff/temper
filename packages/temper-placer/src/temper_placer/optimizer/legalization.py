@@ -234,6 +234,84 @@ def legalize_individual_fast(
 
 
 
+def resolve_overlaps_priority(
+    positions: np.ndarray,
+    netlist: Netlist,
+    board: Board,
+    fixed_mask: np.ndarray | None = None,
+    max_iterations: int = 300,
+    min_separation: float = 0.5,
+    damping: float = 0.8,
+) -> np.ndarray:
+    """
+    Resolve overlaps with priority-based ordering (most severe first).
+
+    This provides better convergence than uniform push-apart for dense boards.
+    """
+    result = positions.copy()
+    n = len(netlist.components)
+    widths = np.array([c.bounds[0] for c in netlist.components])
+    heights = np.array([c.bounds[1] for c in netlist.components])
+
+    for iteration in range(max_iterations):
+        # 1. Collect all overlap pairs with severity
+        overlaps = []
+        for i in range(n):
+            hw_i, hh_i = widths[i] / 2, heights[i] / 2
+            for j in range(i + 1, n):
+                hw_j, hh_j = widths[j] / 2, heights[j] / 2
+
+                dx = result[i, 0] - result[j, 0]
+                dy = result[i, 1] - result[j, 1]
+
+                overlap_x = (hw_i + hw_j + min_separation) - abs(dx)
+                overlap_y = (hh_i + hh_j + min_separation) - abs(dy)
+
+                if overlap_x > 0 and overlap_y > 0:
+                    # Severity is the area or minimum penetration
+                    severity = min(overlap_x, overlap_y)
+                    overlaps.append((severity, i, j, overlap_x, overlap_y, dx, dy))
+
+        if not overlaps:
+            logger.info(f"Overlap resolution converged in {iteration + 1} iterations")
+            return result
+
+        # 2. Sort by severity (largest overlaps first)
+        overlaps.sort(key=lambda x: x[0], reverse=True)
+
+        # 3. Resolve top N overlaps in this iteration
+        # Resolving too many at once can cause cascades, but too few is slow.
+        # We use a decaying number of overlaps to resolve.
+        n_to_resolve = max(1, int(len(overlaps) * damping ** (iteration / 20)))
+        
+        for _, i, j, ox, oy, dx, dy in overlaps[:n_to_resolve]:
+            # Apply damping
+            iter_damping = damping ** (iteration / 50)
+            
+            if ox < oy:
+                # Push horizontally
+                force = ox * 0.5 * iter_damping
+                dir_x = np.sign(dx) if abs(dx) > 1e-6 else 1.0
+                if fixed_mask is None or not fixed_mask[i]:
+                    result[i, 0] += force * dir_x
+                if fixed_mask is None or not fixed_mask[j]:
+                    result[j, 0] -= force * dir_x
+            else:
+                # Push vertically
+                force = oy * 0.5 * iter_damping
+                dir_y = np.sign(dy) if abs(dy) > 1e-6 else 1.0
+                if fixed_mask is None or not fixed_mask[i]:
+                    result[i, 1] += force * dir_y
+                if fixed_mask is None or not fixed_mask[j]:
+                    result[j, 1] -= force * dir_y
+
+        # 4. Clamp to board boundaries
+        result = clamp_to_bounds(result, widths, heights, board, margin=min_separation)
+
+    logger.warning(f"Overlap resolution did not fully converge after {max_iterations} iterations")
+    return result
+
+
 def resolve_overlaps(
     positions: "np.ndarray",
     netlist: "Netlist",
@@ -355,20 +433,111 @@ def resolve_overlaps(
 class AbacusCluster:
     """A cluster of components in the Abacus algorithm."""
 
-    first_idx: int  # Index into sorted component list
-    last_idx: int
-    x_pos: float  # Optimal x-coordinate for this cluster
-    width: float  # Total width of components in cluster
-    weight: float  # Total weight (usually sum of component widths)
+    components: list[int]  # Component indices in this cluster
+    x_start: float  # Left edge of cluster
+    total_width: float  # Sum of component widths
+    total_weight: float  # Sum of component weights (usually = 1)
+    opt_x: float  # Optimal x position (weighted sum of original positions)
+
+
+def legalize_row_abacus(
+    row_components: list[int],
+    original_x: np.ndarray,
+    widths: np.ndarray,
+    weights: np.ndarray,
+    row_x_min: float,
+    row_x_max: float,
+    spacing: float = 0.5,
+) -> dict[int, float]:
+    """
+    Legalize a single row using the Abacus algorithm.
+
+    Minimizes sum of squared displacements while ensuring no overlaps.
+
+    Returns:
+        Dict mapping component index to legalized center x position.
+    """
+    if not row_components:
+        return {}
+
+    # Sort components by original x position
+    sorted_comps = sorted(row_components, key=lambda i: original_x[i])
+
+    clusters: list[AbacusCluster] = []
+
+    for comp_idx in sorted_comps:
+        width = widths[comp_idx] + spacing
+        orig_x = original_x[comp_idx]
+        weight = weights[comp_idx]
+
+        # Create new cluster for this component
+        new_cluster = AbacusCluster(
+            components=[comp_idx],
+            x_start=orig_x - width / 2,  # Left edge
+            total_width=width,
+            total_weight=weight,
+            opt_x=orig_x * weight,  # Weighted position sum
+        )
+
+        # Try to place this cluster optimally
+        # Compute placement position
+        cluster_x = new_cluster.opt_x / new_cluster.total_weight - new_cluster.total_width / 2
+        cluster_x = max(cluster_x, row_x_min)  # Respect left boundary
+
+        new_cluster.x_start = cluster_x
+
+        # Check for overlap with previous cluster
+        while clusters:
+            prev = clusters[-1]
+            prev_right = prev.x_start + prev.total_width
+
+            if prev_right > new_cluster.x_start:
+                # Overlap! Merge clusters
+                merged = AbacusCluster(
+                    components=prev.components + new_cluster.components,
+                    x_start=0,  # Will recompute
+                    total_width=prev.total_width + new_cluster.total_width,
+                    total_weight=prev.total_weight + new_cluster.total_weight,
+                    opt_x=prev.opt_x + new_cluster.opt_x,
+                )
+
+                # Optimal position for merged cluster
+                merged_x = merged.opt_x / merged.total_weight - merged.total_width / 2
+                merged_x = max(merged_x, row_x_min)
+                merged.x_start = merged_x
+
+                clusters.pop()
+                new_cluster = merged
+            else:
+                break
+
+        # Check right boundary
+        if new_cluster.x_start + new_cluster.total_width > row_x_max:
+            # Push left
+            new_cluster.x_start = row_x_max - new_cluster.total_width
+
+        clusters.append(new_cluster)
+
+    # Extract final positions from clusters
+    result = {}
+    for cluster in clusters:
+        x = cluster.x_start
+        for comp_idx in cluster.components:
+            width = widths[comp_idx] + spacing
+            result[comp_idx] = x + width / 2  # Center position
+            x += width
+
+    return result
 
 
 def legalize_abacus(
     state: PlacementState,
     context: LossContext,
     n_rows: int = 20,
+    spacing: float = 0.5,
 ) -> PlacementState:
     """
-    Legalize placement using a simplified Abacus algorithm.
+    Legalize placement using the Abacus algorithm (2D version).
 
     Abacus minimizes the sum of squared displacements from original positions
     while ensuring no overlaps. It works row-by-row.
@@ -377,20 +546,23 @@ def legalize_abacus(
         state: Optimized (but potentially overlapping) placement state.
         context: LossContext with netlist and board info.
         n_rows: Number of horizontal rows to bin components into.
+        spacing: Minimum spacing between components.
 
     Returns:
         Legalized PlacementState.
     """
-    import numpy as np
-
     positions = np.array(state.positions)
     n = positions.shape[0]
+
+    # Component properties
     widths = np.array([c.bounds[0] for c in context.netlist.components])
     # heights = np.array([c.bounds[1] for c in context.netlist.components])
+    weights = np.ones(n)  # Default uniform weights
 
-    board_h = context.board.height
-    row_height = board_h / n_rows
-    origin_y = context.board.origin[1]
+    # Board geometry
+    board = context.board
+    row_height = board.height / n_rows
+    origin_x, origin_y = board.origin
 
     # 1. Assign components to rows based on Y coordinate
     row_assignments = [[] for _ in range(n_rows)]
@@ -400,67 +572,32 @@ def legalize_abacus(
         row_idx = int(np.clip((positions[i, 1] - origin_y) / row_height, 0, n_rows - 1))
         row_assignments[row_idx].append(i)
 
-    # new_positions = positions.copy()
-
-    # 2. Process each row independently
+    # 2. Legalize each row independently
+    new_positions = positions.copy()
     for row_idx in range(n_rows):
         comp_indices = row_assignments[row_idx]
         if not comp_indices:
             continue
 
-        # Sort components in row by their original X coordinate
-        comp_indices.sort(key=lambda idx: positions[idx, 0])
+        row_y = origin_y + (row_idx + 0.5) * row_height
+        row_x_min = origin_x
+        row_x_max = origin_x + board.width
 
-        clusters: list[AbacusCluster] = []
+        legalized_x = legalize_row_abacus(
+            comp_indices,
+            positions[:, 0],  # Original X positions
+            widths,
+            weights,
+            row_x_min,
+            row_x_max,
+            spacing=spacing,
+        )
 
-        for i in comp_indices:
-            # Create a new cluster for component i
-            c = AbacusCluster(
-                first_idx=i,
-                last_idx=i,
-                x_pos=positions[i, 0],
-                width=widths[i],
-                weight=1.0,  # Could be widths[i]
-            )
+        for comp_idx, new_x in legalized_x.items():
+            new_positions[comp_idx, 0] = new_x
+            new_positions[comp_idx, 1] = row_y  # Snap to row center
 
-            # Try to merge with previous cluster if there's an overlap
-            while clusters:
-                prev = clusters[-1]
-                # Check for overlap: prev.x + prev.width > c.x
-                # (Note: x_pos is the start of the cluster here)
-                if prev.x_pos + prev.width > c.x_pos:
-                    # Merge
-                    new_weight = prev.weight + c.weight
-                    new_x = (prev.weight * prev.x_pos + c.weight * (c.x_pos - prev.width)) / new_weight
-
-                    # Snap to board boundaries
-                    new_x = max(context.board.origin[0], new_x)
-
-                    c = AbacusCluster(
-                        first_idx=prev.first_idx,
-                        last_idx=c.last_idx,
-                        x_pos=new_x,
-                        width=prev.width + c.width,
-                        weight=new_weight,
-                    )
-                    clusters.pop()
-                else:
-                    break
-            clusters.append(c)
-
-    # 3. Update positions from clusters
-    # for cluster in clusters:
-    #     curr_x = cluster.x_pos
-    #     # Use original indices from sorted list?
-    #     # Wait, the cluster needs to track which components it contains.
-    #     # Simplified: re-iterate through comp_indices for this cluster
-    #     # Actually, I should store the indices in the cluster.
-    #     pass
-
-    # Note: Full Abacus is complex. This is a placeholder for the logic.
-    # I'll implement a simpler version that works for PCB components.
-
-    return project_to_drc_feasible(state, context)
+    return PlacementState(jnp.array(new_positions), state.rotation_logits)
 
 
 def project_to_drc_feasible(
@@ -489,8 +626,8 @@ def project_to_drc_feasible(
     positions = np.array(state.positions)
     
     # 1. Resolve Overlaps and Enforce Boundaries
-    # resolve_overlaps already calls clamp_to_bounds internally
-    final_positions = resolve_overlaps(
+    # Use the improved priority-based resolution
+    final_positions = resolve_overlaps_priority(
         positions=positions,
         netlist=context.netlist,
         board=context.board,

@@ -15,6 +15,7 @@ Example usage:
     >>> print(f"Completion rate: {router.get_completion_rate(results):.1%}")
 """
 
+import math
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -22,9 +23,54 @@ from typing import TYPE_CHECKING
 from jax import Array
 
 from temper_placer.core.board import Board
+from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing import push_shove as ps
 from temper_placer.routing.maze_router import MazeRouter
+
+
+def _euclidean_distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
+    """Compute Euclidean distance between two points."""
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+
+def _order_pins_nearest_neighbor(pins: list[tuple[float, float]]) -> list[int]:
+    """
+    Order pins by nearest-neighbor traversal to minimize total wirelength.
+
+    Starts from the first pin and greedily visits the nearest unvisited pin.
+
+    Args:
+        pins: List of (x, y) pin positions
+
+    Returns:
+        List of indices in optimal visiting order
+    """
+    n = len(pins)
+    if n <= 2:
+        return list(range(n))
+
+    visited = [False] * n
+    order = [0]  # Start from first pin
+    visited[0] = True
+
+    for _ in range(n - 1):
+        current = order[-1]
+        best_next = -1
+        best_dist = float("inf")
+
+        for j in range(n):
+            if not visited[j]:
+                dist = _euclidean_distance(pins[current], pins[j])
+                if dist < best_dist:
+                    best_dist = dist
+                    best_next = j
+
+        if best_next >= 0:
+            order.append(best_next)
+            visited[best_next] = True
+
+    return order
 
 if TYPE_CHECKING:
     from temper_placer.routing.layer_assignment import LayerAssignment
@@ -100,19 +146,27 @@ class UnifiedRouter:
     Attributes:
         board: PCB board specification
         config: Routing configuration
+        design_rules: Design rules with net class specifications
         maze_router: Maze router instance
         push_shove_grid: Push-shove grid state
     """
 
-    def __init__(self, board: Board, config: RoutingConfig | None = None):
+    def __init__(
+        self,
+        board: Board,
+        config: RoutingConfig | None = None,
+        design_rules: DesignRules | None = None,
+    ):
         """Initialize unified router.
 
         Args:
             board: PCB board specification
             config: Routing configuration (uses defaults if None)
+            design_rules: Design rules with net class specs (uses defaults if None)
         """
         self.board = board
         self.config = config or RoutingConfig()
+        self.design_rules = design_rules or DesignRules()
 
         # Initialize maze router
         self.maze_router = MazeRouter.from_board(board, cell_size_mm=self.config.maze_cell_size)
@@ -121,22 +175,30 @@ class UnifiedRouter:
         self.push_shove_grid: ps.Grid | None = None
         self._routed_paths: list[ps.Path] = []
 
+        # Cache for net class lookups
+        self._net_class_cache: dict[str, str | None] = {}
+
     @classmethod
     def from_board(
-        cls, board: Board, strategy: RoutingStrategy = RoutingStrategy.AUTO, **config_kwargs
+        cls,
+        board: Board,
+        strategy: RoutingStrategy = RoutingStrategy.AUTO,
+        design_rules: DesignRules | None = None,
+        **config_kwargs,
     ) -> "UnifiedRouter":
         """Create router from board with optional configuration.
 
         Args:
             board: PCB board specification
             strategy: Routing strategy
+            design_rules: Design rules with net class specs
             **config_kwargs: Additional configuration parameters
 
         Returns:
             Configured unified router
         """
         config = RoutingConfig(strategy=strategy, **config_kwargs)
-        return cls(board, config)
+        return cls(board, config, design_rules)
 
     def _init_push_shove_grid(self):
         """Initialize push-shove grid if not already created."""
@@ -173,39 +235,38 @@ class UnifiedRouter:
             failure_reason=result.failure_reason,
         )
 
-    def _push_shove_route_net(
-        self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment"
-    ) -> UnifiedRoutePath:
-        """Route net using push-shove router.
+    def _route_two_pins_push_shove(
+        self,
+        net_name: str,
+        start_pos: tuple[float, float],
+        end_pos: tuple[float, float],
+        assignment: "LayerAssignment",
+        trace_width: float = 0.2,
+        trace_clearance: float = 0.2,
+    ) -> tuple[list[ps.Segment], int, str | None]:
+        """
+        Route between two pins using push-shove pathfinding.
 
         Args:
             net_name: Net name
-            pin_positions: Pin positions in world coordinates
+            start_pos: Start position in world coordinates
+            end_pos: End position in world coordinates
             assignment: Layer assignment
+            trace_width: Trace width in mm
+            trace_clearance: Trace clearance in mm
 
         Returns:
-            Unified route path result
+            (segments, via_count, failure_reason)
+            failure_reason is None on success
         """
-        self._init_push_shove_grid()
-
-        # For now, fall back to maze router pathfinding to find initial path
-        # Then use push-shove if there are conflicts
-        # TODO: Implement pure push-shove pathfinding
-
         from temper_placer.routing.layer_assignment import Layer
 
-        if len(pin_positions) < 2:
-            return UnifiedRoutePath(net=net_name, success=True, method="push-shove")
-
-        # Use maze router to find initial path
         layer = 0 if assignment.primary_layer == Layer.L1_TOP else 1
         allow_via = len(assignment.allowed_layers) > 1
 
-        grid_pins = [self.maze_router._world_to_grid(x, y) for x, y in pin_positions]
-        start_grid = grid_pins[0]
-        end_grid = grid_pins[1]  # Simple 2-pin for now
+        start_grid = self.maze_router._world_to_grid(start_pos[0], start_pos[1])
+        end_grid = self.maze_router._world_to_grid(end_pos[0], end_pos[1])
 
-        # Find path on push-shove grid
         start_cell = ps.GridCell(start_grid[0], start_grid[1], layer)
         end_cell = ps.GridCell(end_grid[0], end_grid[1], layer)
 
@@ -214,19 +275,14 @@ class UnifiedRouter:
         )
 
         if not path_result.success:
-            return UnifiedRoutePath(
-                net=net_name, success=False, method="push-shove", failure_reason="No path found"
-            )
+            return [], 0, "No path found"
 
-        # Convert grid path to continuous path
-        # TODO: Implement proper grid-to-path conversion
-        # For now, create a simple path
+        # Convert grid path to segments
         segments = []
         for i in range(len(path_result.path) - 1):
             cell1 = path_result.path[i]
             cell2 = path_result.path[i + 1]
 
-            # Convert grid to world coordinates
             x1 = cell1.x * self.config.maze_cell_size
             y1 = cell1.y * self.config.maze_cell_size
             x2 = cell2.x * self.config.maze_cell_size
@@ -234,10 +290,103 @@ class UnifiedRouter:
 
             segments.append(ps.Segment(start=(x1, y1), end=(x2, y2)))
 
+        # Count vias
+        via_count = sum(
+            1
+            for i in range(len(path_result.path) - 1)
+            if path_result.path[i].layer != path_result.path[i + 1].layer
+        )
+
+        return segments, via_count, None
+
+    def _get_net_rules(self, net_name: str, net_class: str | None = None) -> NetClassRules:
+        """Get routing rules for a net.
+
+        Args:
+            net_name: Net name
+            net_class: Optional net class (if known from netlist)
+
+        Returns:
+            NetClassRules for this net
+        """
+        return self.design_rules.get_rules_for_net(net_name, net_class)
+
+    def _push_shove_route_net(
+        self,
+        net_name: str,
+        pin_positions: list[tuple[float, float]],
+        assignment: "LayerAssignment",
+        net_class: str | None = None,
+    ) -> UnifiedRoutePath:
+        """Route net using push-shove router with multi-pin support.
+
+        For multi-pin nets, uses chain topology with nearest-neighbor ordering
+        to minimize total wirelength. Uses design rules for trace parameters.
+
+        Args:
+            net_name: Net name
+            pin_positions: Pin positions in world coordinates
+            assignment: Layer assignment
+            net_class: Optional net class for design rule lookup
+
+        Returns:
+            Unified route path result
+        """
+        self._init_push_shove_grid()
+
+        if len(pin_positions) < 2:
+            return UnifiedRoutePath(net=net_name, success=True, method="push-shove")
+
+        # Get routing rules for this net
+        rules = self._get_net_rules(net_name, net_class)
+
+        # Order pins using nearest-neighbor heuristic for better wirelength
+        pin_order = _order_pins_nearest_neighbor(pin_positions)
+        ordered_pins = [pin_positions[i] for i in pin_order]
+
+        # Route chain: pin0 -> pin1 -> pin2 -> ... -> pinN
+        all_segments: list[ps.Segment] = []
+        total_vias = 0
+        total_length = 0.0
+
+        for i in range(len(ordered_pins) - 1):
+            start_pos = ordered_pins[i]
+            end_pos = ordered_pins[i + 1]
+
+            segments, via_count, failure_reason = self._route_two_pins_push_shove(
+                net_name,
+                start_pos,
+                end_pos,
+                assignment,
+                trace_width=rules.trace_width,
+                trace_clearance=rules.clearance,
+            )
+
+            if failure_reason is not None:
+                return UnifiedRoutePath(
+                    net=net_name,
+                    success=False,
+                    method="push-shove",
+                    failure_reason=f"Failed segment {i} ({pin_order[i]}->{pin_order[i+1]}): {failure_reason}",
+                )
+
+            all_segments.extend(segments)
+            total_vias += via_count
+            total_length += _euclidean_distance(start_pos, end_pos)
+
+        if not all_segments:
+            return UnifiedRoutePath(
+                net=net_name,
+                success=False,
+                method="push-shove",
+                failure_reason="No segments created",
+            )
+
+        # Create combined path using net class rules for trace parameters
         path = ps.Path(
-            segments=tuple(segments),
-            width=0.2,  # TODO: Get from net class
-            clearance=0.2,  # TODO: Get from design rules
+            segments=tuple(all_segments),
+            width=rules.trace_width,
+            clearance=rules.clearance,
             net=net_name,
         )
 
@@ -267,26 +416,19 @@ class UnifiedRouter:
                 )
 
             # Update existing paths
-            for i, old_path in enumerate(collisions):
+            for j, old_path in enumerate(collisions):
                 idx = self._routed_paths.index(old_path)
-                self._routed_paths[idx] = shove_result.paths[i]
+                self._routed_paths[idx] = shove_result.paths[j]
 
         # Add successfully routed path
         self._routed_paths.append(path)
-
-        # Count vias
-        via_count = sum(
-            1
-            for i in range(len(path_result.path) - 1)
-            if path_result.path[i].layer != path_result.path[i + 1].layer
-        )
 
         return UnifiedRoutePath(
             net=net_name,
             success=True,
             path=path,
-            length=path_result.cost,
-            via_count=via_count,
+            length=total_length,
+            via_count=total_vias,
             method="push-shove",
         )
 

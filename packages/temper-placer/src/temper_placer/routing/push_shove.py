@@ -438,25 +438,184 @@ def push_path(
     )
 
 
-def compute_push_direction(path: Path, new_path: Path) -> tuple[float, float]:
+def segment_length(seg: Segment) -> float:
+    """Compute segment length."""
+    return math.sqrt(
+        (seg.end[0] - seg.start[0]) ** 2 + (seg.end[1] - seg.start[1]) ** 2
+    )
+
+
+def _compute_path_centroid(path: Path) -> tuple[float, float]:
+    """
+    Compute weighted centroid of path (weighted by segment length).
+
+    Longer segments contribute more to the centroid, giving a more
+    representative center for multi-segment paths.
+    """
+    total_length = 0.0
+    cx, cy = 0.0, 0.0
+
+    for seg in path.segments:
+        seg_len = segment_length(seg)
+        mid_x = (seg.start[0] + seg.end[0]) / 2.0
+        mid_y = (seg.start[1] + seg.end[1]) / 2.0
+
+        cx += mid_x * seg_len
+        cy += mid_y * seg_len
+        total_length += seg_len
+
+    if total_length < 1e-6:
+        # Degenerate path - return first point
+        return path.segments[0].start
+
+    return (cx / total_length, cy / total_length)
+
+
+def _closest_point_on_segment(
+    seg: Segment, point: tuple[float, float]
+) -> tuple[tuple[float, float], float]:
+    """
+    Find closest point on segment to given point.
+
+    Returns:
+        (closest_point, distance)
+    """
+    px, py = point
+    ax, ay = seg.start
+    bx, by = seg.end
+
+    # Vector from A to B
+    bax = bx - ax
+    bay = by - ay
+
+    # Vector from A to point
+    pax = px - ax
+    pay = py - ay
+
+    # Project point onto line AB
+    ba_length_sq = bax * bax + bay * bay
+
+    if ba_length_sq < 1e-10:
+        # Degenerate segment (point)
+        dist = math.sqrt(pax * pax + pay * pay)
+        return (ax, ay), dist
+
+    t = (pax * bax + pay * bay) / ba_length_sq
+    t = max(0.0, min(1.0, t))  # Clamp to segment
+
+    # Closest point on segment
+    closest_x = ax + t * bax
+    closest_y = ay + t * bay
+
+    # Distance to closest point
+    dx = px - closest_x
+    dy = py - closest_y
+    dist = math.sqrt(dx * dx + dy * dy)
+
+    return (closest_x, closest_y), dist
+
+
+def _find_closest_segment(
+    path: Path, point: tuple[float, float]
+) -> tuple[int, tuple[float, float]]:
+    """
+    Find segment closest to point and the closest point on that segment.
+
+    Returns:
+        (segment_index, closest_point_on_segment)
+    """
+    best_idx = 0
+    best_dist = float("inf")
+    best_point = path.segments[0].start
+
+    for i, seg in enumerate(path.segments):
+        closest, dist = _closest_point_on_segment(seg, point)
+        if dist < best_dist:
+            best_dist = dist
+            best_idx = i
+            best_point = closest
+
+    return best_idx, best_point
+
+
+def _find_collision_point(
+    path1: Path, path2: Path, num_samples: int = 11
+) -> tuple[float, float] | None:
+    """
+    Find approximate collision point between two paths.
+
+    Samples both paths and returns the pair of points that are closest
+    (within collision distance).
+
+    Returns:
+        Midpoint of collision, or None if no collision found
+    """
+    required_dist = (
+        path1.width + path1.clearance + path2.width + path2.clearance
+    ) / 2.0
+
+    best_dist = float("inf")
+    best_p1: tuple[float, float] | None = None
+    best_p2: tuple[float, float] | None = None
+
+    # Sample path2 and check against path1
+    for seg2 in path2.segments:
+        for i in range(num_samples):
+            t = i / (num_samples - 1) if num_samples > 1 else 0.5
+            p2x = seg2.start[0] + t * (seg2.end[0] - seg2.start[0])
+            p2y = seg2.start[1] + t * (seg2.end[1] - seg2.start[1])
+            p2 = (p2x, p2y)
+
+            for seg1 in path1.segments:
+                closest, dist = _closest_point_on_segment(seg1, p2)
+                if dist < required_dist and dist < best_dist:
+                    best_dist = dist
+                    best_p1 = closest
+                    best_p2 = p2
+
+    if best_p1 is None or best_p2 is None:
+        return None
+
+    # Return midpoint between closest points
+    return ((best_p1[0] + best_p2[0]) / 2.0, (best_p1[1] + best_p2[1]) / 2.0)
+
+
+def compute_push_direction(
+    path: Path,
+    new_path: Path,
+    collision_point: tuple[float, float] | None = None,
+) -> tuple[float, float]:
     """
     Compute direction to push path away from new_path.
 
-    Returns normalized direction vector.
+    For multi-segment paths, uses the collision location or path centroids
+    to compute a more accurate push direction than just the first segment.
+
+    Args:
+        path: Path to be pushed
+        new_path: New path causing the push
+        collision_point: Optional hint of where collision occurs
+
+    Returns:
+        Normalized (dx, dy) push direction
     """
-    # Use midpoint of first segment
-    seg1 = path.segments[0]
-    seg2 = new_path.segments[0]
+    if collision_point is not None:
+        # Find closest point on path to collision
+        _, closest_on_path = _find_closest_segment(path, collision_point)
 
-    # Centers of segments
-    c1x = (seg1.start[0] + seg1.end[0]) / 2.0
-    c1y = (seg1.start[1] + seg1.end[1]) / 2.0
-    c2x = (seg2.start[0] + seg2.end[0]) / 2.0
-    c2y = (seg2.start[1] + seg2.end[1]) / 2.0
+        # Find closest point on new_path to collision
+        _, closest_on_new = _find_closest_segment(new_path, collision_point)
 
-    # Direction from new_path to path
-    dx = c1x - c2x
-    dy = c1y - c2y
+        # Direction from new_path toward path (push path away)
+        dx = closest_on_path[0] - closest_on_new[0]
+        dy = closest_on_path[1] - closest_on_new[1]
+    else:
+        # Fallback: compute weighted centroid of all segments
+        path_centroid = _compute_path_centroid(path)
+        new_centroid = _compute_path_centroid(new_path)
+
+        dx = path_centroid[0] - new_centroid[0]
+        dy = path_centroid[1] - new_centroid[1]
 
     # Normalize
     length = math.sqrt(dx * dx + dy * dy)
@@ -475,6 +634,9 @@ def shove_paths(
 ) -> ShoveResult:
     """
     Shove existing paths to make room for new path.
+
+    Uses collision-aware push direction calculation for multi-segment paths,
+    finding the actual collision location to compute the best push direction.
 
     Args:
         existing_paths: Paths that may need shoving
@@ -503,8 +665,11 @@ def shove_paths(
         for i in colliding_indices:
             path = current_paths[i]
 
-            # Compute push direction
-            direction = compute_push_direction(path, new_path)
+            # Find collision point for better push direction (multi-segment aware)
+            collision_pt = _find_collision_point(path, new_path)
+
+            # Compute push direction using collision location
+            direction = compute_push_direction(path, new_path, collision_pt)
 
             # Minimum push distance = clearance requirement
             min_distance = (

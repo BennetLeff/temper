@@ -431,3 +431,128 @@ class TestPushPathEndpointPreservation:
             # End pad location must be preserved
             assert shoved.segments[-1].end == (15.0, 10.0), \
                 "Destination pad connection should be preserved after shove"
+
+
+# =============================================================================
+# Regression tests for temper-loms.1: Multi-segment push direction
+# =============================================================================
+
+class TestMultiSegmentPushDirection:
+    """Tests for collision-aware push direction calculation."""
+
+    def test_l_shaped_path_push_direction(self):
+        """L-shaped path should compute push direction from collision location."""
+        from temper_placer.routing.push_shove import (
+            compute_push_direction,
+            _find_collision_point,
+            _compute_path_centroid,
+        )
+
+        # L-shaped path: horizontal then vertical
+        l_path = Path(
+            segments=[
+                Segment(start=(0.0, 0.0), end=(10.0, 0.0)),  # Horizontal
+                Segment(start=(10.0, 0.0), end=(10.0, 10.0)),  # Vertical
+            ],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        # New path colliding with vertical segment
+        # With width=0.2 and clearance=0.2, required_dist = 0.4
+        # Place new_path at x=10.2 so it collides with vertical segment at x=10
+        new_path = Path(
+            segments=[Segment(start=(10.2, 5.0), end=(20.0, 5.0))],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # Find collision point
+        collision_pt = _find_collision_point(l_path, new_path)
+
+        # Collision should be near (10, 5) - the vertical segment
+        assert collision_pt is not None, "Should find collision point"
+        assert abs(collision_pt[1] - 5.0) < 2.0, \
+            f"Collision y should be near 5.0, got {collision_pt[1]}"
+
+        # Compute push direction with collision hint
+        direction = compute_push_direction(l_path, new_path, collision_pt)
+
+        # Direction should be mostly leftward (away from new_path)
+        assert direction[0] < 0, \
+            f"Push should be leftward, got dx={direction[0]}"
+
+    def test_centroid_weighted_by_length(self):
+        """Path centroid should weight longer segments more."""
+        from temper_placer.routing.push_shove import _compute_path_centroid
+
+        # Path with one long segment and one short segment
+        path = Path(
+            segments=[
+                Segment(start=(0.0, 0.0), end=(100.0, 0.0)),  # 100mm long
+                Segment(start=(100.0, 0.0), end=(100.0, 10.0)),  # 10mm long
+            ],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        centroid = _compute_path_centroid(path)
+
+        # Centroid should be closer to the long segment's center (50, 0)
+        # than to the short segment's center (100, 5)
+        assert centroid[0] < 60.0, \
+            f"Centroid x should be closer to long segment, got {centroid[0]}"
+
+    def test_push_direction_without_collision_uses_centroid(self):
+        """Without collision hint, push direction uses centroid."""
+        from temper_placer.routing.push_shove import compute_push_direction
+
+        path = Path(
+            segments=[Segment(start=(0.0, 0.0), end=(10.0, 0.0))],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+        new_path = Path(
+            segments=[Segment(start=(0.0, 10.0), end=(10.0, 10.0))],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        # No collision hint
+        direction = compute_push_direction(path, new_path, collision_point=None)
+
+        # Should push downward (path centroid is below new_path centroid)
+        assert direction[1] < 0, \
+            f"Push should be downward, got dy={direction[1]}"
+
+    def test_u_shaped_path_collision(self):
+        """U-shaped path should handle collision on middle segment."""
+        from temper_placer.routing.push_shove import (
+            compute_push_direction,
+            _find_collision_point,
+        )
+
+        # U-shaped path: down, across, up
+        u_path = Path(
+            segments=[
+                Segment(start=(0.0, 10.0), end=(0.0, 0.0)),    # Down
+                Segment(start=(0.0, 0.0), end=(10.0, 0.0)),    # Across
+                Segment(start=(10.0, 0.0), end=(10.0, 10.0)),  # Up
+            ],
+            width=0.2, clearance=0.2, net="NET1"
+        )
+
+        # New path colliding with bottom segment
+        new_path = Path(
+            segments=[Segment(start=(5.0, -0.3), end=(5.0, 0.3))],
+            width=0.2, clearance=0.2, net="NET2"
+        )
+
+        collision_pt = _find_collision_point(u_path, new_path)
+
+        assert collision_pt is not None, "Should find collision point"
+        # Collision should be on the bottom horizontal segment
+        assert collision_pt[1] < 2.0, \
+            f"Collision should be near bottom, got y={collision_pt[1]}"
+
+        direction = compute_push_direction(u_path, new_path, collision_pt)
+
+        # Should push away from new_path (upward or to side)
+        # The exact direction depends on relative positions
+        assert abs(direction[0]) > 0.1 or abs(direction[1]) > 0.1, \
+            "Should have meaningful push direction"
