@@ -1,0 +1,38 @@
+# {{ config.title }}
+{% if config.show_timestamp %}**Generated:** {{ timestamp }}{% endif %}
+**Author:** {{ config.author }}
+
+## Files
+- **Optimized:** `{{ optimized_path }}`
+- **Reference:** `{{ reference_path }}`
+
+## Overall Verdict: **{{ aggregate_result.verdict }}**
+
+## Wirelength Comparison
+- **Optimized:** {{ "%.2f"|format(wirelength_result.optimized) }} mm
+- **Reference:** {{ "%.2f"|format(wirelength_result.reference) }} mm
+- **Ratio:** {{ "%.3f"|format(wirelength_result.ratio) }}
+- **Verdict:** {{ wirelength_result.verdict }}
+
+## DRC Compliance
+- **Score:** {{ "%.1f"|format(drc_result.score) }}/{{ "%.0f"|format(drc_result.max_score) }}
+- **Critical Violations:** {{ drc_result.critical_violations }}
+- **Warning Violations:** {{ drc_result.warning_violations }}
+- **Verdict:** {{ drc_result.verdict }}
+
+## Routing Feasibility
+- **Total Nets:** {{ routing_result.total_nets }}
+- **Routed Nets:** {{ routing_result.routed_nets }}
+- **Failed Nets:** {{ routing_result.failed_nets }}
+- **Completion Rate:** {{ "%.1f"|format(routing_result.completion_rate * 100) }}%
+- **Average Wirelength:** {{ "%.2f"|format(routing_result.average_wirelength) }} mm
+- **Total Vias:** {{ routing_result.total_vias }}
+- **Verdict:** {{ routing_result.verdict }}
+
+## Aggregate Quality Score
+- **Aggregate Score:** {{ "%.1f"|format(aggregate_result.total_score) }}/{{ "%.0f"|format(aggregate_result.max_score) }}
+- **Wirelength Score:** {{ "%.1f"|format(aggregate_result.wirelength_score) }}
+- **DRC Score:** {{ "%.1f"|format(aggregate_result.drc_score) }}
+- **Routing Score:** {{ "%.1f"|format(aggregate_result.routing_score) }}
+- **Weights:** Wirelength {{ "%.1f"|format(aggregate_result.wirelength_weight) }}, DRC {{ "%.1f"|format(aggregate_result.drc_weight) }}, Routing {{ "%.1f"|format(aggregate_result.routing_weight) }}
+- **Verdict:** {{ aggregate_result.verdict }}

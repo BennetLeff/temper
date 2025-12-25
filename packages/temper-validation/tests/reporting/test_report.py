@@ -248,7 +248,7 @@ def test_html_report_structure():
             content = f.read()
 
         # Check HTML structure
-        assert "<!DOCTYPE html>" in content.lower(), "Report should be valid HTML"
+        assert "<!doctype html>" in content.lower(), "Report should be valid HTML"
 
         assert "<head>" in content, "Report should have head section"
 

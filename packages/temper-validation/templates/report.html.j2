@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ config.title }}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+    h1 { color: #1a1a1a; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+    h2 { color: #374151; margin-top: 30px; }
+    .container { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    .verdict-pass { color: green; font-weight: bold; font-size: 1.2em; }
+    .verdict-fail { color: red; font-weight: bold; font-size: 1.2em; }
+    .score { font-size: 1.1em; }
+    .label { font-weight: 600; color: #6b7280; }
+    .value { font-family: 'Courier New', monospace; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>{{ config.title }}</h1>
+  {% if config.show_timestamp %}
+  <p><span class="label">Generated:</span> <span class="value">{{ timestamp }}</span></p>
+  {% endif %}
+  <p><span class="label">Author:</span> <span class="value">{{ config.author }}</span></p>
+
+  <div class="container">
+    <h2>Files</h2>
+    <ul>
+      <li><span class="label">Optimized:</span> <span class="value">{{ optimized_path }}</span></li>
+      <li><span class="label">Reference:</span> <span class="value">{{ reference_path }}</span></li>
+    </ul>
+  </div>
+
+  <div class="container">
+    <h2>Overall Verdict</h2>
+    <p class="{% if aggregate_result.verdict == 'PASS' %}verdict-pass{% else %}verdict-fail{% endif %}">{{ aggregate_result.verdict }}</p>
+  </div>
+
+  <div class="container">
+    <h2>Wirelength Comparison</h2>
+    <ul>
+      <li><span class="label">Optimized:</span> <span class="value">{{ "%.2f"|format(wirelength_result.optimized) }} mm</span></li>
+      <li><span class="label">Reference:</span> <span class="value">{{ "%.2f"|format(wirelength_result.reference) }} mm</span></li>
+      <li><span class="label">Ratio:</span> <span class="value">{{ "%.3f"|format(wirelength_result.ratio) }}</span></li>
+      <li><span class="label">Verdict:</span> <span class="value">{{ wirelength_result.verdict }}</span></li>
+    </ul>
+  </div>
+
+  <div class="container">
+    <h2>DRC Compliance</h2>
+    <ul>
+      <li><span class="label">Score:</span> <span class="value">{{ "%.1f"|format(drc_result.score) }}/{{ "%.0f"|format(drc_result.max_score) }}</span></li>
+      <li><span class="label">Critical Violations:</span> <span class="value">{{ drc_result.critical_violations }}</span></li>
+      <li><span class="label">Warning Violations:</span> <span class="value">{{ drc_result.warning_violations }}</span></li>
+      <li><span class="label">Verdict:</span> <span class="value">{{ drc_result.verdict }}</span></li>
+    </ul>
+  </div>
+
+  <div class="container">
+    <h2>Routing Feasibility</h2>
+    <ul>
+      <li><span class="label">Total Nets:</span> <span class="value">{{ routing_result.total_nets }}</span></li>
+      <li><span class="label">Routed Nets:</span> <span class="value">{{ routing_result.routed_nets }}</span></li>
+      <li><span class="label">Failed Nets:</span> <span class="value">{{ routing_result.failed_nets }}</span></li>
+      <li><span class="label">Completion Rate:</span> <span class="value">{{ "%.1f"|format(routing_result.completion_rate * 100) }}%</span></li>
+      <li><span class="label">Average Wirelength:</span> <span class="value">{{ "%.2f"|format(routing_result.average_wirelength) }} mm</span></li>
+      <li><span class="label">Total Vias:</span> <span class="value">{{ routing_result.total_vias }}</span></li>
+      <li><span class="label">Verdict:</span> <span class="value">{{ routing_result.verdict }}</span></li>
+    </ul>
+  </div>
+
+  <div class="container">
+    <h2>Aggregate Quality Score</h2>
+    <ul>
+      <li><span class="label score">Total Score:</span> <span class="value">{{ "%.1f"|format(aggregate_result.total_score) }}/{{ "%.0f"|format(aggregate_result.max_score) }}</span></li>
+      <li><span class="label">Wirelength Score:</span> <span class="value">{{ "%.1f"|format(aggregate_result.wirelength_score) }}</span></li>
+      <li><span class="label">DRC Score:</span> <span class="value">{{ "%.1f"|format(aggregate_result.drc_score) }}</span></li>
+      <li><span class="label">Routing Score:</span> <span class="value">{{ "%.1f"|format(aggregate_result.routing_score) }}</span></li>
+      <li><span class="label">Weights:</span> <span class="value">Wirelength {{ "%.1f"|format(aggregate_result.wirelength_weight) }}, DRC {{ "%.1f"|format(aggregate_result.drc_weight) }}, Routing {{ "%.1f"|format(aggregate_result.routing_weight) }}</span></li>
+      <li><span class="label">Verdict:</span> <span class="value">{{ aggregate_result.verdict }}</span></li>
+    </ul>
+  </div>
+</body>
+</html>
