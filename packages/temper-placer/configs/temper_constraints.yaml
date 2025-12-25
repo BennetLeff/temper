@@ -286,3 +286,55 @@ fixed_positions:
   # Control Connectors (Bottom Edge - Control Zone)
   J_USB: [50.0, 5.0]     # USB (Bottom Center)
   J_DEBUG: [70.0, 5.0]   # UART Debug (Bottom Right)
+
+# ==============================================================================
+# PRIORITY-BASED PLACEMENT (Professional PCB workflow)
+# ==============================================================================
+
+placement_priority:
+  # Phase 1: Power Stage (template-based, fixed positions)
+  power:
+    components: ["Q1", "Q2", "D1", "D2", "C_BUS1", "C_BUS2"]
+    method: "template"
+    template: "half_bridge_vertical"
+    anchor: [75, 62]  # Center-right of power zone
+  
+  # Phase 2: Gate Driver (proximity-based)
+  driver:
+    components: ["U_GATE", "C_BOOT", "R_GATE_H", "R_GATE_L", "C_VCC"]
+    method: "proximity"
+    reference: "Q1"
+    max_distance_mm: 20.0
+  
+  # Phase 3: High-Speed (zone-constrained, optimizer handles)
+  high_speed:
+    components: ["U_MCU", "Y1"]
+    method: "optimize"
+    zone: "control_zone"
+  
+  # Phase 4: Auto-place everything else
+  auto:
+    method: "optimize"
+
+# ==============================================================================
+# PRIORITY-BASED ROUTING (Power first, then high-speed)
+# ==============================================================================
+
+routing_priority:
+  power:
+    nets: ["+340V_BUS", "DC_BUS_RTN", "SW_NODE"]
+    trace_width_mm: 2.0
+    priority: 1
+    
+  gate_drive:
+    nets: ["GATE_H", "GATE_L", "+15V", "CGND"]
+    trace_width_mm: 0.5
+    priority: 2
+    
+  high_speed:
+    nets: ["SPI_*", "I2C_*", "USB_*"]
+    trace_width_mm: 0.25
+    priority: 3
+    
+  auto:
+    priority: 10

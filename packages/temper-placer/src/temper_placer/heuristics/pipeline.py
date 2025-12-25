@@ -386,3 +386,46 @@ def create_default_pipeline(
     # TODO: Add Hard, Structural, Organizational, Style heuristics
 
     return pipeline
+
+
+def create_priority_pipeline(
+    conflict_strategy: ResolutionStrategy = ResolutionStrategy.NUDGE,
+) -> HeuristicPipeline:
+    """
+    Create a pipeline with priority-based heuristics.
+    
+    This implements the professional PCB design workflow:
+    1. Place power stage first (template)
+    2. Place gate driver (proximity to power)
+    3. Place high-speed/MCU (zone-constrained)
+    4. Auto-place everything else
+    
+    Order matters! Power stage is placed first and marked fixed,
+    so subsequent heuristics work around it.
+    """
+    from temper_placer.heuristics.force_directed import (
+        ForceDirectedHeuristic,
+        ForceDirectedUnfoldingHeuristic,
+    )
+    from temper_placer.heuristics.power_stage import (
+        DriverProximityHeuristic,
+        PowerStageTemplateHeuristic,
+    )
+    from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
+
+    pipeline = HeuristicPipeline(conflict_strategy=conflict_strategy)
+
+    # Phase 1: Power stage template (HIGHEST PRIORITY)
+    # Places Q1, Q2, bus caps in correct topology
+    pipeline.register(PowerStageTemplateHeuristic())
+    
+    # Phase 2: Driver proximity
+    # Places gate driver near power stage
+    pipeline.register(DriverProximityHeuristic())
+    
+    # Phase 3-4: Standard heuristics for rest
+    pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
+    pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
+    pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
+
+    return pipeline

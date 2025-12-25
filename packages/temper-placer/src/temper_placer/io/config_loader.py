@@ -355,6 +355,10 @@ class PlacementConstraints:
     # Loss function configuration (explicit control over which losses are used)
     losses: LossesConfig | None = None
 
+    # Priority-based placement and routing configuration
+    placement_priority: dict = field(default_factory=dict)
+    routing_priority: dict = field(default_factory=dict)
+
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
         return self.zone_assignments.get(ref)
@@ -756,6 +760,14 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             constraints.losses = losses_config
 
 
+
+    # Parse placement_priority (priority-based placement)
+    if "placement_priority" in config:
+        constraints.placement_priority = config["placement_priority"]
+
+    # Parse routing_priority (priority-based routing)
+    if "routing_priority" in config:
+        constraints.routing_priority = config["routing_priority"]
     return constraints
 
 
