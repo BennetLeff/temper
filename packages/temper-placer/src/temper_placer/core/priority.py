@@ -151,10 +151,10 @@ POWER_STAGE_TEMPLATES = {
         # Relative offsets from anchor (x, y) in mm
         "Q1": (0, 5),      # High-side IGBT
         "Q2": (0, -5),     # Low-side IGBT
-        "D1": (-8, 5),     # High-side diode
-        "D2": (-8, -5),    # Low-side diode
-        "C_BUS1": (8, 5),  # Bus cap near Q1
-        "C_BUS2": (8, -5), # Bus cap near Q2
+        "D1": (-4, 5),     # High-side diode - TIGHTER (was -8)
+        "D2": (-4, -5),    # Low-side diode - TIGHTER (was -8)
+        "C_BUS1": (4, 5),  # Bus cap near Q1 - TIGHTER (was 8)
+        "C_BUS2": (4, -5), # Bus cap near Q2 - TIGHTER (was 8)
     },
     "half_bridge_horizontal": {
         "Q1": (-5, 0),

@@ -19,15 +19,15 @@ board:
 
 zones:
   - name: "power_zone"
-    bounds: [0, 94, 100, 150]  # Y > 94mm - High voltage switching area
+    bounds: [0, 110, 100, 150]  # Y > 110mm - High voltage switching area (TOP)
     description: "Power stage only - 340V/40A switching components"
   
   - name: "driver_zone"
-    bounds: [0, 56, 100, 94]  # Y 56-94mm - Gate drivers and sensing
+    bounds: [0, 70, 100, 110]  # Y 70-110mm - Gate drivers and sensing
     description: "Gate drivers and current sensing - isolated from MCU"
   
   - name: "control_zone"
-    bounds: [0, 0, 100, 56]  # Y < 56mm - More vertical space for LDOs/MCU
+    bounds: [0, 0, 100, 70]  # Y < 70mm - EXPANDED for better space use
     description: "MCU and low-voltage control - separated from power stage"
   
   - name: "interface_zone"
@@ -255,7 +255,7 @@ aesthetics:
 loss_weights:
   zone_membership: 50.0  # Force zone compliance
   overlap: 200.0         # Strict no-overlap
-  wirelength: 15.0       # Incentivize short traces
+  wirelength: 30.0       # DOUBLED - Incentivize short traces (reduce ratsnest)
 
 # Fixed components (don't optimize position)
 fixed_components:
@@ -270,6 +270,10 @@ fixed_components:
   - "D2"
   - "C_BUS1"
   - "C_BUS2"
+  # Gate driver - FIXED near power stage
+  - "U_GATE"
+  - "C_BOOT"
+  - "C_VCC"
   # Connectors must be at board edges
   - "J_AC_IN"
   - "J_COIL"
@@ -277,15 +281,37 @@ fixed_components:
   - "J_USB"
   - "J_DEBUG"
 
+# Component proximity groups for decoupling and signal chains
+component_groups:
+  - name: mcu_decoupling
+    leader: U_MCU
+    followers: [C_MCU_1, C_MCU_2, C_MCU_3, C_MCU_4]
+    max_distance: 5.0
+  
+  - name: spi_chain
+    leader: U_MCU
+    followers: [U_CT, MAX31865]
+    max_distance: 20.0
+  
+  - name: usb_interface
+    leader: J_USB
+    followers: [U_MCU]
+    max_distance: 15.0
+
 # Force connectors to board edges for professional layout
 fixed_positions:
   # Power stage - half_bridge_vertical template at anchor [75, 120]
   Q1: [75.0, 125.0]    # High-side IGBT (anchor + 0,+5)
   Q2: [75.0, 115.0]    # Low-side IGBT (anchor + 0,-5)
-  D1: [67.0, 125.0]    # High-side diode (anchor + -8,+5)
-  D2: [67.0, 115.0]    # Low-side diode (anchor + -8,-5)
-  C_BUS1: [83.0, 125.0]  # Bus cap near high-side (anchor + 8,+5)
-  C_BUS2: [83.0, 115.0]  # Bus cap near low-side (anchor + 8,-5)
+  D1: [71.0, 125.0]    # High-side diode - TIGHTER (anchor + -4,+5)
+  D2: [71.0, 115.0]    # Low-side diode - TIGHTER (anchor + -4,-5)
+  C_BUS1: [79.0, 125.0]  # Bus cap near high-side - TIGHTER (anchor + 4,+5)
+  C_BUS2: [79.0, 115.0]  # Bus cap near low-side - TIGHTER (anchor + 4,-5)
+  
+  # Gate driver - NEAR power stage for low gate loop inductance
+  U_GATE: [60.0, 120.0]  # 15mm from Q1 (was ~40mm)
+  C_BOOT: [58.0, 122.0]  # Adjacent to U_GATE VCC_BOOT pin
+  C_VCC: [62.0, 122.0]   # Adjacent to U_GATE VCC pin
   
   # Mounting holes (corners)
   MH1: [3.5, 3.5]
