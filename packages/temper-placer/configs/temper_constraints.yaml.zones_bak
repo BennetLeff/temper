@@ -19,19 +19,19 @@ board:
 
 zones:
   - name: "power_zone"
-    bounds: [0, 94, 100, 150]  # Y > 94mm - High voltage switching area
+    bounds: [0, 50, 100, 80]  # Y > 50mm - High voltage switching area
     description: "Power stage only - 340V/40A switching components"
   
   - name: "driver_zone"
-    bounds: [0, 56, 100, 94]  # Y 56-94mm - Gate drivers and sensing
+    bounds: [0, 30, 100, 50]  # Y 30-50mm - Gate drivers and sensing
     description: "Gate drivers and current sensing - isolated from MCU"
   
   - name: "control_zone"
-    bounds: [0, 0, 100, 56]  # Y < 56mm - More vertical space for LDOs/MCU
+    bounds: [0, 0, 100, 30]  # Y < 30mm - More vertical space for LDOs/MCU
     description: "MCU and low-voltage control - separated from power stage"
   
   - name: "interface_zone"
-    bounds: [0, 131, 15, 150]  # Left edge, Y > 131mm - External connectors
+    bounds: [0, 70, 15, 80]  # Left edge, Y > 70mm - External connectors
     description: "Connectors and interfaces at board edge for easy access"
 
 # ==============================================================================
