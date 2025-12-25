@@ -28,13 +28,17 @@ from pathlib import Path
 from typing import Any, Optional
 
 try:
-    from ..utils import CommandRunner
+    from ..utils import CommandRunner, CommandResult
 except ImportError:
     import sys
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
-    from temper_workflow.utils import CommandRunner
+    from temper_workflow.utils import CommandRunner, CommandResult
 
+try:
+    from .base import BasePhase
+except ImportError:
+    from base import BasePhase
 
 
 @dataclass
@@ -157,18 +161,15 @@ class Plan:
         return "\n".join(lines)
 
 
-class PlanPhase:
+class PlanPhase(BasePhase):
     """PLAN phase implementation."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or CommandRunner._find_project_root()
-        self.cmd_runner = CommandRunner(cwd=self.project_root)
+        super().__init__(project_root)
 
-
-    def _run_bd(self, args: list[str]) -> tuple[bool, str, str]:
-        """Run bd command and return (success, stdout, stderr)."""
-        result = self.cmd_runner.run(["bd", "--sandbox"] + args)
-        return (result.success, result.stdout, result.stderr)
+    def execute(self, plan: Plan, dry_run: bool = False) -> dict[str, Any]:
+        """Execute the plan."""
+        return self.execute_plan(plan, dry_run)
 
     def create_epic(
         self,
@@ -198,19 +199,19 @@ class PlanPhase:
             for label in labels:
                 args.extend(["--label", label])
 
-        success, stdout, stderr = self._run_bd(args)
+        result = self._run_bd(args)
 
-        if success:
+        if result.success:
             try:
-                data = json.loads(stdout)
+                data = json.loads(result.stdout)
                 return data.get("id")
             except json.JSONDecodeError:
                 # Try to extract ID from output
-                match = re.search(r"(temper-[\w.]+)", stdout)
+                match = re.search(r"(temper-[\w.]+)", result.stdout)
                 if match:
                     return match.group(1)
 
-        print(f"Error creating epic: {stderr}", file=sys.stderr)
+        print(f"Error creating epic: {result.stderr}", file=sys.stderr)
         return None
 
     def create_task(self, task: PlannedTask, parent_id: str | None = None) -> str | None:
@@ -249,28 +250,28 @@ class PlanPhase:
         for req in task.requirements:
             args.extend(["--label", f"req:{req}"])
 
-        success, stdout, stderr = self._run_bd(args)
+        result = self._run_bd(args)
 
-        if success:
+        if result.success:
             try:
-                data = json.loads(stdout)
+                data = json.loads(result.stdout)
                 return data.get("id")
             except json.JSONDecodeError:
-                match = re.search(r"(temper-[\w.]+)", stdout)
+                match = re.search(r"(temper-[\w.]+)", result.stdout)
                 if match:
                     return match.group(1)
 
-        print(f"Error creating task '{task.title}': {stderr}", file=sys.stderr)
+        print(f"Error creating task '{task.title}': {result.stderr}", file=sys.stderr)
         return None
 
     def add_dependency(self, from_id: str, to_id: str, dep_type: str = "blocks") -> bool:
         """Add dependency between tasks."""
-        success, _, stderr = self._run_bd(["dep", "add", from_id, to_id, "--type", dep_type])
+        result = self._run_bd(["dep", "add", from_id, to_id, "--type", dep_type])
 
-        if not success:
-            print(f"Error adding dependency: {stderr}", file=sys.stderr)
+        if not result.success:
+            print(f"Error adding dependency: {result.stderr}", file=sys.stderr)
 
-        return success
+        return result.success
 
     def create_approval_task(self, epic_id: str, plan_title: str) -> str | None:
         """Create a human approval task that blocks the epic's tasks."""
@@ -397,10 +398,10 @@ _This is a GPBM approval gate task._
                 agent_role = self._infer_agent_role(task)
                 if agent_role:
                     print(f"  Auto-assigning to {agent_role} agent")
-                    success, _, _ = self._run_bd(
+                    cmd_res = self._run_bd(
                         ["update", task_id, "--add-label", f"agent:{agent_role}"]
                     )
-                    if not success:
+                    if not cmd_res.success:
                         print(
                             f"  Warning: Failed to add agent:{agent_role} label",
                             file=sys.stderr,

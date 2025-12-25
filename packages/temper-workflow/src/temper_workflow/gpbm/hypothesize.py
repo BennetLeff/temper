@@ -22,10 +22,8 @@ Usage:
     hypothesis = hyp.create("Test spread_loss effect", domain="placer")
 """
 
-import argparse
 import json
-import os
-
+import re
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -33,13 +31,26 @@ from pathlib import Path
 from typing import Any, Optional
 
 try:
-    from ..utils import CommandRunner, BDCommand
+    from ..utils import BDCommand, CommandRunner
 except ImportError:
     import sys
     from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
-    from temper_workflow.utils import CommandRunner, BDCommand
 
+    sys.path.insert(
+        0,
+        str(
+            Path(__file__).parent.parent.parent.parent.parent
+            / "packages"
+            / "temper-workflow"
+            / "src"
+        ),
+    )
+    from temper_workflow.utils import BDCommand, CommandRunner
+
+try:
+    from .base import BasePhase
+except ImportError:
+    from base import BasePhase
 
 
 @dataclass
@@ -110,7 +121,9 @@ class Hypothesis:
     expected_effect_size: str  # e.g., ">=5% improvement in routing completion"
     minimum_detectable_effect: Optional[str] = None  # Smallest meaningful change
     sample_size: int = 10  # Number of runs per condition
-    random_seeds: list[int] = field(default_factory=lambda: [42, 123, 456, 789, 101112])
+    random_seeds: list[int] = field(
+        default_factory=lambda: [42, 123, 456, 789, 101112]
+    )
 
     # Pre-registration
     predictions: list[Prediction] = field(default_factory=list)
@@ -221,7 +234,9 @@ class Hypothesis:
                 ]
             )
             if self.decision_criteria.inconclusive_if:
-                lines.append(f"- **Inconclusive if:** {self.decision_criteria.inconclusive_if}")
+                lines.append(
+                    f"- **Inconclusive if:** {self.decision_criteria.inconclusive_if}"
+                )
             lines.append("")
 
         lines.extend(
@@ -337,7 +352,7 @@ class ValidationResult:
         }
 
 
-class HypothesizePhase:
+class HypothesizePhase(BasePhase):
     """HYPOTHESIZE phase of GPBM workflow."""
 
     REQUIRED_FIELDS = [
@@ -354,10 +369,13 @@ class HypothesizePhase:
         "random_seeds",
     ]
 
-    def __init__(self, repo_root: Optional[Path] = None):
+    def __init__(self, project_root: Optional[Path] = None):
         """Initialize hypothesize phase."""
-        self.repo_root = repo_root or CommandRunner._find_project_root()
+        super().__init__(project_root)
 
+    def execute(self, goal: str, **kwargs: Any) -> Hypothesis:
+        """Execute the hypothesis phase."""
+        return self.create(goal, **kwargs)
 
     def create(
         self,
@@ -394,13 +412,17 @@ class HypothesizePhase:
         # Get H0
         print("Null Hypothesis (H0):")
         print("  What do we expect if there is NO effect?")
-        print("  Example: 'Reducing spread_loss weight has no effect on routing completion'")
+        print(
+            "  Example: 'Reducing spread_loss weight has no effect on routing completion'"
+        )
         h0 = input("H0: ").strip()
 
         # Get H1
         print("\nAlternative Hypothesis (H1):")
         print("  What do we expect if there IS an effect?")
-        print("  Example: 'Reducing spread_loss weight improves routing completion by >=5%'")
+        print(
+            "  Example: 'Reducing spread_loss weight improves routing completion by >=5%'"
+        )
         h1 = input("H1: ").strip()
 
         # Get effect size
@@ -428,22 +450,29 @@ class HypothesizePhase:
         """Validate that an issue has proper hypothesis structure."""
         # Get issue from bd
         try:
-            result = BDCommand.show(issue_id, "--json"],
-                capture_output=True,
-                text=True,
-                check=True,
-                cwd=str(self.repo_root),
-            )
-            issues = json.loads(result.stdout)
-            if not issues:
+            result = BDCommand.show(issue_id, cwd=self.project_root)
+            if not result.success:
                 return ValidationResult(
                     issue_id=issue_id,
                     is_valid=False,
-                    missing_fields=["issue not found"],
+                    missing_fields=[f"error: {result.stderr}"],
                     score=0.0,
                 )
-            issue = issues[0]
-        except ( json.JSONDecodeError) as e:
+
+            issue = json.loads(result.stdout)
+            # BDCommand.show usually returns a single object if showing one issue,
+            # but if it returns a list, handle it.
+            if isinstance(issue, list):
+                if not issue:
+                    return ValidationResult(
+                        issue_id=issue_id,
+                        is_valid=False,
+                        missing_fields=["issue not found"],
+                        score=0.0,
+                    )
+                issue = issue[0]
+
+        except json.JSONDecodeError as e:
             return ValidationResult(
                 issue_id=issue_id,
                 is_valid=False,
@@ -469,13 +498,11 @@ class HypothesizePhase:
             "sample_size": [r"(?i)sample\s+size", r"(?i)\d+\s+runs"],
         }
 
-        import re
-
-        for field, patterns in required_patterns.items():
+        for field_name, patterns in required_patterns.items():
             if any(re.search(p, description) for p in patterns):
                 found += 1
             else:
-                missing.append(field)
+                missing.append(field_name)
 
         # Check recommended fields
         recommended_patterns = {
@@ -485,11 +512,11 @@ class HypothesizePhase:
             "random_seeds": [r"(?i)seed", r"\b42\b.*\b123\b"],
         }
 
-        for field, patterns in recommended_patterns.items():
+        for field_name, patterns in recommended_patterns.items():
             if any(re.search(p, description) for p in patterns):
                 found += 1
             else:
-                warnings.append(f"Missing recommended: {field}")
+                warnings.append(f"Missing recommended: {field_name}")
 
         score = found / total if total > 0 else 0.0
         is_valid = len(missing) == 0
@@ -504,19 +531,87 @@ class HypothesizePhase:
 
     def validate_issues_by_label(self, label: str) -> list[ValidationResult]:
         """Validate all issues with a given label."""
+        results = []
         try:
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+            # BDCommand.list_issues(status="open", ...) does not take arbitrary kwargs like label
+            # Need to check BDCommand.list_issues signature
+            # It takes status, cwd, timeout.
+            # We should probably use BDCommand.run directly for label filtering if list_issues doesn't support it.
+            # BDCommand.run(["list", "--json", "--label", label, "--status", "open"])
 
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+            cmd_args = ["list", "--json", "--label", label, "--status", "open"]
+            result = self._run_bd(cmd_args)
 
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
-
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
-
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
-
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
-
-            result = BDCommand.list_issues(status="open", label=f"{label}", cwd=str(self.repo_root))
+            if not result.success:
+                print(
+                    f"Warning: Could not list issues for validation: {result.stderr}",
+                    file=sys.stderr,
+                )
+                return []
 
             issues = json.loads(result.stdout)
+            for issue in issues:
+                issue_id = issue.get("id")
+                if issue_id:
+                    results.append(self.validate_issue(issue_id))
+
+        except Exception as e:
+            print(f"Error validating issues: {e}", file=sys.stderr)
+
+        return results
+
+
+def main():
+    """CLI interface for HYPOTHESIZE phase."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="HYPOTHESIZE phase - scientific rigor for experiments",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    parser.add_argument("--goal", "-g", type=str, help="Research goal")
+    parser.add_argument("--validate", "-v", type=str, help="Validate issue ID")
+    parser.add_argument(
+        "--validate-label", type=str, help="Validate all issues with label"
+    )
+    parser.add_argument(
+        "--domain",
+        "-d",
+        type=str,
+        choices=["firmware", "placer", "pcb"],
+        help="Project domain",
+    )
+    parser.add_argument("--root", type=str, help="Project root directory")
+
+    args = parser.parse_args()
+
+    root = Path(args.root) if args.root else None
+    phase = HypothesizePhase(project_root=root)
+
+    if args.validate:
+        result = phase.validate_issue(args.validate)
+        print(json.dumps(result.to_dict(), indent=2))
+        sys.exit(0 if result.is_valid else 1)
+
+    if args.validate_label:
+        results = phase.validate_issues_by_label(args.validate_label)
+        print(json.dumps([r.to_dict() for r in results], indent=2))
+        valid_count = sum(1 for r in results if r.is_valid)
+        print(
+            f"\nSummary: {valid_count}/{len(results)} valid issues", file=sys.stderr
+        )
+        sys.exit(0 if valid_count == len(results) else 1)
+
+    if args.goal:
+        hypothesis = phase.create_interactive(args.goal, domain=args.domain)
+        print("\n" + "=" * 50)
+        print(hypothesis.to_markdown())
+        print("\nYAML Block for Issue:")
+        print(hypothesis.to_yaml_block())
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()

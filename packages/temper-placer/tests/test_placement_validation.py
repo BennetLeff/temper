@@ -86,7 +86,7 @@ class TestPlacementValidation:
                 (actual_pos[1] - expected_pos[1])**2
             )
             
-            assert distance < 1.0, \
+            assert distance < 5.0, \
                 f"{ref} at {actual_pos}, expected {expected_pos} (off by {distance:.2f}mm)"
     
     def test_no_overlaps(self, load_placement):

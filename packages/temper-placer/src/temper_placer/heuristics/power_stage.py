@@ -86,9 +86,15 @@ class PowerStageTemplateHeuristic(Heuristic):
             if ref in context.current_placements:
                 continue
             
-            # Calculate position
-            x = anchor[0] + offset[0]
-            y = anchor[1] + offset[1]
+            # Use fixed_position from config if available, otherwise use template
+            if comp.initial_position is not None:
+                # Use exact position from fixed_positions in config
+                x, y = comp.initial_position
+                logger.debug(f"Using fixed_position for {ref}: ({x:.1f}, {y:.1f})")
+            else:
+                # Calculate position from template + anchor
+                x = anchor[0] + offset[0]
+                y = anchor[1] + offset[1]
             
             # Clamp to board bounds
             margin = context.constraints.board_margin_mm

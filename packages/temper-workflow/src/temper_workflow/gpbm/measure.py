@@ -29,13 +29,26 @@ from pathlib import Path
 from typing import Any, Optional
 
 try:
-    from ..utils import CommandRunner, BDCommand
+    from ..utils import BDCommand, CommandRunner
 except ImportError:
     import sys
     from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
-    from temper_workflow.utils import CommandRunner, BDCommand
 
+    sys.path.insert(
+        0,
+        str(
+            Path(__file__).parent.parent.parent.parent.parent
+            / "packages"
+            / "temper-workflow"
+            / "src"
+        ),
+    )
+    from temper_workflow.utils import BDCommand, CommandRunner
+
+try:
+    from .base import BasePhase
+except ImportError:
+    from base import BasePhase
 
 
 @dataclass
@@ -117,11 +130,10 @@ class MetricDefinition:
 class MetricsRegistry:
     """Registry of metric definitions from METRICS.md."""
 
-    def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or CommandRunner._find_project_root()
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
         self.metrics: dict[str, MetricDefinition] = {}
         self._load_metrics()
-
 
     def _load_metrics(self):
         """Load metrics from METRICS.md."""
@@ -215,15 +227,17 @@ class MetricsRegistry:
         return list(self.metrics.keys())
 
 
-class MeasurementRunner:
+class MeasurementRunner(BasePhase):
     """Run measurements for tasks."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or CommandRunner._find_project_root()
+        super().__init__(project_root)
         self.registry = MetricsRegistry(self.project_root)
-        self.cmd_runner = CommandRunner(cwd=self.project_root)
         self.results: list[MeasurementResult] = []
 
+    def execute(self, task_id: str, **kwargs: Any) -> list[MeasurementResult]:
+        """Execute measurements for a task."""
+        return self.run_for_task(task_id)
 
     def _get_git_commit(self) -> str:
         """Get current git commit hash."""
@@ -236,8 +250,13 @@ class MeasurementRunner:
         if result.success:
             try:
                 data = json.loads(result.stdout)
+                # BDCommand.show returns either a list (if list command used) or single item
+                # Based on previous files, BDCommand.show returns JSON.
+                # Let's assume it returns a list of issues or a single issue dict.
                 if isinstance(data, list) and data:
                     return data[0].get("description", "")
+                elif isinstance(data, dict):
+                    return data.get("description", "")
             except Exception:
                 pass
         return ""
@@ -299,7 +318,9 @@ class MeasurementRunner:
 
         # For counts (violations, errors), look for 0 or numbers
         if "violation" in metric_id.lower() or "error" in metric_id.lower():
-            match = re.search(r"(\d+)\s*(?:violation|error|warning)", output, re.IGNORECASE)
+            match = re.search(
+                r"(\d+)\s*(?:violation|error|warning)", output, re.IGNORECASE
+            )
             if match:
                 return float(match.group(1))
             # If output is empty or says "0", return 0
@@ -308,7 +329,9 @@ class MeasurementRunner:
 
         # For loss values
         if "loss" in metric_id.lower():
-            match = re.search(r"(?:loss|value)[:\s]*(\d+\.?\d*)", output, re.IGNORECASE)
+            match = re.search(
+                r"(?:loss|value)[:\s]*(\d+\.?\d*)", output, re.IGNORECASE
+            )
             if match:
                 return float(match.group(1))
 

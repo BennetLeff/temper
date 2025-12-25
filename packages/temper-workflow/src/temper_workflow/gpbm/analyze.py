@@ -42,6 +42,10 @@ except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "packages" / "temper-workflow" / "src"))
     from temper_workflow.utils import CommandRunner
 
+try:
+    from .base import BasePhase
+except ImportError:
+    from base import BasePhase
 
 
 @dataclass
@@ -287,13 +291,19 @@ class AnalysisResult:
         return "\n".join(lines)
 
 
-class AnalyzePhase:
+class AnalyzePhase(BasePhase):
     """ANALYZE phase of GPBM workflow."""
 
-    def __init__(self, repo_root: Optional[Path] = None):
+    def __init__(self, project_root: Optional[Path] = None):
         """Initialize analyze phase."""
-        self.repo_root = repo_root or CommandRunner._find_project_root()
-        self.measurements_file = self.repo_root / "metrics" / "measurements.jsonl"
+        super().__init__(project_root)
+        self.measurements_file = self.project_root / "metrics" / "measurements.jsonl"
+
+    def execute(self, task_id: str, **kwargs: Any) -> AnalysisResult:
+        """Execute analysis for a task."""
+        metric = kwargs.get("metric")
+        baseline_task = kwargs.get("baseline_task")
+        return self.analyze_task(task_id, metric, baseline_task)
 
     def bootstrap_ci(
         self,
@@ -302,6 +312,7 @@ class AnalyzePhase:
         confidence: float = 0.95,
     ) -> ConfidenceInterval:
         """Calculate confidence interval using bootstrap method."""
+
         if not data:
             return ConfidenceInterval(lower=0.0, upper=0.0, level=confidence)
 

@@ -45,10 +45,12 @@ ECO_LIMIT = int(os.environ.get("ECO_LIMIT", "5"))
 
 # Import sibling modules
 try:
+    from .base import BasePhase
     from .eco_client import EcoClient
     from .requirements_parser import RequirementsParser
 except ImportError:
     # Direct execution
+    from base import BasePhase
     from eco_client import EcoClient
     from requirements_parser import RequirementsParser
 
@@ -250,15 +252,27 @@ class GatherContext:
         return "\n".join(lines)
 
 
-class GatherPhase:
+class GatherPhase(BasePhase):
     """GATHER phase implementation."""
 
     def __init__(self, project_root: Path | None = None):
-        self.project_root = project_root or CommandRunner._find_project_root()
+        super().__init__(project_root)
         self.eco_client = EcoClient()
-        self.cmd_runner = CommandRunner(cwd=self.project_root)
         self.req_parser = RequirementsParser(self.project_root)
         self.req_parser.parse_all()
+
+    def execute(self, goal: str, domain: str | None = None, role: str | None = None) -> GatherContext:
+        """Execute the gather phase.
+        
+        Args:
+            goal: What you want to accomplish
+            domain: Project domain (firmware, placer, pcb)
+            role: Agent role (architect, coder, tester)
+            
+        Returns:
+            GatherContext with collected information
+        """
+        return self.gather(goal, domain, role)
 
 
     def _search_eco(
