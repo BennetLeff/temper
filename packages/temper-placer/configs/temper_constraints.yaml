@@ -255,7 +255,7 @@ aesthetics:
 loss_weights:
   zone_membership: 50.0  # Force zone compliance
   overlap: 200.0         # Strict no-overlap
-  wirelength: 30.0       # DOUBLED - Incentivize short traces (reduce ratsnest)
+  wirelength: 60.0       # Doubled from 30.0 - prioritize short traces (reduce ratsnest)
 
 # Fixed components (don't optimize position)
 fixed_components:

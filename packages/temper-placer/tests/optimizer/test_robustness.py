@@ -190,7 +190,12 @@ def test_fixed_components_adaptive_weighting():
 
     # Create context with fixed mask for outer components (C1 and C3)
     context = LossContext.from_netlist_and_board(netlist, board)
-    context.fixed_mask = jnp.array([True, False, True])  # Fix C1 and C3
+    # Create a new context with the desired fixed_mask
+    context = LossContext(
+        netlist=context.netlist,
+        board=context.board,
+        fixed_mask=jnp.array([True, False, True])  # Fix C1 and C3
+    )
 
     # Loss: overlap and boundary
     loss = CompositeLoss([

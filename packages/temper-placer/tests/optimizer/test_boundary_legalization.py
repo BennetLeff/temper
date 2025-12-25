@@ -35,9 +35,7 @@ class TestClampToBounds:
             positions=positions,
             widths=widths,
             heights=heights,
-            board_origin=(0.0, 0.0),
-            board_width=50.0,
-            board_height=50.0,
+            board=Board(width=50.0, height=50.0),
         )
 
         # All should now be inside board (center + half_extent <= board_edge)
@@ -63,9 +61,7 @@ class TestClampToBounds:
             positions=positions,
             widths=widths,
             heights=heights,
-            board_origin=(0.0, 0.0),
-            board_width=50.0,
-            board_height=50.0,
+            board=Board(width=50.0, height=50.0),
             fixed_mask=fixed_mask,
         )
 
@@ -83,9 +79,7 @@ class TestClampToBounds:
             positions=positions,
             widths=widths,
             heights=heights,
-            board_origin=(0.0, 0.0),
-            board_width=50.0,
-            board_height=50.0,
+            board=Board(width=50.0, height=50.0),
             margin=0.0,
         )
         assert clamped_no_margin[0, 0] == 25.0  # Fits
@@ -96,9 +90,7 @@ class TestClampToBounds:
             positions=positions_edge,
             widths=widths,
             heights=heights,
-            board_origin=(0.0, 0.0),
-            board_width=50.0,
-            board_height=50.0,
+            board=Board(width=50.0, height=50.0),
             margin=5.0,
         )
         assert clamped_with_margin[0, 0] == 25.0  # Clamped to center

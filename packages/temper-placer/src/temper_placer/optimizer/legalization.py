@@ -253,6 +253,9 @@ def resolve_overlaps_priority(
     widths = np.array([c.bounds[0] for c in netlist.components])
     heights = np.array([c.bounds[1] for c in netlist.components])
 
+    # Ensure we start with everything in bounds
+    result = clamp_to_bounds(result, widths, heights, board, margin=min_separation)
+
     for iteration in range(max_iterations):
         # 1. Collect all overlap pairs with severity
         overlaps = []

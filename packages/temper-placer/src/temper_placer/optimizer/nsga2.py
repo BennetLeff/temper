@@ -730,46 +730,55 @@ def mutate_push_to_edge(
     key_apply, key_comp = jax.random.split(key)
 
     apply_mutation = jax.random.uniform(key_apply) < rate
-    if not apply_mutation:
+
+    def do_push(_):
+        # If thermal mask provided, only consider thermal components
+        def get_comp_idx(_):
+            thermal_indices = jnp.where(thermal_mask)[0]
+            # Use dynamic slice or searchsorted for safety if we wanted to be fully robust,
+            # but let's stick to the logic provided.
+            # We assume thermal_indices is not empty if thermal_mask is provided and has True.
+            return thermal_indices[jax.random.randint(key_comp, (), 0, jnp.maximum(1, len(thermal_indices)))]
+
+        # We need another cond here if thermal_mask is a tracer
+        comp_idx = jax.lax.cond(
+            thermal_mask is not None,
+            get_comp_idx,
+            lambda _: jax.random.randint(key_comp, (), 0, n),
+            None
+        )
+
+        pos = positions[comp_idx]
+
+        # Find nearest edge
+        dist_left = pos[0]
+        dist_right = board_width - pos[0]
+        dist_bottom = pos[1]
+        dist_top = board_height - pos[1]
+
+        distances = jnp.array([dist_left, dist_right, dist_bottom, dist_top])
+        nearest_edge = jnp.argmin(distances)
+
+        # Compute push direction
+        directions = jnp.array(
+            [
+                [-1.0, 0.0],  # left
+                [1.0, 0.0],  # right
+                [0.0, -1.0],  # bottom
+                [0.0, 1.0],  # top
+            ]
+        )
+        direction = directions[nearest_edge]
+
+        # Push toward edge
+        min_dist = distances[nearest_edge]
+        move = direction * min_dist * push_fraction
+        return positions.at[comp_idx].add(move), True
+
+    def no_push(_):
         return positions, False
 
-    # If thermal mask provided, only consider thermal components
-    if thermal_mask is not None:
-        thermal_indices = jnp.where(thermal_mask)[0]
-        if len(thermal_indices) == 0:
-            return positions, False
-        comp_idx = thermal_indices[jax.random.randint(key_comp, (), 0, len(thermal_indices))]
-    else:
-        comp_idx = jax.random.randint(key_comp, (), 0, n)
-
-    pos = positions[comp_idx]
-
-    # Find nearest edge
-    dist_left = pos[0]
-    dist_right = board_width - pos[0]
-    dist_bottom = pos[1]
-    dist_top = board_height - pos[1]
-
-    distances = jnp.array([dist_left, dist_right, dist_bottom, dist_top])
-    nearest_edge = jnp.argmin(distances)
-
-    # Compute push direction
-    directions = jnp.array(
-        [
-            [-1.0, 0.0],  # left
-            [1.0, 0.0],  # right
-            [0.0, -1.0],  # bottom
-            [0.0, 1.0],  # top
-        ]
-    )
-    direction = directions[nearest_edge]
-
-    # Push toward edge
-    min_dist = distances[nearest_edge]
-    move = direction * min_dist * push_fraction
-    new_positions = positions.at[comp_idx].add(move)
-
-    return new_positions, True
+    return jax.lax.cond(apply_mutation, do_push, no_push, None)
 
 
 def apply_mutation_pool(
