@@ -90,8 +90,13 @@ set -g BEADS_STALE_MINUTES 30
 set -g BEADS_AUTO_TAKEOVER false
 set -g BEADS_AUTO_PR false
 
-# Load worktree helpers (auto-sources multiagent utilities)
+# Option 1: Full loading (all functions available immediately)
 source "$TOOLS_DIR/bd-worktree-helpers.fish"
+
+# Option 2: Lazy loading (faster shell startup)
+# Uncomment below and comment out above for lazy loading:
+# set -g TEMPER_REPO "$REPO_ROOT"
+# source "$TOOLS_DIR/temper-env.fish"
 FISH
             ;;
         *)
@@ -105,8 +110,13 @@ export BEADS_STALE_MINUTES=30
 export BEADS_AUTO_TAKEOVER=false
 export BEADS_AUTO_PR=false
 
-# Load worktree helpers (auto-sources multiagent utilities)
+# Option 1: Full loading (all functions available immediately)
 source "$TOOLS_DIR/bd-worktree-helpers.sh"
+
+# Option 2: Lazy loading (faster shell startup)
+# Uncomment below and comment out above for lazy loading:
+# export TEMPER_REPO="$REPO_ROOT"
+# source "$TOOLS_DIR/temper-env.sh"
 BASH
             ;;
     esac
@@ -431,6 +441,23 @@ main() {
     echo ""
     echo -e "${GREEN}Setup Complete!${NC}"
     echo ""
+
+    # Reload shell config for current session
+    if [[ -n "$BASH_VERSION" ]]; then
+        source "$HOME/.bashrc" 2>/dev/null || true
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        source "$HOME/.zshrc" 2>/dev/null || true
+    fi
+
+    # Check if helpers are now available
+    if declare -f bd-work >/dev/null 2>&1; then
+        info "Shell helpers: loaded"
+    else
+        warn "Shell helpers not loaded - restart your shell or run:"
+        echo "  source ~/.bashrc  # or ~/.zshrc"
+    fi
+
+    echo ""
     echo "Next steps:"
     echo "  1. Restart your shell OR source your rc file:"
     if [[ "$shell" == "fish" ]]; then
@@ -441,12 +468,17 @@ main() {
     echo "  2. Verify setup: ./bd-setup.sh --status-only"
     echo "  3. Find work: bd ready"
     echo ""
-    echo "Commands available after sourcing:"
-    echo "  bd-work <task-id>   # Start work (creates worktree, claims task)"
-    echo "  bd-pause            # Pause work (commit + push for sync)"
-    echo "  bd-done             # Complete task (close issue, post reflection)"
-    echo "  bd-claims           # See active claims"
+    echo "Commands available:"
+    echo "  bd-work <task-id>    # Start work (creates worktree, claims task)"
+    echo "  bd-pause             # Pause work (commit + push for sync)"
+    echo "  bd-done              # Complete task (close issue, post reflection)"
+    echo "  bd-claims            # See active claims"
     echo "  bd-cleanup-worktrees # Clean up closed+merged worktrees"
+    echo ""
+    echo "Faster shell startup (lazy loading):"
+    echo "  In your shell rc, replace the 'source' line with:"
+    echo "    export TEMPER_REPO=\"$REPO_ROOT\""
+    echo "    source \"$TOOLS_DIR/temper-env.sh\""
     echo ""
 }
 
