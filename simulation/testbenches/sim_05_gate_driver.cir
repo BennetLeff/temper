@@ -1,6 +1,18 @@
-* UCC21550 Dead Time Verification
-* Lesson 05
+*****************************************************************************
+* Test Circuit: UCC21550 Dead Time
+* Task: lesson-05
+* Purpose: Dead Time Verification
+*****************************************************************************
 
+.TITLE UCC21550 Dead Time Verification
+
+.INCLUDE 
+*------------------------------------------------------------------------------
+* Simulation Options
+*------------------------------------------------------------------------------
+.OPTIONS RELTOL=0.001 ABSTOL=1N VNTOL=1M
+.OPTIONS ITL1=300 ITL4=100
+.OPTIONS METHOD=TRAP
 * Parameters
 .param DT_CAP=200p
 
@@ -12,10 +24,6 @@ E_a_raw a_raw 0 VALUE={ 15 * (V(INA)>1.5) * (V(INB)<1.5) }
 E_b_raw b_raw 0 VALUE={ 15 * (V(INB)>1.5) * (V(INA)<1.5) }
 
 * Dead Time Generation (Rising Edge Delay)
-* RC Time Constant = 1k * CDEL
-* Delay to 50% (7.5V) is approx 0.69 * RC
-* To get Deadtime T, CDEL = T / 690
-* Fast discharge diode for immediate turn-off
 R_dta a_raw a_del 1k
 C_dta a_del 0 {CDEL}
 D_dta a_del a_raw D_ideal
@@ -34,36 +42,20 @@ E_outb OUTB GND2 VALUE={ (V(b_del)>7.5) ? V(VDD2) : 0 }
 * Testbench
 Vdd2 vdd2 0 DC 15
 Vina ina 0 PULSE(0 3.3 1u 10n 10n 5u 10u)
-* Vinb is inverted Vina (Complementary with 0 deadtime)
-* To simulate overlap danger, we make them overlap slightly?
-* Or just perfect complementary to see if DT is added?
-* Let's use complementary 50% duty.
 Vinb inb 0 PULSE(0 3.3 6u 10n 10n 5u 10u)
-* Period 10u. A high 1u-6u. B high 6u-11u. 
-* Overlap at 6u? 
-* A falls at 6u (starts 1u, width 5u).
-* B rises at 6u.
-* So 0ns deadtime input.
 
 X1 ina inb outa outb vdd2 0 UCC21550 PARAMS: CDEL={DT_CAP}
 
-.tran 10n 12u
-
+.tran 10n 12u*------------------------------------------------------------------------------
+* Control Block
+*------------------------------------------------------------------------------
 .control
-* Sweep DT_CAP from 100p to 5.1n (Approx 70ns to 25ns? - need to verify figure)
-* Loop simulation
 foreach val 100p 200p 500p 1000p 5.1n
   alterparam DT_CAP=$val
   reset
   run
-  
-  * Measure Dead Time
-  * Time between A falling and B rising
-  * A falls at 6u. B rises at 6u (input).
-  * Output: A should fall at 6u (fast). B should rise at 6u + DT.
-  * Measure time from v(outa)=7.5 FALL to v(outb)=7.5 RISE
-  meas tran t_deadtime TRIG v(outa) VAL=7.5 FALL=1 TARG v(outb) VAL=7.5 RISE=1
-  print t_deadtime
-end
+* Measure Dead Time
+meas tran t_deadtime TRIG v(outa) VAL=7.5 FALL=1 TARG v(outb) VAL=7.5 RISE=1
+print t_deadtime
+
 .endc
-.end
