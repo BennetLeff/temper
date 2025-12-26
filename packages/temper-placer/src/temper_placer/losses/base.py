@@ -26,6 +26,7 @@ from temper_placer.core.netlist import (
     build_adjacency_matrix,
     compute_eigenvector_centrality,
 )
+from temper_placer.extraction.hypergraph_factory import netlist_to_hypergraph
 from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.losses.types import (
     ClearanceRule,
@@ -240,6 +241,27 @@ class LossContext(BaseLossContext):
                     because=sg_cfg.description or f"Star ground for net {sg_cfg.net}"
                 ))
 
+            # Map critical loops (PowerSynth: key for switching noise minimization)
+            for loop_cfg in constraints.critical_loops:
+                loop_constraints = loop_constraints or []
+                
+                # Convert list of lists to tuple of tuples for JAX compatibility
+                if loop_cfg.pins:
+                    pins = tuple(tuple(p) for p in loop_cfg.pins)
+                else:
+                    # Fallback to nets if pins not specified (less precise)
+                    # LoopAreaLoss requires pins, so we might need discovery logic here
+                    # For now, we assume pins are provided for PowerSynth strategy
+                    continue
+                
+                loop_constraints.append(LoopConstraint(
+                    name=loop_cfg.name,
+                    pins=pins,
+                    max_area=loop_cfg.max_area_mm2 or 100.0,
+                    weight=loop_cfg.weight,
+                    because=loop_cfg.description or f"EMI loop {loop_cfg.name}"
+                ))
+
         path_pin_indices, path_pin_offsets, path_max_lengths, path_weights = (
             cls._precompute_path_arrays(
                 netlist, path_constraints, centrality if use_centrality_weighting else None
@@ -323,6 +345,14 @@ class LossContext(BaseLossContext):
             is_star_net=is_star_net,
         )
 
+        # 4. Build PhysicsHypergraph
+        # We use default settings for now (filtering global nets > 50 pins)
+        hypergraph = netlist_to_hypergraph(
+            netlist, 
+            ignore_global_nets=True, 
+            global_net_threshold=50
+        )
+
         return cls(
             netlist=netlist,
             board=board,
@@ -331,6 +361,7 @@ class LossContext(BaseLossContext):
             geometry=geometry_context,
             netlist_data=netlist_context,
             constraints_data=constraint_context,
+            hypergraph=hypergraph,
             constraints_config=constraints,
             thermal_constraints=thermal_constraints or [],
             loop_constraints=loop_constraints or [],

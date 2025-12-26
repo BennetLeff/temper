@@ -37,6 +37,7 @@ def analyze_pcb(pcb_path: Path, output_json: Path | None = None) -> PhysicsRepor
     state = PlacementState.from_positions(jnp.array(positions))
     
     # Assign net classes from spec if possible
+    # For now, we'll manually tag HV components for common power designs
     for comp in netlist.components:
         if comp.ref in ["Q1", "Q2", "D1", "D2", "J_AC", "C_BUS1"]:
             comp.net_class = "HighVoltage"
@@ -46,7 +47,7 @@ def analyze_pcb(pcb_path: Path, output_json: Path | None = None) -> PhysicsRepor
     # 1. Geometric
     geo = measure_geometric(state, netlist, board)
     
-    # 2. EMI
+    # 2. EMI (Try to identify loops automatically or use defaults)
     loop_refs = [
         ["Q1", "Q2", "C_BUS1"],  # Commutation loop
     ]

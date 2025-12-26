@@ -1,5 +1,8 @@
 """
 Validation feedback and root cause analysis for PCB design.
+
+This module analyzes validation failures and suggests actionable fixes
+targeting placement, routing, or specification relaxation.
 """
 
 from __future__ import annotations
@@ -12,7 +15,7 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.state import PlacementState
-    from temper_placer.pipeline.state import PipelineState
+    from temper_placer.pipeline.orchestrator import PipelineState
 
 
 class AdjustmentType(Enum):
@@ -23,6 +26,7 @@ class AdjustmentType(Enum):
 
 @dataclass
 class FeedbackAdjustment:
+    """A suggested adjustment to the design."""
     adjustment_type: AdjustmentType
     description: str
     target_ref: str | None = None
@@ -30,6 +34,7 @@ class FeedbackAdjustment:
 
 
 class FeedbackGenerator:
+    """Generates adjustments from validation failures."""
     def __init__(self, state: PlacementState, netlist: Netlist, board: Board):
         self.state = state
         self.netlist = netlist
@@ -39,16 +44,28 @@ class FeedbackGenerator:
         adjustments = []
         for failure in failures:
             analysis = analyze_root_cause(failure, self.state, self.netlist, self.board)
+            # Pick the best fix
             if analysis.fixes:
                 best_fix = analysis.fixes[0]
-                adjustments.append(FeedbackAdjustment(AdjustmentType(best_fix.target), best_fix.action, value=best_fix.expected_improvement))
+                adjustments.append(FeedbackAdjustment(
+                    adjustment_type=AdjustmentType(best_fix.target),
+                    description=best_fix.action,
+                    value=best_fix.expected_improvement
+                ))
         return adjustments
 
 
 class AdjustmentApplier:
+    """Applies adjustments to design state."""
     def apply(self, state: PipelineState, adjustments: list[FeedbackAdjustment]) -> PipelineState:
+        """Apply adjustments to pipeline state."""
         for adj in adjustments:
-            print(f"Applying {adj.adjustment_type.value} adjustment: {adj.description}")
+            if adj.adjustment_type == AdjustmentType.PLACEMENT:
+                print(f"Applying placement adjustment: {adj.description}")
+                # TODO: Implement actual coordinate shifts
+            elif adj.adjustment_type == AdjustmentType.SPECIFICATION:
+                print(f"Applying specification adjustment: {adj.description}")
+                # TODO: Update state.constraints
         return state
 
 
@@ -63,8 +80,47 @@ class FeedbackLoopResult:
     iterations: int
 
 
+def run_feedback_loop(state: PipelineState, config: FeedbackLoopConfig) -> FeedbackLoopResult:
+    """Run the validation-adjustment feedback loop."""
+    iteration = 0
+    success = False
+    
+    while iteration < config.max_iterations:
+        print(f"Feedback Loop Iteration {iteration + 1}/{config.max_iterations}")
+        
+        # 1. Validation (Simulated for now)
+        # In a real run, this would be populated by ROUTING/POST-ROUTING phases
+        failures = []
+        if state.physics_report:
+            # Convert report to failures
+            if state.physics_report.emi.power_loop_area_mm2 > 80.0:
+                failures.append(ValidationFailure(
+                    spec_name="loop_area_power",
+                    actual_value=state.physics_report.emi.power_loop_area_mm2,
+                    limit_value=80.0,
+                    margin=80.0 - state.physics_report.emi.power_loop_area_mm2
+                ))
+        
+        if not failures:
+            success = True
+            break
+            
+        # 2. Generate Adjustments
+        generator = FeedbackGenerator(state.placement_state, state.netlist, state.board)
+        adjustments = generator.generate(failures)
+        
+        # 3. Apply Adjustments
+        applier = AdjustmentApplier()
+        state = applier.apply(state, adjustments)
+        
+        iteration += 1
+        
+    return FeedbackLoopResult(success=success, iterations=iteration)
+
+
 @dataclass
 class SuggestedFix:
+    """Actionable fix for a validation failure."""
     target: Literal['placement', 'routing', 'specification']
     action: str
     expected_improvement: float
@@ -74,44 +130,180 @@ class SuggestedFix:
 
 @dataclass
 class ValidationFailure:
+    """A specific failure identified during validation."""
     spec_name: str
     actual_value: float
     limit_value: float
-    margin: float
-    placement_contribution: float = 0.0
-    routing_contribution: float = 0.0
+    margin: float  # Negative = violation
+    
+    # Root cause breakdown
+    placement_contribution: float = 0.0  # % due to component positions
+    routing_contribution: float = 0.0    # % due to trace path
+    
+    # Actionable fixes
     fixes: list[SuggestedFix] = field(default_factory=list)
 
 
 @dataclass
 class RootCauseAnalysis:
+    """Analysis of why a failure occurred and how to fix it."""
     failure: ValidationFailure
     placement_contribution: float
     routing_contribution: float
     fixes: list[SuggestedFix] = field(default_factory=list)
 
 
-def analyze_root_cause(failure: ValidationFailure, state: PlacementState, netlist: Netlist, board: Board) -> RootCauseAnalysis:
+def analyze_root_cause(
+    failure: ValidationFailure,
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+    # TODO: Add routing data when available
+) -> RootCauseAnalysis:
+    """
+    Analyze a validation failure and suggest fixes.
+    """
     if failure.spec_name.startswith('loop_area'):
         return analyze_loop_failure(failure, state, netlist, board)
     elif failure.spec_name.startswith('thermal'):
         return analyze_thermal_failure(failure, state, netlist, board)
-    return RootCauseAnalysis(failure, 50.0, 50.0, [SuggestedFix('specification', f"Relax {failure.spec_name}", abs(failure.margin))])
+    else:
+        # Generic fallback
+        return RootCauseAnalysis(
+            failure=failure,
+            placement_contribution=50.0,
+            routing_contribution=50.0,
+            fixes=[SuggestedFix(
+                target='specification',
+                action=f"Relax {failure.spec_name} limit",
+                expected_improvement=abs(failure.margin),
+                feasibility='moderate'
+            )]
+        )
 
 
-def analyze_loop_failure(failure: ValidationFailure, state: PlacementState, netlist: Netlist, board: Board) -> RootCauseAnalysis:
-    placement_contrib = 80.0
-    routing_contrib = 20.0
-    fixes = [
-        SuggestedFix('placement', "Decrease component spacing in critical loop", abs(failure.margin) * 0.5),
-        SuggestedFix('specification', f"Increase {failure.spec_name} limit", abs(failure.margin))
-    ]
-    return RootCauseAnalysis(failure, placement_contrib, routing_contrib, fixes)
+def compute_min_loop_area(
+    state: PlacementState,
+    netlist: Netlist,
+    loop_refs: list[str],
+) -> float:
+    """Compute minimum possible loop area from placement (pin-to-pin direct)."""
+    import numpy as np
+    
+    positions = []
+    for ref in loop_refs:
+        try:
+            idx = netlist.get_component_index(ref)
+            positions.append(state.positions[idx])
+        except KeyError:
+            continue
+            
+    if len(positions) < 3:
+        return 0.0
+        
+    v = np.array(positions)
+    # Shoelace formula for polygon area
+    area = 0.5 * np.abs(np.dot(v[:, 0], np.roll(v[:, 1], 1)) - np.dot(v[:, 1], np.roll(v[:, 0], 1)))
+    return float(area)
 
 
-def analyze_thermal_failure(failure: ValidationFailure, state: PlacementState, netlist: Netlist, board: Board) -> RootCauseAnalysis:
-    return RootCauseAnalysis(failure, 90.0, 10.0, [SuggestedFix('placement', "Move high-power components closer to edge", abs(failure.margin) * 0.7)])
+def analyze_loop_failure(
+    failure: ValidationFailure,
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+) -> RootCauseAnalysis:
+    """Analyze EMI/Loop Area failure with attribution."""
+    # Try to identify loop components from name
+    # Format: "loop_area_<name>" or similar
+    loop_name = failure.spec_name.replace("loop_area_", "")
+    
+    # Mock loop lookup for now
+    # TODO: Get actual loop components from state/netlist
+    loop_refs = ["Q1", "Q2", "C_BUS1"] if "power" in loop_name else ["U_MCU", "C_MCU_1"]
+    
+    min_placement_area = compute_min_loop_area(state, netlist, loop_refs)
+    actual_area = failure.actual_value
+    
+    # Attribution
+    # placement_contribution: what % of actual area is accounted for by the ideal placement?
+    # High % means components are just too far apart.
+    # Low % means routing detours are the main problem.
+    placement_contrib = min(100.0, (min_placement_area / actual_area * 100.0)) if actual_area > 0 else 0.0
+    routing_contrib = 100.0 - placement_contrib
+    
+    fixes = []
+    
+    # If placement is major contributor (>= 50%)
+    if placement_contrib >= 50:
+        fixes.append(SuggestedFix(
+            target='placement',
+            action="Decrease component spacing in critical loop",
+            expected_improvement=(min_placement_area - failure.limit_value) * 0.8,
+            feasibility='moderate',
+            side_effects=["May increase thermal coupling"]
+        ))
+    
+    # If routing is major contributor (> 30%)
+    if routing_contrib > 30:
+        fixes.append(SuggestedFix(
+            target='routing',
+            action="Reroute to reduce detour",
+            expected_improvement=(actual_area - min_placement_area) * 0.7,
+            feasibility='moderate',
+            side_effects=["May require more vias"]
+        ))
+    
+    # Specification relaxation if best achievable is still above limit
+    best_achievable = min_placement_area * 1.1 # 10% routing overhead
+    if best_achievable > failure.limit_value:
+        fixes.append(SuggestedFix(
+            target='specification',
+            action=f"Relax {failure.spec_name} limit to {best_achievable:.1f}mm²",
+            expected_improvement=failure.actual_value - failure.limit_value,
+            feasibility='difficult',
+            side_effects=["Verify against regulatory limits"]
+        ))
+    
+    return RootCauseAnalysis(
+        failure=failure,
+        placement_contribution=placement_contrib,
+        routing_contribution=routing_contrib,
+        fixes=sorted(fixes, key=lambda f: f.expected_improvement, reverse=True)
+    )
 
 
-def run_feedback_loop(state: PipelineState, config: FeedbackLoopConfig) -> FeedbackLoopResult:
-    return FeedbackLoopResult(True, 0)
+def analyze_thermal_failure(
+    failure: ValidationFailure,
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+) -> RootCauseAnalysis:
+    """Analyze thermal violation."""
+    placement_contrib = 90.0
+    routing_contrib = 10.0
+    
+    fixes = []
+    
+    fixes.append(SuggestedFix(
+        target='placement',
+        action="Move high-power components closer to board edge",
+        expected_improvement=abs(failure.margin) * 0.7,
+        feasibility='easy',
+        side_effects=["May increase wirelength"]
+    ))
+    
+    fixes.append(SuggestedFix(
+        target='routing',
+        action="Increase trace width for high-current paths",
+        expected_improvement=5.0, # Celsius estimate
+        feasibility='moderate',
+        side_effects=["Reduces routing channel capacity"]
+    ))
+    
+    return RootCauseAnalysis(
+        failure=failure,
+        placement_contribution=placement_contrib,
+        routing_contribution=routing_contrib,
+        fixes=fixes
+    )

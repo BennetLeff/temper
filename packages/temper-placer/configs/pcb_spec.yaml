@@ -1,0 +1,24 @@
+# Physical Design Specification for Temper Induction Cooker
+
+name: "Temper V1"
+
+thermal:
+  max_junction_temp_c: 110.0
+  ambient_temp_c: 40.0
+  power_dissipation:
+    Q1: 15.0
+    Q2: 15.0
+    U_BUCK: 2.0
+
+emi:
+  max_loop_area_mm2:
+    commutation_loop: 80.0
+    gate_drive_loop: 30.0
+  frequency_hz: 100000.0
+
+signal_integrity:
+  max_length_mm:
+    CLK: 100.0
+  length_match_mm:
+    DIFF_P: 2.0
+    DIFF_N: 2.0

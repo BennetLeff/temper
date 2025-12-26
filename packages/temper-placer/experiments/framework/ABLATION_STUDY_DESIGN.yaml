@@ -1,0 +1,353 @@
+# =============================================================================
+# ABLATION STUDY DESIGN
+# =============================================================================
+# Systematic evaluation of loss function and technique contributions.
+# Uses the existing temper_placer.ablation infrastructure.
+#
+# Purpose: Determine which components of the optimizer actually matter.
+# =============================================================================
+
+meta:
+  study_name: "temper_ablation_v1"
+  created: "2025-12-25"
+  hypothesis: "Not all 38 loss functions contribute equally to final placement quality"
+  expected_duration_hours: 24  # With 4 parallel workers
+  output_dir: "experiments/ablation_v1"
+
+# =============================================================================
+# EXPERIMENTAL DESIGN
+# =============================================================================
+
+design:
+  type: "factorial_ablation"
+
+  # Independent variables
+  independent_variables:
+    - name: "loss_function"
+      type: "categorical"
+      levels: 24  # Number of toggleable losses
+
+    - name: "technique"
+      type: "categorical"
+      levels: 9  # curriculum, gumbel, adaptive weighting, etc.
+
+  # Dependent variables (what we measure)
+  dependent_variables:
+    primary:
+      - "final_loss"
+      - "overlap_loss"
+      - "boundary_loss"
+      - "hpwl_mm"
+      - "drc_errors"
+
+    secondary:
+      - "convergence_epoch"
+      - "elapsed_seconds"
+      - "gate_loop_area_mm2"
+      - "failure_rate"  # aggregated across seeds
+
+  # Controls
+  controls:
+    epochs: 2000  # Reduced for ablation (full runs use 8000)
+    seeds_per_condition: 30  # For statistical power
+    test_case: "temper.kicad_pcb"
+    learning_rate: 0.1
+
+  # Statistical analysis
+  analysis:
+    test: "one_way_anova"  # Compare baseline vs ablated conditions
+    post_hoc: "tukey_hsd"
+    significance_level: 0.05
+    effect_size: "cohens_d"
+    effect_size_threshold: 0.5  # Medium effect
+
+# =============================================================================
+# PHASE 1: SINGLE LOSS ABLATION (Leave-One-Out)
+# =============================================================================
+# Disable each loss function individually to measure its contribution.
+
+phase_1_single_loss_ablation:
+  description: "Disable each loss function one at a time"
+  baseline: "all_losses_enabled"
+
+  experiments:
+    # Hard Constraints
+    - name: "no_overlap"
+      disable: ["overlap"]
+      hypothesis: "Overlap loss is critical - expect massive regression"
+      expected_impact: "catastrophic"
+
+    - name: "no_boundary"
+      disable: ["boundary"]
+      hypothesis: "Boundary loss is critical - components will leave board"
+      expected_impact: "catastrophic"
+
+    - name: "no_clearance"
+      disable: ["clearance"]
+      hypothesis: "HV-LV clearance is safety-critical"
+      expected_impact: "high"
+
+    # Design Rules
+    - name: "no_zone"
+      disable: ["zone"]
+      hypothesis: "Zone membership affects domain separation"
+      expected_impact: "medium"
+
+    - name: "no_ground_crossing"
+      disable: ["ground_crossing"]
+      hypothesis: "May affect EMI but not primary metrics"
+      expected_impact: "low"
+
+    # Performance Objectives
+    - name: "no_wirelength"
+      disable: ["wirelength"]
+      hypothesis: "Wirelength directly affects routing - expect HPWL regression"
+      expected_impact: "high"
+
+    - name: "no_loop_area"
+      disable: ["loop_area"]
+      hypothesis: "Loop area affects EMI but may not affect DRC"
+      expected_impact: "medium"
+
+    - name: "no_thermal"
+      disable: ["thermal"]
+      hypothesis: "Thermal affects IGBT placement near edge"
+      expected_impact: "medium"
+
+    - name: "no_congestion"
+      disable: ["congestion"]
+      hypothesis: "Congestion affects routability"
+      expected_impact: "medium"
+
+    - name: "no_grouping"
+      disable: ["grouping"]
+      hypothesis: "Grouping loss keeps functional blocks together"
+      expected_impact: "medium"
+
+    - name: "no_decoupling"
+      disable: ["decoupling"]
+      hypothesis: "Decoupling cap proximity may be redundant with grouping"
+      expected_impact: "low"
+
+    - name: "no_power_path"
+      disable: ["power_path"]
+      hypothesis: "Power path optimization for high-current traces"
+      expected_impact: "medium"
+
+    # Regularization
+    - name: "no_spread"
+      disable: ["spread"]
+      hypothesis: "Spread prevents clustering - may cause local minima"
+      expected_impact: "low"
+
+    - name: "no_rotation_entropy"
+      disable: ["rotation_entropy"]
+      hypothesis: "Rotation entropy encourages exploration"
+      expected_impact: "low"
+
+# =============================================================================
+# PHASE 2: TECHNIQUE ABLATION
+# =============================================================================
+# Disable each optimization technique to measure its contribution.
+
+phase_2_technique_ablation:
+  description: "Disable each technique one at a time"
+  baseline: "all_techniques_enabled"
+
+  experiments:
+    - name: "no_curriculum"
+      disable: ["curriculum_learning"]
+      hypothesis: "Curriculum learning prevents premature convergence"
+      expected_impact: "high"
+
+    - name: "no_gumbel_softmax"
+      disable: ["gumbel_softmax_rotation"]
+      hypothesis: "Gumbel-softmax enables gradient-based rotation optimization"
+      expected_impact: "medium"
+
+    - name: "no_adaptive_overlap_weighting"
+      disable: ["adaptive_overlap_weighting"]
+      hypothesis: "Adaptive weighting resolves stuck overlaps"
+      expected_impact: "high"
+
+    - name: "no_stochastic_perturbation"
+      disable: ["stochastic_perturbation"]
+      hypothesis: "Jiggle helps escape local minima"
+      expected_impact: "medium"
+
+    - name: "no_temperature_annealing"
+      disable: ["temperature_annealing"]
+      hypothesis: "Annealing sharpens rotation distribution"
+      expected_impact: "low"
+
+    - name: "no_lr_annealing"
+      disable: ["learning_rate_annealing"]
+      hypothesis: "LR annealing improves final convergence"
+      expected_impact: "medium"
+
+    - name: "no_gradient_clipping"
+      disable: ["gradient_clipping"]
+      hypothesis: "Clipping prevents training instability"
+      expected_impact: "medium"
+
+    - name: "no_grad_norm"
+      disable: ["grad_norm"]
+      hypothesis: "GradNorm balances multi-task gradients"
+      expected_impact: "medium"
+
+# =============================================================================
+# PHASE 3: HEURISTIC ABLATION
+# =============================================================================
+# Disable initialization heuristics to measure their contribution.
+
+phase_3_heuristic_ablation:
+  description: "Disable each heuristic one at a time"
+  baseline: "all_heuristics_enabled"
+
+  experiments:
+    - name: "no_spectral_init"
+      disable: ["spectral_init"]
+      hypothesis: "Spectral init provides topology-aware starting point"
+      expected_impact: "high"
+
+    - name: "no_force_directed"
+      disable: ["force_directed"]
+      hypothesis: "Force-directed refines spectral layout"
+      expected_impact: "medium"
+
+    - name: "no_connector_edge_snap"
+      disable: ["connector_edge_snap"]
+      hypothesis: "Snaps connectors to board edges"
+      expected_impact: "low"
+
+    - name: "no_thermal_edge"
+      disable: ["thermal_edge"]
+      hypothesis: "Places IGBTs near edges for thermal"
+      expected_impact: "medium"
+
+    - name: "no_critical_loop"
+      disable: ["critical_loop"]
+      hypothesis: "Minimizes gate drive loops in init"
+      expected_impact: "medium"
+
+    - name: "no_functional_clustering"
+      disable: ["functional_clustering"]
+      hypothesis: "Groups components by function"
+      expected_impact: "medium"
+
+    - name: "no_heuristics_all"
+      disable: ["spectral_init", "force_directed", "connector_edge_snap",
+                "thermal_edge", "critical_loop", "functional_clustering",
+                "power_flow_topology", "decoupling_cap", "domain_separation",
+                "star_ground", "signal_flow"]
+      hypothesis: "Random init baseline - expect major regression"
+      expected_impact: "catastrophic"
+
+# =============================================================================
+# PHASE 4: INTERACTION EFFECTS
+# =============================================================================
+# Test combinations of ablations to detect interactions.
+
+phase_4_interactions:
+  description: "Test key interaction effects"
+
+  experiments:
+    - name: "no_curriculum_no_adaptive"
+      disable: ["curriculum_learning", "adaptive_overlap_weighting"]
+      hypothesis: "These may compensate for each other"
+
+    - name: "no_spectral_no_force"
+      disable: ["spectral_init", "force_directed"]
+      hypothesis: "Graph-based init may be redundant"
+
+    - name: "no_loop_area_no_grouping"
+      disable: ["loop_area", "grouping"]
+      hypothesis: "Both affect component proximity"
+
+    - name: "no_regularization"
+      disable: ["spread", "rotation_entropy"]
+      hypothesis: "Regularization prevents exploration"
+
+# =============================================================================
+# ANALYSIS PLAN
+# =============================================================================
+
+analysis_plan:
+  step_1_data_collection:
+    - "Run all experiments (30 seeds each)"
+    - "Collect metrics from experiments/framework/SUCCESS_CRITERIA.yaml"
+    - "Store in experiments/ablation_v1/results/"
+
+  step_2_quality_checks:
+    - "Verify baseline achieves hard constraints in >95% of seeds"
+    - "Check for NaN/Inf in loss trajectories"
+    - "Identify failed runs and exclude with justification"
+
+  step_3_statistical_analysis:
+    - "Compute mean ± std for each condition"
+    - "Run one-way ANOVA for each dependent variable"
+    - "Apply Tukey HSD for pairwise comparisons"
+    - "Compute Cohen's d effect sizes"
+    - "Identify statistically significant ablations (p < 0.05)"
+
+  step_4_ranking:
+    - "Rank ablations by effect size on primary metrics"
+    - "Classify as: critical (d > 0.8), important (d > 0.5), minor (d > 0.2), negligible"
+    - "Identify candidates for removal (negligible impact)"
+
+  step_5_reporting:
+    - "Generate ablation_matrix.csv with all pairwise comparisons"
+    - "Create effect_size_heatmap.png"
+    - "Write ABLATION_REPORT.md with findings"
+    - "Update loss weight recommendations"
+
+# =============================================================================
+# EXPECTED OUTPUTS
+# =============================================================================
+
+outputs:
+  data:
+    - "experiments/ablation_v1/results/*.json"  # Raw run data
+    - "experiments/ablation_v1/ablation_matrix.csv"  # Summary statistics
+    - "experiments/ablation_v1/effect_sizes.csv"  # Cohen's d for all pairs
+
+  visualizations:
+    - "experiments/ablation_v1/effect_size_heatmap.png"
+    - "experiments/ablation_v1/loss_trajectories.png"
+    - "experiments/ablation_v1/failure_rate_by_condition.png"
+
+  reports:
+    - "experiments/ablation_v1/ABLATION_REPORT.md"  # Human-readable findings
+    - "experiments/ablation_v1/WEIGHT_RECOMMENDATIONS.yaml"  # Updated weights
+
+# =============================================================================
+# EXECUTION COMMANDS
+# =============================================================================
+
+execution:
+  # Generate config from this design
+  generate_config: |
+    python -m temper_placer.ablation.cli generate \
+      --design experiments/framework/ABLATION_STUDY_DESIGN.yaml \
+      --output experiments/ablation_v1/config.yaml
+
+  # Run ablation study
+  run_study: |
+    python -m temper_placer.ablation.cli run \
+      --config experiments/ablation_v1/config.yaml \
+      --workers 4 \
+      --resume  # Checkpoint support
+
+  # Analyze results
+  analyze: |
+    python -m temper_placer.ablation.cli analyze \
+      --results experiments/ablation_v1/results/ \
+      --output experiments/ablation_v1/ABLATION_REPORT.md
+
+  # Quick sanity check (3 seeds, 500 epochs)
+  quick_test: |
+    python -m temper_placer.ablation.cli run \
+      --config experiments/ablation_v1/config.yaml \
+      --seeds 3 \
+      --epochs 500 \
+      --output experiments/ablation_v1/quick_test/

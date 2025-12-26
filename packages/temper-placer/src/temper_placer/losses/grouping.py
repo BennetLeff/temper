@@ -66,14 +66,14 @@ class GroupClusterLoss(LossFunction):
     def __init__(
         self,
         groups: list[GroupConfig],
-        anneal_start: float = 0.3,
+        anneal_start: float = 0.0,  # Start immediately for PowerSynth strategy
     ):
         """
         Initialize GroupClusterLoss.
 
         Args:
             groups: List of GroupConfig defining groups and their max diameters.
-            anneal_start: Fraction of training when grouping starts.
+            anneal_start: Fraction of training when grouping starts (0.0 = immediate).
         """
         self.groups = groups
         self.anneal_start = anneal_start
@@ -555,11 +555,13 @@ def create_grouping_losses_from_constraints(
                 pass
 
         if indices:
+            # Use weight from YAML constraint if available, default to 1.0
+            group_weight = getattr(group, 'weight', 1.0) if hasattr(group, 'weight') else 1.0
             config = GroupConfig(
                 name=group.name,
                 component_indices=jnp.array(indices, dtype=jnp.int32),
                 max_diameter_mm=group.max_spread_mm,
-                weight=1.0,
+                weight=group_weight,
             )
             group_configs[group.name] = config
 

@@ -42,12 +42,6 @@ back to constrain the next placement iteration.
 
 ```
 +------------------------------------------------------------------+
-|  Step -1: Metrics & Baselines                                    |
-|  (establish measurement capability FIRST)                        |
-+------------------------------------------------------------------+
-                              |
-                              v
-+------------------------------------------------------------------+
 |  Step 0: Constraint Feasibility Check                            |
 |  (catches impossible constraints before any placement)           |
 +------------------------------------------------------------------+
@@ -88,33 +82,6 @@ back to constrain the next placement iteration.
 |  (physics-based validation of actual traces)                     |
 +------------------------------------------------------------------+
 ```
-
----
-
-## Step -1: Metrics Infrastructure & Baselines
-
-**Problem**: We can't improve what we can't measure. Without baselines, we can't prove
-anything works.
-
-**Solution**: Establish measurement capability BEFORE implementation.
-
-### Measurable Sub-Problems
-
-| Sub-Problem | Metric | When Measurable |
-|-------------|--------|-----------------|
-| Geometric Feasibility | overlap_count, zone_violations | Post-placement |
-| Thermal Safety | max_Tj, thermal_margin | Post-routing |
-| EMI/Loop Area | gate_loop_mm2, power_loop_mm2 | Post-routing |
-| Routability | completion_pct, congestion_score | Post-routing |
-| Signal Integrity | length_match_mm, impedance_pct | Post-routing |
-| Manufacturability | drc_error_count | Post-export |
-
-### Baseline Types
-
-| Type | Purpose | Source |
-|------|---------|--------|
-| Internal | "How bad are we now?" | Current temper-placer output |
-| External | "What does good look like?" | Scraped reference designs |
 
 ---
 
@@ -236,6 +203,23 @@ signal_integrity:
 | Thermal | Resistance network: trace width -> Rth, via count -> Rth | If T_j > max, increase spacing |
 | Length Match | Sum routed segment lengths per net | If mismatch > tolerance, add length constraints |
 
+### Physics-Based Constraint Derivation
+
+**Forward direction**: Derive placement constraints from physical specs:
+
+```python
+def derive_proximity_from_emi_spec(spec: EMISpec, net: Net) -> float:
+    """Derive max component distance from EMI loop area limit."""
+    # For a 4-pin loop, max area = L^2 where L is perimeter/4
+    # If max_area = 50mm^2, then max_L = sqrt(50) ~= 7mm per side
+    max_side = math.sqrt(spec.max_loop_area_mm2)
+
+    # Account for component sizes
+    comp_sizes = sum(c.diagonal for c in net.components)
+
+    return max(0, max_side - comp_sizes / 4)
+```
+
 ### Validation Feedback Loop
 
 ```
@@ -243,6 +227,11 @@ Placement -> Routing -> Validation -> Root Cause Analysis -> Constraint Update
     ^                                                              |
     +--------------------------------------------------------------+
 ```
+
+When validation fails, the system:
+1. Identifies which physical spec was violated
+2. Traces back to placement decisions that caused it
+3. Generates tighter constraints for next iteration
 
 ---
 
@@ -287,18 +276,18 @@ optimization of a working system, not a fix for a broken one.
 All implementation is tracked in Beads epics. **Metrics epic blocks all implementation.**
 
 ```
-temper-biv9: Metrics & Baselines (Step -1)  <- MUST COMPLETE FIRST
-     |
-     +-- blocks --> temper-l0nd: Constraint Feasibility (Step 0)
-     +-- blocks --> temper-rbr9: Parametric Templates (Step 1)
-     +-- blocks --> temper-zsd1: Zone-Aware Legalization (Step 2)
-     +-- blocks --> temper-c4vf: Routability Feedback (Step 2.5)
-     +-- blocks --> temper-iquo: Local Refinement (Step 3)
-     +-- blocks --> temper-n5rr: MCU Template (Step 4)
-                         |
-                         +--> temper-xh5l: CLI Integration
-                                   |
-                                   +--> temper-oe49: Validation Framework
+temper-biv9: Metrics & Baselines (Step -1)  ← MUST COMPLETE FIRST
+     │
+     ├── blocks ──► temper-l0nd: Constraint Feasibility (Step 0)
+     ├── blocks ──► temper-rbr9: Parametric Templates (Step 1)
+     ├── blocks ──► temper-zsd1: Zone-Aware Legalization (Step 2)
+     ├── blocks ──► temper-c4vf: Routability Feedback (Step 2.5)
+     ├── blocks ──► temper-iquo: Local Refinement (Step 3)
+     └── blocks ──► temper-n5rr: MCU Template (Step 4)
+                         │
+                         └──► temper-xh5l: CLI Integration
+                                   │
+                                   └──► temper-oe49: Validation Framework
 ```
 
 | Epic | Description | Priority | Children |
@@ -339,121 +328,3 @@ ablation: "Compare with/without backtracking"
 4. **Local Refinement**: <=2mm max movement, measurable wirelength improvement
 5. **Validation Framework**: Physics-based pass/fail with actionable feedback
 6. **End-to-End**: Deterministic placement + routing succeeds on Temper board in <30 seconds
-
----
-
-## Failure Modes
-
-### Metrics Infrastructure Failures
-
-| Failure Mode | Likelihood | Impact | Detection |
-|--------------|------------|--------|-----------|
-| Metrics don't correlate with real success | Medium | Fatal | PCB fails in practice despite good metrics |
-| External baselines aren't comparable | High | Medium | Different topologies make comparison meaningless |
-| Can't parse reference designs | Medium | Low | Format conversion hell |
-| Metrics too slow to compute | Low | Medium | Iteration grinds to halt |
-
-**Most likely**: External baselines turn out to be apples-to-oranges. A 5kW motor driver and
-a 500W induction heater may not be comparable despite both being "half-bridge."
-
-### Template Failures
-
-| Failure Mode | Likelihood | Impact | Detection |
-|--------------|------------|--------|-----------|
-| Templates encode wrong knowledge | Medium | High | Consistently bad placements |
-| Templates too rigid | High | Medium | Edge cases break (odd component counts) |
-| Template scaling breaks | Medium | Medium | Works at 100x150mm, fails at 50x75mm |
-| Missing templates for subsystems | High | Low | Some components placed randomly |
-
-**Most likely**: Templates are too rigid. Real designs have variations (3 bus caps vs 2,
-different gate driver pinouts) that templates don't handle.
-
-### Legalization Failures
-
-| Failure Mode | Likelihood | Impact | Detection |
-|--------------|------------|--------|-----------|
-| Backtracking infinite loops | Medium | High | Legalization never terminates |
-| Zone-aware too slow | Low | Medium | Minutes instead of seconds |
-| Priority ordering wrong | Medium | Medium | Important components pushed to bad locations |
-
-**Most likely**: Priority ordering. Which component "wins" during overlap resolution is a
-design decision, and we might get it wrong.
-
-### Feedback Loop Failures
-
-| Failure Mode | Likelihood | Impact | Detection |
-|--------------|------------|--------|-----------|
-| Fast routing != real routing | High | High | Passes check, fails real router |
-| Congestion adjustment oscillates | Medium | High | Never converges |
-| Feedback loop too slow | Medium | Medium | 3 iterations x routing time |
-
-**Most likely**: Fast routing estimate is wrong. Maze router on 0.5mm grid misses via
-placement constraints, layer transitions, differential pairs.
-
-### Fundamental Assumption Failures
-
-| Failure Mode | Likelihood | Impact | Fatal? |
-|--------------|------------|--------|--------|
-| Problem isn't gradient conflicts | Low | Fatal | Yes - whole approach wrong |
-| Templates can't cover design space | Medium | High | Need exploration after all |
-| Post-routing validation too late | Medium | High | Can't fix bad placement |
-| Physics-based constraints wrong | Low | High | Derived constraints don't match reality |
-
-**Most dangerous**: Post-routing validation is too late. If routing reveals placement is bad,
-we have to re-place and re-route. The feedback loop may not converge.
-
-### Meta Failures
-
-| Failure Mode | Likelihood | Impact |
-|--------------|------------|--------|
-| Scope creep | High | Medium - never ship |
-| Lost in metrics, never build system | Medium | High - analysis paralysis |
-| Complexity makes debugging impossible | Medium | High - can't fix bugs |
-| External baseline effort > value | High | Low - waste time |
-
-### Most Likely Failure Scenario
-
-```
-1. We build metrics infrastructure (2 weeks)
-2. We scrape 5 reference designs, discover they're not comparable (1 week wasted)
-3. We build templates based on intuition, not data
-4. Templates work for Temper board specifically
-5. Templates break on next project (different topology)
-6. We're back to square one, but with more code to maintain
-```
-
-**The bet we're making**: Domain knowledge is transferable across power electronics designs.
-If each design is a special snowflake, templates provide no value over gradient optimization.
-
-### Second Most Likely Failure
-
-```
-1. Placement looks good (metrics pass)
-2. Routing fails (congestion, layer issues)
-3. Feedback loop adjusts placement
-4. Routing fails differently
-5. Oscillation: placement -> routing -> placement -> routing
-6. Never converges
-```
-
-**Why this happens**: Placement and routing are coupled, but we treat them as sequential
-with limited feedback. The feedback may not have enough information.
-
-### Abandon Criteria
-
-We should abandon this approach if:
-
-1. **External baselines show huge variance** - If "good" designs have loop areas from 30mm²
-   to 300mm², our targets are arbitrary
-2. **Templates fail on 3+ designs** - Can't generalize beyond Temper
-3. **Feedback loop doesn't converge in 5 iterations** - Oscillation means abstraction is wrong
-4. **Metrics don't predict fab success** - Board passes metrics, fails in practice
-
-### Mitigations
-
-| Risk | Mitigation |
-|------|------------|
-| External baselines incomparable | Start with internal baseline only, add external as validation |
-| Templates too rigid | Build escape hatch: fall back to gradient if template fails |
-| Feedback oscillation | Add damping (smaller adjustments each iteration), max iteration cap |
-| Scope creep | Timebox metrics epic to 1 week, ship MVP |

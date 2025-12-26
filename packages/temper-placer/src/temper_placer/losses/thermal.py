@@ -696,8 +696,8 @@ def create_temper_thermal_losses(netlist, board_width: float = 100.0, board_heig
     # Heat-sensitive components
     sensitive_refs = [
         "U_MCU",  # MCU - accurate timing
-        "U_TEMP_SENSE",  # Temperature sensor - accuracy critical
-        "MAX31865",  # Alternative temp sensor name
+        "U_RTD1",  # Temperature sensor 1 - accuracy critical
+        "U_RTD2",  # Temperature sensor 2
         "Y1",  # Crystal - frequency stability
     ]
 

@@ -1,0 +1,284 @@
+# =============================================================================
+# TEMPER-PLACER SUCCESS CRITERIA
+# =============================================================================
+# Quantitative targets defining "done" for the optimizer.
+# All experiments should reference these criteria for pass/fail determination.
+#
+# Last updated: 2025-12-25
+# Board: Temper Induction Heater (100x150mm, 33 components)
+# =============================================================================
+
+meta:
+  version: "1.0.0"
+  board_name: "Temper Induction Heater"
+  board_size_mm: [100, 150]
+  component_count: 33
+  net_count: 18
+  packing_density_percent: 5.7
+
+# =============================================================================
+# TIER 1: HARD CONSTRAINTS (Must achieve 100% compliance)
+# =============================================================================
+# These are binary pass/fail criteria. Any violation is a failure.
+
+hard_constraints:
+  overlap:
+    metric: "overlap_loss"
+    target: 0.0
+    unit: "mm²"
+    description: "Zero component overlap allowed"
+    validation: "compute_overlap_penalty() == 0"
+
+  boundary:
+    metric: "boundary_loss"
+    target: 0.0
+    unit: "mm"
+    description: "All components fully within board outline"
+    validation: "compute_boundary_penalty() == 0"
+
+  hv_clearance:
+    metric: "hv_clearance_violations"
+    target: 0
+    unit: "count"
+    min_distance_mm: 10.0
+    description: "10mm minimum between HV and LV domains"
+    validation: "All HV-LV pairs have >=10mm separation"
+
+  zone_membership:
+    metric: "zone_violations"
+    target: 0
+    unit: "count"
+    description: "All components in designated zones"
+    zones:
+      power_zone: ["Q1", "Q2", "D1", "D2", "C_BUS1", "C_BUS2"]
+      driver_zone: ["U_GATE", "C_BOOT", "R_GATE_H", "R_GATE_L", "C_VCC"]
+      control_zone: ["U_MCU", "C_MCU_1", "C_MCU_2", "C_MCU_3", "C_MCU_4"]
+
+# =============================================================================
+# TIER 2: PERFORMANCE TARGETS (Quantitative goals)
+# =============================================================================
+# These define "good enough" placement quality.
+
+performance_targets:
+  wirelength:
+    metric: "hpwl_mm"
+    target_ratio: 1.30  # vs human baseline
+    baseline_mm: null   # To be measured from reference placement
+    description: "Total HPWL within 130% of expert human placement"
+    priority: "P1"
+
+  loop_area_gate_drive:
+    metric: "gate_loop_area_mm2"
+    target: 100.0
+    unit: "mm²"
+    description: "Gate drive loop area (U_GATE to Q1/Q2)"
+    critical: true
+    emi_impact: "high"
+
+  loop_area_bootstrap:
+    metric: "bootstrap_loop_area_mm2"
+    target: 50.0
+    unit: "mm²"
+    description: "Bootstrap supply loop area"
+    critical: true
+
+  loop_area_commutation:
+    metric: "commutation_loop_area_mm2"
+    target: 400.0
+    unit: "mm²"
+    description: "Power stage commutation loop (C_BUS-Q1-Q2)"
+    critical: true
+    emi_impact: "critical"
+
+  thermal_igbt_edge_distance:
+    metric: "igbt_edge_distance_mm"
+    target: 5.0
+    comparison: "<="
+    unit: "mm"
+    description: "IGBTs (Q1, Q2) within 5mm of board edge for heatsink"
+    components: ["Q1", "Q2"]
+
+  drc_errors:
+    metric: "kicad_drc_errors"
+    target: 0
+    unit: "count"
+    description: "KiCad DRC must pass with zero errors"
+
+  routing_completion:
+    metric: "autoroute_completion_percent"
+    target: 90.0
+    unit: "%"
+    description: "Freerouting autorouter completion rate"
+    note: "Current baseline ~12% - this is stretch goal"
+
+# =============================================================================
+# TIER 3: ROBUSTNESS CRITERIA (Statistical requirements)
+# =============================================================================
+# These ensure reliable, repeatable results across random seeds.
+
+robustness:
+  failure_rate:
+    metric: "hard_constraint_failure_rate"
+    target: 0.05  # 5%
+    sample_size: 100  # seeds
+    description: "< 5% of runs should fail hard constraints"
+
+  loss_coefficient_of_variation:
+    metric: "final_loss_cv"
+    target: 0.15
+    description: "CV of final loss < 15% across seeds"
+
+  convergence_consistency:
+    metric: "convergence_epoch_cv"
+    target: 0.25
+    description: "CV of convergence epoch < 25%"
+
+  wirelength_stability:
+    metric: "wirelength_cv"
+    target: 0.10
+    description: "CV of HPWL < 10% across seeds"
+
+# =============================================================================
+# TIER 4: STRETCH GOALS (Aspirational targets)
+# =============================================================================
+# These would indicate exceptional placement quality.
+
+stretch_goals:
+  wirelength_parity:
+    metric: "hpwl_ratio"
+    target: 1.0
+    description: "Match or beat human expert wirelength"
+
+  routing_perfection:
+    metric: "autoroute_completion_percent"
+    target: 100.0
+    description: "100% autorouter completion"
+
+  zero_warnings:
+    metric: "kicad_drc_warnings"
+    target: 0
+    description: "Zero DRC warnings (not just errors)"
+
+  loop_inductance_validated:
+    metric: "measured_loop_inductance_nh"
+    target: 10.0  # nH
+    unit: "nH"
+    description: "PEEC-validated gate loop inductance"
+    validation_method: "Q3D or analytical PEEC"
+
+# =============================================================================
+# MEASUREMENT PROTOCOL
+# =============================================================================
+# Standard procedure for collecting metrics.
+
+measurement_protocol:
+  epochs: 8000
+  seeds_for_robustness: 100
+  seeds_for_quick_test: 30
+  convergence_threshold: 0.001  # loss improvement/epoch
+  convergence_window: 500  # epochs
+
+  required_measurements:
+    - "overlap_loss"
+    - "boundary_loss"
+    - "hpwl_mm"
+    - "gate_loop_area_mm2"
+    - "bootstrap_loop_area_mm2"
+    - "commutation_loop_area_mm2"
+    - "igbt_edge_distance_mm"
+    - "zone_violations"
+    - "hv_clearance_violations"
+    - "drc_errors"
+    - "drc_warnings"
+    - "convergence_epoch"
+    - "final_loss"
+    - "elapsed_seconds"
+
+  optional_measurements:
+    - "autoroute_completion_percent"
+    - "congestion_score"
+    - "thermal_spread_mm"
+
+# =============================================================================
+# BASELINE REFERENCES
+# =============================================================================
+# Human expert and algorithmic baselines for comparison.
+
+baselines:
+  human_expert:
+    description: "Hand-placed Temper PCB by experienced designer"
+    source: "temper.kicad_pcb (original)"
+    status: "pending_extraction"  # Need to extract metrics from KiCad
+    metrics:
+      hpwl_mm: null  # To be measured
+      gate_loop_area_mm2: null
+      routing_completion: null
+
+  random_placement:
+    description: "Uniform random placement within board"
+    purpose: "Lower bound / worst case"
+    expected_overlap: "high"
+    expected_wirelength: "~2-3x human"
+
+  heuristics_only:
+    description: "Heuristic initialization without optimization"
+    purpose: "Measure optimizer contribution vs smart init"
+
+  simulated_annealing:
+    description: "Classic SA placement (if implemented)"
+    purpose: "Literature baseline comparison"
+    status: "not_implemented"
+
+# =============================================================================
+# ACCEPTANCE CRITERIA FOR EXPERIMENTS
+# =============================================================================
+# Standard thresholds for declaring experiment success.
+
+experiment_acceptance:
+  ablation_study:
+    min_seeds: 30
+    statistical_test: "t-test"
+    significance_level: 0.05
+    effect_size_threshold: 0.5  # Cohen's d
+
+  hyperparameter_tuning:
+    min_seeds: 20
+    improvement_threshold: 0.05  # 5% improvement
+
+  feature_addition:
+    must_not_regress:
+      - "hard_constraint_compliance"
+      - "wirelength"
+    must_improve_or_maintain:
+      - "target_metric"
+
+# =============================================================================
+# DASHBOARD THRESHOLDS
+# =============================================================================
+# Color coding for metrics visualization.
+
+dashboard_thresholds:
+  overlap_loss:
+    green: 0.0
+    yellow: 0.0  # Any overlap is bad
+    red: 0.01
+
+  boundary_loss:
+    green: 0.0
+    yellow: 0.0
+    red: 0.01
+
+  gate_loop_area_mm2:
+    green: 50.0
+    yellow: 100.0
+    red: 150.0
+
+  hpwl_ratio:
+    green: 1.0
+    yellow: 1.3
+    red: 1.5
+
+  failure_rate:
+    green: 0.02
+    yellow: 0.05
+    red: 0.10

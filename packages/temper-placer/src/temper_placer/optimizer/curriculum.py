@@ -39,6 +39,7 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
 
     return [
         # Phase 1: Spread and exploration (0-12.5%)
+        # Goal: Rough global layout, establish functional zones.
         CurriculumPhase(
             name="spread",
             start_epoch=0,
@@ -46,66 +47,75 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
             loss_weights={
                 "spread": 10.0,
                 "rotation_entropy": 5.0,
-                "boundary": 1.0,  # Soft boundary to allow exploration
+                "boundary": 20.0,  # Medium boundary to keep on board
+                "zone": 30.0,      # Establish zones early
+                "overlap": 5.0,    # Low overlap initially
             },
             temperature_override=5.0,  # High temperature for exploration
         ),
         # Phase 2: Feasibility (12.5-37.5%)
+        # Goal: Resolve overlaps and boundary violations.
         CurriculumPhase(
             name="feasibility",
             start_epoch=int(1000 * scale),
             end_epoch=int(3000 * scale),
             loss_weights={
-                "spread": 5.0,
-                "overlap": 1000.0,  # CRITICAL: Must never overlap
-                "boundary": 500.0,  # Strong boundary enforcement
-                "rotation_entropy": 1.0,  # Reduce entropy
+                "spread": 2.0,
+                "overlap": 200.0,   # Strong overlap enforcement
+                "boundary": 100.0,  # Strong boundary enforcement
+                "clearance": 100.0, # HV-LV clearance
+                "zone": 50.0,       # Force zone compliance
+                "wirelength": 10.0, # Initial wirelength pressure
             },
+            temperature_override=3.0,
         ),
         # Phase 3: Design rules (37.5-62.5%)
+        # Goal: Enforce electrical and thermal constraints.
         CurriculumPhase(
             name="design_rules",
             start_epoch=int(3000 * scale),
             end_epoch=int(5000 * scale),
             loss_weights={
-                "overlap": 1000.0,  # CRITICAL: Must never overlap
-                "boundary": 500.0,  # Strong boundary enforcement
-                "clearance": 80.0,  # HV-LV clearance (safety critical)
-                "thermal": 30.0,  # IGBT near edge
-                "zone": 50.0,  # Components in zones (lower than overlap)
+                "overlap": 200.0,
+                "boundary": 100.0,
+                "clearance": 100.0,
+                "loop_area": 100.0, # EMI minimization
+                "thermal_spread": 25.0, # IGBT spacing
+                "grouping": 50.0,   # Hierarchical blocks
+                "decoupling": 30.0, # CAP-to-IC
+                "wirelength": 20.0,
             },
+            temperature_override=1.0,
         ),
         # Phase 4: Performance (62.5-87.5%)
+        # Goal: Optimize for power path and wirelength.
         CurriculumPhase(
             name="performance",
             start_epoch=int(5000 * scale),
             end_epoch=int(7000 * scale),
             loss_weights={
-                "overlap": 1000.0,  # CRITICAL: Must never overlap
-                "boundary": 500.0,  # Strong boundary enforcement
-                "clearance": 80.0,
-                "thermal": 30.0,
-                "zone": 50.0,  # Components in zones (lower than overlap)
-                "wirelength": 10.0,  # Minimize total wirelength
-                "loop_area": 40.0,  # Minimize gate drive loops
-                "congestion": 5.0,  # Balance routing
+                "overlap": 250.0,   # Increase for final squeeze
+                "boundary": 100.0,
+                "loop_area": 150.0, # Stronger loop pressure
+                "power_path": 80.0, # Optimize power delivery
+                "wirelength": 40.0,
+                "congestion": 20.0,
+                "alignment": 10.0,
             },
+            temperature_override=0.5,
         ),
         # Phase 5: Refinement (87.5-100%)
+        # Goal: Fine-tune positions and orientations.
         CurriculumPhase(
             name="refinement",
             start_epoch=int(7000 * scale),
             end_epoch=int(8000 * scale),
             loss_weights={
-                "overlap": 1000.0,  # CRITICAL: Must never overlap
-                "boundary": 500.0,  # Strong boundary enforcement
-                "clearance": 80.0,
-                "thermal": 30.0,
-                "zone": 50.0,  # Components in zones (lower than overlap)
-                "wirelength": 10.0,
-                "loop_area": 40.0,
-                "congestion": 5.0,
-                "ground_crossing": 20.0,  # Avoid crossing ground splits
+                "overlap": 250.0,
+                "loop_area": 150.0,
+                "power_path": 80.0,
+                "wirelength": 40.0,
+                "ground_crossing": 30.0,
             },
             temperature_override=0.1,  # Low temperature for exploitation
         ),

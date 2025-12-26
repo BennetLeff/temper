@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.config_loader import PlacementConstraints
+    from temper_placer.core.hypergraph import PhysicsHypergraph
 
 
 @dataclass(frozen=True)
@@ -231,6 +232,9 @@ class LossContext:
     geometry: GeometryContext = field(default_factory=GeometryContext)
     netlist_data: NetlistContext = field(default_factory=NetlistContext)
     constraints_data: ConstraintContext = field(default_factory=ConstraintContext)
+    
+    # Hypergraph (Optional for backward compatibility, but preferred for new losses)
+    hypergraph: Optional["PhysicsHypergraph"] = None
 
     constraints_config: Optional[Any] = None  # PlacementConstraints (aux_data)
     thermal_constraints: list[Any] = field(default_factory=list)
@@ -370,7 +374,7 @@ class LossContext:
         return self.constraints_data.path_weights if self.constraints_data.path_weights is not None else jnp.zeros((0,))
 
     def tree_flatten(self):
-        children = (self.geometry, self.netlist_data, self.constraints_data, self.bounds, self.fixed_mask)
+        children = (self.geometry, self.netlist_data, self.constraints_data, self.hypergraph, self.bounds, self.fixed_mask)
         aux_data = (
             self.netlist,
             self.board,
@@ -386,7 +390,7 @@ class LossContext:
 
     @classmethod
     def tree_unflatten(cls, aux_data, children):
-        geometry, netlist_data, constraints_data, bounds, fixed_mask = children
+        geometry, netlist_data, constraints_data, hypergraph, bounds, fixed_mask = children
         (
             netlist, board, config, thermal, loop, matched, clearance, star,
             comp_types, net_classes, port_facing
@@ -399,6 +403,7 @@ class LossContext:
             geometry=geometry,
             netlist_data=netlist_data,
             constraints_data=constraints_data,
+            hypergraph=hypergraph,
             constraints_config=config,
             thermal_constraints=thermal,
             loop_constraints=loop,
