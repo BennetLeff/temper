@@ -1,0 +1,44 @@
+name: mcu_subsystem
+anchor_point: U_MCU
+description: "ESP32-S3 MCU subsystem with crystal, decaps, and debug header"
+components:
+  - ref: U_MCU
+    x: 0.0
+    y: 0.0
+    rotation: 0
+  - ref: Y1
+    x: 8.0
+    y: 0.0
+    rotation: 0
+  - ref: C_XTAL1
+    x: 11.0
+    y: 2.0
+    rotation: 0
+  - ref: C_XTAL2
+    x: 11.0
+    y: -2.0
+    rotation: 0
+  - ref: C_MCU1
+    x: -10.0
+    y: 10.0
+    rotation: 0
+  - ref: C_MCU2
+    x: 10.0
+    y: 10.0
+    rotation: 0
+  - ref: C_MCU3
+    x: 10.0
+    y: -10.0
+    rotation: 0
+  - ref: C_MCU4
+    x: -10.0
+    y: -10.0
+    rotation: 0
+  - ref: J_DEBUG
+    x: -20.0
+    y: 0.0
+    rotation: 90
+  - ref: SW_RESET
+    x: 0.0
+    y: 20.0
+    rotation: 0

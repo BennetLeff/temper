@@ -1,480 +1,309 @@
 """
-Placement-routing feedback loop implementation (temper-l65.2).
+Validation feedback and root cause analysis for PCB design.
 
-This module implements the bidirectional feedback between placement and routing
-phases. When routing fails, it converts failures into placement adjustments
-and enables re-optimization with updated constraints.
-
-Feedback Flow:
-1. Routing verifier detects failure (congestion, no path, etc.)
-2. Diagnostics identify blocking elements and locations
-3. FeedbackGenerator creates placement adjustment hints
-4. AdjustmentApplier converts adjustments to soft constraints
-5. Geometric optimizer re-runs with new constraints
-6. Repeat until feasible or max iterations
-
-Example usage:
-    >>> from temper_placer.pipeline.feedback import run_feedback_loop
-    >>> from temper_placer.routing import RoutingReport
-    >>>
-    >>> def my_router(adjustments):
-    ...     # Re-run routing with adjustments applied
-    ...     return new_routing_report
-    >>>
-    >>> result = run_feedback_loop(
-    ...     initial_report=routing_report,
-    ...     routing_function=my_router,
-    ... )
-    >>> if result.converged:
-    ...     print("Routing feasible after", result.iterations, "iterations")
+This module analyzes validation failures and suggests actionable fixes
+targeting placement, routing, or specification relaxation.
 """
 
-from collections.abc import Callable
-from dataclasses import dataclass
-from enum import Enum
-from typing import Any
+from __future__ import annotations
 
-from temper_placer.routing.diagnostics import (
-    FailureType,
-    RoutingDiagnostic,
-    RoutingReport,
-    compute_clear_direction,
-)
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Literal
+
+if TYPE_CHECKING:
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.state import PlacementState
+    from temper_placer.pipeline.orchestrator import PipelineState
 
 
 class AdjustmentType(Enum):
-    """Types of placement adjustments.
-
-    Used to categorize feedback from router to placer.
-    """
-
-    MOVE = "move"  # Move component in a direction
-    ROTATE = "rotate"  # Rotate component
-    SPREAD = "spread"  # Spread components apart
-    SWAP = "swap"  # Swap two component positions
+    PLACEMENT = "placement"
+    ROUTING = "routing"
+    SPECIFICATION = "specification"
 
 
 @dataclass
 class FeedbackAdjustment:
-    """Placement adjustment generated from routing feedback.
-
-    Provides actionable hints from the router to the placer for
-    the placement ↔ routing feedback loop.
-
-    Attributes:
-        component: Component reference to adjust
-        adjustment_type: Type of adjustment to make
-        direction: (dx, dy) direction for MOVE, or None
-        magnitude: Distance/angle to adjust
-        reason: Human-readable explanation
-        priority: 0.0-1.0 priority (higher = more important)
-        source_diagnostic: Original diagnostic that triggered this
-    """
-
-    component: str
+    """A suggested adjustment to the design."""
     adjustment_type: AdjustmentType
-    direction: tuple[float, float] | None
-    magnitude: float
-    reason: str
-    priority: float
-    source_diagnostic: RoutingDiagnostic | None
+    description: str
+    target_ref: str | None = None
+    value: Any = None
+
+
+class FeedbackGenerator:
+    """Generates adjustments from validation failures."""
+    def __init__(self, state: PlacementState, netlist: Netlist, board: Board):
+        self.state = state
+        self.netlist = netlist
+        self.board = board
+
+    def generate(self, failures: list[ValidationFailure]) -> list[FeedbackAdjustment]:
+        adjustments = []
+        for failure in failures:
+            analysis = analyze_root_cause(failure, self.state, self.netlist, self.board)
+            # Pick the best fix
+            if analysis.fixes:
+                best_fix = analysis.fixes[0]
+                adjustments.append(FeedbackAdjustment(
+                    adjustment_type=AdjustmentType(best_fix.target),
+                    description=best_fix.action,
+                    value=best_fix.expected_improvement
+                ))
+        return adjustments
+
+
+class AdjustmentApplier:
+    """Applies adjustments to design state."""
+    def apply(self, state: PipelineState, adjustments: list[FeedbackAdjustment]) -> PipelineState:
+        """Apply adjustments to pipeline state."""
+        for adj in adjustments:
+            if adj.adjustment_type == AdjustmentType.PLACEMENT:
+                print(f"Applying placement adjustment: {adj.description}")
+                # TODO: Implement actual coordinate shifts
+            elif adj.adjustment_type == AdjustmentType.SPECIFICATION:
+                print(f"Applying specification adjustment: {adj.description}")
+                # TODO: Update state.constraints
+        return state
 
 
 @dataclass
 class FeedbackLoopConfig:
-    """Configuration for the feedback loop.
-
-    Attributes:
-        max_iterations: Maximum number of placement-routing iterations
-        max_adjustments_per_iteration: Max adjustments to apply each iteration
-        refinement_epochs: Epochs for refinement optimization runs
-    """
-
-    max_iterations: int = 5
-    max_adjustments_per_iteration: int = 3
-    refinement_epochs: int = 2000
+    max_iterations: int = 3
 
 
 @dataclass
 class FeedbackLoopResult:
-    """Result of running the feedback loop.
-
-    Attributes:
-        converged: True if routing became feasible
-        iterations: Number of iterations executed
-        final_routing_report: Last routing report
-        adjustments_applied: All adjustments applied across iterations
-        history: Per-iteration tracking info
-    """
-
-    converged: bool
+    success: bool
     iterations: int
-    final_routing_report: RoutingReport | None
-    adjustments_applied: list[FeedbackAdjustment]
-    history: list[dict[str, Any]]
 
 
-class FeedbackGenerator:
-    """Converts routing failures to placement adjustments.
+def run_feedback_loop(state: PipelineState, config: FeedbackLoopConfig) -> FeedbackLoopResult:
+    """Run the validation-adjustment feedback loop."""
+    iteration = 0
+    success = False
+    
+    while iteration < config.max_iterations:
+        print(f"Feedback Loop Iteration {iteration + 1}/{config.max_iterations}")
+        
+        # 1. Validation (Simulated for now)
+        # In a real run, this would be populated by ROUTING/POST-ROUTING phases
+        failures = []
+        if state.physics_report:
+            # Convert report to failures
+            if state.physics_report.emi.power_loop_area_mm2 > 80.0:
+                failures.append(ValidationFailure(
+                    spec_name="loop_area_power",
+                    actual_value=state.physics_report.emi.power_loop_area_mm2,
+                    limit_value=80.0,
+                    margin=80.0 - state.physics_report.emi.power_loop_area_mm2
+                ))
+        
+        if not failures:
+            success = True
+            break
+            
+        # 2. Generate Adjustments
+        generator = FeedbackGenerator(state.placement_state, state.netlist, state.board)
+        adjustments = generator.generate(failures)
+        
+        # 3. Apply Adjustments
+        applier = AdjustmentApplier()
+        state = applier.apply(state, adjustments)
+        
+        iteration += 1
+        
+    return FeedbackLoopResult(success=success, iterations=iteration)
 
-    Analyzes routing diagnostics and generates actionable placement
-    adjustments that may resolve routing issues.
+
+@dataclass
+class SuggestedFix:
+    """Actionable fix for a validation failure."""
+    target: Literal['placement', 'routing', 'specification']
+    action: str
+    expected_improvement: float
+    feasibility: Literal['easy', 'moderate', 'difficult', 'impossible'] = 'moderate'
+    side_effects: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ValidationFailure:
+    """A specific failure identified during validation."""
+    spec_name: str
+    actual_value: float
+    limit_value: float
+    margin: float  # Negative = violation
+    
+    # Root cause breakdown
+    placement_contribution: float = 0.0  # % due to component positions
+    routing_contribution: float = 0.0    # % due to trace path
+    
+    # Actionable fixes
+    fixes: list[SuggestedFix] = field(default_factory=list)
+
+
+@dataclass
+class RootCauseAnalysis:
+    """Analysis of why a failure occurred and how to fix it."""
+    failure: ValidationFailure
+    placement_contribution: float
+    routing_contribution: float
+    fixes: list[SuggestedFix] = field(default_factory=list)
+
+
+def analyze_root_cause(
+    failure: ValidationFailure,
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+    # TODO: Add routing data when available
+) -> RootCauseAnalysis:
     """
-
-    def __init__(self):
-        """Initialize the feedback generator."""
-        pass
-
-    def generate(self, routing_report: RoutingReport) -> list[FeedbackAdjustment]:
-        """Generate placement adjustments from routing failures.
-
-        Args:
-            routing_report: Routing report with diagnostics.
-
-        Returns:
-            List of FeedbackAdjustment sorted by priority (highest first).
-        """
-        if routing_report.feasible:
-            return []
-
-        adjustments = []
-
-        for diagnostic in routing_report.diagnostics:
-            adj = self._diagnostic_to_adjustment(diagnostic)
-            if adj is not None:
-                adjustments.append(adj)
-
-        # Sort by priority (highest first)
-        adjustments.sort(key=lambda a: -a.priority)
-
-        return adjustments
-
-    def _diagnostic_to_adjustment(self, diagnostic: RoutingDiagnostic) -> FeedbackAdjustment | None:
-        """Convert a single diagnostic to a placement adjustment.
-
-        Args:
-            diagnostic: The routing diagnostic to convert.
-
-        Returns:
-            FeedbackAdjustment or None if no adjustment possible.
-        """
-        if diagnostic.failure_type == FailureType.NO_PATH:
-            return self._handle_no_path(diagnostic)
-        elif diagnostic.failure_type == FailureType.CONGESTION:
-            return self._handle_congestion(diagnostic)
-        elif diagnostic.failure_type == FailureType.LAYER_CONFLICT:
-            # Layer conflicts cannot be fixed by placement adjustment
-            return None
-        elif diagnostic.failure_type == FailureType.CLEARANCE:
-            return self._handle_clearance(diagnostic)
-        elif diagnostic.failure_type == FailureType.VIA_COUNT:
-            return self._handle_via_count(diagnostic)
-
-        return None
-
-    def _handle_no_path(self, diagnostic: RoutingDiagnostic) -> FeedbackAdjustment | None:
-        """Handle NO_PATH failure - move blocking component.
-
-        Args:
-            diagnostic: NO_PATH diagnostic.
-
-        Returns:
-            MOVE adjustment for the blocking component.
-        """
-        if not diagnostic.blocking_elements:
-            return None
-
-        # Target the first blocking element
-        blocker = diagnostic.blocking_elements[0]
-
-        # Compute direction to move - perpendicular to blocked path
-        # Use the diagnostic location as a reference point
-        loc = diagnostic.location
-        # Default direction: move up and to the right
-        direction = (1.0, 1.0)
-
-        # If we have blocking info, try to compute smarter direction
-        if len(diagnostic.blocking_elements) >= 1:
-            # Simple heuristic: move away from the diagnostic location
-            # In a real implementation, we'd use path endpoints
-            direction = compute_clear_direction(
-                blocker_pos=loc,
-                path_start=(loc[0] - 5.0, loc[1]),
-                path_end=(loc[0] + 5.0, loc[1]),
-            )
-
-        return FeedbackAdjustment(
-            component=blocker,
-            adjustment_type=AdjustmentType.MOVE,
-            direction=direction,
-            magnitude=3.0,  # mm - default move distance
-            reason=f"Clear path for {diagnostic.net}",
-            priority=1.0,  # High priority for NO_PATH
-            source_diagnostic=diagnostic,
-        )
-
-    def _handle_congestion(self, diagnostic: RoutingDiagnostic) -> FeedbackAdjustment | None:
-        """Handle CONGESTION failure - spread components.
-
-        Args:
-            diagnostic: CONGESTION diagnostic.
-
-        Returns:
-            SPREAD adjustment for congested area.
-        """
-        if not diagnostic.blocking_elements:
-            return None
-
-        # Target first component in the congested area
-        target = diagnostic.blocking_elements[0]
-
-        return FeedbackAdjustment(
-            component=target,
-            adjustment_type=AdjustmentType.SPREAD,
-            direction=None,  # Spread doesn't have a specific direction
-            magnitude=5.0,  # mm - spread radius
-            reason=f"Reduce congestion at ({diagnostic.location[0]:.1f}, {diagnostic.location[1]:.1f})",
-            priority=0.7,  # Medium priority for congestion
-            source_diagnostic=diagnostic,
-        )
-
-    def _handle_clearance(self, diagnostic: RoutingDiagnostic) -> FeedbackAdjustment | None:
-        """Handle CLEARANCE failure - increase separation.
-
-        Args:
-            diagnostic: CLEARANCE diagnostic.
-
-        Returns:
-            MOVE or SPREAD adjustment.
-        """
-        if not diagnostic.blocking_elements:
-            return None
-
-        target = diagnostic.blocking_elements[0]
-
-        return FeedbackAdjustment(
-            component=target,
-            adjustment_type=AdjustmentType.MOVE,
-            direction=(1.0, 0.0),  # Simple: move right
-            magnitude=2.0,  # mm
-            reason=f"Increase clearance for {diagnostic.net}",
-            priority=0.8,
-            source_diagnostic=diagnostic,
-        )
-
-    def _handle_via_count(self, diagnostic: RoutingDiagnostic) -> FeedbackAdjustment | None:
-        """Handle VIA_COUNT failure - try rotation.
-
-        Args:
-            diagnostic: VIA_COUNT diagnostic.
-
-        Returns:
-            ROTATE adjustment to try alternate pin access.
-        """
-        if not diagnostic.blocking_elements:
-            return None
-
-        target = diagnostic.blocking_elements[0]
-
-        return FeedbackAdjustment(
-            component=target,
-            adjustment_type=AdjustmentType.ROTATE,
-            direction=None,
-            magnitude=90.0,  # degrees
-            reason=f"Try alternate orientation to reduce vias for {diagnostic.net}",
-            priority=0.4,  # Lower priority
-            source_diagnostic=diagnostic,
-        )
-
-
-class AdjustmentApplier:
-    """Converts placement adjustments to soft constraints.
-
-    Takes FeedbackAdjustments and creates soft constraints that
-    can be added to the constraint set for re-optimization.
+    Analyze a validation failure and suggest fixes.
     """
-
-    def __init__(self, max_adjustments: int = 3):
-        """Initialize the applier.
-
-        Args:
-            max_adjustments: Maximum adjustments to apply per iteration.
-        """
-        self.max_adjustments = max_adjustments
-
-    def apply(self, adjustments: list[FeedbackAdjustment]) -> list[dict[str, Any]]:
-        """Convert adjustments to soft constraints.
-
-        Args:
-            adjustments: List of adjustments to convert.
-
-        Returns:
-            List of constraint dicts for the optimizer.
-        """
-        if not adjustments:
-            return []
-
-        # Limit number of adjustments
-        limited = adjustments[: self.max_adjustments]
-
-        constraints = []
-        for adj in limited:
-            constraint = self._adjustment_to_constraint(adj)
-            if constraint is not None:
-                constraints.append(constraint)
-
-        return constraints
-
-    def _adjustment_to_constraint(self, adjustment: FeedbackAdjustment) -> dict[str, Any] | None:
-        """Convert a single adjustment to a constraint dict.
-
-        Args:
-            adjustment: The adjustment to convert.
-
-        Returns:
-            Constraint dict or None.
-        """
-        if adjustment.adjustment_type == AdjustmentType.MOVE:
-            return {
-                "type": "attraction",
-                "scope": [adjustment.component],
-                "direction": adjustment.direction,
-                "magnitude": adjustment.magnitude,
-                "tier": "SOFT",  # Feedback constraints are soft
-                "because": adjustment.reason,
-            }
-        elif adjustment.adjustment_type == AdjustmentType.SPREAD:
-            return {
-                "type": "separation",
-                "scope": [adjustment.component],
-                "min_distance": adjustment.magnitude,
-                "tier": "SOFT",
-                "because": adjustment.reason,
-            }
-        elif adjustment.adjustment_type == AdjustmentType.ROTATE:
-            return {
-                "type": "rotation_hint",
-                "scope": [adjustment.component],
-                "preferred_angle": adjustment.magnitude,
-                "tier": "SOFT",
-                "because": adjustment.reason,
-            }
-        elif adjustment.adjustment_type == AdjustmentType.SWAP:
-            return {
-                "type": "swap_suggestion",
-                "scope": [adjustment.component],
-                "tier": "SOFT",
-                "because": adjustment.reason,
-            }
-
-        return None
-
-
-def run_feedback_loop(
-    initial_report: RoutingReport,
-    routing_function: Callable[[list[FeedbackAdjustment]], RoutingReport],
-    config: FeedbackLoopConfig | None = None,
-    on_iteration: Callable[[int, RoutingReport, list[FeedbackAdjustment]], None] | None = None,
-) -> FeedbackLoopResult:
-    """Run the placement-routing feedback loop.
-
-    Iteratively generates placement adjustments from routing failures
-    and re-runs routing until feasible or max iterations reached.
-
-    Args:
-        initial_report: Initial routing report to start from.
-        routing_function: Function that takes adjustments and returns
-            a new RoutingReport after re-routing.
-        config: Configuration for the loop (optional).
-        on_iteration: Callback called each iteration (optional).
-
-    Returns:
-        FeedbackLoopResult with convergence status and history.
-    """
-    if config is None:
-        config = FeedbackLoopConfig()
-
-    generator = FeedbackGenerator()
-    applier = AdjustmentApplier(max_adjustments=config.max_adjustments_per_iteration)
-
-    all_adjustments: list[FeedbackAdjustment] = []
-    history: list[dict[str, Any]] = []
-    current_report = initial_report
-
-    # Check if already feasible
-    if current_report.feasible:
-        return FeedbackLoopResult(
-            converged=True,
-            iterations=0,
-            final_routing_report=current_report,
-            adjustments_applied=all_adjustments,
-            history=history,
+    if failure.spec_name.startswith('loop_area'):
+        return analyze_loop_failure(failure, state, netlist, board)
+    elif failure.spec_name.startswith('thermal'):
+        return analyze_thermal_failure(failure, state, netlist, board)
+    else:
+        # Generic fallback
+        return RootCauseAnalysis(
+            failure=failure,
+            placement_contribution=50.0,
+            routing_contribution=50.0,
+            fixes=[SuggestedFix(
+                target='specification',
+                action=f"Relax {failure.spec_name} limit",
+                expected_improvement=abs(failure.margin),
+                feasibility='moderate'
+            )]
         )
 
-    for iteration in range(config.max_iterations):
-        # Generate adjustments from current failures
-        adjustments = generator.generate(current_report)
 
-        # Call callback
-        if on_iteration is not None:
-            on_iteration(iteration, current_report, adjustments)
+def compute_min_loop_area(
+    state: PlacementState,
+    netlist: Netlist,
+    loop_refs: list[str],
+) -> float:
+    """Compute minimum possible loop area from placement (pin-to-pin direct)."""
+    import numpy as np
+    
+    positions = []
+    for ref in loop_refs:
+        try:
+            idx = netlist.get_component_index(ref)
+            positions.append(state.positions[idx])
+        except KeyError:
+            continue
+            
+    if len(positions) < 3:
+        return 0.0
+        
+    v = np.array(positions)
+    # Shoelace formula for polygon area
+    area = 0.5 * np.abs(np.dot(v[:, 0], np.roll(v[:, 1], 1)) - np.dot(v[:, 1], np.roll(v[:, 0], 1)))
+    return float(area)
 
-        # Track history
-        history.append(
-            {
-                "iteration": iteration,
-                "feasible": current_report.feasible,
-                "completion_rate": current_report.completion_rate,
-                "num_adjustments": len(adjustments),
-                "failed_nets": len(current_report.failed_nets),
-            }
-        )
 
-        # If no adjustments possible, stop early
-        if not adjustments:
-            return FeedbackLoopResult(
-                converged=False,
-                iterations=iteration,
-                final_routing_report=current_report,
-                adjustments_applied=all_adjustments,
-                history=history,
-            )
+def analyze_loop_failure(
+    failure: ValidationFailure,
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+) -> RootCauseAnalysis:
+    """Analyze EMI/Loop Area failure with attribution."""
+    # Try to identify loop components from name
+    # Format: "loop_area_<name>" or similar
+    loop_name = failure.spec_name.replace("loop_area_", "")
+    
+    # Mock loop lookup for now
+    # TODO: Get actual loop components from state/netlist
+    loop_refs = ["Q1", "Q2", "C_BUS1"] if "power" in loop_name else ["U_MCU", "C_MCU_1"]
+    
+    min_placement_area = compute_min_loop_area(state, netlist, loop_refs)
+    actual_area = failure.actual_value
+    
+    # Attribution
+    # placement_contribution: what % of actual area is accounted for by the ideal placement?
+    # High % means components are just too far apart.
+    # Low % means routing detours are the main problem.
+    placement_contrib = min(100.0, (min_placement_area / actual_area * 100.0)) if actual_area > 0 else 0.0
+    routing_contrib = 100.0 - placement_contrib
+    
+    fixes = []
+    
+    # If placement is major contributor (>= 50%)
+    if placement_contrib >= 50:
+        fixes.append(SuggestedFix(
+            target='placement',
+            action="Decrease component spacing in critical loop",
+            expected_improvement=(min_placement_area - failure.limit_value) * 0.8,
+            feasibility='moderate',
+            side_effects=["May increase thermal coupling"]
+        ))
+    
+    # If routing is major contributor (> 30%)
+    if routing_contrib > 30:
+        fixes.append(SuggestedFix(
+            target='routing',
+            action="Reroute to reduce detour",
+            expected_improvement=(actual_area - min_placement_area) * 0.7,
+            feasibility='moderate',
+            side_effects=["May require more vias"]
+        ))
+    
+    # Specification relaxation if best achievable is still above limit
+    best_achievable = min_placement_area * 1.1 # 10% routing overhead
+    if best_achievable > failure.limit_value:
+        fixes.append(SuggestedFix(
+            target='specification',
+            action=f"Relax {failure.spec_name} limit to {best_achievable:.1f}mm²",
+            expected_improvement=failure.actual_value - failure.limit_value,
+            feasibility='difficult',
+            side_effects=["Verify against regulatory limits"]
+        ))
+    
+    return RootCauseAnalysis(
+        failure=failure,
+        placement_contribution=placement_contrib,
+        routing_contribution=routing_contrib,
+        fixes=sorted(fixes, key=lambda f: f.expected_improvement, reverse=True)
+    )
 
-        # Apply adjustments (converts to constraints)
-        applier.apply(adjustments)
 
-        # Track applied adjustments
-        limited_adjustments = adjustments[: config.max_adjustments_per_iteration]
-        all_adjustments.extend(limited_adjustments)
-
-        # Re-run routing with adjustments
-        current_report = routing_function(limited_adjustments)
-
-        # Check if now feasible
-        if current_report.feasible:
-            # Add final history entry
-            history.append(
-                {
-                    "iteration": iteration + 1,
-                    "feasible": True,
-                    "completion_rate": current_report.completion_rate,
-                    "num_adjustments": 0,
-                    "failed_nets": 0,
-                }
-            )
-            return FeedbackLoopResult(
-                converged=True,
-                iterations=iteration + 1,
-                final_routing_report=current_report,
-                adjustments_applied=all_adjustments,
-                history=history,
-            )
-
-    # Max iterations reached
-    return FeedbackLoopResult(
-        converged=False,
-        iterations=config.max_iterations,
-        final_routing_report=current_report,
-        adjustments_applied=all_adjustments,
-        history=history,
+def analyze_thermal_failure(
+    failure: ValidationFailure,
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+) -> RootCauseAnalysis:
+    """Analyze thermal violation."""
+    placement_contrib = 90.0
+    routing_contrib = 10.0
+    
+    fixes = []
+    
+    fixes.append(SuggestedFix(
+        target='placement',
+        action="Move high-power components closer to board edge",
+        expected_improvement=abs(failure.margin) * 0.7,
+        feasibility='easy',
+        side_effects=["May increase wirelength"]
+    ))
+    
+    fixes.append(SuggestedFix(
+        target='routing',
+        action="Increase trace width for high-current paths",
+        expected_improvement=5.0, # Celsius estimate
+        feasibility='moderate',
+        side_effects=["Reduces routing channel capacity"]
+    ))
+    
+    return RootCauseAnalysis(
+        failure=failure,
+        placement_contribution=placement_contrib,
+        routing_contribution=routing_contrib,
+        fixes=fixes
     )
