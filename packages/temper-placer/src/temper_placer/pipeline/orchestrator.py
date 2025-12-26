@@ -295,17 +295,47 @@ class PipelineOrchestrator:
 
     def _compute_physics_metrics(self) -> None:
         """Compute physical metrics."""
-        from temper_placer.metrics.physics import measure_emi, measure_geometric, measure_routability, measure_thermal, PhysicsReport
+        from temper_placer.metrics.physics import (
+            measure_emi,
+            measure_geometric,
+            measure_routability,
+            measure_thermal,
+            PhysicsReport,
+        )
         from temper_placer.core.state import PlacementState
         import jax.numpy as jnp
-        
+
         state = self.state
         if state.placement_state is None and state.deterministic_result is None:
             return
-            
-        ps = state.placement_state or PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
+
+        ps = state.placement_state or PlacementState.from_positions(
+            jnp.array(state.deterministic_result.positions)
+        )
         geo = measure_geometric(ps, state.netlist, state.board)
-        emi = measure_emi(ps, state.netlist, loop_refs=[["Q1", "Q2", "C_BUS1"]])
-        thermal = measure_thermal(ps, state.netlist, state.board, power_dissipation={"Q1": 15.0, "Q2": 15.0})
+
+        # 1. Extract loops from constraints
+        loop_refs = []
+        if state.constraints and hasattr(state.constraints, "critical_loops"):
+            for loop in state.constraints.critical_loops:
+                # Real CriticalLoop has pins: [(ref, pin), ...]
+                if hasattr(loop, "pins") and loop.pins:
+                    loop_refs.append(list(set(p[0] for p in loop.pins)))
+        
+        if not loop_refs:
+            # Fallback for Temper board
+            loop_refs = [["Q1", "Q2", "C_BUS1"]]
+
+        emi = measure_emi(ps, state.netlist, loop_refs=loop_refs)
+
+        # 2. Extract power dissipation from constraints
+        power = {"Q1": 15.0, "Q2": 15.0}  # Defaults
+        if state.constraints and hasattr(state.constraints, "thermal_properties"):
+            if state.constraints.thermal_properties:
+                power.update(state.constraints.thermal_properties.power_dissipation_w)
+
+        thermal = measure_thermal(ps, state.netlist, state.board, power_dissipation=power)
         routability = measure_routability(ps, state.netlist, state.board)
-        state.physics_report = PhysicsReport(geometric=geo, emi=emi, thermal=thermal, routability=routability)
+        state.physics_report = PhysicsReport(
+            geometric=geo, emi=emi, thermal=thermal, routability=routability
+        )

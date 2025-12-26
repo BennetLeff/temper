@@ -241,15 +241,26 @@ net_classes:
   +15V: "Power"
 
 # ==============================================================================
-# AESTHETICS
+# THERMAL PROPERTIES (for Level 3 Electrical Validity)
 # ==============================================================================
 
-aesthetics:
-  grid_size_mm: 0.5
-  grid_weight: 2.0
-  alignment_weight: 10.0  # Increased for clean rows/columns
-  grouping_weight: 10.0
-  symmetry_weight: 3.0
+thermal_properties:
+  high_power:
+    components: ["Q1", "Q2"]
+    power_dissipation_w:
+      Q1: 15.0
+      Q2: 15.0
+    min_separation_mm: 20.0
+  
+  heat_sensitive:
+    components: ["U_MCU", "MAX31865", "U_LDO_3V3"]
+    max_temp_rise_c: 15.0
+    min_distance_from_heat_sources_mm: 30.0
+
+  thermal_pads:
+    components: ["Q1", "Q2", "D1", "D2"]
+    prefer_edge: true
+    preferred_edge_margin_mm: 5.0
 
 # Loss weight overrides for power electronics
 loss_weights:

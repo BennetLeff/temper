@@ -136,17 +136,64 @@ def measure_routability(state: PlacementState, netlist: Netlist, board: Board) -
     return m
 
 
-def measure_thermal(state: PlacementState, netlist: Netlist, board: Board, power_dissipation: dict[str, float] | None = None, amb: float = 40.0) -> ThermalMetrics:
-    if not power_dissipation: return ThermalMetrics(amb, 0.0, 0.0)
+def measure_thermal(
+    state: PlacementState,
+    netlist: Netlist,
+    board: Board,
+    power_dissipation: dict[str, float] | None = None,
+    amb: float = 40.0
+) -> ThermalMetrics:
+    """
+    Predict junction temperatures using a calibrated thermal resistance network.
+
+    Model: Tj = Tamb + P * (Rjc + Rch + Rha)
+    Rha is modeled as a base resistance plus a penalty for distance from the board edge.
+    
+    Targets: IKW40N120H3 IGBT (TO-247) at 15A/1.8kW.
+    """
+    if not power_dissipation:
+        return ThermalMetrics(amb, 0.0, 0.0)
+
     pos = np.array(state.positions)
-    max_tj, edge_dists = amb, []
+    max_tj = amb
+    edge_dists = []
+
+    # Calibrated values for Temper project
+    # RJC: Junction-to-Case (0.6 K/W from IKW40N120H3 datasheet)
+    # RCH: Case-to-Heatsink (0.25 K/W for high-quality silicone grease)
+    # RHA_BASE: Heatsink-to-Ambient (2.0 K/W for 100mm extruded aluminum)
+    RJC = 0.6
+    RCH = 0.25
+    RHA_BASE = 2.0
+    MAX_ALLOWED_TJ = 150.0  # Celsius
+
     for ref, p in power_dissipation.items():
         try:
             idx = netlist.get_component_index(ref)
             cp = pos[idx]
-            d = min(cp[0]-board.origin[0], board.origin[0]+board.width-cp[0], cp[1]-board.origin[1], board.origin[1]+board.height-cp[1])
+
+            # Distance to closest board edge
+            d = min(
+                cp[0] - board.origin[0],
+                board.origin[0] + board.width - cp[0],
+                cp[1] - board.origin[1],
+                board.origin[1] + board.height - cp[1]
+            )
             edge_dists.append(d)
-            tj = amb + p * (0.6 + 0.25 + 2.0 + (d/50.0)*8.0)
+
+            # Rha penalty: 0.2 K/W per mm away from board edge
+            # This represents the effective increase in thermal resistance
+            # when mounting becomes suboptimal or remote.
+            rha_penalty = d * 0.2
+            r_total = RJC + RCH + RHA_BASE + rha_penalty
+
+            tj = amb + p * r_total
             max_tj = max(max_tj, tj)
-        except KeyError: continue
-    return ThermalMetrics(max_tj, 150.0-max_tj, np.mean(edge_dists) if edge_dists else 0.0)
+        except KeyError:
+            continue
+
+    return ThermalMetrics(
+        max_junction_temp_c=max_tj,
+        thermal_margin_c=MAX_ALLOWED_TJ - max_tj,
+        edge_distance_avg_mm=np.mean(edge_dists) if edge_dists else 0.0
+    )
