@@ -12,6 +12,9 @@ board:
   width_mm: 100.0
   height_mm: 150.0
   margin_mm: 3.0
+  keepouts:
+    - [45.0, 70.0, 55.0, 150.0]  # Central vertical routing gutter for DC bus
+
 
 # ==============================================================================
 # PLACEMENT ZONES (for power stage separation)

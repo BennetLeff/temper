@@ -23,6 +23,7 @@ from temper_placer.optimizer.legalization import (
 )
 from temper_placer.losses.wirelength import WirelengthLoss
 from temper_placer.losses.overlap import OverlapLoss
+from temper_placer.losses.boundary import BoundaryLoss
 
 if TYPE_CHECKING:
     from temper_placer.pipeline.state import PipelineState
@@ -43,8 +44,11 @@ def run_geometric_phase(state: PipelineState) -> PipelineState:
     
     loss_fn = CompositeLoss([
         WeightedLoss(WirelengthLoss(), weight=1.0),
-        WeightedLoss(OverlapLoss(), weight=10.0),
+        # Stronger overlap and boundary weights for local refinement
+        WeightedLoss(OverlapLoss(), weight=20.0),
+        WeightedLoss(BoundaryLoss(), weight=50.0),
     ])
+    
     context = LossContext.from_netlist_and_board(state.netlist, state.board)
     
     print(f"Running refinement for {state.config.epochs} epochs (max {state.config.max_movement_mm}mm movement)...")
@@ -55,6 +59,7 @@ def run_geometric_phase(state: PipelineState) -> PipelineState:
     @jax.jit
     def step(params, opt_state):
         def f(p):
+            # Assumes 0 degree rotation for now in local refinement
             rotations = jnp.zeros((n, 4)).at[:, 0].set(1.0)
             return loss_fn(p["positions"], rotations, context).value
         loss, grads = jax.value_and_grad(f)(params)

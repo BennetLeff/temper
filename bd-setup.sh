@@ -206,6 +206,15 @@ configure_shell() {
     echo "" >> "$shell_rc"
     echo "$config_block" >> "$shell_rc"
     info "Added workflow config to $shell_rc"
+
+    # Auto-source for current session if shell matches
+    local current_shell
+    current_shell=$(detect_shell)
+    if [[ "$shell" == "$current_shell" ]]; then
+        echo ""
+        info "Sourcing config for current session..."
+        source "$shell_rc" 2>/dev/null || true
+    fi
 }
 
 enable_protected_branch_mode() {

@@ -295,6 +295,7 @@ class PlacementConstraints:
     board_width_mm: float = 100.0
     board_height_mm: float = 150.0
     board_margin_mm: float = 3.0
+    keepouts: list[tuple[float, float, float, float]] = field(default_factory=list)
 
     # Zones
     zones: list[Zone] = field(default_factory=list)
@@ -459,6 +460,11 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.board_width_mm = board.get("width_mm", 100.0)
         constraints.board_height_mm = board.get("height_mm", 150.0)
         constraints.board_margin_mm = board.get("margin_mm", 3.0)
+        
+        if "keepouts" in board:
+            for ko in board["keepouts"]:
+                if isinstance(ko, (list, tuple)) and len(ko) >= 4:
+                    constraints.keepouts.append(tuple(ko))
 
     # Parse zones
     if "zones" in config:
@@ -804,6 +810,7 @@ def create_board_from_constraints(constraints: PlacementConstraints) -> Board:
         origin=(0.0, 0.0),
         zones=constraints.zones,
         ground_domains=constraints.ground_domains,
+        keepouts=constraints.keepouts,
         layer_stackup=constraints.layer_stackup or LayerStackup.default_4layer(),
     )
 

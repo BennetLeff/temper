@@ -219,8 +219,8 @@ class BoundaryLoss(LossFunction):
             total_violations = total_violations + violation**2
 
         # Check rectangular keepout regions if present
-        if hasattr(board, 'keepout_regions'):
-            for keepout in board.keepout_regions:
+        if hasattr(board, 'keepouts'):
+            for keepout in board.keepouts:
                 kx_min, ky_min, kx_max, ky_max = keepout
                 kw = kx_max - kx_min
                 kh = ky_max - ky_min
