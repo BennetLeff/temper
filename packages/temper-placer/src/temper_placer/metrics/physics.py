@@ -255,31 +255,18 @@ def measure_thermal(
     netlist: Netlist,
     board: Board,
     power_dissipation: dict[str, float] | None = None,
-    ambient_temp: float = 40.0,
+    ambient_temp_c: float = 40.0,
 ) -> ThermalMetrics:
     """
     Estimate junction temperatures based on placement and power dissipation.
-    
-    Simplified model:
-    Tj = Tamb + P * (Rth_jc + Rth_sink(dist_to_edge))
     """
     if not power_dissipation:
-        return ThermalMetrics(ambient_temp, 0.0, 0.0)
+        return ThermalMetrics(ambient_temp_c, 0.0, 0.0)
         
-    metrics = ThermalMetrics()
+    from temper_placer.physics.thermal import estimate_junction_temp
+    
     positions = np.array(state.positions)
-    
-    # Rth parameters (typical for TO-247)
-    Rth_jc = 0.6  # K/W
-    Rth_cs = 0.25 # K/W (insulator)
-    
-    # Rth_sink depends on board edge distance (proxy for heatsink size/efficiency)
-    # 0mm from edge = 2.0 K/W
-    # 50mm from edge = 10.0 K/W
-    def get_Rth_sa(dist: float) -> float:
-        return 2.0 + (dist / 50.0) * 8.0
-        
-    max_tj = ambient_temp
+    max_tj = ambient_temp_c
     edge_dists = []
     
     for ref, power in power_dissipation.items():
@@ -295,11 +282,18 @@ def measure_thermal(
         dist = min(dx, dy)
         edge_dists.append(dist)
         
-        tj = ambient_temp + power * (Rth_jc + Rth_cs + get_Rth_sa(dist))
+        # Estimate Tj using the refined model
+        # TODO: Pull copper_area from netlist/board info
+        tj = estimate_junction_temp(
+            power_W=power,
+            edge_distance_mm=dist,
+            ambient_C=ambient_temp_c
+        )
         max_tj = max(max_tj, tj)
         
+    metrics = ThermalMetrics()
     metrics.max_junction_temp_c = max_tj
-    metrics.thermal_margin_c = 150.0 - max_tj # Assumes 150C limit
-    metrics.edge_distance_avg_mm = np.mean(edge_dists) if edge_dists else 0.0
+    metrics.thermal_margin_c = 150.0 - max_tj # 150C is typical shutdown
+    metrics.edge_distance_avg_mm = float(np.mean(edge_dists)) if edge_dists else 0.0
     
     return metrics
