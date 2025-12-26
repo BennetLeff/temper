@@ -142,6 +142,7 @@ class PipelineState:
     netlist: Any = None  # Netlist from core
     loops: list = field(default_factory=list)  # Loop definitions
     constraints: Any = None  # PCLConstraints
+    deterministic_result: Any = None  # PlacementResult (NumPy) from topological/deterministic
     placement_state: Any = None  # PlacementState from optimizer
     routing_result: Any = None  # RoutingResult from routing
     decision_trace: Any = None  # DecisionTrace from explainability
@@ -278,18 +279,40 @@ class PipelineOrchestrator:
         return self.state
 
     # ==========================================================================
-    # Phase Handlers (stub implementations - will be filled in later tasks)
+    # Phase Handlers
     # ==========================================================================
 
     def _run_input(self, state: PipelineState) -> PipelineState:
-        """Load input files (KiCad PCB, constraints, loops).
+        """Load input files (KiCad PCB, constraints, loops)."""
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        # from temper_placer.io.config_loader import load_constraints  # TODO: Implement
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement actual file loading
-        # - Load KiCad PCB using kicad_parser
-        # - Load constraints YAML if provided
-        # - Load loops YAML if provided
+        print(f"Loading PCB from {state.config.input_pcb}")
+        if not state.config.input_pcb.exists():
+            raise PipelineError(
+                f"Input PCB not found: {state.config.input_pcb}",
+                phase=PipelinePhase.INPUT,
+            )
+
+        # Parse KiCad PCB
+        try:
+            result = parse_kicad_pcb(state.config.input_pcb)
+        except Exception as e:
+            raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT)
+
+        state.board = result.board
+        state.netlist = result.netlist
+
+        if result.has_warnings:
+            print(f"Warnings during parsing: {result.warnings}")
+
+        # TODO: Load real constraints
+        # For now, create a mock constraint object that satisfies PreflightChecker
+        class MockConstraints:
+            constraints = []
+
+        state.constraints = MockConstraints()
+
         return state
 
     def _run_semantic(self, state: PipelineState) -> PipelineState:
@@ -314,24 +337,66 @@ class PipelineOrchestrator:
         return state
 
     def _run_preflight(self, state: PipelineState) -> PipelineState:
-        """Run preflight feasibility checks.
+        """Run preflight feasibility checks."""
+        from temper_placer.pipeline.preflight import PreflightChecker
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement preflight checks
-        # - Check component area vs board area
-        # - Check for constraint contradictions
-        # - Verify HV clearance is achievable
+        print("Running preflight feasibility checks...")
+
+        # Mock FabPreset (TODO: Load from config)
+        @dataclass
+        class MockFabPreset:
+            min_clearance: float = 0.2
+
+        checker = PreflightChecker()
+        report = checker.run(
+            board=state.board,
+            netlist=state.netlist,
+            constraints=state.constraints,
+            fab_preset=MockFabPreset(),
+        )
+
+        print(report.summary())
+
+        if not report.passed:
+            raise PipelineError(
+                f"Preflight checks failed: {report.summary()}",
+                phase=PipelinePhase.PREFLIGHT,
+            )
+
         return state
 
     def _run_geometric(self, state: PipelineState) -> PipelineState:
-        """Run geometric optimization (JAX gradient descent).
+        """Run geometric optimization (JAX gradient descent)."""
+        from temper_placer.core.state import PlacementState
+        import jax.numpy as jnp
+        import numpy as np
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement geometric optimization
-        # - Initialize placement state
-        # - Run optimizer with curriculum learning
+        print("Initializing geometric optimization...")
+
+        # Initialize placement state
+        if state.placement_state is None:
+            if state.deterministic_result is not None:
+                print("Initializing from deterministic placement result...")
+                # Convert NumPy arrays to JAX arrays
+                positions = jnp.array(state.deterministic_result.positions)
+                # We could also use rotations if PlacementState supports initial rotations
+                # For now just positions
+                state.placement_state = PlacementState.from_positions(positions)
+            else:
+                print("Initializing random placement...")
+                # Fallback to random initialization
+                # This requires board dimensions and a key
+                import jax
+                key = jax.random.PRNGKey(state.config.seed)
+                state.placement_state = PlacementState.random_init(
+                    n_components=state.netlist.n_components,
+                    board_width=state.board.width,
+                    board_height=state.board.height,
+                    key=key,
+                    origin=state.board.origin,
+                )
+
+        # TODO: Run optimizer with curriculum learning
         # - Track decision trace
         return state
 
