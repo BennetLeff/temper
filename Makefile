@@ -7,10 +7,28 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression
+.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression setup validate-env bd-ready bd-status
 
-all: build
+# ==============================================================================
+# Workflow Setup Targets
+# ==============================================================================
 
+setup:
+	@echo "Running temper bd workflow setup..."
+	@./bd-setup.sh --quiet
+
+validate-env:
+	@./bd-setup.sh --status-only
+
+# Alias for finding work
+bd-ready:
+	@bd ready --json
+
+# Alias for status
+bd-status:
+	@bd-status
+
+# Show help for workflow commands
 help:
 	@echo "Temper PCB Build System"
 	@echo "Targets:"
@@ -21,6 +39,12 @@ help:
 	@echo "  make route    - Run the autorouter"
 	@echo "  make drc      - Run KiCad DRC validation"
 	@echo "  make clean    - Remove build artifacts"
+	@echo ""
+	@echo "Workflow Targets (bd-based):"
+	@echo "  make setup        - Configure bd workflow (one-time)"
+	@echo "  make validate-env - Check workflow setup status"
+	@echo "  make bd-ready     - Find available work"
+	@echo "  make bd-status    - Show workflow status"
 
 build: netlist footprints route drc
 
