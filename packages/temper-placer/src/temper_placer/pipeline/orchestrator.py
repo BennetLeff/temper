@@ -314,9 +314,37 @@ class PipelineOrchestrator:
         state.board = result.board
         state.netlist = result.netlist
 
-        class MockConstraints:
-            constraints = []
-        state.constraints = MockConstraints()
+        # Load constraints
+        from temper_placer.io.config_loader import (
+            apply_fixed_components_to_netlist,
+            apply_zones_to_netlist,
+            create_board_from_constraints,
+            load_constraints,
+        )
+
+        if state.config.constraints_yaml:
+            print(f"Loading constraints from {state.config.constraints_yaml}")
+            try:
+                state.constraints = load_constraints(state.config.constraints_yaml)
+                
+                # Update board with zones from constraints
+                # result.board might not have zones if it's a fresh KiCad file
+                # create_board_from_constraints combines board geometry + constraints
+                constrained_board = create_board_from_constraints(state.constraints)
+                # Keep original width/height if result.board had them? 
+                # Actually create_board_from_constraints uses values from YAML
+                state.board = constrained_board
+                
+                # Apply assignments to netlist
+                apply_fixed_components_to_netlist(state.netlist, state.constraints)
+                apply_zones_to_netlist(state.netlist, state.constraints)
+                
+            except Exception as e:
+                raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
+        else:
+            class MockConstraints:
+                constraints = []
+            state.constraints = MockConstraints()
 
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification
@@ -346,7 +374,15 @@ class PipelineOrchestrator:
 
         # 1. MCU Subsystem Template
         mcu_heuristic = MCUSubsystemHeuristic()
-        mcu_result = mcu_heuristic.apply(state.netlist, state.board)
+        # Try control_zone then MCU_ZONE
+        try:
+            mcu_result = mcu_heuristic.apply(state.netlist, state.board, zone_name="control_zone")
+        except ValueError:
+            try:
+                mcu_result = mcu_heuristic.apply(state.netlist, state.board, zone_name="MCU_ZONE")
+            except ValueError:
+                # If neither found, just use default (likely fails or uses board center)
+                mcu_result = mcu_heuristic.apply(state.netlist, state.board)
         
         positions = np.array(mcu_result.positions)
         rotations = np.array(mcu_result.rotations)
