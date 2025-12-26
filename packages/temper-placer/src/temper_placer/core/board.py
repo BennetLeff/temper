@@ -291,7 +291,7 @@ class Board:
     origin: tuple[float, float] = (0.0, 0.0)
     zones: list[Zone] = field(default_factory=list)
     mounting_holes: list[MountingHole] = field(default_factory=list)
-    keepout_regions: list[tuple[float, float, float, float]] = field(default_factory=list)  # (x_min, y_min, x_max, y_max)
+    keepouts: list[tuple[float, float, float, float]] = field(default_factory=list)  # (x_min, y_min, x_max, y_max)
     ground_domains: list[GroundDomain] = field(default_factory=list)
     layer_stackup: LayerStackup | None = None
     outline_polygon: list[tuple[float, float]] | None = None

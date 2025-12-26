@@ -248,7 +248,9 @@ class PipelineOrchestrator:
         start_time = time.time()
         phase_order = self.get_phase_order()
 
-        for phase in phase_order:
+        idx = 0
+        while idx < len(phase_order):
+            phase = phase_order[idx]
             self.state.current_phase = phase
 
             # Call start callback
@@ -270,13 +272,58 @@ class PipelineOrchestrator:
             # Record phase timing
             self.state.phase_timings[phase] = time.time() - phase_start
 
+            # Save snapshot
+            self._save_snapshot(phase)
+
             # Call complete callback
             if self.on_phase_complete:
                 self.on_phase_complete(phase, self.state)
 
+            # Handle refinement loop
+            if (
+                phase == PipelinePhase.REFINEMENT
+                and not self.state._refinement_complete
+                and self.state.iteration < self.state.config.max_iterations
+            ):
+                # Jump back to GEOMETRIC
+                try:
+                    idx = phase_order.index(PipelinePhase.GEOMETRIC)
+                    continue
+                except ValueError:
+                    pass  # No geometric phase to jump back to
+
+            idx += 1
+
         self.state.success = True
         self.state.elapsed_time_s = time.time() - start_time
         return self.state
+
+    def _save_snapshot(self, phase: PipelinePhase) -> None:
+        """Save state snapshot (JSON + SVG)."""
+        from temper_placer.io.snapshot import save_json_snapshot, save_svg_snapshot
+
+        # Determine snapshot directory
+        if self.config.output_pcb:
+            snapshot_dir = self.config.output_pcb.parent / "snapshots"
+        else:
+            snapshot_dir = Path("snapshots")
+
+        snapshot_dir.mkdir(parents=True, exist_ok=True)
+
+        # File prefix: 01_input, 02_semantic, etc.
+        phase_idx = self.get_phase_order().index(phase)
+        prefix = f"{phase_idx:02d}_{phase.value}"
+        if phase == PipelinePhase.REFINEMENT:
+            prefix += f"_iter{self.state.iteration}"
+
+        json_path = snapshot_dir / f"{prefix}.json"
+        svg_path = snapshot_dir / f"{prefix}.svg"
+
+        try:
+            save_json_snapshot(self.state, json_path)
+            save_svg_snapshot(self.state, svg_path)
+        except Exception as e:
+            print(f"Warning: Failed to save snapshot for {phase}: {e}")
 
     # ==========================================================================
     # Phase Handlers
@@ -298,7 +345,7 @@ class PipelineOrchestrator:
         try:
             result = parse_kicad_pcb(state.config.input_pcb)
         except Exception as e:
-            raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT)
+            raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT) from e
 
         state.board = result.board
         state.netlist = result.netlist
@@ -326,14 +373,61 @@ class PipelineOrchestrator:
         return state
 
     def _run_topological(self, state: PipelineState) -> PipelineState:
-        """Run topological placement phase.
+        """Run topological placement phase (deterministic/legalization)."""
+        import numpy as np
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement topological placement
-        # - Build adjacency graph
-        # - Check constraint satisfiability
-        # - Identify clusters
+        from temper_placer.optimizer.legalization import legalize_zone_aware
+        from temper_placer.placer.deterministic import PlacementResult
+
+        print("Running topological placement...")
+
+        # Initialize positions
+        n = state.netlist.n_components
+        positions = np.zeros((n, 2), dtype=np.float32)
+        rotations = np.zeros(n, dtype=np.float32)
+
+        # 1. Load initial positions
+        for i, comp in enumerate(state.netlist.components):
+            if comp.initial_position:
+                positions[i] = comp.initial_position
+            else:
+                # Default to board/zone center
+                if comp.zone:
+                    zone = state.board.get_zone(comp.zone)
+                    if zone:
+                        positions[i] = zone.center
+                    else:
+                        positions[i] = (state.board.width / 2, state.board.height / 2)
+                else:
+                    positions[i] = (state.board.width / 2, state.board.height / 2)
+
+            if comp.initial_rotation is not None:
+                rotations[i] = comp.initial_rotation * 90.0
+
+        # 2. Zone-Aware Legalization
+        print("Running zone-aware legalization...")
+        fixed_mask = np.array([c.fixed for c in state.netlist.components], dtype=bool)
+
+        legalized_pos, success = legalize_zone_aware(
+            positions,
+            state.netlist,
+            state.board,
+            fixed_mask=fixed_mask,
+            max_iterations=500
+        )
+
+        if not success:
+            print("Warning: Legalization could not fully resolve overlaps/constraints.")
+            # We continue anyway, hoping optimizer fixes it or user refines constraints
+
+        # 3. Store Result
+        state.deterministic_result = PlacementResult(
+            positions=legalized_pos,
+            rotations=rotations,
+            placed_refs=[c.ref for c in state.netlist.components],
+            unplaced_refs=[],
+        )
+
         return state
 
     def _run_preflight(self, state: PipelineState) -> PipelineState:
@@ -366,70 +460,198 @@ class PipelineOrchestrator:
         return state
 
     def _run_geometric(self, state: PipelineState) -> PipelineState:
-        """Run geometric optimization (JAX gradient descent)."""
-        from temper_placer.core.state import PlacementState
+        """Run geometric optimization (JAX gradient descent with trust region)."""
+        import jax
         import jax.numpy as jnp
         import numpy as np
+        import optax
 
-        print("Initializing geometric optimization...")
+        from temper_placer.core.state import PlacementState
+        from temper_placer.losses.base import CompositeLoss, LossContext
+        from temper_placer.optimizer.legalization import (
+            project_to_trust_region,
+            resolve_overlaps_priority,
+        )
 
-        # Initialize placement state
-        if state.placement_state is None:
-            if state.deterministic_result is not None:
-                print("Initializing from deterministic placement result...")
-                # Convert NumPy arrays to JAX arrays
-                positions = jnp.array(state.deterministic_result.positions)
-                # We could also use rotations if PlacementState supports initial rotations
-                # For now just positions
-                state.placement_state = PlacementState.from_positions(positions)
-            else:
-                print("Initializing random placement...")
-                # Fallback to random initialization
-                # This requires board dimensions and a key
-                import jax
-                key = jax.random.PRNGKey(state.config.seed)
-                state.placement_state = PlacementState.random_init(
-                    n_components=state.netlist.n_components,
-                    board_width=state.board.width,
-                    board_height=state.board.height,
-                    key=key,
-                    origin=state.board.origin,
-                )
+        print("Initializing local refinement (Step 3)...")
 
-        # TODO: Run optimizer with curriculum learning
-        # - Track decision trace
+        # 1. Initialize from Step 2 result
+        if state.deterministic_result is None:
+             print("No deterministic result to refine. Running topological first...")
+             state = self._run_topological(state)
+
+        anchor_positions = np.array(state.deterministic_result.positions)
+        positions = anchor_positions.copy()
+        n = state.netlist.n_components
+
+        # 2. Setup Loss
+        # For local refinement, we focus on wirelength and critical loops
+        # TODO: Load real weights from config
+        from temper_placer.losses.base import WeightedLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+
+        loss_fn = CompositeLoss([
+            WeightedLoss(WirelengthLoss(), weight=1.0),
+            WeightedLoss(OverlapLoss(), weight=10.0),  # Soft overlap to guide gradient
+        ])
+
+        context = LossContext.from_netlist_and_board(state.netlist, state.board)
+        # 3. Optimization Loop
+        print(f"Running refinement for {state.config.epochs} epochs (max 2mm movement)...")
+
+        optimizer = optax.adam(learning_rate=0.1)
+        params = {"positions": jnp.array(positions)}
+        opt_state = optimizer.init(params)
+
+        @jax.jit
+        def step(params, opt_state):
+            def f(p):
+                # Sample rotations (fixed at 0 deg one-hot for now in this simple loop)
+                # rotations must be (N, 4)
+                rotations = jnp.zeros((n, 4))
+                rotations = rotations.at[:, 0].set(1.0)
+                res = loss_fn(p["positions"], rotations, context)
+                return res.value
+
+            loss, grads = jax.value_and_grad(f)(params)
+            updates, opt_state = optimizer.update(grads, opt_state)
+            params = optax.apply_updates(params, updates)
+            return params, opt_state, loss
+
+        for epoch in range(min(state.config.epochs, 500)): # Limit refinement epochs
+            params, opt_state, loss_val = step(params, opt_state)
+
+            # 4. Projection (Every N steps or every step)
+            if epoch % 10 == 0:
+                pos_np = np.array(params["positions"])
+                # Trust region: max 2mm
+                pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=2.0)
+                # Keep in board
+                # pos_np = clamp_to_bounds(pos_np, ...)
+                params["positions"] = jnp.array(pos_np)
+
+        # 5. Final Legalization (Ensure zero overlap)
+        print("Finalizing placement...")
+        final_pos = np.array(params["positions"])
+        final_pos = resolve_overlaps_priority(
+            final_pos, state.netlist, state.board,
+            min_separation=0.5, enforce_zones=True
+        )
+
+        state.placement_state = PlacementState.from_positions(
+            jnp.array(final_pos)
+        )
+
         return state
 
     def _run_routing(self, state: PipelineState) -> PipelineState:
-        """Run routing verification.
+        """Run routing verification (congestion estimation)."""
+        import jax.numpy as jnp
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement routing verification using routing module
-        # - Create RoutingVerifier
-        # - Run verification at configured level
-        # - Store result in state
+        from temper_placer.routing.congestion import analyze_congestion
+
+        print("Running routing verification...")
+
+        positions = None
+        if state.placement_state:
+            positions = state.placement_state.positions
+        elif state.deterministic_result:
+            positions = jnp.array(state.deterministic_result.positions)
+        else:
+            print("No placement to verify.")
+            return state
+
+        # Estimate congestion
+        result = analyze_congestion(
+            state.netlist, state.board, positions=positions
+        )
+
+        print(f"Max congestion: {result.max_utilization:.2f}")
+        print(f"Total overflow: {result.total_overflow:.2f}")
+
+        state.routing_result = result
+
+        if not result.is_feasible():
+            print("Warning: High congestion detected (overflow > 0)!")
+
         return state
 
     def _run_refinement(self, state: PipelineState) -> PipelineState:
-        """Run placement-routing refinement loop.
+        """Run placement-routing refinement loop."""
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement refinement loop
-        # - Check routing result
-        # - Generate placement adjustments
-        # - Re-run geometric if needed
-        # - Call on_iteration callback
+        if state.routing_result is None:
+            return state
+
+        # Check if routing was successful/feasible
+        # For CongestionResult, we check overflow
+        is_feasible = state.routing_result.is_feasible(threshold=1.2) # Allow slight overflow
+
+        if is_feasible or state.iteration >= state.config.max_iterations:
+            print("Placement is routable or max iterations reached. Ending refinement.")
+            state._refinement_complete = True
+            return state
+
+        print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high.")
+
+        # TODO: Implement adjustment logic
+        # 1. Identify bottleneck areas
+        # 2. Add repulsion forces to those areas
+        # 3. Re-run geometric optimization
+
+        state.iteration += 1
+
+        # We need to signal the orchestrator to go back to GEOMETRIC
+        # The current 'run' loop is linear, so we'd need to modify it
+        # or handle recursion here.
+
         return state
 
     def _run_output(self, state: PipelineState) -> PipelineState:
-        """Generate output files (placed PCB, reports).
+        """Generate output files (placed PCB, reports)."""
+        from temper_placer.io.kicad_writer import (
+            add_bounding_boxes_to_pcb,
+            add_silkscreen_labels,
+            export_placements,
+        )
 
-        This is a stub implementation that will be expanded in later tasks.
-        """
-        # TODO: Implement output generation
-        # - Write placed PCB if output_pcb specified
-        # - Write HTML report if output_report specified
-        # - Write decision trace if output_trace specified
+        if not state.config.output_pcb:
+            print("No output path specified, skipping export.")
+            return state
+
+        print(f"Exporting placed PCB to {state.config.output_pcb}...")
+
+        # Determine which state to export
+        if state.placement_state:
+            ps = state.placement_state
+        elif state.deterministic_result:
+            import jax.numpy as jnp
+
+            from temper_placer.core.state import PlacementState
+            ps = PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
+        else:
+            print("No placement data to export.")
+            return state
+
+        # Export
+        component_refs = [c.ref for c in state.netlist.components]
+        try:
+            write_result = export_placements(
+                template_pcb=state.config.input_pcb,
+                output_pcb=state.config.output_pcb,
+                state=ps,
+                component_refs=component_refs,
+                origin=state.board.origin,
+            )
+            print(f"  Updated: {write_result.components_updated} components")
+
+            # Add visualization layers
+            add_bounding_boxes_to_pcb(state.config.output_pcb)
+            add_silkscreen_labels(state.config.output_pcb)
+            print("  Added visualization layers (bounding boxes, labels).")
+
+        except Exception as e:
+            print(f"Error during export: {e}")
+            # We don't fail the pipeline if export fails (maybe just a path issue)
+
         return state

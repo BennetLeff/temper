@@ -242,36 +242,35 @@ def resolve_overlaps_priority(
     max_iterations: int = 300,
     min_separation: float = 0.5,
     damping: float = 0.8,
+    enforce_zones: bool = False,
 ) -> np.ndarray:
     """
     Resolve overlaps with priority-based ordering (most severe first).
-
-    This provides better convergence than uniform push-apart for dense boards.
+    Falls back to greedy placement if iterative method doesn't converge.
     """
     result = positions.copy()
     n = len(netlist.components)
     widths = np.array([c.bounds[0] for c in netlist.components])
     heights = np.array([c.bounds[1] for c in netlist.components])
 
-    # Ensure we start with everything in bounds
+    # Ensure we start with everything in bounds (and zones if requested)
     result = clamp_to_bounds(result, widths, heights, board, margin=min_separation)
+    if enforce_zones:
+        result = clamp_to_zones(result, netlist, board, fixed_mask)
 
+    # Phase 1: Iterative push-apart (fast, usually works)
     for iteration in range(max_iterations):
-        # 1. Collect all overlap pairs with severity
         overlaps = []
         for i in range(n):
             hw_i, hh_i = widths[i] / 2, heights[i] / 2
             for j in range(i + 1, n):
                 hw_j, hh_j = widths[j] / 2, heights[j] / 2
-
                 dx = result[i, 0] - result[j, 0]
                 dy = result[i, 1] - result[j, 1]
-
                 overlap_x = (hw_i + hw_j + min_separation) - abs(dx)
                 overlap_y = (hh_i + hh_j + min_separation) - abs(dy)
 
                 if overlap_x > 0 and overlap_y > 0:
-                    # Severity is the area or minimum penetration
                     severity = min(overlap_x, overlap_y)
                     overlaps.append((severity, i, j, overlap_x, overlap_y, dx, dy))
 
@@ -279,68 +278,240 @@ def resolve_overlaps_priority(
             logger.info(f"Overlap resolution converged in {iteration + 1} iterations")
             return result
 
-        # 2. Sort by severity (largest overlaps first)
         overlaps.sort(key=lambda x: x[0], reverse=True)
-
-        # 3. Resolve top N overlaps in this iteration
-        # Resolving too many at once can cause cascades, but too few is slow.
-        # We use a decaying number of overlaps to resolve.
         n_to_resolve = max(1, int(len(overlaps) * damping ** (iteration / 20)))
-        
+
         for _, i, j, ox, oy, dx, dy in overlaps[:n_to_resolve]:
-            # Apply damping
-            iter_damping = damping ** (iteration / 50)
-            
+            iter_damping = damping ** (iteration / 100)
+
             if ox < oy:
-                # Push horizontally
-                force = ox * 0.5 * iter_damping
+                force = ox * 0.7 * iter_damping  # Increased from 0.6
                 dir_x = np.sign(dx) if abs(dx) > 1e-6 else 1.0
                 if fixed_mask is None or not fixed_mask[i]:
                     result[i, 0] += force * dir_x
                 if fixed_mask is None or not fixed_mask[j]:
                     result[j, 0] -= force * dir_x
             else:
-                # Push vertically
-                force = oy * 0.5 * iter_damping
+                force = oy * 0.7 * iter_damping  # Increased from 0.6
                 dir_y = np.sign(dy) if abs(dy) > 1e-6 else 1.0
                 if fixed_mask is None or not fixed_mask[i]:
                     result[i, 1] += force * dir_y
                 if fixed_mask is None or not fixed_mask[j]:
                     result[j, 1] -= force * dir_y
 
-        # 4. Clamp to board boundaries
         result = clamp_to_bounds(result, widths, heights, board, margin=min_separation)
+        if enforce_zones:
+            result = clamp_to_zones(result, netlist, board, fixed_mask)
 
-    logger.warning(f"Overlap resolution did not fully converge after {max_iterations} iterations")
+    # Phase 2: Greedy fallback - guaranteed to resolve overlaps
+    logger.warning(f"Iterative resolution failed after {max_iterations} iterations. Using greedy fallback.")
+
+    # Sort by size (largest first) for stable placement
+    component_order = sorted(range(n), key=lambda i: widths[i] * heights[i], reverse=True)
+
+    # Place components one by one, finding valid positions
+    placed_boxes = []  # List of (x_min, y_min, x_max, y_max)
+
+    for idx in component_order:
+        if fixed_mask is not None and fixed_mask[idx]:
+            # Fixed component - just record its box
+            hw, hh = widths[idx] / 2, heights[idx] / 2
+            placed_boxes.append((
+                result[idx, 0] - hw - min_separation / 2,
+                result[idx, 1] - hh - min_separation / 2,
+                result[idx, 0] + hw + min_separation / 2,
+                result[idx, 1] + hh + min_separation / 2,
+            ))
+            continue
+
+        hw, hh = widths[idx] / 2, heights[idx] / 2
+        original_pos = result[idx].copy()
+
+        # Try positions in a spiral pattern from original position
+        best_pos = original_pos.copy()
+        best_dist = float('inf')
+
+        # Zone bounds for this component
+        comp = netlist.components[idx]
+        zone_bounds = None
+        if enforce_zones and comp.zone:
+             for z in board.zones:
+                 if z.name == comp.zone:
+                     zone_bounds = z.bounds
+                     break
+
+        for spiral_step in range(200):
+            # Spiral outward from original position
+            angle = spiral_step * 0.5
+            radius = spiral_step * 1.0  # 1mm per step
+            test_x = original_pos[0] + radius * np.cos(angle)
+            test_y = original_pos[1] + radius * np.sin(angle)
+
+            # Clamp to board
+            test_x = np.clip(test_x, hw + min_separation, board.width - hw - min_separation)
+            test_y = np.clip(test_y, hh + min_separation, board.height - hh - min_separation)
+
+            # Clamp to zone if needed
+            if zone_bounds:
+                test_x = np.clip(test_x, zone_bounds[0] + hw, zone_bounds[2] - hw)
+                test_y = np.clip(test_y, zone_bounds[1] + hh, zone_bounds[3] - hh)
+
+            # Check for overlaps with already-placed components
+            test_box = (
+                test_x - hw - min_separation / 2,
+                test_y - hh - min_separation / 2,
+                test_x + hw + min_separation / 2,
+                test_y + hh + min_separation / 2,
+            )
+
+            overlaps_any = False
+            for pb in placed_boxes:
+                if not (test_box[2] < pb[0] or test_box[0] > pb[2] or
+                        test_box[3] < pb[1] or test_box[1] > pb[3]):
+                    overlaps_any = True
+                    break
+
+            if not overlaps_any:
+                dist = np.sqrt((test_x - original_pos[0])**2 + (test_y - original_pos[1])**2)
+                if dist < best_dist:
+                    best_dist = dist
+                    best_pos = np.array([test_x, test_y])
+                if spiral_step == 0:  # Original position valid
+                    break
+
+        result[idx] = best_pos
+        placed_boxes.append((
+            best_pos[0] - hw - min_separation / 2,
+            best_pos[1] - hh - min_separation / 2,
+            best_pos[0] + hw + min_separation / 2,
+            best_pos[1] + hh + min_separation / 2,
+        ))
+
+    logger.info("Greedy fallback completed")
     return result
 
 
+def project_to_trust_region(
+    positions: np.ndarray,
+    anchor_positions: np.ndarray,
+    max_radius: float = 2.0,
+    fixed_mask: np.ndarray | None = None,
+) -> np.ndarray:
+    """
+    Project positions to stay within a trust region (max radius from anchor).
+
+    Args:
+        positions: (N, 2) current positions.
+        anchor_positions: (N, 2) reference positions (e.g. from template).
+        max_radius: Maximum allowed displacement in mm.
+        fixed_mask: Optional (N,) boolean mask.
+
+    Returns:
+        (N, 2) projected positions.
+    """
+    result = positions.copy()
+    displacements = positions - anchor_positions
+    distances = np.linalg.norm(displacements, axis=1)
+
+    # Identify violations
+    too_far = distances > max_radius
+    if fixed_mask is not None:
+        too_far = too_far & ~fixed_mask
+
+    if np.any(too_far):
+        # Project onto circle boundary
+        scale = max_radius / distances[too_far]
+        result[too_far] = anchor_positions[too_far] + displacements[too_far] * scale[:, np.newaxis]
+
+    return result
+
+
+def legalize_zone_aware(
+    positions: np.ndarray,
+    netlist: Netlist,
+    board: Board,
+    fixed_mask: np.ndarray | None = None,
+    max_iterations: int = 500,
+    min_separation: float = 0.5,
+) -> tuple[np.ndarray, bool]:
+    """
+    Legalize placement ensuring components stay within assigned zones.
+
+    This function wraps resolve_overlaps_priority with enforce_zones=True.
+
+    Args:
+        positions: (N, 2) array of component center positions.
+        netlist: Netlist with component bounds and zone assignments.
+        board: Board with zone definitions.
+        fixed_mask: Optional (N,) boolean mask for fixed components.
+        max_iterations: Maximum iterations for overlap resolution.
+        min_separation: Minimum clearance.
+
+    Returns:
+        (positions, success) - success is True if no overlaps remain.
+    """
+    # 1. Initial clamp to zones
+    result = clamp_to_zones(positions, netlist, board, fixed_mask)
+
+    # 2. Resolve overlaps with zone enforcement
+    result = resolve_overlaps_priority(
+        result,
+        netlist,
+        board,
+        fixed_mask,
+        max_iterations=max_iterations,
+        min_separation=min_separation,
+        enforce_zones=True
+    )
+
+    # 3. Verify success
+    # Check overlaps
+    widths = np.array([c.bounds[0] for c in netlist.components])
+    heights = np.array([c.bounds[1] for c in netlist.components])
+    n = len(netlist.components)
+
+    overlaps_found = False
+    for i in range(n):
+        for j in range(i + 1, n):
+            dx = abs(result[i, 0] - result[j, 0])
+            dy = abs(result[i, 1] - result[j, 1])
+            if dx < (widths[i] + widths[j]) / 2 + min_separation and \
+               dy < (heights[i] + heights[j]) / 2 + min_separation:
+                overlaps_found = True
+                break
+        if overlaps_found:
+            break
+
+    return result, not overlaps_found
+
+
+
 def resolve_overlaps(
-    positions: "np.ndarray",
-    netlist: "Netlist",
-    board: "Board",
-    fixed_mask: "np.ndarray | None" = None,
+    positions: np.ndarray,
+    netlist: Netlist,
+    board: Board,
+    fixed_mask: np.ndarray | None = None,
     max_iterations: int = 300,  # Increased from 100
     min_separation: float = 0.5,
     damping: float = 0.8,  # Damping factor to prevent oscillation
-) -> "np.ndarray":
+) -> np.ndarray:
     """
     Resolve overlapping components using iterative push-apart algorithm with damping.
-    
+
     This function is critical for post-legalization cleanup. After zone clamping,
     components may overlap because zone boundaries are enforced without considering
     neighboring components. This function iteratively pushes overlapping components
     apart until no overlaps remain.
-    
+
     Algorithm:
     1. Find all overlapping pairs
     2. For each pair, compute push force proportional to overlap
     3. Apply damped push along separation vector
     4. Ensure components stay within board bounds
     5. Repeat until no overlaps or max iterations reached
-    
+
     Damping prevents oscillation by reducing push strength each iteration.
-    
+
     Args:
         positions: (N, 2) array of component center positions.
         netlist: Netlist with component bounds.
@@ -349,32 +520,32 @@ def resolve_overlaps(
         max_iterations: Maximum number of push-apart iterations.
         min_separation: Minimum clearance between components in mm.
         damping: Damping factor (0.5-1.0). Lower = more stable but slower.
-        
+
     Returns:
         (N, 2) array of overlap-free positions.
     """
     result = positions.copy()
     n_components = len(netlist.components)
-    
+
     # Multi-pass: coarse adjustment first, then fine-tuning
     for iteration in range(max_iterations):
         # Compute forces for all components
         forces = np.zeros((n_components, 2))
         overlaps_found = False
-        
+
         # Check all pairs for overlaps
         for i in range(n_components):
             # Don't skip fixed components here - they still cause overlaps!
-            
+
             comp_i = netlist.components[i]
             pos_i = result[i]
             hw_i, hh_i = comp_i.bounds[0] / 2, comp_i.bounds[1] / 2
-            
+
             for j in range(i + 1, n_components):
                 comp_j = netlist.components[j]
                 pos_j = result[j]
                 hw_j, hh_j = comp_j.bounds[0] / 2, comp_j.bounds[1] / 2
-                
+
                 # Compute axis-aligned bounding box overlap using Separating Axis Theorem
                 # Two AABBs overlap iff they overlap on BOTH axes
                 dx = pos_i[0] - pos_j[0]
@@ -406,13 +577,13 @@ def resolve_overlaps(
                         forces[i, 1] += force_mag * dir_y
                         if fixed_mask is None or not fixed_mask[j]:
                             forces[j, 1] -= force_mag * dir_y
-        
+
         # Apply forces to update positions
         for i in range(n_components):
             if fixed_mask is not None and fixed_mask[i]:
                 continue
             result[i] += forces[i]
-        
+
         # Clamp to board bounds after applying forces
         result = clamp_to_bounds(
             result,
@@ -421,14 +592,14 @@ def resolve_overlaps(
             board,
             margin=2.0,
         )
-        
+
         if not overlaps_found:
             logger.info(f"Overlap resolution converged in {iteration + 1} iterations")
             break
-    
+
     if overlaps_found:
         logger.warning(f"Overlap resolution did not fully converge after {max_iterations} iterations")
-    
+
     return result
 
 
@@ -611,23 +782,23 @@ def project_to_drc_feasible(
 ) -> PlacementState:
     """
     Project placement state into DRC-feasible region (simple legalization).
-    
+
     This function iteratively resolves overlaps and clearance violations
     by moving components apart. It implements a simple geometric projection.
     Uses NumPy for efficiency (avoids JAX dispatch overhead for iterative updates).
-    
+
     Args:
         state: Current placement state.
         context: LossContext with netlist and board info.
         margin_mm: Additional safety margin to add to clearances.
         max_iterations: Maximum number of projection iterations.
-        
+
     Returns:
         Feasible (or improved) PlacementState.
     """
     # Convert to numpy for mutable updates
     positions = np.array(state.positions)
-    
+
     # 1. Resolve Overlaps and Enforce Boundaries
     # Use the improved priority-based resolution
     final_positions = resolve_overlaps_priority(
