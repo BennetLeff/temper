@@ -18,5 +18,8 @@ Integrating transient electrical analysis directly into the placement feedback l
 ### How it is helping
 1.  **Inductance Precision:** We can now quantify gate loop inductance (currently **34.4 nH** on Temper V1) and set hard engineering targets (≤10 nH).
 2.  **Safety-Aware Refinement:** The orchestrator now automatically triggers additional placement iterations if $T_j > 150^\circ C$, reducing thermal violations by up to 14.5°C in test runs.
-3.  **Consistency:** The SPICE template system (using `common_options.spice`) ensures that all electrical verification uses stable, production-grade simulation parameters (METHOD=TRAP, RELTOL=0.001).
+3. **Consistency:** The SPICE template system (using `common_options.spice`) ensures that all electrical verification uses stable, production-grade simulation parameters (METHOD=TRAP, RELTOL=0.001).
+
+**See also:** [Electrical Validation Impact](ELECTRICAL_VALIDATION_IMPACT.md) for a detailed technical breakdown.
+
 

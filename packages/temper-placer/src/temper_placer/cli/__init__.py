@@ -37,18 +37,18 @@ def _print_placement_summary(
     """Print a summary of component placements with overlap detection."""
     import numpy as np
     from rich.table import Table
-    
+
     positions = np.array(state.positions)
     n = len(netlist.components)
-    
+
     if n == 0:
         return
-    
+
     # Compute overlaps
     widths = np.array([c.bounds[0] for c in netlist.components])
     heights = np.array([c.bounds[1] for c in netlist.components])
     overlap_pairs = []
-    
+
     for i in range(n):
         hw_i, hh_i = widths[i] / 2, heights[i] / 2
         for j in range(i + 1, n):
@@ -57,53 +57,57 @@ def _print_placement_summary(
             dy = abs(positions[i, 1] - positions[j, 1])
             overlap_x = (hw_i + hw_j + min_separation) - dx
             overlap_y = (hh_i + hh_j + min_separation) - dy
-            
+
             if overlap_x > 0 and overlap_y > 0:
-                overlap_pairs.append((
-                    netlist.components[i].ref,
-                    netlist.components[j].ref,
-                    min(overlap_x, overlap_y),
-                ))
-    
+                overlap_pairs.append(
+                    (
+                        netlist.components[i].ref,
+                        netlist.components[j].ref,
+                        min(overlap_x, overlap_y),
+                    )
+                )
+
     # Print summary header
     console.print("\n[bold cyan]═══ Placement Summary ═══[/]")
-    
+
     fixed_count = sum(1 for c in netlist.components if c.fixed)
     console.print(f"  Components: {n} total, {fixed_count} fixed, {n - fixed_count} optimized")
-    
+
     if overlap_pairs:
-        console.print(f"  [red]Overlaps: {len(overlap_pairs)} pairs (< {min_separation}mm spacing)[/]")
+        console.print(
+            f"  [red]Overlaps: {len(overlap_pairs)} pairs (< {min_separation}mm spacing)[/]"
+        )
         for ref_a, ref_b, amount in overlap_pairs[:5]:  # Show first 5
             console.print(f"    [red]• {ref_a} ↔ {ref_b}: {amount:.1f}mm overlap[/]")
         if len(overlap_pairs) > 5:
             console.print(f"    [dim]... and {len(overlap_pairs) - 5} more[/]")
     else:
         console.print(f"  [green]Overlaps: 0 pairs (✓ {min_separation}mm min spacing)[/]")
-    
+
     # Component table (top 15 largest)
     table = Table(title="Component Positions (largest 15)", show_lines=False)
     table.add_column("Ref", style="cyan", width=12)
     table.add_column("Size (mm)", width=10)
     table.add_column("Position", width=14)
     table.add_column("Footprint", style="dim", width=25)
-    
+
     # Sort by area (largest first)
     sorted_indices = sorted(range(n), key=lambda i: widths[i] * heights[i], reverse=True)
-    
+
     for idx in sorted_indices[:15]:
         comp = netlist.components[idx]
         w, h = widths[idx], heights[idx]
         x, y = positions[idx]
         fp = comp.footprint.split(":")[-1] if ":" in comp.footprint else comp.footprint
         fp = fp[:25] if len(fp) > 25 else fp
-        
+
         table.add_row(
             comp.ref,
             f"{w:.1f}×{h:.1f}",
             f"({x:.1f}, {y:.1f})",
             fp,
         )
-    
+
     console.print(table)
 
 
@@ -257,6 +261,11 @@ main.add_command(trace)
     default=False,
     help="Skip topological initialization heuristic (default: enabled).",
 )
+@click.option(
+    "--track-metrics",
+    type=click.Path(path_type=Path),
+    help="Enable metrics tracking, save to this directory.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -282,6 +291,7 @@ def optimize(
     verbose_losses: bool,
     parallel_seeds: int,
     skip_topological: bool,
+    track_metrics: Path | None,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -373,10 +383,10 @@ def optimize(
     try:
         constraints = load_constraints(config)
         board = create_board_from_constraints(constraints)
-        
+
         # Apply fixed_components to netlist
         apply_fixed_components_to_netlist(netlist, constraints)
-        
+
         # Apply zone assignments from groups to components
         apply_zones_to_netlist(netlist, constraints)
 
@@ -397,6 +407,7 @@ def optimize(
             # If placement_priority is defined, use priority pipeline (professional workflow)
             if constraints.placement_priority:
                 from temper_placer.heuristics.pipeline import create_priority_pipeline
+
                 pipeline = create_priority_pipeline()
                 console.print("  [dim]Using priority-based pipeline (power stage template)[/]")
             else:
@@ -453,7 +464,9 @@ def optimize(
             console.print("  [dim]Detecting functional communities (Louvain)...[/]")
             detected_communities = detect_communities(netlist)
             if detected_communities:
-                console.print(f"  [green]✓[/] Detected {len(detected_communities)} functional blocks")
+                console.print(
+                    f"  [green]✓[/] Detected {len(detected_communities)} functional blocks"
+                )
                 for comm in detected_communities:
                     console.print(f"    - {comm.name}: {len(comm.component_refs)} components")
 
@@ -503,20 +516,24 @@ def optimize(
                 DecouplingRule,
                 create_decoupling_loss,
             )
-            
+
             # Auto-detect decoupling rules from MCU caps
             decoupling_rules = []
-            mcu_refs = [c.ref for c in netlist.components if c.ref.startswith("U_MCU") or c.ref == "U_MCU"]
+            mcu_refs = [
+                c.ref for c in netlist.components if c.ref.startswith("U_MCU") or c.ref == "U_MCU"
+            ]
             cap_refs = [c.ref for c in netlist.components if c.ref.startswith("C_MCU")]
-            
+
             for mcu in mcu_refs:
                 for cap in cap_refs:
-                    decoupling_rules.append(DecouplingRule(
-                        cap_ref=cap,
-                        ic_ref=mcu,
-                        max_distance_mm=5.0,  # 5mm max for decoupling
-                    ))
-            
+                    decoupling_rules.append(
+                        DecouplingRule(
+                            cap_ref=cap,
+                            ic_ref=mcu,
+                            max_distance_mm=5.0,  # 5mm max for decoupling
+                        )
+                    )
+
             if decoupling_rules:
                 decoupling_loss = create_decoupling_loss(netlist, decoupling_rules)
                 losses.append(WeightedLoss(decoupling_loss, weight=weights["decoupling"]))
@@ -528,19 +545,21 @@ def optimize(
                 SwitchingLoopConfig,
                 create_power_path_loss,
             )
-            
+
             # Configure power paths based on common high-current nets
             power_paths = []
             power_nets = ["+340V_BUS", "DC_BUS_RTN", "SW_NODE", "+15V", "PGND"]
             for net in power_nets:
                 if any(net in n.name for n in netlist.nets):
-                    power_paths.append(HighCurrentPathConfig(
-                        name=f"path_{net}",
-                        nets=[net],
-                        current_a=10.0,  # Default
-                        weight=1.0,
-                    ))
-            
+                    power_paths.append(
+                        HighCurrentPathConfig(
+                            name=f"path_{net}",
+                            nets=[net],
+                            current_a=10.0,  # Default
+                            weight=1.0,
+                        )
+                    )
+
             # Configure switching loops
             switching_loops = [
                 SwitchingLoopConfig(
@@ -549,18 +568,21 @@ def optimize(
                     weight=2.0,  # High priority
                 ),
             ]
-            
+
             if power_paths or switching_loops:
                 power_loss = create_power_path_loss(
-                    netlist, 
-                    power_paths, 
-                    [loop for loop in switching_loops if all(
-                        any(c.ref == comp for c in netlist.components) 
-                        for comp in loop.components
-                    )],
+                    netlist,
+                    power_paths,
+                    [
+                        loop
+                        for loop in switching_loops
+                        if all(
+                            any(c.ref == comp for c in netlist.components)
+                            for comp in loop.components
+                        )
+                    ],
                 )
                 losses.append(WeightedLoss(power_loss, weight=weights["power_path"]))
-
 
         # Auto-grouping clusters
         if auto_group and (detected_communities or constraints.component_groups):
@@ -608,7 +630,7 @@ def optimize(
         # Loop area loss (PowerSynth: critical for switching loops)
         if "loop_area" in weights:
             from temper_placer.losses.loop_area import LoopAreaLoss
-            
+
             # Use pre-configured loop definitions from constraints
             # For Temper: commutation loop (Q1-Q2-C_BUS), gate loops
             losses.append(WeightedLoss(LoopAreaLoss(), weight=weights["loop_area"]))
@@ -616,14 +638,18 @@ def optimize(
         # Thermal spread loss (PowerSynth: force IGBT spacing)
         if "thermal_spread" in weights:
             from temper_placer.losses.thermal import ThermalSpreadLoss
-            
+
             # Force minimum spacing between heat-generating components
-            losses.append(WeightedLoss(ThermalSpreadLoss(min_spacing_mm=12.0), weight=weights["thermal_spread"]))
+            losses.append(
+                WeightedLoss(
+                    ThermalSpreadLoss(min_spacing_mm=12.0), weight=weights["thermal_spread"]
+                )
+            )
 
         # Thermal edge loss (PowerSynth: heatsink mounting)
         if "thermal" in weights:
             from temper_placer.losses.thermal import ThermalLoss
-            
+
             # Penalize components far from required board edges
             losses.append(WeightedLoss(ThermalLoss(), weight=weights["thermal"]))
 
@@ -735,6 +761,8 @@ def optimize(
     console.print("\n[bold cyan]Step 5/5:[/] Running optimization...")
     if profile_dir:
         console.print(f"  [dim]JAX profiler enabled, saving to: {profile_dir}[/]")
+    if track_metrics:
+        console.print(f"  [dim]Metrics tracking enabled, saving to: {track_metrics}[/]")
 
     # Setup Ctrl+C handler for graceful interruption
     interrupted = False
@@ -917,6 +945,30 @@ def optimize(
         except Exception as e:
             console.print(f"  [yellow]Warning:[/] Failed to save loss history: {e}")
 
+    # Save metrics tracking data if requested
+    if track_metrics:
+        try:
+            from temper_placer.experiments import (
+                setup_metrics_tracking,
+                create_run_metrics,
+                record_training_run,
+            )
+
+            tracker = setup_metrics_tracking(track_metrics, input_pcb.stem)
+            if tracker is not None:
+                config_dict = {
+                    "epochs": epochs,
+                    "seed": seed,
+                    "curriculum": curriculum,
+                    "weight_overlap": weight_overlap,
+                    "weight_wirelength": weight_wirelength,
+                }
+                run_metrics = create_run_metrics(result, netlist, input_pcb.stem, seed, config_dict)
+                tracker.record_run(run_metrics)
+                console.print(f"  [green]✓[/] Recorded metrics to {track_metrics}")
+        except Exception as e:
+            console.print(f"  [yellow]Warning:[/] Failed to record metrics: {e}")
+
     # Get component refs in order
     component_refs = [c.ref for c in netlist.components]
 
@@ -928,7 +980,7 @@ def optimize(
         try:
             from temper_placer.optimizer.legalization import clamp_to_zones
             import numpy as np
-            
+
             console.print("  [dim]Applying zone legalization...[/]")
             # Get positions from best state and apply zone clamping
             legalized_positions = clamp_to_zones(
@@ -947,16 +999,22 @@ def optimize(
         except Exception as e:
             console.print(f"  [red]✗[/] Zone legalization failed: {e}")
             import traceback
+
             traceback.print_exc()
             console.print("  [yellow]Warning:[/] Continuing without zone legalization")
-        
+
         # Apply overlap resolution to fix any overlaps created by zone clamping
         # Use Abacus algorithm for provably optimal legalization (minimal displacement)
         try:
-            from temper_placer.optimizer.legalization import legalize_abacus, resolve_overlaps_priority
-            
-            console.print("  [dim]Applying Abacus legalization for optimal overlap-free placement...[/]")
-            
+            from temper_placer.optimizer.legalization import (
+                legalize_abacus,
+                resolve_overlaps_priority,
+            )
+
+            console.print(
+                "  [dim]Applying Abacus legalization for optimal overlap-free placement...[/]"
+            )
+
             # First try Abacus (optimal 1D legalization per row)
             legalized_state = legalize_abacus(
                 result.best_state,
@@ -964,9 +1022,10 @@ def optimize(
                 n_rows=20,  # More rows for finer control
                 spacing=0.5,
             )
-            
+
             # Then apply priority-based overlap resolution for any remaining 2D overlaps
             from temper_placer.optimizer.legalization import resolve_overlaps_priority
+
             overlap_free_positions = resolve_overlaps_priority(
                 np.array(legalized_state.positions),
                 netlist,
@@ -976,7 +1035,7 @@ def optimize(
                 min_separation=2.0,  # Increased for better visual spacing
                 damping=0.95,  # Reduced damping for more aggressive separation
             )
-            
+
             # Update best_state with overlap-free positions
             result.best_state = PlacementState.from_positions(
                 positions=overlap_free_positions,
@@ -987,6 +1046,7 @@ def optimize(
         except Exception as e:
             console.print(f"  [red]✗[/] Overlap resolution failed: {e}")
             import traceback
+
             traceback.print_exc()
             console.print("  [yellow]Warning:[/] Continuing with overlaps present")
 
@@ -1012,7 +1072,7 @@ def optimize(
         # Add component bounding boxes for visualization
         try:
             from temper_placer.io.kicad_writer import add_bounding_boxes_to_pcb
-            
+
             # Function now calculates bounds from actual footprint pads
             boxes_added = add_bounding_boxes_to_pcb(output)
             console.print(f"    [dim]Added {boxes_added} bounding boxes (Dwgs.User layer)[/]")
@@ -1022,14 +1082,15 @@ def optimize(
         # Add silkscreen labels and F.Fab outlines
         try:
             from temper_placer.io.kicad_writer import add_silkscreen_labels
-            
+
             label_counts = add_silkscreen_labels(output)
-            console.print(f"    [dim]Added {label_counts['references']} refs (F.SilkS), "
-                          f"{label_counts['values']} values, "
-                          f"{label_counts['outlines']} outlines (F.Fab)[/]")
+            console.print(
+                f"    [dim]Added {label_counts['references']} refs (F.SilkS), "
+                f"{label_counts['values']} values, "
+                f"{label_counts['outlines']} outlines (F.Fab)[/]"
+            )
         except Exception as e:
             console.print(f"    [dim]Could not add silkscreen: {e}[/]")
-
 
         # Also save JSON if requested
         if placements_json:
@@ -1887,15 +1948,18 @@ def visualize(
 
     # Convert zones to ZoneView (if available)
     zone_views = []
-    
+
     # Load zones from constraints file if provided
     if constraints:
         try:
-            from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
-            
+            from temper_placer.io.config_loader import (
+                load_constraints,
+                create_board_from_constraints,
+            )
+
             constraints_obj = load_constraints(constraints)
             board_with_zones = create_board_from_constraints(constraints_obj)
-            
+
             # Define zone colors for visualization (rgba format for Plotly)
             zone_colors = {
                 "power_zone": "rgba(255, 0, 0, 0.1)",  # Red with 10% opacity
@@ -1903,7 +1967,7 @@ def visualize(
                 "control_zone": "rgba(0, 0, 255, 0.1)",  # Blue with 10% opacity
                 "interface_zone": "rgba(0, 255, 0, 0.1)",  # Green with 10% opacity
             }
-            
+
             if board_with_zones.zones:
                 for zone in board_with_zones.zones:
                     # Zone uses bounds (x_min, y_min, x_max, y_max), convert to polygon
@@ -1915,10 +1979,10 @@ def visualize(
                         Point(x_max - origin_x, y_max - origin_y),
                         Point(x_min - origin_x, y_max - origin_y),
                     )
-                    
+
                     # Get color for this zone, default to gray if not defined
                     zone_color = zone_colors.get(zone.name, "rgba(128, 128, 128, 0.1)")
-                    
+
                     zone_views.append(
                         ZoneView(
                             name=zone.name,
@@ -1929,7 +1993,7 @@ def visualize(
                     )
         except Exception as e:
             console.print(f"  [yellow]Warning:[/] Failed to load zones from constraints: {e}")
-    
+
     # Fall back to zones from PCB file if no constraints provided
     elif board_geom and board_geom.zones:
         for zone in board_geom.zones:
@@ -3584,10 +3648,9 @@ def place_deterministic(
     This command runs:
     Topological -> Preflight -> [Local Refinement] -> Routing Feedback -> Output
     """
-    console.print(Panel.fit(
-        "[bold cyan]Hierarchical Deterministic Placement[/]",
-        subtitle=f"v{__version__}"
-    ))
+    console.print(
+        Panel.fit("[bold cyan]Hierarchical Deterministic Placement[/]", subtitle=f"v{__version__}")
+    )
 
     # Create pipeline configuration
     pipeline_config = PipelineConfig(
@@ -3606,6 +3669,7 @@ def place_deterministic(
 
     # Setup progress display
     from rich.live import Live
+
     dashboard = RichDashboard()
     orchestrator.on_phase_start = dashboard.on_phase_start
     orchestrator.on_phase_complete = dashboard.on_phase_complete
@@ -3617,19 +3681,22 @@ def place_deterministic(
         if result.success:
             console.print("\n[bold green]Placement completed successfully![/]")
             console.print(f"  Output: {output}")
-            
+
             # Show summary metrics if available
             if result.physics_report:
                 console.print("\n[bold cyan]Physical Metrics:[/]")
                 console.print(f"  Overlap Count: {result.physics_report.geometric.overlap_count}")
                 console.print(f"  Max Tj: {result.physics_report.thermal.max_junction_temp_c:.1f}")
-                console.print(f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}")
+                console.print(
+                    f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}"
+                )
         else:
             console.print(f"\n[bold red]Placement failed:[/] {result.failure_reason}")
-            
+
             # Show preflight details if that's where it failed
             if result.failed_phase == PipelinePhase.PREFLIGHT:
                 from temper_placer.pipeline.preflight import PreflightResult
+
                 if hasattr(result, "preflight_report") and result.preflight_report:
                     for check in result.preflight_report.checks:
                         if check.result == PreflightResult.FAIL:
@@ -3637,12 +3704,13 @@ def place_deterministic(
                             if check.details and "impossible" in check.details:
                                 for msg in check.details["impossible"]:
                                     console.print(f"    - {msg}")
-            
+
             raise click.Abort()
 
     except Exception as e:
         console.print(f"\n[bold red]Error:[/] {e}")
         import traceback
+
         console.print(traceback.format_exc())
         raise click.Abort() from e
 
@@ -3714,10 +3782,9 @@ def place_deterministic(
     This command runs:
     Topological -> Preflight -> [Local Refinement] -> Routing Feedback -> Output
     """
-    console.print(Panel.fit(
-        "[bold cyan]Hierarchical Deterministic Placement[/]",
-        subtitle=f"v{__version__}"
-    ))
+    console.print(
+        Panel.fit("[bold cyan]Hierarchical Deterministic Placement[/]", subtitle=f"v{__version__}")
+    )
 
     # Create pipeline configuration
     pipeline_config = PipelineConfig(
@@ -3736,6 +3803,7 @@ def place_deterministic(
 
     # Setup progress display
     from rich.live import Live
+
     dashboard = RichDashboard()
     orchestrator.on_phase_start = dashboard.on_phase_start
     orchestrator.on_phase_complete = dashboard.on_phase_complete
@@ -3747,12 +3815,14 @@ def place_deterministic(
         if result.success:
             console.print("\n[bold green]Placement completed successfully![/]")
             console.print(f"  Output: {output}")
-            
+
             # Show summary metrics if available
             if result.physics_report:
                 console.print("\n[bold cyan]Physical Metrics:[/]")
                 console.print(f"  Overlap Count: {result.physics_report.geometric.overlap_count}")
-                console.print(f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}")
+                console.print(
+                    f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}"
+                )
         else:
             console.print(f"\n[bold red]Placement failed:[/] {result.failure_reason}")
             raise click.Abort()
@@ -3760,6 +3830,7 @@ def place_deterministic(
     except Exception as e:
         console.print(f"\n[bold red]Error:[/] {e}")
         import traceback
+
         console.print(traceback.format_exc())
         raise click.Abort() from e
 

@@ -1340,154 +1340,44 @@ class DRCLoss:
 
 **Simulation Types:**
 
-| Simulation | Purpose | When to Run |
-|------------|---------|-------------|
-| **Gate Drive Loop Inductance** | Verify EMI constraints | Every N iterations |
-| **Power Integrity** | Check voltage drop on power rails | After major changes |
-| **Bootstrap Charging** | Verify bootstrap circuit works | Periodically |
-| **Thermal** | Estimate temperature distribution | Final validation |
+| Simulation | Purpose | Status |
+|------------|---------|--------|
+| **Gate Drive Loop Inductance** | Verify switching stability (overshoot %) | **Implemented** |
+| **Thermal Network** | Predict Tj via Rjc + Rch + Rha network | **Implemented** |
+| **Power Integrity** | Check voltage drop on power rails | In-Progress |
+| **Bootstrap Charging** | Verify bootstrap circuit works | In-Progress |
 
 **Implementation:**
 
+The `SpiceValidator` runner dynamically extracts parasitics from the placement geometry and executes transient analysis via `ngspice`.
+
 ```python
-# src/temper_placer/validation/spice.py
+# packages/temper-placer/src/temper_placer/validation/spice.py
 
-import subprocess
-from pathlib import Path
-from typing import Dict, List
-import re
-
-@dataclass
-class SimulationResult:
-    """Result from ngspice simulation."""
-    success: bool
-    metrics: Dict[str, float]  # e.g., {"loop_inductance": 15e-9, "peak_current": 22.5}
-    raw_output: str
-
-
-class NgspiceValidator:
-    """
-    Run ngspice simulations for electrical validation.
+class SpiceValidator:
+    """Run ngspice simulations using placement-dependent parasitics."""
     
-    Uses placement-dependent parasitics extracted from layout.
-    """
-    
-    def __init__(self, ngspice_path: str = "ngspice"):
-        self.ngspice = ngspice_path
-        self.template_dir = Path(__file__).parent / "spice_templates"
-    
-    def estimate_loop_inductance(
-        self,
-        positions: Dict[str, tuple],  # component_ref -> (x, y)
-        loop_components: List[str],   # ordered list of components in loop
-    ) -> float:
-        """
-        Estimate current loop inductance based on placement.
+    def validate_gate_drive(self, positions, netlist, board):
+        # 1. Extract parasitic inductance using PEEC model (~0.8 nH/mm)
+        l_gate_nH = estimate_loop_inductance(positions, netlist, GATE_LOOP_REFS)
         
-        Uses simplified model: L ≈ μ₀ * Area / (2π * trace_height)
-        
-        Args:
-            positions: Component positions
-            loop_components: Components forming the loop (ordered)
-        
-        Returns:
-            Estimated inductance in Henries
-        """
-        # Calculate loop area from component positions
-        area = self._calculate_loop_area(positions, loop_components)
-        
-        # Simplified inductance model
-        # L = μ₀ * A / h where h is effective height (trace to return plane)
-        mu_0 = 4 * 3.14159e-7  # H/m
-        h = 0.2e-3  # 0.2mm trace height (rough estimate)
-        
-        inductance = mu_0 * area / h
-        return inductance
-    
-    def run_gate_drive_simulation(
-        self,
-        positions: Dict[str, tuple],
-        netlist_path: Path,
-    ) -> SimulationResult:
-        """
-        Simulate gate drive circuit with placement-dependent parasitics.
-        
-        Extracts loop inductance from placement and adds to SPICE model.
-        """
-        # Estimate parasitics from placement
-        gate_loop_L = self.estimate_loop_inductance(
-            positions, 
-            ["U_GD", "Q1", "Q2"]  # Gate driver to IGBTs
+        # 2. Generate transient testbench using gen_testbench.py
+        generate_testbench(
+            test_name="Auto Gate Validation",
+            circuit_definition=f".param L_GATE={l_gate_nH}n ...",
+            analysis=".tran 1n 2u",
+            # ...
         )
         
-        # Generate SPICE netlist with parasitics
-        spice_content = self._generate_gate_drive_netlist(
-            netlist_path,
-            gate_loop_inductance=gate_loop_L,
-        )
+        # 3. Execute ngspice and parse .MEASURE outputs
+        result = subprocess.run(["ngspice", "-b", ...])
+        metrics = self._parse_measurements(result.stdout)
         
-        # Run simulation
-        return self._run_ngspice(spice_content)
-    
-    def run_bootstrap_simulation(
-        self,
-        positions: Dict[str, tuple],
-    ) -> SimulationResult:
-        """
-        Verify bootstrap capacitor charges correctly.
-        
-        Checks that V_BOOT reaches sufficient voltage.
-        """
-        bootstrap_loop_L = self.estimate_loop_inductance(
-            positions,
-            ["D_BOOT", "C_BOOT", "U_GD"]
-        )
-        
-        spice_content = self._load_template("bootstrap_charging.cir")
-        spice_content = spice_content.replace(
-            "{{LOOP_INDUCTANCE}}", 
-            f"{bootstrap_loop_L:.2e}"
-        )
-        
-        result = self._run_ngspice(spice_content)
-        
-        # Extract V_BOOT from results
-        v_boot = self._extract_metric(result.raw_output, "v_boot_final")
-        result.metrics["v_boot"] = v_boot
-        result.success = v_boot > 12.0  # Need >12V for gate drive
-        
-        return result
-    
-    def _run_ngspice(self, netlist_content: str) -> SimulationResult:
-        """Run ngspice simulation."""
-        # Write temporary netlist
-        temp_path = Path("/tmp/temper_placer_sim.cir")
-        temp_path.write_text(netlist_content)
-        
-        cmd = [self.ngspice, "-b", "-o", "/tmp/sim_output.txt", str(temp_path)]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        
-        output = Path("/tmp/sim_output.txt").read_text() if Path("/tmp/sim_output.txt").exists() else result.stdout
-        
-        return SimulationResult(
-            success=result.returncode == 0,
-            metrics={},
-            raw_output=output,
-        )
-    
-    def compute_spice_penalty(self, results: List[SimulationResult]) -> float:
-        """Convert simulation results to penalty."""
-        penalty = 0.0
-        for r in results:
-            if not r.success:
-                penalty += 50.0  # Heavy penalty for failed simulation
-            
-            # Add penalty for marginal results
-            if "v_boot" in r.metrics and r.metrics["v_boot"] < 14.0:
-                penalty += (14.0 - r.metrics["v_boot"]) * 5.0
-        
-        return penalty
+        # 4. Calculate overshoot percentage
+        metrics["overshoot_pct"] = (metrics["v_max"] - 15.0) / 15.0 * 100.0
+        return SpiceResult(success=True, metrics=metrics)
 ```
+
 
 ### 10.4 Validation Schedule
 

@@ -56,6 +56,18 @@ from temper_placer.routing.net_ordering import (
     NetPriority,
     order_nets,
 )
+from temper_placer.routing.routing_analyzer import (
+    RoutingAnalyzer,
+    RoutingAnalyzerConfig,
+    RoutingAnalysisResult,
+    analyze_routability,
+)
+from temper_placer.routing.unified_router import (
+    RoutingConfig,
+    RoutingStrategy,
+    UnifiedRoutePath,
+    UnifiedRouter,
+)
 from temper_placer.routing.verifier import (
     RoutingVerifier,
     RoutingVerifierConfig,
@@ -99,4 +111,14 @@ __all__ = [
     "CongestionGrid",
     "CongestionResult",
     "analyze_congestion",
+    # Routing Analyzer
+    "RoutingAnalyzer",
+    "RoutingAnalyzerConfig",
+    "RoutingAnalysisResult",
+    "analyze_routability",
+    # Unified Router
+    "RoutingConfig",
+    "RoutingStrategy",
+    "UnifiedRoutePath",
+    "UnifiedRouter",
 ]

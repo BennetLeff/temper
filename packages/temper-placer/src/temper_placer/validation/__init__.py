@@ -68,6 +68,13 @@ from temper_placer.validation.spice import (
     create_validation_netlist,
     estimate_loop_inductance,
 )
+from temper_placer.validation.validation_gates import (
+    GateResult,
+    GateStatus,
+    ValidationGatesResult,
+    check_all_gates,
+    check_gate,
+)
 
 __all__ = [
     # Base
@@ -114,4 +121,10 @@ __all__ = [
     "check_zones_fit_on_board",
     "check_impossible_constraints",
     "run_all_preflight_checks",
+    # Validation Gates
+    "GateResult",
+    "GateStatus",
+    "ValidationGatesResult",
+    "check_all_gates",
+    "check_gate",
 ]

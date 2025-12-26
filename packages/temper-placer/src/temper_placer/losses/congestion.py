@@ -198,12 +198,16 @@ class CongestionLoss(LossFunction):
     M is the number of nets.
 
     Attributes:
-        grid_shape: (rows, cols) for congestion grid.
-        capacity_per_cell: Maximum demand per cell before penalty.
+        grid_shape: (rows, cols) for congestion grid. Higher resolution
+            (20x20, 50x50) provides more accurate congestion estimation
+            but is more expensive to compute.
+        capacity_per_cell: Maximum demand per cell before penalty. Lower
+            values create stronger incentives to avoid congestion. Typical
+            values: 3.0-10.0 depending on board complexity.
     """
 
-    grid_shape: tuple[int, int] = (10, 10)
-    capacity_per_cell: float = 10.0
+    grid_shape: tuple[int, int] = (20, 20)
+    capacity_per_cell: float = 5.0
 
     @property
     def name(self) -> str:
@@ -216,6 +220,7 @@ class CongestionLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute congestion loss.
@@ -224,14 +229,84 @@ class CongestionLoss(LossFunction):
             positions: (N, 2) component positions.
             rotations: (N, 4) soft one-hot rotations (unused).
             context: LossContext with netlist.
+            epoch: Current epoch (unused).
+            total_epochs: Total epochs (unused).
+            net_virtual_nodes: Optional net virtual nodes (unused).
 
         Returns:
-            LossResult with total congestion penalty.
+            LossResult with total congestion penalty and breakdown.
         """
-        penalty = compute_congestion_penalty(
-            positions, context, self.grid_shape, self.capacity_per_cell
+        board_bounds = context.board.get_relative_bounds_array()
+        rows, cols = self.grid_shape
+
+        x_min, y_min, x_max, y_max = board_bounds
+        cell_width = (x_max - x_min) / cols
+        cell_height = (y_max - y_min) / rows
+
+        n_nets = context.net_pin_indices.shape[0]
+        if n_nets == 0:
+            return LossResult(value=jnp.array(0.0))
+
+        all_positions = positions[context.net_pin_indices] + context.net_pin_offsets
+
+        masked_positions = jnp.where(
+            context.net_pin_mask[:, :, None],
+            all_positions,
+            jnp.array([jnp.inf, jnp.inf]),
         )
-        return LossResult(value=penalty)
+        masked_positions_max = jnp.where(
+            context.net_pin_mask[:, :, None],
+            all_positions,
+            jnp.array([-jnp.inf, -jnp.inf]),
+        )
+
+        bb_min = jnp.min(masked_positions, axis=1)
+        bb_max = jnp.max(masked_positions_max, axis=1)
+
+        col_lo = jnp.clip((bb_min[:, 0] - x_min) / cell_width, 0, cols - 1).astype(jnp.int32)
+        col_hi = jnp.clip((bb_max[:, 0] - x_min) / cell_width, 0, cols - 1).astype(jnp.int32)
+        row_lo = jnp.clip((bb_min[:, 1] - y_min) / cell_height, 0, rows - 1).astype(jnp.int32)
+        row_hi = jnp.clip((bb_max[:, 1] - y_min) / cell_height, 0, rows - 1).astype(jnp.int32)
+
+        n_cells_per_net = jnp.maximum(1, (row_hi - row_lo + 1) * (col_hi - col_lo + 1))
+        cell_demand = context.net_weights / n_cells_per_net
+
+        valid_nets = ~(jnp.isinf(bb_min[:, 0]) | jnp.isinf(bb_max[:, 0]))
+
+        row_indices = jnp.arange(rows)
+        col_indices = jnp.arange(cols)
+
+        row_in_range = (row_indices[None, :] >= row_lo[:, None]) & (
+            row_indices[None, :] <= row_hi[:, None]
+        )
+        col_in_range = (col_indices[None, :] >= col_lo[:, None]) & (
+            col_indices[None, :] <= col_hi[:, None]
+        )
+
+        cell_in_bbox = row_in_range[:, :, None] & col_in_range[:, None, :]
+
+        demand_contribution = (
+            cell_in_bbox.astype(jnp.float32)
+            * cell_demand[:, None, None]
+            * valid_nets[:, None, None]
+        )
+
+        demand = jnp.sum(demand_contribution, axis=0)
+
+        overflow = jnp.maximum(0.0, demand - self.capacity_per_cell)
+        penalty = jnp.sum(overflow**2)
+
+        max_overflow = jnp.max(overflow)
+        overflow_cells = jnp.sum(overflow > 0.1)
+
+        breakdown = {
+            "congestion_penalty": jnp.array(penalty),
+            "max_cell_overflow": jnp.array(max_overflow),
+            "overflow_cells": jnp.array(overflow_cells, dtype=jnp.float32),
+            "max_utilization": jnp.max(demand / self.capacity_per_cell),
+        }
+
+        return LossResult(value=jnp.array(penalty), breakdown=breakdown)
 
 
 def visualize_congestion(
