@@ -3,7 +3,8 @@ from pathlib import Path
 
 import click
 
-from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+from temper_placer.pipeline.orchestrator import PipelineOrchestrator
+from temper_placer.pipeline.state import PipelineConfig, PipelinePhase
 from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress
 
 

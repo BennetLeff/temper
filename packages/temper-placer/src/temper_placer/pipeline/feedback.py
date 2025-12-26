@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.state import PlacementState
-    from temper_placer.pipeline.orchestrator import PipelineState
+    from temper_placer.pipeline.state import PipelineState
 
 
 class AdjustmentType(Enum):
