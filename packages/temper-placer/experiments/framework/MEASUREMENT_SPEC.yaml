@@ -1,0 +1,483 @@
+# =============================================================================
+# MEASUREMENT SPECIFICATION
+# =============================================================================
+# Defines exactly what we measure, how we measure it, and what "good" means.
+# This is the operational companion to CORRECTNESS_FRAMEWORK.md
+#
+# Principle: You can't improve what you can't measure.
+# =============================================================================
+
+meta:
+  version: "1.0.0"
+  created: "2025-12-25"
+  board: "Temper Induction Heater"
+  ipc_class: 2  # Dedicated service electronics
+
+# =============================================================================
+# MEASUREMENT CATEGORIES
+# =============================================================================
+
+measurements:
+
+  # ===========================================================================
+  # LEVEL 2: GEOMETRIC VALIDITY
+  # ===========================================================================
+  geometric:
+
+    overlap:
+      name: "Component Overlap"
+      description: "Total area where component courtyards intersect"
+      unit: "mm²"
+      target: 0.0
+      tolerance: 0.0  # Zero tolerance
+      how_measured: "compute_overlap_penalty() using SDF-based courtyard intersection"
+      implementation: "temper_placer.losses.overlap.OverlapLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"  # Blocks production if violated
+
+    boundary:
+      name: "Boundary Violations"
+      description: "Distance components extend beyond board outline"
+      unit: "mm"
+      target: 0.0
+      tolerance: 0.0
+      how_measured: "compute_boundary_penalty() checking component bounds vs board polygon"
+      implementation: "temper_placer.losses.boundary.BoundaryLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+
+    zone_compliance:
+      name: "Zone Membership"
+      description: "Percentage of components in their assigned zones"
+      unit: "%"
+      target: 100.0
+      tolerance: 0.0
+      how_measured: "For each component, check if centroid is within assigned zone polygon"
+      implementation: "temper_placer.losses.zone.ZoneMembershipLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+
+    hv_lv_clearance:
+      name: "High Voltage to Low Voltage Air Gap"
+      description: "Minimum distance between HV and LV component boundaries"
+      unit: "mm"
+      target: 10.0
+      tolerance: 0.0  # Must be ≥10mm
+      how_measured: "For all HV-LV component pairs, compute minimum boundary distance"
+      implementation: "temper_placer.losses.clearance.ClearanceLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+      standard_reference: "IEC 60335-1 (reinforced isolation)"
+
+    creepage_estimate:
+      name: "Estimated Creepage Distance"
+      description: "Minimum surface path between HV and LV conductors"
+      unit: "mm"
+      target: 6.5  # Reinforced isolation for 340V working voltage
+      tolerance: 0.0
+      how_measured: |
+        Conservative estimate: straight-line distance between nearest HV and LV pads,
+        reduced by 0.8 factor for routing uncertainty.
+        Accurate: Post-routing trace analysis.
+      implementation: "NOT YET IMPLEMENTED"
+      validation_frequency: "final"
+      criticality: "blocking"
+      standard_reference: "IEC 60335-1 Table 16"
+      note: "Actual creepage depends on routing, solder mask, and isolation slots"
+
+    component_spacing:
+      name: "Minimum Component Spacing"
+      description: "Smallest gap between adjacent component courtyards"
+      unit: "mm"
+      target: 0.2  # IPC-2221 Class 2
+      tolerance: 0.0
+      how_measured: "Minimum distance between any two non-overlapping courtyards"
+      implementation: "Part of DRC"
+      validation_frequency: "final"
+      criticality: "warning"
+
+  # ===========================================================================
+  # LEVEL 3: ELECTRICAL VALIDITY
+  # ===========================================================================
+  electrical:
+
+    # -------------------------------------------------------------------------
+    # Loop Inductance (Critical for EMI and switching performance)
+    # -------------------------------------------------------------------------
+    gate_loop_area:
+      name: "Gate Drive Loop Area"
+      description: "Area enclosed by gate drive current path: U_GATE→R_GATE→Q1/Q2→GND→U_GATE"
+      unit: "mm²"
+      target: 100.0
+      tolerance: "+0%"  # Must be ≤ target
+      how_measured: |
+        1. Identify gate loop pins: U_GATE.OUT, R_GATE, Q1.GATE, Q1.EMITTER, U_GATE.VSS
+        2. Calculate polygon area using shoelace formula
+        3. For pre-routing: use component centroids
+        4. For post-routing: use actual trace path
+      implementation: "temper_placer.losses.loop_area.LoopAreaLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+
+    gate_loop_inductance_estimate:
+      name: "Estimated Gate Loop Inductance"
+      description: "Inductance estimated from loop area using simplified model"
+      unit: "nH"
+      target: 10.0
+      tolerance: "+0%"
+      how_measured: |
+        L = μ₀ × Area / h
+        where:
+          μ₀ = 4π × 10⁻⁷ H/m
+          Area = gate_loop_area (in m²)
+          h = layer separation (1.6mm / 4 layers ≈ 0.4mm)
+        Apply routing factor: L_actual ≈ L_estimate × 1.3
+      implementation: "temper_placer.losses.loop_area.LoopAreaLoss.compute_inductance()"
+      validation_frequency: "final"
+      criticality: "blocking"
+      accuracy: "±30% (pre-routing), ±10% (post-routing with PEEC)"
+
+    bootstrap_loop_area:
+      name: "Bootstrap Loop Area"
+      description: "Area enclosed by bootstrap charging path"
+      unit: "mm²"
+      target: 50.0
+      tolerance: "+0%"
+      how_measured: "Same as gate loop, for pins: U_GATE.VDDA, C_BOOT, D_BOOT, U_GATE.VSSA"
+      implementation: "temper_placer.losses.loop_area.LoopAreaLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+
+    commutation_loop_area:
+      name: "Power Stage Commutation Loop Area"
+      description: "Area enclosed by main switching current path"
+      unit: "mm²"
+      target: 400.0
+      tolerance: "+0%"
+      how_measured: "Pins: C_BUS+, Q1.C, Q1.E/Q2.C, Q2.E, C_BUS-"
+      implementation: "temper_placer.losses.loop_area.LoopAreaLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+
+    # -------------------------------------------------------------------------
+    # Wirelength and Routing
+    # -------------------------------------------------------------------------
+    wirelength_hpwl:
+      name: "Half-Perimeter Wire Length"
+      description: "Total estimated routing length using HPWL"
+      unit: "mm"
+      target_ratio: 1.3  # vs human baseline
+      baseline_mm: null  # To be measured from reference
+      how_measured: |
+        For each net:
+          HPWL = (max_x - min_x) + (max_y - min_y)
+        Sum across all nets with net weight multiplier.
+      implementation: "temper_placer.losses.wirelength.WirelengthLoss"
+      validation_frequency: "every_epoch"
+      criticality: "optimization"
+
+    routing_completion:
+      name: "Autorouter Completion Rate"
+      description: "Percentage of nets successfully routed by autorouter"
+      unit: "%"
+      target: 90.0
+      tolerance: "+0%"
+      how_measured: |
+        1. Export placement to KiCad
+        2. Run Freerouting autorouter
+        3. Count routed_nets / total_nets × 100
+      implementation: "External: Freerouting CLI"
+      validation_frequency: "final"
+      criticality: "blocking"
+      note: "Current baseline is ~12% - major gap"
+
+    # -------------------------------------------------------------------------
+    # Thermal
+    # -------------------------------------------------------------------------
+    igbt_edge_distance:
+      name: "IGBT Distance from Board Edge"
+      description: "Distance from Q1/Q2 to nearest board edge for heatsink mounting"
+      unit: "mm"
+      target: 5.0
+      tolerance: "+0mm"  # Must be ≤5mm
+      how_measured: "Minimum distance from IGBT centroid to any board edge"
+      implementation: "temper_placer.losses.thermal.EdgePreferenceLoss"
+      validation_frequency: "every_epoch"
+      criticality: "blocking"
+
+    thermal_junction_estimate:
+      name: "Estimated Junction Temperature"
+      description: "IGBT junction temperature under worst-case load"
+      unit: "°C"
+      target: 150.0
+      tolerance: "+0°C"
+      how_measured: |
+        T_j = T_ambient + P_diss × R_th(j-a)
+        where:
+          T_ambient = 40°C (assumed)
+          P_diss = conduction_loss + switching_loss
+          R_th(j-a) = R_th(j-c) + R_th(c-heatsink) + R_th(heatsink-ambient)
+
+        Conservative estimate uses placement-based thermal path length.
+      implementation: "NOT YET IMPLEMENTED"
+      validation_frequency: "final"
+      criticality: "blocking"
+
+    # -------------------------------------------------------------------------
+    # SPICE Validation
+    # -------------------------------------------------------------------------
+    spice_gate_overshoot:
+      name: "Gate Voltage Overshoot"
+      description: "Percentage overshoot of gate voltage during turn-on"
+      unit: "%"
+      target: 20.0
+      tolerance: "+0%"
+      how_measured: |
+        Run SPICE simulation with gate drive template.
+        Measure: (V_peak - V_final) / V_final × 100
+      implementation: "temper_placer.validation.spice.NgspiceValidator"
+      validation_frequency: "final"
+      criticality: "blocking"
+
+    spice_power_ripple:
+      name: "DC Bus Voltage Ripple"
+      description: "Peak-to-peak ripple on DC bus under switching"
+      unit: "V"
+      target: 20.0
+      tolerance: "+0V"
+      how_measured: |
+        Run SPICE simulation with power integrity template.
+        Measure: V_max - V_min during steady-state switching
+      implementation: "temper_placer.validation.spice.NgspiceValidator"
+      validation_frequency: "final"
+      criticality: "blocking"
+
+  # ===========================================================================
+  # LEVEL 4: MANUFACTURABILITY
+  # ===========================================================================
+  manufacturing:
+
+    min_trace_width:
+      name: "Minimum Trace Width"
+      description: "Narrowest trace in the design"
+      unit: "mm"
+      target: 0.15  # 6 mil
+      tolerance: "+0mm"
+      how_measured: "Parse KiCad DRC output for minimum trace width"
+      implementation: "KiCad DRC"
+      validation_frequency: "post-routing"
+      criticality: "blocking"
+
+    min_trace_space:
+      name: "Minimum Trace Spacing"
+      description: "Smallest gap between adjacent traces"
+      unit: "mm"
+      target: 0.15  # 6 mil
+      tolerance: "+0mm"
+      how_measured: "Parse KiCad DRC output for minimum clearance"
+      implementation: "KiCad DRC"
+      validation_frequency: "post-routing"
+      criticality: "blocking"
+
+    min_drill_size:
+      name: "Minimum Drill Diameter"
+      description: "Smallest via or through-hole drill"
+      unit: "mm"
+      target: 0.20  # 8 mil
+      tolerance: "+0mm"
+      how_measured: "Parse drill file for minimum drill size"
+      implementation: "Drill file parser"
+      validation_frequency: "post-routing"
+      criticality: "blocking"
+
+    via_aspect_ratio:
+      name: "Via Aspect Ratio"
+      description: "Board thickness divided by via diameter"
+      unit: "ratio"
+      target: 10.0
+      tolerance: "+0"
+      how_measured: "board_thickness / min_via_diameter"
+      implementation: "Calculation from stackup"
+      validation_frequency: "post-routing"
+      criticality: "blocking"
+
+    drc_errors:
+      name: "KiCad DRC Errors"
+      description: "Number of design rule check errors"
+      unit: "count"
+      target: 0
+      tolerance: 0
+      how_measured: "kicad-cli pcb drc --severity error"
+      implementation: "temper_placer.validation.drc.KiCadDRCValidator"
+      validation_frequency: "post-routing"
+      criticality: "blocking"
+
+    drc_warnings:
+      name: "KiCad DRC Warnings"
+      description: "Number of design rule check warnings"
+      unit: "count"
+      target: 10
+      tolerance: "+0"
+      how_measured: "kicad-cli pcb drc --severity warning"
+      implementation: "temper_placer.validation.drc.KiCadDRCValidator"
+      validation_frequency: "post-routing"
+      criticality: "warning"
+
+  # ===========================================================================
+  # ROBUSTNESS (Statistical)
+  # ===========================================================================
+  robustness:
+
+    failure_rate:
+      name: "Hard Constraint Failure Rate"
+      description: "Percentage of runs that violate hard constraints"
+      unit: "%"
+      target: 5.0
+      tolerance: "+0%"
+      how_measured: |
+        Run N seeds (N ≥ 100 for production, N ≥ 30 for dev).
+        Count runs where any blocking metric fails.
+        failure_rate = failures / N × 100
+      validation_frequency: "study"
+      criticality: "blocking"
+
+    loss_cv:
+      name: "Final Loss Coefficient of Variation"
+      description: "Standard deviation of final loss divided by mean"
+      unit: "ratio"
+      target: 0.15
+      tolerance: "+0"
+      how_measured: "std(final_loss) / mean(final_loss) across N seeds"
+      validation_frequency: "study"
+      criticality: "warning"
+
+    wirelength_cv:
+      name: "Wirelength Coefficient of Variation"
+      description: "Consistency of wirelength across runs"
+      unit: "ratio"
+      target: 0.10
+      tolerance: "+0"
+      how_measured: "std(hpwl) / mean(hpwl) across N seeds"
+      validation_frequency: "study"
+      criticality: "warning"
+
+# =============================================================================
+# VALIDATION GATES
+# =============================================================================
+# Define which measurements must pass at each stage.
+
+validation_gates:
+
+  placement_complete:
+    description: "Placement optimization has converged"
+    required:
+      - geometric.overlap
+      - geometric.boundary
+      - geometric.zone_compliance
+      - geometric.hv_lv_clearance
+      - electrical.gate_loop_area
+      - electrical.bootstrap_loop_area
+      - electrical.commutation_loop_area
+      - electrical.igbt_edge_distance
+
+  routing_complete:
+    description: "Autorouter has finished"
+    required:
+      - electrical.routing_completion
+      - manufacturing.drc_errors
+
+  production_ready:
+    description: "Design can be sent to fabrication"
+    required:
+      - all from placement_complete
+      - all from routing_complete
+      - geometric.creepage_estimate
+      - electrical.spice_gate_overshoot
+      - electrical.spice_power_ripple
+      - manufacturing.min_trace_width
+      - manufacturing.min_trace_space
+      - manufacturing.min_drill_size
+
+  validated:
+    description: "Design has been statistically validated"
+    required:
+      - all from production_ready
+      - robustness.failure_rate
+      - robustness.loss_cv
+
+# =============================================================================
+# PROXY-TO-ACTUAL CORRELATION TRACKING
+# =============================================================================
+# Track how well our proxies predict real outcomes.
+
+correlation_tracking:
+
+  loop_inductance:
+    proxy: "electrical.gate_loop_area"
+    actual: "measured_inductance_nh"
+    expected_correlation: 0.7
+    measurement_method: "VNA or impedance analyzer on built board"
+    samples_needed: 5  # Different boards to validate
+
+  thermal:
+    proxy: "electrical.thermal_junction_estimate"
+    actual: "measured_junction_temp_c"
+    expected_correlation: 0.5
+    measurement_method: "IR camera or embedded thermocouple"
+    samples_needed: 3
+
+  routing_success:
+    proxy: "electrical.wirelength_hpwl"
+    actual: "electrical.routing_completion"
+    expected_correlation: 0.5
+    measurement_method: "Autorouter output"
+    samples_needed: 100  # Different placements
+
+# =============================================================================
+# MEASUREMENT INFRASTRUCTURE STATUS
+# =============================================================================
+
+implementation_status:
+
+  implemented:
+    - geometric.overlap
+    - geometric.boundary
+    - geometric.zone_compliance
+    - geometric.hv_lv_clearance
+    - electrical.gate_loop_area
+    - electrical.bootstrap_loop_area
+    - electrical.commutation_loop_area
+    - electrical.wirelength_hpwl
+    - electrical.igbt_edge_distance
+    - manufacturing.drc_errors
+    - manufacturing.drc_warnings
+
+  partially_implemented:
+    - electrical.routing_completion  # Works but not integrated
+    - electrical.spice_gate_overshoot  # Templates exist
+    - electrical.spice_power_ripple  # Templates exist
+
+  not_implemented:
+    - geometric.creepage_estimate
+    - geometric.component_spacing
+    - electrical.gate_loop_inductance_estimate
+    - electrical.thermal_junction_estimate
+    - manufacturing.min_trace_width
+    - manufacturing.min_trace_space
+    - manufacturing.min_drill_size
+    - manufacturing.via_aspect_ratio
+    - robustness.failure_rate  # Need automated runner
+    - robustness.loss_cv
+    - robustness.wirelength_cv
+
+  priority_order:
+    P0:
+      - geometric.creepage_estimate
+      - electrical.gate_loop_inductance_estimate
+      - electrical.routing_completion  # Integration
+    P1:
+      - electrical.thermal_junction_estimate
+      - robustness.failure_rate
+    P2:
+      - electrical.spice_gate_overshoot  # Integration
+      - manufacturing.min_trace_width

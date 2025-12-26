@@ -1,0 +1,232 @@
+# =============================================================================
+# ROUTING COMPLETION CORRELATION STUDY
+# =============================================================================
+# Goal: Identify which placement metrics predict autorouter success.
+# This closes the feedback loop between placement optimization and routability.
+#
+# Current problem: Routing completion is ~12% - we don't know why.
+# =============================================================================
+
+meta:
+  study_name: "routing_correlation_v1"
+  created: "2025-12-25"
+  hypothesis: "Certain placement losses correlate with autorouter completion rate"
+  output_dir: "experiments/routing_correlation_v1"
+
+# =============================================================================
+# MOTIVATION
+# =============================================================================
+
+motivation:
+  problem: |
+    The optimizer minimizes proxy losses (wirelength, congestion, etc.) but we don't
+    know which losses actually predict successful routing. Current routing completion
+    is ~12% which is unacceptably low.
+
+  questions:
+    - "Which losses correlate most strongly with routing completion?"
+    - "Is there a threshold for each loss below which routing succeeds?"
+    - "Are there interaction effects (e.g., low wirelength + low congestion)?"
+    - "Is the autorouter the bottleneck, or is it placement quality?"
+
+  expected_outcomes:
+    - "Ranked list of losses by correlation with routing success"
+    - "Threshold values for key losses"
+    - "Updated loss weights based on routing impact"
+    - "Decision on whether to invest in autorouter improvements"
+
+# =============================================================================
+# EXPERIMENTAL DESIGN
+# =============================================================================
+
+design:
+  type: "correlation_analysis"
+
+  # Generate diverse placements
+  placement_generation:
+    method: "varied_weights"
+    description: |
+      Generate placements with varied loss weights to create diversity
+      in the independent variables (loss values).
+
+    weight_variations:
+      wirelength: [5, 10, 20, 40, 80]
+      congestion: [1, 5, 10, 20, 40]
+      loop_area: [10, 50, 100, 200]
+      spread: [0.1, 0.5, 1, 2, 5]
+      grouping: [10, 25, 50, 100]
+
+    epochs: 4000
+    seeds_per_variation: 5
+    total_placements: 625  # 5^4 * 1 (not full factorial)
+
+  # Route each placement
+  routing:
+    tool: "freerouting"
+    timeout_seconds: 300
+    retries: 1
+
+  # Metrics to collect
+  independent_variables:
+    from_optimizer:
+      - "wirelength_loss"
+      - "congestion_loss"
+      - "loop_area_loss"
+      - "spread_loss"
+      - "grouping_loss"
+      - "thermal_loss"
+      - "overlap_loss"
+      - "boundary_loss"
+
+    derived:
+      - "hpwl_mm"
+      - "max_congestion_cell"
+      - "mean_congestion"
+      - "component_spread_mm"
+      - "largest_gap_mm"
+
+  dependent_variables:
+    primary:
+      - "routing_completion_percent"
+
+    secondary:
+      - "unrouted_nets"
+      - "via_count"
+      - "total_trace_length_mm"
+      - "routing_time_seconds"
+
+# =============================================================================
+# ANALYSIS PLAN
+# =============================================================================
+
+analysis:
+  step_1_data_collection:
+    - "Run optimizer with each weight configuration"
+    - "Export placement to KiCad"
+    - "Run Freerouting autorouter"
+    - "Collect routing statistics"
+    - "Store in experiments/routing_correlation_v1/data/"
+
+  step_2_correlation_analysis:
+    methods:
+      - name: "pearson"
+        description: "Linear correlation"
+        assumptions: "Normal distribution, linear relationship"
+
+      - name: "spearman"
+        description: "Rank correlation"
+        assumptions: "Monotonic relationship"
+
+      - name: "mutual_information"
+        description: "Non-linear dependence"
+        assumptions: "None"
+
+    for_each_independent_variable:
+      - "Compute correlation with routing_completion_percent"
+      - "Compute p-value and confidence interval"
+      - "Generate scatter plot with regression line"
+
+  step_3_threshold_analysis:
+    description: |
+      For each significantly correlated loss, find threshold values
+      that predict routing success/failure.
+
+    method: "logistic_regression"
+    success_threshold: 80  # Routing completion >= 80% is "success"
+
+    outputs:
+      - "Threshold value for each loss"
+      - "ROC curve and AUC"
+      - "Precision/recall at threshold"
+
+  step_4_multivariate_analysis:
+    description: |
+      Build a predictive model using multiple losses.
+
+    methods:
+      - name: "multiple_regression"
+        purpose: "Linear combination of losses"
+
+      - name: "random_forest"
+        purpose: "Non-linear interactions"
+        feature_importance: true
+
+    validation: "5-fold cross-validation"
+
+  step_5_recommendations:
+    - "Rank losses by routing impact"
+    - "Propose updated loss weights"
+    - "Identify if routing tool is the bottleneck"
+
+# =============================================================================
+# EXPECTED OUTPUTS
+# =============================================================================
+
+outputs:
+  data:
+    - "experiments/routing_correlation_v1/data/placements/*.json"
+    - "experiments/routing_correlation_v1/data/routing_results/*.json"
+    - "experiments/routing_correlation_v1/correlation_matrix.csv"
+
+  visualizations:
+    - "experiments/routing_correlation_v1/scatter_matrix.png"
+    - "experiments/routing_correlation_v1/correlation_heatmap.png"
+    - "experiments/routing_correlation_v1/roc_curves.png"
+    - "experiments/routing_correlation_v1/feature_importance.png"
+
+  reports:
+    - "experiments/routing_correlation_v1/CORRELATION_REPORT.md"
+    - "experiments/routing_correlation_v1/WEIGHT_RECOMMENDATIONS.yaml"
+
+# =============================================================================
+# QUICK PILOT STUDY
+# =============================================================================
+# Run this first to validate the methodology.
+
+pilot:
+  description: "Quick pilot with 20 placements to validate methodology"
+
+  config:
+    weight_variations:
+      wirelength: [10, 40]
+      congestion: [5, 20]
+
+    seeds: 5
+    total_placements: 20
+
+  success_criteria:
+    - "All 20 placements route without crashing"
+    - "Variation in routing completion (not all 0% or 100%)"
+    - "At least one correlation |r| > 0.3"
+
+  execution: |
+    python -m temper_placer.experiments.routing_correlation \
+      --pilot \
+      --output experiments/routing_correlation_v1/pilot/
+
+# =============================================================================
+# EXECUTION COMMANDS
+# =============================================================================
+
+execution:
+  # Run pilot study
+  pilot: |
+    python -m temper_placer.experiments.routing_correlation \
+      --config experiments/framework/ROUTING_CORRELATION_STUDY.yaml \
+      --mode pilot \
+      --output experiments/routing_correlation_v1/pilot/
+
+  # Run full study
+  full: |
+    python -m temper_placer.experiments.routing_correlation \
+      --config experiments/framework/ROUTING_CORRELATION_STUDY.yaml \
+      --mode full \
+      --workers 4 \
+      --output experiments/routing_correlation_v1/
+
+  # Analyze results
+  analyze: |
+    python -m temper_placer.experiments.routing_correlation \
+      --mode analyze \
+      --data experiments/routing_correlation_v1/data/ \
+      --output experiments/routing_correlation_v1/CORRELATION_REPORT.md

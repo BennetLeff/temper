@@ -124,7 +124,7 @@ class LoopAreaLoss(LossFunction):
     def __init__(
         self,
         area_penalty_scale: float = 0.01,
-        routing_factor: float = 1.0,
+        routing_factor: float = 1.3,
     ):
         """
         Initialize LoopAreaLoss.
@@ -133,7 +133,7 @@ class LoopAreaLoss(LossFunction):
             area_penalty_scale: Scale factor for area violations.
                 Smaller values reduce the impact since areas can be large.
             routing_factor: Multiplier for estimated actual loop area.
-                Set > 1.0 to account for non-straight trace routing.
+                Default 1.3 per PowerSynth review to account for trace routing.
         """
         self.area_penalty_scale = area_penalty_scale
         self.routing_factor = routing_factor
@@ -444,46 +444,62 @@ def create_temper_loop_constraints() -> list[LoopConstraint]:
         LoopConstraint(
             name="gate_drive_high",
             pins=(
-                ("U_GATE_DRIVER", "HO"),  # Gate driver high-side output
-                ("Q1", "G"),  # IGBT gate
-                ("Q1", "E"),  # IGBT emitter
-                ("U_GATE_DRIVER", "HS"),  # Gate driver high-side source
+                ("U_GD", "OUTA"),  # Gate driver high-side output (UCC21550 Side A)
+                ("Q1", "G"),       # IGBT gate
+                ("Q1", "E"),       # IGBT emitter (return)
+                ("U_GD", "VSSA"),  # Gate driver high-side source reference
             ),
-            max_area=50.0,  # mm²
-            weight=2.0,  # Critical for switching speed
+            max_area=50.0,
+            weight=10.0,
+            because="Minimize parasitic inductance for high-speed switching.",
         ),
         LoopConstraint(
             name="gate_drive_low",
             pins=(
-                ("U_GATE_DRIVER", "LO"),  # Gate driver low-side output
-                ("Q2", "G"),  # IGBT gate
-                ("Q2", "E"),  # IGBT emitter
-                ("U_GATE_DRIVER", "VSS"),  # Gate driver ground
+                ("U_GD", "OUTB"),  # Gate driver low-side output (UCC21550 Side B)
+                ("Q2", "G"),       # IGBT gate
+                ("Q2", "E"),       # IGBT emitter (return)
+                ("U_GD", "VSSB"),  # Gate driver low-side source reference
             ),
             max_area=50.0,
-            weight=2.0,
+            weight=10.0,
+            because="Minimize parasitic inductance for low-side gate drive.",
+        ),
+        LoopConstraint(
+            name="power_commutation",
+            pins=(
+                ("C_BUS1", "1"),   # DC Bus supply (+)
+                ("Q1", "C"),       # High-side collector
+                ("Q2", "E"),       # Low-side emitter (via bridge mid-point)
+                ("C_BUS1", "2"),   # DC Bus return (-)
+            ),
+            max_area=200.0,
+            weight=15.0,
+            because="Main switching loop - most critical for EMI and voltage spikes.",
         ),
         LoopConstraint(
             name="bootstrap",
             pins=(
-                ("D_BOOT", "K"),  # Bootstrap diode cathode
-                ("C_BOOT", "1"),  # Bootstrap cap
-                ("C_BOOT", "2"),
-                ("U_GATE_DRIVER", "VB"),  # Bootstrap supply
+                ("U_GD", "VDDA"),  # High-side supply pin
+                ("C_BOOT", "1"),   # Cap top
+                ("C_BOOT", "2"),   # Cap bottom
+                ("U_GD", "VSSA"),  # High-side return pin
             ),
-            max_area=100.0,  # Less critical
-            weight=1.0,
+            max_area=30.0,
+            weight=5.0,
+            because="Supply decoupling for high-side gate driver.",
         ),
         LoopConstraint(
-            name="buck_switch",
+            name="buck_switching",
             pins=(
-                ("U_BUCK", "SW"),  # Buck converter switch node
-                ("L_BUCK", "1"),  # Buck inductor
-                ("L_BUCK", "2"),
-                ("C_OUT", "1"),  # Output capacitor
+                ("U_BUCK", "VIN"),  # Input supply
+                ("C_IN_BUCK", "1"), # Input cap (+)
+                ("C_IN_BUCK", "2"), # Input cap (-)
+                ("U_BUCK", "GND"),  # Return
             ),
-            max_area=80.0,
-            weight=1.5,
+            max_area=40.0,
+            weight=8.0,
+            because="Primary switching loop of the logic supply buck converter.",
         ),
     ]
 

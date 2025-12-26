@@ -42,12 +42,20 @@ def orchestrator(tmp_path):
 
 def test_full_pipeline_flow(orchestrator, mock_board, mock_netlist):
     # Mock INPUT phase to return our objects
-    with patch("temper_placer.io.kicad_parser.parse_kicad_pcb") as mock_parse:
+    with patch("temper_placer.io.kicad_parser.parse_kicad_pcb") as mock_parse, \
+         patch("temper_placer.io.kicad_writer.export_placements") as mock_export, \
+         patch("temper_placer.io.kicad_writer.add_bounding_boxes_to_pcb"), \
+         patch("temper_placer.io.kicad_writer.add_silkscreen_labels"):
+        
         mock_result = MagicMock()
         mock_result.board = mock_board
         mock_result.netlist = mock_netlist
         mock_result.has_warnings = False
         mock_parse.return_value = mock_result
+        
+        mock_write_result = MagicMock()
+        mock_write_result.components_updated = 3
+        mock_export.return_value = mock_write_result
         
         # Run pipeline
         state = orchestrator.run()
@@ -66,6 +74,18 @@ def test_full_pipeline_flow(orchestrator, mock_board, mock_netlist):
         assert state.deterministic_result is not None
         assert state.placement_state is not None
         assert state.routing_result is not None
+        assert state.physics_report is not None
+        
+        # Check metrics file
+        metrics_file = orchestrator.config.output_pcb.with_suffix(".metrics.json")
+        assert metrics_file.exists()
+        
+        import json
+        with open(metrics_file) as f:
+            data = json.load(f)
+            assert "geometric" in data
+            assert "emi" in data
+            assert "routability" in data
         
         # Check congestion result
         assert state.routing_result.max_utilization >= 0.0

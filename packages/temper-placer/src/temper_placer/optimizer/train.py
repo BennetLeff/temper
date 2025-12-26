@@ -401,6 +401,7 @@ def make_train_step(
     grad_norm_lr: float = 0.025,
     composite_loss: CompositeLoss | None = None,
     loss_context: LossContext | None = None,
+    zone_bounds: Array | None = None,  # (N, 4) per-component zone bounds [x_min, y_min, x_max, y_max]
 ):
     """
     Create a JIT-compiled training step function.
@@ -575,6 +576,16 @@ def make_train_step(
                 max=board_bounds[2:]
             )
 
+        # Hard clamping to zone bounds (guaranteed zone compliance)
+        # zone_bounds is (N, 4) where each row is [x_min, y_min, x_max, y_max]
+        # Components without zone assignment have bounds = board bounds (no extra constraint)
+        if zone_bounds is not None:
+            new_positions = jnp.clip(
+                new_positions,
+                min=zone_bounds[:, :2],  # x_min, y_min
+                max=zone_bounds[:, 2:]   # x_max, y_max
+            )
+
         # Ensure fixed components don't move (temper-p11g.6)
         if loss_context is not None:
             new_positions = jnp.where(
@@ -722,6 +733,29 @@ def train(
 
     # Create JIT-compiled train step
     centrality = context.centrality if config.use_centrality_weighting else None
+    
+    # Compute zone bounds per component for hard zone clamping
+    # Each row is [x_min, y_min, x_max, y_max] for component i
+    zone_bounds = None
+    if context.board.zones:
+        # Build ref -> zone lookup
+        ref_to_zone = {}
+        for zone in context.board.zones:
+            for comp_ref in zone.components:
+                ref_to_zone[comp_ref] = zone.bounds
+        
+        # Build zone_bounds array
+        board_bounds = context.board.get_relative_bounds_array()
+        zone_bounds_list = []
+        for i, comp in enumerate(netlist.components):
+            if comp.ref in ref_to_zone:
+                zone_bounds_list.append(ref_to_zone[comp.ref])
+            else:
+                # No zone assignment - use board bounds
+                zone_bounds_list.append((board_bounds[0], board_bounds[1], 
+                                        board_bounds[2], board_bounds[3]))
+        zone_bounds = jnp.array(zone_bounds_list, dtype=jnp.float32)
+    
     train_step = make_train_step(
         value_and_grad_fn,
         opt_pos,
@@ -735,6 +769,7 @@ def train(
         grad_norm_lr=config.grad_norm.learning_rate,
         composite_loss=composite_loss,
         loss_context=context,
+        zone_bounds=zone_bounds,
     )
 
     # Optional: Enable JAX profiler
@@ -1182,6 +1217,28 @@ def train_multiphase(
     composite_loss: CompositeLoss | None = None
     train_step = None
 
+    # Compute zone bounds per component for hard zone clamping
+    # Each row is [x_min, y_min, x_max, y_max] for component i
+    zone_bounds = None
+    if board.zones:
+        # Build ref -> zone lookup
+        ref_to_zone = {}
+        for zone in board.zones:
+            for comp_ref in zone.components:
+                ref_to_zone[comp_ref] = zone.bounds
+        
+        # Build zone_bounds array
+        board_bounds = board.get_relative_bounds_array()
+        zone_bounds_list = []
+        for i, comp in enumerate(netlist.components):
+            if comp.ref in ref_to_zone:
+                zone_bounds_list.append(ref_to_zone[comp.ref])
+            else:
+                # No zone assignment - use board bounds
+                zone_bounds_list.append((board_bounds[0], board_bounds[1], 
+                                        board_bounds[2], board_bounds[3]))
+        zone_bounds = jnp.array(zone_bounds_list, dtype=jnp.float32)
+
     # Optional: Enable JAX profiler
     profile_ctx = (
         jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
@@ -1245,6 +1302,7 @@ def train_multiphase(
                     grad_norm_lr=config.grad_norm.learning_rate,
                     composite_loss=composite_loss,
                     loss_context=context,
+                    zone_bounds=zone_bounds,
                 )
 
                 # Re-initialize optimizer states

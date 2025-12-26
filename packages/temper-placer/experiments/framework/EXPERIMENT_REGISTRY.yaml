@@ -1,0 +1,111 @@
+# =============================================================================
+# EXPERIMENT REGISTRY
+# =============================================================================
+# Central registry of all experiments with metadata, status, and findings.
+# This is the single source of truth for what experiments have been run.
+# =============================================================================
+
+meta:
+  created: "2025-12-25"
+  format_version: "1.0"
+  maintainer: "temper-agent"
+
+# =============================================================================
+# COMPLETED EXPERIMENTS
+# =============================================================================
+
+completed:
+  temper-a98v:
+    name: "Spread Loss Edge Effects"
+    date: "2025-12"
+    hypothesis: "SpreadLoss pushes components to board edges"
+    result: "CONFIRMED - EdgeAvoidanceLoss works (6.3mm vs 4.7mm from edge)"
+    key_finding: "Routing completion unchanged (~12%) - bottleneck is elsewhere"
+    report: "experiments/temper-a98v/REPORT.md"
+    metrics:
+      edge_distance_baseline_mm: 4.7
+      edge_distance_with_loss_mm: 6.3
+      routing_completion_percent: 12.0
+
+  temper-65nd:
+    name: "Wirelength Alpha Annealing"
+    date: "2025-12"
+    hypothesis: "LogSumExp alpha annealing improves final HPWL"
+    result: "PENDING ANALYSIS"
+    report: "experiments/temper-65nd/REPORT.md"
+    runs: 8
+
+  temper-gcp:
+    name: "Optimizer Robustness"
+    date: "2025-12"
+    hypothesis: "Soft-body inflation + adaptive weighting reduces failures"
+    result: "CONFIRMED - 65% failure rate reduction (23% -> 8%)"
+    key_findings:
+      - "Mean overlap reduced 28% (0.5 -> 0.36)"
+      - "Loss CV reduced 26%"
+    report: "OPTIMIZER_ROBUSTNESS_SUMMARY.md"
+
+# =============================================================================
+# PLANNED EXPERIMENTS
+# =============================================================================
+
+planned:
+  ablation_v1:
+    name: "Full Ablation Study"
+    priority: "P0"
+    design: "experiments/framework/ABLATION_STUDY_DESIGN.yaml"
+    status: "ready_to_run"
+    estimated_hours: 24
+    blocking: []
+
+  routing_correlation:
+    name: "Routing Completion Correlation Study"
+    priority: "P1"
+    design: "experiments/framework/ROUTING_CORRELATION_STUDY.yaml"
+    status: "designed"
+    estimated_hours: 8
+    blocking: ["ablation_v1"]
+    hypothesis: "Identify which losses predict autorouter success"
+
+  hyperparameter_sweep:
+    name: "Loss Weight Hyperparameter Sweep"
+    priority: "P2"
+    status: "not_started"
+    depends_on: ["ablation_v1"]
+    hypothesis: "Current weights are suboptimal"
+
+  scale_test_200:
+    name: "Scaling Test - 200 Components"
+    priority: "P2"
+    status: "not_started"
+    test_case: "libresolar_bms"
+    hypothesis: "Optimizer scales to larger boards"
+
+  peec_validation:
+    name: "PEEC Loop Inductance Validation"
+    priority: "P3"
+    status: "not_started"
+    hypothesis: "Loop area loss correlates with actual inductance"
+    validation_tool: "Q3D or analytical PEEC"
+
+# =============================================================================
+# EXPERIMENT TEMPLATE
+# =============================================================================
+# Use this template for new experiments.
+
+_template:
+  name: "[Descriptive name]"
+  date: null
+  hypothesis: "[Precise, falsifiable statement]"
+  design:
+    independent_variable: "[What you're changing]"
+    dependent_variables: ["[What you're measuring]"]
+    controls: ["[What stays constant]"]
+    sample_size: "[N seeds]"
+  success_criterion: "[Quantitative threshold, e.g., >=10% improvement, p<0.05]"
+  result: null  # CONFIRMED | REJECTED | INCONCLUSIVE | PENDING
+  key_findings: []
+  report: null
+  metrics: {}
+  learnings: []  # What did we learn for future experiments?
+  follow_ups: []  # What experiments does this suggest?

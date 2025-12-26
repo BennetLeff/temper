@@ -169,11 +169,17 @@ class PreflightChecker:
         # Check 1: Component area
         results.append(self._check_component_area(board, netlist))
 
-        # Check 2: Constraint satisfiability
-        results.append(self._check_constraint_satisfiability(constraints))
+        # Check 2: Constraint satisfiability (temper-l0nd.1)
+        results.append(self._check_constraint_satisfiability(netlist, constraints))
+
+        # Check 2.5: Zone capacity (temper-l0nd.2)
+        results.append(self._check_zone_capacity(board, netlist))
 
         # Check 3: Clearance feasibility
         results.append(self._check_clearance_feasibility(board, netlist, constraints))
+
+        # Check 3.5: Loop area feasibility (temper-l0nd.3)
+        results.append(self._check_loop_area_feasibility(netlist, constraints))
 
         # Check 4: Layer assignment (simplified)
         results.append(self._check_layer_assignment(netlist, constraints))
@@ -254,10 +260,11 @@ class PreflightChecker:
             time_ms=(time.time() - start) * 1000,
         )
 
-    def _check_constraint_satisfiability(self, constraints: ConstraintsLike) -> PreflightCheck:
-        """Check for contradictory constraints.
+    def _check_constraint_satisfiability(self, netlist: NetlistLike, constraints: ConstraintsLike) -> PreflightCheck:
+        """Check for contradictory or impossible constraints.
 
         Args:
+            netlist: Netlist with components.
             constraints: Constraint collection.
 
         Returns:
@@ -265,9 +272,36 @@ class PreflightChecker:
         """
         start = time.time()
         contradictions = []
+        impossible = []
 
-        # Check for adjacent + separated on same pair
+        comp_map = {c.ref: c for c in netlist.components}
         constraint_list = constraints.constraints
+
+        # 1. Check for physical impossibility (temper-l0nd.1)
+        for c in constraint_list:
+            if getattr(c, "constraint_type", "") == "adjacent":
+                a_ref = getattr(c, "a", "")
+                b_ref = getattr(c, "b", "")
+                max_dist = getattr(c, "max_distance", float("inf"))
+
+                if a_ref in comp_map and b_ref in comp_map:
+                    comp_a = comp_map[a_ref]
+                    comp_b = comp_map[b_ref]
+
+                    # Minimum possible center-to-center distance (axis-aligned)
+                    min_dist_x = (comp_a.width + comp_b.width) / 2
+                    min_dist_y = (comp_a.height + comp_b.height) / 2
+                    # The absolute minimum is the smaller of the two if they can be side-by-side
+                    # but for general feasibility we take min(min_dist_x, min_dist_y)
+                    abs_min = min(min_dist_x, min_dist_y)
+
+                    if max_dist < abs_min:
+                        impossible.append(
+                            f"{a_ref}-{b_ref}: adjacent(max={max_dist}mm) is physically "
+                            f"impossible (min center-to-center is {abs_min:.1f}mm)"
+                        )
+
+        # 2. Check for logical contradictions
         for i, c1 in enumerate(constraint_list):
             for c2 in constraint_list[i + 1 :]:
                 if self._is_contradiction(c1, c2):
@@ -277,12 +311,13 @@ class PreflightChecker:
                         f"separated({getattr(c2, 'min_distance', 0)}mm)"
                     )
 
-        if contradictions:
+        all_errors = contradictions + impossible
+        if all_errors:
             return PreflightCheck(
                 name="Constraint Satisfiability",
                 result=PreflightResult.FAIL,
-                message=f"Found {len(contradictions)} contradiction(s)",
-                details={"contradictions": contradictions},
+                message=f"Found {len(all_errors)} issues",
+                details={"contradictions": contradictions, "impossible": impossible},
                 time_ms=(time.time() - start) * 1000,
             )
 
@@ -290,6 +325,64 @@ class PreflightChecker:
             name="Constraint Satisfiability",
             result=PreflightResult.PASS,
             message="No contradictions found",
+            time_ms=(time.time() - start) * 1000,
+        )
+
+    def _check_zone_capacity(self, board: BoardLike, netlist: NetlistLike) -> PreflightCheck:
+        """Check if assigned components fit within their zones (temper-l0nd.2).
+
+        Args:
+            board: Board definition with zones.
+            netlist: Netlist with components.
+
+        Returns:
+            PreflightCheck result.
+        """
+        start = time.time()
+        
+        if not hasattr(board, "zones") or not board.zones:
+            return PreflightCheck(
+                name="Zone Capacity",
+                result=PreflightResult.PASS,
+                message="No zones to check",
+                time_ms=(time.time() - start) * 1000,
+            )
+
+        zone_areas = {}
+        for zone in board.zones:
+            zone_areas[zone.name] = zone.width * zone.height
+
+        zone_content_area = {z.name: 0.0 for z in board.zones}
+        for comp in netlist.components:
+            if hasattr(comp, "zone") and comp.zone in zone_content_area:
+                zone_content_area[comp.zone] += comp.width * comp.height
+
+        violations = []
+        for zone_name, content_area in zone_content_area.items():
+            capacity = zone_areas[zone_name]
+            fill_ratio = content_area / capacity if capacity > 0 else 1.0
+            
+            if fill_ratio > 0.90:
+                violations.append(
+                    f"Zone {zone_name} is over capacity ({fill_ratio:.1%} full)"
+                )
+            elif fill_ratio > 0.75:
+                # Warning
+                pass
+
+        if violations:
+            return PreflightCheck(
+                name="Zone Capacity",
+                result=PreflightResult.FAIL,
+                message=violations[0] if len(violations) == 1 else f"Found {len(violations)} violations",
+                details={"violations": violations},
+                time_ms=(time.time() - start) * 1000,
+            )
+
+        return PreflightCheck(
+            name="Zone Capacity",
+            result=PreflightResult.PASS,
+            message="All zones have sufficient capacity",
             time_ms=(time.time() - start) * 1000,
         )
 
@@ -427,6 +520,63 @@ class PreflightChecker:
             name="Layer Assignment",
             result=PreflightResult.PASS,
             message="Layer assignment feasible",
+            time_ms=(time.time() - start) * 1000,
+        )
+
+    def _check_loop_area_feasibility(self, netlist: NetlistLike, constraints: ConstraintsLike) -> PreflightCheck:
+        """Check if critical loops can meet area constraints (temper-l0nd.3).
+
+        Args:
+            netlist: Netlist with components.
+            constraints: Constraint collection.
+
+        Returns:
+            PreflightCheck result.
+        """
+        start = time.time()
+        violations = []
+        
+        comp_map = {c.ref: c for c in netlist.components}
+        
+        # Look for loop area constraints
+        for c in constraints.constraints:
+            if getattr(c, "constraint_type", "") == "loop_area":
+                loop_name = getattr(c, "loop_name", "unknown")
+                max_area = getattr(c, "max_area", float("inf"))
+                loop_refs = getattr(c, "components", [])
+                
+                if not loop_refs:
+                    continue
+                    
+                # Calculate minimum possible area for these components
+                # Rough lower bound: components touching in a circle
+                # Sum of component areas / 2? Or just check if max_area is suspiciously small.
+                
+                # A more robust check: the components must fit in a bounding box 
+                # whose area is related to max_area.
+                # If max_area < sum(comp_area), it's highly suspicious (overlap required)
+                total_comp_area = sum(comp_map[ref].width * comp_map[ref].height 
+                                    for ref in loop_refs if ref in comp_map)
+                
+                if max_area < total_comp_area * 0.5:
+                    violations.append(
+                        f"Loop {loop_name}: max_area {max_area}mm² is likely too small "
+                        f"for components totaling {total_comp_area:.1f}mm² area"
+                    )
+
+        if violations:
+            return PreflightCheck(
+                name="Loop Area Feasibility",
+                result=PreflightResult.WARN,
+                message=violations[0],
+                details={"violations": violations},
+                time_ms=(time.time() - start) * 1000,
+            )
+
+        return PreflightCheck(
+            name="Loop Area Feasibility",
+            result=PreflightResult.PASS,
+            message="Loop area constraints feasible",
             time_ms=(time.time() - start) * 1000,
         )
 

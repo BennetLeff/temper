@@ -27,6 +27,86 @@ from temper_placer import __version__
 console = Console()
 
 
+def _print_placement_summary(
+    console: Console,
+    netlist,
+    state,
+    constraints,
+    min_separation: float = 2.0,
+) -> None:
+    """Print a summary of component placements with overlap detection."""
+    import numpy as np
+    from rich.table import Table
+    
+    positions = np.array(state.positions)
+    n = len(netlist.components)
+    
+    if n == 0:
+        return
+    
+    # Compute overlaps
+    widths = np.array([c.bounds[0] for c in netlist.components])
+    heights = np.array([c.bounds[1] for c in netlist.components])
+    overlap_pairs = []
+    
+    for i in range(n):
+        hw_i, hh_i = widths[i] / 2, heights[i] / 2
+        for j in range(i + 1, n):
+            hw_j, hh_j = widths[j] / 2, heights[j] / 2
+            dx = abs(positions[i, 0] - positions[j, 0])
+            dy = abs(positions[i, 1] - positions[j, 1])
+            overlap_x = (hw_i + hw_j + min_separation) - dx
+            overlap_y = (hh_i + hh_j + min_separation) - dy
+            
+            if overlap_x > 0 and overlap_y > 0:
+                overlap_pairs.append((
+                    netlist.components[i].ref,
+                    netlist.components[j].ref,
+                    min(overlap_x, overlap_y),
+                ))
+    
+    # Print summary header
+    console.print("\n[bold cyan]═══ Placement Summary ═══[/]")
+    
+    fixed_count = sum(1 for c in netlist.components if c.fixed)
+    console.print(f"  Components: {n} total, {fixed_count} fixed, {n - fixed_count} optimized")
+    
+    if overlap_pairs:
+        console.print(f"  [red]Overlaps: {len(overlap_pairs)} pairs (< {min_separation}mm spacing)[/]")
+        for ref_a, ref_b, amount in overlap_pairs[:5]:  # Show first 5
+            console.print(f"    [red]• {ref_a} ↔ {ref_b}: {amount:.1f}mm overlap[/]")
+        if len(overlap_pairs) > 5:
+            console.print(f"    [dim]... and {len(overlap_pairs) - 5} more[/]")
+    else:
+        console.print(f"  [green]Overlaps: 0 pairs (✓ {min_separation}mm min spacing)[/]")
+    
+    # Component table (top 15 largest)
+    table = Table(title="Component Positions (largest 15)", show_lines=False)
+    table.add_column("Ref", style="cyan", width=12)
+    table.add_column("Size (mm)", width=10)
+    table.add_column("Position", width=14)
+    table.add_column("Footprint", style="dim", width=25)
+    
+    # Sort by area (largest first)
+    sorted_indices = sorted(range(n), key=lambda i: widths[i] * heights[i], reverse=True)
+    
+    for idx in sorted_indices[:15]:
+        comp = netlist.components[idx]
+        w, h = widths[idx], heights[idx]
+        x, y = positions[idx]
+        fp = comp.footprint.split(":")[-1] if ":" in comp.footprint else comp.footprint
+        fp = fp[:25] if len(fp) > 25 else fp
+        
+        table.add_row(
+            comp.ref,
+            f"{w:.1f}×{h:.1f}",
+            f"({x:.1f}, {y:.1f})",
+            fp,
+        )
+    
+    console.print(table)
+
+
 @click.group()
 @click.version_option(version=__version__, prog_name="temper-placer")
 def main() -> None:
@@ -392,7 +472,7 @@ def optimize(
             # rotation_invariant=True ensures overlap is detected regardless of rotation
             losses.append(
                 WeightedLoss(
-                    OverlapLoss(margin=1.0, rotation_invariant=True, inflation_ramp=0.3),
+                    OverlapLoss(margin=2.0, rotation_invariant=True, inflation_ramp=0.3),
                     weight=weights["overlap"],
                 )
             )
@@ -521,7 +601,31 @@ def optimize(
                     )
 
             if group_configs:
-                losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
+                # Use weight from config if provided, otherwise default
+                grouping_weight = weights.get("grouping", 10.0)
+                losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=grouping_weight))
+
+        # Loop area loss (PowerSynth: critical for switching loops)
+        if "loop_area" in weights:
+            from temper_placer.losses.loop_area import LoopAreaLoss
+            
+            # Use pre-configured loop definitions from constraints
+            # For Temper: commutation loop (Q1-Q2-C_BUS), gate loops
+            losses.append(WeightedLoss(LoopAreaLoss(), weight=weights["loop_area"]))
+
+        # Thermal spread loss (PowerSynth: force IGBT spacing)
+        if "thermal_spread" in weights:
+            from temper_placer.losses.thermal import ThermalSpreadLoss
+            
+            # Force minimum spacing between heat-generating components
+            losses.append(WeightedLoss(ThermalSpreadLoss(min_spacing_mm=12.0), weight=weights["thermal_spread"]))
+
+        # Thermal edge loss (PowerSynth: heatsink mounting)
+        if "thermal" in weights:
+            from temper_placer.losses.thermal import ThermalLoss
+            
+            # Penalize components far from required board edges
+            losses.append(WeightedLoss(ThermalLoss(), weight=weights["thermal"]))
 
         # Add more losses based on constraints
         # (clearance, thermal, zone, loop_area, etc. can be added here)
@@ -538,7 +642,8 @@ def optimize(
 
             # Zone assignments come from component.zone (set by apply_zones_to_netlist)
             # ZoneMembershipLoss will use zone.components from board definition
-            zone_weight = weights.get("zone", 10.0)  # High priority for zone enforcement
+            # Check both 'zone_membership' (YAML) and 'zone' (legacy) keys
+            zone_weight = weights.get("zone_membership", weights.get("zone", 100.0))
             losses.append(WeightedLoss(ZoneMembershipLoss(), weight=zone_weight))
 
         # Add aesthetic losses
@@ -867,9 +972,9 @@ def optimize(
                 netlist,
                 board,
                 fixed_mask=np.array(context.fixed_mask),
-                max_iterations=500,
-                min_separation=0.5,
-                damping=0.9,
+                max_iterations=1000,  # Increased for stubborn overlaps
+                min_separation=2.0,  # Increased for better visual spacing
+                damping=0.95,  # Reduced damping for more aggressive separation
             )
             
             # Update best_state with overlap-free positions
@@ -903,6 +1008,28 @@ def optimize(
         if write_result.has_warnings:
             for w in write_result.warnings:
                 console.print(f"    [yellow]Warning:[/] {w}")
+
+        # Add component bounding boxes for visualization
+        try:
+            from temper_placer.io.kicad_writer import add_bounding_boxes_to_pcb
+            
+            # Function now calculates bounds from actual footprint pads
+            boxes_added = add_bounding_boxes_to_pcb(output)
+            console.print(f"    [dim]Added {boxes_added} bounding boxes (Dwgs.User layer)[/]")
+        except Exception as e:
+            console.print(f"    [dim]Could not add bounding boxes: {e}[/]")
+
+        # Add silkscreen labels and F.Fab outlines
+        try:
+            from temper_placer.io.kicad_writer import add_silkscreen_labels
+            
+            label_counts = add_silkscreen_labels(output)
+            console.print(f"    [dim]Added {label_counts['references']} refs (F.SilkS), "
+                          f"{label_counts['values']} values, "
+                          f"{label_counts['outlines']} outlines (F.Fab)[/]")
+        except Exception as e:
+            console.print(f"    [dim]Could not add silkscreen: {e}[/]")
+
 
         # Also save JSON if requested
         if placements_json:
@@ -942,6 +1069,15 @@ def optimize(
 
         traceback.print_exc()
         sys.exit(1)
+
+    # Print placement summary
+    _print_placement_summary(
+        console=console,
+        netlist=netlist,
+        state=result.best_state,
+        constraints=constraints,
+        min_separation=2.0,
+    )
 
     console.print("\n[bold green]Done![/]")
 
@@ -1343,7 +1479,7 @@ def benchmark(
         losses = []
         losses.append(
             WeightedLoss(
-                OverlapLoss(margin=1.0, rotation_invariant=True, inflation_ramp=0.3),
+                OverlapLoss(margin=2.0, rotation_invariant=True, inflation_ramp=0.3),
                 weight=weights["overlap"],
             )
         )
@@ -3384,6 +3520,123 @@ def routing(input_pcb: Path, level: int, output: Path | None) -> None:
     # TODO: Implement routing phase runner
     console.print("[yellow]Note:[/] Routing phase runner not yet implemented")
     console.print("[green]✓[/] Routing verification complete")
+
+
+# =============================================================================
+# Template-Based Deterministic Placement Command
+# =============================================================================
+
+
+@main.command()
+@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "-c",
+    "--config",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Constraint configuration YAML file.",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Output .kicad_pcb file path.",
+)
+@click.option(
+    "--max-iterations",
+    type=int,
+    default=5,
+    help="Maximum placement-routing iterations (default: 5).",
+)
+@click.option(
+    "--routability-threshold",
+    type=float,
+    default=0.85,
+    help="Congestion threshold for refinement (default: 0.85).",
+)
+@click.option(
+    "--max-movement",
+    type=float,
+    default=3.0,
+    help="Maximum allowed movement during refinement in mm (default: 3.0).",
+)
+@click.option(
+    "--no-local-refinement",
+    is_flag=True,
+    default=False,
+    help="Skip the gradient-based local refinement phase.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=42,
+    help="Random seed for reproducibility (default: 42).",
+)
+def place_deterministic(
+    input_pcb: Path,
+    config: Path,
+    output: Path,
+    max_iterations: int,
+    routability_threshold: float,
+    max_movement: float,
+    no_local_refinement: bool,
+    seed: int,
+) -> None:
+    """
+    Place components using hierarchical deterministic pipeline.
+
+    This command runs:
+    Topological -> Preflight -> [Local Refinement] -> Routing Feedback -> Output
+    """
+    console.print(Panel.fit(
+        "[bold cyan]Hierarchical Deterministic Placement[/]",
+        subtitle=f"v{__version__}"
+    ))
+
+    # Create pipeline configuration
+    pipeline_config = PipelineConfig(
+        input_pcb=input_pcb,
+        constraints_yaml=config,
+        output_pcb=output,
+        max_iterations=max_iterations,
+        routability_threshold=routability_threshold,
+        max_movement_mm=max_movement,
+        skip_local_refinement=no_local_refinement,
+        seed=seed,
+    )
+
+    # Initialize orchestrator
+    orchestrator = PipelineOrchestrator(pipeline_config)
+
+    # Setup progress display
+    from rich.live import Live
+    dashboard = RichDashboard()
+    orchestrator.on_phase_start = dashboard.on_phase_start
+    orchestrator.on_phase_complete = dashboard.on_phase_complete
+
+    try:
+        with Live(dashboard.create_layout(), refresh_per_second=4):
+            result = orchestrator.run()
+
+        if result.success:
+            console.print("\n[bold green]Placement completed successfully![/]")
+            console.print(f"  Output: {output}")
+            
+            # Show summary metrics if available
+            if result.physics_report:
+                console.print("\n[bold cyan]Physical Metrics:[/]")
+                console.print(f"  Overlap Count: {result.physics_report.geometric.overlap_count}")
+                console.print(f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}")
+        else:
+            console.print(f"\n[bold red]Placement failed:[/] {result.failure_reason}")
+            raise click.Abort()
+
+    except Exception as e:
+        console.print(f"\n[bold red]Error:[/] {e}")
+        import traceback
+        console.print(traceback.format_exc())
+        raise click.Abort() from e
 
 
 # =============================================================================

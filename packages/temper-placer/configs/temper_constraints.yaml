@@ -114,17 +114,17 @@ groups:
   # MCU: ESP32-S3 + Decoupling
   - name: "mcu_subsystem"
     components: ["U_MCU", "C_MCU_1", "C_MCU_2", "C_MCU_3", "C_MCU_4"]
-    max_spread_mm: 15.0
+    max_spread_mm: 25.0  # Increased from 15 to allow spacing
     zone: "control_zone"
     proximity:
       - pair: ["C_MCU_1", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 8.0  # Relaxed from 3mm to allow 2mm spacing
       - pair: ["C_MCU_2", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 8.0
       - pair: ["C_MCU_3", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 8.0
       - pair: ["C_MCU_4", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 8.0
     description: "ESP32-S3 MCU with decoupling caps."
 
   # POWER SUPPLY: LDOs
@@ -184,28 +184,28 @@ group_separation:
 
 critical_loops:
   - name: "high_side_gate_loop"
-    nets: ["GATE_HS", "SW_NODE"]
+    pins: [["U_GD", "OUTA"], ["Q1", "G"], ["Q1", "E"], ["U_GD", "VSSA"]]
     max_area_mm2: 100.0
     weight: 10.0
     description: "High-side gate drive loop"
 
   - name: "low_side_gate_loop"
-    nets: ["GATE_LS", "DC_BUS_RTN"]
+    pins: [["U_GD", "OUTB"], ["Q2", "G"], ["Q2", "E"], ["U_GD", "VSSB"]]
     max_area_mm2: 100.0
     weight: 10.0
     description: "Low-side gate drive loop"
 
   - name: "power_stage_commutation"
-    nets: ["+340V_BUS", "SW_NODE", "DC_BUS_RTN"]
-    max_area_mm2: 500.0
-    weight: 15.0
-    description: "Main commutation loop - most critical for EMI"
+    pins: [["C_BUS1", "1"], ["Q1", "C"], ["Q2", "E"], ["C_BUS1", "2"]]
+    max_area_mm2: 400.0
+    weight: 20.0
+    description: "Main commutation loop (Q1-Q2-C_BUS) - most critical"
 
-  - name: "dc_bus_bypass"
-    nets: ["+340V_BUS", "DC_BUS_RTN"]
-    max_area_mm2: 800.0
-    weight: 8.0
-    description: "Bus capacitors to half-bridge"
+  - name: "bootstrap"
+    pins: [["U_GD", "VDDA"], ["C_BOOT", "1"], ["C_BOOT", "2"], ["U_GD", "VSSA"]]
+    max_area_mm2: 50.0
+    weight: 5.0
+    description: "High-side supply loop"
 
 # ==============================================================================
 # THERMAL CONSTRAINTS
@@ -230,6 +230,8 @@ thermal:
 
 hv_clearance_mm: 10.0
 
+nets: []  # Added to satisfy config loader requirements
+
 net_classes:
   +340V_BUS: "HighVoltage"
   DC_BUS_RTN: "HighVoltage"
@@ -252,130 +254,116 @@ aesthetics:
   symmetry_weight: 3.0
 
 # Loss weight overrides for power electronics
+# PowerSynth approach: Strong physics-based constraints replace hard-coded positions
 loss_weights:
-  zone_membership: 50.0  # Force zone compliance
-  overlap: 200.0         # Strict no-overlap
-  wirelength: 60.0       # Doubled from 30.0 - prioritize short traces
-  decoupling: 20.0       # NEW: Cap-to-IC proximity (MCU decoupling)
-  power_path: 30.0       # NEW: Power delivery path optimization
+  # Tier 1 - CRITICAL (Feasibility & Stability)
+  overlap: 200.0          # Strict no-overlap
+  clearance: 100.0        # HV-LV safety clearance
+  loop_area: 100.0        # Minimize switching loop induction
+  boundary: 100.0         # Stay within board limits
+  zone_membership: 150.0  # FORCE zone compliance (increased from 50)
+  
+  # Tier 2 - IMPORTANT (Electrical & Thermal Performance)
+  thermal: 30.0           # Heat source edge placement (IGBTs)
+  grouping: 50.0          # Virtual macro blocks
+  decoupling: 30.0        # CAP-to-IC proximity
+  thermal_spread: 25.0    # Force spacing between heat sources
+  power_path: 40.0        # High-current optimization
+  
+  # Tier 3 - AESTHETIC (Manufacturing & Logic)
+  wirelength: 20.0        # Reduced priority in favor of loop area
+  alignment: 5.0          # Row/Column consistency
+  grid: 2.0               # Grid snap preference
+  ground_crossing: 30.0   # Domain isolation (safety critical)
+
+# PowerSynth approach: Specify thermal requirements for heat sources
+# Optimizer will attraction Q1/Q2 to the TOP edge for heatsink mounting
+thermal:
+  - components: ["Q1", "Q2"]
+    prefer_edge: true
+    max_distance_from_edge_mm: 5.0
+    description: "IGBTs must be near TOP edge for thermal interface"
+  - components: ["U_LDO_5V", "U_LDO_3V3", "U_BUCK"]
+    min_separation_mm: 15.0
+    description: "Spread LDOs/Buck to avoid logic hot spots"
 
 # Fixed components (don't optimize position)
+# PowerSynth approach: Only fix MECHANICAL constraints, let optimizer handle electrical/thermal
 fixed_components:
+  # Mounting holes - mechanical interface
   - "MH1"
   - "MH2"
   - "MH3"
   - "MH4"
-  # Power stage - FIXED for correct topology
-  - "Q1"
-  - "Q2"
-  - "D1"
-  - "D2"
-  - "C_BUS1"
-  - "C_BUS2"
-  # Gate driver - FIXED near power stage
-  - "U_GATE"
-  - "C_BOOT"
-  - "C_VCC"
-  - "R_GATE_H"
-  - "R_GATE_L"
-  # Current sensing - FIXED to avoid overlaps
-  - "U_CT"
-  - "R_BURDEN"
-  - "C_CT_FILT"
-  - "U_OPAMP_CT"  # NEW: Op-amp for CT signal conditioning
-  # MCU and decoupling - FIXED for tight clustering
-  - "U_MCU"
-  - "C_MCU_1"
-  - "C_MCU_2"
-  - "C_MCU_3"
-  - "C_MCU_4"
-  # LDOs - FIXED to avoid overlaps
-  - "U_LDO_3V3"
-  - "U_LDO_5V"
-  - "U_BUCK"      # NEW: Buck converter for power
-  # Temperature sensing
-  - "MAX31865"    # NEW: RTD interface near J_NTC
-  # Connectors must be at board edges
+  # Connectors - board edge mechanical interface
   - "J_AC_IN"
   - "J_COIL"
   - "J_NTC"
   - "J_USB"
   - "J_DEBUG"
+# All other components (power stage, MCU, etc.) will be placed by optimizer
+# using constraint losses: GroupClusterLoss, LoopAreaLoss, DecouplingLoss, etc.
 
 # Component proximity groups for decoupling and signal chains
+# PowerSynth approach: Define virtual hierarchical blocks with tight clustering
 component_groups:
-  - name: mcu_decoupling
+  # TIER 1 - CRITICAL: Power stage as rigid macro block
+  - name: power_stage
+    leader: Q1  # High-side IGBT
+    followers: [Q2, D1, D2, C_BUS1, C_BUS2]
+    max_distance: 30.0  # Entire half-bridge clustered tightly
+    weight: 100.0  # VERY HIGH - treat as single unit
+  
+  # TIER 1 - CRITICAL: Gate driver cluster
+  - name: gate_driver
+    leader: U_GATE
+    followers: [C_BOOT, C_VCC, R_GATE_H, R_GATE_L]
+    max_distance: 20.0  # Gate loop minimization
+    weight: 80.0
+  
+  # TIER 2: Current sensing cluster
+  - name: current_sensing
+    leader: U_CT
+    followers: [R_BURDEN, C_CT_FILT, U_OPAMP_CT]
+    max_distance: 15.0
+    weight: 50.0
+  
+  # TIER 2: MCU system
+  - name: mcu_system
     leader: U_MCU
     followers: [C_MCU_1, C_MCU_2, C_MCU_3, C_MCU_4]
-    max_distance: 5.0
+    max_distance: 20.0  # Relaxed from 12 to allow 2mm spacing
+    weight: 60.0
   
-  - name: spi_chain
-    leader: U_MCU
-    followers: [U_CT, MAX31865]
-    max_distance: 20.0
+  # TIER 3: Power delivery
+  - name: power_rail_5v
+    leader: U_LDO_5V
+    followers: [U_GATE]  # Gate driver supply
+    max_distance: 25.0
+    weight: 30.0
   
-  - name: usb_interface
-    leader: J_USB
-    followers: [U_MCU]
-    max_distance: 15.0
+  - name: power_rail_3v3
+    leader: U_LDO_3V3
+    followers: [U_MCU, MAX31865]
+    max_distance: 25.0
+    weight: 30.0
 
 # Force connectors to board edges for professional layout
+# PowerSynth approach: Only specify MECHANICAL positions
+# All electrical/thermal components will be optimizer-placed
 fixed_positions:
-  # Power stage - RECALCULATED for actual component sizes:
-  # Q1/Q2: 14.4mm wide, D1/D2: 17.7mm wide, C_BUS: 10.5mm wide
-  # Layout: D -- Q -- C_BUS with proper spacing (1mm margin)
-  Q1: [75.0, 130.0]    # High-side IGBT (centered X, upper row)
-  Q2: [75.0, 118.0]    # Low-side IGBT (centered X, lower row, 12mm apart)
-  D1: [58.0, 130.0]    # High-side diode (17mm left of Q1)
-  D2: [58.0, 118.0]    # Low-side diode (17mm left of Q2)
-  C_BUS1: [89.0, 130.0]  # Bus cap (14mm right of Q1)
-  C_BUS2: [89.0, 118.0]  # Bus cap (14mm right of Q2)
-  
-  # Gate driver - left of power stage, clear of diodes
-  U_GATE: [40.0, 124.0]  # 18mm left of D1 (U_GATE is 11mm wide)
-  C_BOOT: [37.0, 132.0]  # Above U_GATE
-  C_VCC: [43.0, 132.0]   # Above U_GATE
-  
-  # Gate resistors - spaced properly (3mm wide each)
-  R_GATE_H: [60.0, 112.0]  # Near U_GATE
-  R_GATE_L: [66.0, 112.0]  # 6mm right of R_GATE_H
-  
-  # Current sensing - space U_CT away from J_COIL and LDOs
-  # U_CT is 7.2mm wide, J_COIL is at (50, 75)
-  U_CT: [35.0, 80.0]       # Left of J_COIL, in driver zone
-  R_BURDEN: [28.0, 80.0]   # Left of U_CT
-  C_CT_FILT: [35.0, 86.0]  # Above U_CT
-  U_OPAMP_CT: [28.0, 86.0] # NEW: Near U_CT for signal path
-  
-  # MCU decoupling - cluster near U_MCU (target: <15mm spread)
-  U_MCU: [50.0, 45.0]      # Center of control zone
-  C_MCU_1: [45.0, 50.0]    # 5mm from MCU
-  C_MCU_2: [55.0, 50.0]    # 5mm from MCU
-  C_MCU_3: [45.0, 40.0]    # 5mm from MCU
-  C_MCU_4: [55.0, 40.0]    # 5mm from MCU
-  
-  # LDOs - space away from U_CT
-  U_LDO_3V3: [25.0, 55.0]  # Left side of control zone
-  U_LDO_5V: [25.0, 65.0]   # Above U_LDO_3V3
-  U_BUCK: [80.0, 65.0]     # NEW: Right side, near power stage
-  
-  # Temperature sensing
-  MAX31865: [15.0, 80.0]   # Near J_NTC but spaced to avoid overlap
-  
   # Mounting holes (corners)
   MH1: [3.5, 3.5]
   MH2: [96.5, 3.5]
-  MH3: [3.5, 146.5]   # Fixed for 150mm board
-  MH4: [96.5, 146.5]  # Fixed for 150mm board
+  MH3: [3.5, 146.5]
+  MH4: [96.5, 146.5]
   
-  # Power Connectors (Top Edge - Power Zone)
-  J_AC_IN: [10.0, 75.0]  # AC Input (Top Left)
-  J_NTC: [20.0, 75.0]    # Temp Sensor (Near Power)
-  J_COIL: [50.0, 85.0]   # Induction Coil (moved up to avoid U_CT overlap)
-  
-  # Control Connectors (Bottom Edge - Control Zone)
-  J_USB: [50.0, 5.0]     # USB (Bottom Center)
-  J_DEBUG: [70.0, 5.0]   # UART Debug (Bottom Right)
+  # Connectors at board edges (properly zoned)
+  J_AC_IN: [10.0, 140.0]  # AC Input - TOP LEFT (Power Zone Y>110)
+  J_NTC: [20.0, 140.0]    # Temp Sensor - TOP LEFT (Power Zone)
+  J_COIL: [50.0, 145.0]   # Induction Coil - TOP CENTER (Power Zone edge)
+  J_USB: [50.0, 5.0]      # USB - BOTTOM CENTER (Control Zone Y<70)
+  J_DEBUG: [70.0, 10.0]   # Debug - BOTTOM (Control Zone)
 
 # ==============================================================================
 # PRIORITY-BASED PLACEMENT (Professional PCB workflow)
