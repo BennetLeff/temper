@@ -26,6 +26,7 @@ class GeometricMetrics:
     zone_violation_count: int = 0
     zone_violation_max_mm: float = 0.0
     boundary_violation_count: int = 0
+    min_hv_lv_clearance_mm: float = 1000.0
 
 
 @dataclass
@@ -142,6 +143,25 @@ def measure_geometric(
             y - hh < board.origin[1] or y + hh > board.origin[1] + board.height):
             metrics.boundary_violation_count += 1
             
+    # 4. HV-LV Clearance (Creepage proxy)
+    hv_indices = [i for i, c in enumerate(netlist.components) if c.net_class == "HighVoltage"]
+    lv_indices = [i for i, c in enumerate(netlist.components) if c.net_class != "HighVoltage"]
+    
+    if hv_indices and lv_indices:
+        for i in hv_indices:
+            hw_i, hh_i = widths[i] / 2, heights[i] / 2
+            for j in lv_indices:
+                hw_j, hh_j = widths[j] / 2, heights[j] / 2
+                
+                dx = abs(positions[i, 0] - positions[j, 0]) - hw_i - hw_j
+                dy = abs(positions[i, 1] - positions[j, 1]) - hh_i - hh_j
+                
+                dist = max(dx, dy, 0.0)
+                if dx > 0 and dy > 0:
+                    dist = np.sqrt(dx**2 + dy**2)
+                    
+                metrics.min_hv_lv_clearance_mm = min(metrics.min_hv_lv_clearance_mm, dist)
+                
     return metrics
 
 

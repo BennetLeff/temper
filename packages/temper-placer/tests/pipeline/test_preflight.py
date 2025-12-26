@@ -35,6 +35,7 @@ def test_proximity_feasibility(checker, mock_netlist, mock_constraints, mock_boa
             self.ref = ref
             self.width = w
             self.height = h
+            self.net_class = "Signal"
             
     mock_netlist.components = [Comp("U1", 10, 10), Comp("U2", 10, 10)]
     
@@ -68,6 +69,7 @@ def test_zone_capacity(checker, mock_board, mock_netlist, mock_constraints):
         width = 11.0
         height = 11.0
         zone = "Z1"
+        net_class = "Signal"
         
     mock_netlist.components = [Comp()]
     
@@ -84,6 +86,7 @@ def test_loop_area_feasibility(checker, mock_board, mock_netlist, mock_constrain
             self.ref = ref
             self.width = w
             self.height = h
+            self.net_class = "Signal"
             
     mock_netlist.components = [Comp("Q1", 10, 5), Comp("Q2", 10, 5)]
     
@@ -100,3 +103,26 @@ def test_loop_area_feasibility(checker, mock_board, mock_netlist, mock_constrain
     loop_check = next(c for c in report.checks if c.name == "Loop Area Feasibility")
     assert loop_check.result == PreflightResult.WARN
     assert "too small" in loop_check.message
+
+def test_isolation_feasibility(checker, mock_board, mock_netlist, mock_constraints):
+    # Board 10x10. Isolation 6.5mm. 
+    # Barrier area = 10 * 6.5 = 65mm2.
+    # If components take > 35mm2, should fail.
+    class Comp:
+        def __init__(self, ref, w, h, nc):
+            self.ref = ref
+            self.width = w
+            self.height = h
+            self.net_class = nc
+            
+    mock_board.width = 10.0
+    mock_board.height = 10.0
+    mock_netlist.components = [
+        Comp("Q1", 6, 6, "HighVoltage"), # 36mm2
+        Comp("U1", 2, 2, "Signal")       # 4mm2
+    ]
+    # Total area = 40. Barrier = 65. Sum = 105 > 100.
+    
+    report = checker.run(mock_board, mock_netlist, mock_constraints, None)
+    iso_check = next(c for c in report.checks if c.name == "Isolation Feasibility")
+    assert iso_check.result == PreflightResult.FAIL

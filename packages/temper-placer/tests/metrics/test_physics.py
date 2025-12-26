@@ -67,3 +67,23 @@ def test_measure_routability(sample_setup):
     
     assert metrics.total_wirelength_mm > 0
     assert metrics.max_congestion >= 0
+
+def test_hv_lv_clearance(sample_setup):
+    board, netlist, state = sample_setup
+    # U1 is MCU_ZONE (LV), U2 is generic (LV)
+    # Set U1 to HighVoltage class
+    netlist.components[0].net_class = "HighVoltage"
+    
+    # U1 at (25, 25), U2 at (25, 30)
+    # Sizes are 10x10. 
+    # U1: y=[20, 30], U2: y=[25, 35]
+    # They overlap! Clearance should be 0.
+    metrics = measure_geometric(state, netlist, board)
+    assert metrics.min_hv_lv_clearance_mm == 0.0
+    
+    # Move U2 further away
+    state.positions = state.positions.at[1].set([25.0, 50.0])
+    # U1: y=[20, 30], U2: y=[45, 55]
+    # Gap = 45 - 30 = 15.0
+    metrics = measure_geometric(state, netlist, board)
+    assert metrics.min_hv_lv_clearance_mm == 15.0

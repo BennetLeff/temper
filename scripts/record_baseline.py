@@ -36,6 +36,14 @@ def analyze_pcb(pcb_path: Path, output_json: Path | None = None) -> PhysicsRepor
     
     state = PlacementState.from_positions(jnp.array(positions))
     
+    # Assign net classes from spec if possible
+    # For now, we'll manually tag HV components for common power designs
+    for comp in netlist.components:
+        if comp.ref in ["Q1", "Q2", "D1", "D2", "J_AC", "C_BUS1"]:
+            comp.net_class = "HighVoltage"
+        else:
+            comp.net_class = "Signal"
+            
     # 1. Geometric
     geo = measure_geometric(state, netlist, board)
     

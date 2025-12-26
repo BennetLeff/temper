@@ -59,6 +59,33 @@ def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
         return 0.0
 
 
+def calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> float:
+    """
+    Calculate minimum physical distance between any HV trace and any LV trace.
+    """
+    hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]
+    lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]
+    
+    if not hv_traces or not lv_traces:
+        return float('inf')
+        
+    min_dist = float('inf')
+    
+    for hv in hv_traces:
+        for lv in lv_traces:
+            # Shortest distance between two line segments
+            # Simplified: check endpoints for now
+            pts_hv = [np.array(hv.start), np.array(hv.end)]
+            pts_lv = [np.array(lv.start), np.array(lv.end)]
+            
+            for p1 in pts_hv:
+                for p2 in pts_lv:
+                    dist = np.linalg.norm(p1 - p2)
+                    min_dist = min(min_dist, dist)
+                    
+    return float(min_dist)
+
+
 def validate_signal_integrity(board: Board, spec: Any) -> dict[str, float]:
     """Validate trace lengths against Signal Integrity spec."""
     results = {}

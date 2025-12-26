@@ -48,6 +48,10 @@ def derive_constraints_from_spec(
         # Assuming 1.5x routing overhead (Manhattan + detours)
         derived[f"{net_name}_max_placement_dist"] = max_len / 1.5
         
+    # 4. Safety -> Isolation (Creepage/Clearance)
+    # Default to 6.5mm for reinforced isolation (340V)
+    derived["hv_lv_isolation_mm"] = 6.5
+    
     return derived
 
 

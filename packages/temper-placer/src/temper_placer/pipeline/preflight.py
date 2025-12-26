@@ -181,6 +181,9 @@ class PreflightChecker:
         # Check 3.5: Loop area feasibility (temper-l0nd.3)
         results.append(self._check_loop_area_feasibility(netlist, constraints))
 
+        # Check 3.6: Isolation feasibility (temper-u6m4.2)
+        results.append(self._check_isolation_feasibility(board, netlist, constraints))
+
         # Check 4: Layer assignment (simplified)
         results.append(self._check_layer_assignment(netlist, constraints))
 
@@ -577,6 +580,39 @@ class PreflightChecker:
             name="Loop Area Feasibility",
             result=PreflightResult.PASS,
             message="Loop area constraints feasible",
+            time_ms=(time.time() - start) * 1000,
+        )
+
+    def _check_isolation_feasibility(self, board: BoardLike, netlist: NetlistLike, constraints: ConstraintsLike) -> PreflightCheck:
+        """Check if HV-LV isolation requirements are achievable (temper-u6m4.2)."""
+        start = time.time()
+        
+        # Get required isolation from constraints or default
+        # For now, we'll hardcode the 6.5mm target if not explicitly in constraints
+        isolation_req = 6.5
+        
+        hv_count = sum(1 for c in netlist.components if getattr(c, "net_class", "") == "HighVoltage")
+        lv_count = len(netlist.components) - hv_count
+        
+        if hv_count > 0 and lv_count > 0:
+            # Simple check: isolation barrier takes up space.
+            # Barrier length is roughly the min(width, height) of the board.
+            barrier_area = min(board.width, board.height) * isolation_req
+            total_comp_area = sum(c.width * c.height for c in netlist.components)
+            
+            usable_area = board.width * board.height
+            if total_comp_area + barrier_area > usable_area * 0.95:
+                return PreflightCheck(
+                    name="Isolation Feasibility",
+                    result=PreflightResult.FAIL,
+                    message=f"Isolation barrier ({isolation_req}mm) and components too large for board",
+                    time_ms=(time.time() - start) * 1000,
+                )
+
+        return PreflightCheck(
+            name="Isolation Feasibility",
+            result=PreflightResult.PASS,
+            message=f"Isolation requirement ({isolation_req}mm) feasible",
             time_ms=(time.time() - start) * 1000,
         )
 
