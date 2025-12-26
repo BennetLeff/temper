@@ -2,8 +2,8 @@
 * Test Circuit: {test_name}
 * Task: {task_id}
 * Purpose: {purpose}
-******************************************************************************
+*****************************************************************************
 
 .TITLE {title}
 
-{component_library}
+.INCLUDE {component_library}

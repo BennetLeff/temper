@@ -1,8 +1,8 @@
 *------------------------------------------------------------------------------
-* Control Block for automated measurement
+* Control Block
 *------------------------------------------------------------------------------
 .control
 {analysis_commands}
-print {outputs}
+{outputs}
 {measurements}
 .endc
