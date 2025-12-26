@@ -4,6 +4,8 @@ from temper_placer.losses.physics.hypergraph_losses import (
     hypergraph_wirelength_loss, 
     high_voltage_repulsion_loss
 )
+from temper_placer.core.hypergraph import PhysicsHypergraph, HypergraphIncidence
+from jax.experimental.sparse import BCOO
 import jax.numpy as jnp
 import jax
 
@@ -82,3 +84,43 @@ def test_hv_repulsion():
     
     loss = high_voltage_repulsion_loss(positions, hg, min_clearance=10.0)
     assert jnp.allclose(loss, 50.0)
+
+
+def test_current_weighted_spacing():
+    """Verify high current nodes need more space."""
+    # 2 Nodes, 1 Edge
+    # Edge has high current
+    indices = jnp.array([[0, 0], [1, 0]])
+    data = jnp.array([1.0, 1.0])
+    
+    incidence = HypergraphIncidence(
+        matrix=BCOO((data, indices), shape=(2, 1)),
+        node_weights=jnp.ones(2),
+        hyperedge_weights=jnp.array([1.0]),
+    )
+    
+    hg = PhysicsHypergraph(
+        incidence=incidence,
+        node_refs=["U1", "U2"],
+        hyperedge_names=["N1"],
+        edge_voltages=jnp.array([0.0]), # Low voltage
+        edge_currents=jnp.array([10.0]), # High current (10A)
+        edge_widths=jnp.array([1.0])
+    )
+    
+    # Placed at distance 2.0
+    positions = jnp.array([
+        [0.0, 0.0],
+        [2.0, 0.0]
+    ])
+    
+    # Case 1: Low current factor -> Should be safe
+    # Spacing = 0.5 + 0.01 * (10+10) = 0.7 < 2.0
+    from temper_placer.losses.physics.hypergraph_losses import current_weighted_spacing_loss
+    loss_low = current_weighted_spacing_loss(positions, hg, current_factor=0.01)
+    assert loss_low < 1e-6
+    
+    # Case 2: High current factor -> Should violate
+    # Spacing = 0.5 + 0.5 * (20) = 10.5 > 2.0
+    loss_high = current_weighted_spacing_loss(positions, hg, current_factor=0.5)
+    assert loss_high > 1.0

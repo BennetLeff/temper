@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Optimization Report</title>
+    <style>
+        
+        :root {
+            --color-primary: #2563eb;
+            --color-success: #16a34a;
+            --color-warning: #ca8a04;
+            --color-error: #dc2626;
+            --color-bg: #f8fafc;
+            --color-card: #ffffff;
+            --color-border: #e2e8f0;
+            --color-text: #1e293b;
+            --color-text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        header h1 {
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .timestamp {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        section {
+            background: var(--color-card);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: var(--color-text);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        h3 {
+            color: var(--color-text);
+            margin: 1rem 0 0.5rem;
+        }
+
+        h4 {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin: 0.75rem 0 0.25rem;
+        }
+
+        /* Summary stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background: var(--color-bg);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-box.status-ok .stat-value { color: var(--color-success); }
+        .stat-box.status-warning .stat-value { color: var(--color-warning); }
+        .stat-box.status-error .stat-value { color: var(--color-error); }
+
+        /* Charts */
+        .chart-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background: var(--color-bg);
+            font-weight: 600;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr:hover {
+            background: var(--color-bg);
+        }
+
+        /* Status classes */
+        .status-ok { }
+        .status-warning td:first-child { border-left: 3px solid var(--color-warning); }
+        .status-error td:first-child { border-left: 3px solid var(--color-error); }
+        .status-fixed td:first-child { border-left: 3px solid var(--color-text-muted); }
+
+        .severity-high td { color: var(--color-error); }
+        .severity-medium td { color: var(--color-warning); }
+        .severity-low td { color: var(--color-text-muted); }
+
+        /* Constraint summary */
+        .constraint-summary {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .constraint-summary li {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .constraint-summary li.ok {
+            background: #dcfce7;
+            color: var(--color-success);
+        }
+
+        .constraint-summary li.error {
+            background: #fee2e2;
+            color: var(--color-error);
+        }
+
+        /* Validation results */
+        .validation-result {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--color-bg);
+            border-radius: 6px;
+        }
+
+        .validation-result h3 {
+            margin-top: 0;
+        }
+
+        .error-list, .warning-list {
+            margin-left: 1.5rem;
+        }
+
+        .error-list li { color: var(--color-error); }
+        .warning-list li { color: var(--color-warning); }
+
+        /* Utility classes */
+        .success { color: var(--color-success); }
+        .warning { color: var(--color-warning); }
+        .error { color: var(--color-error); }
+        .info { color: var(--color-text-muted); font-style: italic; }
+
+        /* Loop analysis */
+        .loop-summary-table .exceeded {
+            background: #fee2e2;
+            color: var(--color-error);
+        }
+        .loop-summary-table .ok {
+            background: #dcfce7;
+            color: var(--color-success);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            table {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+    <header>
+        <h1>Placement Optimization Report</h1>
+        <p class="timestamp">Generated: 2025-12-26 15:54:44</p>
+    </header>
+    
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-value">33</span>
+                <span class="stat-label">Components</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">100.0 x 150.0</span>
+                <span class="stat-label">Board Size (mm)</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">5.1%</span>
+                <span class="stat-label">Area Coverage</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">N/A</span>
+                <span class="stat-label">Final Loss</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value">N/A</span>
+                <span class="stat-label">Epochs</span>
+            </div>
+            <div class="stat-box status-ok">
+                <span class="stat-value">Valid</span>
+                <span class="stat-label">Placement Status</span>
+            </div>
+        </div>
+    </section>
+    
+
+    <section class="board-view">
+        <h2>Board Visualization</h2>
+        <div class="chart-container">
+            <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="050e9b2b-3c0a-424b-a54f-a0f93ab973c1" class="plotly-graph-div" style="height:600px; width:800px;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("050e9b2b-3c0a-424b-a54f-a0f93ab973c1")) {                    Plotly.newPlot(                        "050e9b2b-3c0a-424b-a54f-a0f93ab973c1",                        [{"hoverinfo":"text","hovertext":["\u003cb\u003eJ_AC_IN\u003c\u002fb\u003e\u003cbr\u003ePosition: (10.00, 136.25)\u003cbr\u003eSize: 3.50 x 23.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Connector_IEC:IEC_C14_Male","\u003cb\u003eD1\u003c\u002fb\u003e\u003cbr\u003ePosition: (42.17, 112.39)\u003cbr\u003eSize: 17.74 x 2.50 mm\u003cbr\u003eRotation: 90\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Diode_THT:D_DO-201AD_P15.24mm_Horizontal","\u003cb\u003eD2\u003c\u002fb\u003e\u003cbr\u003ePosition: (79.06, 116.25)\u003cbr\u003eSize: 17.74 x 2.50 mm\u003cbr\u003eRotation: 180\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Diode_THT:D_DO-201AD_P15.24mm_Horizontal","\u003cb\u003eC_BUS1\u003c\u002fb\u003e\u003cbr\u003ePosition: (62.34, 116.25)\u003cbr\u003eSize: 10.50 x 3.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_THT:CP_Radial_D18.0mm_P7.50mm","\u003cb\u003eC_BUS2\u003c\u002fb\u003e\u003cbr\u003ePosition: (71.12, 102.70)\u003cbr\u003eSize: 10.50 x 3.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_THT:CP_Radial_D18.0mm_P7.50mm","\u003cb\u003eQ1\u003c\u002fb\u003e\u003cbr\u003ePosition: (61.90, 108.75)\u003cbr\u003eSize: 14.40 x 3.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown","\u003cb\u003eQ2\u003c\u002fb\u003e\u003cbr\u003ePosition: (90.80, 108.75)\u003cbr\u003eSize: 14.40 x 3.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown","\u003cb\u003eU_GATE\u003c\u002fb\u003e\u003cbr\u003ePosition: (44.77, 84.57)\u003cbr\u003eSize: 11.00 x 9.49 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm","\u003cb\u003eC_BOOT\u003c\u002fb\u003e\u003cbr\u003ePosition: (47.65, 71.25)\u003cbr\u003eSize: 3.00 x 1.45 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0805_2012Metric","\u003cb\u003eC_VCC\u003c\u002fb\u003e\u003cbr\u003ePosition: (57.65, 71.25)\u003cbr\u003eSize: 3.00 x 1.45 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0805_2012Metric","\u003cb\u003eR_GATE_H\u003c\u002fb\u003e\u003cbr\u003ePosition: (32.41, 84.82)\u003cbr\u003eSize: 3.00 x 1.45 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Resistor_SMD:R_0805_2012Metric","\u003cb\u003eR_GATE_L\u003c\u002fb\u003e\u003cbr\u003ePosition: (50.98, 74.89)\u003cbr\u003eSize: 3.00 x 1.45 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Resistor_SMD:R_0805_2012Metric","\u003cb\u003eU_BUCK\u003c\u002fb\u003e\u003cbr\u003ePosition: (14.80, 71.25)\u003cbr\u003eSize: 3.20 x 2.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_TO_SOT_SMD:SOT-23-6","\u003cb\u003eU_LDO_3V3\u003c\u002fb\u003e\u003cbr\u003ePosition: (39.19, 63.58)\u003cbr\u003eSize: 5.80 x 5.20 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_TO_SOT_SMD:SOT-223-3_TabPin2","\u003cb\u003eU_LDO_5V\u003c\u002fb\u003e\u003cbr\u003ePosition: (31.34, 63.58)\u003cbr\u003eSize: 5.80 x 5.20 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_TO_SOT_SMD:SOT-223-3_TabPin2","\u003cb\u003eU_MCU\u003c\u002fb\u003e\u003cbr\u003ePosition: (48.18, 63.75)\u003cbr\u003eSize: 7.70 x 6.77 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm","\u003cb\u003eC_MCU_1\u003c\u002fb\u003e\u003cbr\u003ePosition: (65.55, 71.25)\u003cbr\u003eSize: 1.60 x 0.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0402_1005Metric","\u003cb\u003eC_MCU_2\u003c\u002fb\u003e\u003cbr\u003ePosition: (70.03, 71.73)\u003cbr\u003eSize: 1.60 x 0.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0402_1005Metric","\u003cb\u003eC_MCU_3\u003c\u002fb\u003e\u003cbr\u003ePosition: (62.16, 74.24)\u003cbr\u003eSize: 1.60 x 0.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0402_1005Metric","\u003cb\u003eC_MCU_4\u003c\u002fb\u003e\u003cbr\u003ePosition: (54.88, 63.75)\u003cbr\u003eSize: 1.60 x 0.50 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0402_1005Metric","\u003cb\u003eJ_USB\u003c\u002fb\u003e\u003cbr\u003ePosition: (50.00, 5.00)\u003cbr\u003eSize: 5.00 x 1.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12","\u003cb\u003eJ_DEBUG\u003c\u002fb\u003e\u003cbr\u003ePosition: (70.00, 10.00)\u003cbr\u003eSize: 1.70 x 14.40 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical","\u003cb\u003eU_CT\u003c\u002fb\u003e\u003cbr\u003ePosition: (27.00, 71.60)\u003cbr\u003eSize: 7.20 x 6.30 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm","\u003cb\u003eR_BURDEN\u003c\u002fb\u003e\u003cbr\u003ePosition: (14.67, 65.20)\u003cbr\u003eSize: 3.00 x 1.45 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Resistor_SMD:R_0805_2012Metric","\u003cb\u003eC_CT_FILT\u003c\u002fb\u003e\u003cbr\u003ePosition: (33.65, 89.24)\u003cbr\u003eSize: 2.45 x 0.95 mm\u003cbr\u003eRotation: 180\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Capacitor_SMD:C_0603_1608Metric","\u003cb\u003eU_OPAMP_CT\u003c\u002fb\u003e\u003cbr\u003ePosition: (36.75, 71.73)\u003cbr\u003eSize: 6.55 x 4.41 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","\u003cb\u003eMAX31865\u003c\u002fb\u003e\u003cbr\u003ePosition: (38.59, 95.43)\u003cbr\u003eSize: 7.20 x 6.30 mm\u003cbr\u003eRotation: 270\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm","\u003cb\u003eJ_COIL\u003c\u002fb\u003e\u003cbr\u003ePosition: (50.00, 145.00)\u003cbr\u003eSize: 5.81 x 2.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Connector_Phoenix_MC:PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical","\u003cb\u003eJ_NTC\u003c\u002fb\u003e\u003cbr\u003ePosition: (20.00, 140.00)\u003cbr\u003eSize: 4.24 x 1.70 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical","\u003cb\u003eMH1\u003c\u002fb\u003e\u003cbr\u003ePosition: (3.50, 3.50)\u003cbr\u003eSize: 2.00 x 2.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: MountingHole:MountingHole_3.2mm_M3","\u003cb\u003eMH2\u003c\u002fb\u003e\u003cbr\u003ePosition: (96.50, 3.50)\u003cbr\u003eSize: 2.00 x 2.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: MountingHole:MountingHole_3.2mm_M3","\u003cb\u003eMH3\u003c\u002fb\u003e\u003cbr\u003ePosition: (3.50, 146.50)\u003cbr\u003eSize: 2.00 x 2.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: MountingHole:MountingHole_3.2mm_M3","\u003cb\u003eMH4\u003c\u002fb\u003e\u003cbr\u003ePosition: (96.50, 146.50)\u003cbr\u003eSize: 2.00 x 2.00 mm\u003cbr\u003eRotation: 0\u00b0\u003cbr\u003eStatus: ok\u003cbr\u003eFootprint: MountingHole:MountingHole_3.2mm_M3"],"marker":{"opacity":0,"size":1},"mode":"markers","name":"Components","showlegend":false,"x":[10,42.1654167175293,79.05692291259766,62.33692169189453,71.12085723876953,61.90000534057617,90.80000305175781,44.77020263671875,47.6485481262207,57.6485481262207,32.414344787597656,50.98395919799805,14.798552513122559,39.190650939941406,31.339746475219727,48.17792892456055,65.54854583740234,70.02613067626953,62.16075897216797,54.877647399902344,50,70,26.998550415039062,14.669403076171875,33.65342330932617,36.75113296508789,38.585750579833984,50,20,3.5,96.5,3.5,96.5],"y":[136.25,112.38719177246094,116.25,116.25,102.6955795288086,108.75,108.75,84.57350158691406,71.25,71.25,84.82427978515625,74.88719177246094,71.25,63.57500076293945,63.57500076293945,63.75,71.25,71.72942352294922,74.24248504638672,63.75,5,10,71.60000610351562,65.1955795288086,89.24248504638672,71.72942352294922,95.42649841308594,145,140,3.5,3.5,146.5,146.5],"type":"scatter"},{"hoverinfo":"skip","legendgroup":"components","legendgrouptitle":{"text":"Components"},"marker":{"color":"#4CAF50","size":12,"symbol":"square"},"mode":"markers","name":"Component: ok","showlegend":true,"x":[-100],"y":[-100],"type":"scatter"},{"hoverinfo":"skip","legendgroup":"components","legendgrouptitle":{"text":"Components"},"marker":{"color":"#FF9800","size":12,"symbol":"square"},"mode":"markers","name":"Component: warning","showlegend":true,"x":[-100],"y":[-100],"type":"scatter"},{"hoverinfo":"skip","legendgroup":"components","legendgrouptitle":{"text":"Components"},"marker":{"color":"#F44336","size":12,"symbol":"square"},"mode":"markers","name":"Component: error","showlegend":true,"x":[-100],"y":[-100],"type":"scatter"},{"hoverinfo":"skip","legendgroup":"components","legendgrouptitle":{"text":"Components"},"marker":{"color":"#9E9E9E","size":12,"symbol":"square"},"mode":"markers","name":"Component: fixed","showlegend":true,"x":[-100],"y":[-100],"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"title":{"text":"temper_agent_optimized","x":0.5,"xanchor":"center"},"xaxis":{"title":{"text":"X (mm)"},"range":[-5,105],"scaleanchor":"y","scaleratio":1,"showgrid":true,"gridcolor":"rgba(255,255,255,0.1)","zeroline":false},"yaxis":{"title":{"text":"Y (mm)"},"range":[-5,155],"showgrid":true,"gridcolor":"rgba(255,255,255,0.1)","zeroline":false},"margin":{"l":60,"r":150,"t":60,"b":60},"legend":{"orientation":"v","yanchor":"top","y":1,"xanchor":"left","x":1.02,"bgcolor":"rgba(255,255,255,0.8)","bordercolor":"#ccc","borderwidth":1},"shapes":[{"fillcolor":"#1a472a","layer":"below","line":{"color":"#2d5a3d","width":2},"type":"rect","x0":0,"x1":100,"y0":0,"y1":150},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 8.25,124.5 L 11.75,124.5 L 11.75,148.0 L 8.25,148.0 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 43.4154167175293,103.51719177246093 L 43.4154167175293,121.25719177246094 L 40.9154167175293,121.25719177246094 L 40.9154167175293,103.51719177246093 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 87.92692291259766,117.5 L 70.18692291259765,117.5 L 70.18692291259765,115.0 L 87.92692291259766,115.0 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 57.08692169189453,114.75 L 67.58692169189453,114.75 L 67.58692169189453,117.75 L 57.08692169189453,117.75 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 65.87085723876953,101.1955795288086 L 76.37085723876953,101.1955795288086 L 76.37085723876953,104.1955795288086 L 65.87085723876953,104.1955795288086 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 54.70000534057617,107.0 L 69.10000534057617,107.0 L 69.10000534057617,110.5 L 54.70000534057617,110.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 83.60000305175781,107.0 L 98.00000305175782,107.0 L 98.00000305175782,110.5 L 83.60000305175781,110.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 39.27020263671875,79.82850158691406 L 50.27020263671875,79.82850158691406 L 50.27020263671875,89.31850158691407 L 39.27020263671875,89.31850158691407 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 46.1485481262207,70.525 L 49.1485481262207,70.525 L 49.1485481262207,71.975 L 46.1485481262207,71.975 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 56.1485481262207,70.525 L 59.1485481262207,70.525 L 59.1485481262207,71.975 L 56.1485481262207,71.975 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 30.914344787597656,84.09927978515626 L 33.914344787597656,84.09927978515626 L 33.914344787597656,85.54927978515624 L 30.914344787597656,85.54927978515624 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 49.48395919799805,74.16219177246094 L 52.48395919799805,74.16219177246094 L 52.48395919799805,75.61219177246093 L 49.48395919799805,75.61219177246093 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 13.198552513122559,70.0 L 16.39855251312256,70.0 L 16.39855251312256,72.5 L 13.198552513122559,72.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 36.29065093994141,60.97500076293945 L 42.090650939941405,60.97500076293945 L 42.090650939941405,66.17500076293945 L 36.29065093994141,66.17500076293945 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 28.439746475219728,60.97500076293945 L 34.239746475219725,60.97500076293945 L 34.239746475219725,66.17500076293945 L 28.439746475219728,66.17500076293945 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 44.327928924560545,60.365 L 52.02792892456055,60.365 L 52.02792892456055,67.135 L 44.327928924560545,67.135 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 64.74854583740235,71.0 L 66.34854583740234,71.0 L 66.34854583740234,71.5 L 64.74854583740235,71.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 69.22613067626953,71.47942352294922 L 70.82613067626953,71.47942352294922 L 70.82613067626953,71.97942352294922 L 69.22613067626953,71.97942352294922 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 61.36075897216797,73.99248504638672 L 62.960758972167966,73.99248504638672 L 62.960758972167966,74.49248504638672 L 61.36075897216797,74.49248504638672 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 54.07764739990235,63.5 L 55.67764739990234,63.5 L 55.67764739990234,64.0 L 54.07764739990235,64.0 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 47.5,4.5 L 52.5,4.5 L 52.5,5.5 L 47.5,5.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 69.15,2.8000000000000007 L 70.85,2.8000000000000007 L 70.85,17.2 L 69.15,17.2 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 23.39855041503906,68.45000610351562 L 30.598550415039064,68.45000610351562 L 30.598550415039064,74.75000610351563 L 23.39855041503906,74.75000610351563 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 13.169403076171875,64.4705795288086 L 16.169403076171875,64.4705795288086 L 16.169403076171875,65.92057952880859 L 13.169403076171875,65.92057952880859 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 34.87842330932617,89.71748504638671 L 32.42842330932617,89.71748504638671 L 32.42842330932617,88.76748504638672 L 34.87842330932617,88.76748504638672 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 33.47613296508789,69.52442352294922 L 40.02613296508789,69.52442352294922 L 40.02613296508789,73.93442352294922 L 33.47613296508789,73.93442352294922 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 35.435750579833986,99.02649841308593 L 35.435750579833986,91.82649841308594 L 41.73575057983398,91.82649841308594 L 41.73575057983398,99.02649841308593 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 47.095,144.0 L 52.905,144.0 L 52.905,146.0 L 47.095,146.0 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 17.88,139.15 L 22.12,139.15 L 22.12,140.85 L 17.88,140.85 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 2.5,2.5 L 4.5,2.5 L 4.5,4.5 L 2.5,4.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 95.5,2.5 L 97.5,2.5 L 97.5,4.5 L 95.5,4.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 2.5,145.5 L 4.5,145.5 L 4.5,147.5 L 2.5,147.5 Z","type":"path"},{"fillcolor":"#4CAF50","layer":"above","line":{"color":"#000000","width":1.0},"opacity":0.8,"path":"M 95.5,145.5 L 97.5,145.5 L 97.5,147.5 L 95.5,147.5 Z","type":"path"}],"annotations":[{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"J_AC_IN","x":10,"y":136.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"D1","x":42.1654167175293,"y":112.38719177246094},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"D2","x":79.05692291259766,"y":116.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_BUS1","x":62.33692169189453,"y":116.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_BUS2","x":71.12085723876953,"y":102.6955795288086},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"Q1","x":61.90000534057617,"y":108.75},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"Q2","x":90.80000305175781,"y":108.75},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_GATE","x":44.77020263671875,"y":84.57350158691406},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_BOOT","x":47.6485481262207,"y":71.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_VCC","x":57.6485481262207,"y":71.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"R_GATE_H","x":32.414344787597656,"y":84.82427978515625},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"R_GATE_L","x":50.98395919799805,"y":74.88719177246094},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_BUCK","x":14.798552513122559,"y":71.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_LDO_3V3","x":39.190650939941406,"y":63.57500076293945},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_LDO_5V","x":31.339746475219727,"y":63.57500076293945},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_MCU","x":48.17792892456055,"y":63.75},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_MCU_1","x":65.54854583740234,"y":71.25},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_MCU_2","x":70.02613067626953,"y":71.72942352294922},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_MCU_3","x":62.16075897216797,"y":74.24248504638672},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_MCU_4","x":54.877647399902344,"y":63.75},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"J_USB","x":50,"y":5},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"J_DEBUG","x":70,"y":10},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_CT","x":26.998550415039062,"y":71.60000610351562},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"R_BURDEN","x":14.669403076171875,"y":65.1955795288086},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"C_CT_FILT","x":33.65342330932617,"y":89.24248504638672},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"U_OPAMP_CT","x":36.75113296508789,"y":71.72942352294922},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"MAX31865","x":38.585750579833984,"y":95.42649841308594},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"J_COIL","x":50,"y":145},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"J_NTC","x":20,"y":140},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"MH1","x":3.5,"y":3.5},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"MH2","x":96.5,"y":3.5},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"MH3","x":3.5,"y":146.5},{"bgcolor":"rgba(0,0,0,0.5)","borderpad":2,"font":{"color":"#FFFFFF","family":"monospace","size":10},"showarrow":false,"text":"MH4","x":96.5,"y":146.5}],"width":800,"height":600,"plot_bgcolor":"rgba(0,0,0,0)","paper_bgcolor":"#f5f5f5","hovermode":"closest","showlegend":true},                        {"responsive": true}                    )                };            </script>        </div>
+        </div>
+    </section>
+    
+
+    <section class="component-table">
+        <h2>Component Placements</h2>
+        
+        <table class="placements-table">
+            <thead>
+                <tr>
+                    <th>Ref</th>
+                    <th>X (mm)</th>
+                    <th>Y (mm)</th>
+                    <th>Rotation</th>
+                    <th>Size (mm)</th>
+                    <th>Footprint</th>
+                    <th>Status</th>
+                    <th>Violations</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr class="status-ok">
+                <td>J_AC_IN</td>
+                <td>10.00</td>
+                <td>136.25</td>
+                <td>0</td>
+                <td>3.50 x 23.50</td>
+                <td>Connector_IEC:IEC_C14_Male</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>D1</td>
+                <td>42.17</td>
+                <td>112.39</td>
+                <td>90</td>
+                <td>17.74 x 2.50</td>
+                <td>Diode_THT:D_DO-201AD_P15.24mm_Horizontal</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>D2</td>
+                <td>79.06</td>
+                <td>116.25</td>
+                <td>180</td>
+                <td>17.74 x 2.50</td>
+                <td>Diode_THT:D_DO-201AD_P15.24mm_Horizontal</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_BUS1</td>
+                <td>62.34</td>
+                <td>116.25</td>
+                <td>0</td>
+                <td>10.50 x 3.00</td>
+                <td>Capacitor_THT:CP_Radial_D18.0mm_P7.50mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_BUS2</td>
+                <td>71.12</td>
+                <td>102.70</td>
+                <td>0</td>
+                <td>10.50 x 3.00</td>
+                <td>Capacitor_THT:CP_Radial_D18.0mm_P7.50mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>Q1</td>
+                <td>61.90</td>
+                <td>108.75</td>
+                <td>0</td>
+                <td>14.40 x 3.50</td>
+                <td>Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>Q2</td>
+                <td>90.80</td>
+                <td>108.75</td>
+                <td>0</td>
+                <td>14.40 x 3.50</td>
+                <td>Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_GATE</td>
+                <td>44.77</td>
+                <td>84.57</td>
+                <td>0</td>
+                <td>11.00 x 9.49</td>
+                <td>Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_BOOT</td>
+                <td>47.65</td>
+                <td>71.25</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Capacitor_SMD:C_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_VCC</td>
+                <td>57.65</td>
+                <td>71.25</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Capacitor_SMD:C_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>R_GATE_H</td>
+                <td>32.41</td>
+                <td>84.82</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Resistor_SMD:R_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>R_GATE_L</td>
+                <td>50.98</td>
+                <td>74.89</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Resistor_SMD:R_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_BUCK</td>
+                <td>14.80</td>
+                <td>71.25</td>
+                <td>0</td>
+                <td>3.20 x 2.50</td>
+                <td>Package_TO_SOT_SMD:SOT-23-6</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_LDO_3V3</td>
+                <td>39.19</td>
+                <td>63.58</td>
+                <td>0</td>
+                <td>5.80 x 5.20</td>
+                <td>Package_TO_SOT_SMD:SOT-223-3_TabPin2</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_LDO_5V</td>
+                <td>31.34</td>
+                <td>63.58</td>
+                <td>0</td>
+                <td>5.80 x 5.20</td>
+                <td>Package_TO_SOT_SMD:SOT-223-3_TabPin2</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_MCU</td>
+                <td>48.18</td>
+                <td>63.75</td>
+                <td>0</td>
+                <td>7.70 x 6.77</td>
+                <td>Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_1</td>
+                <td>65.55</td>
+                <td>71.25</td>
+                <td>0</td>
+                <td>1.60 x 0.50</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_2</td>
+                <td>70.03</td>
+                <td>71.73</td>
+                <td>0</td>
+                <td>1.60 x 0.50</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_3</td>
+                <td>62.16</td>
+                <td>74.24</td>
+                <td>0</td>
+                <td>1.60 x 0.50</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_MCU_4</td>
+                <td>54.88</td>
+                <td>63.75</td>
+                <td>0</td>
+                <td>1.60 x 0.50</td>
+                <td>Capacitor_SMD:C_0402_1005Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_USB</td>
+                <td>50.00</td>
+                <td>5.00</td>
+                <td>0</td>
+                <td>5.00 x 1.00</td>
+                <td>Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_DEBUG</td>
+                <td>70.00</td>
+                <td>10.00</td>
+                <td>0</td>
+                <td>1.70 x 14.40</td>
+                <td>Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_CT</td>
+                <td>27.00</td>
+                <td>71.60</td>
+                <td>0</td>
+                <td>7.20 x 6.30</td>
+                <td>Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>R_BURDEN</td>
+                <td>14.67</td>
+                <td>65.20</td>
+                <td>0</td>
+                <td>3.00 x 1.45</td>
+                <td>Resistor_SMD:R_0805_2012Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>C_CT_FILT</td>
+                <td>33.65</td>
+                <td>89.24</td>
+                <td>180</td>
+                <td>2.45 x 0.95</td>
+                <td>Capacitor_SMD:C_0603_1608Metric</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>U_OPAMP_CT</td>
+                <td>36.75</td>
+                <td>71.73</td>
+                <td>0</td>
+                <td>6.55 x 4.41</td>
+                <td>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MAX31865</td>
+                <td>38.59</td>
+                <td>95.43</td>
+                <td>270</td>
+                <td>7.20 x 6.30</td>
+                <td>Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_COIL</td>
+                <td>50.00</td>
+                <td>145.00</td>
+                <td>0</td>
+                <td>5.81 x 2.00</td>
+                <td>Connector_Phoenix_MC:PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>J_NTC</td>
+                <td>20.00</td>
+                <td>140.00</td>
+                <td>0</td>
+                <td>4.24 x 1.70</td>
+                <td>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH1</td>
+                <td>3.50</td>
+                <td>3.50</td>
+                <td>0</td>
+                <td>2.00 x 2.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH2</td>
+                <td>96.50</td>
+                <td>3.50</td>
+                <td>0</td>
+                <td>2.00 x 2.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH3</td>
+                <td>3.50</td>
+                <td>146.50</td>
+                <td>0</td>
+                <td>2.00 x 2.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            <tr class="status-ok">
+                <td>MH4</td>
+                <td>96.50</td>
+                <td>146.50</td>
+                <td>0</td>
+                <td>2.00 x 2.00</td>
+                <td>MountingHole:MountingHole_3.2mm_M3</td>
+                <td>ok</td>
+                <td>-</td>
+            </tr>
+        
+            </tbody>
+        </table>
+    </section>
+    
+
+    <footer>
+        <p>Generated by temper-placer visualization module</p>
+    </footer>
+    
+    </div>
+</body>
+</html>

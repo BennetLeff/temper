@@ -232,6 +232,8 @@ class TrainingState:
     overlap_weights: Array | None = None  # (N,) adaptive multipliers
     loss_weights: Array | None = None  # (L,) dynamic loss weights
     initial_grad_norms: Array | None = None  # (L,) initial gradient norms for GradNorm
+    current_lr: float = 0.1
+    plateau_count: int = 0
 
 
 def create_optimizer(
@@ -385,6 +387,7 @@ def initialize_training_state(
         overlap_weights=jnp.ones((netlist.n_components,), dtype=jnp.float32),
         loss_weights=jnp.ones((1,), dtype=jnp.float32),  # Placeholder, will be resized if needed
         initial_grad_norms=jnp.ones((1,), dtype=jnp.float32),
+        current_lr=initial_lr,
     )
 
 
@@ -784,6 +787,7 @@ def train(
     validation_history: list[ValidationResult] = []
     stopped_by_validation = False
     convergence_reached = False
+    is_plateau = False
 
     # Best tracking
     best_loss = float("inf")
@@ -803,13 +807,30 @@ def train(
     )
 
     # Main training loop
+    is_plateau = False
     with profile_ctx:
         for epoch in range(config.epochs):
             epoch_start = time.time()
 
             # Get current temperature and learning rate
             temperature = get_temperature(epoch, config.epochs, config.temperature)
-            lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+            
+            # Adaptive Learning Rate (ALR) - Reduce on Plateau
+            lr_cfg = config.reduce_lr_on_plateau
+            if lr_cfg.enabled and is_plateau:
+                state.plateau_count += 1
+                if state.plateau_count >= lr_cfg.patience:
+                    state.current_lr = max(state.current_lr * lr_cfg.factor, lr_cfg.min_lr)
+                    state.plateau_count = 0
+                    logger.info(f"Epoch {epoch}: Reducing learning rate to {state.current_lr:.6f} due to plateau")
+            else:
+                state.plateau_count = 0
+                
+            # If not plateauing, follow base schedule (optional: blend them)
+            # For now, if ALR has touched the LR, we stay with ALR's value 
+            # unless the schedule is even lower.
+            base_lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+            lr = min(state.current_lr, base_lr)
 
             # Sample rotations using Gumbel-Softmax
             state.rng_key, sample_key = jax.random.split(state.rng_key)
@@ -1194,6 +1215,7 @@ def train_multiphase(
     validation_history: list[ValidationResult] = []
     stopped_by_validation = False
     convergence_reached = False
+    is_plateau = False
 
     # Best tracking
     best_loss = float("inf")
@@ -1245,6 +1267,7 @@ def train_multiphase(
     )
 
     # Main training loop
+    is_plateau = False
     with profile_ctx:
         for epoch in range(config.epochs):
             epoch_start = time.time()
@@ -1311,7 +1334,20 @@ def train_multiphase(
 
             # Get current temperature and learning rate
             temperature = get_temperature(epoch, config.epochs, config.temperature)
-            lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+            
+            # Adaptive Learning Rate (ALR) - Reduce on Plateau
+            lr_cfg = config.reduce_lr_on_plateau
+            if lr_cfg.enabled and is_plateau:
+                state.plateau_count += 1
+                if state.plateau_count >= lr_cfg.patience:
+                    state.current_lr = max(state.current_lr * lr_cfg.factor, lr_cfg.min_lr)
+                    state.plateau_count = 0
+                    logger.info(f"Epoch {epoch}: Reducing learning rate to {state.current_lr:.6f} due to plateau")
+            else:
+                state.plateau_count = 0
+                
+            base_lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
+            lr = min(state.current_lr, base_lr)
 
             # Sample rotations
             state.rng_key, sample_key = jax.random.split(state.rng_key)

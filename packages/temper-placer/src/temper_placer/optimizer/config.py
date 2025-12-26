@@ -221,6 +221,28 @@ class JiggleConfig:
 
 
 @dataclass
+class ReduceLROnPlateauConfig:
+    """
+    Adaptive learning rate reduction on plateau.
+    """
+    enabled: bool = True
+    factor: float = 0.5
+    patience: int = 200
+    min_lr: float = 1e-4
+
+
+@dataclass
+class ElectrostaticCongestionConfig:
+    """
+    Configuration for Electrostatic Congestion model.
+    """
+    enabled: bool = True
+    grid_size: int = 64
+    update_interval: int = 100
+    potential_weight: float = 1.0
+
+
+@dataclass
 class OptimizerConfig:
     """
     Complete optimizer configuration.
@@ -286,6 +308,12 @@ class OptimizerConfig:
     jiggle: JiggleConfig = field(default_factory=JiggleConfig)
     use_grad_norm: bool = False
     grad_norm: GradNormConfig = field(default_factory=GradNormConfig)
+
+    # Adaptive Learning Rate (ALR)
+    reduce_lr_on_plateau: ReduceLROnPlateauConfig = field(default_factory=ReduceLROnPlateauConfig)
+
+    # Electrostatic Congestion
+    electrostatic: ElectrostaticCongestionConfig = field(default_factory=ElectrostaticCongestionConfig)
 
     # Centrality-driven optimization (temper-s7g)
     use_centrality_weighting: bool = True
