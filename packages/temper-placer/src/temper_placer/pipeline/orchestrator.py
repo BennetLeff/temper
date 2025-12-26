@@ -83,14 +83,17 @@ class PipelineConfig:
     # Phase control
     skip_topological: bool = False
     skip_routing: bool = False
+    skip_local_refinement: bool = False
     dry_run: bool = False
 
     # Optimization config
     epochs: int = 8000
     seed: int = 42
+    max_movement_mm: float = 2.0
 
     # Iteration config
     max_iterations: int = 5
+    routability_threshold: float = 0.85
     convergence_threshold: float = 0.01
 
     # Manufacturing
@@ -223,6 +226,13 @@ class PipelineOrchestrator:
             if (
                 phase in (PipelinePhase.ROUTING, PipelinePhase.REFINEMENT)
                 and self.config.skip_routing
+            ):
+                continue
+
+            # Skip local refinement if requested
+            if (
+                phase == PipelinePhase.GEOMETRIC
+                and self.config.skip_local_refinement
             ):
                 continue
 
@@ -360,6 +370,20 @@ class PipelineOrchestrator:
 
         state.constraints = MockConstraints()
 
+        # Load physical specification if provided
+        from temper_placer.core.specification import PcbSpecification
+        from temper_placer.pipeline.derivation import derive_constraints_from_spec
+        
+        # Default spec for Temper
+        spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
+        if spec_path.exists():
+            print(f"Loading specification from {spec_path}")
+            spec = PcbSpecification.load(spec_path)
+            derived = derive_constraints_from_spec(spec, state.netlist)
+            print(f"  Derived {len(derived)} physical constraints from spec.")
+            # Store spec in state if needed
+            # state.specification = spec
+
         return state
 
     def _run_semantic(self, state: PipelineState) -> PipelineState:
@@ -374,20 +398,26 @@ class PipelineOrchestrator:
 
     def _run_topological(self, state: PipelineState) -> PipelineState:
         """Run topological placement phase (deterministic/legalization)."""
-        import numpy as np
-
         from temper_placer.optimizer.legalization import legalize_zone_aware
         from temper_placer.placer.deterministic import PlacementResult
+        from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
+        import numpy as np
 
         print("Running topological placement...")
 
-        # Initialize positions
-        n = state.netlist.n_components
-        positions = np.zeros((n, 2), dtype=np.float32)
-        rotations = np.zeros(n, dtype=np.float32)
+        # 1. MCU Subsystem Template (Step 1)
+        mcu_heuristic = MCUSubsystemHeuristic()
+        mcu_result = mcu_heuristic.apply(state.netlist, state.board)
+        
+        # Initialize positions from MCU result
+        positions = np.array(mcu_result.positions)
+        rotations = np.array(mcu_result.rotations)
 
-        # 1. Load initial positions
+        # 2. Load other initial positions
         for i, comp in enumerate(state.netlist.components):
+            if comp.ref in mcu_result.placed_refs:
+                continue # Already placed by MCU template
+                
             if comp.initial_position:
                 positions[i] = comp.initial_position
             else:
@@ -404,7 +434,7 @@ class PipelineOrchestrator:
             if comp.initial_rotation is not None:
                 rotations[i] = comp.initial_rotation * 90.0
 
-        # 2. Zone-Aware Legalization
+        # 3. Zone-Aware Legalization (Step 2)
         print("Running zone-aware legalization...")
         fixed_mask = np.array([c.fixed for c in state.netlist.components], dtype=bool)
 
@@ -418,9 +448,8 @@ class PipelineOrchestrator:
 
         if not success:
             print("Warning: Legalization could not fully resolve overlaps/constraints.")
-            # We continue anyway, hoping optimizer fixes it or user refines constraints
 
-        # 3. Store Result
+        # 4. Store Result
         state.deterministic_result = PlacementResult(
             positions=legalized_pos,
             rotations=rotations,
@@ -489,16 +518,19 @@ class PipelineOrchestrator:
         # TODO: Load real weights from config
         from temper_placer.losses.base import WeightedLoss
         from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.losses.physics import HypergraphWirelengthLoss
 
         loss_fn = CompositeLoss([
-            WeightedLoss(WirelengthLoss(), weight=1.0),
+            WeightedLoss(HypergraphWirelengthLoss(), weight=1.0),
             WeightedLoss(OverlapLoss(), weight=10.0),  # Soft overlap to guide gradient
         ])
 
         context = LossContext.from_netlist_and_board(state.netlist, state.board)
         # 3. Optimization Loop
-        print(f"Running refinement for {state.config.epochs} epochs (max 2mm movement)...")
+        print(
+            f"Running refinement for {state.config.epochs} epochs "
+            f"(max {state.config.max_movement_mm}mm movement)..."
+        )
 
         optimizer = optax.adam(learning_rate=0.1)
         params = {"positions": jnp.array(positions)}
@@ -519,14 +551,16 @@ class PipelineOrchestrator:
             params = optax.apply_updates(params, updates)
             return params, opt_state, loss
 
-        for epoch in range(min(state.config.epochs, 500)): # Limit refinement epochs
+        for epoch in range(min(state.config.epochs, 500)):  # Limit refinement epochs
             params, opt_state, loss_val = step(params, opt_state)
 
             # 4. Projection (Every N steps or every step)
             if epoch % 10 == 0:
                 pos_np = np.array(params["positions"])
-                # Trust region: max 2mm
-                pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=2.0)
+                # Trust region: max X mm
+                pos_np = project_to_trust_region(
+                    pos_np, anchor_positions, max_radius=state.config.max_movement_mm
+                )
                 # Keep in board
                 # pos_np = clamp_to_bounds(pos_np, ...)
                 params["positions"] = jnp.array(pos_np)
@@ -585,7 +619,9 @@ class PipelineOrchestrator:
 
         # Check if routing was successful/feasible
         # For CongestionResult, we check overflow
-        is_feasible = state.routing_result.is_feasible(threshold=1.2) # Allow slight overflow
+        is_feasible = state.routing_result.is_feasible(
+            threshold=state.config.routability_threshold
+        )
 
         if is_feasible or state.iteration >= state.config.max_iterations:
             print("Placement is routable or max iterations reached. Ending refinement.")
@@ -594,10 +630,26 @@ class PipelineOrchestrator:
 
         print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high.")
 
-        # TODO: Implement adjustment logic
-        # 1. Identify bottleneck areas
-        # 2. Add repulsion forces to those areas
-        # 3. Re-run geometric optimization
+        # 0. Root Cause Analysis
+        from temper_placer.pipeline.feedback import analyze_root_cause, ValidationFailure
+        
+        # Simulated failure for analysis
+        failure = ValidationFailure(
+            spec_name="routability",
+            actual_value=state.routing_result.max_utilization,
+            limit_value=state.config.routability_threshold,
+            margin=state.config.routability_threshold - state.routing_result.max_utilization
+        )
+        
+        analysis = analyze_root_cause(
+            failure, state.placement_state or state.deterministic_result, 
+            state.netlist, state.board
+        )
+        
+        if analysis.fixes:
+            print(f"  Suggested fix: {analysis.fixes[0].action} (Target: {analysis.fixes[0].target})")
+
+        # 1. Adjust based on congestion
 
         state.iteration += 1
 
