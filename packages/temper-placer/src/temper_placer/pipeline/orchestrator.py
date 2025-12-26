@@ -244,21 +244,58 @@ class PipelineOrchestrator:
         import jax.numpy as jnp
         import numpy as np
 
-        if state.routing_result is None or state.routing_result.is_feasible(threshold=state.config.routability_threshold):
+        # 1. Compute physics metrics to check for thermal violations
+        self._compute_physics_metrics()
+        
+        is_routable = state.routing_result is not None and state.routing_result.is_feasible(threshold=state.config.routability_threshold)
+        is_thermally_safe = state.physics_report is not None and state.physics_report.thermal.thermal_margin_c >= 0
+        
+        if (is_routable and is_thermally_safe) or state.iteration >= state.config.max_iterations:
+            if is_routable and is_thermally_safe:
+                print("Placement is routable and thermally safe. Ending refinement.")
+            else:
+                print(f"Max iterations ({state.config.max_iterations}) reached. Ending refinement.")
             state._refinement_complete = True
             return state
 
-        print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high.")
-        failure = ValidationFailure(
-            spec_name="routability", 
-            actual_value=state.routing_result.max_utilization,
-            limit_value=state.config.routability_threshold,
-            margin=state.config.routability_threshold - state.routing_result.max_utilization
-        )
-        analyze_root_cause(failure, state.placement_state or state.deterministic_result, state.netlist, state.board)
+        # 2. Identify failures
+        failures = []
+        if not is_routable:
+            print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high ({state.routing_result.max_utilization:.2f} > {state.config.routability_threshold:.2f}).")
+            failures.append(ValidationFailure(
+                spec_name="routability", 
+                actual_value=state.routing_result.max_utilization,
+                limit_value=state.config.routability_threshold,
+                margin=state.config.routability_threshold - state.routing_result.max_utilization
+            ))
+            
+        if not is_thermally_safe:
+            print(f"Refinement iteration {state.iteration + 1}: Thermal violation (Tj={state.physics_report.thermal.max_junction_temp_c:.1f}C, Limit=150C).")
+            failures.append(ValidationFailure(
+                spec_name="thermal",
+                actual_value=state.physics_report.thermal.max_junction_temp_c,
+                limit_value=150.0,
+                margin=150.0 - state.physics_report.thermal.max_junction_temp_c
+            ))
 
+        # 3. Analyze root causes
+        for failure in failures:
+            analyze_root_cause(failure, state.placement_state or state.deterministic_result, state.netlist, state.board)
+
+        # 4. Adjust placement
         current_pos = np.array(state.placement_state.positions if state.placement_state else state.deterministic_result.positions)
-        new_pos = adjust_for_congestion(current_pos, state.netlist, state.board, state.routing_result)
+        
+        # Priority 1: Fix congestion
+        new_pos = current_pos.copy()
+        if not is_routable:
+            new_pos = adjust_for_congestion(new_pos, state.netlist, state.board, state.routing_result)
+            
+        # Priority 2: Fix thermal (TODO: Implement adjust_for_thermal)
+        if not is_thermally_safe:
+            # For now, let the gradient refinement handle it in the next loop 
+            # by having high thermal weight in geometric phase
+            pass
+            
         new_pos, _ = legalize_zone_aware(new_pos, state.netlist, state.board)
         
         state.placement_state = PlacementState.from_positions(jnp.array(new_pos))

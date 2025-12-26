@@ -24,6 +24,8 @@ from temper_placer.optimizer.legalization import (
 from temper_placer.losses.wirelength import WirelengthLoss
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.thermal import ThermalLoss, create_temper_thermal_constraints
+from temper_placer.losses.loop_area import LoopAreaLoss, create_temper_loop_constraints
 
 if TYPE_CHECKING:
     from temper_placer.pipeline.state import PipelineState
@@ -47,9 +49,18 @@ def run_geometric_phase(state: PipelineState) -> PipelineState:
         # Stronger overlap and boundary weights for local refinement
         WeightedLoss(OverlapLoss(), weight=20.0),
         WeightedLoss(BoundaryLoss(), weight=50.0),
+        WeightedLoss(ThermalLoss(), weight=100.0),
+        WeightedLoss(LoopAreaLoss(), weight=200.0),
     ])
     
     context = LossContext.from_netlist_and_board(state.netlist, state.board)
+    # Add thermal and loop constraints for refinement
+    from dataclasses import replace
+    context = replace(
+        context, 
+        thermal_constraints=create_temper_thermal_constraints(),
+        loop_constraints=create_temper_loop_constraints()
+    )
     
     print(f"Running refinement for {state.config.epochs} epochs (max {state.config.max_movement_mm}mm movement)...")
     optimizer = optax.adam(learning_rate=0.1)

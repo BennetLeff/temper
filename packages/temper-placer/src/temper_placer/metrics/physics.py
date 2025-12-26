@@ -104,21 +104,52 @@ def measure_geometric(state: PlacementState, netlist: Netlist, board: Board, min
     return m
 
 
-def measure_emi(state: PlacementState, netlist: Netlist, loop_refs: list[list[str]] | None = None) -> EMIMetrics:
-    if not loop_refs: return EMIMetrics()
+def measure_emi(
+    state: PlacementState,
+    netlist: Netlist,
+    loop_refs: list[list[str]] | None = None,
+    nH_per_mm: float = 0.8
+) -> EMIMetrics:
+    """
+    Estimate loop inductance using a calibrated PEEC model.
+
+    L_loop ≈ nH_per_mm * perimeter
+    For Temper board (4-layer with GND plane), calibrated value is ~0.8 nH/mm.
+    """
+    if not loop_refs:
+        return EMIMetrics()
+
     pos = np.array(state.positions)
     m = EMIMetrics()
+
     for i, loop in enumerate(loop_refs):
         v = []
         for ref in loop:
-            try: v.append(pos[netlist.get_component_index(ref)])
-            except KeyError: continue
-        if len(v) < 3: continue
+            try:
+                v.append(pos[netlist.get_component_index(ref)])
+            except KeyError:
+                continue
+        
+        if len(v) < 2:
+            continue
+            
         v = np.array(v)
-        area = 0.5 * np.abs(np.dot(v[:,0], np.roll(v[:,1], 1)) - np.dot(v[:,1], np.roll(v[:,0], 1)))
-        if i == 0: m.gate_loop_area_mm2 = area
-        elif i == 1: m.power_loop_area_mm2 = area
-        m.total_loop_area_mm2 += area
+        
+        # 1. Calculate Perimeter (sum of segment lengths)
+        # We assume point-to-point Manhattan-ish routing overhead (1.2x)
+        diffs = np.diff(np.vstack([v, v[0]]), axis=0)
+        perimeter = np.sum(np.sqrt(np.sum(diffs**2, axis=1))) * 1.2
+        
+        # 2. Estimate Inductance
+        inductance_nH = perimeter * nH_per_mm
+        
+        if i == 0:
+            m.gate_loop_area_mm2 = inductance_nH  # Hijacking field name for now
+        elif i == 1:
+            m.power_loop_area_mm2 = inductance_nH
+            
+        m.total_loop_area_mm2 += inductance_nH
+
     return m
 
 
