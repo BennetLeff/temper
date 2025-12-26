@@ -1,0 +1,7 @@
+*------------------------------------------------------------------------------
+* Standard SPICE simulation options for Temper project
+* Optimized for stability in high-power switching circuits
+*------------------------------------------------------------------------------
+.OPTIONS RELTOL=0.001 ABSTOL=1N VNTOL=1M
+.OPTIONS ITL1=300 ITL4=100
+.OPTIONS METHOD=TRAP

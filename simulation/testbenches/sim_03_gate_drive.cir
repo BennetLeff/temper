@@ -1,7 +1,17 @@
-* Gate Drive Comparison Testbench
-* Lesson 03: Gate Charge & Miller Plateau
+*****************************************************************************
+* Test Circuit: Gate Drive Comparison
+* Task: temper-37v.3
+* Purpose: Verify switching speed improvement with gate driver
+******************************************************************************
 
-* Circuit Description
+.TITLE Gate Drive Comparison - Weak vs Strong
+
+
+.INCLUDE common_options.spice
+
+*------------------------------------------------------------------------------
+* Circuit Definition
+*------------------------------------------------------------------------------
 * Weak drive (MCU pin simulation)
 V_weak pulse_in 0 PULSE(0 3.3 0 10n 10n 20u 40u)
 R_weak pulse_in gate_weak 1k
@@ -12,19 +22,20 @@ V_strong pulse_in2 0 PULSE(0 15 0 10n 10n 20u 40u)
 R_strong pulse_in2 gate_strong 2.2
 C_gate_strong gate_strong 0 2.7n
 
+*------------------------------------------------------------------------------
 * Analysis
+*------------------------------------------------------------------------------
 .tran 1n 40u
 
-* Control Block
+*------------------------------------------------------------------------------
+* Control Block for automated measurement
+*------------------------------------------------------------------------------
 .control
 run
-* Measure 10%-90% rise times
-* Weak (3.3V): 10%=0.33V, 90%=2.97V
-meas tran Trise_weak TRIG v(gate_weak) VAL=0.33 RISE=1 TARG v(gate_weak) VAL=2.97 RISE=1
-
-* Strong (15V): 10%=1.5V, 90%=13.5V
-meas tran Trise_strong TRIG v(gate_strong) VAL=1.5 RISE=1 TARG v(gate_strong) VAL=13.5 RISE=1
-
 print Trise_weak Trise_strong
+* Measure 10%-90% rise times
+meas tran Trise_weak TRIG v(gate_weak) VAL=0.33 RISE=1 TARG v(gate_weak) VAL=2.97 RISE=1
+meas tran Trise_strong TRIG v(gate_strong) VAL=1.5 RISE=1 TARG v(gate_strong) VAL=13.5 RISE=1
 .endc
-.end
+
+.END

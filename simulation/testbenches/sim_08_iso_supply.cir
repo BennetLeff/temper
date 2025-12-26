@@ -1,13 +1,20 @@
-* UCC14140-Q1 High-Side Supply Test
-* Lesson 08
+*****************************************************************************
+* Test Circuit: UCC14140-Q1 Isolated Supply
+* Task: temper-37v.8
+* Purpose: Verify startup and CMTI performance of isolated gate drive supply
+******************************************************************************
 
+.TITLE UCC14140-Q1 High-Side Supply Test
+
+.INCLUDE ../../simulation/models/UCC14140_behavioral.sub
+.INCLUDE common_options.spice
+
+*------------------------------------------------------------------------------
+* Circuit Definition
+*------------------------------------------------------------------------------
 * Parameters
 .param C_ISO_VAL=3.5p
 
-* Model
-.include simulation/models/UCC14140_behavioral.sub
-
-* Circuit Description
 * 12V input
 Vin vin 0 DC 12
 
@@ -22,35 +29,24 @@ Vena ena 0 PULSE(0 5 1m 1n 1n 100m 200m)
 R_load vdd vee 1k
 
 * CMTI Stress Test
-* Apply dV/dt to VEE (High Side Ground) relative to GNDP (0)
 * 400V pulse with 10ns rise time -> 40V/ns.
 Vsw vee 0 PULSE(0 400 5m 10n 10n 50u 100u)
 
-* Measure current through isolation barrier
-* Since C_iso is inside X1 between GNDP(0) and VEE(Vsw), current flows from 0 to VEE.
-* We can't probe internal C_iso current easily.
-* But total current from 0 into X1.GNDP?
-* No, GNDP is 0.
-* Current flows from Vsw (VEE) to 0.
-* So Vsw source supplies the CMTI current.
-* I(Vsw) = I_load + I_Ciso.
-* Since I_load is DC/floating (VDD-VEE), it doesn't flow to ground (except through C_iso).
-* So I(Vsw) is exactly the isolation current (plus any stray).
-
+*------------------------------------------------------------------------------
 * Analysis
+*------------------------------------------------------------------------------
 .tran 100n 6m
 
-* Control Block
+*------------------------------------------------------------------------------
+* Control Block for automated measurement
+*------------------------------------------------------------------------------
 .control
 run
-* Measure Startup Time
-* Time to reach 90% of 22V (19.8V)
-meas tran Tstart WHEN v(vdd,vee)=19.8 RISE=1
-
-* Measure CMTI Current Peak during 400V transient
-* Pulse starts at 5ms.
-meas tran I_cmti MAX i(Vsw) FROM=5m TO=5.001m
-
 print Tstart I_cmti
+* Measure Startup Time
+meas tran Tstart WHEN v(vdd,vee)=19.8 RISE=1
+* Measure CMTI Current Peak
+meas tran I_cmti MAX i(Vsw) FROM=5m TO=5.001m
 .endc
-.end
+
+.END

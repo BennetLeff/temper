@@ -1,230 +1,71 @@
-*******************************************************************************
-* AC Rectifier + Soft-Start Test Circuit for LMR51430 Input
+*****************************************************************************
+* Test Circuit: AC Rectifier + Soft-Start
 * Task: temper-ew8.1
-* Purpose: Verify AC mains rectification (120/240VAC) with soft-start circuit
-*          feeding LMR51430 buck converter input
-*******************************************************************************
+* Purpose: Verify AC mains rectification with soft-start feeding LMR51430
+******************************************************************************
 
 .TITLE AC Rectifier + Soft-Start for Auxiliary Power Supply
 
 .INCLUDE ../../components/LMR51420/test_files/LMR51430.lib
+.INCLUDE common_options.spice
 
 *------------------------------------------------------------------------------
-* Options for stable simulation
-*------------------------------------------------------------------------------
-.OPTIONS RELTOL=0.001 ABSTOL=1N VNTOL=1M
-.OPTIONS ITL1=300 ITL4=100
-.OPTIONS METHOD=TRAP
-
+* Circuit Definition
 *------------------------------------------------------------------------------
 * AC Mains Input (120VAC RMS, 60Hz)
-* Peak voltage = 120V × √2 = 170V
-*------------------------------------------------------------------------------
 VAC VAC_IN 0 SIN(0 170 60 0 0)
 
-*------------------------------------------------------------------------------
-* Full Bridge Rectifier (using diode model)
-* In production: Use 1N4007 or equivalent (1000V, 1A)
-*------------------------------------------------------------------------------
+* Full Bridge Rectifier
 D1 VAC_IN RECT_OUT DRECT
 D2 0 RECT_OUT DRECT
 D3 VAC_IN 0 DRECT
 D4 0 VAC_IN DRECT
-
 .MODEL DRECT D(IS=1E-14 RS=0.1 N=1.0 VJ=0.7)
 
-*------------------------------------------------------------------------------
 * Auxiliary Transformer Step-Down (120VAC → 18VAC)
-* Modeled as voltage divider: 170V peak → 25.5V peak (18V RMS)
-*------------------------------------------------------------------------------
-* For simplicity, scale the AC source above or use coupling
-* Here we use a behavioral voltage source for the transformer secondary
 VSEC SEC_IN 0 SIN(0 25.5 60 0 0)
-
-* Rectifier for transformer secondary
 D5 SEC_IN VRECT DRECT
 D6 0 VRECT DRECT
 D7 SEC_IN 0 DRECT
 D8 0 SEC_IN DRECT
 
-*------------------------------------------------------------------------------
-* Bulk Capacitor (after rectification)
-* 1000uF typical for smoothing 120Hz ripple
-*------------------------------------------------------------------------------
+* Bulk Capacitor
 CBULK VRECT 0 1000U IC=0
 
-*------------------------------------------------------------------------------
-* Soft-Start Circuit (NTC Thermistor Model)
-* Initial resistance: 10Ω, final resistance: 0.1Ω
-* Time constant: ~100ms
-*------------------------------------------------------------------------------
-* Simplified soft-start using voltage-controlled resistor
+* Soft-Start Circuit
 BSOFTSTART VRECT VSOFTSTART I=V(VRECT,VSOFTSTART)/(10 - 9.9*(1-exp(-time/0.1)))
 
-*------------------------------------------------------------------------------
-* Input decoupling for LMR51430 (per datasheet Section 8.2.1)
-* 10uF ceramic X7R (close to IC)
-*------------------------------------------------------------------------------
+* Input decoupling for LMR51430
 CIN_DECOUPLE VSOFTSTART 0 10U IC=0
-
-*------------------------------------------------------------------------------
-* Current sense resistor for monitoring inrush current
-*------------------------------------------------------------------------------
 RSENSE VSOFTSTART VIN_BUCK 0.01
-
-*------------------------------------------------------------------------------
-* Enable control - delayed start to observe soft-start
-*------------------------------------------------------------------------------
 REN VIN_BUCK EN 10K
 CEN EN 0 10N IC=0
 
-*------------------------------------------------------------------------------
-* LMR51430 Buck Converter (500kHz variant)
-* VIN: 12-24V range (we expect ~18V DC from rectifier)
-* VOUT: 5V @ 1.2A load
-*------------------------------------------------------------------------------
+* LMR51430 Buck Converter
 XU1 VIN_BUCK 0 EN SW FB CB LMR51430X
-
-*------------------------------------------------------------------------------
-* Bootstrap Capacitor
-*------------------------------------------------------------------------------
 CBOOT CB SW 100N IC=0
-
-*------------------------------------------------------------------------------
-* Output LC Filter
-* L = 6.8uH, COUT = 44uF (per reference design)
-*------------------------------------------------------------------------------
 L1 SW VOUT 6.8U IC=0
 COUT VOUT 0 44U IC=0
-
-*------------------------------------------------------------------------------
-* Feedback Divider for 5V output
-* VOUT = 0.6V × (1 + RFBT/RFBB)
-* For 5V: RFBB = 100k / (5/0.6 - 1) = 13.64k → use 13.7k
-*------------------------------------------------------------------------------
 RFBT VOUT FB 100K
 RFBB FB 0 13.7K
-
-*------------------------------------------------------------------------------
-* Load: 4.17Ω = 1.2A @ 5V (per load budget from compatibility report)
-*------------------------------------------------------------------------------
 RLOAD VOUT 0 4.17
 
 *------------------------------------------------------------------------------
 * Analysis
-* Run for 200ms to capture:
-* - Multiple AC cycles (60Hz = 16.67ms period)
-* - Soft-start transient (~100ms)
-* - Buck converter settling
 *------------------------------------------------------------------------------
 .TRAN 10U 200M 0 10U UIC
 
 *------------------------------------------------------------------------------
-* Measurements
+* Control Block for automated measurement
 *------------------------------------------------------------------------------
-* Rectified voltage (DC level and ripple)
-.MEAS TRAN VRECT_DC AVG V(VRECT) FROM=150M TO=200M
-.MEAS TRAN VRECT_RIPPLE PP V(VRECT) FROM=190M TO=200M
-
-* Soft-start input to buck (DC level and ripple)
-.MEAS TRAN VIN_BUCK_DC AVG V(VIN_BUCK) FROM=150M TO=200M
-.MEAS TRAN VIN_BUCK_RIPPLE PP V(VIN_BUCK) FROM=190M TO=200M
-
-* Output voltage
-.MEAS TRAN VOUT_AVG AVG V(VOUT) FROM=150M TO=200M
-.MEAS TRAN VOUT_RIPPLE PP V(VOUT) FROM=180M TO=200M
-
-* Inrush current (peak during startup)
-.MEAS TRAN INRUSH_PEAK MAX I(RSENSE) FROM=0 TO=50M
-
-* Soft-start timing (time to reach 90% of final value)
-.MEAS TRAN TSTART WHEN V(VIN_BUCK)=16.2 RISE=1
-
-*------------------------------------------------------------------------------
-* Control Script
-*------------------------------------------------------------------------------
-.CONTROL
-
-set filetype=ascii
-set color0=white
-set color1=red
-set color2=blue
-set color3=green
-set color4=magenta
-
-echo ""
-echo "============================================================"
-echo "  AC Rectifier + Soft-Start + LMR51430 Buck Converter"
-echo "  Task: temper-ew8.1"
-echo "============================================================"
-echo ""
-
+.control
 run
-
-echo ""
-echo "Simulation complete! Generating plots..."
-echo ""
-
-* Overview plots
-plot v(vrect) v(vsoftstart) v(vin_buck) title "Voltage Cascade: Rectifier → Soft-Start → Buck Input" ylabel "Voltage (V)"
-plot v(vout) title "Buck Output Voltage (5V Rail)" ylabel "V"
-
-* Soft-start detail
-plot v(vrect) v(vsoftstart) xlimit 0 150m title "Soft-Start Transient Detail" ylabel "V"
-plot i(rsense)*1000 title "Inrush Current vs Time" ylabel "mA"
-
-* Ripple detail (steady-state)
-plot v(vrect) xlimit 180m 200m title "Rectified Voltage Ripple (120Hz)" ylabel "V"
-plot v(vin_buck) xlimit 180m 200m title "Buck Input Voltage Ripple (post soft-start)" ylabel "V"
-
-* AC input
-plot v(sec_in) xlimit 0 50m title "Transformer Secondary AC Input (18V RMS)" ylabel "V"
-
-* Output performance
-plot v(vout) xlimit 100m 200m title "Buck Output Voltage (Steady State)" ylabel "V"
-
-echo ""
-echo "============================================================"
-echo "MEASUREMENT RESULTS:"
-echo "============================================================"
 print vrect_dc vrect_ripple
 print vin_buck_dc vin_buck_ripple
 print vout_avg vout_ripple
 print inrush_peak tstart
-echo ""
-echo "============================================================"
-echo "VERIFICATION CRITERIA:"
-echo "============================================================"
-echo "✓ VRECT_DC should be ~18V (25.5V peak × 0.707)"
-echo "✓ VRECT_RIPPLE should be <2V p-p (120Hz ripple)"
-echo "✓ VIN_BUCK_DC should be ~18V (after soft-start)"
-echo "✓ VIN_BUCK_RIPPLE should be <500mV (decoupling effective)"
-echo "✓ VOUT_AVG should be 5.0V ± 2% (4.9-5.1V)"
-echo "✓ VOUT_RIPPLE should be <50mV p-p"
-echo "✓ INRUSH_PEAK should be <5A (soft-start limiting)"
-echo "✓ TSTART should be ~100ms (soft-start time constant)"
-echo "============================================================"
-echo ""
+print 
 
-* Check LMR51430 input voltage spec (4.5-36V)
-let vin_min = minimum(v(vin_buck))
-let vin_max = maximum(v(vin_buck))
-echo "VIN_BUCK range: " $&vin_min "V to" $&vin_max "V"
-if vin_min > 4.5
-  echo "✓ PASS: VIN_MIN > 4.5V (within LMR51430 spec)"
-else
-  echo "✗ FAIL: VIN_MIN < 4.5V (below LMR51430 minimum)"
-end
-if vin_max < 36
-  echo "✓ PASS: VIN_MAX < 36V (within LMR51430 spec)"
-else
-  echo "✗ FAIL: VIN_MAX > 36V (exceeds LMR51430 maximum)"
-end
-
-echo ""
-echo "Simulation results saved to: sim_01_ac_rectifier_softstart.raw"
-echo ""
-
-.ENDC
+.endc
 
 .END
