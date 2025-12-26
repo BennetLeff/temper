@@ -3386,6 +3386,131 @@ def routing(input_pcb: Path, level: int, output: Path | None) -> None:
     console.print("[green]✓[/] Routing verification complete")
 
 
+@main.command()
+@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "-c",
+    "--config",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Constraint configuration YAML file.",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Output .kicad_pcb file path.",
+)
+@click.option(
+    "--max-iterations",
+    type=int,
+    default=5,
+    help="Maximum placement-routing iterations (default: 5).",
+)
+@click.option(
+    "--routability-threshold",
+    type=float,
+    default=0.85,
+    help="Congestion threshold for refinement (default: 0.85).",
+)
+@click.option(
+    "--max-movement",
+    type=float,
+    default=3.0,
+    help="Maximum allowed movement during refinement in mm (default: 3.0).",
+)
+@click.option(
+    "--no-local-refinement",
+    is_flag=True,
+    default=False,
+    help="Skip the gradient-based local refinement phase.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=42,
+    help="Random seed for reproducibility (default: 42).",
+)
+def place_deterministic(
+    input_pcb: Path,
+    config: Path,
+    output: Path,
+    max_iterations: int,
+    routability_threshold: float,
+    max_movement: float,
+    no_local_refinement: bool,
+    seed: int,
+) -> None:
+    """
+    Place components using hierarchical deterministic pipeline.
+
+    This command runs:
+    Topological -> Preflight -> [Local Refinement] -> Routing Feedback -> Output
+    """
+    console.print(Panel.fit(
+        "[bold cyan]Hierarchical Deterministic Placement[/]",
+        subtitle=f"v{__version__}"
+    ))
+
+    # Create pipeline configuration
+    pipeline_config = PipelineConfig(
+        input_pcb=input_pcb,
+        constraints_yaml=config,
+        output_pcb=output,
+        max_iterations=max_iterations,
+        routability_threshold=routability_threshold,
+        max_movement_mm=max_movement,
+        skip_local_refinement=no_local_refinement,
+        seed=seed,
+    )
+
+    # Initialize orchestrator
+    orchestrator = PipelineOrchestrator(pipeline_config)
+
+    # Setup progress display
+    from rich.live import Live
+    dashboard = RichDashboard()
+    orchestrator.on_phase_start = dashboard.on_phase_start
+    orchestrator.on_phase_complete = dashboard.on_phase_complete
+
+    try:
+        with Live(dashboard.create_layout(), refresh_per_second=4):
+            result = orchestrator.run()
+
+        if result.success:
+            console.print("\n[bold green]Placement completed successfully![/]")
+            console.print(f"  Output: {output}")
+            
+            # Show summary metrics if available
+            if result.physics_report:
+                console.print("\n[bold cyan]Physical Metrics:[/]")
+                console.print(f"  Overlap Count: {result.physics_report.geometric.overlap_count}")
+                console.print(f"  Max Tj: {result.physics_report.thermal.max_junction_temp_c:.1f}")
+                console.print(f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}")
+        else:
+            console.print(f"\n[bold red]Placement failed:[/] {result.failure_reason}")
+            
+            # Show preflight details if that's where it failed
+            if result.failed_phase == PipelinePhase.PREFLIGHT:
+                from temper_placer.pipeline.preflight import PreflightResult
+                if hasattr(result, "preflight_report") and result.preflight_report:
+                    for check in result.preflight_report.checks:
+                        if check.result == PreflightResult.FAIL:
+                            console.print(f"  [red]→[/] {check.name}: {check.message}")
+                            if check.details and "impossible" in check.details:
+                                for msg in check.details["impossible"]:
+                                    console.print(f"    - {msg}")
+            
+            raise click.Abort()
+
+    except Exception as e:
+        console.print(f"\n[bold red]Error:[/] {e}")
+        import traceback
+        console.print(traceback.format_exc())
+        raise click.Abort() from e
+
+
 # =============================================================================
 # Version Command
 # =============================================================================

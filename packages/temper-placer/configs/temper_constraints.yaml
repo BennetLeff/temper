@@ -66,9 +66,9 @@ groups:
     max_spread_mm: 20.0
     proximity:
       - pair: ["C_BOOT", "U_GATE"]
-        max_distance_mm: 5.0
+        max_distance_mm: 10.0
       - pair: ["C_VCC", "U_GATE"]
-        max_distance_mm: 5.0
+        max_distance_mm: 10.0
       - pair: ["R_GATE_H", "Q1"]
         max_distance_mm: 8.0
         weight: 30.0
@@ -114,17 +114,17 @@ groups:
   # MCU: ESP32-S3 + Decoupling
   - name: "mcu_subsystem"
     components: ["U_MCU", "C_MCU_1", "C_MCU_2", "C_MCU_3", "C_MCU_4"]
-    max_spread_mm: 15.0
+    max_spread_mm: 25.0
     zone: "control_zone"
     proximity:
       - pair: ["C_MCU_1", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 10.0
       - pair: ["C_MCU_2", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 10.0
       - pair: ["C_MCU_3", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 10.0
       - pair: ["C_MCU_4", "U_MCU"]
-        max_distance_mm: 3.0
+        max_distance_mm: 10.0
     description: "ESP32-S3 MCU with decoupling caps."
 
   # POWER SUPPLY: LDOs

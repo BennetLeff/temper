@@ -348,6 +348,88 @@ def validate_output_pcb(output_pcb: Path) -> tuple[bool, list[str]]:
     return True, []
 
 
+def add_bounding_boxes_to_pcb(
+    pcb_path: Path,
+    component_bounds: dict[str, tuple[float, float, float, float]] | None = None,
+    layer: str = "Dwgs.User",
+    stroke_width: float = 0.2,
+) -> int:
+    """Add bounding box rectangles to a PCB file."""
+    import math
+    from kiutils.items.gritems import GrRect
+    try:
+        ki_board = KiBoard.from_file(str(pcb_path))
+    except Exception as e:
+        raise ValueError(f"Failed to load PCB: {e}")
+    boxes_added = 0
+    for fp in ki_board.footprints:
+        ref = _get_footprint_reference(fp)
+        if not ref or not fp.pads: continue
+        fp_x, fp_y = (fp.position.X if fp.position else 0.0), (fp.position.Y if fp.position else 0.0)
+        angle_rad = math.radians(fp.position.angle if fp.position and fp.position.angle else 0.0)
+        x_min, y_min, x_max, y_max = float('inf'), float('inf'), float('-inf'), float('-inf')
+        for pad in fp.pads:
+            lx, ly = (pad.position.X if pad.position else 0.0), (pad.position.Y if pad.position else 0.0)
+            rx = lx * math.cos(angle_rad) - ly * math.sin(angle_rad)
+            ry = lx * math.sin(angle_rad) + ly * math.cos(angle_rad)
+            pw, ph = (pad.size.X if pad.size else 1.0), (pad.size.Y if pad.size else 1.0)
+            ax, ay = fp_x + rx, fp_y + ry
+            x_min, y_min = min(x_min, ax - pw / 2), min(y_min, ay - ph / 2)
+            x_max, y_max = max(x_max, ax + pw / 2), max(y_max, ay + ph / 2)
+        margin = 0.3
+        try:
+            rect = GrRect(start=Position(X=x_min-margin, Y=y_min-margin), end=Position(X=x_max+margin, Y=y_max+margin), layer=layer, width=stroke_width)
+            ki_board.graphicItems.append(rect)
+            boxes_added += 1
+        except Exception: pass
+    ki_board.to_file(str(pcb_path))
+    return boxes_added
+
+
+def add_silkscreen_labels(
+    pcb_path: Path,
+    add_references: bool = True,
+    add_values: bool = True,
+    add_fab_outlines: bool = True,
+) -> dict[str, int]:
+    """Add improved silkscreen labels and fab layer outlines."""
+    import math
+    from kiutils.items.gritems import GrText, GrRect
+    try:
+        ki_board = KiBoard.from_file(str(pcb_path))
+    except Exception as e:
+        raise ValueError(f"Failed to load PCB: {e}")
+    counts = {"references": 0, "values": 0, "outlines": 0}
+    for fp in ki_board.footprints:
+        ref = _get_footprint_reference(fp)
+        if not ref or not fp.pads: continue
+        fp_x, fp_y = (fp.position.X if fp.position else 0.0), (fp.position.Y if fp.position else 0.0)
+        angle_rad = math.radians(fp.position.angle if fp.position and fp.position.angle else 0.0)
+        x_min, y_min, x_max, y_max = float('inf'), float('inf'), float('-inf'), float('-inf')
+        for pad in fp.pads:
+            lx, ly = (pad.position.X if pad.position else 0.0), (pad.position.Y if pad.position else 0.0)
+            rx = lx * math.cos(angle_rad) - ly * math.sin(angle_rad)
+            ry = lx * math.sin(angle_rad) + ly * math.cos(angle_rad)
+            ax, ay = fp_x + rx, fp_y + ry
+            pw, ph = (pad.size.X if pad.size else 1.0), (pad.size.Y if pad.size else 1.0)
+            x_min, y_min = min(x_min, ax - pw / 2), min(y_min, ay - ph / 2)
+            x_max, y_max = max(x_max, ax + pw / 2), max(y_max, ay + ph / 2)
+        cx, cy = (x_min + x_max) / 2, (y_min + y_max) / 2
+        sh = max(0.8, min(1.5, min(x_max-x_min, y_max-y_min) / 4))
+        if add_references:
+            try:
+                ki_board.graphicItems.append(GrText(text=ref, position=Position(X=cx, Y=y_min-sh-0.5), layer="F.SilkS"))
+                counts["references"] += 1
+            except Exception: pass
+        if add_fab_outlines:
+            try:
+                ki_board.graphicItems.append(GrRect(start=Position(X=x_min-0.2, Y=y_min-0.2), end=Position(X=x_max+0.2, Y=y_max+0.2), layer="F.Fab", width=0.15))
+                counts["outlines"] += 1
+            except Exception: pass
+    ki_board.to_file(str(pcb_path))
+    return counts
+
+
 # ============================================================================
 # Trace/Via Stripping for Unrouted Benchmarks
 # ============================================================================
