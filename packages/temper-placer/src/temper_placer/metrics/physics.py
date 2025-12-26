@@ -171,11 +171,13 @@ def measure_emi(
     loop_refs: list[list[str]] | None = None,
 ) -> EMIMetrics:
     """
-    Estimate loop areas based on component placement.
+    Estimate loop areas and inductances based on component placement.
     """
     if not loop_refs:
         return EMIMetrics()
         
+    from temper_placer.physics.inductance import estimate_loop_inductance
+    
     positions = np.array(state.positions)
     metrics = EMIMetrics()
     
@@ -195,22 +197,32 @@ def measure_emi(
         if len(vertices) < 2:
             continue
             
-        # Simple estimate: polygon area if > 2 points, else 0
-        if len(vertices) >= 3:
-            v = np.array(vertices)
-            # Shoelace
+        v = np.array(vertices)
+        
+        # 1. Compute Area (Shoelace)
+        if len(v) >= 3:
             area = 0.5 * np.abs(np.dot(v[:, 0], np.roll(v[:, 1], 1)) - np.dot(v[:, 1], np.roll(v[:, 0], 1)))
         else:
-            # 2 points: area is 0, but we could return distance as proxy?
-            # Metric plan says "loop_mm2"
             area = 0.0
             
-        if i == 0: # Convention: first loop is gate drive
-            metrics.gate_loop_area_mm2 = area
-        elif i == 1: # Convention: second loop is power
-            metrics.power_loop_area_mm2 = area
+        # 2. Compute Perimeter
+        # Manhattan-ish routing factor (1.2x) assumed internally in physics module or applied here?
+        # Let's compute raw perimeter and let estimator handle factors.
+        diffs = np.diff(np.vstack([v, v[0]]), axis=0)
+        perimeter = np.sum(np.sqrt(np.sum(diffs**2, axis=1)))
+        
+        # 3. Estimate Inductance (nH)
+        inductance = estimate_loop_inductance(
+            loop_area_mm2=area,
+            perimeter_mm=perimeter
+        )
             
-        metrics.total_loop_area_mm2 += area
+        if i == 0: # Convention: first loop is gate drive
+            metrics.gate_loop_area_mm2 = inductance # Note: field name remains for compatibility
+        elif i == 1: # Convention: second loop is power
+            metrics.power_loop_area_mm2 = inductance
+            
+        metrics.total_loop_area_mm2 += inductance
         
     return metrics
 

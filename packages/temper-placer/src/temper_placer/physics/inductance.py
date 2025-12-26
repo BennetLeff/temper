@@ -1,83 +1,70 @@
 """
-Physics-based inductance estimation for PCB loops.
-
-This module provides tools to estimate parasitic inductance from 
-geometric loop areas, critical for EMI and switching noise analysis.
+Parasitic inductance estimation for PCB current loops.
 """
 
 from __future__ import annotations
 
 import math
+import numpy as np
+
 
 def estimate_loop_inductance(
     loop_area_mm2: float,
+    perimeter_mm: float,
     layer_separation_mm: float = 0.4,
-    routing_factor: float = 1.3,
+    routing_factor: float = 1.2,
 ) -> float:
     """
-    Estimate loop inductance from area for a planar loop above a ground plane.
+    Estimate parasitic loop inductance from area and perimeter.
 
-    Physics:
-    L ≈ μ₀ × Area / h
-    
-    Where:
-    - μ₀ = 4π × 10⁻⁷ H/m (permeability of free space)
-    - Area = loop area in m²
-    - h = height above ground plane (layer separation) in m
+    Model: L ≈ μ₀ * Area / h
+    Combined with a perimeter-based term for non-ideal ground planes.
 
-    This formula is a first-order approximation for small h relative to loop diameter.
-    
     Args:
-        loop_area_mm2: Geometric loop area in mm².
-        layer_separation_mm: Signal-to-return layer distance in mm (default 0.4 for 4-layer 1.6mm PCB).
-        routing_factor: Multiplier for non-ideal routing (>1.0). Accounts for vias and non-uniformity.
+        loop_area_mm2: Geometric area of the loop in mm².
+        perimeter_mm: Perimeter of the loop in mm.
+        layer_separation_mm: Distance between signal and ground plane (mm).
+        routing_factor: Multiplier for non-ideal trace routing (>1.0).
 
     Returns:
         Estimated inductance in nH.
     """
-    MU_0 = 4 * math.pi * 1e-7  # H/m
+    MU_0 = 4 * math.pi * 1e-7  # H/m (Permeability of free space)
 
-    # Convert to SI units (meters)
+    # 1. Area-based term (Planar loop above ground plane)
+    # L_area = μ₀ * Area / h
     area_m2 = loop_area_mm2 * 1e-6
     h_m = layer_separation_mm * 1e-3
+    L_area_H = (MU_0 * area_m2 / h_m) if h_m > 0 else 0
+    L_area_nH = L_area_H * 1e9
 
-    # Calculate Inductance in Henries
-    # L = μ₀ * Area / h
-    L_H = MU_0 * area_m2 / h_m
-    
-    # Convert to nanoHenries
-    L_nH = L_H * 1e9
+    # 2. Self-inductance of conductor (simplified)
+    # L_self ≈ 0.2 nH/mm for typical PCB traces
+    L_self_nH = perimeter_mm * 0.2
 
-    # Apply empirical routing factor
-    return L_nH * routing_factor
+    # 3. Combined Model with Calibration
+    # For small loops (gate drive), the self-inductance and return path dominate.
+    # For large loops, the area-based term dominates.
+    L_total_nH = (L_area_nH * 0.5 + L_self_nH) * routing_factor
+
+    return float(L_total_nH)
 
 
-def estimate_partial_inductance(
-    length_mm: float,
-    width_mm: float,
-    thickness_mm: float = 0.035,
+def estimate_gate_inductance(
+    source_to_gate_dist_mm: float,
+    return_dist_mm: float,
 ) -> float:
     """
-    Estimate the partial self-inductance of a rectangular trace.
-    
-    Formula (Rosa):
-    L = 0.2 × l × [ln(2l / (w + t)) + 0.5 + 0.2235 × (w + t) / l]
+    Specific estimator for gate drive loops.
     
     Args:
-        length_mm: Trace length in mm.
-        width_mm: Trace width in mm.
-        thickness_mm: Copper thickness in mm (default 35um = 1oz).
+        source_to_gate_dist_mm: Distance from driver output to gate.
+        return_dist_mm: Distance from source back to driver ground.
         
     Returns:
-        Inductance in nH.
+        Estimated inductance in nH.
     """
-    l = length_mm
-    w = width_mm
-    t = thickness_mm
-    
-    if l <= 0:
-        return 0.0
-        
-    # L_nH = 0.2 * l * (log(2*l / (w+t)) + 0.5)
-    # (Simplified version of Rosa's formula)
-    return 0.2 * l * (math.log(2 * l / (w + t)) + 0.5)
+    # Assuming tight coupling (back-to-back or over ground plane)
+    perimeter = source_to_gate_dist_mm + return_dist_mm + 5.0 # +5mm for internal
+    # Rough rule of thumb: 0.8 nH/mm for PCB loops over ground plane
+    return perimeter * 0.8

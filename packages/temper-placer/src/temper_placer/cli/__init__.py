@@ -266,6 +266,17 @@ main.add_command(trace)
     type=click.Path(path_type=Path),
     help="Enable metrics tracking, save to this directory.",
 )
+@click.option(
+    "--spice-validate/--no-spice-validate",
+    default=False,
+    help="Run SPICE simulation for electrical validation after optimization.",
+)
+@click.option(
+    "--spice-penalty-weight",
+    type=float,
+    default=100.0,
+    help="Weight for SPICE validation penalty in loss function (if enabled).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -292,6 +303,8 @@ def optimize(
     parallel_seeds: int,
     skip_topological: bool,
     track_metrics: Path | None,
+    spice_validate: bool,
+    spice_penalty_weight: float,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -1130,6 +1143,31 @@ def optimize(
 
         traceback.print_exc()
         sys.exit(1)
+
+    # Step 6: SPICE Validation (Electrical correctness)
+    if spice_validate:
+        console.print("\n[bold cyan]Step 6/5 (Optional):[/] Running SPICE electrical validation...")
+        try:
+            from temper_placer.validation.spice_pipeline import SpiceValidationPipeline
+            
+            # Load default component names for Temper if not specified in config
+            # (In a real scenario, these would come from PCL or auto-discovery)
+            spice_config = {
+                "gate_loop_components": ["U_GATE", "Q1", "R_GATE1"],
+                "bootstrap_loop_components": ["U_GATE", "D_BOOT1", "C_BOOT1"],
+                "dc_bus_components": ["C_BUS1", "Q1", "Q2"]
+            }
+            
+            pipeline = SpiceValidationPipeline(config=spice_config)
+            spice_results = pipeline.validate_placement(result.best_state, netlist, board)
+            
+            if spice_results:
+                pipeline.print_report(spice_results)
+            else:
+                console.print("  [yellow]⚠[/] No SPICE results generated (check if ngspice is installed)")
+                
+        except Exception as e:
+            console.print(f"  [red]✗[/] SPICE validation failed: {e}")
 
     # Print placement summary
     _print_placement_summary(
