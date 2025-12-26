@@ -66,9 +66,9 @@ groups:
     max_spread_mm: 20.0
     proximity:
       - pair: ["C_BOOT", "U_GATE"]
-        max_distance_mm: 5.0
+        max_distance_mm: 10.0
       - pair: ["C_VCC", "U_GATE"]
-        max_distance_mm: 5.0
+        max_distance_mm: 10.0
       - pair: ["R_GATE_H", "Q1"]
         max_distance_mm: 8.0
         weight: 30.0
