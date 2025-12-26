@@ -35,7 +35,8 @@ class CriticalLoop:
     """Definition of a critical current loop to minimize."""
 
     name: str
-    nets: list[str]
+    nets: list[str] | None = None
+    pins: list[tuple[str, str]] | None = None
     max_area_mm2: float | None = None
     weight: float = 1.0
     description: str = ""
@@ -278,6 +279,7 @@ class ComponentGroup:
     max_spread_mm: float = 30.0  # Maximum diameter of group bounding box
     zone: str | None = None  # Required zone
     proximity_rules: list[ProximityRule] = field(default_factory=list)  # Proximity within group
+    weight: float = 1.0  # Importance weight (higher = stronger clustering)
     description: str = ""
     # Optional ID to force identical internal layouts with other groups sharing this ID
     template_group: str | None = None
@@ -285,6 +287,7 @@ class ComponentGroup:
     primary_pin: str | None = None
     # Whether to organize the group in a 2D matrix with dynamic gutters
     stacked_layout: bool = False
+
 
 
 @dataclass
@@ -463,9 +466,20 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     # Parse zones
     if "zones" in config:
         for zone_cfg in config["zones"]:
+            if "bounds_ratio" in zone_cfg:
+                ratio = zone_cfg["bounds_ratio"]
+                bounds = (
+                    ratio[0] * constraints.board_width_mm,
+                    ratio[1] * constraints.board_height_mm,
+                    ratio[2] * constraints.board_width_mm,
+                    ratio[3] * constraints.board_height_mm,
+                )
+            else:
+                bounds = tuple(zone_cfg["bounds"])
+
             zone = Zone(
                 name=zone_cfg["name"],
-                bounds=tuple(zone_cfg["bounds"]),
+                bounds=bounds,
                 net_classes=zone_cfg.get("net_classes", ["Signal"]),
                 components=zone_cfg.get("components", []),
             )
@@ -499,9 +513,15 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     # Parse critical loops
     if "critical_loops" in config:
         for loop_cfg in config["critical_loops"]:
+            pins = loop_cfg.get("pins")
+            if pins:
+                # Format: [["U1", "1"], ["U2", "2"], ...]
+                pins = [tuple(p) for p in pins]
+            
             loop = CriticalLoop(
                 name=loop_cfg["name"],
-                nets=loop_cfg["nets"],
+                nets=loop_cfg.get("nets"),
+                pins=pins,
                 max_area_mm2=loop_cfg.get("max_area_mm2"),
                 weight=loop_cfg.get("weight", 1.0),
                 description=loop_cfg.get("description", ""),
@@ -559,10 +579,12 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     # Parse thermal constraints
     if "thermal" in config:
         for thermal_cfg in config["thermal"]:
+            # Support both naming conventions: min_spacing_mm (code) and min_separation_mm (YAML refined)
+            min_spacing = thermal_cfg.get("min_spacing_mm", thermal_cfg.get("min_separation_mm", 5.0))
             thermal = ThermalConstraint(
                 components=thermal_cfg["components"],
                 prefer_edge=thermal_cfg.get("prefer_edge", True),
-                min_spacing_mm=thermal_cfg.get("min_spacing_mm", 5.0),
+                min_spacing_mm=min_spacing,
                 max_distance_from_edge_mm=thermal_cfg.get("max_distance_from_edge_mm", 20.0),
                 description=thermal_cfg.get("description", ""),
             )
@@ -632,12 +654,37 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 max_spread_mm=group_cfg.get("max_spread_mm", 30.0),
                 zone=group_cfg.get("zone"),
                 proximity_rules=proximity_rules,
+                weight=group_cfg.get("weight", 1.0),  # PowerSynth weight
                 description=group_cfg.get("description", ""),
                 template_group=group_cfg.get("template_group"),
                 primary_pin=group_cfg.get("primary_pin"),
                 stacked_layout=group_cfg.get("stacked_layout", False),
             )
             constraints.component_groups.append(group)
+
+    # Parse component_groups (PowerSynth-style leader/followers format)
+    if "component_groups" in config:
+        for group_cfg in config["component_groups"]:
+            leader = group_cfg.get("leader")
+            followers = group_cfg.get("followers", [])
+            
+            # Combine leader and followers into components list
+            components = []
+            if leader:
+                components.append(leader)
+            components.extend(followers)
+            
+            if components:
+                group = ComponentGroup(
+                    name=group_cfg["name"],
+                    components=components,
+                    max_spread_mm=group_cfg.get("max_distance", 30.0),  # Note: 'max_distance' vs 'max_spread_mm'
+                    zone=group_cfg.get("zone"),
+                    proximity_rules=[],
+                    weight=group_cfg.get("weight", 1.0),
+                    description=group_cfg.get("description", ""),
+                )
+                constraints.component_groups.append(group)
 
     # Parse group separation rules
     if "group_separation" in config:
@@ -651,6 +698,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     description=sep_cfg.get("description", ""),
                 )
                 constraints.group_separations.append(separation)
+
 
     # Parse fixed components
     if "fixed_components" in config:

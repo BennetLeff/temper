@@ -25,6 +25,111 @@ class ComponentPosition:
 
 
 @dataclass
+class ParametricComponentPosition:
+    """Relative position of a component within a parametric template."""
+    
+    ref: str
+    x_ratio: float  # X position ratio [0, 1] within template width
+    y_ratio: float  # Y position ratio [0, 1] within template height
+    rotation: int = 0
+
+
+@dataclass
+class ParametricTemplate:
+    """
+    A template that scales based on target dimensions.
+    
+    Attributes:
+        name: Template identifier
+        components: List of parametric component positions
+        anchor_ref: Reference of anchor component
+        description: Human-readable description
+    """
+    
+    name: str
+    components: list[ParametricComponentPosition]
+    anchor_ref: str
+    description: str = ""
+    
+    def apply(
+        self,
+        anchor_x: float,
+        anchor_y: float,
+        target_width: float,
+        target_height: float,
+        rotation: int = 0,
+    ) -> dict[str, tuple[float, float, int]]:
+        """
+        Apply parametric template at absolute position with target scaling.
+        """
+        import math
+        
+        # Find anchor ratio
+        anchor = next((c for c in self.components if c.ref == self.anchor_ref), None)
+        if anchor is None:
+             # Default to center
+             anchor_off_x = 0.5 * target_width
+             anchor_off_y = 0.5 * target_height
+        else:
+             anchor_off_x = anchor.x_ratio * target_width
+             anchor_off_y = anchor.y_ratio * target_height
+        
+        placements = {}
+        rot_rad = math.radians(rotation)
+        
+        for comp in self.components:
+            # Scale to target dimensions
+            rel_x = comp.x_ratio * target_width - anchor_off_x
+            rel_y = comp.y_ratio * target_height - anchor_off_y
+            
+            # Rotate around anchor
+            if rotation != 0:
+                rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
+                rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
+            else:
+                rotated_x, rotated_y = rel_x, rel_y
+                
+            abs_x = anchor_x + rotated_x
+            abs_y = anchor_y + rotated_y
+            abs_rotation = (rotation + comp.rotation) % 360
+            
+            placements[comp.ref] = (abs_x, abs_y, abs_rotation)
+            
+        return placements
+
+    @classmethod
+    def create_half_bridge(
+        cls,
+        q1_ref: str = "Q1",
+        q2_ref: str = "Q2",
+        d1_ref: str = "D1",
+        d2_ref: str = "D2",
+        c_bus1_ref: str = "C_BUS1",
+        c_bus2_ref: str = "C_BUS2",
+    ) -> ParametricTemplate:
+        """
+        Create a parametric half-bridge template.
+        """
+        components = [
+            # Vertical stack: Q1 top, Q2 bottom
+            ParametricComponentPosition(q1_ref, 0.2, 0.8),
+            ParametricComponentPosition(q2_ref, 0.2, 0.2),
+            # Diodes adjacent
+            ParametricComponentPosition(d1_ref, 0.5, 0.8),
+            ParametricComponentPosition(d2_ref, 0.5, 0.2),
+            # Caps flanking
+            ParametricComponentPosition(c_bus1_ref, 0.8, 0.5),
+            ParametricComponentPosition(c_bus2_ref, 0.8, 0.1),
+        ]
+        return cls(
+            name="half_bridge_parametric",
+            components=components,
+            anchor_ref=q1_ref,
+            description="Parametric half-bridge layout"
+        )
+
+
+@dataclass
 class ComponentTemplate:
     """
     A template defining relative positions of related components.

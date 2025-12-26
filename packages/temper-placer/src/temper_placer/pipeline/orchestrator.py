@@ -145,6 +145,7 @@ class PipelineState:
     deterministic_result: Any = None  # PlacementResult (NumPy) from topological/deterministic
     placement_state: Any = None  # PlacementState from optimizer
     routing_result: Any = None  # RoutingResult from routing
+    physics_report: Any = None  # PhysicsReport (raw metrics)
     decision_trace: Any = None  # DecisionTrace from explainability
 
     # Internal flags
@@ -522,15 +523,25 @@ class PipelineOrchestrator:
         for epoch in range(min(state.config.epochs, 500)): # Limit refinement epochs
             params, opt_state, loss_val = step(params, opt_state)
 
-            # 4. Projection (Every N steps or every step)
-            if epoch % 10 == 0:
-                pos_np = np.array(params["positions"])
-                # Trust region: max 2mm
-                pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=2.0)
-                # Keep in board
-                # pos_np = clamp_to_bounds(pos_np, ...)
-                params["positions"] = jnp.array(pos_np)
-
+                        # 4. Projection (Every N steps or every step)
+                        if epoch % 10 == 0:
+                            from temper_placer.optimizer.legalization import (
+                                clamp_to_bounds,
+                                clamp_to_zones,
+                            )
+            
+                            pos_np = np.array(params["positions"])
+                            widths = np.array([c.bounds[0] for c in state.netlist.components])
+                            heights = np.array([c.bounds[1] for c in state.netlist.components])
+            
+                            # Trust region: max 2mm
+                            pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=2.0)
+            
+                            # Zone and Board constraints
+                            pos_np = clamp_to_bounds(pos_np, widths, heights, state.board)
+                            pos_np = clamp_to_zones(pos_np, state.netlist, state.board)
+            
+                            params["positions"] = jnp.array(pos_np)
         # 5. Final Legalization (Ensure zero overlap)
         print("Finalizing placement...")
         final_pos = np.array(params["positions"])
@@ -577,36 +588,53 @@ class PipelineOrchestrator:
 
         return state
 
-    def _run_refinement(self, state: PipelineState) -> PipelineState:
-        """Run placement-routing refinement loop."""
-
-        if state.routing_result is None:
+        def _run_refinement(self, state: PipelineState) -> PipelineState:
+            """Run placement-routing refinement loop."""
+            from temper_placer.placer.adjustment import adjust_for_congestion
+            from temper_placer.optimizer.legalization import legalize_zone_aware
+            import numpy as np
+    
+            if state.routing_result is None:
+                return state
+    
+            # Check if routing was successful/feasible
+            # For CongestionResult, we check overflow
+            is_feasible = state.routing_result.is_feasible(threshold=1.2)  # Allow slight overflow
+    
+            if is_feasible or state.iteration >= state.config.max_iterations:
+                print("Placement is routable or max iterations reached. Ending refinement.")
+                state._refinement_complete = True
+                return state
+    
+            print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high.")
+    
+            # 1. Adjust based on congestion
+            current_pos = None
+            if state.placement_state:
+                current_pos = np.array(state.placement_state.positions)
+            elif state.deterministic_result:
+                current_pos = np.array(state.deterministic_result.positions)
+            
+            if current_pos is not None:
+                print(f"  Adjusting placement for {len(state.routing_result.bottlenecks)} bottlenecks...")
+                new_pos = adjust_for_congestion(
+                    current_pos, state.netlist, state.board, state.routing_result
+                )
+                
+                # 2. Re-legalize after adjustment
+                print("  Re-legalizing adjusted placement...")
+                new_pos, _ = legalize_zone_aware(
+                    new_pos, state.netlist, state.board
+                )
+                
+                # Update state for next GEOMETRIC pass
+                from temper_placer.core.state import PlacementState
+                import jax.numpy as jnp
+                state.placement_state = PlacementState.from_positions(jnp.array(new_pos))
+    
+            state.iteration += 1
+    
             return state
-
-        # Check if routing was successful/feasible
-        # For CongestionResult, we check overflow
-        is_feasible = state.routing_result.is_feasible(threshold=1.2) # Allow slight overflow
-
-        if is_feasible or state.iteration >= state.config.max_iterations:
-            print("Placement is routable or max iterations reached. Ending refinement.")
-            state._refinement_complete = True
-            return state
-
-        print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high.")
-
-        # TODO: Implement adjustment logic
-        # 1. Identify bottleneck areas
-        # 2. Add repulsion forces to those areas
-        # 3. Re-run geometric optimization
-
-        state.iteration += 1
-
-        # We need to signal the orchestrator to go back to GEOMETRIC
-        # The current 'run' loop is linear, so we'd need to modify it
-        # or handle recursion here.
-
-        return state
-
     def _run_output(self, state: PipelineState) -> PipelineState:
         """Generate output files (placed PCB, reports)."""
         from temper_placer.io.kicad_writer import (
@@ -614,6 +642,9 @@ class PipelineOrchestrator:
             add_silkscreen_labels,
             export_placements,
         )
+
+        # 1. Compute physical metrics
+        self._compute_physics_metrics()
 
         if not state.config.output_pcb:
             print("No output path specified, skipping export.")
@@ -625,9 +656,9 @@ class PipelineOrchestrator:
         if state.placement_state:
             ps = state.placement_state
         elif state.deterministic_result:
-            import jax.numpy as jnp
-
             from temper_placer.core.state import PlacementState
+
+            import jax.numpy as jnp
             ps = PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
         else:
             print("No placement data to export.")
@@ -650,8 +681,65 @@ class PipelineOrchestrator:
             add_silkscreen_labels(state.config.output_pcb)
             print("  Added visualization layers (bounding boxes, labels).")
 
+            # Save metrics JSON
+            metrics_path = state.config.output_pcb.with_suffix(".metrics.json")
+            import json
+            with open(metrics_path, "w") as f:
+                json.dump(state.physics_report.to_dict(), f, indent=2)
+            print(f"  Metrics saved to {metrics_path.name}")
+
         except Exception as e:
             print(f"Error during export: {e}")
             # We don't fail the pipeline if export fails (maybe just a path issue)
 
         return state
+
+    def _compute_physics_metrics(self) -> None:
+        """Compute physical metrics for the current state."""
+        from temper_placer.metrics.physics import (
+            PhysicsReport,
+            measure_emi,
+            measure_geometric,
+            measure_routability,
+            measure_thermal,
+        )
+
+        # Ensure we have a state to measure
+        state = self.state
+        if state.placement_state is None and state.deterministic_result is None:
+            return
+
+        # Determine "effective" state
+        if state.placement_state:
+            ps = state.placement_state
+        else:
+            # Wrap deterministic result in a mock state
+            from temper_placer.core.state import PlacementState
+
+            import jax.numpy as jnp
+            ps = PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
+
+        # 1. Geometric
+        geo = measure_geometric(ps, state.netlist, state.board)
+
+        # 2. EMI (Try to get loop refs from constraints or hardcoded for Temper)
+        # TODO: Get from SEMANTIC phase
+        loop_refs = [
+            ["Q1", "Q2", "C_BUS1"],  # Commutation loop
+            ["U_MCU", "C_MCU_1"],    # Local decoupling
+        ]
+        emi = measure_emi(ps, state.netlist, loop_refs=loop_refs)
+
+        # 3. Thermal (Hardcoded power for Temper)
+        power = {"Q1": 15.0, "Q2": 15.0, "U_BUCK": 2.0}
+        thermal = measure_thermal(ps, state.netlist, state.board, power_dissipation=power)
+
+        # 4. Routability
+        routability = measure_routability(ps, state.netlist, state.board)
+
+        state.physics_report = PhysicsReport(
+            geometric=geo,
+            emi=emi,
+            thermal=thermal,
+            routability=routability,
+        )
