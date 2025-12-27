@@ -1072,6 +1072,7 @@ def optimize(
             state=result.best_state,
             component_refs=component_refs,
             origin=origin,
+            components=netlist.components,  # Pass components for center offset correction
         )
 
         console.print(f"  [green]✓[/] Wrote {output}")
