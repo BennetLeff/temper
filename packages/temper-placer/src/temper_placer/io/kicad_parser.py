@@ -298,11 +298,38 @@ def _extract_components_from_pcb(
         for pad in fp.pads:
             local_x = pad.position.X
             local_y = pad.position.Y
+
+            # Determine if pad is through-hole (connects all copper layers)
+            # THT pads have "*.Cu" in their layers list
+            pad_layers = pad.layers if hasattr(pad, 'layers') and pad.layers else ["F.Cu"]
+            is_through_hole = any("*.Cu" in layer or layer == "*.Cu" for layer in pad_layers)
+
+            # Set layer: "all" for THT pads, first copper layer for SMD
+            if is_through_hole:
+                layer = "all"
+            else:
+                # Find first copper layer
+                copper_layers = [l for l in pad_layers if ".Cu" in l and "*" not in l]
+                layer = copper_layers[0] if copper_layers else "F.Cu"
+
+            # Get pad size
+            pad_width = pad.size.X if hasattr(pad, 'size') and pad.size else 1.0
+            pad_height = pad.size.Y if hasattr(pad, 'size') and pad.size else 1.0
+
+            # Get pad shape (normalize thru_hole to indicate THT for DSN export)
+            pad_shape = pad.shape or "rect"
+            if is_through_hole and pad_shape == "circle":
+                pad_shape = "thru_hole"
+
             raw_pins.append({
                 "name": pad.number or "",
                 "number": pad.number or "",
                 "position": (local_x, local_y),
                 "net": pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None,
+                "width": pad_width,
+                "height": pad_height,
+                "shape": pad_shape,
+                "layer": layer,
             })
 
         # Calculate bounding box center offset from footprint origin
@@ -324,6 +351,10 @@ def _extract_components_from_pcb(
                     number=p["number"],
                     position=(p["position"][0] - center_offset_x, p["position"][1] - center_offset_y),
                     net=p["net"],
+                    width=p.get("width", 1.0),
+                    height=p.get("height", 1.0),
+                    shape=p.get("shape", "rect"),
+                    layer=p.get("layer", "F.Cu"),
                 )
             )
 

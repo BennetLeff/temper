@@ -75,13 +75,24 @@ class DSNExporter:
 
         return offsets
 
-    def export_structure(self) -> DSNExpression:
-        """Export the structure section (layers, boundaries, keepouts)."""
+    def export_structure(self, all_layers_signal: bool = True) -> DSNExpression:
+        """Export the structure section (layers, boundaries, keepouts).
+
+        Args:
+            all_layers_signal: If True, all layers are marked as 'signal' type to allow
+                autorouting on all layers. If False, uses original layer types (which may
+                restrict routing on power/plane layers).
+        """
         layer_exprs = []
         layer_names = []
         if self.board.layer_stackup:
             for i, layer in enumerate(self.board.layer_stackup.layers):
-                ltype = "signal" if layer.layer_type == "signal" else "power"
+                # For autorouting, we want all layers to be 'signal' type
+                # so the router can use them for signal traces
+                if all_layers_signal:
+                    ltype = "signal"
+                else:
+                    ltype = "signal" if layer.layer_type == "signal" else "power"
                 layer_names.append(layer.name)
                 layer_exprs.append(
                     dsn_list(
@@ -261,19 +272,143 @@ class DSNExporter:
 
         return dsn_list("placement", *comp_exprs)
 
-    def export_network(self) -> DSNExpression:
-        """Export the network section (nets and pins)."""
+    def _compute_net_span(self, net) -> float:
+        """Compute HPWL span of a net based on pin positions.
+
+        Used for net ordering - shorter nets are easier to route first.
+        """
+        if len(net.pins) < 2:
+            return 0.0
+
+        xs, ys = [], []
+        for comp_ref, pin_num in net.pins:
+            try:
+                comp_idx = self.netlist.get_component_index(comp_ref)
+                comp = self.netlist.components[comp_idx]
+                # Find pin position
+                for pin in comp.pins:
+                    if pin.number == pin_num:
+                        # Use initial position + pin offset
+                        if self.positions is not None:
+                            base_x = float(self.positions[comp_idx, 0])
+                            base_y = float(self.positions[comp_idx, 1])
+                        else:
+                            pos = comp.initial_position or (0.0, 0.0)
+                            base_x, base_y = pos
+                        xs.append(base_x + pin.position[0])
+                        ys.append(base_y + pin.position[1])
+                        break
+            except (KeyError, IndexError):
+                continue
+
+        if len(xs) < 2:
+            return 0.0
+        return (max(xs) - min(xs)) + (max(ys) - min(ys))
+
+    def export_network(
+        self,
+        use_net_classes: bool = True,
+        exclude_nets: set[str] | None = None,
+    ) -> DSNExpression:
+        """Export the network section (nets, pins, and net classes).
+
+        Args:
+            use_net_classes: Whether to add net class definitions for power/signal routing.
+            exclude_nets: Set of net names to exclude from routing (e.g., plane-connected nets).
+        """
         net_exprs = []
-        for net in self.netlist.nets:
+        power_nets = []
+        signal_nets = []
+        excluded_count = 0
+
+        # Known power/ground net patterns - use start/end anchors to avoid false matches
+        # These are common power rail naming conventions
+        power_prefixes = ["GND", "PGND", "CGND", "VCC", "VDD", "DC_BUS", "_PLUS"]
+        # Voltage rail suffixes (3V3, 5V, etc.) - must be preceded by a voltage indicator
+        import re
+        voltage_pattern = re.compile(r"(_PLUS|VCC|VDD)\d+V?\d*$", re.IGNORECASE)
+
+        # Sort nets by fanout (low first) then span (short first)
+        # This gives FreeRouter easier nets first, reducing resource contention
+        sorted_nets = sorted(
+            self.netlist.nets,
+            key=lambda n: (len(n.pins), self._compute_net_span(n))
+        )
+
+        for net in sorted_nets:
+            # Skip nets that are connected via power planes
+            if exclude_nets and net.name in exclude_nets:
+                excluded_count += 1
+                continue
             pin_refs = []
             for comp_ref, pin_num in net.pins:
                 pin_refs.append(f"{comp_ref}-{pin_num}")
-            
+
             # Sanitize net names for SPECCTRA compatibility
             clean_name = net.name.replace("+", "_PLUS").replace("-", "_MINUS")
-            
+
             if pin_refs:
                 net_exprs.append(dsn_list("net", clean_name, dsn_list("pins", *pin_refs)))
+
+                # Classify net as power or signal using more precise matching
+                upper_name = clean_name.upper()
+                is_power = (
+                    any(upper_name.startswith(prefix) for prefix in power_prefixes) or
+                    bool(voltage_pattern.search(clean_name))
+                )
+                if is_power:
+                    power_nets.append(clean_name)
+                else:
+                    signal_nets.append(clean_name)
+
+        # Add net classes for better routing
+        if use_net_classes and (power_nets or signal_nets):
+            class_exprs = []
+
+            # Determine layer names for routing preferences
+            # layer_type is "signal", "plane", or "mixed" in the board model
+            layer_names = ["F.Cu", "B.Cu"]
+            inner_layers = []  # power/plane layers
+            outer_layers = []  # signal layers
+            if self.board.layer_stackup:
+                layer_names = [l.name for l in self.board.layer_stackup.layers]
+                for l in self.board.layer_stackup.layers:
+                    if l.layer_type in ("plane", "mixed"):
+                        inner_layers.append(l.name)
+                    else:
+                        outer_layers.append(l.name)
+            else:
+                outer_layers = ["F.Cu", "B.Cu"]
+
+            # Power net class - prefer inner layers, wider traces
+            if power_nets:
+                power_class_items = [
+                    "class",
+                    "power",
+                    *power_nets,
+                    dsn_list("circuit", dsn_list("use_via", "VIA")),
+                    dsn_list("rule", dsn_list("width", 25), dsn_list("clearance", 20)),
+                ]
+                # Add layer preference for inner (power) layers if available
+                if inner_layers:
+                    power_class_items.append(dsn_list("use_layer", *inner_layers))
+                class_exprs.append(dsn_list(*power_class_items))
+
+            # Signal net class - prefer outer layers, standard traces
+            if signal_nets:
+                signal_class_items = [
+                    "class",
+                    "signal",
+                    *signal_nets,
+                    dsn_list("circuit", dsn_list("use_via", "VIA")),
+                    dsn_list("rule", dsn_list("width", 13), dsn_list("clearance", 12)),
+                ]
+                # Add layer preference for outer (signal) layers if available
+                if outer_layers:
+                    signal_class_items.append(dsn_list("use_layer", *outer_layers))
+                class_exprs.append(dsn_list(*signal_class_items))
+
+            return dsn_list("network", *net_exprs, *class_exprs)
 
         return dsn_list("network", *net_exprs)
 
@@ -290,8 +425,19 @@ class DSNExporter:
             )
         return dsn_list("wiring", *wire_exprs)
 
-    def export_pcb(self, pcb_name: str = "temper", traces: list[TraceData] | None = None) -> DSNExpression:
-        """Export the full PCB design."""
+    def export_pcb(
+        self,
+        pcb_name: str = "temper",
+        traces: list[TraceData] | None = None,
+        exclude_nets: set[str] | None = None,
+    ) -> DSNExpression:
+        """Export the full PCB design.
+
+        Args:
+            pcb_name: Name for the PCB in the DSN file.
+            traces: Existing traces to include in the wiring section.
+            exclude_nets: Set of net names to exclude from routing (plane-connected nets).
+        """
         sections = [
             dsn_list("parser", dsn_list("string_quote", '"'), dsn_list("space_in_quoted_tokens", "on")),
             dsn_list("resolution", "um", 10),
@@ -299,10 +445,10 @@ class DSNExporter:
             self.export_structure(),
             self.export_library(),
             self.export_placement(),
-            self.export_network(),
+            self.export_network(exclude_nets=exclude_nets),
         ]
-        
+
         if traces:
             sections.append(self.export_wiring(traces))
-            
+
         return dsn_list("pcb", pcb_name, *sections)
