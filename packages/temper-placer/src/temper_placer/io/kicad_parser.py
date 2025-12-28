@@ -7,6 +7,7 @@ the internal Netlist representation used by temper-placer.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -290,38 +291,96 @@ def _extract_components_from_pcb(
         # Calculate component bounds - prefer courtyard graphics, fallback to pads
         width, height = _calculate_footprint_bounds(fp)
 
-        # Extract pins
-        # Note: In kiutils, pad.position is ALREADY in footprint-local coordinates
-        pins = []
+        # Extract pins and calculate bounding box center offset
+        # Note: In kiutils, pad.position is in footprint-local coordinates (relative to origin)
+        # But our internal representation expects pin positions relative to BOUNDING BOX CENTER
+        raw_pins = []
         for pad in fp.pads:
-            # pad.position is local to footprint center (already)
             local_x = pad.position.X
             local_y = pad.position.Y
 
+            # Determine if pad is through-hole (connects all copper layers)
+            # THT pads have "*.Cu" in their layers list
+            pad_layers = pad.layers if hasattr(pad, 'layers') and pad.layers else ["F.Cu"]
+            is_through_hole = any("*.Cu" in layer or layer == "*.Cu" for layer in pad_layers)
+
+            # Set layer: "all" for THT pads, first copper layer for SMD
+            if is_through_hole:
+                layer = "all"
+            else:
+                # Find first copper layer
+                copper_layers = [l for l in pad_layers if ".Cu" in l and "*" not in l]
+                layer = copper_layers[0] if copper_layers else "F.Cu"
+
+            # Get pad size
+            pad_width = pad.size.X if hasattr(pad, 'size') and pad.size else 1.0
+            pad_height = pad.size.Y if hasattr(pad, 'size') and pad.size else 1.0
+
+            # Get pad shape (normalize thru_hole to indicate THT for DSN export)
+            pad_shape = pad.shape or "rect"
+            if is_through_hole and pad_shape == "circle":
+                pad_shape = "thru_hole"
+
+            raw_pins.append({
+                "name": pad.number or "",
+                "number": pad.number or "",
+                "position": (local_x, local_y),
+                "net": pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None,
+                "width": pad_width,
+                "height": pad_height,
+                "shape": pad_shape,
+                "layer": layer,
+            })
+
+        # Calculate bounding box center offset from footprint origin
+        # This is the offset from footprint origin to geometric center of all pads
+        if raw_pins:
+            pad_xs = [p["position"][0] for p in raw_pins]
+            pad_ys = [p["position"][1] for p in raw_pins]
+            center_offset_x = (min(pad_xs) + max(pad_xs)) / 2.0
+            center_offset_y = (min(pad_ys) + max(pad_ys)) / 2.0
+        else:
+            center_offset_x, center_offset_y = 0.0, 0.0
+
+        # Create pins with positions relative to bounding box center (not footprint origin)
+        pins = []
+        for p in raw_pins:
             pins.append(
                 Pin(
-                    name=pad.number or "",
-                    number=pad.number or "",
-                    position=(local_x, local_y),
-                    net=pad.net.name
-                    if pad.net and hasattr(pad.net, "name")
-                    else str(pad.net)
-                    if pad.net
-                    else None,
+                    name=p["name"],
+                    number=p["number"],
+                    position=(p["position"][0] - center_offset_x, p["position"][1] - center_offset_y),
+                    net=p["net"],
+                    width=p.get("width", 1.0),
+                    height=p.get("height", 1.0),
+                    shape=p.get("shape", "rect"),
+                    layer=p.get("layer", "F.Cu"),
                 )
             )
 
+        # Rotate the center offset based on footprint rotation
+        # KiCad rotates counter-clockwise, so we need to rotate the offset
+        rot_rad = math.radians(rot_deg)
+        rotated_cx = center_offset_x * math.cos(rot_rad) - center_offset_y * math.sin(rot_rad)
+        rotated_cy = center_offset_x * math.sin(rot_rad) + center_offset_y * math.cos(rot_rad)
+
+        # initial_position is the BOUNDING BOX CENTER position (footprint origin + rotated center offset)
+        # Store the UNROTATED center offset in attributes for the writer to use
         comp = Component(
             ref=ref,
             footprint=fp.libId or "",
             bounds=(width, height),
             pins=pins,
             initial_position=(
-                fp.position.X - board_origin[0],
-                fp.position.Y - board_origin[1],
+                fp.position.X - board_origin[0] + rotated_cx,
+                fp.position.Y - board_origin[1] + rotated_cy,
             ),
             fixed=fp.locked,
             initial_rotation=rot_idx,
+            attributes={
+                "_center_offset_x": str(center_offset_x),
+                "_center_offset_y": str(center_offset_y),
+            },
         )
 
         components.append(comp)

@@ -31,8 +31,9 @@ zones:
     description: "MCU and low-voltage control - separated from power stage"
   
   - name: "interface_zone"
-    bounds: [0, 131, 15, 150]  # Left edge, Y > 131mm - External connectors
-    description: "Connectors and interfaces at board edge for easy access"
+    bounds: [0, 115, 20, 140]  # Left edge - adjusted for connector pin extents
+    # J_AC_IN has 20mm extent, so center max Y = 150 - 10 - margin = 138mm
+    description: "Connectors and interfaces - adjusted bounds for pin extents"
 
 # ==============================================================================
 # COMPONENT FUNCTIONAL GROUPS
@@ -289,18 +290,14 @@ thermal:
 
 # Fixed components (don't optimize position)
 # PowerSynth approach: Only fix MECHANICAL constraints, let optimizer handle electrical/thermal
+# NOTE: Connectors removed from fixed list - the optimizer will place them within boundaries
+# while respecting zone constraints. This avoids pin-extent violations.
 fixed_components:
-  # Mounting holes - mechanical interface
+  # Mounting holes - mechanical interface only
   - "MH1"
   - "MH2"
   - "MH3"
   - "MH4"
-  # Connectors - board edge mechanical interface
-  - "J_AC_IN"
-  - "J_COIL"
-  - "J_NTC"
-  - "J_USB"
-  - "J_DEBUG"
 # All other components (power stage, MCU, etc.) will be placed by optimizer
 # using constraint losses: GroupClusterLoss, LoopAreaLoss, DecouplingLoss, etc.
 
@@ -357,13 +354,16 @@ fixed_positions:
   MH2: [96.5, 3.5]
   MH3: [3.5, 146.5]
   MH4: [96.5, 146.5]
-  
+
   # Connectors at board edges (properly zoned)
-  J_AC_IN: [10.0, 140.0]  # AC Input - TOP LEFT (Power Zone Y>110)
-  J_NTC: [20.0, 140.0]    # Temp Sensor - TOP LEFT (Power Zone)
-  J_COIL: [50.0, 145.0]   # Induction Coil - TOP CENTER (Power Zone edge)
+  # NOTE: Positions are BOUNDING BOX CENTERS. Pin extents must stay within board!
+  # J_AC_IN has 20mm vertical extent (pins at ±10mm from center)
+  # Board height is 150mm, with 0.5mm margin, max Y for center = 150-10-0.5 = 139.5mm
+  J_AC_IN: [10.0, 138.0]  # AC Input - TOP LEFT (center; top pin at Y=148mm)
+  J_NTC: [20.0, 138.5]    # Temp Sensor - 2-pin header (2.54mm extent)
+  J_COIL: [50.0, 143.0]   # Induction Coil - 2-pin Phoenix (3.81mm extent)
   J_USB: [50.0, 5.0]      # USB - BOTTOM CENTER (Control Zone Y<70)
-  J_DEBUG: [70.0, 10.0]   # Debug - BOTTOM (Control Zone)
+  J_DEBUG: [70.0, 16.0]   # Debug - 6-pin header (12.7mm extent, center at Y=16)
 
 # ==============================================================================
 # PRIORITY-BASED PLACEMENT (Professional PCB workflow)

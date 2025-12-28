@@ -155,6 +155,7 @@ def state_to_placements(
     component_refs: list[str],
     origin: tuple[float, float] = (0.0, 0.0),
     original_angles: dict[str, float] | None = None,
+    components: list | None = None,
 ) -> dict[str, PlacementUpdate]:
     """
     Convert a PlacementState to placement updates.
@@ -168,20 +169,31 @@ def state_to_placements(
             in degrees. If provided, the rotation offset from the original
             angle to its quantized 90° value will be preserved in the output.
             This handles components with non-90° rotations gracefully.
+        components: Optional list of Component objects. If provided, center
+            offsets will be extracted and subtracted from positions to convert
+            from bounding-box-center to footprint-origin coordinates.
 
     Returns:
         Dictionary mapping component ref to PlacementUpdate.
     """
+    import math
+
     placements: dict[str, PlacementUpdate] = {}
+
+    # Build center offset map from components if provided
+    center_offsets: dict[str, tuple[float, float]] = {}
+    if components:
+        for comp in components:
+            if hasattr(comp, "attributes") and comp.attributes:
+                cx = float(comp.attributes.get("_center_offset_x", "0"))
+                cy = float(comp.attributes.get("_center_offset_y", "0"))
+                if cx != 0 or cy != 0:
+                    center_offsets[comp.ref] = (cx, cy)
 
     # Get discrete rotations (to_discrete returns (positions, rotation_indices))
     _, rotation_indices = state.to_discrete()
 
     for i, ref in enumerate(component_refs):
-        # Get position (add origin offset)
-        x = float(state.positions[i, 0]) + origin[0]
-        y = float(state.positions[i, 1]) + origin[1]
-
         # Convert rotation index to degrees (0, 90, 180, 270)
         rotation_deg = float(rotation_indices[i]) * 90.0
 
@@ -194,6 +206,20 @@ def state_to_placements(
             offset = original - quantized
             if abs(offset) > 0.1:  # Only apply if there was a real offset
                 rotation_deg = (rotation_deg + offset) % 360.0
+
+        # Get position (internal bounding-box-center coordinates)
+        x = float(state.positions[i, 0]) + origin[0]
+        y = float(state.positions[i, 1]) + origin[1]
+
+        # Subtract rotated center offset to convert to footprint origin
+        if ref in center_offsets:
+            cx, cy = center_offsets[ref]
+            rot_rad = math.radians(rotation_deg)
+            # Rotate the center offset by the final rotation
+            rotated_cx = cx * math.cos(rot_rad) - cy * math.sin(rot_rad)
+            rotated_cy = cx * math.sin(rot_rad) + cy * math.cos(rot_rad)
+            x -= rotated_cx
+            y -= rotated_cy
 
         placements[ref] = PlacementUpdate(
             ref=ref,
@@ -276,6 +302,7 @@ def export_placements(
     state: PlacementState,
     component_refs: list[str],
     origin: tuple[float, float] = (0.0, 0.0),
+    components: list | None = None,
 ) -> WriteResult:
     """
     High-level function to export optimized state to KiCad PCB.
@@ -289,11 +316,12 @@ def export_placements(
         state: The optimized PlacementState.
         component_refs: List of component reference designators.
         origin: (x, y) board origin to add to positions.
+        components: Optional list of Component objects for center offset correction.
 
     Returns:
         WriteResult with statistics and any warnings.
     """
-    placements = state_to_placements(state, component_refs, origin)
+    placements = state_to_placements(state, component_refs, origin, components=components)
     return write_placements_to_pcb(template_pcb, output_pcb, placements)
 
 
