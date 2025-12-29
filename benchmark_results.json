@@ -1,0 +1,19 @@
+[
+  {
+    "total_nets": 23,
+    "successful": 5,
+    "failed": 18,
+    "completion_rate": 0.21739130434782608,
+    "maze_routed": 2,
+    "push_shove_routed": 21,
+    "total_length": 552.9749202917451,
+    "total_vias": 0,
+    "avg_length": 110.59498405834901,
+    "avg_vias": 0.0,
+    "total_runtime": 141.36066889762878,
+    "routing_runtime": 141.17660689353943,
+    "board_name": "temper_ready_for_route.kicad_pcb",
+    "strategy": "auto",
+    "physics_enabled": true
+  }
+]

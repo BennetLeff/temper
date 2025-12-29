@@ -29,8 +29,14 @@ def main():
     parser.add_argument("input_pcb", type=Path, help="Input placed .kicad_pcb file")
     parser.add_argument("-o", "--output", type=Path, help="Output routed .kicad_pcb file")
     parser.add_argument("-c", "--config", type=Path, help="PCL constraints file")
-    parser.add_argument("--cell-size", type=float, default=0.5, help="Grid cell size in mm")
+    parser.add_argument("--cell-size", type=float, default=1.0, help="Grid cell size in mm")
     parser.add_argument("--layers", type=int, default=2, help="Number of routing layers")
+    parser.add_argument("--rrr-iters", type=int, default=5, help="Number of RRR iterations")
+    parser.add_argument("--via-cost", type=float, default=50.0, help="Via penalty (default 50.0, higher = fewer vias)")
+    parser.add_argument("--region-size", type=int, default=0, help="Enable region-based routing with this min region size (0=disabled)")
+    parser.add_argument("--soft-blocking", action="store_true", help="Enable negotiated congestion (allow routing through occupied cells)")
+    parser.add_argument("--history-increment", type=float, default=1.0, help="History cost increment per conflict (default 1.0, use 2.0 for aggressive)")
+    parser.add_argument("--exclude-power-nets", action="store_true", help="Exclude power nets (GND, VCC, etc.) from routing")
     
     args = parser.parse_args()
     
@@ -90,67 +96,79 @@ def main():
     routing_ctx = get_routing_context(hg, positions, board, netlist)
     
     net_order = order_nets(netlist, loops)
+    
+    if args.exclude_power_nets:
+        power_keywords = ["GND", "VCC", "VDD", "VSS", "+", "3V3", "5V", "12V"]
+        original_count = len(net_order)
+        net_order = [name for name in net_order if not any(k in name.upper() for k in power_keywords)]
+        console.print(f"  [yellow]Excluded {original_count - len(net_order)} power nets[/]")
+
     assignments = assign_layers(netlist) # Use default constraints from layer_assignment.py
     console.print(f"  ✓ Determined routing order for {len(net_order)} nets")
     console.print(f"  ✓ Inferred strategies for {len(routing_ctx.strategies)} nets")
 
     # 4. Routing
-    console.print("\n[bold cyan]Step 4:[/] Running Maze Router...")
+    console.print("\n[bold cyan]Step 4:[/] Running Maze Router (RRR)...")
+    
+    if args.region_size > 0:
+        # Region-based routing with quadtree decomposition
+        from temper_placer.routing.region_router import RoutingQuadTree
+        console.print(f"  Using region-based routing (min_region_size={args.region_size})")
+        tree = RoutingQuadTree(grid_size=(int(board.width / args.cell_size), int(board.height / args.cell_size)), min_region_size=args.region_size, halo=3)
+        console.print(f"  Quadtree: {tree.leaf_count()} regions")
+    
     router = MazeRouter.from_board(
         board,
         cell_size_mm=args.cell_size,
         num_layers=args.layers,
+        via_cost=args.via_cost,
+        soft_blocking=args.soft_blocking,
     )
+    console.print(f"  Via cost: {args.via_cost}")
+    if args.soft_blocking:
+        console.print(f"  [bold green]Soft blocking enabled[/] (negotiated congestion)")
+    console.print(f"  History increment: {args.history_increment}")
     
-    console.print("  Blocking component areas...")
-    router.block_components(netlist.components, positions)
-    
-    console.print("  Routing all nets (A*)...")
-    start_time = time.time()
-    
-    # UPDATED: Sequential routing with dynamic cost maps from bridge
-    results = {}
+    # Pre-compute cost maps for RRR
+    cost_maps = {}
     for net_name in net_order:
-        # Get pin positions
-        pin_positions = []
-        net = netlist.get_net(net_name)
-        for comp_ref, pin_name in net.pins:
-            comp_idx = netlist.get_component_index(comp_ref)
-            comp = netlist.get_component(comp_ref)
-            pin = comp.get_pin(pin_name)
-            if pin:
-                pin_pos = pin.absolute_position(
-                    tuple(positions[comp_idx]), 
-                    math.radians((comp.initial_rotation or 0) * 90.0)
-                )
-                pin_positions.append(pin_pos)
-        
-        if len(pin_positions) < 2:
-            continue
-            
-        # Get semantic cost map
-        cost_map = get_cost_map_for_net(
+        cm = get_cost_map_for_net(
             grid_size=router.grid_size,
             cell_size_mm=router.cell_size,
             context=routing_ctx,
             net_id=net_name
         )
-        
-        # Determine assignment (fallback to default if missing)
-        assignment = assignments.get(net_name)
-        if not assignment:
-             from temper_placer.routing.layer_assignment import LayerAssignment, Layer
-             assignment = LayerAssignment(net_name, Layer.L4_BOT, {Layer.L4_BOT}, False, "Default")
+        if cm is not None:
+            cost_maps[net_name] = cm
 
-        # Route with cost map
-        result = router.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
-        results[net_name] = result
-        
+    start_time = time.time()
+    results = router.rrr_route_all_nets(
+        netlist, 
+        positions, 
+        net_order, 
+        assignments, 
+        cost_maps=cost_maps,
+        max_iterations=args.rrr_iters,
+        history_increment=args.history_increment,
+    )
     elapsed = time.time() - start_time
     
-    completion = compute_completion_rate(results)
+    # Calculate stats
+    successful = sum(1 for r in results.values() if r.success)
+    completion = (successful / len(net_order)) * 100 if net_order else 100
+    
     console.print(f"  ✓ Routing complete in {elapsed:.2f}s")
-    console.print(f"  ✓ Completion rate: {completion:.2%}")
+    console.print(f"  ✓ Completion rate: {completion:.2f}%")
+    
+    # NEW: Conflict Location Reporting
+    conflict_locs = router.get_conflict_locations()
+    if conflict_locs:
+        console.print(f"\n[bold yellow]Conflict Locations ({len(conflict_locs)}):[/]")
+        # Group by coordinate to see severe bottlenecks
+        for loc in conflict_locs[:10]:
+            console.print(f"  ({loc['world_x']:.1f}, {loc['world_y']:.1f}, L{loc['layer']+1}): {', '.join(loc['nets'])}")
+        if len(conflict_locs) > 10:
+            console.print(f"  ... and {len(conflict_locs)-10} more")
 
     # 5. Export Traces
     console.print("\n[bold cyan]Step 5:[/] Exporting traces to KiCad...")

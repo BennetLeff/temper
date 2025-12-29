@@ -1,0 +1,26 @@
+{
+  "geometric": {
+    "overlap_count": 1,
+    "overlap_area_mm2": 1.991152532390461e-06,
+    "zone_violation_count": 3,
+    "zone_violation_max_mm": 4.5,
+    "boundary_violation_count": 0,
+    "min_hv_lv_clearance_mm": 1000.0
+  },
+  "emi": {
+    "gate_loop_area_mm2": 120.35218811035156,
+    "power_loop_area_mm2": 19.112680435180664,
+    "total_loop_area_mm2": 139.46486854553223
+  },
+  "thermal": {
+    "max_junction_temp_c": 179.08111572265625,
+    "thermal_margin_c": -29.08111572265625,
+    "edge_distance_avg_mm": 28.935914993286133
+  },
+  "routability": {
+    "completion_pct": 98.54525722849539,
+    "overflow_cells": 407,
+    "max_congestion": 1.2999999523162842,
+    "total_wirelength_mm": 861.1273803710938
+  }
+}

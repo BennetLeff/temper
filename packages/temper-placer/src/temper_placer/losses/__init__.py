@@ -246,6 +246,14 @@ from temper_placer.losses.zone import (
     create_temper_zone_assignments,
 )
 
+# Routing-aware placement losses
+from temper_placer.losses.routing_aware import (
+    BusAlignmentLoss,
+    MCUClusteringLoss,
+    RoutingChannelLoss,
+    compute_routing_channel_penalty,
+)
+
 __all__ = [
     # Base classes
     "LossFunction",
@@ -366,4 +374,9 @@ __all__ = [
     "compute_margin_loss",
     "compute_pairwise_clearances",
     "create_manufacturing_margin_loss",
+    # Routing-aware placement losses
+    "RoutingChannelLoss",
+    "MCUClusteringLoss",
+    "BusAlignmentLoss",
+    "compute_routing_channel_penalty",
 ]

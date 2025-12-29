@@ -10,24 +10,17 @@ Features:
 - A* pathfinding for single nets
 - Sequential routing in priority order
 - Via support for layer transitions
-
-Example usage:
-    >>> from temper_placer.routing.maze_router import MazeRouter
-    >>> from temper_placer.core.board import Board
-    >>>
-    >>> router = MazeRouter.from_board(board, cell_size_mm=1.0)
-    >>> router.block_components(netlist.components, positions)
-    >>> result = router.route_net("NET_A", pin_positions, assignment)
-    >>> if result.success:
-    ...     print(f"Routed {len(result.cells)} cells")
+- Rip-up and Reroute (RRR) support for conflict resolution
 """
 
 import heapq
 import math
+import random
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
+import numpy as np
 import jax.numpy as jnp
 from jax import Array
 
@@ -40,15 +33,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class GridCell:
-    """A cell in the routing grid.
-
-    Immutable and hashable for use in pathfinding data structures.
-
-    Attributes:
-        x: Column index in grid
-        y: Row index in grid
-        layer: Layer index (0=L1_TOP, 1=L4_BOT for 2-layer)
-    """
+    """A cell in the routing grid."""
 
     x: int
     y: int
@@ -73,16 +58,7 @@ class RoutingStats:
 
 @dataclass
 class RoutePath:
-    """Result of routing a single net.
-
-    Attributes:
-        net: Net name
-        cells: Ordered list of grid cells forming the path
-        length: Total path length in cells
-        via_count: Number of layer transitions
-        success: True if routing succeeded
-        failure_reason: Description of why routing failed (if not successful)
-    """
+    """Result of routing a single net."""
 
     net: str
     cells: list[GridCell]
@@ -94,16 +70,7 @@ class RoutePath:
 
 @dataclass
 class NetMetrics:
-    """Metrics for net ordering heuristic (temper-74wg.3).
-    
-    Attributes:
-        net_name: Name of the net
-        pin_count: Number of pins in the net
-        bounding_box_area: Area of bounding box in mm²
-        estimated_wirelength: Estimated wirelength in mm (half-perimeter)
-        is_power: True if this is a power net
-        is_ground: True if this is a ground net
-    """
+    """Metrics for net ordering heuristic."""
     net_name: str
     pin_count: int
     bounding_box_area: float
@@ -112,22 +79,40 @@ class NetMetrics:
     is_ground: bool
 
 
+@dataclass
+class RoutingProgress:
+    """Per-iteration routing metrics for progress tracking."""
+    iteration: int
+    total_iterations: int
+    p_scale: float
+    # Conflict breakdown
+    total_conflicts: int
+    overlap_conflicts: int      # cells with exactly 2 nets
+    bottleneck_conflicts: int   # cells with 3+ nets (severe)
+    # Routing metrics
+    nets_routed: int
+    nets_failed: int
+    avg_path_length: float
+    total_vias: int
+    # Performance
+    iteration_time_ms: float
+    nets_per_second: float
+    # Nets involved in conflicts
+    conflicted_nets: list[str]
+
+
+@dataclass
+class NetStatus:
+    """Convergence status for a single net."""
+    net_name: str
+    path_hash: int  # hash of current route for change detection
+    conflict_free_count: int  # consecutive conflict-free iterations
+    converged: bool  # True if stable for threshold iterations
+
+
 class MazeRouter:
-    """Grid-based maze router using A* pathfinding.
+    """Grid-based maze router using A* pathfinding."""
 
-    The router maintains an occupancy grid where:
-    - 0 = free (available for routing)
-    - 1 = blocked (component or obstacle)
-    - 2 = routed (used by a previous net)
-
-    Attributes:
-        grid_size: (width, height) in cells
-        cell_size: Size of each cell in mm
-        num_layers: Number of routing layers
-        occupancy: 3D array of occupancy values (width, height, layers)
-        origin: Board origin coordinates
-        stats: Collected routing statistics
-    """
 
     def __init__(
         self,
@@ -137,417 +122,316 @@ class MazeRouter:
         origin: tuple[float, float] = (0.0, 0.0),
         via_cost: float = 1.0,
         layer_stackup: "LayerStackup | None" = None,
+        soft_blocking: bool = False,
+        congestion_via_discount: float = 0.1,
+        layer_balance_weight: float = 0.5,
     ):
-        """Initialize maze router.
-
-        Args:
-            grid_size: (width, height) of grid in cells
-            cell_size_mm: Physical size of each cell
-            num_layers: Number of routing layers
-            origin: Board origin coordinates
-            via_cost: Penalty cost for layer transitions
-            layer_stackup: PCB layer stackup (optional, defaults to 4-layer)
-        """
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
         self.num_layers = num_layers
         self.origin = origin
         self.via_cost = via_cost
+        self.soft_blocking = soft_blocking  # Allow routing through occupied cells at high cost
+        self.congestion_via_discount = congestion_via_discount  # Via cost multiplier in congested areas
 
-        # Layer stackup for layer-aware routing
         if layer_stackup is None:
             from temper_placer.core.board import LayerStackup
             self.layer_stackup = LayerStackup.default_4layer()
         else:
             self.layer_stackup = layer_stackup
 
-        # Occupancy grid: (width, height, layers)
-        # 0=free, 1=blocked, 2=routed
-        self.occupancy = jnp.zeros((grid_size[0], grid_size[1], num_layers), dtype=jnp.int32)
+        # Occupancy grid: 0=free, -1=blocked, 2=routed
+        # Using numpy for mutable in-place updates (faster than JAX .at[].set())
+        self.occupancy = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.int32)
+        # RRR structures
+        self.net_occupancy: dict[tuple[int, int, int], set[str]] = {}
+        self.routed_paths: dict[str, RoutePath] = {}
+        self.present_congestion = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.float32)
+        self.history_cost = np.ones((grid_size[0], grid_size[1], num_layers), dtype=np.float32)
 
-        # Component positions for density computation (temper-74wg.1)
         self._component_positions: Array | None = None
-
-        # Statistics
         self.stats = RoutingStats()
+        
+        # Layer balancing
+        self.layer_balance_weight = layer_balance_weight
+        self.layer_usage_count = np.zeros(num_layers, dtype=np.int32)  # Track cells used per layer
+        
+        # Net convergence tracking for early termination
+        self._net_status: dict[str, NetStatus] = {}
+        
+        # Note: numpy cache no longer needed since grids are already numpy
+        self._history_np: "np.ndarray | None" = None
+        self._congestion_np: "np.ndarray | None" = None
+        self._occupancy_np: "np.ndarray | None" = None
+
+
 
     @classmethod
-    def from_board(
-        cls,
-        board: Board,
-        cell_size_mm: float = 1.0,
-        num_layers: int = 1,
-        via_cost: float = 1.0,
-    ) -> "MazeRouter":
-        """Create router from board specification.
-
-        Args:
-            board: Board with dimensions
-            cell_size_mm: Grid cell size
-            num_layers: Number of routing layers
-            via_cost: Penalty cost for layer transitions
-
-        Returns:
-            Initialized MazeRouter
-        """
+    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1) -> "MazeRouter":
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
+        return cls(grid_size=(width_cells, height_cells), cell_size_mm=cell_size_mm, num_layers=num_layers, origin=board.origin, via_cost=via_cost, layer_stackup=getattr(board, 'layer_stackup', None), soft_blocking=soft_blocking, congestion_via_discount=congestion_via_discount)
 
-        # Use board's layer stackup if available
-        layer_stackup = getattr(board, 'layer_stackup', None)
+    def rip_up_net(self, net_name: str) -> None:
+        """Remove a net from the grid."""
+        if net_name not in self.routed_paths:
+            return
+        path = self.routed_paths[net_name]
+        for cell in path.cells:
+            key = (cell.x, cell.y, cell.layer)
+            if key in self.net_occupancy and net_name in self.net_occupancy[key]:
+                self.net_occupancy[key].remove(net_name)
+                if not self.net_occupancy[key]:
+                    self.occupancy[cell.x, cell.y, cell.layer] = 0
+                    del self.net_occupancy[key]
+                self.present_congestion[cell.x, cell.y, cell.layer] = max(
+                    0.0, self.present_congestion[cell.x, cell.y, cell.layer] - 1.0
+                )
+        del self.routed_paths[net_name]
 
-        return cls(
-            grid_size=(width_cells, height_cells),
-            cell_size_mm=cell_size_mm,
-            num_layers=num_layers,
-            origin=board.origin,
-            via_cost=via_cost,
-            layer_stackup=layer_stackup,
-        )
-
-    def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell, cost_map: Array | None = None) -> float:
-        """Get cost of moving from current to neighbor cell."""
-        base_cost = 1.0
+    def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell, cost_map: Array | None = None, p_scale: float = 1.0) -> float:
+        """Compute cost to move from current to neighbor cell.
         
-        # Apply dynamic cost map if provided
-        if cost_map is not None:
-            # cost_map is expected to be (width, height) 2D array
-            base_cost = float(cost_map[neighbor.x, neighbor.y])
-
+        Uses cached numpy arrays when available for faster indexing.
+        Supports soft blocking (negotiated congestion) and dynamic via cost.
+        """
+        base_cost = 1.0
+        # Wrong-way penalty
+        wrong_way_cost = 0.0
+        if neighbor.layer == 0:  # L1 prefers horizontal
+            if neighbor.y != current.y:
+                wrong_way_cost = 2.0
+        elif neighbor.layer == 1:  # L4 prefers vertical
+            if neighbor.x != current.x:
+                wrong_way_cost = 2.0
+        
+        # Use cached numpy arrays if available (much faster indexing)
+        if self._history_np is not None:
+            h = self._history_np[neighbor.x, neighbor.y, neighbor.layer]
+            p = self._congestion_np[neighbor.x, neighbor.y, neighbor.layer]
+            blocked = self._occupancy_np[neighbor.x, neighbor.y, neighbor.layer] == -1
+            occupied = self._occupancy_np[neighbor.x, neighbor.y, neighbor.layer] == 2
+        else:
+            h = float(self.history_cost[neighbor.x, neighbor.y, neighbor.layer])
+            p = float(self.present_congestion[neighbor.x, neighbor.y, neighbor.layer])
+            blocked = self.occupancy[neighbor.x, neighbor.y, neighbor.layer] == -1
+            occupied = self.occupancy[neighbor.x, neighbor.y, neighbor.layer] == 2
+        
+        # Hard-blocked cells (components) are always impassable
+        if blocked:
+            return 1e9
+        
+        # Soft blocking: occupied cells get high cost but are passable
+        # This enables negotiated congestion (PathFinder algorithm)
+        sharing_penalty = 0.0
+        if occupied and self.soft_blocking:
+            sharing_penalty = 50.0 * (1.0 + p)  # Higher penalty with more congestion
+        elif occupied:
+            # Original behavior: treat occupied as very expensive
+            sharing_penalty = 100.0
+        
+        strategy_mult = float(cost_map[neighbor.x, neighbor.y]) if cost_map is not None else 1.0
+        
+        congestion_cost = (base_cost + wrong_way_cost + sharing_penalty + h) * (1.0 + p * p_scale)
+        total_cost = strategy_mult * congestion_cost
+        
+        # Layer balance cost: encourage even distribution across layers
+        if self.num_layers > 1 and self.layer_balance_weight > 0:
+            # Calculate usage imbalance (standard deviation of layer usage)
+            layer_usage = self.layer_usage_count.astype(np.float32)
+            if np.sum(layer_usage) > 0:
+                mean_usage = np.mean(layer_usage)
+                std_usage = np.std(layer_usage)
+                
+                # Penalize moving to layer with above-average usage
+                if layer_usage[neighbor.layer] > mean_usage:
+                    imbalance_penalty = (layer_usage[neighbor.layer] - mean_usage) / max(1.0, mean_usage)
+                    total_cost += self.layer_balance_weight * imbalance_penalty
+        
+        # Dynamic via cost: lower in congested areas to encourage layer escape
         if current.layer != neighbor.layer:
-            return base_cost + self.via_cost
-        return base_cost
+            if p > 2.0 and self.soft_blocking:
+                # Congested area - discount via cost to encourage escape
+                total_cost += self.via_cost * self.congestion_via_discount
+            else:
+                total_cost += self.via_cost
+        
+        return total_cost
+
+    def _prepare_cost_arrays(self) -> None:
+        """Convert JAX arrays to numpy for faster A* indexing.
+        
+        Called at the start of find_path to avoid repeated JAX->Python conversion.
+        """
+        import numpy as np
+        self._history_np = np.asarray(self.history_cost)
+        self._congestion_np = np.asarray(self.present_congestion)
+        self._occupancy_np = np.asarray(self.occupancy)
+
+    def _clear_cost_arrays(self) -> None:
+        """Clear cached numpy arrays after path finding."""
+        self._history_np = None
+        self._congestion_np = None
+        self._occupancy_np = None
+    
+    def _world_to_grid(self, world_x: float, world_y: float) -> tuple[int, int]:
+        """Convert world coordinates to grid cell indices."""
+        grid_x = int((world_x - self.origin[0]) / self.cell_size)
+        grid_y = int((world_y - self.origin[1]) / self.cell_size)
+        # Clamp to valid range
+        grid_x = max(0, min(self.grid_size[0] - 1, grid_x))
+        grid_y = max(0, min(self.grid_size[1] - 1, grid_y))
+        return (grid_x, grid_y)
+
+    def update_congestion_costs(self, history_increment: float = 1.0) -> None:
+        """Update history costs for cells that have conflicts."""
+        contested = self.present_congestion > 1.0
+        self.history_cost = self.history_cost + contested.astype(np.float32) * history_increment
+
+    def decay_history_costs(self, decay_factor: float = 0.9) -> None:
+        """Slowly decay history costs to avoid getting trapped in local minima."""
+        self.history_cost = self.history_cost * decay_factor
+        # Keep base at 1.0
+        np.maximum(self.history_cost, 1.0, out=self.history_cost)
 
     def generate_cost_map(self, strategy: "RoutingStrategy") -> Array:
-        """
-        Generate a 2D cost map based on the requested routing strategy.
-        
-        Args:
-            strategy: The semantic strategy to employ.
-            
-        Returns:
-            (width, height) JAX array of float costs.
-        """
         from temper_placer.routing.bridge.types import RoutingStrategy
-        
         if strategy == RoutingStrategy.EDGE_HUG:
-            # Create a "valley" along the board edges
-            x = jnp.arange(self.grid_size[0])
-            y = jnp.arange(self.grid_size[1])
+            x, y = jnp.arange(self.grid_size[0]), jnp.arange(self.grid_size[1])
             X, Y = jnp.meshgrid(x, y, indexing='ij')
-            
-            # Distance to nearest edge in cells
-            dist_x = jnp.minimum(X, self.grid_size[0] - 1 - X)
-            dist_y = jnp.minimum(Y, self.grid_size[1] - 1 - Y)
-            dist_edge = jnp.minimum(dist_x, dist_y)
-            
-            # Cost increases steeply as we move away from the edge
+            dist_edge = jnp.minimum(jnp.minimum(X, self.grid_size[0]-1-X), jnp.minimum(Y, self.grid_size[1]-1-Y))
             return 1.0 + dist_edge * 10.0
-            
-        # Default: uniform cost
-        return jnp.ones((self.grid_size[0], self.grid_size[1]), dtype=jnp.float32)
+        return jnp.ones(self.grid_size, dtype=jnp.float32)
 
-    def block_rect(
-        self,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        layer: int = 0,
-    ) -> None:
-        """Mark a rectangular area as blocked.
-
-        Args:
-            x: Left column of rectangle
-            y: Top row of rectangle
-            width: Width in cells
-            height: Height in cells
-            layer: Layer to block (or all if -1)
-        """
-        x_end = min(x + width, self.grid_size[0])
-        y_end = min(y + height, self.grid_size[1])
-        x_start = max(0, x)
-        y_start = max(0, y)
-
+    def block_rect(self, x: int, y: int, width: int, height: int, layer: int = 0) -> None:
+        xs, ys = max(0, x), max(0, y)
+        xe, ye = min(x + width, self.grid_size[0]), min(y + height, self.grid_size[1])
         if layer == -1:
-            # Block all layers
-            for layer_idx in range(self.num_layers):
-                self.occupancy = self.occupancy.at[x_start:x_end, y_start:y_end, layer_idx].set(1)
+            for l in range(self.num_layers):
+                self.occupancy[xs:xe, ys:ye, l] = -1
         else:
-            self.occupancy = self.occupancy.at[x_start:x_end, y_start:y_end, layer].set(1)
+            self.occupancy[xs:xe, ys:ye, layer] = -1
 
-    def block_components(
-        self,
-        components: list[Component],
-        positions: Array,
-        margin: float = 0.5,
-        layer_specific: bool = False,
-        escape_length: int | None = None,
-    ) -> None:
-        """Block cells occupied by components, leaving escape routes for pins.
-
-        This method blocks component bodies but creates escape routes from each pin
-        to the nearest board edge. Without escape routes, pins would be completely
-        surrounded by blocked cells and unreachable by the router.
-
-        Args:
-            components: List of components to block
-            positions: (N, 2) array of component center positions
-            margin: Extra margin around components in mm
-            layer_specific: If True, block only the component's layer (assumed L1_TOP/0)
-            escape_length: Length of escape routes in cells. If None, calculated based on cell size.
-        """
-        if margin < 0:
-            raise ValueError("margin must be non-negative")
-
-        # Store component positions for density computation (temper-74wg.1)
+    def block_components(self, components: list[Component], positions: Array, margin: float = 0.5, layer_specific: bool = False, escape_length: int | None = None) -> None:
         self._component_positions = positions
-
-        # First pass: block all component bodies
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
-            half_w = comp.bounds[0] / 2 + margin
-            half_h = comp.bounds[1] / 2 + margin
-
-            # Convert to grid coordinates (using round to block cells whose centers are covered)
-            x_min = int(round((cx - half_w - self.origin[0]) / self.cell_size))
-            x_max = int(round((cx + half_w - self.origin[0]) / self.cell_size))
-            y_min = int(round((cy - half_h - self.origin[1]) / self.cell_size))
-            y_max = int(round((cy + half_h - self.origin[1]) / self.cell_size))
-
-            width = x_max - x_min
-            height = y_max - y_min
-
-            # Determine layer to block
-            # For now, if layer_specific is True, we assume components are on layer 0
-            block_layer = 0 if layer_specific else -1
-
-            self.block_rect(x_min, y_min, width, height, layer=block_layer)
-
-        # Second pass: create escape routes from pins
+            hw, hh = comp.bounds[0]/2 + margin, comp.bounds[1]/2 + margin
+            x_min, x_max = int(round((cx-hw-self.origin[0])/self.cell_size)), int(round((cx+hw-self.origin[0])/self.cell_size))
+            y_min, y_max = int(round((cy-hh-self.origin[1])/self.cell_size)), int(round((cy+hh-self.origin[1])/self.cell_size))
+            self.block_rect(x_min, y_min, x_max-x_min, y_max-y_min, layer=0 if layer_specific else -1)
         for i, comp in enumerate(components):
-            cx, cy = float(positions[i, 0]), float(positions[i, 1])
-            self._create_pin_escape_routes(comp, cx, cy, escape_length)
+            self._create_pin_escape_routes(comp, float(positions[i, 0]), float(positions[i, 1]), escape_length)
 
     def _compute_local_density(self, x: float, y: float, radius: float = 10.0) -> float:
-        """Compute component density within radius of point (temper-74wg.1).
-        
-        Args:
-            x: X coordinate in mm
-            y: Y coordinate in mm
-            radius: Search radius in mm
-        
-        Returns:
-            Density from 0.0 (empty) to 1.0 (fully packed)
-        """
-        if self._component_positions is None or len(self._component_positions) == 0:
-            return 0.0
-
-        # Compute distances to all components
+        if self._component_positions is None or not len(self._component_positions): return 0.0
         point = jnp.array([x, y])
         distances = jnp.sqrt(jnp.sum((self._component_positions - point)**2, axis=1))
-        count_within_radius = int(jnp.sum(distances <= radius))
-
-        # Normalize by expected max components in area
-        area = jnp.pi * radius**2
-        avg_component_area = 100.0  # mm², typical component size
-        max_components = area / avg_component_area
-
-        return float(jnp.clip(count_within_radius / max_components, 0.0, 1.0))
+        count = int(jnp.sum(distances <= radius))
+        return float(jnp.clip(count / (jnp.pi * radius**2 / 100.0), 0.0, 1.0))
 
     def _compute_escape_length(self, pin_x: float, pin_y: float, comp: Component | None = None) -> int:
-        """Compute adaptive escape length based on local density and component size."""
         density = self._compute_local_density(pin_x, pin_y)
-        
-        # Base length: must be enough to exit the component itself
-        # typically max(width, height) / 2 + margin
-        if comp:
-            min_escape_mm = max(comp.width, comp.height) / 2 + 1.0
-        else:
-            min_escape_mm = 2.0
-            
-        base_length = int(math.ceil(min_escape_mm / self.cell_size))
-
-        if density < 0.3:
-            # Sparse area: longer escapes for better routing options
-            return base_length + int(2.0 / self.cell_size)
-        elif density > 0.7:
-            # Dense area: shorter escapes to avoid interference
-            return base_length
-        else:
-            # Medium density
-            return base_length + int(1.0 / self.cell_size)
+        min_mm = max(comp.width, comp.height)/2 + 1.0 if comp else 2.0
+        base = int(math.ceil(min_mm / self.cell_size))
+        if density < 0.3: return base + int(2.0/self.cell_size)
+        return base + (0 if density > 0.7 else int(1.0/self.cell_size))
 
     def _get_primary_escape_direction(self, pin_offset: tuple[float, float]) -> tuple[int, int]:
-        """Get primary escape direction from pin offset (temper-74wg.2).
-        
-        Args:
-            pin_offset: (dx, dy) pin offset from component center
-        
-        Returns:
-            (step_x, step_y) primary escape direction
-        """
         dx, dy = pin_offset
+        return (1 if dx >= 0 else -1, 0) if abs(dx) >= abs(dy) else (0, 1 if dy >= 0 else -1)
 
-        if abs(dx) >= abs(dy):
-            # Horizontal escape
-            return (1 if dx >= 0 else -1, 0)
-        else:
-            # Vertical escape
-            return (0, 1 if dy >= 0 else -1)
-
-    def _try_escape_route(
-        self,
-        pin_x: float,
-        pin_y: float,
-        step_x: int,
-        step_y: int,
-        escape_length: int,
-    ) -> bool:
-        """Try to create escape route in given direction (temper-74wg.2).
-        
-        Args:
-            pin_x: Pin X coordinate in mm
-            pin_y: Pin Y coordinate in mm
-            step_x: X step direction (-1, 0, or 1)
-            step_y: Y step direction (-1, 0, or 1)
-            escape_length: Length of escape route in cells
-        
-        Returns:
-            True if route was successfully created, False if out of bounds
-        """
-        pin_gx, pin_gy = self._world_to_grid(pin_x, pin_y)
-
-        # Check if route is viable (within bounds)
-        # NOTE: We don't check if cells are blocked because block_components()
-        # runs first and blocks component bodies. We need to unblock the escape
-        # path to create a corridor from the pin to the board routing area.
-        for step in range(escape_length):
-            check_gx = pin_gx + step * step_x
-            check_gy = pin_gy + step * step_y
-
-            # Bounds check only - don't check blocking status
-            if not (0 <= check_gx < self.grid_size[0] and 0 <= check_gy < self.grid_size[1]):
+    def _try_escape_route(self, pin_x: float, pin_y: float, step_x: int, step_y: int, escape_length: int) -> bool:
+        gx, gy = self._world_to_grid(pin_x, pin_y)
+        for s in range(escape_length):
+            if not (0 <= gx+s*step_x < self.grid_size[0] and 0 <= gy+s*step_y < self.grid_size[1]):
                 return False
-
-        # Route is viable, unblock it (this carves through blocked component body)
-        for step in range(escape_length):
-            unblock_gx = pin_gx + step * step_x
-            unblock_gy = pin_gy + step * step_y
-
-            for layer in range(self.num_layers):
-                self.occupancy = self.occupancy.at[unblock_gx, unblock_gy, layer].set(0)
-
+        for s in range(escape_length):
+            for l in range(self.num_layers):
+                self.occupancy[gx+s*step_x, gy+s*step_y, l] = 0
         return True
 
-    def _create_pin_escape_routes(
-        self,
-        comp: Component,
-        cx: float,
-        cy: float,
-        escape_length: int | None = None,
-    ) -> None:
-        """Create escape routes from component pins with multi-direction support.
-
-        For each pin, tries to create an escape route in the primary direction
-        (outward from component center). If blocked, tries perpendicular directions.
-        This handles corner pins that may be blocked on their primary escape.
-
-        Args:
-            comp: Component with pins
-            cx: Component center X position
-            cy: Component center Y position
-            escape_length: Optional explicit length for escape routes
-        """
+    def _create_pin_escape_routes(self, comp: Component, cx: float, cy: float, escape_length: int | None = None) -> None:
         for pin in comp.pins:
-            # Compute absolute pin position
-            pin_x = cx + pin.position[0]
-            pin_y = cy + pin.position[1]
-
-            # Compute adaptive escape length
-            if escape_length is not None:
-                escape_len = escape_length
-            else:
-                escape_len = self._compute_escape_length(pin_x, pin_y, comp)
-
-            # Get primary escape direction (temper-74wg.2)
-            primary_x, primary_y = self._get_primary_escape_direction(pin.position)
-
-            # Try directions: primary, then perpendiculars (temper-74wg.2)
-            directions = [
-                (primary_x, primary_y),  # Primary
-                (primary_y, -primary_x),  # 90° clockwise
-                (-primary_y, primary_x),  # 90° counter-clockwise
-            ]
-
-            # Try each direction until one succeeds
-            for step_x, step_y in directions:
-                if self._try_escape_route(pin_x, pin_y, step_x, step_y, escape_len):
-                    break  # Success, move to next pin
+            px, py = cx + pin.position[0], cy + pin.position[1]
+            elen = escape_length if escape_length is not None else self._compute_escape_length(px, py, comp)
+            sx, sy = self._get_primary_escape_direction(pin.position)
+            for dx, dy in [(sx, sy), (sy, -sx), (-sy, sx)]:
+                if self._try_escape_route(px, py, dx, dy, elen): break
 
     def _world_to_grid(self, x: float, y: float) -> tuple[int, int]:
-        """Convert world coordinates to grid coordinates.
-        
-        Uses rounding to ensure cells at boundaries are handled consistently.
-        This prevents floating-point precision issues where coordinates very
-        close to cell boundaries might map to unexpected cells.
-        """
-        gx = int(round((x - self.origin[0]) / self.cell_size))
-        gy = int(round((y - self.origin[1]) / self.cell_size))
-        return (
-            max(0, min(gx, self.grid_size[0] - 1)),
-            max(0, min(gy, self.grid_size[1] - 1)),
-        )
+        gx, gy = int(round((x - self.origin[0]) / self.cell_size)), int(round((y - self.origin[1]) / self.cell_size))
+        return max(0, min(gx, self.grid_size[0]-1)), max(0, min(gy, self.grid_size[1]-1))
 
     def _heuristic(self, a: GridCell, b: GridCell) -> float:
-        """Manhattan distance heuristic for A*."""
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.layer - b.layer) * 2
 
-    def _get_neighbors(
-        self,
-        cell: GridCell,
-        allow_layer_change: bool = False,
-        allowed_layers: list[int] | None = None,
-    ) -> list[GridCell]:
-        """Get valid neighboring cells for pathfinding.
+    def _compute_distance_map(self, target: GridCell, layer: int = 0) -> np.ndarray:
+        """Precompute obstacle-aware distance map via BFS from target.
+        
+        The distance map gives the true shortest path distance from any cell
+        to the target, accounting for obstacles. This provides a tight
+        (yet still admissible) heuristic for A*.
         
         Args:
-            cell: Current cell
-            allow_layer_change: Whether to allow layer transitions (vias)
-            allowed_layers: List of layer indices that can be used (None = all layers)
-        
+            target: Target grid cell
+            layer: Layer to compute distances on
+            
         Returns:
-            List of valid neighbor cells
+            3D array of distances (same shape as occupancy grid)
         """
-        neighbors: list[GridCell] = []
-
-        # Determine which layers are allowed
-        if allowed_layers is None:
-            allowed_layers = list(range(self.num_layers))
-
-        # 4-connected neighbors on same layer
-        # Prohibit horizontal routing on plane layers (via-only policy)
-        if not self.layer_stackup.is_plane_layer(cell.layer):
+        # Check cache
+        cache_key = (target.x, target.y, target.layer)
+        if hasattr(self, '_distance_map_cache') and cache_key in self._distance_map_cache:
+            return self._distance_map_cache[cache_key]
+        
+        # Initialize distance map with infinity
+        dist_map = np.full(
+            (self.grid_size[0], self.grid_size[1], self.num_layers),
+            float('inf'),
+            dtype=np.float32
+        )
+        
+        # BFS from target
+        from collections import deque
+        queue = deque([target])
+        dist_map[target.x, target.y, target.layer] = 0.0
+        
+        while queue:
+            cell = queue.popleft()
+            current_dist = dist_map[cell.x, cell.y, cell.layer]
+            
+            # Check all 4-connected neighbors (Manhattan)
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nx, ny = cell.x + dx, cell.y + dy
-                # Check if free (0) - not blocked (1) or routed (2)
-                if (
-                    0 <= nx < self.grid_size[0]
-                    and 0 <= ny < self.grid_size[1]
-                    and cell.layer in allowed_layers  # Check current layer is allowed
-                    and int(self.occupancy[nx, ny, cell.layer]) == 0
-                ):
-                    neighbors.append(GridCell(nx, ny, cell.layer))
+                
+                # Bounds check
+                if not (0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]):
+                    continue
+                
+                # Skip blocked cells
+                if self.occupancy[nx, ny, cell.layer] == -1:
+                    continue
+                
+                # Update distance if shorter path found
+                new_dist = current_dist + 1.0
+                if new_dist < dist_map[nx, ny, cell.layer]:
+                    dist_map[nx, ny, cell.layer] = new_dist
+                    queue.append(GridCell(nx, ny, cell.layer))
+        
+        # Cache the result
+        if not hasattr(self, '_distance_map_cache'):
+            self._distance_map_cache = {}
+        self._distance_map_cache[cache_key] = dist_map
+        
+        return dist_map
 
-        # Layer transitions (vias)
-        if allow_layer_change and self.num_layers > 1:
-            for new_layer in allowed_layers:  # Only consider allowed layers
-                if new_layer != cell.layer and int(self.occupancy[cell.x, cell.y, new_layer]) == 0:
-                    neighbors.append(GridCell(cell.x, cell.y, new_layer))
+    def _clear_distance_map_cache(self) -> None:
+        """Clear distance map cache (call when occupancy changes)."""
+        if hasattr(self, '_distance_map_cache'):
+            self._distance_map_cache.clear()
 
-        return neighbors
-
-    def find_path(
+    def find_path_rrr_adaptive(
         self,
         start: tuple[int, int],
         end: tuple[int, int],
@@ -555,387 +439,902 @@ class MazeRouter:
         allow_layer_change: bool = False,
         allowed_layers: list[int] | None = None,
         cost_map: Array | None = None,
+        p_scale: float = 1.0
     ) -> list[GridCell] | None:
-        """Find path between two points using A*.
-
+        """Find path using A* with adaptive (distance map) heuristic.
+        
+        Uses precomputed distance map as heuristic instead of Manhattan distance.
+        This provides a tighter bound and reduces A* search iterations.
+        
         Args:
-            start: (x, y) start position in grid coordinates
-            end: (x, y) end position in grid coordinates
+            start, end: Grid coordinates
             layer: Starting layer
-            allow_layer_change: Whether to allow layer transitions
-            allowed_layers: List of layer indices that can be used (None = all layers)
-            cost_map: Dynamic cost map for pathfinding.
-
+            allow_layer_change: Allow vias
+            allowed_layers: Layers that can be used
+            cost_map: Optional routing cost map
+            p_scale: Congestion penalty scale
+            
         Returns:
-            List of GridCells forming the path, or None if no path exists
+            Path as list of GridCells, or None if no path exists
         """
-        start_cell = GridCell(start[0], start[1], layer)
-        end_cell = GridCell(end[0], end[1], layer)
-
-        # Check if start/end are valid
-        if int(self.occupancy[start[0], start[1], layer]) != 0:
-            return None
-        if int(self.occupancy[end[0], end[1], layer]) != 0:
-            # Try other layers for end point
-            found_end = False
-            for layer_idx in range(self.num_layers):
-                if int(self.occupancy[end[0], end[1], layer_idx]) == 0:
-                    end_cell = GridCell(end[0], end[1], layer_idx)
-                    found_end = True
-                    break
-            if not found_end:
+        # Prepare cost arrays for fast lookup
+        self._prepare_cost_arrays()
+        
+        try:
+            start_cell, end_cell = GridCell(start[0], start[1], layer), GridCell(end[0], end[1], layer)
+            
+            # Handle blocked start/end
+            if int(self.occupancy[start[0], start[1], layer]) == -1:
                 return None
-
-        # A* algorithm
-        open_set: list[tuple[float, int, GridCell]] = []  # (f_score, counter, cell)
-        counter = 0  # Tiebreaker for heap
-        heapq.heappush(open_set, (0, counter, start_cell))
-
-        came_from: dict[GridCell, GridCell] = {}
-        g_score: dict[GridCell, float] = {start_cell: 0}
-        f_score: dict[GridCell, float] = {start_cell: self._heuristic(start_cell, end_cell)}
-
-        visited: set[GridCell] = set()
-
-        while open_set:
-            _, _, current = heapq.heappop(open_set)
-
-            # Count iterations for stats
-            self.stats.total_astar_iterations += 1
-
-            if current in visited:
-                continue
-            visited.add(current)
-
-            if current.x == end_cell.x and current.y == end_cell.y:
-                # Reconstruct path
-                path = [current]
-                while current in came_from:
-                    current = came_from[current]
-                    path.append(current)
-                path.reverse()
-                return path
-
-            for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
-                if neighbor in visited:
+            if int(self.occupancy[end[0], end[1], layer]) == -1:
+                for l in range(self.num_layers):
+                    if int(self.occupancy[end[0], end[1], l]) != -1:
+                        end_cell = GridCell(end[0], end[1], l)
+                        break
+                else:
+                    return None
+            
+            # Compute distance map for adaptive heuristic
+            dist_map = self._compute_distance_map(end_cell, layer=layer)
+            
+            # A* with distance map heuristic
+            open_set = [(0.0, 0, start_cell, 0.0)]  # (f_score, counter, cell, g_score)
+            counter = 0
+            came_from = {}
+            g_score = {start_cell: 0.0}
+            visited = set()
+            
+            while open_set:
+                _, _, current, current_g = heapq.heappop(open_set)
+                self.stats.total_astar_iterations += 1
+                
+                if current in visited:
                     continue
+                visited.add(current)
+                
+                # Goal test
+                if current.x == end_cell.x and current.y == end_cell.y:
+                    # Reconstruct path
+                    path = [current]
+                    while current in came_from:
+                        current = came_from[current]
+                        path.append(current)
+                    path.reverse()
+                    return path
+                
+                # Explore neighbors
+                for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
+                    if neighbor in visited:
+                        continue
+                    
+                    move_cost = self._get_neighbor_cost(current, neighbor, cost_map, p_scale=p_scale)
+                    tentative_g = current_g + move_cost
+                    
+                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                        came_from[neighbor] = current
+                        g_score[neighbor] = tentative_g
+                        
+                        # Use distance map as heuristic (admissible and tight)
+                        h_score = float(dist_map[neighbor.x, neighbor.y, neighbor.layer])
+                        if h_score == float('inf'):
+                            # If unreachable in distance map, fall back to Manhattan
+                            h_score = self._heuristic(neighbor, end_cell)
+                        
+                        f_score = tentative_g + h_score
+                        counter += 1
+                        heapq.heappush(open_set, (f_score, counter, neighbor, tentative_g))
+            
+            return None  # No path found
+        
+        finally:
+            # Clear cached arrays
+            self._clear_cost_arrays()
 
-                # Use dynamic neighbor cost (includes via penalty and cost_map)
-                move_cost = self._get_neighbor_cost(current, neighbor, cost_map)
-                tentative_g = g_score[current] + move_cost
-
-                if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                    came_from[neighbor] = current
-                    g_score[neighbor] = tentative_g
-                    f = tentative_g + self._heuristic(neighbor, end_cell)
-                    f_score[neighbor] = f
-                    counter += 1
-                    heapq.heappush(open_set, (f, counter, neighbor))
-
-        return None  # No path found
-
-    def route_net(
+    def route_net_adaptive(
         self,
         net_name: str,
         pin_positions: list[tuple[float, float]],
         assignment: "LayerAssignment",
         cost_map: Array | None = None,
+        p_scale: float = 1.0
     ) -> RoutePath:
-        """Route a single net between its pins.
-
-        For multi-pin nets, uses a simple star topology (first pin to all others).
-
+        """Route a net using adaptive A* heuristic.
+        
+        Uses distance map heuristic for more efficient pathfinding.
+        
         Args:
-            net_name: Name of the net
-            pin_positions: List of (x, y) pin positions in world coordinates
-            assignment: Layer assignment for this net
-            cost_map: Optional semantic routing cost field.
-
+            net_name: Net name
+            pin_positions: Pin positions in world coordinates
+            assignment: Layer assignment
+            cost_map: Optional cost map
+            p_scale: Congestion scale
+            
         Returns:
             RoutePath with routing result
         """
         from temper_placer.routing.layer_assignment import Layer
-
+        
         if len(pin_positions) < 2:
-            return RoutePath(
-                net=net_name,
-                cells=[],
-                length=0.0,
-                via_count=0,
-                success=True,
-            )
-
-        # Determine layer index
-        layer = 0 if assignment.primary_layer == Layer.L1_TOP else 1
-        if layer >= self.num_layers:
-            layer = 0
-
-        # Check if layer changes are allowed
-        allow_via = len(assignment.allowed_layers) > 1
-
-        # Convert pin positions to grid coordinates
+            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            self.routed_paths[net_name] = res
+            return res
+        
+        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
-
-        # Temporarily unblock pin positions (pins are routing targets even if
-        # inside component footprint)
-        original_values: list[tuple[int, int, int, int]] = []
+        
+        # Temporarily unblock pin locations
+        original_occupancy = []
         for gx, gy in grid_pins:
-            for layer_idx in range(self.num_layers):
-                val = int(self.occupancy[gx, gy, layer_idx])
-                if val == 1:  # Blocked
-                    original_values.append((gx, gy, layer_idx, val))
-                    self.occupancy = self.occupancy.at[gx, gy, layer_idx].set(0)
-
-        # Route from first pin to all others (star topology)
-        all_cells: list[GridCell] = []
-        total_vias = 0
-        start_grid = grid_pins[0]
-
+            for l in range(self.num_layers):
+                if self.occupancy[gx, gy, l] == -1:
+                    original_occupancy.append((gx, gy, l, -1))
+                    self.occupancy[gx, gy, l] = 0
+        
+        all_cells, total_vias, start_grid = [], 0, grid_pins[0]
         for i in range(1, len(grid_pins)):
-            end_grid = grid_pins[i]
-
-            path = self.find_path(start_grid, end_grid, layer, allow_via, cost_map=cost_map)
-
+            # Use adaptive pathfinding
+            path = self.find_path_rrr_adaptive(
+                start_grid, grid_pins[i], layer, allow_via,
+                cost_map=cost_map, p_scale=p_scale
+            )
+            
             if path is None:
-                return RoutePath(
+                # Restore occupancy on failure
+                for gx, gy, l, v in original_occupancy:
+                    self.occupancy[gx, gy, l] = v
+                res = RoutePath(
+                    net=net_name, cells=all_cells,
+                    length=float(len(all_cells)), via_count=total_vias,
+                    success=False)
+                self.routed_paths[net_name] = res
+                return res
+            
+            # Count vias
+            for j in range(1, len(path)):
+                if path[j].layer != path[j-1].layer:
+                    total_vias += 1
+            
+            if all_cells:
+                path = path[1:]
+            all_cells.extend(path)
+        
+        # Mark cells as occupied
+        unique_cells = set(all_cells)
+        for cell in unique_cells:
+            self.occupancy[cell.x, cell.y, cell.layer] = 2
+            self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
+            key = (cell.x, cell.y, cell.layer)
+            if key not in self.net_occupancy:
+                self.net_occupancy[key] = set()
+            self.net_occupancy[key].add(net_name)
+        
+        # Restore original occupancy
+        for gx, gy, l, v in original_occupancy:
+            self.occupancy[gx, gy, l] = v
+        
+        res = RoutePath(
+            net=net_name, cells=list(unique_cells),
+            length=float(len(all_cells)), via_count=total_vias,
+            success=True
+        )
+        self.routed_paths[net_name] = res
+        return res
+
+
+    def _get_neighbors(self, cell: GridCell, allow_layer_change: bool = False, allowed_layers: list[int] | None = None) -> list[GridCell]:
+        neighbors = []
+        layers = allowed_layers if allowed_layers is not None else list(range(self.num_layers))
+        if not self.layer_stackup.is_plane_layer(cell.layer):
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                nx, ny = cell.x + dx, cell.y + dy
+                if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1] and cell.layer in layers and int(self.occupancy[nx, ny, cell.layer]) != -1:
+                    neighbors.append(GridCell(nx, ny, cell.layer))
+        if allow_layer_change and self.num_layers > 1:
+            for nl in layers:
+                if nl != cell.layer and int(self.occupancy[cell.x, cell.y, nl]) != -1:
+                    neighbors.append(GridCell(cell.x, cell.y, nl))
+        return neighbors
+
+    def find_path(self, start: tuple[int, int], end: tuple[int, int], layer: int = 0, allow_layer_change: bool = False, allowed_layers: list[int] | None = None, cost_map: Array | None = None) -> list[GridCell] | None:
+        return self.find_path_rrr(start, end, layer, allow_layer_change, allowed_layers, cost_map, p_scale=1.0)
+
+    def _find_escape_point(self, pin_pos: tuple[float, float], radius: int = 5, layer: int = 0) -> tuple[int, int] | None:
+        """Find nearest unblocked grid cell from a pin position using BFS.
+        
+        Args:
+            pin_pos: World coordinates (x, y) of the pin
+            radius: Maximum search radius in grid cells
+            layer: Layer to search on
+            
+        Returns:
+            Grid coordinates (gx, gy) of escape point, or None if trapped
+        """
+        pin_gx, pin_gy = self._world_to_grid(*pin_pos)
+        
+        # If pin cell is already free, return it
+        if self.occupancy[pin_gx, pin_gy, layer] != -1:
+            return (pin_gx, pin_gy)
+        
+        # BFS to find closest free cell
+        from collections import deque
+        queue = deque([(pin_gx, pin_gy, 0)])  # (x, y, distance)
+        visited = set([(pin_gx, pin_gy)])
+        
+        while queue:
+            gx, gy, dist = queue.popleft()
+            
+            # Check if we've exceeded search radius
+            if dist > radius:
+                break
+            
+            # Check all 4 neighbors
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                nx, ny = gx + dx, gy + dy
+                
+                # Bounds check
+                if not (0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]):
+                    continue
+                
+                # Skip if already visited
+                if (nx, ny) in visited:
+                    continue
+                visited.add((nx, ny))
+                
+                # Check if this cell is free
+                if self.occupancy[nx, ny, layer] != -1:
+                    return (nx, ny)
+                
+                # Add to queue for further exploration
+                queue.append((nx, ny, dist + 1))
+        
+        # No escape point found within radius
+        return None
+
+    def route_net_with_escape(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
+        """Route a net using two-stage routing with pin escape.
+        
+        Stage 1: Find escape points for each pin (nearest unblocked cell)
+        Stage 2: Route between escape points using A*
+        
+        Args:
+            net_name: Name of the net
+            pin_positions: List of pin positions in world coordinates
+            assignment: Layer assignment for the net
+            cost_map: Optional cost map for routing strategy
+            p_scale: Congestion penalty scale factor
+            
+        Returns:
+            RoutePath with success and failure_reason set appropriately
+        """
+        from temper_placer.routing.layer_assignment import Layer
+        
+        if len(pin_positions) < 2:
+            # Single-pin or empty nets don't need routing
+            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            self.routed_paths[net_name] = res
+            return res
+        
+        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        
+        # Stage 1: Find escape points for all pins
+        escape_points = []
+        for pin_pos in pin_positions:
+            escape_pt = self._find_escape_point(pin_pos, radius=10, layer=layer)
+            if escape_pt is None:
+                # Pin is trapped - cannot route
+                res = RoutePath(
+                    net=net_name,
+                    cells=[],
+                    length=0.0,
+                    via_count=0,
+                    success=False,
+                    failure_reason="pin_blocked"
+                )
+                self.routed_paths[net_name] = res
+                return res
+            escape_points.append(escape_pt)
+        
+        # Stage 2: Route between escape points using existing RRR routing
+        # Convert escape points back to world coordinates for routing
+        escape_world_coords = [
+            (gx * self.cell_size + self.origin[0], gy * self.cell_size + self.origin[1])
+            for gx, gy in escape_points
+        ]
+        
+        # Use the existing RRR routing logic
+        return self.route_net_rrr(net_name, escape_world_coords, assignment, cost_map, p_scale)
+
+    def route_net_mst(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
+        """Route a multi-pin net using MST-based topology.
+        
+        Instead of routing pins in arbitrary order (chain: A→B→C),
+        uses Minimum Spanning Tree to determine optimal connection order.
+        This reduces total wirelength for 3+ pin nets.
+        
+        Args:
+            net_name: Name of the net
+            pin_positions: List of pin positions in world coordinates
+            assignment: Layer assignment for the net
+            cost_map: Optional cost map for routing strategy
+            p_scale: Congestion penalty scale factor
+            
+        Returns:
+            RoutePath with routing result
+        """
+        from temper_placer.routing.steiner import mst_routing_order
+        from temper_placer.routing.layer_assignment import Layer
+        
+        if len(pin_positions) < 2:
+            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            self.routed_paths[net_name] = res
+            return res
+        
+        if len(pin_positions) == 2:
+            # For 2 pins, MST is just regular routing
+            return self.route_net_rrr(net_name, pin_positions, assignment, cost_map, p_scale)
+        
+        # Compute MST routing order
+        routing_pairs = mst_routing_order(pin_positions)
+        
+        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        allow_via = len(assignment.allowed_layers) > 1 if assignment else True
+        
+        # Convert all pins to grid coordinates
+        grid_pins = {i: self._world_to_grid(x, y) for i, (x, y) in enumerate(pin_positions)}
+        
+        # Temporarily unblock pin locations
+        original_occupancy = []
+        for gx, gy in grid_pins.values():
+            for l in range(self.num_layers):
+                if self.occupancy[gx, gy, l] == -1:
+                    original_occupancy.append((gx, gy, l, -1))
+                    self.occupancy[gx, gy, l] = 0
+        
+        all_cells, total_vias = [], 0
+        routed_segments = set()  # Track which segments we've routed
+        
+        # Route each MST edge
+        for pin_a_idx, pin_b_idx in routing_pairs:
+            # Skip if already routed (MST is undirected but we route once)
+            segment = (min(pin_a_idx, pin_b_idx), max(pin_a_idx, pin_b_idx))
+            if segment in routed_segments:
+                continue
+            routed_segments.add(segment)
+            
+            start_grid = grid_pins[pin_a_idx]
+            end_grid = grid_pins[pin_b_idx]
+            
+            path = self.find_path_rrr(start_grid, end_grid, layer, allow_via, cost_map=cost_map, p_scale=p_scale)
+            
+            if path is None:
+                # Routing failed - restore occupancy and return failure
+                for gx, gy, l, v in original_occupancy:
+                    self.occupancy[gx, gy, l] = v
+                res = RoutePath(
                     net=net_name,
                     cells=all_cells,
                     length=float(len(all_cells)),
                     via_count=total_vias,
                     success=False,
-                    failure_reason=f"No path from {start_grid} to {end_grid}",
+                    failure_reason="mst_routing_failed"
                 )
-
-            # Count vias in this segment
+                self.routed_paths[net_name] = res
+                return res
+            
+            # Count vias
             for j in range(1, len(path)):
-                if path[j].layer != path[j - 1].layer:
+                if path[j].layer != path[j-1].layer:
                     total_vias += 1
-
-            # Add path cells (skip duplicate start point after first segment)
-            if all_cells:
-                path = path[1:]  # Skip start point
+            
             all_cells.extend(path)
-
-            # Mark cells as routed
-            for cell in path:
-                if int(self.occupancy[cell.x, cell.y, cell.layer]) == 0:
-                    self.occupancy = self.occupancy.at[cell.x, cell.y, cell.layer].set(2)
-
-        return RoutePath(
+        
+        # Mark cells as occupied
+        unique_cells = set(all_cells)
+        for cell in unique_cells:
+            self.occupancy[cell.x, cell.y, cell.layer] = 2
+            self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
+            key = (cell.x, cell.y, cell.layer)
+            if key not in self.net_occupancy:
+                self.net_occupancy[key] = set()
+            self.net_occupancy[key].add(net_name)
+        
+        # Restore original occupancy
+        for gx, gy, l, v in original_occupancy:
+            self.occupancy[gx, gy, l] = v
+        
+        res = RoutePath(
             net=net_name,
-            cells=all_cells,
+            cells=list(unique_cells),
             length=float(len(all_cells)),
             via_count=total_vias,
-            success=True,
+            success=True
         )
+        self.routed_paths[net_name] = res
+        return res
 
-    def route_all_nets(
+    def route_net_mst_with_escape(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
+        """Route net with both MST topology and pin escape.
+        
+        Combines two optimizations:
+        1. Pin escape (find unblocked cells for pins)
+        2. MST routing (optimal topology for multi-pin nets)
+        
+        Args:
+            net_name: Name of the net
+            pin_positions: List of pin positions in world coordinates
+            assignment: Layer assignment for the net
+            cost_map: Optional cost map
+            p_scale: Congestion penalty scale
+            
+        Returns:
+            RoutePath with routing result
+        """
+        from temper_placer.routing.layer_assignment import Layer
+        
+        if len(pin_positions) < 2:
+            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            self.routed_paths[net_name] = res
+            return res
+        
+        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        
+        # Stage 1: Find escape points for all pins
+        escape_points = []
+        for pin_pos in pin_positions:
+            escape_pt = self._find_escape_point(pin_pos, radius=10, layer=layer)
+            if escape_pt is None:
+                res = RoutePath(
+                    net=net_name,
+                    cells=[],
+                    length=0.0,
+                    via_count=0,
+                    success=False,
+                    failure_reason="pin_blocked"
+                )
+                self.routed_paths[net_name] = res
+                return res
+            escape_points.append(escape_pt)
+        
+        # Stage 2: Route using MST topology
+        escape_world_coords = [
+            (gx * self.cell_size + self.origin[0], gy * self.cell_size + self.origin[1])
+            for gx, gy in escape_points
+        ]
+        
+        return self.route_net_mst(net_name, escape_world_coords, assignment, cost_map, p_scale)
+
+    def route_net(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None) -> RoutePath:
+        return self.route_net_rrr(net_name, pin_positions, assignment, cost_map, p_scale=1.0)
+
+    def rrr_route_all_nets(
         self,
         netlist: Netlist,
         positions: Array,
         net_order: list[str],
         assignments: dict[str, "LayerAssignment"],
+        cost_maps: dict[str, Array] | None = None,
+        max_iterations: int = 20,
+        history_increment: float = 1.0,
+        history_decay: float = 0.9,
+        p_scale_start: float = 1.0,
+        p_scale_step: float = 2.0,
+        progress_callback: Callable[[RoutingProgress], None] | None = None,
+        incremental: bool = True,
+        validate_final: bool = False,
     ) -> dict[str, RoutePath]:
-        """Route all nets in priority order.
-
-        Args:
-            netlist: Netlist with components and nets
-            positions: (N, 2) array of component positions
-            net_order: List of net names in routing order
-            assignments: Layer assignments for each net
-
-        Returns:
-            Dictionary mapping net names to RoutePath results
-        """
+        """Route all nets using iterative Rip-up and Reroute (RRR)."""
+        from tqdm import tqdm # Import here to avoid dependency issues if not installed
+        
         start_time = time.perf_counter()
-        results: dict[str, RoutePath] = {}
-        times_per_net: list[float] = []
-
-        # Build component index
-        comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
-
-        # Build net lookup
+        self.block_components(netlist.components, positions)
         net_by_name = {n.name: n for n in netlist.nets}
-
+        comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
+        all_pin_positions = {}
         for net_name in net_order:
-            if net_name not in net_by_name:
-                continue
-
-            net_start = time.perf_counter()
+            if net_name not in net_by_name: continue
             net = net_by_name[net_name]
+            pin_positions = []
+            for comp_ref, pin_name in net.pins:
+                if comp_ref in comp_by_ref:
+                    comp_idx, comp = comp_by_ref[comp_ref]
+                    for pin in comp.pins:
+                        if pin.name == pin_name or pin.number == pin_name:
+                            pin_positions.append(pin.absolute_position(tuple(positions[comp_idx]), math.radians((comp.initial_rotation or 0)*90)))
+                            break
+            all_pin_positions[net_name] = pin_positions
 
-            # Collect pin positions
-            pin_positions: list[tuple[float, float]] = []
-            for pin_ref in net.pins:
-                comp_ref, pin_name = pin_ref
-                if comp_ref not in comp_by_ref:
-                    continue
+        progress_history: list[RoutingProgress] = []
+        forced_reroute: set[str] = set()  # Nets to force reroute next iteration
+        
+        for iteration in range(max_iterations):
+            iter_start = time.perf_counter()
+            p_scale = p_scale_start + iteration * p_scale_step
+            
+            # Determine which nets to route this iteration
+            if iteration == 0 or not incremental:
+                nets_to_route = [n for n in net_order if n in all_pin_positions]
+            else:
+                # Only reroute nets involved in conflicts + forced reroute (blockers)
+                # Shuffle order to break symmetry and explore different solutions
+                conflicted = set(self._get_conflicted_nets())
+                conflicted.update(forced_reroute)  # Add blocking nets from previous iteration
+                nets_to_route = list(conflicted)
+                random.shuffle(nets_to_route)
+                forced_reroute.clear()  # Reset for this iteration
+            
+            print(f"  RRR Iteration {iteration+1}/{max_iterations} (p_scale={p_scale:.1f})")
+            
+            # Track failed routes and their blockers
+            failed_nets: list[str] = []
+            blocking_nets_to_add: set[str] = set()
+            
+            # Route nets with progress bar
+            with tqdm(total=len(nets_to_route), desc=f"Iter {iteration+1}", unit="net") as pbar:
+                for net_name in nets_to_route:
+                    if net_name not in all_pin_positions: 
+                        pbar.update(1)
+                        continue
+                        
+                    self.rip_up_net(net_name)
+                    result = self.route_net_rrr(net_name, all_pin_positions[net_name], assignments.get(net_name), cost_maps.get(net_name) if cost_maps else None, p_scale=p_scale)
+                    
+                    # If route failed, find blocking nets
+                    if not result.success:
+                        failed_nets.append(net_name)
+                        pins = all_pin_positions[net_name]
+                        if len(pins) >= 2:
+                            blockers = self._find_blocking_nets(pins[0], pins[1])
+                            blocking_nets_to_add.update(blockers)
+                    
+                    pbar.update(1)
+            
+            # Add blocking nets to next iteration's reroute list
+            if blocking_nets_to_add:
+                forced_reroute.update(blocking_nets_to_add)
+                print(f"    Found {len(blocking_nets_to_add)} blocking nets: {', '.join(list(blocking_nets_to_add)[:3])}{'...' if len(blocking_nets_to_add) > 3 else ''}")
+            
+            # Analyze conflicts (computed once, reused for status update)
+            overlap_conflicts, bottleneck_conflicts, conflicted_nets = self._analyze_conflicts()
+            total_conflicts = overlap_conflicts + bottleneck_conflicts
+            conflicted_set = set(conflicted_nets)  # For O(1) lookups
+            
+            # Update convergence status for all routed nets (using cached set)
+            for net_name in nets_to_route:
+                if net_name in self.routed_paths:
+                    result = self.routed_paths[net_name]
+                    is_conflicted = net_name in conflicted_set if result.success else True
+                    self._update_net_status(net_name, result, is_conflicted)
+            
+            # Calculate metrics
+            iter_time_ms = (time.perf_counter() - iter_start) * 1000.0
+            nets_routed = sum(1 for r in self.routed_paths.values() if r.success)
+            nets_failed = len(self.routed_paths) - nets_routed
+            total_vias = sum(r.via_count for r in self.routed_paths.values())
+            total_length = sum(r.length for r in self.routed_paths.values())
+            avg_length = total_length / max(1, len(self.routed_paths))
+            nets_per_sec = len(nets_to_route) / max(0.001, iter_time_ms / 1000.0)
+            
+            progress = RoutingProgress(
+                iteration=iteration + 1,
+                total_iterations=max_iterations,
+                p_scale=p_scale,
+                total_conflicts=total_conflicts,
+                overlap_conflicts=overlap_conflicts,
+                bottleneck_conflicts=bottleneck_conflicts,
+                nets_routed=nets_routed,
+                nets_failed=nets_failed,
+                avg_path_length=avg_length,
+                total_vias=total_vias,
+                iteration_time_ms=iter_time_ms,
+                nets_per_second=nets_per_sec,
+                conflicted_nets=conflicted_nets,
+            )
+            progress_history.append(progress)
+            
+            # Print progress
+            print(f"  RRR Iteration {iteration+1}/{max_iterations} (p_scale={p_scale:.1f})")
+            print(f"    Conflicts: {total_conflicts} (overlap: {overlap_conflicts}, bottleneck: {bottleneck_conflicts})")
+            print(f"    Routed: {nets_routed}, Failed: {nets_failed}, Vias: {total_vias}")
+            print(f"    Time: {iter_time_ms:.0f}ms ({nets_per_sec:.1f} nets/s)")
+            if conflicted_nets and len(conflicted_nets) <= 5:
+                print(f"    Conflicted nets: {', '.join(conflicted_nets)}")
+            elif conflicted_nets:
+                print(f"    Conflicted nets: {len(conflicted_nets)} nets")
+            
+            # Callback
+            if progress_callback:
+                progress_callback(progress)
+            
+            if total_conflicts == 0:
+                print(f"  ✓ Routing complete - no conflicts!")
+                break
+            
+            self.update_congestion_costs(history_increment)
+            self.decay_history_costs(history_decay)
+            
+        self.stats.total_time_ms = (time.perf_counter() - start_time) * 1000.0
+        self.stats.nets_routed = sum(1 for r in self.routed_paths.values() if r.success)
+        self.progress_history = progress_history
+        
+        # Optional final validation
+        if validate_final:
+            from temper_placer.routing.routing_invariants import validate_no_overlaps, validate_route_result, format_violations
+            
+            # Validate each route
+            all_violations = []
+            for route in self.routed_paths.values():
+                all_violations.extend(validate_route_result(route, self))
+            
+            if all_violations:
+                print(format_violations(all_violations))
+            
+            # Check for final overlaps
+            overlaps = validate_no_overlaps(self.routed_paths)
+            if overlaps:
+                print(f"  ⚠ Final overlap check: {len(overlaps)} overlapping cells")
+                for net1, net2, cell in overlaps[:5]:
+                    print(f"    {net1} ↔ {net2} at ({cell[0]}, {cell[1]}, L{cell[2]+1})")
+        
+        return self.routed_paths
 
-                comp_idx, comp = comp_by_ref[comp_ref]
-                cx, cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
+    def _analyze_conflicts(self) -> tuple[int, int, list[str]]:
+        """Analyze and classify conflicts.
+        
+        Returns:
+            Tuple of (overlap_conflicts, bottleneck_conflicts, conflicted_nets)
+            - overlap_conflicts: cells with exactly 2 nets
+            - bottleneck_conflicts: cells with 3+ nets (severe)
+            - conflicted_nets: list of net names involved in conflicts
+        """
+        overlap_count = 0
+        bottleneck_count = 0
+        conflicted_nets: set[str] = set()
+        
+        for (x, y, layer), nets in self.net_occupancy.items():
+            if len(nets) == 2:
+                overlap_count += 1
+                conflicted_nets.update(nets)
+            elif len(nets) > 2:
+                bottleneck_count += 1
+                conflicted_nets.update(nets)
+        
+        return overlap_count, bottleneck_count, sorted(conflicted_nets)
 
-                # Find pin offset
-                for pin in comp.pins:
-                    if pin.name == pin_name or pin.number == pin_name:
-                        px = cx + pin.position[0]
-                        py = cy + pin.position[1]
-                        pin_positions.append((px, py))
-                        break
+    def _get_conflicted_nets(self) -> list[str]:
+        """Get list of nets involved in conflicts for incremental rerouting.
+        
+        Excludes nets that have converged (stable conflict-free for threshold iterations).
+        """
+        conflicted: set[str] = set()
+        for nets in self.net_occupancy.values():
+            if len(nets) > 1:
+                conflicted.update(nets)
+        
+        # Exclude converged nets
+        non_converged = [n for n in conflicted if not self._is_net_converged(n)]
+        return sorted(non_converged)
+    
+    def _find_blocking_nets(self, start: tuple[float, float], end: tuple[float, float], radius: int = 5) -> set[str]:
+        """Find nets that are blocking the path between start and end.
+        
+        Looks at cells along the Manhattan path between start and end
+        and identifies which nets occupy those cells.
+        """
+        blockers: set[str] = set()
+        
+        # Convert to grid coordinates
+        start_grid = self._world_to_grid(start[0], start[1])
+        end_grid = self._world_to_grid(end[0], end[1])
+        
+        # Sample cells along Manhattan path
+        x0, y0 = start_grid
+        x1, y1 = end_grid
+        
+        # Check cells in bounding box with some radius
+        min_x = max(0, min(x0, x1) - radius)
+        max_x = min(self.grid_size[0], max(x0, x1) + radius)
+        min_y = max(0, min(y0, y1) - radius)
+        max_y = min(self.grid_size[1], max(y0, y1) + radius)
+        
+        for x in range(min_x, max_x):
+            for y in range(min_y, max_y):
+                for layer in range(self.num_layers):
+                    key = (x, y, layer)
+                    if key in self.net_occupancy:
+                        blockers.update(self.net_occupancy[key])
+        
+        return blockers
 
-            # Get assignment
-            assignment = assignments.get(net_name)
-            if assignment is None:
-                from temper_placer.routing.layer_assignment import Layer, LayerAssignment
+    def _is_net_converged(self, net_name: str, threshold: int = 2) -> bool:
+        """Check if a net has converged (conflict-free for threshold iterations)."""
+        status = self._net_status.get(net_name)
+        if not status:
+            return False
+        return status.converged or status.conflict_free_count >= threshold
 
-                assignment = LayerAssignment(
-                    net=net_name,
-                    primary_layer=Layer.L4_BOT,
-                    allowed_layers={Layer.L4_BOT},
-                    vias_required=False,
-                    reason="Default",
-                )
+    def _compute_path_hash(self, cells: list[GridCell]) -> int:
+        """Compute a hash of a path for change detection."""
+        if not cells:
+            return 0
+        return hash(tuple((c.x, c.y, c.layer) for c in cells))
 
-            # Route the net
-            result = self.route_net(net_name, pin_positions, assignment)
-            results[net_name] = result
-
-            net_end = time.perf_counter()
-            times_per_net.append((net_end - net_start) * 1000.0) # ms
-
-        # Update stats
-        total_time = (time.perf_counter() - start_time) * 1000.0
-        self.stats.total_time_ms = total_time
-        self.stats.nets_routed = sum(1 for r in results.values() if r.success)
-        self.stats.nets_failed = len(results) - self.stats.nets_routed
-
-        if times_per_net:
-            self.stats.avg_time_per_net_ms = sum(times_per_net) / len(times_per_net)
-            self.stats.max_time_per_net_ms = max(times_per_net)
-
-        if self.stats.nets_routed > 0:
-            self.stats.avg_iterations_per_path = (
-                self.stats.total_astar_iterations / self.stats.nets_routed
+    def _update_net_status(self, net_name: str, path: RoutePath, is_conflicted: bool) -> None:
+        """Update convergence status for a net after routing."""
+        new_hash = self._compute_path_hash(path.cells)
+        
+        status = self._net_status.get(net_name)
+        if status is None:
+            self._net_status[net_name] = NetStatus(
+                net_name=net_name,
+                path_hash=new_hash,
+                conflict_free_count=0 if is_conflicted else 1,
+                converged=False,
+            )
+            return
+        
+        # Check if path changed
+        path_changed = status.path_hash != new_hash
+        
+        if is_conflicted or path_changed:
+            # Reset convergence counter
+            self._net_status[net_name] = NetStatus(
+                net_name=net_name,
+                path_hash=new_hash,
+                conflict_free_count=0,
+                converged=False,
+            )
+        else:
+            # Increment conflict-free counter
+            new_count = status.conflict_free_count + 1
+            self._net_status[net_name] = NetStatus(
+                net_name=net_name,
+                path_hash=new_hash,
+                conflict_free_count=new_count,
+                converged=new_count >= 2,
             )
 
-        return results
+    def route_net_rrr(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
+        from temper_placer.routing.layer_assignment import Layer
+        if len(pin_positions) < 2:
+            # Single-pin or empty nets don't need routing
+            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            self.routed_paths[net_name] = res
+            return res
+        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        allow_via = len(assignment.allowed_layers) > 1 if assignment else True
+        grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
+        
+        # Temporarily unblock pin locations
+        original_occupancy = []
+        for gx, gy in grid_pins:
+            for l in range(self.num_layers):
+                if self.occupancy[gx, gy, l] == -1:
+                    original_occupancy.append((gx, gy, l, -1))
+                    self.occupancy[gx, gy, l] = 0
+        
+        all_cells, total_vias, start_grid = [], 0, grid_pins[0]
+        for i in range(1, len(grid_pins)):
+            path = self.find_path_rrr(start_grid, grid_pins[i], layer, allow_via, cost_map=cost_map, p_scale=p_scale)
+            if path is None:
+                # Restore original occupancy on failure
+                for gx, gy, l, v in original_occupancy:
+                    self.occupancy[gx, gy, l] = v
+                res = RoutePath(net=net_name, cells=all_cells, length=float(len(all_cells)), via_count=total_vias, success=False)
+                self.routed_paths[net_name] = res
+                return res
+            for j in range(1, len(path)):
+                if path[j].layer != path[j-1].layer:
+                    total_vias += 1
+            if all_cells:
+                path = path[1:]
+            all_cells.extend(path)
+        
+        unique_cells = set(all_cells)
+        for cell in unique_cells:
+            self.occupancy[cell.x, cell.y, cell.layer] = 2
+            self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
+            key = (cell.x, cell.y, cell.layer)
+            if key not in self.net_occupancy:
+                self.net_occupancy[key] = set()
+            self.net_occupancy[key].add(net_name)
+        
+        # Restore original occupancy
+        for gx, gy, l, v in original_occupancy:
+            self.occupancy[gx, gy, l] = v
+        
+        res = RoutePath(net=net_name, cells=list(unique_cells), length=float(len(all_cells)), via_count=total_vias, success=True)
+        self.routed_paths[net_name] = res
+        return res
 
+    def find_path_rrr(self, start: tuple[int, int], end: tuple[int, int], layer: int = 0, allow_layer_change: bool = False, allowed_layers: list[int] | None = None, cost_map: Array | None = None, p_scale: float = 1.0) -> list[GridCell] | None:
+        """Find path using A* with RRR cost function.
+        
+        Uses numpy array caching for faster cost lookups during pathfinding.
+        """
+        # Prepare cached arrays for fast neighbor cost lookups
+        self._prepare_cost_arrays()
+        
+        try:
+            start_cell, end_cell = GridCell(start[0], start[1], layer), GridCell(end[0], end[1], layer)
+            if int(self.occupancy[start[0], start[1], layer]) == -1:
+                return None
+            if int(self.occupancy[end[0], end[1], layer]) == -1:
+                for l in range(self.num_layers):
+                    if int(self.occupancy[end[0], end[1], l]) != -1:
+                        end_cell = GridCell(end[0], end[1], l)
+                        break
+                else:
+                    return None
+            open_set, counter = [(0.0, 0, start_cell, 0.0)], 0
+            came_from, g_score, visited = {}, {start_cell: 0.0}, set()
+            while open_set:
+                _, _, current, current_g = heapq.heappop(open_set)
+                self.stats.total_astar_iterations += 1
+                if current in visited:
+                    continue
+                visited.add(current)
+                if current.x == end_cell.x and current.y == end_cell.y:
+                    path = [current]
+                    while current in came_from:
+                        current = came_from[current]
+                        path.append(current)
+                    path.reverse()
+                    return path
+                for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
+                    if neighbor in visited:
+                        continue
+                    move_cost = self._get_neighbor_cost(current, neighbor, cost_map, p_scale=p_scale)
+                    tentative_g = current_g + move_cost
+                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                        came_from[neighbor], g_score[neighbor] = current, tentative_g
+                        counter += 1
+                        heapq.heappush(open_set, (tentative_g + self._heuristic(neighbor, end_cell), counter, neighbor, tentative_g))
+            return None
+        finally:
+            # Always clear cached arrays
+            self._clear_cost_arrays()
+
+    def route_all_nets(self, netlist: Netlist, positions: Array, net_order: list[str], assignments: dict[str, "LayerAssignment"]) -> dict[str, RoutePath]:
+        return self.rrr_route_all_nets(netlist, positions, net_order, assignments, max_iterations=1)
+
+    def get_conflict_locations(self) -> list[dict]:
+        """Return coordinates and nets for all conflicted cells."""
+        conflicts = []
+        for (x, y, layer), nets in self.net_occupancy.items():
+            if len(nets) > 1:
+                conflicts.append({
+                    "x": int(x),
+                    "y": int(y),
+                    "layer": int(layer),
+                    "nets": sorted(list(nets)),
+                    "world_x": x * self.cell_size + self.origin[0],
+                    "world_y": y * self.cell_size + self.origin[1]
+                })
+        return conflicts
 
 def compute_completion_rate(results: dict[str, RoutePath]) -> float:
-    """Compute fraction of successfully routed nets.
+    if not results: return 1.0
+    return sum(1 for r in results.values() if r.success) / len(results)
 
-    Args:
-        results: Dictionary of routing results
+def compute_net_metrics(net_name: str, pin_positions: list[tuple[float, float]]) -> NetMetrics:
+    if len(pin_positions) < 2: return NetMetrics(net_name, len(pin_positions), 0.0, 0.0, _is_power_net(net_name), _is_ground_net(net_name))
+    xs, ys = [p[0] for p in pin_positions], [p[1] for p in pin_positions]
+    w, h = max(xs)-min(xs), max(ys)-min(ys)
+    return NetMetrics(net_name, len(pin_positions), w*h, w+h, _is_power_net(net_name), _is_ground_net(net_name))
 
-    Returns:
-        Completion rate from 0.0 to 1.0
-    """
-    if not results:
-        return 1.0
+def _is_power_net(n: str) -> bool: return any(x in n.upper() for x in ['VCC', 'VDD', '3V3', '5V', '12V', 'VBUS', 'VBAT', 'V+'])
+def _is_ground_net(n: str) -> bool: return any(x in n.upper() for x in ['GND', 'VSS', 'AGND', 'DGND', 'PGND', 'V-'])
 
-    successful = sum(1 for r in results.values() if r.success)
-    return successful / len(results)
-
-
-def compute_net_metrics(
-    net_name: str,
-    pin_positions: list[tuple[float, float]],
-) -> NetMetrics:
-    """Compute metrics for a single net (temper-74wg.3).
-    
-    Args:
-        net_name: Name of the net
-        pin_positions: List of (x, y) pin positions in mm
-    
-    Returns:
-        NetMetrics with computed values
-    """
-    if len(pin_positions) < 2:
-        return NetMetrics(
-            net_name=net_name,
-            pin_count=len(pin_positions),
-            bounding_box_area=0.0,
-            estimated_wirelength=0.0,
-            is_power=_is_power_net(net_name),
-            is_ground=_is_ground_net(net_name),
-        )
-
-    xs = [p[0] for p in pin_positions]
-    ys = [p[1] for p in pin_positions]
-
-    # Bounding box
-    bbox_width = max(xs) - min(xs)
-    bbox_height = max(ys) - min(ys)
-    bbox_area = bbox_width * bbox_height
-
-    # Wirelength estimate: half-perimeter of bounding box
-    wirelength = bbox_width + bbox_height
-
-    return NetMetrics(
-        net_name=net_name,
-        pin_count=len(pin_positions),
-        bounding_box_area=bbox_area,
-        estimated_wirelength=wirelength,
-        is_power=_is_power_net(net_name),
-        is_ground=_is_ground_net(net_name),
-    )
-
-
-def _is_power_net(net_name: str) -> bool:
-    """Check if net is a power net."""
-    power_names = ['VCC', 'VDD', '3V3', '5V', '12V', 'VBUS', 'VBAT', 'V+']
-    return any(name in net_name.upper() for name in power_names)
-
-
-def _is_ground_net(net_name: str) -> bool:
-    """Check if net is a ground net."""
-    ground_names = ['GND', 'VSS', 'AGND', 'DGND', 'PGND', 'V-']
-    return any(name in net_name.upper() for name in ground_names)
-
-
-def order_nets_for_routing(
-    net_names: list[str],
-    net_pin_positions: dict[str, list[tuple[float, float]]],
-    strategy: str = 'shortest_first',
-) -> list[str]:
-    """Order nets for routing using specified strategy (temper-74wg.3).
-    
-    Args:
-        net_names: List of net names to order
-        net_pin_positions: Dict mapping net names to pin positions
-        strategy: Ordering strategy:
-            - 'shortest_first': Route shortest nets first (by wirelength)
-            - 'smallest_bbox': Route nets with smallest bounding box first
-            - 'power_first': Route power/ground nets first, then by wirelength
-            - 'arbitrary': No reordering (original order)
-    
-    Returns:
-        Ordered list of net names
-    """
-    if strategy == 'arbitrary':
-        return net_names
-
-    # Compute metrics for all nets
-    metrics_list = [
-        compute_net_metrics(name, net_pin_positions.get(name, []))
-        for name in net_names
-    ]
-
-    # Create (net_name, metrics) pairs
-    net_metrics_pairs = list(zip(net_names, metrics_list))
-
-    if strategy == 'shortest_first':
-        net_metrics_pairs.sort(key=lambda x: x[1].estimated_wirelength)
-    elif strategy == 'smallest_bbox':
-        net_metrics_pairs.sort(key=lambda x: x[1].bounding_box_area)
+def order_nets_for_routing(net_names: list[str], net_pin_positions: dict[str, list[tuple[float, float]]], strategy: str = 'shortest_first') -> list[str]:
+    if strategy == 'arbitrary': return net_names
+    mlist = [compute_net_metrics(n, net_pin_positions.get(n, [])) for n in net_names]
+    pairs = list(zip(net_names, mlist))
+    if strategy == 'shortest_first': pairs.sort(key=lambda x: x[1].estimated_wirelength)
+    elif strategy == 'smallest_bbox': pairs.sort(key=lambda x: x[1].bounding_box_area)
     elif strategy == 'power_first':
-        # Separate power/ground from signal nets
-        power_nets = [(n, m) for n, m in net_metrics_pairs if m.is_power or m.is_ground]
-        signal_nets = [(n, m) for n, m in net_metrics_pairs if not m.is_power and not m.is_ground]
-
-        # Sort signals by wirelength
-        signal_nets.sort(key=lambda x: x[1].estimated_wirelength)
-
-        # Power/ground first, then signals
-        net_metrics_pairs = power_nets + signal_nets
-
-    return [name for name, _ in net_metrics_pairs]
+        pwr = [x for x in pairs if x[1].is_power or x[1].is_ground]
+        sig = [x for x in pairs if not (x[1].is_power or x[1].is_ground)]
+        sig.sort(key=lambda x: x[1].estimated_wirelength)
+        pairs = pwr + sig
+    return [n for n, _ in pairs]
