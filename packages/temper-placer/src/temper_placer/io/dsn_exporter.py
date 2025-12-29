@@ -391,9 +391,12 @@ class DSNExporter:
                     dsn_list("circuit", dsn_list("use_via", "VIA")),
                     dsn_list("rule", dsn_list("width", 25), dsn_list("clearance", 20)),
                 ]
-                # Add layer preference for inner (power) layers if available
-                if inner_layers:
-                    power_class_items.append(dsn_list("use_layer", *inner_layers))
+                # Allow power nets on all layers. Restricting to inner layers causes failures
+                # when planes are split or components are isolated (e.g. J_AC_IN in HV zone).
+                # We include all layers to ensure routability.
+                all_layers = outer_layers + inner_layers
+                if all_layers:
+                    power_class_items.append(dsn_list("use_layer", *all_layers))
                 class_exprs.append(dsn_list(*power_class_items))
 
             # Signal net class - prefer outer layers, standard traces
