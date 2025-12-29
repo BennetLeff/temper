@@ -26,6 +26,7 @@ from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
+from temper_placer.routing.fast_router import HAS_NUMBA, find_path_astar_numba, dilate_grid_numba
 
 if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
@@ -45,6 +46,19 @@ class GridCell:
 
 
 @dataclass
+@dataclass
+class ProfileStats:
+    """Detailed performance profiling stats."""
+    prepare_costs_ms: float = 0.0
+    rip_up_ms: float = 0.0
+    astar_total_ms: float = 0.0
+    analyze_conflicts_ms: float = 0.0
+    numba_calls: int = 0
+    python_calls: int = 0
+    numba_time_ms: float = 0.0
+    python_time_ms: float = 0.0
+
+@dataclass
 class RoutingStats:
     """Statistics collected during routing."""
 
@@ -55,6 +69,7 @@ class RoutingStats:
     max_time_per_net_ms: float = 0.0
     total_astar_iterations: int = 0
     avg_iterations_per_path: float = 0.0
+    profile: ProfileStats = field(default_factory=ProfileStats)
 
 
 @dataclass
@@ -128,6 +143,7 @@ class MazeRouter:
         soft_blocking: bool = False,
         congestion_via_discount: float = 0.1,
         layer_balance_weight: float = 0.5,
+        min_clearance: float = 0.0,
     ):
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
@@ -136,6 +152,7 @@ class MazeRouter:
         self.via_cost = via_cost
         self.soft_blocking = soft_blocking  # Allow routing through occupied cells at high cost
         self.congestion_via_discount = congestion_via_discount  # Via cost multiplier in congested areas
+        self.min_clearance = min_clearance
 
         if layer_stackup is None:
             from temper_placer.core.board import LayerStackup
@@ -170,10 +187,20 @@ class MazeRouter:
 
 
     @classmethod
-    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1) -> "MazeRouter":
+    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0) -> "MazeRouter":
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
-        return cls(grid_size=(width_cells, height_cells), cell_size_mm=cell_size_mm, num_layers=num_layers, origin=board.origin, via_cost=via_cost, layer_stackup=getattr(board, 'layer_stackup', None), soft_blocking=soft_blocking, congestion_via_discount=congestion_via_discount)
+        return cls(
+            grid_size=(width_cells, height_cells),
+            cell_size_mm=cell_size_mm,
+            num_layers=num_layers,
+            origin=board.origin,
+            via_cost=via_cost,
+            layer_stackup=getattr(board, 'layer_stackup', None),
+            soft_blocking=soft_blocking,
+            congestion_via_discount=congestion_via_discount,
+            min_clearance=min_clearance,
+        )
 
     def rip_up_net(self, net_name: str) -> None:
         """Remove a net from the grid."""
@@ -296,9 +323,11 @@ class MazeRouter:
         
         Called at the start of find_path to avoid repeated JAX->Python conversion.
         """
+        t0 = time.perf_counter()
         self._history_np = np.asarray(self.history_cost)
         self._congestion_np = np.asarray(self.present_congestion)
         self._occupancy_np = np.asarray(self.occupancy)
+        self.stats.profile.prepare_costs_ms += (time.perf_counter() - t0) * 1000.0
 
     def _clear_cost_arrays(self) -> None:
         """Clear cached numpy arrays after path finding."""
@@ -666,7 +695,7 @@ class MazeRouter:
         
         res = RoutePath(
             net=net_name,
-            cells=list(unique_cells),
+            cells=all_cells,  # Ordered path for simplification
             length=float(len(all_cells)),
             via_count=total_vias,
             success=True,
@@ -926,7 +955,7 @@ class MazeRouter:
         
         res = RoutePath(
             net=net_name,
-            cells=list(unique_cells),
+            cells=all_cells,  # Ordered path for simplification
             length=float(len(all_cells)),
             via_count=total_vias,
             success=True,
@@ -1020,7 +1049,9 @@ class MazeRouter:
         from tqdm import tqdm # Import here to avoid dependency issues if not installed
         
         start_time = time.perf_counter()
-        self.block_components(netlist.components, positions)
+        # On multi-layer boards (>2), only block the component layer (usually Top) 
+        # to allow routing on inner/bottom layers.
+        self.block_components(netlist.components, positions, layer_specific=(self.num_layers > 2))
         net_by_name = {n.name: n for n in netlist.nets}
         comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
         all_pin_positions = {}
@@ -1069,7 +1100,9 @@ class MazeRouter:
                         pbar.update(1)
                         continue
                         
+                    t_rip = time.perf_counter()
                     self.rip_up_net(net_name)
+                    self.stats.profile.rip_up_ms += (time.perf_counter() - t_rip) * 1000.0
                     result = self.route_net_rrr(net_name, all_pin_positions[net_name], assignments.get(net_name), cost_maps.get(net_name) if cost_maps else None, p_scale=p_scale)
                     
                     # If route failed, find blocking nets
@@ -1088,7 +1121,9 @@ class MazeRouter:
                 print(f"    Found {len(blocking_nets_to_add)} blocking nets: {', '.join(list(blocking_nets_to_add)[:3])}{'...' if len(blocking_nets_to_add) > 3 else ''}")
             
             # Analyze conflicts (computed once, reused for status update)
+            t_conf = time.perf_counter()
             overlap_conflicts, bottleneck_conflicts, conflicted_nets = self._analyze_conflicts()
+            self.stats.profile.analyze_conflicts_ms += (time.perf_counter() - t_conf) * 1000.0
             total_conflicts = overlap_conflicts + bottleneck_conflicts
             conflicted_set = set(conflicted_nets)  # For O(1) lookups
             
@@ -1148,7 +1183,19 @@ class MazeRouter:
             
         self.stats.total_time_ms = (time.perf_counter() - start_time) * 1000.0
         self.stats.nets_routed = sum(1 for r in self.routed_paths.values() if r.success)
+        self.stats.nets_routed = sum(1 for r in self.routed_paths.values() if r.success)
         self.progress_history = progress_history
+
+        # Print profiling stats
+        print("\n=== Router Profiling Stats ===")
+        print(f"Total Time: {self.stats.total_time_ms:.1f}ms")
+        print(f"  - Cost Prep: {self.stats.profile.prepare_costs_ms:.1f}ms")
+        print(f"  - Rip-up: {self.stats.profile.rip_up_ms:.1f}ms")
+        print(f"  - A* Total: {self.stats.profile.astar_total_ms:.1f}ms")
+        print(f"    - Numba: {self.stats.profile.numba_time_ms:.1f}ms ({self.stats.profile.numba_calls} calls, {self.stats.profile.numba_time_ms/max(1,self.stats.profile.numba_calls):.3f}ms/call)")
+        print(f"    - Python: {self.stats.profile.python_time_ms:.1f}ms ({self.stats.profile.python_calls} calls, {self.stats.profile.python_time_ms/max(1,self.stats.profile.python_calls):.3f}ms/call)")
+        print(f"  - Conflict Analysis: {self.stats.profile.analyze_conflicts_ms:.1f}ms")
+        print("==============================\n")
         
         # Optional final validation
         if validate_final:
@@ -1302,17 +1349,29 @@ class MazeRouter:
             )
             self.routed_paths[net_name] = res
             return res
-        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        layer = 0
+        if assignment and assignment.primary_layer == Layer.L4_BOT:
+            layer = self.num_layers - 1
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
         
-        # Temporarily unblock pin locations
+        # Clear distance map cache to ensure fresh obstacle data for this net
+        self._clear_distance_map_cache()
+        
+        # Temporarily unblock pin locations causing "trapped in pad" issues
+        # Unblock a small radius around pins to ensure the router can escape the pad's blockage footprint
+        unblock_radius = max(2, int(0.8 / self.cell_size)) # 0.8mm radius
         original_occupancy = []
+        
         for gx, gy in grid_pins:
-            for l in range(self.num_layers):
-                if self.occupancy[gx, gy, l] == -1:
-                    original_occupancy.append((gx, gy, l, -1))
-                    self.occupancy[gx, gy, l] = 0
+            for dx in range(-unblock_radius, unblock_radius + 1):
+                for dy in range(-unblock_radius, unblock_radius + 1):
+                    nx, ny = gx + dx, gy + dy
+                    if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                        for l in range(self.num_layers):
+                            if self.occupancy[nx, ny, l] == -1:
+                                original_occupancy.append((nx, ny, l, -1))
+                                self.occupancy[nx, ny, l] = 0
         
         all_cells, total_vias, start_grid = [], 0, grid_pins[0]
         total_difficulty = 0.0
@@ -1324,6 +1383,7 @@ class MazeRouter:
                 # Restore original occupancy on failure
                 for gx, gy, l, v in original_occupancy:
                     self.occupancy[gx, gy, l] = v
+                
                 res = RoutePath(
                     net=net_name,
                     cells=all_cells,
@@ -1332,6 +1392,7 @@ class MazeRouter:
                     success=False,
                     difficulty=total_difficulty,
                     cell_difficulties=cell_difficulties,
+                    failure_reason=f"No path found from {start_grid} to {grid_pins[i]} (Start blocked? {self.occupancy[start_grid[0], start_grid[1], layer] == -1})",
                 )
                 self.routed_paths[net_name] = res
                 return res
@@ -1364,7 +1425,7 @@ class MazeRouter:
         
         res = RoutePath(
             net=net_name,
-            cells=list(unique_cells),
+            cells=all_cells,  # Ordered path for simplification
             length=float(len(all_cells)),
             via_count=total_vias,
             success=True,
@@ -1377,22 +1438,121 @@ class MazeRouter:
     def find_path_rrr(self, start: tuple[int, int], end: tuple[int, int], layer: int = 0, allow_layer_change: bool = False, allowed_layers: list[int] | None = None, cost_map: Array | None = None, p_scale: float = 1.0) -> list[GridCell] | None:
         """Find path using A* with RRR cost function.
         
-        Uses numpy array caching for faster cost lookups during pathfinding.
+        Uses Numba-accelerated implementation if available, otherwise falls back to Python.
         """
-        # Prepare cached arrays for fast neighbor cost lookups
+        # Prepare cached arrays for fast lookup
         self._prepare_cost_arrays()
         
-        try:
-            start_cell, end_cell = GridCell(start[0], start[1], layer), GridCell(end[0], end[1], layer)
-            if int(self.occupancy[start[0], start[1], layer]) == -1:
+        start_cell = GridCell(start[0], start[1], layer)
+        end_cell = GridCell(end[0], end[1], layer)
+
+        # Basic validity checks
+        if int(self.occupancy[start[0], start[1], layer]) == -1:
+            print(f"DEBUG: Start blocked at {start} L{layer}. Occ={self.occupancy[start[0], start[1], layer]}")
+            return None
+
+            
+        # If end is blocked on this layer, try to find a valid end layer
+        target_layer = layer
+        if int(self.occupancy[end[0], end[1], layer]) == -1:
+            found = False
+            for l in range(self.num_layers):
+                if int(self.occupancy[end[0], end[1], l]) != -1:
+                    target_layer = l
+                    end_cell = GridCell(end[0], end[1], l)
+                    found = True
+                    break
+            if not found:
                 return None
-            if int(self.occupancy[end[0], end[1], layer]) == -1:
-                for l in range(self.num_layers):
-                    if int(self.occupancy[end[0], end[1], l]) != -1:
-                        end_cell = GridCell(end[0], end[1], l)
-                        break
+        else:
+             target_layer = layer
+
+        # Compute clearance mask if needed
+        clearance_mask = None
+        if self.min_clearance > 0 and HAS_NUMBA:
+            radius = int(math.ceil(self.min_clearance / self.cell_size))
+            if radius > 0:
+                # Use cached numpy array from _prepare_cost_arrays
+                # If soft_blocking, only dilate hard blocks (-1) to allow RRR to resolve overlaps
+                # If hard blocking, dilate all obstacles
+                if self.soft_blocking:
+                    obstacles = (self._occupancy_np == -1).astype(np.int32)
                 else:
-                    return None
+                    obstacles = (self._occupancy_np != 0).astype(np.int32)
+                
+                # Don't block start and end points (e.g. pads)
+                # But start/end might be inside the clearance zone of another pin?
+                # Usually we want to allow connecting to the pad.
+                # Pad is -1?
+                # If start is at (sx, sy), obstacles[sx, sy] might be 1 if it's -1.
+                # But we checked self.occupancy[start] != -1 above? 
+                # Wait, usually pads are -1, but we unblock them temporarily in route_net_rrr.
+                # So obstacles[start] should be 0.
+                # However, if start is close to another pad, dilation might cover it.
+                # We should mask out start and end from clearance_mask.
+                
+                clearance_mask = dilate_grid_numba(obstacles, radius)
+                
+                # Clear start and end regions from mask to ensure reachability
+                # A small radius around start/end is safe
+                for gx, gy in [(start[0], start[1]), (end[0], end[1])]:
+                     # Clear a box of size radius around pin
+                     x_min, x_max = max(0, gx - radius), min(self.grid_size[0], gx + radius + 1)
+                     y_min, y_max = max(0, gy - radius), min(self.grid_size[1], gy + radius + 1)
+                     clearance_mask[x_min:x_max, y_min:y_max, :] = 0
+
+        # Try Numba implementation first
+        
+        
+        if HAS_NUMBA:
+            t_numba = time.perf_counter()
+            self.stats.profile.numba_calls += 1
+            try:
+                # Ensure arrays are contiguous and correct type
+                occ = self._occupancy_np.astype(np.int32)
+                hist = self._history_np.astype(np.float32)
+                cong = self._congestion_np.astype(np.float32)
+
+                # Convert cost_map to numpy if present
+                cmap = None
+                if cost_map is not None:
+                    cmap = np.asarray(cost_map, dtype=np.float32)
+                
+                path_coords = find_path_astar_numba(
+                    start[0], start[1], layer,
+                    end[0], end[1], target_layer,
+                    self.grid_size[0], self.grid_size[1], self.num_layers,
+                    occ, hist, cong,
+                    float(self.via_cost), float(p_scale),
+                    cmap,
+                    clearance_mask,
+                    self.soft_blocking  # Pass soft_blocking to Numba
+                )
+                
+                dt = (time.perf_counter() - t_numba) * 1000.0
+                self.stats.profile.numba_time_ms += dt
+                self.stats.profile.astar_total_ms += dt
+
+                if path_coords:
+                     # Convert back to GridCells
+                     return [GridCell(int(x), int(y), int(l)) for x, y, l in path_coords]
+                elif not path_coords:
+                     # Numba returned empty list -> no path found
+                     # But let's double check if it was really no path or just an issue? 
+                     # Actually if it returns empty, it means no path.
+                     return None
+            except Exception as e:
+                # Fallback to Python on any error
+                # Fallback to Python on any error
+                with open("numba_debug.log", "a") as f:
+                    f.write(f"Numba routing failed: {e}\n")
+                    import traceback
+                    traceback.print_exc(file=f)
+
+        # Python Fallback (Original Implementation)
+        t_python = time.perf_counter()
+        self.stats.profile.python_calls += 1
+        try:
             open_set, counter = [(0.0, 0, start_cell, 0.0)], 0
             came_from, g_score, visited = {}, {start_cell: 0.0}, set()
             while open_set:
@@ -1411,15 +1571,24 @@ class MazeRouter:
                 for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
                     if neighbor in visited:
                         continue
+                    
+                    # Clearance check for Python fallback
+                    if clearance_mask is not None:
+                        if clearance_mask[neighbor.x, neighbor.y, neighbor.layer] != 0:
+                            continue
+
                     move_cost = self._get_neighbor_cost(current, neighbor, cost_map, p_scale=p_scale)
                     tentative_g = current_g + move_cost
                     if neighbor not in g_score or tentative_g < g_score[neighbor]:
                         came_from[neighbor], g_score[neighbor] = current, tentative_g
                         counter += 1
                         heapq.heappush(open_set, (tentative_g + self._heuristic(neighbor, end_cell), counter, neighbor, tentative_g))
+            
+            dt = (time.perf_counter() - t_python) * 1000.0
+            self.stats.profile.python_time_ms += dt
+            self.stats.profile.astar_total_ms += dt
             return None
         finally:
-            # Always clear cached arrays
             self._clear_cost_arrays()
 
     def route_all_nets(self, netlist: Netlist, positions: Array, net_order: list[str], assignments: dict[str, "LayerAssignment"]) -> dict[str, RoutePath]:
