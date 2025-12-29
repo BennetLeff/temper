@@ -145,3 +145,50 @@ def test_export_from_kicad_pcb():
         # Spot check some content
         assert "(unit mm)" in s
         assert "(resolution um 1000)" in s
+
+
+def test_export_network_exclude_nets():
+    """Test that exclude_nets removes specified nets from the network section."""
+    board = Board(width=100, height=100)
+    netlist = Netlist(
+        components=[
+            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
+                Pin("1", "1", (0, 0)),
+                Pin("GND", "4", (0, 1)),
+            ]),
+            Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[
+                Pin("1", "1", (0, 0)),
+                Pin("2", "2", (1, 0)),
+            ]),
+            Component(ref="C1", footprint="0805", bounds=(2, 1), pins=[
+                Pin("1", "1", (0, 0)),
+                Pin("2", "2", (1, 0)),
+            ]),
+        ],
+        nets=[
+            Net(name="SIG1", pins=[("U1", "1"), ("R1", "1")]),
+            Net(name="GND", pins=[("U1", "4"), ("R1", "2"), ("C1", "2")]),
+            Net(name="VCC", pins=[("C1", "1")]),
+        ]
+    )
+    exporter = DSNExporter(board, netlist)
+    
+    # Without exclude_nets, GND should be present
+    network_with_gnd = exporter.export_network(exclude_nets=None)
+    s_with = str(network_with_gnd)
+    assert "(net GND" in s_with
+    assert "(net SIG1" in s_with
+    assert "(net VCC" in s_with
+    
+    # With exclude_nets={"GND"}, GND should be absent
+    network_without_gnd = exporter.export_network(exclude_nets={"GND"})
+    s_without = str(network_without_gnd)
+    assert "(net GND" not in s_without
+    assert "(net SIG1" in s_without
+    assert "(net VCC" in s_without
+    
+    # Test with export_pcb as well
+    pcb_dsn = exporter.export_pcb("test", exclude_nets={"GND"})
+    s_pcb = str(pcb_dsn)
+    assert "(net GND" not in s_pcb
+    assert "(net SIG1" in s_pcb

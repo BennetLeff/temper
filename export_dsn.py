@@ -1,17 +1,20 @@
 
-import sys
+import argparse
 from pathlib import Path
 import jax.numpy as jnp
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.dsn_exporter import DSNExporter
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python3 export_dsn.py <input.kicad_pcb> <output.dsn>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Export KiCad PCB to SPECCTRA DSN format")
+    parser.add_argument("input_pcb", type=Path, help="Input KiCad PCB file")
+    parser.add_argument("output_dsn", type=Path, help="Output DSN file")
+    parser.add_argument("--exclude-nets", type=str, default=None,
+                        help="Comma-separated list of nets to exclude from routing (e.g., GND,PGND)")
+    args = parser.parse_args()
 
-    input_pcb = Path(sys.argv[1])
-    output_dsn = Path(sys.argv[2])
+    input_pcb = args.input_pcb
+    output_dsn = args.output_dsn
 
     print(f"Parsing PCB: {input_pcb}")
     parse_result = parse_kicad_pcb(input_pcb)
@@ -32,10 +35,16 @@ def main():
     positions_array = jnp.array(positions)
     rotations_array = jnp.array(rotations)
 
+    # Parse exclude_nets argument
+    exclude_nets = None
+    if args.exclude_nets:
+        exclude_nets = set(n.strip() for n in args.exclude_nets.split(","))
+        print(f"Excluding nets from routing: {exclude_nets}")
+
     print(f"Exporting to DSN: {output_dsn} (Traces: Disabled)")
     exporter = DSNExporter(board, netlist, positions_array, rotations_array)
     # We pass None for traces to ensure a clean board for autorouting
-    dsn_content = str(exporter.export_pcb(traces=None))
+    dsn_content = str(exporter.export_pcb(traces=None, exclude_nets=exclude_nets))
     
     with open(output_dsn, "w") as f:
         f.write(dsn_content)
@@ -44,3 +53,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
