@@ -149,6 +149,7 @@ class UnifiedRouter:
         design_rules: Design rules with net class specifications
         maze_router: Maze router instance
         push_shove_grid: Push-shove grid state
+        hypergraph: Physics-Aware Hypergraph (for strategy inference)
     """
 
     def __init__(
@@ -156,6 +157,7 @@ class UnifiedRouter:
         board: Board,
         config: RoutingConfig | None = None,
         design_rules: DesignRules | None = None,
+        hypergraph: "PhysicsHypergraph | None" = None,
     ):
         """Initialize unified router.
 
@@ -163,10 +165,12 @@ class UnifiedRouter:
             board: PCB board specification
             config: Routing configuration (uses defaults if None)
             design_rules: Design rules with net class specs (uses defaults if None)
+            hypergraph: Physics-Aware Hypergraph for semantic routing.
         """
         self.board = board
         self.config = config or RoutingConfig()
         self.design_rules = design_rules or DesignRules()
+        self.hypergraph = hypergraph
 
         # Initialize maze router
         self.maze_router = MazeRouter.from_board(board, cell_size_mm=self.config.maze_cell_size)
@@ -184,6 +188,7 @@ class UnifiedRouter:
         board: Board,
         strategy: RoutingStrategy = RoutingStrategy.AUTO,
         design_rules: DesignRules | None = None,
+        hypergraph: "PhysicsHypergraph | None" = None,
         **config_kwargs,
     ) -> "UnifiedRouter":
         """Create router from board with optional configuration.
@@ -192,13 +197,14 @@ class UnifiedRouter:
             board: PCB board specification
             strategy: Routing strategy
             design_rules: Design rules with net class specs
+            hypergraph: Physics-Aware Hypergraph.
             **config_kwargs: Additional configuration parameters
 
         Returns:
             Configured unified router
         """
         config = RoutingConfig(strategy=strategy, **config_kwargs)
-        return cls(board, config, design_rules)
+        return cls(board, config, design_rules, hypergraph)
 
     def _init_push_shove_grid(self):
         """Initialize push-shove grid if not already created."""
@@ -211,7 +217,11 @@ class UnifiedRouter:
             self.push_shove_grid = ps.Grid(width=grid_width, height=grid_height, layers=num_layers)
 
     def _maze_route_net(
-        self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment"
+        self,
+        net_name: str,
+        pin_positions: list[tuple[float, float]],
+        assignment: "LayerAssignment",
+        cost_map: Array | None = None,
     ) -> UnifiedRoutePath:
         """Route net using maze router.
 
@@ -219,11 +229,12 @@ class UnifiedRouter:
             net_name: Net name
             pin_positions: Pin positions in world coordinates
             assignment: Layer assignment
+            cost_map: Optional semantic cost map.
 
         Returns:
             Unified route path result
         """
-        result = self.maze_router.route_net(net_name, pin_positions, assignment)
+        result = self.maze_router.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
         return UnifiedRoutePath(
             net=net_name,
@@ -394,7 +405,7 @@ class UnifiedRouter:
         collisions = []
         for existing_path in self._routed_paths:
             if ps.detect_collision(
-                path, existing_path, num_samples=self.config.push_shove_num_samples
+                path, existing_path, samples_per_mm=2.0 # Updated to use adaptive signature
             ):
                 collisions.append(existing_path)
 
@@ -433,7 +444,11 @@ class UnifiedRouter:
         )
 
     def route_net(
-        self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment"
+        self,
+        net_name: str,
+        pin_positions: list[tuple[float, float]],
+        assignment: "LayerAssignment",
+        cost_map: Array | None = None,
     ) -> UnifiedRoutePath:
         """Route a single net using configured strategy.
 
@@ -441,19 +456,20 @@ class UnifiedRouter:
             net_name: Net name
             pin_positions: Pin positions in world coordinates
             assignment: Layer assignment
+            cost_map: Optional semantic cost map.
 
         Returns:
             Unified routing result
         """
         if self.config.strategy == RoutingStrategy.MAZE_ONLY:
-            return self._maze_route_net(net_name, pin_positions, assignment)
+            return self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
         elif self.config.strategy == RoutingStrategy.PUSH_SHOVE_ONLY:
             return self._push_shove_route_net(net_name, pin_positions, assignment)
 
         elif self.config.strategy == RoutingStrategy.AUTO:
             # Try maze first
-            result = self._maze_route_net(net_name, pin_positions, assignment)
+            result = self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
             if result.success:
                 return result
@@ -464,7 +480,7 @@ class UnifiedRouter:
 
         elif self.config.strategy == RoutingStrategy.HYBRID:
             # Try both and pick best
-            maze_result = self._maze_route_net(net_name, pin_positions, assignment)
+            maze_result = self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
             ps_result = self._push_shove_route_net(net_name, pin_positions, assignment)
 
             # Pick based on success and path length
@@ -498,6 +514,14 @@ class UnifiedRouter:
         Returns:
             Dictionary of net name -> routing result
         """
+        from temper_placer.routing.bridge.api import get_routing_context, get_cost_map_for_net
+        from temper_placer.routing.bridge.types import RoutingStrategy as BridgeStrategy
+
+        # 1. Infer Routing Context if Hypergraph available
+        context = None
+        if self.hypergraph is not None:
+            context = get_routing_context(self.hypergraph, positions, self.board, netlist)
+
         # Block components in both routers
         self.maze_router.block_components(netlist.components, positions)
 
@@ -536,7 +560,25 @@ class UnifiedRouter:
             if assignment is None:
                 continue
 
-            result = self.route_net(net_name, pin_positions, assignment)
+            # 2. Apply Semantic Strategy
+            cost_map = None
+            if context:
+                # Check for Flood Fill (skip routing)
+                if context.get_strategy(net_name) == BridgeStrategy.FLOOD_FILL:
+                    results[net_name] = UnifiedRoutePath(
+                        net=net_name, success=True, method="deferred", failure_reason="Flood Fill"
+                    )
+                    continue
+                
+                # Get dynamic cost map
+                cost_map = get_cost_map_for_net(
+                    grid_size=self.maze_router.grid_size,
+                    cell_size_mm=self.maze_router.cell_size,
+                    context=context,
+                    net_id=net_name
+                )
+
+            result = self.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
             results[net_name] = result
 
         return results

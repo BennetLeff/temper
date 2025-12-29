@@ -68,6 +68,7 @@ class LossContext(BaseLossContext):
         mounting_rules: list[MountingRule] | None = None,
         path_constraints: list[CriticalPathConstraint] | None = None,
         matched_groups: list[MatchedLengthConstraint] | None = None,
+        spatial_penalties: Array | None = None,
         use_centrality_weighting: bool = False,
     ) -> LossContext:
         """
@@ -83,6 +84,7 @@ class LossContext(BaseLossContext):
             mounting_rules: Optional list of mounting rules.
             path_constraints: Optional list of critical path constraints.
             matched_groups: Optional list of matched length constraints.
+            spatial_penalties: Optional (K, 3) array of routing failure hotspots.
             use_centrality_weighting: If True, scale weights and step sizes
                 by component centrality (hub prioritization).
 
@@ -343,6 +345,7 @@ class LossContext(BaseLossContext):
             domain_star_points=domain_star_points,
             domain_has_star=domain_has_star,
             is_star_net=is_star_net,
+            spatial_penalties=spatial_penalties,
         )
 
         # 4. Build PhysicsHypergraph

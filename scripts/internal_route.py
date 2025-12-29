@@ -7,6 +7,7 @@ Routes a placed PCB using the internal MazeRouter and exports traces.
 import argparse
 import sys
 import time
+import math
 from pathlib import Path
 
 import jax.numpy as jnp
@@ -80,9 +81,18 @@ def main():
 
     # 3. Routing Order and Layer Assignment
     console.print("\n[bold cyan]Step 3:[/] Pre-routing analysis...")
+    
+    # NEW: Build Hypergraph for Physics-Aware Strategy Inference
+    from temper_placer.extraction.hypergraph_factory import netlist_to_hypergraph
+    from temper_placer.routing.bridge.api import get_routing_context, get_cost_map_for_net
+    
+    hg = netlist_to_hypergraph(netlist)
+    routing_ctx = get_routing_context(hg, positions, board, netlist)
+    
     net_order = order_nets(netlist, loops)
-    assignments = assign_layers(netlist)
+    assignments = assign_layers(netlist) # Use default constraints from layer_assignment.py
     console.print(f"  ✓ Determined routing order for {len(net_order)} nets")
+    console.print(f"  ✓ Inferred strategies for {len(routing_ctx.strategies)} nets")
 
     # 4. Routing
     console.print("\n[bold cyan]Step 4:[/] Running Maze Router...")
@@ -97,7 +107,45 @@ def main():
     
     console.print("  Routing all nets (A*)...")
     start_time = time.time()
-    results = router.route_all_nets(netlist, positions, net_order, assignments)
+    
+    # UPDATED: Sequential routing with dynamic cost maps from bridge
+    results = {}
+    for net_name in net_order:
+        # Get pin positions
+        pin_positions = []
+        net = netlist.get_net(net_name)
+        for comp_ref, pin_name in net.pins:
+            comp_idx = netlist.get_component_index(comp_ref)
+            comp = netlist.get_component(comp_ref)
+            pin = comp.get_pin(pin_name)
+            if pin:
+                pin_pos = pin.absolute_position(
+                    tuple(positions[comp_idx]), 
+                    math.radians((comp.initial_rotation or 0) * 90.0)
+                )
+                pin_positions.append(pin_pos)
+        
+        if len(pin_positions) < 2:
+            continue
+            
+        # Get semantic cost map
+        cost_map = get_cost_map_for_net(
+            grid_size=router.grid_size,
+            cell_size_mm=router.cell_size,
+            context=routing_ctx,
+            net_id=net_name
+        )
+        
+        # Determine assignment (fallback to default if missing)
+        assignment = assignments.get(net_name)
+        if not assignment:
+             from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+             assignment = LayerAssignment(net_name, Layer.L4_BOT, {Layer.L4_BOT}, False, "Default")
+
+        # Route with cost map
+        result = router.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
+        results[net_name] = result
+        
     elapsed = time.time() - start_time
     
     completion = compute_completion_rate(results)

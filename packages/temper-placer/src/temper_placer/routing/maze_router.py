@@ -205,12 +205,47 @@ class MazeRouter:
             layer_stackup=layer_stackup,
         )
 
-    def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell) -> float:
+    def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell, cost_map: Array | None = None) -> float:
         """Get cost of moving from current to neighbor cell."""
         base_cost = 1.0
+        
+        # Apply dynamic cost map if provided
+        if cost_map is not None:
+            # cost_map is expected to be (width, height) 2D array
+            base_cost = float(cost_map[neighbor.x, neighbor.y])
+
         if current.layer != neighbor.layer:
             return base_cost + self.via_cost
         return base_cost
+
+    def generate_cost_map(self, strategy: "RoutingStrategy") -> Array:
+        """
+        Generate a 2D cost map based on the requested routing strategy.
+        
+        Args:
+            strategy: The semantic strategy to employ.
+            
+        Returns:
+            (width, height) JAX array of float costs.
+        """
+        from temper_placer.routing.bridge.types import RoutingStrategy
+        
+        if strategy == RoutingStrategy.EDGE_HUG:
+            # Create a "valley" along the board edges
+            x = jnp.arange(self.grid_size[0])
+            y = jnp.arange(self.grid_size[1])
+            X, Y = jnp.meshgrid(x, y, indexing='ij')
+            
+            # Distance to nearest edge in cells
+            dist_x = jnp.minimum(X, self.grid_size[0] - 1 - X)
+            dist_y = jnp.minimum(Y, self.grid_size[1] - 1 - Y)
+            dist_edge = jnp.minimum(dist_x, dist_y)
+            
+            # Cost increases steeply as we move away from the edge
+            return 1.0 + dist_edge * 10.0
+            
+        # Default: uniform cost
+        return jnp.ones((self.grid_size[0], self.grid_size[1]), dtype=jnp.float32)
 
     def block_rect(
         self,
@@ -320,21 +355,18 @@ class MazeRouter:
 
         return float(jnp.clip(count_within_radius / max_components, 0.0, 1.0))
 
-    def _compute_escape_length(self, pin_x: float, pin_y: float) -> int:
-        """Compute adaptive escape length based on local density (temper-74wg.1).
-        
-        Args:
-            pin_x: Pin X coordinate in mm
-            pin_y: Pin Y coordinate in mm
-        
-        Returns:
-            Escape route length in cells
-        """
+    def _compute_escape_length(self, pin_x: float, pin_y: float, comp: Component | None = None) -> int:
+        """Compute adaptive escape length based on local density and component size."""
         density = self._compute_local_density(pin_x, pin_y)
         
-        # Base length in mm (e.g. 2.0mm to clear typical margins)
-        base_length_mm = 2.0
-        base_length = int(base_length_mm / self.cell_size)
+        # Base length: must be enough to exit the component itself
+        # typically max(width, height) / 2 + margin
+        if comp:
+            min_escape_mm = max(comp.width, comp.height) / 2 + 1.0
+        else:
+            min_escape_mm = 2.0
+            
+        base_length = int(math.ceil(min_escape_mm / self.cell_size))
 
         if density < 0.3:
             # Sparse area: longer escapes for better routing options
@@ -432,11 +464,11 @@ class MazeRouter:
             pin_x = cx + pin.position[0]
             pin_y = cy + pin.position[1]
 
-            # Compute adaptive escape length (temper-74wg.1)
+            # Compute adaptive escape length
             if escape_length is not None:
                 escape_len = escape_length
             else:
-                escape_len = self._compute_escape_length(pin_x, pin_y)
+                escape_len = self._compute_escape_length(pin_x, pin_y, comp)
 
             # Get primary escape direction (temper-74wg.2)
             primary_x, primary_y = self._get_primary_escape_direction(pin.position)
@@ -522,6 +554,7 @@ class MazeRouter:
         layer: int = 0,
         allow_layer_change: bool = False,
         allowed_layers: list[int] | None = None,
+        cost_map: Array | None = None,
     ) -> list[GridCell] | None:
         """Find path between two points using A*.
 
@@ -531,6 +564,7 @@ class MazeRouter:
             layer: Starting layer
             allow_layer_change: Whether to allow layer transitions
             allowed_layers: List of layer indices that can be used (None = all layers)
+            cost_map: Dynamic cost map for pathfinding.
 
         Returns:
             List of GridCells forming the path, or None if no path exists
@@ -586,8 +620,8 @@ class MazeRouter:
                 if neighbor in visited:
                     continue
 
-                # Use dynamic neighbor cost (includes via penalty)
-                move_cost = self._get_neighbor_cost(current, neighbor)
+                # Use dynamic neighbor cost (includes via penalty and cost_map)
+                move_cost = self._get_neighbor_cost(current, neighbor, cost_map)
                 tentative_g = g_score[current] + move_cost
 
                 if neighbor not in g_score or tentative_g < g_score[neighbor]:
@@ -605,6 +639,7 @@ class MazeRouter:
         net_name: str,
         pin_positions: list[tuple[float, float]],
         assignment: "LayerAssignment",
+        cost_map: Array | None = None,
     ) -> RoutePath:
         """Route a single net between its pins.
 
@@ -614,6 +649,7 @@ class MazeRouter:
             net_name: Name of the net
             pin_positions: List of (x, y) pin positions in world coordinates
             assignment: Layer assignment for this net
+            cost_map: Optional semantic routing cost field.
 
         Returns:
             RoutePath with routing result
@@ -658,7 +694,7 @@ class MazeRouter:
         for i in range(1, len(grid_pins)):
             end_grid = grid_pins[i]
 
-            path = self.find_path(start_grid, end_grid, layer, allow_via)
+            path = self.find_path(start_grid, end_grid, layer, allow_via, cost_map=cost_map)
 
             if path is None:
                 return RoutePath(

@@ -186,6 +186,9 @@ class ConstraintContext:
     domain_star_points: Array = None  # (D, 2)
     domain_has_star: Array = None  # (D,)
     is_star_net: Array = None  # (M,)
+    
+    # Spatial Feedback (from routing failures)
+    spatial_penalties: Array = None  # (K, 3) -> [x, y, magnitude]
 
     def tree_flatten(self):
         children = (
@@ -206,6 +209,7 @@ class ConstraintContext:
             self.domain_star_points,
             self.domain_has_star,
             self.is_star_net,
+            self.spatial_penalties,
         )
         aux_data = None
         return (children, aux_data)
@@ -336,6 +340,10 @@ class LossContext:
     @property
     def is_star_net(self) -> Array:
         return self.constraints_data.is_star_net if self.constraints_data.is_star_net is not None else jnp.zeros((0,), dtype=jnp.bool_)
+
+    @property
+    def spatial_penalties(self) -> Array:
+        return self.constraints_data.spatial_penalties if self.constraints_data.spatial_penalties is not None else jnp.zeros((0, 3))
 
     @property
     def loop_pin_indices(self) -> Array:
