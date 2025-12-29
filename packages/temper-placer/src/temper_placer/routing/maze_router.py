@@ -17,7 +17,7 @@ import heapq
 import math
 import random
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
@@ -28,6 +28,7 @@ from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
 
 if TYPE_CHECKING:
+    from temper_placer.core.board import LayerStackup
     from temper_placer.routing.layer_assignment import LayerAssignment
 
 
@@ -65,6 +66,8 @@ class RoutePath:
     length: float
     via_count: int
     success: bool
+    difficulty: float = 0.0
+    cell_difficulties: list[float] = field(default_factory=list)
     failure_reason: str | None = None
 
 
@@ -189,6 +192,33 @@ class MazeRouter:
                 )
         del self.routed_paths[net_name]
 
+    def _get_cell_difficulty(self, cell: GridCell) -> float:
+        """Compute difficulty score for a cell (temper-t3ek.2).
+
+        Difficulty increases if:
+        - Cell is adjacent to blocked cells (proximity to components)
+        - Cell is in a high-density area
+        """
+        difficulty = 0.0
+
+        # Proximity to blocked cells (components)
+        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            nx, ny = cell.x + dx, cell.y + dy
+            if (
+                0 <= nx < self.grid_size[0]
+                and 0 <= ny < self.grid_size[1]
+                and int(self.occupancy[nx, ny, cell.layer]) == -1
+            ):
+                difficulty += 0.5
+
+        # Add density-based difficulty (mm-space)
+        world_x = cell.x * self.cell_size + self.origin[0]
+        world_y = cell.y * self.cell_size + self.origin[1]
+        density = self._compute_local_density(world_x, world_y)
+        difficulty += density * 1.0
+
+        return difficulty
+
     def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell, cost_map: Array | None = None, p_scale: float = 1.0) -> float:
         """Compute cost to move from current to neighbor cell.
         
@@ -204,6 +234,9 @@ class MazeRouter:
         elif neighbor.layer == 1:  # L4 prefers vertical
             if neighbor.x != current.x:
                 wrong_way_cost = 2.0
+        
+        # Difficulty gradient (soft feedback for router)
+        diff = self._get_cell_difficulty(neighbor)
         
         # Use cached numpy arrays if available (much faster indexing)
         if self._history_np is not None:
@@ -232,7 +265,7 @@ class MazeRouter:
         
         strategy_mult = float(cost_map[neighbor.x, neighbor.y]) if cost_map is not None else 1.0
         
-        congestion_cost = (base_cost + wrong_way_cost + sharing_penalty + h) * (1.0 + p * p_scale)
+        congestion_cost = (base_cost + wrong_way_cost + sharing_penalty + h + diff) * (1.0 + p * p_scale)
         total_cost = strategy_mult * congestion_cost
         
         # Layer balance cost: encourage even distribution across layers
@@ -241,7 +274,7 @@ class MazeRouter:
             layer_usage = self.layer_usage_count.astype(np.float32)
             if np.sum(layer_usage) > 0:
                 mean_usage = np.mean(layer_usage)
-                std_usage = np.std(layer_usage)
+                # std_usage = np.std(layer_usage) # Unused but keeping for reference
                 
                 # Penalize moving to layer with above-average usage
                 if layer_usage[neighbor.layer] > mean_usage:
@@ -263,7 +296,6 @@ class MazeRouter:
         
         Called at the start of find_path to avoid repeated JAX->Python conversion.
         """
-        import numpy as np
         self._history_np = np.asarray(self.history_cost)
         self._congestion_np = np.asarray(self.present_congestion)
         self._occupancy_np = np.asarray(self.occupancy)
@@ -366,7 +398,7 @@ class MazeRouter:
     def _heuristic(self, a: GridCell, b: GridCell) -> float:
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.layer - b.layer) * 2
 
-    def _compute_distance_map(self, target: GridCell, layer: int = 0) -> np.ndarray:
+    def _compute_distance_map(self, target: GridCell, _layer: int = 0) -> np.ndarray:
         """Precompute obstacle-aware distance map via BFS from target.
         
         The distance map gives the true shortest path distance from any cell
@@ -475,7 +507,7 @@ class MazeRouter:
                     return None
             
             # Compute distance map for adaptive heuristic
-            dist_map = self._compute_distance_map(end_cell, layer=layer)
+            dist_map = self._compute_distance_map(end_cell, _layer=layer)
             
             # A* with distance map heuristic
             open_set = [(0.0, 0, start_cell, 0.0)]  # (f_score, counter, cell, g_score)
@@ -555,7 +587,15 @@ class MazeRouter:
         from temper_placer.routing.layer_assignment import Layer
         
         if len(pin_positions) < 2:
-            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
+            )
             self.routed_paths[net_name] = res
             return res
         
@@ -572,6 +612,9 @@ class MazeRouter:
                     self.occupancy[gx, gy, l] = 0
         
         all_cells, total_vias, start_grid = [], 0, grid_pins[0]
+        total_difficulty = 0.0
+        cell_difficulties: list[float] = []
+
         for i in range(1, len(grid_pins)):
             # Use adaptive pathfinding
             path = self.find_path_rrr_adaptive(
@@ -586,14 +629,22 @@ class MazeRouter:
                 res = RoutePath(
                     net=net_name, cells=all_cells,
                     length=float(len(all_cells)), via_count=total_vias,
-                    success=False)
+                    success=False,
+                    difficulty=total_difficulty,
+                    cell_difficulties=cell_difficulties,
+                    failure_reason=f"No path from {start_grid} to {grid_pins[i]}",
+                )
                 self.routed_paths[net_name] = res
                 return res
             
-            # Count vias
+            # Count vias and accumulate difficulty
             for j in range(1, len(path)):
                 if path[j].layer != path[j-1].layer:
                     total_vias += 1
+                
+                d = self._get_cell_difficulty(path[j])
+                total_difficulty += d
+                cell_difficulties.append(d)
             
             if all_cells:
                 path = path[1:]
@@ -614,9 +665,13 @@ class MazeRouter:
             self.occupancy[gx, gy, l] = v
         
         res = RoutePath(
-            net=net_name, cells=list(unique_cells),
-            length=float(len(all_cells)), via_count=total_vias,
-            success=True
+            net=net_name,
+            cells=list(unique_cells),
+            length=float(len(all_cells)),
+            via_count=total_vias,
+            success=True,
+            difficulty=total_difficulty,
+            cell_difficulties=cell_difficulties,
         )
         self.routed_paths[net_name] = res
         return res
@@ -711,7 +766,15 @@ class MazeRouter:
         
         if len(pin_positions) < 2:
             # Single-pin or empty nets don't need routing
-            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
+            )
             self.routed_paths[net_name] = res
             return res
         
@@ -729,6 +792,8 @@ class MazeRouter:
                     length=0.0,
                     via_count=0,
                     success=False,
+                    difficulty=0.0,
+                    cell_difficulties=[],
                     failure_reason="pin_blocked"
                 )
                 self.routed_paths[net_name] = res
@@ -766,7 +831,15 @@ class MazeRouter:
         from temper_placer.routing.layer_assignment import Layer
         
         if len(pin_positions) < 2:
-            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
+            )
             self.routed_paths[net_name] = res
             return res
         
@@ -792,6 +865,8 @@ class MazeRouter:
                     self.occupancy[gx, gy, l] = 0
         
         all_cells, total_vias = [], 0
+        total_difficulty = 0.0
+        cell_difficulties: list[float] = []
         routed_segments = set()  # Track which segments we've routed
         
         # Route each MST edge
@@ -817,15 +892,21 @@ class MazeRouter:
                     length=float(len(all_cells)),
                     via_count=total_vias,
                     success=False,
+                    difficulty=total_difficulty,
+                    cell_difficulties=cell_difficulties,
                     failure_reason="mst_routing_failed"
                 )
                 self.routed_paths[net_name] = res
                 return res
             
-            # Count vias
+            # Count vias and accumulate difficulty
             for j in range(1, len(path)):
                 if path[j].layer != path[j-1].layer:
                     total_vias += 1
+                
+                d = self._get_cell_difficulty(path[j])
+                total_difficulty += d
+                cell_difficulties.append(d)
             
             all_cells.extend(path)
         
@@ -848,7 +929,9 @@ class MazeRouter:
             cells=list(unique_cells),
             length=float(len(all_cells)),
             via_count=total_vias,
-            success=True
+            success=True,
+            difficulty=total_difficulty,
+            cell_difficulties=cell_difficulties,
         )
         self.routed_paths[net_name] = res
         return res
@@ -873,7 +956,15 @@ class MazeRouter:
         from temper_placer.routing.layer_assignment import Layer
         
         if len(pin_positions) < 2:
-            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
+            )
             self.routed_paths[net_name] = res
             return res
         
@@ -890,6 +981,8 @@ class MazeRouter:
                     length=0.0,
                     via_count=0,
                     success=False,
+                    difficulty=0.0,
+                    cell_difficulties=[],
                     failure_reason="pin_blocked"
                 )
                 self.routed_paths[net_name] = res
@@ -1198,7 +1291,15 @@ class MazeRouter:
         from temper_placer.routing.layer_assignment import Layer
         if len(pin_positions) < 2:
             # Single-pin or empty nets don't need routing
-            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=True)
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
+            )
             self.routed_paths[net_name] = res
             return res
         layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
@@ -1214,18 +1315,36 @@ class MazeRouter:
                     self.occupancy[gx, gy, l] = 0
         
         all_cells, total_vias, start_grid = [], 0, grid_pins[0]
+        total_difficulty = 0.0
+        cell_difficulties: list[float] = []
+
         for i in range(1, len(grid_pins)):
             path = self.find_path_rrr(start_grid, grid_pins[i], layer, allow_via, cost_map=cost_map, p_scale=p_scale)
             if path is None:
                 # Restore original occupancy on failure
                 for gx, gy, l, v in original_occupancy:
                     self.occupancy[gx, gy, l] = v
-                res = RoutePath(net=net_name, cells=all_cells, length=float(len(all_cells)), via_count=total_vias, success=False)
+                res = RoutePath(
+                    net=net_name,
+                    cells=all_cells,
+                    length=float(len(all_cells)),
+                    via_count=total_vias,
+                    success=False,
+                    difficulty=total_difficulty,
+                    cell_difficulties=cell_difficulties,
+                )
                 self.routed_paths[net_name] = res
                 return res
+            
+            # Count vias and accumulate difficulty
             for j in range(1, len(path)):
                 if path[j].layer != path[j-1].layer:
                     total_vias += 1
+                
+                d = self._get_cell_difficulty(path[j])
+                total_difficulty += d
+                cell_difficulties.append(d)
+
             if all_cells:
                 path = path[1:]
             all_cells.extend(path)
@@ -1243,7 +1362,15 @@ class MazeRouter:
         for gx, gy, l, v in original_occupancy:
             self.occupancy[gx, gy, l] = v
         
-        res = RoutePath(net=net_name, cells=list(unique_cells), length=float(len(all_cells)), via_count=total_vias, success=True)
+        res = RoutePath(
+            net=net_name,
+            cells=list(unique_cells),
+            length=float(len(all_cells)),
+            via_count=total_vias,
+            success=True,
+            difficulty=total_difficulty,
+            cell_difficulties=cell_difficulties,
+        )
         self.routed_paths[net_name] = res
         return res
 
