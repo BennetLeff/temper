@@ -26,12 +26,21 @@ class Pin:
         number: Pin number/pad number as string.
         position: (x, y) offset from component center in mm.
         net: Net name this pin connects to, or None if unconnected.
+        width: Pad width in mm (for DSN export).
+        height: Pad height in mm (for DSN export).
+        shape: Pad shape (rect, circle, oval, roundrect, thru_hole).
+        layer: Layer or "all" for through-hole pads.
     """
 
     name: str
     number: str
     position: tuple[float, float]
     net: str | None = None
+    width: float = 1.0
+    height: float = 1.0
+    shape: str = "rect"
+    layer: str = "F.Cu"
+
 
     def absolute_position(
         self,

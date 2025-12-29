@@ -331,17 +331,20 @@ class MazeRouter:
             Escape route length in cells
         """
         density = self._compute_local_density(pin_x, pin_y)
-        base_length = 3
+        
+        # Base length in mm (e.g. 2.0mm to clear typical margins)
+        base_length_mm = 2.0
+        base_length = int(base_length_mm / self.cell_size)
 
         if density < 0.3:
             # Sparse area: longer escapes for better routing options
-            return base_length + 4  # 7 cells
+            return base_length + int(2.0 / self.cell_size)
         elif density > 0.7:
             # Dense area: shorter escapes to avoid interference
-            return base_length  # 3 cells
+            return base_length
         else:
             # Medium density
-            return base_length + 2  # 5 cells
+            return base_length + int(1.0 / self.cell_size)
 
     def _get_primary_escape_direction(self, pin_offset: tuple[float, float]) -> tuple[int, int]:
         """Get primary escape direction from pin offset (temper-74wg.2).

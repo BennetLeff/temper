@@ -224,3 +224,11 @@ bd blocked
 - `AGENT_INSTRUCTIONS.md` - Detailed development guidelines
 - `bd-worktree-help` - Worktree command help
 - `bd-multiagent-help` - Multi-agent coordination help
+
+## Documentation & Context Maintenance
+
+**Critical Rules for AI Agents:**
+
+1.  **Context Awareness**: Before editing or using a script, check for a corresponding `*_INSTRUCTIONS.md` or `*_DESIGN.md` file in the same directory or project root (e.g., `AUTOMATED_PCB_DESIGN_INSTRUCTIONS.md`). Read it to understand the "Why" and "How" of the tool.
+2.  **Documentation Sync**: If you modify the logic of a script (e.g., `add_power_planes_v2.py`), you **MUST** update the corresponding instructions file to reflect the change. Code and documentation must never drift apart.
+3.  **Decision Logging**: Major architectural decisions must be recorded in `docs/` or the relevant `*_INSTRUCTIONS.md` file. Do not rely on git history alone.

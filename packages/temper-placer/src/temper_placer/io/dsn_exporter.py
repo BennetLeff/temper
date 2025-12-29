@@ -336,16 +336,18 @@ class DSNExporter:
         )
 
         for net in sorted_nets:
+            # Sanitize net names for SPECCTRA compatibility
+            clean_name = net.name.replace("+", "_PLUS").replace("-", "_MINUS")
+            
             # Skip nets that are connected via power planes
-            if exclude_nets and net.name in exclude_nets:
+            # Check both original name and sanitized name for exclusion
+            if exclude_nets and (net.name in exclude_nets or clean_name in exclude_nets):
                 excluded_count += 1
                 continue
             pin_refs = []
             for comp_ref, pin_num in net.pins:
                 pin_refs.append(f"{comp_ref}-{pin_num}")
 
-            # Sanitize net names for SPECCTRA compatibility
-            clean_name = net.name.replace("+", "_PLUS").replace("-", "_MINUS")
 
             if pin_refs:
                 net_exprs.append(dsn_list("net", clean_name, dsn_list("pins", *pin_refs)))
