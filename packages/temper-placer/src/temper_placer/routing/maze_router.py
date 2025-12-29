@@ -25,7 +25,7 @@ Example usage:
 import heapq
 import math
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import jax.numpy as jnp
@@ -89,6 +89,8 @@ class RoutePath:
     length: float
     via_count: int
     success: bool
+    difficulty: float = 0.0
+    cell_difficulties: list[float] = field(default_factory=list)
     failure_reason: str | None = None
 
 
@@ -205,12 +207,40 @@ class MazeRouter:
             layer_stackup=layer_stackup,
         )
 
+    def _get_cell_difficulty(self, cell: GridCell) -> float:
+        """Compute difficulty score for a cell (temper-t3ek.2).
+        
+        Difficulty increases if:
+        - Cell is adjacent to blocked cells (proximity to components)
+        - Cell is in a high-density area
+        """
+        difficulty = 0.0
+        
+        # Proximity to blocked cells (components)
+        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            nx, ny = cell.x + dx, cell.y + dy
+            if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                if int(self.occupancy[nx, ny, cell.layer]) == 1:
+                    difficulty += 0.5
+                    
+        # Add density-based difficulty (mm-space)
+        world_x = cell.x * self.cell_size + self.origin[0]
+        world_y = cell.y * self.cell_size + self.origin[1]
+        density = self._compute_local_density(world_x, world_y)
+        difficulty += density * 1.0
+        
+        return difficulty
+
     def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell) -> float:
         """Get cost of moving from current to neighbor cell."""
         base_cost = 1.0
+        
+        # Difficulty gradient (soft feedback for router)
+        diff = self._get_cell_difficulty(neighbor)
+        
         if current.layer != neighbor.layer:
-            return base_cost + self.via_cost
-        return base_cost
+            return base_cost + self.via_cost + diff
+        return base_cost + diff
 
     def block_rect(
         self,
@@ -627,6 +657,8 @@ class MazeRouter:
                 length=0.0,
                 via_count=0,
                 success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
             )
 
         # Determine layer index
@@ -653,6 +685,8 @@ class MazeRouter:
         # Route from first pin to all others (star topology)
         all_cells: list[GridCell] = []
         total_vias = 0
+        total_difficulty = 0.0
+        cell_difficulties: list[float] = []
         start_grid = grid_pins[0]
 
         for i in range(1, len(grid_pins)):
@@ -667,13 +701,19 @@ class MazeRouter:
                     length=float(len(all_cells)),
                     via_count=total_vias,
                     success=False,
+                    difficulty=total_difficulty,
+                    cell_difficulties=cell_difficulties,
                     failure_reason=f"No path from {start_grid} to {end_grid}",
                 )
 
-            # Count vias in this segment
+            # Count vias and accumulate difficulty
             for j in range(1, len(path)):
                 if path[j].layer != path[j - 1].layer:
                     total_vias += 1
+                
+                d = self._get_cell_difficulty(path[j])
+                total_difficulty += d
+                cell_difficulties.append(d)
 
             # Add path cells (skip duplicate start point after first segment)
             if all_cells:
@@ -691,6 +731,8 @@ class MazeRouter:
             length=float(len(all_cells)),
             via_count=total_vias,
             success=True,
+            difficulty=total_difficulty,
+            cell_difficulties=cell_difficulties,
         )
 
     def route_all_nets(

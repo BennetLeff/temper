@@ -180,6 +180,11 @@ from temper_placer.losses.planarity import (
     EdgeCrossingLoss,
 )
 
+# Pin Accessibility loss
+from temper_placer.losses.pin_accessibility import (
+    PinAccessibilityLoss,
+)
+
 # Power path loss (Parasitic Inductance)
 from temper_placer.losses.power_path import (
     HighCurrentPathConfig,
@@ -283,6 +288,7 @@ __all__ = [
     "create_power_path_loss",
     "HighCurrentPathConfig",
     "SwitchingLoopConfig",
+    "PinAccessibilityLoss",
     "CurrentReturnPathLoss",
     "create_return_path_loss",
     "ReturnPathConfig",
