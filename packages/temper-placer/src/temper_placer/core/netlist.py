@@ -129,12 +129,16 @@ class Net:
         net_class: Net class for design rules.
         weight: Importance weight for wirelength optimization.
             Higher = more important to minimize length.
+        max_current: Maximum current in Amps (used for width/plane inference).
+        voltage_class: Voltage classification (e.g., "LV", "HV").
     """
 
     name: str
     pins: list[tuple[str, str]]  # [(component_ref, pin_name), ...]
     net_class: str = "Signal"
     weight: float = 1.0
+    max_current: float = 0.0  # Amps
+    voltage_class: str = "LV"  # "LV", "HV"
 
     @property
     def pin_count(self) -> int:

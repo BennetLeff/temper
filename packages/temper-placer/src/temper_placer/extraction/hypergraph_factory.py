@@ -58,11 +58,20 @@ class HypergraphFactory:
         edge_widths = []   
         
         for net_idx, net in enumerate(valid_nets):
-            # Physics extraction (Defaults for now - TODO: Extract from constraints)
-            is_hv = 1.0 if net.net_class == "HighVoltage" else 0.0
+            # Physics extraction from Netlist
+            # voltage_class can be "LV" or "HV"
+            is_hv = 1.0 if net.voltage_class == "HV" or net.net_class == "HighVoltage" else 0.0
             edge_voltages.append(is_hv)
-            edge_currents.append(1.0) 
-            edge_widths.append(0.2)   
+            edge_currents.append(net.max_current)
+            
+            # Default width based on net class or current
+            if net.net_class == "HighVoltage":
+                width = 1.0
+            elif net.max_current > 1.0:
+                width = 0.5
+            else:
+                width = 0.2
+            edge_widths.append(width)   
             
             # Connections
             connected_indices = set()
