@@ -153,7 +153,11 @@ class MazeRouter:
         self.num_layers = num_layers
         self.origin = origin
         self.via_cost = via_cost
-        self.soft_blocking = soft_blocking  # Allow routing through occupied cells at high cost
+        # soft_blocking determines how the router handles occupied cells (net overlaps):
+        # - False (Strict): Occupied cells are impassable. Guarantees 0 tracks_crossing DRC errors.
+        # - True (RRR/Negotiated): Occupied cells are passable at high cost. 
+        #   Allows Rip-up and Reroute to resolve conflicts over multiple iterations.
+        self.soft_blocking = soft_blocking
         self.congestion_via_discount = congestion_via_discount  # Via cost multiplier in congested areas
         self.min_clearance = min_clearance
 
@@ -294,11 +298,12 @@ class MazeRouter:
         # Soft blocking: occupied cells get high cost but are passable
         # This enables negotiated congestion (PathFinder algorithm)
         sharing_penalty = 0.0
-        if occupied and self.soft_blocking:
-            sharing_penalty = 50.0 * (1.0 + p)  # Higher penalty with more congestion
-        elif occupied:
-            # Original behavior: treat occupied as very expensive
-            sharing_penalty = 100.0
+        if occupied:
+            if self.soft_blocking:
+                sharing_penalty = 50.0 * (1.0 + p)  # Higher penalty with more congestion
+            else:
+                # STRICT MODE: Occupied cells are impassable
+                return 1e9
         
         strategy_mult = float(cost_map[neighbor.x, neighbor.y]) if cost_map is not None else 1.0
         
@@ -753,11 +758,25 @@ class MazeRouter:
         if not self.layer_stackup.is_plane_layer(cell.layer):
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nx, ny = cell.x + dx, cell.y + dy
-                if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1] and cell.layer in layers and int(self.occupancy[nx, ny, cell.layer]) != -1:
+                if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1] and cell.layer in layers:
+                    occ = int(self.occupancy[nx, ny, cell.layer])
+                    # Cell is impassable if:
+                    # 1. It's a hard obstacle (-1)
+                    # 2. It's occupied (2) and we are in strict mode (not soft_blocking)
+                    if occ == -1:
+                        continue
+                    if occ == 2 and not self.soft_blocking:
+                        continue
+                        
                     neighbors.append(GridCell(nx, ny, cell.layer))
         if allow_layer_change and self.num_layers > 1:
             for nl in layers:
-                if nl != cell.layer and int(self.occupancy[cell.x, cell.y, nl]) != -1:
+                if nl != cell.layer:
+                    occ = int(self.occupancy[cell.x, cell.y, nl])
+                    if occ == -1:
+                        continue
+                    if occ == 2 and not self.soft_blocking:
+                        continue
                     neighbors.append(GridCell(cell.x, cell.y, nl))
         return neighbors
 
@@ -1417,12 +1436,17 @@ class MazeRouter:
                                 original_occupancy.append((nx, ny, l, -1))
                                 self.occupancy[nx, ny, l] = 0
         
-        all_cells, total_vias, start_grid = [], 0, grid_pins[0]
+        all_cells, total_vias = [], 0
         total_difficulty = 0.0
         cell_difficulties: list[float] = []
 
         for i in range(1, len(grid_pins)):
-            path = self.find_path_rrr(start_grid, grid_pins[i], layer, allow_via, cost_map=cost_map, p_scale=p_scale)
+            # Route from the previous pin to the current pin (chain topology)
+            # This ensures all_cells is a contiguous path for correct simplification
+            start_node = grid_pins[i-1]
+            end_node = grid_pins[i]
+            
+            path = self.find_path_rrr(start_node, end_node, layer, allow_via, cost_map=cost_map, p_scale=p_scale)
             if path is None:
                 # Restore original occupancy on failure
                 for gx, gy, l, v in original_occupancy:
@@ -1436,7 +1460,7 @@ class MazeRouter:
                     success=False,
                     difficulty=total_difficulty,
                     cell_difficulties=cell_difficulties,
-                    failure_reason=f"No path found from {start_grid} to {grid_pins[i]} (Start blocked? {self.occupancy[start_grid[0], start_grid[1], layer] == -1})",
+                    failure_reason=f"No path found from {start_node} to {grid_pins[i]} (Start blocked? {self.occupancy[start_node[0], start_node[1], layer] == -1})",
                 )
                 self.routed_paths[net_name] = res
                 return res
