@@ -11,7 +11,7 @@ import math
 
 from temper_placer.routing.constraints.drc_oracle import DRCOracle, Violation
 from temper_placer.routing.constraints.geometry import Point
-from temper_placer.routing.constraints.spatial_index import Track, Via, Pad, PCBGeometry
+from temper_placer.routing.constraints.spatial_index import Track, Via, Pad, PCBGeometry, merge_collinear_tracks
 from temper_placer.routing.post_processing.forces import calculate_repulsive_force, ForceVector, compute_forces
 
 
@@ -89,6 +89,24 @@ class GeometricNudger:
 
     def optimize(self, iterations: int = 50, step_size: float = 0.5):
         """Run the nudging optimization loop."""
+        
+        # 0. Optimize Geometry (Merge collinear)
+        print(f"Optimizing geometry (initial tracks: {len(self.oracle.geometry.tracks)})")
+        merged_tracks = merge_collinear_tracks(self.oracle.geometry.tracks)
+        
+        # Re-populate geometry
+        # We need to preserve track objects or at least their data
+        self.oracle.geometry.tracks = []
+        self.oracle.geometry._track_map = {}
+        # Clear spatial index too just in case
+        self.oracle.geometry._track_index = None
+        
+        for t in merged_tracks:
+            self.oracle.geometry.add_track(t)
+            
+        self.oracle.geometry.rebuild_index()
+        print(f"Geometry optimized (merged tracks: {len(self.oracle.geometry.tracks)})")
+        
         self.build_topology()
         
         for i in range(iterations):
@@ -96,6 +114,7 @@ class GeometricNudger:
             if not violations:
                 print(f"Converged in {i} iterations!")
                 break
+
                 
             if i % 10 == 0:
                 print(f"Iteration {i}: {len(violations)} violations")
