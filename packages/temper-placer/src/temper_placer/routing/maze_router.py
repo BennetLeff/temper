@@ -430,6 +430,62 @@ class MazeRouter:
         for i, comp in enumerate(components):
             self._create_pin_escape_routes(comp, float(positions[i, 0]), float(positions[i, 1]), escape_length)
 
+    def block_pads(
+        self, 
+        components: list[Component], 
+        positions: Array, 
+        netlist: "Netlist",
+        margin: float = 0.1,
+    ) -> None:
+        """Block grid cells containing pads to prevent track-through-pad violations.
+        
+        Each pad is blocked for all nets EXCEPT its own net. This allows pins
+        to be routed to but prevents foreign tracks from crossing through.
+        
+        Args:
+            components: List of components
+            positions: Component positions (N, 2)
+            netlist: Netlist for net lookups
+            margin: Extra margin around pads in mm
+            
+        Note: This should be called AFTER block_components but BEFORE routing.
+        Part of temper-hdu8.
+        """
+        # Build net-to-pad mapping
+        self._pad_net_map: dict[tuple[int, int, int], str] = {}  # (gx, gy, layer) -> net
+        
+        for i, comp in enumerate(components):
+            cx, cy = float(positions[i, 0]), float(positions[i, 1])
+            
+            for pin in comp.pins:
+                px = cx + pin.position[0]
+                py = cy + pin.position[1]
+                
+                # Get pad size (default to 1mm if not specified)
+                pad_w = getattr(pin, 'width', 1.0) + margin * 2
+                pad_h = getattr(pin, 'height', 1.0) + margin * 2
+                
+                # Convert to grid coordinates
+                gx_min = int((px - pad_w/2 - self.origin[0]) / self.cell_size)
+                gx_max = int((px + pad_w/2 - self.origin[0]) / self.cell_size) + 1
+                gy_min = int((py - pad_h/2 - self.origin[1]) / self.cell_size)
+                gy_max = int((py + pad_h/2 - self.origin[1]) / self.cell_size) + 1
+                
+                # Get net name for this pin
+                net_name = pin.net if hasattr(pin, 'net') else ""
+                
+                # Block cells and record ownership
+                for gx in range(max(0, gx_min), min(self.grid_size[0], gx_max)):
+                    for gy in range(max(0, gy_min), min(self.grid_size[1], gy_max)):
+                        for layer in range(self.num_layers):
+                            key = (gx, gy, layer)
+                            # Only block if not already owned by this net
+                            if key not in self._pad_net_map:
+                                self._pad_net_map[key] = net_name
+                                # Mark as blocked (will be unblocked for own net during routing)
+                                if self.occupancy[gx, gy, layer] != -1:
+                                    self.occupancy[gx, gy, layer] = -1
+
     def _compute_local_density(self, x: float, y: float, radius: float = 10.0) -> float:
         if self._component_positions is None or not len(self._component_positions): return 0.0
         point = jnp.array([x, y])

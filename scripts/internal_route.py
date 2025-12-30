@@ -139,6 +139,13 @@ def main():
         console.print(f"  [bold green]Soft blocking enabled[/] (negotiated congestion)")
     console.print(f"  History increment: {args.history_increment}")
     
+    # Block component areas to prevent routing through them
+    router.block_components(netlist.components, positions, margin=0.5)
+    
+    # Block pads to prevent track-through-pad DRC violations (temper-hdu8)
+    router.block_pads(netlist.components, positions, netlist, margin=0.1)
+    console.print(f"  ✓ Blocked {len(router._pad_net_map)} pad cells")
+    
     # Pre-compute cost maps for RRR
     cost_maps = {}
     for net_name in net_order:
