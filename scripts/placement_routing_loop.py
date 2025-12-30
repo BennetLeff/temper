@@ -21,6 +21,14 @@ from rich.console import Console
 
 console = Console()
 
+from dataclasses import dataclass
+
+@dataclass
+class ConflictLocation:
+    x: float
+    y: float
+    layer: int
+    nets: list[str]
 
 def main():
     parser = argparse.ArgumentParser(description="Placement-Routing Feedback Loop")
@@ -49,7 +57,9 @@ def main():
     from temper_placer.routing.maze_router import MazeRouter
     from temper_placer.routing.net_ordering import order_nets
     from temper_placer.routing.layer_assignment import assign_layers
-    from temper_placer.losses.routing_congestion import RoutingCongestionLoss, compute_congestion_heatmap, ConflictLocation
+    from temper_placer.routing.net_ordering import order_nets
+    from temper_placer.routing.layer_assignment import assign_layers
+    from temper_placer.losses.routing_congestion import RoutingCongestionLoss
     import jax.numpy as jnp
     
     # Parse initial PCB
@@ -118,8 +128,9 @@ def main():
             congestion_loss = RoutingCongestionLoss(
                 congestion_heatmap,
                 weight=30.0,
-                cell_size_mm=args.cell_size,
-                origin=board.origin,
+                cell_size=args.cell_size,
+                origin=jnp.array(board.origin),
+                grid_size=jnp.array(router.grid_size),
             )
             
             # Simple gradient descent for placement adjustment
@@ -138,7 +149,7 @@ def main():
                 total += channel_loss(pos, rotations, context).value
                 total += mcu_clustering(pos, rotations, context).value
                 total += bus_alignment(pos, rotations, context).value
-                total += congestion_loss(pos)
+                total += congestion_loss(pos, rotations, context).value
                 return total
             
             # Gradient descent for N steps
@@ -208,23 +219,17 @@ def main():
                 break
         
         # ===== 4. Build congestion heatmap for next iteration =====
-        if num_conflicts > 0:
-            conflicts = [
-                ConflictLocation(
-                    x=loc['x'],
-                    y=loc['y'],
-                    layer=loc['layer'],
-                    nets=loc['nets'],
-                )
-                for loc in conflict_locs
-            ]
-            congestion_heatmap = compute_congestion_heatmap(
-                conflicts,
-                grid_size=router.grid_size,
-                cell_size_mm=args.cell_size,
-                origin=board.origin,
-                blur_sigma=3.0,
-            )
+        # Improved: Use router's internal history cost instead of reconstructing from points
+        if num_conflicts > 0 or True: # Always use congestion feedback if available?
+            # history_cost is (W, H, L)
+            # Sum over layers to get 2D map
+            import numpy as np
+            hist = np.asarray(router.history_cost)
+            # Normalize: subtract 1.0 base cost
+            congestion_heatmap = jnp.array(np.sum(np.maximum(0, hist - 1.0), axis=2))
+            
+            max_heat = jnp.max(congestion_heatmap)
+            console.print(f"  Generated congestion heatmap (max cost: {max_heat:.1f})")
     
     # ===== Final Output =====
     console.print(f"\n[bold blue]═══ Final Result ═══[/]")

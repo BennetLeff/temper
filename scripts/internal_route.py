@@ -101,6 +101,33 @@ def populate_oracle_from_board(oracle, board):
             )
             oracle.register_via(geo_via)
 
+def save_congestion_report(router, results, output_path: Path):
+    """Save routing congestion data for feedback loop."""
+    import numpy as np
+    
+    # 1. Extract History Cost (Accumulated Congestion)
+    # history_cost is (W, H, L)
+    # We sum over layers to get 2D "Total Difficulty" map
+    # We subtract 1.0 (base cost) to get only the added penalty
+    congestion_3d = np.array(router.history_cost)
+    congestion_2d = np.sum(np.maximum(0, congestion_3d - 1.0), axis=2)
+    
+    # 2. Add Failed Net locations (as Point Clouds)
+    # For now, we trust the history map adds cost where failures happened (because they were searched)
+    # But explicitly adding a splash of cost at failed net pins might help.
+    # Let's start with just the router's internal state.
+    
+    # 3. Save as NPZ
+    np.savez_compressed(
+        output_path,
+        congestion_grid=congestion_2d,
+        origin=np.array(router.origin),
+        cell_size=router.cell_size,
+        grid_size=np.array(router.grid_size),
+        failed_nets=[net for net, res in results.items() if not res.success]
+    ) 
+
+
 console = Console()
 
 def main():
@@ -119,6 +146,7 @@ def main():
     parser.add_argument("--strict-drc", action="store_true", help="Enable DRC-enforced routing (temper-mado)")
     parser.add_argument("--geometric-nudge", action="store_true", help="Enable geometric post-processing to fix sub-grid DRC violations")
     parser.add_argument("--add-power-planes", action="store_true", help="Generate power planes and fanout power nets before routing")
+    parser.add_argument("--dump-congestion", type=Path, help="Path to save congestion heatmap (.npz) for placer feedback")
     
     args = parser.parse_args()
     
@@ -339,6 +367,12 @@ def main():
             console.print(f"  ({loc['world_x']:.1f}, {loc['world_y']:.1f}, L{loc['layer']+1}): {', '.join(loc['nets'])}")
         if len(conflict_locs) > 10:
             console.print(f"  ... and {len(conflict_locs)-10} more")
+
+    # NEW: Dump Congestion (Step 4.2)
+    if args.dump_congestion:
+        console.print(f"\n[bold cyan]Step 4.2:[/] Saving congestion report to {args.dump_congestion}...")
+        save_congestion_report(router, results, args.dump_congestion)
+        console.print(f"  ✓ Saved congestion heatmap")
 
     # 4.5 Geometric Post-Processing
     if args.geometric_nudge:
