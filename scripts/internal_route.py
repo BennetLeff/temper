@@ -38,6 +38,7 @@ def main():
     parser.add_argument("--history-increment", type=float, default=1.0, help="History cost increment per conflict (default 1.0, use 2.0 for aggressive)")
     parser.add_argument("--exclude-power-nets", action="store_true", help="Exclude power nets (GND, VCC, etc.) from routing")
     parser.add_argument("--strict-drc", action="store_true", help="Enable DRC-enforced routing (temper-mado)")
+    parser.add_argument("--geometric-nudge", action="store_true", help="Enable geometric post-processing to fix sub-grid DRC violations")
     
     args = parser.parse_args()
     
@@ -58,6 +59,7 @@ def main():
         
         # Extract positions into JAX array
         positions_list = []
+
         for comp in netlist.components:
              # component initial_position is already normalized to board origin in parse_kicad_pcb
              positions_list.append(comp.initial_position)
@@ -187,7 +189,31 @@ def main():
         if len(conflict_locs) > 10:
             console.print(f"  ... and {len(conflict_locs)-10} more")
 
-    # 5. Export Traces
+    # 4.5 Geometric Post-Processing
+    if args.geometric_nudge and args.strict_drc:
+        console.print("\n[bold cyan]Step 4.5:[/] Running Geometric Nudging...")
+        from temper_placer.routing.post_processing.nudger import GeometricNudger
+        from temper_placer.io.kicad_exporter import export_from_geometry
+        
+        nudger = GeometricNudger(router.drc_oracle)
+        nudger.optimize()
+        
+        console.print("\n[bold cyan]Step 5:[/] Exporting geometric traces to KiCad...")
+        try:
+            res = export_from_geometry(
+                template_pcb=args.input_pcb,
+                output_pcb=args.output,
+                tracks=router.drc_oracle.geometry.tracks,
+                vias=router.drc_oracle.geometry.vias
+            )
+            console.print(f"  ✓ Wrote {res.segments_added} geometric traces, {res.vias_added} vias to {args.output}")
+            console.print("\n[bold green]Success![/]")
+            sys.exit(0)
+        except Exception as e:
+            console.print(f"[red]Error exporting geometric traces: {e}[/]")
+            sys.exit(1)
+
+    # 5. Export Traces (Standard Grid Export)
     console.print("\n[bold cyan]Step 5:[/] Exporting traces to KiCad...")
     try:
         items_added = write_traces_to_pcb(

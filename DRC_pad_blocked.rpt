@@ -1,0 +1,2109 @@
+** Drc report for temper_pad_blocked.kicad_pcb **
+** Created on 2025-12-29T22:52:32-0600 **
+
+** Found 480 DRC violations **
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(78.7500 mm, 96.7500 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+    @(79.2500 mm, 96.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and SW_NODE)
+    Local override; error
+    @(55.2500 mm, 58.2500 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(55.7500 mm, 58.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(29.7500 mm, 117.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(34.2500 mm, 117.7500 mm): Track [+3V3] on B.Cu, length 5.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(73.2500 mm, 94.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(72.7500 mm, 66.2500 mm): Track [GND] on F.Cu, length 32.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(85.7500 mm, 112.7500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(85.2500 mm, 113.2500 mm): Track [GND] on F.Cu, length 50.5000 mm
+[shorting_items]: Items shorting two nets (nets +5V and GND)
+    Local override; error
+    @(75.2500 mm, 66.7500 mm): Track [+5V] on B.Cu, length 4.0000 mm
+    @(72.7500 mm, 66.2500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_H and PWM_L)
+    Local override; error
+    @(28.7500 mm, 42.7500 mm): Track [PWM_H] on F.Cu, length 18.5000 mm
+    @(44.7500 mm, 42.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and +15V)
+    Local override; error
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(39.7500 mm, 37.7500 mm): Track [+15V] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_CS_TEMP)
+    Local override; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(78.2500 mm, 96.7500 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(35.7500 mm, 118.7500 mm): Track [I_SENSE] on F.Cu, length 5.5000 mm
+    @(29.7500 mm, 118.7500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(71.2500 mm, 60.2500 mm): Track [+5V] on B.Cu, length 34.0000 mm
+    @(70.7500 mm, 94.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and SW_NODE)
+    Local override; error
+    @(14.2500 mm, 120.2500 mm): Track [GND] on B.Cu, length 14.5000 mm
+    @(14.7500 mm, 121.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +5V and SPI_CS_TEMP)
+    Local override; error
+    @(71.2500 mm, 94.2500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+    @(70.7500 mm, 94.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and GATE_H)
+    Local override; error
+    @(41.2500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 5.0000 mm
+    @(40.7500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(78.7500 mm, 95.7500 mm): Track [SPI_MISO] on B.Cu, length 6.0000 mm
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and +15V)
+    Local override; error
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(41.2500 mm, 37.7500 mm): Track [+15V] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and I_SENSE)
+    Local override; error
+    @(29.7500 mm, 118.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.2500 mm, 118.7500 mm): Track [I_SENSE] on F.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_CS_TEMP)
+    Local override; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(78.2500 mm, 96.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +5V and SPI_CS_TEMP)
+    Local override; error
+    @(70.2500 mm, 94.2500 mm): Track [+5V] on B.Cu, length 11.5000 mm
+    @(70.7500 mm, 94.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(41.2500 mm, 37.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(41.2500 mm, 37.2500 mm): Track [SW_NODE] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(77.7500 mm, 96.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1250 mm)
+    Rule: netclass 'Default'; error
+    @(31.0000 mm, 120.0000 mm): Pad 2 [GND] of R_BURDEN on F.Cu
+    @(30.2500 mm, 120.2500 mm): Track [I_SENSE] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +5V)
+    Local override; error
+    @(74.2500 mm, 31.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(73.7500 mm, 30.2500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and CGND)
+    Local override; error
+    @(41.7500 mm, 37.2500 mm): Track [SW_NODE] on B.Cu, length 4.5000 mm
+    @(41.2500 mm, 38.7500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and GND)
+    Local override; error
+    @(79.2500 mm, 51.7500 mm): Track [PWM_L] on F.Cu, length 0.5000 mm
+    @(79.2500 mm, 52.2500 mm): Via [GND] on F.Cu - B.Cu
+[tracks_crossing]: Tracks crossing
+    Rule: netclass 'Default'; error
+    @(44.2500 mm, 120.2500 mm): Track [I_SENSE] on B.Cu, length 1.0000 mm
+    @(43.7500 mm, 120.7500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and PWM_L)
+    Local override; error
+    @(41.7500 mm, 41.7500 mm): Track [SW_NODE] on B.Cu, length 3.5000 mm
+    @(44.7500 mm, 42.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and GND)
+    Local override; error
+    @(79.7500 mm, 44.2500 mm): Track [+15V] on B.Cu, length 21.0000 mm
+    @(79.2500 mm, 52.2500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(41.7500 mm, 37.7500 mm): Track [+15V] on F.Cu, length 1.0000 mm
+    @(41.7500 mm, 36.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and +15V)
+    Local override; error
+    @(41.7500 mm, 36.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(41.7500 mm, 36.7500 mm): Track [+15V] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.2500 mm, 27.7500 mm): Track [DC_BUS+] on F.Cu, length 4.5000 mm
+    @(42.2500 mm, 27.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and I_SENSE)
+    Local override; error
+    @(77.7500 mm, 95.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 2.5000 mm
+    @(75.2500 mm, 96.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and +15V)
+    Local override; error
+    @(41.7500 mm, 36.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(42.2500 mm, 36.7500 mm): Track [+15V] on F.Cu, length 3.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(74.2500 mm, 102.7500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(76.7500 mm, 103.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(29.2500 mm, 120.2500 mm): Track [I_SENSE] on B.Cu, length 2.0000 mm
+    @(29.7500 mm, 118.7500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(40.7500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_MISO)
+    Local override; error
+    @(34.7500 mm, 109.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(85.2500 mm, 108.7500 mm): Track [SPI_MISO] on F.Cu, length 51.0000 mm
+[shorting_items]: Items shorting two nets (nets AC_L and +15V)
+    Local override; error
+    @(10.2500 mm, 30.2500 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and SW_NODE)
+    Local override; error
+    @(44.7500 mm, 42.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+    @(45.2500 mm, 41.7500 mm): Track [SW_NODE] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_MISO)
+    Local override; error
+    @(34.7500 mm, 109.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(34.2500 mm, 108.7500 mm): Track [SPI_MISO] on F.Cu, length 5.0000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(76.7500 mm, 103.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(76.7500 mm, 102.7500 mm): Track [GND] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and GATE_H)
+    Local override; error
+    @(39.7500 mm, 33.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.0000 mm
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(42.7500 mm, 27.7500 mm): Track [DC_BUS+] on F.Cu, length 0.5000 mm
+    @(42.2500 mm, 27.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and I_SENSE)
+    Local override; error
+    @(75.2500 mm, 95.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 1.0000 mm
+    @(75.2500 mm, 96.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_CS_TEMP)
+    Local override; error
+    @(73.2500 mm, 94.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(75.2500 mm, 94.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 4.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and I_SENSE)
+    Local override; error
+    @(29.7500 mm, 118.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(29.2500 mm, 118.2500 mm): Track [I_SENSE] on B.Cu, length 8.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and GATE_H)
+    Local override; error
+    @(40.7500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(40.7500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and GATE_H)
+    Local override; error
+    @(39.7500 mm, 32.2500 mm): Track [VCC_BOOT] on B.Cu, length 7.5000 mm
+    @(40.7500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +5V)
+    Local override; error
+    @(72.7500 mm, 66.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(71.2500 mm, 66.7500 mm): Track [+5V] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and SPI_MISO)
+    Local override; error
+    @(27.2500 mm, 114.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(34.2500 mm, 113.7500 mm): Track [SPI_MISO] on F.Cu, length 8.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and PWM_L)
+    Local override; error
+    @(45.2500 mm, 42.2500 mm): Track [SW_NODE] on B.Cu, length 2.5000 mm
+    @(44.7500 mm, 42.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_CS_TEMP)
+    Local override; error
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(27.2500 mm, 105.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 3.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.2500 mm, 108.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and PWM_H)
+    Local override; error
+    @(30.7500 mm, 34.7500 mm): Track [PWM_L] on B.Cu, length 2.0000 mm
+    @(28.7500 mm, 34.2500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(76.7500 mm, 102.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(71.2500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 5.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and PWM_H)
+    Local override; error
+    @(71.2500 mm, 45.2500 mm): Track [+3V3] on F.Cu, length 58.0000 mm
+    @(70.7500 mm, 95.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(25.7500 mm, 108.7500 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(27.2500 mm, 109.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(27.2500 mm, 108.7500 mm): Track [SPI_MISO] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +5V and PWM_H)
+    Local override; error
+    @(70.2500 mm, 94.2500 mm): Track [+5V] on B.Cu, length 11.5000 mm
+    @(70.7500 mm, 95.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(42.7500 mm, 27.2500 mm): Track [DC_BUS+] on F.Cu, length 2.5000 mm
+    @(42.2500 mm, 27.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(77.7500 mm, 96.7500 mm): Track [SPI_CLK] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(76.7500 mm, 102.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(76.7500 mm, 103.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and SPI_CLK)
+    Local override; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(77.7500 mm, 95.7500 mm): Track [SPI_CLK] on F.Cu, length 7.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(28.2500 mm, 109.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and PWM_H)
+    Local override; error
+    @(73.7500 mm, 97.2500 mm): Track [PWM_L] on F.Cu, length 1.5000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and PWM_H)
+    Local override; error
+    @(74.2500 mm, 100.2500 mm): Track [GND] on B.Cu, length 4.0000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and +15V)
+    Local override; error
+    @(40.2500 mm, 27.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+    @(47.2500 mm, 26.7500 mm): Track [+15V] on F.Cu, length 7.5000 mm
+[tracks_crossing]: Tracks crossing
+    Rule: netclass 'Default'; error
+    @(26.7500 mm, 107.2500 mm): Track [SPI_CLK] on B.Cu, length 2.0000 mm
+    @(27.2500 mm, 108.2500 mm): Track [SPI_MISO] on B.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(84.7500 mm, 95.7500 mm): Track [SPI_CLK] on F.Cu, length 10.5000 mm
+    @(85.2500 mm, 100.2500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(40.2500 mm, 27.7500 mm): Track [DC_BUS+] on B.Cu, length 12.5000 mm
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(79.2500 mm, 52.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(76.2500 mm, 51.7500 mm): Track [+3V3] on F.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and PWM_L)
+    Local override; error
+    @(76.7500 mm, 98.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and SPI_CS_TEMP)
+    Local override; error
+    @(55.7500 mm, 104.7500 mm): Track [SW_NODE] on B.Cu, length 29.0000 mm
+    @(27.2500 mm, 105.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and SPI_CS_TEMP)
+    Local override; error
+    @(26.7500 mm, 104.7500 mm): Track [SW_NODE] on B.Cu, length 1.5000 mm
+    @(27.2500 mm, 105.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and PWM_H)
+    Local override; error
+    @(28.7500 mm, 34.7500 mm): Track [PWM_L] on B.Cu, length 7.5000 mm
+    @(28.7500 mm, 34.2500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GATE_H and +15V)
+    Local override; error
+    @(17.7500 mm, 15.2500 mm): Track [GATE_H] on F.Cu, length 12.5000 mm
+    @(17.7500 mm, 28.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(79.2500 mm, 52.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(78.7500 mm, 51.7500 mm): Track [+3V3] on F.Cu, length 6.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and +5V)
+    Local override; error
+    @(84.7500 mm, 106.2500 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+    @(74.2500 mm, 105.7500 mm): Via [+5V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_H and GND)
+    Local override; error
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(74.2500 mm, 99.2500 mm): Track [GND] on B.Cu, length 2.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(75.2500 mm, 99.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(74.7500 mm, 97.7500 mm): Track [PWM_H] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and SPI_MOSI)
+    Local override; error
+    @(75.2500 mm, 99.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(74.7500 mm, 98.2500 mm): Track [SPI_MOSI] on B.Cu, length 8.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(76.2500 mm, 98.2500 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+    @(76.7500 mm, 98.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and DC_BUS+)
+    Local override; error
+    @(39.7500 mm, 26.7500 mm): Track [+15V] on F.Cu, length 0.5000 mm
+    @(40.2500 mm, 27.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(74.2500 mm, 97.2500 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MOSI)
+    Local override; error
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.2500 mm, 96.7500 mm): Track [SPI_MOSI] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(27.7500 mm, 27.7500 mm): Track [DC_BUS+] on B.Cu, length 30.0000 mm
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+[tracks_crossing]: Tracks crossing
+    Rule: netclass 'Default'; error
+    @(78.2500 mm, 97.7500 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+    @(76.7500 mm, 97.7500 mm): Track [I_SENSE] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and +15V)
+    Local override; error
+    @(17.7500 mm, 27.7500 mm): Track [GATE_H] on F.Cu, length 24.5000 mm
+    @(27.2500 mm, 28.2500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and PGND)
+    Local override; error
+    @(34.7500 mm, 62.2500 mm): Track [DC_BUS+] on B.Cu, length 2.0000 mm
+    @(34.2500 mm, 60.2500 mm): Via [PGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and PGND)
+    Local override; error
+    @(34.7500 mm, 60.2500 mm): Track [DC_BUS+] on B.Cu, length 8.0000 mm
+    @(34.2500 mm, 60.2500 mm): Via [PGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and PGND)
+    Local override; error
+    @(12.2500 mm, 62.7500 mm): Track [GND] on B.Cu, length 43.0000 mm
+    @(54.2500 mm, 62.2500 mm): Via [PGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(74.2500 mm, 99.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(74.7500 mm, 97.7500 mm): Track [PWM_H] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0500 mm)
+    Rule: netclass 'Default'; error
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+    @(79.2500 mm, 96.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_CLK)
+    Local override; error
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(77.7500 mm, 96.7500 mm): Track [SPI_CLK] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(39.7500 mm, 27.2500 mm): Track [+15V] on F.Cu, length 12.5000 mm
+    @(26.7500 mm, 27.2500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1303 mm)
+    Rule: netclass 'Default'; error
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(28.2500 mm, 107.2500 mm): Track [SPI_CLK] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.7500 mm, 96.7500 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 27.2500 mm): Track [+15V] on B.Cu, length 2.5000 mm
+    @(26.7500 mm, 27.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and PWM_H)
+    Local override; error
+    @(74.2500 mm, 96.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(70.7500 mm, 95.7500 mm): Track [PWM_H] on B.Cu, length 4.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_CS_TEMP)
+    Local override; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(76.7500 mm, 98.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(76.2500 mm, 97.7500 mm): Track [SPI_MOSI] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_CS_TEMP)
+    Local override; error
+    @(71.2500 mm, 45.2500 mm): Track [+3V3] on F.Cu, length 58.0000 mm
+    @(70.7500 mm, 94.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets AC_L and +15V)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(27.2500 mm, 29.7500 mm): Track [+15V] on F.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and GND)
+    Local override; error
+    @(74.7500 mm, 98.2500 mm): Track [SPI_MOSI] on B.Cu, length 8.0000 mm
+    @(74.2500 mm, 99.2500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets AC_L and +15V)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Track [+15V] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and PWM_H)
+    Local override; error
+    @(76.2500 mm, 98.2500 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(27.2500 mm, 109.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and PWM_H)
+    Local override; error
+    @(74.2500 mm, 96.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(74.7500 mm, 95.7500 mm): Track [PWM_H] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and +15V)
+    Local override; error
+    @(47.7500 mm, 32.7500 mm): Track [GATE_H] on B.Cu, length 7.5000 mm
+    @(46.7500 mm, 33.2500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_CLK)
+    Local override; error
+    @(27.2500 mm, 109.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(26.7500 mm, 107.2500 mm): Track [SPI_CLK] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and PWM_H)
+    Local override; error
+    @(74.7500 mm, 98.2500 mm): Track [SPI_MOSI] on B.Cu, length 8.0000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(71.2500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 5.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(75.7500 mm, 52.2500 mm): Track [GND] on F.Cu, length 0.5000 mm
+    @(76.2500 mm, 51.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(76.7500 mm, 102.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(76.7500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 3.0000 mm
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and GATE_H)
+    Local override; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(40.2500 mm, 32.7500 mm): Track [GATE_H] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets AC_L and +15V)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.2500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(26.7500 mm, 107.2500 mm): Track [SPI_CLK] on B.Cu, length 2.0000 mm
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and PWM_L)
+    Local override; error
+    @(79.2500 mm, 52.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(79.2500 mm, 44.7500 mm): Track [PWM_L] on F.Cu, length 7.0000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and +5V)
+    Local override; error
+    @(75.2500 mm, 45.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(72.7500 mm, 45.2500 mm): Track [+5V] on B.Cu, length 6.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and DC_BUS+)
+    Local override; error
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(27.7500 mm, 47.2500 mm): Track [DC_BUS+] on B.Cu, length 21.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and PWM_L)
+    Local override; error
+    @(74.2500 mm, 96.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(73.7500 mm, 94.2500 mm): Track [PWM_L] on F.Cu, length 3.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(73.7500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and +5V)
+    Local override; error
+    @(74.7500 mm, 106.2500 mm): Track [SPI_MOSI] on B.Cu, length 46.5000 mm
+    @(74.2500 mm, 105.7500 mm): Via [+5V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CLK)
+    Local override; error
+    @(28.2500 mm, 106.2500 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(73.7500 mm, 102.7500 mm): Track [+3V3] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and PWM_L)
+    Local override; error
+    @(79.2500 mm, 52.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(79.7500 mm, 51.7500 mm): Track [PWM_L] on F.Cu, length 42.5000 mm
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and GATE_H)
+    Local override; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(39.7500 mm, 32.2500 mm): Track [GATE_H] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and +3V3)
+    Local override; error
+    @(79.7500 mm, 94.2500 mm): Track [PWM_L] on F.Cu, length 6.0000 mm
+    @(73.2500 mm, 94.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and SW_NODE)
+    Local override; error
+    @(55.2500 mm, 62.7500 mm): Track [GND] on B.Cu, length 4.5000 mm
+    @(55.7500 mm, 58.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(74.2500 mm, 94.7500 mm): Track [GND] on F.Cu, length 4.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_CLK)
+    Local override; error
+    @(27.2500 mm, 109.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(26.7500 mm, 109.2500 mm): Track [SPI_CLK] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(28.2500 mm, 107.7500 mm): Track [SPI_MOSI] on B.Cu, length 0.0000 mm
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(74.7500 mm, 98.7500 mm): Track [PWM_H] on F.Cu, length 2.0000 mm
+    @(74.2500 mm, 99.2500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(78.7500 mm, 94.7500 mm): Track [GND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(73.2500 mm, 102.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and +3V3)
+    Local override; error
+    @(73.7500 mm, 94.2500 mm): Track [PWM_L] on F.Cu, length 3.0000 mm
+    @(73.2500 mm, 96.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and +3V3)
+    Local override; error
+    @(73.7500 mm, 94.2500 mm): Track [PWM_L] on F.Cu, length 3.0000 mm
+    @(73.2500 mm, 94.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(78.7500 mm, 95.2500 mm): Track [GND] on F.Cu, length 6.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CLK)
+    Local override; error
+    @(28.2500 mm, 107.7500 mm): Track [SPI_MOSI] on B.Cu, length 1.0000 mm
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_H and +3V3)
+    Local override; error
+    @(70.7500 mm, 95.7500 mm): Track [PWM_H] on B.Cu, length 4.0000 mm
+    @(73.2500 mm, 96.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CLK)
+    Local override; error
+    @(28.2500 mm, 106.7500 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and GATE_H)
+    Local override; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(39.7500 mm, 32.7500 mm): Track [GATE_H] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and +15V)
+    Local override; error
+    @(40.7500 mm, 32.7500 mm): Track [GATE_H] on B.Cu, length 7.0000 mm
+    @(46.7500 mm, 33.2500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and SW_NODE)
+    Local override; error
+    @(30.9000 mm, 15.0000 mm): PTH pad 3 [DC_BUS+] of Q1
+    @(25.7500 mm, 15.2500 mm): Track [SW_NODE] on F.Cu, length 16.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and GND)
+    Local override; error
+    @(55.7500 mm, 58.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(55.7500 mm, 58.2500 mm): Track [GND] on B.Cu, length 22.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(88.2500 mm, 112.2500 mm): Track [+3V3] on F.Cu, length 1.0000 mm
+    @(87.7500 mm, 111.7500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(87.2500 mm, 97.7500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(86.7500 mm, 98.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GATE_H and +15V)
+    Local override; error
+    @(47.7500 mm, 32.7500 mm): Track [GATE_H] on B.Cu, length 6.5000 mm
+    @(47.7500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(85.2500 mm, 97.7500 mm): Track [GND] on F.Cu, length 2.0000 mm
+    @(86.7500 mm, 98.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GATE_H and +15V)
+    Local override; error
+    @(47.7500 mm, 26.2500 mm): Track [GATE_H] on B.Cu, length 5.0000 mm
+    @(47.7500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+[tracks_crossing]: Tracks crossing
+    Rule: netclass 'Default'; error
+    @(26.2500 mm, 106.7500 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+    @(27.2500 mm, 108.2500 mm): Track [SPI_MISO] on B.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(85.2500 mm, 98.7500 mm): Track [I_SENSE] on B.Cu, length 3.5000 mm
+    @(86.7500 mm, 98.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(86.7500 mm, 112.2500 mm): Track [+3V3] on B.Cu, length 1.5000 mm
+    @(87.7500 mm, 111.7500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(87.7500 mm, 111.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(87.2500 mm, 97.7500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(86.7500 mm, 100.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(87.2500 mm, 100.2500 mm): Track [GND] on F.Cu, length 0.5000 mm
+    @(86.7500 mm, 100.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and GND)
+    Local override; error
+    @(73.7500 mm, 97.2500 mm): Track [PWM_L] on F.Cu, length 1.5000 mm
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1500 mm)
+    Rule: netclass 'Default'; error
+    @(39.7500 mm, 39.7500 mm): Track [SW_NODE] on F.Cu, length 1.0000 mm
+    @(39.5000 mm, 38.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(87.7500 mm, 100.2500 mm): Track [GND] on B.Cu, length 11.5000 mm
+[shorting_items]: Items shorting two nets (nets CGND and GATE_H)
+    Local override; error
+    @(31.2500 mm, 24.7500 mm): Via [CGND] on F.Cu - B.Cu
+    @(42.7500 mm, 25.2500 mm): Track [GATE_H] on B.Cu, length 18.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and USB_D+)
+    Local override; error
+    @(93.7500 mm, 130.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(91.7500 mm, 131.2500 mm): Track [USB_D+] on B.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and PWM_L)
+    Local override; error
+    @(76.7500 mm, 97.7500 mm): Track [I_SENSE] on B.Cu, length 0.5000 mm
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PGND and SW_NODE)
+    Local override; error
+    @(55.2500 mm, 57.7500 mm): Track [PGND] on B.Cu, length 40.5000 mm
+    @(54.7500 mm, 56.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(89.2500 mm, 112.7500 mm): Track [GND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(88.7500 mm, 98.7500 mm): Track [I_SENSE] on B.Cu, length 14.0000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and CGND)
+    Local override; error
+    @(39.7500 mm, 38.2500 mm): Track [SW_NODE] on B.Cu, length 2.0000 mm
+    @(41.2500 mm, 38.7500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(76.7500 mm, 97.2500 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(75.2500 mm, 97.2500 mm): Track [I_SENSE] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(87.7500 mm, 111.7500 mm): Track [GND] on F.Cu, length 18.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(97.2500 mm, 115.2500 mm): Track [GND] on F.Cu, length 1.5000 mm
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets USB_D- and GND)
+    Local override; error
+    @(96.7500 mm, 113.2500 mm): Track [USB_D-] on B.Cu, length 17.0000 mm
+    @(97.2500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(41.7500 mm, 38.2500 mm): Track [SW_NODE] on B.Cu, length 2.0000 mm
+    @(41.2500 mm, 38.7500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(95.7500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(95.7500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(95.2500 mm, 113.2500 mm): Track [+3V3] on F.Cu, length 4.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(95.7500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(95.2500 mm, 117.7500 mm): Track [+3V3] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and +15V)
+    Local override; error
+    @(41.7500 mm, 36.2500 mm): Track [SW_NODE] on F.Cu, length 4.0000 mm
+    @(42.2500 mm, 35.2500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and PWM_H)
+    Local override; error
+    @(75.2500 mm, 97.2500 mm): Track [PWM_L] on F.Cu, length 1.0000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(41.7500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 1.0000 mm
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(40.7500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and USB_D+)
+    Local override; error
+    @(95.2500 mm, 131.2500 mm): Track [GND] on F.Cu, length 1.0000 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[shorting_items]: Items shorting two nets (nets GND and USB_D+)
+    Local override; error
+    @(95.2500 mm, 130.2500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and SW_NODE)
+    Local override; error
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+    @(40.7500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.7500 mm, 94.7500 mm): Track [+3V3] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(75.2500 mm, 98.2500 mm): Track [PWM_L] on F.Cu, length 1.5000 mm
+    @(74.7500 mm, 97.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and I_SENSE)
+    Local override; error
+    @(89.2500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(88.7500 mm, 98.7500 mm): Track [I_SENSE] on B.Cu, length 14.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and USB_D+)
+    Local override; error
+    @(93.7500 mm, 130.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(94.2500 mm, 131.2500 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(30.7500 mm, 30.7500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and DC_BUS+)
+    Local override; error
+    @(47.2500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.5000 mm
+    @(45.2500 mm, 30.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(30.7500 mm, 29.7500 mm): Track [+15V] on B.Cu, length 0.5000 mm
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets USB_D- and GND)
+    Local override; error
+    @(96.7500 mm, 113.2500 mm): Track [USB_D-] on B.Cu, length 17.0000 mm
+    @(96.2500 mm, 114.2500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets AC_L and +15V)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.2500 mm, 29.7500 mm): Track [+15V] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(31.2500 mm, 26.7500 mm): Track [CGND] on F.Cu, length 4.5000 mm
+[shorting_items]: Items shorting two nets (nets AC_L and +15V)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.2500 mm, 29.2500 mm): Track [+15V] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and DC_BUS+)
+    Local override; error
+    @(17.7500 mm, 27.7500 mm): Track [GATE_H] on F.Cu, length 24.5000 mm
+    @(40.2500 mm, 27.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(94.2500 mm, 130.2500 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+    @(93.7500 mm, 130.7500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(95.7500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(88.2500 mm, 113.2500 mm): Track [+3V3] on F.Cu, length 7.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and USB_D-)
+    Local override; error
+    @(95.7500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(85.2500 mm, 113.2500 mm): Track [USB_D-] on B.Cu, length 11.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(26.7500 mm, 26.7500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(26.7500 mm, 27.2500 mm): Track [CGND] on B.Cu, length 3.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(89.2500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(88.2500 mm, 113.2500 mm): Track [+3V3] on F.Cu, length 7.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and PGND)
+    Local override; error
+    @(42.2500 mm, 35.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(58.2500 mm, 35.7500 mm): Track [PGND] on B.Cu, length 18.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and VCC_BOOT)
+    Local override; error
+    @(43.2500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 2.5000 mm
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[shorting_items]: Items shorting two nets (nets SPI_MISO and USB_D-)
+    Local override; error
+    @(85.2500 mm, 100.2500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(83.7500 mm, 100.7500 mm): Track [USB_D-] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(95.7500 mm, 115.2500 mm): Track [GND] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and USB_D-)
+    Local override; error
+    @(85.2500 mm, 100.2500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(85.2500 mm, 100.7500 mm): Track [USB_D-] on B.Cu, length 12.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(95.2500 mm, 115.2500 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(26.7500 mm, 30.2500 mm): Track [CGND] on B.Cu, length 0.5000 mm
+    @(27.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(88.7500 mm, 112.7500 mm): Track [I_SENSE] on B.Cu, length 3.0000 mm
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(88.7500 mm, 112.7500 mm): Track [I_SENSE] on B.Cu, length 3.0000 mm
+    @(89.2500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets USB_D- and GND)
+    Local override; error
+    @(85.2500 mm, 113.2500 mm): Track [USB_D-] on B.Cu, length 11.5000 mm
+    @(89.2500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and GATE_L)
+    Local override; error
+    @(39.7500 mm, 38.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(39.5000 mm, 38.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1250 mm)
+    Rule: netclass 'Default'; error
+    @(40.7500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(39.5000 mm, 31.8250 mm): Pad 15 [GATE_H] of U_GATE on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(75.7500 mm, 51.7500 mm): Track [GND] on F.Cu, length 2.0000 mm
+    @(76.2500 mm, 51.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(42.2500 mm, 35.2500 mm): Track [+15V] on F.Cu, length 2.0000 mm
+    @(41.7500 mm, 36.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(70.7500 mm, 95.7500 mm): Track [PWM_H] on B.Cu, length 4.0000 mm
+    @(75.2500 mm, 96.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(95.7500 mm, 112.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(95.2500 mm, 113.2500 mm): Track [+3V3] on F.Cu, length 4.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(27.2500 mm, 30.2500 mm): Track [CGND] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and PGND)
+    Local override; error
+    @(41.7500 mm, 36.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(58.2500 mm, 35.7500 mm): Track [PGND] on B.Cu, length 18.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.2500 mm, 117.7500 mm): Track [+3V3] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets CGND and AC_L)
+    Local override; error
+    @(27.2500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 3.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(95.2500 mm, 115.7500 mm): Track [+3V3] on F.Cu, length 5.5000 mm
+    @(95.7500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets AC_L and CGND)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.7500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and CGND)
+    Local override; error
+    @(42.7500 mm, 15.2500 mm): Track [GATE_L] on F.Cu, length 8.0000 mm
+    @(43.2500 mm, 22.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets AC_L and CGND)
+    Local override; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.7500 mm, 30.2500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 28.2500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(26.7500 mm, 27.2500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(78.2500 mm, 95.2500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(77.7500 mm, 95.7500 mm): Track [SPI_CS_TEMP] on B.Cu, length 2.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(40.7500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 0.5000 mm
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(88.7500 mm, 112.7500 mm): Track [GND] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(88.7500 mm, 111.7500 mm): Track [GND] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(27.2500 mm, 27.2500 mm): Track [+15V] on F.Cu, length 12.5000 mm
+    @(26.7500 mm, 27.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(85.7500 mm, 112.7500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(87.7500 mm, 112.2500 mm): Track [GND] on F.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(87.7500 mm, 111.7500 mm): Track [GND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and USB_D-)
+    Local override; error
+    @(85.7500 mm, 112.7500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(85.2500 mm, 100.7500 mm): Track [USB_D-] on B.Cu, length 12.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and DC_BUS+)
+    Local override; error
+    @(39.7500 mm, 27.2500 mm): Track [+15V] on F.Cu, length 1.0000 mm
+    @(40.2500 mm, 27.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(88.2500 mm, 112.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(87.7500 mm, 112.2500 mm): Track [GND] on F.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(85.7500 mm, 112.7500 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(85.2500 mm, 112.2500 mm): Track [GND] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0500 mm)
+    Rule: netclass 'Default'; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and GATE_H)
+    Local override; error
+    @(39.7500 mm, 32.2500 mm): Track [VCC_BOOT] on B.Cu, length 7.5000 mm
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(42.2500 mm, 37.2500 mm): Track [+15V] on F.Cu, length 0.5000 mm
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(41.2500 mm, 37.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and DC_BUS+)
+    Local override; error
+    @(47.2500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[shorting_items]: Items shorting two nets (nets GATE_L and +15V)
+    Local override; error
+    @(48.2500 mm, 24.2500 mm): Track [GATE_L] on F.Cu, length 14.0000 mm
+    @(47.7500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and DC_BUS+)
+    Local override; error
+    @(45.7500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 0.5000 mm
+    @(45.2500 mm, 30.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_CS_TEMP)
+    Local override; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(77.7500 mm, 96.2500 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and DC_BUS+)
+    Local override; error
+    @(45.7500 mm, 30.7500 mm): Track [VCC_BOOT] on B.Cu, length 3.5000 mm
+    @(45.2500 mm, 30.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.2500 mm, 31.2500 mm): Via [GND] on F.Cu - B.Cu
+    @(73.7500 mm, 31.2500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(41.7500 mm, 37.2500 mm): Track [+15V] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.7500 mm, 37.7500 mm): Track [GATE_L] on F.Cu, length 3.5000 mm
+    @(42.2500 mm, 35.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.2500 mm, 34.2500 mm): Track [GATE_L] on F.Cu, length 3.5000 mm
+    @(46.7500 mm, 33.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(41.7500 mm, 37.7500 mm): Track [+15V] on F.Cu, length 1.0000 mm
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.2500 mm, 66.7500 mm): Track [+5V] on B.Cu, length 0.5000 mm
+    @(72.7500 mm, 66.2500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(48.2500 mm, 30.7500 mm): Track [GATE_L] on F.Cu, length 6.5000 mm
+    @(47.7500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(40.7500 mm, 37.7500 mm): Track [+15V] on F.Cu, length 0.5000 mm
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(40.7500 mm, 37.2500 mm): Track [+15V] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(26.7500 mm, 27.2500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.2500 mm, 66.2500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+    @(72.7500 mm, 66.2500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(10.2500 mm, 30.2500 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(27.2500 mm, 30.7500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.2500 mm, 30.7500 mm): Via [CGND] on F.Cu - B.Cu
+    @(27.7500 mm, 47.2500 mm): Track [DC_BUS+] on B.Cu, length 21.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(79.2500 mm, 96.7500 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.2500 mm, 105.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 3.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(26.7500 mm, 109.2500 mm): Track [SPI_CLK] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.7500 mm, 98.7500 mm): Track [PWM_H] on F.Cu, length 2.0000 mm
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.2500 mm, 97.7500 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.7500 mm, 47.2500 mm): Track [DC_BUS+] on B.Cu, length 21.0000 mm
+    @(28.2500 mm, 29.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.2500 mm, 28.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(27.7500 mm, 47.2500 mm): Track [DC_BUS+] on B.Cu, length 21.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(17.7500 mm, 27.7500 mm): Track [GATE_H] on F.Cu, length 24.5000 mm
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(41.2500 mm, 37.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(41.2500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 5.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(41.7500 mm, 37.2500 mm): Track [SW_NODE] on B.Cu, length 4.5000 mm
+    @(41.2500 mm, 37.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(47.7500 mm, 32.7500 mm): Track [GATE_H] on B.Cu, length 6.5000 mm
+    @(47.2500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(10.2500 mm, 30.2500 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(27.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.7500 mm, 47.2500 mm): Track [DC_BUS+] on B.Cu, length 21.0000 mm
+    @(27.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(17.7500 mm, 27.7500 mm): Track [GATE_H] on F.Cu, length 24.5000 mm
+    @(17.7500 mm, 28.2500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.7500 mm, 98.2500 mm): Track [SPI_MOSI] on B.Cu, length 8.0000 mm
+    @(74.2500 mm, 105.7500 mm): Via [+5V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.2500 mm, 105.7500 mm): Via [+5V] on F.Cu - B.Cu
+    @(84.7500 mm, 106.2500 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(74.7500 mm, 106.2500 mm): Track [SPI_MOSI] on B.Cu, length 46.5000 mm
+    @(75.2500 mm, 105.7500 mm): Via [+5V] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0750 mm)
+    Rule: board setup constraints hole; error
+    @(39.5000 mm, 38.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+    @(39.7500 mm, 38.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0950 mm)
+    Rule: board setup constraints hole; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(40.7500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(39.5000 mm, 30.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(76.7500 mm, 102.7500 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(76.5500 mm, 102.4000 mm): Pad 2 [GND] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(76.5500 mm, 97.6000 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.8000 mm, 96.5500 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(83.4500 mm, 100.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(83.4500 mm, 100.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(73.2500 mm, 102.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1000 mm)
+    Rule: netclass 'Default'; error
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0553 mm)
+    Rule: board setup constraints hole; error
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(10.2500 mm, 30.2500 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(10.2500 mm, 30.2500 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.2500 mm, 32.7500 mm): Track [GATE_H] on F.Cu, length 0.5000 mm
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(39.7500 mm, 32.2500 mm): Track [GATE_H] on F.Cu, length 0.5000 mm
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(39.7500 mm, 32.7500 mm): Track [GATE_H] on F.Cu, length 1.0000 mm
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(47.2500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(45.7500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 0.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(45.7500 mm, 30.7500 mm): Track [VCC_BOOT] on B.Cu, length 3.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(79.2500 mm, 96.7500 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(79.2500 mm, 96.7500 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.2500 mm, 96.7500 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.5000 mm
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.2500 mm, 96.7500 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.5000 mm
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 105.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 3.0000 mm
+    @(27.1000 mm, 107.0750 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 105.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 3.0000 mm
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 105.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 3.0000 mm
+    @(27.1000 mm, 108.3750 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 108.2500 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+    @(27.1000 mm, 108.3750 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(71.2500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 5.5000 mm
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.7500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 3.0000 mm
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.7500 mm, 103.2500 mm): Track [+3V3] on F.Cu, length 0.5000 mm
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.7500 mm, 102.7500 mm): Track [+3V3] on F.Cu, length 0.5000 mm
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 113.2500 mm): Track [+3V3] on F.Cu, length 4.5000 mm
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 117.7500 mm): Track [+3V3] on B.Cu, length 2.0000 mm
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 115.7500 mm): Track [+3V3] on F.Cu, length 5.5000 mm
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.7500 mm, 15.2500 mm): Track [SW_NODE] on F.Cu, length 16.5000 mm
+    @(30.9000 mm, 15.0000 mm): PTH pad 3 [DC_BUS+] of Q1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.7500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.7500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(43.2500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 2.5000 mm
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.7500 mm, 30.7500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(72.7500 mm, 66.2500 mm): Track [GND] on F.Cu, length 32.0000 mm
+    @(72.5000 mm, 97.0000 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(74.2500 mm, 102.7500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 131.2500 mm): Track [GND] on F.Cu, length 1.0000 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 131.2500 mm): Track [GND] on F.Cu, length 1.0000 mm
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 130.2500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 130.2500 mm): Track [GND] on F.Cu, length 2.5000 mm
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.7500 mm, 96.7500 mm): Track [SPI_CLK] on F.Cu, length 1.0000 mm
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 3.5000 mm
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 3.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 3.5000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.7500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.7500 mm, 30.7500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.7500 mm, 30.2500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.7500 mm, 30.2500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.7500 mm, 108.7500 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.7500 mm, 94.2500 mm): Track [PWM_L] on F.Cu, length 3.0000 mm
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.7500 mm, 97.2500 mm): Track [PWM_L] on F.Cu, length 1.5000 mm
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(75.2500 mm, 98.2500 mm): Track [PWM_L] on F.Cu, length 1.5000 mm
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.7500 mm, 30.7500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.7500 mm, 29.7500 mm): Track [+15V] on B.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.2500 mm, 29.7500 mm): Track [+15V] on B.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.2500 mm, 29.2500 mm): Track [+15V] on B.Cu, length 2.0000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 29.7500 mm): Track [+15V] on F.Cu, length 2.0000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(29.2500 mm, 29.7500 mm): Track [+15V] on B.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(29.2500 mm, 29.2500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(40.7500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.7500 mm, 98.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(79.2500 mm, 96.7500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.2500 mm, 96.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.2500 mm, 102.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(86.7500 mm, 100.2500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(87.5000 mm, 100.0000 mm): Pad 2 [GND] of C_MCU_4 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(39.7500 mm, 38.7500 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(39.5000 mm, 38.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.7500 mm, 102.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.7500 mm, 96.7500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.7500 mm, 107.2500 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(31.2500 mm, 30.2500 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(39.5000 mm, 30.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(76.5500 mm, 102.4000 mm): Pad 2 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(76.5500 mm, 97.6000 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.8000 mm, 96.5500 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(83.4500 mm, 100.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(83.4500 mm, 100.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(27.2500 mm, 134.2500 mm): Track [TEMP_SENSE] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(83.7500 mm, 100.2500 mm): Track [USB_D+] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(94.2500 mm, 130.2500 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(83.7500 mm, 100.7500 mm): Track [USB_D-] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(96.7500 mm, 130.2500 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(39.7500 mm, 33.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(42.2500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(30.7500 mm, 32.2500 mm): Track [PWM_H] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(54.7500 mm, 60.2500 mm): Track [PGND] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(58.2500 mm, 15.2500 mm): Track [PGND] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(39.7500 mm, 35.7500 mm): Track [PGND] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(75.2500 mm, 50.2500 mm): Track [+3V3] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(32.2500 mm, 132.2500 mm): Track [+3V3] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(22.7500 mm, 60.2500 mm): Track [DC_BUS+] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(58.2500 mm, 15.2500 mm): Track [SW_NODE] on F.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(80.2500 mm, 103.7500 mm): Track [GND] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(28.2500 mm, 107.7500 mm): Track [SPI_MOSI] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(25.2500 mm, 132.7500 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(42.7500 mm, 122.2500 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(25.7500 mm, 132.2500 mm): Track [SPI_CLK] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(30.7500 mm, 35.7500 mm): Track [CGND] on B.Cu, length 4.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(24.7500 mm, 133.7500 mm): Track [SPI_MISO] on B.Cu, length 2.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(30.7500 mm, 33.2500 mm): Track [PWM_L] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(79.7500 mm, 65.2500 mm): Track [+15V] on B.Cu, length 2.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(74.2500 mm, 30.2500 mm): Track [+5V] on B.Cu, length 0.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(75.2500 mm, 60.2500 mm): Track [+5V] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(42.7500 mm, 119.7500 mm): Track [+5V] on B.Cu, length 1.5000 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning
+    @(76.7500 mm, 98.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(40.2500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(40.7500 mm, 32.7500 mm): Via [GATE_H] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(76.7500 mm, 98.7500 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(76.7500 mm, 98.2500 mm): Via [PWM_L] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(27.2500 mm, 109.2500 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(27.2500 mm, 108.7500 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(76.7500 mm, 102.7500 mm): Via [GND] on F.Cu - B.Cu
+    @(76.7500 mm, 103.2500 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.2500 mm, 117.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(95.0000 mm, 117.5400 mm): PTH pad 2 [+3V3] of J_DEBUG
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0906 mm)
+    Rule: board setup constraints; warning
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+    @(45.2500 mm, 30.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(41.2500 mm, 37.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(41.2500 mm, 37.2500 mm): Via [SW_NODE] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0906 mm)
+    Rule: board setup constraints; warning
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.7500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(27.2500 mm, 27.2500 mm): Via [+15V] on F.Cu - B.Cu
+    @(26.7500 mm, 27.2500 mm): Via [CGND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(47.7500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+    @(47.2500 mm, 25.7500 mm): Via [+15V] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.2500 mm, 29.7500 mm): Via [+15V] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+    @(45.2500 mm, 30.2500 mm): Via [DC_BUS+] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0906 mm)
+    Rule: board setup constraints; warning
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.2500 mm, 115.7500 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0906 mm)
+    Rule: board setup constraints; warning
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+    @(95.7500 mm, 115.2500 mm): Via [GND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.2500 mm, 117.7500 mm): Via [+3V3] on F.Cu - B.Cu
+    @(95.0000 mm, 117.5400 mm): PTH pad 2 [+3V3] of J_DEBUG
+[lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_IEC'.
+    Local override; warning
+    @(10.0000 mm, 75.0000 mm): Footprint J_AC_IN
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Diode_THT.pretty'.
+    Local override; warning
+    @(30.0000 mm, 30.0000 mm): Footprint D1
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Diode_THT.pretty'.
+    Local override; warning
+    @(30.0000 mm, 45.0000 mm): Footprint D2
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_THT.pretty'.
+    Local override; warning
+    @(25.0000 mm, 60.0000 mm): Footprint C_BUS1
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_THT.pretty'.
+    Local override; warning
+    @(45.0000 mm, 60.0000 mm): Footprint C_BUS2
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(20.0000 mm, 15.0000 mm): Footprint Q1
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(45.0000 mm, 15.0000 mm): Footprint Q2
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(35.0000 mm, 35.0000 mm): Footprint U_GATE
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(42.0000 mm, 30.0000 mm): Footprint C_BOOT
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(30.0000 mm, 30.0000 mm): Footprint C_VCC
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(25.0000 mm, 25.0000 mm): Footprint R_GATE_H
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(45.0000 mm, 25.0000 mm): Footprint R_GATE_L
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(75.0000 mm, 30.0000 mm): Footprint U_BUCK
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(75.0000 mm, 50.0000 mm): Footprint U_LDO_3V3
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(75.0000 mm, 65.0000 mm): Footprint U_LDO_5V
+[lib_footprint_issues]: The footprint library 'Package_DFN_QFN' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_DFN_QFN.pretty'.
+    Local override; warning
+    @(80.0000 mm, 100.0000 mm): Footprint U_MCU
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(73.0000 mm, 97.0000 mm): Footprint C_MCU_1
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(73.0000 mm, 100.0000 mm): Footprint C_MCU_2
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(73.0000 mm, 103.0000 mm): Footprint C_MCU_3
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(87.0000 mm, 100.0000 mm): Footprint C_MCU_4
+[lib_footprint_issues]: The footprint library 'Connector_USB' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_USB.pretty'.
+    Local override; warning
+    @(95.0000 mm, 130.0000 mm): Footprint J_USB
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(95.0000 mm, 115.0000 mm): Footprint J_DEBUG
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(30.0000 mm, 110.0000 mm): Footprint U_CT
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(30.0000 mm, 120.0000 mm): Footprint R_BURDEN
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(30.0000 mm, 125.0000 mm): Footprint C_CT_FILT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(40.0000 mm, 120.0000 mm): Footprint U_OPAMP_CT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(30.0000 mm, 135.0000 mm): Footprint MAX31865
+[lib_footprint_issues]: The footprint library 'Connector_Phoenix_MC' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_Phoenix_MC.pretty'.
+    Local override; warning
+    @(10.0000 mm, 120.0000 mm): Footprint J_COIL
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(10.0000 mm, 135.0000 mm): Footprint J_NTC
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(5.0000 mm, 5.0000 mm): Footprint MH1
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(95.0000 mm, 5.0000 mm): Footprint MH2
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(5.0000 mm, 145.0000 mm): Footprint MH3
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(95.0000 mm, 145.0000 mm): Footprint MH4
+
+** Found 60 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.1000 mm, 137.9250 mm): Pad 10 [GND] of MAX31865 on F.Cu
+    @(28.2500 mm, 138.2500 mm): Track [GND] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(34.7500 mm, 114.2500 mm): Track [GND] on F.Cu, length 7.5000 mm
+    @(27.1000 mm, 112.9250 mm): Pad 10 [GND] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.8250 mm, 125.0000 mm): Pad 2 [GND] of C_CT_FILT on F.Cu
+    @(31.2500 mm, 120.2500 mm): Track [GND] on B.Cu, length 2.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.2500 mm, 120.2500 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(31.0000 mm, 120.0000 mm): Pad 2 [GND] of R_BURDEN on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.5250 mm, 121.9050 mm): Pad 4 [GND] of U_OPAMP_CT on F.Cu
+    @(31.2500 mm, 122.2500 mm): Track [GND] on B.Cu, length 6.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(73.7500 mm, 97.2500 mm): Track [GND] on B.Cu, length 3.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(74.2500 mm, 101.7500 mm): Track [GND] on F.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.2500 mm, 30.2500 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.2500 mm, 30.2500 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(76.1000 mm, 30.9500 mm): Pad 6 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(77.7500 mm, 103.7500 mm): Track [GND] on B.Cu, length 2.0000 mm
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 34.3650 mm): Pad 13 [PGND] of U_GATE on F.Cu
+    @(39.7500 mm, 35.7500 mm): Track [PGND] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 35.6350 mm): Pad 12 [PGND] of U_GATE on F.Cu
+    @(58.2500 mm, 35.7500 mm): Track [PGND] on B.Cu, length 18.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(50.4500 mm, 15.0000 mm): PTH pad 2 [PGND] of Q2
+    @(55.2500 mm, 57.7500 mm): Track [PGND] on B.Cu, length 40.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(54.7500 mm, 62.2500 mm): Track [PGND] on B.Cu, length 2.0000 mm
+    @(52.5000 mm, 60.0000 mm): PTH pad 2 [PGND] of C_BUS2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 35.6350 mm): Pad 5 [CGND] of U_GATE on F.Cu
+    @(30.7500 mm, 35.7500 mm): Track [CGND] on B.Cu, length 4.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 36.9050 mm): Pad 6 [CGND] of U_GATE on F.Cu
+    @(30.7500 mm, 35.7500 mm): Track [CGND] on B.Cu, length 4.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 38.1750 mm): Pad 7 [CGND] of U_GATE on F.Cu
+    @(30.5000 mm, 36.9050 mm): Pad 6 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 39.4450 mm): Pad 8 [CGND] of U_GATE on F.Cu
+    @(30.7500 mm, 35.7500 mm): Track [CGND] on B.Cu, length 4.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(34.7500 mm, 107.2500 mm): Track [+3V3] on B.Cu, length 1.5000 mm
+    @(32.9000 mm, 107.0750 mm): Pad 20 [+3V3] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(32.2500 mm, 132.2500 mm): Track [+3V3] on B.Cu, length 1.0000 mm
+    @(32.9000 mm, 132.0750 mm): Pad 20 [+3V3] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(72.5000 mm, 97.0000 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+    @(73.2500 mm, 97.2500 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(72.5000 mm, 100.0000 mm): Pad 1 [+3V3] of C_MCU_2 on F.Cu
+    @(72.7500 mm, 100.2500 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.2500 mm, 50.2500 mm): Track [+3V3] on B.Cu, length 1.0000 mm
+    @(75.0000 mm, 50.0000 mm): Pad 2 [+3V3] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.4750 mm, 118.0950 mm): Pad 8 [+5V] of U_OPAMP_CT on F.Cu
+    @(42.7500 mm, 119.7500 mm): Track [+5V] on B.Cu, length 1.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.4750 mm, 119.3650 mm): Pad 7 [+5V] of U_OPAMP_CT on F.Cu
+    @(43.7500 mm, 119.7500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(74.7500 mm, 30.2500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+    @(73.9000 mm, 30.0000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(71.2500 mm, 60.2500 mm): Track [+5V] on B.Cu, length 4.0000 mm
+    @(75.0000 mm, 61.8000 mm): Pad 4 [+5V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.2500 mm, 65.2500 mm): Track [+5V] on B.Cu, length 1.5000 mm
+    @(75.0000 mm, 65.0000 mm): Pad 2 [+5V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(74.7500 mm, 29.2500 mm): Track [+5V] on B.Cu, length 1.5000 mm
+    @(76.1000 mm, 29.0500 mm): Pad 4 [+5V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(78.7500 mm, 50.2500 mm): Track [+5V] on B.Cu, length 1.0000 mm
+    @(77.3000 mm, 50.0000 mm): Pad 3 [+5V] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.7500 mm, 30.7500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(58.7500 mm, 29.2500 mm): Track [+15V] on B.Cu, length 15.5000 mm
+    @(73.9000 mm, 29.0500 mm): Pad 3 [+15V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(77.3000 mm, 65.0000 mm): Pad 3 [+15V] of U_LDO_5V on F.Cu
+    @(79.7500 mm, 65.2500 mm): Track [+15V] on B.Cu, length 2.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(39.7500 mm, 33.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+    @(42.2500 mm, 30.2500 mm): Track [VCC_BOOT] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.7500 mm, 57.7500 mm): Track [DC_BUS+] on B.Cu, length 2.5000 mm
+    @(25.0000 mm, 60.0000 mm): PTH pad 1 [DC_BUS+] of C_BUS1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.7500 mm, 60.2500 mm): Track [DC_BUS+] on B.Cu, length 13.0000 mm
+    @(45.0000 mm, 60.0000 mm): PTH pad 1 [DC_BUS+] of C_BUS2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.7500 mm, 32.2500 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(39.5000 mm, 30.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(55.9000 mm, 15.0000 mm): PTH pad 3 [SW_NODE] of Q2
+    @(58.2500 mm, 12.7500 mm): Track [SW_NODE] on F.Cu, length 2.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.7500 mm, 32.2500 mm): Track [GATE_H] on F.Cu, length 0.5000 mm
+    @(39.5000 mm, 31.8250 mm): Pad 15 [GATE_H] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 38.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+    @(42.2500 mm, 38.2500 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 31.8250 mm): Pad 2 [PWM_H] of U_GATE on F.Cu
+    @(30.7500 mm, 32.2500 mm): Track [PWM_H] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.7500 mm, 33.2500 mm): Track [PWM_L] on B.Cu, length 1.5000 mm
+    @(30.5000 mm, 33.0950 mm): Pad 3 [PWM_L] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.1750 mm, 125.0000 mm): Pad 1 [I_SENSE] of C_CT_FILT on F.Cu
+    @(30.2500 mm, 120.2500 mm): Track [I_SENSE] on F.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.5250 mm, 119.3650 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(29.2500 mm, 118.2500 mm): Track [I_SENSE] on B.Cu, length 8.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.7500 mm, 118.2500 mm): Track [I_SENSE] on B.Cu, length 2.5000 mm
+    @(37.5250 mm, 120.6350 mm): Pad 3 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.4750 mm, 120.6350 mm): Pad 6 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(42.7500 mm, 122.2500 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.4750 mm, 121.9050 mm): Pad 5 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(43.2500 mm, 122.2500 mm): Track [I_SENSE] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(76.7500 mm, 97.7500 mm): Track [I_SENSE] on B.Cu, length 0.5000 mm
+    @(76.5500 mm, 97.6000 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.2500 mm, 134.2500 mm): Track [TEMP_SENSE] on B.Cu, length 1.0000 mm
+    @(27.1000 mm, 134.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.7500 mm, 132.2500 mm): Track [SPI_CLK] on B.Cu, length 1.5000 mm
+    @(27.1000 mm, 132.0750 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.2500 mm, 132.7500 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(28.2500 mm, 106.2500 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(78.2500 mm, 96.7500 mm): Track [SPI_MOSI] on B.Cu, length 1.0000 mm
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(24.7500 mm, 133.7500 mm): Track [SPI_MISO] on B.Cu, length 2.5000 mm
+    @(27.1000 mm, 133.3750 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(78.7500 mm, 96.7500 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(83.4500 mm, 100.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(83.7500 mm, 100.2500 mm): Track [USB_D+] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(94.2500 mm, 130.2500 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(83.7500 mm, 100.7500 mm): Track [USB_D-] on B.Cu, length 1.5000 mm
+    @(83.4500 mm, 100.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+    @(96.7500 mm, 130.2500 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+
+** Found 0 Footprint errors **
+
+** End of Report **

@@ -95,6 +95,11 @@ class PCBGeometry:
     _next_via_id: int = field(default=0, repr=False)
     _next_pad_id: int = field(default=0, repr=False)
 
+    # ID lookups
+    _track_map: dict[str, Track] = field(default_factory=dict, repr=False)
+    _via_map: dict[str, Via] = field(default_factory=dict, repr=False)
+    _pad_map: dict[str, Pad] = field(default_factory=dict, repr=False)
+
     def add_track(self, track: Track) -> str:
         """Add a track and return its ID.
 
@@ -105,6 +110,7 @@ class PCBGeometry:
             track.id = f"track_{self._next_track_id}"
             self._next_track_id += 1
         self.tracks.append(track)
+        self._track_map[track.id] = track
         self._track_index = None  # Invalidate index
         return track.id
 
@@ -114,6 +120,7 @@ class PCBGeometry:
             via.id = f"via_{self._next_via_id}"
             self._next_via_id += 1
         self.vias.append(via)
+        self._via_map[via.id] = via
         self._via_index = None
         return via.id
 
@@ -123,8 +130,19 @@ class PCBGeometry:
             pad.id = f"pad_{self._next_pad_id}"
             self._next_pad_id += 1
         self.pads.append(pad)
+        self._pad_map[pad.id] = pad
         self._pad_index = None
         return pad.id
+        
+    def get_geometry_by_id(self, item_id: str) -> Track | Via | Pad | None:
+        """Get geometry item by ID."""
+        if item_id.startswith("track_"):
+            return self._track_map.get(item_id)
+        if item_id.startswith("via_"):
+            return self._via_map.get(item_id)
+        if item_id.startswith("pad_"):
+            return self._pad_map.get(item_id)
+        return None
 
     def rebuild_index(self) -> None:
         """Rebuild spatial indices for efficient queries.

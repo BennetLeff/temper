@@ -337,29 +337,41 @@ class DRCOracle:
     def validate_all(self) -> list[Violation]:
         """Validate all geometry and return list of violations.
 
-        This is an O(n²) operation - use sparingly for batch validation.
-
-        Returns:
-            List of all violations found
+        Uses spatial index for O(N log N) performance.
         """
+        self.geometry.rebuild_index()
         violations: list[Violation] = []
+        checked = set()
 
         # Check all track-to-track clearances
-        for i, track_a in enumerate(self.geometry.tracks):
-            for track_b in self.geometry.tracks[i + 1 :]:
-                if track_a.layer != track_b.layer:
+        for track_a in self.geometry.tracks:
+            seg_a = track_a.to_segment()
+            
+            # Search radius needs to account for max possible clearance + segment extent
+            # We search around midpoint.
+            # Max extent = length/2. Max clearance approx 0.5mm? 
+            # Let's use flexible search radius.
+            search_radius = (seg_a.length / 2) + self.rules.default_clearance + 0.5
+            
+            nearby_tracks = self.geometry.query_tracks_near(seg_a.midpoint(), search_radius, track_a.layer)
+            
+            for track_b in nearby_tracks:
+                if track_a.id == track_b.id:
                     continue
                 if track_a.net == track_b.net:
+                    continue
+                    
+                # Use ID sorting to avoid duplicate checks
+                if track_a.id > track_b.id:
                     continue
 
                 required = self.rules.get_clearance(track_a.net, track_b.net)
                 effective = required + (track_a.width / 2) + (track_b.width / 2)
 
                 actual = segment_to_segment_distance(
-                    track_a.to_segment(), track_b.to_segment()
+                    seg_a, track_b.to_segment()
                 )
                 if actual < effective:
-                    seg_a = track_a.to_segment()
                     violations.append(
                         Violation(
                             type="track_clearance",
@@ -374,9 +386,17 @@ class DRCOracle:
                     )
 
         # Check all via-to-via clearances
-        for i, via_a in enumerate(self.geometry.vias):
-            for via_b in self.geometry.vias[i + 1 :]:
+        for via_a in self.geometry.vias:
+            search_radius = (via_a.diameter/2) + self.rules.default_clearance + 0.5
+            nearby_vias = self.geometry.query_vias_near(via_a.center, search_radius)
+            
+            for via_b in nearby_vias:
+                if via_a.id == via_b.id:
+                    continue
                 if via_a.net == via_b.net:
+                    continue
+                    
+                if via_a.id > via_b.id:
                     continue
 
                 required = self.rules.get_clearance(via_a.net, via_b.net)
@@ -396,6 +416,9 @@ class DRCOracle:
                             location=via_a.center,
                         )
                     )
+                    
+        # TODO: Add Track-Via and Via-Pad checks here for completeness
+        # but pure Track-Track is the main issue for nudging.
 
         return violations
 

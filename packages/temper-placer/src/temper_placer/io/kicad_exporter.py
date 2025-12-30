@@ -338,3 +338,76 @@ def export_routed_pcb(
         nets_failed=nets_failed,
         warnings=warnings,
     )
+
+from temper_placer.routing.constraints.spatial_index import Track as GeoTrack, Via as GeoVia
+
+def export_from_geometry(
+    template_pcb: Path,
+    output_pcb: Path,
+    tracks: list[GeoTrack],
+    vias: list[GeoVia],
+    layer_map: dict[int, str] | None = None,
+) -> ExportResult:
+    """Export geometry directly to KiCad PCB.
+    
+    Args:
+        template_pcb: Input PCB path
+        output_pcb: Output PCB path
+        tracks: List of Track objects from PCBGeometry
+        vias: List of Via objects from PCBGeometry
+        layer_map: Layer index to name map
+        
+    Returns:
+        ExportResult stats
+    """
+    layer_map = layer_map or DEFAULT_LAYER_MAP
+    
+    # Load PCB
+    with open(template_pcb, "r") as f:
+        content = f.read()
+    pcb = KicadPCB(content)
+    
+    # Clear existing traces/vias
+    # TODO: Be selective if needed (e.g. keep pre-routed)
+    # For now, we assume we replace all routing
+    pcb.items = [item for item in pcb.items if not isinstance(item, (TraceSegment, TraceVia))]
+    
+    total_segments = 0
+    total_vias = 0
+    
+    # Add tracks
+    for track in tracks:
+        layer_name = layer_map.get(track.layer, "F.Cu")
+        segment = TraceSegment(
+            start=(track.start.x, track.start.y),
+            end=(track.end.x, track.end.y),
+            width=track.width,
+            layer=layer_name,
+            net=track.net,
+        )
+        pcb.items.append(segment)
+        total_segments += 1
+        
+    # Add vias
+    for via in vias:
+        # Assuming through-hole for now
+        kicad_via = TraceVia(
+            at=(via.center.x, via.center.y),
+            size=via.diameter,
+            drill=via.drill,
+            layers=["F.Cu", "B.Cu"], # Default through
+            net=via.net,
+        )
+        pcb.items.append(kicad_via)
+        total_vias += 1
+            
+    # Write output
+    with open(output_pcb, "w") as f:
+        f.write(pcb.to_sexpr())
+        
+    return ExportResult(
+        segments_added=total_segments,
+        vias_added=total_vias,
+        nets_routed=len(set(t.net for t in tracks)),
+        nets_failed=0 # We assume input geometry is what we want
+    )

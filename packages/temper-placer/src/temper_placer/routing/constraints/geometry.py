@@ -117,6 +117,67 @@ def segment_to_segment_distance(seg1: LineSegment, seg2: LineSegment) -> float:
     d4 = point_to_segment_distance(seg2.end, seg1)
 
     return min(d1, d2, d3, d4)
+def closest_points_segment_segment(
+    seg1: LineSegment, seg2: LineSegment
+) -> tuple[Point, Point]:
+    """Find closest points between two line segments.
+    
+    Args:
+        seg1: First segment
+        seg2: Second segment
+        
+    Returns:
+        (p1, p2) where p1 is on seg1, p2 is on seg2, and dist(p1, p2) is minimized.
+    """
+    # Algorithm based on calculating the shortest distance between two lines,
+    # then clamping parameters to segments.
+    
+    p1, q1 = seg1.start, seg1.end
+    p2, q2 = seg2.start, seg2.end
+    
+    d1 = Point(q1.x - p1.x, q1.y - p1.y)
+    d2 = Point(q2.x - p2.x, q2.y - p2.y)
+    r = Point(p1.x - p2.x, p1.y - p2.y)
+    
+    a = d1.x * d1.x + d1.y * d1.y
+    e = d2.x * d2.x + d2.y * d2.y
+    f = d2.x * r.x + d2.y * r.y
+    
+    if a <= 1e-10 and e <= 1e-10:
+        # Both segments are points
+        return p1, p2
+    if a <= 1e-10:
+        # Seg1 is a point
+        t = max(0.0, min(1.0, f / e))
+        return p1, Point(p2.x + t * d2.x, p2.y + t * d2.y)
+    if e <= 1e-10:
+        # Seg2 is a point
+        c = d1.x * r.x + d1.y * r.y
+        s = max(0.0, min(1.0, -c / a))
+        return Point(p1.x + s * d1.x, p1.y + s * d1.y), p2
+        
+    c = d1.x * r.x + d1.y * r.y
+    b = d1.x * d2.x + d1.y * d2.y
+    denom = a * e - b * b
+    
+    # Parallel lines check
+    if denom != 0.0:
+        s = max(0.0, min(1.0, (b * f - c * e) / denom))
+    else:
+        s = 0.0
+        
+    t = (b * s + f) / e
+    
+    if t < 0.0:
+        t = 0.0
+        s = max(0.0, min(1.0, -c / a))
+    elif t > 1.0:
+        t = 1.0
+        s = max(0.0, min(1.0, (b - c) / a))
+        
+    c1 = Point(p1.x + s * d1.x, p1.y + s * d1.y)
+    c2 = Point(p2.x + t * d2.x, p2.y + t * d2.y)
+    return c1, c2
 
 
 def _segments_intersect(seg1: LineSegment, seg2: LineSegment) -> bool:
