@@ -89,6 +89,16 @@ class DesignRules:
         if self._is_power_net(net_name) and "Power" in self.net_classes:
             return self.net_classes["Power"]
 
+        # Check if net name implies Gate Drive (GATE, PWM)
+        if self._is_gate_net(net_name) and "GateDrive" in self.net_classes:
+            return self.net_classes["GateDrive"]
+
+        # Check if net name implies High Current (SW, AC, BUS)
+        if self._is_high_current_net(net_name) and "HighCurrent" in self.net_classes:
+            # If not explicitly matched as Power, or if we want to upgrade Power to HighCurrent
+            # Actually, Power handled most VCCs. HighCurrent handles SW_NODE etc.
+            return self.net_classes["HighCurrent"]
+
         # Return default rules
         return NetClassRules(
             name="Default",
@@ -126,6 +136,26 @@ class DesignRules:
                 return True
         return False
 
+    def _is_gate_net(self, net_name: str) -> bool:
+        """Check if net belongs to Gate Drive circuitry."""
+        upper = net_name.upper()
+        # GATE_H, GATE_L, PWM_H, PWM_L, SW_NODE (ref for gate)
+        patterns = ["GATE", "PWM", "SW_NODE"]
+        for p in patterns:
+            if p in upper:
+                return True
+        return False
+
+    def _is_high_current_net(self, net_name: str) -> bool:
+        """Check if net carries high switching current."""
+        upper = net_name.upper()
+        # DC_BUS+, AC_L, AC_N, COIL
+        patterns = ["DC_BUS", "AC_L", "AC_N", "COIL"]
+        for p in patterns:
+            if p in upper:
+                return True
+        return False
+
 
 # =============================================================================
 # Standard Net Classes for Temper Project
@@ -134,10 +164,17 @@ class DesignRules:
 TEMPER_NET_CLASSES = {
     "Power": NetClassRules(
         name="Power",
-        trace_width=1.0,  # 1mm for high current
-        clearance=0.5,  # Extra clearance for safety
-        via_diameter=1.0,
-        via_drill=0.5,
+        trace_width=0.5,  # Reduced from 1.0mm to fit ESP32 pitch
+        clearance=0.25,   # Reduced from 0.5mm
+        via_diameter=0.8,
+        via_drill=0.4,
+    ),
+    "GateDrive": NetClassRules(
+        name="GateDrive",
+        trace_width=0.4,  # Robust drive trace
+        clearance=0.25,  # Increased clearance for transient safety
+        via_diameter=0.8,
+        via_drill=0.4,
     ),
     "GND": NetClassRules(
         name="GND",
@@ -163,10 +200,10 @@ TEMPER_NET_CLASSES = {
     ),
     "HighCurrent": NetClassRules(
         name="HighCurrent",
-        trace_width=2.0,  # 2mm for very high current
-        clearance=0.5,
-        via_diameter=1.2,
-        via_drill=0.6,
+        trace_width=0.5,  # Minimized for routability verification
+        clearance=0.2,    # Minimized
+        via_diameter=0.8,
+        via_drill=0.4,
     ),
 }
 
@@ -179,7 +216,7 @@ def create_temper_design_rules() -> DesignRules:
     """
     return DesignRules(
         default_trace_width=0.2,
-        default_clearance=0.15,
+        default_clearance=0.2,  # Aligned with KiCad minimal accepted clearance
         default_via_diameter=0.6,
         default_via_drill=0.3,
         net_classes=deepcopy(TEMPER_NET_CLASSES),

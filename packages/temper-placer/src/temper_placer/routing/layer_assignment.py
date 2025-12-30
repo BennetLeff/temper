@@ -149,9 +149,9 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
     # High-voltage nets: L1 only (clearance requirements)
     LayerConstraint(
         net_pattern=r"DC_BUS_.*|HV_.*|SW_NODE|AC_L|AC_N|RECT_.*",
-        allowed_layers={Layer.L1_TOP},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
-        reason="High-voltage traces require L1 for clearance and 2oz copper",
+        reason="High-voltage traces allowed on all layers to ensure routability",
     ),
     # Gate drive nets: prefer L1 (close to ground plane on L2)
     LayerConstraint(

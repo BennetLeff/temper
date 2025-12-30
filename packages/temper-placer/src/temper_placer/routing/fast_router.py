@@ -245,7 +245,10 @@ def find_path_astar_numba(
             # Cost map multiplier (strategy multiplier)
             strategy_mult = 1.0
             if cost_map is not None:
-                strategy_mult = cost_map[nx, ny]
+                if cost_map.ndim == 2:
+                    strategy_mult = cost_map[nx, ny]
+                else:
+                    strategy_mult = cost_map[nx, ny, nl]
                 
             move_cost = strategy_mult * (step_cost + h_cost + c_space_cost + sharing) * (1.0 + p_cost * p_scale)
             
@@ -310,6 +313,17 @@ if HAS_NUMBA:
                 w, h, l,
                 occ, hist, cong,
                 1.0, 1.0, cmap, cmask, True, cspace
+            )
+        except: pass
+
+        # 4. Warmup with 3D cost_map
+        try:
+            cmap_3d = np.zeros((w, h, l), dtype=np.float32)
+            find_path_astar_numba(
+                0, 0, 0, 2, 2, 0,
+                w, h, l,
+                occ, hist, cong,
+                1.0, 1.0, cmap_3d, None, False, None
             )
         except: pass
 

@@ -17,6 +17,7 @@ import argparse
 import json
 import sys
 import time
+import signal
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -113,6 +114,7 @@ def main():
     parser.add_argument("--exclude-power-nets", action="store_true", help="Exclude power/ground nets from routing")
     parser.add_argument("--profile-output", type=Path, help="Output path for profiling JSON report")
     parser.add_argument("--fixed-refs", type=str, help="Comma-separated list of component references to fix")
+    parser.add_argument("--layers", type=int, default=4, help="Number of PCB layers")
     
     args = parser.parse_args()
     
@@ -155,7 +157,8 @@ def main():
     POWER_NET_PATTERNS = [
         'GND', 'PGND', 'CGND', 'AGND', 'DGND', 'ISOGND',
         '+3V3', '+5V', '+15V', '+12V', 'VCC', 'VDD',
-        'AC_L', 'AC_N', 'DC_BUS+', 'DC_BUS-',
+        # Keep AC/DC nets routed as they are high-current traces, not full planes
+        # 'AC_L', 'AC_N', 'DC_BUS+', 'DC_BUS-',
     ]
     if args.exclude_power_nets:
         original_count = len(net_order)
@@ -181,7 +184,19 @@ def main():
     )
     loop_start_time = time.perf_counter()
     
+    # Signal handling for graceful interrupt
+    stop_requested = False
+    def signal_handler(sig, frame):
+        nonlocal stop_requested
+        stop_requested = True
+        console.print("\n[bold red]Interrupt received! Stopping after current step...[/]")
+
+    original_handler = signal.signal(signal.SIGINT, signal_handler)
+
     for iteration in range(args.max_iterations):
+        if stop_requested:
+            break
+            
         iter_start = time.perf_counter()
         iter_profile = LoopProfileStats(iteration=iteration + 1)
         
@@ -245,11 +260,25 @@ def main():
             
             # Gradient descent for N steps
             grad_fn = jax.grad(combined_loss)
-            learning_rate = 0.5
+            learning_rate = 0.05
             for step in range(args.placement_steps):
                 grads = grad_fn(positions)
+                
+                # Safety: Replace NaNs with 0.0 (vectorized, no sync)
+                grads = jnp.nan_to_num(grads, nan=0.0)
+
                 # Apply fixed mask (only move non-fixed components)
                 grads = grads * (1.0 - fixed_mask)
+                
+                # Gradient clipping
+                grad_norm = jnp.linalg.norm(grads)
+                # Avoid division by zero
+                grad_norm = jnp.where(grad_norm > 1e-6, grad_norm, 1.0)
+                
+                # Clip scaling factor
+                scale = jnp.where(grad_norm > 10.0, 10.0 / grad_norm, 1.0)
+                grads = grads * scale
+                
                 positions = positions - learning_rate * grads
                 # Clamp to board bounds
                 positions = jnp.clip(
@@ -270,7 +299,7 @@ def main():
         router = MazeRouter.from_board(
             board,
             cell_size_mm=args.cell_size,
-            num_layers=2,
+            num_layers=args.layers,
             via_cost=10.0,
             soft_blocking=True,
         )
@@ -311,8 +340,8 @@ def main():
         console.print(f"  ✓ Routing took {iter_profile.routing_ms:.1f}ms (A* {iter_profile.astar_ms:.1f}ms)")
         
         # ===== 3. Check for convergence =====
-        if num_conflicts <= args.target_conflicts:
-            console.print(f"\n[bold green]✓ Target reached! ({num_conflicts} <= {args.target_conflicts})[/]")
+        if num_conflicts <= args.target_conflicts and successful == len(net_order):
+            console.print(f"\n[bold green]✓ Target reached! ({num_conflicts} <= {args.target_conflicts} and all routed)[/]")
             best_positions = positions
             best_conflicts = num_conflicts
             break
@@ -348,7 +377,13 @@ def main():
         profile_report.iterations.append(iter_profile)
         
         console.print(f"  [dim]Iteration total: {iter_profile.total_ms:.1f}ms[/]")
-    
+        
+        console.print(f"  [dim]Iteration total: {iter_profile.total_ms:.1f}ms[/]")
+        
+        if stop_requested:
+            console.print("\n[bold red]Interrupted by user! Saving best result so far...[/]")
+            break
+            
     # ===== Final Output =====
     profile_report.total_runtime_ms = (time.perf_counter() - loop_start_time) * 1000.0
     console.print(f"\n[bold blue]═══ Final Result ═══[/]")
@@ -395,7 +430,7 @@ def main():
             router = MazeRouter.from_board(
                 board,
                 cell_size_mm=args.cell_size,
-                num_layers=2,
+                num_layers=args.layers,
                 via_cost=10.0,
                 soft_blocking=True,
             )

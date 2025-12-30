@@ -151,7 +151,36 @@ def add_smart_power_planes(input_pcb: Path, output_pcb: Path):
             
             zones.append(create_rect_zone(p3v3_id, "+3V3", LAYER_PWR, zx1, zy1, zx2, zy2, priority=1))
             print(f"Added +3V3 Zone: {zx1},{zy1} -> {zx2},{zy2}")
+    
+    # 4. High Voltage/Gate Drive Power (+15V) on Power Layer
+    p15v_id = nets.get("+15V")
+    if p15v_id:
+        bounds = get_net_pins_bounds(content, "+15V", p15v_id)
+        if bounds:
+            zx1, zy1 = max(bx1, bounds[0] - PAD_PADDING), max(by1, bounds[1] - PAD_PADDING)
+            zx2, zy2 = min(bx2, bounds[2] + PAD_PADDING), min(by2, bounds[3] + PAD_PADDING)
+            zones.append(create_rect_zone(p15v_id, "+15V", LAYER_PWR, zx1, zy1, zx2, zy2, priority=1))
+            print(f"Added +15V Zone: {zx1},{zy1} -> {zx2},{zy2}")
 
+    # 5. Control Ground (CGND) on GND Layer (Priority 1)
+    cgnd_id = nets.get("CGND")
+    if cgnd_id:
+        bounds = get_net_pins_bounds(content, "CGND", cgnd_id)
+        if bounds:
+            zx1, zy1 = max(bx1, bounds[0] - PAD_PADDING), max(by1, bounds[1] - PAD_PADDING)
+            zx2, zy2 = min(bx2, bounds[2] + PAD_PADDING), min(by2, bounds[3] + PAD_PADDING)
+            zones.append(create_rect_zone(cgnd_id, "CGND", LAYER_GND, zx1, zy1, zx2, zy2, priority=1))
+            print(f"Added CGND Zone: {zx1},{zy1} -> {zx2},{zy2}")
+
+    # 6. VCC_BOOT (Small island)
+    vccb_id = nets.get("VCC_BOOT")
+    if vccb_id:
+        bounds = get_net_pins_bounds(content, "VCC_BOOT", vccb_id)
+        if bounds:
+            zx1, zy1 = max(bx1, bounds[0] - 2.0), max(by1, bounds[1] - 2.0)
+            zx2, zy2 = min(bx2, bounds[2] + 2.0), min(by2, bounds[3] + 2.0)
+            zones.append(create_rect_zone(vccb_id, "VCC_BOOT", LAYER_PWR, zx1, zy1, zx2, zy2, priority=1))
+            print(f"Added VCC_BOOT Zone: {zx1},{zy1} -> {zx2},{zy2}")
     # Write output
     insert_pos = content.rfind(')')
     new_content = content[:insert_pos] + '\n' + ''.join(zones) + content[insert_pos:]

@@ -203,6 +203,10 @@ class MazeRouter:
         self.soft_c_space: np.ndarray | None = None
         self._soft_c_space_np: np.ndarray | None = None
 
+        # Hard C-Space grid (Binary blocking for static obstacles)
+        self.c_space_grid: np.ndarray | None = None
+        self._c_space_grid_np: np.ndarray | None = None
+
         # Initialize neckdown mask (cells where finer traces are allowed)
         self.neckdown_mask = np.zeros(grid_size + (num_layers,), dtype=bool)
 
@@ -301,6 +305,51 @@ class MazeRouter:
                 c_space_cost = float(self._soft_c_space_np[neighbor.x, neighbor.y])
                 if c_space_cost == np.inf:
                     blocked = True
+            
+            # Check hard C-space (static obstacles)
+            # Note: C-space is 2D (all layers same? Or should be 3D?)
+            # Usually pads are on Top/Bottom. Inner layers are clearer.
+            # But the Builder assumes 2D grid for now. 
+            # We should probably map Builder grid to Layers properly.
+            # For now, let's assume it applies to the current layer if we don't have per-layer C-Space.
+            # Or better: The Builder creates a single grid for Pads (which are typically on outer layers, or all if THT).
+            # This is a simplification. Tracks/Vias are layer specific.
+            # If CSpaceGrid is 2D, we assume it blocks ALL layers? 
+            # No, that would be bad for tracks under pads.
+            # Pads usually block only their layer.
+            # Let's assume for this specific integration that c_space_grid is 2D and applies to the CURRENT generic pad layer check.
+            # Ideally, self.c_space_grid should be 3D or we check it only on Top/Bottom?
+            # Actually, `CSpaceBuilder` flattened everything. 
+            # Let's assume for now 2D CSpace blocks ALL layers (Primitive). 
+            # Wait, that breaks routing under pads.
+            # I must fix CSpaceBuilder to support layers or assume Top/Bottom.
+            # But wait, looking at extraction: it extracted ALL pads.
+            # If I use this 2D grid, I can't route on inner layers under pads. 
+            # That's too restrictive.
+            
+            # Correction: I will check `c_space_grid` ONLY if it blocks.
+            # But I need to respect layers.
+            # Let's defer layer support to `internal_route.py` passing correct layer-specific grids?
+            # Or just update `_get_neighbor_cost` to respect `self.c_space_grid` which we assume is valid for this layer.
+            # Yes, `internal_route.py` can swap the grid depending on layer being routed? 
+            # No, `find_path` does all layers at once.
+            
+            # I need `c_space_grid` to be layer-aware or logic here to be smart.
+            # Let's implement basics: If `_c_space_grid_np` has 3 dims, use it. If 2 dims, assume it applies to current layer (if sensible) or all.
+            # Given `CSpaceBuilder` returns 2D, I will assume for now we only set it if it's valid for the routing context.
+            # But `MazeRouter` is multi-layer...
+            
+            if self._c_space_grid_np is not None:
+                # Assuming 2D grid for now, applies check. 
+                # Ideally we only check this if `neighbor.layer` matches the C-Space context (e.g. Surface).
+                # But pads are on surfaces.
+                # Let's assume `c_space_grid` contains ONLY objects relevant to current routing.
+                # If I want to route on inner layer, I might pass an empty C-Space?
+                # Actually, THT pads block all. SMD pads block Surface.
+                # The CSpaceBuilder flattened everything.
+                # I should just check it. If it blocks, it blocks.
+                if self._c_space_grid_np[neighbor.x, neighbor.y] if self._c_space_grid_np.ndim == 2 else self._c_space_grid_np[neighbor.x, neighbor.y, neighbor.layer]:
+                    blocked = True
         else:
             h = float(self.history_cost[neighbor.x, neighbor.y, neighbor.layer])
             p = float(self.present_congestion[neighbor.x, neighbor.y, neighbor.layer])
@@ -327,7 +376,13 @@ class MazeRouter:
                 # STRICT MODE: Occupied cells are impassable
                 return 1e9
 
-        strategy_mult = float(cost_map[neighbor.x, neighbor.y]) if cost_map is not None else 1.0
+        if cost_map is not None:
+            if cost_map.ndim == 2:
+                strategy_mult = float(cost_map[neighbor.x, neighbor.y])
+            else:
+                strategy_mult = float(cost_map[neighbor.x, neighbor.y, neighbor.layer])
+        else:
+            strategy_mult = 1.0
 
         # Include soft C-space cost in base cost
         congestion_cost = (base_cost + wrong_way_cost + sharing_penalty + h + diff + c_space_cost) * (1.0 + p * p_scale)
@@ -425,6 +480,8 @@ class MazeRouter:
         self._occupancy_np = np.asarray(self.occupancy)
         if self.soft_c_space is not None:
             self._soft_c_space_np = np.asarray(self.soft_c_space)
+        if self.c_space_grid is not None:
+            self._c_space_grid_np = np.asarray(self.c_space_grid)
         self.stats.profile.prepare_costs_ms += (time.perf_counter() - t0) * 1000.0
 
     def _clear_cost_arrays(self) -> None:
@@ -433,6 +490,7 @@ class MazeRouter:
         self._congestion_np = None
         self._occupancy_np = None
         self._soft_c_space_np = None
+        self._c_space_grid_np = None
 
     def _world_to_grid(self, world_x: float, world_y: float) -> tuple[int, int]:
         """Convert world coordinates to grid cell indices."""
@@ -1636,9 +1694,29 @@ class MazeRouter:
             )
             self.routed_paths[net_name] = res
             return res
-        layer = 0
-        if assignment and assignment.primary_layer == Layer.L4_BOT:
-            layer = self.num_layers - 1
+        # Determine candidate start layers based on assignment
+        candidate_start_layers = [0]
+        from temper_placer.routing.layer_assignment import Layer
+        if assignment:
+            if assignment.primary_layer == Layer.L4_BOT:
+                candidate_start_layers = [self.num_layers - 1]
+            elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
+                 # Try matching inner layer (1 or 2)
+                 candidate_start_layers = [1 if assignment.primary_layer == Layer.L2_GND else 2]
+            
+            # If flexible assignment, ensure all allowed layers are candidates
+            if len(assignment.allowed_layers) > 1:
+                # Add all allowed layers to candidates (if not present)
+                # Map Enum to Int
+                layer_map = {Layer.L1_TOP: 0, Layer.L2_GND: 1, Layer.L3_PWR: 2, Layer.L4_BOT: self.num_layers - 1}
+                for lay_enum in assignment.allowed_layers:
+                    lay_idx = layer_map.get(lay_enum)
+                    if lay_idx is not None and lay_idx not in candidate_start_layers:
+                        candidate_start_layers.append(lay_idx)
+        else:
+            # No assignment? Try Top then Bottom.
+            candidate_start_layers = [0, self.num_layers - 1]
+
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
 
@@ -1663,47 +1741,82 @@ class MazeRouter:
                                 original_occupancy.append((nx, ny, l, -1))
                                 self.occupancy[nx, ny, l] = 0
 
-        all_cells, total_vias = [], 0
-        total_difficulty = 0.0
-        cell_difficulties: list[float] = []
+        # Try to route using candidates
+        final_all_cells = []
+        final_success = False
+        final_total_vias = 0
+        final_total_difficulty = 0.0
+        final_cell_difficulties = []
+        last_failure_reason = "Unknown"
 
-        for i in range(1, len(grid_pins)):
-            # Route from the previous pin to the current pin (chain topology)
-            # This ensures all_cells is a contiguous path for correct simplification
-            start_node = grid_pins[i-1]
-            end_node = grid_pins[i]
+        for start_layer in candidate_start_layers:
+            current_cells = []
+            total_vias = 0
+            total_difficulty = 0.0
+            cell_difficulties = []
+            segment_success = True
+            
+            for i in range(1, len(grid_pins)):
+                start_node = grid_pins[i-1]
+                end_node = grid_pins[i]
+                
+                # Determine layer for THIS segment
+                # If first segment, use start_layer
+                # If subsequent, continue from last cell's layer
+                if i == 1: # first segment (loop starts at 1)
+                     seg_layer = start_layer
+                else:
+                     if current_cells:
+                         seg_layer = current_cells[-1].layer
+                     else:
+                         seg_layer = start_layer
 
-            path = self.find_path_rrr(start_node, end_node, layer, allow_via, cost_map=cost_map, p_scale=p_scale)
-            if path is None:
-                # Restore original occupancy on failure
-                for gx, gy, l, v in original_occupancy:
-                    self.occupancy[gx, gy, l] = v
+                path = self.find_path_rrr(start_node, end_node, seg_layer, allow_via, cost_map=cost_map, p_scale=p_scale)
+                if path is None:
+                    segment_success = False
+                    last_failure_reason = f"No path found from {start_node} to {grid_pins[i]} (Start blocked? {self.occupancy[start_node[0], start_node[1], seg_layer] == -1})"
+                    break # Try next candidate layer
 
-                res = RoutePath(
-                    net=net_name,
-                    cells=all_cells,
-                    length=float(len(all_cells)),
-                    via_count=total_vias,
-                    success=False,
-                    difficulty=total_difficulty,
-                    cell_difficulties=cell_difficulties,
-                    failure_reason=f"No path found from {start_node} to {grid_pins[i]} (Start blocked? {self.occupancy[start_node[0], start_node[1], layer] == -1})",
-                )
-                self.routed_paths[net_name] = res
-                return res
+                # Count vias and accumulate difficulty
+                for j in range(1, len(path)):
+                    if path[j].layer != path[j-1].layer:
+                        total_vias += 1
+                    d = self._get_cell_difficulty(path[j])
+                    total_difficulty += d
+                    cell_difficulties.append(d)
 
-            # Count vias and accumulate difficulty
-            for j in range(1, len(path)):
-                if path[j].layer != path[j-1].layer:
-                    total_vias += 1
+                if current_cells:
+                    path = path[1:] # avoid duplicate join
+                current_cells.extend(path)
+            
+            if segment_success:
+                final_success = True
+                final_all_cells = current_cells
+                final_total_vias = total_vias
+                final_total_difficulty = total_difficulty
+                final_cell_difficulties = cell_difficulties
+                break # Success! Stop retrying.
+        
+        # If all failed, return failure relative to LAST attempt
+        if not final_success:
+             # Restore original occupancy on failure
+            for gx, gy, l, v in original_occupancy:
+                self.occupancy[gx, gy, l] = v
 
-                d = self._get_cell_difficulty(path[j])
-                total_difficulty += d
-                cell_difficulties.append(d)
-
-            if all_cells:
-                path = path[1:]
-            all_cells.extend(path)
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=False,
+                difficulty=0.0,
+                cell_difficulties=[],
+                failure_reason=last_failure_reason,
+            )
+            self.routed_paths[net_name] = res
+            return res
+        
+        all_cells = final_all_cells # Alias for consistency below
 
         unique_cells = set(all_cells)
         for cell in unique_cells:
@@ -1843,8 +1956,6 @@ class MazeRouter:
                      return [GridCell(int(x), int(y), int(l)) for x, y, l in path_coords]
                 elif not path_coords:
                      # Numba returned empty list -> no path found
-                     # But let's double check if it was really no path or just an issue?
-                     # Actually if it returns empty, it means no path.
                      return None
             except Exception as e:
                 # Fallback to Python on any error

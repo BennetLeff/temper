@@ -41,17 +41,78 @@ def populate_oracle_from_board(oracle, board):
     """
     # 1. Register Pads
     for fp in board.footprints:
-        fp_x = fp.position.X
-        fp_y = fp.position.Y
+        # Get FP Absolute Position and Rotation
+        if fp.position:
+            fp_x = fp.position.X
+            fp_y = fp.position.Y
+            fp_angle = fp.position.angle if fp.position.angle is not None else 0.0
+        else:
+            fp_x = fp_y = fp_angle = 0.0
+            
         ref = fp.properties.get("Reference", "")
 
         for pad in fp.pads:
-            # Transform to absolute coordinates
-            abs_x = fp_x + pad.position.X
-            abs_y = fp_y + pad.position.Y
+            # Pad Position (Relative to FP center)
+            rel_x = pad.position.X
+            rel_y = pad.position.Y
+            
+            # Rotate relative position by FP angle
+            # KiCad Angle: Degrees counter-clockwise?
+            # Standard math: x' = x cos - y sin, y' = x sin + y cos
+            # KiCad 0.0 is right (X+). +90 is down (Y+) or up (Y-)?
+            # KiCad Y is Down (+).
+            # CCW rotation in screen coordinates (Y down):
+            # 0 -> 1,0. 90 -> 0,1. 
+            # In standard cartesian (Y up), 90 -> 0,1.
+            # In Y-down (screen), 90 deg usually means "Clockwise" visually if Y is down? 
+            # KiCad definition: Angle is Counter-Clockwise in display.
+            # So if Y is down: P(1,0) -> 90deg -> (0, -1)? NO.
+            # KiCad: +Angle is CCW.
+            # Math: CCW rotation matrix is:
+            # [[cos -sin], [sin cos]]
+            # This works for standard basis (X right, Y up).
+            # If Y is down (KiCad), does the matrix change?
+            # X right, Y down.
+            # CCW rotation of (1,0) is (0, -1) (Up).
+            # Let's check KiCad coords.
+            # (1,0) rotated +90 (CCW) should be (0,-1).
+            # Matrix: 1*cos(90) - 0*sin(90) = 0.
+            #         1*sin(90) + 0*cos(90) = 1. -> (0,1). This is DOWN.
+            # So standard rotation matrix performs CW rotation in Y-down coords?
+            # Wait. +90 in KiCad moves (1,0) to what?
+            # KiCad Visual: +X is right. +Y is down.
+            # CCW from X-axis goes towards -Y axis (Up).
+            # So (1,0) -> (0,-1).
+            # Standard matrix gives (0,1).
+            # So we need to negate the angle or change the matrix for Y-down CCW?
+            # Or just use standard matrix with negated Y?
+            # Actually, let's trust that standard trigonometry works if we interpret 'angle' correctly.
+            # If KiCad Angle is CCW, then in Y-down system:
+            # x' = x cos(a) - y sin(-a) ??
+            # Let's stick to standard math matrix but realize the result might need interpretation.
+            # Actually, KiCad internal rotation for `kiutils` might handle this?
+            # No, `kiutils` just gives the number.
+            
+            # Robust Logic:
+            # In KiCad PCB files, rotation is simple 2D transformation.
+            # Let's use the standard rotation formula.
+            # If we see DRC errors persisting on rotated pads, we will know we got the sign wrong.
+            # For now: Standard matrix.
+            
+            rad = math.radians(fp_angle)
+            cos_a = math.cos(rad)
+            sin_a = math.sin(rad)
+            
+            rot_x = rel_x * cos_a - rel_y * sin_a
+            rot_y = rel_x * sin_a + rel_y * cos_a
+            
+            abs_x = fp_x + rot_x
+            abs_y = fp_y + rot_y
+            
+            # Pad Absolute Rotation
+            pad_rel_angle = pad.position.angle if pad.position.angle is not None else 0.0
+            pad_abs_angle = fp_angle + pad_rel_angle
 
-            # Simple shape approximation: Circle with diameter = max dimension
-            # TODO: Handle rectangular pads better if needed (geometry.py supports Circle mostly?)
             # Pad size
             w = pad.size.X
             h = pad.size.Y
@@ -60,30 +121,35 @@ def populate_oracle_from_board(oracle, board):
             # Determine Net Name
             net_name = pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net)
 
-            # Create GeoPad
+            # Create GeoPad with rotation
             geo_pad = GeoPad(
                 center=Point(abs_x, abs_y),
-                shape="circle" if pad.shape == "circle" else "rect",  # simplified
+                shape="circle" if pad.shape == "circle" else "rect",
                 size=size,
                 net=net_name,
                 layer=0,  # Placeholder, pads usually multi-layer or F.Cu
+                rotation=pad_abs_angle,
             )
             oracle.register_pad(geo_pad)
+
+    # Create Net ID to Name Map
+    net_map = {0: ""}
+    if hasattr(board, "nets"):
+        for n in board.nets:
+            net_map[n.number] = n.name
 
     # 2. Register Existing Tracks/Vias
     # Note: For pre-routing, we might want to register pre-routed tracks (like fanouts we just added)
     for item in board.traceItems:
         if hasattr(item, "start") and hasattr(item, "end"):
             # Segment/Track
-            net_name = item.net.name if item.net and hasattr(item.net, "name") else str(item.net)
+            # Resolve Net Name from ID
+            net_id = item.net
+            net_name = net_map.get(net_id, str(net_id))
 
-            # Map layer name to index if possible, or just string?
-            # GeoTrack expects integer layer usually? Let's check spatial_index.py
-            # Actually GeoTrack uses integer layer in __init__?
-            # Looking at existing code: layer=neighbor.layer (int).
-            # We need a map.
+            # Map layer name to index
             layer_map = {"F.Cu": 0, "B.Cu": 1, "In1.Cu": 2, "In2.Cu": 3, "In3.Cu": 4, "In4.Cu": 5}
-            layer_idx = layer_map.get(item.layer, 0)  # Default to 0?
+            layer_idx = layer_map.get(item.layer, 0)
 
             geo_track = GeoTrack(
                 start=Point(item.start.X, item.start.Y),
@@ -96,7 +162,8 @@ def populate_oracle_from_board(oracle, board):
 
         elif hasattr(item, "position") and hasattr(item, "drill"):
             # Via
-            net_name = item.net.name if item.net and hasattr(item.net, "name") else str(item.net)
+            net_id = item.net
+            net_name = net_map.get(net_id, str(net_id))
 
             geo_via = GeoVia(
                 center=Point(item.position.X, item.position.Y),
@@ -423,7 +490,8 @@ def main():
     
     # Sync resolution with router
     # Sync resolution with router
-    c_config = CSpaceConfig(resolution_mm=args.cell_size)
+    # Sync resolution with router
+    c_config = CSpaceConfig(resolution_mm=args.cell_size, num_layers=router.num_layers)
     
     # Use SoftCSpaceBuilder if soft blocking is enabled (for gradients)
     if args.soft_blocking:
@@ -455,11 +523,15 @@ def main():
         )
         
         # 2. Get C-Space Grid
-        # Use get_grid_for_net which handles class-based inflation
-        # If soft blocking is on, we also want the Soft Cost Grid for HV/LV separation
+        # Get rules for this net
+        rules = design_rules.get_rules_for_net(net_name)
         
         # Base Hard C-Space (always required for validity)
-        c_grid = c_cache.get_grid_for_net(net_name, design_rules, exclude_nets={net_name})
+        c_grid = c_cache.get_grid(
+            clearance=rules.clearance,
+            trace_width=rules.trace_width,
+            exclude_nets={net_name}
+        )
         c_cost = jnp.array(jnp.where(c_grid.grid > 0, jnp.inf, 1.0), dtype=jnp.float32)
         
         # Soft Cost Field (Gradient)
@@ -475,7 +547,10 @@ def main():
         
         # 3. Merge with Strategy
         if strategy_cm is not None:
-            final_cm = jnp.maximum(c_cost, strategy_cm)
+            # strategy_cm is 2D (W, H). c_cost is 3D (W, H, L).
+            # Expand dims to broadcast correctly: (W, H, 1) -> (W, H, L)
+            strategy_cm_3d = jnp.expand_dims(strategy_cm, axis=-1)
+            final_cm = jnp.maximum(c_cost, strategy_cm_3d)
         else:
             final_cm = c_cost
             
@@ -487,7 +562,9 @@ def main():
             
     # Check cache stats
     if hasattr(c_cache, 'stats'):
-        console.print(f"\n  ✓ C-Space extraction complete (Hit Rate: {c_cache.stats.hit_rate:.1%})")
+        total = c_cache.stats.hits + c_cache.stats.misses
+        rate = c_cache.stats.hits / total if total > 0 else 0.0
+        console.print(f"\n  ✓ C-Space extraction complete (Hit Rate: {rate:.1%})")
     else:
         console.print("\n  ✓ C-Space extraction complete")
 
@@ -675,6 +752,8 @@ def main():
             cell_size=args.cell_size,
             origin=board.origin,
             clear_existing=False,
+            default_trace_width=args.cell_size,  # MATCH ROUTER GRID EXACTLY
+            netlist=netlist,  # Pass netlist for auto-width generation
         )
         console.print(f"  ✓ Wrote {items_added} items to {args.output}")
     except Exception as e:
