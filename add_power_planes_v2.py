@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Add component-aware power plane zones to KiCad PCB.
-Replaces the 'flood everything' approach with targeted zones based on component clustering.
+V3: Priority-based overlapping zones to handle interleaved placements.
 """
 
 import re
@@ -9,7 +9,6 @@ import sys
 import uuid
 import math
 from pathlib import Path
-from collections import defaultdict
 
 # Configuration
 PAD_PADDING = 5.0  # mm extra around pins for zone
@@ -36,51 +35,21 @@ def get_net_names(content):
 def get_net_pins_bounds(content, net_name, net_id):
     """
     Find the bounding box (min_x, min_y, max_x, max_y) of all pads belonging to a specific net.
-    Returns None if no pads found.
     """
-    # Regex to find pads with specific net.
-    # Note: This is a simplified parser. It looks for (pad ... (at X Y) ... (net ID "NAME"))
-    # We need to capture the 'at' coordinates for pads that match the net.
-    
-    # Strategy: Find all footprints, then find pads within them.
-    # But regex on nested structures is hard. 
-    # Let's try a simpler approach: iterate over all (pad ...) lines that contain the net ID.
-    # This might miss rotation transforms but is a good heuristic for "zones".
-    
-    # We need to match: (pad "..." ... (at X Y ...) ... (net ID "NAME")
-    # This is tricky because 'at' comes before 'net'.
-    
     xs = []
     ys = []
     
-    # Extract all footprint blocks to handle relative coordinates
-    footprint_pattern = r'\(footprint \".*?\" \(layer \".*?\"\)(.*?)\(attr'
-    # This regex is too brittle. 
-    
-    # Let's rely on the fact that 'temper-placer' output usually has absolute coordinates in pads?
-    # No, KiCad pads are relative to footprint.
-    # We need to parse footprint (at x y) and pad (at x y).
-    
-    # Let's assume standard KiCad formatting from the file we read earlier:
-    # (footprint ... (at 10 126.25 0) ... 
-    #   (pad "1" ... (at 0 0) ... (net 19 "AC_L"))
-    
     # 1. Find all footprints and their absolute positions
-    footprints = [] # (index, x, y, content_start, content_end)
-    
     for fm in re.finditer(r'\(footprint \"([^\"]+)\" \(layer \"([^\"]+)\"\)', content):
         start_idx = fm.start()
-        # Find the matching closing paren is hard with regex. 
-        # We will scan for "(at X Y R)" immediately following.
         
-        # Search for (at ...) in the next 200 chars
+        # Search for (at ...) in the next 300 chars
         chunk = content[start_idx:start_idx+300]
         at_match = re.search(r'\(at ([\d.]+) ([\d.]+)(?: ([\d.-]+))?\)', chunk)
         if at_match:
             fx, fy = float(at_match.group(1)), float(at_match.group(2))
             
-            # Now search for pads belonging to this footprint until the next footprint starts
-            # We'll just look ahead until we hit another (footprint or end of file
+            # Look ahead for pads until next footprint or file end
             next_fp = content.find('(footprint', start_idx + 1)
             if next_fp == -1: next_fp = len(content)
             
@@ -92,8 +61,7 @@ def get_net_pins_bounds(content, net_name, net_id):
                 p_net = int(pm.group(3))
                 
                 if p_net == net_id:
-                    # Absolute position = Footprint Pos + Pad Pos (ignoring rotation for bounding box safety)
-                    # For zones, slight inaccuracies due to rotation are fine if we add padding
+                    # Absolute position (ignoring rotation for bounding box)
                     abs_x = fx + px
                     abs_y = fy + py
                     xs.append(abs_x)
@@ -126,66 +94,45 @@ def create_rect_zone(net_id, net_name, layer, x1, y1, x2, y2, priority=0):
 def add_smart_power_planes(input_pcb: Path, output_pcb: Path):
     content = input_pcb.read_text()
     
-    # 1. Get Board Size
     bx1, by1, bx2, by2 = parse_pcb_bounds(content)
     print(f"Board Bounds: {bx1},{by1} -> {bx2},{by2}")
     
-    # 2. Map Nets
     nets = get_net_names(content)
-    # Map common aliases
     pgnd_id = nets.get("PGND")
-    cgnd_id = nets.get("CGND") or nets.get("GND") # Fallback if CGND not explicit
     gnd_id = nets.get("GND")
     p5v_id = nets.get("+5V")
     p3v3_id = nets.get("+3V3")
     
     zones = []
     
-    # --- STRATEGY 1: SPLIT GROUND (Layer 2) ---
-    # We assume High Power is at the Bottom (High Y) and Logic is at Top (Low Y)
-    # based on component inspection.
+    # --- STRATEGY: Priority-Based Flooding ---
     
-    if pgnd_id and gnd_id:
-        print("Detected Split Ground (PGND + GND)")
-        
-        # Get bounds of PGND components
+    # 1. Base GND Plane (Low Priority, fills everywhere)
+    if gnd_id:
+        print("Adding Base GND Plane (Priority 0)")
+        zones.append(create_rect_zone(gnd_id, "GND", LAYER_GND, bx1 + 0.5, by1 + 0.5, bx2 - 0.5, by2 - 0.5, priority=0))
+        # Also add GND on Power Layer (In1.Cu) to help stitching
+        zones.append(create_rect_zone(gnd_id, "GND", LAYER_PWR, bx1 + 0.5, by1 + 0.5, bx2 - 0.5, by2 - 0.5, priority=0))
+    
+    # 2. PGND Island (High Priority, overrides GND)
+    if pgnd_id:
         pgnd_bounds = get_net_pins_bounds(content, "PGND", pgnd_id)
-        gnd_bounds = get_net_pins_bounds(content, "GND", gnd_id)
-        
-        split_y = (by1 + by2) / 2 # Default center split
-        
-        if pgnd_bounds and gnd_bounds:
-            # PGND is likely High Y, GND is Low Y
-            min_pgnd_y = pgnd_bounds[1]
-            max_gnd_y = gnd_bounds[3]
+        if pgnd_bounds:
+            # Expand bounds by padding
+            px1 = max(bx1, pgnd_bounds[0] - PAD_PADDING)
+            py1 = max(by1, pgnd_bounds[1] - PAD_PADDING)
+            px2 = min(bx2, pgnd_bounds[2] + PAD_PADDING)
+            py2 = min(by2, pgnd_bounds[3] + PAD_PADDING)
             
-            print(f"PGND Top Y: {min_pgnd_y}")
-            print(f"GND Bottom Y: {max_gnd_y}")
-            
-            if min_pgnd_y > max_gnd_y:
-                # Clean separation
-                split_y = (min_pgnd_y + max_gnd_y) / 2
-                print(f"Calculated Split Line: Y={split_y}")
-            else:
-                print("Warning: PGND and GND components overlap in Y. Using default center split.")
-        
-        # Create GND Zone (Top Half)
-        zones.append(create_rect_zone(gnd_id, "GND", LAYER_GND, bx1 + 0.5, by1 + 0.5, bx2 - 0.5, split_y - 0.5, priority=1))
-        
-        # Create PGND Zone (Bottom Half)
-        zones.append(create_rect_zone(pgnd_id, "PGND", LAYER_GND, bx1 + 0.5, split_y + 0.5, bx2 - 0.5, by2 - 0.5, priority=1))
-        
-    elif gnd_id:
-        print("Single GND detected. Flooding Layer 2.")
-        zones.append(create_rect_zone(gnd_id, "GND", LAYER_GND, bx1 + 0.5, by1 + 0.5, bx2 - 0.5, by2 - 0.5, priority=1))
+            print(f"Adding PGND Island (Priority 1): {px1},{py1} -> {px2},{py2}")
+            zones.append(create_rect_zone(pgnd_id, "PGND", LAYER_GND, px1, py1, px2, py2, priority=1))
+        else:
+            print("Warning: PGND net found but no pins found.")
 
-    # --- STRATEGY 2: POWER ISLANDS (Layer 3) ---
-    # targeted rectangles for +5V and +3V3
-    
+    # 3. Logic Power Islands (+5V, +3V3) on Power Layer
     if p5v_id:
         bounds = get_net_pins_bounds(content, "+5V", p5v_id)
         if bounds:
-            # Add padding
             zx1 = max(bx1, bounds[0] - PAD_PADDING)
             zy1 = max(by1, bounds[1] - PAD_PADDING)
             zx2 = min(bx2, bounds[2] + PAD_PADDING)
@@ -193,35 +140,24 @@ def add_smart_power_planes(input_pcb: Path, output_pcb: Path):
             
             zones.append(create_rect_zone(p5v_id, "+5V", LAYER_PWR, zx1, zy1, zx2, zy2, priority=1))
             print(f"Added +5V Zone: {zx1},{zy1} -> {zx2},{zy2}")
-        else:
-            print("Warning: No +5V pins found.")
 
     if p3v3_id:
         bounds = get_net_pins_bounds(content, "+3V3", p3v3_id)
         if bounds:
-            # Add padding
             zx1 = max(bx1, bounds[0] - PAD_PADDING)
             zy1 = max(by1, bounds[1] - PAD_PADDING)
             zx2 = min(bx2, bounds[2] + PAD_PADDING)
             zy2 = min(by2, bounds[3] + PAD_PADDING)
             
-            # Check for overlap with 5V? 
-            # Priority logic: If they overlap, one wins. But with calculated bounds,
-            # they should naturally separate if placement is good.
-            # If they overlap, we really should have a placer constraint! 
-            
             zones.append(create_rect_zone(p3v3_id, "+3V3", LAYER_PWR, zx1, zy1, zx2, zy2, priority=1))
             print(f"Added +3V3 Zone: {zx1},{zy1} -> {zx2},{zy2}")
-        else:
-            print("Warning: No +3V3 pins found.")
 
     # Write output
-    # Insert before last parenthesis
     insert_pos = content.rfind(')')
     new_content = content[:insert_pos] + '\n' + ''.join(zones) + content[insert_pos:]
     
     output_pcb.write_text(new_content)
-    print(f"Wrote {len(zones)} smart zones to {output_pcb}")
+    print(f"Wrote {len(zones)} priority-based zones to {output_pcb}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
