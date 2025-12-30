@@ -98,6 +98,10 @@ class DesignRules:
             via_drill=self.default_via_drill,
         )
 
+    def get_class_for_net(self, net_name: str) -> str:
+        """Get the net class name for a specific net."""
+        return self.get_rules_for_net(net_name).name
+
     def _is_ground_net(self, net_name: str) -> bool:
         """Check if net name matches common ground net patterns."""
         upper = net_name.upper()

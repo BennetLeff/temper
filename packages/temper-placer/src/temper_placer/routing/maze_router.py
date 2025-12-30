@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
     from temper_placer.routing.constraints import DRCOracle
     from temper_placer.routing.layer_assignment import LayerAssignment
+    from temper_placer.routing.post_processing.funnel_smoother import Point
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,7 @@ class RoutePath:
     difficulty: float = 0.0
     cell_difficulties: list[float] = field(default_factory=list)
     failure_reason: str | None = None
+    smooth_points: list["Point"] = field(default_factory=list)  # World coordinates (mm) after smoothing
 
 
 @dataclass
