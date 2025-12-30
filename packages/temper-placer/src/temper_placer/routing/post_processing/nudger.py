@@ -108,8 +108,8 @@ class GeometricNudger:
         print(f"Geometry optimized (merged tracks: {len(self.oracle.geometry.tracks)})")
         
         self.build_topology()
-        
-        for i in range(iterations):
+        # Main optimization loop
+        for i in range(5):
             violations = self.oracle.validate_all()
             if not violations:
                 print(f"Converged in {i} iterations!")
@@ -185,6 +185,35 @@ class GeometricNudger:
                 print("Converged (movement < tolerance)")
                 break
 
+        print("\n=== Final Violation Analysis ===")
+        self._analyze_violations()
+
+    def _analyze_violations(self):
+        """Analyze and classify remaining violations."""
+        violations = self.oracle.validate_all()
+        by_type = {}
+        for v in violations:
+            if v.type not in by_type:
+                by_type[v.type] = []
+            by_type[v.type].append(v)
+            
+        print(f"Total Violations: {len(violations)}")
+        for vtype, vs in by_type.items():
+            print(f"  {vtype}: {len(vs)}")
+            # Sample stats
+            avg_severity = sum(v.severity for v in vs) / len(vs)
+            print(f"    Avg Severity: {avg_severity:.3f}")
+            # Identify most common offenders (nets)
+            nets = {}
+            for v in vs:
+                pair = tuple(sorted((v.net_a, v.net_b)))
+                nets[pair] = nets.get(pair, 0) + 1
+            
+            print(f"    Top offending net pairs:")
+            sorted_nets = sorted(nets.items(), key=lambda x: x[1], reverse=True)[:5]
+            for pair, count in sorted_nets:
+                print(f"      {pair}: {count}")
+    
     def _get_node_by_pos(self, pos: Point) -> Node | None:
         key = (round(pos.x, 4), round(pos.y, 4))
         nid = self.node_spatial_index.get(key)

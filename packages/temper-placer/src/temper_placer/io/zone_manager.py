@@ -163,27 +163,32 @@ def add_power_planes(
     nets_covered = []
     layers_used = []
     
-    # Create GND plane
+    # Create GND plane (Layer 2 - In1.Cu)
+    primary_gnd = None
     for net_name in gnd_nets:
-        net_code = get_net_code(board, net_name)
-        if net_code == 0:
-            warnings.append(f"Net '{net_name}' not found, skipping GND plane")
-            continue
-        
+        if get_net_code(board, net_name) != 0:
+            primary_gnd = net_name
+            break
+            
+    if primary_gnd:
         config = PlaneConfig(
             layer=gnd_layer,
-            net_name=net_name,
+            net_name=primary_gnd,
             priority=0,
             clearance=0.3,
         )
         zone = create_zone(board, config, outline)
         board.zones.append(zone)
         zones_added += 1
-        nets_covered.append(net_name)
+        nets_covered.append(primary_gnd)
         if gnd_layer not in layers_used:
             layers_used.append(gnd_layer)
+    else:
+        warnings.append("No GND nets found, skipping GND plane")
     
-    # Create VCC plane (use first available VCC net)
+    # Create Power plane (Layer 3 - In2.Cu)
+    # We prioritize higher voltage or distinct power rails if needed, 
+    # but for now we look for the first match in the list.
     primary_vcc = None
     for net_name in vcc_nets:
         if get_net_code(board, net_name) != 0:

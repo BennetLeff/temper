@@ -125,14 +125,65 @@ class DRCOracle:
         self.geometry.rebuild_index()
         return pad_id
 
-    def can_place_track_segment(
+    def can_place_via(
         self,
-        start: tuple[float, float],
-        end: tuple[float, float],
-        layer: int,
+        position: tuple[float, float],
+        diameter: float,
         net: str,
-        width: float,
+        neckdown: bool = False,
     ) -> tuple[bool, str]:
+        """Check if a via can be placed without DRC violations.
+
+        Args:
+            position: (x, y) center
+            diameter: Via diameter
+            net: Net name
+            neckdown: If True, allow relaxed clearance (0.15mm)
+        
+        Returns:
+            (valid, reason)
+        """
+        # Check against geometry
+        search_radius = (diameter / 2 + self.rules.default_clearance) * self._search_multiplier
+        center = Point(position[0], position[1])
+        
+        # Check against nearby tracks
+        nearby_tracks = self.geometry.query_tracks_near(center, search_radius)
+        for track in nearby_tracks:
+            if track.net == net: continue
+            required = self.rules.get_clearance(net, track.net)
+            if neckdown: required = min(required, 0.15)
+            
+            eff_clearance = required + (diameter/2) + (track.width/2)
+            dist = point_to_segment_distance(center, track.to_segment())
+            if dist < eff_clearance:
+                return False, f"via clearance with {track.id}"
+                
+        # Check against pads
+        nearby_pads = self.geometry.query_pads_near(center, search_radius)
+        for pad in nearby_pads:
+            if pad.net == net: continue
+            required = self.rules.get_clearance(net, pad.net)
+            if neckdown: required = min(required, 0.15)
+
+            eff_clearance = required + (diameter/2) + pad.radius
+            dist = point_distance(center, pad.center)
+            if dist < eff_clearance:
+                return False, f"via clearance with {pad.id}"
+                
+        # Check against vias
+        nearby_vias = self.geometry.query_vias_near(center, search_radius)
+        for via in nearby_vias:
+            if via.net == net: continue
+            required = self.rules.get_clearance(net, via.net)
+            if neckdown: required = min(required, 0.15)
+
+            eff_clearance = required + (diameter/2) + (via.diameter/2)
+            dist = point_distance(center, via.center)
+            if dist < eff_clearance:
+                return False, f"via clearance with {via.id}"
+                
+        return True, ""
         """Check if a track segment can be placed without DRC violations.
 
         Args:
@@ -141,6 +192,7 @@ class DRCOracle:
             layer: Layer index
             net: Net name
             width: Track width in mm
+            neckdown: If True, allow relaxed clearance (0.15mm)
 
         Returns:
             (valid, reason) - True if valid, False with reason if not
@@ -162,6 +214,8 @@ class DRCOracle:
                 continue  # Same net, no clearance needed
 
             required = self.rules.get_clearance(net, track.net)
+            if neckdown:
+                required = min(required, 0.15)
             effective_clearance = required + (width / 2) + (track.width / 2)
 
             actual = segment_to_segment_distance(segment, track.to_segment())
@@ -179,6 +233,8 @@ class DRCOracle:
                 continue
 
             required = self.rules.get_clearance(net, pad.net)
+            if neckdown:
+                required = min(required, 0.15)
             effective_clearance = required + (width / 2) + pad.radius
 
             actual = point_to_segment_distance(pad.center, segment)
@@ -196,6 +252,8 @@ class DRCOracle:
                 continue
 
             required = self.rules.get_clearance(net, via.net)
+            if neckdown:
+                required = min(required, 0.15)
             effective_clearance = required + (width / 2) + (via.diameter / 2)
 
             actual = point_to_segment_distance(via.center, segment)

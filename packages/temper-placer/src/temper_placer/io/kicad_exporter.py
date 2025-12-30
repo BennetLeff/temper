@@ -363,51 +363,64 @@ def export_from_geometry(
     layer_map = layer_map or DEFAULT_LAYER_MAP
     
     # Load PCB
-    with open(template_pcb, "r") as f:
-        content = f.read()
-    pcb = KicadPCB(content)
+    board = KiBoard.from_file(str(template_pcb))
     
     # Clear existing traces/vias
-    # TODO: Be selective if needed (e.g. keep pre-routed)
-    # For now, we assume we replace all routing
-    pcb.items = [item for item in pcb.items if not isinstance(item, (TraceSegment, TraceVia))]
+    board.traceItems = [
+        item for item in board.traceItems 
+        if not isinstance(item, (Segment, Via))
+    ]
     
     total_segments = 0
     total_vias = 0
     
+    # Helper to find net code
+    def get_net_code(net_name: str) -> int:
+        for n in board.nets:
+            if n.name == net_name:
+                return n.number
+        return 0
+
     # Add tracks
     for track in tracks:
         layer_name = layer_map.get(track.layer, "F.Cu")
-        segment = TraceSegment(
-            start=(track.start.x, track.start.y),
-            end=(track.end.x, track.end.y),
+        net_code = get_net_code(track.net)
+        
+        segment = Segment(
+            start=Position(X=track.start.x, Y=track.start.y),
+            end=Position(X=track.end.x, Y=track.end.y),
             width=track.width,
             layer=layer_name,
-            net=track.net,
+            net=net_code,
+            tstamp=str(uuid.uuid4()),
         )
-        pcb.items.append(segment)
+        board.traceItems.append(segment)
         total_segments += 1
         
     # Add vias
     for via in vias:
-        # Assuming through-hole for now
-        kicad_via = TraceVia(
-            at=(via.center.x, via.center.y),
+        net_code = get_net_code(via.net)
+        kicad_via = Via(
+            position=Position(X=via.center.x, Y=via.center.y),
             size=via.diameter,
             drill=via.drill,
             layers=["F.Cu", "B.Cu"], # Default through
-            net=via.net,
+            net=net_code,
+            tstamp=str(uuid.uuid4()),
         )
-        pcb.items.append(kicad_via)
+        board.traceItems.append(kicad_via)
         total_vias += 1
-            
-    # Write output
-    with open(output_pcb, "w") as f:
-        f.write(pcb.to_sexpr())
         
+    # Write output
+    board.to_file(str(output_pcb))
+    
+    # from temper_placer.routing.maze_router import RoutePath # Ensure type is known if needed
+    
     return ExportResult(
+        output_path=output_pcb,
         segments_added=total_segments,
         vias_added=total_vias,
-        nets_routed=len(set(t.net for t in tracks)),
-        nets_failed=0 # We assume input geometry is what we want
+        nets_exported=len(set(t.net for t in tracks)),
+        nets_failed=0, # Geometric export doesn't track failures directly
+        warnings=[]
     )

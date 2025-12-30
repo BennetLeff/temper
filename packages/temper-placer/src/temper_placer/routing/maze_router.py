@@ -196,6 +196,8 @@ class MazeRouter:
         self.strict_mode = strict_mode
         self._current_net: str | None = None  # Set during route_net for DRC queries
 
+        # Initialize neckdown mask (cells where finer traces are allowed)
+        self.neckdown_mask = np.zeros(grid_size + (num_layers,), dtype=bool)
 
 
     @classmethod
@@ -341,7 +343,16 @@ class MazeRouter:
                 )
                 if not valid:
                     if self.strict_mode:
-                        return 1e9  # Block completely in strict mode
+                        # Retry with neckdown relaxation for vias too?
+                        # Yes, often we need to drop a via near a pad
+                        is_neckdown = (self.neckdown_mask[neighbor.x, neighbor.y, neighbor.layer])
+                        if is_neckdown:
+                             valid, _ = self.drc_oracle.can_place_via(
+                                (via_x, via_y), via_dia, self._current_net, neckdown=True
+                            )
+                        
+                        if not valid:
+                            return 1e9  # Block completely in strict mode
                     else:
                         total_cost += 200.0  # Heavy penalty for bad via
         
@@ -352,14 +363,32 @@ class MazeRouter:
             neigh_x = neighbor.x * self.cell_size + self.origin[0]
             neigh_y = neighbor.y * self.cell_size + self.origin[1]
             
-            valid, _ = self.drc_oracle.can_place_track_segment(
-                (curr_x, curr_y), (neigh_x, neigh_y),
-                layer=neighbor.layer, net=self._current_net, width=0.2
-            )
-            if not valid:
-                if self.strict_mode:
-                    return 1e9
-                else:
+            if self.strict_mode:
+                start_world = (curr_x, curr_y)
+                end_world = (neigh_x, neigh_y)
+                
+                # Neckdown: Use 0.15mm width if in neckdown zone, else 0.2mm
+                # Neckdown applies if ANY part of segment is in zone.
+                is_neckdown = (self.neckdown_mask[neighbor.x, neighbor.y, neighbor.layer] or 
+                               self.neckdown_mask[current.x, current.y, current.layer])
+                check_width = 0.15 if is_neckdown else 0.2
+                
+                is_valid, reason = self.drc_oracle.can_place_track_segment(
+                    start_world, end_world,
+                    layer=neighbor.layer,
+                    net=self._current_net,
+                    width=check_width,
+                    neckdown=is_neckdown
+                )
+                
+                if not is_valid:
+                    return 1e9  # Infinite cost
+            else:
+                valid, _ = self.drc_oracle.can_place_track_segment(
+                    (curr_x, curr_y), (neigh_x, neigh_y),
+                    layer=neighbor.layer, net=self._current_net, width=0.2
+                )
+                if not valid:
                     total_cost += 100.0  # Penalty for DRC violation
         
         return total_cost
@@ -462,21 +491,32 @@ class MazeRouter:
                 py = cy + pin.position[1]
                 
                 # Get pad size (default to 1mm if not specified)
-                pad_w = getattr(pin, 'width', 1.0) + margin * 2
-                pad_h = getattr(pin, 'height', 1.0) + margin * 2
+                pad_w = getattr(pin, 'width', 1.0)
+                pad_h = getattr(pin, 'height', 1.0)
                 
-                # Convert to grid coordinates
-                gx_min = int((px - pad_w/2 - self.origin[0]) / self.cell_size)
-                gx_max = int((px + pad_w/2 - self.origin[0]) / self.cell_size) + 1
-                gy_min = int((py - pad_h/2 - self.origin[1]) / self.cell_size)
-                gy_max = int((py + pad_h/2 - self.origin[1]) / self.cell_size) + 1
+                # Convert to grid coordinates for blocking
+                gx_min_block, gy_min_block = self._world_to_grid(px - pad_w/2 - margin, py - pad_h/2 - margin)
+                gx_max_block, gy_max_block = self._world_to_grid(px + pad_w/2 + margin, py + pad_h/2 + margin)
                 
+                # Expand for Neckdown Zone (1.0mm expansion beyond pad+margin)
+                neck_margin_mm = 1.0
+                gx_min_neck, gy_min_neck = self._world_to_grid(px - pad_w/2 - margin - neck_margin_mm, py - pad_h/2 - margin - neck_margin_mm)
+                gx_max_neck, gy_max_neck = self._world_to_grid(px + pad_w/2 + margin + neck_margin_mm, py + pad_h/2 + margin + neck_margin_mm)
+                
+                # Apply Neckdown Mask
+                for x in range(gx_min_neck, gx_max_neck + 1):
+                    for y in range(gy_min_neck, gy_max_neck + 1):
+                         for l in range(self.num_layers):
+                             # Ensure coordinates are within grid bounds
+                             if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:
+                                self.neckdown_mask[x, y, l] = True
+
                 # Get net name for this pin
                 net_name = pin.net if hasattr(pin, 'net') else ""
                 
                 # Block cells and record ownership
-                for gx in range(max(0, gx_min), min(self.grid_size[0], gx_max)):
-                    for gy in range(max(0, gy_min), min(self.grid_size[1], gy_max)):
+                for gx in range(max(0, gx_min_block), min(self.grid_size[0], gx_max_block + 1)):
+                    for gy in range(max(0, gy_min_block), min(self.grid_size[1], gy_max_block + 1)):
                         for layer in range(self.num_layers):
                             key = (gx, gy, layer)
                             # Only block if not already owned by this net
@@ -553,7 +593,7 @@ class MazeRouter:
         # Standardize on 0.2mm (8 mil) trace width
         # This allows 0.2mm clearance on 0.4mm grid spacing (0.4 - 0.2 = 0.2 clearance)
         # 0.25mm width would fail (0.4 - 0.25 = 0.15 clearance)
-        track_width = 0.2
+        base_track_width = 0.2
         
         for i in range(1, len(cells)):
             c1, c2 = cells[i-1], cells[i]
@@ -575,6 +615,11 @@ class MazeRouter:
                 start_y = c1.y * self.cell_size + self.origin[1]
                 end_x = c2.x * self.cell_size + self.origin[0]
                 end_y = c2.y * self.cell_size + self.origin[1]
+
+                # Determine track width based on neckdown mask
+                is_neckdown = (self.neckdown_mask[c1.x, c1.y, c1.layer] or self.neckdown_mask[c2.x, c2.y, c2.layer])
+                track_width = 0.15 if is_neckdown else base_track_width
+
                 track = Track(
                     start=Point(start_x, start_y),
                     end=Point(end_x, end_y),
