@@ -31,6 +31,7 @@ from temper_placer.routing.fast_router import HAS_NUMBA, find_path_astar_numba, 
 if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
     from temper_placer.routing.layer_assignment import LayerAssignment
+    from temper_placer.routing.constraints import DRCOracle
 
 
 @dataclass(frozen=True)
@@ -144,6 +145,8 @@ class MazeRouter:
         congestion_via_discount: float = 0.1,
         layer_balance_weight: float = 0.5,
         min_clearance: float = 0.0,
+        drc_oracle: "DRCOracle | None" = None,
+        strict_mode: bool = False,
     ):
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
@@ -183,11 +186,16 @@ class MazeRouter:
         self._history_np: "np.ndarray | None" = None
         self._congestion_np: "np.ndarray | None" = None
         self._occupancy_np: "np.ndarray | None" = None
+        
+        # DRC Oracle integration (temper-mado)
+        self.drc_oracle = drc_oracle
+        self.strict_mode = strict_mode
+        self._current_net: str | None = None  # Set during route_net for DRC queries
 
 
 
     @classmethod
-    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0) -> "MazeRouter":
+    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0, drc_oracle: "DRCOracle | None" = None, strict_mode: bool = False) -> "MazeRouter":
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
         return cls(
@@ -200,6 +208,8 @@ class MazeRouter:
             soft_blocking=soft_blocking,
             congestion_via_discount=congestion_via_discount,
             min_clearance=min_clearance,
+            drc_oracle=drc_oracle,
+            strict_mode=strict_mode,
         )
 
     def rip_up_net(self, net_name: str) -> None:
@@ -315,6 +325,37 @@ class MazeRouter:
                 total_cost += self.via_cost * self.congestion_via_discount
             else:
                 total_cost += self.via_cost
+            
+            # DRC check for via placement (temper-mado.2)
+            if self.drc_oracle and self._current_net:
+                via_x = neighbor.x * self.cell_size + self.origin[0]
+                via_y = neighbor.y * self.cell_size + self.origin[1]
+                via_dia = self.drc_oracle.rules.get_via_diameter(self._current_net)
+                valid, _ = self.drc_oracle.can_place_via(
+                    (via_x, via_y), via_dia, self._current_net
+                )
+                if not valid:
+                    if self.strict_mode:
+                        return 1e9  # Block completely in strict mode
+                    else:
+                        total_cost += 200.0  # Heavy penalty for bad via
+        
+        # DRC check for track segment (temper-mado.1)
+        if self.drc_oracle and self._current_net:
+            curr_x = current.x * self.cell_size + self.origin[0]
+            curr_y = current.y * self.cell_size + self.origin[1]
+            neigh_x = neighbor.x * self.cell_size + self.origin[0]
+            neigh_y = neighbor.y * self.cell_size + self.origin[1]
+            
+            valid, _ = self.drc_oracle.can_place_track_segment(
+                (curr_x, curr_y), (neigh_x, neigh_y),
+                layer=neighbor.layer, net=self._current_net, width=0.2
+            )
+            if not valid:
+                if self.strict_mode:
+                    return 1e9
+                else:
+                    total_cost += 100.0  # Penalty for DRC violation
         
         return total_cost
 
@@ -1354,6 +1395,9 @@ class MazeRouter:
             layer = self.num_layers - 1
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
+        
+        # Set current net for DRC oracle queries (temper-mado.1)
+        self._current_net = net_name
         
         # Clear distance map cache to ensure fresh obstacle data for this net
         self._clear_distance_map_cache()

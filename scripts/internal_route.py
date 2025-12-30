@@ -37,6 +37,7 @@ def main():
     parser.add_argument("--soft-blocking", action="store_true", help="Enable negotiated congestion (allow routing through occupied cells)")
     parser.add_argument("--history-increment", type=float, default=1.0, help="History cost increment per conflict (default 1.0, use 2.0 for aggressive)")
     parser.add_argument("--exclude-power-nets", action="store_true", help="Exclude power nets (GND, VCC, etc.) from routing")
+    parser.add_argument("--strict-drc", action="store_true", help="Enable DRC-enforced routing (temper-mado)")
     
     args = parser.parse_args()
     
@@ -117,12 +118,21 @@ def main():
         tree = RoutingQuadTree(grid_size=(int(board.width / args.cell_size), int(board.height / args.cell_size)), min_region_size=args.region_size, halo=3)
         console.print(f"  Quadtree: {tree.leaf_count()} regions")
     
+    # Create DRC Oracle if strict mode enabled (temper-mado.3)
+    drc_oracle = None
+    if args.strict_drc:
+        from temper_placer.routing.constraints import DRCOracle, DesignRulesParser
+        drc_oracle = DRCOracle(DesignRulesParser.create_default())
+        console.print("  [bold magenta]Strict DRC mode enabled[/]")
+    
     router = MazeRouter.from_board(
         board,
         cell_size_mm=args.cell_size,
         num_layers=args.layers,
         via_cost=args.via_cost,
         soft_blocking=args.soft_blocking,
+        drc_oracle=drc_oracle,
+        strict_mode=args.strict_drc,
     )
     console.print(f"  Via cost: {args.via_cost}")
     if args.soft_blocking:
