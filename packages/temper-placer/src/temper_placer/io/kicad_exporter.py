@@ -12,9 +12,11 @@ from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
 
+from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.routing.grid_converter import grid_to_world
 from temper_placer.routing.maze_router import RoutePath
 from temper_placer.routing.path_simplify import simplify_path
+from temper_placer.io.via_dedup import deduplicate_vias
 
 
 # Layer mapping from grid layer index to KiCad layer name
@@ -25,45 +27,6 @@ DEFAULT_LAYER_MAP = {
     3: "In2.Cu",  # Inner layer 2 (for 4-layer boards)
 }
 
-
-@dataclass
-class TraceSegment:
-    """A single trace segment for export."""
-
-    net: str
-    start: tuple[float, float]
-    end: tuple[float, float]
-    width: float
-    layer: str  # "F.Cu" or "B.Cu"
-
-
-@dataclass
-class TraceVia:
-    """A via connecting layers."""
-
-    net: str
-    position: tuple[float, float]
-    size: float  # Outer diameter
-    drill: float  # Drill diameter
-    layers: list[str]  # e.g., ["F.Cu", "B.Cu"]
-
-
-@dataclass
-class ExportResult:
-    """Result of exporting routes to PCB file."""
-
-    output_path: Path
-    segments_added: int
-    vias_added: int
-    nets_exported: int
-    nets_failed: int
-    warnings: list[str]
-
-    def __str__(self) -> str:
-        return (
-            f"Export complete: {self.nets_exported} nets, "
-            f"{self.segments_added} segments, {self.vias_added} vias → {self.output_path}"
-        )
 
 
 def path_to_segments(
@@ -355,9 +318,12 @@ def export_routed_pcb(
         all_vias.extend(vias)
         nets_exported += 1
 
+    # Deduplicate vias to avoid holes_co_located violations
+    unique_vias = deduplicate_vias(all_vias)
+
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)
-    vias_added = add_vias_to_board(board, all_vias)
+    vias_added = add_vias_to_board(board, unique_vias)
 
     # Write output file
     output_pcb = Path(output_pcb)
