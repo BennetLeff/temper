@@ -179,7 +179,7 @@ def main():
             routing_results=results,
             cell_size=args.cell_size,
             origin=board.origin,
-            clear_existing=True
+            clear_existing=False
         )
         console.print(f"  ✓ Wrote {items_added} items to {args.output}")
     except Exception as e:

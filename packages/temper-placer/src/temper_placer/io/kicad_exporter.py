@@ -6,6 +6,7 @@ Exports router RoutePath objects to KiCad PCB files with trace segments and vias
 
 from dataclasses import dataclass
 from pathlib import Path
+import uuid
 
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
@@ -228,7 +229,7 @@ def add_segments_to_board(
             width=seg.width,
             layer=seg.layer,
             net=net_code,
-            tstamp=None,  # KiCad will generate timestamp
+            tstamp=str(uuid.uuid4()),
         )
 
         board.traceItems.append(kicad_seg)
@@ -264,12 +265,12 @@ def add_vias_to_board(
 
         # Create via using kiutils
         kicad_via = Via(
-            at=Position(X=via.position[0], Y=via.position[1]),
+            position=Position(X=via.position[0], Y=via.position[1]),
             size=via.size,
             drill=via.drill,
             layers=via.layers,
             net=net_code,
-            tstamp=None,
+            tstamp=str(uuid.uuid4()),
         )
 
         board.traceItems.append(kicad_via)
