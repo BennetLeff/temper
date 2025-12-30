@@ -545,6 +545,9 @@ class MazeRouter:
         # Track default width (should match trace_writer)
         track_width = 0.25
         
+        new_tracks = []
+        new_vias = []
+        
         for i in range(1, len(cells)):
             c1, c2 = cells[i-1], cells[i]
             
@@ -558,7 +561,7 @@ class MazeRouter:
                     drill=0.4,
                     net=net_name,
                 )
-                self.drc_oracle.register_via(via)
+                new_vias.append(via)
             else:
                 # Same layer = track segment
                 start_x = c1.x * self.cell_size + self.origin[0]
@@ -572,7 +575,13 @@ class MazeRouter:
                     layer=c1.layer,
                     net=net_name,
                 )
-                self.drc_oracle.register_track(track)
+                new_tracks.append(track)
+                
+        # Batch register to rebuild index only once
+        if new_tracks:
+            self.drc_oracle.register_tracks(new_tracks)
+        if new_vias:
+            self.drc_oracle.register_vias(new_vias)
 
     def _heuristic(self, a: GridCell, b: GridCell) -> float:
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.layer - b.layer) * 2

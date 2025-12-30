@@ -88,11 +88,36 @@ class DRCOracle:
         self.geometry.rebuild_index()
         return track_id
 
+    def register_tracks(self, tracks: list[Track]) -> list[str]:
+        """Add multiple tracks to the geometry index efficiently.
+        
+        Args:
+            tracks: List of tracks to register
+            
+        Returns:
+            List of track IDs
+        """
+        ids = []
+        for track in tracks:
+            ids.append(self.geometry.add_track(track))
+        if tracks:
+            self.geometry.rebuild_index()
+        return ids
+
     def register_via(self, via: Via) -> str:
         """Add a via to the geometry index."""
         via_id = self.geometry.add_via(via)
         self.geometry.rebuild_index()
         return via_id
+
+    def register_vias(self, vias: list[Via]) -> list[str]:
+        """Add multiple vias to the geometry index efficiently."""
+        ids = []
+        for via in vias:
+            ids.append(self.geometry.add_via(via))
+        if vias:
+            self.geometry.rebuild_index()
+        return ids
 
     def register_pad(self, pad: Pad) -> str:
         """Add a pad to the geometry index."""
