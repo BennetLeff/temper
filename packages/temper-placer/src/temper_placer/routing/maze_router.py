@@ -526,6 +526,54 @@ class MazeRouter:
         gx, gy = int(round((x - self.origin[0]) / self.cell_size)), int(round((y - self.origin[1]) / self.cell_size))
         return max(0, min(gx, self.grid_size[0]-1)), max(0, min(gy, self.grid_size[1]-1))
 
+    def _register_routed_path(self, cells: list[GridCell], net_name: str) -> None:
+        """Register routed geometry with DRCOracle for real-time clearance checks.
+        
+        Converts grid cells to Track/Via objects and registers them so subsequent
+        nets are checked against this geometry.
+        
+        Args:
+            cells: List of grid cells forming the path
+            net_name: Net name for the routed path
+        """
+        if self.drc_oracle is None or len(cells) < 2:
+            return
+        
+        from temper_placer.routing.constraints import Track, Via
+        from temper_placer.routing.constraints.geometry import Point
+        
+        # Track default width (should match trace_writer)
+        track_width = 0.25
+        
+        for i in range(1, len(cells)):
+            c1, c2 = cells[i-1], cells[i]
+            
+            # Layer transition = via
+            if c1.layer != c2.layer:
+                wx = c2.x * self.cell_size + self.origin[0]
+                wy = c2.y * self.cell_size + self.origin[1]
+                via = Via(
+                    center=Point(wx, wy),
+                    diameter=0.8,
+                    drill=0.4,
+                    net=net_name,
+                )
+                self.drc_oracle.register_via(via)
+            else:
+                # Same layer = track segment
+                start_x = c1.x * self.cell_size + self.origin[0]
+                start_y = c1.y * self.cell_size + self.origin[1]
+                end_x = c2.x * self.cell_size + self.origin[0]
+                end_y = c2.y * self.cell_size + self.origin[1]
+                track = Track(
+                    start=Point(start_x, start_y),
+                    end=Point(end_x, end_y),
+                    width=track_width,
+                    layer=c1.layer,
+                    net=net_name,
+                )
+                self.drc_oracle.register_track(track)
+
     def _heuristic(self, a: GridCell, b: GridCell) -> float:
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.layer - b.layer) * 2
 
@@ -1542,6 +1590,10 @@ class MazeRouter:
             if key not in self.net_occupancy:
                 self.net_occupancy[key] = set()
             self.net_occupancy[key].add(net_name)
+        
+        # Register routed geometry with DRCOracle for real-time clearance validation
+        if self.drc_oracle is not None:
+            self._register_routed_path(all_cells, net_name)
         
         # Restore original occupancy
         for gx, gy, l, v in original_occupancy:
