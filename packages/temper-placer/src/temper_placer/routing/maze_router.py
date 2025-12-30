@@ -542,11 +542,18 @@ class MazeRouter:
         from temper_placer.routing.constraints import Track, Via
         from temper_placer.routing.constraints.geometry import Point
         
-        # Track default width (should match trace_writer)
-        track_width = 0.25
         
         new_tracks = []
         new_vias = []
+        
+        
+        new_tracks = []
+        new_vias = []
+        
+        # Standardize on 0.2mm (8 mil) trace width
+        # This allows 0.2mm clearance on 0.4mm grid spacing (0.4 - 0.2 = 0.2 clearance)
+        # 0.25mm width would fail (0.4 - 0.25 = 0.15 clearance)
+        track_width = 0.2
         
         for i in range(1, len(cells)):
             c1, c2 = cells[i-1], cells[i]
