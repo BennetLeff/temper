@@ -322,10 +322,10 @@ def main():
     router.block_components(netlist.components, positions, margin=0.5)
     
     # Block pads to prevent track-through-pad DRC violations (temper-hdu8)
-    # In strict mode, we rely on precise geometry checks, so we reduce margin to opening channels
-    pad_margin = 0.01 if args.strict_drc else 0.1
-    router.block_pads(netlist.components, positions, netlist, margin=pad_margin)
-    console.print(f"  ✓ Blocked {len(router._pad_net_map)} pad cells")
+    # Use auto-computed grid-safe margin: clearance + trace_width/2 + cell_size/2
+    # This accounts for grid discretization error when checking DRC
+    router.block_pads(netlist.components, positions, netlist, trace_width=0.2, clearance=0.2)
+    console.print(f"  ✓ Blocked {len(router._pad_net_map)} pad cells with grid-safe margin")
     
     # Pre-compute cost maps for RRR
     cost_maps = {}

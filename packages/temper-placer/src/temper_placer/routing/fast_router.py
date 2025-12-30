@@ -110,7 +110,8 @@ def find_path_astar_numba(
     p_scale,
     cost_map=None,
     clearance_mask=None,
-    soft_blocking=False
+    soft_blocking=False,
+    soft_c_space=None
 ):
     """
     Numba-accelerated A* pathfinding.
@@ -129,6 +130,7 @@ def find_path_astar_numba(
         clearance_mask: Optional 3D int32 array (1=blocked by clearance, 0=free)
         soft_blocking: If False, treat occupied cells as blocked (no crossing).
                        If True, allow routing through at high cost (negotiated congestion).
+        soft_c_space: Optional 2D float32 array for soft obstacle costs.
 
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
@@ -200,6 +202,13 @@ def find_path_astar_numba(
             if occupancy[nx, ny, nl] == -1:
                 continue
 
+            # Soft C-space cost
+            c_space_cost = 0.0
+            if soft_c_space is not None:
+                c_space_cost = soft_c_space[nx, ny]
+                if c_space_cost == np.inf:
+                    continue
+
             # Check if cell is occupied by another net
             cell_occupied = occupancy[nx, ny, nl] == 2
 
@@ -233,15 +242,12 @@ def find_path_astar_numba(
                 # Match Python behavior: 50.0 * (1.0 + congestion)
                 sharing = 50.0 * (1.0 + p_cost)
                 
-            # Cost map penalty (if available)
-            map_cost = 0.0
+            # Cost map multiplier (strategy multiplier)
+            strategy_mult = 1.0
             if cost_map is not None:
-                # Assuming cost_map is 2D (x, y) - applied to all layers equally or strictly layer 0?
-                # MazeRouter usually passes 2D cost map.
-                # However, occupancy is 3D. We'll index by x,y effectively.
-                map_cost = cost_map[nx, ny]
+                strategy_mult = cost_map[nx, ny]
                 
-            move_cost = (step_cost + h_cost + map_cost + sharing) * (1.0 + p_cost * p_scale)
+            move_cost = strategy_mult * (step_cost + h_cost + c_space_cost + sharing) * (1.0 + p_cost * p_scale)
             
             tentative_g = g_score[cx, cy, cl] + move_cost
             
@@ -275,6 +281,7 @@ if HAS_NUMBA:
         cong = np.zeros((w, h, l), dtype=np.float32)
         cmap = np.zeros((w, h), dtype=np.float32)
         cmask = np.zeros((w, h, l), dtype=np.int32)
+        cspace = np.zeros((w, h), dtype=np.float32)
 
         # 1. Warmup without cost_map/clearance_mask, soft_blocking=False
         try:
@@ -282,7 +289,7 @@ if HAS_NUMBA:
                 0, 0, 0, 2, 2, 0,
                 w, h, l,
                 occ, hist, cong,
-                1.0, 1.0, None, None, False
+                1.0, 1.0, None, None, False, None
             )
         except: pass
 
@@ -292,17 +299,17 @@ if HAS_NUMBA:
                 0, 0, 0, 2, 2, 0,
                 w, h, l,
                 occ, hist, cong,
-                1.0, 1.0, cmap, None, False
+                1.0, 1.0, cmap, None, False, None
             )
         except: pass
 
-        # 3. Warmup with soft_blocking=True
+        # 3. Warmup with soft_blocking=True and soft_c_space
         try:
             find_path_astar_numba(
                 0, 0, 0, 2, 2, 0,
                 w, h, l,
                 occ, hist, cong,
-                1.0, 1.0, cmap, cmask, True
+                1.0, 1.0, cmap, cmask, True, cspace
             )
         except: pass
 

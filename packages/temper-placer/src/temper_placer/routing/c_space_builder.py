@@ -35,6 +35,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from kiutils.board import Board as KiBoard
+    from temper_placer.core.design_rules import DesignRules
 
 
 @dataclass
@@ -288,7 +289,7 @@ class CSpaceBuilder:
         inflated = []
         for obs in filtered_obstacles:
             try:
-                buffered = obs.buffer(fatal_radius, resolution=8)
+                buffered = obs.buffer(fatal_radius, quad_segs=8)
                 if not buffered.is_empty:
                     inflated.append(buffered)
             except Exception:
@@ -375,6 +376,171 @@ class CSpaceBuilder:
         return px, py
 
 
+class SoftCSpaceBuilder(CSpaceBuilder):
+    """Extends CSpaceBuilder to generate gradient cost fields for HV/LV separation.
+    
+    Instead of a binary grid, this produces a float32 grid where:
+    - Blocked areas (hard obstacles) have cost = infinity
+    - Preferred clearance zones (soft obstacles) have high cost (e.g. 50.0)
+    - Free space has cost = 1.0
+    """
+
+    NET_CLASS_RULES = {
+        "MAINS": {"fatal": 1.5, "preferred": 4.5},
+        "DC_BUS": {"fatal": 1.0, "preferred": 3.0},
+        "LOGIC": {"fatal": 0.3, "preferred": 0.3},
+    }
+
+    def build_cost_grid(
+        self,
+        net_class: str = "LOGIC",
+        exclude_nets: set[str] | None = None,
+    ) -> np.ndarray:
+        """Build a cost grid for the given net class.
+        
+        Args:
+            net_class: Net class of the net being routed
+            exclude_nets: Nets to exclude from obstacles
+            
+        Returns:
+            np.ndarray of shape (height_px, width_px) with float32 costs
+        """
+        # 1. Initialize with unit cost
+        grid = np.ones((self.height_px, self.width_px), dtype=np.float32)
+
+        # 2. Hard obstacles (infinite cost)
+        # We need to find obstacles that are NOT in the same class OR are from different nets
+        # Actually, for safety, HV and LV should be separated.
+        # If we are routing an LV net, HV obstacles should have a large soft radius.
+        
+        # Get rules for current net
+        rules = self.NET_CLASS_RULES.get(net_class, self.NET_CLASS_RULES["LOGIC"])
+        hard_radius = rules["fatal"]
+        
+        # Build hard obstacle mask
+        c_space = self.build_c_space_grid(
+            trace_width=0.0,  # Inflation handled by hard_radius
+            clearance=hard_radius,
+            exclude_nets=exclude_nets
+        )
+        grid[c_space.grid > 0] = np.inf
+        
+        # 3. Preferred clearance halo (high cost) for HV/LV separation
+        # If we are LOGIC, we want to stay away from HV/MAINS/DC_BUS obstacles
+        if net_class == "LOGIC":
+            for other_class in ["MAINS", "DC_BUS"]:
+                other_rules = self.NET_CLASS_RULES[other_class]
+                soft_radius = other_rules["preferred"]
+                
+                # Find obstacles belonging to the other class
+                # We need a way to know which obstacle belongs to which net/class
+                # For now, let's assume we can filter them.
+                # I'll update add_obstacle to take a class or use net name patterns.
+                
+                other_obstacles = [
+                    obs for obs, net in zip(self._obstacles, self._obstacle_nets)
+                    if self._is_net_in_class(net, other_class) and net not in (exclude_nets or set())
+                ]
+                
+                if other_obstacles:
+                    soft_mask = self._rasterize_inflated(other_obstacles, soft_radius)
+                    # Apply high cost to soft zone (where it's not already infinite)
+                    soft_zone = (soft_mask > 0) & (grid != np.inf)
+                    grid[soft_zone] = 50.0
+        
+        # Conversely, if we are HV, we want to stay away from LOGIC
+        elif net_class in ["MAINS", "DC_BUS"]:
+            soft_radius = rules["preferred"]
+            
+            # Stay away from LOGIC obstacles
+            logic_obstacles = [
+                obs for obs, net in zip(self._obstacles, self._obstacle_nets)
+                if self._is_net_in_class(net, "LOGIC") and net not in (exclude_nets or set())
+            ]
+            
+            if logic_obstacles:
+                soft_mask = self._rasterize_inflated(logic_obstacles, soft_radius)
+                soft_zone = (soft_mask > 0) & (grid != np.inf)
+                grid[soft_zone] = 50.0
+
+        return grid
+
+    def _is_net_in_class(self, net_name: str, net_class: str) -> bool:
+        """Heuristic to determine net class from name."""
+        name = net_name.upper()
+        if net_class == "MAINS":
+            return any(x in name for x in ["AC_L", "AC_N", "MAINS", "LINE", "NEUTRAL"])
+        if net_class == "DC_BUS":
+            return any(x in name for x in ["DC_BUS", "VBUS", "V+", "PGND"])
+        if net_class == "LOGIC":
+            return not (self._is_net_in_class(net_name, "MAINS") or self._is_net_in_class(net_name, "DC_BUS"))
+        return False
+
+    def _rasterize_inflated(self, obstacles: list[Polygon], radius: float) -> np.ndarray:
+        """Rasterize obstacles inflated by radius using cv2.dilate."""
+        # Convert Shapely to OpenCV polygons
+        merged = unary_union(obstacles)
+        pixel_polys = self._shapely_to_pixel_coords(merged)
+        
+        # Draw base obstacles
+        base = np.zeros((self.height_px, self.width_px), dtype=np.uint8)
+        if pixel_polys:
+            cv2.fillPoly(base, pixel_polys, 255)
+        
+        # Dilate to create halo
+        kernel_size = int(round(radius / self.config.resolution_mm * 2)) + 1
+        if kernel_size <= 1:
+            return base
+            
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
+        return cv2.dilate(base, kernel)
+
+    def save_heatmap(self, grid: np.ndarray, path: Path) -> None:
+        """Save cost grid as a heatmap image for verification.
+        
+        Args:
+            grid: Cost grid (float32)
+            path: Output file path
+        """
+        if not HAS_OPENCV:
+            return
+            
+        # Normalize for visualization
+        # Map inf to 255 (red), soft zone to 128 (yellow), free to 0 (blue)
+        # Using a simple grayscale for now: inf=255, others scaled
+        vis = np.zeros_like(grid, dtype=np.uint8)
+        vis[grid == np.inf] = 255
+        vis[grid == 50.0] = 128
+        vis[grid == 1.0] = 0
+        
+        # Apply a colormap for better visibility
+        heatmap = cv2.applyColorMap(vis, cv2.COLORMAP_JET)
+        cv2.imwrite(str(path), heatmap)
+
+
+@dataclass
+class CacheStats:
+    """Statistics for C-Space cache performance tracking.
+    
+    Used to verify cache efficiency during routing. The acceptance criterion
+    for temper-3028 is >95% hit rate during typical routing operations.
+    """
+    
+    hits: int = 0
+    misses: int = 0
+    
+    @property
+    def hit_rate(self) -> float:
+        """Cache hit rate as a fraction (0.0 to 1.0)."""
+        total = self.hits + self.misses
+        return self.hits / total if total > 0 else 0.0
+    
+    def reset(self) -> None:
+        """Reset statistics."""
+        self.hits = 0
+        self.misses = 0
+
+
 class CSpaceCache:
     """Cache of C-Space grids for different trace width/clearance combinations.
     
@@ -383,11 +549,20 @@ class CSpaceCache:
     - HV traces need creepage-aware inflation (2mm+)
     
     This cache pre-computes grids for common configurations.
+    
+    Net Class Mapping (temper-3028):
+    
+    | Net Class | Trace Width | Clearance | Fatal Radius |
+    |-----------|-------------|-----------|--------------|
+    | Power     | 2.0mm       | 0.3mm     | 1.3mm        |
+    | Signal    | 0.2mm       | 0.2mm     | 0.3mm        |
+    | HV        | 1.0mm       | 2.0mm     | 2.5mm        |
     """
     
     def __init__(self, builder: CSpaceBuilder):
         self.builder = builder
         self._cache: dict[tuple[float, float, frozenset[str]], CSpaceGrid] = {}
+        self.stats = CacheStats()
     
     def get_grid(
         self,
@@ -413,17 +588,57 @@ class CSpaceCache:
         )
         
         if key not in self._cache:
+            self.stats.misses += 1
             self._cache[key] = self.builder.build_c_space_grid(
                 trace_width=trace_width,
                 clearance=clearance,
                 exclude_nets=exclude_nets,
             )
+        else:
+            self.stats.hits += 1
         
         return self._cache[key]
     
+    def get_grid_for_net(
+        self,
+        net_name: str,
+        design_rules: "DesignRules",
+        net_class: str | None = None,
+        exclude_nets: set[str] | None = None,
+    ) -> CSpaceGrid:
+        """Get C-Space grid appropriate for routing a specific net.
+        
+        Looks up trace_width and clearance from design rules based on
+        net name/class, then delegates to get_grid(). This is the primary
+        interface for net-class-aware routing (temper-3028).
+        
+        Args:
+            net_name: Name of the net being routed
+            design_rules: DesignRules containing net class definitions
+            net_class: Optional explicit net class override
+            exclude_nets: Nets to exclude from obstacles (typically {net_name})
+            
+        Returns:
+            CSpaceGrid with appropriate inflation for this net's class
+            
+        Example:
+            >>> from temper_placer.core.design_rules import create_temper_design_rules
+            >>> rules = create_temper_design_rules()
+            >>> grid = cache.get_grid_for_net("VCC", rules)  # Uses Power class
+            >>> grid.trace_width
+            1.0
+        """
+        rules = design_rules.get_rules_for_net(net_name, net_class)
+        return self.get_grid(
+            trace_width=rules.trace_width,
+            clearance=rules.clearance,
+            exclude_nets=exclude_nets,
+        )
+    
     def clear(self) -> None:
-        """Clear the cache."""
+        """Clear the cache and reset statistics."""
         self._cache.clear()
+        self.stats.reset()
     
     @property
     def cache_size(self) -> int:

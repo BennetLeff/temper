@@ -229,13 +229,149 @@ class TestCSpaceCache:
         
         cache.clear()
         assert cache.cache_size == 0
+    
+    def test_cache_stats_tracking(self):
+        """Test that cache hit/miss statistics are tracked correctly."""
+        builder = CSpaceBuilder(width_mm=10.0, height_mm=10.0)
+        cache = CSpaceCache(builder)
+        
+        # Initial state
+        assert cache.stats.hits == 0
+        assert cache.stats.misses == 0
+        assert cache.stats.hit_rate == 0.0
+        
+        # First call is a miss
+        cache.get_grid(0.2, 0.2)
+        assert cache.stats.misses == 1
+        assert cache.stats.hits == 0
+        
+        # Second call is a hit
+        cache.get_grid(0.2, 0.2)
+        assert cache.stats.hits == 1
+        assert cache.stats.misses == 1
+        assert cache.stats.hit_rate == 0.5
+        
+        # Third call (same params) is another hit
+        cache.get_grid(0.2, 0.2)
+        assert cache.stats.hits == 2
+        assert cache.stats.hit_rate == pytest.approx(2/3, rel=0.01)
+    
+    def test_get_grid_for_net_power(self):
+        """Test get_grid_for_net uses correct net class rules for power nets."""
+        from temper_placer.core.design_rules import create_temper_design_rules
+        
+        builder = CSpaceBuilder(width_mm=20.0, height_mm=20.0)
+        cache = CSpaceCache(builder)
+        rules = create_temper_design_rules()
+        
+        # VCC is detected as a power net
+        grid = cache.get_grid_for_net("VCC", rules)
+        
+        # Power class has trace_width=1.0mm, clearance=0.5mm
+        assert grid.trace_width == 1.0
+        assert grid.clearance == 0.5
+    
+    def test_get_grid_for_net_signal(self):
+        """Test get_grid_for_net uses default rules for signal nets."""
+        from temper_placer.core.design_rules import create_temper_design_rules
+        
+        builder = CSpaceBuilder(width_mm=20.0, height_mm=20.0)
+        cache = CSpaceCache(builder)
+        rules = create_temper_design_rules()
+        
+        # Unknown net defaults to signal-like rules
+        grid = cache.get_grid_for_net("NET_SOME_SIGNAL", rules)
+        
+        # Default class has trace_width=0.2mm, clearance=0.15mm
+        assert grid.trace_width == 0.2
+        assert grid.clearance == 0.15
+    
+    def test_get_grid_for_net_caching(self):
+        """Test get_grid_for_net properly caches by underlying parameters."""
+        from temper_placer.core.design_rules import create_temper_design_rules
+        
+        builder = CSpaceBuilder(width_mm=10.0, height_mm=10.0)
+        cache = CSpaceCache(builder)
+        rules = create_temper_design_rules()
+        
+        # Two power nets should share the same cached grid
+        grid1 = cache.get_grid_for_net("VCC", rules)
+        grid2 = cache.get_grid_for_net("VDD", rules)
+        
+        # Same grid object since same trace_width/clearance
+        assert grid1 is grid2
+        assert cache.cache_size == 1
+        
+        # Signal net gets different grid
+        grid3 = cache.get_grid_for_net("DATA_OUT", rules)
+        assert grid3 is not grid1
+        assert cache.cache_size == 2
+
+
+class TestCSpaceAcceptanceCriteria:
+    """Tests for temper-3028 acceptance criteria."""
+    
+    def test_cache_hit_rate_above_95_percent(self):
+        """Cache hit rate >95% during simulated routing session.
+        
+        Simulates routing 100 nets with 3 net classes, requesting grids
+        multiple times per net (typical routing behavior).
+        """
+        from temper_placer.core.design_rules import create_temper_design_rules
+        
+        builder = CSpaceBuilder(width_mm=100.0, height_mm=140.0)
+        cache = CSpaceCache(builder)
+        rules = create_temper_design_rules()
+        
+        # Simulate routing 100 nets: 70 signal, 20 power, 10 ground
+        net_classes = (
+            ["SIGNAL_" + str(i) for i in range(70)] +
+            ["VCC_" + str(i) for i in range(20)] +
+            ["GND_" + str(i) for i in range(10)]
+        )
+        
+        # Each net requests grid 5 times (start, retries, verification)
+        for net in net_classes:
+            for _ in range(5):
+                cache.get_grid_for_net(net, rules)
+        
+        # Should have very high hit rate
+        # 100 nets × 5 calls = 500 total
+        # First call for each net class is a miss (3 misses)
+        # Remaining calls are hits
+        assert cache.stats.hit_rate >= 0.95, f"Hit rate {cache.stats.hit_rate:.2%} below 95%"
+        print(f"\nCache hit rate: {cache.stats.hit_rate:.2%}")
+        print(f"Hits: {cache.stats.hits}, Misses: {cache.stats.misses}")
+    
+    def test_memory_usage_under_100mb(self):
+        """Memory usage <100MB for 3 net class grids at full resolution.
+        
+        Tests with Temper board dimensions (100mm × 140mm) at 0.1mm resolution.
+        """
+        from temper_placer.core.design_rules import create_temper_design_rules
+        
+        builder = CSpaceBuilder(width_mm=100.0, height_mm=140.0)
+        cache = CSpaceCache(builder)
+        rules = create_temper_design_rules()
+        
+        # Generate grids for 3 main net classes
+        cache.get_grid_for_net("VCC", rules)      # Power
+        cache.get_grid_for_net("GND", rules)      # Ground  
+        cache.get_grid_for_net("SIGNAL", rules)   # Signal (default)
+        
+        memory_mb = cache.memory_usage_mb()
+        
+        # Each grid is ~1.4MB (1000 × 1400 × 1 byte)
+        # 3 grids should be ~4.2MB, well under 100MB
+        assert memory_mb < 100, f"Memory usage {memory_mb:.1f}MB exceeds 100MB"
+        print(f"\nMemory usage for 3 grids: {memory_mb:.1f}MB")
 
 
 class TestCSpacePerformance:
     """Performance benchmarks for C-Space operations."""
     
     def test_grid_generation_speed(self):
-        """Grid generation should be < 100ms for typical board size."""
+        """Grid generation should be <100ms for typical board size."""
         import time
         
         builder = CSpaceBuilder(width_mm=100.0, height_mm=140.0)
@@ -282,3 +418,4 @@ class TestCSpacePerformance:
         print(f"Memory: {grid.grid.nbytes / 1024:.1f} KB")
         
         assert elapsed < 100, f"Too slow: {elapsed:.2f}ms"
+
