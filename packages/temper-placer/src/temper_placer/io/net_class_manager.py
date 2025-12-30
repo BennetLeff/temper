@@ -8,9 +8,8 @@ Part of Phase 2: Design Rule Compliance (temper-1rt5).
 from temper_placer.core.netlist import Netlist
 
 
-# Power net keywords for detection
-POWER_KEYWORDS = ["GND", "VCC", "VDD", "VSS", "VBUS", "+3V3", "+5V", "+12V", "VBAT"]
-HIGH_SPEED_KEYWORDS = ["CLK", "USB_D", "SPI_", "I2C_"]
+POWER_KEYWORDS = ["GND", "VCC", "VDD", "VSS", "VBUS", "+3V3", "+5V", "+12V", "+15V", "VBAT", "AC_L", "AC_N", "DC_BUS", "PGND", "CGND"]
+HIGH_SPEED_KEYWORDS = ["USB", "SPI", "I2C", "SDA", "SCL", "MISO", "MOSI", "CLK", "RX", "TX"]
 
 
 def is_power_net(net_name: str) -> bool:
@@ -59,27 +58,31 @@ def get_trace_width(
     """Determine appropriate trace width for a net.
 
     Selection rules:
-    - Power nets (>1A potential): 0.5mm
+    - AC Power nets (AC_L, AC_N): 2.0mm
+    - DC Bus nets (DC_BUS+, DC_BUS-): 1.5mm
+    - Low voltage power nets (+5V, +3V3): 0.5mm
     - High-speed nets: 0.2mm (controlled impedance)
     - Signal nets: 0.25mm (default)
     - Fine-pitch nets: 0.15mm (detected from component pitch)
 
     Args:
         net_name: Name of the net
-        netlist: Optional netlist for component analysis
-        default: Default trace width in mm
+        netlist: Optional netlist for context-aware selection
+        default: Default width if no rules match
 
     Returns:
         Trace width in mm
-
-    Example:
-        >>> get_trace_width("GND")
-        0.5
-        >>> get_trace_width("SPI_CLK")
-        0.2
-        >>> get_trace_width("LED_STATUS")
-        0.25
     """
+    net_upper = net_name.upper()
+    
+    # AC Power
+    if "AC_L" in net_upper or "AC_N" in net_upper:
+        return 2.0
+        
+    # DC Bus
+    if "DC_BUS" in net_upper:
+        return 1.5
+
     # Power nets get wider traces
     if is_power_net(net_name):
         return 0.5
@@ -94,7 +97,7 @@ def get_trace_width(
         for net in netlist.nets:
             if net.name == net_name:
                 # Check component pitch through pin spacing
-                for comp_ref, pin_num in net.connections:
+                for comp_ref, pin_num in net.pins:
                     comp = next((c for c in netlist.components if c.ref == comp_ref), None)
                     if comp and _is_fine_pitch_component(comp):
                         return 0.15

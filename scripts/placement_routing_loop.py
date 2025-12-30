@@ -9,19 +9,89 @@ Usage:
     uv run python scripts/placement_routing_loop.py \\
         pcb/input.kicad_pcb \\
         -o pcb/output.kicad_pcb \\
-        --max-iterations 5
+        --max-iterations 5 \\
+        --profile-output reports/profile.json
 """
 
 import argparse
+import json
 import sys
 import time
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Optional
 
 from rich.console import Console
 
 console = Console()
 
-from dataclasses import dataclass
+
+@dataclass
+class LoopProfileStats:
+    """Per-iteration profiling statistics."""
+    
+    iteration: int
+    # Phase timings (ms)
+    placement_ms: float = 0.0
+    routing_ms: float = 0.0
+    congestion_analysis_ms: float = 0.0
+    total_ms: float = 0.0
+    
+    # Router sub-stats (from router.stats.profile)
+    astar_ms: float = 0.0
+    rip_up_ms: float = 0.0
+    prepare_costs_ms: float = 0.0
+    analyze_conflicts_ms: float = 0.0
+    
+    # Placement sub-stats
+    loss_forward_ms: float = 0.0
+    loss_backward_ms: float = 0.0
+    num_placement_steps: int = 0
+    
+    # Results
+    nets_routed: int = 0
+    nets_failed: int = 0
+    num_conflicts: int = 0
+    completion_pct: float = 0.0
+
+
+@dataclass
+class ProfileReport:
+    """Complete profiling report across all iterations."""
+    
+    input_pcb: str
+    start_time: str
+    total_runtime_ms: float = 0.0
+    iterations: list[LoopProfileStats] = field(default_factory=list)
+    
+    # Aggregate stats
+    avg_placement_ms: float = 0.0
+    avg_routing_ms: float = 0.0
+    bottleneck_phase: str = ""
+    
+    def compute_aggregates(self):
+        """Compute aggregate statistics from iteration data."""
+        if not self.iterations:
+            return
+        placement_times = [it.placement_ms for it in self.iterations if it.placement_ms > 0]
+        routing_times = [it.routing_ms for it in self.iterations]
+        
+        self.avg_placement_ms = sum(placement_times) / len(placement_times) if placement_times else 0
+        self.avg_routing_ms = sum(routing_times) / len(routing_times) if routing_times else 0
+        
+        # Identify bottleneck
+        if self.avg_routing_ms > self.avg_placement_ms:
+            self.bottleneck_phase = "routing"
+        else:
+            self.bottleneck_phase = "placement"
+    
+    def to_json(self, path: Path):
+        """Write report to JSON file."""
+        self.compute_aggregates()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
+            json.dump(asdict(self), f, indent=2)
+
 
 @dataclass
 class ConflictLocation:
@@ -41,6 +111,8 @@ def main():
     parser.add_argument("--target-conflicts", type=int, default=0, help="Stop when conflicts <= this")
     parser.add_argument("--nudge-strength", type=float, default=2.0, help="Component nudge per iteration (mm)")
     parser.add_argument("--exclude-power-nets", action="store_true", help="Exclude power/ground nets from routing")
+    parser.add_argument("--profile-output", type=Path, help="Output path for profiling JSON report")
+    parser.add_argument("--fixed-refs", type=str, help="Comma-separated list of component references to fix")
     
     args = parser.parse_args()
     
@@ -57,9 +129,9 @@ def main():
     from temper_placer.routing.maze_router import MazeRouter
     from temper_placer.routing.net_ordering import order_nets
     from temper_placer.routing.layer_assignment import assign_layers
-    from temper_placer.routing.net_ordering import order_nets
-    from temper_placer.routing.layer_assignment import assign_layers
     from temper_placer.losses.routing_congestion import RoutingCongestionLoss
+    from temper_placer.io.kicad_writer import write_placements_to_pcb, PlacementUpdate
+    from temper_placer.io.trace_writer import write_traces_to_pcb
     import jax.numpy as jnp
     
     # Parse initial PCB
@@ -71,6 +143,7 @@ def main():
     positions = jnp.array([c.initial_position for c in netlist.components])
     
     console.print(f"  ✓ Loaded {len(netlist.components)} components, {len(netlist.nets)} nets")
+    console.print(f"  Nets: {', '.join([n.name for n in netlist.nets])}")
     
     # Prepare routing
     from temper_placer.core.loop import LoopCollection
@@ -78,10 +151,11 @@ def main():
     net_order = order_nets(netlist, loops)
     assignments = assign_layers(netlist)
     
-    # Exclude power/ground nets from routing (they should be on planes)
+    # Exclude power/ground nets from routing (they should be on planes or pre-routed)
     POWER_NET_PATTERNS = [
         'GND', 'PGND', 'CGND', 'AGND', 'DGND', 'ISOGND',
         '+3V3', '+5V', '+15V', '+12V', 'VCC', 'VDD',
+        'AC_L', 'AC_N', 'DC_BUS+', 'DC_BUS-',
     ]
     if args.exclude_power_nets:
         original_count = len(net_order)
@@ -94,10 +168,27 @@ def main():
     congestion_heatmap = None
     no_improvement_count = 0
     
+    # Parse fixed references
+    fixed_refs = set(args.fixed_refs.split(",")) if args.fixed_refs else set()
+    fixed_mask = jnp.array([1.0 if c.ref in fixed_refs else 0.0 for c in netlist.components])
+    fixed_mask = fixed_mask[:, jnp.newaxis] # (N, 1)
+    
+    # Initialize profiling
+    from datetime import datetime
+    profile_report = ProfileReport(
+        input_pcb=str(args.input_pcb),
+        start_time=datetime.now().isoformat(),
+    )
+    loop_start_time = time.perf_counter()
+    
     for iteration in range(args.max_iterations):
+        iter_start = time.perf_counter()
+        iter_profile = LoopProfileStats(iteration=iteration + 1)
+        
         console.print(f"\n[bold yellow]═══ Outer Loop Iteration {iteration + 1}/{args.max_iterations} ═══[/]")
         
         # ===== 1. Run Placement (if we have congestion feedback) =====
+        placement_start = time.perf_counter()
         if congestion_heatmap is not None:
             console.print(f"\n[bold cyan]Phase A:[/] Optimizing placement with routing feedback...")
             
@@ -144,8 +235,8 @@ def main():
             def combined_loss(pos):
                 rotations = jnp.zeros((len(netlist.components), 4))
                 total = 0.0
-                total += 100.0 * overlap_loss(pos, rotations, context).value
-                total += 50.0 * boundary_loss(pos, rotations, context).value
+                total += 1000.0 * overlap_loss(pos, rotations, context).value
+                total += 200.0 * boundary_loss(pos, rotations, context).value
                 total += channel_loss(pos, rotations, context).value
                 total += mcu_clustering(pos, rotations, context).value
                 total += bus_alignment(pos, rotations, context).value
@@ -157,6 +248,8 @@ def main():
             learning_rate = 0.5
             for step in range(args.placement_steps):
                 grads = grad_fn(positions)
+                # Apply fixed mask (only move non-fixed components)
+                grads = grads * (1.0 - fixed_mask)
                 positions = positions - learning_rate * grads
                 # Clamp to board bounds
                 positions = jnp.clip(
@@ -166,8 +259,12 @@ def main():
                 )
             
             console.print(f"  ✓ Ran {args.placement_steps} placement optimization steps")
+            iter_profile.num_placement_steps = args.placement_steps
+        
+        iter_profile.placement_ms = (time.perf_counter() - placement_start) * 1000.0
         
         # ===== 2. Run Routing =====
+        routing_start = time.perf_counter()
         console.print(f"\n[bold cyan]Phase B:[/] Routing...")
         
         router = MazeRouter.from_board(
@@ -197,8 +294,21 @@ def main():
         successful = sum(1 for r in results.values() if r.success)
         completion = (successful / len(net_order)) * 100 if net_order else 100
         
+        iter_profile.routing_ms = (time.perf_counter() - routing_start) * 1000.0
+        
+        # Capture router sub-stats
+        iter_profile.astar_ms = router.stats.profile.astar_total_ms
+        iter_profile.rip_up_ms = router.stats.profile.rip_up_ms
+        iter_profile.prepare_costs_ms = router.stats.profile.prepare_costs_ms
+        iter_profile.analyze_conflicts_ms = router.stats.profile.analyze_conflicts_ms
+        iter_profile.nets_routed = successful
+        iter_profile.nets_failed = len(net_order) - successful
+        iter_profile.num_conflicts = num_conflicts
+        iter_profile.completion_pct = completion
+        
         console.print(f"  ✓ Routed: {successful}/{len(net_order)} ({completion:.1f}%)")
         console.print(f"  ✓ Conflicts: {num_conflicts}")
+        console.print(f"  ✓ Routing took {iter_profile.routing_ms:.1f}ms (A* {iter_profile.astar_ms:.1f}ms)")
         
         # ===== 3. Check for convergence =====
         if num_conflicts <= args.target_conflicts:
@@ -219,6 +329,7 @@ def main():
                 break
         
         # ===== 4. Build congestion heatmap for next iteration =====
+        congestion_start = time.perf_counter()
         # Improved: Use router's internal history cost instead of reconstructing from points
         if num_conflicts > 0 or True: # Always use congestion feedback if available?
             # history_cost is (W, H, L)
@@ -230,14 +341,104 @@ def main():
             
             max_heat = jnp.max(congestion_heatmap)
             console.print(f"  Generated congestion heatmap (max cost: {max_heat:.1f})")
+        iter_profile.congestion_analysis_ms = (time.perf_counter() - congestion_start) * 1000.0 if 'congestion_start' in dir() else 0.0
+        
+        # Record iteration timing
+        iter_profile.total_ms = (time.perf_counter() - iter_start) * 1000.0
+        profile_report.iterations.append(iter_profile)
+        
+        console.print(f"  [dim]Iteration total: {iter_profile.total_ms:.1f}ms[/]")
     
     # ===== Final Output =====
+    profile_report.total_runtime_ms = (time.perf_counter() - loop_start_time) * 1000.0
     console.print(f"\n[bold blue]═══ Final Result ═══[/]")
     console.print(f"Best conflicts: {best_conflicts}")
     
     # Export with best positions
-    # TODO: Re-route with best positions and export
+    if args.output:
+        console.print(f"\n[bold cyan]Phase C:[/] Exporting best result to {args.output}...")
+        
+        # 1. Update component positions
+        placements = {}
+        for i, c in enumerate(netlist.components):
+            # Convert center position back to footprint origin
+            # Parser stores unrotated offset in attributes
+            cx_off = float(c.attributes.get("_center_offset_x", "0"))
+            cy_off = float(c.attributes.get("_center_offset_y", "0"))
+            
+            # Use initial rotation (in degrees)
+            rot_deg = float(c.initial_rotation) * 90.0 if c.initial_rotation is not None else 0.0
+            
+            # Rotate offset back (KiCad rotates counter-clockwise)
+            import math
+            rot_rad = math.radians(rot_deg)
+            rotated_cx = cx_off * math.cos(rot_rad) - cy_off * math.sin(rot_rad)
+            rotated_cy = cx_off * math.sin(rot_rad) + cy_off * math.cos(rot_rad)
+            
+            placements[c.ref] = PlacementUpdate(
+                ref=c.ref,
+                x=float(best_positions[i, 0]) - rotated_cx + board.origin[0],
+                y=float(best_positions[i, 1]) - rotated_cy + board.origin[1],
+                rotation=rot_deg,
+            )
+        
+        # Create a temporary file for placement-only PCB
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False) as tf:
+            temp_placed_pcb = Path(tf.name)
+        
+        try:
+            write_placements_to_pcb(args.input_pcb, temp_placed_pcb, placements)
+            
+            # 2. Re-run routing one last time with best positions to get full results for export
+            # (In a real implementation we'd cache the best 'results' object)
+            router = MazeRouter.from_board(
+                board,
+                cell_size_mm=args.cell_size,
+                num_layers=2,
+                via_cost=10.0,
+                soft_blocking=True,
+            )
+            router.block_components(netlist.components, best_positions)
+            final_results = router.rrr_route_all_nets(
+                netlist,
+                best_positions,
+                net_order,
+                assignments,
+                max_iterations=args.rrr_iters,
+            )
+            
+            # 3. Write traces
+            items_added = write_traces_to_pcb(
+                temp_placed_pcb,
+                args.output,
+                final_results,
+                cell_size=args.cell_size,
+                origin=board.origin,
+                default_trace_width=0.1,
+                via_size=0.5,
+                via_drill=0.25,
+                netlist=netlist,
+            )
+            console.print(f"  ✓ Exported {items_added} trace segments and vias")
+            
+        finally:
+            if temp_placed_pcb.exists():
+                temp_placed_pcb.unlink()
+
     console.print(f"\n[bold green]Done![/] Best result had {best_conflicts} conflicts")
+    console.print(f"Total runtime: {profile_report.total_runtime_ms:.1f}ms")
+    
+    # Write profile report if requested
+    if args.profile_output:
+        profile_report.to_json(args.profile_output)
+        console.print(f"[dim]Profile report written to {args.profile_output}[/]")
+        
+        # Print bottleneck summary
+        profile_report.compute_aggregates()
+        console.print(f"[bold]Bottleneck phase:[/] {profile_report.bottleneck_phase}")
+        console.print(f"  Avg placement: {profile_report.avg_placement_ms:.1f}ms")
+        console.print(f"  Avg routing: {profile_report.avg_routing_ms:.1f}ms")
     
 
 def _apply_congestion_nudge(
