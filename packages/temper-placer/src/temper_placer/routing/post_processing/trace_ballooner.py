@@ -15,6 +15,14 @@ from temper_placer.routing.constraints.geometry import Point, LineSegment
 from temper_placer.routing.constraints.spatial_index import PCBGeometry, Track
 
 
+@dataclass
+class BalloonResult:
+    """Result of trace ballooning operation."""
+    tracks: list[Track]
+    segments_expanded: int
+
+
+
 POWER_NET_KEYWORDS = frozenset(
     [
         "DC_BUS",
@@ -69,28 +77,49 @@ class TraceBallooner:
             return False
         return any(keyword.upper() in net_name.upper() for keyword in POWER_NET_KEYWORDS)
 
-    def balloon_traces(self, tracks: list[Track]) -> list[Track]:
+    def balloon_traces(
+        self,
+        tracks: list[Track],
+        target_nets: list[str] | None = None,
+        max_expansion: float = 1.0,
+    ) -> list[Track]:
         """Expand power traces to fill available clearance.
 
         Args:
             tracks: List of tracks to process
+            target_nets: List of specific net names to balloon (optional)
+            max_expansion: Maximum additional width to add (mm)
 
         Returns:
             New list with expanded power traces and unchanged signal traces
         """
         result = []
         power_nets = self.power_nets
+        
+        # Convert target_nets to set for O(1) lookup
+        target_net_set = set(target_nets) if target_nets else None
+
         for track in tracks:
             net = track.net
-            if net not in power_nets and not self.is_power_net(net):
+            
+            # Filter: Check explicit target list first, then general power net rules
+            should_balloon = False
+            if target_net_set is not None:
+                if net in target_net_set:
+                    should_balloon = True
+            elif net in power_nets or self.is_power_net(net):
+                should_balloon = True
+                
+            if not should_balloon:
                 result.append(track)
                 continue
 
             segment = track.to_segment()
             max_clearance = self._get_max_clearance(segment, net)
 
-            new_width = min(max_clearance - self.safety_margin, self.max_width)
-            new_width = max(new_width, track.width)
+            # Respect max_expansion argument (e.g. limit to +1mm)
+            target_width = min(max_clearance - self.safety_margin, track.width + max_expansion, self.max_width)
+            new_width = max(target_width, track.width)
 
             if new_width > track.width + 0.01:
                 result.append(
@@ -105,8 +134,13 @@ class TraceBallooner:
                 )
             else:
                 result.append(track)
+        
+        # Count explicit expansions
+        # Note: Previous comparison was > track.width + 0.01
+        expanded_count = sum(1 for t, orig in zip(result, tracks) if t.width > orig.width + 0.001)
 
-        return result
+        return BalloonResult(tracks=result, segments_expanded=expanded_count)
+
 
     def _get_max_clearance(self, segment: LineSegment, net: str) -> float:
         """Query geometry for minimum distance to nearest obstacle.

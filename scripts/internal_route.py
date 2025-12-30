@@ -142,7 +142,7 @@ def main():
     parser.add_argument("input_pcb", type=Path, help="Input placed .kicad_pcb file")
     parser.add_argument("-o", "--output", type=Path, help="Output routed .kicad_pcb file")
     parser.add_argument("-c", "--config", type=Path, help="PCL constraints file")
-    parser.add_argument("--cell-size", type=float, default=1.0, help="Grid cell size in mm")
+    parser.add_argument("--cell-size", type=float, default=0.1, help="Grid cell size in mm")
     parser.add_argument("--layers", type=int, default=2, help="Number of routing layers")
     parser.add_argument("--rrr-iters", type=int, default=5, help="Number of RRR iterations")
     parser.add_argument(
@@ -237,6 +237,14 @@ def main():
 
         # Identify Power Nets using original netlist (from Step 1)
         net_order_temp = order_nets(netlist, loops)  # Get basic order to filter power nets
+        # Count pads per net for prioritization
+        net_pad_counts = {}
+        for fp in ki_board.footprints:
+            for pad in fp.pads:
+                if pad.net and hasattr(pad.net, "name") and pad.net.name:
+                    net_name = pad.net.name
+                    net_pad_counts[net_name] = net_pad_counts.get(net_name, 0) + 1
+
         power_keywords = ["GND", "VCC", "VDD", "VSS", "+", "3V3", "5V", "12V"]
         power_nets = [
             name for name in net_order_temp if any(k in name.upper() for k in power_keywords)
@@ -245,8 +253,16 @@ def main():
         gnd_candidates = [n for n in power_nets if "GND" in n.upper()]
         vcc_candidates = [n for n in power_nets if n not in gnd_candidates]
 
-        console.print(f"  GND Candidate Nets: {gnd_candidates}")
-        console.print(f"  VCC Candidate Nets: {vcc_candidates}")
+        # Sort candidates by pad count (descending) to pick largest planes first
+        gnd_candidates.sort(key=lambda n: net_pad_counts.get(n, 0), reverse=True)
+        vcc_candidates.sort(key=lambda n: net_pad_counts.get(n, 0), reverse=True)
+
+        # Filter out nets with < 3 pins (unlikely to be valid planes)
+        # But 'Power' dictating prioritization is safer.
+        
+        # Debug prints
+        console.print(f"  GND Candidates (sorted): {[(n, net_pad_counts.get(n,0)) for n in gnd_candidates]}")
+        console.print(f"  VCC Candidates (sorted): {[(n, net_pad_counts.get(n,0)) for n in vcc_candidates]}")
 
         # Add Planes
         zone_res = add_power_planes(ki_board, gnd_nets=gnd_candidates, vcc_nets=vcc_candidates)
@@ -360,7 +376,19 @@ def main():
         if args.strict_drc:
             console.print("  [bold magenta]Strict DRC mode enabled[/]")
         else:
-            console.print("  [bold magenta]DRC Oracle enabled for Geometric Nudge[/]")
+            console.print("  [bold magenta]DRC Oracle enabled for Geometric Nudge / Ballooning[/]")
+
+    # If ballooning is needed but strict DRC wasn't requested, we still need Oracle
+    # Wait, simple ballooning (grid based) might not need Oracle?
+    # TraceBallooner currently requires DRCOracle.
+    if drc_oracle is None:
+        # We need Oracle for ballooning anyway
+        from temper_placer.routing.constraints import DRCOracle, DesignRulesParser
+        from kiutils.board import Board as KiBoard
+        drc_oracle = DRCOracle(DesignRulesParser.create_default())
+        temp_ki_board = KiBoard.from_file(str(working_pcb_path))
+        populate_oracle_from_board(drc_oracle, temp_ki_board)
+        console.print("  [bold magenta]DRC Oracle loaded for Post-Processing[/]")
 
     router = MazeRouter.from_board(
         board,
@@ -385,17 +413,83 @@ def main():
     router.block_pads(netlist.components, positions, netlist, trace_width=0.2, clearance=0.2)
     console.print(f"  ✓ Blocked {len(router._pad_net_map)} pad cells with grid-safe margin")
 
+    # Initialize C-Space Engine (temper-v6u3)
+    from temper_placer.routing.c_space_builder import CSpaceBuilder, CSpaceCache, CSpaceConfig
+    from temper_placer.core.design_rules import create_temper_design_rules
+    from kiutils.board import Board as KiBoard
+
+    console.print("\n[bold cyan]Step 3.5:[/] Initializing C-Space Engine...")
+    design_rules = create_temper_design_rules()
+    
+    # Sync resolution with router
+    # Sync resolution with router
+    c_config = CSpaceConfig(resolution_mm=args.cell_size)
+    
+    # Use SoftCSpaceBuilder if soft blocking is enabled (for gradients)
+    if args.soft_blocking:
+        from temper_placer.routing.c_space_builder import SoftCSpaceBuilder
+        c_builder = SoftCSpaceBuilder(board.width, board.height, origin=board.origin, config=c_config)
+        console.print("  [bold green]Soft C-Space Enabled[/] (Gradient Cost Fields)")
+    else:
+        c_builder = CSpaceBuilder(board.width, board.height, origin=board.origin, config=c_config)
+    
+    # Load geometry from latest PCB state
+    ki_board_cspace = KiBoard.from_file(str(working_pcb_path))
+    c_builder.extract_obstacles_from_board(ki_board_cspace)
+    c_cache = CSpaceCache(c_builder)
+    console.print(f"  ✓ Extracted obstacles from {len(ki_board_cspace.footprints)} footprints")
+
     # Pre-compute cost maps for RRR
     cost_maps = {}
-    for net_name in net_order:
-        cm = get_cost_map_for_net(
+    console.print("  Generating C-Space cost maps for all nets...")
+    
+    # Track cache performance
+    for i, net_name in enumerate(net_order):
+        # 1. Get Strategy Cost Map (Edge Hug / Flood Fill)
+        # Note: generic API logic for special strategies
+        strategy_cm = get_cost_map_for_net(
             grid_size=router.grid_size,
             cell_size_mm=router.cell_size,
             context=routing_ctx,
             net_id=net_name,
         )
-        if cm is not None:
-            cost_maps[net_name] = cm
+        
+        # 2. Get C-Space Grid
+        # Use get_grid_for_net which handles class-based inflation
+        # If soft blocking is on, we also want the Soft Cost Grid for HV/LV separation
+        
+        # Base Hard C-Space (always required for validity)
+        c_grid = c_cache.get_grid_for_net(net_name, design_rules, exclude_nets={net_name})
+        c_cost = jnp.array(jnp.where(c_grid.grid > 0, jnp.inf, 1.0), dtype=jnp.float32)
+        
+        # Soft Cost Field (Gradient)
+        if args.soft_blocking and isinstance(c_builder, SoftCSpaceBuilder):
+            net_class = design_rules.get_class_for_net(net_name)
+            soft_field = c_builder.build_cost_grid(net_class=net_class, exclude_nets={net_name})
+            # soft_field has inf for hard obstacles, 50.0 for soft, 1.0 for free
+            # We want to combine this.
+            # Convert numpy field to jax
+            soft_cost_jax = jnp.array(soft_field, dtype=jnp.float32)
+            # Use strict max to preserve infinity
+            c_cost = jnp.maximum(c_cost, soft_cost_jax)
+        
+        # 3. Merge with Strategy
+        if strategy_cm is not None:
+            final_cm = jnp.maximum(c_cost, strategy_cm)
+        else:
+            final_cm = c_cost
+            
+        cost_maps[net_name] = final_cm
+        
+        if i % 10 == 0:
+            sys.stdout.write(f"\r  Extracted {i+1}/{len(net_order)} grids...")
+            sys.stdout.flush()
+            
+    # Check cache stats
+    if hasattr(c_cache, 'stats'):
+        console.print(f"\n  ✓ C-Space extraction complete (Hit Rate: {c_cache.stats.hit_rate:.1%})")
+    else:
+        console.print("\n  ✓ C-Space extraction complete")
 
     start_time = time.time()
     results = router.rrr_route_all_nets(
@@ -418,24 +512,109 @@ def main():
 
     # NEW: Trace Ballooning for Thermal Management (temper-t07r)
     console.print("\n[bold cyan]Step 4.6:[/] Ballooning power traces for thermal management...")
-    try:
+    if drc_oracle:
         from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
-        from temper_placer.routing.constraints.spatial_index import Track as GeoTrack
+        from temper_placer.routing.constraints.spatial_index import Track
         from temper_placer.routing.constraints.geometry import Point
 
-        if hasattr(router, "drc_oracle") and router.drc_oracle is not None:
-            geometry = router.drc_oracle.geometry
-            ballooner = TraceBallooner(geometry=geometry)
-            ballooned_tracks = ballooner.balloon_traces(geometry.tracks)
-            geometry.tracks = ballooned_tracks
-            geometry.rebuild_index()
-            console.print(f"  ✓ Ballooned {len(ballooned_tracks)} tracks for thermal mass")
-        else:
-            console.print("  [yellow]Skipping ballooning - no DRC oracle available[/]")
-    except ImportError as e:
-        console.print(f"  [yellow]Trace ballooner not available: {e}[/]")
-    except Exception as e:
-        console.print(f"  [yellow]Trace ballooning failed: {e}[/]")
+        ballooner = TraceBallooner(drc_oracle.geometry)
+        
+        # Helper for coordinate conversion (needed below)
+        def grid_to_world(p):
+            wx = p[0] * router.cell_size + router.origin[0]
+            wy = p[1] * router.cell_size + router.origin[1]
+            return (wx, wy)
+        
+        # Identify target nets for ballooning (Power/HighCurrent)
+        target_nets = []
+        # Convert assignments (dict of lists) to Tracks for ballooner
+        tracks_to_balloon = []
+        
+        # We need to look at 'results' which has the full routing paths, 
+        # but 'assignments' from export_results_to_geometry might be easier if available?
+        # Typically router returns 'results' (RoutePath objects).
+        
+        # Let's rebuild tracks from 'results' for the ballooner
+        # Note: This duplicates some logic from write_traces_to_pcb but essential for processing without KiCad types
+        for net_name, result in results.items():
+            if not result.success:
+                continue
+            
+            is_target = design_rules.get_class_for_net(net_name) in ["Power", "HighCurrent", "GateDrive"]
+            if is_target:
+                target_nets.append(net_name)
+            
+            # Convert cells to segments
+            if len(result.cells) < 2:
+                continue
+                
+            path_points = [grid_to_world((c.x, c.y)) for c in result.cells]
+            layers = [c.layer for c in result.cells]
+            
+            # Create Track segments
+            for i in range(len(path_points) - 1):
+                p1 = Point(*path_points[i])
+                p2 = Point(*path_points[i+1])
+                layer = layers[i] # Assume segment is on start node layer
+                
+                # Skip zero-length or layer transitions (vias handled separately)
+                if layers[i] != layers[i+1]:
+                    continue
+                    
+                width = design_rules.get_rules_for_net(net_name).trace_width
+                
+                tracks_to_balloon.append(Track(
+                    start=p1,
+                    end=p2,
+                    width=width,
+                    layer=layer,
+                    net=net_name
+                ))
+
+        console.print(f"  Targeting {len(target_nets)} nets for ballooning: {target_nets}")
+        console.print(f"  Converted {len(tracks_to_balloon)} segments for analysis")
+
+        # Balloon traces
+        balloon_result = ballooner.balloon_traces(
+            tracks_to_balloon,
+            target_nets=target_nets,
+            max_expansion=1.0 # Max extra width mm
+        )
+        
+        console.print(f"  ✓ Ballooned {balloon_result.segments_expanded} segments")
+        
+        # Now we need to APPLY these changes back to the 'assignments' or 'results' 
+        # so they get exported!
+        # The current export step (Step 5) uses 'results' directly and re-generates geometry.
+        # This is a problem. If we balloon here, we need to inject the ballooned width back into the export.
+        
+        # Hack: Mutate 'results' to store variable width segments?
+        # MazeRouter 'RoutePath' doesn't support variable width per cell easily.
+        
+        # Better approach: 
+        # Since we are exporting to KiCad, we should maybe rely on the 'geometric_nudge' path 
+        # effectively replacing the standard grid export for ballooned nets?
+        
+        # Or, explicit 'assignments' meant for export?
+        # write_traces_to_pcb uses 'results'.
+        
+        # Workaround: Update 'cost_maps' or 'assignments' won't work easily.
+        # We must modify 'write_traces_to_pcb' to accept override geometry, OR
+        # enable 'geometric_nudge' export path which handles arbitrary geometry.
+        
+        # Let's use the GeometricNudger export path if ballooning modified anything.
+        # We can push ballooned tracks into drc_oracle.geometry.
+        if balloon_result.segments_expanded > 0:
+            console.print("  [bold cyan]Switching to Geometric Export for ballooned tracks...[/]")
+            # Update Oracle geometry
+            drc_oracle.geometry.tracks = balloon_result.tracks # These are all the converted tracks (ballooned + others)
+            # Rebuild index not strictly needed for export but good practice
+            
+            # Set flag or mode to force geometric export
+            args.geometric_nudge = True # Reuse this flag to trigger the geometric exporter below
+            
+    else:
+        console.print("  [yellow]Skipping ballooning - no DRC oracle available[/]")
         import traceback
 
         console.print(f"  [yellow]Traceback: {traceback.format_exc()}[/]")
