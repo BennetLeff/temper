@@ -75,6 +75,10 @@ from temper_placer.routing.verifier import (
     VerificationResult,
     parse_verification_level,
 )
+from temper_placer.routing.post_processing import (
+    FunnelSmoother,
+    Point,
+)
 
 __all__ = [
     # Verifier (main entry point)
@@ -121,4 +125,7 @@ __all__ = [
     "RoutingStrategy",
     "UnifiedRoutePath",
     "UnifiedRouter",
+    # Path smoothing
+    "FunnelSmoother",
+    "Point",
 ]
