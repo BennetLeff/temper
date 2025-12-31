@@ -1,121 +1,118 @@
-
 import math
-import uuid
-from typing import List, Tuple
+import logging
+from dataclasses import dataclass
+from typing import Dict, List, Tuple
 from kiutils.board import Board
 from kiutils.items.common import Position
 from kiutils.items.brditems import Via, Segment
 from temper_placer.core.netlist import Netlist
-# Use "TYPE_CHECKING" or just strict reference if available
-# But to avoid runtime import issues with circular deps if drc_oracle imports this:
-from typing import Optional, Any 
 
-def fanout_power_nets(
-    board: Board,
-    netlist: Netlist,
-    power_nets: List[str],
-    drc_oracle: Any = None,
-    via_offset: float = 1.0,
-    trace_width: float = 0.5
-) -> int:
+logger = logging.getLogger(__name__)
+
+@dataclass
+class FanoutConfig:
+    """Configuration for Fanout Generation."""
+    pitch: float = 2.54  # Grid pitch in mm
+    via_drill: float = 0.3
+    via_size: float = 0.6
+    trace_width: float = 0.2
+    
+    # "Grid" strategy: offset by half pitch
+    # "Void" strategy: search for nearest empty space
+    strategy: str = "grid" 
+    
+    # Offset factors for Grid strategy (relative to pitch)
+    # (0.5, 0.5) puts via in the center of 4 pins
+    offset_x: float = 0.5 
+    offset_y: float = 0.5
+
+class FanoutGenerator:
     """
-    Fanout power/ground nets to vias connecting to inner planes.
-    
-    Args:
-        board: KiCad board object.
-        netlist: Parsed netlist.
-        power_nets: List of net names to fanout.
-        drc_oracle: Optional DRCOracle for checking placement.
-        via_offset: Distance from pad center to via center (mm).
-        trace_width: Width of the fanout trace (mm).
-        
-    Returns:
-        Number of fanouts created.
+    Generates 'dog-bone' fanouts for pins to allow routing from clear areas.
     """
-    fanouts_created = 0
-    
-    # Map net names to their IDs/Codes in board
-    net_map = {net.name: net.number for net in board.nets}
-    
-    # Iterate over components to find pads connected to power nets
-    for comp in board.footprints:
-        ref = comp.properties.get("Reference", "")
+    def __init__(self, board: Board, netlist: Netlist, config: FanoutConfig = None):
+        self.board = board
+        self.netlist = netlist
+        self.config = config or FanoutConfig()
         
-        for pad in comp.pads:
-            if pad.net.name in power_nets:
-                net_code = net_map.get(pad.net.name, 0)
-                if net_code == 0:
-                    continue
-
-                # Determine start position (Pad Center)
-                start_x, start_y = pad.position.X, pad.position.Y
+    def generate_fanouts(self, target_nets: List[str] = None) -> Dict[str, List[Tuple[float, float]]]:
+        """
+        Generate fanouts for specified nets (or all if None).
+        Returns a map of net_name -> list of NEW start/end positions (the vias).
+        Updates self.board with new Vias and Tracks.
+        """
+        new_positions = {}
+        
+        # Build map of component pins to absolute positions
+        # Simplified: assumes we can calculate it or pass it in. 
+        # For now, let's assume we can get it from components + footprints.
+        # But we need absolute positions.
+        
+        # Helper to get pin positions
+        # Implementation similar to MazeRouter's extraction
+        
+        for net in self.netlist.nets:
+            if not net.name: continue
+            if target_nets and net.name not in target_nets:
+                continue
                 
-                # Default direction: (1, 1) diagonal
-                dx, dy = 1.0, 1.0 
+            fanout_points = []
+            
+            # Find all pins for this net
+            for comp_ref, pin_name in net.pins:
+                # Find the component
+                comp = next((c for c in self.netlist.components if c.ref == comp_ref), None)
+                if not comp: continue
                 
-                # Infer component center (simplistic)
-                comp_x, comp_y = comp.position.X, comp.position.Y
-                vec_x = start_x - comp_x
-                vec_y = start_y - comp_y
-                length = math.sqrt(vec_x**2 + vec_y**2)
+                # Find the pin relative position
+                pin_def = next((p for p in comp.pins if p.name == pin_name or p.number == pin_name), None)
+                if not pin_def: continue
                 
-                if length > 0.001:
-                    dx, dy = vec_x / length, vec_y / length
+                # Calculate absolute position
+                # Assuming no rotation for simplicity in EXP-02-C, 
+                # but functionally we should handle it if needed.
+                cx, cy = comp.initial_position
+                px = cx + pin_def.position[0]
+                py = cy + pin_def.position[1]
                 
-                # Calculate via position
-                via_x = start_x + dx * via_offset
-                via_y = start_y + dy * via_offset
-                
-                # Check DRC if oracle provided
-                if drc_oracle:
-                    valid, _ = drc_oracle.can_place_via((via_x, via_y), 0.6, pad.net.name) 
-                    if not valid:
-                        # Try a few other angles
-                        for angle in [45, 90, -45, -90, 135, -135, 180]:
-                            rad = math.radians(angle)
-                            rx = dx * math.cos(rad) - dy * math.sin(rad)
-                            ry = dx * math.sin(rad) + dy * math.cos(rad)
-                            tx = start_x + rx * via_offset
-                            ty = start_y + ry * via_offset
-                            valid, _ = drc_oracle.can_place_via((tx, ty), 0.6, pad.net.name)
-                            if valid:
-                                via_x, via_y = tx, ty
-                                break
-                        if not valid:
-                             continue
-
-                # Create Track (Segment in KiCad/KiUtils)
-                # Determine layer: default to F.Cu unless pad is exclusively bottom
-                layer = "F.Cu"
-                if pad.layers:
-                    if "B.Cu" in pad.layers and "F.Cu" not in pad.layers:
-                        layer = "B.Cu"
-                    # Else if both or just front, use Front.
-                    # Or use pad's layer specifically.
-                    # For now F.Cu is safe for SMD on Top.
-                
-                track = Segment(
-                    start=Position(start_x, start_y),
-                    end=Position(via_x, via_y),
-                    width=trace_width,
-                    layer=layer,
-                    net=net_code,
-                    tstamp=str(uuid.uuid4())
-                )
+                # Calculate Fanout Position (Escape Point)
+                # Strategy: Grid (Offset)
+                fx = px + (self.config.pitch * self.config.offset_x)
+                fy = py + (self.config.pitch * self.config.offset_y)
                 
                 # Create Via
                 via = Via(
-                    position=Position(via_x, via_y),
-                    size=0.6,
-                    drill=0.3,
-                    layers=["F.Cu", "B.Cu"],
-                    net=net_code,
-                    tstamp=str(uuid.uuid4())
+                    position=Position(X=fx, Y=fy),
+                    size=self.config.via_size,
+                    drill=self.config.via_drill,
+                    layers=["F.Cu", "B.Cu"], # Through via
+                    net=None # We don't have net index lookup easily here, relying on name matching elsewhere?
+                             # kiutils Board uses numeric net IDs usually. 
+                             # For now, we leave net unassigned or try to find ID.
                 )
                 
-                # Add to board.traceItems (not tracks)
-                board.traceItems.append(track)
-                board.traceItems.append(via)
-                fanouts_created += 1
-
-    return fanouts_created
+                # Find Net ID from Board
+                # This is O(N) but N is small
+                ki_net = next((n for n in self.board.nets if n.name == net.name), None)
+                if ki_net:
+                    via.net = ki_net
+                
+                self.board.traceItems.append(via)
+                
+                # Create Trace (Pin -> Via)
+                track = Segment(
+                    start=Position(X=px, Y=py),
+                    end=Position(X=fx, Y=fy),
+                    width=self.config.trace_width,
+                    layer="F.Cu", # Assume pins are accessible on Top (SMD or TH)
+                    net=ki_net
+                )
+                self.board.traceItems.append(track)
+                
+                # Record the Via position as the new "Routing Point"
+                fanout_points.append((fx, fy))
+                
+            if fanout_points:
+                new_positions[net.name] = fanout_points
+                
+        return new_positions

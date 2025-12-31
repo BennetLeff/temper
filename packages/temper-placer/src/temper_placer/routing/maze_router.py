@@ -1545,7 +1545,9 @@ class MazeRouter:
         p_scale_step: float = 2.0,
         progress_callback: Callable[[RoutingProgress], None] | None = None,
         incremental: bool = True,
+
         validate_final: bool = False,
+        pin_positions_overrides: dict[str, list[tuple[float, float]]] | None = None,
     ) -> dict[str, RoutePath]:
         """Route all nets using iterative Rip-up and Reroute (RRR)."""
         from tqdm import tqdm  # Import here to avoid dependency issues if not installed
@@ -1557,7 +1559,13 @@ class MazeRouter:
         net_by_name = {n.name: n for n in netlist.nets}
         comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
         all_pin_positions = {}
+        comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
+        all_pin_positions = {}
         for net_name in net_order:
+            if pin_positions_overrides and net_name in pin_positions_overrides:
+                all_pin_positions[net_name] = pin_positions_overrides[net_name]
+                continue
+
             if net_name not in net_by_name: continue
             net = net_by_name[net_name]
             pin_positions = []

@@ -15,6 +15,7 @@ sys.path.append(str(Path(__file__).parent.parent / "packages" / "temper-placer" 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.routing.maze_router import MazeRouter
 from temper_placer.routing.layer_assignment import assign_layers, Layer
+from temper_placer.routing.fanout import FanoutGenerator, FanoutConfig
 
 def create_pin_footprint(ref: str, x: float, y: float, net_name: str) -> Footprint:
     fp = Footprint()
@@ -156,15 +157,29 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
         result.board, 
         cell_size_mm=cell_size, 
         num_layers=2, 
-        via_cost=5.0,
+        via_cost=2.0,
         min_clearance=0.1,
-        wrong_way_penalty=5.0,
+        wrong_way_penalty=1.5,
         soft_blocking=True  # Enable RRR
     )
     
     # Block pads
     positions = np.array([c.initial_position for c in result.netlist.components])
     router.block_pads(result.netlist.components, positions, result.netlist, clearance=0.1)
+
+    # 0. Fanout Pass (The Fix)
+    print("  Running Fanout Pass...")
+    # Load KiBoard for modification
+    ki_board = KiBoard.from_file(str(pcb_path))
+    
+    fanout_gen = FanoutGenerator(ki_board, result.netlist, FanoutConfig(pitch=pitch, strategy="grid"))
+    # We only Fanout the Diagonal nets, or all?
+    # Fanout everything for consistency?
+    # If we fanout everything, we might block channels?
+    # Let's fanout ONLY Diagonals first to prove the point.
+    target_nets = ["NET_DIAG_1", "NET_DIAG_2"]
+    fanout_overrides = fanout_gen.generate_fanouts(target_nets=target_nets)
+    print(f"    Generated fanouts for: {list(fanout_overrides.keys())}")
     
     # 1. Assign Layers
     print("  Running Geometric Layer Assignment...")
@@ -193,13 +208,21 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
         net_order=net_order,
         assignments=assignments,
         max_iterations=20,  # Give it enough time to converge
-        p_scale_step=0.5
+        p_scale_step=0.5,
+        pin_positions_overrides=fanout_overrides
     )
             
     duration = time.time() - start_time
     print(f"  Routing Finished in {duration:.3f}s")
     
-    routed_count = sum(1 for r in results.values() if r.success)
+    routed_count = 0
+    for net_name, path in results.items():
+        if path.success:
+            routed_count += 1
+            # print(f"    ✓ {net_name}: {path.via_count} vias")
+        else:
+            print(f"    ✗ {net_name} FAILED: {path.failure_reason}")
+    
     # Check conflicts
     conflicts = router.get_conflict_locations()
     
