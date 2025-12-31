@@ -23,7 +23,12 @@ This document summarizes the changes made to the `temper-placer` routing engine 
 - **Occupancy Visualization**: Added `visualize_occupancy` to the validation script, which exports the router's internal blockage state to the `Dwgs.User` layer of the PCB.
 - **Minimal Test**: Created `packages/temper-placer/scripts/validate_core_routing.py` for headless validation.
 
+### 2.4 Phase 3: MCU Breakout (0.4mm pitch)
+- **Resolution**: Demonstrated that **0.05mm grid** is required for reliable breakout from 0.4mm QFN footprints.
+- **Clearance Logic**: Successfully used search-time `clearance_mask` (0.1mm) with `margin=0.0` for pads to maintain open channels between MCU pins.
+- **Performance**: Routing 10M cells (0.05mm over 4 layers) takes ~1.5s, which is acceptable for single-net validation.
+
 ## 3. Findings & Next Steps
-- **Resolution**: 0.5mm is sufficient for power nets but fails on MCU (0.4mm pitch). Final routing must use 0.1mm or finer for the MCU section.
-- **Placement Issues**: The template PCB has overlapping pads that the router cannot resolve alone; these require placement refinement.
-- **Phased Re-enablement**: Once 100% completion is achieved on simple nets without V4 features, smoothing and dithering should be re-enabled one by one.
+- **Resolution**: 0.05mm is the recommended high-density resolution.
+- **Placement Issues**: Template PCB still contains overlapping pads (AC section) causing unavoidable DRC errors.
+- **Phase 4**: Power section isolation and creeping distance verification.

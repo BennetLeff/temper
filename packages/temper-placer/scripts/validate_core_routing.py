@@ -34,12 +34,16 @@ def main():
     netlist = parse_result.netlist
     board = parse_result.board
 
-    # Pick a net with at least 2 pins
-    target_net = None
-    for net in netlist.nets:
-        if len(net.pins) >= 2:
-            target_net = net
-            break
+    # Phase 3 Configuration: MCU Breakout (temper-2edy.8)
+    target_net_name = "SPI_MOSI"
+    target_net = next((n for n in netlist.nets if n.name == target_net_name), None)
+
+    if not target_net:
+        print(f"Error: Net {target_net_name} not found in netlist. Defaulting to first multi-pin net.")
+        for net in netlist.nets:
+            if len(net.pins) >= 2:
+                target_net = net
+                break
 
     if not target_net:
         print("Error: No nets with >= 2 pins found in template")
@@ -54,16 +58,23 @@ def main():
         for c in netlist.components
     ])
 
-    # Initialize Router
-    cell_size = 0.5
-    print(f"Initializing MazeRouter (cell_size={cell_size}mm)...")
-    router = MazeRouter.from_board(board, cell_size_mm=cell_size, num_layers=4)
+    # Initialize Router (Phase 3 requirements: 0.05mm grid for 0.4mm pitch)
+    cell_size = 0.05 # mm
+    print(f"Initializing MazeRouter (cell_size={cell_size}mm, clearance=0.1mm)...")
+    router = MazeRouter.from_board(
+        board, 
+        cell_size_mm=cell_size, 
+        num_layers=4, 
+        min_clearance=0.1 # mm (Enough for 0.4mm pitch breakout)
+    )
 
     print("Blocking components...")
     router.block_components(netlist.components, positions, margin=0.1, layer_specific=True)
 
     print("Blocking pads...")
-    router.block_pads(netlist.components, positions, netlist, margin=0.2)
+    # Setting margin=0.0 ensures ONLY the pad itself is marked in _pad_net_map.
+    # We rely on the search-time clearance_mask (with min_clearance=0.2) to handle spacing.
+    router.block_pads(netlist.components, positions, netlist, margin=0.0, trace_width=0.1)
 
     # Prepare pin positions for the target net
     pin_positions = []
@@ -109,7 +120,8 @@ def main():
             output_pcb=output_pcb,
             routing_results=routing_results,
             cell_size=cell_size,
-            netlist=netlist
+            netlist=netlist,
+            default_trace_width=0.1 # Match Phase 3 breakout narrow width
         )
         print(f"Exported {items_added} items to {output_pcb}")
 
