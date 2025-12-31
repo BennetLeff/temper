@@ -231,6 +231,40 @@ thermal:
 
 hv_clearance_mm: 10.0
 
+# Minimum component-to-component spacing (edge-to-edge)
+# Enforces physical clearance to prevent overlaps and ensure HV safety
+# Added based on temper-2edy.10 analysis findings
+minimum_spacing:
+  # High-Voltage Component Pairs (2.0mm minimum for creepage/clearance)
+  - components: ["D2", "C_BUS1"]
+    min_separation_mm: 3.0  # Bridge rectifier to bus cap
+    description: "D2 is 17.74mm wide - needs extra clearance"
+  
+  - components: ["D2", "C_BUS2"]
+    min_separation_mm: 3.0  # Bridge rectifier to bus cap
+    description: "Prevent overlap found in temper-2edy.10"
+  
+  - components: ["C_BUS1", "Q1"]
+    min_separation_mm: 2.0  # Bus cap to IGBT
+    description: "HV clearance for DC bus capacitor"
+  
+  - components: ["C_BUS2", "Q2"]
+    min_separation_mm: 2.0  # Bus cap to IGBT
+    description: "HV clearance for DC bus capacitor"
+  
+  - components: ["D2", "Q1"]
+    min_separation_mm: 2.0  # Rectifier to IGBT
+    description: "HV clearance"
+  
+  - components: ["D2", "Q2"]
+    min_separation_mm: 2.0  # Rectifier to IGBT
+    description: "HV clearance - violation found in temper-2edy.10"
+  
+  # General HV component spacing
+  - components: ["Q1", "Q2"]
+    min_separation_mm: 6.0  # IGBT to IGBT (thermal + electrical)
+    description: "Thermal spreading + HV clearance"
+
 nets: []  # Added to satisfy config loader requirements
 
 net_classes:
