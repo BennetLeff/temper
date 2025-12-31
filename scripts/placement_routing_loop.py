@@ -251,7 +251,6 @@ def main():
             import jax
             from temper_placer.losses.base import LossContext
             from temper_placer.io.config_loader import load_constraints
-            from pathlib import Path
             
             # Load constraints to get component_spacing_rules
             config_path = Path("packages/temper-placer/configs/temper_constraints.yaml")
