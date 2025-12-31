@@ -153,18 +153,20 @@ def main():
     net_order = order_nets(netlist, loops)
     assignments = assign_layers(netlist)
     
-    # Exclude ONLY ground nets from routing (they go to a unified GND plane)
-    # Power rails (+3V3, +5V, +15V) are routed as star-topology traces per pro practice
-    GROUND_NET_PATTERNS = [
+    # Exclude ground AND high-power nets from routing (use copper zones instead)
+    # Low-power rails (+3V3, +5V, +15V) are still routed as traces for star topology
+    POWER_NET_PATTERNS = [
+        # Ground nets
         'GND', 'PGND', 'CGND', 'AGND', 'DGND', 'ISOGND',
+        # High-power AC/DC nets (wide traces needed, use copper zones)
+        'AC_L', 'AC_N', 'DC_BUS+', 'DC_BUS-',
     ]
-    # Power rails to route (not exclude):
-    # +3V3, +5V, +15V, VCC, VDD, VCC_BOOT - all routed as traces
+    
     if args.exclude_power_nets:
         original_count = len(net_order)
-        net_order = [n for n in net_order if not any(p in n for p in GROUND_NET_PATTERNS)]
+        net_order = [n for n in net_order if not any(p in n for p in POWER_NET_PATTERNS)]
         excluded = original_count - len(net_order)
-        console.print(f"  ✓ Excluded {excluded} ground nets (use unified GND plane)")
+        console.print(f"  ✓ Excluded {excluded} power/ground nets (use copper zones)")
     
     best_positions = positions
     best_conflicts = float('inf')
