@@ -283,6 +283,7 @@ net_class_rules:
     clearance_mm: 2.0
     via_size_mm: 1.2
     via_drill_mm: 0.6
+    creepage_mm: 8.0
     description: "340V DC Bus and Switching Nodes"
   
   Power:

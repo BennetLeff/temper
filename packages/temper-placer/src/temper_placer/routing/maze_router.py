@@ -59,6 +59,7 @@ class ProfileStats:
     rip_up_ms: float = 0.0
     astar_total_ms: float = 0.0
     analyze_conflicts_ms: float = 0.0
+    conflict_analysis_ms: float = 0.0
     numba_calls: int = 0
     python_calls: int = 0
     numba_time_ms: float = 0.0
@@ -146,6 +147,12 @@ class NetStatus:
     converged: bool  # True if stable for threshold iterations
 
 
+# Net Class IDs for Creepage
+CLASS_DEFAULT = 0
+CLASS_HV = 1  # High Voltage (requires large creepage)
+CLASS_LV = 2  # Low Voltage (requires small clearance)
+
+
 class MazeRouter:
     """Grid-based maze router using A* pathfinding."""
 
@@ -193,6 +200,8 @@ class MazeRouter:
         # Occupancy grid: 0=free, -1=blocked, 2=routed
         # Using numpy for mutable in-place updates (faster than JAX .at[].set())
         self.occupancy = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.int32)
+        # Class grid: 0=none, 1=HV, 2=LV (for creepage checks)
+        self.class_grid = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.int8)
         # RRR structures
         self.net_occupancy: dict[tuple[int, int, int], set[str]] = {}
         self.routed_paths: dict[str, RoutePath] = {}
@@ -813,6 +822,15 @@ class MazeRouter:
         """
         return required_clearance + (trace_width / 2)
 
+    def _get_class_id(self, rules: "NetClassRules | None") -> int:
+        """Get integer class ID for creepage checks."""
+        if not rules:
+            return CLASS_DEFAULT
+        # If creepage is significantly larger than standard clearance, treat as HV
+        if rules.creepage_mm > 2.0:
+            return CLASS_HV
+        return CLASS_LV
+
     def block_pads(
         self,
         components: list[Component],
@@ -907,6 +925,12 @@ class MazeRouter:
                     target_layer = 0 if side_idx == 0 else (self.num_layers - 1)
                     block_layers = [target_layer]
 
+                # Determine net class for blocking
+                class_id = CLASS_DEFAULT
+                if self.design_rules and net_name:
+                    rules = self.design_rules.get_rules_for_net(net_name)
+                    class_id = self._get_class_id(rules)
+
                 # Block cells and record ownership
                 for gx in range(max(0, gx_min_block), min(self.grid_size[0], gx_max_block + 1)):
                     for gy in range(max(0, gy_min_block), min(self.grid_size[1], gy_max_block + 1)):
@@ -918,6 +942,7 @@ class MazeRouter:
                                 # Mark as blocked (will be unblocked for own net during routing)
                                 if self.occupancy[gx, gy, layer] != -1:
                                     self.occupancy[gx, gy, layer] = -1
+                                    self.class_grid[gx, gy, layer] = class_id
 
         print(f"DEBUG: Blocked {len(self._pad_net_map)} grid cells for pads")
 
@@ -2223,6 +2248,48 @@ class MazeRouter:
         final_cell_difficulties = []
         last_failure_reason = "Unknown"
 
+        # Creepage Awareness: Generate class-specific clearance mask
+        clearance_mask = None
+        current_class_id = CLASS_DEFAULT  # Default class
+        if HAS_NUMBA and self.design_rules:
+            rules_c = self.design_rules.get_rules_for_net(net_name)
+            current_class_id = self._get_class_id(rules_c)
+            
+            # Define required clearance to other classes
+            req_from_hv = 8.0 if current_class_id != CLASS_HV else 2.0
+            req_from_lv = 8.0 if current_class_id == CLASS_HV else 0.2
+            
+            if req_from_hv > self.min_clearance or req_from_lv > self.min_clearance:
+                w, h, num_l = self.grid_size[0], self.grid_size[1], self.num_layers
+                
+                start_mask_gen = time.perf_counter()
+                
+                hv_obs = ((self.class_grid == CLASS_HV) & (self.occupancy != 0)).astype(np.int32)
+                lv_obs = ((self.class_grid == CLASS_LV) & (self.occupancy != 0)).astype(np.int32)
+                default_obs = ((self.class_grid == CLASS_DEFAULT) & (self.occupancy != 0)).astype(np.int32)
+                
+                if current_class_id == CLASS_HV:
+                    lv_obs |= default_obs
+                else:
+                    lv_obs |= default_obs
+
+                rad_hv = int(math.ceil(req_from_hv / self.cell_size))
+                rad_lv = int(math.ceil(req_from_lv / self.cell_size))
+                
+                mask_hv = dilate_grid_numba(hv_obs, rad_hv) if rad_hv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
+                mask_lv = dilate_grid_numba(lv_obs, rad_lv) if rad_lv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
+                
+                clearance_mask = mask_hv | mask_lv
+                
+                # Clear start/end pin regions
+                for gx, gy in [p for p in grid_pins]:
+                     r_clr = max(rad_hv, rad_lv)
+                     x_min, x_max = max(0, gx - r_clr), min(w, gx + r_clr + 1)
+                     y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
+                     clearance_mask[x_min:x_max, y_min:y_max, :] = 0
+                
+                self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
+
         for start_layer in candidate_start_layers:
             current_cells = []
             current_via_cells = set()
@@ -2251,6 +2318,7 @@ class MazeRouter:
                     p_scale=p_scale,
                     end_layer=target_layer,
                     clearance_mm=clearance_mm,
+                    clearance_mask=clearance_mask,
                 )
                 if path is None:
                     segment_success = False
@@ -2317,6 +2385,68 @@ class MazeRouter:
             via_drill = rules.via_drill
             clearance = rules.clearance
 
+        # Creepage Awareness: Generate class-specific clearance mask
+        # If this net is High Voltage, it needs 8mm to LV nets, but 2mm to HV nets.
+        # If this net is Low Voltage, it needs 8mm to HV nets, but 0.2mm to LV nets.
+        clearance_mask = None
+        if HAS_NUMBA and self.design_rules:
+            rules_c = self.design_rules.get_rules_for_net(net_name)
+            net_class = self._get_class_id(rules_c)
+            
+            # Define required clearance to other classes
+            req_from_hv = 8.0 if net_class != CLASS_HV else 2.0  # HV-HV=2mm, LV-HV=8mm
+            req_from_lv = 8.0 if net_class == CLASS_HV else 0.2  # HV-LV=8mm, LV-LV=0.2mm
+            
+            # Check if we need non-standard clearance (assume default min_clearance covers baseline)
+            # Actually, we should build the full mask if we have differentiated rules
+            if req_from_hv > self.min_clearance or req_from_lv > self.min_clearance:
+                w, h, num_l = self.grid_size[0], self.grid_size[1], self.num_layers
+                
+                # Extract obstacles by class
+                # Note: occupancy != 0 is general check, but we exclude current net? 
+                # Ideally yes, but route_net_rrr temporarily clears current net from occupancy?
+                # No, route_net_rrr does NOT verify start/end unblocking generally.
+                # However, occupancy includes mapped pads. block_pads marks pads with -1 and class_id.
+                
+                # 1. HV Obstacles
+                start_mask_gen = time.perf_counter()
+                
+                # We need numpy arrays for Numba
+                # self.class_grid is already numpy
+                
+                # Use int32 for dilate_grid_numba
+                hv_obs = ((self.class_grid == CLASS_HV) & (self.occupancy != 0)).astype(np.int32)
+                lv_obs = ((self.class_grid == CLASS_LV) & (self.occupancy != 0)).astype(np.int32)
+                # Also include default/unclassified obstacles as LV?
+                # Usually default = LV.
+                default_obs = ((self.class_grid == CLASS_DEFAULT) & (self.occupancy != 0)).astype(np.int32)
+                if net_class == CLASS_HV:
+                    # Treat default obstacles as LV (require 8mm)
+                    lv_obs |= default_obs
+                else:
+                    # Treat default obstacles as default clearance (LV-LV)
+                    lv_obs |= default_obs
+
+                # Dilate
+                rad_hv = int(math.ceil(req_from_hv / self.cell_size))
+                rad_lv = int(math.ceil(req_from_lv / self.cell_size))
+                
+                mask_hv = dilate_grid_numba(hv_obs, rad_hv) if rad_hv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
+                mask_lv = dilate_grid_numba(lv_obs, rad_lv) if rad_lv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
+                
+                clearance_mask = mask_hv | mask_lv
+                
+                # Clear start/end pin regions from mask (essential for connectivity)
+                # Clearance rules shouldn't prevent connecting to the pin itself
+                for gx, gy in [p for p in grid_pins]:
+                     # Clear a small box around the pin
+                     r_clr = max(rad_hv, rad_lv)
+                     x_min, x_max = max(0, gx - r_clr), min(w, gx + r_clr + 1)
+                     y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
+                     clearance_mask[x_min:x_max, y_min:y_max, :] = 0
+                
+                self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
+
         # Mark cells as occupied with differentiated inflation
         unique_cells = {(c.x, c.y, c.layer) for c in all_cells}
         for cx, cy, cl in unique_cells:
@@ -2328,6 +2458,7 @@ class MazeRouter:
             )
             for ax, ay, al in affected_cells:
                 self.occupancy[ax, ay, al] = 2
+                self.class_grid[ax, ay, al] = current_class_id
                 self.present_congestion[ax, ay, al] += 1.0
                 key = (ax, ay, al)
                 if key not in self.net_occupancy:
@@ -2367,6 +2498,7 @@ class MazeRouter:
         p_scale: float = 1.0,
         end_layer: int | None = None,
         clearance_mm: float | None = None,
+        clearance_mask: Array | None = None,
     ) -> list[GridCell] | None:
         """Find path using A* with RRR cost function.
 
@@ -2402,9 +2534,8 @@ class MazeRouter:
                 return None
 
         # Compute clearance mask if needed
-        clearance_mask = None
         req_clearance = clearance_mm if clearance_mm is not None else self.min_clearance
-        if req_clearance > 0 and HAS_NUMBA:
+        if clearance_mask is None and req_clearance > 0 and HAS_NUMBA:
             radius = int(math.ceil(req_clearance / self.cell_size))
             if radius > 0:
                 # Use cached numpy array from _prepare_cost_arrays

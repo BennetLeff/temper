@@ -322,6 +322,7 @@ class NetClassRule:
     clearance_mm: float = 0.2
     via_size_mm: float = 0.6
     via_drill_mm: float = 0.3
+    creepage_mm: float = 0.0
     allow_neckdown: bool = True
     description: str = ""
 
@@ -803,6 +804,7 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> "DesignRul
             clearance=rule.clearance_mm,
             via_diameter=rule.via_size_mm,
             via_drill=rule.via_drill_mm,
+            creepage_mm=rule.creepage_mm,
         )
 
     return rules

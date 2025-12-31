@@ -30,6 +30,7 @@ class NetClassRules:
     clearance: float  # mm
     via_diameter: float = 0.6  # mm
     via_drill: float = 0.3  # mm
+    creepage_mm: float = 0.0  # mm
     target_impedance: float | None = None  # ohms
 
 
