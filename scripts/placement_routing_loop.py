@@ -217,6 +217,7 @@ def main():
                 MCUClusteringLoss,
                 BusAlignmentLoss,
                 RoutingChannelLoss,
+                ComponentSpacingLoss,
             )
             from temper_placer.losses.routing_congestion import RoutingCongestionLoss
             
@@ -234,6 +235,9 @@ def main():
             # Bus alignment for SPI, I2C, USB
             bus_alignment = BusAlignmentLoss.from_netlist(netlist, weight=5.0)
             
+            # Component spacing for HV components (from config)
+            component_spacing = ComponentSpacingLoss(use_rotated_bounds=True)
+            
             # Congestion loss from routing feedback
             congestion_loss = RoutingCongestionLoss(
                 congestion_heatmap,
@@ -246,9 +250,15 @@ def main():
             # Simple gradient descent for placement adjustment
             import jax
             from temper_placer.losses.base import LossContext
+            from temper_placer.io.config_loader import load_constraints
+            from pathlib import Path
+            
+            # Load constraints to get component_spacing_rules
+            config_path = Path("packages/temper-placer/configs/temper_constraints.yaml")
+            constraints = load_constraints(config_path) if config_path.exists() else None
             
             # Create context using factory method
-            context = LossContext.from_netlist_and_board(netlist, board)
+            context = LossContext.from_netlist_and_board(netlist, board, constraints=constraints)
             
             # Combined loss function with weights
             def combined_loss(pos):
@@ -259,6 +269,7 @@ def main():
                 total += channel_loss(pos, rotations, context).value
                 total += mcu_clustering(pos, rotations, context).value
                 total += bus_alignment(pos, rotations, context).value
+                total += 25.0 * component_spacing(pos, rotations, context).value  # NEW: Enforce HV spacing
                 total += congestion_loss(pos, rotations, context).value
                 return total
             
