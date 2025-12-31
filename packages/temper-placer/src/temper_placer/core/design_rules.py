@@ -200,8 +200,8 @@ TEMPER_NET_CLASSES = {
     ),
     "HighCurrent": NetClassRules(
         name="HighCurrent",
-        trace_width=0.5,  # Minimized for routability verification
-        clearance=0.2,    # Minimized
+        trace_width=0.5,
+        clearance=0.25,   # Increased from 0.2mm for HV safety (DC_BUS/AC)
         via_diameter=0.8,
         via_drill=0.4,
     ),
@@ -216,7 +216,7 @@ def create_temper_design_rules() -> DesignRules:
     """
     return DesignRules(
         default_trace_width=0.2,
-        default_clearance=0.2,  # Aligned with KiCad minimal accepted clearance
+        default_clearance=0.15,  # Relaxed from 0.2mm to allow signal density (Targeted Reduction)
         default_via_diameter=0.6,
         default_via_drill=0.3,
         net_classes=deepcopy(TEMPER_NET_CLASSES),

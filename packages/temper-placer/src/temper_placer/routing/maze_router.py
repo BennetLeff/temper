@@ -198,6 +198,12 @@ class MazeRouter:
         self.drc_oracle = drc_oracle
         self.strict_mode = strict_mode
         self._current_net = None  # Set during route_net for DRC queries
+        
+        # Store default trace width for occupancy inflation (temper-z87d)
+        self._default_trace_width_mm = 0.25  # Will be updated per-net
+        
+        
+
 
         # Soft C-Space cost field (HV/LV separation)
         self.soft_c_space: np.ndarray | None = None
@@ -210,6 +216,34 @@ class MazeRouter:
         # Initialize neckdown mask (cells where finer traces are allowed)
         self.neckdown_mask = np.zeros(grid_size + (num_layers,), dtype=bool)
 
+
+    def _get_inflated_cells(self, x: int, y: int, layer: int, trace_width_mm: float = None) -> list[tuple[int, int, int]]:
+        """Get all cells that a trace at (x,y) with given width would occupy.
+        
+        This accounts for actual copper footprint, not just center-line.
+        Fixes the root cause of the 198 shorting violations.
+        
+        Args:
+            x, y, layer: Center cell of the trace
+            trace_width_mm: Trace width in mm (uses default if None)
+            
+        Returns:
+            List of (x, y, layer) tuples for all affected cells
+        """
+        width = trace_width_mm if trace_width_mm is not None else self._default_trace_width_mm
+        # Inflation radius in cells: trace extends trace_width/2 + CLEARANCE from center
+        # Fixes systematic "actual 0.1mm vs required 0.2mm" clearance violations (temper-6tb3)
+        required_radius_mm = (width / 2.0) + self.min_clearance
+        radius_cells = int(np.ceil(required_radius_mm / self.cell_size))
+        
+        cells = []
+        for dx in range(-radius_cells, radius_cells + 1):
+            for dy in range(-radius_cells, radius_cells + 1):
+                nx, ny = x + dx, y + dy
+                # Bounds check
+                if 0 <= nx < self.occupancy.shape[0] and 0 <= ny < self.occupancy.shape[1]:
+                    cells.append((nx, ny, layer))
+        return cells
 
     @classmethod
     def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0, drc_oracle: "DRCOracle | None" = None, strict_mode: bool = False) -> "MazeRouter":
@@ -235,15 +269,18 @@ class MazeRouter:
             return
         path = self.routed_paths[net_name]
         for cell in path.cells:
-            key = (cell.x, cell.y, cell.layer)
-            if key in self.net_occupancy and net_name in self.net_occupancy[key]:
-                self.net_occupancy[key].remove(net_name)
-                if not self.net_occupancy[key]:
-                    self.occupancy[cell.x, cell.y, cell.layer] = 0
-                    del self.net_occupancy[key]
-                self.present_congestion[cell.x, cell.y, cell.layer] = max(
-                    0.0, self.present_congestion[cell.x, cell.y, cell.layer] - 1.0
-                )
+            # Remove occupancy for all cells within trace radius (temper-z87d)
+            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+            for ax, ay, al in affected_cells:
+                key = (ax, ay, al)
+                if key in self.net_occupancy and net_name in self.net_occupancy[key]:
+                    self.net_occupancy[key].remove(net_name)
+                    if not self.net_occupancy[key]:
+                        self.occupancy[ax, ay, al] = 0
+                        del self.net_occupancy[key]
+                    self.present_congestion[ax, ay, al] = max(
+                        0.0, self.present_congestion[ax, ay, al] - 1.0
+                    )
         del self.routed_paths[net_name]
 
     def _get_cell_difficulty(self, cell: GridCell) -> float:
@@ -1006,15 +1043,19 @@ class MazeRouter:
                 path = path[1:]
             all_cells.extend(path)
 
-        # Mark cells as occupied
+        # Mark cells as occupied WITH TRACE WIDTH INFLATION (temper-z87d)
+        # This accounts for actual copper footprint, not just center-line
         unique_cells = set(all_cells)
         for cell in unique_cells:
-            self.occupancy[cell.x, cell.y, cell.layer] = 2
-            self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
-            key = (cell.x, cell.y, cell.layer)
-            if key not in self.net_occupancy:
-                self.net_occupancy[key] = set()
-            self.net_occupancy[key].add(net_name)
+            # Get all cells within trace radius
+            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+            for ax, ay, al in affected_cells:
+                self.occupancy[ax, ay, al] = 2
+                self.present_congestion[ax, ay, al] += 1.0
+                key = (ax, ay, al)
+                if key not in self.net_occupancy:
+                    self.net_occupancy[key] = set()
+                self.net_occupancy[key].add(net_name)
 
         # Restore original occupancy
         for gx, gy, l, v in original_occupancy:
@@ -1280,15 +1321,18 @@ class MazeRouter:
 
             all_cells.extend(path)
 
-        # Mark cells as occupied
+        # Mark cells as occupied WITH TRACE WIDTH INFLATION (temper-z87d)
         unique_cells = set(all_cells)
         for cell in unique_cells:
-            self.occupancy[cell.x, cell.y, cell.layer] = 2
-            self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
-            key = (cell.x, cell.y, cell.layer)
-            if key not in self.net_occupancy:
-                self.net_occupancy[key] = set()
-            self.net_occupancy[key].add(net_name)
+            # Get all cells within trace radius
+            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+            for ax, ay, al in affected_cells:
+                self.occupancy[ax, ay, al] = 2
+                self.present_congestion[ax, ay, al] += 1.0
+                key = (ax, ay, al)
+                if key not in self.net_occupancy:
+                    self.net_occupancy[key] = set()
+                self.net_occupancy[key].add(net_name)
 
         # Restore original occupancy
         for gx, gy, l, v in original_occupancy:
@@ -1818,14 +1862,18 @@ class MazeRouter:
         
         all_cells = final_all_cells # Alias for consistency below
 
+        # Mark cells as occupied WITH TRACE WIDTH INFLATION (temper-z87d)
         unique_cells = set(all_cells)
         for cell in unique_cells:
-            self.occupancy[cell.x, cell.y, cell.layer] = 2
-            self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
-            key = (cell.x, cell.y, cell.layer)
-            if key not in self.net_occupancy:
-                self.net_occupancy[key] = set()
-            self.net_occupancy[key].add(net_name)
+            # Get all cells within trace radius
+            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+            for ax, ay, al in affected_cells:
+                self.occupancy[ax, ay, al] = 2
+                self.present_congestion[ax, ay, al] += 1.0
+                key = (ax, ay, al)
+                if key not in self.net_occupancy:
+                    self.net_occupancy[key] = set()
+                self.net_occupancy[key].add(net_name)
 
         # Register routed geometry with DRCOracle for real-time clearance validation
         if self.drc_oracle is not None:
