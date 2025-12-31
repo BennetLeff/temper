@@ -96,29 +96,35 @@ class FanoutGenerator:
 
         self._analyzed = True
 
-    def _get_direction_offset(self, direction: EscapeDirection) -> Tuple[float, float]:
-        """Convert direction to (dx, dy) offset multipliers."""
-        # Using 0.5 pitch offset as default
-        off = 0.5
+    def _get_direction_offset(
+        self, direction: EscapeDirection, ring_index: int = 0
+    ) -> Tuple[float, float]:
+        """Convert direction to (dx, dy) offset multipliers with ring-based staggering.
 
-        if direction == EscapeDirection.NORTH:
-            return (0, -off)
-        elif direction == EscapeDirection.SOUTH:
-            return (0, off)
-        elif direction == EscapeDirection.EAST:
-            return (off, 0)
-        elif direction == EscapeDirection.WEST:
-            return (-off, 0)
-        elif direction == EscapeDirection.NORTH_EAST:
-            return (off, -off)
-        elif direction == EscapeDirection.NORTH_WEST:
-            return (-off, -off)
-        elif direction == EscapeDirection.SOUTH_EAST:
-            return (off, off)
-        elif direction == EscapeDirection.SOUTH_WEST:
-            return (-off, off)
+        Uses IPC-7095 spacing guidelines for via grid pattern. Inner rings use
+        different offset multipliers to avoid via-to-via clearance violations.
+        """
+        base_offsets = {
+            EscapeDirection.NORTH: (0, -1),
+            EscapeDirection.SOUTH: (0, 1),
+            EscapeDirection.EAST: (1, 0),
+            EscapeDirection.WEST: (-1, 0),
+            EscapeDirection.NORTH_EAST: (1, -1),
+            EscapeDirection.NORTH_WEST: (-1, -1),
+            EscapeDirection.SOUTH_EAST: (1, 1),
+            EscapeDirection.SOUTH_WEST: (-1, 1),
+        }
 
-        return (off, off)  # Default
+        base_dx, base_dy = base_offsets.get(direction, (1, 1))
+
+        ring_mults = self.config.ring_offset_multipliers.get(
+            ring_index, self.config.ring_offset_multipliers.get(0, (0.5, 0.5))
+        )
+
+        dx = base_dx * ring_mults[0] * self.config.pitch
+        dy = base_dy * ring_mults[1] * self.config.pitch
+
+        return (dx, dy)
 
     def generate_fanouts(
         self, target_nets: List[str] = None
@@ -170,13 +176,13 @@ class FanoutGenerator:
 
                 # Determine offset based on assignment or default
                 if assignment:
-                    dx_mult, dy_mult = self._get_direction_offset(assignment.direction)
+                    dx, dy = self._get_direction_offset(assignment.direction, assignment.ring_index)
                 else:
-                    dx_mult, dy_mult = 0.5, 0.5  # Default SE
+                    dx, dy = 0.5 * self.config.pitch, 0.5 * self.config.pitch
 
                 # Calculate Fanout Position (Escape Point)
-                fx = px + (self.config.pitch * dx_mult)
-                fy = py + (self.config.pitch * dy_mult)
+                fx = px + dx
+                fy = py + dy
 
                 # Create Via
                 via = Via(
