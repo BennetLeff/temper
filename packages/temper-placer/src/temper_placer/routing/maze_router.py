@@ -200,11 +200,11 @@ class MazeRouter:
         self.drc_oracle = drc_oracle
         self.strict_mode = strict_mode
         self._current_net = None  # Set during route_net for DRC queries
-        
+
         # Store default trace width for occupancy inflation (temper-z87d)
         self._default_trace_width_mm = 0.25  # Will be updated per-net
-        
-        
+
+
 
 
         # Soft C-Space cost field (HV/LV separation)
@@ -234,11 +234,11 @@ class MazeRouter:
         """
         width = width_mm if width_mm is not None else self._default_trace_width_mm
         clearance = clearance_mm if clearance_mm is not None else self.min_clearance
-        
+
         # Inflation radius in cells: shape extends width/2 + clearance from center
         required_radius_mm = (width / 2.0) + clearance
         radius_cells = int(np.ceil(required_radius_mm / self.cell_size))
-        
+
         cells = []
         for dx in range(-radius_cells, radius_cells + 1):
             for dy in range(-radius_cells, radius_cells + 1):
@@ -339,49 +339,49 @@ class MazeRouter:
             p = self._congestion_np[neighbor.x, neighbor.y, neighbor.layer]
             blocked = self._occupancy_np[neighbor.x, neighbor.y, neighbor.layer] == -1
             occupied = self._occupancy_np[neighbor.x, neighbor.y, neighbor.layer] == 2
-            
+
             # Add soft C-space cost if present
             c_space_cost = 0.0
             if self._soft_c_space_np is not None:
                 c_space_cost = float(self._soft_c_space_np[neighbor.x, neighbor.y])
                 if c_space_cost == np.inf:
                     blocked = True
-            
+
             # Check hard C-space (static obstacles)
             # Note: C-space is 2D (all layers same? Or should be 3D?)
             # Usually pads are on Top/Bottom. Inner layers are clearer.
-            # But the Builder assumes 2D grid for now. 
+            # But the Builder assumes 2D grid for now.
             # We should probably map Builder grid to Layers properly.
             # For now, let's assume it applies to the current layer if we don't have per-layer C-Space.
             # Or better: The Builder creates a single grid for Pads (which are typically on outer layers, or all if THT).
             # This is a simplification. Tracks/Vias are layer specific.
-            # If CSpaceGrid is 2D, we assume it blocks ALL layers? 
+            # If CSpaceGrid is 2D, we assume it blocks ALL layers?
             # No, that would be bad for tracks under pads.
             # Pads usually block only their layer.
             # Let's assume for this specific integration that c_space_grid is 2D and applies to the CURRENT generic pad layer check.
             # Ideally, self.c_space_grid should be 3D or we check it only on Top/Bottom?
-            # Actually, `CSpaceBuilder` flattened everything. 
-            # Let's assume for now 2D CSpace blocks ALL layers (Primitive). 
+            # Actually, `CSpaceBuilder` flattened everything.
+            # Let's assume for now 2D CSpace blocks ALL layers (Primitive).
             # Wait, that breaks routing under pads.
             # I must fix CSpaceBuilder to support layers or assume Top/Bottom.
             # But wait, looking at extraction: it extracted ALL pads.
-            # If I use this 2D grid, I can't route on inner layers under pads. 
+            # If I use this 2D grid, I can't route on inner layers under pads.
             # That's too restrictive.
-            
+
             # Correction: I will check `c_space_grid` ONLY if it blocks.
             # But I need to respect layers.
             # Let's defer layer support to `internal_route.py` passing correct layer-specific grids?
             # Or just update `_get_neighbor_cost` to respect `self.c_space_grid` which we assume is valid for this layer.
-            # Yes, `internal_route.py` can swap the grid depending on layer being routed? 
+            # Yes, `internal_route.py` can swap the grid depending on layer being routed?
             # No, `find_path` does all layers at once.
-            
+
             # I need `c_space_grid` to be layer-aware or logic here to be smart.
             # Let's implement basics: If `_c_space_grid_np` has 3 dims, use it. If 2 dims, assume it applies to current layer (if sensible) or all.
             # Given `CSpaceBuilder` returns 2D, I will assume for now we only set it if it's valid for the routing context.
             # But `MazeRouter` is multi-layer...
-            
+
             if self._c_space_grid_np is not None:
-                # Assuming 2D grid for now, applies check. 
+                # Assuming 2D grid for now, applies check.
                 # Ideally we only check this if `neighbor.layer` matches the C-Space context (e.g. Surface).
                 # But pads are on surfaces.
                 # Let's assume `c_space_grid` contains ONLY objects relevant to current routing.
@@ -396,7 +396,7 @@ class MazeRouter:
             p = float(self.present_congestion[neighbor.x, neighbor.y, neighbor.layer])
             blocked = self.occupancy[neighbor.x, neighbor.y, neighbor.layer] == -1
             occupied = self.occupancy[neighbor.x, neighbor.y, neighbor.layer] == 2
-            
+
             c_space_cost = 0.0
             if self.soft_c_space is not None:
                 c_space_cost = float(self.soft_c_space[neighbor.x, neighbor.y])
@@ -682,7 +682,7 @@ class MazeRouter:
                                 # Mark as blocked (will be unblocked for own net during routing)
                                 if self.occupancy[gx, gy, layer] != -1:
                                     self.occupancy[gx, gy, layer] = -1
-    
+
         print(f"DEBUG: Blocked {len(self._pad_net_map)} grid cells for pads")
 
     def _compute_local_density(self, x: float, y: float, radius: float = 10.0) -> float:
@@ -1746,14 +1746,13 @@ class MazeRouter:
             return res
         # Determine candidate start layers based on assignment
         candidate_start_layers = [0]
-        from temper_placer.routing.layer_assignment import Layer
         if assignment:
             if assignment.primary_layer == Layer.L4_BOT:
                 candidate_start_layers = [self.num_layers - 1]
             elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
                  # Try matching inner layer (1 or 2)
                  candidate_start_layers = [1 if assignment.primary_layer == Layer.L2_GND else 2]
-            
+
             # If flexible assignment, ensure all allowed layers are candidates
             if len(assignment.allowed_layers) > 1:
                 # Add all allowed layers to candidates (if not present)
@@ -1811,11 +1810,11 @@ class MazeRouter:
             total_difficulty = 0.0
             cell_difficulties = []
             segment_success = True
-            
+
             for i in range(1, len(grid_pins)):
                 start_node = grid_pins[i-1]
                 end_node = grid_pins[i]
-                
+
                 # Determine layer for THIS segment
                 if i == 1: # first segment
                      seg_layer = start_layer
@@ -1827,7 +1826,7 @@ class MazeRouter:
                     segment_success = False
                     last_failure_reason = f"No path found from {start_node} to {grid_pins[i]} (Start blocked? {self.occupancy[start_node[0], start_node[1], seg_layer] == -1})"
                     break
-                
+
                 # Identify vias and accumulate difficulty
                 for j in range(1, len(path)):
                     if path[j].layer != path[j-1].layer:
@@ -1835,7 +1834,7 @@ class MazeRouter:
                         # Both cells in a layer transition represent the via tower
                         current_via_cells.add((path[j-1].x, path[j-1].y, path[j-1].layer))
                         current_via_cells.add((path[j].x, path[j].y, path[j].layer))
-                    
+
                     d = self._get_cell_difficulty(path[j])
                     total_difficulty += d
                     cell_difficulties.append(d)
@@ -1843,7 +1842,7 @@ class MazeRouter:
                 if current_cells:
                     path = path[1:] # avoid duplicate join
                 current_cells.extend(path)
-            
+
             if segment_success:
                 final_success = True
                 final_all_cells = current_cells
@@ -1851,22 +1850,22 @@ class MazeRouter:
                 final_total_vias = total_vias
                 final_total_difficulty = total_difficulty
                 final_cell_difficulties = cell_difficulties
-                break 
-        
+                break
+
         if not final_success:
             for gx, gy, l, v in original_occupancy:
                 self.occupancy[gx, gy, l] = v
             res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=False, failure_reason=last_failure_reason)
             self.routed_paths[net_name] = res
             return res
-        
+
         all_cells = final_all_cells
-        
+
         # Get rules for this net to determine correct inflation (temper-z87d)
         trace_width = self._default_trace_width_mm
         via_diameter = 0.6
         clearance = self.min_clearance
-        
+
         if self.design_rules:
             rules = self.design_rules.get_rules_for_net(net_name)
             trace_width = rules.trace_width
@@ -1878,7 +1877,7 @@ class MazeRouter:
         for cx, cy, cl in unique_cells:
             is_via = (cx, cy, cl) in final_via_cells
             width = via_diameter if is_via else trace_width
-            
+
             affected_cells = self._get_inflated_cells(cx, cy, cl, width_mm=width, clearance_mm=clearance)
             for ax, ay, al in affected_cells:
                 self.occupancy[ax, ay, al] = 2

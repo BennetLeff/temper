@@ -18,27 +18,24 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing.c_space_builder import (
-    CSpaceBuilder,
+    CSpaceCache,
     CSpaceConfig,
     CSpaceGrid,
-    CSpaceCache,
     SoftCSpaceBuilder,
 )
-from temper_placer.routing.dithered_router import DitheredRouter, DitherConfig
-from temper_placer.routing.maze_router import MazeRouter, RoutePath, GridCell
+from temper_placer.routing.dithered_router import DitherConfig, DitheredRouter
+from temper_placer.routing.maze_router import MazeRouter, RoutePath
 from temper_placer.routing.post_processing.funnel_smoother import FunnelSmoother
 from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
 
 if TYPE_CHECKING:
-    from temper_placer.routing.layer_assignment import LayerAssignment
     from temper_placer.core.design_rules import DesignRules
 
 logger = logging.getLogger(__name__)
@@ -95,7 +92,7 @@ class CSpaceRoutingPipeline:
         self.netlist = netlist
         self.config = config or PipelineConfig()
         self.cell_size = self.config.resolution_mm
-        
+
         if design_rules is None:
             from temper_placer.core.design_rules import create_temper_design_rules
             self.design_rules = create_temper_design_rules()
@@ -116,7 +113,7 @@ class CSpaceRoutingPipeline:
 
         self.router: DitheredRouter | MazeRouter | None = None
         self.smoother = FunnelSmoother(resolution_mm=self.config.resolution_mm)
-        
+
         # Ballooner will be initialized if DRC oracle is available
         self.ballooner: TraceBallooner | None = None
 
@@ -168,7 +165,7 @@ class CSpaceRoutingPipeline:
                 net_class=net_class,
                 exclude_nets={net_name}
             )
-            
+
             # Get base router
             base = self.router.base_router if isinstance(self.router, DitheredRouter) else self.router
             base.soft_c_space = cost_grid
@@ -188,7 +185,6 @@ class CSpaceRoutingPipeline:
 
         # 4. Ballooning (post-all-routing)
         if self.config.enable_ballooning and base.drc_oracle:
-            from temper_placer.routing.constraints.spatial_index import Track
             self.ballooner = TraceBallooner(
                 geometry=base.drc_oracle.geometry,
                 power_nets=set(self.config.power_nets)
@@ -225,10 +221,10 @@ class CSpaceRoutingPipeline:
         net = next((n for n in self.netlist.nets if n.name == net_name), None)
         if not net:
             return []
-            
+
         positions = []
         comp_map = {c.ref: c for c in self.netlist.components}
-        
+
         for comp_ref, pin_name in net.pins:
             if comp_ref in comp_map:
                 comp = comp_map[comp_ref]
