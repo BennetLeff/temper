@@ -220,6 +220,9 @@ class MazeRouter:
         # Initialize neckdown mask (cells where finer traces are allowed)
         self.neckdown_mask = np.zeros(grid_size + (num_layers,), dtype=bool)
 
+        # Pad net mapping for track-through-pad prevention (temper-hdu8)
+        self._pad_net_map: dict[tuple[int, int, int], str] = {}  # (gx, gy, layer) -> net
+
 
     def _get_inflated_cells(self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None) -> list[tuple[int, int, int]]:
         """Get all cells that a shape at (x,y) with given width/clearance would occupy.
