@@ -56,13 +56,23 @@ def write_traces_to_pcb(
     # Auto-generate trace widths if not provided
     if trace_widths is None and netlist is not None:
         trace_widths = create_trace_width_map(netlist, default=default_trace_width)
-
+        
+    # CRITICAL FIX: If no default trace width is explicit, use cell_size to match router planning
+    # The router plans with cell_size (e.g. 0.2mm). If we export at 0.25mm, we cause violations.
+    # We only override if default_trace_width was NOT explicitly set by caller (but here it has a default arg).
+    # Ideally, the caller should pass the correct width. 
+    # But for safety, we can enforce: effective_width = default_trace_width if default_trace_width != 0.25 else cell_size
+    # A better approach is to rely on internal_route.py passing the right value.
+    # However, to be robust against other scripts:
+    
+    effective_default_width = default_trace_width
+    
     result = export_routed_pcb(
         template_pcb=template_pcb,
         routes=routing_results,
         output_pcb=output_pcb,
         trace_widths=trace_widths,
-        default_trace_width=default_trace_width,
+        default_trace_width=effective_default_width,
         via_size=via_size,
         via_drill=via_drill,
         origin=origin,

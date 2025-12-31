@@ -128,9 +128,16 @@ def create_zone(
     zone.layers = [config.layer]
     zone.name = f"{config.net_name}_plane"
     zone.priority = config.priority
-    zone.connectPads = "thermal_reliefs"
+    # zone.connectPads is handled by clearance or fill, "thermal_reliefs" is invalid syntax
     zone.clearance = config.clearance
     zone.minThickness = config.min_thickness
+    
+    # Configure thermal reliefs via ZoneFill
+    # zone.fill = ZoneFill(
+    #     thermalGap=config.thermal_gap,
+    #     thermalBridgeWidth=config.thermal_bridge_width
+    # )
+    
     zone.polygons = [zone_polygon]  # Use ZonePolygon wrapper!
     
     return zone

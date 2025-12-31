@@ -18,6 +18,8 @@ from temper_placer.routing.constraints.geometry import (
     Point,
     point_to_segment_distance,
     segment_to_segment_distance,
+    point_to_rotated_rect_distance,
+    segment_to_rotated_rect_distance,
 )
 from temper_placer.routing.constraints.spatial_index import (
     Pad,
@@ -166,9 +168,14 @@ class DRCOracle:
             required = self.rules.get_clearance(net, pad.net)
             if neckdown: required = min(required, 0.15)
 
-            eff_clearance = required + (diameter/2) + pad.radius
-            dist = point_distance(center, pad.center)
-            if dist < eff_clearance:
+            # Effective clearance: via_radius + required.
+            # point_to_rotated_rect_distance returns distance to the edge of the rect.
+            # If dist < (required + via_radius), we crash.
+            
+            effective_clearance = required + (diameter/2)
+            dist = point_to_rotated_rect_distance(center, pad.rot_rect)
+            
+            if dist < effective_clearance:
                 return False, f"via clearance with {pad.id}"
                 
         # Check against vias
@@ -179,7 +186,7 @@ class DRCOracle:
             if neckdown: required = min(required, 0.15)
 
             eff_clearance = required + (diameter/2) + (via.diameter/2)
-            dist = point_distance(center, via.center)
+            dist = center.distance_to(via.center)
             if dist < eff_clearance:
                 return False, f"via clearance with {via.id}"
                 
@@ -235,9 +242,11 @@ class DRCOracle:
             required = self.rules.get_clearance(net, pad.net)
             if neckdown:
                 required = min(required, 0.15)
-            effective_clearance = required + (width / 2) + pad.radius
+            
+            # Distance to rect edge must be > required + track_half_width
+            effective_clearance = required + (width / 2)
 
-            actual = point_to_segment_distance(pad.center, segment)
+            actual = segment_to_rotated_rect_distance(segment, pad.rot_rect)
             if actual < effective_clearance:
                 return (
                     False,
@@ -475,8 +484,61 @@ class DRCOracle:
                         )
                     )
                     
-        # TODO: Add Track-Via and Via-Pad checks here for completeness
-        # but pure Track-Track is the main issue for nudging.
+        # Check Track-to-Pad clearances
+        for track in self.geometry.tracks:
+            seg = track.to_segment()
+            # Search radius: len/2 + default_clearance + max_possible_pad_radius (~3mm?)
+            search_radius = (seg.length / 2) + self.rules.default_clearance + 3.0
+            
+            nearby_pads = self.geometry.query_pads_near(seg.midpoint(), search_radius, track.layer)
+            for pad in nearby_pads:
+                if track.net == pad.net:
+                    continue
+                
+                required = self.rules.get_clearance(track.net, pad.net)
+                effective = required + (track.width / 2)
+                
+                actual = segment_to_rotated_rect_distance(seg, pad.rot_rect)
+                if actual < effective:
+                    violations.append(
+                        Violation(
+                            type="track_pad_clearance",
+                            geometry_a_id=track.id,
+                            geometry_b_id=pad.id,
+                            net_a=track.net,
+                            net_b=pad.net,
+                            clearance_actual=actual,
+                            clearance_required=effective,
+                            location=seg.midpoint(),
+                        )
+                    )
+
+        # Check Via-to-Pad clearances
+        for via in self.geometry.vias:
+            search_radius = (via.diameter / 2) + self.rules.default_clearance + 3.0
+            nearby_pads = self.geometry.query_pads_near(via.center, search_radius)
+            
+            for pad in nearby_pads:
+                if via.net == pad.net:
+                    continue
+                    
+                required = self.rules.get_clearance(via.net, pad.net)
+                effective = required + (via.diameter / 2)
+                
+                actual = point_to_rotated_rect_distance(via.center, pad.rot_rect)
+                if actual < effective:
+                    violations.append(
+                        Violation(
+                            type="via_pad_clearance",
+                            geometry_a_id=via.id,
+                            geometry_b_id=pad.id,
+                            net_a=via.net,
+                            net_b=pad.net,
+                            clearance_actual=actual,
+                            clearance_required=effective,
+                            location=via.center,
+                        )
+                    )
 
         return violations
 

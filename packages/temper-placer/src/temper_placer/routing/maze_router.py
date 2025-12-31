@@ -150,6 +150,7 @@ class MazeRouter:
         min_clearance: float = 0.0,
         drc_oracle: "DRCOracle | None" = None,
         strict_mode: bool = False,
+        design_rules: "DesignRules | None" = None,
     ):
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
@@ -163,6 +164,7 @@ class MazeRouter:
         self.soft_blocking = soft_blocking
         self.congestion_via_discount = congestion_via_discount  # Via cost multiplier in congested areas
         self.min_clearance = min_clearance
+        self.design_rules = design_rules
 
         if layer_stackup is None:
             from temper_placer.core.board import LayerStackup
@@ -217,23 +219,24 @@ class MazeRouter:
         self.neckdown_mask = np.zeros(grid_size + (num_layers,), dtype=bool)
 
 
-    def _get_inflated_cells(self, x: int, y: int, layer: int, trace_width_mm: float = None) -> list[tuple[int, int, int]]:
-        """Get all cells that a trace at (x,y) with given width would occupy.
+    def _get_inflated_cells(self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None) -> list[tuple[int, int, int]]:
+        """Get all cells that a shape at (x,y) with given width/clearance would occupy.
         
-        This accounts for actual copper footprint, not just center-line.
-        Fixes the root cause of the 198 shorting violations.
+        This accounts for actual copper footprint plus clearance.
         
         Args:
-            x, y, layer: Center cell of the trace
-            trace_width_mm: Trace width in mm (uses default if None)
+            x, y, layer: Center cell
+            width_mm: Shape width/diameter in mm (uses default trace width if None)
+            clearance_mm: Minimum clearance in mm (uses self.min_clearance if None)
             
         Returns:
             List of (x, y, layer) tuples for all affected cells
         """
-        width = trace_width_mm if trace_width_mm is not None else self._default_trace_width_mm
-        # Inflation radius in cells: trace extends trace_width/2 + CLEARANCE from center
-        # Fixes systematic "actual 0.1mm vs required 0.2mm" clearance violations (temper-6tb3)
-        required_radius_mm = (width / 2.0) + self.min_clearance
+        width = width_mm if width_mm is not None else self._default_trace_width_mm
+        clearance = clearance_mm if clearance_mm is not None else self.min_clearance
+        
+        # Inflation radius in cells: shape extends width/2 + clearance from center
+        required_radius_mm = (width / 2.0) + clearance
         radius_cells = int(np.ceil(required_radius_mm / self.cell_size))
         
         cells = []
@@ -241,12 +244,12 @@ class MazeRouter:
             for dy in range(-radius_cells, radius_cells + 1):
                 nx, ny = x + dx, y + dy
                 # Bounds check
-                if 0 <= nx < self.occupancy.shape[0] and 0 <= ny < self.occupancy.shape[1]:
+                if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
                     cells.append((nx, ny, layer))
         return cells
 
     @classmethod
-    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0, drc_oracle: "DRCOracle | None" = None, strict_mode: bool = False) -> "MazeRouter":
+    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0, drc_oracle: "DRCOracle | None" = None, strict_mode: bool = False, design_rules: "DesignRules | None" = None) -> "MazeRouter":
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
         return cls(
@@ -261,6 +264,7 @@ class MazeRouter:
             min_clearance=min_clearance,
             drc_oracle=drc_oracle,
             strict_mode=strict_mode,
+            design_rules=design_rules,
         )
 
     def rip_up_net(self, net_name: str) -> None:
@@ -1787,6 +1791,7 @@ class MazeRouter:
 
         # Try to route using candidates
         final_all_cells = []
+        final_via_cells = set()
         final_success = False
         final_total_vias = 0
         final_total_difficulty = 0.0
@@ -1795,6 +1800,7 @@ class MazeRouter:
 
         for start_layer in candidate_start_layers:
             current_cells = []
+            current_via_cells = set()
             total_vias = 0
             total_difficulty = 0.0
             cell_difficulties = []
@@ -1805,26 +1811,25 @@ class MazeRouter:
                 end_node = grid_pins[i]
                 
                 # Determine layer for THIS segment
-                # If first segment, use start_layer
-                # If subsequent, continue from last cell's layer
-                if i == 1: # first segment (loop starts at 1)
+                if i == 1: # first segment
                      seg_layer = start_layer
                 else:
-                     if current_cells:
-                         seg_layer = current_cells[-1].layer
-                     else:
-                         seg_layer = start_layer
+                     seg_layer = current_cells[-1].layer if current_cells else start_layer
 
                 path = self.find_path_rrr(start_node, end_node, seg_layer, allow_via, cost_map=cost_map, p_scale=p_scale)
                 if path is None:
                     segment_success = False
                     last_failure_reason = f"No path found from {start_node} to {grid_pins[i]} (Start blocked? {self.occupancy[start_node[0], start_node[1], seg_layer] == -1})"
-                    break # Try next candidate layer
-
-                # Count vias and accumulate difficulty
+                    break
+                
+                # Identify vias and accumulate difficulty
                 for j in range(1, len(path)):
                     if path[j].layer != path[j-1].layer:
                         total_vias += 1
+                        # Both cells in a layer transition represent the via tower
+                        current_via_cells.add((path[j-1].x, path[j-1].y, path[j-1].layer))
+                        current_via_cells.add((path[j].x, path[j].y, path[j].layer))
+                    
                     d = self._get_cell_difficulty(path[j])
                     total_difficulty += d
                     cell_difficulties.append(d)
@@ -1836,37 +1841,39 @@ class MazeRouter:
             if segment_success:
                 final_success = True
                 final_all_cells = current_cells
+                final_via_cells = current_via_cells
                 final_total_vias = total_vias
                 final_total_difficulty = total_difficulty
                 final_cell_difficulties = cell_difficulties
-                break # Success! Stop retrying.
+                break 
         
-        # If all failed, return failure relative to LAST attempt
         if not final_success:
-             # Restore original occupancy on failure
             for gx, gy, l, v in original_occupancy:
                 self.occupancy[gx, gy, l] = v
-
-            res = RoutePath(
-                net=net_name,
-                cells=[],
-                length=0.0,
-                via_count=0,
-                success=False,
-                difficulty=0.0,
-                cell_difficulties=[],
-                failure_reason=last_failure_reason,
-            )
+            res = RoutePath(net=net_name, cells=[], length=0.0, via_count=0, success=False, failure_reason=last_failure_reason)
             self.routed_paths[net_name] = res
             return res
         
-        all_cells = final_all_cells # Alias for consistency below
+        all_cells = final_all_cells
+        
+        # Get rules for this net to determine correct inflation (temper-z87d)
+        trace_width = self._default_trace_width_mm
+        via_diameter = 0.6
+        clearance = self.min_clearance
+        
+        if self.design_rules:
+            rules = self.design_rules.get_rules_for_net(net_name)
+            trace_width = rules.trace_width
+            via_diameter = rules.via_diameter
+            clearance = rules.clearance
 
-        # Mark cells as occupied WITH TRACE WIDTH INFLATION (temper-z87d)
-        unique_cells = set(all_cells)
-        for cell in unique_cells:
-            # Get all cells within trace radius
-            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+        # Mark cells as occupied with differentiated inflation
+        unique_cells = set((c.x, c.y, c.layer) for c in all_cells)
+        for cx, cy, cl in unique_cells:
+            is_via = (cx, cy, cl) in final_via_cells
+            width = via_diameter if is_via else trace_width
+            
+            affected_cells = self._get_inflated_cells(cx, cy, cl, width_mm=width, clearance_mm=clearance)
             for ax, ay, al in affected_cells:
                 self.occupancy[ax, ay, al] = 2
                 self.present_congestion[ax, ay, al] += 1.0
@@ -1875,7 +1882,6 @@ class MazeRouter:
                     self.net_occupancy[key] = set()
                 self.net_occupancy[key].add(net_name)
 
-        # Register routed geometry with DRCOracle for real-time clearance validation
         if self.drc_oracle is not None:
             self._register_routed_path(all_cells, net_name)
 

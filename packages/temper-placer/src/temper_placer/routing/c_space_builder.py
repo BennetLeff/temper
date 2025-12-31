@@ -123,12 +123,49 @@ class CSpaceBuilder:
                     self.pads_by_net[net_name] = []
                 self.pads_by_net[net_name].append(p)
                 
-        # 2. Tracks/Vias (Pre-existing/Fanouts)
-        # Assuming we treat them as obstacles unless they belong to the same net
-        # (Router handles same-net exclusion separately, but builder generates base map)
+        # 2. Tracks (existing routed segments)
+        # These are critical to avoid shorts with new routes
+        if hasattr(board, 'traceItems'):
+            for item in board.traceItems:
+                # Track segments
+                if hasattr(item, 'start') and hasattr(item, 'end'):
+                    # Determine layer ID
+                    layer_id = self._layer_name_to_id(item.layer if hasattr(item, 'layer') else 'F.Cu')
+                    net_name = item.net if hasattr(item, 'net') else ''
+                    
+                    track = Track(
+                        start=Point(item.start.X, item.start.Y),
+                        end=Point(item.end.X, item.end.Y),
+                        width=item.width if hasattr(item, 'width') else 0.2,
+                        net=net_name,
+                        layer=layer_id
+                    )
+                    self.tracks.append(track)
+                    
+                # Vias (punch through all layers)
+                elif hasattr(item, 'position') and hasattr(item, 'size'):
+                    net_name = item.net if hasattr(item, 'net') else ''
+                    via = Via(
+                        center=Point(item.position.X, item.position.Y),
+                        diameter=item.size if hasattr(item, 'size') else 0.6,
+                        drill=item.drill if hasattr(item, 'drill') else 0.3,
+                        net=net_name
+                    )
+                    self.vias.append(via)
         
-        # (Skipping track extraction for now - C-Space usually built from Pads + Keepouts)
-        # If we need incremental routing, we pass routed tracks as dynamic obstacles.
+        print(f"CSpace: Extracted {len(self.pads)} pads, {len(self.tracks)} tracks, {len(self.vias)} vias")
+    
+    def _layer_name_to_id(self, layer_name: str) -> int:
+        """Convert KiCad layer name to internal layer ID."""
+        if layer_name == 'F.Cu':
+            return 0
+        elif layer_name == 'In1.Cu':
+            return 1 if self.num_layers > 2 else 0
+        elif layer_name == 'In2.Cu':
+            return 2 if self.num_layers > 3 else 0
+        elif layer_name == 'B.Cu':
+            return self.num_layers - 1
+        return 0
 
     def build_grid(self, clearance: float, trace_width: float, exclude_nets: set[str] = None) -> np.ndarray:
         """
@@ -176,6 +213,30 @@ class CSpaceBuilder:
             
             for lid in target_layers:
                 self._draw_pad(layer_buffers[lid], pad, inflation_px, color=255)
+        
+        # Rasterize Tracks (line segments)
+        for track in self.tracks:
+            if track.net in exclude_nets:
+                continue
+            
+            # Track layer
+            target_layers = []
+            if track.layer == -1:
+                target_layers = list(range(self.num_layers))
+            elif 0 <= track.layer < self.num_layers:
+                target_layers = [track.layer]
+            
+            for lid in target_layers:
+                self._draw_track(layer_buffers[lid], track, inflation_px, color=255)
+        
+        # Rasterize Vias (circles punching through all layers)
+        for via in self.vias:
+            if via.net in exclude_nets:
+                continue
+            
+            # Vias punch through all layers
+            for lid in range(self.num_layers):
+                self._draw_via(layer_buffers[lid], via, inflation_px, color=255)
                 
         # Fill 3D Grid
         for lid in range(self.num_layers):
@@ -183,6 +244,32 @@ class CSpaceBuilder:
             grid_3d[:, :, lid] = (layer_buffers[lid].T > 0)
             
         return grid_3d
+    
+    def _draw_track(self, buf: np.ndarray, track: 'Track', inflation_px: int, color: int):
+        """Rasterize a track segment as a thick line."""
+        # Convert mm to grid pixels
+        x1 = int((track.start.x - self.origin[0]) / self.resolution)
+        y1 = int((track.start.y - self.origin[1]) / self.resolution)
+        x2 = int((track.end.x - self.origin[0]) / self.resolution)
+        y2 = int((track.end.y - self.origin[1]) / self.resolution)
+        
+        # Track half-width in pixels (inflate by track width too)
+        track_radius_px = int(np.ceil(track.width / 2.0 / self.resolution)) + inflation_px
+        
+        # Draw thick line
+        cv2.line(buf, (x1, y1), (x2, y2), color, thickness=track_radius_px * 2)
+    
+    def _draw_via(self, buf: np.ndarray, via: 'Via', inflation_px: int, color: int):
+        """Rasterize a via as a filled circle."""
+        # Convert mm to grid pixels
+        cx = int((via.center.x - self.origin[0]) / self.resolution)
+        cy = int((via.center.y - self.origin[1]) / self.resolution)
+        
+        # Via radius in pixels (use outer diameter for obstacle)
+        via_radius_px = int(np.ceil(via.diameter / 2.0 / self.resolution)) + inflation_px
+        
+        # Draw filled circle
+        cv2.circle(buf, (cx, cy), via_radius_px, color, thickness=-1)
 
     def unblock_pads(self, grid: np.ndarray, pads: List[Pad], clearance: float, trace_width: float) -> None:
         """

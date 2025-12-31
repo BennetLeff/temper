@@ -153,18 +153,18 @@ def main():
     net_order = order_nets(netlist, loops)
     assignments = assign_layers(netlist)
     
-    # Exclude power/ground nets from routing (they should be on planes or pre-routed)
-    POWER_NET_PATTERNS = [
+    # Exclude ONLY ground nets from routing (they go to a unified GND plane)
+    # Power rails (+3V3, +5V, +15V) are routed as star-topology traces per pro practice
+    GROUND_NET_PATTERNS = [
         'GND', 'PGND', 'CGND', 'AGND', 'DGND', 'ISOGND',
-        '+3V3', '+5V', '+15V', '+12V', 'VCC', 'VDD',
-        # Keep AC/DC nets routed as they are high-current traces, not full planes
-        # 'AC_L', 'AC_N', 'DC_BUS+', 'DC_BUS-',
     ]
+    # Power rails to route (not exclude):
+    # +3V3, +5V, +15V, VCC, VDD, VCC_BOOT - all routed as traces
     if args.exclude_power_nets:
         original_count = len(net_order)
-        net_order = [n for n in net_order if not any(p in n for p in POWER_NET_PATTERNS)]
+        net_order = [n for n in net_order if not any(p in n for p in GROUND_NET_PATTERNS)]
         excluded = original_count - len(net_order)
-        console.print(f"  ✓ Excluded {excluded} power/ground nets (use planes instead)")
+        console.print(f"  ✓ Excluded {excluded} ground nets (use unified GND plane)")
     
     best_positions = positions
     best_conflicts = float('inf')
@@ -193,6 +193,9 @@ def main():
 
     original_handler = signal.signal(signal.SIGINT, signal_handler)
 
+    from temper_placer.core.design_rules import create_temper_design_rules
+    design_rules = create_temper_design_rules()
+
     for iteration in range(args.max_iterations):
         if stop_requested:
             break
@@ -220,7 +223,8 @@ def main():
             # Create losses (weights applied in combined_loss)
             overlap_loss = OverlapLoss()
             boundary_loss = BoundaryLoss()
-            channel_loss = RoutingChannelLoss(weight=20.0, min_channel_width=5.0)
+            # Increase channel width for 0.6mm vias + 0.15mm clearance (0.75mm + extra)
+            channel_loss = RoutingChannelLoss(weight=30.0, min_channel_width=8.0)
             
             # MCU clustering - find MCU and its peripherals
             mcu_clustering = MCUClusteringLoss.from_netlist(
@@ -233,7 +237,7 @@ def main():
             # Congestion loss from routing feedback
             congestion_loss = RoutingCongestionLoss(
                 congestion_heatmap,
-                weight=30.0,
+                weight=50.0, # Increased from 30.0
                 cell_size=args.cell_size,
                 origin=jnp.array(board.origin),
                 grid_size=jnp.array(router.grid_size),
@@ -250,8 +254,8 @@ def main():
             def combined_loss(pos):
                 rotations = jnp.zeros((len(netlist.components), 4))
                 total = 0.0
-                total += 1000.0 * overlap_loss(pos, rotations, context).value
-                total += 200.0 * boundary_loss(pos, rotations, context).value
+                total += 1500.0 * overlap_loss(pos, rotations, context).value # Increased from 1000
+                total += 300.0 * boundary_loss(pos, rotations, context).value # Increased from 200
                 total += channel_loss(pos, rotations, context).value
                 total += mcu_clustering(pos, rotations, context).value
                 total += bus_alignment(pos, rotations, context).value
@@ -302,6 +306,8 @@ def main():
             num_layers=args.layers,
             via_cost=10.0,
             soft_blocking=True,
+            min_clearance=0.15,
+            design_rules=design_rules,
         )
         
         # Block components at current positions
@@ -450,9 +456,9 @@ def main():
                 final_results,
                 cell_size=args.cell_size,
                 origin=board.origin,
-                default_trace_width=0.1,
-                via_size=0.5,
-                via_drill=0.25,
+                default_trace_width=0.15,
+                via_size=0.6,
+                via_drill=0.3,
                 netlist=netlist,
             )
             console.print(f"  ✓ Exported {items_added} trace segments and vias")

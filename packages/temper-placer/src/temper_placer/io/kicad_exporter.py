@@ -27,7 +27,70 @@ DEFAULT_LAYER_MAP = {
     3: "In2.Cu",  # Inner layer 2 (for 4-layer boards)
 }
 
+# Endpoint snapping tolerance in mm
+SNAP_TOLERANCE_MM = 0.2
 
+def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
+    """Extract pad center coordinates grouped by net name.
+    
+    Returns:
+        Dictionary mapping net_name -> list of (x, y) pad centers
+    """
+    import math
+    pad_centers: dict[str, list[tuple[float, float]]] = {}
+    
+    for fp in board.footprints:
+        if fp.position:
+            fp_x, fp_y = fp.position.X, fp.position.Y
+            fp_angle = fp.position.angle if fp.position.angle is not None else 0.0
+        else:
+            fp_x, fp_y, fp_angle = 0.0, 0.0, 0.0
+        
+        for pad in fp.pads:
+            net_name = pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else ""
+            if not net_name:
+                continue
+            
+            # Apply footprint rotation to pad position
+            rel_x, rel_y = pad.position.X, pad.position.Y
+            rad = math.radians(fp_angle)
+            rot_x = rel_x * math.cos(rad) - rel_y * math.sin(rad)
+            rot_y = rel_x * math.sin(rad) + rel_y * math.cos(rad)
+            abs_x = fp_x + rot_x
+            abs_y = fp_y + rot_y
+            
+            if net_name not in pad_centers:
+                pad_centers[net_name] = []
+            pad_centers[net_name].append((abs_x, abs_y))
+    
+    return pad_centers
+
+def snap_to_nearest_pad(
+    x: float, y: float, 
+    pad_centers: list[tuple[float, float]], 
+    tolerance: float = SNAP_TOLERANCE_MM
+) -> tuple[float, float]:
+    """Snap coordinate to nearest pad center if within tolerance.
+    
+    Args:
+        x, y: Original coordinates
+        pad_centers: List of (x, y) pad centers for this net
+        tolerance: Maximum distance to snap
+    
+    Returns:
+        Snapped (x, y) or original if no pad within tolerance
+    """
+    import math
+    best_dist = tolerance
+    best_pos = (x, y)
+    
+    for px, py in pad_centers:
+        dist = math.sqrt((x - px)**2 + (y - py)**2)
+        if dist < best_dist:
+            best_dist = dist
+            best_pos = (px, py)
+    
+    return best_pos
 
 def path_to_segments(
     path: RoutePath,
@@ -320,6 +383,28 @@ def export_routed_pcb(
 
     # Deduplicate vias to avoid holes_co_located violations
     unique_vias = deduplicate_vias(all_vias)
+    
+    # Extract pad centers for endpoint snapping
+    pad_centers = extract_pad_centers(board)
+    
+    # Snap segment endpoints to pad centers to eliminate dangling tracks
+    snapped_count = 0
+    for seg in all_segments:
+        if seg.net in pad_centers:
+            net_pads = pad_centers[seg.net]
+            # Snap start point
+            new_start = snap_to_nearest_pad(seg.start[0], seg.start[1], net_pads)
+            if new_start != seg.start:
+                seg.start = new_start
+                snapped_count += 1
+            # Snap end point
+            new_end = snap_to_nearest_pad(seg.end[0], seg.end[1], net_pads)
+            if new_end != seg.end:
+                seg.end = new_end
+                snapped_count += 1
+    
+    if snapped_count > 0:
+        print(f"Snapped {snapped_count} segment endpoints to pad centers")
 
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)

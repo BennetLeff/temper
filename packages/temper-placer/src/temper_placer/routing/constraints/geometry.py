@@ -235,18 +235,142 @@ def point_to_circle_distance(point: Point, center: Point, radius: float) -> floa
     return point.distance_to(center) - radius
 
 
-def segment_to_circle_distance(
-    segment: LineSegment, center: Point, radius: float
-) -> float:
-    """Minimum distance from segment to circle edge.
-
-    Args:
-        segment: Line segment
-        center: Circle center
-        radius: Circle radius
-
-    Returns:
-        Distance to circle edge (0 if touching, negative if intersecting)
-    """
-    dist_to_center = point_to_segment_distance(center, segment)
     return dist_to_center - radius
+
+
+@dataclass(frozen=True)
+class RotatedRect:
+    """A rectangle rotated around its center."""
+
+    center: Point
+    size: tuple[float, float]  # (width, height)
+    rotation: float  # Degrees counter-clockwise
+
+    @property
+    def corners(self) -> list[Point]:
+        """Get the 4 corners of the rotated rectangle."""
+        w, h = self.size
+        # Half dimensions
+        hw, hh = w / 2, h / 2
+        
+        # Rotation matrix
+        rad = math.radians(self.rotation)
+        cos_a = math.cos(rad)
+        sin_a = math.sin(rad)
+        
+        # Local corners (unrotated, center at 0,0)
+        # TL, TR, BR, BL
+        local_pts = [
+            (-hw, -hh),
+            (hw, -hh),
+            (hw, hh),
+            (-hw, hh)
+        ]
+        
+        corners = []
+        for lx, ly in local_pts:
+            # Rotate
+            rx = lx * cos_a - ly * sin_a
+            ry = lx * sin_a + ly * cos_a
+            # Translate
+            corners.append(Point(self.center.x + rx, self.center.y + ry))
+            
+        return corners
+
+    @property
+    def bounding_radius(self) -> float:
+        """Radius of the bounding circle."""
+        w, h = self.size
+        return math.hypot(w/2, h/2)
+
+
+def point_to_rotated_rect_distance(point: Point, rect: RotatedRect) -> float:
+    """Distance from point to rotated rectangle.
+    
+    Returns:
+        Positive if outside, negative if inside, 0 on edge.
+    """
+    # Transform point into rect's local coordinate system
+    dx = point.x - rect.center.x
+    dy = point.y - rect.center.y
+    
+    rad = math.radians(-rect.rotation) # Rotate point opposite to rect rotation
+    cos_a = math.cos(rad)
+    sin_a = math.sin(rad)
+    
+    local_x = dx * cos_a - dy * sin_a
+    local_y = dx * sin_a + dy * cos_a
+    
+    # Calculate signed distance in local AABB
+    hw = rect.size[0] / 2
+    hh = rect.size[1] / 2
+    
+    # q is absolute position in first quadrant
+    qx = abs(local_x) - hw
+    qy = abs(local_y) - hh
+    
+    # Exterior distance (length of vector max(0, q))
+    exterior = math.hypot(max(0.0, qx), max(0.0, qy))
+    
+    # Interior distance (max of q components, clamped to 0)
+    # If point is inside, both qx and qy are negative.
+    interior = min(max(qx, qy), 0.0)
+    
+    return exterior + interior
+
+
+def segment_to_rotated_rect_distance(segment: LineSegment, rect: RotatedRect) -> float:
+    """Distance from segment to rotated rectangle.
+    
+    Returns negative if intersecting.
+    """
+    # 1. Quick bounding circle check
+    dist_to_center = point_to_segment_distance(rect.center, segment)
+    # If we are really far, we can trust the bounding circle lower bound?
+    # No, for DRC we need exactness to avoid false positives.
+    # Only return if we are sure we are colliding?
+    # Actually, we can just skip the early return and do the edge checks.
+    
+    # Optimization: If dist_to_center is huge, return approximate.
+    # But let's be correct first.
+        
+    # 2. Check if segment endpoints are inside
+    d_start = point_to_rotated_rect_distance(segment.start, rect)
+    d_end = point_to_rotated_rect_distance(segment.end, rect)
+    if d_start <= 0 or d_end <= 0:
+        return min(d_start, d_end)
+        
+    # 3. Check distance to each of the 4 edges
+    corners = rect.corners
+    edges = [
+        LineSegment(corners[0], corners[1]),
+        LineSegment(corners[1], corners[2]),
+        LineSegment(corners[2], corners[3]),
+        LineSegment(corners[3], corners[0])
+    ]
+    
+    # If segment intersects any edge, distance is 0 (or negative to indicate intersection)
+    # But standard segment_to_segment returns 0 if intersecting.
+    # We want to know if it's INSIDE.
+    
+    # If we are here, endpoints are outside.
+    # So we just need point_to_segment distance from rect edges to segment?
+    # No, we need to know if the segment PIERCES the rect.
+    
+    min_dist = float('inf')
+    intersects = False
+    
+    for edge in edges:
+        d = segment_to_segment_distance(segment, edge)
+        if d < 1e-9:
+            intersects = True
+        min_dist = min(min_dist, d)
+        
+    if intersects:
+        return -1.0 # Arbitrary negative to indicate collision
+        
+    # If no intersection and endpoints outside, it's the distance to the closest edge
+    # UNLESS the rect is fully inside the segment (impossible given bounding check usually?)
+    # Actually segment to rect distance is min(dist(seg, edge_i)) generally.
+    
+    return min_dist

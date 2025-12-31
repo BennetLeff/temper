@@ -187,13 +187,13 @@ TEMPER_NET_CLASSES = {
         name="HighSpeed",
         trace_width=0.15,  # Controlled impedance
         clearance=0.2,
-        via_diameter=0.4,
-        via_drill=0.2,
-        target_impedance=50.0,  # 50 ohm
+        via_diameter=0.6,  # Increased to standard 0.6mm
+        via_drill=0.3,     # Increased to standard 0.3mm
+        target_impedance=50.0,
     ),
     "Signal": NetClassRules(
         name="Signal",
-        trace_width=0.2,  # Standard signal traces
+        trace_width=0.2,
         clearance=0.15,
         via_diameter=0.6,
         via_drill=0.3,
@@ -201,7 +201,7 @@ TEMPER_NET_CLASSES = {
     "HighCurrent": NetClassRules(
         name="HighCurrent",
         trace_width=0.5,
-        clearance=0.25,   # Increased from 0.2mm for HV safety (DC_BUS/AC)
+        clearance=0.25,
         via_diameter=0.8,
         via_drill=0.4,
     ),

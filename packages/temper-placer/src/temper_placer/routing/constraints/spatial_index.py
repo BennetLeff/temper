@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.spatial import cKDTree
 
-from temper_placer.routing.constraints.geometry import LineSegment, Point
+from temper_placer.routing.constraints.geometry import LineSegment, Point, RotatedRect
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -64,11 +64,19 @@ class Pad:
     net: str
     layer: int
     id: str = ""
+    rotation: float = 0.0  # Degrees counter-clockwise
+
+    @property
+    def rot_rect(self) -> RotatedRect:
+        """Get geometric representation."""
+        return RotatedRect(self.center, self.size, self.rotation)
 
     @property
     def radius(self) -> float:
-        """Approximate radius for circular clearance checks."""
-        return max(self.size) / 2
+        """Bounding radius for broad-phase checks."""
+        # Use circumscribed circle radius for safety
+        w, h = self.size
+        return (w**2 + h**2)**0.5 / 2
 
 
 @dataclass
