@@ -1,0 +1,28 @@
+{
+  "input_pcb": "pre_routed_v6.kicad_pcb",
+  "start_time": "2025-12-30T13:33:11.536338",
+  "total_runtime_ms": 306892.3005829565,
+  "iterations": [
+    {
+      "iteration": 1,
+      "placement_ms": 0.000250060111284256,
+      "routing_ms": 7766.843124758452,
+      "congestion_analysis_ms": 63.67270788177848,
+      "total_ms": 7831.4159996807575,
+      "astar_ms": 4153.350830543786,
+      "rip_up_ms": 12.91308319196105,
+      "prepare_costs_ms": 1.34974904358387,
+      "analyze_conflicts_ms": 3.309540916234255,
+      "loss_forward_ms": 0.0,
+      "loss_backward_ms": 0.0,
+      "num_placement_steps": 0,
+      "nets_routed": 23,
+      "nets_failed": 0,
+      "num_conflicts": 4,
+      "completion_pct": 100.0
+    }
+  ],
+  "avg_placement_ms": 0.000250060111284256,
+  "avg_routing_ms": 7766.843124758452,
+  "bottleneck_phase": "routing"
+}

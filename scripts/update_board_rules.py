@@ -47,6 +47,20 @@ def update_board_rules(pcb_path):
     settings.m_MinClearance = int(val_0_15)
     settings.m_MinTrackWidth = int(val_0_15)
     
+    # Fix Drill Violations (allow 0.25mm vias)
+    val_0_25 = pcbnew.FromMM(0.25)
+    
+    print(f"Current Min Drill: {settings.m_MinThroughDrill} (Expected ~300000 for 0.3mm)")
+    
+    if hasattr(settings, 'm_MinThroughDrill'):
+        settings.m_MinThroughDrill = int(val_0_25)
+        print(f"Set Min Drill to: {settings.m_MinThroughDrill}")
+    elif hasattr(settings, 'SetMinThroughDrill'):
+        settings.SetMinThroughDrill(val_0_25)
+        print("Set Min Drill via Setter")
+    
+    # Defaults? (Usually handled by 'Default' netclass in modern KiCad)
+    
     # Defaults? (Usually handled by 'Default' netclass in modern KiCad)
     # Check if members exist for fallback defaults (KiCad 5/6 legacy)
     if hasattr(settings, 'm_DefaultClearance'):

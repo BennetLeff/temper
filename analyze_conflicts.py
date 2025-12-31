@@ -4,12 +4,33 @@ from collections import Counter
 
 def main():
     try:
-        data = json.load(open('output/optimized_relaxed_drc.json'))
+        data = json.load(open('output/optimized_relaxed_drc_final.json'))
     except FileNotFoundError:
-        print("Error: output/optimized_relaxed_drc.json not found")
+        print("Error: output/optimized_relaxed_drc_final.json not found")
         return
 
-    violations = [v for v in data['violations'] if v['type'] in ('shorting_items', 'clearance')]
+    # Summarize Violation Types
+    type_counts = {}
+    for v in data.get('violations', []):
+        t = v.get('type', 'unknown')
+        type_counts[t] = type_counts.get(t, 0) + 1
+        
+    print("\n=== Violation Type Summary ===")
+    print(f"{'Type':<30} | {'Count':<10}")
+    print("-" * 45)
+    for t, count in sorted(type_counts.items(), key=lambda x: x[1], reverse=True):
+        print(f"{t:<30} | {count:<10}")
+        
+    unconnected = data.get('unconnected_items', [])
+    if unconnected:
+        print(f"{'unconnected_items':<30} | {len(unconnected):<10}")
+    print("-" * 45)
+    print(f"Total Violations: {len(data.get('violations', []))}")
+    print(f"Total Unconnected: {len(unconnected)}")
+    print("==============================\n")
+
+    violations = [v for v in data['violations'] if v['type'] in ('shorting_items', 'clearance', 'min_through_hole_diameter', 'track_width')]
+    pairs = []
     pairs = []
     
     for v in violations:

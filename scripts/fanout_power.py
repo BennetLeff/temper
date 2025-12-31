@@ -25,15 +25,12 @@ VIA_SIZE = 0.6   # mm (annular ring + drill)
 STUB_WIDTH = 0.3 # mm trace width for stub
 VIA_OFFSET = 0.8 # mm offset from pad center to via center
 
-# Power nets to fanout (these were excluded from signal routing)
-POWER_NETS = {
+# Ground nets to fanout (these are excluded from routing, connected via GND plane)
+# Power rails (+3V3, +5V, +15V, VCC_BOOT) are now routed as traces - no fanout needed
+GROUND_NETS = {
     'GND': 'In2.Cu',      # Ground plane layer
     'PGND': 'In2.Cu',
     'CGND': 'In2.Cu',
-    '+3V3': 'In1.Cu',     # Power plane layer
-    '+5V': 'In1.Cu',
-    '+15V': 'In1.Cu',
-    'VCC_BOOT': 'In1.Cu',
 }
 
 @dataclass
@@ -63,7 +60,7 @@ def find_smd_power_pads(content: str, net_ids: dict[str, int]) -> list[PadInfo]:
     pads = []
     
     # Target net IDs
-    target_nets = {net_ids.get(name): name for name in POWER_NETS if name in net_ids}
+    target_nets = {net_ids.get(name): name for name in GROUND_NETS if name in net_ids}
     
     # Parse footprints
     fp_pattern = re.compile(

@@ -14,6 +14,7 @@ Features:
 """
 
 import heapq
+import logging
 import math
 import random
 import time
@@ -34,6 +35,7 @@ if TYPE_CHECKING:
     from temper_placer.routing.constraints import DRCOracle
     from temper_placer.routing.layer_assignment import LayerAssignment
     from temper_placer.routing.post_processing.funnel_smoother import Point
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -221,14 +223,14 @@ class MazeRouter:
 
     def _get_inflated_cells(self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None) -> list[tuple[int, int, int]]:
         """Get all cells that a shape at (x,y) with given width/clearance would occupy.
-        
+
         This accounts for actual copper footprint plus clearance.
-        
+
         Args:
             x, y, layer: Center cell
             width_mm: Shape width/diameter in mm (uses default trace width if None)
             clearance_mm: Minimum clearance in mm (uses self.min_clearance if None)
-            
+
         Returns:
             List of (x, y, layer) tuples for all affected cells
         """
@@ -266,6 +268,77 @@ class MazeRouter:
             strict_mode=strict_mode,
             design_rules=design_rules,
         )
+
+    def resize_grid(self, new_cell_size_mm: float) -> None:
+        """Resize the routing grid to a new resolution.
+
+        Preserves existing occupancy markings by mapping them to the new grid scale.
+        This allows routing high-density parts on a fine grid and then switching
+         to a coarser grid for standard nets to maintain performance.
+        """
+        if abs(self.cell_size - new_cell_size_mm) < 1e-6:
+            return
+
+        old_occupancy = self.occupancy
+        old_cell_size = self.cell_size
+        old_grid_size = self.grid_size
+
+        # 1. Calculate new grid size matching board dimensions
+        width_mm = old_grid_size[0] * old_cell_size
+        height_mm = old_grid_size[1] * old_cell_size
+        new_grid_size = (
+            int(math.ceil(width_mm / new_cell_size_mm)),
+            int(math.ceil(height_mm / new_cell_size_mm)),
+        )
+
+        logger.info(
+            f"Resizing MazeRouter grid: {old_cell_size}mm ({old_grid_size[0]}x{old_grid_size[1]}) -> "
+            f"{new_cell_size_mm}mm ({new_grid_size[0]}x{new_grid_size[1]})"
+        )
+
+        # 2. Re-initialize occupancy and cost structures
+        self.occupancy = np.zeros((*new_grid_size, self.num_layers), dtype=np.int32)
+        self.grid_size = new_grid_size
+        self.cell_size = new_cell_size_mm
+
+        # Reset RRR structures - we clear net_occupancy as coordinate-mapping it is complex,
+        # but the occupancy grid itself acts as the barrier for subsequent nets.
+        self.net_occupancy = {}
+        self.present_congestion = np.zeros((*new_grid_size, self.num_layers), dtype=np.float32)
+        self.history_cost = np.ones((*new_grid_size, self.num_layers), dtype=np.float32)
+
+        # Reset A* acceleration caches
+        self._history_np = None
+        self._congestion_np = None
+        self._occupancy_np = None
+
+        # 3. Map old occupancy to new grid
+        factor = old_cell_size / new_cell_size_mm
+
+        # Use simple mapping for now. For Fine -> Coarse, this is effectively Max-Pooling.
+        indices = np.where(old_occupancy != 0)
+        for x, y, l in zip(*indices):
+            val = old_occupancy[x, y, l]
+
+            if factor < 1.0: # Upsampling (Coarse -> Fine)
+                nx_s = int(x * factor)
+                ny_s = int(y * factor)
+                nx_e = int((x + 1) * factor)
+                ny_e = int((y + 1) * factor)
+                # Ensure we don't go out of bounds due to rounding
+                nx_e = min(nx_e, new_grid_size[0])
+                ny_e = min(ny_e, new_grid_size[1])
+                self.occupancy[nx_s:nx_e, ny_s:ny_e, l] = val
+            else: # Downsampling (Fine -> Coarse)
+                nx = int(round(x * factor))
+                ny = int(round(y * factor))
+                if 0 <= nx < new_grid_size[0] and 0 <= ny < new_grid_size[1]:
+                    # Prefer hard blocks (-1) over trace blocks (2)
+                    if self.occupancy[nx, ny, l] == 0 or val == -1:
+                        self.occupancy[nx, ny, l] = val
+
+        # Sync congestion to reflect occupied cells
+        self.present_congestion[self.occupancy != 0] = 1.0
 
     def rip_up_net(self, net_name: str) -> None:
         """Remove a net from the grid."""
@@ -316,7 +389,7 @@ class MazeRouter:
 
     def _get_neighbor_cost(self, current: GridCell, neighbor: GridCell, cost_map: Array | None = None, p_scale: float = 1.0) -> float:
         """Compute cost to move from current to neighbor cell.
-        
+
         Uses cached numpy arrays when available for faster indexing.
         Supports soft blocking (negotiated congestion) and dynamic via cost.
         """
@@ -343,7 +416,12 @@ class MazeRouter:
             # Add soft C-space cost if present
             c_space_cost = 0.0
             if self._soft_c_space_np is not None:
-                c_space_cost = float(self._soft_c_space_np[neighbor.x, neighbor.y])
+                # Handle 2D or 3D soft C-space
+                if self._soft_c_space_np.ndim == 2:
+                    c_space_cost = float(self._soft_c_space_np[neighbor.x, neighbor.y])
+                else:
+                    c_space_cost = float(self._soft_c_space_np[neighbor.x, neighbor.y, neighbor.layer])
+
                 if c_space_cost == np.inf:
                     blocked = True
 
@@ -399,7 +477,11 @@ class MazeRouter:
 
             c_space_cost = 0.0
             if self.soft_c_space is not None:
-                c_space_cost = float(self.soft_c_space[neighbor.x, neighbor.y])
+                if self.soft_c_space.ndim == 2:
+                    c_space_cost = float(self.soft_c_space[neighbor.x, neighbor.y])
+                else:
+                    c_space_cost = float(self.soft_c_space[neighbor.x, neighbor.y, neighbor.layer])
+
                 if c_space_cost == np.inf:
                     blocked = True
 
@@ -512,7 +594,7 @@ class MazeRouter:
 
     def _prepare_cost_arrays(self) -> None:
         """Convert JAX arrays to numpy for faster A* indexing.
-        
+
         Called at the start of find_path to avoid repeated JAX->Python conversion.
         """
         t0 = time.perf_counter()
@@ -588,21 +670,21 @@ class MazeRouter:
         trace_width: float = 0.2,
     ) -> float:
         """Compute margin needed to prevent grid-geometry DRC violations.
-        
+
         The grid router thinks in "squares", but DRC checks actual geometry.
         A cell marked as "free" could still cause violations if a trace
         centered in that cell passes too close to a pad.
-        
+
         The safe margin is:
             required_clearance + (trace_width / 2) + (cell_size / 2)
-        
+
         The cell_size/2 term accounts for worst-case trace placement within
         a cell (trace centered at cell center, pad edge at cell boundary).
-        
+
         Args:
             required_clearance: DRC clearance rule in mm (default 0.2mm)
             trace_width: Expected trace width in mm (default 0.2mm)
-            
+
         Returns:
             Margin in mm to apply around pads for blocking
         """
@@ -618,10 +700,10 @@ class MazeRouter:
         clearance: float = 0.2,
     ) -> None:
         """Block grid cells containing pads to prevent track-through-pad violations.
-        
+
         Each pad is blocked for all nets EXCEPT its own net. This allows pins
         to be routed to but prevents foreign tracks from crossing through.
-        
+
         Args:
             components: List of components
             positions: Component positions (N, 2)
@@ -629,7 +711,7 @@ class MazeRouter:
             margin: Extra margin around pads in mm (if None, computed from trace_width/clearance)
             trace_width: Expected trace width for margin calculation
             clearance: Required DRC clearance for margin calculation
-            
+
         Note: This should be called AFTER block_components but BEFORE routing.
         Part of temper-hdu8.
         """
@@ -727,10 +809,10 @@ class MazeRouter:
 
     def _register_routed_path(self, cells: list[GridCell], net_name: str) -> None:
         """Register routed geometry with DRCOracle for real-time clearance checks.
-        
+
         Converts grid cells to Track/Via objects and registers them so subsequent
         nets are checked against this geometry.
-        
+
         Args:
             cells: List of grid cells forming the path
             net_name: Net name for the routed path
@@ -799,15 +881,15 @@ class MazeRouter:
 
     def _compute_distance_map(self, target: GridCell, _layer: int = 0) -> np.ndarray:
         """Precompute obstacle-aware distance map via BFS from target.
-        
+
         The distance map gives the true shortest path distance from any cell
         to the target, accounting for obstacles. This provides a tight
         (yet still admissible) heuristic for A*.
-        
+
         Args:
             target: Target grid cell
             layer: Layer to compute distances on
-            
+
         Returns:
             3D array of distances (same shape as occupancy grid)
         """
@@ -873,10 +955,10 @@ class MazeRouter:
         p_scale: float = 1.0
     ) -> list[GridCell] | None:
         """Find path using A* with adaptive (distance map) heuristic.
-        
+
         Uses precomputed distance map as heuristic instead of Manhattan distance.
         This provides a tighter bound and reduces A* search iterations.
-        
+
         Args:
             start, end: Grid coordinates
             layer: Starting layer
@@ -884,7 +966,7 @@ class MazeRouter:
             allowed_layers: Layers that can be used
             cost_map: Optional routing cost map
             p_scale: Congestion penalty scale
-            
+
         Returns:
             Path as list of GridCells, or None if no path exists
         """
@@ -970,16 +1052,16 @@ class MazeRouter:
         p_scale: float = 1.0
     ) -> RoutePath:
         """Route a net using adaptive A* heuristic.
-        
+
         Uses distance map heuristic for more efficient pathfinding.
-        
+
         Args:
             net_name: Net name
             pin_positions: Pin positions in world coordinates
             assignment: Layer assignment
             cost_map: Optional cost map
             p_scale: Congestion scale
-            
+
         Returns:
             RoutePath with routing result
         """
@@ -1113,12 +1195,12 @@ class MazeRouter:
 
     def _find_escape_point(self, pin_pos: tuple[float, float], radius: int = 5, layer: int = 0) -> tuple[int, int] | None:
         """Find nearest unblocked grid cell from a pin position using BFS.
-        
+
         Args:
             pin_pos: World coordinates (x, y) of the pin
             radius: Maximum search radius in grid cells
             layer: Layer to search on
-            
+
         Returns:
             Grid coordinates (gx, gy) of escape point, or None if trapped
         """
@@ -1131,7 +1213,7 @@ class MazeRouter:
         # BFS to find closest free cell
         from collections import deque
         queue = deque([(pin_gx, pin_gy, 0)])  # (x, y, distance)
-        visited = set([(pin_gx, pin_gy)])
+        visited = {(pin_gx, pin_gy)}
 
         while queue:
             gx, gy, dist = queue.popleft()
@@ -1165,17 +1247,17 @@ class MazeRouter:
 
     def route_net_with_escape(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
         """Route a net using two-stage routing with pin escape.
-        
+
         Stage 1: Find escape points for each pin (nearest unblocked cell)
         Stage 2: Route between escape points using A*
-        
+
         Args:
             net_name: Name of the net
             pin_positions: List of pin positions in world coordinates
             assignment: Layer assignment for the net
             cost_map: Optional cost map for routing strategy
             p_scale: Congestion penalty scale factor
-            
+
         Returns:
             RoutePath with success and failure_reason set appropriately
         """
@@ -1229,18 +1311,18 @@ class MazeRouter:
 
     def route_net_mst(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
         """Route a multi-pin net using MST-based topology.
-        
+
         Instead of routing pins in arbitrary order (chain: A→B→C),
         uses Minimum Spanning Tree to determine optimal connection order.
         This reduces total wirelength for 3+ pin nets.
-        
+
         Args:
             net_name: Name of the net
             pin_positions: List of pin positions in world coordinates
             assignment: Layer assignment for the net
             cost_map: Optional cost map for routing strategy
             p_scale: Congestion penalty scale factor
-            
+
         Returns:
             RoutePath with routing result
         """
@@ -1358,18 +1440,18 @@ class MazeRouter:
 
     def route_net_mst_with_escape(self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment", cost_map: Array | None = None, p_scale: float = 1.0) -> RoutePath:
         """Route net with both MST topology and pin escape.
-        
+
         Combines two optimizations:
         1. Pin escape (find unblocked cells for pins)
         2. MST routing (optimal topology for multi-pin nets)
-        
+
         Args:
             net_name: Name of the net
             pin_positions: List of pin positions in world coordinates
             assignment: Layer assignment for the net
             cost_map: Optional cost map
             p_scale: Congestion penalty scale
-            
+
         Returns:
             RoutePath with routing result
         """
@@ -1615,7 +1697,7 @@ class MazeRouter:
 
     def _analyze_conflicts(self) -> tuple[int, int, list[str]]:
         """Analyze and classify conflicts.
-        
+
         Returns:
             Tuple of (overlap_conflicts, bottleneck_conflicts, conflicted_nets)
             - overlap_conflicts: cells with exactly 2 nets
@@ -1626,7 +1708,7 @@ class MazeRouter:
         bottleneck_count = 0
         conflicted_nets: set[str] = set()
 
-        for (x, y, layer), nets in self.net_occupancy.items():
+        for (_x, _y, _layer), nets in self.net_occupancy.items():
             if len(nets) == 2:
                 overlap_count += 1
                 conflicted_nets.update(nets)
@@ -1638,7 +1720,7 @@ class MazeRouter:
 
     def _get_conflicted_nets(self) -> list[str]:
         """Get list of nets involved in conflicts for incremental rerouting.
-        
+
         Excludes nets that have converged (stable conflict-free for threshold iterations).
         """
         conflicted: set[str] = set()
@@ -1652,7 +1734,7 @@ class MazeRouter:
 
     def _find_blocking_nets(self, start: tuple[float, float], end: tuple[float, float], radius: int = 5) -> set[str]:
         """Find nets that are blocking the path between start and end.
-        
+
         Looks at cells along the Manhattan path between start and end
         and identifies which nets occupy those cells.
         """
@@ -1873,7 +1955,7 @@ class MazeRouter:
             clearance = rules.clearance
 
         # Mark cells as occupied with differentiated inflation
-        unique_cells = set((c.x, c.y, c.layer) for c in all_cells)
+        unique_cells = {(c.x, c.y, c.layer) for c in all_cells}
         for cx, cy, cl in unique_cells:
             is_via = (cx, cy, cl) in final_via_cells
             width = via_diameter if is_via else trace_width
@@ -1898,17 +1980,17 @@ class MazeRouter:
             net=net_name,
             cells=all_cells,  # Ordered path for simplification
             length=float(len(all_cells)),
-            via_count=total_vias,
+            via_count=final_total_vias,
             success=True,
-            difficulty=total_difficulty,
-            cell_difficulties=cell_difficulties,
+            difficulty=final_total_difficulty,
+            cell_difficulties=final_cell_difficulties,
         )
         self.routed_paths[net_name] = res
         return res
 
     def find_path_rrr(self, start: tuple[int, int], end: tuple[int, int], layer: int = 0, allow_layer_change: bool = False, allowed_layers: list[int] | None = None, cost_map: Array | None = None, p_scale: float = 1.0) -> list[GridCell] | None:
         """Find path using A* with RRR cost function.
-        
+
         Uses Numba-accelerated implementation if available, otherwise falls back to Python.
         """
         # Prepare cached arrays for fast lookup
@@ -2079,7 +2161,7 @@ class MazeRouter:
                     "x": int(x),
                     "y": int(y),
                     "layer": int(layer),
-                    "nets": sorted(list(nets)),
+                    "nets": sorted(nets),
                     "world_x": x * self.cell_size + self.origin[0],
                     "world_y": y * self.cell_size + self.origin[1]
                 })
