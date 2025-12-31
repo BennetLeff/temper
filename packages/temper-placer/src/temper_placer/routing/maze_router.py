@@ -94,6 +94,11 @@ class RoutePath:
     smooth_points: list["Point"] = field(
         default_factory=list
     )  # World coordinates (mm) after smoothing
+    
+    # Trace geometry (from design rules)
+    trace_width: float = 0.2  # Actual trace width used (mm)
+    via_diameter: float = 0.6  # Via pad diameter (mm)
+    via_drill: float = 0.3  # Via drill diameter (mm)
 
 
 @dataclass
@@ -269,7 +274,7 @@ class MazeRouter:
         cls,
         board: Board,
         cell_size_mm: float = 1.0,
-        num_layers: int = 1,
+        num_layers: int | None = None,
         via_cost: float = 1.0,
         soft_blocking: bool = False,
         congestion_via_discount: float = 0.1,
@@ -279,6 +284,13 @@ class MazeRouter:
         design_rules: "DesignRules | None" = None,
         wrong_way_penalty: float = 2.0,
     ) -> "MazeRouter":
+        # Infer num_layers from stackup if not specified
+        if num_layers is None:
+            if board.layer_stackup:
+                num_layers = len(board.layer_stackup.layers)
+            else:
+                num_layers = 1
+
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
         return cls(
@@ -809,6 +821,8 @@ class MazeRouter:
         margin: float | None = None,
         trace_width: float = 0.2,
         clearance: float = 0.2,
+        rotations: Array | None = None,
+        sides: Array | None = None,
     ) -> None:
         """Block grid cells containing pads to prevent track-through-pad violations.
 
@@ -835,10 +849,15 @@ class MazeRouter:
 
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
+            
+            # Get rotation and side
+            rot_idx = int(rotations[i]) if rotations is not None else (comp.initial_rotation or 0)
+            side_idx = int(sides[i]) if sides is not None else (comp.initial_side or 0)
+            
+            rot_rad = rot_idx * (math.pi / 2)
 
             for pin in comp.pins:
-                px = cx + pin.position[0]
-                py = cy + pin.position[1]
+                px, py = pin.absolute_position((cx, cy), rot_rad, side_idx)
 
                 # Get pad size (default to 1mm if not specified)
                 pad_w = getattr(pin, "width", 1.0)
@@ -879,10 +898,19 @@ class MazeRouter:
                 # Get net name for this pin
                 net_name = pin.net if hasattr(pin, "net") else ""
 
+                # Determine which layers to block
+                # Through-hole blocks all layers, SMD blocks only its side
+                if pin.shape == "thru_hole":
+                    block_layers = list(range(self.num_layers))
+                else:
+                    # Top side = layer 0, Bottom side = last layer
+                    target_layer = 0 if side_idx == 0 else (self.num_layers - 1)
+                    block_layers = [target_layer]
+
                 # Block cells and record ownership
                 for gx in range(max(0, gx_min_block), min(self.grid_size[0], gx_max_block + 1)):
                     for gy in range(max(0, gy_min_block), min(self.grid_size[1], gy_max_block + 1)):
-                        for layer in range(self.num_layers):
+                        for layer in block_layers:
                             key = (gx, gy, layer)
                             # Only block if not already owned by this net
                             if key not in self._pad_net_map:
@@ -1712,8 +1740,11 @@ class MazeRouter:
         pin_positions: list[tuple[float, float]],
         assignment: "LayerAssignment",
         cost_map: Array | None = None,
+        pin_sides: list[int] | None = None,
     ) -> RoutePath:
-        return self.route_net_rrr(net_name, pin_positions, assignment, cost_map, p_scale=1.0)
+        return self.route_net_rrr(
+            net_name, pin_positions, assignment, cost_map, p_scale=1.0, pin_sides=pin_sides
+        )
 
     def rrr_route_all_nets(
         self,
@@ -1768,6 +1799,7 @@ class MazeRouter:
                                 pin.absolute_position(
                                     tuple(positions[comp_idx]),
                                     math.radians((comp.initial_rotation or 0) * 90),
+                                    side=comp.initial_side or 0,
                                 )
                             )
                             break
@@ -2081,6 +2113,11 @@ class MazeRouter:
         assignment: "LayerAssignment",
         cost_map: Array | None = None,
         p_scale: float = 1.0,
+        pin_sides: list[int] | None = None,
+        trace_width_mm: float | None = None,
+        clearance_mm: float | None = None,
+        via_diameter_mm: float | None = None,
+        via_drill_mm: float | None = None,
     ) -> RoutePath:
         from temper_placer.routing.layer_assignment import Layer
 
@@ -2097,32 +2134,45 @@ class MazeRouter:
             )
             self.routed_paths[net_name] = res
             return res
-        # Determine candidate start layers based on assignment
-        candidate_start_layers = [0]
-        if assignment:
-            if assignment.primary_layer == Layer.L4_BOT:
-                candidate_start_layers = [self.num_layers - 1]
-            elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
-                # Try matching inner layer (1 or 2)
-                candidate_start_layers = [1 if assignment.primary_layer == Layer.L2_GND else 2]
 
-            # If flexible assignment, ensure all allowed layers are candidates
-            if len(assignment.allowed_layers) > 1:
-                # Add all allowed layers to candidates (if not present)
-                # Map Enum to Int
-                layer_map = {
-                    Layer.L1_TOP: 0,
-                    Layer.L2_GND: 1,
-                    Layer.L3_PWR: 2,
-                    Layer.L4_BOT: self.num_layers - 1,
-                }
-                for lay_enum in assignment.allowed_layers:
-                    lay_idx = layer_map.get(lay_enum)
-                    if lay_idx is not None and lay_idx not in candidate_start_layers:
-                        candidate_start_layers.append(lay_idx)
+        # Map pin sides to layers
+        pin_layers = []
+        if pin_sides is not None:
+            for side in pin_sides:
+                pin_layers.append(0 if side == 0 else (self.num_layers - 1))
         else:
-            # No assignment? Try Top then Bottom.
-            candidate_start_layers = [0, self.num_layers - 1]
+            # Default to all Top or use Through-hole assumption
+            pin_layers = [0] * len(pin_positions)
+
+        # Determine candidate start layers based on first pin
+        if pin_sides is not None:
+            candidate_start_layers = [pin_layers[0]]
+        else:
+            candidate_start_layers = [0]
+            if assignment:
+                if assignment.primary_layer == Layer.L4_BOT:
+                    candidate_start_layers = [self.num_layers - 1]
+                elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
+                    # Try matching inner layer (1 or 2)
+                    candidate_start_layers = [1 if assignment.primary_layer == Layer.L2_GND else 2]
+
+                # If flexible assignment, ensure all allowed layers are candidates
+                if len(assignment.allowed_layers) > 1:
+                    # Add all allowed layers to candidates (if not present)
+                    # Map Enum to Int
+                    layer_map = {
+                        Layer.L1_TOP: 0,
+                        Layer.L2_GND: 1,
+                        Layer.L3_PWR: 2,
+                        Layer.L4_BOT: self.num_layers - 1,
+                    }
+                    for lay_enum in assignment.allowed_layers:
+                        lay_idx = layer_map.get(lay_enum)
+                        if lay_idx is not None and lay_idx not in candidate_start_layers:
+                            candidate_start_layers.append(lay_idx)
+            else:
+                # No assignment? Try Top then Bottom.
+                candidate_start_layers = [0, self.num_layers - 1]
 
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
@@ -2184,6 +2234,7 @@ class MazeRouter:
             for i in range(1, len(grid_pins)):
                 start_node = grid_pins[i - 1]
                 end_node = grid_pins[i]
+                target_layer = pin_layers[i]
 
                 # Determine layer for THIS segment
                 if i == 1:  # first segment
@@ -2192,7 +2243,14 @@ class MazeRouter:
                     seg_layer = current_cells[-1].layer if current_cells else start_layer
 
                 path = self.find_path_rrr(
-                    start_node, end_node, seg_layer, allow_via, cost_map=cost_map, p_scale=p_scale
+                    start_node, 
+                    end_node, 
+                    seg_layer, 
+                    allow_via, 
+                    cost_map=cost_map, 
+                    p_scale=p_scale,
+                    end_layer=target_layer,
+                    clearance_mm=clearance_mm,
                 )
                 if path is None:
                     segment_success = False
@@ -2243,12 +2301,20 @@ class MazeRouter:
         # Get rules for this net to determine correct inflation (temper-z87d)
         trace_width = self._default_trace_width_mm
         via_diameter = 0.6
+        via_drill = 0.3
         clearance = self.min_clearance
 
-        if self.design_rules:
+        # Determine design rules (Arguments > DesignRules > Defaults)
+        trace_width = trace_width_mm if trace_width_mm is not None else self._default_trace_width_mm
+        via_diameter = via_diameter_mm if via_diameter_mm is not None else 0.6
+        via_drill = via_drill_mm if via_drill_mm is not None else 0.3
+        clearance = clearance_mm if clearance_mm is not None else self.min_clearance
+
+        if self.design_rules and trace_width_mm is None:
             rules = self.design_rules.get_rules_for_net(net_name)
             trace_width = rules.trace_width
             via_diameter = rules.via_diameter
+            via_drill = rules.via_drill
             clearance = rules.clearance
 
         # Mark cells as occupied with differentiated inflation
@@ -2283,6 +2349,9 @@ class MazeRouter:
             success=True,
             difficulty=final_total_difficulty,
             cell_difficulties=final_cell_difficulties,
+            trace_width=trace_width,  # From design rules
+            via_diameter=via_diameter,  # From design rules
+            via_drill=via_drill,  # From design rules
         )
         self.routed_paths[net_name] = res
         return res
@@ -2296,6 +2365,8 @@ class MazeRouter:
         allowed_layers: list[int] | None = None,
         cost_map: Array | None = None,
         p_scale: float = 1.0,
+        end_layer: int | None = None,
+        clearance_mm: float | None = None,
     ) -> list[GridCell] | None:
         """Find path using A* with RRR cost function.
 
@@ -2305,7 +2376,10 @@ class MazeRouter:
         self._prepare_cost_arrays()
 
         start_cell = GridCell(start[0], start[1], layer)
-        end_cell = GridCell(end[0], end[1], layer)
+        
+        # Determine target layer: either explicit end_layer or same as start layer
+        target_layer = end_layer if end_layer is not None else layer
+        end_cell = GridCell(end[0], end[1], target_layer)
 
         # Basic validity checks
         if int(self.occupancy[start[0], start[1], layer]) == -1:
@@ -2314,9 +2388,8 @@ class MazeRouter:
             )
             return None
 
-        # If end is blocked on this layer, try to find a valid end layer
-        target_layer = layer
-        if int(self.occupancy[end[0], end[1], layer]) == -1:
+        # If end is blocked on this layer AND no explicit end_layer was given, try to find a valid end layer
+        if end_layer is None and int(self.occupancy[end[0], end[1], layer]) == -1:
             found = False
             for l in range(self.num_layers):
                 if int(self.occupancy[end[0], end[1], l]) != -1:
@@ -2327,13 +2400,12 @@ class MazeRouter:
             if not found:
                 print(f"DEBUG: End blocked on all layers at {end}")
                 return None
-        else:
-            target_layer = layer
 
         # Compute clearance mask if needed
         clearance_mask = None
-        if self.min_clearance > 0 and HAS_NUMBA:
-            radius = int(math.ceil(self.min_clearance / self.cell_size))
+        req_clearance = clearance_mm if clearance_mm is not None else self.min_clearance
+        if req_clearance > 0 and HAS_NUMBA:
+            radius = int(math.ceil(req_clearance / self.cell_size))
             if radius > 0:
                 # Use cached numpy array from _prepare_cost_arrays
                 # If soft_blocking, only dilate hard blocks (-1) to allow RRR to resolve overlaps

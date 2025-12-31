@@ -181,6 +181,18 @@ class ComponentSpacingRule:
 
 
 @dataclass
+class ManufacturingConstraint:
+    """Manufacturing constraint for orientations and assembly side."""
+
+    components: list[str]
+    allowed_orientations: list[float] | None = None
+    side: str | None = None  # "top", "bottom", "both"
+    tier: str = "hard"
+    because: str = ""
+    weight: float = 1.0
+
+
+@dataclass
 class LossConfig:
     """Configuration for a single loss function.
 
@@ -302,6 +314,19 @@ class ComponentGroup:
 
 
 @dataclass
+class NetClassRule:
+    """Design rules for a specific net class."""
+
+    name: str # e.g. "HighVoltage"
+    trace_width_mm: float = 0.2
+    clearance_mm: float = 0.2
+    via_size_mm: float = 0.6
+    via_drill_mm: float = 0.3
+    allow_neckdown: bool = True
+    description: str = ""
+
+
+@dataclass
 class PlacementConstraints:
     """Complete set of placement constraints."""
 
@@ -355,6 +380,9 @@ class PlacementConstraints:
     # Component spacing rules (minimum edge-to-edge distances)
     component_spacing_rules: list[ComponentSpacingRule] = field(default_factory=list)
 
+    # Manufacturing orientation and side constraints
+    manufacturing_constraints: list[ManufacturingConstraint] = field(default_factory=list)
+
     # Fixed components (won't be optimized)
     fixed_components: list[str] = field(default_factory=list)
     
@@ -366,6 +394,10 @@ class PlacementConstraints:
 
     # Net class assignments (net_name -> class)
     net_classes: dict[str, str] = field(default_factory=dict)
+
+    # Net class design rules (class_name -> NetClassRule)
+    net_class_rules: dict[str, NetClassRule] = field(default_factory=dict)
+
 
     # Layer stackup
     layer_stackup: LayerStackup | None = None
@@ -638,6 +670,18 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 )
                 constraints.component_spacing_rules.append(rule)
 
+    if "manufacturing_constraints" in config:
+        for mfg_cfg in config["manufacturing_constraints"]:
+            mfg = ManufacturingConstraint(
+                components=mfg_cfg["components"],
+                allowed_orientations=mfg_cfg.get("allowed_orientations"),
+                side=mfg_cfg.get("side"),
+                tier=mfg_cfg.get("tier", "hard"),
+                because=mfg_cfg.get("because", ""),
+                weight=mfg_cfg.get("weight", 1.0),
+            )
+            constraints.manufacturing_constraints.append(mfg)
+
     if "fixed_components" in config:
         constraints.fixed_components = config["fixed_components"]
     
@@ -653,6 +697,21 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "net_classes" in config:
         constraints.net_classes = config["net_classes"]
+
+    if "net_class_rules" in config:
+        for name, rule_cfg in config["net_class_rules"].items():
+            rule = NetClassRule(
+                name=name,
+                trace_width_mm=rule_cfg.get("trace_width_mm", 0.2),
+                clearance_mm=rule_cfg.get("clearance_mm", 0.2),
+                via_size_mm=rule_cfg.get("via_size_mm", 0.6),
+                via_drill_mm=rule_cfg.get("via_drill_mm", 0.3),
+                allow_neckdown=rule_cfg.get("allow_neckdown", True),
+                description=rule_cfg.get("description", ""),
+            )
+            constraints.net_class_rules[name] = rule
+
+
 
     if "aesthetics" in config:
         aes = config["aesthetics"]
@@ -724,6 +783,29 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     if "routing_priority" in config:
         constraints.routing_priority = config["routing_priority"]
     return constraints
+
+
+def constraints_to_design_rules(constraints: PlacementConstraints) -> "DesignRules":
+    """Convert placement constraints to routing design rules."""
+    from temper_placer.core.design_rules import DesignRules, NetClassRules as CoreNetClassRules
+
+    rules = DesignRules()
+
+    # Copy net class assignments
+    rules.net_class_assignments = constraints.net_classes.copy()
+
+    # Copy net class definitions
+    for name, rule in constraints.net_class_rules.items():
+        # Map fields (note: allow_neckdown currently not supported in Core NetClassRules)
+        rules.net_classes[name] = CoreNetClassRules(
+            name=rule.name,
+            trace_width=rule.trace_width_mm,
+            clearance=rule.clearance_mm,
+            via_diameter=rule.via_size_mm,
+            via_drill=rule.via_drill_mm,
+        )
+
+    return rules
 
 
 def create_board_from_constraints(constraints: PlacementConstraints) -> Board:

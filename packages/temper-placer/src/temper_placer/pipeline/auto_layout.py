@@ -8,7 +8,10 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 import numpy as np
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from temper_placer.io.config_loader import PlacementConstraints
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -44,7 +47,8 @@ def auto_layout_pcb(
     max_outer_iterations: int = 10,
     cell_size_mm: float = 0.5,
     num_layers: int = 2,
-    initial_positions: Array | None = None
+    initial_positions: Array | None = None,
+    constraints: "PlacementConstraints | None" = None,
 ) -> tuple[Array, dict[str, RoutePath]]:
     """
     Fully automated placement and routing.
@@ -85,11 +89,19 @@ def auto_layout_pcb(
             )
         
         # 2b. Routing pass
+        if constraints:
+            from temper_placer.io.config_loader import constraints_to_design_rules
+            design_rules = constraints_to_design_rules(constraints)
+        else:
+            from temper_placer.core.design_rules import create_temper_design_rules
+            design_rules = create_temper_design_rules()
+        
         router = MazeRouter.from_board(
             board, 
             cell_size_mm=cell_size_mm, 
             num_layers=num_layers,
-            soft_blocking=True
+            soft_blocking=True,
+            design_rules=design_rules
         )
         router.block_components(netlist.components, positions)
         
@@ -133,7 +145,18 @@ def auto_layout_pcb(
 
     # Stage 3: Final routing pass with maximum effort
     print("\nStarting final high-effort routing pass...")
-    router = MazeRouter.from_board(board, cell_size_mm=cell_size_mm, num_layers=num_layers)
+    if constraints:
+        from temper_placer.io.config_loader import constraints_to_design_rules
+        design_rules = constraints_to_design_rules(constraints)
+    else:
+        from temper_placer.core.design_rules import create_temper_design_rules
+        design_rules = create_temper_design_rules()
+    router = MazeRouter.from_board(
+        board, 
+        cell_size_mm=cell_size_mm, 
+        num_layers=num_layers,
+        design_rules=design_rules
+    )
     router.block_components(netlist.components, best_positions)
     final_results = router.rrr_route_all_nets(
         netlist, 

@@ -55,6 +55,7 @@ class DesignRules:
     default_via_drill: float = 0.3
     net_classes: dict[str, NetClassRules] = field(default_factory=dict)
     net_overrides: dict[str, NetClassRules] = field(default_factory=dict)
+    net_class_assignments: dict[str, str] = field(default_factory=dict)
 
     def get_rules_for_net(
         self, net_name: str, net_class: str | None = None
@@ -76,6 +77,10 @@ class DesignRules:
         # Check net-specific override first
         if net_name in self.net_overrides:
             return self.net_overrides[net_name]
+
+        # Check explicit net class assignment
+        if not net_class and net_name in self.net_class_assignments:
+            net_class = self.net_class_assignments[net_name]
 
         # Then check net class
         if net_class and net_class in self.net_classes:

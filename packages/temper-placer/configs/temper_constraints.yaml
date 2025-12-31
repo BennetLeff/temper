@@ -277,6 +277,35 @@ net_classes:
   +3V3: "Power"
   +15V: "Power"
 
+net_class_rules:
+  HighVoltage:
+    trace_width_mm: 2.0
+    clearance_mm: 2.0
+    via_size_mm: 1.2
+    via_drill_mm: 0.6
+    description: "340V DC Bus and Switching Nodes"
+  
+  Power:
+    trace_width_mm: 1.0 # Logic power
+    clearance_mm: 0.5
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    description: "Low Voltage Power Rails"
+
+  GateDrive:
+    trace_width_mm: 0.5
+    clearance_mm: 0.25
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    description: "Gate Drive Signals"
+
+  Signal:
+    trace_width_mm: 0.2
+    clearance_mm: 0.2
+    via_size_mm: 0.5
+    via_drill_mm: 0.25
+    description: "Digital Signals"
+
 # ==============================================================================
 # AESTHETICS
 # ==============================================================================

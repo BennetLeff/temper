@@ -2,6 +2,8 @@ from typing import Any
 import jax.numpy as jnp
 from jax.scipy.ndimage import map_coordinates
 from flax import struct
+from dataclasses import dataclass
+import numpy as np
 
 from temper_placer.losses.base import LossFunction, LossContext
 from temper_placer.losses.types import LossResult
@@ -40,8 +42,7 @@ class RoutingCongestionLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None,
-    ) -> LossResult:
+        net_virtual_nodes: jnp.ndarray | None = None, **kwargs: Any) -> LossResult:
         """
         Calculate congestion penalty.
         """
@@ -63,3 +64,31 @@ class RoutingCongestionLoss(LossFunction):
             value=loss_val,
             breakdown={"max_congestion": jnp.max(congestion_values), "mean_congestion": mean_congestion}
         )
+
+@dataclass
+class ConflictLocation:
+    x: int
+    y: int
+    layer: int
+    nets: list[str]
+
+def compute_congestion_heatmap(
+    conflicts: list[ConflictLocation],
+    grid_size: tuple[int, int],
+    cell_size_mm: float,
+    origin: tuple[float, float]
+) -> jnp.ndarray:
+    """Compute congestion heatmap from conflict locations."""
+    width, height = grid_size
+    heatmap = np.zeros((width, height), dtype=np.float32)
+    
+    for c in conflicts:
+        if 0 <= c.x < width and 0 <= c.y < height:
+            heatmap[c.x, c.y] += 1.0
+            
+    # Normalize
+    max_val = np.max(heatmap)
+    if max_val > 0:
+        heatmap = heatmap / max_val
+        
+    return jnp.array(heatmap)
