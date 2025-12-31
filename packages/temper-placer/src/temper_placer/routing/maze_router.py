@@ -1220,12 +1220,25 @@ class MazeRouter:
             Grid coordinates (gx, gy) of escape point, or None if trapped
         """
         pin_gx, pin_gy = self._world_to_grid(*pin_pos)
+        pin_gx, pin_gy = self._world_to_grid(*pin_pos)
 
-        # If pin cell is already free, return it
+
+        # If pin cell is already free, verify it's not trapped
+        # A cell is trapped if all its neighbors are blocked
+        is_trapped = True
         if self.occupancy[pin_gx, pin_gy, layer] != -1:
+             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                 nx, ny = pin_gx + dx, pin_gy + dy
+                 if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                     if self.occupancy[nx, ny, layer] != -1:
+                        is_trapped = False
+                        break
+        
+        if not is_trapped:
             return (pin_gx, pin_gy)
 
         # BFS to find closest free cell
+
         from collections import deque
         queue = deque([(pin_gx, pin_gy, 0)])  # (x, y, distance)
         visited = {(pin_gx, pin_gy)}
@@ -1256,6 +1269,7 @@ class MazeRouter:
 
                 # Add to queue for further exploration
                 queue.append((nx, ny, dist + 1))
+
 
         # No escape point found within radius
         return None
@@ -1297,7 +1311,7 @@ class MazeRouter:
         # Stage 1: Find escape points for all pins
         escape_points = []
         for pin_pos in pin_positions:
-            escape_pt = self._find_escape_point(pin_pos, radius=10, layer=layer)
+            escape_pt = self._find_escape_point(pin_pos, radius=40, layer=layer)
             if escape_pt is None:
                 # Pin is trapped - cannot route
                 res = RoutePath(
@@ -1592,6 +1606,19 @@ class MazeRouter:
                     self.rip_up_net(net_name)
                     self.stats.profile.rip_up_ms += (time.perf_counter() - t_rip) * 1000.0
                     result = self.route_net_rrr(net_name, all_pin_positions[net_name], assignments.get(net_name), cost_maps.get(net_name) if cost_maps else None, p_scale=p_scale)
+
+                    # Fallback: If blocked, try escape routing
+                    if not result.success and "blocked" in str(result.failure_reason).lower():
+                        # print(f"    Fallback to Escape Routing for {net_name}...")
+                        result = self.route_net_with_escape(
+                            net_name, 
+                            all_pin_positions[net_name], 
+                            assignments.get(net_name), 
+                            cost_maps.get(net_name) if cost_maps else None, 
+                            p_scale=p_scale
+                        )
+                        # Store result
+                        self.routed_paths[net_name] = result
 
                     # If route failed, find blocking nets
                     if not result.success:
