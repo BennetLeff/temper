@@ -102,6 +102,16 @@ class MountingRule:
     because: str = ""
 
 
+@dataclass(frozen=True)
+class ComponentSpacingRule:
+    """Defines minimum edge-to-edge spacing between specific component pairs."""
+    component_a: str  # Component reference (e.g., "D2")
+    component_b: str  # Component reference (e.g., "C_BUS1")
+    min_separation_mm: float  # Minimum edge-to-edge distance
+    weight: float = 1.0
+    because: str = ""
+
+
 @jax.tree_util.register_pytree_node_class
 @dataclass(frozen=True)
 class GeometryContext:
@@ -246,10 +256,12 @@ class LossContext:
     matched_groups: list[Any] = field(default_factory=list)
     clearance_rules: list[Any] = field(default_factory=list)
     star_ground_constraints: list[Any] = field(default_factory=list)
+    component_spacing_rules: list[Any] = field(default_factory=list)  # ComponentSpacingRule list
     
     # Missing auxiliary data for aesthetic and other losses
     component_type_indices: dict[str, Array] = field(default_factory=dict)
     net_class_indices: dict[str, Array] = field(default_factory=dict)
+    component_name_to_index: dict[str, int] = field(default_factory=dict)  # ref -> index mapping
     port_facing_groups: list[Any] = field(default_factory=list)
 
     # --- Delegated Properties for Backward Compatibility ---
@@ -392,7 +404,11 @@ class LossContext:
             self.matched_groups,
             self.clearance_rules,
             self.star_ground_constraints,
-            self.component_type_indices, self.net_class_indices, self.port_facing_groups,
+            self.component_spacing_rules,
+            self.component_type_indices,
+            self.net_class_indices,
+            self.component_name_to_index,
+            self.port_facing_groups,
         )
         return (children, aux_data)
 
@@ -401,7 +417,7 @@ class LossContext:
         geometry, netlist_data, constraints_data, hypergraph, bounds, fixed_mask = children
         (
             netlist, board, config, thermal, loop, matched, clearance, star,
-            comp_types, net_classes, port_facing
+            comp_spacing, comp_types, net_classes, comp_name_map, port_facing
         ) = aux_data
         return cls(
             netlist=netlist,
@@ -418,8 +434,10 @@ class LossContext:
             matched_groups=matched,
             clearance_rules=clearance,
             star_ground_constraints=star,
+            component_spacing_rules=comp_spacing,
             component_type_indices=comp_types,
             net_class_indices=net_classes,
+            component_name_to_index=comp_name_map,
             port_facing_groups=port_facing,
         )
 

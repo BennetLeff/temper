@@ -356,6 +356,14 @@ class LossContext(BaseLossContext):
             global_net_threshold=50
         )
 
+        # 5. Build component name to index mapping
+        component_name_to_index = {c.ref: i for i, c in enumerate(netlist.components)}
+
+        # 6. Parse component spacing rules from constraints
+        component_spacing_rules = []
+        if constraints and hasattr(constraints, 'component_spacing_rules'):
+            component_spacing_rules = constraints.component_spacing_rules
+
         return cls(
             netlist=netlist,
             board=board,
@@ -371,8 +379,10 @@ class LossContext(BaseLossContext):
             matched_groups=matched_groups or [],
             clearance_rules=clearance_rules or [],
             star_ground_constraints=star_ground_constraints or [],
+            component_spacing_rules=component_spacing_rules,
             component_type_indices=component_type_indices,
             net_class_indices=net_class_indices,
+            component_name_to_index=component_name_to_index,
         )
 
     @staticmethod

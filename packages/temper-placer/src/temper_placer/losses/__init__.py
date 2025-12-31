@@ -67,6 +67,11 @@ from temper_placer.losses.clearance import (
     compute_clearance_penalty,
 )
 
+# Component spacing loss (specific component pairs)
+from temper_placer.losses.component_spacing import (
+    ComponentSpacingLoss,
+)
+
 # Coil requirement loss
 from temper_placer.losses.coil import (
     CoilRequirementLoss,
@@ -281,6 +286,7 @@ __all__ = [
     "BoundaryLoss",
     "GridAlignmentLoss",
     "ClearanceLoss",
+    "ComponentSpacingLoss",
     "LoopAreaLoss",
     # Design rule losses
     "ThermalLoss",

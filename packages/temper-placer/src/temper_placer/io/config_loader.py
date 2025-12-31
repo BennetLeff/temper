@@ -170,6 +170,17 @@ class GroupSeparation:
 
 
 @dataclass
+class ComponentSpacingRule:
+    """Minimum edge-to-edge spacing between specific component pairs."""
+
+    component_a: str
+    component_b: str
+    min_separation_mm: float
+    description: str = ""
+    weight: float = 1.0
+
+
+@dataclass
 class LossConfig:
     """Configuration for a single loss function.
 
@@ -340,6 +351,9 @@ class PlacementConstraints:
 
     # Group separation rules
     group_separations: list[GroupSeparation] = field(default_factory=list)
+
+    # Component spacing rules (minimum edge-to-edge distances)
+    component_spacing_rules: list[ComponentSpacingRule] = field(default_factory=list)
 
     # Fixed components (won't be optimized)
     fixed_components: list[str] = field(default_factory=list)
@@ -610,6 +624,19 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     description=sep_cfg.get("description", ""),
                 )
                 constraints.group_separations.append(separation)
+
+    if "minimum_spacing" in config:
+        for spacing_cfg in config["minimum_spacing"]:
+            components = spacing_cfg.get("components", [])
+            if len(components) >= 2:
+                rule = ComponentSpacingRule(
+                    component_a=components[0],
+                    component_b=components[1],
+                    min_separation_mm=spacing_cfg.get("min_separation_mm", 2.0),
+                    description=spacing_cfg.get("description", ""),
+                    weight=spacing_cfg.get("weight", 1.0),
+                )
+                constraints.component_spacing_rules.append(rule)
 
     if "fixed_components" in config:
         constraints.fixed_components = config["fixed_components"]
