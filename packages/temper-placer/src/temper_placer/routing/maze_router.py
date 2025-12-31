@@ -1548,6 +1548,7 @@ class MazeRouter:
 
         validate_final: bool = False,
         pin_positions_overrides: dict[str, list[tuple[float, float]]] | None = None,
+        component_margin: float = 0.5,
     ) -> dict[str, RoutePath]:
         """Route all nets using iterative Rip-up and Reroute (RRR)."""
         from tqdm import tqdm  # Import here to avoid dependency issues if not installed
@@ -1555,7 +1556,7 @@ class MazeRouter:
         start_time = time.perf_counter()
         # On multi-layer boards (>2), only block the component layer (usually Top)
         # to allow routing on inner/bottom layers.
-        self.block_components(netlist.components, positions, layer_specific=(self.num_layers > 2))
+        self.block_components(netlist.components, positions, margin=component_margin, layer_specific=(self.num_layers > 2))
         net_by_name = {n.name: n for n in netlist.nets}
         comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
         all_pin_positions = {}
@@ -1635,6 +1636,8 @@ class MazeRouter:
                         if len(pins) >= 2:
                             blockers = self._find_blocking_nets(pins[0], pins[1])
                             blocking_nets_to_add.update(blockers)
+                        # Ensure we retry this net next time
+                        blocking_nets_to_add.add(net_name)
 
                     pbar.update(1)
 
@@ -1697,8 +1700,8 @@ class MazeRouter:
             if progress_callback:
                 progress_callback(progress)
 
-            if total_conflicts == 0:
-                print("  ✓ Routing complete - no conflicts!")
+            if total_conflicts == 0 and nets_failed == 0:
+                print("  ✓ Routing complete - no conflicts and all nets routed!")
                 break
 
             self.update_congestion_costs(history_increment)

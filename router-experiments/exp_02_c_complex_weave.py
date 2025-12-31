@@ -14,7 +14,7 @@ sys.path.append(str(Path(__file__).parent.parent / "packages" / "temper-placer" 
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.routing.maze_router import MazeRouter
-from temper_placer.routing.layer_assignment import assign_layers, Layer
+from temper_placer.routing.layer_assignment import assign_layers, Layer, LayerConstraint
 from temper_placer.routing.fanout import FanoutGenerator, FanoutConfig
 
 def create_pin_footprint(ref: str, x: float, y: float, net_name: str) -> Footprint:
@@ -27,10 +27,10 @@ def create_pin_footprint(ref: str, x: float, y: float, net_name: str) -> Footpri
     pad.number = "1"
     pad.position = Position(X=0, Y=0)
     pad.size = Position(X=0.8, Y=0.8) # 0.8mm pad
-    pad.type = "thru_hole"
-    pad.shape = "circle"
-    pad.layers = ["*.Cu", "*.Mask"]
-    pad.drill = DrillDefinition(diameter=0.5)
+    pad.type = "smd"               # Changed to SMD
+    pad.shape = "rect"             # Rectangular pads common for SMD
+    pad.layers = ["F.Cu", "F.Mask"] # Top Layer Only
+    pad.drill = None               # No Drill
     pad.net = Net(name=net_name)
     fp.pads.append(pad)
     return fp
@@ -92,25 +92,20 @@ def generate_weave_pcb(path: Path, grid_size: int = 10, pitch: float = 2.0):
             fp = create_pin_footprint(f"C_{r}_{c}", x, y, col_net)
             footprints.append(fp)
             
-    # Diagonal Nets (The Stress Test)
-    # D1: Top-Left to Bottom-Right
-    d1_net = "NET_DIAG_1"
-    nets.append(Net(number=len(nets)+1, name=d1_net))
-    # Place pins sparsely along diagonal
-    for i in range(grid_size):
-        x = i * pitch + 10 + (pitch/4) # Slight offset to not hit others
-        y = i * pitch + 10 + (pitch/4)
-        fp = create_pin_footprint(f"D1_{i}", x, y, d1_net)
-        footprints.append(fp)
-
-    # D2: Bottom-Left to Top-Right
-    d2_net = "NET_DIAG_2"
-    nets.append(Net(number=len(nets)+1, name=d2_net))
-    for i in range(grid_size):
-        x = i * pitch + 10 + (pitch * 0.75)
-        y = (grid_size - 1 - i) * pitch + 10 + (pitch * 0.75)
-        fp = create_pin_footprint(f"D2_{i}", x, y, d2_net)
-        footprints.append(fp)
+    # Escape Nets (Perimeter Escape Test)
+    # Target: Escape from Center (4,4) to North Edge (Shortest Path)
+    escape_net = "NET_ESCAPE"
+    nets.append(Net(number=len(nets)+1, name=escape_net))
+    
+    # Internal Pin (Center of Grid)
+    center_idx = grid_size // 2
+    fp_center = create_pin_footprint(f"ESC_Center", center_idx * pitch + 10 + (pitch/4), center_idx * pitch + 10 + (pitch/4), escape_net)
+    footprints.append(fp_center)
+    
+    # External Pin (North Edge)
+    # X = Same as center, Y = Top Edge (-5.0)
+    fp_edge = create_pin_footprint(f"ESC_North", center_idx * pitch + 10, 5.0, escape_net)
+    footprints.append(fp_edge)
 
     b.nets = nets
     b.footprints = footprints
@@ -140,7 +135,7 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
     result = parse_kicad_pcb(pcb_path)
     # Hack: ensure components have bounds for valid netlist construction if needed
     for c in result.netlist.components:
-        if c.bounds == (0.0, 0.0): c.bounds = (2.0, 2.0)
+        if c.bounds == (0.0, 0.0): c.bounds = (0.8, 0.8)
         
     router = MazeRouter(
         grid_size=(int(100/cell_size), int(100/cell_size)), # Approx
@@ -152,14 +147,14 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
         wrong_way_penalty=5.0 # Strong directional bias
     )
     
-    # Re-init grid size correctly
+    # Re-init grid size    # Create router with 4 layers
     router = MazeRouter.from_board(
         result.board, 
         cell_size_mm=cell_size, 
-        num_layers=2, 
-        via_cost=2.0,
+        num_layers=4, 
+        via_cost=5.0,
         min_clearance=0.1,
-        wrong_way_penalty=1.5,
+        wrong_way_penalty=2.0,
         soft_blocking=True  # Enable RRR
     )
     
@@ -172,19 +167,53 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
     # Load KiBoard for modification
     ki_board = KiBoard.from_file(str(pcb_path))
     
-    fanout_gen = FanoutGenerator(ki_board, result.netlist, FanoutConfig(pitch=pitch, strategy="grid"))
-    # We only Fanout the Diagonal nets, or all?
-    # Fanout everything for consistency?
-    # If we fanout everything, we might block channels?
-    # Let's fanout ONLY Diagonals first to prove the point.
-    target_nets = ["NET_DIAG_1", "NET_DIAG_2"]
-    fanout_overrides = fanout_gen.generate_fanouts(target_nets=target_nets)
-    print(f"    Generated fanouts for: {list(fanout_overrides.keys())}")
+    # Strategy: Channel Routing (Surface)
+    # Disable fanout - route straight through the empty channel on L1
+    fanout_overrides = {} 
+    print(f"    Fanout disabled for Channel Routing test")
     
-    # 1. Assign Layers
-    print("  Running Geometric Layer Assignment...")
+    # 1. Assign Layers with 4-layer awareness
+    print("  Running Geometric Layer Assignment (4-Layer)...")
     t0 = time.time()
-    assignments = assign_layers(result.netlist, component_positions=positions)
+    
+    # Custom constraints with Strict Partitioning (Manhattan Topology)
+    custom_constraints = [
+        # Escape Net: STRICTLY Layer 1 (Top)
+        # Test if it can run through the reserved highway
+        LayerConstraint(
+            net_pattern=r"NET_ESCAPE",
+            allowed_layers={Layer.L1_TOP},
+            preferred_layer=Layer.L1_TOP,
+            reason="Channel Strategy: Route on L1 highway"
+        ),
+        # Rows: STRICTLY Layer 1 (Top) - Horizontal Channels
+        LayerConstraint(
+            net_pattern=r"NET_ROW_.*",
+            allowed_layers={Layer.L1_TOP},
+            preferred_layer=Layer.L1_TOP,
+            reason="Rows locked to L1 Horizontal Channels"
+        ),
+        # Cols: STRICTLY Layer 4 (Bottom) - Vertical Channels
+        LayerConstraint(
+            net_pattern=r"NET_COL_.*",
+            allowed_layers={Layer.L4_BOT},
+            preferred_layer=Layer.L4_BOT,
+            reason="Cols locked to L4 Vertical Channels"
+        ),
+        # Catch-all
+        LayerConstraint(
+            net_pattern=r".*",
+            allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+            preferred_layer=Layer.L1_TOP,
+            reason="Default"
+        )
+    ]
+
+    assignments = assign_layers(
+        result.netlist, 
+        constraints=custom_constraints,
+        component_positions=positions
+    )
     print(f"  Assignment took {time.time()-t0:.3f}s")
     
     # Audit Assignments
@@ -209,7 +238,8 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
         assignments=assignments,
         max_iterations=20,  # Give it enough time to converge
         p_scale_step=0.5,
-        pin_positions_overrides=fanout_overrides
+        pin_positions_overrides=fanout_overrides,
+        component_margin=0.2, # Reduced margin for dense weave
     )
             
     duration = time.time() - start_time
@@ -243,8 +273,8 @@ def run_complex_experiment(name: str, grid_size: int, pitch: float, cell_size: f
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--size", type=int, default=8, help="Grid size (NxN)")
-    parser.add_argument("--pitch", type=float, default=2.0, help="Pin pitch (mm)")
-    parser.add_argument("--cell", type=float, default=0.25, help="Router cell size (mm)")
+    parser.add_argument("--pitch", type=float, default=2.54, help="Pin pitch (mm) - Standard 0.1 inch Header pitch")
+    parser.add_argument("--cell", type=float, default=0.1, help="Router cell size (mm)")
     args = parser.parse_args()
     
     run_complex_experiment("EXP02C_Weave", args.size, args.pitch, args.cell)
