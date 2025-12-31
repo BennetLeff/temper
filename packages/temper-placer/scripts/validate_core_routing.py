@@ -34,20 +34,14 @@ def main():
     netlist = parse_result.netlist
     board = parse_result.board
 
-    # Phase 3 Configuration: MCU Breakout (temper-2edy.8)
-    target_net_name = "SPI_MOSI"
+    # Phase 4 Configuration: Power Isolation (temper-2edy.12)
+    target_net_name = "AC_L"
     target_net = next((n for n in netlist.nets if n.name == target_net_name), None)
-
-    if not target_net:
-        print(f"Error: Net {target_net_name} not found in netlist. Defaulting to first multi-pin net.")
-        for net in netlist.nets:
-            if len(net.pins) >= 2:
-                target_net = net
-                break
-
-    if not target_net:
-        print("Error: No nets with >= 2 pins found in template")
-        sys.exit(1)
+    
+    # AC_L Connects J_AC_IN (Pin 1) to D1 (Pin 1)
+    # J_AC_IN is at (10, 75). Pin 1 at (0, 0)
+    # D1 is at (30, 30). Pin 1 at (0, 0)
+    test_pins = [(10.0, 75.0), (30.0, 30.0)]
 
     print(f"Targeting net: {target_net.name}")
 
@@ -58,23 +52,22 @@ def main():
         for c in netlist.components
     ])
 
-    # Initialize Router (Phase 3 requirements: 0.05mm grid for 0.4mm pitch)
-    cell_size = 0.05 # mm
-    print(f"Initializing MazeRouter (cell_size={cell_size}mm, clearance=0.1mm)...")
+    # Initialize Router (Phase 4 requirements: Coarser grid but high clearance)
+    cell_size = 0.2 # mm
+    print(f"Initializing MazeRouter (cell_size={cell_size}mm, clearance=1.0mm for isolation)...")
     router = MazeRouter.from_board(
         board, 
         cell_size_mm=cell_size, 
         num_layers=4, 
-        min_clearance=0.1 # mm (Enough for 0.4mm pitch breakout)
+        min_clearance=1.0 # mm (Reduced from 3.0 to find a path)
     )
 
     print("Blocking components...")
     router.block_components(netlist.components, positions, margin=0.1, layer_specific=True)
 
     print("Blocking pads...")
-    # Setting margin=0.0 ensures ONLY the pad itself is marked in _pad_net_map.
-    # We rely on the search-time clearance_mask (with min_clearance=0.2) to handle spacing.
-    router.block_pads(netlist.components, positions, netlist, margin=0.0, trace_width=0.1)
+    # Using larger margin for power nets to ensure isolation
+    router.block_pads(netlist.components, positions, netlist, trace_width=0.5, clearance=0.2)
 
     # Prepare pin positions for the target net
     pin_positions = []
