@@ -153,12 +153,14 @@ class MazeRouter:
         drc_oracle: "DRCOracle | None" = None,
         strict_mode: bool = False,
         design_rules: "DesignRules | None" = None,
+        wrong_way_penalty: float = 2.0,
     ):
         self.grid_size = grid_size
         self.cell_size = cell_size_mm
         self.num_layers = num_layers
         self.origin = origin
         self.via_cost = via_cost
+        self.wrong_way_penalty = wrong_way_penalty
         # soft_blocking determines how the router handles occupied cells (net overlaps):
         # - False (Strict): Occupied cells are impassable. Guarantees 0 tracks_crossing DRC errors.
         # - True (RRR/Negotiated): Occupied cells are passable at high cost.
@@ -254,7 +256,7 @@ class MazeRouter:
         return cells
 
     @classmethod
-    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0, drc_oracle: "DRCOracle | None" = None, strict_mode: bool = False, design_rules: "DesignRules | None" = None) -> "MazeRouter":
+    def from_board(cls, board: Board, cell_size_mm: float = 1.0, num_layers: int = 1, via_cost: float = 1.0, soft_blocking: bool = False, congestion_via_discount: float = 0.1, min_clearance: float = 0.0, drc_oracle: "DRCOracle | None" = None, strict_mode: bool = False, design_rules: "DesignRules | None" = None, wrong_way_penalty: float = 2.0) -> "MazeRouter":
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
         return cls(
@@ -270,6 +272,7 @@ class MazeRouter:
             drc_oracle=drc_oracle,
             strict_mode=strict_mode,
             design_rules=design_rules,
+            wrong_way_penalty=wrong_way_penalty,
         )
 
     def resize_grid(self, new_cell_size_mm: float) -> None:
@@ -401,10 +404,10 @@ class MazeRouter:
         wrong_way_cost = 0.0
         if neighbor.layer == 0:  # L1 prefers horizontal
             if neighbor.y != current.y:
-                wrong_way_cost = 2.0
+                wrong_way_cost = self.wrong_way_penalty
         elif neighbor.layer == 1:  # L4 prefers vertical
             if neighbor.x != current.x:
-                wrong_way_cost = 2.0
+                wrong_way_cost = self.wrong_way_penalty
 
         # Difficulty gradient (soft feedback for router)
         diff = self._get_cell_difficulty(neighbor)
@@ -691,7 +694,7 @@ class MazeRouter:
         Returns:
             Margin in mm to apply around pads for blocking
         """
-        return required_clearance + (trace_width / 2) + (self.cell_size / 2)
+        return required_clearance + (trace_width / 2)
 
     def block_pads(
         self,
@@ -737,8 +740,17 @@ class MazeRouter:
                 pad_h = getattr(pin, 'height', 1.0)
 
                 # Convert to grid coordinates for blocking
-                gx_min_block, gy_min_block = self._world_to_grid(px - pad_w/2 - margin, py - pad_h/2 - margin)
-                gx_max_block, gy_max_block = self._world_to_grid(px + pad_w/2 + margin, py + pad_h/2 + margin)
+                # Convert to grid coordinates for blocking
+                # Use ceil/floor to strictly block only cells whose centers are within the forbidden zone
+                min_x_mm = px - pad_w/2 - margin
+                min_y_mm = py - pad_h/2 - margin
+                max_x_mm = px + pad_w/2 + margin
+                max_y_mm = py + pad_h/2 + margin
+                
+                gx_min_block = int(math.ceil((min_x_mm - self.origin[0]) / self.cell_size))
+                gy_min_block = int(math.ceil((min_y_mm - self.origin[1]) / self.cell_size))
+                gx_max_block = int(math.floor((max_x_mm - self.origin[0]) / self.cell_size))
+                gy_max_block = int(math.floor((max_y_mm - self.origin[1]) / self.cell_size))
 
                 # Expand for Neckdown Zone (1.0mm expansion beyond pad+margin)
                 neck_margin_mm = 1.0
@@ -1877,7 +1889,19 @@ class MazeRouter:
                                 pad_net = self._pad_net_map.get((nx, ny, l))
                                 if pad_net is None or pad_net == net_name:
                                     original_occupancy.append((nx, ny, l, -1))
+                                    original_occupancy.append((nx, ny, l, -1))
                                     self.occupancy[nx, ny, l] = 0
+
+        # Verify start/end points are actually unblocked
+        # If unblocking failed (e.g. huge pad), we might still be blocked
+        # Force clear the exact pin location just in case
+        for gx, gy in grid_pins:
+            for l in candidate_start_layers:
+                 if self.occupancy[gx, gy, l] == -1:
+                      # This should have been cleared above, but maybe pad_net_map was wrong?
+                      # Force clear center pixel
+                      original_occupancy.append((gx, gy, l, int(self.occupancy[gx, gy, l])))
+                      self.occupancy[gx, gy, l] = 0
 
         # Try to route using candidates
         final_all_cells = []

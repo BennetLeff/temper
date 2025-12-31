@@ -1,67 +1,112 @@
-import json
-import re
-from collections import Counter
+#!/usr/bin/env python3
+"""
+Analyze physical conflicts (shorts) in the PCB to categorize routing errors.
+"""
 
-def main():
-    try:
-        data = json.load(open('output/optimized_relaxed_drc_final.json'))
-    except FileNotFoundError:
-        print("Error: output/optimized_relaxed_drc_final.json not found")
+from pathlib import Path
+from collections import defaultdict
+import math
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from kiutils.board import Board
+
+def distance(p1, p2):
+    return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
+
+def analyze_shorts():
+    pcb_path = Path("packages/temper-placer/output_pipeline_test.kicad_pcb")
+    if not pcb_path.exists():
+        print(f"File not found: {pcb_path}")
         return
 
-    # Summarize Violation Types
-    type_counts = {}
-    for v in data.get('violations', []):
-        t = v.get('type', 'unknown')
-        type_counts[t] = type_counts.get(t, 0) + 1
-        
-    print("\n=== Violation Type Summary ===")
-    print(f"{'Type':<30} | {'Count':<10}")
-    print("-" * 45)
-    for t, count in sorted(type_counts.items(), key=lambda x: x[1], reverse=True):
-        print(f"{t:<30} | {count:<10}")
-        
-    unconnected = data.get('unconnected_items', [])
-    if unconnected:
-        print(f"{'unconnected_items':<30} | {len(unconnected):<10}")
-    print("-" * 45)
-    print(f"Total Violations: {len(data.get('violations', []))}")
-    print(f"Total Unconnected: {len(unconnected)}")
-    print("==============================\n")
+    print(f"Analyzing {pcb_path}...")
+    result = parse_kicad_pcb(pcb_path)
+    board = result.board
+    netlist = result.netlist # Not strictly needed if we just check board objects
 
-    violations = [v for v in data['violations'] if v['type'] in ('shorting_items', 'clearance', 'min_through_hole_diameter', 'track_width')]
-    pairs = []
-    pairs = []
+    print(f"Scanning {len(result.traces)} traces and {len(result.pads)} pads...")
     
-    for v in violations:
-        # Expected format: "Items: Track ... (NetA) and Track ... (NetB)"
-        # Or similar. We look for "(NetName)" patterns.
-        desc = v['description']
-        nets = re.findall(r'\((.*?)\)', desc)
+    items = []
+    # Add traces
+    for t in result.traces:
+        items.append({
+            'type': 'track',
+            'net': t.net,
+            'layer': t.layer,
+            'start': t.start, # Tuple (x,y)
+            'end': t.end,     # Tuple (x,y)
+            'width': t.width
+        })
         
-        # Filter out mechanical items like 'F.Cu' or 'Edge.Cuts' if they appear in parens
-        # But usually KiCad puts net names in parens for items.
-        # Actually items often look like: "Track starting at ... on F.Cu (NetName)"
-        # So finding all parenthesized items might get 'F.Cu'.
-        # Let's count specific known nets if possible, or just take the pair if we find exactly 2 distinct ones
-        # typically 2 items involved.
+    # We don't have vias in result.traces? 
+    # Current parser extracts traces but maybe not vias explicitly in the 'traces' list?
+    # Checking parser code: _extract_traces_from_pcb iterates traceItems. Vias are skipped.
+    # So we miss vias. But let's analyze tracks first.
+    
+    print(f"Found {len(items)} routing items.")
+    
+    # Mapping items to nearby components
+    print("Mapping items to components...")
+    comp_collisions = defaultdict(int)
+    
+    components = []
+    for c in result.netlist.components:
+        # Initial position in netlist is normalized? 
+        # Parser doc says: "Component positions are normalized to origin-relative coordinates".
+        # But we need absolute coordinates for distance check with traces (which are absolute).
+        # Wait, traces from parser: "start: tuple[float, float] # (x, y) in mm, absolute coords"
+        # Components in netlist: "initial_position ... relative"
+        # BUT parse_kicad_pcb subtracts board.origin
         
-        valid_nets = [n for n in nets if n not in ('F.Cu', 'B.Cu', 'Edge.Cuts', 'F.SilkS', 'B.SilkS', 'F.Paste', 'B.Paste', 'F.Mask', 'B.Mask', 'User.Drawings', 'User.Comments', 'User.Eco1', 'User.Eco2')]
+        # We need to add board origin back if board exists.
+        ox, oy = 0, 0
+        if board:
+            ox, oy = board.origin
+            
+        bx, by = c.initial_position
+        pos = (bx + ox, by + oy) # Reconstruct absolute
         
-        if len(valid_nets) >= 2:
-            # Take the last two, as item description usually ends with net
-            n1 = valid_nets[-2]
-            n2 = valid_nets[-1]
-            if n1 != n2:
-                pairs.append(tuple(sorted([n1, n2])))
-        elif len(valid_nets) == 1:
-             pairs.append(('?', valid_nets[0]))
-        else:
-             pass # Mechanical vs Mechanical?
+        components.append({
+            'ref': c.ref,
+            'pos': pos
+        })
+        
+    # Analyze density around components
+    for comp in components:
+        # Count items within 2mm of component center
+        cx, cy = comp['pos']
+        count = 0
+        nets = set()
+        for item in items:
+            p = None
+            if item['type'] == 'track': 
+                # Use midpoint
+                p = ((item['start'][0]+item['end'][0])/2, (item['start'][1]+item['end'][1])/2)
+            
+            if p and distance(p, (cx, cy)) < 5.0: # 5mm radius
+                if item['net']:
+                    count += 1
+                    nets.add(item['net'])
+        
+        # Heuristic: If many nets in small area -> Congestion
+        if len(nets) > 5:
+            print(f"High Density at {comp['ref']}: {len(nets)} nets, {count} segments")
+            comp_collisions[comp['ref']] = len(nets)
 
-    print("\nTop 20 Conflict Pairs (Shorts + Clearance):")
-    for pair, count in Counter(pairs).most_common(20):
-        print(f"{count:3d}: {pair[0]} <-> {pair[1]}")
+    # Output categories based on density
+    print("\nError Classes:")
+    print("1. Pin Fanout Congestion (MCU/High-Pin-Count)")
+    mcu_comp = next((c for c in components if "U" in c['ref'] and ("ESP" in c['ref'] or "U1" in c['ref'])), None)
+    if mcu_comp and comp_collisions[mcu_comp['ref']] > 10:
+         print(f"   - Confirmed at {mcu_comp['ref']} ({comp_collisions[mcu_comp['ref']]} nets)")
+    
+    print("2. Component Cluster Congestion")
+    for ref, nets in comp_collisions.items():
+        if not mcu_comp or ref != mcu_comp['ref']:
+            print(f"   - {ref}: {nets} distinct nets in 5mm radius")
+            
+    print("\n3. Potential Short Circuits (Trace-Trace Intersections)")
+    # Sampling for intersections
+    # ... (omitted for brevity in this patch, we focus on congestion map first)
 
 if __name__ == "__main__":
-    main()
+    analyze_shorts()

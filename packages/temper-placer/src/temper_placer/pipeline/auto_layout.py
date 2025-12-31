@@ -63,7 +63,7 @@ def auto_layout_pcb(
     # Prepare routing metadata
     loops = LoopCollection()
     net_order = order_nets(netlist, loops)
-    assignments = assign_layers(netlist)
+    assignments = assign_layers(netlist, component_positions=positions)
     
     # Exclude power/ground nets from routing (they should be handled by planes)
     POWER_NET_PATTERNS = ['GND', 'VCC', 'VDD', '3V3', '5V', '12V', '15V']
