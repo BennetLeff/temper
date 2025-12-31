@@ -49,9 +49,9 @@ class PipelineConfig:
     """Configuration for the C-Space routing pipeline."""
 
     resolution_mm: float = 0.1
-    enable_dithering: bool = True
-    enable_smoothing: bool = True
-    enable_ballooning: bool = True
+    enable_dithering: bool = False
+    enable_smoothing: bool = False
+    enable_ballooning: bool = False
     max_dither_attempts: int = 4
     via_cost: float = 50.0
 

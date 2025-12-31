@@ -682,6 +682,8 @@ class MazeRouter:
                                 # Mark as blocked (will be unblocked for own net during routing)
                                 if self.occupancy[gx, gy, layer] != -1:
                                     self.occupancy[gx, gy, layer] = -1
+    
+        print(f"DEBUG: Blocked {len(self._pad_net_map)} grid cells for pads")
 
     def _compute_local_density(self, x: float, y: float, radius: float = 10.0) -> float:
         if self._component_positions is None or not len(self._component_positions): return 0.0
@@ -1776,7 +1778,7 @@ class MazeRouter:
 
         # Temporarily unblock pin locations causing "trapped in pad" issues
         # Unblock a small radius around pins to ensure the router can escape the pad's blockage footprint
-        unblock_radius = max(2, int(0.8 / self.cell_size)) # 0.8mm radius
+        unblock_radius = max(5, int(2.5 / self.cell_size)) # 2.5mm radius
         original_occupancy = []
 
         for gx, gy in grid_pins:
@@ -1786,8 +1788,12 @@ class MazeRouter:
                     if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
                         for l in range(self.num_layers):
                             if self.occupancy[nx, ny, l] == -1:
-                                original_occupancy.append((nx, ny, l, -1))
-                                self.occupancy[nx, ny, l] = 0
+                                # Only unblock if it belongs to THIS net (temper-2edy)
+                                # Components (-1 but not in pad_net_map) are also allowed to be unblocked locally
+                                pad_net = self._pad_net_map.get((nx, ny, l))
+                                if pad_net is None or pad_net == net_name:
+                                    original_occupancy.append((nx, ny, l, -1))
+                                    self.occupancy[nx, ny, l] = 0
 
         # Try to route using candidates
         final_all_cells = []
@@ -1929,6 +1935,7 @@ class MazeRouter:
                     found = True
                     break
             if not found:
+                print(f"DEBUG: End blocked on all layers at {end}")
                 return None
         else:
              target_layer = layer

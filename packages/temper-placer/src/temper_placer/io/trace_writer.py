@@ -58,6 +58,12 @@ def write_traces_to_pcb(
         trace_widths = create_trace_width_map(netlist, default=default_trace_width)
         
     # CRITICAL FIX: If no default trace width is explicit, use cell_size to match router planning
+    print(f"DEBUG: Exporting {len(routing_results)} nets with cell_size={cell_size}mm")
+    for net_name, path in routing_results.items():
+        if path.success and len(path.cells) > 0:
+            start_cell = path.cells[0]
+            end_cell = path.cells[-1]
+            print(f"DEBUG: Net {net_name} path: {len(path.cells)} cells, start=({start_cell.x},{start_cell.y}), end=({end_cell.x},{end_cell.y})")
     # The router plans with cell_size (e.g. 0.2mm). If we export at 0.25mm, we cause violations.
     # We only override if default_trace_width was NOT explicitly set by caller (but here it has a default arg).
     # Ideally, the caller should pass the correct width. 
