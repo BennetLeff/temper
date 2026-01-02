@@ -2573,13 +2573,50 @@ class MazeRouter:
                         p_scale,
                         trace_width_mm=edge.trace_width_mm,
                         clearance_mm=edge.clearance_mm
-                    )
-                    
-                    if not segment_path.success:
-                        success = False
-                        failure_reason = f"Failed edge {edge.source_pin}->{edge.sink_pin}: {segment_path.failure_reason}"                # We continue routing other edges to get a partial result? 
-                # Or abort? Usually partial routing is better than nothing in RRR.
+        all_cells = []
+        total_vias = 0
+        total_difficulty = 0.0
+        cell_difficulties = []
+        segments = []
+        success = True
+        failure_reason = None
+        
+        # Track routed edges to avoid duplicates if graph is redundant? 
+        # NetGraph edges are directed. We assume they form a valid tree/forest.
+        
+        for edge in sorted_edges:
+            if edge.source_pin not in pin_positions:
+                logger.warning(f"Missing source pin {edge.source_pin} for net {net_name}")
+                continue
+            if edge.sink_pin not in pin_positions:
+                logger.warning(f"Missing sink pin {edge.sink_pin} for net {net_name}")
+                continue
+                
+            start_pos = pin_positions[edge.source_pin]
+            end_pos = pin_positions[edge.sink_pin]
             
+            # Determine constraints for this edge
+            # If not specified in edge, use default/passed rules
+            # Note: route_net_rrr determines rules from DesignRules if not passed.
+            # We pass explicit overrides if they exist.
+            
+            # Route this segment
+            # We treat it as a 2-pin net routing
+            segment_path = self.route_net_rrr(
+                net_name,
+                [start_pos, end_pos],
+                assignment,
+                cost_map,
+                p_scale,
+                trace_width_mm=edge.trace_width_mm,
+                clearance_mm=edge.clearance_mm
+            )
+            
+            if not segment_path.success:
+                success = False
+                failure_reason = f"Failed edge {edge.source_pin}->{edge.sink_pin}: {segment_path.failure_reason}"                # We continue routing other edges to get a partial result? 
+            # Or abort? Usually partial routing is better than nothing in RRR.
+        
             # Accumulate results
             if segment_path.cells:
                 all_cells.extend(segment_path.cells)
