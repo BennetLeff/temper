@@ -23,7 +23,9 @@ def write_traces_to_pcb(
     default_trace_width: float = 0.25,
     via_size: float = 0.8,
     via_drill: float = 0.4,
+    via_drill: float = 0.4,
     netlist=None,
+    component_positions=None, # List of (x,y) or JAX array corresponding to netlist
 ) -> int:
     """Write routing results to KiCad PCB file.
 
@@ -56,6 +58,41 @@ def write_traces_to_pcb(
     # Auto-generate trace widths if not provided
     if trace_widths is None and netlist is not None:
         trace_widths = create_trace_width_map(netlist, default=default_trace_width)
+
+    # Pre-export Validation (DRC-5)
+    if netlist is not None:
+        print("Validating routing (DRC-5)...")
+        from temper_placer.core.routing_validator import validate_routing_result
+        # Infer grid/positions if missing
+        positions = component_positions
+        if positions is None:
+            # Try to use initial positions from netlist
+            positions = [c.initial_position or (0,0) for c in netlist.components]
+
+        violations = validate_routing_result(
+            routed_paths=routing_results,
+            netlist=netlist,
+            component_positions=positions,
+            cell_size_mm=cell_size,
+            grid_size=(10000, 10000), # Dynamic/Unbounded check
+            num_layers=10 # Sufficient for checking
+        )
+
+        shorts = [v for v in violations if v.violation_type == "SHORT"]
+        opens = [v for v in violations if v.violation_type == "OPEN"]
+
+        if shorts:
+            print(f"❌ BLOCKING EXPORT: Found {len(shorts)} SHORT circuits!")
+            for v in shorts[:5]:
+                print(f"  - {v.message}")
+            if len(shorts) > 5: print(f"  ...and {len(shorts)-5} more.")
+            raise RuntimeError(f"Export blocked due to {len(shorts)} short circuits.")
+
+        if opens:
+            print(f"⚠️  WARNING: Found {len(opens)} unconnected pins (Open Nets)")
+            for v in opens[:5]:
+                print(f"  - {v.message}")
+            # We don't block on opens (allow partial routing export for debug)
 
     # CRITICAL FIX: If no default trace width is explicit, use cell_size to match router planning
     print(f"DEBUG: Exporting {len(routing_results)} nets with cell_size={cell_size}mm")

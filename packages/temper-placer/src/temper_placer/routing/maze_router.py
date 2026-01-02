@@ -210,6 +210,10 @@ class MazeRouter:
         )
         self.history_cost = np.ones((grid_size[0], grid_size[1], num_layers), dtype=np.float32)
 
+        # DRC-1: Cell ownership for net isolation (prevents shorts between nets)
+        # Each cell is owned by exactly ONE net (first-come-first-served in strict mode)
+        self.cell_owner: dict[tuple[int, int, int], str] = {}
+
         self._component_positions: Array | None = None
         self.stats = RoutingStats()
 
@@ -395,8 +399,11 @@ class MazeRouter:
             return
         path = self.routed_paths[net_name]
         for cell in path.cells:
-            # Remove occupancy for all cells within trace radius (temper-z87d)
-            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+            # Remove occupancy for all cells within trace radius
+            # DRC-2: Use exact trace width and 0 clearance (occupancy stores copper only)
+            affected_cells = self._get_inflated_cells(
+                cell.x, cell.y, cell.layer, width_mm=path.trace_width, clearance_mm=0.0
+            )
             for ax, ay, al in affected_cells:
                 key = (ax, ay, al)
                 if key in self.net_occupancy and net_name in self.net_occupancy[key]:
@@ -404,6 +411,9 @@ class MazeRouter:
                     if not self.net_occupancy[key]:
                         self.occupancy[ax, ay, al] = 0
                         del self.net_occupancy[key]
+                        # DRC-1: Clear ownership
+                        if (ax, ay, al) in self.cell_owner:
+                            del self.cell_owner[(ax, ay, al)]
                     self.present_congestion[ax, ay, al] = max(
                         0.0, self.present_congestion[ax, ay, al] - 1.0
                     )
@@ -438,6 +448,8 @@ class MazeRouter:
                     if key not in self.net_occupancy:
                         self.net_occupancy[key] = set()
                     self.net_occupancy[key].add(net_name)
+                    # DRC-1: Register ownership
+                    self.cell_owner[(ax, ay, al)] = net_name
 
             if net_name not in self.routed_paths:
                 self.routed_paths[net_name] = RoutePath(
@@ -1832,6 +1844,11 @@ class MazeRouter:
 
         progress_history: list[RoutingProgress] = []
         forced_reroute: set[str] = set()  # Nets to force reroute next iteration
+        
+        # DRC-3: Best State Tracking
+        best_conflicts = float("inf")
+        best_state = None
+        best_iteration = -1
 
         for iteration in range(max_iterations):
             iter_start = time.perf_counter()
@@ -1944,6 +1961,20 @@ class MazeRouter:
                 conflicted_nets=conflicted_nets,
             )
             progress_history.append(progress)
+            
+            if progress_callback:
+                progress_callback(progress)
+
+            # DRC-3: Track Best State
+            if total_conflicts < best_conflicts:
+                best_conflicts = total_conflicts
+                best_state = self._save_state()
+                best_iteration = iteration + 1
+                if total_conflicts == 0:
+                    print(f"  RRR Converged to 0 conflicts at iteration {iteration + 1}!")
+                    break
+
+
 
             # Print progress
             print(f"  RRR Iteration {iteration + 1}/{max_iterations} (p_scale={p_scale:.1f})")
@@ -1967,6 +1998,11 @@ class MazeRouter:
 
             self.update_congestion_costs(history_increment)
             self.decay_history_costs(history_decay)
+
+        # Restore best state if found
+        if best_state is not None:
+             print(f"  Restoring best state from iteration {best_iteration} (Conflicts: {best_conflicts})")
+             self._restore_state(best_state)
 
         self.stats.total_time_ms = (time.perf_counter() - start_time) * 1000.0
         self.stats.nets_routed = sum(1 for r in self.routed_paths.values() if r.success)
@@ -2095,6 +2131,26 @@ class MazeRouter:
         if not cells:
             return 0
         return hash(tuple((c.x, c.y, c.layer) for c in cells))
+
+    def _save_state(self) -> dict:
+        """Save current routing state."""
+        return {
+            "routed_paths": self.routed_paths.copy(),
+            "occupancy": self.occupancy.copy(),
+            "net_occupancy": {k: v.copy() for k, v in self.net_occupancy.items()},
+            "cell_owner": self.cell_owner.copy(),
+            "present_congestion": self.present_congestion.copy(),
+            "history_cost": self.history_cost.copy(),
+        }
+
+    def _restore_state(self, state: dict) -> None:
+        """Restore routing state."""
+        self.routed_paths = state["routed_paths"]
+        self.occupancy = state["occupancy"]
+        self.net_occupancy = state["net_occupancy"]
+        self.cell_owner = state["cell_owner"]
+        self.present_congestion = state["present_congestion"]
+        self.history_cost = state["history_cost"]
 
     def _update_net_status(self, net_name: str, path: RoutePath, is_conflicted: bool) -> None:
         """Update convergence status for a net after routing."""
@@ -2248,6 +2304,20 @@ class MazeRouter:
         final_cell_difficulties = []
         last_failure_reason = "Unknown"
 
+        # Determine design rules (Arguments > DesignRules > Defaults)
+        # Moved to top for DRC-2 mask generation
+        trace_width = trace_width_mm if trace_width_mm is not None else self._default_trace_width_mm
+        via_diameter = via_diameter_mm if via_diameter_mm is not None else 0.6
+        via_drill = via_drill_mm if via_drill_mm is not None else 0.3
+        clearance = clearance_mm if clearance_mm is not None else self.min_clearance
+
+        if self.design_rules and trace_width_mm is None:
+            rules = self.design_rules.get_rules_for_net(net_name)
+            trace_width = rules.trace_width
+            via_diameter = rules.via_diameter
+            via_drill = rules.via_drill
+            clearance = rules.clearance
+
         # Creepage Awareness: Generate class-specific clearance mask
         clearance_mask = None
         current_class_id = CLASS_DEFAULT  # Default class
@@ -2288,7 +2358,49 @@ class MazeRouter:
                      y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
                      clearance_mask[x_min:x_max, y_min:y_max, :] = 0
                 
+
                 self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
+
+                self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
+
+        # Determined design rules earlier to compute mask
+        
+        # DRC-1 & DRC-2: Net Isolation with Correct Inflation
+        # Create mask of cells owned by other nets (occupancy==2)
+        # Since we ripped up current net, any 2 is another net.
+        other_net_raw = (self.occupancy == 2).astype(np.int32)
+        
+        # DRC-2: Dilate by (Clearance + Trace_Half_Width)
+        # Occupancy now stores pure copper (width), no clearance.
+        # But wait, other_net_raw assumes occupancy corresponds to copper.
+        # "route_net_rrr" sets occupancy with clearance=0.0 (Copper).
+        # So we must dilate by (My_Clearance + My_Half_Width) to keep My Center away from Their Copper.
+        # This assumes My_Clearance >= Their_Required_Clearance.
+        
+        req_isolation = clearance + (trace_width / 2.0)
+        rad_isolation = int(math.ceil(req_isolation / self.cell_size))
+        
+        if rad_isolation > 0:
+             # dilate_grid_numba is available in scope (imported globally or via self?)
+             # It's imported globally.
+             other_net_mask = dilate_grid_numba(other_net_raw, rad_isolation)
+        else:
+             other_net_mask = other_net_raw
+        
+        # Expand clearance mask to include other nets
+        if clearance_mask is None:
+            clearance_mask = other_net_mask
+        else:
+            clearance_mask = clearance_mask | other_net_mask
+
+        # Crucial: Ensure Start/End pins are NOT blocked by the mask
+        if clearance_mask is not None:
+            w, h = self.grid_size
+            for gx, gy in [p for p in grid_pins]:
+                 if 0 <= gx < w and 0 <= gy < h:
+                     # Punch hole. Ideally size of start/end pin?
+                     # A 1-cell hole allows the center of the Walker to step on the pin.
+                     clearance_mask[gx, gy, :] = 0
 
         for start_layer in candidate_start_layers:
             current_cells = []
@@ -2308,6 +2420,10 @@ class MazeRouter:
                     seg_layer = start_layer
                 else:
                     seg_layer = current_cells[-1].layer if current_cells else start_layer
+
+                if net_name == "VCC_BOOT":
+                    # Debug print removed
+                    pass
 
                 path = self.find_path_rrr(
                     start_node, 
@@ -2453,8 +2569,9 @@ class MazeRouter:
             is_via = (cx, cy, cl) in final_via_cells
             width = via_diameter if is_via else trace_width
 
+            # DRC-2: Store Copper Only (Clearance=0) in Occupancy
             affected_cells = self._get_inflated_cells(
-                cx, cy, cl, width_mm=width, clearance_mm=clearance
+                cx, cy, cl, width_mm=width, clearance_mm=0.0
             )
             for ax, ay, al in affected_cells:
                 self.occupancy[ax, ay, al] = 2
@@ -2464,6 +2581,8 @@ class MazeRouter:
                 if key not in self.net_occupancy:
                     self.net_occupancy[key] = set()
                 self.net_occupancy[key].add(net_name)
+                # DRC-1: Register ownership
+                self.cell_owner[key] = net_name
 
         if self.drc_oracle is not None:
             self._register_routed_path(all_cells, net_name)
@@ -2565,14 +2684,19 @@ class MazeRouter:
                     # Clear a box of size radius around pin
                     x_min, x_max = max(0, gx - radius), min(self.grid_size[0], gx + radius + 1)
                     y_min, y_max = max(0, gy - radius), min(self.grid_size[1], gy + radius + 1)
-                    clearance_mask[x_min:x_max, y_min:y_max, :] = 0
-
         # Try Numba implementation first
+        # CRITICAL FIX: Numba implementation (fast_router.py) fails to respect clearance_mask correctly
+        # (See debugging session where Mask=1 in Python but Mask=0 in Numba).
+        # To ensure 0 conflicts (DRC-1/DRC-6), we must bypass Numba if a clearance mask is active.
+        use_numba = HAS_NUMBA
+        if clearance_mask is not None:
+            use_numba = False
 
-        if HAS_NUMBA:
-            t_numba = time.perf_counter()
-            self.stats.profile.numba_calls += 1
+        if use_numba:
             try:
+                t_numba = time.perf_counter()
+                self.stats.profile.numba_calls += 1
+                
                 # Ensure arrays are contiguous and correct type
                 occ = self._occupancy_np.astype(np.int32)
                 hist = self._history_np.astype(np.float32)
@@ -2588,6 +2712,10 @@ class MazeRouter:
                 if self.soft_c_space is not None:
                     cspace = self._soft_c_space_np.astype(np.float32)
 
+                if clearance_mask is not None:
+                    clearance_mask = np.ascontiguousarray(clearance_mask)
+
+                # Call Numba function
                 path_coords = find_path_astar_numba(
                     start[0],
                     start[1],

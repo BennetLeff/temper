@@ -30,14 +30,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "temper-placer" / "src"))
 
-from temper_placer.routing.maze_router import MazeRouter
+
 from temper_placer.core.design_rules import create_temper_design_rules
-import numpy as np
+from temper_placer.routing.maze_router import MazeRouter
 
 
 def create_gate_driver_subsystem():
     """Create minimal gate driver subsystem for routing."""
-    
+
     # Board: 30×30mm, 2-layer
     board = {
         "width_mm": 30.0,
@@ -45,7 +45,7 @@ def create_gate_driver_subsystem():
         "origin": (0.0, 0.0),
         "layers": 2,
     }
-    
+
     # Component positions (hand-placed for optimal gate loop)
     # Layout: U_GATE center, C_BOOT/C_VCC nearby, R_GATE_H/L to sides
     components = {
@@ -88,7 +88,7 @@ def create_gate_driver_subsystem():
             },
         },
     }
-    
+
     # Nets to route
     nets = {
         "GATE_H": {
@@ -130,28 +130,28 @@ def create_gate_driver_subsystem():
             "class": "Power",
         },
     }
-    
+
     return board, components, nets
 
 
 def route_gate_driver():
     """Route gate driver subsystem to 0 conflicts."""
-    
+
     print("\n" + "=" * 70)
     print("EXP-10-A: GATE DRIVER SUBSYSTEM ROUTING")
     print("=" * 70)
-    
+
     board, components, nets = create_gate_driver_subsystem()
-    
+
     print(f"\nBoard: {board['width_mm']}×{board['height_mm']}mm, {board['layers']} layers")
     print(f"Components: {len(components)}")
     print(f"Nets: {len(nets)}")
-    
+
     # Create router with fine grid
-    print(f"\nInitializing router (0.1mm grid)...")
-    
+    print("\nInitializing router (0.1mm grid)...")
+
     design_rules = create_temper_design_rules()
-    
+
     # Create minimal board object
     from dataclasses import dataclass
     @dataclass
@@ -159,13 +159,13 @@ def route_gate_driver():
         width: float
         height: float
         origin: tuple
-    
+
     board_obj = MinimalBoard(
         width=board["width_mm"],
         height=board["height_mm"],
         origin=board["origin"],
     )
-    
+
     router = MazeRouter.from_board(
         board=board_obj,
         cell_size_mm=0.1,  # Fine grid
@@ -175,30 +175,62 @@ def route_gate_driver():
         min_clearance=0.2,
         design_rules=design_rules,
     )
-    
+
     print(f"  Grid: {router.grid_size[0]}×{router.grid_size[1]} ({router.grid_size[0] * router.grid_size[1]:,} cells)")
-    
+
     # Skip component blocking for this isolated experiment
     # (small board, no conflicts expected)
-    
+
     # Collect all pins for routing
     pin_positions = {}
     for comp_name, comp in components.items():
         for pin_name, pin_data in comp["pins"].items():
             x, y, net = pin_data
             key = (comp_name, pin_name)
+            key = (comp_name, pin_name)
             pin_positions[key] = (x, y, net)
-    
+
+    # Verify Placement DRC
+    from temper_placer.core.placement_drc import PinInfo, validate_placement_drc
+    drc_pins = []
+    for comp_name, comp in components.items():
+        for pin_name, pin_data in comp["pins"].items():
+            x, y, net = pin_data
+            drc_pins.append(PinInfo(x=x, y=y, net_name=net, component_name=comp_name, pin_name=pin_name))
+
+    print("\nChecking Placement DRC...")
+    violations = validate_placement_drc(drc_pins, min_clearance_mm=0.2)
+    if violations:
+        print(f"⚠️  Found {len(violations)} Placement DRC Violations (Expected for this test case):")
+        for v in violations:
+            print(f"  - {v.message}")
+    else:
+        print("  ✓ Placement DRC Passed")
+
+    # Register pins as obstacles (since we skipped full component registration)
+    print("  Registering pins as obstacles...")
+    for comp_name, comp in components.items():
+        for pin_name, pin_data in comp["pins"].items():
+            x, y, net = pin_data
+            gx, gy = router._world_to_grid(x, y)
+
+            # Mark all layers as component pads (simplified)
+            # Or just Top/Bottom? Using all layers ensures blocking.
+            for l in range(router.num_layers):
+                if 0 <= gx < router.grid_size[0] and 0 <= gy < router.grid_size[1]:
+                    router.occupancy[gx, gy, l] = -1
+                    router._pad_net_map[(gx, gy, l)] = net
+
     # Route each net
     print(f"\nRouting {len(nets)} nets...")
     results = {}
-    
+
     for net_name, net_info in nets.items():
         pins = net_info["pins"]
         if len(pins) < 2:
             print(f"  ⚠️  {net_name}: Only {len(pins)} pin(s), skipping")
             continue
-        
+
         # Get pin coordinates
         pin_coords = []
         for comp_ref, pin_name in pins:
@@ -206,55 +238,55 @@ def route_gate_driver():
             if key in pin_positions:
                 x, y, _ = pin_positions[key]
                 pin_coords.append((x, y))
-        
+
         if len(pin_coords) < 2:
             print(f"  ⚠️  {net_name}: Insufficient valid pins")
             continue
-        
+
         # Route simple 2-pin net (will extend to multi-pin later)
         start = pin_coords[0]
-        end = pin_coords[1]
-        
-        print(f"  Routing {net_name}: {pins[0]} → {pins[1]}...")
-        
         # Use RRR routing (the actual API)
+        # Pass all pins for multi-pin routing
         path = router.route_net_rrr(
-            start_mm=start,
-            end_mm=end,
             net_name=net_name,
-            preferred_layer=0,
+            pin_positions=pin_coords,
+            assignment=None, # Allow router to choose layers
             p_scale=1.0,
         )
-        
+
         if path and len(path.cells) > 0:
             results[net_name] = path
             print(f"    ✓ Routed ({len(path.cells)} cells)")
         else:
-            print(f"    ✗ Failed")
+            print("    ✗ Failed")
             results[net_name] = None
-    
+
     # Validate
-    print(f"\n" + "=" * 70)
+    print("\n" + "=" * 70)
     print("VALIDATION")
     print("=" * 70)
-    
+
     routed = sum(1 for r in results.values() if r is not None)
     failed = len(results) - routed
-    
-    print(f"\nRouting:")
+
+    print("\nRouting:")
     print(f"  Routed: {routed}/{len(results)}")
     print(f"  Failed: {failed}")
-    
+
     # Check conflicts
     conflicts = router.get_conflict_locations()
     print(f"\nConflicts: {len(conflicts)}")
-    
+    if conflicts:
+        print("FIRST 5 CONFLICTS:")
+        for c in conflicts[:5]:
+             print(f"  {c}")
+
     if len(conflicts) == 0:
         print("\n🎉 EXP-10-A: SUCCESS - 0 CONFLICTS!")
         print("\nGate Driver subsystem routed cleanly:")
         print(f"  • {routed}/{len(results)} nets routed")
-        print(f"  • 0 DRC conflicts ✅")
-        print(f"  • Grid: 0.1mm (fine)")
+        print("  • 0 DRC conflicts ✅")
+        print("  • Grid: 0.1mm (fine)")
         print("\nSubsystem 1 complete! Ready for Subsystem 2.")
         return 0
     else:
