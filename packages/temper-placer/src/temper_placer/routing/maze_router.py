@@ -2520,125 +2520,90 @@ class MazeRouter:
                 converged=new_count >= 2,
             )
 
-    def route_net_with_graph(
-        self,
-        net_name: str,
-        pin_positions: dict[str, tuple[float, float]],
-        graph: NetGraph,
-        assignment: "LayerAssignment",
-        cost_map: Array | None = None,
-        p_scale: float = 1.0,
-    ) -> RoutePath:
-        """Route a net using a topology graph (NetGraph) with per-edge constraints.
-
-        Routes each edge in the graph sequentially, accumulating the path.
-        """
-        # Sort edges by priority (highest first)
-        sorted_edges = sorted(graph.edges, key=lambda e: e.priority, reverse=True)
-
-                all_cells = []
-                total_vias = 0
-                total_difficulty = 0.0
-                cell_difficulties = []
-                segments = []
-                success = True
-                failure_reason = None
-                
-                # Track routed edges to avoid duplicates if graph is redundant? 
-                # NetGraph edges are directed. We assume they form a valid tree/forest.
-                
-                for edge in sorted_edges:
-                    if edge.source_pin not in pin_positions:
-                        logger.warning(f"Missing source pin {edge.source_pin} for net {net_name}")
-                        continue
-                    if edge.sink_pin not in pin_positions:
-                        logger.warning(f"Missing sink pin {edge.sink_pin} for net {net_name}")
-                        continue
-                        
-                    start_pos = pin_positions[edge.source_pin]
-                    end_pos = pin_positions[edge.sink_pin]
-                    
-                    # Determine constraints for this edge
-                    # If not specified in edge, use default/passed rules
-                    # Note: route_net_rrr determines rules from DesignRules if not passed.
-                    # We pass explicit overrides if they exist.
-                    
-                    # Route this segment
-                    # We treat it as a 2-pin net routing
-                    segment_path = self.route_net_rrr(
-                        net_name,
-                        [start_pos, end_pos],
-                        assignment,
-                        cost_map,
-                        p_scale,
-                        trace_width_mm=edge.trace_width_mm,
-                        clearance_mm=edge.clearance_mm
-        all_cells = []
-        total_vias = 0
-        total_difficulty = 0.0
-        cell_difficulties = []
-        segments = []
-        success = True
-        failure_reason = None
-        
-        # Track routed edges to avoid duplicates if graph is redundant? 
-        # NetGraph edges are directed. We assume they form a valid tree/forest.
-        
-        for edge in sorted_edges:
-            if edge.source_pin not in pin_positions:
-                logger.warning(f"Missing source pin {edge.source_pin} for net {net_name}")
-                continue
-            if edge.sink_pin not in pin_positions:
-                logger.warning(f"Missing sink pin {edge.sink_pin} for net {net_name}")
-                continue
-                
-            start_pos = pin_positions[edge.source_pin]
-            end_pos = pin_positions[edge.sink_pin]
-            
-            # Determine constraints for this edge
-            # If not specified in edge, use default/passed rules
-            # Note: route_net_rrr determines rules from DesignRules if not passed.
-            # We pass explicit overrides if they exist.
-            
-            # Route this segment
-            # We treat it as a 2-pin net routing
-            segment_path = self.route_net_rrr(
-                net_name,
-                [start_pos, end_pos],
-                assignment,
-                cost_map,
-                p_scale,
-                trace_width_mm=edge.trace_width_mm,
-                clearance_mm=edge.clearance_mm
-            )
-            
-            if not segment_path.success:
-                success = False
-                failure_reason = f"Failed edge {edge.source_pin}->{edge.sink_pin}: {segment_path.failure_reason}"                # We continue routing other edges to get a partial result? 
-            # Or abort? Usually partial routing is better than nothing in RRR.
-        
-            # Accumulate results
-            if segment_path.cells:
-                all_cells.extend(segment_path.cells)
-                total_vias += segment_path.via_count
-                total_difficulty += segment_path.difficulty
-                cell_difficulties.extend(segment_path.cell_difficulties)
-                segments.append(segment_path)
-        
-        # Consolidate cells (remove duplicates from overlapping endpoints)
-        
-        return RoutePath(
-            net=net_name,
-            cells=all_cells, # Contains duplicates?
-            length=float(len(set(all_cells))), # Approx length
-            via_count=total_vias,
-            success=success,
-            difficulty=total_difficulty,
-            cell_difficulties=cell_difficulties,
-            failure_reason=failure_reason,
-            segments=segments
-        )
+        def route_net_with_graph(
+            self,
+            net_name: str,
+            pin_positions: dict[str, tuple[float, float]],
+            graph: NetGraph,
+            assignment: "LayerAssignment",
+            cost_map: Array | None = None,
+            p_scale: float = 1.0,
+        ) -> RoutePath:
+            """Route a net using a topology graph (NetGraph) with per-edge constraints.
     
+            Routes each edge in the graph sequentially, accumulating the path.
+            """
+            # Sort edges by priority (highest first)
+            sorted_edges = sorted(graph.edges, key=lambda e: e.priority, reverse=True)
+    
+            all_cells = []
+            total_vias = 0
+            total_difficulty = 0.0
+            cell_difficulties = []
+            segments = []
+            success = True
+            failure_reason = None
+    
+            # Track routed edges to avoid duplicates if graph is redundant?
+            # NetGraph edges are directed. We assume they form a valid tree/forest.
+    
+            for edge in sorted_edges:
+                if edge.source_pin not in pin_positions:
+                    logger.warning(f"Missing source pin {edge.source_pin} for net {net_name}")
+                    continue
+                if edge.sink_pin not in pin_positions:
+                    logger.warning(f"Missing sink pin {edge.sink_pin} for net {net_name}")
+                    continue
+    
+                start_pos = pin_positions[edge.source_pin]
+                end_pos = pin_positions[edge.sink_pin]
+    
+                # Determine constraints for this edge
+                # If not specified in edge, use default/passed rules
+                # Note: route_net_rrr determines rules from DesignRules if not passed.
+                # We pass explicit overrides if they exist.
+    
+                # Route this segment
+                # We treat it as a 2-pin net routing
+                segment_path = self.route_net_rrr(
+                    net_name,
+                    [start_pos, end_pos],
+                    assignment,
+                    cost_map,
+                    p_scale,
+                    trace_width_mm=edge.trace_width_mm,
+                    clearance_mm=edge.clearance_mm,
+                )
+    
+                if not segment_path.success:
+                    success = False
+                    failure_reason = (
+                        f"Failed edge {edge.source_pin}->{edge.sink_pin}: {segment_path.failure_reason}"
+                    )
+                    # We continue routing other edges to get a partial result?
+                    # Or abort? Usually partial routing is better than nothing in RRR.
+    
+                # Accumulate results
+                if segment_path.cells:
+                    all_cells.extend(segment_path.cells)
+                    total_vias += segment_path.via_count
+                    total_difficulty += segment_path.difficulty
+                    cell_difficulties.extend(segment_path.cell_difficulties)
+                    segments.append(segment_path)
+    
+            # Consolidate cells (remove duplicates from overlapping endpoints)
+    
+            return RoutePath(
+                net=net_name,
+                cells=all_cells,  # Contains duplicates?
+                length=float(len(set(all_cells))),  # Approx length
+                via_count=total_vias,
+                success=success,
+                difficulty=total_difficulty,
+                cell_difficulties=cell_difficulties,
+                failure_reason=failure_reason,
+                segments=segments,
+            )
     def route_net_rrr(
         self,
         net_name: str,
