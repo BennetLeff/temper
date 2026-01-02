@@ -285,6 +285,7 @@ net_class_rules:
     via_drill_mm: 0.3
     via_template: "Via1x1"
     max_current_rating: 1.0  # 1A - standard signals
+    voltage_v: 3.3  # Router V5: Low voltage
     routing_strategy: "standard"
     
   HighSpeed:
@@ -294,6 +295,7 @@ net_class_rules:
     via_drill_mm: 0.2
     via_template: "Via1x1"
     max_current_rating: 0.5  # 500mA - high-speed signals
+    voltage_v: 3.3  # Router V5: Low voltage
     routing_strategy: "standard"
     
   Power:
@@ -303,6 +305,7 @@ net_class_rules:
     via_drill_mm: 0.4
     via_template: "Via2x2"
     max_current_rating: 3.0  # 3A - power delivery
+    voltage_v: 15.0  # Router V5: +15V analog
     routing_strategy: "wide_trace"
     
   GND:
@@ -312,6 +315,7 @@ net_class_rules:
     via_drill_mm: 0.4
     via_template: "Via3x3"
     max_current_rating: 5.0  # 5A - ground return
+    voltage_v: 0.0  # Router V5: Ground reference
     routing_strategy: "plane_preferred"
     
   GateDrive:
@@ -321,16 +325,18 @@ net_class_rules:
     via_drill_mm: 0.3
     via_template: "Via2x2"
     max_current_rating: 2.0  # 2A - gate drive
+    voltage_v: 15.0  # Router V5: Gate drive voltage
     routing_strategy: "wide_trace"
     
   HighVoltage:
     trace_width_mm: 0.3
-    clearance_mm: 3.0
-    creepage_mm: 5.0
+    clearance_mm: 3.0     # Router V5: IEC 60950-1 clearance
+    creepage_mm: 3.0      # Router V5: IEC 60950-1 creepage (was 5.0)
     via_size_mm: 0.8
     via_drill_mm: 0.4
     via_template: "Via2x2"
     max_current_rating: 1.0  # 1A - but high voltage
+    voltage_v: 340.0  # Router V5: DC bus voltage (340V)
     routing_strategy: "standard"
     
   HighCurrent:
@@ -338,10 +344,11 @@ net_class_rules:
     clearance_mm: 1.0
     via_size_mm: 1.0
     via_drill_mm: 0.5
-    via_template: "Via4x4"
-    max_current_rating: 20.0  # 20A+ - requires copper planes
+    via_template: "Via4x4"  # Router V5: Auto via arrays for >5A
+    max_current_rating: 40.0  # 40A - IGBT current (was 20A)
+    voltage_v: 340.0  # Router V5: DC bus voltage
     routing_strategy: "plane_required"
-    description: "Digital Signals"
+    description: "High current power traces (IGBTs, bus caps)"
 
 # ==============================================================================
 # AESTHETICS
@@ -516,3 +523,54 @@ routing_priority:
     
   auto:
     priority: 10
+
+
+# ==============================================================================
+# ROUTER V5/V6 ADVANCED FEATURES
+# ==============================================================================
+
+# Differential Pairs (Router V5: Dual-front A* with serpentine)
+differential_pairs:
+  - name: "SPI_CLK"
+    positive_net: "SPI_CLK_P"
+    negative_net: "SPI_CLK_N"
+    target_impedance_ohm: 100
+    max_skew_mm: 0.5
+    separation_mm: 0.2
+    description: "SPI clock (if differential)"
+
+# Kelvin Sensing - Star-Point Topology (Router V5: Track 4)
+kelvin_sensing:
+  - net_name: "I_SENSE"
+    star_point_pin: "R_BURDEN.1"
+    force_pins: ["U_CT.OUT"]
+    sense_pins: ["U_OPAMP_CT.IN"]
+    force_width_mm: 2.0
+    sense_width_mm: 0.2
+    description: "Current sensing with Kelvin star-point"
+
+# Via Array Overrides (Router V5: Track 1)
+# Nets listed here will use via arrays regardless of current rating
+via_array_overrides:
+  "+340V_BUS": "Via4x4"    # Always use 4x4 for DC bus
+  "DC_BUS_RTN": "Via4x4"   # Always use 4x4 for return
+  "SW_NODE": "Via3x3"      # 3x3 for switch node
+
+# Creepage/Clearance Enforcement (Router V5: Track 2)
+# IEC 60950-1 compliance - nets with voltage_v > 60V use creepage distances
+hv_lv_separation:
+  hv_threshold_v: 60.0     # Voltage above which HV rules apply
+  lv_reference_v: 3.3      # Typical LV reference (MCU)
+  creepage_mm: 3.0         # 340V → 3.3V creepage (IEC 60950-1)
+  clearance_mm: 2.5        # 340V → 3.3V clearance (IEC 60950-1)
+
+# Critical Net Routing Order
+# Router should process these nets first to ensure optimal paths
+critical_routing_order:
+  - "+340V_BUS"     # DC bus positive
+  - "DC_BUS_RTN"    # DC bus negative
+  - "SW_NODE"       # Switch node (very noisy)
+  - "GATE_HS"       # High-side gate
+  - "GATE_LS"       # Low-side gate
+  - "I_SENSE"       # Current sensing (Kelvin)
+  - "GND"           # Ground plane connections
