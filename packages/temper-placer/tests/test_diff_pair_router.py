@@ -18,7 +18,7 @@ def test_diff_pair_state_hashing():
         separation_mm=0.2
     )
     
-    state2 = DiffPair State(
+    state2 = DiffPairState(
         pos_x=10, pos_y=20, pos_layer=0,
         neg_x=10, neg_y=18, neg_layer=0,
         separation_mm=0.2
