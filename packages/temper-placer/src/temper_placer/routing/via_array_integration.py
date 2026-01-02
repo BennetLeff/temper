@@ -23,9 +23,7 @@ from temper_placer.routing.via_array import (
 
 
 @dataclass
-class ViaPlacem
-
-ent:
+class ViaPlacement:
     """Single via or via array placement."""
     x_mm: float
     y_mm: float
