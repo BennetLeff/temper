@@ -332,6 +332,10 @@ class NetClassRule:
     creepage_mm: float = 0.0
     allow_neckdown: bool = True
     description: str = ""
+    
+    # Current capacity enforcement (NEW)
+    max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
+    routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
 
 
 @dataclass
@@ -743,8 +747,12 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 clearance_mm=rule_cfg.get("clearance_mm", 0.2),
                 via_size_mm=rule_cfg.get("via_size_mm", 0.6),
                 via_drill_mm=rule_cfg.get("via_drill_mm", 0.3),
+                via_template=rule_cfg.get("via_template"),
+                creepage_mm=rule_cfg.get("creepage_mm", 0.0),
                 allow_neckdown=rule_cfg.get("allow_neckdown", True),
                 description=rule_cfg.get("description", ""),
+                max_current_rating=rule_cfg.get("max_current_rating"),  # NEW
+                routing_strategy=rule_cfg.get("routing_strategy"),  # NEW
             )
             constraints.net_class_rules[name] = rule
 
@@ -853,7 +861,99 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "routing_priority" in config:
         constraints.routing_priority = config["routing_priority"]
+    
+    # Current capacity validation (temper-bvr5)
+    _validate_current_capacity(constraints)
+    
     return constraints
+
+
+def _validate_current_capacity(constraints: PlacementConstraints) -> None:
+    """
+    Validate that high-current nets have appropriate routing strategies.
+    
+    Enforces professional PCB design standards:
+    - High current (>10A): MUST have zone/pour assignment
+   - Medium current (5-10A): WARN if using single vias
+    - Low current (<5A): Standard routing acceptable
+    
+    Args:
+        constraints: Placement constraints to validate
+        
+    Raises:
+        ValueError: If high-current net lacks zone assignment
+        
+    Examples:
+        # Good: 20A net assigned to plane
+        net_classes: {"AC_L": "HighCurrent"}
+        net_class_rules:
+            HighCurrent:
+                max_current_rating: 20.0
+                routing_strategy: "plane_required"
+        zones:
+            - name: "AC_PLANE"
+              net_classes: ["HighCurrent"]
+              
+        # Bad: 20A net without zone → ValueError
+    """
+    from temper_placer.core.ipc2221 import estimate_current_from_net_class
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    for net_name, net_class_name in constraints.net_classes.items():
+        # Get net class rules
+        net_class = constraints.net_class_rules.get(net_class_name)
+        if not net_class:
+            continue
+            
+        # Determine current capacity
+        if net_class.max_current_rating is not None:
+            current_a = net_class.max_current_rating
+        else:
+            # Estimate from trace width using IPC-2221
+            current_a = estimate_current_from_net_class(net_class.trace_width_mm)
+        
+        # Check zone assignment
+        has_zone = any(
+            net_class_name in zone.net_classes
+            for zone in constraints.zones
+        )
+        
+        # HIGH CURRENT (>10A): Plane REQUIRED
+        if current_a > 10.0:
+            if not has_zone and net_class.routing_strategy != "plane_required":
+                raise ValueError(
+                    f"HIGH CURRENT NET '{net_name}' ({current_a:.1f}A) requires zone/pour assignment.\n"
+                    f"Traced routing is inadequate for >10A nets. Professional PCB design requires:\n"
+                    f"  1. Add zone for net class '{net_class_name}' in zones config, OR\n"
+                    f"  2. Set routing_strategy: 'plane_required' and assign to existing plane\n"
+                    f"Current capacity: {current_a:.1f}A (trace: {net_class.trace_width_mm}mm)\n"
+                    f"Reference: IPC-2221A Section 6.2 (Current Capacity)"
+                )
+            elif not has_zone:
+                logger.warning(
+                    f"High-current net '{net_name}' ({current_a:.1f}A) marked 'plane_required' "
+                    f"but no zone assigned to class '{net_class_name}'. "
+                    f"Ensure zone exists in final design."
+                )
+        
+        # MEDIUM CURRENT (5-10A): Warn if inadequate via strategy
+        elif current_a > 5.0:
+            if net_class.via_template == "Via1x1" or not net_class.via_template:
+                logger.warning(
+                    f"MEDIUM CURRENT NET '{net_name}' ({current_a:.1f}A) uses single vias.\n"
+                   f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
+                    f"Single 0.3mm vias rated ~3-5A; via arrays recommended for >5A."
+                )
+            
+            # Suggest plane if approaching 10A
+            if current_a > 8.0 and not has_zone:
+                logger.info(
+                    f"Net '{net_name}' ({current_a:.1f}A) approaching high-current threshold. "
+                    f"Consider zone/pour assignment for better thermal performance."
+                )
+
 
 
 def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRules:
