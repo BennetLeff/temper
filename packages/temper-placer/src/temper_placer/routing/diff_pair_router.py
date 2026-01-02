@@ -124,6 +124,7 @@ class DiffPairRouter:
         max_skew_mm: float = 0.5,
         coupling_weight: float = 10.0,
         skew_weight: float = 5.0,
+        beam_width: int = 1000,  # Phase 2C: Beam search limit
     ):
         """
         Initialize differential pair router.
@@ -136,6 +137,7 @@ class DiffPairRouter:
             max_skew_mm: Maximum allowed length mismatch
             coupling_weight: Penalty weight for separation deviation
             skew_weight: Penalty weight for length mismatch
+            beam_width: Max states to keep per frontier expansion (Phase 2C)
         """
         self.grid_size = grid_size
         self.cell_size_mm = cell_size_mm
@@ -144,10 +146,12 @@ class DiffPairRouter:
         self.max_skew_mm = max_skew_mm
         self.coupling_weight = coupling_weight
         self.skew_weight = skew_weight
+        self.beam_width = beam_width
         
         # Statistics
         self.states_explored = 0
         self.states_pruned = 0
+        self.beam_pruned = 0  # Phase 2C: Track beam search pruning
     
     def route_pair(
         self,
@@ -256,6 +260,13 @@ class DiffPairRouter:
                         forward_visited[next_state] = next_node
                         heapq.heappush(forward_frontier, next_node)
             
+            # Phase 2C: Beam search pruning (limit frontier size)
+            if len(forward_frontier) > self.beam_width:
+                # Keep only top beam_width states by f-cost
+                forward_frontier = heapq.nsmallest(self.beam_width, forward_frontier)
+                heapq.heapify(forward_frontier)
+                self.beam_pruned += 1
+            
             # Expand backward front
             if backward_frontier:
                 current = heapq.heappop(backward_frontier)
@@ -286,6 +297,13 @@ class DiffPairRouter:
                         )
                         backward_visited[next_state] = next_node
                         heapq.heappush(backward_frontier, next_node)
+            
+            # Phase 2C: Beam search pruning (limit frontier size)
+            if len(backward_frontier) > self.beam_width:
+                # Keep only top beam_width states by f-cost
+                backward_frontier = heapq.nsmallest(self.beam_width, backward_frontier)
+                heapq.heapify(backward_frontier)
+                self.beam_pruned += 1
         
         # No path found
         return DiffPairPath(
@@ -296,7 +314,9 @@ class DiffPairRouter:
             avg_separation_mm=0.0,
             success=False,
             failure_reason=f"No path found after {iteration} iterations. "
-                          f"Explored {self.states_explored} states, pruned {self.states_pruned}."
+                          f"Explored {self.states_explored} states, "
+                          f"pruned {self.states_pruned} (coupling), "
+                          f"{self.beam_pruned} (beam search)."
         )
     
     def _mm_to_grid(self, pos_mm: Tuple[float, float]) -> Tuple[int, int]:
