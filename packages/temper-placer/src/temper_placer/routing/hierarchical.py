@@ -71,10 +71,15 @@ def route_net_hierarchical(
     
     # Pass 2 failed - widen corridor and retry
     print("  ⚠️  Guided routing failed - widening corridor...")
+    # Dynamic corridor width: at least 5mm, or 4x clearance
+    # Large clearance nets (HV) need more room to deviate from the coarse skeleton
+    clearance = kwargs.get('clearance_mm', 0.0) or 0.0
+    corridor_width = max(5.0, clearance * 4.0)
+    
     fine_path = _route_fine_corridor(
         router, net_name, pin_positions, assignment,
         guide_path=coarse_path,
-        corridor_width_mm=5.0,  # 5mm corridor
+        corridor_width_mm=corridor_width,
         **kwargs
     )
     

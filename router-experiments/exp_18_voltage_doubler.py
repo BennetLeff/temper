@@ -124,13 +124,26 @@ def create_voltage_doubler_exp():
     
     print("Routing Voltage Doubler Stage...")
     
+    # Define Layer Strategy (Pro approach: Orthogonal/Separated layers)
+    # AC_L and +340V on TOP (Layer 0)
+    # AC_N and DC_RTN on BOTTOM (Layer 1)
+    # This avoids crossing conflicts between the AC inputs and the DC bus distribution
+    layer_strategy = {
+        "AC_L": Layer.L1_TOP,
+        "AC_N": Layer.L4_BOT,
+        "+340V_BUS": Layer.L1_TOP,
+        "DC_BUS_RTN": Layer.L4_BOT
+    }
+
     # Route all power nets
     success_count = 0
     for net_name in power_nets:
         if net_name not in net_map:
             continue
             
-        print(f"\nRouting {net_name}...")
+        target_layer = layer_strategy.get(net_name, Layer.L1_TOP)
+        layer_name = "TOP" if target_layer == Layer.L1_TOP else "BOT"
+        print(f"\nRouting {net_name} on {layer_name}...")
         
         # Get pins
         net = next(n for n in nets if n.name == net_name)
@@ -150,9 +163,9 @@ def create_voltage_doubler_exp():
         
         assignment = LayerAssignment(
             net=net_name,
-            primary_layer=Layer.L1_TOP,
-            allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
-            vias_required=True
+            primary_layer=target_layer,
+            allowed_layers={target_layer}, # STRICT: No vias allowed
+            vias_required=False
         )
 
         route = route_net_hierarchical(
