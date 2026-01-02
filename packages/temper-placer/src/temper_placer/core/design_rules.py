@@ -78,6 +78,10 @@ class NetClassRules:
     clearance: float  # mm
     via_diameter: float = 0.6  # mm
     via_drill: float = 0.3  # mm
+    via_template: str | None = None  # Via array template name
+    creepage_mm: float | None = None  # Creepage for high-voltage nets
+    target_impedance: float | None = None  # Target impedance in ohms
+    voltage_v: float = 0.0  # Voltage rating for safety distance calculation (Phase 2)
     via_template: str = "Via1x1"  # Via array template name
     creepage_mm: float = 0.0  # mm
     target_impedance: float | None = None  # ohms
