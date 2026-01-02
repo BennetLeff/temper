@@ -694,3 +694,79 @@ class UnifiedRouter:
             "avg_length": total_length / successful if successful > 0 else 0.0,
             "avg_vias": total_vias / successful if successful > 0 else 0.0,
         }
+    def route_differential_pair(
+        self,
+        net_pos: str,
+        net_neg: str,
+        netlist: Netlist,
+        positions: Array,
+        target_separation_mm: float = 0.2,
+        max_skew_mm: float = 0.5,
+        enable_length_matching: bool = True,
+    ):
+        """
+        Route a differential pair (Phase 4 integration).
+        
+        Args:
+            net_pos: Positive net name
+            net_neg: Negative net name
+            netlist: Circuit netlist
+            positions: Component positions
+            target_separation_mm: Desired P-N spacing
+            max_skew_mm: Maximum allowed length mismatch
+            enable_length_matching: Apply serpentine tuning
+            
+        Returns:
+            DiffPairPath result
+        """
+        from temper_placer.routing.diff_pair_router import DiffPairRouter
+        
+        # Get pin positions for both nets
+        pos_pins = []
+        neg_pins = []
+        
+        for net in netlist.nets:
+            if net.name == net_pos:
+                for pin_ref in net.pin_refs:
+                    comp_idx = netlist.get_component_index(pin_ref.component_name)
+                    if comp_idx is not None:
+                        x, y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
+                        pos_pins.append((x, y))
+            elif net.name == net_neg:
+                for pin_ref in net.pin_refs:
+                    comp_idx = netlist.get_component_index(pin_ref.component_name)
+                    if comp_idx is not None:
+                        x, y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
+                        neg_pins.append((x, y))
+        
+        if len(pos_pins) < 2 or len(neg_pins) < 2:
+            raise ValueError(f"Differential pair {net_pos}/{net_neg} must have at least 2 pins each")
+        
+        # Use first and last pins as start/goal
+        start_pins = (pos_pins[0], neg_pins[0])
+        goal_pins = (pos_pins[-1], neg_pins[-1])
+        
+        # Get obstacles from maze router's blocked cells
+        obstacles = self.maze_router._blocked_cells
+        
+        # Create diff pair router
+        diff_router = DiffPairRouter(
+            grid_size=(
+                self.maze_router.grid.shape[0],
+                self.maze_router.grid.shape[1],
+                self.maze_router.grid.shape[2],
+            ),
+            cell_size_mm=self.maze_router.cell_size_mm,
+            target_separation_mm=target_separation_mm,
+            max_skew_mm=max_skew_mm,
+        )
+        
+        # Route the pair
+        result = diff_router.route_pair(
+            start_pins=start_pins,
+            goal_pins=goal_pins,
+            obstacles=obstacles,
+            enable_length_matching=enable_length_matching,
+        )
+        
+        return result
