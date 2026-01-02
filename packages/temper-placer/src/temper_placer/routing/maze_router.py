@@ -29,11 +29,21 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.routing.fast_router import HAS_NUMBA, dilate_grid_numba, find_path_astar_numba
+from temper_placer.io.export_types import TraceVia
+from temper_placer.routing.via_array import calculate_via_array, should_use_via_array
+from temper_placer.routing.safety_distances import (
+    calculate_safety_distances, 
+    calculate_safety_distances,
+    get_hv_lv_separation,
+    is_high_voltage
+)
 
 if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
+    from temper_placer.core.netlist import Netlist
     from temper_placer.routing.constraints import DRCOracle
     from temper_placer.routing.layer_assignment import LayerAssignment
+    from temper_placer.core.net_graph import NetGraph
     from temper_placer.routing.post_processing.funnel_smoother import Point
 logger = logging.getLogger(__name__)
 
@@ -95,11 +105,14 @@ class RoutePath:
     smooth_points: list["Point"] = field(
         default_factory=list
     )  # World coordinates (mm) after smoothing
-    
+
     # Trace geometry (from design rules)
     trace_width: float = 0.2  # Actual trace width used (mm)
     via_diameter: float = 0.6  # Via pad diameter (mm)
     via_drill: float = 0.3  # Via drill diameter (mm)
+
+    # For advanced features like Via Arrays
+    explicit_vias: list["TraceVia"] = field(default_factory=list)
 
 
 @dataclass
@@ -550,26 +563,9 @@ class MazeRouter:
             # Pads usually block only their layer.
             # Let's assume for this specific integration that c_space_grid is 2D and applies to the CURRENT generic pad layer check.
             # Ideally, self.c_space_grid should be 3D or we check it only on Top/Bottom?
-            # Actually, `CSpaceBuilder` flattened everything.
-            # Let's assume for now 2D CSpace blocks ALL layers (Primitive).
-            # Wait, that breaks routing under pads.
-            # I must fix CSpaceBuilder to support layers or assume Top/Bottom.
-            # But wait, looking at extraction: it extracted ALL pads.
-            # If I use this 2D grid, I can't route on inner layers under pads.
-            # That's too restrictive.
-
-            # Correction: I will check `c_space_grid` ONLY if it blocks.
-            # But I need to respect layers.
-            # Let's defer layer support to `internal_route.py` passing correct layer-specific grids?
-            # Or just update `_get_neighbor_cost` to respect `self.c_space_grid` which we assume is valid for this layer.
-            # Yes, `internal_route.py` can swap the grid depending on layer being routed?
-            # No, `find_path` does all layers at once.
-
-            # I need `c_space_grid` to be layer-aware or logic here to be smart.
-            # Let's implement basics: If `_c_space_grid_np` has 3 dims, use it. If 2 dims, assume it applies to current layer (if sensible) or all.
-            # Given `CSpaceBuilder` returns 2D, I will assume for now we only set it if it's valid for the routing context.
-            # But `MazeRouter` is multi-layer...
-
+            # Actually, THT pads block all. SMD pads block Surface.
+            # The CSpaceBuilder flattened everything.
+            # I should just check it. If it blocks, it blocks.
             if self._c_space_grid_np is not None:
                 # Assuming 2D grid for now, applies check.
                 # Ideally we only check this if `neighbor.layer` matches the C-Space context (e.g. Surface).
@@ -838,9 +834,18 @@ class MazeRouter:
         """Get integer class ID for creepage checks."""
         if not rules:
             return CLASS_DEFAULT
-        # If creepage is significantly larger than standard clearance, treat as HV
+
+        # DEBUG
+        print(f"DEBUG_CLASS: Name={rules.name} V={getattr(rules, 'voltage_v', 'N/A')} Cr={getattr(rules, 'creepage_mm', 'N/A')}")
+
+        # Check explicit voltage if available
+        if hasattr(rules, 'voltage_v') and is_high_voltage(rules.voltage_v):
+            return CLASS_HV
+
+        # Fallback: If creepage is significantly larger than standard clearance, treat as HV
         if rules.creepage_mm > 2.0:
             return CLASS_HV
+
         return CLASS_LV
 
     def block_pads(
@@ -879,11 +884,11 @@ class MazeRouter:
 
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
-            
+
             # Get rotation and side
             rot_idx = int(rotations[i]) if rotations is not None else (comp.initial_rotation or 0)
             side_idx = int(sides[i]) if sides is not None else (comp.initial_side or 0)
-            
+
             rot_rad = rot_idx * (math.pi / 2)
 
             for pin in comp.pins:
@@ -1494,28 +1499,35 @@ class MazeRouter:
         # No escape point found within radius
         return None
 
-    def route_net_with_escape(
+    def route_net_rrr(
         self,
         net_name: str,
         pin_positions: list[tuple[float, float]],
         assignment: "LayerAssignment",
         cost_map: Array | None = None,
         p_scale: float = 1.0,
+        pin_sides: list[int] | None = None,
+        trace_width_mm: float | None = None,
+        clearance_mm: float | None = None,
     ) -> RoutePath:
-        """Route a net using two-stage routing with pin escape.
+        """Route a net using Rip-up and Reroute (RRR) logic.
 
-        Stage 1: Find escape points for each pin (nearest unblocked cell)
-        Stage 2: Route between escape points using A*
+        This is the core routing function for a single net, used by RRR iterations.
+        It handles temporary unblocking of pin locations and marking the path.
 
         Args:
-            net_name: Name of the net
-            pin_positions: List of pin positions in world coordinates
-            assignment: Layer assignment for the net
-            cost_map: Optional cost map for routing strategy
-            p_scale: Congestion penalty scale factor
+            net_name: Name of the net to route.
+            pin_positions: List of (x, y) world coordinates for the pins.
+            assignment: Layer assignment for the net.
+            cost_map: Optional cost map for routing strategy.
+            p_scale: Congestion penalty scale factor.
+            pin_sides: Optional list of pin sides (0 for top, 1 for bottom) for each pin.
+                       Used to determine the initial layer for routing from a pin.
+            trace_width_mm: Specific trace width for this net. If None, uses default.
+            clearance_mm: Specific clearance for this net. If None, uses default.
 
         Returns:
-            RoutePath with success and failure_reason set appropriately
+            RoutePath object detailing the routing result.
         """
         from temper_placer.routing.layer_assignment import Layer
 
@@ -1533,177 +1545,366 @@ class MazeRouter:
             self.routed_paths[net_name] = res
             return res
 
-        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        # Set current net for DRC oracle queries
+        self._current_net = net_name
+        self._default_trace_width_mm = trace_width_mm if trace_width_mm is not None else 0.2
+        self.min_clearance = clearance_mm if clearance_mm is not None else 0.2
 
-        # Stage 1: Find escape points for all pins
-        escape_points = []
-        for pin_pos in pin_positions:
-            escape_pt = self._find_escape_point(pin_pos, radius=40, layer=layer)
-            if escape_pt is None:
-                # Pin is trapped - cannot route
-                res = RoutePath(
-                    net=net_name,
-                    cells=[],
-                    length=0.0,
-                    via_count=0,
-                    success=False,
-                    difficulty=0.0,
-                    cell_difficulties=[],
-                    failure_reason="pin_blocked",
-                )
-                self.routed_paths[net_name] = res
-                return res
-            escape_points.append(escape_pt)
+        # Determine starting layer for routing
+        # If pin_sides are provided, use the side of the first pin.
+        # Otherwise, use the primary layer from assignment or default to L1_TOP (layer 0).
+        start_layer = 0
+        if pin_sides and len(pin_sides) > 0:
+            start_layer = 0 if pin_sides[0] == 0 else (self.num_layers - 1)
+        elif assignment:
+            start_layer = 0 if assignment.primary_layer == Layer.L1_TOP else 1
 
-        # Stage 2: Route between escape points using existing RRR routing
-        # Convert escape points back to world coordinates for routing
-        escape_world_coords = [
-            (gx * self.cell_size + self.origin[0], gy * self.cell_size + self.origin[1])
-            for gx, gy in escape_points
-        ]
+        allow_via = len(assignment.allowed_layers) > 1 if assignment else True
+        allowed_layers_indices = (
+            [l.value for l in assignment.allowed_layers] if assignment else None
+        )
 
-        # Use the existing RRR routing logic
-        return self.route_net_rrr(net_name, escape_world_coords, assignment, cost_map, p_scale)
+        grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
 
-    def route_net_mst(
-        self,
-        net_name: str,
-        pin_positions: list[tuple[float, float]],
-        assignment: "LayerAssignment",
-        cost_map: Array | None = None,
-        p_scale: float = 1.0,
-    ) -> RoutePath:
-        """Route a multi-pin net using MST-based topology.
+        # Temporarily unblock pin locations and any cells owned by this net
+        original_occupancy_and_ownership = []
+        unblock_radius = max(5, int(2.0 / self.cell_size)) # Ensure enough space to escape pad/trace
 
-        Instead of routing pins in arbitrary order (chain: A→B→C),
-        uses Minimum Spanning Tree to determine optimal connection order.
-        This reduces total wirelength for 3+ pin nets.
+        for px, py in grid_pins:
+            for dx in range(-unblock_radius, unblock_radius + 1):
+                for dy in range(-unblock_radius, unblock_radius + 1):
+                    gx, gy = px + dx, py + dy
+                    if not (0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]):
+                        continue
 
-        Args:
-            net_name: Name of the net
-            pin_positions: List of pin positions in world coordinates
-            assignment: Layer assignment for the net
-            cost_map: Optional cost map for routing strategy
-            p_scale: Congestion penalty scale factor
+                    for l in range(self.num_layers):
+                        key = (gx, gy, l)
+                        owner = self.cell_owner.get(key)
+                        was_in_net_occ = key in self.net_occupancy and net_name in self.net_occupancy[key]
+                        
+                        # Unblock if it's a hard block (-1) or owned by this net (2)
+                        if self.occupancy[gx, gy, l] == -1:
+                            original_occupancy_and_ownership.append((key, -1, self.class_grid[gx, gy, l], owner, was_in_net_occ))
+                            self.occupancy[gx, gy, l] = 0
+                            self.class_grid[gx, gy, l] = CLASS_DEFAULT # Clear class for unblocked
+                        elif key in self.cell_owner and self.cell_owner[key] == net_name:
+                            original_occupancy_and_ownership.append((key, 2, self.class_grid[gx, gy, l], owner, was_in_net_occ))
+                            self.occupancy[gx, gy, l] = 0
+                            self.class_grid[gx, gy, l] = CLASS_DEFAULT # Clear class for unblocked
+                        
+                        # Also unblock any cells that were part of this net's previous route
+                        if was_in_net_occ:
+                            if len(original_occupancy_and_ownership) == 0 or original_occupancy_and_ownership[-1][0] != key:
+                                 # Checking last appended might be tricky with loops, but key is unique per iteration.
+                                 # Just append if not already handled by elif above.
+                                 is_handled = (self.occupancy[gx, gy, l] == -1) or (key in self.cell_owner and self.cell_owner[key] == net_name)
+                                 # But we already modified occupancy above!
+                                 # We need to check if we appended for this KEY in this iteration.
+                                 # Since we are inside the innermost loop for this key, we can checking if we just appended.
+                                 pass 
 
-        Returns:
-            RoutePath with routing result
-        """
-        from temper_placer.routing.layer_assignment import Layer
-        from temper_placer.routing.steiner import mst_routing_order
+                            # Logic for unblocking net_occupancy even if global occupancy wasn't -1 or Owned
+                            # E.g. Shared via or crossing?
+                            # For now, just focus on owned cells.
+                            
+                            if len(original_occupancy_and_ownership) > 0 and original_occupancy_and_ownership[-1][0] == key:
+                                pass # Already captured
+                            else:
+                                 original_occupancy_and_ownership.append((key, int(self.occupancy[gx, gy, l]), self.class_grid[gx, gy, l], owner, was_in_net_occ))
 
-        if len(pin_positions) < 2:
-            res = RoutePath(
+                            if net_name in self.net_occupancy[key]:
+                                self.net_occupancy[key].remove(net_name)
+                            
+                            if not self.net_occupancy[key]:
+                                # If no other nets, clear occupancy
+                                if self.occupancy[gx, gy, l] != -1: # Don't clear hard blocks (already handled above if they were hard blocks)
+                                    self.occupancy[gx, gy, l] = 0
+                                del self.net_occupancy[key]
+                                if key in self.cell_owner:
+                                    del self.cell_owner[key]
+                            
+                            self.present_congestion[gx, gy, l] = max(
+                                0.0, self.present_congestion[gx, gy, l] - 1.0
+                            )
+
+        # Also unblock any cells that were part of this net's previous route
+        # This is handled by rip_up_net, but if this is the first route, it won't be called.
+        # The above loop handles pin locations, but a full rip_up_net is more comprehensive.
+        # For RRR, rip_up_net is called before this. For initial route, this is fine.
+
+        final_all_cells, final_total_vias = [], 0
+        final_total_difficulty = 0.0
+        final_cell_difficulties: list[float] = []
+        final_success = True
+        last_failure_reason = None
+
+        # Route point-to-point connections
+        # For multi-pin nets, this is a simple chain. MST routing should be used for better results.
+        # This method is primarily for P2P segments within a larger topology.
+        current_start_grid = grid_pins[0]
+        current_start_layer = start_layer
+
+        for i in range(1, len(grid_pins)):
+            target_grid = grid_pins[i]
+            target_layer = start_layer # Default to same layer as start, A* will find vias
+
+            # If pin_sides are provided, try to end on the correct layer for the target pin
+            if pin_sides and i < len(pin_sides):
+                target_layer = 0 if pin_sides[i] == 0 else (self.num_layers - 1)
+
+            # Try to find a path from current_start_grid to target_grid
+            path = self.find_path_rrr_adaptive(
+                current_start_grid,
+                target_grid,
+                current_start_layer,
+                allow_via,
+                allowed_layers_indices,
+                cost_map=cost_map,
+                p_scale=p_scale,
+            )
+
+            if path is None:
+                final_success = False
+                last_failure_reason = f"No path from {current_start_grid} to {target_grid}"
+                break
+
+            # Accumulate path details
+            for j in range(len(path)):
+                cell = path[j]
+                if j > 0 and path[j].layer != path[j - 1].layer:
+                    final_total_vias += 1
+
+                d = self._get_cell_difficulty(cell)
+                final_total_difficulty += d
+                final_cell_difficulties.append(d)
+
+            if final_all_cells:
+                # Avoid duplicating the connection point if extending an existing path
+                if path[0] == final_all_cells[-1]:
+                    path = path[1:]
+            final_all_cells.extend(path)
+
+            # Update current_start for next segment
+            current_start_grid = target_grid
+            current_start_layer = path[-1].layer # Continue from the layer the path ended on
+
+        # Mark cells as occupied WITH TRACE WIDTH INFLATION
+        if final_success:
+            self._mark_path_occupied(net_name, RoutePath(net_name, final_all_cells, 0, 0, True, trace_width=self._default_trace_width_mm))
+
+        # Restore original occupancy for any cells that were temporarily unblocked but not part of the final route
+        for key, original_val, original_class_id, original_owner, was_in_net_occ in original_occupancy_and_ownership:
+            if self.occupancy[key[0], key[1], key[2]] == 0: # Only restore if still free
+                self.occupancy[key[0], key[1], key[2]] = original_val
+                self.class_grid[key[0], key[1], key[2]] = original_class_id
+                if original_owner is not None:
+                    self.cell_owner[key] = original_owner
+                if was_in_net_occ:
+                    if key not in self.net_occupancy:
+                        self.net_occupancy[key] = set()
+                    self.net_occupancy[key].add(net_name)
+                    # Restore congestion if it was decremented?
+                    # The decrement logic was: self.present_congestion -= 1.0
+                    # So we should increment it back.
+                    self.present_congestion[key[0], key[1], key[2]] += 1.0
+            # If it was a hard block (-1) and is now part of the routed path (2), keep it as 2.
+            # If it was a hard block (-1) and is still 0 (not routed), restore it to -1.
+
+        # Clear current net
+        self._current_net = None
+        self._default_trace_width_mm = 0.25 # Reset to default
+        self.min_clearance = 0.2 # Reset to default
+
+        if final_success:
+            return RoutePath(
+                net=net_name,
+                cells=final_all_cells,
+                length=len(final_all_cells) * self.cell_size,
+                via_count=final_total_vias,
+                success=True,
+                difficulty=final_total_difficulty,
+                cell_difficulties=final_cell_difficulties,
+                trace_width=self._default_trace_width_mm,
+            )
+        else:
+            return RoutePath(
                 net=net_name,
                 cells=[],
                 length=0.0,
                 via_count=0,
-                success=True,
+                success=False,
                 difficulty=0.0,
                 cell_difficulties=[],
-            )
-            self.routed_paths[net_name] = res
-            return res
-
-        if len(pin_positions) == 2:
-            # For 2 pins, MST is just regular routing
-            return self.route_net_rrr(net_name, pin_positions, assignment, cost_map, p_scale)
-
-        # Compute MST routing order
-        routing_pairs = mst_routing_order(pin_positions)
-
-        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
-        allow_via = len(assignment.allowed_layers) > 1 if assignment else True
-
-        # Convert all pins to grid coordinates
-        grid_pins = {i: self._world_to_grid(x, y) for i, (x, y) in enumerate(pin_positions)}
-
-        # Temporarily unblock pin locations
-        original_occupancy = []
-        for gx, gy in grid_pins.values():
-            for l in range(self.num_layers):
-                if self.occupancy[gx, gy, l] == -1:
-                    original_occupancy.append((gx, gy, l, -1))
-                    self.occupancy[gx, gy, l] = 0
-
-        all_cells, total_vias = [], 0
-        total_difficulty = 0.0
-        cell_difficulties: list[float] = []
-        routed_segments = set()  # Track which segments we've routed
-
-        # Route each MST edge
-        for pin_a_idx, pin_b_idx in routing_pairs:
-            # Skip if already routed (MST is undirected but we route once)
-            segment = (min(pin_a_idx, pin_b_idx), max(pin_a_idx, pin_b_idx))
-            if segment in routed_segments:
-                continue
-            routed_segments.add(segment)
-
-            start_grid = grid_pins[pin_a_idx]
-            end_grid = grid_pins[pin_b_idx]
-
-            path = self.find_path_rrr(
-                start_grid, end_grid, layer, allow_via, cost_map=cost_map, p_scale=p_scale
+                failure_reason=last_failure_reason,
             )
 
-            if path is None:
-                # Routing failed - restore occupancy and return failure
-                for gx, gy, l, v in original_occupancy:
-                    self.occupancy[gx, gy, l] = v
-                res = RoutePath(
-                    net=net_name,
-                    cells=all_cells,
-                    length=float(len(all_cells)),
-                    via_count=total_vias,
-                    success=False,
-                    difficulty=total_difficulty,
-                    cell_difficulties=cell_difficulties,
-                    failure_reason="mst_routing_failed",
-                )
-                self.routed_paths[net_name] = res
-                return res
-
-            # Count vias and accumulate difficulty
-            for j in range(1, len(path)):
-                if path[j].layer != path[j - 1].layer:
-                    total_vias += 1
-
-                d = self._get_cell_difficulty(path[j])
-                total_difficulty += d
-                cell_difficulties.append(d)
-
-            all_cells.extend(path)
-
-        # Mark cells as occupied WITH TRACE WIDTH INFLATION (temper-z87d)
-        unique_cells = set(all_cells)
+    def _mark_path_occupied(self, net_name: str, path: RoutePath) -> None:
+        """Marks the cells of a routed path as occupied."""
+        unique_cells = set(path.cells)
         for cell in unique_cells:
             # Get all cells within trace radius
-            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
+            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer, width_mm=path.trace_width)
             for ax, ay, al in affected_cells:
-                self.occupancy[ax, ay, al] = 2
-                self.present_congestion[ax, ay, al] += 1.0
-                key = (ax, ay, al)
-                if key not in self.net_occupancy:
-                    self.net_occupancy[key] = set()
-                self.net_occupancy[key].add(net_name)
+                # Only mark as occupied if not a hard block (-1)
+                if self.occupancy[ax, ay, al] != -1:
+                    self.occupancy[ax, ay, al] = 2
+                    self.present_congestion[ax, ay, al] += 1.0
+                    key = (ax, ay, al)
+                    if key not in self.net_occupancy:
+                        self.net_occupancy[key] = set()
+                    self.net_occupancy[key].add(net_name)
+                    self.cell_owner[key] = net_name # Assign ownership
 
-        # Restore original occupancy
-        for gx, gy, l, v in original_occupancy:
-            self.occupancy[gx, gy, l] = v
+    def _resolve_net_pins(self, net_name: str, netlist: Netlist, positions: Array) -> dict[str, tuple[float, float, int, float]]:
+        """Resolve pin names to absolute positions and attributes."""
+        comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
+        net = next((n for n in netlist.nets if n.name == net_name), None)
+        pin_map = {}
 
-        res = RoutePath(
-            net=net_name,
-            cells=all_cells,  # Ordered path for simplification
-            length=float(len(all_cells)),
-            via_count=total_vias,
-            success=True,
-            difficulty=total_difficulty,
-            cell_difficulties=cell_difficulties,
-        )
-        self.routed_paths[net_name] = res
-        return res
+        if not net:
+            return {}
 
-    def route_net_mst_with_escape(
+        for comp_ref, pin_name in net.pins:
+            if comp_ref in comp_by_ref:
+                comp_idx, comp = comp_by_ref[comp_ref]
+                cx, cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
+                rot_rad = math.radians((comp.initial_rotation or 0) * 90)
+                side_idx = int(comp.initial_side or 0)
+
+                for pin in comp.pins:
+                    if pin.name == pin_name or pin.number == pin_name:
+                        px, py = pin.absolute_position((cx, cy), rot_rad, side_idx)
+
+                        # Generate keys
+                        keys = [
+                            f"{comp_ref}.{pin.name}",
+                            f"{comp_ref}-{pin.name}",
+                            f"{comp_ref}.{pin.number}",
+                            f"{comp_ref}-{pin.number}"
+                        ]
+
+                        val = (px, py, side_idx, getattr(pin, 'width', 1.0)) # Store width just in case
+                        for k in keys:
+                            pin_map[k] = val
+
+                        # Also store generic "Comp" key if only 1 pin? No, ambiguous.
+                        # print(f"DEBUG: Mapped {keys} -> {px},{py}")
+                        break
+        return pin_map
+
+    def route_net_topology(
+        self,
+        net_name: str,
+        graph: "NetGraph",
+        netlist: Netlist,
+        positions: Array,
+        assignment: "LayerAssignment",
+        cost_map: Array | None,
+        p_scale: float,
+    ) -> RoutePath:
+        """Route a net using explicit topology constraints (SubNetEdges)."""
+        pin_map = self._resolve_net_pins(net_name, netlist, positions)
+
+        # Sort edges by priority (highest first)
+        sorted_edges = sorted(graph.edges, key=lambda e: e.priority, reverse=True)
+
+        combined_cells = []
+        combined_vias = 0
+        combined_difficulty = 0.0
+        combined_cell_difficulties = []
+        all_success = True
+        failure_reason = ""
+
+        route_cache = {} # edge -> path
+
+        for edge in sorted_edges:
+            start_key = edge.source_pin
+            end_key = edge.sink_pin
+
+            # 1. Resolve coordinates
+            if start_key not in pin_map or end_key not in pin_map:
+                print(f"WARNING: Missing pin position for edge {start_key}->{end_key}")
+                all_success = False
+                failure_reason = f"Missing pin {start_key} or {end_key}"
+                break
+
+            start_info = pin_map[start_key]
+            end_info = pin_map[end_key]
+
+            p1 = (start_info[0], start_info[1])
+            p2 = (end_info[0], end_info[1])
+            sides = [start_info[2], end_info[2]]
+
+            # 2. Determine Rules
+            width = edge.trace_width_mm
+            clearance = edge.clearance_mm
+
+            # 3. Route Segment
+            # We call route_net_rrr as a helper for P2P routing
+            # It will utilize the occupancy grid.
+            # IMPORTANT: Previous segments must be marked in occupancy for them to be obstacles/connectable?
+            # Actually, if we want them to be Connectable, they must be marked as THIS net.
+            # self._mark_path_occupied handles that.
+
+            # Note: route_net_rrr clears the distance map cache.
+            # This is fine as long as occupancy is updated.
+
+            sub_path = self.route_net_rrr(
+                net_name,
+                [p1, p2],
+                assignment,
+                cost_map,
+                p_scale,
+                pin_sides=sides,
+                trace_width_mm=width,
+                clearance_mm=clearance
+            )
+
+            if not sub_path.success:
+                all_success = False
+                failure_reason = f"Segment {start_key}->{end_key} failed: {sub_path.failure_reason}"
+                break
+
+            # 4. Integrate Result
+            # Mark occupancy immediately so next segments can see it
+            # This is already handled by route_net_rrr internally.
+            # We just need to accumulate the path data.
+
+            combined_cells.extend(sub_path.cells)
+            combined_vias += sub_path.via_count
+            combined_difficulty += sub_path.difficulty
+            combined_cell_difficulties.extend(sub_path.cell_difficulties)
+
+        if all_success:
+            # Final path object for the entire net
+            final_path = RoutePath(
+                net=net_name,
+                cells=combined_cells,
+                length=len(combined_cells) * self.cell_size,
+                via_count=combined_vias,
+                success=True,
+                difficulty=combined_difficulty,
+                cell_difficulties=combined_cell_difficulties,
+                trace_width=width, # Use the last segment's width as a representative
+            )
+            self.routed_paths[net_name] = final_path
+            return final_path
+        else:
+            # If any segment failed, the whole net fails
+            final_path = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=False,
+                difficulty=0.0,
+                cell_difficulties=[],
+                failure_reason=failure_reason
+            )
+            self.routed_paths[net_name] = final_path
+            return final_path
+
+    def route_net_with_escape(
         self,
         net_name: str,
         pin_positions: list[tuple[float, float]],
@@ -1770,6 +1971,116 @@ class MazeRouter:
         ]
 
         return self.route_net_mst(net_name, escape_world_coords, assignment, cost_map, p_scale)
+
+    def route_net_mst(
+        self,
+        net_name: str,
+        pin_positions: list[tuple[float, float]],
+        assignment: "LayerAssignment",
+        cost_map: Array | None = None,
+        p_scale: float = 1.0,
+    ) -> RoutePath:
+        """Route a multi-pin net using MST-based topology."""
+        from temper_placer.routing.layer_assignment import Layer
+        from temper_placer.routing.steiner import mst_routing_order
+
+        if len(pin_positions) < 2:
+            res = RoutePath(
+                net=net_name,
+                cells=[],
+                length=0.0,
+                via_count=0,
+                success=True,
+                difficulty=0.0,
+                cell_difficulties=[],
+            )
+            self.routed_paths[net_name] = res
+            return res
+
+        if len(pin_positions) == 2:
+            return self.route_net_rrr(net_name, pin_positions, assignment, cost_map, p_scale)
+
+        # Compute MST routing order
+        routing_pairs = mst_routing_order(pin_positions)
+
+        layer = 0 if not assignment or assignment.primary_layer == Layer.L1_TOP else 1
+        allow_via = len(assignment.allowed_layers) > 1 if assignment else True
+
+        # Convert all pins to grid coordinates
+        grid_pins = {i: self._world_to_grid(x, y) for i, (x, y) in enumerate(pin_positions)}
+
+        # Temporarily unblock pin locations
+        original_occupancy = []
+        for gx, gy in grid_pins.values():
+            for l in range(self.num_layers):
+                if self.occupancy[gx, gy, l] == -1:
+                    original_occupancy.append((gx, gy, l, -1))
+                    self.occupancy[gx, gy, l] = 0
+
+        all_cells, total_vias = [], 0
+        total_difficulty = 0.0
+        cell_difficulties: list[float] = []
+        routed_segments = set()
+
+        for pin_a_idx, pin_b_idx in routing_pairs:
+            segment = (min(pin_a_idx, pin_b_idx), max(pin_a_idx, pin_b_idx))
+            if segment in routed_segments:
+                continue
+            routed_segments.add(segment)
+
+            start_grid = grid_pins[pin_a_idx]
+            end_grid = grid_pins[pin_b_idx]
+
+            path = self.find_path_rrr(
+                start_grid, end_grid, layer, allow_via, cost_map=cost_map, p_scale=p_scale
+            )
+
+            if path is None:
+                # Restore and fail
+                for gx, gy, l, v in original_occupancy:
+                    self.occupancy[gx, gy, l] = v
+                res = RoutePath(
+                    net=net_name,
+                    cells=all_cells,
+                    length=float(len(all_cells)),
+                    via_count=total_vias,
+                    success=False,
+                    difficulty=total_difficulty,
+                    cell_difficulties=cell_difficulties,
+                    failure_reason="mst_routing_failed",
+                )
+                self.routed_paths[net_name] = res
+                return res
+
+            for j in range(1, len(path)):
+                if path[j].layer != path[j - 1].layer:
+                    total_vias += 1
+                d = self._get_cell_difficulty(path[j])
+                total_difficulty += d
+                cell_difficulties.append(d)
+
+            all_cells.extend(path)
+
+        # Mark occupied
+        self._mark_path_occupied(net_name, RoutePath(net_name, all_cells, 0, 0, True))
+
+        # Restore
+        for gx, gy, l, v in original_occupancy:
+             # Only restore if still 0
+             if self.occupancy[gx, gy, l] == 0:
+                 self.occupancy[gx, gy, l] = v
+
+        res = RoutePath(
+            net=net_name,
+            cells=all_cells,
+            length=float(len(all_cells) * self.cell_size),
+            via_count=total_vias,
+            success=True,
+            difficulty=total_difficulty,
+            cell_difficulties=cell_difficulties,
+        )
+        self.routed_paths[net_name] = res
+        return res
 
     def route_net(
         self,
@@ -1844,7 +2155,7 @@ class MazeRouter:
 
         progress_history: list[RoutingProgress] = []
         forced_reroute: set[str] = set()  # Nets to force reroute next iteration
-        
+
         # DRC-3: Best State Tracking
         best_conflicts = float("inf")
         best_state = None
@@ -1882,13 +2193,30 @@ class MazeRouter:
                     t_rip = time.perf_counter()
                     self.rip_up_net(net_name)
                     self.stats.profile.rip_up_ms += (time.perf_counter() - t_rip) * 1000.0
-                    result = self.route_net_rrr(
-                        net_name,
-                        all_pin_positions[net_name],
-                        assignments.get(net_name),
-                        cost_maps.get(net_name) if cost_maps else None,
-                        p_scale=p_scale,
-                    )
+
+                    # Check for explicit topology
+                    topology = None
+                    if self.design_rules and net_name in self.design_rules.net_topologies:
+                        topology = self.design_rules.net_topologies[net_name]
+
+                    if topology:
+                        result = self.route_net_topology(
+                            net_name,
+                            topology,
+                            netlist,
+                            positions,
+                            assignments.get(net_name),
+                            cost_maps.get(net_name) if cost_maps else None,
+                            p_scale=p_scale
+                        )
+                    else:
+                        result = self.route_net_rrr(
+                            net_name,
+                            all_pin_positions[net_name],
+                            assignments.get(net_name),
+                            cost_maps.get(net_name) if cost_maps else None,
+                            p_scale=p_scale,
+                        )
 
                     # Fallback: If blocked, try escape routing
                     if not result.success and "blocked" in str(result.failure_reason).lower():
@@ -2187,7 +2515,7 @@ class MazeRouter:
                 converged=new_count >= 2,
             )
 
-    def route_net_rrr(
+    def route_net_mst(
         self,
         net_name: str,
         pin_positions: list[tuple[float, float]],
@@ -2200,6 +2528,12 @@ class MazeRouter:
         via_diameter_mm: float | None = None,
         via_drill_mm: float | None = None,
     ) -> RoutePath:
+        """Routes a multi-pin net using a Minimum Spanning Tree (MST) approach.
+
+        This method connects all pins of a net by finding paths between them,
+        prioritizing connections that minimize overall cost and conflicts.
+        It uses a modified Prim's algorithm to build the MST.
+        """
         from temper_placer.routing.layer_assignment import Layer
 
         if len(pin_positions) < 2:
@@ -2216,6 +2550,9 @@ class MazeRouter:
             self.routed_paths[net_name] = res
             return res
 
+        grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
+        num_pins = len(grid_pins)
+
         # Map pin sides to layers
         pin_layers = []
         if pin_sides is not None:
@@ -2223,49 +2560,46 @@ class MazeRouter:
                 pin_layers.append(0 if side == 0 else (self.num_layers - 1))
         else:
             # Default to all Top or use Through-hole assumption
-            pin_layers = [0] * len(pin_positions)
+            pin_layers = [0] * num_pins
 
         # Determine candidate start layers based on first pin
-        if pin_sides is not None:
-            candidate_start_layers = [pin_layers[0]]
-        else:
-            candidate_start_layers = [0]
-            if assignment:
-                if assignment.primary_layer == Layer.L4_BOT:
-                    candidate_start_layers = [self.num_layers - 1]
-                elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
-                    # Try matching inner layer (1 or 2)
-                    candidate_start_layers = [1 if assignment.primary_layer == Layer.L2_GND else 2]
-
-                # If flexible assignment, ensure all allowed layers are candidates
-                if len(assignment.allowed_layers) > 1:
-                    # Add all allowed layers to candidates (if not present)
-                    # Map Enum to Int
-                    layer_map = {
-                        Layer.L1_TOP: 0,
-                        Layer.L2_GND: 1,
-                        Layer.L3_PWR: 2,
-                        Layer.L4_BOT: self.num_layers - 1,
-                    }
-                    for lay_enum in assignment.allowed_layers:
-                        lay_idx = layer_map.get(lay_enum)
-                        if lay_idx is not None and lay_idx not in candidate_start_layers:
-                            candidate_start_layers.append(lay_idx)
+        candidate_start_layers_per_pin = []
+        for i, (gx, gy) in enumerate(grid_pins):
+            candidates = []
+            if pin_sides is not None:
+                candidates.append(pin_layers[i])
             else:
-                # No assignment? Try Top then Bottom.
-                candidate_start_layers = [0, self.num_layers - 1]
+                candidates.append(0) # Default to top layer
+                if assignment:
+                    if assignment.primary_layer == Layer.L4_BOT:
+                        candidates = [self.num_layers - 1]
+                    elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
+                        candidates = [1 if assignment.primary_layer == Layer.L2_GND else 2]
+
+                    if len(assignment.allowed_layers) > 1:
+                        layer_map = {
+                            Layer.L1_TOP: 0,
+                            Layer.L2_GND: 1,
+                            Layer.L3_PWR: 2,
+                            Layer.L4_BOT: self.num_layers - 1,
+                        }
+                        for lay_enum in assignment.allowed_layers:
+                            lay_idx = layer_map.get(lay_enum)
+                            if lay_idx is not None and lay_idx not in candidates:
+                                candidates.append(lay_idx)
+                else:
+                    candidates = [0, self.num_layers - 1] # No assignment? Try Top then Bottom.
+            candidate_start_layers_per_pin.append(list(set(candidates))) # Remove duplicates
 
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
-        grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
 
-        # Set current net for DRC oracle queries (temper-mado.1)
+        # Set current net for DRC oracle queries
         self._current_net = net_name
 
         # Clear distance map cache to ensure fresh obstacle data for this net
         self._clear_distance_map_cache()
 
-        # Temporarily unblock pin locations causing "trapped in pad" issues
-        # Unblock a small radius around pins to ensure the router can escape the pad's blockage footprint
+        # Temporarily unblock pin locations
         unblock_radius = max(5, int(2.5 / self.cell_size))  # 2.5mm radius
         original_occupancy = []
 
@@ -2276,36 +2610,19 @@ class MazeRouter:
                     if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
                         for l in range(self.num_layers):
                             if self.occupancy[nx, ny, l] == -1:
-                                # Only unblock if it belongs to THIS net (temper-2edy)
-                                # Components (-1 but not in pad_net_map) are also allowed to be unblocked locally
                                 pad_net = self._pad_net_map.get((nx, ny, l))
                                 if pad_net is None or pad_net == net_name:
                                     original_occupancy.append((nx, ny, l, -1))
-                                    original_occupancy.append((nx, ny, l, -1))
                                     self.occupancy[nx, ny, l] = 0
 
-        # Verify start/end points are actually unblocked
-        # If unblocking failed (e.g. huge pad), we might still be blocked
         # Force clear the exact pin location just in case
-        for gx, gy in grid_pins:
-            for l in candidate_start_layers:
+        for i, (gx, gy) in enumerate(grid_pins):
+            for l in candidate_start_layers_per_pin[i]:
                 if self.occupancy[gx, gy, l] == -1:
-                    # This should have been cleared above, but maybe pad_net_map was wrong?
-                    # Force clear center pixel
                     original_occupancy.append((gx, gy, l, int(self.occupancy[gx, gy, l])))
                     self.occupancy[gx, gy, l] = 0
 
-        # Try to route using candidates
-        final_all_cells = []
-        final_via_cells = set()
-        final_success = False
-        final_total_vias = 0
-        final_total_difficulty = 0.0
-        final_cell_difficulties = []
-        last_failure_reason = "Unknown"
-
-        # Determine design rules (Arguments > DesignRules > Defaults)
-        # Moved to top for DRC-2 mask generation
+        # Determine design rules
         trace_width = trace_width_mm if trace_width_mm is not None else self._default_trace_width_mm
         via_diameter = via_diameter_mm if via_diameter_mm is not None else 0.6
         via_drill = via_drill_mm if via_drill_mm is not None else 0.3
@@ -2320,14 +2637,23 @@ class MazeRouter:
 
         # Creepage Awareness: Generate class-specific clearance mask
         clearance_mask = None
-        current_class_id = CLASS_DEFAULT  # Default class
+        current_class_id = CLASS_DEFAULT
         if HAS_NUMBA and self.design_rules:
             rules_c = self.design_rules.get_rules_for_net(net_name)
             current_class_id = self._get_class_id(rules_c)
             
-            # Define required clearance to other classes
-            req_from_hv = 8.0 if current_class_id != CLASS_HV else 2.0
-            req_from_lv = 8.0 if current_class_id == CLASS_HV else 0.2
+            MAX_HV = 400.0
+            LV_REF = 0.0
+            sep_hv_lv = get_hv_lv_separation(MAX_HV, LV_REF)
+            iso_hv_hv = 2.5
+            iso_lv_lv = self.min_clearance
+
+            if current_class_id == CLASS_HV:
+                req_from_hv = iso_hv_hv
+                req_from_lv = sep_hv_lv
+            else:
+                req_from_hv = sep_hv_lv
+                req_from_lv = iso_lv_lv
             
             if req_from_hv > self.min_clearance or req_from_lv > self.min_clearance:
                 w, h, num_l = self.grid_size[0], self.grid_size[1], self.num_layers
@@ -2351,122 +2677,109 @@ class MazeRouter:
                 
                 clearance_mask = mask_hv | mask_lv
                 
-                # Clear start/end pin regions
-                for gx, gy in [p for p in grid_pins]:
+                for gx, gy in grid_pins:
                      r_clr = max(rad_hv, rad_lv)
                      x_min, x_max = max(0, gx - r_clr), min(w, gx + r_clr + 1)
-                     y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
+                     y_min, y_max = max(0, gy + r_clr + 1)
                      clearance_mask[x_min:x_max, y_min:y_max, :] = 0
                 
-
                 self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
 
-                self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
-
-        # Determined design rules earlier to compute mask
-        
         # DRC-1 & DRC-2: Net Isolation with Correct Inflation
-        # Create mask of cells owned by other nets (occupancy==2)
-        # Since we ripped up current net, any 2 is another net.
         other_net_raw = (self.occupancy == 2).astype(np.int32)
-        
-        # DRC-2: Dilate by (Clearance + Trace_Half_Width)
-        # Occupancy now stores pure copper (width), no clearance.
-        # But wait, other_net_raw assumes occupancy corresponds to copper.
-        # "route_net_rrr" sets occupancy with clearance=0.0 (Copper).
-        # So we must dilate by (My_Clearance + My_Half_Width) to keep My Center away from Their Copper.
-        # This assumes My_Clearance >= Their_Required_Clearance.
-        
         req_isolation = clearance + (trace_width / 2.0)
         rad_isolation = int(math.ceil(req_isolation / self.cell_size))
         
         if rad_isolation > 0:
-             # dilate_grid_numba is available in scope (imported globally or via self?)
-             # It's imported globally.
              other_net_mask = dilate_grid_numba(other_net_raw, rad_isolation)
         else:
              other_net_mask = other_net_raw
         
-        # Expand clearance mask to include other nets
         if clearance_mask is None:
             clearance_mask = other_net_mask
         else:
             clearance_mask = clearance_mask | other_net_mask
 
-        # Crucial: Ensure Start/End pins are NOT blocked by the mask
         if clearance_mask is not None:
             w, h = self.grid_size
-            for gx, gy in [p for p in grid_pins]:
+            for gx, gy in grid_pins:
                  if 0 <= gx < w and 0 <= gy < h:
-                     # Punch hole. Ideally size of start/end pin?
-                     # A 1-cell hole allows the center of the Walker to step on the pin.
                      clearance_mask[gx, gy, :] = 0
 
-        for start_layer in candidate_start_layers:
-            current_cells = []
-            current_via_cells = set()
-            total_vias = 0
-            total_difficulty = 0.0
-            cell_difficulties = []
-            segment_success = True
+        # MST routing logic
+        # Nodes in the MST will be (pin_idx, layer_idx)
+        # We need to connect all pins. Start with the first pin.
+        
+        # Keep track of connected pins and their cells
+        connected_pins = set() # Stores pin indices
+        connected_cells = set() # Stores GridCell objects of the routed path
+        all_paths: list[list[GridCell]] = [] # Stores individual paths found
+        
+        # Priority queue for Prim's algorithm: (cost, from_pin_idx, to_pin_idx, path_cells)
+        # Cost is the path length.
+        pq = []
 
-            for i in range(1, len(grid_pins)):
-                start_node = grid_pins[i - 1]
-                end_node = grid_pins[i]
-                target_layer = pin_layers[i]
+        # Start with the first pin (index 0)
+        start_pin_idx = 0
+        connected_pins.add(start_pin_idx)
+        
+        # Add all possible connections from the first pin to other pins to the PQ
+        for i in range(1, num_pins):
+            for start_l in candidate_start_layers_per_pin[start_pin_idx]:
+                for end_l in candidate_start_layers_per_pin[i]:
+                    path = self.find_path_rrr(
+                        grid_pins[start_pin_idx],
+                        grid_pins[i],
+                        start_l,
+                        allow_via,
+                        cost_map=cost_map,
+                        p_scale=p_scale,
+                        end_layer=end_l,
+                        clearance_mm=clearance_mm,
+                        clearance_mask=clearance_mask,
+                    )
+                    if path:
+                        # Cost is path length + via cost
+                        path_cost = len(path) + sum(1 for j in range(1, len(path)) if path[j].layer != path[j-1].layer) * self.via_cost
+                        heapq.heappush(pq, (path_cost, start_pin_idx, i, path))
 
-                # Determine layer for THIS segment
-                if i == 1:  # first segment
-                    seg_layer = start_layer
-                else:
-                    seg_layer = current_cells[-1].layer if current_cells else start_layer
+        final_all_cells = []
+        final_via_cells = set()
+        final_total_vias = 0
+        final_total_difficulty = 0.0
+        final_cell_difficulties = []
+        
+        while pq and len(connected_pins) < num_pins:
+            cost, from_idx, to_idx, path = heapq.heappop(pq)
 
-                if net_name == "VCC_BOOT":
-                    # Debug print removed
-                    pass
+            if to_idx in connected_pins:
+                continue # This pin is already connected
 
-                path = self.find_path_rrr(
-                    start_node, 
-                    end_node, 
-                    seg_layer, 
-                    allow_via, 
-                    cost_map=cost_map, 
-                    p_scale=p_scale,
-                    end_layer=target_layer,
-                    clearance_mm=clearance_mm,
-                    clearance_mask=clearance_mask,
-                )
-                if path is None:
-                    segment_success = False
-                    last_failure_reason = f"No path found from {start_node} to {grid_pins[i]} (Start blocked? {self.occupancy[start_node[0], start_node[1], seg_layer] == -1})"
-                    break
+            connected_pins.add(to_idx)
+            all_paths.append(path)
 
-                # Identify vias and accumulate difficulty
-                for j in range(1, len(path)):
-                    if path[j].layer != path[j - 1].layer:
-                        total_vias += 1
-                        # Both cells in a layer transition represent the via tower
-                        current_via_cells.add((path[j - 1].x, path[j - 1].y, path[j - 1].layer))
-                        current_via_cells.add((path[j].x, path[j].y, path[j].layer))
+            # Add new connections from the newly connected pin to all unconnected pins
+            for next_unconnected_idx in range(num_pins):
+                if next_unconnected_idx not in connected_pins:
+                    for start_l in candidate_start_layers_per_pin[to_idx]:
+                        for end_l in candidate_start_layers_per_pin[next_unconnected_idx]:
+                            new_path = self.find_path_rrr(
+                                grid_pins[to_idx],
+                                grid_pins[next_unconnected_idx],
+                                start_l,
+                                allow_via,
+                                cost_map=cost_map,
+                                p_scale=p_scale,
+                                end_layer=end_l,
+                                clearance_mm=clearance_mm,
+                                clearance_mask=clearance_mask,
+                            )
+                            if new_path:
+                                new_path_cost = len(new_path) + sum(1 for j in range(1, len(new_path)) if new_path[j].layer != new_path[j-1].layer) * self.via_cost
+                                heapq.heappush(pq, (new_path_cost, to_idx, next_unconnected_idx, new_path))
 
-                    d = self._get_cell_difficulty(path[j])
-                    total_difficulty += d
-                    cell_difficulties.append(d)
-
-                if current_cells:
-                    path = path[1:]  # avoid duplicate join
-                current_cells.extend(path)
-
-            if segment_success:
-                final_success = True
-                final_all_cells = current_cells
-                final_via_cells = current_via_cells
-                final_total_vias = total_vias
-                final_total_difficulty = total_difficulty
-                final_cell_difficulties = cell_difficulties
-                break
-
-        if not final_success:
+        if len(connected_pins) < num_pins:
+            # Not all pins could be connected
             for gx, gy, l, v in original_occupancy:
                 self.occupancy[gx, gy, l] = v
             res = RoutePath(
@@ -2475,101 +2788,80 @@ class MazeRouter:
                 length=0.0,
                 via_count=0,
                 success=False,
-                failure_reason=last_failure_reason,
+                failure_reason=f"Could not connect all pins for net {net_name}",
             )
             self.routed_paths[net_name] = res
             return res
 
-        all_cells = final_all_cells
+        # Combine all paths into a single set of unique cells
+        for path in all_paths:
+            for cell in path:
+                final_all_cells.append(cell)
+                
+            # Identify vias and accumulate difficulty
+            for j in range(1, len(path)):
+                if path[j].layer != path[j - 1].layer:
+                    final_total_vias += 1
+                    final_via_cells.add((path[j - 1].x, path[j - 1].y, path[j - 1].layer))
+                    final_via_cells.add((path[j].x, path[j].y, path[j].layer))
 
-        # Get rules for this net to determine correct inflation (temper-z87d)
-        trace_width = self._default_trace_width_mm
-        via_diameter = 0.6
-        via_drill = 0.3
-        clearance = self.min_clearance
+                d = self._get_cell_difficulty(path[j])
+                final_total_difficulty += d
+                final_cell_difficulties.append(d)
 
-        # Determine design rules (Arguments > DesignRules > Defaults)
-        trace_width = trace_width_mm if trace_width_mm is not None else self._default_trace_width_mm
-        via_diameter = via_diameter_mm if via_diameter_mm is not None else 0.6
-        via_drill = via_drill_mm if via_drill_mm is not None else 0.3
-        clearance = clearance_mm if clearance_mm is not None else self.min_clearance
+        # FEAT-1: Automatic Via Array Generation
+        explicit_vias: list[TraceVia] = []
+        if self.design_rules:
+            via_template = self.design_rules.get_via_template(net_name)
+            if via_template and via_template.via_count > 1:
+                for i in range(1, len(final_all_cells)):
+                    c1 = final_all_cells[i - 1]
+                    c2 = final_all_cells[i]
 
-        if self.design_rules and trace_width_mm is None:
-            rules = self.design_rules.get_rules_for_net(net_name)
-            trace_width = rules.trace_width
-            via_diameter = rules.via_diameter
-            via_drill = rules.via_drill
-            clearance = rules.clearance
-
-        # Creepage Awareness: Generate class-specific clearance mask
-        # If this net is High Voltage, it needs 8mm to LV nets, but 2mm to HV nets.
-        # If this net is Low Voltage, it needs 8mm to HV nets, but 0.2mm to LV nets.
-        clearance_mask = None
-        if HAS_NUMBA and self.design_rules:
-            rules_c = self.design_rules.get_rules_for_net(net_name)
-            net_class = self._get_class_id(rules_c)
-            
-            # Define required clearance to other classes
-            req_from_hv = 8.0 if net_class != CLASS_HV else 2.0  # HV-HV=2mm, LV-HV=8mm
-            req_from_lv = 8.0 if net_class == CLASS_HV else 0.2  # HV-LV=8mm, LV-LV=0.2mm
-            
-            # Check if we need non-standard clearance (assume default min_clearance covers baseline)
-            # Actually, we should build the full mask if we have differentiated rules
-            if req_from_hv > self.min_clearance or req_from_lv > self.min_clearance:
-                w, h, num_l = self.grid_size[0], self.grid_size[1], self.num_layers
-                
-                # Extract obstacles by class
-                # Note: occupancy != 0 is general check, but we exclude current net? 
-                # Ideally yes, but route_net_rrr temporarily clears current net from occupancy?
-                # No, route_net_rrr does NOT verify start/end unblocking generally.
-                # However, occupancy includes mapped pads. block_pads marks pads with -1 and class_id.
-                
-                # 1. HV Obstacles
-                start_mask_gen = time.perf_counter()
-                
-                # We need numpy arrays for Numba
-                # self.class_grid is already numpy
-                
-                # Use int32 for dilate_grid_numba
-                hv_obs = ((self.class_grid == CLASS_HV) & (self.occupancy != 0)).astype(np.int32)
-                lv_obs = ((self.class_grid == CLASS_LV) & (self.occupancy != 0)).astype(np.int32)
-                # Also include default/unclassified obstacles as LV?
-                # Usually default = LV.
-                default_obs = ((self.class_grid == CLASS_DEFAULT) & (self.occupancy != 0)).astype(np.int32)
-                if net_class == CLASS_HV:
-                    # Treat default obstacles as LV (require 8mm)
-                    lv_obs |= default_obs
-                else:
-                    # Treat default obstacles as default clearance (LV-LV)
-                    lv_obs |= default_obs
-
-                # Dilate
-                rad_hv = int(math.ceil(req_from_hv / self.cell_size))
-                rad_lv = int(math.ceil(req_from_lv / self.cell_size))
-                
-                mask_hv = dilate_grid_numba(hv_obs, rad_hv) if rad_hv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
-                mask_lv = dilate_grid_numba(lv_obs, rad_lv) if rad_lv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
-                
-                clearance_mask = mask_hv | mask_lv
-                
-                # Clear start/end pin regions from mask (essential for connectivity)
-                # Clearance rules shouldn't prevent connecting to the pin itself
-                for gx, gy in [p for p in grid_pins]:
-                     # Clear a small box around the pin
-                     r_clr = max(rad_hv, rad_lv)
-                     x_min, x_max = max(0, gx - r_clr), min(w, gx + r_clr + 1)
-                     y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
-                     clearance_mask[x_min:x_max, y_min:y_max, :] = 0
-                
-                self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
+                    if c1.layer != c2.layer:
+                        center_x = c2.x * self.cell_size + self.origin[0]
+                        center_y = c2.y * self.cell_size + self.origin[1]
+                        
+                        positions = via_template.get_via_positions(center_x, center_y)
+                        
+                        layers = ["F.Cu", "B.Cu"]
+                            
+                        for px, py in positions:
+                            explicit_vias.append(TraceVia(
+                                net=net_name,
+                                position=(px, py),
+                                size=via_template.via_diameter_mm,
+                                drill=via_template.via_drill_mm,
+                                layers=layers
+                            ))
+                            
+                            gx, gy = self._world_to_grid(px, py)
+                            
+                            via_copper_cells = self._get_inflated_cells(
+                                gx, gy, 0,
+                                width_mm=via_template.via_diameter_mm, 
+                                clearance_mm=0.0
+                            )
+                            
+                            for ix, iy, _ in via_copper_cells:
+                                for l in range(self.num_layers):
+                                    if 0 <= ix < self.grid_size[0] and 0 <= iy < self.grid_size[1]:
+                                        self.occupancy[ix, iy, l] = 2
+                                        self.class_grid[ix, iy, l] = current_class_id
+                                        self.present_congestion[ix, iy, l] += 1.0
+                                        
+                                        key_inf = (ix, iy, l)
+                                        if key_inf not in self.net_occupancy:
+                                            self.net_occupancy[key_inf] = set()
+                                        self.net_occupancy[key_inf].add(net_name)
+                                        self.cell_owner[key_inf] = net_name
 
         # Mark cells as occupied with differentiated inflation
-        unique_cells = {(c.x, c.y, c.layer) for c in all_cells}
+        unique_cells = {(c.x, c.y, c.layer) for c in final_all_cells}
         for cx, cy, cl in unique_cells:
             is_via = (cx, cy, cl) in final_via_cells
             width = via_diameter if is_via else trace_width
 
-            # DRC-2: Store Copper Only (Clearance=0) in Occupancy
             affected_cells = self._get_inflated_cells(
                 cx, cy, cl, width_mm=width, clearance_mm=0.0
             )
@@ -2581,30 +2873,14 @@ class MazeRouter:
                 if key not in self.net_occupancy:
                     self.net_occupancy[key] = set()
                 self.net_occupancy[key].add(net_name)
-                # DRC-1: Register ownership
                 self.cell_owner[key] = net_name
 
         if self.drc_oracle is not None:
-            self._register_routed_path(all_cells, net_name)
+            self._register_routed_path(final_all_cells, net_name)
 
         # Restore original occupancy
         for gx, gy, l, v in original_occupancy:
             self.occupancy[gx, gy, l] = v
-
-        res = RoutePath(
-            net=net_name,
-            cells=all_cells,  # Ordered path for simplification
-            length=float(len(all_cells)),
-            via_count=final_total_vias,
-            success=True,
-            difficulty=final_total_difficulty,
-            cell_difficulties=final_cell_difficulties,
-            trace_width=trace_width,  # From design rules
-            via_diameter=via_diameter,  # From design rules
-            via_drill=via_drill,  # From design rules
-        )
-        self.routed_paths[net_name] = res
-        return res
 
     def find_path_rrr(
         self,
@@ -2768,7 +3044,7 @@ class MazeRouter:
                 if current in visited:
                     continue
                 visited.add(current)
-                if current.x == end_cell.x and current.y == end_cell.y:
+                if current == end_cell:
                     path = [current]
                     while current in came_from:
                         current = came_from[current]

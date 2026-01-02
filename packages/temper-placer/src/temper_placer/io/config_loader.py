@@ -333,7 +333,7 @@ class NetClassRule:
     allow_neckdown: bool = True
     description: str = ""
 
-    # Current capacity enforcement (NEW)
+    voltage_v: float = 0.0 # Working voltage for creepage calculation
     max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
     routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
 
@@ -753,8 +753,10 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 description=rule_cfg.get("description", ""),
                 max_current_rating=rule_cfg.get("max_current_rating"),  # NEW
                 routing_strategy=rule_cfg.get("routing_strategy"),  # NEW
+                target_impedance=rule_cfg.get("target_impedance"),
+                voltage_v=rule_cfg.get("voltage_v", 0.0),  # Newly added field
             )
-            constraints.net_class_rules[name] = rule
+            rules.net_classes[name] = rule
 
     if "differential_pairs" in config:
         for dp_cfg in config["differential_pairs"]:
@@ -962,7 +964,6 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
     # Copy net class assignments
     rules.net_class_assignments = constraints.net_classes.copy()
 
-    # Copy net class definitions
     for name, rule in constraints.net_class_rules.items():
         # Map fields (note: allow_neckdown currently not supported in Core NetClassRules)
         rules.net_classes[name] = CoreNetClassRules(
@@ -973,6 +974,7 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
             via_drill=rule.via_drill_mm,
             via_template=rule.via_template or "Via1x1",  # Default to single via
             creepage_mm=rule.creepage_mm,
+            voltage_v=rule.voltage_v,
         )
 
     # Convert differential pair rules

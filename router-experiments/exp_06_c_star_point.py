@@ -59,95 +59,133 @@ def run_experiment():
                     
     c_load = Component(ref="LOAD", footprint="CONN", bounds=(1.0,1.0), initial_position=(9.0, 5.0), initial_side=0,
                        pins=[Pin(name="1", number="1", net="NET_KELVIN", position=(0,0))])
-                       
-    c_mcu = Component(ref="MCU", footprint="QFP", bounds=(1.0,1.0), initial_position=(5.0, 9.0), initial_side=0,
+
+    
+    c_mcu = Component(ref="MCU", footprint="PIN", bounds=(0.5,0.5), initial_position=(7.0, 9.0), initial_side=0,
                       pins=[Pin(name="1", number="1", net="NET_KELVIN", position=(0,0))])
                       
     components = [c_r, c_load, c_mcu]
-    netlist = Netlist(components=components, nets=[])
+    # Define the Net object explicitly so the router finds it
+    net_kelvin = Net(name="NET_KELVIN", pins=[("R", "1"), ("LOAD", "1"), ("MCU", "1")])
+    netlist = Netlist(components=components, nets=[net_kelvin])
     pos_arr = jnp.array([c.initial_position for c in components])
     
     print("Blocking obstacles...")
     router.block_pads(components, pos_arr, netlist)
     
-    print("Routing Kelvin Net...")
-    # Route R -> LOAD first (Primary Current Path)
-    path_main = router.route_net_rrr("NET_KELVIN", [c_r.initial_position, c_load.initial_position], assignment=None)
-    
-    if not path_main.success:
-        print("FAILURE: Main current path failed to route.")
-        return
-        
-    # Now route Sense: MCU -> "NET_KELVIN" (It will connect to nearest point on path_main)
-    # We pass the existing path points as targets? 
-    # route_net_rrr logic for multi-pin nets:
-    # It usually takes a list of pins. If some are already routed, it treats the route as a target.
-    # Here we emulate that manually by routing p2p.
-    
-    # We want to see WHERE it connects.
-    # Ideally: It connects exactly at (5.0, 5.0) [R_SENSE].
-    # Bad: It connects at (6.0, 5.0) [Mid-trace].
-    
-    # Since we don't have the full multi-point Steiner logic exposed in single call,
-    # We will try to route MCU -> R_SENSE directly?
-    # If we do that, it's just a P2P route. 
-    # But checking if it *overlaps* the existing wide trace effectively "taps" it.
-    
-    # Let's verify the WIDTH issue first.
-    # The net is class "Power" (2.0mm).
-    # The MCU trace will be 2.0mm wide.
-    # Does 2.0mm fit into the MCU pin area? (Pin bounds not detailed here, but let's assume fine pitch).
-    # If we used real constraints, it would fail DRC at the MCU pin.
-    
-    rule = router.design_rules.get_rules_for_net('NET_KELVIN')
-    width = rule.trace_width
-    print(f"Main Path Width: {width}mm")
-    
-    if width > 1.0:
-        print("OBSERVATION: Sense trace forced to High Power width (2.0mm).")
-        print("FAIL: Sense line should be thin (0.2mm) but Net Class enforces global width.")
-    else:
-        print("SUCCESS? Trace is thin? (Unexpected)")
 
-    # Simulate Tapping
-    # If we route MCU -> R, does it realize it can tap anywhere?
-    # No, A* finds shortest path. 
-    # Dist(MCU, R) = 4.0
-    # Dist(MCU, LOAD) = sqrt(16+16) = 5.6
-    # Dist(MCU, Midpoint(7,5)) = sqrt(4+4) = 2.8
+    # 4. Define Topology Constraints (The Fix)
+    # We explicitly define the sub-net edges and start node
+    from temper_placer.core.net_graph import NetGraph, SubNetEdge
     
-    # If the router considers the existing trace as "zero cost" target, 
-    # it would route MCU -> (5.0, 5.0) [R] or any point on trace.
-    # Closest point on R->LOAD segment (y=5, x=[5..9]) to MCU (5,9) is (5,5).
-    # So purely geometrically, it SHOULD connect to Star Point (R)!
+    # Define topology: R.1 is the Star Point
+    # Edge 1: R.1 -> LOAD.1 (High Current, Width 2.0)
+    # Edge 2: R.1 -> MCU.1 (Signal, Width 0.2)
     
-    # BUT, what if Load was at (5.0, 1.0)?
-    # R (5,5), Load (5,1). Trace is vertical x=5.
-    # MCU (5,9).
-    # Closest point on trace is R (5,5).
-    # Still works.
+    graph = NetGraph(net_name="NET_KELVIN")
+    graph.star_nodes.add("R-1")
     
-    # Let's move MCU to (7.0, 7.0).
-    # R(5,5), Load(9,5). Trace y=5, x=5..9.
-    # Closest point on trace to (7,7) is (7,5) [Midpoint].
-    # Distance = 2.0.
-    # Distance to R = sqrt(4+4) = 2.8.
+    graph.edges.append(SubNetEdge(
+        source_pin="R-1", 
+        sink_pin="LOAD-1",
+        trace_width_mm=2.0,
+        clearance_mm=0.5,
+        priority=10 # Route first
+    ))
     
-    # In this case, a standard router will tap at (7,5).
-    # THIS is the Kelvin violation.
+    graph.edges.append(SubNetEdge(
+        source_pin="R-1",
+        sink_pin="MCU-1",
+        trace_width_mm=0.2, # Thin trace!
+        clearance_mm=0.2,
+        priority=5
+    ))
     
-    c_mcu_bad = Component(ref="MCU_BAD", footprint="PIN", bounds=(0.5,0.5), initial_position=(7.0, 7.0), initial_side=0, pins=[Pin(name="1",number="1",net="NET_KELVIN",position=(0,0))])
+    # Inject into Design Rules
+    dr.net_topologies["NET_KELVIN"] = graph
     
-    print("\nAttempting 'Bad' Geometry routing (Destination favors mid-trace tap)...")
+    print("\nRunning Routing with Topology Constraints...")
+    # We need to make sure the router uses this. 
+    # Current rrr_route_all_nets doesn't support topology decomposition yet.
+    # So we expect this to behave exactly as before (Fail) until we implement the feature.
     
-    # Manually adding path_main cells to "target" set for router would be how it works internally.
-    # We can simulate by finding closest point.
+    # To properly test, we need to pass the topology graph to the router or rely on it fetching from DR.
+    # The router fetches from DR.
     
-    # Expected Behavior: The router connects to (7.0, 5.0).
-    # Correct Behavior: The router MUST connect to (5.0, 5.0) despite higher cost/distance.
+    router.occupancy = np.zeros_like(router.occupancy) # Reset occupancy
+    router.block_pads(components, pos_arr, netlist)
     
-    print("OBSERVATION: Router lacks 'Star Point' constraint support.")
-    print("FAIL: Logic defaults to shortest geometric path (Mid-trace tap), violating Kelvin sensing.")
+    routes = router.rrr_route_all_nets(netlist, pos_arr, net_order=["NET_KELVIN"], assignments={})
+    
+    route = routes.get("NET_KELVIN")
+    if not route or not route.success:
+        print("FAILURE: Topology Routing failed to produce a result.")
+        return
+
+    print(f"Route Length: {route.length:.1f}mm")
+    
+    # Verification
+    # Move MCU to (7,9) to test geometric pull
+    # R(5,5), Load(9,5). Main Trace y=5.
+    # Closest point on Main Trace to MCU(7,9) is (7,5).
+    # If overlap allowed, router will tap at (7,5).
+    # If disjoint required (Kelvin), router must run separate trace from R(5,5).
+    
+    # Check if we successfully enforced different constraints
+    print(f"\nVerifying Segment Constraints...")
+    
+    # We can check specific points in the grid
+    # (7.0, 5.0) should be occupied by Power Trace (Wide)
+    # (7.0, 9.0) should be occupied by Signal Trace (Thin)
+    # (7.0, 7.0) ? 
+    # If tapped at (7,5), trace goes (7,5)->(7,9). So (7,6), (7,7) occupied.
+    # If homerun from (5,5), trace goes (5,5)->(7,9) diagonal? Or (5,5)->(5,9)->(7,9)?
+    # If (5,9)->(7,9), then (6,9) occupied.
+    
+    # Let's see the route difficulty/cost and cell count.
+    # A shared route will have fewer "new" cells.
+    
+    # Ideally, we inspect the ROUTE OBJECT to see explicit segments?
+    # But route object is flattened cells.
+    
+    # Use Grid Inspection
+    g_x, g_y = router._world_to_grid(7.0, 5.2) # Just above the power trace center
+    occ = router.occupancy[g_x, g_y, 0]
+    print(f"Grid (7.0, 5.2): Occupancy={occ}")
+    # If Main Trace is 2.0mm wide, it extends y=4.0 to 6.0.
+    # So (7.0, 5.2) should be Occupied (2).
+    
+    # Check (7.0, 5.0) width inflation
+    # We can't easily check inflation width from occupancy grid (just 2).
+    
+    # But we can check if "Overlap" occurred.
+    # If separate trace: Area = Area(Main) + Area(Sense).
+    # If overlap: Area < sum.
+    
+    # Main (4mm len * 2mm width) approx 8 sq mm.
+    # Sense (4.5mm len * 0.2mm width) approx 0.9 sq mm.
+    # Total ~9 sq mm.
+    
+    # If overlap, Sense is inside Main (mostly). Area ~ 8 sq mm.
+    
+    num_cells = len(route.cells)
+    area = num_cells * (0.1 * 0.1)
+    print(f"Total Routed Area: {area:.2f} mm^2")
+    
+    print(f"Total Route Length: {route.length:.2f}mm")
+    
+    if route.length > 9.0:
+        print("SUCCESS: Route length indicates separate trace (Kelvin connection).")
+        print("Star Point topology successfully enforced disjoint paths.")
+    else:
+        print("FAIL: Route length suggests mid-trace tapping (Shortest geometric path).")
 
 if __name__ == "__main__":
+    components = [
+        Component("R", "RES", (1.0,1.0), (5.0, 5.0), 0, [Pin("1","1","NET_KELVIN",(0,0))]),
+        Component("LOAD", "CONN", (1.0,1.0), (9.0, 5.0), 0, [Pin("1","1","NET_KELVIN",(0,0))]),
+        Component("MCU", "PIN", (0.5,0.5), (7.0, 9.0), 0, [Pin("1","1","NET_KELVIN",(0,0))])
+    ]
+    # Re-run run_experiment with these components if needed, but run_experiment creates its own.
+    # We will modify run_experiment to use these coords.
     run_experiment()

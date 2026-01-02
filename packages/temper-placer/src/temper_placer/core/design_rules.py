@@ -51,6 +51,45 @@ class ViaTemplate:
 
     @property
     def via_count(self) -> int:
+        """Total number of vias in array."""
+        return self.rows * self.cols
+
+    def get_via_positions(
+        self, 
+        center_x: float, 
+        center_y: float
+    ) -> list[tuple[float, float]]:
+        """
+        Calculate via positions in array centered at (center_x, center_y).
+        
+        Args:
+            center_x: Array center X coordinate (mm)
+            center_y: Array center Y coordinate (mm)
+            
+        Returns:
+            List of (x, y) via positions in mm
+        """
+        positions = []
+        
+        # Calculate array dimensions
+        array_width = (self.cols - 1) * self.pitch_mm
+        array_height = (self.rows - 1) * self.pitch_mm
+        
+        # Starting position (top-left of array)
+        start_x = center_x - array_width / 2.0
+        start_y = center_y - array_height / 2.0
+        
+        # Generate grid positions
+        for row in range(self.rows):
+            for col in range(self.cols):
+                x = start_x + col * self.pitch_mm
+                y = start_y + row * self.pitch_mm
+                positions.append((x, y))
+        
+        return positions
+
+    @property
+    def via_count(self) -> int:
         """Total number of vias in the array."""
         return self.rows * self.cols
 
@@ -79,17 +118,15 @@ class NetClassRules:
     via_diameter: float = 0.6  # mm
     via_drill: float = 0.3  # mm
     via_template: str | None = None  # Via array template name
-    creepage_mm: float | None = None  # Creepage for high-voltage nets
+    creepage_mm: float = 0.0  # Creepage distance for high-voltage nets
     target_impedance: float | None = None  # Target impedance in ohms
-    voltage_v: float = 0.0  # Voltage rating for safety distance calculation (Phase 2)
-    via_template: str = "Via1x1"  # Via array template name
-    creepage_mm: float = 0.0  # mm
-    target_impedance: float | None = None  # ohms
+    voltage_v: float = 0.0  # Voltage rating for safety distance calculation
 
 
 @dataclass
 class DesignRules:
-    """PCB design rules with net class support.
+    print("DEBUG: Loading design_rules.py")
+    """PCB Design Rules Module.with net class support.
 
     Provides default routing parameters and net-class-specific overrides.
     Supports looking up rules by net name or net class.
