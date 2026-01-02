@@ -278,33 +278,69 @@ net_classes:
   +15V: "Power"
 
 net_class_rules:
-  HighVoltage:
-    trace_width_mm: 2.0
-    clearance_mm: 2.0
-    via_size_mm: 1.2
-    via_drill_mm: 0.6
-    creepage_mm: 8.0
-    description: "340V DC Bus and Switching Nodes"
-  
-  Power:
-    trace_width_mm: 1.0 # Logic power
-    clearance_mm: 0.5
-    via_size_mm: 0.8
-    via_drill_mm: 0.4
-    description: "Low Voltage Power Rails"
-
-  GateDrive:
-    trace_width_mm: 0.5
-    clearance_mm: 0.25
-    via_size_mm: 0.6
-    via_drill_mm: 0.3
-    description: "Gate Drive Signals"
-
   Signal:
     trace_width_mm: 0.2
     clearance_mm: 0.2
-    via_size_mm: 0.5
-    via_drill_mm: 0.25
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    via_template: "Via1x1"
+    max_current_rating: 1.0  # 1A - standard signals
+    routing_strategy: "standard"
+    
+  HighSpeed:
+    trace_width_mm: 0.15
+    clearance_mm: 0.3
+    via_size_mm: 0.4
+    via_drill_mm: 0.2
+    via_template: "Via1x1"
+    max_current_rating: 0.5  # 500mA - high-speed signals
+    routing_strategy: "standard"
+    
+  Power:
+    trace_width_mm: 0.5
+    clearance_mm: 0.3
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"
+    max_current_rating: 3.0  # 3A - power delivery
+    routing_strategy: "wide_trace"
+    
+  GND:
+    trace_width_mm: 1.0
+    clearance_mm: 0.2
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via3x3"
+    max_current_rating: 5.0  # 5A - ground return
+    routing_strategy: "plane_preferred"
+    
+  GateDrive:
+    trace_width_mm: 0.4
+    clearance_mm: 0.3
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    via_template: "Via2x2"
+    max_current_rating: 2.0  # 2A - gate drive
+    routing_strategy: "wide_trace"
+    
+  HighVoltage:
+    trace_width_mm: 0.3
+    clearance_mm: 3.0
+    creepage_mm: 5.0
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"
+    max_current_rating: 1.0  # 1A - but high voltage
+    routing_strategy: "standard"
+    
+  HighCurrent:
+    trace_width_mm: 3.0
+    clearance_mm: 1.0
+    via_size_mm: 1.0
+    via_drill_mm: 0.5
+    via_template: "Via4x4"
+    max_current_rating: 20.0  # 20A+ - requires copper planes
+    routing_strategy: "plane_required"
     description: "Digital Signals"
 
 # ==============================================================================
