@@ -156,9 +156,7 @@ class DiffPairRouter:
         obstacles: Set[Tuple[int, int, int]],  # Set of blocked cells
     ) -> DiffPairPath:
         """
-        Route a differential pair from start to goal pins.
-        
-        Uses dual-front A* search to find coupled path.
+        Route a differential pair from start to goal pins using dual-front A*.
         
         Args:
             start_pins: (P_start, N_start) pin positions in mm
@@ -168,9 +166,128 @@ class DiffPairRouter:
         Returns:
             DiffPairPath with routing result
         """
-        # TODO: Implement dual-front A*
-        # This is a skeleton - actual implementation in Phase 2B
+        # Reset statistics
+        self.states_explored = 0
+        self.states_pruned = 0
         
+        # Convert mm to grid coordinates
+        start_pos = self._mm_to_grid(start_pins[0])
+        start_neg = self._mm_to_grid(start_pins[1])
+        goal_pos = self._mm_to_grid(goal_pins[0])
+        goal_neg = self._mm_to_grid(goal_pins[1])
+        
+        # Create start and goal states (assume layer 0 initially)
+        start_sep = self._calculate_separation(
+            (*start_pos, 0), (*start_neg, 0)
+        )
+        goal_sep = self._calculate_separation(
+            (*goal_pos, 0), (*goal_neg, 0)
+        )
+        
+        start_state = DiffPairState(
+            pos_x=start_pos[0], pos_y=start_pos[1], pos_layer=0,
+            neg_x=start_neg[0], neg_y=start_neg[1], neg_layer=0,
+            separation_mm=start_sep
+        )
+        
+        goal_state = DiffPairState(
+            pos_x=goal_pos[0], pos_y=goal_pos[1], pos_layer=0,
+            neg_x=goal_neg[0], neg_y=goal_neg[1], neg_layer=0,
+            separation_mm=goal_sep
+        )
+        
+        # Initialize forward and backward frontiers
+        forward_frontier = []
+        backward_frontier = []
+        
+        forward_start = SearchNode(
+            state=start_state,
+            g_cost=0.0,
+            h_cost=self._heuristic(start_state, goal_state)
+        )
+        backward_start = SearchNode(
+            state=goal_state,
+            g_cost=0.0,
+            h_cost=self._heuristic(goal_state, start_state)
+        )
+        
+        heapq.heappush(forward_frontier, forward_start)
+        heapq.heappush(backward_frontier, backward_start)
+        
+        # Track visited states with g-costs
+        forward_visited = {start_state: forward_start}
+        backward_visited = {goal_state: backward_start}
+        
+        # Search loop (alternate between forward and backward)
+        max_iterations = 100000
+        iteration = 0
+        
+        while forward_frontier and backward_frontier and iteration < max_iterations:
+            iteration += 1
+            
+            # Expand forward front
+            if forward_frontier:
+                current = heapq.heappop(forward_frontier)
+                self.states_explored += 1
+                
+                # Check if we've met the backward front
+                if current.state in backward_visited:
+                    # Fronts met! Reconstruct path
+                    return self._reconstruct_path(
+                        current, backward_visited[current.state],
+                        forward_visited, backward_visited
+                    )
+                
+                # Generate and process neighbors
+                for next_state, neighbor_type, cost_delta in self._generate_coupled_neighbors(
+                    current.state, obstacles
+                ):
+                    g_new = current.g_cost + cost_delta
+                    
+                    if next_state not in forward_visited or g_new < forward_visited[next_state].g_cost:
+                        h_new = self._heuristic(next_state, goal_state)
+                        next_node = SearchNode(
+                            state=next_state,
+                            g_cost=g_new,
+                            h_cost=h_new,
+                            parent=current,
+                            neighbor_type=neighbor_type
+                        )
+                        forward_visited[next_state] = next_node
+                        heapq.heappush(forward_frontier, next_node)
+            
+            # Expand backward front
+            if backward_frontier:
+                current = heapq.heappop(backward_frontier)
+                self.states_explored += 1
+                
+                # Check if we've met the forward front
+                if current.state in forward_visited:
+                    # Fronts met! Reconstruct path
+                    return self._reconstruct_path(
+                        forward_visited[current.state], current,
+                        forward_visited, backward_visited
+                    )
+                
+                # Generate and process neighbors (reverse direction)
+                for next_state, neighbor_type, cost_delta in self._generate_coupled_neighbors(
+                    current.state, obstacles
+                ):
+                    g_new = current.g_cost + cost_delta
+                    
+                    if next_state not in backward_visited or g_new < backward_visited[next_state].g_cost:
+                        h_new = self._heuristic(next_state, start_state)
+                        next_node = SearchNode(
+                            state=next_state,
+                            g_cost=g_new,
+                            h_cost=h_new,
+                            parent=current,
+                            neighbor_type=neighbor_type
+                        )
+                        backward_visited[next_state] = next_node
+                        heapq.heappush(backward_frontier, next_node)
+        
+        # No path found
         return DiffPairPath(
             pos_cells=[],
             neg_cells=[],
@@ -178,8 +295,83 @@ class DiffPairRouter:
             max_skew_mm=0.0,
             avg_separation_mm=0.0,
             success=False,
-            failure_reason="Not yet implemented"
+            failure_reason=f"No path found after {iteration} iterations. "
+                          f"Explored {self.states_explored} states, pruned {self.states_pruned}."
         )
+    
+    def _mm_to_grid(self, pos_mm: Tuple[float, float]) -> Tuple[int, int]:
+        """Convert position in mm to grid coordinates."""
+        return (
+            int(pos_mm[0] / self.cell_size_mm),
+            int(pos_mm[1] / self.cell_size_mm)
+        )
+    
+    def _reconstruct_path(
+        self,
+        forward_node: SearchNode,
+        backward_node: SearchNode,
+        forward_visited: dict,
+        backward_visited: dict,
+    ) -> DiffPairPath:
+        """
+        Reconstruct path when forward and backward fronts meet.
+        
+        Args:
+            forward_node: Meeting point from forward search
+            backward_node: Meeting point from backward search
+            forward_visited: Forward search visited states
+            backward_visited: Backward search visited states
+            
+        Returns:
+            DiffPairPath with complete routing
+        """
+        # Extract paths by following parent pointers
+        forward_path = []
+        current = forward_node
+        while current is not None:
+            forward_path.append(current.state)
+            current = current.parent
+        forward_path.reverse()
+        
+        backward_path = []
+        current = backward_node.parent  # Skip meeting point (already in forward)
+        while current is not None:
+            backward_path.append(current.state)
+            current = current.parent
+        
+        # Combine paths
+        full_path = forward_path + backward_path
+        
+        # Extract P and N cell lists
+        pos_cells = [(s.pos_x, s.pos_y, s.pos_layer) for s in full_path]
+        neg_cells = [(s.neg_x, s.neg_y, s.neg_layer) for s in full_path]
+        
+        # Calculate metrics
+        coupling_ratio = self._calculate_coupling_ratio(full_path)
+        max_skew = abs(len(pos_cells) - len(neg_cells)) * self.cell_size_mm
+        avg_sep = sum(s.separation_mm for s in full_path) / len(full_path)
+        
+        return DiffPairPath(
+            pos_cells=pos_cells,
+            neg_cells=neg_cells,
+            coupling_ratio=coupling_ratio,
+            max_skew_mm=max_skew,
+            avg_separation_mm=avg_sep,
+            success=True
+        )
+    
+    def _calculate_coupling_ratio(self, path: List[DiffPairState]) -> float:
+        """Calculate percentage of path within target separation."""
+        if not path:
+            return 0.0
+        
+        tolerance = 0.1  # mm (10% of 1mm target)
+        coupled_cells = sum(
+            1 for state in path
+            if abs(state.separation_mm - self.target_separation_mm) <= tolerance
+        )
+        
+        return (coupled_cells / len(path)) * 100.0
     
     def _generate_coupled_neighbors(
         self,
