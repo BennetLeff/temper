@@ -158,6 +158,7 @@ class DiffPairRouter:
         start_pins: Tuple[Tuple[float, float], Tuple[float, float]],  # ((p_x, p_y), (n_x, n_y))
         goal_pins: Tuple[Tuple[float, float], Tuple[float, float]],
         obstacles: Set[Tuple[int, int, int]],  # Set of blocked cells
+        enable_length_matching: bool = True,  # Phase 3: apply serpentine tuning
     ) -> DiffPairPath:
         """
         Route a differential pair from start to goal pins using dual-front A*.
@@ -371,7 +372,7 @@ class DiffPairRouter:
         max_skew = abs(len(pos_cells) - len(neg_cells)) * self.cell_size_mm
         avg_sep = sum(s.separation_mm for s in full_path) / len(full_path)
         
-        return DiffPairPath(
+        result = DiffPairPath(
             pos_cells=pos_cells,
             neg_cells=neg_cells,
             coupling_ratio=coupling_ratio,
@@ -379,6 +380,13 @@ class DiffPairRouter:
             avg_separation_mm=avg_sep,
             success=True
         )
+        
+        # Phase 3: Apply length matching if enabled
+        if enable_length_matching and max_skew > self.max_skew_mm:
+            from temper_placer.routing.serpentine import apply_length_matching
+            result = apply_length_matching(result, self.cell_size_mm, self.max_skew_mm)
+        
+        return result
     
     def _calculate_coupling_ratio(self, path: List[DiffPairState]) -> float:
         """Calculate percentage of path within target separation."""
