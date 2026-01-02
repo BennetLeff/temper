@@ -27,6 +27,11 @@ from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing import push_shove as ps
 from temper_placer.routing.maze_router import MazeRouter
+from temper_placer.routing.current_capacity_strategy import (
+    CurrentCapacityStrategy,
+    select_current_capacity_strategy,
+    get_strategy_description,
+)
 
 
 def _euclidean_distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
@@ -449,6 +454,7 @@ class UnifiedRouter:
         pin_positions: list[tuple[float, float]],
         assignment: "LayerAssignment",
         cost_map: Array | None = None,
+        zones: list = None,  # NEW: Zone list for current capacity strategy
     ) -> UnifiedRoutePath:
         """Route a single net using configured strategy.
 
@@ -457,10 +463,40 @@ class UnifiedRouter:
             pin_positions: Pin positions in world coordinates
             assignment: Layer assignment
             cost_map: Optional semantic cost map.
+            zones: List of zones for current capacity strategy selection
 
         Returns:
             Unified routing result
         """
+        # Current Capacity Strategy Selection (Phase 2 - temper-au2n)
+        # Determines routing method based on current requirements
+        if zones is not None:
+            try:
+                capacity_strategy = select_current_capacity_strategy(
+                    net_name, self.design_rules, zones
+                )
+                
+                if capacity_strategy == CurrentCapacityStrategy.PLANE_VIA_ONLY:
+                    # TODO (Phase 3 - temper-mm7z): Implement PlaneConnectionRouter
+                    # High-current nets should connect directly to planes, not traced routes
+                    # For now, log warning and fall through to standard routing
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(
+                        f"Net '{net_name}' requires plane connection (high current) "
+                        f"but PlaneConnectionRouter not yet implemented. "
+                        f"Using standard routing as fallback - THIS IS NOT PROFESSIONAL GRADE."
+                    )
+                    # Fall through to standard routing logic
+                    
+            except RuntimeError as e:
+                # High-current net without zone - should have been caught in config validation
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Current capacity validation failed for '{net_name}': {e}")
+                # Fall through to attempt routing anyway
+        
+        # Standard routing strategy dispatch (existing logic)
         if self.config.strategy == RoutingStrategy.MAZE_ONLY:
             return self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
