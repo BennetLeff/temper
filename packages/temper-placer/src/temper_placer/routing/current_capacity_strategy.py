@@ -105,10 +105,17 @@ def select_current_capacity_strategy(
                 f"No zone assignment. This should have been caught during config loading."
             )
     
-    elif current_a > 5.0:
-        # Medium current: prefer plane if available, otherwise wide trace
+    # MEDIUM CURRENT (5-10A): Via arrays or plane (if zone available)
+    if current_a >= 5.0:  # FIXED: Changed > to >= for exact threshold
+        # Check if zone is available (thermal advantage)
         if has_zone:
-            return CurrentCapacityStrategy.PLANE_VIA_ONLY  # Use plane for better thermal
+            # Assuming a logger is available or would be imported
+            # from temper_placer.core.logger import logger
+            # logger.info(
+            #     f"Medium-current net '{net_name}' ({current_a:.1f}A) has zone. "
+            #     f"Using plane connection for better thermal performance."
+            # )
+            return CurrentCapacityStrategy.PLANE_VIA_ONLY  # Corrected typo from instruction
         else:
             return CurrentCapacityStrategy.WIDE_TRACE_WITH_VIA_ARRAY
     
