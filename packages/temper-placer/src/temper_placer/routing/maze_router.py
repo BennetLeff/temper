@@ -27,6 +27,7 @@ import numpy as np
 from jax import Array
 
 from temper_placer.core.board import Board
+from temper_placer.core.net_graph import NetGraph
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.routing.fast_router import HAS_NUMBA, dilate_grid_numba, find_path_astar_numba
 
@@ -50,7 +51,24 @@ class GridCell:
         return hash((self.x, self.y, self.layer))
 
 
-@dataclass
+@dataclass(frozen=True)
+class DiffPairCell:
+    """Joint state for differential pair routing (both trace heads).
+
+    This represents a state in the Dual-Front A* search where both
+    positive and negative nets are routed simultaneously to maintain coupling.
+
+    Attributes:
+        pos: Grid cell for positive net trace head
+        neg: Grid cell for negative net trace head
+    """
+
+    pos: GridCell
+    neg: GridCell
+
+    def __hash__(self) -> int:
+        return hash((self.pos, self.neg))
+
 @dataclass
 class ProfileStats:
     """Detailed performance profiling stats."""
@@ -95,11 +113,15 @@ class RoutePath:
     smooth_points: list["Point"] = field(
         default_factory=list
     )  # World coordinates (mm) after smoothing
-    
+
     # Trace geometry (from design rules)
     trace_width: float = 0.2  # Actual trace width used (mm)
     via_diameter: float = 0.6  # Via pad diameter (mm)
     via_drill: float = 0.3  # Via drill diameter (mm)
+    via_template: str | None = None  # Via array template name (e.g., 'Via2x2')
+    
+    # Sub-segments for topology-aware routing (mixed widths)
+    segments: list["RoutePath"] = field(default_factory=list)
 
 
 @dataclass
@@ -248,16 +270,18 @@ class MazeRouter:
         self._pad_net_map: dict[tuple[int, int, int], str] = {}  # (gx, gy, layer) -> net
 
     def _get_inflated_cells(
-        self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None
+        self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None, via_template: str | None = None
     ) -> list[tuple[int, int, int]]:
         """Get all cells that a shape at (x,y) with given width/clearance would occupy.
 
         This accounts for actual copper footprint plus clearance.
+        For via arrays, inflates based on the array's bounding box.
 
         Args:
             x, y, layer: Center cell
             width_mm: Shape width/diameter in mm (uses default trace width if None)
             clearance_mm: Minimum clearance in mm (uses self.min_clearance if None)
+            via_template: Via array template name for bbox-based inflation
 
         Returns:
             List of (x, y, layer) tuples for all affected cells
@@ -265,8 +289,15 @@ class MazeRouter:
         width = width_mm if width_mm is not None else self._default_trace_width_mm
         clearance = clearance_mm if clearance_mm is not None else self.min_clearance
 
-        # Inflation radius in cells: shape extends width/2 + clearance from center
-        required_radius_mm = (width / 2.0) + clearance
+        # Via array bbox-based inflation (v35p.2.3)
+        if via_template and self.design_rules and via_template in self.design_rules.via_templates:
+            template = self.design_rules.via_templates[via_template]
+            bbox_w, bbox_h = template.get_footprint_bbox()
+            required_radius_mm = max(bbox_w, bbox_h) / 2.0 + clearance
+        else:
+            # Standard inflation: shape extends width/2 + clearance from center
+            required_radius_mm = (width / 2.0) + clearance
+        
         radius_cells = int(np.ceil(required_radius_mm / self.cell_size))
 
         cells = []
@@ -867,15 +898,15 @@ class MazeRouter:
 
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
-            
+
             # Get rotation and side
             rot_idx = int(rotations[i]) if rotations is not None else (comp.initial_rotation or 0)
-            side_idx = int(sides[i]) if sides is not None else (comp.initial_side or 0)
-            
+            side_idx = int(sides[i]) if sides is not None else (comp.initial_rotation or 0)
+
             rot_rad = rot_idx * (math.pi / 2)
 
             for pin in comp.pins:
-                px, py = pin.absolute_position((cx, cy), rot_rad, side_idx)
+                px, py = pin.absolute_position((cx, cy), rot_rad)
 
                 # Get pad size (default to 1mm if not specified)
                 pad_w = getattr(pin, "width", 1.0)
@@ -1365,6 +1396,57 @@ class MazeRouter:
         self.routed_paths[net_name] = res
         return res
 
+    def _is_via_array_valid(
+        self,
+        x: int,
+        y: int,
+        layer_from: int,
+        layer_to: int,
+        template: "ViaTemplate",
+    ) -> bool:
+        """Check if via array fits without collisions.
+        
+        Validates that all via locations in the array pattern can be placed
+        without conflicting with existing obstacles or traces.
+        
+        Args:
+            x, y: Center cell coordinates for the array
+            layer_from: Source layer for transition
+            layer_to: Destination layer for transition
+            template: Via array template defining the grid pattern
+            
+        Returns:
+            True if all via locations are free, False if any collision
+        """
+        from temper_placer.core.design_rules import ViaTemplate
+        
+        # Calculate grid offset per via based on pitch
+        pitch_cells = template.pitch_mm / self.cell_size
+        
+        # Check all cells in array footprint
+        for row in range(template.rows):
+            for col in range(template.cols):
+                # Calculate offset from center (array is centered on the cell)
+                offset_x = (col - (template.cols - 1) / 2.0) * pitch_cells
+                offset_y = (row - (template.rows - 1) / 2.0) * pitch_cells
+                
+                cell_x = int(round(x + offset_x))
+                cell_y = int(round(y + offset_y))
+                
+                # Check bounds
+                if not (0 <= cell_x < self.grid_size[0] and 0 <= cell_y < self.grid_size[1]):
+                    return False
+                
+                # Check occupancy on both layers
+                for layer in [layer_from, layer_to]:
+                    occ = int(self.occupancy[cell_x, cell_y, layer])
+                    if occ == -1:  # Hard obstacle
+                        return False
+                    if occ == 2 and not self.soft_blocking:  # Occupied trace
+                        return False
+                        
+        return True
+
     def _get_neighbors(
         self,
         cell: GridCell,
@@ -1394,11 +1476,22 @@ class MazeRouter:
         if allow_layer_change and self.num_layers > 1:
             for nl in layers:
                 if nl != cell.layer:
-                    occ = int(self.occupancy[cell.x, cell.y, nl])
-                    if occ == -1:
-                        continue
-                    if occ == 2 and not self.soft_blocking:
-                        continue
+                    # Via array checking (v35p.2.2)
+                    if self._current_net and self.design_rules:
+                        # Get via template for current net
+                        template = self.design_rules.get_via_template(self._current_net)
+                        
+                        # Check if entire via array fits
+                        if not self._is_via_array_valid(cell.x, cell.y, cell.layer, nl, template):
+                            continue
+                    else:
+                        # Fallback to single via check (backward compatibility)
+                        occ = int(self.occupancy[cell.x, cell.y, nl])
+                        if occ == -1:
+                            continue
+                        if occ == 2 and not self.soft_blocking:
+                            continue
+                    
                     neighbors.append(GridCell(cell.x, cell.y, nl))
         return neighbors
 
@@ -1771,6 +1864,247 @@ class MazeRouter:
             net_name, pin_positions, assignment, cost_map, p_scale=1.0, pin_sides=pin_sides
         )
 
+    def find_path_diff_pair(
+        self,
+        net_pos: str,
+        net_neg: str,
+        start_pos: tuple[float, float],
+        end_pos: tuple[float, float],
+        start_neg: tuple[float, float],
+        end_neg: tuple[float, float],
+        spacing_mm: float = 0.2,
+        coupling_tolerance_mm: float = 0.5,
+        p_scale: float = 1.0,
+        enable_length_matching: bool = True,
+        serpentine_params: "SerpentineParams | None" = None,
+    ) -> tuple[RoutePath, RoutePath]:
+        """Route a differential pair using Dual-Front A* search.
+
+        This implements joint state space pathfinding where both traces are
+        routed simultaneously to maintain coupling.
+
+        Args:
+            net_pos: Positive net name (e.g., 'USB_D+')
+            net_neg: Negative net name (e.g., 'USB_D-')
+            start_pos: Starting position (x,y) for positive net in mm
+            end_pos: Ending position (x,y) for positive net in mm
+            start_neg: Starting position (x,y) for negative net in mm
+            end_neg: Ending position (x,y) for negative net in mm
+            spacing_mm: Nominal gap between traces
+            coupling_tolerance_mm: Maximum allowed deviation from spacing
+            p_scale: Congestion scaling factor
+            enable_length_matching: Apply serpentine insertion to equalize lengths
+            serpentine_params: Configuration for meander insertion (uses defaults if None)
+
+        Returns:
+            Tuple of (path_pos, path_neg) RoutePath objects
+        """
+        # Convert world coordinates to grid cells
+        sx_pos, sy_pos = self._world_to_grid(*start_pos)
+        ex_pos, ey_pos = self._world_to_grid(*end_pos)
+        sx_neg, sy_neg = self._world_to_grid(*start_neg)
+        ex_neg, ey_neg = self._world_to_grid(*end_neg)
+
+        # Start on layer 0 for both
+        start_state = DiffPairCell(
+            pos=GridCell(sx_pos, sy_pos, 0),
+            neg=GridCell(sx_neg, sy_neg, 0)
+        )
+        goal_pos = GridCell(ex_pos, ey_pos, 0)
+        goal_neg = GridCell(ex_neg, ey_neg, 0)
+
+        # Prepare cost arrays for fast access
+        self._prepare_cost_arrays()
+
+        # A* data structures
+        # Use counter as tie-breaker to avoid DiffPairCell comparison
+        counter = 0
+        open_set: list[tuple[float, int, DiffPairCell]] = []
+        heapq.heappush(open_set, (0.0, counter, start_state))
+
+        came_from: dict[DiffPairCell, DiffPairCell] = {}
+        g_score: dict[DiffPairCell, float] = {start_state: 0.0}
+
+        # Heuristic: max of individual Manhattan distances
+        def h(state: DiffPairCell) -> float:
+            return max(
+                self._heuristic(state.pos, goal_pos),
+                self._heuristic(state.neg, goal_neg)
+            )
+
+        f_score: dict[DiffPairCell, float] = {start_state: h(start_state)}
+        visited = set()
+
+        # Coupling penalty weight
+        coupling_weight = 10.0
+        spacing_cells = spacing_mm / self.cell_size
+
+        # Helper: Generate valid neighbor pairs
+        def get_diff_pair_neighbors(state: DiffPairCell) -> list[DiffPairCell]:
+            """Generate neighbor states maintaining coupling constraints."""
+            neighbors = []
+
+            # Movement directions: N, S, E, W, same layer transitions
+            moves = [(0, 1), (0, -1), (1, 0), (-1, 0), (0, 0)]
+
+            # Both traces can move independently but must maintain spacing
+            for dx_pos, dy_pos in moves:
+                for dx_neg, dy_neg in moves:
+                    # Skip if both stationary
+                    if dx_pos == 0 and dy_pos == 0 and dx_neg == 0 and dy_neg == 0:
+                        continue
+
+                    new_pos = GridCell(
+                        state.pos.x + dx_pos,
+                        state.pos.y + dy_pos,
+                        state.pos.layer
+                    )
+                    new_neg = GridCell(
+                        state.neg.x + dx_neg,
+                        state.neg.y + dy_neg,
+                        state.neg.layer
+                    )
+
+                    # Bounds check
+                    if not (0 <= new_pos.x < self.grid_size[0] and
+                           0 <= new_pos.y < self.grid_size[1]):
+                        continue
+                    if not (0 <= new_neg.x < self.grid_size[0] and
+                           0 <= new_neg.y < self.grid_size[1]):
+                        continue
+
+                    # Check spacing constraint
+                    dx = new_pos.x - new_neg.x
+                    dy = new_pos.y - new_neg.y
+                    dist_cells = math.sqrt(dx*dx + dy*dy)
+                    deviation = abs(dist_cells - spacing_cells)
+
+                    # Prune states that violate coupling tolerance
+                    if deviation * self.cell_size > coupling_tolerance_mm:
+                        continue
+
+                    new_state = DiffPairCell(pos=new_pos, neg=new_neg)
+                    neighbors.append(new_state)
+
+            return neighbors
+
+        # Dual-Front A* search
+        iterations = 0
+        max_iterations = 100000
+
+        while open_set and iterations < max_iterations:
+            iterations += 1
+
+            current_f, _, current = heapq.heappop(open_set)
+
+            # Goal check: both traces reached their targets
+            if current.pos == goal_pos and current.neg == goal_neg:
+                # Reconstruct paths
+                path_pos_cells = []
+                path_neg_cells = []
+                state = current
+
+                while state in came_from:
+                    path_pos_cells.append(state.pos)
+                    path_neg_cells.append(state.neg)
+                    state = came_from[state]
+
+                path_pos_cells.append(start_state.pos)
+                path_neg_cells.append(start_state.neg)
+                path_pos_cells.reverse()
+                path_neg_cells.reverse()
+
+                # Clear cost arrays
+                self._clear_cost_arrays()
+
+                # Calculate path metrics
+                via_count_pos = sum(1 for i in range(len(path_pos_cells)-1)
+                                   if path_pos_cells[i].layer != path_pos_cells[i+1].layer)
+                via_count_neg = sum(1 for i in range(len(path_neg_cells)-1)
+                                   if path_neg_cells[i].layer != path_neg_cells[i+1].layer)
+
+                length_pos = len(path_pos_cells) * self.cell_size
+                length_neg = len(path_neg_cells) * self.cell_size
+
+                path_pos = RoutePath(
+                    net=net_pos,
+                    cells=path_pos_cells,
+                    length=length_pos,
+                    via_count=via_count_pos,
+                    success=True
+                )
+                path_neg = RoutePath(
+                    net=net_neg,
+                    cells=path_neg_cells,
+                    length=length_neg,
+                    via_count=via_count_neg,
+                    success=True
+                )
+
+                # Apply length matching if enabled
+                if enable_length_matching:
+                    from temper_placer.routing.post_processing.length_matcher import (
+                        LengthMatcher,
+                        SerpentineParams,
+                    )
+
+                    matcher = LengthMatcher()
+                    params = serpentine_params or SerpentineParams()
+                    path_pos, path_neg = matcher.match_differential_pair_lengths(
+                        path_pos, path_neg, params
+                    )
+
+                logger.info(f"Differential pair {net_pos}/{net_neg} routed successfully "
+                          f"({iterations} iterations, {len(path_pos_cells)} cells)")
+                return path_pos, path_neg
+
+            if current in visited:
+                continue
+            visited.add(current)
+
+            # Explore neighbors
+            for neighbor in get_diff_pair_neighbors(current):
+                if neighbor in visited:
+                    continue
+
+                # Calculate cost for both traces
+                cost_pos = self._get_neighbor_cost(current.pos, neighbor.pos, p_scale=p_scale)
+                cost_neg = self._get_neighbor_cost(current.neg, neighbor.neg, p_scale=p_scale)
+
+                # Check if either path is blocked
+                if cost_pos >= 1e9 or cost_neg >= 1e9:
+                    continue
+
+                # Coupling penalty: penalize deviation from nominal spacing
+                dx = neighbor.pos.x - neighbor.neg.x
+                dy = neighbor.pos.y - neighbor.neg.y
+                actual_spacing = math.sqrt(dx*dx + dy*dy) * self.cell_size
+                coupling_penalty = coupling_weight * abs(actual_spacing - spacing_mm)
+
+                # Total cost: sum of individual costs + coupling penalty
+                tentative_g = g_score[current] + cost_pos + cost_neg + coupling_penalty
+
+                if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+                    f = tentative_g + h(neighbor)
+                    f_score[neighbor] = f
+                    counter += 1
+                    heapq.heappush(open_set, (f, counter, neighbor))
+
+        # Failed to route
+        self._clear_cost_arrays()
+
+        failure_reason = "max iterations" if iterations >= max_iterations else "no path found"
+        logger.warning(f"Differential pair {net_pos}/{net_neg} failed: {failure_reason}")
+
+        path_pos = RoutePath(net=net_pos, cells=[], length=0, via_count=0,
+                            success=False, failure_reason=failure_reason)
+        path_neg = RoutePath(net=net_neg, cells=[], length=0, via_count=0,
+                            success=False, failure_reason=failure_reason)
+
+        return path_pos, path_neg
+
     def rrr_route_all_nets(
         self,
         netlist: Netlist,
@@ -1821,14 +2155,67 @@ class MazeRouter:
                     for pin in comp.pins:
                         if pin.name == pin_name or pin.number == pin_name:
                             pin_positions.append(
-                                pin.absolute_position(
+                                 pin.absolute_position(
                                     tuple(positions[comp_idx]),
                                     math.radians((comp.initial_rotation or 0) * 90),
-                                    side=comp.initial_side or 0,
                                 )
                             )
                             break
             all_pin_positions[net_name] = pin_positions
+
+        # Identify and route differential pairs (temper-v35p.1.4)
+        diff_pair_nets = set()
+        if self.design_rules and self.design_rules.differential_pairs:
+            logger.info("Processing differential pairs...")
+            for pair in self.design_rules.differential_pairs:
+                if pair.net_pos in all_pin_positions and pair.net_neg in all_pin_positions:
+                    pos_pins = all_pin_positions[pair.net_pos]
+                    neg_pins = all_pin_positions[pair.net_neg]
+
+                    if len(pos_pins) == 2 and len(neg_pins) == 2:
+                        logger.info(f"Routing differential pair: {pair.net_pos} / {pair.net_neg}")
+
+                        path_pos, path_neg = self.find_path_diff_pair(
+                            net_pos=pair.net_pos,
+                            net_neg=pair.net_neg,
+                            start_pos=pos_pins[0],
+                            end_pos=pos_pins[1],
+                            start_neg=neg_pins[0],
+                            end_neg=neg_pins[1],
+                            spacing_mm=pair.spacing_mm,
+                            coupling_tolerance_mm=pair.coupling_tolerance_mm
+                        )
+
+                        # Store results
+                        self.routed_paths[pair.net_pos] = path_pos
+                        self.routed_paths[pair.net_neg] = path_neg
+
+                        # Mark occupancy
+                        if path_pos.success:
+                            self._register_routed_path(path_pos.cells, pair.net_pos)
+                            for cell in path_pos.cells:
+                                self.occupancy[cell.x, cell.y, cell.layer] = 2
+                                self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
+                                key = (cell.x, cell.y, cell.layer)
+                                if key not in self.net_occupancy:
+                                    self.net_occupancy[key] = set()
+                                self.net_occupancy[key].add(pair.net_pos)
+
+                        if path_neg.success:
+                            self._register_routed_path(path_neg.cells, pair.net_neg)
+                            for cell in path_neg.cells:
+                                self.occupancy[cell.x, cell.y, cell.layer] = 2
+                                self.present_congestion[cell.x, cell.y, cell.layer] += 1.0
+                                key = (cell.x, cell.y, cell.layer)
+                                if key not in self.net_occupancy:
+                                    self.net_occupancy[key] = set()
+                                self.net_occupancy[key].add(pair.net_neg)
+
+                        # Mark as handled
+                        diff_pair_nets.add(pair.net_pos)
+                        diff_pair_nets.add(pair.net_neg)
+                    else:
+                        logger.warning(f"Skipping diff pair {pair.net_pos}/{pair.net_neg}: not 2-pin nets")
 
         progress_history: list[RoutingProgress] = []
         forced_reroute: set[str] = set()  # Nets to force reroute next iteration
@@ -1839,12 +2226,14 @@ class MazeRouter:
 
             # Determine which nets to route this iteration
             if iteration == 0 or not incremental:
-                nets_to_route = [n for n in net_order if n in all_pin_positions]
+                nets_to_route = [n for n in net_order if n in all_pin_positions and n not in diff_pair_nets]
             else:
                 # Only reroute nets involved in conflicts + forced reroute (blockers)
                 # Shuffle order to break symmetry and explore different solutions
                 conflicted = set(self._get_conflicted_nets())
                 conflicted.update(forced_reroute)  # Add blocking nets from previous iteration
+                # Filter out diff pair nets from rerouting (treat them as fixed)
+                conflicted.difference_update(diff_pair_nets)
                 nets_to_route = list(conflicted)
                 random.shuffle(nets_to_route)
                 forced_reroute.clear()  # Reset for this iteration
@@ -2131,6 +2520,88 @@ class MazeRouter:
                 converged=new_count >= 2,
             )
 
+    def route_net_with_graph(
+        self,
+        net_name: str,
+        pin_positions: dict[str, tuple[float, float]],
+        graph: NetGraph,
+        assignment: "LayerAssignment",
+        cost_map: Array | None = None,
+        p_scale: float = 1.0,
+    ) -> RoutePath:
+        """Route a net using a topology graph (NetGraph) with per-edge constraints.
+
+        Routes each edge in the graph sequentially, accumulating the path.
+        """
+        # Sort edges by priority (highest first)
+        sorted_edges = sorted(graph.edges, key=lambda e: e.priority, reverse=True)
+
+                all_cells = []
+                total_vias = 0
+                total_difficulty = 0.0
+                cell_difficulties = []
+                segments = []
+                success = True
+                failure_reason = None
+                
+                # Track routed edges to avoid duplicates if graph is redundant? 
+                # NetGraph edges are directed. We assume they form a valid tree/forest.
+                
+                for edge in sorted_edges:
+                    if edge.source_pin not in pin_positions:
+                        logger.warning(f"Missing source pin {edge.source_pin} for net {net_name}")
+                        continue
+                    if edge.sink_pin not in pin_positions:
+                        logger.warning(f"Missing sink pin {edge.sink_pin} for net {net_name}")
+                        continue
+                        
+                    start_pos = pin_positions[edge.source_pin]
+                    end_pos = pin_positions[edge.sink_pin]
+                    
+                    # Determine constraints for this edge
+                    # If not specified in edge, use default/passed rules
+                    # Note: route_net_rrr determines rules from DesignRules if not passed.
+                    # We pass explicit overrides if they exist.
+                    
+                    # Route this segment
+                    # We treat it as a 2-pin net routing
+                    segment_path = self.route_net_rrr(
+                        net_name,
+                        [start_pos, end_pos],
+                        assignment,
+                        cost_map,
+                        p_scale,
+                        trace_width_mm=edge.trace_width_mm,
+                        clearance_mm=edge.clearance_mm
+                    )
+                    
+                    if not segment_path.success:
+                        success = False
+                        failure_reason = f"Failed edge {edge.source_pin}->{edge.sink_pin}: {segment_path.failure_reason}"                # We continue routing other edges to get a partial result? 
+                # Or abort? Usually partial routing is better than nothing in RRR.
+            
+            # Accumulate results
+            if segment_path.cells:
+                all_cells.extend(segment_path.cells)
+                total_vias += segment_path.via_count
+                total_difficulty += segment_path.difficulty
+                cell_difficulties.extend(segment_path.cell_difficulties)
+                segments.append(segment_path)
+        
+        # Consolidate cells (remove duplicates from overlapping endpoints)
+        
+        return RoutePath(
+            net=net_name,
+            cells=all_cells, # Contains duplicates?
+            length=float(len(set(all_cells))), # Approx length
+            via_count=total_vias,
+            success=success,
+            difficulty=total_difficulty,
+            cell_difficulties=cell_difficulties,
+            failure_reason=failure_reason,
+            segments=segments
+        )
+    
     def route_net_rrr(
         self,
         net_name: str,
@@ -2254,20 +2725,20 @@ class MazeRouter:
         if HAS_NUMBA and self.design_rules:
             rules_c = self.design_rules.get_rules_for_net(net_name)
             current_class_id = self._get_class_id(rules_c)
-            
+
             # Define required clearance to other classes
             req_from_hv = 8.0 if current_class_id != CLASS_HV else 2.0
             req_from_lv = 8.0 if current_class_id == CLASS_HV else 0.2
-            
+
             if req_from_hv > self.min_clearance or req_from_lv > self.min_clearance:
                 w, h, num_l = self.grid_size[0], self.grid_size[1], self.num_layers
-                
+
                 start_mask_gen = time.perf_counter()
-                
+
                 hv_obs = ((self.class_grid == CLASS_HV) & (self.occupancy != 0)).astype(np.int32)
                 lv_obs = ((self.class_grid == CLASS_LV) & (self.occupancy != 0)).astype(np.int32)
                 default_obs = ((self.class_grid == CLASS_DEFAULT) & (self.occupancy != 0)).astype(np.int32)
-                
+
                 if current_class_id == CLASS_HV:
                     lv_obs |= default_obs
                 else:
@@ -2275,19 +2746,19 @@ class MazeRouter:
 
                 rad_hv = int(math.ceil(req_from_hv / self.cell_size))
                 rad_lv = int(math.ceil(req_from_lv / self.cell_size))
-                
+
                 mask_hv = dilate_grid_numba(hv_obs, rad_hv) if rad_hv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
                 mask_lv = dilate_grid_numba(lv_obs, rad_lv) if rad_lv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
-                
+
                 clearance_mask = mask_hv | mask_lv
-                
+
                 # Clear start/end pin regions
                 for gx, gy in [p for p in grid_pins]:
                      r_clr = max(rad_hv, rad_lv)
                      x_min, x_max = max(0, gx - r_clr), min(w, gx + r_clr + 1)
                      y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
                      clearance_mask[x_min:x_max, y_min:y_max, :] = 0
-                
+
                 self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
 
         for start_layer in candidate_start_layers:
@@ -2310,11 +2781,11 @@ class MazeRouter:
                     seg_layer = current_cells[-1].layer if current_cells else start_layer
 
                 path = self.find_path_rrr(
-                    start_node, 
-                    end_node, 
-                    seg_layer, 
-                    allow_via, 
-                    cost_map=cost_map, 
+                    start_node,
+                    end_node,
+                    seg_layer,
+                    allow_via,
+                    cost_map=cost_map,
                     p_scale=p_scale,
                     end_layer=target_layer,
                     clearance_mm=clearance_mm,
@@ -2392,28 +2863,28 @@ class MazeRouter:
         if HAS_NUMBA and self.design_rules:
             rules_c = self.design_rules.get_rules_for_net(net_name)
             net_class = self._get_class_id(rules_c)
-            
+
             # Define required clearance to other classes
             req_from_hv = 8.0 if net_class != CLASS_HV else 2.0  # HV-HV=2mm, LV-HV=8mm
             req_from_lv = 8.0 if net_class == CLASS_HV else 0.2  # HV-LV=8mm, LV-LV=0.2mm
-            
+
             # Check if we need non-standard clearance (assume default min_clearance covers baseline)
             # Actually, we should build the full mask if we have differentiated rules
             if req_from_hv > self.min_clearance or req_from_lv > self.min_clearance:
                 w, h, num_l = self.grid_size[0], self.grid_size[1], self.num_layers
-                
+
                 # Extract obstacles by class
-                # Note: occupancy != 0 is general check, but we exclude current net? 
+                # Note: occupancy != 0 is general check, but we exclude current net?
                 # Ideally yes, but route_net_rrr temporarily clears current net from occupancy?
                 # No, route_net_rrr does NOT verify start/end unblocking generally.
                 # However, occupancy includes mapped pads. block_pads marks pads with -1 and class_id.
-                
+
                 # 1. HV Obstacles
                 start_mask_gen = time.perf_counter()
-                
+
                 # We need numpy arrays for Numba
                 # self.class_grid is already numpy
-                
+
                 # Use int32 for dilate_grid_numba
                 hv_obs = ((self.class_grid == CLASS_HV) & (self.occupancy != 0)).astype(np.int32)
                 lv_obs = ((self.class_grid == CLASS_LV) & (self.occupancy != 0)).astype(np.int32)
@@ -2430,12 +2901,12 @@ class MazeRouter:
                 # Dilate
                 rad_hv = int(math.ceil(req_from_hv / self.cell_size))
                 rad_lv = int(math.ceil(req_from_lv / self.cell_size))
-                
+
                 mask_hv = dilate_grid_numba(hv_obs, rad_hv) if rad_hv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
                 mask_lv = dilate_grid_numba(lv_obs, rad_lv) if rad_lv > 0 else np.zeros((w,h,num_l), dtype=np.int32)
-                
+
                 clearance_mask = mask_hv | mask_lv
-                
+
                 # Clear start/end pin regions from mask (essential for connectivity)
                 # Clearance rules shouldn't prevent connecting to the pin itself
                 for gx, gy in [p for p in grid_pins]:
@@ -2444,7 +2915,7 @@ class MazeRouter:
                      x_min, x_max = max(0, gx - r_clr), min(w, gx + r_clr + 1)
                      y_min, y_max = max(0, gy - r_clr), min(h, gy + r_clr + 1)
                      clearance_mask[x_min:x_max, y_min:y_max, :] = 0
-                
+
                 self.stats.profile.conflict_analysis_ms += (time.perf_counter() - start_mask_gen) * 1000.0
 
         # Mark cells as occupied with differentiated inflation
@@ -2508,7 +2979,7 @@ class MazeRouter:
         self._prepare_cost_arrays()
 
         start_cell = GridCell(start[0], start[1], layer)
-        
+
         # Determine target layer: either explicit end_layer or same as start layer
         target_layer = end_layer if end_layer is not None else layer
         end_cell = GridCell(end[0], end[1], target_layer)

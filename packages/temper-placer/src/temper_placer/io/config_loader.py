@@ -14,11 +14,17 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import yaml
 
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
+from temper_placer.core.differential_pair import DifferentialPairConstraint
+from temper_placer.core.net_graph import NetGraph, SubNetEdge
+
+if TYPE_CHECKING:
+    from temper_placer.core.design_rules import DesignRules
+    from temper_placer.core.netlist import Netlist
 
 
 @dataclass
@@ -322,8 +328,32 @@ class NetClassRule:
     clearance_mm: float = 0.2
     via_size_mm: float = 0.6
     via_drill_mm: float = 0.3
+    via_template: str | None = None  # Via array template (e.g., "Via2x2")
     creepage_mm: float = 0.0
     allow_neckdown: bool = True
+    description: str = ""
+
+
+@dataclass
+class DifferentialPairRule:
+    """Configuration for a differential pair from YAML.
+
+    Attributes:
+        net_pos: Positive net name (e.g., 'USB_D+')
+        net_neg: Negative net name (e.g., 'USB_D-')
+        spacing_mm: Nominal gap between traces in mm
+        coupling_tolerance_mm: Maximum deviation from spacing in mm
+        impedance_ohm: Target differential impedance (optional)
+        max_skew_mm: Maximum length mismatch in mm
+        description: Human-readable description
+    """
+
+    net_pos: str
+    net_neg: str
+    spacing_mm: float = 0.2
+    coupling_tolerance_mm: float = 0.5
+    impedance_ohm: float | None = None
+    max_skew_mm: float = 0.5
     description: str = ""
 
 
@@ -386,7 +416,7 @@ class PlacementConstraints:
 
     # Fixed components (won't be optimized)
     fixed_components: list[str] = field(default_factory=list)
-    
+
     # Fixed positions (component ref -> (x, y) in mm)
     fixed_positions: dict[str, tuple[float, float]] = field(default_factory=dict)
 
@@ -399,6 +429,11 @@ class PlacementConstraints:
     # Net class design rules (class_name -> NetClassRule)
     net_class_rules: dict[str, NetClassRule] = field(default_factory=dict)
 
+    # Differential pair routing rules
+    differential_pairs: list[DifferentialPairRule] = field(default_factory=list)
+
+    # Net topology constraints (NetGraph)
+    net_topologies: list[NetGraph] = field(default_factory=list)
 
     # Layer stackup
     layer_stackup: LayerStackup | None = None
@@ -460,7 +495,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.board_width_mm = board.get("width_mm", 100.0)
         constraints.board_height_mm = board.get("height_mm", 150.0)
         constraints.board_margin_mm = board.get("margin_mm", 3.0)
-        
+
         if "keepouts" in board:
             for ko in board["keepouts"]:
                 if isinstance(ko, (list, tuple)) and len(ko) >= 4:
@@ -633,7 +668,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             leader = group_cfg.get("leader")
             followers = group_cfg.get("followers", [])
             components = []
-            if leader: components.append(leader)
+            if leader:
+                components.append(leader)
             components.extend(followers)
             if components:
                 group = ComponentGroup(
@@ -685,7 +721,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "fixed_components" in config:
         constraints.fixed_components = config["fixed_components"]
-    
+
     if "fixed_positions" in config:
         for ref, pos in config["fixed_positions"].items():
             if isinstance(pos, (list, tuple)) and len(pos) >= 2:
@@ -712,7 +748,40 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.net_class_rules[name] = rule
 
+    if "differential_pairs" in config:
+        for dp_cfg in config["differential_pairs"]:
+            pair = DifferentialPairRule(
+                net_pos=dp_cfg["net_pos"],
+                net_neg=dp_cfg["net_neg"],
+                spacing_mm=dp_cfg.get("spacing_mm", 0.2),
+                coupling_tolerance_mm=dp_cfg.get("coupling_tolerance_mm", 0.5),
+                impedance_ohm=dp_cfg.get("impedance_ohm"),
+                max_skew_mm=dp_cfg.get("max_skew_mm", 0.5),
+                description=dp_cfg.get("description", ""),
+            )
+            constraints.differential_pairs.append(pair)
 
+    if "net_topology" in config:
+        for net_name, topo_cfg in config["net_topology"].items():
+            graph = NetGraph(net_name=net_name)
+
+            # Parse star nodes
+            if "star_nodes" in topo_cfg:
+                graph.star_nodes = set(topo_cfg["star_nodes"])
+
+            # Parse edges
+            if "edges" in topo_cfg:
+                for edge_cfg in topo_cfg["edges"]:
+                    edge = SubNetEdge(
+                        source_pin=edge_cfg["source"],
+                        sink_pin=edge_cfg["sink"],
+                        trace_width_mm=edge_cfg.get("width"),
+                        clearance_mm=edge_cfg.get("clearance"),
+                        priority=edge_cfg.get("priority", 0),
+                    )
+                    graph.edges.append(edge)
+
+            constraints.net_topologies.append(graph)
 
     if "aesthetics" in config:
         aes = config["aesthetics"]
@@ -744,7 +813,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             ]:
                 if loss_name in losses_cfg:
                     loss_data = losses_cfg[loss_name]
-                    if loss_data is None: continue
+                    if loss_data is None:
+                        continue
                     elif isinstance(loss_data, dict):
                         w = float(loss_data.get("weight", 1.0))
                         _validate_weight(w, loss_name)
@@ -755,7 +825,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                         loss_config = LossConfig(weight=w)
                     setattr(losses_config, loss_name, loss_config)
             constraints.losses = losses_config
-    
+
     if "loss_weights" in config and constraints.losses is None:
         loss_weights = config["loss_weights"]
         if loss_weights:
@@ -786,9 +856,10 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     return constraints
 
 
-def constraints_to_design_rules(constraints: PlacementConstraints) -> "DesignRules":
+def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRules:
     """Convert placement constraints to routing design rules."""
-    from temper_placer.core.design_rules import DesignRules, NetClassRules as CoreNetClassRules
+    from temper_placer.core.design_rules import DesignRules
+    from temper_placer.core.design_rules import NetClassRules as CoreNetClassRules
 
     rules = DesignRules()
 
@@ -804,8 +875,21 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> "DesignRul
             clearance=rule.clearance_mm,
             via_diameter=rule.via_size_mm,
             via_drill=rule.via_drill_mm,
+            via_template=rule.via_template or "Via1x1",  # Default to single via
             creepage_mm=rule.creepage_mm,
         )
+
+    # Convert differential pair rules
+    for pair_rule in constraints.differential_pairs:
+        pair_constraint = DifferentialPairConstraint(
+            net_pos=pair_rule.net_pos,
+            net_neg=pair_rule.net_neg,
+            spacing_mm=pair_rule.spacing_mm,
+            coupling_tolerance_mm=pair_rule.coupling_tolerance_mm,
+            impedance_ohm=pair_rule.impedance_ohm,
+            max_skew_mm=pair_rule.max_skew_mm,
+        )
+        rules.differential_pairs.append(pair_constraint)
 
     return rules
 
@@ -839,12 +923,12 @@ def apply_fixed_components_to_netlist(netlist, constraints: PlacementConstraints
     """Apply fixed_components list from constraints to netlist."""
     if not constraints.fixed_components and not constraints.fixed_positions:
         return
-    
+
     fixed_set = set(constraints.fixed_components)
     for comp in netlist.components:
         if comp.ref in fixed_set:
             comp.fixed = True
-        
+
         if comp.ref in constraints.fixed_positions:
             pos = constraints.fixed_positions[comp.ref]
             comp.initial_position = pos
