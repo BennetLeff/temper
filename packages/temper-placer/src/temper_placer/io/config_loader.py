@@ -336,6 +336,7 @@ class NetClassRule:
     voltage_v: float = 0.0 # Working voltage for creepage calculation
     max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
     routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    target_impedance: float | None = None  # Target impedance in Ohms
 
 
 @dataclass
@@ -756,16 +757,28 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 target_impedance=rule_cfg.get("target_impedance"),
                 voltage_v=rule_cfg.get("voltage_v", 0.0),  # Newly added field
             )
-            rules.net_classes[name] = rule
+            constraints.net_class_rules[name] = rule
 
     if "differential_pairs" in config:
         for dp_cfg in config["differential_pairs"]:
+            # Support multiple key variants
+            pos = dp_cfg.get("positive_net") or dp_cfg.get("net_pos")
+            neg = dp_cfg.get("negative_net") or dp_cfg.get("net_neg")
+            
+            if not pos or not neg:
+                import logging
+                logging.getLogger(__name__).warning(f"Differential pair missing nets: {dp_cfg}")
+                continue
+
+            spacing = dp_cfg.get("separation_mm") or dp_cfg.get("spacing_mm") or 0.2
+            impedance = dp_cfg.get("target_impedance_ohm") or dp_cfg.get("impedance_ohm")
+
             pair = DifferentialPairRule(
-                net_pos=dp_cfg["net_pos"],
-                net_neg=dp_cfg["net_neg"],
-                spacing_mm=dp_cfg.get("spacing_mm", 0.2),
+                net_pos=pos,
+                net_neg=neg,
+                spacing_mm=spacing,
                 coupling_tolerance_mm=dp_cfg.get("coupling_tolerance_mm", 0.5),
-                impedance_ohm=dp_cfg.get("impedance_ohm"),
+                impedance_ohm=impedance,
                 max_skew_mm=dp_cfg.get("max_skew_mm", 0.5),
                 description=dp_cfg.get("description", ""),
             )
@@ -791,6 +804,33 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     )
                     graph.edges.append(edge)
 
+            constraints.net_topologies.append(graph)
+
+    if "kelvin_sensing" in config:
+        for ks_cfg in config["kelvin_sensing"]:
+            net_name = ks_cfg["net_name"]
+            star_pin = ks_cfg["star_point_pin"]
+            graph = NetGraph(net_name=net_name)
+            graph.star_nodes.add(star_pin)
+            
+            # Create edges for force pins
+            for fp in ks_cfg.get("force_pins", []):
+                graph.edges.append(SubNetEdge(
+                    source_pin=star_pin,
+                    sink_pin=fp,
+                    trace_width_mm=ks_cfg.get("force_width_mm", 1.0),
+                    priority=10 # Force lines route first
+                ))
+                
+            # Create edges for sense pins
+            for sp in ks_cfg.get("sense_pins", []):
+                graph.edges.append(SubNetEdge(
+                    source_pin=star_pin,
+                    sink_pin=sp,
+                    trace_width_mm=ks_cfg.get("sense_width_mm", 0.2),
+                    priority=5
+                ))
+            
             constraints.net_topologies.append(graph)
 
     if "aesthetics" in config:

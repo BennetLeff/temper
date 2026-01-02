@@ -240,7 +240,8 @@ class DiffPairRouter:
                     # Fronts met! Reconstruct path
                     return self._reconstruct_path(
                         current, backward_visited[current.state],
-                        forward_visited, backward_visited
+                        forward_visited, backward_visited,
+                        enable_length_matching
                     )
                 
                 # Generate and process neighbors
@@ -278,7 +279,8 @@ class DiffPairRouter:
                     # Fronts met! Reconstruct path
                     return self._reconstruct_path(
                         forward_visited[current.state], current,
-                        forward_visited, backward_visited
+                        forward_visited, backward_visited,
+                        enable_length_matching
                     )
                 
                 # Generate and process neighbors (reverse direction)
@@ -333,6 +335,7 @@ class DiffPairRouter:
         backward_node: SearchNode,
         forward_visited: dict,
         backward_visited: dict,
+        enable_length_matching: bool = True,
     ) -> DiffPairPath:
         """
         Reconstruct path when forward and backward fronts meet.

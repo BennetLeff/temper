@@ -375,7 +375,12 @@ def export_routed_pcb(
 
         # Convert path to geometry
         segments = path_to_segments(path, origin, cell_size, trace_width, layer_map)
-        vias = path_to_vias(path, origin, cell_size, via_size, via_drill, layer_map)
+        
+        # Use explicit vias (e.g. via arrays) if present, otherwise infer from layer transitions
+        if path.explicit_vias:
+            vias = path.explicit_vias
+        else:
+            vias = path_to_vias(path, origin, cell_size, via_size, via_drill, layer_map)
 
         all_segments.extend(segments)
         all_vias.extend(vias)

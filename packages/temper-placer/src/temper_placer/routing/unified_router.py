@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
 
+import numpy as np
 from jax import Array
 
 from temper_placer.core.board import Board
@@ -702,6 +703,7 @@ class UnifiedRouter:
         positions: Array,
         target_separation_mm: float = 0.2,
         max_skew_mm: float = 0.5,
+        max_divergence_mm: float = 2.0,
         enable_length_matching: bool = True,
     ):
         """
@@ -727,17 +729,32 @@ class UnifiedRouter:
         
         for net in netlist.nets:
             if net.name == net_pos:
-                for pin_ref in net.pin_refs:
-                    comp_idx = netlist.get_component_index(pin_ref.component_name)
+                for comp_ref, pin_name in net.pins:
+                    comp_idx = netlist.get_component_index(comp_ref)
                     if comp_idx is not None:
-                        x, y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
-                        pos_pins.append((x, y))
+                        # Use absolute_position to handle rotations correctly
+                        comp = netlist.components[comp_idx]
+                        pin = comp.get_pin(pin_name)
+                        if pin:
+                            pos = pin.absolute_position(
+                                tuple(positions[comp_idx]),
+                                math.radians((comp.initial_rotation or 0) * 90),
+                                side=comp.initial_side or 0
+                            )
+                            pos_pins.append(pos)
             elif net.name == net_neg:
-                for pin_ref in net.pin_refs:
-                    comp_idx = netlist.get_component_index(pin_ref.component_name)
+                for comp_ref, pin_name in net.pins:
+                    comp_idx = netlist.get_component_index(comp_ref)
                     if comp_idx is not None:
-                        x, y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
-                        neg_pins.append((x, y))
+                        comp = netlist.components[comp_idx]
+                        pin = comp.get_pin(pin_name)
+                        if pin:
+                            pos = pin.absolute_position(
+                                tuple(positions[comp_idx]),
+                                math.radians((comp.initial_rotation or 0) * 90),
+                                side=comp.initial_side or 0
+                            )
+                            neg_pins.append(pos)
         
         if len(pos_pins) < 2 or len(neg_pins) < 2:
             raise ValueError(f"Differential pair {net_pos}/{net_neg} must have at least 2 pins each")
@@ -747,18 +764,40 @@ class UnifiedRouter:
         goal_pins = (pos_pins[-1], neg_pins[-1])
         
         # Get obstacles from maze router's blocked cells
-        obstacles = self.maze_router._blocked_cells
+        # In MazeRouter, -1 indicates a hard block (component/pad)
+        obstacles = set()
+        blocked_indices = np.where(self.maze_router.occupancy == -1)
+        for x, y, l in zip(*blocked_indices):
+            obstacles.add((int(x), int(y), int(l)))
+            
+        # Unblock start/goal pins with a radius to escape pads
+        s_pos_grid = self.maze_router._world_to_grid(start_pins[0][0], start_pins[0][1])
+        s_neg_grid = self.maze_router._world_to_grid(start_pins[1][0], start_pins[1][1])
+        g_pos_grid = self.maze_router._world_to_grid(goal_pins[0][0], goal_pins[0][1])
+        g_neg_grid = self.maze_router._world_to_grid(goal_pins[1][0], goal_pins[1][1])
+        
+        unblock_radius = max(3, int(1.0 / self.maze_router.cell_size))
+        
+        for px, py in [s_pos_grid, s_neg_grid, g_pos_grid, g_neg_grid]:
+            for dx in range(-unblock_radius, unblock_radius + 1):
+                for dy in range(-unblock_radius, unblock_radius + 1):
+                    gx, gy = px + dx, py + dy
+                    if 0 <= gx < self.maze_router.grid_size[0] and 0 <= gy < self.maze_router.grid_size[1]:
+                        for l in range(self.maze_router.num_layers):
+                            if (gx, gy, l) in obstacles:
+                                obstacles.remove((gx, gy, l))
         
         # Create diff pair router
         diff_router = DiffPairRouter(
             grid_size=(
-                self.maze_router.grid.shape[0],
-                self.maze_router.grid.shape[1],
-                self.maze_router.grid.shape[2],
+                self.maze_router.grid_size[0],
+                self.maze_router.grid_size[1],
+                self.maze_router.num_layers,
             ),
-            cell_size_mm=self.maze_router.cell_size_mm,
+            cell_size_mm=self.maze_router.cell_size,
             target_separation_mm=target_separation_mm,
             max_skew_mm=max_skew_mm,
+            max_divergence_mm=max_divergence_mm,
         )
         
         # Route the pair

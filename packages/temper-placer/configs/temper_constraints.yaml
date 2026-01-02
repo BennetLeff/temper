@@ -544,7 +544,7 @@ kelvin_sensing:
   - net_name: "I_SENSE"
     star_point_pin: "R_BURDEN.1"
     force_pins: ["U_CT.OUT"]
-    sense_pins: ["U_OPAMP_CT.IN"]
+    sense_pins: ["U_OPAMP_CT.IN", "C_CT_FILT.1"]
     force_width_mm: 2.0
     sense_width_mm: 0.2
     description: "Current sensing with Kelvin star-point"

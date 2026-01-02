@@ -62,7 +62,13 @@ def run_experiment():
     router.block_pads(components, pos_arr, netlist)
     
     print("Routing High Power Net (Layer 0 -> Layer 1)...")
-    path = router.route_net_rrr("NET_PWR_20A", [c_start.initial_position, c_end.initial_position], assignment=None)
+    sides = [c_start.initial_side, c_end.initial_side]
+    path = router.route_net_rrr(
+        "NET_PWR_20A", 
+        [c_start.initial_position, c_end.initial_position], 
+        assignment=None,
+        pin_sides=sides
+    )
     
     if not path.success:
         print(f"FAILURE: Routing failed. Reason: {path.failure_reason}")
@@ -73,34 +79,35 @@ def run_experiment():
     # Count Vias
     # A via is a transition between layers in the path cells.
     # In MazeRouter, a via might be a distinct cell type or just implied by layer change.
-    # We look for layer changes.
     
-    vias = []
-    # Identify unique (x,y) locations where layer changes occur
-    via_locations = set()
-    
-    for i in range(len(path.cells)-1):
-        c_curr = path.cells[i]
-        c_next = path.cells[i+1]
-        
-        if c_curr.layer != c_next.layer:
-            # Found a via transition
-            # Note: Transition usually happens at the same X,Y or neighbor.
-            # Standard via is at c_curr.x, c_curr.y
-            via_locations.add((c_curr.x, c_curr.y))
+    num_vias = 0
+    if hasattr(path, "explicit_vias") and path.explicit_vias:
+        print(f"DEBUG: Found explicit_vias in path: {len(path.explicit_vias)}")
+        num_vias = len(path.explicit_vias)
+    else:
+        # Fallback to counting layer transitions
+        via_locations = set()
+        for i in range(len(path.cells)-1):
+            c_curr = path.cells[i]
+            c_next = path.cells[i+1]
             
-    num_vias = len(via_locations)
+            if c_curr.layer != c_next.layer:
+                via_locations.add((c_curr.x, c_curr.y))
+        num_vias = len(via_locations)
+            
     print(f"Via Count: {num_vias}")
     
     # We defined via_size_mm=1.0.
     # A single via handles maybe 3-5A. 
     # For 20A, we need at least 4-6 vias (a "Via Farm").
+    # We requested "Via4x4" which implies up to 16 vias, but it depends on the template implementation.
+    # Current implementation of Via4x4 creates a 4x4 array -> 16 vias.
     
-    if num_vias < 2:
-        print("OBSERVATION: Router placed a SINGLE via (Expected failure mode for V5).")
-        print("FAIL: High current nets require a via array/cluster.")
+    if num_vias < 4:
+        print("OBSERVATION: Router placed fewer vias than expected.")
+        print(f"FAIL: Expected via array (>=4 vias), got {num_vias}.")
     else:
-        print(f"SUCCESS: Router placed {num_vias} vias!")
+        print(f"SUCCESS: Router placed {num_vias} vias! (Via Array functionality confirmed)")
 
 if __name__ == "__main__":
     run_experiment()

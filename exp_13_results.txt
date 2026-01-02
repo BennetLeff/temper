@@ -1,0 +1,72 @@
+DEBUG: Loading design_rules.py
+Loading constraints from YAML...
+Initializing Router V6...
+Blocking pads...
+DEBUG_CLASS: Name=GateDrive V=15.0 Cr=0.0
+DEBUG_CLASS: Name=HighVoltage V=340.0 Cr=3.0
+DEBUG_CLASS: Name=HighVoltage V=340.0 Cr=3.0
+DEBUG_CLASS: Name=GateDrive V=15.0 Cr=0.0
+DEBUG_CLASS: Name=HighVoltage V=340.0 Cr=3.0
+DEBUG_CLASS: Name=GND V=0.0 Cr=0.0
+DEBUG_CLASS: Name=HighVoltage V=340.0 Cr=3.0
+DEBUG_CLASS: Name=GND V=0.0 Cr=0.0
+DEBUG_CLASS: Name=GateDrive V=15.0 Cr=0.0
+DEBUG_CLASS: Name=GateDrive V=15.0 Cr=0.0
+DEBUG_CLASS: Name=Default V=0.0 Cr=0.0
+DEBUG_CLASS: Name=Power V=15.0 Cr=0.0
+DEBUG_CLASS: Name=GND V=0.0 Cr=0.0
+DEBUG_CLASS: Name=Default V=0.0 Cr=0.0
+DEBUG_CLASS: Name=GND V=0.0 Cr=0.0
+DEBUG: Blocked 980 grid cells for pads
+Routing...
+  RRR Iteration 1/20 (p_scale=1.0)
+Iter 1:   0%|          | 0/7 [00:00<?, ?net/s]Iter 1:  14%|█▍        | 1/7 [00:05<00:34,  5.78s/net]Iter 1:  29%|██▊       | 2/7 [00:07<00:16,  3.32s/net]Iter 1:  43%|████▎     | 3/7 [01:03<01:48, 27.24s/net]Iter 1:  57%|█████▋    | 4/7 [01:47<01:41, 33.97s/net]Iter 1:  57%|█████▋    | 4/7 [02:24<01:48, 36.07s/net]
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/router-experiments/exp_13_igbt_stage.py", line 137, in <module>
+    create_igbt_stage_from_yaml()
+  File "/Users/bennet/Desktop/temper/router-experiments/exp_13_igbt_stage.py", line 103, in create_igbt_stage_from_yaml
+    routes = router.rrr_route_all_nets(netlist, pos_arr, net_order=net_order, assignments={})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/maze_router.py", line 2213, in rrr_route_all_nets
+    result = self.route_net_rrr(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/maze_router.py", line 1656, in route_net_rrr
+    path = self.find_path_rrr_adaptive(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/maze_router.py", line 1241, in find_path_rrr_adaptive
+    move_cost = self._get_neighbor_cost(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/maze_router.py", line 530, in _get_neighbor_cost
+    diff = self._get_cell_difficulty(neighbor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/maze_router.py", line 502, in _get_cell_difficulty
+    density = self._compute_local_density(world_x, world_y)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/routing/maze_router.py", line 969, in _compute_local_density
+    point = jnp.array([x, y])
+            ^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/numpy/array_constructors.py", line 286, in array
+    out_array: Array = lax._convert_element_type(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/lax/lax.py", line 1689, in _convert_element_type
+    return convert_element_type_p.bind(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/core.py", line 633, in bind
+    return self._true_bind(*args, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/core.py", line 649, in _true_bind
+    return self.bind_with_trace(prev_trace, args, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/lax/lax.py", line 4989, in _convert_element_type_bind_with_trace
+    operand = core.Primitive.bind_with_trace(convert_element_type_p, trace, args, params)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/core.py", line 661, in bind_with_trace
+    return trace.process_primitive(self, args, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/core.py", line 1210, in process_primitive
+    return primitive.impl(*args, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.venv/lib/python3.11/site-packages/jax/_src/dispatch.py", line 91, in apply_primitive
+    outs = fun(*args)
+           ^^^^^^^^^^
+KeyboardInterrupt
