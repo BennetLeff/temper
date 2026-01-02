@@ -34,7 +34,7 @@ def test_plane_connection_basic():
     # AC_L net (20A) connects J1.1 to J2.1
     # Zone: AC_PLANE on F.Cu covering full board
     
-    board = Board(width=100.0, height=100.0, num_layers=2)
+    board = Board(width=100.0, height=100.0)
     
     # Design rules with Via4x4 template
     design_rules = DesignRules()
@@ -155,7 +155,7 @@ def test_unified_router_integration():
         return False
     
     # Create board and router
-    board = Board(width=100.0, height=100.0, num_layers=2)
+    board = Board(width=100.0, height=100.0)
     
     # Build design rules from constraints
     design_rules = DesignRules()
