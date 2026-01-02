@@ -111,7 +111,8 @@ def find_path_astar_numba(
     cost_map=None,
     clearance_mask=None,
     soft_blocking=False,
-    soft_c_space=None
+    soft_c_space=None,
+    tap_mask=None
 ):
     """
     Numba-accelerated A* pathfinding.
@@ -131,6 +132,8 @@ def find_path_astar_numba(
         soft_blocking: If False, treat occupied cells as blocked (no crossing).
                        If True, allow routing through at high cost (negotiated congestion).
         soft_c_space: Optional 2D float32 array for soft obstacle costs.
+        tap_mask: Optional 3D int32 array (1=forbidden tap point, 0=allowed).
+                  Used for star-point routing to prevent joining existing traces.
 
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
@@ -201,6 +204,11 @@ def find_path_astar_numba(
             # Check blocked (component)
             if occupancy[nx, ny, nl] == -1:
                 continue
+
+            # Check tap mask (forbid star-point tapping)
+            if tap_mask is not None:
+                if tap_mask[nx, ny, nl] != 0:
+                    continue
 
             # Soft C-space cost
             c_space_cost = 0.0

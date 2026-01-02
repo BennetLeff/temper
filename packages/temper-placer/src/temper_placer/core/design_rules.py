@@ -9,6 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 
 from temper_placer.core.differential_pair import DifferentialPairConstraint
+from temper_placer.core.net_graph import NetGraph
 
 
 @dataclass
@@ -37,7 +38,7 @@ class ViaTemplate:
     via_diameter_mm: float
     via_drill_mm: float
     pitch_mm: float
-    
+
     def get_footprint_bbox(self) -> tuple[float, float]:
         """Calculate bounding box (width, height) of via array.
         
@@ -47,7 +48,7 @@ class ViaTemplate:
         width = (self.cols - 1) * self.pitch_mm + self.via_diameter_mm
         height = (self.rows - 1) * self.pitch_mm + self.via_diameter_mm
         return (width, height)
-    
+
     @property
     def via_count(self) -> int:
         """Total number of vias in the array."""
@@ -106,13 +107,14 @@ class DesignRules:
     net_overrides: dict[str, NetClassRules] = field(default_factory=dict)
     net_class_assignments: dict[str, str] = field(default_factory=dict)
     differential_pairs: list[DifferentialPairConstraint] = field(default_factory=list)
+    net_topologies: dict[str, NetGraph] = field(default_factory=dict)
     via_templates: dict[str, ViaTemplate] = field(default_factory=lambda: {
         "Via1x1": ViaTemplate("Via1x1", 1, 1, 0.6, 0.3, 1.0),
         "Via2x2": ViaTemplate("Via2x2", 2, 2, 0.6, 0.3, 1.2),
         "Via3x3": ViaTemplate("Via3x3", 3, 3, 0.6, 0.3, 1.2),
         "Via4x4": ViaTemplate("Via4x4", 4, 4, 0.6, 0.3, 1.2),
     })
-    
+
     def get_via_template(self, net_name: str) -> ViaTemplate:
         """Get via template for a specific net.
         
@@ -124,10 +126,10 @@ class DesignRules:
         """
         rules = self.get_rules_for_net(net_name)
         template_name = rules.via_template
-        
+
         if template_name in self.via_templates:
             return self.via_templates[template_name]
-        
+
         # Fallback to 1x1 if template not found
         return self.via_templates["Via1x1"]
 

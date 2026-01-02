@@ -332,7 +332,7 @@ class NetClassRule:
     creepage_mm: float = 0.0
     allow_neckdown: bool = True
     description: str = ""
-    
+
     # Current capacity enforcement (NEW)
     max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
     routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
@@ -861,10 +861,10 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "routing_priority" in config:
         constraints.routing_priority = config["routing_priority"]
-    
+
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
-    
+
     return constraints
 
 
@@ -896,30 +896,31 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
               
         # Bad: 20A net without zone → ValueError
     """
-    from temper_placer.core.ipc2221 import estimate_current_from_net_class
     import logging
-    
+
+    from temper_placer.core.ipc2221 import estimate_current_from_net_class
+
     logger = logging.getLogger(__name__)
-    
+
     for net_name, net_class_name in constraints.net_classes.items():
         # Get net class rules
         net_class = constraints.net_class_rules.get(net_class_name)
         if not net_class:
             continue
-            
+
         # Determine current capacity
         if net_class.max_current_rating is not None:
             current_a = net_class.max_current_rating
         else:
             # Estimate from trace width using IPC-2221
             current_a = estimate_current_from_net_class(net_class.trace_width_mm)
-        
+
         # Check zone assignment
         has_zone = any(
             net_class_name in zone.net_classes
             for zone in constraints.zones
         )
-        
+
         # HIGH CURRENT (>10A): Plane REQUIRED
         if current_a > 10.0:
             if not has_zone:
@@ -932,7 +933,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
                     f"Current capacity: {current_a:.1f}A (trace: {net_class.trace_width_mm}mm)\n"
                     f"Reference: IPC-2221A Section 6.2 (Current Capacity)"
                 )
-        
+
         # MEDIUM CURRENT (5-10A): Warn if inadequate via strategy
         elif current_a > 5.0:
             if net_class.via_template == "Via1x1" or not net_class.via_template:
@@ -941,7 +942,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
                    f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
                     f"Single 0.3mm vias rated ~3-5A; via arrays recommended for >5A."
                 )
-            
+
             # Suggest plane if approaching 10A
             if current_a > 8.0 and not has_zone:
                 logger.info(
@@ -985,6 +986,10 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
             max_skew_mm=pair_rule.max_skew_mm,
         )
         rules.differential_pairs.append(pair_constraint)
+
+    # Convert net topologies
+    for graph in constraints.net_topologies:
+        rules.net_topologies[graph.net_name] = graph
 
     return rules
 
