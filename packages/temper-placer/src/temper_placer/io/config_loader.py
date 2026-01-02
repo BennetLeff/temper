@@ -922,20 +922,15 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
         
         # HIGH CURRENT (>10A): Plane REQUIRED
         if current_a > 10.0:
-            if not has_zone and net_class.routing_strategy != "plane_required":
+            if not has_zone:
+                # ERROR: High-current net without zone assignment
                 raise ValueError(
                     f"HIGH CURRENT NET '{net_name}' ({current_a:.1f}A) requires zone/pour assignment.\n"
                     f"Traced routing is inadequate for >10A nets. Professional PCB design requires:\n"
                     f"  1. Add zone for net class '{net_class_name}' in zones config, OR\n"
-                    f"  2. Set routing_strategy: 'plane_required' and assign to existing plane\n"
+                    f"  2. Assign '{net_class_name}' to existing zone's net_classes list\n"
                     f"Current capacity: {current_a:.1f}A (trace: {net_class.trace_width_mm}mm)\n"
                     f"Reference: IPC-2221A Section 6.2 (Current Capacity)"
-                )
-            elif not has_zone:
-                logger.warning(
-                    f"High-current net '{net_name}' ({current_a:.1f}A) marked 'plane_required' "
-                    f"but no zone assigned to class '{net_class_name}'. "
-                    f"Ensure zone exists in final design."
                 )
         
         # MEDIUM CURRENT (5-10A): Warn if inadequate via strategy
