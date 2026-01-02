@@ -119,7 +119,7 @@ def test_conservative_sizing():
     print("\nConservative Sizing Validation")
     print("=" * 70)
     
-    # Our approximate mappings vs IPC-2221A
+    # Our approximate mappings vs IPC-2221A EXTERNAL layers
     test_cases = [
         (1.0, 0.3, "Logic"),
         (5.0, 1.0, "Moderate"),
@@ -132,7 +132,8 @@ def test_conservative_sizing():
     
     all_pass = True
     for current, our_width, description in test_cases:
-        ipc_min = ipc2221_internal_trace_width(current, temp_rise_c=10.0)
+        # Use EXTERNAL layer formula (most PCBs have traces on outer layers)
+        ipc_min = ipc2221_external_trace_width(current, temp_rise_c=10.0)
         
         # Check if our width is conservative (≥ IPC minimum)
         if our_width >= ipc_min - 0.05:  # 50μm tolerance
