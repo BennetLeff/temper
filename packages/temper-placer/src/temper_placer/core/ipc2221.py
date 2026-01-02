@@ -53,14 +53,15 @@ def estimate_trace_current(
     # Calculate cross-sectional area
     area_mils2 = width_mils * thickness_mils
     
-    # IPC-2221 constants
+    # IPC-2221 constants (from curve fitting)
     if internal_layer:
         k = 0.024  # Internal layer constant
     else:
         k = 0.048  # External layer constant (better cooling)
     
-    # IPC-2221 formula: I = (ΔT / (k * A^0.44))^(1/0.725)
-    current_a = (temp_rise_c / (k * (area_mils2 ** 0.44))) ** (1 / 0.725)
+    # IPC-2221 formula (CORRECTED): I = k × ΔT^0.44 × A^0.725
+    # FIXED: Previous formula was inverted!
+    current_a = k * (temp_rise_c ** 0.44) * (area_mils2 ** 0.725)
     
     return current_a
 
