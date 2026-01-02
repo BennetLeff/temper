@@ -21,7 +21,8 @@ def run_experiment():
                 name="HighPower",
                 trace_width_mm=3.0, 
                 clearance_mm=1.0,
-                via_size_mm=1.0 
+                via_size_mm=1.0,
+                via_template="Via4x4"  # 16 vias for 20A
             )
         },
         net_classes={

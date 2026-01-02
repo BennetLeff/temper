@@ -60,7 +60,7 @@ def estimate_trace_current(
         k = 0.048  # External layer constant (better cooling)
     
     # IPC-2221 formula: I = (ΔT / (k * A^0.44))^(1/0.725)
-   current_a = (temp_rise_c / (k * (area_mils2 ** 0.44))) ** (1 / 0.725)
+    current_a = (temp_rise_c / (k * (area_mils2 ** 0.44))) ** (1 / 0.725)
     
     return current_a
 
@@ -76,12 +76,18 @@ def estimate_current_from_net_class(
     Uses conservative internal layer calculation (worst case).
     
     Args:
-        trace_width_mm: Trace width in mm
+        trace_width_mm: Trace width in millimeters
         thickness_oz: Copper thickness in oz (default 1.0)
-        temp_rise_c: Allowable temperature rise (default 10°C)
-    
+        temp_rise_c: Temperature rise above ambient (default 10°C per IPC-2221)
+        
     Returns:
-        Estimated maximum current in Amperes
+        Maximum current in Amperes
+        
+    Examples:
+        >>> estimate_current_from_net_class(0.25, 1.0, 10.0)
+        1.2  # 0.25mm trace, 1oz copper, 10C rise (internal): ~1.2A
+        >>> estimate_current_from_net_class(0.5, 2.0, 20.0)
+        4.5  # 0.5mm trace, 2oz copper, 20C rise (internal): ~4.5A
     """
     return estimate_trace_current(
         width_mm=trace_width_mm,

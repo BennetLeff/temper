@@ -46,6 +46,7 @@ class Pin:
         self,
         component_pos: tuple[float, float],
         rotation_angle: Radians,
+        side: int = 0,
     ) -> tuple[float, float]:
         """
         Get absolute pin position given component placement.
@@ -53,6 +54,7 @@ class Pin:
         Args:
             component_pos: (x, y) component center position in mm.
             rotation_angle: Component rotation in radians. Use deg_to_rad() if needed.
+            side: Component side (0=Top, 1=Bottom). If 1, pin is mirrored.
 
         Returns:
             (x, y) absolute pin position.
@@ -60,6 +62,11 @@ class Pin:
         cos_r = jnp.cos(rotation_angle)
         sin_r = jnp.sin(rotation_angle)
         px, py = self.position
+
+        # If on bottom side, mirror X coordinate before rotation (standard KiCad behavior)
+        if side == 1:
+            px = -px
+
         # Rotate pin offset
         rx = px * cos_r - py * sin_r
         ry = px * sin_r + py * cos_r
@@ -94,6 +101,7 @@ class Component:
     fixed: bool = False
     initial_position: tuple[float, float] | None = None
     initial_rotation: int | None = None
+    initial_side: int | None = None
     attributes: dict[str, str] = field(default_factory=dict)
 
     @property
