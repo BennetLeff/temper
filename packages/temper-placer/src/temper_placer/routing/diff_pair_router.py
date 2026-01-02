@@ -191,6 +191,12 @@ class DiffPairRouter:
         
         Returns list of (next_state, neighbor_type, cost_delta) tuples.
         
+        Neighbor types in priority order:
+        1. BOTH_MOVE_TOGETHER: Ideal - maintain coupling
+        2. BOTH_CHANGE_LAYER: Via transition together
+        3. POS/NEG_MOVES_*_WAITS: Temporary divergence
+        4. DIVERGE: Last resort
+        
         Args:
             state: Current state
             obstacles: Blocked cells
@@ -200,10 +206,151 @@ class DiffPairRouter:
         """
         neighbors = []
         
-        # TODO: Implement neighbor generation
-        # Phase 2A task - high priority!
+        # Movement directions: N, S, E, W (no diagonal for now)
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        
+        # Cost constants
+        BASE_MOVE_COST = self.cell_size_mm
+        VIA_COST = 2.0  # mm equivalent cost
+        DIVERGENCE_COST = 5.0  # High penalty for splitting
+        
+        # 1. BOTH_MOVE_TOGETHER: P and N move in same direction (ideal)
+        for dx, dy in directions:
+            new_pos_x = state.pos_x + dx
+            new_pos_y = state.pos_y + dy
+            new_neg_x = state.neg_x + dx
+            new_neg_y = state.neg_y + dy
+            
+            # Check bounds
+            if not self._in_bounds((new_pos_x, new_pos_y, state.pos_layer)):
+                continue
+            if not self._in_bounds((new_neg_x, new_neg_y, state.neg_layer)):
+                continue
+            
+            # Check obstacles
+            if (new_pos_x, new_pos_y, state.pos_layer) in obstacles:
+                continue
+            if (new_neg_x, new_neg_y, state.neg_layer) in obstacles:
+                continue
+            
+            # Calculate new separation
+            new_sep = self._calculate_separation(
+                (new_pos_x, new_pos_y, state.pos_layer),
+                (new_neg_x, new_neg_y, state.neg_layer)
+            )
+            
+            # Coupling penalty
+            sep_penalty = self.coupling_weight * abs(new_sep - self.target_separation_mm)
+            
+            # Prune if too diverged
+            if abs(new_sep - self.target_separation_mm) > self.max_divergence_mm:
+                self.states_pruned += 1
+                continue
+            
+            new_state = DiffPairState(
+                pos_x=new_pos_x, pos_y=new_pos_y, pos_layer=state.pos_layer,
+                neg_x=new_neg_x, neg_y=new_neg_y, neg_layer=state.neg_layer,
+                separation_mm=new_sep
+            )
+            
+            cost = BASE_MOVE_COST + sep_penalty
+            neighbors.append((new_state, NeighborType.BOTH_MOVE_TOGETHER, cost))
+        
+        # 2. BOTH_CHANGE_LAYER: Via transition together (maintains coupling)
+        for new_layer in range(self.grid_size[2]):
+            if new_layer == state.pos_layer:
+                continue
+            
+            # Both traces via to same new layer
+            new_sep = self._calculate_separation(
+                (state.pos_x, state.pos_y, new_layer),
+                (state.neg_x, state.neg_y, new_layer)
+            )
+            
+            # Check if vias would be blocked
+            if (state.pos_x, state.pos_y, new_layer) in obstacles:
+                continue
+            if (state.neg_x, state.neg_y, new_layer) in obstacles:
+                continue
+            
+            new_state = DiffPairState(
+                pos_x=state.pos_x, pos_y=state.pos_y, pos_layer=new_layer,
+                neg_x=state.neg_x, neg_y=state.neg_y, neg_layer=new_layer,
+                separation_mm=new_sep
+            )
+            
+            sep_penalty = self.coupling_weight * abs(new_sep - self.target_separation_mm)
+            cost = 2 * VIA_COST + sep_penalty  # 2 vias
+            neighbors.append((new_state, NeighborType.BOTH_CHANGE_LAYER, cost))
+        
+        # 3. POS_MOVES_NEG_WAITS: P navigates obstacle, N waits
+        for dx, dy in directions:
+            new_pos_x = state.pos_x + dx
+            new_pos_y = state.pos_y + dy
+            
+            if not self._in_bounds((new_pos_x, new_pos_y, state.pos_layer)):
+                continue
+            if (new_pos_x, new_pos_y, state.pos_layer) in obstacles:
+                continue
+            
+            new_sep = self._calculate_separation(
+                (new_pos_x, new_pos_y, state.pos_layer),
+                (state.neg_x, state.neg_y, state.neg_layer)
+            )
+            
+            # Prune if too diverged
+            if abs(new_sep - self.target_separation_mm) > self.max_divergence_mm:
+                self.states_pruned += 1
+                continue
+            
+            new_state = DiffPairState(
+                pos_x=new_pos_x, pos_y=new_pos_y, pos_layer=state.pos_layer,
+                neg_x=state.neg_x, neg_y=state.neg_y, neg_layer=state.neg_layer,
+                separation_mm=new_sep
+            )
+            
+            sep_penalty = self.coupling_weight * abs(new_sep - self.target_separation_mm)
+            cost = BASE_MOVE_COST + sep_penalty + DIVERGENCE_COST
+            neighbors.append((new_state, NeighborType.POS_MOVES_NEG_WAITS, cost))
+        
+        # 4. NEG_MOVES_POS_WAITS: N navigates obstacle, P waits
+        for dx, dy in directions:
+            new_neg_x = state.neg_x + dx
+            new_neg_y = state.neg_y + dy
+            
+            if not self._in_bounds((new_neg_x, new_neg_y, state.neg_layer)):
+                continue
+            if (new_neg_x, new_neg_y, state.neg_layer) in obstacles:
+                continue
+            
+            new_sep = self._calculate_separation(
+                (state.pos_x, state.pos_y, state.pos_layer),
+                (new_neg_x, new_neg_y, state.neg_layer)
+            )
+            
+            # Prune if too diverged
+            if abs(new_sep - self.target_separation_mm) > self.max_divergence_mm:
+                self.states_pruned += 1
+                continue
+            
+            new_state = DiffPairState(
+                pos_x=state.pos_x, pos_y=state.pos_y, pos_layer=state.pos_layer,
+                neg_x=new_neg_x, neg_y=new_neg_y, neg_layer=state.neg_layer,
+                separation_mm=new_sep
+            )
+            
+            sep_penalty = self.coupling_weight * abs(new_sep - self.target_separation_mm)
+            cost = BASE_MOVE_COST + sep_penalty + DIVERGENCE_COST
+            neighbors.append((new_state, NeighborType.NEG_MOVES_POS_WAITS, cost))
         
         return neighbors
+    
+    def _in_bounds(self, pos: Tuple[int, int, int]) -> bool:
+        """Check if position is within grid bounds."""
+        x, y, layer = pos
+        return (0 <= x < self.grid_size[0] and
+                0 <= y < self.grid_size[1] and
+                0 <= layer < self.grid_size[2])
     
     def _calculate_separation(
         self,
