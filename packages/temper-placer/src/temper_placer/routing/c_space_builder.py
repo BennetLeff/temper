@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import cv2
 import numpy as np
 
+from temper_placer.core.design_rules import NetClassRules
 from temper_placer.routing.constraints.geometry import Point
 from temper_placer.routing.constraints.spatial_index import Pad, Track, Via
 
@@ -203,26 +204,22 @@ class CSpaceBuilder:
                           Usually contains the net currently being routed.
 
         Returns:
-            np.ndarray: Boolean grid (H, W, NumLayers)
+            np.ndarray: Boolean grid (W, H, NumLayers)
         """
         exclude_nets = exclude_nets or set()
 
         # Initialize 3D grid (0 = Free)
-        # Using boolean array to save space, will match MazeRouter (H, W, L) expectation
         # Note: MazeRouter uses [x, y, z] -> [width, height, layers]
-        # But numpy uses [row, col] -> [y, x].
-        # CSpaceBuilder uses Grid(H, W) usually.
-        # Let's align on (H, W, L).
         grid_3d = np.zeros((self.grid_w, self.grid_h, self.num_layers), dtype=bool)
 
         # Total inflation radius
-        # The center of the routing track cannot come closer than (clearance + width/2) to the obstacle edge.
-        # So we inflate obstacles by this amount.
         inflation_mm = clearance + (trace_width / 2.0)
         inflation_px = int(np.ceil(inflation_mm / self.resolution))
 
         # Use uint8 buffers for drawing (OpenCV works on 2D)
-        layer_buffers = [np.zeros((self.grid_h, self.grid_w), dtype=np.uint8) for _ in range(self.num_layers)]
+        layer_buffers = [
+            np.zeros((self.grid_h, self.grid_w), dtype=np.uint8) for _ in range(self.num_layers)
+        ]
 
         # Rasterize Pads
         for pad in self.pads:
@@ -266,9 +263,80 @@ class CSpaceBuilder:
         # Fill 3D Grid
         for lid in range(self.num_layers):
             # Transpose buffer (H, W) -> (W, H) to match [x, y]
-            grid_3d[:, :, lid] = (layer_buffers[lid].T > 0)
+            grid_3d[:, :, lid] = layer_buffers[lid].T > 0
 
         return grid_3d
+
+    def build_grid_zone_aware(
+        self, matrix: "ClearanceMatrix", net_name: str, exclude_nets: set[str] = None
+    ) -> np.ndarray:
+        """Generate a zone-aware boolean C-Space grid.
+
+        Combines multiple rasterization passes using zone-based masking to
+        support spatial clearance overrides.
+
+        Args:
+            matrix: ClearanceMatrix containing ZoneManager
+            net_name: Name of net being routed
+            exclude_nets: Nets to ignore
+
+        Returns:
+            np.ndarray: Boolean grid (W, H, NumLayers)
+        """
+        # 1. Start with baseline grid (default net class rules)
+        rules = matrix._net_class_rules.get(
+            matrix._net_to_class.get(net_name, "Default"),
+            NetClassRules("Default", 0.2, 0.2),
+        )
+        trace_width = rules.trace_width
+        base_clearance = rules.clearance
+
+        grid = self.build_grid(base_clearance, trace_width, exclude_nets)
+
+        if not matrix.zone_manager:
+            return grid
+
+        # 2. Apply zone-specific overrides
+        for zone in matrix.zone_manager.zones:
+            if zone.clearance_mm <= base_clearance:
+                continue
+
+            # Generate grid for this zone's clearance
+            zone_grid = self.build_grid(zone.clearance_mm, trace_width, exclude_nets)
+
+            # Create zone mask (2D uint8)
+            mask = self._create_zone_mask(zone.polygon)
+
+            # Mask is (H, W), grid is (W, H, L)
+            mask_t = mask.T > 0
+            for lid in range(self.num_layers):
+                # Update main grid in masked area with zone-specific blocking
+                grid[:, :, lid][mask_t] = zone_grid[:, :, lid][mask_t]
+
+        return grid
+
+    def _create_zone_mask(self, polygon: list[tuple[float, float]]) -> np.ndarray:
+        """Create a 2D binary mask from a polygon.
+
+        Args:
+            polygon: List of (x, y) coordinates in mm
+
+        Returns:
+            np.ndarray: uint8 mask (H, W) where 255 = inside
+        """
+        mask = np.zeros((self.grid_h, self.grid_w), dtype=np.uint8)
+
+        # Convert mm to grid pixels
+        pts = []
+        for x, y in polygon:
+            px = int(np.round((x - self.origin[0]) / self.resolution))
+            py = int(np.round((y - self.origin[1]) / self.resolution))
+            pts.append([px, py])
+
+        pts_arr = np.array([pts], dtype=np.int32)
+        cv2.fillPoly(mask, pts_arr, 255)
+
+        return mask
 
     def _draw_track(self, buf: np.ndarray, track: 'Track', inflation_px: int, color: int):
         """Rasterize a track segment as a thick line."""

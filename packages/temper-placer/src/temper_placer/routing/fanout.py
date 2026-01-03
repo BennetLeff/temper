@@ -1,5 +1,6 @@
 import math
 import logging
+import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional
 from kiutils.board import Board
@@ -191,6 +192,7 @@ class FanoutGenerator:
                     drill=self.config.via_drill,
                     layers=["F.Cu", "B.Cu"],
                     net=None,
+                    tstamp=str(uuid.uuid4()),
                 )
 
                 # Find Net ID from Board
@@ -207,6 +209,7 @@ class FanoutGenerator:
                     width=self.config.trace_width,
                     layer="F.Cu",
                     net=ki_net,
+                    tstamp=str(uuid.uuid4()),
                 )
                 self.board.traceItems.append(track)
 
@@ -217,3 +220,33 @@ class FanoutGenerator:
                 new_positions[net.name] = fanout_points
 
         return new_positions
+
+
+def fanout_power_nets(
+    board: Board,
+    netlist: Netlist,
+    power_nets: List[str],
+    config: FanoutConfig = None,
+    drc_oracle=None,
+) -> int:
+    """
+    Convenience function to generate fanouts for power nets.
+
+    Args:
+        board: kiutils.board.Board instance
+        netlist: Netlist instance
+        power_nets: List of net names to fanout
+        config: Optional FanoutConfig
+        drc_oracle: Optional DRCOracle for validation (not currently used by generator)
+
+    Returns:
+        Number of fanout connections created
+    """
+    generator = FanoutGenerator(board, netlist, config)
+    results = generator.generate_fanouts(target_nets=power_nets)
+
+    count = 0
+    for net_name, points in results.items():
+        count += len(points)
+
+    return count

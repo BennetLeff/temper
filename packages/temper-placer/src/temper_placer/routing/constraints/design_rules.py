@@ -10,7 +10,11 @@ Part of temper-lueu.1
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Set, Tuple, Optional
+
+import numpy as np
+from shapely.geometry import Polygon, Point, MultiPoint
+from shapely.strtree import STRtree
 
 from temper_placer.core.design_rules import (
     NetClassRules,
@@ -22,11 +26,111 @@ if TYPE_CHECKING:
 
 
 @dataclass
+class RoutingZone:
+    """A polygon region on the board with its own routing rules.
+
+    Attributes:
+        name: Unique name for the zone (e.g., "HV", "Signal")
+        polygon: List of (x, y) vertices in mm
+        clearance_mm: Default clearance enforced within this zone
+        allowed_net_classes: Set of net classes allowed to route here
+        layer_restrictions: Optional list of allowed layer names
+    """
+
+    name: str
+    polygon: List[Tuple[float, float]]
+    clearance_mm: float
+    allowed_net_classes: Set[str]
+    layer_restrictions: Optional[List[str]] = None
+
+
+class ZoneManager:
+    """Manages routing zones and provides fast spatial lookups.
+
+    Uses an R-tree (via shapely STRtree) for O(log n) point-in-zone queries.
+    """
+
+    def __init__(self, zones: List[RoutingZone]):
+        self.zones = zones
+        self._polygons = [Polygon(z.polygon) for z in zones]
+        self._tree = STRtree(self._polygons)
+
+    def get_zone_at(self, x: float, y: float) -> Optional[RoutingZone]:
+        """Return the zone containing this point, or None if unzoned.
+
+        Args:
+            x, y: Board coordinates in mm
+
+        Returns:
+            RoutingZone containing the point, or None
+        """
+        point = Point(x, y)
+        # Query tree for polygons whose bounding box intersects the point
+        possible_indices = self._tree.query(point)
+
+        # Check actual containment (STRtree query is based on envelopes)
+        # Note: query returns a scalar if one result, or array if multiple in some versions.
+        # Shapely 2.0 query(point) returns an array of indices.
+        if isinstance(possible_indices, np.ndarray):
+            for idx in possible_indices:
+                if self._polygons[idx].contains(point):
+                    return self.zones[idx]
+        elif possible_indices is not None:
+            # Older shapely or single result
+            idx = int(possible_indices)
+            if self._polygons[idx].contains(point):
+                return self.zones[idx]
+
+        return None
+
+    def get_clearance(
+        self, x: float, y: float, net_a: str, net_b: str, matrix: ClearanceMatrix
+    ) -> float:
+        """Return clearance requirement at this location for these nets.
+
+        Args:
+            x, y: Board coordinates in mm
+            net_a, net_b: Net names
+            matrix: Global clearance matrix for baseline rules
+
+        Returns:
+            Required clearance in mm
+        """
+        zone = self.get_zone_at(x, y)
+        base_clearance = matrix.get_clearance(net_a, net_b)
+
+        if zone:
+            # Zone rules override if they are stricter
+            return max(base_clearance, zone.clearance_mm)
+
+        return base_clearance
+
+    def can_route_net_at(self, x: float, y: float, net: str, matrix: ClearanceMatrix) -> bool:
+        """Check if this net is allowed in the zone at this location.
+
+        Args:
+            x, y: Board coordinates in mm
+            net: Net name
+            matrix: Global clearance matrix for net-class lookup
+
+        Returns:
+            True if routing is allowed
+        """
+        zone = self.get_zone_at(x, y)
+        if not zone:
+            return True  # Unzoned areas allow everything
+
+        net_class = matrix._net_to_class.get(net, "Default")
+        return net_class in zone.allowed_net_classes
+
+
+@dataclass
 class ClearanceMatrix:
     """Net-class-aware clearance lookup table.
 
     Provides O(1) clearance lookups between any two net classes.
     Falls back to default clearance for unknown net classes.
+    Supports optional RoutingZones for spatial overrides.
     """
 
     # Clearance between net classes: (class_a, class_b) -> clearance_mm
@@ -42,16 +146,36 @@ class ClearanceMatrix:
     # Net to net-class mapping
     _net_to_class: dict[str, str] = field(default_factory=dict)
 
-    def get_clearance(self, net_a: str, net_b: str) -> float:
+    # Optional spatial zone manager
+    zone_manager: ZoneManager | None = None
+
+    def get_clearance(
+        self, net_a: str, net_b: str, x: float | None = None, y: float | None = None
+    ) -> float:
         """Get required clearance between two nets.
 
         Args:
             net_a: First net name
             net_b: Second net name
+            x, y: Optional board coordinates for spatial overrides
 
         Returns:
             Required clearance in mm
         """
+        # 1. Start with class-based baseline
+        base_clearance = self._get_base_clearance(net_a, net_b)
+
+        # 2. Apply spatial override if coordinates and zone manager are provided
+        if x is not None and y is not None and self.zone_manager:
+            # Use max(base, zone) to ensure we don't violate stricter rules
+            zone = self.zone_manager.get_zone_at(x, y)
+            if zone:
+                return max(base_clearance, zone.clearance_mm)
+
+        return base_clearance
+
+    def _get_base_clearance(self, net_a: str, net_b: str) -> float:
+        """Baseline class-to-class clearance without spatial overrides."""
         class_a = self._net_to_class.get(net_a, "Default")
         class_b = self._net_to_class.get(net_b, "Default")
 
@@ -68,6 +192,21 @@ class ClearanceMatrix:
         clear_a = self._get_class_clearance(class_a)
         clear_b = self._get_class_clearance(class_b)
         return max(clear_a, clear_b)
+
+    def can_route_at(self, net: str, x: float, y: float) -> bool:
+        """Check if a net is allowed to route at this spatial location.
+
+        Args:
+            net: Net name
+            x, y: Board coordinates in mm
+
+        Returns:
+            True if routing is allowed
+        """
+        if not self.zone_manager:
+            return True
+
+        return self.zone_manager.can_route_net_at(x, y, net, self)
 
     def get_track_width(self, net: str) -> float:
         """Get required track width for a net.
@@ -269,6 +408,84 @@ class DesignRulesParser:
                 return "HighSpeed"
 
         return "Signal"
+
+    @staticmethod
+    def infer_zones(pcb: Board, matrix: ClearanceMatrix) -> List[RoutingZone]:
+        """Infer routing zones from board components and net classes.
+
+        Args:
+            pcb: kiutils Board object
+            matrix: ClearanceMatrix for net-class lookup
+
+        Returns:
+            List of RoutingZone objects
+        """
+        # 1. Identify HV and Signal Components
+        hv_points = []
+        signal_points = []
+
+        for fp in pcb.footprints:
+            is_hv = False
+            is_signal = False
+
+            # Check pads for net classes
+            for pad in fp.pads:
+                net_name = pad.net.name if pad.net and hasattr(pad.net, "name") else ""
+                net_class = matrix._net_to_class.get(net_name, "Default")
+
+                if net_class == "HighVoltage":
+                    is_hv = True
+                elif net_class in ["Signal", "HighSpeed"]:
+                    is_signal = True
+
+            # Also check ref patterns for power switching components
+            ref = fp.properties.get("Reference", "")
+            if any(p in ref for p in ["Q", "D", "J_AC"]):
+                is_hv = True
+
+            if fp.position:
+                pos = (fp.position.X, fp.position.Y)
+                if is_hv:
+                    hv_points.append(pos)
+                elif is_signal:
+                    signal_points.append(pos)
+
+        zones = []
+
+        # 2. Create HV Zone (Convex Hull + 5mm buffer)
+        if hv_points:
+            hull = MultiPoint(hv_points).convex_hull
+            # If hull is a point or line, buffer still works
+            hv_poly = hull.buffer(5.0)
+
+            if hasattr(hv_poly, "exterior"):
+                coords = list(hv_poly.exterior.coords)
+                zones.append(
+                    RoutingZone(
+                        name="HV",
+                        polygon=coords,
+                        clearance_mm=3.0,
+                        allowed_net_classes={"HighVoltage", "GND", "Power"},
+                    )
+                )
+
+        # 3. Create Signal Zone (Convex Hull + 3mm buffer)
+        if signal_points:
+            hull = MultiPoint(signal_points).convex_hull
+            sig_poly = hull.buffer(3.0)
+
+            if hasattr(sig_poly, "exterior"):
+                coords = list(sig_poly.exterior.coords)
+                zones.append(
+                    RoutingZone(
+                        name="Signal",
+                        polygon=coords,
+                        clearance_mm=0.2,
+                        allowed_net_classes={"Signal", "HighSpeed", "GND", "Power"},
+                    )
+                )
+
+        return zones
 
     @staticmethod
     def create_default() -> ClearanceMatrix:
