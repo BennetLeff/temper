@@ -2579,31 +2579,84 @@ class MazeRouter:
                     self.rip_up_net(net_name)
                     self.stats.profile.rip_up_ms += (time.perf_counter() - t_rip) * 1000.0
 
+                    # Apply routing strategy (temper-b577)
+                    net_rules = (
+                        self.design_rules.get_rules_for_net(net_name)
+                        if self.design_rules
+                        else None
+                    )
+                    assignment = assignments.get(net_name)
+
+                    original_via_cost = self.via_cost
+                    if net_rules and net_rules.routing_strategy == "wide_trace":
+                        # Discourage vias for wide traces (harder to neck down/fit)
+                        self.via_cost *= 10.0
+
+                    if net_rules and net_rules.routing_strategy in (
+                        "plane_preferred",
+                        "plane_required",
+                    ):
+                        # Restrict to plane layers (usually L2/L3)
+                        plane_layer_indices = [
+                            i
+                            for i in range(self.num_layers)
+                            if self.layer_stackup.is_plane_layer(i)
+                        ]
+                        if plane_layer_indices:
+                            from temper_placer.routing.layer_assignment import (
+                                Layer,
+                                LayerAssignment,
+                            )
+
+                            layer_map_inv = {
+                                0: Layer.L1_TOP,
+                                1: Layer.L2_GND if self.num_layers > 2 else Layer.L4_BOT,
+                                2: Layer.L3_PWR,
+                                3: Layer.L4_BOT if self.num_layers > 2 else 1,
+                            }
+                            plane_layers = {
+                                layer_map_inv[i]
+                                for i in plane_layer_indices
+                                if i in layer_map_inv
+                            }
+                            if plane_layers:
+                                # Override assignment for this specific route
+                                assignment = LayerAssignment(
+                                    net=net_name,
+                                    primary_layer=list(plane_layers)[0],
+                                    allowed_layers=plane_layers,
+                                    vias_required=True,
+                                    reason=f"Routing strategy: {net_rules.routing_strategy}",
+                                )
+
                     # Check for explicit topology
                     topology = None
                     if self.design_rules and net_name in self.design_rules.net_topologies:
                         topology = self.design_rules.net_topologies[net_name]
 
-                    if topology:
-                        result = self.route_net_topology(
-                            net_name,
-                            topology,
-                            netlist,
-                            positions,
-                            assignments.get(net_name),
-                            cost_maps.get(net_name) if cost_maps else None,
-                            p_scale=p_scale,
-                        )
-                    else:
-                        # Use MST router by default for better multi-pin support and via arrays
-                        result = self.route_net_mst(
-                            net_name,
-                            all_pin_positions[net_name],
-                            assignments.get(net_name),
-                            cost_map=cost_maps.get(net_name) if cost_maps else None,
-                            p_scale=p_scale,
-                            pin_sides=all_pin_sides.get(net_name),
-                        )
+                    try:
+                        if topology:
+                            result = self.route_net_topology(
+                                net_name,
+                                topology,
+                                netlist,
+                                positions,
+                                assignment,
+                                cost_maps.get(net_name) if cost_maps else None,
+                                p_scale=p_scale,
+                            )
+                        else:
+                            # Use MST router by default for better multi-pin support and via arrays
+                            result = self.route_net_mst(
+                                net_name,
+                                all_pin_positions[net_name],
+                                assignment,
+                                cost_map=cost_maps.get(net_name) if cost_maps else None,
+                                p_scale=p_scale,
+                                pin_sides=all_pin_sides.get(net_name),
+                            )
+                    finally:
+                        self.via_cost = original_via_cost
 
                     # Ensure result is always stored
                     self.routed_paths[net_name] = result
