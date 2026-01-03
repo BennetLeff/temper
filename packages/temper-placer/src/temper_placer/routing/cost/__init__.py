@@ -19,9 +19,17 @@ from .neighbor_cost import (
     compute_sharing_penalty,
     get_strategy_multiplier,
 )
+from .path_cost import (
+    analyze_path_difficulty,
+    count_vias,
+    compute_path_cost,
+    compute_path_length_mm,
+    extract_cells_from_paths,
+)
 
 __all__ = [
     "BLOCKED_COST",
+    "analyze_path_difficulty",
     "check_blocked",
     "check_net_isolation",
     "compute_base_cost",
@@ -30,10 +38,14 @@ __all__ = [
     "compute_layer_balance_cost",
     "compute_layer_balance_penalty",
     "compute_layer_preference_penalty",
+    "compute_path_cost",
+    "compute_path_length_mm",
     "compute_sharing_penalty",
     "compute_strategy_multiplier",
     "compute_total_move_cost",
     "compute_via_cost",
     "compute_wrong_way_penalty",
+    "count_vias",
+    "extract_cells_from_paths",
     "get_strategy_multiplier",
 ]
