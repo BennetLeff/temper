@@ -1,14 +1,25 @@
-"""Heuristic logic for routing pathfinding and net ordering (temper-16aw)."""
+"""Heuristic logic for routing pathfinding and net ordering (temper-16aw).
+
+Provides different heuristic functions for maze routing:
+- Manhattan distance (standard)
+- Euclidean distance (smooth)
+- Distance map (obstacle-aware, optimal)
+- Custom heuristic support via strategy pattern
+"""
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 import jax.numpy as jnp
+import numpy as np
 from jax import Array
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component
+
+
+HeuristicFunc = Callable[["GridCell", "GridCell"], float]
 
 
 @dataclass(frozen=True)
@@ -53,8 +64,99 @@ class NetMetrics:
 
 
 def manhattan_heuristic(a: GridCell, b: GridCell) -> float:
-    """Manhattan distance heuristic for A*."""
+    """Manhattan distance heuristic for A*.
+
+    Returns:
+        Heuristic distance (always admissible)
+    """
     return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.layer - b.layer) * 2
+
+
+def euclidean_heuristic(a: GridCell, b: GridCell) -> float:
+    """Euclidean distance heuristic for A*.
+
+    Returns:
+        Heuristic distance
+    """
+    xy_dist = ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+    return xy_dist + abs(a.layer - b.layer) * 2
+
+
+class HeuristicStrategy:
+    """Wrapper for heuristic functions implementing the strategy pattern.
+
+    Attributes:
+        func: The heuristic function
+        name: Strategy name for identification
+    """
+
+    def __init__(self, func: HeuristicFunc, name: str = "default"):
+        self.func = func
+        self.name = name
+
+    def __call__(self, a: "GridCell", b: "GridCell") -> float:
+        return self.func(a, b)
+
+    def __repr__(self) -> str:
+        return f"HeuristicStrategy({self.name!r})"
+
+
+def create_distance_map_heuristic(dist_map: np.ndarray) -> HeuristicFunc:
+    """Create a heuristic function from a precomputed distance map.
+
+    Args:
+        dist_map: 3D array of distances (same shape as grid)
+
+    Returns:
+        Heuristic function that looks up distances from the map
+    """
+
+    def heuristic(a: "GridCell", b: "GridCell") -> float:
+        if 0 <= a.x < dist_map.shape[0]:
+            if 0 <= a.y < dist_map.shape[1]:
+                if 0 <= a.layer < dist_map.shape[2]:
+                    return float(dist_map[a.x, a.y, a.layer])
+        return float("inf")
+
+    return heuristic
+
+
+_HEURISTICS: dict[str, HeuristicStrategy] = {
+    "manhattan": HeuristicStrategy(manhattan_heuristic, name="manhattan"),
+    "euclidean": HeuristicStrategy(euclidean_heuristic, name="euclidean"),
+    "default": HeuristicStrategy(manhattan_heuristic, name="manhattan"),
+}
+
+
+def get_heuristic(name: str) -> HeuristicStrategy:
+    """Get a heuristic strategy by name.
+
+    Args:
+        name: Heuristic name ("manhattan", "euclidean", "default")
+
+    Returns:
+        HeuristicStrategy instance
+
+    Raises:
+        ValueError: If heuristic name is not recognized
+    """
+    if name not in _HEURISTICS:
+        available = list(_HEURISTICS.keys())
+        raise ValueError(f"Unknown heuristic: {name}. Available: {available}")
+    return _HEURISTICS[name]
+
+
+def register_heuristic(name: str, func: HeuristicFunc, overwrite: bool = False) -> None:
+    """Register a custom heuristic strategy.
+
+    Args:
+        name: Strategy name
+        func: Heuristic function
+        overwrite: Whether to overwrite existing strategy
+    """
+    if name in _HEURISTICS and not overwrite:
+        raise ValueError(f"Heuristic {name} already exists. Use overwrite=True to replace.")
+    _HEURISTICS[name] = HeuristicStrategy(func, name=name)
 
 
 def get_neighbor_cost(current: GridCell, neighbor: GridCell, via_cost: float = 1.0) -> float:
@@ -74,7 +176,9 @@ def get_neighbor_cost(current: GridCell, neighbor: GridCell, via_cost: float = 1
     return base_cost
 
 
-def compute_local_density(x: float, y: float, component_positions: Array, radius: float = 10.0) -> float:
+def compute_local_density(
+    x: float, y: float, component_positions: Array, radius: float = 10.0
+) -> float:
     """Compute component density within radius of point (temper-74wg.1).
 
     Args:
@@ -225,7 +329,9 @@ def order_nets_for_routing(
         return net_names
 
     # Compute metrics for all nets
-    metrics_list = [compute_net_metrics(name, net_pin_positions.get(name, [])) for name in net_names]
+    metrics_list = [
+        compute_net_metrics(name, net_pin_positions.get(name, [])) for name in net_names
+    ]
 
     # Create (net_name, metrics) pairs
     net_metrics_pairs = list(zip(net_names, metrics_list))
