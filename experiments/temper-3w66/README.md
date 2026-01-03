@@ -19,16 +19,36 @@ The router's fanout generator can successfully escape route all pins from a 1.27
   - 4 pin headers with 10 pins each (40 total pins)
   - 1.27mm pin pitch (fine grid)
   - 80x60mm board
+- **Fanout Generator:** SimpleFanoutGenerator with staggered via placement
 - **Metric:** Fanout completion rate (% of pins with valid escape routes)
 
-## 4. Expected Results
+## 4. Results
 
-- All 40 pins should receive valid fanout routes
-- No DRC violations from via-to-via clearance
-- Routes should escape to appropriate inner layers
+```
+Board Statistics:
+  Footprints: 4
+  Total pads: 40
+  Named nets: 40
 
-## 5. Files
+Fanout Results:
+  Total fanouts generated: 40
+  Unique nets with fanouts: 40
+  Vias created: 40
+  Traces created: 40
 
-- `pitchfork.kicad_pcb`: Generated test board
+Via Clearance Check:
+  Min clearance: 0.2mm
+  Via size: 0.6mm
+  Violations: 0
+
+[PASS] Fanout test successful!
+       All 40 pins have valid fanout routes
+       No via-to-via clearance violations
+```
+
+## 5. Output Files
+
+- `pitchfork.kicad_pcb`: Generated test board (40 pads)
+- `pitchfork_with_fanout.kicad_pcb`: Board with 40 vias + 40 fanout traces
 - `config_fanout.yaml`: Fanout configuration
 - `run_experiment.py`: Experiment runner
