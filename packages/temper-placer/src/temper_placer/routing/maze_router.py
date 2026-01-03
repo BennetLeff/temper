@@ -743,15 +743,17 @@ class MazeRouter:
         """Convert JAX arrays to numpy for faster A* indexing.
 
         Called at the start of find_path to avoid repeated JAX->Python conversion.
+        Arrays are converted to the correct dtype once here to avoid repeated astype() calls.
         """
         t0 = time.perf_counter()
-        self._history_np = np.asarray(self.history_cost)
-        self._congestion_np = np.asarray(self.present_congestion)
-        self._occupancy_np = np.asarray(self.occupancy)
+        # Convert to correct dtype once - avoid repeated astype() in find_path_rrr
+        self._history_np = np.ascontiguousarray(self.history_cost, dtype=np.float32)
+        self._congestion_np = np.ascontiguousarray(self.present_congestion, dtype=np.float32)
+        self._occupancy_np = np.ascontiguousarray(self.occupancy, dtype=np.int32)
         if self.soft_c_space is not None:
-            self._soft_c_space_np = np.asarray(self.soft_c_space)
+            self._soft_c_space_np = np.ascontiguousarray(self.soft_c_space, dtype=np.float32)
         if self.c_space_grid is not None:
-            self._c_space_grid_np = np.asarray(self.c_space_grid)
+            self._c_space_grid_np = np.ascontiguousarray(self.c_space_grid, dtype=np.float32)
         self.stats.profile.prepare_costs_ms += (time.perf_counter() - t0) * 1000.0
 
     def _clear_cost_arrays(self) -> None:
@@ -3105,8 +3107,8 @@ class MazeRouter:
 
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
         num_pins = len(grid_pins)
-        print(f"DEBUG_MST: Net={net_name} NumPins={num_pins} GridPins={grid_pins}")
-        print(f"DEBUG_MST: pin_sides={pin_sides}")
+        # print(f"DEBUG_MST: Net={net_name} NumPins={num_pins} GridPins={grid_pins}")
+        # print(f"DEBUG_MST: pin_sides={pin_sides}")
 
         # Map pin sides to layers
         pin_layers = []
@@ -3117,7 +3119,7 @@ class MazeRouter:
             # Default to all Top or use Through-hole assumption
             pin_layers = [0] * num_pins
 
-        print(f"DEBUG_MST: pin_layers={pin_layers}")
+        # print(f"DEBUG_MST: pin_layers={pin_layers}")
 
         # Determine candidate start layers based on first pin
         candidate_start_layers_per_pin = []
@@ -3218,31 +3220,10 @@ class MazeRouter:
                     original_occupancy.append((gx, gy, l, int(self.occupancy[gx, gy, l])))
                     self.occupancy[gx, gy, l] = 0
 
-        # DEBUG: Show occupancy at pin centers after unblocking
-        for i, (gx, gy) in enumerate(grid_pins):
-            occ_vals = [int(self.occupancy[gx, gy, l]) for l in range(self.num_layers)]
-            print(f"DEBUG_MST: Pin {i} at ({gx}, {gy}) occupancy after unblock: {occ_vals}")
-
-        # DEBUG: Sample occupancy along the path from start to end on layer 1
-        start_x, start_y = grid_pins[0]
-        end_x, end_y = grid_pins[1]
-        sample_points = [start_x, (start_x + end_x) // 2, end_x]
-        for x in sample_points:
-            occ = int(self.occupancy[x, start_y, 1])  # Check layer 1
-            print(f"DEBUG_MST: Occupancy at ({x}, {start_y}, L1): {occ}")
-
-        # DEBUG: Count blocked cells on layer 1 along the direct path
-        blocked_count = 0
-        blocked_cells = []
-        for x in range(min(start_x, end_x), max(start_x, end_x) + 1):
-            if int(self.occupancy[x, start_y, 1]) == -1:
-                blocked_count += 1
-                blocked_cells.append(x)
-        print(
-            f"DEBUG_MST: Blocked cells on direct path (L1, y={start_y}): {blocked_count} / {abs(end_x - start_x) + 1}"
-        )
-        if blocked_cells:
-            print(f"DEBUG_MST: Blocked cell x-coordinates: {blocked_cells[:20]}")
+        # DEBUG block removed for performance - uncomment for debugging
+        # for i, (gx, gy) in enumerate(grid_pins):
+        #     occ_vals = [int(self.occupancy[gx, gy, l]) for l in range(self.num_layers)]
+        #     print(f"DEBUG_MST: Pin {i} at ({gx}, {gy}) occupancy after unblock: {occ_vals}")
 
         # Creepage Awareness: Generate class-specific clearance mask
         # TEMP: Disabled for EXP-16 testing - clearance mask blocks entire path
@@ -3306,10 +3287,8 @@ class MazeRouter:
                         heapq.heappush(pq, (path_cost, start_pin_idx, i, path))
                         initial_paths_found += 1
 
-        print(
-            f"DEBUG_MST: Found {initial_paths_found} initial paths from pin {start_pin_idx} to other pins"
-        )
-        print(f"DEBUG_MST: candidate_start_layers_per_pin={candidate_start_layers_per_pin}")
+        # print(f"DEBUG_MST: Found {initial_paths_found} initial paths from pin {start_pin_idx} to other pins")
+        # print(f"DEBUG_MST: candidate_start_layers_per_pin={candidate_start_layers_per_pin}")
 
         final_all_cells = []
         final_via_cells = set()
@@ -3622,9 +3601,8 @@ class MazeRouter:
 
         Uses Numba-accelerated implementation if available, otherwise falls back to Python.
         """
-        print(
-            f"DEBUG_ASTAR: find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer} allow_change={allow_layer_change}"
-        )
+        # DEBUG prints removed for performance - uncomment for debugging
+        # print(f"DEBUG_ASTAR: find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer} allow_change={allow_layer_change}")
 
         # Prepare cached arrays for fast lookup
         self._prepare_cost_arrays()
@@ -3640,22 +3618,22 @@ class MazeRouter:
         is_end_hard_blocked = int(self.occupancy[end[0], end[1], target_layer]) == -1
 
         if is_start_hard_blocked:
-            print(f"DEBUG_ASTAR: Start blocked at {start} on layer {layer}")
+            # print(f"DEBUG_ASTAR: Start blocked at {start} on layer {layer}")
             return None
 
         # If end is blocked on target layer, try to find an accessible layer
         if is_end_hard_blocked:
-            print(f"DEBUG_ASTAR: End blocked at {end} on target layer {target_layer}")
+            # print(f"DEBUG_ASTAR: End blocked at {end} on target layer {target_layer}")
             found = False
             for l in range(self.num_layers):
                 if int(self.occupancy[end[0], end[1], l]) != -1:
                     target_layer = l
                     end_cell = GridCell(end[0], end[1], l)
                     found = True
-                    print(f"DEBUG_ASTAR: Using alternative end layer {l} for {end}")
+                    # print(f"DEBUG_ASTAR: Using alternative end layer {l} for {end}")
                     break
             if not found:
-                print(f"DEBUG_ASTAR: End blocked on all layers at {end}")
+                # print(f"DEBUG_ASTAR: End blocked on all layers at {end}")
                 return None
 
         # Compute clearance mask if needed
@@ -3681,26 +3659,23 @@ class MazeRouter:
         if custom_heuristic is not None:
             use_numba = False  # Custom heuristics only work in Python A*
 
-        print(
-            f"DEBUG_ASTAR: use_numba={use_numba}, has_custom_heuristic={custom_heuristic is not None}"
-        )
+        # print(f"DEBUG_ASTAR: use_numba={use_numba}, has_custom_heuristic={custom_heuristic is not None}")
 
         if use_numba:
             try:
                 t_numba = time.perf_counter()
                 self.stats.profile.numba_calls += 1
 
-                occ = self._occupancy_np.astype(np.int32)
-                hist = self._history_np.astype(np.float32)
-                cong = self._congestion_np.astype(np.float32)
+                # Use pre-converted arrays directly (already correct dtype from _prepare_cost_arrays)
+                occ = self._occupancy_np
+                hist = self._history_np
+                cong = self._congestion_np
 
                 cmap = None
                 if cost_map is not None:
-                    cmap = np.asarray(cost_map, dtype=np.float32)
+                    cmap = np.ascontiguousarray(cost_map, dtype=np.float32)
 
-                cspace = None
-                if self.soft_c_space is not None:
-                    cspace = self._soft_c_space_np.astype(np.float32)
+                cspace = self._soft_c_space_np  # Already correct dtype or None
 
                 if clearance_mask is not None:
                     clearance_mask = np.ascontiguousarray(clearance_mask)
