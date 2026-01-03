@@ -124,6 +124,7 @@ class SimpleFanoutGenerator:
                     width=self.config.trace_width,
                     layer="F.Cu",
                     net=pad.net,
+                    tstamp=f"00000000-0000-0000-0000-{len(self.traces_created):012d}",
                 )
 
                 self.board.traceItems.append(trace)
