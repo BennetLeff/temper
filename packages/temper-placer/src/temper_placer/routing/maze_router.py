@@ -52,6 +52,7 @@ from temper_placer.routing.difficulty import (
     compute_density_map,
     compute_local_density,
 )
+from temper_placer.routing.heuristics import GridCell
 
 if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
@@ -66,18 +67,6 @@ if TYPE_CHECKING:
     from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
     from temper_placer.routing.post_processing.via_optimizer import ViaOptimizer
 logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True, order=True)
-class GridCell:
-    """A cell in the routing grid."""
-
-    x: int
-    y: int
-    layer: int = 0
-
-    def __hash__(self) -> int:
-        return hash((self.x, self.y, self.layer))
 
 
 @dataclass
