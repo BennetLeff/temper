@@ -9,6 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 
 from temper_placer.core.differential_pair import DifferentialPairConstraint
+from temper_placer.core.bus_cohort import BusCohortConstraint
 from temper_placer.core.net_graph import NetGraph
 
 
@@ -148,6 +149,7 @@ class DesignRules:
     net_overrides: dict[str, NetClassRules] = field(default_factory=dict)
     net_class_assignments: dict[str, str] = field(default_factory=dict)
     differential_pairs: list[DifferentialPairConstraint] = field(default_factory=list)
+    bus_cohorts: list[BusCohortConstraint] = field(default_factory=list)
     net_topologies: dict[str, NetGraph] = field(default_factory=dict)
     via_templates: dict[str, ViaTemplate] = field(default_factory=lambda: {
         "Via1x1": ViaTemplate("Via1x1", 1, 1, 0.6, 0.3, 1.0),
@@ -290,6 +292,20 @@ class DesignRules:
         for pair in self.differential_pairs:
             if pair.net_pos == net_name or pair.net_neg == net_name:
                 return pair
+        return None
+
+    def get_bus_cohort_for_net(self, net_name: str) -> BusCohortConstraint | None:
+        """Get bus cohort constraint if net is part of a bus.
+
+        Args:
+            net_name: Net name to check
+
+        Returns:
+            BusCohortConstraint if net is part of a bus, None otherwise
+        """
+        for bus in self.bus_cohorts:
+            if net_name in bus.nets:
+                return bus
         return None
 
 

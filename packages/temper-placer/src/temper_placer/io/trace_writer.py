@@ -23,7 +23,6 @@ def write_traces_to_pcb(
     default_trace_width: float = 0.25,
     via_size: float = 0.8,
     via_drill: float = 0.4,
-    via_drill: float = 0.4,
     netlist=None,
     component_positions=None, # List of (x,y) or JAX array corresponding to netlist
 ) -> int:

@@ -45,15 +45,19 @@ from temper_placer.routing.safety_distances import (
 
 if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
+    from temper_placer.core.bus_cohort import BusCohortConstraint
     from temper_placer.core.netlist import Netlist
     from temper_placer.routing.constraints import DRCOracle
     from temper_placer.routing.layer_assignment import LayerAssignment
     from temper_placer.core.net_graph import NetGraph
     from temper_placer.routing.post_processing.funnel_smoother import Point
+    from temper_placer.routing.post_processing.nudger import GeometricNudger
+    from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
+    from temper_placer.routing.post_processing.via_optimizer import ViaOptimizer
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class GridCell:
     """A cell in the routing grid."""
 
@@ -2307,7 +2311,33 @@ class MazeRouter:
 
             # Route nets with progress bar
             with tqdm(total=len(nets_to_route), desc=f"Iter {iteration + 1}", unit="net") as pbar:
+                processed_nets = set()
                 for net_name in nets_to_route:
+                    if net_name in processed_nets:
+                        pbar.update(1)
+                        continue
+
+                    if net_name not in all_pin_positions:
+                        pbar.update(1)
+                        continue
+
+                    # Check if net is part of a bus
+                    bus = (
+                        self.design_rules.get_bus_cohort_for_net(net_name)
+                        if self.design_rules
+                        else None
+                    )
+                    if bus:
+                        # Route entire bus
+                        self.route_bus_cohort(
+                            bus, all_pin_positions, assignments, cost_maps, p_scale=p_scale
+                        )
+                        for bn in bus.nets:
+                            processed_nets.add(bn)
+                        pbar.update(1)  # Note: progress bar might be slightly off if bus has N nets
+                        continue
+
+                    processed_nets.add(net_name)
                     if net_name not in all_pin_positions:
                         pbar.update(1)
                         continue
@@ -2498,9 +2528,11 @@ class MazeRouter:
             # Check for final overlaps
             overlaps = validate_no_overlaps(self.routed_paths)
             if overlaps:
-                print(f"  ⚠ Final overlap check: {len(overlaps)} overlapping cells")
+                print(f"  Final overlap check: {len(overlaps)} overlapping cells")
                 for net1, net2, cell in overlaps[:5]:
-                    print(f"    {net1} ↔ {net2} at ({cell[0]}, {cell[1]}, L{cell[2] + 1})")
+                    print(f"    {net1} at ({cell[0]}, {cell[1]}, L{cell[2] + 1})")
+
+        self._run_post_processing()
 
         return self.routed_paths
 
@@ -2641,6 +2673,110 @@ class MazeRouter:
                 conflict_free_count=new_count,
                 converged=new_count >= 2,
             )
+
+    def route_bus_cohort(
+        self,
+        bus: "BusCohortConstraint",
+        all_pin_positions: dict[str, list[tuple[float, float]]],
+        assignments: dict[str, "LayerAssignment"],
+        cost_maps: dict[str, Array] | None = None,
+        p_scale: float = 1.0,
+    ) -> None:
+        """Routes a bus cohort in parallel.
+
+        Args:
+            bus: Bus group constraint
+            all_pin_positions: Map of net names to pin positions
+            assignments: Map of net names to layer assignments
+            cost_maps: Optional per-net cost maps
+            p_scale: Penalty scale for RRR
+        """
+        # 1. Collect start/end grid cells for all nets
+        # We assume 2nd pin (point-to-point) for now.
+        start_grid = []
+        end_grid = []
+
+        for net_name in bus.nets:
+            pins = all_pin_positions[net_name]
+            if len(pins) < 2:
+                continue
+            start_grid.append(self._world_to_grid(pins[0][0], pins[0][1]))
+            end_grid.append(self._world_to_grid(pins[1][0], pins[1][1]))
+
+        if not start_grid:
+            return
+
+        # 2. Unblock pads for all nets in the cohort
+        original_occupancy = []
+        unblock_radius = 5  # Cells
+
+        for net_name in bus.nets:
+            pins = all_pin_positions[net_name]
+            for px, py in pins:
+                gx, gy = self._world_to_grid(px, py)
+                for dx in range(-unblock_radius, unblock_radius + 1):
+                    for dy in range(-unblock_radius, unblock_radius + 1):
+                        nx, ny = gx + dx, gy + dy
+                        if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                            for l in range(self.num_layers):
+                                if int(self.occupancy[nx, ny, l]) != 0:
+                                    original_occupancy.append(
+                                        (nx, ny, l, int(self.occupancy[nx, ny, l]))
+                                    )
+                                    self.occupancy[nx, ny, l] = 0
+
+        # 3. Find parallel paths
+        # We use the layer from the first net's assignment
+        first_net = bus.nets[0]
+        layer = 0
+        if first_net in assignments:
+            layer = assignments[first_net].primary_layer.value
+
+        all_net_paths = self.find_bus_path_rrr(
+            start_grid, end_grid, layer=layer, bus_constraint=bus, p_scale=p_scale
+        )
+
+        # 4. Process results
+        if all_net_paths:
+            for i, net_name in enumerate(bus.nets):
+                path = all_net_paths[i]
+
+                # Check if this net matches its own end pin (simple check)
+                # In more advanced, we'd adjust the endpoints
+
+                res = RoutePath(
+                    net=net_name,
+                    cells=path,
+                    length=len(path) * self.cell_size,
+                    via_count=0,
+                    success=True,
+                    trace_width=self.design_rules.get_rules_for_net(net_name).trace_width
+                    if self.design_rules
+                    else 0.2,
+                )
+                self.routed_paths[net_name] = res
+
+                # Update occupancy (simplification: only for final cells)
+                # Real implementation should use _get_inflated_cells
+                for cell in path:
+                    self.occupancy[cell.x, cell.y, cell.layer] = 2
+        else:
+            # Mark all as failed
+            for net_name in bus.nets:
+                res = RoutePath(
+                    net=net_name,
+                    cells=[],
+                    length=0.0,
+                    via_count=0,
+                    success=False,
+                    failure_reason="Could not find parallel bus path",
+                )
+                self.routed_paths[net_name] = res
+
+        # 5. Restore original occupancy for untouched cells
+        for gx, gy, l, v in original_occupancy:
+            if self.occupancy[gx, gy, l] == 0:
+                self.occupancy[gx, gy, l] = v
 
     def route_net_mst(
         self,
@@ -3072,6 +3208,111 @@ class MazeRouter:
 
         return route_net_hierarchical(self, net_name, pin_positions, assignment, **kwargs)
 
+    def find_bus_path_rrr(
+        self,
+        start_cells: list[tuple[int, int]],
+        end_cells: list[tuple[int, int]],
+        layer: int = 0,
+        bus_constraint: "BusCohortConstraint | None" = None,
+        cost_map: Array | None = None,
+        p_scale: float = 1.0,
+        clearance_mm: float | None = None,
+    ) -> list[list[GridCell]] | None:
+        """Finds parallel paths for a bus cohort using multi-path A*.
+
+        This implementation uses a 'primary path' approach where the first net
+        in the bus is routed, and other nets follow as parallel offsets.
+        The expansion logic ensures that the entire cohort can fit at each step.
+        """
+        if not bus_constraint:
+            return None
+
+        t_start = time.perf_counter()
+
+        num_nets = len(bus_constraint.nets)
+
+        # Calculate relative offsets from the primary start pin
+        start_x0, start_y0 = start_cells[0]
+        offsets = []
+        for i in range(num_nets):
+            sx, sy = start_cells[i]
+            offsets.append((sx - start_x0, sy - start_y0))
+
+        # Priority queue: (f, g, primary_x, primary_y, layer, path_nodes)
+        pq = []
+
+        start_x, start_y = start_cells[0]
+        end_x, end_y = end_cells[0]
+
+        start_cell = GridCell(start_x, start_y, layer)
+        end_cell = GridCell(end_x, end_y, layer)
+
+        h = self._heuristic(start_cell, end_cell)
+        # We don't track orientation anymore, just rigid offsets
+        heapq.heappush(pq, (h, 0.0, start_x, start_y, layer, [start_cell]))
+
+        visited = {}  # (x, y, layer) -> min_g
+
+        print(f"DEBUG_BUS: Routing bus {bus_constraint.name} with {num_nets} nets")
+        print(f"DEBUG_BUS: Primary Start: ({start_x}, {start_y}), End: ({end_x}, {end_y})")
+        print(f"DEBUG_BUS: Offsets: {offsets}")
+
+        while pq:
+            f, g, cx, cy, cl, path = heapq.heappop(pq)
+
+            curr_cell = path[-1]
+            if curr_cell.x == end_x and curr_cell.y == end_y:
+                duration_ms = (time.perf_counter() - t_start) * 1000.0
+                self.stats.profile.astar_total_ms += duration_ms
+                self.stats.profile.python_time_ms += duration_ms
+                self.stats.profile.python_calls += 1
+
+                print(f"DEBUG_BUS: Success! Path length: {len(path)} (Time: {duration_ms:.1f}ms)")
+                all_paths = [[] for _ in range(num_nets)]
+                for c in path:
+                    for i in range(num_nets):
+                        dx, dy = offsets[i]
+                        all_paths[i].append(GridCell(c.x + dx, c.y + dy, c.layer))
+                return all_paths
+
+            state = (cx, cy, cl)
+            if state in visited and visited[state] <= g:
+                continue
+            visited[state] = g
+
+            # Expansion
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                nx, ny = cx + dx, cy + dy
+
+                if not (0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]):
+                    continue
+
+                valid_step = True
+                step_cost = 1.0
+
+                for i in range(num_nets):
+                    ox, oy = offsets[i]
+                    tx, ty = nx + ox, ny + oy
+
+                    if not (0 <= tx < self.grid_size[0] and 0 <= ty < self.grid_size[1]):
+                        valid_step = False
+                        break
+
+                    if int(self.occupancy[tx, ty, cl]) != 0:
+                        valid_step = False
+                        break
+
+                    step_cost += self.present_congestion[tx, ty, cl] * p_scale
+
+                if valid_step:
+                    new_g = g + step_cost
+                    new_cell = GridCell(nx, ny, cl)
+                    new_h = self._heuristic(new_cell, end_cell)
+                    new_path = path + [new_cell]
+                    heapq.heappush(pq, (new_g + new_h, new_g, nx, ny, cl, new_path))
+
+        return None
+
     def find_path_rrr(
         self,
         start: tuple[int, int],
@@ -3337,6 +3578,60 @@ class MazeRouter:
                     }
                 )
         return conflicts
+
+    def _run_post_processing(self) -> None:
+        """Run post-processing optimization passes on routed geometry.
+
+        Executes via optimization, trace nudging, and trace ballooning
+        to eliminate DRC violations after routing is complete.
+        """
+        from temper_placer.routing.constraints.spatial_index import PCBGeometry
+        from temper_placer.routing.post_processing.via_optimizer import ViaOptimizer
+        from temper_placer.routing.post_processing.nudger import GeometricNudger
+        from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
+
+        logger.info("Starting post-processing pipeline")
+
+        if not self.drc_oracle:
+            logger.warning("No DRC oracle available, skipping post-processing")
+            return
+
+        geometry = self.drc_oracle.geometry
+
+        if not geometry.tracks and not geometry.vias:
+            logger.info("No geometry to optimize")
+            return
+
+        logger.info(f"Initial geometry: {len(geometry.tracks)} tracks, {len(geometry.vias)} vias")
+
+        via_optimizer = ViaOptimizer(self.drc_oracle)
+        geometry = via_optimizer.optimize_vias(geometry)
+        logger.info(
+            f"Via optimization complete: {via_optimizer.stats.vias_consolidated} consolidated, "
+            f"{via_optimizer.stats.vias_repositioned} repositioned, {via_optimizer.stats.vias_eliminated} eliminated"
+        )
+
+        violations = self.drc_oracle.validate_all()
+        if not violations:
+            logger.info("Post-processing complete: 0 DRC violations")
+            return
+
+        nudger = GeometricNudger(self.drc_oracle)
+        nudger.oracle.geometry = geometry
+        nudger.optimize(iterations=50, step_size=0.5)
+        logger.info(f"Trace nudging complete")
+
+        geometry = self.drc_oracle.geometry
+
+        ballooner = TraceBallooner(geometry)
+        result = ballooner.balloon_traces(geometry.tracks)
+        logger.info(f"Trace ballooning complete: {result.segments_expanded} segments expanded")
+
+        violations = self.drc_oracle.validate_all()
+        if violations:
+            logger.warning(f"Post-processing complete with {len(violations)} remaining violations")
+        else:
+            logger.info("Post-processing complete: 0 DRC violations")
 
 
 def compute_completion_rate(results: dict[str, RoutePath]) -> float:

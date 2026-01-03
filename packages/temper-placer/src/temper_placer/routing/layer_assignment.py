@@ -147,26 +147,40 @@ def matches_pattern(net_name: str, pattern: str) -> bool:
 # Default layer constraints for induction cooker design
 # Order matters - first matching constraint wins
 DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
-    # High-voltage nets: L1 only (clearance requirements)
+    # High-voltage nets: L1 preferred (2oz copper)
     LayerConstraint(
         net_pattern=r"DC_BUS_.*|HV_.*|SW_NODE|AC_L|AC_N|RECT_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
-        reason="High-voltage traces allowed on all layers to ensure routability",
+        reason="High-voltage power distribution prefers Top layer (2oz copper)",
     ),
-    # Gate drive nets: prefer L1 (close to ground plane on L2)
+    # Gate drive nets: L1 preferred (close to ground plane on L2)
     LayerConstraint(
         net_pattern=r"GATE_.*|DRV_.*|DRIVER_.*",
         allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
         reason="Gate drive signals prefer L1 for tight coupling to L2 ground",
     ),
-    # Power nets: can use signal layers
+    # Sensitive Analog/Sensing: Top layer ONLY (isolate from Digital)
     LayerConstraint(
-        net_pattern=r"VCC_.*|VDD_.*|V\d+V\d*|PWR_.*|\+\dV.*",
+        net_pattern=r"SENSE_.*|ADC_.*|TEMP_.*|ANALOG_.*|I_SENSE",
+        allowed_layers={Layer.L1_TOP},
+        preferred_layer=Layer.L1_TOP,
+        reason="Analog signals forced to Top layer to isolate from digital SPI bus",
+    ),
+    # SPI Bus: Bottom layer ONLY (isolate from HV/Analog on Top)
+    LayerConstraint(
+        net_pattern=r"SPI_.*",
+        allowed_layers={Layer.L4_BOT},
+        preferred_layer=Layer.L4_BOT,
+        reason="SPI digital signals forced to Bottom layer to minimize noise coupling to analog",
+    ),
+    # USB/Digital: prefer bottom
+    LayerConstraint(
+        net_pattern=r"USB_.*|PWM_.*|DIGITAL_.*",
         allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
-        reason="Power distribution can use either signal layer",
+        reason="General digital signals prefer bottom layer",
     ),
     # Ground nets: prefer bottom, can use top
     LayerConstraint(
@@ -174,13 +188,6 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
         allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="Ground connections prefer bottom layer",
-    ),
-    # Sensing/analog: prefer bottom (away from HV)
-    LayerConstraint(
-        net_pattern=r"SENSE_.*|ADC_.*|TEMP_.*|ANALOG_.*|AN_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
-        preferred_layer=Layer.L4_BOT,
-        reason="Analog signals prefer bottom layer, away from HV noise",
     ),
     # Catch-all: default to bottom layer for general signals
     LayerConstraint(
