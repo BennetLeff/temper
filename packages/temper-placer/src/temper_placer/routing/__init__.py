@@ -119,6 +119,17 @@ from temper_placer.routing.post_processing import (
     FunnelSmoother,
     Point,
 )
+from temper_placer.routing.critical_net_detector import (
+    CriticalNet,
+    CriticalNetCategory,
+    CriticalNetDetectionResult,
+    CriticalNetDetector,
+)
+from temper_placer.routing.pdn_router import (
+    PDNRouteResult,
+    PDNRouter,
+    PowerTraceWidth,
+)
 
 __all__ = [
     # Verifier (main entry point)
@@ -182,6 +193,15 @@ __all__ = [
     "RoutingStrategy",
     "UnifiedRoutePath",
     "UnifiedRouter",
+    # Critical Net Detection (temper-cjxg)
+    "CriticalNet",
+    "CriticalNetCategory",
+    "CriticalNetDetectionResult",
+    "CriticalNetDetector",
+    # PDN Router (temper-cjxg)
+    "PDNRouteResult",
+    "PDNRouter",
+    "PowerTraceWidth",
     # Path smoothing
     "FunnelSmoother",
     "Point",
