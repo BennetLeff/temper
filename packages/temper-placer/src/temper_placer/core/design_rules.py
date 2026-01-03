@@ -123,6 +123,7 @@ class NetClassRules:
     target_impedance: float | None = None  # Target impedance in ohms
     voltage_v: float = 0.0  # Voltage rating for safety distance calculation
     routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    via_cost_multiplier: float = 1.0  # Multiplier for via cost (higher = fewer vias)
 
 
 @dataclass

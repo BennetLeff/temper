@@ -35,6 +35,7 @@ from temper_placer.routing.fast_router import (
     find_path_astar_numba,
     find_path_astar_numba_adaptive,
 )
+from temper_placer.routing.layer_assignment import Layer, LayerAssignment
 from temper_placer.io.export_types import TraceVia
 from temper_placer.routing.via_array import calculate_via_array, should_use_via_array
 from temper_placer.routing.safety_distances import (
@@ -84,6 +85,9 @@ class ProfileStats:
     python_calls: int = 0
     numba_time_ms: float = 0.0
     python_time_ms: float = 0.0
+    dist_map_ms: float = 0.0
+    dist_map_calls: int = 0
+    dist_map_cache_hits: int = 0
 
 
 @dataclass
@@ -279,23 +283,6 @@ class MazeRouter:
 
         # Pre-computed density map for O(1) cell difficulty lookup (temper-qjlk)
         self._density_map: np.ndarray | None = None
-
-        # Work array pool for A* to avoid repeated allocation (performance optimization)
-        self._astar_g_score_buf: np.ndarray | None = None
-        self._astar_came_from_x_buf: np.ndarray | None = None
-        self._astar_came_from_y_buf: np.ndarray | None = None
-        self._astar_came_from_l_buf: np.ndarray | None = None
-        self._astar_visited_buf: np.ndarray | None = None
-
-    def _ensure_work_arrays(self) -> None:
-        """Allocate work arrays for A* if not already allocated."""
-        shape = (self.grid_size[0], self.grid_size[1], self.num_layers)
-        if self._astar_g_score_buf is None:
-            self._astar_g_score_buf = np.zeros(shape, dtype=np.float32)
-            self._astar_came_from_x_buf = np.zeros(shape, dtype=np.int32)
-            self._astar_came_from_y_buf = np.zeros(shape, dtype=np.int32)
-            self._astar_came_from_l_buf = np.zeros(shape, dtype=np.int32)
-            self._astar_visited_buf = np.zeros(shape, dtype=np.bool_)
 
     def _get_inflated_cells(
         self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None
@@ -554,6 +541,15 @@ class MazeRouter:
         Supports soft blocking (negotiated congestion) and dynamic via cost.
         """
         base_cost = 1.0
+        
+        # Layer preference penalty (discourage layers other than primary_layer)
+        if hasattr(self, "_current_assignment") and self._current_assignment:
+            primary_idx = self._current_assignment.primary_layer.value - 1
+            if neighbor.layer != primary_idx:
+                # Add significant penalty for using non-primary layers
+                # This ensures we prefer primary layer unless it's blocked
+                base_cost += 5.0
+
         # Wrong-way penalty
         wrong_way_cost = 0.0
         if neighbor.layer == 0:  # L1 prefers horizontal
@@ -757,21 +753,11 @@ class MazeRouter:
         return total_cost
 
     def _prepare_cost_arrays(self) -> None:
-        """Convert JAX arrays to numpy for faster A* indexing.
+        """Prepare cached NumPy arrays for Numba routing."""
+        # Sync occupancy to NumPy if it changed or hasn't been created
+        # Note: We always re-create or sync to ensure it's up to date
+        self._occupancy_np = np.array(self.occupancy, dtype=np.int32)
 
-        Called at the start of find_path to avoid repeated JAX->Python conversion.
-        Arrays are converted to the correct dtype once here to avoid repeated astype() calls.
-        """
-        t0 = time.perf_counter()
-        # Convert to correct dtype once - avoid repeated astype() in find_path_rrr
-        self._history_np = np.ascontiguousarray(self.history_cost, dtype=np.float32)
-        self._congestion_np = np.ascontiguousarray(self.present_congestion, dtype=np.float32)
-        self._occupancy_np = np.ascontiguousarray(self.occupancy, dtype=np.int32)
-        if self.soft_c_space is not None:
-            self._soft_c_space_np = np.ascontiguousarray(self.soft_c_space, dtype=np.float32)
-        if self.c_space_grid is not None:
-            self._c_space_grid_np = np.ascontiguousarray(self.c_space_grid, dtype=np.float32)
-        self.stats.profile.prepare_costs_ms += (time.perf_counter() - t0) * 1000.0
 
     def _clear_cost_arrays(self) -> None:
         """Clear cached numpy arrays after path finding."""
@@ -1384,12 +1370,19 @@ class MazeRouter:
         # Check cache
         cache_key = (target.x, target.y, target.layer)
         if hasattr(self, "_distance_map_cache") and cache_key in self._distance_map_cache:
+            self.stats.profile.dist_map_cache_hits += 1
             return self._distance_map_cache[cache_key]
+
+        t_dist = time.perf_counter()
+        self.stats.profile.dist_map_calls += 1
 
         # Use Numba-accelerated BFS when available
         if HAS_NUMBA:
-            # Ensure occupancy is contiguous int32
-            occ = np.ascontiguousarray(self.occupancy, dtype=np.int32)
+            # Use cached contiguous occupancy if available, otherwise convert
+            if self._occupancy_np is not None:
+                occ = self._occupancy_np
+            else:
+                occ = np.ascontiguousarray(self.occupancy, dtype=np.int32)
             dist_map = compute_distance_map_numba(
                 target.x,
                 target.y,
@@ -1426,6 +1419,8 @@ class MazeRouter:
                     if new_dist < dist_map[nx, ny, cell.layer]:
                         dist_map[nx, ny, cell.layer] = new_dist
                         queue.append(GridCell(nx, ny, cell.layer))
+
+        self.stats.profile.dist_map_ms += (time.perf_counter() - t_dist) * 1000.0
 
         # Cache the result
         if not hasattr(self, "_distance_map_cache"):
@@ -1484,6 +1479,19 @@ class MazeRouter:
             dist_map = self._compute_distance_map(GridCell(end[0], end[1], layer), _layer=layer)
 
             if HAS_NUMBA and self._history_np is not None and self._congestion_np is not None:
+                # Convert allowed_layers to boolean mask for Numba
+                allowed_mask = None
+                if allowed_layers is not None:
+                    allowed_mask = np.zeros(self.num_layers, dtype=np.bool_)
+                    for l in allowed_layers:
+                        if 0 <= l < self.num_layers:
+                            allowed_mask[l] = True
+
+                # Determine primary layer for penalty
+                primary_idx = -1
+                if hasattr(self, "_current_assignment") and self._current_assignment:
+                    primary_idx = self._current_assignment.primary_layer.value - 1
+
                 result = find_path_astar_numba_adaptive(
                     start[0],
                     start[1],
@@ -1511,6 +1519,9 @@ class MazeRouter:
                     current_class_id=current_class_id,
                     min_clearance=self.min_clearance,
                     cell_size=self.cell_size,
+                    allowed_layers_mask=allowed_mask,
+                    primary_layer_idx=primary_idx,
+                    layer_penalty=5.0,
                 )
                 
                 # Convert result to GridCells
@@ -1523,50 +1534,6 @@ class MazeRouter:
 
         except Exception as e:
             logger.warning(f"Numba A* failed, falling back to Python: {e}")
-
-        try:
-            dist_map = self._compute_distance_map(GridCell(end[0], end[1], layer), _layer=layer)
-
-            if HAS_NUMBA and self._history_np is not None and self._congestion_np is not None:
-                try:
-                    result = find_path_astar_numba_adaptive(
-                        start[0],
-                        start[1],
-                        layer,
-                        end[0],
-                        end[1],
-                        layer,
-                        self.grid_size[0],
-                        self.grid_size[1],
-                        self.num_layers,
-                        self._occupancy_np,
-                        self._history_np,
-                        self._congestion_np,
-                        self.via_cost,
-                        p_scale,
-                        dist_map,
-                        cost_map=None,
-                        clearance_mask=None,
-                        soft_blocking=self.soft_blocking,
-                        soft_c_space=self._soft_c_space_np,
-                        tap_mask=None,
-                        guide_map=None,
-                        guide_bias=0.0,
-                        class_grid=self.class_grid,
-                        current_class_id=current_class_id,
-                        min_clearance=self.min_clearance,
-                        cell_size=self.cell_size,
-                    )
-                    
-                    if result:
-                        path = []
-                        for x, y, l in result:
-                            path.append(GridCell(x, y, l))
-                        return path
-                    return None
-                    
-                except Exception as e:
-                    logger.warning(f"Numba A* failed, falling back to Python: {e}")
 
         finally:
             self._clear_cost_arrays()
@@ -1794,10 +1761,13 @@ class MazeRouter:
         # DEBUG: Log for start cell only
         is_start = cell.x == 100 and cell.y == 250 and cell.layer == 0
 
-        # DEBUG: Log for cells on layer 1 near start
-        is_layer1_near_start = cell.layer == 1 and cell.x >= 98 and cell.x <= 102 and cell.y == 250
+        # Horizontal moves
+        # Only allow if layer is NOT a plane layer, UNLESS the net is explicitly allowed on this layer
+        # (e.g. for plane_required strategy where we route traces on plane layers for verification)
+        is_plane = self.layer_stackup.is_plane_layer(cell.layer)
+        allow_horizontal = not is_plane or cell.layer in layers
 
-        if not self.layer_stackup.is_plane_layer(cell.layer):
+        if allow_horizontal:
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nx, ny = cell.x + dx, cell.y + dy
                 if (
@@ -1810,25 +1780,25 @@ class MazeRouter:
                     # 1. It's a hard obstacle (-1)
                     # 2. It's occupied (2) and we are in strict mode (not soft_blocking)
                     if occ == -1:
-                        if is_layer1_near_start:
+                        if is_start:
                             print(
                                 f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - hard blocked"
                             )
                         continue
                     if occ == 2 and not self.soft_blocking:
-                        if is_layer1_near_start:
+                        if is_start:
                             print(
                                 f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - occupied and strict mode"
                             )
                         continue
 
                     neighbors.append(GridCell(nx, ny, cell.layer))
-                    if is_layer1_near_start:
+                    if is_start:
                         print(
                             f"DEBUG_NEIGHBOR: Added horizontal neighbor ({nx}, {ny}, L{cell.layer})"
                         )
         else:
-            if is_layer1_near_start:
+            if is_start:
                 print(f"DEBUG_NEIGHBOR: Layer {cell.layer} is plane layer - no horizontal movement")
 
         if allow_layer_change and self.num_layers > 1:
@@ -1980,6 +1950,7 @@ class MazeRouter:
 
         # Set current net for DRC oracle queries
         self._current_net = net_name
+        self._current_assignment = assignment
         self._default_trace_width_mm = trace_width_mm if trace_width_mm is not None else 0.2
         self.min_clearance = clearance_mm if clearance_mm is not None else 0.2
 
@@ -1990,11 +1961,11 @@ class MazeRouter:
         if pin_sides and len(pin_sides) > 0:
             start_layer = 0 if pin_sides[0] == 0 else (self.num_layers - 1)
         elif assignment:
-            start_layer = 0 if assignment.primary_layer == Layer.L1_TOP else 1
+            start_layer = assignment.primary_layer.value - 1
 
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         allowed_layers_indices = (
-            [l.value for l in assignment.allowed_layers] if assignment else None
+            [l.value - 1 for l in assignment.allowed_layers] if assignment else None
         )
 
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
@@ -2607,46 +2578,75 @@ class MazeRouter:
                     assignment = assignments.get(net_name)
 
                     original_via_cost = self.via_cost
-                    if net_rules and net_rules.routing_strategy == "wide_trace":
-                        # Discourage vias for wide traces (harder to neck down/fit)
-                        self.via_cost *= 10.0
+                    if net_rules:
+                        # Determine multiplier
+                        multiplier = net_rules.via_cost_multiplier
+                        if net_rules.routing_strategy == "wide_trace" and multiplier == 1.0:
+                            multiplier = 10.0
+                        
+                        if multiplier != 1.0:
+                            self.via_cost *= multiplier
 
-                    if net_rules and net_rules.routing_strategy in (
-                        "plane_preferred",
-                        "plane_required",
-                    ):
-                        # Restrict to plane layers (usually L2/L3)
+                    # Apply routing strategy layer filtering (temper-b577.1)
+                    if net_rules and net_rules.routing_strategy:
+                        strategy = net_rules.routing_strategy
+                        
                         plane_layer_indices = [
                             i
                             for i in range(self.num_layers)
                             if self.layer_stackup.is_plane_layer(i)
                         ]
-                        if plane_layer_indices:
-                            from temper_placer.routing.layer_assignment import (
-                                Layer,
-                                LayerAssignment,
-                            )
-
+                        
+                        if strategy in ("plane_preferred", "plane_required") and plane_layer_indices:
+                            # Restrict to plane layers (usually L2/L3)
                             layer_map_inv = {
                                 0: Layer.L1_TOP,
                                 1: Layer.L2_GND if self.num_layers > 2 else Layer.L4_BOT,
                                 2: Layer.L3_PWR,
-                                3: Layer.L4_BOT if self.num_layers > 2 else 1,
+                                3: Layer.L4_BOT if self.num_layers > 2 else 1, # fallback
                             }
                             plane_layers = {
                                 layer_map_inv[i]
                                 for i in plane_layer_indices
                                 if i in layer_map_inv
                             }
+                            
                             if plane_layers:
+                                # For plane_required, we MUST allow Top layer if pins are on Top
+                                # But we want traces to stay on planes.
+                                # So we allow Top but discourage it via primary_layer.
+                                allowed = plane_layers.copy()
+                                allowed.add(Layer.L1_TOP)
+                                allowed.add(Layer.L4_BOT)
+                                
                                 # Override assignment for this specific route
                                 assignment = LayerAssignment(
                                     net=net_name,
                                     primary_layer=list(plane_layers)[0],
-                                    allowed_layers=plane_layers,
+                                    allowed_layers=allowed,
                                     vias_required=True,
-                                    reason=f"Routing strategy: {net_rules.routing_strategy}",
+                                    reason=f"Routing strategy: {strategy}",
                                 )
+                        
+                        elif strategy == "top_layer_only":
+                            assignment = LayerAssignment(
+                                net=net_name,
+                                primary_layer=Layer.L1_TOP,
+                                allowed_layers={Layer.L1_TOP},
+                                vias_required=False,
+                                reason="Routing strategy: top_layer_only",
+                            )
+                        
+                        elif strategy == "bottom_layer_only":
+                            target_layer = Layer.L4_BOT if self.num_layers > 1 else Layer.L1_TOP
+                            allowed = {Layer.L1_TOP, target_layer} if self.num_layers > 1 else {Layer.L1_TOP}
+                            assignment = LayerAssignment(
+                                net=net_name,
+                                primary_layer=target_layer,
+                                allowed_layers=allowed,
+                                vias_required=True if self.num_layers > 1 else False,
+                                reason="Routing strategy: bottom_layer_only",
+                            )
 
                     # Check for explicit topology
                     topology = None
@@ -3273,6 +3273,10 @@ class MazeRouter:
         start_pin_idx = 0
         connected_pins.add(start_pin_idx)
 
+        allowed_layers_indices = (
+            [l.value - 1 for l in assignment.allowed_layers] if assignment else None
+        )
+
         # Add all possible connections from the first pin to other pins to the PQ
         initial_paths_found = 0
         for i in range(1, num_pins):
@@ -3283,6 +3287,7 @@ class MazeRouter:
                         grid_pins[i],
                         start_l,
                         allow_via,
+                        allowed_layers=allowed_layers_indices,
                         cost_map=cost_map,
                         p_scale=p_scale,
                         end_layer=end_l,
@@ -3332,6 +3337,7 @@ class MazeRouter:
                                 grid_pins[next_unconnected_idx],
                                 start_l,
                                 allow_via,
+                                allowed_layers=allowed_layers_indices,
                                 cost_map=cost_map,
                                 p_scale=p_scale,
                                 end_layer=end_l,
@@ -3700,8 +3706,18 @@ class MazeRouter:
                 # Use Adaptive Numba router (supports dist_map, clearance_mask, and guide_map)
                 dist_map = self._compute_distance_map(end_cell, _layer=target_layer)
 
-                # Ensure work arrays are allocated for A* (pooled to avoid repeated allocation)
-                self._ensure_work_arrays()
+                # Convert allowed_layers to boolean mask for Numba
+                allowed_mask = None
+                if allowed_layers is not None:
+                    allowed_mask = np.zeros(self.num_layers, dtype=np.bool_)
+                    for l in allowed_layers:
+                        if 0 <= l < self.num_layers:
+                            allowed_mask[l] = True
+
+                # Determine primary layer for penalty
+                primary_idx = -1
+                if hasattr(self, "_current_assignment") and self._current_assignment:
+                    primary_idx = self._current_assignment.primary_layer.value - 1
 
                 path_coords = find_path_astar_numba_adaptive(
                     start[0],
@@ -3726,11 +3742,13 @@ class MazeRouter:
                     None,  # tap_mask
                     guide_map,
                     float(guide_bias),
-                    g_score_buf=self._astar_g_score_buf,
-                    came_from_x_buf=self._astar_came_from_x_buf,
-                    came_from_y_buf=self._astar_came_from_y_buf,
-                    came_from_l_buf=self._astar_came_from_l_buf,
-                    visited_buf=self._astar_visited_buf,
+                    class_grid=self.class_grid,
+                    current_class_id=0, # Not available in this context yet
+                    min_clearance=self.min_clearance,
+                    cell_size=self.cell_size,
+                    allowed_layers_mask=allowed_mask,
+                    primary_layer_idx=primary_idx,
+                    layer_penalty=5.0,
                 )
 
                 if path_coords:
