@@ -28,7 +28,12 @@ from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
-from temper_placer.routing.fast_router import HAS_NUMBA, dilate_grid_numba, find_path_astar_numba
+from temper_placer.routing.fast_router import (
+    HAS_NUMBA,
+    dilate_grid_numba,
+    find_path_astar_numba,
+    find_path_astar_numba_adaptive,
+)
 from temper_placer.io.export_types import TraceVia
 from temper_placer.routing.via_array import calculate_via_array, should_use_via_array
 from temper_placer.routing.safety_distances import (
@@ -1184,6 +1189,7 @@ class MazeRouter:
 
         Uses precomputed distance map as heuristic instead of Manhattan distance.
         This provides a tighter bound and reduces A* search iterations.
+        Uses Numba-accelerated pathfinding when available for 10x+ speedup.
 
         Args:
             start, end: Grid coordinates
@@ -1196,83 +1202,121 @@ class MazeRouter:
         Returns:
             Path as list of GridCells, or None if no path exists
         """
-        # Prepare cost arrays for fast lookup
+        if int(self.occupancy[start[0], start[1], layer]) == -1:
+            return None
+        if int(self.occupancy[end[0], end[1], layer]) == -1:
+            for l in range(self.num_layers):
+                if int(self.occupancy[end[0], end[1], l]) != -1:
+                    layer = l
+                    break
+            else:
+                return None
+
         self._prepare_cost_arrays()
 
         try:
-            start_cell, end_cell = (
-                GridCell(start[0], start[1], layer),
-                GridCell(end[0], end[1], layer),
-            )
+            dist_map = self._compute_distance_map(GridCell(end[0], end[1], layer), _layer=layer)
 
-            # Handle blocked start/end
-            if int(self.occupancy[start[0], start[1], layer]) == -1:
-                return None
-            if int(self.occupancy[end[0], end[1], layer]) == -1:
-                for l in range(self.num_layers):
-                    if int(self.occupancy[end[0], end[1], l]) != -1:
-                        end_cell = GridCell(end[0], end[1], l)
-                        break
-                else:
+            if HAS_NUMBA and self._history_np is not None and self._congestion_np is not None:
+                result = find_path_astar_numba_adaptive(
+                    start[0],
+                    start[1],
+                    layer,
+                    end[0],
+                    end[1],
+                    layer,
+                    self.grid_size[0],
+                    self.grid_size[1],
+                    self.num_layers,
+                    self._occupancy_np,
+                    self._history_np,
+                    self._congestion_np,
+                    self.via_cost,
+                    p_scale,
+                    dist_map,
+                    cost_map=np.asarray(cost_map) if cost_map is not None else None,
+                    clearance_mask=None,
+                    soft_blocking=self.soft_blocking,
+                    soft_c_space=self._soft_c_space_np
+                    if self._soft_c_space_np is not None
+                    else None,
+                    tap_mask=None,
+                )
+
+                if len(result) == 0:
                     return None
 
-            # Compute distance map for adaptive heuristic
-            dist_map = self._compute_distance_map(end_cell, _layer=layer)
+                path = [GridCell(x, y, l) for x, y, l in result]
+                path.reverse()
+                return path
 
-            # A* with distance map heuristic
-            open_set = [(0.0, 0, start_cell, 0.0)]  # (f_score, counter, cell, g_score)
-            counter = 0
-            came_from = {}
-            g_score = {start_cell: 0.0}
-            visited = set()
-
-            while open_set:
-                _, _, current, current_g = heapq.heappop(open_set)
-                self.stats.total_astar_iterations += 1
-
-                if current in visited:
-                    continue
-                visited.add(current)
-
-                # Goal test
-                if current.x == end_cell.x and current.y == end_cell.y:
-                    # Reconstruct path
-                    path = [current]
-                    while current in came_from:
-                        current = came_from[current]
-                        path.append(current)
-                    path.reverse()
-                    return path
-
-                # Explore neighbors
-                for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
-                    if neighbor in visited:
-                        continue
-
-                    move_cost = self._get_neighbor_cost(
-                        current, neighbor, cost_map, p_scale=p_scale
-                    )
-                    tentative_g = current_g + move_cost
-
-                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                        came_from[neighbor] = current
-                        g_score[neighbor] = tentative_g
-
-                        # Use distance map as heuristic (admissible and tight)
-                        h_score = float(dist_map[neighbor.x, neighbor.y, neighbor.layer])
-                        if h_score == float("inf"):
-                            # If unreachable in distance map, fall back to Manhattan
-                            h_score = self._heuristic(neighbor, end_cell)
-
-                        f_score = tentative_g + h_score
-                        counter += 1
-                        heapq.heappush(open_set, (f_score, counter, neighbor, tentative_g))
-
-            return None  # No path found
+            return self._find_path_python_adaptive(
+                start, end, layer, allow_layer_change, allowed_layers, cost_map, p_scale, dist_map
+            )
 
         finally:
-            # Clear cached arrays
             self._clear_cost_arrays()
+
+    def _find_path_python_adaptive(
+        self,
+        start: tuple[int, int],
+        end: tuple[int, int],
+        layer: int = 0,
+        allow_layer_change: bool = False,
+        allowed_layers: list[int] | None = None,
+        cost_map: Array | None = None,
+        p_scale: float = 1.0,
+        dist_map: np.ndarray | None = None,
+    ) -> list[GridCell] | None:
+        """Python fallback for adaptive pathfinding when Numba is unavailable."""
+        start_cell = GridCell(start[0], start[1], layer)
+        end_cell = GridCell(end[0], end[1], layer)
+
+        open_set = [(0.0, 0, start_cell, 0.0)]
+        counter = 0
+        came_from = {}
+        g_score = {start_cell: 0.0}
+        visited = set()
+
+        while open_set:
+            _, _, current, current_g = heapq.heappop(open_set)
+            self.stats.total_astar_iterations += 1
+
+            if current in visited:
+                continue
+            visited.add(current)
+
+            if current.x == end_cell.x and current.y == end_cell.y:
+                path = [current]
+                while current in came_from:
+                    current = came_from[current]
+                    path.append(current)
+                path.reverse()
+                return path
+
+            for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
+                if neighbor in visited:
+                    continue
+
+                move_cost = self._get_neighbor_cost(current, neighbor, cost_map, p_scale=p_scale)
+                tentative_g = current_g + move_cost
+
+                if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+
+                    if dist_map is not None:
+                        h_score = float(dist_map[neighbor.x, neighbor.y, neighbor.layer])
+                        if h_score == float("inf"):
+                            h_score = self._heuristic(neighbor, end_cell)
+                    else:
+                        h_score = self._heuristic(neighbor, end_cell)
+
+                    f_score = tentative_g + h_score
+                    counter += 1
+                    heapq.heappush(open_set, (f_score, counter, neighbor, tentative_g))
+
+        return None
 
     def route_net_adaptive(
         self,
