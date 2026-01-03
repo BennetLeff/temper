@@ -300,6 +300,36 @@ class ClearanceMatrix:
         self._clearances[(class_a, class_b)] = clearance
         self._clearances[(class_b, class_a)] = clearance
 
+    @classmethod
+    def parse(cls, board) -> "ClearanceMatrix":
+        """Parse ClearanceMatrix from a KiCad board or Board object.
+        
+        This is the primary entry point for creating a ClearanceMatrix from
+        board data. It delegates to DesignRulesParser for the actual parsing.
+        
+        Args:
+            board: Either a kiutils.board.Board object (KiCad native) or a
+                  temper_placer.core.board.Board object (our internal format).
+                  For our internal Board, returns default rules (zones are
+                  managed separately).
+        
+        Returns:
+            ClearanceMatrix with parsed rules and optional zone manager
+            
+        Example:
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
+            board = parse_kicad_pcb("path/to/board.kicad_pcb")
+            matrix = ClearanceMatrix.parse(board)
+        """
+        # Check if this is a kiutils Board (has netClasses attribute)
+        if hasattr(board, 'netClasses'):
+            # KiCad native board - use full parser
+            return DesignRulesParser.parse(board)
+        
+        # Otherwise, it's our internal Board - return defaults
+        # (zones are managed via board.zones, not in ClearanceMatrix)
+        return DesignRulesParser.create_default()
+
 
 class DesignRulesParser:
     """Extract design rules from KiCad PCB file.
