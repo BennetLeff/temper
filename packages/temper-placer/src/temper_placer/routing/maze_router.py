@@ -44,6 +44,14 @@ from temper_placer.routing.safety_distances import (
     get_hv_lv_separation,
     is_high_voltage,
 )
+from temper_placer.routing.grid import GridConverter
+from temper_placer.routing.difficulty import (
+    compute_proximity_difficulty,
+    compute_density_difficulty,
+    get_cell_difficulty,
+    compute_density_map,
+    compute_local_density,
+)
 
 if TYPE_CHECKING:
     from temper_placer.core.board import LayerStackup
@@ -283,6 +291,13 @@ class MazeRouter:
 
         # Pre-computed density map for O(1) cell difficulty lookup (temper-qjlk)
         self._density_map: np.ndarray | None = None
+
+        # Grid converter for coordinate transformations (temper-mr01.7)
+        self.grid_converter = GridConverter(
+            grid_size=grid_size,
+            cell_size=cell_size_mm,
+            origin=origin,
+        )
 
     def _get_inflated_cells(
         self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None
@@ -541,7 +556,7 @@ class MazeRouter:
         Supports soft blocking (negotiated congestion) and dynamic via cost.
         """
         base_cost = 1.0
-        
+
         # Layer preference penalty (discourage layers other than primary_layer)
         if hasattr(self, "_current_assignment") and self._current_assignment:
             primary_idx = self._current_assignment.primary_layer.value - 1
@@ -758,7 +773,6 @@ class MazeRouter:
         # Note: We always re-create or sync to ensure it's up to date
         self._occupancy_np = np.array(self.occupancy, dtype=np.int32)
 
-
     def _clear_cost_arrays(self) -> None:
         """Clear cached numpy arrays after path finding."""
         self._history_np = None
@@ -767,14 +781,13 @@ class MazeRouter:
         self._soft_c_space_np = None
         self._c_space_grid_np = None
 
-    def _world_to_grid(self, world_x: float, world_y: float) -> tuple[int, int]:
-        """Convert world coordinates to grid cell indices."""
-        grid_x = int((world_x - self.origin[0]) / self.cell_size)
-        grid_y = int((world_y - self.origin[1]) / self.cell_size)
-        # Clamp to valid range
-        grid_x = max(0, min(self.grid_size[0] - 1, grid_x))
-        grid_y = max(0, min(self.grid_size[1] - 1, grid_y))
-        return (grid_x, grid_y)
+    def _world_to_grid(self, x: float, y: float) -> tuple[int, int]:
+        """Convert world coordinates to grid cell indices.
+
+        Delegates to GridConverter for consistent behavior.
+        Uses rounding for nearest-cell mapping.
+        """
+        return self.grid_converter.world_to_grid(x, y)
 
     def update_congestion_costs(self, history_increment: float = 1.0) -> None:
         """Update history costs for cells that have conflicts."""
@@ -969,20 +982,20 @@ class MazeRouter:
         # to save performance.
         if current_class == CLASS_DEFAULT:
             return True
-            
+
         # Determine max search radius based on class
         # HV needs 8mm isolation from LV
         # LV needs 8mm isolation from HV
         # We assume max required separation is 8.0mm
         # TODO: Optimize this to not scan empty space if possible
-        
+
         # For Python implementation, we limit radius to 2mm for performance
         # Numba implementation will handle full radius
-        search_radius_mm = 8.0 
+        search_radius_mm = 8.0
         radius_cells = int(math.ceil(search_radius_mm / self.cell_size))
-        
+
         grid_w, grid_h = self.grid_size
-        
+
         for dx in range(-radius_cells, radius_cells + 1):
             for dy in range(-radius_cells, radius_cells + 1):
                 nx, ny = cx + dx, cy + dy
@@ -990,12 +1003,12 @@ class MazeRouter:
                     obs_class = self.class_grid[nx, ny, cl]
                     if obs_class != 0 and obs_class != current_class:
                         req_sep = self._get_asymmetric_clearance(current_class, obs_class)
-                        dist_mm = math.sqrt(dx*dx + dy*dy) * self.cell_size
-                        
+                        dist_mm = math.sqrt(dx * dx + dy * dy) * self.cell_size
+
                         # If distance is less than required, we have a violation
                         if dist_mm < req_sep:
                             return False
-                            
+
         return True
 
     def _get_asymmetric_clearance(self, current_class: int, obstacle_class: int) -> float:
@@ -1260,13 +1273,6 @@ class MazeRouter:
                 if self._try_escape_route(px, py, dx, dy, elen):
                     break
 
-    def _world_to_grid(self, x: float, y: float) -> tuple[int, int]:
-        gx, gy = (
-            int(round((x - self.origin[0]) / self.cell_size)),
-            int(round((y - self.origin[1]) / self.cell_size)),
-        )
-        return max(0, min(gx, self.grid_size[0] - 1)), max(0, min(gy, self.grid_size[1] - 1))
-
     def _register_routed_path(
         self, cells: list[GridCell], net_name: str, rules: "NetClassRules | None" = None
     ) -> None:
@@ -1395,7 +1401,9 @@ class MazeRouter:
         else:
             # Fallback to pure Python BFS
             dist_map = np.full(
-                (self.grid_size[0], self.grid_size[1], self.num_layers), float("inf"), dtype=np.float32
+                (self.grid_size[0], self.grid_size[1], self.num_layers),
+                float("inf"),
+                dtype=np.float32,
             )
             from collections import deque
 
@@ -1523,7 +1531,7 @@ class MazeRouter:
                     primary_layer_idx=primary_idx,
                     layer_penalty=5.0,
                 )
-                
+
                 # Convert result to GridCells
                 if result:
                     path = []
@@ -1594,7 +1602,9 @@ class MazeRouter:
 
                 # Class Clearance Check (temper-kmbw)
                 # Ensure we don't violate HV/LV separation
-                if not self._check_class_clearance(neighbor.x, neighbor.y, neighbor.layer, current_class_id):
+                if not self._check_class_clearance(
+                    neighbor.x, neighbor.y, neighbor.layer, current_class_id
+                ):
                     continue
 
                 move_cost = self._get_neighbor_cost(current, neighbor, cost_map, p_scale=p_scale)
@@ -2574,9 +2584,7 @@ class MazeRouter:
 
                     # Apply routing strategy (temper-b577)
                     net_rules = (
-                        self.design_rules.get_rules_for_net(net_name)
-                        if self.design_rules
-                        else None
+                        self.design_rules.get_rules_for_net(net_name) if self.design_rules else None
                     )
                     assignment = assignments.get(net_name)
 
@@ -2586,34 +2594,35 @@ class MazeRouter:
                         multiplier = net_rules.via_cost_multiplier
                         if net_rules.routing_strategy == "wide_trace" and multiplier == 1.0:
                             multiplier = 10.0
-                        
+
                         if multiplier != 1.0:
                             self.via_cost *= multiplier
 
                     # Apply routing strategy layer filtering (temper-b577.1)
                     if net_rules and net_rules.routing_strategy:
                         strategy = net_rules.routing_strategy
-                        
+
                         plane_layer_indices = [
                             i
                             for i in range(self.num_layers)
                             if self.layer_stackup.is_plane_layer(i)
                         ]
-                        
-                        if strategy in ("plane_preferred", "plane_required") and plane_layer_indices:
+
+                        if (
+                            strategy in ("plane_preferred", "plane_required")
+                            and plane_layer_indices
+                        ):
                             # Restrict to plane layers (usually L2/L3)
                             layer_map_inv = {
                                 0: Layer.L1_TOP,
                                 1: Layer.L2_GND if self.num_layers > 2 else Layer.L4_BOT,
                                 2: Layer.L3_PWR,
-                                3: Layer.L4_BOT if self.num_layers > 2 else 1, # fallback
+                                3: Layer.L4_BOT if self.num_layers > 2 else 1,  # fallback
                             }
                             plane_layers = {
-                                layer_map_inv[i]
-                                for i in plane_layer_indices
-                                if i in layer_map_inv
+                                layer_map_inv[i] for i in plane_layer_indices if i in layer_map_inv
                             }
-                            
+
                             if plane_layers:
                                 # For plane_required, we MUST allow Top layer if pins are on Top
                                 # But we want traces to stay on planes.
@@ -2621,7 +2630,7 @@ class MazeRouter:
                                 allowed = plane_layers.copy()
                                 allowed.add(Layer.L1_TOP)
                                 allowed.add(Layer.L4_BOT)
-                                
+
                                 # Override assignment for this specific route
                                 assignment = LayerAssignment(
                                     net=net_name,
@@ -2630,7 +2639,7 @@ class MazeRouter:
                                     vias_required=True,
                                     reason=f"Routing strategy: {strategy}",
                                 )
-                        
+
                         elif strategy == "top_layer_only":
                             assignment = LayerAssignment(
                                 net=net_name,
@@ -2639,10 +2648,14 @@ class MazeRouter:
                                 vias_required=False,
                                 reason="Routing strategy: top_layer_only",
                             )
-                        
+
                         elif strategy == "bottom_layer_only":
                             target_layer = Layer.L4_BOT if self.num_layers > 1 else Layer.L1_TOP
-                            allowed = {Layer.L1_TOP, target_layer} if self.num_layers > 1 else {Layer.L1_TOP}
+                            allowed = (
+                                {Layer.L1_TOP, target_layer}
+                                if self.num_layers > 1
+                                else {Layer.L1_TOP}
+                            )
                             assignment = LayerAssignment(
                                 net=net_name,
                                 primary_layer=target_layer,
@@ -3460,9 +3473,7 @@ class MazeRouter:
                 self.cell_owner[key] = net_name
 
         if self.drc_oracle is not None:
-            net_rules = (
-                self.design_rules.get_rules_for_net(net_name) if self.design_rules else None
-            )
+            net_rules = self.design_rules.get_rules_for_net(net_name) if self.design_rules else None
             self._register_routed_path(final_all_cells, net_name, rules=net_rules)
 
         # Restore original occupancy
@@ -3746,7 +3757,7 @@ class MazeRouter:
                     guide_map,
                     float(guide_bias),
                     class_grid=self.class_grid,
-                    current_class_id=0, # Not available in this context yet
+                    current_class_id=0,  # Not available in this context yet
                     min_clearance=self.min_clearance,
                     cell_size=self.cell_size,
                     allowed_layers_mask=allowed_mask,
