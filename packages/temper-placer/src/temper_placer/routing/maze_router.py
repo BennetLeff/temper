@@ -32,10 +32,10 @@ from temper_placer.routing.fast_router import HAS_NUMBA, dilate_grid_numba, find
 from temper_placer.io.export_types import TraceVia
 from temper_placer.routing.via_array import calculate_via_array, should_use_via_array
 from temper_placer.routing.safety_distances import (
-    calculate_safety_distances, 
+    calculate_safety_distances,
     calculate_safety_distances,
     get_hv_lv_separation,
-    is_high_voltage
+    is_high_voltage,
 )
 
 if TYPE_CHECKING:
@@ -60,7 +60,6 @@ class GridCell:
         return hash((self.x, self.y, self.layer))
 
 
-@dataclass
 @dataclass
 class ProfileStats:
     """Detailed performance profiling stats."""
@@ -608,6 +607,13 @@ class MazeRouter:
         # This enables negotiated congestion (PathFinder algorithm)
         sharing_penalty = 0.0
         if occupied:
+            # DRC-1: Check if cell is owned by a different net (net isolation)
+            # Cells owned by other nets are ALWAYS blocked - no shorts allowed
+            key = (neighbor.x, neighbor.y, neighbor.layer)
+            owner = self.cell_owner.get(key)
+            if owner is not None and owner != self._current_net:
+                # Cell owned by different net - block completely (no shorts allowed)
+                return 1e9
             if self.soft_blocking:
                 sharing_penalty = 50.0 * (1.0 + p)  # Higher penalty with more congestion
             else:
@@ -839,10 +845,12 @@ class MazeRouter:
             return CLASS_DEFAULT
 
         # DEBUG
-        print(f"DEBUG_CLASS: Name={rules.name} V={getattr(rules, 'voltage_v', 'N/A')} Cr={getattr(rules, 'creepage_mm', 'N/A')}")
+        print(
+            f"DEBUG_CLASS: Name={rules.name} V={getattr(rules, 'voltage_v', 'N/A')} Cr={getattr(rules, 'creepage_mm', 'N/A')}"
+        )
 
         # Check explicit voltage if available
-        if hasattr(rules, 'voltage_v') and is_high_voltage(rules.voltage_v):
+        if hasattr(rules, "voltage_v") and is_high_voltage(rules.voltage_v):
             return CLASS_HV
 
         # Fallback: If creepage is significantly larger than standard clearance, treat as HV
@@ -1393,13 +1401,13 @@ class MazeRouter:
     ) -> list[GridCell]:
         neighbors = []
         layers = allowed_layers if allowed_layers is not None else list(range(self.num_layers))
-        
+
         # DEBUG: Log for start cell only
-        is_start = (cell.x == 100 and cell.y == 250 and cell.layer == 0)
-        
-        #DEBUG: Log for cells on layer 1 near start
-        is_layer1_near_start = (cell.layer == 1 and cell.x >= 98 and cell.x <= 102 and cell.y == 250)
-        
+        is_start = cell.x == 100 and cell.y == 250 and cell.layer == 0
+
+        # DEBUG: Log for cells on layer 1 near start
+        is_layer1_near_start = cell.layer == 1 and cell.x >= 98 and cell.x <= 102 and cell.y == 250
+
         if not self.layer_stackup.is_plane_layer(cell.layer):
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nx, ny = cell.x + dx, cell.y + dy
@@ -1414,31 +1422,41 @@ class MazeRouter:
                     # 2. It's occupied (2) and we are in strict mode (not soft_blocking)
                     if occ == -1:
                         if is_layer1_near_start:
-                            print(f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - hard blocked")
+                            print(
+                                f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - hard blocked"
+                            )
                         continue
                     if occ == 2 and not self.soft_blocking:
                         if is_layer1_near_start:
-                            print(f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - occupied and strict mode")
+                            print(
+                                f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - occupied and strict mode"
+                            )
                         continue
 
                     neighbors.append(GridCell(nx, ny, cell.layer))
                     if is_layer1_near_start:
-                        print(f"DEBUG_NEIGHBOR: Added horizontal neighbor ({nx}, {ny}, L{cell.layer})")
+                        print(
+                            f"DEBUG_NEIGHBOR: Added horizontal neighbor ({nx}, {ny}, L{cell.layer})"
+                        )
         else:
             if is_layer1_near_start:
                 print(f"DEBUG_NEIGHBOR: Layer {cell.layer} is plane layer - no horizontal movement")
-                
+
         if allow_layer_change and self.num_layers > 1:
             for nl in layers:
                 if nl != cell.layer:
                     occ = int(self.occupancy[cell.x, cell.y, nl])
                     if is_start:
-                        print(f"DEBUG_NEIGHBOR: Checking via from L{cell.layer} to L{nl} at ({cell.x}, {cell.y}): occ={occ}, soft_blocking={self.soft_blocking}")
+                        print(
+                            f"DEBUG_NEIGHBOR: Checking via from L{cell.layer} to L{nl} at ({cell.x}, {cell.y}): occ={occ}, soft_blocking={self.soft_blocking}"
+                        )
                     if occ == -1:
                         continue
                     if occ == 2 and not self.soft_blocking:
                         if is_start:
-                            print(f"DEBUG_NEIGHBOR: Skipping via to L{nl} because occ=2 and soft_blocking=False")
+                            print(
+                                f"DEBUG_NEIGHBOR: Skipping via to L{nl} because occ=2 and soft_blocking=False"
+                            )
                         continue
                     neighbors.append(GridCell(cell.x, cell.y, nl))
                     if is_start:
@@ -1594,7 +1612,9 @@ class MazeRouter:
 
         # Temporarily unblock pin locations and any cells owned by this net
         original_occupancy_and_ownership = []
-        unblock_radius = max(5, int(2.0 / self.cell_size)) # Ensure enough space to escape pad/trace
+        unblock_radius = max(
+            5, int(2.0 / self.cell_size)
+        )  # Ensure enough space to escape pad/trace
 
         for px, py in grid_pins:
             for dx in range(-unblock_radius, unblock_radius + 1):
@@ -1606,49 +1626,73 @@ class MazeRouter:
                     for l in range(self.num_layers):
                         key = (gx, gy, l)
                         owner = self.cell_owner.get(key)
-                        was_in_net_occ = key in self.net_occupancy and net_name in self.net_occupancy[key]
-                        
+                        was_in_net_occ = (
+                            key in self.net_occupancy and net_name in self.net_occupancy[key]
+                        )
+
                         # Unblock if it's a hard block (-1) or owned by this net (2)
                         if self.occupancy[gx, gy, l] == -1:
-                            original_occupancy_and_ownership.append((key, -1, self.class_grid[gx, gy, l], owner, was_in_net_occ))
+                            original_occupancy_and_ownership.append(
+                                (key, -1, self.class_grid[gx, gy, l], owner, was_in_net_occ)
+                            )
                             self.occupancy[gx, gy, l] = 0
-                            self.class_grid[gx, gy, l] = CLASS_DEFAULT # Clear class for unblocked
+                            self.class_grid[gx, gy, l] = CLASS_DEFAULT  # Clear class for unblocked
                         elif key in self.cell_owner and self.cell_owner[key] == net_name:
-                            original_occupancy_and_ownership.append((key, 2, self.class_grid[gx, gy, l], owner, was_in_net_occ))
+                            original_occupancy_and_ownership.append(
+                                (key, 2, self.class_grid[gx, gy, l], owner, was_in_net_occ)
+                            )
                             self.occupancy[gx, gy, l] = 0
-                            self.class_grid[gx, gy, l] = CLASS_DEFAULT # Clear class for unblocked
-                        
+                            self.class_grid[gx, gy, l] = CLASS_DEFAULT  # Clear class for unblocked
+
                         # Also unblock any cells that were part of this net's previous route
                         if was_in_net_occ:
-                            if len(original_occupancy_and_ownership) == 0 or original_occupancy_and_ownership[-1][0] != key:
-                                 # Checking last appended might be tricky with loops, but key is unique per iteration.
-                                 # Just append if not already handled by elif above.
-                                 is_handled = (self.occupancy[gx, gy, l] == -1) or (key in self.cell_owner and self.cell_owner[key] == net_name)
-                                 # But we already modified occupancy above!
-                                 # We need to check if we appended for this KEY in this iteration.
-                                 # Since we are inside the innermost loop for this key, we can checking if we just appended.
-                                 pass 
+                            if (
+                                len(original_occupancy_and_ownership) == 0
+                                or original_occupancy_and_ownership[-1][0] != key
+                            ):
+                                # Checking last appended might be tricky with loops, but key is unique per iteration.
+                                # Just append if not already handled by elif above.
+                                is_handled = (self.occupancy[gx, gy, l] == -1) or (
+                                    key in self.cell_owner and self.cell_owner[key] == net_name
+                                )
+                                # But we already modified occupancy above!
+                                # We need to check if we appended for this KEY in this iteration.
+                                # Since we are inside the innermost loop for this key, we can checking if we just appended.
+                                pass
 
                             # Logic for unblocking net_occupancy even if global occupancy wasn't -1 or Owned
                             # E.g. Shared via or crossing?
                             # For now, just focus on owned cells.
-                            
-                            if len(original_occupancy_and_ownership) > 0 and original_occupancy_and_ownership[-1][0] == key:
-                                pass # Already captured
+
+                            if (
+                                len(original_occupancy_and_ownership) > 0
+                                and original_occupancy_and_ownership[-1][0] == key
+                            ):
+                                pass  # Already captured
                             else:
-                                 original_occupancy_and_ownership.append((key, int(self.occupancy[gx, gy, l]), self.class_grid[gx, gy, l], owner, was_in_net_occ))
+                                original_occupancy_and_ownership.append(
+                                    (
+                                        key,
+                                        int(self.occupancy[gx, gy, l]),
+                                        self.class_grid[gx, gy, l],
+                                        owner,
+                                        was_in_net_occ,
+                                    )
+                                )
 
                             if net_name in self.net_occupancy[key]:
                                 self.net_occupancy[key].remove(net_name)
-                            
+
                             if not self.net_occupancy[key]:
                                 # If no other nets, clear occupancy
-                                if self.occupancy[gx, gy, l] != -1: # Don't clear hard blocks (already handled above if they were hard blocks)
+                                if (
+                                    self.occupancy[gx, gy, l] != -1
+                                ):  # Don't clear hard blocks (already handled above if they were hard blocks)
                                     self.occupancy[gx, gy, l] = 0
                                 del self.net_occupancy[key]
                                 if key in self.cell_owner:
                                     del self.cell_owner[key]
-                            
+
                             self.present_congestion[gx, gy, l] = max(
                                 0.0, self.present_congestion[gx, gy, l] - 1.0
                             )
@@ -1672,7 +1716,7 @@ class MazeRouter:
 
         for i in range(1, len(grid_pins)):
             target_grid = grid_pins[i]
-            target_layer = start_layer # Default to same layer as start, A* will find vias
+            target_layer = start_layer  # Default to same layer as start, A* will find vias
 
             # If pin_sides are provided, try to end on the correct layer for the target pin
             if pin_sides and i < len(pin_sides):
@@ -1708,7 +1752,7 @@ class MazeRouter:
                 # Avoid duplicating the connection point if extending an existing path
                 if path[0] == final_all_cells[-1]:
                     path = path[1:]
-            
+
             if not path:
                 # Segment was empty or already connected (e.g. same point)
                 continue
@@ -1717,15 +1761,26 @@ class MazeRouter:
 
             # Update current_start for next segment
             current_start_grid = target_grid
-            current_start_layer = path[-1].layer # Continue from the layer the path ended on
+            current_start_layer = path[-1].layer  # Continue from the layer the path ended on
 
         # Mark cells as occupied WITH TRACE WIDTH INFLATION
         if final_success:
-            self._mark_path_occupied(net_name, RoutePath(net_name, final_all_cells, 0, 0, True, trace_width=self._default_trace_width_mm))
+            self._mark_path_occupied(
+                net_name,
+                RoutePath(
+                    net_name, final_all_cells, 0, 0, True, trace_width=self._default_trace_width_mm
+                ),
+            )
 
         # Restore original occupancy for any cells that were temporarily unblocked but not part of the final route
-        for key, original_val, original_class_id, original_owner, was_in_net_occ in original_occupancy_and_ownership:
-            if self.occupancy[key[0], key[1], key[2]] == 0: # Only restore if still free
+        for (
+            key,
+            original_val,
+            original_class_id,
+            original_owner,
+            was_in_net_occ,
+        ) in original_occupancy_and_ownership:
+            if self.occupancy[key[0], key[1], key[2]] == 0:  # Only restore if still free
                 self.occupancy[key[0], key[1], key[2]] = original_val
                 self.class_grid[key[0], key[1], key[2]] = original_class_id
                 if original_owner is not None:
@@ -1743,8 +1798,8 @@ class MazeRouter:
 
         # Clear current net
         self._current_net = None
-        self._default_trace_width_mm = 0.25 # Reset to default
-        self.min_clearance = 0.2 # Reset to default
+        self._default_trace_width_mm = 0.25  # Reset to default
+        self.min_clearance = 0.2  # Reset to default
 
         if final_success:
             return RoutePath(
@@ -1774,7 +1829,9 @@ class MazeRouter:
         unique_cells = set(path.cells)
         for cell in unique_cells:
             # Get all cells within trace radius
-            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer, width_mm=path.trace_width)
+            affected_cells = self._get_inflated_cells(
+                cell.x, cell.y, cell.layer, width_mm=path.trace_width
+            )
             for ax, ay, al in affected_cells:
                 # Only mark as occupied if not a hard block (-1)
                 if self.occupancy[ax, ay, al] != -1:
@@ -1784,9 +1841,11 @@ class MazeRouter:
                     if key not in self.net_occupancy:
                         self.net_occupancy[key] = set()
                     self.net_occupancy[key].add(net_name)
-                    self.cell_owner[key] = net_name # Assign ownership
+                    self.cell_owner[key] = net_name  # Assign ownership
 
-    def _resolve_net_pins(self, net_name: str, netlist: Netlist, positions: Array) -> dict[str, tuple[float, float, int, float]]:
+    def _resolve_net_pins(
+        self, net_name: str, netlist: Netlist, positions: Array
+    ) -> dict[str, tuple[float, float, int, float]]:
         """Resolve pin names to absolute positions and attributes."""
         comp_by_ref = {c.ref: (i, c) for i, c in enumerate(netlist.components)}
         net = next((n for n in netlist.nets if n.name == net_name), None)
@@ -1811,10 +1870,15 @@ class MazeRouter:
                             f"{comp_ref}.{pin.name}",
                             f"{comp_ref}-{pin.name}",
                             f"{comp_ref}.{pin.number}",
-                            f"{comp_ref}-{pin.number}"
+                            f"{comp_ref}-{pin.number}",
                         ]
 
-                        val = (px, py, side_idx, getattr(pin, 'width', 1.0)) # Store width just in case
+                        val = (
+                            px,
+                            py,
+                            side_idx,
+                            getattr(pin, "width", 1.0),
+                        )  # Store width just in case
                         for k in keys:
                             pin_map[k] = val
 
@@ -1846,7 +1910,7 @@ class MazeRouter:
         all_success = True
         failure_reason = ""
 
-        route_cache = {} # edge -> path
+        route_cache = {}  # edge -> path
 
         for edge in sorted_edges:
             start_key = edge.source_pin
@@ -1888,7 +1952,7 @@ class MazeRouter:
                 p_scale,
                 pin_sides=sides,
                 trace_width_mm=width,
-                clearance_mm=clearance
+                clearance_mm=clearance,
             )
 
             if not sub_path.success:
@@ -1916,7 +1980,7 @@ class MazeRouter:
                 success=True,
                 difficulty=combined_difficulty,
                 cell_difficulties=combined_cell_difficulties,
-                trace_width=width, # Use the last segment's width as a representative
+                trace_width=width,  # Use the last segment's width as a representative
             )
             self.routed_paths[net_name] = final_path
             return final_path
@@ -1930,7 +1994,7 @@ class MazeRouter:
                 success=False,
                 difficulty=0.0,
                 cell_difficulties=[],
-                failure_reason=failure_reason
+                failure_reason=failure_reason,
             )
             self.routed_paths[net_name] = final_path
             return final_path
@@ -2002,7 +2066,6 @@ class MazeRouter:
         ]
 
         return self.route_net_mst(net_name, escape_world_coords, assignment, cost_map, p_scale)
-
 
     def route_net(
         self,
@@ -2133,7 +2196,7 @@ class MazeRouter:
                             positions,
                             assignments.get(net_name),
                             cost_maps.get(net_name) if cost_maps else None,
-                            p_scale=p_scale
+                            p_scale=p_scale,
                         )
                     else:
                         # Use MST router by default for better multi-pin support and via arrays
@@ -2143,7 +2206,7 @@ class MazeRouter:
                             assignments.get(net_name),
                             cost_map=cost_maps.get(net_name) if cost_maps else None,
                             p_scale=p_scale,
-                            pin_sides=all_pin_sides.get(net_name)
+                            pin_sides=all_pin_sides.get(net_name),
                         )
 
                     # Ensure result is always stored
@@ -2220,7 +2283,7 @@ class MazeRouter:
                 conflicted_nets=conflicted_nets,
             )
             progress_history.append(progress)
-            
+
             if progress_callback:
                 progress_callback(progress)
 
@@ -2232,8 +2295,6 @@ class MazeRouter:
                 if total_conflicts == 0:
                     print(f"  RRR Converged to 0 conflicts at iteration {iteration + 1}!")
                     break
-
-
 
             # Print progress
             print(f"  RRR Iteration {iteration + 1}/{max_iterations} (p_scale={p_scale:.1f})")
@@ -2260,8 +2321,10 @@ class MazeRouter:
 
         # Restore best state if found
         if best_state is not None:
-             print(f"  Restoring best state from iteration {best_iteration} (Conflicts: {best_conflicts})")
-             self._restore_state(best_state)
+            print(
+                f"  Restoring best state from iteration {best_iteration} (Conflicts: {best_conflicts})"
+            )
+            self._restore_state(best_state)
 
         self.stats.total_time_ms = (time.perf_counter() - start_time) * 1000.0
         self.stats.nets_routed = sum(1 for r in self.routed_paths.values() if r.success)
@@ -2496,7 +2559,7 @@ class MazeRouter:
         else:
             # Default to all Top or use Through-hole assumption
             pin_layers = [0] * num_pins
-        
+
         print(f"DEBUG_MST: pin_layers={pin_layers}")
 
         # Determine candidate start layers based on first pin
@@ -2506,7 +2569,7 @@ class MazeRouter:
             if pin_sides is not None:
                 candidates.append(pin_layers[i])
             else:
-                candidates.append(0) # Default to top layer
+                candidates.append(0)  # Default to top layer
                 if assignment:
                     if assignment.primary_layer == Layer.L4_BOT:
                         candidates = [self.num_layers - 1]
@@ -2525,8 +2588,8 @@ class MazeRouter:
                             if lay_idx is not None and lay_idx not in candidates:
                                 candidates.append(lay_idx)
                 else:
-                    candidates = [0, self.num_layers - 1] # No assignment? Try Top then Bottom.
-            candidate_start_layers_per_pin.append(list(set(candidates))) # Remove duplicates
+                    candidates = [0, self.num_layers - 1]  # No assignment? Try Top then Bottom.
+            candidate_start_layers_per_pin.append(list(set(candidates)))  # Remove duplicates
 
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
 
@@ -2552,19 +2615,19 @@ class MazeRouter:
         if HAS_NUMBA and self.design_rules:
             rules_c = self.design_rules.get_rules_for_net(net_name)
             class_id = self._get_class_id(rules_c)
-            
+
             MAX_HV = 400.0
             LV_REF = 0.0
             sep_hv_lv = get_hv_lv_separation(MAX_HV, LV_REF)
             iso_hv_hv = 2.5
-            
+
             if class_id == CLASS_HV:
                 req_from_hv = iso_hv_hv
                 req_from_lv = sep_hv_lv
             else:
                 req_from_hv = sep_hv_lv
                 req_from_lv = self.min_clearance
-            
+
             rad_hv = int(math.ceil(req_from_hv / self.cell_size))
             rad_lv = int(math.ceil(req_from_lv / self.cell_size))
             unblock_radius = max(unblock_radius, rad_hv + 2, rad_lv + 2)
@@ -2597,12 +2660,12 @@ class MazeRouter:
                 if self.occupancy[gx, gy, l] != 0:  # If not already free
                     original_occupancy.append((gx, gy, l, int(self.occupancy[gx, gy, l])))
                     self.occupancy[gx, gy, l] = 0
-        
+
         # DEBUG: Show occupancy at pin centers after unblocking
         for i, (gx, gy) in enumerate(grid_pins):
             occ_vals = [int(self.occupancy[gx, gy, l]) for l in range(self.num_layers)]
             print(f"DEBUG_MST: Pin {i} at ({gx}, {gy}) occupancy after unblock: {occ_vals}")
-        
+
         # DEBUG: Sample occupancy along the path from start to end on layer 1
         start_x, start_y = grid_pins[0]
         end_x, end_y = grid_pins[1]
@@ -2610,7 +2673,7 @@ class MazeRouter:
         for x in sample_points:
             occ = int(self.occupancy[x, start_y, 1])  # Check layer 1
             print(f"DEBUG_MST: Occupancy at ({x}, {start_y}, L1): {occ}")
-        
+
         # DEBUG: Count blocked cells on layer 1 along the direct path
         blocked_count = 0
         blocked_cells = []
@@ -2618,7 +2681,9 @@ class MazeRouter:
             if int(self.occupancy[x, start_y, 1]) == -1:
                 blocked_count += 1
                 blocked_cells.append(x)
-        print(f"DEBUG_MST: Blocked cells on direct path (L1, y={start_y}): {blocked_count} / {abs(end_x - start_x) + 1}")
+        print(
+            f"DEBUG_MST: Blocked cells on direct path (L1, y={start_y}): {blocked_count} / {abs(end_x - start_x) + 1}"
+        )
         if blocked_cells:
             print(f"DEBUG_MST: Blocked cell x-coordinates: {blocked_cells[:20]}")
 
@@ -2639,12 +2704,12 @@ class MazeRouter:
         # MST routing logic
         # Nodes in the MST will be (pin_idx, layer_idx)
         # We need to connect all pins. Start with the first pin.
-        
+
         # Keep track of connected pins and their cells
-        connected_pins = set() # Stores pin indices
-        connected_cells = set() # Stores GridCell objects of the routed path
-        all_paths: list[list[GridCell]] = [] # Stores individual paths found
-        
+        connected_pins = set()  # Stores pin indices
+        connected_cells = set()  # Stores GridCell objects of the routed path
+        all_paths: list[list[GridCell]] = []  # Stores individual paths found
+
         # Priority queue for Prim's algorithm: (cost, from_pin_idx, to_pin_idx, path_cells)
         # Cost is the path length.
         pq = []
@@ -2652,7 +2717,7 @@ class MazeRouter:
         # Start with the first pin (index 0)
         start_pin_idx = 0
         connected_pins.add(start_pin_idx)
-        
+
         # Add all possible connections from the first pin to other pins to the PQ
         initial_paths_found = 0
         for i in range(1, num_pins):
@@ -2672,11 +2737,19 @@ class MazeRouter:
                     )
                     if path:
                         # Cost is path length + via cost
-                        path_cost = len(path) + sum(1 for j in range(1, len(path)) if path[j].layer != path[j-1].layer) * self.via_cost
+                        path_cost = (
+                            len(path)
+                            + sum(
+                                1 for j in range(1, len(path)) if path[j].layer != path[j - 1].layer
+                            )
+                            * self.via_cost
+                        )
                         heapq.heappush(pq, (path_cost, start_pin_idx, i, path))
                         initial_paths_found += 1
-        
-        print(f"DEBUG_MST: Found {initial_paths_found} initial paths from pin {start_pin_idx} to other pins")
+
+        print(
+            f"DEBUG_MST: Found {initial_paths_found} initial paths from pin {start_pin_idx} to other pins"
+        )
         print(f"DEBUG_MST: candidate_start_layers_per_pin={candidate_start_layers_per_pin}")
 
         final_all_cells = []
@@ -2684,12 +2757,12 @@ class MazeRouter:
         final_total_vias = 0
         final_total_difficulty = 0.0
         final_cell_difficulties = []
-        
+
         while pq and len(connected_pins) < num_pins:
             cost, from_idx, to_idx, path = heapq.heappop(pq)
 
             if to_idx in connected_pins:
-                continue # This pin is already connected
+                continue  # This pin is already connected
 
             connected_pins.add(to_idx)
             all_paths.append(path)
@@ -2712,8 +2785,18 @@ class MazeRouter:
                                 custom_heuristic=custom_heuristic,
                             )
                             if new_path:
-                                new_path_cost = len(new_path) + sum(1 for j in range(1, len(new_path)) if new_path[j].layer != new_path[j-1].layer) * self.via_cost
-                                heapq.heappush(pq, (new_path_cost, to_idx, next_unconnected_idx, new_path))
+                                new_path_cost = (
+                                    len(new_path)
+                                    + sum(
+                                        1
+                                        for j in range(1, len(new_path))
+                                        if new_path[j].layer != new_path[j - 1].layer
+                                    )
+                                    * self.via_cost
+                                )
+                                heapq.heappush(
+                                    pq, (new_path_cost, to_idx, next_unconnected_idx, new_path)
+                                )
 
         if len(connected_pins) < num_pins:
             # Not all pins could be connected
@@ -2734,7 +2817,7 @@ class MazeRouter:
         for path in all_paths:
             for cell in path:
                 final_all_cells.append(cell)
-                
+
             # Identify vias and accumulate difficulty
             for j in range(1, len(path)):
                 if path[j].layer != path[j - 1].layer:
@@ -2758,35 +2841,35 @@ class MazeRouter:
                     if c1.layer != c2.layer:
                         center_x = c2.x * self.cell_size + self.origin[0]
                         center_y = c2.y * self.cell_size + self.origin[1]
-                        
+
                         positions = via_template.get_via_positions(center_x, center_y)
-                        
+
                         layers = ["F.Cu", "B.Cu"]
-                            
+
                         for px, py in positions:
-                            explicit_vias.append(TraceVia(
-                                net=net_name,
-                                position=(px, py),
-                                size=via_template.via_diameter_mm,
-                                drill=via_template.via_drill_mm,
-                                layers=layers
-                            ))
-                            
-                            gx, gy = self._world_to_grid(px, py)
-                            
-                            via_copper_cells = self._get_inflated_cells(
-                                gx, gy, 0,
-                                width_mm=via_template.via_diameter_mm, 
-                                clearance_mm=0.0
+                            explicit_vias.append(
+                                TraceVia(
+                                    net=net_name,
+                                    position=(px, py),
+                                    size=via_template.via_diameter_mm,
+                                    drill=via_template.via_drill_mm,
+                                    layers=layers,
+                                )
                             )
-                            
+
+                            gx, gy = self._world_to_grid(px, py)
+
+                            via_copper_cells = self._get_inflated_cells(
+                                gx, gy, 0, width_mm=via_template.via_diameter_mm, clearance_mm=0.0
+                            )
+
                             for ix, iy, _ in via_copper_cells:
                                 for l in range(self.num_layers):
                                     if 0 <= ix < self.grid_size[0] and 0 <= iy < self.grid_size[1]:
                                         self.occupancy[ix, iy, l] = 2
                                         self.class_grid[ix, iy, l] = current_class_id
                                         self.present_congestion[ix, iy, l] += 1.0
-                                        
+
                                         key_inf = (ix, iy, l)
                                         if key_inf not in self.net_occupancy:
                                             self.net_occupancy[key_inf] = set()
@@ -2799,9 +2882,7 @@ class MazeRouter:
             is_via = (cx, cy, cl) in final_via_cells
             width = via_diameter if is_via else trace_width
 
-            affected_cells = self._get_inflated_cells(
-                cx, cy, cl, width_mm=width, clearance_mm=0.0
-            )
+            affected_cells = self._get_inflated_cells(cx, cy, cl, width_mm=width, clearance_mm=0.0)
             for ax, ay, al in affected_cells:
                 self.occupancy[ax, ay, al] = 2
                 self.class_grid[ax, ay, al] = current_class_id
@@ -2838,17 +2919,18 @@ class MazeRouter:
         net_name: str,
         pin_positions: list[tuple[float, float]],
         assignment: "LayerAssignment",
-        **kwargs
+        **kwargs,
     ) -> RoutePath:
         """
         2-pass hierarchical routing for clearance-constrained nets.
-        
+
         Fixes A* visit explosion caused by aggressive clearance masks.
         Routes on relaxed grid first, then uses result as guide.
-        
+
         Issue: temper-edni
         """
         from temper_placer.routing.hierarchical import route_net_hierarchical
+
         return route_net_hierarchical(self, net_name, pin_positions, assignment, **kwargs)
 
     def find_path_rrr(
@@ -2869,14 +2951,18 @@ class MazeRouter:
 
         Uses Numba-accelerated implementation if available, otherwise falls back to Python.
         """
-        print(f"DEBUG_ASTAR: find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer} allow_change={allow_layer_change}")
-        print(f"DEBUG_ASTAR: Layer stackup: {[(i, l.name, l.layer_type, l.is_routable, self.layer_stackup.is_plane_layer(i)) for i, l in enumerate(self.layer_stackup.layers)]}")
-        
+        print(
+            f"DEBUG_ASTAR: find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer} allow_change={allow_layer_change}"
+        )
+        print(
+            f"DEBUG_ASTAR: Layer stackup: {[(i, l.name, l.layer_type, l.is_routable, self.layer_stackup.is_plane_layer(i)) for i, l in enumerate(self.layer_stackup.layers)]}"
+        )
+
         # Prepare cached arrays for fast lookup
         self._prepare_cost_arrays()
 
         start_cell = GridCell(start[0], start[1], layer)
-        
+
         # Determine target layer: either explicit end_layer or same as start layer
         target_layer = end_layer if end_layer is not None else layer
         end_cell = GridCell(end[0], end[1], target_layer)
@@ -2884,7 +2970,7 @@ class MazeRouter:
         # Basic validity checks
         is_start_hard_blocked = int(self.occupancy[start[0], start[1], layer]) == -1
         is_end_hard_blocked = int(self.occupancy[end[0], end[1], target_layer]) == -1
-        
+
         if is_start_hard_blocked:
             print(f"DEBUG_ASTAR: Start blocked at {start} on layer {layer}")
             return None
@@ -2948,14 +3034,16 @@ class MazeRouter:
             use_numba = False
         if custom_heuristic is not None:
             use_numba = False  # Custom heuristics only work in Python A*
-        
-        print(f"DEBUG_ASTAR: use_numba={use_numba}, has_custom_heuristic={custom_heuristic is not None}")
+
+        print(
+            f"DEBUG_ASTAR: use_numba={use_numba}, has_custom_heuristic={custom_heuristic is not None}"
+        )
 
         if use_numba:
             try:
                 t_numba = time.perf_counter()
                 self.stats.profile.numba_calls += 1
-                
+
                 # Ensure arrays are contiguous and correct type
                 occ = self._occupancy_np.astype(np.int32)
                 hist = self._history_np.astype(np.float32)
@@ -3026,30 +3114,38 @@ class MazeRouter:
             if clearance_mask is not None:
                 start_blocked_by_mask = clearance_mask[start[0], start[1], layer] != 0
                 end_blocked_by_mask = clearance_mask[end[0], end[1], target_layer] != 0
-                print(f"DEBUG_ASTAR: Clearance mask: start_blocked={start_blocked_by_mask}, end_blocked={end_blocked_by_mask}")
-            
+                print(
+                    f"DEBUG_ASTAR: Clearance mask: start_blocked={start_blocked_by_mask}, end_blocked={end_blocked_by_mask}"
+                )
+
             print(f"DEBUG_ASTAR: Searching for path from {start_cell} to {end_cell}")
-            
+
             open_set: list[tuple[float, int, GridCell, float]] = [(0.0, 0, start_cell, 0.0)]
             counter = 0
             came_from, g_score, visited = {}, {start_cell: 0.0}, set()
             visit_count = 0
             max_visits = 100000  # Safety limit
-            
+
             while open_set and visit_count < max_visits:
                 _, _, current, current_g = heapq.heappop(open_set)
                 visit_count += 1
-                
+
                 if current in visited:
                     continue
                 visited.add(current)
-                
+
                 # DEBUG: Check if we're at the goal
-                if current.x == end_cell.x and current.y == end_cell.y and current.layer == end_cell.layer:
+                if (
+                    current.x == end_cell.x
+                    and current.y == end_cell.y
+                    and current.layer == end_cell.layer
+                ):
                     if current != end_cell:
-                        print(f"DEBUG_ASTAR: EQUALITY BUG! current={current} matches coords but != end_cell={end_cell}")
+                        print(
+                            f"DEBUG_ASTAR: EQUALITY BUG! current={current} matches coords but != end_cell={end_cell}"
+                        )
                     print(f"DEBUG_ASTAR: Reached goal at {current}, visits={visit_count}")
-                
+
                 if current == end_cell:
                     dt = (time.perf_counter() - t_python) * 1000.0
                     self.stats.profile.python_time_ms += dt
@@ -3080,7 +3176,12 @@ class MazeRouter:
                         heapq.heappush(
                             open_set,
                             (
-                                tentative_g + (custom_heuristic(neighbor, end_cell) if custom_heuristic else self._heuristic(neighbor, end_cell)),
+                                tentative_g
+                                + (
+                                    custom_heuristic(neighbor, end_cell)
+                                    if custom_heuristic
+                                    else self._heuristic(neighbor, end_cell)
+                                ),
                                 counter,
                                 neighbor,
                                 tentative_g,
@@ -3093,7 +3194,9 @@ class MazeRouter:
             if visit_count >= max_visits:
                 print(f"DEBUG_ASTAR: Hit visit limit ({max_visits}) without finding path")
             else:
-                print(f"DEBUG_ASTAR: Exhausted open_set after {visit_count} visits without finding path")
+                print(
+                    f"DEBUG_ASTAR: Exhausted open_set after {visit_count} visits without finding path"
+                )
             return None
         finally:
             self._clear_cost_arrays()
