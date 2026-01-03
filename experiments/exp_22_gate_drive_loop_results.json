@@ -1,0 +1,43 @@
+{
+  "experiment": "EXP-22",
+  "description": "Gate Drive Loop Inductance Validation",
+  "status": "completed",
+  "metrics": [
+    {
+      "net_name": "GATE_H",
+      "trace_length_mm": 18.8,
+      "estimated_loop_inductance_nH": 3.8,
+      "via_count": 0,
+      "is_differential": false,
+      "length_mismatch_mm": 0.0,
+      "length_pass": true,
+      "inductance_pass": true,
+      "via_pass": true,
+      "mismatch_pass": true,
+      "overall_pass": true
+    },
+    {
+      "net_name": "GATE_L",
+      "trace_length_mm": 18.8,
+      "estimated_loop_inductance_nH": 3.8,
+      "via_count": 0,
+      "is_differential": false,
+      "length_mismatch_mm": 0.0,
+      "length_pass": true,
+      "inductance_pass": true,
+      "via_pass": true,
+      "mismatch_pass": true,
+      "overall_pass": true
+    }
+  ],
+  "targets": {
+    "trace_length_mm": 30.0,
+    "loop_inductance_nH": 10.0,
+    "length_mismatch_mm": 2.0
+  },
+  "results": {
+    "gate_nets_routed": "2/2",
+    "all_metrics_pass": true,
+    "router_optimizes_loop_area": true
+  }
+}
