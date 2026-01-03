@@ -280,6 +280,23 @@ class MazeRouter:
         # Pre-computed density map for O(1) cell difficulty lookup (temper-qjlk)
         self._density_map: np.ndarray | None = None
 
+        # Work array pool for A* to avoid repeated allocation (performance optimization)
+        self._astar_g_score_buf: np.ndarray | None = None
+        self._astar_came_from_x_buf: np.ndarray | None = None
+        self._astar_came_from_y_buf: np.ndarray | None = None
+        self._astar_came_from_l_buf: np.ndarray | None = None
+        self._astar_visited_buf: np.ndarray | None = None
+
+    def _ensure_work_arrays(self) -> None:
+        """Allocate work arrays for A* if not already allocated."""
+        shape = (self.grid_size[0], self.grid_size[1], self.num_layers)
+        if self._astar_g_score_buf is None:
+            self._astar_g_score_buf = np.zeros(shape, dtype=np.float32)
+            self._astar_came_from_x_buf = np.zeros(shape, dtype=np.int32)
+            self._astar_came_from_y_buf = np.zeros(shape, dtype=np.int32)
+            self._astar_came_from_l_buf = np.zeros(shape, dtype=np.int32)
+            self._astar_visited_buf = np.zeros(shape, dtype=np.bool_)
+
     def _get_inflated_cells(
         self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None
     ) -> list[tuple[int, int, int]]:
@@ -3683,6 +3700,9 @@ class MazeRouter:
                 # Use Adaptive Numba router (supports dist_map, clearance_mask, and guide_map)
                 dist_map = self._compute_distance_map(end_cell, _layer=target_layer)
 
+                # Ensure work arrays are allocated for A* (pooled to avoid repeated allocation)
+                self._ensure_work_arrays()
+
                 path_coords = find_path_astar_numba_adaptive(
                     start[0],
                     start[1],
@@ -3706,6 +3726,11 @@ class MazeRouter:
                     None,  # tap_mask
                     guide_map,
                     float(guide_bias),
+                    g_score_buf=self._astar_g_score_buf,
+                    came_from_x_buf=self._astar_came_from_x_buf,
+                    came_from_y_buf=self._astar_came_from_y_buf,
+                    came_from_l_buf=self._astar_came_from_l_buf,
+                    visited_buf=self._astar_visited_buf,
                 )
 
                 if path_coords:

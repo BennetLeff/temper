@@ -392,6 +392,12 @@ def find_path_astar_numba_adaptive(
     current_class_id=0,
     min_clearance=0.0,
     cell_size=1.0,
+    # Pre-allocated work arrays (optional - pass to avoid allocation)
+    g_score_buf=None,
+    came_from_x_buf=None,
+    came_from_y_buf=None,
+    came_from_l_buf=None,
+    visited_buf=None,
 ):
     """
     Numba-accelerated A* pathfinding with adaptive distance map heuristic.
@@ -424,6 +430,7 @@ def find_path_astar_numba_adaptive(
         current_class_id: Class ID of the net being routed.
         min_clearance: Minimum clearance in mm.
         cell_size: Grid cell size in mm.
+        g_score_buf, came_from_*_buf, visited_buf: Pre-allocated work arrays.
 
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
@@ -432,18 +439,33 @@ def find_path_astar_numba_adaptive(
 
     pq = [(0.0, 0.0, float(start_x), float(start_y), float(start_l))]
 
-    g_score = np.full((grid_w, grid_h, num_layers), INF, dtype=np.float32)
+    # Use pre-allocated buffers if provided, otherwise allocate
+    if g_score_buf is not None:
+        g_score = g_score_buf
+        g_score.fill(INF)
+    else:
+        g_score = np.full((grid_w, grid_h, num_layers), INF, dtype=np.float32)
     g_score[start_x, start_y, start_l] = 0.0
 
-    came_from_x = np.full((grid_w, grid_h, num_layers), -1, dtype=np.int32)
-    came_from_y = np.full((grid_w, grid_h, num_layers), -1, dtype=np.int32)
-    came_from_l = np.full((grid_w, grid_h, num_layers), -1, dtype=np.int32)
+    if came_from_x_buf is not None:
+        came_from_x = came_from_x_buf
+        came_from_x.fill(-1)
+        came_from_y = came_from_y_buf
+        came_from_y.fill(-1)
+        came_from_l = came_from_l_buf
+        came_from_l.fill(-1)
+    else:
+        came_from_x = np.full((grid_w, grid_h, num_layers), -1, dtype=np.int32)
+        came_from_y = np.full((grid_w, grid_h, num_layers), -1, dtype=np.int32)
+        came_from_l = np.full((grid_w, grid_h, num_layers), -1, dtype=np.int32)
 
-    visited = np.zeros((grid_w, grid_h, num_layers), dtype=np.bool_)
+    if visited_buf is not None:
+        visited = visited_buf
+        visited.fill(False)
+    else:
+        visited = np.zeros((grid_w, grid_h, num_layers), dtype=np.bool_)
 
     counter = 0.0
-    
-    # print("DEBUG_NUMBA: Start", start_x, start_y, start_l, "End", end_x, end_y, end_l)
 
     while len(pq) > 0:
         f, _, cx_f, cy_f, cl_f = heapq.heappop(pq)
