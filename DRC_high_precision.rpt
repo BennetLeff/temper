@@ -1,0 +1,2836 @@
+** Drc report for temper_high_precision.kicad_pcb **
+** Created on 2025-12-29T22:54:30-0600 **
+
+** Found 661 DRC violations **
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CLK)
+    Local override; error
+    @(25.6250 mm, 108.6250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(25.3750 mm, 107.3750 mm): Track [SPI_CLK] on F.Cu, length 25.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and TEMP_SENSE)
+    Local override; error
+    @(27.1250 mm, 133.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.1250 mm, 134.1250 mm): Track [TEMP_SENSE] on B.Cu, length 13.0000 mm
+[shorting_items]: Items shorting two nets (nets PGND and GND)
+    Local override; error
+    @(54.8750 mm, 57.8750 mm): Track [PGND] on B.Cu, length 40.5000 mm
+    @(54.8750 mm, 58.1250 mm): Track [GND] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(86.6250 mm, 100.1250 mm): Track [+3V3] on B.Cu, length 13.5000 mm
+    @(86.8750 mm, 100.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+[shorting_items]: Items shorting two nets (nets PGND and GND)
+    Local override; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(55.1250 mm, 58.1250 mm): Track [GND] on B.Cu, length 22.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(87.6250 mm, 100.1250 mm): Track [GND] on B.Cu, length 13.2500 mm
+    @(86.6250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 8.5000 mm
+[shorting_items]: Items shorting two nets (nets PGND and GND)
+    Local override; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(55.1250 mm, 36.1250 mm): Track [GND] on B.Cu, length 3.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and GND)
+    Local override; error
+    @(58.6250 mm, 28.8750 mm): Track [SW_NODE] on B.Cu, length 2.0000 mm
+    @(58.6250 mm, 36.1250 mm): Track [GND] on B.Cu, length 5.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(87.6250 mm, 113.3750 mm): Track [GND] on B.Cu, length 4.2500 mm
+    @(86.6250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 8.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and GND)
+    Local override; error
+    @(58.6250 mm, 28.8750 mm): Track [SW_NODE] on B.Cu, length 2.0000 mm
+    @(58.6250 mm, 31.1250 mm): Track [GND] on B.Cu, length 16.2500 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and GATE_L)
+    Local override; error
+    @(41.1250 mm, 39.6250 mm): Track [SW_NODE] on F.Cu, length 1.0000 mm
+    @(41.3750 mm, 38.3750 mm): Track [GATE_L] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and USB_D-)
+    Local override; error
+    @(91.8750 mm, 113.3750 mm): Track [GND] on F.Cu, length 16.7500 mm
+    @(91.6250 mm, 129.8750 mm): Track [USB_D-] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(39.6250 mm, 31.8750 mm): Track [GATE_H] on F.Cu, length 7.2500 mm
+    @(41.1250 mm, 38.3750 mm): Track [GATE_L] on F.Cu, length 6.2500 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and GATE_H)
+    Local override; error
+    @(41.1250 mm, 32.1250 mm): Track [GATE_L] on F.Cu, length 6.0000 mm
+    @(39.6250 mm, 31.8750 mm): Track [GATE_H] on F.Cu, length 7.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and SPI_CS_TEMP)
+    Local override; error
+    @(27.8750 mm, 113.8750 mm): Track [GND] on F.Cu, length 0.7500 mm
+    @(27.6250 mm, 114.1250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets TEMP_SENSE and GND)
+    Local override; error
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+    @(8.6250 mm, 136.3750 mm): Track [GND] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +5V and +3V3)
+    Local override; error
+    @(75.1250 mm, 66.6250 mm): Track [+5V] on B.Cu, length 3.7500 mm
+    @(71.1250 mm, 59.8750 mm): Track [+3V3] on B.Cu, length 36.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(15.3750 mm, 133.3750 mm): Track [GND] on B.Cu, length 7.0000 mm
+    @(14.1250 mm, 134.1250 mm): Track [TEMP_SENSE] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(47.8750 mm, 37.1250 mm): Via [+15V] on F.Cu - B.Cu
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and +5V)
+    Local override; error
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 14.7500 mm
+    @(71.3750 mm, 66.6250 mm): Track [+5V] on B.Cu, length 6.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(27.1250 mm, 108.6250 mm): Track [SPI_MISO] on F.Cu, length 0.2500 mm
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(55.3750 mm, 59.6250 mm): Track [PWM_L] on F.Cu, length 38.5000 mm
+    @(54.8750 mm, 98.3750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and SPI_CS_TEMP)
+    Local override; error
+    @(27.8750 mm, 113.8750 mm): Track [GND] on F.Cu, length 0.7500 mm
+    @(27.6250 mm, 113.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and GND)
+    Local override; error
+    @(55.3750 mm, 98.1250 mm): Track [PWM_L] on F.Cu, length 15.7500 mm
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.3750 mm, 135.3750 mm): Track [GND] on B.Cu, length 13.7500 mm
+    @(14.1250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 5.5000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and GND)
+    Local override; error
+    @(71.1250 mm, 98.1250 mm): Track [PWM_L] on F.Cu, length 0.2500 mm
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(78.8750 mm, 95.3750 mm): Track [GND] on B.Cu, length 5.7500 mm
+    @(84.3750 mm, 95.6250 mm): Track [+3V3] on B.Cu, length 4.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and USB_D-)
+    Local override; error
+    @(91.8750 mm, 130.1250 mm): Track [GND] on F.Cu, length 1.0000 mm
+    @(91.6250 mm, 129.8750 mm): Track [USB_D-] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(46.8750 mm, 31.8750 mm): Track [GATE_H] on B.Cu, length 7.2500 mm
+    @(47.1250 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)
+    Local override; error
+    @(27.1250 mm, 108.8750 mm): Track [SPI_MISO] on B.Cu, length 0.0000 mm
+    @(25.8750 mm, 109.1250 mm): Track [SPI_CS_TEMP] on B.Cu, length 1.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.6250 mm, 135.3750 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets +5V and GND)
+    Local override; error
+    @(76.1250 mm, 29.8750 mm): Track [+5V] on B.Cu, length 0.2500 mm
+    @(75.3750 mm, 30.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and +5V)
+    Local override; error
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 14.7500 mm
+    @(71.3750 mm, 60.1250 mm): Track [+5V] on B.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(27.1250 mm, 108.8750 mm): Track [SPI_MISO] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.3750 mm, 135.3750 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and SW_NODE)
+    Local override; error
+    @(47.8750 mm, 36.1250 mm): Via [+15V] on F.Cu - B.Cu
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[shorting_items]: Items shorting two nets (nets PGND and +15V)
+    Local override; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(47.8750 mm, 36.1250 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +5V and +15V)
+    Local override; error
+    @(75.1250 mm, 60.1250 mm): Track [+5V] on B.Cu, length 3.2500 mm
+    @(78.6250 mm, 45.1250 mm): Track [+15V] on B.Cu, length 20.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(25.8750 mm, 113.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 4.5000 mm
+    @(27.1250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_L)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(47.3750 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(84.3750 mm, 100.1250 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+    @(86.8750 mm, 99.1250 mm): Track [GND] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_L)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(47.3750 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and GND)
+    Local override; error
+    @(71.1250 mm, 98.3750 mm): Track [PWM_L] on F.Cu, length 3.7500 mm
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets +5V and GND)
+    Local override; error
+    @(76.1250 mm, 29.8750 mm): Track [+5V] on B.Cu, length 0.2500 mm
+    @(76.1250 mm, 30.1250 mm): Track [GND] on B.Cu, length 14.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(86.6250 mm, 100.1250 mm): Track [+3V3] on B.Cu, length 13.5000 mm
+    @(86.8750 mm, 99.1250 mm): Track [GND] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +5V and GND)
+    Local override; error
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+    @(78.1250 mm, 94.8750 mm): Track [GND] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(25.8750 mm, 113.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 4.5000 mm
+    @(25.6250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 24.5000 mm
+[shorting_items]: Items shorting two nets (nets TEMP_SENSE and GND)
+    Local override; error
+    @(8.6250 mm, 135.1250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+    @(8.6250 mm, 136.3750 mm): Track [GND] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_L)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(47.6250 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 4.0000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and SPI_CS_TEMP)
+    Local override; error
+    @(74.8750 mm, 98.3750 mm): Track [PWM_L] on B.Cu, length 0.2500 mm
+    @(74.8750 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and GND)
+    Local override; error
+    @(91.8750 mm, 131.1250 mm): Track [USB_D+] on B.Cu, length 2.5000 mm
+    @(93.6250 mm, 130.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.3750 mm, 135.3750 mm): Track [GND] on B.Cu, length 13.7500 mm
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets USB_D- and GND)
+    Local override; error
+    @(91.8750 mm, 131.1250 mm): Track [USB_D-] on F.Cu, length 1.5000 mm
+    @(93.6250 mm, 130.8750 mm): Track [GND] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 3.7500 mm
+    @(76.1250 mm, 44.8750 mm): Track [GND] on B.Cu, length 3.2500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and +5V)
+    Local override; error
+    @(78.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 0.2500 mm
+    @(78.6250 mm, 95.3750 mm): Track [+5V] on F.Cu, length 6.0000 mm
+[shorting_items]: Items shorting two nets (nets +5V and SPI_CLK)
+    Local override; error
+    @(84.6250 mm, 95.3750 mm): Track [+5V] on F.Cu, length 24.0000 mm
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and USB_D-)
+    Local override; error
+    @(93.6250 mm, 131.1250 mm): Track [GND] on F.Cu, length 1.5000 mm
+    @(91.8750 mm, 131.1250 mm): Track [USB_D-] on F.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and +15V)
+    Local override; error
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+    @(46.8750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and +15V)
+    Local override; error
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+    @(42.8750 mm, 27.8750 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 133.6250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(25.3750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GATE_L and +15V)
+    Local override; error
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+    @(47.3750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 1.2500 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and USB_D-)
+    Local override; error
+    @(83.6250 mm, 100.1250 mm): Track [USB_D+] on B.Cu, length 0.2500 mm
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and I_SENSE)
+    Local override; error
+    @(74.8750 mm, 98.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(15.3750 mm, 133.3750 mm): Track [GND] on B.Cu, length 7.0000 mm
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and GATE_H)
+    Local override; error
+    @(42.6250 mm, 15.1250 mm): Track [GATE_L] on F.Cu, length 13.0000 mm
+    @(17.6250 mm, 23.3750 mm): Track [GATE_H] on F.Cu, length 24.7500 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and +15V)
+    Local override; error
+    @(58.6250 mm, 15.1250 mm): Track [SW_NODE] on F.Cu, length 13.7500 mm
+    @(47.3750 mm, 29.1250 mm): Track [+15V] on F.Cu, length 26.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.3750 mm, 133.3750 mm): Track [GND] on B.Cu, length 2.0000 mm
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets +15V and +5V)
+    Local override; error
+    @(74.1250 mm, 29.1250 mm): Track [+15V] on B.Cu, length 0.7500 mm
+    @(74.1250 mm, 29.3750 mm): Track [+5V] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.1250 mm, 26.1250 mm): Track [DC_BUS+] on B.Cu, length 2.5000 mm
+    @(42.3750 mm, 23.3750 mm): Track [GATE_H] on B.Cu, length 5.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and +5V)
+    Local override; error
+    @(74.8750 mm, 29.1250 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(72.8750 mm, 28.1250 mm): Track [+5V] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(47.3750 mm, 23.3750 mm): Track [GATE_H] on B.Cu, length 2.5000 mm
+[shorting_items]: Items shorting two nets (nets USB_D- and GND)
+    Local override; error
+    @(93.3750 mm, 131.3750 mm): Track [USB_D-] on F.Cu, length 2.2500 mm
+    @(95.1250 mm, 131.1250 mm): Track [GND] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(95.3750 mm, 113.6250 mm): Via [GND] on F.Cu - B.Cu
+    @(86.6250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 8.5000 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and GND)
+    Local override; error
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(95.1250 mm, 130.1250 mm): Track [GND] on F.Cu, length 2.2500 mm
+[shorting_items]: Items shorting two nets (nets AC_L and CGND)
+    Local override; error
+    @(10.1250 mm, 30.1250 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(30.3750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +5V and +3V3)
+    Local override; error
+    @(84.6250 mm, 119.3750 mm): Track [+5V] on F.Cu, length 42.0000 mm
+    @(76.1250 mm, 119.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MOSI)
+    Local override; error
+    @(77.6250 mm, 96.6250 mm): Track [SPI_CLK] on B.Cu, length 0.7500 mm
+    @(78.1250 mm, 96.6250 mm): Track [SPI_MOSI] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1750 mm)
+    Rule: netclass 'Default'; error
+    @(74.1250 mm, 29.1250 mm): Via [+15V] on F.Cu - B.Cu
+    @(73.9000 mm, 30.0000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.3750 mm, 135.3750 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(8.6250 mm, 135.1250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and TEMP_SENSE)
+    Local override; error
+    @(8.6250 mm, 135.3750 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(8.6250 mm, 133.6250 mm): Track [TEMP_SENSE] on B.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and USB_D-)
+    Local override; error
+    @(83.6250 mm, 100.3750 mm): Track [USB_D+] on B.Cu, length 0.2500 mm
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(96.3750 mm, 113.6250 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(95.1250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(47.3750 mm, 25.8750 mm): Track [GATE_H] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets +15V and +5V)
+    Local override; error
+    @(74.8750 mm, 28.1250 mm): Track [+15V] on B.Cu, length 2.2500 mm
+    @(72.8750 mm, 28.1250 mm): Track [+5V] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(95.1250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+    @(95.3750 mm, 113.6250 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets USB_D+ and USB_D-)
+    Local override; error
+    @(83.3750 mm, 100.3750 mm): Track [USB_D+] on B.Cu, length 0.5000 mm
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and +5V)
+    Local override; error
+    @(74.1250 mm, 29.1250 mm): Via [+15V] on F.Cu - B.Cu
+    @(74.1250 mm, 29.3750 mm): Track [+5V] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and USB_D-)
+    Local override; error
+    @(83.3750 mm, 100.8750 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and +5V)
+    Local override; error
+    @(77.1250 mm, 28.1250 mm): Track [+15V] on B.Cu, length 17.0000 mm
+    @(76.3750 mm, 30.1250 mm): Track [+5V] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 14.7500 mm
+    @(72.8750 mm, 50.1250 mm): Track [GND] on B.Cu, length 1.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CS_TEMP)
+    Local override; error
+    @(25.6250 mm, 107.8750 mm): Track [SPI_MOSI] on B.Cu, length 25.0000 mm
+    @(25.8750 mm, 109.3750 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(85.1250 mm, 113.6250 mm): Track [GND] on F.Cu, length 6.2500 mm
+    @(84.8750 mm, 119.6250 mm): Track [+3V3] on F.Cu, length 8.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_MISO)
+    Local override; error
+    @(25.8750 mm, 109.1250 mm): Track [SPI_CS_TEMP] on B.Cu, length 1.2500 mm
+    @(27.1250 mm, 108.8750 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and +5V)
+    Local override; error
+    @(78.6250 mm, 45.1250 mm): Track [+15V] on B.Cu, length 20.0000 mm
+    @(77.3750 mm, 50.1250 mm): Track [+5V] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and AC_N)
+    Local override; error
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+    @(12.3750 mm, 46.8750 mm): Track [AC_N] on F.Cu, length 34.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(95.1250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 10.2500 mm
+    @(87.6250 mm, 100.1250 mm): Track [GND] on B.Cu, length 13.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 96.3750 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+    @(78.1250 mm, 96.6250 mm): Track [SPI_MOSI] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and AC_N)
+    Local override; error
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+    @(47.1250 mm, 46.8750 mm): Track [AC_N] on F.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and SPI_CLK)
+    Local override; error
+    @(78.1250 mm, 95.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+    @(77.6250 mm, 95.8750 mm): Track [SPI_CLK] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(75.8750 mm, 97.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.3750 mm, 97.6250 mm): Track [+3V3] on F.Cu, length 2.2500 mm
+[shorting_items]: Items shorting two nets (nets USB_D- and USB_D+)
+    Local override; error
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+    @(84.3750 mm, 100.8750 mm): Track [USB_D+] on B.Cu, length 29.2500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(47.6250 mm, 25.8750 mm): Track [GATE_H] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and USB_D-)
+    Local override; error
+    @(84.8750 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 6.0000 mm
+    @(84.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 29.2500 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and DC_BUS+)
+    Local override; error
+    @(47.6250 mm, 26.1250 mm): Track [GATE_H] on B.Cu, length 0.2500 mm
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and USB_D-)
+    Local override; error
+    @(84.3750 mm, 130.1250 mm): Track [USB_D+] on B.Cu, length 7.5000 mm
+    @(84.6250 mm, 129.8750 mm): Track [USB_D-] on B.Cu, length 7.0000 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and GATE_H)
+    Local override; error
+    @(47.3750 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+    @(47.8750 mm, 26.1250 mm): Track [GATE_H] on B.Cu, length 5.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and +5V)
+    Local override; error
+    @(72.8750 mm, 65.1250 mm): Track [GND] on B.Cu, length 1.2500 mm
+    @(71.3750 mm, 66.6250 mm): Track [+5V] on B.Cu, length 6.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(91.8750 mm, 130.1250 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+    @(84.6250 mm, 129.8750 mm): Track [USB_D-] on B.Cu, length 7.0000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(47.8750 mm, 31.8750 mm): Track [GATE_H] on B.Cu, length 0.2500 mm
+    @(47.3750 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(85.1250 mm, 119.8750 mm): Track [GND] on F.Cu, length 41.2500 mm
+    @(76.1250 mm, 119.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and PGND)
+    Local override; error
+    @(34.6250 mm, 62.1250 mm): Track [DC_BUS+] on B.Cu, length 2.0000 mm
+    @(32.6250 mm, 60.1250 mm): Track [PGND] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets AC_N and PWM_H)
+    Local override; error
+    @(47.1250 mm, 45.1250 mm): Track [AC_N] on F.Cu, length 1.7500 mm
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and SPI_CS_TEMP)
+    Local override; error
+    @(75.8750 mm, 97.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.6250 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+[shorting_items]: Items shorting two nets (nets USB_D+ and GND)
+    Local override; error
+    @(91.8750 mm, 131.1250 mm): Track [USB_D+] on B.Cu, length 2.5000 mm
+    @(93.6250 mm, 130.8750 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PWM_L and I_SENSE)
+    Local override; error
+    @(74.8750 mm, 98.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+    @(76.6250 mm, 97.6250 mm): Track [I_SENSE] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(77.8750 mm, 95.8750 mm): Track [SPI_CLK] on F.Cu, length 0.2500 mm
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and DC_BUS+)
+    Local override; error
+    @(25.6250 mm, 15.1250 mm): Track [SW_NODE] on F.Cu, length 16.5000 mm
+    @(30.9000 mm, 15.0000 mm): PTH pad 3 [DC_BUS+] of Q1
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(47.6250 mm, 31.8750 mm): Track [GATE_H] on B.Cu, length 0.5000 mm
+    @(47.3750 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets +5V and +3V3)
+    Local override; error
+    @(84.6250 mm, 119.3750 mm): Track [+5V] on F.Cu, length 42.0000 mm
+    @(84.8750 mm, 119.6250 mm): Track [+3V3] on F.Cu, length 8.7500 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and PGND)
+    Local override; error
+    @(54.8750 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 37.7500 mm
+    @(42.8750 mm, 62.1250 mm): Track [PGND] on F.Cu, length 11.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and +5V)
+    Local override; error
+    @(77.8750 mm, 95.6250 mm): Track [SPI_CLK] on F.Cu, length 6.5000 mm
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(76.1250 mm, 119.6250 mm): Track [+3V3] on B.Cu, length 14.0000 mm
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_L)
+    Local override; error
+    @(45.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 2.0000 mm
+    @(47.3750 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(71.6250 mm, 50.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(71.3750 mm, 51.6250 mm): Track [+3V3] on B.Cu, length 6.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+    @(76.1250 mm, 105.6250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and PWM_L)
+    Local override; error
+    @(71.3750 mm, 65.1250 mm): Track [GND] on F.Cu, length 33.0000 mm
+    @(71.1250 mm, 98.1250 mm): Track [PWM_L] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+    @(75.6250 mm, 105.6250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and +15V)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+    @(46.8750 mm, 27.8750 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+    @(75.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 20.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and +5V)
+    Local override; error
+    @(84.3750 mm, 95.6250 mm): Track [SPI_CLK] on F.Cu, length 10.5000 mm
+    @(78.6250 mm, 95.3750 mm): Track [+5V] on F.Cu, length 6.0000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 3.7500 mm
+    @(72.8750 mm, 44.8750 mm): Via [GND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SPI_CLK and I_SENSE)
+    Local override; error
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+    @(75.3750 mm, 105.8750 mm): Track [I_SENSE] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(75.8750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.5000 mm
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(75.1250 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+    @(76.1250 mm, 44.8750 mm): Track [GND] on B.Cu, length 3.2500 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(47.6250 mm, 32.3750 mm): Track [GATE_H] on B.Cu, length 0.7500 mm
+    @(47.3750 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and SPI_CLK)
+    Local override; error
+    @(77.8750 mm, 96.6250 mm): Track [SPI_MOSI] on F.Cu, length 0.5000 mm
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(72.8750 mm, 44.8750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.1250 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets PGND and PWM_H)
+    Local override; error
+    @(54.6250 mm, 62.1250 mm): Track [PGND] on F.Cu, length 2.0000 mm
+    @(54.8750 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 37.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 4.0000 mm
+    @(47.3750 mm, 26.1250 mm): Track [DC_BUS+] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.1250 mm, 26.1250 mm): Track [DC_BUS+] on B.Cu, length 2.5000 mm
+    @(47.3750 mm, 25.8750 mm): Track [GATE_H] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(76.6250 mm, 97.8750 mm): Track [I_SENSE] on B.Cu, length 0.7500 mm
+    @(75.6250 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GATE_H)
+    Local override; error
+    @(47.1250 mm, 23.6250 mm): Track [DC_BUS+] on B.Cu, length 24.2500 mm
+    @(24.1250 mm, 23.3750 mm): Via [GATE_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GND and +3V3)
+    Local override; error
+    @(71.6250 mm, 50.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 14.7500 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and SPI_MOSI)
+    Local override; error
+    @(75.8750 mm, 97.8750 mm): Track [I_SENSE] on F.Cu, length 0.2500 mm
+    @(75.6250 mm, 95.6250 mm): Track [SPI_MOSI] on F.Cu, length 2.2500 mm
+[shorting_items]: Items shorting two nets (nets +5V and +3V3)
+    Local override; error
+    @(71.3750 mm, 60.1250 mm): Track [+5V] on B.Cu, length 3.7500 mm
+    @(71.3750 mm, 59.8750 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets +5V and +3V3)
+    Local override; error
+    @(71.3750 mm, 60.1250 mm): Track [+5V] on B.Cu, length 3.7500 mm
+    @(71.1250 mm, 59.8750 mm): Track [+3V3] on B.Cu, length 36.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and GND)
+    Local override; error
+    @(34.3750 mm, 114.1250 mm): Track [SPI_CS_TEMP] on F.Cu, length 6.7500 mm
+    @(36.1250 mm, 113.8750 mm): Track [GND] on F.Cu, length 8.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and I_SENSE)
+    Local override; error
+    @(75.6250 mm, 95.6250 mm): Track [SPI_MOSI] on F.Cu, length 2.2500 mm
+    @(75.8750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(75.3750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.2500 mm
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_MISO)
+    Local override; error
+    @(71.1250 mm, 95.8750 mm): Track [+3V3] on B.Cu, length 2.0000 mm
+    @(75.3750 mm, 96.1250 mm): Track [SPI_MISO] on B.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets PGND and PWM_H)
+    Local override; error
+    @(54.6250 mm, 60.1250 mm): Track [PGND] on F.Cu, length 2.0000 mm
+    @(54.8750 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 37.7500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and +3V3)
+    Local override; error
+    @(55.3750 mm, 105.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 3.2500 mm
+    @(55.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(46.8750 mm, 32.3750 mm): Track [GATE_H] on B.Cu, length 0.5000 mm
+    @(47.1250 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and +3V3)
+    Local override; error
+    @(75.6250 mm, 97.8750 mm): Track [SPI_MOSI] on F.Cu, length 4.0000 mm
+    @(73.1250 mm, 95.8750 mm): Track [+3V3] on F.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and PGND)
+    Local override; error
+    @(58.6250 mm, 28.8750 mm): Track [SW_NODE] on B.Cu, length 2.0000 mm
+    @(58.3750 mm, 15.1250 mm): Track [PGND] on B.Cu, length 20.7500 mm
+[shorting_items]: Items shorting two nets (nets GND and I_SENSE)
+    Local override; error
+    @(75.1250 mm, 98.1250 mm): Track [GND] on F.Cu, length 0.2500 mm
+    @(75.8750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(77.3750 mm, 101.8750 mm): Track [GND] on B.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(46.8750 mm, 31.8750 mm): Track [GATE_H] on B.Cu, length 7.2500 mm
+    @(47.1250 mm, 32.1250 mm): Via [GATE_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(75.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 3.2500 mm
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and SPI_CS_TEMP)
+    Local override; error
+    @(27.8750 mm, 113.8750 mm): Track [GND] on F.Cu, length 0.7500 mm
+    @(34.3750 mm, 114.1250 mm): Track [SPI_CS_TEMP] on F.Cu, length 6.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(76.1250 mm, 119.6250 mm): Track [+3V3] on B.Cu, length 14.0000 mm
+    @(75.8750 mm, 117.1250 mm): Track [I_SENSE] on B.Cu, length 37.5000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GND)
+    Local override; error
+    @(22.8750 mm, 60.1250 mm): Track [DC_BUS+] on B.Cu, length 2.0000 mm
+    @(12.3750 mm, 62.3750 mm): Track [GND] on B.Cu, length 42.5000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and GND)
+    Local override; error
+    @(22.8750 mm, 62.1250 mm): Track [DC_BUS+] on B.Cu, length 11.7500 mm
+    @(12.3750 mm, 62.3750 mm): Track [GND] on B.Cu, length 42.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and PGND)
+    Local override; error
+    @(54.8750 mm, 62.3750 mm): Track [GND] on B.Cu, length 4.2500 mm
+    @(52.6250 mm, 60.1250 mm): Track [PGND] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(75.1250 mm, 98.3750 mm): Track [GND] on B.Cu, length 4.2500 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and PGND)
+    Local override; error
+    @(34.6250 mm, 62.1250 mm): Track [DC_BUS+] on B.Cu, length 2.0000 mm
+    @(34.3750 mm, 60.1250 mm): Via [PGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_MOSI)
+    Local override; error
+    @(75.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 3.0000 mm
+    @(77.3750 mm, 96.6250 mm): Track [SPI_MOSI] on F.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and PGND)
+    Local override; error
+    @(47.3750 mm, 57.8750 mm): Track [PWM_H] on B.Cu, length 7.0000 mm
+    @(54.6250 mm, 60.1250 mm): Track [PGND] on B.Cu, length 2.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1014 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.8750 mm, 97.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(27.6250 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 12.7500 mm
+    @(36.1250 mm, 118.6250 mm): Track [I_SENSE] on B.Cu, length 8.2500 mm
+[shorting_items]: Items shorting two nets (nets GND and PGND)
+    Local override; error
+    @(55.1250 mm, 58.1250 mm): Track [GND] on B.Cu, length 22.0000 mm
+    @(54.6250 mm, 57.8750 mm): Track [PGND] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and SW_NODE)
+    Local override; error
+    @(41.3750 mm, 38.3750 mm): Via [GATE_L] on F.Cu - B.Cu
+    @(41.1250 mm, 39.6250 mm): Track [SW_NODE] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(55.6250 mm, 105.6250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_MOSI and +3V3)
+    Local override; error
+    @(77.3750 mm, 95.6250 mm): Track [SPI_MOSI] on F.Cu, length 1.7500 mm
+    @(75.3750 mm, 97.6250 mm): Track [+3V3] on F.Cu, length 2.2500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(27.6250 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 12.7500 mm
+    @(27.8750 mm, 118.6250 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 8.5000 mm
+    @(41.1250 mm, 38.6250 mm): Track [SW_NODE] on F.Cu, length 6.2500 mm
+[shorting_items]: Items shorting two nets (nets PGND and GND)
+    Local override; error
+    @(54.8750 mm, 57.8750 mm): Track [PGND] on B.Cu, length 40.5000 mm
+    @(55.1250 mm, 36.1250 mm): Track [GND] on B.Cu, length 3.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(27.3750 mm, 106.3750 mm): Track [SPI_CLK] on F.Cu, length 1.0000 mm
+    @(27.1250 mm, 105.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(75.1250 mm, 102.6250 mm): Track [GND] on F.Cu, length 1.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(27.3750 mm, 105.3750 mm): Track [SPI_CLK] on F.Cu, length 0.5000 mm
+    @(27.1250 mm, 105.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets PGND and GND)
+    Local override; error
+    @(58.3750 mm, 15.1250 mm): Track [PGND] on B.Cu, length 20.7500 mm
+    @(55.1250 mm, 36.1250 mm): Track [GND] on B.Cu, length 3.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(75.6250 mm, 101.8750 mm): Track [GND] on B.Cu, length 3.0000 mm
+[shorting_items]: Items shorting two nets (nets PGND and GND)
+    Local override; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(58.6250 mm, 36.1250 mm): Track [GND] on B.Cu, length 5.0000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(27.8750 mm, 120.1250 mm): Track [I_SENSE] on B.Cu, length 0.0000 mm
+    @(27.6250 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 12.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and GND)
+    Local override; error
+    @(27.6250 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 12.7500 mm
+    @(27.1250 mm, 118.1250 mm): Track [GND] on B.Cu, length 4.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CLK and SPI_MISO)
+    Local override; error
+    @(26.8750 mm, 105.3750 mm): Track [SPI_CLK] on F.Cu, length 0.5000 mm
+    @(27.1250 mm, 105.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets GATE_L and SW_NODE)
+    Local override; error
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+    @(47.3750 mm, 38.6250 mm): Track [SW_NODE] on F.Cu, length 8.5000 mm
+[shorting_items]: Items shorting two nets (nets PWM_L and PWM_H)
+    Local override; error
+    @(28.8750 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 10.0000 mm
+    @(28.8750 mm, 31.8750 mm): Track [PWM_H] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and PWM_L)
+    Local override; error
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(71.1250 mm, 98.3750 mm): Track [PWM_L] on F.Cu, length 3.7500 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and PWM_L)
+    Local override; error
+    @(28.8750 mm, 32.8750 mm): Track [PWM_H] on B.Cu, length 0.2500 mm
+    @(28.8750 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.2500 mm
+    @(75.6250 mm, 95.6250 mm): Track [SPI_MOSI] on F.Cu, length 2.2500 mm
+[shorting_items]: Items shorting two nets (nets PGND and DC_BUS+)
+    Local override; error
+    @(32.6250 mm, 60.1250 mm): Track [PGND] on B.Cu, length 1.7500 mm
+    @(34.6250 mm, 60.1250 mm): Track [DC_BUS+] on B.Cu, length 8.2500 mm
+[shorting_items]: Items shorting two nets (nets GATE_L and GATE_H)
+    Local override; error
+    @(47.1250 mm, 32.1250 mm): Via [GATE_L] on F.Cu - B.Cu
+    @(39.6250 mm, 31.8750 mm): Track [GATE_H] on F.Cu, length 7.2500 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and PWM_L)
+    Local override; error
+    @(28.6250 mm, 32.8750 mm): Track [PWM_H] on B.Cu, length 10.2500 mm
+    @(28.8750 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(74.8750 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and SW_NODE)
+    Local override; error
+    @(28.6250 mm, 43.1250 mm): Track [PWM_H] on F.Cu, length 18.5000 mm
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and SPI_MOSI)
+    Local override; error
+    @(75.8750 mm, 97.8750 mm): Track [I_SENSE] on F.Cu, length 0.2500 mm
+    @(75.6250 mm, 97.8750 mm): Track [SPI_MOSI] on F.Cu, length 4.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_MISO and SPI_MOSI)
+    Local override; error
+    @(71.6250 mm, 97.6250 mm): Track [SPI_MISO] on B.Cu, length 17.2500 mm
+    @(71.6250 mm, 97.8750 mm): Track [SPI_MOSI] on B.Cu, length 16.7500 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and SPI_MOSI)
+    Local override; error
+    @(55.1250 mm, 105.6250 mm): Track [+3V3] on B.Cu, length 1.5000 mm
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(27.8750 mm, 120.1250 mm): Track [I_SENSE] on B.Cu, length 5.0000 mm
+    @(27.6250 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 12.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 97.8750 mm): Track [SPI_MOSI] on F.Cu, length 0.5000 mm
+    @(55.1250 mm, 98.6250 mm): Track [PWM_H] on F.Cu, length 21.5000 mm
+[shorting_items]: Items shorting two nets (nets GND and PWM_H)
+    Local override; error
+    @(75.6250 mm, 98.8750 mm): Track [GND] on F.Cu, length 1.7500 mm
+    @(55.1250 mm, 98.6250 mm): Track [PWM_H] on F.Cu, length 21.5000 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and GATE_L)
+    Local override; error
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 3.5000 mm
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets PWM_H and AC_N)
+    Local override; error
+    @(47.1250 mm, 43.1250 mm): Track [PWM_H] on F.Cu, length 1.7500 mm
+    @(47.1250 mm, 46.8750 mm): Track [AC_N] on F.Cu, length 1.7500 mm
+[shorting_items]: Items shorting two nets (nets AC_N and PWM_H)
+    Local override; error
+    @(47.1250 mm, 46.8750 mm): Track [AC_N] on F.Cu, length 1.7500 mm
+    @(47.1250 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and +3V3)
+    Local override; error
+    @(55.3750 mm, 105.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 3.2500 mm
+    @(55.1250 mm, 107.1250 mm): Track [+3V3] on B.Cu, length 22.0000 mm
+[shorting_items]: Items shorting two nets (nets DC_BUS+ and PWM_H)
+    Local override; error
+    @(28.1250 mm, 46.8750 mm): Track [DC_BUS+] on B.Cu, length 9.5000 mm
+    @(28.6250 mm, 43.1250 mm): Via [PWM_H] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets I_SENSE and PWM_L)
+    Local override; error
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets SW_NODE and DC_BUS+)
+    Local override; error
+    @(43.8750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 0.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and +3V3)
+    Local override; error
+    @(55.3750 mm, 109.1250 mm): Track [SPI_CS_TEMP] on B.Cu, length 21.0000 mm
+    @(34.1250 mm, 107.8750 mm): Track [+3V3] on B.Cu, length 10.0000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and +3V3)
+    Local override; error
+    @(73.8750 mm, 102.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(73.1250 mm, 102.8750 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(32.1250 mm, 118.1250 mm): Track [I_SENSE] on B.Cu, length 5.5000 mm
+    @(34.1250 mm, 117.8750 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+[shorting_items]: Items shorting two nets (nets GATE_H and GATE_L)
+    Local override; error
+    @(46.8750 mm, 31.8750 mm): Track [GATE_H] on B.Cu, length 0.5000 mm
+    @(47.1250 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+[shorting_items]: Items shorting two nets (nets SW_NODE and PWM_H)
+    Local override; error
+    @(47.6250 mm, 44.6250 mm): Track [SW_NODE] on F.Cu, length 7.0000 mm
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+[shorting_items]: Items shorting two nets (nets SPI_CS_TEMP and +3V3)
+    Local override; error
+    @(73.8750 mm, 102.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(73.3750 mm, 102.8750 mm): Track [+3V3] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets I_SENSE and GND)
+    Local override; error
+    @(32.1250 mm, 124.6250 mm): Track [I_SENSE] on B.Cu, length 6.5000 mm
+    @(31.1250 mm, 120.8750 mm): Track [GND] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1263 mm)
+    Rule: netclass 'Default'; error
+    @(43.8750 mm, 30.6250 mm): Track [SW_NODE] on F.Cu, length 1.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[shorting_items]: Items shorting two nets (nets I_SENSE and +3V3)
+    Local override; error
+    @(32.1250 mm, 118.1250 mm): Track [I_SENSE] on B.Cu, length 5.5000 mm
+    @(31.8750 mm, 117.8750 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[shorting_items]: Items shorting two nets (nets +3V3 and I_SENSE)
+    Local override; error
+    @(27.6250 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 12.7500 mm
+    @(27.8750 mm, 125.1250 mm): Track [I_SENSE] on B.Cu, length 2.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 1.7500 mm
+    @(46.8750 mm, 32.3750 mm): Track [GATE_H] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(30.8750 mm, 124.3750 mm): Track [GND] on B.Cu, length 0.7500 mm
+    @(31.8750 mm, 126.1250 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(73.3750 mm, 103.8750 mm): Track [+3V3] on B.Cu, length 1.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 105.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(32.1250 mm, 118.1250 mm): Track [I_SENSE] on B.Cu, length 5.5000 mm
+    @(31.8750 mm, 118.3750 mm): Track [+3V3] on B.Cu, length 4.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.8750 mm, 98.8750 mm): Track [GND] on B.Cu, length 1.7500 mm
+    @(73.3750 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1250 mm, 105.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(26.8750 mm, 105.8750 mm): Track [SPI_CLK] on F.Cu, length 1.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 32.3750 mm): Track [GATE_H] on B.Cu, length 1.7500 mm
+    @(47.3750 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 98.3750 mm): Track [SPI_MOSI] on B.Cu, length 7.5000 mm
+    @(55.6250 mm, 105.6250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+    @(47.6250 mm, 30.6250 mm): Track [GATE_H] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(58.6250 mm, 28.8750 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(47.3750 mm, 29.1250 mm): Track [+15V] on F.Cu, length 26.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.3750 mm, 105.6250 mm): Track [SPI_MISO] on B.Cu, length 27.2500 mm
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 5.0000 mm
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(58.6250 mm, 28.8750 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(58.3750 mm, 15.1250 mm): Track [PGND] on B.Cu, length 20.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(31.6250 mm, 124.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(31.8750 mm, 126.1250 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(58.6250 mm, 30.8750 mm): Via [SW_NODE] on F.Cu - B.Cu
+    @(58.6250 mm, 36.1250 mm): Track [GND] on B.Cu, length 5.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 51.3750 mm): Track [PWM_H] on B.Cu, length 6.5000 mm
+    @(47.1250 mm, 43.1250 mm): Track [PWM_L] on B.Cu, length 8.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(30.8750 mm, 124.3750 mm): Track [GND] on B.Cu, length 0.7500 mm
+    @(31.8750 mm, 124.6250 mm): Track [I_SENSE] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 105.8750 mm): Track [SPI_CLK] on F.Cu, length 1.5000 mm
+    @(25.6250 mm, 107.6250 mm): Track [SPI_MISO] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 44.6250 mm): Track [SW_NODE] on F.Cu, length 0.2500 mm
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 107.6250 mm): Track [SPI_MISO] on F.Cu, length 1.0000 mm
+    @(25.6250 mm, 107.3750 mm): Track [SPI_CLK] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(73.1250 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.8750 mm, 97.1250 mm): Track [GND] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 105.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 3.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(34.1250 mm, 117.8750 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+    @(32.1250 mm, 124.6250 mm): Track [I_SENSE] on B.Cu, length 6.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 107.8750 mm): Track [SPI_MOSI] on B.Cu, length 25.0000 mm
+    @(25.3750 mm, 133.1250 mm): Track [SPI_CLK] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(32.1250 mm, 118.1250 mm): Track [I_SENSE] on B.Cu, length 5.5000 mm
+    @(34.1250 mm, 107.8750 mm): Track [+3V3] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 107.6250 mm): Track [SPI_MISO] on F.Cu, length 1.0000 mm
+    @(25.3750 mm, 107.3750 mm): Track [SPI_CLK] on F.Cu, length 25.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 132.8750 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+    @(25.3750 mm, 133.1250 mm): Track [SPI_CLK] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 44.6250 mm): Track [SW_NODE] on F.Cu, length 7.0000 mm
+    @(47.1250 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 57.8750 mm): Track [PWM_H] on B.Cu, length 7.0000 mm
+    @(54.6250 mm, 57.8750 mm): Track [PGND] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.6250 mm, 30.6250 mm): Track [+15V] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.6250 mm, 97.1250 mm): Track [GND] on B.Cu, length 3.2500 mm
+    @(73.3750 mm, 100.3750 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 51.6250 mm): Track [SW_NODE] on F.Cu, length 0.5000 mm
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 103.8750 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.6250 mm, 30.1250 mm): Track [+15V] on B.Cu, length 2.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.6250 mm, 100.3750 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(73.3750 mm, 100.3750 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.3750 mm, 57.8750 mm): Track [PWM_H] on F.Cu, length 0.2500 mm
+    @(54.8750 mm, 56.8750 mm): Track [PWM_L] on F.Cu, length 2.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+    @(75.1250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+    @(75.8750 mm, 105.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 51.6250 mm): Track [SW_NODE] on F.Cu, length 6.2500 mm
+    @(47.3750 mm, 44.8750 mm): Track [PWM_H] on F.Cu, length 6.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.3750 mm, 106.3750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(27.1250 mm, 105.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 3.2500 mm
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 30.3750 mm): Track [GATE_L] on B.Cu, length 0.2500 mm
+    @(47.8750 mm, 30.6250 mm): Track [GATE_H] on B.Cu, length 5.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(75.6250 mm, 102.8750 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1250 mm, 105.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(83.3750 mm, 100.8750 mm): Track [USB_D+] on B.Cu, length 1.0000 mm
+    @(84.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 26.1250 mm): Track [DC_BUS+] on B.Cu, length 2.5000 mm
+    @(47.8750 mm, 25.1250 mm): Track [GATE_H] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 26.1250 mm): Track [DC_BUS+] on B.Cu, length 2.5000 mm
+    @(47.3750 mm, 25.1250 mm): Track [GATE_H] on B.Cu, length 1.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.6250 mm, 57.8750 mm): Track [PWM_H] on F.Cu, length 2.0000 mm
+    @(54.8750 mm, 56.8750 mm): Track [PWM_L] on F.Cu, length 2.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.6250 mm, 97.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 5.0000 mm
+    @(73.8750 mm, 100.1250 mm): Track [GND] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+    @(46.8750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(76.1250 mm, 119.6250 mm): Track [+3V3] on B.Cu, length 14.0000 mm
+    @(75.8750 mm, 105.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 24.5000 mm
+    @(25.8750 mm, 133.1250 mm): Track [SPI_CLK] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(28.6250 mm, 32.8750 mm): Track [PWM_H] on B.Cu, length 10.2500 mm
+    @(30.6250 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 26.1250 mm): Track [DC_BUS+] on B.Cu, length 2.5000 mm
+    @(47.3750 mm, 23.3750 mm): Track [GATE_H] on B.Cu, length 23.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(55.1250 mm, 58.1250 mm): Track [GND] on B.Cu, length 22.0000 mm
+    @(54.6250 mm, 56.8750 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.6250 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 0.2500 mm
+    @(54.8750 mm, 56.8750 mm): Track [PWM_L] on F.Cu, length 2.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 24.5000 mm
+    @(25.8750 mm, 132.8750 mm): Track [SPI_CLK] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(75.8750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.5000 mm
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(27.1250 mm, 108.8750 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+    @(75.6250 mm, 102.8750 mm): Track [+3V3] on B.Cu, length 3.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.8750 mm, 96.6250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.7500 mm
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(75.8750 mm, 105.8750 mm): Track [I_SENSE] on B.Cu, length 11.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.6250 mm, 129.8750 mm): Track [USB_D-] on B.Cu, length 7.0000 mm
+    @(84.3750 mm, 100.8750 mm): Track [USB_D+] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 97.8750 mm): Track [SPI_MOSI] on F.Cu, length 0.5000 mm
+    @(54.8750 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 37.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(28.6250 mm, 43.1250 mm): Via [PWM_H] on F.Cu - B.Cu
+    @(28.8750 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 97.8750 mm): Track [SPI_MOSI] on F.Cu, length 0.5000 mm
+    @(54.8750 mm, 97.6250 mm): Track [PWM_H] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0300 mm)
+    Rule: netclass 'Default'; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.1250 mm, 96.6250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 97.8750 mm): Track [SPI_MOSI] on F.Cu, length 0.5000 mm
+    @(55.1250 mm, 97.6250 mm): Track [PWM_H] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(26.3750 mm, 132.8750 mm): Track [SPI_CLK] on F.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.2500 mm
+    @(55.1250 mm, 98.6250 mm): Track [PWM_H] on F.Cu, length 21.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 1.7500 mm
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+    @(74.3750 mm, 100.1250 mm): Track [GND] on B.Cu, length 2.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(28.6250 mm, 32.8750 mm): Track [PWM_H] on B.Cu, length 10.2500 mm
+    @(28.8750 mm, 43.1250 mm): Track [PWM_L] on B.Cu, length 18.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 96.6250 mm): Track [SPI_MISO] on B.Cu, length 0.2500 mm
+    @(78.8750 mm, 96.6250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 2.5000 mm
+    @(75.3750 mm, 95.3750 mm): Track [SPI_MISO] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 29.6250 mm): Track [+15V] on F.Cu, length 0.5000 mm
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.3750 mm, 97.6250 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(75.6250 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1014 mm)
+    Rule: netclass 'Default'; error
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+    @(75.6250 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(28.8750 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 10.0000 mm
+    @(30.6250 mm, 37.1250 mm): Track [CGND] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 96.3750 mm): Track [SPI_MISO] on B.Cu, length 0.2500 mm
+    @(78.1250 mm, 96.6250 mm): Track [SPI_MOSI] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.1250 mm, 29.1250 mm): Via [+15V] on F.Cu - B.Cu
+    @(74.1250 mm, 30.1250 mm): Track [+5V] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 103.8750 mm): Track [+3V3] on B.Cu, length 1.7500 mm
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 43.1250 mm): Track [PWM_L] on B.Cu, length 8.0000 mm
+    @(47.3750 mm, 51.3750 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.8750 mm, 29.3750 mm): Track [+5V] on B.Cu, length 0.2500 mm
+    @(74.1250 mm, 29.1250 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(91.8750 mm, 113.3750 mm): Track [GND] on F.Cu, length 16.7500 mm
+    @(91.6250 mm, 130.3750 mm): Track [USB_D-] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(78.3750 mm, 96.3750 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.3750 mm, 103.8750 mm): Track [+3V3] on B.Cu, length 3.5000 mm
+    @(73.6250 mm, 100.3750 mm): Track [GND] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(78.3750 mm, 95.3750 mm): Track [SPI_MISO] on B.Cu, length 3.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.6250 mm, 15.1250 mm): Track [GATE_L] on F.Cu, length 13.0000 mm
+    @(42.3750 mm, 23.3750 mm): Via [GATE_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.3750 mm, 23.3750 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(47.1250 mm, 23.6250 mm): Track [DC_BUS+] on B.Cu, length 24.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.8750 mm, 29.6250 mm): Track [+15V] on F.Cu, length 7.5000 mm
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(46.8750 mm, 31.8750 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 51.3750 mm): Track [PWM_H] on B.Cu, length 6.5000 mm
+    @(47.1250 mm, 51.1250 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(91.8750 mm, 113.3750 mm): Track [GND] on F.Cu, length 16.7500 mm
+    @(91.8750 mm, 130.3750 mm): Track [USB_D-] on F.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 95.3750 mm): Track [SPI_MISO] on B.Cu, length 0.7500 mm
+    @(75.6250 mm, 95.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 2.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.6250 mm, 97.6250 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(75.6250 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 51.3750 mm): Track [PWM_H] on B.Cu, length 6.5000 mm
+    @(47.6250 mm, 51.1250 mm): Track [PWM_L] on B.Cu, length 5.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1250 mm, 133.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.1000 mm, 134.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 51.3750 mm): Track [PWM_H] on B.Cu, length 6.5000 mm
+    @(47.6250 mm, 56.8750 mm): Track [PWM_L] on B.Cu, length 7.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1036 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 97.3750 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(75.3750 mm, 95.3750 mm): Track [SPI_MISO] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(46.8750 mm, 31.8750 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(47.3750 mm, 32.1250 mm): Track [GATE_L] on B.Cu, length 1.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 56.8750 mm): Track [PWM_L] on F.Cu, length 2.7500 mm
+    @(54.8750 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 37.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.6250 mm, 97.3750 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(75.6250 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.8750 mm, 29.1250 mm): Track [+5V] on B.Cu, length 1.0000 mm
+    @(74.1250 mm, 29.1250 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(91.8750 mm, 113.3750 mm): Track [GND] on F.Cu, length 16.7500 mm
+    @(91.6250 mm, 129.8750 mm): Via [USB_D-] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(46.8750 mm, 31.8750 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(47.1250 mm, 32.1250 mm): Via [GATE_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.3750 mm, 130.1250 mm): Track [USB_D+] on B.Cu, length 7.5000 mm
+    @(91.6250 mm, 129.8750 mm): Via [USB_D-] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(93.6250 mm, 131.1250 mm): Track [GND] on F.Cu, length 1.5000 mm
+    @(95.6250 mm, 131.3750 mm): Via [USB_D-] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 59.6250 mm): Track [PWM_L] on F.Cu, length 0.5000 mm
+    @(54.8750 mm, 59.8750 mm): Track [PWM_H] on F.Cu, length 37.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(41.1250 mm, 37.1250 mm): Track [+15V] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(93.6250 mm, 130.8750 mm): Via [GND] on F.Cu - B.Cu
+    @(91.8750 mm, 131.1250 mm): Track [USB_D-] on F.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 97.3750 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(75.3750 mm, 96.1250 mm): Track [SPI_MISO] on B.Cu, length 3.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.1250 mm, 95.8750 mm): Via [+3V3] on F.Cu - B.Cu
+    @(75.3750 mm, 96.1250 mm): Track [SPI_MISO] on B.Cu, length 3.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.1250 mm, 95.8750 mm): Track [+3V3] on B.Cu, length 2.0000 mm
+    @(71.6250 mm, 96.1250 mm): Track [SPI_MISO] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 38.3750 mm): Via [GATE_L] on F.Cu - B.Cu
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 97.3750 mm): Track [GND] on B.Cu, length 1.0000 mm
+    @(75.6250 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.8750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 2.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.6250 mm, 97.8750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(71.6250 mm, 97.6250 mm): Track [SPI_MISO] on B.Cu, length 17.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(41.3750 mm, 38.3750 mm): Via [GATE_L] on F.Cu - B.Cu
+    @(41.1250 mm, 38.6250 mm): Track [SW_NODE] on F.Cu, length 6.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 96.3750 mm): Track [GND] on F.Cu, length 1.2500 mm
+    @(75.3750 mm, 97.6250 mm): Track [+3V3] on F.Cu, length 2.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.3750 mm, 97.6250 mm): Track [SPI_MISO] on B.Cu, length 8.0000 mm
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.3750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(41.1250 mm, 36.1250 mm): Track [+15V] on B.Cu, length 6.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.3750 mm, 97.6250 mm): Track [GND] on B.Cu, length 0.2500 mm
+    @(74.8750 mm, 97.6250 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 0.2500 mm
+    @(75.1250 mm, 95.1250 mm): Track [GND] on F.Cu, length 3.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.1250 mm): Track [GND] on F.Cu, length 0.2500 mm
+    @(78.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.8750 mm, 97.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.2500 mm
+    @(74.3750 mm, 97.6250 mm): Track [GND] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.3750 mm, 106.3750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(27.1250 mm, 105.6250 mm): Track [SPI_MISO] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(10.1250 mm, 30.1250 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(30.3750 mm, 30.1250 mm): Track [CGND] on F.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+    @(47.8750 mm, 36.1250 mm): Track [+15V] on F.Cu, length 6.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 0.2500 mm
+    @(78.1250 mm, 94.8750 mm): Track [GND] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(93.6250 mm, 130.8750 mm): Track [GND] on F.Cu, length 0.2500 mm
+    @(93.3750 mm, 131.1250 mm): Track [USB_D-] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 94.8750 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(78.8750 mm, 94.8750 mm): Track [GND] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 32.1250 mm): Via [GATE_L] on F.Cu - B.Cu
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.8750 mm, 95.3750 mm): Track [GND] on B.Cu, length 5.7500 mm
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 32.3750 mm): Track [GATE_H] on B.Cu, length 1.7500 mm
+    @(47.1250 mm, 32.1250 mm): Via [GATE_L] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.8750 mm, 96.6250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.6250 mm, 97.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 5.0000 mm
+    @(74.3750 mm, 97.6250 mm): Track [GND] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 26.3750 mm): Via [GATE_L] on F.Cu - B.Cu
+    @(47.3750 mm, 30.1250 mm): Track [DC_BUS+] on B.Cu, length 4.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+    @(47.8750 mm, 29.6250 mm): Track [+15V] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 95.6250 mm): Track [+3V3] on B.Cu, length 5.7500 mm
+    @(84.6250 mm, 95.3750 mm): Track [GND] on B.Cu, length 3.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 96.3750 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+    @(78.8750 mm, 96.6250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(34.6250 mm, 62.1250 mm): Track [DC_BUS+] on B.Cu, length 2.0000 mm
+    @(12.3750 mm, 62.3750 mm): Track [GND] on B.Cu, length 42.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 30.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+    @(76.1250 mm, 29.1250 mm): Track [+5V] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 57.8750 mm): Track [PGND] on B.Cu, length 40.5000 mm
+    @(54.8750 mm, 62.3750 mm): Track [GND] on B.Cu, length 4.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(93.3750 mm, 131.3750 mm): Track [USB_D-] on F.Cu, length 2.2500 mm
+    @(93.6250 mm, 130.8750 mm): Track [GND] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.3750 mm, 95.6250 mm): Track [+3V3] on B.Cu, length 4.5000 mm
+    @(84.6250 mm, 99.1250 mm): Track [GND] on B.Cu, length 2.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 0.2500 mm
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1250 mm, 106.1250 mm): Track [SPI_MISO] on F.Cu, length 1.2500 mm
+    @(27.3750 mm, 106.3750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 29.6250 mm): Track [+15V] on F.Cu, length 1.7500 mm
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+    @(47.3750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 4.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1821 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.6250 mm, 97.1250 mm): Track [GND] on B.Cu, length 3.2500 mm
+    @(73.1250 mm, 99.8750 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(76.3750 mm, 29.8750 mm): Track [+5V] on B.Cu, length 0.2500 mm
+    @(75.3750 mm, 30.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.3750 mm, 99.8750 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+    @(73.8750 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 30.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+    @(76.3750 mm, 30.1250 mm): Track [+5V] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(74.6250 mm, 102.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 0.7500 mm
+    @(75.1250 mm, 102.6250 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1500 mm)
+    Rule: netclass 'Default'; error
+    @(76.8750 mm, 30.1250 mm): Track [+5V] on F.Cu, length 0.2500 mm
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.6250 mm, 15.1250 mm): Track [GATE_L] on F.Cu, length 13.0000 mm
+    @(47.3750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 4.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.8750 mm, 102.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.2500 mm
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1014 mm)
+    Rule: netclass 'Default'; error
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.3750 mm, 27.8750 mm): Track [+15V] on F.Cu, length 1.7500 mm
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.8750 mm, 106.1250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(26.8750 mm, 105.8750 mm): Track [SPI_CLK] on F.Cu, length 1.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(72.6250 mm, 102.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.2500 mm
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.8750 mm, 107.6250 mm): Track [SPI_MISO] on F.Cu, length 0.2500 mm
+    @(25.3750 mm, 107.3750 mm): Track [SPI_CLK] on F.Cu, length 25.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.8750 mm, 102.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 1.7500 mm
+    @(42.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 5.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 0.5000 mm
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 14.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.6250 mm, 95.6250 mm): Track [SPI_MOSI] on F.Cu, length 2.2500 mm
+    @(73.3750 mm, 97.6250 mm): Track [+3V3] on F.Cu, length 2.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 97.6250 mm): Track [+3V3] on F.Cu, length 2.2500 mm
+    @(75.1250 mm, 95.1250 mm): Track [GND] on F.Cu, length 3.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.8750 mm, 102.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(73.3750 mm, 103.8750 mm): Track [+3V3] on B.Cu, length 3.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 29.8750 mm): Track [GATE_L] on F.Cu, length 8.5000 mm
+    @(42.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 5.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(27.1250 mm, 107.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.3750 mm, 106.3750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+    @(72.6250 mm, 103.1250 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 3.0000 mm
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(55.3750 mm, 105.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 24.5000 mm
+    @(25.3750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(55.3750 mm, 105.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(54.8750 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 29.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(34.3750 mm, 114.1250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(36.1250 mm, 113.8750 mm): Track [GND] on F.Cu, length 8.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+    @(71.6250 mm, 103.1250 mm): Track [SPI_CS_TEMP] on F.Cu, length 2.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(34.3750 mm, 114.1250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(34.1250 mm, 107.8750 mm): Track [+3V3] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 95.3750 mm): Track [+3V3] on F.Cu, length 0.2500 mm
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.6250 mm, 105.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 16.2500 mm
+    @(84.3750 mm, 106.1250 mm): Track [SPI_CLK] on F.Cu, length 56.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 94.8750 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(78.3750 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(25.8750 mm, 109.3750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 107.8750 mm): Track [SPI_MOSI] on B.Cu, length 25.0000 mm
+    @(25.3750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+    @(78.3750 mm, 94.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.8750 mm, 94.8750 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(78.6250 mm, 95.6250 mm): Track [+3V3] on B.Cu, length 5.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.8750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(25.6250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 24.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(55.3750 mm, 105.8750 mm): Track [SPI_CS_TEMP] on B.Cu, length 3.2500 mm
+    @(55.6250 mm, 105.6250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 107.8750 mm): Track [SPI_MOSI] on B.Cu, length 25.0000 mm
+    @(25.8750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(27.1250 mm, 132.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(34.3750 mm, 109.1250 mm): Track [SPI_CS_TEMP] on B.Cu, length 5.0000 mm
+    @(34.1250 mm, 107.8750 mm): Track [+3V3] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(25.6250 mm, 107.8750 mm): Track [SPI_MOSI] on B.Cu, length 25.0000 mm
+    @(25.8750 mm, 109.3750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.6250 mm, 28.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(74.8750 mm, 29.1250 mm): Track [+15V] on B.Cu, length 1.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(34.6250 mm, 60.1250 mm): Track [DC_BUS+] on B.Cu, length 8.2500 mm
+    @(34.3750 mm, 60.1250 mm): Via [PGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1750 mm)
+    Rule: netclass 'Default'; error
+    @(76.1250 mm, 29.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(28.8750 mm, 43.1250 mm): Track [PWM_L] on B.Cu, length 18.2500 mm
+    @(28.6250 mm, 43.1250 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.6250 mm, 44.6250 mm): Track [SW_NODE] on F.Cu, length 7.0000 mm
+    @(47.3750 mm, 51.3750 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(76.8750 mm, 30.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(47.1250 mm, 51.1250 mm): Track [PWM_L] on B.Cu, length 0.5000 mm
+    @(47.3750 mm, 51.3750 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(76.8750 mm, 30.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(77.1250 mm, 28.1250 mm): Track [+15V] on B.Cu, length 17.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 56.8750 mm): Track [PWM_L] on F.Cu, length 2.7500 mm
+    @(54.3750 mm, 57.8750 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 57.8750 mm): Track [PGND] on B.Cu, length 40.5000 mm
+    @(54.3750 mm, 57.8750 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 50.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(78.6250 mm, 45.1250 mm): Track [+15V] on B.Cu, length 20.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 60.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(78.6250 mm, 45.1250 mm): Track [+15V] on B.Cu, length 20.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1050 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(76.6250 mm, 98.6250 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(74.8750 mm, 98.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+    @(76.6250 mm, 98.6250 mm): Via [PWM_H] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0050 mm)
+    Rule: netclass 'Default'; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(29.1250 mm, 37.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(28.8750 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 10.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 96.3750 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(71.1250 mm, 98.1250 mm): Track [PWM_L] on F.Cu, length 0.2500 mm
+    @(71.6250 mm, 97.8750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.6250 mm, 97.8750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(71.6250 mm, 96.1250 mm): Track [SPI_MISO] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 97.8750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(55.3750 mm, 98.1250 mm): Track [PWM_L] on F.Cu, length 15.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.6250 mm, 97.6250 mm): Track [SPI_MISO] on B.Cu, length 17.2500 mm
+    @(54.8750 mm, 97.8750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(54.8750 mm, 98.3750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(55.3750 mm, 98.1250 mm): Track [PWM_L] on F.Cu, length 15.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.6250 mm, 65.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(71.1250 mm, 59.8750 mm): Track [+3V3] on B.Cu, length 36.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(54.3750 mm, 97.6250 mm): Track [SPI_MISO] on B.Cu, length 8.0000 mm
+    @(54.8750 mm, 98.3750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.8750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(42.6250 mm, 28.1250 mm): Track [GATE_L] on F.Cu, length 4.5000 mm
+    @(46.8750 mm, 27.8750 mm): Via [+15V] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 102.6250 mm): Via [GND] on F.Cu - B.Cu
+    @(75.6250 mm, 102.8750 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(76.6250 mm, 102.6250 mm): Via [GND] on F.Cu - B.Cu
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.1250 mm): Track [I_SENSE] on F.Cu, length 0.2500 mm
+    @(75.6250 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.3750 mm): Track [I_SENSE] on B.Cu, length 7.5000 mm
+    @(75.6250 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.6250 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.1250 mm, 98.3750 mm): Track [PWM_L] on F.Cu, length 3.7500 mm
+    @(73.8750 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 96.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.3750 mm, 97.6250 mm): Track [+3V3] on F.Cu, length 2.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(75.1250 mm, 96.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.3750 mm, 95.3750 mm): Track [SPI_MISO] on B.Cu, length 0.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+    @(78.3750 mm, 94.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 95.1250 mm): Track [+3V3] on B.Cu, length 0.2500 mm
+    @(78.3750 mm, 94.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(78.3750 mm, 94.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(86.6250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 8.5000 mm
+    @(91.8750 mm, 113.3750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(93.6250 mm, 130.8750 mm): Via [GND] on F.Cu - B.Cu
+    @(93.3750 mm, 131.1250 mm): Track [USB_D-] on F.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(95.1250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 10.2500 mm
+    @(95.3750 mm, 113.6250 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(36.1250 mm, 118.6250 mm): Track [I_SENSE] on B.Cu, length 8.2500 mm
+    @(31.1250 mm, 118.1250 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(32.1250 mm, 124.6250 mm): Track [I_SENSE] on B.Cu, length 6.5000 mm
+    @(31.8750 mm, 120.8750 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(31.6250 mm, 124.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(31.8750 mm, 124.6250 mm): Track [I_SENSE] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.1250 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(73.1250 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.6250 mm, 97.1250 mm): Track [GND] on B.Cu, length 3.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(71.3750 mm, 98.1250 mm): Track [GND] on F.Cu, length 3.7500 mm
+    @(73.3750 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0340 mm)
+    Rule: netclass 'Default'; error
+    @(73.3750 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.8750 mm, 97.1250 mm): Track [GND] on B.Cu, length 0.2500 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.6250 mm, 60.1250 mm): Track [+5V] on F.Cu, length 35.2500 mm
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.3750 mm, 94.8750 mm): Track [GND] on B.Cu, length 0.5000 mm
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.6250 mm, 119.3750 mm): Track [+5V] on F.Cu, length 42.0000 mm
+    @(84.8750 mm, 119.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(84.8750 mm, 119.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(84.3750 mm, 100.8750 mm): Track [USB_D+] on B.Cu, length 29.2500 mm
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0000 mm)
+    Rule: netclass 'Default'; error
+    @(39.5000 mm, 30.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0750 mm)
+    Rule: board setup constraints hole; error
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+    @(76.8750 mm, 30.1250 mm): Via [+5V] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(76.6250 mm, 102.6250 mm): Via [GND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(76.5500 mm, 102.4000 mm): Pad 2 [GND] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0812 mm)
+    Rule: board setup constraints hole; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(75.8750 mm, 97.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(76.5500 mm, 97.6000 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0812 mm)
+    Rule: board setup constraints hole; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0812 mm)
+    Rule: board setup constraints hole; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2050 mm)
+    Rule: board setup constraints hole; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.8000 mm, 96.5500 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1550 mm)
+    Rule: board setup constraints hole; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.8750 mm, 96.6250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1381 mm)
+    Rule: board setup constraints hole; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1600 mm)
+    Rule: netclass 'Default'; error
+    @(83.4500 mm, 100.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(83.4500 mm, 100.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2135 mm)
+    Rule: board setup constraints hole; error
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(73.1250 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1750 mm)
+    Rule: board setup constraints hole; error
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(73.3750 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(73.8750 mm, 102.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1000 mm)
+    Rule: netclass 'Default'; error
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1750 mm)
+    Rule: board setup constraints hole; error
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(27.1250 mm, 107.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(27.1250 mm, 108.8750 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1750 mm)
+    Rule: board setup constraints hole; error
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+    @(27.1250 mm, 132.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(27.1000 mm, 134.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+    @(27.1250 mm, 133.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(10.1250 mm, 30.1250 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(10.1250 mm, 30.1250 mm): Track [AC_L] on F.Cu, length 20.0000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.6250 mm, 15.1250 mm): Track [SW_NODE] on F.Cu, length 16.5000 mm
+    @(30.9000 mm, 15.0000 mm): PTH pad 3 [DC_BUS+] of Q1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(47.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 3.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(43.8750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 0.5000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(42.3750 mm, 30.1250 mm): Track [SW_NODE] on F.Cu, length 5.0000 mm
+    @(45.2400 mm, 30.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.6250 mm, 108.6250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 108.6250 mm): Track [SPI_MISO] on F.Cu, length 0.2500 mm
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 108.8750 mm): Track [SPI_MISO] on F.Cu, length 0.2500 mm
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 109.1250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.6250 mm, 133.6250 mm): Track [SPI_MISO] on F.Cu, length 1.5000 mm
+    @(27.1000 mm, 134.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(25.8750 mm, 132.8750 mm): Track [SPI_CLK] on F.Cu, length 0.5000 mm
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(26.3750 mm, 132.8750 mm): Track [SPI_CLK] on F.Cu, length 0.7500 mm
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.8750 mm, 96.6250 mm): Track [SPI_MOSI] on F.Cu, length 0.5000 mm
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.3750 mm, 96.6250 mm): Track [SPI_MOSI] on F.Cu, length 1.0000 mm
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.6250 mm, 30.6250 mm): Track [+15V] on B.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.6250 mm, 30.1250 mm): Track [+15V] on B.Cu, length 2.7500 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.8750 mm, 96.6250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.7500 mm
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.8750 mm, 96.6250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.7500 mm
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.1250 mm, 96.6250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.7500 mm
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.1250 mm, 96.6250 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.7500 mm
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.8750 mm, 102.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.2500 mm
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.8750 mm, 102.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.2500 mm
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(72.6250 mm, 102.8750 mm): Track [SPI_CS_TEMP] on F.Cu, length 0.2500 mm
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(72.6250 mm, 103.1250 mm): Track [SPI_CS_TEMP] on F.Cu, length 1.0000 mm
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.8750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 2.5000 mm
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.8750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 2.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.8750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 2.5000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.3750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.3750 mm, 30.6250 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.3750 mm, 30.1250 mm): Track [CGND] on F.Cu, length 0.7500 mm
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.3750 mm, 30.1250 mm): Track [CGND] on F.Cu, length 0.7500 mm
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(75.1250 mm, 102.6250 mm): Track [GND] on F.Cu, length 1.5000 mm
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.1250 mm, 131.1250 mm): Track [GND] on F.Cu, length 1.0000 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.1250 mm, 131.1250 mm): Track [GND] on F.Cu, length 1.0000 mm
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.1250 mm, 130.1250 mm): Track [GND] on F.Cu, length 2.2500 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.1250 mm, 130.1250 mm): Track [GND] on F.Cu, length 2.2500 mm
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.1250 mm, 95.8750 mm): Track [+3V3] on F.Cu, length 1.7500 mm
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 108.8750 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 133.6250 mm): Via [SPI_MISO] on F.Cu - B.Cu
+    @(27.1000 mm, 134.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 107.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(27.1250 mm, 132.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.8750 mm, 30.1250 mm): Via [+5V] on F.Cu - B.Cu
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.8750 mm, 96.6250 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(75.8750 mm, 97.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.8750 mm, 96.6250 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.8750 mm, 102.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Rear solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(31.1250 mm, 30.1250 mm): Via [CGND] on F.Cu - B.Cu
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.6250 mm, 102.6250 mm): Via [GND] on F.Cu - B.Cu
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.1250 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(73.3750 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.0000 mm, 30.0000 mm): PTH pad 1 [AC_L] of D1
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(31.0000 mm, 30.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(39.5000 mm, 30.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+    @(76.5500 mm, 102.4000 mm): Pad 2 [GND] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.5500 mm, 98.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(76.5500 mm, 97.6000 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(77.6000 mm, 96.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.0000 mm, 96.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.8000 mm, 96.5500 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(83.4500 mm, 100.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(83.4500 mm, 100.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(58.6250 mm, 15.1250 mm): Track [SW_NODE] on F.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(83.6250 mm, 100.1250 mm): Track [USB_D+] on B.Cu, length 0.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(94.3750 mm, 130.1250 mm): Track [USB_D+] on B.Cu, length 0.7500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(95.6250 mm, 131.3750 mm): Track [USB_D-] on B.Cu, length 1.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(42.8750 mm, 25.1250 mm): Track [GATE_L] on F.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(74.1250 mm, 30.1250 mm): Track [+5V] on B.Cu, length 0.7500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(75.1250 mm, 60.1250 mm): Track [+5V] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(42.6250 mm, 119.3750 mm): Track [+5V] on B.Cu, length 1.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(25.6250 mm, 107.8750 mm): Track [SPI_MOSI] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(25.6250 mm, 132.8750 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(27.8750 mm, 30.1250 mm): Track [+15V] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(78.6250 mm, 65.1250 mm): Track [+15V] on B.Cu, length 1.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(76.6250 mm, 97.6250 mm): Track [I_SENSE] on B.Cu, length 0.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(27.8750 mm, 120.1250 mm): Track [I_SENSE] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(42.6250 mm, 122.1250 mm): Track [I_SENSE] on B.Cu, length 1.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(30.6250 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(22.8750 mm, 25.1250 mm): Track [GATE_H] on F.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(58.3750 mm, 15.1250 mm): Track [PGND] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(39.6250 mm, 35.8750 mm): Track [PGND] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(30.6250 mm, 31.8750 mm): Track [PWM_H] on B.Cu, length 1.7500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(30.6250 mm, 35.8750 mm): Track [CGND] on B.Cu, length 1.2500 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(80.1250 mm, 103.6250 mm): Track [GND] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(15.3750 mm, 120.1250 mm): Track [GND] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(75.1250 mm, 50.1250 mm): Track [+3V3] on B.Cu, length 1.5000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(75.1250 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(75.6250 mm, 102.8750 mm): Track [+3V3] on B.Cu, length 0.0000 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(32.3750 mm, 132.1250 mm): Track [+3V3] on B.Cu, length 0.7500 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning
+    @(27.1250 mm, 132.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(46.8750 mm, 31.8750 mm): Via [GATE_H] on F.Cu - B.Cu
+    @(47.1250 mm, 32.1250 mm): Via [GATE_L] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(78.1250 mm, 95.8750 mm): Via [SPI_CS_TEMP] on F.Cu - B.Cu
+    @(77.8750 mm, 95.8750 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(25.8750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+    @(25.3750 mm, 133.1250 mm): Via [SPI_CLK] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(54.8750 mm, 98.3750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+    @(54.8750 mm, 97.8750 mm): Via [SPI_MOSI] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1590 mm)
+    Rule: board setup constraints; warning
+    @(75.3750 mm, 98.3750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.6250 mm, 98.8750 mm): Via [GND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.1000 mm)
+    Rule: board setup constraints; warning
+    @(75.3750 mm, 105.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+    @(75.8750 mm, 105.8750 mm): Via [I_SENSE] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(75.1250 mm, 98.3750 mm): Via [GND] on F.Cu - B.Cu
+    @(74.8750 mm, 98.3750 mm): Via [PWM_L] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(52.5000 mm, 60.0000 mm): PTH pad 2 [PGND] of C_BUS2
+    @(52.6250 mm, 60.1250 mm): Via [PGND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(78.3750 mm, 95.1250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(78.3750 mm, 94.8750 mm): Via [GND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.3750 mm, 115.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.3750 mm, 115.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(95.1250 mm, 115.1250 mm): Via [GND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.1250 mm, 115.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(73.1250 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+    @(73.3750 mm, 97.6250 mm): Via [+3V3] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(52.5000 mm, 60.0000 mm): PTH pad 2 [PGND] of C_BUS2
+    @(52.6250 mm, 60.1250 mm): Via [PGND] on F.Cu - B.Cu
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.3750 mm, 115.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[hole_to_hole]: Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)
+    Rule: board setup constraints; warning
+    @(95.1250 mm, 115.1250 mm): Via [GND] on F.Cu - B.Cu
+    @(95.0000 mm, 115.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_IEC'.
+    Local override; warning
+    @(10.0000 mm, 75.0000 mm): Footprint J_AC_IN
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Diode_THT.pretty'.
+    Local override; warning
+    @(30.0000 mm, 30.0000 mm): Footprint D1
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Diode_THT.pretty'.
+    Local override; warning
+    @(30.0000 mm, 45.0000 mm): Footprint D2
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_THT.pretty'.
+    Local override; warning
+    @(25.0000 mm, 60.0000 mm): Footprint C_BUS1
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_THT.pretty'.
+    Local override; warning
+    @(45.0000 mm, 60.0000 mm): Footprint C_BUS2
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(20.0000 mm, 15.0000 mm): Footprint Q1
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(45.0000 mm, 15.0000 mm): Footprint Q2
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(35.0000 mm, 35.0000 mm): Footprint U_GATE
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(42.0000 mm, 30.0000 mm): Footprint C_BOOT
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(30.0000 mm, 30.0000 mm): Footprint C_VCC
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(25.0000 mm, 25.0000 mm): Footprint R_GATE_H
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(45.0000 mm, 25.0000 mm): Footprint R_GATE_L
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(75.0000 mm, 30.0000 mm): Footprint U_BUCK
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(75.0000 mm, 50.0000 mm): Footprint U_LDO_3V3
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(75.0000 mm, 65.0000 mm): Footprint U_LDO_5V
+[lib_footprint_issues]: The footprint library 'Package_DFN_QFN' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_DFN_QFN.pretty'.
+    Local override; warning
+    @(80.0000 mm, 100.0000 mm): Footprint U_MCU
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(73.0000 mm, 97.0000 mm): Footprint C_MCU_1
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(73.0000 mm, 100.0000 mm): Footprint C_MCU_2
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(73.0000 mm, 103.0000 mm): Footprint C_MCU_3
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(87.0000 mm, 100.0000 mm): Footprint C_MCU_4
+[lib_footprint_issues]: The footprint library 'Connector_USB' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_USB.pretty'.
+    Local override; warning
+    @(95.0000 mm, 130.0000 mm): Footprint J_USB
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(95.0000 mm, 115.0000 mm): Footprint J_DEBUG
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(30.0000 mm, 110.0000 mm): Footprint U_CT
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(30.0000 mm, 120.0000 mm): Footprint R_BURDEN
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(30.0000 mm, 125.0000 mm): Footprint C_CT_FILT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(40.0000 mm, 120.0000 mm): Footprint U_OPAMP_CT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(30.0000 mm, 135.0000 mm): Footprint MAX31865
+[lib_footprint_issues]: The footprint library 'Connector_Phoenix_MC' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_Phoenix_MC.pretty'.
+    Local override; warning
+    @(10.0000 mm, 120.0000 mm): Footprint J_COIL
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(10.0000 mm, 135.0000 mm): Footprint J_NTC
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(5.0000 mm, 5.0000 mm): Footprint MH1
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(95.0000 mm, 5.0000 mm): Footprint MH2
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(5.0000 mm, 145.0000 mm): Footprint MH3
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.
+    Local override; warning
+    @(95.0000 mm, 145.0000 mm): Footprint MH4
+
+** Found 61 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(15.3750 mm, 121.6250 mm): Track [GND] on B.Cu, length 1.5000 mm
+    @(13.8100 mm, 120.0000 mm): PTH pad 2 [GND] of J_COIL
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.1000 mm, 137.9250 mm): Pad 10 [GND] of MAX31865 on F.Cu
+    @(27.8750 mm, 138.1250 mm): Track [GND] on B.Cu, length 1.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.5000 mm, 97.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(73.6250 mm, 97.1250 mm): Track [GND] on B.Cu, length 3.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.6250 mm, 97.1250 mm): Track [GND] on B.Cu, length 3.2500 mm
+    @(73.5000 mm, 100.0000 mm): Pad 2 [GND] of C_MCU_2 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.9000 mm, 30.9500 mm): Pad 1 [GND] of U_BUCK on F.Cu
+    @(58.6250 mm, 31.1250 mm): Track [GND] on B.Cu, length 16.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.1250 mm, 98.3750 mm): Track [GND] on B.Cu, length 4.2500 mm
+    @(73.5000 mm, 103.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(76.1000 mm, 30.9500 mm): Pad 6 [GND] of U_BUCK on F.Cu
+    @(75.3750 mm, 30.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.3750 mm, 30.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+    @(76.1000 mm, 30.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(77.3750 mm, 101.8750 mm): Track [GND] on B.Cu, length 1.7500 mm
+    @(80.0000 mm, 100.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.5000 mm, 100.0000 mm): Pad 2 [GND] of C_MCU_4 on F.Cu
+    @(86.8750 mm, 100.1250 mm): Track [GND] on B.Cu, length 0.7500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.6250 mm, 35.8750 mm): Track [PGND] on B.Cu, length 1.5000 mm
+    @(39.5000 mm, 34.3650 mm): Pad 13 [PGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(58.3750 mm, 35.8750 mm): Track [PGND] on B.Cu, length 18.7500 mm
+    @(39.5000 mm, 35.6350 mm): Pad 12 [PGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(50.4500 mm, 15.0000 mm): PTH pad 2 [PGND] of Q2
+    @(54.8750 mm, 57.8750 mm): Track [PGND] on B.Cu, length 40.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 38.1750 mm): Pad 7 [CGND] of U_GATE on F.Cu
+    @(30.6250 mm, 35.8750 mm): Track [CGND] on B.Cu, length 1.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 38.1750 mm): Pad 7 [CGND] of U_GATE on F.Cu
+    @(30.5000 mm, 39.4450 mm): Pad 8 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.6250 mm, 35.8750 mm): Track [CGND] on B.Cu, length 1.2500 mm
+    @(30.5000 mm, 35.6350 mm): Pad 5 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(32.9000 mm, 107.0750 mm): Pad 20 [+3V3] of U_CT on F.Cu
+    @(55.1250 mm, 107.1250 mm): Track [+3V3] on B.Cu, length 22.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(32.3750 mm, 132.1250 mm): Track [+3V3] on B.Cu, length 0.7500 mm
+    @(32.9000 mm, 132.0750 mm): Pad 20 [+3V3] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(72.5000 mm, 97.0000 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+    @(73.1250 mm, 97.1250 mm): Track [+3V3] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(72.5000 mm, 100.0000 mm): Pad 1 [+3V3] of C_MCU_2 on F.Cu
+    @(72.6250 mm, 97.1250 mm): Track [+3V3] on B.Cu, length 3.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.1250 mm, 97.6250 mm): Track [+3V3] on B.Cu, length 5.2500 mm
+    @(72.5000 mm, 103.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.0000 mm, 46.8000 mm): Pad 4 [+3V3] of U_LDO_3V3 on F.Cu
+    @(71.3750 mm, 45.1250 mm): Track [+3V3] on B.Cu, length 3.7500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.1250 mm, 50.1250 mm): Track [+3V3] on B.Cu, length 1.5000 mm
+    @(75.0000 mm, 50.0000 mm): Pad 2 [+3V3] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.6250 mm, 106.1250 mm): Track [+3V3] on B.Cu, length 3.2500 mm
+    @(76.5500 mm, 102.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(84.3750 mm, 100.1250 mm): Track [+3V3] on B.Cu, length 2.2500 mm
+    @(86.5000 mm, 100.0000 mm): Pad 1 [+3V3] of C_MCU_4 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(95.0000 mm, 117.5400 mm): PTH pad 2 [+3V3] of J_DEBUG
+    @(86.6250 mm, 113.6250 mm): Track [+3V3] on B.Cu, length 8.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.4750 mm, 118.0950 mm): Pad 8 [+5V] of U_OPAMP_CT on F.Cu
+    @(42.6250 mm, 119.3750 mm): Track [+5V] on B.Cu, length 1.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(73.9000 mm, 30.0000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+    @(74.1250 mm, 30.1250 mm): Track [+5V] on B.Cu, length 0.7500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(75.0000 mm, 61.8000 mm): Pad 4 [+5V] of U_LDO_5V on F.Cu
+    @(75.1250 mm, 60.1250 mm): Track [+5V] on B.Cu, length 3.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.0000 mm, 30.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+    @(30.6250 mm, 30.1250 mm): Track [+15V] on B.Cu, length 2.7500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.5000 mm, 30.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(30.6250 mm, 30.6250 mm): Track [+15V] on B.Cu, length 0.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(47.8750 mm, 37.1250 mm): Track [+15V] on B.Cu, length 6.7500 mm
+    @(39.5000 mm, 36.9050 mm): Pad 11 [+15V] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(77.3000 mm, 65.0000 mm): Pad 3 [+15V] of U_LDO_5V on F.Cu
+    @(78.6250 mm, 65.1250 mm): Track [+15V] on B.Cu, length 1.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 33.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(41.0000 mm, 30.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.6250 mm, 60.1250 mm): Track [DC_BUS+] on B.Cu, length 0.2500 mm
+    @(25.0000 mm, 60.0000 mm): PTH pad 1 [DC_BUS+] of C_BUS1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(34.6250 mm, 60.1250 mm): Track [DC_BUS+] on B.Cu, length 8.2500 mm
+    @(45.0000 mm, 60.0000 mm): PTH pad 1 [DC_BUS+] of C_BUS2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(41.1250 mm, 39.6250 mm): Track [SW_NODE] on F.Cu, length 1.0000 mm
+    @(39.5000 mm, 39.4450 mm): Pad 9 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.3750 mm, 30.6250 mm): Track [SW_NODE] on F.Cu, length 0.5000 mm
+    @(39.5000 mm, 30.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(58.6250 mm, 15.1250 mm): Track [SW_NODE] on F.Cu, length 13.7500 mm
+    @(55.9000 mm, 15.0000 mm): PTH pad 3 [SW_NODE] of Q2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(22.8750 mm, 23.6250 mm): Track [GATE_H] on F.Cu, length 1.5000 mm
+    @(24.0000 mm, 25.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(39.5000 mm, 38.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+    @(41.1250 mm, 38.3750 mm): Track [GATE_L] on F.Cu, length 6.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.8750 mm, 26.3750 mm): Track [GATE_L] on F.Cu, length 1.2500 mm
+    @(44.0000 mm, 25.0000 mm): Pad 1 [GATE_L] of R_GATE_L on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.6250 mm, 31.8750 mm): Track [PWM_H] on B.Cu, length 1.7500 mm
+    @(30.5000 mm, 31.8250 mm): Pad 2 [PWM_H] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.6250 mm, 33.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+    @(30.5000 mm, 33.0950 mm): Pad 3 [PWM_L] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(76.5500 mm, 98.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+    @(74.8750 mm, 98.1250 mm): Track [PWM_L] on B.Cu, length 1.7500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.8750 mm, 118.6250 mm): Track [I_SENSE] on B.Cu, length 1.5000 mm
+    @(29.0000 mm, 120.0000 mm): Pad 1 [I_SENSE] of R_BURDEN on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(29.1750 mm, 125.0000 mm): Pad 1 [I_SENSE] of C_CT_FILT on F.Cu
+    @(27.8750 mm, 125.1250 mm): Track [I_SENSE] on B.Cu, length 2.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.5250 mm, 118.0950 mm): Pad 1 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(32.1250 mm, 118.1250 mm): Track [I_SENSE] on B.Cu, length 5.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.5250 mm, 119.3650 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(32.1250 mm, 118.1250 mm): Track [I_SENSE] on B.Cu, length 5.5000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(37.6250 mm, 120.8750 mm): Track [I_SENSE] on B.Cu, length 0.7500 mm
+    @(37.5250 mm, 120.6350 mm): Pad 3 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(42.6250 mm, 122.1250 mm): Track [I_SENSE] on B.Cu, length 1.2500 mm
+    @(42.4750 mm, 120.6350 mm): Pad 6 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(43.8750 mm, 122.1250 mm): Track [I_SENSE] on B.Cu, length 1.2500 mm
+    @(42.4750 mm, 121.9050 mm): Pad 5 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.1250 mm, 134.1250 mm): Track [TEMP_SENSE] on B.Cu, length 13.0000 mm
+    @(27.1000 mm, 134.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.1000 mm, 107.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(25.6250 mm, 105.8750 mm): Track [SPI_MOSI] on B.Cu, length 2.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.6250 mm, 132.8750 mm): Track [SPI_MOSI] on B.Cu, length 1.5000 mm
+    @(27.1000 mm, 132.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(78.4000 mm, 96.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(78.3750 mm, 96.3750 mm): Track [SPI_MISO] on B.Cu, length 1.0000 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(27.1000 mm, 109.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(25.8750 mm, 109.1250 mm): Track [SPI_CS_TEMP] on B.Cu, length 1.2500 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(83.6250 mm, 100.1250 mm): Track [USB_D+] on B.Cu, length 0.2500 mm
+    @(83.4500 mm, 100.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(94.3750 mm, 130.1250 mm): Track [USB_D+] on B.Cu, length 0.7500 mm
+    @(95.0000 mm, 130.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(83.6250 mm, 100.6250 mm): Track [USB_D-] on B.Cu, length 1.0000 mm
+    @(83.4500 mm, 100.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(95.6250 mm, 131.3750 mm): Track [USB_D-] on B.Cu, length 1.2500 mm
+    @(95.4000 mm, 130.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+
+** Found 0 Footprint errors **
+
+** End of Report **

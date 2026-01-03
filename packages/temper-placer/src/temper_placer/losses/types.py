@@ -102,6 +102,16 @@ class MountingRule:
     because: str = ""
 
 
+@dataclass(frozen=True)
+class ComponentSpacingRule:
+    """Defines minimum edge-to-edge spacing between specific component pairs."""
+    component_a: str  # Component reference (e.g., "D2")
+    component_b: str  # Component reference (e.g., "C_BUS1")
+    min_separation_mm: float  # Minimum edge-to-edge distance
+    weight: float = 1.0
+    because: str = ""
+
+
 @jax.tree_util.register_pytree_node_class
 @dataclass(frozen=True)
 class GeometryContext:
@@ -186,6 +196,9 @@ class ConstraintContext:
     domain_star_points: Array = None  # (D, 2)
     domain_has_star: Array = None  # (D,)
     is_star_net: Array = None  # (M,)
+    
+    # Spatial Feedback (from routing failures)
+    spatial_penalties: Array = None  # (K, 3) -> [x, y, magnitude]
 
     def tree_flatten(self):
         children = (
@@ -206,6 +219,7 @@ class ConstraintContext:
             self.domain_star_points,
             self.domain_has_star,
             self.is_star_net,
+            self.spatial_penalties,
         )
         aux_data = None
         return (children, aux_data)
@@ -242,10 +256,12 @@ class LossContext:
     matched_groups: list[Any] = field(default_factory=list)
     clearance_rules: list[Any] = field(default_factory=list)
     star_ground_constraints: list[Any] = field(default_factory=list)
+    component_spacing_rules: list[Any] = field(default_factory=list)  # ComponentSpacingRule list
     
     # Missing auxiliary data for aesthetic and other losses
     component_type_indices: dict[str, Array] = field(default_factory=dict)
     net_class_indices: dict[str, Array] = field(default_factory=dict)
+    component_name_to_index: dict[str, int] = field(default_factory=dict)  # ref -> index mapping
     port_facing_groups: list[Any] = field(default_factory=list)
 
     # --- Delegated Properties for Backward Compatibility ---
@@ -338,6 +354,10 @@ class LossContext:
         return self.constraints_data.is_star_net if self.constraints_data.is_star_net is not None else jnp.zeros((0,), dtype=jnp.bool_)
 
     @property
+    def spatial_penalties(self) -> Array:
+        return self.constraints_data.spatial_penalties if self.constraints_data.spatial_penalties is not None else jnp.zeros((0, 3))
+
+    @property
     def loop_pin_indices(self) -> Array:
         return self.constraints_data.loop_pin_indices if self.constraints_data.loop_pin_indices is not None else jnp.zeros((0, 0), dtype=jnp.int32)
     
@@ -384,7 +404,11 @@ class LossContext:
             self.matched_groups,
             self.clearance_rules,
             self.star_ground_constraints,
-            self.component_type_indices, self.net_class_indices, self.port_facing_groups,
+            self.component_spacing_rules,
+            self.component_type_indices,
+            self.net_class_indices,
+            self.component_name_to_index,
+            self.port_facing_groups,
         )
         return (children, aux_data)
 
@@ -393,7 +417,7 @@ class LossContext:
         geometry, netlist_data, constraints_data, hypergraph, bounds, fixed_mask = children
         (
             netlist, board, config, thermal, loop, matched, clearance, star,
-            comp_types, net_classes, port_facing
+            comp_spacing, comp_types, net_classes, comp_name_map, port_facing
         ) = aux_data
         return cls(
             netlist=netlist,
@@ -410,8 +434,10 @@ class LossContext:
             matched_groups=matched,
             clearance_rules=clearance,
             star_ground_constraints=star,
+            component_spacing_rules=comp_spacing,
             component_type_indices=comp_types,
             net_class_indices=net_classes,
+            component_name_to_index=comp_name_map,
             port_facing_groups=port_facing,
         )
 

@@ -41,50 +41,34 @@ def benchmark_router(pcb_path: Path, net_ordering: str = "shortest_first"):
         print(f"  Nets: {design.netlist.n_nets}")
         print(f"  Board: {design.board.width:.1f}mm x {design.board.height:.1f}mm")
         
-        # Create router
+        # Create router using current API
+        import math
+        cell_size = 1.0  # 1mm grid
+        width_cells = int(math.ceil(design.board.width / cell_size))
+        height_cells = int(math.ceil(design.board.height / cell_size))
+        
         router = MazeRouter(
-            board_width=design.board.width,
-            board_height=design.board.height,
-            cell_size=1.0,  # 1mm grid
+            grid_size=(width_cells, height_cells),
+            cell_size_mm=cell_size,
             num_layers=2,
-            via_cost=5.0,
             origin=design.board.origin,
+            via_cost=5.0,
         )
         
-        # Add components
-        print("Adding components...")
-        for i, comp in enumerate(design.netlist.components):
-            pos = design.state.positions[i]
-            bounds = design.state.bounds[i] if hasattr(design.state, 'bounds') else (5.0, 5.0)
-            router.add_component(
-                comp.ref,
-                center_x=float(pos[0]),
-                center_y=float(pos[1]),
-                width=float(bounds[0]),
-                height=float(bounds[1]),
-            )
+        # Block components using block_components method
+        print("Blocking components...")
+        import jax.numpy as jnp
+        positions = jnp.array([[float(design.state.positions[i][0]), 
+                               float(design.state.positions[i][1])] 
+                              for i in range(len(design.netlist.components))])
+        router.block_components(design.netlist.components, positions, margin=0.5)
         
-        # Order nets
-        print(f"Ordering nets ({net_ordering})...")
-        ordered_nets = order_nets_for_routing(
-            design.netlist.nets,
-            design.netlist,
-            design.state.positions,
-            strategy=net_ordering
-        )
+        # Pre-calculate pin positions for all nets
+        print("Calculating pin positions...")
+        net_pin_positions = {}
         
-        # Route nets
-        print("Routing nets...")
-        start_time = time.time()
-        
-        routed_count = 0
-        failed_count = 0
-        total_vias = 0
-        total_wirelength = 0.0
-        
-        for net in ordered_nets:
-            # Get pin positions for this net
-            pin_positions = []
+        for net in design.netlist.nets:
+            pin_locs = []
             for comp_ref, pin_name in net.pins:
                 try:
                     comp_idx = design.netlist.get_component_index(comp_ref)
@@ -102,33 +86,68 @@ def benchmark_router(pcb_path: Path, net_ordering: str = "shortest_first"):
                         pin_x = float(comp_pos[0])
                         pin_y = float(comp_pos[1])
                     
-                    pin_positions.append((pin_x, pin_y))
+                    pin_locs.append((pin_x, pin_y))
                 except (KeyError, AttributeError):
                     continue
             
+            if len(pin_locs) >= 2:
+                net_pin_positions[net.name] = pin_locs
+        
+        # Order nets
+        print(f"Ordering nets ({net_ordering})...")
+        net_names = list(net_pin_positions.keys())
+        ordered_nets_names = order_nets_for_routing(
+            net_names,
+            net_pin_positions,
+            strategy=net_ordering
+        )
+        
+        # Route nets
+        print("Routing nets...")
+        start_time = time.time()
+        
+        routed_count = 0
+        failed_count = 0
+        total_vias = 0
+        total_wirelength = 0.0
+        
+        for net_name in ordered_nets_names:
+            pin_positions = net_pin_positions[net_name]
+            
+            # Skip if less than 2 pins (should be filtered already but safety check)
             if len(pin_positions) < 2:
-                failed_count += 1
                 continue
             
             # Try to route
             try:
-                result = router.route_net(net.name, pin_positions)
+                from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+                assignment = LayerAssignment(
+                    net=net_name,
+                    primary_layer=Layer.L1_TOP,
+                    allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+                    vias_required=True
+                )
+                result = router.route_net(net_name, pin_positions, assignment)
                 if result and result.success:
                     routed_count += 1
-                    if hasattr(result, 'path_length'):
-                        total_wirelength += result.path_length
+                    if hasattr(result, 'length'):
+                        total_wirelength += result.length
                     if hasattr(result, 'via_count'):
                         total_vias += result.via_count
                 else:
                     failed_count += 1
+                    # print(f"Failed to route {net_name}: result.success is False")
             except Exception as e:
                 failed_count += 1
+                print(f"Failed to route {net_name}: {e}")
+                # import traceback
+                # traceback.print_exc()
                 continue
         
         elapsed = time.time() - start_time
         
         # Calculate metrics
-        total_nets = len(ordered_nets)
+        total_nets = len(ordered_nets_names)
         completion_rate = routed_count / total_nets if total_nets > 0 else 0.0
         avg_wirelength = total_wirelength / routed_count if routed_count > 0 else 0.0
         

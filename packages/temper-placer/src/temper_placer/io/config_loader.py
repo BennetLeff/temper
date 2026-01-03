@@ -14,11 +14,17 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import yaml
 
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
+from temper_placer.core.differential_pair import DifferentialPairConstraint
+from temper_placer.core.net_graph import NetGraph, SubNetEdge
+
+if TYPE_CHECKING:
+    from temper_placer.core.design_rules import DesignRules
+    from temper_placer.core.netlist import Netlist
 
 
 @dataclass
@@ -170,6 +176,29 @@ class GroupSeparation:
 
 
 @dataclass
+class ComponentSpacingRule:
+    """Minimum edge-to-edge spacing between specific component pairs."""
+
+    component_a: str
+    component_b: str
+    min_separation_mm: float
+    description: str = ""
+    weight: float = 1.0
+
+
+@dataclass
+class ManufacturingConstraint:
+    """Manufacturing constraint for orientations and assembly side."""
+
+    components: list[str]
+    allowed_orientations: list[float] | None = None
+    side: str | None = None  # "top", "bottom", "both"
+    tier: str = "hard"
+    because: str = ""
+    weight: float = 1.0
+
+
+@dataclass
 class LossConfig:
     """Configuration for a single loss function.
 
@@ -291,6 +320,49 @@ class ComponentGroup:
 
 
 @dataclass
+class NetClassRule:
+    """Design rules for a specific net class."""
+
+    name: str # e.g. "HighVoltage"
+    trace_width_mm: float = 0.2
+    clearance_mm: float = 0.2
+    via_size_mm: float = 0.6
+    via_drill_mm: float = 0.3
+    via_template: str | None = None  # Via array template (e.g., "Via2x2")
+    creepage_mm: float = 0.0
+    allow_neckdown: bool = True
+    description: str = ""
+
+    voltage_v: float = 0.0 # Working voltage for creepage calculation
+    max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
+    routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    target_impedance: float | None = None  # Target impedance in Ohms
+
+
+@dataclass
+class DifferentialPairRule:
+    """Configuration for a differential pair from YAML.
+
+    Attributes:
+        net_pos: Positive net name (e.g., 'USB_D+')
+        net_neg: Negative net name (e.g., 'USB_D-')
+        spacing_mm: Nominal gap between traces in mm
+        coupling_tolerance_mm: Maximum deviation from spacing in mm
+        impedance_ohm: Target differential impedance (optional)
+        max_skew_mm: Maximum length mismatch in mm
+        description: Human-readable description
+    """
+
+    net_pos: str
+    net_neg: str
+    spacing_mm: float = 0.2
+    coupling_tolerance_mm: float = 0.5
+    impedance_ohm: float | None = None
+    max_skew_mm: float = 0.5
+    description: str = ""
+
+
+@dataclass
 class PlacementConstraints:
     """Complete set of placement constraints."""
 
@@ -341,9 +413,15 @@ class PlacementConstraints:
     # Group separation rules
     group_separations: list[GroupSeparation] = field(default_factory=list)
 
+    # Component spacing rules (minimum edge-to-edge distances)
+    component_spacing_rules: list[ComponentSpacingRule] = field(default_factory=list)
+
+    # Manufacturing orientation and side constraints
+    manufacturing_constraints: list[ManufacturingConstraint] = field(default_factory=list)
+
     # Fixed components (won't be optimized)
     fixed_components: list[str] = field(default_factory=list)
-    
+
     # Fixed positions (component ref -> (x, y) in mm)
     fixed_positions: dict[str, tuple[float, float]] = field(default_factory=dict)
 
@@ -352,6 +430,15 @@ class PlacementConstraints:
 
     # Net class assignments (net_name -> class)
     net_classes: dict[str, str] = field(default_factory=dict)
+
+    # Net class design rules (class_name -> NetClassRule)
+    net_class_rules: dict[str, NetClassRule] = field(default_factory=dict)
+
+    # Differential pair routing rules
+    differential_pairs: list[DifferentialPairRule] = field(default_factory=list)
+
+    # Net topology constraints (NetGraph)
+    net_topologies: list[NetGraph] = field(default_factory=list)
 
     # Layer stackup
     layer_stackup: LayerStackup | None = None
@@ -413,7 +500,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.board_width_mm = board.get("width_mm", 100.0)
         constraints.board_height_mm = board.get("height_mm", 150.0)
         constraints.board_margin_mm = board.get("margin_mm", 3.0)
-        
+
         if "keepouts" in board:
             for ko in board["keepouts"]:
                 if isinstance(ko, (list, tuple)) and len(ko) >= 4:
@@ -586,7 +673,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             leader = group_cfg.get("leader")
             followers = group_cfg.get("followers", [])
             components = []
-            if leader: components.append(leader)
+            if leader:
+                components.append(leader)
             components.extend(followers)
             if components:
                 group = ComponentGroup(
@@ -611,9 +699,34 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 )
                 constraints.group_separations.append(separation)
 
+    if "minimum_spacing" in config:
+        for spacing_cfg in config["minimum_spacing"]:
+            components = spacing_cfg.get("components", [])
+            if len(components) >= 2:
+                rule = ComponentSpacingRule(
+                    component_a=components[0],
+                    component_b=components[1],
+                    min_separation_mm=spacing_cfg.get("min_separation_mm", 2.0),
+                    description=spacing_cfg.get("description", ""),
+                    weight=spacing_cfg.get("weight", 1.0),
+                )
+                constraints.component_spacing_rules.append(rule)
+
+    if "manufacturing_constraints" in config:
+        for mfg_cfg in config["manufacturing_constraints"]:
+            mfg = ManufacturingConstraint(
+                components=mfg_cfg["components"],
+                allowed_orientations=mfg_cfg.get("allowed_orientations"),
+                side=mfg_cfg.get("side"),
+                tier=mfg_cfg.get("tier", "hard"),
+                because=mfg_cfg.get("because", ""),
+                weight=mfg_cfg.get("weight", 1.0),
+            )
+            constraints.manufacturing_constraints.append(mfg)
+
     if "fixed_components" in config:
         constraints.fixed_components = config["fixed_components"]
-    
+
     if "fixed_positions" in config:
         for ref, pos in config["fixed_positions"].items():
             if isinstance(pos, (list, tuple)) and len(pos) >= 2:
@@ -626,6 +739,99 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "net_classes" in config:
         constraints.net_classes = config["net_classes"]
+
+    if "net_class_rules" in config:
+        for name, rule_cfg in config["net_class_rules"].items():
+            rule = NetClassRule(
+                name=name,
+                trace_width_mm=rule_cfg.get("trace_width_mm", 0.2),
+                clearance_mm=rule_cfg.get("clearance_mm", 0.2),
+                via_size_mm=rule_cfg.get("via_size_mm", 0.6),
+                via_drill_mm=rule_cfg.get("via_drill_mm", 0.3),
+                via_template=rule_cfg.get("via_template"),
+                creepage_mm=rule_cfg.get("creepage_mm", 0.0),
+                allow_neckdown=rule_cfg.get("allow_neckdown", True),
+                description=rule_cfg.get("description", ""),
+                max_current_rating=rule_cfg.get("max_current_rating"),  # NEW
+                routing_strategy=rule_cfg.get("routing_strategy"),  # NEW
+                target_impedance=rule_cfg.get("target_impedance"),
+                voltage_v=rule_cfg.get("voltage_v", 0.0),  # Newly added field
+            )
+            constraints.net_class_rules[name] = rule
+
+    if "differential_pairs" in config:
+        for dp_cfg in config["differential_pairs"]:
+            # Support multiple key variants
+            pos = dp_cfg.get("positive_net") or dp_cfg.get("net_pos")
+            neg = dp_cfg.get("negative_net") or dp_cfg.get("net_neg")
+            
+            if not pos or not neg:
+                import logging
+                logging.getLogger(__name__).warning(f"Differential pair missing nets: {dp_cfg}")
+                continue
+
+            spacing = dp_cfg.get("separation_mm") or dp_cfg.get("spacing_mm") or 0.2
+            impedance = dp_cfg.get("target_impedance_ohm") or dp_cfg.get("impedance_ohm")
+
+            pair = DifferentialPairRule(
+                net_pos=pos,
+                net_neg=neg,
+                spacing_mm=spacing,
+                coupling_tolerance_mm=dp_cfg.get("coupling_tolerance_mm", 0.5),
+                impedance_ohm=impedance,
+                max_skew_mm=dp_cfg.get("max_skew_mm", 0.5),
+                description=dp_cfg.get("description", ""),
+            )
+            constraints.differential_pairs.append(pair)
+
+    if "net_topology" in config:
+        for net_name, topo_cfg in config["net_topology"].items():
+            graph = NetGraph(net_name=net_name)
+
+            # Parse star nodes
+            if "star_nodes" in topo_cfg:
+                graph.star_nodes = set(topo_cfg["star_nodes"])
+
+            # Parse edges
+            if "edges" in topo_cfg:
+                for edge_cfg in topo_cfg["edges"]:
+                    edge = SubNetEdge(
+                        source_pin=edge_cfg["source"],
+                        sink_pin=edge_cfg["sink"],
+                        trace_width_mm=edge_cfg.get("width"),
+                        clearance_mm=edge_cfg.get("clearance"),
+                        priority=edge_cfg.get("priority", 0),
+                    )
+                    graph.edges.append(edge)
+
+            constraints.net_topologies.append(graph)
+
+    if "kelvin_sensing" in config:
+        for ks_cfg in config["kelvin_sensing"]:
+            net_name = ks_cfg["net_name"]
+            star_pin = ks_cfg["star_point_pin"]
+            graph = NetGraph(net_name=net_name)
+            graph.star_nodes.add(star_pin)
+            
+            # Create edges for force pins
+            for fp in ks_cfg.get("force_pins", []):
+                graph.edges.append(SubNetEdge(
+                    source_pin=star_pin,
+                    sink_pin=fp,
+                    trace_width_mm=ks_cfg.get("force_width_mm", 1.0),
+                    priority=10 # Force lines route first
+                ))
+                
+            # Create edges for sense pins
+            for sp in ks_cfg.get("sense_pins", []):
+                graph.edges.append(SubNetEdge(
+                    source_pin=star_pin,
+                    sink_pin=sp,
+                    trace_width_mm=ks_cfg.get("sense_width_mm", 0.2),
+                    priority=5
+                ))
+            
+            constraints.net_topologies.append(graph)
 
     if "aesthetics" in config:
         aes = config["aesthetics"]
@@ -657,7 +863,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             ]:
                 if loss_name in losses_cfg:
                     loss_data = losses_cfg[loss_name]
-                    if loss_data is None: continue
+                    if loss_data is None:
+                        continue
                     elif isinstance(loss_data, dict):
                         w = float(loss_data.get("weight", 1.0))
                         _validate_weight(w, loss_name)
@@ -668,7 +875,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                         loss_config = LossConfig(weight=w)
                     setattr(losses_config, loss_name, loss_config)
             constraints.losses = losses_config
-    
+
     if "loss_weights" in config and constraints.losses is None:
         loss_weights = config["loss_weights"]
         if loss_weights:
@@ -696,7 +903,137 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "routing_priority" in config:
         constraints.routing_priority = config["routing_priority"]
+
+    # Current capacity validation (temper-bvr5)
+    _validate_current_capacity(constraints)
+
     return constraints
+
+
+def _validate_current_capacity(constraints: PlacementConstraints) -> None:
+    """
+    Validate that high-current nets have appropriate routing strategies.
+    
+    Enforces professional PCB design standards:
+    - High current (>10A): MUST have zone/pour assignment
+   - Medium current (5-10A): WARN if using single vias
+    - Low current (<5A): Standard routing acceptable
+    
+    Args:
+        constraints: Placement constraints to validate
+        
+    Raises:
+        ValueError: If high-current net lacks zone assignment
+        
+    Examples:
+        # Good: 20A net assigned to plane
+        net_classes: {"AC_L": "HighCurrent"}
+        net_class_rules:
+            HighCurrent:
+                max_current_rating: 20.0
+                routing_strategy: "plane_required"
+        zones:
+            - name: "AC_PLANE"
+              net_classes: ["HighCurrent"]
+              
+        # Bad: 20A net without zone → ValueError
+    """
+    import logging
+
+    from temper_placer.core.ipc2221 import estimate_current_from_net_class
+
+    logger = logging.getLogger(__name__)
+
+    for net_name, net_class_name in constraints.net_classes.items():
+        # Get net class rules
+        net_class = constraints.net_class_rules.get(net_class_name)
+        if not net_class:
+            continue
+
+        # Determine current capacity
+        if net_class.max_current_rating is not None:
+            current_a = net_class.max_current_rating
+        else:
+            # Estimate from trace width using IPC-2221
+            current_a = estimate_current_from_net_class(net_class.trace_width_mm)
+
+        # Check zone assignment
+        has_zone = any(
+            net_class_name in zone.net_classes
+            for zone in constraints.zones
+        )
+
+        # HIGH CURRENT (>10A): Plane REQUIRED
+        if current_a > 10.0:
+            if not has_zone:
+                # ERROR: High-current net without zone assignment
+                raise ValueError(
+                    f"HIGH CURRENT NET '{net_name}' ({current_a:.1f}A) requires zone/pour assignment.\n"
+                    f"Traced routing is inadequate for >10A nets. Professional PCB design requires:\n"
+                    f"  1. Add zone for net class '{net_class_name}' in zones config, OR\n"
+                    f"  2. Assign '{net_class_name}' to existing zone's net_classes list\n"
+                    f"Current capacity: {current_a:.1f}A (trace: {net_class.trace_width_mm}mm)\n"
+                    f"Reference: IPC-2221A Section 6.2 (Current Capacity)"
+                )
+
+        # MEDIUM CURRENT (5-10A): Warn if inadequate via strategy
+        elif current_a > 5.0:
+            if net_class.via_template == "Via1x1" or not net_class.via_template:
+                logger.warning(
+                    f"MEDIUM CURRENT NET '{net_name}' ({current_a:.1f}A) uses single vias.\n"
+                   f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
+                    f"Single 0.3mm vias rated ~3-5A; via arrays recommended for >5A."
+                )
+
+            # Suggest plane if approaching 10A
+            if current_a > 8.0 and not has_zone:
+                logger.info(
+                    f"Net '{net_name}' ({current_a:.1f}A) approaching high-current threshold. "
+                    f"Consider zone/pour assignment for better thermal performance."
+                )
+
+
+
+def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRules:
+    """Convert placement constraints to routing design rules."""
+    from temper_placer.core.design_rules import DesignRules
+    from temper_placer.core.design_rules import NetClassRules as CoreNetClassRules
+
+    rules = DesignRules()
+
+    # Copy net class assignments
+    rules.net_class_assignments = constraints.net_classes.copy()
+
+    for name, rule in constraints.net_class_rules.items():
+        # Map fields (note: allow_neckdown currently not supported in Core NetClassRules)
+        rules.net_classes[name] = CoreNetClassRules(
+            name=rule.name,
+            trace_width=rule.trace_width_mm,
+            clearance=rule.clearance_mm,
+            via_diameter=rule.via_size_mm,
+            via_drill=rule.via_drill_mm,
+            via_template=rule.via_template or "Via1x1",  # Default to single via
+            creepage_mm=rule.creepage_mm,
+            voltage_v=rule.voltage_v,
+        )
+
+    # Convert differential pair rules
+    for pair_rule in constraints.differential_pairs:
+        pair_constraint = DifferentialPairConstraint(
+            net_pos=pair_rule.net_pos,
+            net_neg=pair_rule.net_neg,
+            spacing_mm=pair_rule.spacing_mm,
+            coupling_tolerance_mm=pair_rule.coupling_tolerance_mm,
+            impedance_ohm=pair_rule.impedance_ohm,
+            max_skew_mm=pair_rule.max_skew_mm,
+        )
+        rules.differential_pairs.append(pair_constraint)
+
+    # Convert net topologies
+    for graph in constraints.net_topologies:
+        rules.net_topologies[graph.net_name] = graph
+
+    return rules
 
 
 def create_board_from_constraints(constraints: PlacementConstraints) -> Board:
@@ -728,12 +1065,12 @@ def apply_fixed_components_to_netlist(netlist, constraints: PlacementConstraints
     """Apply fixed_components list from constraints to netlist."""
     if not constraints.fixed_components and not constraints.fixed_positions:
         return
-    
+
     fixed_set = set(constraints.fixed_components)
     for comp in netlist.components:
         if comp.ref in fixed_set:
             comp.fixed = True
-        
+
         if comp.ref in constraints.fixed_positions:
             pos = constraints.fixed_positions[comp.ref]
             comp.initial_position = pos

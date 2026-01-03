@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
 
+import numpy as np
 from jax import Array
 
 from temper_placer.core.board import Board
@@ -27,6 +28,11 @@ from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing import push_shove as ps
 from temper_placer.routing.maze_router import MazeRouter
+from temper_placer.routing.current_capacity_strategy import (
+    CurrentCapacityStrategy,
+    select_current_capacity_strategy,
+    get_strategy_description,
+)
 
 
 def _euclidean_distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
@@ -149,6 +155,7 @@ class UnifiedRouter:
         design_rules: Design rules with net class specifications
         maze_router: Maze router instance
         push_shove_grid: Push-shove grid state
+        hypergraph: Physics-Aware Hypergraph (for strategy inference)
     """
 
     def __init__(
@@ -156,6 +163,7 @@ class UnifiedRouter:
         board: Board,
         config: RoutingConfig | None = None,
         design_rules: DesignRules | None = None,
+        hypergraph: "PhysicsHypergraph | None" = None,
     ):
         """Initialize unified router.
 
@@ -163,10 +171,12 @@ class UnifiedRouter:
             board: PCB board specification
             config: Routing configuration (uses defaults if None)
             design_rules: Design rules with net class specs (uses defaults if None)
+            hypergraph: Physics-Aware Hypergraph for semantic routing.
         """
         self.board = board
         self.config = config or RoutingConfig()
         self.design_rules = design_rules or DesignRules()
+        self.hypergraph = hypergraph
 
         # Initialize maze router
         self.maze_router = MazeRouter.from_board(board, cell_size_mm=self.config.maze_cell_size)
@@ -184,6 +194,7 @@ class UnifiedRouter:
         board: Board,
         strategy: RoutingStrategy = RoutingStrategy.AUTO,
         design_rules: DesignRules | None = None,
+        hypergraph: "PhysicsHypergraph | None" = None,
         **config_kwargs,
     ) -> "UnifiedRouter":
         """Create router from board with optional configuration.
@@ -192,13 +203,14 @@ class UnifiedRouter:
             board: PCB board specification
             strategy: Routing strategy
             design_rules: Design rules with net class specs
+            hypergraph: Physics-Aware Hypergraph.
             **config_kwargs: Additional configuration parameters
 
         Returns:
             Configured unified router
         """
         config = RoutingConfig(strategy=strategy, **config_kwargs)
-        return cls(board, config, design_rules)
+        return cls(board, config, design_rules, hypergraph)
 
     def _init_push_shove_grid(self):
         """Initialize push-shove grid if not already created."""
@@ -211,7 +223,11 @@ class UnifiedRouter:
             self.push_shove_grid = ps.Grid(width=grid_width, height=grid_height, layers=num_layers)
 
     def _maze_route_net(
-        self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment"
+        self,
+        net_name: str,
+        pin_positions: list[tuple[float, float]],
+        assignment: "LayerAssignment",
+        cost_map: Array | None = None,
     ) -> UnifiedRoutePath:
         """Route net using maze router.
 
@@ -219,11 +235,12 @@ class UnifiedRouter:
             net_name: Net name
             pin_positions: Pin positions in world coordinates
             assignment: Layer assignment
+            cost_map: Optional semantic cost map.
 
         Returns:
             Unified route path result
         """
-        result = self.maze_router.route_net(net_name, pin_positions, assignment)
+        result = self.maze_router.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
         return UnifiedRoutePath(
             net=net_name,
@@ -394,7 +411,7 @@ class UnifiedRouter:
         collisions = []
         for existing_path in self._routed_paths:
             if ps.detect_collision(
-                path, existing_path, num_samples=self.config.push_shove_num_samples
+                path, existing_path, samples_per_mm=2.0 # Updated to use adaptive signature
             ):
                 collisions.append(existing_path)
 
@@ -433,7 +450,12 @@ class UnifiedRouter:
         )
 
     def route_net(
-        self, net_name: str, pin_positions: list[tuple[float, float]], assignment: "LayerAssignment"
+        self,
+        net_name: str,
+        pin_positions: list[tuple[float, float]],
+        assignment: "LayerAssignment",
+        cost_map: Array | None = None,
+        zones: list = None,  # NEW: Zone list for current capacity strategy
     ) -> UnifiedRoutePath:
         """Route a single net using configured strategy.
 
@@ -441,19 +463,81 @@ class UnifiedRouter:
             net_name: Net name
             pin_positions: Pin positions in world coordinates
             assignment: Layer assignment
+            cost_map: Optional semantic cost map.
+            zones: List of zones for current capacity strategy selection
 
         Returns:
             Unified routing result
         """
+        # Current Capacity Strategy Selection (Phase 2/3 - temper-au2n/mm7z)
+        # Determines routing method based on current requirements
+        if zones is not None:
+            try:
+                capacity_strategy = select_current_capacity_strategy(
+                    net_name, self.design_rules, zones
+                )
+                
+                if capacity_strategy == CurrentCapacityStrategy.PLANE_VIA_ONLY:
+                    # Phase 3 (temper-mm7z): Use PlaneConnectionRouter for high-current nets
+                    from temper_placer.routing.plane_connection import PlaneConnectionRouter
+                    
+                    plane_router = PlaneConnectionRouter(
+                        design_rules=self.design_rules,
+                        cell_size_mm=self.config.maze_cell_size,
+                    )
+                    
+                    connections = plane_router.route_net_to_plane(
+                        net_name=net_name,
+                        pin_positions=pin_positions,
+                        zones=zones,
+                    )
+                    
+                    # Check if all connections succeeded
+                    all_success = all(c.success for c in connections)
+                    if not all_success:
+                        failures = [c for c in connections if not c.success]
+                        failure_reasons = "; ".join(c.failure_reason for c in failures if c.failure_reason)
+                        return UnifiedRoutePath(
+                            net=net_name,
+                            success=False,
+                            method="plane_connection",
+                            failure_reason=f"Plane connection failed: {failure_reasons}",
+                        )
+                    
+                    # Success: Return plane connection result
+                    # Via count is total vias across all connections
+                    total_vias = sum(len(c.via_positions) for c in connections)
+                    
+                    return UnifiedRoutePath(
+                        net=net_name,
+                        success=True,
+                        method="plane_connection",
+                        via_count=total_vias,
+                        length=0.0,  # No traced length (plane carries current)
+                    )
+                    
+            except RuntimeError as e:
+                # High-current net without zone - should have been caught in config validation
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Current capacity validation failed for '{net_name}': {e}")
+                return UnifiedRoutePath(
+                    net=net_name,
+                    success=False,
+                    method="error",
+                    failure_reason=str(e),
+                )
+        
+        # Standard routing strategy dispatch (existing logic)
         if self.config.strategy == RoutingStrategy.MAZE_ONLY:
-            return self._maze_route_net(net_name, pin_positions, assignment)
+            return self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
         elif self.config.strategy == RoutingStrategy.PUSH_SHOVE_ONLY:
             return self._push_shove_route_net(net_name, pin_positions, assignment)
 
         elif self.config.strategy == RoutingStrategy.AUTO:
             # Try maze first
-            result = self._maze_route_net(net_name, pin_positions, assignment)
+            result = self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
 
             if result.success:
                 return result
@@ -464,7 +548,7 @@ class UnifiedRouter:
 
         elif self.config.strategy == RoutingStrategy.HYBRID:
             # Try both and pick best
-            maze_result = self._maze_route_net(net_name, pin_positions, assignment)
+            maze_result = self._maze_route_net(net_name, pin_positions, assignment, cost_map=cost_map)
             ps_result = self._push_shove_route_net(net_name, pin_positions, assignment)
 
             # Pick based on success and path length
@@ -498,6 +582,14 @@ class UnifiedRouter:
         Returns:
             Dictionary of net name -> routing result
         """
+        from temper_placer.routing.bridge.api import get_routing_context, get_cost_map_for_net
+        from temper_placer.routing.bridge.types import RoutingStrategy as BridgeStrategy
+
+        # 1. Infer Routing Context if Hypergraph available
+        context = None
+        if self.hypergraph is not None:
+            context = get_routing_context(self.hypergraph, positions, self.board, netlist)
+
         # Block components in both routers
         self.maze_router.block_components(netlist.components, positions)
 
@@ -536,7 +628,25 @@ class UnifiedRouter:
             if assignment is None:
                 continue
 
-            result = self.route_net(net_name, pin_positions, assignment)
+            # 2. Apply Semantic Strategy
+            cost_map = None
+            if context:
+                # Check for Flood Fill (skip routing)
+                if context.get_strategy(net_name) == BridgeStrategy.FLOOD_FILL:
+                    results[net_name] = UnifiedRoutePath(
+                        net=net_name, success=True, method="deferred", failure_reason="Flood Fill"
+                    )
+                    continue
+                
+                # Get dynamic cost map
+                cost_map = get_cost_map_for_net(
+                    grid_size=self.maze_router.grid_size,
+                    cell_size_mm=self.maze_router.cell_size,
+                    context=context,
+                    net_id=net_name
+                )
+
+            result = self.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
             results[net_name] = result
 
         return results
@@ -585,3 +695,117 @@ class UnifiedRouter:
             "avg_length": total_length / successful if successful > 0 else 0.0,
             "avg_vias": total_vias / successful if successful > 0 else 0.0,
         }
+    def route_differential_pair(
+        self,
+        net_pos: str,
+        net_neg: str,
+        netlist: Netlist,
+        positions: Array,
+        target_separation_mm: float = 0.2,
+        max_skew_mm: float = 0.5,
+        max_divergence_mm: float = 2.0,
+        enable_length_matching: bool = True,
+    ):
+        """
+        Route a differential pair (Phase 4 integration).
+        
+        Args:
+            net_pos: Positive net name
+            net_neg: Negative net name
+            netlist: Circuit netlist
+            positions: Component positions
+            target_separation_mm: Desired P-N spacing
+            max_skew_mm: Maximum allowed length mismatch
+            enable_length_matching: Apply serpentine tuning
+            
+        Returns:
+            DiffPairPath result
+        """
+        from temper_placer.routing.diff_pair_router import DiffPairRouter
+        
+        # Get pin positions for both nets
+        pos_pins = []
+        neg_pins = []
+        
+        for net in netlist.nets:
+            if net.name == net_pos:
+                for comp_ref, pin_name in net.pins:
+                    comp_idx = netlist.get_component_index(comp_ref)
+                    if comp_idx is not None:
+                        # Use absolute_position to handle rotations correctly
+                        comp = netlist.components[comp_idx]
+                        pin = comp.get_pin(pin_name)
+                        if pin:
+                            pos = pin.absolute_position(
+                                tuple(positions[comp_idx]),
+                                math.radians((comp.initial_rotation or 0) * 90),
+                                side=comp.initial_side or 0
+                            )
+                            pos_pins.append(pos)
+            elif net.name == net_neg:
+                for comp_ref, pin_name in net.pins:
+                    comp_idx = netlist.get_component_index(comp_ref)
+                    if comp_idx is not None:
+                        comp = netlist.components[comp_idx]
+                        pin = comp.get_pin(pin_name)
+                        if pin:
+                            pos = pin.absolute_position(
+                                tuple(positions[comp_idx]),
+                                math.radians((comp.initial_rotation or 0) * 90),
+                                side=comp.initial_side or 0
+                            )
+                            neg_pins.append(pos)
+        
+        if len(pos_pins) < 2 or len(neg_pins) < 2:
+            raise ValueError(f"Differential pair {net_pos}/{net_neg} must have at least 2 pins each")
+        
+        # Use first and last pins as start/goal
+        start_pins = (pos_pins[0], neg_pins[0])
+        goal_pins = (pos_pins[-1], neg_pins[-1])
+        
+        # Get obstacles from maze router's blocked cells
+        # In MazeRouter, -1 indicates a hard block (component/pad)
+        obstacles = set()
+        blocked_indices = np.where(self.maze_router.occupancy == -1)
+        for x, y, l in zip(*blocked_indices):
+            obstacles.add((int(x), int(y), int(l)))
+            
+        # Unblock start/goal pins with a radius to escape pads
+        s_pos_grid = self.maze_router._world_to_grid(start_pins[0][0], start_pins[0][1])
+        s_neg_grid = self.maze_router._world_to_grid(start_pins[1][0], start_pins[1][1])
+        g_pos_grid = self.maze_router._world_to_grid(goal_pins[0][0], goal_pins[0][1])
+        g_neg_grid = self.maze_router._world_to_grid(goal_pins[1][0], goal_pins[1][1])
+        
+        unblock_radius = max(3, int(1.0 / self.maze_router.cell_size))
+        
+        for px, py in [s_pos_grid, s_neg_grid, g_pos_grid, g_neg_grid]:
+            for dx in range(-unblock_radius, unblock_radius + 1):
+                for dy in range(-unblock_radius, unblock_radius + 1):
+                    gx, gy = px + dx, py + dy
+                    if 0 <= gx < self.maze_router.grid_size[0] and 0 <= gy < self.maze_router.grid_size[1]:
+                        for l in range(self.maze_router.num_layers):
+                            if (gx, gy, l) in obstacles:
+                                obstacles.remove((gx, gy, l))
+        
+        # Create diff pair router
+        diff_router = DiffPairRouter(
+            grid_size=(
+                self.maze_router.grid_size[0],
+                self.maze_router.grid_size[1],
+                self.maze_router.num_layers,
+            ),
+            cell_size_mm=self.maze_router.cell_size,
+            target_separation_mm=target_separation_mm,
+            max_skew_mm=max_skew_mm,
+            max_divergence_mm=max_divergence_mm,
+        )
+        
+        # Route the pair
+        result = diff_router.route_pair(
+            start_pins=start_pins,
+            goal_pins=goal_pins,
+            obstacles=obstacles,
+            enable_length_matching=enable_length_matching,
+        )
+        
+        return result

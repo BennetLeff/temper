@@ -62,6 +62,63 @@ class PlacementState:
         )
 
     @classmethod
+    def from_netlist_and_board(
+        cls,
+        netlist: "Netlist",
+        board: "Board",
+    ) -> PlacementState:
+        """
+        Create a PlacementState from a Netlist and Board.
+
+        Args:
+            netlist: The netlist containing components.
+            board: The board definition.
+
+        Returns:
+            New PlacementState instance initialized from component data.
+        """
+        n_components = netlist.n_components
+        
+        # Extract initial positions and rotations
+        positions_list = []
+        rotation_logits_list = []
+        
+        for comp in netlist.components:
+            # Position
+            if comp.initial_position:
+                positions_list.append(list(comp.initial_position))
+            else:
+                # Default to board center if no initial position
+                positions_list.append([board.width / 2.0, board.height / 2.0])
+                
+            # Rotation
+            logits = [0.0, 0.0, 0.0, 0.0]
+            if comp.initial_rotation is not None:
+                # Set high logit for initial rotation (e.g. 10.0 vs 0.0)
+                # This makes it the preferred rotation but allows optimization to change it
+                idx = comp.initial_rotation % 4
+                logits[idx] = 10.0
+            rotation_logits_list.append(logits)
+            
+        positions = jnp.array(positions_list, dtype=jnp.float32)
+        rotation_logits = jnp.array(rotation_logits_list, dtype=jnp.float32)
+        
+        # Initialize virtual nodes for nets
+        n_nets = netlist.n_nets
+        net_virtual_nodes = None
+        if n_nets > 0:
+            # Initialize to board center
+            net_virtual_nodes = jnp.full((n_nets, 2), 
+                                       jnp.array([board.width / 2.0, board.height / 2.0]), 
+                                       dtype=jnp.float32)
+            
+        return cls(
+            positions=positions,
+            rotation_logits=rotation_logits,
+            net_virtual_nodes=net_virtual_nodes,
+        )
+
+    @classmethod
     def random_init(
         cls,
         n_components: int,

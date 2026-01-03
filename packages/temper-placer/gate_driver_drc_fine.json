@@ -1,0 +1,283 @@
+** Drc report for gate_driver_fine.kicad_pcb **
+** Created on 2026-01-02T12:04:29-0600 **
+
+** Found 68 DRC violations **
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1000 mm)
+    Rule: netclass 'Default'; error
+    @(7.6500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(8.2500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.6000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(10.6500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 2.7000 mm
+    @(8.2500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.6000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1571 mm)
+    Rule: netclass 'Default'; error
+    @(12.6500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(12.0500 mm, 8.5500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(11.8500 mm, 11.7500 mm): Track [CGND] on B.Cu, length 1.2000 mm
+    @(10.3500 mm, 11.4500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(7.9500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 2.7000 mm
+    @(11.7500 mm, 8.3500 mm): Track [+15V] on F.Cu, length 0.8000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0385 mm)
+    Rule: netclass 'Default'; error
+    @(11.3500 mm, 11.4500 mm): Track [+15V] on B.Cu, length 0.6000 mm
+    @(10.8500 mm, 12.2500 mm): Track [CGND] on B.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(10.6500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(11.7500 mm, 8.3500 mm): Track [+15V] on F.Cu, length 0.8000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1500 mm)
+    Rule: netclass 'Default'; error
+    @(7.5500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.4000 mm
+    @(8.2500 mm, 9.0500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.7500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(10.6500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 1.4000 mm
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and CGND)
+    Local override; error
+    @(10.4500 mm, 18.8500 mm): Track [VCC_BOOT] on F.Cu, length 0.3000 mm
+    @(11.6500 mm, 18.9500 mm): Track [CGND] on F.Cu, length 0.9000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1403 mm)
+    Rule: netclass 'Default'; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.5500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.3500 mm, 11.4500 mm): Track [+15V] on B.Cu, length 0.6000 mm
+    @(10.8500 mm, 12.3500 mm): Track [CGND] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.0500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(11.7500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.3500 mm, 10.8500 mm): Track [+15V] on B.Cu, length 0.6000 mm
+    @(10.4500 mm, 11.8500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0657 mm)
+    Rule: netclass 'Default'; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.5500 mm, 8.9500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0903 mm)
+    Rule: netclass 'Default'; error
+    @(12.5500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(12.0500 mm, 8.5500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.7500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.0500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.4000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.4500 mm, 8.9500 mm): Track [CGND] on F.Cu, length 0.8000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.3500 mm, 11.4500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+    @(10.4500 mm, 11.8500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets CGND and VCC_BOOT)
+    Local override; error
+    @(10.7500 mm, 18.9500 mm): Track [CGND] on F.Cu, length 0.8000 mm
+    @(10.4500 mm, 18.8500 mm): Track [VCC_BOOT] on F.Cu, length 0.3000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.4500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.8000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.4500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.4000 mm
+    @(11.7500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.7500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.0500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.3500 mm, 11.4500 mm): Track [+15V] on B.Cu, length 0.6000 mm
+    @(10.8500 mm, 12.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.0500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 1.4000 mm
+    @(11.7500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1208 mm)
+    Rule: netclass 'Default'; error
+    @(8.2500 mm, 9.0500 mm): Via [+15V] on F.Cu - B.Cu
+    @(7.9500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.3000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0657 mm)
+    Rule: netclass 'Default'; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.4500 mm, 8.9500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.3500 mm, 12.0500 mm): Track [+15V] on B.Cu, length 1.5000 mm
+    @(10.8500 mm, 12.3500 mm): Track [CGND] on B.Cu, length 2.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.7500 mm, 8.3500 mm): Track [+15V] on F.Cu, length 0.8000 mm
+    @(10.6500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(12.8500 mm, 12.0500 mm): Track [+15V] on B.Cu, length 2.0000 mm
+    @(10.8500 mm, 12.3500 mm): Track [CGND] on B.Cu, length 2.0000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1403 mm)
+    Rule: netclass 'Default'; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.5500 mm, 8.9500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(10.6500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 2.7000 mm
+    @(11.7500 mm, 8.3500 mm): Track [+15V] on F.Cu, length 0.8000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1571 mm)
+    Rule: netclass 'Default'; error
+    @(12.5500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(12.0500 mm, 8.5500 mm): Via [+15V] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.9500 mm, 8.1500 mm): Track [CGND] on F.Cu, length 0.3000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.9500 mm, 8.4500 mm): Track [CGND] on F.Cu, length 0.2000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(12.0500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.0500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 1.4000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.7500 mm, 8.4500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0099 mm)
+    Rule: netclass 'Default'; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.7500 mm, 8.5500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1083 mm)
+    Rule: netclass 'Default'; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.6500 mm, 8.5500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1500 mm)
+    Rule: netclass 'Default'; error
+    @(8.2500 mm, 9.0500 mm): Via [+15V] on F.Cu - B.Cu
+    @(7.5500 mm, 9.4500 mm): Track [CGND] on F.Cu, length 0.4000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(11.3500 mm, 12.0500 mm): Track [+15V] on B.Cu, length 1.5000 mm
+    @(10.8500 mm, 12.2500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets VCC_BOOT and CGND)
+    Local override; error
+    @(10.4500 mm, 18.1500 mm): Track [VCC_BOOT] on F.Cu, length 0.7000 mm
+    @(11.6500 mm, 18.9500 mm): Track [CGND] on F.Cu, length 0.9000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.8500 mm, 12.3500 mm): Via [CGND] on F.Cu - B.Cu
+    @(11.3500 mm, 12.0500 mm): Track [+15V] on B.Cu, length 1.5000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0331 mm)
+    Rule: netclass 'Default'; error
+    @(11.8500 mm, 11.7500 mm): Via [CGND] on F.Cu - B.Cu
+    @(10.3500 mm, 11.4500 mm): Track [+15V] on B.Cu, length 1.0000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.3500 mm, 10.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(11.0500 mm, 10.0500 mm): Via [CGND] on F.Cu - B.Cu
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1000 mm)
+    Rule: netclass 'Default'; error
+    @(7.5500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(8.2500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.6000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1403 mm)
+    Rule: netclass 'Default'; error
+    @(11.9500 mm, 8.5500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+    @(12.5500 mm, 8.9500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0583 mm)
+    Rule: netclass 'Default'; error
+    @(10.1500 mm, 18.8500 mm): Via [VCC_BOOT] on F.Cu - B.Cu
+    @(11.6500 mm, 18.9500 mm): Track [CGND] on F.Cu, length 0.9000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1083 mm)
+    Rule: netclass 'Default'; error
+    @(7.6500 mm, 9.0500 mm): Track [CGND] on F.Cu, length 0.5000 mm
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.4500 mm, 8.9500 mm): Track [CGND] on F.Cu, length 0.8000 mm
+    @(11.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 0.2000 mm
+[clearance]: Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0099 mm)
+    Rule: netclass 'Default'; error
+    @(7.6500 mm, 8.5500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.7500 mm, 8.5500 mm): Track [CGND] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.7500 mm, 8.4500 mm): Track [CGND] on F.Cu, length 0.2000 mm
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+    @(7.9500 mm, 8.4500 mm): Track [CGND] on F.Cu, length 0.3000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.0500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 1.4000 mm
+    @(11.7500 mm, 8.3500 mm): Track [+15V] on F.Cu, length 0.8000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.0500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 1.4000 mm
+    @(10.9500 mm, 8.3500 mm): Track [+15V] on F.Cu, length 0.1000 mm
+[shorting_items]: Items shorting two nets (nets CGND and +15V)
+    Local override; error
+    @(12.0500 mm, 8.0500 mm): Track [CGND] on F.Cu, length 1.4000 mm
+    @(10.9500 mm, 8.4500 mm): Track [+15V] on F.Cu, length 2.7000 mm
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0550 mm)
+    Rule: board setup constraints hole; error
+    @(10.3500 mm, 10.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(11.0500 mm, 10.0500 mm): Via [CGND] on F.Cu - B.Cu
+[shorting_items]: Items shorting two nets (nets +15V and CGND)
+    Local override; error
+    @(10.3500 mm, 10.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(11.0000 mm, 10.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(11.0500 mm, 10.0500 mm): Via [CGND] on F.Cu - B.Cu
+    @(10.3500 mm, 10.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(10.3500 mm, 10.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(11.0000 mm, 10.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(10.3500 mm, 10.5550 mm): Track [+15V] on B.Cu, length 0.3115 mm
+[track_dangling]: Track has unconnected end
+    Local override; warning
+    @(10.3500 mm, 17.5400 mm): Track [VCC_BOOT] on B.Cu, length 0.6181 mm
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Package_SO.pretty'.
+    Local override; warning
+    @(15.0000 mm, 15.0000 mm): Footprint U_GATE
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(10.0000 mm, 20.0000 mm): Footprint C_BOOT
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Capacitor_SMD.pretty'.
+    Local override; warning
+    @(10.0000 mm, 10.0000 mm): Footprint C_VCC
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(20.0000 mm, 20.0000 mm): Footprint R_GATE_H
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Resistor_SMD.pretty'.
+    Local override; warning
+    @(20.0000 mm, 10.0000 mm): Footprint R_GATE_L
+
+** Found 2 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(19.0000 mm, 20.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+    @(21.1500 mm, 14.3500 mm): Track [GATE_H] on F.Cu, length 5.6520 mm
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(10.3500 mm, 17.5400 mm): Pad 7 [VCC_BOOT] of U_GATE on F.Cu
+    @(10.3500 mm, 17.5400 mm): Track [VCC_BOOT] on B.Cu, length 0.6181 mm
+
+** Found 0 Footprint errors **
+
+** End of Report **

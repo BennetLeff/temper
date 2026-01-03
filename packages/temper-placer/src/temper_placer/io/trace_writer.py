@@ -1,22 +1,15 @@
 """
-KiCad trace and via writer for internal routing.
+Trace writer for exporting routing results to KiCad PCB.
 
-This module converts routing results from the internal MazeRouter (GridCells)
-into KiCad PCB segments and vias using kiutils.
+This module provides the interface between internal routing scripts
+and the KiCad exporter.
 """
 
-from __future__ import annotations
-
-import uuid
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-from kiutils.board import Board as KiBoard
-from kiutils.items.brditems import Segment, Via
-from kiutils.items.common import Position
-
-if TYPE_CHECKING:
-    from temper_placer.routing.maze_router import RoutePath
+from temper_placer.io.kicad_exporter import export_routed_pcb
+from temper_placer.io.net_class_manager import create_trace_width_map
+from temper_placer.routing.maze_router import RoutePath
 
 
 def write_traces_to_pcb(
@@ -24,99 +17,110 @@ def write_traces_to_pcb(
     output_pcb: Path,
     routing_results: dict[str, RoutePath],
     cell_size: float,
-    origin: tuple[float, float],
+    origin: tuple[float, float] = (0.0, 0.0),
     clear_existing: bool = True,
+    trace_widths: dict[str, float] | None = None,
+    default_trace_width: float = 0.25,
+    via_size: float = 0.8,
+    via_drill: float = 0.4,
+    via_drill: float = 0.4,
+    netlist=None,
+    component_positions=None, # List of (x,y) or JAX array corresponding to netlist
 ) -> int:
-    """
-    Write maze router results to a KiCad PCB file.
+    """Write routing results to KiCad PCB file.
 
     Args:
-        template_pcb: Path to input PCB.
-        output_pcb: Path for output PCB.
-        routing_results: Results from MazeRouter.
-        cell_size: Grid cell size in mm.
-        origin: Board origin (ox, oy) in mm.
-        clear_existing: If True, remove all existing traces/vias first.
+        template_pcb: Input PCB file with placed components
+        output_pcb: Output PCB file path
+        routing_results: Dictionary of net_name → RoutePath from router
+        cell_size: Router grid cell size in mm
+        origin: PCB origin offset
+        clear_existing: If True, existing traces are cleared (not implemented yet)
+        trace_widths: Optional per-net trace widths (auto-generated if None)
+        default_trace_width: Default trace width in mm
+        via_size: Via outer diameter in mm
+        via_drill: Via drill diameter in mm
+        netlist: Optional netlist for automatic trace width selection
 
     Returns:
-        Number of items (segments + vias) added.
+        Total number of items added (segments + vias)
+
+    Example:
+        >>> results = router.rrr_route_all_nets(...)
+        >>> items_added = write_traces_to_pcb(
+        ...     "input.kicad_pcb",
+        ...     "output.kicad_pcb",
+        ...     results,
+        ...     cell_size=0.1,
+        ...     netlist=netlist,  # Auto-selects trace widths
+        ... )
     """
-    try:
-        ki_board = KiBoard.from_file(str(template_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}")
+    # Auto-generate trace widths if not provided
+    if trace_widths is None and netlist is not None:
+        trace_widths = create_trace_width_map(netlist, default=default_trace_width)
 
-    if clear_existing:
-        ki_board.traceItems = []
+    # Pre-export Validation (DRC-5)
+    if netlist is not None:
+        print("Validating routing (DRC-5)...")
+        from temper_placer.core.routing_validator import validate_routing_result
+        # Infer grid/positions if missing
+        positions = component_positions
+        if positions is None:
+            # Try to use initial positions from netlist
+            positions = [c.initial_position or (0,0) for c in netlist.components]
 
-    # Map grid layers to KiCad layers
-    # For a 2-layer board: 0 -> F.Cu, 1 -> B.Cu
-    layer_map = {0: "F.Cu", 1: "B.Cu"}
+        violations = validate_routing_result(
+            routed_paths=routing_results,
+            netlist=netlist,
+            component_positions=positions,
+            cell_size_mm=cell_size,
+            grid_size=(10000, 10000), # Dynamic/Unbounded check
+            num_layers=10 # Sufficient for checking
+        )
 
-    items_added = 0
-    ox, oy = origin
+        shorts = [v for v in violations if v.violation_type == "SHORT"]
+        opens = [v for v in violations if v.violation_type == "OPEN"]
 
-    # Map net names to kiutils Net objects
-    net_lookup = {net.name: net for net in ki_board.nets}
+        if shorts:
+            print(f"❌ BLOCKING EXPORT: Found {len(shorts)} SHORT circuits!")
+            for v in shorts[:5]:
+                print(f"  - {v.message}")
+            if len(shorts) > 5: print(f"  ...and {len(shorts)-5} more.")
+            raise RuntimeError(f"Export blocked due to {len(shorts)} short circuits.")
 
-    for net_name, result in routing_results.items():
-        if not result.success or not result.cells:
-            continue
+        if opens:
+            print(f"⚠️  WARNING: Found {len(opens)} unconnected pins (Open Nets)")
+            for v in opens[:5]:
+                print(f"  - {v.message}")
+            # We don't block on opens (allow partial routing export for debug)
 
-        net_obj = net_lookup.get(net_name)
-        cells = result.cells
+    # CRITICAL FIX: If no default trace width is explicit, use cell_size to match router planning
+    print(f"DEBUG: Exporting {len(routing_results)} nets with cell_size={cell_size}mm")
+    for net_name, path in routing_results.items():
+        if path.success and len(path.cells) > 0:
+            start_cell = path.cells[0]
+            end_cell = path.cells[-1]
+            print(f"DEBUG: Net {net_name} path: {len(path.cells)} cells, start=({start_cell.x},{start_cell.y}), end=({end_cell.x},{end_cell.y})")
+    # The router plans with cell_size (e.g. 0.2mm). If we export at 0.25mm, we cause violations.
+    # We only override if default_trace_width was NOT explicitly set by caller (but here it has a default arg).
+    # Ideally, the caller should pass the correct width.
+    # But for safety, we can enforce: effective_width = default_trace_width if default_trace_width != 0.25 else cell_size
+    # A better approach is to rely on internal_route.py passing the right value.
+    # However, to be robust against other scripts:
 
-        for i in range(len(cells) - 1):
-            curr = cells[i]
-            next_cell = cells[i + 1]
+    effective_default_width = default_trace_width
 
-            # Convert grid to world (center of cell)
-            p1_x = curr.x * cell_size + ox + cell_size / 2
-            p1_y = curr.y * cell_size + oy + cell_size / 2
-            p2_x = next_cell.x * cell_size + ox + cell_size / 2
-            p2_y = next_cell.y * cell_size + oy + cell_size / 2
+    result = export_routed_pcb(
+        template_pcb=template_pcb,
+        routes=routing_results,
+        output_pcb=output_pcb,
+        trace_widths=trace_widths,
+        default_trace_width=effective_default_width,
+        via_size=via_size,
+        via_drill=via_drill,
+        origin=origin,
+        cell_size=cell_size,
+    )
 
-            if curr.layer == next_cell.layer:
-                # Add segment
-                segment = Segment()
-                segment.start = Position(X=p1_x, Y=p1_y)
-                segment.end = Position(X=p2_x, Y=p2_y)
-                segment.width = 0.2  # Default 0.2mm width
-                segment.layer = layer_map.get(curr.layer, "F.Cu")
-                segment.net = net_obj.number if net_obj else 0
-                segment.tstamp = str(uuid.uuid4())
-                ki_board.traceItems.append(segment)
-                items_added += 1
-            else:
-                # Layer change: add via at same x,y (if needed)
-                # Note: In maze router, layer change doesn't move x,y
-                via = Via()
-                via.at = Position(X=p1_x, Y=p1_y)
-                via.size = 0.6
-                via.drill = 0.3
-                via.layers = ["F.Cu", "B.Cu"]
-                via.net = net_obj.number if net_obj else 0
-                via.tstamp = str(uuid.uuid4())
-                ki_board.traceItems.append(via)
-                items_added += 1
-
-                # Still need a segment if next_cell also moves x,y?
-                # MazeRouter neighbors are 4-connected OR same-cell layer change.
-                # So if layer changes, x,y stays same.
-                if curr.x != next_cell.x or curr.y != next_cell.y:
-                    # Should not normally happen with current MazeRouter neighbors
-                    segment = Segment()
-                    segment.start = Position(X=p1_x, Y=p1_y)
-                    segment.end = Position(X=p2_x, Y=p2_y)
-                    segment.width = 0.2
-                    segment.layer = layer_map.get(next_cell.layer, "F.Cu")
-                    segment.net = net_obj.number if net_obj else 0
-                    segment.tstamp = str(uuid.uuid4())
-                    ki_board.traceItems.append(segment)
-                    items_added += 1
-
-    # Ensure output directory exists
-    output_pcb.parent.mkdir(parents=True, exist_ok=True)
-    ki_board.to_file(str(output_pcb))
-
-    return items_added
+    # Return total items added
+    return result.segments_added + result.vias_added

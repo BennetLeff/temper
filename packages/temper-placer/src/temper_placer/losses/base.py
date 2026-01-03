@@ -68,6 +68,7 @@ class LossContext(BaseLossContext):
         mounting_rules: list[MountingRule] | None = None,
         path_constraints: list[CriticalPathConstraint] | None = None,
         matched_groups: list[MatchedLengthConstraint] | None = None,
+        spatial_penalties: Array | None = None,
         use_centrality_weighting: bool = False,
     ) -> LossContext:
         """
@@ -83,6 +84,7 @@ class LossContext(BaseLossContext):
             mounting_rules: Optional list of mounting rules.
             path_constraints: Optional list of critical path constraints.
             matched_groups: Optional list of matched length constraints.
+            spatial_penalties: Optional (K, 3) array of routing failure hotspots.
             use_centrality_weighting: If True, scale weights and step sizes
                 by component centrality (hub prioritization).
 
@@ -343,6 +345,7 @@ class LossContext(BaseLossContext):
             domain_star_points=domain_star_points,
             domain_has_star=domain_has_star,
             is_star_net=is_star_net,
+            spatial_penalties=spatial_penalties,
         )
 
         # 4. Build PhysicsHypergraph
@@ -352,6 +355,14 @@ class LossContext(BaseLossContext):
             ignore_global_nets=True, 
             global_net_threshold=50
         )
+
+        # 5. Build component name to index mapping
+        component_name_to_index = {c.ref: i for i, c in enumerate(netlist.components)}
+
+        # 6. Parse component spacing rules from constraints
+        component_spacing_rules = []
+        if constraints and hasattr(constraints, 'component_spacing_rules'):
+            component_spacing_rules = constraints.component_spacing_rules
 
         return cls(
             netlist=netlist,
@@ -368,8 +379,10 @@ class LossContext(BaseLossContext):
             matched_groups=matched_groups or [],
             clearance_rules=clearance_rules or [],
             star_ground_constraints=star_ground_constraints or [],
+            component_spacing_rules=component_spacing_rules,
             component_type_indices=component_type_indices,
             net_class_indices=net_class_indices,
+            component_name_to_index=component_name_to_index,
         )
 
     @staticmethod

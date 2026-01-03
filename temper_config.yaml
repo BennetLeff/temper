@@ -1,0 +1,19 @@
+# Refined config for Temper board
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+losses:
+  overlap:
+    weight: 1000.0  # Increased to force separation
+    enabled: true
+  boundary:
+    weight: 100.0
+    enabled: true
+  wirelength:
+    weight: 10.0
+    enabled: true
+  spread:
+    weight: 0.5
+    enabled: true

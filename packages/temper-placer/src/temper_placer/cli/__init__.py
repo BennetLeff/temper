@@ -502,6 +502,26 @@ def optimize(
                     weight=weights["overlap"],
                 )
             )
+        
+        # Pin accessibility loss (fine-grained clearance)
+        if "pin_accessibility" in weights:
+            from temper_placer.losses.pin_accessibility import PinAccessibilityLoss
+            losses.append(
+                WeightedLoss(
+                    PinAccessibilityLoss(pin_pin_margin=0.5, pin_body_margin=0.8),
+                    weight=weights["pin_accessibility"],
+                )
+            )
+        elif "overlap" in weights:
+            # Add with default weight if overlap is enabled but pin_accessibility is not explicitly set
+            from temper_placer.losses.pin_accessibility import PinAccessibilityLoss
+            losses.append(
+                WeightedLoss(
+                    PinAccessibilityLoss(pin_pin_margin=0.5, pin_body_margin=0.8),
+                    weight=weights["overlap"] * 0.1,  # 10% of overlap weight by default
+                )
+            )
+
         if "boundary" in weights:
             losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
 

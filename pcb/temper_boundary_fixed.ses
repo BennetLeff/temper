@@ -1,0 +1,334 @@
+(session temper_boundary_fixed
+  (base_design temper_boundary_fixed)
+  (placement
+    (resolution um 10)
+    (component Connector_IEC_IEC_C14_Male
+      (place J_AC_IN 10000 146250 front 0)
+    )
+    (component "\""Diode_THT_D_DO-201AD_P15.24mm_Horizontal"\""
+      (place D1 40356 123750 front 0)
+      (place D2 39884 131250 front 180)
+    )
+    (component Capacitor_THT_CP_Radial_D18.0mm_P7.50mm
+      (place C_BUS1 75761 116250 front 0)
+      (place C_BUS2 72926 108750 front 0)
+    )
+    (component "\""Package_TO_SOT_THT_TO-247-3_Horizontal_TabDown"\""
+      (place Q1 53943 123750 front 180)
+      (place Q2 66523 131250 front 180)
+    )
+    (component "\""Package_SO_SOIC-16W_7.5x10.3mm_P1.27mm"\""
+      (place U_GATE 44447 78750 front 0)
+    )
+    (component Capacitor_SMD_C_0805_2012Metric
+      (place C_BOOT 68464 78750 front 0)
+      (place C_VCC 63463 78750 front 0)
+    )
+    (component Resistor_SMD_R_0805_2012Metric
+      (place R_GATE_H 58451 78750 front 0)
+      (place R_GATE_L 53448 78750 front 0)
+      (place R_BURDEN 32521 86250 front 0)
+    )
+    (component "\""Package_TO_SOT_SMD_SOT-23-6"\""
+      (place U_BUCK 61303 71250 front 0)
+    )
+    (component "\""Package_TO_SOT_SMD_SOT-223-3_TabPin2"\""
+      (place U_LDO_3V3 44731 62150 front 0)
+      (place U_LDO_5V 53131 62150 front 0)
+    )
+    (component "\""Package_DFN_QFN_QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm"\""
+      (place U_MCU 48114 48425 front 0)
+    )
+    (component Capacitor_SMD_C_0402_1005Metric
+      (place C_MCU_1 49230 56250 front 0)
+      (place C_MCU_2 52842 56250 front 0)
+      (place C_MCU_3 45625 56250 front 0)
+      (place C_MCU_4 50569 41250 front 0)
+    )
+    (component "\""Connector_USB_USB_C_Receptacle_HRO_TYPE-C-31-M-12"\""
+      (place J_USB 50000 5000 front 0)
+    )
+    (component Connector_PinHeader_2.54mm_PinHeader_1x06_P2.54mm_Vertical
+      (place J_DEBUG 70000 22350 front 0)
+    )
+    (component "\""Package_SO_TSSOP-20_4.4x6.5mm_P0.65mm"\""
+      (place U_CT 33347 79310 front 0)
+      (place MAX31865 33339 70690 front 0)
+    )
+    (component Capacitor_SMD_C_0603_1608Metric
+      (place C_CT_FILT 37846 86250 front 0)
+    )
+    (component "\""Package_SO_SOIC-8_3.9x4.9mm_P1.27mm"\""
+      (place U_OPAMP_CT 35095 93750 front 0)
+    )
+    (component "\""Connector_Phoenix_MC_PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical"\""
+      (place J_COIL 51905 143000 front 0)
+    )
+    (component Connector_PinHeader_2.54mm_PinHeader_1x02_P2.54mm_Vertical
+      (place J_NTC 21270 138500 front 0)
+    )
+    (component MountingHole_MountingHole_3.2mm_M3
+      (place MH1 3500 3500 front 0)
+      (place MH2 96500 3500 front 0)
+      (place MH3 3500 146500 front 0)
+      (place MH4 96500 146500 front 0)
+    )
+  )
+  (was_is
+  )
+  (routes 
+    (resolution um 10)
+    (parser
+    )
+    (library_out 
+      (padstack VIA
+        (shape
+          (circle F.Cu 600 0 0)
+        )
+        (shape
+          (circle In1.Cu 600 0 0)
+        )
+        (shape
+          (circle In2.Cu 600 0 0)
+        )
+        (shape
+          (circle B.Cu 600 0 0)
+        )
+      )
+    )
+    (network_out 
+      (net GND
+        (wire
+          (path F.Cu 130
+            33521 86250
+            34223 86250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            38666 86250
+            37964 86250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            37964 86250
+            37964 86915
+            37927 86952
+            34925 86952
+            34223 86250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            42431 63750
+            42431 61500
+            46125 57806
+            46125 56250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            47650 5000
+            48352 5000
+          )
+        )
+        (wire
+          (path F.Cu 130
+            52350 5000
+            51648 5000
+          )
+        )
+        (wire
+          (path F.Cu 130
+            51648 5000
+            51648 4335
+            51611 4298
+            49054 4298
+            48352 5000
+          )
+        )
+        (wire
+          (path F.Cu 130
+            32615 95650
+            32615 96352
+          )
+        )
+        (wire
+          (path F.Cu 130
+            22540 138500
+            22540 106427
+            32615 96352
+          )
+        )
+        (wire
+          (path F.Cu 130
+            30447 82230
+            30447 82932
+          )
+        )
+        (wire
+          (path F.Cu 130
+            33521 86250
+            33521 85548
+          )
+        )
+        (wire
+          (path F.Cu 130
+            33521 85548
+            30905 82932
+            30447 82932
+          )
+        )
+        (wire
+          (path F.Cu 130
+            48114 48755
+            48114 49457
+          )
+        )
+        (wire
+          (path F.Cu 130
+            48114 49457
+            49730 51073
+            49730 56250
+          )
+        )
+      )
+      (net DC_BUS_PLUS
+        (wire
+          (path F.Cu 130
+            47976 123750
+            48493 123750
+          )
+        )
+      )
+      (net GATE_H
+        (wire
+          (path F.Cu 130
+            57451 78750
+            56749 78750
+          )
+        )
+        (wire
+          (path F.Cu 130
+            48947 75570
+            48245 75570
+          )
+        )
+        (wire
+          (path F.Cu 130
+            48245 75570
+            48245 83860
+            48282 83897
+            51602 83897
+            56749 78750
+          )
+        )
+        (wire
+          (path F.Cu 130
+            59451 78750
+            57451 78750
+          )
+        )
+      )
+      (net SW_NODE
+        (wire
+          (path F.Cu 130
+            61073 131250
+            60371 131250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            53943 123750
+            53943 124452
+          )
+        )
+        (wire
+          (path F.Cu 130
+            53943 124452
+            60371 130880
+            60371 131250
+          )
+        )
+      )
+      (net CGND
+        (wire
+          (path F.Cu 130
+            39947 83190
+            39947 81930
+          )
+        )
+      )
+      (net VCC_BOOT
+        (wire
+          (path F.Cu 130
+            67464 78750
+            66762 78750
+          )
+        )
+        (wire
+          (path F.Cu 130
+            66762 78750
+            64862 76850
+            48947 76850
+          )
+        )
+      )
+      (net _PLUS5V
+        (wire
+          (path F.Cu 130
+            62403 70300
+            61701 70300
+          )
+        )
+        (wire
+          (path F.Cu 130
+            60203 71250
+            60905 71250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            60905 71250
+            61701 70454
+            61701 70300
+          )
+        )
+        (wire
+          (path F.Cu 130
+            53131 63750
+            53131 60550
+          )
+        )
+      )
+      (net _PLUS3V3
+        (wire
+          (path F.Cu 130
+            44731 60550
+            44731 63750
+          )
+        )
+        (wire
+          (path F.Cu 130
+            48730 56250
+            48730 56952
+          )
+        )
+        (wire
+          (path F.Cu 130
+            52342 56250
+            51640 56250
+          )
+        )
+        (wire
+          (path F.Cu 130
+            51640 56250
+            50938 56952
+            48730 56952
+          )
+        )
+      )
+    )
+  )
+)

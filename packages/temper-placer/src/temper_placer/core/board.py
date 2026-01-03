@@ -153,6 +153,17 @@ class LayerStackup:
             thickness=1.6,
         )
 
+    @classmethod
+    def default_2layer(cls) -> LayerStackup:
+        """Create default 2-layer stackup."""
+        return cls(
+            layers=[
+                Layer("F.Cu", "signal", copper_weight=1.0, is_routable=True),
+                Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
+            ],
+            thickness=1.6,
+        )
+
     def routable_layers(self, net_class: str = "Signal") -> list[int]:
         """
         Return layer indices where this net class can route.

@@ -67,6 +67,11 @@ from temper_placer.losses.clearance import (
     compute_clearance_penalty,
 )
 
+# Component spacing loss (specific component pairs)
+from temper_placer.losses.component_spacing import (
+    ComponentSpacingLoss,
+)
+
 # Coil requirement loss
 from temper_placer.losses.coil import (
     CoilRequirementLoss,
@@ -180,6 +185,11 @@ from temper_placer.losses.planarity import (
     EdgeCrossingLoss,
 )
 
+# Pin Accessibility loss
+from temper_placer.losses.pin_accessibility import (
+    PinAccessibilityLoss,
+)
+
 # Power path loss (Parasitic Inductance)
 from temper_placer.losses.power_path import (
     HighCurrentPathConfig,
@@ -246,6 +256,14 @@ from temper_placer.losses.zone import (
     create_temper_zone_assignments,
 )
 
+# Routing-aware placement losses
+from temper_placer.losses.routing_aware import (
+    BusAlignmentLoss,
+    MCUClusteringLoss,
+    RoutingChannelLoss,
+    compute_routing_channel_penalty,
+)
+
 __all__ = [
     # Base classes
     "LossFunction",
@@ -268,6 +286,7 @@ __all__ = [
     "BoundaryLoss",
     "GridAlignmentLoss",
     "ClearanceLoss",
+    "ComponentSpacingLoss",
     "LoopAreaLoss",
     # Design rule losses
     "ThermalLoss",
@@ -283,6 +302,7 @@ __all__ = [
     "create_power_path_loss",
     "HighCurrentPathConfig",
     "SwitchingLoopConfig",
+    "PinAccessibilityLoss",
     "CurrentReturnPathLoss",
     "create_return_path_loss",
     "ReturnPathConfig",
@@ -366,4 +386,9 @@ __all__ = [
     "compute_margin_loss",
     "compute_pairwise_clearances",
     "create_manufacturing_margin_loss",
+    # Routing-aware placement losses
+    "RoutingChannelLoss",
+    "MCUClusteringLoss",
+    "BusAlignmentLoss",
+    "compute_routing_channel_penalty",
 ]

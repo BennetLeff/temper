@@ -56,11 +56,51 @@ from temper_placer.routing.net_ordering import (
     NetPriority,
     order_nets,
 )
+from temper_placer.routing.dithered_router import (
+    DitheredRouter,
+    DitherConfig,
+    DitherAttempt,
+)
+from temper_placer.routing.c_space_builder import (
+    CSpaceBuilder,
+    CSpaceConfig,
+    CSpaceGrid,
+    CSpaceCache,
+    SoftCSpaceBuilder,
+    CacheStats,
+)
+from temper_placer.routing.c_space_pipeline import (
+    CSpaceRoutingPipeline,
+    PipelineConfig,
+    RoutingResult,
+    FunnelSmoother,
+    TraceBallooner,
+)
 from temper_placer.routing.routing_analyzer import (
     RoutingAnalyzer,
     RoutingAnalyzerConfig,
     RoutingAnalysisResult,
     analyze_routability,
+)
+from temper_placer.routing.c_space_builder import (
+    CSpaceBuilder,
+    CSpaceConfig,
+    CSpaceGrid,
+    CSpaceCache,
+    SoftCSpaceBuilder,
+    CacheStats,
+)
+from temper_placer.routing.c_space_pipeline import (
+    CSpaceRoutingPipeline,
+    PipelineConfig,
+    RoutingResult,
+    FunnelSmoother,
+    TraceBallooner,
+)
+from temper_placer.routing.dithered_router import (
+    DitheredRouter,
+    DitherConfig,
+    DitherAttempt,
 )
 from temper_placer.routing.unified_router import (
     RoutingConfig,
@@ -74,6 +114,10 @@ from temper_placer.routing.verifier import (
     VerificationLevel,
     VerificationResult,
     parse_verification_level,
+)
+from temper_placer.routing.post_processing import (
+    FunnelSmoother,
+    Point,
 )
 
 __all__ = [
@@ -95,6 +139,23 @@ __all__ = [
     "MazeRouter",
     "RoutePath",
     "compute_completion_rate",
+    # Dithered Router
+    "DitheredRouter",
+    "DitherConfig",
+    "DitherAttempt",
+    # C-Space Builder
+    "CSpaceBuilder",
+    "CSpaceConfig",
+    "CSpaceGrid",
+    "CSpaceCache",
+    "SoftCSpaceBuilder",
+    "CacheStats",
+    # C-Space Pipeline
+    "CSpaceRoutingPipeline",
+    "PipelineConfig",
+    "RoutingResult",
+    "FunnelSmoother",
+    "TraceBallooner",
     # Layer assignment
     "Layer",
     "LayerAssignment",
@@ -121,4 +182,7 @@ __all__ = [
     "RoutingStrategy",
     "UnifiedRoutePath",
     "UnifiedRouter",
+    # Path smoothing
+    "FunnelSmoother",
+    "Point",
 ]
