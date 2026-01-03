@@ -106,7 +106,7 @@ def main():
     netlist = Netlist(components=components, nets=nets)
 
     # Initialize DRC Oracle
-    drc_oracle = DRCOracle(rules=design_rules, board=board)
+    drc_oracle = DRCOracle(rules=design_rules)
 
     # Initialize router with DRC support
     router = MazeRouter.from_board(

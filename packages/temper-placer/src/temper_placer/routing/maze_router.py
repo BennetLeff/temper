@@ -1803,6 +1803,9 @@ class MazeRouter:
 
         if allow_layer_change and self.num_layers > 1:
             for nl in layers:
+                # Skip invalid layer indices
+                if nl < 0 or nl >= self.num_layers:
+                    continue
                 if nl != cell.layer:
                     occ = int(self.occupancy[cell.x, cell.y, nl])
                     if is_start:
