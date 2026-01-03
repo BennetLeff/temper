@@ -799,20 +799,34 @@ class MazeRouter:
         escape_length: int | None = None,
     ) -> None:
         self._component_positions = positions
-        for i, comp in enumerate(components):
-            cx, cy = float(positions[i, 0]), float(positions[i, 1])
-            hw, hh = comp.bounds[0] / 2 + margin, comp.bounds[1] / 2 + margin
-            x_min, x_max = (
-                int(round((cx - hw - self.origin[0]) / self.cell_size)),
-                int(round((cx + hw - self.origin[0]) / self.cell_size)),
-            )
-            y_min, y_max = (
-                int(round((cy - hh - self.origin[1]) / self.cell_size)),
-                int(round((cy + hh - self.origin[1]) / self.cell_size)),
-            )
+
+        if len(components) == 0:
+            return
+
+        pos_array = np.asarray(positions)
+        n_comps = len(components)
+
+        cx = pos_array[:, 0]
+        cy = pos_array[:, 1]
+
+        half_widths = np.array([comp.bounds[0] / 2 + margin for comp in components])
+        half_heights = np.array([comp.bounds[1] / 2 + margin for comp in components])
+
+        x_min = np.round((cx - half_widths - self.origin[0]) / self.cell_size).astype(int)
+        x_max = np.round((cx + half_widths - self.origin[0]) / self.cell_size).astype(int)
+        y_min = np.round((cy - half_heights - self.origin[1]) / self.cell_size).astype(int)
+        y_max = np.round((cy + half_heights - self.origin[1]) / self.cell_size).astype(int)
+
+        widths = x_max - x_min
+        heights = y_max - y_min
+
+        layer = 0 if layer_specific else -1
+
+        for i in range(n_comps):
             self.block_rect(
-                x_min, y_min, x_max - x_min, y_max - y_min, layer=0 if layer_specific else -1
+                int(x_min[i]), int(y_min[i]), int(widths[i]), int(heights[i]), layer=layer
             )
+
         for i, comp in enumerate(components):
             self._create_pin_escape_routes(
                 comp, float(positions[i, 0]), float(positions[i, 1]), escape_length
@@ -938,13 +952,24 @@ class MazeRouter:
                     py + pad_h / 2 + margin + neck_margin_mm,
                 )
 
-                # Apply Neckdown Mask
-                for x in range(gx_min_neck, gx_max_neck + 1):
-                    for y in range(gy_min_neck, gy_max_neck + 1):
-                        for l in range(self.num_layers):
-                            # Ensure coordinates are within grid bounds
-                            if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:
-                                self.neckdown_mask[x, y, l] = True
+                # Apply Neckdown Mask using vectorized slicing
+                neck_margin_mm = 1.0
+                gx_min_neck, gy_min_neck = self._world_to_grid(
+                    px - pad_w / 2 - margin - neck_margin_mm,
+                    py - pad_h / 2 - margin - neck_margin_mm,
+                )
+                gx_max_neck, gy_max_neck = self._world_to_grid(
+                    px + pad_w / 2 + margin + neck_margin_mm,
+                    py + pad_h / 2 + margin + neck_margin_mm,
+                )
+
+                x_neck_start = max(0, gx_min_neck)
+                x_neck_end = min(self.grid_size[0], gx_max_neck + 1)
+                y_neck_start = max(0, gy_min_neck)
+                y_neck_end = min(self.grid_size[1], gy_max_neck + 1)
+
+                if x_neck_start < x_neck_end and y_neck_start < y_neck_end:
+                    self.neckdown_mask[x_neck_start:x_neck_end, y_neck_start:y_neck_end, :] = True
 
                 # Get net name for this pin
                 net_name = pin.net if hasattr(pin, "net") else ""
@@ -964,15 +989,18 @@ class MazeRouter:
                     rules = self.design_rules.get_rules_for_net(net_name)
                     class_id = self._get_class_id(rules)
 
-                # Block cells and record ownership
-                for gx in range(max(0, gx_min_block), min(self.grid_size[0], gx_max_block + 1)):
-                    for gy in range(max(0, gy_min_block), min(self.grid_size[1], gy_max_block + 1)):
-                        for layer in block_layers:
+                # Block cells and record ownership using vectorized operations
+                gx_start = max(0, gx_min_block)
+                gx_end = min(self.grid_size[0], gx_max_block + 1)
+                gy_start = max(0, gy_min_block)
+                gy_end = min(self.grid_size[1], gy_max_block + 1)
+
+                for layer in block_layers:
+                    for gx in range(gx_start, gx_end):
+                        for gy in range(gy_start, gy_end):
                             key = (gx, gy, layer)
-                            # Only block if not already owned by this net
                             if key not in self._pad_net_map:
                                 self._pad_net_map[key] = net_name
-                                # Mark as blocked (will be unblocked for own net during routing)
                                 if self.occupancy[gx, gy, layer] != -1:
                                     self.occupancy[gx, gy, layer] = -1
                                     self.class_grid[gx, gy, layer] = class_id
@@ -1005,15 +1033,20 @@ class MazeRouter:
         self, pin_x: float, pin_y: float, step_x: int, step_y: int, escape_length: int
     ) -> bool:
         gx, gy = self._world_to_grid(pin_x, pin_y)
-        for s in range(escape_length):
-            if not (
-                0 <= gx + s * step_x < self.grid_size[0]
-                and 0 <= gy + s * step_y < self.grid_size[1]
-            ):
-                return False
-        for s in range(escape_length):
-            for l in range(self.num_layers):
-                self.occupancy[gx + s * step_x, gy + s * step_y, l] = 0
+
+        end_x = gx + (escape_length - 1) * step_x
+        end_y = gy + (escape_length - 1) * step_y
+
+        if not (0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]):
+            return False
+        if not (0 <= end_x < self.grid_size[0] and 0 <= end_y < self.grid_size[1]):
+            return False
+
+        steps = np.arange(escape_length)
+        xs = gx + steps * step_x
+        ys = gy + steps * step_y
+
+        self.occupancy[xs, ys, :] = 0
         return True
 
     def _create_pin_escape_routes(
