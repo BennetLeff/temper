@@ -323,6 +323,8 @@ def find_path_astar_numba_adaptive(
     soft_blocking=False,
     soft_c_space=None,
     tap_mask=None,
+    guide_map=None,
+    guide_bias=0.0,
 ):
     """
     Numba-accelerated A* pathfinding with adaptive distance map heuristic.
@@ -330,6 +332,8 @@ def find_path_astar_numba_adaptive(
     This is the core function for temper-tfvr: Port Adaptive A* to Numba.
     Uses a pre-computed distance map as heuristic instead of Manhattan distance,
     providing a tighter bound and reducing A* search iterations.
+
+    Supports guide_map for hierarchical routing (guided pass).
 
     Args:
         start_x, start_y, start_l: Start coordinates
@@ -347,6 +351,8 @@ def find_path_astar_numba_adaptive(
         soft_blocking: If False, treat occupied cells as blocked.
         soft_c_space: Optional 2D float32 array for soft obstacle costs.
         tap_mask: Optional 3D int32 array (1=forbidden tap point, 0=allowed).
+        guide_map: Optional 3D float32 array for hierarchical guide biasing.
+        guide_bias: Strength of guide biasing (default 0.0).
 
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
@@ -456,6 +462,19 @@ def find_path_astar_numba_adaptive(
                 if h >= INF:
                     h = abs(nx - end_x) + abs(ny - end_y) + abs(nl - end_l) * 2.0
 
+                # Apply guide map bias (hierarchical routing)
+                if guide_map is not None:
+                    # Find min distance across ALL layers at this (x,y)
+                    # to match the logic in hierarchical.py
+                    min_guide_dist = guide_map[nx, ny, 0]
+                    for layer_idx in range(1, num_layers):
+                        d_guide = guide_map[nx, ny, layer_idx]
+                        if d_guide < min_guide_dist:
+                            min_guide_dist = d_guide
+
+                    # Reduction in h means higher priority
+                    h += -min(min_guide_dist, 20.0) * guide_bias
+
                 new_f = tentative_g + h
 
                 came_from_x[nx, ny, nl] = cx
@@ -540,12 +559,16 @@ if HAS_NUMBA:
                 None,
                 False,
                 None,
+                None,
+                None,
+                0.0,
             )
         except:
             pass
 
-        # 6. Warmup for adaptive with cost_map
+        # 6. Warmup for adaptive with cost_map and guide_map
         try:
+            gmap = np.zeros((w, h, l), dtype=np.float32)
             find_path_astar_numba_adaptive(
                 0,
                 0,
@@ -566,6 +589,9 @@ if HAS_NUMBA:
                 None,
                 False,
                 None,
+                None,
+                gmap,
+                0.5,
             )
         except:
             pass

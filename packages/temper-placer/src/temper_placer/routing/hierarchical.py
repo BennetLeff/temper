@@ -123,10 +123,9 @@ def _route_fine_guided(
 ) -> "RoutePath | None":
     """
     Route with clearance, using guide path to bias A* heuristic.
-    
-    Modifies heuristic to favor cells near the guide path, which helps
-    A* navigate through narrow clearance corridors.
-    
+
+    Uses pre-computed guide map passed directly to Numba-accelerated router.
+
     Args:
         router: MazeRouter instance
         net_name: Net name
@@ -135,80 +134,33 @@ def _route_fine_guided(
         guide_path: Coarse path to use as guide
         guide_bias: Heuristic bias factor (0.5 = gentle, 2.0 = aggressive)
         **kwargs: Additional routing args
-    
+
     Returns:
         RoutePath or None
     """
     # Create distance map from guide path
     print(f"  Creating guide map from {len(guide_path.cells)} coarse cells...")
     guide_map = _create_guide_map(router, guide_path)
-    
+
     # Debug guide map statistics
     print(f"    Guide map shape: {guide_map.shape}")
-    print(f"    Guide map min: {guide_map.min():.1f}, max: {guide_map.max():.1f}, mean: {guide_map.mean():.1f}")
-    print(f"    Cells with dist=0 (on path): {(guide_map == 0).sum()}")
-    print(f"    Cells with dist<5: {(guide_map < 5).sum()}")
-    
-    # Store guide map in router for heuristic access
-    # (We need to monkey-patch the heuristic to use this)
-    router._guide_map = guide_map
-    router._guide_bias = guide_bias
-    
-    # Save original heuristic
-    original_heuristic = router._heuristic
-    
-    # Track heuristic call count
-    call_count = [0]
-    
-    def guided_heuristic(a: "GridCell", b: "GridCell") -> float:
-        """Modified heuristic that biases toward guide path."""
-        call_count[0] += 1
-        
-        # Standard Manhattan distance
-        h_manhattan = abs(a.x - b.x) + abs(a.y - b.y)
-        
-        # Distance from current cell to nearest guide cell
-        # CRITICAL FIX: For cross-layer routing, use minimum distance across ALL layers
-        # because coarse path might be sparse on some layers (e.g., 301 cells on L0, 1 on L1)
-        dist_to_guide_current = guide_map[a.x, a.y, a.layer]
-        
-        # Check all layers at this (x,y) position to find minimum distance
-        min_dist_any_layer = dist_to_guide_current
-        for layer in range(guide_map.shape[2]):
-            dist_this_layer = guide_map[a.x, a.y, layer]
-            if dist_this_layer < min_dist_any_layer:
-                min_dist_any_layer = dist_this_layer
-        
-        # Bias: reduce heuristic for cells near guide (makes them more attractive)
-        # Negative bonus = lower f-score = higher priority in A*
-        # Use minimum distance so via transitions aren't heavily penalized
-        h_guide_bonus = -min(min_dist_any_layer, 20) * guide_bias
-        
-        # Debug first few calls
-        if call_count[0] <= 5:
-            print(f"    HEURISTIC[{call_count[0]}]: cell=({a.x},{a.y},L{a.layer}) "
-                  f"goal=({b.x},{b.y},L{b.layer}) "
-                  f"h_manhattan={h_manhattan} dist_current_layer={dist_to_guide_current:.1f} "
-                  f"dist_min_any_layer={min_dist_any_layer:.1f} "
-                  f"bonus={h_guide_bonus:.1f} final={h_manhattan + h_guide_bonus:.1f}")
-        
-        return h_manhattan + h_guide_bonus
-    
+    print(
+        f"    Guide map min: {guide_map.min():.1f}, max: {guide_map.max():.1f}, mean: {guide_map.mean():.1f}"
+    )
+
     try:
-        # Pass guided heuristic as parameter instead of monkey-patching
-        # This ensures it's actually used by find_path_rrr
+        # Pass guide map directly to router
+        # This allows Numba implementation to handle the biasing efficiently
         kwargs_guided = kwargs.copy()
-        kwargs_guided['clearance_mm'] = None
-        kwargs_guided['bypass_clearance_generation'] = True
-        kwargs_guided['custom_heuristic'] = guided_heuristic
-        
+        kwargs_guided["clearance_mm"] = None
+        kwargs_guided["bypass_clearance_generation"] = True
+        kwargs_guided["guide_map"] = guide_map
+        kwargs_guided["guide_bias"] = guide_bias
+
         result = router.route_net_mst(net_name, pin_positions, assignment, **kwargs_guided)
-        
-        print(f"    Guided heuristic called {call_count[0]} times")
-        
+
         return result
     finally:
-        # Clean up (though not needed since we're not monkey-patching anymore)
         pass
 
 

@@ -917,6 +917,12 @@ class MazeRouter:
         if margin is None:
             margin = self._compute_grid_safe_margin(clearance, trace_width)
 
+        # Store component positions for density map (temper-qjlk)
+        self._component_positions = positions
+
+        # Pre-compute density map for O(1) cell difficulty lookup
+        self._compute_density_map()
+
         # Build net-to-pad mapping
         self._pad_net_map: dict[tuple[int, int, int], str] = {}  # (gx, gy, layer) -> net
 
@@ -1027,7 +1033,7 @@ class MazeRouter:
         """Pre-compute component density for all grid cells.
 
         This converts _get_cell_difficulty from O(VisitedCells * NumComponents)
-        to O(1) array lookup.
+        to O(1) array lookup. Uses vectorized NumPy operations for speed.
 
         Args:
             radius_mm: Radius in mm for density calculation (default 10mm)
@@ -1036,28 +1042,34 @@ class MazeRouter:
             self._density_map = np.zeros(self.grid_size + (self.num_layers,), dtype=np.float32)
             return
 
-        radius_cells = radius_mm / self.cell_size
-        radius_cells_sq = radius_cells**2
+        radius_cells_sq = (radius_mm / self.cell_size) ** 2
 
-        density_map = np.zeros(self.grid_size + (self.num_layers,), dtype=np.float32)
+        t0 = time.perf_counter()
+        # Vectorized density computation
+        # Create meshgrid of world coordinates
+        x_coords = np.arange(self.grid_size[0]) * self.cell_size + self.origin[0]
+        y_coords = np.arange(self.grid_size[1]) * self.cell_size + self.origin[1]
+        X, Y = np.meshgrid(x_coords, y_coords, indexing="ij")  # (W, H)
 
-        comp_array = np.asarray(self._component_positions)
+        comp_array = np.asarray(self._component_positions)  # (N, 2)
+        cx = comp_array[:, 0]
+        cy = comp_array[:, 1]
 
-        for l in range(self.num_layers):
-            for gx in range(self.grid_size[0]):
-                for gy in range(self.grid_size[1]):
-                    world_x = gx * self.cell_size + self.origin[0]
-                    world_y = gy * self.cell_size + self.origin[1]
+        density_map_2d = np.zeros(self.grid_size, dtype=np.float32)
 
-                    diffs_x = comp_array[:, 0] - world_x
-                    diffs_y = comp_array[:, 1] - world_y
-                    dists_sq = diffs_x**2 + diffs_y**2
+        # Loop over components (N) and vectorize over grid (W*H)
+        # This is memory efficient and much faster than nested loops over grid
+        for i in range(len(cx)):
+            dists_sq = (X - cx[i]) ** 2 + (Y - cy[i]) ** 2
+            density_map_2d += (dists_sq <= radius_cells_sq).astype(np.float32)
 
-                    count = np.sum(dists_sq <= radius_cells_sq)
-                    density = float(np.clip(count / (np.pi * radius_mm**2 / 100.0), 0.0, 1.0))
-                    density_map[gx, gy, l] = density
+        # Normalize and clip (Match Python behavior)
+        density_map_2d = np.clip(density_map_2d / (np.pi * radius_mm**2 / 100.0), 0.0, 1.0)
 
-        self._density_map = density_map
+        # Expand to 3D by repeating across layers
+        self._density_map = np.repeat(density_map_2d[:, :, np.newaxis], self.num_layers, axis=2)
+
+        logger.debug(f"Pre-computed density map: {self.grid_size} x {self.num_layers}")
 
     def _compute_escape_length(
         self, pin_x: float, pin_y: float, comp: Component | None = None
@@ -2644,6 +2656,8 @@ class MazeRouter:
         via_drill_mm: float | None = None,
         bypass_clearance_generation: bool = False,
         custom_heuristic: "Callable | None" = None,
+        guide_map: np.ndarray | None = None,
+        guide_bias: float = 0.0,
     ) -> RoutePath:
         """Routes a multi-pin net using a Minimum Spanning Tree (MST) approach.
 
@@ -2855,6 +2869,8 @@ class MazeRouter:
                         clearance_mm=clearance_mm,
                         clearance_mask=None,  # TEMP: Disable to test connectivity
                         custom_heuristic=custom_heuristic,
+                        guide_map=guide_map,
+                        guide_bias=guide_bias,
                     )
                     if path:
                         # Cost is path length + via cost
@@ -2904,6 +2920,8 @@ class MazeRouter:
                                 clearance_mm=clearance_mm,
                                 clearance_mask=clearance_mask,
                                 custom_heuristic=custom_heuristic,
+                                guide_map=guide_map,
+                                guide_bias=guide_bias,
                             )
                             if new_path:
                                 new_path_cost = (
@@ -3067,6 +3085,8 @@ class MazeRouter:
         clearance_mm: float | None = None,
         clearance_mask: Array | None = None,
         custom_heuristic: "Callable | None" = None,
+        guide_map: np.ndarray | None = None,
+        guide_bias: float = 0.0,
     ) -> list[GridCell] | None:
         """Find path using A* with RRR cost function.
 
@@ -3074,9 +3094,6 @@ class MazeRouter:
         """
         print(
             f"DEBUG_ASTAR: find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer} allow_change={allow_layer_change}"
-        )
-        print(
-            f"DEBUG_ASTAR: Layer stackup: {[(i, l.name, l.layer_type, l.is_routable, self.layer_stackup.is_plane_layer(i)) for i, l in enumerate(self.layer_stackup.layers)]}"
         )
 
         # Prepare cached arrays for fast lookup
@@ -3097,12 +3114,9 @@ class MazeRouter:
             return None
 
         # If end is blocked on target layer, try to find an accessible layer
-        # CRITICAL: Even if end_layer is explicitly set, the pad might be hard-blocked
-        # We need to check if it's accessible (occupancy != -1)
         if is_end_hard_blocked:
             print(f"DEBUG_ASTAR: End blocked at {end} on target layer {target_layer}")
             found = False
-            # Try all layers to find an accessible one
             for l in range(self.num_layers):
                 if int(self.occupancy[end[0], end[1], l]) != -1:
                     target_layer = l
@@ -3119,40 +3133,21 @@ class MazeRouter:
         if clearance_mask is None and req_clearance > 0 and HAS_NUMBA:
             radius = int(math.ceil(req_clearance / self.cell_size))
             if radius > 0:
-                # Use cached numpy array from _prepare_cost_arrays
-                # If soft_blocking, only dilate hard blocks (-1) to allow RRR to resolve overlaps
-                # If hard blocking, dilate all obstacles
                 if self.soft_blocking:
                     obstacles = (self._occupancy_np == -1).astype(np.int32)
                 else:
                     obstacles = (self._occupancy_np != 0).astype(np.int32)
 
-                # Don't block start and end points (e.g. pads)
-                # But start/end might be inside the clearance zone of another pin?
-                # Usually we want to allow connecting to the pad.
-                # Pad is -1?
-                # If start is at (sx, sy), obstacles[sx, sy] might be 1 if it's -1.
-                # But we checked self.occupancy[start] != -1 above?
-                # Wait, usually pads are -1, but we unblock them temporarily in route_net_rrr.
-                # So obstacles[start] should be 0.
-                # However, if start is close to another pad, dilation might cover it.
-                # We should mask out start and end from clearance_mask.
-
                 clearance_mask = dilate_grid_numba(obstacles, radius)
 
-                # Clear start and end regions from mask to ensure reachability
-                # A small radius around start/end is safe
                 for gx, gy in [(start[0], start[1]), (end[0], end[1])]:
-                    # Clear a box of size radius around pin
                     x_min, x_max = max(0, gx - radius), min(self.grid_size[0], gx + radius + 1)
                     y_min, y_max = max(0, gy - radius), min(self.grid_size[1], gy + radius + 1)
+                    clearance_mask[x_min:x_max, y_min:y_max, :] = 0
+
         # Try Numba implementation first
-        # CRITICAL FIX: Numba implementation (fast_router.py) fails to respect clearance_mask correctly
-        # (See debugging session where Mask=1 in Python but Mask=0 in Numba).
-        # To ensure 0 conflicts (DRC-1/DRC-6), we must bypass Numba if a clearance mask is active.
+        # Now supports clearance_mask and guide_map!
         use_numba = HAS_NUMBA
-        if clearance_mask is not None:
-            use_numba = False
         if custom_heuristic is not None:
             use_numba = False  # Custom heuristics only work in Python A*
 
@@ -3165,17 +3160,14 @@ class MazeRouter:
                 t_numba = time.perf_counter()
                 self.stats.profile.numba_calls += 1
 
-                # Ensure arrays are contiguous and correct type
                 occ = self._occupancy_np.astype(np.int32)
                 hist = self._history_np.astype(np.float32)
                 cong = self._congestion_np.astype(np.float32)
 
-                # Convert cost_map to numpy if present
                 cmap = None
                 if cost_map is not None:
                     cmap = np.asarray(cost_map, dtype=np.float32)
 
-                # Convert soft_c_space to numpy if present
                 cspace = None
                 if self.soft_c_space is not None:
                     cspace = self._soft_c_space_np.astype(np.float32)
@@ -3183,8 +3175,10 @@ class MazeRouter:
                 if clearance_mask is not None:
                     clearance_mask = np.ascontiguousarray(clearance_mask)
 
-                # Call Numba function
-                path_coords = find_path_astar_numba(
+                # Use Adaptive Numba router (supports dist_map, clearance_mask, and guide_map)
+                dist_map = self._compute_distance_map(end_cell, _layer=target_layer)
+
+                path_coords = find_path_astar_numba_adaptive(
                     start[0],
                     start[1],
                     layer,
@@ -3199,28 +3193,24 @@ class MazeRouter:
                     cong,
                     float(self.via_cost),
                     float(p_scale),
+                    dist_map,
                     cmap,
                     clearance_mask,
-                    self.soft_blocking,  # Pass soft_blocking to Numba
+                    self.soft_blocking,
                     cspace,
+                    None,  # tap_mask
+                    guide_map,
+                    float(guide_bias),
                 )
 
-                dt = (time.perf_counter() - t_numba) * 1000.0
-                self.stats.profile.numba_time_ms += dt
-                self.stats.profile.astar_total_ms += dt
-
                 if path_coords:
-                    # Convert back to GridCells
                     dt = (time.perf_counter() - t_numba) * 1000.0
                     self.stats.profile.numba_time_ms += dt
                     self.stats.profile.astar_total_ms += dt
                     return [GridCell(int(x), int(y), int(l)) for x, y, l in path_coords]
                 elif not path_coords:
-                    # Numba returned empty list -> no path found
                     return None
             except Exception as e:
-                # Fallback to Python on any error
-                # Fallback to Python on any error
                 with open("numba_debug.log", "a") as f:
                     f.write(f"Numba routing failed: {e}\n")
                     import traceback
