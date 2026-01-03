@@ -230,6 +230,7 @@ class Zone:
     components: list[str] = field(default_factory=list)
     weight: float = 1.0
     polygon: list[tuple[float, float]] | None = None  # Optional polygon vertices for non-rectangular zones
+    layers: list[str] = field(default_factory=lambda: ["F.Cu"])
 
     @property
     def width(self) -> float:

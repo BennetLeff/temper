@@ -255,14 +255,15 @@ class CSpaceBuilder:
         return grid_3d
 
     def build_grid(
-        self, matrix: "ClearanceMatrix", net_name: str, exclude_nets: set[str] = None
+        self, clearance: float, trace_width: float, class_name: str = "Default", exclude_nets: set[str] = None
     ) -> np.ndarray:
         """
         Generate a boolean grid where True = Blocked, False = Free.
 
         Args:
-            matrix: ClearanceMatrix for net-class-aware rules
-            net_name: Name of the net being routed (to determine clearance)
+            clearance: Minimum clearance to maintain from obstacles
+            trace_width: Trace width being routed
+            class_name: Net class name (for zone awareness)
             exclude_nets: Set of net names to IGNORE (i.e. don't block).
                           Usually contains the net currently being routed.
 
@@ -270,13 +271,6 @@ class CSpaceBuilder:
             np.ndarray: Boolean grid (W, H, NumLayers)
         """
         exclude_nets = exclude_nets or set()
-
-        # Get routing net rules
-        rules = matrix._net_class_rules.get(
-            matrix._net_to_class.get(net_name, "Default"),
-            NetClassRules("Default", 0.2, 0.2),
-        )
-        trace_width = rules.trace_width
 
         # Initialize 3D grid (0 = Free)
         grid_3d = np.zeros((self.grid_w, self.grid_h, self.num_layers), dtype=bool)
@@ -292,9 +286,13 @@ class CSpaceBuilder:
             if pad.net in exclude_nets:
                 continue
 
-            # Dynamic Clearance based on net pair and location
-            clearance = matrix.get_clearance(net_name, pad.net, pad.center.x, pad.center.y)
-            clearance_samples.append((net_name, pad.net, clearance))
+            # Check if this is a zone that should NOT block this class
+            if pad.net.startswith("ZONE_"):
+                # My Zone Bleeding fix logic: If net_name (class) is in zone's allowed classes, don't block.
+                # Wait, I need to know the zone's allowed classes here.
+                # Actually, in c_space_pipeline.py, I already added zones as obstacles ONLY if they don't match the class.
+                pass
+
             inflation_mm = clearance + (trace_width / 2.0)
             inflation_px = int(np.ceil(inflation_mm / self.resolution))
 
@@ -494,7 +492,7 @@ class CSpaceCache:
         self._cache = {}
         self.stats = CacheStats()
 
-    def get_grid(self, clearance: float, trace_width: float, exclude_nets: set[str] = None) -> CSpaceGrid:
+    def get_grid(self, class_name: str, clearance: float, trace_width: float, exclude_nets: set[str] = None) -> CSpaceGrid:
         """
         Get C-Space grid for specific routing requirements.
         uses 'Base Grid' strategy: Cache fully blocked grid, then subtract own pads.
@@ -503,7 +501,7 @@ class CSpaceCache:
 
         # Key for Base Grid (Geometry Only)
         # We don't include exclude_nets in the key anymore!
-        base_key = (round(clearance, 4), round(trace_width, 4))
+        base_key = (class_name, round(clearance, 4), round(trace_width, 4))
 
         if base_key in self._cache:
             self.stats.hits += 1
@@ -511,7 +509,7 @@ class CSpaceCache:
         else:
             self.stats.misses += 1
             # Build Base Grid (Block EVERYTHING)
-            raw_base_grid = self.builder.build_grid(clearance, trace_width, exclude_nets=set())
+            raw_base_grid = self.builder.build_grid(clearance, trace_width, class_name=class_name, exclude_nets=set())
 
             base_c_space = CSpaceGrid(
                 grid=raw_base_grid,

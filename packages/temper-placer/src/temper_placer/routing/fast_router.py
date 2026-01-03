@@ -149,6 +149,8 @@ def find_path_astar_numba(
     cell_size=1.0,
     primary_layer_idx=-1,
     layer_penalty=0.0,
+    owner_grid=None,
+    current_net_id=0,
 ):
     """
     Numba-accelerated A* pathfinding.
@@ -347,9 +349,19 @@ def find_path_astar_numba(
                 else:
                     strategy_mult = cost_map[nx, ny, nl]
 
+            # Net ownership check (prevent same-layer crossing)
+            owner_penalty = 0.0
+            if owner_grid is not None and current_net_id != 0:
+                owner = owner_grid[nx, ny, nl]
+                if owner != 0 and owner != current_net_id:
+                    # HEAVY penalty for crossing another net on the same layer
+                    # In final pass (soft_blocking=False), this is impassable due to occupancy=2
+                    # In RRR iterations, this helps avoid creating shortcuts through other nets
+                    owner_penalty = 1000.0
+
             move_cost = (
                 strategy_mult
-                * (step_cost + h_cost + c_space_cost + sharing)
+                * (step_cost + h_cost + c_space_cost + sharing + owner_penalty)
                 * (1.0 + p_cost * p_scale)
             )
 
@@ -406,6 +418,8 @@ def find_path_astar_numba_adaptive(
     allowed_layers_mask=None,
     primary_layer_idx=-1,
     layer_penalty=0.0,
+    owner_grid=None,
+    current_net_id=0,
 ):
     """
     Numba-accelerated A* pathfinding with adaptive distance map heuristic.
@@ -536,7 +550,11 @@ def find_path_astar_numba_adaptive(
 
             c_space_cost = 0.0
             if soft_c_space is not None:
-                c_space_cost = soft_c_space[nx, ny]
+                if soft_c_space.ndim == 2:
+                    c_space_cost = soft_c_space[nx, ny]
+                else:
+                    c_space_cost = soft_c_space[nx, ny, nl]
+
                 if c_space_cost == INF:
                     continue
 
@@ -576,9 +594,16 @@ def find_path_astar_numba_adaptive(
             if strategy_mult >= INF:
                 continue
 
+            # Net ownership check (prevent same-layer crossing)
+            owner_penalty = 0.0
+            if owner_grid is not None and current_net_id != 0:
+                owner = owner_grid[nx, ny, nl]
+                if owner != 0 and owner != current_net_id:
+                    owner_penalty = 1000000.0
+
             move_cost = (
                 strategy_mult
-                * (step_cost + h_cost + c_space_cost + sharing)
+                * (step_cost + h_cost + c_space_cost + sharing + owner_penalty)
                 * (1.0 + p_cost * p_scale)
             )
 

@@ -141,8 +141,8 @@ def path_to_segments(
             continue
 
         # Convert grid to world coordinates
-        start = grid_to_world(c1, origin, cell_size)
-        end = grid_to_world(c2, origin, cell_size)
+        start = grid_to_world(c1, origin, path.cell_size)
+        end = grid_to_world(c2, origin, path.cell_size)
         layer_name = layer_map.get(c1.layer, "F.Cu")
 
         segments.append(
@@ -204,7 +204,7 @@ def path_to_vias(
         if c1.layer != c2.layer:
             # Via is placed at the location where layer changes
             # Use the position of the cell AFTER the transition
-            pos = grid_to_world(c2, origin, cell_size)
+            pos = grid_to_world(c2, origin, path.cell_size)
 
             # For through-hole via, specify all layers
             # For blind/buried via, would need specific layer pair
@@ -374,13 +374,13 @@ def export_routed_pcb(
         trace_width = trace_widths.get(net_name, default_trace_width) if trace_widths else default_trace_width
 
         # Convert path to geometry
-        segments = path_to_segments(path, origin, cell_size, trace_width, layer_map)
+        segments = path_to_segments(path, origin, path.cell_size, trace_width, layer_map)
         
         # Use explicit vias (e.g. via arrays) if present, otherwise infer from layer transitions
         if path.explicit_vias:
             vias = path.explicit_vias
         else:
-            vias = path_to_vias(path, origin, cell_size, via_size, via_drill, layer_map)
+            vias = path_to_vias(path, origin, path.cell_size, via_size, via_drill, layer_map)
 
         all_segments.extend(segments)
         all_vias.extend(vias)

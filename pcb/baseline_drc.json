@@ -1,0 +1,39 @@
+============================================================
+VIOLATION TAXONOMY REPORT
+============================================================
+
+Total violations: 999
+
+By Category:
+  Via Placement              673 ( 67.4%)
+  Zone Bleeding              109 ( 10.9%)
+  Trace Crossing              77 (  7.7%)
+  Clearance Insufficient      72 (  7.2%)
+  Unknown                     35 (  3.5%)
+  Pad Entry                   33 (  3.3%)
+
+By Net (Top 10):
+  GND                        409 violations
+  +3V3                       147 violations
+  AC_L                       102 violations
+  I_SENSE                     93 violations
+  +5V                         92 violations
+  SPI_MISO                    78 violations
+  +15V                        69 violations
+  <no net>                    67 violations
+  SPI_MOSI                    60 violations
+  PWM_H                       56 violations
+  ... and 15 more nets
+
+By Location (Grid Quadrant):
+  Top-Right        448 ( 44.8%)
+  Top-Left         220 ( 22.0%)
+  Bottom-Right     187 ( 18.7%)
+  Bottom-Left      144 ( 14.4%)
+
+Top 3 Root Causes:
+  1. Via Placement (67%) - Fix: Implement via consolidation pass and via keepout checking
+  2. Zone Bleeding (11%) - Fix: Complete zone integration in A* pathfinding (consider zones as obstacles)
+  3. Trace Crossing (8%) - Fix: Add same-layer crossing detection in routing cost function
+
+============================================================

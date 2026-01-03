@@ -124,6 +124,7 @@ class NetClassRules:
     voltage_v: float = 0.0  # Voltage rating for safety distance calculation
     routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
     via_cost_multiplier: float = 1.0  # Multiplier for via cost (higher = fewer vias)
+    layer_costs: dict[str, float] | None = None  # Layer-specific cost multipliers {"F.Cu": 10.0, "In1.Cu": 0.1, ...}
 
 
 @dataclass

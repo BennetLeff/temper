@@ -13,12 +13,13 @@ class RoutingViolation:
     message: str
 
 class RoutingValidator:
-    def __init__(self, cell_size_mm: float, grid_size: tuple[int, int], num_layers: int):
-        self.cell_size = cell_size_mm
+    def __init__(self, default_cell_size_mm: float, grid_size: tuple[int, int], num_layers: int):
+        self.default_cell_size = default_cell_size_mm
         self.grid_size = grid_size
         self.num_layers = num_layers
-        self.occupancy_map: dict[tuple[int, int, int], str] = {}
+        self.occupancy_map: dict[tuple[int, int, int], str] = {} # Keyed by world-scale (finest grid) coordinates
         self.violations: list[RoutingViolation] = []
+        self.master_resolution = 0.05 # 50 micron granularity for "is-occupied" checking
 
     def _grid_to_world(self, gx: int, gy: int) -> tuple[float, float]:
         return (str(gx * self.cell_size), str(gy * self.cell_size)) # Approximation for reporting
@@ -39,20 +40,40 @@ class RoutingValidator:
 
             # handle path object vs list
             cells = path.cells if hasattr(path, 'cells') else path
+            path_cell_size = path.cell_size if hasattr(path, 'cell_size') else self.default_cell_size
 
             for cell in cells:
-                # cell has x, y, layer
-                key = (cell.x, cell.y, cell.layer)
+                # Convert this cell to master grid coordinates
+                # world_x = cell.x * path_cell_size
+                # world_y = cell.y * path_cell_size
+                # mx = int(round(world_x / self.master_resolution))
+                # my = int(round(world_y / self.master_resolution))
+                
+                # To be safer with floats, use integer scaling if resolutions are multiples
+                # e.g. if path_cell_size = 0.2 and master = 0.05, scaling factor is 4
+                scale = int(round(path_cell_size / self.master_resolution))
+                
+                # A single path cell at path_cell_size covers a square of master grid cells
+                # if path_cell_size > master_resolution.
+                # For simplicity, we check the center, but to be robust we should check the whole footprint.
+                # However, the router already enforces clearance.
+                # Let's just check the center point for the "SHORT" check, but use the correct world position.
+                mx = cell.x * scale
+                my = cell.y * scale
+                
+                key = (mx, my, cell.layer)
 
                 if key in self.occupancy_map:
                     other_net = self.occupancy_map[key]
                     if other_net != net_name:
                         # SHORT DETECTED
+                        world_x = cell.x * path_cell_size
+                        world_y = cell.y * path_cell_size
                         self.violations.append(RoutingViolation(
                             violation_type="SHORT",
                             net_name=net_name,
-                            location=(cell.x * self.cell_size, cell.y * self.cell_size, cell.layer),
-                            message=f"Short between {net_name} and {other_net} at ({cell.x}, {cell.y})"
+                            location=(world_x, world_y, cell.layer),
+                            message=f"Short between {net_name} and {other_net} at world({world_x:.2f}, {world_y:.2f})mm"
                         ))
                 else:
                     self.occupancy_map[key] = net_name
@@ -100,24 +121,30 @@ class RoutingValidator:
 
                     # Assume rotation 0 for now as per loop assumptions
                     px, py = pin.absolute_position(c_pos, 0.0)
-                    gx = int(round(px / self.cell_size))
-                    gy = int(round(py / self.cell_size))
+                    
+                    # Use world-to-path_cell_size mapping if we want to check path_set
+                    # But path_set is also grid-based.
+                    # Best is to use world coordinates for Connectivity too.
+                    
+                    # Convert to master grid
+                    mx = int(round(px / self.master_resolution))
+                    my = int(round(py / self.master_resolution))
 
-                    # Check if (gx, gy) on ANY layer is in path
-                    # (Pins usually connect to all layers or specific ones? THT=All, SMD=Top/Bot)
-                    # Simplified: Check Top or Bottom or match specific
                     found = False
                     for l in range(self.num_layers):
-                        if (gx, gy, l) in path_set:
+                        if (mx, my, l) in self.occupancy_map and self.occupancy_map[(mx, my, l)] == net.name:
                             found = True
                             break
-                    # Also check neighbors if strictness fails? (Pin mapping drift)
+                    
                     if not found:
-                         # Radius check
-                         for dx in [-1, 0, 1]:
-                             for dy in [-1, 0, 1]:
+                         # Radius check in master grid
+                         # (Approx 0.5mm search)
+                         search_px = int(round(0.5 / self.master_resolution))
+                         for dx in range(-search_px, search_px + 1):
+                             for dy in range(-search_px, search_px + 1):
                                  for l in range(self.num_layers):
-                                     if (gx+dx, gy+dy, l) in path_set:
+                                     mkey = (mx+dx, my+dy, l)
+                                     if mkey in self.occupancy_map and self.occupancy_map[mkey] == net.name:
                                          found = True
                                          break
                                  if found: break

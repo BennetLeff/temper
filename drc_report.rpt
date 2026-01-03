@@ -1,0 +1,32 @@
+** Drc report for repro_zone_bleeding_routed.kicad_pcb **
+** Created on 2026-01-03T09:52:43-0600 **
+
+** Found 6 DRC violations **
+[shorting_items]: Items shorting two nets (nets SIGNAL and )
+    Local override; error
+    @(10.0000 mm, 10.0000 mm): Track [SIGNAL] on F.Cu, length 1.5033 mm
+    @(10.0000 mm, 10.0000 mm): PTH pad 1 [<no net>] of J1
+[shorting_items]: Items shorting two nets (nets SIGNAL and )
+    Local override; error
+    @(18.1000 mm, 10.1000 mm): Track [SIGNAL] on F.Cu, length 1.9026 mm
+    @(20.0000 mm, 10.0000 mm): PTH pad 1 [<no net>] of J2
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(10.0000 mm, 10.0000 mm): Track [SIGNAL] on F.Cu, length 1.5033 mm
+    @(10.0000 mm, 10.0000 mm): PTH pad 1 [<no net>] of J1
+[solder_mask_bridge]: Front solder mask aperture bridges items with different nets
+    Rule: board setup solder mask min width; error
+    @(18.1000 mm, 10.1000 mm): Track [SIGNAL] on F.Cu, length 1.9026 mm
+    @(20.0000 mm, 10.0000 mm): PTH pad 1 [<no net>] of J2
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(10.0000 mm, 10.0000 mm): Footprint J1
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(20.0000 mm, 10.0000 mm): Footprint J2
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **

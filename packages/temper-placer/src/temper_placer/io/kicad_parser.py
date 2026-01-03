@@ -28,6 +28,15 @@ class TraceData:
     width: float  # trace width in mm
     layer: str  # e.g., 'F.Cu', 'B.Cu'
     net: str | None = None  # net name
+@dataclass
+class ViaData:
+    """Data for a PCB via."""
+
+    position: tuple[float, float]  # (x, y) in mm, absolute
+    diameter: float  # mm
+    drill: float  # mm
+    net: str | None = None  # net name
+    layers: tuple[str, str] = ("F.Cu", "B.Cu")
 
 
 @dataclass
@@ -61,6 +70,7 @@ class ParseResult:
     board: Board | None
     warnings: list[str]
     traces: list[TraceData] = field(default_factory=list)
+    vias: list[ViaData] = field(default_factory=list)
     pads: list[PadData] = field(default_factory=list)
 
     @property
@@ -112,12 +122,15 @@ def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
             elif hasattr(n, "code") and hasattr(n, "name"):  # Older kiutils?
                 net_map[str(n.code)] = n.name
 
-    # Extract traces and pads (optional but useful for visualization)
+    # Extract traces, vias, and pads (optional but useful for visualization/optimization)
     traces = _extract_traces_from_pcb(ki_board, warnings, net_map)
+    vias = _extract_vias_from_pcb(ki_board, warnings, net_map)
     pads = _extract_pads_from_pcb(ki_board, warnings)
 
     netlist = Netlist(components=components, nets=nets)
-    return ParseResult(netlist=netlist, board=board, warnings=warnings, traces=traces, pads=pads)
+    return ParseResult(
+        netlist=netlist, board=board, warnings=warnings, traces=traces, vias=vias, pads=pads
+    )
 
 
 def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult:
@@ -214,7 +227,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
         if ki_zone.polygons:
             poly = ki_zone.polygons[0]
             # Try points or pts based on kiutils version
-            pts = getattr(poly, "points", None) or getattr(poly, "pts", [])
+            pts = getattr(poly, "points", None) or getattr(poly, "pts", None) or getattr(poly, "coordinates", [])
             x_pts = [p.X - x_min for p in pts]
             y_pts = [p.Y - y_min for p in pts]
             if x_pts and y_pts:
@@ -244,6 +257,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
                         bounds=bounds,
                         net_classes=[ki_zone.netName] if ki_zone.netName else ["Signal"],
                         polygon=polygon,
+                        layers=ki_zone.layers if hasattr(ki_zone, "layers") else ["F.Cu"],
                     )
                 )
 
@@ -472,6 +486,48 @@ def _extract_traces_from_pcb(
                 )
             )
     return traces
+
+
+def _extract_vias_from_pcb(
+    ki_board: KiBoard, warnings: list[str], net_map: dict[str, str] | None = None
+) -> list[ViaData]:
+    """
+    Extract vias from board.
+
+    Args:
+        ki_board: Parsed board.
+        warnings: List for warning messages.
+        net_map: Dictionary mapping net ID to name.
+
+    Returns:
+        List of ViaData.
+    """
+    if net_map is None:
+        net_map = {}
+
+    vias = []
+    vias = []
+    for track in ki_board.traceItems:
+        # Check if it's a Via object (has position but no start/end)
+        if hasattr(track, "position") and not hasattr(track, "start"):
+            net_name = None
+            if track.net:
+                if hasattr(track.net, "name") and track.net.name:
+                    net_name = track.net.name
+                else:
+                    net_id = str(track.net.number) if hasattr(track.net, "number") else str(track.net)
+                    net_name = net_map.get(net_id, net_id)
+
+            vias.append(
+                ViaData(
+                    position=(track.position.X, track.position.Y),
+                    diameter=track.size,
+                    drill=track.drill or 0.4,
+                    net=net_name,
+                    layers=tuple(track.layers) if hasattr(track, "layers") else ("F.Cu", "B.Cu"),
+                )
+            )
+    return vias
 
 
 def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadData]:

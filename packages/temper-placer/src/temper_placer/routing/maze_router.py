@@ -113,6 +113,7 @@ class RoutePath:
     length: float
     via_count: int
     success: bool
+    cell_size: float = 0.2  # Grid cell size in mm used for this path
     difficulty: float = 0.0
     cell_difficulties: list[float] = field(default_factory=list)
     failure_reason: str | None = None
@@ -216,6 +217,10 @@ class MazeRouter:
         )
         self.min_clearance = min_clearance
         self.design_rules = design_rules
+        
+        # Zone-aware clearance matrix (temper-d6kv.3)
+        self.clearance_matrix: "ClearanceMatrix | None" = None
+
 
         if layer_stackup is None:
             from temper_placer.core.board import LayerStackup
@@ -243,6 +248,20 @@ class MazeRouter:
         # DRC-1: Cell ownership for net isolation (prevents shorts between nets)
         # Each cell is owned by exactly ONE net (first-come-first-served in strict mode)
         self.cell_owner: dict[tuple[int, int, int], str] = {}
+        # owner_grid uses integer IDs for Numba compatibility (0=none, >0=net_id)
+        self.owner_grid = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.int32)
+        self.net_to_id: dict[str, int] = {}
+        self._next_net_id = 1
+        
+        # Zone-aware clearance grid (temper-d6kv.2)
+        # Stores the required clearance for each cell based on zone context
+        # Initialized to default, updated per-net during routing via _precompute_clearance_grid()
+        self.clearance_grid = np.full(
+            (grid_size[0], grid_size[1], num_layers),
+            fill_value=min_clearance,
+            dtype=np.float32
+        )
+
 
         self._component_positions: Array | None = None
         self.stats = RoutingStats()
@@ -254,10 +273,11 @@ class MazeRouter:
         # Net convergence tracking for early termination
         self._net_status: dict[str, NetStatus] = {}
 
-        # Note: numpy cache no longer needed since grids are already numpy
+        # Numba optimization arrays (numpy views for JIT access)
         self._history_np: np.ndarray | None = None
         self._congestion_np: np.ndarray | None = None
         self._occupancy_np: np.ndarray | None = None
+        self._soft_c_space_np: np.ndarray | None = None
 
         # DRC Oracle integration (temper-mado)
         self.drc_oracle = drc_oracle
@@ -284,35 +304,70 @@ class MazeRouter:
         # Pre-computed density map for O(1) cell difficulty lookup (temper-qjlk)
         self._density_map: np.ndarray | None = None
 
+    def _get_net_id(self, net_name: str) -> int:
+        """Get or create a unique integer ID for a net."""
+        if net_name not in self.net_to_id:
+            self.net_to_id[net_name] = self._next_net_id
+            self._next_net_id += 1
+        return self.net_to_id[net_name]
+
     def _get_inflated_cells(
-        self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None
+        self,
+        x: int,
+        y: int,
+        layer: int,
+        width_mm: float = None,
+        clearance_mm: float = None,
+        all_layers: bool = False,
     ) -> list[tuple[int, int, int]]:
         """Get all cells that a shape at (x,y) with given width/clearance would occupy.
 
         This accounts for actual copper footprint plus clearance.
+        
+        Updated for temper-d6kv.3: Now reads from zone-aware clearance_grid when
+        clearance_mm is None, enabling spatially-varying clearance requirements.
 
         Args:
             x, y, layer: Center cell
             width_mm: Shape width/diameter in mm (uses default trace width if None)
-            clearance_mm: Minimum clearance in mm (uses self.min_clearance if None)
+            clearance_mm: Minimum clearance in mm (if None, uses clearance_grid if available,
+                         otherwise falls back to self.min_clearance)
+            all_layers: If True, return cells for all layers at these (x, y) coordinates.
 
         Returns:
             List of (x, y, layer) tuples for all affected cells
         """
         width = width_mm if width_mm is not None else self._default_trace_width_mm
-        clearance = clearance_mm if clearance_mm is not None else self.min_clearance
+        
+        # Zone-aware clearance (temper-d6kv.3): Read from grid when available
+        if clearance_mm is not None:
+            # Explicit clearance provided - use it
+            clearance = clearance_mm
+        elif hasattr(self, 'clearance_grid') and self.clearance_grid is not None:
+            # Use zone-aware clearance from precomputed grid
+            # Bounds-check the grid access
+            if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:
+                clearance = float(self.clearance_grid[x, y, layer])
+            else:
+                clearance = self.min_clearance
+        else:
+            # No zone awareness - use default
+            clearance = self.min_clearance
 
         # Inflation radius in cells: shape extends width/2 + clearance from center
         required_radius_mm = (width / 2.0) + clearance
         radius_cells = int(np.ceil(required_radius_mm / self.cell_size))
 
         cells = []
+        layers = range(self.num_layers) if all_layers else [layer]
+
         for dx in range(-radius_cells, radius_cells + 1):
             for dy in range(-radius_cells, radius_cells + 1):
                 nx, ny = x + dx, y + dy
                 # Bounds check
                 if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
-                    cells.append((nx, ny, layer))
+                    for l in layers:
+                        cells.append((nx, ny, l))
         return cells
 
     @classmethod
@@ -339,7 +394,18 @@ class MazeRouter:
 
         width_cells = int(math.ceil(board.width / cell_size_mm))
         height_cells = int(math.ceil(board.height / cell_size_mm))
-        return cls(
+        
+        # Parse clearance matrix from board for zone-aware routing (temper-d6kv.3)
+        clearance_matrix = None
+        try:
+            from temper_placer.routing.constraints.design_rules import ClearanceMatrix
+            clearance_matrix = ClearanceMatrix.parse(board)
+        except Exception as e:
+            # Clearance matrix parsing is optional - router works without it
+            import logging
+            logging.warning(f"Could not parse ClearanceMatrix: {e}")
+        
+        router = cls(
             grid_size=(width_cells, height_cells),
             cell_size_mm=cell_size_mm,
             num_layers=num_layers,
@@ -354,6 +420,12 @@ class MazeRouter:
             design_rules=design_rules,
             wrong_way_penalty=wrong_way_penalty,
         )
+        
+        # Assign clearance matrix after construction
+        router.clearance_matrix = clearance_matrix
+        
+        return router
+
 
     def resize_grid(self, new_cell_size_mm: float) -> None:
         """Resize the routing grid to a new resolution.
@@ -406,22 +478,45 @@ class MazeRouter:
         for x, y, l in zip(*indices):
             val = old_occupancy[x, y, l]
 
-            if factor < 1.0:  # Upsampling (Coarse -> Fine)
+            if factor < 1.0:  # Downsampling (Fine -> Coarse) e.g. 0.05 -> 0.2 (0.25)
+                # Map old index to new index
+                # We want to be conservative. If ANY fine cell is blocked (-1), the coarse cell is blocked.
+                
+                # Check for empty slice issues with simple multiplication
+                # Correct approach: Calculate range in new grid that overlaps with old cell
+                # But since we iterate old cells, each old cell maps to exactly ONE new cell (center to center)
+                nx = int((x + 0.5) * factor)
+                ny = int((y + 0.5) * factor)
+                
+                if 0 <= nx < new_grid_size[0] and 0 <= ny < new_grid_size[1]:
+                    current_val = self.occupancy[nx, ny, l]
+                    
+                    # Priority: Blocked (-1) > Trace/Soft (2) > Empty (0)
+                    if val == -1:
+                        self.occupancy[nx, ny, l] = -1
+                    elif val == 2 and current_val != -1:
+                        self.occupancy[nx, ny, l] = 2
+                        
+            else:  # Upsampling (Coarse -> Fine) e.g. 0.2 -> 0.05 (4.0)
+                # One old cell maps to a range of new cells
                 nx_s = int(x * factor)
                 ny_s = int(y * factor)
                 nx_e = int((x + 1) * factor)
                 ny_e = int((y + 1) * factor)
-                # Ensure we don't go out of bounds due to rounding
+                
+                # Ensure bounds
                 nx_e = min(nx_e, new_grid_size[0])
                 ny_e = min(ny_e, new_grid_size[1])
+                
+                # For upsampling, we just fill the region
+                # If we are overwriting, we should also respect existing blocks if any? 
+                # Usually upsampling initializes an empty fine grid, so simple fill is fine.
+                # But if fine grid already had content?
+                
+                # Vectorized fill is valid here
+                # However, if target has -1, don't overwrite with 2?
+                # Assuming simple fill for now as primary use is initialization.
                 self.occupancy[nx_s:nx_e, ny_s:ny_e, l] = val
-            else:  # Downsampling (Fine -> Coarse)
-                nx = int(round(x * factor))
-                ny = int(round(y * factor))
-                if 0 <= nx < new_grid_size[0] and 0 <= ny < new_grid_size[1]:
-                    # Prefer hard blocks (-1) over trace blocks (2)
-                    if self.occupancy[nx, ny, l] == 0 or val == -1:
-                        self.occupancy[nx, ny, l] = val
 
         # Sync congestion to reflect occupied cells
         self.present_congestion[self.occupancy != 0] = 1.0
@@ -447,6 +542,7 @@ class MazeRouter:
                         # DRC-1: Clear ownership
                         if (ax, ay, al) in self.cell_owner:
                             del self.cell_owner[(ax, ay, al)]
+                        self.owner_grid[ax, ay, al] = 0
                     self.present_congestion[ax, ay, al] = max(
                         0.0, self.present_congestion[ax, ay, al] - 1.0
                     )
@@ -491,6 +587,7 @@ class MazeRouter:
                     length=len(cells),
                     via_count=0,
                     success=True,
+                    cell_size=self.cell_size,
                 )
             else:
                 existing = self.routed_paths[net_name]
@@ -542,13 +639,10 @@ class MazeRouter:
         """
         base_cost = 1.0
         
-        # Layer preference penalty (discourage layers other than primary_layer)
-        if hasattr(self, "_current_assignment") and self._current_assignment:
-            primary_idx = self._current_assignment.primary_layer.value - 1
-            if neighbor.layer != primary_idx:
-                # Add significant penalty for using non-primary layers
-                # This ensures we prefer primary layer unless it's blocked
-                base_cost += 5.0
+        # PROFESSIONAL LAYER COST SYSTEM (temper-b577)
+        if hasattr(self, "_current_net_rules") and self._current_net_rules:
+            layer_cost_mult = self.get_layer_cost(self._current_net_rules, neighbor.layer)
+            base_cost *= layer_cost_mult
 
         # Wrong-way penalty
         wrong_way_cost = 0.0
@@ -757,6 +851,13 @@ class MazeRouter:
         # Sync occupancy to NumPy if it changed or hasn't been created
         # Note: We always re-create or sync to ensure it's up to date
         self._occupancy_np = np.array(self.occupancy, dtype=np.int32)
+        self._history_np = np.array(self.history_cost, dtype=np.float32)
+        self._congestion_np = np.array(self.present_congestion, dtype=np.float32)
+        
+        if hasattr(self, "soft_c_space") and self.soft_c_space is not None:
+             self._soft_c_space_np = np.array(self.soft_c_space, dtype=np.float32)
+        else:
+             self._soft_c_space_np = None
 
 
     def _clear_cost_arrays(self) -> None:
@@ -881,10 +982,10 @@ class MazeRouter:
         half_widths = np.array([comp.bounds[0] / 2 + margin for comp in components])
         half_heights = np.array([comp.bounds[1] / 2 + margin for comp in components])
 
-        x_min = np.round((cx - half_widths - self.origin[0]) / self.cell_size).astype(int)
-        x_max = np.round((cx + half_widths - self.origin[0]) / self.cell_size).astype(int)
-        y_min = np.round((cy - half_heights - self.origin[1]) / self.cell_size).astype(int)
-        y_max = np.round((cy + half_heights - self.origin[1]) / self.cell_size).astype(int)
+        x_min = np.floor((cx - half_widths - self.origin[0]) / self.cell_size).astype(int)
+        x_max = np.ceil((cx + half_widths - self.origin[0]) / self.cell_size).astype(int)
+        y_min = np.floor((cy - half_heights - self.origin[1]) / self.cell_size).astype(int)
+        y_max = np.ceil((cy + half_heights - self.origin[1]) / self.cell_size).astype(int)
 
         widths = x_max - x_min
         heights = y_max - y_min
@@ -1026,6 +1127,185 @@ class MazeRouter:
         # standard clearance for non-HV nets
         return self.min_clearance
 
+    def _precompute_clearance_grid(
+        self,
+        net_name: str,
+        clearance_matrix: "ClearanceMatrix | None" = None,  
+    ) -> None:
+        """Precompute zone-aware per-cell clearance requirements for routing this net.
+        
+        This method populates self.clearance_grid with the maximum required clearance
+        at each cell, accounting for:
+        1. Base clearance between net classes
+        2. Zone-specific clearance overrides (e.g., 3.0mm in HV zones)
+        
+        The clearance grid is consumed by the A* pathfinder to make zone-aware routing
+        decisions without requiring per-cell function calls (Numba compatible).
+        
+        Args:
+            net_name: The net being routed
+            clearance_matrix: Optional clearance matrix with zone manager.
+                             If None, uses default clearance everywhere.
+        
+        Performance: O(grid_cells) - called once per net before routing.
+        Memory: Reuses existing self.clearance_grid array (no allocation).
+        
+        Related: temper-d6kv.2, temper-d6kv.3 (zone-aware routing integration)
+        """
+        if clearance_matrix is None or clearance_matrix.zone_manager is None:
+            # No zone awareness - use default clearance everywhere
+            self.clearance_grid.fill(self.min_clearance)
+            return
+        
+        # Get all other nets that are already routed (have traces on grid)
+        routed_nets = list(self.routed_paths.keys())
+        
+        if not routed_nets:
+            # First net - use default clearance
+            self.clearance_grid.fill(self.min_clearance)
+            return
+        
+        # For each cell, compute max clearance required against all routed nets
+        # This is conservative but correct - we ensure clearance to ANY existing trace
+        for layer in range(self.num_layers):
+            for x in range(self.grid_size[0]):
+                for y in range(self.grid_size[1]):
+                    # Skip if cell is empty (no trace to clear from)
+                    if self.occupancy[x, y, layer] == 0:
+                        self.clearance_grid[x, y, layer] = self.min_clearance
+                        continue
+                    
+                    # Cell has a trace - compute clearance requirement
+                    # Convert grid coordinates to world coordinates (mm)
+                    world_x = self.origin[0] + (x + 0.5) * self.cell_size
+                    world_y = self.origin[1] + (y + 0.5) * self.cell_size
+                    
+                    # Find max clearance needed between current net and any routed net
+                    max_clearance = self.min_clearance
+                    for other_net in routed_nets:
+                        if other_net == net_name:
+                            continue  # Same net doesn't need clearance
+                        
+                        # Query zone-aware clearance
+                        clearance = clearance_matrix.get_clearance(
+                            net_name, other_net, world_x, world_y
+                        )
+                        max_clearance = max(max_clearance, clearance)
+                    
+                    self.clearance_grid[x, y, layer] = max_clearance
+
+
+    def block_zones(
+        self,
+        zones: list,
+        clearance: float = 0.0,
+        layer_map: dict[str, int] | None = None,
+    ) -> None:
+        """Block grid cells occupied by zones.
+
+        Uses OpenCV for efficient rasterization and dilation.
+
+        Args:
+            zones: List of kiutils Zone objects
+            clearance: Clearance distance in mm
+            layer_map: Map of layer names to indices
+        """
+        try:
+            import cv2
+        except ImportError:
+            logging.warning("OpenCV not found, cannot block zones.")
+            return
+
+        if layer_map is None:
+            # Default simple mapping
+            layer_map = {"F.Cu": 0, "B.Cu": self.num_layers - 1}
+            if self.num_layers == 4:
+                layer_map.update({"In1.Cu": 1, "In2.Cu": 2})
+
+        # Calculate kernel size for dilation (inflation)
+        # We dilate the mask to account for clearance + potential aliasing
+        kernel_size = 0
+        if clearance > 0:
+            kernel_size = int(math.ceil(clearance / self.cell_size))
+
+        for zone in zones:
+            # Handle layer mapping
+            target_layers = []
+            if hasattr(zone, "layers"):
+                for lname in zone.layers:
+                    if lname in layer_map:
+                        l_idx = layer_map[lname]
+                        if 0 <= l_idx < self.num_layers:
+                            target_layers.append(l_idx)
+            elif hasattr(zone, "layer"):  # Handle legacy/singular
+                 if zone.layer in layer_map:
+                        l_idx = layer_map[zone.layer]
+                        if 0 <= l_idx < self.num_layers:
+                            target_layers.append(l_idx)
+            
+            if not target_layers:
+                continue
+
+            # Determine polygon source
+            polys_to_process = []
+            is_kiutils = False
+            
+            if hasattr(zone, "polygons") and zone.polygons:
+                polys_to_process = zone.polygons
+                is_kiutils = True
+            elif hasattr(zone, "polygon") and zone.polygon:
+                # temper_placer Zone has single polygon list of tuples
+                polys_to_process = [zone.polygon]
+                is_kiutils = False
+
+            for poly in polys_to_process:
+                # Convert coordinates to grid pixels
+                pts = []
+                
+                # Get coordinates iterable
+                coords = poly.coordinates if is_kiutils else poly
+                
+                for pos in coords:
+                    if is_kiutils:
+                        # kiutils Position object
+                        x, y = pos.X, pos.Y
+                    else:
+                        # tuple or list
+                        x, y = pos[0], pos[1]
+                        
+                    gx = int((x - self.origin[0]) / self.cell_size)
+                    gy = int((y - self.origin[1]) / self.cell_size)
+                    pts.append([gx, gy])
+
+                if not pts:
+                    continue
+
+                pts_np = np.array(pts, dtype=np.int32)
+                pts_np = pts_np.reshape((-1, 1, 2))
+
+                # Create mask (H, W) -> (Y, X)
+                mask = np.zeros((self.grid_size[1], self.grid_size[0]), dtype=np.uint8)
+
+                # Fill polygon
+                cv2.fillPoly(mask, [pts_np], color=255)
+
+                # Dilate map if clearance needed
+                if kernel_size > 0:
+                    # Kernel diameter = 2*r + 1
+                    k_dim = kernel_size * 2 + 1
+                    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_dim, k_dim))
+                    mask = cv2.dilate(mask, kernel)
+
+                # Transpose mask to (X, Y) to match occupancy
+                mask_t = mask.T
+                
+                # Apply to all relevant layers
+                # Indices where mask is set
+                blocked_indices = mask_t > 0
+                
+                for l_idx in target_layers:
+                    self.occupancy[blocked_indices, l_idx] = -1
+
     def block_pads(
         self,
         components: list[Component],
@@ -1090,10 +1370,10 @@ class MazeRouter:
                 max_x_mm = px + pad_w / 2 + margin
                 max_y_mm = py + pad_h / 2 + margin
 
-                gx_min_block = int(math.ceil((min_x_mm - self.origin[0]) / self.cell_size))
-                gy_min_block = int(math.ceil((min_y_mm - self.origin[1]) / self.cell_size))
-                gx_max_block = int(math.floor((max_x_mm - self.origin[0]) / self.cell_size))
-                gy_max_block = int(math.floor((max_y_mm - self.origin[1]) / self.cell_size))
+                gx_min_block = int(math.floor((min_x_mm - self.origin[0]) / self.cell_size))
+                gy_min_block = int(math.floor((min_y_mm - self.origin[1]) / self.cell_size))
+                gx_max_block = int(math.ceil((max_x_mm - self.origin[0]) / self.cell_size)) - 1
+                gy_max_block = int(math.ceil((max_y_mm - self.origin[1]) / self.cell_size)) - 1
 
                 # Expand for Neckdown Zone (1.0mm expansion beyond pad+margin)
                 neck_margin_mm = 1.0
@@ -1444,6 +1724,7 @@ class MazeRouter:
         cost_map: Array | None = None,
         p_scale: float = 1.0,
         current_class_id: int = 0,
+        current_net_id: int = 0,
     ) -> list[GridCell] | None:
         """Find path using A* with adaptive (distance map) heuristic.
 
@@ -1474,7 +1755,7 @@ class MazeRouter:
                 return None
 
         self._prepare_cost_arrays()
-
+        
         try:
             dist_map = self._compute_distance_map(GridCell(end[0], end[1], layer), _layer=layer)
 
@@ -1522,13 +1803,12 @@ class MazeRouter:
                     allowed_layers_mask=allowed_mask,
                     primary_layer_idx=primary_idx,
                     layer_penalty=5.0,
+                    owner_grid=self.owner_grid,
+                    current_net_id=current_net_id,
                 )
                 
-                # Convert result to GridCells
                 if result:
-                    path = []
-                    for x, y, l in result:
-                        path.append(GridCell(x, y, l))
+                    path = [GridCell(x, y, l) for x, y, l in result]
                     return path
                 return None
 
@@ -1548,6 +1828,7 @@ class MazeRouter:
             p_scale,
             dist_map,
             current_class_id=current_class_id,
+            current_net_id=current_net_id,
         )
 
     def _find_path_python_adaptive(
@@ -1561,6 +1842,7 @@ class MazeRouter:
         p_scale: float = 1.0,
         dist_map: np.ndarray | None = None,
         current_class_id: int = 0,
+        current_net_id: int = 0,
     ) -> list[GridCell] | None:
         """Python fallback for adaptive pathfinding when Numba is unavailable."""
         start_cell = GridCell(start[0], start[1], layer)
@@ -1658,6 +1940,9 @@ class MazeRouter:
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
         grid_pins = [self._world_to_grid(x, y) for x, y in pin_positions]
 
+        # Determine net IDs for isolation (prevents same-layer crossing)
+        current_net_id = self._get_net_id(net_name)
+
         # Determine net class for blocking/clearance
         current_class_id = CLASS_DEFAULT
         if self.design_rules:
@@ -1686,6 +1971,7 @@ class MazeRouter:
                 cost_map=cost_map,
                 p_scale=p_scale,
                 current_class_id=current_class_id,
+                current_net_id=current_net_id,
             )
 
             if path is None:
@@ -1698,6 +1984,7 @@ class MazeRouter:
                     length=float(len(all_cells)),
                     via_count=total_vias,
                     success=False,
+                    cell_size=self.cell_size,
                     difficulty=total_difficulty,
                     cell_difficulties=cell_difficulties,
                     failure_reason=f"No path from {start_grid} to {grid_pins[i]}",
@@ -1718,21 +2005,6 @@ class MazeRouter:
                 path = path[1:]
             all_cells.extend(path)
 
-        # Mark cells as occupied WITH TRACE WIDTH INFLATION (temper-z87d)
-        # This accounts for actual copper footprint, not just center-line
-        unique_cells = set(all_cells)
-        for cell in unique_cells:
-            # Get all cells within trace radius
-            affected_cells = self._get_inflated_cells(cell.x, cell.y, cell.layer)
-            for ax, ay, al in affected_cells:
-                self.occupancy[ax, ay, al] = 2
-                self.class_grid[ax, ay, al] = current_class_id  # Update class grid (temper-kmbw)
-                self.present_congestion[ax, ay, al] += 1.0
-                key = (ax, ay, al)
-                if key not in self.net_occupancy:
-                    self.net_occupancy[key] = set()
-                self.net_occupancy[key].add(net_name)
-
         # Restore original occupancy
         for gx, gy, l, v in original_occupancy:
             self.occupancy[gx, gy, l] = v
@@ -1743,11 +2015,39 @@ class MazeRouter:
             length=float(len(all_cells)),
             via_count=total_vias,
             success=True,
+            cell_size=self.cell_size,
             difficulty=total_difficulty,
             cell_difficulties=cell_difficulties,
         )
+        self._mark_path_occupied(net_name, res)
         self.routed_paths[net_name] = res
         return res
+
+
+    def get_layer_cost(self, net_rules, layer_idx):
+        """Get cost multiplier for routing on a specific layer based on net class rules."""
+        if not net_rules:
+            return 1.0 if layer_idx in [0, self.num_layers - 1] else 2.0
+        if net_rules.layer_costs and hasattr(self, 'layer_stackup'):
+            if 0 <= layer_idx < len(self.layer_stackup.layers):
+                layer_name = self.layer_stackup.layers[layer_idx].name
+                if layer_name in net_rules.layer_costs:
+                    return net_rules.layer_costs[layer_name]
+        if net_rules.routing_strategy:
+            strategy = net_rules.routing_strategy
+            if strategy == "plane_preferred":
+                if hasattr(self, 'layer_stackup') and self.layer_stackup.is_plane_layer(layer_idx):
+                    return 0.1
+                return 10.0
+            elif strategy == "plane_required":
+                if hasattr(self, 'layer_stackup') and self.layer_stackup.is_plane_layer(layer_idx):
+                    return 0.1
+                return 50.0 if layer_idx in [0, self.num_layers - 1] else 100.0
+            elif strategy in ("surface_only", "top_layer_only"):
+                return 1.0 if layer_idx in [0, self.num_layers - 1] else 100.0
+            elif strategy == "wide_trace":
+                return 1.0
+        return 1.0 if layer_idx in [0, self.num_layers - 1] else 2.0
 
     def _get_neighbors(
         self,
@@ -1758,12 +2058,6 @@ class MazeRouter:
         neighbors = []
         layers = allowed_layers if allowed_layers is not None else list(range(self.num_layers))
 
-        # DEBUG: Log for start cell only
-        is_start = cell.x == 100 and cell.y == 250 and cell.layer == 0
-
-        # Horizontal moves
-        # Only allow if layer is NOT a plane layer, UNLESS the net is explicitly allowed on this layer
-        # (e.g. for plane_required strategy where we route traces on plane layers for verification)
         is_plane = self.layer_stackup.is_plane_layer(cell.layer)
         allow_horizontal = not is_plane or cell.layer in layers
 
@@ -1780,27 +2074,11 @@ class MazeRouter:
                     # 1. It's a hard obstacle (-1)
                     # 2. It's occupied (2) and we are in strict mode (not soft_blocking)
                     if occ == -1:
-                        if is_start:
-                            print(
-                                f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - hard blocked"
-                            )
                         continue
                     if occ == 2 and not self.soft_blocking:
-                        if is_start:
-                            print(
-                                f"DEBUG_NEIGHBOR: Skipping ({nx}, {ny}, L{cell.layer}) - occupied and strict mode"
-                            )
                         continue
 
                     neighbors.append(GridCell(nx, ny, cell.layer))
-                    if is_start:
-                        print(
-                            f"DEBUG_NEIGHBOR: Added horizontal neighbor ({nx}, {ny}, L{cell.layer})"
-                        )
-        else:
-            if is_start:
-                print(f"DEBUG_NEIGHBOR: Layer {cell.layer} is plane layer - no horizontal movement")
-
         if allow_layer_change and self.num_layers > 1:
             for nl in layers:
                 # Skip invalid layer indices
@@ -1808,21 +2086,11 @@ class MazeRouter:
                     continue
                 if nl != cell.layer:
                     occ = int(self.occupancy[cell.x, cell.y, nl])
-                    if is_start:
-                        print(
-                            f"DEBUG_NEIGHBOR: Checking via from L{cell.layer} to L{nl} at ({cell.x}, {cell.y}): occ={occ}, soft_blocking={self.soft_blocking}"
-                        )
                     if occ == -1:
                         continue
                     if occ == 2 and not self.soft_blocking:
-                        if is_start:
-                            print(
-                                f"DEBUG_NEIGHBOR: Skipping via to L{nl} because occ=2 and soft_blocking=False"
-                            )
                         continue
                     neighbors.append(GridCell(cell.x, cell.y, nl))
-                    if is_start:
-                        print(f"DEBUG_NEIGHBOR: Added via neighbor to L{nl}")
         return neighbors
 
     def find_path(
@@ -2085,16 +2353,64 @@ class MazeRouter:
             if pin_sides and i < len(pin_sides):
                 target_layer = 0 if pin_sides[i] == 0 else (self.num_layers - 1)
 
-            # Try to find a path from current_start_grid to target_grid
+            # Escape Routing: If start/end are blocked (pads), find explicit escape path
+            routing_start = current_start_grid # Tuple (x, y)
+            routing_end = target_grid # Tuple (x, y)
+            path_prefix = []
+            path_suffix = []
+
+            # Check Start Escape - Always try to find a better escape from the pin
+            # The pins are unblocked by this point, so checking occupancy == -1 is useless.
+            s_cell = GridCell(current_start_grid[0], current_start_grid[1], current_start_layer)
+            t_cell = GridCell(target_grid[0], target_grid[1], target_layer)
+            
+            # Use a slightly smaller radius for escape to ensure we stay within safe bounds
+            # unblock_radius is 10 (2.0mm) for 0.2mm cells. 
+            # Pad radius is ~2.5. 7 cells (1.4mm) is plenty.
+            escape_rad = min(unblock_radius, 7)
+            
+            esc = self._compute_escape_point(s_cell, t_cell, escape_rad)
+            if esc:
+                routing_start = (esc.x, esc.y)
+                path_prefix = self._get_line_path(s_cell, esc)
+
+            # Check End Escape
+            t_cell = GridCell(target_grid[0], target_grid[1], target_layer)
+            s_cell = GridCell(current_start_grid[0], current_start_grid[1], current_start_layer)
+            
+            esc = self._compute_escape_point(t_cell, s_cell, escape_rad)
+            if esc:
+                routing_end = (esc.x, esc.y)
+                path_suffix = self._get_line_path(esc, t_cell)
+
+            # Try to find a path from routing_start to routing_end
+            start_layer_for_search = current_start_layer
+            if path_prefix:
+                # p[-1] is the escape cell, so use its layer
+                start_layer_for_search = path_prefix[-1].layer
+
             path = self.find_path_rrr_adaptive(
-                current_start_grid,
-                target_grid,
-                current_start_layer,
+                routing_start,
+                routing_end,
+                start_layer_for_search,
                 allow_via,
                 allowed_layers_indices,
                 cost_map=cost_map,
                 p_scale=p_scale,
             )
+
+            if path is not None:
+                # Splice paths
+                if path_prefix:
+                    # Remove duplicate connection point 
+                    if path and path[0] == path_prefix[-1]:
+                        path = path[1:]
+                    path = path_prefix + path
+                
+                if path_suffix:
+                    if path and path[-1] == path_suffix[0]:
+                        path_suffix = path_suffix[1:]
+                    path = path + path_suffix
 
             if path is None:
                 final_success = False
@@ -2171,6 +2487,7 @@ class MazeRouter:
                 length=len(final_all_cells) * self.cell_size,
                 via_count=final_total_vias,
                 success=True,
+                cell_size=self.cell_size,
                 difficulty=final_total_difficulty,
                 cell_difficulties=final_cell_difficulties,
                 trace_width=self._default_trace_width_mm,
@@ -2182,29 +2499,141 @@ class MazeRouter:
                 length=0.0,
                 via_count=0,
                 success=False,
+                cell_size=self.cell_size,
                 difficulty=0.0,
                 cell_difficulties=[],
                 failure_reason=last_failure_reason,
             )
 
     def _mark_path_occupied(self, net_name: str, path: RoutePath) -> None:
-        """Marks the cells of a routed path as occupied."""
+        """Marks the cells of a routed path as occupied.
+
+        Detects vias automatically from layer transitions and blocks all layers
+        at via locations to ensure DRC compliance for PTH vias.
+        """
+        # 1. Determine net and class IDs
+        net_id = self._get_net_id(net_name)
+        class_id = CLASS_DEFAULT
+        if self.design_rules:
+            rules = self.design_rules.get_rules_for_net(net_name)
+            class_id = self._get_class_id(rules)
+
+        # 2. Identify Via locations (ordered path transitions)
+        via_coords = set()
+        for i in range(1, len(path.cells)):
+            c1, c2 = path.cells[i - 1], path.cells[i]
+            if c1.layer != c2.layer:
+                via_coords.add((c1.x, c1.y))
+
+        # 3. Add any explicitly requested via objects
+        for via in path.explicit_vias:
+            gx, gy = self._world_to_grid(via.x, via.y)
+            via_coords.add((gx, gy))
+
+        # 4. Mark occupancy
         unique_cells = set(path.cells)
         for cell in unique_cells:
-            # Get all cells within trace radius
-            affected_cells = self._get_inflated_cells(
-                cell.x, cell.y, cell.layer, width_mm=path.trace_width
+            # Detect if this coordinate is a via
+            is_via = (cell.x, cell.y) in via_coords
+            width = path.via_diameter if is_via else path.trace_width
+
+            # For vias, block ALL layers. For traces, block ONLY the current layer.
+            # (Assuming PTH vias by default, which is the current state)
+            affected = self._get_inflated_cells(
+                cell.x, cell.y, cell.layer, width_mm=width, all_layers=is_via
             )
-            for ax, ay, al in affected_cells:
+
+            for ax, ay, al in affected:
                 # Only mark as occupied if not a hard block (-1)
+                # Hard blocks should remain -1 as they represent obstacles
                 if self.occupancy[ax, ay, al] != -1:
-                    self.occupancy[ax, ay, al] = 2
+                    self.occupancy[ax, ay, al] = 2  # Mark as occupied by net
+                    self.class_grid[ax, ay, al] = class_id  # Set net class
+                    self.owner_grid[ax, ay, al] = net_id # Set owner
+                    
+                    if (ax, ay, al) not in self.net_occupancy:
+                        self.net_occupancy[(ax, ay, al)] = set()
+                    self.net_occupancy[(ax, ay, al)].add(net_name)
+                    
+                    # Also update cell_owner map for conflict checking
+                    self.cell_owner[(ax, ay, al)] = net_name
+                    
+                    # Update congestion map (permanent penalty for occupied cells)
                     self.present_congestion[ax, ay, al] += 1.0
-                    key = (ax, ay, al)
-                    if key not in self.net_occupancy:
-                        self.net_occupancy[key] = set()
-                    self.net_occupancy[key].add(net_name)
-                    self.cell_owner[key] = net_name  # Assign ownership
+
+    def _compute_escape_point(self, start_cell: GridCell, target: GridCell, radius: int) -> GridCell | None:
+        """Finds the best escape point from a pin location.
+        
+        Prefers orthogonal directions towards the target.
+        """
+        best_cell = None
+        best_score = -float('inf')
+        
+        # Directions: Orthogonal first, then Diagonal
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        
+        for dx, dy in directions:
+            # Try to escape at 'radius' distance
+            nx, ny = start_cell.x + dx * radius, start_cell.y + dy * radius
+            
+            if not (0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]):
+                continue
+                
+            nl = start_cell.layer
+            
+            # Check if this cell is strictly valid (0 or 2)
+            if self.occupancy[nx, ny, nl] == -1:
+                # Try closer?
+                valid = False
+                for r in range(radius - 1, 0, -1):
+                    tx, ty = start_cell.x + dx * r, start_cell.y + dy * r
+                    if (0 <= tx < self.grid_size[0] and 0 <= ty < self.grid_size[1]) and self.occupancy[tx, ty, nl] != -1:
+                        nx, ny = tx, ty
+                        valid = True
+                        break
+                if not valid:
+                    continue
+            
+            # Score: align with target + preference for orthogonal
+            # Dot product with direction to target
+            vec_x, vec_y = target.x - start_cell.x, target.y - start_cell.y
+            dist = math.sqrt(vec_x**2 + vec_y**2) + 1e-6
+            dot = (vec_x * dx + vec_y * dy) / dist
+            
+            is_ortho = (dx == 0 or dy == 0)
+            score = dot + (1.0 if is_ortho else 0.0)
+            
+            if score > best_score:
+                best_score = score
+                best_cell = GridCell(nx, ny, nl)
+                
+        return best_cell
+
+    def _get_line_path(self, start: GridCell, end: GridCell) -> list[GridCell]:
+        """Returns a rasterized line path between start and end (Bresenham)."""
+        x1, y1 = start.x, start.y
+        x2, y2 = end.x, end.y
+        points = []
+        
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        sx = 1 if x1 < x2 else -1
+        sy = 1 if y1 < y2 else -1
+        err = dx - dy
+        
+        while True:
+            points.append(GridCell(x1, y1, start.layer))
+            if x1 == x2 and y1 == y2:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x1 += sx
+            if e2 < dx:
+                err += dx
+                y1 += sy
+                
+        return points
 
     def _resolve_net_pins(
         self, net_name: str, netlist: Netlist, positions: Array
@@ -2457,9 +2886,10 @@ class MazeRouter:
         progress_callback: Callable[[RoutingProgress], None] | None = None,
         incremental: bool = True,
         validate_final: bool = False,
-        pin_positions_overrides: dict[str, list[tuple[float, float]]] | None = None,
-        component_margin: float = 0.5,
-    ) -> dict[str, RoutePath]:
+    pin_positions_overrides: dict[str, list[tuple[float, float]]] | None = None,
+    component_margin: float = 0.5,
+    soft_c_spaces: dict[str, np.ndarray] | None = None,
+) -> dict[str, RoutePath]:
         """Route all nets using iterative Rip-up and Reroute (RRR)."""
         from tqdm import tqdm  # Import here to avoid dependency issues if not installed
 
@@ -2657,6 +3087,15 @@ class MazeRouter:
                         topology = self.design_rules.net_topologies[net_name]
 
                     try:
+                        # Precompute zone-aware clearance grid for this net (temper-d6kv.3)
+                        if self.clearance_matrix:
+                            self._precompute_clearance_grid(net_name, self.clearance_matrix)
+                        
+                        # Apply per-net soft C-Space if provided
+                        if soft_c_spaces and net_name in soft_c_spaces:
+                            self.soft_c_space = soft_c_spaces[net_name]
+
+
                         if topology:
                             result = self.route_net_topology(
                                 net_name,
@@ -3110,6 +3549,12 @@ class MazeRouter:
         It uses a modified Prim's algorithm to build the MST.
         """
         from temper_placer.routing.layer_assignment import Layer
+
+        # Track net rules for layer cost system (temper-b577)
+        if self.design_rules:
+            self._current_net_rules = self.design_rules.get_rules_for_net(net_name)
+        else:
+            self._current_net_rules = None
 
         if len(pin_positions) < 2:
             # Single-pin or empty nets don't need routing

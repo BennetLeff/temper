@@ -54,6 +54,11 @@ class PipelineConfig:
     enable_ballooning: bool = False
     max_dither_attempts: int = 4
     via_cost: float = 50.0
+    
+    # RRR Parameters
+    max_rrr_iterations: int = 5
+    p_scale_start: float = 1.0
+    p_scale_step: float = 2.0
 
     power_nets: list[str] = field(
         default_factory=lambda: [
@@ -167,7 +172,21 @@ class CSpaceRoutingPipeline:
                 size=(hole.diameter, hole.diameter),
                 shape="circle",
                 rotation=0.0,
-                net="GND", # Routing keepout
+                net="KEEP_OUT", # Routing keepout
+                layer=-1
+            )
+            self.c_space_builder.pads.append(p)
+
+        # 4. Extract from Board (Zones)
+        for zone in self.board.zones:
+            # Treat zones as rectangular obstacles
+            # We use the zone name as the net name to allow class-based exclusions
+            p = CPad(
+                center=Point(zone.center[0], zone.center[1]),
+                size=(zone.width, zone.height),
+                shape="rect",
+                rotation=0.0,
+                net=f"ZONE_{zone.name}",
                 layer=-1
             )
             self.c_space_builder.pads.append(p)
@@ -178,10 +197,37 @@ class CSpaceRoutingPipeline:
         self.c_space_builder.update_resolution(self.config.resolution_mm)
         self.c_space_cache.clear()
 
-        base_router = MazeRouter.from_board(
+        self.router = MazeRouter.from_board(
             self.board,
             cell_size_mm=self.config.resolution_mm,
             via_cost=self.config.via_cost,
+            design_rules=self.design_rules, # Ensure design rules are passed
+        )
+        
+        # Block pads and components to ensure occupancy grid is properly initialized
+        # This is critical for preventing foreign tracks from crossing pads/components
+        import numpy as np
+        positions = np.array([c.initial_position for c in self.netlist.components])
+        
+        self.router.block_components(
+            self.netlist.components,
+            positions,
+            margin=0.5,
+            layer_specific=(self.router.num_layers > 2)
+        )
+        
+        self.router.block_pads(
+            self.netlist.components,
+            positions,
+            self.netlist,
+            trace_width=0.2,
+            clearance=0.2
+        )
+        
+        # Block Zones (prevent bleeding)
+        self.router.block_zones(
+            self.board.zones,
+            clearance=0.3
         )
 
         if self.config.enable_dithering:
@@ -190,12 +236,10 @@ class CSpaceRoutingPipeline:
                 max_attempts=self.config.max_dither_attempts,
             )
             self.router = DitheredRouter(
-                base_router=base_router,
+                base_router=self.router,
                 c_space_builder=self.c_space_builder,
                 config=dither_config,
             )
-        else:
-            self.router = base_router
 
     def route_all(self, net_order: list[str]) -> RoutingResult:
         """Route all specified nets through the pipeline using multi-resolution passes."""
@@ -264,46 +308,97 @@ class CSpaceRoutingPipeline:
         )
 
     def _route_batch(self, net_names: list[str]) -> dict[str, RoutePath]:
-        """Route a batch of nets at the current resolution."""
-        results = {}
+        """Route a batch of nets at the current resolution using iterative RRR."""
+        # 1. Pre-calculate Soft C-Spaces for all nets in batch
+        soft_c_spaces = {}
+        batch_assignments = {}
         for net_name in net_names:
             pin_positions = self._get_pin_positions(net_name)
-
             if len(pin_positions) < 2:
+                continue
+
+            net_class = self.design_rules.get_class_for_net(net_name)
+            
+            # Determine exclude_nets for this specific net
+            exclude_nets = {net_name}
+            for zone in self.board.zones:
+                if net_class in zone.net_classes:
+                    exclude_nets.add(f"ZONE_{zone.name}")
+            
+            soft_c_spaces[net_name] = self.c_space_builder.build_cost_grid(
+                net_class=net_class,
+                exclude_nets=exclude_nets
+            )
+            
+            if net_name in self.layer_assignments:
+                batch_assignments[net_name] = self.layer_assignments[net_name]
+
+            # 1. Update Cost Field for Safety
+            net_class = self.design_rules.get_class_for_net(net_name)
+
+            # Determine which zones to exclude from blocking based on net class
+            exclude_nets = {net_name}
+            for zone in self.board.zones:
+                if net_class in zone.net_classes:
+                    exclude_nets.add(f"ZONE_{zone.name}")
+
+            cost_grid = self.c_space_builder.build_cost_grid(
+                net_class=net_class,
+                exclude_nets=exclude_nets
+            )
+
+        # 2. Call RRR on the base router
+        # (DitheredRouter is a wrapper, so we unwrap it)
+        base = self.router.base_router if hasattr(self.router, "base_router") else self.router
+        
+        # Determine current positions array for router internal compute
+        import numpy as np
+        # Maintain consistent indexing: positions must match netlist.components 1-to-1
+        comp_positions_list = []
+        for comp in self.netlist.components:
+            if comp.initial_position is not None:
+                comp_positions_list.append(comp.initial_position)
+            else:
+                comp_positions_list.append((0.0, 0.0))
+        comp_positions = np.array(comp_positions_list)
+        
+        results = base.rrr_route_all_nets(
+            netlist=self.netlist,
+            positions=comp_positions,
+            net_order=net_names,
+            assignments=batch_assignments,
+            soft_c_spaces=soft_c_spaces,
+            max_iterations=self.config.max_rrr_iterations,
+            p_scale_start=self.config.p_scale_start,
+            p_scale_step=self.config.p_scale_step,
+        )
+
+        # 3. Post-process: Smoothing and Missing Nets
+        for net_name in net_names:
+            if net_name not in results:
+                # Handle nets that were skipped (e.g. < 2 pins)
+                pin_positions = self._get_pin_positions(net_name)
                 results[net_name] = RoutePath(
                     net=net_name,
                     cells=[],
                     length=0.0,
                     via_count=0,
-                    success=True,
+                    success=True if len(pin_positions) < 2 else False,
+                    cell_size=self.router.cell_size if hasattr(self.router, "cell_size") else 0.2
                 )
-                continue
 
-            # 1. Update Cost Field for Safety
-            net_class = self.design_rules.get_class_for_net(net_name)
-            cost_grid = self.c_space_builder.build_cost_grid(
-                net_class=net_class,
-                exclude_nets={net_name}
-            )
+            result = results[net_name]
+            if result.success and result.cells and self.config.enable_smoothing:
+                # Smoothing needs net-specific exclusion for geometry mask
+                net_class = self.design_rules.get_class_for_net(net_name)
+                exclude_nets = {net_name}
+                for zone in self.board.zones:
+                    if net_class in zone.net_classes:
+                        exclude_nets.add(f"ZONE_{zone.name}")
+                
+                mask_grid = self._get_c_space_grid(net_name, exclude_nets)
+                result.smooth_points = self.smoother.smooth(result.cells, mask_grid)
 
-            # Get base router
-            base = self.router.base_router if isinstance(self.router, DitheredRouter) else self.router
-            base.soft_c_space = cost_grid
-
-            # 2. Route
-            assignment = self.layer_assignments.get(net_name)
-            route_result = self.router.route_net(
-                net_name=net_name,
-                pin_positions=pin_positions,
-                assignment=assignment,
-            )
-
-            if route_result.success and self.config.enable_smoothing:
-                # 3. Smooth
-                c_space = self._get_c_space_grid(net_name, {net_name})
-                route_result.smooth_points = self.smoother.smooth(route_result.cells, c_space)
-
-            results[net_name] = route_result
         return results
 
     def _is_high_density_net(self, net_name: str) -> bool:
@@ -323,9 +418,11 @@ class CSpaceRoutingPipeline:
     def _get_c_space_grid(self, net_name: str, exclude_nets: set[str]) -> CSpaceGrid:
         """Get appropriate C-Space grid for routing a net."""
         rules = self.design_rules.get_rules_for_net(net_name)
+        class_name = self.design_rules.get_class_for_net(net_name)
         return self.c_space_cache.get_grid(
-            trace_width=rules.trace_width,
+            class_name=class_name,
             clearance=rules.clearance,
+            trace_width=rules.trace_width,
             exclude_nets=exclude_nets,
         )
 

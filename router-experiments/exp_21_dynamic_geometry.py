@@ -156,10 +156,10 @@ def main():
     print("=" * 60)
 
     # Get registered tracks and vias
-    power_tracks = [t for t in drc_oracle.tracks if t.net == "POWER"]
-    power_vias = [v for v in drc_oracle.vias if v.net == "POWER"]
-    signal_tracks = [t for t in drc_oracle.tracks if t.net == "SIGNAL"]
-    signal_vias = [v for v in drc_oracle.vias if v.net == "SIGNAL"]
+    power_tracks = [t for t in drc_oracle.geometry.tracks if t.net == "POWER"]
+    power_vias = [v for v in drc_oracle.geometry.vias if v.net == "POWER"]
+    signal_tracks = [t for t in drc_oracle.geometry.tracks if t.net == "SIGNAL"]
+    signal_vias = [v for v in drc_oracle.geometry.vias if v.net == "SIGNAL"]
 
     print(f"\nPOWER net (HighCurrent class):")
     print(f"  Tracks: {len(power_tracks)}")
