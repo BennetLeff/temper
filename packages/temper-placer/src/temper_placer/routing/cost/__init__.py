@@ -26,6 +26,7 @@ from .path_cost import (
     compute_path_length_mm,
     extract_cells_from_paths,
 )
+from .neighbor_cost_extended import compute_neighbor_cost
 
 __all__ = [
     "BLOCKED_COST",
@@ -38,6 +39,7 @@ __all__ = [
     "compute_layer_balance_cost",
     "compute_layer_balance_penalty",
     "compute_layer_preference_penalty",
+    "compute_neighbor_cost",
     "compute_path_cost",
     "compute_path_length_mm",
     "compute_sharing_penalty",

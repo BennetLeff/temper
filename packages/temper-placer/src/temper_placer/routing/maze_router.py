@@ -544,215 +544,38 @@ class MazeRouter:
         Uses cached numpy arrays when available for faster indexing.
         Supports soft blocking (negotiated congestion) and dynamic via cost.
         """
-        base_cost = 1.0
+        from temper_placer.routing.cost import compute_neighbor_cost
 
-        # Layer preference penalty (discourage layers other than primary_layer)
-        if hasattr(self, "_current_assignment") and self._current_assignment:
-            primary_idx = self._current_assignment.primary_layer.value - 1
-            if neighbor.layer != primary_idx:
-                # Add significant penalty for using non-primary layers
-                # This ensures we prefer primary layer unless it's blocked
-                base_cost += 5.0
-
-        # Wrong-way penalty
-        wrong_way_cost = 0.0
-        if neighbor.layer == 0:  # L1 prefers horizontal
-            if neighbor.y != current.y:
-                wrong_way_cost = self.wrong_way_penalty
-        elif neighbor.layer == 1:  # L4 prefers vertical
-            if neighbor.x != current.x:
-                wrong_way_cost = self.wrong_way_penalty
-
-        # Difficulty gradient (soft feedback for router)
         diff = self._get_cell_difficulty(neighbor)
 
-        # Use cached numpy arrays if available (much faster indexing)
-        if self._history_np is not None:
-            h = self._history_np[neighbor.x, neighbor.y, neighbor.layer]
-            p = self._congestion_np[neighbor.x, neighbor.y, neighbor.layer]
-            blocked = self._occupancy_np[neighbor.x, neighbor.y, neighbor.layer] == -1
-            occupied = self._occupancy_np[neighbor.x, neighbor.y, neighbor.layer] == 2
+        total_cost = compute_neighbor_cost(
+            current=current,
+            neighbor=neighbor,
+            history_np=self._history_np,
+            history=self.history_cost if self._history_np is None else None,
+            congestion_np=self._congestion_np,
+            congestion=self.present_congestion if self._congestion_np is None else None,
+            occupancy_np=self._occupancy_np,
+            occupancy=self.occupancy if self._occupancy_np is None else None,
+            soft_c_space_np=self._soft_c_space_np,
+            soft_c_space=self.soft_c_space if self._soft_c_space_np is None else None,
+            c_space_grid_np=self._c_space_grid_np,
+            cell_owner=self.cell_owner,
+            current_net=self._current_net,
+            layer_usage=self.layer_usage_count,
+            cost_map=cost_map,
+            assignment=getattr(self, "_current_assignment", None),
+            difficulty=diff,
+            via_cost=self.via_cost,
+            wrong_way_penalty=self.wrong_way_penalty,
+            layer_balance_weight=self.layer_balance_weight,
+            congestion_via_discount=self.congestion_via_discount,
+            soft_blocking=self.soft_blocking,
+            p_scale=p_scale,
+        )
 
-            # Add soft C-space cost if present
-            c_space_cost = 0.0
-            if self._soft_c_space_np is not None:
-                # Handle 2D or 3D soft C-space
-                if self._soft_c_space_np.ndim == 2:
-                    c_space_cost = float(self._soft_c_space_np[neighbor.x, neighbor.y])
-                else:
-                    c_space_cost = float(
-                        self._soft_c_space_np[neighbor.x, neighbor.y, neighbor.layer]
-                    )
-
-                if c_space_cost == np.inf:
-                    blocked = True
-
-            # Check hard C-space (static obstacles)
-            # Note: C-space is 2D (all layers same? Or should be 3D?)
-            # Usually pads are on Top/Bottom. Inner layers are clearer.
-            # But the Builder assumes 2D grid for now.
-            # We should probably map Builder grid to Layers properly.
-            # For now, let's assume it applies to the current layer if we don't have per-layer C-Space.
-            # Or better: The Builder creates a single grid for Pads (which are typically on outer layers, or all if THT).
-            # This is a simplification. Tracks/Vias are layer specific.
-            # If CSpaceGrid is 2D, we assume it blocks ALL layers?
-            # No, that would be bad for tracks under pads.
-            # Pads usually block only their layer.
-            # Let's assume for this specific integration that c_space_grid is 2D and applies to the CURRENT generic pad layer check.
-            # Ideally, self.c_space_grid should be 3D or we check it only on Top/Bottom?
-            # Actually, THT pads block all. SMD pads block Surface.
-            # The CSpaceBuilder flattened everything.
-            # I should just check it. If it blocks, it blocks.
-            if self._c_space_grid_np is not None:
-                # Assuming 2D grid for now, applies check.
-                # Ideally we only check this if `neighbor.layer` matches the C-Space context (e.g. Surface).
-                # But pads are on surfaces.
-                # Let's assume `c_space_grid` contains ONLY objects relevant to current routing.
-                # If I want to route on inner layer, I might pass an empty C-Space?
-                # Actually, THT pads block all. SMD pads block Surface.
-                # The CSpaceBuilder flattened everything.
-                # I should just check it. If it blocks, it blocks.
-                if (
-                    self._c_space_grid_np[neighbor.x, neighbor.y]
-                    if self._c_space_grid_np.ndim == 2
-                    else self._c_space_grid_np[neighbor.x, neighbor.y, neighbor.layer]
-                ):
-                    blocked = True
-        else:
-            h = float(self.history_cost[neighbor.x, neighbor.y, neighbor.layer])
-            p = float(self.present_congestion[neighbor.x, neighbor.y, neighbor.layer])
-            blocked = self.occupancy[neighbor.x, neighbor.y, neighbor.layer] == -1
-            occupied = self.occupancy[neighbor.x, neighbor.y, neighbor.layer] == 2
-
-            c_space_cost = 0.0
-            if self.soft_c_space is not None:
-                if self.soft_c_space.ndim == 2:
-                    c_space_cost = float(self.soft_c_space[neighbor.x, neighbor.y])
-                else:
-                    c_space_cost = float(self.soft_c_space[neighbor.x, neighbor.y, neighbor.layer])
-
-                if c_space_cost == np.inf:
-                    blocked = True
-
-        # Hard-blocked cells (components) are always impassable
-        if blocked:
-            return 1e9
-
-        # Soft blocking: occupied cells get high cost but are passable
-        # This enables negotiated congestion (PathFinder algorithm)
-        sharing_penalty = 0.0
-        if occupied:
-            # DRC-1: Check if cell is owned by a different net (net isolation)
-            # Cells owned by other nets are ALWAYS blocked - no shorts allowed
-            key = (neighbor.x, neighbor.y, neighbor.layer)
-            owner = self.cell_owner.get(key)
-            if owner is not None and owner != self._current_net:
-                # Cell owned by different net - block completely (no shorts allowed)
-                return 1e9
-            if self.soft_blocking:
-                sharing_penalty = 50.0 * (1.0 + p)  # Higher penalty with more congestion
-            else:
-                # STRICT MODE: Occupied cells are impassable
-                return 1e9
-
-        if cost_map is not None:
-            if cost_map.ndim == 2:
-                strategy_mult = float(cost_map[neighbor.x, neighbor.y])
-            else:
-                strategy_mult = float(cost_map[neighbor.x, neighbor.y, neighbor.layer])
-        else:
-            strategy_mult = 1.0
-
-        # Include soft C-space cost in base cost
-        congestion_cost = (
-            base_cost + wrong_way_cost + sharing_penalty + h + diff + c_space_cost
-        ) * (1.0 + p * p_scale)
-        total_cost = strategy_mult * congestion_cost
-
-        # Layer balance cost: encourage even distribution across layers
-        if self.num_layers > 1 and self.layer_balance_weight > 0:
-            # Calculate usage imbalance (standard deviation of layer usage)
-            layer_usage = self.layer_usage_count.astype(np.float32)
-            if np.sum(layer_usage) > 0:
-                mean_usage = np.mean(layer_usage)
-                # std_usage = np.std(layer_usage) # Unused but keeping for reference
-
-                # Penalize moving to layer with above-average usage
-                if layer_usage[neighbor.layer] > mean_usage:
-                    imbalance_penalty = (layer_usage[neighbor.layer] - mean_usage) / max(
-                        1.0, mean_usage
-                    )
-                    total_cost += self.layer_balance_weight * imbalance_penalty
-
-        # Dynamic via cost: lower in congested areas to encourage layer escape
-        if current.layer != neighbor.layer:
-            if p > 2.0 and self.soft_blocking:
-                # Congested area - discount via cost to encourage escape
-                total_cost += self.via_cost * self.congestion_via_discount
-            else:
-                total_cost += self.via_cost
-
-            # DRC check for via placement (temper-mado.2)
-            if self.drc_oracle and self._current_net:
-                via_x = neighbor.x * self.cell_size + self.origin[0]
-                via_y = neighbor.y * self.cell_size + self.origin[1]
-                via_dia = self.drc_oracle.rules.get_via_diameter(self._current_net)
-                valid, _ = self.drc_oracle.can_place_via((via_x, via_y), via_dia, self._current_net)
-                if not valid:
-                    if self.strict_mode:
-                        # Retry with neckdown relaxation for vias too?
-                        # Yes, often we need to drop a via near a pad
-                        is_neckdown = self.neckdown_mask[neighbor.x, neighbor.y, neighbor.layer]
-                        if is_neckdown:
-                            valid, _ = self.drc_oracle.can_place_via(
-                                (via_x, via_y), via_dia, self._current_net, neckdown=True
-                            )
-
-                        if not valid:
-                            return 1e9  # Block completely in strict mode
-                    else:
-                        total_cost += 200.0  # Heavy penalty for bad via
-
-        # DRC check for track segment (temper-mado.1)
-        if self.drc_oracle and self._current_net:
-            curr_x = current.x * self.cell_size + self.origin[0]
-            curr_y = current.y * self.cell_size + self.origin[1]
-            neigh_x = neighbor.x * self.cell_size + self.origin[0]
-            neigh_y = neighbor.y * self.cell_size + self.origin[1]
-
-            if self.strict_mode:
-                start_world = (curr_x, curr_y)
-                end_world = (neigh_x, neigh_y)
-
-                # Neckdown: Use 0.15mm width if in neckdown zone, else 0.2mm
-                # Neckdown applies if ANY part of segment is in zone.
-                is_neckdown = (
-                    self.neckdown_mask[neighbor.x, neighbor.y, neighbor.layer]
-                    or self.neckdown_mask[current.x, current.y, current.layer]
-                )
-                check_width = 0.15 if is_neckdown else 0.2
-
-                is_valid, reason = self.drc_oracle.can_place_track_segment(
-                    start_world,
-                    end_world,
-                    layer=neighbor.layer,
-                    net=self._current_net,
-                    width=check_width,
-                    neckdown=is_neckdown,
-                )
-
-                if not is_valid:
-                    return 1e9  # Infinite cost
-            else:
-                valid, _ = self.drc_oracle.can_place_track_segment(
-                    (curr_x, curr_y),
-                    (neigh_x, neigh_y),
-                    layer=neighbor.layer,
-                    net=self._current_net,
-                    width=0.2,
-                )
-                if not valid:
-                    total_cost += 100.0  # Penalty for DRC violation
+        if total_cost >= 1e9:
+            return total_cost
 
         return total_cost
 
