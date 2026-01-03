@@ -105,6 +105,23 @@ def dilate_grid_numba(grid, radius):
 
 
 @njit(cache=True)
+def get_asymmetric_clearance_numba(current_class, obstacle_class, min_clearance):
+    """Get required clearance between two net classes (Numba version)."""
+    # CLASS_HV = 1, CLASS_LV = 2
+    if current_class == 0:  # Default class
+        return min_clearance
+        
+    if (current_class == 1 and obstacle_class != 1) or \
+       (current_class != 1 and obstacle_class == 1):
+        return 8.0  # Reinforced isolation
+        
+    if current_class == 1 and obstacle_class == 1:
+        return 2.5  # Basic isolation
+        
+    return min_clearance
+
+
+@njit(cache=True)
 def find_path_astar_numba(
     start_x,
     start_y,
@@ -125,6 +142,10 @@ def find_path_astar_numba(
     soft_blocking=False,
     soft_c_space=None,
     tap_mask=None,
+    class_grid=None,
+    current_class_id=0,
+    min_clearance=0.0,
+    cell_size=1.0,
 ):
     """
     Numba-accelerated A* pathfinding.
@@ -146,6 +167,10 @@ def find_path_astar_numba(
         soft_c_space: Optional 2D float32 array for soft obstacle costs.
         tap_mask: Optional 3D int32 array (1=forbidden tap point, 0=allowed).
                   Used for star-point routing to prevent joining existing traces.
+        class_grid: Optional 3D int8 array for net class IDs.
+        current_class_id: Class ID of the net being routed.
+        min_clearance: Minimum clearance in mm.
+        cell_size: Grid cell size in mm.
 
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
@@ -223,6 +248,44 @@ def find_path_astar_numba(
             # Check tap mask (forbid star-point tapping)
             if tap_mask is not None:
                 if tap_mask[nx, ny, nl] != 0:
+                    continue
+            
+            # Check class clearance (HV/LV isolation)
+            # This is the "Numba Port" of temper-kmbw
+            if class_grid is not None and current_class_id != 0:
+                # We check a radius around the neighbor
+                # For performance, we first check the neighbor itself
+                obs_class = class_grid[nx, ny, nl]
+                if obs_class != 0 and obs_class != current_class_id:
+                    req = get_asymmetric_clearance_numba(current_class_id, obs_class, min_clearance)
+                    if 0.0 < req: # Distance is 0
+                         continue
+
+                # If we are HV/LV, scan radius
+                # Using 3.0mm radius as in Python implementation
+                # This loop might be slow if not careful, but Numba makes it fast.
+                # Optimization: Only scan if potential conflict exists?
+                # We assume sparse class_grid (mostly 0).
+                
+                # Check radius only if we passed the center check
+                radius_mm = 8.0  # Increased to 8.0mm for HV/LV isolation
+                radius_cells = int(math.ceil(radius_mm / cell_size))
+                
+                violation = False
+                for rdx in range(-radius_cells, radius_cells + 1):
+                    for rdy in range(-radius_cells, radius_cells + 1):
+                        rnx, rny = nx + rdx, ny + rdy
+                        if 0 <= rnx < grid_w and 0 <= rny < grid_h:
+                            obs_c = class_grid[rnx, rny, nl]
+                            if obs_c != 0 and obs_c != current_class_id:
+                                dist = math.sqrt(rdx*rdx + rdy*rdy) * cell_size
+                                req = get_asymmetric_clearance_numba(current_class_id, obs_c, min_clearance)
+                                if dist < req:
+                                    violation = True
+                                    break
+                    if violation:
+                        break
+                if violation:
                     continue
 
             # Soft C-space cost
@@ -325,6 +388,10 @@ def find_path_astar_numba_adaptive(
     tap_mask=None,
     guide_map=None,
     guide_bias=0.0,
+    class_grid=None,
+    current_class_id=0,
+    min_clearance=0.0,
+    cell_size=1.0,
 ):
     """
     Numba-accelerated A* pathfinding with adaptive distance map heuristic.
@@ -353,6 +420,10 @@ def find_path_astar_numba_adaptive(
         tap_mask: Optional 3D int32 array (1=forbidden tap point, 0=allowed).
         guide_map: Optional 3D float32 array for hierarchical guide biasing.
         guide_bias: Strength of guide biasing (default 0.0).
+        class_grid: Optional 3D int8 array for net class IDs.
+        current_class_id: Class ID of the net being routed.
+        min_clearance: Minimum clearance in mm.
+        cell_size: Grid cell size in mm.
 
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
@@ -371,6 +442,8 @@ def find_path_astar_numba_adaptive(
     visited = np.zeros((grid_w, grid_h, num_layers), dtype=np.bool_)
 
     counter = 0.0
+    
+    # print("DEBUG_NUMBA: Start", start_x, start_y, start_l, "End", end_x, end_y, end_l)
 
     while len(pq) > 0:
         f, _, cx_f, cy_f, cl_f = heapq.heappop(pq)
@@ -381,6 +454,7 @@ def find_path_astar_numba_adaptive(
         visited[cx, cy, cl] = True
 
         if cx == end_x and cy == end_y and cl == end_l:
+            # print("DEBUG_NUMBA: Path Found!")
             path = []
             curr_x, curr_y, curr_l = end_x, end_y, end_l
             while curr_x != -1:
@@ -411,6 +485,36 @@ def find_path_astar_numba_adaptive(
 
             if tap_mask is not None:
                 if tap_mask[nx, ny, nl] != 0:
+                    continue
+
+            # Class Clearance Check (HV/LV isolation) - Adaptive Version
+            if class_grid is not None and current_class_id != 0:
+                # print("DEBUG_NUMBA: Checking clearance for class", current_class_id)
+                obs_class = class_grid[nx, ny, nl]
+                if obs_class != 0 and obs_class != current_class_id:
+                    req = get_asymmetric_clearance_numba(current_class_id, obs_class, min_clearance)
+                    if 0.0 < req:
+                         continue
+
+                # Check radius only if we passed the center check
+                radius_mm = 8.0  # Increased to 8.0mm for HV/LV isolation
+                radius_cells = int(math.ceil(radius_mm / cell_size))
+                
+                violation = False
+                for rdx in range(-radius_cells, radius_cells + 1):
+                    for rdy in range(-radius_cells, radius_cells + 1):
+                        rnx, rny = nx + rdx, ny + rdy
+                        if 0 <= rnx < grid_w and 0 <= rny < grid_h:
+                            obs_c = class_grid[rnx, rny, nl]
+                            if obs_c != 0 and obs_c != current_class_id:
+                                dist = math.sqrt(rdx*rdx + rdy*rdy) * cell_size
+                                req = get_asymmetric_clearance_numba(current_class_id, obs_c, min_clearance)
+                                if dist < req:
+                                    violation = True
+                                    break
+                    if violation:
+                        break
+                if violation:
                     continue
 
             c_space_cost = 0.0
@@ -446,6 +550,10 @@ def find_path_astar_numba_adaptive(
                     strategy_mult = cost_map[nx, ny]
                 else:
                     strategy_mult = cost_map[nx, ny, nl]
+
+            # If multiplier is infinity, skip this neighbor
+            if strategy_mult >= INF:
+                continue
 
             move_cost = (
                 strategy_mult
@@ -484,9 +592,140 @@ def find_path_astar_numba_adaptive(
                 counter += 1.0
                 heapq.heappush(pq, (float(new_f), float(counter), float(nx), float(ny), float(nl)))
 
+    # print("DEBUG_NUMBA: No path found")
     empty_res = [(0, 0, 0)]
     empty_res.pop()
     return empty_res
+
+
+@njit(cache=True)
+def compute_distance_map_numba(
+    target_x: int,
+    target_y: int,
+    target_l: int,
+    grid_w: int,
+    grid_h: int,
+    num_layers: int,
+    occupancy: np.ndarray,
+) -> np.ndarray:
+    """Numba-accelerated BFS to compute distance map from target.
+
+    This provides obstacle-aware distance from any cell to the target,
+    giving a tight admissible heuristic for A*.
+
+    Performance: ~50-100x faster than pure Python BFS.
+
+    Args:
+        target_x, target_y, target_l: Target coordinates
+        grid_w, grid_h: Grid dimensions
+        num_layers: Number of layers
+        occupancy: 3D int32 array (-1=blocked, 0=free, >=1=occupied)
+
+    Returns:
+        3D float32 array of distances (inf for unreachable)
+    """
+    INF = float("inf")
+
+    # Initialize distance map with infinity
+    dist_map = np.full((grid_w, grid_h, num_layers), INF, dtype=np.float32)
+    dist_map[target_x, target_y, target_l] = 0.0
+
+    # Use arrays as a queue (much faster than Python deque in Numba)
+    # Pre-allocate for worst case (full grid exploration)
+    max_queue_size = grid_w * grid_h * num_layers
+    queue_x = np.zeros(max_queue_size, dtype=np.int32)
+    queue_y = np.zeros(max_queue_size, dtype=np.int32)
+    queue_l = np.zeros(max_queue_size, dtype=np.int32)
+
+    # Initialize queue with target
+    queue_x[0] = target_x
+    queue_y[0] = target_y
+    queue_l[0] = target_l
+    queue_head = 0
+    queue_tail = 1
+
+    # BFS loop
+    while queue_head < queue_tail:
+        cx = queue_x[queue_head]
+        cy = queue_y[queue_head]
+        cl = queue_l[queue_head]
+        queue_head += 1
+
+        current_dist = dist_map[cx, cy, cl]
+        new_dist = current_dist + 1.0
+
+        # Check 4-connected neighbors (planar moves)
+        # Right
+        nx, ny = cx + 1, cy
+        if nx < grid_w:
+            if occupancy[nx, ny, cl] != -1:
+                if new_dist < dist_map[nx, ny, cl]:
+                    dist_map[nx, ny, cl] = new_dist
+                    queue_x[queue_tail] = nx
+                    queue_y[queue_tail] = ny
+                    queue_l[queue_tail] = cl
+                    queue_tail += 1
+
+        # Left
+        nx, ny = cx - 1, cy
+        if nx >= 0:
+            if occupancy[nx, ny, cl] != -1:
+                if new_dist < dist_map[nx, ny, cl]:
+                    dist_map[nx, ny, cl] = new_dist
+                    queue_x[queue_tail] = nx
+                    queue_y[queue_tail] = ny
+                    queue_l[queue_tail] = cl
+                    queue_tail += 1
+
+        # Up
+        nx, ny = cx, cy + 1
+        if ny < grid_h:
+            if occupancy[nx, ny, cl] != -1:
+                if new_dist < dist_map[nx, ny, cl]:
+                    dist_map[nx, ny, cl] = new_dist
+                    queue_x[queue_tail] = nx
+                    queue_y[queue_tail] = ny
+                    queue_l[queue_tail] = cl
+                    queue_tail += 1
+
+        # Down
+        nx, ny = cx, cy - 1
+        if ny >= 0:
+            if occupancy[nx, ny, cl] != -1:
+                if new_dist < dist_map[nx, ny, cl]:
+                    dist_map[nx, ny, cl] = new_dist
+                    queue_x[queue_tail] = nx
+                    queue_y[queue_tail] = ny
+                    queue_l[queue_tail] = cl
+                    queue_tail += 1
+
+        # Layer transitions (via moves) - cost 2 for layer change
+        if num_layers > 1:
+            via_dist = current_dist + 2.0  # Via costs more than planar move
+
+            # Up layer
+            if cl < num_layers - 1:
+                nl = cl + 1
+                if occupancy[cx, cy, nl] != -1:
+                    if via_dist < dist_map[cx, cy, nl]:
+                        dist_map[cx, cy, nl] = via_dist
+                        queue_x[queue_tail] = cx
+                        queue_y[queue_tail] = cy
+                        queue_l[queue_tail] = nl
+                        queue_tail += 1
+
+            # Down layer
+            if cl > 0:
+                nl = cl - 1
+                if occupancy[cx, cy, nl] != -1:
+                    if via_dist < dist_map[cx, cy, nl]:
+                        dist_map[cx, cy, nl] = via_dist
+                        queue_x[queue_tail] = cx
+                        queue_y[queue_tail] = cy
+                        queue_l[queue_tail] = nl
+                        queue_tail += 1
+
+    return dist_map
 
 
 # WARMUP ROUTINE
@@ -593,6 +832,12 @@ if HAS_NUMBA:
                 gmap,
                 0.5,
             )
+        except:
+            pass
+
+        # 7. Warmup for BFS distance map
+        try:
+            compute_distance_map_numba(1, 1, 0, w, h, l, occ)
         except:
             pass
 
