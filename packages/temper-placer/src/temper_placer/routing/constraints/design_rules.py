@@ -167,10 +167,24 @@ class ClearanceMatrix:
 
         # 2. Apply spatial override if coordinates and zone manager are provided
         if x is not None and y is not None and self.zone_manager:
-            # Use max(base, zone) to ensure we don't violate stricter rules
             zone = self.zone_manager.get_zone_at(x, y)
             if zone:
-                return max(base_clearance, zone.clearance_mm)
+                # Only apply zone clearance if at least one net is of a hazard class
+                # for this zone. E.g., HV zone clearance only applies when routing
+                # near HV nets, not for signal-to-signal routing that happens to
+                # pass through the HV region.
+                class_a = self._net_to_class.get(net_a, "Default")
+                class_b = self._net_to_class.get(net_b, "Default")
+
+                # Check if either net requires this zone's clearance
+                # HV zone applies to HighVoltage nets
+                # Signal zone doesn't need special handling (uses base clearance)
+                zone_applies = False
+                if zone.name == "HV":
+                    zone_applies = class_a == "HighVoltage" or class_b == "HighVoltage"
+
+                if zone_applies:
+                    return max(base_clearance, zone.clearance_mm)
 
         return base_clearance
 

@@ -122,6 +122,7 @@ class NetClassRules:
     creepage_mm: float = 0.0  # Creepage distance for high-voltage nets
     target_impedance: float | None = None  # Target impedance in ohms
     voltage_v: float = 0.0  # Voltage rating for safety distance calculation
+    routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
 
 
 @dataclass

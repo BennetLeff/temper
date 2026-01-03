@@ -1015,6 +1015,7 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
             via_template=rule.via_template or "Via1x1",  # Default to single via
             creepage_mm=rule.creepage_mm,
             voltage_v=rule.voltage_v,
+            routing_strategy=rule.routing_strategy,
         )
 
     # Convert differential pair rules

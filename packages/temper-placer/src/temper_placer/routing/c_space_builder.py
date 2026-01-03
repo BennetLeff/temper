@@ -151,31 +151,41 @@ class CSpaceBuilder:
 
         # 2. Tracks (existing routed segments)
         # These are critical to avoid shorts with new routes
-        if hasattr(board, 'traceItems'):
+        if hasattr(board, "traceItems"):
             for item in board.traceItems:
                 # Track segments
-                if hasattr(item, 'start') and hasattr(item, 'end'):
+                if hasattr(item, "start") and hasattr(item, "end"):
                     # Determine layer ID
-                    layer_id = self._layer_name_to_id(item.layer if hasattr(item, 'layer') else 'F.Cu')
-                    net_name = item.net if hasattr(item, 'net') else ''
+                    layer_id = self._layer_name_to_id(
+                        item.layer if hasattr(item, "layer") else "F.Cu"
+                    )
+                    
+                    # Resolve Net Name (item.net is an object in kiutils)
+                    net_name = ""
+                    if hasattr(item, "net") and item.net:
+                        net_name = item.net.name if hasattr(item.net, "name") else str(item.net)
 
                     track = Track(
                         start=Point(item.start.X, item.start.Y),
                         end=Point(item.end.X, item.end.Y),
-                        width=item.width if hasattr(item, 'width') else 0.2,
+                        width=item.width if hasattr(item, "width") else 0.2,
                         net=net_name,
-                        layer=layer_id
+                        layer=layer_id,
                     )
                     self.tracks.append(track)
 
                 # Vias (punch through all layers)
-                elif hasattr(item, 'position') and hasattr(item, 'size'):
-                    net_name = item.net if hasattr(item, 'net') else ''
+                elif hasattr(item, "position") and hasattr(item, "size"):
+                    # Resolve Net Name
+                    net_name = ""
+                    if hasattr(item, "net") and item.net:
+                        net_name = item.net.name if hasattr(item.net, "name") else str(item.net)
+
                     via = Via(
                         center=Point(item.position.X, item.position.Y),
-                        diameter=item.size if hasattr(item, 'size') else 0.6,
-                        drill=item.drill if hasattr(item, 'drill') else 0.3,
-                        net=net_name
+                        diameter=item.size if hasattr(item, "size") else 0.6,
+                        drill=item.drill if hasattr(item, "drill") else 0.3,
+                        net=net_name,
                     )
                     self.vias.append(via)
 
@@ -193,13 +203,66 @@ class CSpaceBuilder:
             return self.num_layers - 1
         return 0
 
-    def build_grid(self, clearance: float, trace_width: float, exclude_nets: set[str] = None) -> np.ndarray:
+    def build_raw_obstacle_grid(
+        self, inflation_mm: float = 0.0, exclude_nets: set[str] = None
+    ) -> np.ndarray:
+        """Generate a boolean grid of obstacles with uniform inflation.
+
+        Args:
+            inflation_mm: Total inflation radius in mm
+            exclude_nets: Nets to ignore
+
+        Returns:
+            np.ndarray: Boolean grid (W, H, NumLayers)
+        """
+        exclude_nets = exclude_nets or set()
+        grid_3d = np.zeros((self.grid_w, self.grid_h, self.num_layers), dtype=bool)
+        inflation_px = int(np.ceil(inflation_mm / self.resolution))
+
+        layer_buffers = [
+            np.zeros((self.grid_h, self.grid_w), dtype=np.uint8) for _ in range(self.num_layers)
+        ]
+
+        for pad in self.pads:
+            if pad.net in exclude_nets:
+                continue
+            target_layers = (
+                list(range(self.num_layers)) if pad.layer == -1 else [pad.layer]
+            )
+            for lid in target_layers:
+                if 0 <= lid < self.num_layers:
+                    self._draw_pad(layer_buffers[lid], pad, inflation_px, color=255)
+
+        for track in self.tracks:
+            if track.net in exclude_nets:
+                continue
+            target_layers = (
+                list(range(self.num_layers)) if track.layer == -1 else [track.layer]
+            )
+            for lid in target_layers:
+                if 0 <= lid < self.num_layers:
+                    self._draw_track(layer_buffers[lid], track, inflation_px, color=255)
+
+        for via in self.vias:
+            if via.net in exclude_nets:
+                continue
+            for lid in range(self.num_layers):
+                self._draw_via(layer_buffers[lid], via, inflation_px, color=255)
+
+        for lid in range(self.num_layers):
+            grid_3d[:, :, lid] = layer_buffers[lid].T > 0
+
+        return grid_3d
+
+    def build_grid(
+        self, matrix: "ClearanceMatrix", net_name: str, exclude_nets: set[str] = None
+    ) -> np.ndarray:
         """
         Generate a boolean grid where True = Blocked, False = Free.
 
         Args:
-            clearance: Required clearance distance (mm)
-            trace_width: Width of the trace being routed (mm)
+            matrix: ClearanceMatrix for net-class-aware rules
+            net_name: Name of the net being routed (to determine clearance)
             exclude_nets: Set of net names to IGNORE (i.e. don't block).
                           Usually contains the net currently being routed.
 
@@ -208,13 +271,15 @@ class CSpaceBuilder:
         """
         exclude_nets = exclude_nets or set()
 
-        # Initialize 3D grid (0 = Free)
-        # Note: MazeRouter uses [x, y, z] -> [width, height, layers]
-        grid_3d = np.zeros((self.grid_w, self.grid_h, self.num_layers), dtype=bool)
+        # Get routing net rules
+        rules = matrix._net_class_rules.get(
+            matrix._net_to_class.get(net_name, "Default"),
+            NetClassRules("Default", 0.2, 0.2),
+        )
+        trace_width = rules.trace_width
 
-        # Total inflation radius
-        inflation_mm = clearance + (trace_width / 2.0)
-        inflation_px = int(np.ceil(inflation_mm / self.resolution))
+        # Initialize 3D grid (0 = Free)
+        grid_3d = np.zeros((self.grid_w, self.grid_h, self.num_layers), dtype=bool)
 
         # Use uint8 buffers for drawing (OpenCV works on 2D)
         layer_buffers = [
@@ -222,9 +287,16 @@ class CSpaceBuilder:
         ]
 
         # Rasterize Pads
+        clearance_samples = []  # Debug: track clearance values
         for pad in self.pads:
             if pad.net in exclude_nets:
                 continue
+
+            # Dynamic Clearance based on net pair and location
+            clearance = matrix.get_clearance(net_name, pad.net, pad.center.x, pad.center.y)
+            clearance_samples.append((net_name, pad.net, clearance))
+            inflation_mm = clearance + (trace_width / 2.0)
+            inflation_px = int(np.ceil(inflation_mm / self.resolution))
 
             # Determine target layers
             target_layers = []
@@ -241,6 +313,11 @@ class CSpaceBuilder:
             if track.net in exclude_nets:
                 continue
 
+            # Dynamic Clearance
+            clearance = matrix.get_clearance(net_name, track.net, track.start.x, track.start.y)
+            inflation_mm = clearance + (trace_width / 2.0)
+            inflation_px = int(np.ceil(inflation_mm / self.resolution))
+
             # Track layer
             target_layers = []
             if track.layer == -1:
@@ -256,13 +333,17 @@ class CSpaceBuilder:
             if via.net in exclude_nets:
                 continue
 
+            # Dynamic Clearance
+            clearance = matrix.get_clearance(net_name, via.net, via.center.x, via.center.y)
+            inflation_mm = clearance + (trace_width / 2.0)
+            inflation_px = int(np.ceil(inflation_mm / self.resolution))
+
             # Vias punch through all layers
             for lid in range(self.num_layers):
                 self._draw_via(layer_buffers[lid], via, inflation_px, color=255)
 
         # Fill 3D Grid
         for lid in range(self.num_layers):
-            # Transpose buffer (H, W) -> (W, H) to match [x, y]
             grid_3d[:, :, lid] = layer_buffers[lid].T > 0
 
         return grid_3d
@@ -272,8 +353,7 @@ class CSpaceBuilder:
     ) -> np.ndarray:
         """Generate a zone-aware boolean C-Space grid.
 
-        Combines multiple rasterization passes using zone-based masking to
-        support spatial clearance overrides.
+        Now simply calls build_grid which implements dynamic spatial clearance.
 
         Args:
             matrix: ClearanceMatrix containing ZoneManager
@@ -283,37 +363,7 @@ class CSpaceBuilder:
         Returns:
             np.ndarray: Boolean grid (W, H, NumLayers)
         """
-        # 1. Start with baseline grid (default net class rules)
-        rules = matrix._net_class_rules.get(
-            matrix._net_to_class.get(net_name, "Default"),
-            NetClassRules("Default", 0.2, 0.2),
-        )
-        trace_width = rules.trace_width
-        base_clearance = rules.clearance
-
-        grid = self.build_grid(base_clearance, trace_width, exclude_nets)
-
-        if not matrix.zone_manager:
-            return grid
-
-        # 2. Apply zone-specific overrides
-        for zone in matrix.zone_manager.zones:
-            if zone.clearance_mm <= base_clearance:
-                continue
-
-            # Generate grid for this zone's clearance
-            zone_grid = self.build_grid(zone.clearance_mm, trace_width, exclude_nets)
-
-            # Create zone mask (2D uint8)
-            mask = self._create_zone_mask(zone.polygon)
-
-            # Mask is (H, W), grid is (W, H, L)
-            mask_t = mask.T > 0
-            for lid in range(self.num_layers):
-                # Update main grid in masked area with zone-specific blocking
-                grid[:, :, lid][mask_t] = zone_grid[:, :, lid][mask_t]
-
-        return grid
+        return self.build_grid(matrix, net_name, exclude_nets)
 
     def _create_zone_mask(self, polygon: list[tuple[float, float]]) -> np.ndarray:
         """Create a 2D binary mask from a polygon.
@@ -516,8 +566,8 @@ class SoftCSpaceBuilder(CSpaceBuilder):
         """
         Build a 3D gradient cost field.
         """
-        # 1. Build hard binary grid (3D)
-        base_grid_3d = self.build_grid(clearance=0.0, trace_width=0.0, exclude_nets=exclude_nets)
+        # 1. Build hard binary grid (3D) using raw obstacles (no extra inflation)
+        base_grid_3d = self.build_raw_obstacle_grid(inflation_mm=0.0, exclude_nets=exclude_nets)
 
         # Output 3D cost grid
         cost_grid_3d = np.zeros_like(base_grid_3d, dtype=np.float32)
