@@ -271,6 +271,9 @@ class MazeRouter:
         # Pad net mapping for track-through-pad prevention (temper-hdu8)
         self._pad_net_map: dict[tuple[int, int, int], str] = {}  # (gx, gy, layer) -> net
 
+        # Pre-computed density map for O(1) cell difficulty lookup (temper-qjlk)
+        self._density_map: np.ndarray | None = None
+
     def _get_inflated_cells(
         self, x: int, y: int, layer: int, width_mm: float = None, clearance_mm: float = None
     ) -> list[tuple[int, int, int]]:
@@ -503,10 +506,14 @@ class MazeRouter:
             ):
                 difficulty += 0.5
 
-        # Add density-based difficulty (mm-space)
-        world_x = cell.x * self.cell_size + self.origin[0]
-        world_y = cell.y * self.cell_size + self.origin[1]
-        density = self._compute_local_density(world_x, world_y)
+        # Use pre-computed density map for O(1) lookup (temper-qjlk)
+        if self._density_map is not None:
+            density = float(self._density_map[cell.x, cell.y, cell.layer])
+        else:
+            world_x = cell.x * self.cell_size + self.origin[0]
+            world_y = cell.y * self.cell_size + self.origin[1]
+            density = self._compute_local_density(world_x, world_y)
+
         difficulty += density * 1.0
 
         return difficulty
@@ -799,6 +806,7 @@ class MazeRouter:
         escape_length: int | None = None,
     ) -> None:
         self._component_positions = positions
+        self._compute_density_map()
         for i, comp in enumerate(components):
             cx, cy = float(positions[i, 0]), float(positions[i, 1])
             hw, hh = comp.bounds[0] / 2 + margin, comp.bounds[1] / 2 + margin
@@ -986,6 +994,42 @@ class MazeRouter:
         distances = jnp.sqrt(jnp.sum((self._component_positions - point) ** 2, axis=1))
         count = int(jnp.sum(distances <= radius))
         return float(jnp.clip(count / (jnp.pi * radius**2 / 100.0), 0.0, 1.0))
+
+    def _compute_density_map(self, radius_mm: float = 10.0) -> None:
+        """Pre-compute component density for all grid cells.
+
+        This converts _get_cell_difficulty from O(VisitedCells * NumComponents)
+        to O(1) array lookup.
+
+        Args:
+            radius_mm: Radius in mm for density calculation (default 10mm)
+        """
+        if self._component_positions is None or len(self._component_positions) == 0:
+            self._density_map = np.zeros(self.grid_size + (self.num_layers,), dtype=np.float32)
+            return
+
+        radius_cells = radius_mm / self.cell_size
+        radius_cells_sq = radius_cells**2
+
+        density_map = np.zeros(self.grid_size + (self.num_layers,), dtype=np.float32)
+
+        comp_array = np.asarray(self._component_positions)
+
+        for l in range(self.num_layers):
+            for gx in range(self.grid_size[0]):
+                for gy in range(self.grid_size[1]):
+                    world_x = gx * self.cell_size + self.origin[0]
+                    world_y = gy * self.cell_size + self.origin[1]
+
+                    diffs_x = comp_array[:, 0] - world_x
+                    diffs_y = comp_array[:, 1] - world_y
+                    dists_sq = diffs_x**2 + diffs_y**2
+
+                    count = np.sum(dists_sq <= radius_cells_sq)
+                    density = float(np.clip(count / (np.pi * radius_mm**2 / 100.0), 0.0, 1.0))
+                    density_map[gx, gy, l] = density
+
+        self._density_map = density_map
 
     def _compute_escape_length(
         self, pin_x: float, pin_y: float, comp: Component | None = None
