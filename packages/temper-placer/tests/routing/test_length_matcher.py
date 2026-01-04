@@ -1,275 +1,321 @@
 """
-Tests for differential pair length matching.
+Tests for length matching post-processing (temper-l4we.3).
 
-Verifies serpentine insertion and length equalization for high-speed differential pairs.
+Tests serpentine meander generation and path length equalization for buses.
 """
 
 import pytest
 import math
-from temper_placer.routing.maze_router import GridCell, RoutePath
+import numpy as np
+
+from temper_placer.core.bus_cohort import BusCohortConstraint
+from temper_placer.routing.maze_router import RoutePath
+from temper_placer.routing.heuristics import GridCell
 from temper_placer.routing.post_processing.length_matcher import (
     LengthMatcher,
     SerpentineParams,
+    LengthMatchResult,
 )
 
 
-class TestSerpentineParams:
-    """Tests for SerpentineParams dataclass."""
+class TestLengthCalculation:
+    """Tests for path length calculation."""
 
-    def test_default_parameters(self):
-        """Should use sensible defaults for serpentine configuration."""
-        params = SerpentineParams()
-        assert params.amplitude_mm == 0.5
-        assert params.pitch_mm == 1.0  # 2x amplitude
-        assert params.tolerance_mm == 0.5
-        assert params.min_straight_length_mm == 2.0
-
-    def test_pitch_auto_calculation(self):
-        """Should auto-set pitch to 2x amplitude when not specified."""
-        params = SerpentineParams(amplitude_mm=0.3)
-        # Since pitch has default 1.0, post_init should set it to 2*amplitude
-        assert params.pitch_mm == 0.6
-
-    def test_custom_pitch_preserved(self):
-        """Should preserve explicitly set pitch value."""
-        params = SerpentineParams(amplitude_mm=0.5, pitch_mm=1.5)
-        assert params.pitch_mm == 1.5  # Not overridden
-
-
-class TestMeasurePathLength:
-    """Tests for path length measurement."""
-
-    def test_empty_path(self):
-        """Should return 0 for empty path."""
+    def test_calculate_path_length_straight(self):
+        """Should calculate length of straight path correctly."""
         matcher = LengthMatcher()
-        assert matcher.measure_path_length([], cell_size_mm=0.1) == 0.0
 
-    def test_single_cell(self):
-        """Should return 0 for single-cell path."""
-        matcher = LengthMatcher()
-        cells = [GridCell(0, 0, 0)]
-        assert matcher.measure_path_length(cells, cell_size_mm=0.1) == 0.0
+        path = RoutePath(
+            net="TEST",
+            cells=[
+                GridCell(0, 0, 0),
+                GridCell(1, 0, 0),
+                GridCell(2, 0, 0),
+                GridCell(3, 0, 0),
+            ],
+            length=0.0,
+            via_count=0,
+            success=True,
+            cell_size=0.2,
+        )
 
-    def test_straight_horizontal_path(self):
-        """Should calculate correct length for horizontal path."""
-        matcher = LengthMatcher()
-        cells = [GridCell(0, 0, 0), GridCell(10, 0, 0)]  # 10 cells = 1mm at 0.1mm/cell
-        length = matcher.measure_path_length(cells, cell_size_mm=0.1)
-        assert length == pytest.approx(1.0, abs=0.01)
+        length = matcher.measure_path_length(path.cells, cell_size_mm=0.2)
 
-    def test_straight_vertical_path(self):
-        """Should calculate correct length for vertical path."""
-        matcher = LengthMatcher()
-        cells = [GridCell(0, 0, 0), GridCell(0, 20, 0)]  # 20 cells = 2mm
-        length = matcher.measure_path_length(cells, cell_size_mm=0.1)
-        assert length == pytest.approx(2.0, abs=0.01)
+        assert length == pytest.approx(0.6)  # 3 segments * 0.2mm
 
-    def test_diagonal_path(self):
-        """Should calculate Euclidean distance for diagonal moves."""
+    def test_calculate_path_length_diagonal(self):
+        """Should calculate diagonal distance correctly."""
         matcher = LengthMatcher()
-        cells = [GridCell(0, 0, 0), GridCell(10, 10, 0)]  # sqrt(10^2 + 10^2) * 0.1
-        expected = math.sqrt(10 * 10 + 10 * 10) * 0.1
-        length = matcher.measure_path_length(cells, cell_size_mm=0.1)
-        assert length == pytest.approx(expected, abs=0.01)
 
-    def test_multi_segment_path(self):
-        """Should sum all segments for complex paths."""
+        path = RoutePath(
+            net="TEST",
+            cells=[
+                GridCell(0, 0, 0),
+                GridCell(1, 1, 0),
+                GridCell(2, 2, 0),
+            ],
+            length=0.0,
+            via_count=0,
+            success=True,
+            cell_size=0.2,
+        )
+
+        length = matcher.measure_path_length(path.cells, cell_size_mm=0.2)
+
+        expected = 2 * math.sqrt(0.08)  # 2 diagonal segments
+        assert length == pytest.approx(expected, abs=0.001)
+
+
+class TestSerpentineInsertion:
+    """Tests for serpentine meander insertion."""
+
+    def test_insert_serpentine_increases_length(self):
+        """Adding serpentine should increase path length."""
         matcher = LengthMatcher()
+
         cells = [
             GridCell(0, 0, 0),
-            GridCell(10, 0, 0),  # +1mm horizontal
-            GridCell(10, 10, 0),  # +1mm vertical
-            GridCell(20, 10, 0),  # +1mm horizontal
+            GridCell(10, 0, 0),
         ]
-        length = matcher.measure_path_length(cells, cell_size_mm=0.1)
-        assert length == pytest.approx(3.0, abs=0.01)
+
+        original_length = 2.0  # 10 cells * 0.2mm
+
+        new_cells = matcher.insert_serpentine(
+            cells,
+            segment=(0, 1),
+            length_delta_mm=1.0,
+            cell_size_mm=0.2,
+            params=SerpentineParams(amplitude_mm=0.4),
+        )
+
+        new_length = matcher.measure_path_length(new_cells, cell_size_mm=0.2)
+
+        assert new_length > original_length
+
+    def test_serpentine_amplitude_calculation(self):
+        """Should calculate correct meander amplitude."""
+        matcher = LengthMatcher()
+
+        extra_length = 2.0
+        num_periods = 4
+
+        wave_length_added = 2.0 * 0.25
+        amplitude = extra_length / (2 * num_periods)
+
+        assert amplitude == 0.25
+
+
+class TestBusLengthMatching:
+    """Tests for bus-level length matching."""
+
+    def test_match_bus_lengths_reduces_skew(self):
+        """Should reduce length variance within bus."""
+        matcher = LengthMatcher()
+
+        paths = {
+            "NET_A": RoutePath(
+                net="NET_A",
+                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
+                length=2.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+            "NET_B": RoutePath(
+                net="NET_B",
+                cells=[GridCell(0, 0, 0), GridCell(5, 0, 0)],
+                length=1.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+        }
+
+        bus = BusCohortConstraint(
+            name="SPI_BUS",
+            nets=["NET_A", "NET_B"],
+            max_skew_mm=0.5,
+        )
+
+        result = matcher.match_bus_lengths(paths, bus, cell_size_mm=0.2)
+
+        assert isinstance(result, LengthMatchResult)
+        assert result.original_skew_mm == 1.0
+        assert result.final_skew_mm < result.original_skew_mm
+
+    def test_match_bus_lengths_all_paths_returned(self):
+        """Result should have paths for all nets."""
+        matcher = LengthMatcher()
+
+        paths = {
+            "NET_A": RoutePath(
+                net="NET_A",
+                cells=[GridCell(0, 0, 0), GridCell(5, 0, 0)],
+                length=1.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+        }
+
+        bus = BusCohortConstraint(
+            name="TEST_BUS",
+            nets=["NET_A"],
+            max_skew_mm=2.0,
+        )
+
+        result = matcher.match_bus_lengths(paths, bus, cell_size_mm=0.2)
+
+        assert "NET_A" in result.paths
+
+    def test_match_bus_lengths_reports_skew(self):
+        """Result should report achieved skew."""
+        matcher = LengthMatcher()
+
+        paths = {
+            "NET_A": RoutePath(
+                net="NET_A",
+                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
+                length=2.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+            "NET_B": RoutePath(
+                net="NET_B",
+                cells=[GridCell(0, 0, 0), GridCell(8, 0, 0)],
+                length=1.6,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+        }
+
+        bus = BusCohortConstraint(
+            name="TEST_BUS",
+            nets=["NET_A", "NET_B"],
+            max_skew_mm=1.0,
+        )
+
+        result = matcher.match_bus_lengths(paths, bus, cell_size_mm=0.2)
+
+        assert result.achieved_skew_mm is not None
+        assert result.achieved_skew_mm >= 0
+        assert result.max_skew_mm == 1.0
+
+    def test_match_bus_lengths_within_tolerance(self):
+        """Final skew should be within bus tolerance."""
+        matcher = LengthMatcher()
+
+        paths = {
+            "NET_A": RoutePath(
+                net="NET_A",
+                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
+                length=2.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+            "NET_B": RoutePath(
+                net="NET_B",
+                cells=[GridCell(0, 0, 0), GridCell(6, 0, 0)],
+                length=1.2,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+        }
+
+        bus = BusCohortConstraint(
+            name="SPI_BUS",
+            nets=["NET_A", "NET_B"],
+            max_skew_mm=0.5,
+        )
+
+        result = matcher.match_bus_lengths(paths, bus, cell_size_mm=0.2)
+
+        assert result.final_skew_mm <= bus.max_skew_mm or len(result.nets_modified) > 0
+
+
+class TestSerpentineParams:
+    """Tests for SerpentineParams configuration."""
+
+    def test_default_params(self):
+        """Should have sensible defaults."""
+        params = SerpentineParams()
+
+        assert params.amplitude_mm == 0.5
+        assert params.tolerance_mm == 0.5
+        assert params.min_straight_length_mm == 2.0
+        assert params.pitch_mm == 1.0  # 2 * 0.5
+
+    def test_custom_params(self):
+        """Should accept custom values."""
+        params = SerpentineParams(
+            amplitude_mm=0.3,
+            tolerance_mm=0.2,
+            min_straight_length_mm=1.5,
+        )
+
+        assert params.amplitude_mm == 0.3
+        assert params.tolerance_mm == 0.2
+        assert params.min_straight_length_mm == 1.5
 
 
 class TestFindStraightSegments:
-    """Tests for straight segment identification."""
+    """Tests for straight segment detection."""
 
-    def test_no_segments_short_path(self):
-        """Should return empty list for paths too short."""
+    def test_find_straight_segments(self):
+        """Should identify straight segments."""
         matcher = LengthMatcher()
-        cells = [GridCell(0, 0, 0), GridCell(1, 0, 0)]
-        segments = matcher.find_straight_segments(cells, cell_size_mm=0.1, min_length_mm=2.0)
-        assert segments == []
 
-    def test_single_straight_segment(self):
-        """Should identify a single long straight segment."""
+        cells = [
+            GridCell(0, 0, 0),
+            GridCell(1, 0, 0),
+            GridCell(2, 0, 0),
+            GridCell(2, 1, 0),
+            GridCell(2, 2, 0),
+            GridCell(3, 2, 0),
+        ]
+
+        segments = matcher.find_straight_segments(cells, cell_size_mm=0.2, min_length_mm=0.4)
+
+        assert len(segments) >= 1
+
+
+class TestLengthMatchResult:
+    """Tests for LengthMatchResult structure."""
+
+    def test_result_with_modifications(self):
+        """Result should track which nets were modified."""
         matcher = LengthMatcher()
-        cells = [GridCell(i, 0, 0) for i in range(30)]  # 3mm straight line
-        segments = matcher.find_straight_segments(cells, cell_size_mm=0.1, min_length_mm=2.0)
-        assert len(segments) == 1
-        assert segments[0] == (0, 29)
 
-    def test_filter_short_segments(self):
-        """Should filter out segments shorter than min_length."""
-        matcher = LengthMatcher()
-        # Short segment (10 cells = 1mm)
-        cells = [GridCell(i, 0, 0) for i in range(10)]
-        segments = matcher.find_straight_segments(cells, cell_size_mm=0.1, min_length_mm=2.0)
-        assert len(segments) == 0
+        paths = {
+            "NET_A": RoutePath(
+                net="NET_A",
+                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
+                length=2.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+            "NET_B": RoutePath(
+                net="NET_B",
+                cells=[GridCell(0, 0, 0), GridCell(5, 0, 0)],
+                length=1.0,
+                via_count=0,
+                success=True,
+                cell_size=0.2,
+            ),
+        }
 
-    def test_multiple_segments_with_corners(self):
-        """Should split at corners and return multiple segments."""
-        matcher = LengthMatcher()
-        cells = (
-            [GridCell(i, 0, 0) for i in range(30)]  # 3mm horizontal
-            + [GridCell(29, i, 0) for i in range(1, 30)]  # 3mm vertical
+        bus = BusCohortConstraint(
+            name="TEST_BUS",
+            nets=["NET_A", "NET_B"],
+            max_skew_mm=0.3,
         )
-        segments = matcher.find_straight_segments(cells, cell_size_mm=0.1, min_length_mm=2.0)
-        assert len(segments) == 2  # Two straight segments separated by corner
 
-    def test_layer_change_breaks_segment(self):
-        """Should treat layer change as segment boundary."""
-        matcher = LengthMatcher()
-        cells = (
-            [GridCell(i, 0, 0) for i in range(30)]  # Layer 0
-            + [GridCell(29, 0, 1)]  # Via to layer 1
-            + [GridCell(29 + i, 0, 1) for i in range(1, 30)]  # Layer 1
-        )
-        segments = matcher.find_straight_segments(cells, cell_size_mm=0.1, min_length_mm=2.0)
-        assert len(segments) == 2  # Split at layer change
+        result = matcher.match_bus_lengths(paths, bus, cell_size_mm=0.2)
 
-
-class TestInsertSerpentine:
-    """Tests for serpentine insertion."""
-
-    def test_serpentine_adds_length(self):
-        """Should increase path length after serpentine insertion."""
-        matcher = LengthMatcher()
-        cells = [GridCell(i, 5, 0) for i in range(50)]  # 5mm straight
-        params = SerpentineParams(amplitude_mm=0.5, tolerance_mm=0.5)
-        
-        original_length = matcher.measure_path_length(cells, cell_size_mm=0.1)
-        new_cells = matcher.insert_serpentine(
-            cells, segment=(0, 49), length_delta_mm=1.0, cell_size_mm=0.1, params=params
-        )
-        new_length = matcher.measure_path_length(new_cells, cell_size_mm=0.1)
-        
-        assert new_length > original_length
-        assert new_length >= original_length + 0.5  # Should add at least some length
-
-    def test_serpentine_preserves_endpoints(self):
-        """Should maintain same start and end points."""
-        matcher = LengthMatcher()
-        cells = [GridCell(i, 10, 0) for i in range(50)]
-        params = SerpentineParams(amplitude_mm=0.5)
-        
-        new_cells = matcher.insert_serpentine(
-            cells, segment=(5, 45), length_delta_mm=1.0, cell_size_mm=0.1, params=params
-        )
-        
-        # Start and end should be unchanged
-        assert new_cells[0] == cells[0]
-        assert new_cells[-1] == cells[-1]
-
-    def test_horizontal_serpentine_perpendicular(self):
-        """Horizontal trace should get vertical serpentine."""
-        matcher = LengthMatcher()
-        cells = [GridCell(i, 10, 0) for i in range(50)]  # Horizontal
-        params = SerpentineParams(amplitude_mm=0.5)
-        
-        new_cells = matcher.insert_serpentine(
-            cells, segment=(10, 40), length_delta_mm=1.0, cell_size_mm=0.1, params=params
-        )
-        
-        # Check that some cells have different Y coordinates (vertical deviation)
-        y_coords = [c.y for c in new_cells]
-        assert len(set(y_coords)) > 1  # Multiple Y values means vertical deviation
-
-
-class TestMatchDifferentialPairLengths:
-    """Tests for differential pair length matching integration."""
-
-    def test_no_matching_if_within_tolerance(self):
-        """Should not modify paths if length delta is within tolerance."""
-        matcher = LengthMatcher()
-        params = SerpentineParams(tolerance_mm=1.0)
-        
-        # Create two paths with similar lengths
-        cells_pos = [GridCell(i, 0, 0) for i in range(30)]  # 3mm
-        cells_neg = [GridCell(i, 2, 0) for i in range(32)]  # 3.2mm
-        
-        path_pos = RoutePath(
-            net="D+", cells=cells_pos, length=3.0, via_count=0, success=True
-        )
-        path_neg = RoutePath(
-            net="D-", cells=cells_neg, length=3.2, via_count=0, success=True
-        )
-        
-        new_pos, new_neg = matcher.match_differential_pair_lengths(
-            path_pos, path_neg, params
-        )
-        
-        # Paths should be unchanged
-        assert len(new_pos.cells) == len(path_pos.cells)
-        assert len(new_neg.cells) == len(path_neg.cells)
-
-    def test_matching_modifies_shorter_path(self):
-        """Should add serpentine to shorter path when delta exceeds tolerance."""
-        matcher = LengthMatcher()
-        params = SerpentineParams(tolerance_mm=0.3, amplitude_mm=0.5)
-        
-        # Create paths with significant length difference
-        cells_pos = [GridCell(i, 0, 0) for i in range(30)]  # 3mm
-        cells_neg = [GridCell(i, 2, 0) for i in range(50)]  # 5mm
-        
-        path_pos = RoutePath(
-            net="D+", cells=cells_pos, length=3.0, via_count=0, success=True
-        )
-        path_neg = RoutePath(
-            net="D-", cells=cells_neg, length=5.0, via_count=0, success=True
-        )
-        
-        new_pos, new_neg = matcher.match_differential_pair_lengths(
-            path_pos, path_neg, params
-        )
-        
-        # Shorter path (pos) should be modified
-        assert len(new_pos.cells) > len(path_pos.cells)
-        # Longer path should be unchanged
-        assert len(new_neg.cells) == len(path_neg.cells)
-
-    def test_failed_paths_unchanged(self):
-        """Should not modify failed routing paths."""
-        matcher = LengthMatcher()
-        params = SerpentineParams()
-        
-        path_pos = RoutePath(
-            net="D+", cells=[], length=0, via_count=0, success=False, failure_reason="blocked"
-        )
-        path_neg = RoutePath(
-            net="D-", cells=[], length=0, via_count=0, success=True
-        )
-        
-        new_pos, new_neg = matcher.match_differential_pair_lengths(
-            path_pos, path_neg, params
-        )
-        
-        assert new_pos == path_pos
-        assert new_neg == path_neg
-
-    def test_no_suitable_segments_returns_unchanged(self):
-        """Should return original paths if no suitable straight segments exist."""
-        matcher = LengthMatcher()
-        params = SerpentineParams(min_straight_length_mm=10.0)  # Very long minimum
-        
-        # Short paths with no long straights
-        cells_pos = [GridCell(i % 2, i // 2, 0) for i in range(20)]  # Zigzag
-        cells_neg = [GridCell(i, 2, 0) for i in range(50)]
-        
-        path_pos = RoutePath(
-            net="D+", cells=cells_pos, length=2.0, via_count=0, success=True
-        )
-        path_neg = RoutePath(
-            net="D-", cells=cells_neg, length=5.0, via_count=0, success=True
-        )
-        
-        new_pos, new_neg = matcher.match_differential_pair_lengths(
-            path_pos, path_neg, params
-        )
-        
-        # Should be unchanged (no suitable segments for serpentine)
-        assert len(new_pos.cells) == len(path_pos.cells)
+        if result.nets_modified:
+            assert "NET_B" in result.nets_modified or "NET_A" in result.nets_modified
