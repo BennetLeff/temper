@@ -322,6 +322,7 @@ def export_routed_pcb(
     origin: tuple[float, float] = (0.0, 0.0),
     cell_size: float = 1.0,
     layer_map: dict[int, str] | None = None,
+    auto_fill_zones: bool = True,
 ) -> ExportResult:
     """Export routed paths to KiCad PCB file.
 
@@ -427,6 +428,11 @@ def export_routed_pcb(
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
     board.to_file(str(output_pcb))
+    
+    # Automatically fill zones if requested (temper-x8jz)
+    if auto_fill_zones:
+        from temper_placer.io.zone_filler import fill_zones_if_present
+        fill_zones_if_present(output_pcb, verbose=True)
 
     return ExportResult(
         output_path=output_pcb,
