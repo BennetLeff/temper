@@ -614,7 +614,7 @@ class MazeRouter:
             if c1.layer != c2.layer:
                 via_coords.add((c1.x, c1.y))
         for via in path.explicit_vias:
-            gx, gy = self._world_to_grid(via.x, via.y)
+            gx, gy = self._world_to_grid(via.position[0], via.position[1])
             via_coords.add((gx, gy))
 
         unique_cells = set(path.cells)
@@ -1134,22 +1134,54 @@ class MazeRouter:
 
     def block_zones(
         self,
-        zones: list[Zone],
-        net_name: str,
+        zones: list["Zone"],
+        net_name: str = "",
         margin: float = 0.0,
+        clearance: float | None = None,
     ) -> None:
         """Apply zone-aware clearance constraints to the grid.
 
         If a zone is assigned to a specific net, other nets should avoid it.
-        If a zone forbids routing, block it entirely.
-
-        Args:
-            zones: List of Board zones
-            net_name: Current net being routed
-            margin: Extra clearance margin
+        If a zone forbids routing (no net), block it entirely.
         """
-        # (Implementation details omitted for brevity, assuming standard grid blocking)
-        pass
+        effective_margin = margin if clearance is None else clearance
+        
+        for zone in zones:
+            # If net_name matches zone net, we can enter (it's our plane)
+            if net_name and zone.net_name == net_name:
+                continue
+                
+            # If we are in initialization (net_name=""), ONLY block if it's a keepout (no net)
+            # Otherwise we'd block all power planes for all nets.
+            if not net_name and zone.net_name:
+                 continue
+
+            # Block the zone rectangle on its layer
+            layer_idx = self._layer_to_index(zone.layer)
+            if layer_idx == -1:
+                # All layers
+                block_layers = list(range(self.num_layers))
+            else:
+                block_layers = [layer_idx]
+                
+            # Convert world to grid with margin
+            gx_min = int(math.floor((zone.center[0] - zone.width/2 - effective_margin - self.origin[0]) / self.cell_size))
+            gy_min = int(math.floor((zone.center[1] - zone.height/2 - effective_margin - self.origin[1]) / self.cell_size))
+            gx_max = int(math.ceil((zone.center[0] + zone.width/2 + effective_margin - self.origin[0]) / self.cell_size)) - 1
+            gy_max = int(math.ceil((zone.center[1] + zone.height/2 + effective_margin - self.origin[1]) / self.cell_size)) - 1
+            
+            gx_min = max(0, gx_min)
+            gy_min = max(0, gy_min)
+            gx_max = min(self.grid_size[0] - 1, gx_max)
+            gy_max = min(self.grid_size[1] - 1, gy_max)
+            
+            if gx_min <= gx_max and gy_min <= gy_max:
+                for l in block_layers:
+                    self.occupancy[gx_min:gx_max+1, gy_min:gy_max+1, l] = -1
+                    # Record owner as zone keepout
+                    for x in range(gx_min, gx_max + 1):
+                        for y in range(gy_min, gy_max + 1):
+                            self._pad_net_map[(x, y, l)] = f"ZONE_{zone.name}"
 
     def _layer_to_index(self, layer_name: str) -> int:
         """Map KiCad layer name to grid layer index."""
@@ -2503,7 +2535,7 @@ class MazeRouter:
 
         # 3. Add any explicitly requested via objects
         for via in path.explicit_vias:
-            gx, gy = self._world_to_grid(via.x, via.y)
+            gx, gy = self._world_to_grid(via.position[0], via.position[1])
             via_coords.add((gx, gy))
 
         # 4. Mark occupancy
@@ -3929,8 +3961,8 @@ class MazeRouter:
                                         TraceVia(
                                             net=net_name,
                                             position=(px, py),
-                                            size=via_template.pad_diameter,
-                                            drill=via_template.drill_diameter,
+                                            size=via_template.via_diameter_mm,
+                                            drill=via_template.via_drill_mm,
                                             layers=layers,
                                         )
                                     )

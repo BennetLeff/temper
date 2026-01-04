@@ -150,51 +150,51 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
     # High-voltage nets: L1 preferred (2oz copper)
     LayerConstraint(
         net_pattern=r"DC_BUS_.*|HV_.*|SW_NODE|AC_L|AC_N|RECT_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
         reason="High-voltage power distribution prefers Top layer (2oz copper)",
     ),
     # Gate drive nets: L1 preferred (close to ground plane on L2)
     LayerConstraint(
         net_pattern=r"GATE_.*|DRV_.*|DRIVER_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
         reason="Gate drive signals prefer L1 for tight coupling to L2 ground",
     ),
     # Sensitive Analog/Sensing: Top layer preferred (isolate from Digital)
-    # Allow L4 for via transitions to enable routing flexibility
+    # Allow all layers for via transitions to enable routing flexibility
     LayerConstraint(
         net_pattern=r"SENSE_.*|ADC_.*|TEMP_.*|ANALOG_.*|I_SENSE",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
-        reason="Analog signals prefer Top layer, L4 vias allowed for routing flexibility",
+        reason="Analog signals prefer Top layer, vias allowed for routing flexibility",
     ),
     # SPI Bus: Bottom layer preferred (isolate from HV/Analog on Top)
     # Allow L1 for via transitions since pads are on L1
     LayerConstraint(
         net_pattern=r"SPI_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
-        reason="SPI prefers Bottom layer, L1 vias allowed for pad access",
+        reason="SPI prefers Bottom layer, visas allowed for pad access",
     ),
     # USB/Digital: prefer bottom
     LayerConstraint(
         net_pattern=r"USB_.*|PWM_.*|DIGITAL_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="General digital signals prefer bottom layer",
     ),
     # Ground nets: prefer bottom, can use top
     LayerConstraint(
         net_pattern=r"GND|PGND|CGND|ISOGND|AGND|DGND|.*_GND",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="Ground connections prefer bottom layer",
     ),
     # Catch-all: default to bottom layer for general signals
     LayerConstraint(
         net_pattern=r".*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="Default signal routing prefers bottom layer",
     ),

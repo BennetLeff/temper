@@ -38,16 +38,15 @@ def run_full_validation():
     netlist = parse_result.netlist
     
     # Configure pipeline
-    # Run #34: Enable inner layer routing (+30% expected completion)
     config = PipelineConfig(
         resolution_mm=0.1,
-        fine_resolution_mm=0.05,  # Even finer for post-processing if needed
-        enable_smoothing=True,
+        fine_resolution_mm=0.1,
+        enable_smoothing=False,
         enable_dithering=False,
-        via_cost=25.0,            # Reduced from 50.0 to encourage layer transitions
-        max_rrr_iterations=10,    # Intermediate for tuning
-        history_increment=2.0,    # Stronger penalty for persistent congestion
-        component_margin=0.1      # Tight margin for dense components
+        via_cost=5.0,             # Reduced to force transitions for verification
+        max_rrr_iterations=10, 
+        history_increment=2.0,
+        component_margin=0.1
     )
     
     pipeline = CSpaceRoutingPipeline(board, netlist, config)

@@ -21,10 +21,16 @@ from temper_placer.io.via_dedup import deduplicate_vias
 
 # Layer mapping from grid layer index to KiCad layer name
 DEFAULT_LAYER_MAP = {
-    0: "F.Cu",  # Top copper
-    1: "B.Cu",  # Bottom copper
-    2: "In1.Cu",  # Inner layer 1 (for 4-layer boards)
-    3: "In2.Cu",  # Inner layer 2 (for 4-layer boards)
+    0: "F.Cu",    # Top copper (L1)
+    1: "In1.Cu",  # Inner layer 1 (L2)
+    2: "In2.Cu",  # Inner layer 2 (L3)
+    3: "B.Cu",    # Bottom copper (L4)
+}
+
+# Standard 2-layer fallback
+TWO_LAYER_MAP = {
+    0: "F.Cu",
+    1: "B.Cu",
 }
 
 # Endpoint snapping tolerance in mm
@@ -364,6 +370,8 @@ def export_routed_pcb(
     nets_failed = 0
     warnings: list[str] = []
 
+    layer_map_to_use = layer_map or (DEFAULT_LAYER_MAP if board.layer_stackup.num_layers > 2 else TWO_LAYER_MAP)
+    
     for net_name, path in routes.items():
         if not path.success:
             nets_failed += 1
@@ -374,13 +382,13 @@ def export_routed_pcb(
         trace_width = trace_widths.get(net_name, default_trace_width) if trace_widths else default_trace_width
 
         # Convert path to geometry
-        segments = path_to_segments(path, origin, path.cell_size, trace_width, layer_map)
+        segments = path_to_segments(path, origin, path.cell_size, trace_width, layer_map_to_use)
         
         # Use explicit vias (e.g. via arrays) if present, otherwise infer from layer transitions
         if path.explicit_vias:
             vias = path.explicit_vias
         else:
-            vias = path_to_vias(path, origin, path.cell_size, via_size, via_drill, layer_map)
+            vias = path_to_vias(path, origin, path.cell_size, via_size, via_drill, layer_map_to_use)
 
         all_segments.extend(segments)
         all_vias.extend(vias)
