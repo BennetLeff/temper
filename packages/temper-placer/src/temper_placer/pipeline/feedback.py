@@ -24,6 +24,70 @@ class AdjustmentType(Enum):
     SPECIFICATION = "specification"
 
 
+from temper_placer.routing.congestion_heatmap import CongestionHeatmap
+from temper_placer.losses.base import LossFunction, LossResult, LossContext
+import jax.numpy as jnp
+
+class RoutingFeedbackLoss(LossFunction):
+    """Loss function that penalizes placement in congested areas.
+    
+    Uses a pre-computed CongestionHeatmap to create a cost field
+    that repels components from routing bottlenecks.
+    """
+    
+    def __init__(self, heatmap: CongestionHeatmap, sigma: float = 2.0):
+        self.heatmap = heatmap
+        
+        # Apply Gaussian blur to create a smooth cost field for gradients
+        from scipy.ndimage import gaussian_filter
+        blurred_grid = gaussian_filter(heatmap.grid, sigma=sigma)
+        
+        # Pre-process grid for JAX
+        self.grid = jnp.array(blurred_grid)
+        self.origin = jnp.array(heatmap.origin)
+        self.cell_size = heatmap.cell_size
+        
+    @property
+    def name(self) -> str:
+        return "routing_feedback"
+        
+    @property
+    def supports_virtual_nodes(self) -> bool:
+        return False
+
+    def __call__(
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: jnp.ndarray | None = None,
+    ) -> LossResult:
+        """Compute congestion loss for all components."""
+        # Convert world positions to grid indices
+        # grid_pos = (positions - origin) / cell_size
+        # map_coordinates expects (y, x) order for (row, col) grid
+        
+        # Grid index coordinates
+        gx = (positions[:, 0] - self.origin[0]) / self.cell_size
+        gy = (positions[:, 1] - self.origin[1]) / self.cell_size
+        
+        # map_coordinates requires (ndim, n_samples)
+        coords = jnp.stack([gx, gy], axis=0)
+        
+        # Bi-linear interpolation for smooth gradients
+        from jax.scipy.ndimage import map_coordinates
+        congestion_values = map_coordinates(self.grid, coords, order=1, mode='nearest')
+        
+        # Total loss is sum of congestion at all component centers
+        total_loss = jnp.sum(congestion_values)
+        
+        return LossResult(
+            value=total_loss,
+            breakdown={"routing_congestion": total_loss}
+        )
+
 @dataclass
 class FeedbackAdjustment:
     """A suggested adjustment to the design."""
