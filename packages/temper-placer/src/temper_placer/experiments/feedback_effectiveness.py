@@ -45,12 +45,15 @@ def run_feedback_effectiveness_study():
     positions = jnp.array(positions)
 
     def route_all(pos):
-        router = MazeRouter.from_board(state.board, cell_size_mm=0.5, num_layers=2)
+        router = MazeRouter.from_board(state.board, cell_size_mm=1.0, num_layers=2)
         router.block_board_features(state.board)
-        router.block_components(state.netlist.components, pos, margin=-0.1, escape_length=5)
+        router.block_components(state.netlist.components, pos, margin=-0.2, escape_length=5)
         
-        target_classes = {"Power", "HighVoltage", "HighCurrent", "Signal", "GateDrive"}
-        target_nets = [n for n in state.netlist.nets if n.net_class in target_classes]
+        # Critical subset of nets for fast feedback loop
+        target_nets = [
+            n for n in state.netlist.nets 
+            if n.name in {"+340V_BUS", "SW_NODE", "GND", "+15V", "GATE_HS", "GATE_LS", "I_SENSE"}
+        ]
         
         success_count = 0
         for net in target_nets:
@@ -81,52 +84,82 @@ def run_feedback_effectiveness_study():
     print(f"  Baseline Completion: {comp_base:.2%}")
 
     # 4. Apply enhanced feedback (JAX optimization)
-    print("Applying enhanced feedback (JAX optimization + RoutingFeedbackLoss)...")
-    from temper_placer.pipeline.feedback import RoutingFeedbackLoss
-    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-    from temper_placer.losses.wirelength import WirelengthLoss
-    from temper_placer.losses.overlap import OverlapLoss
-    import optax
-    import jax
+    print("Applying enhanced feedback (Multi-iteration Iterator loop)...")
+    from temper_placer.pipeline.iterator import PlaceRouteIterator
+    
+    class StudyRouter:
+        def __init__(self, route_all_fn):
+            self.route_all = route_all_fn
+        def route(self, pos):
+            c, r = self.route_all(pos)
+            class Result:
+                def __init__(self, comp, rout):
+                    self.completion_rate = comp
+                    self.router = rout
+                    self.is_feasible = lambda: comp >= 1.0
+            return Result(c, r)
 
-    loss_fn = CompositeLoss([
-        WeightedLoss(WirelengthLoss(), weight=1.0),
-        WeightedLoss(OverlapLoss(), weight=50.0),
-        WeightedLoss(RoutingFeedbackLoss(heatmap), weight=100.0),
-    ])
-    
-    context = LossContext.from_netlist_and_board(state.netlist, state.board)
-    n = state.netlist.n_components
-    
-    optimizer = optax.adam(learning_rate=0.05)
-    params = {"positions": jnp.array(positions)}
-    opt_state = optimizer.init(params)
-    
-    @jax.jit
-    def step(params, opt_state):
-        def f(p):
-            rotations = jnp.zeros((n, 4)).at[:, 0].set(1.0)
-            return loss_fn(p["positions"], rotations, context).value
-        loss, grads = jax.value_and_grad(f)(params)
-        updates, opt_state = optimizer.update(grads, opt_state)
-        params = optax.apply_updates(params, updates)
-        return params, opt_state, loss
-
-    for epoch in range(200):
-        params, opt_state, loss = step(params, opt_state)
-        if epoch % 50 == 0:
-            print(f"    Epoch {epoch}: Loss={loss:.4f}")
-            
-    print(f"    Final refinement loss: {loss:.4f}")
-    
-    # Check movement
-    movement = jnp.linalg.norm(params["positions"] - positions, axis=1)
-    print(f"    Max component movement: {jnp.max(movement):.2f}mm")
-    print(f"    Avg component movement: {jnp.mean(movement):.2f}mm")
+    def enhanced_update(pos, routing_res):
+        from temper_placer.pipeline.feedback import RoutingFeedbackLoss
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.optimizer.legalization import project_to_trust_region
+        import optax
+        import jax
         
-    legalized_enhanced = resolve_overlaps_priority(np.array(params["positions"]), state.netlist, state.board, min_separation=1.0)
-    comp_enhanced, _ = route_all(jnp.array(legalized_enhanced))
-    print(f"  Enhanced Completion: {comp_enhanced:.2%}")
+        anchor_pos = np.array(pos).copy()
+        heatmap = CongestionHeatmap.from_router(routing_res.router)
+        
+        loss_fn = CompositeLoss([
+            WeightedLoss(WirelengthLoss(), weight=1.0),
+            WeightedLoss(OverlapLoss(), weight=50.0),
+            WeightedLoss(RoutingFeedbackLoss(heatmap), weight=500.0),
+        ])
+        
+        ctx = LossContext.from_netlist_and_board(state.netlist, state.board)
+        n = state.netlist.n_components
+        
+        optimizer = optax.adam(learning_rate=0.02)
+        params = {"positions": jnp.array(pos)}
+        opt_state = optimizer.init(params)
+        
+        @jax.jit
+        def step(params, opt_state):
+            def f(p):
+                rotations = jnp.zeros((n, 4)).at[:, 0].set(1.0)
+                return loss_fn(p["positions"], rotations, ctx).value
+            loss, grads = jax.value_and_grad(f)(params)
+            updates, opt_state = optimizer.update(grads, opt_state)
+            params = optax.apply_updates(params, updates)
+            return params, opt_state, loss
+
+        for epoch in range(200):
+            params, opt_state, _ = step(params, opt_state)
+            if epoch % 50 == 0:
+                # Keep within trust region
+                p_np = np.array(params["positions"])
+                p_np = project_to_trust_region(p_np, anchor_pos, max_radius=5.0)
+                params["positions"] = jnp.array(p_np)
+            
+        legalized = resolve_overlaps_priority(np.array(params["positions"]), state.netlist, state.board, min_separation=1.0)
+        return jnp.array(legalized)
+
+    iterator = PlaceRouteIterator(
+        netlist=state.netlist,
+        board=state.board,
+        router=StudyRouter(route_all),
+        placement_update_fn=enhanced_update,
+        max_iterations=5,
+        min_improvement=-1.0
+    )
+    
+    result = iterator.run(positions)
+    
+    for res in result.iteration_history:
+        print(f"  Iteration {res.iteration}: Completion={res.completion_rate:.2%}")
+
+    comp_enhanced = result.iteration_history[-1].completion_rate
 
     # 5. Analyze
     print(f"\nResults Summary:")
