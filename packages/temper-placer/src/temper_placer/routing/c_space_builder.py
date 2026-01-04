@@ -1,7 +1,21 @@
 
 from dataclasses import dataclass
 
-import cv2
+# Optional dependency flags for testing
+try:
+    import cv2
+    HAS_OPENCV = True
+except ImportError:
+    HAS_OPENCV = False
+    cv2 = None  # type: ignore
+
+try:
+    import shapely
+    HAS_SHAPELY = True
+except ImportError:
+    HAS_SHAPELY = False
+    shapely = None  # type: ignore
+
 import numpy as np
 
 from temper_placer.core.design_rules import NetClassRules
