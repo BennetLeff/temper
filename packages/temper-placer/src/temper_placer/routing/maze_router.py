@@ -2221,11 +2221,12 @@ class MazeRouter:
                             is_own_pad = (key in self._pad_net_map and self._pad_net_map[key] == net_name)
                             is_own_trace = (key in self.net_occupancy and net_name in self.net_occupancy[key])
                             
-                            # 2. During negotiation (soft_blocking), also allow unblocking NEIGHBOR pads
-                            # STRICT: disable neighbor unblocking to prevent hard shorts.
-                            is_neighbor_pad = False # (self.soft_blocking and key in self._pad_net_map)
+                            # 2. Semi-Strict: Allow own pads OR Courtyard (-1 but not in map).
+                            # Since _pad_net_map is now populated, 'key not in _pad_net_map' means Component Body/Courtyard.
+                            # We ALLOW routing through courtyard to escape (unless hard blocked), but FORBID neighbor pads.
+                            is_courtyard = (self.occupancy[gx, gy, l] == -1 and key not in self._pad_net_map)
 
-                            if is_own_pad or is_own_trace or is_neighbor_pad:
+                            if is_own_pad or is_own_trace or is_courtyard:
                                 original_occupancy_and_ownership.append(
                                     (
                                         key, 
@@ -2833,9 +2834,8 @@ class MazeRouter:
             layer_specific=(self.num_layers > 2),
         )
         # Block pads and register ownership (Critical for Surgical Unblocking)
-        # Use None margin to let block_pads compute safe margin from trace width/clearance
-        # OR use component_margin if strict control is desired. 
-        # Using self.block_pads default behavior (None) as it handles trace rules better.
+        # Reverting to default margin (None -> Computed Safe) to prevent conflicts.
+        # Strict Unblocking handles the courtyard access now.
         self.block_pads(netlist.components, positions, netlist)
         
         net_by_name = {n.name: n for n in netlist.nets}
@@ -3732,8 +3732,11 @@ class MazeRouter:
                             for l in range(self.num_layers):
                                 if self.occupancy[nx, ny, l] == -1:
                                     pad_net = self._pad_net_map.get((nx, ny, l))
-                                    # Strict Unblocking: Only unblock if it belongs to THIS net.
-                                    if pad_net == net_name:
+                                    # Semi-Strict Unblocking:
+                                    # 1. Own Pad (pad_net == net_name) -> YES
+                                    # 2. Courtyard (pad_net is None) -> YES (Required for escape)
+                                    # 3. Neighbor Pad (pad_net == Other) -> NO!
+                                    if pad_net is None or pad_net == net_name:
                                         original_occupancy.append((nx, ny, l, -1))
                                         self.occupancy[nx, ny, l] = 0
             
