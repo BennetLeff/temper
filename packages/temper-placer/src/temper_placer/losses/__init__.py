@@ -262,6 +262,14 @@ from temper_placer.losses.zone import (
     create_temper_zone_assignments,
 )
 
+# Zone avoidance loss (temper-3b1l)
+from temper_placer.losses.zone_avoidance import (
+    ZoneAvoidanceLoss,
+    compute_zone_avoidance_penalty,
+    signed_distance_to_polygon,
+    signed_distance_to_rectangle,
+)
+
 # Routing-aware placement losses
 from temper_placer.losses.routing_aware import (
     BusAlignmentLoss,
@@ -301,6 +309,7 @@ __all__ = [
     "EdgePreferenceLoss",
     "ThermalComponentConfig",
     "ZoneMembershipLoss",
+    "ZoneAvoidanceLoss",
     "GroundCrossingLoss",
     "CongestionLoss",
     "RoutabilityLoss",
@@ -361,6 +370,9 @@ __all__ = [
     "compute_edge_distance",
     "compute_zone_distance",
     "compute_zone_membership_penalty",
+    "compute_zone_avoidance_penalty",
+    "signed_distance_to_polygon",
+    "signed_distance_to_rectangle",
     "compute_ground_crossing_penalty",
     "detect_ground_domain_violations",
     "compute_congestion_penalty",
