@@ -1,4 +1,5 @@
 import heapq
+import math
 from dataclasses import dataclass
 from typing import List, Tuple, Optional, TYPE_CHECKING
 
@@ -35,8 +36,8 @@ class DeterministicAStar:
             if current == end_cell:
                 return self._reconstruct_path(came_from, current, start, end)
             
-            for neighbor in self._get_neighbors(current):
-                tentative_g = g_score[current] + 1
+            for neighbor, cost in self._get_neighbors(current):
+                tentative_g = g_score[current] + cost
                 
                 if neighbor not in g_score or tentative_g < g_score[neighbor]:
                     came_from[neighbor] = current
@@ -56,21 +57,25 @@ class DeterministicAStar:
             return False
         return self.grid._grid[row, col] == 0
     
-    def _get_neighbors(self, cell: Tuple[int, int]) -> List[Tuple[int, int]]:
-        '''Get valid neighbors (4-connected for determinism).'''
+    def _get_neighbors(self, cell: Tuple[int, int]) -> List[Tuple[Tuple[int, int], float]]:
+        '''Get valid neighbors (8-connected for determinism).'''
         row, col = cell
-        # Fixed order for determinism: up, right, down, left
+        # Fixed order for determinism
         candidates = [
-            (row - 1, col),  # up
-            (row, col + 1),  # right
-            (row + 1, col),  # down
-            (row, col - 1),  # left
+            ((row - 1, col), 1.0),      # up
+            ((row, col + 1), 1.0),      # right
+            ((row + 1, col), 1.0),      # down
+            ((row, col - 1), 1.0),      # left
+            ((row - 1, col - 1), 1.414), # up-left
+            ((row - 1, col + 1), 1.414), # up-right
+            ((row + 1, col - 1), 1.414), # down-left
+            ((row + 1, col + 1), 1.414), # down-right
         ]
-        return [c for c in candidates if self._is_valid(c)]
+        return [(c, cost) for c, cost in candidates if self._is_valid(c)]
     
     def _heuristic(self, a: Tuple[int, int], b: Tuple[int, int]) -> float:
-        '''Manhattan distance heuristic.'''
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        '''Euclidean distance heuristic.'''
+        return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
     
     def _tie_breaker(self, cell: Tuple[int, int]) -> Tuple[int, int]:
         '''Deterministic tie-breaker: prefer lower row, then lower col.'''

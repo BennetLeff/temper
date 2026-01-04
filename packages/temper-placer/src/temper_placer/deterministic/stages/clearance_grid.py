@@ -50,6 +50,26 @@ class ClearanceGrid:
                 dist = ((cell_x - cx)**2 + (cell_y - cy)**2)**0.5
                 if dist <= total_radius:
                     self._grid[row, col] = 1
+
+    def unblock_circle(self, center: tuple[float, float], 
+                       radius_mm: float):
+        '''Unblock cells within radius of center.'''
+        cx, cy = center
+        
+        # Calculate bounding box in grid coordinates
+        min_col = max(0, int((cx - radius_mm) / self.cell_size_mm))
+        max_col = min(self.cols, int((cx + radius_mm) / self.cell_size_mm) + 1)
+        min_row = max(0, int((cy - radius_mm) / self.cell_size_mm))
+        max_row = min(self.rows, int((cy + radius_mm) / self.cell_size_mm) + 1)
+        
+        # Mark cells as available
+        for row in range(min_row, max_row):
+            for col in range(min_col, max_col):
+                cell_x = col * self.cell_size_mm + self.cell_size_mm / 2
+                cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
+                dist = ((cell_x - cx)**2 + (cell_y - cy)**2)**0.5
+                if dist <= radius_mm:
+                    self._grid[row, col] = 0
     
     @property
     def blocked_count(self) -> int:
