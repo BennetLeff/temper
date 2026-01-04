@@ -136,7 +136,7 @@ class PlaceRouteIterator:
                 )
             
             # Check for stagnation
-            if i > 0:
+            if i > 0 and self.min_improvement >= 0:
                 improvement = completion - history[-2].completion_rate
                 if improvement < self.min_improvement:
                     return PlaceRouteResult(

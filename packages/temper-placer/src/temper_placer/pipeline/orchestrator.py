@@ -500,35 +500,83 @@ class PipelineOrchestrator:
         return state
 
     def _run_refinement(self, state: PipelineState) -> PipelineState:
-        """Run placement-routing refinement loop."""
-        from temper_placer.placer.adjustment import adjust_for_congestion
-        from temper_placer.optimizer.legalization import legalize_zone_aware
+        """Run placement-routing refinement loop using PlaceRouteIterator."""
+        from temper_placer.pipeline.iterator import PlaceRouteIterator
+        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.routing.congestion_heatmap import CongestionHeatmap
+        from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        from temper_placer.pipeline.iterative_placer import simple_congestion_repel
         import numpy as np
+        import jax.numpy as jnp
 
         if state.routing_result is None:
             return state
-        is_feasible = state.routing_result.is_feasible(threshold=state.config.routability_threshold)
-        if is_feasible or state.iteration >= state.config.max_iterations:
-            print("Placement is routable or max iterations reached. Ending refinement.")
+            
+        # Check if already feasible
+        if state.routing_result.is_feasible(threshold=state.config.routability_threshold):
             state._refinement_complete = True
             return state
 
-        print(f"Refinement iteration {state.iteration + 1}: Routing congestion too high.")
-        from temper_placer.pipeline.feedback import analyze_root_cause, ValidationFailure
-        failure = ValidationFailure(spec_name="routability", actual_value=state.routing_result.max_utilization,
-                                   limit_value=state.config.routability_threshold,
-                                   margin=state.config.routability_threshold - state.routing_result.max_utilization)
-        analysis = analyze_root_cause(failure, state.placement_state or state.deterministic_result, state.netlist, state.board)
-        if analysis.fixes:
-            print(f"  Suggested fix: {analysis.fixes[0].action}")
+        print(f"Starting iterative refinement (max {state.config.max_iterations} iterations)...")
 
-        current_pos = np.array(state.placement_state.positions if state.placement_state else state.deterministic_result.positions)
-        new_pos = adjust_for_congestion(current_pos, state.netlist, state.board, state.routing_result)
-        new_pos, _ = legalize_zone_aware(new_pos, state.netlist, state.board)
+        # 1. Define Router wrapper for iterator
+        class OrchestratorRouter:
+            def __init__(self, state):
+                self.state = state
+            def route(self, pos):
+                # Use MazeRouter for refinement routing
+                # Use 0.5mm grid for reasonable performance during refinement
+                router = MazeRouter.from_board(self.state.board, cell_size_mm=0.5, num_layers=2)
+                router.block_board_features(self.state.board)
+                router.block_components(self.state.netlist.components, pos, margin=-0.1, escape_length=5)
+                
+                # Simple routing for all nets
+                success_count = 0
+                for net in self.state.netlist.nets:
+                    from temper_placer.routing.congestion import _get_pin_positions
+                    pins = _get_pin_positions(self.state.netlist, net.name, pos)
+                    if len(pins) < 2: continue
+                    res = router.route_net_adaptive(net.name, pins, None) # Simplification
+                    if res.success: success_count += 1
+                
+                completion = success_count / len(self.state.netlist.nets)
+                
+                class Result:
+                    def __init__(self, c, r):
+                        self.completion_rate = c
+                        self.router = r
+                        self.is_feasible = lambda: c >= 1.0
+                return Result(completion, router)
+
+        # 2. Define placement update function
+        def update_fn(pos, routing_res):
+            heatmap = CongestionHeatmap.from_router(routing_res.router)
+            new_pos = simple_congestion_repel(jnp.array(pos), heatmap, repel_strength=1.0)
+            legalized = resolve_overlaps_priority(np.array(new_pos), state.netlist, state.board, min_separation=1.0)
+            return jnp.array(legalized)
+
+        # 3. Run iterator
+        iterator = PlaceRouteIterator(
+            netlist=state.netlist,
+            board=state.board,
+            router=OrchestratorRouter(state),
+            placement_update_fn=update_fn,
+            max_iterations=state.config.max_iterations,
+            target_completion=state.config.routability_threshold,
+            min_improvement=state.config.convergence_threshold
+        )
+
+        current_pos = state.placement_state.positions if state.placement_state else jnp.array(state.deterministic_result.positions)
+        result = iterator.run(current_pos)
+        
+        # 4. Update state with best result
         from temper_placer.core.state import PlacementState
-        import jax.numpy as jnp
-        state.placement_state = PlacementState.from_positions(jnp.array(new_pos))
-        state.iteration += 1
+        state.placement_state = PlacementState.from_positions(result.final_positions)
+        state.iteration = result.iterations
+        state._refinement_complete = True
+        
+        print(f"Refinement complete. Best completion: {result.iteration_history[-1].completion_rate:.2%}")
+        
         return state
 
     def _run_output(self, state: PipelineState) -> PipelineState:
