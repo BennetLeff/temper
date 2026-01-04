@@ -277,6 +277,17 @@ main.add_command(trace)
     default=100.0,
     help="Weight for SPICE validation penalty in loss function (if enabled).",
 )
+@click.option(
+    "--weight-channel-capacity",
+    type=float,
+    default=None,
+    help="Override channel capacity loss weight.",
+)
+@click.option(
+    "--compact/--no-compact",
+    default=False,
+    help="Use the consolidated Core 8 loss set (default: False).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -305,6 +316,8 @@ def optimize(
     track_metrics: Path | None,
     spice_validate: bool,
     spice_penalty_weight: float,
+    weight_channel_capacity: float | None,
+    compact: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -330,6 +343,7 @@ def optimize(
     console.print(f"[bold]Curriculum:[/] {'enabled' if curriculum else 'disabled'}")
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
+    console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
 
     # Import heavy dependencies only when needed
     console.print("\n[dim]Loading JAX and optimizer modules...[/]")
@@ -355,6 +369,7 @@ def optimize(
         )
         from temper_placer.losses import (
             BoundaryLoss,
+            ChannelCapacityLoss,
             CompositeLoss,
             GroupClusterLoss,
             GroupConfig,
@@ -365,6 +380,7 @@ def optimize(
             WirelengthLoss,
         )
         from temper_placer.losses.base import LossContext
+        from temper_placer.losses.compact import create_compact_loss_set
         from temper_placer.optimizer import OptimizerConfig, train, train_multiphase
         from temper_placer.optimizer.curriculum import create_default_phases, create_fast_phases
     except ImportError as e:
@@ -485,7 +501,10 @@ def optimize(
 
     # Build composite loss with curriculum-aware weights
     def make_loss(weights: dict) -> CompositeLoss:
-        """Factory function for curriculum learning."""
+        """Create composite loss function from weights."""
+        if compact:
+            return create_compact_loss_set(weights, context, constraints)
+
         losses = []
 
         # Core feasibility losses
@@ -536,6 +555,23 @@ def optimize(
         elif "congestion" in weights:
             # Map congestion to the new layer-aware routability loss
             losses.append(WeightedLoss(RoutabilityLoss(), weight=weights["congestion"]))
+
+        # Channel capacity (routing bottlenecks)
+        if "channel_capacity" in weights:
+            losses.append(
+                WeightedLoss(
+                    ChannelCapacityLoss(trace_width=0.15, trace_spacing=0.15, min_margin=0.2),
+                    weight=weights["channel_capacity"],
+                )
+            )
+        elif "routability" in weights or "congestion" in weights:
+            # Enable by default if routability is requested
+            losses.append(
+                WeightedLoss(
+                    ChannelCapacityLoss(trace_width=0.15, trace_spacing=0.15, min_margin=0.2),
+                    weight=weights.get("routability", weights.get("congestion", 10.0)) * 0.5,
+                )
+            )
 
         # Regularization losses
         if "edge_avoidance" in weights and weights["edge_avoidance"] > 0:
@@ -732,6 +768,8 @@ def optimize(
             config_weights["overlap"] = weight_overlap
         if weight_wirelength is not None:
             config_weights["wirelength"] = weight_wirelength
+        if weight_channel_capacity is not None:
+            config_weights["channel_capacity"] = weight_channel_capacity
 
         weights = config_weights
     else:
@@ -744,15 +782,17 @@ def optimize(
             "spread": 5.0,
         }
 
-    composite_loss = make_loss(weights)
-    console.print(f"  [green]✓[/] Created {len(composite_loss.losses)} loss functions")
-
-    # Step 4: Create optimizer config and context
-    console.print("\n[bold cyan]Step 4/5:[/] Initializing optimizer...")
+    # Step 4: Create optimizer context
+    console.print("\n[bold cyan]Step 4/5:[/] Initializing context...")
 
     context = LossContext.from_netlist_and_board(
         netlist, board, use_centrality_weighting=centrality
     )
+
+    composite_loss = make_loss(weights)
+    console.print(f"  [green]✓[/] Created {len(composite_loss.losses)} loss functions")
+
+    # Configure optimizer
 
     # Configure optimizer
     from temper_placer.optimizer.config import GradNormConfig

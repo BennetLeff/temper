@@ -87,6 +87,12 @@ from temper_placer.losses.congestion import (
     visualize_congestion,
 )
 
+# Channel capacity loss (routing bottleneck prevention)
+from temper_placer.losses.channel_capacity import (
+    ChannelCapacityLoss,
+    compute_channel_capacity,
+)
+
 # Critical path length loss
 from temper_placer.losses.critical_path import (
     CriticalPath,
@@ -298,6 +304,8 @@ __all__ = [
     "GroundCrossingLoss",
     "CongestionLoss",
     "RoutabilityLoss",
+    "ChannelCapacityLoss",
+    "compute_channel_capacity",
     "PowerPathLoss",
     "create_power_path_loss",
     "HighCurrentPathConfig",

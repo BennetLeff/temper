@@ -322,6 +322,11 @@ class Board:
         self._zone_map = {z.name: z for z in self.zones}
 
     @property
+    def keepout_regions(self) -> list[tuple[float, float, float, float]]:
+        """Alias for keepouts for heuristic compatibility."""
+        return self.keepouts
+
+    @property
     def has_polygon_outline(self) -> bool:
         """True if the board has a non-rectangular outline."""
         return self.outline_polygon is not None and len(self.outline_polygon) > 2

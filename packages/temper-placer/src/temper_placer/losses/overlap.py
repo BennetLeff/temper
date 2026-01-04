@@ -82,51 +82,44 @@ class OverlapLoss(LossFunction):
     ) -> LossResult:
         """
         Compute total overlap penalty.
-
-        Args:
-            positions: (N, 2) component center positions.
-            rotations: (N, 4) soft one-hot rotation indicators.
-            context: LossContext with component bounds.
-            epoch: Current training epoch.
-            total_epochs: Total number of epochs.
-
-        Returns:
-            LossResult with sum of squared overlap amounts.
         """
-        n = positions.shape[0]
-        if n == 0:
-            return LossResult(value=jnp.array(0.0), breakdown={"per_component": jnp.array([])})
-
         # Guard against NaN/Inf in inputs
         positions = jnp.nan_to_num(positions, nan=0.0, posinf=1e6, neginf=-1e6)
-        rotations = jnp.nan_to_num(rotations, nan=0.25, posinf=0.25, neginf=0.25)
+        rotations = jnp.nan_to_num(rotations, nan=0.0, posinf=0.0, neginf=0.0)
 
         bounds = context.bounds  # (N, 2) - (width, height)
 
-        # Apply soft-body inflation ramp
-        if self.inflation_ramp > 0:
-            # Calculate multiplier: 0.05 at start, 1.0 at ramp_end
-            ramp_end = self.inflation_ramp * total_epochs
-            progress = jnp.clip(epoch / jnp.maximum(ramp_end, 1.0), 0.0, 1.0)
-            # Linear ramp for gradient smoothness
-            multiplier = 0.05 + 0.95 * progress
-            bounds = bounds * multiplier
+        # Apply soft-body inflation ramp (JAX-safe)
+        ramp_end = self.inflation_ramp * total_epochs
+        progress = jnp.clip(epoch / jnp.maximum(ramp_end, 1.0), 0.0, 1.0)
+        multiplier = 0.05 + 0.95 * progress
+        
+        # Only apply multiplier if ramp is enabled
+        bounds = jnp.where(self.inflation_ramp > 0, bounds * multiplier, bounds)
 
-        # Get effective bounds
-        if self.rotation_invariant:
-            # Use worst-case bounds: max(width, height) for both dimensions
-            # This ensures overlap detection works regardless of rotation
+        # Get effective bounds - pure JAX branching
+        def handle_rotation_invariant(_):
             max_dims = jnp.maximum(bounds[:, 0], bounds[:, 1])
-            widths = max_dims
-            heights = max_dims
-        elif self.use_rotated_bounds:
-            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
-        else:
-            widths = bounds[:, 0]
-            heights = bounds[:, 1]
+            return max_dims, max_dims
+
+        def handle_rotated_bounds_wrapper(_):
+            def handle_rotated(_):
+                return batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+            
+            def handle_raw(_):
+                return bounds[:, 0], bounds[:, 1]
+            
+            return jax.lax.cond(self.use_rotated_bounds, handle_rotated, handle_raw, None)
+
+        widths, heights = jax.lax.cond(
+            self.rotation_invariant,
+            handle_rotation_invariant,
+            handle_rotated_bounds_wrapper,
+            None
+        )
 
         # Use centrality for weighting if available
-        centrality = context.centrality if hasattr(context, "centrality") else None
+        centrality = getattr(context, "centrality", None)
 
         # Compute pairwise overlaps - use optimized version
         total_overlap, per_component_overlap = _compute_pairwise_overlaps_optimized(
@@ -305,6 +298,7 @@ def _compute_pairwise_overlaps_optimized(
     For large N (>= 50): Uses chunked approach for memory efficiency
     """
     n = positions.shape[0]
+    print(f"DEBUG overlap compile-time: n={n}, type(n)={type(n)}")
 
     # Ensure we use a float dtype even if positions are integers
     if jnp.issubdtype(positions.dtype, jnp.integer):
@@ -312,16 +306,12 @@ def _compute_pairwise_overlaps_optimized(
     else:
         dtype = positions.dtype
 
-    # Handle empty or single component boards (no overlaps possible)
-    if n < 2:
-        return jnp.array(0.0, dtype=dtype), jnp.zeros(n, dtype=dtype)
-
-    # Use lax.cond for dynamic dispatch based on n (vectorized vs chunked)
-    return jax.lax.cond(
-        n < _VECTORIZED_THRESHOLD,
-        lambda a: _compute_pairwise_overlaps_vectorized(*a),
-        lambda a: _compute_pairwise_overlaps_chunked(*a),
-        (positions.astype(dtype), widths.astype(dtype), heights.astype(dtype), margin, centrality),
+    return _compute_pairwise_overlaps_vectorized(
+        positions.astype(dtype),
+        widths.astype(dtype),
+        heights.astype(dtype),
+        margin,
+        centrality
     )
 
 

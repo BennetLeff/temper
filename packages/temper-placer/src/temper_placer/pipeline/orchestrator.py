@@ -437,6 +437,7 @@ class PipelineOrchestrator:
         from temper_placer.optimizer.legalization import project_to_trust_region, resolve_overlaps_priority
         from temper_placer.losses.wirelength import WirelengthLoss
         from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
         import jax
         import jax.numpy as jnp
         import numpy as np
@@ -453,6 +454,7 @@ class PipelineOrchestrator:
         loss_fn = CompositeLoss([
             WeightedLoss(WirelengthLoss(), weight=1.0),
             WeightedLoss(OverlapLoss(), weight=10.0),
+            WeightedLoss(ChannelCapacityLoss(), weight=5.0),
         ])
         context = LossContext.from_netlist_and_board(state.netlist, state.board)
         
@@ -555,6 +557,7 @@ class PipelineOrchestrator:
             from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
             from temper_placer.losses.wirelength import WirelengthLoss
             from temper_placer.losses.overlap import OverlapLoss
+            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
             import optax
             import jax
             
@@ -564,6 +567,7 @@ class PipelineOrchestrator:
             loss_fn = CompositeLoss([
                 WeightedLoss(WirelengthLoss(), weight=1.0),
                 WeightedLoss(OverlapLoss(), weight=50.0),
+                WeightedLoss(ChannelCapacityLoss(), weight=20.0),
                 WeightedLoss(RoutingFeedbackLoss(heatmap), weight=100.0), # Strong repulsion from congestion
             ])
             
