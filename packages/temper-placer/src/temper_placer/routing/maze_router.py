@@ -212,6 +212,53 @@ def get_clearance_for_pair(net1_class: str | None, net2_class: str | None) -> fl
     return max(c1, c2)
 
 
+def _segments_cross(
+    seg1: tuple[tuple[float, float], tuple[float, float]],
+    seg2: tuple[tuple[float, float], tuple[float, float]],
+) -> bool:
+    """Check if two line segments cross or touch."""
+
+    def orientation(p, q, r):
+        val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+        if abs(val) < 1e-9:  # Tolerance for float
+            return 0
+        return 1 if val > 0 else 2
+
+    def on_segment(p, q, r):
+        if (
+            q[0] <= max(p[0], r[0]) + 1e-9
+            and q[0] >= min(p[0], r[0]) - 1e-9
+            and q[1] <= max(p[1], r[1]) + 1e-9
+            and q[1] >= min(p[1], r[1]) - 1e-9
+        ):
+            return True
+        return False
+
+    p1, q1 = seg1
+    p2, q2 = seg2
+
+    o1 = orientation(p1, q1, p2)
+    o2 = orientation(p1, q1, q2)
+    o3 = orientation(p2, q2, p1)
+    o4 = orientation(p2, q2, q1)
+
+    # General case
+    if o1 != o2 and o3 != o4:
+        return True
+
+    # Special Cases (collinear)
+    if o1 == 0 and on_segment(p1, p2, q1):
+        return True
+    if o2 == 0 and on_segment(p1, q2, q1):
+        return True
+    if o3 == 0 and on_segment(p2, p1, q2):
+        return True
+    if o4 == 0 and on_segment(p2, q1, q2):
+        return True
+
+    return False
+
+
 class MazeRouter:
     """Grid-based maze router using A* pathfinding."""
 
@@ -271,6 +318,9 @@ class MazeRouter:
         # RRR structures
         self.net_occupancy: dict[tuple[int, int, int], set[str]] = {}
         self.routed_paths: dict[str, RoutePath] = {}
+        # Track routed segments for geometric crossing detection (temper-3og6)
+        self.routed_segments: dict[int, list[tuple[tuple[float, float], tuple[float, float]]]] = {}
+
         self.present_congestion = np.zeros(
             (grid_size[0], grid_size[1], num_layers), dtype=np.float32
         )
@@ -683,8 +733,36 @@ class MazeRouter:
                     self.present_congestion[ax, ay, al] = max(
                         0.0, self.present_congestion[ax, ay, al] - 1.0
                     )
+        
+        # Remove geometric segments
+        self._remove_net_segments(net_name)
 
         del self.routed_paths[net_name]
+
+    def _add_net_segments(self, net_name: str, cells: list[GridCell]) -> None:
+        """Add path segments to geometric crossing tracker."""
+        if not cells:
+            return
+
+        for i in range(len(cells) - 1):
+            c1 = cells[i]
+            c2 = cells[i + 1]
+            if c1.layer == c2.layer:
+                layer = c1.layer
+                # Store as floats (grid coordinates)
+                seg = ((float(c1.x), float(c1.y)), (float(c2.x), float(c2.y)))
+
+                if layer not in self.routed_segments:
+                    self.routed_segments[layer] = []
+                self.routed_segments[layer].append((seg, net_name))
+
+    def _remove_net_segments(self, net_name: str) -> None:
+        """Remove path segments for a net from geometric crossing tracker."""
+        for layer in self.routed_segments:
+            # Rebuild list without this net's segments
+            self.routed_segments[layer] = [
+                (s, n) for s, n in self.routed_segments[layer] if n != net_name
+            ]
 
     def register_pre_routes(self, pre_routes: list["EscapePreRoute"]) -> None:
         """Register pre-routed escape traces that will be treated as fixed.
@@ -1841,7 +1919,15 @@ class MazeRouter:
         try:
             dist_map = self._compute_distance_map(GridCell(end[0], end[1], layer), _layer=layer)
 
-            if HAS_NUMBA and self._history_np is not None and self._congestion_np is not None:
+            # Disable Numba if we have segments to check, as Numba version doesn't support them yet.
+            has_segments = any(len(segs) > 0 for segs in self.routed_segments.values())
+
+            if (
+                not has_segments
+                and HAS_NUMBA
+                and self._history_np is not None
+                and self._congestion_np is not None
+            ):
                 # Convert allowed_layers to boolean mask for Numba
                 allowed_mask = None
                 if allowed_layers is not None:
@@ -1960,6 +2046,29 @@ class MazeRouter:
             for neighbor in self._get_neighbors(current, allow_layer_change, allowed_layers):
                 if neighbor in visited:
                     continue
+
+                # Geometric Crossing Check (temper-3og6)
+                if current.layer == neighbor.layer:
+                    layer = current.layer
+                    if layer in self.routed_segments:
+                        move_seg = (
+                            (float(current.x), float(current.y)),
+                            (float(neighbor.x), float(neighbor.y)),
+                        )
+                        crossing_detected = False
+                        for seg, owner_net in self.routed_segments[layer]:
+                            # Ignore self-crossings
+                            if (
+                                owner_net in self.net_to_id
+                                and self.net_to_id[owner_net] == current_net_id
+                            ):
+                                continue
+
+                            if _segments_cross(move_seg, seg):
+                                crossing_detected = True
+                                break
+                        if crossing_detected:
+                            continue
 
                 # Class Clearance Check (temper-kmbw)
                 # Ensure we don't violate HV/LV separation
@@ -2110,6 +2219,7 @@ class MazeRouter:
         )
         self._mark_path_occupied(net_name, res)
         self.routed_paths[net_name] = res
+        self._add_net_segments(net_name, res.cells)
         return res
 
     def get_layer_cost(self, net_rules, layer_idx):
