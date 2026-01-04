@@ -102,12 +102,21 @@ class PlaceRouteIterator:
             is_feasible = routing_result.is_feasible()
             
             # Record iteration
+            metrics = {
+                "completion": completion,
+                "is_feasible": is_feasible,
+                "nets_failed": getattr(routing_result, "nets_failed", 0)
+            }
+            # Merge any additional metrics from routing result
+            if hasattr(routing_result, "metrics") and isinstance(routing_result.metrics, dict):
+                metrics.update(routing_result.metrics)
+                
             iter_result = IterationResult(
                 iteration=iteration_idx,
                 completion_rate=completion,
                 is_feasible=is_feasible,
                 elapsed_time=time.time() - start_time,
-                metrics={"completion": completion}
+                metrics=metrics
             )
             history.append(iter_result)
             
@@ -122,29 +131,33 @@ class PlaceRouteIterator:
                     converged=True,
                     iterations=iteration_idx,
                     final_positions=current_positions,
-                    iteration_history=history
+                    iteration_history=history,
+                    final_metrics=iter_result.metrics
                 )
             
-            # Check for stagnation if we have history
+            # Check for stagnation
             if i > 0:
                 improvement = completion - history[-2].completion_rate
-                if improvement < self.min_improvement and improvement >= 0:
-                    # Not much improvement, maybe stop or try something else
-                    pass
+                if improvement < self.min_improvement:
+                    return PlaceRouteResult(
+                        converged=False,
+                        iterations=iteration_idx,
+                        final_positions=best_positions,
+                        iteration_history=history,
+                        final_metrics=iter_result.metrics
+                    )
 
             # 2. Update placement if possible
-            if self.placement_update_fn:
+            if i < self.max_iterations - 1 and self.placement_update_fn:
                 current_positions = self.placement_update_fn(current_positions, routing_result)
-            else:
-                # If no update function, we can't really iterate meaningfully
-                # unless the router itself is stochastic or similar.
-                if i == 0:
-                    # If it's the first iteration and no update function, just stop
-                    break
+            elif not self.placement_update_fn:
+                # If no update function, we can't iterate
+                break
         
         return PlaceRouteResult(
             converged=False,
             iterations=len(history),
             final_positions=best_positions,
-            iteration_history=history
+            iteration_history=history,
+            final_metrics=history[-1].metrics if history else {}
         )
