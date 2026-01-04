@@ -161,19 +161,21 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
         preferred_layer=Layer.L1_TOP,
         reason="Gate drive signals prefer L1 for tight coupling to L2 ground",
     ),
-    # Sensitive Analog/Sensing: Top layer ONLY (isolate from Digital)
+    # Sensitive Analog/Sensing: Top layer preferred (isolate from Digital)
+    # Allow L4 for via transitions to enable routing flexibility
     LayerConstraint(
         net_pattern=r"SENSE_.*|ADC_.*|TEMP_.*|ANALOG_.*|I_SENSE",
-        allowed_layers={Layer.L1_TOP},
+        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
-        reason="Analog signals forced to Top layer to isolate from digital SPI bus",
+        reason="Analog signals prefer Top layer, L4 vias allowed for routing flexibility",
     ),
-    # SPI Bus: Bottom layer ONLY (isolate from HV/Analog on Top)
+    # SPI Bus: Bottom layer preferred (isolate from HV/Analog on Top)
+    # Allow L1 for via transitions since pads are on L1
     LayerConstraint(
         net_pattern=r"SPI_.*",
-        allowed_layers={Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
-        reason="SPI digital signals forced to Bottom layer to minimize noise coupling to analog",
+        reason="SPI prefers Bottom layer, L1 vias allowed for pad access",
     ),
     # USB/Digital: prefer bottom
     LayerConstraint(
