@@ -190,20 +190,8 @@ def categorize_violation(violation: Dict, board_size: Tuple[float, float]) -> Vi
         return ViolationCategory.VIA_PLACEMENT
     
     # Trace crossing / shorts
-    if any(keyword in vtype for keyword in ["short", "track"]):
+    if "shorting_items" in vtype or "tracks_crossing" in vtype:
         return ViolationCategory.TRACE_CROSSING
-    
-    if any(keyword in full_text for keyword in ["track", "trace", "segment"]):
-        # Check if it's actually a crossing
-        if "short" in vtype or "shorting" in desc:
-            return ViolationCategory.TRACE_CROSSING
-    
-    # Pad entry issues
-    if any(keyword in full_text for keyword in ["pad to pad", "pad on layers", "footprint"]):
-        return ViolationCategory.PAD_ENTRY
-    
-    if any(keyword in vtype for keyword in ["pad_near", "padstack", "footprint_type_mismatch"]):
-        return ViolationCategory.PAD_ENTRY
     
     # Clearance issues
     if "clearance" in vtype:

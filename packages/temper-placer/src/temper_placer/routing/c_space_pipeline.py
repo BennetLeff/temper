@@ -59,6 +59,8 @@ class PipelineConfig:
     max_rrr_iterations: int = 5
     p_scale_start: float = 1.0
     p_scale_step: float = 2.0
+    history_increment: float = 1.0  # History penalty increment per iteration
+    component_margin: float = 0.5   # Margin around component bounding boxes in mm
 
     power_nets: list[str] = field(
         default_factory=lambda: [
@@ -82,6 +84,7 @@ class RoutingResult:
     successful_count: int
     failed_count: int
     completion_rate: float
+    optimized_geometry: PCBGeometry | None = None
 
 
 class CSpaceRoutingPipeline:
@@ -299,12 +302,17 @@ class CSpaceRoutingPipeline:
         successful = sum(1 for r in net_results.values() if r.success)
         completion = (successful / len(net_results) * 100) if net_results else 100.0
 
+        # 4. Final Capture: Retrieve optimized geometry from the base router
+        base = self.router.base_router if hasattr(self.router, "base_router") else self.router
+        optimized_geometry = getattr(base, "optimized_geometry", None)
+
         return RoutingResult(
             net_results=net_results,
             total_time_ms=elapsed_ms,
             successful_count=successful,
             failed_count=len(net_results) - successful,
             completion_rate=completion,
+            optimized_geometry=optimized_geometry
         )
 
     def _route_batch(self, net_names: list[str]) -> dict[str, RoutePath]:
@@ -324,6 +332,12 @@ class CSpaceRoutingPipeline:
             for zone in self.board.zones:
                 if net_class in zone.net_classes:
                     exclude_nets.add(f"ZONE_{zone.name}")
+            
+            # AUTO-EXCLUSION: A net must not be blocked by a zone it starts/ends in.
+            for x, y in pin_positions:
+                pin_zone = self.board.get_zone_for_point(x, y)
+                if pin_zone:
+                    exclude_nets.add(f"ZONE_{pin_zone.name}")
             
             soft_c_spaces[net_name] = self.c_space_builder.build_cost_grid(
                 net_class=net_class,
@@ -371,6 +385,8 @@ class CSpaceRoutingPipeline:
             max_iterations=self.config.max_rrr_iterations,
             p_scale_start=self.config.p_scale_start,
             p_scale_step=self.config.p_scale_step,
+            history_increment=self.config.history_increment,
+            component_margin=self.config.component_margin,
         )
 
         # 3. Post-process: Smoothing and Missing Nets
@@ -387,17 +403,11 @@ class CSpaceRoutingPipeline:
                     cell_size=self.router.cell_size if hasattr(self.router, "cell_size") else 0.2
                 )
 
-            result = results[net_name]
-            if result.success and result.cells and self.config.enable_smoothing:
-                # Smoothing needs net-specific exclusion for geometry mask
-                net_class = self.design_rules.get_class_for_net(net_name)
-                exclude_nets = {net_name}
-                for zone in self.board.zones:
-                    if net_class in zone.net_classes:
-                        exclude_nets.add(f"ZONE_{zone.name}")
-                
-                mask_grid = self._get_c_space_grid(net_name, exclude_nets)
-                result.smooth_points = self.smoother.smooth(result.cells, mask_grid)
+            # Legacy smoothing disabled - relying on modern Trace-Aware PostProcessingPipeline
+            # if result.success and result.cells and self.config.enable_smoothing:
+            #     mask_grid = self._get_c_space_grid(net_name, exclude_nets)
+            #     result.smooth_points = self.smoother.smooth(result.cells, mask_grid)
+            pass
 
         return results
 

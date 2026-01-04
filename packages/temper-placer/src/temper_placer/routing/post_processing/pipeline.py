@@ -47,6 +47,7 @@ class TraceNudgingConfig:
     max_iterations: int = 100
     convergence_threshold: float = 0.001  # mm - stop when total movement < this
     max_nudge_distance: float = 0.5  # mm - prevent large topology changes
+    step_size: float = 0.5 # mm - movement multiplier per iteration
 
 
 @dataclass
@@ -153,8 +154,7 @@ class PostProcessingPipeline:
         )
         
         self.trace_nudger = GeometricNudger(
-            drc_oracle=drc_oracle,
-            max_iterations=config.trace_nudging.max_iterations,
+            oracle=drc_oracle
         )
     
     def process(self, routing: Dict[str, RoutePath], geometry: PCBGeometry) -> PostProcessingResult:
@@ -199,19 +199,19 @@ class PostProcessingPipeline:
         )
 
     
-    def _run_via_optimization(self, geometry: PCBGeometry) -> StageMetrics:
+    def _run_via_optimization(self, geometry: PCBGeometry) -> tuple[StageMetrics, PCBGeometry]:
         """Run via optimization stage."""
         stage_start = time.perf_counter()
         
         # Count violations before
-        violations_before = len(self.oracle.find_all_violations(geometry))
+        violations_before = len(self.oracle.validate_all())
         
         # Run via optimizer
         optimized_geometry = self.via_optimizer.optimize_vias(geometry)
-        stats = self.via_optimizer.get_stats()  # Assuming this method exists
+        stats = self.via_optimizer.stats
         
         # Count violations after
-        violations_after = len(self.oracle.find_all_violations(optimized_geometry))
+        violations_after = len(self.oracle.validate_all())
         
         execution_time_ms = (time.perf_counter() - stage_start) * 1000.0
         
@@ -227,18 +227,23 @@ class PostProcessingPipeline:
             vias_eliminated=stats.vias_eliminated if hasattr(stats, 'vias_eliminated') else 0,
         ), optimized_geometry
     
-    def _run_trace_nudging(self, geometry: PCBGeometry) -> StageMetrics:
+    def _run_trace_nudging(self, geometry: PCBGeometry) -> tuple[StageMetrics, PCBGeometry]:
         """Run trace nudging stage."""
         stage_start = time.perf_counter()
         
         # Count violations before
-        violations_before = len(self.oracle.find_all_violations(geometry))
+        violations_before = len(self.oracle.validate_all())
         
         # Run trace nudger
-        optimized_geometry = self.trace_nudger.nudge(geometry)
+        self.trace_nudger.build_topology()
+        self.trace_nudger.optimize(
+            iterations=self.config.trace_nudging.max_iterations,
+            step_size=self.config.trace_nudging.step_size
+        )
+        optimized_geometry = self.oracle.geometry
         
         # Count violations after
-        violations_after = len(self.oracle.find_all_violations(optimized_geometry))
+        violations_after = len(self.oracle.validate_all())
         
         execution_time_ms = (time.perf_counter() - stage_start) * 1000.0
         

@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import time
+import temper_placer
 from pathlib import Path
 
 # Add package root to sys.path
@@ -38,11 +39,14 @@ def run_full_validation():
     
     # Configure pipeline
     config = PipelineConfig(
-        resolution_mm=0.2,
-        fine_resolution_mm=0.1,  # Use 0.1mm for full board to be safe but reasonably fast
+        resolution_mm=0.1,
+        fine_resolution_mm=0.05,  # Even finer for post-processing if needed
         enable_smoothing=True,
         enable_dithering=False,
-        via_cost=50.0
+        via_cost=50.0,
+        max_rrr_iterations=10,  # Intermediate for tuning
+        history_increment=2.0,   # Stronger penalty for persistent congestion
+        component_margin=0.1     # Tight margin for dense components
     )
     
     pipeline = CSpaceRoutingPipeline(board, netlist, config)
@@ -68,9 +72,9 @@ def run_full_validation():
     
     if result.failed_count > 0:
         logger.warning(f"Failed nets: {result.failed_count}")
-        # for name, res in result.net_results.items():
-        #     if not res.success:
-        #         logger.warning(f"  {name}: {res.failure_reason}")
+        for name, res in result.net_results.items():
+            if not res.success:
+                logger.warning(f"  {name}: {res.failure_reason}")
 
     # Write output
     logger.info(f"Writing traces to {output_pcb}")
@@ -89,17 +93,28 @@ def run_full_validation():
     import jax.numpy as jnp
     positions = jnp.array([c.initial_position for c in netlist.components])
     
-    # We use write_traces_to_pcb from io.trace_writer
-    # Note: result.net_results is a dict of RoutePath
-    items_added = write_traces_to_pcb(
-        input_pcb,
-        output_pcb,
-        result.net_results,
-        cell_size=config.resolution_mm, # This might be tricky if multi-res used
-        origin=board.origin,
-        netlist=netlist,
-        component_positions=positions
-    )
+    # Check if we have optimized geometry from the post-processing pipeline
+    if result.optimized_geometry:
+        logger.info("Exporting optimized geometry (from post-processing pipeline)...")
+        from temper_placer.io.kicad_exporter import export_from_geometry
+        export_res = export_from_geometry(
+            template_pcb=input_pcb,
+            output_pcb=output_pcb,
+            tracks=result.optimized_geometry.tracks,
+            vias=result.optimized_geometry.vias
+        )
+        items_added = export_res.segments_added + export_res.vias_added
+    else:
+        logger.info("Exporting raw grid paths (no optimized geometry found)...")
+        items_added = write_traces_to_pcb(
+            input_pcb,
+            output_pcb,
+            result.net_results,
+            cell_size=config.resolution_mm,
+            origin=board.origin,
+            netlist=netlist,
+            component_positions=positions
+        )
     
     logger.info(f"Successfully added {items_added} trace segments and vias.")
     logger.info("Validation run complete.")

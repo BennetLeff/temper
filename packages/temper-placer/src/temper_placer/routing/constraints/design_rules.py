@@ -326,9 +326,40 @@ class ClearanceMatrix:
             # KiCad native board - use full parser
             return DesignRulesParser.parse(board)
         
-        # Otherwise, it's our internal Board - return defaults
-        # (zones are managed via board.zones, not in ClearanceMatrix)
-        return DesignRulesParser.create_default()
+        # Otherwise, it's our internal Board
+        matrix = DesignRulesParser.create_default()
+        
+        # Extract zones if present (temper-d6kv.4)
+        if hasattr(board, 'zones') and board.zones:
+            from temper_placer.routing.constraints.design_rules import RoutingZone, ZoneManager
+            routing_zones = []
+            for z in board.zones:
+                # Use polygon if available, otherwise use bounds
+                poly = z.polygon
+                if not poly and hasattr(z, 'bounds'):
+                    poly = [
+                        (z.bounds[0], z.bounds[1]),
+                        (z.bounds[2], z.bounds[1]),
+                        (z.bounds[2], z.bounds[3]),
+                        (z.bounds[0], z.bounds[3])
+                    ]
+                
+                if poly:
+                    clearance = 0.2
+                    if "HV" in z.name.upper():
+                        clearance = 3.0 # Standard HV clearance for Temper
+                    
+                    routing_zones.append(RoutingZone(
+                        name=z.name,
+                        polygon=poly,
+                        clearance_mm=clearance,
+                        allowed_net_classes=set(z.net_classes) if z.net_classes else {"Signal"}
+                    ))
+            
+            if routing_zones:
+                matrix.zone_manager = ZoneManager(routing_zones)
+                
+        return matrix
 
 
 class DesignRulesParser:
