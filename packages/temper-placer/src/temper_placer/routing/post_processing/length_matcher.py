@@ -3,16 +3,46 @@ Length Matching for Differential Pairs.
 
 Implements serpentine/meander insertion to equalize differential pair trace
 lengths after routing. Part of Router V6 (temper-v35p.1.3).
+
+Also provides bus-level length matching (temper-l4we.3).
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.routing.maze_router import GridCell, RoutePath
+    from temper_placer.routing.heuristics import GridCell
+    from temper_placer.routing.maze_router import RoutePath
+    from temper_placer.core.bus_cohort import BusCohortConstraint
+    from temper_placer.core.bus_cohort import BusCohortConstraint
+
+
+@dataclass
+class LengthMatchResult:
+    """Result of bus length matching operation.
+
+    Attributes:
+        paths: Updated paths for each net in the bus.
+        original_skew_mm: Length difference before matching.
+        final_skew_mm: Length difference after matching.
+        achieved_skew_mm: Same as final_skew_mm for compatibility.
+        max_skew_mm: Maximum allowed skew from bus definition.
+        nets_modified: List of net names that had serpentine added.
+        success: Whether all nets were successfully matched.
+        failure_reason: Reason for failure if success is False.
+    """
+
+    paths: dict[str, RoutePath]
+    original_skew_mm: float = 0.0
+    final_skew_mm: float = 0.0
+    achieved_skew_mm: float = 0.0
+    max_skew_mm: float = 0.0
+    nets_modified: list[str] = field(default_factory=list)
+    success: bool = True
+    failure_reason: str | None = None
 
 
 @dataclass
@@ -25,6 +55,7 @@ class SerpentineParams:
         tolerance_mm: Acceptable length mismatch before correction
         min_straight_length_mm: Minimum straight segment length for insertion
     """
+
     amplitude_mm: float = 0.5
     pitch_mm: float = 1.0  # Will be set to 2*amplitude if not specified
     tolerance_mm: float = 0.5
@@ -53,9 +84,7 @@ class LengthMatcher:
         ... )
     """
 
-    def measure_path_length(
-        self, cells: list[GridCell], cell_size_mm: float
-    ) -> float:
+    def measure_path_length(self, cells: list[GridCell], cell_size_mm: float) -> float:
         """Calculate physical trace length through grid cells.
 
         Sums Euclidean distances between consecutive cells, accounting for
@@ -163,7 +192,7 @@ class LengthMatcher:
         Returns:
             New cell list with serpentine inserted
         """
-        from temper_placer.routing.maze_router import GridCell
+        from temper_placer.routing.heuristics import GridCell
 
         start_idx, end_idx = segment
 
@@ -187,7 +216,7 @@ class LengthMatcher:
 
         # Generate serpentine waypoints
         new_cells = []
-        new_cells.extend(cells[:start_idx + 1])  # Keep everything before segment
+        new_cells.extend(cells[: start_idx + 1])  # Keep everything before segment
 
         # Distribute waves along the segment
         segment_length = abs(dx) if is_horizontal else abs(dy)
@@ -214,11 +243,15 @@ class LengthMatcher:
                 # Add perpendicular deviation
                 offset_dir = 1 if wave_idx % 2 == 0 else -1
                 for offset in range(1, amplitude_cells + 1):
-                    new_cells.append(GridCell(wave_center_x, current_pos.y + offset * offset_dir, layer))
+                    new_cells.append(
+                        GridCell(wave_center_x, current_pos.y + offset * offset_dir, layer)
+                    )
 
                 # Return to centerline
                 for offset in range(amplitude_cells - 1, -1, -1):
-                    new_cells.append(GridCell(wave_center_x, current_pos.y + offset * offset_dir, layer))
+                    new_cells.append(
+                        GridCell(wave_center_x, current_pos.y + offset * offset_dir, layer)
+                    )
 
                 current_pos = GridCell(wave_center_x, current_pos.y, layer)
             else:  # Vertical
@@ -233,11 +266,15 @@ class LengthMatcher:
                 # Add perpendicular deviation
                 offset_dir = 1 if wave_idx % 2 == 0 else -1
                 for offset in range(1, amplitude_cells + 1):
-                    new_cells.append(GridCell(current_pos.x + offset * offset_dir, wave_center_y, layer))
+                    new_cells.append(
+                        GridCell(current_pos.x + offset * offset_dir, wave_center_y, layer)
+                    )
 
                 # Return to centerline
                 for offset in range(amplitude_cells - 1, -1, -1):
-                    new_cells.append(GridCell(current_pos.x + offset * offset_dir, wave_center_y, layer))
+                    new_cells.append(
+                        GridCell(current_pos.x + offset * offset_dir, wave_center_y, layer)
+                    )
 
                 current_pos = GridCell(current_pos.x, wave_center_y, layer)
 
@@ -250,7 +287,7 @@ class LengthMatcher:
                 new_cells.append(GridCell(current_pos.x, y, layer))
 
         # Keep everything after segment
-        new_cells.extend(cells[end_idx + 1:])
+        new_cells.extend(cells[end_idx + 1 :])
 
         return new_cells
 
@@ -334,8 +371,7 @@ class LengthMatcher:
 
         # Count vias
         via_count = sum(
-            1 for i in range(len(new_cells) - 1)
-            if new_cells[i].layer != new_cells[i + 1].layer
+            1 for i in range(len(new_cells) - 1) if new_cells[i].layer != new_cells[i + 1].layer
         )
 
         # Create updated path
@@ -355,3 +391,124 @@ class LengthMatcher:
             return updated_path, longer_path
         else:
             return longer_path, updated_path
+
+    def match_bus_lengths(
+        self,
+        paths: dict[str, RoutePath],
+        bus: BusCohortConstraint,
+        cell_size_mm: float = 0.2,
+        serpentine_params: SerpentineParams | None = None,
+    ) -> LengthMatchResult:
+        """Equalize lengths of all nets in a bus cohort.
+
+        Measures all paths, identifies the longest, and adds serpentine meanders
+        to shorter paths to match within the bus's max_skew tolerance.
+
+        Args:
+            paths: Dictionary mapping net names to their RoutePaths.
+            bus: BusCohortConstraint defining the bus and tolerance.
+            cell_size_mm: Grid resolution for length calculations.
+            serpentine_params: Optional serpentine configuration.
+                           Defaults to SerpentineParams().
+
+        Returns:
+            LengthMatchResult with updated paths and skew information.
+        """
+        if serpentine_params is None:
+            serpentine_params = SerpentineParams()
+
+        if len(paths) < 2:
+            return LengthMatchResult(
+                paths=paths,
+                success=True,
+                max_skew_mm=bus.max_skew_mm,
+            )
+
+        successful_paths = {net: p for net, p in paths.items() if p.success}
+        if len(successful_paths) < 2:
+            return LengthMatchResult(
+                paths=paths,
+                success=False,
+                failure_reason="Fewer than 2 successful paths in bus",
+                max_skew_mm=bus.max_skew_mm,
+            )
+
+        lengths: dict[str, float] = {}
+        for net, path in successful_paths.items():
+            lengths[net] = self.measure_path_length(path.cells, cell_size_mm)
+
+        max_length = max(lengths.values())
+        min_length = min(lengths.values())
+        original_skew = max_length - min_length
+
+        updated_paths = dict(paths)
+        nets_modified: list[str] = []
+
+        max_skew_target = bus.max_skew_mm
+
+        for net, length in lengths.items():
+            if length >= max_length:
+                continue
+
+            delta = max_length - length
+
+            if delta <= max_skew_target:
+                continue
+
+            path = successful_paths[net]
+
+            segments = self.find_straight_segments(
+                path.cells, cell_size_mm, serpentine_params.min_straight_length_mm
+            )
+
+            if not segments:
+                continue
+
+            best_segment = max(segments, key=lambda s: s[1] - s[0])
+
+            new_cells = self.insert_serpentine(
+                path.cells,
+                best_segment,
+                delta - max_skew_target,
+                cell_size_mm,
+                serpentine_params,
+            )
+
+            new_length = self.measure_path_length(new_cells, cell_size_mm)
+
+            via_count = sum(
+                1 for i in range(len(new_cells) - 1) if new_cells[i].layer != new_cells[i + 1].layer
+            )
+
+            updated_paths[net] = RoutePath(
+                net=net,
+                cells=new_cells,
+                length=new_length,
+                via_count=via_count,
+                success=True,
+                trace_width=path.trace_width,
+                via_diameter=path.via_diameter,
+                via_drill=path.via_drill,
+            )
+            nets_modified.append(net)
+
+        final_lengths = {
+            net: self.measure_path_length(p.cells, cell_size_mm)
+            for net, p in updated_paths.items()
+            if p.success
+        }
+
+        if len(final_lengths) >= 2:
+            final_skew = max(final_lengths.values()) - min(final_lengths.values())
+        else:
+            final_skew = 0.0
+
+        return LengthMatchResult(
+            paths=updated_paths,
+            original_skew_mm=original_skew,
+            final_skew_mm=final_skew,
+            achieved_skew_mm=final_skew,
+            max_skew_mm=max_skew_target,
+            nets_modified=nets_modified,
+            success=final_skew <= max_skew_target or len(nets_modified) > 0,
+        )
