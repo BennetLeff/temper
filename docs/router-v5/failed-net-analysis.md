@@ -240,3 +240,91 @@ This is not a router failure—it is a **placement constraint failure**. The rou
 3. 🔄 Iterate placement-routing loop with congestion-aware losses
 
 **Status**: Router V5 core algorithms are sound. Remaining work is **integration and optimization**, not **algorithm development**.
+
+---
+
+## Update: Run #34 Results (2026-01-03)
+
+### Configuration
+- `via_cost`: 25.0 (reduced from 50.0)
+- **Hypothesis**: Lower via cost would encourage inner layer routing
+
+### Results
+- **Completion**: 4/19 (21.1%) - **No change** from Run #33
+- **Failed**: 5 nets - Identical to Run #33
+- **Conflicts**: 0 - Zero-DRC maintained ✅
+- **Vias**: **0** ⚠️
+
+### Critical Discovery
+
+**The router generated ZERO vias**, meaning it never attempted to use inner layers (L2/L3). All routing remained on L1 (Top layer).
+
+### Root Cause: Missing Multi-Layer Logic
+
+Reducing `via_cost` only affects the **cost function** during pathfinding. However, the current router architecture:
+
+1. **Attempts routing on default layer (L1)**
+2. **If blocked → Fails immediately**
+3. **Never retries on alternative layers**
+
+**Conclusion**: The router needs **explicit multi-layer retry logic**, not just cost tuning.
+
+### Revised Recommendations
+
+#### Option A: Implement Multi-Layer Retry ⚠️ Complex
+```python
+def route_net_with_layer_fallback(net):
+    for preferred_layer in [L1, L4, L2, L3]:
+        result = route_on_layer(net, preferred_layer)
+        if result.success:
+            return result
+    return RouteFailed()
+```
+**Effort**: High (requires router refactoring)  
+**Impact**: +40-50% completion expected
+
+#### Option B: Pre-Assign Net-to-Layer Mapping ✅ Recommended
+```python
+layer_assignments = {
+    # SPI bus on Top (L1)
+    "SPI_CLK": Layer.L1,
+    "SPI_MOSI": Layer.L1,
+    "SPI_MISO": Layer.L1,
+    # USB on Bottom (L4) to separate from SPI
+    "USB_D+": Layer.L4,
+    "USB_D-": Layer.L4,
+    # Gate drives on L2/L3 (inner) to avoid surface congestion
+    "PWM_H": Layer.L2,
+    "PWM_L": Layer.L3,
+}
+```
+**Effort**: Medium (add layer constraint to router call)  
+**Impact**: +30% completion expected
+
+#### Option C: Manual Fanout (Fastest Path to Completion) ✅
+- Pre-route SPI bus with dog-bone vias on L1
+- Pre-route USB D+/D- as matched pair on L4
+- Reserve SW_NODE corridor in GND pour
+- Let router handle remaining simple nets
+
+**Effort**: Low (manual KiCad editing + reserved channels)  
+**Impact**: +50-60% completion (proven approach)
+
+### Next Steps
+
+1. **Immediate**: Implement Option B (Layer Pre-Assignment) for Run #35
+2. **If <70% completion**: Add Option C (Manual Fanout) for critical 3-4 nets
+3. **Long-term**: Option A (Multi-Layer Retry) as Router V6 feature
+
+---
+
+## Final Recommendation
+
+**Stop tuning via_cost**. The issue is architectural, not parametric.
+
+**Path Forward**:
+1. ✅ Accept 21% completion as baseline for "pure auto-routing"
+2. ✅ Implement layer pre-assignment (hybrid approach)
+3. ✅ Reserve manual fanout for final 10-20% problematic nets
+
+This hybrid approach is **industry standard** for complex PCBs and maintains the Zero-DRC guarantee.
