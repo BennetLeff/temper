@@ -1385,7 +1385,7 @@ class MazeRouter:
         if self._component_positions is None or not len(self._component_positions):
             return 0.0
         point = jnp.array([x, y])
-        distances = jnp.sqrt(jnp.sum((self._component_positions - point) ** 2, axis=1))
+        distances = jnp.sqrt(jnp.sum((self._component_positions[:, :2] - point) ** 2, axis=1))
         count = int(jnp.sum(distances <= radius))
         return float(jnp.clip(count / (jnp.pi * radius**2 / 100.0), 0.0, 1.0))
 
@@ -1679,7 +1679,15 @@ class MazeRouter:
         Returns:
             Path as list of GridCells, or None if no path exists
         """
+        # DEBUG: Log via generation parameters (temper-7ilh.1.1)
+        logger.debug(f"find_path_rrr_adaptive: start={start} end={end} layer={layer}")
+        logger.debug(f"  allow_layer_change={allow_layer_change}")
+        logger.debug(f"  allowed_layers={allowed_layers}")
+        logger.debug(f"  via_cost={self.via_cost}")
+        logger.debug(f"  num_layers={self.num_layers}")
+        
         if int(self.occupancy[start[0], start[1], layer]) == -1:
+            logger.debug(f"  FAILURE: Start blocked at {start} on layer {layer}")
             return None
         if int(self.occupancy[end[0], end[1], layer]) == -1:
             for l in range(self.num_layers):
@@ -1702,11 +1710,16 @@ class MazeRouter:
                     for l in allowed_layers:
                         if 0 <= l < self.num_layers:
                             allowed_mask[l] = True
+                    # DEBUG: Log allowed_mask construction (temper-7ilh.1.1)
+                    logger.debug(f"  allowed_mask constructed: {allowed_mask}")
+                else:
+                    logger.debug(f"  allowed_mask=None (all layers allowed)")
 
                 # Determine primary layer for penalty
                 primary_idx = -1
                 if hasattr(self, "_current_assignment") and self._current_assignment:
                     primary_idx = self._current_assignment.primary_layer.value - 1
+                    logger.debug(f"  primary_layer_idx={primary_idx}, layer_penalty=5.0")
 
                 result = find_path_astar_numba_adaptive(
                     start[0],
@@ -2225,6 +2238,7 @@ class MazeRouter:
                             # Since _pad_net_map is now populated, 'key not in _pad_net_map' means Component Body/Courtyard.
                             # We ALLOW routing through courtyard to escape (unless hard blocked), but FORBID neighbor pads.
                             is_courtyard = (self.occupancy[gx, gy, l] == -1 and key not in self._pad_net_map)
+                            is_neighbor_pad = (key in self._pad_net_map and self._pad_net_map[key] != net_name)
 
                             if is_own_pad or is_own_trace or is_courtyard:
                                 original_occupancy_and_ownership.append(
@@ -3753,6 +3767,7 @@ class MazeRouter:
             
             # Reset PQ
             pq = []
+            mst_counter = 0
             
             allowed_layers_indices = (
                 [l.value - 1 for l in assignment.allowed_layers] if assignment else None
@@ -3777,7 +3792,8 @@ class MazeRouter:
                                 )
                                 * self.via_cost
                             )
-                            heapq.heappush(pq, (path_cost, 0, i, path))
+                            mst_counter += 1
+                            heapq.heappush(pq, (path_cost, mst_counter, 0, i, path))
 
             current_iter_all_cells = []
             current_iter_total_vias = 0
@@ -3787,7 +3803,7 @@ class MazeRouter:
             
             # MST Loop
             while pq and len(connected_pins) < num_pins:
-                cost, from_idx, to_idx, path = heapq.heappop(pq)
+                cost, _, from_idx, to_idx, path = heapq.heappop(pq)
                 if to_idx in connected_pins:
                     continue
                 
@@ -3819,7 +3835,8 @@ class MazeRouter:
                                           + sum(1 for j in range(1,len(path_new)) if path_new[j].layer != path_new[j-1].layer) 
                                           * self.via_cost
                                       )
-                                      heapq.heappush(pq, (pc, to_idx, i, path_new))
+                                      mst_counter += 1
+                                      heapq.heappush(pq, (pc, mst_counter, to_idx, i, path_new))
 
             if len(connected_pins) == num_pins:
                 success = True

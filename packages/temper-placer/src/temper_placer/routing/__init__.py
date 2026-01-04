@@ -102,6 +102,10 @@ from temper_placer.routing.dithered_router import (
     DitherConfig,
     DitherAttempt,
 )
+from temper_placer.routing.escape_router import (
+    EscapeRouter,
+    EscapeResult,
+)
 from temper_placer.routing.unified_router import (
     RoutingConfig,
     RoutingStrategy,
@@ -256,6 +260,8 @@ __all__ = [
     "RoutingStrategy",
     "UnifiedRoutePath",
     "UnifiedRouter",
+    "EscapeRouter",
+    "EscapeResult",
     # Critical Net Detection (temper-cjxg)
     "CriticalNet",
     "CriticalNetCategory",

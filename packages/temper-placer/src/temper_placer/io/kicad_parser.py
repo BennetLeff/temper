@@ -386,8 +386,8 @@ def _extract_components_from_pcb(
             bounds=(width, height),
             pins=pins,
             initial_position=(
-                fp.position.X - board_origin[0] + rotated_cx,
-                fp.position.Y - board_origin[1] + rotated_cy,
+                float(fp.position.X) - float(board_origin[0]) + float(rotated_cx),
+                float(fp.position.Y) - float(board_origin[1]) + float(rotated_cy),
             ),
             fixed=fp.locked,
             initial_rotation=rot_idx,
@@ -545,14 +545,13 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadDa
     for fp in ki_board.footprints:
         ref = _get_footprint_reference(fp)
         # Get footprint position for transforming pad coords
-        fp_x = fp.position.X if fp.position else 0.0
-        fp_y = fp.position.Y if fp.position else 0.0
-        
+        fp_x = float(fp.position.X) if fp.position else 0.0
+        fp_y = float(fp.position.Y) if fp.position else 0.0
+
         for pad in fp.pads:
             # Transform pad position from footprint-relative to absolute world coords
-            abs_x = fp_x + pad.position.X
-            abs_y = fp_y + pad.position.Y
-            
+            abs_x = fp_x + float(pad.position.X)
+            abs_y = fp_y + float(pad.position.Y)
             pads.append(
                 PadData(
                     position=(abs_x, abs_y),
