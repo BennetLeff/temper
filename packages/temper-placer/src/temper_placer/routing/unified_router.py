@@ -643,10 +643,19 @@ class UnifiedRouter:
 
             # 3. Apply Escape Routing (Fanout) if enabled
             current_pin_positions = pin_positions
+            escape_via_count = 0
+            escape_length = 0.0
             if escape_router:
                 escape_result = escape_router.route_net_escapes(net_name)
                 if escape_result.success:
                     current_pin_positions = escape_result.escape_positions
+                    escape_via_count = escape_result.via_count
+                    escape_length = escape_result.length
+                    
+                    # Register escape routes as fixed obstacles for OTHER nets
+                    # MazeRouter already handles excluding own net if we use block_traces
+                    self.maze_router.block_traces(escape_result.traces)
+                    self.maze_router.block_vias(escape_result.vias)
 
             # 4. Apply Semantic Strategy
             cost_map = None
@@ -667,6 +676,11 @@ class UnifiedRouter:
                 )
 
             result = self.route_net(net_name, current_pin_positions, assignment, cost_map=cost_map)
+            
+            # Combine results
+            result.via_count += escape_via_count
+            result.length += escape_length
+            
             results[net_name] = result
 
         return results

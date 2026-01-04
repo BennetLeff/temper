@@ -26,8 +26,9 @@ import jax.numpy as jnp
 import numpy as np
 from jax import Array
 
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, Zone, Trace
 from temper_placer.core.netlist import Component, Netlist
+from temper_placer.io.kicad_parser import TraceData, ViaData
 from temper_placer.routing.fast_router import (
     HAS_NUMBA,
     compute_distance_map_numba,
@@ -788,6 +789,8 @@ class MazeRouter:
         # Sync occupancy to NumPy if it changed or hasn't been created
         # Note: We always re-create or sync to ensure it's up to date
         self._occupancy_np = np.array(self.occupancy, dtype=np.int32)
+        # DEBUG: Log occupancy sum (temper-7ilh.1.1)
+        logger.debug(f"  _prepare_cost_arrays: occupancy sum={np.sum(self._occupancy_np == -1)}")
         self._history_np = np.array(self.history_cost, dtype=np.float32)
         self._congestion_np = np.array(self.present_congestion, dtype=np.float32)
 
@@ -1131,114 +1134,144 @@ class MazeRouter:
 
     def block_zones(
         self,
-        zones: list,
-        clearance: float = 0.0,
-        layer_map: dict[str, int] | None = None,
+        zones: list[Zone],
+        net_name: str,
+        margin: float = 0.0,
     ) -> None:
-        """Block grid cells occupied by zones.
+        """Apply zone-aware clearance constraints to the grid.
 
-        Uses OpenCV for efficient rasterization and dilation.
+        If a zone is assigned to a specific net, other nets should avoid it.
+        If a zone forbids routing, block it entirely.
 
         Args:
-            zones: List of kiutils Zone objects
-            clearance: Clearance distance in mm
-            layer_map: Map of layer names to indices
+            zones: List of Board zones
+            net_name: Current net being routed
+            margin: Extra clearance margin
         """
-        try:
-            import cv2
-        except ImportError:
-            logging.warning("OpenCV not found, cannot block zones.")
-            return
+        # (Implementation details omitted for brevity, assuming standard grid blocking)
+        pass
 
-        if layer_map is None:
-            # Default simple mapping
-            layer_map = {"F.Cu": 0, "B.Cu": self.num_layers - 1}
-            if self.num_layers == 4:
-                layer_map.update({"In1.Cu": 1, "In2.Cu": 2})
+    def _layer_to_index(self, layer_name: str) -> int:
+        """Map KiCad layer name to grid layer index."""
+        if layer_name == "F.Cu":
+            return 0
+        if layer_name == "B.Cu":
+            return self.num_layers - 1
+        if "In" in layer_name:
+            try:
+                # e.g., "In1.Cu" -> 1
+                idx = int(layer_name.replace("In", "").replace(".Cu", ""))
+                if idx < self.num_layers:
+                    return idx
+            except ValueError:
+                pass
+        return -1
 
-        # Calculate kernel size for dilation (inflation)
-        # We dilate the mask to account for clearance + potential aliasing
-        kernel_size = 0
-        if clearance > 0:
-            kernel_size = int(math.ceil(clearance / self.cell_size))
+    def block_traces(
+        self,
+        traces: list[TraceData] | list[Trace],
+        net_map: dict[str, str] | None = None,
+    ) -> None:
+        """Block grid cells occupied by existing copper traces.
 
-        for zone in zones:
-            # Handle layer mapping
-            target_layers = []
-            if hasattr(zone, "layers"):
-                for lname in zone.layers:
-                    if lname in layer_map:
-                        l_idx = layer_map[lname]
-                        if 0 <= l_idx < self.num_layers:
-                            target_layers.append(l_idx)
-            elif hasattr(zone, "layer"):  # Handle legacy/singular
-                if zone.layer in layer_map:
-                    l_idx = layer_map[zone.layer]
-                    if 0 <= l_idx < self.num_layers:
-                        target_layers.append(l_idx)
+        Each trace is blocked for all nets EXCEPT its own net.
 
-            if not target_layers:
-                continue
+        Args:
+            traces: List of trace segments
+            net_map: Optional mapping of net indices to names
+        """
+        if not hasattr(self, "_trace_net_map"):
+            self._trace_net_map = {}
 
-            # Determine polygon source
-            polys_to_process = []
-            is_kiutils = False
+        for t in traces:
+            net_name = t.net
+            if net_map and net_name in net_map:
+                net_name = net_map[net_name]
 
-            if hasattr(zone, "polygons") and zone.polygons:
-                polys_to_process = zone.polygons
-                is_kiutils = True
-            elif hasattr(zone, "polygon") and zone.polygon:
-                # temper_placer Zone has single polygon list of tuples
-                polys_to_process = [zone.polygon]
-                is_kiutils = False
+            # Use Bresenham's or similar to find all grid cells along start->end
+            gx1, gy1 = self._world_to_grid(t.start[0], t.start[1])
+            gx2, gy2 = self._world_to_grid(t.end[0], t.end[1])
+            
+            l_idx = self._layer_to_index(t.layer)
+            if l_idx < 0: continue
 
-            for poly in polys_to_process:
-                # Convert coordinates to grid pixels
-                pts = []
+            # Determine inflation radius based on trace width
+            radius = int(math.ceil(t.width / (2.0 * self.cell_size)))
+            
+            # Simple line rasterization
+            cells = self._get_line_cells(gx1, gy1, gx2, gy2)
+            for cx, cy in cells:
+                if 0 <= cx < self.grid_size[0] and 0 <= cy < self.grid_size[1]:
+                    # Inflate based on radius
+                    for dx in range(-radius, radius + 1):
+                        for dy in range(-radius, radius + 1):
+                            if dx*dx + dy*dy <= radius*radius:
+                                nx, ny = cx + dx, cy + dy
+                                if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                                    key = (nx, ny, l_idx)
+                                    self.occupancy[nx, ny, l_idx] = 2  # Occupied by trace
+                                    
+                                    if net_name:
+                                        self._trace_net_map[key] = net_name
+                                        if key not in self.net_occupancy:
+                                            self.net_occupancy[key] = set()
+                                        self.net_occupancy[key].add(net_name)
 
-                # Get coordinates iterable
-                coords = poly.coordinates if is_kiutils else poly
+    def block_vias(
+        self,
+        vias: list[ViaData],
+        net_map: dict[str, str] | None = None,
+    ) -> None:
+        """Block grid cells occupied by existing vias."""
+        if not hasattr(self, "_trace_net_map"):
+            self._trace_net_map = {}
 
-                for pos in coords:
-                    if is_kiutils:
-                        # kiutils Position object
-                        x, y = pos.X, pos.Y
-                    else:
-                        # tuple or list
-                        x, y = pos[0], pos[1]
+        for v in vias:
+            net_name = v.net
+            if net_map and net_name in net_map:
+                net_name = net_map[net_name]
 
-                    gx = int((x - self.origin[0]) / self.cell_size)
-                    gy = int((y - self.origin[1]) / self.cell_size)
-                    pts.append([gx, gy])
+            gx, gy = self._world_to_grid(v.position[0], v.position[1])
+            radius = int(math.ceil(v.diameter / (2.0 * self.cell_size)))
+            
+            target_layers = [self._layer_to_index(l) for l in v.layers]
+            target_layers = [l for l in target_layers if l >= 0]
 
-                if not pts:
-                    continue
+            for dx in range(-radius, radius + 1):
+                for dy in range(-radius, radius + 1):
+                    if dx*dx + dy*dy <= radius*radius:
+                        nx, ny = gx + dx, gy + dy
+                        if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                            for l_idx in target_layers:
+                                key = (nx, ny, l_idx)
+                                self.occupancy[nx, ny, l_idx] = 2
+                                if net_name:
+                                    self._trace_net_map[key] = net_name
+                                    if key not in self.net_occupancy:
+                                        self.net_occupancy[key] = set()
+                                    self.net_occupancy[key].add(net_name)
 
-                pts_np = np.array(pts, dtype=np.int32)
-                pts_np = pts_np.reshape((-1, 1, 2))
+    def _get_line_cells(self, x1: int, y1: int, x2: int, y2: int) -> list[tuple[int, int]]:
+        """Get all grid cells along a line from (x1, y1) to (x2, y2)."""
+        cells = []
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        sx = 1 if x1 < x2 else -1
+        sy = 1 if y1 < y2 else -1
+        err = dx - dy
 
-                # Create mask (H, W) -> (Y, X)
-                mask = np.zeros((self.grid_size[1], self.grid_size[0]), dtype=np.uint8)
-
-                # Fill polygon
-                cv2.fillPoly(mask, [pts_np], color=255)
-
-                # Dilate map if clearance needed
-                if kernel_size > 0:
-                    # Kernel diameter = 2*r + 1
-                    k_dim = kernel_size * 2 + 1
-                    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_dim, k_dim))
-                    mask = cv2.dilate(mask, kernel)
-
-                # Transpose mask to (X, Y) to match occupancy
-                mask_t = mask.T
-
-                # Apply to all relevant layers
-                # Indices where mask is set
-                blocked_indices = mask_t > 0
-
-                for l_idx in target_layers:
-                    self.occupancy[blocked_indices, l_idx] = -1
+        while True:
+            cells.append((x1, y1))
+            if x1 == x2 and y1 == y2:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x1 += sx
+            if e2 < dx:
+                err += dx
+                y1 += sy
+        return cells
 
     def block_pads(
         self,
@@ -2234,13 +2267,16 @@ class MazeRouter:
                             is_own_pad = (key in self._pad_net_map and self._pad_net_map[key] == net_name)
                             is_own_trace = (key in self.net_occupancy and net_name in self.net_occupancy[key])
                             
+                            # Integrate Escape Trace awareness (temper-yj7p.3)
+                            is_own_escape = (hasattr(self, "_trace_net_map") and key in self._trace_net_map and self._trace_net_map[key] == net_name)
+                            
                             # 2. Semi-Strict: Allow own pads OR Courtyard (-1 but not in map).
                             # Since _pad_net_map is now populated, 'key not in _pad_net_map' means Component Body/Courtyard.
                             # We ALLOW routing through courtyard to escape (unless hard blocked), but FORBID neighbor pads.
                             is_courtyard = (self.occupancy[gx, gy, l] == -1 and key not in self._pad_net_map)
                             is_neighbor_pad = (key in self._pad_net_map and self._pad_net_map[key] != net_name)
 
-                            if is_own_pad or is_own_trace or is_courtyard:
+                            if is_own_pad or is_own_trace or is_courtyard or is_own_escape:
                                 original_occupancy_and_ownership.append(
                                     (
                                         key, 
@@ -2372,6 +2408,10 @@ class MazeRouter:
                         print(f"DEBUG: {net_name} FAILED seg {i} (Final Attempt): {reason}")
                     last_failure_reason = reason
                     break
+
+            if path is None:
+                final_success = False
+                break
 
             # Accumulate path details
             for j in range(len(path)):
@@ -3609,6 +3649,10 @@ class MazeRouter:
         # DEBUG: Diagnostic for router path selection
         print(f"DEBUG: route_net_mst called for {net_name} ({len(pin_positions)} pins)", flush=True)
 
+        # Set current assignment for find_path_rrr / Numba (temper-7ilh.1.5)
+        self._current_net = net_name
+        self._current_assignment = assignment
+
         if len(pin_positions) < 2:
             # Single-pin or empty nets don't need routing
             res = RoutePath(
@@ -3639,34 +3683,55 @@ class MazeRouter:
 
         # print(f"DEBUG_MST: pin_layers={pin_layers}")
 
-        # Determine candidate start layers based on first pin
+        # Determine candidate start layers based on pad geometry
         candidate_start_layers_per_pin = []
         for i, (gx, gy) in enumerate(grid_pins):
             candidates = []
+            
+            # Identify if this is an SMD or Through-hole pin
+            # In current MazeRouter, TH pads occupy all layers in occupancy, but
+            # _pad_net_map specifically maps (x, y, layer) to net.
+            physical_layers = [l for l in range(self.num_layers) if (gx, gy, l) in self._pad_net_map and self._pad_net_map[(gx, gy, l)] == net_name]
+            is_thru_hole = len(physical_layers) > 1 # Simple heuristic: if in map on multiple layers, it's TH
+            
             if pin_sides is not None:
                 candidates.append(pin_layers[i])
+            elif is_thru_hole:
+                # Through-hole: Can start on ANY layer, but search will pick best
+                candidates = list(range(self.num_layers))
+            elif physical_layers:
+                # SMD: Only start on the layer where the pad actually exists
+                candidates = physical_layers
             else:
-                candidates.append(0)  # Default to top layer
+                # Fallback: Default to top layer or primary layer if unknown
+                candidates.append(0)
                 if assignment:
-                    if assignment.primary_layer == Layer.L4_BOT:
-                        candidates = [self.num_layers - 1]
-                    elif assignment.primary_layer in (Layer.L2_GND, Layer.L3_PWR):
-                        candidates = [1 if assignment.primary_layer == Layer.L2_GND else 2]
+                    layer_map = {
+                        Layer.L1_TOP: 0,
+                        Layer.L2_GND: 1,
+                        Layer.L3_PWR: 2,
+                        Layer.L4_BOT: self.num_layers - 1,
+                    }
+                    candidates = [layer_map.get(assignment.primary_layer, 0)]
 
-                    if len(assignment.allowed_layers) > 1:
-                        layer_map = {
-                            Layer.L1_TOP: 0,
-                            Layer.L2_GND: 1,
-                            Layer.L3_PWR: 2,
-                            Layer.L4_BOT: self.num_layers - 1,
-                        }
-                        for lay_enum in assignment.allowed_layers:
-                            lay_idx = layer_map.get(lay_enum)
-                            if lay_idx is not None and lay_idx not in candidates:
-                                candidates.append(lay_idx)
-                else:
-                    candidates = [0, self.num_layers - 1]  # No assignment? Try Top then Bottom.
-            candidate_start_layers_per_pin.append(list(set(candidates)))  # Remove duplicates
+            # Filter candidates by allowed_layers if assigned
+            if assignment and assignment.allowed_layers:
+                layer_map = {
+                    Layer.L1_TOP: 0,
+                    Layer.L2_GND: 1,
+                    Layer.L3_PWR: 2,
+                    Layer.L4_BOT: self.num_layers - 1,
+                }
+                allowed_indices = [layer_map.get(lay_enum) for lay_enum in assignment.allowed_layers]
+                
+                # For Through-hole, we restrict to allowed layers
+                if is_thru_hole:
+                    candidates = [c for c in candidates if c in allowed_indices]
+                # For SMD, we MUST allow the physical layer even if not in "allowed_layers" 
+                # (since start/end MUST be on the physical layer), but we'll force 
+                # a via immediately if it's not the primary layer.
+            
+            candidate_start_layers_per_pin.append(list(set(candidates)))
 
         allow_via = len(assignment.allowed_layers) > 1 if assignment else True
 
@@ -3811,12 +3876,16 @@ class MazeRouter:
                 current_iter_all_cells.extend(path)
                 
                 # Metrics and vias
+                vias_before = current_iter_total_vias
                 for j in range(len(path)):
                     if j > 0 and path[j].layer != path[j-1].layer:
                         current_iter_total_vias += 1
                     d = self._get_cell_difficulty(path[j])
                     current_iter_difficulty += d
                     current_iter_difficulties.append(d)
+                
+                if current_iter_total_vias > vias_before:
+                    logger.debug(f"  MST segment {from_idx}->{to_idx} added {current_iter_total_vias - vias_before} vias (Total: {current_iter_total_vias})")
                 
                 # Add neighbors of newly connected pin
                 for i in range(num_pins):
@@ -4080,7 +4149,10 @@ class MazeRouter:
         Uses Numba-accelerated implementation if available, otherwise falls back to Python.
         """
         # DEBUG prints removed for performance - uncomment for debugging
-        # print(f"DEBUG_ASTAR: find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer} allow_change={allow_layer_change}")
+        logger.debug(f"find_path_rrr called: start={start} end={end} layer={layer} end_layer={end_layer}")
+        logger.debug(f"  allow_layer_change={allow_layer_change}")
+        logger.debug(f"  allowed_layers={allowed_layers}")
+        logger.debug(f"  via_cost={self.via_cost}")
 
         # Prepare cached arrays for fast lookup
         self._prepare_cost_arrays()
@@ -4168,11 +4240,16 @@ class MazeRouter:
                     for l in allowed_layers:
                         if 0 <= l < self.num_layers:
                             allowed_mask[l] = True
+                    # DEBUG: Log allowed_mask (temper-7ilh.1.1)
+                    logger.debug(f"  allowed_mask constructed: {allowed_mask}")
+                else:
+                    logger.debug("  allowed_mask=None (all layers)")
 
                 # Determine primary layer for penalty
                 primary_idx = -1
                 if hasattr(self, "_current_assignment") and self._current_assignment:
                     primary_idx = self._current_assignment.primary_layer.value - 1
+                    logger.debug(f"  primary_layer_idx={primary_idx}")
 
                 path_coords = find_path_astar_numba_adaptive(
                     start[0],

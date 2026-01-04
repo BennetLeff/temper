@@ -7,12 +7,14 @@ within dense component grids (e.g., QFN centers, BGA arrays).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, Tuple, Dict, Optional
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing.fanout import FanoutGenerator, FanoutConfig
+from temper_placer.io.kicad_parser import TraceData, ViaData
 
 if TYPE_CHECKING:
     from kiutils.board import Board as KiBoard
@@ -28,6 +30,8 @@ class EscapeResult:
         escape_positions: New routing positions (the vias).
         via_count: Number of vias placed.
         length: Total length of escape traces.
+        traces: List of generated trace segments (TraceData).
+        vias: List of generated vias (ViaData).
     """
     success: bool
     net_name: str
@@ -35,6 +39,8 @@ class EscapeResult:
     escape_positions: List[Tuple[float, float]]
     via_count: int = 0
     length: float = 0.0
+    traces: List[TraceData] = field(default_factory=list)
+    vias: List[ViaData] = field(default_factory=list)
 
 class EscapeRouter:
     """
@@ -74,6 +80,9 @@ class EscapeRouter:
         Returns:
             EscapeResult containing new start/end positions for the main router.
         """
+        # Record existing items to identify new ones
+        existing_count = len(self.ki_board.traceItems)
+
         # Find original pin positions for this net
         net = next((n for n in self.netlist.nets if n.name == net_name), None)
         if not net:
@@ -86,34 +95,56 @@ class EscapeRouter:
             pin = comp.get_pin(pin_name)
             if not pin: continue
             
-            # Note: initial_position is BB center. 
-            # Pin position is relative to BB center.
-            # We should probably use a proper absolute_position helper if rotation is involved.
             cx, cy = comp.initial_position
             px = cx + pin.position[0]
             py = cy + pin.position[1]
             original_positions.append((px, py))
 
-        # Generate fanouts using the existing generator
+        # Generate fanouts
         new_positions_map = self.generator.generate_fanouts(target_nets=[net_name])
         
         if net_name not in new_positions_map:
-            # Maybe no pins needed escape, or it failed
             return EscapeResult(
                 success=True, 
                 net_name=net_name, 
                 original_positions=original_positions, 
-                escape_positions=original_positions # No change
+                escape_positions=original_positions
             )
 
         escape_positions = new_positions_map[net_name]
         via_count = len(escape_positions)
         
-        # Calculate length (Euclidean distance for each dog-bone)
+        # Identify new items and convert to TraceData/ViaData
+        new_items = self.ki_board.traceItems[existing_count:]
+        traces = []
+        vias = []
+        
+        from kiutils.items.brditems import Via, Segment
+        
+        for item in new_items:
+            if isinstance(item, Via):
+                vias.append(ViaData(
+                    position=(item.position.X, item.position.Y),
+                    diameter=item.size,
+                    drill=item.drill,
+                    net=net_name,
+                    layers=tuple(item.layers)
+                ))
+            elif isinstance(item, Segment):
+                traces.append(TraceData(
+                    start=(item.start.X, item.start.Y),
+                    end=(item.end.X, item.end.Y),
+                    width=item.width,
+                    layer=item.layer,
+                    net=net_name
+                ))
+
+        # Calculate length
         length = 0.0
-        # This is a bit tricky because FanoutGenerator doesn't return the mapping
-        # but we can assume it follows the same order if we are careful.
-        # Actually FanoutGenerator calculates them in the same way.
+        for i in range(min(len(original_positions), len(escape_positions))):
+            p = original_positions[i]
+            e = escape_positions[i]
+            length += math.sqrt((p[0] - e[0])**2 + (p[1] - e[1])**2)
         
         return EscapeResult(
             success=True,
@@ -121,5 +152,7 @@ class EscapeRouter:
             original_positions=original_positions,
             escape_positions=escape_positions,
             via_count=via_count,
-            length=0.0 # TODO: Calculate actual length
+            length=length,
+            traces=traces,
+            vias=vias
         )

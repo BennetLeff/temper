@@ -558,7 +558,11 @@ def find_path_astar_numba_adaptive(
                 if c_space_cost == INF:
                     continue
 
-            cell_occupied = occupancy[nx, ny, nl] == 2
+            occ_val = occupancy[nx, ny, nl]
+            if occ_val == -1:
+                continue
+            
+            cell_occupied = occ_val == 2
 
             if cell_occupied and not soft_blocking:
                 continue
