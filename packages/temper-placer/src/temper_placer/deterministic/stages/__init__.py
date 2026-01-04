@@ -7,6 +7,7 @@ from .clearance_grid import ClearanceGridStage
 from .net_ordering import NetOrderingStage
 from .sequential_routing import SequentialRoutingStage
 from .drc_validation import DRCValidationStage
+from .astar import DeterministicAStar
 
 __all__ = [
     "Stage",
@@ -18,4 +19,5 @@ __all__ = [
     "NetOrderingStage",
     "SequentialRoutingStage",
     "DRCValidationStage",
+    "DeterministicAStar",
 ]
