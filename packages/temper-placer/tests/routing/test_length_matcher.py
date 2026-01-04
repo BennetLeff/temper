@@ -115,16 +115,16 @@ class TestBusLengthMatching:
         paths = {
             "NET_A": RoutePath(
                 net="NET_A",
-                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
-                length=2.0,
+                cells=[GridCell(0, i, 0) for i in range(15)],
+                length=2.8,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
             ),
             "NET_B": RoutePath(
                 net="NET_B",
-                cells=[GridCell(0, 0, 0), GridCell(5, 0, 0)],
-                length=1.0,
+                cells=[GridCell(0, i, 0) for i in range(10)],
+                length=1.8,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
@@ -175,16 +175,16 @@ class TestBusLengthMatching:
         paths = {
             "NET_A": RoutePath(
                 net="NET_A",
-                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
-                length=2.0,
+                cells=[GridCell(0, i, 0) for i in range(12)],
+                length=2.2,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
             ),
             "NET_B": RoutePath(
                 net="NET_B",
-                cells=[GridCell(0, 0, 0), GridCell(8, 0, 0)],
-                length=1.6,
+                cells=[GridCell(0, i, 0) for i in range(10)],
+                length=1.8,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
@@ -210,16 +210,16 @@ class TestBusLengthMatching:
         paths = {
             "NET_A": RoutePath(
                 net="NET_A",
-                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
-                length=2.0,
+                cells=[GridCell(0, i, 0) for i in range(12)],
+                length=2.2,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
             ),
             "NET_B": RoutePath(
                 net="NET_B",
-                cells=[GridCell(0, 0, 0), GridCell(6, 0, 0)],
-                length=1.2,
+                cells=[GridCell(0, i, 0) for i in range(8)],
+                length=1.4,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
@@ -293,16 +293,16 @@ class TestLengthMatchResult:
         paths = {
             "NET_A": RoutePath(
                 net="NET_A",
-                cells=[GridCell(0, 0, 0), GridCell(10, 0, 0)],
-                length=2.0,
+                cells=[GridCell(0, i, 0) for i in range(12)],
+                length=2.2,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
             ),
             "NET_B": RoutePath(
                 net="NET_B",
-                cells=[GridCell(0, 0, 0), GridCell(5, 0, 0)],
-                length=1.0,
+                cells=[GridCell(0, i, 0) for i in range(8)],
+                length=1.4,
                 via_count=0,
                 success=True,
                 cell_size=0.2,
