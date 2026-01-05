@@ -21,13 +21,16 @@ class LayerAssignment:
 class LayerAssignmentStage(Stage):
     """Assign nets to preferred layers based on net class rules."""
     
-    def __init__(self, layer_assignments: Dict[str, int] = None):
+    def __init__(self, layer_assignments: Dict[str, int] = None, net_classes: Dict[str, str] = None):
         """
         Args:
             layer_assignments: Manual layer assignments {net_name: layer_index}
                               If None, will use net_class rules from design_rules
+            net_classes: Mapping of net_name -> net_class from config
+                        Used to override Net.net_class from parser
         """
         self.manual_assignments = layer_assignments or {}
+        self.net_classes = net_classes or {}
     
     @property
     def name(self) -> str:
@@ -51,8 +54,11 @@ class LayerAssignmentStage(Stage):
                 ))
                 continue
             
-            # Otherwise, use net class rules
-            layer = self._assign_layer_by_net_class(net.net_class)
+            # Get net_class from config if available, otherwise use the one from parser
+            net_class = self.net_classes.get(net.name, net.net_class)
+            
+            # Use net class rules to assign layer
+            layer = self._assign_layer_by_net_class(net_class)
             assignments.append(LayerAssignment(
                 net_name=net.name,
                 layer=layer,

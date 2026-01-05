@@ -16,6 +16,7 @@ class BoardState:
     grid: Optional['ClearanceGrid'] = None
     placements: FrozenSet = frozenset()
     routes: FrozenSet = frozenset()
+    vias: FrozenSet = frozenset()
     violations: FrozenSet = frozenset()
     net_order: Tuple[str, ...] = field(default_factory=tuple)
     zones: FrozenSet = frozenset()  # Set of Zone objects
