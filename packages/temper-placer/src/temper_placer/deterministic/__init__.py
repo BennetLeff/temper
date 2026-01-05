@@ -23,7 +23,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None):
         DRCOracleSetupStage(design_rules=design_rules),
         
         # Routing
-        ClearanceGridStage(layer_count=4),
+        ClearanceGridStage(cell_size_mm=0.25, layer_count=4),
         NetOrderingStage(),
         LayerAssignmentStage(net_classes=config.net_classes if config else None),
         SequentialRoutingStage(design_rules=design_rules),
@@ -52,7 +52,7 @@ def create_legacy_pipeline():
         ApplyPlacementsStage(),
         
         # Routing
-        ClearanceGridStage(layer_count=4),
+        ClearanceGridStage(cell_size_mm=0.25, layer_count=4),
         NetOrderingStage(),
         LayerAssignmentStage(),
         SequentialRoutingStage(), # Use defaults
