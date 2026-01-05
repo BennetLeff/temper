@@ -192,7 +192,30 @@ class MVP3Runner:
     
     def _export_to_kicad(self, final_state: BoardState, parse_result) -> None:
         """Export the final state to a KiCad PCB file."""
-        # TODO: Implement KiCad export
-        # For now, just create a placeholder
-        logger.warning("KiCad export not yet implemented - creating placeholder")
-        self.output_path.write_text("# MVP-3 output placeholder\n")
+        from temper_placer.io.kicad_writer import write_placements_to_pcb, PlacementUpdate
+        
+        # Convert placements to KiCad format
+        placements_dict = {}
+        if final_state.placements:
+            for ref, (x, y) in final_state.placements:
+                placements_dict[ref] = PlacementUpdate(
+                    ref=ref,
+                    x=x,
+                    y=y,
+                    rotation=0.0  # TODO: Get actual rotation from state
+                )
+        
+        # Write placements to output PCB
+        logger.info(f"Writing {len(placements_dict)} placements to {self.output_path}")
+        result = write_placements_to_pcb(
+            template_pcb=self.pcb_path,
+            output_pcb=self.output_path,
+            placements=placements_dict,
+            preserve_unmatched=True,
+        )
+        
+        logger.info(f"Export complete: {result.components_updated} components updated")
+        
+        if result.has_warnings:
+            for warning in result.warnings:
+                logger.warning(warning)
