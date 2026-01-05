@@ -184,97 +184,18 @@ class ClearanceGridStage(Stage):
     
 
     def run(self, state: BoardState) -> BoardState:
-
         if not state.board:
-
             return state
-
             
-
         grid = ClearanceGrid(
-
             width_mm=state.board.width,
-
             height_mm=state.board.height,
-
             cell_size_mm=self.cell_size_mm,
-            
             layer_count=self.layer_count
-
         )
-
         
-
-        # Build placement map from BoardState
-        placements_dict = dict(state.placements) if state.placements else {}
-        
-        # Use injected pad sizes
-        pad_sizes = self.pad_sizes
-        
-        # Block pads if netlist exists
-        if state.netlist:
-            comp_refs = [c.ref for c in state.netlist.components]
-            print(f"DEBUG: ClearanceGrid processing {len(comp_refs)} components: {comp_refs[:10]}...")
-            if 'U_GATE' in comp_refs:
-                 print("DEBUG: U_GATE is present in netlist components.")
-            else:
-                 print("DEBUG: U_GATE is NOT in netlist components!")
-
-            for component in state.netlist.components:
-                # Use placement from BoardState if available, otherwise initial
-                pos = placements_dict.get(component.ref, component.initial_position)
-                
-                if pos is None:
-                    continue  # Skip if no position available
-
-                if 'GATE' in component.ref:
-                    print(f"DEBUG: Found {component.ref} with {len(component.pins)} pins")
-
-                for pin in component.pins:
-                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
-                    
-                    target_layers = []
-                    # Default to all layers if unknown or THT
-                    pin_layer = getattr(pin, 'layer', 'F.Cu')
-                    
-                    if pin_layer == 'F.Cu':
-                        target_layers = [0]
-                    elif pin_layer == 'B.Cu':
-                        target_layers = [grid.layer_count - 1]
-                    elif pin_layer == 'In1.Cu' and grid.layer_count > 1:
-                        target_layers = [1]
-                    elif pin_layer == 'In2.Cu' and grid.layer_count > 2:
-                        target_layers = [2]
-                    else:
-                        # *.Cu, Multi-layer, or unknown -> Block all
-                        target_layers = range(grid.layer_count)
-                    
-                    # Lookup actual pad size
-                    pad_radius = 0.5
-                    pad_key = (component.ref, pin.name)
-                    real_pad = pad_sizes.get(pad_key)
-                    
-                    if real_pad:
-                        # Use circumscribed radius approximation or max dim
-                        pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                        # Use circumscribed radius approximation or max dim
-                        pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                    
-                    # Block pads on target layers with INFLATED clearance
-                    # to account for trace width (0.25mm) and mask expansion (0.1mm for SMD, 0.15mm for PTH)
-                    # Effective Clearing = PadRadius + ElecClearance + TraceHalfWidth + MaskMargin
-                    
-                    elec_clearance = 0.2
-                    trace_half_width = 0.125
-                    mask_expansion = getattr(pin, 'mask_expansion', 0.1)
-                    
-                    effective_clearance = elec_clearance + trace_half_width + mask_expansion
-                    
-                    for layer_idx in target_layers:
-                        if layer_idx < grid.layer_count:
-                            grid.block_circle(pin_pos, radius_mm=pad_radius, clearance_mm=effective_clearance, layer=layer_idx)
-
-                    
+        # NOTE: Pad blocking is now handled proactively by DRCOracle in SequentialRoutingStage.
+        # This simplifies the pipeline and avoids complex unblock/re-block logic.
 
         from dataclasses import replace
 

@@ -270,7 +270,11 @@ class MVP3Runner:
     
     def _build_pipeline(self, design_rules: DesignRules, net_classes: dict[str, str] = None) -> DeterministicPipeline:
         """Construct the MVP-3 pipeline with all stages."""
+        from temper_placer.deterministic.stages import SetupStage
+        
         return DeterministicPipeline(stages=[
+            # Phase 0: Setup
+            SetupStage(),
             # Phase 1-4: Placement
             ZoneGeometryStage(),
             ZoneAssignmentStage(),

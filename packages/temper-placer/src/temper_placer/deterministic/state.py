@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.loop import LoopCollection
     from .stages.clearance_grid import ClearanceGrid
+    from temper_placer.routing.constraints.drc_oracle import DRCOracle
 
 @dataclass(frozen=True)
 class BoardState:
@@ -14,6 +15,7 @@ class BoardState:
     netlist: Optional['Netlist'] = None
     loops: Optional['LoopCollection'] = None
     grid: Optional['ClearanceGrid'] = None
+    drc_oracle: Optional['DRCOracle'] = None
     placements: FrozenSet = frozenset()
     routes: FrozenSet = frozenset()
     vias: FrozenSet = frozenset()

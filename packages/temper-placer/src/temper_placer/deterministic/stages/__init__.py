@@ -1,4 +1,5 @@
 from .base import Stage
+from .setup import SetupStage
 from .zone_assignment import ZoneAssignmentStage
 from .zone_geometry import ZoneGeometryStage
 from .slot_generation import SlotGenerationStage
@@ -14,6 +15,7 @@ from .astar import DeterministicAStar
 
 __all__ = [
     "Stage",
+    "SetupStage",
     "ZoneAssignmentStage",
     "ZoneGeometryStage",
     "SlotGenerationStage",

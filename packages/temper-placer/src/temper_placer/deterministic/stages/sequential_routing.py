@@ -5,6 +5,8 @@ from .base import Stage
 from .astar import DeterministicAStar
 from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
+from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
+from ...routing.constraints.geometry import Point as OraclePoint
 from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
 
@@ -103,7 +105,7 @@ class SequentialRoutingStage(Stage):
                 pin_info.append((comp_ref, pin.name))
                 pins.append(pin)
                 
-            if len(pin_positions) < 2:
+            if len(pin_positions) < 2 and not is_plane_by_net.get(net_name, False):
                 continue
             
             # Check if this is a plane net (GND/Power on inner layers)
@@ -123,10 +125,18 @@ class SequentialRoutingStage(Stage):
 
                 for pos in pin_positions:
                     # Find safe position for via
-                    safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
-                    if not safe_pos:
-                        print(f"WARNING: Could not find safe via position for {net_name} at {pos}")
-                        safe_pos = pos # Fallback
+                    if state.drc_oracle:
+                        sites = state.drc_oracle.get_valid_via_sites(pos, search_radius=2.0, net=net_name)
+                        if sites:
+                            safe_pos = sites[0]
+                        else:
+                            print(f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos}")
+                            safe_pos = pos
+                    else:
+                        safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
+                        if not safe_pos:
+                            print(f"WARNING: Could not find safe via position for {net_name} at {pos}")
+                            safe_pos = pos # Fallback
                     
                     # Create Via connecting Top to Plane Layer
                     via = Via(
@@ -137,6 +147,15 @@ class SequentialRoutingStage(Stage):
                         net=net_name
                     )
                     all_vias.append(via)
+
+                    # Register in DRCOracle
+                    if state.drc_oracle:
+                        state.drc_oracle.register_via(OracleVia(
+                            center=OraclePoint(safe_pos[0], safe_pos[1]),
+                            diameter=via_d,
+                            drill=via_drill,
+                            net=net_name
+                        ))
                     
                     # If via shifted, add a short stub trace from pin to via
                     if safe_pos != pos:
@@ -147,6 +166,15 @@ class SequentialRoutingStage(Stage):
                             layer="F.Cu",
                             net=net_name
                         ))
+                        # Register stub in DRCOracle
+                        if state.drc_oracle:
+                            state.drc_oracle.register_track(OracleTrack(
+                                start=OraclePoint(pos[0], pos[1]),
+                                end=OraclePoint(safe_pos[0], safe_pos[1]),
+                                width=width,
+                                net=net_name,
+                                layer=0 # F.Cu
+                            ))
                     
                     # Block Via on ALL layers
                     for l_idx in range(grid.layer_count):
@@ -155,48 +183,12 @@ class SequentialRoutingStage(Stage):
                 # Skip trace routing for plane nets
                 continue
 
-            # Unblock target pins so A* can route to them
-            # Unblock radius must match the blocked radius: pad_r + clearance + width/2 + mask
-            for i, pos in enumerate(pin_positions):
-                mask_expansion = getattr(pins[i], 'mask_expansion', 0.1)
-                unblock_clearance = clearance + (width / 2.0) + mask_expansion
-                pad_r = 0.5
-                if self.pad_sizes:
-                    real_pad = self.pad_sizes.get(pin_info[i])
-                    if real_pad:
-                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                unblock_radius = pad_r + unblock_clearance
-                grid.unblock_circle(pos, radius_mm=unblock_radius, layer=layer_idx)
-
-            # Re-block ALL OTHER pads that might have been affected by unblocking
-            # This prevents routing through cells shared with adjacent pads
-            other_pads_to_reblock = []
-            for other_net in state.netlist.nets:
-                if other_net.name == net_name:
-                    continue  # Skip current net's pins
-                for comp_ref, pin_name in other_net.pins:
-                    if comp_ref not in comp_by_ref:
-                        continue
-                    comp = comp_by_ref[comp_ref]
-                    pin = next((p for p in comp.pins if p.name == pin_name or p.number == pin_name), None)
-                    if not pin:
-                        continue
-                    pos = comp.initial_position or (0, 0)
-                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
-                    other_pads_to_reblock.append((pin_pos, comp_ref, pin.name, pin))
-
-            # Re-block other pads with mask-aware clearance
-            for pin_pos, comp_ref, pin_name, pin in other_pads_to_reblock:
-                mask_expansion = getattr(pin, 'mask_expansion', 0.1)
-                other_pad_clearance = self.default_clearance + (width / 2.0) + mask_expansion
-                pad_r = 0.5
-                if self.pad_sizes:
-                    real_pad = self.pad_sizes.get((comp_ref, pin_name))
-                    if real_pad:
-                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                grid.block_circle(pin_pos, radius_mm=pad_r, clearance_mm=other_pad_clearance, layer=layer_idx)
-
-            pathfinder = DeterministicAStar(grid)
+            pathfinder = DeterministicAStar(
+                grid=grid,
+                drc_oracle=state.drc_oracle,
+                net_name=net_name,
+                trace_width=width
+            )
             mst_edges = self._compute_mst(pin_positions)
             
             # Snap pin positions to grid for A* pathfinding
@@ -231,6 +223,15 @@ class SequentialRoutingStage(Stage):
                         layer=layer_name,
                         net=net_name
                     ))
+                    # Register in DRCOracle
+                    if state.drc_oracle:
+                        state.drc_oracle.register_track(OracleTrack(
+                            start=OraclePoint(path[i][0], path[i][1]),
+                            end=OraclePoint(path[i+1][0], path[i+1][1]),
+                            width=width,
+                            net=net_name,
+                            layer=layer_idx
+                        ))
     
             
             # Generate Vias for pins if routed on inner layer
@@ -248,10 +249,18 @@ class SequentialRoutingStage(Stage):
                 # Ideally check pin layer, but for MVP assuming Top SMD/THT
                 for pos in pin_positions:
                     # Find safe position for via
-                    safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
-                    if not safe_pos:
-                        print(f"WARNING: Could not find safe via position for {net_name} at {pos}")
-                        safe_pos = pos # Fallback
+                    if state.drc_oracle:
+                        sites = state.drc_oracle.get_valid_via_sites(pos, search_radius=2.0, net=net_name)
+                        if sites:
+                            safe_pos = sites[0]
+                        else:
+                            print(f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos}")
+                            safe_pos = pos
+                    else:
+                        safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
+                        if not safe_pos:
+                            print(f"WARNING: Could not find safe via position for {net_name} at {pos}")
+                            safe_pos = pos # Fallback
 
                     # Create Via
                     via = Via(
@@ -262,6 +271,15 @@ class SequentialRoutingStage(Stage):
                         net=net_name
                     )
                     all_vias.append(via)
+
+                    # Register in DRCOracle
+                    if state.drc_oracle:
+                        state.drc_oracle.register_via(OracleVia(
+                            center=OraclePoint(safe_pos[0], safe_pos[1]),
+                            diameter=via_d,
+                            drill=via_drill,
+                            net=net_name
+                        ))
                     
                     # If via shifted, add a short stub trace from pin to via
                     if safe_pos != pos:
@@ -272,27 +290,21 @@ class SequentialRoutingStage(Stage):
                             layer="F.Cu",
                             net=net_name
                         ))
+                        # Register stub in DRCOracle
+                        if state.drc_oracle:
+                            state.drc_oracle.register_track(OracleTrack(
+                                start=OraclePoint(pos[0], pos[1]),
+                                end=OraclePoint(safe_pos[0], safe_pos[1]),
+                                width=width,
+                                net=net_name,
+                                layer=0 # F.Cu
+                            ))
                     
                     # Block Via on ALL layers
                     # Iterate all grid layers
                     for l_idx in range(grid.layer_count):
                         grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
 
-            # Re-block pads with net-specific clearance (may be larger than initial blocking)
-            # This ensures subsequent nets respect this net's clearance requirements.
-            # effective_clearance = copper_clearance + trace_half_width + mask_expansion
-
-            for i, pos in enumerate(pin_positions):
-                mask_expansion = getattr(pins[i], 'mask_expansion', 0.1)
-                effective_clearance = clearance + (width / 2.0) + mask_expansion
-                pad_r = 0.5  # Default pad radius
-                if self.pad_sizes:
-                    real_pad = self.pad_sizes.get(pin_info[i])
-                    if real_pad:
-                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-
-                grid.block_circle(pos, radius_mm=pad_r, clearance_mm=effective_clearance, layer=layer_idx)
-                
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
 
 

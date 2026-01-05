@@ -5,12 +5,16 @@ from typing import List, Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .clearance_grid import ClearanceGrid
+    from temper_placer.routing.constraints.drc_oracle import DRCOracle
 
 @dataclass
 class DeterministicAStar:
     '''A* pathfinder with deterministic tie-breaking for multi-layer boards.'''
     
     grid: 'ClearanceGrid'
+    drc_oracle: Optional['DRCOracle'] = None
+    net_name: str = ""
+    trace_width: float = 0.25
     
     def find_path(self, start: Tuple[float, float],
                   end: Tuple[float, float],
@@ -74,7 +78,33 @@ class DeterministicAStar:
             ((row + 1, col - 1), 1.414), # down-left
             ((row + 1, col + 1), 1.414), # down-right
         ]
-        return [(c, cost) for c, cost in candidates if self._is_valid(c, layer)]
+        
+        valid_neighbors = []
+        for neighbor, cost in candidates:
+            if not self._is_valid(neighbor, layer):
+                continue
+            
+            # If oracle is present, perform proactive DRC check
+            if self.drc_oracle:
+                # Convert cells back to mm for oracle
+                p1 = (col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                      row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2)
+                p2 = (neighbor[1] * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                      neighbor[0] * self.grid.cell_size_mm + self.grid.cell_size_mm / 2)
+                
+                valid, _ = self.drc_oracle.can_place_track_segment(
+                    start=p1,
+                    end=p2,
+                    layer=layer,
+                    net=self.net_name,
+                    width=self.trace_width
+                )
+                if not valid:
+                    continue
+                    
+            valid_neighbors.append((neighbor, cost))
+            
+        return valid_neighbors
     
     def _heuristic(self, a: Tuple[int, int], b: Tuple[int, int]) -> float:
         '''Euclidean distance heuristic.'''
