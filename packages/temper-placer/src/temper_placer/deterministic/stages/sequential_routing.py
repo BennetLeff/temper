@@ -6,6 +6,7 @@ from .astar import DeterministicAStar
 from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
 from ..geometry.via_placement import PadInfo, place_via_with_clearance
+from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
 
 class SequentialRoutingStage(Stage):
     def __init__(self, design_rules: DesignRules | None = None, 
@@ -198,18 +199,23 @@ class SequentialRoutingStage(Stage):
             pathfinder = DeterministicAStar(grid)
             mst_edges = self._compute_mst(pin_positions)
             
-            # pathfinder = DeterministicAStar(grid) # Duplicate
+            # Snap pin positions to grid for A* pathfinding
+            snapped_positions = [snap_to_grid(p, grid.cell_size_mm) for p in pin_positions]
+            
             net_paths = []
             
             # Route all edges in the MST
             for idx1, idx2 in mst_edges:
-                p1 = pin_positions[idx1]
-                p2 = pin_positions[idx2] # Fixed corruption
+                # Use snapped positions for grid-based pathfinding
+                p1_snapped = snapped_positions[idx1]
+                p2_snapped = snapped_positions[idx2]
                 
                 # Route between these two pins
-                path = pathfinder.find_path(start=p1, end=p2, layer=layer_idx)
+                path = pathfinder.find_path(start=p1_snapped, end=p2_snapped, layer=layer_idx)
                 if path:
-                    net_paths.append(path)
+                    # Add nudge segments to connect snapped path back to actual centers
+                    nudged_path = add_endpoint_nudge(path, pin_positions[idx1], pin_positions[idx2])
+                    net_paths.append(nudged_path)
             
             # Commit all paths for this net
             for path in net_paths:
