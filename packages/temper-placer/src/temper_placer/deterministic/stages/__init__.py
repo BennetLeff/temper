@@ -13,6 +13,9 @@ from .connectivity_validation import ConnectivityValidationStage, ConnectivityVi
 from .layer_assignment import LayerAssignmentStage
 from .courtyard_check import CourtyardCheckStage
 from .astar import DeterministicAStar
+from .multilayer_astar import MultiLayerAStar, MultiLayerPath, RouteSegment
+from .via_validation import ViaValidationStage, ViaDeduplicationStage
+from .drc_sweep import DRCSweepStage, TrackDeduplicationStage, ShortCircuitDetectionStage
 
 __all__ = [
     "Stage",
@@ -34,4 +37,12 @@ __all__ = [
     "ConnectivityValidationError",
     "CourtyardCheckStage",
     "DeterministicAStar",
+    "MultiLayerAStar",
+    "MultiLayerPath",
+    "RouteSegment",
+    "ViaValidationStage",
+    "ViaDeduplicationStage",
+    "DRCSweepStage",
+    "TrackDeduplicationStage",
+    "ShortCircuitDetectionStage",
 ]

@@ -3,12 +3,17 @@ from typing import List, Tuple
 from ..state import BoardState
 from .base import Stage
 from .astar import DeterministicAStar
+from .multilayer_astar import MultiLayerAStar
 from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
 from ...routing.constraints.geometry import Point as OraclePoint
 from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
+
+# Layer name mappings
+LAYER_IDX_TO_NAME = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
+LAYER_NAME_TO_IDX = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}
 
 class SequentialRoutingStage(Stage):
     def __init__(self, design_rules: DesignRules | None = None, 
@@ -40,13 +45,7 @@ class SequentialRoutingStage(Stage):
                 layer_by_net[assignment.net_name] = assignment.layer
                 if hasattr(assignment, 'is_plane'):
                     is_plane_by_net[assignment.net_name] = assignment.is_plane
-        
-        # Layer name to index mapping
-        layer_name_to_idx = {
-            "F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3
-        }
-        layer_idx_to_name = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
-        
+
         all_traces = list(state.routes)
         all_vias = list(state.vias)
         
@@ -75,7 +74,7 @@ class SequentialRoutingStage(Stage):
             
             # Determine layer for this net
             layer_idx = layer_by_net.get(net_name, 0)  # Default to layer 0
-            layer_name = layer_idx_to_name.get(layer_idx, "F.Cu")
+            layer_name = LAYER_IDX_TO_NAME.get(layer_idx, "F.Cu")
             
             # Determine width and clearance
             width = self.default_width
@@ -163,30 +162,40 @@ class SequentialRoutingStage(Stage):
                             drill=via_drill,
                             net=net_name
                         ))
-                    
+
                     # If via shifted, add a short stub trace from pin to via
+                    # VALIDATE stub trace before adding to prevent DRC violations
                     if safe_pos != pos:
-                        all_traces.append(Trace(
-                            start=pos,
-                            end=safe_pos,
-                            width=width,
-                            layer="F.Cu",
-                            net=net_name
-                        ))
-                        # Register stub in DRCOracle
+                        stub_valid = True
                         if state.drc_oracle:
-                            state.drc_oracle.register_track(OracleTrack(
-                                start=OraclePoint(pos[0], pos[1]),
-                                end=OraclePoint(safe_pos[0], safe_pos[1]),
+                            stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
+                                start=pos, end=safe_pos, layer=0, net=net_name, width=width
+                            )
+                            if not stub_valid:
+                                print(f"  WARNING: Plane stub trace for {net_name} rejected: {stub_reason}")
+
+                        if stub_valid:
+                            all_traces.append(Trace(
+                                start=pos,
+                                end=safe_pos,
                                 width=width,
-                                net=net_name,
-                                layer=0 # F.Cu
+                                layer="F.Cu",
+                                net=net_name
                             ))
-                    
+                            # Register stub in DRCOracle
+                            if state.drc_oracle:
+                                state.drc_oracle.register_track(OracleTrack(
+                                    start=OraclePoint(pos[0], pos[1]),
+                                    end=OraclePoint(safe_pos[0], safe_pos[1]),
+                                    width=width,
+                                    net=net_name,
+                                    layer=0  # F.Cu
+                                ))
+
                     # Block Via on ALL layers
                     for l_idx in range(grid.layer_count):
                         grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
-                
+
                 # Skip trace routing for plane nets
                 continue
 
@@ -213,15 +222,27 @@ class SequentialRoutingStage(Stage):
             # Snap pin positions to grid for A* pathfinding
             snapped_positions = [snap_to_grid(p, grid.cell_size_mm) for p in pin_positions]
 
-            net_paths = []
-            
+            net_paths = []  # List of (path_points, layer_idx) tuples
+            net_multilayer_paths = []  # Results from multi-layer routing
+
+            # Create multi-layer pathfinder as fallback
+            # Allow routing on F.Cu (0) and B.Cu (3) - inner layers are planes
+            multilayer_pathfinder = MultiLayerAStar(
+                grid=grid,
+                drc_oracle=state.drc_oracle,
+                net_name=net_name,
+                trace_width=width,
+                via_cost=5.0,  # Discourage unnecessary vias
+                allowed_layers=[0, 3],  # F.Cu and B.Cu only
+            )
+
             # Route all edges in the MST
             for idx1, idx2 in mst_edges:
                 # Use snapped positions for grid-based pathfinding
                 p1_snapped = snapped_positions[idx1]
                 p2_snapped = snapped_positions[idx2]
 
-                # Route between these two pins
+                # Try single-layer routing first (faster, simpler)
                 path = pathfinder.find_path(start=p1_snapped, end=p2_snapped, layer=layer_idx)
                 if path:
                     # Add nudge segments to connect snapped path back to actual centers
@@ -240,22 +261,36 @@ class SequentialRoutingStage(Stage):
                                 break
 
                     if path_valid:
-                        net_paths.append(nudged_path)
-                    else:
-                        print(f"  WARNING: Could not find DRC-compliant path for {net_name} segment {idx1}->{idx2}")
+                        net_paths.append((nudged_path, layer_idx))
+                        continue  # Success, move to next edge
+
+                # Single-layer failed - try multi-layer routing as fallback
+                multilayer_result = multilayer_pathfinder.find_path(
+                    start=p1_snapped,
+                    end=p2_snapped,
+                    start_layer=layer_idx,
+                    end_layer=-1  # Any layer OK
+                )
+
+                if multilayer_result:
+                    print(f"  INFO: Multi-layer route found for {net_name} ({len(multilayer_result.via_positions)} vias)")
+                    net_multilayer_paths.append(multilayer_result)
+                else:
+                    print(f"  WARNING: Could not find any path for {net_name} segment {idx1}->{idx2}")
             
-            # Commit all paths for this net
-            for path in net_paths:
+            # Commit all single-layer paths for this net
+            for path, path_layer_idx in net_paths:
+                path_layer_name = LAYER_IDX_TO_NAME.get(path_layer_idx, "F.Cu")
                 # Block the routed trace on the same layer
-                grid.block_trace(path, width_mm=width, clearance_mm=clearance, layer=layer_idx)
-                
+                grid.block_trace(path, width_mm=width, clearance_mm=clearance, layer=path_layer_idx)
+
                 # Create Trace objects for state with correct layer
                 for i in range(len(path) - 1):
                     all_traces.append(Trace(
                         start=path[i],
                         end=path[i+1],
                         width=width,
-                        layer=layer_name,
+                        layer=path_layer_name,
                         net=net_name
                     ))
                     # Register in DRCOracle
@@ -265,7 +300,74 @@ class SequentialRoutingStage(Stage):
                             end=OraclePoint(path[i+1][0], path[i+1][1]),
                             width=width,
                             net=net_name,
-                            layer=layer_idx
+                            layer=path_layer_idx
+                        ))
+
+            # Commit multi-layer paths (with vias)
+            via_d = 0.6
+            via_drill = 0.3
+            if self.design_rules:
+                rules = self.design_rules.get_rules_for_net(net_name)
+                via_d = rules.via_diameter
+                via_drill = rules.via_drill
+
+            for ml_path in net_multilayer_paths:
+                # Commit trace segments
+                for segment in ml_path.segments:
+                    seg_layer_name = LAYER_IDX_TO_NAME.get(segment.layer, "F.Cu")
+
+                    # Block on grid
+                    grid.block_trace(
+                        [segment.start, segment.end],
+                        width_mm=width,
+                        clearance_mm=clearance,
+                        layer=segment.layer
+                    )
+
+                    # Create Trace object
+                    all_traces.append(Trace(
+                        start=segment.start,
+                        end=segment.end,
+                        width=width,
+                        layer=seg_layer_name,
+                        net=net_name
+                    ))
+
+                    # Register in DRCOracle
+                    if state.drc_oracle:
+                        state.drc_oracle.register_track(OracleTrack(
+                            start=OraclePoint(segment.start[0], segment.start[1]),
+                            end=OraclePoint(segment.end[0], segment.end[1]),
+                            width=width,
+                            net=net_name,
+                            layer=segment.layer
+                        ))
+
+                # Commit vias from layer transitions
+                for vx, vy, from_layer, to_layer in ml_path.via_positions:
+                    from_layer_name = LAYER_IDX_TO_NAME.get(from_layer, "F.Cu")
+                    to_layer_name = LAYER_IDX_TO_NAME.get(to_layer, "B.Cu")
+
+                    via = Via(
+                        position=(vx, vy),
+                        drill=via_drill,
+                        width=via_d,
+                        layers=(from_layer_name, to_layer_name),
+                        net=net_name
+                    )
+                    all_vias.append(via)
+
+                    # Block via on ALL layers
+                    for l_idx in range(grid.layer_count):
+                        grid.block_circle((vx, vy), radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+
+                    # Register in DRCOracle
+                    if state.drc_oracle:
+                        state.drc_oracle.register_via(OracleVia(
+                            center=OraclePoint(vx, vy),
+                            diameter=via_d,
+                            drill=via_drill,
+                            net=net_name
                         ))
     
             
@@ -322,26 +424,36 @@ class SequentialRoutingStage(Stage):
                             drill=via_drill,
                             net=net_name
                         ))
-                    
+
                     # If via shifted, add a short stub trace from pin to via
+                    # VALIDATE stub trace before adding to prevent DRC violations
                     if safe_pos != pos:
-                        all_traces.append(Trace(
-                            start=pos,
-                            end=safe_pos,
-                            width=width,
-                            layer="F.Cu",
-                            net=net_name
-                        ))
-                        # Register stub in DRCOracle
+                        stub_valid = True
                         if state.drc_oracle:
-                            state.drc_oracle.register_track(OracleTrack(
-                                start=OraclePoint(pos[0], pos[1]),
-                                end=OraclePoint(safe_pos[0], safe_pos[1]),
+                            stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
+                                start=pos, end=safe_pos, layer=0, net=net_name, width=width
+                            )
+                            if not stub_valid:
+                                print(f"  WARNING: Signal stub trace for {net_name} rejected: {stub_reason}")
+
+                        if stub_valid:
+                            all_traces.append(Trace(
+                                start=pos,
+                                end=safe_pos,
                                 width=width,
-                                net=net_name,
-                                layer=0 # F.Cu
+                                layer="F.Cu",
+                                net=net_name
                             ))
-                    
+                            # Register stub in DRCOracle
+                            if state.drc_oracle:
+                                state.drc_oracle.register_track(OracleTrack(
+                                    start=OraclePoint(pos[0], pos[1]),
+                                    end=OraclePoint(safe_pos[0], safe_pos[1]),
+                                    width=width,
+                                    net=net_name,
+                                    layer=0  # F.Cu
+                                ))
+
                     # Block Via on ALL layers
                     # Iterate all grid layers
                     for l_idx in range(grid.layer_count):
