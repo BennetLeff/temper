@@ -1,0 +1,137 @@
+# Temper Board Deterministic Placement Configuration
+# Simplified format compatible with config_loader.py
+
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+# Zone definitions (HV, Power, Signal, MCU)
+zones:
+  - name: "HV"
+    bounds_ratio: [0.0, 0.0, 0.3, 1.0]  # Left 30%
+    description: "High voltage components"
+  - name: "Power"
+    bounds_ratio: [0.3, 0.0, 0.6, 1.0]  # Center-left 30%
+    description: "Power management"
+  - name: "Signal"
+    bounds_ratio: [0.6, 0.0, 0.9, 1.0]  # Center-right 30%
+    description: "Signal processing"
+  - name: "MCU"
+    bounds_ratio: [0.9, 0.0, 1.0, 1.0]  # Right 10%
+    description: "Microcontroller"
+
+# Zone assignments (component ref -> zone name)
+zone_assignments:
+  # HV Zone
+  J_AC_IN: "HV"
+  Q1: "HV"
+  Q2: "HV"
+  D_RECT: "HV"
+  C_DC_BUS: "HV"
+  # Power Zone  
+  U_15V: "Power"
+  U_3V3: "Power"
+  U_5V_ISO: "Power"
+  # Signal Zone
+  U_CT: "Signal"
+  U_TEMP: "Signal"
+  U_OCP: "Signal"
+  # MCU Zone
+  U_MCU: "MCU"
+
+# Net class assignments (net_name -> net_class)
+net_classes:
+  # HighVoltage nets
+  AC_L: "HighVoltage"
+  AC_N: "HighVoltage"
+  DC_BUS+: "HighVoltage"
+  DC_BUS-: "HighVoltage"
+  SW_NODE: "HighVoltage"
+  # Power nets
+  "+15V": "Power"
+  "+3V3": "Power"
+  "+5V": "Power"
+  VCC_BOOT: "Power"
+  # Ground nets
+  GND: "Ground"
+  PGND: "Ground"
+  CGND: "Ground"
+  # Signal nets
+  PWM_H: "Signal"
+  PWM_L: "Signal"
+  GATE_H: "Signal"
+  GATE_L: "Signal"
+  SHUTDOWN_N: "Signal"
+  SPI_CLK: "Signal"
+  SPI_CS_TEMP: "Signal"
+  SPI_MISO: "Signal"
+  SPI_MOSI: "Signal"
+  I_SENSE: "Signal"
+  TEMP_SENSE: "Signal"
+  # Differential pair
+  USB_D+: "Differential"
+  USB_D-: "Differential"
+
+# Net class rules (class_name -> design rules)
+net_class_rules:
+  HighVoltage:
+    trace_width_mm: 0.8
+    clearance_mm: 2.0
+    via_size_mm: 1.0
+    via_drill_mm: 0.5
+    description: "High voltage AC/DC nets"
+  
+  Power:
+    trace_width_mm: 0.5
+    clearance_mm: 0.3
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    description: "Power rails"
+  
+  Ground:
+    trace_width_mm: 0.5
+    clearance_mm: 0.25
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    description: "Ground planes"
+  
+  Signal:
+    trace_width_mm: 0.25
+    clearance_mm: 0.2
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    description: "Standard signals"
+  
+  Differential:
+    trace_width_mm: 0.2
+    clearance_mm: 0.2
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    description: "USB differential pair"
+
+# Differential pairs
+differential_pairs:
+  - net_pos: "USB_D+"
+    net_neg: "USB_D-"
+    spacing_mm: 0.15
+    coupling_tolerance_mm: 0.5
+    max_skew_mm: 0.5
+    description: "USB 2.0 differential pair"
+
+# Slot generation config
+slot_generation:
+  spacing_mm: 5.0
+  grid_alignment: true
+
+# Loss function configuration (for gradient optimizer - not used in deterministic pipeline)
+losses:
+  overlap:
+    weight: 1000.0
+    enabled: true
+  boundary:
+    weight: 100.0
+    enabled: true
+  wirelength:
+    weight: 10.0
+    enabled: true

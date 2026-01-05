@@ -21,6 +21,7 @@ class BoardState:
     zones: FrozenSet = frozenset()  # Set of Zone objects
     component_zone_map: FrozenSet = frozenset()  # Set of (component_ref, zone_name) tuples
     zone_slots: FrozenSet = frozenset()  # Set of (zone_name, tuple_of_slots) - each zone maps to tuple of (x,y) positions
+    layer_assignments: FrozenSet = frozenset()  # Set of LayerAssignment objects (net_name, layer)
 
 
 

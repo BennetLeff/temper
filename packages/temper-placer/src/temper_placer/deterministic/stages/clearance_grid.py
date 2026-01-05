@@ -5,17 +5,19 @@ from .base import Stage
 
 @dataclass
 class ClearanceGrid:
-    '''2D grid tracking blocked and available cells for routing.'''
+    '''Multi-layer 2D grid tracking blocked and available cells for routing.'''
     
     width_mm: float
     height_mm: float
     cell_size_mm: float
+    layer_count: int = 2  # Default to 2-layer for backward compatibility
     
     def __post_init__(self):
         self.cols = int(self.width_mm / self.cell_size_mm)
         self.rows = int(self.height_mm / self.cell_size_mm)
+        # Create separate 2D grid for each layer
         # 0 = available, 1 = blocked
-        self._grid = np.zeros((self.rows, self.cols), dtype=np.uint8)
+        self._grids = [np.zeros((self.rows, self.cols), dtype=np.uint8) for _ in range(self.layer_count)]
     
     def _mm_to_cell(self, x_mm: float, y_mm: float) -> tuple[int, int]:
         '''Convert mm coordinates to grid cell indices.'''
@@ -23,16 +25,20 @@ class ClearanceGrid:
         row = int(y_mm / self.cell_size_mm)
         return (row, col)
     
-    def is_available(self, x_mm: float, y_mm: float) -> bool:
-        '''Check if a position is available for routing.'''
+    def is_available(self, x_mm: float, y_mm: float, layer: int = 0) -> bool:
+        '''Check if a position is available for routing on specified layer.'''
+        if layer < 0 or layer >= self.layer_count:
+            return False
         row, col = self._mm_to_cell(x_mm, y_mm)
         if 0 <= row < self.rows and 0 <= col < self.cols:
-            return self._grid[row, col] == 0
+            return self._grids[layer][row, col] == 0
         return False  # Out of bounds = blocked
     
     def block_circle(self, center: tuple[float, float], 
-                     radius_mm: float, clearance_mm: float):
-        '''Block cells within radius + clearance of center.'''
+                     radius_mm: float, clearance_mm: float, layer: int = 0):
+        '''Block cells within radius + clearance of center on specified layer.'''
+        if layer < 0 or layer >= self.layer_count:
+            return
         total_radius = radius_mm + clearance_mm
         cx, cy = center
         
@@ -42,18 +48,18 @@ class ClearanceGrid:
         min_row = max(0, int((cy - total_radius) / self.cell_size_mm))
         max_row = min(self.rows, int((cy + total_radius) / self.cell_size_mm) + 1)
         
-        # Mark cells within radius
+        # Mark cells within radius on specified layer
         for row in range(min_row, max_row):
             for col in range(min_col, max_col):
                 cell_x = col * self.cell_size_mm + self.cell_size_mm / 2
                 cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
                 dist = ((cell_x - cx)**2 + (cell_y - cy)**2)**0.5
                 if dist <= total_radius:
-                    self._grid[row, col] = 1
+                    self._grids[layer][row, col] = 1
 
     def block_trace(self, path: list[tuple[float, float]], 
-                    width_mm: float, clearance_mm: float):
-        '''Block cells along a trace path with given width and clearance.'''
+                    width_mm: float, clearance_mm: float, layer: int = 0):
+        '''Block cells along a trace path with given width and clearance on specified layer.'''
         if not path:
             return
             
@@ -61,15 +67,17 @@ class ClearanceGrid:
         # For simplicity, we can block a circle at each point and along each segment
         for i in range(len(path)):
             # Block circle at current point
-            self.block_circle(path[i], width_mm / 2.0, clearance_mm)
+            self.block_circle(path[i], width_mm / 2.0, clearance_mm, layer)
             
             if i < len(path) - 1:
                 # Block segment between path[i] and path[i+1]
-                self._block_segment(path[i], path[i+1], width_mm, clearance_mm)
+                self._block_segment(path[i], path[i+1], width_mm, clearance_mm, layer)
 
     def _block_segment(self, start: tuple[float, float], end: tuple[float, float],
-                       width_mm: float, clearance_mm: float):
-        '''Block cells along a straight segment.'''
+                       width_mm: float, clearance_mm: float, layer: int = 0):
+        '''Block cells along a straight segment on specified layer.'''
+        if layer < 0 or layer >= self.layer_count:
+            return
         total_radius = width_mm / 2.0 + clearance_mm
         x1, y1 = start
         x2, y2 = end
@@ -107,11 +115,13 @@ class ClearanceGrid:
                 
                 dist = ((cell_x - proj_x)**2 + (cell_y - proj_y)**2)**0.5
                 if dist <= total_radius:
-                    self._grid[row, col] = 1
+                    self._grids[layer][row, col] = 1
 
     def unblock_circle(self, center: tuple[float, float], 
-                       radius_mm: float):
-        '''Unblock cells within radius of center.'''
+                       radius_mm: float, layer: int = 0):
+        '''Unblock cells within radius of center on specified layer.'''
+        if layer < 0 or layer >= self.layer_count:
+            return
         cx, cy = center
         
         # Calculate bounding box in grid coordinates
@@ -127,23 +137,40 @@ class ClearanceGrid:
                 cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
                 dist = ((cell_x - cx)**2 + (cell_y - cy)**2)**0.5
                 if dist <= radius_mm:
-                    self._grid[row, col] = 0
+                    self._grids[layer][row, col] = 0
     
     @property
     def blocked_count(self) -> int:
-        return int(np.sum(self._grid))
+        '''Total blocked cells across all layers.'''
+        return int(sum(np.sum(grid) for grid in self._grids))
+    
+    def blocked_count_on_layer(self, layer: int) -> int:
+        '''Blocked cells on specific layer.'''
+        if layer < 0 or layer >= self.layer_count:
+            return 0
+        return int(np.sum(self._grids[layer]))
     
     @property
     def blocked_cells(self) -> frozenset:
-        '''Return frozenset of blocked (row, col) tuples.'''
-        rows, cols = np.where(self._grid == 1)
+        '''Return frozenset of blocked (row, col, layer) tuples across all layers.'''
+        blocked = []
+        for layer_idx, grid in enumerate(self._grids):
+            rows, cols = np.where(grid == 1)
+            blocked.extend([(r, c, layer_idx) for r, c in zip(rows.tolist(), cols.tolist())])
+        return frozenset(blocked)
+    
+    def blocked_cells_on_layer(self, layer: int) -> frozenset:
+        '''Return frozenset of blocked (row, col) tuples on specific layer.'''
+        if layer < 0 or layer >= self.layer_count:
+            return frozenset()
+        rows, cols = np.where(self._grids[layer] == 1)
         return frozenset(zip(rows.tolist(), cols.tolist()))
 
 class ClearanceGridStage(Stage):
 
-    def __init__(self, cell_size_mm: float = 0.5):
-
+    def __init__(self, cell_size_mm: float = 0.5, layer_count: int = 2):
         self.cell_size_mm = cell_size_mm
+        self.layer_count = layer_count
 
 
 
@@ -169,7 +196,9 @@ class ClearanceGridStage(Stage):
 
             height_mm=state.board.height,
 
-            cell_size_mm=self.cell_size_mm
+            cell_size_mm=self.cell_size_mm,
+            
+            layer_count=self.layer_count
 
         )
 

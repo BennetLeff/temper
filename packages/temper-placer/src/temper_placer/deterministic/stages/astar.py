@@ -8,19 +8,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class DeterministicAStar:
-    '''A* pathfinder with deterministic tie-breaking.'''
+    '''A* pathfinder with deterministic tie-breaking for multi-layer boards.'''
     
     grid: 'ClearanceGrid'
     
     def find_path(self, start: Tuple[float, float], 
-                  end: Tuple[float, float]) -> Optional[List[Tuple[float, float]]]:
-        '''Find shortest path from start to end, or None if impossible.'''
+                  end: Tuple[float, float],
+                  layer: int = 0) -> Optional[List[Tuple[float, float]]]:
+        '''Find shortest path from start to end on specified layer, or None if impossible.'''
         
         start_cell = self.grid._mm_to_cell(*start)
         end_cell = self.grid._mm_to_cell(*end)
         
-        # Check start/end are valid
-        if not self._is_valid(start_cell) or not self._is_valid(end_cell):
+        # Check start/end are valid on specified layer
+        if not self._is_valid(start_cell, layer) or not self._is_valid(end_cell, layer):
             return None
         
         # A* with deterministic tie-breaking
@@ -36,7 +37,7 @@ class DeterministicAStar:
             if current == end_cell:
                 return self._reconstruct_path(came_from, current, start, end)
             
-            for neighbor, cost in self._get_neighbors(current):
+            for neighbor, cost in self._get_neighbors(current, layer):
                 tentative_g = g_score[current] + cost
                 
                 if neighbor not in g_score or tentative_g < g_score[neighbor]:
@@ -48,17 +49,19 @@ class DeterministicAStar:
         
         return None  # No path found
     
-    def _is_valid(self, cell: Tuple[int, int]) -> bool:
-        '''Check if cell is within bounds and not blocked.'''
+    def _is_valid(self, cell: Tuple[int, int], layer: int = 0) -> bool:
+        '''Check if cell is within bounds and not blocked on specified layer.'''
         row, col = cell
         if row < 0 or row >= self.grid.rows:
             return False
         if col < 0 or col >= self.grid.cols:
             return False
-        return self.grid._grid[row, col] == 0
+        if layer < 0 or layer >= self.grid.layer_count:
+            return False
+        return self.grid._grids[layer][row, col] == 0
     
-    def _get_neighbors(self, cell: Tuple[int, int]) -> List[Tuple[Tuple[int, int], float]]:
-        '''Get valid neighbors (8-connected for determinism).'''
+    def _get_neighbors(self, cell: Tuple[int, int], layer: int = 0) -> List[Tuple[Tuple[int, int], float]]:
+        '''Get valid neighbors on specified layer (8-connected for determinism).'''
         row, col = cell
         # Fixed order for determinism
         candidates = [
@@ -71,7 +74,7 @@ class DeterministicAStar:
             ((row + 1, col - 1), 1.414), # down-left
             ((row + 1, col + 1), 1.414), # down-right
         ]
-        return [(c, cost) for c, cost in candidates if self._is_valid(c)]
+        return [(c, cost) for c, cost in candidates if self._is_valid(c, layer)]
     
     def _heuristic(self, a: Tuple[int, int], b: Tuple[int, int]) -> float:
         '''Euclidean distance heuristic.'''
