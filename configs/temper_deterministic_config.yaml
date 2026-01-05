@@ -97,7 +97,7 @@ net_class_rules:
     description: "Ground planes"
   
   Signal:
-    trace_width_mm: 0.25
+    trace_width_mm: 0.15  # Reduced from 0.25 to navigate tight gaps
     clearance_mm: 0.2
     via_size_mm: 0.6
     via_drill_mm: 0.3
