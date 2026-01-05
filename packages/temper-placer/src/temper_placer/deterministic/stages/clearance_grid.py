@@ -186,16 +186,79 @@ class ClearanceGridStage(Stage):
     def run(self, state: BoardState) -> BoardState:
         if not state.board:
             return state
-            
+
         grid = ClearanceGrid(
             width_mm=state.board.width,
             height_mm=state.board.height,
             cell_size_mm=self.cell_size_mm,
             layer_count=self.layer_count
         )
-        
-        # NOTE: Pad blocking is now handled proactively by DRCOracle in SequentialRoutingStage.
-        # This simplifies the pipeline and avoids complex unblock/re-block logic.
+
+        # Block pads from OTHER nets with full clearance buffer.
+        # This allows routing TO target pads while avoiding shorts.
+        # Pads are blocked with inflated radius = pad_r + clearance + trace_width/2 + mask
+
+        if state.netlist:
+            placements_dict = dict(state.placements) if state.placements else {}
+
+            # Build net->pads mapping for selective unblocking
+            net_pads = {}
+            for component in state.netlist.components:
+                pos = placements_dict.get(component.ref, component.initial_position)
+                if pos is None:
+                    continue
+
+                for pin in component.pins:
+                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+                    pad_radius = 0.5
+                    pad_key = (component.ref, pin.name)
+                    if pad_key in self.pad_sizes:
+                        real_pad = self.pad_sizes[pad_key]
+                        pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
+
+                    # Store pad info
+                    net = pin.net or ''
+                    if net not in net_pads:
+                        net_pads[net] = []
+
+                    # Determine target layers
+                    if pin.is_pth or pin.layer == 'all':
+                        target_layers = list(range(grid.layer_count))
+                    elif pin.layer == 'F.Cu':
+                        target_layers = [0]
+                    elif pin.layer == 'B.Cu':
+                        target_layers = [grid.layer_count - 1]
+                    elif pin.layer == 'In1.Cu' and grid.layer_count > 1:
+                        target_layers = [1]
+                    elif pin.layer == 'In2.Cu' and grid.layer_count > 2:
+                        target_layers = [2]
+                    else:
+                        target_layers = list(range(grid.layer_count))
+
+                    net_pads[net].append({
+                        'pos': pin_pos,
+                        'radius': pad_radius,
+                        'layers': target_layers,
+                        'is_pth': pin.is_pth
+                    })
+
+            # Block all pads with inflated clearance
+            for net, pads in net_pads.items():
+                for pad in pads:
+                    # Inflated clearance = electrical + trace_width/2 + mask
+                    electrical_clearance = 0.2
+                    trace_half_width = 0.125  # For 0.25mm trace
+                    mask_expansion = 0.15 if pad['is_pth'] else 0.1
+                    inflated_clearance = electrical_clearance + trace_half_width + mask_expansion
+
+                    for layer_idx in pad['layers']:
+                        if layer_idx < grid.layer_count:
+                            grid.block_circle(
+                                pad['pos'],
+                                radius_mm=pad['radius'],
+                                clearance_mm=inflated_clearance,
+                                layer=layer_idx
+                            )
 
         from dataclasses import replace
 

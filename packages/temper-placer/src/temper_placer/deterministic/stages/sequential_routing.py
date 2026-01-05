@@ -183,6 +183,18 @@ class SequentialRoutingStage(Stage):
                 # Skip trace routing for plane nets
                 continue
 
+            # Unblock THIS net's pads so A* can route to them
+            unblock_radius = width / 2.0 + clearance + (0.15 if any(p.is_pth for p in pins) else 0.1)
+            for i, pos in enumerate(pin_positions):
+                # Calculate full unblock radius including pad size
+                pad_r = 0.5
+                if self.pad_sizes:
+                    real_pad = self.pad_sizes.get(pin_info[i])
+                    if real_pad:
+                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
+                full_unblock_radius = pad_r + unblock_radius
+                grid.unblock_circle(pos, radius_mm=full_unblock_radius, layer=layer_idx)
+
             pathfinder = DeterministicAStar(
                 grid=grid,
                 drc_oracle=state.drc_oracle,
@@ -190,10 +202,10 @@ class SequentialRoutingStage(Stage):
                 trace_width=width
             )
             mst_edges = self._compute_mst(pin_positions)
-            
+
             # Snap pin positions to grid for A* pathfinding
             snapped_positions = [snap_to_grid(p, grid.cell_size_mm) for p in pin_positions]
-            
+
             net_paths = []
             
             # Route all edges in the MST
@@ -201,13 +213,29 @@ class SequentialRoutingStage(Stage):
                 # Use snapped positions for grid-based pathfinding
                 p1_snapped = snapped_positions[idx1]
                 p2_snapped = snapped_positions[idx2]
-                
+
                 # Route between these two pins
                 path = pathfinder.find_path(start=p1_snapped, end=p2_snapped, layer=layer_idx)
                 if path:
                     # Add nudge segments to connect snapped path back to actual centers
                     nudged_path = add_endpoint_nudge(path, pin_positions[idx1], pin_positions[idx2])
-                    net_paths.append(nudged_path)
+
+                    # Validate path with DRCOracle before accepting
+                    path_valid = True
+                    if state.drc_oracle:
+                        for i in range(len(nudged_path) - 1):
+                            valid, reason = state.drc_oracle.can_place_track_segment(
+                                nudged_path[i], nudged_path[i+1], layer_idx, net_name, width
+                            )
+                            if not valid:
+                                print(f"  Path rejected for {net_name}: {reason}")
+                                path_valid = False
+                                break
+
+                    if path_valid:
+                        net_paths.append(nudged_path)
+                    else:
+                        print(f"  WARNING: Could not find DRC-compliant path for {net_name} segment {idx1}->{idx2}")
             
             # Commit all paths for this net
             for path in net_paths:
@@ -304,6 +332,16 @@ class SequentialRoutingStage(Stage):
                     # Iterate all grid layers
                     for l_idx in range(grid.layer_count):
                         grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+
+            # Re-block THIS net's pads after routing to protect them from subsequent nets
+            inflated_clearance = clearance + (width / 2.0) + (0.15 if any(p.is_pth for p in pins) else 0.1)
+            for i, pos in enumerate(pin_positions):
+                pad_r = 0.5
+                if self.pad_sizes:
+                    real_pad = self.pad_sizes.get(pin_info[i])
+                    if real_pad:
+                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
+                grid.block_circle(pos, radius_mm=pad_r, clearance_mm=inflated_clearance, layer=layer_idx)
 
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
 
