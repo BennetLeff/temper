@@ -261,9 +261,14 @@ class ClearanceGridStage(Stage):
                         pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
                     
                     # Block pads on target layers with INFLATED clearance
-                    # to account for trace width (0.25mm) and mask expansion (0.1mm)
+                    # to account for trace width (0.25mm) and mask expansion (0.1mm for SMD, 0.15mm for PTH)
                     # Effective Clearing = PadRadius + ElecClearance + TraceHalfWidth + MaskMargin
-                    effective_clearance = 0.2 + 0.125 + 0.1
+                    
+                    elec_clearance = 0.2
+                    trace_half_width = 0.125
+                    mask_expansion = getattr(pin, 'mask_expansion', 0.1)
+                    
+                    effective_clearance = elec_clearance + trace_half_width + mask_expansion
                     
                     for layer_idx in target_layers:
                         if layer_idx < grid.layer_count:

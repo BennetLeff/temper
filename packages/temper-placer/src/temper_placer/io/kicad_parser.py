@@ -46,6 +46,7 @@ class PadData:
     position: tuple[float, float]  # (x, y) in mm, absolute coords
     size: tuple[float, float]  # (width, height) in mm
     shape: str  # 'rect', 'circle', 'oval', 'roundrect', 'thru_hole'
+    drill: float = 0.0  # mm
     rotation: float = 0.0  # degrees
     layer: str = "F.Cu"  # primary layer
     number: str = ""  # pad number
@@ -329,6 +330,7 @@ def _extract_components_from_pcb(
             # Get pad size
             pad_width = pad.size.X if hasattr(pad, 'size') and pad.size else 1.0
             pad_height = pad.size.Y if hasattr(pad, 'size') and pad.size else 1.0
+            pad_drill = getattr(pad, 'drill', 0.0) or 0.0
 
             # Get pad shape (normalize thru_hole to indicate THT for DSN export)
             pad_shape = pad.shape or "rect"
@@ -344,6 +346,8 @@ def _extract_components_from_pcb(
                 "height": pad_height,
                 "shape": pad_shape,
                 "layer": layer,
+                "drill": pad_drill,
+                "is_pth": is_through_hole,
             })
 
         # Calculate bounding box center offset from footprint origin
@@ -369,6 +373,8 @@ def _extract_components_from_pcb(
                     height=p.get("height", 1.0),
                     shape=p.get("shape", "rect"),
                     layer=p.get("layer", "F.Cu"),
+                    drill=p.get("drill", 0.0),
+                    is_pth=p.get("is_pth", False),
                 )
             )
 
@@ -557,6 +563,7 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadDa
                     position=(abs_x, abs_y),
                     size=(pad.size.X, pad.size.Y),
                     shape=pad.shape or "rect",
+                    drill=getattr(pad, 'drill', 0.0) or 0.0,
                     rotation=pad.position.angle or 0.0,
                     layer=pad.layers[0] if pad.layers else "F.Cu",
                     number=pad.number or "",

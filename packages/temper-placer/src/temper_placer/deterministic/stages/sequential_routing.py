@@ -66,6 +66,7 @@ class SequentialRoutingStage(Stage):
             # Find pin positions and refs
             pin_positions = []
             pin_info = [] # Store (ref, name) for lookup
+            pins = [] # Store actual Pin objects
             for comp_ref, pin_name in net.pins:
                 if comp_ref not in comp_by_ref:
                     continue
@@ -77,21 +78,22 @@ class SequentialRoutingStage(Stage):
                 pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
                 pin_positions.append(pin_pos)
                 pin_info.append((comp_ref, pin.name))
+                pins.append(pin)
                 
             if len(pin_positions) < 2:
                 continue
             
             # Unblock target pins so A* can route to them
             # Unblock radius must match the blocked radius: pad_r + clearance + width/2 + mask
-            mask_expansion = 0.1
-            base_unblock_clearance = clearance + (width / 2.0) + mask_expansion
             for i, pos in enumerate(pin_positions):
+                mask_expansion = getattr(pins[i], 'mask_expansion', 0.1)
+                unblock_clearance = clearance + (width / 2.0) + mask_expansion
                 pad_r = 0.5
                 if self.pad_sizes:
                     real_pad = self.pad_sizes.get(pin_info[i])
                     if real_pad:
                         pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                unblock_radius = pad_r + base_unblock_clearance
+                unblock_radius = pad_r + unblock_clearance
                 grid.unblock_circle(pos, radius_mm=unblock_radius, layer=layer_idx)
 
             # Re-block ALL OTHER pads that might have been affected by unblocking
@@ -109,12 +111,12 @@ class SequentialRoutingStage(Stage):
                         continue
                     pos = comp.initial_position or (0, 0)
                     pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
-                    other_pads_to_reblock.append((pin_pos, comp_ref, pin.name))
+                    other_pads_to_reblock.append((pin_pos, comp_ref, pin.name, pin))
 
             # Re-block other pads with mask-aware clearance
-            mask_expansion = 0.1
-            other_pad_clearance = self.default_clearance + (width / 2.0) + mask_expansion
-            for pin_pos, comp_ref, pin_name in other_pads_to_reblock:
+            for pin_pos, comp_ref, pin_name, pin in other_pads_to_reblock:
+                mask_expansion = getattr(pin, 'mask_expansion', 0.1)
+                other_pad_clearance = self.default_clearance + (width / 2.0) + mask_expansion
                 pad_r = 0.5
                 if self.pad_sizes:
                     real_pad = self.pad_sizes.get((comp_ref, pin_name))
@@ -183,10 +185,10 @@ class SequentialRoutingStage(Stage):
             # Re-block pads with net-specific clearance (may be larger than initial blocking)
             # This ensures subsequent nets respect this net's clearance requirements.
             # effective_clearance = copper_clearance + trace_half_width + mask_expansion
-            mask_expansion = 0.1  # Standard pad_to_mask_clearance
-            effective_clearance = clearance + (width / 2.0) + mask_expansion
 
             for i, pos in enumerate(pin_positions):
+                mask_expansion = getattr(pins[i], 'mask_expansion', 0.1)
+                effective_clearance = clearance + (width / 2.0) + mask_expansion
                 pad_r = 0.5  # Default pad radius
                 if self.pad_sizes:
                     real_pad = self.pad_sizes.get(pin_info[i])

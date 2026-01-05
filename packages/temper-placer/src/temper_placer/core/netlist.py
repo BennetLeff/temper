@@ -40,7 +40,13 @@ class Pin:
     height: float = 1.0
     shape: str = "rect"
     layer: str = "F.Cu"
+    drill: float = 0.0  # Drill diameter (0 = SMD)
+    is_pth: bool = False  # Convenience flag for Plated Through-Hole
 
+    @property
+    def mask_expansion(self) -> float:
+        """Return recommended solder mask expansion for this pin."""
+        return 0.15 if self.is_pth else 0.1
 
     def absolute_position(
         self,
