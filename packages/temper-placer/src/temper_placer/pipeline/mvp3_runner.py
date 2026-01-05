@@ -11,6 +11,7 @@ from typing import Optional
 import logging
 
 from temper_placer.deterministic import DeterministicPipeline, BoardState
+from temper_placer.deterministic.feedback import AutomatedZeroDRC
 from temper_placer.deterministic.stages import (
     ZoneGeometryStage,
     ZoneAssignmentStage,
@@ -217,7 +218,35 @@ class MVP3Runner:
             # Step 6: Run pipeline
             logger.info("Running deterministic pipeline...")
             initial_state = BoardState(board=board, netlist=netlist)
-            final_state = pipeline.run(initial_state)
+            
+            # Check if feedback loop is requested
+            if hasattr(constraints, 'feedback') and constraints.feedback.max_iterations > 1:
+                logger.info(f"Enabling Automated Zero-DRC Feedback Loop (max_iterations={constraints.feedback.max_iterations})")
+                
+                # We need a DRC runner. For now, we use a simple placeholder or 
+                # a callback that could eventually call KiCad-CLI.
+                # Since MVP3Runner is often used in headless/CI, we might just 
+                # use internal validation or a provided callback.
+                
+                def drc_callback() -> str:
+                    # Placeholder for actual KiCad DRC execution
+                    # In a real environment, this would run 'kicad-cli pcb drc'
+                    # For this milestone, we might rely on the internal DRCOracle 
+                    # but AutomatedZeroDRC expects a JSON report file.
+                    report_path = Path("drc_report.json")
+                    # If we don't have a real runner yet, we could generate a mock
+                    # or skip if not in a KiCad-enabled environment.
+                    return str(report_path)
+
+                orchestrator = AutomatedZeroDRC(
+                    pipeline=pipeline,
+                    netlist=netlist,
+                    initial_config=constraints,
+                    drc_runner=drc_callback
+                )
+                final_state = orchestrator.run(initial_state)
+            else:
+                final_state = pipeline.run(initial_state)
             
             # Step 7: Collect results
             placements = dict(final_state.placements) if final_state.placements else {}

@@ -101,3 +101,6 @@ class DRCOracleSetupStage(Stage):
             oracle.geometry.rebuild_index()
 
         return replace(state, drc_oracle=oracle)
+
+# Alias for backward compatibility
+SetupStage = DRCOracleSetupStage
