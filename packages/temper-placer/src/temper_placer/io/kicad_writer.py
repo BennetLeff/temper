@@ -837,7 +837,7 @@ def write_routes_to_pcb(
         WriteResult with statistics and warnings.
     """
     from kiutils.items.common import Position
-    from kiutils.items.track import Segment
+    from kiutils.items.brditems import Segment
     
     warnings: list[str] = []
     traces_added = 0

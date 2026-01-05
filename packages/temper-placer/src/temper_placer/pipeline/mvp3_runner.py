@@ -23,7 +23,6 @@ from temper_placer.deterministic.stages import (
     SequentialRoutingStage,
 )
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.io.kicad_writer import write_kicad_pcb
 from temper_placer.io.config_loader import load_constraints
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules, NetClassRules
