@@ -11,15 +11,29 @@ zones:
   - name: "HV"
     bounds_ratio: [0.0, 0.0, 0.3, 1.0]  # Left 30%
     description: "High voltage components"
+    max_size: [50.0, 150.0]
+    can_expand: ["right"]
   - name: "Power"
     bounds_ratio: [0.3, 0.0, 0.6, 1.0]  # Center-left 30%
     description: "Power management"
+    max_size: [50.0, 150.0]
+    can_expand: ["right", "left"]
   - name: "Signal"
     bounds_ratio: [0.6, 0.0, 0.9, 1.0]  # Center-right 30%
     description: "Signal processing"
+    max_size: [50.0, 150.0]
+    can_expand: ["right", "left"]
   - name: "MCU"
     bounds_ratio: [0.9, 0.0, 1.0, 1.0]  # Right 10%
     description: "Microcontroller"
+    max_size: [20.0, 150.0]
+    can_expand: ["left"]
+
+# Feedback loop configuration
+feedback:
+  max_iterations: 5
+  violation_threshold: 5
+  expansion_per_violation: 0.5
 
 # Zone assignments (component ref -> zone name)
 zone_assignments:

@@ -156,6 +156,14 @@ class ThermalProperties:
 
 
 @dataclass
+class FeedbackConfig:
+    """Configuration for the automated DRC feedback loop."""
+    max_iterations: int = 5
+    violation_threshold: int = 5
+    expansion_per_violation: float = 0.5
+
+
+@dataclass
 class ProximityRule:
     """Proximity constraint between two components."""
 
@@ -441,6 +449,9 @@ class PlacementConstraints:
     # Net topology constraints (NetGraph)
     net_topologies: list[NetGraph] = field(default_factory=list)
 
+    # Feedback loop configuration
+    feedback: FeedbackConfig = field(default_factory=FeedbackConfig)
+
     # Layer stackup
     layer_stackup: LayerStackup | None = None
 
@@ -525,8 +536,18 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 bounds=bounds,
                 net_classes=zone_cfg.get("net_classes", ["Signal"]),
                 components=zone_cfg.get("components", []),
+                max_size=tuple(zone_cfg["max_size"]) if "max_size" in zone_cfg else None,
+                can_expand=zone_cfg.get("can_expand", ["up", "down", "left", "right"]),
             )
             constraints.zones.append(zone)
+
+    if "feedback" in config:
+        f_cfg = config["feedback"]
+        constraints.feedback = FeedbackConfig(
+            max_iterations=f_cfg.get("max_iterations", 5),
+            violation_threshold=f_cfg.get("violation_threshold", 5),
+            expansion_per_violation=f_cfg.get("expansion_per_violation", 0.5),
+        )
 
     if "ground_domains" in config:
         for domain_cfg in config["ground_domains"]:

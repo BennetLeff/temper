@@ -241,6 +241,8 @@ class Zone:
         net_classes: Allowed net classes in this zone.
         components: Mandatory components for this zone.
         weight: Priority weight for zone constraints.
+        max_size: Optional (max_width, max_height) for feedback expansion.
+        can_expand: List of allowed expansion directions ('up', 'down', 'left', 'right').
     """
 
     name: str
@@ -250,6 +252,8 @@ class Zone:
     weight: float = 1.0
     polygon: list[tuple[float, float]] | None = None  # Optional polygon vertices for non-rectangular zones
     layers: list[str] = field(default_factory=lambda: ["F.Cu"])
+    max_size: tuple[float, float] | None = None
+    can_expand: list[str] = field(default_factory=lambda: ["up", "down", "left", "right"])
 
     @property
     def width(self) -> float:

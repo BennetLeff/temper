@@ -1,5 +1,5 @@
 from dataclasses import dataclass, replace
-from typing import Tuple
+from typing import Tuple, Optional, Any, Dict
 from ..state import BoardState
 from .base import Stage
 
@@ -10,6 +10,9 @@ class Zone:
     bounds: Tuple[Tuple[float, float], Tuple[float, float]]  # ((x_min, y_min), (x_max, y_max))
 
 class ZoneGeometryStage(Stage):
+    def __init__(self, zone_config: Optional[list[dict[str, Any]]] = None):
+        self.zone_config = zone_config
+
     @property
     def name(self) -> str:
         return "zone_geometry"
@@ -18,9 +21,28 @@ class ZoneGeometryStage(Stage):
         if not state.board:
             return state
         
-        zones = self._define_zone_layout(state.board.width, state.board.height)
+        if self.zone_config:
+            zones = self._define_zones_from_config(state.board.width, state.board.height)
+        else:
+            zones = self._define_zone_layout(state.board.width, state.board.height)
+            
         return replace(state, zones=frozenset(zones))
     
+    def _define_zones_from_config(self, board_width: float, board_height: float) -> list[Zone]:
+        """Define zones using bounds_ratio from config."""
+        zones = []
+        for z in self.zone_config:
+            name = z['name']
+            ratio = z.get('bounds_ratio', [0, 0, 1, 1])
+            zones.append(Zone(
+                name=name,
+                bounds=(
+                    (ratio[0] * board_width, ratio[1] * board_height),
+                    (ratio[2] * board_width, ratio[3] * board_height)
+                )
+            ))
+        return zones
+
     def _define_zone_layout(self, board_width: float, board_height: float) -> list[Zone]:
         """
         Define 4-zone layout for MVP-3.
