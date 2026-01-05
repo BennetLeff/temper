@@ -9,7 +9,7 @@ from .clearance_grid import ClearanceGridStage
 from .net_ordering import NetOrderingStage
 from .sequential_routing import SequentialRoutingStage
 from .layer_assignment import LayerAssignmentStage, LayerAssignment  
-from .drc_validation import DRCValidationStage
+from .drc_validation import DRCValidationStage, DRCValidationError
 from .courtyard_check import CourtyardCheckStage
 from .astar import DeterministicAStar
 
@@ -27,6 +27,7 @@ __all__ = [
     "LayerAssignmentStage",
     "LayerAssignment",
     "DRCValidationStage",
+    "DRCValidationError",
     "CourtyardCheckStage",
     "DeterministicAStar",
 ]
