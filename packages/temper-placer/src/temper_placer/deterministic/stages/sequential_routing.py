@@ -30,9 +30,12 @@ class SequentialRoutingStage(Stage):
         
         # Build layer assignment lookup from BoardState
         layer_by_net = {}
+        is_plane_by_net = {}
         if state.layer_assignments:
             for assignment in state.layer_assignments:
                 layer_by_net[assignment.net_name] = assignment.layer
+                if hasattr(assignment, 'is_plane'):
+                    is_plane_by_net[assignment.net_name] = assignment.is_plane
         
         # Layer name to index mapping
         layer_name_to_idx = {
@@ -83,6 +86,36 @@ class SequentialRoutingStage(Stage):
             if len(pin_positions) < 2:
                 continue
             
+            # Check if this is a plane net (GND/Power on inner layers)
+            is_plane = is_plane_by_net.get(net_name, False)
+            
+            if is_plane:
+                # For plane nets, we don't route traces.
+                # We just generate a via at each pin to connect to the plane.
+                via_d = 0.6
+                via_drill = 0.3
+                if self.design_rules and rules:
+                    via_d = rules.via_diameter
+                    via_drill = rules.via_drill
+
+                for pos in pin_positions:
+                    # Create Via connecting Top to Plane Layer
+                    via = Via(
+                        position=pos,
+                        drill=via_drill,
+                        width=via_d,
+                        layers=("F.Cu", layer_name),
+                        net=net_name
+                    )
+                    all_vias.append(via)
+                    
+                    # Block Via on ALL layers
+                    for l_idx in range(grid.layer_count):
+                        grid.block_circle(pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+                
+                # Skip trace routing for plane nets
+                continue
+
             # Unblock target pins so A* can route to them
             # Unblock radius must match the blocked radius: pad_r + clearance + width/2 + mask
             for i, pos in enumerate(pin_positions):

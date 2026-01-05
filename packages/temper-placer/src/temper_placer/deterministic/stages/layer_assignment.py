@@ -16,6 +16,7 @@ class LayerAssignment:
     net_name: str
     layer: int
     allow_layer_change: bool = True  # Can router switch layers via vias?
+    is_plane: bool = False  # Is this a power plane net (In1.Cu/In2.Cu)?
 
 
 class LayerAssignmentStage(Stage):
@@ -47,10 +48,13 @@ class LayerAssignmentStage(Stage):
             # Check if there's a manual assignment
             if net.name in self.manual_assignments:
                 layer = self.manual_assignments[net.name]
+                # Infer plane status from layer index (1=In1, 2=In2)
+                is_plane = (layer in (1, 2))
                 assignments.append(LayerAssignment(
                     net_name=net.name,
                     layer=layer,
-                    allow_layer_change=True
+                    allow_layer_change=True,
+                    is_plane=is_plane
                 ))
                 continue
             
@@ -58,35 +62,39 @@ class LayerAssignmentStage(Stage):
             net_class = self.net_classes.get(net.name, net.net_class)
             
             # Use net class rules to assign layer
-            layer = self._assign_layer_by_net_class(net_class)
+            layer, is_plane = self._assign_layer_by_net_class(net_class)
             assignments.append(LayerAssignment(
                 net_name=net.name,
                 layer=layer,
-                allow_layer_change=True
+                allow_layer_change=True,
+                is_plane=is_plane
             ))
         
         # Store assignments in BoardState
         return replace(state, layer_assignments=tuple(assignments))
     
-    def _assign_layer_by_net_class(self, net_class: str) -> int:
-        """Determine preferred layer based on net class.
+    def _assign_layer_by_net_class(self, net_class: str) -> tuple[int, bool]:
+        """Determine preferred layer and plane status based on net class.
         
         Layer mapping (4-layer board):
         - L0 (F.Cu/Top): HV, Signal
         - L1 (In1.Cu): Ground plane
         - L2 (In2.Cu): Power plane
         - L3 (B.Cu/Bottom): Signal overflow
+        
+        Returns:
+            (layer_index, is_plane)
         """
         if net_class == "HighVoltage":
-            return 0  # Top layer for easy inspection
+            return 0, False  # Top layer for easy inspection
         elif net_class == "Power":
-            return 2  # Inner power plane
+            return 2, True  # Inner power plane
         elif net_class == "Ground":
-            return 1  # Inner ground plane
+            return 1, True  # Inner ground plane
         elif net_class == "Signal":
-            return 0  # Top layer with option to use bottom
+            return 0, False  # Top layer with option to use bottom
         elif net_class == "Differential":
-            return 0  # Top layer for controlled impedance
+            return 0, False  # Top layer for controlled impedance
         else:
             # Default to top layer
-            return 0
+            return 0, False

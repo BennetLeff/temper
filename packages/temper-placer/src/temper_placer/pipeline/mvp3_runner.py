@@ -298,6 +298,7 @@ class MVP3Runner:
         from temper_placer.io.kicad_writer import (
             write_placements_to_pcb,
             write_routes_to_pcb,
+            write_zones_to_pcb,
             build_net_name_to_index_map,
             PlacementUpdate,
             strip_routing,
@@ -363,3 +364,43 @@ class MVP3Runner:
                     logger.warning(warning)
         else:
             logger.info("No routes to export")
+
+        # Step 5: Write zones for power planes
+        zones_to_create = []
+        if final_state.layer_assignments and final_state.board:
+            # Determine board polygon
+            if final_state.board.outline_polygon:
+                poly_pts = final_state.board.outline_polygon
+            else:
+                w, h = final_state.board.width, final_state.board.height
+                ox, oy = final_state.board.origin
+                poly_pts = [(ox, oy), (ox+w, oy), (ox+w, oy+h), (ox, oy+h)]
+            
+            layer_idx_to_name = {1: "In1.Cu", 2: "In2.Cu"}
+            
+            for assignment in final_state.layer_assignments:
+                if hasattr(assignment, 'is_plane') and assignment.is_plane:
+                    layer_name = layer_idx_to_name.get(assignment.layer)
+                    if layer_name:
+                        zones_to_create.append({
+                            'net_name': assignment.net_name,
+                            'layer': layer_name,
+                            'polygon_pts': poly_pts
+                        })
+        
+        if zones_to_create:
+            logger.info(f"Writing {len(zones_to_create)} zones to {self.output_path}")
+            net_map = build_net_name_to_index_map(self.output_path)
+            
+            zone_result = write_zones_to_pcb(
+                template_pcb=self.output_path,
+                output_pcb=self.output_path,
+                zones=zones_to_create,
+                net_name_to_index=net_map
+            )
+            logger.info(f"Zone export: {zone_result.components_updated} zones added")
+            if zone_result.has_warnings:
+                for warning in zone_result.warnings:
+                    logger.warning(warning)
+        else:
+            logger.info("No power plane zones to export")
