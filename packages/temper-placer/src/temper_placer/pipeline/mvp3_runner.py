@@ -192,9 +192,14 @@ class MVP3Runner:
     
     def _export_to_kicad(self, final_state: BoardState, parse_result) -> None:
         """Export the final state to a KiCad PCB file."""
-        from temper_placer.io.kicad_writer import write_placements_to_pcb, PlacementUpdate
+        from temper_placer.io.kicad_writer import (
+            write_placements_to_pcb,
+            write_routes_to_pcb,
+            build_net_name_to_index_map,
+            PlacementUpdate,
+        )
         
-        # Convert placements to KiCad format
+        # Step 1: Convert placements to KiCad format
         placements_dict = {}
         if final_state.placements:
             for ref, (x, y) in final_state.placements:
@@ -205,17 +210,42 @@ class MVP3Runner:
                     rotation=0.0  # TODO: Get actual rotation from state
                 )
         
-        # Write placements to output PCB
+        # Step 2: Write placements to output PCB
         logger.info(f"Writing {len(placements_dict)} placements to {self.output_path}")
-        result = write_placements_to_pcb(
+        placement_result = write_placements_to_pcb(
             template_pcb=self.pcb_path,
             output_pcb=self.output_path,
             placements=placements_dict,
             preserve_unmatched=True,
         )
         
-        logger.info(f"Export complete: {result.components_updated} components updated")
+        logger.info(f"Placement export: {placement_result.components_updated} components updated")
         
-        if result.has_warnings:
-            for warning in result.warnings:
+        if placement_result.has_warnings:
+            for warning in placement_result.warnings:
                 logger.warning(warning)
+        
+        # Step 3: Add routes to the PCB (if any were generated)
+        if final_state.routes and len(final_state.routes) > 0:
+            logger.info(f"Writing {len(final_state.routes)} routes to {self.output_path}")
+            
+            # Build net name → index mapping from the PCB
+            net_map = build_net_name_to_index_map(self.output_path)
+            
+            # Write routes (traces) to the same file
+            route_result = write_routes_to_pcb(
+                template_pcb=self.output_path,  # Use the file we just wrote
+                output_pcb=self.output_path,     # Overwrite with routes added
+                routes=final_state.routes,
+                net_name_to_index=net_map,
+                clear_existing=False,  # Keep any existing traces
+            )
+            
+            logger.info(f"Route export: {route_result.components_updated} traces added")
+            
+            if route_result.has_warnings:
+                for warning in route_result.warnings:
+                    logger.warning(warning)
+        else:
+            logger.info("No routes to export")
+
