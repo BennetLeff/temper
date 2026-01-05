@@ -10,47 +10,71 @@ if TYPE_CHECKING:
 @dataclass
 class DeterministicAStar:
     '''A* pathfinder with deterministic tie-breaking for multi-layer boards.'''
-    
+
     grid: 'ClearanceGrid'
     drc_oracle: Optional['DRCOracle'] = None
     net_name: str = ""
     trace_width: float = 0.25
-    
+    max_iterations: int = 10000  # Limit search to prevent infinite loops
+    relaxed_retry: bool = True    # Retry with neckdown if strict search fails
+
     def find_path(self, start: Tuple[float, float],
                   end: Tuple[float, float],
                   layer: int = 0) -> Optional[List[Tuple[float, float]]]:
         '''Find shortest path from start to end on specified layer, or None if impossible.'''
 
+        # Try strict search first
+        path = self._search(start, end, layer, relaxed=False)
+        if path:
+            return path
+
+        # If failed and relaxed retry enabled, try with neckdown clearances
+        if self.relaxed_retry and self.drc_oracle:
+            path = self._search(start, end, layer, relaxed=True)
+            if path:
+                return path
+
+        return None  # No path found even with relaxed constraints
+
+    def _search(self, start: Tuple[float, float],
+                end: Tuple[float, float],
+                layer: int,
+                relaxed: bool = False) -> Optional[List[Tuple[float, float]]]:
+        '''Internal A* search with optional relaxed constraints.'''
         start_cell = self.grid._mm_to_cell(*start)
         end_cell = self.grid._mm_to_cell(*end)
 
         # Check start/end are valid on specified layer
         if not self._is_valid(start_cell, layer) or not self._is_valid(end_cell, layer):
             return None
-        
+
         # A* with deterministic tie-breaking
         # Priority: (f_score, tie_breaker, cell)
-        # tie_breaker ensures deterministic ordering for equal f_scores
         open_set = [(0, self._tie_breaker(start_cell), start_cell)]
         came_from = {}
         g_score = {start_cell: 0}
-        
-        while open_set:
+        iterations = 0
+
+        while open_set and iterations < self.max_iterations:
+            iterations += 1
             _, _, current = heapq.heappop(open_set)
-            
+
             if current == end_cell:
                 return self._reconstruct_path(came_from, current, start, end)
-            
-            for neighbor, cost in self._get_neighbors(current, layer):
+
+            for neighbor, cost in self._get_neighbors(current, layer, relaxed=relaxed):
                 tentative_g = g_score[current] + cost
-                
+
                 if neighbor not in g_score or tentative_g < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g
                     f_score = tentative_g + self._heuristic(neighbor, end_cell)
-                    heapq.heappush(open_set, 
+                    heapq.heappush(open_set,
                         (f_score, self._tie_breaker(neighbor), neighbor))
-        
+
+        if iterations >= self.max_iterations:
+            print(f"WARNING: A* search for {self.net_name} exceeded {self.max_iterations} iterations")
+
         return None  # No path found
     
     def _is_valid(self, cell: Tuple[int, int], layer: int = 0) -> bool:
@@ -64,7 +88,7 @@ class DeterministicAStar:
             return False
         return self.grid._grids[layer][row, col] == 0
     
-    def _get_neighbors(self, cell: Tuple[int, int], layer: int = 0) -> List[Tuple[Tuple[int, int], float]]:
+    def _get_neighbors(self, cell: Tuple[int, int], layer: int = 0, relaxed: bool = False) -> List[Tuple[Tuple[int, int], float]]:
         '''Get valid neighbors on specified layer (8-connected for determinism).'''
         row, col = cell
         # Fixed order for determinism
@@ -78,12 +102,12 @@ class DeterministicAStar:
             ((row + 1, col - 1), 1.414), # down-left
             ((row + 1, col + 1), 1.414), # down-right
         ]
-        
+
         valid_neighbors = []
         for neighbor, cost in candidates:
             if not self._is_valid(neighbor, layer):
                 continue
-            
+
             # If oracle is present, perform proactive DRC check
             if self.drc_oracle:
                 # Convert cells back to mm for oracle
@@ -91,19 +115,20 @@ class DeterministicAStar:
                       row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2)
                 p2 = (neighbor[1] * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
                       neighbor[0] * self.grid.cell_size_mm + self.grid.cell_size_mm / 2)
-                
+
                 valid, _ = self.drc_oracle.can_place_track_segment(
                     start=p1,
                     end=p2,
                     layer=layer,
                     net=self.net_name,
-                    width=self.trace_width
+                    width=self.trace_width,
+                    neckdown=relaxed  # Use relaxed clearances if in relaxed mode
                 )
                 if not valid:
                     continue
-                    
+
             valid_neighbors.append((neighbor, cost))
-            
+
         return valid_neighbors
     
     def _heuristic(self, a: Tuple[int, int], b: Tuple[int, int]) -> float:

@@ -15,7 +15,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None):
         # Placement stages
         ZoneGeometryStage(),
         ZoneAssignmentStage(),
-        SlotGenerationStage(),
+        SlotGenerationStage(slot_spacing_mm=7.5),  # Increased from 5.0mm to reduce mask bridges
         ComponentAssignmentStage(),
         ApplyPlacementsStage(),
         
@@ -47,7 +47,7 @@ def create_legacy_pipeline():
         # Placement stages
         ZoneGeometryStage(),
         ZoneAssignmentStage(),
-        SlotGenerationStage(),
+        SlotGenerationStage(slot_spacing_mm=7.5),  # Increased from 5.0mm to reduce mask bridges
         ComponentAssignmentStage(),
         ApplyPlacementsStage(),
         

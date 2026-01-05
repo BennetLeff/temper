@@ -15,12 +15,12 @@ class AutomatedZeroDRC:
     """
     Orchestrates the feedback loop between pipeline execution and DRC results.
     """
-    
+
     def __init__(
         self,
         pipeline: DeterministicPipeline,
         netlist: Any,
-        initial_config: Dict[str, Any] | PlacementConstraints,
+        initial_config: "Dict[str, Any] | PlacementConstraints",
         drc_runner: Callable[[], str],  # Returns path to DRC JSON report
         max_iterations: Optional[int] = None
     ):

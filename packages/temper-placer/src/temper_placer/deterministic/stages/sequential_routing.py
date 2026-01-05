@@ -120,18 +120,25 @@ class SequentialRoutingStage(Stage):
                 if self.design_rules and rules:
                     via_d = rules.via_diameter
                     via_drill = rules.via_drill
-                
+
                 via_mask_radius = via_d / 2.0 + mask_expansion
 
                 for pos in pin_positions:
-                    # Find safe position for via
+                    # Find safe position for via - use larger search radius for power/ground
                     if state.drc_oracle:
-                        sites = state.drc_oracle.get_valid_via_sites(pos, search_radius=2.0, net=net_name)
-                        if sites:
-                            safe_pos = sites[0]
-                        else:
-                            print(f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos}")
-                            safe_pos = pos
+                        # Progressive search: try 2mm, then 5mm, then 10mm
+                        safe_pos = None
+                        for radius in [2.0, 5.0, 10.0]:
+                            sites = state.drc_oracle.get_valid_via_sites(pos, search_radius=radius, net=net_name)
+                            if sites:
+                                safe_pos = sites[0]
+                                if radius > 2.0:
+                                    print(f"INFO: Found via site for {net_name} at {radius}mm radius (offset {((sites[0][0]-pos[0])**2 + (sites[0][1]-pos[1])**2)**0.5:.2f}mm)")
+                                break
+
+                        if not safe_pos:
+                            print(f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 10mm)")
+                            safe_pos = pos  # Fallback to pad position
                     else:
                         safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
                         if not safe_pos:
@@ -270,20 +277,27 @@ class SequentialRoutingStage(Stage):
                 if self.design_rules and rules:
                     via_d = rules.via_diameter
                     via_drill = rules.via_drill
-                
+
                 via_mask_radius = via_d / 2.0 + mask_expansion
-                
+
                 # Assume all pins are on Top/Bottom and need Via to connect to Inner
                 # Ideally check pin layer, but for MVP assuming Top SMD/THT
                 for pos in pin_positions:
-                    # Find safe position for via
+                    # Find safe position for via - use progressive search
                     if state.drc_oracle:
-                        sites = state.drc_oracle.get_valid_via_sites(pos, search_radius=2.0, net=net_name)
-                        if sites:
-                            safe_pos = sites[0]
-                        else:
-                            print(f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos}")
-                            safe_pos = pos
+                        # Progressive search: try 2mm, then 5mm
+                        safe_pos = None
+                        for radius in [2.0, 5.0]:
+                            sites = state.drc_oracle.get_valid_via_sites(pos, search_radius=radius, net=net_name)
+                            if sites:
+                                safe_pos = sites[0]
+                                if radius > 2.0:
+                                    print(f"INFO: Found via site for {net_name} at {radius}mm radius (offset {((sites[0][0]-pos[0])**2 + (sites[0][1]-pos[1])**2)**0.5:.2f}mm)")
+                                break
+
+                        if not safe_pos:
+                            print(f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 5mm)")
+                            safe_pos = pos  # Fallback to pad position
                     else:
                         safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
                         if not safe_pos:
