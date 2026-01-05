@@ -957,7 +957,7 @@ def write_zones_to_pcb(
     Returns:
         WriteResult.
     """
-    from kiutils.items.zones import Zone, ZonePolygon
+    from kiutils.items.zones import Zone, ZonePolygon, FillSettings
     from kiutils.items.common import Position
     
     warnings: list[str] = []
@@ -994,8 +994,7 @@ def write_zones_to_pcb(
                 tstamp=str(uuid.uuid4()),
                 polygons=[ZonePolygon(coordinates=[Position(p[0], p[1]) for p in pts])],
                 # Default fill settings
-                minThickness=0.254, # Default min width
-                filledAreasThickness="no",
+                minThickness=0.254,
             )
             ki_board.zones.append(zone)
             zones_added += 1
