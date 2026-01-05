@@ -121,7 +121,7 @@ differential_pairs:
 
 # Slot generation config
 slot_generation:
-  spacing_mm: 6.0  # Increased from 5.0 to disperse components
+  spacing_mm: 6.0  # Optimal balance (tested 7mm - caused routing congestion)
   grid_alignment: true
 
 # Loss function configuration (for gradient optimizer - not used in deterministic pipeline)
