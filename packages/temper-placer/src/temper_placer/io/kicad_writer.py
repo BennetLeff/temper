@@ -878,12 +878,14 @@ def write_routes_to_pcb(
             warnings.append(f"Net '{route.net}' not found in board, using index 0")
         
         try:
+            import uuid
             segment = Segment(
                 start=Position(X=route.start[0], Y=route.start[1]),
                 end=Position(X=route.end[0], Y=route.end[1]),
                 width=route.width,
                 layer=route.layer,
                 net=net_index,
+                tstamp=str(uuid.uuid4()),  # Required: unique timestamp ID
             )
             ki_board.traceItems.append(segment)
             traces_added += 1
