@@ -12,14 +12,14 @@ class DeterministicAStar:
     
     grid: 'ClearanceGrid'
     
-    def find_path(self, start: Tuple[float, float], 
+    def find_path(self, start: Tuple[float, float],
                   end: Tuple[float, float],
                   layer: int = 0) -> Optional[List[Tuple[float, float]]]:
         '''Find shortest path from start to end on specified layer, or None if impossible.'''
-        
+
         start_cell = self.grid._mm_to_cell(*start)
         end_cell = self.grid._mm_to_cell(*end)
-        
+
         # Check start/end are valid on specified layer
         if not self._is_valid(start_cell, layer) or not self._is_valid(end_cell, layer):
             return None
