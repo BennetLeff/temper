@@ -35,7 +35,7 @@ class MVP3Config:
     """Configuration for MVP-3 pipeline execution."""
     
     layer_count: int = 4
-    cell_size_mm: float = 0.5
+    cell_size_mm: float = 0.25  # Finer grid for better DRC compliance
     slot_spacing_mm: float = 5.0
     deterministic_seed: int = 42
 

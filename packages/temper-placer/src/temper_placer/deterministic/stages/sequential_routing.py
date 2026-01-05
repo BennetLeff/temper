@@ -26,12 +26,28 @@ class SequentialRoutingStage(Stage):
         net_by_name = {n.name: n for n in state.netlist.nets}
         comp_by_ref = {c.ref: c for c in state.netlist.components}
         
+        # Build layer assignment lookup from BoardState
+        layer_by_net = {}
+        if state.layer_assignments:
+            for assignment in state.layer_assignments:
+                layer_by_net[assignment.net_name] = assignment.layer
+        
+        # Layer name to index mapping
+        layer_name_to_idx = {
+            "F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3
+        }
+        layer_idx_to_name = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
+        
         all_traces = list(state.routes)
         
         for net_name in net_order:
             if net_name not in net_by_name:
                 continue
             net = net_by_name[net_name]
+            
+            # Determine layer for this net
+            layer_idx = layer_by_net.get(net_name, 0)  # Default to layer 0
+            layer_name = layer_idx_to_name.get(layer_idx, "F.Cu")
             
             # Determine width and clearance
             width = self.default_width
@@ -60,32 +76,31 @@ class SequentialRoutingStage(Stage):
             if len(pin_positions) < 2:
                 continue
                 
-            # Temporarily unblock target pins
-            # Use a larger radius (1.0mm) to ensure we clear the pad + clearance blocking
-            # applied by ClearanceGridStage (0.5mm pad + 0.2mm clearance = 0.7mm)
+            # Temporarily unblock target pins on the routing layer
             for pos in pin_positions:
-                grid.unblock_circle(pos, radius_mm=1.0)
+                grid.unblock_circle(pos, radius_mm=1.0, layer=layer_idx)
                 
             pathfinder = DeterministicAStar(grid)
-            # Route first two pins for MVP-1
-            path = pathfinder.find_path(start=pin_positions[0], end=pin_positions[1])
+            # Route first two pins on assigned layer
+            path = pathfinder.find_path(start=pin_positions[0], end=pin_positions[1], layer=layer_idx)
             
             if path:
-                # Block the routed trace
-                grid.block_trace(path, width_mm=width, clearance_mm=clearance)
+                # Block the routed trace on the same layer
+                grid.block_trace(path, width_mm=width, clearance_mm=clearance, layer=layer_idx)
                 
-                # Create Trace objects for state
+                # Create Trace objects for state with correct layer
                 for i in range(len(path) - 1):
                     all_traces.append(Trace(
                         start=path[i],
                         end=path[i+1],
                         width=width,
-                        layer="F.Cu", # Assume Top layer for MVP-1
+                        layer=layer_name,
                         net=net_name
                     ))
             
-            # Re-block the pins
+            # Re-block the pins on the routing layer
             for pos in pin_positions:
-                grid.block_circle(pos, radius_mm=0.5, clearance_mm=clearance)
+                grid.block_circle(pos, radius_mm=0.5, clearance_mm=clearance, layer=layer_idx)
                 
         return replace(state, routes=frozenset(all_traces))
+
