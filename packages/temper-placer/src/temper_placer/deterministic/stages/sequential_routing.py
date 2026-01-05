@@ -81,26 +81,47 @@ class SequentialRoutingStage(Stage):
             if len(pin_positions) < 2:
                 continue
             
-            # Helper to get unblock radius
-            def get_unblock_radius(p_info):
-                ref, name = p_info
-                if self.pad_sizes:
-                    real_pad = self.pad_sizes.get((ref, name))
-                    if real_pad:
-                        # Max dim / 2
-                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                        # Match ClearanceGrid logic: pad_r + clearance + width/2 + mask_safety
-                        # mask_safety=0.1, but we want to unblock enough to let the trace center leave
-                        # The trace center is blocked if dist < pad_r + clearance + width/2 + mask
-                        # So unblock radius MUST be >= that value.
-                        return pad_r + 0.425 
-                return 0.925
-
-            # Temporarily unblock the target pin area on the routing layer
+            # Unblock target pins so A* can route to them
+            # Unblock radius must match the blocked radius: pad_r + clearance + width/2 + mask
+            mask_expansion = 0.1
+            base_unblock_clearance = clearance + (width / 2.0) + mask_expansion
             for i, pos in enumerate(pin_positions):
-                radius = get_unblock_radius(pin_info[i])
-                grid.unblock_circle(pos, radius_mm=radius, layer=layer_idx)
-                
+                pad_r = 0.5
+                if self.pad_sizes:
+                    real_pad = self.pad_sizes.get(pin_info[i])
+                    if real_pad:
+                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
+                unblock_radius = pad_r + base_unblock_clearance
+                grid.unblock_circle(pos, radius_mm=unblock_radius, layer=layer_idx)
+
+            # Re-block ALL OTHER pads that might have been affected by unblocking
+            # This prevents routing through cells shared with adjacent pads
+            other_pads_to_reblock = []
+            for other_net in state.netlist.nets:
+                if other_net.name == net_name:
+                    continue  # Skip current net's pins
+                for comp_ref, pin_name in other_net.pins:
+                    if comp_ref not in comp_by_ref:
+                        continue
+                    comp = comp_by_ref[comp_ref]
+                    pin = next((p for p in comp.pins if p.name == pin_name or p.number == pin_name), None)
+                    if not pin:
+                        continue
+                    pos = comp.initial_position or (0, 0)
+                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+                    other_pads_to_reblock.append((pin_pos, comp_ref, pin.name))
+
+            # Re-block other pads with mask-aware clearance
+            mask_expansion = 0.1
+            other_pad_clearance = self.default_clearance + (width / 2.0) + mask_expansion
+            for pin_pos, comp_ref, pin_name in other_pads_to_reblock:
+                pad_r = 0.5
+                if self.pad_sizes:
+                    real_pad = self.pad_sizes.get((comp_ref, pin_name))
+                    if real_pad:
+                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
+                grid.block_circle(pin_pos, radius_mm=pad_r, clearance_mm=other_pad_clearance, layer=layer_idx)
+
             pathfinder = DeterministicAStar(grid)
             mst_edges = self._compute_mst(pin_positions)
             
@@ -159,31 +180,19 @@ class SequentialRoutingStage(Stage):
                     for l_idx in range(grid.layer_count):
                         grid.block_circle(pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
 
-            # Re-block the pins on the routing layer
-            # INFLATION FIX: Block with (clearance + trace_width/2 + mask_safety)
-            # This ensures the router stays away considering its own width and mask rules.
-            # Mask Safety = 0.1mm (heuristic for 0.05 expansion + 0.1 web vs 0.2 electrical)
-            
-            mask_safety_margin = 0.1 
-            effective_clearance = clearance + (width / 2.0) + mask_safety_margin
-            
+            # Re-block pads with net-specific clearance (may be larger than initial blocking)
+            # This ensures subsequent nets respect this net's clearance requirements.
+            # effective_clearance = copper_clearance + trace_half_width + mask_expansion
+            mask_expansion = 0.1  # Standard pad_to_mask_clearance
+            effective_clearance = clearance + (width / 2.0) + mask_expansion
+
             for i, pos in enumerate(pin_positions):
-                radius = get_unblock_radius(pin_info[i])
-                # Subtract 0.425 to get base pad radius? No, block_circle adds clearance.
-                # Currently block_circle(radius, clearance) -> total = radius + clearance.
-                # get_unblock_radius returns TOTAL radius (pad_r + 0.425).
-                # So here we want: grid.block_circle(pos, radius_mm=pad_r, clearance_mm=effective_clearance, ...)
-                # But effective_clearance is calculated as clearance + width/2 + mask (~0.425).
-                # So we just need the PAD radius.
-                
-                real_pad_r = radius - 0.425 # Back-calculate or fetch again
-                # Cleaner to fetch again or store.
-                pad_r = 0.5
+                pad_r = 0.5  # Default pad radius
                 if self.pad_sizes:
                     real_pad = self.pad_sizes.get(pin_info[i])
                     if real_pad:
                         pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                
+
                 grid.block_circle(pos, radius_mm=pad_r, clearance_mm=effective_clearance, layer=layer_idx)
                 
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
