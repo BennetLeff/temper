@@ -5,6 +5,7 @@ from .base import Stage
 from .astar import DeterministicAStar
 from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
+from ..geometry.via_placement import PadInfo, place_via_with_clearance
 
 class SequentialRoutingStage(Stage):
     def __init__(self, design_rules: DesignRules | None = None, 
@@ -45,6 +46,24 @@ class SequentialRoutingStage(Stage):
         
         all_traces = list(state.routes)
         all_vias = list(state.vias)
+        
+        # Gather all pads for via clearance checking
+        all_pads_info = []
+        for component in state.netlist.components:
+            comp_pos = comp_by_ref[component.ref].initial_position or (0, 0)
+            for pin in component.pins:
+                # Approximate pad radius (assuming circular for clearance)
+                pad_r = 0.5
+                if self.pad_sizes:
+                    real_pad = self.pad_sizes.get((component.ref, pin.name))
+                    if real_pad:
+                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
+                
+                all_pads_info.append(PadInfo(
+                    position=(comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1]),
+                    radius=pad_r,
+                    mask_expansion=getattr(pin, 'mask_expansion', 0.1)
+                ))
         
         for net_name in net_order:
             if net_name not in net_by_name:
@@ -94,14 +113,23 @@ class SequentialRoutingStage(Stage):
                 # We just generate a via at each pin to connect to the plane.
                 via_d = 0.6
                 via_drill = 0.3
+                mask_expansion = 0.1
                 if self.design_rules and rules:
                     via_d = rules.via_diameter
                     via_drill = rules.via_drill
+                
+                via_mask_radius = via_d / 2.0 + mask_expansion
 
                 for pos in pin_positions:
+                    # Find safe position for via
+                    safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
+                    if not safe_pos:
+                        print(f"WARNING: Could not find safe via position for {net_name} at {pos}")
+                        safe_pos = pos # Fallback
+                    
                     # Create Via connecting Top to Plane Layer
                     via = Via(
-                        position=pos,
+                        position=safe_pos,
                         drill=via_drill,
                         width=via_d,
                         layers=("F.Cu", layer_name),
@@ -109,9 +137,19 @@ class SequentialRoutingStage(Stage):
                     )
                     all_vias.append(via)
                     
+                    # If via shifted, add a short stub trace from pin to via
+                    if safe_pos != pos:
+                        all_traces.append(Trace(
+                            start=pos,
+                            end=safe_pos,
+                            width=width,
+                            layer="F.Cu",
+                            net=net_name
+                        ))
+                    
                     # Block Via on ALL layers
                     for l_idx in range(grid.layer_count):
-                        grid.block_circle(pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+                        grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
                 
                 # Skip trace routing for plane nets
                 continue
@@ -193,16 +231,25 @@ class SequentialRoutingStage(Stage):
             if net_paths and layer_name != "F.Cu":
                 via_d = 0.6
                 via_drill = 0.3
+                mask_expansion = 0.1
                 if self.design_rules and rules:
                     via_d = rules.via_diameter
                     via_drill = rules.via_drill
                 
+                via_mask_radius = via_d / 2.0 + mask_expansion
+                
                 # Assume all pins are on Top/Bottom and need Via to connect to Inner
                 # Ideally check pin layer, but for MVP assuming Top SMD/THT
                 for pos in pin_positions:
+                    # Find safe position for via
+                    safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
+                    if not safe_pos:
+                        print(f"WARNING: Could not find safe via position for {net_name} at {pos}")
+                        safe_pos = pos # Fallback
+
                     # Create Via
                     via = Via(
-                        position=pos,
+                        position=safe_pos,
                         drill=via_drill,
                         width=via_d,
                         layers=("F.Cu", layer_name),
@@ -210,10 +257,20 @@ class SequentialRoutingStage(Stage):
                     )
                     all_vias.append(via)
                     
+                    # If via shifted, add a short stub trace from pin to via
+                    if safe_pos != pos:
+                        all_traces.append(Trace(
+                            start=pos,
+                            end=safe_pos,
+                            width=width,
+                            layer="F.Cu",
+                            net=net_name
+                        ))
+                    
                     # Block Via on ALL layers
                     # Iterate all grid layers
                     for l_idx in range(grid.layer_count):
-                        grid.block_circle(pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+                        grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
 
             # Re-block pads with net-specific clearance (may be larger than initial blocking)
             # This ensures subsequent nets respect this net's clearance requirements.
