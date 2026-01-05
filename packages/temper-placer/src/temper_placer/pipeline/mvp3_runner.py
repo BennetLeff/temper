@@ -270,7 +270,11 @@ class MVP3Runner:
     
     def _build_pipeline(self, design_rules: DesignRules, net_classes: dict[str, str] = None) -> DeterministicPipeline:
         """Construct the MVP-3 pipeline with all stages."""
-        from temper_placer.deterministic.stages import SetupStage
+        from temper_placer.deterministic.stages import (
+            SetupStage, 
+            DRCValidationStage, 
+            ConnectivityValidationStage
+        )
         
         return DeterministicPipeline(stages=[
             # Phase 0: Setup
@@ -295,6 +299,9 @@ class MVP3Runner:
                 design_rules=design_rules,
                 pad_sizes=self.pad_sizes_map
             ),
+            # Phase 6: Validation
+            DRCValidationStage(),
+            ConnectivityValidationStage(),
         ])
     
     def _export_to_kicad(self, final_state: BoardState, parse_result) -> None:

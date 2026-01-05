@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from temper_placer.routing.constraints.drc_oracle import DRCOracle, Violation
 
     from .stages.clearance_grid import ClearanceGrid
+    from .stages.connectivity_validation import ConnectivityViolation
 
 @dataclass(frozen=True)
 class BoardState:
@@ -18,6 +19,7 @@ class BoardState:
     grid: Optional['ClearanceGrid'] = None
     drc_oracle: Optional['DRCOracle'] = None
     drc_violations: tuple['Violation', ...] | None = None
+    connectivity_violations: tuple['ConnectivityViolation', ...] | None = None
     placements: frozenset = frozenset()
     routes: frozenset = frozenset()
     vias: frozenset = frozenset()
