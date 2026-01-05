@@ -287,7 +287,10 @@ class MVP3Runner:
             ),
             LayerAssignmentStage(net_classes=net_classes),
             NetOrderingStage(),
-            SequentialRoutingStage(design_rules=design_rules),
+            SequentialRoutingStage(
+                design_rules=design_rules,
+                pad_sizes=self.pad_sizes_map
+            ),
         ])
     
     def _export_to_kicad(self, final_state: BoardState, parse_result) -> None:

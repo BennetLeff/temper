@@ -259,8 +259,6 @@ class ClearanceGridStage(Stage):
                         pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
                         # Use circumscribed radius approximation or max dim
                         pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                        if 'GATE' in component.ref and pin.name == '9':
-                             print(f"DEBUG: Block Radius for U_GATE Pin 9 = {pad_radius} + 0.425 = {pad_radius + 0.425}")
                     
                     # Block pads on target layers with INFLATED clearance
                     # to account for trace width (0.25mm) and mask expansion (0.1mm)
