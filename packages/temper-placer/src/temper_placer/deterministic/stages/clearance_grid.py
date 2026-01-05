@@ -175,17 +175,17 @@ class ClearanceGridStage(Stage):
 
         
 
+        # Build placement map from BoardState
+        placements_dict = dict(state.placements) if state.placements else {}
+        
         # Block pads if netlist exists
-
         if state.netlist:
-
             for component in state.netlist.components:
-
-                # Use current placement if available, otherwise initial
-
-                # (Simplification: just using initial for now as per MVP requirements)
-
-                pos = component.initial_position or (0, 0)
+                # Use placement from BoardState if available, otherwise initial
+                pos = placements_dict.get(component.ref, component.initial_position)
+                
+                if pos is None:
+                    continue  # Skip if no position available
 
                 for pin in component.pins:
 
