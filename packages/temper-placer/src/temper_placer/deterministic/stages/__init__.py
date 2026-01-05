@@ -9,6 +9,7 @@ from .net_ordering import NetOrderingStage
 from .sequential_routing import SequentialRoutingStage
 from .layer_assignment import LayerAssignmentStage, LayerAssignment  
 from .drc_validation import DRCValidationStage
+from .courtyard_check import CourtyardCheckStage
 from .astar import DeterministicAStar
 
 __all__ = [
@@ -24,5 +25,6 @@ __all__ = [
     "LayerAssignmentStage",
     "LayerAssignment",
     "DRCValidationStage",
+    "CourtyardCheckStage",
     "DeterministicAStar",
 ]

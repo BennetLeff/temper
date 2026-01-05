@@ -17,6 +17,7 @@ from temper_placer.deterministic.stages import (
     SlotGenerationStage,
     ComponentAssignmentStage,
     ApplyPlacementsStage,
+    CourtyardCheckStage,
     ClearanceGridStage,
     LayerAssignmentStage,
     NetOrderingStage,
@@ -35,7 +36,7 @@ class MVP3Config:
     """Configuration for MVP-3 pipeline execution."""
     
     layer_count: int = 4
-    cell_size_mm: float = 0.25  # Finer grid for better DRC compliance
+    cell_size_mm: float = 0.25  # Optimal grid for DRC compliance and performance
     slot_spacing_mm: float = 5.0
     deterministic_seed: int = 42
 
@@ -115,9 +116,103 @@ class MVP3Runner:
             design_rules = self._create_design_rules(constraints)
             logger.info(f"Design rules: {list(design_rules.net_classes.keys())}")
             
+            # Extract pad sizes from KiCad board for accurate valid blocking
+            # We need to load raw KiCad board because parse_result.board is a simplified Core object
+            from kiutils.board import Board as KiBoard
+            raw_board = KiBoard.from_file(str(self.pcb_path))
+            
+            self.pad_sizes_map = {}
+            if raw_board.footprints:
+                 for fp in raw_board.footprints:
+                    for pad in fp.pads:
+                        key = (fp.properties.get('Reference', ''), pad.number)
+                        self.pad_sizes_map[key] = pad
+            logger.info(f"Extracted sizes for {len(self.pad_sizes_map)} pads")
+
+            # Extract Courtyards
+            from temper_placer.deterministic.geometry.courtyard import Courtyard
+            self.courtyards_map = {}
+            if raw_board.footprints:
+                for fp in raw_board.footprints:
+                    ref = fp.properties.get('Reference', '')
+                    if not ref: continue
+                    
+                    if ref == 'J_AC_IN':
+                        print(f"DEBUG J_AC_IN attrs: {dir(fp)}")
+                        print(f"DEBUG J_AC_IN graphicItems count: {len(fp.graphicItems) if hasattr(fp, 'graphicItems') else 'N/A'}")
+                    
+                    points = []
+                    # Try to find CrtYd items
+                    if fp.graphicItems:
+                        for item in fp.graphicItems:
+                            if True: 
+                                print(f"DEBUG item: ref={ref} type={type(item)} layer={getattr(item, 'layer', 'N/A')}")
+                            
+                            if hasattr(item, 'layer') and item.layer in ('F.CrtYd', 'B.CrtYd'):
+                                # Handle Polygon/Polyline
+                                pts = []
+                                if hasattr(item, 'points'): # kiutils ~1.0
+                                    pts = item.points
+                                elif hasattr(item, 'coordinates'):
+                                    pts = item.coordinates
+                                
+                                if pts:
+                                    points = [(p.X, p.Y) for p in pts]
+                                    break # Found one
+                    
+                    # Fallback: Generate courtyard from pads if no graphic items found
+                    if not points and fp.pads:
+                        # Find bounding box of all pads
+                        min_x, min_y = float('inf'), float('inf')
+                        max_x, max_y = float('-inf'), float('-inf')
+                        has_pads = False
+                        
+                        for pad in fp.pads:
+                            # Pad position is relative to footprint center
+                            px, py = pad.position.X, pad.position.Y
+                            w, h = pad.size.X, pad.size.Y
+                            
+                            # Expand by half size + large margin for safety
+                            margin = 0.5
+                            min_x = min(min_x, px - w/2 - margin)
+                            min_y = min(min_y, py - h/2 - margin)
+                            max_x = max(max_x, px + w/2 + margin)
+                            max_y = max(max_y, py + h/2 + margin)
+                            has_pads = True
+                        
+                        if has_pads:
+                            # Calculate geometric center of the bounds
+                            center_x = (min_x + max_x) / 2.0
+                            center_y = (min_y + max_y) / 2.0
+                            
+                            # Create rectangular polygon CENTERED at (0,0)
+                            # This matches state.placements which tracks geometric center
+                            half_w = (max_x - min_x) / 2.0
+                            half_h = (max_y - min_y) / 2.0
+                            
+                            points = [
+                                (-half_w, -half_h),
+                                (half_w, -half_h),
+                                (half_w, half_h),
+                                (-half_w, half_h)
+                            ]
+                            # logger.info(f"Generated fallback courtyard for {ref}")
+
+                    self.courtyards_map[ref] = Courtyard(
+                        component_ref=ref, 
+                        points=points if points else [(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)] # Ultimate fallback
+                    )
+            logger.info(f"Extracted {len(self.courtyards_map)} courtyards")
+            if len(self.courtyards_map) > 0:
+                print(f"DEBUG: Extracted {len(self.courtyards_map)} courtyards. Keys: {list(self.courtyards_map.keys())[:5]}")
+                sample = list(self.courtyards_map.values())[0]
+                print(f"DEBUG: Sample Courtyard {sample.component_ref}: {sample.points}")
+            else:
+                print("DEBUG: No courtyards extracted!")
+            
             # Step 5: Build pipeline
             logger.info("Building MVP-3 pipeline...")
-            pipeline = self._build_pipeline(design_rules)
+            pipeline = self._build_pipeline(design_rules, constraints.net_classes)
             
             # Step 6: Run pipeline
             logger.info("Running deterministic pipeline...")
@@ -168,9 +263,12 @@ class MVP3Runner:
                 via_drill=rule.via_drill_mm,
             )
         
+        # NEW: Populate net class assignments from config
+        design_rules.net_class_assignments = constraints.net_classes
+        
         return design_rules
     
-    def _build_pipeline(self, design_rules: DesignRules) -> DeterministicPipeline:
+    def _build_pipeline(self, design_rules: DesignRules, net_classes: dict[str, str] = None) -> DeterministicPipeline:
         """Construct the MVP-3 pipeline with all stages."""
         return DeterministicPipeline(stages=[
             # Phase 1-4: Placement
@@ -179,12 +277,15 @@ class MVP3Runner:
             SlotGenerationStage(slot_spacing_mm=self.mvp3_config.slot_spacing_mm),
             ComponentAssignmentStage(),
             ApplyPlacementsStage(),
+            # Resolution: Resolve physical overlaps
+            CourtyardCheckStage(courtyards=self.courtyards_map),
             # Phase 5: Routing
             ClearanceGridStage(
                 cell_size_mm=self.mvp3_config.cell_size_mm,
                 layer_count=self.mvp3_config.layer_count,
+                pad_sizes=self.pad_sizes_map,  # Inject pad sizes
             ),
-            LayerAssignmentStage(),
+            LayerAssignmentStage(net_classes=net_classes),
             NetOrderingStage(),
             SequentialRoutingStage(design_rules=design_rules),
         ])
@@ -196,9 +297,20 @@ class MVP3Runner:
             write_routes_to_pcb,
             build_net_name_to_index_map,
             PlacementUpdate,
+            strip_routing,
         )
         
-        # Step 1: Convert placements to KiCad format
+        # Step 1: Strip existing routing from template to create a clean slate
+        logger.info(f"Stripping legacy routing from {self.pcb_path}")
+        strip_result = strip_routing(
+            input_pcb=self.pcb_path,
+            output_pcb=self.output_path,
+            keep_zones=True,
+            keep_fills=False
+        )
+        logger.info(f"Stripped {strip_result.traces_removed} traces and {strip_result.vias_removed} vias")
+
+        # Step 2: Convert placements to KiCad format
         placements_dict = {}
         if final_state.placements:
             for ref, (x, y) in final_state.placements:
@@ -209,10 +321,10 @@ class MVP3Runner:
                     rotation=0.0  # TODO: Get actual rotation from state
                 )
         
-        # Step 2: Write placements to output PCB
+        # Step 3: Write placements to the already-stripped output PCB
         logger.info(f"Writing {len(placements_dict)} placements to {self.output_path}")
         placement_result = write_placements_to_pcb(
-            template_pcb=self.pcb_path,
+            template_pcb=self.output_path,  # Use the stripped board as template
             output_pcb=self.output_path,
             placements=placements_dict,
             preserve_unmatched=True,
@@ -224,20 +336,21 @@ class MVP3Runner:
             for warning in placement_result.warnings:
                 logger.warning(warning)
         
-        # Step 3: Add routes to the PCB (if any were generated)
+        # Step 4: Add routes to the PCB (if any were generated)
         if final_state.routes and len(final_state.routes) > 0:
             logger.info(f"Writing {len(final_state.routes)} routes to {self.output_path}")
             
             # Build net name → index mapping from the PCB
             net_map = build_net_name_to_index_map(self.output_path)
             
-            # Write routes (traces) to the same file
+            # Write routes (traces) and vias to the same file
             route_result = write_routes_to_pcb(
                 template_pcb=self.output_path,  # Use the file we just wrote
                 output_pcb=self.output_path,     # Overwrite with routes added
                 routes=final_state.routes,
+                vias=final_state.vias,
                 net_name_to_index=net_map,
-                clear_existing=False,  # Keep any existing traces
+                clear_existing=True,  # Clear any remaining traces just in case
             )
             
             logger.info(f"Route export: {route_result.components_updated} traces added")
@@ -247,4 +360,3 @@ class MVP3Runner:
                     logger.warning(warning)
         else:
             logger.info("No routes to export")
-
