@@ -12,14 +12,16 @@ from temper_placer.routing.constraints.geometry import Point
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
+    from temper_placer.core.design_rules import DesignRules
 
 @dataclass
-class SetupStage(Stage):
+class DRCOracleSetupStage(Stage):
     """Setup stage for initializing DRCOracle and other common utilities."""
+    design_rules: 'DesignRules | None' = None
     
     @property
     def name(self) -> str:
-        return "setup"
+        return "drc_oracle_setup"
 
     def _rotate_point(self, point: tuple[float, float], angle_degrees: float) -> tuple[float, float]:
         """Rotate a point by angle_degrees around (0,0)."""
@@ -34,7 +36,14 @@ class SetupStage(Stage):
 
     def run(self, state: BoardState) -> BoardState:
         # Initialize ClearanceMatrix
-        if state.board:
+        if self.design_rules:
+            # Use provided design rules if available
+            matrix = ClearanceMatrix()
+            for name, rules in self.design_rules.net_classes.items():
+                matrix.add_net_class_rules(rules)
+            for net, class_name in self.design_rules.net_class_assignments.items():
+                matrix.set_net_class(net, class_name)
+        elif state.board:
             # Try to parse from board (handles zones)
             matrix = ClearanceMatrix.parse(state.board)
         else:
@@ -65,12 +74,16 @@ class SetupStage(Stage):
                     # Map layer name to index
                     layer_idx = 0
                     pin_layer = getattr(pin, 'layer', 'F.Cu')
+                    is_pth = pin_layer == 'all' or pin.is_pth
+                    
                     if pin_layer == 'B.Cu':
-                        layer_idx = 3 # Assuming 4-layer default
+                        layer_idx = 3
                     elif pin_layer == 'In1.Cu':
                         layer_idx = 1
                     elif pin_layer == 'In2.Cu':
                         layer_idx = 2
+                    else:
+                        layer_idx = 0
                         
                     # Create Pad object for DRCOracle
                     oracle.register_pad(Pad(
@@ -80,7 +93,9 @@ class SetupStage(Stage):
                         net=pin.net or "",
                         layer=layer_idx,
                         id=f"{component.ref}.{pin.number}",
-                        rotation=rotation # Pad rotation follows component rotation
+                        rotation=rotation, # Pad rotation follows component rotation
+                        mask_expansion=getattr(pin, 'mask_expansion', 0.1),
+                        is_pth=is_pth
                     ))
             
             oracle.geometry.rebuild_index()

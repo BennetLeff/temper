@@ -2,7 +2,7 @@ from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist, Component, Pin
 from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.pipeline import DeterministicPipeline
-from temper_placer.deterministic.stages.setup import SetupStage
+from temper_placer.deterministic.stages.setup import DRCOracleSetupStage
 
 def test_setup_stage():
     # Create a simple board
@@ -24,8 +24,8 @@ def test_setup_stage():
     # Initial state
     initial_state = BoardState(board=board, netlist=netlist)
     
-    # Pipeline with SetupStage
-    pipeline = DeterministicPipeline(stages=[SetupStage()])
+    # Pipeline with DRCOracleSetupStage
+    pipeline = DeterministicPipeline(stages=[DRCOracleSetupStage()])
     
     # Run pipeline
     final_state = pipeline.run(initial_state)

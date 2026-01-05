@@ -65,6 +65,8 @@ class Pad:
     layer: int
     id: str = ""
     rotation: float = 0.0  # Degrees counter-clockwise
+    mask_expansion: float = 0.1  # Solder mask clearance expansion
+    is_pth: bool = False  # Plated Through-Hole flag (all layers)
 
     @property
     def rot_rect(self) -> RotatedRect:
@@ -247,7 +249,7 @@ class PCBGeometry:
         pads = [self.pads[i] for i in indices]
 
         if layer is not None:
-            pads = [p for p in pads if p.layer == layer]
+            pads = [p for p in pads if p.layer == layer or p.is_pth]
 
         return pads
 

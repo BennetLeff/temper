@@ -58,9 +58,20 @@ class ConnectivityValidationStage(Stage):
             if via.net not in nets: nets[via.net] = {"pads": [], "tracks": [], "vias": []}
             nets[via.net]["vias"].append(via)
 
+        # Get plane nets from assignments
+        plane_nets = set()
+        if state.layer_assignments:
+            for assignment in state.layer_assignments:
+                if assignment.is_plane:
+                    plane_nets.add(assignment.net_name)
+
         # Validate each net
         for net_name, net_items in nets.items():
             if not net_name or net_name == "NoNet":
+                continue
+            
+            # Skip plane nets - they are assumed connected via inner layer pours
+            if net_name in plane_nets:
                 continue
             
             net_violations = self._validate_net_connectivity(net_name, net_items)

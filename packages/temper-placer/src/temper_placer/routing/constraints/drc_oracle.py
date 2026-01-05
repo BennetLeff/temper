@@ -134,8 +134,8 @@ class DRCOracle:
         p_center = Point(position[0], position[1])
         via_radius = diameter / 2
 
-        max_clearance = self.rules.default_clearance
-        search_radius = (via_radius + max_clearance) * self._search_multiplier
+        # Use a radius large enough to catch HighVoltage clearances (2.0mm+)
+        search_radius = (via_radius + 3.0) * 1.5
 
         # Check against nearby tracks
         for layer in range(10):  # Check all potential layers
@@ -166,7 +166,7 @@ class DRCOracle:
             if neckdown:
                 required = min(required, 0.15)
 
-            effective_clearance = required + via_radius
+            effective_clearance = required + via_radius + pad.mask_expansion
             actual = point_to_rotated_rect_distance(p_center, pad.rot_rect)
 
             if actual < effective_clearance:
@@ -226,8 +226,9 @@ class DRCOracle:
 
         # Determine search radius
         seg_length = segment.length
-        max_clearance = max(self.rules.default_clearance, width)
-        search_radius = (seg_length / 2 + max_clearance) * self._search_multiplier
+        # Use a radius large enough to catch HighVoltage clearances (2.0mm+)
+        # For Temper, we need at least 3.0mm to be safe
+        search_radius = (seg_length / 2 + 3.0) * 1.5
 
         # Check against nearby tracks
         nearby_tracks = self.geometry.query_tracks_near(midpoint, search_radius, layer)
@@ -258,7 +259,7 @@ class DRCOracle:
             if neckdown:
                 required = min(required, 0.15)
 
-            effective_clearance = required + (width / 2)
+            effective_clearance = required + (width / 2) + pad.mask_expansion
             actual = segment_to_rotated_rect_distance(segment, pad.rot_rect)
             if actual < effective_clearance:
                 return (
@@ -418,7 +419,7 @@ class DRCOracle:
                 
                 mid = seg.midpoint()
                 required = self.rules.get_clearance(track.net, pad.net, mid.x, mid.y)
-                effective = required + (track.width / 2)
+                effective = required + (track.width / 2) + pad.mask_expansion
                 
                 actual = segment_to_rotated_rect_distance(seg, pad.rot_rect)
                 if actual < effective:
@@ -445,7 +446,7 @@ class DRCOracle:
                     continue
                     
                 required = self.rules.get_clearance(via.net, pad.net, via.center.x, via.center.y)
-                effective = required + (via.diameter / 2)
+                effective = required + (via.diameter / 2) + pad.mask_expansion
                 
                 actual = point_to_rotated_rect_distance(via.center, pad.rot_rect)
                 if actual < effective:
