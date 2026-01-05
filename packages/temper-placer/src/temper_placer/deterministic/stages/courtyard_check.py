@@ -14,7 +14,7 @@ class CourtyardCheckStage(Stage):
     courtyards. If collisions are found, it nudges components apart.
     """
     courtyards: Dict[str, Courtyard]
-    max_iterations: int = 200
+    max_iterations: int = 500
     nudge_step: float = 0.2 # Increased from 0.1
     
     @property
