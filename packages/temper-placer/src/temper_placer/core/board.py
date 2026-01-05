@@ -78,7 +78,7 @@ class Component:
     fixed: bool = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class Trace:
     """
     A routed trace segment.

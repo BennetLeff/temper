@@ -34,3 +34,24 @@ def test_grid_is_deterministic():
     result1 = build_grid()
     result2 = build_grid()
     assert result1 == result2
+
+def test_block_trace():
+    grid = ClearanceGrid(width_mm=50, height_mm=50, cell_size_mm=0.5)
+    
+    # Block a horizontal trace from (20, 25) to (30, 25)
+    # Width 1mm, Clearance 0mm (to keep it simple)
+    path = [(20.0, 25.0), (30.0, 25.0)]
+    grid.block_trace(path, width_mm=1.0, clearance_mm=0.0)
+    
+    # Points along the line should be blocked
+    assert grid.is_available(20, 25) == False
+    assert grid.is_available(25, 25) == False
+    assert grid.is_available(30, 25) == False
+    
+    # Points just outside width should be available
+    assert grid.is_available(25, 25.6) == True
+    assert grid.is_available(25, 24.4) == True
+    
+    # Points at ends should be blocked within radius
+    assert grid.is_available(19.6, 25) == False
+    assert grid.is_available(19.4, 25) == True

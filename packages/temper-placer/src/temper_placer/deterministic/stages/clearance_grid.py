@@ -51,6 +51,64 @@ class ClearanceGrid:
                 if dist <= total_radius:
                     self._grid[row, col] = 1
 
+    def block_trace(self, path: list[tuple[float, float]], 
+                    width_mm: float, clearance_mm: float):
+        '''Block cells along a trace path with given width and clearance.'''
+        if not path:
+            return
+            
+        # Treat as a series of connected circles and rectangles
+        # For simplicity, we can block a circle at each point and along each segment
+        for i in range(len(path)):
+            # Block circle at current point
+            self.block_circle(path[i], width_mm / 2.0, clearance_mm)
+            
+            if i < len(path) - 1:
+                # Block segment between path[i] and path[i+1]
+                self._block_segment(path[i], path[i+1], width_mm, clearance_mm)
+
+    def _block_segment(self, start: tuple[float, float], end: tuple[float, float],
+                       width_mm: float, clearance_mm: float):
+        '''Block cells along a straight segment.'''
+        total_radius = width_mm / 2.0 + clearance_mm
+        x1, y1 = start
+        x2, y2 = end
+        
+        # Calculate segment bounding box
+        min_x = min(x1, x2) - total_radius
+        max_x = max(x1, x2) + total_radius
+        min_y = min(y1, y2) - total_radius
+        max_y = max(y1, y2) + total_radius
+        
+        min_col = max(0, int(min_x / self.cell_size_mm))
+        max_col = min(self.cols, int(max_x / self.cell_size_mm) + 1)
+        min_row = max(0, int(min_y / self.cell_size_mm))
+        max_row = min(self.rows, int(max_y / self.cell_size_mm) + 1)
+        
+        # Segment vector
+        dx = x2 - x1
+        dy = y2 - y1
+        L2 = dx*dx + dy*dy
+        
+        if L2 == 0:
+            return
+            
+        for row in range(min_row, max_row):
+            for col in range(min_col, max_col):
+                cell_x = col * self.cell_size_mm + self.cell_size_mm / 2
+                cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
+                
+                # Projection of point (cell_x, cell_y) onto segment
+                t = ((cell_x - x1) * dx + (cell_y - y1) * dy) / L2
+                t = max(0, min(1, t))
+                
+                proj_x = x1 + t * dx
+                proj_y = y1 + t * dy
+                
+                dist = ((cell_x - proj_x)**2 + (cell_y - proj_y)**2)**0.5
+                if dist <= total_radius:
+                    self._grid[row, col] = 1
+
     def unblock_circle(self, center: tuple[float, float], 
                        radius_mm: float):
         '''Unblock cells within radius of center.'''
@@ -82,9 +140,61 @@ class ClearanceGrid:
         return frozenset(zip(rows.tolist(), cols.tolist()))
 
 class ClearanceGridStage(Stage):
+
+    def __init__(self, cell_size_mm: float = 0.5):
+
+        self.cell_size_mm = cell_size_mm
+
+
+
     @property
+
     def name(self) -> str:
+
         return "clearance_grid"
+
     
+
     def run(self, state: BoardState) -> BoardState:
-        return state
+
+        if not state.board:
+
+            return state
+
+            
+
+        grid = ClearanceGrid(
+
+            width_mm=state.board.width,
+
+            height_mm=state.board.height,
+
+            cell_size_mm=self.cell_size_mm
+
+        )
+
+        
+
+        # Block pads if netlist exists
+
+        if state.netlist:
+
+            for component in state.netlist.components:
+
+                # Use current placement if available, otherwise initial
+
+                # (Simplification: just using initial for now as per MVP requirements)
+
+                pos = component.initial_position or (0, 0)
+
+                for pin in component.pins:
+
+                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+
+                    grid.block_circle(pin_pos, radius_mm=0.5, clearance_mm=0.2)
+
+                    
+
+        from dataclasses import replace
+
+        return replace(state, grid=grid)

@@ -9,7 +9,7 @@ Priority order (highest to lowest):
 1. Loop membership: Nets in critical loops route first
 2. Net class: HV > Power > GateDrive > Signal
 3. Pin count: Fewer pins = higher priority (easier to route)
-4. Bounding box area: Smaller = higher priority
+4. Estimated wirelength: Shorter = higher priority (HPWL)
 5. Alphabetical: Final deterministic tie-breaker
 
 Example usage:
@@ -55,7 +55,7 @@ class NetPriority:
 
     This dataclass implements comparison operators for sorting nets.
     The comparison is performed lexicographically on the tuple:
-    (loop_criticality, net_class, pin_count, bbox_area, name)
+    (loop_criticality, net_class, pin_count, estimated_wirelength, name)
 
     Lower values in any field = higher priority (routes earlier).
 
@@ -63,14 +63,14 @@ class NetPriority:
         loop_criticality: 0=critical, 1=high, 2=medium, 3=low/none
         net_class: NetClass enum value (0=HV, 1=Power, 2=GateDrive, 3=Signal)
         pin_count: Number of pins on the net (fewer = easier to route)
-        bbox_area: Bounding box area in mm² (smaller = shorter routes)
+        estimated_wirelength: Estimated wirelength in mm (smaller = shorter routes)
         name: Net name (alphabetical tiebreaker for determinism)
     """
 
     loop_criticality: int
     net_class: NetClass
     pin_count: int
-    bbox_area: float
+    estimated_wirelength: float
     name: str
 
     def _key(self) -> tuple:
@@ -79,7 +79,7 @@ class NetPriority:
             self.loop_criticality,
             self.net_class.value,
             self.pin_count,
-            self.bbox_area,
+            self.estimated_wirelength,
             self.name,
         )
 
@@ -167,6 +167,44 @@ def get_loop_criticality(net_name: str, loops: LoopCollection) -> int:
     return best_criticality
 
 
+def compute_hpwl(net_name: str, netlist: Netlist) -> float:
+    """Compute Half-Perimeter Wire Length (HPWL) for a net.
+
+    HPWL is the half-perimeter of the bounding box of all pins.
+    HPWL = (max_x - min_x) + (max_y - min_y).
+
+    Args:
+        net_name: Name of the net.
+        netlist: Netlist containing component and pin information.
+
+    Returns:
+        HPWL in mm. Returns 0.0 for single-pin nets or non-existent nets.
+    """
+    pin_positions: list[tuple[float, float]] = []
+
+    for component in netlist.components:
+        comp_x, comp_y = 0.0, 0.0
+        if hasattr(component, "initial_position") and component.initial_position:
+            comp_x, comp_y = component.initial_position
+
+        for pin in component.pins:
+            if pin.net == net_name:
+                pin_x = comp_x + pin.position[0]
+                pin_y = comp_y + pin.position[1]
+                pin_positions.append((pin_x, pin_y))
+
+    if len(pin_positions) < 2:
+        return 0.0
+
+    xs = [p[0] for p in pin_positions]
+    ys = [p[1] for p in pin_positions]
+
+    width = max(xs) - min(xs)
+    height = max(ys) - min(ys)
+
+    return width + height
+
+
 def compute_bbox_area(net_name: str, netlist: Netlist) -> float:
     """Compute bounding box area for a net based on pin positions.
 
@@ -227,7 +265,7 @@ def order_nets(netlist: Netlist, loops: LoopCollection) -> list[str]:
     1. Loop membership (nets in critical loops first)
     2. Net class (HV > Power > GateDrive > Signal)
     3. Pin count (fewer pins = higher priority)
-    4. Bounding box area (smaller = higher priority)
+    4. Estimated wirelength (smaller = higher priority)
     5. Alphabetical (final tiebreaker)
 
     Args:
@@ -259,15 +297,15 @@ def order_nets(netlist: Netlist, loops: LoopCollection) -> list[str]:
         # Get pin count
         pin_count = len(net.pins)
 
-        # Get bounding box area
-        bbox_area = compute_bbox_area(net.name, netlist)
+        # Get estimated wirelength (HPWL)
+        estimated_wirelength = compute_hpwl(net.name, netlist)
 
         # Create priority object
         priority = NetPriority(
             loop_criticality=loop_criticality,
             net_class=net_class,
             pin_count=pin_count,
-            bbox_area=bbox_area,
+            estimated_wirelength=estimated_wirelength,
             name=net.name,
         )
 
