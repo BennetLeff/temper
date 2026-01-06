@@ -21,6 +21,7 @@ from temper_placer.deterministic.stages import (
     CourtyardCheckStage,
     ClearanceGridStage,
     LayerAssignmentStage,
+    PowerPlaneStage,
     NetOrderingStage,
     SequentialRoutingStage,
 )
@@ -386,6 +387,7 @@ class MVP3Runner:
                     net_class_clearances=net_class_clearances,
                 ),
                 LayerAssignmentStage(net_classes=net_classes),
+                PowerPlaneStage(),  # ROUTING-1: Mark power/ground nets for plane connection
                 NetOrderingStage(),
                 SequentialRoutingStage(design_rules=design_rules, pad_sizes=self.pad_sizes_map),
                 # Phase 6: Validation
