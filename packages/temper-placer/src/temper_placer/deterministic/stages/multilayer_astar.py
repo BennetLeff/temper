@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 @dataclass
 class RouteSegment:
     """A segment of a routed path."""
+
     start: Tuple[float, float]
     end: Tuple[float, float]
     layer: int
@@ -26,6 +27,7 @@ class RouteSegment:
 @dataclass
 class MultiLayerPath:
     """Result of multi-layer pathfinding."""
+
     segments: List[RouteSegment]
     via_positions: List[Tuple[float, float, int, int]]  # (x, y, from_layer, to_layer)
     total_cost: float
@@ -48,8 +50,8 @@ class MultiLayerAStar:
         max_iterations: Maximum search iterations before giving up
     """
 
-    grid: 'ClearanceGrid'
-    drc_oracle: Optional['DRCOracle'] = None
+    grid: "ClearanceGrid"
+    drc_oracle: Optional["DRCOracle"] = None
     net_name: str = ""
     trace_width: float = 0.25
     via_cost: float = 5.0  # Vias are expensive - prefer staying on same layer
@@ -61,10 +63,13 @@ class MultiLayerAStar:
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
 
-    def find_path(self, start: Tuple[float, float],
-                  end: Tuple[float, float],
-                  start_layer: int = 0,
-                  end_layer: int = -1) -> Optional[MultiLayerPath]:
+    def find_path(
+        self,
+        start: Tuple[float, float],
+        end: Tuple[float, float],
+        start_layer: int = 0,
+        end_layer: int = -1,
+    ) -> Optional[MultiLayerPath]:
         """Find path from start to end, potentially using multiple layers.
 
         Args:
@@ -116,11 +121,12 @@ class MultiLayerAStar:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g
                     f_score = tentative_g + self._heuristic_3d(neighbor, end_cell, end_layer)
-                    heapq.heappush(open_set,
-                        (f_score, self._tie_breaker(neighbor), neighbor))
+                    heapq.heappush(open_set, (f_score, self._tie_breaker(neighbor), neighbor))
 
         if iterations >= self.max_iterations:
-            print(f"WARNING: Multi-layer A* for {self.net_name} exceeded {self.max_iterations} iterations")
+            print(
+                f"WARNING: Multi-layer A* for {self.net_name} exceeded {self.max_iterations} iterations"
+            )
 
         return None
 
@@ -138,12 +144,14 @@ class MultiLayerAStar:
             return False
         if layer < 0 or layer >= self.grid.layer_count:
             return False
-            
+
         # Convert state to mm for is_available check
         pos_mm = self._state_to_mm(state)
         return self.grid.is_available(pos_mm[0], pos_mm[1], layer, net_id=self._net_id)
 
-    def _get_end_cells(self, end_cell: Tuple[int, int], end_layer: int) -> Set[Tuple[int, int, int]]:
+    def _get_end_cells(
+        self, end_cell: Tuple[int, int], end_layer: int
+    ) -> Set[Tuple[int, int, int]]:
         """Get valid end states."""
         if end_layer == -1:
             # Any layer is acceptable
@@ -151,32 +159,38 @@ class MultiLayerAStar:
         else:
             return {(end_cell[0], end_cell[1], end_layer)}
 
-    def _is_goal(self, state: Tuple[int, int, int],
-                 end_cells: Set[Tuple[int, int, int]],
-                 end_layer: int) -> bool:
-        """Check if we've reached the goal."""
+    def _is_goal(
+        self, state: Tuple[int, int, int], end_cells: Set[Tuple[int, int, int]], end_layer: int
+    ) -> bool:
+        """Check if we've reached the goal.
+
+        If end_layer is specified (not -1), the path MUST end on that layer.
+        This ensures layer transitions actually occur when required.
+        """
         row, col, layer = state
         if end_layer == -1:
             # Any layer at end position is OK
-            return any((row, col, l) == (e[0], e[1], e[2]) or (row == e[0] and col == e[1])
-                      for e in end_cells)
-        return (row, col, layer) in end_cells or (row, col) == (list(end_cells)[0][0], list(end_cells)[0][1])
+            return any((row, col) == (e[0], e[1]) for e in end_cells)
+        # Specific layer required - must match exactly
+        return (row, col, layer) in end_cells
 
-    def _get_3d_neighbors(self, state: Tuple[int, int, int]) -> List[Tuple[Tuple[int, int, int], float]]:
+    def _get_3d_neighbors(
+        self, state: Tuple[int, int, int]
+    ) -> List[Tuple[Tuple[int, int, int], float]]:
         """Get valid 3D neighbors including layer transitions."""
         row, col, layer = state
         neighbors = []
 
         # Same-layer moves (8-connected)
         same_layer_moves = [
-            ((row - 1, col, layer), 1.0),      # up
-            ((row, col + 1, layer), 1.0),      # right
-            ((row + 1, col, layer), 1.0),      # down
-            ((row, col - 1, layer), 1.0),      # left
-            ((row - 1, col - 1, layer), 1.414), # up-left
-            ((row - 1, col + 1, layer), 1.414), # up-right
-            ((row + 1, col - 1, layer), 1.414), # down-left
-            ((row + 1, col + 1, layer), 1.414), # down-right
+            ((row - 1, col, layer), 1.0),  # up
+            ((row, col + 1, layer), 1.0),  # right
+            ((row + 1, col, layer), 1.0),  # down
+            ((row, col - 1, layer), 1.0),  # left
+            ((row - 1, col - 1, layer), 1.414),  # up-left
+            ((row - 1, col + 1, layer), 1.414),  # up-right
+            ((row + 1, col - 1, layer), 1.414),  # down-left
+            ((row + 1, col + 1, layer), 1.414),  # down-right
         ]
 
         for neighbor_state, cost in same_layer_moves:
@@ -188,8 +202,7 @@ class MultiLayerAStar:
                 p1 = self._state_to_mm(state)
                 p2 = self._state_to_mm(neighbor_state)
                 valid, _ = self.drc_oracle.can_place_track_segment(
-                    start=p1, end=p2, layer=layer,
-                    net=self.net_name, width=self.trace_width
+                    start=p1, end=p2, layer=layer, net=self.net_name, width=self.trace_width
                 )
                 if not valid:
                     continue
@@ -224,15 +237,15 @@ class MultiLayerAStar:
         row, col, _ = state
         return (
             col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
-            row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2
+            row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
         )
 
-    def _heuristic_3d(self, state: Tuple[int, int, int],
-                      end_cell: Tuple[int, int],
-                      end_layer: int) -> float:
+    def _heuristic_3d(
+        self, state: Tuple[int, int, int], end_cell: Tuple[int, int], end_layer: int
+    ) -> float:
         """3D heuristic: Euclidean distance + layer change penalty."""
         row, col, layer = state
-        h = math.sqrt((row - end_cell[0])**2 + (col - end_cell[1])**2)
+        h = math.sqrt((row - end_cell[0]) ** 2 + (col - end_cell[1]) ** 2)
 
         # Add layer change penalty if we're not on the target layer
         if end_layer != -1 and layer != end_layer:
@@ -244,10 +257,13 @@ class MultiLayerAStar:
         """Deterministic tie-breaker: prefer lower layer, then lower row, then lower col."""
         return state
 
-    def _reconstruct_multilayer_path(self, came_from: dict,
-                                      current: Tuple[int, int, int],
-                                      start: Tuple[float, float],
-                                      end: Tuple[float, float]) -> MultiLayerPath:
+    def _reconstruct_multilayer_path(
+        self,
+        came_from: dict,
+        current: Tuple[int, int, int],
+        start: Tuple[float, float],
+        end: Tuple[float, float],
+    ) -> MultiLayerPath:
         """Reconstruct path and identify layer transitions."""
         path_states = [current]
         while current in came_from:
@@ -270,6 +286,12 @@ class MultiLayerAStar:
                 # Layer transition - record via position
                 via_pos = self._state_to_mm(s1)
                 via_positions.append((via_pos[0], via_pos[1], layer1, layer2))
+
+                # Create landing segment on new layer if XY position changed
+                # This connects the via to the next point on the target layer
+                p2 = self._state_to_mm(s2)
+                if via_pos != p2:
+                    segments.append(RouteSegment(start=via_pos, end=p2, layer=layer2))
             else:
                 # Same layer - add trace segment
                 if i == 0:
@@ -291,14 +313,12 @@ class MultiLayerAStar:
         total_cost = len(segments) + len(via_positions) * self.via_cost
 
         return MultiLayerPath(
-            segments=merged_segments,
-            via_positions=via_positions,
-            total_cost=total_cost
+            segments=merged_segments, via_positions=via_positions, total_cost=total_cost
         )
 
-    def _merge_segments(self, segments: List[RouteSegment],
-                        start: Tuple[float, float],
-                        end: Tuple[float, float]) -> List[RouteSegment]:
+    def _merge_segments(
+        self, segments: List[RouteSegment], start: Tuple[float, float], end: Tuple[float, float]
+    ) -> List[RouteSegment]:
         """Merge consecutive segments on same layer into polylines."""
         if not segments:
             return []
@@ -314,21 +334,23 @@ class MultiLayerAStar:
                 # Layer change - finalize current segment group
                 if len(current_points) >= 2:
                     for i in range(len(current_points) - 1):
-                        merged.append(RouteSegment(
-                            start=current_points[i],
-                            end=current_points[i + 1],
-                            layer=current_layer
-                        ))
+                        merged.append(
+                            RouteSegment(
+                                start=current_points[i],
+                                end=current_points[i + 1],
+                                layer=current_layer,
+                            )
+                        )
                 current_layer = seg.layer
                 current_points = [seg.start, seg.end]
 
         # Finalize last segment group
         if len(current_points) >= 2:
             for i in range(len(current_points) - 1):
-                merged.append(RouteSegment(
-                    start=current_points[i],
-                    end=current_points[i + 1],
-                    layer=current_layer
-                ))
+                merged.append(
+                    RouteSegment(
+                        start=current_points[i], end=current_points[i + 1], layer=current_layer
+                    )
+                )
 
         return merged
