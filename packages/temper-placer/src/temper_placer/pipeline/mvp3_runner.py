@@ -230,7 +230,11 @@ class MVP3Runner:
             # Step 5: Build pipeline
             logger.info("Building MVP-3 pipeline...")
             pipeline = self._build_pipeline(
-                design_rules, constraints.net_classes, fixed_placements=constraints.fixed_positions
+                design_rules,
+                constraints.net_classes,
+                fixed_placements=constraints.fixed_positions,
+                board_width=constraints.board_width_mm,
+                board_height=constraints.board_height_mm,
             )
 
             # Step 6: Run pipeline
@@ -328,8 +332,18 @@ class MVP3Runner:
         design_rules: DesignRules,
         net_classes: dict[str, str] = None,
         fixed_placements: dict = None,
+        board_width: float = 100.0,
+        board_height: float = 150.0,
     ) -> DeterministicPipeline:
-        """Construct the MVP-3 pipeline with all stages."""
+        """Construct the MVP-3 pipeline with all stages.
+
+        Args:
+            design_rules: Design rules for routing
+            net_classes: Net class assignments
+            fixed_placements: Fixed component positions
+            board_width: Board width in mm (for boundary clamping)
+            board_height: Board height in mm (for boundary clamping)
+        """
         from temper_placer.deterministic.stages import (
             SetupStage,
             DRCValidationStage,
@@ -353,8 +367,13 @@ class MVP3Runner:
                     slot_spacing=self.mvp3_config.slot_spacing_mm, fixed_placements=fixed_placements
                 ),
                 ApplyPlacementsStage(),
-                # Resolution: Resolve physical overlaps
-                CourtyardCheckStage(courtyards=self.courtyards_map),
+                # Resolution: Resolve physical overlaps (DRC-FIX-4: with board boundary clamping)
+                CourtyardCheckStage(
+                    courtyards=self.courtyards_map,
+                    board_width=board_width,
+                    board_height=board_height,
+                    margin=5.0,  # Keep components 5mm from board edges
+                ),
                 # Phase 5: Routing
                 ClearanceGridStage(
                     cell_size_mm=self.mvp3_config.cell_size_mm,
