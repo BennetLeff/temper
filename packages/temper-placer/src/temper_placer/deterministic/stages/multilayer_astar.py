@@ -60,7 +60,7 @@ class MultiLayerAStar:
     allowed_layers: List[int] = field(
         default_factory=lambda: [0, 1, 2, 3]
     )  # All 4 layers by default
-    max_iterations: int = 5000  # Reduced for faster feedback (was 50000)
+    max_iterations: int = 15000  # Increased for 4-layer routing (was 5000)
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
@@ -245,9 +245,18 @@ class MultiLayerAStar:
     def _heuristic_3d(
         self, state: Tuple[int, int, int], end_cell: Tuple[int, int], end_layer: int
     ) -> float:
-        """3D heuristic: Euclidean distance + layer change penalty."""
+        """3D heuristic: Octile distance + layer change penalty.
+
+        Octile distance is more accurate than Euclidean for 8-connected grids
+        and provides better guidance for the A* search.
+        """
         row, col, layer = state
-        h = math.sqrt((row - end_cell[0]) ** 2 + (col - end_cell[1]) ** 2)
+        dr = abs(row - end_cell[0])
+        dc = abs(col - end_cell[1])
+
+        # Octile distance: diagonal moves cost sqrt(2), cardinal moves cost 1
+        # h = max(dr, dc) + (sqrt(2) - 1) * min(dr, dc)
+        h = max(dr, dc) + 0.414 * min(dr, dc)
 
         # Add layer change penalty if we're not on the target layer
         if end_layer != -1 and layer != end_layer:
