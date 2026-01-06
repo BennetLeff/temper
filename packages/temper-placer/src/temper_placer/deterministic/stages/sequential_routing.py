@@ -271,8 +271,8 @@ class SequentialRoutingStage(Stage):
                 grid=grid,
                 drc_oracle=state.drc_oracle,
                 net_name=net_name,
-                trace_width=width,
-                allowed_zones=allowed_zones
+                trace_width=width
+                # Note: allowed_zones not supported by DeterministicAStar
             )
             mst_edges = self._compute_mst(pin_positions)
 

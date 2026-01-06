@@ -86,11 +86,14 @@ class DRCOracleSetupStage(Stage):
                         layer_idx = 0
                         
                     # Create Pad object for DRCOracle
+                    # Use sentinel net for unconnected pads so Oracle still validates
+                    # against them (fixes J_DEBUG pin 6 vs DC_BUS+ shorting)
+                    pad_net = pin.net if pin.net else "__UNCONNECTED__"
                     oracle.register_pad(Pad(
                         center=Point(pin_pos[0], pin_pos[1]),
                         shape=getattr(pin, 'shape', 'rect') if getattr(pin, 'shape', 'rect') in ["circle", "rect", "oval"] else "rect",
                         size=(getattr(pin, 'width', 1.0), getattr(pin, 'height', 1.0)),
-                        net=pin.net or "",
+                        net=pad_net,
                         layer=layer_idx,
                         id=f"{component.ref}.{pin.number}",
                         rotation=rotation, # Pad rotation follows component rotation
