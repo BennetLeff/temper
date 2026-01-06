@@ -76,26 +76,28 @@ net_classes:
   SW_NODE: "HighVoltage"
   # Power nets
   "+15V": "Power"
-  "+3V3": "Power"
   "+5V": "Power"
   VCC_BOOT: "Power"
   # Ground nets
   GND: "Ground"
   PGND: "Ground"
   CGND: "Ground"
-  # Signal nets
-  PWM_H: "Signal"
-  PWM_L: "Signal"
+  # FinePitch nets (QFN-56 MCU pads with 0.4mm pitch, 0.16mm gap)
+  # These nets connect to adjacent pads on U_MCU and need relaxed clearance
+  "+3V3": "FinePitch"      # Adjacent to GND pad on U_MCU
+  PWM_H: "FinePitch"       # Adjacent to PWM_L on U_MCU
+  PWM_L: "FinePitch"       # Adjacent to I_SENSE on U_MCU
+  I_SENSE: "FinePitch"     # Adjacent to PWM_L on U_MCU
+  SPI_CLK: "FinePitch"     # Adjacent to SPI_MOSI on U_MCU
+  SPI_MOSI: "FinePitch"    # Adjacent to SPI_CLK and SPI_MISO on U_MCU
+  SPI_MISO: "FinePitch"    # Adjacent to SPI_MOSI and SPI_CS_TEMP on U_MCU
+  SPI_CS_TEMP: "FinePitch" # Adjacent to SPI_MISO on U_MCU
+  # Standard Signal nets (not on fine-pitch pads)
   GATE_H: "Signal"
   GATE_L: "Signal"
   SHUTDOWN_N: "Signal"
-  SPI_CLK: "Signal"
-  SPI_CS_TEMP: "Signal"
-  SPI_MISO: "Signal"
-  SPI_MOSI: "Signal"
-  I_SENSE: "Signal"
   TEMP_SENSE: "Signal"
-  # Differential pair
+  # Differential pair (USB-C connector has 0.4mm pitch, 0.1mm gap)
   USB_D+: "Differential"
   USB_D-: "Differential"
 
@@ -129,12 +131,19 @@ net_class_rules:
     via_drill_mm: 0.3
     description: "Standard signals"
   
+  FinePitch:
+    trace_width_mm: 0.127  # 5 mil traces for fine-pitch routing
+    clearance_mm: 0.15     # 0.16mm actual gap on QFN-56, allow 0.15mm
+    via_size_mm: 0.4       # Smaller vias for dense areas
+    via_drill_mm: 0.2
+    description: "Fine-pitch IC signals (QFN-56 with 0.4mm pitch)"
+  
   Differential:
     trace_width_mm: 0.2
-    clearance_mm: 0.2
-    via_size_mm: 0.6
-    via_drill_mm: 0.3
-    description: "USB differential pair"
+    clearance_mm: 0.09     # USB-C has 0.1mm gap, allow 0.09mm
+    via_size_mm: 0.5
+    via_drill_mm: 0.25
+    description: "USB differential pair (tightly coupled)"
 
 # Differential pairs
 differential_pairs:
@@ -144,6 +153,20 @@ differential_pairs:
     coupling_tolerance_mm: 0.5
     max_skew_mm: 0.5
     description: "USB 2.0 differential pair"
+
+# Copper zones (GND/VCC planes) - used for zone-aware routing
+# These supplement any copper zones found in the PCB file
+copper_zones:
+  - name: "GND_plane"
+    net_classes: ["GND", "PGND"]
+    bounds: [0.5, 0.5, 99.5, 149.5]  # Cover most of board
+    layers: ["B.Cu"]  # Bottom copper layer
+    description: "Ground plane on bottom layer"
+  - name: "VCC_plane"
+    net_classes: ["+3V3", "+5V"]
+    bounds: [30.0, 0.5, 99.5, 149.5]  # Right side (excluding HV zone)
+    layers: ["In1.Cu"]  # Internal layer 1
+    description: "Power plane on internal layer"
 
 # Slot generation config
 # Professional rule: spacing >= max footprint dimension to prevent overlaps

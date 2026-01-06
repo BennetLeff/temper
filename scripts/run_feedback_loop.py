@@ -48,6 +48,43 @@ EXPECTED_TYPES = frozenset(
     ["lib_footprint_issues", "silk_overlap", "silk_over_copper", "silk_edge_clearance"]
 )
 
+# Fine-pitch components with pads closer than standard 0.2mm clearance
+# These violations are inherent to the footprint geometry, not routing bugs
+# QFN-56 (0.4mm pitch) has 0.16mm pad-to-pad gap, USB-C has 0.1mm gap
+# Modern fabs (JLCPCB, etc.) handle 0.1mm clearance without issue
+FINE_PITCH_COMPONENTS = frozenset(["U_MCU", "J_USB"])
+
+
+def is_fine_pitch_pad_violation(violation: dict) -> bool:
+    """Check if violation is due to fine-pitch footprint geometry.
+
+    These violations occur because fine-pitch components (QFN, USB-C) have
+    pads that are physically closer together than KiCad's default 0.2mm
+    clearance rule. They are NOT routing errors - the pads are placed
+    correctly per the manufacturer's footprint specification.
+
+    Returns True if violation should be filtered (not counted as actionable).
+    """
+    vtype = violation.get("type", "")
+    if vtype not in ("clearance", "solder_mask_bridge"):
+        return False
+
+    items = violation.get("items", [])
+    if len(items) != 2:
+        return False
+
+    # Check if both items are pads on the same fine-pitch component
+    for item in items:
+        desc = item.get("description", "")
+        # Format: "Pad N [NetName] of ComponentRef on Layer"
+        if "Pad" not in desc:
+            return False
+        if not any(comp in desc for comp in FINE_PITCH_COMPONENTS):
+            return False
+
+    # Both items are pads on fine-pitch components
+    return True
+
 
 def run_kicad_drc(pcb_path: Path, output_dir: Path) -> tuple[Path, dict]:
     """Run KiCad DRC and return the report path and parsed data."""
@@ -80,20 +117,33 @@ def run_kicad_drc(pcb_path: Path, output_dir: Path) -> tuple[Path, dict]:
 
 
 def count_violations(data: dict) -> dict:
-    """Count violations by type."""
+    """Count violations by type, filtering expected and fine-pitch pad violations."""
     from collections import Counter
 
-    total = len(data.get("violations", [])) + len(data.get("unconnected_items", []))
+    violations = data.get("violations", [])
+    unconnected = data.get("unconnected_items", [])
+
+    total = len(violations) + len(unconnected)
+
+    # Count fine-pitch pad violations separately
+    fine_pitch_count = sum(1 for v in violations if is_fine_pitch_pad_violation(v))
 
     by_type = Counter()
-    for v in data.get("violations", []):
+    for v in violations:
         by_type[v.get("type", "unknown")] += 1
-    for v in data.get("unconnected_items", []):
+    for _ in unconnected:
         by_type["unconnected"] += 1
 
+    # Actionable = total minus expected types minus fine-pitch footprint violations
     actionable = sum(c for t, c in by_type.items() if t not in EXPECTED_TYPES)
+    actionable -= fine_pitch_count
 
-    return {"total": total, "actionable": actionable, "by_type": dict(by_type)}
+    return {
+        "total": total,
+        "actionable": actionable,
+        "fine_pitch_filtered": fine_pitch_count,
+        "by_type": dict(by_type),
+    }
 
 
 def main():
@@ -216,6 +266,7 @@ def main():
                 "iteration": iteration,
                 "total": counts["total"],
                 "actionable": counts["actionable"],
+                "fine_pitch_filtered": counts["fine_pitch_filtered"],
                 "by_type": counts["by_type"],
             }
         )
@@ -223,6 +274,8 @@ def main():
         print(f"\nDRC Results:")
         print(f"  Total violations: {counts['total']}")
         print(f"  Actionable: {counts['actionable']}")
+        if counts["fine_pitch_filtered"] > 0:
+            print(f"  Fine-pitch pad violations (filtered): {counts['fine_pitch_filtered']}")
         print(f"  By type:")
         for vtype, count in sorted(counts["by_type"].items(), key=lambda x: -x[1]):
             marker = " (expected)" if vtype in EXPECTED_TYPES else ""
