@@ -132,9 +132,9 @@
     (property "Footprint" "Capacitor_THT:CP_Radial_D18.0mm_P7.50mm")
     (attr through_hole)
     (pad "1" thru_hole circle (at 0 0) (size 3.0 3.0) (drill 1.5) (layers "*.Cu" "*.Mask")
-      (net 8 "DC_BUS+"))
-    (pad "2" thru_hole circle (at 7.5 0) (size 3.0 3.0) (drill 1.5) (layers "*.Cu" "*.Mask")
       (net 2 "PGND"))
+    (pad "2" thru_hole circle (at 7.5 0) (size 3.0 3.0) (drill 1.5) (layers "*.Cu" "*.Mask")
+      (net 9 "DC_BUS-"))
   )
 
   ; ========== HALF BRIDGE SECTION ==========
@@ -150,9 +150,9 @@
     (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
       (net 11 "GATE_H"))
     (pad "2" thru_hole circle (at 5.45 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
-      (net 10 "SW_NODE"))
-    (pad "3" thru_hole circle (at 10.9 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
       (net 8 "DC_BUS+"))
+    (pad "3" thru_hole circle (at 10.9 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 10 "SW_NODE"))
   )
 
   ; Low-side IGBT (Q2 - IKW40N120H3)
@@ -166,9 +166,9 @@
     (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
       (net 12 "GATE_L"))
     (pad "2" thru_hole circle (at 5.45 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
-      (net 2 "PGND"))
-    (pad "3" thru_hole circle (at 10.9 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
       (net 10 "SW_NODE"))
+    (pad "3" thru_hole circle (at 10.9 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 9 "DC_BUS-"))
   )
 
   ; Gate Driver (UCC21550 - SOIC-16)
