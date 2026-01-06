@@ -60,10 +60,46 @@ class MultiLayerAStar:
     allowed_layers: List[int] = field(
         default_factory=lambda: [0, 1, 2, 3]
     )  # All 4 layers by default
-    max_iterations: int = 15000  # Increased for 4-layer routing (was 5000)
+    max_iterations: int = 15000  # Default, overridden by adaptive calculation
+    # Adaptive iteration parameters
+    iterations_per_cell: int = 15  # Base multiplier for distance-based limit
+    min_iterations: int = 1000  # Floor for short paths
+    max_iterations_cap: int = 50000  # Ceiling to prevent runaway searches
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
+
+    def _estimate_iterations(self, start_cell: Tuple[int, int], end_cell: Tuple[int, int]) -> int:
+        """Estimate max iterations based on distance and search complexity.
+
+        Uses octile distance (accurate for 8-connected grids) scaled by:
+        - Number of allowed layers (more layers = larger search space)
+        - Congestion factor (accounts for obstacle detours)
+
+        Short paths get a minimum budget; long paths are capped to prevent
+        runaway searches on impossible routes.
+
+        Returns:
+            Adaptive iteration limit between min_iterations and max_iterations_cap
+        """
+        dr = abs(start_cell[0] - end_cell[0])
+        dc = abs(start_cell[1] - end_cell[1])
+
+        # Octile distance in grid cells
+        octile_dist = max(dr, dc) + 0.414 * min(dr, dc)
+
+        # Layer factor: more layers = exponentially more states to explore
+        # But diminishing returns - 4 layers isn't 4x harder than 1
+        layer_factor = 1.0 + 0.3 * (len(self.allowed_layers) - 1)
+
+        # Congestion factor: assume moderate congestion requires ~2x detour
+        congestion_factor = 2.0
+
+        # Calculate adaptive limit
+        estimated = int(self.iterations_per_cell * octile_dist * layer_factor * congestion_factor)
+
+        # Clamp to bounds
+        return max(self.min_iterations, min(estimated, self.max_iterations_cap))
 
     def find_path(
         self,
@@ -98,6 +134,9 @@ class MultiLayerAStar:
         if not self._is_within_bounds(start_cell) or not self._is_within_bounds(end_cell):
             return None
 
+        # Calculate adaptive iteration limit based on distance
+        adaptive_limit = self._estimate_iterations(start_cell, end_cell)
+
         # A* with 3D state: (row, col, layer)
         # Priority: (f_score, tie_breaker, state)
         start_state = (start_cell[0], start_cell[1], start_layer)
@@ -108,7 +147,7 @@ class MultiLayerAStar:
         g_score = {start_state: 0}
         iterations = 0
 
-        while open_set and iterations < self.max_iterations:
+        while open_set and iterations < adaptive_limit:
             iterations += 1
             _, _, current = heapq.heappop(open_set)
 
@@ -125,9 +164,14 @@ class MultiLayerAStar:
                     f_score = tentative_g + self._heuristic_3d(neighbor, end_cell, end_layer)
                     heapq.heappush(open_set, (f_score, self._tie_breaker(neighbor), neighbor))
 
-        if iterations >= self.max_iterations:
+        if iterations >= adaptive_limit:
+            # Calculate distance for diagnostic
+            dr = abs(start_cell[0] - end_cell[0])
+            dc = abs(start_cell[1] - end_cell[1])
+            dist_cells = max(dr, dc) + 0.414 * min(dr, dc)
             print(
-                f"WARNING: Multi-layer A* for {self.net_name} exceeded {self.max_iterations} iterations"
+                f"WARNING: Multi-layer A* for {self.net_name} exceeded {adaptive_limit} iterations "
+                f"(dist={dist_cells:.0f} cells, layers={len(self.allowed_layers)})"
             )
 
         return None

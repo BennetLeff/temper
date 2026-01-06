@@ -16,11 +16,40 @@ class DeterministicAStar:
     drc_oracle: Optional["DRCOracle"] = None
     net_name: str = ""
     trace_width: float = 0.25
-    max_iterations: int = 5000  # Increased for congested boards (was 2000)
+    max_iterations: int = 5000  # Default, overridden by adaptive calculation
     relaxed_retry: bool = True  # Retry with neckdown if strict search fails
+    # Adaptive iteration parameters
+    iterations_per_cell: int = 50  # Base multiplier for distance-based limit
+    min_iterations: int = 2000  # Floor for short paths with obstacles
+    max_iterations_cap: int = 50000  # Ceiling for complex routes
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
+
+    def _estimate_iterations(self, start_cell: Tuple[int, int], end_cell: Tuple[int, int]) -> int:
+        """Estimate max iterations based on distance.
+
+        Single-layer search is simpler than multi-layer, so we use lower
+        multipliers. Uses octile distance for accuracy on 8-connected grids.
+
+        Returns:
+            Adaptive iteration limit between min_iterations and max_iterations_cap
+        """
+        dr = abs(start_cell[0] - end_cell[0])
+        dc = abs(start_cell[1] - end_cell[1])
+
+        # Octile distance in grid cells
+        octile_dist = max(dr, dc) + 0.414 * min(dr, dc)
+
+        # Congestion factor: worst-case obstacles can require 5x detour
+        # (e.g., wall blocking direct path, must go around entire obstacle)
+        congestion_factor = 5.0
+
+        # Calculate adaptive limit
+        estimated = int(self.iterations_per_cell * octile_dist * congestion_factor)
+
+        # Clamp to bounds
+        return max(self.min_iterations, min(estimated, self.max_iterations_cap))
 
     def find_path(
         self, start: Tuple[float, float], end: Tuple[float, float], layer: int = 0
@@ -55,6 +84,9 @@ class DeterministicAStar:
         if not self._is_valid(start_cell, layer) or not self._is_valid(end_cell, layer):
             return None
 
+        # Calculate adaptive iteration limit based on distance
+        adaptive_limit = self._estimate_iterations(start_cell, end_cell)
+
         # A* with deterministic tie-breaking
         # Priority: (f_score, tie_breaker, cell)
         open_set = [(0, self._tie_breaker(start_cell), start_cell)]
@@ -62,7 +94,7 @@ class DeterministicAStar:
         g_score = {start_cell: 0}
         iterations = 0
 
-        while open_set and iterations < self.max_iterations:
+        while open_set and iterations < adaptive_limit:
             iterations += 1
             _, _, current = heapq.heappop(open_set)
 
@@ -78,9 +110,13 @@ class DeterministicAStar:
                     f_score = tentative_g + self._heuristic(neighbor, end_cell)
                     heapq.heappush(open_set, (f_score, self._tie_breaker(neighbor), neighbor))
 
-        if iterations >= self.max_iterations:
+        if iterations >= adaptive_limit:
+            dr = abs(start_cell[0] - end_cell[0])
+            dc = abs(start_cell[1] - end_cell[1])
+            dist_cells = max(dr, dc) + 0.414 * min(dr, dc)
             print(
-                f"WARNING: A* search for {self.net_name} exceeded {self.max_iterations} iterations"
+                f"WARNING: A* search for {self.net_name} exceeded {adaptive_limit} iterations "
+                f"(dist={dist_cells:.0f} cells)"
             )
 
         return None  # No path found
