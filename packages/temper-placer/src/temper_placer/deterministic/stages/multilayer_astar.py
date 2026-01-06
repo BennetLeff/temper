@@ -123,8 +123,8 @@ class MultiLayerAStar:
         Returns:
             MultiLayerPath with segments and via positions, or None if no path found.
         """
-        if end_layer == -1:
-            end_layer = start_layer
+        # Note: end_layer=-1 means "any layer is acceptable" - do NOT convert to start_layer
+        # The _get_end_cells() and _is_goal() methods handle -1 correctly
 
         # Validate layers
         if start_layer not in self.allowed_layers:
@@ -144,6 +144,19 @@ class MultiLayerAStar:
         # Calculate adaptive iteration limit based on distance
         adaptive_limit = self._estimate_iterations(start_cell, end_cell)
         self.last_iteration_limit = adaptive_limit
+
+        # Determine which layers are blocked at the goal (heuristic optimization)
+        # This allows the heuristic to encourage early layer transitions when needed
+        end_blocked_layers: Optional[Set[int]] = None
+        if end_layer == -1:
+            end_blocked_layers = set()
+            for layer in self.allowed_layers:
+                end_state = (end_cell[0], end_cell[1], layer)
+                if not self._is_valid_3d(end_state):
+                    end_blocked_layers.add(layer)
+            # If all layers blocked, or none blocked, no optimization needed
+            if len(end_blocked_layers) == 0 or len(end_blocked_layers) == len(self.allowed_layers):
+                end_blocked_layers = None
 
         # A* with 3D state: (row, col, layer)
         # Priority: (f_score, tie_breaker, state)
@@ -171,7 +184,9 @@ class MultiLayerAStar:
                 if neighbor not in g_score or tentative_g < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g
-                    f_score = tentative_g + self._heuristic_3d(neighbor, end_cell, end_layer)
+                    f_score = tentative_g + self._heuristic_3d(
+                        neighbor, end_cell, end_layer, end_blocked_layers
+                    )
                     heapq.heappush(open_set, (f_score, self._tie_breaker(neighbor), neighbor))
 
         self.last_iterations = iterations
@@ -300,12 +315,22 @@ class MultiLayerAStar:
         )
 
     def _heuristic_3d(
-        self, state: Tuple[int, int, int], end_cell: Tuple[int, int], end_layer: int
+        self,
+        state: Tuple[int, int, int],
+        end_cell: Tuple[int, int],
+        end_layer: int,
+        end_blocked_layers: Optional[Set[int]] = None,
     ) -> float:
         """3D heuristic: Octile distance + layer change penalty.
 
         Octile distance is more accurate than Euclidean for 8-connected grids
         and provides better guidance for the A* search.
+
+        Args:
+            state: Current (row, col, layer) state
+            end_cell: Target (row, col) position
+            end_layer: Target layer (-1 for any layer)
+            end_blocked_layers: Set of layers where goal is blocked (optimization hint)
         """
         row, col, layer = state
         dr = abs(row - end_cell[0])
@@ -317,6 +342,10 @@ class MultiLayerAStar:
 
         # Add layer change penalty if we're not on the target layer
         if end_layer != -1 and layer != end_layer:
+            h += self.via_cost
+        elif end_layer == -1 and end_blocked_layers and layer in end_blocked_layers:
+            # Goal is blocked on this layer - we WILL need a via, so include cost
+            # This encourages the search to transition layers earlier
             h += self.via_cost
 
         return h
