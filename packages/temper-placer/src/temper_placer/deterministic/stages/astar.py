@@ -15,8 +15,11 @@ class DeterministicAStar:
     drc_oracle: Optional['DRCOracle'] = None
     net_name: str = ""
     trace_width: float = 0.25
-    max_iterations: int = 10000  # Limit search to prevent infinite loops
+    max_iterations: int = 2000  # Reduced for faster feedback (was 10000)
     relaxed_retry: bool = True    # Retry with neckdown if strict search fails
+
+    def __post_init__(self):
+        self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
 
     def find_path(self, start: Tuple[float, float],
                   end: Tuple[float, float],
@@ -86,7 +89,12 @@ class DeterministicAStar:
             return False
         if layer < 0 or layer >= self.grid.layer_count:
             return False
-        return self.grid._grids[layer][row, col] == 0
+        
+        # Convert cell to mm for is_available check
+        x_mm = col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2
+        y_mm = row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2
+        
+        return self.grid.is_available(x_mm, y_mm, layer, net_id=self._net_id)
     
     def _get_neighbors(self, cell: Tuple[int, int], layer: int = 0, relaxed: bool = False) -> List[Tuple[Tuple[int, int], float]]:
         '''Get valid neighbors on specified layer (8-connected for determinism).'''

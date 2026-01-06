@@ -213,7 +213,11 @@ class MVP3Runner:
             
             # Step 5: Build pipeline
             logger.info("Building MVP-3 pipeline...")
-            pipeline = self._build_pipeline(design_rules, constraints.net_classes)
+            pipeline = self._build_pipeline(
+                design_rules, 
+                constraints.net_classes,
+                fixed_placements=constraints.fixed_positions
+            )
             
             # Step 6: Run pipeline
             logger.info("Running deterministic pipeline...")
@@ -252,8 +256,14 @@ class MVP3Runner:
             placements = dict(final_state.placements) if final_state.placements else {}
             routes = list(final_state.routes) if final_state.routes else []
             
+            # Count unique routed nets (routes contains segments, we need unique nets)
+            routed_net_names = {route.net for route in routes if route.net}
+            if final_state.vias:
+                routed_net_names.update({via.net for via in final_state.vias if via.net})
+            num_routed_nets = len(routed_net_names)
+            
             logger.info(f"Placement: {len(placements)}/{len(netlist.components)} components")
-            logger.info(f"Routing: {len(routes)}/{len(netlist.nets)} nets")
+            logger.info(f"Routing: {num_routed_nets}/{len(netlist.nets)} nets")
             
             # Step 8: Export to KiCad
             logger.info(f"Exporting to {self.output_path}")
@@ -261,7 +271,7 @@ class MVP3Runner:
             
             return MVP3Result(
                 success=True,
-                nets_routed=len(routes),
+                nets_routed=num_routed_nets,
                 total_nets=len(netlist.nets),
                 components_placed=len(placements),
                 total_components=len(netlist.components),
@@ -297,13 +307,22 @@ class MVP3Runner:
         
         return design_rules
     
-    def _build_pipeline(self, design_rules: DesignRules, net_classes: dict[str, str] = None) -> DeterministicPipeline:
+    def _build_pipeline(self, 
+                        design_rules: DesignRules, 
+                        net_classes: dict[str, str] = None,
+                        fixed_placements: dict = None) -> DeterministicPipeline:
         """Construct the MVP-3 pipeline with all stages."""
         from temper_placer.deterministic.stages import (
             SetupStage, 
             DRCValidationStage, 
             ConnectivityValidationStage
         )
+        
+        # Build net class clearance mapping for the grid
+        net_class_clearances = {
+            name: rules.clearance 
+            for name, rules in design_rules.net_classes.items()
+        }
         
         return DeterministicPipeline(stages=[
             # Phase 0: Setup
@@ -312,7 +331,10 @@ class MVP3Runner:
             ZoneGeometryStage(),
             ZoneAssignmentStage(),
             SlotGenerationStage(slot_spacing_mm=self.mvp3_config.slot_spacing_mm),
-            ComponentAssignmentStage(),
+            ComponentAssignmentStage(
+                slot_spacing=self.mvp3_config.slot_spacing_mm,
+                fixed_placements=fixed_placements
+            ),
             ApplyPlacementsStage(),
             # Resolution: Resolve physical overlaps
             CourtyardCheckStage(courtyards=self.courtyards_map),
@@ -321,6 +343,7 @@ class MVP3Runner:
                 cell_size_mm=self.mvp3_config.cell_size_mm,
                 layer_count=self.mvp3_config.layer_count,
                 pad_sizes=self.pad_sizes_map,  # Inject pad sizes
+                net_class_clearances=net_class_clearances,
             ),
             LayerAssignmentStage(net_classes=net_classes),
             NetOrderingStage(),

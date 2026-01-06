@@ -56,7 +56,10 @@ class MultiLayerAStar:
     via_diameter: float = 0.6
     via_drill: float = 0.3
     allowed_layers: List[int] = field(default_factory=lambda: [0, 3])  # F.Cu and B.Cu by default
-    max_iterations: int = 50000  # Higher limit for multi-layer search
+    max_iterations: int = 5000  # Reduced for faster feedback (was 50000)
+
+    def __post_init__(self):
+        self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
 
     def find_path(self, start: Tuple[float, float],
                   end: Tuple[float, float],
@@ -135,7 +138,10 @@ class MultiLayerAStar:
             return False
         if layer < 0 or layer >= self.grid.layer_count:
             return False
-        return self.grid._grids[layer][row, col] == 0
+            
+        # Convert state to mm for is_available check
+        pos_mm = self._state_to_mm(state)
+        return self.grid.is_available(pos_mm[0], pos_mm[1], layer, net_id=self._net_id)
 
     def _get_end_cells(self, end_cell: Tuple[int, int], end_layer: int) -> Set[Tuple[int, int, int]]:
         """Get valid end states."""

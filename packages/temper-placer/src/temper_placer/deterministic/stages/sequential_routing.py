@@ -243,22 +243,10 @@ class SequentialRoutingStage(Stage):
 
                     # Block Via on ALL layers
                     for l_idx in range(grid.layer_count):
-                        grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+                        grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx, net_name=net_name, is_pad=False)
 
                 # Skip trace routing for plane nets
                 continue
-
-            # Unblock THIS net's pads so A* can route to them
-            unblock_radius = width / 2.0 + clearance + (0.15 if any(p.is_pth for p in pins) else 0.1)
-            for i, pos in enumerate(pin_positions):
-                # Calculate full unblock radius including pad size
-                pad_r = 0.5
-                if self.pad_sizes:
-                    real_pad = self.pad_sizes.get(pin_info[i])
-                    if real_pad:
-                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                full_unblock_radius = pad_r + unblock_radius
-                grid.unblock_circle(pos, radius_mm=full_unblock_radius, layer=layer_idx)
 
             # Get zone confinement for this net class (net_class_name set above)
             allowed_zones = self._get_allowed_zones(net_class_name, state)
@@ -290,8 +278,7 @@ class SequentialRoutingStage(Stage):
                 net_name=net_name,
                 trace_width=width,
                 via_cost=5.0,  # Discourage unnecessary vias
-                allowed_layers=[0, 3],  # F.Cu and B.Cu only
-                allowed_zones=allowed_zones
+                allowed_layers=[0, 3]  # F.Cu and B.Cu only
             )
 
             # Route all edges in the MST
@@ -339,8 +326,8 @@ class SequentialRoutingStage(Stage):
             # Commit all single-layer paths for this net
             for path, path_layer_idx in net_paths:
                 path_layer_name = LAYER_IDX_TO_NAME.get(path_layer_idx, "F.Cu")
-                # Block the routed trace on the same layer
-                grid.block_trace(path, width_mm=width, clearance_mm=clearance, layer=path_layer_idx)
+                # Block the routed trace on the same layer with net_name
+                grid.block_trace(path, width_mm=width, clearance_mm=clearance, layer=path_layer_idx, net_name=net_name)
 
                 # Create Trace objects for state with correct layer
                 # FINAL VALIDATION: Check each trace segment before adding
@@ -389,12 +376,13 @@ class SequentialRoutingStage(Stage):
                 for segment in ml_path.segments:
                     seg_layer_name = LAYER_IDX_TO_NAME.get(segment.layer, "F.Cu")
 
-                    # Block on grid
+                    # Block on grid with net_name
                     grid.block_trace(
                         [segment.start, segment.end],
                         width_mm=width,
                         clearance_mm=clearance,
-                        layer=segment.layer
+                        layer=segment.layer,
+                        net_name=net_name
                     )
 
                     # FINAL VALIDATION: Validate multi-layer trace segment
@@ -444,9 +432,9 @@ class SequentialRoutingStage(Stage):
                     )
                     all_vias.append(via)
 
-                    # Block via on ALL layers
+                    # Block via on ALL layers with net_name
                     for l_idx in range(grid.layer_count):
-                        grid.block_circle((vx, vy), radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
+                        grid.block_circle((vx, vy), radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx, net_name=net_name, is_pad=False)
 
                     # Register in DRCOracle
                     if state.drc_oracle:
@@ -544,17 +532,7 @@ class SequentialRoutingStage(Stage):
                     # Block Via on ALL layers
                     # Iterate all grid layers
                     for l_idx in range(grid.layer_count):
-                        grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx)
-
-            # Re-block THIS net's pads after routing to protect them from subsequent nets
-            inflated_clearance = clearance + (width / 2.0) + (0.15 if any(p.is_pth for p in pins) else 0.1)
-            for i, pos in enumerate(pin_positions):
-                pad_r = 0.5
-                if self.pad_sizes:
-                    real_pad = self.pad_sizes.get(pin_info[i])
-                    if real_pad:
-                        pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
-                grid.block_circle(pos, radius_mm=pad_r, clearance_mm=inflated_clearance, layer=layer_idx)
+                        grid.block_circle(safe_pos, radius_mm=via_d/2, clearance_mm=clearance, layer=l_idx, net_name=net_name, is_pad=False)
 
             net_elapsed = time.time() - net_start
             print(f"      ✓ {net_name} routed in {net_elapsed:.2f}s", flush=True)

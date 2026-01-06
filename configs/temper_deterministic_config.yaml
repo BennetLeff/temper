@@ -7,26 +7,27 @@ board:
   margin_mm: 5.0
 
 # Zone definitions (HV, Power, Signal, MCU)
+# Professional layout: HV needs most space for PTH components, MCU needs ~25mm for ESP32
 zones:
   - name: "HV"
-    bounds_ratio: [0.0, 0.0, 0.3, 1.0]  # Left 30%
+    bounds_ratio: [0.0, 0.0, 0.35, 1.0]  # Left 35% (0-35mm) - large PTH components
     description: "High voltage components"
     max_size: [50.0, 150.0]
     can_expand: ["right"]
   - name: "Power"
-    bounds_ratio: [0.3, 0.0, 0.6, 1.0]  # Center-left 30%
+    bounds_ratio: [0.35, 0.0, 0.55, 1.0]  # Center-left 20% (35-55mm) - DC-DC, regulators
     description: "Power management"
     max_size: [50.0, 150.0]
     can_expand: ["right", "left"]
   - name: "Signal"
-    bounds_ratio: [0.6, 0.0, 0.9, 1.0]  # Center-right 30%
+    bounds_ratio: [0.55, 0.0, 0.75, 1.0]  # Center-right 20% (55-75mm) - sensing ICs
     description: "Signal processing"
     max_size: [50.0, 150.0]
     can_expand: ["right", "left"]
   - name: "MCU"
-    bounds_ratio: [0.9, 0.0, 1.0, 1.0]  # Right 10%
+    bounds_ratio: [0.75, 0.0, 1.0, 1.0]  # Right 25% (75-100mm) - ESP32 + peripherals
     description: "Microcontroller"
-    max_size: [20.0, 150.0]
+    max_size: [30.0, 150.0]
     can_expand: ["left"]
 
 # Feedback loop configuration
@@ -41,7 +42,8 @@ zone_assignments:
   J_AC_IN: "HV"
   Q1: "HV"
   Q2: "HV"
-  D_RECT: "HV"
+  D1: "HV"
+  D2: "HV"
   C_DC_BUS: "HV"
   # Power Zone  
   U_15V: "Power"
@@ -53,6 +55,16 @@ zone_assignments:
   U_OCP: "Signal"
   # MCU Zone
   U_MCU: "MCU"
+
+# Fixed placements for critical components
+# Ensures minimal loop area for gate drive and DC bus
+fixed_positions:
+  U_GATE: [15.0, 75.0]
+  C_BUS1: [10.0, 60.0]
+  C_BUS2: [10.0, 90.0]
+  # Fix AC input flow: Connector -> Diodes -> Caps (Vertical flow up)
+  J_AC_IN: [15.0, 20.0]
+  # D1/D2 removed to allow placer to optimize for routing channels within HV zone
 
 # Net class assignments (net_name -> net_class)
 net_classes:
@@ -134,8 +146,10 @@ differential_pairs:
     description: "USB 2.0 differential pair"
 
 # Slot generation config
+# Professional rule: spacing >= max footprint dimension to prevent overlaps
+# J_AC_IN connector ~15mm, Q1/Q2 IGBTs ~12mm, smallest SMD ~3mm
 slot_generation:
-  spacing_mm: 6.0  # Optimal balance (tested 7mm - caused routing congestion)
+  spacing_mm: 12.0  # Minimum to prevent PTH component overlaps
   grid_alignment: true
 
 # Loss function configuration (for gradient optimizer - not used in deterministic pipeline)

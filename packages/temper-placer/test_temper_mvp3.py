@@ -88,11 +88,17 @@ try:
     # Check results
     placements = dict(final_state.placements) if final_state.placements else {}
     routes = list(final_state.routes) if final_state.routes else []
+    vias = list(final_state.vias) if final_state.vias else []
+
+    routed_net_names = {route.net for route in routes if route.net}
+    if vias:
+        routed_net_names.update({via.net for via in vias if via.net})
+    num_routed_nets = len(routed_net_names)
     
     print(f"\nResults:")
     print(f"  Components placed: {len(placements)}")
-    print(f"  Nets routed: {len(routes)}")
-    print(f"  Routing completion: {len(routes)}/{len(netlist.nets)} ({100*len(routes)/len(netlist.nets):.1f}%)")
+    print(f"  Nets routed: {num_routed_nets}")
+    print(f"  Routing completion: {num_routed_nets}/{len(netlist.nets)} ({100*num_routed_nets/len(netlist.nets):.1f}%)")
     
     if len(routes) > 0:
         print(f"\n  Sample routed nets:")

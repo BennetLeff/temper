@@ -29,18 +29,38 @@ class ZoneGeometryStage(Stage):
         return replace(state, zones=frozenset(zones))
     
     def _define_zones_from_config(self, board_width: float, board_height: float) -> list[Zone]:
-        """Define zones using bounds_ratio from config."""
+        """Define zones using bounds_ratio from config.
+
+        Handles both Zone objects (from config_loader) and dicts (raw YAML).
+        The core/board.py Zone uses bounds: (x_min, y_min, x_max, y_max)
+        but our local Zone uses bounds: ((x_min, y_min), (x_max, y_max))
+        """
         zones = []
         for z in self.zone_config:
-            name = z['name']
-            ratio = z.get('bounds_ratio', [0, 0, 1, 1])
-            zones.append(Zone(
-                name=name,
-                bounds=(
-                    (ratio[0] * board_width, ratio[1] * board_height),
-                    (ratio[2] * board_width, ratio[3] * board_height)
-                )
-            ))
+            # Check if z is already a Zone object (from core/board.py)
+            if hasattr(z, 'name') and hasattr(z, 'bounds'):
+                # Convert from (x_min, y_min, x_max, y_max) to ((x_min, y_min), (x_max, y_max))
+                b = z.bounds
+                if len(b) == 4:
+                    # core/board.py format: (x_min, y_min, x_max, y_max)
+                    bounds = ((b[0], b[1]), (b[2], b[3]))
+                else:
+                    # Already nested tuple format
+                    bounds = b
+                zones.append(Zone(name=z.name, bounds=bounds))
+            elif isinstance(z, dict):
+                # Dict format - use bounds_ratio
+                name = z['name']
+                ratio = z.get('bounds_ratio', [0, 0, 1, 1])
+                zones.append(Zone(
+                    name=name,
+                    bounds=(
+                        (ratio[0] * board_width, ratio[1] * board_height),
+                        (ratio[2] * board_width, ratio[3] * board_height)
+                    )
+                ))
+            else:
+                print(f"WARNING: Unknown zone format: {type(z)}")
         return zones
 
     def _define_zone_layout(self, board_width: float, board_height: float) -> list[Zone]:

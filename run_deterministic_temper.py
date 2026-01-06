@@ -46,7 +46,7 @@ def main():
     # Configure MVP3
     mvp3_config = MVP3Config(
         layer_count=4,
-        cell_size_mm=0.5,
+        cell_size_mm=0.25,
         slot_spacing_mm=5.0,
     )
     
