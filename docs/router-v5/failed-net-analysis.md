@@ -328,3 +328,41 @@ layer_assignments = {
 3. ✅ Reserve manual fanout for final 10-20% problematic nets
 
 This hybrid approach is **industry standard** for complex PCBs and maintains the Zero-DRC guarantee.
+
+---
+
+## Update: Run #35 - Inner Layer Routing Enabled (2026-01-06)
+
+### Configuration Changes
+
+Implemented **Option B: Net-to-Layer Pre-Assignment** with full 4-layer routing:
+
+1. **`multilayer_astar.py`**: Changed `allowed_layers` default from `[0, 3]` to `[0, 1, 2, 3]`
+2. **`board.py`**: Changed inner layers from `is_routable=False` to `is_routable=True` with `layer_type="mixed"`
+3. **`sequential_routing.py`**: Added `_get_allowed_layers_for_net()` for per-net layer assignment:
+   - HV nets (DC_BUS, SW_NODE, AC_L/N): `[0, 3]` (outer layers only)
+   - Gate drive (PWM_H, PWM_L, VCC_BOOT): `[0, 3]` (outer layers)
+   - SPI bus: `[0, 1, 2, 3]` (all 4 layers for maximum flexibility)
+   - USB: `[0, 1, 2, 3]` (differential pair routing)
+   - Default signals: `[0, 1, 2, 3]`
+
+4. **`layer_assignment.py`**: Updated `DEFAULT_LAYER_CONSTRAINTS` to allow all 4 layers
+5. Reduced `via_cost` from 5.0 to 3.0 to encourage layer transitions
+
+### Results
+
+- **Completion**: Testing in progress (benchmark timed out due to larger search space)
+- **Observation**: Router is now searching all 4 layers (visible in iteration counts)
+- **Issue**: 5000 iteration limit is too low for 4-layer search space
+
+### Key Observations
+
+1. **Inner layer routing is active**: Logs show "barrel connects to In1.Cu" and "barrel connects to In2.Cu"
+2. **Search space increased**: Many nets hitting 5000 iteration limit
+3. **Architecture is correct**: Multi-layer A* properly considers layer transitions with via cost
+
+### Next Steps
+
+1. **Increase iteration limit** for MultiLayerAStar (suggest 20000 for 4-layer boards)
+2. **Add early termination** when a valid path is found (don't explore all alternatives)
+3. **Implement net-priority routing** - route critical/long nets first when grid is less congested

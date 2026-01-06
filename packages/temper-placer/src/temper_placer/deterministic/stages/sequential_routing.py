@@ -10,10 +10,19 @@ from ...routing.constraints.spatial_index import Track as OracleTrack, Via as Or
 from ...routing.constraints.geometry import Point as OraclePoint
 from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
+from ...routing.layer_assignment import Layer as LayerEnum
 
 # Layer name mappings
 LAYER_IDX_TO_NAME = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
 LAYER_NAME_TO_IDX = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}
+
+# Layer enum to index mapping
+LAYER_ENUM_TO_IDX = {
+    LayerEnum.L1_TOP: 0,
+    LayerEnum.L2_GND: 1,
+    LayerEnum.L3_PWR: 2,
+    LayerEnum.L4_BOT: 3,
+}
 
 
 class SequentialRoutingStage(Stage):
@@ -78,6 +87,76 @@ class SequentialRoutingStage(Stage):
                 print(f"WARNING: Zone '{zone_name}' in confined_to_zones not found in board zones")
 
         return allowed_zones if allowed_zones else None
+
+    def _get_allowed_layers_for_net(
+        self, net_name: str, net_class_name: str | None, state: BoardState
+    ) -> List[int]:
+        """Get allowed layer indices for routing a specific net.
+
+        Uses layer assignments from BoardState if available, otherwise falls back
+        to net class-based heuristics. This enables multi-layer routing on inner
+        layers when outer layers are congested.
+
+        Args:
+            net_name: Name of the net being routed
+            net_class_name: Net class (e.g., 'HighVoltage', 'Signal', 'SPI')
+            state: BoardState containing layer assignments
+
+        Returns:
+            List of layer indices (0=F.Cu, 1=In1.Cu, 2=In2.Cu, 3=B.Cu)
+        """
+        # Check for explicit layer assignment in BoardState
+        if state.layer_assignments:
+            for assignment in state.layer_assignments:
+                if assignment.net_name == net_name and hasattr(assignment, "allowed_layers"):
+                    # Convert Layer enum set to indices
+                    allowed = []
+                    for layer_enum in assignment.allowed_layers:
+                        if layer_enum in LAYER_ENUM_TO_IDX:
+                            allowed.append(LAYER_ENUM_TO_IDX[layer_enum])
+                    if allowed:
+                        return sorted(allowed)
+
+        # Net class-based layer assignment strategy
+        # Priority: Keep HV on outer layers, allow digital signals on all 4 layers
+        net_upper = net_name.upper()
+        net_class_upper = (net_class_name or "").upper()
+
+        # High-voltage nets: Outer layers only (L1, L4) for clearance
+        if any(
+            pattern in net_upper
+            for pattern in ["DC_BUS", "HV_", "SW_NODE", "AC_L", "AC_N", "RECT_"]
+        ):
+            return [0, 3]  # F.Cu and B.Cu only
+
+        # Gate drive: Prefer outer layers but allow inner for escape routing
+        if any(pattern in net_upper for pattern in ["GATE_", "DRV_", "PWM_H", "PWM_L", "VCC_BOOT"]):
+            return [0, 3]  # F.Cu and B.Cu - keep close to ground plane
+
+        # SPI bus: All 4 layers - these are the most congested nets
+        if "SPI_" in net_upper:
+            return [0, 1, 2, 3]  # All layers for maximum routing flexibility
+
+        # USB: All 4 layers for differential pair routing
+        if "USB_" in net_upper:
+            return [0, 1, 2, 3]
+
+        # Analog/sensing: Outer layers preferred but allow inner
+        if any(
+            pattern in net_upper for pattern in ["SENSE_", "ADC_", "TEMP_", "ANALOG_", "I_SENSE"]
+        ):
+            return [0, 3]  # Outer layers for noise isolation
+
+        # Power nets that are NOT plane nets (individual connections)
+        if any(pattern in net_upper for pattern in ["+15V", "+5V", "+3V3", "VCC_"]):
+            return [0, 2, 3]  # Allow In2.Cu (power plane layer) for power routing
+
+        # Ground connections that are NOT plane nets
+        if any(pattern in net_upper for pattern in ["GND", "PGND", "CGND"]):
+            return [0, 1, 3]  # Allow In1.Cu (ground plane layer)
+
+        # Default: All 4 layers for general signals
+        return [0, 1, 2, 3]
 
     def run(self, state: BoardState) -> BoardState:
         if not state.board or not state.netlist or not state.net_order or not state.grid:
@@ -294,6 +373,9 @@ class SequentialRoutingStage(Stage):
                 zone_names = [z.name for z in allowed_zones]
                 print(f"  INFO: {net_name} ({net_class_name}) confined to zones: {zone_names}")
 
+            # Get allowed layers for this net (enables inner layer routing for congested nets)
+            allowed_layers = self._get_allowed_layers_for_net(net_name, net_class_name, state)
+
             pathfinder = DeterministicAStar(
                 grid=grid,
                 drc_oracle=state.drc_oracle,
@@ -309,15 +391,15 @@ class SequentialRoutingStage(Stage):
             net_paths = []  # List of (path_points, layer_idx) tuples
             net_multilayer_paths = []  # Results from multi-layer routing
 
-            # Create multi-layer pathfinder as fallback
-            # Allow routing on F.Cu (0) and B.Cu (3) - inner layers are planes
+            # Create multi-layer pathfinder with net-specific allowed layers
+            # This enables routing on inner layers for congested signal nets
             multilayer_pathfinder = MultiLayerAStar(
                 grid=grid,
                 drc_oracle=state.drc_oracle,
                 net_name=net_name,
                 trace_width=width,
-                via_cost=5.0,  # Discourage unnecessary vias
-                allowed_layers=[0, 3],  # F.Cu and B.Cu only
+                via_cost=3.0,  # Reduced from 5.0 to encourage layer changes when needed
+                allowed_layers=allowed_layers,  # Dynamic per-net layer assignment
             )
 
             # Route all edges in the MST

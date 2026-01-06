@@ -57,7 +57,9 @@ class MultiLayerAStar:
     via_cost: float = 5.0  # Vias are expensive - prefer staying on same layer
     via_diameter: float = 0.6
     via_drill: float = 0.3
-    allowed_layers: List[int] = field(default_factory=lambda: [0, 3])  # F.Cu and B.Cu by default
+    allowed_layers: List[int] = field(
+        default_factory=lambda: [0, 1, 2, 3]
+    )  # All 4 layers by default
     max_iterations: int = 5000  # Reduced for faster feedback (was 50000)
 
     def __post_init__(self):

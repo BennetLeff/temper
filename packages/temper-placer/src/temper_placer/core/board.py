@@ -44,6 +44,7 @@ class Pad:
         number: Pad number.
         net_name: Name of connected net.
     """
+
     position: tuple[float, float]
     size: tuple[float, float]
     shape: str = "rect"
@@ -67,6 +68,7 @@ class Component:
         layer: Layer name.
         fixed: Whether the component is locked.
     """
+
     ref: str
     position: tuple[float, float]
     rotation: float
@@ -90,6 +92,7 @@ class Trace:
         layer: Layer name.
         net: Net name.
     """
+
     start: tuple[float, float]
     end: tuple[float, float]
     width: float
@@ -101,7 +104,7 @@ class Trace:
 class Via:
     """
     A plated through-hole via.
-    
+
     Attributes:
         position: (x, y) coordinates.
         drill: Drill diameter in mm.
@@ -109,6 +112,7 @@ class Via:
         layers: List of connected layers (e.g. ["F.Cu", "In1.Cu", "B.Cu"]).
         net: Net name.
     """
+
     position: tuple[float, float]
     drill: float
     width: float
@@ -161,12 +165,22 @@ class LayerStackup:
 
     @classmethod
     def default_4layer(cls) -> LayerStackup:
-        """Create default 4-layer stackup for Temper board."""
+        """Create default 4-layer stackup for Temper board.
+
+        Inner layers (In1.Cu, In2.Cu) are marked as "mixed" type - they function
+        as power/ground planes but can also be used for signal routing when
+        the outer layers are congested. The PowerPlaneStage handles plane net
+        connections separately via vias.
+        """
         return cls(
             layers=[
                 Layer("F.Cu", "signal", copper_weight=2.0, is_routable=True),
-                Layer("In1.Cu", "plane", copper_weight=1.0, is_routable=False),  # GND
-                Layer("In2.Cu", "plane", copper_weight=1.0, is_routable=False),  # PWR
+                Layer(
+                    "In1.Cu", "mixed", copper_weight=1.0, is_routable=True
+                ),  # GND plane + signal routing
+                Layer(
+                    "In2.Cu", "mixed", copper_weight=1.0, is_routable=True
+                ),  # PWR plane + signal routing
                 Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
             ],
             thickness=1.6,
@@ -250,7 +264,9 @@ class Zone:
     net_classes: list[str] = field(default_factory=lambda: ["Signal"])
     components: list[str] = field(default_factory=list)
     weight: float = 1.0
-    polygon: list[tuple[float, float]] | None = None  # Optional polygon vertices for non-rectangular zones
+    polygon: list[tuple[float, float]] | None = (
+        None  # Optional polygon vertices for non-rectangular zones
+    )
     layers: list[str] = field(default_factory=lambda: ["F.Cu"])
     max_size: tuple[float, float] | None = None
     can_expand: list[str] = field(default_factory=lambda: ["up", "down", "left", "right"])
@@ -326,7 +342,9 @@ class Board:
     origin: tuple[float, float] = (0.0, 0.0)
     zones: list[Zone] = field(default_factory=list)
     mounting_holes: list[MountingHole] = field(default_factory=list)
-    keepouts: list[tuple[float, float, float, float]] = field(default_factory=list)  # (x_min, y_min, x_max, y_max)
+    keepouts: list[tuple[float, float, float, float]] = field(
+        default_factory=list
+    )  # (x_min, y_min, x_max, y_max)
     ground_domains: list[GroundDomain] = field(default_factory=list)
     layer_stackup: LayerStackup | None = None
     outline_polygon: list[tuple[float, float]] | None = None

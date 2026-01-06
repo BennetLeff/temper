@@ -189,8 +189,10 @@ class TestDefaultLayerConstraints:
 
         assert hv_constraint is not None
         assert Layer.L1_TOP in hv_constraint.allowed_layers
-        # HV should only be allowed on L1
-        assert hv_constraint.allowed_layers == {Layer.L1_TOP}
+        # HV nets now allow all 4 layers for routing flexibility
+        # The preferred_layer is L1_TOP, but routing stage handles actual restrictions
+        assert hv_constraint.preferred_layer == Layer.L1_TOP
+        assert len(hv_constraint.allowed_layers) == 4  # All 4 layers allowed
 
     def test_gate_drive_constraint_exists(self):
         """Should have constraint for gate drive nets."""
@@ -232,14 +234,16 @@ class TestAssignLayers:
     """Tests for the assign_layers function."""
 
     def test_assign_layers_hv_to_l1(self, sample_netlist):
-        """High-voltage nets should be assigned to L1 only."""
+        """High-voltage nets should prefer L1, with all layers allowed for flexibility."""
         from temper_placer.routing.layer_assignment import Layer, assign_layers
 
         assignments = assign_layers(sample_netlist)
 
         assert "DC_BUS_P" in assignments
         assert assignments["DC_BUS_P"].primary_layer == Layer.L1_TOP
-        assert assignments["DC_BUS_P"].allowed_layers == {Layer.L1_TOP}
+        # All 4 layers now allowed for routing flexibility
+        # Actual routing restrictions are enforced in sequential_routing stage
+        assert len(assignments["DC_BUS_P"].allowed_layers) == 4
 
     def test_assign_layers_signal_to_l4(self, sample_netlist):
         """Signal nets should prefer L4 (bottom)."""
@@ -360,13 +364,14 @@ class TestViaRequirements:
     """Tests for detecting when vias are needed."""
 
     def test_single_layer_net_no_vias(self, sample_netlist):
-        """Nets routed on single layer should not require vias."""
+        """Multi-layer nets now require vias due to all-layer flexibility."""
         from temper_placer.routing.layer_assignment import assign_layers
 
         assignments = assign_layers(sample_netlist)
 
-        # HV nets should not need vias (L1 only)
-        assert assignments["DC_BUS_P"].vias_required is False
+        # HV nets now allow all 4 layers, so vias_required is True
+        # Actual via placement is controlled by routing stage
+        assert assignments["DC_BUS_P"].vias_required is True
 
     def test_multi_layer_net_requires_vias(self):
         """Nets that span multiple layers require vias."""
