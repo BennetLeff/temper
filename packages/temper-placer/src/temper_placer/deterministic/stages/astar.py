@@ -25,6 +25,10 @@ class DeterministicAStar:
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
+        # Search stats (updated after each find_path call)
+        self.last_iterations = 0
+        self.last_iteration_limit = 0
+        self.last_timeout = False
 
     def _estimate_iterations(self, start_cell: Tuple[int, int], end_cell: Tuple[int, int]) -> int:
         """Estimate max iterations based on distance.
@@ -55,18 +59,28 @@ class DeterministicAStar:
         self, start: Tuple[float, float], end: Tuple[float, float], layer: int = 0
     ) -> Optional[List[Tuple[float, float]]]:
         """Find shortest path from start to end on specified layer, or None if impossible."""
+        # Reset stats
+        self.last_iterations = 0
+        self.last_iteration_limit = 0
+        self.last_timeout = False
 
         # Try strict search first
-        path = self._search(start, end, layer, relaxed=False)
+        path, iters, limit, timeout = self._search(start, end, layer, relaxed=False)
+        self.last_iterations += iters
+        self.last_iteration_limit = limit
+
         if path:
             return path
 
         # If failed and relaxed retry enabled, try with neckdown clearances
         if self.relaxed_retry and self.drc_oracle:
-            path = self._search(start, end, layer, relaxed=True)
+            path, iters, limit, timeout = self._search(start, end, layer, relaxed=True)
+            self.last_iterations += iters
+            self.last_timeout = timeout
             if path:
                 return path
 
+        self.last_timeout = timeout
         return None  # No path found even with relaxed constraints
 
     def _search(
@@ -75,14 +89,18 @@ class DeterministicAStar:
         end: Tuple[float, float],
         layer: int,
         relaxed: bool = False,
-    ) -> Optional[List[Tuple[float, float]]]:
-        """Internal A* search with optional relaxed constraints."""
+    ) -> Tuple[Optional[List[Tuple[float, float]]], int, int, bool]:
+        """Internal A* search with optional relaxed constraints.
+
+        Returns:
+            Tuple of (path, iterations_used, iteration_limit, timeout)
+        """
         start_cell = self.grid._mm_to_cell(*start)
         end_cell = self.grid._mm_to_cell(*end)
 
         # Check start/end are valid on specified layer
         if not self._is_valid(start_cell, layer) or not self._is_valid(end_cell, layer):
-            return None
+            return None, 0, 0, False
 
         # Calculate adaptive iteration limit based on distance
         adaptive_limit = self._estimate_iterations(start_cell, end_cell)
@@ -99,7 +117,12 @@ class DeterministicAStar:
             _, _, current = heapq.heappop(open_set)
 
             if current == end_cell:
-                return self._reconstruct_path(came_from, current, start, end)
+                return (
+                    self._reconstruct_path(came_from, current, start, end),
+                    iterations,
+                    adaptive_limit,
+                    False,
+                )
 
             for neighbor, cost in self._get_neighbors(current, layer, relaxed=relaxed):
                 tentative_g = g_score[current] + cost
@@ -110,7 +133,8 @@ class DeterministicAStar:
                     f_score = tentative_g + self._heuristic(neighbor, end_cell)
                     heapq.heappush(open_set, (f_score, self._tie_breaker(neighbor), neighbor))
 
-        if iterations >= adaptive_limit:
+        timeout = iterations >= adaptive_limit
+        if timeout:
             dr = abs(start_cell[0] - end_cell[0])
             dc = abs(start_cell[1] - end_cell[1])
             dist_cells = max(dr, dc) + 0.414 * min(dr, dc)
@@ -119,7 +143,7 @@ class DeterministicAStar:
                 f"(dist={dist_cells:.0f} cells)"
             )
 
-        return None  # No path found
+        return None, iterations, adaptive_limit, timeout  # No path found
 
     def _is_valid(self, cell: Tuple[int, int], layer: int = 0) -> bool:
         """Check if cell is within bounds and not blocked on specified layer."""

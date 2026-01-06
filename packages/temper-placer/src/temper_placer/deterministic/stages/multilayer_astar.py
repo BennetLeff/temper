@@ -68,6 +68,10 @@ class MultiLayerAStar:
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
+        # Search stats (updated after each find_path call)
+        self.last_iterations = 0
+        self.last_iteration_limit = 0
+        self.last_timeout = False
 
     def _estimate_iterations(self, start_cell: Tuple[int, int], end_cell: Tuple[int, int]) -> int:
         """Estimate max iterations based on distance and search complexity.
@@ -132,10 +136,14 @@ class MultiLayerAStar:
 
         # Check bounds
         if not self._is_within_bounds(start_cell) or not self._is_within_bounds(end_cell):
+            self.last_iterations = 0
+            self.last_iteration_limit = 0
+            self.last_timeout = False
             return None
 
         # Calculate adaptive iteration limit based on distance
         adaptive_limit = self._estimate_iterations(start_cell, end_cell)
+        self.last_iteration_limit = adaptive_limit
 
         # A* with 3D state: (row, col, layer)
         # Priority: (f_score, tie_breaker, state)
@@ -153,6 +161,8 @@ class MultiLayerAStar:
 
             # Check if we reached any valid end state
             if self._is_goal(current, end_cells, end_layer):
+                self.last_iterations = iterations
+                self.last_timeout = False
                 return self._reconstruct_multilayer_path(came_from, current, start, end)
 
             for neighbor, cost in self._get_3d_neighbors(current):
@@ -164,7 +174,10 @@ class MultiLayerAStar:
                     f_score = tentative_g + self._heuristic_3d(neighbor, end_cell, end_layer)
                     heapq.heappush(open_set, (f_score, self._tie_breaker(neighbor), neighbor))
 
-        if iterations >= adaptive_limit:
+        self.last_iterations = iterations
+        self.last_timeout = iterations >= adaptive_limit
+
+        if self.last_timeout:
             # Calculate distance for diagnostic
             dr = abs(start_cell[0] - end_cell[0])
             dc = abs(start_cell[1] - end_cell[1])
