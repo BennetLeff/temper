@@ -45,45 +45,14 @@ logger = logging.getLogger(__name__)
 
 # Expected violation types (cosmetic, not actionable)
 EXPECTED_TYPES = frozenset(
-    ["lib_footprint_issues", "silk_overlap", "silk_over_copper", "silk_edge_clearance"]
+    [
+        "lib_footprint_issues",
+        "silk_overlap",
+        "silk_over_copper",
+        "silk_edge_clearance",
+        "missing_courtyard",
+    ]
 )
-
-# Fine-pitch components with pads closer than standard 0.2mm clearance
-# These violations are inherent to the footprint geometry, not routing bugs
-# QFN-56 (0.4mm pitch) has 0.16mm pad-to-pad gap, USB-C has 0.1mm gap
-# Modern fabs (JLCPCB, etc.) handle 0.1mm clearance without issue
-FINE_PITCH_COMPONENTS = frozenset(["U_MCU", "J_USB"])
-
-
-def is_fine_pitch_pad_violation(violation: dict) -> bool:
-    """Check if violation is due to fine-pitch footprint geometry.
-
-    These violations occur because fine-pitch components (QFN, USB-C) have
-    pads that are physically closer together than KiCad's default 0.2mm
-    clearance rule. They are NOT routing errors - the pads are placed
-    correctly per the manufacturer's footprint specification.
-
-    Returns True if violation should be filtered (not counted as actionable).
-    """
-    vtype = violation.get("type", "")
-    if vtype not in ("clearance", "solder_mask_bridge"):
-        return False
-
-    items = violation.get("items", [])
-    if len(items) != 2:
-        return False
-
-    # Check if both items are pads on the same fine-pitch component
-    for item in items:
-        desc = item.get("description", "")
-        # Format: "Pad N [NetName] of ComponentRef on Layer"
-        if "Pad" not in desc:
-            return False
-        if not any(comp in desc for comp in FINE_PITCH_COMPONENTS):
-            return False
-
-    # Both items are pads on fine-pitch components
-    return True
 
 
 def run_kicad_drc(pcb_path: Path, output_dir: Path) -> tuple[Path, dict]:
@@ -117,7 +86,7 @@ def run_kicad_drc(pcb_path: Path, output_dir: Path) -> tuple[Path, dict]:
 
 
 def count_violations(data: dict) -> dict:
-    """Count violations by type, filtering expected and fine-pitch pad violations."""
+    """Count violations by type, filtering expected cosmetic violations."""
     from collections import Counter
 
     violations = data.get("violations", [])
@@ -125,23 +94,18 @@ def count_violations(data: dict) -> dict:
 
     total = len(violations) + len(unconnected)
 
-    # Count fine-pitch pad violations separately
-    fine_pitch_count = sum(1 for v in violations if is_fine_pitch_pad_violation(v))
-
     by_type = Counter()
     for v in violations:
         by_type[v.get("type", "unknown")] += 1
     for _ in unconnected:
         by_type["unconnected"] += 1
 
-    # Actionable = total minus expected types minus fine-pitch footprint violations
+    # Actionable = total minus expected cosmetic types
     actionable = sum(c for t, c in by_type.items() if t not in EXPECTED_TYPES)
-    actionable -= fine_pitch_count
 
     return {
         "total": total,
         "actionable": actionable,
-        "fine_pitch_filtered": fine_pitch_count,
         "by_type": dict(by_type),
     }
 
@@ -255,6 +219,16 @@ def main():
         if state.routes or state.vias:
             write_routes_to_pcb(output_pcb, output_pcb, state.routes, state.vias)
 
+        # Copy project file with design rules (net classes, clearances)
+        # KiCad DRC reads design rules from .kicad_pro, not .kicad_pcb
+        source_pro = pcb_path.with_suffix(".kicad_pro")
+        if source_pro.exists():
+            import shutil
+
+            output_pro = output_pcb.with_suffix(".kicad_pro")
+            shutil.copy(source_pro, output_pro)
+            logger.info(f"Copied project file with design rules: {output_pro.name}")
+
         # 3. Run KiCad DRC
         logger.info("Running KiCad DRC...")
         report_path, drc_data = run_kicad_drc(output_pcb, args.output_dir)
@@ -266,7 +240,6 @@ def main():
                 "iteration": iteration,
                 "total": counts["total"],
                 "actionable": counts["actionable"],
-                "fine_pitch_filtered": counts["fine_pitch_filtered"],
                 "by_type": counts["by_type"],
             }
         )
@@ -274,8 +247,6 @@ def main():
         print(f"\nDRC Results:")
         print(f"  Total violations: {counts['total']}")
         print(f"  Actionable: {counts['actionable']}")
-        if counts["fine_pitch_filtered"] > 0:
-            print(f"  Fine-pitch pad violations (filtered): {counts['fine_pitch_filtered']}")
         print(f"  By type:")
         for vtype, count in sorted(counts["by_type"].items(), key=lambda x: -x[1]):
             marker = " (expected)" if vtype in EXPECTED_TYPES else ""

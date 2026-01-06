@@ -29,7 +29,7 @@
   )
 
   (setup
-    (pad_to_mask_clearance 0.1)
+    (pad_to_mask_clearance 0.0)
     (pcbplotparams
       (layerselection 0x00010fc_ffffffff)
       (plot_on_all_layers_selection 0x0000000_00000000)

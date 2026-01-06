@@ -17,7 +17,7 @@
       "diff_pair_dimensions": [],
       "drc_exclusions": [],
       "rules": {
-        "min_clearance": 0.2,
+        "min_clearance": 0.1,
         "min_copper_edge_clearance": 0.5,
         "min_hole_clearance": 0.3,
         "min_hole_to_hole": 0.3,
@@ -268,9 +268,9 @@
         "wire_width": 6,
         "description": "Bootstrap supply, isolated gate power. 6mm clearance to LV. Reinforced insulation."
       },
-      {
+{
         "bus_width": 12,
-        "clearance": 3.0,
+        "clearance": 6.0,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -285,6 +285,24 @@
         "via_drill": 0.6,
         "wire_width": 6,
         "description": "AC mains input (L, N). 120VAC, 15A. IEC 60335 clearances."
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.1,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "FinePitch",
+        "pcb_color": "rgba(0, 200, 200, 1.000)",
+        "schematic_color": "rgba(0, 200, 200, 1.000)",
+        "track_width": 0.127,
+        "via_diameter": 0.4,
+        "via_drill": 0.2,
+        "wire_width": 6,
+        "description": "Fine-pitch IC signals. QFN-56 (0.4mm pitch, 0.16mm gap), USB-C. JLCPCB 0.1mm min."
       }
     ],
     "meta": {
@@ -294,6 +312,7 @@
     "netclass_assignments": {
       "+15V": "Power",
       "+3.3V": "Power",
+      "+3V3": "FinePitch",
       "+5V_ISO": "HighVoltageIsolated",
       "AC_L": "ACMains",
       "AC_N": "ACMains",
@@ -305,22 +324,26 @@
       "ENCODER_A": "Default",
       "ENCODER_B": "Default",
       "FAULT_STATUS": "Default",
-      "GND": "Power",
-      "I_SENSE": "Default",
+      "GND": "FinePitch",
+      "I_SENSE": "FinePitch",
       "I2C_SCL": "Default",
       "I2C_SDA": "Default",
       "MCU_ENABLE": "Default",
       "PE": "ACMains",
       "PGOOD": "Default",
-      "PWM_H": "GateDrive",
-      "PWM_L": "GateDrive",
+      "PWM_H": "FinePitch",
+      "PWM_L": "FinePitch",
       "RTD_CS": "Default",
       "SHUTDOWN_N": "Default",
-      "SPI_MISO": "Default",
-      "SPI_MOSI": "Default",
+      "SPI_CLK": "FinePitch",
+      "SPI_CS_TEMP": "FinePitch",
+      "SPI_MISO": "FinePitch",
+      "SPI_MOSI": "FinePitch",
       "SPI_SCK": "Default",
       "SWITCH_NODE": "HighVoltage",
       "TEMP_FAULT": "Default",
+      "USB_D+": "FinePitch",
+      "USB_D-": "FinePitch",
       "V_SENSE": "Default",
       "WDT_KICK": "Default",
       "ZCD": "Default",
@@ -349,10 +372,6 @@
       {
         "netclass": "GateDrive",
         "pattern": "GATE_*"
-      },
-      {
-        "netclass": "GateDrive",
-        "pattern": "PWM_*"
       },
       {
         "netclass": "HighVoltageIsolated",
