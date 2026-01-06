@@ -16,18 +16,63 @@ LAYER_IDX_TO_NAME = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
 LAYER_NAME_TO_IDX = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}
 
 class SequentialRoutingStage(Stage):
-    def __init__(self, design_rules: DesignRules | None = None, 
+    def __init__(self, design_rules: DesignRules | None = None,
                  trace_width_mm: float = 0.25, clearance_mm: float = 0.2,
-                 cost_map_weights: any = None, pad_sizes: dict = None):
+                 cost_map_weights: any = None, pad_sizes: dict = None,
+                 net_class_rules: dict = None):
+        """Initialize sequential routing stage.
+
+        Args:
+            design_rules: DRC rules for trace widths/clearances
+            trace_width_mm: Default trace width
+            clearance_mm: Default clearance
+            cost_map_weights: Unused legacy parameter
+            pad_sizes: Pad size lookup for via placement
+            net_class_rules: Dict of net_class_name -> NetClassRule with zone confinement info
+        """
         self.design_rules = design_rules
         self.default_width = trace_width_mm
         self.default_clearance = clearance_mm
         self.pad_sizes = pad_sizes or {}
+        self.net_class_rules = net_class_rules or {}
 
     @property
     def name(self) -> str:
         return "sequential_routing"
-    
+
+    def _get_allowed_zones(self, net_class_name: str, state: BoardState):
+        """Get the list of Zone objects where this net class can route.
+
+        Args:
+            net_class_name: Name of the net class (e.g., 'HighVoltage', 'Signal')
+            state: BoardState with zone definitions
+
+        Returns:
+            List of Zone objects, or None if no restriction
+        """
+        # TEMPORARILY DISABLED: Zone confinement causes routing timeouts
+        # TODO: Re-enable after optimizing A* for zone-aware routing
+        # The domain-driven placement should be enough for now
+        return None
+
+        if not net_class_name or not self.net_class_rules:
+            return None
+
+        rule = self.net_class_rules.get(net_class_name)
+        if not rule or not hasattr(rule, 'confined_to_zones') or not rule.confined_to_zones:
+            return None
+
+        # Convert zone names to Zone objects
+        zone_by_name = {z.name: z for z in state.zones}
+        allowed_zones = []
+        for zone_name in rule.confined_to_zones:
+            if zone_name in zone_by_name:
+                allowed_zones.append(zone_by_name[zone_name])
+            else:
+                print(f"WARNING: Zone '{zone_name}' in confined_to_zones not found in board zones")
+
+        return allowed_zones if allowed_zones else None
+
     def run(self, state: BoardState) -> BoardState:
         if not state.board or not state.netlist or not state.net_order or not state.grid:
             return state
@@ -67,22 +112,26 @@ class SequentialRoutingStage(Stage):
                     mask_expansion=getattr(pin, 'mask_expansion', 0.1)
                 ))
         
-        for net_name in net_order:
+        import time
+        for net_idx, net_name in enumerate(net_order):
             if net_name not in net_by_name:
                 continue
             net = net_by_name[net_name]
+            print(f"    Routing net {net_idx+1}/{len(net_order)}: {net_name}...", flush=True)
+            net_start = time.time()
             
             # Determine layer for this net
             layer_idx = layer_by_net.get(net_name, 0)  # Default to layer 0
             layer_name = LAYER_IDX_TO_NAME.get(layer_idx, "F.Cu")
             
+            # Get net class for zone confinement and design rules lookup
+            net_class_name = getattr(net, "net_class", None)
+
             # Determine width and clearance
             width = self.default_width
             clearance = self.default_clearance
-            
+
             if self.design_rules:
-                # Pass net_class from Net object to look up rules correctly
-                net_class_name = getattr(net, "net_class", None)
                 rules = self.design_rules.get_rules_for_net(net_name, net_class=net_class_name)
                 width = rules.trace_width
                 clearance = rules.clearance
@@ -211,11 +260,19 @@ class SequentialRoutingStage(Stage):
                 full_unblock_radius = pad_r + unblock_radius
                 grid.unblock_circle(pos, radius_mm=full_unblock_radius, layer=layer_idx)
 
+            # Get zone confinement for this net class (net_class_name set above)
+            allowed_zones = self._get_allowed_zones(net_class_name, state)
+
+            if allowed_zones:
+                zone_names = [z.name for z in allowed_zones]
+                print(f"  INFO: {net_name} ({net_class_name}) confined to zones: {zone_names}")
+
             pathfinder = DeterministicAStar(
                 grid=grid,
                 drc_oracle=state.drc_oracle,
                 net_name=net_name,
-                trace_width=width
+                trace_width=width,
+                allowed_zones=allowed_zones
             )
             mst_edges = self._compute_mst(pin_positions)
 
@@ -234,6 +291,7 @@ class SequentialRoutingStage(Stage):
                 trace_width=width,
                 via_cost=5.0,  # Discourage unnecessary vias
                 allowed_layers=[0, 3],  # F.Cu and B.Cu only
+                allowed_zones=allowed_zones
             )
 
             # Route all edges in the MST
@@ -285,7 +343,22 @@ class SequentialRoutingStage(Stage):
                 grid.block_trace(path, width_mm=width, clearance_mm=clearance, layer=path_layer_idx)
 
                 # Create Trace objects for state with correct layer
+                # FINAL VALIDATION: Check each trace segment before adding
                 for i in range(len(path) - 1):
+                    # Validate final trace with Oracle
+                    trace_valid = True
+                    if state.drc_oracle:
+                        trace_valid, reject_reason = state.drc_oracle.can_place_track_segment(
+                            start=path[i],
+                            end=path[i+1],
+                            layer=path_layer_idx,
+                            net=net_name,
+                            width=width
+                        )
+                        if not trace_valid:
+                            print(f"  REJECTED final trace for {net_name}: {reject_reason}")
+                            continue  # Skip this invalid segment
+                    
                     all_traces.append(Trace(
                         start=path[i],
                         end=path[i+1],
@@ -324,6 +397,20 @@ class SequentialRoutingStage(Stage):
                         layer=segment.layer
                     )
 
+                    # FINAL VALIDATION: Validate multi-layer trace segment
+                    trace_valid = True
+                    if state.drc_oracle:
+                        trace_valid, reject_reason = state.drc_oracle.can_place_track_segment(
+                            start=segment.start,
+                            end=segment.end,
+                            layer=segment.layer,
+                            net=net_name,
+                            width=width
+                        )
+                        if not trace_valid:
+                            print(f"  REJECTED multi-layer trace for {net_name}: {reject_reason}")
+                            continue  # Skip this invalid segment
+                    
                     # Create Trace object
                     all_traces.append(Trace(
                         start=segment.start,
@@ -468,6 +555,9 @@ class SequentialRoutingStage(Stage):
                     if real_pad:
                         pad_r = max(real_pad.size.X, real_pad.size.Y) / 2.0
                 grid.block_circle(pos, radius_mm=pad_r, clearance_mm=inflated_clearance, layer=layer_idx)
+
+            net_elapsed = time.time() - net_start
+            print(f"      ✓ {net_name} routed in {net_elapsed:.2f}s", flush=True)
 
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
 
