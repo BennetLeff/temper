@@ -27,35 +27,47 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages/temper-placer/sr
 
 from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
 from temper_placer.deterministic.feedback import (
-    AutomatedZeroDRC, parse_kicad_drc, ViolationComponentMapper, ZoneAdjuster
+    AutomatedZeroDRC,
+    parse_kicad_drc,
+    ViolationComponentMapper,
+    ZoneAdjuster,
 )
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
-from temper_placer.io.kicad_writer import write_placements_to_pcb, write_routes_to_pcb, PlacementUpdate
+from temper_placer.io.kicad_writer import (
+    write_placements_to_pcb,
+    write_routes_to_pcb,
+    PlacementUpdate,
+)
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 # Expected violation types (cosmetic, not actionable)
-EXPECTED_TYPES = frozenset([
-    'lib_footprint_issues',
-    'silk_overlap',
-    'silk_over_copper',
-    'silk_edge_clearance'
-])
+EXPECTED_TYPES = frozenset(
+    ["lib_footprint_issues", "silk_overlap", "silk_over_copper", "silk_edge_clearance"]
+)
 
 
 def run_kicad_drc(pcb_path: Path, output_dir: Path) -> tuple[Path, dict]:
     """Run KiCad DRC and return the report path and parsed data."""
     report_path = output_dir / f"{pcb_path.stem}_drc.json"
 
-    result = subprocess.run([
-        'kicad-cli', 'pcb', 'drc',
-        str(pcb_path),
-        '--output', str(report_path),
-        '--format', 'json',
-        '--severity-all'
-    ], capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            "kicad-cli",
+            "pcb",
+            "drc",
+            str(pcb_path),
+            "--output",
+            str(report_path),
+            "--format",
+            "json",
+            "--severity-all",
+        ],
+        capture_output=True,
+        text=True,
+    )
 
     if result.returncode != 0 and not report_path.exists():
         logger.error(f"KiCad DRC failed: {result.stderr}")
@@ -71,35 +83,43 @@ def count_violations(data: dict) -> dict:
     """Count violations by type."""
     from collections import Counter
 
-    total = len(data.get('violations', [])) + len(data.get('unconnected_items', []))
+    total = len(data.get("violations", [])) + len(data.get("unconnected_items", []))
 
     by_type = Counter()
-    for v in data.get('violations', []):
-        by_type[v.get('type', 'unknown')] += 1
-    for v in data.get('unconnected_items', []):
-        by_type['unconnected'] += 1
+    for v in data.get("violations", []):
+        by_type[v.get("type", "unknown")] += 1
+    for v in data.get("unconnected_items", []):
+        by_type["unconnected"] += 1
 
     actionable = sum(c for t, c in by_type.items() if t not in EXPECTED_TYPES)
 
-    return {
-        'total': total,
-        'actionable': actionable,
-        'by_type': dict(by_type)
-    }
+    return {"total": total, "actionable": actionable, "by_type": dict(by_type)}
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Run Automated Zero-DRC Feedback Loop')
-    parser.add_argument('--max-iterations', type=int, default=5, help='Maximum feedback iterations')
-    parser.add_argument('--output-dir', type=Path, default=Path('/tmp/feedback_loop'), help='Output directory')
-    parser.add_argument('--violation-threshold', type=int, default=5, help='Violations needed to trigger zone expansion')
-    parser.add_argument('--expansion-per-violation', type=float, default=1.0, help='mm to expand per excess violation')
+    parser = argparse.ArgumentParser(description="Run Automated Zero-DRC Feedback Loop")
+    parser.add_argument("--max-iterations", type=int, default=5, help="Maximum feedback iterations")
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("/tmp/feedback_loop"), help="Output directory"
+    )
+    parser.add_argument(
+        "--violation-threshold",
+        type=int,
+        default=5,
+        help="Violations needed to trigger zone expansion",
+    )
+    parser.add_argument(
+        "--expansion-per-violation",
+        type=float,
+        default=1.0,
+        help="mm to expand per excess violation",
+    )
     args = parser.parse_args()
 
     # Setup paths
     repo_root = Path(__file__).parent.parent
-    pcb_path = repo_root / 'pcb/temper.kicad_pcb'
-    config_path = repo_root / 'configs/temper_deterministic_config.yaml'
+    pcb_path = repo_root / "pcb/temper.kicad_pcb"
+    config_path = repo_root / "configs/temper_deterministic_config.yaml"
 
     if not pcb_path.exists():
         logger.error(f"PCB not found: {pcb_path}")
@@ -122,6 +142,13 @@ def main():
     constraints = load_constraints(config_path)
     design_rules = constraints_to_design_rules(constraints)
 
+    # Apply net class mapping from config to parsed netlist
+    # This ensures clearance grid uses correct per-net-class clearances
+    net_class_mapping = getattr(constraints, "net_classes", {})
+    if net_class_mapping and parse_result.netlist:
+        updated = parse_result.netlist.apply_net_class_mapping(net_class_mapping)
+        logger.info(f"Applied net class mapping: {updated} nets updated")
+
     # Configure feedback parameters
     constraints.feedback.max_iterations = args.max_iterations
     constraints.feedback.violation_threshold = args.violation_threshold
@@ -132,7 +159,7 @@ def main():
         if not zone.max_size:
             zone.max_size = (constraints.board_width_mm, constraints.board_height_mm)
         if not zone.can_expand:
-            zone.can_expand = ['right', 'left']
+            zone.can_expand = ["right", "left"]
 
     # Create pipeline
     pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints)
@@ -144,9 +171,9 @@ def main():
     state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
 
     for iteration in range(1, args.max_iterations + 1):
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"ITERATION {iteration}/{args.max_iterations}")
-        print('='*60)
+        print("=" * 60)
 
         # 1. Run pipeline
         logger.info("Running deterministic pipeline...")
@@ -157,19 +184,22 @@ def main():
         logger.info(f"Exporting to {output_pcb}...")
 
         # Build placements dict from state (convert tuples to PlacementUpdate objects)
+        # Note: state.placements stores bounding-box-center coordinates.
+        # The center offset conversion is handled by write_placements_to_pcb
+        # when we pass the components list.
         placements_dict = {}
         if state.placements:
             for ref, pos in state.placements:
                 # Default rotation to 0 (deterministic pipeline doesn't optimize rotation yet)
-                placements_dict[ref] = PlacementUpdate(
-                    ref=ref,
-                    x=pos[0],
-                    y=pos[1],
-                    rotation=0.0
-                )
+                placements_dict[ref] = PlacementUpdate(ref=ref, x=pos[0], y=pos[1], rotation=0.0)
 
-        # First write placements
-        write_placements_to_pcb(pcb_path, output_pcb, placements_dict)
+        # First write placements (pass components for center offset conversion)
+        write_placements_to_pcb(
+            pcb_path,
+            output_pcb,
+            placements_dict,
+            components=parse_result.netlist.components if parse_result.netlist else None,
+        )
 
         # Then write routes if any
         if state.routes or state.vias:
@@ -181,23 +211,25 @@ def main():
 
         # 4. Count violations
         counts = count_violations(drc_data)
-        history.append({
-            'iteration': iteration,
-            'total': counts['total'],
-            'actionable': counts['actionable'],
-            'by_type': counts['by_type']
-        })
+        history.append(
+            {
+                "iteration": iteration,
+                "total": counts["total"],
+                "actionable": counts["actionable"],
+                "by_type": counts["by_type"],
+            }
+        )
 
         print(f"\nDRC Results:")
         print(f"  Total violations: {counts['total']}")
         print(f"  Actionable: {counts['actionable']}")
         print(f"  By type:")
-        for vtype, count in sorted(counts['by_type'].items(), key=lambda x: -x[1]):
+        for vtype, count in sorted(counts["by_type"].items(), key=lambda x: -x[1]):
             marker = " (expected)" if vtype in EXPECTED_TYPES else ""
             print(f"    {vtype}: {count}{marker}")
 
         # 5. Check for success
-        if counts['actionable'] == 0:
+        if counts["actionable"] == 0:
             print(f"\n🎉 ZERO ACTIONABLE VIOLATIONS ACHIEVED!")
             break
 
@@ -208,9 +240,9 @@ def main():
         zone_config = {}
         for z in constraints.zones:
             zone_config[z.name] = {
-                'bounds': ((z.bounds[0], z.bounds[1]), (z.bounds[2], z.bounds[3])),
-                'max_size': z.max_size,
-                'can_expand': z.can_expand
+                "bounds": ((z.bounds[0], z.bounds[1]), (z.bounds[2], z.bounds[3])),
+                "max_size": z.max_size,
+                "can_expand": z.can_expand,
             }
 
         mapper = ViolationComponentMapper(parse_result.netlist, zone_config)
@@ -218,6 +250,7 @@ def main():
 
         # Count by zone
         from collections import Counter
+
         zone_counts = Counter(m.zone for m in mapped if m.zone)
         print(f"\nViolations by zone:")
         for zone_name, count in zone_counts.most_common():
@@ -227,13 +260,13 @@ def main():
         adjuster = ZoneAdjuster(
             zone_config,
             violation_threshold=args.violation_threshold,
-            expansion_per_violation=args.expansion_per_violation
+            expansion_per_violation=args.expansion_per_violation,
         )
         result = adjuster.compute_adjustments(mapped)
 
         if not result.adjustments:
             print("\nNo zone adjustments possible.")
-            if hasattr(result, 'impossible_zones') and result.impossible_zones:
+            if hasattr(result, "impossible_zones") and result.impossible_zones:
                 print(f"Impossible zones (at max size): {result.impossible_zones}")
             break
 
@@ -285,8 +318,8 @@ def main():
         print(f"  Iteration {h['iteration']}: {h['total']} total, {h['actionable']} actionable")
 
     if history:
-        initial = history[0]['actionable']
-        final = history[-1]['actionable']
+        initial = history[0]["actionable"]
+        final = history[-1]["actionable"]
         reduction = initial - final
         pct = (reduction / initial * 100) if initial > 0 else 0
         print(f"\nReduction: {initial} → {final} ({reduction} violations, {pct:.1f}%)")
@@ -296,10 +329,10 @@ def main():
 
     # Save history
     history_path = args.output_dir / "history.json"
-    with open(history_path, 'w') as f:
+    with open(history_path, "w") as f:
         json.dump(history, f, indent=2)
     print(f"History saved: {history_path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -194,6 +194,7 @@ def export_positions_to_temp_pcb(
             output_pcb=temp_path,
             placements=placements,
             preserve_unmatched=True,
+            components=context.netlist.components,  # For center offset conversion
         )
 
         if result.has_warnings:
