@@ -374,6 +374,10 @@ class MVP3Runner:
                     board_height=board_height,
                     margin=5.0,  # Keep components 5mm from board edges
                 ),
+                # DRC-FIX-5: Re-apply placements after clamping to sync component.initial_position
+                # CourtyardCheckStage updates state.placements but not component objects.
+                # SequentialRoutingStage uses comp.initial_position, so we must sync them.
+                ApplyPlacementsStage(),
                 # Phase 5: Routing
                 ClearanceGridStage(
                     cell_size_mm=self.mvp3_config.cell_size_mm,
