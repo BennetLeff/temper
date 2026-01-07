@@ -20,17 +20,21 @@ from .layer_assignment import LayerAssignment
 
 
 # Temper board plane nets
+# NOTE: Only include nets that should use plane connectivity (vias to copper pours).
+# Nets routed as traces (PowerTrace class) should NOT be in this list.
+# See: TemperPowerTopology in core/power_topology.py for power distribution strategy.
 TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
     {
         # Ground nets -> In1.Cu plane
         "GND",
         "PGND",
         "CGND",
-        # Power rails -> In2.Cu islands
-        "+15V",
-        "+5V",
-        "+3V3",
-        "VCC_BOOT",
+        # High-current power rail -> In2.Cu island
+        "+15V",  # 5A, requires plane (PowerDeliveryStrategy.PLANE)
+        # Medium/low-current power rails routed as traces (PowerTrace/FinePitch/Signal)
+        # "+5V",       # 2A, trace routed (PowerDeliveryStrategy.WIDE_TRACE)
+        # "+3V3",      # 0.5A, trace routed (PowerDeliveryStrategy.STANDARD_TRACE)
+        # "VCC_BOOT",  # 0.1A, trace routed (PowerDeliveryStrategy.STANDARD_TRACE)
         # High current -> F.Cu pours (still plane-connected, not trace-routed)
         "DC_BUS+",
         "DC_BUS-",
@@ -44,16 +48,15 @@ TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
 
 # Layer assignments for plane nets
 # Layer 0 = F.Cu, Layer 1 = In1.Cu, Layer 2 = In2.Cu, Layer 3 = B.Cu
+# Only include nets that are in TEMPER_PLANE_NETS above.
 TEMPER_PLANE_LAYERS: Dict[str, int] = {
     # Ground to In1.Cu (inner ground plane)
     "GND": 1,
     "PGND": 1,
     "CGND": 1,
-    # Power to In2.Cu (inner power islands)
+    # High-current power rail to In2.Cu (inner power island)
     "+15V": 2,
-    "+5V": 2,
-    "+3V3": 2,
-    "VCC_BOOT": 2,
+    # Removed: +5V, +3V3, VCC_BOOT now routed as traces
     # HV nets stay on F.Cu for copper pours (but still plane-connected)
     "DC_BUS+": 0,
     "DC_BUS-": 0,
