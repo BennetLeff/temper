@@ -1,5 +1,5 @@
-from dataclasses import replace
-from typing import List, Tuple
+from dataclasses import replace, dataclass
+from typing import List, Tuple, Optional, Set
 from ..state import BoardState
 from .base import Stage
 from .astar import DeterministicAStar
@@ -11,6 +11,19 @@ from ...routing.constraints.geometry import Point as OraclePoint
 from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
 from ...routing.layer_assignment import Layer as LayerEnum
+from ...routing.diff_pair_router import DiffPairRouter, DiffPairPath
+
+
+@dataclass
+class DiffPairConfig:
+    """Configuration for a differential pair."""
+
+    net_pos: str  # Positive net name (e.g., "USB_D+")
+    net_neg: str  # Negative net name (e.g., "USB_D-")
+    spacing_mm: float = 0.15  # Target spacing between traces
+    coupling_tolerance_mm: float = 0.5  # Max allowed divergence
+    max_skew_mm: float = 0.5  # Max length mismatch
+
 
 # Layer name mappings
 LAYER_IDX_TO_NAME = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
@@ -34,6 +47,7 @@ class SequentialRoutingStage(Stage):
         cost_map_weights: any = None,
         pad_sizes: dict = None,
         net_class_rules: dict = None,
+        differential_pairs: List[DiffPairConfig] = None,
     ):
         """Initialize sequential routing stage.
 
@@ -44,12 +58,14 @@ class SequentialRoutingStage(Stage):
             cost_map_weights: Unused legacy parameter
             pad_sizes: Pad size lookup for via placement
             net_class_rules: Dict of net_class_name -> NetClassRule with zone confinement info
+            differential_pairs: List of differential pair configs for coupled routing
         """
         self.design_rules = design_rules
         self.default_width = trace_width_mm
         self.default_clearance = clearance_mm
         self.pad_sizes = pad_sizes or {}
         self.net_class_rules = net_class_rules or {}
+        self.differential_pairs = differential_pairs or []
 
     @property
     def name(self) -> str:
@@ -201,9 +217,269 @@ class SequentialRoutingStage(Stage):
 
         import time
 
+        # ========== DIFFERENTIAL PAIR ROUTING (before main loop) ==========
+        # Route diff pairs first to ensure both traces can be routed together
+        # This prevents the common failure where one trace blocks the other
+        diff_pair_nets: Set[str] = set()  # Track nets routed as diff pairs
+
+        if self.differential_pairs:
+            print(
+                f"  [DiffPair] Routing {len(self.differential_pairs)} differential pairs first..."
+            )
+
+            for dp_config in self.differential_pairs:
+                net_pos_name = dp_config.net_pos
+                net_neg_name = dp_config.net_neg
+
+                # Skip if nets don't exist
+                if net_pos_name not in net_by_name or net_neg_name not in net_by_name:
+                    print(
+                        f"  [DiffPair] WARNING: {net_pos_name}/{net_neg_name} not found in netlist, skipping"
+                    )
+                    continue
+
+                net_pos = net_by_name[net_pos_name]
+                net_neg = net_by_name[net_neg_name]
+
+                # Get pin positions for both nets
+                def get_pin_positions(net, comp_by_ref):
+                    positions = []
+                    for comp_ref, pin_name in net.pins:
+                        if comp_ref not in comp_by_ref:
+                            continue
+                        comp = comp_by_ref[comp_ref]
+                        pin = next(
+                            (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
+                            None,
+                        )
+                        if not pin:
+                            continue
+                        pos = comp.initial_position or (0, 0)
+                        positions.append((pos[0] + pin.position[0], pos[1] + pin.position[1]))
+                    return positions
+
+                pos_pins = get_pin_positions(net_pos, comp_by_ref)
+                neg_pins = get_pin_positions(net_neg, comp_by_ref)
+
+                if len(pos_pins) != 2 or len(neg_pins) != 2:
+                    print(
+                        f"  [DiffPair] WARNING: {net_pos_name} has {len(pos_pins)} pins, {net_neg_name} has {len(neg_pins)} pins (expected 2 each)"
+                    )
+                    continue
+
+                # Determine start/goal pins by matching closest pairs
+                # USB typically: MCU pins on one side, connector on other
+                # Match P to P and N to N by proximity
+                def dist_sq(a, b):
+                    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+                # Find which pos_pins[i] is closer to neg_pins[j]
+                # Typically pins at same connector/chip are paired
+                if dist_sq(pos_pins[0], neg_pins[0]) < dist_sq(pos_pins[0], neg_pins[1]):
+                    # pos_pins[0] pairs with neg_pins[0] (start), [1] pairs with [1] (end)
+                    start_pins = (pos_pins[0], neg_pins[0])
+                    goal_pins = (pos_pins[1], neg_pins[1])
+                else:
+                    # pos_pins[0] pairs with neg_pins[1]
+                    start_pins = (pos_pins[0], neg_pins[1])
+                    goal_pins = (pos_pins[1], neg_pins[0])
+
+                # Get design rules for diff pair
+                width = self.default_width
+                clearance = self.default_clearance
+                if self.design_rules:
+                    rules = self.design_rules.get_rules_for_net(
+                        net_pos_name, net_class="Differential"
+                    )
+                    width = rules.trace_width
+                    clearance = rules.clearance
+
+                # Build obstacle set from current grid blocked cells
+                obstacles: Set[Tuple[int, int, int]] = set()
+                for layer_idx in range(grid.layer_count):
+                    for x in range(grid.cols):
+                        for y in range(grid.rows):
+                            if not grid.is_available(
+                                x * grid.cell_size_mm, y * grid.cell_size_mm, layer_idx
+                            ):
+                                obstacles.add((x, y, layer_idx))
+
+                # Create diff pair router
+                dp_router = DiffPairRouter(
+                    grid_size=(grid.cols, grid.rows, grid.layer_count),
+                    cell_size_mm=grid.cell_size_mm,
+                    target_separation_mm=dp_config.spacing_mm,
+                    max_divergence_mm=dp_config.coupling_tolerance_mm,
+                    max_skew_mm=dp_config.max_skew_mm,
+                )
+
+                print(f"  [DiffPair] Routing {net_pos_name}/{net_neg_name}...")
+                dp_start = time.time()
+
+                result = dp_router.route_pair(
+                    start_pins=start_pins,
+                    goal_pins=goal_pins,
+                    obstacles=obstacles,
+                )
+
+                dp_elapsed = time.time() - dp_start
+
+                if not result.success:
+                    print(
+                        f"  [DiffPair] FAILED: {net_pos_name}/{net_neg_name} - {result.failure_reason}"
+                    )
+                    continue
+
+                print(
+                    f"  [DiffPair] SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
+                    f"(coupling={result.coupling_ratio:.1%}, skew={result.max_skew_mm:.3f}mm)"
+                )
+
+                # Mark these nets as routed via diff pair
+                diff_pair_nets.add(net_pos_name)
+                diff_pair_nets.add(net_neg_name)
+
+                # Convert grid cells to mm positions
+                def cells_to_mm(
+                    cells: List[Tuple[int, int, int]],
+                ) -> List[Tuple[float, float, int]]:
+                    return [
+                        (x * grid.cell_size_mm, y * grid.cell_size_mm, layer)
+                        for x, y, layer in cells
+                    ]
+
+                pos_path_mm = cells_to_mm(result.pos_cells)
+                neg_path_mm = cells_to_mm(result.neg_cells)
+
+                # Create Trace objects for P trace
+                for i in range(len(pos_path_mm) - 1):
+                    p1, p2 = pos_path_mm[i], pos_path_mm[i + 1]
+                    layer_name = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
+
+                    # Check for layer change -> add via
+                    if p1[2] != p2[2]:
+                        via_pos = (p1[0], p1[1])
+                        from_layer = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
+                        to_layer = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                        via = Via(
+                            position=via_pos,
+                            drill=0.3,
+                            width=0.6,
+                            layers=(from_layer, to_layer),
+                            net=net_pos_name,
+                        )
+                        all_vias.append(via)
+                        # Block via on all layers
+                        for l_idx in range(grid.layer_count):
+                            grid.block_circle(
+                                via_pos,
+                                radius_mm=0.3,
+                                clearance_mm=clearance,
+                                layer=l_idx,
+                                net_name=net_pos_name,
+                            )
+                    else:
+                        # Same layer -> create trace
+                        trace = Trace(
+                            start=(p1[0], p1[1]),
+                            end=(p2[0], p2[1]),
+                            width=width,
+                            layer=layer_name,
+                            net=net_pos_name,
+                        )
+                        all_traces.append(trace)
+                        # Block trace on grid
+                        grid.block_trace(
+                            [(p1[0], p1[1]), (p2[0], p2[1])],
+                            width_mm=width,
+                            clearance_mm=clearance,
+                            layer=p1[2],
+                            net_name=net_pos_name,
+                        )
+                        # Register in DRCOracle
+                        if state.drc_oracle:
+                            state.drc_oracle.register_track(
+                                OracleTrack(
+                                    start=OraclePoint(p1[0], p1[1]),
+                                    end=OraclePoint(p2[0], p2[1]),
+                                    width=width,
+                                    net=net_pos_name,
+                                    layer=p1[2],
+                                )
+                            )
+
+                # Create Trace objects for N trace
+                for i in range(len(neg_path_mm) - 1):
+                    p1, p2 = neg_path_mm[i], neg_path_mm[i + 1]
+                    layer_name = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
+
+                    # Check for layer change -> add via
+                    if p1[2] != p2[2]:
+                        via_pos = (p1[0], p1[1])
+                        from_layer = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
+                        to_layer = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                        via = Via(
+                            position=via_pos,
+                            drill=0.3,
+                            width=0.6,
+                            layers=(from_layer, to_layer),
+                            net=net_neg_name,
+                        )
+                        all_vias.append(via)
+                        # Block via on all layers
+                        for l_idx in range(grid.layer_count):
+                            grid.block_circle(
+                                via_pos,
+                                radius_mm=0.3,
+                                clearance_mm=clearance,
+                                layer=l_idx,
+                                net_name=net_neg_name,
+                            )
+                    else:
+                        # Same layer -> create trace
+                        trace = Trace(
+                            start=(p1[0], p1[1]),
+                            end=(p2[0], p2[1]),
+                            width=width,
+                            layer=layer_name,
+                            net=net_neg_name,
+                        )
+                        all_traces.append(trace)
+                        # Block trace on grid
+                        grid.block_trace(
+                            [(p1[0], p1[1]), (p2[0], p2[1])],
+                            width_mm=width,
+                            clearance_mm=clearance,
+                            layer=p1[2],
+                            net_name=net_neg_name,
+                        )
+                        # Register in DRCOracle
+                        if state.drc_oracle:
+                            state.drc_oracle.register_track(
+                                OracleTrack(
+                                    start=OraclePoint(p1[0], p1[1]),
+                                    end=OraclePoint(p2[0], p2[1]),
+                                    width=width,
+                                    net=net_neg_name,
+                                    layer=p1[2],
+                                )
+                            )
+
+                print(f"      ✓ {net_pos_name}/{net_neg_name} diff pair routed")
+
+        # ========== END DIFFERENTIAL PAIR ROUTING ==========
+
         for net_idx, net_name in enumerate(net_order):
             if net_name not in net_by_name:
                 continue
+
+            # Skip nets already routed as differential pairs
+            if net_name in diff_pair_nets:
+                print(
+                    f"    Skipping net {net_idx + 1}/{len(net_order)}: {net_name} (routed as diff pair)"
+                )
+                continue
+
             net = net_by_name[net_name]
             print(f"    Routing net {net_idx + 1}/{len(net_order)}: {net_name}...", flush=True)
             net_start = time.time()

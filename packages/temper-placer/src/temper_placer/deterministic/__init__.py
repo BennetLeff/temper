@@ -30,6 +30,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
         TrackDeduplicationStage,
         ShortCircuitDetectionStage,
     )
+    from .stages.sequential_routing import DiffPairConfig
 
     # Build zone config from YAML config if available
     zone_config = None
@@ -38,6 +39,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
     net_class_clearances = {}
     fixed_placements = {}
     yaml_copper_zones = []
+    differential_pairs = []
 
     # Extract net class clearances from design_rules if available
     if design_rules and hasattr(design_rules, "net_classes"):
@@ -64,6 +66,32 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
 
         if net_class_clearances:
             max_clearance = max(net_class_clearances.values()) + 0.3  # Add margin for trace width
+
+        # Extract differential pairs from config
+        config_diff_pairs = getattr(config, "differential_pairs", None)
+        if config_diff_pairs:
+            for dp in config_diff_pairs:
+                if isinstance(dp, dict):
+                    differential_pairs.append(
+                        DiffPairConfig(
+                            net_pos=dp.get("net_pos", ""),
+                            net_neg=dp.get("net_neg", ""),
+                            spacing_mm=dp.get("spacing_mm", 0.15),
+                            coupling_tolerance_mm=dp.get("coupling_tolerance_mm", 0.5),
+                            max_skew_mm=dp.get("max_skew_mm", 0.5),
+                        )
+                    )
+                elif hasattr(dp, "net_pos"):
+                    # Already a config object
+                    differential_pairs.append(
+                        DiffPairConfig(
+                            net_pos=getattr(dp, "net_pos", ""),
+                            net_neg=getattr(dp, "net_neg", ""),
+                            spacing_mm=getattr(dp, "spacing_mm", 0.15),
+                            coupling_tolerance_mm=getattr(dp, "coupling_tolerance_mm", 0.5),
+                            max_skew_mm=getattr(dp, "max_skew_mm", 0.5),
+                        )
+                    )
 
     # Select slot generation stage based on zone_aware flag
     if zone_aware:
@@ -97,7 +125,10 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
             ),
             NetOrderingStage(),
             LayerAssignmentStage(net_classes=config.net_classes if config else None),
-            SequentialRoutingStage(design_rules=design_rules),
+            SequentialRoutingStage(
+                design_rules=design_rules,
+                differential_pairs=differential_pairs,
+            ),
             # Post-routing cleanup (order matters!)
             TrackDeduplicationStage(),  # Remove duplicate tracks first
             ShortCircuitDetectionStage(),  # Remove tracks that short
