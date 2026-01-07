@@ -12,13 +12,19 @@ from temper_placer.io.kicad_parser import parse_kicad_pcb
 def main():
     # Find the most recent test output
     output_dir = Path("output")
-    test_dirs = [d for d in output_dir.glob("test_*") if d.is_dir()]
-    if not test_dirs:
-        print("No test directories found")
-        return
 
-    latest_dir = max(test_dirs, key=lambda d: d.stat().st_mtime)
-    pcb_file = latest_dir / "iteration_1.kicad_pcb"
+    # Try test_adaptive_fixed first (known to have gaps from before fix)
+    old_output = output_dir / "test_adaptive_fixed" / "iteration_1.kicad_pcb"
+    if old_output.exists():
+        pcb_file = old_output
+    else:
+        test_dirs = [d for d in output_dir.glob("test_*") if d.is_dir()]
+        if not test_dirs:
+            print("No test directories found")
+            return
+
+        latest_dir = max(test_dirs, key=lambda d: d.stat().st_mtime)
+        pcb_file = latest_dir / "iteration_1.kicad_pcb"
 
     if not pcb_file.exists():
         print(f"PCB file not found: {pcb_file}")
