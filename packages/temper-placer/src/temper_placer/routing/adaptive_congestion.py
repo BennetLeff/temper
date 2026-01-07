@@ -245,11 +245,18 @@ class ComponentBasedCongestionDetector:
             if pos:
                 return (Millimeters(pos[0]), Millimeters(pos[1]))
         elif hasattr(self.netlist, "components"):
-            comp = self.netlist.components.get(ref)
-            if comp and hasattr(comp, "position"):
-                return (Millimeters(comp.position[0]), Millimeters(comp.position[1]))
-            elif comp and hasattr(comp, "x") and hasattr(comp, "y"):
-                return (Millimeters(comp.x), Millimeters(comp.y))
+            # netlist.components is a list/tuple, not a dict
+            for comp in self.netlist.components:
+                if hasattr(comp, "ref") and comp.ref == ref:
+                    if hasattr(comp, "initial_position") and comp.initial_position:
+                        return (
+                            Millimeters(comp.initial_position[0]),
+                            Millimeters(comp.initial_position[1]),
+                        )
+                    elif hasattr(comp, "position") and comp.position:
+                        return (Millimeters(comp.position[0]), Millimeters(comp.position[1]))
+                    elif hasattr(comp, "x") and hasattr(comp, "y"):
+                        return (Millimeters(comp.x), Millimeters(comp.y))
 
         return None
 
