@@ -345,9 +345,13 @@ class SequentialRoutingStage(Stage):
         # Identify fine-pitch components (QFN-56 and similar packages)
         fine_pitch_refs = set()
         for component in state.netlist.components:
-            # Heuristic: Components with >40 pins are likely fine-pitch
-            if len(component.pins) > 40:
+            pin_count = len(component.pins)
+            # Heuristic 1: Components with >40 pins are likely fine-pitch
+            # Heuristic 2: MCU/TEMP components are typically fine-pitch
+            is_fine_pitch = pin_count > 40 or component.ref in {"U_MCU", "U_TEMP", "U_GATE"}
+            if is_fine_pitch:
                 fine_pitch_refs.add(component.ref)
+                print(f"  DEBUG: Detected fine-pitch component {component.ref} ({pin_count} pins)")
 
         component_detector = ComponentBasedCongestionDetector(
             netlist=state.netlist,
