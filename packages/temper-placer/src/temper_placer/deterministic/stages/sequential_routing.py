@@ -12,6 +12,11 @@ from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
 from ...routing.layer_assignment import Layer as LayerEnum
 from ...routing.diff_pair_router import DiffPairRouter, DiffPairPath
+from ...routing.adaptive_congestion import (
+    GridBasedCongestionDetector,
+    ComponentBasedCongestionDetector,
+    CompositeDetector,
+)
 
 
 @dataclass
@@ -331,6 +336,29 @@ class SequentialRoutingStage(Stage):
                 )
 
         import time
+
+        # ========== CONGESTION-AWARE ROUTING SETUP ==========
+        # Create composite congestion detector for adaptive A* iteration budgeting
+        # This prevents timeouts in highly congested areas (near fine-pitch ICs)
+        grid_detector = GridBasedCongestionDetector(grid=grid)
+
+        # Identify fine-pitch components (QFN-56 and similar packages)
+        fine_pitch_refs = set()
+        for component in state.netlist.components:
+            # Heuristic: Components with >40 pins are likely fine-pitch
+            if len(component.pins) > 40:
+                fine_pitch_refs.add(component.ref)
+
+        component_detector = ComponentBasedCongestionDetector(
+            netlist=state.netlist,
+            fine_pitch_components=frozenset(fine_pitch_refs),
+        )
+
+        congestion_detector = CompositeDetector(detectors=(grid_detector, component_detector))
+
+        print(
+            f"  INFO: Adaptive congestion detection enabled ({len(fine_pitch_refs)} fine-pitch components)"
+        )
 
         # ========== DIFFERENTIAL PAIR ROUTING (before main loop) ==========
         # Route diff pairs first to ensure both traces can be routed together
@@ -811,9 +839,12 @@ class SequentialRoutingStage(Stage):
                 grid=grid,
                 drc_oracle=state.drc_oracle,
                 net_name=net_name,
+                net_class=net_class_name or "Default",  # For adaptive budget calculation
                 trace_width=width,
                 via_cost=3.0,  # Reduced from 5.0 to encourage layer changes when needed
                 allowed_layers=allowed_layers,  # Dynamic per-net layer assignment
+                congestion_detector=congestion_detector,  # Adaptive iteration budgeting
+                use_adaptive_budget=True,  # Enable congestion-aware routing
             )
 
             # Route all edges in the MST
@@ -853,9 +884,26 @@ class SequentialRoutingStage(Stage):
                 )
 
                 if multilayer_result:
-                    print(
-                        f"  INFO: Multi-layer route found for {net_name} ({len(multilayer_result.via_positions)} vias)"
-                    )
+                    # Show congestion-aware routing diagnostics
+                    if (
+                        hasattr(multilayer_pathfinder, "last_iterations")
+                        and multilayer_pathfinder.last_iterations > 0
+                    ):
+                        congestion_level = getattr(
+                            multilayer_pathfinder, "last_congestion_level", None
+                        )
+                        congestion_str = (
+                            f" [congestion: {congestion_level.value}]" if congestion_level else ""
+                        )
+                        print(
+                            f"  INFO: Multi-layer route found for {net_name} "
+                            f"({multilayer_pathfinder.last_iterations}/{multilayer_pathfinder.last_iteration_limit} iters, "
+                            f"{len(multilayer_result.via_positions)} vias{congestion_str})"
+                        )
+                    else:
+                        print(
+                            f"  INFO: Multi-layer route found for {net_name} ({len(multilayer_result.via_positions)} vias)"
+                        )
                     net_multilayer_paths.append(multilayer_result)
                 else:
                     print(
