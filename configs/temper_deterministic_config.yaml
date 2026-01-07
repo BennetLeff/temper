@@ -82,9 +82,9 @@ net_classes:
   GND: "Ground"
   PGND: "Ground"
   CGND: "Ground"
-  # FinePitch nets (QFN-56 MCU pads with 0.4mm pitch, 0.16mm gap)
+  # FinePitch nets (QFN-56 MCU signal pads with 0.4mm pitch, 0.16mm gap)
   # These nets connect to adjacent pads on U_MCU and need relaxed clearance
-  "+3V3": "FinePitch"      # Adjacent to GND pad on U_MCU
+  "+3V3": "FinePitch"      # 3.3V power rail - route as trace (not plane) due to multi-net conflict
   PWM_H: "FinePitch"       # Adjacent to PWM_L on U_MCU
   PWM_L: "FinePitch"       # Adjacent to I_SENSE on U_MCU
   I_SENSE: "FinePitch"     # Adjacent to PWM_L on U_MCU
@@ -175,6 +175,18 @@ net_class_rules:
     via_drill_mm: 0.2
     via_template: "Via1x1"       # Single via for fine-pitch
     description: "Fine-pitch IC signals (QFN-56 with 0.4mm pitch)"
+  
+  FinePitchPower:
+    type: power                  # Power rail with fine-pitch pad clearance
+    connectivity: plane          # Connect via inner power plane (like Power class)
+    target_layer: "In2.Cu"       # Inner layer 2 for power islands
+    max_current_a: 2.0           # Typical for 3.3V MCU rail
+    trace_width_mm: 0.25         # Stub traces to vias
+    clearance_mm: 0.08           # Ultra-relaxed for fine-pitch IC (QFN-56: 0.16mm gap)
+    via_size_mm: 0.4             # Micro-vias for dense areas (0.2mm radius)
+    via_drill_mm: 0.2
+    via_template: "Via1x1"       # Single via (micro-via, not plated through)
+    description: "Power rails on fine-pitch IC pads (QFN-56)"
   
   Differential:
     type: differential           # ENFORCES impedance specification

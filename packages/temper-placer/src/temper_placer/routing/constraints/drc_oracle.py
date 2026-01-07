@@ -146,7 +146,7 @@ class DRCOracle:
 
                 required = self.rules.get_clearance(net, track.net, p_center.x, p_center.y)
                 if neckdown:
-                    required = min(required, 0.15)
+                    required = min(required, 0.08)  # Ultra-relaxed for plane stubs
                 effective_clearance = required + via_radius + (track.width / 2)
 
                 actual = point_to_segment_distance(p_center, track.to_segment())
@@ -164,7 +164,7 @@ class DRCOracle:
                 continue
             required = self.rules.get_clearance(net, pad.net, p_center.x, p_center.y)
             if neckdown:
-                required = min(required, 0.15)
+                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
 
             effective_clearance = required + via_radius + pad.mask_expansion
             actual = point_to_rotated_rect_distance(p_center, pad.rot_rect)
@@ -184,7 +184,7 @@ class DRCOracle:
 
             required = self.rules.get_clearance(net, via.net, p_center.x, p_center.y)
             if neckdown:
-                required = min(required, 0.15)
+                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
             effective_clearance = required + via_radius + (via.diameter / 2)
 
             actual = p_center.distance_to(via.center)
@@ -238,7 +238,7 @@ class DRCOracle:
 
             required = self.rules.get_clearance(net, track.net, midpoint.x, midpoint.y)
             if neckdown:
-                required = min(required, 0.15)
+                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
             effective_clearance = required + (width / 2) + (track.width / 2)
 
             actual = segment_to_segment_distance(segment, track.to_segment())
@@ -257,7 +257,7 @@ class DRCOracle:
 
             required = self.rules.get_clearance(net, pad.net, midpoint.x, midpoint.y)
             if neckdown:
-                required = min(required, 0.15)
+                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
 
             effective_clearance = required + (width / 2) + pad.mask_expansion
             actual = segment_to_rotated_rect_distance(segment, pad.rot_rect)
@@ -276,7 +276,7 @@ class DRCOracle:
 
             required = self.rules.get_clearance(net, via.net, midpoint.x, midpoint.y)
             if neckdown:
-                required = min(required, 0.15)
+                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
             effective_clearance = required + (width / 2) + (via.diameter / 2)
 
             actual = point_to_segment_distance(via.center, segment)
