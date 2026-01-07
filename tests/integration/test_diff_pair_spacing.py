@@ -130,49 +130,35 @@ class TestDiffPairMinimumSpacing:
             )
 
     def test_router_rejects_tight_spacing_constraint(self):
-        """Router with spacing < trace_width should fail or warn."""
-        # This configuration would cause shorts
+        """Router with spacing < min_safe should reject configuration."""
+        # This configuration would cause shorts if allowed
         router = DiffPairRouter(
             grid_size=(400, 400, 2),  # Large enough for test
             cell_size_mm=0.25,
-            target_separation_mm=0.25,  # TOO TIGHT! (= trace width)
+            target_separation_mm=0.25,  # TOO TIGHT!
+            trace_width_mm=0.25,
+            clearance_mm=0.127,
             max_divergence_mm=2.0,
         )
 
         start_pos = (10.0, 50.0)
-        start_neg = (10.25, 50.0)  # Only 0.25mm apart (will cause short)
+        start_neg = (10.25, 50.0)  # Only 0.25mm apart (below min_safe)
         goal_pos = (90.0, 50.0)
         goal_neg = (90.25, 50.0)
 
-        # Router should either:
-        # 1. Fail to find path (if spacing enforcement added)
-        # 2. Find path with violations (current behavior - BUG)
+        # Router should reject this configuration
         result = router.route_pair(
             start_pins=(start_pos, start_neg),
             goal_pins=(goal_pos, goal_neg),
             obstacles=set(),
         )
 
-        if result and result.success:
-            # If it succeeds, check if traces would short
-            trace_width = 0.25
-            min_safe = 0.377
-
-            violations = []
-            for i, (pos_cell, neg_cell) in enumerate(zip(result.pos_cells, result.neg_cells)):
-                pos = (pos_cell[0] * router.cell_size_mm, pos_cell[1] * router.cell_size_mm)
-                neg = (neg_cell[0] * router.cell_size_mm, neg_cell[1] * router.cell_size_mm)
-
-                dx = neg[0] - pos[0]
-                dy = neg[1] - pos[1]
-                separation = (dx * dx + dy * dy) ** 0.5
-
-                if separation < min_safe:
-                    violations.append((separation, i))
-
-            # Current behavior: will have violations (this is the bug)
-            # After fix: should have zero violations
-            pytest.xfail("Router currently allows shorts - EXP-3 fix needed")
+        # After EXP-3 fix: should fail with spacing violation
+        assert not result.success, "Should reject configuration with spacing < min_safe"
+        assert result.failure_reason is not None, "Should have failure reason"
+        assert "too close" in result.failure_reason.lower(), (
+            f"Expected spacing failure, got: {result.failure_reason}"
+        )
 
     def test_config_spacing_validation(self):
         """Verify config uses safe spacing value."""

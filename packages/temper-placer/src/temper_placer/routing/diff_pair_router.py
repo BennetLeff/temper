@@ -130,6 +130,8 @@ class DiffPairRouter:
         grid_size: Tuple[int, int, int],  # (width, height, layers)
         cell_size_mm: float,
         target_separation_mm: float = 0.2,
+        trace_width_mm: float = 0.127,  # EXP-3: For minimum spacing enforcement
+        clearance_mm: float = 0.10,  # EXP-3: For minimum spacing enforcement
         max_divergence_mm: float = 1.0,
         max_skew_mm: float = 0.5,
         coupling_weight: float = 10.0,
@@ -143,6 +145,8 @@ class DiffPairRouter:
             grid_size: Grid dimensions (nx, ny, nz)
             cell_size_mm: Size of each grid cell in mm
             target_separation_mm: Desired P-N spacing
+            trace_width_mm: Width of traces (for minimum spacing enforcement)
+            clearance_mm: Required edge-to-edge clearance
             max_divergence_mm: Maximum allowed divergence
             max_skew_mm: Maximum allowed length mismatch
             coupling_weight: Penalty weight for separation deviation
@@ -152,16 +156,36 @@ class DiffPairRouter:
         self.grid_size = grid_size
         self.cell_size_mm = cell_size_mm
         self.target_separation_mm = target_separation_mm
+        self.trace_width_mm = trace_width_mm
+        self.clearance_mm = clearance_mm
         self.max_divergence_mm = max_divergence_mm
         self.max_skew_mm = max_skew_mm
         self.coupling_weight = coupling_weight
         self.skew_weight = skew_weight
         self.beam_width = beam_width
 
+        # EXP-3: Calculate minimum safe center-to-center spacing
+        # Edge-to-edge must be >= clearance_mm
+        # center_to_center = trace_width + clearance (for parallel traces)
+        self.min_safe_separation_mm = trace_width_mm + clearance_mm
+
+        # EXP-3: Validate configuration - warn if target < minimum safe
+        if target_separation_mm < self.min_safe_separation_mm:
+            import warnings
+
+            warnings.warn(
+                f"target_separation_mm ({target_separation_mm:.3f}mm) < "
+                f"min_safe_separation_mm ({self.min_safe_separation_mm:.3f}mm). "
+                f"Router may fail to find paths or create DRC violations. "
+                f"Recommend target_separation_mm >= {self.min_safe_separation_mm:.3f}mm",
+                UserWarning,
+            )
+
         # Statistics
         self.states_explored = 0
         self.states_pruned = 0
         self.beam_pruned = 0  # Phase 2C: Track beam search pruning
+        self.spacing_pruned = 0  # EXP-3: Track states rejected for spacing violations
 
     def route_pair(
         self,
@@ -184,6 +208,8 @@ class DiffPairRouter:
         # Reset statistics
         self.states_explored = 0
         self.states_pruned = 0
+        self.spacing_pruned = 0
+        self.beam_pruned = 0
 
         # Convert mm to grid coordinates
         start_pos = self._mm_to_grid(start_pins[0])
@@ -194,6 +220,29 @@ class DiffPairRouter:
         # Create start and goal states (assume layer 0 initially)
         start_sep = self._calculate_separation((*start_pos, 0), (*start_neg, 0))
         goal_sep = self._calculate_separation((*goal_pos, 0), (*goal_neg, 0))
+
+        # EXP-3: Validate start and goal spacing
+        if start_sep < self.min_safe_separation_mm:
+            return DiffPairPath(
+                pos_cells=[],
+                neg_cells=[],
+                coupling_ratio=0.0,
+                max_skew_mm=0.0,
+                avg_separation_mm=0.0,
+                success=False,
+                failure_reason=f"Start pins too close: {start_sep:.3f}mm < {self.min_safe_separation_mm:.3f}mm minimum",
+            )
+
+        if goal_sep < self.min_safe_separation_mm:
+            return DiffPairPath(
+                pos_cells=[],
+                neg_cells=[],
+                coupling_ratio=0.0,
+                max_skew_mm=0.0,
+                avg_separation_mm=0.0,
+                success=False,
+                failure_reason=f"Goal pins too close: {goal_sep:.3f}mm < {self.min_safe_separation_mm:.3f}mm minimum",
+            )
 
         start_state = DiffPairState(
             pos_x=start_pos[0],
@@ -339,6 +388,7 @@ class DiffPairRouter:
             failure_reason=f"No path found after {iteration} iterations. "
             f"Explored {self.states_explored} states, "
             f"pruned {self.states_pruned} (coupling), "
+            f"{self.spacing_pruned} (min spacing), "
             f"{self.beam_pruned} (beam search).",
         )
 
@@ -493,6 +543,12 @@ class DiffPairRouter:
                 (new_pos_x, new_pos_y, state.pos_layer), (new_neg_x, new_neg_y, state.neg_layer)
             )
 
+            # EXP-3: Enforce minimum safe spacing to prevent DRC violations
+            # Traces must maintain edge-to-edge clearance >= clearance_mm
+            if new_sep < self.min_safe_separation_mm:
+                self.spacing_pruned += 1
+                continue
+
             # Coupling penalty
             sep_penalty = self.coupling_weight * abs(new_sep - self.target_separation_mm)
 
@@ -523,6 +579,11 @@ class DiffPairRouter:
             new_sep = self._calculate_separation(
                 (state.pos_x, state.pos_y, new_layer), (state.neg_x, state.neg_y, new_layer)
             )
+
+            # EXP-3: Enforce minimum safe spacing
+            if new_sep < self.min_safe_separation_mm:
+                self.spacing_pruned += 1
+                continue
 
             # Check if vias would be blocked
             if (state.pos_x, state.pos_y, new_layer) in obstacles:
@@ -566,6 +627,11 @@ class DiffPairRouter:
                 (new_pos_x, new_pos_y, state.pos_layer), (state.neg_x, state.neg_y, state.neg_layer)
             )
 
+            # EXP-3: Enforce minimum safe spacing
+            if new_sep < self.min_safe_separation_mm:
+                self.spacing_pruned += 1
+                continue
+
             # Prune if too diverged
             if abs(new_sep - self.target_separation_mm) > self.max_divergence_mm:
                 self.states_pruned += 1
@@ -606,6 +672,11 @@ class DiffPairRouter:
             new_sep = self._calculate_separation(
                 (state.pos_x, state.pos_y, state.pos_layer), (new_neg_x, new_neg_y, state.neg_layer)
             )
+
+            # EXP-3: Enforce minimum safe spacing
+            if new_sep < self.min_safe_separation_mm:
+                self.spacing_pruned += 1
+                continue
 
             # Prune if too diverged
             if abs(new_sep - self.target_separation_mm) > self.max_divergence_mm:
