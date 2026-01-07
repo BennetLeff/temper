@@ -62,9 +62,11 @@ class MultiLayerAStar:
     )  # All 4 layers by default
     max_iterations: int = 15000  # Default, overridden by adaptive calculation
     # Adaptive iteration parameters
-    iterations_per_cell: int = 15  # Base multiplier for distance-based limit
+    iterations_per_cell: int = (
+        35  # Base multiplier for distance-based limit (tuned for PWM routing)
+    )
     min_iterations: int = 1000  # Floor for short paths
-    max_iterations_cap: int = 50000  # Ceiling to prevent runaway searches
+    max_iterations_cap: int = 100000  # Ceiling to prevent runaway searches
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
