@@ -74,17 +74,21 @@ net_classes:
   DC_BUS+: "HighVoltage"
   DC_BUS-: "HighVoltage"
   SW_NODE: "HighVoltage"
-  # Power nets
-  "+15V": "Power"
-  "+5V": "Power"
-  VCC_BOOT: "Power"
+  # Power nets (See TemperPowerTopology in core/power_topology.py)
+  # +15V (5A): PLANE - highest current, requires plane connectivity
+  # +5V (2A): WIDE_TRACE - medium current, can be routed as wide traces
+  # +3V3 (0.5A): STANDARD_TRACE - low current MCU rail, normal traces
+  # VCC_BOOT (0.1A): STANDARD_TRACE - bootstrap supply, thin traces
+  "+15V": "Power"         # 5A → PLANE (In2.Cu)
+  "+5V": "PowerTrace"     # 2A → WIDE_TRACE (0.4mm width)
+  VCC_BOOT: "Signal"      # 0.1A → STANDARD_TRACE
   # Ground nets
   GND: "Ground"
   PGND: "Ground"
   CGND: "Ground"
   # FinePitch nets (QFN-56 MCU signal pads with 0.4mm pitch, 0.16mm gap)
   # These nets connect to adjacent pads on U_MCU and need relaxed clearance
-  "+3V3": "FinePitch"      # 3.3V power rail - route as trace (not plane) due to multi-net conflict
+  "+3V3": "FinePitch"      # 0.5A → STANDARD_TRACE (routed as trace, not plane)
   PWM_H: "FinePitch"       # Adjacent to PWM_L on U_MCU
   PWM_L: "FinePitch"       # Adjacent to I_SENSE on U_MCU
   I_SENSE: "FinePitch"     # Adjacent to PWM_L on U_MCU
@@ -151,6 +155,18 @@ net_class_rules:
     via_drill_mm: 0.4
     via_template: "Via2x2"       # 4 vias for low-impedance return path
     description: "Ground planes - provides low-impedance return path"
+  
+  PowerTrace:
+    type: power                  # Power distribution via wide traces
+    connectivity: trace          # Route as traces (NOT plane)
+    target_layer: "F.Cu"         # Top layer (can change if needed)
+    max_current_a: 2.0           # For +5V rail (2A continuous)
+    trace_width_mm: 0.4          # IPC-2221: 2A * 0.15 + 0.1 = 0.4mm
+    clearance_mm: 0.3
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"       # 4 vias for power delivery
+    description: "Medium-current power rails - trace routing"
   
   Signal:
     type: signal                 # Standard signal routing
