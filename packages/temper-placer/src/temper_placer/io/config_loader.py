@@ -21,6 +21,7 @@ import yaml
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
 from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.net_graph import NetGraph, SubNetEdge
+from temper_placer.core.net_types import NetClassification
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
@@ -464,6 +465,9 @@ class PlacementConstraints:
     # Loss function configuration
     losses: LossesConfig | None = None
 
+    # Type-safe net classification (supersedes net_classes + net_class_rules)
+    net_classification: NetClassification | None = None
+
     # Priority-based placement and routing configuration
     placement_priority: dict = field(default_factory=dict)
     routing_priority: dict = field(default_factory=dict)
@@ -817,6 +821,25 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 voltage_v=rule_cfg.get("voltage_v", 0.0),  # Newly added field
             )
             constraints.net_class_rules[name] = rule
+
+    # Build type-safe NetClassification from net_classes and net_class_rules
+    # This provides validated connectivity semantics (ground MUST use planes, etc.)
+    if constraints.net_classes or constraints.net_class_rules:
+        net_class_rules_raw = config.get("net_class_rules", {})
+        constraints.net_classification = NetClassification.from_yaml_config(
+            net_classes=constraints.net_classes,
+            net_class_rules=net_class_rules_raw,
+        )
+
+        # Validate net classification (ground must use planes, HV must have creepage)
+        validation_errors = constraints.net_classification.validate_all()
+        if validation_errors:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            for net_name, errors in validation_errors.items():
+                for error in errors:
+                    logger.error(f"Net '{net_name}' validation error: {error}")
 
     if "differential_pairs" in config:
         for dp_cfg in config["differential_pairs"]:

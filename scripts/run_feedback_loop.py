@@ -39,9 +39,56 @@ from temper_placer.io.kicad_writer import (
     write_routes_to_pcb,
     PlacementUpdate,
 )
+from temper_placer.io.zone_manager import add_zones_from_classification, add_zones_to_pcb
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+
+def fill_zones_with_kicad(pcb_path: Path) -> bool:
+    """Fill zones in PCB using KiCad's Python API.
+
+    This uses KiCad's internal zone filler to create copper pours.
+    Without this step, zones are just outlines with no actual copper.
+
+    Args:
+        pcb_path: Path to .kicad_pcb file
+
+    Returns:
+        True if successful, False otherwise
+    """
+    import subprocess
+    import sys
+
+    # Use KiCad's Python to fill zones
+    kicad_python = "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9"
+
+    script = f'''
+import pcbnew
+board = pcbnew.LoadBoard("{pcb_path}")
+zones = list(board.Zones())
+if zones:
+    filler = pcbnew.ZONE_FILLER(board)
+    filler.Fill(zones)
+    board.Save("{pcb_path}")
+    print(f"Filled {{len(zones)}} zones")
+else:
+    print("No zones to fill")
+'''
+
+    try:
+        result = subprocess.run(
+            [kicad_python, "-c", script], capture_output=True, text=True, timeout=30
+        )
+        if result.stdout:
+            logger.info(result.stdout.strip())
+        if result.returncode != 0:
+            logger.warning(f"Zone fill may have issues: {result.stderr}")
+        return True
+    except Exception as e:
+        logger.warning(f"Zone filling failed (zones will be unfilled): {e}")
+        return False
+
 
 # Expected violation types (cosmetic, not actionable)
 EXPECTED_TYPES = frozenset(
@@ -218,6 +265,38 @@ def main():
         # Then write routes if any
         if state.routes or state.vias:
             write_routes_to_pcb(output_pcb, output_pcb, state.routes, state.vias)
+
+        # Add copper zones for plane connectivity (GND on In1.Cu, power on In2.Cu)
+        # This is CRITICAL: without zones, vias to inner layers have no connectivity
+        if constraints.net_classification:
+            logger.info("Adding copper zones from NetClassification...")
+            zone_result = add_zones_from_classification(
+                output_pcb, output_pcb, constraints.net_classification
+            )
+            logger.info(
+                f"Added {zone_result.zones_added} zones for nets: {zone_result.nets_covered}"
+            )
+            if zone_result.warnings:
+                for w in zone_result.warnings:
+                    logger.warning(f"Zone warning: {w}")
+        else:
+            # Fallback: use default GND/power nets
+            logger.info("Adding default power plane zones...")
+            zone_result = add_zones_to_pcb(
+                output_pcb,
+                output_pcb,
+                gnd_nets=("GND", "PGND", "CGND"),
+                vcc_nets=("+15V", "+5V", "+3V3", "VCC"),
+            )
+            logger.info(
+                f"Added {zone_result.zones_added} zones for nets: {zone_result.nets_covered}"
+            )
+
+        # Fill zones with copper (required for connectivity)
+        # Without this, zones are just outlines - vias won't connect to planes
+        if zone_result.zones_added > 0:
+            logger.info("Filling zones with copper...")
+            fill_zones_with_kicad(output_pcb)
 
         # Copy project file with design rules (net classes, clearances)
         # KiCad DRC reads design rules from .kicad_pro, not .kicad_pcb

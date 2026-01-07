@@ -33,6 +33,13 @@ from temper_placer.core.loop_ownership import (
     build_ownership_map,
 )
 from temper_placer.core.manufacturing import FabPreset, inflated_clearance, inflated_width
+from temper_placer.core.net_types import (
+    ConnectivityStrategy,
+    NetClassification,
+    NetType,
+    NetTypeSpec,
+    VoltageClass,
+)
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 from temper_placer.core.topology import ComponentCluster, TopologicalGraph, TopologicalSolution
@@ -57,6 +64,12 @@ __all__ = [
     "Pin",
     "Net",
     "Netlist",
+    # Net type classification
+    "NetType",
+    "ConnectivityStrategy",
+    "VoltageClass",
+    "NetTypeSpec",
+    "NetClassification",
     # Board geometry
     "Board",
     "Zone",

@@ -102,56 +102,91 @@ net_classes:
   USB_D-: "Differential"
 
 # Net class rules (class_name -> design rules)
+# Each class specifies:
+#   - type: ground|power|high_voltage|signal|differential|high_current
+#   - connectivity: plane|copper_pour|trace|via_array|direct
+#   - target_layer: Layer for plane/pour connectivity
+#   - voltage_class: For HV nets (selv|low_voltage|mains_120v|mains_240v|high_voltage)
+#
+# Type system enforces:
+#   - Ground nets MUST use plane connectivity (EMI/return path)
+#   - High voltage nets MUST have IEC 60335 creepage/clearance
+#   - High current (>5A) MUST use via arrays or pours
 net_class_rules:
   HighVoltage:
-    trace_width_mm: 0.8
-    clearance_mm: 2.0
+    type: high_voltage           # ENFORCES creepage/clearance validation
+    connectivity: copper_pour    # Connect via filled copper zones
+    target_layer: "F.Cu"         # HV pours on top layer only
+    voltage_class: mains_240v    # IEC 60335 classification
+    max_current_a: 20.0          # 20A for induction coil drive
+    trace_width_mm: 2.0          # Wide traces for current capacity
+    clearance_mm: 6.0            # IEC 60335-1 Table 16 (mains, PD2)
+    creepage_mm: 6.0             # IEC 60335-1 Table 17 (basic insulation)
     via_size_mm: 1.0
     via_drill_mm: 0.5
-    via_template: "Via3x3"  # 9 vias for high-current (20A+) layer transitions
-    description: "High voltage AC/DC nets"
+    via_template: "Via3x3"       # 9 vias for 20A+ layer transitions
+    allow_layer_change: false    # Keep HV on single layer for safety
+    description: "High voltage AC/DC nets - IEC 60335-1 compliant"
   
   Power:
+    type: power                  # Power distribution rail
+    connectivity: plane          # Connect via inner power plane
+    target_layer: "In2.Cu"       # Inner layer 2 for power islands
+    max_current_a: 2.0           # Typical for 15V/5V rails
     trace_width_mm: 0.5
     clearance_mm: 0.3
     via_size_mm: 0.8
     via_drill_mm: 0.4
-    via_template: "Via2x2"  # 4 vias for power delivery
-    description: "Power rails"
+    via_template: "Via2x2"       # 4 vias for power delivery
+    description: "Power rails - plane connected"
   
   Ground:
-    trace_width_mm: 0.5
+    type: ground                 # ENFORCES plane connectivity
+    connectivity: plane          # Ground MUST use plane (not traces)
+    target_layer: "In1.Cu"       # Inner layer 1 for ground plane
+    max_current_a: 10.0          # Return current capacity
+    trace_width_mm: 0.5          # For stub traces to vias
     clearance_mm: 0.25
     via_size_mm: 0.8
     via_drill_mm: 0.4
-    via_template: "Via2x2"  # 4 vias for low-impedance return path
-    description: "Ground planes"
+    via_template: "Via2x2"       # 4 vias for low-impedance return path
+    description: "Ground planes - provides low-impedance return path"
   
   Signal:
-    trace_width_mm: 0.15  # Reduced from 0.25 to navigate tight gaps
+    type: signal                 # Standard signal routing
+    connectivity: trace          # Route as traces (default)
+    target_layer: "F.Cu"         # Start on top, can change layers
+    max_current_a: 0.5
+    trace_width_mm: 0.15         # Reduced from 0.25 to navigate tight gaps
     clearance_mm: 0.2
     via_size_mm: 0.6
     via_drill_mm: 0.3
-    via_template: "Via1x1"  # Single via for signals
+    via_template: "Via1x1"       # Single via for signals
     description: "Standard signals"
   
   FinePitch:
-    trace_width_mm: 0.127  # 5 mil traces for fine-pitch routing
-    clearance_mm: 0.15     # 0.16mm actual gap on QFN-56, allow 0.15mm
-    via_size_mm: 0.4       # Smaller vias for dense areas
+    type: signal                 # Signal type with tighter rules
+    connectivity: trace
+    target_layer: "F.Cu"
+    max_current_a: 0.3
+    trace_width_mm: 0.127        # 5 mil traces for fine-pitch routing
+    clearance_mm: 0.15           # 0.16mm actual gap on QFN-56, allow 0.15mm
+    via_size_mm: 0.4             # Smaller vias for dense areas
     via_drill_mm: 0.2
-    via_template: "Via1x1"  # Single via for fine-pitch
+    via_template: "Via1x1"       # Single via for fine-pitch
     description: "Fine-pitch IC signals (QFN-56 with 0.4mm pitch)"
   
   Differential:
-    # Note: With 0.25mm grid, adjacent cells are only 0.25mm apart
-    # For 0.1mm clearance: max trace width = 0.25 - 0.1 = 0.15mm
-    # Using 0.127mm for manufacturing margin
-    trace_width_mm: 0.127
-    clearance_mm: 0.10     # USB 2.0 differential clearance
+    type: differential           # ENFORCES impedance specification
+    connectivity: trace          # Coupled trace routing
+    target_layer: "F.Cu"
+    target_impedance: 90         # USB 2.0 differential impedance
+    max_current_a: 0.1
+    trace_width_mm: 0.127        # Calculated for 90Ω differential
+    clearance_mm: 0.10           # USB 2.0 differential clearance
     via_size_mm: 0.5
     via_drill_mm: 0.25
-    via_template: "Via1x1"  # Single via for USB (minimal discontinuity)
+    via_template: "Via1x1"       # Single via for USB (minimal discontinuity)
     description: "USB differential pair (tightly coupled)"
 
 # Differential pairs

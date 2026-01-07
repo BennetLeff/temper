@@ -3,6 +3,10 @@
 This stage removes dangling vias - vias that are not connected to traces
 on at least two layers. Dangling vias cause DRC errors and indicate
 routing failures.
+
+Special handling for plane connections:
+- Vias connecting to inner plane layers (In1.Cu for GND, In2.Cu for power)
+  are considered valid even without traces, as they connect via copper pour.
 """
 
 from dataclasses import replace
@@ -10,6 +14,41 @@ from typing import Set, Tuple
 from ..state import BoardState
 from .base import Stage
 from ...core.board import Via, Trace
+
+
+# Layers that typically have copper pour planes
+# Vias connecting to these layers don't need traces
+PLANE_LAYERS = frozenset({"In1.Cu", "In2.Cu"})
+
+# Nets that typically use plane connectivity
+PLANE_NET_PATTERNS = frozenset(
+    {
+        "GND",
+        "PGND",
+        "CGND",
+        "AGND",
+        "DGND",
+        "VSS",  # Ground nets
+        "+3V3",
+        "+5V",
+        "+12V",
+        "+15V",
+        "VCC",
+        "VDD",
+        "VBUS",  # Power nets
+    }
+)
+
+
+def _is_plane_net(net_name: str) -> bool:
+    """Check if a net typically connects via copper plane."""
+    if not net_name:
+        return False
+    upper = net_name.upper()
+    for pattern in PLANE_NET_PATTERNS:
+        if pattern in upper:
+            return True
+    return False
 
 
 class ViaValidationStage(Stage):
@@ -50,7 +89,16 @@ class ViaValidationStage(Stage):
         removed_count = 0
         removed_nets = set()
 
+        # Debug: Count plane vias
+        plane_vias_total = 0
+        plane_vias_kept = 0
+        plane_vias_removed = []
+
         for via in state.vias:
+            is_plane = _is_plane_net(via.net) if via.net else False
+            if is_plane:
+                plane_vias_total += 1
+
             layers_connected = self._count_connected_layers(
                 via, trace_endpoints_by_layer, pin_positions_by_layer
             )
@@ -64,16 +112,38 @@ class ViaValidationStage(Stage):
 
             if is_valid:
                 valid_vias.append(via)
+                if is_plane:
+                    plane_vias_kept += 1
             else:
-                removed_count += 1
-                if via.net:
-                    removed_nets.add(via.net)
+                # Special case: plane vias with 1 connection on F.Cu are valid
+                # because they connect to the plane on the inner layer
+                if is_plane and layers_connected >= 1:
+                    valid_vias.append(via)
+                    plane_vias_kept += 1
+                else:
+                    removed_count += 1
+                    if via.net:
+                        removed_nets.add(via.net)
+                    if is_plane:
+                        plane_vias_removed.append(
+                            (via.net, via.position, via.layers, layers_connected)
+                        )
 
         if removed_count > 0:
             print(f"ViaValidation: Removed {removed_count} dangling vias")
             if removed_nets:
-                print(f"  Affected nets: {', '.join(sorted(removed_nets)[:10])}" +
-                      (f" (+{len(removed_nets)-10} more)" if len(removed_nets) > 10 else ""))
+                print(
+                    f"  Affected nets: {', '.join(sorted(removed_nets)[:10])}"
+                    + (f" (+{len(removed_nets) - 10} more)" if len(removed_nets) > 10 else "")
+                )
+
+        # Debug output
+        if plane_vias_total > 0:
+            print(f"ViaValidation: Plane vias: {plane_vias_kept}/{plane_vias_total} kept")
+            if plane_vias_removed:
+                print(f"  Removed plane vias (first 5):")
+                for net, pos, layers, conn in plane_vias_removed[:5]:
+                    print(f"    {net} at {pos} layers={layers} connected={conn}")
 
         return replace(state, vias=frozenset(valid_vias))
 
@@ -95,8 +165,9 @@ class ViaValidationStage(Stage):
 
             # Also add points along the trace for mid-trace via connections
             # Sample every 0.5mm along trace
-            length = ((trace.end[0] - trace.start[0])**2 +
-                     (trace.end[1] - trace.start[1])**2)**0.5
+            length = (
+                (trace.end[0] - trace.start[0]) ** 2 + (trace.end[1] - trace.start[1]) ** 2
+            ) ** 0.5
             if length > 0:
                 steps = max(1, int(length / 0.5))
                 for i in range(1, steps):
@@ -135,35 +206,45 @@ class ViaValidationStage(Stage):
                         index[layer].add(pin_pos)
                 else:
                     # SMD pins are on F.Cu (or their specified layer)
-                    layer = getattr(pin, 'layer', 'F.Cu')
+                    layer = getattr(pin, "layer", "F.Cu")
                     if layer not in index:
                         index[layer] = set()
                     index[layer].add(pin_pos)
 
         return index
 
-    def _count_connected_layers(self, via: Via,
-                                trace_index: dict,
-                                pin_index: dict) -> int:
-        """Count how many layers the via is connected to."""
+    def _count_connected_layers(self, via: Via, trace_index: dict, pin_index: dict) -> int:
+        """Count how many layers the via is connected to.
+
+        For plane nets (GND, power), inner layers (In1.Cu, In2.Cu) are considered
+        connected automatically since they connect via copper pour, not traces.
+        """
         connected_layers = set()
         tol = self.tolerance_mm
         tol_sq = tol * tol
         vx, vy = via.position
 
+        # Check if this is a plane net (GND or power)
+        is_plane = _is_plane_net(via.net) if via.net else False
+
         for layer in via.layers:
+            # For plane nets, inner layers count as connected (copper pour)
+            if is_plane and layer in PLANE_LAYERS:
+                connected_layers.add(layer)
+                continue
+
             # Check trace endpoints
             if layer in trace_index:
-                for (tx, ty) in trace_index[layer]:
-                    dist_sq = (vx - tx)**2 + (vy - ty)**2
+                for tx, ty in trace_index[layer]:
+                    dist_sq = (vx - tx) ** 2 + (vy - ty) ** 2
                     if dist_sq <= tol_sq:
                         connected_layers.add(layer)
                         break
 
             # If not connected to trace, check pin positions
             if layer not in connected_layers and layer in pin_index:
-                for (px, py) in pin_index[layer]:
-                    dist_sq = (vx - px)**2 + (vy - py)**2
+                for px, py in pin_index[layer]:
+                    dist_sq = (vx - px) ** 2 + (vy - py) ** 2
                     if dist_sq <= tol_sq:
                         connected_layers.add(layer)
                         break
@@ -191,15 +272,15 @@ class ViaDeduplicationStage(Stage):
 
         unique_vias = []
         seen_positions = []  # List of (x, y) already added
-        tol_sq = self.tolerance_mm ** 2
+        tol_sq = self.tolerance_mm**2
         duplicates = 0
 
         for via in state.vias:
             vx, vy = via.position
             is_duplicate = False
 
-            for (sx, sy) in seen_positions:
-                if (vx - sx)**2 + (vy - sy)**2 <= tol_sq:
+            for sx, sy in seen_positions:
+                if (vx - sx) ** 2 + (vy - sy) ** 2 <= tol_sq:
                     is_duplicate = True
                     duplicates += 1
                     break
