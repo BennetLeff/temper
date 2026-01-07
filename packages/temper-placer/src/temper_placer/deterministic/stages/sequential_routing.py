@@ -684,6 +684,52 @@ class SequentialRoutingStage(Stage):
 
         # ========== END DIFFERENTIAL PAIR ROUTING ==========
 
+        # ========== WARN ABOUT UNCONFIGURED DIFFERENTIAL PAIRS ==========
+        # Detect nets that look like differential pairs but aren't configured
+        # This helps users catch configuration issues before routing fails
+        DIFF_PAIR_SUFFIXES = [
+            ("+", "-"),  # USB_D+/USB_D-, etc.
+            ("_P", "_N"),  # LVDS_P/LVDS_N, etc.
+            ("P", "N"),  # DP/DN patterns
+            ("_DP", "_DM"),  # USB_DP/USB_DM patterns
+        ]
+        DIFF_PAIR_KEYWORDS = ["USB", "LVDS", "ETH", "HDMI", "PCIE", "SATA", "DIFF"]
+
+        # Find potential differential pair nets not configured
+        unconfigured_diff_candidates = []
+        for net_name in net_order:
+            if net_name in diff_pair_nets:
+                continue  # Already configured
+
+            net_upper = net_name.upper()
+            # Check if net name contains differential pair keywords
+            has_keyword = any(kw in net_upper for kw in DIFF_PAIR_KEYWORDS)
+            # Check if net name ends with differential suffix
+            has_suffix = any(
+                net_upper.endswith(pos) or net_upper.endswith(neg)
+                for pos, neg in DIFF_PAIR_SUFFIXES
+            )
+
+            if has_keyword and has_suffix:
+                unconfigured_diff_candidates.append(net_name)
+
+        if unconfigured_diff_candidates:
+            print(
+                f"\n  ⚠️  WARNING: Found {len(unconfigured_diff_candidates)} nets that look like differential pairs but are NOT configured:"
+            )
+            for net_name in unconfigured_diff_candidates[:10]:  # Limit to first 10
+                print(f"      - {net_name}")
+            if len(unconfigured_diff_candidates) > 10:
+                print(f"      ... and {len(unconfigured_diff_candidates) - 10} more")
+            print(
+                f"      Add to 'differential_pairs' in config for proper routing with length matching."
+            )
+            print(
+                f"      Without config, these will route as single-ended and may fail or have gaps.\n"
+            )
+
+        # ========== END DIFFERENTIAL PAIR WARNING ==========
+
         for net_idx, net_name in enumerate(net_order):
             if net_name not in net_by_name:
                 continue
