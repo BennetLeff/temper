@@ -16,10 +16,10 @@ from temper_placer.core.net_graph import NetGraph
 @dataclass
 class ViaTemplate:
     """Via array template for high-current routing.
-    
+
     Defines a grid pattern of vias for nets requiring higher current capacity
     than a single via can provide (e.g., power nets, high-current traces).
-    
+
     Attributes:
         name: Template identifier (e.g., 'Via1x1', 'Via2x2', 'Via3x3')
         rows: Number of vias in vertical direction
@@ -27,12 +27,13 @@ class ViaTemplate:
         via_diameter_mm: Individual via pad diameter in mm
         via_drill_mm: Individual via drill diameter in mm
         pitch_mm: Center-to-center spacing between vias in mm
-    
+
     Example:
         >>> template = ViaTemplate("Via2x2", 2, 2, 0.6, 0.3, 1.2)
         >>> width, height = template.get_footprint_bbox()
         >>> print(f"2x2 array footprint: {width}x{height}mm")
     """
+
     name: str
     rows: int
     cols: int
@@ -42,7 +43,7 @@ class ViaTemplate:
 
     def get_footprint_bbox(self) -> tuple[float, float]:
         """Calculate bounding box (width, height) of via array.
-        
+
         Returns:
             Tuple of (width_mm, height_mm) for the entire via array footprint
         """
@@ -55,44 +56,35 @@ class ViaTemplate:
         """Total number of vias in array."""
         return self.rows * self.cols
 
-    def get_via_positions(
-        self, 
-        center_x: float, 
-        center_y: float
-    ) -> list[tuple[float, float]]:
+    def get_via_positions(self, center_x: float, center_y: float) -> list[tuple[float, float]]:
         """
         Calculate via positions in array centered at (center_x, center_y).
-        
+
         Args:
             center_x: Array center X coordinate (mm)
             center_y: Array center Y coordinate (mm)
-            
+
         Returns:
             List of (x, y) via positions in mm
         """
         positions = []
-        
+
         # Calculate array dimensions
         array_width = (self.cols - 1) * self.pitch_mm
         array_height = (self.rows - 1) * self.pitch_mm
-        
+
         # Starting position (top-left of array)
         start_x = center_x - array_width / 2.0
         start_y = center_y - array_height / 2.0
-        
+
         # Generate grid positions
         for row in range(self.rows):
             for col in range(self.cols):
                 x = start_x + col * self.pitch_mm
                 y = start_y + row * self.pitch_mm
                 positions.append((x, y))
-        
-        return positions
 
-    @property
-    def via_count(self) -> int:
-        """Total number of vias in the array."""
-        return self.rows * self.cols
+        return positions
 
 
 @dataclass
@@ -122,9 +114,13 @@ class NetClassRules:
     creepage_mm: float = 0.0  # Creepage distance for high-voltage nets
     target_impedance: float | None = None  # Target impedance in ohms
     voltage_v: float = 0.0  # Voltage rating for safety distance calculation
-    routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    routing_strategy: str | None = (
+        None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    )
     via_cost_multiplier: float = 1.0  # Multiplier for via cost (higher = fewer vias)
-    layer_costs: dict[str, float] | None = None  # Layer-specific cost multipliers {"F.Cu": 10.0, "In1.Cu": 0.1, ...}
+    layer_costs: dict[str, float] | None = (
+        None  # Layer-specific cost multipliers {"F.Cu": 10.0, "In1.Cu": 0.1, ...}
+    )
 
 
 @dataclass
@@ -154,19 +150,21 @@ class DesignRules:
     differential_pairs: list[DifferentialPairConstraint] = field(default_factory=list)
     bus_cohorts: list[BusCohortConstraint] = field(default_factory=list)
     net_topologies: dict[str, NetGraph] = field(default_factory=dict)
-    via_templates: dict[str, ViaTemplate] = field(default_factory=lambda: {
-        "Via1x1": ViaTemplate("Via1x1", 1, 1, 0.6, 0.3, 1.0),
-        "Via2x2": ViaTemplate("Via2x2", 2, 2, 0.6, 0.3, 1.2),
-        "Via3x3": ViaTemplate("Via3x3", 3, 3, 0.6, 0.3, 1.2),
-        "Via4x4": ViaTemplate("Via4x4", 4, 4, 0.6, 0.3, 1.2),
-    })
+    via_templates: dict[str, ViaTemplate] = field(
+        default_factory=lambda: {
+            "Via1x1": ViaTemplate("Via1x1", 1, 1, 0.6, 0.3, 1.0),
+            "Via2x2": ViaTemplate("Via2x2", 2, 2, 0.6, 0.3, 1.2),
+            "Via3x3": ViaTemplate("Via3x3", 3, 3, 0.6, 0.3, 1.2),
+            "Via4x4": ViaTemplate("Via4x4", 4, 4, 0.6, 0.3, 1.2),
+        }
+    )
 
     def get_via_template(self, net_name: str) -> ViaTemplate:
         """Get via template for a specific net.
-        
+
         Args:
             net_name: Net name
-            
+
         Returns:
             ViaTemplate to use for this net
         """
@@ -179,9 +177,7 @@ class DesignRules:
         # Fallback to 1x1 if template not found
         return self.via_templates["Via1x1"]
 
-    def get_rules_for_net(
-        self, net_name: str, net_class: str | None = None
-    ) -> NetClassRules:
+    def get_rules_for_net(self, net_name: str, net_class: str | None = None) -> NetClassRules:
         """Get routing rules for a specific net.
 
         Lookup priority:
@@ -255,8 +251,19 @@ class DesignRules:
         if self._is_ground_net(net_name):
             return False
         power_patterns = [
-            "VCC", "VDD", "V+", "V-", "VBAT", "VIN", "VOUT",
-            "+5V", "+3.3V", "+12V", "-12V", "+3V3", "+5V0",
+            "VCC",
+            "VDD",
+            "V+",
+            "V-",
+            "VBAT",
+            "VIN",
+            "VOUT",
+            "+5V",
+            "+3.3V",
+            "+12V",
+            "-12V",
+            "+3V3",
+            "+5V0",
         ]
         for pattern in power_patterns:
             if pattern in upper or upper.startswith(pattern):
@@ -317,10 +324,40 @@ class DesignRules:
 # =============================================================================
 
 TEMPER_NET_CLASSES = {
+    "ACMains": NetClassRules(
+        name="ACMains",
+        trace_width=2.5,  # Wide trace for mains current
+        clearance=6.0,  # IEC 60335-1 safety clearance for mains voltage
+        via_diameter=1.2,
+        via_drill=0.6,
+        via_template="Via2x2",  # Multiple vias for current capacity
+        voltage_v=240.0,  # Mains voltage rating
+        creepage_mm=6.0,  # Creepage distance
+        routing_strategy="plane_required",  # Must use polygon pour, not traces
+    ),
+    "HighVoltage": NetClassRules(
+        name="HighVoltage",
+        trace_width=3.0,  # Wide trace for DC bus current
+        clearance=2.0,  # HV clearance (300-400V DC after rectification)
+        via_diameter=1.2,
+        via_drill=0.6,
+        via_template="Via3x3",  # Multiple vias for high current
+        voltage_v=400.0,  # DC bus voltage rating
+        creepage_mm=2.0,
+        routing_strategy="plane_required",
+    ),
+    "FinePitch": NetClassRules(
+        name="FinePitch",
+        trace_width=0.127,  # Fine pitch for dense ICs
+        clearance=0.1,  # Minimum clearance for fine pitch
+        via_diameter=0.4,
+        via_drill=0.2,
+        via_template="Via1x1",
+    ),
     "Power": NetClassRules(
         name="Power",
         trace_width=0.5,  # Reduced from 1.0mm to fit ESP32 pitch
-        clearance=0.25,   # Reduced from 0.5mm
+        clearance=0.25,  # Reduced from 0.5mm
         via_diameter=0.8,
         via_drill=0.4,
         via_template="Via2x2",  # 4 vias for power delivery
@@ -346,7 +383,7 @@ TEMPER_NET_CLASSES = {
         trace_width=0.15,  # Controlled impedance
         clearance=0.2,
         via_diameter=0.6,  # Increased to standard 0.6mm
-        via_drill=0.3,     # Increased to standard 0.3mm
+        via_drill=0.3,  # Increased to standard 0.3mm
         target_impedance=50.0,
         via_template="Via1x1",  # Single via for minimal discontinuity
     ),
@@ -368,6 +405,21 @@ TEMPER_NET_CLASSES = {
     ),
 }
 
+# Net class assignments matching KiCad project (temper.kicad_pro)
+TEMPER_NET_ASSIGNMENTS = {
+    # ACMains - Mains voltage (240V AC)
+    "AC_L": "ACMains",
+    "AC_N": "ACMains",
+    "PE": "ACMains",
+    # HighVoltage - DC bus (300-400V DC)
+    "DC_BUS+": "HighVoltage",
+    "DC_BUS-": "HighVoltage",
+    "SW_NODE": "HighVoltage",
+    # FinePitch - Dense IC connections
+    "PWM_H": "FinePitch",
+    "PWM_L": "FinePitch",
+}
+
 
 def create_temper_design_rules() -> DesignRules:
     """Create design rules with Temper-specific net classes.
@@ -381,4 +433,5 @@ def create_temper_design_rules() -> DesignRules:
         default_via_diameter=0.6,
         default_via_drill=0.3,
         net_classes=deepcopy(TEMPER_NET_CLASSES),
+        net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),
     )

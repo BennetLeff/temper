@@ -22,6 +22,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
         ClearanceGridStage,
         NetOrderingStage,
         LayerAssignmentStage,
+        PowerPlaneStage,
         SequentialRoutingStage,
         DRCValidationStage,
         ConnectivityValidationStage,
@@ -125,6 +126,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
             ),
             NetOrderingStage(),
             LayerAssignmentStage(net_classes=config.net_classes if config else None),
+            PowerPlaneStage(),  # Mark plane nets (GND, power rails, ACMains) before routing
             SequentialRoutingStage(
                 design_rules=design_rules,
                 differential_pairs=differential_pairs,

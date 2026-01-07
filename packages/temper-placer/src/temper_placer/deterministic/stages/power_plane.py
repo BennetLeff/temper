@@ -35,6 +35,10 @@ TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
         "DC_BUS+",
         "DC_BUS-",
         "SW_NODE",
+        # ACMains -> F.Cu copper pours (6mm clearance, polygon pour required)
+        "AC_L",
+        "AC_N",
+        "PE",
     }
 )
 
@@ -54,6 +58,10 @@ TEMPER_PLANE_LAYERS: Dict[str, int] = {
     "DC_BUS+": 0,
     "DC_BUS-": 0,
     "SW_NODE": 0,
+    # ACMains stay on F.Cu (mains voltage, 6mm clearance copper pours)
+    "AC_L": 0,
+    "AC_N": 0,
+    "PE": 0,
 }
 
 
