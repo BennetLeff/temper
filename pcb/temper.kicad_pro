@@ -268,7 +268,7 @@
         "wire_width": 6,
         "description": "Bootstrap supply, isolated gate power. 6mm clearance to LV. Reinforced insulation."
       },
-{
+      {
         "bus_width": 12,
         "clearance": 6.0,
         "diff_pair_gap": 0.25,
@@ -303,6 +303,23 @@
         "via_drill": 0.2,
         "wire_width": 6,
         "description": "Fine-pitch IC signals. QFN-56 (0.4mm pitch, 0.16mm gap), USB-C. JLCPCB 0.1mm min."
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.1,
+        "diff_pair_gap": 0.1,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.127,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Differential",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.127,
+        "via_diameter": 0.5,
+        "via_drill": 0.25,
+        "wire_width": 6
       }
     ],
     "meta": {
@@ -342,8 +359,8 @@
       "SPI_SCK": "Default",
       "SWITCH_NODE": "HighVoltage",
       "TEMP_FAULT": "Default",
-      "USB_D+": "FinePitch",
-      "USB_D-": "FinePitch",
+      "USB_D+": "Differential",
+      "USB_D-": "Differential",
       "V_SENSE": "Default",
       "WDT_KICK": "Default",
       "ZCD": "Default",

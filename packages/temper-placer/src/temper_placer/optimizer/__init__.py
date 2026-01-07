@@ -49,6 +49,7 @@ from temper_placer.optimizer.config import (
     LearningRateSchedule,
     OptimizerConfig,
     TemperatureSchedule,
+    ZoneAwareConfig,
     get_default_loss_weights,
 )
 from temper_placer.optimizer.convergence_analytics import (
@@ -99,6 +100,11 @@ from temper_placer.optimizer.train import (
     train,
     train_multiphase,
 )
+from temper_placer.optimizer.zone_aware_init import (
+    ZoneAwareSpectralInitializer,
+    create_zone_cost_field,
+    adjust_positions_for_zones,
+)
 from temper_placer.optimizer.validation_callback import (
     ValidationCallback,
     ValidationConfig,
@@ -116,6 +122,7 @@ __all__ = [
     "CheckpointConfig",
     "EarlyStoppingConfig",
     "AdaptiveOverlapConfig",
+    "ZoneAwareConfig",
     "get_default_loss_weights",
     # Convergence Analytics
     "LossImprovementTracker",
@@ -146,6 +153,10 @@ __all__ = [
     "TrainingState",
     "initialize_training_state",
     "NumericalInstabilityError",
+    # Zone-aware initialization
+    "ZoneAwareSpectralInitializer",
+    "create_zone_cost_field",
+    "adjust_positions_for_zones",
     # Validation
     "ValidationConfig",
     "ValidationResult",

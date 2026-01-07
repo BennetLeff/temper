@@ -158,6 +158,7 @@ class ThermalProperties:
 @dataclass
 class FeedbackConfig:
     """Configuration for the automated DRC feedback loop."""
+
     max_iterations: int = 5
     violation_threshold: int = 5
     expansion_per_violation: float = 0.5
@@ -331,7 +332,7 @@ class ComponentGroup:
 class NetClassRule:
     """Design rules for a specific net class."""
 
-    name: str # e.g. "HighVoltage"
+    name: str  # e.g. "HighVoltage"
     trace_width_mm: float = 0.2
     clearance_mm: float = 0.2
     via_size_mm: float = 0.6
@@ -341,9 +342,11 @@ class NetClassRule:
     allow_neckdown: bool = True
     description: str = ""
 
-    voltage_v: float = 0.0 # Working voltage for creepage calculation
+    voltage_v: float = 0.0  # Working voltage for creepage calculation
     max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
-    routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    routing_strategy: str | None = (
+        None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    )
     via_cost_multiplier: float = 1.0  # Multiplier for via cost (higher = fewer vias)
     target_impedance: float | None = None  # Target impedance in Ohms
 
@@ -452,6 +455,9 @@ class PlacementConstraints:
     # Feedback loop configuration
     feedback: FeedbackConfig = field(default_factory=FeedbackConfig)
 
+    # Copper zones for zone-aware routing (supplements PCB zones)
+    copper_zones: list = field(default_factory=list)
+
     # Layer stackup
     layer_stackup: LayerStackup | None = None
 
@@ -540,6 +546,31 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 can_expand=zone_cfg.get("can_expand", ["up", "down", "left", "right"]),
             )
             constraints.zones.append(zone)
+
+    # Load copper zones (for zone-aware routing)
+    if "copper_zones" in config:
+        from ..core.board import Zone as CopperZone
+
+        for cz_cfg in config["copper_zones"]:
+            # Parse bounds (support both absolute and ratio formats)
+            if "bounds_ratio" in cz_cfg:
+                ratio = cz_cfg["bounds_ratio"]
+                bounds = (
+                    ratio[0] * constraints.board_width_mm,
+                    ratio[1] * constraints.board_height_mm,
+                    ratio[2] * constraints.board_width_mm,
+                    ratio[3] * constraints.board_height_mm,
+                )
+            else:
+                bounds = tuple(cz_cfg["bounds"])
+
+            copper_zone = CopperZone(
+                name=cz_cfg["name"],
+                bounds=bounds,
+                net_classes=cz_cfg.get("net_classes", ["GND"]),
+                layers=cz_cfg.get("layers", ["B.Cu"]),
+            )
+            constraints.copper_zones.append(copper_zone)
 
     if "feedback" in config:
         f_cfg = config["feedback"]
@@ -634,7 +665,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "thermal" in config:
         for thermal_cfg in config["thermal"]:
-            min_spacing = thermal_cfg.get("min_spacing_mm", thermal_cfg.get("min_separation_mm", 5.0))
+            min_spacing = thermal_cfg.get(
+                "min_spacing_mm", thermal_cfg.get("min_separation_mm", 5.0)
+            )
             thermal = ThermalConstraint(
                 components=thermal_cfg["components"],
                 prefer_edge=thermal_cfg.get("prefer_edge", True),
@@ -656,7 +689,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             min_separation_mm=high_power.get("min_separation_mm", 15.0),
             heat_sensitive_components=heat_sensitive.get("components", []),
             max_temp_rise_c=heat_sensitive.get("max_temp_rise_c", 20.0),
-            min_distance_from_heat_sources_mm=heat_sensitive.get("min_distance_from_heat_sources_mm", 20.0),
+            min_distance_from_heat_sources_mm=heat_sensitive.get(
+                "min_distance_from_heat_sources_mm", 20.0
+            ),
             thermal_pad_components=thermal_pads.get("components", []),
             prefer_edge=thermal_pads.get("prefer_edge", True),
             preferred_edge_margin_mm=thermal_pads.get("preferred_edge_margin_mm", 10.0),
@@ -715,7 +750,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             groups = sep_cfg.get("groups", [])
             if len(groups) >= 2:
                 separation = GroupSeparation(
-                    group_a=groups[0], group_b=groups[1],
+                    group_a=groups[0],
+                    group_b=groups[1],
                     min_distance_mm=sep_cfg.get("min_distance_mm", 20.0),
                     description=sep_cfg.get("description", ""),
                 )
@@ -787,9 +823,10 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             # Support multiple key variants
             pos = dp_cfg.get("positive_net") or dp_cfg.get("net_pos")
             neg = dp_cfg.get("negative_net") or dp_cfg.get("net_neg")
-            
+
             if not pos or not neg:
                 import logging
+
                 logging.getLogger(__name__).warning(f"Differential pair missing nets: {dp_cfg}")
                 continue
 
@@ -835,25 +872,29 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             star_pin = ks_cfg["star_point_pin"]
             graph = NetGraph(net_name=net_name)
             graph.star_nodes.add(star_pin)
-            
+
             # Create edges for force pins
             for fp in ks_cfg.get("force_pins", []):
-                graph.edges.append(SubNetEdge(
-                    source_pin=star_pin,
-                    sink_pin=fp,
-                    trace_width_mm=ks_cfg.get("force_width_mm", 1.0),
-                    priority=10 # Force lines route first
-                ))
-                
+                graph.edges.append(
+                    SubNetEdge(
+                        source_pin=star_pin,
+                        sink_pin=fp,
+                        trace_width_mm=ks_cfg.get("force_width_mm", 1.0),
+                        priority=10,  # Force lines route first
+                    )
+                )
+
             # Create edges for sense pins
             for sp in ks_cfg.get("sense_pins", []):
-                graph.edges.append(SubNetEdge(
-                    source_pin=star_pin,
-                    sink_pin=sp,
-                    trace_width_mm=ks_cfg.get("sense_width_mm", 0.2),
-                    priority=5
-                ))
-            
+                graph.edges.append(
+                    SubNetEdge(
+                        source_pin=star_pin,
+                        sink_pin=sp,
+                        trace_width_mm=ks_cfg.get("sense_width_mm", 0.2),
+                        priority=5,
+                    )
+                )
+
             constraints.net_topologies.append(graph)
 
     if "aesthetics" in config:
@@ -861,7 +902,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.aesthetics.grid_size_mm = aes.get("grid_size_mm", 0.5)
         constraints.aesthetics.grid_weight = aes.get("grid_weight", 1.0)
         constraints.aesthetics.alignment_weight = aes.get("alignment_weight", 1.0)
-        constraints.aesthetics.rotation_consistency_weight = aes.get("rotation_consistency_weight", 1.0)
+        constraints.aesthetics.rotation_consistency_weight = aes.get(
+            "rotation_consistency_weight", 1.0
+        )
         constraints.aesthetics.align_by_prefix = aes.get("align_by_prefix", True)
         constraints.aesthetics.prefix_exceptions = aes.get("prefix_exceptions", [])
         constraints.aesthetics.max_wirelength_tax = aes.get("max_wirelength_tax", 2.5)
@@ -881,8 +924,17 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         if losses_cfg:
             losses_config = LossesConfig()
             for loss_name in [
-                "overlap", "boundary", "wirelength", "spread", "edge_avoidance",
-                "group_cluster", "thermal", "zone", "clearance", "loop_area", "star_point"
+                "overlap",
+                "boundary",
+                "wirelength",
+                "spread",
+                "edge_avoidance",
+                "group_cluster",
+                "thermal",
+                "zone",
+                "clearance",
+                "loop_area",
+                "star_point",
             ]:
                 if loss_name in losses_cfg:
                     loss_data = losses_cfg[loss_name]
@@ -891,7 +943,11 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     elif isinstance(loss_data, dict):
                         w = float(loss_data.get("weight", 1.0))
                         _validate_weight(w, loss_name)
-                        loss_config = LossConfig(weight=w, enabled=loss_data.get("enabled", True), margin=loss_data.get("margin"))
+                        loss_config = LossConfig(
+                            weight=w,
+                            enabled=loss_data.get("enabled", True),
+                            margin=loss_data.get("margin"),
+                        )
                     else:
                         w = float(loss_data)
                         _validate_weight(w, loss_name)
@@ -904,16 +960,33 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         if loss_weights:
             losses_config = LossesConfig()
             weight_name_map = {
-                "zone_membership": "zone", "zone": "zone", "overlap": "overlap", "boundary": "boundary",
-                "wirelength": "wirelength", "spread": "spread", "edge_avoidance": "edge_avoidance",
-                "group_cluster": "group_cluster", "thermal": "thermal", "clearance": "clearance",
-                "loop_area": "loop_area", "star_point": "star_point",
+                "zone_membership": "zone",
+                "zone": "zone",
+                "overlap": "overlap",
+                "boundary": "boundary",
+                "wirelength": "wirelength",
+                "spread": "spread",
+                "edge_avoidance": "edge_avoidance",
+                "group_cluster": "group_cluster",
+                "thermal": "thermal",
+                "clearance": "clearance",
+                "loop_area": "loop_area",
+                "star_point": "star_point",
             }
             for weight_key, weight_value in loss_weights.items():
                 loss_name = weight_name_map.get(weight_key, weight_key)
                 if loss_name in [
-                    "overlap", "boundary", "wirelength", "spread", "edge_avoidance",
-                    "group_cluster", "thermal", "zone", "clearance", "loop_area", "star_point"
+                    "overlap",
+                    "boundary",
+                    "wirelength",
+                    "spread",
+                    "edge_avoidance",
+                    "group_cluster",
+                    "thermal",
+                    "zone",
+                    "clearance",
+                    "loop_area",
+                    "star_point",
                 ]:
                     w = float(weight_value)
                     _validate_weight(w, loss_name)
@@ -935,31 +1008,31 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
 def _validate_current_capacity(constraints: PlacementConstraints) -> None:
     """
-    Validate that high-current nets have appropriate routing strategies.
-    
-    Enforces professional PCB design standards:
-    - High current (>10A): MUST have zone/pour assignment
-   - Medium current (5-10A): WARN if using single vias
-    - Low current (<5A): Standard routing acceptable
-    
-    Args:
-        constraints: Placement constraints to validate
-        
-    Raises:
-        ValueError: If high-current net lacks zone assignment
-        
-    Examples:
-        # Good: 20A net assigned to plane
-        net_classes: {"AC_L": "HighCurrent"}
-        net_class_rules:
-            HighCurrent:
-                max_current_rating: 20.0
-                routing_strategy: "plane_required"
-        zones:
-            - name: "AC_PLANE"
-              net_classes: ["HighCurrent"]
-              
-        # Bad: 20A net without zone → ValueError
+     Validate that high-current nets have appropriate routing strategies.
+
+     Enforces professional PCB design standards:
+     - High current (>10A): MUST have zone/pour assignment
+    - Medium current (5-10A): WARN if using single vias
+     - Low current (<5A): Standard routing acceptable
+
+     Args:
+         constraints: Placement constraints to validate
+
+     Raises:
+         ValueError: If high-current net lacks zone assignment
+
+     Examples:
+         # Good: 20A net assigned to plane
+         net_classes: {"AC_L": "HighCurrent"}
+         net_class_rules:
+             HighCurrent:
+                 max_current_rating: 20.0
+                 routing_strategy: "plane_required"
+         zones:
+             - name: "AC_PLANE"
+               net_classes: ["HighCurrent"]
+
+         # Bad: 20A net without zone → ValueError
     """
     import logging
 
@@ -981,10 +1054,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
             current_a = estimate_current_from_net_class(net_class.trace_width_mm)
 
         # Check zone assignment
-        has_zone = any(
-            net_class_name in zone.net_classes
-            for zone in constraints.zones
-        )
+        has_zone = any(net_class_name in zone.net_classes for zone in constraints.zones)
 
         # HIGH CURRENT (>10A): Plane REQUIRED
         if current_a > 10.0:
@@ -1004,7 +1074,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
             if net_class.via_template == "Via1x1" or not net_class.via_template:
                 logger.warning(
                     f"MEDIUM CURRENT NET '{net_name}' ({current_a:.1f}A) uses single vias.\n"
-                   f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
+                    f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
                     f"Single 0.3mm vias rated ~3-5A; via arrays recommended for >5A."
                 )
 
@@ -1014,7 +1084,6 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
                     f"Net '{net_name}' ({current_a:.1f}A) approaching high-current threshold. "
                     f"Consider zone/pour assignment for better thermal performance."
                 )
-
 
 
 def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRules:
@@ -1074,9 +1143,7 @@ def create_board_from_constraints(constraints: PlacementConstraints) -> Board:
     )
 
 
-def apply_zones_to_netlist(
-    netlist: Netlist, constraints: PlacementConstraints
-) -> None:
+def apply_zones_to_netlist(netlist: Netlist, constraints: PlacementConstraints) -> None:
     """Apply zone assignments from component groups to components."""
     for group in constraints.component_groups:
         if group.zone:

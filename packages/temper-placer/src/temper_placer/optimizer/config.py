@@ -156,23 +156,46 @@ class ForceDirectedConfig:
 
 
 @dataclass
+class ZoneAwareConfig:
+    """
+    Configuration for zone-aware initialization.
+
+    Components are biased away from copper zones (GND/VCC planes) to create
+    better routing channels and reduce congestion.
+
+    Attributes:
+        zone_penalty: Cost multiplier for zone-covered cells (higher = stronger avoidance).
+        boundary_margin: Buffer distance around zones in mm.
+        adjustment_iters: Number of gradient descent steps for zone avoidance.
+        grid_resolution: Resolution of zone cost field in mm.
+    """
+
+    zone_penalty: float = 10.0
+    boundary_margin: float = 3.0
+    adjustment_iters: int = 50
+    grid_resolution: float = 0.5
+
+
+@dataclass
 class InitializationConfig:
     """
     Component placement initialization configuration.
 
     Attributes:
-        method: Initialization method ("random", "spectral", or "learned").
+        method: Initialization method ("random", "spectral", "zone_aware_spectral", or "learned").
         spectral_normalized: If True, use normalized Laplacian for spectral.
         spectral_margin: Fraction of board to leave as margin for spectral.
         learned_model_path: Path to pre-trained model for 'learned' init.
         force_directed: Force-directed unfolding configuration.
+        zone_aware: Zone avoidance configuration (used when method="zone_aware_spectral").
     """
 
-    method: str = "random"  # "random", "spectral", "learned"
+    method: str = "random"  # "random", "spectral", "zone_aware_spectral", "learned"
     spectral_normalized: bool = True
     spectral_margin: float = 0.1
     learned_model_path: str | None = "models/learned_init.pkl"
     force_directed: ForceDirectedConfig = field(default_factory=ForceDirectedConfig)
+    zone_aware: ZoneAwareConfig = field(default_factory=ZoneAwareConfig)
 
 
 @dataclass
@@ -225,6 +248,7 @@ class ReduceLROnPlateauConfig:
     """
     Adaptive learning rate reduction on plateau.
     """
+
     enabled: bool = True
     factor: float = 0.5
     patience: int = 200
@@ -236,6 +260,7 @@ class ElectrostaticCongestionConfig:
     """
     Configuration for Electrostatic Congestion model.
     """
+
     enabled: bool = True
     grid_size: int = 64
     update_interval: int = 100
@@ -313,7 +338,9 @@ class OptimizerConfig:
     reduce_lr_on_plateau: ReduceLROnPlateauConfig = field(default_factory=ReduceLROnPlateauConfig)
 
     # Electrostatic Congestion
-    electrostatic: ElectrostaticCongestionConfig = field(default_factory=ElectrostaticCongestionConfig)
+    electrostatic: ElectrostaticCongestionConfig = field(
+        default_factory=ElectrostaticCongestionConfig
+    )
 
     # Centrality-driven optimization (temper-s7g)
     use_centrality_weighting: bool = True

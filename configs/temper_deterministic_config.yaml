@@ -144,8 +144,11 @@ net_class_rules:
     description: "Fine-pitch IC signals (QFN-56 with 0.4mm pitch)"
   
   Differential:
-    trace_width_mm: 0.2
-    clearance_mm: 0.09     # USB-C has 0.1mm gap, allow 0.09mm
+    # Note: With 0.25mm grid, adjacent cells are only 0.25mm apart
+    # For 0.1mm clearance: max trace width = 0.25 - 0.1 = 0.15mm
+    # Using 0.127mm for manufacturing margin
+    trace_width_mm: 0.127
+    clearance_mm: 0.10     # USB 2.0 differential clearance
     via_size_mm: 0.5
     via_drill_mm: 0.25
     via_template: "Via1x1"  # Single via for USB (minimal discontinuity)
@@ -155,7 +158,9 @@ net_class_rules:
 differential_pairs:
   - net_pos: "USB_D+"
     net_neg: "USB_D-"
-    spacing_mm: 0.15
+    # spacing_mm = trace_width + edge_clearance = 0.127 + 0.10 = 0.227mm (center-to-center)
+    # With 0.25mm grid, the closest we can get is 0.25mm (adjacent cells)
+    spacing_mm: 0.25
     coupling_tolerance_mm: 0.5
     max_skew_mm: 0.5
     description: "USB 2.0 differential pair"

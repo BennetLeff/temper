@@ -1,0 +1,65 @@
+{
+  "dimensions": {
+    "width_mm": 100,
+    "height_mm": 150,
+    "cell_size_mm": 0.25,
+    "rows": 600,
+    "cols": 400,
+    "total_cells": 240000
+  },
+  "layer_count": 4,
+  "nets_registered": 25,
+  "net_names": [
+    "AC_L",
+    "AC_N",
+    "GND",
+    "DC_BUS+",
+    "DC_BUS-",
+    "PGND",
+    "GATE_H",
+    "SW_NODE",
+    "GATE_L",
+    "+15V",
+    "PWM_H",
+    "PWM_L",
+    "SHUTDOWN_N",
+    "CGND",
+    "VCC_BOOT",
+    "+5V",
+    "+3V3",
+    "I_SENSE",
+    "SPI_CLK",
+    "SPI_MOSI",
+    "SPI_MISO",
+    "SPI_CS_TEMP",
+    "USB_D+",
+    "USB_D-",
+    "TEMP_SENSE"
+  ],
+  "blocking": {
+    "F.Cu": {
+      "pad_blocked_cells": 26011,
+      "trace_blocked_cells": 0,
+      "total_blocked_cells": 26011,
+      "blocked_percentage": 10.837916666666667
+    },
+    "In1.Cu": {
+      "pad_blocked_cells": 9446,
+      "trace_blocked_cells": 0,
+      "total_blocked_cells": 9446,
+      "blocked_percentage": 3.9358333333333335
+    },
+    "In2.Cu": {
+      "pad_blocked_cells": 9446,
+      "trace_blocked_cells": 0,
+      "total_blocked_cells": 9446,
+      "blocked_percentage": 3.9358333333333335
+    },
+    "B.Cu": {
+      "pad_blocked_cells": 9446,
+      "trace_blocked_cells": 0,
+      "total_blocked_cells": 9446,
+      "blocked_percentage": 3.9358333333333335
+    }
+  }
+}

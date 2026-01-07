@@ -1,0 +1,50 @@
+[
+  {
+    "iteration": 1,
+    "total": 170,
+    "actionable": 137,
+    "by_type": {
+      "shorting_items": 7,
+      "clearance": 10,
+      "hole_clearance": 1,
+      "solder_mask_bridge": 16,
+      "track_dangling": 7,
+      "via_dangling": 8,
+      "holes_co_located": 12,
+      "lib_footprint_issues": 33,
+      "unconnected": 76
+    }
+  },
+  {
+    "iteration": 2,
+    "total": 176,
+    "actionable": 143,
+    "by_type": {
+      "clearance": 11,
+      "shorting_items": 6,
+      "solder_mask_bridge": 17,
+      "track_dangling": 5,
+      "via_dangling": 8,
+      "holes_co_located": 4,
+      "hole_to_hole": 1,
+      "lib_footprint_issues": 33,
+      "unconnected": 91
+    }
+  },
+  {
+    "iteration": 3,
+    "total": 169,
+    "actionable": 136,
+    "by_type": {
+      "clearance": 9,
+      "shorting_items": 4,
+      "solder_mask_bridge": 14,
+      "track_dangling": 6,
+      "via_dangling": 7,
+      "holes_co_located": 4,
+      "hole_to_hole": 1,
+      "lib_footprint_issues": 33,
+      "unconnected": 91
+    }
+  }
+]
