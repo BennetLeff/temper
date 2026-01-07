@@ -374,14 +374,20 @@ class DiffPairRouter:
             current = current.parent
         forward_path.reverse()
 
+        # Backward path: built by following parent pointers from backward_node
+        # backward_node is at meeting point, parents go toward goal
+        # So backward_path will be: [meeting, meeting+1, ..., goal]
         backward_path = []
-        current = backward_node.parent  # Skip meeting point (already in forward)
+        current = backward_node
         while current is not None:
             backward_path.append(current.state)
             current = current.parent
-        backward_path.reverse()  # FIX: Reverse backward path to maintain continuity
 
-        # Combine paths
+        # Skip the meeting point (first element) since it's already in forward_path
+        if backward_path:
+            backward_path = backward_path[1:]
+
+        # Combine paths: [start → meeting] + [meeting+1 → goal]
         full_path = forward_path + backward_path
 
         # Extract P and N cell lists
