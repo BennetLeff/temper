@@ -684,12 +684,8 @@ class SequentialRoutingStage(Stage):
                             )
                             safe_pos = pos  # Fallback to pad position
                     else:
-                        safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
-                        if not safe_pos:
-                            print(
-                                f"WARNING: Could not find safe via position for {net_name} at {pos}"
-                            )
-                            safe_pos = pos  # Fallback
+                        # Without DRC oracle, place via at pad position (no clearance check)
+                        safe_pos = pos
 
                     # Create Via connecting Top to Plane Layer
                     via = Via(

@@ -400,6 +400,8 @@ class ClearanceGridStage(Stage):
         pad_sizes: dict = None,
         max_clearance_mm: float = 2.5,
         net_class_clearances: dict[str, float] = None,
+        pth_mask_expansion_mm: float = 0.15,
+        smd_mask_expansion_mm: float = 0.10,
     ):
         """Initialize clearance grid stage.
 
@@ -409,12 +411,16 @@ class ClearanceGridStage(Stage):
             pad_sizes: Optional dict of pad sizes
             max_clearance_mm: Maximum clearance to use for blocking (fallback if net class not found)
             net_class_clearances: Optional mapping of net class name to clearance in mm
+            pth_mask_expansion_mm: Mask expansion for PTH pads (default: 0.15mm)
+            smd_mask_expansion_mm: Mask expansion for SMD pads (default: 0.10mm)
         """
         self.cell_size_mm = cell_size_mm
         self.layer_count = layer_count
         self.pad_sizes = pad_sizes or {}
         self.max_clearance_mm = max_clearance_mm
         self.net_class_clearances = net_class_clearances or {}
+        self.pth_mask_expansion_mm = pth_mask_expansion_mm
+        self.smd_mask_expansion_mm = smd_mask_expansion_mm
 
     @property
     def name(self) -> str:
@@ -481,22 +487,29 @@ class ClearanceGridStage(Stage):
                         }
                     )
 
-            # Block all pads with MAXIMUM clearance from any net class.
+            # Block all pads with clearance based on pad type (PTH vs SMD).
+            # PTH pads need larger mask expansion due to plating and annular ring.
+            # Base clearance components:
+            #   - Electrical clearance (from max_clearance_mm or net class)
+            #   - Mask expansion (PTH: 0.15mm, SMD: 0.10mm)
+            #
             # This is critical: when a HighVoltage net routes near a Ground pad,
             # it needs HighVoltage clearance (2.0mm), not Ground clearance (0.25mm).
             # Using max_clearance_mm ensures all nets can route safely.
-            #
-            # Note: This is conservative but correct. A more sophisticated approach
-            # would track which nets need which clearances and check at routing time,
-            # but that requires changes to the A* algorithm.
             for net_name, pads in net_pads.items():
                 for pad in pads:
+                    # Calculate clearance with PTH/SMD-aware mask expansion
+                    mask_expansion = (
+                        self.pth_mask_expansion_mm if pad["is_pth"] else self.smd_mask_expansion_mm
+                    )
+                    total_clearance = self.max_clearance_mm + mask_expansion
+
                     for layer_idx in pad["layers"]:
                         if layer_idx < grid.layer_count:
                             grid.block_circle(
                                 pad["pos"],
                                 radius_mm=pad["radius"],
-                                clearance_mm=self.max_clearance_mm,  # Use max clearance for all pads
+                                clearance_mm=total_clearance,
                                 layer=layer_idx,
                                 net_name=net_name,
                             )

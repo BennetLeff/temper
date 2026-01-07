@@ -223,10 +223,26 @@ def main():
         # KiCad DRC reads design rules from .kicad_pro, not .kicad_pcb
         source_pro = pcb_path.with_suffix(".kicad_pro")
         if source_pro.exists():
-            import shutil
-
             output_pro = output_pcb.with_suffix(".kicad_pro")
-            shutil.copy(source_pro, output_pro)
+
+            # Load, modify, and save project file
+            with open(source_pro, "r") as f:
+                pro_data = json.load(f)
+
+            # Update board minimum constraints for FinePitch routing
+            # FinePitch class uses 0.127mm (5mil) traces which is standard for dense ICs
+            rules = (
+                pro_data.setdefault("board", {})
+                .setdefault("design_settings", {})
+                .setdefault("rules", {})
+            )
+            rules["min_track_width"] = 0.127  # Allow FinePitch 5mil traces
+            rules["min_via_diameter"] = 0.4  # Allow FinePitch vias
+            rules["min_via_annular_width"] = 0.1  # Allow FinePitch via annular ring
+
+            with open(output_pro, "w") as f:
+                json.dump(pro_data, f, indent=2)
+
             logger.info(f"Copied project file with design rules: {output_pro.name}")
 
         # 3. Run KiCad DRC
