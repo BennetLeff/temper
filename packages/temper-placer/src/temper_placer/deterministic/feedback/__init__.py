@@ -2,6 +2,7 @@ from .violation_mapper import DRCViolation, MappedViolation, ViolationComponentM
 from .drc_parser import parse_kicad_drc
 from .zone_adjuster import ZoneAdjuster, ZoneAdjustment, AdjustmentResult
 from .orchestrator import AutomatedZeroDRC
+from .drc_runner import KiCadDRCRunner, run_drc_check
 
 __all__ = [
     "DRCViolation",
@@ -12,4 +13,6 @@ __all__ = [
     "ZoneAdjustment",
     "AdjustmentResult",
     "AutomatedZeroDRC",
+    "KiCadDRCRunner",
+    "run_drc_check",
 ]
