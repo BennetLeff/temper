@@ -733,7 +733,7 @@ class MazeRouter:
                     self.present_congestion[ax, ay, al] = max(
                         0.0, self.present_congestion[ax, ay, al] - 1.0
                     )
-        
+
         # Remove geometric segments
         self._remove_net_segments(net_name)
 
@@ -1403,20 +1403,21 @@ class MazeRouter:
 
     def block_route_path(self, path: RoutePath, net_class: str | None = None) -> None:
         """Block grid cells occupied by a route path with clearance inflation.
-        
+
         This converts the logical RoutePath (points) into physical traces and blocks
         them on the grid to enforce clearance for subsequent routes.
-        
+
         Args:
             path: The successful RoutePath to block
             net_class: Net class for clearance inflation
         """
+
     def block_route_path(self, path: RoutePath, net_class: str | None = None) -> None:
         """Block grid cells occupied by a route path with clearance inflation.
-        
+
         This converts the logical RoutePath (points) into physical traces and blocks
         them on the grid to enforce clearance for subsequent routes.
-        
+
         Args:
             path: The successful RoutePath to block
             net_class: Net class for clearance inflation
@@ -1427,58 +1428,60 @@ class MazeRouter:
         # 1. Convert path cells to trace segments
         # We iterate through cells and create segments for contiguous same-layer runs
         traces = []
-        
+
         # Use grid center points
         points_3d = []
         for cell in path.cells:
             wx, wy = self.grid_converter.grid_to_world(cell.x, cell.y)
             points_3d.append((wx, wy, cell.layer))
-        
+
         for i in range(len(points_3d) - 1):
             p1 = points_3d[i]
-            p2 = points_3d[i+1]
-            
+            p2 = points_3d[i + 1]
+
             # Only connect if same layer
             if p1[2] == p2[2]:
                 layer_name = self.layer_stackup.layers[p1[2]].name
-                traces.append(TraceData(
-                    start=(p1[0], p1[1]),
-                    end=(p2[0], p2[1]),
-                    width=path.trace_width,
-                    layer=layer_name,
-                    net=path.net
-                ))
-                
+                traces.append(
+                    TraceData(
+                        start=(p1[0], p1[1]),
+                        end=(p2[0], p2[1]),
+                        width=path.trace_width,
+                        layer=layer_name,
+                        net=path.net,
+                    )
+                )
+
         # Block traces
         if traces:
             self.block_traces(traces, net_class=net_class)
-        
+
         # Block Vias
         via_locations = set()
-        
+
         # Explicit
         if path.explicit_vias:
             for via in path.explicit_vias:
                 via_locations.add((via.position[0], via.position[1]))
-            
+
         # Implicit in grid cells (layer transitions)
         for i in range(len(path.cells) - 1):
             c1 = path.cells[i]
-            c2 = path.cells[i+1]
+            c2 = path.cells[i + 1]
             if c1.layer != c2.layer:
                 # Via at c1 (or shared location)
                 wx, wy = self.grid_converter.grid_to_world(c1.x, c1.y)
                 via_locations.add((wx, wy))
-                
+
         if not via_locations:
             return
-            
+
         # Calculate blocking radius for vias
         clearance = get_clearance_for_pair(net_class, None)
         via_radius = path.via_diameter / 2.0
         total_radius_mm = via_radius + clearance
         radius_cells = int(math.ceil(total_radius_mm / self.cell_size))
-        
+
         for vx, vy in via_locations:
             gx, gy = self.grid_converter.world_to_grid(vx, vy)
             # Block on ALL layers for simple through-hole/blind via assumption
@@ -1486,14 +1489,14 @@ class MazeRouter:
             for l_idx in range(self.num_layers):
                 if 0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]:
                     # Circular block
-                     for dx in range(-radius_cells, radius_cells + 1):
+                    for dx in range(-radius_cells, radius_cells + 1):
                         for dy in range(-radius_cells, radius_cells + 1):
-                            if dx*dx + dy*dy <= radius_cells*radius_cells:
+                            if dx * dx + dy * dy <= radius_cells * radius_cells:
                                 nx, ny = gx + dx, gy + dy
                                 if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
                                     key = (nx, ny, l_idx)
-                                    self.occupancy[nx, ny, l_idx] = 2 # Routed
-                                    if path.net: # Register ownership
+                                    self.occupancy[nx, ny, l_idx] = 2  # Routed
+                                    if path.net:  # Register ownership
                                         self._trace_net_map[key] = path.net
                                         if key not in self.net_occupancy:
                                             self.net_occupancy[key] = set()
@@ -3457,16 +3460,16 @@ class MazeRouter:
 
                     # Ensure result is always stored
                     self.routed_paths[net_name] = result
-                    
+
                     # Update Grid with Clearance for Sequential Routing (temper-df3m)
                     if result.success and not is_cleanup_pass:
                         # Determine net class
                         nc = "default"
                         if self.design_rules:
                             nr = self.design_rules.get_rules_for_net(net_name)
-                            if nr and nr.net_class:
-                                nc = nr.net_class
-                        
+                            if nr and nr.name:
+                                nc = nr.name
+
                         self.block_route_path(result, net_class=nc)
 
                     # Fallback: If blocked, try escape routing
