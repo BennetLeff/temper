@@ -379,6 +379,7 @@ class DiffPairRouter:
         while current is not None:
             backward_path.append(current.state)
             current = current.parent
+        backward_path.reverse()  # FIX: Reverse backward path to maintain continuity
 
         # Combine paths
         full_path = forward_path + backward_path
