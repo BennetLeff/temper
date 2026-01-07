@@ -662,25 +662,33 @@ class SequentialRoutingStage(Stage):
                         )
                         continue
 
-                    # Find safe position for via - use larger search radius for power/ground
+                    # Find safe position for via
+                    # Strategy: Try pad position first (no stub needed), then search outward
                     if state.drc_oracle:
-                        # Progressive search: try 2mm, then 5mm, then 10mm
-                        safe_pos = None
-                        for radius in [2.0, 5.0, 10.0]:
-                            sites = state.drc_oracle.get_valid_via_sites(
-                                pos, search_radius=radius, net=net_name
-                            )
-                            if sites:
-                                safe_pos = sites[0]
-                                if radius > 2.0:
+                        # First, try via directly at pad position (best for connectivity)
+                        sites = state.drc_oracle.get_valid_via_sites(
+                            pos,
+                            search_radius=0.01,
+                            net=net_name,  # Essentially at pad
+                        )
+                        safe_pos = sites[0] if sites else None
+
+                        # If pad position doesn't work, search progressively outward
+                        if not safe_pos:
+                            for radius in [0.5, 1.0, 2.0, 5.0]:
+                                sites = state.drc_oracle.get_valid_via_sites(
+                                    pos, search_radius=radius, net=net_name
+                                )
+                                if sites:
+                                    safe_pos = sites[0]
                                     print(
-                                        f"INFO: Found via site for {net_name} at {radius}mm radius (offset {((sites[0][0] - pos[0]) ** 2 + (sites[0][1] - pos[1]) ** 2) ** 0.5:.2f}mm)"
+                                        f"INFO: Found via site for {net_name} at {radius}mm from pad (offset {((sites[0][0] - pos[0]) ** 2 + (sites[0][1] - pos[1]) ** 2) ** 0.5:.2f}mm)"
                                     )
-                                break
+                                    break
 
                         if not safe_pos:
                             print(
-                                f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 10mm)"
+                                f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 5mm)"
                             )
                             safe_pos = pos  # Fallback to pad position
                     else:
@@ -708,27 +716,42 @@ class SequentialRoutingStage(Stage):
                             )
                         )
 
-                    # If via shifted, add a short stub trace from pin to via
-                    # VALIDATE stub trace before adding to prevent DRC violations
-                    # Note: For plane nets, the stub trace is optional - the via alone
-                    # provides the plane connection and the pad provides surface connectivity.
-                    if safe_pos != pos:
+                    # Add stub trace from SMD pad to via on F.Cu
+                    # CRITICAL: SMD pads are only on F.Cu, so they NEED a F.Cu trace
+                    # to reach the via, even if the via is at the pad position.
+                    # The via then connects F.Cu to the inner plane layer.
+
+                    # Always add stub for SMD pads, even if via is at pad position
+                    # For PTH pads, the barrel provides connectivity, so no stub needed
+                    if safe_pos != pos or not pin.is_pth:
+                        # If via is exactly at pad, create very short stub (0.1mm) for connectivity
+                        if safe_pos == pos:
+                            # Create minimal stub in direction away from pad center
+                            # Just enough for KiCad to recognize connectivity
+                            dx = 0.1 if pos[0] < 50 else -0.1
+                            stub_end = (pos[0] + dx, pos[1])
+                        else:
+                            stub_end = safe_pos
+
                         stub_valid = True
-                        if state.drc_oracle:
+                        if state.drc_oracle and stub_end != pos:
                             stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
-                                start=pos, end=safe_pos, layer=0, net=net_name, width=width
+                                start=pos,
+                                end=stub_end,
+                                layer=0,
+                                net=net_name,
+                                width=width,
+                                neckdown=True,  # Use relaxed clearance for plane stubs
                             )
                             if not stub_valid:
-                                # For plane nets, rejected stub is OK - via alone connects
-                                # to internal plane layer. Skip the trace but keep the via.
                                 print(
-                                    f"  INFO: Plane stub trace for {net_name} skipped (via-only connection): {stub_reason}"
+                                    f"  INFO: Plane stub trace for {net_name} skipped: {stub_reason}"
                                 )
 
-                        if stub_valid:
+                        if stub_valid and stub_end != pos:
                             all_traces.append(
                                 Trace(
-                                    start=pos, end=safe_pos, width=width, layer="F.Cu", net=net_name
+                                    start=pos, end=stub_end, width=width, layer="F.Cu", net=net_name
                                 )
                             )
                             # Register stub in DRCOracle
@@ -736,7 +759,7 @@ class SequentialRoutingStage(Stage):
                                 state.drc_oracle.register_track(
                                     OracleTrack(
                                         start=OraclePoint(pos[0], pos[1]),
-                                        end=OraclePoint(safe_pos[0], safe_pos[1]),
+                                        end=OraclePoint(stub_end[0], stub_end[1]),
                                         width=width,
                                         net=net_name,
                                         layer=0,  # F.Cu
