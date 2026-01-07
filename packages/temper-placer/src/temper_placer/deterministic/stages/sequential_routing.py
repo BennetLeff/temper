@@ -104,6 +104,121 @@ class SequentialRoutingStage(Stage):
 
         return allowed_zones if allowed_zones else None
 
+    def _create_via_array(
+        self,
+        center: Tuple[float, float],
+        net_name: str,
+        from_layer_name: str,
+        to_layer_name: str,
+        via_d: float,
+        via_drill: float,
+        clearance: float,
+        grid,
+        state: BoardState,
+        all_vias: List,
+    ) -> List:
+        """Create a via array at the specified position for high-current nets.
+
+        Uses ViaTemplate from design_rules if available, otherwise single via.
+
+        Args:
+            center: (x, y) center position in mm
+            net_name: Name of the net
+            from_layer_name: Source layer name (e.g., 'F.Cu')
+            to_layer_name: Target layer name (e.g., 'In1.Cu')
+            via_d: Via diameter in mm
+            via_drill: Via drill diameter in mm
+            clearance: Clearance in mm
+            grid: ClearanceGrid for blocking
+            state: BoardState with DRC oracle
+            all_vias: List to append vias to
+
+        Returns:
+            List of Via objects created
+        """
+        created_vias = []
+
+        # Get via template from design rules
+        via_template = None
+        if self.design_rules:
+            via_template = self.design_rules.get_via_template(net_name)
+
+        # If template is 1x1 or not found, create single via
+        if not via_template or via_template.via_count <= 1:
+            via = Via(
+                position=center,
+                drill=via_drill,
+                width=via_d,
+                layers=(from_layer_name, to_layer_name),
+                net=net_name,
+            )
+            all_vias.append(via)
+            created_vias.append(via)
+
+            # Block via on ALL layers
+            for l_idx in range(grid.layer_count):
+                grid.block_circle(
+                    center,
+                    radius_mm=via_d / 2,
+                    clearance_mm=clearance,
+                    layer=l_idx,
+                    net_name=net_name,
+                    is_pad=False,
+                )
+
+            # Register in DRCOracle
+            if state.drc_oracle:
+                state.drc_oracle.register_via(
+                    OracleVia(
+                        center=OraclePoint(center[0], center[1]),
+                        diameter=via_d,
+                        drill=via_drill,
+                        net=net_name,
+                    )
+                )
+            return created_vias
+
+        # Create via array
+        print(
+            f"  [ViaArray] Creating {via_template.name} ({via_template.via_count} vias) for {net_name}"
+        )
+        positions = via_template.get_via_positions(center[0], center[1])
+
+        for vx, vy in positions:
+            via = Via(
+                position=(vx, vy),
+                drill=via_template.via_drill_mm,
+                width=via_template.via_diameter_mm,
+                layers=(from_layer_name, to_layer_name),
+                net=net_name,
+            )
+            all_vias.append(via)
+            created_vias.append(via)
+
+            # Block via on ALL layers
+            for l_idx in range(grid.layer_count):
+                grid.block_circle(
+                    (vx, vy),
+                    radius_mm=via_template.via_diameter_mm / 2,
+                    clearance_mm=clearance,
+                    layer=l_idx,
+                    net_name=net_name,
+                    is_pad=False,
+                )
+
+            # Register in DRCOracle
+            if state.drc_oracle:
+                state.drc_oracle.register_via(
+                    OracleVia(
+                        center=OraclePoint(vx, vy),
+                        diameter=via_template.via_diameter_mm,
+                        drill=via_template.via_drill_mm,
+                        net=net_name,
+                    )
+                )
+
+        return created_vias
+
     def _get_allowed_layers_for_net(
         self, net_name: str, net_class_name: str | None, state: BoardState
     ) -> List[int]:
@@ -833,41 +948,24 @@ class SequentialRoutingStage(Stage):
                             )
                         )
 
-                # Commit vias from layer transitions
+                # Commit vias from layer transitions - use via arrays for high-current nets
                 for vx, vy, from_layer, to_layer in ml_path.via_positions:
                     from_layer_name = LAYER_IDX_TO_NAME.get(from_layer, "F.Cu")
                     to_layer_name = LAYER_IDX_TO_NAME.get(to_layer, "B.Cu")
 
-                    via = Via(
-                        position=(vx, vy),
-                        drill=via_drill,
-                        width=via_d,
-                        layers=(from_layer_name, to_layer_name),
-                        net=net_name,
+                    # Use via array helper (creates single or array based on net class)
+                    self._create_via_array(
+                        center=(vx, vy),
+                        net_name=net_name,
+                        from_layer_name=from_layer_name,
+                        to_layer_name=to_layer_name,
+                        via_d=via_d,
+                        via_drill=via_drill,
+                        clearance=clearance,
+                        grid=grid,
+                        state=state,
+                        all_vias=all_vias,
                     )
-                    all_vias.append(via)
-
-                    # Block via on ALL layers with net_name
-                    for l_idx in range(grid.layer_count):
-                        grid.block_circle(
-                            (vx, vy),
-                            radius_mm=via_d / 2,
-                            clearance_mm=clearance,
-                            layer=l_idx,
-                            net_name=net_name,
-                            is_pad=False,
-                        )
-
-                    # Register in DRCOracle
-                    if state.drc_oracle:
-                        state.drc_oracle.register_via(
-                            OracleVia(
-                                center=OraclePoint(vx, vy),
-                                diameter=via_d,
-                                drill=via_drill,
-                                net=net_name,
-                            )
-                        )
 
             # Generate Vias for pins if routed on inner layer
             if net_paths and layer_name != "F.Cu":

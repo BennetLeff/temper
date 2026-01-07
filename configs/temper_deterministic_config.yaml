@@ -108,6 +108,7 @@ net_class_rules:
     clearance_mm: 2.0
     via_size_mm: 1.0
     via_drill_mm: 0.5
+    via_template: "Via3x3"  # 9 vias for high-current (20A+) layer transitions
     description: "High voltage AC/DC nets"
   
   Power:
@@ -115,6 +116,7 @@ net_class_rules:
     clearance_mm: 0.3
     via_size_mm: 0.8
     via_drill_mm: 0.4
+    via_template: "Via2x2"  # 4 vias for power delivery
     description: "Power rails"
   
   Ground:
@@ -122,6 +124,7 @@ net_class_rules:
     clearance_mm: 0.25
     via_size_mm: 0.8
     via_drill_mm: 0.4
+    via_template: "Via2x2"  # 4 vias for low-impedance return path
     description: "Ground planes"
   
   Signal:
@@ -129,6 +132,7 @@ net_class_rules:
     clearance_mm: 0.2
     via_size_mm: 0.6
     via_drill_mm: 0.3
+    via_template: "Via1x1"  # Single via for signals
     description: "Standard signals"
   
   FinePitch:
@@ -136,6 +140,7 @@ net_class_rules:
     clearance_mm: 0.15     # 0.16mm actual gap on QFN-56, allow 0.15mm
     via_size_mm: 0.4       # Smaller vias for dense areas
     via_drill_mm: 0.2
+    via_template: "Via1x1"  # Single via for fine-pitch
     description: "Fine-pitch IC signals (QFN-56 with 0.4mm pitch)"
   
   Differential:
@@ -143,6 +148,7 @@ net_class_rules:
     clearance_mm: 0.09     # USB-C has 0.1mm gap, allow 0.09mm
     via_size_mm: 0.5
     via_drill_mm: 0.25
+    via_template: "Via1x1"  # Single via for USB (minimal discontinuity)
     description: "USB differential pair (tightly coupled)"
 
 # Differential pairs
