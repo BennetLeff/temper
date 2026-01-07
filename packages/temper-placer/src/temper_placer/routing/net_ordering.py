@@ -37,15 +37,19 @@ class NetClass(IntEnum):
 
     Attributes:
         HIGH_VOLTAGE: High voltage nets (DC bus, switching nodes) - route first
+        DIFFERENTIAL: Differential pairs (USB, etc.) - route early for matched lengths
         POWER: Power distribution nets (VCC, power rails)
         GATE_DRIVE: Gate drive signals (critical timing)
-        SIGNAL: General signals - route last
+        SIGNAL: General signals (including FinePitch)
+        GROUND: Ground plane nets - route last (usually via zones)
     """
 
     HIGH_VOLTAGE = 0
-    POWER = 1
-    GATE_DRIVE = 2
-    SIGNAL = 3
+    DIFFERENTIAL = 1
+    POWER = 2
+    GATE_DRIVE = 3
+    SIGNAL = 4
+    GROUND = 5
 
 
 @total_ordering
@@ -112,16 +116,30 @@ def get_net_class_from_string(net_class_str: str) -> NetClass:
         NetClass.SIGNAL
     """
     mapping = {
+        # High voltage nets (route first)
         "HighVoltage": NetClass.HIGH_VOLTAGE,
         "highvoltage": NetClass.HIGH_VOLTAGE,
         "HV": NetClass.HIGH_VOLTAGE,
+        # Differential pairs (route early for length matching)
+        "Differential": NetClass.DIFFERENTIAL,
+        "differential": NetClass.DIFFERENTIAL,
+        "DiffPair": NetClass.DIFFERENTIAL,
+        # Power nets
         "Power": NetClass.POWER,
         "power": NetClass.POWER,
+        # Gate drive nets
         "GateDrive": NetClass.GATE_DRIVE,
         "gatedrive": NetClass.GATE_DRIVE,
         "Gate": NetClass.GATE_DRIVE,
+        # Signal nets (default, includes FinePitch)
         "Signal": NetClass.SIGNAL,
         "signal": NetClass.SIGNAL,
+        "FinePitch": NetClass.SIGNAL,  # Fine-pitch pads, treat as signal
+        "finepitch": NetClass.SIGNAL,
+        # Ground nets (route last, usually planes)
+        "Ground": NetClass.GROUND,
+        "ground": NetClass.GROUND,
+        "GND": NetClass.GROUND,
     }
     return mapping.get(net_class_str, NetClass.SIGNAL)
 
