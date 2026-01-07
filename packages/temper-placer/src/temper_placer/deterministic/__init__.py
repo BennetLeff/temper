@@ -17,6 +17,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
         ZoneAwareSlotGenerationStage,
         ComponentAssignmentStage,
         ApplyPlacementsStage,
+        NetClassSetupStage,
         DRCOracleSetupStage,
         ClearanceGridStage,
         NetOrderingStage,
@@ -77,6 +78,8 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
 
     return DeterministicPipeline(
         stages=[
+            # Setup - apply net class mapping early
+            NetClassSetupStage(net_classes=config.net_classes if config else None),
             # Placement stages
             ZoneGeometryStage(zone_config=zone_config),
             ZoneAssignmentStage(),

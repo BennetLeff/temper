@@ -19,9 +19,9 @@ class DeterministicAStar:
     max_iterations: int = 5000  # Default, overridden by adaptive calculation
     relaxed_retry: bool = True  # Retry with neckdown if strict search fails
     # Adaptive iteration parameters
-    iterations_per_cell: int = 50  # Base multiplier for distance-based limit
-    min_iterations: int = 2000  # Floor for short paths with obstacles
-    max_iterations_cap: int = 50000  # Ceiling for complex routes
+    iterations_per_cell: int = 60  # Base multiplier for distance-based limit (increased)
+    min_iterations: int = 3000  # Floor for short paths with obstacles (increased)
+    max_iterations_cap: int = 100000  # Ceiling for complex routes (doubled)
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0

@@ -1,5 +1,5 @@
 from .base import Stage
-from .setup import DRCOracleSetupStage, SetupStage
+from .setup import DRCOracleSetupStage, SetupStage, NetClassSetupStage
 from .zone_assignment import ZoneAssignmentStage
 from .zone_geometry import ZoneGeometryStage
 from .slot_generation import SlotGenerationStage
@@ -27,6 +27,7 @@ __all__ = [
     "Stage",
     "DRCOracleSetupStage",
     "SetupStage",
+    "NetClassSetupStage",
     "ZoneAssignmentStage",
     "ZoneGeometryStage",
     "SlotGenerationStage",
