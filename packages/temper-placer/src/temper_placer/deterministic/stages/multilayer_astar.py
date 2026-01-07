@@ -3,6 +3,13 @@
 This extends the basic A* algorithm to search across multiple copper layers,
 automatically inserting vias when changing layers. This dramatically improves
 routing completion rates on congested boards.
+
+New in v2 (temper-t4si): Adaptive iteration budgets with congestion awareness.
+Uses IterationBudget.calculate() to scale limits based on:
+- Route distance (Manhattan)
+- Congestion level (LOW/MEDIUM/HIGH/EXTREME = 1x/2x/4x/8x)
+- Layer count (1-4 layers)
+- Distance scaling (>100mm gets 1.5x extra budget)
 """
 
 import heapq
@@ -10,9 +17,17 @@ import math
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Set, TYPE_CHECKING
 
+from temper_placer.routing.iteration_budget import (
+    RoutingContext,
+    IterationBudget,
+    CongestionLevel,
+)
+from temper_placer.core.units import Millimeters
+
 if TYPE_CHECKING:
     from .clearance_grid import ClearanceGrid
     from temper_placer.routing.constraints.drc_oracle import DRCOracle
+    from temper_placer.routing.adaptive_congestion import CongestionDetector
 
 
 @dataclass
@@ -44,15 +59,19 @@ class MultiLayerAStar:
         grid: The ClearanceGrid for collision checking
         drc_oracle: Optional DRC oracle for proactive validation
         net_name: Name of the net being routed (for DRC checks)
+        net_class: Net class name (for adaptive budget calculation)
         trace_width: Width of traces being routed
         via_cost: Extra cost for placing a via (discourages unnecessary layer changes)
         allowed_layers: List of layer indices that can be used for routing
-        max_iterations: Maximum search iterations before giving up
+        max_iterations: Maximum search iterations before giving up (DEPRECATED - use adaptive)
+        congestion_detector: Optional detector for adaptive iteration budgets (NEW)
+        use_adaptive_budget: Enable congestion-aware iteration limits (default: True)
     """
 
     grid: "ClearanceGrid"
     drc_oracle: Optional["DRCOracle"] = None
     net_name: str = ""
+    net_class: str = "Signal"  # NEW: for adaptive budget
     trace_width: float = 0.25
     via_cost: float = 5.0  # Vias are expensive - prefer staying on same layer
     via_diameter: float = 0.6
@@ -60,13 +79,17 @@ class MultiLayerAStar:
     allowed_layers: List[int] = field(
         default_factory=lambda: [0, 1, 2, 3]
     )  # All 4 layers by default
-    max_iterations: int = 15000  # Default, overridden by adaptive calculation
-    # Adaptive iteration parameters
-    iterations_per_cell: int = (
-        50  # Base multiplier for distance-based limit (increased for congested boards)
-    )
-    min_iterations: int = 2000  # Floor for short paths (increased)
-    max_iterations_cap: int = 200000  # Ceiling to prevent runaway searches (doubled)
+    max_iterations: int = 15000  # DEPRECATED: use adaptive budget instead
+
+    # Adaptive iteration parameters (NEW - temper-t4si)
+    congestion_detector: Optional["CongestionDetector"] = None
+    use_adaptive_budget: bool = True  # Enable new adaptive system
+    base_iterations_per_cell: int = 100  # Base multiplier for IterationBudget.calculate()
+
+    # Legacy parameters (kept for backward compatibility, but adaptive overrides them)
+    iterations_per_cell: int = 50  # Old base multiplier (deprecated, use base_iterations_per_cell)
+    min_iterations: int = 2000  # Floor for short paths (deprecated)
+    max_iterations_cap: int = 200000  # Ceiling (deprecated)
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
@@ -74,9 +97,13 @@ class MultiLayerAStar:
         self.last_iterations = 0
         self.last_iteration_limit = 0
         self.last_timeout = False
+        self.last_congestion_level = CongestionLevel.LOW  # NEW: track congestion
 
     def _estimate_iterations(self, start_cell: Tuple[int, int], end_cell: Tuple[int, int]) -> int:
         """Estimate max iterations based on distance and search complexity.
+
+        NEW (temper-t4si): Uses adaptive budget system with congestion awareness.
+        Falls back to legacy calculation if use_adaptive_budget=False.
 
         Uses octile distance (accurate for 8-connected grids) scaled by:
         - Number of allowed layers (more layers = larger search space)
@@ -86,26 +113,85 @@ class MultiLayerAStar:
         runaway searches on impossible routes.
 
         Returns:
-            Adaptive iteration limit between min_iterations and max_iterations_cap
+            Adaptive iteration limit between 5k and 1M
         """
-        dr = abs(start_cell[0] - end_cell[0])
-        dc = abs(start_cell[1] - end_cell[1])
+        # Convert cell coordinates to mm for adaptive budget calculation
+        start_mm = (
+            Millimeters(start_cell[1] * self.grid.cell_size_mm),
+            Millimeters(start_cell[0] * self.grid.cell_size_mm),
+        )
+        end_mm = (
+            Millimeters(end_cell[1] * self.grid.cell_size_mm),
+            Millimeters(end_cell[0] * self.grid.cell_size_mm),
+        )
 
-        # Octile distance in grid cells
-        octile_dist = max(dr, dc) + 0.414 * min(dr, dc)
+        if self.use_adaptive_budget:
+            # NEW: Use congestion-aware adaptive budget
+            # Detect congestion at start and end points
+            congestion_level = CongestionLevel.LOW  # Default
 
-        # Layer factor: more layers = exponentially more states to explore
-        # But diminishing returns - 4 layers isn't 4x harder than 1
-        layer_factor = 1.0 + 0.3 * (len(self.allowed_layers) - 1)
+            if self.congestion_detector:
+                # Sample congestion at both start and end, take worst case
+                congestion_start = self.congestion_detector.detect_congestion(
+                    point=start_mm, radius=Millimeters(5.0)
+                )
+                congestion_end = self.congestion_detector.detect_congestion(
+                    point=end_mm, radius=Millimeters(5.0)
+                )
+                # Take the higher (worse) congestion level
+                level_order = {
+                    CongestionLevel.LOW: 0,
+                    CongestionLevel.MEDIUM: 1,
+                    CongestionLevel.HIGH: 2,
+                    CongestionLevel.EXTREME: 3,
+                }
+                if level_order[congestion_end] > level_order[congestion_start]:
+                    congestion_level = congestion_end
+                else:
+                    congestion_level = congestion_start
 
-        # Congestion factor: assume moderate congestion requires ~2x detour
-        congestion_factor = 2.0
+            self.last_congestion_level = congestion_level
 
-        # Calculate adaptive limit
-        estimated = int(self.iterations_per_cell * octile_dist * layer_factor * congestion_factor)
+            # Create routing context
+            context = RoutingContext(
+                net_name=self.net_name,
+                start=start_mm,
+                end=end_mm,
+                allowed_layers=tuple(self.allowed_layers),
+                net_class=self.net_class,
+            )
 
-        # Clamp to bounds
-        return max(self.min_iterations, min(estimated, self.max_iterations_cap))
+            # Calculate adaptive budget
+            budget = IterationBudget.calculate(
+                context=context,
+                congestion=congestion_level,
+                base_iterations_per_cell=self.base_iterations_per_cell,
+            )
+
+            return budget.max_iterations
+
+        else:
+            # LEGACY: Old distance-based calculation (kept for backward compatibility)
+            dr = abs(start_cell[0] - end_cell[0])
+            dc = abs(start_cell[1] - end_cell[1])
+
+            # Octile distance in grid cells
+            octile_dist = max(dr, dc) + 0.414 * min(dr, dc)
+
+            # Layer factor: more layers = exponentially more states to explore
+            # But diminishing returns - 4 layers isn't 4x harder than 1
+            layer_factor = 1.0 + 0.3 * (len(self.allowed_layers) - 1)
+
+            # Congestion factor: assume moderate congestion requires ~2x detour
+            congestion_factor = 2.0
+
+            # Calculate adaptive limit
+            estimated = int(
+                self.iterations_per_cell * octile_dist * layer_factor * congestion_factor
+            )
+
+            # Clamp to bounds
+            return max(self.min_iterations, min(estimated, self.max_iterations_cap))
 
     def find_path(
         self,
@@ -199,9 +285,16 @@ class MultiLayerAStar:
             dr = abs(start_cell[0] - end_cell[0])
             dc = abs(start_cell[1] - end_cell[1])
             dist_cells = max(dr, dc) + 0.414 * min(dr, dc)
+
+            # NEW: Include congestion level in warning
+            congestion_str = (
+                f", congestion={self.last_congestion_level.value}"
+                if self.use_adaptive_budget
+                else ""
+            )
             print(
                 f"WARNING: Multi-layer A* for {self.net_name} exceeded {adaptive_limit} iterations "
-                f"(dist={dist_cells:.0f} cells, layers={len(self.allowed_layers)})"
+                f"(dist={dist_cells:.0f} cells, layers={len(self.allowed_layers)}{congestion_str})"
             )
 
         return None
