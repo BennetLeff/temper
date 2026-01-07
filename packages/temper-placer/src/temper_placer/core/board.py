@@ -111,6 +111,7 @@ class Via:
         width: Annular ring diameter in mm.
         layers: List of connected layers (e.g. ["F.Cu", "In1.Cu", "B.Cu"]).
         net: Net name.
+        is_diff_pair: If True, via is part of differential pair routing and protected from validation removal.
     """
 
     position: tuple[float, float]
@@ -118,6 +119,7 @@ class Via:
     width: float
     layers: tuple[str, ...] = ("F.Cu", "B.Cu")
     net: str | None = None
+    is_diff_pair: bool = False
 
 
 @dataclass

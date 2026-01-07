@@ -95,6 +95,11 @@ class ViaValidationStage(Stage):
         plane_vias_removed = []
 
         for via in state.vias:
+            # Skip protected differential pair vias
+            if getattr(via, "is_diff_pair", False):
+                valid_vias.append(via)
+                continue
+
             is_plane = _is_plane_net(via.net) if via.net else False
             if is_plane:
                 plane_vias_total += 1

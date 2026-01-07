@@ -514,8 +514,42 @@ class SequentialRoutingStage(Stage):
                             width=0.6,
                             layers=(from_layer, to_layer),
                             net=net_pos_name,
+                            is_diff_pair=True,  # NEW: Protect diff pair vias from validation removal
                         )
                         all_vias.append(via)
+
+                        # NEW: Add bridge trace from via to next point on new layer
+                        # This ensures via is connected on both layers (fixes validation issue)
+                        if (p2[0], p2[1]) != via_pos:
+                            to_layer_name = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                            bridge_trace = Trace(
+                                start=via_pos,
+                                end=(p2[0], p2[1]),
+                                width=width,
+                                layer=to_layer_name,
+                                net=net_pos_name,
+                            )
+                            all_traces.append(bridge_trace)
+                            # Block bridge trace on grid
+                            grid.block_trace(
+                                [via_pos, (p2[0], p2[1])],
+                                width_mm=width,
+                                clearance_mm=clearance,
+                                layer=p2[2],
+                                net_name=net_pos_name,
+                            )
+                            # Register in DRCOracle
+                            if state.drc_oracle:
+                                state.drc_oracle.register_track(
+                                    OracleTrack(
+                                        start=OraclePoint(via_pos[0], via_pos[1]),
+                                        end=OraclePoint(p2[0], p2[1]),
+                                        width=width,
+                                        net=net_pos_name,
+                                        layer=p2[2],
+                                    )
+                                )
+
                         # Block via on all layers
                         for l_idx in range(grid.layer_count):
                             grid.block_circle(
@@ -571,8 +605,42 @@ class SequentialRoutingStage(Stage):
                             width=0.6,
                             layers=(from_layer, to_layer),
                             net=net_neg_name,
+                            is_diff_pair=True,  # NEW: Protect diff pair vias from validation removal
                         )
                         all_vias.append(via)
+
+                        # NEW: Add bridge trace from via to next point on new layer
+                        # This ensures via is connected on both layers (fixes validation issue)
+                        if (p2[0], p2[1]) != via_pos:
+                            to_layer_name = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                            bridge_trace = Trace(
+                                start=via_pos,
+                                end=(p2[0], p2[1]),
+                                width=width,
+                                layer=to_layer_name,
+                                net=net_neg_name,
+                            )
+                            all_traces.append(bridge_trace)
+                            # Block bridge trace on grid
+                            grid.block_trace(
+                                [via_pos, (p2[0], p2[1])],
+                                width_mm=width,
+                                clearance_mm=clearance,
+                                layer=p2[2],
+                                net_name=net_neg_name,
+                            )
+                            # Register in DRCOracle
+                            if state.drc_oracle:
+                                state.drc_oracle.register_track(
+                                    OracleTrack(
+                                        start=OraclePoint(via_pos[0], via_pos[1]),
+                                        end=OraclePoint(p2[0], p2[1]),
+                                        width=width,
+                                        net=net_neg_name,
+                                        layer=p2[2],
+                                    )
+                                )
+
                         # Block via on all layers
                         for l_idx in range(grid.layer_count):
                             grid.block_circle(
