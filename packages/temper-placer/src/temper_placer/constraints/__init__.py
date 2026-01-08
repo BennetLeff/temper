@@ -12,6 +12,7 @@ from .reporter import (
     ConstraintResult,
     ConstraintStatus,
 )
+from .builder import ConstraintBuilder
 
 __all__ = [
     "ConstraintCompiler",
@@ -20,4 +21,5 @@ __all__ = [
     "ConstraintReport",
     "ConstraintResult",
     "ConstraintStatus",
+    "ConstraintBuilder",
 ]
