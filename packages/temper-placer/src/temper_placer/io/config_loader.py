@@ -209,6 +209,45 @@ class ManufacturingConstraint:
 
 
 @dataclass
+class EscapeClearance:
+    """Keep area clear around fine-pitch ICs for escape routing.
+
+    The clearance is computed from pin density to ensure routes can escape.
+    """
+
+    component: str  # Component ref (e.g., "U_MCU")
+    clearance_mm: float | None = None  # If None, computed from pin density
+    priority_sides: list[str] = field(default_factory=list)  # ["bottom", "right"]
+    tier: str = "soft"  # "hard" or "soft"
+    description: str = ""
+
+    def compute_clearance(self, pin_count: int, pitch_mm: float) -> float:
+        """Compute clearance from pin density.
+
+        Heuristic: clearance = sqrt(pin_count) * pitch * 1.5
+        For QFN-56 with 0.5mm pitch: sqrt(56) * 0.5 * 1.5 ≈ 5.6mm
+        """
+        return math.sqrt(pin_count) * pitch_mm * 1.5
+
+
+@dataclass
+class RoutingCorridor:
+    """Preserve routing channel between components.
+
+    Used to keep paths clear for critical nets like USB, SPI.
+    """
+
+    name: str
+    from_component: str  # Source component ref
+    to_component: str  # Target component ref
+    width_mm: float  # Corridor width
+    keep_clear: bool = True  # If True, don't place components in corridor
+    nets: list[str] = field(default_factory=list)  # Associated nets
+    tier: str = "soft"
+    description: str = ""
+
+
+@dataclass
 class LossConfig:
     """Configuration for a single loss function.
 
@@ -471,6 +510,10 @@ class PlacementConstraints:
     # Priority-based placement and routing configuration
     placement_priority: dict = field(default_factory=dict)
     routing_priority: dict = field(default_factory=dict)
+
+    # NEW: Routing-aware placement constraints
+    escape_clearances: list[EscapeClearance] = field(default_factory=list)
+    routing_corridors: list[RoutingCorridor] = field(default_factory=list)
 
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
@@ -1022,6 +1065,33 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "routing_priority" in config:
         constraints.routing_priority = config["routing_priority"]
+
+    # NEW: Load escape clearances for routing-aware placement
+    if "escape_clearances" in config:
+        for ec_cfg in config["escape_clearances"]:
+            ec = EscapeClearance(
+                component=ec_cfg["component"],
+                clearance_mm=ec_cfg.get("clearance_mm"),
+                priority_sides=ec_cfg.get("priority_sides", []),
+                tier=ec_cfg.get("tier", "soft"),
+                description=ec_cfg.get("description", ""),
+            )
+            constraints.escape_clearances.append(ec)
+
+    # NEW: Load routing corridors for routing-aware placement
+    if "routing_corridors" in config:
+        for rc_cfg in config["routing_corridors"]:
+            rc = RoutingCorridor(
+                name=rc_cfg["name"],
+                from_component=rc_cfg["from_component"],
+                to_component=rc_cfg["to_component"],
+                width_mm=rc_cfg["width_mm"],
+                keep_clear=rc_cfg.get("keep_clear", True),
+                nets=rc_cfg.get("nets", []),
+                tier=rc_cfg.get("tier", "soft"),
+                description=rc_cfg.get("description", ""),
+            )
+            constraints.routing_corridors.append(rc)
 
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
