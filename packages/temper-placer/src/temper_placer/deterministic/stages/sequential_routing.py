@@ -730,8 +730,18 @@ class SequentialRoutingStage(Stage):
 
         # ========== END DIFFERENTIAL PAIR WARNING ==========
 
+        # EXP-5: Track nets that were successfully routed this iteration for locking
+        newly_locked_nets: set[str] = set()
+
         for net_idx, net_name in enumerate(net_order):
             if net_name not in net_by_name:
+                continue
+
+            # EXP-5: Skip nets that are already locked (successfully routed in previous iteration)
+            if state.is_route_locked(net_name):
+                print(
+                    f"    Skipping net {net_idx + 1}/{len(net_order)}: {net_name} (locked - preserved from previous iteration)"
+                )
                 continue
 
             # Skip nets already routed as differential pairs
@@ -997,6 +1007,9 @@ class SequentialRoutingStage(Stage):
                 base_iterations_per_cell=200,  # EXP-2: Increased from 100 to help congested routes
             )
 
+            # EXP-5: Track if any segment fails to route for this net
+            net_routing_failed = False
+
             # Route all edges in the MST
             for idx1, idx2 in mst_edges:
                 # Use snapped positions for grid-based pathfinding
@@ -1059,6 +1072,7 @@ class SequentialRoutingStage(Stage):
                     print(
                         f"  WARNING: Could not find any path for {net_name} segment {idx1}->{idx2}"
                     )
+                    net_routing_failed = True  # EXP-5: Mark this net as having a failed segment
 
             # Commit all single-layer paths for this net
             for path, path_layer_idx in net_paths:
@@ -1296,7 +1310,24 @@ class SequentialRoutingStage(Stage):
                         )
 
             net_elapsed = time.time() - net_start
-            print(f"      ✓ {net_name} routed in {net_elapsed:.2f}s", flush=True)
+            # EXP-5: Lock net if all segments routed successfully
+            if not net_routing_failed and not is_plane:
+                newly_locked_nets.add(net_name)
+                print(f"      ✓ {net_name} routed in {net_elapsed:.2f}s [LOCKED]", flush=True)
+            elif is_plane:
+                # Plane nets are always "successful" since they just add vias
+                newly_locked_nets.add(net_name)
+                print(f"      ✓ {net_name} routed in {net_elapsed:.2f}s (plane)", flush=True)
+            else:
+                print(
+                    f"      ⚠ {net_name} routed in {net_elapsed:.2f}s (partial - not locked)",
+                    flush=True,
+                )
+
+        # EXP-5: Update state with newly locked routes
+        if newly_locked_nets:
+            print(f"\n  EXP-5: Locking {len(newly_locked_nets)} successfully routed nets")
+            state = state.with_locked_routes(newly_locked_nets)
 
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
 
