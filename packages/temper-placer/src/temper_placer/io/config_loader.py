@@ -173,6 +173,7 @@ class ProximityRule:
     component_b: str
     max_distance_mm: float = 10.0
     description: str = ""
+    tier: str = "soft"  # "hard" or "soft"
 
 
 @dataclass
@@ -194,6 +195,7 @@ class ComponentSpacingRule:
     min_separation_mm: float
     description: str = ""
     weight: float = 1.0
+    tier: str = "soft"  # "hard" or "soft"
 
 
 @dataclass
@@ -756,7 +758,17 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                         pair = prox_cfg[0] if len(prox_cfg) > 0 else []
                         max_dist = prox_cfg[1] if len(prox_cfg) > 1 else 10.0
                     if len(pair) >= 2:
-                        proximity_rules.append(ProximityRule(pair[0], pair[1], max_dist))
+                        tier = (
+                            prox_cfg.get("tier", "soft") if isinstance(prox_cfg, dict) else "soft"
+                        )
+                        proximity_rules.append(
+                            ProximityRule(
+                                component_a=pair[0],
+                                component_b=pair[1],
+                                max_distance_mm=max_dist,
+                                tier=tier,
+                            )
+                        )
 
             group = ComponentGroup(
                 name=group_cfg["name"],
@@ -814,6 +826,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     min_separation_mm=spacing_cfg.get("min_separation_mm", 2.0),
                     description=spacing_cfg.get("description", ""),
                     weight=spacing_cfg.get("weight", 1.0),
+                    tier=spacing_cfg.get("tier", "soft"),
                 )
                 constraints.component_spacing_rules.append(rule)
 

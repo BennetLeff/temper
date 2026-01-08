@@ -39,7 +39,7 @@ class TestSlotFilter:
                     component_a="A",
                     component_b="B",
                     min_separation_mm=10.0,
-                    # Note: No tier field - all spacing rules are hard constraints
+                    tier="hard",
                 )
             ]
         )
@@ -55,10 +55,27 @@ class TestSlotFilter:
         assert filter_fn((15.0, 0.0), "B", placements) is True
 
     def test_filter_ignores_soft_spacing_rules(self):
-        """Filter should always check spacing (no soft/hard distinction yet)."""
-        # Skip this test - ComponentSpacingRule doesn't have tier yet
-        # All spacing rules are treated as hard constraints
-        pytest.skip("ComponentSpacingRule doesn't support tier yet")
+        """Filter should ignore soft spacing rules (only scorer penalizes them)."""
+        constraints = PlacementConstraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(
+                    component_a="A",
+                    component_b="B",
+                    min_separation_mm=10.0,
+                    tier="soft",
+                )
+            ]
+        )
+        compiler = ConstraintCompiler(constraints)
+        filter_fn = compiler.compile_to_slot_filter()
+
+        placements = {"A": (0.0, 0.0)}
+
+        # Too close but tier=soft, so filter should still accept
+        assert filter_fn((5.0, 0.0), "B", placements) is True
+
+        # Far enough - should also accept
+        assert filter_fn((15.0, 0.0), "B", placements) is True
 
     def test_filter_rejects_hard_escape_clearance_violation(self):
         """Filter should reject slot in hard escape clearance zone."""
@@ -147,6 +164,61 @@ class TestSlotFilter:
 
         # Only A placed - should accept
         assert filter_fn((10.0, 10.0), "C", {"A": (0.0, 0.0)}) is True
+
+    def test_filter_rejects_hard_proximity_violation(self):
+        """Filter should reject slot that violates hard ProximityRule."""
+        constraints = PlacementConstraints(
+            component_groups=[
+                ComponentGroup(
+                    name="test",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(
+                            component_a="A",
+                            component_b="B",
+                            max_distance_mm=10.0,
+                            tier="hard",
+                        )
+                    ],
+                )
+            ]
+        )
+        compiler = ConstraintCompiler(constraints)
+        filter_fn = compiler.compile_to_slot_filter()
+
+        placements = {"A": (0.0, 0.0)}
+
+        # Too far - should reject
+        assert filter_fn((15.0, 0.0), "B", placements) is False
+
+        # Close enough - should accept
+        assert filter_fn((8.0, 0.0), "B", placements) is True
+
+    def test_filter_ignores_soft_proximity_rule(self):
+        """Filter should ignore soft ProximityRule (only scorer penalizes)."""
+        constraints = PlacementConstraints(
+            component_groups=[
+                ComponentGroup(
+                    name="test",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(
+                            component_a="A",
+                            component_b="B",
+                            max_distance_mm=10.0,
+                            tier="soft",
+                        )
+                    ],
+                )
+            ]
+        )
+        compiler = ConstraintCompiler(constraints)
+        filter_fn = compiler.compile_to_slot_filter()
+
+        placements = {"A": (0.0, 0.0)}
+
+        # Too far but tier=soft - should accept
+        assert filter_fn((15.0, 0.0), "B", placements) is True
 
 
 class TestSlotScorer:

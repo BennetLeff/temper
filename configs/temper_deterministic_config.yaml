@@ -293,6 +293,42 @@ slot_generation:
   spacing_mm: 12.0  # Minimum to prevent PTH component overlaps
   grid_alignment: true
 
+# Component spacing constraints
+# The 'tier' field determines if a constraint is hard (filter rejects) or soft (scorer penalizes)
+minimum_spacing:
+  # Hard constraint: High-power MOSFETs must be separated for thermal management
+  - components: ["Q1", "Q2"]
+    min_separation_mm: 15.0
+    tier: "hard"
+    description: "Thermal isolation between power switches"
+  
+  # Soft constraint: Prefer spacing between regulators but not required
+  - components: ["U_15V", "U_3V3"]
+    min_separation_mm: 10.0
+    tier: "soft"
+    description: "Prefer spacing between regulators"
+
+# Component groups with proximity rules
+groups:
+  - name: "gate_drive_circuit"
+    components: ["U_GATE", "Q1", "Q2"]
+    proximity:
+      # Hard constraint: Gate driver must be within 8mm of MOSFETs for fast switching
+      - pair: ["U_GATE", "Q1"]
+        max_distance_mm: 8.0
+        tier: "hard"
+      - pair: ["U_GATE", "Q2"]
+        max_distance_mm: 8.0
+        tier: "hard"
+  
+  - name: "decoupling_caps"
+    components: ["C_BUS1", "C_BUS2"]
+    proximity:
+      # Soft constraint: Prefer keeping bus caps close but not critical
+      - pair: ["C_BUS1", "C_BUS2"]
+        max_distance_mm: 20.0
+        tier: "soft"
+
 # Loss function configuration (for gradient optimizer - not used in deterministic pipeline)
 losses:
   overlap:
