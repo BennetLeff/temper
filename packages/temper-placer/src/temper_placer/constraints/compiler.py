@@ -109,11 +109,12 @@ class ConstraintCompiler:
         ) -> bool:
             x, y = slot
 
-            # 1. Component spacing rules (always hard constraint)
-            # Note: ComponentSpacingRule doesn't have 'tier' field yet
-            # All spacing rules are treated as hard constraints for now
+            # 1. Component spacing rules (hard constraint)
             for rule in self.constraints.component_spacing_rules:
                 if component not in (rule.component_a, rule.component_b):
+                    continue
+                # Only apply hard tier rules in filter
+                if rule.tier != "hard":
                     continue
 
                 other = rule.component_b if component == rule.component_a else rule.component_a
@@ -122,7 +123,24 @@ class ConstraintCompiler:
                     if dist < rule.min_separation_mm:
                         return False
 
-            # 2. Escape clearance (hard mode)
+            # 2. Proximity rules (hard mode) - must be close
+            for group in self.constraints.component_groups:
+                if component not in group.components:
+                    continue
+
+                for rule in group.proximity_rules:
+                    if rule.tier != "hard":
+                        continue
+                    if component not in (rule.component_a, rule.component_b):
+                        continue
+
+                    other = rule.component_b if component == rule.component_a else rule.component_a
+                    if other in placements:
+                        dist = self._distance(slot, placements[other])
+                        if dist > rule.max_distance_mm:
+                            return False  # Too far - reject
+
+            # 3. Escape clearance (hard mode)
             for ec in self.constraints.escape_clearances:
                 if ec.tier != "hard":
                     continue
@@ -130,14 +148,14 @@ class ConstraintCompiler:
                     if self._in_escape_zone(slot, placements[ec.component], ec):
                         return False
 
-            # 3. Routing corridors (keep_clear + hard tier)
+            # 4. Routing corridors (keep_clear + hard tier)
             for corridor in self.constraints.routing_corridors:
                 if not corridor.keep_clear or corridor.tier != "hard":
                     continue
                 if self._in_corridor(slot, corridor, placements):
                     return False
 
-            # 4. Zone membership (if zone is required)
+            # 5. Zone membership (if zone is required)
             required_zone = self.constraints.get_zone_for_component(component)
             if required_zone:
                 zone = next((z for z in self.constraints.zones if z.name == required_zone), None)
@@ -171,12 +189,15 @@ class ConstraintCompiler:
         ) -> float:
             score = 0.0
 
-            # 1. Proximity rules - prefer being close to related components
+            # 1. Proximity rules - prefer being close to related components (soft only)
             for group in self.constraints.component_groups:
                 if component not in group.components:
                     continue
 
                 for rule in group.proximity_rules:
+                    # Only apply soft tier rules in scorer
+                    if rule.tier != "soft":
+                        continue
                     if component not in (rule.component_a, rule.component_b):
                         continue
 
@@ -208,10 +229,11 @@ class ConstraintCompiler:
                     if dist > group.max_spread_mm / 2:
                         score += dist * group.weight * 0.1
 
-            # 4. Component spacing rules - use weight for soft/hard behavior
-            # Note: ComponentSpacingRule doesn't have 'tier' field
-            # We treat low weight (< 10) as soft constraint in scorer
+            # 4. Component spacing rules (soft only in scorer)
             for rule in self.constraints.component_spacing_rules:
+                # Only apply soft tier rules in scorer
+                if rule.tier != "soft":
+                    continue
                 if component not in (rule.component_a, rule.component_b):
                     continue
 
