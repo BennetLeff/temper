@@ -41,6 +41,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
     fixed_placements = {}
     yaml_copper_zones = []
     differential_pairs = []
+    net_priority = {}  # EXP-6: Explicit net routing priority
 
     # Extract net class clearances from design_rules if available
     if design_rules and hasattr(design_rules, "net_classes"):
@@ -94,6 +95,11 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
                         )
                     )
 
+        # EXP-6: Extract net priority from config
+        config_net_priority = getattr(config, "net_priority", None)
+        if config_net_priority:
+            net_priority = dict(config_net_priority)
+
     # Select slot generation stage based on zone_aware flag
     if zone_aware:
         slot_stage = ZoneAwareSlotGenerationStage(
@@ -124,7 +130,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
                 max_clearance_mm=max_clearance,
                 net_class_clearances=net_class_clearances,
             ),
-            NetOrderingStage(),
+            NetOrderingStage(net_priority=net_priority),  # EXP-6: Pass explicit priorities
             LayerAssignmentStage(net_classes=config.net_classes if config else None),
             PowerPlaneStage(),  # Mark plane nets (GND, power rails, ACMains) before routing
             SequentialRoutingStage(

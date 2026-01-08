@@ -355,7 +355,6 @@ class TestEXP6NetPriority:
     4. Higher priority nets have better routing success rate
     """
 
-    @pytest.mark.skip(reason="EXP-6 not yet implemented")
     def test_config_has_net_priority(self):
         """Config should have net_priority section."""
         import yaml
@@ -381,10 +380,65 @@ class TestEXP6NetPriority:
         assert priorities.get("+3V3", 5) >= 4
         assert priorities.get("+5V", 5) >= 4
 
-    @pytest.mark.skip(reason="EXP-6 not yet implemented")
     def test_nets_sorted_by_priority(self):
         """Routing should process nets in priority order."""
-        pass
+        from temper_placer.routing.net_ordering import order_nets, NetPriority
+        from temper_placer.core.loop import LoopCollection
+
+        # Create mock netlist
+        class MockNet:
+            def __init__(self, name, net_class="Signal"):
+                self.name = name
+                self.net_class = net_class
+                self.pins = [("U1", "1"), ("U2", "2")]
+
+        class MockNetlist:
+            def __init__(self):
+                self.nets = [
+                    MockNet("AC_L", "HighVoltage"),
+                    MockNet("USB_D+", "Differential"),
+                    MockNet("USB_D-", "Differential"),
+                    MockNet("SPI_CLK", "FinePitch"),
+                    MockNet("+3V3", "Power"),
+                    MockNet("I_SENSE", "FinePitch"),
+                ]
+                self.components = []
+
+        netlist = MockNetlist()
+        loops = LoopCollection()
+
+        # With EXP-6 priority config
+        priority_config = {
+            "USB_D+": 1,
+            "USB_D-": 1,
+            "SPI_CLK": 2,
+            "I_SENSE": 3,
+            "+3V3": 4,
+            "AC_L": 6,
+        }
+
+        ordered = order_nets(netlist, loops, priority_config)
+
+        # USB should be first (priority 1)
+        assert ordered[0] in ["USB_D+", "USB_D-"], f"USB should be first, got {ordered[0]}"
+        assert ordered[1] in ["USB_D+", "USB_D-"], f"USB should be second, got {ordered[1]}"
+
+        # SPI_CLK should be third (priority 2)
+        assert ordered[2] == "SPI_CLK", f"SPI_CLK should be third, got {ordered[2]}"
+
+        # AC_L should be last (priority 6)
+        assert ordered[-1] == "AC_L", f"AC_L should be last, got {ordered[-1]}"
+
+    def test_net_ordering_stage_uses_config(self):
+        """NetOrderingStage should accept and use net_priority config."""
+        from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
+
+        # Create stage with priority config
+        priority_config = {"USB_D+": 1, "USB_D-": 1}
+        stage = NetOrderingStage(net_priority=priority_config)
+
+        assert stage.net_priority == priority_config
+        assert stage.name == "net_ordering"
 
 
 # =============================================================================

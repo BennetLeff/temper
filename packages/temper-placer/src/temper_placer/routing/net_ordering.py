@@ -59,11 +59,12 @@ class NetPriority:
 
     This dataclass implements comparison operators for sorting nets.
     The comparison is performed lexicographically on the tuple:
-    (loop_criticality, net_class, pin_count, estimated_wirelength, name)
+    (config_priority, loop_criticality, net_class, pin_count, estimated_wirelength, name)
 
     Lower values in any field = higher priority (routes earlier).
 
     Attributes:
+        config_priority: Explicit priority from config (1=highest, 5=default, 6+=low)
         loop_criticality: 0=critical, 1=high, 2=medium, 3=low/none
         net_class: NetClass enum value (0=HV, 1=Power, 2=GateDrive, 3=Signal)
         pin_count: Number of pins on the net (fewer = easier to route)
@@ -71,6 +72,7 @@ class NetPriority:
         name: Net name (alphabetical tiebreaker for determinism)
     """
 
+    config_priority: int  # EXP-6: Explicit priority from config (1=highest)
     loop_criticality: int
     net_class: NetClass
     pin_count: int
@@ -80,6 +82,7 @@ class NetPriority:
     def _key(self) -> tuple:
         """Generate comparison key tuple."""
         return (
+            self.config_priority,  # EXP-6: Config priority is first tiebreaker
             self.loop_criticality,
             self.net_class.value,
             self.pin_count,
@@ -272,39 +275,52 @@ def compute_bbox_area(net_name: str, netlist: Netlist) -> float:
     return width * height
 
 
-def order_nets(netlist: Netlist, loops: LoopCollection) -> list[str]:
+def order_nets(
+    netlist: Netlist,
+    loops: LoopCollection,
+    net_priority_config: dict[str, int] | None = None,
+) -> list[str]:
     """Determine deterministic routing order for all nets.
 
     Produces a sorted list of net names where earlier nets should be
     routed first. The ordering is fully deterministic - same inputs
     always produce the same output.
 
-    Priority order:
-    1. Loop membership (nets in critical loops first)
-    2. Net class (HV > Power > GateDrive > Signal)
-    3. Pin count (fewer pins = higher priority)
-    4. Estimated wirelength (smaller = higher priority)
-    5. Alphabetical (final tiebreaker)
+    Priority order (EXP-6 enhanced):
+    1. Config priority (explicit from net_priority config section)
+    2. Loop membership (nets in critical loops first)
+    3. Net class (HV > Power > GateDrive > Signal)
+    4. Pin count (fewer pins = higher priority)
+    5. Estimated wirelength (smaller = higher priority)
+    6. Alphabetical (final tiebreaker)
 
     Args:
         netlist: Netlist containing all nets and components.
         loops: LoopCollection with loop definitions and priorities.
+        net_priority_config: Optional dict mapping net names to priority (1=highest, 5=default).
 
     Returns:
         List of net names in routing order (first = highest priority).
 
     Example:
-        >>> ordered = order_nets(netlist, loops)
+        >>> ordered = order_nets(netlist, loops, {"USB_D+": 1, "USB_D-": 1})
         >>> ordered
-        ['DC_BUS_P', 'SW_NODE', 'DC_BUS_N', 'GATE_H', 'GATE_L', ...]
+        ['USB_D+', 'USB_D-', 'DC_BUS_P', 'SW_NODE', ...]
     """
     if not netlist.nets:
         return []
+
+    # Default priority for nets not in config
+    DEFAULT_PRIORITY = 5
+    priority_map = net_priority_config or {}
 
     # Build priority for each net
     priorities: list[tuple[NetPriority, str]] = []
 
     for net in netlist.nets:
+        # EXP-6: Get explicit config priority (lower = routes first)
+        config_priority = priority_map.get(net.name, DEFAULT_PRIORITY)
+
         # Get net class
         net_class_str = getattr(net, "net_class", None) or "Signal"
         net_class = get_net_class_from_string(net_class_str)
@@ -320,6 +336,7 @@ def order_nets(netlist: Netlist, loops: LoopCollection) -> list[str]:
 
         # Create priority object
         priority = NetPriority(
+            config_priority=config_priority,  # EXP-6: New field
             loop_criticality=loop_criticality,
             net_class=net_class,
             pin_count=pin_count,

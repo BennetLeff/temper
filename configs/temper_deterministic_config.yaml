@@ -222,6 +222,45 @@ net_class_rules:
     via_template: "Via1x1"       # Single via for USB (minimal discontinuity)
     description: "USB differential pair (tightly coupled)"
 
+# EXP-6: Net priority ordering - route critical nets first when board is least congested
+# Lower priority number = routed first
+# Priority levels:
+#   1: Differential pairs (USB) - must route first for impedance control
+#   2: Critical signals (SPI, I2C) - timing-sensitive, need clean routes
+#   3: Gate drives and sensing - moderately critical
+#   4: Power traces (+5V, +3V3) - can route around obstacles
+#   5: Default for unlisted nets
+#   6: Large PTH nets (AC, DC_BUS) - route last, more routing options
+net_priority:
+  # Priority 1: Differential pairs (impedance-critical)
+  USB_D+: 1
+  USB_D-: 1
+  # Priority 2: SPI bus (timing-critical)
+  SPI_CLK: 2
+  SPI_MOSI: 2
+  SPI_MISO: 2
+  SPI_CS_TEMP: 2
+  # Priority 3: Gate drives and sensing (moderately critical)
+  GATE_H: 3
+  GATE_L: 3
+  PWM_H: 3
+  PWM_L: 3
+  I_SENSE: 3
+  TEMP_SENSE: 3
+  SHUTDOWN_N: 3
+  # Priority 4: Power traces (flexible routing)
+  "+3V3": 4
+  "+5V": 4
+  "+15V": 4
+  VCC_BOOT: 4
+  # Priority 6: Large PTH nets (route last - most space available)
+  AC_L: 6
+  AC_N: 6
+  DC_BUS+: 6
+  DC_BUS-: 6
+  SW_NODE: 6
+  # Default priority for unlisted nets: 5
+
 # Differential pairs
 differential_pairs:
   - net_pos: "USB_D+"
