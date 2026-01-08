@@ -57,30 +57,49 @@ class FinePitchEscapeStage(Stage):
         fine_pitch_components = []
         total_escape_vias = 0
 
-        # Analyze each component
+        # First pass: identify fine-pitch components and collect their nets
+        fine_pitch_refs = set()
+        fine_pitch_nets = set()  # Nets that touch fine-pitch components
+
         for component in state.netlist.components:
-            # Get component position
+            min_pitch = self._calculate_min_pin_pitch(component)
+            if min_pitch is not None and min_pitch < self.pin_pitch_threshold_mm:
+                fine_pitch_refs.add(component.ref)
+                fine_pitch_components.append((component.ref, min_pitch, len(component.pins)))
+                # Collect all nets that touch this fine-pitch component
+                for pin in component.pins:
+                    if pin.net:
+                        fine_pitch_nets.add(pin.net)
+
+        # Track positions where we've placed vias to avoid duplicates
+        via_positions = set()
+
+        # Second pass: place escape vias for ALL pins on nets that touch fine-pitch components
+        # This ensures both endpoints of a net can route on inner layers
+        for component in state.netlist.components:
             comp_pos = placements.get(component.ref, component.initial_position)
             if comp_pos is None:
                 continue
 
-            # Calculate minimum pin-to-pin distance
-            min_pitch = self._calculate_min_pin_pitch(component)
-
-            if min_pitch is None or min_pitch >= self.pin_pitch_threshold_mm:
-                continue  # Not fine-pitch or no pins
-
-            # This is a fine-pitch component
-            fine_pitch_components.append((component.ref, min_pitch, len(component.pins)))
-
-            # Place escape vias at each netted pin
             for pin in component.pins:
                 if not pin.net:
                     continue  # Skip NC pins
 
+                # Place escape via if:
+                # 1. This component is fine-pitch, OR
+                # 2. This pin's net touches a fine-pitch component
+                if component.ref not in fine_pitch_refs and pin.net not in fine_pitch_nets:
+                    continue
+
                 # Calculate absolute pin position
                 pin_x = comp_pos[0] + pin.position[0]
                 pin_y = comp_pos[1] + pin.position[1]
+
+                # Skip if we already have a via at this position
+                pos_key = (round(pin_x, 3), round(pin_y, 3))
+                if pos_key in via_positions:
+                    continue
+                via_positions.add(pos_key)
 
                 # Create escape via (F.Cu to escape layer)
                 via = Via(
@@ -104,6 +123,7 @@ class FinePitchEscapeStage(Stage):
                     print(
                         f"    {ref}: min_pitch={pitch:.2f}mm, {netted_pins}/{pin_count} pins with nets"
                     )
+            print(f"  Nets touching fine-pitch components: {len(fine_pitch_nets)}")
             print(f"  Placed {total_escape_vias} escape vias to Layer {self.escape_layer} (In1.Cu)")
         else:
             print(

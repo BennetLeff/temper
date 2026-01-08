@@ -110,6 +110,50 @@ class SequentialRoutingStage(Stage):
 
         return allowed_zones if allowed_zones else None
 
+    def _get_escape_via_for_pin(
+        self,
+        pin_pos: Tuple[float, float],
+        net_name: str,
+        state: BoardState,
+    ) -> Tuple[Optional[int], Tuple[float, float]]:
+        """Check if an escape via exists at this pin position.
+
+        Escape vias are placed by FinePitchEscapeStage to route from dense
+        pin fields on F.Cu to inner layers where clearances don't conflict.
+
+        Args:
+            pin_pos: (x, y) position of pin on component
+            net_name: Net name to match
+            state: Current board state with vias
+
+        Returns:
+            (escape_layer_idx, via_position) if escape via found
+            (None, pin_pos) if no escape via at this position
+        """
+        if not state.vias:
+            return (None, pin_pos)
+
+        for via in state.vias:
+            if via.net != net_name:
+                continue
+
+            # Check if via is at pin position (within 0.01mm tolerance for floating point)
+            dx = via.position[0] - pin_pos[0]
+            dy = via.position[1] - pin_pos[1]
+            dist = (dx * dx + dy * dy) ** 0.5
+
+            if dist < 0.01:  # Via is at pin
+                # Determine escape layer from via.layers tuple
+                # Escape vias connect F.Cu (0) -> In1.Cu (1)
+                if "In1.Cu" in via.layers:
+                    return (1, via.position)  # Escape to Layer 1
+                elif "In2.Cu" in via.layers:
+                    return (2, via.position)  # Escape to Layer 2
+                elif "B.Cu" in via.layers:
+                    return (3, via.position)  # Escape to Layer 3
+
+        return (None, pin_pos)  # No escape via found
+
     def _create_via_array(
         self,
         center: Tuple[float, float],
@@ -815,6 +859,7 @@ class SequentialRoutingStage(Stage):
             pin_positions = []
             pin_info = []  # Store (ref, name) for lookup
             pins = []  # Store actual Pin objects
+            pin_escape_layers = []  # Track which layer each pin escapes to (None = F.Cu)
             for comp_ref, pin_name in net.pins:
                 if comp_ref not in comp_by_ref:
                     continue
@@ -826,9 +871,20 @@ class SequentialRoutingStage(Stage):
                     continue
                 pos = comp.initial_position or (0, 0)
                 pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
-                pin_positions.append(pin_pos)
+
+                # Check for escape via at this pin position
+                escape_layer, final_pos = self._get_escape_via_for_pin(pin_pos, net_name, state)
+
+                pin_positions.append(final_pos)
                 pin_info.append((comp_ref, pin.name))
                 pins.append(pin)
+                pin_escape_layers.append(escape_layer)
+
+                # Debug output for escape vias
+                if escape_layer is not None:
+                    print(
+                        f"    Using escape via for {net_name}.{comp_ref}.{pin.name} -> Layer {escape_layer}"
+                    )
 
             if len(pin_positions) < 2 and not is_plane_by_net.get(net_name, False):
                 continue
@@ -1056,34 +1112,53 @@ class SequentialRoutingStage(Stage):
                 p1_snapped = snapped_positions[idx1]
                 p2_snapped = snapped_positions[idx2]
 
-                # Try single-layer routing first (faster, simpler)
-                path = pathfinder.find_path(start=p1_snapped, end=p2_snapped, layer=layer_idx)
-                if path:
-                    # Add nudge segments to connect snapped path back to actual centers
-                    nudged_path = add_endpoint_nudge(path, pin_positions[idx1], pin_positions[idx2])
+                # Determine start/end layers based on escape vias
+                # If escape via exists, use escape layer; otherwise use default layer
+                start_layer_for_route = (
+                    pin_escape_layers[idx1] if pin_escape_layers[idx1] is not None else layer_idx
+                )
+                end_layer_for_route = (
+                    pin_escape_layers[idx2] if pin_escape_layers[idx2] is not None else layer_idx
+                )
 
-                    # Validate path with DRCOracle before accepting
-                    path_valid = True
-                    if state.drc_oracle:
-                        for i in range(len(nudged_path) - 1):
-                            valid, reason = state.drc_oracle.can_place_track_segment(
-                                nudged_path[i], nudged_path[i + 1], layer_idx, net_name, width
-                            )
-                            if not valid:
-                                print(f"  Path rejected for {net_name}: {reason}")
-                                path_valid = False
-                                break
+                # If either pin has an escape via, we MUST use multi-layer routing
+                # (single-layer can't reach inner layers)
+                needs_multilayer = (
+                    pin_escape_layers[idx1] is not None or pin_escape_layers[idx2] is not None
+                )
 
-                    if path_valid:
-                        net_paths.append((nudged_path, layer_idx))
-                        continue  # Success, move to next edge
+                # Try single-layer routing first (faster, simpler) - but only if no escape vias
+                path = None
+                if not needs_multilayer:
+                    path = pathfinder.find_path(start=p1_snapped, end=p2_snapped, layer=layer_idx)
+                    if path:
+                        # Add nudge segments to connect snapped path back to actual centers
+                        nudged_path = add_endpoint_nudge(
+                            path, pin_positions[idx1], pin_positions[idx2]
+                        )
 
-                # Single-layer failed - try multi-layer routing as fallback
+                        # Validate path with DRCOracle before accepting
+                        path_valid = True
+                        if state.drc_oracle:
+                            for i in range(len(nudged_path) - 1):
+                                valid, reason = state.drc_oracle.can_place_track_segment(
+                                    nudged_path[i], nudged_path[i + 1], layer_idx, net_name, width
+                                )
+                                if not valid:
+                                    print(f"  Path rejected for {net_name}: {reason}")
+                                    path_valid = False
+                                    break
+
+                        if path_valid:
+                            net_paths.append((nudged_path, layer_idx))
+                            continue  # Success, move to next edge
+
+                # Single-layer failed or needs multi-layer - try multi-layer routing
                 multilayer_result = multilayer_pathfinder.find_path(
                     start=p1_snapped,
                     end=p2_snapped,
-                    start_layer=layer_idx,
-                    end_layer=-1,  # Any layer OK
+                    start_layer=start_layer_for_route,
+                    end_layer=end_layer_for_route if end_layer_for_route != layer_idx else -1,
                 )
 
                 if multilayer_result:
