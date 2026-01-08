@@ -1,5 +1,6 @@
 from dataclasses import replace, dataclass
 from typing import List, Tuple, Optional, Set
+import numpy as np
 from ..state import BoardState
 from .base import Stage
 from .astar import DeterministicAStar
@@ -441,15 +442,54 @@ class SequentialRoutingStage(Stage):
                     width = rules.trace_width
                     clearance = rules.clearance
 
-                # Build obstacle set from current grid blocked cells
+                # FIX: Build minimal obstacle set for diff pair routing
+                # The main grid uses max_clearance_mm (e.g., 6.3mm for HV boards) which blocks
+                # nearly everything. For diff pairs, we only need to avoid actual physical
+                # obstacles (other pads/traces), not the inflated clearance zones.
+                #
+                # Strategy: Build obstacles from component pads only, using diff pair clearance
                 obstacles: Set[Tuple[int, int, int]] = set()
+                diff_pair_clearance = clearance  # Use diff pair's own clearance requirement
+
+                for comp in state.netlist.components:
+                    comp_pos = comp.initial_position or (0, 0)
+                    for pin in comp.pins:
+                        # Skip pins belonging to the diff pair nets we're routing
+                        if pin.net in (net_pos_name, net_neg_name):
+                            continue
+
+                        pin_pos = (comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1])
+                        pin_gx = int(pin_pos[0] / grid.cell_size_mm)
+                        pin_gy = int(pin_pos[1] / grid.cell_size_mm)
+
+                        # Block cells within clearance radius
+                        # Typical pad radius ~0.5mm, add clearance
+                        pad_radius_mm = 0.5
+                        total_radius = pad_radius_mm + diff_pair_clearance
+                        radius_cells = int(total_radius / grid.cell_size_mm) + 1
+
+                        for dx in range(-radius_cells, radius_cells + 1):
+                            for dy in range(-radius_cells, radius_cells + 1):
+                                if dx * dx + dy * dy <= radius_cells * radius_cells:
+                                    gx, gy = pin_gx + dx, pin_gy + dy
+                                    if 0 <= gx < grid.cols and 0 <= gy < grid.rows:
+                                        # Block on layer 0 (F.Cu) for SMD, all layers for PTH
+                                        if pin.is_pth:
+                                            for layer in range(grid.layer_count):
+                                                obstacles.add((gx, gy, layer))
+                                        else:
+                                            obstacles.add((gx, gy, 0))
+
+                # Also add any already-routed traces as obstacles
                 for layer_idx in range(grid.layer_count):
-                    for x in range(grid.cols):
-                        for y in range(grid.rows):
-                            if not grid.is_available(
-                                x * grid.cell_size_mm, y * grid.cell_size_mm, layer_idx
-                            ):
-                                obstacles.add((x, y, layer_idx))
+                    trace_blocked = grid._trace_net_ids[layer_idx] != 0
+                    blocked_indices = np.argwhere(trace_blocked)
+                    for row, col in blocked_indices:
+                        obstacles.add((int(col), int(row), layer_idx))
+
+                print(
+                    f"  [DiffPair] Built {len(obstacles)} obstacles with {diff_pair_clearance}mm clearance"
+                )
 
                 # Create diff pair router
                 dp_router = DiffPairRouter(
@@ -479,7 +519,7 @@ class SequentialRoutingStage(Stage):
 
                 print(
                     f"  [DiffPair] SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
-                    f"(coupling={result.coupling_ratio:.1%}, skew={result.max_skew_mm:.3f}mm)"
+                    f"(coupling={result.coupling_ratio:.1f}%, skew={result.max_skew_mm:.3f}mm)"
                 )
 
                 # Mark these nets as routed via diff pair
