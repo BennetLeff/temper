@@ -2,14 +2,26 @@ from .pipeline import DeterministicPipeline
 from .state import BoardState
 
 
-def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
+def create_drc_aware_pipeline(
+    design_rules=None,
+    config=None,
+    metadata: "KiCadMetadata | None" = None,
+    zone_aware=True,
+):
     """Create pipeline with full DRC integration.
 
     Args:
         design_rules: Design rules for DRC validation
         config: Pipeline configuration
+        metadata: KiCad metadata (courtyards, pad sizes, board dimensions) - REQUIRED
         zone_aware: If True, use zone-aware slot generation that avoids copper zones (default: True)
+
+    Raises:
+        TypeError: If metadata is not provided
     """
+    if metadata is None:
+        raise TypeError("create_drc_aware_pipeline() requires 'metadata' parameter (KiCadMetadata)")
+
     from .stages import (
         ZoneGeometryStage,
         ZoneAssignmentStage,
@@ -17,6 +29,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
         ZoneAwareSlotGenerationStage,
         ComponentAssignmentStage,
         ApplyPlacementsStage,
+        CourtyardCheckStage,
         NetClassSetupStage,
         DRCOracleSetupStage,
         ClearanceGridStage,
@@ -111,6 +124,18 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
     else:
         slot_stage = SlotGenerationStage(slot_spacing_mm=slot_spacing)
 
+    # Convert metadata pad_sizes to format expected by stages
+    # Stage expects Dict[(ref, pad_num), pad_object] but we have Dict[(ref, pad_num), PadSize]
+    pad_sizes_for_stage = {}
+    for key, pad_size in metadata.pad_sizes.items():
+        # Create a simple object with the attributes that stages need
+        class PadInfo:
+            def __init__(self, pad_size_obj):
+                self.size = type("Size", (), {"X": pad_size_obj.width, "Y": pad_size_obj.height})()
+                self.number = pad_size_obj.pad_number
+
+        pad_sizes_for_stage[key] = PadInfo(pad_size)
+
     return DeterministicPipeline(
         stages=[
             # Setup - apply net class mapping early
@@ -121,6 +146,15 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
             slot_stage,  # Use zone-aware or standard slot generation
             ComponentAssignmentStage(slot_spacing=slot_spacing, fixed_placements=fixed_placements),
             ApplyPlacementsStage(),
+            # DRC-FIX-4: Resolve courtyard overlaps and clamp to board bounds
+            CourtyardCheckStage(
+                courtyards=metadata.courtyards,
+                board_width=metadata.board_width,
+                board_height=metadata.board_height,
+                margin=5.0,
+            ),
+            # DRC-FIX-5: Re-apply placements after clamping to sync component.initial_position
+            ApplyPlacementsStage(),
             # DRC setup
             DRCOracleSetupStage(design_rules=design_rules),
             # Routing
@@ -129,6 +163,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
                 layer_count=4,
                 max_clearance_mm=max_clearance,
                 net_class_clearances=net_class_clearances,
+                pad_sizes=pad_sizes_for_stage,  # Inject pad sizes for accurate blocking
             ),
             NetOrderingStage(net_priority=net_priority),  # EXP-6: Pass explicit priorities
             LayerAssignmentStage(net_classes=config.net_classes if config else None),
@@ -136,6 +171,7 @@ def create_drc_aware_pipeline(design_rules=None, config=None, zone_aware=True):
             SequentialRoutingStage(
                 design_rules=design_rules,
                 differential_pairs=differential_pairs,
+                pad_sizes=pad_sizes_for_stage,  # Inject pad sizes for terminal identification
             ),
             # Post-routing cleanup (order matters!)
             TrackDeduplicationStage(),  # Remove duplicate tracks first

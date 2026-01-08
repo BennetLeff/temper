@@ -33,6 +33,7 @@ from temper_placer.deterministic.feedback import (
     ZoneAdjuster,
 )
 from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
 from temper_placer.io.kicad_writer import (
     write_placements_to_pcb,
@@ -203,6 +204,10 @@ def main():
     constraints = load_constraints(config_path)
     design_rules = constraints_to_design_rules(constraints)
 
+    # Extract KiCad metadata (courtyards, pad sizes, board dimensions)
+    logger.info("Extracting KiCad metadata...")
+    metadata = extract_kicad_metadata(pcb_path)
+
     # Apply net class mapping from config to parsed netlist
     # This ensures clearance grid uses correct per-net-class clearances
     net_class_mapping = getattr(constraints, "net_classes", {})
@@ -223,7 +228,9 @@ def main():
             zone.can_expand = ["right", "left"]
 
     # Create pipeline
-    pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints)
+    pipeline = create_drc_aware_pipeline(
+        design_rules=design_rules, config=constraints, metadata=metadata
+    )
 
     # Track history
     history = []
