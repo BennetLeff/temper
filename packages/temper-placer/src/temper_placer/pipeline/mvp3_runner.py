@@ -17,6 +17,7 @@ from temper_placer.deterministic.stages import (
     ZoneAssignmentStage,
     SlotGenerationStage,
     ComponentAssignmentStage,
+    PhasedComponentAssignmentStage,
     ApplyPlacementsStage,
     CourtyardCheckStage,
     ClearanceGridStage,
@@ -41,6 +42,7 @@ class MVP3Config:
     cell_size_mm: float = 0.25  # Optimal grid for DRC compliance and performance
     slot_spacing_mm: float = 5.0
     deterministic_seed: int = 42
+    use_phased_placement: bool = True  # Use PhasedComponentAssignmentStage with constraints
 
 
 @dataclass
@@ -232,7 +234,8 @@ class MVP3Runner:
             logger.info("Building MVP-3 pipeline...")
             pipeline = self._build_pipeline(
                 design_rules,
-                constraints.net_classes,
+                constraints,  # Pass full constraints for phased placement
+                net_classes=constraints.net_classes,
                 fixed_placements=constraints.fixed_positions,
                 board_width=constraints.board_width_mm,
                 board_height=constraints.board_height_mm,
@@ -331,6 +334,7 @@ class MVP3Runner:
     def _build_pipeline(
         self,
         design_rules: DesignRules,
+        constraints,  # PlacementConstraints
         net_classes: dict[str, str] = None,
         fixed_placements: dict = None,
         board_width: float = 100.0,
@@ -340,8 +344,9 @@ class MVP3Runner:
 
         Args:
             design_rules: Design rules for routing
-            net_classes: Net class assignments
-            fixed_placements: Fixed component positions
+            constraints: PlacementConstraints with full constraint definitions
+            net_classes: Net class assignments (deprecated, use constraints)
+            fixed_placements: Fixed component positions (deprecated, use constraints)
             board_width: Board width in mm (for boundary clamping)
             board_height: Board height in mm (for boundary clamping)
         """
@@ -356,6 +361,21 @@ class MVP3Runner:
             name: rules.clearance for name, rules in design_rules.net_classes.items()
         }
 
+        # Choose placement stage based on configuration
+        if self.mvp3_config.use_phased_placement and constraints:
+            logger.info("Using PhasedComponentAssignmentStage with constraints")
+            placement_stage = PhasedComponentAssignmentStage(
+                constraints=constraints,
+                slot_spacing=self.mvp3_config.slot_spacing_mm,
+                fixed_placements=fixed_placements or {},
+            )
+        else:
+            logger.info("Using ComponentAssignmentStage (simple greedy)")
+            placement_stage = ComponentAssignmentStage(
+                slot_spacing=self.mvp3_config.slot_spacing_mm,
+                fixed_placements=fixed_placements or {},
+            )
+
         return DeterministicPipeline(
             stages=[
                 # Phase 0: Setup
@@ -364,9 +384,7 @@ class MVP3Runner:
                 ZoneGeometryStage(),
                 ZoneAssignmentStage(),
                 SlotGenerationStage(slot_spacing_mm=self.mvp3_config.slot_spacing_mm),
-                ComponentAssignmentStage(
-                    slot_spacing=self.mvp3_config.slot_spacing_mm, fixed_placements=fixed_placements
-                ),
+                placement_stage,  # Use chosen placement stage
                 ApplyPlacementsStage(),
                 # Resolution: Resolve physical overlaps (DRC-FIX-4: with board boundary clamping)
                 CourtyardCheckStage(

@@ -5,6 +5,7 @@ from .zone_geometry import ZoneGeometryStage
 from .slot_generation import SlotGenerationStage
 from .zone_aware_slot_generation import ZoneAwareSlotGenerationStage, RoutingChannelAwareSlotStage
 from .component_assignment import ComponentAssignmentStage
+from .phased_component_assignment import PhasedComponentAssignmentStage
 from .apply_placements import ApplyPlacementsStage
 from .clearance_grid import ClearanceGridStage
 from .net_ordering import NetOrderingStage
@@ -34,6 +35,7 @@ __all__ = [
     "ZoneAwareSlotGenerationStage",
     "RoutingChannelAwareSlotStage",
     "ComponentAssignmentStage",
+    "PhasedComponentAssignmentStage",
     "ApplyPlacementsStage",
     "ClearanceGridStage",
     "NetOrderingStage",
