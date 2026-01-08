@@ -403,6 +403,7 @@ class ClearanceGridStage(Stage):
         net_classes: dict[str, str] = None,
         pth_mask_expansion_mm: float = 0.15,
         smd_mask_expansion_mm: float = 0.10,
+        inner_layer_clearance_mm: float = 0.5,
     ):
         """Initialize clearance grid stage.
 
@@ -415,6 +416,10 @@ class ClearanceGridStage(Stage):
             net_classes: Optional mapping of net name to net class name (for per-net clearance lookup)
             pth_mask_expansion_mm: Mask expansion for PTH pads (default: 0.15mm)
             smd_mask_expansion_mm: Mask expansion for SMD pads (default: 0.10mm)
+            inner_layer_clearance_mm: Max clearance for inner layers (default: 0.5mm).
+                Inner layers don't need creepage clearance since they're encapsulated
+                in FR4. This prevents high-voltage PTH pads from blocking routing on
+                inner layers with their full surface clearance (e.g., 6mm -> 0.5mm).
         """
         self.cell_size_mm = cell_size_mm
         self.layer_count = layer_count
@@ -424,20 +429,28 @@ class ClearanceGridStage(Stage):
         self.net_classes = net_classes or {}
         self.pth_mask_expansion_mm = pth_mask_expansion_mm
         self.smd_mask_expansion_mm = smd_mask_expansion_mm
+        self.inner_layer_clearance_mm = inner_layer_clearance_mm
 
-    def _get_clearance_for_net(self, net_name: str, state: "BoardState") -> float:
-        """Get the clearance for a specific net based on its net class.
+    def _get_clearance_for_net(self, net_name: str, state: "BoardState", layer: int = 0) -> float:
+        """Get the clearance for a specific net based on its net class and layer.
 
         This uses per-net-class clearances instead of a global max_clearance,
         which dramatically reduces grid congestion on boards with mixed clearances
         (e.g., HighVoltage at 6mm vs Signal at 0.2mm).
 
+        For inner layers (not F.Cu or B.Cu), clearances are capped at
+        inner_layer_clearance_mm since creepage requirements only apply to
+        exposed surface layers. This is critical for routing near high-voltage
+        PTH pads - their 6mm surface clearance would otherwise block all
+        inner layers, making escape routing impossible.
+
         Args:
             net_name: Name of the net
             state: Current board state with netlist info
+            layer: Layer index (0=F.Cu, 1=In1.Cu, 2=In2.Cu, 3=B.Cu for 4-layer)
 
         Returns:
-            Clearance in mm for this net
+            Clearance in mm for this net on this layer
         """
         if not net_name:
             return self.max_clearance_mm
@@ -454,10 +467,18 @@ class ClearanceGridStage(Stage):
 
         # Look up clearance for this net class
         if net_class and net_class in self.net_class_clearances:
-            return self.net_class_clearances[net_class]
+            clearance = self.net_class_clearances[net_class]
+        else:
+            # Default clearance for unknown nets (use conservative Signal clearance, not max)
+            clearance = self.net_class_clearances.get("Signal", 0.2)
 
-        # Default clearance for unknown nets (use conservative Signal clearance, not max)
-        return self.net_class_clearances.get("Signal", 0.2)
+        # Cap clearance on inner layers - they don't need creepage clearance
+        # Inner layers are encapsulated in FR4, so air gap requirements don't apply
+        is_inner_layer = 0 < layer < (self.layer_count - 1)
+        if is_inner_layer and clearance > self.inner_layer_clearance_mm:
+            return self.inner_layer_clearance_mm
+
+        return clearance
 
     @property
     def name(self) -> str:
@@ -542,19 +563,27 @@ class ClearanceGridStage(Stage):
             # checks A's clearance requirement against B's blocked zone. Since A
             # must maintain clearance from B's pad anyway, using B's clearance
             # for blocking is correct and conservative.
+            #
+            # LAYER-SPECIFIC CLEARANCES:
+            # Inner layers (In1.Cu, In2.Cu) don't need surface creepage clearance
+            # since they're encapsulated in FR4. We cap inner layer clearances at
+            # inner_layer_clearance_mm (default 0.5mm) to prevent high-voltage
+            # PTH pads from blocking escape routes on inner layers.
             for net_name, pads in net_pads.items():
-                # Get clearance for this specific net based on its net class
-                net_clearance = self._get_clearance_for_net(net_name, state)
-
                 for pad in pads:
                     # Calculate clearance with PTH/SMD-aware mask expansion
                     mask_expansion = (
                         self.pth_mask_expansion_mm if pad["is_pth"] else self.smd_mask_expansion_mm
                     )
-                    total_clearance = net_clearance + mask_expansion
 
                     for layer_idx in pad["layers"]:
                         if layer_idx < grid.layer_count:
+                            # Get layer-specific clearance (inner layers have reduced clearance)
+                            net_clearance = self._get_clearance_for_net(
+                                net_name, state, layer=layer_idx
+                            )
+                            total_clearance = net_clearance + mask_expansion
+
                             grid.block_circle(
                                 pad["pos"],
                                 radius_mm=pad["radius"],
