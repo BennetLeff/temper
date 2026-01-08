@@ -121,29 +121,59 @@ class CourtyardCheckStage(Stage):
         return replace(state, placements=tuple(placements.items()))
 
     def _find_collisions(self, placements: Dict[str, Tuple[float, float]]) -> List[Tuple[str, str]]:
+        """Find courtyard collisions using spatial indexing for O(n log n) performance.
+
+        Optimization: Use R-tree spatial index to avoid O(n²) pairwise checks.
+        Also cache transformed polygons to avoid repeated Shapely operations.
+        """
         collisions = []
         refs = list(placements.keys())
 
-        for i in range(len(refs)):
-            ref1 = refs[i]
-            if ref1 not in self.courtyards:
-                continue
+        # Cache transformed polygons (major optimization - avoids 1M+ Shapely calls)
+        transformed_polys = {}
+        for ref in refs:
+            if ref in self.courtyards:
+                pos = placements[ref]
+                # Assume rotation = 0 (as per pipeline comment)
+                transformed_polys[ref] = self.courtyards[ref].get_global_polygon(pos[0], pos[1], 0)
 
-            for j in range(i + 1, len(refs)):
-                ref2 = refs[j]
-                if ref2 not in self.courtyards:
+        # Build spatial index using bounding boxes
+        from shapely.strtree import STRtree
+
+        # Create list of (polygon, ref) pairs for STRtree
+        polys_with_refs = [(poly, ref) for ref, poly in transformed_polys.items()]
+
+        if not polys_with_refs:
+            return collisions
+
+        # Build R-tree index
+        tree = STRtree([poly for poly, _ in polys_with_refs])
+
+        # Query for intersections (O(n log n) instead of O(n²))
+        checked_pairs = set()
+        for poly, ref1 in polys_with_refs:
+            # Query spatial index for candidates (uses bounding box)
+            candidates = tree.query(poly)
+
+            for candidate_poly in candidates:
+                # Find ref2 for this polygon
+                ref2 = None
+                for p, r in polys_with_refs:
+                    if p is candidate_poly:
+                        ref2 = r
+                        break
+
+                if ref2 is None or ref1 == ref2:
                     continue
 
-                # Check overlap
-                # TODO: Get rotation from state (assume 0 for now as per pipeline)
-                if check_overlap(
-                    self.courtyards[ref1],
-                    placements[ref1],
-                    0,
-                    self.courtyards[ref2],
-                    placements[ref2],
-                    0,
-                ):
+                # Avoid checking same pair twice
+                pair = tuple(sorted([ref1, ref2]))
+                if pair in checked_pairs:
+                    continue
+                checked_pairs.add(pair)
+
+                # Exact intersection test (after bounding box filter)
+                if poly.intersects(candidate_poly) and not poly.touches(candidate_poly):
                     collisions.append((ref1, ref2))
 
         return collisions
