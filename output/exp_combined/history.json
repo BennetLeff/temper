@@ -1,0 +1,36 @@
+[
+  {
+    "iteration": 1,
+    "total": 750,
+    "actionable": 684,
+    "by_type": {
+      "clearance": 452,
+      "tracks_crossing": 43,
+      "shorting_items": 45,
+      "hole_clearance": 12,
+      "hole_to_hole": 4,
+      "drill_out_of_range": 4,
+      "solder_mask_bridge": 3,
+      "via_dangling": 18,
+      "track_dangling": 20,
+      "missing_courtyard": 33,
+      "lib_footprint_issues": 33,
+      "unconnected": 83
+    }
+  },
+  {
+    "iteration": 2,
+    "total": 290,
+    "actionable": 224,
+    "by_type": {
+      "clearance": 115,
+      "hole_clearance": 2,
+      "hole_to_hole": 2,
+      "via_dangling": 27,
+      "track_dangling": 2,
+      "missing_courtyard": 33,
+      "lib_footprint_issues": 33,
+      "unconnected": 76
+    }
+  }
+]

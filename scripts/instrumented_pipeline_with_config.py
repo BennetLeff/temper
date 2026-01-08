@@ -99,6 +99,12 @@ def run_instrumented_pipeline():
     print(f"  Components: {len(result.netlist.components)}")
     print(f"  Nets: {len(result.netlist.nets)}")
 
+    # Extract metadata for DRC-aware pipeline
+    from temper_placer.io.kicad_metadata import extract_kicad_metadata
+
+    metadata = extract_kicad_metadata(board_path)
+    print(f"  Metadata: {len(metadata.courtyards)} courtyards, {len(metadata.pad_sizes)} pads")
+
     # Create initial state from parsed result
     initial_state = BoardState(
         netlist=result.netlist,
@@ -107,7 +113,7 @@ def run_instrumented_pipeline():
 
     # Create pipeline WITH CONFIG
     print("\nCreating pipeline with differential pair config...")
-    pipeline = create_drc_aware_pipeline(config=config)
+    pipeline = create_drc_aware_pipeline(config=config, metadata=metadata)
 
     # Monkey-patch stages to add instrumentation
     print("Instrumenting stages...")

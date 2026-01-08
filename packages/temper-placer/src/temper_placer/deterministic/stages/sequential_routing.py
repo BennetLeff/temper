@@ -3,7 +3,6 @@ from typing import List, Tuple, Optional, Set
 import numpy as np
 from ..state import BoardState
 from .base import Stage
-from .astar import DeterministicAStar
 from .multilayer_astar import MultiLayerAStar
 from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
@@ -1074,23 +1073,16 @@ class SequentialRoutingStage(Stage):
             # Get allowed layers for this net (enables inner layer routing for congested nets)
             allowed_layers = self._get_allowed_layers_for_net(net_name, net_class_name, state)
 
-            pathfinder = DeterministicAStar(
-                grid=grid,
-                drc_oracle=state.drc_oracle,
-                net_name=net_name,
-                trace_width=width,
-                # Note: allowed_zones not supported by DeterministicAStar
-            )
             mst_edges = self._compute_mst(pin_positions)
 
             # Snap pin positions to grid for A* pathfinding
             snapped_positions = [snap_to_grid(p, grid.cell_size_mm) for p in pin_positions]
 
-            net_paths = []  # List of (path_points, layer_idx) tuples
             net_multilayer_paths = []  # Results from multi-layer routing
 
             # Create multi-layer pathfinder with net-specific allowed layers
             # This enables routing on inner layers for congested signal nets
+            # NOTE: Always use MultiLayerAStar (has Cython support) - removed old Python-only DeterministicAStar
             multilayer_pathfinder = MultiLayerAStar(
                 grid=grid,
                 drc_oracle=state.drc_oracle,
@@ -1122,39 +1114,8 @@ class SequentialRoutingStage(Stage):
                     pin_escape_layers[idx2] if pin_escape_layers[idx2] is not None else layer_idx
                 )
 
-                # If either pin has an escape via, we MUST use multi-layer routing
-                # (single-layer can't reach inner layers)
-                needs_multilayer = (
-                    pin_escape_layers[idx1] is not None or pin_escape_layers[idx2] is not None
-                )
-
-                # Try single-layer routing first (faster, simpler) - but only if no escape vias
-                path = None
-                if not needs_multilayer:
-                    path = pathfinder.find_path(start=p1_snapped, end=p2_snapped, layer=layer_idx)
-                    if path:
-                        # Add nudge segments to connect snapped path back to actual centers
-                        nudged_path = add_endpoint_nudge(
-                            path, pin_positions[idx1], pin_positions[idx2]
-                        )
-
-                        # Validate path with DRCOracle before accepting
-                        path_valid = True
-                        if state.drc_oracle:
-                            for i in range(len(nudged_path) - 1):
-                                valid, reason = state.drc_oracle.can_place_track_segment(
-                                    nudged_path[i], nudged_path[i + 1], layer_idx, net_name, width
-                                )
-                                if not valid:
-                                    print(f"  Path rejected for {net_name}: {reason}")
-                                    path_valid = False
-                                    break
-
-                        if path_valid:
-                            net_paths.append((nudged_path, layer_idx))
-                            continue  # Success, move to next edge
-
-                # Single-layer failed or needs multi-layer - try multi-layer routing
+                # Use multi-layer routing (with Cython A* support) for ALL paths
+                # Removed old single-layer Python A* fallback for performance
                 multilayer_result = multilayer_pathfinder.find_path(
                     start=p1_snapped,
                     end=p2_snapped,
@@ -1190,57 +1151,7 @@ class SequentialRoutingStage(Stage):
                     )
                     net_routing_failed = True  # EXP-5: Mark this net as having a failed segment
 
-            # Commit all single-layer paths for this net
-            for path, path_layer_idx in net_paths:
-                path_layer_name = LAYER_IDX_TO_NAME.get(path_layer_idx, "F.Cu")
-                # Block the routed trace on the same layer with net_name
-                grid.block_trace(
-                    path,
-                    width_mm=width,
-                    clearance_mm=clearance,
-                    layer=path_layer_idx,
-                    net_name=net_name,
-                )
-
-                # Create Trace objects for state with correct layer
-                # FINAL VALIDATION: Check each trace segment before adding
-                for i in range(len(path) - 1):
-                    # Validate final trace with Oracle
-                    trace_valid = True
-                    if state.drc_oracle:
-                        trace_valid, reject_reason = state.drc_oracle.can_place_track_segment(
-                            start=path[i],
-                            end=path[i + 1],
-                            layer=path_layer_idx,
-                            net=net_name,
-                            width=width,
-                        )
-                        if not trace_valid:
-                            print(f"  REJECTED final trace for {net_name}: {reject_reason}")
-                            continue  # Skip this invalid segment
-
-                    all_traces.append(
-                        Trace(
-                            start=path[i],
-                            end=path[i + 1],
-                            width=width,
-                            layer=path_layer_name,
-                            net=net_name,
-                        )
-                    )
-                    # Register in DRCOracle
-                    if state.drc_oracle:
-                        state.drc_oracle.register_track(
-                            OracleTrack(
-                                start=OraclePoint(path[i][0], path[i][1]),
-                                end=OraclePoint(path[i + 1][0], path[i + 1][1]),
-                                width=width,
-                                net=net_name,
-                                layer=path_layer_idx,
-                            )
-                        )
-
-            # Commit multi-layer paths (with vias)
+            # Commit multi-layer paths (with vias and traces)
             via_d = 0.6
             via_drill = 0.3
             if self.design_rules:
@@ -1318,112 +1229,7 @@ class SequentialRoutingStage(Stage):
                         all_vias=all_vias,
                     )
 
-            # Generate Vias for pins if routed on inner layer
-            if net_paths and layer_name != "F.Cu":
-                via_d = 0.6
-                via_drill = 0.3
-                mask_expansion = 0.1
-                if self.design_rules and rules:
-                    via_d = rules.via_diameter
-                    via_drill = rules.via_drill
-
-                via_mask_radius = via_d / 2.0 + mask_expansion
-
-                # Assume all pins are on Top/Bottom and need Via to connect to Inner
-                # Ideally check pin layer, but for MVP assuming Top SMD/THT
-                for pos in pin_positions:
-                    # Find safe position for via - use progressive search
-                    if state.drc_oracle:
-                        # Progressive search: try 2mm, then 5mm
-                        safe_pos = None
-                        for radius in [2.0, 5.0]:
-                            sites = state.drc_oracle.get_valid_via_sites(
-                                pos, search_radius=radius, net=net_name
-                            )
-                            if sites:
-                                safe_pos = sites[0]
-                                if radius > 2.0:
-                                    print(
-                                        f"INFO: Found via site for {net_name} at {radius}mm radius (offset {((sites[0][0] - pos[0]) ** 2 + (sites[0][1] - pos[1]) ** 2) ** 0.5:.2f}mm)"
-                                    )
-                                break
-
-                        if not safe_pos:
-                            print(
-                                f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 5mm)"
-                            )
-                            safe_pos = pos  # Fallback to pad position
-                    else:
-                        safe_pos = place_via_with_clearance(pos, all_pads_info, via_mask_radius)
-                        if not safe_pos:
-                            print(
-                                f"WARNING: Could not find safe via position for {net_name} at {pos}"
-                            )
-                            safe_pos = pos  # Fallback
-
-                    # Create Via
-                    via = Via(
-                        position=safe_pos,
-                        drill=via_drill,
-                        width=via_d,
-                        layers=("F.Cu", layer_name),
-                        net=net_name,
-                    )
-                    all_vias.append(via)
-
-                    # Register in DRCOracle
-                    if state.drc_oracle:
-                        state.drc_oracle.register_via(
-                            OracleVia(
-                                center=OraclePoint(safe_pos[0], safe_pos[1]),
-                                diameter=via_d,
-                                drill=via_drill,
-                                net=net_name,
-                            )
-                        )
-
-                    # If via shifted, add a short stub trace from pin to via
-                    # VALIDATE stub trace before adding to prevent DRC violations
-                    if safe_pos != pos:
-                        stub_valid = True
-                        if state.drc_oracle:
-                            stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
-                                start=pos, end=safe_pos, layer=0, net=net_name, width=width
-                            )
-                            if not stub_valid:
-                                print(
-                                    f"  WARNING: Signal stub trace for {net_name} rejected: {stub_reason}"
-                                )
-
-                        if stub_valid:
-                            all_traces.append(
-                                Trace(
-                                    start=pos, end=safe_pos, width=width, layer="F.Cu", net=net_name
-                                )
-                            )
-                            # Register stub in DRCOracle
-                            if state.drc_oracle:
-                                state.drc_oracle.register_track(
-                                    OracleTrack(
-                                        start=OraclePoint(pos[0], pos[1]),
-                                        end=OraclePoint(safe_pos[0], safe_pos[1]),
-                                        width=width,
-                                        net=net_name,
-                                        layer=0,  # F.Cu
-                                    )
-                                )
-
-                    # Block Via on ALL layers
-                    # Iterate all grid layers
-                    for l_idx in range(grid.layer_count):
-                        grid.block_circle(
-                            safe_pos,
-                            radius_mm=via_d / 2,
-                            clearance_mm=clearance,
-                            layer=l_idx,
-                            net_name=net_name,
-                            is_pad=False,
-                        )
+            # MultiLayerAStar handles vias automatically - no need for manual via generation
 
             net_elapsed = time.time() - net_start
             # EXP-5: Lock net if all segments routed successfully
