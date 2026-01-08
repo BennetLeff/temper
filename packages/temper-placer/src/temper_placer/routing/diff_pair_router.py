@@ -134,9 +134,10 @@ class DiffPairRouter:
         clearance_mm: float = 0.10,  # EXP-3: For minimum spacing enforcement
         max_divergence_mm: float = 1.0,
         max_skew_mm: float = 0.5,
-        coupling_weight: float = 10.0,
+        coupling_weight: float = 5.0,  # Reduced from 10.0 to allow more divergence exploration
         skew_weight: float = 5.0,
-        beam_width: int = 1000,  # Phase 2C: Beam search limit
+        beam_width: int = 2000,  # Phase 2C: Beam search limit (increased from 1000)
+        beam_prune_threshold: float = 2.0,  # Only prune when frontier > beam_width * threshold
     ):
         """
         Initialize differential pair router.
@@ -152,6 +153,7 @@ class DiffPairRouter:
             coupling_weight: Penalty weight for separation deviation
             skew_weight: Penalty weight for length mismatch
             beam_width: Max states to keep per frontier expansion (Phase 2C)
+            beam_prune_threshold: Prune when frontier exceeds beam_width * threshold (default 2.0)
         """
         self.grid_size = grid_size
         self.cell_size_mm = cell_size_mm
@@ -163,6 +165,7 @@ class DiffPairRouter:
         self.coupling_weight = coupling_weight
         self.skew_weight = skew_weight
         self.beam_width = beam_width
+        self.beam_prune_threshold = beam_prune_threshold
 
         # EXP-3: Calculate minimum safe center-to-center spacing
         # Edge-to-edge must be >= clearance_mm
@@ -327,7 +330,9 @@ class DiffPairRouter:
                         heapq.heappush(forward_frontier, next_node)
 
             # Phase 2C: Beam search pruning (limit frontier size)
-            if len(forward_frontier) > self.beam_width:
+            # Only prune when frontier significantly exceeds beam_width to reduce overhead
+            prune_trigger = int(self.beam_width * self.beam_prune_threshold)
+            if len(forward_frontier) > prune_trigger:
                 # Keep only top beam_width states by f-cost
                 forward_frontier = heapq.nsmallest(self.beam_width, forward_frontier)
                 heapq.heapify(forward_frontier)
@@ -371,7 +376,8 @@ class DiffPairRouter:
                         heapq.heappush(backward_frontier, next_node)
 
             # Phase 2C: Beam search pruning (limit frontier size)
-            if len(backward_frontier) > self.beam_width:
+            # Only prune when frontier significantly exceeds beam_width to reduce overhead
+            if len(backward_frontier) > prune_trigger:
                 # Keep only top beam_width states by f-cost
                 backward_frontier = heapq.nsmallest(self.beam_width, backward_frontier)
                 heapq.heapify(backward_frontier)
@@ -509,7 +515,10 @@ class DiffPairRouter:
         # Cost constants
         BASE_MOVE_COST = self.cell_size_mm
         VIA_COST = 2.0  # mm equivalent cost
-        DIVERGENCE_COST = 5.0  # High penalty for splitting
+        # FIX: Reduced from 5.0 to 1.0 - allows offset transition exploration
+        # Without this, the router cannot change P-N relative offset from vertical to horizontal
+        # (required when start pins are vertically aligned but goal pins are horizontally aligned)
+        DIVERGENCE_COST = 1.0
 
         # 1. BOTH_MOVE_TOGETHER: P and N move in same direction (ideal)
         for dx, dy in directions:
@@ -727,13 +736,35 @@ class DiffPairRouter:
         """
         Admissible heuristic for A*.
 
-        Uses max of P and N manhattan distances to ensure admissibility.
+        Uses max of P and N manhattan distances plus offset mismatch penalty.
+        The offset mismatch term guides the search to change P-N relative offset
+        early rather than near the goal (where it becomes impossible).
         """
         h_pos = abs(state.pos_x - goal.pos_x) + abs(state.pos_y - goal.pos_y)
         h_neg = abs(state.neg_x - goal.neg_x) + abs(state.neg_y - goal.neg_y)
 
-        # Max ensures we don't underestimate (admissible)
-        return max(h_pos, h_neg) * self.cell_size_mm
+        # Base heuristic: max ensures we don't underestimate (admissible)
+        h_distance = max(h_pos, h_neg) * self.cell_size_mm
+
+        # FIX: Add offset mismatch penalty
+        # Current P-N offset (in grid cells)
+        current_offset_x = state.pos_x - state.neg_x
+        current_offset_y = state.pos_y - state.neg_y
+
+        # Goal P-N offset (in grid cells)
+        goal_offset_x = goal.pos_x - goal.neg_x
+        goal_offset_y = goal.pos_y - goal.neg_y
+
+        # Offset mismatch (how many divergent moves needed to change alignment)
+        offset_mismatch = abs(current_offset_x - goal_offset_x) + abs(
+            current_offset_y - goal_offset_y
+        )
+
+        # Each offset change requires at minimum one divergent move (cost = cell_size)
+        # Using a small weight (0.5) to stay admissible while guiding the search
+        h_offset = offset_mismatch * self.cell_size_mm * 0.5
+
+        return h_distance + h_offset
 
 
 # Phase 2A TODO:
