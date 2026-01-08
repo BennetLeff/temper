@@ -16,6 +16,7 @@ import heapq
 import math
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Set, TYPE_CHECKING
+from numba import njit
 
 from temper_placer.routing.iteration_budget import (
     RoutingContext,
@@ -28,6 +29,36 @@ if TYPE_CHECKING:
     from .clearance_grid import ClearanceGrid
     from temper_placer.routing.constraints.drc_oracle import DRCOracle
     from temper_placer.routing.adaptive_congestion import CongestionDetector
+
+
+# Numba-accelerated heuristic functions
+
+
+@njit
+def _heuristic_3d_numba(row, col, layer, end_row, end_col, end_layer, via_cost):
+    """Numba-optimized 3D heuristic calculation.
+
+    Args:
+        row, col, layer: Current state coordinates
+        end_row, end_col: Target cell coordinates
+        end_layer: Target layer (-1 for any layer)
+        via_cost: Cost penalty for layer changes
+
+    Returns:
+        Heuristic cost estimate to goal
+    """
+    dr = abs(row - end_row)
+    dc = abs(col - end_col)
+
+    # Octile distance: diagonal moves cost sqrt(2), cardinal moves cost 1
+    # h = max(dr, dc) + (sqrt(2) - 1) * min(dr, dc)
+    h = max(dr, dc) + 0.414 * min(dr, dc)
+
+    # Add layer change penalty if we're not on the target layer
+    if end_layer != -1 and layer != end_layer:
+        h += via_cost
+
+    return h
 
 
 @dataclass
@@ -429,6 +460,14 @@ class MultiLayerAStar:
             end_blocked_layers: Set of layers where goal is blocked (optimization hint)
         """
         row, col, layer = state
+
+        # Fast path: Use Numba for common case (specific target layer)
+        if end_layer != -1:
+            return _heuristic_3d_numba(
+                row, col, layer, end_cell[0], end_cell[1], end_layer, self.via_cost
+            )
+
+        # Slow path: Handle any-layer case with blocked layers check
         dr = abs(row - end_cell[0])
         dc = abs(col - end_cell[1])
 
@@ -436,12 +475,8 @@ class MultiLayerAStar:
         # h = max(dr, dc) + (sqrt(2) - 1) * min(dr, dc)
         h = max(dr, dc) + 0.414 * min(dr, dc)
 
-        # Add layer change penalty if we're not on the target layer
-        if end_layer != -1 and layer != end_layer:
-            h += self.via_cost
-        elif end_layer == -1 and end_blocked_layers and layer in end_blocked_layers:
-            # Goal is blocked on this layer - we WILL need a via, so include cost
-            # This encourages the search to transition layers earlier
+        # Goal is blocked on this layer - we WILL need a via, so include cost
+        if end_blocked_layers and layer in end_blocked_layers:
             h += self.via_cost
 
         return h
