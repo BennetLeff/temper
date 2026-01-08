@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "Cython>=3.0.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -129,4 +129,9 @@ dev = [
     "hypothesis>=6.148.7",
     "pytest>=9.0.2",
     "pytest-bdd>=8.1.0",
+    "Cython>=3.0.0",
 ]
+
+# Cython configuration for A* acceleration
+[tool.cython]
+language_level = "3"
