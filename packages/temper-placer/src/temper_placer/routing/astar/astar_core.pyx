@@ -340,7 +340,156 @@ def test_grid_access(test_name: str) -> bool:
 
 
 # ============================================================================
-# Main A* Function (stub for now - Phase 3)
+# Neighbor Generation
+# ============================================================================
+
+cdef inline int get_neighbors(
+    int row, int col, int layer,
+    int* neighbor_rows, int* neighbor_cols, int* neighbor_layers, float* neighbor_costs,
+    int width, int height, int num_layers,
+    GridView* grid, int net_id,
+    int* allowed_layers, int num_allowed_layers,
+    float via_cost
+):
+    """Generate valid neighbors for current state.
+    
+    Returns number of valid neighbors found.
+    Neighbors are written to the output arrays.
+    """
+    cdef int num_neighbors = 0
+    cdef int new_row, new_col, new_layer
+    cdef float cost
+    cdef int i
+    
+    # 8-connected movement on same layer
+    # Order: up, right, down, left, up-left, up-right, down-left, down-right
+    cdef int dr[8]
+    cdef int dc[8]
+    dr[:] = [-1, 0, 1, 0, -1, -1, 1, 1]
+    dc[:] = [0, 1, 0, -1, -1, 1, -1, 1]
+    cdef float costs[8]
+    costs[:] = [1.0, 1.0, 1.0, 1.0, 1.414, 1.414, 1.414, 1.414]
+    
+    # Same-layer neighbors
+    for i in range(8):
+        new_row = row + dr[i]
+        new_col = col + dc[i]
+        
+        if grid_is_available(grid, new_row, new_col, layer, net_id):
+            neighbor_rows[num_neighbors] = new_row
+            neighbor_cols[num_neighbors] = new_col
+            neighbor_layers[num_neighbors] = layer
+            neighbor_costs[num_neighbors] = costs[i]
+            num_neighbors += 1
+    
+    # Layer transitions (vias)
+    for i in range(num_allowed_layers):
+        new_layer = allowed_layers[i]
+        if new_layer == layer:
+            continue
+        
+        # Check if target layer is available at current position
+        if grid_is_available(grid, row, col, new_layer, net_id):
+            neighbor_rows[num_neighbors] = row
+            neighbor_cols[num_neighbors] = col
+            neighbor_layers[num_neighbors] = new_layer
+            neighbor_costs[num_neighbors] = via_cost
+            num_neighbors += 1
+    
+    return num_neighbors
+
+
+# ============================================================================
+# Path Reconstruction
+# ============================================================================
+
+cdef tuple reconstruct_path(
+    int* came_from, int goal_index,
+    int width, int height, int num_layers,
+    float start_x, float start_y, float end_x, float end_y,
+    float cell_size, float via_cost
+):
+    """Reconstruct path from came_from array.
+    
+    Returns tuple: (segments, via_positions, total_cost)
+    where segments is list of RouteSegment
+    """
+    cdef int current_idx = goal_index
+    cdef int parent_idx
+    cdef int row, col, layer
+    cdef int parent_row, parent_col, parent_layer
+    cdef list path_indices = []
+    cdef list segments = []
+    cdef list via_positions = []
+    cdef float total_cost = 0.0
+    cdef int i
+    cdef float via_x, via_y, p2_x, p2_y
+    
+    # Import RouteSegment
+    from temper_placer.routing.astar.types import RouteSegment
+    
+    # Trace back from goal to start
+    path_indices.append(goal_index)
+    current_idx = goal_index
+    while came_from[current_idx] != -1:
+        current_idx = came_from[current_idx]
+        path_indices.append(current_idx)
+    
+    # Reverse to get start->goal order
+    path_indices.reverse()
+    
+    # Convert indices to states and build segments
+    for i in range(len(path_indices) - 1):
+        current_idx = path_indices[i]
+        parent_idx = path_indices[i + 1]
+        
+        index_to_state(current_idx, &row, &col, &layer, width, height, num_layers)
+        index_to_state(parent_idx, &parent_row, &parent_col, &parent_layer, width, height, num_layers)
+        
+        if layer != parent_layer:
+            # Layer transition - add via
+            via_x = col * cell_size + cell_size / 2.0
+            via_y = row * cell_size + cell_size / 2.0
+            via_positions.append((via_x, via_y, layer, parent_layer))
+            total_cost += via_cost
+            
+            # Add landing segment on new layer if position changed
+            p2_x = parent_col * cell_size + cell_size / 2.0
+            p2_y = parent_row * cell_size + cell_size / 2.0
+            if via_x != p2_x or via_y != p2_y:
+                segments.append(RouteSegment(
+                    start=(via_x, via_y),
+                    end=(p2_x, p2_y),
+                    layer=parent_layer
+                ))
+        else:
+            # Same layer - add trace segment
+            if i == 0:
+                p1_x = start_x
+                p1_y = start_y
+            else:
+                p1_x = col * cell_size + cell_size / 2.0
+                p1_y = row * cell_size + cell_size / 2.0
+            
+            if i == len(path_indices) - 2:
+                p2_x = end_x
+                p2_y = end_y
+            else:
+                p2_x = parent_col * cell_size + cell_size / 2.0
+                p2_y = parent_row * cell_size + cell_size / 2.0
+            
+            segments.append(RouteSegment(start=(p1_x, p1_y), end=(p2_x, p2_y), layer=layer))
+            
+            # Calculate cost
+            dx = p2_x - p1_x
+            dy = p2_y - p1_y
+            total_cost += sqrt(dx*dx + dy*dy)
+    
+    return (segments, via_positions, total_cost)
+
+
+# ============================================================================
+# Main A* Function
 # ============================================================================
 
 def find_path_cython(
@@ -352,25 +501,183 @@ def find_path_cython(
     start_layer: int = 0,
     end_layer: int = -1,
 ) -> Optional[MultiLayerPath]:
-    """Cython-accelerated A* pathfinding (STUB - Phase 3).
+    """Cython-accelerated A* pathfinding.
     
     Args:
         grid: ClearanceGrid for collision checking
         start_pos: (x, y) start position in mm
         end_pos: (x, y) end position in mm
         net_id: Net ID for clearance checking
-        config: Configuration dict
+        config: Configuration dict with keys:
+            - via_cost: Cost penalty for vias (default: 5.0)
+            - max_iterations: Maximum search iterations (default: 100000)
         start_layer: Starting layer index
         end_layer: Ending layer index (-1 for any layer)
         
     Returns:
         MultiLayerPath or None if no path found
-        
-    Raises:
-        NotImplementedError: Cython A* algorithm not yet complete (Phase 3)
     """
-    raise NotImplementedError(
-        "Cython A* algorithm not yet complete. "
-        "Use TEMPER_USE_CYTHON_ASTAR=0 to use Python fallback. "
-        "Implementation planned for Phase 3 (temper-6te4.3)"
-    )
+    # Extract config parameters
+    cdef float via_cost = config.get('via_cost', 5.0)
+    cdef int max_iterations = config.get('max_iterations', 100000)
+    
+    # Get grid parameters
+    cdef int width = grid.cols
+    cdef int height = grid.rows
+    cdef int num_layers = grid.layer_count
+    cdef float cell_size = grid.cell_size_mm
+    
+    # Convert start/end positions to grid cells
+    start_cell = grid._mm_to_cell(start_pos[0], start_pos[1])
+    end_cell = grid._mm_to_cell(end_pos[0], end_pos[1])
+    
+    cdef int start_row = start_cell[0]
+    cdef int start_col = start_cell[1]
+    cdef int end_row = end_cell[0]
+    cdef int end_col = end_cell[1]
+    
+    # Validate bounds
+    if not (0 <= start_row < height and 0 <= start_col < width):
+        return None
+    if not (0 <= end_row < height and 0 <= end_col < width):
+        return None
+    
+    # Setup allowed layers
+    cdef int allowed_layers[4]  # Max 4 layers
+    cdef int num_allowed_layers = min(4, num_layers)
+    cdef int i
+    for i in range(num_allowed_layers):
+        allowed_layers[i] = i
+    
+    # Validate start_layer
+    if start_layer < 0 or start_layer >= num_layers:
+        start_layer = 0
+    
+    # Setup GridView for fast access
+    cdef GridView grid_view
+    cdef cnp.ndarray[cnp.int32_t, ndim=3] grid_data = grid.occupancy_grid
+    grid_view.data = <int*>cnp.PyArray_DATA(grid_data)
+    grid_view.width = width
+    grid_view.height = height
+    grid_view.num_layers = num_layers
+    
+    # State space size
+    cdef int state_space_size = width * height * num_layers
+    
+    # Allocate arrays
+    cdef float* g_score = <float*>malloc(state_space_size * sizeof(float))
+    cdef int* came_from = <int*>malloc(state_space_size * sizeof(int))
+    cdef MinHeap open_set
+    
+    # Initialize arrays
+    for i in range(state_space_size):
+        g_score[i] = INFINITY
+        came_from[i] = -1
+    
+    # Initialize heap
+    heap_init(&open_set, 1000)
+    
+    # Start state
+    cdef int start_idx = state_to_index(start_row, start_col, start_layer, width, height, num_layers)
+    g_score[start_idx] = 0.0
+    cdef float h_start = heuristic(start_row, start_col, start_layer, end_row, end_col, end_layer, cell_size, via_cost)
+    heap_push(&open_set, h_start, start_idx)
+    
+    # Neighbor arrays (max 8 same-layer + 3 other layers = 11)
+    cdef int neighbor_rows[11]
+    cdef int neighbor_cols[11]
+    cdef int neighbor_layers[11]
+    cdef float neighbor_costs[11]
+    cdef int num_neighbors
+    
+    cdef int iterations = 0
+    cdef float priority
+    cdef int current_idx, neighbor_idx
+    cdef int current_row, current_col, current_layer
+    cdef float tentative_g, f_score
+    cdef int j
+    cdef bint goal_found = False
+    cdef int goal_idx = -1
+    
+    # A* main loop
+    try:
+        while open_set.size > 0 and iterations < max_iterations:
+            iterations += 1
+            
+            # Pop minimum from heap
+            current_idx = heap_pop(&open_set, &priority)
+            if current_idx == -1:
+                break
+            
+            # Convert to state
+            index_to_state(current_idx, &current_row, &current_col, &current_layer, width, height, num_layers)
+            
+            # Check if goal reached
+            if current_row == end_row and current_col == end_col:
+                if end_layer == -1 or current_layer == end_layer:
+                    goal_found = True
+                    goal_idx = current_idx
+                    break
+            
+            # Generate neighbors
+            num_neighbors = get_neighbors(
+                current_row, current_col, current_layer,
+                neighbor_rows, neighbor_cols, neighbor_layers, neighbor_costs,
+                width, height, num_layers,
+                &grid_view, net_id,
+                allowed_layers, num_allowed_layers,
+                via_cost
+            )
+            
+            # Process neighbors
+            for j in range(num_neighbors):
+                neighbor_idx = state_to_index(
+                    neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
+                    width, height, num_layers
+                )
+                
+                tentative_g = g_score[current_idx] + neighbor_costs[j]
+                
+                if tentative_g < g_score[neighbor_idx]:
+                    # Better path found
+                    came_from[neighbor_idx] = current_idx
+                    g_score[neighbor_idx] = tentative_g
+                    
+                    # Calculate f_score with heuristic
+                    f_score = tentative_g + heuristic(
+                        neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
+                        end_row, end_col, end_layer,
+                        cell_size, via_cost
+                    )
+                    
+                    heap_push(&open_set, f_score, neighbor_idx)
+        
+        # Reconstruct path if goal found
+        if goal_found:
+            path_data = reconstruct_path(
+                came_from, goal_idx,
+                width, height, num_layers,
+                start_pos[0], start_pos[1], end_pos[0], end_pos[1],
+                cell_size, via_cost
+            )
+            
+            from temper_placer.routing.astar.types import MultiLayerPath
+            result = MultiLayerPath(
+                segments=path_data[0],
+                via_positions=path_data[1],
+                total_cost=path_data[2]
+            )
+        else:
+            result = None
+            
+            # Log timeout warning
+            if iterations >= max_iterations:
+                print(f"WARNING: Cython A* exceeded {max_iterations} iterations for net {net_id}")
+        
+        return result
+        
+    finally:
+        # Always cleanup memory
+        free(g_score)
+        free(came_from)
+        heap_free(&open_set)
