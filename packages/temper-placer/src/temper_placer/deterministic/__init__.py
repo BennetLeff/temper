@@ -37,6 +37,7 @@ def create_drc_aware_pipeline(
         NetOrderingStage,
         LayerAssignmentStage,
         PowerPlaneStage,
+        FinePitchEscapeStage,
         SequentialRoutingStage,
         DRCValidationStage,
         ConnectivityValidationStage,
@@ -190,6 +191,10 @@ def create_drc_aware_pipeline(
             NetOrderingStage(net_priority=net_priority),  # EXP-6: Pass explicit priorities
             LayerAssignmentStage(net_classes=config.net_classes if config else None),
             PowerPlaneStage(),  # Mark plane nets (GND, power rails, ACMains) before routing
+            FinePitchEscapeStage(
+                pin_pitch_threshold_mm=0.65,
+                escape_layer=1,
+            ),  # Place escape vias for fine-pitch ICs before main routing
             SequentialRoutingStage(
                 design_rules=design_rules,
                 differential_pairs=differential_pairs,

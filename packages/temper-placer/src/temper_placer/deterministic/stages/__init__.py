@@ -23,6 +23,7 @@ from .astar import DeterministicAStar
 from .multilayer_astar import MultiLayerAStar, MultiLayerPath, RouteSegment
 from .via_validation import ViaValidationStage, ViaDeduplicationStage
 from .drc_sweep import DRCSweepStage, TrackDeduplicationStage, ShortCircuitDetectionStage
+from .fine_pitch_escape import FinePitchEscapeStage
 
 __all__ = [
     "Stage",
@@ -59,4 +60,5 @@ __all__ = [
     "DRCSweepStage",
     "TrackDeduplicationStage",
     "ShortCircuitDetectionStage",
+    "FinePitchEscapeStage",
 ]
