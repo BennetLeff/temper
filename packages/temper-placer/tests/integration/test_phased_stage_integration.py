@@ -34,7 +34,7 @@ class TestPhasedStageInstantiation:
         assert stage.constraints == constraints
         assert stage.slot_spacing == 12.0
 
-        print(f"\n✓ Created PhasedComponentAssignmentStage")
+        print(f"\n  Created PhasedComponentAssignmentStage")
         print(f"  Spacing rules: {len(constraints.component_spacing_rules)}")
         print(f"  Groups: {len(constraints.component_groups)}")
 
@@ -49,43 +49,64 @@ class TestPhasedStageInstantiation:
         )
 
         # Stage should create a compiler internally
-        # We can't access it directly but we can test the stage runs
-        assert stage is not None
+        assert stage.compiler is not None
+        assert stage.slot_filter is not None
+        assert stage.slot_scorer is not None
 
-        print(f"\n✓ Stage ready with constraint compiler")
+        print(f"\n  Stage ready with constraint compiler")
 
 
 class TestPhasedStageInPipeline:
     """Test using PhasedComponentAssignmentStage in pipeline context."""
 
     @pytest.mark.skipif(not TEMPER_CONFIG_PATH.exists(), reason="Config not found")
-    def test_import_in_pipeline_module(self):
-        """Test that stage can be imported where needed."""
+    def test_import_in_deterministic_module(self):
+        """Test that stage can be imported from deterministic module."""
         try:
-            from temper_placer.pipeline.mvp3_runner import MVP3Config
+            from temper_placer.deterministic import create_drc_aware_pipeline
             from temper_placer.deterministic.stages import PhasedComponentAssignmentStage
 
             # Should be importable
-            assert MVP3Config is not None
+            assert create_drc_aware_pipeline is not None
             assert PhasedComponentAssignmentStage is not None
 
-            print(f"\n✓ All imports successful")
+            print(f"\n  All imports successful")
 
         except ImportError as e:
             pytest.fail(f"Import failed: {e}")
 
     @pytest.mark.skipif(not TEMPER_CONFIG_PATH.exists(), reason="Config not found")
-    def test_mvp3_config_has_phased_flag(self):
-        """Test that MVP3Config has use_phased_placement flag."""
-        from temper_placer.pipeline.mvp3_runner import MVP3Config
+    def test_pipeline_selects_phased_stage_when_constraints_present(self):
+        """Test that create_drc_aware_pipeline() uses PhasedComponentAssignmentStage with constraints."""
+        from temper_placer.deterministic import create_drc_aware_pipeline
+        from temper_placer.io.kicad_metadata import extract_kicad_metadata
 
-        # Default should be True (use phased placement)
-        config = MVP3Config()
-        assert hasattr(config, "use_phased_placement")
-        assert config.use_phased_placement == True
+        constraints = load_constraints(TEMPER_CONFIG_PATH)
 
-        # Can be disabled
-        config_disabled = MVP3Config(use_phased_placement=False)
-        assert config_disabled.use_phased_placement == False
+        # Need metadata to create pipeline
+        pcb_path = Path(__file__).parents[4] / "pcb" / "temper_agent_optimized.kicad_pcb"
+        if not pcb_path.exists():
+            pytest.skip("PCB file not found")
 
-        print(f"\n✓ MVP3Config supports phased placement flag")
+        metadata = extract_kicad_metadata(pcb_path)
+
+        # With constraints that have spacing rules or groups, should use PhasedComponentAssignmentStage
+        if (
+            getattr(constraints, "placement_priority", None)
+            or getattr(constraints, "component_spacing_rules", None)
+            or getattr(constraints, "component_groups", None)
+        ):
+            pipeline = create_drc_aware_pipeline(
+                design_rules=None,
+                config=constraints,
+                metadata=metadata,
+            )
+
+            stage_names = [s.name for s in pipeline.stages]
+            assert "phased_component_assignment" in stage_names, (
+                f"Expected PhasedComponentAssignmentStage with constraints: {stage_names}"
+            )
+
+            print(f"\n  PhasedComponentAssignmentStage correctly selected")
+        else:
+            pytest.skip("Config has no constraint rules")

@@ -3,12 +3,27 @@ Standalone runner for MVP-3 deterministic placement and routing pipeline.
 
 This module provides a simplified interface for running the zone-based
 deterministic pipeline without the template-based orchestrator.
+
+.. deprecated::
+    This module is deprecated. Use :func:`temper_placer.deterministic.create_drc_aware_pipeline`
+    instead, which provides full DRC integration, differential pair routing, zone-aware slot
+    generation, phased component assignment, and other features missing from MVP3Runner.
 """
 
+import warnings
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional
 import logging
+
+warnings.warn(
+    "MVP3Runner is deprecated. Use create_drc_aware_pipeline() from "
+    "temper_placer.deterministic instead. The DRC-aware pipeline provides: "
+    "DRCOracleSetupStage, PhasedComponentAssignmentStage, ZoneAwareSlotGenerationStage, "
+    "NetClassSetupStage, differential pair support, and post-routing cleanup stages.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 from temper_placer.deterministic import DeterministicPipeline, BoardState
 from temper_placer.deterministic.feedback import AutomatedZeroDRC
@@ -17,7 +32,6 @@ from temper_placer.deterministic.stages import (
     ZoneAssignmentStage,
     SlotGenerationStage,
     ComponentAssignmentStage,
-    PhasedComponentAssignmentStage,
     ApplyPlacementsStage,
     CourtyardCheckStage,
     ClearanceGridStage,
@@ -42,7 +56,6 @@ class MVP3Config:
     cell_size_mm: float = 0.25  # Optimal grid for DRC compliance and performance
     slot_spacing_mm: float = 5.0
     deterministic_seed: int = 42
-    use_phased_placement: bool = True  # Use PhasedComponentAssignmentStage with constraints
 
 
 @dataclass
@@ -64,6 +77,20 @@ class MVP3Runner:
     This is a standalone runner that bypasses the template-based
     orchestrator and directly executes the zone-based deterministic
     pipeline stages.
+
+    .. deprecated::
+        MVP3Runner is deprecated and will be removed in a future version.
+        Use :func:`temper_placer.deterministic.create_drc_aware_pipeline` instead.
+
+        The DRC-aware pipeline provides these features missing from MVP3Runner:
+
+        - DRCOracleSetupStage for real-time DRC checking during routing
+        - PhasedComponentAssignmentStage for constraint-driven placement
+        - ZoneAwareSlotGenerationStage for copper zone avoidance
+        - NetClassSetupStage for proper net class handling
+        - Differential pair routing support
+        - TrackDeduplicationStage, ShortCircuitDetectionStage, ViaDeduplicationStage
+        - ViaValidationStage for dangling via removal
     """
 
     def __init__(
@@ -234,8 +261,7 @@ class MVP3Runner:
             logger.info("Building MVP-3 pipeline...")
             pipeline = self._build_pipeline(
                 design_rules,
-                constraints,  # Pass full constraints for phased placement
-                net_classes=constraints.net_classes,
+                constraints.net_classes,
                 fixed_placements=constraints.fixed_positions,
                 board_width=constraints.board_width_mm,
                 board_height=constraints.board_height_mm,
@@ -334,7 +360,6 @@ class MVP3Runner:
     def _build_pipeline(
         self,
         design_rules: DesignRules,
-        constraints,  # PlacementConstraints
         net_classes: dict[str, str] = None,
         fixed_placements: dict = None,
         board_width: float = 100.0,
@@ -344,9 +369,8 @@ class MVP3Runner:
 
         Args:
             design_rules: Design rules for routing
-            constraints: PlacementConstraints with full constraint definitions
-            net_classes: Net class assignments (deprecated, use constraints)
-            fixed_placements: Fixed component positions (deprecated, use constraints)
+            net_classes: Net class assignments
+            fixed_placements: Fixed component positions
             board_width: Board width in mm (for boundary clamping)
             board_height: Board height in mm (for boundary clamping)
         """
@@ -361,21 +385,6 @@ class MVP3Runner:
             name: rules.clearance for name, rules in design_rules.net_classes.items()
         }
 
-        # Choose placement stage based on configuration
-        if self.mvp3_config.use_phased_placement and constraints:
-            logger.info("Using PhasedComponentAssignmentStage with constraints")
-            placement_stage = PhasedComponentAssignmentStage(
-                constraints=constraints,
-                slot_spacing=self.mvp3_config.slot_spacing_mm,
-                fixed_placements=fixed_placements or {},
-            )
-        else:
-            logger.info("Using ComponentAssignmentStage (simple greedy)")
-            placement_stage = ComponentAssignmentStage(
-                slot_spacing=self.mvp3_config.slot_spacing_mm,
-                fixed_placements=fixed_placements or {},
-            )
-
         return DeterministicPipeline(
             stages=[
                 # Phase 0: Setup
@@ -384,7 +393,9 @@ class MVP3Runner:
                 ZoneGeometryStage(),
                 ZoneAssignmentStage(),
                 SlotGenerationStage(slot_spacing_mm=self.mvp3_config.slot_spacing_mm),
-                placement_stage,  # Use chosen placement stage
+                ComponentAssignmentStage(
+                    slot_spacing=self.mvp3_config.slot_spacing_mm, fixed_placements=fixed_placements
+                ),
                 ApplyPlacementsStage(),
                 # Resolution: Resolve physical overlaps (DRC-FIX-4: with board boundary clamping)
                 CourtyardCheckStage(

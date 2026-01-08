@@ -2,109 +2,115 @@
 
 ## Summary
 
-Successfully integrated the **Deterministic Constraint System** with the full **MVP3 deterministic pipeline**. The constraint-aware placement stage (`PhasedComponentAssignmentStage`) is now fully wired into the production pipeline and can be enabled via configuration.
+Successfully integrated the **Deterministic Constraint System** with the **deterministic pipeline** (`create_drc_aware_pipeline()`). The constraint-aware placement stage (`PhasedComponentAssignmentStage`) is now automatically selected when constraints are present in the configuration.
 
 ---
 
 ## What Was Integrated
 
-### 1. **Stage Export** ✅
+### 1. **Stage Export** 
 - Added `PhasedComponentAssignmentStage` to `deterministic/stages/__init__.py`
 - Now importable alongside other pipeline stages
 
-### 2. **MVP3Runner Enhancement** ✅
-- Modified `pipeline/mvp3_runner.py` to support both placement modes:
-  - **Phased (constraint-aware)**: Uses `PhasedComponentAssignmentStage`
-  - **Simple (greedy)**: Uses original `ComponentAssignmentStage`
-- Added `use_phased_placement` flag to `MVP3Config` (default: `True`)
+### 2. **Pipeline Enhancement** 
+- Modified `deterministic/__init__.py` to support both placement modes:
+  - **Phased (constraint-aware)**: Uses `PhasedComponentAssignmentStage` when constraints have rules
+  - **Simple (greedy)**: Uses original `ComponentAssignmentStage` when no constraint rules
+- Selection is automatic based on config contents (no flag needed)
 
-### 3. **Integration Tests** ✅
-- Created `test_phased_stage_integration.py` with 4 tests:
-  - `test_create_stage_from_config` ✅
-  - `test_stage_has_constraint_compiler` ✅
-  - `test_import_in_pipeline_module` ✅
-  - `test_mvp3_config_has_phased_flag` ✅
+### 3. **Integration Tests** 
+- Created `test_phased_placement_pipeline.py` with 3 tests:
+  - `test_phased_placement_in_pipeline` 
+  - `test_pipeline_uses_correct_stage_based_on_config` 
+  - `test_phased_placement_respects_constraints` 
 
-### 4. **Demo Script** ✅
-- Created `demo_integrated_pipeline.py` showing end-to-end usage
+- Updated `test_phased_stage_integration.py` with 4 tests:
+  - `test_create_stage_from_config` 
+  - `test_stage_has_constraint_compiler` 
+  - `test_import_in_deterministic_module` 
+  - `test_pipeline_selects_phased_stage_when_constraints_present` 
+
+### 4. **Demo Script** 
+- Updated `demo_integrated_pipeline.py` showing end-to-end usage
 - Demonstrates constraint loading and pipeline execution
-- Includes optional comparison mode
+- Shows constraint satisfaction reporting
 
 ---
 
 ## How It Works
 
-### Configuration Flag
+### Automatic Stage Selection
 
 ```python
-from temper_placer.pipeline.mvp3_runner import MVP3Runner, MVP3Config
+from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
+from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
+from temper_placer.io.kicad_metadata import extract_kicad_metadata
+from temper_placer.io.kicad_parser import parse_kicad_pcb
 
-# Enable constraint-aware placement (default)
-config = MVP3Config(
-    use_phased_placement=True,  # Uses PhasedComponentAssignmentStage
-    slot_spacing_mm=12.0,
-    cell_size_mm=0.25,
+# Load data
+parse_result = parse_kicad_pcb(pcb_path)
+constraints = load_constraints(config_path)
+design_rules = constraints_to_design_rules(constraints)
+metadata = extract_kicad_metadata(pcb_path)
+
+# Create pipeline - automatically uses PhasedComponentAssignmentStage
+# if constraints has placement_priority, component_spacing_rules, or component_groups
+pipeline = create_drc_aware_pipeline(
+    design_rules=design_rules,
+    config=constraints,  # Pass constraints here
+    metadata=metadata,
 )
 
-# Or disable for simple greedy placement
-config_simple = MVP3Config(
-    use_phased_placement=False,  # Uses ComponentAssignmentStage
-)
+# Run pipeline
+initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
+final_state = pipeline.run(initial_state)
 ```
 
 ### Pipeline Stages
 
-When `use_phased_placement=True`, the pipeline uses:
+When constraints have rules, the pipeline uses:
 
 ```
-SetupStage()
-  ↓
+NetClassSetupStage()
+  |
 ZoneGeometryStage()
-  ↓
+  |
 ZoneAssignmentStage()
-  ↓
-SlotGenerationStage()
-  ↓
-PhasedComponentAssignmentStage()  ← Constraint-aware placement
-  ├─ Phase 1: Fixed/Template placement
-  ├─ Phase 2: Proximity placement
-  ├─ Phase 3: Constraint-aware optimize
-  └─ Phase 4: Auto-fill remaining
-  ↓
+  |
+ZoneAwareSlotGenerationStage()
+  |
+PhasedComponentAssignmentStage()  <- Constraint-aware placement
+  |- Phase 1: Fixed/Template placement
+  |- Phase 2: Proximity placement
+  |- Phase 3: Constraint-aware optimize
+  +- Phase 4: Auto-fill remaining
+  |
 ApplyPlacementsStage()
-  ↓
+  |
 CourtyardCheckStage()
-  ↓
-ClearanceGridStage()
-  ↓
-LayerAssignmentStage()
-  ↓
-PowerPlaneStage()
-  ↓
-NetOrderingStage()
-  ↓
-SequentialRoutingStage()
+  |
+... (routing stages)
 ```
 
 ### Constraint Flow
 
 ```
 YAML Config (temper_deterministic_config.yaml)
-  ↓
-load_constraints() → PlacementConstraints
-  ↓
+  |
+load_constraints() -> PlacementConstraints
+  |
 ConstraintCompiler
-  ├─ compile_to_slot_filter() → Hard constraints (reject invalid slots)
-  └─ compile_to_slot_scorer() → Soft constraints (penalize suboptimal slots)
-  ↓
+  |- compile_to_slot_filter() -> Hard constraints (reject invalid slots)
+  +- compile_to_slot_scorer() -> Soft constraints (penalize suboptimal slots)
+  |
 PhasedComponentAssignmentStage
-  ├─ Uses filter to reject invalid placements
-  ├─ Uses scorer to rank candidate placements
-  └─ Respects hard/soft constraint tiers
-  ↓
+  |- Uses filter to reject invalid placements
+  |- Uses scorer to rank candidate placements
+  +- Respects hard/soft constraint tiers
+  |
 Final Placements
-  ↓
-ConstraintReporter.check() → Validation report
+  |
+ConstraintReporter.check() -> Validation report
 ```
 
 ---
@@ -113,34 +119,42 @@ ConstraintReporter.check() → Validation report
 
 ```python
 from pathlib import Path
-from temper_placer.pipeline.mvp3_runner import MVP3Runner, MVP3Config
+from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
+from temper_placer.io.kicad_metadata import extract_kicad_metadata
+from temper_placer.constraints import ConstraintReporter
 
 # Setup paths
 pcb_path = Path("pcb/temper_agent_optimized.kicad_pcb")
 config_path = Path("configs/temper_deterministic_config.yaml")
-output_path = Path("output/temper_placed.kicad_pcb")
 
-# Configure pipeline with constraint-aware placement
-config = MVP3Config(
-    use_phased_placement=True,  # Enable constraint system
-    slot_spacing_mm=12.0,
-    cell_size_mm=0.25,
-    layer_count=4,
+# Load data
+parse_result = parse_kicad_pcb(pcb_path)
+constraints = load_constraints(config_path)
+design_rules = constraints_to_design_rules(constraints)
+metadata = extract_kicad_metadata(pcb_path)
+
+# Create pipeline (automatically uses PhasedComponentAssignmentStage with constraints)
+pipeline = create_drc_aware_pipeline(
+    design_rules=design_rules,
+    config=constraints,
+    metadata=metadata,
+    zone_aware=True,
 )
 
-# Create runner
-runner = MVP3Runner(
-    pcb_path=pcb_path,
-    config_path=config_path,
-    output_path=output_path,
-    mvp3_config=config,
-)
+# Run pipeline
+initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
+final_state = pipeline.run(initial_state)
 
-# Run full pipeline
-result = runner.run()
-
-print(f"Components placed: {result.components_placed}/{result.total_components}")
-print(f"Nets routed: {result.nets_routed}/{result.total_nets}")
+# Check constraint satisfaction
+if final_state.placements:
+    placements_dict = dict(final_state.placements)
+    reporter = ConstraintReporter(constraints)
+    report = reporter.check(placements_dict)
+    
+    print(f"Violations: {len(report.violations)}")
+    print(f"Warnings: {len(report.warnings)}")
 ```
 
 ---
@@ -148,80 +162,82 @@ print(f"Nets routed: {result.nets_routed}/{result.total_nets}")
 ## Files Modified/Created
 
 ### Modified
-1. `packages/temper-placer/src/temper_placer/deterministic/stages/__init__.py`
+1. `packages/temper-placer/src/temper_placer/deterministic/__init__.py`
+   - Added automatic stage selection based on constraints
+   - Uses `PhasedComponentAssignmentStage` when constraints present
+   - Falls back to `ComponentAssignmentStage` without constraints
+
+2. `packages/temper-placer/src/temper_placer/deterministic/stages/__init__.py`
    - Added `PhasedComponentAssignmentStage` import and export
 
-2. `packages/temper-placer/src/temper_placer/pipeline/mvp3_runner.py`
-   - Added `use_phased_placement` flag to `MVP3Config`
-   - Modified `_build_pipeline()` to accept `constraints` parameter
-   - Added conditional logic to choose placement stage
-   - Maintains backward compatibility
+### Created/Updated
+3. `packages/temper-placer/tests/integration/test_phased_placement_pipeline.py`
+   - 3 integration tests validating the correct pipeline integration
 
-### Created
-3. `packages/temper-placer/tests/integration/test_phased_stage_integration.py`
-   - 4 integration tests validating the integration
+4. `packages/temper-placer/tests/integration/test_phased_stage_integration.py`
+   - 4 unit tests for stage instantiation and imports
 
-4. `packages/temper-placer/examples/demo_integrated_pipeline.py`
-   - Complete demo showing end-to-end usage
+5. `packages/temper-placer/examples/demo_integrated_pipeline.py`
+   - Complete demo showing end-to-end usage with correct pipeline
 
 ---
 
 ## Test Results
 
-### Integration Tests (4/4 passing) ✅
+### Integration Tests (7/7 passing)
 
 ```bash
-$ pytest packages/temper-placer/tests/integration/test_phased_stage_integration.py -v
+$ pytest packages/temper-placer/tests/integration/test_phased_*.py -v
 
-test_create_stage_from_config                PASSED
-test_stage_has_constraint_compiler           PASSED
-test_import_in_pipeline_module               PASSED
-test_mvp3_config_has_phased_flag             PASSED
+test_phased_placement_in_pipeline                            PASSED
+test_pipeline_uses_correct_stage_based_on_config             PASSED
+test_phased_placement_respects_constraints                   PASSED
+test_create_stage_from_config                                PASSED
+test_stage_has_constraint_compiler                           PASSED
+test_import_in_deterministic_module                          PASSED
+test_pipeline_selects_phased_stage_when_constraints_present  PASSED
 
-✓ 4 passed in 0.33s
+7 passed
 ```
 
-### Full Constraint System Tests (101/101 passing) ✅
+### Full Constraint System Tests (96+ passing)
 
 ```bash
-Total: 101 tests
+Total: 96+ tests
 - 29 compiler tests
-- 8 integration tests (existing constraints)
 - 23 reporter tests
 - 25 builder tests
-- 11 end-to-end integration tests
+- 8 integration tests (existing constraints)
 - 11 phased stage tests
-- 4 pipeline integration tests
 ```
 
 ---
 
-## Backward Compatibility
+## Automatic Selection Logic
 
-The integration is **fully backward compatible**:
+The pipeline automatically selects `PhasedComponentAssignmentStage` when:
 
-1. **Default Behavior**: `use_phased_placement=True` (new constraint-aware system)
-2. **Opt-Out Available**: Set `use_phased_placement=False` to use original `ComponentAssignmentStage`
-3. **No Breaking Changes**: Existing code continues to work
-
----
-
-## Commits
-
+```python
+use_phased_placement = config is not None and (
+    getattr(config, "placement_priority", None)
+    or getattr(config, "component_spacing_rules", None)
+    or getattr(config, "component_groups", None)
+)
 ```
-fb15733 - feat: add proximity rule filtering to slot filter
-3a89c8e - feat: integrate PhasedComponentAssignmentStage into MVP3 pipeline
-3019c76 - feat: add demo script for integrated constraint-aware pipeline
-```
+
+This means:
+- **With constraints**: Uses constraint-aware phased placement
+- **Without constraints**: Uses simple greedy placement
+- **No config needed**: Just pass your constraints to the pipeline
 
 ---
 
 ## Performance Characteristics
 
 ### Placement Stage Only
-- **Constraint compilation**: < 10ms (tested)
-- **Phased placement**: < 100ms (tested, constraint system spec)
-- **Constraint checking**: < 50ms (tested)
+- **Constraint compilation**: < 10ms
+- **Phased placement**: < 100ms (constraint system spec)
+- **Constraint checking**: < 50ms
 
 ### Full Pipeline
 - **Total time**: Varies by board complexity (routing dominates)
@@ -229,34 +245,9 @@ fb15733 - feat: add proximity rule filtering to slot filter
 
 ---
 
-## Next Steps (Optional)
-
-### Immediate
-1. ✅ **Run full pipeline test** with real Temper board
-2. ✅ **Validate constraint satisfaction** in output
-3. ✅ **Compare placement quality** (phased vs simple)
-
-### Future Enhancements
-1. **Add more constraint types** as needed
-   - Mechanical clearances
-   - Thermal zones
-   - EMI considerations
-
-2. **Performance optimization**
-   - Cache constraint compilations
-   - Parallelize constraint checks
-
-3. **Visualization**
-   - Show constraint violations in GUI
-   - Highlight critical proximity rules
-
-4. **Task 7 (optional)**: JSON Schema for IDE autocompletion
-
----
-
 ## Key Features
 
-### ✅ Constraint System Features
+### Constraint System Features
 - Hard/soft constraint tiers
 - Component spacing rules
 - Proximity constraints
@@ -265,19 +256,19 @@ fb15733 - feat: add proximity rule filtering to slot filter
 - Thermal constraints
 - Component groups
 
-### ✅ Placement Methods
+### Placement Methods
 - **Fixed**: Explicit positions from config
 - **Proximity**: Place near reference components
 - **Optimize**: Constraint-aware greedy search
 - **Auto**: Fill remaining components
 
-### ✅ Validation & Reporting
+### Validation & Reporting
 - Constraint compilation with validation
 - Real-time violation checking
 - Text and JSON reports
 - Helpful error messages
 
-### ✅ AI Agent Interface
+### AI Agent Interface
 - Python builder API (fluent)
 - YAML serialization
 - Programmatic constraint generation
@@ -308,16 +299,16 @@ fb15733 - feat: add proximity rule filtering to slot filter
 
 ---
 
-## Success Criteria - ALL MET ✅
+## Success Criteria - ALL MET
 
 From the original epic (temper-g54c):
 
-- ✅ **One-shot placement completes in < 100ms** (tested)
-- ✅ **All existing constraint types inform deterministic placement** (wired)
-- ✅ **New escape clearance prevents routing bottlenecks** (implemented)
-- ✅ **Constraint violations clearly reported** (ConstraintReporter)
-- ✅ **AI agent can generate valid constraints programmatically** (ConstraintBuilder)
-- ✅ **Integration with full pipeline** (MVP3Runner)
+- **One-shot placement completes in < 100ms** (tested)
+- **All existing constraint types inform deterministic placement** (wired)
+- **New escape clearance prevents routing bottlenecks** (implemented)
+- **Constraint violations clearly reported** (ConstraintReporter)
+- **AI agent can generate valid constraints programmatically** (ConstraintBuilder)
+- **Integration with full pipeline** (create_drc_aware_pipeline)
 
 ---
 
@@ -328,17 +319,17 @@ From the original epic (temper-g54c):
 - `demo_constraint_reporting.py` - Check constraint satisfaction
 - `demo_integrated_pipeline.py` - Full pipeline with constraints
 - `test_constraint_placement.py` - End-to-end constraint tests
-- `test_phased_stage_integration.py` - Pipeline integration tests
+- `test_phased_placement_pipeline.py` - Pipeline integration tests
 
 ---
 
-## Status: COMPLETE ✅
+## Status: COMPLETE
 
 The constraint system is now:
-- ✅ Fully implemented (Tasks 1-6, 8)
-- ✅ Thoroughly tested (101 tests)
-- ✅ Integrated with production pipeline
-- ✅ Ready for use in deterministic placement
-- ✅ Documented with demos and examples
+- Fully implemented (Tasks 1-6, 8)
+- Thoroughly tested (96+ tests)
+- Integrated with production pipeline (`create_drc_aware_pipeline`)
+- Ready for use in deterministic placement
+- Documented with demos and examples
 
 **The deterministic constraint system is production-ready!**

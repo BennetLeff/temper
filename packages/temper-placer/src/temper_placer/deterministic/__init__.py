@@ -28,6 +28,7 @@ def create_drc_aware_pipeline(
         SlotGenerationStage,
         ZoneAwareSlotGenerationStage,
         ComponentAssignmentStage,
+        PhasedComponentAssignmentStage,
         ApplyPlacementsStage,
         CourtyardCheckStage,
         NetClassSetupStage,
@@ -136,6 +137,26 @@ def create_drc_aware_pipeline(
 
         pad_sizes_for_stage[key] = PadInfo(pad_size)
 
+    # Select component assignment stage based on constraint config
+    # Use PhasedComponentAssignmentStage if config has placement_priority or constraint rules
+    use_phased_placement = config is not None and (
+        getattr(config, "placement_priority", None)
+        or getattr(config, "component_spacing_rules", None)
+        or getattr(config, "component_groups", None)
+    )
+
+    if use_phased_placement:
+        component_stage = PhasedComponentAssignmentStage(
+            constraints=config,
+            slot_spacing=slot_spacing,
+            fixed_placements=fixed_placements,
+        )
+    else:
+        component_stage = ComponentAssignmentStage(
+            slot_spacing=slot_spacing,
+            fixed_placements=fixed_placements,
+        )
+
     return DeterministicPipeline(
         stages=[
             # Setup - apply net class mapping early
@@ -144,7 +165,7 @@ def create_drc_aware_pipeline(
             ZoneGeometryStage(zone_config=zone_config),
             ZoneAssignmentStage(),
             slot_stage,  # Use zone-aware or standard slot generation
-            ComponentAssignmentStage(slot_spacing=slot_spacing, fixed_placements=fixed_placements),
+            component_stage,  # Use phased or standard component assignment
             ApplyPlacementsStage(),
             # DRC-FIX-4: Resolve courtyard overlaps and clamp to board bounds
             CourtyardCheckStage(
