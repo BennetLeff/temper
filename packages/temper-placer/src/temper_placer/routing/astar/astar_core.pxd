@@ -23,8 +23,8 @@ cdef int heap_pop(MinHeap* heap, float* priority)
 cdef void heap_free(MinHeap* heap)
 
 # State indexing functions
-cdef inline int state_to_index(int row, int col, int layer, int width, int height, int num_layers)
-cdef inline void index_to_state(int index, int* row, int* col, int* layer, int width, int height, int num_layers)
+cdef int state_to_index(int row, int col, int layer, int width, int height, int num_layers)
+cdef void index_to_state(int index, int* row, int* col, int* layer, int width, int height, int num_layers)
 
 # GridView for direct memory access
 cdef struct GridView:
@@ -33,8 +33,8 @@ cdef struct GridView:
     int height
     int num_layers
 
-cdef inline int grid_get(GridView* grid, int row, int col, int layer)
-cdef inline bint grid_is_available(GridView* grid, int row, int col, int layer, int net_id)
+cdef int grid_get(GridView* grid, int row, int col, int layer)
+cdef bint grid_is_available(GridView* grid, int row, int col, int layer, int net_id)
 
 # Heuristic function
-cdef inline float heuristic(int row1, int col1, int layer1, int row2, int col2, int layer2, float cell_size, float via_cost)
+cdef float heuristic(int row1, int col1, int layer1, int row2, int col2, int layer2, float cell_size, float via_cost)
