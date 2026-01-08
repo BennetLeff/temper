@@ -1,7 +1,35 @@
 import numpy as np
 from dataclasses import dataclass
+from numba import njit
 from ..state import BoardState
 from .base import Stage
+
+
+@njit
+def _block_circle_numba(
+    target_grid, cx, cy, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col
+):
+    """Numba-optimized inner loop for block_circle().
+
+    Args:
+        target_grid: NumPy array to modify
+        cx, cy: Center coordinates in mm
+        total_radius: radius + clearance in mm
+        net_id: Net ID to write to cells
+        cell_size_mm: Grid cell size
+        min_row, max_row, min_col, max_col: Bounding box limits
+    """
+    for row in range(min_row, max_row):
+        for col in range(min_col, max_col):
+            cell_x = col * cell_size_mm + cell_size_mm / 2
+            cell_y = row * cell_size_mm + cell_size_mm / 2
+            dist = ((cell_x - cx) ** 2 + (cell_y - cy) ** 2) ** 0.5
+            if dist <= total_radius:
+                curr = target_grid[row, col]
+                if curr == 0:
+                    target_grid[row, col] = net_id
+                elif curr != net_id:
+                    target_grid[row, col] = -1  # Multiple nets/Conflict
 
 
 @dataclass
@@ -96,18 +124,19 @@ class ClearanceGrid:
 
         target_grid = self._pad_net_ids[layer] if is_pad else self._trace_net_ids[layer]
 
-        # Mark cells
-        for row in range(min_row, max_row):
-            for col in range(min_col, max_col):
-                cell_x = col * self.cell_size_mm + self.cell_size_mm / 2
-                cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
-                dist = ((cell_x - cx) ** 2 + (cell_y - cy) ** 2) ** 0.5
-                if dist <= total_radius:
-                    curr = target_grid[row, col]
-                    if curr == 0:
-                        target_grid[row, col] = net_id
-                    elif curr != net_id:
-                        target_grid[row, col] = -1  # Multiple nets/Conflict
+        # Use Numba-optimized inner loop
+        _block_circle_numba(
+            target_grid,
+            cx,
+            cy,
+            total_radius,
+            net_id,
+            self.cell_size_mm,
+            min_row,
+            max_row,
+            min_col,
+            max_col,
+        )
 
     def block_trace(
         self,
