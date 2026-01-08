@@ -994,6 +994,7 @@ class SequentialRoutingStage(Stage):
                 allowed_layers=allowed_layers,  # Dynamic per-net layer assignment
                 congestion_detector=congestion_detector,  # Adaptive iteration budgeting
                 use_adaptive_budget=True,  # Enable congestion-aware routing
+                base_iterations_per_cell=200,  # EXP-2: Increased from 100 to help congested routes
             )
 
             # Route all edges in the MST
