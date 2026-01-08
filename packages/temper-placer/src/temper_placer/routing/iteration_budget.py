@@ -169,8 +169,10 @@ class IterationBudget:
         congestion_factor = congestion.get_factor()
 
         # Layer factor (1.0 - 2.5x)
+        # EXP-6b: Single-layer routes need MORE iterations, not fewer, because
+        # they can't escape congestion by changing layers. Increase from 1.0 to 1.5.
         if layer_count == 1:
-            layer_factor = 1.0
+            layer_factor = 1.5  # Increased from 1.0 - single layer is HARDER
         elif layer_count == 2:
             layer_factor = 1.5
         elif layer_count == 3:
@@ -179,12 +181,14 @@ class IterationBudget:
             layer_factor = 2.5
 
         # Distance factor (1.0 or 1.5x for long routes)
-        # Long routes (>100mm) need exponential scaling due to search space growth
-        distance_factor = 1.5 if distance >= 100.0 else 1.0
+        # EXP-6b: Lowered threshold from 100mm to 60mm for escape routing
+        # Long routes (>60mm) need exponential scaling due to search space growth
+        distance_factor = 1.5 if distance >= 60.0 else 1.0
 
         # Calculate budget with safety margin
+        # EXP-6b: Increased safety margin from 1.2 to 2.0 for escape routing robustness
         base_budget = distance * base_iterations_per_cell
-        safety_margin = 1.2
+        safety_margin = 2.0
         budget = base_budget * congestion_factor * layer_factor * distance_factor * safety_margin
 
         # Clamp to reasonable limits

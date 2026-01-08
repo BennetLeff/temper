@@ -513,6 +513,10 @@ class PlacementConstraints:
     placement_priority: dict = field(default_factory=dict)
     routing_priority: dict = field(default_factory=dict)
 
+    # EXP-6: Explicit net routing priority (net_name -> priority, 1=highest)
+    # Lower priority numbers route first when board is least congested
+    net_priority: dict[str, int] = field(default_factory=dict)
+
     # NEW: Routing-aware placement constraints
     escape_clearances: list[EscapeClearance] = field(default_factory=list)
     routing_corridors: list[RoutingCorridor] = field(default_factory=list)
@@ -878,6 +882,11 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.net_class_rules[name] = rule
 
+    # EXP-6: Load explicit net routing priority
+    # Lower numbers route first (1=highest priority)
+    if "net_priority" in config:
+        constraints.net_priority = {str(k): int(v) for k, v in config["net_priority"].items()}
+
     # Build type-safe NetClassification from net_classes and net_class_rules
     # This provides validated connectivity semantics (ground MUST use planes, etc.)
     if constraints.net_classes or constraints.net_class_rules:
@@ -1109,7 +1118,65 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
 
+    # EXP-6: Warn on unknown config keys to prevent silent config bugs
+    _warn_unknown_config_keys(config)
+
     return constraints
+
+
+# Known top-level config keys - add new keys here when adding config features
+_KNOWN_CONFIG_KEYS = frozenset(
+    {
+        "board",
+        "zones",
+        "copper_zones",
+        "feedback",
+        "ground_domains",
+        "clearances",
+        "hv_clearance_mm",
+        "critical_loops",
+        "component_groups",
+        "groups",  # Alias for component_groups
+        "thermal_constraints",
+        "minimum_spacing",
+        "slot_generation",
+        "fixed_positions",
+        "zone_assignments",
+        "net_classes",
+        "net_class_rules",
+        "net_priority",  # EXP-6: Net routing priority
+        "differential_pairs",
+        "net_topologies",
+        "kelvin_sensing",
+        "aesthetics",
+        "manufacturing",
+        "losses",
+        "loss_weights",
+        "placement_priority",
+        "routing_priority",
+        "escape_clearances",
+        "routing_corridors",
+        "layer_stackup",
+    }
+)
+
+
+def _warn_unknown_config_keys(config: dict) -> None:
+    """Warn about unknown top-level config keys.
+
+    This catches bugs where a YAML config key is misspelled or not yet
+    supported by the loader, preventing silent config loading failures.
+    """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    unknown_keys = set(config.keys()) - _KNOWN_CONFIG_KEYS
+    if unknown_keys:
+        logger.warning(
+            f"Unknown config keys will be ignored: {sorted(unknown_keys)}. "
+            f"If these are valid keys, add them to _KNOWN_CONFIG_KEYS in config_loader.py"
+        )
 
 
 def _validate_current_capacity(constraints: PlacementConstraints) -> None:

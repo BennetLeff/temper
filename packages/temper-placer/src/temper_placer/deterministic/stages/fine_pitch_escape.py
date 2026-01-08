@@ -8,9 +8,13 @@ on the surface layer that block routing.
 Professional PCB designers handle fine-pitch ICs by "fanning out" or "escaping"
 from the dense pin field to less congested areas or inner layers before main
 routing. This stage implements that pattern automatically.
+
+EXP-6b: Now supports multi-layer escape routing, distributing escape vias
+across Layer 1 (In1.Cu) and Layer 2 (In2.Cu) based on net assignments to
+reduce layer congestion.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 from ..state import BoardState
 from .base import Stage
@@ -23,24 +27,43 @@ class FinePitchEscapeStage(Stage):
     This stage:
     1. Auto-detects fine-pitch components by calculating minimum pin-to-pin distance
     2. Places via-under-pad at each netted pin on fine-pitch components
-    3. Vias connect from surface layer (F.Cu/Layer 0) to escape layer (In1.Cu/Layer 1)
+    3. Vias connect from surface layer (F.Cu/Layer 0) to escape layer (In1.Cu or In2.Cu)
     4. Main router can then start routing from escape layer where clearances don't conflict
+
+    EXP-6b: Distributes escape vias across multiple inner layers to reduce congestion.
 
     Args:
         pin_pitch_threshold_mm: Minimum pin spacing to qualify as fine-pitch (default: 0.65mm)
-        escape_layer: Target inner layer for escape routing (default: 1 = In1.Cu)
+        escape_layer: Primary target inner layer for escape routing (default: 1 = In1.Cu)
+        secondary_escape_layer: Secondary layer for load balancing (default: 2 = In2.Cu)
         via_drill_mm: Via drill diameter (default: 0.3mm)
         via_diameter_mm: Via copper diameter (default: 0.6mm)
+        layer2_nets: Set of net names that should escape to Layer 2 instead of Layer 1
     """
 
     pin_pitch_threshold_mm: float = 0.65  # Pins closer than this = fine-pitch
-    escape_layer: int = 1  # In1.Cu
+    escape_layer: int = 1  # In1.Cu (primary)
+    secondary_escape_layer: int = 2  # In2.Cu (secondary, for load balancing)
     via_drill_mm: float = 0.3
     via_diameter_mm: float = 0.6
+    # EXP-6b: Nets to route on Layer 2 (reduces Layer 1 congestion)
+    layer2_nets: set = field(default_factory=lambda: {"PWM_H", "PWM_L", "GATE_H", "GATE_L"})
 
     @property
     def name(self) -> str:
         return "fine_pitch_escape"
+
+    def _get_escape_layer_for_net(self, net_name: str) -> tuple[int, str]:
+        """Determine which layer a net should escape to.
+
+        EXP-6b: Distribute nets across layers to reduce congestion.
+
+        Returns:
+            Tuple of (layer_number, layer_name)
+        """
+        if net_name in self.layer2_nets:
+            return (self.secondary_escape_layer, "In2.Cu")
+        return (self.escape_layer, "In1.Cu")
 
     def run(self, state: BoardState) -> BoardState:
         """Detect fine-pitch components and place escape vias."""
@@ -55,7 +78,8 @@ class FinePitchEscapeStage(Stage):
 
         # Track fine-pitch components for debug output
         fine_pitch_components = []
-        total_escape_vias = 0
+        layer1_vias = 0
+        layer2_vias = 0
 
         # First pass: identify fine-pitch components and collect their nets
         fine_pitch_refs = set()
@@ -101,16 +125,23 @@ class FinePitchEscapeStage(Stage):
                     continue
                 via_positions.add(pos_key)
 
-                # Create escape via (F.Cu to escape layer)
+                # EXP-6b: Determine escape layer based on net
+                escape_layer_num, escape_layer_name = self._get_escape_layer_for_net(pin.net)
+
+                # Create escape via (F.Cu to selected escape layer)
                 via = Via(
                     position=(pin_x, pin_y),
                     drill=self.via_drill_mm,
                     width=self.via_diameter_mm,
-                    layers=("F.Cu", "In1.Cu"),  # Surface to first inner layer
+                    layers=("F.Cu", escape_layer_name),
                     net=pin.net,
                 )
                 vias.append(via)
-                total_escape_vias += 1
+
+                if escape_layer_num == 1:
+                    layer1_vias += 1
+                else:
+                    layer2_vias += 1
 
         # Debug output
         if fine_pitch_components:
@@ -124,7 +155,12 @@ class FinePitchEscapeStage(Stage):
                         f"    {ref}: min_pitch={pitch:.2f}mm, {netted_pins}/{pin_count} pins with nets"
                     )
             print(f"  Nets touching fine-pitch components: {len(fine_pitch_nets)}")
-            print(f"  Placed {total_escape_vias} escape vias to Layer {self.escape_layer} (In1.Cu)")
+            # EXP-6b: Show layer distribution
+            print(
+                f"  Escape vias: {layer1_vias} to Layer 1 (In1.Cu), {layer2_vias} to Layer 2 (In2.Cu)"
+            )
+            if self.layer2_nets:
+                print(f"  Layer 2 nets: {sorted(self.layer2_nets)}")
         else:
             print(
                 f"  No fine-pitch components detected (threshold: {self.pin_pitch_threshold_mm}mm)"

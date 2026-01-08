@@ -87,8 +87,9 @@ class MultiLayerAStar:
     base_iterations_per_cell: int = 100  # Base multiplier for IterationBudget.calculate()
 
     # Legacy parameters (kept for backward compatibility, but adaptive overrides them)
-    iterations_per_cell: int = 50  # Old base multiplier (deprecated, use base_iterations_per_cell)
-    min_iterations: int = 2000  # Floor for short paths (deprecated)
+    # EXP-6b: Increased from 50 to 100 to handle long escape routes (~90mm)
+    iterations_per_cell: int = 100  # Old base multiplier (deprecated, use base_iterations_per_cell)
+    min_iterations: int = 5000  # Floor for short paths (increased from 2000)
     max_iterations_cap: int = 200000  # Ceiling (deprecated)
 
     def __post_init__(self):

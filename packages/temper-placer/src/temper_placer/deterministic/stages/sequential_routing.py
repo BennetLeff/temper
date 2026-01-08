@@ -310,9 +310,10 @@ class SequentialRoutingStage(Stage):
         ):
             return [0, 3]  # F.Cu and B.Cu only
 
-        # Gate drive: Prefer outer layers but allow inner for escape routing
+        # Gate drive: All layers - these need escape routing through inner layers
+        # EXP-6b: Changed from [0, 3] to all layers for escape via compatibility
         if any(pattern in net_upper for pattern in ["GATE_", "DRV_", "PWM_H", "PWM_L", "VCC_BOOT"]):
-            return [0, 3]  # F.Cu and B.Cu - keep close to ground plane
+            return [0, 1, 2, 3]  # All layers - escape vias may go to In2.Cu
 
         # SPI bus: All 4 layers - these are the most congested nets
         if "SPI_" in net_upper:
