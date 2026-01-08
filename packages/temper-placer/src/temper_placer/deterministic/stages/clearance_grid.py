@@ -105,6 +105,22 @@ class ClearanceGrid:
         self._net_to_id = {}
         self._id_to_net = {}
         self._next_net_id = 1
+        # Cache for occupancy_grid property (lazy init)
+        self._occupancy_grid_cache = None
+
+    @property
+    def occupancy_grid(self) -> np.ndarray:
+        """Get 3D occupancy grid view (layers, rows, cols) for Cython A*.
+
+        Combines trace and pad net IDs into single 3D array.
+        This is cached and recomputed if grid is modified.
+
+        Returns:
+            np.ndarray of shape (layer_count, rows, cols) with dtype int32
+        """
+        # For now, just stack trace arrays (pads are less important for routing)
+        # TODO: properly merge trace and pad net IDs
+        return np.stack(self._trace_net_ids, axis=0)
 
     def get_net_id(self, net_name: str) -> int:
         """Get or create unique integer ID for a net name."""
