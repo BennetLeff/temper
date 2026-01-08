@@ -32,6 +32,56 @@ def _block_circle_numba(
                     target_grid[row, col] = -1  # Multiple nets/Conflict
 
 
+@njit
+def _block_segment_numba(
+    target_grid,
+    x1,
+    y1,
+    x2,
+    y2,
+    total_radius,
+    net_id,
+    cell_size_mm,
+    min_row,
+    max_row,
+    min_col,
+    max_col,
+):
+    """Numba-optimized inner loop for _block_segment().
+
+    Args:
+        target_grid: NumPy array to modify
+        x1, y1, x2, y2: Segment endpoints in mm
+        total_radius: (width/2 + clearance) in mm
+        net_id: Net ID to write to cells
+        cell_size_mm: Grid cell size
+        min_row, max_row, min_col, max_col: Bounding box limits
+    """
+    dx = x2 - x1
+    dy = y2 - y1
+    L2 = dx * dx + dy * dy
+
+    for row in range(min_row, max_row):
+        for col in range(min_col, max_col):
+            cell_x = col * cell_size_mm + cell_size_mm / 2
+            cell_y = row * cell_size_mm + cell_size_mm / 2
+
+            # Projection of point (cell_x, cell_y) onto segment
+            t = ((cell_x - x1) * dx + (cell_y - y1) * dy) / L2
+            t = max(0.0, min(1.0, t))
+
+            proj_x = x1 + t * dx
+            proj_y = y1 + t * dy
+
+            dist = ((cell_x - proj_x) ** 2 + (cell_y - proj_y) ** 2) ** 0.5
+            if dist <= total_radius:
+                curr = target_grid[row, col]
+                if curr == 0:
+                    target_grid[row, col] = net_id
+                elif curr != net_id:
+                    target_grid[row, col] = -1  # Multiple nets/Conflict
+
+
 @dataclass
 class ClearanceGrid:
     """Multi-layer 2D grid tracking blocked and available cells for routing."""
@@ -205,25 +255,21 @@ class ClearanceGrid:
 
         target_grid = self._trace_net_ids[layer]
 
-        for row in range(min_row, max_row):
-            for col in range(min_col, max_col):
-                cell_x = col * self.cell_size_mm + self.cell_size_mm / 2
-                cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
-
-                # Projection of point (cell_x, cell_y) onto segment
-                t = ((cell_x - x1) * dx + (cell_y - y1) * dy) / L2
-                t = max(0, min(1, t))
-
-                proj_x = x1 + t * dx
-                proj_y = y1 + t * dy
-
-                dist = ((cell_x - proj_x) ** 2 + (cell_y - proj_y) ** 2) ** 0.5
-                if dist <= total_radius:
-                    curr = target_grid[row, col]
-                    if curr == 0:
-                        target_grid[row, col] = net_id
-                    elif curr != net_id:
-                        target_grid[row, col] = -1
+        # Call Numba-optimized function for the inner loop
+        _block_segment_numba(
+            target_grid,
+            x1,
+            y1,
+            x2,
+            y2,
+            total_radius,
+            net_id,
+            self.cell_size_mm,
+            min_row,
+            max_row,
+            min_col,
+            max_col,
+        )
 
     def unblock_circle(self, center: tuple[float, float], radius_mm: float, layer: int = 0):
         """Unblock cells within radius of center on specified layer."""
