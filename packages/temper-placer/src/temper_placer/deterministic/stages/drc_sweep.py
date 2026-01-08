@@ -63,7 +63,7 @@ class DRCSweepStage(Stage):
                 layer=layer_idx,
                 net=trace.net or "",
                 width=trace.width,
-                check_existing=False  # Don't check against already-placed (self)
+                check_existing=False,  # Don't check against already-placed (self)
             )
 
             # Also check for shorts to other nets
@@ -85,7 +85,7 @@ class DRCSweepStage(Stage):
             sites = oracle.get_valid_via_sites(
                 via.position,
                 search_radius=0.1,  # Very small - just checking current position
-                net=via.net or ""
+                net=via.net or "",
             )
 
             if sites:
@@ -99,15 +99,13 @@ class DRCSweepStage(Stage):
         if removed_tracks > 0 or removed_vias > 0:
             print(f"DRCSweep: Removed {removed_tracks} tracks, {removed_vias} vias")
             if removed_nets:
-                nets_preview = ', '.join(sorted(removed_nets)[:10])
-                print(f"  Affected nets: {nets_preview}" +
-                      (f" (+{len(removed_nets)-10} more)" if len(removed_nets) > 10 else ""))
+                nets_preview = ", ".join(sorted(removed_nets)[:10])
+                print(
+                    f"  Affected nets: {nets_preview}"
+                    + (f" (+{len(removed_nets) - 10} more)" if len(removed_nets) > 10 else "")
+                )
 
-        return replace(
-            state,
-            routes=frozenset(valid_traces),
-            vias=frozenset(valid_vias)
-        )
+        return replace(state, routes=frozenset(valid_traces), vias=frozenset(valid_vias))
 
 
 class TrackDeduplicationStage(Stage):
@@ -129,7 +127,7 @@ class TrackDeduplicationStage(Stage):
             return state
 
         unique_traces = []
-        seen = set()  # Set of (start, end, layer) tuples
+        seen = set()  # Set of (start, end, layer, net) tuples
         duplicates = 0
         tol = self.tolerance_mm
 
@@ -144,12 +142,14 @@ class TrackDeduplicationStage(Stage):
                 start, end = end, start
 
             # Round to tolerance for comparison
+            # Include net in key to avoid deduplicating different nets at same position
             key = (
                 round(start[0] / tol) * tol,
                 round(start[1] / tol) * tol,
                 round(end[0] / tol) * tol,
                 round(end[1] / tol) * tol,
-                trace.layer
+                trace.layer,
+                trace.net,  # Include net in key
             )
 
             if key in seen:
@@ -200,10 +200,14 @@ class ShortCircuitDetectionStage(Stage):
                         # Register on appropriate layers
                         if pin.is_pth:
                             for layer in ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]:
-                                pin_net_map[(round(pin_pos[0], 2), round(pin_pos[1], 2), layer)] = net.name
+                                pin_net_map[(round(pin_pos[0], 2), round(pin_pos[1], 2), layer)] = (
+                                    net.name
+                                )
                         else:
-                            layer = getattr(pin, 'layer', 'F.Cu')
-                            pin_net_map[(round(pin_pos[0], 2), round(pin_pos[1], 2), layer)] = net.name
+                            layer = getattr(pin, "layer", "F.Cu")
+                            pin_net_map[(round(pin_pos[0], 2), round(pin_pos[1], 2), layer)] = (
+                                net.name
+                            )
                         break
 
         # Check each track for shorts
@@ -227,7 +231,9 @@ class ShortCircuitDetectionStage(Stage):
                         continue
                     if abs(px - key_x) <= tol and abs(py - key_y) <= tol:
                         if net != track_net and track_net:
-                            print(f"  SHORT: {trace.net} track near {net} pin at ({px:.1f}, {py:.1f})")
+                            print(
+                                f"  SHORT: {trace.net} track near {net} pin at ({px:.1f}, {py:.1f})"
+                            )
                             is_short = True
                             break
                 if is_short:
