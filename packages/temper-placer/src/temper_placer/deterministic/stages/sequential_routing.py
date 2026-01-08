@@ -870,31 +870,62 @@ class SequentialRoutingStage(Stage):
                     # Always add stub for SMD pads, even if via is at pad position
                     # For PTH pads, the barrel provides connectivity, so no stub needed
                     if safe_pos != pos or not pin.is_pth:
+                        stub_valid = False
+                        stub_end = None
+                        stub_reason = ""
+
                         # If via is exactly at pad, create very short stub (0.1mm) for connectivity
                         if safe_pos == pos:
-                            # Create minimal stub in direction away from pad center
-                            # Just enough for KiCad to recognize connectivity
-                            dx = 0.1 if pos[0] < 50 else -0.1
-                            stub_end = (pos[0] + dx, pos[1])
-                        else:
-                            stub_end = safe_pos
+                            # EXP-1: Try multiple stub directions to find one without DRC violations
+                            stub_candidates = [
+                                (pos[0] + 0.1, pos[1]),  # East
+                                (pos[0] - 0.1, pos[1]),  # West
+                                (pos[0], pos[1] + 0.1),  # North
+                                (pos[0], pos[1] - 0.1),  # South
+                            ]
 
-                        stub_valid = True
-                        if state.drc_oracle and stub_end != pos:
-                            stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
-                                start=pos,
-                                end=stub_end,
-                                layer=0,
-                                net=net_name,
-                                width=width,
-                                neckdown=True,  # Use relaxed clearance for plane stubs
-                            )
+                            for candidate in stub_candidates:
+                                if state.drc_oracle:
+                                    valid, reason = state.drc_oracle.can_place_track_segment(
+                                        start=pos,
+                                        end=candidate,
+                                        layer=0,
+                                        net=net_name,
+                                        width=width,
+                                        neckdown=True,
+                                    )
+                                    if valid:
+                                        stub_end = candidate
+                                        stub_valid = True
+                                        break
+                                    stub_reason = reason  # Keep last failure reason
+                                else:
+                                    # No oracle - accept first candidate
+                                    stub_end = candidate
+                                    stub_valid = True
+                                    break
+
                             if not stub_valid:
-                                print(
-                                    f"  INFO: Plane stub trace for {net_name} skipped: {stub_reason}"
+                                stub_reason = f"No valid direction (last: {stub_reason})"
+                        else:
+                            # Via not at pad - stub to via position
+                            stub_end = safe_pos
+                            if state.drc_oracle:
+                                stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
+                                    start=pos,
+                                    end=stub_end,
+                                    layer=0,
+                                    net=net_name,
+                                    width=width,
+                                    neckdown=True,
                                 )
+                            else:
+                                stub_valid = True
 
-                        if stub_valid and stub_end != pos:
+                        if not stub_valid:
+                            print(f"  INFO: Plane stub trace for {net_name} skipped: {stub_reason}")
+
+                        if stub_valid and stub_end and stub_end != pos:
                             all_traces.append(
                                 Trace(
                                     start=pos, end=stub_end, width=width, layer="F.Cu", net=net_name
