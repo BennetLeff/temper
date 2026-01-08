@@ -8,33 +8,38 @@ board:
 
 # Zone definitions (HV, Power, Signal, MCU)
 # Professional layout: HV needs most space for PTH components, MCU needs ~25mm for ESP32
+# EXP-4: Reduced max_size to limit zone expansion and preserve routing channels
 zones:
   - name: "HV"
     bounds_ratio: [0.0, 0.0, 0.35, 1.0]  # Left 35% (0-35mm) - large PTH components
     description: "High voltage components"
-    max_size: [50.0, 150.0]
+    max_size: [40.0, 150.0]  # EXP-4: Was 50, max 5mm expansion
     can_expand: ["right"]
   - name: "Power"
     bounds_ratio: [0.35, 0.0, 0.55, 1.0]  # Center-left 20% (35-55mm) - DC-DC, regulators
     description: "Power management"
-    max_size: [50.0, 150.0]
+    max_size: [25.0, 150.0]  # EXP-4: Was 50, max 5mm expansion
     can_expand: ["right", "left"]
   - name: "Signal"
     bounds_ratio: [0.55, 0.0, 0.75, 1.0]  # Center-right 20% (55-75mm) - sensing ICs
     description: "Signal processing"
-    max_size: [50.0, 150.0]
+    max_size: [25.0, 150.0]  # EXP-4: Was 50, max 5mm expansion
     can_expand: ["right", "left"]
   - name: "MCU"
     bounds_ratio: [0.75, 0.0, 1.0, 1.0]  # Right 25% (75-100mm) - ESP32 + peripherals
     description: "Microcontroller"
-    max_size: [30.0, 150.0]
+    max_size: [28.0, 150.0]  # EXP-4: Was 30, max 3mm expansion
     can_expand: ["left"]
 
 # Feedback loop configuration
+# EXP-4: Conservative expansion to preserve working routes
+# Problem: Previous settings (threshold=5, expansion=0.5) caused +30mm zone expansion
+#          which broke USB diff pair, I_SENSE, and SPI routes that were working
+# Solution: Much higher threshold and lower expansion rate
 feedback:
   max_iterations: 5
-  violation_threshold: 5
-  expansion_per_violation: 0.5
+  violation_threshold: 50    # EXP-4: Was 5, need many violations before expanding
+  expansion_per_violation: 0.1  # EXP-4: Was 0.5, 5x less expansion per violation
 
 # Zone assignments (component ref -> zone name)
 zone_assignments:
