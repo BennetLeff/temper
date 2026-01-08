@@ -184,6 +184,7 @@ def create_drc_aware_pipeline(
                 layer_count=4,
                 max_clearance_mm=max_clearance,
                 net_class_clearances=net_class_clearances,
+                net_classes=config.net_classes if config else None,
                 pad_sizes=pad_sizes_for_stage,  # Inject pad sizes for accurate blocking
             ),
             NetOrderingStage(net_priority=net_priority),  # EXP-6: Pass explicit priorities
