@@ -173,9 +173,13 @@ cdef inline bint grid_is_available(GridView* grid, int row, int col, int layer, 
 # ============================================================================
 
 cdef inline float heuristic(int row1, int col1, int layer1, int row2, int col2, int layer2, float cell_size, float via_cost):
-    """Octile distance heuristic with via penalty."""
-    cdef float dx = c_abs(col2 - col1) * cell_size
-    cdef float dy = c_abs(row2 - row1) * cell_size
+    """Octile distance heuristic with via penalty.
+    
+    NOTE: Returns distance in grid cells (not mm) to match edge costs.
+    The cell_size parameter is kept for API compatibility but not used.
+    """
+    cdef float dx = <float>c_abs(col2 - col1)
+    cdef float dy = <float>c_abs(row2 - row1)
     cdef float min_dist = dx if dx < dy else dy
     cdef float octile = (dx + dy) + (1.414213562 - 2.0) * min_dist
     cdef float layer_penalty = via_cost if layer1 != layer2 else 0.0
