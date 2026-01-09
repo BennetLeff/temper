@@ -12,6 +12,24 @@ from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
 from ...routing.layer_assignment import Layer as LayerEnum
 from ...routing.diff_pair_router import DiffPairRouter, DiffPairPath
+
+# EXP-6: Import coupled diff pair router for USB pairs
+# The experiments folder is at package root, not in src/
+import sys
+from pathlib import Path
+
+_package_root = Path(
+    __file__
+).parent.parent.parent.parent.parent  # src/temper_placer/deterministic/stages -> temper-placer
+if str(_package_root) not in sys.path:
+    sys.path.insert(0, str(_package_root))
+try:
+    from experiments.diff_pair.coupled_router import CoupledDiffPairRouter, CoupledRouterResult
+
+    COUPLED_ROUTER_AVAILABLE = True
+except ImportError as e:
+    COUPLED_ROUTER_AVAILABLE = False
+    _coupled_router_import_error = str(e)
 from ...routing.adaptive_congestion import (
     GridBasedCongestionDetector,
     ComponentBasedCongestionDetector,
@@ -569,128 +587,187 @@ class SequentialRoutingStage(Stage):
                     f"  [DiffPair] Built {len(obstacles)} obstacles with {diff_pair_clearance}mm clearance"
                 )
 
-                # Create diff pair router
-                dp_router = DiffPairRouter(
-                    grid_size=(grid.cols, grid.rows, grid.layer_count),
-                    cell_size_mm=grid.cell_size_mm,
-                    target_separation_mm=dp_config.spacing_mm,
-                    max_divergence_mm=dp_config.coupling_tolerance_mm,
-                    max_skew_mm=dp_config.max_skew_mm,
-                )
+                # EXP-6: Use CoupledDiffPairRouter for USB differential pairs
+                # The coupled router routes P and N simultaneously, checking DRC at each step,
+                # which prevents the post-processing offset problem that causes violations.
+                is_usb_pair = "USB" in net_pos_name.upper() or "USB" in net_neg_name.upper()
+                use_coupled_router = COUPLED_ROUTER_AVAILABLE and is_usb_pair
 
-                print(f"  [DiffPair] Routing {net_pos_name}/{net_neg_name}...")
-                dp_start = time.time()
-
-                result = dp_router.route_pair(
-                    start_pins=start_pins,
-                    goal_pins=goal_pins,
-                    obstacles=obstacles,
-                )
-
-                dp_elapsed = time.time() - dp_start
-
-                if not result.success:
-                    print(
-                        f"  [DiffPair] FAILED: {net_pos_name}/{net_neg_name} - {result.failure_reason}"
+                if use_coupled_router:
+                    # CoupledDiffPairRouter: routes both traces together with DRC validation
+                    coupled_router = CoupledDiffPairRouter(
+                        grid_resolution_mm=0.1,  # Fine grid for diff pairs
+                        trace_width_mm=width,
+                        target_spacing_mm=dp_config.spacing_mm,
+                        max_divergence_mm=dp_config.coupling_tolerance_mm,
+                        max_skew_mm=dp_config.max_skew_mm,
+                        drc_oracle=state.drc_oracle,  # Pass DRC oracle for live validation
                     )
-                    continue
 
-                print(
-                    f"  [DiffPair] SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
-                    f"(coupling={result.coupling_ratio:.1f}%, skew={result.max_skew_mm:.3f}mm)"
-                )
+                    print(
+                        f"  [DiffPair] Using CoupledDiffPairRouter for {net_pos_name}/{net_neg_name}..."
+                    )
+                    dp_start = time.time()
 
-                # Mark these nets as routed via diff pair
-                diff_pair_nets.add(net_pos_name)
-                diff_pair_nets.add(net_neg_name)
+                    # Use hierarchical routing (coarse A* + fine segments)
+                    coupled_result = coupled_router.route_hierarchical(
+                        start_pins=start_pins,
+                        goal_pins=goal_pins,
+                        obstacles=obstacles,
+                        board_size=(
+                            grid.cols * grid.cell_size_mm,
+                            grid.rows * grid.cell_size_mm,
+                            grid.layer_count,
+                        ),
+                        net_pos=net_pos_name,
+                        net_neg=net_neg_name,
+                    )
 
-                # Convert grid cells to mm positions with perpendicular offset
-                # to ensure P and N traces don't share endpoints.
-                #
-                # Problem: The diff pair router keeps P and N in different cells at each
-                # timestep, but when navigating corners, BOTH paths may pass through the
-                # same cell at different timesteps. This creates trace segments that share
-                # endpoints, causing DRC violations.
-                #
-                # Solution: Find cells that appear in both paths and apply perpendicular
-                # offsets to ensure they don't share exact coordinates.
-                def cells_to_mm_with_offset(
-                    pos_cells: List[Tuple[int, int, int]],
-                    neg_cells: List[Tuple[int, int, int]],
-                    target_spacing_mm: float,
-                ) -> Tuple[List[Tuple[float, float, int]], List[Tuple[float, float, int]]]:
-                    """Convert grid cells to mm with perpendicular offset for true parallel traces.
+                    dp_elapsed = time.time() - dp_start
 
-                    For cells that appear in both paths, applies a perpendicular offset based on
-                    the trace direction to ensure P and N traces don't share exact endpoints.
-                    """
-                    import math
+                    if not coupled_result.success:
+                        print(
+                            f"  [DiffPair] CoupledRouter FAILED: {net_pos_name}/{net_neg_name} - {coupled_result.error_message}"
+                        )
+                        print(f"  [DiffPair] Falling back to legacy router...")
+                        use_coupled_router = False  # Fall back to legacy
+                    else:
+                        print(
+                            f"  [DiffPair] CoupledRouter SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
+                            f"(coupling={coupled_result.coupling_ratio:.1f}%, skew={coupled_result.max_skew_mm:.3f}mm)"
+                        )
+                        # Paths are already in mm - no post-processing needed!
+                        pos_path_mm = coupled_result.pos_path
+                        neg_path_mm = coupled_result.neg_path
 
-                    half_spacing = target_spacing_mm / 2.0
+                        # Mark nets as routed
+                        diff_pair_nets.add(net_pos_name)
+                        diff_pair_nets.add(net_neg_name)
 
-                    # Find cells that appear in both paths (these need offset)
-                    pos_cell_set = set((c[0], c[1], c[2]) for c in pos_cells)
-                    neg_cell_set = set((c[0], c[1], c[2]) for c in neg_cells)
-                    shared_cells = pos_cell_set & neg_cell_set
+                # Legacy router path (for non-USB pairs or as fallback)
+                if not use_coupled_router:
+                    # Create diff pair router
+                    dp_router = DiffPairRouter(
+                        grid_size=(grid.cols, grid.rows, grid.layer_count),
+                        cell_size_mm=grid.cell_size_mm,
+                        target_separation_mm=dp_config.spacing_mm,
+                        max_divergence_mm=dp_config.coupling_tolerance_mm,
+                        max_skew_mm=dp_config.max_skew_mm,
+                    )
 
-                    def get_offset_for_cell(cells, idx, is_pos_trace):
-                        """Compute perpendicular offset for a cell based on trace direction."""
-                        cell = cells[idx]
+                    print(f"  [DiffPair] Routing {net_pos_name}/{net_neg_name}...")
+                    dp_start = time.time()
 
-                        # Determine trace direction at this point
-                        if idx > 0:
-                            prev = cells[idx - 1]
-                            trace_dx = cell[0] - prev[0]
-                            trace_dy = cell[1] - prev[1]
-                        elif idx < len(cells) - 1:
-                            next_cell = cells[idx + 1]
-                            trace_dx = next_cell[0] - cell[0]
-                            trace_dy = next_cell[1] - cell[1]
-                        else:
-                            trace_dx, trace_dy = 1, 0
+                    result = dp_router.route_pair(
+                        start_pins=start_pins,
+                        goal_pins=goal_pins,
+                        obstacles=obstacles,
+                    )
 
-                        trace_len = math.sqrt(trace_dx * trace_dx + trace_dy * trace_dy)
-                        if trace_len > 0:
-                            # Perpendicular to trace direction (rotate 90 degrees)
-                            perp_x = -trace_dy / trace_len
-                            perp_y = trace_dx / trace_len
-                        else:
-                            perp_x, perp_y = 0, 1
+                    dp_elapsed = time.time() - dp_start
 
-                        # P gets positive offset, N gets negative offset
-                        sign = 1.0 if is_pos_trace else -1.0
-                        return (perp_x * half_spacing * sign, perp_y * half_spacing * sign)
+                    if not result.success:
+                        print(
+                            f"  [DiffPair] FAILED: {net_pos_name}/{net_neg_name} - {result.failure_reason}"
+                        )
+                        continue
 
-                    pos_path = []
-                    neg_path = []
+                    print(
+                        f"  [DiffPair] SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
+                        f"(coupling={result.coupling_ratio:.1f}%, skew={result.max_skew_mm:.3f}mm)"
+                    )
 
-                    for i, (px, py, p_layer) in enumerate(pos_cells):
-                        px_mm = px * grid.cell_size_mm
-                        py_mm = py * grid.cell_size_mm
+                    # Mark these nets as routed via diff pair
+                    diff_pair_nets.add(net_pos_name)
+                    diff_pair_nets.add(net_neg_name)
 
-                        if (px, py, p_layer) in shared_cells:
-                            # This cell is shared - apply offset
-                            offset_x, offset_y = get_offset_for_cell(pos_cells, i, True)
-                            pos_path.append((px_mm + offset_x, py_mm + offset_y, p_layer))
-                        else:
-                            pos_path.append((px_mm, py_mm, p_layer))
+                    # Convert grid cells to mm positions with perpendicular offset
+                    # to ensure P and N traces don't share endpoints.
+                    #
+                    # Problem: The diff pair router keeps P and N in different cells at each
+                    # timestep, but when navigating corners, BOTH paths may pass through the
+                    # same cell at different timesteps. This creates trace segments that share
+                    # endpoints, causing DRC violations.
+                    #
+                    # Solution: Find cells that appear in both paths and apply perpendicular
+                    # offsets to ensure they don't share exact coordinates.
+                    def cells_to_mm_with_offset(
+                        pos_cells: List[Tuple[int, int, int]],
+                        neg_cells: List[Tuple[int, int, int]],
+                        target_spacing_mm: float,
+                    ) -> Tuple[List[Tuple[float, float, int]], List[Tuple[float, float, int]]]:
+                        """Convert grid cells to mm with perpendicular offset for true parallel traces.
 
-                    for i, (nx, ny, n_layer) in enumerate(neg_cells):
-                        nx_mm = nx * grid.cell_size_mm
-                        ny_mm = ny * grid.cell_size_mm
+                        For cells that appear in both paths, applies a perpendicular offset based on
+                        the trace direction to ensure P and N traces don't share exact endpoints.
+                        """
+                        import math
 
-                        if (nx, ny, n_layer) in shared_cells:
-                            # This cell is shared - apply offset
-                            offset_x, offset_y = get_offset_for_cell(neg_cells, i, False)
-                            neg_path.append((nx_mm + offset_x, ny_mm + offset_y, n_layer))
-                        else:
-                            neg_path.append((nx_mm, ny_mm, n_layer))
+                        half_spacing = target_spacing_mm / 2.0
 
-                    return pos_path, neg_path
+                        # Find cells that appear in both paths (these need offset)
+                        pos_cell_set = set((c[0], c[1], c[2]) for c in pos_cells)
+                        neg_cell_set = set((c[0], c[1], c[2]) for c in neg_cells)
+                        shared_cells = pos_cell_set & neg_cell_set
 
-                pos_path_mm, neg_path_mm = cells_to_mm_with_offset(
-                    result.pos_cells, result.neg_cells, dp_config.spacing_mm
-                )
+                        def get_offset_for_cell(cells, idx, is_pos_trace):
+                            """Compute perpendicular offset for a cell based on trace direction."""
+                            cell = cells[idx]
+
+                            # Determine trace direction at this point
+                            if idx > 0:
+                                prev = cells[idx - 1]
+                                trace_dx = cell[0] - prev[0]
+                                trace_dy = cell[1] - prev[1]
+                            elif idx < len(cells) - 1:
+                                next_cell = cells[idx + 1]
+                                trace_dx = next_cell[0] - cell[0]
+                                trace_dy = next_cell[1] - cell[1]
+                            else:
+                                trace_dx, trace_dy = 1, 0
+
+                            trace_len = math.sqrt(trace_dx * trace_dx + trace_dy * trace_dy)
+                            if trace_len > 0:
+                                # Perpendicular to trace direction (rotate 90 degrees)
+                                perp_x = -trace_dy / trace_len
+                                perp_y = trace_dx / trace_len
+                            else:
+                                perp_x, perp_y = 0, 1
+
+                            # P gets positive offset, N gets negative offset
+                            sign = 1.0 if is_pos_trace else -1.0
+                            return (perp_x * half_spacing * sign, perp_y * half_spacing * sign)
+
+                        pos_path = []
+                        neg_path = []
+
+                        for i, (px, py, p_layer) in enumerate(pos_cells):
+                            px_mm = px * grid.cell_size_mm
+                            py_mm = py * grid.cell_size_mm
+
+                            if (px, py, p_layer) in shared_cells:
+                                # This cell is shared - apply offset
+                                offset_x, offset_y = get_offset_for_cell(pos_cells, i, True)
+                                pos_path.append((px_mm + offset_x, py_mm + offset_y, p_layer))
+                            else:
+                                pos_path.append((px_mm, py_mm, p_layer))
+
+                        for i, (nx, ny, n_layer) in enumerate(neg_cells):
+                            nx_mm = nx * grid.cell_size_mm
+                            ny_mm = ny * grid.cell_size_mm
+
+                            if (nx, ny, n_layer) in shared_cells:
+                                # This cell is shared - apply offset
+                                offset_x, offset_y = get_offset_for_cell(neg_cells, i, False)
+                                neg_path.append((nx_mm + offset_x, ny_mm + offset_y, n_layer))
+                            else:
+                                neg_path.append((nx_mm, ny_mm, n_layer))
+
+                        return pos_path, neg_path
+
+                    pos_path_mm, neg_path_mm = cells_to_mm_with_offset(
+                        result.pos_cells, result.neg_cells, dp_config.spacing_mm
+                    )
 
                 # Create Trace objects for P trace
                 for i in range(len(pos_path_mm) - 1):
