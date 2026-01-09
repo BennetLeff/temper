@@ -570,17 +570,93 @@ class SequentialRoutingStage(Stage):
                 diff_pair_nets.add(net_pos_name)
                 diff_pair_nets.add(net_neg_name)
 
-                # Convert grid cells to mm positions
-                def cells_to_mm(
-                    cells: List[Tuple[int, int, int]],
-                ) -> List[Tuple[float, float, int]]:
-                    return [
-                        (x * grid.cell_size_mm, y * grid.cell_size_mm, layer)
-                        for x, y, layer in cells
-                    ]
+                # Convert grid cells to mm positions with perpendicular offset
+                # to ensure P and N traces don't share endpoints.
+                #
+                # Problem: The diff pair router keeps P and N in different cells at each
+                # timestep, but when navigating corners, BOTH paths may pass through the
+                # same cell at different timesteps. This creates trace segments that share
+                # endpoints, causing DRC violations.
+                #
+                # Solution: Find cells that appear in both paths and apply perpendicular
+                # offsets to ensure they don't share exact coordinates.
+                def cells_to_mm_with_offset(
+                    pos_cells: List[Tuple[int, int, int]],
+                    neg_cells: List[Tuple[int, int, int]],
+                    target_spacing_mm: float,
+                ) -> Tuple[List[Tuple[float, float, int]], List[Tuple[float, float, int]]]:
+                    """Convert grid cells to mm with perpendicular offset for true parallel traces.
 
-                pos_path_mm = cells_to_mm(result.pos_cells)
-                neg_path_mm = cells_to_mm(result.neg_cells)
+                    For cells that appear in both paths, applies a perpendicular offset based on
+                    the trace direction to ensure P and N traces don't share exact endpoints.
+                    """
+                    import math
+
+                    half_spacing = target_spacing_mm / 2.0
+
+                    # Find cells that appear in both paths (these need offset)
+                    pos_cell_set = set((c[0], c[1], c[2]) for c in pos_cells)
+                    neg_cell_set = set((c[0], c[1], c[2]) for c in neg_cells)
+                    shared_cells = pos_cell_set & neg_cell_set
+
+                    def get_offset_for_cell(cells, idx, is_pos_trace):
+                        """Compute perpendicular offset for a cell based on trace direction."""
+                        cell = cells[idx]
+
+                        # Determine trace direction at this point
+                        if idx > 0:
+                            prev = cells[idx - 1]
+                            trace_dx = cell[0] - prev[0]
+                            trace_dy = cell[1] - prev[1]
+                        elif idx < len(cells) - 1:
+                            next_cell = cells[idx + 1]
+                            trace_dx = next_cell[0] - cell[0]
+                            trace_dy = next_cell[1] - cell[1]
+                        else:
+                            trace_dx, trace_dy = 1, 0
+
+                        trace_len = math.sqrt(trace_dx * trace_dx + trace_dy * trace_dy)
+                        if trace_len > 0:
+                            # Perpendicular to trace direction (rotate 90 degrees)
+                            perp_x = -trace_dy / trace_len
+                            perp_y = trace_dx / trace_len
+                        else:
+                            perp_x, perp_y = 0, 1
+
+                        # P gets positive offset, N gets negative offset
+                        sign = 1.0 if is_pos_trace else -1.0
+                        return (perp_x * half_spacing * sign, perp_y * half_spacing * sign)
+
+                    pos_path = []
+                    neg_path = []
+
+                    for i, (px, py, p_layer) in enumerate(pos_cells):
+                        px_mm = px * grid.cell_size_mm
+                        py_mm = py * grid.cell_size_mm
+
+                        if (px, py, p_layer) in shared_cells:
+                            # This cell is shared - apply offset
+                            offset_x, offset_y = get_offset_for_cell(pos_cells, i, True)
+                            pos_path.append((px_mm + offset_x, py_mm + offset_y, p_layer))
+                        else:
+                            pos_path.append((px_mm, py_mm, p_layer))
+
+                    for i, (nx, ny, n_layer) in enumerate(neg_cells):
+                        nx_mm = nx * grid.cell_size_mm
+                        ny_mm = ny * grid.cell_size_mm
+
+                        if (nx, ny, n_layer) in shared_cells:
+                            # This cell is shared - apply offset
+                            offset_x, offset_y = get_offset_for_cell(neg_cells, i, False)
+                            neg_path.append((nx_mm + offset_x, ny_mm + offset_y, n_layer))
+                        else:
+                            neg_path.append((nx_mm, ny_mm, n_layer))
+
+                    return pos_path, neg_path
+
+                pos_path_mm, neg_path_mm = cells_to_mm_with_offset(
+                    result.pos_cells, result.neg_cells, dp_config.spacing_mm
+                )
 
                 # Create Trace objects for P trace
                 for i in range(len(pos_path_mm) - 1):
