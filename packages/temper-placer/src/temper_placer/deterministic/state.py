@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
     from .stages.clearance_grid import ClearanceGrid
     from .stages.connectivity_validation import ConnectivityViolation
+    from .stages.placement_validation import PlacementViolation
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,7 @@ class BoardState:
     drc_oracle: Optional["DRCOracle"] = None
     drc_violations: tuple["Violation", ...] | None = None
     connectivity_violations: tuple["ConnectivityViolation", ...] | None = None
+    placement_violations: tuple["PlacementViolation", ...] | None = None
     placements: frozenset = frozenset()
     routes: frozenset = frozenset()
     vias: frozenset = frozenset()

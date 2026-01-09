@@ -1,0 +1,37 @@
+# EXP-10: Balance SPI Escape Layers to Reduce In1.Cu Congestion
+# Created: 2026-01-09
+
+experiment_id: EXP-10
+name: "Balance SPI Escape Layers"
+status: in_progress
+
+hypothesis: |
+  In1.Cu is congested because most fine-pitch nets escape there by default.
+  
+  Current layer distribution:
+  - In1.Cu: Default for most nets (USB, SPI_*, many others)
+  - In2.Cu: PWM_H, PWM_L, GATE_H, GATE_L
+  - B.Cu: I_SENSE, TEMP_SENSE (EXP-9)
+  
+  By moving SPI_CLK and SPI_CS_TEMP to In2.Cu, we reduce In1.Cu density
+  and may improve routing success for SPI_MISO and SPI_MOSI (which remain
+  on In1.Cu and compete with USB signals).
+
+baseline:
+  total_violations: 99  # After EXP-9
+  SPI_MISO: 13
+  SPI_MOSI: 11
+  SPI_CLK: 8
+  SPI_CS_TEMP: 4
+
+approach:
+  description: "Move SPI_CLK and SPI_CS_TEMP to In2.Cu escape"
+  change: "Add to layer2_nets in fine_pitch_escape.py"
+  rationale: |
+    - SPI_CLK and SPI_CS_TEMP have lower violation counts (8, 4)
+    - Moving them frees up In1.Cu routing channels for SPI_MISO/MOSI
+    - In2.Cu already has GATE_*/PWM_* which are separate from SPI area
+
+success_criteria:
+  primary: "Total SPI violations < 30 (currently 36)"
+  secondary: "SPI_MISO + SPI_MOSI < 20 (currently 24)"

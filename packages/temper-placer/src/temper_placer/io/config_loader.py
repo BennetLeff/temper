@@ -250,6 +250,98 @@ class RoutingCorridor:
 
 
 @dataclass
+class SignalToHVClearance:
+    """Constraint ensuring signal paths maintain clearance from HV component pins.
+
+    This validates that signal-carrying components (like gate drivers) are placed
+    close enough to their destination pins (like MOSFET gates) that the signal
+    path doesn't need to route near HV pins (like collector/emitter).
+
+    Example: Gate driver output must be within 15mm of MOSFET gate pin so
+    the gate signal doesn't route past the HV collector/emitter pins.
+
+    Attributes:
+        name: Unique identifier for the constraint
+        signal_component: Component that outputs the signal (e.g., "U_GATE")
+        signal_pin: Pin on signal_component (e.g., "15" for OUTA)
+        target_component: Component receiving the signal (e.g., "Q1")
+        target_pin: Pin on target_component (e.g., "1" for gate)
+        hv_component: Component with HV pins to avoid (often same as target_component)
+        hv_pins: List of pin numbers that carry HV (e.g., ["2", "3"] for collector/emitter)
+        required_clearance_mm: Minimum clearance from signal path to any HV pin
+        max_path_length_mm: Maximum allowed signal path length
+        tier: "hard" (fail) or "soft" (warn)
+        description: Human-readable description
+    """
+
+    name: str
+    signal_component: str
+    signal_pin: str
+    target_component: str
+    target_pin: str
+    hv_component: str
+    hv_pins: list[str]
+    required_clearance_mm: float = 6.0  # IEC 60335 default
+    max_path_length_mm: float = 20.0
+    tier: str = "hard"
+    description: str = ""
+
+
+@dataclass
+class PlacementProximityConstraint:
+    """Constraint ensuring a component output pin is close to a target input pin.
+
+    This is a more specific version of ProximityRule that operates on pins
+    rather than component centers, which is critical for gate drive circuits.
+
+    Attributes:
+        name: Unique identifier
+        from_component: Source component ref
+        from_pin: Pin on source component
+        to_component: Target component ref
+        to_pin: Pin on target component
+        max_distance_mm: Maximum pin-to-pin distance
+        tier: "hard" or "soft"
+        description: Human-readable description
+    """
+
+    name: str
+    from_component: str
+    from_pin: str
+    to_component: str
+    to_pin: str
+    max_distance_mm: float = 15.0
+    tier: str = "hard"
+    description: str = ""
+
+
+@dataclass
+class HVExclusionZone:
+    """Defines a rectangular zone around HV components that signals must avoid.
+
+    Used by the ClearanceGridStage to block low-voltage signal routing near
+    HV pins. This forces the router to find paths around the HV zone.
+
+    EXP-13: HV exclusion zones for gate signal routing safety.
+
+    Attributes:
+        name: Unique identifier
+        center: (x, y) center position in mm
+        size: (width, height) in mm
+        clearance_mm: Required clearance (creepage distance)
+        excluded_nets: List of net names that must avoid this zone
+        description: Human-readable description
+    """
+
+    name: str
+    center: tuple[float, float]
+    size: tuple[float, float]
+    clearance_mm: float = 6.0
+    excluded_nets: list[str] = field(default_factory=list)
+    description: str = ""
+
+
+@dataclass
 class LossConfig:
     """Configuration for a single loss function.
 
@@ -520,6 +612,15 @@ class PlacementConstraints:
     # NEW: Routing-aware placement constraints
     escape_clearances: list[EscapeClearance] = field(default_factory=list)
     routing_corridors: list[RoutingCorridor] = field(default_factory=list)
+
+    # Signal-to-HV clearance constraints (EXP-11: gate drive safety)
+    signal_hv_clearances: list[SignalToHVClearance] = field(default_factory=list)
+
+    # Pin-level placement proximity constraints
+    placement_proximity: list[PlacementProximityConstraint] = field(default_factory=list)
+
+    # EXP-13: HV exclusion zones for routing
+    hv_exclusion_zones: list[HVExclusionZone] = field(default_factory=list)
 
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
@@ -1115,6 +1216,54 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.routing_corridors.append(rc)
 
+    # EXP-11: Load signal-to-HV clearance constraints
+    if "signal_hv_clearances" in config:
+        for shv_cfg in config["signal_hv_clearances"]:
+            shv = SignalToHVClearance(
+                name=shv_cfg["name"],
+                signal_component=shv_cfg["signal_component"],
+                signal_pin=str(shv_cfg["signal_pin"]),
+                target_component=shv_cfg["target_component"],
+                target_pin=str(shv_cfg["target_pin"]),
+                hv_component=shv_cfg["hv_component"],
+                hv_pins=[str(p) for p in shv_cfg["hv_pins"]],
+                required_clearance_mm=shv_cfg.get("required_clearance_mm", 6.0),
+                max_path_length_mm=shv_cfg.get("max_path_length_mm", 20.0),
+                tier=shv_cfg.get("tier", "hard"),
+                description=shv_cfg.get("description", ""),
+            )
+            constraints.signal_hv_clearances.append(shv)
+
+    # EXP-11: Load pin-level placement proximity constraints
+    if "placement_proximity" in config:
+        for pp_cfg in config["placement_proximity"]:
+            pp = PlacementProximityConstraint(
+                name=pp_cfg["name"],
+                from_component=pp_cfg["from_component"],
+                from_pin=str(pp_cfg["from_pin"]),
+                to_component=pp_cfg["to_component"],
+                to_pin=str(pp_cfg["to_pin"]),
+                max_distance_mm=pp_cfg.get("max_distance_mm", 15.0),
+                tier=pp_cfg.get("tier", "hard"),
+                description=pp_cfg.get("description", ""),
+            )
+            constraints.placement_proximity.append(pp)
+
+    # EXP-13: Load HV exclusion zones for routing
+    if "hv_exclusion_zones" in config:
+        for hvz_cfg in config["hv_exclusion_zones"]:
+            center = hvz_cfg["center"]
+            size = hvz_cfg["size"]
+            hvz = HVExclusionZone(
+                name=hvz_cfg["name"],
+                center=(float(center[0]), float(center[1])),
+                size=(float(size[0]), float(size[1])),
+                clearance_mm=hvz_cfg.get("clearance_mm", 6.0),
+                excluded_nets=hvz_cfg.get("excluded_nets", []),
+                description=hvz_cfg.get("description", ""),
+            )
+            constraints.hv_exclusion_zones.append(hvz)
+
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
 
@@ -1157,6 +1306,9 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "escape_clearances",
         "routing_corridors",
         "layer_stackup",
+        "signal_hv_clearances",  # EXP-11: Signal-to-HV clearance constraints
+        "placement_proximity",  # EXP-11: Pin-level placement proximity
+        "hv_exclusion_zones",  # EXP-13: HV zones that signals must route around
     }
 )
 

@@ -38,7 +38,12 @@ class FinePitchEscapeStage(Stage):
         secondary_escape_layer: Secondary layer for load balancing (default: 2 = In2.Cu)
         via_drill_mm: Via drill diameter (default: 0.3mm)
         via_diameter_mm: Via copper diameter (default: 0.6mm)
+        escape_layer: Primary target inner layer for escape routing (default: 1 = In1.Cu)
+        secondary_escape_layer: Secondary layer for load balancing (default: 2 = In2.Cu)
+        via_drill_mm: Via drill diameter (default: 0.3mm)
+        via_diameter_mm: Via copper diameter (default: 0.6mm)
         layer2_nets: Set of net names that should escape to Layer 2 instead of Layer 1
+        layer3_nets: Set of net names that should escape to Layer 3 (B.Cu) for outer-layer routing
     """
 
     pin_pitch_threshold_mm: float = 0.65  # Pins closer than this = fine-pitch
@@ -46,8 +51,14 @@ class FinePitchEscapeStage(Stage):
     secondary_escape_layer: int = 2  # In2.Cu (secondary, for load balancing)
     via_drill_mm: float = 0.3
     via_diameter_mm: float = 0.6
-    # EXP-6b: Nets to route on Layer 2 (reduces Layer 1 congestion)
-    layer2_nets: set = field(default_factory=lambda: {"PWM_H", "PWM_L", "GATE_H", "GATE_L"})
+    # EXP-6b/EXP-10: Nets to route on Layer 2 (reduces Layer 1 congestion)
+    # EXP-10: Added SPI_CLK, SPI_CS_TEMP to balance In1.Cu congestion
+    layer2_nets: set = field(default_factory=lambda: {
+        "PWM_H", "PWM_L", "GATE_H", "GATE_L",
+        "SPI_CLK", "SPI_CS_TEMP"  # EXP-10: Move to In2.Cu
+    })
+    # EXP-9: Analog/sensing nets escape to B.Cu (layer 3) to match routing restrictions [0, 3]
+    layer3_nets: set = field(default_factory=lambda: {"I_SENSE", "TEMP_SENSE"})
 
     @property
     def name(self) -> str:
@@ -57,10 +68,14 @@ class FinePitchEscapeStage(Stage):
         """Determine which layer a net should escape to.
 
         EXP-6b: Distribute nets across layers to reduce congestion.
+        EXP-9: Analog/sensing nets escape to B.Cu to match their routing restrictions.
 
         Returns:
             Tuple of (layer_number, layer_name)
         """
+        # EXP-9: Analog/sensing nets to B.Cu (layer 3) for outer-layer routing
+        if net_name in self.layer3_nets:
+            return (3, "B.Cu")
         if net_name in self.layer2_nets:
             return (self.secondary_escape_layer, "In2.Cu")
         return (self.escape_layer, "In1.Cu")
@@ -80,6 +95,7 @@ class FinePitchEscapeStage(Stage):
         fine_pitch_components = []
         layer1_vias = 0
         layer2_vias = 0
+        layer3_vias = 0  # EXP-9: Track B.Cu escape vias
 
         # First pass: identify fine-pitch components and collect their nets
         fine_pitch_refs = set()
@@ -140,8 +156,10 @@ class FinePitchEscapeStage(Stage):
 
                 if escape_layer_num == 1:
                     layer1_vias += 1
-                else:
+                elif escape_layer_num == 2:
                     layer2_vias += 1
+                else:  # layer 3 (B.Cu)
+                    layer3_vias += 1
 
         # Debug output
         if fine_pitch_components:
@@ -155,12 +173,14 @@ class FinePitchEscapeStage(Stage):
                         f"    {ref}: min_pitch={pitch:.2f}mm, {netted_pins}/{pin_count} pins with nets"
                     )
             print(f"  Nets touching fine-pitch components: {len(fine_pitch_nets)}")
-            # EXP-6b: Show layer distribution
+            # EXP-6b/EXP-9: Show layer distribution
             print(
-                f"  Escape vias: {layer1_vias} to Layer 1 (In1.Cu), {layer2_vias} to Layer 2 (In2.Cu)"
+                f"  Escape vias: {layer1_vias} to In1.Cu, {layer2_vias} to In2.Cu, {layer3_vias} to B.Cu"
             )
             if self.layer2_nets:
                 print(f"  Layer 2 nets: {sorted(self.layer2_nets)}")
+            if self.layer3_nets:
+                print(f"  Layer 3 (B.Cu) nets: {sorted(self.layer3_nets)}")
         else:
             print(
                 f"  No fine-pitch components detected (threshold: {self.pin_pitch_threshold_mm}mm)"

@@ -1,0 +1,86 @@
+experiment: EXP-12
+title: Placement Validation Stage for HV-Signal Clearance
+status: complete
+date: 2026-01-09
+
+hypothesis: |
+  Implementing a placement validation stage that catches signal-to-HV clearance 
+  violations before routing begins will make PCB layout issues more discoverable
+  and prevent routing attempts that are geometrically impossible.
+
+background: |
+  EXP-8 through EXP-11 identified that gate drive signals (GATE_H, GATE_L, PWM_H,
+  PWM_L) cannot be routed to MOSFET gates without violating 6mm IEC 60335 clearance
+  from HV pins (DC_BUS+, DC_BUS-, SW_NODE).
+  
+  Root cause: TO-247 package has gate pin (pin 1) only 5.45mm from collector pin
+  (pin 2). This is a package-level constraint that cannot be solved by placement
+  or routing - it requires:
+  1. Using a different MOSFET package with larger pin spacing, OR
+  2. Designing an isolation layer in the PCB stackup, OR
+  3. Using opto-isolated gate drivers
+
+approach:
+  - Create new constraint types for signal-to-HV clearance validation
+  - Implement PlacementValidationStage that runs before routing
+  - Add SignalToHVClearance and PlacementProximityConstraint dataclasses
+  - Validate that signal paths won't geometrically violate HV clearances
+
+files_created:
+  - packages/temper-placer/src/temper_placer/deterministic/stages/placement_validation.py
+  - packages/temper-placer/experiments/exp12_placement_validation/DESIGN.yaml
+
+files_modified:
+  - packages/temper-placer/src/temper_placer/io/config_loader.py
+  - packages/temper-placer/src/temper_placer/deterministic/state.py
+  - configs/temper_deterministic_config.yaml
+  - pcb/temper.kicad_pcb (U_GATE position moved from (35,35) to (35,30))
+
+new_constraint_types:
+  SignalToHVClearance:
+    purpose: Validate signal paths maintain clearance from HV pins
+    fields:
+      - signal_component: Component outputting signal
+      - signal_pin: Output pin number
+      - target_component: Component receiving signal
+      - target_pin: Input pin number
+      - hv_component: Component with HV pins to avoid
+      - hv_pins: List of HV pin numbers
+      - required_clearance_mm: Minimum clearance (default 6mm)
+      - max_path_length_mm: Maximum signal path length
+      - tier: "hard" or "soft"
+
+  PlacementProximityConstraint:
+    purpose: Pin-to-pin distance validation (more precise than component-center)
+    fields:
+      - from_component, from_pin: Source pin
+      - to_component, to_pin: Target pin
+      - max_distance_mm: Maximum allowed pin-to-pin distance
+      - tier: "hard" or "soft"
+
+results:
+  violations_before: 94
+  violations_after: 94
+  improvement: 0%
+  
+finding: |
+  The placement validation system correctly identifies the constraints but
+  cannot solve the fundamental package geometry problem. The TO-247 package
+  has inherent pin spacing (5.45mm gate-to-collector) that violates IEC 60335
+  creepage requirements (6mm).
+  
+  This is expected - the validation system's purpose is to catch these issues
+  early and prevent futile routing attempts, not to solve package-level
+  geometry constraints.
+
+next_steps:
+  - Consider opto-isolated gate drivers (e.g., ACPL-332J)
+  - Evaluate larger MOSFET packages (e.g., TO-247-4)
+  - Design isolated gate drive transformer approach
+  - Accept reduced creepage with enhanced insulation coordination
+
+value_delivered: |
+  1. Created reusable constraint system for signal-HV clearance validation
+  2. Moved violation detection from routing phase to placement phase
+  3. Documented the fundamental package geometry limitation
+  4. Improved U_GATE placement (5.8mm shorter gate signal paths)

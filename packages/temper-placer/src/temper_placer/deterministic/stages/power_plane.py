@@ -31,10 +31,9 @@ TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
         "CGND",
         # High-current power rail -> In2.Cu island
         "+15V",  # 5A, requires plane (PowerDeliveryStrategy.PLANE)
-        # Medium/low-current power rails routed as traces (PowerTrace/FinePitch/Signal)
-        # "+5V",       # 2A, trace routed (PowerDeliveryStrategy.WIDE_TRACE)
-        # "+3V3",      # 0.5A, trace routed (PowerDeliveryStrategy.STANDARD_TRACE)
-        # "VCC_BOOT",  # 0.1A, trace routed (PowerDeliveryStrategy.STANDARD_TRACE)
+        # EXP-8: Add +3V3 and +5V for via stitching to power planes
+        "+3V3",  # Via stitching to In2.Cu power island
+        "+5V",   # Via stitching to In2.Cu power island
         # High current -> F.Cu pours (still plane-connected, not trace-routed)
         "DC_BUS+",
         "DC_BUS-",
@@ -56,7 +55,9 @@ TEMPER_PLANE_LAYERS: Dict[str, int] = {
     "CGND": 1,
     # High-current power rail to In2.Cu (inner power island)
     "+15V": 2,
-    # Removed: +5V, +3V3, VCC_BOOT now routed as traces
+    # EXP-8: +3V3 and +5V via stitching to power planes
+    "+3V3": 2,  # Via stitch to In2.Cu power island
+    "+5V": 2,   # Via stitch to In2.Cu power island
     # HV nets stay on F.Cu for copper pours (but still plane-connected)
     "DC_BUS+": 0,
     "DC_BUS-": 0,

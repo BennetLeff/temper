@@ -1,0 +1,61 @@
+# experiments/exp8_power_plane_stitching/DESIGN.yaml
+
+meta:
+  experiment_id: "EXP-8"
+  name: "Power Plane Via Stitching for +3V3/+5V"
+  created: "2025-01-09"
+  author: "temper-agent"
+  status: "running"
+
+hypothesis:
+  statement: "If we connect +3V3/+5V pads directly to In2.Cu power plane via vias instead of trace routing, then connectivity violations for these nets will reduce by >50% because plane connection eliminates A* routing failures"
+  null_hypothesis: "Plane connectivity provides no improvement over trace routing for +3V3/+5V"
+  type: "superiority"
+
+design:
+  type: "A/B"
+  
+  independent_variables:
+    - name: "connectivity_strategy"
+      type: "categorical"
+      levels: ["trace", "plane"]
+  
+  dependent_variables:
+    primary: "connectivity_violations_power_nets"
+    secondary: 
+      - "total_connectivity_violations"
+      - "drc_violations"
+      - "dangling_track_count"
+      - "unconnected_pad_count"
+  
+  controls:
+    test_case: "temper.kicad_pcb"
+    config: "temper_deterministic_config.yaml"
+    pipeline: "drc_aware_pipeline"
+  
+  sample_size:
+    runs_per_condition: 1  # Deterministic pipeline, no randomness
+    justification: "Pipeline is deterministic - single run sufficient"
+
+baseline:
+  description: "Current state with +3V3 as FinePitch, +5V as PowerTrace (trace routing)"
+  metrics:
+    connectivity_violations_3v3: 26
+    connectivity_violations_5v: 20
+    total_power_violations: 46
+    total_connectivity_violations: 148
+    drc_violations: 0
+
+success_criterion:
+  metric: "connectivity_violations_power_nets"
+  direction: "lower"
+  threshold: 23  # 50% reduction from 46 to <23
+  significance_level: "N/A - deterministic"
+
+execution:
+  estimated_minutes: 5
+  implementation_changes:
+    - file: "power_plane.py"
+      change: "Add +3V3, +5V to TEMPER_PLANE_NETS"
+    - file: "power_plane.py"
+      change: "Add +3V3, +5V to TEMPER_PLANE_LAYERS with layer=2"

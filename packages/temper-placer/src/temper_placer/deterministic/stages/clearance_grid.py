@@ -287,6 +287,57 @@ class ClearanceGrid:
             max_col,
         )
 
+    def block_rect(
+        self,
+        center: tuple[float, float],
+        size: tuple[float, float],
+        clearance_mm: float,
+        layer: int = 0,
+        net_name: str = None,
+        is_obstacle: bool = True,
+    ):
+        """Block a rectangular region on specified layer.
+
+        EXP-13: Used for HV exclusion zones where signals must avoid.
+
+        Args:
+            center: (x, y) center position in mm
+            size: (width, height) in mm
+            clearance_mm: Additional clearance around the rectangle
+            layer: Layer index
+            net_name: Optional net name (if blocking for a specific net)
+            is_obstacle: If True, mark as obstacle (-2); if False, mark as net
+        """
+        if layer < 0 or layer >= self.layer_count:
+            return
+
+        cx, cy = center
+        half_w, half_h = size[0] / 2.0 + clearance_mm, size[1] / 2.0 + clearance_mm
+
+        # Calculate bounding box in grid coordinates
+        min_col = max(0, int((cx - half_w) / self.cell_size_mm))
+        max_col = min(self.cols, int((cx + half_w) / self.cell_size_mm) + 1)
+        min_row = max(0, int((cy - half_h) / self.cell_size_mm))
+        max_row = min(self.rows, int((cy + half_h) / self.cell_size_mm) + 1)
+
+        if is_obstacle:
+            net_id = -2  # Generic obstacle
+        elif net_name:
+            net_id = self.get_net_id(net_name)
+        else:
+            net_id = -2
+
+        target_grid = self._trace_net_ids[layer]
+
+        # Block all cells in the rectangle
+        for row in range(min_row, max_row):
+            for col in range(min_col, max_col):
+                curr = target_grid[row, col]
+                if curr == 0:
+                    target_grid[row, col] = net_id
+                elif curr != net_id:
+                    target_grid[row, col] = -1  # Multiple nets/conflict
+
     def unblock_circle(self, center: tuple[float, float], radius_mm: float, layer: int = 0):
         """Unblock cells within radius of center on specified layer."""
         if layer < 0 or layer >= self.layer_count:
@@ -495,6 +546,7 @@ class ClearanceGridStage(Stage):
         pth_mask_expansion_mm: float = 0.15,
         smd_mask_expansion_mm: float = 0.10,
         inner_layer_clearance_mm: float = 0.5,
+        hv_exclusion_zones: list = None,
     ):
         """Initialize clearance grid stage.
 
@@ -511,6 +563,8 @@ class ClearanceGridStage(Stage):
                 Inner layers don't need creepage clearance since they're encapsulated
                 in FR4. This prevents high-voltage PTH pads from blocking routing on
                 inner layers with their full surface clearance (e.g., 6mm -> 0.5mm).
+            hv_exclusion_zones: List of HVExclusionZone configs for signal avoidance.
+                EXP-13: Zones where specified nets must not route (blocked on all layers).
         """
         self.cell_size_mm = cell_size_mm
         self.layer_count = layer_count
@@ -521,6 +575,7 @@ class ClearanceGridStage(Stage):
         self.pth_mask_expansion_mm = pth_mask_expansion_mm
         self.smd_mask_expansion_mm = smd_mask_expansion_mm
         self.inner_layer_clearance_mm = inner_layer_clearance_mm
+        self.hv_exclusion_zones = hv_exclusion_zones or []
 
     def _get_clearance_for_net(self, net_name: str, state: "BoardState", layer: int = 0) -> float:
         """Get the clearance for a specific net based on its net class and layer.
@@ -682,6 +737,47 @@ class ClearanceGridStage(Stage):
                                 layer=layer_idx,
                                 net_name=net_name,
                             )
+
+        # EXP-13: Block HV exclusion zones for specified nets
+        # These zones force signals (like GATE_H, PWM_H) to route around HV areas
+        # instead of taking the direct path that would violate creepage requirements.
+        # Exclusion is per-net: only nets in excluded_nets are blocked.
+        if self.hv_exclusion_zones:
+            print(f"  HV exclusion zones: {len(self.hv_exclusion_zones)}")
+            for hvz in self.hv_exclusion_zones:
+                # For each excluded net, block the zone on all layers
+                for excluded_net in hvz.excluded_nets:
+                    net_id = grid.get_net_id(excluded_net)
+                    # Block on all layers to ensure no path through zone
+                    for layer_idx in range(grid.layer_count):
+                        # Use block_rect with net marking
+                        # By marking with a different net ID, we prevent the excluded
+                        # net from routing through this zone
+                        cx, cy = hvz.center
+                        half_w = hvz.size[0] / 2.0
+                        half_h = hvz.size[1] / 2.0
+
+                        # Calculate bounding box in grid coordinates
+                        min_col = max(0, int((cx - half_w) / grid.cell_size_mm))
+                        max_col = min(grid.cols, int((cx + half_w) / grid.cell_size_mm) + 1)
+                        min_row = max(0, int((cy - half_h) / grid.cell_size_mm))
+                        max_row = min(grid.rows, int((cy + half_h) / grid.cell_size_mm) + 1)
+
+                        # Mark zone as blocked for this net
+                        # Using net_id = -2 (obstacle) prevents the net from routing here
+                        target_grid = grid._trace_net_ids[layer_idx]
+                        for row in range(min_row, max_row):
+                            for col in range(min_col, max_col):
+                                curr = target_grid[row, col]
+                                # Only block if cell is free or belongs to a different net
+                                # (allows HV nets to route through their own exclusion zone)
+                                if curr == 0 or curr == net_id:
+                                    target_grid[row, col] = -2  # Obstacle for this net
+
+                print(
+                    f"    {hvz.name}: blocking {hvz.excluded_nets} in "
+                    f"{hvz.size[0]}x{hvz.size[1]}mm zone at {hvz.center}"
+                )
 
         from dataclasses import replace
 

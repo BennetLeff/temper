@@ -1,0 +1,59 @@
+experiment:
+  id: EXP-11
+  name: Internal Layer Routing for GATE Signals Near HV Components
+  hypothesis: |
+    GATE_H and GATE_L signals cannot reach MOSFET gate pins because they must
+    pass within 6mm of HighVoltage pads (DC_BUS+, SW_NODE, DC_BUS-) on the same
+    layer. The 6mm clearance requirement is for same-layer creepage (IEC 60335).
+    
+    By routing these signals on internal layers (In1.Cu or In2.Cu), the physical
+    separation provided by the PCB dielectric (~0.2mm FR4) provides the required
+    isolation. Same-layer clearance rules should not apply to different-layer
+    geometry.
+    
+  root_cause_analysis:
+    current_behavior: |
+      - GATE_H routes from U_GATE.15 (39.5, 31.8) to Q1.1 (20, 15)
+      - Must pass Q1.2 (DC_BUS+ at 25.4, 15) and Q1.3 (SW_NODE at 30.9, 15)
+      - Distance Q1.1 to Q1.2 is 5.4mm < 6mm required clearance
+      - Router rejects all paths due to HV clearance violations
+      
+    component_positions:
+      Q1.1: { pos: [20.0, 15.0], net: GATE_H }
+      Q1.2: { pos: [25.4, 15.0], net: DC_BUS+ }  # 5.4mm from Q1.1
+      Q1.3: { pos: [30.9, 15.0], net: SW_NODE }
+      Q2.1: { pos: [45.0, 15.0], net: GATE_L }
+      Q2.2: { pos: [50.5, 15.0], net: SW_NODE }  # 5.5mm from Q2.1
+      Q2.3: { pos: [55.9, 15.0], net: DC_BUS- }
+      
+    fundamental_constraint: |
+      IGBT gate pins are physically adjacent to collector/emitter (HV) pins.
+      Same-layer routing is geometrically impossible with 6mm clearance.
+      
+  solution:
+    approach: |
+      1. Add GATE_H and GATE_L to layer3_nets (B.Cu escape)
+      2. Modify DRC oracle to only apply HV clearance to same-layer geometry
+      3. Route gate signals on internal/bottom layers around HV areas
+      
+    layer_strategy:
+      GATE_H:
+        escape_layer: 3  # B.Cu
+        routing_layers: [0, 3]  # F.Cu for component connections, B.Cu for routing
+      GATE_L:
+        escape_layer: 3  # B.Cu  
+        routing_layers: [0, 3]
+        
+    drc_modification: |
+      Current: get_clearance(GATE_H, DC_BUS+) = 6mm (all layers)
+      Proposed: get_clearance(GATE_H, DC_BUS+) = 6mm (same layer only)
+                get_clearance(GATE_H, DC_BUS+) = 0.3mm (different layers)
+                
+  expected_impact:
+    violations_before: 21  # GATE_H + GATE_L combined
+    violations_target: 5   # Some may remain due to component pin routing
+    
+  files_to_modify:
+    - packages/temper-placer/src/temper_placer/deterministic/stages/fine_pitch_escape.py
+    - packages/temper-placer/src/temper_placer/routing/constraints/drc_oracle.py
+    - packages/temper-placer/src/temper_placer/deterministic/stages/sequential_routing.py

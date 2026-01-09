@@ -50,6 +50,7 @@ def create_drc_aware_pipeline(
         ViaDeduplicationStage,
         TrackDeduplicationStage,
         ShortCircuitDetectionStage,
+        PlacementValidationStage,
     )
     from .stages.sequential_routing import DiffPairConfig
 
@@ -62,6 +63,8 @@ def create_drc_aware_pipeline(
     yaml_copper_zones = []
     differential_pairs = []
     net_priority = {}  # EXP-6: Explicit net routing priority
+    placement_constraints = {}  # EXP-12: Placement validation constraints
+    hv_exclusion_zones = []  # EXP-13: HV zones that signals must route around
 
     # Extract net class clearances from design_rules if available
     if design_rules and hasattr(design_rules, "net_classes"):
@@ -119,6 +122,18 @@ def create_drc_aware_pipeline(
         config_net_priority = getattr(config, "net_priority", None)
         if config_net_priority:
             net_priority = dict(config_net_priority)
+
+        # EXP-12: Extract placement validation constraints
+        signal_hv = getattr(config, "signal_hv_clearances", [])
+        proximity = getattr(config, "placement_proximity", [])
+        if signal_hv or proximity:
+            placement_constraints = {
+                "signal_hv_clearances": signal_hv,
+                "placement_proximity": proximity,
+            }
+
+        # EXP-13: Extract HV exclusion zones for routing
+        hv_exclusion_zones = getattr(config, "hv_exclusion_zones", [])
 
         # Create DesignRules from config if not explicitly provided
         # This ensures SequentialRoutingStage gets proper trace widths from net class rules
@@ -208,6 +223,12 @@ def create_drc_aware_pipeline(
             ),
             # DRC-FIX-5: Re-apply placements after clamping to sync component.initial_position
             ApplyPlacementsStage(),
+            # EXP-12: Validate placement constraints before routing
+            PlacementValidationStage(
+                constraints=placement_constraints,
+                fail_on_hard_violations=False,  # Log warnings, don't abort
+                parsed_pads=parsed_pads,
+            ),
             # DRC setup - use parsed_pads for correct KiCad positions
             DRCOracleSetupStage(
                 design_rules=config if config else design_rules,
@@ -221,6 +242,7 @@ def create_drc_aware_pipeline(
                 net_class_clearances=net_class_clearances,
                 net_classes=config.net_classes if config else None,
                 pad_sizes=pad_sizes_for_stage,  # Inject pad sizes for accurate blocking
+                hv_exclusion_zones=hv_exclusion_zones,  # EXP-13: Block zones for signal nets
             ),
             NetOrderingStage(net_priority=net_priority),  # EXP-6: Pass explicit priorities
             LayerAssignmentStage(net_classes=config.net_classes if config else None),

@@ -174,7 +174,7 @@
   ; Gate Driver (UCC21550 - SOIC-16)
   (footprint "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm" (layer "F.Cu")
     (tstamp 00000002-0002-0000-0000-000000000001)
-    (at 35 35)
+    (at 35 30)
     (property "Reference" "U_GATE")
     (property "Value" "UCC21550")
     (property "Footprint" "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm")

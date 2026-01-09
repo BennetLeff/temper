@@ -24,6 +24,7 @@ from .multilayer_astar import MultiLayerAStar, MultiLayerPath, RouteSegment
 from .via_validation import ViaValidationStage, ViaDeduplicationStage
 from .drc_sweep import DRCSweepStage, TrackDeduplicationStage, ShortCircuitDetectionStage
 from .fine_pitch_escape import FinePitchEscapeStage
+from .placement_validation import PlacementValidationStage, PlacementViolation, PlacementValidationError
 
 __all__ = [
     "Stage",
@@ -61,4 +62,7 @@ __all__ = [
     "TrackDeduplicationStage",
     "ShortCircuitDetectionStage",
     "FinePitchEscapeStage",
+    "PlacementValidationStage",
+    "PlacementViolation",
+    "PlacementValidationError",
 ]
