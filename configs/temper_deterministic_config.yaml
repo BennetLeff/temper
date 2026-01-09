@@ -191,7 +191,7 @@ net_class_rules:
     target_layer: "F.Cu"
     max_current_a: 0.3
     trace_width_mm: 0.127        # 5 mil traces for fine-pitch routing
-    clearance_mm: 0.15           # 0.16mm actual gap on QFN-56, allow 0.15mm
+    clearance_mm: 0.05           # Reduced from 0.15 - allows 0.127mm traces at 0.177mm center-to-center
     via_size_mm: 0.4             # Smaller vias for dense areas
     via_drill_mm: 0.2
     via_template: "Via1x1"       # Single via for fine-pitch

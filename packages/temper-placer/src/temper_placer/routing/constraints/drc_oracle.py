@@ -250,7 +250,8 @@ class DRCOracle:
             effective_clearance = required + (width / 2) + (track.width / 2)
 
             actual = segment_to_segment_distance(segment, track.to_segment())
-            if actual < effective_clearance:
+            # Allow 1µm tolerance for floating point precision
+            if actual < effective_clearance - 0.001:
                 return (
                     False,
                     f"clearance violation with {track.id}: "
@@ -385,7 +386,8 @@ class DRCOracle:
                 effective = required + (track_a.width / 2) + (track_b.width / 2)
 
                 actual = segment_to_segment_distance(seg_a, track_b.to_segment())
-                if actual < effective:
+                # Allow 1µm tolerance for floating point precision
+                if actual < effective - 0.001:
                     violations.append(
                         Violation(
                             type="track_clearance",
