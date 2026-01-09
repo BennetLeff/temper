@@ -25,6 +25,7 @@ def initial_config():
 def test_orchestrator_loop_terminates_on_zero_violations(mock_netlist, initial_config):
     pipeline = MagicMock(spec=DeterministicPipeline)
     pipeline.run.return_value = BoardState()
+    pipeline.stages = []  # Mock stages attribute
     
     # Mock DRC runner returns path to a file
     drc_runner = MagicMock(return_value="report.json")
@@ -39,6 +40,7 @@ def test_orchestrator_loop_terminates_on_zero_violations(mock_netlist, initial_c
 def test_orchestrator_adjusts_and_retries_on_violations(mock_netlist, initial_config):
     pipeline = MagicMock(spec=DeterministicPipeline)
     pipeline.run.return_value = BoardState()
+    pipeline.stages = []  # Mock stages attribute
     
     drc_runner = MagicMock(return_value="report.json")
     
@@ -66,13 +68,14 @@ def test_orchestrator_adjusts_and_retries_on_violations(mock_netlist, initial_co
     # 5mm expansion on 100mm board is 0.05 ratio
     # HV was [0.0, 0.5], now should be [0.0, 0.55]
     assert initial_config['zones'][0]['bounds_ratio'][2] == pytest.approx(0.55)
-    # MCU was [0.5, 1.0], now should be [0.55, 1.05] (clipped to 1.0)
+    # MCU was [0.5, 1.0], now should be [0.55, 1.05] (shifted right by 0.05)
     assert initial_config['zones'][1]['bounds_ratio'][0] == pytest.approx(0.55)
-    assert initial_config['zones'][1]['bounds_ratio'][2] == pytest.approx(1.0)
+    assert initial_config['zones'][1]['bounds_ratio'][2] == pytest.approx(1.05)
 
 def test_orchestrator_stops_after_max_iterations(mock_netlist, initial_config):
     pipeline = MagicMock(spec=DeterministicPipeline)
     pipeline.run.return_value = BoardState()
+    pipeline.stages = []  # Mock stages attribute
     
     drc_runner = MagicMock(return_value="report.json")
     

@@ -224,11 +224,14 @@ class TestTemperBoardPlaneNets:
             "+15V",
             "+5V",
             "+3V3",
-            "VCC_BOOT",
             # High current -> F.Cu pours (not inner planes but still plane-connected)
             "DC_BUS+",
             "DC_BUS-",
             "SW_NODE",
+            # ACMains -> F.Cu copper pours
+            "AC_L",
+            "AC_N",
+            "PE",
         }
 
         assert TEMPER_PLANE_NETS == expected
@@ -246,7 +249,6 @@ class TestTemperBoardPlaneNets:
         assert TEMPER_PLANE_LAYERS["+15V"] == 2
         assert TEMPER_PLANE_LAYERS["+5V"] == 2
         assert TEMPER_PLANE_LAYERS["+3V3"] == 2
-        assert TEMPER_PLANE_LAYERS["VCC_BOOT"] == 2
 
         # HV nets stay on F.Cu (layer 0) for copper pours
         assert TEMPER_PLANE_LAYERS["DC_BUS+"] == 0

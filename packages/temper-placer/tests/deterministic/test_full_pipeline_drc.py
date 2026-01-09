@@ -2,11 +2,20 @@ import pytest
 from pathlib import Path
 from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
 
 def test_full_pipeline_includes_all_drc_stages():
     '''Pipeline should include oracle setup, routing, DRC, and connectivity.'''
-    pipeline = create_drc_aware_pipeline()
+    # Create minimal metadata for pipeline creation
+    from temper_placer.io.kicad_metadata import KiCadMetadata
+    metadata = KiCadMetadata(
+        courtyards={},
+        pad_sizes={},
+        board_width=100.0,
+        board_height=100.0
+    )
+    pipeline = create_drc_aware_pipeline(metadata=metadata)
     stage_names = [s.name for s in pipeline.stages]
     
     assert 'drc_oracle_setup' in stage_names
@@ -33,9 +42,10 @@ def test_temper_board_routes_successfully():
     parse_result = parse_kicad_pcb(pcb_path)
     constraints = load_constraints(config_path)
     design_rules = constraints_to_design_rules(constraints)
+    metadata = extract_kicad_metadata(pcb_path)
     
     # Run pipeline
-    pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints)
+    pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints, metadata=metadata)
     initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
     result = pipeline.run(initial_state)
     

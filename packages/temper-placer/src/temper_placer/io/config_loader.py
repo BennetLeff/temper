@@ -342,6 +342,40 @@ class HVExclusionZone:
 
 
 @dataclass
+class IsolationSlot:
+    """Defines a PCB slot for creepage isolation between HV and LV pins.
+
+    Slots are routed cutouts in the PCB substrate that force the creepage
+    path around them, effectively multiplying the creepage distance.
+
+    EXP-15: Automated slot isolation for IEC 60335-1 compliance.
+
+    For TO-247 packages where gate pin (5.45mm from HV) cannot meet 6mm creepage:
+    - A 1-2mm wide slot between gate and collector pins
+    - Forces creepage path around slot (12-15mm effective distance)
+
+    Attributes:
+        name: Unique identifier for the slot
+        component_ref: Component reference (e.g., "Q1") - slot positioned relative to component
+        start_offset: (dx, dy) offset from component origin to slot start
+        end_offset: (dx, dy) offset from component origin to slot end
+        width_mm: Slot width (typically 1.0-2.0mm for routing)
+        lv_pin: Low-voltage pin number being isolated (e.g., "1" for gate)
+        hv_pin: High-voltage pin number (e.g., "2" for collector)
+        description: Human-readable description
+    """
+
+    name: str
+    component_ref: str
+    start_offset: tuple[float, float]  # Relative to component position
+    end_offset: tuple[float, float]  # Relative to component position
+    width_mm: float = 1.5
+    lv_pin: str = ""
+    hv_pin: str = ""
+    description: str = ""
+
+
+@dataclass
 class LossConfig:
     """Configuration for a single loss function.
 
@@ -621,6 +655,9 @@ class PlacementConstraints:
 
     # EXP-13: HV exclusion zones for routing
     hv_exclusion_zones: list[HVExclusionZone] = field(default_factory=list)
+
+    # EXP-15: Isolation slots for creepage compliance
+    isolation_slots: list[IsolationSlot] = field(default_factory=list)
 
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
@@ -1264,6 +1301,23 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.hv_exclusion_zones.append(hvz)
 
+    # EXP-15: Parse isolation_slots
+    if "isolation_slots" in config:
+        for slot_cfg in config["isolation_slots"]:
+            start = slot_cfg["start_offset"]
+            end = slot_cfg["end_offset"]
+            slot = IsolationSlot(
+                name=slot_cfg["name"],
+                component_ref=slot_cfg["component_ref"],
+                start_offset=(float(start[0]), float(start[1])),
+                end_offset=(float(end[0]), float(end[1])),
+                width_mm=slot_cfg.get("width_mm", 1.5),
+                lv_pin=slot_cfg.get("lv_pin", ""),
+                hv_pin=slot_cfg.get("hv_pin", ""),
+                description=slot_cfg.get("description", ""),
+            )
+            constraints.isolation_slots.append(slot)
+
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
 
@@ -1309,6 +1363,7 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "signal_hv_clearances",  # EXP-11: Signal-to-HV clearance constraints
         "placement_proximity",  # EXP-11: Pin-level placement proximity
         "hv_exclusion_zones",  # EXP-13: HV zones that signals must route around
+        "isolation_slots",  # EXP-15: PCB slots for creepage isolation
     }
 )
 

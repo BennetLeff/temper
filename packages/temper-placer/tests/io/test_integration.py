@@ -98,8 +98,13 @@ class TestConstraintsLoading:
         # Should have zones defined
         assert len(constraints.zones) > 0, "Expected placement zones"
 
-        # Should have clearance rules
-        assert len(constraints.clearances) > 0, "Expected clearance rules"
+        # Should have clearance rules (via component_spacing_rules or net_class_rules)
+        # The original clearances list is deprecated; rules are now in component_spacing_rules
+        has_clearance_rules = (
+            len(constraints.component_spacing_rules) > 0 or
+            len(constraints.net_class_rules) > 0
+        )
+        assert has_clearance_rules, "Expected clearance rules in component_spacing_rules or net_class_rules"
 
     def test_create_board_from_constraints(self, constraints_path):
         """Test creating a Board from constraints."""

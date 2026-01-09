@@ -1,7 +1,7 @@
 import pytest
 import math
 from temper_placer.deterministic.pipeline import DeterministicPipeline
-from deterministic.fixtures import RoutingTestBoard
+from tests.deterministic.fixtures import RoutingTestBoard
 
 def _near(p1, p2, tolerance=1.0):
     dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5

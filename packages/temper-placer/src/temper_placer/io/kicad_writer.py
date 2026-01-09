@@ -19,7 +19,7 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.items.common import Position
-from kiutils.items.gritems import GrRect, GrText
+from kiutils.items.gritems import GrRect, GrText, GrLine
 
 from temper_placer.core.state import PlacementState
 
@@ -1108,3 +1108,197 @@ def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
         "components": len(ki_board.footprints) if ki_board.footprints else 0,
         "nets": len(ki_board.nets) if ki_board.nets else 0,
     }
+
+
+# ============================================================================
+# Isolation Slot Export for Creepage Compliance (EXP-15)
+# ============================================================================
+
+
+@dataclass
+class IsolationSlotResult:
+    """Result of adding isolation slots to a KiCad file."""
+
+    output_path: Path
+    slots_added: int
+    slots_skipped: int
+    warnings: list[str]
+
+    @property
+    def has_warnings(self) -> bool:
+        return len(self.warnings) > 0
+
+
+def add_isolation_slots_to_pcb(
+    pcb_path: Path,
+    isolation_slots: list,
+    output_path: Path | None = None,
+) -> IsolationSlotResult:
+    """
+    Add creepage isolation slots to a KiCad PCB file.
+
+    Slots are drawn on the Edge.Cuts layer as lines with specified width.
+    The PCB manufacturer will route these as slots (board cutouts).
+
+    For TO-247 packages where gate pin is 5.45mm from HV collector:
+    - A 1.5mm wide slot between pins forces creepage path around it
+    - Effective creepage becomes 12-15mm (compliant with IEC 60335-1's 6mm requirement)
+
+    Args:
+        pcb_path: Path to the input .kicad_pcb file.
+        isolation_slots: List of IsolationSlot objects from config.
+        output_path: Optional output path. If None, modifies pcb_path in-place.
+
+    Returns:
+        IsolationSlotResult with statistics and warnings.
+
+    Example config YAML:
+        isolation_slots:
+          - name: "q1_gate_isolation"
+            component_ref: "Q1"
+            start_offset: [-2.0, -2.5]   # Relative to component center
+            end_offset: [-2.0, 7.5]      # Slot runs vertically
+            width_mm: 1.5
+            lv_pin: "1"                  # Gate
+            hv_pin: "2"                  # Collector
+            description: "IEC 60335-1 creepage isolation"
+    """
+    import math
+
+    warnings: list[str] = []
+    slots_added = 0
+    slots_skipped = 0
+
+    # Load the PCB
+    try:
+        ki_board = KiBoard.from_file(str(pcb_path))
+    except Exception as e:
+        raise ValueError(f"Failed to load PCB: {e}")
+
+    # Build component reference -> position mapping
+    component_positions: dict[str, tuple[float, float, float]] = {}  # ref -> (x, y, angle)
+    for fp in ki_board.footprints:
+        ref = _get_footprint_reference(fp)
+        if ref and fp.position:
+            x = fp.position.X if fp.position.X is not None else 0.0
+            y = fp.position.Y if fp.position.Y is not None else 0.0
+            angle = fp.position.angle if fp.position.angle is not None else 0.0
+            component_positions[ref] = (x, y, angle)
+
+    # Add slots for each IsolationSlot configuration
+    for slot in isolation_slots:
+        comp_ref = slot.component_ref
+
+        if comp_ref not in component_positions:
+            warnings.append(f"Component '{comp_ref}' not found for slot '{slot.name}'")
+            slots_skipped += 1
+            continue
+
+        comp_x, comp_y, comp_angle = component_positions[comp_ref]
+        angle_rad = math.radians(comp_angle)
+
+        # Get slot offsets from component origin
+        dx_start, dy_start = slot.start_offset
+        dx_end, dy_end = slot.end_offset
+
+        # Rotate offsets by component angle
+        # Note: Apply rotation for any non-zero angle (threshold removed to avoid
+        # silently ignoring small rotations that could affect slot placement)
+        if comp_angle != 0.0:
+            rot_start_x = dx_start * math.cos(angle_rad) - dy_start * math.sin(angle_rad)
+            rot_start_y = dx_start * math.sin(angle_rad) + dy_start * math.cos(angle_rad)
+            rot_end_x = dx_end * math.cos(angle_rad) - dy_end * math.sin(angle_rad)
+            rot_end_y = dx_end * math.sin(angle_rad) + dy_end * math.cos(angle_rad)
+        else:
+            rot_start_x, rot_start_y = dx_start, dy_start
+            rot_end_x, rot_end_y = dx_end, dy_end
+
+        # Absolute coordinates
+        abs_start_x = comp_x + rot_start_x
+        abs_start_y = comp_y + rot_start_y
+        abs_end_x = comp_x + rot_end_x
+        abs_end_y = comp_y + rot_end_y
+
+        # Create GrLine on Edge.Cuts layer
+        # Width of the line = slot width (routed slot)
+        try:
+            slot_line = GrLine(
+                start=Position(X=abs_start_x, Y=abs_start_y),
+                end=Position(X=abs_end_x, Y=abs_end_y),
+                layer="Edge.Cuts",
+                width=slot.width_mm,
+            )
+            ki_board.graphicItems.append(slot_line)
+            slots_added += 1
+        except Exception as e:
+            warnings.append(f"Failed to add slot '{slot.name}': {e}")
+            slots_skipped += 1
+
+    # Write output
+    out_path = output_path if output_path else pcb_path
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        ki_board.to_file(str(out_path))
+    except Exception as e:
+        raise ValueError(f"Failed to write PCB: {e}")
+
+    return IsolationSlotResult(
+        output_path=out_path,
+        slots_added=slots_added,
+        slots_skipped=slots_skipped,
+        warnings=warnings,
+    )
+
+
+def compute_to247_isolation_slots(
+    component_refs: list[str],
+    slot_width_mm: float = 1.5,
+    slot_length_mm: float = 10.0,
+) -> list:
+    """
+    Automatically compute isolation slot positions for TO-247 packages.
+
+    TO-247 packages have a fixed geometry where pin 1 (gate) is 5.45mm
+    from pin 2 (collector/drain). This function computes slot positions
+    that isolate the gate from HV pins.
+
+    The slot is positioned between pin 1 and pin 2, running perpendicular
+    to the pin row to maximize creepage path extension.
+
+    Args:
+        component_refs: List of component references to add slots for (e.g., ["Q1", "Q2"]).
+        slot_width_mm: Width of the slot (default 1.5mm).
+        slot_length_mm: Length of the slot (default 10mm).
+
+    Returns:
+        List of IsolationSlot objects ready for use with add_isolation_slots_to_pcb().
+    """
+    from temper_placer.io.config_loader import IsolationSlot
+
+    # TO-247 pin geometry (from datasheet, pin 1 to pin 2 center-to-center)
+    # Pin pitch: 5.45mm between pin 1 and pin 2
+    # Pins are aligned along the X-axis when component angle=0
+    TO247_PIN1_TO_PIN2_X = 5.45  # mm
+
+    # Slot position: between pin 1 and pin 2, offset to avoid hitting pads
+    # Place slot at X = 2.72mm (midpoint) from component origin (which is typically at pin 2)
+    SLOT_X_OFFSET = -TO247_PIN1_TO_PIN2_X / 2  # Between pins
+
+    slots = []
+    for ref in component_refs:
+        # Create slot definition
+        # Slot runs vertically (Y direction) centered on the midpoint between pins
+        slot = IsolationSlot(
+            name=f"{ref.lower()}_gate_isolation",
+            component_ref=ref,
+            start_offset=(SLOT_X_OFFSET, -slot_length_mm / 2),
+            end_offset=(SLOT_X_OFFSET, slot_length_mm / 2),
+            width_mm=slot_width_mm,
+            lv_pin="1",  # Gate
+            hv_pin="2",  # Collector/Drain
+            description=f"IEC 60335-1 creepage isolation for {ref} gate",
+        )
+        slots.append(slot)
+
+    return slots

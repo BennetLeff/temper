@@ -22,7 +22,8 @@ def test_4layer_grid_creation():
     )
     
     assert grid.layer_count == 4
-    assert len(grid._grids) == 4
+    assert len(grid._trace_net_ids) == 4
+    assert len(grid._pad_net_ids) == 4
     assert grid.rows == 200  # 100 / 0.5
     assert grid.cols == 200
     

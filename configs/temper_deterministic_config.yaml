@@ -419,6 +419,37 @@ hv_exclusion_zones:
       - "PWM_L"
     description: "Q2 HV pins - gate signals must route around"
 
+# EXP-15: Isolation slots for IEC 60335-1 creepage compliance
+# Physical slots (routed cutouts) between gate pins and HV pins on TO-247 packages.
+# TO-247 geometry: Gate (pin 1) is 5.45mm from collector (pin 2), but IEC requires 6mm.
+# Solution: A 1.5mm wide slot forces creepage path around it, achieving 12-15mm effective.
+# 
+# Slot coordinates are relative to component origin (footprint position).
+# The slot runs perpendicular to the pin row to maximize creepage path extension.
+#
+# Manufacturing notes:
+# - Slot width 1.5mm allows standard router bit (1.6mm typical minimum)
+# - Slot length 10mm provides clearance above/below pin row
+# - Consider castellated plating for EMI shielding if needed
+isolation_slots:
+  - name: "q1_gate_isolation"
+    component_ref: "Q1"
+    start_offset: [2.725, -5.0]   # Between gate (pin 1 at x=0) and collector (pin 2 at x=5.45)
+    end_offset: [2.725, 5.0]      # Vertical slot 10mm long
+    width_mm: 1.5                 # Standard router bit compatible
+    lv_pin: "1"                   # Gate
+    hv_pin: "2"                   # Collector
+    description: "IEC 60335-1 creepage isolation for Q1 gate-to-HV"
+    
+  - name: "q2_gate_isolation"
+    component_ref: "Q2"
+    start_offset: [2.725, -5.0]
+    end_offset: [2.725, 5.0]
+    width_mm: 1.5
+    lv_pin: "1"
+    hv_pin: "2"
+    description: "IEC 60335-1 creepage isolation for Q2 gate-to-HV"
+
 # Loss function configuration (for gradient optimizer - not used in deterministic pipeline)
 losses:
   overlap:

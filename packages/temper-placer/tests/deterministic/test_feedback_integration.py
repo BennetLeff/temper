@@ -7,6 +7,7 @@ import os
 from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
 from temper_placer.deterministic.feedback import AutomatedZeroDRC, DRCViolation
 from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
 
 @pytest.mark.integration
@@ -28,6 +29,7 @@ def test_automated_drc_feedback_on_temper_board(tmp_path):
     parse_result = parse_kicad_pcb(pcb_path)
     constraints = load_constraints(config_path)
     design_rules = constraints_to_design_rules(constraints)
+    metadata = extract_kicad_metadata(pcb_path)
     
     # Configure feedback parameters on the constraints object
     constraints.feedback.max_iterations = 3
@@ -40,7 +42,7 @@ def test_automated_drc_feedback_on_temper_board(tmp_path):
         zone.can_expand = ['right', 'left']
     
     # 2. Setup Pipeline
-    pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints)
+    pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints, metadata=metadata)
     
     # 3. Setup Mock DRC Runner
     # It will return a report with violations on the first call, and none on the second.
