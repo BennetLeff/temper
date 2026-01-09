@@ -7,12 +7,15 @@ This is a clean-room implementation independent of the existing DiffPairRouter.
 
 EXP-1: Minimal implementation with straight-line routing only.
 EXP-2: Add 45° corner support with maintained spacing.
+EXP-3: Add A* pathfinding with obstacle avoidance.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Set, Optional
+from typing import List, Tuple, Set, Optional, Dict
+from enum import Enum
 import time
 import math
+import heapq
 
 
 @dataclass
@@ -396,3 +399,216 @@ class CoupledDiffPairRouter:
             corner_neg = (corner_pos[0] + start_offset[0], corner_pos[1] + start_offset[1])
 
         return [((corner_pos, corner_neg))]
+
+    def route_with_astar(
+        self,
+        start_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+        goal_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+        obstacles: Set[Tuple[int, int, int]],
+        board_size: Tuple[float, float, int],
+        net_pos: str = "NET_P",
+        net_neg: str = "NET_N",
+    ) -> CoupledRouterResult:
+        """
+        Route differential pair using A* pathfinding with obstacle avoidance.
+
+        EXP-3: A* with coupled state space for navigating around obstacles.
+
+        Args:
+            start_pins: ((p_x, p_y), (n_x, n_y)) in mm
+            goal_pins: ((p_x, p_y), (n_x, n_y)) in mm
+            obstacles: Set of blocked grid cells
+            board_size: (width_mm, height_mm, num_layers)
+            net_pos: P trace net name
+            net_neg: N trace net name
+
+        Returns:
+            CoupledRouterResult with routing outcome
+        """
+        start_time = time.time()
+
+        # Convert mm to grid coordinates
+        def mm_to_grid(mm_pos: Tuple[float, float]) -> Tuple[int, int]:
+            return (
+                int(mm_pos[0] / self.grid_resolution_mm),
+                int(mm_pos[1] / self.grid_resolution_mm),
+            )
+
+        def grid_to_mm(grid_pos: Tuple[int, int]) -> Tuple[float, float]:
+            return (
+                grid_pos[0] * self.grid_resolution_mm,
+                grid_pos[1] * self.grid_resolution_mm,
+            )
+
+        pos_start, neg_start = start_pins
+        pos_goal, neg_goal = goal_pins
+
+        # Convert to grid coordinates
+        pos_start_grid = mm_to_grid(pos_start)
+        neg_start_grid = mm_to_grid(neg_start)
+        pos_goal_grid = mm_to_grid(pos_goal)
+        neg_goal_grid = mm_to_grid(neg_goal)
+
+        # A* state: (pos_x, pos_y, neg_x, neg_y, layer)
+        start_state = (
+            pos_start_grid[0],
+            pos_start_grid[1],
+            neg_start_grid[0],
+            neg_start_grid[1],
+            0,
+        )
+        goal_state = (pos_goal_grid[0], pos_goal_grid[1], neg_goal_grid[0], neg_goal_grid[1], 0)
+
+        # A* data structures
+        open_set = []  # Priority queue: (f_score, state)
+        came_from: Dict[tuple, tuple] = {}
+        g_score: Dict[tuple, float] = {start_state: 0.0}
+        closed_set: Set[tuple] = set()  # Already explored states
+
+        # Heuristic: max distance to goal for P or N
+        def heuristic(state: tuple) -> float:
+            pos_dist = abs(state[0] - pos_goal_grid[0]) + abs(state[1] - pos_goal_grid[1])
+            neg_dist = abs(state[2] - neg_goal_grid[0]) + abs(state[3] - neg_goal_grid[1])
+            return max(pos_dist, neg_dist) * self.grid_resolution_mm
+
+        f_start = heuristic(start_state)
+        heapq.heappush(open_set, (f_start, start_state))
+
+        # Movement directions: 8-directional (N, S, E, W, NE, NW, SE, SW)
+        directions = [
+            (0, 1),
+            (0, -1),
+            (1, 0),
+            (-1, 0),  # Cardinal
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),  # Diagonal
+        ]
+
+        iterations = 0
+        max_iterations = 50000  # Increased limit
+
+        while open_set and iterations < max_iterations:
+            iterations += 1
+
+            _, current = heapq.heappop(open_set)
+
+            # Skip if already explored
+            if current in closed_set:
+                continue
+
+            closed_set.add(current)
+
+            # Check if we reached the goal (within 1 grid cell tolerance)
+            pos_at_goal = (
+                abs(current[0] - goal_state[0]) <= 1 and abs(current[1] - goal_state[1]) <= 1
+            )
+            neg_at_goal = (
+                abs(current[2] - goal_state[2]) <= 1 and abs(current[3] - goal_state[3]) <= 1
+            )
+
+            if pos_at_goal and neg_at_goal:
+                # Reconstruct path
+                path = []
+                state = current
+                while state in came_from:
+                    path.append(state)
+                    state = came_from[state]
+                path.append(start_state)
+                path.reverse()
+
+                # Convert to mm coordinates
+                pos_path = [
+                    (grid_to_mm((s[0], s[1]))[0], grid_to_mm((s[0], s[1]))[1], s[4]) for s in path
+                ]
+                neg_path = [
+                    (grid_to_mm((s[2], s[3]))[0], grid_to_mm((s[2], s[3]))[1], s[4]) for s in path
+                ]
+
+                # Calculate metrics
+                coupling_ratio = self._calculate_coupling_ratio(pos_path, neg_path)
+                max_skew = abs(self._path_length(pos_path) - self._path_length(neg_path))
+                avg_separation = self._calculate_avg_separation(pos_path, neg_path)
+
+                return CoupledRouterResult(
+                    success=True,
+                    pos_path=pos_path,
+                    neg_path=neg_path,
+                    coupling_ratio=coupling_ratio,
+                    max_skew_mm=max_skew,
+                    avg_separation_mm=avg_separation,
+                    routing_time_s=time.time() - start_time,
+                )
+
+            # Explore neighbors (coupled movements)
+            # EXP-3: Primarily move both traces together (coupled), allow independent movement only for obstacles
+            neighbor_states = []
+
+            # Priority 1: Move both traces in the same direction (fully coupled)
+            for d in directions:
+                new_pos = (current[0] + d[0], current[1] + d[1])
+                new_neg = (current[2] + d[0], current[3] + d[1])
+                neighbor_states.append((new_pos, new_neg, 0))  # 0 = no divergence penalty
+
+            # Priority 2: Move P while N stays (for obstacle avoidance)
+            for d in directions:
+                new_pos = (current[0] + d[0], current[1] + d[1])
+                new_neg = (current[2], current[3])
+                neighbor_states.append((new_pos, new_neg, 2.0))  # 2.0 = divergence penalty
+
+            # Priority 3: Move N while P stays (for obstacle avoidance)
+            for d in directions:
+                new_pos = (current[0], current[1])
+                new_neg = (current[2] + d[0], current[3] + d[1])
+                neighbor_states.append((new_pos, new_neg, 2.0))  # 2.0 = divergence penalty
+
+            for new_pos, new_neg, divergence_penalty in neighbor_states:
+                # Check if positions are in obstacles
+                if (new_pos[0], new_pos[1], current[4]) in obstacles:
+                    continue
+                if (new_neg[0], new_neg[1], current[4]) in obstacles:
+                    continue
+
+                # Check spacing constraint
+                spacing = (
+                    math.sqrt((new_pos[0] - new_neg[0]) ** 2 + (new_pos[1] - new_neg[1]) ** 2)
+                    * self.grid_resolution_mm
+                )
+                spacing_dev = abs(spacing - self.target_spacing_mm)
+                if spacing_dev > self.max_divergence_mm:
+                    continue
+
+                neighbor = (new_pos[0], new_pos[1], new_neg[0], new_neg[1], current[4])
+
+                # Calculate movement cost
+                pos_dist = math.sqrt(
+                    (new_pos[0] - current[0]) ** 2 + (new_pos[1] - current[1]) ** 2
+                )
+                neg_dist = math.sqrt(
+                    (new_neg[0] - current[2]) ** 2 + (new_neg[1] - current[3]) ** 2
+                )
+                base_cost = max(pos_dist, neg_dist) * self.grid_resolution_mm
+
+                # Penalty for spacing deviation
+                spacing_penalty = spacing_dev * 10.0
+
+                tentative_g = g_score[current] + base_cost + spacing_penalty + divergence_penalty
+
+                if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+                    f_score = tentative_g + heuristic(neighbor)
+                    heapq.heappush(open_set, (f_score, neighbor))
+
+        # No path found
+        return CoupledRouterResult(
+            success=False,
+            pos_path=[],
+            neg_path=[],
+            coupling_ratio=0.0,
+            max_skew_mm=0.0,
+            avg_separation_mm=0.0,
+            routing_time_s=time.time() - start_time,
+            error_message=f"A* failed: no path found after {iterations} iterations",
+        )
