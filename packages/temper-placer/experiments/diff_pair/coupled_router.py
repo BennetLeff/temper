@@ -612,3 +612,279 @@ class CoupledDiffPairRouter:
             routing_time_s=time.time() - start_time,
             error_message=f"A* failed: no path found after {iterations} iterations",
         )
+
+    def route_hierarchical(
+        self,
+        start_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+        goal_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+        obstacles: Set[Tuple[int, int, int]],
+        board_size: Tuple[float, float, int],
+        net_pos: str = "NET_P",
+        net_neg: str = "NET_N",
+    ) -> CoupledRouterResult:
+        """
+        Route differential pair using hierarchical waypoint approach.
+
+        EXP-3 (Revised): Use coarse grid A* to find waypoints, then connect with EXP-1/EXP-2.
+
+        Strategy:
+        1. Use coarse grid (1mm resolution) A* to find waypoints avoiding obstacles
+        2. Generate corner waypoints between coarse waypoints (EXP-2)
+        3. Route straight segments between waypoints (EXP-1)
+
+        Args:
+            start_pins: ((p_x, p_y), (n_x, n_y)) in mm
+            goal_pins: ((p_x, p_y), (n_x, n_y)) in mm
+            obstacles: Set of blocked grid cells (fine resolution)
+            board_size: (width_mm, height_mm, num_layers)
+            net_pos: P trace net name
+            net_neg: N trace net name
+
+        Returns:
+            CoupledRouterResult with routing outcome
+        """
+        start_time = time.time()
+
+        # Step 1: Find coarse waypoints using centerline A*
+        pos_start, neg_start = start_pins
+        pos_goal, neg_goal = goal_pins
+
+        # Use P trace as centerline (N follows at offset)
+        coarse_waypoints_mm = self._find_coarse_waypoints(
+            pos_start, pos_goal, obstacles, board_size
+        )
+
+        if not coarse_waypoints_mm:
+            return CoupledRouterResult(
+                success=False,
+                pos_path=[],
+                neg_path=[],
+                coupling_ratio=0.0,
+                max_skew_mm=0.0,
+                avg_separation_mm=0.0,
+                routing_time_s=time.time() - start_time,
+                error_message="Failed to find coarse waypoints",
+            )
+
+        # Step 2: Convert coarse waypoints to diff pair waypoints (with N offset)
+        diff_pair_waypoints = self._convert_to_diff_pair_waypoints(
+            coarse_waypoints_mm, start_pins, goal_pins
+        )
+
+        # Step 3: Route using existing waypoint-based routing (EXP-2)
+        result = self.route(
+            start_pins=start_pins,
+            goal_pins=goal_pins,
+            obstacles=obstacles,
+            board_size=board_size,
+            net_pos=net_pos,
+            net_neg=net_neg,
+            waypoints=diff_pair_waypoints,
+        )
+
+        return result
+
+    def _find_coarse_waypoints(
+        self,
+        start: Tuple[float, float],
+        goal: Tuple[float, float],
+        obstacles: Set[Tuple[int, int, int]],
+        board_size: Tuple[float, float, int],
+        coarse_resolution_mm: float = 1.0,
+    ) -> Optional[List[Tuple[float, float]]]:
+        """
+        Find waypoints on coarse grid using A*.
+
+        Args:
+            start: Starting position in mm
+            goal: Goal position in mm
+            obstacles: Fine grid obstacles
+            board_size: Board dimensions
+            coarse_resolution_mm: Coarse grid resolution (default 1mm)
+
+        Returns:
+            List of waypoint positions in mm, or None if no path found
+        """
+
+        def mm_to_coarse(mm_pos: Tuple[float, float]) -> Tuple[int, int]:
+            return (
+                int(mm_pos[0] / coarse_resolution_mm),
+                int(mm_pos[1] / coarse_resolution_mm),
+            )
+
+        def coarse_to_mm(grid_pos: Tuple[int, int]) -> Tuple[float, float]:
+            return (
+                grid_pos[0] * coarse_resolution_mm,
+                grid_pos[1] * coarse_resolution_mm,
+            )
+
+        # Convert obstacles to coarse grid
+        coarse_obstacles = set()
+        for ox, oy, layer in obstacles:
+            # Convert fine grid to coarse grid
+            coarse_x = int((ox * self.grid_resolution_mm) / coarse_resolution_mm)
+            coarse_y = int((oy * self.grid_resolution_mm) / coarse_resolution_mm)
+            coarse_obstacles.add((coarse_x, coarse_y))
+
+        # A* on coarse grid
+        start_grid = mm_to_coarse(start)
+        goal_grid = mm_to_coarse(goal)
+
+        open_set = []
+        came_from: Dict[Tuple[int, int], Tuple[int, int]] = {}
+        g_score: Dict[Tuple[int, int], float] = {start_grid: 0.0}
+        closed_set: Set[Tuple[int, int]] = set()
+
+        def heuristic(pos: Tuple[int, int]) -> float:
+            return abs(pos[0] - goal_grid[0]) + abs(pos[1] - goal_grid[1])
+
+        heapq.heappush(open_set, (heuristic(start_grid), start_grid))
+
+        # 8-directional movement
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        max_iterations = 1000
+        iterations = 0
+
+        while open_set and iterations < max_iterations:
+            iterations += 1
+            _, current = heapq.heappop(open_set)
+
+            if current in closed_set:
+                continue
+
+            closed_set.add(current)
+
+            # Check if reached goal
+            if abs(current[0] - goal_grid[0]) <= 1 and abs(current[1] - goal_grid[1]) <= 1:
+                # Reconstruct path
+                path = []
+                pos = current
+                while pos in came_from:
+                    path.append(pos)
+                    pos = came_from[pos]
+                path.append(start_grid)
+                path.reverse()
+
+                # Convert to mm and simplify (remove redundant waypoints)
+                waypoints_mm = [coarse_to_mm(p) for p in path]
+                simplified = self._simplify_waypoints(waypoints_mm)
+                return simplified
+
+            # Explore neighbors
+            for dx, dy in directions:
+                neighbor = (current[0] + dx, current[1] + dy)
+
+                # Check bounds
+                if neighbor[0] < 0 or neighbor[1] < 0:
+                    continue
+                if (
+                    neighbor[0] >= board_size[0] / coarse_resolution_mm
+                    or neighbor[1] >= board_size[1] / coarse_resolution_mm
+                ):
+                    continue
+
+                # Check obstacles
+                if neighbor in coarse_obstacles:
+                    continue
+
+                if neighbor in closed_set:
+                    continue
+
+                # Calculate cost
+                move_cost = math.sqrt(dx * dx + dy * dy)
+                tentative_g = g_score[current] + move_cost
+
+                if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+                    f_score = tentative_g + heuristic(neighbor)
+                    heapq.heappush(open_set, (f_score, neighbor))
+
+        return None  # No path found
+
+    def _simplify_waypoints(
+        self, waypoints: List[Tuple[float, float]]
+    ) -> List[Tuple[float, float]]:
+        """
+        Remove redundant waypoints (collinear points).
+
+        Args:
+            waypoints: List of waypoints in mm
+
+        Returns:
+            Simplified list of waypoints
+        """
+        if len(waypoints) <= 2:
+            return waypoints
+
+        simplified = [waypoints[0]]
+
+        for i in range(1, len(waypoints) - 1):
+            prev = simplified[-1]
+            curr = waypoints[i]
+            next_pt = waypoints[i + 1]
+
+            # Check if current point is on the line between prev and next
+            # Direction vectors
+            dx1 = curr[0] - prev[0]
+            dy1 = curr[1] - prev[1]
+            dx2 = next_pt[0] - curr[0]
+            dy2 = next_pt[1] - curr[1]
+
+            # Normalize
+            len1 = math.sqrt(dx1 * dx1 + dy1 * dy1)
+            len2 = math.sqrt(dx2 * dx2 + dy2 * dy2)
+
+            if len1 > 0 and len2 > 0:
+                dx1 /= len1
+                dy1 /= len1
+                dx2 /= len2
+                dy2 /= len2
+
+                # If directions are the same (collinear), skip current point
+                if abs(dx1 - dx2) < 0.1 and abs(dy1 - dy2) < 0.1:
+                    continue
+
+            simplified.append(curr)
+
+        simplified.append(waypoints[-1])
+        return simplified
+
+    def _convert_to_diff_pair_waypoints(
+        self,
+        centerline_waypoints: List[Tuple[float, float]],
+        start_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+        goal_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+    ) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
+        """
+        Convert centerline waypoints to differential pair waypoints.
+
+        Args:
+            centerline_waypoints: Waypoints for P trace
+            start_pins: Starting pin positions
+            goal_pins: Goal pin positions
+
+        Returns:
+            List of (pos_waypoint, neg_waypoint) tuples
+        """
+        pos_start, neg_start = start_pins
+        pos_goal, neg_goal = goal_pins
+
+        # Calculate offset at start and goal
+        start_offset = (neg_start[0] - pos_start[0], neg_start[1] - pos_start[1])
+        goal_offset = (neg_goal[0] - pos_goal[0], neg_goal[1] - pos_goal[1])
+
+        diff_pair_waypoints = []
+
+        # For each centerline waypoint, add offset to create N waypoint
+        for i, pos_wp in enumerate(centerline_waypoints[1:-1]):  # Skip start and goal
+            # Interpolate offset based on progress along path
+            t = (i + 1) / len(centerline_waypoints)
+            offset_x = start_offset[0] * (1 - t) + goal_offset[0] * t
+            offset_y = start_offset[1] * (1 - t) + goal_offset[1] * t
+
+            neg_wp = (pos_wp[0] + offset_x, pos_wp[1] + offset_y)
+            diff_pair_waypoints.append((pos_wp, neg_wp))
+
+        return diff_pair_waypoints
