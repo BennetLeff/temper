@@ -376,6 +376,9 @@ class DRCOracle:
                     continue
                 if track_a.net == track_b.net:
                     continue
+                # Skip clearance checks for differential pairs (intentionally routed close)
+                if track_a.is_diff_pair_with(track_b):
+                    continue
 
                 mid = seg_a.midpoint()
                 required = self.rules.get_clearance(track_a.net, track_b.net, mid.x, mid.y)

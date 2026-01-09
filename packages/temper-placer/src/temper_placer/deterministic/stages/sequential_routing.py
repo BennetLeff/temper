@@ -888,6 +888,7 @@ class SequentialRoutingStage(Stage):
                                         width=width,
                                         net=net_pos_name,
                                         layer=p2[2],
+                                        diff_pair_companion=net_neg_name,
                                     )
                                 )
 
@@ -927,6 +928,7 @@ class SequentialRoutingStage(Stage):
                                     width=width,
                                     net=net_pos_name,
                                     layer=p1[2],
+                                    diff_pair_companion=net_neg_name,
                                 )
                             )
 
@@ -979,6 +981,7 @@ class SequentialRoutingStage(Stage):
                                         width=width,
                                         net=net_neg_name,
                                         layer=p2[2],
+                                        diff_pair_companion=net_pos_name,
                                     )
                                 )
 
@@ -1018,6 +1021,7 @@ class SequentialRoutingStage(Stage):
                                     width=width,
                                     net=net_neg_name,
                                     layer=p1[2],
+                                    diff_pair_companion=net_pos_name,
                                 )
                             )
 

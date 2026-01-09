@@ -154,6 +154,18 @@ class ClearanceMatrix:
     # For diff pairs, this spacing is the required center-to-center distance
     _differential_pairs: dict[frozenset, float] = field(default_factory=dict)
 
+    def is_differential_pair(self, net_a: str, net_b: str) -> bool:
+        """Check if two nets are a registered differential pair.
+
+        Args:
+            net_a: First net name
+            net_b: Second net name
+
+        Returns:
+            True if the nets are a registered differential pair
+        """
+        return frozenset([net_a, net_b]) in self._differential_pairs
+
     def get_clearance(
         self, net_a: str, net_b: str, x: float | None = None, y: float | None = None
     ) -> float:

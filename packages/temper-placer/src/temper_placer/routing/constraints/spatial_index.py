@@ -30,6 +30,14 @@ class Track:
     net: str
     layer: int
     id: str = ""
+    diff_pair_companion: str | None = None  # Companion net if part of a differential pair
+
+    def is_diff_pair_with(self, other: "Track") -> bool:
+        """Check if this track and another are companions in a differential pair."""
+        return (
+            self.diff_pair_companion is not None
+            and self.diff_pair_companion == other.net
+        )
 
     def to_segment(self) -> LineSegment:
         """Convert to LineSegment for geometric operations."""
