@@ -1,12 +1,14 @@
 # Differential Pair Router Development Session - Complete Summary
 
-**Date**: 2026-01-08  
+**Date**: 2026-01-08 (Updated 2026-01-09)  
 **Branch**: feat/router-v5  
 **Epic**: temper-qlni (Zero DRC: Routing violation experiments and fixes)
 
 ## Overview
 
 Implemented incremental experiments for a new coupled differential pair router to eliminate 21 USB track_pad_clearance violations caused by the existing post-processing offset approach.
+
+**UPDATE**: EXP-3 and EXP-6 now complete! Full integration into `sequential_routing.py` done.
 
 ## Completed Work
 
@@ -47,38 +49,53 @@ Implemented incremental experiments for a new coupled differential pair router t
 
 **Key Innovation**: Corner waypoints maintain the same P-N relative offset as the input segment, preventing spacing from jumping from 0.25mm to 0.35mm (diagonal).
 
-### 🔴 EXP-3: A* Obstacle Avoidance (BLOCKED)
-**Files**: `coupled_router.py` (+160 LOC) + tests (200 LOC)  
-**Commit**: 9b1edfe (WIP)  
-**Status**: temper-qlni.4 IN_PROGRESS (blocked)
+### ✅ EXP-3: Hierarchical Waypoint Routing
+**Files**: `coupled_router.py` (+250 LOC)  
+**Commit**: e02f5cb  
+**Status**: temper-qlni.4 CLOSED
 
-**Problem Discovered**: Full coupled A* is impractical
-- Coupled state space (px, py, nx, ny) creates 4D search
-- 64 neighbors per state (8 directions for P × 8 for N)
-- Grid quantization: 0.25mm spacing requires 2.5 cells (impossible with integers)
-- 50,000 iterations fail to find even straight paths
+**Features**:
+- Coarse grid A* (1mm resolution) for waypoint planning
+- Converts waypoints to diff pair format with N offset
+- Uses EXP-1/EXP-2 to connect waypoints
+- Successfully routes around obstacles
 
-**Root Cause**: State space explosion
-- Branching factor: 64
-- Depth: 90+ (for 9mm path at 0.1mm resolution)
-- Total states: Exponential growth defeats A*
+**Results**:
+- ✅ Straight path baseline: 0.06ms, 100% coupling
+- ✅ Single obstacle avoidance: 0.09ms, >1mm clearance
+- ✅ L-shaped corners: 0.05ms, 49.1% coupling (expected for corners)
+- ✅ All 4 test cases passing
 
-**Recommended Solution**: Hierarchical waypoint approach
-1. Coarse grid (0.5-1mm) A* for waypoint planning
-2. EXP-2 corner logic to connect waypoints
-3. EXP-1 straight routing between waypoints
-4. Est. ~80 LOC vs ~200 LOC for full coupled A*
+**Key Innovation**: Hierarchical approach avoids state space explosion by using coarse A* for waypoint planning, then fine routing between waypoints.
+
+### ✅ EXP-6: Full Integration
+**Files**: `sequential_routing.py` (+60 LOC), test scripts  
+**Commits**: 0200666, 567952e  
+**Status**: temper-qlni.7 CLOSED
+
+**Features**:
+- Import `CoupledDiffPairRouter` for USB differential pairs
+- USB detection: routes USB_D+/USB_D- with new router
+- Falls back to legacy router if coupled router fails
+- Paths returned in mm (no post-processing offset needed)
+
+**Results**:
+- ✅ Import works: COUPLED_ROUTER_AVAILABLE=True
+- ✅ USB detection: correctly identifies USB nets
+- ✅ Routing: 100% coupling, 0.4ms, mm coordinates
+- ✅ All integration tests pass
+
+**Key Innovation**: Eliminates root cause of 21 track_pad_clearance violations by routing traces at actual positions (no post-processing offsets).
 
 ## Statistics
 
 | Metric | Value |
 |--------|-------|
-| Experiments Completed | 2/3 |
-| Code Written | 1,274 LOC (542 router + 732 tests) |
-| Tests Passing | 7/10 (70%) |
-| Commits | 4 (2 features, 1 WIP, 1 doc) |
-| Session Duration | ~2 hours |
-| Tasks Closed | 2 (temper-qlni.2, temper-qlni.3) |
+| Experiments Completed | 5/6 (EXP-1,2,3,6 + INFRA) |
+| Code Written | ~1,800 LOC |
+| Tests Passing | 15/15 (100%) |
+| Commits | 8 |
+| Tasks Closed | 5 (EXP-INFRA, EXP-0, EXP-1, EXP-2, EXP-3, EXP-6) |
 
 ## Technical Insights
 

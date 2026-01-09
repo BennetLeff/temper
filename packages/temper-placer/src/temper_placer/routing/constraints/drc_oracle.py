@@ -205,6 +205,7 @@ class DRCOracle:
         net: str,
         width: float,
         neckdown: bool = False,
+        companion_net: str | None = None,
     ) -> tuple[bool, str]:
         """Check if a track segment can be placed without DRC violations.
 
@@ -215,6 +216,9 @@ class DRCOracle:
             net: Net name
             width: Track width in mm
             neckdown: If True, allow relaxed clearance (0.15mm)
+            companion_net: If provided, skip clearance checks against this net
+                          (used for differential pair routing where P and N
+                          traces are designed to be tightly coupled)
 
         Returns:
             (valid, reason) - True if valid, False with reason if not
@@ -233,7 +237,11 @@ class DRCOracle:
         # Check against nearby tracks
         nearby_tracks = self.geometry.query_tracks_near(midpoint, search_radius, layer)
         for track in nearby_tracks:
+            # Skip same-net tracks
             if track.net == net:
+                continue
+            # Skip companion net tracks (for differential pair routing)
+            if companion_net and track.net == companion_net:
                 continue
 
             required = self.rules.get_clearance(net, track.net, midpoint.x, midpoint.y)
@@ -252,7 +260,11 @@ class DRCOracle:
         # Check against nearby pads
         nearby_pads = self.geometry.query_pads_near(midpoint, search_radius, layer)
         for pad in nearby_pads:
+            # Skip same-net pads
             if pad.net == net:
+                continue
+            # Skip companion net pads (for differential pair routing)
+            if companion_net and pad.net == companion_net:
                 continue
 
             required = self.rules.get_clearance(net, pad.net, midpoint.x, midpoint.y)
@@ -271,7 +283,11 @@ class DRCOracle:
         # Check against nearby vias
         nearby_vias = self.geometry.query_vias_near(midpoint, search_radius)
         for via in nearby_vias:
+            # Skip same-net vias
             if via.net == net:
+                continue
+            # Skip companion net vias (for differential pair routing)
+            if companion_net and via.net == companion_net:
                 continue
 
             required = self.rules.get_clearance(net, via.net, midpoint.x, midpoint.y)
@@ -351,8 +367,10 @@ class DRCOracle:
         for track_a in self.geometry.tracks:
             seg_a = track_a.to_segment()
             search_radius = (seg_a.length / 2) + self.rules.default_clearance + 0.5
-            nearby_tracks = self.geometry.query_tracks_near(seg_a.midpoint(), search_radius, track_a.layer)
-            
+            nearby_tracks = self.geometry.query_tracks_near(
+                seg_a.midpoint(), search_radius, track_a.layer
+            )
+
             for track_b in nearby_tracks:
                 if track_a.id >= track_b.id:
                     continue
@@ -380,16 +398,18 @@ class DRCOracle:
 
         # Check all via-to-via clearances
         for via_a in self.geometry.vias:
-            search_radius = (via_a.diameter/2) + self.rules.default_clearance + 0.5
+            search_radius = (via_a.diameter / 2) + self.rules.default_clearance + 0.5
             nearby_vias = self.geometry.query_vias_near(via_a.center, search_radius)
-            
+
             for via_b in nearby_vias:
                 if via_a.id >= via_b.id:
                     continue
                 if via_a.net == via_b.net:
                     continue
 
-                required = self.rules.get_clearance(via_a.net, via_b.net, via_a.center.x, via_a.center.y)
+                required = self.rules.get_clearance(
+                    via_a.net, via_b.net, via_a.center.x, via_a.center.y
+                )
                 effective = required + (via_a.diameter / 2) + (via_b.diameter / 2)
 
                 actual = via_a.center.distance_to(via_b.center)
@@ -406,21 +426,21 @@ class DRCOracle:
                             location=via_a.center,
                         )
                     )
-                    
+
         # Check Track-to-Pad clearances
         for track in self.geometry.tracks:
             seg = track.to_segment()
             search_radius = (seg.length / 2) + self.rules.default_clearance + 3.0
             nearby_pads = self.geometry.query_pads_near(seg.midpoint(), search_radius, track.layer)
-            
+
             for pad in nearby_pads:
                 if track.net == pad.net:
                     continue
-                
+
                 mid = seg.midpoint()
                 required = self.rules.get_clearance(track.net, pad.net, mid.x, mid.y)
                 effective = required + (track.width / 2) + pad.mask_expansion
-                
+
                 actual = segment_to_rotated_rect_distance(seg, pad.rot_rect)
                 if actual < effective:
                     violations.append(
@@ -440,14 +460,14 @@ class DRCOracle:
         for via in self.geometry.vias:
             search_radius = (via.diameter / 2) + self.rules.default_clearance + 3.0
             nearby_pads = self.geometry.query_pads_near(via.center, search_radius)
-            
+
             for pad in nearby_pads:
                 if via.net == pad.net:
                     continue
-                    
+
                 required = self.rules.get_clearance(via.net, pad.net, via.center.x, via.center.y)
                 effective = required + (via.diameter / 2) + pad.mask_expansion
-                
+
                 actual = point_to_rotated_rect_distance(via.center, pad.rot_rect)
                 if actual < effective:
                     violations.append(

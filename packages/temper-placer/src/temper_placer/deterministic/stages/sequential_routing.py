@@ -475,10 +475,25 @@ class SequentialRoutingStage(Stage):
                 net_pos = net_by_name[net_pos_name]
                 net_neg = net_by_name[net_neg_name]
 
-                # Get pin positions for both nets
-                def get_pin_positions(net, comp_by_ref):
+                # Build pad position lookup from DRC oracle (has correct KiCad positions)
+                # This avoids using component.initial_position which may be modified by placement optimizer
+                pad_positions_from_oracle = {}
+                if state.drc_oracle:
+                    for pad in state.drc_oracle.geometry.pads:
+                        pad_positions_from_oracle[pad.id] = (pad.center.x, pad.center.y)
+
+                # Get pin positions for both nets - prefer DRC oracle positions
+                def get_pin_positions_from_oracle(net, pad_lookup, comp_by_ref):
+                    """Get pin positions, preferring DRC oracle positions over component positions."""
                     positions = []
                     for comp_ref, pin_name in net.pins:
+                        # Try DRC oracle first (has correct KiCad positions)
+                        pad_id = f"{comp_ref}.{pin_name}"
+                        if pad_id in pad_lookup:
+                            positions.append(pad_lookup[pad_id])
+                            continue
+
+                        # Fallback to component position (may be wrong if placement optimizer ran)
                         if comp_ref not in comp_by_ref:
                             continue
                         comp = comp_by_ref[comp_ref]
@@ -492,8 +507,12 @@ class SequentialRoutingStage(Stage):
                         positions.append((pos[0] + pin.position[0], pos[1] + pin.position[1]))
                     return positions
 
-                pos_pins = get_pin_positions(net_pos, comp_by_ref)
-                neg_pins = get_pin_positions(net_neg, comp_by_ref)
+                pos_pins = get_pin_positions_from_oracle(
+                    net_pos, pad_positions_from_oracle, comp_by_ref
+                )
+                neg_pins = get_pin_positions_from_oracle(
+                    net_neg, pad_positions_from_oracle, comp_by_ref
+                )
 
                 if len(pos_pins) != 2 or len(neg_pins) != 2:
                     print(
@@ -518,6 +537,12 @@ class SequentialRoutingStage(Stage):
                     start_pins = (pos_pins[0], neg_pins[1])
                     goal_pins = (pos_pins[1], neg_pins[0])
 
+                # DEBUG: Log computed pin positions
+                print(
+                    f"  [DiffPair] {net_pos_name}/{net_neg_name} pos_pins={pos_pins}, neg_pins={neg_pins}"
+                )
+                print(f"  [DiffPair] start_pins={start_pins}, goal_pins={goal_pins}")
+
                 # Get design rules for diff pair
                 width = self.default_width
                 clearance = self.default_clearance
@@ -533,35 +558,38 @@ class SequentialRoutingStage(Stage):
                 # nearly everything. For diff pairs, we only need to avoid actual physical
                 # obstacles (other pads/traces), not the inflated clearance zones.
                 #
-                # Strategy: Build obstacles from component pads only, using diff pair clearance
+                # Strategy: Build obstacles from DRC oracle pads (has correct KiCad positions)
                 obstacles: Set[Tuple[int, int, int]] = set()
-                diff_pair_clearance = clearance  # Use diff pair's own clearance requirement
 
-                for comp in state.netlist.components:
-                    comp_pos = comp.initial_position or (0, 0)
-                    for pin in comp.pins:
-                        # Skip pins belonging to the diff pair nets we're routing
-                        if pin.net in (net_pos_name, net_neg_name):
+                # FIX: Use effective clearance that matches DRC oracle calculation
+                # The DRC oracle computes: effective_clearance = required + (width / 2) + mask_expansion
+                # We need to account for:
+                # - USB-to-GND clearance: 0.25mm (max of 0.10 Differential and 0.25 Ground)
+                # - Half trace width: 0.127 / 2 = 0.0635mm
+                # - Mask expansion: 0.1mm (default in spatial_index.py)
+                # Total: ~0.414mm
+                mask_expansion_mm = 0.1  # Match default in spatial_index.py
+                gnd_clearance_mm = 0.25  # Ground net class clearance
+                effective_obstacle_clearance = gnd_clearance_mm + (width / 2) + mask_expansion_mm
+
+                # FIX: Build obstacles from DRC oracle's pad geometry instead of netlist components
+                # The DRC oracle has correct pad positions from KiCad PCB, while netlist.components
+                # may have positions from the placement optimizer
+                if state.drc_oracle and hasattr(state.drc_oracle, "geometry"):
+                    for pad in state.drc_oracle.geometry.pads:
+                        # Skip pads belonging to the diff pair nets we're routing
+                        if pad.net in (net_pos_name, net_neg_name):
                             continue
 
-                        pin_pos = (comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1])
-                        pin_gx = int(pin_pos[0] / grid.cell_size_mm)
-                        pin_gy = int(pin_pos[1] / grid.cell_size_mm)
+                        # Get pad position and size
+                        pad_center = (pad.center.x, pad.center.y)
+                        # pad.size is a tuple (width, height) in mm
+                        pad_radius_mm = max(pad.size[0], pad.size[1]) / 2.0
 
-                        # Block cells within clearance radius
-                        # FIX: Use actual pad size from pad_sizes lookup instead of hardcoded 0.5mm
-                        # This is critical for large pads like ESP32 thermal/ground pads (5.6mm x 5.6mm)
-                        pad_key = (comp.ref, pin.name)
-                        if pad_key in self.pad_sizes:
-                            pad_info = self.pad_sizes[pad_key]
-                            # pad_info.size.X and .Y contain width/height
-                            # Use the larger dimension for circular obstacle (conservative)
-                            pad_radius_mm = max(pad_info.size.X, pad_info.size.Y) / 2.0
-                        else:
-                            # Fallback to reasonable default
-                            pad_radius_mm = 0.5
+                        pin_gx = int(pad_center[0] / grid.cell_size_mm)
+                        pin_gy = int(pad_center[1] / grid.cell_size_mm)
 
-                        total_radius = pad_radius_mm + diff_pair_clearance
+                        total_radius = pad_radius_mm + effective_obstacle_clearance
                         radius_cells = int(total_radius / grid.cell_size_mm) + 1
 
                         for dx in range(-radius_cells, radius_cells + 1):
@@ -569,12 +597,52 @@ class SequentialRoutingStage(Stage):
                                 if dx * dx + dy * dy <= radius_cells * radius_cells:
                                     gx, gy = pin_gx + dx, pin_gy + dy
                                     if 0 <= gx < grid.cols and 0 <= gy < grid.rows:
-                                        # Block on layer 0 (F.Cu) for SMD, all layers for PTH
-                                        if pin.is_pth:
+                                        # Block on all layers for through-hole, layer 0 for SMD
+                                        if pad.is_pth:
                                             for layer in range(grid.layer_count):
                                                 obstacles.add((gx, gy, layer))
                                         else:
                                             obstacles.add((gx, gy, 0))
+                else:
+                    # Fallback to netlist components (old behavior)
+                    for comp in state.netlist.components:
+                        comp_pos = comp.initial_position or (0, 0)
+                        for pin in comp.pins:
+                            # Skip pins belonging to the diff pair nets we're routing
+                            if pin.net in (net_pos_name, net_neg_name):
+                                continue
+
+                            pin_pos = (comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1])
+                            pin_gx = int(pin_pos[0] / grid.cell_size_mm)
+                            pin_gy = int(pin_pos[1] / grid.cell_size_mm)
+
+                            # Block cells within clearance radius
+                            # FIX: Use actual pad size from pad_sizes lookup instead of hardcoded 0.5mm
+                            # This is critical for large pads like ESP32 thermal/ground pads (5.6mm x 5.6mm)
+                            pad_key = (comp.ref, pin.name)
+                            if pad_key in self.pad_sizes:
+                                pad_info = self.pad_sizes[pad_key]
+                                # pad_info.size.X and .Y contain width/height
+                                # Use the larger dimension for circular obstacle (conservative)
+                                pad_radius_mm = max(pad_info.size.X, pad_info.size.Y) / 2.0
+                            else:
+                                # Fallback to reasonable default
+                                pad_radius_mm = 0.5
+
+                            total_radius = pad_radius_mm + effective_obstacle_clearance
+                            radius_cells = int(total_radius / grid.cell_size_mm) + 1
+
+                            for dx in range(-radius_cells, radius_cells + 1):
+                                for dy in range(-radius_cells, radius_cells + 1):
+                                    if dx * dx + dy * dy <= radius_cells * radius_cells:
+                                        gx, gy = pin_gx + dx, pin_gy + dy
+                                        if 0 <= gx < grid.cols and 0 <= gy < grid.rows:
+                                            # Block on layer 0 (F.Cu) for SMD, all layers for PTH
+                                            if pin.is_pth:
+                                                for layer in range(grid.layer_count):
+                                                    obstacles.add((gx, gy, layer))
+                                            else:
+                                                obstacles.add((gx, gy, 0))
 
                 # Also add any already-routed traces as obstacles
                 for layer_idx in range(grid.layer_count):
@@ -584,7 +652,7 @@ class SequentialRoutingStage(Stage):
                         obstacles.add((int(col), int(row), layer_idx))
 
                 print(
-                    f"  [DiffPair] Built {len(obstacles)} obstacles with {diff_pair_clearance}mm clearance"
+                    f"  [DiffPair] Built {len(obstacles)} obstacles with {effective_obstacle_clearance:.2f}mm clearance"
                 )
 
                 # EXP-6: Use CoupledDiffPairRouter for USB differential pairs
@@ -610,6 +678,7 @@ class SequentialRoutingStage(Stage):
                     dp_start = time.time()
 
                     # Use hierarchical routing (coarse A* + fine segments)
+                    # IMPORTANT: Pass the grid cell size so obstacle coordinates are correctly converted
                     coupled_result = coupled_router.route_hierarchical(
                         start_pins=start_pins,
                         goal_pins=goal_pins,
@@ -621,6 +690,7 @@ class SequentialRoutingStage(Stage):
                         ),
                         net_pos=net_pos_name,
                         net_neg=net_neg_name,
+                        obstacle_grid_resolution_mm=grid.cell_size_mm,  # FIX: Pass grid cell size
                     )
 
                     dp_elapsed = time.time() - dp_start

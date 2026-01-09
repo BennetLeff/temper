@@ -7,6 +7,7 @@ def create_drc_aware_pipeline(
     config=None,
     metadata: "KiCadMetadata | None" = None,
     zone_aware=True,
+    parsed_pads=None,
 ):
     """Create pipeline with full DRC integration.
 
@@ -15,6 +16,10 @@ def create_drc_aware_pipeline(
         config: Pipeline configuration
         metadata: KiCad metadata (courtyards, pad sizes, board dimensions) - REQUIRED
         zone_aware: If True, use zone-aware slot generation that avoids copper zones (default: True)
+        parsed_pads: Optional list of PadData from kicad_parser.parse_kicad_pcb().pads.
+            If provided, DRC oracle uses these exact positions instead of computing
+            from component placements. This ensures DRC validates against actual
+            KiCad positions, not optimizer-generated positions.
 
     Raises:
         TypeError: If metadata is not provided
@@ -203,8 +208,11 @@ def create_drc_aware_pipeline(
             ),
             # DRC-FIX-5: Re-apply placements after clamping to sync component.initial_position
             ApplyPlacementsStage(),
-            # DRC setup
-            DRCOracleSetupStage(design_rules=config if config else design_rules),
+            # DRC setup - use parsed_pads for correct KiCad positions
+            DRCOracleSetupStage(
+                design_rules=config if config else design_rules,
+                parsed_pads=parsed_pads,
+            ),
             # Routing
             ClearanceGridStage(
                 cell_size_mm=0.25,

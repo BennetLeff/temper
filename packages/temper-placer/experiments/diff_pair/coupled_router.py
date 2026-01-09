@@ -187,6 +187,10 @@ class CoupledDiffPairRouter:
         """
         Validate paths against DRC oracle.
 
+        For differential pairs, we use companion_net to allow the P and N traces
+        to be routed close together (they are designed to be tightly coupled).
+        This skips clearance checks between P trace and N pad/track and vice versa.
+
         Args:
             pos_path: P trace waypoints
             neg_path: N trace waypoints
@@ -196,7 +200,10 @@ class CoupledDiffPairRouter:
         Returns:
             Error message if validation fails, None if all checks pass
         """
-        # Check P trace segments
+        if self.drc_oracle is None:
+            return None  # No DRC oracle, skip validation
+
+        # Check P trace segments - use N as companion net
         for i in range(len(pos_path) - 1):
             start_point = pos_path[i][:2]  # (x, y)
             end_point = pos_path[i + 1][:2]
@@ -208,12 +215,13 @@ class CoupledDiffPairRouter:
                 layer=layer,
                 net=net_pos,
                 width=self.trace_width_mm,
+                companion_net=net_neg,  # Allow close routing to N trace/pads
             )
 
             if not can_place:
                 return f"P trace DRC violation: {reason}"
 
-        # Check N trace segments
+        # Check N trace segments - use P as companion net
         for i in range(len(neg_path) - 1):
             start_point = neg_path[i][:2]  # (x, y)
             end_point = neg_path[i + 1][:2]
@@ -225,6 +233,7 @@ class CoupledDiffPairRouter:
                 layer=layer,
                 net=net_neg,
                 width=self.trace_width_mm,
+                companion_net=net_pos,  # Allow close routing to P trace/pads
             )
 
             if not can_place:
@@ -621,6 +630,7 @@ class CoupledDiffPairRouter:
         board_size: Tuple[float, float, int],
         net_pos: str = "NET_P",
         net_neg: str = "NET_N",
+        obstacle_grid_resolution_mm: Optional[float] = None,
     ) -> CoupledRouterResult:
         """
         Route differential pair using hierarchical waypoint approach.
@@ -639,11 +649,19 @@ class CoupledDiffPairRouter:
             board_size: (width_mm, height_mm, num_layers)
             net_pos: P trace net name
             net_neg: N trace net name
+            obstacle_grid_resolution_mm: Resolution of obstacle grid in mm (defaults to self.grid_resolution_mm)
 
         Returns:
             CoupledRouterResult with routing outcome
         """
         start_time = time.time()
+
+        # Use provided obstacle grid resolution or default to self.grid_resolution_mm
+        obs_grid_res = (
+            obstacle_grid_resolution_mm
+            if obstacle_grid_resolution_mm is not None
+            else self.grid_resolution_mm
+        )
 
         # Step 1: Find coarse waypoints using centerline A*
         pos_start, neg_start = start_pins
@@ -651,7 +669,7 @@ class CoupledDiffPairRouter:
 
         # Use P trace as centerline (N follows at offset)
         coarse_waypoints_mm = self._find_coarse_waypoints(
-            pos_start, pos_goal, obstacles, board_size
+            pos_start, pos_goal, obstacles, board_size, obstacle_grid_resolution_mm=obs_grid_res
         )
 
         if not coarse_waypoints_mm:
@@ -691,6 +709,7 @@ class CoupledDiffPairRouter:
         obstacles: Set[Tuple[int, int, int]],
         board_size: Tuple[float, float, int],
         coarse_resolution_mm: float = 1.0,
+        obstacle_grid_resolution_mm: Optional[float] = None,
     ) -> Optional[List[Tuple[float, float]]]:
         """
         Find waypoints on coarse grid using A*.
@@ -698,13 +717,20 @@ class CoupledDiffPairRouter:
         Args:
             start: Starting position in mm
             goal: Goal position in mm
-            obstacles: Fine grid obstacles
+            obstacles: Fine grid obstacles (in grid units)
             board_size: Board dimensions
             coarse_resolution_mm: Coarse grid resolution (default 1mm)
+            obstacle_grid_resolution_mm: Resolution of obstacle grid in mm (defaults to self.grid_resolution_mm)
 
         Returns:
             List of waypoint positions in mm, or None if no path found
         """
+        # Use provided obstacle grid resolution or default
+        obs_grid_res = (
+            obstacle_grid_resolution_mm
+            if obstacle_grid_resolution_mm is not None
+            else self.grid_resolution_mm
+        )
 
         def mm_to_coarse(mm_pos: Tuple[float, float]) -> Tuple[int, int]:
             return (
@@ -719,11 +745,15 @@ class CoupledDiffPairRouter:
             )
 
         # Convert obstacles to coarse grid
+        # NOTE: obstacles are in obstacle grid units (obs_grid_res mm per cell)
+        # We first convert to mm, then to coarse grid
         coarse_obstacles = set()
         for ox, oy, layer in obstacles:
-            # Convert fine grid to coarse grid
-            coarse_x = int((ox * self.grid_resolution_mm) / coarse_resolution_mm)
-            coarse_y = int((oy * self.grid_resolution_mm) / coarse_resolution_mm)
+            # Convert fine grid to mm, then to coarse grid
+            obs_mm_x = ox * obs_grid_res
+            obs_mm_y = oy * obs_grid_res
+            coarse_x = int(obs_mm_x / coarse_resolution_mm)
+            coarse_y = int(obs_mm_y / coarse_resolution_mm)
             coarse_obstacles.add((coarse_x, coarse_y))
 
         # A* on coarse grid

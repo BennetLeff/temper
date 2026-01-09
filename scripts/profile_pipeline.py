@@ -52,9 +52,13 @@ def profile_pipeline():
         board=result.board,
     )
 
-    # Create pipeline
+    # Create pipeline - pass parsed pads for correct DRC positions
     print("\nCreating pipeline...")
-    pipeline = create_drc_aware_pipeline(config=config, metadata=metadata)
+    pipeline = create_drc_aware_pipeline(
+        config=config,
+        metadata=metadata,
+        parsed_pads=result.pads,  # Use actual KiCad pad positions for DRC
+    )
 
     print(f"  Stages: {len(pipeline.stages)}")
     for i, stage in enumerate(pipeline.stages):

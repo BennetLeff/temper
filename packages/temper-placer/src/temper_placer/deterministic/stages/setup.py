@@ -17,9 +17,17 @@ if TYPE_CHECKING:
 
 @dataclass
 class DRCOracleSetupStage(Stage):
-    """Setup stage for initializing DRCOracle and other common utilities."""
+    """Setup stage for initializing DRCOracle and other common utilities.
+
+    Args:
+        design_rules: Design rules configuration
+        parsed_pads: Optional list of PadData from kicad_parser. If provided,
+            these are used for DRC oracle instead of computing from placements.
+            This ensures DRC uses the actual KiCad positions, not optimized placements.
+    """
 
     design_rules: "DesignRules | None" = None
+    parsed_pads: "list | None" = None  # List of PadData from kicad_parser
 
     @property
     def name(self) -> str:
@@ -92,8 +100,57 @@ class DRCOracleSetupStage(Stage):
         # Create DRCOracle
         oracle = DRCOracle(rules=matrix)
 
-        # Register pads from board if available
-        if state.board and state.netlist:
+        # Register pads - prefer parsed_pads (actual KiCad positions) over computed from placements
+        if self.parsed_pads:
+            # Use parsed pads directly from KiCad file - these have correct absolute positions
+            for pad_data in self.parsed_pads:
+                # Map layer name to index
+                layer_idx = 0
+                pad_layer = getattr(pad_data, "layer", "F.Cu")
+
+                # Check if PTH: layer is "all" or "*.Cu", or has a drill hole
+                drill = getattr(pad_data, "drill", None)
+                has_drill = drill is not None and (
+                    (isinstance(drill, (int, float)) and drill > 0)
+                    or (hasattr(drill, "diameter") and drill.diameter and drill.diameter > 0)
+                )
+                is_pth = pad_layer in ["all", "*.Cu"] or has_drill
+
+                if pad_layer == "B.Cu":
+                    layer_idx = 3
+                elif pad_layer == "In1.Cu":
+                    layer_idx = 1
+                elif pad_layer == "In2.Cu":
+                    layer_idx = 2
+                else:
+                    layer_idx = 0
+
+                # Use sentinel net for unconnected pads
+                pad_net = pad_data.net if pad_data.net else "__UNCONNECTED__"
+
+                # Determine shape
+                shape = getattr(pad_data, "shape", "rect")
+                if shape not in ["circle", "rect", "oval"]:
+                    shape = "rect"
+
+                oracle.register_pad(
+                    Pad(
+                        center=Point(pad_data.position[0], pad_data.position[1]),
+                        shape=shape,
+                        size=pad_data.size,
+                        net=pad_net,
+                        layer=layer_idx,
+                        id=f"{pad_data.component_ref}.{pad_data.number}",
+                        rotation=getattr(pad_data, "rotation", 0.0),
+                        mask_expansion=0.1,
+                        is_pth=is_pth,
+                    )
+                )
+
+            oracle.geometry.rebuild_index()
+
+        elif state.board and state.netlist:
+            # Fallback: compute from component placements (may not match KiCad positions)
             placements_dict = dict(state.placements) if state.placements else {}
 
             for component in state.netlist.components:
