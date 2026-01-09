@@ -11,8 +11,7 @@
             "/opt/homebrew/lib/python3.11/site-packages/numpy/_core/include/numpy/ufuncobject.h"
         ],
         "extra_compile_args": [
-            "-O3",
-            "-std=c++11"
+            "-O3"
         ],
         "include_dirs": [
             "/opt/homebrew/lib/python3.11/site-packages/numpy/_core/include"
@@ -2428,6 +2427,25 @@ static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Fast(PyObject *o, Py_ssize_t i,
 /* PyLongCompare.proto */
 static CYTHON_INLINE int __Pyx_PyLong_BoolEqObjC(PyObject *op1, PyObject *op2, long intval, long inplace);
 
+/* PyObjectVectorCallMethodKwBuilder.proto */
+#if CYTHON_VECTORCALL && PY_VERSION_HEX >= 0x03090000
+#define __Pyx_Object_VectorcallMethod_CallFromBuilder PyObject_VectorcallMethod
+#else
+static PyObject *__Pyx_Object_VectorcallMethod_CallFromBuilder(PyObject *name, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+#endif
+
+/* RaiseTooManyValuesToUnpack.proto */
+static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected);
+
+/* RaiseNeedMoreValuesToUnpack.proto */
+static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index);
+
+/* IterFinish.proto */
+static CYTHON_INLINE int __Pyx_IterFinish(void);
+
+/* UnpackItemEndCheck.proto */
+static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
+
 /* BuildPyUnicode.proto (used by COrdinalToPyUnicode) */
 static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, const char* chars, int clength,
                                                 int prepend_sign, char padding_char);
@@ -3023,7 +3041,7 @@ static const char __pyx_k_Cython_accelerated_A_pathfinding[] = "Cython-accelerat
 static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_test_heap_operations(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_test_name); /* proto */
 static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_2test_state_indexing(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_test_name, PyObject *__pyx_v_width, PyObject *__pyx_v_height, PyObject *__pyx_v_num_layers); /* proto */
 static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_4test_grid_access(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_test_name); /* proto */
-static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_path_cython(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_grid, __pyx_ctuple_double__and_double __pyx_v_start_pos, __pyx_ctuple_double__and_double __pyx_v_end_pos, PyObject *__pyx_v_net_id, PyObject *__pyx_v_config, PyObject *__pyx_v_start_layer, PyObject *__pyx_v_end_layer); /* proto */
+static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_path_cython(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_grid, __pyx_ctuple_double__and_double __pyx_v_start_pos, __pyx_ctuple_double__and_double __pyx_v_end_pos, PyObject *__pyx_v_net_id, PyObject *__pyx_v_config, PyObject *__pyx_v_start_layer, PyObject *__pyx_v_end_layer, PyObject *__pyx_v_drc_oracle, PyObject *__pyx_v_net_name, double __pyx_v_via_diameter); /* proto */
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
 /* SmallCodeConfig */
@@ -3064,9 +3082,9 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
-  PyObject *__pyx_tuple[2];
+  PyObject *__pyx_tuple[1];
   PyObject *__pyx_codeobj_tab[4];
-  PyObject *__pyx_string_tab[140];
+  PyObject *__pyx_string_tab[152];
   PyObject *__pyx_number_tab[6];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
@@ -3124,130 +3142,142 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[13]
 #define __pyx_n_u_RouteSegment __pyx_string_tab[14]
 #define __pyx_n_u_Tuple __pyx_string_tab[15]
-#define __pyx_n_u_allowed_layers __pyx_string_tab[16]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[17]
-#define __pyx_n_u_available_blocked __pyx_string_tab[18]
-#define __pyx_n_u_available_empty __pyx_string_tab[19]
-#define __pyx_n_u_available_same_net __pyx_string_tab[20]
-#define __pyx_n_u_bool __pyx_string_tab[21]
-#define __pyx_n_u_bounds_check __pyx_string_tab[22]
-#define __pyx_n_u_came_from __pyx_string_tab[23]
-#define __pyx_n_u_cell_size __pyx_string_tab[24]
-#define __pyx_n_u_cell_size_mm __pyx_string_tab[25]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[26]
-#define __pyx_n_u_col __pyx_string_tab[27]
-#define __pyx_n_u_col_out __pyx_string_tab[28]
-#define __pyx_n_u_cols __pyx_string_tab[29]
-#define __pyx_n_u_config __pyx_string_tab[30]
-#define __pyx_n_u_current_col __pyx_string_tab[31]
-#define __pyx_n_u_current_idx __pyx_string_tab[32]
-#define __pyx_n_u_current_layer __pyx_string_tab[33]
-#define __pyx_n_u_current_row __pyx_string_tab[34]
-#define __pyx_n_u_dict __pyx_string_tab[35]
-#define __pyx_n_u_dtype __pyx_string_tab[36]
-#define __pyx_n_u_empty __pyx_string_tab[37]
-#define __pyx_n_u_end __pyx_string_tab[38]
-#define __pyx_n_u_end_cell __pyx_string_tab[39]
-#define __pyx_n_u_end_col __pyx_string_tab[40]
-#define __pyx_n_u_end_layer __pyx_string_tab[41]
-#define __pyx_n_u_end_pos __pyx_string_tab[42]
-#define __pyx_n_u_end_row __pyx_string_tab[43]
-#define __pyx_n_u_f_score __pyx_string_tab[44]
-#define __pyx_n_u_find_path_cython __pyx_string_tab[45]
-#define __pyx_n_u_func __pyx_string_tab[46]
-#define __pyx_n_u_g_score __pyx_string_tab[47]
-#define __pyx_n_u_get __pyx_string_tab[48]
-#define __pyx_n_u_get_set __pyx_string_tab[49]
-#define __pyx_n_u_goal_found __pyx_string_tab[50]
-#define __pyx_n_u_goal_idx __pyx_string_tab[51]
-#define __pyx_n_u_grid __pyx_string_tab[52]
-#define __pyx_n_u_grid_data __pyx_string_tab[53]
-#define __pyx_n_u_grid_view __pyx_string_tab[54]
-#define __pyx_n_u_h_start __pyx_string_tab[55]
-#define __pyx_n_u_heap __pyx_string_tab[56]
-#define __pyx_n_u_height __pyx_string_tab[57]
-#define __pyx_n_u_i __pyx_string_tab[58]
-#define __pyx_n_u_index __pyx_string_tab[59]
-#define __pyx_n_u_indices __pyx_string_tab[60]
-#define __pyx_n_u_int __pyx_string_tab[61]
-#define __pyx_n_u_int32 __pyx_string_tab[62]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[63]
-#define __pyx_n_u_items __pyx_string_tab[64]
-#define __pyx_n_u_iterations __pyx_string_tab[65]
-#define __pyx_n_u_j __pyx_string_tab[66]
-#define __pyx_n_u_layer __pyx_string_tab[67]
-#define __pyx_n_u_layer_count __pyx_string_tab[68]
-#define __pyx_n_u_layer_out __pyx_string_tab[69]
-#define __pyx_n_u_layer_separation __pyx_string_tab[70]
-#define __pyx_n_u_main __pyx_string_tab[71]
-#define __pyx_n_u_max_iterations __pyx_string_tab[72]
-#define __pyx_n_u_min_order __pyx_string_tab[73]
-#define __pyx_n_u_mm_to_cell __pyx_string_tab[74]
-#define __pyx_n_u_module __pyx_string_tab[75]
-#define __pyx_n_u_name __pyx_string_tab[76]
-#define __pyx_n_u_neighbor_cols __pyx_string_tab[77]
-#define __pyx_n_u_neighbor_costs __pyx_string_tab[78]
-#define __pyx_n_u_neighbor_idx __pyx_string_tab[79]
-#define __pyx_n_u_neighbor_layers __pyx_string_tab[80]
-#define __pyx_n_u_neighbor_rows __pyx_string_tab[81]
-#define __pyx_n_u_net_id __pyx_string_tab[82]
-#define __pyx_n_u_np __pyx_string_tab[83]
-#define __pyx_n_u_num_allowed_layers __pyx_string_tab[84]
-#define __pyx_n_u_num_layers __pyx_string_tab[85]
-#define __pyx_n_u_num_neighbors __pyx_string_tab[86]
-#define __pyx_n_u_numpy __pyx_string_tab[87]
-#define __pyx_n_u_occupancy_grid __pyx_string_tab[88]
-#define __pyx_n_u_open_set __pyx_string_tab[89]
-#define __pyx_n_u_path_data __pyx_string_tab[90]
-#define __pyx_n_u_pop __pyx_string_tab[91]
-#define __pyx_n_u_print __pyx_string_tab[92]
-#define __pyx_n_u_priority __pyx_string_tab[93]
-#define __pyx_n_u_push_pop_single __pyx_string_tab[94]
-#define __pyx_n_u_pyx_capi __pyx_string_tab[95]
-#define __pyx_n_u_qualname __pyx_string_tab[96]
-#define __pyx_n_u_resize __pyx_string_tab[97]
-#define __pyx_n_u_result __pyx_string_tab[98]
-#define __pyx_n_u_return __pyx_string_tab[99]
-#define __pyx_n_u_roundtrip __pyx_string_tab[100]
-#define __pyx_n_u_row __pyx_string_tab[101]
-#define __pyx_n_u_row_out __pyx_string_tab[102]
-#define __pyx_n_u_rows __pyx_string_tab[103]
-#define __pyx_n_u_seen_indices __pyx_string_tab[104]
-#define __pyx_n_u_segments __pyx_string_tab[105]
-#define __pyx_n_u_set_name __pyx_string_tab[106]
-#define __pyx_n_u_setdefault __pyx_string_tab[107]
-#define __pyx_n_u_start __pyx_string_tab[108]
-#define __pyx_n_u_start_cell __pyx_string_tab[109]
-#define __pyx_n_u_start_col __pyx_string_tab[110]
-#define __pyx_n_u_start_idx __pyx_string_tab[111]
-#define __pyx_n_u_start_layer __pyx_string_tab[112]
-#define __pyx_n_u_start_pos __pyx_string_tab[113]
-#define __pyx_n_u_start_row __pyx_string_tab[114]
-#define __pyx_n_u_state_idx __pyx_string_tab[115]
-#define __pyx_n_u_state_space_size __pyx_string_tab[116]
-#define __pyx_n_u_str __pyx_string_tab[117]
-#define __pyx_n_u_temper_placer_routing_astar_asta __pyx_string_tab[118]
-#define __pyx_n_u_temper_placer_routing_astar_type __pyx_string_tab[119]
-#define __pyx_n_u_tentative_g __pyx_string_tab[120]
-#define __pyx_n_u_test __pyx_string_tab[121]
-#define __pyx_n_u_test_grid_access __pyx_string_tab[122]
-#define __pyx_n_u_test_heap_operations __pyx_string_tab[123]
-#define __pyx_n_u_test_name __pyx_string_tab[124]
-#define __pyx_n_u_test_state_indexing __pyx_string_tab[125]
-#define __pyx_n_u_total_cost __pyx_string_tab[126]
-#define __pyx_n_u_typing __pyx_string_tab[127]
-#define __pyx_n_u_unique __pyx_string_tab[128]
-#define __pyx_n_u_value __pyx_string_tab[129]
-#define __pyx_n_u_values __pyx_string_tab[130]
-#define __pyx_n_u_via_cost __pyx_string_tab[131]
-#define __pyx_n_u_via_positions __pyx_string_tab[132]
-#define __pyx_n_u_width __pyx_string_tab[133]
-#define __pyx_n_u_zeros __pyx_string_tab[134]
-#define __pyx_kp_b_float_int_int_int_int_int_int_fl __pyx_string_tab[135]
-#define __pyx_kp_b_iso88591_HA_z_A_6_6_a_HAQfAQ_1_z_Ct9Cq_3 __pyx_string_tab[136]
-#define __pyx_kp_b_iso88591_MXUV_z_A_IU_1_uAS_G5_G1_N_5_WG8 __pyx_string_tab[137]
-#define __pyx_kp_b_iso88591_T_fBa_aq_a_z_A_S_Q_3a_vS_3a_3c __pyx_string_tab[138]
-#define __pyx_kp_b_iso88591_q_A_fD_1_T_d_a_4q_1D_t_q_q_G1A __pyx_string_tab[139]
+#define __pyx_n_u__3 __pyx_string_tab[16]
+#define __pyx_n_u_allowed_layers __pyx_string_tab[17]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[18]
+#define __pyx_n_u_available_blocked __pyx_string_tab[19]
+#define __pyx_n_u_available_empty __pyx_string_tab[20]
+#define __pyx_n_u_available_same_net __pyx_string_tab[21]
+#define __pyx_n_u_bool __pyx_string_tab[22]
+#define __pyx_n_u_bounds_check __pyx_string_tab[23]
+#define __pyx_n_u_came_from __pyx_string_tab[24]
+#define __pyx_n_u_can_place_via __pyx_string_tab[25]
+#define __pyx_n_u_cell_size __pyx_string_tab[26]
+#define __pyx_n_u_cell_size_mm __pyx_string_tab[27]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[28]
+#define __pyx_n_u_col __pyx_string_tab[29]
+#define __pyx_n_u_col_out __pyx_string_tab[30]
+#define __pyx_n_u_cols __pyx_string_tab[31]
+#define __pyx_n_u_config __pyx_string_tab[32]
+#define __pyx_n_u_current_col __pyx_string_tab[33]
+#define __pyx_n_u_current_idx __pyx_string_tab[34]
+#define __pyx_n_u_current_layer __pyx_string_tab[35]
+#define __pyx_n_u_current_row __pyx_string_tab[36]
+#define __pyx_n_u_diameter __pyx_string_tab[37]
+#define __pyx_n_u_dict __pyx_string_tab[38]
+#define __pyx_n_u_drc_oracle __pyx_string_tab[39]
+#define __pyx_n_u_dtype __pyx_string_tab[40]
+#define __pyx_n_u_empty __pyx_string_tab[41]
+#define __pyx_n_u_end __pyx_string_tab[42]
+#define __pyx_n_u_end_cell __pyx_string_tab[43]
+#define __pyx_n_u_end_col __pyx_string_tab[44]
+#define __pyx_n_u_end_layer __pyx_string_tab[45]
+#define __pyx_n_u_end_pos __pyx_string_tab[46]
+#define __pyx_n_u_end_row __pyx_string_tab[47]
+#define __pyx_n_u_f_score __pyx_string_tab[48]
+#define __pyx_n_u_find_path_cython __pyx_string_tab[49]
+#define __pyx_n_u_float __pyx_string_tab[50]
+#define __pyx_n_u_func __pyx_string_tab[51]
+#define __pyx_n_u_g_score __pyx_string_tab[52]
+#define __pyx_n_u_get __pyx_string_tab[53]
+#define __pyx_n_u_get_set __pyx_string_tab[54]
+#define __pyx_n_u_goal_found __pyx_string_tab[55]
+#define __pyx_n_u_goal_idx __pyx_string_tab[56]
+#define __pyx_n_u_grid __pyx_string_tab[57]
+#define __pyx_n_u_grid_data __pyx_string_tab[58]
+#define __pyx_n_u_grid_view __pyx_string_tab[59]
+#define __pyx_n_u_h_start __pyx_string_tab[60]
+#define __pyx_n_u_heap __pyx_string_tab[61]
+#define __pyx_n_u_height __pyx_string_tab[62]
+#define __pyx_n_u_i __pyx_string_tab[63]
+#define __pyx_n_u_index __pyx_string_tab[64]
+#define __pyx_n_u_indices __pyx_string_tab[65]
+#define __pyx_n_u_int __pyx_string_tab[66]
+#define __pyx_n_u_int32 __pyx_string_tab[67]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[68]
+#define __pyx_n_u_items __pyx_string_tab[69]
+#define __pyx_n_u_iterations __pyx_string_tab[70]
+#define __pyx_n_u_j __pyx_string_tab[71]
+#define __pyx_n_u_layer __pyx_string_tab[72]
+#define __pyx_n_u_layer_count __pyx_string_tab[73]
+#define __pyx_n_u_layer_out __pyx_string_tab[74]
+#define __pyx_n_u_layer_separation __pyx_string_tab[75]
+#define __pyx_n_u_main __pyx_string_tab[76]
+#define __pyx_n_u_max_iterations __pyx_string_tab[77]
+#define __pyx_n_u_min_order __pyx_string_tab[78]
+#define __pyx_n_u_mm_to_cell __pyx_string_tab[79]
+#define __pyx_n_u_module __pyx_string_tab[80]
+#define __pyx_n_u_name __pyx_string_tab[81]
+#define __pyx_n_u_neighbor_cols __pyx_string_tab[82]
+#define __pyx_n_u_neighbor_costs __pyx_string_tab[83]
+#define __pyx_n_u_neighbor_idx __pyx_string_tab[84]
+#define __pyx_n_u_neighbor_layers __pyx_string_tab[85]
+#define __pyx_n_u_neighbor_rows __pyx_string_tab[86]
+#define __pyx_n_u_net __pyx_string_tab[87]
+#define __pyx_n_u_net_id __pyx_string_tab[88]
+#define __pyx_n_u_net_name __pyx_string_tab[89]
+#define __pyx_n_u_np __pyx_string_tab[90]
+#define __pyx_n_u_num_allowed_layers __pyx_string_tab[91]
+#define __pyx_n_u_num_layers __pyx_string_tab[92]
+#define __pyx_n_u_num_neighbors __pyx_string_tab[93]
+#define __pyx_n_u_numpy __pyx_string_tab[94]
+#define __pyx_n_u_occupancy_grid __pyx_string_tab[95]
+#define __pyx_n_u_open_set __pyx_string_tab[96]
+#define __pyx_n_u_path_data __pyx_string_tab[97]
+#define __pyx_n_u_pop __pyx_string_tab[98]
+#define __pyx_n_u_position __pyx_string_tab[99]
+#define __pyx_n_u_print __pyx_string_tab[100]
+#define __pyx_n_u_priority __pyx_string_tab[101]
+#define __pyx_n_u_push_pop_single __pyx_string_tab[102]
+#define __pyx_n_u_pyx_capi __pyx_string_tab[103]
+#define __pyx_n_u_qualname __pyx_string_tab[104]
+#define __pyx_n_u_resize __pyx_string_tab[105]
+#define __pyx_n_u_result __pyx_string_tab[106]
+#define __pyx_n_u_return __pyx_string_tab[107]
+#define __pyx_n_u_roundtrip __pyx_string_tab[108]
+#define __pyx_n_u_row __pyx_string_tab[109]
+#define __pyx_n_u_row_out __pyx_string_tab[110]
+#define __pyx_n_u_rows __pyx_string_tab[111]
+#define __pyx_n_u_seen_indices __pyx_string_tab[112]
+#define __pyx_n_u_segments __pyx_string_tab[113]
+#define __pyx_n_u_set_name __pyx_string_tab[114]
+#define __pyx_n_u_setdefault __pyx_string_tab[115]
+#define __pyx_n_u_start __pyx_string_tab[116]
+#define __pyx_n_u_start_cell __pyx_string_tab[117]
+#define __pyx_n_u_start_col __pyx_string_tab[118]
+#define __pyx_n_u_start_idx __pyx_string_tab[119]
+#define __pyx_n_u_start_layer __pyx_string_tab[120]
+#define __pyx_n_u_start_pos __pyx_string_tab[121]
+#define __pyx_n_u_start_row __pyx_string_tab[122]
+#define __pyx_n_u_state_idx __pyx_string_tab[123]
+#define __pyx_n_u_state_space_size __pyx_string_tab[124]
+#define __pyx_n_u_str __pyx_string_tab[125]
+#define __pyx_n_u_temper_placer_routing_astar_asta __pyx_string_tab[126]
+#define __pyx_n_u_temper_placer_routing_astar_type __pyx_string_tab[127]
+#define __pyx_n_u_tentative_g __pyx_string_tab[128]
+#define __pyx_n_u_test __pyx_string_tab[129]
+#define __pyx_n_u_test_grid_access __pyx_string_tab[130]
+#define __pyx_n_u_test_heap_operations __pyx_string_tab[131]
+#define __pyx_n_u_test_name __pyx_string_tab[132]
+#define __pyx_n_u_test_state_indexing __pyx_string_tab[133]
+#define __pyx_n_u_total_cost __pyx_string_tab[134]
+#define __pyx_n_u_typing __pyx_string_tab[135]
+#define __pyx_n_u_unique __pyx_string_tab[136]
+#define __pyx_n_u_valid __pyx_string_tab[137]
+#define __pyx_n_u_value __pyx_string_tab[138]
+#define __pyx_n_u_values __pyx_string_tab[139]
+#define __pyx_n_u_via_cost __pyx_string_tab[140]
+#define __pyx_n_u_via_diameter __pyx_string_tab[141]
+#define __pyx_n_u_via_positions __pyx_string_tab[142]
+#define __pyx_n_u_via_x __pyx_string_tab[143]
+#define __pyx_n_u_via_y __pyx_string_tab[144]
+#define __pyx_n_u_width __pyx_string_tab[145]
+#define __pyx_n_u_zeros __pyx_string_tab[146]
+#define __pyx_kp_b_float_int_int_int_int_int_int_fl __pyx_string_tab[147]
+#define __pyx_kp_b_iso88591_HA_z_A_6_6_a_HAQfAQ_1_z_Ct9Cq_3 __pyx_string_tab[148]
+#define __pyx_kp_b_iso88591_MXUV_z_A_IU_1_uAS_G5_G1_N_5_WG8 __pyx_string_tab[149]
+#define __pyx_kp_b_iso88591_T_fBa_aq_a_z_A_S_Q_3a_vS_3a_3c __pyx_string_tab[150]
+#define __pyx_kp_b_iso88591_q_a_A_fD_1_T_d_a_4q_1D_t_q_q_G1 __pyx_string_tab[151]
 #define __pyx_float_5_0 __pyx_number_tab[0]
 #define __pyx_int_0 __pyx_number_tab[1]
 #define __pyx_int_neg_1 __pyx_number_tab[2]
@@ -3284,9 +3314,9 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_flexible);
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_character);
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_ufunc);
-  for (int i=0; i<2; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
+  for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<4; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<140; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<152; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<6; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
@@ -3326,9 +3356,9 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_flexible);
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_character);
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_ufunc);
-  for (int i=0; i<2; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
+  for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<4; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<140; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<152; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<6; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
@@ -9135,7 +9165,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_13temper_placer_7routing_5astar_10astar_core_6find_path_cython, "Cython-accelerated A* pathfinding.\n    \n    Args:\n        grid: ClearanceGrid for collision checking\n        start_pos: (x, y) start position in mm\n        end_pos: (x, y) end position in mm\n        net_id: Net ID for clearance checking\n        config: Configuration dict with keys:\n            - via_cost: Cost penalty for vias (default: 5.0)\n            - max_iterations: Maximum search iterations (default: 100000)\n        start_layer: Starting layer index\n        end_layer: Ending layer index (-1 for any layer)\n        \n    Returns:\n        MultiLayerPath or None if no path found\n    ");
+PyDoc_STRVAR(__pyx_doc_13temper_placer_7routing_5astar_10astar_core_6find_path_cython, "Cython-accelerated A* pathfinding.\n    \n    Args:\n        grid: ClearanceGrid for collision checking\n        start_pos: (x, y) start position in mm\n        end_pos: (x, y) end position in mm\n        net_id: Net ID for clearance checking\n        config: Configuration dict with keys:\n            - via_cost: Cost penalty for vias (default: 5.0)\n            - max_iterations: Maximum search iterations (default: 100000)\n        start_layer: Starting layer index\n        end_layer: Ending layer index (-1 for any layer)\n        drc_oracle: Optional DRCOracle for via placement validation\n        net_name: Net name for DRC oracle checks\n        via_diameter: Via diameter in mm for DRC checks (default: 0.6)\n        \n    Returns:\n        MultiLayerPath or None if no path found\n    ");
 static PyMethodDef __pyx_mdef_13temper_placer_7routing_5astar_10astar_core_7find_path_cython = {"find_path_cython", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_13temper_placer_7routing_5astar_10astar_core_7find_path_cython, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_13temper_placer_7routing_5astar_10astar_core_6find_path_cython};
 static PyObject *__pyx_pw_13temper_placer_7routing_5astar_10astar_core_7find_path_cython(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
@@ -9151,11 +9181,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   PyObject *__pyx_v_config = 0;
   PyObject *__pyx_v_start_layer = 0;
   PyObject *__pyx_v_end_layer = 0;
+  PyObject *__pyx_v_drc_oracle = 0;
+  PyObject *__pyx_v_net_name = 0;
+  double __pyx_v_via_diameter;
   #if !CYTHON_METH_FASTCALL
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   #endif
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject* values[7] = {0,0,0,0,0,0,0};
+  PyObject* values[10] = {0,0,0,0,0,0,0,0,0,0};
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -9171,11 +9204,23 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   #endif
   __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_grid,&__pyx_mstate_global->__pyx_n_u_start_pos,&__pyx_mstate_global->__pyx_n_u_end_pos,&__pyx_mstate_global->__pyx_n_u_net_id,&__pyx_mstate_global->__pyx_n_u_config,&__pyx_mstate_global->__pyx_n_u_start_layer,&__pyx_mstate_global->__pyx_n_u_end_layer,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_grid,&__pyx_mstate_global->__pyx_n_u_start_pos,&__pyx_mstate_global->__pyx_n_u_end_pos,&__pyx_mstate_global->__pyx_n_u_net_id,&__pyx_mstate_global->__pyx_n_u_config,&__pyx_mstate_global->__pyx_n_u_start_layer,&__pyx_mstate_global->__pyx_n_u_end_layer,&__pyx_mstate_global->__pyx_n_u_drc_oracle,&__pyx_mstate_global->__pyx_n_u_net_name,&__pyx_mstate_global->__pyx_n_u_via_diameter,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 499, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
+        case 10:
+        values[9] = __Pyx_ArgRef_FASTCALL(__pyx_args, 9);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[9])) __PYX_ERR(0, 499, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  9:
+        values[8] = __Pyx_ArgRef_FASTCALL(__pyx_args, 8);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[8])) __PYX_ERR(0, 499, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  8:
+        values[7] = __Pyx_ArgRef_FASTCALL(__pyx_args, 7);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[7])) __PYX_ERR(0, 499, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  7:
         values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 499, __pyx_L3_error)
@@ -9211,11 +9256,41 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "find_path_cython", 0) < (0)) __PYX_ERR(0, 499, __pyx_L3_error)
       if (!values[5]) values[5] = __Pyx_NewRef(((PyObject*)((PyObject*)__pyx_mstate_global->__pyx_int_0)));
       if (!values[6]) values[6] = __Pyx_NewRef(((PyObject*)((PyObject*)__pyx_mstate_global->__pyx_int_neg_1)));
+
+      /* "temper_placer/routing/astar/astar_core.pyx":507
+ *     start_layer: int = 0,
+ *     end_layer: int = -1,
+ *     drc_oracle = None,             # <<<<<<<<<<<<<<
+ *     net_name: str = None,
+ *     via_diameter: float = 0.6,
+*/
+      if (!values[7]) values[7] = __Pyx_NewRef(((PyObject *)Py_None));
+
+      /* "temper_placer/routing/astar/astar_core.pyx":508
+ *     end_layer: int = -1,
+ *     drc_oracle = None,
+ *     net_name: str = None,             # <<<<<<<<<<<<<<
+ *     via_diameter: float = 0.6,
+ * ) -> Optional[MultiLayerPath]:
+*/
+      if (!values[8]) values[8] = __Pyx_NewRef(((PyObject*)Py_None));
       for (Py_ssize_t i = __pyx_nargs; i < 5; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("find_path_cython", 0, 5, 7, i); __PYX_ERR(0, 499, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("find_path_cython", 0, 5, 10, i); __PYX_ERR(0, 499, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
+        case 10:
+        values[9] = __Pyx_ArgRef_FASTCALL(__pyx_args, 9);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[9])) __PYX_ERR(0, 499, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  9:
+        values[8] = __Pyx_ArgRef_FASTCALL(__pyx_args, 8);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[8])) __PYX_ERR(0, 499, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  8:
+        values[7] = __Pyx_ArgRef_FASTCALL(__pyx_args, 7);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[7])) __PYX_ERR(0, 499, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  7:
         values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 499, __pyx_L3_error)
@@ -9240,6 +9315,24 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       }
       if (!values[5]) values[5] = __Pyx_NewRef(((PyObject*)((PyObject*)__pyx_mstate_global->__pyx_int_0)));
       if (!values[6]) values[6] = __Pyx_NewRef(((PyObject*)((PyObject*)__pyx_mstate_global->__pyx_int_neg_1)));
+
+      /* "temper_placer/routing/astar/astar_core.pyx":507
+ *     start_layer: int = 0,
+ *     end_layer: int = -1,
+ *     drc_oracle = None,             # <<<<<<<<<<<<<<
+ *     net_name: str = None,
+ *     via_diameter: float = 0.6,
+*/
+      if (!values[7]) values[7] = __Pyx_NewRef(((PyObject *)Py_None));
+
+      /* "temper_placer/routing/astar/astar_core.pyx":508
+ *     end_layer: int = -1,
+ *     drc_oracle = None,
+ *     net_name: str = None,             # <<<<<<<<<<<<<<
+ *     via_diameter: float = 0.6,
+ * ) -> Optional[MultiLayerPath]:
+*/
+      if (!values[8]) values[8] = __Pyx_NewRef(((PyObject*)Py_None));
     }
     __pyx_v_grid = values[0];
     __pyx_v_start_pos = __pyx_convert__from_py___pyx_ctuple_double__and_double(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 501, __pyx_L3_error)
@@ -9251,10 +9344,17 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     __pyx_v_start_layer = ((PyObject*)values[5]);
     if (__Pyx_PyInt_FromNumber(&values[6], "end_layer", 0) < (0)) __PYX_ERR(0, 506, __pyx_L3_error)
     __pyx_v_end_layer = ((PyObject*)values[6]);
+    __pyx_v_drc_oracle = values[7];
+    __pyx_v_net_name = ((PyObject*)values[8]);
+    if (values[9]) {
+      __pyx_v_via_diameter = __Pyx_PyFloat_AsDouble(values[9]); if (unlikely((__pyx_v_via_diameter == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 509, __pyx_L3_error)
+    } else {
+      __pyx_v_via_diameter = ((double)((double)0.6));
+    }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("find_path_cython", 0, 5, 7, __pyx_nargs); __PYX_ERR(0, 499, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("find_path_cython", 0, 5, 10, __pyx_nargs); __PYX_ERR(0, 499, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9269,7 +9369,16 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_config), (&PyDict_Type), 0, "config", 2))) __PYX_ERR(0, 504, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_start_layer), (&PyLong_Type), 0, "start_layer", 2))) __PYX_ERR(0, 505, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_end_layer), (&PyLong_Type), 0, "end_layer", 2))) __PYX_ERR(0, 506, __pyx_L1_error)
-  __pyx_r = __pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_path_cython(__pyx_self, __pyx_v_grid, __pyx_v_start_pos, __pyx_v_end_pos, __pyx_v_net_id, __pyx_v_config, __pyx_v_start_layer, __pyx_v_end_layer);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_net_name), (&PyUnicode_Type), 1, "net_name", 2))) __PYX_ERR(0, 508, __pyx_L1_error)
+  __pyx_r = __pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_path_cython(__pyx_self, __pyx_v_grid, __pyx_v_start_pos, __pyx_v_end_pos, __pyx_v_net_id, __pyx_v_config, __pyx_v_start_layer, __pyx_v_end_layer, __pyx_v_drc_oracle, __pyx_v_net_name, __pyx_v_via_diameter);
+
+  /* "temper_placer/routing/astar/astar_core.pyx":499
+ * # ============================================================================
+ * 
+ * def find_path_cython(             # <<<<<<<<<<<<<<
+ *     grid,
+ *     start_pos: Tuple[float, float],
+*/
 
   /* function exit code */
   goto __pyx_L0;
@@ -9288,7 +9397,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_path_cython(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_grid, __pyx_ctuple_double__and_double __pyx_v_start_pos, __pyx_ctuple_double__and_double __pyx_v_end_pos, PyObject *__pyx_v_net_id, PyObject *__pyx_v_config, PyObject *__pyx_v_start_layer, PyObject *__pyx_v_end_layer) {
+static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_path_cython(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_grid, __pyx_ctuple_double__and_double __pyx_v_start_pos, __pyx_ctuple_double__and_double __pyx_v_end_pos, PyObject *__pyx_v_net_id, PyObject *__pyx_v_config, PyObject *__pyx_v_start_layer, PyObject *__pyx_v_end_layer, PyObject *__pyx_v_drc_oracle, PyObject *__pyx_v_net_name, double __pyx_v_via_diameter) {
   float __pyx_v_via_cost;
   int __pyx_v_max_iterations;
   int __pyx_v_width;
@@ -9329,6 +9438,10 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   int __pyx_v_j;
   int __pyx_v_goal_found;
   int __pyx_v_goal_idx;
+  double __pyx_v_via_x;
+  double __pyx_v_via_y;
+  PyObject *__pyx_v_valid = NULL;
+  CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
   PyObject *__pyx_v_path_data = NULL;
   PyObject *__pyx_v_MultiLayerPath = NULL;
   PyObject *__pyx_v_result = NULL;
@@ -9349,17 +9462,18 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   long __pyx_t_11;
   int __pyx_t_12;
   int __pyx_t_13;
-  int __pyx_t_14;
-  PyObject *__pyx_t_15 = NULL;
-  Py_ssize_t __pyx_t_16;
-  PyObject *__pyx_t_17[4];
-  PyObject *__pyx_t_18 = NULL;
-  char const *__pyx_t_19;
-  PyObject *__pyx_t_20 = NULL;
+  PyObject *__pyx_t_14 = NULL;
+  PyObject *(*__pyx_t_15)(PyObject *);
+  int __pyx_t_16;
+  PyObject *__pyx_t_17 = NULL;
+  Py_ssize_t __pyx_t_18;
+  PyObject *__pyx_t_19[4];
+  char const *__pyx_t_20;
   PyObject *__pyx_t_21 = NULL;
   PyObject *__pyx_t_22 = NULL;
   PyObject *__pyx_t_23 = NULL;
   PyObject *__pyx_t_24 = NULL;
+  PyObject *__pyx_t_25 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -9370,85 +9484,85 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   __pyx_pybuffernd_grid_data.data = NULL;
   __pyx_pybuffernd_grid_data.rcbuffer = &__pyx_pybuffer_grid_data;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":525
+  /* "temper_placer/routing/astar/astar_core.pyx":531
  *     """
  *     # Extract config parameters
  *     cdef float via_cost = config.get('via_cost', 5.0)             # <<<<<<<<<<<<<<
  *     cdef int max_iterations = config.get('max_iterations', 100000)
  * 
 */
-  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_config, __pyx_mstate_global->__pyx_n_u_via_cost, __pyx_mstate_global->__pyx_float_5_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_config, __pyx_mstate_global->__pyx_n_u_via_cost, __pyx_mstate_global->__pyx_float_5_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 531, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 531, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_via_cost = __pyx_t_2;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":526
+  /* "temper_placer/routing/astar/astar_core.pyx":532
  *     # Extract config parameters
  *     cdef float via_cost = config.get('via_cost', 5.0)
  *     cdef int max_iterations = config.get('max_iterations', 100000)             # <<<<<<<<<<<<<<
  * 
  *     # Get grid parameters
 */
-  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_config, __pyx_mstate_global->__pyx_n_u_max_iterations, __pyx_mstate_global->__pyx_int_100000); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 526, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_config, __pyx_mstate_global->__pyx_n_u_max_iterations, __pyx_mstate_global->__pyx_int_100000); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 532, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 526, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 532, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_max_iterations = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":529
+  /* "temper_placer/routing/astar/astar_core.pyx":535
  * 
  *     # Get grid parameters
  *     cdef int width = grid.cols             # <<<<<<<<<<<<<<
  *     cdef int height = grid.rows
  *     cdef int num_layers = grid.layer_count
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_cols); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 529, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_cols); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 535, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 529, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 535, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_width = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":530
+  /* "temper_placer/routing/astar/astar_core.pyx":536
  *     # Get grid parameters
  *     cdef int width = grid.cols
  *     cdef int height = grid.rows             # <<<<<<<<<<<<<<
  *     cdef int num_layers = grid.layer_count
  *     cdef float cell_size = grid.cell_size_mm
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_rows); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 530, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_rows); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 530, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 536, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_height = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":531
+  /* "temper_placer/routing/astar/astar_core.pyx":537
  *     cdef int width = grid.cols
  *     cdef int height = grid.rows
  *     cdef int num_layers = grid.layer_count             # <<<<<<<<<<<<<<
  *     cdef float cell_size = grid.cell_size_mm
  * 
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_layer_count); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 531, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_layer_count); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 537, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 531, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 537, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_num_layers = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":532
+  /* "temper_placer/routing/astar/astar_core.pyx":538
  *     cdef int height = grid.rows
  *     cdef int num_layers = grid.layer_count
  *     cdef float cell_size = grid.cell_size_mm             # <<<<<<<<<<<<<<
  * 
  *     # Convert start/end positions to grid cells
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_cell_size_mm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 532, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_cell_size_mm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 532, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 538, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_cell_size = __pyx_t_2;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":535
+  /* "temper_placer/routing/astar/astar_core.pyx":541
  * 
  *     # Convert start/end positions to grid cells
  *     start_cell = grid._mm_to_cell(start_pos[0], start_pos[1])             # <<<<<<<<<<<<<<
@@ -9457,9 +9571,9 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_t_4 = __pyx_v_grid;
   __Pyx_INCREF(__pyx_t_4);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_start_pos.f0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_start_pos.f0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_start_pos.f1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_start_pos.f1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = 0;
   {
@@ -9468,13 +9582,13 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 535, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_start_cell = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":536
+  /* "temper_placer/routing/astar/astar_core.pyx":542
  *     # Convert start/end positions to grid cells
  *     start_cell = grid._mm_to_cell(start_pos[0], start_pos[1])
  *     end_cell = grid._mm_to_cell(end_pos[0], end_pos[1])             # <<<<<<<<<<<<<<
@@ -9483,9 +9597,9 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_t_6 = __pyx_v_grid;
   __Pyx_INCREF(__pyx_t_6);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_end_pos.f0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_end_pos.f0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_end_pos.f1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_end_pos.f1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = 0;
   {
@@ -9494,65 +9608,65 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_end_cell = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":538
+  /* "temper_placer/routing/astar/astar_core.pyx":544
  *     end_cell = grid._mm_to_cell(end_pos[0], end_pos[1])
  * 
  *     cdef int start_row = start_cell[0]             # <<<<<<<<<<<<<<
  *     cdef int start_col = start_cell[1]
  *     cdef int end_row = end_cell[0]
 */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_start_cell, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_start_cell, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 544, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 538, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 544, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_start_row = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":539
+  /* "temper_placer/routing/astar/astar_core.pyx":545
  * 
  *     cdef int start_row = start_cell[0]
  *     cdef int start_col = start_cell[1]             # <<<<<<<<<<<<<<
  *     cdef int end_row = end_cell[0]
  *     cdef int end_col = end_cell[1]
 */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_start_cell, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 539, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_start_cell, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 545, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 539, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 545, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_start_col = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":540
+  /* "temper_placer/routing/astar/astar_core.pyx":546
  *     cdef int start_row = start_cell[0]
  *     cdef int start_col = start_cell[1]
  *     cdef int end_row = end_cell[0]             # <<<<<<<<<<<<<<
  *     cdef int end_col = end_cell[1]
  * 
 */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_end_cell, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 540, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_end_cell, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 546, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 540, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 546, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_end_row = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":541
+  /* "temper_placer/routing/astar/astar_core.pyx":547
  *     cdef int start_col = start_cell[1]
  *     cdef int end_row = end_cell[0]
  *     cdef int end_col = end_cell[1]             # <<<<<<<<<<<<<<
  * 
  *     # Validate bounds
 */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_end_cell, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_end_cell, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 0, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 547, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 541, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 547, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_end_col = __pyx_t_3;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":544
+  /* "temper_placer/routing/astar/astar_core.pyx":550
  * 
  *     # Validate bounds
  *     if not (0 <= start_row < height and 0 <= start_col < width):             # <<<<<<<<<<<<<<
@@ -9577,7 +9691,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   __pyx_t_9 = (!__pyx_t_8);
   if (__pyx_t_9) {
 
-    /* "temper_placer/routing/astar/astar_core.pyx":545
+    /* "temper_placer/routing/astar/astar_core.pyx":551
  *     # Validate bounds
  *     if not (0 <= start_row < height and 0 <= start_col < width):
  *         return None             # <<<<<<<<<<<<<<
@@ -9588,7 +9702,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":544
+    /* "temper_placer/routing/astar/astar_core.pyx":550
  * 
  *     # Validate bounds
  *     if not (0 <= start_row < height and 0 <= start_col < width):             # <<<<<<<<<<<<<<
@@ -9597,7 +9711,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   }
 
-  /* "temper_placer/routing/astar/astar_core.pyx":546
+  /* "temper_placer/routing/astar/astar_core.pyx":552
  *     if not (0 <= start_row < height and 0 <= start_col < width):
  *         return None
  *     if not (0 <= end_row < height and 0 <= end_col < width):             # <<<<<<<<<<<<<<
@@ -9622,7 +9736,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   __pyx_t_8 = (!__pyx_t_9);
   if (__pyx_t_8) {
 
-    /* "temper_placer/routing/astar/astar_core.pyx":547
+    /* "temper_placer/routing/astar/astar_core.pyx":553
  *         return None
  *     if not (0 <= end_row < height and 0 <= end_col < width):
  *         return None             # <<<<<<<<<<<<<<
@@ -9633,7 +9747,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":546
+    /* "temper_placer/routing/astar/astar_core.pyx":552
  *     if not (0 <= start_row < height and 0 <= start_col < width):
  *         return None
  *     if not (0 <= end_row < height and 0 <= end_col < width):             # <<<<<<<<<<<<<<
@@ -9642,7 +9756,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   }
 
-  /* "temper_placer/routing/astar/astar_core.pyx":551
+  /* "temper_placer/routing/astar/astar_core.pyx":557
  *     # Setup allowed layers
  *     cdef int allowed_layers[4]  # Max 4 layers
  *     cdef int num_allowed_layers = min(4, num_layers)             # <<<<<<<<<<<<<<
@@ -9659,7 +9773,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   }
   __pyx_v_num_allowed_layers = __pyx_t_11;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":553
+  /* "temper_placer/routing/astar/astar_core.pyx":559
  *     cdef int num_allowed_layers = min(4, num_layers)
  *     cdef int i
  *     for i in range(num_allowed_layers):             # <<<<<<<<<<<<<<
@@ -9671,7 +9785,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":554
+    /* "temper_placer/routing/astar/astar_core.pyx":560
  *     cdef int i
  *     for i in range(num_allowed_layers):
  *         allowed_layers[i] = i             # <<<<<<<<<<<<<<
@@ -9681,32 +9795,32 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     (__pyx_v_allowed_layers[__pyx_v_i]) = __pyx_v_i;
   }
 
-  /* "temper_placer/routing/astar/astar_core.pyx":557
+  /* "temper_placer/routing/astar/astar_core.pyx":563
  * 
  *     # Validate start_layer
  *     if start_layer < 0 or start_layer >= num_layers:             # <<<<<<<<<<<<<<
  *         start_layer = 0
  * 
 */
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_start_layer, __pyx_mstate_global->__pyx_int_0, Py_LT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 557, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_v_start_layer, __pyx_mstate_global->__pyx_int_0, Py_LT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 563, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (!__pyx_t_9) {
   } else {
     __pyx_t_8 = __pyx_t_9;
     goto __pyx_L12_bool_binop_done;
   }
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_num_layers); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_num_layers); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_v_start_layer, __pyx_t_1, Py_GE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_v_start_layer, __pyx_t_1, Py_GE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_8 = __pyx_t_9;
   __pyx_L12_bool_binop_done:;
   if (__pyx_t_8) {
 
-    /* "temper_placer/routing/astar/astar_core.pyx":558
+    /* "temper_placer/routing/astar/astar_core.pyx":564
  *     # Validate start_layer
  *     if start_layer < 0 or start_layer >= num_layers:
  *         start_layer = 0             # <<<<<<<<<<<<<<
@@ -9716,7 +9830,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     __Pyx_INCREF(__pyx_mstate_global->__pyx_int_0);
     __Pyx_DECREF_SET(__pyx_v_start_layer, __pyx_mstate_global->__pyx_int_0);
 
-    /* "temper_placer/routing/astar/astar_core.pyx":557
+    /* "temper_placer/routing/astar/astar_core.pyx":563
  * 
  *     # Validate start_layer
  *     if start_layer < 0 or start_layer >= num_layers:             # <<<<<<<<<<<<<<
@@ -9725,28 +9839,28 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   }
 
-  /* "temper_placer/routing/astar/astar_core.pyx":562
+  /* "temper_placer/routing/astar/astar_core.pyx":568
  *     # Setup GridView for fast access
  *     cdef GridView grid_view
  *     cdef cnp.ndarray[cnp.int32_t, ndim=3] grid_data = grid.occupancy_grid             # <<<<<<<<<<<<<<
  *     grid_view.data = <int*>cnp.PyArray_DATA(grid_data)
  *     grid_view.width = width
 */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_occupancy_grid); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 562, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_grid, __pyx_mstate_global->__pyx_n_u_occupancy_grid); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 568, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 562, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 568, __pyx_L1_error)
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_grid_data.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_4), &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) {
       __pyx_v_grid_data = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 562, __pyx_L1_error)
+      __PYX_ERR(0, 568, __pyx_L1_error)
     } else {__pyx_pybuffernd_grid_data.diminfo[0].strides = __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_grid_data.diminfo[0].shape = __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_grid_data.diminfo[1].strides = __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_grid_data.diminfo[1].shape = __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_grid_data.diminfo[2].strides = __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_grid_data.diminfo[2].shape = __pyx_pybuffernd_grid_data.rcbuffer->pybuffer.shape[2];
     }
   }
   __pyx_v_grid_data = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":563
+  /* "temper_placer/routing/astar/astar_core.pyx":569
  *     cdef GridView grid_view
  *     cdef cnp.ndarray[cnp.int32_t, ndim=3] grid_data = grid.occupancy_grid
  *     grid_view.data = <int*>cnp.PyArray_DATA(grid_data)             # <<<<<<<<<<<<<<
@@ -9755,7 +9869,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_grid_view.data = ((int *)PyArray_DATA(((PyArrayObject *)__pyx_v_grid_data)));
 
-  /* "temper_placer/routing/astar/astar_core.pyx":564
+  /* "temper_placer/routing/astar/astar_core.pyx":570
  *     cdef cnp.ndarray[cnp.int32_t, ndim=3] grid_data = grid.occupancy_grid
  *     grid_view.data = <int*>cnp.PyArray_DATA(grid_data)
  *     grid_view.width = width             # <<<<<<<<<<<<<<
@@ -9764,7 +9878,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_grid_view.width = __pyx_v_width;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":565
+  /* "temper_placer/routing/astar/astar_core.pyx":571
  *     grid_view.data = <int*>cnp.PyArray_DATA(grid_data)
  *     grid_view.width = width
  *     grid_view.height = height             # <<<<<<<<<<<<<<
@@ -9773,7 +9887,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_grid_view.height = __pyx_v_height;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":566
+  /* "temper_placer/routing/astar/astar_core.pyx":572
  *     grid_view.width = width
  *     grid_view.height = height
  *     grid_view.num_layers = num_layers             # <<<<<<<<<<<<<<
@@ -9782,7 +9896,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_grid_view.num_layers = __pyx_v_num_layers;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":569
+  /* "temper_placer/routing/astar/astar_core.pyx":575
  * 
  *     # State space size
  *     cdef int state_space_size = width * height * num_layers             # <<<<<<<<<<<<<<
@@ -9791,7 +9905,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_state_space_size = ((__pyx_v_width * __pyx_v_height) * __pyx_v_num_layers);
 
-  /* "temper_placer/routing/astar/astar_core.pyx":572
+  /* "temper_placer/routing/astar/astar_core.pyx":578
  * 
  *     # Allocate arrays
  *     cdef float* g_score = <float*>malloc(state_space_size * sizeof(float))             # <<<<<<<<<<<<<<
@@ -9800,7 +9914,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_g_score = ((float *)malloc((__pyx_v_state_space_size * (sizeof(float)))));
 
-  /* "temper_placer/routing/astar/astar_core.pyx":573
+  /* "temper_placer/routing/astar/astar_core.pyx":579
  *     # Allocate arrays
  *     cdef float* g_score = <float*>malloc(state_space_size * sizeof(float))
  *     cdef int* came_from = <int*>malloc(state_space_size * sizeof(int))             # <<<<<<<<<<<<<<
@@ -9809,7 +9923,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_came_from = ((int *)malloc((__pyx_v_state_space_size * (sizeof(int)))));
 
-  /* "temper_placer/routing/astar/astar_core.pyx":577
+  /* "temper_placer/routing/astar/astar_core.pyx":583
  * 
  *     # Initialize arrays
  *     for i in range(state_space_size):             # <<<<<<<<<<<<<<
@@ -9821,7 +9935,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":578
+    /* "temper_placer/routing/astar/astar_core.pyx":584
  *     # Initialize arrays
  *     for i in range(state_space_size):
  *         g_score[i] = INFINITY             # <<<<<<<<<<<<<<
@@ -9830,7 +9944,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
     (__pyx_v_g_score[__pyx_v_i]) = INFINITY;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":579
+    /* "temper_placer/routing/astar/astar_core.pyx":585
  *     for i in range(state_space_size):
  *         g_score[i] = INFINITY
  *         came_from[i] = -1             # <<<<<<<<<<<<<<
@@ -9840,27 +9954,27 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     (__pyx_v_came_from[__pyx_v_i]) = -1;
   }
 
-  /* "temper_placer/routing/astar/astar_core.pyx":582
+  /* "temper_placer/routing/astar/astar_core.pyx":588
  * 
  *     # Initialize heap
  *     heap_init(&open_set, 1000)             # <<<<<<<<<<<<<<
  * 
  *     # Start state
 */
-  __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_init((&__pyx_v_open_set), 0x3E8); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 582, __pyx_L1_error)
+  __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_init((&__pyx_v_open_set), 0x3E8); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 588, __pyx_L1_error)
 
-  /* "temper_placer/routing/astar/astar_core.pyx":585
+  /* "temper_placer/routing/astar/astar_core.pyx":591
  * 
  *     # Start state
  *     cdef int start_idx = state_to_index(start_row, start_col, start_layer, width, height, num_layers)             # <<<<<<<<<<<<<<
  *     g_score[start_idx] = 0.0
  *     cdef float h_start = heuristic(start_row, start_col, start_layer, end_row, end_col, end_layer, cell_size, via_cost)
 */
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_v_start_layer); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 585, __pyx_L1_error)
-  __pyx_t_12 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_state_to_index(__pyx_v_start_row, __pyx_v_start_col, __pyx_t_3, __pyx_v_width, __pyx_v_height, __pyx_v_num_layers); if (unlikely(__pyx_t_12 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 585, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_v_start_layer); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 591, __pyx_L1_error)
+  __pyx_t_12 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_state_to_index(__pyx_v_start_row, __pyx_v_start_col, __pyx_t_3, __pyx_v_width, __pyx_v_height, __pyx_v_num_layers); if (unlikely(__pyx_t_12 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 591, __pyx_L1_error)
   __pyx_v_start_idx = __pyx_t_12;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":586
+  /* "temper_placer/routing/astar/astar_core.pyx":592
  *     # Start state
  *     cdef int start_idx = state_to_index(start_row, start_col, start_layer, width, height, num_layers)
  *     g_score[start_idx] = 0.0             # <<<<<<<<<<<<<<
@@ -9869,28 +9983,28 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   (__pyx_v_g_score[__pyx_v_start_idx]) = 0.0;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":587
+  /* "temper_placer/routing/astar/astar_core.pyx":593
  *     cdef int start_idx = state_to_index(start_row, start_col, start_layer, width, height, num_layers)
  *     g_score[start_idx] = 0.0
  *     cdef float h_start = heuristic(start_row, start_col, start_layer, end_row, end_col, end_layer, cell_size, via_cost)             # <<<<<<<<<<<<<<
  *     heap_push(&open_set, h_start, start_idx)
  * 
 */
-  __pyx_t_12 = __Pyx_PyLong_As_int(__pyx_v_start_layer); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 587, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_v_end_layer); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 587, __pyx_L1_error)
-  __pyx_t_2 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_heuristic(__pyx_v_start_row, __pyx_v_start_col, __pyx_t_12, __pyx_v_end_row, __pyx_v_end_col, __pyx_t_3, __pyx_v_cell_size, __pyx_v_via_cost); if (unlikely(__pyx_t_2 == ((float)-1) && PyErr_Occurred())) __PYX_ERR(0, 587, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyLong_As_int(__pyx_v_start_layer); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_v_end_layer); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_2 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_heuristic(__pyx_v_start_row, __pyx_v_start_col, __pyx_t_12, __pyx_v_end_row, __pyx_v_end_col, __pyx_t_3, __pyx_v_cell_size, __pyx_v_via_cost); if (unlikely(__pyx_t_2 == ((float)-1) && PyErr_Occurred())) __PYX_ERR(0, 593, __pyx_L1_error)
   __pyx_v_h_start = __pyx_t_2;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":588
+  /* "temper_placer/routing/astar/astar_core.pyx":594
  *     g_score[start_idx] = 0.0
  *     cdef float h_start = heuristic(start_row, start_col, start_layer, end_row, end_col, end_layer, cell_size, via_cost)
  *     heap_push(&open_set, h_start, start_idx)             # <<<<<<<<<<<<<<
  * 
  *     # Neighbor arrays (max 8 same-layer + 3 other layers = 11)
 */
-  __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_push((&__pyx_v_open_set), __pyx_v_h_start, __pyx_v_start_idx); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 588, __pyx_L1_error)
+  __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_push((&__pyx_v_open_set), __pyx_v_h_start, __pyx_v_start_idx); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 594, __pyx_L1_error)
 
-  /* "temper_placer/routing/astar/astar_core.pyx":597
+  /* "temper_placer/routing/astar/astar_core.pyx":603
  *     cdef int num_neighbors
  * 
  *     cdef int iterations = 0             # <<<<<<<<<<<<<<
@@ -9899,7 +10013,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_iterations = 0;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":603
+  /* "temper_placer/routing/astar/astar_core.pyx":609
  *     cdef float tentative_g, f_score
  *     cdef int j
  *     cdef bint goal_found = False             # <<<<<<<<<<<<<<
@@ -9908,7 +10022,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_goal_found = 0;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":604
+  /* "temper_placer/routing/astar/astar_core.pyx":610
  *     cdef int j
  *     cdef bint goal_found = False
  *     cdef int goal_idx = -1             # <<<<<<<<<<<<<<
@@ -9917,7 +10031,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   __pyx_v_goal_idx = -1;
 
-  /* "temper_placer/routing/astar/astar_core.pyx":607
+  /* "temper_placer/routing/astar/astar_core.pyx":613
  * 
  *     # A* main loop
  *     try:             # <<<<<<<<<<<<<<
@@ -9926,7 +10040,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
   /*try:*/ {
 
-    /* "temper_placer/routing/astar/astar_core.pyx":608
+    /* "temper_placer/routing/astar/astar_core.pyx":614
  *     # A* main loop
  *     try:
  *         while open_set.size > 0 and iterations < max_iterations:             # <<<<<<<<<<<<<<
@@ -9945,7 +10059,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
       __pyx_L21_bool_binop_done:;
       if (!__pyx_t_8) break;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":609
+      /* "temper_placer/routing/astar/astar_core.pyx":615
  *     try:
  *         while open_set.size > 0 and iterations < max_iterations:
  *             iterations += 1             # <<<<<<<<<<<<<<
@@ -9954,17 +10068,17 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       __pyx_v_iterations = (__pyx_v_iterations + 1);
 
-      /* "temper_placer/routing/astar/astar_core.pyx":612
+      /* "temper_placer/routing/astar/astar_core.pyx":618
  * 
  *             # Pop minimum from heap
  *             current_idx = heap_pop(&open_set, &priority)             # <<<<<<<<<<<<<<
  *             if current_idx == -1:
  *                 break
 */
-      __pyx_t_3 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_pop((&__pyx_v_open_set), (&__pyx_v_priority)); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 612, __pyx_L17_error)
+      __pyx_t_3 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_pop((&__pyx_v_open_set), (&__pyx_v_priority)); if (unlikely(__pyx_t_3 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 618, __pyx_L17_error)
       __pyx_v_current_idx = __pyx_t_3;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":613
+      /* "temper_placer/routing/astar/astar_core.pyx":619
  *             # Pop minimum from heap
  *             current_idx = heap_pop(&open_set, &priority)
  *             if current_idx == -1:             # <<<<<<<<<<<<<<
@@ -9974,7 +10088,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
       __pyx_t_8 = (__pyx_v_current_idx == -1L);
       if (__pyx_t_8) {
 
-        /* "temper_placer/routing/astar/astar_core.pyx":614
+        /* "temper_placer/routing/astar/astar_core.pyx":620
  *             current_idx = heap_pop(&open_set, &priority)
  *             if current_idx == -1:
  *                 break             # <<<<<<<<<<<<<<
@@ -9983,7 +10097,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
         goto __pyx_L20_break;
 
-        /* "temper_placer/routing/astar/astar_core.pyx":613
+        /* "temper_placer/routing/astar/astar_core.pyx":619
  *             # Pop minimum from heap
  *             current_idx = heap_pop(&open_set, &priority)
  *             if current_idx == -1:             # <<<<<<<<<<<<<<
@@ -9992,16 +10106,16 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       }
 
-      /* "temper_placer/routing/astar/astar_core.pyx":617
+      /* "temper_placer/routing/astar/astar_core.pyx":623
  * 
  *             # Convert to state
  *             index_to_state(current_idx, &current_row, &current_col, &current_layer, width, height, num_layers)             # <<<<<<<<<<<<<<
  * 
  *             # Check if goal reached
 */
-      __pyx_f_13temper_placer_7routing_5astar_10astar_core_index_to_state(__pyx_v_current_idx, (&__pyx_v_current_row), (&__pyx_v_current_col), (&__pyx_v_current_layer), __pyx_v_width, __pyx_v_height, __pyx_v_num_layers); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 617, __pyx_L17_error)
+      __pyx_f_13temper_placer_7routing_5astar_10astar_core_index_to_state(__pyx_v_current_idx, (&__pyx_v_current_row), (&__pyx_v_current_col), (&__pyx_v_current_layer), __pyx_v_width, __pyx_v_height, __pyx_v_num_layers); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 623, __pyx_L17_error)
 
-      /* "temper_placer/routing/astar/astar_core.pyx":620
+      /* "temper_placer/routing/astar/astar_core.pyx":626
  * 
  *             # Check if goal reached
  *             if current_row == end_row and current_col == end_col:             # <<<<<<<<<<<<<<
@@ -10019,30 +10133,30 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
       __pyx_L25_bool_binop_done:;
       if (__pyx_t_8) {
 
-        /* "temper_placer/routing/astar/astar_core.pyx":621
+        /* "temper_placer/routing/astar/astar_core.pyx":627
  *             # Check if goal reached
  *             if current_row == end_row and current_col == end_col:
  *                 if end_layer == -1 or current_layer == end_layer:             # <<<<<<<<<<<<<<
  *                     goal_found = True
  *                     goal_idx = current_idx
 */
-        __pyx_t_9 = (__Pyx_PyLong_BoolEqObjC(__pyx_v_end_layer, __pyx_mstate_global->__pyx_int_neg_1, -1L, 0)); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 621, __pyx_L17_error)
+        __pyx_t_9 = (__Pyx_PyLong_BoolEqObjC(__pyx_v_end_layer, __pyx_mstate_global->__pyx_int_neg_1, -1L, 0)); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 627, __pyx_L17_error)
         if (!__pyx_t_9) {
         } else {
           __pyx_t_8 = __pyx_t_9;
           goto __pyx_L28_bool_binop_done;
         }
-        __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_current_layer); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 621, __pyx_L17_error)
+        __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_current_layer); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 627, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_1 = PyObject_RichCompare(__pyx_t_4, __pyx_v_end_layer, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 621, __pyx_L17_error)
+        __pyx_t_1 = PyObject_RichCompare(__pyx_t_4, __pyx_v_end_layer, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 627, __pyx_L17_error)
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 621, __pyx_L17_error)
+        __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 627, __pyx_L17_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_8 = __pyx_t_9;
         __pyx_L28_bool_binop_done:;
         if (__pyx_t_8) {
 
-          /* "temper_placer/routing/astar/astar_core.pyx":622
+          /* "temper_placer/routing/astar/astar_core.pyx":628
  *             if current_row == end_row and current_col == end_col:
  *                 if end_layer == -1 or current_layer == end_layer:
  *                     goal_found = True             # <<<<<<<<<<<<<<
@@ -10051,7 +10165,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
           __pyx_v_goal_found = 1;
 
-          /* "temper_placer/routing/astar/astar_core.pyx":623
+          /* "temper_placer/routing/astar/astar_core.pyx":629
  *                 if end_layer == -1 or current_layer == end_layer:
  *                     goal_found = True
  *                     goal_idx = current_idx             # <<<<<<<<<<<<<<
@@ -10060,7 +10174,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
           __pyx_v_goal_idx = __pyx_v_current_idx;
 
-          /* "temper_placer/routing/astar/astar_core.pyx":624
+          /* "temper_placer/routing/astar/astar_core.pyx":630
  *                     goal_found = True
  *                     goal_idx = current_idx
  *                     break             # <<<<<<<<<<<<<<
@@ -10069,7 +10183,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
           goto __pyx_L20_break;
 
-          /* "temper_placer/routing/astar/astar_core.pyx":621
+          /* "temper_placer/routing/astar/astar_core.pyx":627
  *             # Check if goal reached
  *             if current_row == end_row and current_col == end_col:
  *                 if end_layer == -1 or current_layer == end_layer:             # <<<<<<<<<<<<<<
@@ -10078,7 +10192,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
         }
 
-        /* "temper_placer/routing/astar/astar_core.pyx":620
+        /* "temper_placer/routing/astar/astar_core.pyx":626
  * 
  *             # Check if goal reached
  *             if current_row == end_row and current_col == end_col:             # <<<<<<<<<<<<<<
@@ -10087,48 +10201,267 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       }
 
-      /* "temper_placer/routing/astar/astar_core.pyx":631
+      /* "temper_placer/routing/astar/astar_core.pyx":637
  *                 neighbor_rows, neighbor_cols, neighbor_layers, neighbor_costs,
  *                 width, height, num_layers,
  *                 &grid_view, net_id,             # <<<<<<<<<<<<<<
  *                 allowed_layers, num_allowed_layers,
  *                 via_cost
 */
-      __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_v_net_id); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 631, __pyx_L17_error)
+      __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_v_net_id); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 637, __pyx_L17_error)
 
-      /* "temper_placer/routing/astar/astar_core.pyx":627
+      /* "temper_placer/routing/astar/astar_core.pyx":633
  * 
  *             # Generate neighbors
  *             num_neighbors = get_neighbors(             # <<<<<<<<<<<<<<
  *                 current_row, current_col, current_layer,
  *                 neighbor_rows, neighbor_cols, neighbor_layers, neighbor_costs,
 */
-      __pyx_t_12 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_get_neighbors(__pyx_v_current_row, __pyx_v_current_col, __pyx_v_current_layer, __pyx_v_neighbor_rows, __pyx_v_neighbor_cols, __pyx_v_neighbor_layers, __pyx_v_neighbor_costs, __pyx_v_width, __pyx_v_height, __pyx_v_num_layers, (&__pyx_v_grid_view), __pyx_t_3, __pyx_v_allowed_layers, __pyx_v_num_allowed_layers, __pyx_v_via_cost); if (unlikely(__pyx_t_12 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 627, __pyx_L17_error)
+      __pyx_t_12 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_get_neighbors(__pyx_v_current_row, __pyx_v_current_col, __pyx_v_current_layer, __pyx_v_neighbor_rows, __pyx_v_neighbor_cols, __pyx_v_neighbor_layers, __pyx_v_neighbor_costs, __pyx_v_width, __pyx_v_height, __pyx_v_num_layers, (&__pyx_v_grid_view), __pyx_t_3, __pyx_v_allowed_layers, __pyx_v_num_allowed_layers, __pyx_v_via_cost); if (unlikely(__pyx_t_12 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 633, __pyx_L17_error)
       __pyx_v_num_neighbors = __pyx_t_12;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":637
+      /* "temper_placer/routing/astar/astar_core.pyx":643
  * 
  *             # Process neighbors
  *             for j in range(num_neighbors):             # <<<<<<<<<<<<<<
- *                 neighbor_idx = state_to_index(
- *                     neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
+ *                 # Check if this is a layer transition (via placement)
+ *                 if neighbor_layers[j] != current_layer:
 */
       __pyx_t_12 = __pyx_v_num_neighbors;
       __pyx_t_3 = __pyx_t_12;
       for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_3; __pyx_t_13+=1) {
         __pyx_v_j = __pyx_t_13;
 
-        /* "temper_placer/routing/astar/astar_core.pyx":638
- *             # Process neighbors
+        /* "temper_placer/routing/astar/astar_core.pyx":645
  *             for j in range(num_neighbors):
+ *                 # Check if this is a layer transition (via placement)
+ *                 if neighbor_layers[j] != current_layer:             # <<<<<<<<<<<<<<
+ *                     # DRC oracle check for via placement
+ *                     if drc_oracle is not None and net_name is not None:
+*/
+        __pyx_t_8 = ((__pyx_v_neighbor_layers[__pyx_v_j]) != __pyx_v_current_layer);
+        if (__pyx_t_8) {
+
+          /* "temper_placer/routing/astar/astar_core.pyx":647
+ *                 if neighbor_layers[j] != current_layer:
+ *                     # DRC oracle check for via placement
+ *                     if drc_oracle is not None and net_name is not None:             # <<<<<<<<<<<<<<
+ *                         via_x = neighbor_cols[j] * cell_size + cell_size / 2.0
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+*/
+          __pyx_t_9 = (__pyx_v_drc_oracle != Py_None);
+          if (__pyx_t_9) {
+          } else {
+            __pyx_t_8 = __pyx_t_9;
+            goto __pyx_L34_bool_binop_done;
+          }
+          __pyx_t_9 = (__pyx_v_net_name != ((PyObject*)Py_None));
+          __pyx_t_8 = __pyx_t_9;
+          __pyx_L34_bool_binop_done:;
+          if (__pyx_t_8) {
+
+            /* "temper_placer/routing/astar/astar_core.pyx":648
+ *                     # DRC oracle check for via placement
+ *                     if drc_oracle is not None and net_name is not None:
+ *                         via_x = neighbor_cols[j] * cell_size + cell_size / 2.0             # <<<<<<<<<<<<<<
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+ *                         valid, _ = drc_oracle.can_place_via(
+*/
+            __pyx_v_via_x = (((__pyx_v_neighbor_cols[__pyx_v_j]) * __pyx_v_cell_size) + (((double)__pyx_v_cell_size) / 2.0));
+
+            /* "temper_placer/routing/astar/astar_core.pyx":649
+ *                     if drc_oracle is not None and net_name is not None:
+ *                         via_x = neighbor_cols[j] * cell_size + cell_size / 2.0
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0             # <<<<<<<<<<<<<<
+ *                         valid, _ = drc_oracle.can_place_via(
+ *                             position=(via_x, via_y),
+*/
+            __pyx_v_via_y = (((__pyx_v_neighbor_rows[__pyx_v_j]) * __pyx_v_cell_size) + (((double)__pyx_v_cell_size) / 2.0));
+
+            /* "temper_placer/routing/astar/astar_core.pyx":650
+ *                         via_x = neighbor_cols[j] * cell_size + cell_size / 2.0
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+ *                         valid, _ = drc_oracle.can_place_via(             # <<<<<<<<<<<<<<
+ *                             position=(via_x, via_y),
+ *                             diameter=via_diameter,
+*/
+            __pyx_t_4 = __pyx_v_drc_oracle;
+            __Pyx_INCREF(__pyx_t_4);
+
+            /* "temper_placer/routing/astar/astar_core.pyx":651
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+ *                         valid, _ = drc_oracle.can_place_via(
+ *                             position=(via_x, via_y),             # <<<<<<<<<<<<<<
+ *                             diameter=via_diameter,
+ *                             net=net_name,
+*/
+            __pyx_t_5 = PyFloat_FromDouble(__pyx_v_via_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 651, __pyx_L17_error)
+            __Pyx_GOTREF(__pyx_t_5);
+            __pyx_t_6 = PyFloat_FromDouble(__pyx_v_via_y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 651, __pyx_L17_error)
+            __Pyx_GOTREF(__pyx_t_6);
+            __pyx_t_14 = PyTuple_New(2); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 651, __pyx_L17_error)
+            __Pyx_GOTREF(__pyx_t_14);
+            __Pyx_GIVEREF(__pyx_t_5);
+            if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_5) != (0)) __PYX_ERR(0, 651, __pyx_L17_error);
+            __Pyx_GIVEREF(__pyx_t_6);
+            if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 1, __pyx_t_6) != (0)) __PYX_ERR(0, 651, __pyx_L17_error);
+            __pyx_t_5 = 0;
+            __pyx_t_6 = 0;
+
+            /* "temper_placer/routing/astar/astar_core.pyx":652
+ *                         valid, _ = drc_oracle.can_place_via(
+ *                             position=(via_x, via_y),
+ *                             diameter=via_diameter,             # <<<<<<<<<<<<<<
+ *                             net=net_name,
+ *                         )
+*/
+            __pyx_t_6 = PyFloat_FromDouble(__pyx_v_via_diameter); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 652, __pyx_L17_error)
+            __Pyx_GOTREF(__pyx_t_6);
+
+            /* "temper_placer/routing/astar/astar_core.pyx":653
+ *                             position=(via_x, via_y),
+ *                             diameter=via_diameter,
+ *                             net=net_name,             # <<<<<<<<<<<<<<
+ *                         )
+ *                         if not valid:
+*/
+            __pyx_t_7 = 0;
+            {
+              PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 3 : 0)] = {__pyx_t_4, NULL};
+              __pyx_t_5 = __Pyx_MakeVectorcallBuilderKwds(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __Pyx_GOTREF(__pyx_t_5);
+              if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_position, __pyx_t_14, __pyx_t_5, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 650, __pyx_L17_error)
+              if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_diameter, __pyx_t_6, __pyx_t_5, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 650, __pyx_L17_error)
+              if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_net, __pyx_v_net_name, __pyx_t_5, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __pyx_t_1 = __Pyx_Object_VectorcallMethod_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_n_u_can_place_via, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_5);
+              __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+              __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+              __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+              __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+              if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __Pyx_GOTREF(__pyx_t_1);
+            }
+            if ((likely(PyTuple_CheckExact(__pyx_t_1))) || (PyList_CheckExact(__pyx_t_1))) {
+              PyObject* sequence = __pyx_t_1;
+              Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
+              if (unlikely(size != 2)) {
+                if (size > 2) __Pyx_RaiseTooManyValuesError(2);
+                else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
+                __PYX_ERR(0, 650, __pyx_L17_error)
+              }
+              #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+              if (likely(PyTuple_CheckExact(sequence))) {
+                __pyx_t_5 = PyTuple_GET_ITEM(sequence, 0);
+                __Pyx_INCREF(__pyx_t_5);
+                __pyx_t_6 = PyTuple_GET_ITEM(sequence, 1);
+                __Pyx_INCREF(__pyx_t_6);
+              } else {
+                __pyx_t_5 = __Pyx_PyList_GetItemRefFast(sequence, 0, __Pyx_ReferenceSharing_SharedReference);
+                if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 650, __pyx_L17_error)
+                __Pyx_XGOTREF(__pyx_t_5);
+                __pyx_t_6 = __Pyx_PyList_GetItemRefFast(sequence, 1, __Pyx_ReferenceSharing_SharedReference);
+                if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 650, __pyx_L17_error)
+                __Pyx_XGOTREF(__pyx_t_6);
+              }
+              #else
+              __pyx_t_5 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __Pyx_GOTREF(__pyx_t_5);
+              __pyx_t_6 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __Pyx_GOTREF(__pyx_t_6);
+              #endif
+              __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+            } else {
+              Py_ssize_t index = -1;
+              __pyx_t_14 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __Pyx_GOTREF(__pyx_t_14);
+              __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+              __pyx_t_15 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_14);
+              index = 0; __pyx_t_5 = __pyx_t_15(__pyx_t_14); if (unlikely(!__pyx_t_5)) goto __pyx_L36_unpacking_failed;
+              __Pyx_GOTREF(__pyx_t_5);
+              index = 1; __pyx_t_6 = __pyx_t_15(__pyx_t_14); if (unlikely(!__pyx_t_6)) goto __pyx_L36_unpacking_failed;
+              __Pyx_GOTREF(__pyx_t_6);
+              if (__Pyx_IternextUnpackEndCheck(__pyx_t_15(__pyx_t_14), 2) < (0)) __PYX_ERR(0, 650, __pyx_L17_error)
+              __pyx_t_15 = NULL;
+              __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+              goto __pyx_L37_unpacking_done;
+              __pyx_L36_unpacking_failed:;
+              __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+              __pyx_t_15 = NULL;
+              if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
+              __PYX_ERR(0, 650, __pyx_L17_error)
+              __pyx_L37_unpacking_done:;
+            }
+
+            /* "temper_placer/routing/astar/astar_core.pyx":650
+ *                         via_x = neighbor_cols[j] * cell_size + cell_size / 2.0
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+ *                         valid, _ = drc_oracle.can_place_via(             # <<<<<<<<<<<<<<
+ *                             position=(via_x, via_y),
+ *                             diameter=via_diameter,
+*/
+            __Pyx_XDECREF_SET(__pyx_v_valid, __pyx_t_5);
+            __pyx_t_5 = 0;
+            __Pyx_XDECREF_SET(__pyx_v__, __pyx_t_6);
+            __pyx_t_6 = 0;
+
+            /* "temper_placer/routing/astar/astar_core.pyx":655
+ *                             net=net_name,
+ *                         )
+ *                         if not valid:             # <<<<<<<<<<<<<<
+ *                             continue  # Skip this via - DRC violation
+ * 
+*/
+            __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_valid); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 655, __pyx_L17_error)
+            __pyx_t_9 = (!__pyx_t_8);
+            if (__pyx_t_9) {
+
+              /* "temper_placer/routing/astar/astar_core.pyx":656
+ *                         )
+ *                         if not valid:
+ *                             continue  # Skip this via - DRC violation             # <<<<<<<<<<<<<<
+ * 
+ *                 neighbor_idx = state_to_index(
+*/
+              goto __pyx_L30_continue;
+
+              /* "temper_placer/routing/astar/astar_core.pyx":655
+ *                             net=net_name,
+ *                         )
+ *                         if not valid:             # <<<<<<<<<<<<<<
+ *                             continue  # Skip this via - DRC violation
+ * 
+*/
+            }
+
+            /* "temper_placer/routing/astar/astar_core.pyx":647
+ *                 if neighbor_layers[j] != current_layer:
+ *                     # DRC oracle check for via placement
+ *                     if drc_oracle is not None and net_name is not None:             # <<<<<<<<<<<<<<
+ *                         via_x = neighbor_cols[j] * cell_size + cell_size / 2.0
+ *                         via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+*/
+          }
+
+          /* "temper_placer/routing/astar/astar_core.pyx":645
+ *             for j in range(num_neighbors):
+ *                 # Check if this is a layer transition (via placement)
+ *                 if neighbor_layers[j] != current_layer:             # <<<<<<<<<<<<<<
+ *                     # DRC oracle check for via placement
+ *                     if drc_oracle is not None and net_name is not None:
+*/
+        }
+
+        /* "temper_placer/routing/astar/astar_core.pyx":658
+ *                             continue  # Skip this via - DRC violation
+ * 
  *                 neighbor_idx = state_to_index(             # <<<<<<<<<<<<<<
  *                     neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
  *                     width, height, num_layers
 */
-        __pyx_t_14 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_state_to_index((__pyx_v_neighbor_rows[__pyx_v_j]), (__pyx_v_neighbor_cols[__pyx_v_j]), (__pyx_v_neighbor_layers[__pyx_v_j]), __pyx_v_width, __pyx_v_height, __pyx_v_num_layers); if (unlikely(__pyx_t_14 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 638, __pyx_L17_error)
-        __pyx_v_neighbor_idx = __pyx_t_14;
+        __pyx_t_16 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_state_to_index((__pyx_v_neighbor_rows[__pyx_v_j]), (__pyx_v_neighbor_cols[__pyx_v_j]), (__pyx_v_neighbor_layers[__pyx_v_j]), __pyx_v_width, __pyx_v_height, __pyx_v_num_layers); if (unlikely(__pyx_t_16 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 658, __pyx_L17_error)
+        __pyx_v_neighbor_idx = __pyx_t_16;
 
-        /* "temper_placer/routing/astar/astar_core.pyx":643
+        /* "temper_placer/routing/astar/astar_core.pyx":663
  *                 )
  * 
  *                 tentative_g = g_score[current_idx] + neighbor_costs[j]             # <<<<<<<<<<<<<<
@@ -10137,17 +10470,17 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
         __pyx_v_tentative_g = ((__pyx_v_g_score[__pyx_v_current_idx]) + (__pyx_v_neighbor_costs[__pyx_v_j]));
 
-        /* "temper_placer/routing/astar/astar_core.pyx":645
+        /* "temper_placer/routing/astar/astar_core.pyx":665
  *                 tentative_g = g_score[current_idx] + neighbor_costs[j]
  * 
  *                 if tentative_g < g_score[neighbor_idx]:             # <<<<<<<<<<<<<<
  *                     # Better path found
  *                     came_from[neighbor_idx] = current_idx
 */
-        __pyx_t_8 = (__pyx_v_tentative_g < (__pyx_v_g_score[__pyx_v_neighbor_idx]));
-        if (__pyx_t_8) {
+        __pyx_t_9 = (__pyx_v_tentative_g < (__pyx_v_g_score[__pyx_v_neighbor_idx]));
+        if (__pyx_t_9) {
 
-          /* "temper_placer/routing/astar/astar_core.pyx":647
+          /* "temper_placer/routing/astar/astar_core.pyx":667
  *                 if tentative_g < g_score[neighbor_idx]:
  *                     # Better path found
  *                     came_from[neighbor_idx] = current_idx             # <<<<<<<<<<<<<<
@@ -10156,7 +10489,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
           (__pyx_v_came_from[__pyx_v_neighbor_idx]) = __pyx_v_current_idx;
 
-          /* "temper_placer/routing/astar/astar_core.pyx":648
+          /* "temper_placer/routing/astar/astar_core.pyx":668
  *                     # Better path found
  *                     came_from[neighbor_idx] = current_idx
  *                     g_score[neighbor_idx] = tentative_g             # <<<<<<<<<<<<<<
@@ -10165,35 +10498,35 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
           (__pyx_v_g_score[__pyx_v_neighbor_idx]) = __pyx_v_tentative_g;
 
-          /* "temper_placer/routing/astar/astar_core.pyx":653
+          /* "temper_placer/routing/astar/astar_core.pyx":673
  *                     f_score = tentative_g + heuristic(
  *                         neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
  *                         end_row, end_col, end_layer,             # <<<<<<<<<<<<<<
  *                         cell_size, via_cost
  *                     )
 */
-          __pyx_t_14 = __Pyx_PyLong_As_int(__pyx_v_end_layer); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 653, __pyx_L17_error)
+          __pyx_t_16 = __Pyx_PyLong_As_int(__pyx_v_end_layer); if (unlikely((__pyx_t_16 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 673, __pyx_L17_error)
 
-          /* "temper_placer/routing/astar/astar_core.pyx":651
+          /* "temper_placer/routing/astar/astar_core.pyx":671
  * 
  *                     # Calculate f_score with heuristic
  *                     f_score = tentative_g + heuristic(             # <<<<<<<<<<<<<<
  *                         neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
  *                         end_row, end_col, end_layer,
 */
-          __pyx_t_2 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_heuristic((__pyx_v_neighbor_rows[__pyx_v_j]), (__pyx_v_neighbor_cols[__pyx_v_j]), (__pyx_v_neighbor_layers[__pyx_v_j]), __pyx_v_end_row, __pyx_v_end_col, __pyx_t_14, __pyx_v_cell_size, __pyx_v_via_cost); if (unlikely(__pyx_t_2 == ((float)-1) && PyErr_Occurred())) __PYX_ERR(0, 651, __pyx_L17_error)
+          __pyx_t_2 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_heuristic((__pyx_v_neighbor_rows[__pyx_v_j]), (__pyx_v_neighbor_cols[__pyx_v_j]), (__pyx_v_neighbor_layers[__pyx_v_j]), __pyx_v_end_row, __pyx_v_end_col, __pyx_t_16, __pyx_v_cell_size, __pyx_v_via_cost); if (unlikely(__pyx_t_2 == ((float)-1) && PyErr_Occurred())) __PYX_ERR(0, 671, __pyx_L17_error)
           __pyx_v_f_score = (__pyx_v_tentative_g + __pyx_t_2);
 
-          /* "temper_placer/routing/astar/astar_core.pyx":657
+          /* "temper_placer/routing/astar/astar_core.pyx":677
  *                     )
  * 
  *                     heap_push(&open_set, f_score, neighbor_idx)             # <<<<<<<<<<<<<<
  * 
  *         # Reconstruct path if goal found
 */
-          __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_push((&__pyx_v_open_set), __pyx_v_f_score, __pyx_v_neighbor_idx); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 657, __pyx_L17_error)
+          __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_push((&__pyx_v_open_set), __pyx_v_f_score, __pyx_v_neighbor_idx); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 677, __pyx_L17_error)
 
-          /* "temper_placer/routing/astar/astar_core.pyx":645
+          /* "temper_placer/routing/astar/astar_core.pyx":665
  *                 tentative_g = g_score[current_idx] + neighbor_costs[j]
  * 
  *                 if tentative_g < g_score[neighbor_idx]:             # <<<<<<<<<<<<<<
@@ -10201,11 +10534,12 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
  *                     came_from[neighbor_idx] = current_idx
 */
         }
+        __pyx_L30_continue:;
       }
     }
     __pyx_L20_break:;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":660
+    /* "temper_placer/routing/astar/astar_core.pyx":680
  * 
  *         # Reconstruct path if goal found
  *         if goal_found:             # <<<<<<<<<<<<<<
@@ -10214,19 +10548,19 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
     if (__pyx_v_goal_found) {
 
-      /* "temper_placer/routing/astar/astar_core.pyx":661
+      /* "temper_placer/routing/astar/astar_core.pyx":681
  *         # Reconstruct path if goal found
  *         if goal_found:
  *             path_data = reconstruct_path(             # <<<<<<<<<<<<<<
  *                 came_from, goal_idx,
  *                 width, height, num_layers,
 */
-      __pyx_t_1 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_reconstruct_path(__pyx_v_came_from, __pyx_v_goal_idx, __pyx_v_width, __pyx_v_height, __pyx_v_num_layers, __pyx_v_start_pos.f0, __pyx_v_start_pos.f1, __pyx_v_end_pos.f0, __pyx_v_end_pos.f1, __pyx_v_cell_size, __pyx_v_via_cost); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 661, __pyx_L17_error)
+      __pyx_t_1 = __pyx_f_13temper_placer_7routing_5astar_10astar_core_reconstruct_path(__pyx_v_came_from, __pyx_v_goal_idx, __pyx_v_width, __pyx_v_height, __pyx_v_num_layers, __pyx_v_start_pos.f0, __pyx_v_start_pos.f1, __pyx_v_end_pos.f0, __pyx_v_end_pos.f1, __pyx_v_cell_size, __pyx_v_via_cost); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 681, __pyx_L17_error)
       __Pyx_GOTREF(__pyx_t_1);
       __pyx_v_path_data = ((PyObject*)__pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":668
+      /* "temper_placer/routing/astar/astar_core.pyx":688
  *             )
  * 
  *             from temper_placer.routing.astar.types import MultiLayerPath             # <<<<<<<<<<<<<<
@@ -10235,39 +10569,39 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       {
         PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_MultiLayerPath};
-        __pyx_t_15 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_temper_placer_routing_astar_type, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 668, __pyx_L17_error)
+        __pyx_t_17 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_temper_placer_routing_astar_type, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 688, __pyx_L17_error)
       }
-      __pyx_t_1 = __pyx_t_15;
+      __pyx_t_1 = __pyx_t_17;
       __Pyx_GOTREF(__pyx_t_1);
       {
         PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_MultiLayerPath};
-        __pyx_t_16 = 0; {
-          __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_1, __pyx_imported_names[__pyx_t_16]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 668, __pyx_L17_error)
-          __Pyx_GOTREF(__pyx_t_4);
-          switch (__pyx_t_16) {
+        __pyx_t_18 = 0; {
+          __pyx_t_6 = __Pyx_ImportFrom(__pyx_t_1, __pyx_imported_names[__pyx_t_18]); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 688, __pyx_L17_error)
+          __Pyx_GOTREF(__pyx_t_6);
+          switch (__pyx_t_18) {
             case 0:
-            __Pyx_INCREF(__pyx_t_4);
-            __pyx_v_MultiLayerPath = __pyx_t_4;
+            __Pyx_INCREF(__pyx_t_6);
+            __pyx_v_MultiLayerPath = __pyx_t_6;
             break;
             default:;
           }
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         }
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":669
+      /* "temper_placer/routing/astar/astar_core.pyx":689
  * 
  *             from temper_placer.routing.astar.types import MultiLayerPath
  *             result = MultiLayerPath(             # <<<<<<<<<<<<<<
  *                 segments=path_data[0],
  *                 via_positions=path_data[1],
 */
-      __pyx_t_4 = NULL;
+      __pyx_t_6 = NULL;
       __Pyx_INCREF(__pyx_v_MultiLayerPath);
       __pyx_t_5 = __pyx_v_MultiLayerPath; 
 
-      /* "temper_placer/routing/astar/astar_core.pyx":670
+      /* "temper_placer/routing/astar/astar_core.pyx":690
  *             from temper_placer.routing.astar.types import MultiLayerPath
  *             result = MultiLayerPath(
  *                 segments=path_data[0],             # <<<<<<<<<<<<<<
@@ -10276,10 +10610,10 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       if (unlikely(__pyx_v_path_data == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 670, __pyx_L17_error)
+        __PYX_ERR(0, 690, __pyx_L17_error)
       }
 
-      /* "temper_placer/routing/astar/astar_core.pyx":671
+      /* "temper_placer/routing/astar/astar_core.pyx":691
  *             result = MultiLayerPath(
  *                 segments=path_data[0],
  *                 via_positions=path_data[1],             # <<<<<<<<<<<<<<
@@ -10288,10 +10622,10 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       if (unlikely(__pyx_v_path_data == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 671, __pyx_L17_error)
+        __PYX_ERR(0, 691, __pyx_L17_error)
       }
 
-      /* "temper_placer/routing/astar/astar_core.pyx":672
+      /* "temper_placer/routing/astar/astar_core.pyx":692
  *                 segments=path_data[0],
  *                 via_positions=path_data[1],
  *                 total_cost=path_data[2]             # <<<<<<<<<<<<<<
@@ -10300,48 +10634,48 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       if (unlikely(__pyx_v_path_data == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 672, __pyx_L17_error)
+        __PYX_ERR(0, 692, __pyx_L17_error)
       }
       __pyx_t_7 = 1;
       #if CYTHON_UNPACK_METHODS
       if (unlikely(PyMethod_Check(__pyx_t_5))) {
-        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_5);
-        assert(__pyx_t_4);
+        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
+        assert(__pyx_t_6);
         PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_6);
         __Pyx_INCREF(__pyx__function);
         __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
         __pyx_t_7 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 3 : 0)] = {__pyx_t_4, NULL};
-        __pyx_t_6 = __Pyx_MakeVectorcallBuilderKwds(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 669, __pyx_L17_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_segments, __Pyx_PyTuple_GET_ITEM(__pyx_v_path_data, 0), __pyx_t_6, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 669, __pyx_L17_error)
-        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_via_positions, __Pyx_PyTuple_GET_ITEM(__pyx_v_path_data, 1), __pyx_t_6, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 669, __pyx_L17_error)
-        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_total_cost, __Pyx_PyTuple_GET_ITEM(__pyx_v_path_data, 2), __pyx_t_6, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 669, __pyx_L17_error)
-        __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 3 : 0)] = {__pyx_t_6, NULL};
+        __pyx_t_14 = __Pyx_MakeVectorcallBuilderKwds(3); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 689, __pyx_L17_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_segments, __Pyx_PyTuple_GET_ITEM(__pyx_v_path_data, 0), __pyx_t_14, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 689, __pyx_L17_error)
+        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_via_positions, __Pyx_PyTuple_GET_ITEM(__pyx_v_path_data, 1), __pyx_t_14, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 689, __pyx_L17_error)
+        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_total_cost, __Pyx_PyTuple_GET_ITEM(__pyx_v_path_data, 2), __pyx_t_14, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 689, __pyx_L17_error)
+        __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
+        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 669, __pyx_L17_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 689, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       __pyx_v_result = __pyx_t_1;
       __pyx_t_1 = 0;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":660
+      /* "temper_placer/routing/astar/astar_core.pyx":680
  * 
  *         # Reconstruct path if goal found
  *         if goal_found:             # <<<<<<<<<<<<<<
  *             path_data = reconstruct_path(
  *                 came_from, goal_idx,
 */
-      goto __pyx_L33;
+      goto __pyx_L40;
     }
 
-    /* "temper_placer/routing/astar/astar_core.pyx":675
+    /* "temper_placer/routing/astar/astar_core.pyx":695
  *             )
  *         else:
  *             result = None             # <<<<<<<<<<<<<<
@@ -10352,17 +10686,17 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
       __Pyx_INCREF(Py_None);
       __pyx_v_result = Py_None;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":678
+      /* "temper_placer/routing/astar/astar_core.pyx":698
  * 
  *             # Log timeout warning
  *             if iterations >= max_iterations:             # <<<<<<<<<<<<<<
  *                 print(f"WARNING: Cython A* exceeded {max_iterations} iterations for net {net_id}")
  * 
 */
-      __pyx_t_8 = (__pyx_v_iterations >= __pyx_v_max_iterations);
-      if (__pyx_t_8) {
+      __pyx_t_9 = (__pyx_v_iterations >= __pyx_v_max_iterations);
+      if (__pyx_t_9) {
 
-        /* "temper_placer/routing/astar/astar_core.pyx":679
+        /* "temper_placer/routing/astar/astar_core.pyx":699
  *             # Log timeout warning
  *             if iterations >= max_iterations:
  *                 print(f"WARNING: Cython A* exceeded {max_iterations} iterations for net {net_id}")             # <<<<<<<<<<<<<<
@@ -10370,31 +10704,31 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
  *         return result
 */
         __pyx_t_5 = NULL;
-        __pyx_t_6 = __Pyx_PyUnicode_From_int(__pyx_v_max_iterations, 0, ' ', 'd'); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 679, __pyx_L17_error)
+        __pyx_t_14 = __Pyx_PyUnicode_From_int(__pyx_v_max_iterations, 0, ' ', 'd'); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 699, __pyx_L17_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_v_net_id, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 699, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_net_id, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 679, __pyx_L17_error)
+        __pyx_t_19[0] = __pyx_mstate_global->__pyx_kp_u_WARNING_Cython_A_exceeded;
+        __pyx_t_19[1] = __pyx_t_14;
+        __pyx_t_19[2] = __pyx_mstate_global->__pyx_kp_u_iterations_for_net;
+        __pyx_t_19[3] = __pyx_t_6;
+        __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_19, 4, 28 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_14) + 20 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6), 127 | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6));
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 699, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_17[0] = __pyx_mstate_global->__pyx_kp_u_WARNING_Cython_A_exceeded;
-        __pyx_t_17[1] = __pyx_t_6;
-        __pyx_t_17[2] = __pyx_mstate_global->__pyx_kp_u_iterations_for_net;
-        __pyx_t_17[3] = __pyx_t_4;
-        __pyx_t_18 = __Pyx_PyUnicode_Join(__pyx_t_17, 4, 28 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6) + 20 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_4), 127 | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4));
-        if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 679, __pyx_L17_error)
-        __Pyx_GOTREF(__pyx_t_18);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __pyx_t_7 = 1;
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_18};
+          PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_4};
           __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_print, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 679, __pyx_L17_error)
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 699, __pyx_L17_error)
           __Pyx_GOTREF(__pyx_t_1);
         }
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "temper_placer/routing/astar/astar_core.pyx":678
+        /* "temper_placer/routing/astar/astar_core.pyx":698
  * 
  *             # Log timeout warning
  *             if iterations >= max_iterations:             # <<<<<<<<<<<<<<
@@ -10403,9 +10737,9 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       }
     }
-    __pyx_L33:;
+    __pyx_L40:;
 
-    /* "temper_placer/routing/astar/astar_core.pyx":681
+    /* "temper_placer/routing/astar/astar_core.pyx":701
  *                 print(f"WARNING: Cython A* exceeded {max_iterations} iterations for net {net_id}")
  * 
  *         return result             # <<<<<<<<<<<<<<
@@ -10418,7 +10752,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     goto __pyx_L16_return;
   }
 
-  /* "temper_placer/routing/astar/astar_core.pyx":685
+  /* "temper_placer/routing/astar/astar_core.pyx":705
  *     finally:
  *         # Always cleanup memory
  *         free(g_score)             # <<<<<<<<<<<<<<
@@ -10430,25 +10764,25 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
     /*exception exit:*/{
       __Pyx_PyThreadState_declare
       __Pyx_PyThreadState_assign
-      __pyx_t_15 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_24 = 0;
+      __pyx_t_17 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_24 = 0; __pyx_t_25 = 0;
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_XDECREF(__pyx_t_18); __pyx_t_18 = 0;
+      __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-       __Pyx_ExceptionSwap(&__pyx_t_22, &__pyx_t_23, &__pyx_t_24);
-      if ( unlikely(__Pyx_GetException(&__pyx_t_15, &__pyx_t_20, &__pyx_t_21) < 0)) __Pyx_ErrFetch(&__pyx_t_15, &__pyx_t_20, &__pyx_t_21);
-      __Pyx_XGOTREF(__pyx_t_15);
-      __Pyx_XGOTREF(__pyx_t_20);
+       __Pyx_ExceptionSwap(&__pyx_t_23, &__pyx_t_24, &__pyx_t_25);
+      if ( unlikely(__Pyx_GetException(&__pyx_t_17, &__pyx_t_21, &__pyx_t_22) < 0)) __Pyx_ErrFetch(&__pyx_t_17, &__pyx_t_21, &__pyx_t_22);
+      __Pyx_XGOTREF(__pyx_t_17);
       __Pyx_XGOTREF(__pyx_t_21);
       __Pyx_XGOTREF(__pyx_t_22);
       __Pyx_XGOTREF(__pyx_t_23);
       __Pyx_XGOTREF(__pyx_t_24);
-      __pyx_t_12 = __pyx_lineno; __pyx_t_3 = __pyx_clineno; __pyx_t_19 = __pyx_filename;
+      __Pyx_XGOTREF(__pyx_t_25);
+      __pyx_t_12 = __pyx_lineno; __pyx_t_3 = __pyx_clineno; __pyx_t_20 = __pyx_filename;
       {
         free(__pyx_v_g_score);
 
-        /* "temper_placer/routing/astar/astar_core.pyx":686
+        /* "temper_placer/routing/astar/astar_core.pyx":706
  *         # Always cleanup memory
  *         free(g_score)
  *         free(came_from)             # <<<<<<<<<<<<<<
@@ -10456,40 +10790,40 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
         free(__pyx_v_came_from);
 
-        /* "temper_placer/routing/astar/astar_core.pyx":687
+        /* "temper_placer/routing/astar/astar_core.pyx":707
  *         free(g_score)
  *         free(came_from)
  *         heap_free(&open_set)             # <<<<<<<<<<<<<<
 */
-        __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_free((&__pyx_v_open_set)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 687, __pyx_L36_error)
+        __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_free((&__pyx_v_open_set)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 707, __pyx_L43_error)
       }
-      __Pyx_XGIVEREF(__pyx_t_22);
       __Pyx_XGIVEREF(__pyx_t_23);
       __Pyx_XGIVEREF(__pyx_t_24);
-      __Pyx_ExceptionReset(__pyx_t_22, __pyx_t_23, __pyx_t_24);
-      __Pyx_XGIVEREF(__pyx_t_15);
-      __Pyx_XGIVEREF(__pyx_t_20);
+      __Pyx_XGIVEREF(__pyx_t_25);
+      __Pyx_ExceptionReset(__pyx_t_23, __pyx_t_24, __pyx_t_25);
+      __Pyx_XGIVEREF(__pyx_t_17);
       __Pyx_XGIVEREF(__pyx_t_21);
-      __Pyx_ErrRestore(__pyx_t_15, __pyx_t_20, __pyx_t_21);
-      __pyx_t_15 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_24 = 0;
-      __pyx_lineno = __pyx_t_12; __pyx_clineno = __pyx_t_3; __pyx_filename = __pyx_t_19;
-      goto __pyx_L1_error;
-      __pyx_L36_error:;
       __Pyx_XGIVEREF(__pyx_t_22);
+      __Pyx_ErrRestore(__pyx_t_17, __pyx_t_21, __pyx_t_22);
+      __pyx_t_17 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_24 = 0; __pyx_t_25 = 0;
+      __pyx_lineno = __pyx_t_12; __pyx_clineno = __pyx_t_3; __pyx_filename = __pyx_t_20;
+      goto __pyx_L1_error;
+      __pyx_L43_error:;
       __Pyx_XGIVEREF(__pyx_t_23);
       __Pyx_XGIVEREF(__pyx_t_24);
-      __Pyx_ExceptionReset(__pyx_t_22, __pyx_t_23, __pyx_t_24);
-      __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __Pyx_XDECREF(__pyx_t_20); __pyx_t_20 = 0;
+      __Pyx_XGIVEREF(__pyx_t_25);
+      __Pyx_ExceptionReset(__pyx_t_23, __pyx_t_24, __pyx_t_25);
+      __Pyx_XDECREF(__pyx_t_17); __pyx_t_17 = 0;
       __Pyx_XDECREF(__pyx_t_21); __pyx_t_21 = 0;
-      __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_24 = 0;
+      __Pyx_XDECREF(__pyx_t_22); __pyx_t_22 = 0;
+      __pyx_t_23 = 0; __pyx_t_24 = 0; __pyx_t_25 = 0;
       goto __pyx_L1_error;
     }
     __pyx_L16_return: {
-      __pyx_t_24 = __pyx_r;
+      __pyx_t_25 = __pyx_r;
       __pyx_r = 0;
 
-      /* "temper_placer/routing/astar/astar_core.pyx":685
+      /* "temper_placer/routing/astar/astar_core.pyx":705
  *     finally:
  *         # Always cleanup memory
  *         free(g_score)             # <<<<<<<<<<<<<<
@@ -10498,7 +10832,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       free(__pyx_v_g_score);
 
-      /* "temper_placer/routing/astar/astar_core.pyx":686
+      /* "temper_placer/routing/astar/astar_core.pyx":706
  *         # Always cleanup memory
  *         free(g_score)
  *         free(came_from)             # <<<<<<<<<<<<<<
@@ -10506,14 +10840,14 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
 */
       free(__pyx_v_came_from);
 
-      /* "temper_placer/routing/astar/astar_core.pyx":687
+      /* "temper_placer/routing/astar/astar_core.pyx":707
  *         free(g_score)
  *         free(came_from)
  *         heap_free(&open_set)             # <<<<<<<<<<<<<<
 */
-      __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_free((&__pyx_v_open_set)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 687, __pyx_L1_error)
-      __pyx_r = __pyx_t_24;
-      __pyx_t_24 = 0;
+      __pyx_f_13temper_placer_7routing_5astar_10astar_core_heap_free((&__pyx_v_open_set)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 707, __pyx_L1_error)
+      __pyx_r = __pyx_t_25;
+      __pyx_t_25 = 0;
       goto __pyx_L0;
     }
   }
@@ -10532,7 +10866,7 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_18);
+  __Pyx_XDECREF(__pyx_t_14);
   { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
@@ -10548,6 +10882,8 @@ static PyObject *__pyx_pf_13temper_placer_7routing_5astar_10astar_core_6find_pat
   __Pyx_XDECREF(__pyx_v_start_cell);
   __Pyx_XDECREF(__pyx_v_end_cell);
   __Pyx_XDECREF((PyObject *)__pyx_v_grid_data);
+  __Pyx_XDECREF(__pyx_v_valid);
+  __Pyx_XDECREF(__pyx_v__);
   __Pyx_XDECREF(__pyx_v_path_data);
   __Pyx_XDECREF(__pyx_v_MultiLayerPath);
   __Pyx_XDECREF(__pyx_v_result);
@@ -11008,6 +11344,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_astar_core(PyObject *__pyx_pyinit_
   Py_ssize_t __pyx_t_3;
   PyObject *__pyx_t_4 = NULL;
   int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -11230,6 +11567,16 @@ __Pyx_RefNannySetupContext("PyInit_astar_core", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test_grid_access, __pyx_t_4) < (0)) __PYX_ERR(0, 296, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
+  /* "temper_placer/routing/astar/astar_core.pyx":509
+ *     drc_oracle = None,
+ *     net_name: str = None,
+ *     via_diameter: float = 0.6,             # <<<<<<<<<<<<<<
+ * ) -> Optional[MultiLayerPath]:
+ *     """Cython-accelerated A* pathfinding.
+*/
+  __pyx_t_4 = PyFloat_FromDouble(((double)0.6)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 509, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+
   /* "temper_placer/routing/astar/astar_core.pyx":499
  * # ============================================================================
  * 
@@ -11237,7 +11584,10 @@ __Pyx_RefNannySetupContext("PyInit_astar_core", 0);
  *     grid,
  *     start_pos: Tuple[float, float],
 */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 499, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_Pack(5, ((PyObject*)__pyx_mstate_global->__pyx_int_0), ((PyObject*)__pyx_mstate_global->__pyx_int_neg_1), Py_None, Py_None, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_start_pos, __pyx_mstate_global->__pyx_kp_u_Tuple_float_float) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_end_pos, __pyx_mstate_global->__pyx_kp_u_Tuple_float_float) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
@@ -11245,27 +11595,30 @@ __Pyx_RefNannySetupContext("PyInit_astar_core", 0);
   if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_config, __pyx_mstate_global->__pyx_n_u_dict) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_start_layer, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_end_layer, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_net_name, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_via_diameter, __pyx_mstate_global->__pyx_n_u_float) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Optional_MultiLayerPath) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_13temper_placer_7routing_5astar_10astar_core_7find_path_cython, 0, __pyx_mstate_global->__pyx_n_u_find_path_cython, NULL, __pyx_mstate_global->__pyx_n_u_temper_placer_routing_astar_asta, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_13temper_placer_7routing_5astar_10astar_core_7find_path_cython, 0, __pyx_mstate_global->__pyx_n_u_find_path_cython, NULL, __pyx_mstate_global->__pyx_n_u_temper_placer_routing_astar_asta, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 499, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_6);
   #endif
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_mstate_global->__pyx_tuple[1]);
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_2, __pyx_t_4);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_find_path_cython, __pyx_t_2) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_6, __pyx_t_2);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_find_path_cython, __pyx_t_6) < (0)) __PYX_ERR(0, 499, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /* "temper_placer/routing/astar/astar_core.pyx":1
  * # distutils: language = c++             # <<<<<<<<<<<<<<
  * # cython: language_level=3
  * # cython: boundscheck=False
 */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_6) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -11273,6 +11626,7 @@ __Pyx_RefNannySetupContext("PyInit_astar_core", 0);
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init temper_placer.routing.astar.astar_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -11304,7 +11658,7 @@ __Pyx_RefNannySetupContext("PyInit_astar_core", 0);
 
 static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_print); if (!__pyx_builtin_print) __PYX_ERR(0, 679, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_print); if (!__pyx_builtin_print) __PYX_ERR(0, 699, __pyx_L1_error)
 
   /* Cached unbound methods */
   __pyx_mstate->__pyx_umethod_PyDict_Type_get.type = (PyObject*)&PyDict_Type;
@@ -11336,21 +11690,10 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_int_4, __pyx_mstate_global->__pyx_int_10, __pyx_mstate_global->__pyx_int_10); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
-
-  /* "temper_placer/routing/astar/astar_core.pyx":499
- * # ============================================================================
- * 
- * def find_path_cython(             # <<<<<<<<<<<<<<
- *     grid,
- *     start_pos: Tuple[float, float],
-*/
-  __pyx_mstate_global->__pyx_tuple[1] = PyTuple_Pack(2, ((PyObject*)__pyx_mstate_global->__pyx_int_0), ((PyObject*)__pyx_mstate_global->__pyx_int_neg_1)); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 499, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[1]);
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[1]);
   #if CYTHON_IMMORTAL_CONSTANTS
   {
     PyObject **table = __pyx_mstate->__pyx_tuple;
-    for (Py_ssize_t i=0; i<2; ++i) {
+    for (Py_ssize_t i=0; i<1; ++i) {
       #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
       #if PY_VERSION_HEX < 0x030E0000
       if (_Py_IsOwnedByCurrentThread(table[i]) && Py_REFCNT(table[i]) == 1)
@@ -11377,31 +11720,31 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 10; } index[] = {{1},{179},{24},{19},{28},{1},{8},{20},{39},{34},{46},{14},{8},{20},{12},{5},{14},{18},{17},{15},{18},{4},{12},{9},{9},{12},{18},{3},{7},{4},{6},{11},{11},{13},{11},{4},{5},{5},{3},{8},{7},{9},{7},{7},{7},{16},{8},{7},{3},{7},{10},{8},{4},{9},{9},{7},{4},{6},{1},{5},{7},{3},{5},{13},{5},{10},{1},{5},{11},{9},{16},{8},{14},{9},{11},{10},{8},{13},{14},{12},{15},{13},{6},{2},{18},{10},{13},{5},{14},{8},{9},{3},{5},{8},{15},{12},{12},{6},{6},{6},{9},{3},{7},{4},{12},{8},{12},{10},{5},{10},{9},{9},{11},{9},{9},{9},{16},{3},{38},{33},{11},{8},{16},{20},{9},{19},{10},{6},{6},{5},{6},{8},{13},{5},{5},{760},{530},{324},{399},{1013}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (2441 bytes) */
-const char* const cstring = "BZh91AY&SY\t4\206\341\000\001\332\377\377\377\377\377\377\377\367\377\376\277\377\377\377\277\377\377\377\300@@@@@@@@@@@@\000@\000`\t\034\300\345lo\265wgGt\353\2056j\223^\350\000^\006\204D\221\202i\243LM\036G\242&\312y\017M2j!\221\243\323A\246S\t\352h\321\246L\004\320\364\2150M\243S\322=M\002I\t\210\32144\2322i3T\365\031\352#\322\000\323M\000\000\000\000\000\000\000\014\200i\240\001\251\246\023D#R\006\203A\345\000i\240\001\240\000\000\000\000\000\000\006\200\003@\000\224\321\004\215'\244\247\344j\236\2302\221\371Q\211\243\023!\241\240\003@\0004dh\036\210b\006\215\032\032\017Hz\201\006\000\t\200\002\030\230&\000\000\214\000\2310L\230\000\021\221\211\210\300C\000\000\tH\2312j\215\224M7\246\222\003\r\t\246\020\00044a\031\031\001\220i\204\3044\323@\320\321\246@\001\250`\025\345rlY\336jbHd\200\336n\267Ws\346Gy\365\240\371\016\203\207\361\272\307e\204#\373[\321.\313\274\277\247}\351;8\325c\374\377D\t!\014\311\005\006\212\211\376\313LY\001\376\226\023\002R?\340\025f\263Y!\361\245\322E\267332\006\0312f\030L\310d\314\300\rXV\213l\266\205\267\nh')T\351\205\324TB\341\335C\250\003\310\301\203Q\032B\276=\332\210\023d\231\202y\\Z\021d\225&D\253\221u\226\306\244\202\214\013fD\203\003\004`,p =\356x\330\020\203\252\032\004\0078tL1\226\331;n\251\0069\227*H\271f\313\203!\231\022-+\254\256\274v\031H\315\211\022D\272\234W\343\264\302Q\034XV\221;\220\024\250+\021A\340\327-\002\272\336B\247\016\3668\"\262\240\361\213\326\250\r\242\263{\257\245\2436\032i\346J3x\327\300\" W\240@\276\361*\304\023\345\310_\236\371\014C\211\355\307\336\357\377\216/\r\025Pr\005fN\227J\351K\034\254\201\031\311\356\212\215\334\243ko\217\300 \324-p3\027\340/CH!+\341\304t\006\241T\311\235RPP\364Wl@0\3446r\250N\201Z\003\261\333r\364\355v\n\026k1\225%R\366/\202\301\212PHL\201\222HL\247\337a\362\266\252y\233\333\346S\177\202\003\223xPy\314\220\266\3730]\221\235b3\013\214\266\364D\332+D\020\316\034\317i\215T\333\214\365\003\316\235u\006\345\302\200\211)\025\251J\277K\314\234\317\003s \236R\204DQ\024\210\237\030\357""\306\336*\270\253\300|\351\356\321\335\207mS[|B>\016\244\261\262\301\000Q\007\260\2531r\214\330\013%\010\262\016#\032\010\310\304\247\234@\214\0304KG\213\177\242r\264\204\010@\276\006\215s\340\217{M\242\001\201\361u,\377?\261\331\357\210\356n_\213' \231\246\342\313\026@0C\337\010`\347\020\320\025\021\213\201\241WW;~Kn\324\017$\256\007l>8\310F\021\322\032\034\261k\367\310\267\220\224x\346!7\215\204%\036\177\333UZ:\007F\030t?\032f\307\253>[\243\217A\244Q\027b'\n\341?\246\251cb\035\276\216\371\023\221\230e\311V\337\333\335\234\360x3\244\323\334\372\035&i+\177g\325\252\277?9\361$\264\304(3\305\205e\2017\360\335\221\207+N\260\223\211\202CW\235O\300X\300\005\270wj\205\000t\"\3536a\010\225[;I\224\307\033\3052\370\276\262\356\263l\240N\333\236\203\366\372\256\376\003)}\3041\230\355\360\376\372\311-Z]\265\223WiA\022\270AVg\000\354\r\343\346\273\021^\221\"\226\300\225HY\020B\244\374\242\221\023\024\n\242\210>\316Gl\025\350\205R\252\034}\202\331\263\257{\352\251\356N\007\271u\254\021\203\265t\306\255\201\206\326\201_\301f#\025yu\364\251n\256[\216L2n8\202\013\016\027\331\032\253\330N\314\226\326`\306\363 a\215l\031\305z\270\277\225fL\271k\324g\316\263\232y\275}\341}\214\234\2342g\032\334\237B\032[kv7\246*\216\356PBS\331\2066\364\3149\273Z\344\322\313\007\013gM\242\2162\312\220\2059a/\312-\020G\340\005\004\021\243?\306\014\205\2311z-e4V\353h\303\035$!a\"\274\005\241\215\213^\257m.,\277\301\307\001y\344\366\264\3042\252\261\201w3h\203\032I\212\221u\227\321V%Yh\321[\022wy`\224\021\206\206\313\\m\243\305\313\342jo\250=\313\004%\252\222\230Y\325KA\342\014%T\360\211\021\213\"\231\252\307-\256X\342\022\275\005L\262q\225\342\250}}w\204\323\\\013\303\223\316>U\204\354-\235\360 4\225\316\306\351{\211\252\225\233B\336\322?\242\020\340\262m\265\245\332[\n\314\314\203EO\252Ah\216{$\230\224\260\322\364\0167v\345Y\014\03784#!\341\240\346\315\374\264Q6c#-.0\014\250\"]i\210\3452&\271\022\321\276\364\373\nF\373X.\031\267\022\234H\301\234\326)\261\002Y^\264\\\346\223\342\213\206\313R\232\n\306&""\233\253\263Y\305m\215\031\241\3039$\355\261u\245\274\033\013\032\304\310$\204-z\\m'\221(\213d\303QY\261>.\366\354\321$\001h\232\266v\212\026\356\273\r/\t2\3330K\006\334\257\200'\211\205\177%P\036\310\335\274\313\231\332\240\207\304\024X}Jl=c\316rrY9\312\316\251\351\013\024n\005!$\325\020\025=\024X\311]3\247@R\311\005\r@y\005\214\214ZG\212\314{\245\n_v\313\014\333T\340fm\240\342\357\363\316\\'\240\372\020\345\023VuE\021*\271\332d\306\204&C!\235\300N\204\314%\211B\rmg\230\305\333Nh\204C+\241Y\340\234)h\037\273T]c\267`n\034\317\304]U\305\032\215\226\320\240X\317\032j\004\343j\3441\335Y\3528\362\316\255\324\236h\025L\020\346G\010\270zm\312\007\265\244\355\263#*\237\216\022q7\t\310\010H\331;\253\251\253j\267\353\215/\276\034\241bPA;\2663jf\245(\231&Y\306\202!0\222L$3\\\237\010\323\273\024\323\225\210I\341\341DSI8\314\3179j\252\322d\235\212\317_\326\033\025\373\316\326\220EM\031\025m\302\264n)lv$\214u\232\206\013\261:\025[hb\\\027\305\364\273\025nJ\221u\204]6\270\2357\351\252\375\0328\317~\337\363ix\257\037\263\027\021\256[y\226F\\6\255\305S\300(\261\210(\032\210\232E4\255\007\023\222\311E\250P\362\341\007\225\210)\353\005\357U\030N3\2142i\0044^s\262^T\205J\267\240.\211\030I\222\347`\265\266\322\265\002\312\022DZ\017\r\363\003?\351\256F{FB\220\033;'\030\032\031@\336U\001D!\t\342\240\236\340\306\342l\310N?\275\336\250l.\314\032h\372yl\216a\014\306\375%\314@\273\204\0047\331@)q\221V=\242\003-\001\004\021\214\r\302\033\302\347\343\247;\362J\317& @\242\210LA\231\250e\010\301,ajk\2643\277\021\302\220\314\003kJ\230X$#!\275\305\30377\234\005\305$\004\201\014F\344\212\005\036Y\253\tZ*\243\005\241\211\007\277\030\220\353\032G\217 +Lu\2203\260<aG\240\337\020/\255;1\301\214\024r\233p\235_\033\n\256`\204\0079\235!\345\224\261c\316\240\214\252^\260\340S\352x\324\021z\016\254;\242)\t\211-\037Q\353\0345\260\302\245\225cG\336T\305k\2617g\023v\242\014Ia\203&\305s\307\311\026\246b\303\346\270m\270*\246pu\326\r\031[\031\204*\275\266`>r\244\220\252\345zT\344\240\031|\3318\032\263\317\r\311F""C\n\177\3558^\276\224\212Xua\344F\344\320D9R\225$aS\223\267:x\337\347\235-\320\341\036\005\364\351.\032\333\030\231D:\233\312~\266_\006\001`\220\255\036G\365\264\312\213\030d\310\266\0056lpy\000\274\0320\305\350\211\020\026\303S\254xLdD\317\370^4=\032\263\032\216\347M\334<\332d1|\227\203\336\323Z\204:\037\211o\206v\222\037\005z\365\002\204!:!]\301\003J\r\203}0`\335]\014\020.|\300`wtm\3105p:\256\"\337\337\356v\255$\201\255\321`1\335\257\202\006Ozz\307\256\310i&6\303\t\337\005\0070\177\273\227\024c\323\323\034\261F\355W\206,+3{\035\236d\3542\313+\244\214Z\333)L\035b\271&|5\2349)\252@\355Xi*\"Sb\007\tJ$\257}S\220)<L\374\346*9\304\215H\216\t\020\324S\2431\222H\215\224\244\262\224\225\010\311-A\022X\251\005 `I\002\231\253(3$t\004\357\022G\323$Y\272\350&rrd\362-\n\357\374]\311\024\341B@$\322\033\204";
-    PyObject *data = __Pyx_DecompressString(cstring, 2441, 2);
+    const struct { const unsigned int length: 11; } index[] = {{1},{179},{24},{19},{28},{1},{8},{20},{39},{34},{46},{14},{8},{20},{12},{5},{1},{14},{18},{17},{15},{18},{4},{12},{9},{13},{9},{12},{18},{3},{7},{4},{6},{11},{11},{13},{11},{8},{4},{10},{5},{5},{3},{8},{7},{9},{7},{7},{7},{16},{5},{8},{7},{3},{7},{10},{8},{4},{9},{9},{7},{4},{6},{1},{5},{7},{3},{5},{13},{5},{10},{1},{5},{11},{9},{16},{8},{14},{9},{11},{10},{8},{13},{14},{12},{15},{13},{3},{6},{8},{2},{18},{10},{13},{5},{14},{8},{9},{3},{8},{5},{8},{15},{12},{12},{6},{6},{6},{9},{3},{7},{4},{12},{8},{12},{10},{5},{10},{9},{9},{11},{9},{9},{9},{16},{3},{38},{33},{11},{8},{16},{20},{9},{19},{10},{6},{6},{5},{5},{6},{8},{12},{13},{5},{5},{5},{5},{760},{530},{324},{399},{1136}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (2539 bytes) */
+const char* const cstring = "BZh91AY&SY\235\212M\262\000\001\356\377\377\377\377\377\377\377\367\377\376\277\377\377\377\277\377\377\377\300@@@@@@@@@@@@\000@\000`\t}o\252\246\363\216\007\243v\321t\311\027X\346\313z\200\007\200\224\"D\232OS\320F'\251\352l\304j6!'\346\2315OHM4l)\275O\024\320\324\323i=&\312zL\3241\036\223\311\243'\252\177\252'\352i\004\2414\023 I\3522aT\366\322\236\250\323\362\243\332\232A\246\236\220\032\000\000\000\001\204\r\001\246F\324\365\003\324d4\r\000\211\252M\036\2204\036P\362\232z\237\252=!\240\000\000\000\000\030\200\000\006\200\001\240\000\006\"\022\246mS\362\223\324\364\231\003OS\321\251\243@d\001\246\200\000\000\032\014\200b\001\211\223@\014\203@\203\000\004\300\001\014L\023\000\000F\000L\230&L\000\010\310\304\304`!\200\000\004\212A\211\030\251\355\023\325O\364S)\372\246\232z\236SA\352\000\323@\000\000\032\000\000\000\000\320\000\000\022\023\205h\250F\255\363ED$\201H\001\242}\336\337.B\033|\224\007\214c0\031\372\004J\202\212\177\313}\317\225\206\177\275\232\373\331\030I\250|\016\021AUE\000U\t\t$\221\354\317t\225\000\366J\224\002s:?\360\tS\244\2012\022\266\023B\374\033m\240cM616\206\233`\016a4g\263>c=\242\222\005'8\265\003\013%\220N\255\3505\200\201'P\274\340N\367\215||x\017\025\001\260\226\020-\n\306\t\263<\212\312\270.\263=u$\031\230.\034\022\r\rHh&n9\0104\005\320wh\212\343\2140\3224\314\276\326\272f\263\013\244\203Fez\266e\353sN\246\3306\210\227\023\2319\341a\244\256L\211\024N~\347\034\264\274\322\222\030\260\325D+\226@[\002tUK\222xf\030aI\227\320\2451\240\253\215\216\365\320\205\330\2063\210\364iZ\272\275\345\336E\363\237k\343U\"q\365:\201UE\236\212,\254\277 \217\366]\203\177=\356\022\326\345\354\374\337vf\222\020qF@L\036<\262\341M\233\306\225\030D\344\251\005\027\370c5g9^t[\004\005\240W\0346\020+\205x\024\264bhgZ\272\033\273\034M\332D\342ty\305\340 m\242\202w\364\020H\300d\334\340Xk\345 $O$mm\310\215\370qzv\010\224\206\306\230&\333\033V]\247\342{\266\363w\266\232\215\275\005$\023\357\351\240\354\"-|\260]y\222\270\324,\226[+7\t\242\2248\020t9\025I\256~\226\325'""\227)\324\031Z*DEEMF3\363\371\262\222\357r\320*\013X\220\205\220\264\204\204\245\306R\277\266]\257\241\n[\321\264!\357~\025\343\263e!\351\262\036\351\275M\244BBS\005\276\0065\224\265Fq\0363(3Ti\300\235\334\\w\034\210\2365\006\247\353\326^V\245jw\202$gJ\245)\023\373\025\0177\301<<\357K\323\236\274\2447\177\223\364\352\366\345\r\330\025\252j\003DHA\337Fa\366\204IJ-\000\204_\275O\037\313\216Gu\202\342\256\023\360\322R+ \226\004C\2763\177\033\232\205q(M\320\313\317q\347/[\325\214v\370\017\023\351\340\360\333\227>\032\3710\224s\332n\022byB0\230\t\017\032)\232\217w\035\336\300J\"\270+|\252Mt\372\021i\367\361\224SP\326Y\"`\252}\233Q2{X\363\032\252\254\253\332\251+\232E\353\252\352zYN\005\0278^=\315\004W\204i\245o\273\346\311\340\201,\337;\336\360\031\344\326\353\345y\021\255/([T\263\022\206r\205\303a\211\344\354B\360\273\006\305\331\003\374C\323\307\327\r\014\362\037Q\033\317\235\374\240I6nl\205\326\372\270y\233\004\037\021\005R\200\020\324o\037\037L'\362\n\213\264\2271q\313\021\226<\262\322\212X<\262\244\355\325/\200\300\"\027E\322\032Z\301W^\265U\342\031I\000d-Y\201&K7\005\233\240\323\233h\231q\256&7rt\257\372\346\277\016\036C'c\362A\205@\251\325\013F4\353\032\265\325}\306\226o4\014g!\206\"\275Z_\312\263F\030O\216c\210b\033;\036\262\360\276\306\231\030TV:Y!a\371\327\233|\262T'\333H\017\030\222vY\360\200\235\314\314\363\343\262\272\353\321\003\334p\315!&\021z\025EE\213\346\276\303\306\256/\204*#I\256\365\371\350a\260\351hK\n\365\347\345VG\211\346&\n\361\242\031\210o\275\246\326\225\345+\331\241\000\271\235\263*\206'\027$\017\202\245E\020z[h\204Jn\225\214\251\024\306\235\375\370\311\266\311\2419\203\301B\231\ri\240k\220\341W\302\255\251\220i\324\356o\020\202\270\002\305\223v\"\tIs\306\312\022\246\005\027\324\374c\177\206\230\226Yt\320\357\201\210\235\204\231\r\233!CU>\033\010\025tB\274\243k\201\370\275\335`\300\265\335\032\021\373\023\342\305,\330\213{aG\210\037\215h\274\333\333z\343q\312\250\033c\010\314/\020\365\225\021\024\234\364\335\001\0068l\235\303\351\n:\217)\220""\r\247~\220\355B\310\274\246\245M\314h\034\202\0220\274\304\3454IpG^\330P\254,\315\033\355\246\001\001\274\200\215et\270;\024\231I\034(Z\355\203\215\025\212\321\254*RA1\222O\212\316A\323\347\261\327$A\301\321\010P\267\343d\267e\n%\025\024\035E\027t\261=\242\263\217\263\203\307\002H%\026\274%\344\337=\352\204\320\002\002-\025\267T\303\006\323t\002j\233\r\000\321y\356\342\024\305D\313\260\260A\230M\371\032\371[\203\241\002`\222R\021J*A3\326vj\255):\367`\210\200\314\006\211\337\255\003\307,\267'\306\2768\240p&2\241\022,\201Md2\346$\363\314}\204\204Q\013B\244V\242\275\021Z\003\022\336\023\206\323\300=!\204\020e#\211\031[(\214\r\030\352c\032bb\204\000pcHo\010B\206\031e\266\212\225P2\3561\271\346\0323\324\371\207R&\362\034#&\253psi\345\370D\356\340Yl\272^\026\n\254\004\212\300V\022\032\366\032b\361\346a\237\231m\313\0360\026e\360c[\0041\032]\307 Ao)}u*F\031\274\330\243\010\310\003\314\353\246\027EnX\364ZJ\2454\302\370\032\013\207\021\243W^\265yJH\244U\340.\035\321\t$B@\232\023R\014Z\212\261L&wI\203\263\247xiS\002KF\026\352iDA\210\232\255\2368\260\262pU\031\212H)#B\233\344\255y(\360\302\344\2164\315\322\330\003\272\024\307\0140\014S\213\312\026\303\033\231\022\322j\222j.\005-\321n\031m\333\334!\r\236\305\346Be\005\353\307\264\351\236\316T\324\251\325zs\256\3174\347\346\200s\221DO\312lK\302fz\314\253\314\335\032\316Hk\314p#1r\036\330\004 \256b\201p\306\234\342\025l\320vZt\025\020m\243u\000s\304\255c\244D\340\333\233\n\340\326\002\235}\220\356\320q\264\275\220\353\372\361\212Y\t\0170x\366V\240\254\2517i\327\rA\220\266>\360\273\002\033\n\223\224V\033\275\n\2710\330\220-\220\365r\312\030a\311\026\022Xh\005z\300\214\251\006\003'\336N\212\363\0209\354 \305EC\310\207\356bk\352\332\336Gi\244\023f\3523$\030\331\372\312\230\352#\317\257[b\201\332\333\313\034\312\240\253C\275\2768FEC\370\377=:W8\001\364\221\204a\224\247\273H5=Z/\032\375'S\036\312f/\242\2322\337V\313\313\314\034j\234F&~\247Hr\367j\356\t\346\366a\233\177`\345\257V\024\211\373\260;\002\004&\303\355\211\016\255w\230""\\\016\032c\254w\315\267H\350\325\303\017\356:%\"\356\236s\256\326\025\244e\327\\\207\301\002:\302_V\2227u\335\341\203Cf\316\336\325\347\031\322\023\024\262\260\2302/\252\245\347ZR\310\257\243\014D\255\246X\261\002\264\307\301i\td\362*2\331X\353\241,\\V\275\274\373\244\313+\231\200\320x\256.tQ\252\030\027=\355\271'>6s\313\017$f\206\275\326\031yQ\306\370J\273\360\371m\334?\256\013v\"!E\315\347[\255\n\276\251\235\254ZC\206\2746\2726\357\333\364\326HH\225\013\365k|#n\316o@\265[\020N\307b\250\252h\211S\361\247\224S)R\023@\331\312\273\207\270\246\225:\036,\232&\206\276\215\032\266=\324(\333\340C\356\353d\036\034\234\217\321\013\324(\363:k\307\355\364:bu2\272Zi<\237\202tI\364'\006\254\357\226\276\244\355\202~61\010}Z\001[\351\346\342\342\241\223\212p\342\324\247O\313\312\344~\004a\371{p\210\216t\230T\002\334\356\343\316\377\030\3427\333\343\201\261\304\235t\370\36314\361\367\1773z\241\265,\207Vq\206{=\374d\245\210\215\354\237\234\353\031\234\025X7U\3011\330\206T\rC\205\010RRc\203\014\344\024 \014\312\307VC\260\006\323E_2\213\345\251\r\\\315I\222(\353H\2056\221\254:\t)\273\230iI\241\315M\260\030!\2729\2070\240M\203\252\274\257NA\314\334\342\030\035U!\265X\214\221\034\266\025,\246p\331\017C\261\377\027rE8P\220\235\212M\262";
+    PyObject *data = __Pyx_DecompressString(cstring, 2539, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (2298 bytes) */
-const char* const cstring = "x\332\305U\315w\323H\022w\300&\316NBb\342\204|\020\220\t\033\010\217\tk\002\204\257}\363L\302\004v\227\014&\001\302\247^[j\333\002Y\262\365\021bff\227\243\217:\366QG\035u\324\321G\037u\324\321\177B\376\204\255j9q\262\313\260\373\346\361v\363\234\356\352\356\352\352\252_\375\252\264\264\241[T\260\252\304\022V\233VU\327\004\305\024d\252*%j\020\213\252M\301\264\014E\262\250\201J\232\360\344\301\223\357\257\337\272.\020M\026\014\372\236J\226)\230vIR\211iRS\320\313B\311VTK\321\004\253Y\247\346\222\360\250,4u[\320(\225\005K\027\352\240w\370\202U\245\232`R\013\005\341\"\3214\335\"\226\242k\"\\W\264\312EAV\014xD\331\241x\373G\242\232t\351\247:j\020\365\365c\033^\372\033iR\343\t\261\252o\267\354\272J_\227U\235XW\004>\275}Qx\272\361hc\375\316~p\205\313\002\335\225\300\027\360\346\007\"\313\242\206\341+\026\006\0136M\241\254\033\340\253%hv\255\336\\\022%\335\240K5|\206\030\006i\ne\242\250q J\255\256\033\326a5\273\006N\374\233\206iHW-Z\253SC\254\253D\242\306UC\267\001\237\312UbZ\304\210\307\330@\275\271{4\242\375@E\361Is\027\376\327 \021\342\006\335\265\236\322\362S\260B7i\245F5\213\007NTU\377HeQ\305\333&1\233\232\244\350K`\230?GM\262\003\236\221\222J\305\222\252K\037\250\334\337\000\367\254f\177i\222\032\025\001\204\222\256\253%\335\326dS\224\252T\372 \341~\331\320k\022UU\321T>\321\003A\254\325$\025^\021\025\310\234\001a\226\010\350\353*\374Dx\037&S\322\265\262R\221l\303\000\217E<\353\211\212\274\273/r\337\367\027\206\376Q\206\200e$\022\367\220j2\374D|\224\317:\237\370\035\024\352\272\211\023\\+\213&\002ZVp\027p\024%\236}Q,\333\232$\212\225\370\270B-\370\211@\276\212\016\030\2271R.\201C\025C\221\361_\224\211E\270\260\243\320\217U\021\223\005L%\365*U*UK\201\027\350.\014\212DME\003\234\255\345k\242b\212\007\260\003\265jf\237_\357\271\267|\000\035[\263b\021tc\301\244u\022\253\212b\215(|\334\025\373\367k\260\245\0332h\326j\242\245s,@G\227m\310\033\374i\230\"\310\0358W\322\361\t\325<\2640\255\376\n\202<\220c\312\034,\001AX`b\264:\020\\<\312,\334\351K\373\227L^\t\272$\331u\242IM""\0211\323\353TCxy\n\020\310\272^\257\033\200\021\014\272\241@^m\263\ni\253\003\205\264\n\006\000\025 J\244\256`(\r\233\250q8\006E\212\301\010\305aP\31364\003s\005}\251\016\256\302\017\361C\247M\n\017\366\262a\306\245a\212\350A\017\027\220dZ&`\206\347\221\017\034\302\236\244\367\004\300&\026\3428\271\010\354\212\005|\010z\024\355i\201`\326\201\360\274\014\240W\036\251\365\245^\255/\361*_\352\327\372\327\264x\343\264\300w\202m\017\330*Z\260\356\215\234\213D\302\000\371\032\271(\002\320=~\360=\014\226\013=?c\216V,h\255*gA\334[mMi\330t\207\250\275\301\334Q\010?\306\031\302U\270\305\217\212lU\001}\335\344\035U\270\004\371\273\"\374\346p\270\373.&`\353\353\027z*\200\233-YBL\000K\314/\037\301G\\\351\001$\336\210\021\314\377\251\217\244\270\016\210<\207\342\024.\377\017m\177\253\007\036+\332C\310 \332\217\341\275\274\230\330\321\025\271\217Z\357\351\243\323a\037b\365o\342\30475v\300\205o\355e\317b\225\332\206bZ\212\224\210i\016\335\2203=\301K\004:{,@3>\370\262%x\265@\303IpM\274\302\357\306\373e\203\356k@_\212%ES\2540q\301}\350\025\366\206\023\251\364\347O\316\270S\210\322\031'\343\344\234\233,\323\027'\030\211\322Y\347!+\260\"+\273\005\267\270\177\226\217\322\243\255Ol\234\2552\313\275\355\255z\215\356\320\270\263\354\220Cv\272G\355|q1\311\032\321o\252\355\235H\014\235r\270?\247Y\212m\273E\227\270;^\321{\037\034\017\256\005[\355\351\316|\247\370\1778^\016\344\366bg\271C\272\207\341\370\"\004\303\255\007\316\204C\234F4<\341\024A\330a/\334U\267\021\307\226u\236\263e&\271Yw\313\233\361\227}\036\362H\377\312\024K\273\003n\306]\360\006\274\014Zx\301\036\2703\336\262W\362\223\376\243`\263=\330n\374'\037\276\236\301,+v\223\337\265\362ab\336\275\347\375\032\336{\334\331\016\237=?\304\014\214\341\221\363\214\345X>\032\036s\006\035\033\214m\272io \032\313:\353\354\006x8\356\256{\371({\206mx9\357\206\237\362_\004\353\355[\035\330:\357\346\334\025\330\274\355\027\374\227\001\t~\356\\\014\213/\303\227\257\272\331\323\216\005\301W]\311\313z\233~\032p\275\331\036o\027\242\251sH\212~,\335""\364\014\313E_\362\242\330\367 \363\305\327O\003\334\233\356@l2+\270\311\030\201\303\266GZ\317\235\353\200u\372\224s\364\221\254\263\001\276\337\360R\336\013\177=\270\325\206\255qg\005\3170Ic-\023@\004\013\316'\210\276\320\303P@X\366N&R\031\347\230\263\300\216\261y\266\345N\270e\357\276G\242d\272\225v\206\330\034\020\251\201\213!\2406L\177\200wa:\t\316$\007\367!\307\034\315;\233\300\274b7=\346\244\331\000\313\260\005\367\270\273\354\022\364\177\007\316\006\016b\030\rG\205\036O\216\0039$?spt\304\320\177\255\327\262\302\361\013\210\025\270\276\352\231\376\274_<\254\031WE\222\255\205B\336\317\3709\177%\230\0072\036\007\214\376\365\344f\220\375\035'\343\301\332\3578Y\r\314v.\316.\246\343\363@wt,\0329\031\r\217\340/\211\216'\3410J\235\330\273\220H\315\002\236\310\2077>l\237\205\342X\363\006\302\305\273\001\24675\351lA\345$'\035\031\250\227\234a\027\2405%g\331u\206\205\233\302\302}\0030.zyo\315\037\n2A\016-[\316=\326p\007\335\206\227\364\326\375\274\017\254\230f3n\336-D}\341\264\263\013J\003\007\002\332K\177\266[\367[\222s\006z\303\232w\314\233\367\336\004\031\036H\004\224\210\317f\330\212{\301-A\342\356\3701\205\367\322\211\324E\250\236L\027\350\223j=\213\213z\022(\t\265\021\233\375\305\271\346<uLv\005\325\370\031^Z\361etx\244\265\355\274d5\210\241\200\213\227\3205`z\005\265\000\323;N\363T\316=\001o\016z\206\237\301\345,\273\204\275(\\\274\023\234\017\n\010\314\002(\220\360\342\255\340X\220C\333C}O\300E'\345\364\032\316\002\343\221\236l\025[\004\332\016\2676\303\316\002V\337\371w\203Zg%|\372*|\365:\302\304\265\036#\366\323l\032\352\357\256\367!\230k+\235f\270-\205\222\026j:z\027\033\201\363\275S\350T\016\333\325\031(Z\270\304-\237\210\322'[U\247\314\356\263\022$\371\257\350\1774\014m\004\016G0\210\034$\343/\036\361\240\307\216\266~\301\274Fc\231\3700\307\376\014\335v\316'\376\257\355B[\014\267^\207\257\341i\031O\307@\027[\226\354]\361%H\321\330\270s\007*\374\024\224\245\346\257\372\320cr\330\211x\267\231\300\013s\3541\000?6\307\336z\271h\354\034\373G\270\364C\000o\361""\344\303\223\316,+DcP\224\370|:1\222\001\304\342\376\003\312\177\367\212\334 \344\275\006tZ\013F\333\215\316@\224\235e\267\\\314N\346\034\253@\211\326\374k\376\273v\276]\350\202;\367\230\341\236\306\257E7;\307\212\341\331%h<p!\037\236\271\342!)&\3161\325;\357=\002\016M\375\021.\313\336\367~#H\006?u\362\035h\2759w\032\034\235\232\347\366'\316\302G\203\260O\336\264\217\300\r\r\267\240\007N\205S\227\260\365\317\242\217\2750\000u\250\020\345\200\370k\301`\320h\307J\210\302\2510s\007\030\007\337\257wn\036\3251\263 \234\345w\270\336m\3546\250;\351\024c\244\177\206\346\t\r\036\276\232\341\344u\277\020\336\330\016\267\371\207\243\307}\370N\026ZEl\331|\352}\325\376\t\000\231\370f";
-    PyObject *data = __Pyx_DecompressString(cstring, 2298, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (2418 bytes) */
+const char* const cstring = "x\332\305U\315w\323V\026w\300\006g\232@\2348\020B\002r\303@\303\241\351\230\000\201\2249=n\322I\231\031(\006\312g\213\216\"=\333\002[\262%9\304\264\235\351\322K-\337RK-\265\324\322K/\265\324\322\177\002\177\302\374\356\223\023'\035\332\231\323\303\231\361\221\337\273\357\275\373\356\307\357~\274\225{\246\303$\247\2468\322F\307\251\231\206\244\333\222\306\352\3726\263\024\207\325;\222\355X\272\3520\213\230\014\351\376W\367?\275v\363\232\244\030\232d\261WLul\311no\253u\305\266\231-\231\025i\273\255\327\035\335\220\234N\223\331+\322\235\212\3241\333\222\301\230&9\246\324\004\337\301\013N\215\031\222\315\034\"\244K\212a\230\216\342\350\246!\343\272nT/I\232nA\211\276\303\350\366_\224\272\315V\276i\022\207R\177q\267\rM\177W:\314\272\2578\265\357\037\265\233u\366\242R7\025\347\212$\246\357\237\224\036\334\273sok}\317\271\322e\211\355\252\260\005\326|\241h\232l\220\373\272C\316B\246-UL\013\266:\222\321n4;+\262jZl\245Aj\024\313R:RE\321\353\211#z\243iZ\316A\266v\003F\374\033\207m\251\2379\254\321d\226\334\254+*\263>\263\3146\360\251~\246\330\216b%c\"\240\331\331=\354\321\236\243\262|\277\263\213\377&\002!\337c\273\316\003Vy\000)\354!\2536\230\341\010\307e\245^7\3370M\256\323u[\261;\206\252\233+\220,\3641[\331\201i\31268\267\353\246\372\232i\243\r\330\347tFK[i0\031(l\233f}\333l\033\232-\2535\246\276Vi\277b\231\rU1\022o\344\035\035c\275.\333\372[\266O\310\215\206Z\207JYG\034-0l+\270l\326\361\3110\006\223\255\232FE\257\252m\313\202\3752\235\rI]\333\335#\205#{\013\313|\243\351\320\217Pi\200A\263T\331\204h`M\211&\034`\206\206O&3\304l\212IH!\242i\3324APE\266\t\360\212N\273\300YVEv\210\224\221\345J\333Pe\271\232\360T\231\203OF\206VM\004\242Bh\010\nvV-]\243\277\254)\216\"\210\035\235\275\251\311\024Q\244\263\322\2541\275Zst\250a\273\030t\225\331\272\201X8\253We\335\226\367C\203\374k\330\243$|%L\026\003x\332\206\223\220\340M\010\2335\225\204U\226\033\212.\306]yt\277\201-\323\322\300\331h\310\216)\000\001\217\251\265\021[\374\014\n#\342\013\343\266MRQ\267\017,lg\264\202\223\373t\222V""\373K\300\210\205\203\017\\4\222T\243\211\202\370E\"\322\316\210\332\273o\213\3121U\265\335T\014\265#\023|f\223\031\204\264\010\ta\3324\233\010\232NN5-\300\206\301\264t\304\273m\327\020\316&\222\315\250\222O\250\034YU\232:y\327j+\365\304C\213Q2bDQY\314i[\206E\341C?k\302z|\004)\371a3(\036\006\310NJ\312\226\311\222!T\2404VQ F\204V\014\002\325!e\016\t\300\225\020\211\277\202\204\003\tA\212\320\333\330\220\013\204\335\244\n\"\033\321c\017\365\210\225a\217X\021\335ae\324#~\213K4\\\007\266+\324.\221\300\262\203\365p\024\351\251\250\344\240XSz\312\000|\2302b\317\020\345\005bhg\222\266U\007-\271.\022#\351\311mCo\265\331\216R\3275\014\202j3\033\215@\360\320\274W\250D\357\005P0\354\322\320y\243kN\r\2011mQq\322'\010\355\025\351W\207\203\r}9\205\255\337\2760d\001\244m\325\221\222\334p\344\342\352!\350\344\265!v\362\365\004\334\342\237F \313[\000\3531JY\272\374?\224\375\241\024\334\325\215\257\021\\\222\237\300{y9\265c\352\332\010\265\241\352\303\323A\033\022\366\017b\304\007\025\266\237\013\037\332\312\241\304\032k[\272\355\350j*\251\000\364NQ\004)Q=x\007\022\002\255{\377\255L\211BB/J\tN\272\"\356&\373\025\213\355q\240e%\224n\350N\224\272\340}\355\227\336M\2442\331\237\337\2723n)\316\346\334\234[po\360\334\210\234\345J\234\315\273_\363\022/\363\212W\362\312{g\3058{\262\373\226\317\360\r\356x\267\374\r\2775\030\237qW]\345\200\234\301a9\357]\234\342\255\370W\331\336\035K\215O\273\302\236\323<\303\237zeO\361v\374\262\377*<\032^\r\037\365\316\364\227\372\345\377\303\361j\250\365\226\373\253}ep\020\216\367B0\321\375\312\235u\025\267\025O\314\272e\020;\374\211\267\341\265\022\337\362\356c\276\312U/\357=\362\347\203\325@\270<9\2722\307\263\336\230\227\363.\372c~\216$<\341_y\363\376\252\277\035\244\203;\341\303\336\361^\353?\331\360\333\021\314\363\362 \375Q\267\030\245\226\274\333\376O\321\355\273\375\247\321\267\217\017d\006\371p\307\375\226\027x1\236\230r\217\273m\010{\350e\375\261x*\357n\361\353\260p\306\333\362\213q~\201\337\363\013\376\365 \023<\t\267z7\373\330\372\330+xk\330""\274\025\224\202g\241\022\376\320\277\024\225\237E\317\236\017\362\247]\007\316\327<\325\317\373\017\203,p\275\321\233\351\225\342\271\363\224\024#_\006\331y^\210\337gEydA\356\275\332O\003\356\207\336X\"2/y\351\004\201\203\262'\273\217\335k\300:;\355\036V\222w\357\301\366\353~\306\177\022l\2057{\330\232q\327\350\214\2024\325\265\001\"$\270o\341}i\210\241D\260\274;\221\312\344\334#\356E~\204/\361G\336\254W\361\277\364\2258\235\355f\335q\276\210Dj\321b\034\251\215\351\017\320\213\351\004\214I\037\337\203\234b\264\344>D\346\225\007\331)7\313\307x\216_\364\216z\253\236B\366\357\340ll\337\207\223\321Ii\230'G\221\034j\220\333?:$\350\277\346\353:\321\314\005\302\n\246o\370v\260\024\224\017r&U\221\346\233\221T\014rA!X\013\227\220\214G\201\321/On\204\371\337q2\023n\376\216\223\215\320\356\025\222\350R8~\036\033\234\234\212'O\304\023\223\364\245\311\3604\016\343t&N\237\350\" \024\362\314\261w\227S\231\263\000\227\222\343\273\000<\347P)\233\376X\264\374yH\261\316\234r\037\241\214\322\247\\\ry\230\236\347\027\320\247\322g\3715NU\234\241*\376\016\230.\373E\1773\030\017sa\201\3248\356m\336\362\216{-?\355o\005\305\000)r\206\317{E\257\024\217\210\323\356.\230\306\366\t\222\227\375\271\335\375\262\253\272\013h\024\233\376\021\177\311\377.\314\t\257b\344Gr6\317\327\274\013\3366\242\270\036$\371\374.\233\312\\B)\345\006\310\245L\367\333\244\302O!?Q(\211\330\037\335\253\356\003\327\346W\210M\234\321\245\265@#\203'\273O\335g\274\001\037J\264x\206\026\202\3519\n\003\323K\221\363\231\202w\014:\217\373V\220\243\345Y\376\t5\246hy=\3748,\0210\027\301\240D\227n\206G\302\002\311\036\037Y\002\023\335\214;\354>\027\271\360\364D\267\334U\320\203\204\264y~\016X}\024|\0366\372k\321\203\347\321\363\0271E\261{\227\260?\303\317\240\030?\367_\207\213=\275\337\211\236\252\221jD\206I\326%Bp\376n\232\214*P\357Z@\005\343\222\220|,\316\236\350\326\334\n\377\222o#\310\177#\373\343\t\364\024\034N\222\023\005\004\343\257\276\342\243\341\236\354\376Hq\215\247r\311a\201\377\031\255w1P\202\237z\245\236\034=z\021""\275\200j\215N\247\300K\375K\363\257\004*B45\343\256\243\334\247Q\243F\260\021\240\341\024\250-\211\3263K\027\026\371]\000?\265\310\277\367\013\361\324y\376\317h\345\213\020\272D\360\241\322=\313K\361\024*\224\324gS\2239 &\232\321\000\242\277\200\231\253\"\300\350j?x\227\374Y_\013\226\3035d\374\234\344M\342eR\203\351`=|\020\276\355O\243\367\275\177\363<\236\353u\377eX\214\027.zU\277\034/\374\021\rq\001:\007s\"\243\343\205\305\001L\373\007\216\310|dY\003\311\273\031\236\354\265\372cq\376,\277\351Q.\344\316\363*\272C#\270\032\274\354\025{%\262\3606\267\274\323\364P\r\362\213\274\034\235[A\317\303\205b\264p\305\247\024\234=\317\353\376\307\376\035d\354\034\264\002\267O\203V\230\016\277\351\027\373\350\372\005\357\014`\231[\022\362g\317\341\275R\370[\377L@a\032\237\350\242\375\316Es\237\320\253\003\231\373\240!\306\250G}\277\3146\303\343a\253\2270\021\346\323Qn\035\371\215\247\363\245W$v\312#\020\347\304\035\301w\213\032\035\361\236r\313I\\\177@\337\306\333\202\007;:u-(E\327\237FO\305\2335\2544<\321\245n\231^\0131\r\037\324\177\0011\254N$";
+    PyObject *data = __Pyx_DecompressString(cstring, 2418, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (4605 bytes) */
-const char* const bytes = ".Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Optional[MultiLayerPath]Tuple[float, float]WARNING: Cython A* exceeded ?add_note iterations for net numpy._core.multiarray failed to importnumpy._core.umath failed to importsrc/temper_placer/routing/astar/astar_core.pyxMultiLayerPathOptional__Pyx_PyDict_NextRefRouteSegmentTupleallowed_layersasyncio.coroutinesavailable_blockedavailable_emptyavailable_same_netboolbounds_checkcame_fromcell_sizecell_size_mmcline_in_tracebackcolcol_outcolsconfigcurrent_colcurrent_idxcurrent_layercurrent_rowdictdtypeemptyendend_cellend_colend_layerend_posend_rowf_scorefind_path_cython__func__g_scoregetget_setgoal_foundgoal_idxgridgrid_datagrid_viewh_startheapheightiindexindicesintint32_is_coroutineitemsiterationsjlayerlayer_countlayer_outlayer_separation__main__max_iterationsmin_order_mm_to_cell__module____name__neighbor_colsneighbor_costsneighbor_idxneighbor_layersneighbor_rowsnet_idnpnum_allowed_layersnum_layersnum_neighborsnumpyoccupancy_gridopen_setpath_datapopprintprioritypush_pop_single__pyx_capi____qualname__resizeresultreturnroundtriprowrow_outrowsseen_indicessegments__set_name__setdefaultstartstart_cellstart_colstart_idxstart_layerstart_posstart_rowstate_idxstate_space_sizestrtemper_placer.routing.astar.astar_coretemper_placer.routing.astar.typestentative_g__test__test_grid_accesstest_heap_operationstest_nametest_state_indexingtotal_costtypinguniquevaluevaluesvia_costvia_positionswidthzerosfloat (int, int, int, int, int, int, float, float)\000int (int, int, int, int, int, int)\000int (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_GridView *, int, int, int)\000int (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_GridView *, int, int, int, int)\000int (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *, float *)\000void (int, int *, int *, int *, int, int, int)""\000void (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *)\000void (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *, float, int)\000void (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *, int)\000heuristic\000state_to_index\000grid_get\000grid_is_available\000heap_pop\000index_to_state\000heap_free\000heap_push\000heap_init\320\000$\240H\250A\360\014\000\005\010\200z\220\023\220A\330\010\021\220\021\220!\2206\230\021\330\010\021\220\021\220!\2206\230\025\230a\330\010\024\220H\230A\230Q\230f\240A\240Q\330\010\021\220\021\220!\2201\330\010\017\210z\230\023\230C\230t\2409\250C\250q\340\t\023\2203\220a\330\010\021\220\021\220!\2206\230\021\340\010\021\220\021\220!\2206\230\025\230a\330\010\021\220\021\220!\2206\230\025\230a\330\010\021\220\021\220!\2206\230\026\230q\330\010\021\220\021\220!\2206\230\025\230a\330\010\021\220\021\220!\2206\230\025\230a\360\006\000\t\022\220\021\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2703\270d\300)\3103\310a\340\010\021\220\021\220!\2201\330\010\017\210q\340\t\023\2203\220a\330\010\021\220\021\220!\2206\230\021\340\010\014\210E\220\025\220a\220q\330\014\025\220Q\220a\220v\230W\240C\240q\360\006\000\t\022\220\024\220V\2303\230c\240\024\240T\250\032\2603\260a\360\006\000\t\r\210E\220\025\220a\220q\330\014\030\230\010\240\001\240\021\240&\250\001\250\021\330\014\025\220W\230E\240\032\2503\250b\260\004\260I\270S\300\007\300q\340\010\021\220\021\220!\2201\330\010\017\210q\340\t\023\2203\220a\330\010\021\220\021\220!\2206\230\021\330\010\024\220H\230A\230Q\230f\240A\240Q\330\010\021""\220\021\220!\2201\330\010\017\210z\230\024\230Q\340\004\013\2101\320\000#\240<\250}\320<M\310X\320UV\360\014\000\005\010\200z\220\023\220A\340\010\014\210I\220U\230!\2301\330\014\020\220\007\220u\230A\230S\240\010\250\001\330\020\024\220G\2305\240\001\240\023\240G\2501\330\024\034\230N\250!\2505\260\005\260W\270G\3008\3101\330\024\"\240!\2407\250!\2509\260A\260Y\270a\270{\310'\320QY\320YZ\340\024\027\220t\2303\230h\240c\250\024\250S\260\010\270\003\2706\300\023\300A\330\030\037\230q\330\010\017\210q\340\t\023\2203\220a\340\010\032\230!\330\010\014\210I\220U\230!\2301\330\014\020\220\007\220u\230A\230Q\330\020\024\220G\2305\240\001\240\021\330\024\034\230N\250!\2505\260\005\260W\270G\3008\3101\330\024\027\220v\230S\240\001\330\030\037\230q\330\024 \240\004\240A\240Q\330\010\017\210q\340\t\023\2203\220a\340\010\r\210V\2204\220q\330\010\022\220!\330\010\014\210I\220U\230!\2301\330\014\024\220N\240!\2405\250\005\250W\260G\2708\3001\330\014\023\2207\230!\2301\360\006\000\t\020\210s\220!\2203\220a\220z\240\023\240A\340\004\013\2101\320\000 \240\010\250\001\360\016\000\005\021\220\002\220&\230\002\230#\230T\240\025\240f\250B\250a\330\004\010\210\010\220\t\230\035\240a\240q\330\004\010\210\t\220\021\330\004\010\210\n\220!\330\004\010\210\016\220a\340\004\007\200z\220\023\220A\340\010\021\220\021\220#\220S\230\005\230Q\340\010\020\220\010\230\001\230\021\230&\240\003\2403\240a\330\010\017\210v\220S\230\001\340\t\023\2203\220a\340\010\017\320\017 \240\001\240\021\240&\250\003\2503\250c\260\021\340\t\023\2203\220a\340\010\021\220\021\220#\220S\230\005\230Q\340\010\017\320\017 \240\001\240\021\240&\250\003\2503\250c\260\021\340\t\023\2203\220a\340\010\021\220\021\220#\220S\230\005\230Q\340\010\017\210t\320\023$\240A\240Q\240f\250C\250s\260#\260Q\340\t\023\2203\220a\340\010\021\220\021\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2607\270#\270S\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\024\270S\300\003\3001\330\010\021\220\027\230\004\230D""\320 1\260\021\260!\2606\270\024\270S\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\023\270D\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\023\270D\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\023\270C\270s\300!\330\010\017\210q\340\004\013\2101\200\001\340\017\020\330\r\016\330\014\r\330\014\r\330\004\021\220\021\330\004\017\210q\330\005\006\360$\000\005\033\230&\240\004\240A\240\\\260\021\330\004\036\230f\240D\250\001\320);\2701\360\006\000\005\026\220T\230\021\330\004\026\220d\230!\330\004\032\230$\230a\330\004\033\2304\230q\360\006\000\005\022\220\024\220\\\240\021\240)\2501\250D\260\t\270\021\270!\330\004\017\210t\220<\230q\240\007\240q\250\004\250G\2601\260A\340\004\031\230\032\2401\240A\330\004\031\230\032\2401\240A\330\004\027\220x\230q\240\001\330\004\027\220x\230q\240\001\360\006\000\005\010\200u\210B\210c\220\034\230W\240D\250\002\250#\250\\\270\021\330\010\017\210q\330\004\007\200u\210B\210c\220\032\2307\240$\240b\250\003\250:\260Q\330\010\017\210q\360\010\000\005'\240c\250\021\340\004\010\210\005\210U\220!\2201\330\010\026\220a\220u\230A\360\006\000\005\010\200|\2202\220R\220s\230,\240c\250\021\330\010\026\220a\360\010\000\0057\260d\270!\330\004\r\210X\220Y\230m\2501\250A\330\004\r\210Y\220a\330\004\r\210Z\220q\330\004\r\210^\2301\360\006\000\005!\240\006\240b\250\007\250r\260\021\360\006\000\005\033\230(\240&\250\001\320):\270\"\270A\330\004\032\230&\240\006\240a\320'8\270\002\270!\360\010\000\005\t\210\005\210U\220!\2201\330\010\017\210q\220\005\220Q\330\010\021\220\021\220&\230\001\360\006\000\005\016\210Q\210a\210z\230\021\360\006\000\005\032\230\036\240q\250\013\260;\270m\3107\320RZ\320Z[\330\004\013\2101\210M\230\021\330\004\031\230\031\240!\240;\250k\270\035\300i\310y\320Xc\320cn\320no\330\004\r\210Q\210a\210z\230\031\240!\360\022\000\005\033\230!\360\014\000\005\034\2301\330\004\031\230\021\360\006\000\005\006\330\010\016\210h\220f\230B\230b\240\004\240K\250r""\260\021\330\014\032\230!\360\006\000\r\033\230(\240!\2401\240J\250a\250q\330\014\017\210|\2304\230q\330\020\021\360\006\000\r\033\230!\230=\250\001\250\035\260a\260}\300A\300_\320T[\320[c\320cd\360\006\000\r\020\210|\2303\230h\240d\250,\260c\270\021\330\020\023\220:\230T\240\022\2403\240n\260C\260q\330\024!\240\021\330\024\037\230q\330\024\025\360\006\000\r\035\230M\250\021\330\020\035\230]\250!\330\020\037\230\177\320.?\270q\330\020\027\220x\230q\330\020\021\220\033\230A\330\020 \240\001\330\020\021\360\010\000\r\021\220\005\220U\230!\2301\330\020\037\230~\250Q\330\024!\240\021\240$\240m\2601\260D\270\017\300q\310\001\330\024\033\2308\2401\360\006\000\021\037\230g\240Q\240m\2602\260^\3001\300A\340\020\023\220<\230r\240\027\250\001\250\021\340\024\035\230Q\320\036.\250a\330\024\033\2301\320\034,\250A\360\006\000\025\037\230l\250\"\250I\260Q\330\030%\240Q\240d\250-\260q\270\004\270O\3101\310A\330\030!\240\031\250!\330\030#\2401\360\006\000\025\036\230Q\230a\230z\250\031\260!\360\006\000\t\014\2101\330\014\030\320\030(\250\001\330\020\033\2301\330\020\027\220x\230q\330\020\031\230\021\230$\230i\240q\250\004\250G\2601\260D\270\007\270q\300\001\330\020\033\2301\360\006\000\r\022\320\021:\270!\330\014\025\220^\2401\330\020\031\230\031\240!\2401\330\020\036\230i\240q\250\001\330\020\033\2309\240A\240Q\360\006\000\r\026\220Q\360\006\000\r\020\210{\230#\230Q\330\020\025\220Q\320\0264\260A\3205X\320XY\320YZ\340\010\017\210q\360\010\000\t\r\210A\210Q\330\010\014\210A\210Q\330\010\021\220\021\220!\2201";
+    #else /* compression: none (4811 bytes) */
+const char* const bytes = ".Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Optional[MultiLayerPath]Tuple[float, float]WARNING: Cython A* exceeded ?add_note iterations for net numpy._core.multiarray failed to importnumpy._core.umath failed to importsrc/temper_placer/routing/astar/astar_core.pyxMultiLayerPathOptional__Pyx_PyDict_NextRefRouteSegmentTuple_allowed_layersasyncio.coroutinesavailable_blockedavailable_emptyavailable_same_netboolbounds_checkcame_fromcan_place_viacell_sizecell_size_mmcline_in_tracebackcolcol_outcolsconfigcurrent_colcurrent_idxcurrent_layercurrent_rowdiameterdictdrc_oracledtypeemptyendend_cellend_colend_layerend_posend_rowf_scorefind_path_cythonfloat__func__g_scoregetget_setgoal_foundgoal_idxgridgrid_datagrid_viewh_startheapheightiindexindicesintint32_is_coroutineitemsiterationsjlayerlayer_countlayer_outlayer_separation__main__max_iterationsmin_order_mm_to_cell__module____name__neighbor_colsneighbor_costsneighbor_idxneighbor_layersneighbor_rowsnetnet_idnet_namenpnum_allowed_layersnum_layersnum_neighborsnumpyoccupancy_gridopen_setpath_datapoppositionprintprioritypush_pop_single__pyx_capi____qualname__resizeresultreturnroundtriprowrow_outrowsseen_indicessegments__set_name__setdefaultstartstart_cellstart_colstart_idxstart_layerstart_posstart_rowstate_idxstate_space_sizestrtemper_placer.routing.astar.astar_coretemper_placer.routing.astar.typestentative_g__test__test_grid_accesstest_heap_operationstest_nametest_state_indexingtotal_costtypinguniquevalidvaluevaluesvia_costvia_diametervia_positionsvia_xvia_ywidthzerosfloat (int, int, int, int, int, int, float, float)\000int (int, int, int, int, int, int)\000int (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_GridView *, int, int, int)\000int (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_GridView *, int, int, int, int)\000int (struct __pyx_t_13temper_placer_7routing_5astar""_10astar_core_MinHeap *, float *)\000void (int, int *, int *, int *, int, int, int)\000void (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *)\000void (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *, float, int)\000void (struct __pyx_t_13temper_placer_7routing_5astar_10astar_core_MinHeap *, int)\000heuristic\000state_to_index\000grid_get\000grid_is_available\000heap_pop\000index_to_state\000heap_free\000heap_push\000heap_init\320\000$\240H\250A\360\014\000\005\010\200z\220\023\220A\330\010\021\220\021\220!\2206\230\021\330\010\021\220\021\220!\2206\230\025\230a\330\010\024\220H\230A\230Q\230f\240A\240Q\330\010\021\220\021\220!\2201\330\010\017\210z\230\023\230C\230t\2409\250C\250q\340\t\023\2203\220a\330\010\021\220\021\220!\2206\230\021\340\010\021\220\021\220!\2206\230\025\230a\330\010\021\220\021\220!\2206\230\025\230a\330\010\021\220\021\220!\2206\230\026\230q\330\010\021\220\021\220!\2206\230\025\230a\330\010\021\220\021\220!\2206\230\025\230a\360\006\000\t\022\220\021\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2702\270T\300\031\310#\310Q\330\010\021\220\027\230\005\230X\240Q\240a\240v\250Q\250j\270\003\2703\270d\300)\3103\310a\340\010\021\220\021\220!\2201\330\010\017\210q\340\t\023\2203\220a\330\010\021\220\021\220!\2206\230\021\340\010\014\210E\220\025\220a\220q\330\014\025\220Q\220a\220v\230W\240C\240q\360\006\000\t\022\220\024\220V\2303\230c\240\024\240T\250\032\2603\260a\360\006\000\t\r\210E\220\025\220a\220q\330\014\030\230\010\240\001\240\021\240&\250\001\250\021\330\014\025\220W\230E\240\032\2503\250b\260\004\260I\270S\300\007\300q\340\010\021\220\021\220!\2201\330\010\017\210q\340\t\023\2203\220a\330\010\021""\220\021\220!\2206\230\021\330\010\024\220H\230A\230Q\230f\240A\240Q\330\010\021\220\021\220!\2201\330\010\017\210z\230\024\230Q\340\004\013\2101\320\000#\240<\250}\320<M\310X\320UV\360\014\000\005\010\200z\220\023\220A\340\010\014\210I\220U\230!\2301\330\014\020\220\007\220u\230A\230S\240\010\250\001\330\020\024\220G\2305\240\001\240\023\240G\2501\330\024\034\230N\250!\2505\260\005\260W\270G\3008\3101\330\024\"\240!\2407\250!\2509\260A\260Y\270a\270{\310'\320QY\320YZ\340\024\027\220t\2303\230h\240c\250\024\250S\260\010\270\003\2706\300\023\300A\330\030\037\230q\330\010\017\210q\340\t\023\2203\220a\340\010\032\230!\330\010\014\210I\220U\230!\2301\330\014\020\220\007\220u\230A\230Q\330\020\024\220G\2305\240\001\240\021\330\024\034\230N\250!\2505\260\005\260W\270G\3008\3101\330\024\027\220v\230S\240\001\330\030\037\230q\330\024 \240\004\240A\240Q\330\010\017\210q\340\t\023\2203\220a\340\010\r\210V\2204\220q\330\010\022\220!\330\010\014\210I\220U\230!\2301\330\014\024\220N\240!\2405\250\005\250W\260G\2708\3001\330\014\023\2207\230!\2301\360\006\000\t\020\210s\220!\2203\220a\220z\240\023\240A\340\004\013\2101\320\000 \240\010\250\001\360\016\000\005\021\220\002\220&\230\002\230#\230T\240\025\240f\250B\250a\330\004\010\210\010\220\t\230\035\240a\240q\330\004\010\210\t\220\021\330\004\010\210\n\220!\330\004\010\210\016\220a\340\004\007\200z\220\023\220A\340\010\021\220\021\220#\220S\230\005\230Q\340\010\020\220\010\230\001\230\021\230&\240\003\2403\240a\330\010\017\210v\220S\230\001\340\t\023\2203\220a\340\010\017\320\017 \240\001\240\021\240&\250\003\2503\250c\260\021\340\t\023\2203\220a\340\010\021\220\021\220#\220S\230\005\230Q\340\010\017\320\017 \240\001\240\021\240&\250\003\2503\250c\260\021\340\t\023\2203\220a\340\010\021\220\021\220#\220S\230\005\230Q\340\010\017\210t\320\023$\240A\240Q\240f\250C\250s\260#\260Q\340\t\023\2203\220a\340\010\021\220\021\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2607\270#\270S\300\003\3001\330\010\021\220\027\230\004\230D""\320 1\260\021\260!\2606\270\024\270S\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\024\270S\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\023\270D\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\023\270D\300\003\3001\330\010\021\220\027\230\004\230D\320 1\260\021\260!\2606\270\023\270C\270s\300!\330\010\017\210q\340\004\013\2101\200\001\340\017\020\330\r\016\330\014\r\330\014\r\330\004\021\220\021\330\004\017\210q\330\004\005\330\004\016\210a\330\004\022\220!\330\005\006\360*\000\005\033\230&\240\004\240A\240\\\260\021\330\004\036\230f\240D\250\001\320);\2701\360\006\000\005\026\220T\230\021\330\004\026\220d\230!\330\004\032\230$\230a\330\004\033\2304\230q\360\006\000\005\022\220\024\220\\\240\021\240)\2501\250D\260\t\270\021\270!\330\004\017\210t\220<\230q\240\007\240q\250\004\250G\2601\260A\340\004\031\230\032\2401\240A\330\004\031\230\032\2401\240A\330\004\027\220x\230q\240\001\330\004\027\220x\230q\240\001\360\006\000\005\010\200u\210B\210c\220\034\230W\240D\250\002\250#\250\\\270\021\330\010\017\210q\330\004\007\200u\210B\210c\220\032\2307\240$\240b\250\003\250:\260Q\330\010\017\210q\360\010\000\005'\240c\250\021\340\004\010\210\005\210U\220!\2201\330\010\026\220a\220u\230A\360\006\000\005\010\200|\2202\220R\220s\230,\240c\250\021\330\010\026\220a\360\010\000\0057\260d\270!\330\004\r\210X\220Y\230m\2501\250A\330\004\r\210Y\220a\330\004\r\210Z\220q\330\004\r\210^\2301\360\006\000\005!\240\006\240b\250\007\250r\260\021\360\006\000\005\033\230(\240&\250\001\320):\270\"\270A\330\004\032\230&\240\006\240a\320'8\270\002\270!\360\010\000\005\t\210\005\210U\220!\2201\330\010\017\210q\220\005\220Q\330\010\021\220\021\220&\230\001\360\006\000\005\016\210Q\210a\210z\230\021\360\006\000\005\032\230\036\240q\250\013\260;\270m\3107\320RZ\320Z[\330\004\013\2101\210M\230\021\330\004\031\230\031\240!\240;\250k\270\035\300i\310y\320Xc\320cn\320no\330\004\r\210Q\210a\210z\230\031\240!\360\022\000""\005\033\230!\360\014\000\005\034\2301\330\004\031\230\021\360\006\000\005\006\330\010\016\210h\220f\230B\230b\240\004\240K\250r\260\021\330\014\032\230!\360\006\000\r\033\230(\240!\2401\240J\250a\250q\330\014\017\210|\2304\230q\330\020\021\360\006\000\r\033\230!\230=\250\001\250\035\260a\260}\300A\300_\320T[\320[c\320cd\360\006\000\r\020\210|\2303\230h\240d\250,\260c\270\021\330\020\023\220:\230T\240\022\2403\240n\260C\260q\330\024!\240\021\330\024\037\230q\330\024\025\360\006\000\r\035\230M\250\021\330\020\035\230]\250!\330\020\037\230\177\320.?\270q\330\020\027\220x\230q\330\020\021\220\033\230A\330\020 \240\001\330\020\021\360\010\000\r\021\220\005\220U\230!\2301\340\020\023\220?\240!\2403\240c\250\021\340\024\027\220{\240'\250\025\250d\260)\2707\300!\330\030 \240\r\250Q\250c\260\022\260:\270R\270z\310\022\3101\330\030 \240\r\250Q\250c\260\022\260:\270R\270z\310\022\3101\330\030\037\230t\240:\250^\2701\330\034&\240g\250Q\330\034%\240Q\330\034 \240\001\340\030\033\2304\230q\330\034\035\340\020\037\230~\250Q\330\024!\240\021\240$\240m\2601\260D\270\017\300q\310\001\330\024\033\2308\2401\360\006\000\021\037\230g\240Q\240m\2602\260^\3001\300A\340\020\023\220<\230r\240\027\250\001\250\021\340\024\035\230Q\320\036.\250a\330\024\033\2301\320\034,\250A\360\006\000\025\037\230l\250\"\250I\260Q\330\030%\240Q\240d\250-\260q\270\004\270O\3101\310A\330\030!\240\031\250!\330\030#\2401\360\006\000\025\036\230Q\230a\230z\250\031\260!\360\006\000\t\014\2101\330\014\030\320\030(\250\001\330\020\033\2301\330\020\027\220x\230q\330\020\031\230\021\230$\230i\240q\250\004\250G\2601\260D\270\007\270q\300\001\330\020\033\2301\360\006\000\r\022\320\021:\270!\330\014\025\220^\2401\330\020\031\230\031\240!\2401\330\020\036\230i\240q\250\001\330\020\033\2309\240A\240Q\360\006\000\r\026\220Q\360\006\000\r\020\210{\230#\230Q\330\020\025\220Q\320\0264\260A\3205X\320XY\320YZ\340\010\017\210q\360\010\000\t\r\210A\210Q\330\010\014\210A\210Q\330\010\021\220\021\220!\2201";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 135; i++) {
+    for (int i = 0; i < 147; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 11) PyUnicode_InternInPlace(&string);
@@ -11412,7 +11755,7 @@ const char* const bytes = ".Note that Cython is deliberately stricter than PEP-4
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 135; i < 140; i++) {
+    for (int i = 147; i < 152; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -11423,14 +11766,14 @@ const char* const bytes = ".Note that Cython is deliberately stricter than PEP-4
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 140; i++) {
+    for (Py_ssize_t i = 0; i < 152; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 135;
+      PyObject **table = stringtab + 147;
       for (Py_ssize_t i=0; i<5; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
@@ -11490,7 +11833,7 @@ const char* const bytes = ".Note that Cython is deliberately stricter than PEP-4
 }
 /* #### Code section: init_codeobjects ### */
 typedef struct {
-    unsigned int argcount : 3;
+    unsigned int argcount : 4;
     unsigned int num_posonly_args : 1;
     unsigned int num_kwonly_args : 1;
     unsigned int nlocals : 6;
@@ -11527,9 +11870,9 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_temper_placer_routing_astar, __pyx_mstate->__pyx_n_u_test_grid_access, __pyx_mstate->__pyx_kp_b_iso88591_T_fBa_aq_a_z_A_S_Q_3a_vS_3a_3c, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {7, 0, 0, 50, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 499};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_grid, __pyx_mstate->__pyx_n_u_start_pos, __pyx_mstate->__pyx_n_u_end_pos, __pyx_mstate->__pyx_n_u_net_id, __pyx_mstate->__pyx_n_u_config, __pyx_mstate->__pyx_n_u_start_layer, __pyx_mstate->__pyx_n_u_end_layer, __pyx_mstate->__pyx_n_u_via_cost, __pyx_mstate->__pyx_n_u_max_iterations, __pyx_mstate->__pyx_n_u_width, __pyx_mstate->__pyx_n_u_height, __pyx_mstate->__pyx_n_u_num_layers, __pyx_mstate->__pyx_n_u_cell_size, __pyx_mstate->__pyx_n_u_start_cell, __pyx_mstate->__pyx_n_u_end_cell, __pyx_mstate->__pyx_n_u_start_row, __pyx_mstate->__pyx_n_u_start_col, __pyx_mstate->__pyx_n_u_end_row, __pyx_mstate->__pyx_n_u_end_col, __pyx_mstate->__pyx_n_u_allowed_layers, __pyx_mstate->__pyx_n_u_num_allowed_layers, __pyx_mstate->__pyx_n_u_i, __pyx_mstate->__pyx_n_u_grid_view, __pyx_mstate->__pyx_n_u_grid_data, __pyx_mstate->__pyx_n_u_state_space_size, __pyx_mstate->__pyx_n_u_g_score, __pyx_mstate->__pyx_n_u_came_from, __pyx_mstate->__pyx_n_u_open_set, __pyx_mstate->__pyx_n_u_start_idx, __pyx_mstate->__pyx_n_u_h_start, __pyx_mstate->__pyx_n_u_neighbor_rows, __pyx_mstate->__pyx_n_u_neighbor_cols, __pyx_mstate->__pyx_n_u_neighbor_layers, __pyx_mstate->__pyx_n_u_neighbor_costs, __pyx_mstate->__pyx_n_u_num_neighbors, __pyx_mstate->__pyx_n_u_iterations, __pyx_mstate->__pyx_n_u_priority, __pyx_mstate->__pyx_n_u_current_idx, __pyx_mstate->__pyx_n_u_neighbor_idx, __pyx_mstate->__pyx_n_u_current_row, __pyx_mstate->__pyx_n_u_current_col, __pyx_mstate->__pyx_n_u_current_layer, __pyx_mstate->__pyx_n_u_tentative_g, __pyx_mstate->__pyx_n_u_f_score, __pyx_mstate->__pyx_n_u_j, __pyx_mstate->__pyx_n_u_goal_found, __pyx_mstate->__pyx_n_u_goal_idx, __pyx_mstate->__pyx_n_u_path_data, __pyx_mstate->__pyx_n_u_MultiLayerPath, __pyx_mstate->__pyx_n_u_result};
-    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_temper_placer_routing_astar, __pyx_mstate->__pyx_n_u_find_path_cython, __pyx_mstate->__pyx_kp_b_iso88591_q_A_fD_1_T_d_a_4q_1D_t_q_q_G1A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {10, 0, 0, 57, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 499};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_grid, __pyx_mstate->__pyx_n_u_start_pos, __pyx_mstate->__pyx_n_u_end_pos, __pyx_mstate->__pyx_n_u_net_id, __pyx_mstate->__pyx_n_u_config, __pyx_mstate->__pyx_n_u_start_layer, __pyx_mstate->__pyx_n_u_end_layer, __pyx_mstate->__pyx_n_u_drc_oracle, __pyx_mstate->__pyx_n_u_net_name, __pyx_mstate->__pyx_n_u_via_diameter, __pyx_mstate->__pyx_n_u_via_cost, __pyx_mstate->__pyx_n_u_max_iterations, __pyx_mstate->__pyx_n_u_width, __pyx_mstate->__pyx_n_u_height, __pyx_mstate->__pyx_n_u_num_layers, __pyx_mstate->__pyx_n_u_cell_size, __pyx_mstate->__pyx_n_u_start_cell, __pyx_mstate->__pyx_n_u_end_cell, __pyx_mstate->__pyx_n_u_start_row, __pyx_mstate->__pyx_n_u_start_col, __pyx_mstate->__pyx_n_u_end_row, __pyx_mstate->__pyx_n_u_end_col, __pyx_mstate->__pyx_n_u_allowed_layers, __pyx_mstate->__pyx_n_u_num_allowed_layers, __pyx_mstate->__pyx_n_u_i, __pyx_mstate->__pyx_n_u_grid_view, __pyx_mstate->__pyx_n_u_grid_data, __pyx_mstate->__pyx_n_u_state_space_size, __pyx_mstate->__pyx_n_u_g_score, __pyx_mstate->__pyx_n_u_came_from, __pyx_mstate->__pyx_n_u_open_set, __pyx_mstate->__pyx_n_u_start_idx, __pyx_mstate->__pyx_n_u_h_start, __pyx_mstate->__pyx_n_u_neighbor_rows, __pyx_mstate->__pyx_n_u_neighbor_cols, __pyx_mstate->__pyx_n_u_neighbor_layers, __pyx_mstate->__pyx_n_u_neighbor_costs, __pyx_mstate->__pyx_n_u_num_neighbors, __pyx_mstate->__pyx_n_u_iterations, __pyx_mstate->__pyx_n_u_priority, __pyx_mstate->__pyx_n_u_current_idx, __pyx_mstate->__pyx_n_u_neighbor_idx, __pyx_mstate->__pyx_n_u_current_row, __pyx_mstate->__pyx_n_u_current_col, __pyx_mstate->__pyx_n_u_current_layer, __pyx_mstate->__pyx_n_u_tentative_g, __pyx_mstate->__pyx_n_u_f_score, __pyx_mstate->__pyx_n_u_j, __pyx_mstate->__pyx_n_u_goal_found, __pyx_mstate->__pyx_n_u_goal_idx, __pyx_mstate->__pyx_n_u_via_x, __pyx_mstate->__pyx_n_u_via_y, __pyx_mstate->__pyx_n_u_valid, __pyx_mstate->__pyx_n_u__3, __pyx_mstate->__pyx_n_u_path_data, __pyx_mstate->__pyx_n_u_MultiLayerPath, __pyx_mstate->__pyx_n_u_result};
+    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_temper_placer_routing_astar, __pyx_mstate->__pyx_n_u_find_path_cython, __pyx_mstate->__pyx_kp_b_iso88591_q_a_A_fD_1_T_d_a_4q_1D_t_q_q_G1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;
@@ -14357,6 +14700,57 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
       }
       return __Pyx_PyObject_IsTrueAndDecref(
           PyObject_RichCompare(op1, op2, Py_EQ));
+  }
+  
+/* PyObjectVectorCallMethodKwBuilder */
+  #if !CYTHON_VECTORCALL || PY_VERSION_HEX < 0x03090000
+  static PyObject *__Pyx_Object_VectorcallMethod_CallFromBuilder(PyObject *name, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
+      PyObject *result;
+      PyObject *obj = PyObject_GetAttr(args[0], name);
+      if (unlikely(!obj))
+          return NULL;
+      result = __Pyx_Object_Vectorcall_CallFromBuilder(obj, args+1, nargsf-1, kwnames);
+      Py_DECREF(obj);
+      return result;
+  }
+  #endif
+  
+/* RaiseTooManyValuesToUnpack */
+  static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
+      PyErr_Format(PyExc_ValueError,
+                   "too many values to unpack (expected %" CYTHON_FORMAT_SSIZE_T "d)", expected);
+  }
+  
+/* RaiseNeedMoreValuesToUnpack */
+  static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index) {
+      PyErr_Format(PyExc_ValueError,
+                   "need more than %" CYTHON_FORMAT_SSIZE_T "d value%.1s to unpack",
+                   index, (index == 1) ? "" : "s");
+  }
+  
+/* IterFinish */
+  static CYTHON_INLINE int __Pyx_IterFinish(void) {
+      PyObject* exc_type;
+      __Pyx_PyThreadState_declare
+      __Pyx_PyThreadState_assign
+      exc_type = __Pyx_PyErr_CurrentExceptionType();
+      if (unlikely(exc_type)) {
+          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration)))
+              return -1;
+          __Pyx_PyErr_Clear();
+          return 0;
+      }
+      return 0;
+  }
+  
+/* UnpackItemEndCheck */
+  static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected) {
+      if (unlikely(retval)) {
+          Py_DECREF(retval);
+          __Pyx_RaiseTooManyValuesError(expected);
+          return -1;
+      }
+      return __Pyx_IterFinish();
   }
   
 /* CIntToDigits (used by CIntToPyUnicode) */

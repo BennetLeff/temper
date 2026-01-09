@@ -6,9 +6,12 @@ from .base import Stage
 
 logger = logging.getLogger(__name__)
 
+
 class DRCValidationError(Exception):
     """Raised when DRC violations exceed configured thresholds."""
+
     pass
+
 
 class DRCValidationStage(Stage):
     """

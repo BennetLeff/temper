@@ -504,6 +504,9 @@ def find_path_cython(
     config: dict,
     start_layer: int = 0,
     end_layer: int = -1,
+    drc_oracle = None,
+    net_name: str = None,
+    via_diameter: float = 0.6,
 ) -> Optional[MultiLayerPath]:
     """Cython-accelerated A* pathfinding.
     
@@ -517,6 +520,9 @@ def find_path_cython(
             - max_iterations: Maximum search iterations (default: 100000)
         start_layer: Starting layer index
         end_layer: Ending layer index (-1 for any layer)
+        drc_oracle: Optional DRCOracle for via placement validation
+        net_name: Net name for DRC oracle checks
+        via_diameter: Via diameter in mm for DRC checks (default: 0.6)
         
     Returns:
         MultiLayerPath or None if no path found
@@ -635,6 +641,20 @@ def find_path_cython(
             
             # Process neighbors
             for j in range(num_neighbors):
+                # Check if this is a layer transition (via placement)
+                if neighbor_layers[j] != current_layer:
+                    # DRC oracle check for via placement
+                    if drc_oracle is not None and net_name is not None:
+                        via_x = neighbor_cols[j] * cell_size + cell_size / 2.0
+                        via_y = neighbor_rows[j] * cell_size + cell_size / 2.0
+                        valid, _ = drc_oracle.can_place_via(
+                            position=(via_x, via_y),
+                            diameter=via_diameter,
+                            net=net_name,
+                        )
+                        if not valid:
+                            continue  # Skip this via - DRC violation
+                
                 neighbor_idx = state_to_index(
                     neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
                     width, height, num_layers

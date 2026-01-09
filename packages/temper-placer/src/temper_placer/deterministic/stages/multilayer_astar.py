@@ -266,7 +266,7 @@ class MultiLayerAStar:
                     "max_iterations": adaptive_limit,
                 }
 
-                # Call Cython implementation
+                # Call Cython implementation with DRC oracle for via validation
                 path = find_path_impl(
                     grid=self.grid,
                     start_pos=start,
@@ -275,6 +275,9 @@ class MultiLayerAStar:
                     config=config,
                     start_layer=start_layer,
                     end_layer=end_layer,
+                    drc_oracle=self.drc_oracle,
+                    net_name=self.net_name,
+                    via_diameter=self.via_diameter,
                 )
 
                 if path is not None:
@@ -451,10 +454,15 @@ class MultiLayerAStar:
             # Check via placement with DRC oracle
             if self.drc_oracle:
                 via_pos = self._state_to_mm(state)
-                sites = self.drc_oracle.get_valid_via_sites(
-                    via_pos, search_radius=0.5, net=self.net_name
+                # FIX: Check if via can be placed at exact cell center position
+                # instead of searching for nearby valid sites
+                # This ensures the via position in path reconstruction will be DRC-clean
+                valid, _ = self.drc_oracle.can_place_via(
+                    position=via_pos,
+                    diameter=self.via_diameter,
+                    net=self.net_name,
                 )
-                if not sites:
+                if not valid:
                     continue
 
             neighbors.append((target_state, self.via_cost))

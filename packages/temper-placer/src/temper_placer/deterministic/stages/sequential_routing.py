@@ -194,6 +194,17 @@ class SequentialRoutingStage(Stage):
 
         # If template is 1x1 or not found, create single via
         if not via_template or via_template.via_count <= 1:
+            # Check DRC before placing via
+            if state.drc_oracle:
+                valid, reason = state.drc_oracle.can_place_via(
+                    position=center,
+                    diameter=via_d,
+                    net=net_name,
+                )
+                if not valid:
+                    print(f"  WARNING: Skipping via for {net_name} at {center} - {reason}")
+                    return created_vias  # Return empty list
+
             via = Via(
                 position=center,
                 drill=via_drill,
@@ -234,6 +245,19 @@ class SequentialRoutingStage(Stage):
         positions = via_template.get_via_positions(center[0], center[1])
 
         for vx, vy in positions:
+            # Check DRC before placing via
+            if state.drc_oracle:
+                valid, reason = state.drc_oracle.can_place_via(
+                    position=(vx, vy),
+                    diameter=via_template.via_diameter_mm,
+                    net=net_name,
+                )
+                if not valid:
+                    print(
+                        f"  WARNING: Skipping via array element for {net_name} at ({vx}, {vy}) - {reason}"
+                    )
+                    continue  # Skip this via in the array
+
             via = Via(
                 position=(vx, vy),
                 drill=via_template.via_drill_mm,
@@ -507,8 +531,18 @@ class SequentialRoutingStage(Stage):
                         pin_gy = int(pin_pos[1] / grid.cell_size_mm)
 
                         # Block cells within clearance radius
-                        # Typical pad radius ~0.5mm, add clearance
-                        pad_radius_mm = 0.5
+                        # FIX: Use actual pad size from pad_sizes lookup instead of hardcoded 0.5mm
+                        # This is critical for large pads like ESP32 thermal/ground pads (5.6mm x 5.6mm)
+                        pad_key = (comp.ref, pin.name)
+                        if pad_key in self.pad_sizes:
+                            pad_info = self.pad_sizes[pad_key]
+                            # pad_info.size.X and .Y contain width/height
+                            # Use the larger dimension for circular obstacle (conservative)
+                            pad_radius_mm = max(pad_info.size.X, pad_info.size.Y) / 2.0
+                        else:
+                            # Fallback to reasonable default
+                            pad_radius_mm = 0.5
+
                         total_radius = pad_radius_mm + diff_pair_clearance
                         radius_cells = int(total_radius / grid.cell_size_mm) + 1
 
@@ -1018,7 +1052,9 @@ class SequentialRoutingStage(Stage):
                             print(
                                 f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 5mm)"
                             )
-                            safe_pos = pos  # Fallback to pad position
+                            # Skip this via entirely - better to have incomplete routing
+                            # than DRC violations for high-voltage nets
+                            continue
                     else:
                         # Without DRC oracle, place via at pad position (no clearance check)
                         safe_pos = pos
