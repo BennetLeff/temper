@@ -115,6 +115,32 @@ def create_drc_aware_pipeline(
         if config_net_priority:
             net_priority = dict(config_net_priority)
 
+        # Create DesignRules from config if not explicitly provided
+        # This ensures SequentialRoutingStage gets proper trace widths from net class rules
+        if design_rules is None and config_rules:
+            from temper_placer.core.design_rules import DesignRules, NetClassRules
+
+            # Convert config NetClassRule objects to core NetClassRules
+            converted_net_classes = {}
+            for name, rule in config_rules.items():
+                converted_net_classes[name] = NetClassRules(
+                    name=name,
+                    trace_width=getattr(rule, "trace_width_mm", 0.25),
+                    clearance=getattr(rule, "clearance_mm", 0.2),
+                    via_diameter=getattr(rule, "via_size_mm", 0.6),
+                    via_drill=getattr(rule, "via_drill_mm", 0.3),
+                    via_template=getattr(rule, "via_template", None),
+                    creepage_mm=getattr(rule, "creepage_mm", 0.0),
+                )
+
+            # Get net class assignments from config
+            net_class_assignments = getattr(config, "net_classes", {})
+
+            design_rules = DesignRules(
+                net_classes=converted_net_classes,
+                net_class_assignments=net_class_assignments,
+            )
+
     # Select slot generation stage based on zone_aware flag
     if zone_aware:
         slot_stage = ZoneAwareSlotGenerationStage(
