@@ -178,7 +178,7 @@ def create_drc_aware_pipeline(
             # DRC-FIX-5: Re-apply placements after clamping to sync component.initial_position
             ApplyPlacementsStage(),
             # DRC setup
-            DRCOracleSetupStage(design_rules=design_rules),
+            DRCOracleSetupStage(design_rules=config if config else design_rules),
             # Routing
             ClearanceGridStage(
                 cell_size_mm=0.25,

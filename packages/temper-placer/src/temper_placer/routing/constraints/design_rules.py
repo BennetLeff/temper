@@ -131,6 +131,7 @@ class ClearanceMatrix:
     Provides O(1) clearance lookups between any two net classes.
     Falls back to default clearance for unknown net classes.
     Supports optional RoutingZones for spatial overrides.
+    Handles differential pairs with reduced clearance requirements.
     """
 
     # Clearance between net classes: (class_a, class_b) -> clearance_mm
@@ -149,6 +150,10 @@ class ClearanceMatrix:
     # Optional spatial zone manager
     zone_manager: ZoneManager | None = None
 
+    # Differential pairs: maps frozenset({net_a, net_b}) -> configured_spacing_mm
+    # For diff pairs, this spacing is the required center-to-center distance
+    _differential_pairs: dict[frozenset, float] = field(default_factory=dict)
+
     def get_clearance(
         self, net_a: str, net_b: str, x: float | None = None, y: float | None = None
     ) -> float:
@@ -160,8 +165,14 @@ class ClearanceMatrix:
             x, y: Optional board coordinates for spatial overrides
 
         Returns:
-            Required clearance in mm
+            Required clearance in mm (center-to-center for diff pairs, edge-to-edge otherwise)
         """
+        # 0. Check if this is a differential pair - if so, return configured spacing
+        # Differential pairs have relaxed clearance requirements (intentionally routed close)
+        pair_key = frozenset([net_a, net_b])
+        if pair_key in self._differential_pairs:
+            return self._differential_pairs[pair_key]
+
         # 1. Start with class-based baseline
         base_clearance = self._get_base_clearance(net_a, net_b)
 
@@ -287,9 +298,47 @@ class ClearanceMatrix:
         """
         self._net_class_rules[rules.name] = rules
 
-    def set_class_to_class_clearance(
-        self, class_a: str, class_b: str, clearance: float
-    ) -> None:
+    def add_differential_pair(self, net_a: str, net_b: str, spacing_mm: float) -> None:
+        """Register a differential pair with its configured center-to-center spacing.
+
+        Differential pairs are intentionally routed close together for signal integrity.
+        This method tells the DRC system that these two nets should use the configured
+        spacing instead of standard clearance rules.
+
+        The DRC system validates clearance as:
+            actual_gap >= required + (width_a/2) + (width_b/2)
+
+        For a differential pair with center-to-center spacing S and track width W:
+            edge_to_edge = S - W/2 - W/2 = S - W
+            We want: edge_to_edge >= required + W/2 + W/2
+            So: S - W >= required + W
+            Therefore: required = S - 2W
+
+        Args:
+            net_a: First net in the differential pair (e.g., 'USB_D+')
+            net_b: Second net in the differential pair (e.g., 'USB_D-')
+            spacing_mm: Required center-to-center spacing in mm
+
+        Example:
+            # USB diff pair: 0.25mm center-to-center, 0.15mm track width
+            # Edge-to-edge: 0.25 - 0.15 = 0.10mm
+            # Required: 0.25 - 2*0.15 = -0.05mm (DRC adds 0.15mm back)
+            matrix.add_differential_pair('USB_D+', 'USB_D-', 0.25)
+        """
+        # Get track width for the differential pair nets (assume both have same width)
+        track_width = self.get_track_width(net_a)
+
+        # Calculate required clearance value that DRC system expects
+        # DRC will add track widths back, so we subtract them here
+        required_clearance = spacing_mm - (2 * track_width)
+
+        pair_key = frozenset([net_a, net_b])
+        self._differential_pairs[pair_key] = required_clearance
+
+        pair_key = frozenset([net_a, net_b])
+        self._differential_pairs[pair_key] = required_clearance
+
+    def set_class_to_class_clearance(self, class_a: str, class_b: str, clearance: float) -> None:
         """Set clearance between two net classes.
 
         Args:
@@ -303,62 +352,65 @@ class ClearanceMatrix:
     @classmethod
     def parse(cls, board) -> "ClearanceMatrix":
         """Parse ClearanceMatrix from a KiCad board or Board object.
-        
+
         This is the primary entry point for creating a ClearanceMatrix from
         board data. It delegates to DesignRulesParser for the actual parsing.
-        
+
         Args:
             board: Either a kiutils.board.Board object (KiCad native) or a
                   temper_placer.core.board.Board object (our internal format).
                   For our internal Board, returns default rules (zones are
                   managed separately).
-        
+
         Returns:
             ClearanceMatrix with parsed rules and optional zone manager
-            
+
         Example:
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             board = parse_kicad_pcb("path/to/board.kicad_pcb")
             matrix = ClearanceMatrix.parse(board)
         """
         # Check if this is a kiutils Board (has netClasses attribute)
-        if hasattr(board, 'netClasses'):
+        if hasattr(board, "netClasses"):
             # KiCad native board - use full parser
             return DesignRulesParser.parse(board)
-        
+
         # Otherwise, it's our internal Board
         matrix = DesignRulesParser.create_default()
-        
+
         # Extract zones if present (temper-d6kv.4)
-        if hasattr(board, 'zones') and board.zones:
+        if hasattr(board, "zones") and board.zones:
             from temper_placer.routing.constraints.design_rules import RoutingZone, ZoneManager
+
             routing_zones = []
             for z in board.zones:
                 # Use polygon if available, otherwise use bounds
                 poly = z.polygon
-                if not poly and hasattr(z, 'bounds'):
+                if not poly and hasattr(z, "bounds"):
                     poly = [
                         (z.bounds[0], z.bounds[1]),
                         (z.bounds[2], z.bounds[1]),
                         (z.bounds[2], z.bounds[3]),
-                        (z.bounds[0], z.bounds[3])
+                        (z.bounds[0], z.bounds[3]),
                     ]
-                
+
                 if poly:
                     clearance = 0.2
                     if "HV" in z.name.upper():
-                        clearance = 3.0 # Standard HV clearance for Temper
-                    
-                    routing_zones.append(RoutingZone(
-                        name=z.name,
-                        polygon=poly,
-                        clearance_mm=clearance,
-                        allowed_net_classes=set(z.net_classes) if z.net_classes else {"Signal"}
-                    ))
-            
+                        clearance = 3.0  # Standard HV clearance for Temper
+
+                    routing_zones.append(
+                        RoutingZone(
+                            name=z.name,
+                            polygon=poly,
+                            clearance_mm=clearance,
+                            allowed_net_classes=set(z.net_classes) if z.net_classes else {"Signal"},
+                        )
+                    )
+
             if routing_zones:
                 matrix.zone_manager = ZoneManager(routing_zones)
-                
+
         return matrix
 
 

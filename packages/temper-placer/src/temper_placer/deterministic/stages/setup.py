@@ -40,10 +40,49 @@ class DRCOracleSetupStage(Stage):
         if self.design_rules:
             # Use provided design rules if available
             matrix = ClearanceMatrix()
-            for name, rules in self.design_rules.net_classes.items():
-                matrix.add_net_class_rules(rules)
-            for net, class_name in self.design_rules.net_class_assignments.items():
-                matrix.set_net_class(net, class_name)
+
+            # Handle both DesignRules and PlacementConstraints (config)
+            # DesignRules has: .net_classes (dict of NetClassRules), .net_class_assignments
+            # PlacementConstraints has: .net_class_rules (dict of NetClassRule), .net_classes
+
+            if hasattr(self.design_rules, "net_class_rules"):
+                # This is a PlacementConstraints object (config)
+                for name, rules in self.design_rules.net_class_rules.items():
+                    # Convert NetClassRule to NetClassRules format
+                    from temper_placer.core.design_rules import NetClassRules
+
+                    net_class_rules = NetClassRules(
+                        name=rules.name,
+                        trace_width=rules.trace_width_mm,
+                        clearance=rules.clearance_mm,
+                        via_diameter=rules.via_size_mm,
+                        via_drill=rules.via_drill_mm,
+                        via_template=rules.via_template,
+                        creepage_mm=rules.creepage_mm,
+                    )
+                    matrix.add_net_class_rules(net_class_rules)
+
+                # net_classes is {net_name: class_name}
+                for net, class_name in self.design_rules.net_classes.items():
+                    matrix.set_net_class(net, class_name)
+            else:
+                # This is a DesignRules object
+                for name, rules in self.design_rules.net_classes.items():
+                    matrix.add_net_class_rules(rules)
+                for net, class_name in self.design_rules.net_class_assignments.items():
+                    matrix.set_net_class(net, class_name)
+
+            # Register differential pairs with their configured spacing
+            # This allows the DRC system to use relaxed clearance for diff pairs
+            if (
+                hasattr(self.design_rules, "differential_pairs")
+                and self.design_rules.differential_pairs
+            ):
+                for pair in self.design_rules.differential_pairs:
+                    matrix.add_differential_pair(pair.net_pos, pair.net_neg, pair.spacing_mm)
+                    print(
+                        f"  Clearance matrix now returns: {matrix.get_clearance(pair.net_pos, pair.net_neg)}mm"
+                    )
         elif state.board:
             # Try to parse from board (handles zones)
             matrix = ClearanceMatrix.parse(state.board)
