@@ -6,6 +6,7 @@ Routes P and N traces simultaneously, checking DRC oracle at every step.
 This is a clean-room implementation independent of the existing DiffPairRouter.
 
 EXP-1: Minimal implementation with straight-line routing only.
+EXP-2: Add 45° corner support with maintained spacing.
 """
 
 from dataclasses import dataclass
@@ -83,11 +84,13 @@ class CoupledDiffPairRouter:
         board_size: Tuple[float, float, int],
         net_pos: str = "NET_P",
         net_neg: str = "NET_N",
+        waypoints: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
     ) -> CoupledRouterResult:
         """
         Route a differential pair from start to goal pins.
 
         EXP-1: Straight-line routing only (no corners, no obstacles).
+        EXP-2: Add waypoint support for 45° corners.
 
         Args:
             start_pins: ((p_x, p_y), (n_x, n_y)) in mm
@@ -96,54 +99,43 @@ class CoupledDiffPairRouter:
             board_size: (width_mm, height_mm, num_layers)
             net_pos: P trace net name (for DRC oracle)
             net_neg: N trace net name (for DRC oracle)
+            waypoints: Optional list of intermediate waypoints ((p_x, p_y), (n_x, n_y))
 
         Returns:
             CoupledRouterResult with routing outcome
         """
         start_time = time.time()
 
-        # EXP-1: Only handle straight-line routing (horizontal or vertical)
-        # Check if path is straight
         pos_start, neg_start = start_pins
         pos_goal, neg_goal = goal_pins
 
-        # Determine if horizontal or vertical
-        is_horizontal = abs(pos_goal[0] - pos_start[0]) > abs(pos_goal[1] - pos_start[1])
-        is_vertical = abs(pos_goal[1] - pos_start[1]) > abs(pos_goal[0] - pos_start[0])
+        # Build segment list: start -> waypoints -> goal
+        segments = []
+        if waypoints:
+            # Start to first waypoint
+            segments.append((start_pins, waypoints[0]))
+            # Between waypoints
+            for i in range(len(waypoints) - 1):
+                segments.append((waypoints[i], waypoints[i + 1]))
+            # Last waypoint to goal
+            segments.append((waypoints[-1], goal_pins))
+        else:
+            # Direct start to goal
+            segments.append((start_pins, goal_pins))
 
-        if not (is_horizontal or is_vertical):
-            return CoupledRouterResult(
-                success=False,
-                pos_path=[],
-                neg_path=[],
-                coupling_ratio=0.0,
-                max_skew_mm=0.0,
-                avg_separation_mm=0.0,
-                routing_time_s=time.time() - start_time,
-                error_message="EXP-1: Only straight horizontal/vertical paths supported",
-            )
+        # Route each segment
+        pos_path = []
+        neg_path = []
 
-        # Generate waypoints with grid resolution
-        pos_path = self._generate_straight_path(pos_start, pos_goal)
-        neg_path = self._generate_straight_path(neg_start, neg_goal)
+        for seg_start, seg_goal in segments:
+            # Generate paths for this segment
+            seg_pos_path = self._generate_straight_path(seg_start[0], seg_goal[0])
+            seg_neg_path = self._generate_straight_path(seg_start[1], seg_goal[1])
 
-        # Validate each segment against DRC oracle
-        if self.drc_oracle:
-            # Check P trace segments
-            for i in range(len(pos_path) - 1):
-                start_point = pos_path[i][:2]  # (x, y)
-                end_point = pos_path[i + 1][:2]
-                layer = pos_path[i][2]
-
-                can_place, reason = self.drc_oracle.can_place_track_segment(
-                    start=start_point,
-                    end=end_point,
-                    layer=layer,
-                    net=net_pos,
-                    width=self.trace_width_mm,
-                )
-
-                if not can_place:
+            # Validate against DRC oracle
+            if self.drc_oracle:
+                error = self._validate_paths_with_drc(seg_pos_path, seg_neg_path, net_pos, net_neg)
+                if error:
                     return CoupledRouterResult(
                         success=False,
                         pos_path=[],
@@ -152,34 +144,17 @@ class CoupledDiffPairRouter:
                         max_skew_mm=0.0,
                         avg_separation_mm=0.0,
                         routing_time_s=time.time() - start_time,
-                        error_message=f"P trace DRC violation: {reason}",
+                        error_message=error,
                     )
 
-            # Check N trace segments
-            for i in range(len(neg_path) - 1):
-                start_point = neg_path[i][:2]  # (x, y)
-                end_point = neg_path[i + 1][:2]
-                layer = neg_path[i][2]
-
-                can_place, reason = self.drc_oracle.can_place_track_segment(
-                    start=start_point,
-                    end=end_point,
-                    layer=layer,
-                    net=net_neg,
-                    width=self.trace_width_mm,
-                )
-
-                if not can_place:
-                    return CoupledRouterResult(
-                        success=False,
-                        pos_path=[],
-                        neg_path=[],
-                        coupling_ratio=0.0,
-                        max_skew_mm=0.0,
-                        avg_separation_mm=0.0,
-                        routing_time_s=time.time() - start_time,
-                        error_message=f"N trace DRC violation: {reason}",
-                    )
+            # Append to full path (avoid duplicating waypoints)
+            if not pos_path:
+                pos_path.extend(seg_pos_path)
+                neg_path.extend(seg_neg_path)
+            else:
+                # Skip first point (already in path)
+                pos_path.extend(seg_pos_path[1:])
+                neg_path.extend(seg_neg_path[1:])
 
         # Calculate metrics
         coupling_ratio = self._calculate_coupling_ratio(pos_path, neg_path)
@@ -198,6 +173,61 @@ class CoupledDiffPairRouter:
             routing_time_s=elapsed,
             error_message=None,
         )
+
+    def _validate_paths_with_drc(
+        self,
+        pos_path: List[Tuple[float, float, int]],
+        neg_path: List[Tuple[float, float, int]],
+        net_pos: str,
+        net_neg: str,
+    ) -> Optional[str]:
+        """
+        Validate paths against DRC oracle.
+
+        Args:
+            pos_path: P trace waypoints
+            neg_path: N trace waypoints
+            net_pos: P net name
+            net_neg: N net name
+
+        Returns:
+            Error message if validation fails, None if all checks pass
+        """
+        # Check P trace segments
+        for i in range(len(pos_path) - 1):
+            start_point = pos_path[i][:2]  # (x, y)
+            end_point = pos_path[i + 1][:2]
+            layer = pos_path[i][2]
+
+            can_place, reason = self.drc_oracle.can_place_track_segment(
+                start=start_point,
+                end=end_point,
+                layer=layer,
+                net=net_pos,
+                width=self.trace_width_mm,
+            )
+
+            if not can_place:
+                return f"P trace DRC violation: {reason}"
+
+        # Check N trace segments
+        for i in range(len(neg_path) - 1):
+            start_point = neg_path[i][:2]  # (x, y)
+            end_point = neg_path[i + 1][:2]
+            layer = neg_path[i][2]
+
+            can_place, reason = self.drc_oracle.can_place_track_segment(
+                start=start_point,
+                end=end_point,
+                layer=layer,
+                net=net_neg,
+                width=self.trace_width_mm,
+            )
+
+            if not can_place:
+                return f"N trace DRC violation: {reason}"
+
+        return None
 
     def _generate_straight_path(
         self,
@@ -316,3 +346,53 @@ class CoupledDiffPairRouter:
         dx = p2[0] - p1[0]
         dy = p2[1] - p1[1]
         return math.sqrt(dx * dx + dy * dy)
+
+    def calculate_corner_waypoints(
+        self,
+        start_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+        goal_pins: Tuple[Tuple[float, float], Tuple[float, float]],
+    ) -> Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]]:
+        """
+        Calculate waypoints for an L-shaped path with 45° corners.
+
+        EXP-2: Generates a single corner waypoint for L-shaped routing.
+        Maintains target spacing by keeping the same relative offset at the corner.
+
+        Args:
+            start_pins: ((p_x, p_y), (n_x, n_y)) starting positions
+            goal_pins: ((p_x, p_y), (n_x, n_y)) goal positions
+
+        Returns:
+            List of waypoint pairs, or None if path is straight
+        """
+        pos_start, neg_start = start_pins
+        pos_goal, neg_goal = goal_pins
+
+        # Calculate deltas
+        pos_dx = pos_goal[0] - pos_start[0]
+        pos_dy = pos_goal[1] - pos_start[1]
+
+        # Check if path is already straight (no corner needed)
+        if abs(pos_dx) < 0.01 or abs(pos_dy) < 0.01:
+            return None  # Horizontal or vertical, no corner
+
+        # Calculate the relative offset between P and N at start and goal
+        start_offset = (neg_start[0] - pos_start[0], neg_start[1] - pos_start[1])
+        goal_offset = (neg_goal[0] - pos_goal[0], neg_goal[1] - pos_goal[1])
+
+        # Determine path direction: horizontal-first or vertical-first
+        # Choose based on which direction has more distance to cover
+        if abs(pos_dx) >= abs(pos_dy):
+            # Horizontal-first: go right/left first, then up/down
+            # At corner, use goal's X and start's Y
+            corner_pos = (pos_goal[0], pos_start[1])
+            # N trace maintains the same offset as at start (for first segment)
+            corner_neg = (corner_pos[0] + start_offset[0], corner_pos[1] + start_offset[1])
+        else:
+            # Vertical-first: go up/down first, then right/left
+            # At corner, use start's X and goal's Y
+            corner_pos = (pos_start[0], pos_goal[1])
+            # N trace maintains the same offset as at start (for first segment)
+            corner_neg = (corner_pos[0] + start_offset[0], corner_pos[1] + start_offset[1])
+
+        return [((corner_pos, corner_neg))]
