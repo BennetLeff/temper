@@ -22,6 +22,7 @@ sys.path.append(str(Path(__file__).parent.parent / "packages" / "temper-placer" 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.routing.maze_router import MazeRouter
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
+from temper_placer.deterministic.stages.layer_assignment import LayerAssignmentStage
 from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
 from temper_placer.deterministic.stages.sequential_routing import SequentialRoutingStage
 from temper_placer.deterministic.state import BoardState
@@ -99,7 +100,8 @@ def run_exp_24a_full_board():
     
     state = BoardState(board=result.board, netlist=filtered_netlist)
     pipeline = DeterministicPipeline(stages=[
-        ClearanceGridStage(cell_size_mm=0.5, layer_count=2),
+        ClearanceGridStage(cell_size_mm=0.25, layer_count=2),
+        LayerAssignmentStage(),  # Assign nets to layers
         NetOrderingStage(),
         SequentialRoutingStage(),
     ])
@@ -174,7 +176,8 @@ def run_exp_24b_keyboard_matrix():
     
     state = BoardState(board=result.board, netlist=filtered_netlist)
     pipeline = DeterministicPipeline(stages=[
-        ClearanceGridStage(cell_size_mm=0.5, layer_count=2),
+        ClearanceGridStage(cell_size_mm=0.25, layer_count=2),
+        LayerAssignmentStage(),  # Assign nets to layers
         NetOrderingStage(),
         SequentialRoutingStage(),
     ])
@@ -241,7 +244,8 @@ def run_exp_24c_power_rails():
     
     state = BoardState(board=result.board, netlist=filtered_netlist)
     pipeline = DeterministicPipeline(stages=[
-        ClearanceGridStage(cell_size_mm=0.5, layer_count=2),
+        ClearanceGridStage(cell_size_mm=0.25, layer_count=2),
+        LayerAssignmentStage(),  # Assign nets to layers
         NetOrderingStage(),
         SequentialRoutingStage(),
     ])
