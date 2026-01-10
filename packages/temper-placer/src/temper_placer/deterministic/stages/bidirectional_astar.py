@@ -210,16 +210,54 @@ class BidirectionalAStar:
                 new_state = (new_row, new_col, layer)
                 
                 if self._is_valid_state(new_state):
+                    # If oracle is present, perform proactive DRC check
+                    if self.drc_oracle:
+                        # Convert cells to mm with centering offset for oracle
+                        p1 = (
+                            col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                            row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                        )
+                        p2 = (
+                            new_col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                            new_row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                        )
+
+                        valid, _ = self.drc_oracle.can_place_track_segment(
+                            start=p1,
+                            end=p2,
+                            layer=layer,
+                            net=self.net_name,
+                            width=self.trace_width,
+                        )
+                        if not valid:
+                            continue
+
                     # Diagonal moves cost sqrt(2), cardinal moves cost 1
                     cost = 1.414 if (dr != 0 and dc != 0) else 1.0
                     neighbors.append((new_state, cost))
         
         # Layer transitions (vias)
-        for new_layer in self.allowed_layers:
-            if new_layer != layer:
-                new_state = (row, col, new_layer)
-                if self._is_valid_state(new_state):
-                    neighbors.append((new_state, self.via_cost))
+        for target_layer in self.allowed_layers:
+            if target_layer == layer:
+                continue
+            
+            target_state = (row, col, target_layer)
+            if self._is_valid_state(target_state):
+                # Check via placement with DRC oracle
+                if self.drc_oracle:
+                    via_pos = (
+                        col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                        row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                    )
+                    valid, _ = self.drc_oracle.can_place_via(
+                        position=via_pos,
+                        diameter=self.via_diameter,
+                        net=self.net_name,
+                    )
+                    if not valid:
+                        continue
+
+                neighbors.append((target_state, self.via_cost))
         
         return neighbors
     
@@ -234,8 +272,8 @@ class BidirectionalAStar:
             return False
         
         # Convert to mm for grid check
-        x_mm = col * self.grid.cell_size_mm
-        y_mm = row * self.grid.cell_size_mm
+        x_mm = col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2
+        y_mm = row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2
         
         return self.grid.is_available(x_mm, y_mm, layer, net_name=self.net_name)
     
@@ -314,25 +352,37 @@ class BidirectionalAStar:
             row1, col1, layer1 = full_path[i]
             row2, col2, layer2 = full_path[i + 1]
             
-            # Convert to mm
-            x1 = col1 * self.grid.cell_size_mm
-            y1 = row1 * self.grid.cell_size_mm
-            x2 = col2 * self.grid.cell_size_mm
-            y2 = row2 * self.grid.cell_size_mm
+            # Convert to mm with centering offset
+            # Snap first and last points to exact mm coordinates to avoid dangling tracks
+            if i == 0:
+                p1 = start_mm
+            else:
+                p1 = (
+                    col1 * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                    row1 * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                )
+                
+            if i == len(full_path) - 2:
+                p2 = end_mm
+            else:
+                p2 = (
+                    col2 * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                    row2 * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                )
             
             if layer1 == layer2:
                 # Same layer - trace segment
-                distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+                distance = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
                 total_cost += distance
                 segments.append(RouteSegment(
-                    start=(x1, y1),
-                    end=(x2, y2),
+                    start=p1,
+                    end=p2,
                     layer=layer1,
                 ))
             else:
                 # Layer change - via
                 total_cost += self.via_cost
-                via_positions.append((x1, y1, layer1, layer2))
+                via_positions.append((p1[0], p1[1], layer1, layer2))
         
         return MultiLayerPath(
             segments=segments,

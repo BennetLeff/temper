@@ -171,49 +171,39 @@ class SequentialRoutingStage(Stage):
 
         return (None, pin_pos)  # No escape via found
 
-    def _get_pin_position_from_oracle(
+    def _get_pin_positions_from_oracle(
         self,
         comp_ref: str,
         pin_name: str,
         state: BoardState,
-    ) -> Tuple[Optional[Tuple[float, float]], bool, Optional[Tuple[float, float]]]:
-        """Get pin position from DRC oracle (has correct KiCad positions).
+    ) -> List[Tuple[Tuple[float, float], bool, Optional[Tuple[float, float]]]]:
+        """Get all pin positions from DRC oracle (has correct KiCad positions).
 
         The DRC oracle loads pad positions directly from the KiCad PCB file,
         which are correct even after placement optimization. Using netlist
         component.initial_position may give wrong positions.
-
-        Args:
-            comp_ref: Component reference (e.g., "J_AC_IN")
-            pin_name: Pin name or number (e.g., "1")
-            state: BoardState with DRC oracle
-
+        
         Returns:
-            Tuple of:
-            - (x, y) position or None if not found
-            - is_pth: True if plated through-hole pad
-            - (width, height) pad size or None
+            List of (position, is_pth, size) tuples for all matching pads.
         """
+        results = []
         if not state.drc_oracle or not hasattr(state.drc_oracle, "geometry"):
-            return None, False, None
+            return results
 
         # Try exact pad ID match
         pad_id = f"{comp_ref}.{pin_name}"
-        for pad in state.drc_oracle.geometry.pads:
-            if pad.id == pad_id:
-                return (pad.center.x, pad.center.y), pad.is_pth, pad.size
-
+        
         # Try alternate formats (some KiCad versions use different naming)
         alt_ids = [
             f"{comp_ref}-{pin_name}",
             f"{comp_ref}_{pin_name}",
         ]
-        for alt_id in alt_ids:
-            for pad in state.drc_oracle.geometry.pads:
-                if pad.id == alt_id:
-                    return (pad.center.x, pad.center.y), pad.is_pth, pad.size
+        
+        for pad in state.drc_oracle.geometry.pads:
+            if pad.id == pad_id or pad.id in alt_ids:
+                results.append(((pad.center.x, pad.center.y), pad.is_pth, pad.size))
 
-        return None, False, None
+        return results
 
     def _compute_endpoint_tolerance(
         self,
@@ -451,6 +441,27 @@ class SequentialRoutingStage(Stage):
 
         # Default: All 4 layers for general signals
         return [0, 1, 2, 3]
+
+    def _get_via_params_for_net(self, net_name: str) -> dict:
+        """Get via parameters (diameter, drill) for a specific net.
+
+        Args:
+            net_name: Name of the net
+
+        Returns:
+            Dict with 'diameter' and 'drill' keys
+        """
+        via_d = 0.6
+        via_drill = 0.3
+        
+        # Check design rules if available
+        if self.design_rules:
+            # We don't have net-to-netclass mapping here easily without state,
+            # but we can check if it's a known HV net or similar based on default rules
+            via_d = self.design_rules.via_diameter
+            via_drill = self.design_rules.via_drill
+            
+        return {"diameter": via_d, "drill": via_drill}
 
     def run(self, state: BoardState) -> BoardState:
         if not state.board or not state.netlist or not state.net_order or not state.grid:
@@ -1211,15 +1222,36 @@ class SequentialRoutingStage(Stage):
                     continue
 
                 # Phase 3: Try DRC oracle first (has correct KiCad positions)
-                oracle_pos, is_pth, pad_size = self._get_pin_position_from_oracle(
+                oracle_results = self._get_pin_positions_from_oracle(
                     comp_ref, pin_name, state
                 )
 
-                if oracle_pos:
-                    pin_pos = oracle_pos
-                    endpoint_tolerance = self._compute_endpoint_tolerance(
-                        is_pth, pad_size, grid.cell_size_mm
-                    )
+                if oracle_results:
+                    # Found pads in oracle - use them (could be multiple for one logical pin)
+                    for oracle_pos, is_pth, pad_size in oracle_results:
+                        endpoint_tolerance = self._compute_endpoint_tolerance(
+                            is_pth, pad_size, grid.cell_size_mm
+                        )
+                        
+                        # Check for escape via at this pin position
+                        escape_layer, final_pos = self._get_escape_via_for_pin(oracle_pos, net_name, state)
+
+                        pin_positions.append(final_pos)
+                        pin_info.append((comp_ref, pin.name))
+                        pins.append(pin)
+                        pin_escape_layers.append(escape_layer)
+                        pin_tolerances.append(endpoint_tolerance)
+                        pin_is_pth.append(is_pth)
+                        
+                        # Debug output for PTH pads and escape vias
+                        if is_pth and pad_size:
+                            print(
+                                f"    PTH pad {net_name}.{comp_ref}.{pin_name} tolerance={endpoint_tolerance:.2f}mm"
+                            )
+                        if escape_layer is not None:
+                            print(
+                                f"    Using escape via for {net_name}.{comp_ref}.{pin.name} -> Layer {escape_layer}"
+                            )
                 else:
                     # Fallback to netlist position (may be wrong after placement optimizer)
                     pos = comp.initial_position or (0, 0)
@@ -1228,25 +1260,20 @@ class SequentialRoutingStage(Stage):
                     is_pth = getattr(pin, "is_pth", False)
                     pad_size = None
 
-                # Check for escape via at this pin position
-                escape_layer, final_pos = self._get_escape_via_for_pin(pin_pos, net_name, state)
+                    # Check for escape via at this pin position
+                    escape_layer, final_pos = self._get_escape_via_for_pin(pin_pos, net_name, state)
 
-                pin_positions.append(final_pos)
-                pin_info.append((comp_ref, pin.name))
-                pins.append(pin)
-                pin_escape_layers.append(escape_layer)
-                pin_tolerances.append(endpoint_tolerance)
-                pin_is_pth.append(is_pth)
-
-                # Debug output for PTH pads and escape vias
-                if is_pth and pad_size:
-                    print(
-                        f"    PTH pad {net_name}.{comp_ref}.{pin_name} tolerance={endpoint_tolerance:.2f}mm"
-                    )
-                if escape_layer is not None:
-                    print(
-                        f"    Using escape via for {net_name}.{comp_ref}.{pin.name} -> Layer {escape_layer}"
-                    )
+                    pin_positions.append(final_pos)
+                    pin_info.append((comp_ref, pin.name))
+                    pins.append(pin)
+                    pin_escape_layers.append(escape_layer)
+                    pin_tolerances.append(endpoint_tolerance)
+                    pin_is_pth.append(is_pth)
+                    
+                    if escape_layer is not None:
+                        print(
+                            f"    Using escape via for {net_name}.{comp_ref}.{pin.name} -> Layer {escape_layer}"
+                        )
 
             if len(pin_positions) < 2 and not is_plane_by_net.get(net_name, False):
                 continue
@@ -1269,25 +1296,32 @@ class SequentialRoutingStage(Stage):
                 for i, pos in enumerate(pin_positions):
                     pin = pins[i]
 
-                    # PTH pads don't need vias - their barrel already connects all layers
+                    # Skip via and stub if pin is already on the target plane layer
+                    is_on_layer = False
                     if pin.is_pth or pin.layer == "all":
-                        print(
-                            f"  INFO: {net_name} pin {pin.name} at {pos} is PTH - barrel connects to {layer_name}, skipping via"
-                        )
+                        is_on_layer = True
+                    elif isinstance(pin.layer, str) and pin.layer == layer_name:
+                        is_on_layer = True
+                    elif isinstance(pin.layer, (list, tuple)) and layer_name in pin.layer:
+                        is_on_layer = True
+                        
+                    if is_on_layer:
                         continue
 
-                    # Find safe position for via
-                    # Strategy: Try pad position first (no stub needed), then search outward
+                    # Determine via parameters from net class
+                    rules = self.net_class_rules.get(net_name)
+                    via_params = self._get_via_params_for_net(net_name)
+                    via_d = via_params["diameter"]
+                    via_drill = via_params["drill"]
+
+                    safe_pos = None
                     if state.drc_oracle:
-                        # First, try via directly at pad position (best for connectivity)
+                        # First, try via directly at pad position
                         sites = state.drc_oracle.get_valid_via_sites(
-                            pos,
-                            search_radius=0.01,
-                            net=net_name,  # Essentially at pad
+                            pos, search_radius=0.01, net=net_name
                         )
                         safe_pos = sites[0] if sites else None
 
-                        # If pad position doesn't work, search progressively outward
                         if not safe_pos:
                             for radius in [0.5, 1.0, 2.0, 5.0]:
                                 sites = state.drc_oracle.get_valid_via_sites(
@@ -1295,28 +1329,29 @@ class SequentialRoutingStage(Stage):
                                 )
                                 if sites:
                                     safe_pos = sites[0]
-                                    print(
-                                        f"INFO: Found via site for {net_name} at {radius}mm from pad (offset {((sites[0][0] - pos[0]) ** 2 + (sites[0][1] - pos[1]) ** 2) ** 0.5:.2f}mm)"
-                                    )
                                     break
 
                         if not safe_pos:
-                            print(
-                                f"WARNING: DRCOracle could not find safe via position for {net_name} at {pos} (searched up to 5mm)"
-                            )
-                            # Skip this via entirely - better to have incomplete routing
-                            # than DRC violations for high-voltage nets
+                            print(f"WARNING: No safe via site for {net_name} at {pos}")
                             continue
                     else:
-                        # Without DRC oracle, place via at pad position (no clearance check)
                         safe_pos = pos
 
-                    # Create Via connecting Top to Plane Layer
+                    # Prepare via layers
+                    via_layers = ("F.Cu", layer_name)
+                    if via_layers[0] == via_layers[1]:
+                        if pin.layer == "B.Cu" or "B.Cu" in str(pin.layer):
+                            via_layers = ("B.Cu", "F.Cu")
+                        else:
+                            # Already on the correct layer, skip via
+                            continue
+
+                    # Create Via
                     via = Via(
                         position=safe_pos,
                         drill=via_drill,
                         width=via_d,
-                        layers=("F.Cu", layer_name),
+                        layers=via_layers,
                         net=net_name,
                     )
                     all_vias.append(via)
@@ -1332,86 +1367,49 @@ class SequentialRoutingStage(Stage):
                             )
                         )
 
-                    # Add stub trace from SMD pad to via on F.Cu
-                    # CRITICAL: SMD pads are only on F.Cu, so they NEED a F.Cu trace
-                    # to reach the via, even if the via is at the pad position.
-                    # The via then connects F.Cu to the inner plane layer.
-
-                    # Always add stub for SMD pads, even if via is at pad position
-                    # For PTH pads, the barrel provides connectivity, so no stub needed
-                    if safe_pos != pos or not pin.is_pth:
+                    # Add stub trace
+                    if (safe_pos != pos or not pin.is_pth) and not is_on_layer:
                         stub_valid = False
                         stub_end = None
-                        stub_reason = ""
-
-                        # If via is exactly at pad, create very short stub (0.1mm) for connectivity
+                        
                         if safe_pos == pos:
-                            # EXP-1: Try multiple stub directions to find one without DRC violations
+                            # 0.1mm stub for connectivity
                             stub_candidates = [
-                                (pos[0] + 0.1, pos[1]),  # East
-                                (pos[0] - 0.1, pos[1]),  # West
-                                (pos[0], pos[1] + 0.1),  # North
-                                (pos[0], pos[1] - 0.1),  # South
+                                (pos[0] + 0.1, pos[1]),
+                                (pos[0] - 0.1, pos[1]),
+                                (pos[0], pos[1] + 0.1),
+                                (pos[0], pos[1] - 0.1),
                             ]
-
                             for candidate in stub_candidates:
                                 if state.drc_oracle:
-                                    valid, reason = state.drc_oracle.can_place_track_segment(
-                                        start=pos,
-                                        end=candidate,
-                                        layer=0,
-                                        net=net_name,
-                                        width=width,
-                                        neckdown=True,
+                                    s_width = rules.trace_width if rules else self.default_width
+                                    valid, _ = state.drc_oracle.can_place_track_segment(
+                                        start=pos, end=candidate,
+                                        layer=0 if "F.Cu" in str(pin.layer) or "F.Cu" == layer_name else 3,
+                                        net=net_name, width=s_width, neckdown=True,
                                     )
                                     if valid:
                                         stub_end = candidate
                                         stub_valid = True
                                         break
-                                    stub_reason = reason  # Keep last failure reason
                                 else:
-                                    # No oracle - accept first candidate
-                                    stub_end = candidate
+                                    stub_end = stub_candidates[0]
                                     stub_valid = True
                                     break
-
-                            if not stub_valid:
-                                stub_reason = f"No valid direction (last: {stub_reason})"
                         else:
-                            # Via not at pad - stub to via position
                             stub_end = safe_pos
-                            if state.drc_oracle:
-                                stub_valid, stub_reason = state.drc_oracle.can_place_track_segment(
-                                    start=pos,
-                                    end=stub_end,
-                                    layer=0,
-                                    net=net_name,
-                                    width=width,
-                                    neckdown=True,
-                                )
-                            else:
-                                stub_valid = True
-
-                        if not stub_valid:
-                            print(f"  INFO: Plane stub trace for {net_name} skipped: {stub_reason}")
+                            stub_valid = True
 
                         if stub_valid and stub_end and stub_end != pos:
                             all_traces.append(
                                 Trace(
-                                    start=pos, end=stub_end, width=width, layer="F.Cu", net=net_name
+                                    start=pos,
+                                    end=stub_end,
+                                    width=s_width if 's_width' in locals() else self.default_width,
+                                    layer="F.Cu" if "F.Cu" in str(pin.layer) or "F.Cu" == layer_name else layer_name,
+                                    net=net_name
                                 )
                             )
-                            # Register stub in DRCOracle
-                            if state.drc_oracle:
-                                state.drc_oracle.register_track(
-                                    OracleTrack(
-                                        start=OraclePoint(pos[0], pos[1]),
-                                        end=OraclePoint(stub_end[0], stub_end[1]),
-                                        width=width,
-                                        net=net_name,
-                                        layer=0,  # F.Cu
-                                    )
-                                )
 
                     # Block Via on ALL layers
                     for l_idx in range(grid.layer_count):
@@ -1481,39 +1479,40 @@ class SequentialRoutingStage(Stage):
                                 width=width,
                             )
                             if not stub_valid:
-                                print(f"    Stub rejected for {net_name}: {reason}")
-                                continue
-
-                        # Create stub trace
-                        stub_trace = Trace(
-                            start=pad_pos,
-                            end=nearest_via.position,
-                            width=width,
-                            layer="F.Cu",
-                            net=net_name,
-                        )
-                        all_traces.append(stub_trace)
-
-                        # Block on grid
-                        grid.block_trace(
-                            [pad_pos, nearest_via.position],
-                            width_mm=width,
-                            clearance_mm=clearance,
-                            layer=0,
-                            net_name=net_name,
-                        )
-
-                        # Register in DRC oracle
-                        if state.drc_oracle:
-                            state.drc_oracle.register_track(
-                                OracleTrack(
-                                    start=OraclePoint(pad_pos[0], pad_pos[1]),
-                                    end=OraclePoint(nearest_via.position[0], nearest_via.position[1]),
+                                print(f"      REJECTED plane stub for {net_name}: {reason}")
+                        
+                        if stub_valid:
+                            # Create stub trace from pad to via
+                            all_traces.append(
+                                Trace(
+                                    start=pad_pos,
+                                    end=nearest_via.position,
                                     width=width,
+                                    layer=p_layer_name,
                                     net=net_name,
-                                    layer=0,
                                 )
                             )
+
+                            # Block on grid
+                            grid.block_trace(
+                                [pad_pos, nearest_via.position],
+                                width_mm=width,
+                                clearance_mm=clearance,
+                                layer=layer_idx,
+                                net_name=net_name,
+                            )
+
+                            # Register in DRC oracle
+                            if state.drc_oracle:
+                                state.drc_oracle.register_track(
+                                    OracleTrack(
+                                        start=OraclePoint(pad_pos[0], pad_pos[1]),
+                                        end=OraclePoint(nearest_via.position[0], nearest_via.position[1]),
+                                        width=width,
+                                        net=net_name,
+                                        layer=layer_idx,
+                                    )
+                                )
 
                         print(f"    Added {nearest_dist:.1f}mm stub for {net_name} pad at {pad_pos}")
 
@@ -1560,7 +1559,12 @@ class SequentialRoutingStage(Stage):
 
             # Route all edges in the MST
             for idx1, idx2 in mst_edges:
-                # Use snapped positions for grid-based pathfinding
+                # Use original pin positions (MM) for pathfinding
+                # The pathfinders will snap to grid cells internally but use these exact
+                # endpoints for final segment reconstruction to avoid dangling tracks.
+                p1 = pin_positions[idx1]
+                p2 = pin_positions[idx2]
+
                 p1_snapped = snapped_positions[idx1]
                 p2_snapped = snapped_positions[idx2]
 
@@ -1612,8 +1616,8 @@ class SequentialRoutingStage(Stage):
                     print(f"  Using bidirectional A* for {net_name} ({distance_cells} cells)")
                     
                     multilayer_result = bidirectional.find_path(
-                        start=p1_snapped,
-                        end=p2_snapped,
+                        start=p1,
+                        end=p2,
                         start_layer=start_layer_for_route,
                         end_layer=end_layer_for_route,
                     )
@@ -1627,11 +1631,17 @@ class SequentialRoutingStage(Stage):
                             print(f"  ✗ Bidirectional found no path")
                 else:
                     # Use standard unidirectional multi-layer A* routing
+                    
+                    # For PTH pins, we can end on any layer. For SMD, we MUST end on pad layer.
+                    # end_layer_for_route already contains the pin's layer or escape layer.
+                    pin2 = pins[idx2]
+                    final_end_layer = end_layer_for_route if not pin2.is_pth else -1
+                    
                     multilayer_result = multilayer_pathfinder.find_path(
-                        start=p1_snapped,
-                        end=p2_snapped,
-                    start_layer=start_layer_for_route,
-                    end_layer=end_layer_for_route if end_layer_for_route != layer_idx else -1,
+                        start=p1,
+                        end=p2,
+                        start_layer=start_layer_for_route,
+                        end_layer=final_end_layer,
                     start_tolerance=pin_tolerances[idx1],
                     end_tolerance=pin_tolerances[idx2],
                 )
@@ -1767,8 +1777,8 @@ class SequentialRoutingStage(Stage):
         # ========== PHASE 2: ROUTING RETRY LOGIC ==========
         # Retry failed nets with exponentially increasing iteration budgets.
         # This handles cases where initial routing failed due to congestion.
-        MAX_RETRIES = 3
-        BASE_ITERATIONS = 2000  # Increased from 200 for better retry success
+        MAX_RETRIES = 5
+        BASE_ITERATIONS = 10000  # Increased for tough nets (tx, k01)
         ITERATION_MULTIPLIER = 2.0
 
         # Collect nets that failed to route completely
@@ -1833,25 +1843,29 @@ class SequentialRoutingStage(Stage):
                         continue
 
                     # Use DRC oracle position if available
-                    oracle_pos, is_pth, pad_size = self._get_pin_position_from_oracle(
+                    oracle_results = self._get_pin_positions_from_oracle(
                         comp_ref, pin_name, state
                     )
                     
-                    endpoint_tolerance = grid.cell_size_mm
-                    if oracle_pos:
-                        pin_pos = oracle_pos
-                        endpoint_tolerance = self._compute_endpoint_tolerance(
-                            is_pth, pad_size, grid.cell_size_mm
-                        )
+                    if oracle_results:
+                        for oracle_pos, is_pth, pad_size in oracle_results:
+                            endpoint_tolerance = self._compute_endpoint_tolerance(
+                                is_pth, pad_size, grid.cell_size_mm
+                            )
+                            escape_layer, final_pos = self._get_escape_via_for_pin(oracle_pos, net_name, state)
+                            pin_positions.append(final_pos)
+                            pin_escape_layers.append(escape_layer)
+                            pin_tolerances.append(endpoint_tolerance)
                     else:
+                        endpoint_tolerance = grid.cell_size_mm
                         pos = comp.initial_position or (0, 0)
                         pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
                         is_pth = getattr(pin, "is_pth", False)
 
-                    escape_layer, final_pos = self._get_escape_via_for_pin(pin_pos, net_name, state)
-                    pin_positions.append(final_pos)
-                    pin_escape_layers.append(escape_layer)
-                    pin_tolerances.append(endpoint_tolerance)
+                        escape_layer, final_pos = self._get_escape_via_for_pin(pin_pos, net_name, state)
+                        pin_positions.append(final_pos)
+                        pin_escape_layers.append(escape_layer)
+                        pin_tolerances.append(endpoint_tolerance)
 
                 if len(pin_positions) < 2:
                     continue

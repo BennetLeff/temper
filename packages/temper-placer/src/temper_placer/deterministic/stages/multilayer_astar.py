@@ -522,7 +522,7 @@ class MultiLayerAStar:
 
     def _state_to_mm(self, state: Tuple[int, int, int]) -> Tuple[float, float]:
         """Convert grid state to mm coordinates."""
-        row, col, _ = state
+        row, col, layer = state
         return (
             col * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
             row * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,

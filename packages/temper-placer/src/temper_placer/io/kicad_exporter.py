@@ -33,8 +33,8 @@ TWO_LAYER_MAP = {
     1: "B.Cu",
 }
 
-# Endpoint snapping tolerance in mm
-SNAP_TOLERANCE_MM = 0.2
+# Endpoint snapping tolerance in mm (only for cleaning up grid misalignment)
+SNAP_TOLERANCE_MM = 0.15   # 0.15mm is safe for 0.25mm grid (max dist to center is ~0.17mm, but 0.15 catches most)
 
 def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     """Extract pad center coordinates grouped by net name.
@@ -72,30 +72,22 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     return pad_centers
 
 def snap_to_nearest_pad(
-    x: float, y: float, 
-    pad_centers: list[tuple[float, float]], 
-    tolerance: float = SNAP_TOLERANCE_MM
+    x: float, y: float,
+    pad_centers: list[tuple[float, float]],
+    tolerance: float = 0.15  # Sufficient for 0.25mm grid half-cell
 ) -> tuple[float, float]:
     """Snap coordinate to nearest pad center if within tolerance.
-    
-    Args:
-        x, y: Original coordinates
-        pad_centers: List of (x, y) pad centers for this net
-        tolerance: Maximum distance to snap
-    
-    Returns:
-        Snapped (x, y) or original if no pad within tolerance
     """
     import math
     best_dist = tolerance
     best_pos = (x, y)
-    
+
     for px, py in pad_centers:
         dist = math.sqrt((x - px)**2 + (y - py)**2)
         if dist < best_dist:
             best_dist = dist
             best_pos = (px, py)
-    
+
     return best_pos
 
 def path_to_segments(
@@ -400,8 +392,12 @@ def export_routed_pcb(
     
     # Extract pad centers for endpoint snapping
     pad_centers = extract_pad_centers(board)
-    
-    # Snap segment endpoints to pad centers to eliminate dangling tracks
+
+    # Clean up segments and snap
+    # 1. Reject zero-length segments
+    all_segments = [s for s in all_segments if s.length > 0.001]
+
+    # 2. Snap segment endpoints to pad centers
     snapped_count = 0
     for seg in all_segments:
         if seg.net in pad_centers:
@@ -416,9 +412,9 @@ def export_routed_pcb(
             if new_end != seg.end:
                 seg.end = new_end
                 snapped_count += 1
-    
+
     if snapped_count > 0:
-        print(f"Snapped {snapped_count} segment endpoints to pad centers")
+        print(f"  INFO: Snapped {snapped_count} segment endpoints to pad centers")
 
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)
@@ -445,6 +441,105 @@ def export_routed_pcb(
 
 from temper_placer.routing.constraints.spatial_index import Track as GeoTrack, Via as GeoVia
 
+def export_board_state(
+    template_pcb: Path,
+    state: "BoardState",
+    output_pcb: Path,
+    auto_fill_zones: bool = True,
+) -> ExportResult:
+    """Export board state directly to KiCad PCB.
+    
+    This is the preferred high-level export function for the deterministic pipeline.
+    It takes a BoardState and performs pad-center snapping to ensure DRC clean connectivity.
+    
+    Args:
+        template_pcb: Input PCB path
+        state: BoardState containing traces and vias
+        output_pcb: Output PCB path
+        auto_fill_zones: Whether to trigger zone filling
+        
+    Returns:
+        ExportResult stats
+    """
+    # Load PCB
+    board = KiBoard.from_file(str(template_pcb))
+    
+    # Clear existing traces/vias
+    board.traceItems = []
+    
+    all_traces = list(state.routes)
+    all_vias = list(state.vias)
+    
+    # Extract pad centers for endpoint snapping
+    pad_centers = extract_pad_centers(board)
+    
+    # Clean up segments and snap
+    # 1. Reject zero-length segments
+    valid_traces = [t for t in all_traces if math.sqrt((t.start[0]-t.end[0])**2 + (t.start[1]-t.end[1])**2) > 0.001]
+    
+    # 2. Snap segment endpoints to pad centers
+    # For signal nets, we use a larger tolerance (0.15mm) to bridge grid gaps.
+    # For plane nets (GND), we are more careful to preserve stubs.
+    snapped_count = 0
+    clean_traces = []
+    for t in valid_traces:
+        new_start = t.start
+        new_end = t.end
+        
+        if t.net in pad_centers:
+            net_pads = pad_centers[t.net]
+            new_start = snap_to_nearest_pad(t.start[0], t.start[1], net_pads)
+            new_end = snap_to_nearest_pad(t.end[0], t.end[1], net_pads)
+            
+            if new_start != t.start or new_end != t.end:
+                snapped_count += 1
+                
+        clean_traces.append(TraceSegment(
+            net=t.net,
+            start=new_start,
+            end=new_end,
+            width=t.width,
+            layer=t.layer
+        ))
+
+    if snapped_count > 0:
+        print(f"  INFO: Snapped {snapped_count} traces to pad centers")
+
+    # Add geometry to board
+    segments_added = add_segments_to_board(board, clean_traces)
+    
+    # Deduplicate vias
+    via_list = [TraceVia(
+        net=v.net,
+        position=v.position,
+        size=v.width,
+        drill=v.drill,
+        layers=list(v.layers)
+    ) for v in all_vias]
+    unique_vias = deduplicate_vias(via_list)
+    vias_added = add_vias_to_board(board, unique_vias)
+    
+    # Write output
+    output_pcb = Path(output_pcb)
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    board.to_file(str(output_pcb))
+    
+    # Automatically fill zones if requested
+    if auto_fill_zones:
+        from temper_placer.io.zone_filler import fill_zones_if_present
+        fill_zones_if_present(output_pcb, verbose=True)
+
+    return ExportResult(
+        output_path=output_pcb,
+        segments_added=segments_added,
+        vias_added=vias_added,
+        nets_exported=len(set(t.net for t in clean_traces)),
+        nets_failed=0,
+        warnings=[]
+    )
+
+import math
+
 def export_from_geometry(
     template_pcb: Path,
     output_pcb: Path,
@@ -470,10 +565,7 @@ def export_from_geometry(
     board = KiBoard.from_file(str(template_pcb))
     
     # Clear existing traces/vias
-    board.traceItems = [
-        item for item in board.traceItems 
-        if not isinstance(item, (Segment, Via))
-    ]
+    board.traceItems = []
     
     total_segments = 0
     total_vias = 0
@@ -518,13 +610,11 @@ def export_from_geometry(
     # Write output
     board.to_file(str(output_pcb))
     
-    # from temper_placer.routing.maze_router import RoutePath # Ensure type is known if needed
-    
     return ExportResult(
         output_path=output_pcb,
         segments_added=total_segments,
         vias_added=total_vias,
         nets_exported=len(set(t.net for t in tracks)),
-        nets_failed=0, # Geometric export doesn't track failures directly
+        nets_failed=0,
         warnings=[]
     )

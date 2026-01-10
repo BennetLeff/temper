@@ -547,6 +547,7 @@ class ClearanceGridStage(Stage):
         smd_mask_expansion_mm: float = 0.10,
         inner_layer_clearance_mm: float = 0.5,
         hv_exclusion_zones: list = None,
+        default_trace_width_mm: float = 0.25,
     ):
         """Initialize clearance grid stage.
 
@@ -561,10 +562,12 @@ class ClearanceGridStage(Stage):
             smd_mask_expansion_mm: Mask expansion for SMD pads (default: 0.10mm)
             inner_layer_clearance_mm: Max clearance for inner layers (default: 0.5mm).
                 Inner layers don't need creepage clearance since they're encapsulated
-                in FR4. This prevents high-voltage PTH pads from blocking routing on
+                in FR4. This prevents high-voltage PTH pads from blocking escape routes on
                 inner layers with their full surface clearance (e.g., 6mm -> 0.5mm).
             hv_exclusion_zones: List of HVExclusionZone configs for signal avoidance.
                 EXP-13: Zones where specified nets must not route (blocked on all layers).
+            default_trace_width_mm: Default trace width to account for in blocking (Minkowski sum).
+                Since A* treats the agent as a point, we must expand obstacles by the agent's radius.
         """
         self.cell_size_mm = cell_size_mm
         self.layer_count = layer_count
@@ -576,6 +579,7 @@ class ClearanceGridStage(Stage):
         self.smd_mask_expansion_mm = smd_mask_expansion_mm
         self.inner_layer_clearance_mm = inner_layer_clearance_mm
         self.hv_exclusion_zones = hv_exclusion_zones or []
+        self.default_trace_width_mm = default_trace_width_mm
 
     def _get_clearance_for_net(self, net_name: str, state: "BoardState", layer: int = 0) -> float:
         """Get the clearance for a specific net based on its net class and layer.
@@ -656,17 +660,17 @@ class ClearanceGridStage(Stage):
                     continue
 
                 for pin in component.pins:
-                    # Fix for K00 blockage: Skip dummy/mechanical pins with no net and no name
-                    if not pin.name and not pin.net:
-                        continue
-
                     pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
                     
                     pad_radius = 0.5
+                    pad_width = 1.0
+                    pad_height = 1.0
                     pad_key = (component.ref, pin.name)
                     if pad_key in self.pad_sizes:
                         real_pad = self.pad_sizes[pad_key]
                         pad_radius = max(real_pad.size.X, real_pad.size.Y) / 2.0
+                        pad_width = real_pad.size.X
+                        pad_height = real_pad.size.Y
 
                     # Store pad info
                     net = pin.net or ""
@@ -690,42 +694,55 @@ class ClearanceGridStage(Stage):
                     net_pads[net].append(
                         {
                             "pos": pin_pos,
-                            "radius": pad_radius,
+                            "size": (pad_width, pad_height), # Store full size
+                            "radius": pad_radius, # Keep radius for circle fallback
+                            "shape": pin.shape, # Store shape
+                            "rotation": getattr(pin, "rotation", 0.0), # Store rotation if available
                             "layers": target_layers,
                             "is_pth": pin.is_pth,
+                            "ref": component.ref, # Store ref for lookup
+                            "name": pin.name, # Store pin name for lookup
                         }
                     )
 
             # Block all pads with clearance based on the pad's net class.
-            # PTH pads need larger mask expansion due to plating and annular ring.
-            # Base clearance components:
-            #   - Electrical clearance (from the pad's own net class, not global max!)
-            #   - Mask expansion (PTH: 0.15mm, SMD: 0.10mm)
-            #
-            # KEY FIX: Using per-net-class clearances instead of max_clearance_mm.
-            # This dramatically reduces grid congestion:
-            #   - HighVoltage pads: blocked with 6.0mm (other nets must stay away)
-            #   - Signal pads: blocked with 0.2mm (allows nearby routing)
-            #
-            # Before: 37.8% of grid blocked with global 6.3mm clearance
-            # After: ~3% of grid blocked with per-net clearances
-            #
-            # DRC correctness: When routing net A near pad of net B, the router
-            # checks A's clearance requirement against B's blocked zone. Since A
-            # must maintain clearance from B's pad anyway, using B's clearance
-            # for blocking is correct and conservative.
-            #
-            # LAYER-SPECIFIC CLEARANCES:
-            # Inner layers (In1.Cu, In2.Cu) don't need surface creepage clearance
-            # since they're encapsulated in FR4. We cap inner layer clearances at
-            # inner_layer_clearance_mm (default 0.5mm) to prevent high-voltage
-            # PTH pads from blocking escape routes on inner layers.
             for net_name, pads in net_pads.items():
                 for pad in pads:
                     # Calculate clearance with PTH/SMD-aware mask expansion
                     mask_expansion = (
                         self.pth_mask_expansion_mm if pad["is_pth"] else self.smd_mask_expansion_mm
                     )
+                    
+                    # Try to get precise geometry from pad_sizes
+                    pad_key = (pad["ref"], pad["name"])
+                    real_pad = self.pad_sizes.get(pad_key)
+                    
+                    use_rect_blocking = False
+                    rect_size = (0.0, 0.0)
+                    
+                    if real_pad:
+                        # Use shape and rotation from real pad data
+                        shape = real_pad.shape
+                        rotation = getattr(real_pad, "rotation", 0.0)
+                        size_x = real_pad.size.X
+                        size_y = real_pad.size.Y
+                        
+                        if shape in ["rect", "roundrect", "oval"]:
+                            # Handle 0/90/180/270 rotations
+                            norm_rot = int(round(rotation)) % 180
+                            if norm_rot == 0:
+                                rect_size = (size_x, size_y)
+                                use_rect_blocking = True
+                            elif norm_rot == 90:
+                                rect_size = (size_y, size_x)
+                                use_rect_blocking = True
+                            # For arbitrary rotations, we fall back to circle for now
+                    
+                    # Fallback to netlist-derived data if pad_sizes missing (shouldn't happen with full parser)
+                    if not use_rect_blocking and pad.get("shape") in ["rect", "roundrect", "oval"]:
+                         # Assuming axis-aligned if we don't know rotation
+                         # This is risky, so we stick to circle if uncertain
+                         pass
 
                     for layer_idx in pad["layers"]:
                         if layer_idx < grid.layer_count:
@@ -733,15 +750,32 @@ class ClearanceGridStage(Stage):
                             net_clearance = self._get_clearance_for_net(
                                 net_name, state, layer=layer_idx
                             )
-                            total_clearance = net_clearance + mask_expansion
+                            
+                            # EXP-24: Mechanical pads (no net) use zero clearance to avoid self-blocking
+                            # but still block routing through the physical hole/pad.
+                            current_mask = mask_expansion if net_name else 0.0
+                            current_clearance = net_clearance if net_name else 0.0
+                            
+                            # Add trace radius to obstacle clearance (Minkowski sum)
+                            total_clearance = current_clearance + current_mask + (self.default_trace_width_mm / 2.0)
 
-                            grid.block_circle(
-                                pad["pos"],
-                                radius_mm=pad["radius"],
-                                clearance_mm=total_clearance,
-                                layer=layer_idx,
-                                net_name=net_name,
-                            )
+                            if use_rect_blocking:
+                                grid.block_rect(
+                                    center=pad["pos"],
+                                    size=rect_size,
+                                    clearance_mm=total_clearance,
+                                    layer=layer_idx,
+                                    net_name=net_name,
+                                    is_obstacle=False # Mark as net, not obstacle
+                                )
+                            else:
+                                grid.block_circle(
+                                    pad["pos"],
+                                    radius_mm=pad["radius"],
+                                    clearance_mm=total_clearance,
+                                    layer=layer_idx,
+                                    net_name=net_name,
+                                )
 
         # EXP-13: Block HV exclusion zones for specified nets
         # These zones force signals (like GATE_H, PWM_H) to route around HV areas
