@@ -1768,7 +1768,7 @@ class SequentialRoutingStage(Stage):
         # Retry failed nets with exponentially increasing iteration budgets.
         # This handles cases where initial routing failed due to congestion.
         MAX_RETRIES = 3
-        BASE_ITERATIONS = 200
+        BASE_ITERATIONS = 2000  # Increased from 200 for better retry success
         ITERATION_MULTIPLIER = 2.0
 
         # Collect nets that failed to route completely

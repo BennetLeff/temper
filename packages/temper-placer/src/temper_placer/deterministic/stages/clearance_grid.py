@@ -656,7 +656,12 @@ class ClearanceGridStage(Stage):
                     continue
 
                 for pin in component.pins:
+                    # Fix for K00 blockage: Skip dummy/mechanical pins with no net and no name
+                    if not pin.name and not pin.net:
+                        continue
+
                     pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+                    
                     pad_radius = 0.5
                     pad_key = (component.ref, pin.name)
                     if pad_key in self.pad_sizes:

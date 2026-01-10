@@ -203,6 +203,10 @@ class MultiLayerAStar:
             return budget.max_iterations
 
         else:
+            # Fix for Experiment B.2: If max_iterations is explicitly high, return it directly
+            if self.max_iterations > 200000:
+                return self.max_iterations
+
             # LEGACY: Old distance-based calculation (kept for backward compatibility)
             dr = abs(start_cell[0] - end_cell[0])
             dc = abs(start_cell[1] - end_cell[1])
@@ -617,10 +621,21 @@ def find_path(
         MultiLayerPath or None if no path found
     """
     # Create A* instance with default params (can be extended based on config)
+    # Fix for Experiment B.2: If max_iterations is in config, use it and disable internal adaptive budget
+    # This ensures we respect the caller's budget (which might be from a retry with higher limits)
+    use_adaptive = True
+    max_iters = 15000
+    
+    if config and "max_iterations" in config:
+        max_iters = config["max_iterations"]
+        use_adaptive = False  # Trust the caller's limit
+
     astar = MultiLayerAStar(
         grid=grid,
         drc_oracle=drc_oracle,
         net_name=net_name or f"net_{net_id}",
         via_diameter=via_diameter,
+        max_iterations=max_iters,
+        use_adaptive_budget=use_adaptive,
     )
     return astar.find_path(start_pos, end_pos, start_layer, end_layer)

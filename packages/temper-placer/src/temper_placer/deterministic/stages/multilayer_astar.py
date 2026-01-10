@@ -110,7 +110,7 @@ class MultiLayerAStar:
     # EXP-6b: Increased from 50 to 100 to handle long escape routes (~90mm)
     iterations_per_cell: int = 100  # Old base multiplier (deprecated, use base_iterations_per_cell)
     min_iterations: int = 5000  # Floor for short paths (increased from 2000)
-    max_iterations_cap: int = 200000  # Ceiling (deprecated)
+    max_iterations_cap: int = 1000000  # Experiment B.2: Increased from 200k
 
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0
