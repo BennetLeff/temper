@@ -1,0 +1,267 @@
+"""
+EXP-24: Piantor Keyboard Benchmark - Real-World Open Source PCB Routing
+
+This experiment series benchmarks the router against the Piantor split keyboard,
+a real manufactured open-source KiCad project.
+
+Sub-experiments:
+  A) Full board routing (all 33 nets)
+  B) Keyboard matrix (key switch net subset)
+  C) MCU cluster (ProMicro breakout)
+
+Prerequisites:
+  Clone Piantor to /tmp: git clone https://github.com/beekeeb/piantor.git /tmp/piantor
+"""
+
+import sys
+import time
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent / "packages" / "temper-placer" / "src"))
+
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.routing.maze_router import MazeRouter
+from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
+from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
+from temper_placer.deterministic.stages.sequential_routing import SequentialRoutingStage
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.pipeline import DeterministicPipeline
+
+# Piantor PCB paths
+PIANTOR_RIGHT = Path("/tmp/piantor/pcb/right/keyboard_pcb.kicad_pcb")
+PIANTOR_LEFT = Path("/tmp/piantor/pcb/left/keyboard_pcb.kicad_pcb")
+
+
+def check_piantor_available():
+    """Verify Piantor repo is cloned."""
+    if not PIANTOR_RIGHT.exists():
+        print("ERROR: Piantor not cloned. Run:")
+        print("  git clone https://github.com/beekeeb/piantor.git /tmp/piantor")
+        return False
+    return True
+
+
+def run_exp_24a_full_board():
+    """
+    EXP-24A: Full Board Routing
+    
+    Route ALL 33 nets on the Piantor Right keyboard.
+    This tests the router's ability to handle a real-world 2-layer board.
+    
+    Expected metrics:
+    - Completion: Target 100% (we have valid positions now)
+    - Runtime: < 60 seconds
+    """
+    print("\n" + "=" * 60)
+    print("EXP-24A: Full Board Routing (Piantor Right)")
+    print("=" * 60)
+    
+    if not check_piantor_available():
+        return {"status": "SKIP", "reason": "Piantor not cloned"}
+    
+    # Parse
+    start = time.time()
+    result = parse_kicad_pcb(PIANTOR_RIGHT)
+    parse_time = time.time() - start
+    
+    print(f"Board: {result.board.width:.0f}x{result.board.height:.0f}mm")
+    print(f"Components: {len(result.netlist.components)}")
+    print(f"Nets: {len(result.netlist.nets)}")
+    print(f"Parse time: {parse_time:.2f}s")
+    
+    # Verify positions
+    positioned = [c for c in result.netlist.components if c.initial_position != (0, 0)]
+    print(f"Components with positions: {len(positioned)}/{len(result.netlist.components)}")
+    
+    if len(positioned) < len(result.netlist.components):
+        return {"status": "FAIL", "reason": "Missing component positions"}
+    
+    # Create minimal routing pipeline
+    state = BoardState(board=result.board, netlist=result.netlist)
+    pipeline = DeterministicPipeline(stages=[
+        ClearanceGridStage(cell_size_mm=0.5, layer_count=2),
+        NetOrderingStage(),
+        SequentialRoutingStage(),
+    ])
+    
+    # Route
+    start = time.time()
+    final_state = pipeline.run(state)
+    route_time = time.time() - start
+    
+    routes = len(final_state.routes)
+    total = len(result.netlist.nets)
+    completion = (routes / total * 100) if total > 0 else 0
+    
+    print(f"Routes: {routes}/{total} ({completion:.1f}%)")
+    print(f"Route time: {route_time:.1f}s")
+    
+    status = "PASS" if completion >= 80 else "FAIL"
+    print(f"Status: {status}")
+    
+    return {
+        "status": status,
+        "completion": completion,
+        "routes": routes,
+        "total": total,
+        "time_s": route_time,
+    }
+
+
+def run_exp_24b_keyboard_matrix():
+    """
+    EXP-24B: Keyboard Matrix Routing Only
+    
+    Route only the key switch matrix nets (names starting with /k).
+    These are the row/column connections between switch footprints.
+    
+    Expected metrics:
+    - Completion: 100%
+    - These are short local routes
+    """
+    print("\n" + "=" * 60)
+    print("EXP-24B: Keyboard Matrix Only")
+    print("=" * 60)
+    
+    if not check_piantor_available():
+        return {"status": "SKIP", "reason": "Piantor not cloned"}
+    
+    result = parse_kicad_pcb(PIANTOR_RIGHT)
+    
+    # Filter to keyboard matrix nets (start with /k)
+    matrix_nets = [n for n in result.netlist.nets if n.name.startswith("/k")]
+    print(f"Matrix nets: {len(matrix_nets)} (out of {len(result.netlist.nets)} total)")
+    
+    # Print sample
+    for n in matrix_nets[:5]:
+        print(f"  {n.name}: {len(n.pins)} pins")
+    
+    # Create filtered netlist
+    from temper_placer.core.netlist import Netlist
+    filtered_netlist = Netlist(
+        components=result.netlist.components,
+        nets=matrix_nets,
+    )
+    
+    state = BoardState(board=result.board, netlist=filtered_netlist)
+    pipeline = DeterministicPipeline(stages=[
+        ClearanceGridStage(cell_size_mm=0.5, layer_count=2),
+        NetOrderingStage(),
+        SequentialRoutingStage(),
+    ])
+    
+    start = time.time()
+    final_state = pipeline.run(state)
+    route_time = time.time() - start
+    
+    routes = len(final_state.routes)
+    total = len(matrix_nets)
+    completion = (routes / total * 100) if total > 0 else 0
+    
+    print(f"Routes: {routes}/{total} ({completion:.1f}%)")
+    print(f"Route time: {route_time:.1f}s")
+    
+    status = "PASS" if completion >= 90 else "FAIL"
+    print(f"Status: {status}")
+    
+    return {
+        "status": status,
+        "completion": completion,
+        "routes": routes,
+        "total": total,
+        "time_s": route_time,
+    }
+
+
+def run_exp_24c_power_rails():
+    """
+    EXP-24C: Power Rail Routing (GND, VCC)
+    
+    Route only the power/ground nets.
+    These are high-fanout nets that stress the star-point algorithm.
+    
+    Expected metrics:
+    - GND has ~60 pins - challenging without copper pour
+    - VCC typically has fewer pins
+    """
+    print("\n" + "=" * 60)
+    print("EXP-24C: Power Rails (GND, VCC)")
+    print("=" * 60)
+    
+    if not check_piantor_available():
+        return {"status": "SKIP", "reason": "Piantor not cloned"}
+    
+    result = parse_kicad_pcb(PIANTOR_RIGHT)
+    
+    # Filter to power nets
+    power_nets = [n for n in result.netlist.nets if n.name in ("GND", "VCC", "+5V", "+3V3", "RAW")]
+    print(f"Power nets: {len(power_nets)}")
+    
+    for n in power_nets:
+        print(f"  {n.name}: {len(n.pins)} pins")
+    
+    if not power_nets:
+        print("No power nets found")
+        return {"status": "SKIP", "reason": "No power nets"}
+    
+    from temper_placer.core.netlist import Netlist
+    filtered_netlist = Netlist(
+        components=result.netlist.components,
+        nets=power_nets,
+    )
+    
+    state = BoardState(board=result.board, netlist=filtered_netlist)
+    pipeline = DeterministicPipeline(stages=[
+        ClearanceGridStage(cell_size_mm=0.5, layer_count=2),
+        NetOrderingStage(),
+        SequentialRoutingStage(),
+    ])
+    
+    start = time.time()
+    final_state = pipeline.run(state)
+    route_time = time.time() - start
+    
+    routes = len(final_state.routes)
+    total = len(power_nets)
+    completion = (routes / total * 100) if total > 0 else 0
+    
+    print(f"Routes: {routes}/{total} ({completion:.1f}%)")
+    print(f"Route time: {route_time:.1f}s")
+    
+    # Power rails are hard without copper pour - 50% is acceptable
+    status = "PASS" if completion >= 50 else "FAIL"
+    print(f"Status: {status} (50% threshold for power nets)")
+    
+    return {
+        "status": status,
+        "completion": completion,
+        "routes": routes,
+        "total": total,
+        "time_s": route_time,
+    }
+
+
+def main():
+    """Run all EXP-24 experiments."""
+    print("\n" + "#" * 60)
+    print("# EXP-24: PIANTOR KEYBOARD BENCHMARK SERIES")
+    print("#" * 60)
+    
+    results = {}
+    results["24A_full_board"] = run_exp_24a_full_board()
+    results["24B_keyboard_matrix"] = run_exp_24b_keyboard_matrix()
+    results["24C_power_rails"] = run_exp_24c_power_rails()
+    
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    for name, r in results.items():
+        print(f"  {name}: {r['status']}")
+        if r['status'] != "SKIP":
+            print(f"    Completion: {r.get('completion', 'N/A'):.1f}%")
+    
+    return results
+
+
+if __name__ == "__main__":
+    main()
