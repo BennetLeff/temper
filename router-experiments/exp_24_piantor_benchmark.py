@@ -176,6 +176,17 @@ def run_exp_24a_full_board():
         print(f"Adding {len(segments)} segments and {len(vias)} vias...")
         add_segments_to_board(board, segments)
         add_vias_to_board(board, vias)
+    
+        # DEBUG: Save without zones to test loadability
+        board.to_file("piantor_debug_no_zones.kicad_pcb")
+
+        # Add GND planes (Top and Bottom)
+        # This is a temporary hack until the router can handle zones directly
+        # For now, we assume GND is handled by zones.
+        # power_plane_stage = PowerPlaneStage(net_name="GND", layer="F.Cu")
+        # board = power_plane_stage.add_plane_to_board(board)
+        # power_plane_stage = PowerPlaneStage(net_name="GND", layer="B.Cu")
+        # board = power_plane_stage.add_plane_to_board(board)
         
         board.to_file(str(export_path))
         print(f"Saved to {export_path}")
@@ -511,6 +522,8 @@ def run_exp_24f_production_quality():
         board = KiBoard.from_file(str(PIANTOR_RIGHT))
         
         # Add Traces
+        board.traceItems = [] # Clear existing manual routes
+        board.zones = [] # Clear existing zones
         segments = []
         for t in final_state.routes:
             segments.append(TraceSegment(
@@ -531,7 +544,6 @@ def run_exp_24f_production_quality():
             ))
         add_segments_to_board(board, segments)
         add_vias_to_board(board, vias)
-        
         # Add Zones (GND)
         outline = get_board_outline(board)
         # Top Layer

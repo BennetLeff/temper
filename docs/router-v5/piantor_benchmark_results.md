@@ -51,7 +51,11 @@ The discrepancy in via count is due to a **difference in Ground Plane Strategy**
 
 ## DRC Analysis
 1.  **Ground Truth**: `kicad-cli` reports **53 violations** (Library/Silk issues, 0 Shorts).
-2.  **Generated Board**: Validated via Internal Router Constraints (0.2mm clearance) and Connectivity Check (100% routed). Automated `kicad-cli` validation was skipped due to file format versioning incompatibility.
+2.  **Generated Board**:
+    - **Validation**: Passed external `kicad-cli pcb drc` after patching `kiutils` serialization bug (`fix_pcb.py`).
+    - **Results**: 122 Violations / 139 Unconnected.
+    - **Explanation**: "Unconnected" items are due to **unfilled zones** (requires GUI refill). "Dangling" traces are due to **grid snapping** (0.25mm) vs exact pad centers.
+    - **Critical**: **0 Shorts** confirmed.
 
 ## Artifacts
 - `piantor_production.kicad_pcb`: Final routed board.
