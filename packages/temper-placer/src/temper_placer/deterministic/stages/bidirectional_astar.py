@@ -51,7 +51,7 @@ class BidirectionalAStar:
     via_diameter: float = 0.6
     via_drill: float = 0.3
     allowed_layers: List[int] = field(default_factory=lambda: [0, 1, 2, 3])
-    max_iterations: int = 10000
+    max_iterations: int = 200000  # Increased for Experiment B (was 10000)
     
     def __post_init__(self):
         self._net_id = self.grid.get_net_id(self.net_name) if self.net_name else 0

@@ -1606,7 +1606,7 @@ class SequentialRoutingStage(Stage):
                         via_diameter=0.6,
                         via_drill=0.3,
                         allowed_layers=allowed_layers,
-                        max_iterations=10000,  # Combined limit for both frontiers
+                        max_iterations=200000,  # Experiment B: Increased from 10000
                     )
                     
                     print(f"  Using bidirectional A* for {net_name} ({distance_cells} cells)")
