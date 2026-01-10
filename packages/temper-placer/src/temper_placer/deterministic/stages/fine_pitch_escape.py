@@ -186,6 +186,100 @@ class FinePitchEscapeStage(Stage):
                 f"  No fine-pitch components detected (threshold: {self.pin_pitch_threshold_mm}mm)"
             )
 
+        # ========== PHASE 5: ESCAPE VALIDATION ==========
+        # Validate that ALL fine-pitch component pins have escape vias.
+        # Auto-generate any missing escapes.
+
+        if fine_pitch_refs:
+            missing_escapes = []
+            current_via_positions = set(
+                (round(v.position[0], 3), round(v.position[1], 3)) for v in vias
+            )
+
+            for component in state.netlist.components:
+                if component.ref not in fine_pitch_refs:
+                    continue
+
+                comp_pos = placements.get(component.ref, component.initial_position)
+                if comp_pos is None:
+                    continue
+
+                for pin in component.pins:
+                    if not pin.net:
+                        continue  # Skip NC pins
+
+                    # Calculate absolute pin position
+                    pin_x = comp_pos[0] + pin.position[0]
+                    pin_y = comp_pos[1] + pin.position[1]
+
+                    # Check if escape via exists within tolerance
+                    pos_key = (round(pin_x, 3), round(pin_y, 3))
+                    if pos_key not in current_via_positions:
+                        missing_escapes.append({
+                            "ref": component.ref,
+                            "pin": pin.name,
+                            "net": pin.net,
+                            "pos": (pin_x, pin_y),
+                        })
+
+            if missing_escapes:
+                print(f"\n  [EscapeValidation] Found {len(missing_escapes)} fine-pitch pins missing escape vias")
+
+                # Group by net for clearer output
+                by_net = {}
+                for m in missing_escapes:
+                    net = m["net"]
+                    if net not in by_net:
+                        by_net[net] = []
+                    by_net[net].append(m)
+
+                for net, pins_list in sorted(by_net.items(), key=lambda x: -len(x[1]))[:10]:
+                    pin_list = ", ".join(f"{p['ref']}.{p['pin']}" for p in pins_list[:3])
+                    if len(pins_list) > 3:
+                        pin_list += f" (+{len(pins_list) - 3} more)"
+                    print(f"    {net}: {pin_list}")
+
+                # Auto-generate missing escapes
+                print(f"\n  [EscapeValidation] Auto-generating {len(missing_escapes)} missing escape vias...")
+
+                generated_count = 0
+                for m in missing_escapes:
+                    pin_pos = m["pos"]
+                    net_name = m["net"]
+
+                    # Skip if position already has a via (shouldn't happen but safety check)
+                    pos_key = (round(pin_pos[0], 3), round(pin_pos[1], 3))
+                    if pos_key in current_via_positions:
+                        continue
+
+                    # Determine escape layer
+                    escape_layer_num, escape_layer_name = self._get_escape_layer_for_net(net_name)
+
+                    via = Via(
+                        position=pin_pos,
+                        drill=self.via_drill_mm,
+                        width=self.via_diameter_mm,
+                        layers=("F.Cu", escape_layer_name),
+                        net=net_name,
+                    )
+                    vias.append(via)
+                    current_via_positions.add(pos_key)
+                    generated_count += 1
+
+                    if escape_layer_num == 1:
+                        layer1_vias += 1
+                    elif escape_layer_num == 2:
+                        layer2_vias += 1
+                    elif escape_layer_num == 3:
+                        layer3_vias += 1
+
+                print(f"    Added {generated_count} escape vias")
+                print(
+                    f"  Updated totals: {layer1_vias} to In1.Cu, {layer2_vias} to In2.Cu, {layer3_vias} to B.Cu"
+                )
+
+        # ========== END PHASE 5 ==========
+
         return replace(state, vias=vias)
 
     def _calculate_min_pin_pitch(self, component):

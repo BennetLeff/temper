@@ -593,6 +593,9 @@ def find_path(
     config: dict,
     start_layer: int = 0,
     end_layer: int = -1,
+    drc_oracle: Optional["DRCOracle"] = None,
+    net_name: Optional[str] = None,
+    via_diameter: float = 0.6,
 ) -> Optional[MultiLayerPath]:
     """Convenience function for calling MultiLayerAStar.find_path().
 
@@ -606,6 +609,9 @@ def find_path(
         config: Configuration dict (not used in Python impl, but kept for API compat)
         start_layer: Starting layer index
         end_layer: Ending layer index (-1 for any layer)
+        drc_oracle: Optional DRCOracle for via placement validation
+        net_name: Name of the net being routed
+        via_diameter: Via diameter in mm
 
     Returns:
         MultiLayerPath or None if no path found
@@ -613,6 +619,8 @@ def find_path(
     # Create A* instance with default params (can be extended based on config)
     astar = MultiLayerAStar(
         grid=grid,
-        net_name=f"net_{net_id}",  # Simple name for now
+        drc_oracle=drc_oracle,
+        net_name=net_name or f"net_{net_id}",
+        via_diameter=via_diameter,
     )
     return astar.find_path(start_pos, end_pos, start_layer, end_layer)

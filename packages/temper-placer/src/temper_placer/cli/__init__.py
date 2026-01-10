@@ -3859,14 +3859,24 @@ def place_deterministic(
         console.print(f"  [dim]Loading constraints from {config}...[/]")
         constraints = load_constraints(config)
         design_rules = constraints_to_design_rules(constraints)
-        
-        # 2. Create pipeline
+
+        # 2. Extract KiCad metadata for DRC oracle
+        from temper_placer.io.kicad_metadata import extract_kicad_metadata
+        console.print(f"  [dim]Extracting KiCad metadata...[/]")
+        metadata = extract_kicad_metadata(input_pcb)
+
+        # 3. Create pipeline
         if drc_aware:
-            pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints)
+            pipeline = create_drc_aware_pipeline(
+                design_rules=design_rules,
+                config=constraints,
+                metadata=metadata,
+                zone_aware=True,
+            )
         else:
             pipeline = create_legacy_pipeline()
-            
-        # 3. Parse PCB
+
+        # 4. Parse PCB
         console.print(f"  [dim]Parsing PCB {input_pcb}...[/]")
         parse_result = parse_kicad_pcb(input_pcb)
         initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)

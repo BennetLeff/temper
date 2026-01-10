@@ -1,31 +1,20 @@
-"""Direct test of MVP-3 deterministic pipeline on Temper board.
+"""Direct test of deterministic pipeline on Temper board.
 
-This script bypasses the CLI and directly calls the MVP-3 pipeline stages
-to test zone-based placement and routing on the full 25-net Temper board.
+This script uses the production create_drc_aware_pipeline which includes
+PowerPlaneStage for proper ground/power plane routing.
 """
 
 from pathlib import Path
-from temper_placer.deterministic import DeterministicPipeline, BoardState
-from temper_placer.deterministic.stages import (
-    ZoneGeometryStage,
-    ZoneAssignmentStage,
-    SlotGenerationStage,
-    ComponentAssignmentStage,
-    ApplyPlacementsStage,
-    ClearanceGridStage,
-    NetOrderingStage,
-    SequentialRoutingStage,
-    LayerAssignmentStage,
-)
-from temper_placer.core.board import Board
+from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.config_loader import load_constraints
-from temper_placer.core.design_rules import DesignRules, NetClassRules
 
 # Load Temper board
 print("Loading Temper PCB...")
 pcb_path = Path("../../pcb/temper.kicad_pcb")
-netlist, board_info = parse_kicad_pcb(pcb_path)
+result = parse_kicad_pcb(pcb_path)
+netlist = result.netlist
+board_info = result.board
 
 print(f"Loaded {len(netlist.nets)} nets, {len(netlist.components)} components")
 for net in sorted([n.name for n in netlist.nets])[:10]:
@@ -39,45 +28,34 @@ constraints = load_constraints(config_path)
 print(f"Zones defined: {[z.name for z in constraints.zones]}")
 print(f"Net classes: {set(constraints.net_classes.values())}")
 
-# Create Board object
-board = Board(
-    width=constraints.board_width_mm,
-    height=constraints.board_height_mm,
-    zones=constraints.zones
+# Create metadata dict for DRC oracle from ParseResult
+from dataclasses import dataclass
+
+@dataclass
+class Metadata:
+    courtyards: dict
+    pad_sizes: dict
+    board_width: float
+    board_height: float
+
+metadata = Metadata(
+    courtyards=result.courtyards if hasattr(result, 'courtyards') else {},
+    pad_sizes=result.pad_sizes if hasattr(result, 'pad_sizes') else {},
+    board_width=board_info.width,
+    board_height=board_info.height,
 )
 
-# Create design rules
-design_rules = DesignRules()
-design_rules.net_classes = {}
-for name, rule in constraints.net_class_rules.items():
-    design_rules.net_classes[name] = NetClassRules(
-        name=name,
-        trace_width=rule.trace_width_mm,
-        clearance=rule.clearance_mm,
-        via_diameter=rule.via_size_mm,
-        via_drill=rule.via_drill_mm
-    )
-
-print(f"\nDesign rules loaded: {list(design_rules.net_classes.keys())}")
-
 # Create initial state
-initial_state = BoardState(board=board, netlist=netlist)
+initial_state = BoardState(board=board_info, netlist=netlist)
 
-# Build pipeline
-print("\nBuilding MVP-3 pipeline (4-layer routing)...")
-pipeline = DeterministicPipeline(stages=[
-    # Phase 1-4: MVP-3 Placement
-    ZoneGeometryStage(),
-    ZoneAssignmentStage(),
-    SlotGenerationStage(slot_spacing_mm=5.0),
-    ComponentAssignmentStage(),
-    ApplyPlacementsStage(),
-    # Phase 5: MVP-2 Routing (4-layer)
-    ClearanceGridStage(cell_size_mm=0.5, layer_count=4),
-    LayerAssignmentStage(),
-    NetOrderingStage(),
-    SequentialRoutingStage(design_rules=design_rules),
-])
+# Build production pipeline with PowerPlaneStage
+print("\nBuilding production DRC-aware pipeline (includes PowerPlaneStage)...")
+pipeline = create_drc_aware_pipeline(
+    config=constraints,
+    metadata=metadata,
+    zone_aware=True,
+    parsed_pads=result.pads,  # Use exact KiCad positions
+)
 
 # Run pipeline
 print("\nRunning pipeline...")

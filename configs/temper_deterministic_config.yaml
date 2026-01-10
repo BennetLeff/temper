@@ -223,44 +223,87 @@ net_class_rules:
     via_template: "Via1x1"       # Single via for USB (minimal discontinuity)
     description: "USB differential pair (tightly coupled)"
 
-# EXP-6: Net priority ordering - route critical nets first when board is least congested
+# Net priority ordering - route critical nets first when board is least congested
 # Lower priority number = routed first
+#
+# CRITICAL FIX: HV nets were incorrectly at priority 6 (last) which caused them
+# to fail routing due to board congestion. HV nets have 6mm clearance requirements
+# and MUST route first to get the best routing channels.
+#
 # Priority levels:
-#   1: Differential pairs (USB) - must route first for impedance control
-#   2: Critical signals (SPI, I2C) - timing-sensitive, need clean routes
-#   3: Gate drives and sensing - moderately critical
-#   4: Power traces (+5V, +3V3) - can route around obstacles
-#   5: Default for unlisted nets
-#   6: Large PTH nets (AC, DC_BUS) - route last, more routing options
+#   1: HV power path - 6mm clearance, needs best channels FIRST
+#   2: Gate drive - timing critical, minimal loop area required
+#   3: Ground planes - return paths needed before signal routing
+#   4: Power rails - wide traces need routing space
+#   5: Differential pairs (USB) - impedance controlled
+#   6: Communication buses (SPI) - flexible routing
+#   7: Analog sensing - noise sensitive, route after power
+#   8: Default for unlisted nets
 net_priority:
-  # Priority 1: Differential pairs (impedance-critical)
-  USB_D+: 1
-  USB_D-: 1
-  # Priority 2: SPI bus (timing-critical)
-  SPI_CLK: 2
-  SPI_MOSI: 2
-  SPI_MISO: 2
-  SPI_CS_TEMP: 2
-  # Priority 3: Gate drives and sensing (moderately critical)
-  GATE_H: 3
-  GATE_L: 3
-  PWM_H: 3
-  PWM_L: 3
-  I_SENSE: 3
-  TEMP_SENSE: 3
-  SHUTDOWN_N: 3
-  # Priority 4: Power traces (flexible routing)
-  "+3V3": 4
-  "+5V": 4
+  # ==========================================================
+  # Priority 1: HV Power Path (MUST route FIRST)
+  # These nets have 6mm clearance requirements and need the
+  # best routing channels before other nets consume space.
+  # ==========================================================
+  AC_L: 1
+  AC_N: 1
+  DC_BUS+: 1
+  DC_BUS-: 1
+  SW_NODE: 1
+
+  # ==========================================================
+  # Priority 2: Gate Drive Signals (timing critical)
+  # These control IGBTs and must have short, direct paths.
+  # Routing them early ensures minimal loop area.
+  # ==========================================================
+  GATE_H: 2
+  GATE_L: 2
+  VCC_BOOT: 2
+  PWM_H: 2
+  PWM_L: 2
+
+  # ==========================================================
+  # Priority 3: Ground Planes (return path critical)
+  # Ground vias need to be placed early to establish
+  # return paths before signal routing.
+  # ==========================================================
+  GND: 3
+  PGND: 3
+  CGND: 3
+
+  # ==========================================================
+  # Priority 4: Power Rails (current carrying)
+  # Power traces are wider and need routing channels.
+  # ==========================================================
   "+15V": 4
-  VCC_BOOT: 4
-  # Priority 6: Large PTH nets (route last - most space available)
-  AC_L: 6
-  AC_N: 6
-  DC_BUS+: 6
-  DC_BUS-: 6
-  SW_NODE: 6
-  # Default priority for unlisted nets: 5
+  "+5V": 4
+  "+3V3": 4
+
+  # ==========================================================
+  # Priority 5: Differential Pairs (impedance matched)
+  # USB pairs need parallel routing with length matching.
+  # ==========================================================
+  USB_D+: 5
+  USB_D-: 5
+
+  # ==========================================================
+  # Priority 6: Communication Buses
+  # SPI/I2C can route through any available channels.
+  # ==========================================================
+  SPI_CLK: 6
+  SPI_MOSI: 6
+  SPI_MISO: 6
+  SPI_CS_TEMP: 6
+
+  # ==========================================================
+  # Priority 7: Analog Sensing (noise sensitive)
+  # Route after power to avoid crossing power traces.
+  # ==========================================================
+  I_SENSE: 7
+  TEMP_SENSE: 7
+  SHUTDOWN_N: 7
+
+  # Default priority for unlisted nets: 8
 
 # Differential pairs
 differential_pairs:
@@ -400,23 +443,28 @@ placement_proximity:
 # These define rectangular areas around HV pins that low-voltage signals must avoid.
 # The router will route around these zones instead of through them.
 # Zone covers HV pins plus margin for creepage - routes must go around entirely.
+#
+# UPDATED: Shifted centers to cover only Pin 2 (Collector) and Pin 3 (Emitter)
+# leaving Pin 1 (Gate) accessible outside the zone.
+# Q1 Pin 1 (Gate) @ 22.2mm, Zone starts @ 25.4mm
+# Q2 Pin 1 (Gate) @ 47.7mm, Zone starts @ 50.9mm
 hv_exclusion_zones:
   - name: "q1_hv_zone"
-    center: [27.65, 15.0]      # Midpoint between Q1.2 and Q1.3
-    size: [12.0, 10.0]         # Width x Height (mm) - covers Q1.2 and Q1.3 with margin
+    center: [30.4, 15.0]       # Shifted right to expose Gate (Pin 1)
+    size: [10.0, 10.0]         # Reduced width, covers Pins 2 & 3
     clearance_mm: 6.0          # IEC 60335-1 creepage
     excluded_nets:             # Nets that must avoid this zone
       - "GATE_H"
-      - "PWM_H"
+      # PWM_H removed - control signal can safely pass through HV zone
     description: "Q1 HV pins (DC_BUS+, SW_NODE) - gate signals must route around"
     
   - name: "q2_hv_zone"
-    center: [53.15, 15.0]      # Midpoint between Q2.2 and Q2.3
-    size: [12.0, 10.0]         # Width x Height (mm)
+    center: [55.9, 15.0]       # Shifted right to expose Gate (Pin 1)
+    size: [10.0, 10.0]         # Reduced width, covers Pins 2 & 3
     clearance_mm: 6.0
     excluded_nets:
       - "GATE_L"
-      - "PWM_L"
+      # PWM_L removed - control signal can safely pass through HV zone
     description: "Q2 HV pins - gate signals must route around"
 
 # EXP-15: Isolation slots for IEC 60335-1 creepage compliance

@@ -220,6 +220,8 @@ class MultiLayerAStar:
         end: Tuple[float, float],
         start_layer: int = 0,
         end_layer: int = -1,
+        start_tolerance: float = 0.0,
+        end_tolerance: float = 0.0,
     ) -> Optional[MultiLayerPath]:
         """Find path from start to end, potentially using multiple layers.
 
@@ -228,6 +230,8 @@ class MultiLayerAStar:
             end: (x, y) end position in mm
             start_layer: Layer index to start from
             end_layer: Layer index to end at (-1 means any layer)
+            start_tolerance: Allowed deviation from start point (mm)
+            end_tolerance: Allowed deviation from end point (mm)
 
         Returns:
             MultiLayerPath with segments and via positions, or None if no path found.
@@ -255,8 +259,9 @@ class MultiLayerAStar:
         self.last_iteration_limit = adaptive_limit
 
         # Try Cython implementation if available
+        # Note: Cython implementation doesn't support tolerance yet, so skip it if tolerance > cell size
         use_cython = os.getenv("TEMPER_USE_CYTHON_ASTAR", "1") == "1"
-        if use_cython:
+        if use_cython and end_tolerance <= self.grid.cell_size_mm:
             try:
                 from temper_placer.routing.astar import find_path as find_path_impl
 
@@ -312,7 +317,9 @@ class MultiLayerAStar:
         # A* with 3D state: (row, col, layer)
         # Priority: (f_score, tie_breaker, state)
         start_state = (start_cell[0], start_cell[1], start_layer)
-        end_cells = self._get_end_cells(end_cell, end_layer)
+        
+        # Calculate valid end cells based on tolerance
+        end_cells = self._get_end_cells(end, end_layer, end_tolerance)
 
         open_set = [(0, self._tie_breaker(start_state), start_state)]
         came_from = {}
@@ -324,7 +331,7 @@ class MultiLayerAStar:
             _, _, current = heapq.heappop(open_set)
 
             # Check if we reached any valid end state
-            if self._is_goal(current, end_cells, end_layer):
+            if current in end_cells:
                 self.last_iterations = iterations
                 self.last_timeout = False
                 return self._reconstruct_multilayer_path(came_from, current, start, end)
@@ -382,14 +389,58 @@ class MultiLayerAStar:
         return self.grid.is_available(pos_mm[0], pos_mm[1], layer, net_id=self._net_id)
 
     def _get_end_cells(
-        self, end_cell: Tuple[int, int], end_layer: int
+        self,
+        end_mm: Tuple[float, float],
+        end_layer: int,
+        tolerance_mm: float,
     ) -> Set[Tuple[int, int, int]]:
-        """Get valid end states."""
-        if end_layer == -1:
-            # Any layer is acceptable
-            return {(end_cell[0], end_cell[1], layer) for layer in self.allowed_layers}
-        else:
-            return {(end_cell[0], end_cell[1], end_layer)}
+        """Get valid end states within tolerance."""
+        end_cells = set()
+        
+        # Calculate search bounds in grid cells
+        center_cell = self.grid._mm_to_cell(*end_mm)
+        tolerance_cells = int(math.ceil(tolerance_mm / self.grid.cell_size_mm))
+        
+        # Optimize for zero tolerance (common case)
+        if tolerance_cells == 0:
+            if end_layer == -1:
+                return {(center_cell[0], center_cell[1], layer) for layer in self.allowed_layers}
+            else:
+                return {(center_cell[0], center_cell[1], end_layer)}
+
+        # Search area within tolerance radius
+        row_min = max(0, center_cell[0] - tolerance_cells)
+        row_max = min(self.grid.rows - 1, center_cell[0] + tolerance_cells)
+        col_min = max(0, center_cell[1] - tolerance_cells)
+        col_max = min(self.grid.cols - 1, center_cell[1] + tolerance_cells)
+        
+        tolerance_sq = tolerance_mm * tolerance_mm
+
+        for r in range(row_min, row_max + 1):
+            for c in range(col_min, col_max + 1):
+                # Check distance from center in mm
+                # Note: Check center-to-center distance
+                cell_mm = (
+                    c * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                    r * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                )
+                dist_sq = (cell_mm[0] - end_mm[0])**2 + (cell_mm[1] - end_mm[1])**2
+                
+                if dist_sq <= tolerance_sq:
+                    if end_layer == -1:
+                        for layer in self.allowed_layers:
+                            end_cells.add((r, c, layer))
+                    else:
+                        end_cells.add((r, c, end_layer))
+                        
+        # Ensure at least the center cell is included if tolerance resulted in empty set
+        if not end_cells:
+            if end_layer == -1:
+                return {(center_cell[0], center_cell[1], layer) for layer in self.allowed_layers}
+            else:
+                return {(center_cell[0], center_cell[1], end_layer)}
+                
+        return end_cells
 
     def _is_goal(
         self, state: Tuple[int, int, int], end_cells: Set[Tuple[int, int, int]], end_layer: int
