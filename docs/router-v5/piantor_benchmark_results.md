@@ -49,6 +49,10 @@ The discrepancy in via count is due to a **difference in Ground Plane Strategy**
 
 **Conclusion**: The 25 vias are **necessary and optimal** for the chosen Deep Stackup strategy. Only 7 vias were used for actual signal crossovers, demonstrating high routing efficiency.
 
+## DRC Analysis
+1.  **Ground Truth**: `kicad-cli` reports **53 violations** (Library/Silk issues, 0 Shorts).
+2.  **Generated Board**: Validated via Internal Router Constraints (0.2mm clearance) and Connectivity Check (100% routed). Automated `kicad-cli` validation was skipped due to file format versioning incompatibility.
+
 ## Artifacts
 - `piantor_production.kicad_pcb`: Final routed board.
 - `analyze_piantor_diff.py`: Script used for quantitative comparison.
