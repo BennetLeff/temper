@@ -35,13 +35,13 @@ TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
         "+3V3",  # Via stitching to In2.Cu power island
         "+5V",   # Via stitching to In2.Cu power island
         # High current -> F.Cu pours (still plane-connected, not trace-routed)
-        "DC_BUS+",
-        "DC_BUS-",
-        "SW_NODE",
-        # ACMains -> F.Cu copper pours (6mm clearance, polygon pour required)
-        "AC_L",
-        "AC_N",
-        "PE",
+        # MOVED TO TRACE ROUTING:
+        # "DC_BUS+",
+        # "DC_BUS-",
+        # "SW_NODE",
+        # "AC_L",
+        # "AC_N",
+        # "PE",
     }
 )
 
@@ -58,14 +58,14 @@ TEMPER_PLANE_LAYERS: Dict[str, int] = {
     # EXP-8: +3V3 and +5V via stitching to power planes
     "+3V3": 2,  # Via stitch to In2.Cu power island
     "+5V": 2,   # Via stitch to In2.Cu power island
-    # HV nets stay on F.Cu for copper pours (but still plane-connected)
-    "DC_BUS+": 0,
-    "DC_BUS-": 0,
-    "SW_NODE": 0,
-    # ACMains stay on F.Cu (mains voltage, 6mm clearance copper pours)
-    "AC_L": 0,
-    "AC_N": 0,
-    "PE": 0,
+    
+    # HV nets routed as traces (HighVoltage class)
+    # "DC_BUS+": 0,
+    # "DC_BUS-": 0,
+    # "SW_NODE": 0,
+    # "AC_L": 0,
+    # "AC_N": 0,
+    # "PE": 0,
 }
 
 
