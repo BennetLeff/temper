@@ -139,6 +139,110 @@ def run_exp_24a_full_board():
     }
 
 
+def run_exp_A_reversed_order():
+    """
+    EXPERIMENT A: Reverse Net Order
+    
+    Scientific Method Test:
+    - Hypothesis: Routing /k00 first (instead of last) will allow it to succeed
+    - Control: Standard NetOrderingStage puts /k00 at position #32
+    - Treatment: Reverse the order so /k00 routes first
+    
+    Expected outcome: /k00 routes successfully, total routed nets increases from 28 to 29+
+    """
+    print("\n" + "=" * 60)
+    print("EXPERIMENT A: Reversed Net Order")
+    print("=" * 60)
+    
+    if not check_piantor_available():
+        return {"status": "SKIP", "reason": "Piantor not cloned"}
+    
+    from dataclasses import replace as dc_replace
+    
+    result = parse_kicad_pcb(PIANTOR_RIGHT)
+    
+    # Detect zone nets
+    zone_nets = set()
+    for z in result.board.zones:
+        for net_name in z.net_classes:
+            if net_name and net_name != "Signal":
+                zone_nets.add(net_name)
+    
+    # Filter trace nets
+    trace_nets = [n for n in result.netlist.nets if n.name not in zone_nets]
+    
+    from temper_placer.core.netlist import Netlist
+    filtered_netlist = Netlist(
+        components=result.netlist.components,
+        nets=trace_nets,
+    )
+    
+    state = BoardState(board=result.board, netlist=filtered_netlist)
+    
+    # Phase 1: Build grid and assign layers
+    grid_stage = ClearanceGridStage(cell_size_mm=0.25, layer_count=2)
+    layer_stage = LayerAssignmentStage()
+    net_stage = NetOrderingStage()
+    
+    state = grid_stage.run(state)
+    state = layer_stage.run(state)
+    state = net_stage.run(state)
+    
+    # TREATMENT: Reverse the net order
+    original_order = list(state.net_order)
+    reversed_order = tuple(reversed(original_order))
+    
+    print(f"Original first 5: {original_order[:5]}")
+    print(f"Reversed first 5: {list(reversed_order[:5])}")
+    print(f"Original /k00 position: {original_order.index('/k00') if '/k00' in original_order else 'N/A'}")
+    print(f"Reversed /k00 position: {list(reversed_order).index('/k00') if '/k00' in reversed_order else 'N/A'}")
+    
+    state = dc_replace(state, net_order=reversed_order)
+    
+    # Phase 2: Route with reversed order
+    routing_stage = SequentialRoutingStage()
+    
+    start = time.time()
+    final_state = routing_stage.run(state)
+    route_time = time.time() - start
+    
+    # Count results
+    try:
+        routed_nets = len([r for r in final_state.routes.values() if r])
+    except AttributeError:
+        # routes might be a frozenset
+        routed_nets = len(final_state.routes) if final_state.routes else 0
+    
+    trace_total = len(trace_nets)
+    zone_total = len(zone_nets)
+    total_routed = routed_nets + zone_total
+    grand_total = len(result.netlist.nets)
+    completion = (total_routed / grand_total * 100) if grand_total > 0 else 0
+    
+    print(f"\nRESULTS:")
+    print(f"Trace routes: {routed_nets}/{trace_total}")
+    print(f"Zone nets: {zone_total}")
+    print(f"Total: {total_routed}/{grand_total} ({completion:.1f}%)")
+    print(f"Time: {route_time:.1f}s")
+    
+    # Compare to baseline
+    baseline_routed = 28  # From previous experiments
+    delta = routed_nets - baseline_routed
+    print(f"\nDelta vs baseline: {'+' if delta >= 0 else ''}{delta} nets")
+    
+    status = "PASS" if routed_nets > baseline_routed else "INCONCLUSIVE" if routed_nets == baseline_routed else "FAIL"
+    print(f"Status: {status}")
+    
+    return {
+        "status": status,
+        "completion": completion,
+        "trace_routes": routed_nets,
+        "baseline": baseline_routed,
+        "delta": delta,
+        "time_s": route_time,
+    }
+
+
 def run_exp_24b_keyboard_matrix():
     """
     EXP-24B: Keyboard Matrix Routing Only
