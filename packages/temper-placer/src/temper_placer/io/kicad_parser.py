@@ -8,6 +8,7 @@ the internal Netlist representation used by temper-placer.
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -719,3 +720,63 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
 
     # Ultimate fallback - should rarely happen
     return (2.0, 2.0)
+
+
+def extract_footprint_positions(content: str) -> dict[str, dict]:
+    """
+    Extract component positions from raw KiCad PCB content without kiutils.
+    
+    This is a lightweight parser for extracting footprint positions from
+    raw KiCad PCB file content (S-expression format). Useful for:
+    - Benchmarking against snippet test cases
+    - Quick position extraction without full file parsing
+    
+    Args:
+        content: Raw KiCad PCB file content as string.
+        
+    Returns:
+        Dict mapping component reference to position info:
+        {
+            "U1": {"x": 50.5, "y": 75.25, "rotation": 90.0},
+            "R1": {"x": 10.0, "y": 20.0, "rotation": 0.0},
+        }
+    """
+    positions = {}
+    
+    # Two-pass approach: first find footprint block boundaries, then extract fields
+    # Pass 1: Find all footprint block start positions
+    footprint_starts = []
+    for match in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', content):
+        footprint_starts.append(match.start())
+    
+    # Pass 2: For each footprint block, extract position and reference
+    for i, start in enumerate(footprint_starts):
+        # Determine end of this footprint block (start of next, or end of content)
+        end = footprint_starts[i + 1] if i + 1 < len(footprint_starts) else len(content)
+        block = content[start:end]
+        
+        # Extract (at X Y [ANGLE]) - first occurrence in this block
+        at_match = re.search(r'\(at\s+([\d.-]+)\s+([\d.-]+)(?:\s+([\d.-]+))?\)', block)
+        if not at_match:
+            continue
+            
+        x = float(at_match.group(1))
+        y = float(at_match.group(2))
+        rotation = float(at_match.group(3)) if at_match.group(3) else 0.0
+        
+        # Extract (property "Reference" "REF" ...) - reference designator
+        ref_match = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', block)
+        if not ref_match:
+            continue
+            
+        ref = ref_match.group(1)
+        
+        positions[ref] = {
+            "x": x,
+            "y": y,
+            "rotation": rotation,
+        }
+    
+    return positions
+
+
