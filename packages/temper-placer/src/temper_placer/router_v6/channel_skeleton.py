@@ -158,13 +158,19 @@ def _extract_medial_axis_single(
     # Create points along the boundary for Voronoi
     # Sample points every ~1mm
     points = []
-    if hasattr(boundary, 'coords'):
-        coords = list(boundary.coords)
-    elif hasattr(boundary, 'geoms'):
-        # MultiLineString boundary
+    
+    # Check for multi-part geometry first (hasattr(coords) returns True but raises error)
+    if hasattr(boundary, 'geoms'):
+        # MultiLineString boundary (polygon with holes)
         coords = []
         for line in boundary.geoms:
             coords.extend(list(line.coords))
+    elif hasattr(boundary, 'coords'):
+        # Simple LineString boundary
+        try:
+            coords = list(boundary.coords)
+        except NotImplementedError:
+            return []
     else:
         return []
 

@@ -212,9 +212,8 @@ class RouterV6Pipeline:
         channel_widths = {}
         for layer_name, skeleton in skeletons.items():
             widths = compute_channel_widths(
-                skeleton,
                 routing_spaces[layer_name],
-                pcb.design_rules.default_clearance_mm,
+                skeleton,
             )
             channel_widths[layer_name] = widths
 
@@ -223,16 +222,16 @@ class RouterV6Pipeline:
             print("  2.5: Building occupancy grid...")
         occupancy_grids = {}
         for layer_name, routing_space in routing_spaces.items():
-            grid = build_occupancy_grid(routing_space, obstacle_maps[layer_name])
+            grid = build_occupancy_grid(routing_space)
             occupancy_grids[layer_name] = grid
 
         # 2.6: Calculate per-layer capacity
         if self.verbose:
             print("  2.6: Calculating layer capacity...")
         layer_capacities = {}
-        for layer_name, skeleton in skeletons.items():
+        for layer_name in occupancy_grids.keys():
             capacity = calculate_layer_capacity(
-                skeleton,
+                occupancy_grids[layer_name],
                 channel_widths[layer_name],
                 pcb.design_rules.default_trace_width_mm,
                 pcb.design_rules.default_clearance_mm,
@@ -284,7 +283,8 @@ class RouterV6Pipeline:
         # 3.7: Build SAT model
         if self.verbose:
             print("  3.7: Building SAT model...")
-        sat_model = build_sat_model(constraint_model)
+        sat_model = build_sat_model()  # Creates empty model
+        # TODO: Populate SAT model from constraint_model
 
         # 3.8: Solve topology
         if self.verbose:
