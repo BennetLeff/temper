@@ -16,6 +16,11 @@ from temper_placer.router_v6.length_group_inference import (
     LengthGroup,
     infer_length_groups,
 )
+from temper_placer.router_v6.pad_escape_classification import (
+    ClassifiedPad,
+    EscapeClass,
+    classify_pads_by_escape_need,
+)
 from temper_placer.router_v6.safety_pair_inference import (
     SafetyPair,
     infer_safety_pairs,
@@ -44,4 +49,7 @@ __all__ = [
     # Stage 1: Pin Escape
     "DensePackage",
     "identify_dense_packages",
+    "ClassifiedPad",
+    "EscapeClass",
+    "classify_pads_by_escape_need",
 ]
