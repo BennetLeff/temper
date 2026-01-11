@@ -73,17 +73,20 @@ def solve_topology(
         )
 
     # Smarter heuristic: Start with all False, then satisfy connectivity clauses
-    # by setting one variable from each clause to True
+    # Use round-robin to spread nets across channels (avoids capacity violations)
     assignment = {var.name: False for var in model.variables}
     
-    # For each connectivity clause, set the first positive literal to True
-    for clause in model.clauses:
+    # For each connectivity clause, try to set one variable to True
+    # Use round-robin to avoid all nets using the same channel
+    for clause_idx, clause in enumerate(model.clauses):
         if "Connectivity" in clause.description:
-            # This is a connectivity clause - at least one literal must be True
-            for var, is_positive in clause.literals:
-                if is_positive:
-                    assignment[var.name] = True
-                    break  # Only need one to satisfy the clause
+            # Find positive literals
+            positive_literals = [(var, is_pos) for var, is_pos in clause.literals if is_pos]
+            if positive_literals:
+                # Use round-robin: pick different literal for each net
+                idx = clause_idx % len(positive_literals)
+                var, _ = positive_literals[idx]
+                assignment[var.name] = True
     
     # Check if assignment satisfies all clauses
     if _check_assignment(model, assignment):
@@ -92,6 +95,25 @@ def solve_topology(
             assignment=assignment,
             solver_time_ms=1.0,
         )
+    
+    # If that didn't work, try with different round-robin offsets  
+    for offset in range(1, 4):
+        assignment = {var.name: False for var in model.variables}
+        for clause_idx, clause in enumerate(model.clauses):
+            if "Connectivity" in clause.description:
+                positive_literals = [(var, is_pos) for var, is_pos in clause.literals if is_pos]
+                if positive_literals:
+                    idx = (clause_idx + offset) % len(positive_literals)
+                    var, _ = positive_literals[idx]
+                    assignment[var.name] = True
+        
+        if _check_assignment(model, assignment):
+            return TopologicalSolution(
+                status=SolverStatus.SATISFIABLE,
+                assignment=assignment,
+                solver_time_ms=1.0 + offset * 0.5,
+            )
+    
     
     # Try all True as fallback
     assignment = {var.name: True for var in model.variables}
