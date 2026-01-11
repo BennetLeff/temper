@@ -94,7 +94,7 @@ class DesignRules:
         if class_name and class_name in self.net_classes:
             return self.net_classes[class_name]
 
-        #  Fallback: default rules
+        #  Fallback: create default rules from defaults
         return NetClassRules(
             name="Default",
             clearance_mm=self.default_clearance_mm,
