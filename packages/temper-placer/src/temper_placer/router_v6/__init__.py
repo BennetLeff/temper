@@ -12,6 +12,10 @@ from temper_placer.router_v6.diff_pair_inference import (
     DiffPair,
     infer_differential_pairs,
 )
+from temper_placer.router_v6.escape_via_generator import (
+    EscapeVia,
+    generate_escape_vias,
+)
 from temper_placer.router_v6.length_group_inference import (
     LengthGroup,
     infer_length_groups,
@@ -44,4 +48,6 @@ __all__ = [
     # Stage 1: Pin Escape
     "DensePackage",
     "identify_dense_packages",
+    "EscapeVia",
+    "generate_escape_vias",
 ]
