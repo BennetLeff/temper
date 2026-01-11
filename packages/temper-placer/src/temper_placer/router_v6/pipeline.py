@@ -284,7 +284,14 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  3.7: Building SAT model...")
         sat_model = build_sat_model()  # Creates empty model
-        # TODO: Populate SAT model from constraint_model
+        
+        # Populate SAT model from constraint model
+        from temper_placer.router_v6.sat_model import populate_sat_from_constraints
+        net_names = [net.name for net in pcb.nets]
+        populate_sat_from_constraints(sat_model, constraint_model, net_names)
+        
+        if self.verbose:
+            print(f"    SAT model: {sat_model.variable_count} vars, {sat_model.clause_count} clauses")
 
         # 3.8: Solve topology
         if self.verbose:

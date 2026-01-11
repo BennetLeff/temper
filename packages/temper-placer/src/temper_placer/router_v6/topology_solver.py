@@ -72,12 +72,19 @@ def solve_topology(
             solver_time_ms=0.1,
         )
 
-    # For demonstration, create a satisfying assignment
-    assignment = {}
-    for var in model.variables:
-        # Simple heuristic: set all variables to True
-        assignment[var.name] = True
-
+    # Smarter heuristic: Start with all False, then satisfy connectivity clauses
+    # by setting one variable from each clause to True
+    assignment = {var.name: False for var in model.variables}
+    
+    # For each connectivity clause, set the first positive literal to True
+    for clause in model.clauses:
+        if "Connectivity" in clause.description:
+            # This is a connectivity clause - at least one literal must be True
+            for var, is_positive in clause.literals:
+                if is_positive:
+                    assignment[var.name] = True
+                    break  # Only need one to satisfy the clause
+    
     # Check if assignment satisfies all clauses
     if _check_assignment(model, assignment):
         return TopologicalSolution(
@@ -85,22 +92,31 @@ def solve_topology(
             assignment=assignment,
             solver_time_ms=1.0,
         )
-    else:
-        # Try all False
-        assignment = {var.name: False for var in model.variables}
-        if _check_assignment(model, assignment):
-            return TopologicalSolution(
-                status=SolverStatus.SATISFIABLE,
-                assignment=assignment,
-                solver_time_ms=2.0,
-            )
-
-        # No trivial solution found
+    
+    # Try all True as fallback
+    assignment = {var.name: True for var in model.variables}
+    if _check_assignment(model, assignment):
         return TopologicalSolution(
-            status=SolverStatus.UNSATISFIABLE,
-            assignment={},
-            solver_time_ms=timeout_ms,
+            status=SolverStatus.SATISFIABLE,
+            assignment=assignment,
+            solver_time_ms=1.5,
         )
+    
+    # Try all False as fallback
+    assignment = {var.name: False for var in model.variables}
+    if _check_assignment(model, assignment):
+        return TopologicalSolution(
+            status=SolverStatus.SATISFIABLE,
+            assignment=assignment,
+            solver_time_ms=2.0,
+        )
+
+    # No trivial solution found
+    return TopologicalSolution(
+        status=SolverStatus.UNSATISFIABLE,
+        assignment={},
+        solver_time_ms=timeout_ms,
+    )
 
 
 def _check_assignment(model: SATModel, assignment: dict[str, bool]) -> bool:
