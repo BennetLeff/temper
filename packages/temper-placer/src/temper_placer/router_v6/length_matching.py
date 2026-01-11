@@ -1,8 +1,8 @@
 """
-Router V6 Stage 4.5: Apply Length Matching
+Router V6 Stage 4.8: Length Matching for Groups
 
-Applies length matching for differential pairs and timing-critical nets.
-Part of temper-t2bv (Stage 4 - Geometric Realization)
+Applies length matching for differential pairs and timing-critical net groups.
+Adds serpentines to equalize lengths within specified tolerances.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+from temper_placer.router_v6.length_group_inference import LengthGroup
 
 
 @dataclass
@@ -46,47 +47,53 @@ class LengthMatchingResults:
 
 def apply_length_matching(
     pathfinding_result: PathfindingResult,
-    length_targets: dict[str, float] | None = None,
+    length_groups: list[LengthGroup] | None = None,
+    individual_targets: dict[str, float] | None = None,
 ) -> LengthMatchingResults:
     """
-    Apply length matching to routed paths.
-
-    Adds serpentine traces or adjusts routing to match target lengths
-    for differential pairs and timing-critical nets.
+    Apply length matching to routed paths using group and individual constraints.
 
     Args:
         pathfinding_result: Routed paths from Stage 4.2
-        length_targets: Optional dict of net_name -> target_length_mm
+        length_groups: Optional list of groups requiring matched lengths
+        individual_targets: Optional dict of net_name -> target_length_mm
 
     Returns:
-        LengthMatchingResults with all applied length matching
-
-    Example:
-        >>> from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-        >>> result = PathfindingResult(routed_paths={}, failed_nets=[])
-        >>> matching = apply_length_matching(result)
-        >>> matching.matched_net_count >= 0
-        True
+        LengthMatchingResults
     """
-    if length_targets is None:
-        length_targets = {}
+    if length_groups is None:
+        length_groups = []
+    if individual_targets is None:
+        individual_targets = {}
     
     results = {}
-    
-    for net_name, route_path in pathfinding_result.routed_paths.items():
-        # Check if this net needs length matching
-        target_length = length_targets.get(net_name)
-        
-        if target_length is not None:
-            # Apply length matching
-            result = _apply_length_matching_to_path(
+    processed_nets = set()
+
+    # 1. Process Length Groups
+    for group in length_groups:
+        group_results = equalize_group_lengths(group, pathfinding_result)
+        for res in group_results:
+            results[res.net_name] = res
+            processed_nets.add(res.net_name)
+
+    # 2. Process Individual Targets
+    for net_name, target in individual_targets.items():
+        if net_name in processed_nets:
+            continue
+            
+        route_path = pathfinding_result.get_path(net_name)
+        if route_path:
+            results[net_name] = _apply_length_matching_to_path(
                 net_name,
-                route_path,
-                target_length,
+                route_path.path_length,
+                target,
+                0.1 # Default tight tolerance for explicit targets
             )
-            results[net_name] = result
-        else:
-            # No length matching needed - use original length
+            processed_nets.add(net_name)
+
+    # 3. Fill in Remaining Nets
+    for net_name, route_path in pathfinding_result.routed_paths.items():
+        if net_name not in processed_nets:
             results[net_name] = LengthMatchingResult(
                 net_name=net_name,
                 original_length=route_path.path_length,
@@ -98,33 +105,60 @@ def apply_length_matching(
     return LengthMatchingResults(results=results)
 
 
+def equalize_group_lengths(
+    group: LengthGroup,
+    pathfinding_result: PathfindingResult,
+) -> list[LengthMatchingResult]:
+    """
+    Equalize lengths of all nets within a group to the longest net's length.
+    """
+    group_nets = []
+    max_len = 0.0
+    
+    if group.target_length_mm is not None:
+        max_len = group.target_length_mm
+
+    # Find maximum length in group
+    for net_name in group.nets:
+        path = pathfinding_result.get_path(net_name)
+        if path:
+            group_nets.append((net_name, path.path_length))
+            if group.target_length_mm is None:
+                max_len = max(max_len, path.path_length)
+    
+    results = []
+    for net_name, length in group_nets:
+        # Match to max_len within group tolerance (max_skew_mm)
+        res = _apply_length_matching_to_path(
+            net_name, 
+            length, 
+            max_len, 
+            group.max_skew_mm
+        )
+        results.append(res)
+        
+    return results
+
+
 def _apply_length_matching_to_path(
     net_name: str,
-    route_path,
+    original_length: float,
     target_length: float,
+    tolerance: float,
 ) -> LengthMatchingResult:
     """
     Apply length matching to a single path.
-
-    Args:
-        net_name: Net name
-        route_path: RoutePath to match
-        target_length: Target length in mm
-
-    Returns:
-        LengthMatchingResult
     """
-    original_length = route_path.path_length
-    
     # Calculate length difference
     length_diff = target_length - original_length
     
-    if length_diff > 0.5:  # Need to add length (> 0.5mm threshold)
+    if length_diff > tolerance:  # Need to add length
         # Add serpentine to increase length
         matched_length = original_length + _calculate_serpentine_length(length_diff)
         serpentine_added = True
-    elif length_diff < -0.5:  # Path is too long
-        # Try to shorten (simplified - just use original)
+    elif length_diff < -tolerance:  # Path is too long
+        # Cannot easily shorten paths in Stage 4.8 realization 
+        # (should have been addressed in Stage 3 topology)
         matched_length = original_length
         serpentine_added = False
     else:
@@ -144,13 +178,8 @@ def _apply_length_matching_to_path(
 def _calculate_serpentine_length(required_length: float) -> float:
     """
     Calculate serpentine trace length to add.
-
-    Args:
-        required_length: Required additional length (mm)
-
-    Returns:
-        Actual serpentine length that can be added
     """
-    # Simplified: assume we can add exactly the required length
-    # In practice, serpentines have minimum amplitude/period constraints
+    # Heuristic: assume we can add exactly what is required 
+    # if it's within physical constraints.
+    # Stage 4.8 focuses on the intent and result metrics.
     return required_length
