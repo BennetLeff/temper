@@ -8,6 +8,7 @@ from temper_placer.router_v6.constraint_model import (
     CapacityConstraint,
     Constraint,
     ConstraintModel,
+    DiffPairConstraint,
     ModelBuilder,
     NetChannelVar,
     NetLayerVar,
@@ -86,4 +87,5 @@ __all__ = [
     "ViaVar",
     "Constraint",
     "CapacityConstraint",
+    "DiffPairConstraint",
 ]

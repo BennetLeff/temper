@@ -13,6 +13,7 @@ from typing import Any
 from temper_placer.core.netlist import Net
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
+from temper_placer.router_v6.diff_pair_inference import DiffPair
 from temper_placer.router_v6.stage0_data import DesignRules
 
 
@@ -87,10 +88,23 @@ class CapacityConstraint(Constraint):
     terms: list[tuple[NetChannelVar, float]]  # (variable, coefficient/width)
 
 
+@dataclass(kw_only=True)
+class DiffPairConstraint(Constraint):
+    """
+    Constraint: uses[p_net, channel] == uses[n_net, channel]
+    Ensures both nets of a differential pair follow the same path.
+    """
+    channel_id: str
+    p_net_idx: int
+    n_net_idx: int
+    p_var: NetChannelVar
+    n_var: NetChannelVar
+
+
 @dataclass
 class ConstraintModel:
     """
-    SAT/SMT Constraint Model for Topological Routing.
+    SAT/SMT Constraint Model for Topological Routing. 
     
     Holds all variables and constraints (in abstract form).
     """
@@ -122,17 +136,22 @@ class ModelBuilder:
     """Builder for generating the constraint model from skeletons and nets."""
     
     def __init__(
-        self, 
-        skeletons: dict[str, ChannelSkeleton], 
+        self,
+        skeletons: dict[str, ChannelSkeleton],
         nets: list[Net],
         channel_widths: dict[str, ChannelWidths] | None = None,
-        design_rules: DesignRules | None = None
+        design_rules: DesignRules | None = None,
+        diff_pairs: list[DiffPair] | None = None
     ):
         self.skeletons = skeletons
         self.nets = nets
         self.channel_widths = channel_widths or {}
         self.design_rules = design_rules
+        self.diff_pairs = diff_pairs or []
         self.model = ConstraintModel()
+        
+        # Build net name to index mapping for fast lookup
+        self.net_to_idx = {net.name: i for i, net in enumerate(self.nets)}
         
     def build(self) -> ConstraintModel:
         """
@@ -141,6 +160,7 @@ class ModelBuilder:
         self._create_channel_vars()
         self._create_via_vars()
         self._create_capacity_constraints()
+        self._create_diff_pair_constraints()
         return self.model
         
     def _create_channel_vars(self):
@@ -238,3 +258,36 @@ class ModelBuilder:
                         terms=terms
                     )
                     self.model.add_constraint(constraint)
+
+    def _create_diff_pair_constraints(self):
+        """
+        Create constraints for differential pairs.
+        uses[p_net, c] == uses[n_net, c]
+        """
+        for pair in self.diff_pairs:
+            if pair.p_net not in self.net_to_idx or pair.n_net not in self.net_to_idx:
+                continue
+                
+            p_idx = self.net_to_idx[pair.p_net]
+            n_idx = self.net_to_idx[pair.n_net]
+            
+            for layer_name, skeleton in self.skeletons.items():
+                for i, (u, v) in enumerate(skeleton.graph.edges):
+                    n1, n2 = sorted([u, v])
+                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                    
+                    if (p_idx, edge_id) in self.model.net_channel_vars and \
+                       (n_idx, edge_id) in self.model.net_channel_vars:
+                        
+                        p_var = self.model.net_channel_vars[(p_idx, edge_id)]
+                        n_var = self.model.net_channel_vars[(n_idx, edge_id)]
+                        
+                        constraint = DiffPairConstraint(
+                            name=f"diff_{pair.base_name}_{edge_id}",
+                            channel_id=edge_id,
+                            p_net_idx=p_idx,
+                            n_net_idx=n_idx,
+                            p_var=p_var,
+                            n_var=n_var
+                        )
+                        self.model.add_constraint(constraint)
