@@ -24,6 +24,16 @@ class DiffPair:
         if self.p_net == self.n_net:
             raise ValueError(f"Differential pair nets must be different: {self.p_net}")
 
+    @property
+    def positive_net(self) -> str:
+        """Alias for p_net for API compatibility."""
+        return self.p_net
+
+    @property
+    def negative_net(self) -> str:
+        """Alias for n_net for API compatibility."""
+        return self.n_net
+
 
 def infer_differential_pairs(net_names: list[str]) -> list[DiffPair]:
     """

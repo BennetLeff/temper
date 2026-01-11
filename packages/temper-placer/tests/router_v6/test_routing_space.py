@@ -69,6 +69,8 @@ def _create_test_pcb() -> ParsedPCB:
         design_rules=None,
         stackup=stackup,
         zones=[],
+        board=None,
+        source_path=None,
     )
     pcb.board_geometry = MockBoardGeometry()
 
@@ -162,6 +164,8 @@ def test_routing_space_empty_board():
         design_rules=None,
         stackup=stackup,
         zones=[],
+        board=None,
+        source_path=None,
     )
 
     class MockBoardGeometry:
