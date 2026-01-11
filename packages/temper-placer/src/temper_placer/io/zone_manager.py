@@ -11,7 +11,7 @@ from typing import Sequence
 import math
 
 from kiutils.board import Board as KiBoard
-from kiutils.items.zones import Zone, ZonePolygon
+from kiutils.items.zones import Zone, ZonePolygon, FillSettings
 from kiutils.items.common import Position
 
 
@@ -24,8 +24,8 @@ class PlaneConfig:
     priority: int = 0  # Higher priority zones fill first
     min_thickness: float = 0.25  # Minimum copper width in mm
     clearance: float = 0.3  # Clearance to other nets in mm
-    thermal_gap: float = 0.3  # Thermal relief gap in mm
-    thermal_bridge_width: float = 0.25  # Thermal spoke width in mm
+    thermal_gap: float = 0.5  # Thermal relief gap in mm
+    thermal_bridge_width: float = 0.5  # Thermal spoke width in mm
 
 
 @dataclass
@@ -128,15 +128,18 @@ def create_zone(
     zone.layers = [config.layer]
     zone.name = f"{config.net_name}_plane"
     zone.priority = config.priority
-    # zone.connectPads is handled by clearance or fill, "thermal_reliefs" is invalid syntax
+    
+    # Use thermal reliefs for spoke patterns (prevents cold solder joints)
+    zone.connectPads = "thermal_reliefs"
     zone.clearance = config.clearance
     zone.minThickness = config.min_thickness
 
-    # Configure thermal reliefs via ZoneFill
-    # zone.fill = ZoneFill(
-    #     thermalGap=config.thermal_gap,
-    #     thermalBridgeWidth=config.thermal_bridge_width
-    # )
+    # Configure thermal reliefs via FillSettings
+    zone.fillSettings = FillSettings(
+        yes=True,
+        thermalGap=config.thermal_gap,
+        thermalBridgeWidth=config.thermal_bridge_width
+    )
 
     zone.polygons = [zone_polygon]  # Use ZonePolygon wrapper!
 
@@ -183,6 +186,8 @@ def add_power_planes(
             net_name=primary_gnd,
             priority=0,
             clearance=0.3,
+            thermal_gap=0.5,
+            thermal_bridge_width=0.5,
         )
         zone = create_zone(board, config, outline)
         board.zones.append(zone)
@@ -208,6 +213,8 @@ def add_power_planes(
             net_name=primary_vcc,
             priority=0,
             clearance=0.3,
+            thermal_gap=0.5,
+            thermal_bridge_width=0.5,
         )
         zone = create_zone(board, config, outline)
         board.zones.append(zone)

@@ -166,9 +166,10 @@ def generate_mvb_level_3(output_path: Path):
 "
     zone = """
   (zone (net 3) (net_name "HV") (layer "F.Cu") (tstamp 00000000-0000-0000-0000-000000000033) (hatch edge 0.5)
-    (connect_pads (clearance 3.0))
-    (min_thickness 0.254) (filled_areas_thickness no)
-    (fill (thermal_gap 0.5) (thermal_bridge_width 0.5))
+    (connect_pads thermal_reliefs (clearance 3.0))
+    (min_thickness 0.25)
+    (filled_areas_thickness no)
+    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))
     (polygon
       (pts
         (xy 5 0) (xy 10 0) (xy 10 10) (xy 5 10)
@@ -214,9 +215,10 @@ def generate_mvb_level_4(output_path: Path):
     
     zone = """
   (zone (net 20) (net_name "N20") (layer "B.Cu") (tstamp 00000000-0000-0000-0000-00000000004X) (hatch edge 0.5)
-    (connect_pads (clearance 0.5))
-    (min_thickness 0.254) (filled_areas_thickness no)
-    (fill (thermal_gap 0.5) (thermal_bridge_width 0.5))
+    (connect_pads thermal_reliefs (clearance 0.5))
+    (min_thickness 0.25)
+    (filled_areas_thickness no)
+    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))
     (polygon
       (pts
         (xy 5 5) (xy 15 5) (xy 15 15) (xy 5 15)

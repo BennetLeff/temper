@@ -40,7 +40,7 @@ def create_rect_zone(net_id, net_name, layer, x1, y1, x2, y2, priority=0):
     tstamp = generate_tstamp()
     return f'''  (zone (net {net_id}) (net_name "{net_name}") (layer "{layer}") (tstamp {tstamp}) (hatch edge 0.5)
     (priority {priority})
-    (connect_pads (clearance 0.3))
+    (connect_pads thermal_reliefs (clearance 0.3))
     (min_thickness 0.25)
     (filled_areas_thickness no)
     (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))
