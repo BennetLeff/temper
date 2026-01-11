@@ -28,12 +28,24 @@ class LayerInfo:
 
 
 @dataclass
+class DielectricInfo:
+    """PCB dielectric layer definition."""
+
+    name: str  # e.g. "dielectric 1"
+    material: str  # "FR4", etc.
+    thickness_mm: float
+    epsilon_r: float  # Dielectric constant
+    loss_tangent: float = 0.0
+
+
+@dataclass
 class StackupInfo:
     """PCB layer stackup definition."""
 
     layers: list[LayerInfo]
     total_thickness_mm: float
     layer_count: int
+    dielectrics: list[DielectricInfo] = field(default_factory=list)
 
     @property
     def signal_layers(self) -> list[int]:

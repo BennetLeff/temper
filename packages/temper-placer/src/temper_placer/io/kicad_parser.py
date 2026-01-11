@@ -1078,76 +1078,196 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
     Returns:
         StackupInfo with layer definitions.
     """
-    from temper_placer.router_v6.stage0_data import LayerInfo, StackupInfo
+    from temper_placer.router_v6.stage0_data import (
+        DielectricInfo,
+        LayerInfo,
+        StackupInfo,
+    )
 
     layers = []
+    parsed_dielectrics = []
 
-    # Determine layer count from board
-    layer_count = 2  # Default to 2-layer
-    if hasattr(ki_board, "layers") and ki_board.layers:
-        # Count copper layers
-        copper_layers = [l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")]
-        layer_count = len(copper_layers)
-
-    # Standard layer names for 2/4/6-layer boards
-    if layer_count == 2:
-        layer_names = ["F.Cu", "B.Cu"]
-    elif layer_count == 4:
-        layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
-    elif layer_count == 6:
-        layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
-    else:
-        warnings.append(f"Unusual layer count: {layer_count}. Using generic naming.")
-        layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
-
-    # Assign plane nets from zones
+    # Helper to find plane assignments from zones (common for both methods)
     plane_assignments = {}
     if hasattr(ki_board, "zones"):
         for zone in ki_board.zones:
             if hasattr(zone, "layers") and zone.layers and hasattr(zone, "netName") and zone.netName:
                 # Check if zone covers most of the layer (indicates plane)
                 for layer in zone.layers:
-                    if ".Cu" in layer and "GND" in zone.netName or "VCC" in zone.netName or "+" in zone.netName:
-                        # Heuristic: GND/power nets on inner layers are planes
-                        if layer in ["In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu"]:
-                            plane_assignments[layer] = zone.netName
+                    # Simple heuristic: if net is GND/VCC/Power, it's likely a plane
+                    is_power = (
+                        "GND" in zone.netName
+                        or "VCC" in zone.netName
+                        or "+" in zone.netName
+                        or "PWR" in zone.netName
+                    )
+                    if is_power and ".Cu" in layer:
+                        plane_assignments[layer] = zone.netName
 
-    # Create layer info
-    for i, name in enumerate(layer_names):
-        # Determine layer type
-        if name in plane_assignments:
-            layer_type = "plane"
-            plane_net = plane_assignments[name]
-        elif i == 0 or i == layer_count - 1:
-            layer_type = "signal"  # Outer layers are signal
-            plane_net = None
-        else:
-            # Inner layers: default to mixed (can be signal or plane)
-            layer_type = "mixed"
-            plane_net = None
+    # Try to extract from board setup stackup first
+    setup_stackup = None
+    if (
+        hasattr(ki_board, "setup")
+        and hasattr(ki_board.setup, "stackup")
+        and ki_board.setup.stackup
+    ):
+        setup_stackup = ki_board.setup.stackup
 
-        # Standard copper thickness: 35µm (1oz)
-        thickness_um = 35.0
-        if i == 0 or i == layer_count - 1:
-            # Outer layers sometimes thicker
-            thickness_um = 35.0
+    if setup_stackup and hasattr(setup_stackup, "layers") and setup_stackup.layers:
+        # ---------------------------------------------------------------------
+        # Method 1: Use KiCad Stackup Table
+        # ---------------------------------------------------------------------
 
-        layers.append(
-            LayerInfo(
-                index=i,
-                name=name,
-                layer_type=layer_type,
-                thickness_um=thickness_um,
-                plane_net=plane_net,
+        # Calculate total thickness (sum of all layers + mask)
+        total_thickness = 0.0
+
+        # Extract copper layers and dielectrics
+        copper_layers = []
+        raw_dielectrics = []
+
+        for l in setup_stackup.layers:
+            # Add to total thickness if available
+            if hasattr(l, "thickness") and l.thickness is not None:
+                total_thickness += l.thickness
+
+            if l.type == "copper":
+                copper_layers.append(l)
+            elif l.type in ["core", "prepreg", "dielectric"] or "dielectric" in l.type:
+                raw_dielectrics.append(l)
+
+        layer_count = len(copper_layers)
+
+        # Process Copper Layers
+        for i, l in enumerate(copper_layers):
+            name = l.name
+
+            # Determine layer type
+            if name in plane_assignments:
+                layer_type = "plane"
+                plane_net = plane_assignments[name]
+            elif i == 0 or i == layer_count - 1:
+                layer_type = "signal"
+                plane_net = None
+            else:
+                # Inner layers without plane assignment -> mixed
+                layer_type = "mixed"
+                plane_net = None
+
+            # Thickness in um (convert from mm)
+            thickness_um = (
+                (l.thickness * 1000.0)
+                if (hasattr(l, "thickness") and l.thickness)
+                else 35.0
             )
-        )
 
-    # Total thickness: 1.6mm standard, 0.8mm for 2-layer, 1.6mm for 4+ layer
-    total_thickness = 1.6 if layer_count >= 4 else 0.8
+            layers.append(
+                LayerInfo(
+                    index=i,
+                    name=name,
+                    layer_type=layer_type,
+                    thickness_um=thickness_um,
+                    plane_net=plane_net,
+                )
+            )
+
+        # Process Dielectric Layers
+        for d in raw_dielectrics:
+            # kiutils StackupLayer uses camelCase for epsilonR and lossTangent
+            # but we should check both just in case
+            epsilon_r = getattr(d, "epsilonR", None)
+            if epsilon_r is None:
+                epsilon_r = getattr(d, "epsilon_r", 4.5)
+            
+            loss_tangent = getattr(d, "lossTangent", None)
+            if loss_tangent is None:
+                loss_tangent = getattr(d, "loss_tangent", 0.02)
+
+            parsed_dielectrics.append(
+                DielectricInfo(
+                    name=d.name,
+                    material=getattr(d, "material", "FR4") or "FR4",
+                    thickness_mm=d.thickness if hasattr(d, "thickness") and d.thickness else 0.0,
+                    epsilon_r=epsilon_r or 4.5,
+                    loss_tangent=loss_tangent or 0.02,
+                )
+            )
+
+    else:
+        # ---------------------------------------------------------------------
+        # Method 2: Heuristic / Legacy Fallback
+        # ---------------------------------------------------------------------
+
+        # Determine layer count from board
+        layer_count = 2  # Default to 2-layer
+        if hasattr(ki_board, "layers") and ki_board.layers:
+            # Count copper layers
+            copper_layers = [
+                l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")
+            ]
+            layer_count = len(copper_layers)
+
+        # Standard layer names for 2/4/6-layer boards
+        if layer_count == 2:
+            layer_names = ["F.Cu", "B.Cu"]
+        elif layer_count == 4:
+            layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+        elif layer_count == 6:
+            layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
+        else:
+            warnings.append(
+                f"Unusual layer count: {layer_count}. Using generic naming."
+            )
+            layer_names = (
+                ["F.Cu"]
+                + [f"In{i}.Cu" for i in range(1, layer_count - 1)]
+                + ["B.Cu"]
+            )
+
+        # Create layer info
+        for i, name in enumerate(layer_names):
+            # Determine layer type
+            if name in plane_assignments:
+                layer_type = "plane"
+                plane_net = plane_assignments[name]
+            elif i == 0 or i == layer_count - 1:
+                layer_type = "signal"  # Outer layers are signal
+                plane_net = None
+            else:
+                # Inner layers: default to mixed (can be signal or plane)
+                layer_type = "mixed"
+                plane_net = None
+
+            # Standard copper thickness: 35µm (1oz)
+            thickness_um = 35.0
+            if i == 0 or i == layer_count - 1:
+                # Outer layers sometimes thicker
+                thickness_um = 35.0
+
+            layers.append(
+                LayerInfo(
+                    index=i,
+                    name=name,
+                    layer_type=layer_type,
+                    thickness_um=thickness_um,
+                    plane_net=plane_net,
+                )
+            )
+
+        # Total thickness: 1.6mm standard, 0.8mm for 2-layer, 1.6mm for 4+ layer
+        total_thickness = 1.6 if layer_count >= 4 else 0.8
+
+        # Check if general.thickness is set (override heuristic)
+        if (
+            hasattr(ki_board, "general")
+            and hasattr(ki_board.general, "thickness")
+            and ki_board.general.thickness
+        ):
+            total_thickness = ki_board.general.thickness
 
     return StackupInfo(
         layers=layers,
         total_thickness_mm=total_thickness,
         layer_count=layer_count,
+        dielectrics=parsed_dielectrics,
     )
 
