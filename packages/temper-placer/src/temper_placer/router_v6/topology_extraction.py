@@ -29,12 +29,12 @@ class TopologyGraph:
     """Complete topological routing graph for the design."""
 
     net_topologies: dict[str, NetTopology]  # net_name -> NetTopology
-    
+
     @property
     def routed_net_count(self) -> int:
         """Number of nets with routing topology."""
         return len(self.net_topologies)
-    
+
     def get_topology(self, net_name: str) -> NetTopology | None:
         """Get topology for a specific net."""
         return self.net_topologies.get(net_name)
@@ -67,15 +67,15 @@ def extract_topology_solution(
     if not solution.is_satisfiable:
         # No solution available
         return TopologyGraph(net_topologies={})
-    
+
     net_topologies = {}
-    
+
     for net_name in net_names:
         # Extract topology for this net
         net_topology = _extract_net_topology(solution, net_name)
         if net_topology:
             net_topologies[net_name] = net_topology
-    
+
     return TopologyGraph(net_topologies=net_topologies)
 
 
@@ -96,13 +96,13 @@ def _extract_net_topology(
     # Create directed graph for this net's routing
     path_graph = nx.DiGraph()
     uses_channels = []
-    
+
     # Parse solution to find variables related to this net
     for var_name, value in solution.assignment.items():
         if not value:
             # Variable is False, skip
             continue
-        
+
         # Look for routing variables for this net
         # Format: "route_{net}_{source}_to_{sink}" or "uses_{net}_{channel}"
         if f"route_{net_name}_" in var_name or f"uses_{net_name}_" in var_name:
@@ -115,22 +115,22 @@ def _extract_net_topology(
                         to_idx = parts.index("to")
                         source = "_".join(parts[2:to_idx])
                         sink = "_".join(parts[to_idx+1:])
-                        
+
                         # Add edge to path graph
                         path_graph.add_edge(source, sink)
                     except (ValueError, IndexError):
                         pass
-            
+
             elif "uses_" in var_name:
                 # Extract channel ID
                 parts = var_name.split("_")
                 if len(parts) >= 3:
                     channel_id = "_".join(parts[2:])
                     uses_channels.append(channel_id)
-    
+
     # Estimate path length (simplified)
     total_length = len(path_graph.edges) * 10.0  # Assume 10mm per hop
-    
+
     if path_graph.number_of_nodes() > 0 or uses_channels:
         return NetTopology(
             net_name=net_name,
@@ -138,5 +138,5 @@ def _extract_net_topology(
             uses_channels=uses_channels,
             total_length_estimate=total_length,
         )
-    
+
     return None

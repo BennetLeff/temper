@@ -9,7 +9,6 @@ Per the plan, we need diverse boards across domains:
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
 
 
 @dataclass
@@ -56,7 +55,7 @@ TEMPER_PATH = Path("/Users/bennet/Desktop/temper/packages/temper-placer/temper_r
 
 
 # Test board definitions (using unrouted versions)
-TEST_BOARDS: List[TestBoard] = [
+TEST_BOARDS: list[TestBoard] = [
     TestBoard(
         name="Piantor_Right",
         path=PIANTOR_PATH,
@@ -100,7 +99,7 @@ TEST_BOARDS: List[TestBoard] = [
 ]
 
 
-def get_available_boards() -> List[TestBoard]:
+def get_available_boards() -> list[TestBoard]:
     """Get list of test boards that actually exist on disk.
 
     Returns:
@@ -109,7 +108,7 @@ def get_available_boards() -> List[TestBoard]:
     return [board for board in TEST_BOARDS if board.exists()]
 
 
-def get_board_by_name(name: str) -> Optional[TestBoard]:
+def get_board_by_name(name: str) -> TestBoard | None:
     """Look up a test board by name.
 
     Args:

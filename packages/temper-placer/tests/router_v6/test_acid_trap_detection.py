@@ -51,8 +51,10 @@ def test_detect_right_angle_no_trap():
 
 def test_detect_acute_angle_trap():
     """Test acute angle is detected as acid trap."""
-    # Create path with 45° angle
-    path = RoutePath("NET1", [(0, 0), (10, 0), (11, 1)], "F.Cu", 11.4)
+    # Create path with ~45° acute angle (hairpin turn)
+    # Path goes right then sharply back-left: (0,0) → (10,0) → (9,1)
+    # This creates a ~45° angle at (10,0), which is an acid trap
+    path = RoutePath("NET1", [(0, 0), (10, 0), (9, 1)], "F.Cu", 11.4)
     route = CompiledRoute("NET1", path, 0.127, [], None)
     results = RoutingResults(compiled_routes={"NET1": route}, failed_nets=[])
     

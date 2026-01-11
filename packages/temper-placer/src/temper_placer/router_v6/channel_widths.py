@@ -9,8 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from shapely.geometry import Point
-
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.routing_space import RoutingSpace
 
@@ -85,16 +83,16 @@ def compute_channel_widths(
     for u, v in skeleton.graph.edges():
         # Sample points along the edge
         widths_along_edge = []
-        
+
         # Add endpoint widths
         widths_along_edge.append(node_widths[u])
         widths_along_edge.append(node_widths[v])
-        
+
         # Sample intermediate points
         dx = v[0] - u[0]
         dy = v[1] - u[1]
         edge_length = (dx**2 + dy**2)**0.5
-        
+
         if edge_length > sample_distance:
             num_samples = int(edge_length / sample_distance)
             for i in range(1, num_samples):
@@ -103,13 +101,13 @@ def compute_channel_widths(
                 sample_y = u[1] + t * dy
                 width = _compute_width_at_point((sample_x, sample_y), available_area)
                 widths_along_edge.append(width)
-        
+
         # Edge width is the minimum along the edge (bottleneck)
         edge_widths[(u, v)] = min(widths_along_edge) if widths_along_edge else 0.0
 
     # Compute statistics
     all_widths = list(node_widths.values()) + list(edge_widths.values())
-    
+
     if all_widths:
         min_width = min(all_widths)
         max_width = max(all_widths)
@@ -143,7 +141,8 @@ def _compute_width_at_point(
     Returns:
         Width in mm
     """
-    from shapely.geometry import MultiPolygon, Point as ShapelyPoint, Polygon
+    from shapely.geometry import MultiPolygon, Polygon
+    from shapely.geometry import Point as ShapelyPoint
 
     pt = ShapelyPoint(point)
 
@@ -167,7 +166,7 @@ def _compute_width_at_point(
             # Distance to exterior boundary
             dist_to_exterior = pt.distance(polygon.exterior)
             min_distance = min(min_distance, dist_to_exterior)
-            
+
             # Distance to any interior holes
             for interior in polygon.interiors:
                 dist_to_hole = pt.distance(interior)
@@ -176,5 +175,5 @@ def _compute_width_at_point(
     # Width is 2x the clearance (distance on both sides)
     if min_distance == float('inf'):
         return 0.0
-    
+
     return 2.0 * min_distance

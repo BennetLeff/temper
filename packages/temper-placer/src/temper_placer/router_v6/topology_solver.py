@@ -28,12 +28,12 @@ class TopologicalSolution:
     status: SolverStatus
     assignment: dict[str, bool]  # Variable name -> value
     solver_time_ms: float  # Time taken to solve
-    
+
     @property
     def is_satisfiable(self) -> bool:
         """Check if solution is satisfiable."""
         return self.status == SolverStatus.SATISFIABLE
-    
+
     def get_value(self, variable_name: str) -> bool | None:
         """Get assigned value for a variable."""
         return self.assignment.get(variable_name)
@@ -71,13 +71,13 @@ def solve_topology(
             assignment={},
             solver_time_ms=0.1,
         )
-    
+
     # For demonstration, create a satisfying assignment
     assignment = {}
     for var in model.variables:
         # Simple heuristic: set all variables to True
         assignment[var.name] = True
-    
+
     # Check if assignment satisfies all clauses
     if _check_assignment(model, assignment):
         return TopologicalSolution(
@@ -94,7 +94,7 @@ def solve_topology(
                 assignment=assignment,
                 solver_time_ms=2.0,
             )
-        
+
         # No trivial solution found
         return TopologicalSolution(
             status=SolverStatus.UNSATISFIABLE,
@@ -124,8 +124,8 @@ def _check_assignment(model: SATModel, assignment: dict[str, bool]) -> bool:
             if literal_true:
                 clause_satisfied = True
                 break
-        
+
         if not clause_satisfied:
             return False
-    
+
     return True

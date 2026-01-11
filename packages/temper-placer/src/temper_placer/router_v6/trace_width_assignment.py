@@ -26,12 +26,12 @@ class TraceWidthAssignment:
     """Collection of trace width assignments."""
 
     assignments: dict[str, TraceWidth]  # net_name -> TraceWidth
-    
+
     @property
     def assignment_count(self) -> int:
         """Number of trace width assignments."""
         return len(self.assignments)
-    
+
     def get_width(self, net_name: str) -> float | None:
         """Get assigned width for a net."""
         assignment = self.assignments.get(net_name)
@@ -64,7 +64,7 @@ def assign_trace_widths(
         True
     """
     assignments = {}
-    
+
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Determine appropriate width for this net
         width = _determine_trace_width(
@@ -73,9 +73,9 @@ def assign_trace_widths(
             power_width,
             hv_width,
         )
-        
+
         assignments[net_name] = width
-    
+
     return TraceWidthAssignment(assignments=assignments)
 
 
@@ -98,7 +98,7 @@ def _determine_trace_width(
         TraceWidth assignment
     """
     name_upper = net_name.upper()
-    
+
     # High voltage nets (AC, HV)
     if any(kw in name_upper for kw in ['AC_', 'HV_', 'HIGH_VOLTAGE']):
         return TraceWidth(
@@ -106,7 +106,7 @@ def _determine_trace_width(
             width_mm=hv_width,
             reason="High voltage net requires wider trace",
         )
-    
+
     # Power nets (GND, VCC, etc.)
     if any(kw in name_upper for kw in ['GND', 'VCC', 'VDD', 'VSS', '+', 'POWER']):
         return TraceWidth(
@@ -114,7 +114,7 @@ def _determine_trace_width(
             width_mm=power_width,
             reason="Power net requires wider trace for current capacity",
         )
-    
+
     # Gate drive signals (medium current)
     if any(kw in name_upper for kw in ['GATE', 'DRIVE']):
         return TraceWidth(
@@ -122,7 +122,7 @@ def _determine_trace_width(
             width_mm=power_width * 0.6,  # 60% of power width
             reason="Gate drive signal requires medium-width trace",
         )
-    
+
     # Default signal nets
     return TraceWidth(
         net_name=net_name,

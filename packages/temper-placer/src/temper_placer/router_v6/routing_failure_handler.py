@@ -29,12 +29,12 @@ class RoutingFailureReport:
     """Consolidated report of routing failures."""
 
     flagged_nets: dict[str, FlaggedNet]
-    
+
     @property
     def failure_count(self) -> int:
         """Total number of failed nets."""
         return len(self.flagged_nets)
-    
+
     @property
     def failure_rate(self) -> float:
         """Percentage of nets that failed (if total is known)."""
@@ -56,12 +56,12 @@ def handle_routing_failures(
         RoutingFailureReport containing diagnostics for all failed nets.
     """
     flagged_nets = {}
-    
+
     for net_name in pathfinding_result.failed_nets:
         # Create diagnostic for this failure
         flagged = _diagnose_failure(net_name, occupancy_grid)
         flagged_nets[net_name] = flagged
-        
+
     return RoutingFailureReport(flagged_nets=flagged_nets)
 
 
@@ -74,9 +74,9 @@ def _diagnose_failure(
     """
     # In a real implementation, we would trace the A* search tree
     # to find where it got stuck (the bottleneck).
-    
+
     # Placeholder diagnostics
-    failure_point = (0.0, 0.0) 
+    failure_point = (0.0, 0.0)
     blocking_nets = []
     blocking_obstacles = []
     suggestions = [
@@ -84,7 +84,7 @@ def _diagnose_failure(
         "Move component to reduce congestion",
         "Try routing on a different layer"
     ]
-    
+
     return FlaggedNet(
         net_name=net_name,
         failure_point=failure_point,

@@ -19,7 +19,7 @@ class ConnectivityConstraint:
     net_name: str
     pin_count: int
     requires_routing: bool  # True if >1 pin
-    
+
     @property
     def is_routable(self) -> bool:
         """Check if net needs routing."""
@@ -31,12 +31,12 @@ class ConnectivityConstraints:
     """Collection of connectivity constraints."""
 
     constraints: list[ConnectivityConstraint]
-    
+
     @property
     def routable_net_count(self) -> int:
         """Count of nets requiring routing."""
         return sum(1 for c in self.constraints if c.is_routable)
-    
+
     @property
     def total_pin_count(self) -> int:
         """Total number of pins across all nets."""
@@ -61,7 +61,7 @@ def add_connectivity_constraints(
         True
     """
     constraints = []
-    
+
     for net_name, net in pcb.nets.items():
         # Count pins in this net
         pin_count = sum(
@@ -69,14 +69,14 @@ def add_connectivity_constraints(
             for pin in comp.pins
             if pin.net == net_name
         )
-        
+
         # Net needs routing if it has >1 pin
         requires_routing = pin_count > 1
-        
+
         constraints.append(ConnectivityConstraint(
             net_name=net_name,
             pin_count=pin_count,
             requires_routing=requires_routing,
         ))
-    
+
     return ConnectivityConstraints(constraints=constraints)

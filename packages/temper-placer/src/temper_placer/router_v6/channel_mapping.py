@@ -28,12 +28,12 @@ class ChannelMapping:
     """Mapping of nets to channel paths."""
 
     channel_paths: dict[str, ChannelPath]  # net_name -> ChannelPath
-    
+
     @property
     def mapped_net_count(self) -> int:
         """Number of nets with channel mappings."""
         return len(self.channel_paths)
-    
+
     def get_path(self, net_name: str) -> ChannelPath | None:
         """Get channel path for a specific net."""
         return self.channel_paths.get(net_name)
@@ -67,13 +67,13 @@ def map_topology_to_channels(
         True
     """
     channel_paths = {}
-    
+
     for net_name, net_topology in topology.net_topologies.items():
         # Map this net's topology to channels
         channel_path = _map_net_to_channels(net_name, net_topology, skeleton)
         if channel_path:
             channel_paths[net_name] = channel_path
-    
+
     return ChannelMapping(channel_paths=channel_paths)
 
 
@@ -95,7 +95,7 @@ def _map_net_to_channels(
     """
     # Use channels from topology
     channel_sequence = net_topology.uses_channels
-    
+
     if not channel_sequence:
         # Try to extract from path graph
         if net_topology.path_graph.number_of_edges() > 0:
@@ -107,13 +107,13 @@ def _map_net_to_channels(
                     channel_sequence = [str(node) for node in nodes]
             except Exception:
                 pass
-    
+
     # Generate waypoints from skeleton
     waypoints = _extract_waypoints(channel_sequence, skeleton)
-    
+
     # Calculate total length
     total_length = _calculate_path_length(waypoints)
-    
+
     if channel_sequence or waypoints:
         return ChannelPath(
             net_name=net_name,
@@ -121,7 +121,7 @@ def _map_net_to_channels(
             waypoints=waypoints,
             total_length=total_length,
         )
-    
+
     return None
 
 
@@ -140,7 +140,7 @@ def _extract_waypoints(
         List of (x, y) waypoints
     """
     waypoints = []
-    
+
     # For each channel, try to find corresponding node in skeleton
     for channel_id in channel_sequence:
         # Try to find node in skeleton graph that matches this channel
@@ -148,7 +148,7 @@ def _extract_waypoints(
             # Simplified: use node position directly
             waypoints.append(node)
             break  # Use first node as waypoint
-    
+
     return waypoints
 
 
@@ -164,7 +164,7 @@ def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
     """
     if len(waypoints) < 2:
         return 0.0
-    
+
     total_length = 0.0
     for i in range(len(waypoints) - 1):
         x1, y1 = waypoints[i]
@@ -173,5 +173,5 @@ def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
         dy = y2 - y1
         length = (dx**2 + dy**2)**0.5
         total_length += length
-    
+
     return total_length

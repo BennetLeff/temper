@@ -7,7 +7,6 @@ Part of temper-4av9
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 
 

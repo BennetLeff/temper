@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import networkx as nx
-from shapely.geometry import LineString, MultiLineString, Point
+from shapely.geometry import LineString, MultiLineString, Point, Polygon
 from shapely.ops import voronoi_diagram
 
 from temper_placer.router_v6.routing_space import RoutingSpace
@@ -81,20 +81,20 @@ def extract_channel_skeleton(
     # Build graph from skeleton lines
     for line in skeleton_lines:
         coords = list(line.coords)
-        
+
         for i in range(len(coords) - 1):
             p1 = coords[i]
             p2 = coords[i + 1]
-            
+
             # Add nodes (use tuple for hashability)
             G.add_node(p1, pos=p1)
             G.add_node(p2, pos=p2)
-            
+
             # Calculate edge weight (length)
             dx = p2[0] - p1[0]
             dy = p2[1] - p1[1]
             length = (dx**2 + dy**2)**0.5
-            
+
             # Add edge with length weight
             G.add_edge(p1, p2, weight=length)
             total_length += length
@@ -136,7 +136,7 @@ def _extract_medial_axis(
 
 
 def _extract_medial_axis_single(
-    polygon: "Polygon",
+    polygon: Polygon,
     simplify_tolerance: float = 0.5,
 ) -> list[LineString]:
     """
@@ -151,10 +151,10 @@ def _extract_medial_axis_single(
     """
     # Simplified medial axis: use buffer -> unbuffer technique
     # This creates an approximation of the medial axis
-    
+
     # Get the polygon boundary
     boundary = polygon.boundary
-    
+
     # Create points along the boundary for Voronoi
     # Sample points every ~1mm
     points = []
@@ -167,17 +167,17 @@ def _extract_medial_axis_single(
             coords.extend(list(line.coords))
     else:
         return []
-    
+
     # Sample points along the boundary
     for i in range(len(coords) - 1):
         p1 = coords[i]
         p2 = coords[i + 1]
-        
+
         # Calculate distance
         dx = p2[0] - p1[0]
         dy = p2[1] - p1[1]
         dist = (dx**2 + dy**2)**0.5
-        
+
         # Add intermediate points
         num_points = max(2, int(dist))
         for j in range(num_points):
@@ -185,20 +185,20 @@ def _extract_medial_axis_single(
             x = p1[0] + t * dx
             y = p1[1] + t * dy
             points.append(Point(x, y))
-    
+
     if len(points) < 3:
         # Not enough points for Voronoi
         # Return simplified centerline
         centroid = polygon.centroid
         return [LineString([centroid.coords[0], centroid.coords[0]])]
-    
+
     # Create Voronoi diagram
     try:
         voronoi = voronoi_diagram(MultiLineString([LineString([p.coords[0], p.coords[0]]) for p in points[:100]]))
-        
+
         # Filter Voronoi edges that are inside the polygon
         skeleton_lines = []
-        
+
         if hasattr(voronoi, 'geoms'):
             for geom in voronoi.geoms:
                 if isinstance(geom, LineString):
@@ -209,23 +209,30 @@ def _extract_medial_axis_single(
                         simplified = geom.simplify(simplify_tolerance)
                         if simplified.length > 0:
                             skeleton_lines.append(simplified)
-        
+
         if skeleton_lines:
             return skeleton_lines
-            
+
     except Exception:
         # Voronoi failed, use fallback
         pass
-    
+
     # Fallback: return polygon centroid as a simple skeleton
     centroid = polygon.centroid
     bounds = polygon.bounds  # (minx, miny, maxx, maxy)
-    
+
     # Create simple cross pattern through centroid
     cx, cy = centroid.x, centroid.y
     minx, miny, maxx, maxy = bounds
-    
+
+    # Inset by a small amount to ensure endpoints are inside the polygon
+    # Use 10% of width/height or 0.5mm, whichever is smaller
+    width = maxx - minx
+    height = maxy - miny
+    inset_x = min(0.5, width * 0.1)
+    inset_y = min(0.5, height * 0.1)
+
     return [
-        LineString([(minx, cy), (maxx, cy)]),  # Horizontal
-        LineString([(cx, miny), (cx, maxy)]),  # Vertical
+        LineString([(minx + inset_x, cy), (maxx - inset_x, cy)]),  # Horizontal
+        LineString([(cx, miny + inset_y), (cx, maxy - inset_y)]),  # Vertical
     ]

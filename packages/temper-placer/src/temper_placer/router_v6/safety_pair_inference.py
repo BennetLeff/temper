@@ -56,12 +56,7 @@ def infer_safety_pairs(net_names: list[str], net_class_assignments: dict[str, st
     for net in net_names:
         upper = net.upper()
         # Pattern matching for HV nets
-        if any(pattern in upper for pattern in ["AC_", "MAINS_", "LINE_", "HV_"]):
-            hv_nets.add(net)
-        elif upper.startswith("AC") and len(upper) <= 4:  # AC, ACL, ACN, AC_L, etc
-            hv_nets.add(net)
-        # Check net class if provided
-        elif net_class_assignments and net_class_assignments.get(net, "").upper() in ["HV", "HIGHVOLTAGE", "MAINS"]:
+        if any(pattern in upper for pattern in ["AC_", "MAINS_", "LINE_", "HV_"]) or upper.startswith("AC") and len(upper) <= 4 or net_class_assignments and net_class_assignments.get(net, "").upper() in ["HV", "HIGHVOLTAGE", "MAINS"]:
             hv_nets.add(net)
 
     # Identify low-voltage nets (logic/SELV)

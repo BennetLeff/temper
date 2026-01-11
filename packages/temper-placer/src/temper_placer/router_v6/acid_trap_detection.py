@@ -7,8 +7,8 @@ Part of temper-vm3g (Stage 5 - Manufacturing DRC)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 
 from temper_placer.router_v6.routing_results import RoutingResults
 
@@ -28,12 +28,12 @@ class AcidTrapReport:
     """Report of all detected acid traps."""
 
     acid_traps: list[AcidTrap]
-    
+
     @property
     def trap_count(self) -> int:
         """Total number of acid traps."""
         return len(self.acid_traps)
-    
+
     @property
     def critical_count(self) -> int:
         """Number of critical acid traps (< 45°)."""
@@ -65,34 +65,34 @@ def detect_acid_traps(
         True
     """
     acid_traps = []
-    
+
     for net_name, compiled_route in routing_results.compiled_routes.items():
         # Analyze path for acute angles
         path_coords = compiled_route.path.coordinates
-        
+
         if len(path_coords) < 3:
             # Need at least 3 points to form an angle
             continue
-        
+
         # Check angles at each vertex
         for i in range(1, len(path_coords) - 1):
             prev_point = path_coords[i - 1]
             curr_point = path_coords[i]
             next_point = path_coords[i + 1]
-            
+
             angle = _calculate_angle(prev_point, curr_point, next_point)
-            
+
             if angle < min_angle_threshold:
                 # This is an acid trap
                 severity = _classify_severity(angle)
-                
+
                 acid_traps.append(AcidTrap(
                     net_name=net_name,
                     position=curr_point,
                     angle_degrees=angle,
                     severity=severity,
                 ))
-    
+
     return AcidTrapReport(acid_traps=acid_traps)
 
 
@@ -115,22 +115,22 @@ def _calculate_angle(
     # Vectors from p2 to p1 and p3
     v1 = (p1[0] - p2[0], p1[1] - p2[1])
     v2 = (p3[0] - p2[0], p3[1] - p2[1])
-    
+
     # Calculate dot product and magnitudes
     dot = v1[0] * v2[0] + v1[1] * v2[1]
     mag1 = math.sqrt(v1[0]**2 + v1[1]**2)
     mag2 = math.sqrt(v2[0]**2 + v2[1]**2)
-    
+
     if mag1 == 0 or mag2 == 0:
         return 180.0  # Degenerate case
-    
+
     # Calculate angle
     cos_angle = dot / (mag1 * mag2)
     cos_angle = max(-1.0, min(1.0, cos_angle))  # Clamp to [-1, 1]
-    
+
     angle_rad = math.acos(cos_angle)
     angle_deg = math.degrees(angle_rad)
-    
+
     return angle_deg
 
 

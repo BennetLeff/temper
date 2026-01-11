@@ -32,22 +32,22 @@ class RoutingResults:
 
     compiled_routes: dict[str, CompiledRoute]  # net_name -> CompiledRoute
     failed_nets: list[str]
-    
+
     @property
     def success_count(self) -> int:
         """Number of successfully routed nets."""
         return len(self.compiled_routes)
-    
+
     @property
     def failure_count(self) -> int:
         """Number of failed nets."""
         return len(self.failed_nets)
-    
+
     @property
     def total_route_length(self) -> float:
         """Total length of all routes (mm)."""
         return sum(route.path.path_length for route in self.compiled_routes.values())
-    
+
     def get_route(self, net_name: str) -> CompiledRoute | None:
         """Get compiled route for a net."""
         return self.compiled_routes.get(net_name)
@@ -86,23 +86,23 @@ def compile_routing_results(
         True
     """
     compiled_routes = {}
-    
+
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Get width for this net
         width = width_assignment.get_width(net_name)
         if width is None:
             width = 0.127  # Default fallback
-        
+
         # Get vias for this net
         net_vias = via_placement.get_vias_for_net(net_name)
-        
+
         # Get matched length if available
         matched_length = None
         if length_matching:
             match_result = length_matching.get_result(net_name)
             if match_result:
                 matched_length = match_result.matched_length
-        
+
         # Compile route
         compiled_routes[net_name] = CompiledRoute(
             net_name=net_name,
@@ -111,7 +111,7 @@ def compile_routing_results(
             vias=net_vias,
             matched_length_mm=matched_length,
         )
-    
+
     return RoutingResults(
         compiled_routes=compiled_routes,
         failed_nets=pathfinding_result.failed_nets,

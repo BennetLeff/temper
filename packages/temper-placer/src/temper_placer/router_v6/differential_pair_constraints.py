@@ -21,7 +21,7 @@ class DifferentialPairConstraint:
     target_impedance: float  # Target differential impedance (ohms)
     max_length_mismatch: float  # Maximum length mismatch (mm)
     min_coupling_ratio: float  # Minimum coupling ratio (0-1)
-    
+
     @property
     def net_names(self) -> tuple[str, str]:
         """Return both net names as a tuple."""
@@ -33,7 +33,7 @@ class DifferentialPairConstraints:
     """Collection of differential pair constraints."""
 
     constraints: list[DifferentialPairConstraint]
-    
+
     @property
     def pair_count(self) -> int:
         """Number of differential pairs."""
@@ -64,15 +64,15 @@ def add_differential_pair_constraints(
         True
     """
     constraints = []
-    
+
     # Check if PCB has differential pairs (from Stage 0.2)
     if not hasattr(pcb, 'differential_pairs'):
         return DifferentialPairConstraints(constraints=[])
-    
+
     for pair in pcb.differential_pairs:
         # Determine impedance based on net name heuristics
         impedance = _infer_impedance(pair.positive_net)
-        
+
         constraints.append(DifferentialPairConstraint(
             positive_net=pair.positive_net,
             negative_net=pair.negative_net,
@@ -80,7 +80,7 @@ def add_differential_pair_constraints(
             max_length_mismatch=default_max_mismatch,
             min_coupling_ratio=default_min_coupling,
         ))
-    
+
     return DifferentialPairConstraints(constraints=constraints)
 
 
@@ -95,7 +95,7 @@ def _infer_impedance(net_name: str) -> float:
         Estimated differential impedance in ohms
     """
     name_upper = net_name.upper()
-    
+
     # Common impedance standards
     if any(x in name_upper for x in ['USB', 'ULPI']):
         return 90.0  # USB 2.0/3.0

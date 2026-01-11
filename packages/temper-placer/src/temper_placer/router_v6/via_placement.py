@@ -29,12 +29,12 @@ class ViaPlacement:
     """Collection of placed vias."""
 
     vias: list[Via]
-    
+
     @property
     def via_count(self) -> int:
         """Total number of vias."""
         return len(self.vias)
-    
+
     def get_vias_for_net(self, net_name: str) -> list[Via]:
         """Get all vias for a specific net."""
         return [v for v in self.vias if v.net_name == net_name]
@@ -66,7 +66,7 @@ def place_vias(
         True
     """
     vias = []
-    
+
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Analyze path for layer transitions
         net_vias = _place_vias_for_path(
@@ -76,7 +76,7 @@ def place_vias(
             via_drill,
         )
         vias.extend(net_vias)
-    
+
     return ViaPlacement(vias=vias)
 
 
@@ -99,20 +99,20 @@ def _place_vias_for_path(
         List of vias for this path
     """
     vias = []
-    
+
     # For multi-layer routing, detect layer transitions
     # Simplified: assume single layer for now, but add via at midpoint
     # if path is long enough
-    
+
     if len(route_path.coordinates) >= 3:
         # Add a via at the midpoint for demonstration
         mid_idx = len(route_path.coordinates) // 2
         via_pos = route_path.coordinates[mid_idx]
-        
+
         # Determine layers (simplified)
         from_layer = route_path.layer_name
         to_layer = _get_adjacent_layer(from_layer)
-        
+
         if to_layer:
             via = Via(
                 position=via_pos,
@@ -123,7 +123,7 @@ def _place_vias_for_path(
                 net_name=net_name,
             )
             vias.append(via)
-    
+
     return vias
 
 
@@ -144,5 +144,5 @@ def _get_adjacent_layer(layer_name: str) -> str | None:
         "In2.Cu": "B.Cu",
         "B.Cu": "In2.Cu",
     }
-    
+
     return layer_map.get(layer_name)

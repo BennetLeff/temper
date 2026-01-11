@@ -41,7 +41,7 @@ class FeedbackLoopResult:
     final_routing_results: RoutingResults
     converged: bool
     total_iterations: int
-    
+
     @property
     def final_success_rate(self) -> float:
         """Final routing success rate."""
@@ -91,31 +91,31 @@ def run_feedback_loop(
     """
     current_positions = initial_positions.copy()
     history = []
-    
+
     for iteration in range(1, max_iterations + 1):
         # Step 1: Route with current positions
         routing_results = routing_function(current_positions)
-        
+
         # Step 2: Identify congested regions
         congestion_map = identify_congested_regions(
             routing_results,
             board_width,
             board_height,
         )
-        
+
         # Step 3: Generate placement suggestions
         suggestions = generate_placement_suggestions(
             congestion_map,
             current_positions,
         )
-        
+
         # Step 4: Apply suggestions with damping
         adjustment_result = apply_suggestions_with_damping(
             suggestions,
             current_positions,
             damping_factor=damping_factor,
         )
-        
+
         # Step 5: Check convergence
         convergence = check_convergence(
             iteration,
@@ -123,7 +123,7 @@ def run_feedback_loop(
             adjustment_result,
             max_iterations=max_iterations,
         )
-        
+
         # Record history
         history.append(IterationHistory(
             iteration=iteration,
@@ -134,17 +134,17 @@ def run_feedback_loop(
             total_movement=convergence.total_movement,
             converged=convergence.has_converged,
         ))
-        
+
         # Check if converged
         if convergence.has_converged:
             break
-        
+
         # Step 6: Update positions for next iteration
         current_positions = update_component_positions(
             current_positions,
             adjustment_result,
         )
-    
+
     return FeedbackLoopResult(
         final_positions=current_positions,
         history=history,

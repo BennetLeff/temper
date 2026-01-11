@@ -28,12 +28,12 @@ class AdjustmentResult:
     """Result of applying placement adjustments."""
 
     adjustments: list[AppliedAdjustment]
-    
+
     @property
     def adjustment_count(self) -> int:
         """Number of adjustments applied."""
         return len(self.adjustments)
-    
+
     @property
     def total_movement(self) -> float:
         """Total movement distance across all adjustments (mm)."""
@@ -75,28 +75,28 @@ def apply_suggestions_with_damping(
         True
     """
     adjustments = []
-    
+
     # Filter for high-priority suggestions
     filtered_suggestions = [
         s for s in suggestions.suggestions
         if s.priority >= min_priority_threshold
     ]
-    
+
     for suggestion in filtered_suggestions:
         comp_id = suggestion.component_id
-        
+
         # Get current position
         current_pos = current_positions.get(comp_id)
         if current_pos is None:
             continue
-        
+
         # Calculate damped position
         applied_pos = _calculate_damped_position(
             current_pos,
             suggestion.suggested_position,
             damping_factor,
         )
-        
+
         adjustments.append(AppliedAdjustment(
             component_id=comp_id,
             original_position=current_pos,
@@ -104,7 +104,7 @@ def apply_suggestions_with_damping(
             applied_position=applied_pos,
             damping_factor=damping_factor,
         ))
-    
+
     return AdjustmentResult(adjustments=adjustments)
 
 
@@ -127,7 +127,7 @@ def _calculate_damped_position(
     # Linear interpolation with damping
     new_x = current[0] + (suggested[0] - current[0]) * damping
     new_y = current[1] + (suggested[1] - current[1]) * damping
-    
+
     return (new_x, new_y)
 
 
@@ -146,8 +146,8 @@ def update_component_positions(
         Updated positions dictionary
     """
     updated = current_positions.copy()
-    
+
     for adjustment in adjustment_result.adjustments:
         updated[adjustment.component_id] = adjustment.applied_position
-    
+
     return updated

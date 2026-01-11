@@ -9,7 +9,6 @@ Unlike V5's binary success/failure, V6 provides:
 """
 
 from dataclasses import dataclass, field
-from typing import List, Tuple, Optional, FrozenSet
 from enum import Enum
 
 
@@ -45,9 +44,9 @@ class BlockingObstacle:
         clearance_needed: Clearance distance required in mm
     """
     type: str
-    position: Tuple[float, float]
-    component_ref: Optional[str] = None
-    net: Optional[str] = None
+    position: tuple[float, float]
+    component_ref: str | None = None
+    net: str | None = None
     clearance_needed: float = 0.0
 
     def __str__(self) -> str:
@@ -71,8 +70,8 @@ class PlacementSuggestion:
         priority: 0-1 priority (1.0 = critical, 0.0 = optional)
     """
     component: str
-    current_position: Tuple[float, float]
-    suggested_position: Tuple[float, float]
+    current_position: tuple[float, float]
+    suggested_position: tuple[float, float]
     reason: str
     priority: float
 
@@ -123,16 +122,16 @@ class NetRoutingReport:
     detour_ratio: float = float('inf')
 
     # Failure analysis
-    failure_reason: Optional[FailureReason] = None
-    failure_point: Optional[Tuple[float, float]] = None
-    blocking_obstacles: List[BlockingObstacle] = field(default_factory=list)
-    placement_suggestions: List[PlacementSuggestion] = field(default_factory=list)
+    failure_reason: FailureReason | None = None
+    failure_point: tuple[float, float] | None = None
+    blocking_obstacles: list[BlockingObstacle] = field(default_factory=list)
+    placement_suggestions: list[PlacementSuggestion] = field(default_factory=list)
 
     # DRC
     drc_violations: int = 0
 
     # Topology
-    channels_used: FrozenSet[str] = frozenset()
+    channels_used: frozenset[str] = frozenset()
     layer: int = 0
 
     # Performance
@@ -223,7 +222,7 @@ class BoardRoutingReport:
         runtime_seconds: Total routing time
     """
     board_name: str
-    net_reports: List[NetRoutingReport]
+    net_reports: list[NetRoutingReport]
     overall_score: float
     auto_routed_count: int
     flagged_count: int
@@ -296,7 +295,7 @@ def calculate_routing_score(
     return max(0.0, base_score - drc_penalty)
 
 
-def aggregate_board_score(net_reports: List[NetRoutingReport]) -> float:
+def aggregate_board_score(net_reports: list[NetRoutingReport]) -> float:
     """Calculate overall board score from net reports.
 
     Uses geometric mean to penalize boards with many failures.

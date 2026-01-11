@@ -22,7 +22,7 @@ class LengthMatchingResult:
     target_length: float  # Target length (mm)
     matched_length: float  # Length after matching (mm)
     serpentine_added: bool  # Whether serpentine was added
-    
+
     @property
     def length_delta(self) -> float:
         """Difference from target length."""
@@ -34,12 +34,12 @@ class LengthMatchingResults:
     """Collection of length matching results."""
 
     results: dict[str, LengthMatchingResult]  # net_name -> result
-    
+
     @property
     def matched_net_count(self) -> int:
         """Number of nets with length matching applied."""
         return len(self.results)
-    
+
     def get_result(self, net_name: str) -> LengthMatchingResult | None:
         """Get length matching result for a net."""
         return self.results.get(net_name)
@@ -65,7 +65,7 @@ def apply_length_matching(
         length_groups = []
     if individual_targets is None:
         individual_targets = {}
-    
+
     results = {}
     processed_nets = set()
 
@@ -80,7 +80,7 @@ def apply_length_matching(
     for net_name, target in individual_targets.items():
         if net_name in processed_nets:
             continue
-            
+
         route_path = pathfinding_result.get_path(net_name)
         if route_path:
             results[net_name] = _apply_length_matching_to_path(
@@ -101,7 +101,7 @@ def apply_length_matching(
                 matched_length=route_path.path_length,
                 serpentine_added=False,
             )
-    
+
     return LengthMatchingResults(results=results)
 
 
@@ -114,7 +114,7 @@ def equalize_group_lengths(
     """
     group_nets = []
     max_len = 0.0
-    
+
     if group.target_length_mm is not None:
         max_len = group.target_length_mm
 
@@ -125,18 +125,18 @@ def equalize_group_lengths(
             group_nets.append((net_name, path.path_length))
             if group.target_length_mm is None:
                 max_len = max(max_len, path.path_length)
-    
+
     results = []
     for net_name, length in group_nets:
         # Match to max_len within group tolerance (max_skew_mm)
         res = _apply_length_matching_to_path(
-            net_name, 
-            length, 
-            max_len, 
+            net_name,
+            length,
+            max_len,
             group.max_skew_mm
         )
         results.append(res)
-        
+
     return results
 
 
@@ -151,13 +151,13 @@ def _apply_length_matching_to_path(
     """
     # Calculate length difference
     length_diff = target_length - original_length
-    
+
     if length_diff > tolerance:  # Need to add length
         # Add serpentine to increase length
         matched_length = original_length + _calculate_serpentine_length(length_diff)
         serpentine_added = True
     elif length_diff < -tolerance:  # Path is too long
-        # Cannot easily shorten paths in Stage 4.8 realization 
+        # Cannot easily shorten paths in Stage 4.8 realization
         # (should have been addressed in Stage 3 topology)
         matched_length = original_length
         serpentine_added = False
@@ -165,7 +165,7 @@ def _apply_length_matching_to_path(
         # Within tolerance
         matched_length = original_length
         serpentine_added = False
-    
+
     return LengthMatchingResult(
         net_name=net_name,
         original_length=original_length,
@@ -179,7 +179,7 @@ def _calculate_serpentine_length(required_length: float) -> float:
     """
     Calculate serpentine trace length to add.
     """
-    # Heuristic: assume we can add exactly what is required 
+    # Heuristic: assume we can add exactly what is required
     # if it's within physical constraints.
     # Stage 4.8 focuses on the intent and result metrics.
     return required_length

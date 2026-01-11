@@ -57,13 +57,13 @@ def _mark_path_occupied(
     for coord in route_path.coordinates:
         x_mm, y_mm = coord
         x_cell, y_cell = grid.world_to_grid(x_mm, y_mm)
-        
+
         # Mark this cell and surrounding clearance cells as occupied
         for dx in range(-clearance_cells, clearance_cells + 1):
             for dy in range(-clearance_cells, clearance_cells + 1):
                 cell_x = x_cell + dx
                 cell_y = y_cell + dy
-                
+
                 # Check bounds
                 if 0 <= cell_x < grid.width_cells and 0 <= cell_y < grid.height_cells:
                     # Mark as blocked/reserved

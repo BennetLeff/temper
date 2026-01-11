@@ -9,33 +9,31 @@ Usage:
     python -m temper_placer.router_v6.benchmark --board Piantor
 """
 
+import argparse
+import json
 import sys
 import time
-import json
-import argparse
 from pathlib import Path
-from typing import List, Optional
-from dataclasses import asdict
 
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from temper_placer.router_v6.test_boards import TEST_BOARDS, get_available_boards, get_board_by_name
-from temper_placer.router_v6.diagnostics import (
-    BoardRoutingReport,
-    NetRoutingReport,
-    RoutingStatus,
-    FailureReason,
-    aggregate_board_score,
-    calculate_routing_score,
-)
-from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.pipeline import DeterministicPipeline
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
 from temper_placer.deterministic.stages.layer_assignment import LayerAssignmentStage
 from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
 from temper_placer.deterministic.stages.sequential_routing import SequentialRoutingStage
+from temper_placer.deterministic.state import BoardState
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.router_v6.diagnostics import (
+    BoardRoutingReport,
+    FailureReason,
+    NetRoutingReport,
+    RoutingStatus,
+    aggregate_board_score,
+    calculate_routing_score,
+)
+from temper_placer.router_v6.test_boards import get_available_boards, get_board_by_name
 
 
 def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
@@ -89,7 +87,7 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
     route_time = time.time() - route_start
 
     # Generate per-net reports
-    net_reports: List[NetRoutingReport] = []
+    net_reports: list[NetRoutingReport] = []
 
     routed_nets = set()
     for route in final_state.routes:
@@ -189,9 +187,9 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
 
 def run_benchmark_suite(
     router: str = "v5",
-    board_filter: Optional[str] = None,
-    output_file: Optional[Path] = None
-) -> List[BoardRoutingReport]:
+    board_filter: str | None = None,
+    output_file: Path | None = None
+) -> list[BoardRoutingReport]:
     """Run benchmark suite on all available boards.
 
     Args:
@@ -202,7 +200,7 @@ def run_benchmark_suite(
     Returns:
         List of BoardRoutingReport, one per board
     """
-    print(f"\nRouter V6 Benchmark Suite")
+    print("\nRouter V6 Benchmark Suite")
     print(f"Router: {router}")
     print(f"{'='*60}\n")
 
@@ -235,7 +233,7 @@ def run_benchmark_suite(
             report = run_v5_router(board.path)
         elif router == "v6":
             # TODO: Implement V6 router
-            print(f"ERROR: V6 router not yet implemented")
+            print("ERROR: V6 router not yet implemented")
             sys.exit(1)
         else:
             print(f"ERROR: Unknown router version: {router}")

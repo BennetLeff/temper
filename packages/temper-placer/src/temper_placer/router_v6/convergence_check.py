@@ -62,33 +62,33 @@ def check_convergence(
     # Calculate routing success rate
     total_nets = routing_results.success_count + routing_results.failure_count
     success_rate = routing_results.success_count / total_nets if total_nets > 0 else 0.0
-    
+
     # Get total movement
     total_movement = adjustment_result.total_movement if adjustment_result else 0.0
-    
+
     # Check convergence conditions
     has_converged = False
     reason = ""
-    
+
     # Condition 1: High success rate
     if success_rate >= success_rate_threshold:
         has_converged = True
         reason = f"High routing success rate: {success_rate:.1%}"
-    
+
     # Condition 2: Minimal movement
     elif adjustment_result and total_movement < movement_threshold:
         has_converged = True
         reason = f"Minimal component movement: {total_movement:.2f}mm"
-    
+
     # Condition 3: Max iterations
     elif iteration >= max_iterations:
         has_converged = True
         reason = f"Maximum iterations reached: {iteration}/{max_iterations}"
-    
+
     # Still iterating
     else:
         reason = f"Continuing iteration {iteration}/{max_iterations}"
-    
+
     return ConvergenceMetrics(
         iteration=iteration,
         routing_success_rate=success_rate,

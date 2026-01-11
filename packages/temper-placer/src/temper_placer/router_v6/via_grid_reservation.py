@@ -24,7 +24,7 @@ class ReservedViaPosition:
     @property
     def is_through_via(self) -> bool:
         """True if this is a through-hole via (all layers)."""
-        # Through via typically goes L1 to Ln  
+        # Through via typically goes L1 to Ln
         return self.layers[0] == "L1" and self.layers[1].startswith("L") and int(self.layers[1][1:]) >= 4
 
     @property
@@ -116,7 +116,7 @@ def check_via_conflicts(
             # Check if vias are on overlapping layers
             layers1 = set(via1.blocked_layers)
             layers2 = set(via2.blocked_layers)
-            
+
             if layers1.intersection(layers2) and distance < min_via_spacing_mm:
                 conflicts.append((via1, via2, distance))
 

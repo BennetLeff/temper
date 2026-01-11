@@ -73,7 +73,7 @@ def infer_length_groups(
 
     # 2. Clock distribution trees (check BEFORE buses to avoid CLK_*_0 matching as bus)
     clock_trees: dict[str, list[str]] = {}
-    
+
     for net in net_names:
         upper = net.upper()
         # Match clock output patterns
@@ -116,15 +116,15 @@ def infer_length_groups(
     # 3. Parallel buses with numeric suffixes (after clock detection)
     # Pattern: PREFIX[0:N] or PREFIX_0..PREFIX_N
     bus_groups: dict[str, list[str]] = {}
-    
+
     for net in net_names:
         if net in clock_net_set:
             continue  # Skip nets already in clock groups
-            
+
         # Try to extract bus base name and index
         # Patterns: DDR_DQ0, DDR_DQ[0], SPI_DATA_0, etc.
         import re
-        
+
         # Pattern 1: DDR_DQ0, DDR_DQ1, etc (no brackets)
         match = re.match(r'^(.+?)(\d+)$', net)
         if match:
@@ -133,7 +133,7 @@ def infer_length_groups(
                 bus_groups[base] = []
             bus_groups[base].append(net)
             continue
-        
+
         # Pattern 2: DDR_DQ[0], DDR_DQ[1], etc (with brackets)
         match = re.match(r'^(.+?)\[(\d+)\]$', net)
         if match:
@@ -154,7 +154,7 @@ def infer_length_groups(
                 max_skew = 5.0  # Slow buses: relaxed
             else:
                 max_skew = 1.0  # Default: moderate matching
-            
+
             groups.append(
                 LengthGroup(
                     name=bus_base,

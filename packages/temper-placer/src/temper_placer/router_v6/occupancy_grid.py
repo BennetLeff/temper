@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
-from shapely.geometry import Point, box
+from shapely.geometry import Point
 
 from temper_placer.router_v6.routing_space import RoutingSpace
 

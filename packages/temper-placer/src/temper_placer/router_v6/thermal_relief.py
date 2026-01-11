@@ -28,12 +28,12 @@ class ThermalReliefReport:
     """Report of thermal relief connections."""
 
     thermal_reliefs: list[ThermalRelief]
-    
+
     @property
     def relief_count(self) -> int:
         """Total number of thermal reliefs."""
         return len(self.thermal_reliefs)
-    
+
     @property
     def total_spokes(self) -> int:
         """Total number of spokes across all reliefs."""
@@ -69,7 +69,7 @@ def add_thermal_relief(
         True
     """
     thermal_reliefs = []
-    
+
     for net_name, compiled_route in routing_results.compiled_routes.items():
         # Check if this is a power net that needs thermal relief
         if _is_power_net(net_name):
@@ -85,7 +85,7 @@ def add_thermal_relief(
                         clearance_gap=clearance_gap,
                     )
                     thermal_reliefs.append(thermal_relief)
-    
+
     return ThermalReliefReport(thermal_reliefs=thermal_reliefs)
 
 

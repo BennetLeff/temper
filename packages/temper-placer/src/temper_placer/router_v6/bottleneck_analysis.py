@@ -33,12 +33,12 @@ class Bottleneck:
     capacity: int  # Estimated trace capacity
     demand: int  # Estimated trace demand
     utilization: float  # demand / capacity ratio
-    
+
     @property
     def is_critical(self) -> bool:
         """Check if bottleneck is critical."""
         return self.severity == BottleneckSeverity.CRITICAL
-    
+
     @property
     def margin(self) -> float:
         """Capacity margin (capacity - demand)."""
@@ -52,12 +52,12 @@ class BottleneckAnalysis:
     bottlenecks: list[Bottleneck]
     total_capacity: int  # Sum across all layers
     total_demand: int  # Total nets to route
-    
+
     @property
     def has_critical_bottlenecks(self) -> bool:
         """Check if any critical bottlenecks exist."""
         return any(b.is_critical for b in self.bottlenecks)
-    
+
     @property
     def worst_bottleneck(self) -> Bottleneck | None:
         """Return the most severe bottleneck."""
@@ -87,27 +87,27 @@ def identify_bottlenecks(
     """
     bottlenecks = []
     total_capacity = 0
-    
+
     # Distribute demand across layers (simplified - assume even distribution)
     num_layers = len(layer_capacities)
     if num_layers > 0:
         demand_per_layer = demand.routable_nets // num_layers
     else:
         demand_per_layer = 0
-    
+
     # Analyze each layer
     for layer_name, capacity in layer_capacities.items():
         total_capacity += capacity.estimated_traces
-        
+
         # Calculate utilization
         if capacity.estimated_traces > 0:
             utilization = demand_per_layer / capacity.estimated_traces
         else:
             utilization = float('inf')
-        
+
         # Determine severity
         severity = _classify_severity(capacity.estimated_traces, demand_per_layer)
-        
+
         bottlenecks.append(Bottleneck(
             layer_name=layer_name,
             severity=severity,
@@ -115,7 +115,7 @@ def identify_bottlenecks(
             demand=demand_per_layer,
             utilization=utilization,
         ))
-    
+
     return BottleneckAnalysis(
         bottlenecks=bottlenecks,
         total_capacity=total_capacity,
@@ -138,9 +138,9 @@ def _classify_severity(capacity: int, demand: int) -> BottleneckSeverity:
         if demand > 0:
             return BottleneckSeverity.CRITICAL
         return BottleneckSeverity.NONE
-    
+
     ratio = capacity / demand if demand > 0 else float('inf')
-    
+
     if ratio < 0.5:
         return BottleneckSeverity.CRITICAL
     elif ratio < 1.0:

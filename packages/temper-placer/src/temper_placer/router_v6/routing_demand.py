@@ -19,16 +19,16 @@ class RoutingDemand:
     total_nets: int  # Total number of nets
     routable_nets: int  # Nets requiring routing (>1 pin)
     total_pins: int  # Total pin count
-    
+
     # Demand by net class
     signal_nets: int  # Regular signal nets
     power_nets: int  # Power/ground nets
     diff_pair_nets: int  # Differential pair nets
-    
+
     # Complexity metrics
     avg_pins_per_net: float  # Average fanout
     max_pins_per_net: int  # Maximum fanout
-    
+
     @property
     def routing_complexity(self) -> float:
         """Simple routing complexity score (0-1)."""
@@ -57,28 +57,36 @@ def estimate_routing_demand(
     """
     total_nets = len(pcb.nets)
     total_pins = sum(len(comp.pins) for comp in pcb.components)
-    
+
     # Count routable nets (need >1 pin)
     routable_nets = 0
     pin_counts = []
-    
+
     # Classify nets
     signal_nets = 0
     power_nets = 0
     diff_pair_nets = 0
+
+    # Handle both dict and list formats for nets
+    # Type annotation says list[Net] but tests and some code paths use dict
+    if isinstance(pcb.nets, dict):
+        net_items = pcb.nets.items()
+    else:
+        # Assume list[Net]
+        net_items = [(net.name, net) for net in pcb.nets]
     
-    for net_name, net in pcb.nets.items():
+    for net_name, net in net_items:
         # Count pins in this net
         pin_count = sum(
             1 for comp in pcb.components
             for pin in comp.pins
             if pin.net == net_name
         )
-        
+
         if pin_count > 1:
             routable_nets += 1
             pin_counts.append(pin_count)
-            
+
             # Classify by name heuristics
             net_upper = net_name.upper()
             if any(x in net_upper for x in ['GND', 'VCC', 'VDD', 'VSS', '+', '-']):
@@ -87,7 +95,7 @@ def estimate_routing_demand(
                 diff_pair_nets += 1
             else:
                 signal_nets += 1
-    
+
     # Calculate statistics
     if pin_counts:
         avg_pins_per_net = sum(pin_counts) / len(pin_counts)
@@ -95,7 +103,7 @@ def estimate_routing_demand(
     else:
         avg_pins_per_net = 0.0
         max_pins_per_net = 0
-    
+
     return RoutingDemand(
         total_nets=total_nets,
         routable_nets=routable_nets,

@@ -69,7 +69,7 @@ def identify_dense_packages(
 
         # Estimate pitch from footprint name or calculate from geometry
         pitch_mm = _estimate_pitch(comp)
-        
+
         # Infer package type from footprint name
         package_type = _infer_package_type(comp)
 
@@ -108,12 +108,12 @@ def _estimate_pitch(comp: Component) -> float:
     # Try to parse pitch from footprint name
     # Common patterns: QFN-48_0.5mm, TQFP-100_0.4mm, BGA-256_0.8mm
     footprint_upper = comp.footprint.upper()
-    
+
     # Pattern: _0.5MM or _0.5
     match = re.search(r'[_-](\d+\.?\d*)\s*MM', footprint_upper)
     if match:
         return float(match.group(1))
-    
+
     match = re.search(r'[_P](\d+\.?\d*)(?:[_-]|$)', comp.footprint)
     if match:
         pitch_str = match.group(1)
@@ -131,7 +131,7 @@ def _estimate_pitch(comp: Component) -> float:
         # Find minimum distance between adjacent pins
         pin_positions = [p.position for p in comp.pins]
         min_dist = float('inf')
-        
+
         for i, (x1, y1) in enumerate(pin_positions):
             for j, (x2, y2) in enumerate(pin_positions):
                 if i >= j:
@@ -139,7 +139,7 @@ def _estimate_pitch(comp: Component) -> float:
                 dist = ((x2 - x1)**2 + (y2 - y1)**2)**0.5
                 if dist > 0.01:  # Ignore near-zero distances (same pin)
                     min_dist = min(min_dist, dist)
-        
+
         if min_dist != float('inf'):
             return min_dist
 

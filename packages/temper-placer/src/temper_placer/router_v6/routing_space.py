@@ -10,7 +10,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from shapely.geometry import MultiPolygon, Polygon, box
-from shapely.ops import unary_union
 
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.stage0_data import ParsedPCB

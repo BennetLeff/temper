@@ -73,13 +73,13 @@ def classify_pads_by_escape_need(
         for pin in comp.pins:
             # Calculate distance to nearest edge
             pin_x, pin_y = pin.position
-            
+
             # Distance to each edge
             dist_left = abs(pin_x)
             dist_right = abs(comp_width - pin_x)
             dist_bottom = abs(pin_y)
             dist_top = abs(comp_height - pin_y)
-            
+
             # Minimum distance to any edge
             distance_to_edge = min(dist_left, dist_right, dist_bottom, dist_top)
 
@@ -122,27 +122,27 @@ def _is_thermal_pad(pin: Pin, comp: Component) -> bool:
     # Check pin name
     pin_name_upper = pin.name.upper()
     thermal_names = ["PAD", "EPAD", "THERMAL", "EP", "GND", "VSSA", "VSS"]
-    
+
     if any(name in pin_name_upper for name in thermal_names):
         return True
 
     # Check if pin is in center of component
     comp_width, comp_height = comp.bounds
     pin_x, pin_y = pin.position
-    
+
     center_x = comp_width / 2
     center_y = comp_height / 2
-    
+
     # Distance from center
     dist_from_center = ((pin_x - center_x)**2 + (pin_y - center_y)**2)**0.5
-    
+
     # If very close to center (< 10% of component size), likely thermal pad
     max_comp_dim = max(comp_width, comp_height)
     if dist_from_center < (max_comp_dim * 0.1):
         # Also check if it's larger than average pad
         avg_pad_area = sum(p.width * p.height for p in comp.pins) / len(comp.pins)
         this_pad_area = pin.width * pin.height
-        
+
         if this_pad_area > avg_pad_area * 2:  # 2x larger than average
             return True
 

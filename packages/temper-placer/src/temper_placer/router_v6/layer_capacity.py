@@ -21,17 +21,17 @@ class LayerCapacity:
     total_cells: int  # Total grid cells
     free_cells: int  # Available routing cells
     blocked_cells: int  # Occupied by obstacles
-    
+
     # Capacity metrics
     min_channel_width: float  # Minimum channel width (mm)
     avg_channel_width: float  # Average channel width (mm)
     estimated_traces: int  # Estimated number of traces that can fit
-    
+
     @property
     def utilization_ratio(self) -> float:
         """Ratio of blocked to total cells."""
         return self.blocked_cells / self.total_cells if self.total_cells > 0 else 0.0
-    
+
     @property
     def available_ratio(self) -> float:
         """Ratio of free to total cells."""
@@ -73,11 +73,11 @@ def calculate_layer_capacity(
     # Estimate trace capacity
     # Each trace needs: trace_width + 2*clearance for isolation
     trace_pitch = min_trace_width + 2 * min_clearance
-    
+
     # Estimate number of traces that can fit in average channel
     if avg_channel_width > 0 and trace_pitch > 0:
         traces_per_channel = int(avg_channel_width / trace_pitch)
-        
+
         # Estimate total trace capacity (conservative)
         # Use free cells as a proxy for routing area
         estimated_traces = max(1, int(free_cells * 0.01 * traces_per_channel))

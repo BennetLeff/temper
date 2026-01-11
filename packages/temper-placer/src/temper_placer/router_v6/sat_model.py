@@ -8,7 +8,6 @@ Part of temper-5eh3 (Stage 3 - Topological Routing)
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 
 @dataclass
@@ -17,7 +16,7 @@ class SATVariable:
 
     name: str
     description: str
-    
+
     def __str__(self) -> str:
         return self.name
 
@@ -28,7 +27,7 @@ class SATClause:
 
     literals: list[tuple[SATVariable, bool]]  # (variable, is_positive)
     description: str
-    
+
     def __str__(self) -> str:
         terms = []
         for var, is_positive in self.literals:
@@ -45,23 +44,23 @@ class SATModel:
 
     variables: list[SATVariable]
     clauses: list[SATClause]
-    
+
     @property
     def variable_count(self) -> int:
         """Number of variables in model."""
         return len(self.variables)
-    
+
     @property
     def clause_count(self) -> int:
         """Number of clauses in model."""
         return len(self.clauses)
-    
+
     def add_variable(self, name: str, description: str) -> SATVariable:
         """Add a variable to the model."""
         var = SATVariable(name, description)
         self.variables.append(var)
         return var
-    
+
     def add_clause(self, literals: list[tuple[SATVariable, bool]], description: str) -> None:
         """Add a clause to the model."""
         clause = SATClause(literals, description)
@@ -114,7 +113,7 @@ def add_connectivity_to_sat(
         f"route_{net_name}_{source_node}_to_{sink_node}",
         f"Path exists for {net_name} from {source_node} to {sink_node}"
     )
-    
+
     # Add clause: this path must exist (always true)
     model.add_clause(
         [(var, True)],
@@ -153,7 +152,7 @@ def add_capacity_to_sat(
             f"{net} uses channel {channel_id}"
         )
         channel_vars.append(var)
-    
+
     # Add capacity constraint (simplified - at most max_nets can be true)
     # In practice, this would use cardinality constraints
     if len(channel_vars) > max_nets:

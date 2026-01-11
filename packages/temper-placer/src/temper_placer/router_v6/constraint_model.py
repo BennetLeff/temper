@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any
 
 from temper_placer.core.netlist import Net
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
@@ -124,7 +123,7 @@ class ConstraintModel:
     constraints: list[Constraint] = field(default_factory=list)
     net_channel_vars: dict[tuple[int, str], NetChannelVar] = field(default_factory=dict)
     via_vars: dict[tuple[int, str], ViaVar] = field(default_factory=dict)
-    
+
     def add_variable(self, var: Variable) -> None:
         self.variables.append(var)
         if isinstance(var, NetChannelVar):
@@ -146,10 +145,10 @@ class ConstraintModel:
 
 class ModelBuilder:
     """Builder for generating the constraint model from skeletons and nets."""
-    
+
     def __init__(
-        self, 
-        skeletons: dict[str, ChannelSkeleton], 
+        self,
+        skeletons: dict[str, ChannelSkeleton],
         nets: list[Net],
         channel_widths: dict[str, ChannelWidths] | None = None,
         design_rules: DesignRules | None = None,
@@ -163,10 +162,10 @@ class ModelBuilder:
         self.diff_pairs = diff_pairs or []
         self.pcb = pcb
         self.model = ConstraintModel()
-        
+
         # Build net name to index mapping for fast lookup
         self.net_to_idx = {net.name: i for i, net in enumerate(self.nets)}
-        
+
     def build(self) -> ConstraintModel:
         """
         Generate all variables and constraints for the routing problem.
@@ -177,20 +176,20 @@ class ModelBuilder:
         self._create_diff_pair_constraints()
         self._create_layer_constraints()
         return self.model
-        
+
     def _create_channel_vars(self):
         """Create variables for net-channel assignment."""
         for net_idx, net in enumerate(self.nets):
             # For each layer skeleton
             for layer_name, skeleton in self.skeletons.items():
                 # For each edge in the skeleton
-                # We need a stable ID for edges. 
+                # We need a stable ID for edges.
                 # nx edges are (u, v). We can sort nodes to canonicalize.
                 for i, (u, v) in enumerate(skeleton.graph.edges):
                     # Sort nodes by coordinate to ensure stable ID
                     n1, n2 = sorted([u, v])
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-                    
+
                     var = NetChannelVar(
                         name=f"uses_N{net_idx}_{edge_id}",
                         net_idx=net_idx,
@@ -205,14 +204,14 @@ class ModelBuilder:
         for skeleton in self.skeletons.values():
             for node in skeleton.graph.nodes:
                 all_nodes.add(node) # node is (x, y) tuple
-        
+
         # Sort for stability
         sorted_nodes = sorted(list(all_nodes))
-        
+
         for net_idx, net in enumerate(self.nets):
             for i, node in enumerate(sorted_nodes):
                 node_id = f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"
-                
+
                 var = ViaVar(
                     name=f"via_N{net_idx}_{node_id}",
                     net_idx=net_idx,
@@ -238,13 +237,13 @@ class ModelBuilder:
             for i, (u, v) in enumerate(skeleton.graph.edges):
                 n1, n2 = sorted([u, v])
                 edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-                
+
                 # Get capacity (min width of edge)
                 # Try both directions
                 capacity = widths.edge_widths.get((u, v))
                 if capacity is None:
                     capacity = widths.edge_widths.get((v, u), 0.0)
-                
+
                 if capacity <= 0:
                     continue
 
@@ -253,12 +252,12 @@ class ModelBuilder:
                     # Get net width from design rules
                     rule = self.design_rules.get_rules_for_net(net.name)
                     net_width = rule.trace_width_mm + rule.clearance_mm # width + spacing
-                    
+
                     # Find variable
                     if (net_idx, edge_id) in self.model.net_channel_vars:
                         var = self.model.net_channel_vars[(net_idx, edge_id)]
                         terms.append((var, net_width))
-                
+
                 if terms:
                     constraint = CapacityConstraint(
                         name=f"cap_{edge_id}",
@@ -277,21 +276,21 @@ class ModelBuilder:
         for pair in self.diff_pairs:
             if pair.p_net not in self.net_to_idx or pair.n_net not in self.net_to_idx:
                 continue
-                
+
             p_idx = self.net_to_idx[pair.p_net]
             n_idx = self.net_to_idx[pair.n_net]
-            
+
             for layer_name, skeleton in self.skeletons.items():
                 for i, (u, v) in enumerate(skeleton.graph.edges):
                     n1, n2 = sorted([u, v])
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-                    
+
                     if (p_idx, edge_id) in self.model.net_channel_vars and \
                        (n_idx, edge_id) in self.model.net_channel_vars:
-                        
+
                         p_var = self.model.net_channel_vars[(p_idx, edge_id)]
                         n_var = self.model.net_channel_vars[(n_idx, edge_id)]
-                        
+
                         constraint = DiffPairConstraint(
                             name=f"diff_{pair.base_name}_{edge_id}",
                             channel_id=edge_id,
@@ -313,25 +312,25 @@ class ModelBuilder:
         for comp in self.pcb.components:
             comp_x, comp_y = comp.initial_position or (0.0, 0.0)
             angle = float(comp.initial_rotation or 0) * math.pi / 2.0
-            
+
             for pin in comp.pins:
                 if not pin.net or pin.net not in self.net_to_idx:
                     continue
-                
+
                 net_idx = self.net_to_idx[pin.net]
                 pin_pos = pin.absolute_position((comp_x, comp_y), angle)
-                
+
                 # SMD pins are restricted to one layer
                 if not pin.is_pth:
                     target_layer = pin.layer
-                    
+
                     # Find all breakout edges for this pin
                     # A breakout edge is an edge where one endpoint is the pin position
                     for layer_name, skeleton in self.skeletons.items():
                         if layer_name == target_layer:
                             continue # Allowed
-                            
-                        # Restricted layer: for all edges connected to this pin position, 
+
+                        # Restricted layer: for all edges connected to this pin position,
                         # set uses[net, edge] == 0
                         for i, (u, v) in enumerate(skeleton.graph.edges):
                             # Check if either endpoint matches pin position (with tolerance)
@@ -340,11 +339,11 @@ class ModelBuilder:
                                 if abs(node[0] - pin_pos[0]) < 0.01 and abs(node[1] - pin_pos[1]) < 0.01:
                                     match = True
                                     break
-                            
+
                             if match:
                                 n1, n2 = sorted([u, v])
                                 edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-                                
+
                                 if (net_idx, edge_id) in self.model.net_channel_vars:
                                     var = self.model.net_channel_vars[(net_idx, edge_id)]
                                     constraint = LayerConstraint(

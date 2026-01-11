@@ -21,7 +21,7 @@ class RoutePath:
     coordinates: list[tuple[float, float]]  # (x, y) path coordinates
     layer_name: str
     path_length: float  # Total length in mm
-    
+
     @property
     def segment_count(self) -> int:
         """Number of segments in path."""
@@ -34,17 +34,17 @@ class PathfindingResult:
 
     routed_paths: dict[str, RoutePath]  # net_name -> RoutePath
     failed_nets: list[str]  # Nets that failed to route
-    
+
     @property
     def success_count(self) -> int:
         """Number of successfully routed nets."""
         return len(self.routed_paths)
-    
+
     @property
     def failure_count(self) -> int:
         """Number of failed nets."""
         return len(self.failed_nets)
-    
+
     def get_path(self, net_name: str) -> RoutePath | None:
         """Get routed path for a specific net."""
         return self.routed_paths.get(net_name)
@@ -79,16 +79,16 @@ def run_astar_pathfinding(
     """
     routed_paths = {}
     failed_nets = []
-    
+
     for net_name, channel_path in channel_mapping.channel_paths.items():
         # Try to route this net using A*
         route_path = _astar_route(net_name, channel_path, grid)
-        
+
         if route_path:
             routed_paths[net_name] = route_path
         else:
             failed_nets.append(net_name)
-    
+
     return PathfindingResult(
         routed_paths=routed_paths,
         failed_nets=failed_nets,
@@ -114,12 +114,12 @@ def _astar_route(
     # Simplified A* implementation
     # Use waypoints as path coordinates
     waypoints = channel_path.waypoints
-    
+
     if not waypoints:
         # No waypoints, use channel-based routing
         # For now, create a simple path
         waypoints = [(0.0, 0.0), (10.0, 10.0)]
-    
+
     # Calculate path length
     path_length = 0.0
     for i in range(len(waypoints) - 1):
@@ -128,7 +128,7 @@ def _astar_route(
         dx = x2 - x1
         dy = y2 - y1
         path_length += (dx**2 + dy**2)**0.5
-    
+
     return RoutePath(
         net_name=net_name,
         coordinates=waypoints,
@@ -154,18 +154,18 @@ def _astar_search(
         List of cells or None if no path found
     """
     from heapq import heappop, heappush
-    
+
     # A* frontier (priority queue)
     frontier = []
     heappush(frontier, (0, start))
-    
+
     # Came from and cost tracking
     came_from = {start: None}
     cost_so_far = {start: 0}
-    
+
     while frontier:
         _, current = heappop(frontier)
-        
+
         if current == goal:
             # Reconstruct path
             path = []
@@ -173,24 +173,24 @@ def _astar_search(
                 path.append(current)
                 current = came_from[current]
             return list(reversed(path))
-        
+
         # Explore neighbors
         x, y = current
         for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             neighbor = (x + dx, y + dy)
-            
+
             # Check if neighbor is valid and free
             if not grid.is_free(neighbor[0], neighbor[1]):
                 continue
-            
+
             new_cost = cost_so_far[current] + 1
-            
+
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                 cost_so_far[neighbor] = new_cost
                 priority = new_cost + _heuristic(neighbor, goal)
                 heappush(frontier, (priority, neighbor))
                 came_from[neighbor] = current
-    
+
     return None  # No path found
 
 

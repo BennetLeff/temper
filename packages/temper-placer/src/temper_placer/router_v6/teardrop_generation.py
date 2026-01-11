@@ -28,17 +28,17 @@ class TeardropReport:
     """Report of generated teardrops."""
 
     teardrops: list[Teardrop]
-    
+
     @property
     def teardrop_count(self) -> int:
         """Total number of teardrops generated."""
         return len(self.teardrops)
-    
+
     @property
     def via_teardrop_count(self) -> int:
         """Number of via teardrops."""
         return sum(1 for t in self.teardrops if t.connection_type == "via")
-    
+
     @property
     def pad_teardrop_count(self) -> int:
         """Number of pad teardrops."""
@@ -74,7 +74,7 @@ def insert_teardrops(
         True
     """
     teardrops = []
-    
+
     for net_name, compiled_route in routing_results.compiled_routes.items():
         # Add teardrops to vias if enabled
         if enable_via_teardrops:
@@ -87,13 +87,13 @@ def insert_teardrops(
                 )
                 if teardrop:
                     teardrops.append(teardrop)
-        
+
         # Add teardrops to pads if enabled
         if enable_pad_teardrops:
             # Would analyze path endpoints and add pad teardrops
             # Simplified for now - SMD pads typically don't need teardrops
             pass
-    
+
     return TeardropReport(teardrops=teardrops)
 
 
@@ -118,7 +118,7 @@ def _generate_via_teardrop(
     # Calculate teardrop dimensions
     teardrop_length = via.diameter * length_ratio
     teardrop_width = via.diameter
-    
+
     # Only add teardrop if via is larger than trace
     if via.diameter > trace_width * 1.2:
         return Teardrop(
@@ -128,5 +128,5 @@ def _generate_via_teardrop(
             length_mm=teardrop_length,
             width_mm=teardrop_width,
         )
-    
+
     return None

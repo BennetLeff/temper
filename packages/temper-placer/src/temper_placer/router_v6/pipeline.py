@@ -20,7 +20,7 @@ from pathlib import Path
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, run_astar_pathfinding
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis, identify_bottlenecks
-from temper_placer.router_v6.channel_mapping import ChannelMapping, map_topology_to_channels
+from temper_placer.router_v6.channel_mapping import map_topology_to_channels
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton, extract_channel_skeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths, compute_channel_widths
 from temper_placer.router_v6.constraint_model import ConstraintModel, ModelBuilder
