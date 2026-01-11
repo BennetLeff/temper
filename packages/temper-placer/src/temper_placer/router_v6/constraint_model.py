@@ -12,6 +12,8 @@ from typing import Any
 
 from temper_placer.core.netlist import Net
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+from temper_placer.router_v6.channel_widths import ChannelWidths
+from temper_placer.router_v6.stage0_data import DesignRules
 
 
 @dataclass(kw_only=True)
@@ -67,6 +69,24 @@ class OrderVar(Variable):
     var_type: str = "bool"
 
 
+@dataclass(kw_only=True)
+class Constraint:
+    """Base class for routing constraints."""
+    name: str
+    description: str = ""
+
+
+@dataclass(kw_only=True)
+class CapacityConstraint(Constraint):
+    """
+    Constraint: sum(uses[n,c] * width[n]) <= capacity[c] * slack
+    """
+    channel_id: str
+    capacity: float
+    slack_factor: float
+    terms: list[tuple[NetChannelVar, float]]  # (variable, coefficient/width)
+
+
 @dataclass
 class ConstraintModel:
     """
@@ -75,6 +95,7 @@ class ConstraintModel:
     Holds all variables and constraints (in abstract form).
     """
     variables: list[Variable] = field(default_factory=list)
+    constraints: list[Constraint] = field(default_factory=list)
     net_channel_vars: dict[tuple[int, str], NetChannelVar] = field(default_factory=dict)
     via_vars: dict[tuple[int, str], ViaVar] = field(default_factory=dict)
     
@@ -85,25 +106,41 @@ class ConstraintModel:
         elif isinstance(var, ViaVar):
             self.via_vars[(var.net_idx, var.location_id)] = var
 
+    def add_constraint(self, constraint: Constraint) -> None:
+        self.constraints.append(constraint)
+
     @property
     def variable_count(self) -> int:
         return len(self.variables)
+
+    @property
+    def constraint_count(self) -> int:
+        return len(self.constraints)
 
 
 class ModelBuilder:
     """Builder for generating the constraint model from skeletons and nets."""
     
-    def __init__(self, skeletons: dict[str, ChannelSkeleton], nets: list[Net]):
+    def __init__(
+        self, 
+        skeletons: dict[str, ChannelSkeleton], 
+        nets: list[Net],
+        channel_widths: dict[str, ChannelWidths] | None = None,
+        design_rules: DesignRules | None = None
+    ):
         self.skeletons = skeletons
         self.nets = nets
+        self.channel_widths = channel_widths or {}
+        self.design_rules = design_rules
         self.model = ConstraintModel()
         
     def build(self) -> ConstraintModel:
         """
-        Generate all variables for the routing problem.
+        Generate all variables and constraints for the routing problem.
         """
         self._create_channel_vars()
         self._create_via_vars()
+        self._create_capacity_constraints()
         return self.model
         
     def _create_channel_vars(self):
@@ -152,3 +189,52 @@ class ModelBuilder:
                     location_id=node_id
                 )
                 self.model.add_variable(var)
+
+    def _create_capacity_constraints(self):
+        """
+        Create capacity constraints for each channel.
+        sum(uses[n, c] * width[n]) <= capacity[c] * 0.8
+        """
+        if not self.channel_widths or not self.design_rules:
+            return
+
+        slack_factor = 0.8
+
+        for layer_name, skeleton in self.skeletons.items():
+            widths = self.channel_widths.get(layer_name)
+            if not widths:
+                continue
+
+            for i, (u, v) in enumerate(skeleton.graph.edges):
+                n1, n2 = sorted([u, v])
+                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                
+                # Get capacity (min width of edge)
+                # Try both directions
+                capacity = widths.edge_widths.get((u, v))
+                if capacity is None:
+                    capacity = widths.edge_widths.get((v, u), 0.0)
+                
+                if capacity <= 0:
+                    continue
+
+                terms = []
+                for net_idx, net in enumerate(self.nets):
+                    # Get net width from design rules
+                    rule = self.design_rules.get_rules_for_net(net.name)
+                    net_width = rule.trace_width_mm + rule.clearance_mm # width + spacing
+                    
+                    # Find variable
+                    if (net_idx, edge_id) in self.model.net_channel_vars:
+                        var = self.model.net_channel_vars[(net_idx, edge_id)]
+                        terms.append((var, net_width))
+                
+                if terms:
+                    constraint = CapacityConstraint(
+                        name=f"cap_{edge_id}",
+                        channel_id=edge_id,
+                        capacity=capacity,
+                        slack_factor=slack_factor,
+                        terms=terms
+                    )
+                    self.model.add_constraint(constraint)
