@@ -4,6 +4,10 @@ Router V6: Topological-First Architecture
 See docs/architecture/ROUTER_V6_TOPOLOGICAL_ARCHITECTURE.md
 """
 
+from temper_placer.router_v6.dense_package_detection import (
+    DensePackage,
+    identify_dense_packages,
+)
 from temper_placer.router_v6.diff_pair_inference import (
     DiffPair,
     infer_differential_pairs,
@@ -25,6 +29,7 @@ from temper_placer.router_v6.stage0_data import (
 )
 
 __all__ = [
+    # Stage 0: Design Intent
     "ParsedPCB",
     "DesignRules",
     "NetClassRules",
@@ -36,4 +41,7 @@ __all__ = [
     "infer_safety_pairs",
     "LengthGroup",
     "infer_length_groups",
+    # Stage 1: Pin Escape
+    "DensePackage",
+    "identify_dense_packages",
 ]
