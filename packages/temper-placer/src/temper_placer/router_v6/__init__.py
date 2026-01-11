@@ -40,10 +40,6 @@ from temper_placer.router_v6.stage0_data import (
     ParsedPCB,
     StackupInfo,
 )
-from temper_placer.router_v6.via_type_selection import (
-    ViaSpec,
-    ViaType,
-    select_via_type,
 )
 
 __all__ = [
@@ -65,9 +61,6 @@ __all__ = [
     "ClassifiedPad",
     "EscapeClass",
     "classify_pads_by_escape_need",
-    "ViaSpec",
-    "ViaType",
-    "select_via_type",
     "EscapeVia",
     "generate_escape_vias",
     "DRCViolation",
