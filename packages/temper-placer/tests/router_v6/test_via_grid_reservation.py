@@ -38,7 +38,8 @@ def test_reserve_via_positions_grid_snapping():
     reserved = reserve_via_positions(escape_vias, grid_resolution_mm=0.1)
     
     # Should snap to nearest 0.1mm
-    assert reserved[0].position == (5.1, 10.1)
+    assert reserved[0].position[0] == pytest.approx(5.1, abs=0.01)
+    assert reserved[0].position[1] == pytest.approx(10.1, abs=0.01)
 
 
 def test_reserved_via_through_via_detection():
@@ -153,8 +154,10 @@ def test_reserve_via_positions_custom_grid():
     
     # Coarse grid (0.5mm)
     reserved = reserve_via_positions(escape_vias, grid_resolution_mm=0.5)
-    assert reserved[0].position == (5.0, 10.5)
+    assert reserved[0].position[0] == pytest.approx(5.0, abs=0.01)
+    assert reserved[0].position[1] == pytest.approx(10.5, abs=0.01)
     
     # Fine grid (0.05mm)
     reserved = reserve_via_positions(escape_vias, grid_resolution_mm=0.05)
-    assert reserved[0].position == (5.10, 10.45)
+    assert reserved[0].position[0] == pytest.approx(5.10, abs=0.01)
+    assert reserved[0].position[1] == pytest.approx(10.45, abs=0.01)

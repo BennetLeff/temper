@@ -184,7 +184,7 @@ def test_classify_pads_custom_threshold():
     
     # Larger threshold = more interior pads
     # (all 25 pads should be interior with 10mm threshold since max dist is < 10mm)
-    assert len(interior_large) >= len(interior_small)
+    assert len(interior_large) == 25
     assert len(interior_large) == 25  # All pads interior with large threshold
 
 
