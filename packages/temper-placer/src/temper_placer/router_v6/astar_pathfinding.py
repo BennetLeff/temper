@@ -111,27 +111,69 @@ def _astar_route(
     Returns:
         RoutePath or None if routing fails
     """
-    # Simplified A* implementation
-    # Use waypoints as path coordinates
+    # Get waypoints from channel path
     waypoints = channel_path.waypoints
 
-    if not waypoints:
-        # No waypoints, use channel-based routing
-        # For now, create a simple path
-        waypoints = [(0.0, 0.0), (10.0, 10.0)]
+    if not waypoints or len(waypoints) < 2:
+        # Need at least 2 waypoints (start and end)
+        return None
 
-    # Calculate path length
-    path_length = 0.0
+    # Refine waypoints into detailed path using A*
+    detailed_coords = []
+    
     for i in range(len(waypoints) - 1):
-        x1, y1 = waypoints[i]
-        x2, y2 = waypoints[i + 1]
+        start_world = waypoints[i]
+        goal_world = waypoints[i + 1]
+        
+        # Convert world coordinates to grid coordinates
+        start_grid = grid.world_to_grid(start_world[0], start_world[1])
+        goal_grid = grid.world_to_grid(goal_world[0], goal_world[1])
+        
+        # Check if coordinates are within grid bounds
+        start_valid = (0 <= start_grid[0] < grid.width_cells and 
+                      0 <= start_grid[1] < grid.height_cells)
+        goal_valid = (0 <= goal_grid[0] < grid.width_cells and 
+                     0 <= goal_grid[1] < grid.height_cells)
+        
+        if not start_valid or not goal_valid:
+            # Coordinates out of bounds, use direct line
+            if i == 0:
+                detailed_coords.append(start_world)
+            detailed_coords.append(goal_world)
+            continue
+        
+        # Run A* search between waypoints
+        grid_path = _astar_search(start_grid, goal_grid, grid)
+        
+        if grid_path:
+            # Convert grid path back to world coordinates
+            for grid_cell in grid_path:
+                world_coord = grid.grid_to_world(grid_cell[0], grid_cell[1])
+                # Avoid duplicate coordinates
+                if not detailed_coords or detailed_coords[-1] != world_coord:
+                    detailed_coords.append(world_coord)
+        else:
+            # A* failed, fall back to direct line
+            if i == 0:
+                detailed_coords.append(start_world)
+            detailed_coords.append(goal_world)
+    
+    # Ensure we have at least start and end
+    if not detailed_coords:
+        detailed_coords = waypoints
+
+    # Calculate total path length
+    path_length = 0.0
+    for i in range(len(detailed_coords) - 1):
+        x1, y1 = detailed_coords[i]
+        x2, y2 = detailed_coords[i + 1]
         dx = x2 - x1
         dy = y2 - y1
         path_length += (dx**2 + dy**2)**0.5
 
     return RoutePath(
         net_name=net_name,
-        coordinates=waypoints,
+        coordinates=detailed_coords,
         layer_name=grid.layer_name,
         path_length=path_length,
     )

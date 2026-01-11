@@ -132,9 +132,10 @@ def populate_sat_from_constraints(
             # Create human-readable variable name with net name if available
             if net_names and var.net_idx < len(net_names):
                 net_name = net_names[var.net_idx]
-                # Simplify channel ID for readability
-                channel_simple = var.channel_id.split('_')[0]  # Take layer name
-                var_name = f"uses_{net_name}_{channel_simple}"
+                # Use full channel ID to preserve routing info
+                # But ensure no conflicts with var name parsing which uses _ as separator
+                # Variable format: uses_{net_name}_{channel_id}
+                var_name = f"uses_{net_name}_{var.channel_id}"
                 description = f"Net {net_name} uses channel {var.channel_id}"
             else:
                 var_name = var.name

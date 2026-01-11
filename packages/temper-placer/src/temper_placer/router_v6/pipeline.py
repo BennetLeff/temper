@@ -357,7 +357,7 @@ class RouterV6Pipeline:
             print("  4.4: Assigning trace widths...")
         width_assignment = assign_trace_widths(
             pathfinding_result,
-            pcb.design_rules,
+            default_width=pcb.design_rules.default_trace_width_mm,
         )
 
         # 4.5-4.8: Skip length matching for now

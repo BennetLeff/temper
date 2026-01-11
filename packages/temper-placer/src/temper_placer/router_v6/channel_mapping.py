@@ -167,8 +167,30 @@ def _extract_waypoints(
                     return nodes[:min(5, len(nodes))]
         return []
 
+    import re
+
     # Try to parse channel IDs as coordinates
     for channel_id in channel_sequence:
+        # Check for multiple coordinates in ID (Edge ID)
+        # Format: ..._(x1, y1)_(x2, y2)
+        coord_matches = re.findall(r'\(([^)]+)\)', channel_id)
+        if len(coord_matches) >= 2:
+            # Edge with start/end points
+            found_edge_points = False
+            for match in coord_matches:
+                try:
+                    parts = match.split(',')
+                    if len(parts) == 2:
+                        x = float(parts[0].strip())
+                        y = float(parts[1].strip())
+                        waypoints.append((x, y))
+                        found_edge_points = True
+                except ValueError:
+                    pass
+            if found_edge_points:
+                continue
+
+        # Fallback to single coordinate parsing
         coord = _parse_channel_coordinate(channel_id, skeleton)
         if coord:
             waypoints.append(coord)
