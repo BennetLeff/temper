@@ -12,10 +12,6 @@ from temper_placer.router_v6.diff_pair_inference import (
     DiffPair,
     infer_differential_pairs,
 )
-from temper_placer.router_v6.escape_via_generator import (
-    EscapeVia,
-    generate_escape_vias,
-)
 from temper_placer.router_v6.length_group_inference import (
     LengthGroup,
     infer_length_groups,
@@ -35,6 +31,11 @@ from temper_placer.router_v6.stage0_data import (
     NetClassRules,
     ParsedPCB,
     StackupInfo,
+)
+from temper_placer.router_v6.via_type_selection import (
+    ViaSpec,
+    ViaType,
+    select_via_type,
 )
 
 __all__ = [
@@ -56,6 +57,7 @@ __all__ = [
     "ClassifiedPad",
     "EscapeClass",
     "classify_pads_by_escape_need",
-    "EscapeVia",
-    "generate_escape_vias",
+    "ViaSpec",
+    "ViaType",
+    "select_via_type",
 ]

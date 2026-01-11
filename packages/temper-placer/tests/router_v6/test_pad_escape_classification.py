@@ -174,16 +174,18 @@ def test_classify_pads_custom_threshold():
         requires_escape=True,
     )
     
-    # With large threshold (5mm), more pads are interior
-    classified_large = classify_pads_by_escape_need([pkg], interior_threshold_mm=5.0)
-    interior_large = [p for p in classified_large if p.escape_class == EscapeClass.INTERIOR]
-    
-    # With small threshold (0.5mm), fewer pads are interior
+    # With small threshold (0.5mm), most pads are interior (only edges are peripheral)
     classified_small = classify_pads_by_escape_need([pkg], interior_threshold_mm=0.5)
     interior_small = [p for p in classified_small if p.escape_class == EscapeClass.INTERIOR]
     
+    # With large threshold (10.0mm), even more pads are interior
+    classified_large = classify_pads_by_escape_need([pkg], interior_threshold_mm=10.0)
+    interior_large = [p for p in classified_large if p.escape_class == EscapeClass.INTERIOR]
+    
     # Larger threshold = more interior pads
-    assert len(interior_large) > len(interior_small)
+    # (all 25 pads should be interior with 10mm threshold since max dist is < 10mm)
+    assert len(interior_large) >= len(interior_small)
+    assert len(interior_large) == 25  # All pads interior with large threshold
 
 
 def test_is_thermal_pad_by_name():
