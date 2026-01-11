@@ -1,0 +1,24 @@
+{
+  "router": "v5",
+  "timestamp": 1768153808.3090298,
+  "boards": [
+    {
+      "board_name": "BLDC_4",
+      "net_reports": [],
+      "overall_score": 0.0,
+      "auto_routed_count": 0,
+      "flagged_count": 0,
+      "failed_count": 0,
+      "total_nets": 0,
+      "completion_rate": 0.0,
+      "total_route_length_mm": 0,
+      "avg_detour_ratio": 0.0,
+      "total_drc_violations": 0,
+      "runtime_seconds": 8.702278137207031e-05
+    }
+  ],
+  "summary": {
+    "board_count": 1,
+    "geometric_mean_score": 0.0
+  }
+}

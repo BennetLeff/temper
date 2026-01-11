@@ -45,34 +45,27 @@ class TestBoard:
 
 
 # Standard test suite locations
-PIANTOR_PATH = Path("/tmp/piantor/pcb/right/keyboard_pcb.kicad_pcb")
-LIBRESOLAR_MPPT_PATH = Path("/tmp/router-v6-test-suite/libresolar-mppt/MPPT_charger_20A.kicad_pcb")
-LIBRESOLAR_BMS_PATH = Path("/tmp/router-v6-test-suite/libresolar-bms/kicad/bms-8s50-ic.kicad_pcb")
-VESC_PATH = Path("/tmp/router-v6-test-suite/vesc/design/BLDC_4.kicad_pcb")
+# NOTE: Using unrouted versions from test fixtures for benchmarking
+BASE_PATH = Path("/Users/bennet/Desktop/temper/packages/temper-placer/tests/fixtures/external/.cache")
+
+PIANTOR_PATH = BASE_PATH / "piantor_right" / "piantor_right_unrouted.kicad_pcb"
+LIBRESOLAR_BMS_PATH = BASE_PATH / "libresolar_bms" / "libresolar_bms_unrouted.kicad_pcb"
+RP2040_PATH = BASE_PATH / "rp2040_designguide" / "rp2040_designguide_unrouted.kicad_pcb"
+BITAXE_PATH = BASE_PATH / "bitaxe_ultra" / "bitaxe_ultra_unrouted.kicad_pcb"
 TEMPER_PATH = Path("/Users/bennet/Desktop/temper/packages/temper-placer/temper_router_v6_fine.kicad_pcb")
 
 
-# Test board definitions
+# Test board definitions (using unrouted versions)
 TEST_BOARDS: List[TestBoard] = [
     TestBoard(
-        name="Piantor",
+        name="Piantor_Right",
         path=PIANTOR_PATH,
         domain="digital",
         layers=2,
         expected_net_count=33,
-        description="Split keyboard, regular grid of switches, 100% routed by V5",
+        description="Split keyboard, regular grid of switches",
         source="https://github.com/beekeeb/piantor",
         license="CC-BY-SA-4.0"
-    ),
-    TestBoard(
-        name="LibreSolar_MPPT",
-        path=LIBRESOLAR_MPPT_PATH,
-        domain="power",
-        layers=4,
-        expected_net_count=150,
-        description="20A MPPT solar charge controller, high-current traces, isolation",
-        source="https://github.com/LibreSolar/mppt-2420-lc",
-        license="Apache-2.0"
     ),
     TestBoard(
         name="LibreSolar_BMS",
@@ -85,24 +78,24 @@ TEST_BOARDS: List[TestBoard] = [
         license="Apache-2.0"
     ),
     TestBoard(
-        name="VESC",
-        path=VESC_PATH,
-        domain="power",
+        name="RP2040_DesignGuide",
+        path=RP2040_PATH,
+        domain="mixed",
         layers=4,
-        expected_net_count=180,
-        description="BLDC motor controller, high-power, thermal management",
-        source="https://github.com/vedderb/bldc-hardware",
+        expected_net_count=120,
+        description="RP2040 reference design, mixed digital/power",
+        source="Raspberry Pi Foundation",
         license="CC-BY-SA-4.0"
     ),
     TestBoard(
-        name="Temper",
-        path=TEMPER_PATH,
-        domain="power",
-        layers=4,
+        name="BitAxe_Ultra",
+        path=BITAXE_PATH,
+        domain="mixed",
+        layers=2,
         expected_net_count=80,
-        description="Induction heating system (target board), 21% routed by V5",
-        source="Internal",
-        license="Proprietary"
+        description="Bitcoin ASIC miner, high-speed digital + power",
+        source="https://github.com/skot/bitaxe",
+        license="GPL-3.0"
     ),
 ]
 
