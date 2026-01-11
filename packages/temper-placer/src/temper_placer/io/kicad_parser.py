@@ -784,6 +784,81 @@ def extract_footprint_positions(content: str) -> dict[str, dict]:
     return positions
 
 
+def extract_net_classes(content: str) -> dict:
+    """
+    Extract net class definitions from raw KiCad PCB content.
+
+    Returns:
+        Dict mapping class name to dict of rules:
+        {
+            "Name": {
+                "clearance": 0.2,
+                "trace_width": 0.25,
+                "via_dia": 0.8,
+                "via_drill": 0.4,
+                "nets": ["GND", "VCC"]
+            }
+        }
+    """
+    classes = {}
+
+    # Iterate over all (net_class ...) blocks
+    # We use a simple counter to find the matching closing parenthesis
+    start_indices = [m.start() for m in re.finditer(r'\(net_class\b', content)]
+
+    for start in start_indices:
+        balance = 0
+        end = start
+        found_start = False
+
+        for i in range(start, len(content)):
+            char = content[i]
+            if char == '(':
+                balance += 1
+                found_start = True
+            elif char == ')':
+                balance -= 1
+
+            if found_start and balance == 0:
+                end = i + 1
+                break
+
+        block = content[start:end]
+
+        # Extract name
+        # (net_class "Name" "Description" ...)
+        name_match = re.search(r'^\(net_class\s+"([^"]+)"', block)
+        if not name_match:
+            continue
+
+        name = name_match.group(1)
+
+        # Extract params
+        rules = {
+            "nets": []
+        }
+
+        # Helper to extract float
+        def get_float(pattern):
+            m = re.search(pattern, block)
+            return float(m.group(1)) if m else None
+
+        rules["clearance"] = get_float(r'\(clearance\s+([\d.]+)\)')
+        rules["trace_width"] = get_float(r'\(track_width\s+([\d.]+)\)') or get_float(r'\(trace_width\s+([\d.]+)\)')
+        rules["via_dia"] = get_float(r'\(via_dia\s+([\d.]+)\)')
+        rules["via_drill"] = get_float(r'\(via_drill\s+([\d.]+)\)')
+        rules["diff_pair_gap"] = get_float(r'\(diff_pair_gap\s+([\d.]+)\)')
+        rules["diff_pair_width"] = get_float(r'\(diff_pair_width\s+([\d.]+)\)')
+
+        # Extract nets
+        # (add_net "NetName")
+        rules["nets"] = re.findall(r'\(add_net\s+"([^"]+)"\)', block)
+
+        classes[name] = rules
+
+    return classes
+
+
 def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
     """
     Parse KiCad PCB for Router V6 Stage 0.1: Load KiCad PCB File.
@@ -817,12 +892,19 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
     # Load KiCad board
     ki_board = KiBoard.from_file(str(pcb_path))
 
+    # Read raw content for manual parsing (net classes)
+    try:
+        pcb_content = pcb_path.read_text(encoding="utf-8")
+    except Exception as e:
+        warnings.append(f"Failed to read PCB file content: {e}")
+        pcb_content = ""
+
     # Use existing parser for components, nets, zones, board geometry
     legacy_result = parse_kicad_pcb(pcb_path)
     warnings.extend(legacy_result.warnings)
 
     # Extract design rules
-    design_rules = _extract_design_rules(ki_board, warnings)
+    design_rules = _extract_design_rules(ki_board, warnings, pcb_content)
 
     # Extract stackup
     stackup = _extract_stackup(ki_board, warnings)
@@ -839,13 +921,14 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
     )
 
 
-def _extract_design_rules(ki_board: KiBoard, warnings: list[str]) -> "DesignRules":
+def _extract_design_rules(ki_board: KiBoard, warnings: list[str], pcb_content: str | None = None) -> "DesignRules":
     """
     Extract KiCad design rules from board setup.
 
     Args:
         ki_board: Parsed KiCad board.
         warnings: List to append warnings.
+        pcb_content: Raw PCB file content (optional, for manual net class parsing).
 
     Returns:
         DesignRules with net classes and assignments.
@@ -880,8 +963,55 @@ def _extract_design_rules(ki_board: KiBoard, warnings: list[str]) -> "DesignRule
             if hasattr(defaults, "viaDrill") or hasattr(defaults, "via_drill"):
                 default_via_drill = float(getattr(defaults, "viaDrill", getattr(defaults, "via_drill", 0.4)))
 
-    # Extract net classes
-    if hasattr(ki_board, "netClasses") and ki_board.netClasses:
+    # Extract net classes - Try Manual Parsing First
+    manual_classes = {}
+    if pcb_content:
+        manual_classes = extract_net_classes(pcb_content)
+
+    if manual_classes:
+        for class_name, rules in manual_classes.items():
+            # Use rules or fallback to defaults
+            clearance = rules.get("clearance")
+            if clearance is None:
+                clearance = default_clearance
+
+            trace_width = rules.get("trace_width")
+            if trace_width is None:
+                trace_width = default_trace_width
+
+            via_diameter = rules.get("via_dia")
+            if via_diameter is None:
+                via_diameter = default_via_diameter
+
+            via_drill = rules.get("via_drill")
+            if via_drill is None:
+                via_drill = default_via_drill
+
+            # Try to infer current rating from class name
+            current_rating = None
+            if "_" in class_name and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit():
+                try:
+                    current_rating = float(class_name.split("_")[-1].replace("A", ""))
+                except ValueError:
+                    pass
+
+            net_classes[class_name] = NetClassRules(
+                name=class_name,
+                clearance_mm=clearance,
+                trace_width_mm=trace_width,
+                via_diameter_mm=via_diameter,
+                via_drill_mm=via_drill,
+                diff_pair_gap_mm=rules.get("diff_pair_gap"),
+                diff_pair_width_mm=rules.get("diff_pair_width"),
+                current_rating_amps=current_rating,
+            )
+
+            # Extract member net assignments
+            for net_name in rules.get("nets", []):
+                net_class_assignments[net_name] = class_name
+
+    # Fallback to Kiutils if manual parsing failed (or wasn't used)
+    elif hasattr(ki_board, "netClasses") and ki_board.netClasses:
         for nc in ki_board.netClasses:
             class_name = nc.name if hasattr(nc, "name") else "Signal"
 

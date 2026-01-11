@@ -90,8 +90,8 @@ class DesignRules:
 
     def get_rules_for_net(self, net_name: str) -> NetClassRules:
         """Get design rules for a specific net."""
-        class_name = self.net_class_assignments.get(net_name, "Signal")
-        if class_name in self.net_classes:
+        class_name = self.net_class_assignments.get(net_name, None)
+        if class_name and class_name in self.net_classes:
             return self.net_classes[class_name]
 
         #  Fallback: default rules
