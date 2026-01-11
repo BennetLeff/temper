@@ -7,6 +7,7 @@ Part of temper-atsd (Stage 3 - Topological Routing)
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -14,7 +15,7 @@ from temper_placer.core.netlist import Net
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.diff_pair_inference import DiffPair
-from temper_placer.router_v6.stage0_data import DesignRules
+from temper_placer.router_v6.stage0_data import DesignRules, ParsedPCB
 
 
 @dataclass(kw_only=True)
@@ -101,10 +102,21 @@ class DiffPairConstraint(Constraint):
     n_var: NetChannelVar
 
 
+@dataclass(kw_only=True)
+class LayerConstraint(Constraint):
+    """
+    Constraint: uses[n, c] == value (usually 0 or 1)
+    Restricts a net to a specific layer for a given channel.
+    """
+    net_idx: int
+    channel_id: str
+    allowed: bool
+
+
 @dataclass
 class ConstraintModel:
     """
-    SAT/SMT Constraint Model for Topological Routing. 
+    SAT/SMT Constraint Model for Topological Routing.
     
     Holds all variables and constraints (in abstract form).
     """
@@ -136,18 +148,20 @@ class ModelBuilder:
     """Builder for generating the constraint model from skeletons and nets."""
     
     def __init__(
-        self,
-        skeletons: dict[str, ChannelSkeleton],
+        self, 
+        skeletons: dict[str, ChannelSkeleton], 
         nets: list[Net],
         channel_widths: dict[str, ChannelWidths] | None = None,
         design_rules: DesignRules | None = None,
-        diff_pairs: list[DiffPair] | None = None
+        diff_pairs: list[DiffPair] | None = None,
+        pcb: ParsedPCB | None = None
     ):
         self.skeletons = skeletons
         self.nets = nets
         self.channel_widths = channel_widths or {}
         self.design_rules = design_rules
         self.diff_pairs = diff_pairs or []
+        self.pcb = pcb
         self.model = ConstraintModel()
         
         # Build net name to index mapping for fast lookup
@@ -161,6 +175,7 @@ class ModelBuilder:
         self._create_via_vars()
         self._create_capacity_constraints()
         self._create_diff_pair_constraints()
+        self._create_layer_constraints()
         return self.model
         
     def _create_channel_vars(self):
@@ -185,11 +200,6 @@ class ModelBuilder:
 
     def _create_via_vars(self):
         """Create variables for via placement."""
-        # Vias can exist at skeleton nodes (intersections)
-        # We assume vias connect adjacent layers or all layers.
-        # For simplicity, we create potential via vars at every skeleton node
-        # that exists in multiple layers (or just spatially).
-        
         # Collect all unique node locations across all skeletons
         all_nodes = set()
         for skeleton in self.skeletons.values():
@@ -291,3 +301,56 @@ class ModelBuilder:
                             n_var=n_var
                         )
                         self.model.add_constraint(constraint)
+
+    def _create_layer_constraints(self):
+        """
+        Create layer constraints for pins.
+        Ensures SMD pins only connect to their respective layer.
+        """
+        if not self.pcb:
+            return
+
+        for comp in self.pcb.components:
+            comp_x, comp_y = comp.initial_position or (0.0, 0.0)
+            angle = float(comp.initial_rotation or 0) * math.pi / 2.0
+            
+            for pin in comp.pins:
+                if not pin.net or pin.net not in self.net_to_idx:
+                    continue
+                
+                net_idx = self.net_to_idx[pin.net]
+                pin_pos = pin.absolute_position((comp_x, comp_y), angle)
+                
+                # SMD pins are restricted to one layer
+                if not pin.is_pth:
+                    target_layer = pin.layer
+                    
+                    # Find all breakout edges for this pin
+                    # A breakout edge is an edge where one endpoint is the pin position
+                    for layer_name, skeleton in self.skeletons.items():
+                        if layer_name == target_layer:
+                            continue # Allowed
+                            
+                        # Restricted layer: for all edges connected to this pin position, 
+                        # set uses[net, edge] == 0
+                        for i, (u, v) in enumerate(skeleton.graph.edges):
+                            # Check if either endpoint matches pin position (with tolerance)
+                            match = False
+                            for node in [u, v]:
+                                if abs(node[0] - pin_pos[0]) < 0.01 and abs(node[1] - pin_pos[1]) < 0.01:
+                                    match = True
+                                    break
+                            
+                            if match:
+                                n1, n2 = sorted([u, v])
+                                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                                
+                                if (net_idx, edge_id) in self.model.net_channel_vars:
+                                    var = self.model.net_channel_vars[(net_idx, edge_id)]
+                                    constraint = LayerConstraint(
+                                        name=f"layer_restr_N{net_idx}_{edge_id}",
+                                        net_idx=net_idx,
+                                        channel_id=edge_id,
+                                        allowed=False
+                                    )
+                                    self.model.add_constraint(constraint)
