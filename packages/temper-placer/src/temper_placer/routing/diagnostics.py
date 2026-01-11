@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING
 from jax import Array
 
 from temper_placer.core.netlist import Component
+from temper_placer.metrics.routing_quality import RoutingQualityScore
 
 if TYPE_CHECKING:
     from temper_placer.routing.maze_router import RoutePath
@@ -114,6 +115,7 @@ class RoutingReport:
         total_wirelength: Total routed wirelength in mm
         total_vias: Total number of vias used
         worst_congestion: Maximum congestion value
+        quality_score: Detailed routing quality metrics, if available
     """
 
     feasible: bool
@@ -125,6 +127,7 @@ class RoutingReport:
     total_wirelength: float
     total_vias: int
     worst_congestion: float
+    quality_score: RoutingQualityScore | None = None
 
 
 def generate_no_path_diagnostic(
@@ -425,6 +428,16 @@ def generate_markdown_report(report: RoutingReport) -> str:
     lines.append(f"**Total Wirelength**: {report.total_wirelength:.1f}mm")
     lines.append(f"**Total Vias**: {report.total_vias}")
     lines.append(f"**Worst Congestion**: {report.worst_congestion:.2f}")
+    
+    if report.quality_score:
+        lines.append("")
+        lines.append("### Quality Metrics")
+        lines.append("")
+        status = "✅ ACCEPTABLE" if report.quality_score.is_acceptable else "❌ UNACCEPTABLE"
+        lines.append(f"- **Overall Quality Score**: {report.quality_score.score:.1f}/100")
+        lines.append(f"- **Acceptability Status**: {status}")
+        lines.append(f"- **DRC Violations**: {report.quality_score.drc_violations}")
+    
     lines.append("")
 
     # Failed nets section

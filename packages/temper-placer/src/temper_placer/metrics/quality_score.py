@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from temper_placer.routing.verifier import VerificationResult
 from temper_placer.validation.drc_runner import DrcResult
 from temper_placer.validation.metrics import PlacementMetrics
+from temper_placer.metrics.routing_quality import evaluate_routing_quality, RoutingQualityScore
 
 
 @dataclass
@@ -47,6 +48,7 @@ class QualityScore:
         routing_score: Routing quality subscore (0-100), or None if not routed.
         interpretation: Human-readable interpretation ('poor', 'ok', 'good', 'excellent').
         pass_quality: True if score >= 60 (minimum acceptable).
+        routing_quality: Detailed routing quality metrics, or None if not routed.
     """
 
     overall: float
@@ -55,6 +57,7 @@ class QualityScore:
     routing_score: float | None
     interpretation: str
     pass_quality: bool
+    routing_quality: RoutingQualityScore | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
@@ -63,6 +66,7 @@ class QualityScore:
             "placement_score": self.placement_score,
             "drc_score": self.drc_score,
             "routing_score": self.routing_score,
+            "routing_quality": self.routing_quality.to_dict() if self.routing_quality else None,
             "interpretation": self.interpretation,
             "pass_quality": self.pass_quality,
         }
@@ -83,7 +87,7 @@ def compute_quality_score(
     Scoring breakdown (with routing):
     - Placement: 40%
     - DRC: 40%
-    - Routing: 20% (completion rate, wirelength ratio)
+    - Routing: 20% (completion rate, via count, drc)
 
     Args:
         placement_metrics: Computed placement metrics.
@@ -101,8 +105,10 @@ def compute_quality_score(
 
     # Compute routing score if available (0-100)
     routing_score = None
+    routing_quality = None
     if routing_result is not None:
-        routing_score = _compute_routing_score(routing_result, placement_metrics)
+        routing_quality = evaluate_routing_quality(routing_result, drc_result)
+        routing_score = routing_quality.score
 
     # Compute overall weighted score
     if routing_score is None:
@@ -121,6 +127,7 @@ def compute_quality_score(
         placement_score=placement_score,
         drc_score=drc_score,
         routing_score=routing_score,
+        routing_quality=routing_quality,
         interpretation=interpretation,
         pass_quality=pass_quality,
     )
@@ -145,8 +152,6 @@ def _compute_placement_score(metrics: PlacementMetrics) -> float:
     # Wirelength penalty
     if metrics.total_wirelength > 0:
         # Assume avg net length > 50mm is problematic
-        avg_len = metrics.total_wirelength / max(1, metrics.overlap_count + 1) # This was avg_net_length
-        # Wait, metrics has avg_net_length?
         avg_len = getattr(metrics, "avg_net_length", 0.0)
         if avg_len > 50:
             score -= min(10, (avg_len - 50) / 10)

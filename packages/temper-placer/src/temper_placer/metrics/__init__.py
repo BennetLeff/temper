@@ -22,6 +22,10 @@ from temper_placer.metrics.quality_score import (
     compute_quality_score,
     interpret_score,
 )
+from temper_placer.metrics.routing_quality import (
+    RoutingQualityScore,
+    evaluate_routing_quality,
+)
 
 __all__ = [
     "total_wirelength",
@@ -36,4 +40,6 @@ __all__ = [
     "QualityInputs",
     "compute_quality_score",
     "interpret_score",
+    "RoutingQualityScore",
+    "evaluate_routing_quality",
 ]
