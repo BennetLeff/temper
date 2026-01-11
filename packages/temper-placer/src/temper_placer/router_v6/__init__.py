@@ -42,6 +42,11 @@ from temper_placer.router_v6.pad_escape_classification import (
     EscapeClass,
     classify_pads_by_escape_need,
 )
+from temper_placer.router_v6.routing_failure_handler import (
+    FlaggedNet,
+    RoutingFailureReport,
+    handle_routing_failures,
+)
 from temper_placer.router_v6.safety_pair_inference import (
     SafetyPair,
     infer_safety_pairs,
@@ -90,4 +95,8 @@ __all__ = [
     "CapacityConstraint",
     "DiffPairConstraint",
     "LayerConstraint",
+    # Stage 4: Geometric Realization
+    "FlaggedNet",
+    "RoutingFailureReport",
+    "handle_routing_failures",
 ]
