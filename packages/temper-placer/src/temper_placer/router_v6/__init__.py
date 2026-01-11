@@ -8,6 +8,10 @@ from temper_placer.router_v6.diff_pair_inference import (
     DiffPair,
     infer_differential_pairs,
 )
+from temper_placer.router_v6.length_group_inference import (
+    LengthGroup,
+    infer_length_groups,
+)
 from temper_placer.router_v6.safety_pair_inference import (
     SafetyPair,
     infer_safety_pairs,
@@ -30,4 +34,6 @@ __all__ = [
     "infer_differential_pairs",
     "SafetyPair",
     "infer_safety_pairs",
+    "LengthGroup",
+    "infer_length_groups",
 ]
