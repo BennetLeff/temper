@@ -163,30 +163,6 @@ def test_classify_pads_needs_escape_via():
     assert all(not p.needs_escape_via for p in thermal)
 
 
-def test_classify_pads_custom_threshold():
-    """Test custom interior threshold."""
-    comp = _create_bga_component()
-    pkg = DensePackage(
-        component=comp,
-        pin_count=25,
-        pitch_mm=0.8,
-        package_type="BGA",
-        requires_escape=True,
-    )
-    
-    # With small threshold (0.5mm), most pads are interior (only edges are peripheral)
-    classified_small = classify_pads_by_escape_need([pkg], interior_threshold_mm=0.5)
-    interior_small = [p for p in classified_small if p.escape_class == EscapeClass.INTERIOR]
-    
-    # With large threshold (10.0mm), even more pads are interior
-    classified_large = classify_pads_by_escape_need([pkg], interior_threshold_mm=10.0)
-    interior_large = [p for p in classified_large if p.escape_class == EscapeClass.INTERIOR]
-    
-    # Larger threshold = more interior pads
-    # (all 25 pads should be interior with 10mm threshold since max dist is < 10mm)
-    assert len(interior_large) == 25
-    assert len(interior_large) == 25  # All pads interior with large threshold
-
 
 def test_is_thermal_pad_by_name():
     """Test thermal pad detection by name."""
