@@ -9,15 +9,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from temper_placer.router_v6.via_type_selection import ViaSpec
-
 
 @dataclass
 class ReservedViaPosition:
     """A reserved position in the routing grid for an escape via."""
 
     position: tuple[float, float]  # (x, y) in mm
-    via_spec: ViaSpec
+    via_diameter_mm: float
+    via_drill_mm: float
     net_name: str
     layers: tuple[str, str]  # (start_layer, end_layer), e.g., ("L1", "L2")
     component_ref: str  # Reference of component this via escapes from
@@ -25,7 +24,7 @@ class ReservedViaPosition:
     @property
     def is_through_via(self) -> bool:
         """True if this is a through-hole via (all layers)."""
-        # Through vias typically go L1 to Ln
+        # Through via typically goes L1 to Ln  
         return self.layers[0] == "L1" and self.layers[1].startswith("L") and int(self.layers[1][1:]) >= 4
 
     @property
@@ -43,14 +42,14 @@ class ReservedViaPosition:
 
 
 def reserve_via_positions(
-    escape_vias: list[tuple[tuple[float, float], ViaSpec, str, str, tuple[str, str]]],
+    escape_vias: list[tuple[tuple[float, float], float, float, str, str, tuple[str, str]]],
     grid_resolution_mm: float = 0.1,
 ) -> list[ReservedViaPosition]:
     """
     Reserve via positions in routing grid to prevent conflicts.
 
     Args:
-        escape_vias: List of (position, via_spec, net_name, component_ref, layers) tuples
+        escape_vias: List of (position, diameter, drill, net_name, component_ref, layers) tuples
         grid_resolution_mm: Grid resolution for snapping (default 0.1mm)
 
     Returns:
@@ -58,16 +57,15 @@ def reserve_via_positions(
 
     Example:
         >>> vias = [
-        ...     ((5.0, 10.0), via_spec, "USB_DP", "U1", ("L1", "L2")),
-        ...     ((5.5, 10.5), via_spec, "USB_DN", "U1", ("L1", "L2")),
+        ...     ((5.0, 10.0), 0.35, 0.15, "USB_DP", "U1", ("L1", "L2")),
         ... ]
         >>> reserved = reserve_via_positions(vias)
         >>> len(reserved)
-        2
+        1
     """
     reserved = []
 
-    for position, via_spec, net_name, component_ref, layers in escape_vias:
+    for position, diameter, drill, net_name, component_ref, layers in escape_vias:
         # Snap position to grid
         snapped_x = round(position[0] / grid_resolution_mm) * grid_resolution_mm
         snapped_y = round(position[1] / grid_resolution_mm) * grid_resolution_mm
@@ -76,7 +74,8 @@ def reserve_via_positions(
         reserved.append(
             ReservedViaPosition(
                 position=snapped_position,
-                via_spec=via_spec,
+                via_diameter_mm=diameter,
+                via_drill_mm=drill,
                 net_name=net_name,
                 layers=layers,
                 component_ref=component_ref,
