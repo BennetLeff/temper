@@ -11,6 +11,7 @@ import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
@@ -18,6 +19,9 @@ from kiutils.schematic import Schematic
 
 from temper_placer.core.board import Board, MountingHole, Zone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+
+if TYPE_CHECKING:
+    from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
 @dataclass
@@ -779,4 +783,241 @@ def extract_footprint_positions(content: str) -> dict[str, dict]:
     
     return positions
 
+
+def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
+    """
+    Parse KiCad PCB for Router V6 Stage 0.1: Load KiCad PCB File.
+
+    Extracts complete ParsedPCB structure including:
+    - Components, nets, zones (from existing parser)
+    - Design rules: net classes, clearances, via sizes
+    - Stackup: layer count, types, thicknesses, plane assignments
+
+    Args:
+        pcb_path: Path to .kicad_pcb file.
+
+    Returns:
+        ParsedPCB with all required data for Router V6.
+
+    Example:
+        >>> pcb = parse_kicad_pcb_v6(Path("temper.kicad_pcb"))
+        >>> errors = pcb.validate_placement()
+        >>> assert len(errors) == 0, f"PCB validation failed: {errors}"
+    """
+    from temper_placer.router_v6.stage0_data import (
+        DesignRules,
+        LayerInfo,
+        NetClassRules,
+        ParsedPCB,
+        StackupInfo,
+    )
+
+    warnings: list[str] = []
+
+    # Load KiCad board
+    ki_board = KiBoard.from_file(str(pcb_path))
+
+    # Use existing parser for components, nets, zones, board geometry
+    legacy_result = parse_kicad_pcb(pcb_path)
+    warnings.extend(legacy_result.warnings)
+
+    # Extract design rules
+    design_rules = _extract_design_rules(ki_board, warnings)
+
+    # Extract stackup
+    stackup = _extract_stackup(ki_board, warnings)
+
+    return ParsedPCB(
+        components=legacy_result.netlist.components,
+        nets=legacy_result.netlist.nets,
+        zones=legacy_result.board.zones if legacy_result.board else [],
+        board=legacy_result.board or Board.temper_default(),
+        design_rules=design_rules,
+        stackup=stackup,
+        source_path=pcb_path,
+        warnings=warnings,
+    )
+
+
+def _extract_design_rules(ki_board: KiBoard, warnings: list[str]) -> "DesignRules":
+    """
+    Extract KiCad design rules from board setup.
+
+    Args:
+        ki_board: Parsed KiCad board.
+        warnings: List to append warnings.
+
+    Returns:
+        DesignRules with net classes and assignments.
+    """
+    from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+
+    net_classes = {}
+    net_class_assignments = {}
+
+    # Default values (KiCad 6 defaults)
+    default_clearance = 0.2  # mm
+    default_trace_width = 0.25  # mm
+    default_via_diameter = 0.8  # mm
+    default_via_drill = 0.4  # mm
+
+    # Extract global design rules from setup
+    if hasattr(ki_board, "setup") and ki_board.setup:
+        setup = ki_board.setup
+        if hasattr(setup, "pcbPlotParams"):
+            # KiCad 6+ stores some params in pcbPlotParams
+            pass
+
+        # Try to find default rules
+        if hasattr(setup, "defaults"):
+            defaults = setup.defaults
+            if hasattr(defaults, "clearance"):
+                default_clearance = float(defaults.clearance)
+            if hasattr(defaults, "trackWidth") or hasattr(defaults, "trace_width"):
+                default_trace_width = float(getattr(defaults, "trackWidth", getattr(defaults, "trace_width", 0.25)))
+            if hasattr(defaults, "viaDiameter") or hasattr(defaults, "via_dia"):
+                default_via_diameter = float(getattr(defaults, "viaDiameter", getattr(defaults, "via_dia", 0.8)))
+            if hasattr(defaults, "viaDrill") or hasattr(defaults, "via_drill"):
+                default_via_drill = float(getattr(defaults, "viaDrill", getattr(defaults, "via_drill", 0.4)))
+
+    # Extract net classes
+    if hasattr(ki_board, "netClasses") and ki_board.netClasses:
+        for nc in ki_board.netClasses:
+            class_name = nc.name if hasattr(nc, "name") else "Signal"
+
+            # Extract rules
+            clearance = float(getattr(nc, "clearance", default_clearance))
+            trace_width = float(getattr(nc, "trackWidth", getattr(nc, "trace_width", default_trace_width)))
+            via_diameter = float(getattr(nc, "viaDiameter", getattr(nc, "via_dia", default_via_diameter)))
+            via_drill = float(getattr(nc, "viaDrill", getattr(nc, "via_drill", default_via_drill)))
+            diff_pair_gap = float(getattr(nc, "diffPairGap", 0)) if hasattr(nc, "diffPairGap") else None
+            diff_pair_width = float(getattr(nc, "diffPairWidth", 0)) if hasattr(nc, "diffPairWidth") else None
+
+            # Try to infer current rating from class name
+            current_rating = None
+            if "_" in class_name and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit():
+                try:
+                    current_rating = float(class_name.split("_")[-1].replace("A", ""))
+                except ValueError:
+                    pass
+
+            net_classes[class_name] = NetClassRules(
+                name=class_name,
+                clearance_mm=clearance,
+                trace_width_mm=trace_width,
+                via_diameter_mm=via_diameter,
+                via_drill_mm=via_drill,
+                diff_pair_gap_mm=diff_pair_gap,
+                diff_pair_width_mm=diff_pair_width,
+                current_rating_amps=current_rating,
+            )
+
+            # Extract member net assignments
+            if hasattr(nc, "nets") and nc.nets:
+                for net_name in nc.nets:
+                    net_class_assignments[net_name] = class_name
+
+    # Add default class if not present
+    if "Signal" not in net_classes:
+        net_classes["Signal"] = NetClassRules(
+            name="Signal",
+            clearance_mm=default_clearance,
+            trace_width_mm=default_trace_width,
+            via_diameter_mm=default_via_diameter,
+            via_drill_mm=default_via_drill,
+        )
+
+    return DesignRules(
+        net_classes=net_classes,
+        net_class_assignments=net_class_assignments,
+        default_clearance_mm=default_clearance,
+        default_trace_width_mm=default_trace_width,
+        default_via_diameter_mm=default_via_diameter,
+        default_via_drill_mm=default_via_drill,
+    )
+
+
+def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
+    """
+    Extract PCB layer stackup from KiCad board.
+
+    Args:
+        ki_board: Parsed KiCad board.
+        warnings: List to append warnings.
+
+    Returns:
+        StackupInfo with layer definitions.
+    """
+    from temper_placer.router_v6.stage0_data import LayerInfo, StackupInfo
+
+    layers = []
+
+    # Determine layer count from board
+    layer_count = 2  # Default to 2-layer
+    if hasattr(ki_board, "layers") and ki_board.layers:
+        # Count copper layers
+        copper_layers = [l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")]
+        layer_count = len(copper_layers)
+
+    # Standard layer names for 2/4/6-layer boards
+    if layer_count == 2:
+        layer_names = ["F.Cu", "B.Cu"]
+    elif layer_count == 4:
+        layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+    elif layer_count == 6:
+        layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
+    else:
+        warnings.append(f"Unusual layer count: {layer_count}. Using generic naming.")
+        layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
+
+    # Assign plane nets from zones
+    plane_assignments = {}
+    if hasattr(ki_board, "zones"):
+        for zone in ki_board.zones:
+            if hasattr(zone, "layers") and zone.layers and hasattr(zone, "netName") and zone.netName:
+                # Check if zone covers most of the layer (indicates plane)
+                for layer in zone.layers:
+                    if ".Cu" in layer and "GND" in zone.netName or "VCC" in zone.netName or "+" in zone.netName:
+                        # Heuristic: GND/power nets on inner layers are planes
+                        if layer in ["In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu"]:
+                            plane_assignments[layer] = zone.netName
+
+    # Create layer info
+    for i, name in enumerate(layer_names):
+        # Determine layer type
+        if name in plane_assignments:
+            layer_type = "plane"
+            plane_net = plane_assignments[name]
+        elif i == 0 or i == layer_count - 1:
+            layer_type = "signal"  # Outer layers are signal
+            plane_net = None
+        else:
+            # Inner layers: default to mixed (can be signal or plane)
+            layer_type = "mixed"
+            plane_net = None
+
+        # Standard copper thickness: 35µm (1oz)
+        thickness_um = 35.0
+        if i == 0 or i == layer_count - 1:
+            # Outer layers sometimes thicker
+            thickness_um = 35.0
+
+        layers.append(
+            LayerInfo(
+                index=i,
+                name=name,
+                layer_type=layer_type,
+                thickness_um=thickness_um,
+                plane_net=plane_net,
+            )
+        )
+
+    # Total thickness: 1.6mm standard, 0.8mm for 2-layer, 1.6mm for 4+ layer
+    total_thickness = 1.6 if layer_count >= 4 else 0.8
+
+    return StackupInfo(
+        layers=layers,
+        total_thickness_mm=total_thickness,
+        layer_count=layer_count,
+    )
 
