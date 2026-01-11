@@ -85,10 +85,62 @@ class OccupancyGrid:
         total = self.width_cells * self.height_cells
         return self.blocked_cell_count / total if total > 0 else 0.0
 
+    def mark_path_blocked(
+        self,
+        path: list[tuple[float, float]],
+        trace_width: float,
+        clearance: float,
+    ) -> None:
+        """
+        Mark cells occupied by a routed path (with clearance expansion).
+        
+        Args:
+            path: List of (x, y) coordinates
+            trace_width: Width of the trace in mm
+            clearance: Required clearance in mm
+        """
+        # Calculate how many cells to block around center
+        # width/2 + clearance gives blocking radius
+        radius_mm = (trace_width / 2) + clearance
+        expansion = int(np.ceil(radius_mm / self.cell_size))
+        
+        # Helper to mark a single point
+        def mark_point(x_mm, y_mm):
+            cx, cy = self.world_to_grid(x_mm, y_mm)
+            
+            # Simple square expansion for now (fast)
+            # For 0.1mm grid, expansion=2 typically (0.2+0.127)/0.1 = 3.27 -> 4
+            x_start = max(0, cx - expansion)
+            x_end = min(self.width_cells, cx + expansion + 1)
+            y_start = max(0, cy - expansion)
+            y_end = min(self.height_cells, cy + expansion + 1)
+            
+            self.grid[y_start:y_end, x_start:x_end] = CellState.BLOCKED.value
+
+        # Mark all points in path
+        if not path:
+            return
+            
+        # Rasterize lines between points
+        for i in range(len(path) - 1):
+            p1 = path[i]
+            p2 = path[i+1]
+            
+            # Interpolate for smooth blocking if segment is long
+            dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+            steps = int(np.ceil(dist / (self.cell_size / 2))) # 2x density for safety
+            
+            if steps > 0:
+                for s in range(steps + 1):
+                    t = s / steps
+                    x = p1[0] + t * (p2[0] - p1[0])
+                    y = p1[1] + t * (p2[1] - p1[1])
+                    mark_point(x, y)
+
 
 def build_occupancy_grid(
     routing_space: RoutingSpace,
-    cell_size: float = 0.5,
+    cell_size: float = 0.1,
     margin: float = 2.0,
 ) -> OccupancyGrid:
     """
@@ -96,7 +148,7 @@ def build_occupancy_grid(
 
     Args:
         routing_space: Routing space from Stage 2.2
-        cell_size: Grid cell size in mm (default 0.5mm)
+        cell_size: Grid cell size in mm (default 0.1mm)
         margin: Margin around routing area in mm
 
     Returns:

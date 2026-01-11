@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.stage0_data import DesignRules
 
 
 @dataclass
@@ -53,6 +54,7 @@ class PathfindingResult:
 def run_astar_pathfinding(
     channel_mapping: ChannelMapping,
     grid: OccupancyGrid,
+    design_rules: DesignRules,
 ) -> PathfindingResult:
     """
     Run A* pathfinding to generate routing paths.
@@ -63,29 +65,34 @@ def run_astar_pathfinding(
     Args:
         channel_mapping: Channel paths from Stage 4.1
         grid: Occupancy grid from Stage 2.5
+        design_rules: PCB design rules for width/clearance
 
     Returns:
         PathfindingResult with routed paths
-
-    Example:
-        >>> from temper_placer.router_v6.channel_mapping import ChannelMapping
-        >>> from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-        >>> import numpy as np
-        >>> mapping = ChannelMapping(channel_paths={})
-        >>> grid = OccupancyGrid("F.Cu", np.zeros((10, 10)), (0, 0), 1.0, 10, 10)
-        >>> result = run_astar_pathfinding(mapping, grid)
-        >>> result.success_count >= 0
-        True
     """
     routed_paths = {}
     failed_nets = []
 
-    for net_name, channel_path in channel_mapping.channel_paths.items():
+    # Sort nets by routing scheduling priority
+    net_order = _compute_net_order(channel_mapping)
+
+    for net_name in net_order:
+        channel_path = channel_mapping.channel_paths.get(net_name)
+        if not channel_path:
+            continue
+            
         # Try to route this net using A*
         route_path = _astar_route(net_name, channel_path, grid)
 
         if route_path:
             routed_paths[net_name] = route_path
+            
+            # KEY: Update grid to mark path as blocked for subsequent nets
+            grid.mark_path_blocked(
+                route_path.coordinates,
+                trace_width=design_rules.default_trace_width_mm,
+                clearance=design_rules.default_clearance_mm,
+            )
         else:
             failed_nets.append(net_name)
 
@@ -93,6 +100,33 @@ def run_astar_pathfinding(
         routed_paths=routed_paths,
         failed_nets=failed_nets,
     )
+
+
+def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
+    """
+    Compute routing order for nets.
+    
+    Priority:
+    1. Power/HV/Critical nets (inferred from name)
+    2. Shortest paths first (easier to fit)
+    """
+    nets = list(channel_mapping.channel_paths.keys())
+    
+    def priority_key(net_name: str):
+        path = channel_mapping.channel_paths[net_name]
+        
+        # Priority 1: Critical nets
+        name_upper = net_name.upper()
+        # "GND", "VCC", "5V", "3V3", "HV", "AC"
+        is_power = any(x in name_upper for x in ["GND", "VCC", "HV", "AC_", "+"])
+        
+        # Priority 2: Length (shortest first)
+        length = path.total_length
+        
+        # Tuple comparison: False < True, so use not is_power to put power first
+        return (not is_power, length)
+        
+    return sorted(nets, key=priority_key)
 
 
 def _astar_route(
@@ -216,16 +250,24 @@ def _astar_search(
                 current = came_from[current]
             return list(reversed(path))
 
-        # Explore neighbors
+        # Explore neighbors (8-connected)
         x, y = current
-        for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+        # Directions: Right, Down, Left, Up, Diagonals
+        moves = [
+            (1, 0), (0, 1), (-1, 0), (0, -1),
+            (1, 1), (1, -1), (-1, 1), (-1, -1)
+        ]
+        
+        for dx, dy in moves:
             neighbor = (x + dx, y + dy)
 
             # Check if neighbor is valid and free
             if not grid.is_free(neighbor[0], neighbor[1]):
                 continue
-
-            new_cost = cost_so_far[current] + 1
+            
+            # Diagonal cost = 1.414, Cardinal = 1.0
+            move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
+            new_cost = cost_so_far[current] + move_cost
 
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                 cost_so_far[neighbor] = new_cost
@@ -237,5 +279,9 @@ def _astar_search(
 
 
 def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
-    """Manhattan distance heuristic."""
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    """Manhattan/Octile distance heuristic."""
+    dx = abs(a[0] - b[0])
+    dy = abs(a[1] - b[1])
+    # Octile distance for 8-connected grid
+    # Cost = max(dx, dy) + (sqrt(2)-1)*min(dx, dy) = max + 0.414*min
+    return max(dx, dy) + 0.414 * min(dx, dy)

@@ -341,7 +341,11 @@ class RouterV6Pipeline:
             print("  4.2: Running A* pathfinding...")
         # Use first layer's grid for pathfinding
         first_layer = list(stage2.occupancy_grids.values())[0]
-        pathfinding_result = run_astar_pathfinding(channel_mapping, first_layer)
+        pathfinding_result = run_astar_pathfinding(
+            channel_mapping,
+            first_layer,
+            pcb.design_rules,
+        )
 
         # 4.3: Place vias
         if self.verbose:
