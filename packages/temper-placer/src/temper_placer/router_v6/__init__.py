@@ -12,6 +12,10 @@ from temper_placer.router_v6.diff_pair_inference import (
     DiffPair,
     infer_differential_pairs,
 )
+from temper_placer.router_v6.escape_drc_validator import (
+    DRCViolation,
+    validate_escape_plan,
+)
 from temper_placer.router_v6.escape_via_generator import (
     EscapeVia,
     generate_escape_vias,
@@ -58,4 +62,6 @@ __all__ = [
     "classify_pads_by_escape_need",
     "EscapeVia",
     "generate_escape_vias",
+    "DRCViolation",
+    "validate_escape_plan",
 ]
