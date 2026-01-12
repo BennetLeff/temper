@@ -323,28 +323,78 @@ class RouterV6Pipeline:
         stage2: Stage2Output,
         stage3: Stage3Output,
     ) -> Stage4Output:
-        """Run Stage 4: Geometric Realization."""
+        """Run Stage 4: Geometric Realization with multi-layer support."""
+        from temper_placer.router_v6.channel_mapping import ChannelMapping
 
         # 4.1: Setup channel mapping (from topology solution)
         if self.verbose:
             print("  4.1: Setting up channel mapping...")
-        # Map topology graph to concrete channels
-        # Use first layer skeleton for mapping (simplified)
-        first_skeleton = list(stage2.skeletons.values())[0]
+        
+        # Use F.Cu skeleton for initial mapping (layer assignment happens inside)
+        fcu_skeleton = stage2.skeletons.get("F.Cu")
+        bcu_skeleton = stage2.skeletons.get("B.Cu")
+        
+        # Fall back to first available if named layers don't exist
+        if not fcu_skeleton:
+            fcu_skeleton = list(stage2.skeletons.values())[0]
+        if not bcu_skeleton:
+            bcu_skeleton = list(stage2.skeletons.values())[-1]
+        
+        # Map all nets with layer assignment
         channel_mapping = map_topology_to_channels(
             stage3.topology_graph,
-            first_skeleton,
+            fcu_skeleton,  # Use F.Cu skeleton for mapping (waypoints are generic)
+            nets=pcb.nets,
+            components=pcb.components,
         )
 
-        # 4.2: Run A* pathfinding
+        # 4.2: Run A* pathfinding PER LAYER
         if self.verbose:
-            print("  4.2: Running A* pathfinding...")
-        # Use first layer's grid for pathfinding
-        first_layer = list(stage2.occupancy_grids.values())[0]
-        pathfinding_result = run_astar_pathfinding(
-            channel_mapping,
-            first_layer,
-            pcb.design_rules,
+            print("  4.2: Running A* pathfinding (multi-layer)...")
+        
+        # Get grids for each layer
+        fcu_grid = stage2.occupancy_grids.get("F.Cu")
+        bcu_grid = stage2.occupancy_grids.get("B.Cu")
+        
+        if not fcu_grid:
+            fcu_grid = list(stage2.occupancy_grids.values())[0]
+        if not bcu_grid:
+            bcu_grid = list(stage2.occupancy_grids.values())[-1]
+        
+        # Split channel mapping by preferred layer
+        fcu_paths = {name: path for name, path in channel_mapping.channel_paths.items() 
+                     if path.preferred_layer == "F.Cu"}
+        bcu_paths = {name: path for name, path in channel_mapping.channel_paths.items() 
+                     if path.preferred_layer == "B.Cu"}
+        
+        if self.verbose:
+            print(f"    F.Cu: {len(fcu_paths)} nets, B.Cu: {len(bcu_paths)} nets")
+        
+        # Route F.Cu nets WITH B.Cu fallback for THT pads
+        fcu_mapping = ChannelMapping(channel_paths=fcu_paths)
+        fcu_result = run_astar_pathfinding(
+            fcu_mapping, fcu_grid, pcb.design_rules,
+            alternate_grid=bcu_grid,  # Allow fallback to B.Cu at THT pads
+            pcb=pcb,  # For THT pad location building
+        )
+        
+        # Route B.Cu nets
+        bcu_mapping = ChannelMapping(channel_paths=bcu_paths)
+        bcu_result = run_astar_pathfinding(bcu_mapping, bcu_grid, pcb.design_rules)
+        
+        # Merge results
+        merged_routed = {**fcu_result.routed_paths, **bcu_result.routed_paths}
+        merged_failed = list(set(fcu_result.failed_nets + bcu_result.failed_nets))
+        merged_reports = {}
+        if fcu_result.failure_reports:
+            merged_reports.update(fcu_result.failure_reports)
+        if bcu_result.failure_reports:
+            merged_reports.update(bcu_result.failure_reports)
+        
+        pathfinding_result = PathfindingResult(
+            routed_paths=merged_routed,
+            failed_nets=merged_failed,
+            failure_reports=merged_reports if merged_reports else None,
         )
 
         # 4.3: Place vias

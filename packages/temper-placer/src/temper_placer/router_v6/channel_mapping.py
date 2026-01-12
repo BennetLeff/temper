@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 import networkx as nx
 
+from temper_placer.core.netlist import Component, Net
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 
@@ -23,6 +24,20 @@ class ChannelPath:
     channel_sequence: list[str]  # Ordered list of channel IDs
     waypoints: list[tuple[float, float]]  # (x, y) coordinates along path
     total_length: float  # Total path length in mm
+    preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
+
+
+def _assign_layer(net_name: str) -> str:
+    """
+    Assign net to preferred layer based on net class.
+
+    Power nets go to B.Cu (bottom) to free up F.Cu for signals.
+    """
+    name_upper = net_name.upper()
+    power_keywords = ["GND", "VCC", "VBUS", "+", "PWR", "V+", "V-"]
+    if any(kw in name_upper for kw in power_keywords):
+        return "B.Cu"
+    return "F.Cu"
 
 
 @dataclass
@@ -44,35 +59,38 @@ class ChannelMapping:
 def map_topology_to_channels(
     topology: TopologyGraph,
     skeleton: ChannelSkeleton,
+    nets: list[Net] | None = None,
+    components: list[Component] | None = None,
 ) -> ChannelMapping:
     """
     Map abstract topology graph to concrete routing channels.
 
-    Translates the topological routing solution into specific channel
-    paths that nets will follow during geometric realization.
-
     Args:
-        topology: Topological routing graph from Stage 3.9
-        skeleton: Channel skeleton from Stage 2.3
+        topology: Topological routing graph
+        skeleton: Channel skeleton
+        nets: List of nets (optional, for fallback)
+        components: List of components (optional, for pin lookup in fallback)
 
     Returns:
-        ChannelMapping with concrete channel paths
-
-    Example:
-        >>> from temper_placer.router_v6.topology_extraction import TopologyGraph
-        >>> from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-        >>> import networkx as nx
-        >>> topology = TopologyGraph(net_topologies={})
-        >>> skeleton = ChannelSkeleton(nx.Graph(), "F.Cu", 0.0)
-        >>> mapping = map_topology_to_channels(topology, skeleton)
-        >>> mapping.mapped_net_count >= 0
-        True
+        ChannelMapping
     """
     channel_paths = {}
 
-    for net_name, net_topology in topology.net_topologies.items():
-        # Map this net's topology to channels
-        channel_path = _map_net_to_channels(net_name, net_topology, skeleton)
+    # Use nets list if provided, otherwise infer from topology
+    net_names = [net.name for net in nets] if nets else list(topology.net_topologies.keys())
+    
+    # Map for easy net lookup
+    net_map = {net.name: net for net in nets} if nets else {}
+
+    # Component lookup
+    comp_map = {c.ref: c for c in components} if components else {}
+
+    for net_name in net_names:
+        net_topology = topology.get_topology(net_name)
+        net_obj = net_map.get(net_name)
+        
+        # Map this net's topology (or fallback) to channels
+        channel_path = _map_net_to_channels(net_name, net_topology, skeleton, net_obj, comp_map)
         if channel_path:
             channel_paths[net_name] = channel_path
 
@@ -81,34 +99,50 @@ def map_topology_to_channels(
 
 def _map_net_to_channels(
     net_name: str,
-    net_topology: NetTopology,
+    net_topology: NetTopology | None,
     skeleton: ChannelSkeleton,
+    net_obj: Net | None = None,
+    comp_map: dict[str, Component] | None = None,
 ) -> ChannelPath | None:
     """
     Map a single net's topology to channel sequence.
 
     Args:
         net_name: Net name
-        net_topology: Net's topological routing
+        net_topology: Net's topological routing (can be None)
         skeleton: Channel skeleton graph
+        net_obj: Net object for fallback (optional)
+        comp_map: Component lookup map (optional)
 
     Returns:
         ChannelPath or None if mapping fails
     """
-    # Use channels from topology
-    channel_sequence = net_topology.uses_channels
+    channel_sequence = []
 
+    # 1. Prefer Geometric Routing (Fallback) if available
+    # The topological solver (Stage 3) is currently a mock that returns random edges.
+    # To ensure connectivity, we bypass it and use Dijkstra on the skeleton directly.
+    # This works well in conjunction with Rip-up and Reroute (Stage 4).
+    if net_obj and comp_map and skeleton.graph.number_of_nodes() > 0:
+        channel_sequence = _find_skeleton_path_for_net(net_obj, comp_map, skeleton)
+
+    # 2. Use Topology as backup (if net_obj not provided or fallback failed)
+    if not channel_sequence and net_topology:
+        channel_sequence = net_topology.uses_channels
+
+        if not channel_sequence:
+            # Try to extract from path graph
+            if net_topology.path_graph.number_of_edges() > 0:
+                try:
+                    nodes = list(net_topology.path_graph.nodes())
+                    if nodes:
+                        channel_sequence = [str(node) for node in nodes]
+                except Exception:
+                    pass
+
+    # If still no sequence, we can't route
     if not channel_sequence:
-        # Try to extract from path graph
-        if net_topology.path_graph.number_of_edges() > 0:
-            # Use path graph nodes as channel sequence
-            try:
-                # Get a path through the graph (simplified)
-                nodes = list(net_topology.path_graph.nodes())
-                if nodes:
-                    channel_sequence = [str(node) for node in nodes]
-            except Exception:
-                pass
+        return None
 
     # Generate waypoints from skeleton
     waypoints = _extract_waypoints(channel_sequence, skeleton)
@@ -122,6 +156,7 @@ def _map_net_to_channels(
             channel_sequence=channel_sequence,
             waypoints=waypoints,
             total_length=total_length,
+            preferred_layer=_assign_layer(net_name),
         )
 
     return None
@@ -262,6 +297,129 @@ def _parse_channel_coordinate(
             return nodes[idx]
 
     return None
+
+
+def _find_skeleton_path_for_net(
+    net: Net,
+    comp_map: dict[str, Component],
+    skeleton: ChannelSkeleton,
+) -> list[str]:
+    """
+    Find a path on the skeleton graph connecting net pins.
+
+    Args:
+        net: Net to route
+        comp_map: Component lookup map
+        skeleton: Channel skeleton
+
+    Returns:
+        List of channel IDs (edge IDs) or nodes representing the path
+    """
+    import math
+    if not net.pins:
+        return []
+
+    # Get absolute positions of pins
+    pin_positions = []
+    for comp_ref, pin_name in net.pins:
+        comp = comp_map.get(comp_ref)
+        if comp:
+            pin = comp.get_pin(pin_name)
+            if pin:
+                comp_x, comp_y = comp.initial_position or (0.0, 0.0)
+                angle = float(comp.initial_rotation or 0) * math.pi / 2.0
+                pos = pin.absolute_position((comp_x, comp_y), angle)
+                pin_positions.append(pos)
+    
+    if len(pin_positions) < 2:
+        return []
+
+    # Find nearest skeleton node for each pin
+    skeleton_nodes = []
+    for pos in pin_positions:
+        node = _find_nearest_node(pos, skeleton)
+        if node:
+            skeleton_nodes.append(node)
+    
+    # Remove duplicates (multiple pins mapping to same node)
+    skeleton_nodes = list(dict.fromkeys(skeleton_nodes))
+    # Sort nodes using Greedy TSP (Nearest Neighbor) to minimize path length
+    # This prevents zigzagging across the board for large nets (GND/VCC)
+    if len(skeleton_nodes) > 2:
+        sorted_nodes = [skeleton_nodes[0]]
+        unvisited = set(skeleton_nodes[1:])
+        
+        while unvisited:
+            current = sorted_nodes[-1]
+            # Find nearest unvisited
+            nearest = None
+            min_dist = float('inf')
+            
+            for candidate in unvisited:
+                # Euclidean distance squared
+                dist = (current[0] - candidate[0])**2 + (current[1] - candidate[1])**2
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest = candidate
+            
+            sorted_nodes.append(nearest)
+            unvisited.remove(nearest)
+        
+        skeleton_nodes = sorted_nodes
+
+    if len(skeleton_nodes) < 2:
+        return []
+
+    # SIMPLIFIED OUTPUT: Return only terminal skeleton nodes
+    # The A* router handles detailed pathfinding between these points.
+    # This prevents waypoint explosion (e.g., GND: 533 → ~20 waypoints)
+    
+    # Validate connectivity using Dijkstra (but don't output intermediate nodes)
+    connected_terminals = [skeleton_nodes[0]]
+    
+    for i in range(len(skeleton_nodes) - 1):
+        start = skeleton_nodes[i]
+        end = skeleton_nodes[i+1]
+        try:
+            # Check path exists (validates skeleton connectivity)
+            nx.shortest_path(skeleton.graph, start, end, weight='weight')
+            # Only add the terminal, not intermediate nodes
+            connected_terminals.append(end)
+        except nx.NetworkXNoPath:
+            # Skip unreachable nodes
+            pass
+    
+    # Convert nodes to str IDs (these are the waypoints the A* will route between)
+    return [str(node) for node in connected_terminals]
+
+
+def _find_nearest_node(
+    pos: tuple[float, float],
+    skeleton: ChannelSkeleton,
+) -> tuple[float, float] | None:
+    """Find nearest skeleton node to position."""
+    best_node = None
+    best_dist = float('inf')
+    
+    # Optimization: Check if graph has nodes
+    if skeleton.graph.number_of_nodes() == 0:
+        return None
+        
+    # Naive search (O(N)) - acceptable for ~2k nodes
+    # For 33 nets, 33 * 2 * 2000 = 132k ops (fast)
+    px, py = pos
+    for node in skeleton.graph.nodes:
+        nx_val, ny_val = node
+        dist = (px - nx_val)**2 + (py - ny_val)**2
+        if dist < best_dist:
+            best_dist = dist
+            best_node = node
+            
+    # Max snap distance 10mm (generous)
+    if best_dist > 100.0: # squared
+        return None
+        
+    return best_node
 
 
 def _is_near_skeleton(

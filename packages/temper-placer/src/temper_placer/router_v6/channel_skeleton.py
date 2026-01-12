@@ -10,9 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import networkx as nx
-from shapely.geometry import LineString, MultiLineString, Point, Polygon
+from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
 from shapely.ops import voronoi_diagram
-
 from temper_placer.router_v6.routing_space import RoutingSpace
 
 
@@ -97,7 +96,11 @@ def extract_channel_skeleton(
 
             # Add edge with length weight
             G.add_edge(p1, p2, weight=length)
+            G.add_edge(p1, p2, weight=length)
             total_length += length
+            
+    # Ensure connectivity by bridging islands
+    G = _ensure_skeleton_connectivity(G, max_bridge_distance=10.0)
 
     return ChannelSkeleton(
         graph=G,
@@ -125,8 +128,16 @@ def _extract_medial_axis(
     # Handle MultiPolygon
     if isinstance(polygon_or_multipolygon, MultiPolygon):
         all_lines = []
-        for polygon in polygon_or_multipolygon.geoms:
-            lines = _extract_medial_axis_single(polygon, simplify_tolerance)
+        
+        if hasattr(polygon_or_multipolygon, 'geoms'):
+            polys = list(polygon_or_multipolygon.geoms)
+        else:
+            polys = [polygon_or_multipolygon]
+
+        # Combine skeletons from all polygons
+        for p in polys:
+            lines = _extract_medial_axis_single(p, simplify_tolerance)
+            print(f"  Extracted {len(lines)} skeleton lines")
             all_lines.extend(lines)
         return all_lines
     elif isinstance(polygon_or_multipolygon, Polygon):
@@ -160,38 +171,39 @@ def _extract_medial_axis_single(
     points = []
     
     # Check for multi-part geometry first (hasattr(coords) returns True but raises error)
+    # Collect geometry parts
+    parts = []
     if hasattr(boundary, 'geoms'):
         # MultiLineString boundary (polygon with holes)
-        coords = []
-        for line in boundary.geoms:
-            coords.extend(list(line.coords))
-    elif hasattr(boundary, 'coords'):
-        # Simple LineString boundary
-        try:
-            coords = list(boundary.coords)
-        except NotImplementedError:
-            return []
+        parts = list(boundary.geoms)
     else:
-        return []
+        # Simple LineString or other
+        parts = [boundary]
 
-    # Sample points along the boundary
-    for i in range(len(coords) - 1):
-        p1 = coords[i]
-        p2 = coords[i + 1]
+    # Sample points along the boundary of each part
+    for part in parts:
+        try:
+            coords = list(part.coords)
+        except (NotImplementedError, AttributeError):
+            continue
+            
+        for i in range(len(coords) - 1):
+            p1 = coords[i]
+            p2 = coords[i + 1]
 
-        # Calculate distance
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
-        dist = (dx**2 + dy**2)**0.5
+            # Calculate distance
+            dx = p2[0] - p1[0]
+            dy = p2[1] - p1[1]
+            dist = (dx**2 + dy**2)**0.5
 
-        # Add intermediate points
-        num_points = max(2, int(dist))
-        for j in range(num_points):
-            t = j / num_points
-            x = p1[0] + t * dx
-            y = p1[1] + t * dy
-            points.append(Point(x, y))
-
+            # Add intermediate points
+            num_points = max(2, int(dist))
+            for j in range(num_points):
+                t = j / num_points
+                x = p1[0] + t * dx
+                y = p1[1] + t * dy
+                points.append(Point(x, y))
+    
     if len(points) < 3:
         # Not enough points for Voronoi
         # Return simplified centerline
@@ -200,17 +212,34 @@ def _extract_medial_axis_single(
 
     # Create Voronoi diagram
     try:
-        voronoi = voronoi_diagram(MultiLineString([LineString([p.coords[0], p.coords[0]]) for p in points[:100]]))
-
+        voronoi = voronoi_diagram(
+            MultiPoint(points),
+            edges=True
+        )
+             
+        # Flatten geometry collection
+        raw_lines = []
+        if hasattr(voronoi, 'geoms'):
+            for g in voronoi.geoms:
+                if isinstance(g, MultiLineString):
+                    raw_lines.extend(list(g.geoms))
+                elif isinstance(g, LineString):
+                    raw_lines.append(g)
+        elif isinstance(voronoi, MultiLineString):
+             raw_lines.extend(list(voronoi.geoms))
+        elif isinstance(voronoi, LineString):
+             raw_lines.append(voronoi)
+        
         # Filter Voronoi edges that are inside the polygon
         skeleton_lines = []
-
-        if hasattr(voronoi, 'geoms'):
-            for geom in voronoi.geoms:
+        
+        for geom in raw_lines:
+             if True: #Indent preservation wrapper
                 if isinstance(geom, LineString):
                     # Check if line is mostly inside polygon
+                    # Use small buffer to handle grazing edges
                     midpoint = geom.interpolate(0.5, normalized=True)
-                    if polygon.contains(midpoint):
+                    if polygon.buffer(1e-3).contains(midpoint):
                         # Simplify the line
                         simplified = geom.simplify(simplify_tolerance)
                         if simplified.length > 0:
@@ -219,7 +248,7 @@ def _extract_medial_axis_single(
         if skeleton_lines:
             return skeleton_lines
 
-    except Exception:
+    except Exception as e:
         # Voronoi failed, use fallback
         pass
 
@@ -242,3 +271,67 @@ def _extract_medial_axis_single(
         LineString([(minx + inset_x, cy), (maxx - inset_x, cy)]),  # Horizontal
         LineString([(cx, miny + inset_y), (cx, maxy - inset_y)]),  # Vertical
     ]
+
+
+def _ensure_skeleton_connectivity(G: nx.Graph, max_bridge_distance: float = 5.0) -> nx.Graph:
+    """
+    Ensure skeleton graph is fully connected by adding bridge edges.
+
+    Args:
+        G: Potentially fragmented skeleton graph
+        max_bridge_distance: Maximum distance (mm) to bridge between islands
+
+    Returns:
+        Connected graph
+    """
+    if G.number_of_nodes() == 0:
+        return G
+
+    # Find connected components
+    # nx.connected_components returns a generator of sets
+    components = list(nx.connected_components(G))
+
+    if len(components) <= 1:
+        return G  # Already connected
+
+    print(f"DEBUG: Skeleton has {len(components)} disconnected islands, bridging...")
+
+    # Build bridges between components
+    # We iteratively merge components until only one remains or we can't bridge any more
+    current_components = components
+    
+    while len(current_components) > 1:
+        best_bridge = None
+        best_distance = float('inf')
+
+        # Find closest pair of nodes between any two components
+        # This is O(N^2) worst case but N is small (<2000 nodes)
+        for i in range(len(current_components)):
+            for j in range(i + 1, len(current_components)):
+                comp_a = current_components[i]
+                comp_b = current_components[j]
+
+                for node_a in comp_a:
+                    for node_b in comp_b:
+                        # Nodes are (x, y) tuples
+                        dist = ((node_a[0] - node_b[0])**2 +
+                               (node_a[1] - node_b[1])**2)**0.5
+                        
+                        if dist < best_distance:
+                            best_distance = dist
+                            best_bridge = (node_a, node_b, i, j)
+
+        if best_bridge is None or best_distance > max_bridge_distance:
+            print(f"DEBUG: Warning: Cannot bridge islands (min distance: {best_distance:.1f}mm > {max_bridge_distance}mm)")
+            break
+
+        # Add bridge edge
+        node_a, node_b, comp_i, comp_j = best_bridge
+        G.add_edge(node_a, node_b, weight=best_distance)
+        print(f"DEBUG: Added bridge: {best_distance:.2f}mm")
+
+        # Re-compute components to reflect the merge
+        # (Naive re-compute is safer than manual set merging to keep logic simple)
+        current_components = list(nx.connected_components(G))
+
+    return G
