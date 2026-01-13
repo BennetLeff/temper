@@ -24,6 +24,7 @@ class RoutingSpace:
     total_area: float  # Total board area in mm²
     obstacle_area: float  # Total obstacle area in mm²
     routing_area: float  # Available routing area in mm²
+    obstacles: MultiPolygon | None = None  # Raw obstacles for SDF generation
 
     @property
     def utilization_ratio(self) -> float:
@@ -90,8 +91,8 @@ def compute_routing_space(
             available_area = MultiPolygon([available_area])
 
         # Calculate areas
-        obstacle_area = obstacles.area if hasattr(obstacles, 'area') else 0.0
-        routing_area = available_area.area if hasattr(available_area, 'area') else board_area
+        obstacle_area = obstacles.area if hasattr(obstacles, "area") else 0.0
+        routing_area = available_area.area if hasattr(available_area, "area") else board_area
 
         routing_spaces[layer_name] = RoutingSpace(
             layer_name=layer_name,
@@ -99,6 +100,7 @@ def compute_routing_space(
             total_area=board_area,
             obstacle_area=obstacle_area,
             routing_area=routing_area,
+            obstacles=obstacles,
         )
 
     return routing_spaces
@@ -115,9 +117,9 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
         Board polygon
     """
     # If PCB has explicit board geometry, use it
-    if hasattr(pcb, 'board') and pcb.board:
+    if hasattr(pcb, "board") and pcb.board:
         board = pcb.board
-        if hasattr(board, 'outline_polygon') and board.outline_polygon:
+        if hasattr(board, "outline_polygon") and board.outline_polygon:
             return Polygon(board.outline_polygon)
 
         # Otherwise use bounds
@@ -126,9 +128,9 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
             bounds = board.get_bounds_array()
             return box(float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3]))
         except (AttributeError, IndexError):
-            if hasattr(board, 'width') and hasattr(board, 'height'):
+            if hasattr(board, "width") and hasattr(board, "height"):
                 # Default to origin-based box if bounds calculation fails
-                ox, oy = getattr(board, 'origin', (0.0, 0.0))
+                ox, oy = getattr(board, "origin", (0.0, 0.0))
                 return box(ox, oy, ox + board.width, oy + board.height)
 
     # Fallback: compute bounding box from components
@@ -140,8 +142,8 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
             if comp.initial_position:
                 x, y = comp.initial_position
                 w, h = comp.bounds
-                x_coords.extend([x - w/2, x + w/2])
-                y_coords.extend([y - h/2, y + h/2])
+                x_coords.extend([x - w / 2, x + w / 2])
+                y_coords.extend([y - h / 2, y + h / 2])
 
         if x_coords and y_coords:
             margin = 5.0  # 5mm margin

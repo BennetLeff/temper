@@ -96,6 +96,7 @@ class PathfindingResult:
     routed_paths: dict[str, RoutePath | RoutePath3D]  # net_name -> RoutePath
     failed_nets: list[str]  # Nets that failed to route
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
+    net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
 
     @property
     def success_count(self) -> int:
@@ -740,6 +741,7 @@ def run_astar_pathfinding(
         routed_paths=routed_paths,
         failed_nets=list(set(failed_nets)),
         failure_reports=failure_reports,
+        net_ids=net_ids,
     )
 
 

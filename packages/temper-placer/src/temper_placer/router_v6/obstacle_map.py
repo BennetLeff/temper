@@ -84,12 +84,52 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
                 layer_obstacles[layer_info.name].append(via_poly)
 
     # 3. Zones / Keepouts
-    # TODO: Parse zones from pcb.zones if available and extract geometry.
-    # Currently pcb.zones might be raw objects.
-    # If pcb.zones contains keepouts, we should add them.
-    # For now, we skip complex zone parsing as it requires inspecting the specific object structure.
+    if hasattr(pcb, "zones") and pcb.zones:
+        for zone in pcb.zones:
+            # Skip if no polygon data
+            if not hasattr(zone, "polygon") or not zone.polygon:
+                continue
 
-    # 4. Board Edge (Constraint)
+            # Create Polygon from points
+            # zone.polygon is list of (x,y)
+            try:
+                poly = Polygon(zone.polygon)
+                if not poly.is_valid:
+                    poly = poly.buffer(0)
+            except Exception:
+                continue
+
+            # Determine layers
+            layers = zone.layers if hasattr(zone, "layers") else ["F.Cu"]
+
+            for layer in layers:
+                # Add to layer obstacles
+                # If it's a Keepout (usually indicated by no net or specific flag?)
+                # Or if it's a Copper Zone of a DIFFERENT net, it's an obstacle.
+                # Ideally we should filter by net, but ObstacleMap is usually "Static Obstacles".
+                # For simplicity, we treat ALL Zones as obstacles.
+                # TODO: If we route the SAME net, we should allow entering the zone.
+                # But Router V6 treats zones as "Targets" (via pads) usually.
+                # If we treat them as obstacles, we might block access.
+                # However, for the "Missing Obstacles" bug (AC_L vs CGND), CGND zone is definitely an obstacle for AC_L.
+                # Safe default: Treat as obstacle. The router connects to PADS, not zones directly yet.
+                layer_obstacles[layer].append(poly)
+
+    # 4. Pre-routed Tracks
+    if hasattr(pcb, "tracks") and pcb.tracks:
+        from shapely.geometry import LineString
+
+        for track in pcb.tracks:
+            # Create buffered line
+            try:
+                line = LineString([track.start, track.end])
+                # Buffer by half width
+                poly = line.buffer(track.width / 2.0, cap_style=1)  # 1=Round
+                layer_obstacles[track.layer].append(poly)
+            except Exception:
+                continue
+
+    # 5. Board Edge (Constraint)
     # Usually we route *inside* the board. The obstacle map represents *blocked* areas.
     # The inverse of the board polygon is the "infinite" obstacle.
     # For this function, we return internal obstacles.

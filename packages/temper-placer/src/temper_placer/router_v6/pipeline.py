@@ -31,6 +31,7 @@ from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
 from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
 from temper_placer.routing.variational_router.snake_optimizer import SnakeOptimizer
+from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
 from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import RoutingSpace, compute_routing_space
@@ -432,34 +433,107 @@ class RouterV6Pipeline:
             sdf_grids = {}
             clearance_mm = pcb.design_rules.default_clearance_mm
 
-            # Use base inflation (trace_width/2 + clearance) from Stage 2.5
-            # Occupancy grids are already inflated.
-            # We need raw obstacle geometry ideally, but occupancy grid is our best "free space" map.
-            # OccupancyGrid cells != 0 are blocked.
-            # We want SDF=0 to be the boundary between Free(0) and Blocked(!=0).
-            # This aligns exactly with the occupancy grid definition.
+            # Use exact geometry from Stage 2.1 RoutingSpace
+            # This avoids grid quantization artifacts in the SDF
 
-            for layer_name, grid in stage2.occupancy_grids.items():
+            # Calculate bounds safely
+            if hasattr(pcb, "board") and pcb.board:
+                bounds_array = pcb.board.get_bounds_array()  # [xmin, ymin, xmax, ymax]
+                bounds = tuple(bounds_array)
+            else:
+                # Fallback: compute from components
+                all_x = []
+                all_y = []
+                for comp in pcb.components:
+                    x, y = comp.initial_position
+                    all_x.append(x)
+                    all_y.append(y)
+                if all_x:
+                    bounds = (min(all_x) - 5, min(all_y) - 5, max(all_x) + 5, max(all_y) + 5)
+                else:
+                    bounds = (0, 0, 100, 100)
+
+            # Add small padding to bounds
+            bounds = (bounds[0] - 1, bounds[1] - 1, bounds[2] + 1, bounds[3] + 1)
+
+            for layer_name, routing_space in stage2.routing_spaces.items():
                 if self.verbose:
-                    print(f"    Building SDF for {layer_name}...")
-                sdf_grids[layer_name] = SDFGrid.from_occupancy_grid(grid, clearance_mm=0.0)
+                    print(f"    Building Exact SDF for {layer_name}...")
 
-            # 2. Run Snake Optimizer
-            optimizer = SnakeOptimizer(
-                sdf_grids=sdf_grids,
-                alpha=0.2,  # Lower elasticity to allow sticking to path
-                beta=0.1,  # Low stiffness to allow sharp turns near pads
-                gamma=2.0,  # Strong repulsion from obstacles
-                step_size=0.1,
-                node_spacing_mm=0.2,
-                max_iterations=100,
-            )
+                # Get raw obstacles (Shapely polygons)
+                # Ensure it's a list
+                obstacles = routing_space.obstacles
+                if not obstacles:
+                    polygon_list = []
+                elif hasattr(obstacles, "geoms"):
+                    polygon_list = list(obstacles.geoms)
+                else:
+                    polygon_list = [obstacles]
 
-            smoothed_paths = {}
-            for net_name, path in pathfinding_result.routed_paths.items():
-                # Optimize
-                opt_path = optimizer.optimize_path(path)
-                smoothed_paths[net_name] = opt_path
+                # Build high-resolution SDF (0.05mm)
+                sdf_grids[layer_name] = SDFGrid.from_polygons(
+                    polygons=polygon_list, bounds=bounds, resolution_mm=0.05
+                )
+
+            # 2. Run Path Simplifier (H1)
+            if True:
+                if self.verbose:
+                    print("    Using SDF-Verified Path Simplifier (H1)...")
+                simplifier = PathSimplifier(
+                    sdf_grids=sdf_grids,
+                    step_size_mm=0.1,
+                    min_clearance_margin=0.0,  # Default value, will override per net
+                    occupancy_grids=stage2.occupancy_grids,  # Dynamic obstacles
+                )
+
+                # Pre-calculate widths (Stage 4.4 runs later, but we need widths now)
+                # This duplicates logic but avoids reordering the pipeline stages
+                temp_widths = {}
+                for net_name in pathfinding_result.routed_paths:
+                    # Use helper method to resolve net class rules
+                    rule = pcb.design_rules.get_rules_for_net(net_name)
+                    # print(f"DEBUG: rule keys: {rule.__dict__.keys()}")
+                    # Handle attribute naming variations if any
+                    if hasattr(rule, "trace_width"):
+                        temp_widths[net_name] = rule.trace_width
+                    elif hasattr(rule, "trace_width_mm"):
+                        temp_widths[net_name] = rule.trace_width_mm
+                    else:
+                        temp_widths[net_name] = pcb.design_rules.default_trace_width_mm
+
+                smoothed_paths = {}
+                for net_name, path in pathfinding_result.routed_paths.items():
+                    # Calculate required margin = width/2 + clearance + safety buffer
+                    # Safety buffer absorbs SDF/Grid aliasing errors (0.05mm grid -> +/-0.025mm error)
+                    net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
+                    safety_buffer = 0.05
+                    required_margin = (net_width / 2.0) + clearance_mm + safety_buffer
+
+                    # Get Net ID for dynamic check
+                    net_id = pathfinding_result.net_ids.get(net_name, -1)
+
+                    # Simplify
+                    opt_path = simplifier.simplify_path(
+                        path, required_clearance_override=required_margin, net_id=net_id
+                    )
+                    smoothed_paths[net_name] = opt_path
+            else:
+                # 2. Run Snake Optimizer
+                optimizer = SnakeOptimizer(
+                    sdf_grids=sdf_grids,
+                    alpha=0.2,  # Lower elasticity to allow sticking to path
+                    beta=0.1,  # Low stiffness to allow sharp turns near pads
+                    gamma=2.0,  # Strong repulsion from obstacles
+                    step_size=0.1,
+                    node_spacing_mm=0.2,
+                    max_iterations=100,
+                )
+
+                smoothed_paths = {}
+                for net_name, path in pathfinding_result.routed_paths.items():
+                    # Optimize
+                    opt_path = optimizer.optimize_path(path)
+                    smoothed_paths[net_name] = opt_path
 
             pathfinding_result.routed_paths = smoothed_paths
 

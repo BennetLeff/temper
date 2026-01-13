@@ -140,6 +140,7 @@ class ParsedPCB:
     design_rules: DesignRules
     stackup: StackupInfo
     source_path: Path
+    tracks: list = field(default_factory=list)  # Pre-routed tracks
     warnings: list[str] = field(default_factory=list)
 
     def validate_placement(self) -> list[str]:
