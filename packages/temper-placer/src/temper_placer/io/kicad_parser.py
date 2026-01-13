@@ -33,6 +33,8 @@ class TraceData:
     width: float  # trace width in mm
     layer: str  # e.g., 'F.Cu', 'B.Cu'
     net: str | None = None  # net name
+
+
 @dataclass
 class ViaData:
     """Data for a PCB via."""
@@ -235,7 +237,11 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
         if ki_zone.polygons:
             poly = ki_zone.polygons[0]
             # Try points or pts based on kiutils version
-            pts = getattr(poly, "points", None) or getattr(poly, "pts", None) or getattr(poly, "coordinates", [])
+            pts = (
+                getattr(poly, "points", None)
+                or getattr(poly, "pts", None)
+                or getattr(poly, "coordinates", [])
+            )
             x_pts = [p.X - x_min for p in pts]
             y_pts = [p.Y - y_min for p in pts]
             if x_pts and y_pts:
@@ -326,7 +332,7 @@ def _extract_components_from_pcb(
 
             # Determine if pad is through-hole (connects all copper layers)
             # THT pads have "*.Cu" in their layers list
-            pad_layers = pad.layers if hasattr(pad, 'layers') and pad.layers else ["F.Cu"]
+            pad_layers = pad.layers if hasattr(pad, "layers") and pad.layers else ["F.Cu"]
             is_through_hole = any("*.Cu" in layer or layer == "*.Cu" for layer in pad_layers)
 
             # Set layer: "all" for THT pads, first copper layer for SMD
@@ -338,27 +344,33 @@ def _extract_components_from_pcb(
                 layer = copper_layers[0] if copper_layers else "F.Cu"
 
             # Get pad size
-            pad_width = pad.size.X if hasattr(pad, 'size') and pad.size else 1.0
-            pad_height = pad.size.Y if hasattr(pad, 'size') and pad.size else 1.0
-            pad_drill = getattr(pad, 'drill', 0.0) or 0.0
+            pad_width = pad.size.X if hasattr(pad, "size") and pad.size else 1.0
+            pad_height = pad.size.Y if hasattr(pad, "size") and pad.size else 1.0
+            pad_drill = getattr(pad, "drill", 0.0) or 0.0
 
             # Get pad shape (normalize thru_hole to indicate THT for DSN export)
             pad_shape = pad.shape or "rect"
             if is_through_hole and pad_shape == "circle":
                 pad_shape = "thru_hole"
 
-            raw_pins.append({
-                "name": pad.number or "",
-                "number": pad.number or "",
-                "position": (local_x, local_y),
-                "net": pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else None,
-                "width": pad_width,
-                "height": pad_height,
-                "shape": pad_shape,
-                "layer": layer,
-                "drill": pad_drill,
-                "is_pth": is_through_hole,
-            })
+            raw_pins.append(
+                {
+                    "name": pad.number or "",
+                    "number": pad.number or "",
+                    "position": (local_x, local_y),
+                    "net": pad.net.name
+                    if pad.net and hasattr(pad.net, "name")
+                    else str(pad.net)
+                    if pad.net
+                    else None,
+                    "width": pad_width,
+                    "height": pad_height,
+                    "shape": pad_shape,
+                    "layer": layer,
+                    "drill": pad_drill,
+                    "is_pth": is_through_hole,
+                }
+            )
 
         # Calculate bounding box center offset from footprint origin
         # This is the offset from footprint origin to geometric center of all pads
@@ -377,7 +389,10 @@ def _extract_components_from_pcb(
                 Pin(
                     name=p["name"],
                     number=p["number"],
-                    position=(p["position"][0] - center_offset_x, p["position"][1] - center_offset_y),
+                    position=(
+                        p["position"][0] - center_offset_x,
+                        p["position"][1] - center_offset_y,
+                    ),
                     net=p["net"],
                     width=p.get("width", 1.0),
                     height=p.get("height", 1.0),
@@ -534,7 +549,9 @@ def _extract_vias_from_pcb(
                 if hasattr(track.net, "name") and track.net.name:
                     net_name = track.net.name
                 else:
-                    net_id = str(track.net.number) if hasattr(track.net, "number") else str(track.net)
+                    net_id = (
+                        str(track.net.number) if hasattr(track.net, "number") else str(track.net)
+                    )
                     net_name = net_map.get(net_id, net_id)
 
             vias.append(
@@ -576,7 +593,7 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadDa
                     position=(abs_x, abs_y),
                     size=(pad.size.X, pad.size.Y),
                     shape=pad.shape or "rect",
-                    drill=getattr(pad, 'drill', 0.0) or 0.0,
+                    drill=getattr(pad, "drill", 0.0) or 0.0,
                     rotation=pad.position.angle or 0.0,
                     layer=pad.layers[0] if pad.layers else "F.Cu",
                     number=pad.number or "",
@@ -737,15 +754,15 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
 def extract_footprint_positions(content: str) -> dict[str, dict]:
     """
     Extract component positions from raw KiCad PCB content without kiutils.
-    
+
     This is a lightweight parser for extracting footprint positions from
     raw KiCad PCB file content (S-expression format). Useful for:
     - Benchmarking against snippet test cases
     - Quick position extraction without full file parsing
-    
+
     Args:
         content: Raw KiCad PCB file content as string.
-        
+
     Returns:
         Dict mapping component reference to position info:
         {
@@ -754,41 +771,41 @@ def extract_footprint_positions(content: str) -> dict[str, dict]:
         }
     """
     positions = {}
-    
+
     # Two-pass approach: first find footprint block boundaries, then extract fields
     # Pass 1: Find all footprint block start positions
     footprint_starts = []
     for match in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', content):
         footprint_starts.append(match.start())
-    
+
     # Pass 2: For each footprint block, extract position and reference
     for i, start in enumerate(footprint_starts):
         # Determine end of this footprint block (start of next, or end of content)
         end = footprint_starts[i + 1] if i + 1 < len(footprint_starts) else len(content)
         block = content[start:end]
-        
+
         # Extract (at X Y [ANGLE]) - first occurrence in this block
-        at_match = re.search(r'\(at\s+([\d.-]+)\s+([\d.-]+)(?:\s+([\d.-]+))?\)', block)
+        at_match = re.search(r"\(at\s+([\d.-]+)\s+([\d.-]+)(?:\s+([\d.-]+))?\)", block)
         if not at_match:
             continue
-            
+
         x = float(at_match.group(1))
         y = float(at_match.group(2))
         rotation = float(at_match.group(3)) if at_match.group(3) else 0.0
-        
+
         # Extract (property "Reference" "REF" ...) - reference designator
         ref_match = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', block)
         if not ref_match:
             continue
-            
+
         ref = ref_match.group(1)
-        
+
         positions[ref] = {
             "x": x,
             "y": y,
             "rotation": rotation,
         }
-    
+
     return positions
 
 
@@ -812,7 +829,7 @@ def extract_net_classes(content: str) -> dict:
 
     # Iterate over all (net_class ...) blocks
     # We use a simple counter to find the matching closing parenthesis
-    start_indices = [m.start() for m in re.finditer(r'\(net_class\b', content)]
+    start_indices = [m.start() for m in re.finditer(r"\(net_class\b", content)]
 
     for start in start_indices:
         balance = 0
@@ -821,10 +838,10 @@ def extract_net_classes(content: str) -> dict:
 
         for i in range(start, len(content)):
             char = content[i]
-            if char == '(':
+            if char == "(":
                 balance += 1
                 found_start = True
-            elif char == ')':
+            elif char == ")":
                 balance -= 1
 
             if found_start and balance == 0:
@@ -842,21 +859,21 @@ def extract_net_classes(content: str) -> dict:
         name = name_match.group(1)
 
         # Extract params
-        rules = {
-            "nets": []
-        }
+        rules = {"nets": []}
 
         # Helper to extract float
         def get_float(pattern):
             m = re.search(pattern, block)
             return float(m.group(1)) if m else None
 
-        rules["clearance"] = get_float(r'\(clearance\s+([\d.]+)\)')
-        rules["trace_width"] = get_float(r'\(track_width\s+([\d.]+)\)') or get_float(r'\(trace_width\s+([\d.]+)\)')
-        rules["via_dia"] = get_float(r'\(via_dia\s+([\d.]+)\)')
-        rules["via_drill"] = get_float(r'\(via_drill\s+([\d.]+)\)')
-        rules["diff_pair_gap"] = get_float(r'\(diff_pair_gap\s+([\d.]+)\)')
-        rules["diff_pair_width"] = get_float(r'\(diff_pair_width\s+([\d.]+)\)')
+        rules["clearance"] = get_float(r"\(clearance\s+([\d.]+)\)")
+        rules["trace_width"] = get_float(r"\(track_width\s+([\d.]+)\)") or get_float(
+            r"\(trace_width\s+([\d.]+)\)"
+        )
+        rules["via_dia"] = get_float(r"\(via_dia\s+([\d.]+)\)")
+        rules["via_drill"] = get_float(r"\(via_drill\s+([\d.]+)\)")
+        rules["diff_pair_gap"] = get_float(r"\(diff_pair_gap\s+([\d.]+)\)")
+        rules["diff_pair_width"] = get_float(r"\(diff_pair_width\s+([\d.]+)\)")
 
         # Extract nets
         # (add_net "NetName")
@@ -930,7 +947,9 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
     )
 
 
-def _extract_design_rules(ki_board: KiBoard, warnings: list[str], pcb_content: str | None = None) -> "DesignRules":
+def _extract_design_rules(
+    ki_board: KiBoard, warnings: list[str], pcb_content: str | None = None
+) -> "DesignRules":
     """
     Extract KiCad design rules from board setup.
 
@@ -966,11 +985,17 @@ def _extract_design_rules(ki_board: KiBoard, warnings: list[str], pcb_content: s
             if hasattr(defaults, "clearance"):
                 default_clearance = float(defaults.clearance)
             if hasattr(defaults, "trackWidth") or hasattr(defaults, "trace_width"):
-                default_trace_width = float(getattr(defaults, "trackWidth", getattr(defaults, "trace_width", 0.25)))
+                default_trace_width = float(
+                    getattr(defaults, "trackWidth", getattr(defaults, "trace_width", 0.25))
+                )
             if hasattr(defaults, "viaDiameter") or hasattr(defaults, "via_dia"):
-                default_via_diameter = float(getattr(defaults, "viaDiameter", getattr(defaults, "via_dia", 0.8)))
+                default_via_diameter = float(
+                    getattr(defaults, "viaDiameter", getattr(defaults, "via_dia", 0.8))
+                )
             if hasattr(defaults, "viaDrill") or hasattr(defaults, "via_drill"):
-                default_via_drill = float(getattr(defaults, "viaDrill", getattr(defaults, "via_drill", 0.4)))
+                default_via_drill = float(
+                    getattr(defaults, "viaDrill", getattr(defaults, "via_drill", 0.4))
+                )
 
     # Extract net classes - Try Manual Parsing First
     manual_classes = {}
@@ -998,7 +1023,10 @@ def _extract_design_rules(ki_board: KiBoard, warnings: list[str], pcb_content: s
 
             # Try to infer current rating from class name
             current_rating = None
-            if "_" in class_name and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit():
+            if (
+                "_" in class_name
+                and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit()
+            ):
                 try:
                     current_rating = float(class_name.split("_")[-1].replace("A", ""))
                 except ValueError:
@@ -1026,15 +1054,26 @@ def _extract_design_rules(ki_board: KiBoard, warnings: list[str], pcb_content: s
 
             # Extract rules
             clearance = float(getattr(nc, "clearance", default_clearance))
-            trace_width = float(getattr(nc, "trackWidth", getattr(nc, "trace_width", default_trace_width)))
-            via_diameter = float(getattr(nc, "viaDiameter", getattr(nc, "via_dia", default_via_diameter)))
+            trace_width = float(
+                getattr(nc, "trackWidth", getattr(nc, "trace_width", default_trace_width))
+            )
+            via_diameter = float(
+                getattr(nc, "viaDiameter", getattr(nc, "via_dia", default_via_diameter))
+            )
             via_drill = float(getattr(nc, "viaDrill", getattr(nc, "via_drill", default_via_drill)))
-            diff_pair_gap = float(getattr(nc, "diffPairGap", 0)) if hasattr(nc, "diffPairGap") else None
-            diff_pair_width = float(getattr(nc, "diffPairWidth", 0)) if hasattr(nc, "diffPairWidth") else None
+            diff_pair_gap = (
+                float(getattr(nc, "diffPairGap", 0)) if hasattr(nc, "diffPairGap") else None
+            )
+            diff_pair_width = (
+                float(getattr(nc, "diffPairWidth", 0)) if hasattr(nc, "diffPairWidth") else None
+            )
 
             # Try to infer current rating from class name
             current_rating = None
-            if "_" in class_name and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit():
+            if (
+                "_" in class_name
+                and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit()
+            ):
                 try:
                     current_rating = float(class_name.split("_")[-1].replace("A", ""))
                 except ValueError:
@@ -1100,7 +1139,12 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
     plane_assignments = {}
     if hasattr(ki_board, "zones"):
         for zone in ki_board.zones:
-            if hasattr(zone, "layers") and zone.layers and hasattr(zone, "netName") and zone.netName:
+            if (
+                hasattr(zone, "layers")
+                and zone.layers
+                and hasattr(zone, "netName")
+                and zone.netName
+            ):
                 # Check if zone covers most of the layer (indicates plane)
                 for layer in zone.layers:
                     # Simple heuristic: if net is GND/VCC/Power, it's likely a plane
@@ -1115,11 +1159,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
 
     # Try to extract from board setup stackup first
     setup_stackup = None
-    if (
-        hasattr(ki_board, "setup")
-        and hasattr(ki_board.setup, "stackup")
-        and ki_board.setup.stackup
-    ):
+    if hasattr(ki_board, "setup") and hasattr(ki_board.setup, "stackup") and ki_board.setup.stackup:
         setup_stackup = ki_board.setup.stackup
 
     if setup_stackup and hasattr(setup_stackup, "layers") and setup_stackup.layers:
@@ -1164,9 +1204,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
 
             # Thickness in um (convert from mm)
             thickness_um = (
-                (l.thickness * 1000.0)
-                if (hasattr(l, "thickness") and l.thickness)
-                else 35.0
+                (l.thickness * 1000.0) if (hasattr(l, "thickness") and l.thickness) else 35.0
             )
 
             layers.append(
@@ -1186,7 +1224,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
             epsilon_r = getattr(d, "epsilonR", None)
             if epsilon_r is None:
                 epsilon_r = getattr(d, "epsilon_r", 4.5)
-            
+
             loss_tangent = getattr(d, "lossTangent", None)
             if loss_tangent is None:
                 loss_tangent = getattr(d, "loss_tangent", 0.02)
@@ -1210,9 +1248,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         layer_count = 2  # Default to 2-layer
         if hasattr(ki_board, "layers") and ki_board.layers:
             # Count copper layers
-            copper_layers = [
-                l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")
-            ]
+            copper_layers = [l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")]
             layer_count = len(copper_layers)
 
         # Standard layer names for 2/4/6-layer boards
@@ -1223,14 +1259,8 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         elif layer_count == 6:
             layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
         else:
-            warnings.append(
-                f"Unusual layer count: {layer_count}. Using generic naming."
-            )
-            layer_names = (
-                ["F.Cu"]
-                + [f"In{i}.Cu" for i in range(1, layer_count - 1)]
-                + ["B.Cu"]
-            )
+            warnings.append(f"Unusual layer count: {layer_count}. Using generic naming.")
+            layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
 
         # Create layer info
         for i, name in enumerate(layer_names):
@@ -1279,4 +1309,3 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         layer_count=layer_count,
         dielectrics=parsed_dielectrics,
     )
-

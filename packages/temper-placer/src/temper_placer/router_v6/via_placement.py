@@ -101,21 +101,22 @@ def _place_vias_for_path(
     vias = []
 
     # If RoutePath3D, use explicit via_positions from pathfinder
-    if hasattr(route_path, 'via_positions'):
+    if hasattr(route_path, "via_positions"):
         for vx, vy in route_path.via_positions:
             vias.append(
                 Via(
-                    net=net_name,
-                    at=(vx, vy),
+                    position=(vx, vy),
+                    from_layer="F.Cu",  # Assume THT via spans full stack
+                    to_layer="B.Cu",
                     diameter=via_diameter,
                     drill=via_drill,
-                    layers=("F.Cu", "B.Cu"), # Multi-layer via
+                    net_name=net_name,
                 )
             )
         return vias
 
     # Legacy fallback for RoutePath
-    if hasattr(route_path, 'coordinates') and len(route_path.coordinates) >= 3:
+    if hasattr(route_path, "coordinates") and len(route_path.coordinates) >= 3:
         # Add a via at the midpoint for demonstration
         mid_idx = len(route_path.coordinates) // 2
         via_pos = route_path.coordinates[mid_idx]

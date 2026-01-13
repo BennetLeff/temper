@@ -146,7 +146,15 @@ class RouterV6Pipeline:
 
         escape_vias = []
         for dense_pkg in dense_packages:
-            vias = generate_escape_vias(dense_pkg, pcb.design_rules)
+            # Try dog-bone first
+            vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="dog-bone")
+
+            # If that fails (tight pitch), try via-in-pad
+            if not vias:
+                if self.verbose:
+                    print(f"    Falling back to via-in-pad for {dense_pkg.component.ref}")
+                vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="via-in-pad")
+
             escape_vias.extend(vias)
         if self.verbose:
             print(f"  Generated {len(escape_vias)} escape vias")
@@ -164,7 +172,7 @@ class RouterV6Pipeline:
         # Stage 4: Geometric realization
         if self.verbose:
             print("Stage 4: Geometric realization...")
-        stage4 = self._run_stage4(pcb, stage2, stage3)
+        stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
 
         runtime = time.time() - start_time
 
@@ -172,7 +180,9 @@ class RouterV6Pipeline:
             print(f"\nRouter V6 complete in {runtime:.1f}s")
             print(f"  Routed: {stage4.routing_results.success_count} nets")
             print(f"  Failed: {stage4.routing_results.failure_count} nets")
-            print(f"  Completion: {100 * stage4.routing_results.success_count / max(1, stage4.routing_results.success_count + stage4.routing_results.failure_count):.1f}%")
+            print(
+                f"  Completion: {100 * stage4.routing_results.success_count / max(1, stage4.routing_results.success_count + stage4.routing_results.failure_count):.1f}%"
+            )
 
         return RouterV6Result(
             pcb=pcb,
@@ -220,17 +230,15 @@ class RouterV6Pipeline:
         # 2.5: Build occupancy grid
         if self.verbose:
             print("  2.5: Building occupancy grid...")
-        
+
         # Calculate base inflation for C-Space (trace radius + clearance)
-        base_inflation = (pcb.design_rules.default_trace_width_mm / 2.0) + \
-                         pcb.design_rules.default_clearance_mm
-                         
+        base_inflation = (
+            pcb.design_rules.default_trace_width_mm / 2.0
+        ) + pcb.design_rules.default_clearance_mm
+
         occupancy_grids = {}
         for layer_name, routing_space in routing_spaces.items():
-            grid = build_occupancy_grid(
-                routing_space, 
-                inflation_mm=base_inflation
-            )
+            grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
             occupancy_grids[layer_name] = grid
 
         # 2.6: Calculate per-layer capacity
@@ -241,7 +249,7 @@ class RouterV6Pipeline:
             capacity = calculate_layer_capacity(
                 occupancy_grids[layer_name],
                 channel_widths[layer_name],
-                pcb.design_rules.default_trace_width_mm,
+                pcb.design_rules.default_trace_width_mm * 1.5,  # 50% safety margin
                 pcb.design_rules.default_clearance_mm,
             )
             layer_capacities[layer_name] = capacity
@@ -292,14 +300,17 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  3.7: Building SAT model...")
         sat_model = build_sat_model()  # Creates empty model
-        
+
         # Populate SAT model from constraint model
         from temper_placer.router_v6.sat_model import populate_sat_from_constraints
+
         net_names = [net.name for net in pcb.nets]
         populate_sat_from_constraints(sat_model, constraint_model, net_names)
-        
+
         if self.verbose:
-            print(f"    SAT model: {sat_model.variable_count} vars, {sat_model.clause_count} clauses")
+            print(
+                f"    SAT model: {sat_model.variable_count} vars, {sat_model.clause_count} clauses"
+            )
 
         # 3.8: Solve topology
         if self.verbose:
@@ -330,24 +341,33 @@ class RouterV6Pipeline:
         pcb: ParsedPCB,
         stage2: Stage2Output,
         stage3: Stage3Output,
+        escape_vias: list[EscapeVia] | None = None,
     ) -> Stage4Output:
         """Run Stage 4: Geometric Realization with multi-layer support."""
         from temper_placer.router_v6.channel_mapping import ChannelMapping
 
+        # Convert escape_vias list to map for A*
+        escape_vias_map: dict[str, list[tuple[float, float, float]]] = {}
+        if escape_vias:
+            for v in escape_vias:
+                if v.net_name not in escape_vias_map:
+                    escape_vias_map[v.net_name] = []
+                escape_vias_map[v.net_name].append((v.position[0], v.position[1], v.diameter))
+
         # 4.1: Setup channel mapping (from topology solution)
         if self.verbose:
             print("  4.1: Setting up channel mapping...")
-        
+
         # Use F.Cu skeleton for initial mapping (layer assignment happens inside)
         fcu_skeleton = stage2.skeletons.get("F.Cu")
         bcu_skeleton = stage2.skeletons.get("B.Cu")
-        
+
         # Fall back to first available if named layers don't exist
         if not fcu_skeleton:
             fcu_skeleton = list(stage2.skeletons.values())[0]
         if not bcu_skeleton:
             bcu_skeleton = list(stage2.skeletons.values())[-1]
-        
+
         # Map all nets with layer assignment
         channel_mapping = map_topology_to_channels(
             stage3.topology_graph,
@@ -359,21 +379,24 @@ class RouterV6Pipeline:
         # 4.2: Run A* pathfinding (Unified)
         if self.verbose:
             print("  4.2: Running A* pathfinding (unified multi-layer)...")
-        
+
         # Get primary and alternate grids
         fcu_grid = stage2.occupancy_grids.get("F.Cu")
         bcu_grid = stage2.occupancy_grids.get("B.Cu")
-        
+
         if not fcu_grid:
             fcu_grid = list(stage2.occupancy_grids.values())[0]
         if not bcu_grid and len(stage2.occupancy_grids) > 1:
             bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
-        
+
         # Unified call: pass all nets and both grids
         pathfinding_result = run_astar_pathfinding(
-            channel_mapping, fcu_grid, pcb.design_rules,
+            channel_mapping,
+            fcu_grid,
+            pcb.design_rules,
             alternate_grid=bcu_grid,
-            pcb=pcb
+            pcb=pcb,
+            escape_vias_map=escape_vias_map,
         )
 
         # 4.3: Place vias

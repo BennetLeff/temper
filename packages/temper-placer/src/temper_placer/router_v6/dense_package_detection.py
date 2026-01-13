@@ -110,11 +110,11 @@ def _estimate_pitch(comp: Component) -> float:
     footprint_upper = comp.footprint.upper()
 
     # Pattern: _0.5MM or _0.5
-    match = re.search(r'[_-](\d+\.?\d*)\s*MM', footprint_upper)
+    match = re.search(r"[_-](\d+\.?\d*)\s*MM", footprint_upper)
     if match:
         return float(match.group(1))
 
-    match = re.search(r'[_P](\d+\.?\d*)(?:[_-]|$)', comp.footprint)
+    match = re.search(r"[_P](\d+\.?\d*)(?:[_-]|$)", comp.footprint)
     if match:
         pitch_str = match.group(1)
         try:
@@ -130,17 +130,17 @@ def _estimate_pitch(comp: Component) -> float:
     if len(comp.pins) >= 4:
         # Find minimum distance between adjacent pins
         pin_positions = [p.position for p in comp.pins]
-        min_dist = float('inf')
+        min_dist = float("inf")
 
         for i, (x1, y1) in enumerate(pin_positions):
             for j, (x2, y2) in enumerate(pin_positions):
                 if i >= j:
                     continue
-                dist = ((x2 - x1)**2 + (y2 - y1)**2)**0.5
+                dist = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
                 if dist > 0.01:  # Ignore near-zero distances (same pin)
                     min_dist = min(min_dist, dist)
 
-        if min_dist != float('inf'):
+        if min_dist != float("inf"):
             return min_dist
 
     # Default: 0.65mm (common SOIC/TQFP pitch)
@@ -161,11 +161,22 @@ def _infer_package_type(comp: Component) -> str:
 
     # Check for common package types
     package_types = [
-        "BGA", "FBGA", "LFBGA", "TFBGA",  # Ball grid arrays
-        "QFN", "DFN", "SON",  # Quad flat no-lead
-        "TQFP", "LQFP", "QFP",  # Quad flat packages
-        "SOIC", "SOP", "SSOP", "TSSOP",  # Small outline
-        "TO-", "SOT-",  # Transistor outlines
+        "BGA",
+        "FBGA",
+        "LFBGA",
+        "TFBGA",  # Ball grid arrays
+        "QFN",
+        "DFN",
+        "SON",  # Quad flat no-lead
+        "TQFP",
+        "LQFP",
+        "QFP",  # Quad flat packages
+        "SOIC",
+        "SOP",
+        "SSOP",
+        "TSSOP",  # Small outline
+        "TO-",
+        "SOT-",  # Transistor outlines
     ]
 
     for pkg_type in package_types:

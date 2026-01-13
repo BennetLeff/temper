@@ -20,10 +20,7 @@ from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
-def build_obstacle_map(
-    pcb: ParsedPCB,
-    escape_vias: list[EscapeVia]
-) -> dict[str, MultiPolygon]:
+def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str, MultiPolygon]:
     """
     Build a map of obstacles for each copper layer.
 
@@ -65,11 +62,11 @@ def build_obstacle_map(
             pad_poly = _create_pad_polygon(pin, px, py, angle)
 
             # Add to appropriate layer(s)
-            if pin.layer == "All" or "*.Cu" in pin.layer or "Through" in pin.layer:
+            if pin.layer in ["All", "all"] or "*.Cu" in pin.layer or "Through" in pin.layer:
                 # Add to all signal layers
                 for layer_info in pcb.stackup.layers:
                     if layer_info.layer_type in ["signal", "mixed"]:
-                         layer_obstacles[layer_info.name].append(pad_poly)
+                        layer_obstacles[layer_info.name].append(pad_poly)
             else:
                 # Specific layer (e.g. "F.Cu")
                 layer_obstacles[pin.layer].append(pad_poly)
@@ -120,7 +117,7 @@ def build_obstacle_map(
 def _create_pad_polygon(pin: Pin, x: float, y: float, comp_angle: float) -> Polygon:
     """
     Create a shapely Polygon for a pin pad.
-    
+
     Args:
         pin: The Pin object.
         x, y: Absolute center coordinates.
@@ -138,12 +135,7 @@ def _create_pad_polygon(pin: Pin, x: float, y: float, comp_angle: float) -> Poly
         h = pin.height
 
         # Vertices of unrotated rectangle centered at 0,0
-        coords = [
-            (-w/2, -h/2),
-            (w/2, -h/2),
-            (w/2, h/2),
-            (-w/2, h/2)
-        ]
+        coords = [(-w / 2, -h / 2), (w / 2, -h / 2), (w / 2, h / 2), (-w / 2, h / 2)]
 
         # Rotate and translate
         # Pad might have its own rotation? KiCad pads can.
