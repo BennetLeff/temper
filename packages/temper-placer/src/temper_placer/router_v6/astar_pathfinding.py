@@ -451,13 +451,14 @@ def run_astar_pathfinding(
     components: list | None = None,
     pcb=None,  # For accessing pads
     escape_vias_map: dict[str, list[tuple[float, float, float]]] | None = None,
+    use_theta_star: bool = False,
 ) -> PathfindingResult:
     # Build grids dictionary for multi-layer blocking
     all_grids = {grid.layer_name: grid}
     if alternate_grid:
         all_grids[alternate_grid.layer_name] = alternate_grid
     """
-    Run A* pathfinding to generate routing paths.
+    Run A* or Theta* pathfinding to generate routing paths.
 
     Uses the channel mapping as guidance and the occupancy grid
     for obstacle avoidance to find actual geometric paths.
@@ -578,6 +579,11 @@ def run_astar_pathfinding(
         )
 
         # Route with rip-up capability
+        import sys
+        mode = "Theta*" if use_theta_star else "A*"
+        print(f"    Routing {net_name} using {mode}...", flush=True)
+        sys.stdout.flush()
+
         route_path, ripped_ids = _astar_route_with_ripup(
             net_name,
             channel_path,
@@ -589,6 +595,7 @@ def run_astar_pathfinding(
             tht_locations,
             pad_centers_per_net,
             all_grids=all_grids,  # Pass all for blocker identification
+            use_theta_star=use_theta_star,
         )
 
         # Restore grid state
@@ -610,6 +617,8 @@ def run_astar_pathfinding(
             congestion_region = channel_path.waypoints[mid_idx]
 
         if route_path:
+            print(f"      ✓ {net_name} routed successfully", flush=True)
+            sys.stdout.flush()
             # Handle Ripped Nets
             for ripped_id in ripped_ids:
                 if ripped_id in id_to_net:
@@ -647,8 +656,12 @@ def run_astar_pathfinding(
 
         # Determine failure reason
         if blocker_names:
+            print(f"      ✗ {net_name} FAILED: congestion (blockers: {', '.join(blocker_names[:3])})", flush=True)
+            sys.stdout.flush()
             return False, "congestion", blocker_names, congestion_region
         else:
+            print(f"      ✗ {net_name} FAILED: no path found", flush=True)
+            sys.stdout.flush()
             return False, "no_path", [], congestion_region
 
     def record_failure(
@@ -714,6 +727,7 @@ def _astar_route_with_ripup(
     tht_locations: set[tuple[float, float]] | None = None,
     pad_centers: dict[str, list[tuple[float, float, float, str]]] | None = None,
     all_grids: dict[str, OccupancyGrid] | None = None,
+    use_theta_star: bool = False,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -726,9 +740,9 @@ def _astar_route_with_ripup(
     """
     # Try multilayer routing if alternate grid available
     if alternate_grid and tht_locations:
-        path = _astar_route_multilayer(net_name, channel_path, grid, alternate_grid, tht_locations)
+        path = _astar_route_multilayer(net_name, channel_path, grid, alternate_grid, tht_locations, use_theta_star)
     else:
-        path = _astar_route(net_name, channel_path, grid)
+        path = _astar_route(net_name, channel_path, grid, use_theta_star)
 
     if path and path.forced_segment_count == 0:
         return path, []
@@ -800,6 +814,7 @@ def _astar_route_multilayer(
     primary_grid: OccupancyGrid,
     alternate_grid: OccupancyGrid | None,
     tht_locations: set[tuple[float, float]] | None,
+    use_theta_star: bool = False,
 ) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -815,6 +830,7 @@ def _astar_route_multilayer(
         primary_grid: Primary layer grid (e.g., F.Cu)
         alternate_grid: Alternate layer grid (e.g., B.Cu)
         tht_locations: Set of THT pad positions for layer switching
+        use_theta_star: Use Theta* any-angle routing instead of standard A*
 
     Returns:
         RoutePath3D with segments potentially on multiple layers
@@ -857,7 +873,10 @@ def _astar_route_multilayer(
         )
 
         if start_valid and goal_valid:
-            segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
+            if use_theta_star:
+                segment_path = _astar_search_theta_star(grid_to_use, start_grid, goal_grid, net_id=-1)
+            else:
+                segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
 
         # If primary failed and alternate available, try alternate layer
         # Allow layer switching when THT pads exist on the board - the router
@@ -878,7 +897,10 @@ def _astar_route_multilayer(
             )
 
             if start_valid and goal_valid:
-                segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
+                if use_theta_star:
+                    segment_path = _astar_search_theta_star(grid_to_use, start_grid, goal_grid, net_id=-1)
+                else:
+                    segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
 
         # Add segment to path
         if segment_path:
@@ -933,14 +955,16 @@ def _astar_route(
     net_name: str,
     channel_path,
     grid: OccupancyGrid,
+    use_theta_star: bool = False,
 ) -> RoutePath | None:
     """
-    Route a single net using A* pathfinding.
+    Route a single net using A* or Theta* pathfinding.
 
     Args:
         net_name: Net to route
         channel_path: Channel path guidance
         grid: Occupancy grid
+        use_theta_star: Use Theta* any-angle routing instead of standard A*
 
     Returns:
         RoutePath or None if routing fails
@@ -978,8 +1002,13 @@ def _astar_route(
 
         grid_path = None
         if start_valid and goal_valid:
-            # Run A* search between waypoints
-            grid_path = _astar_search(start_grid, goal_grid, grid)
+            # Run A* or Theta* search between waypoints
+            if use_theta_star:
+                grid_path = _astar_search_theta_star(
+                    grid, start_grid, goal_grid, net_id=-1
+                )
+            else:
+                grid_path = _astar_search(start_grid, goal_grid, grid)
 
         if grid_path:
             # Add start point exactly for the first segment (to touch pad center)
@@ -1104,6 +1133,159 @@ def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
     # Octile distance for 8-connected grid
     # Cost = max(dx, dy) + (sqrt(2)-1)*min(dx, dy) = max + 0.414*min
     return max(dx, dy) + 0.414 * min(dx, dy)
+
+
+def _line_of_sight(
+    p1: tuple[int, int],
+    p2: tuple[int, int],
+    grid: OccupancyGrid,
+    net_id: int
+) -> bool:
+    """
+    Check if there's an unobstructed diagonal line between two grid points.
+
+    Uses Bresenham's line algorithm to check all cells along the path.
+
+    Args:
+        p1: Start grid position (x, y)
+        p2: End grid position (x, y)
+        grid: Occupancy grid
+        net_id: Net ID (cells with this ID are allowed)
+
+    Returns:
+        True if line is clear
+    """
+    x0, y0 = p1
+    x1, y1 = p2
+
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    sx = 1 if x0 < x1 else -1
+    sy = 1 if y0 < y1 else -1
+    err = dx - dy
+
+    x, y = x0, y0
+
+    while True:
+        # Check if current cell is blocked
+        if not (0 <= x < grid.width_cells and 0 <= y < grid.height_cells):
+            return False
+
+        cell_value = grid.grid[y, x]
+        # Allow: free (0) or own net (net_id)
+        if cell_value != 0 and cell_value != net_id:
+            return False
+
+        # Reached goal
+        if x == x1 and y == y1:
+            break
+
+        # Bresenham step
+        e2 = 2 * err
+        if e2 > -dy:
+            err -= dy
+            x += sx
+        if e2 < dx:
+            err += dx
+            y += sy
+
+    return True
+
+
+def _astar_search_theta_star(
+    grid: OccupancyGrid,
+    start_grid: tuple[int, int],
+    goal_grid: tuple[int, int],
+    net_id: int,
+    came_from_init: dict | None = None
+) -> list[tuple[int, int]] | None:
+    """
+    Theta* pathfinding with any-angle paths.
+
+    Key difference from A*: When expanding a neighbor, checks if parent
+    of current has line-of-sight to neighbor. If yes, connects parent
+    directly to neighbor (skipping current), creating diagonal shortcuts.
+
+    Args:
+        grid: Occupancy grid
+        start_grid: Start position (grid coordinates)
+        goal_grid: Goal position (grid coordinates)
+        net_id: Net ID for unblocking own cells
+        came_from_init: Optional initial came_from for warm-starting
+
+    Returns:
+        Path as list of (x, y) grid cells, or None if no path
+    """
+    from heapq import heappush, heappop
+    import math
+
+    # Priority queue: (f_score, counter, current_pos)
+    counter = 0
+    open_set = []
+    heappush(open_set, (0.0, counter, start_grid))
+
+    came_from = came_from_init.copy() if came_from_init else {}
+    g_score = {start_grid: 0.0}
+    closed_set = set()
+
+    def euclidean_dist(p1, p2):
+        return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+
+    def reconstruct_path(current):
+        path = [current]
+        while current in came_from:
+            current = came_from[current]
+            path.append(current)
+        path.reverse()
+        return path
+
+    while open_set:
+        _, _, current = heappop(open_set)
+
+        if current in closed_set:
+            continue
+
+        if current == goal_grid:
+            return reconstruct_path(current)
+
+        closed_set.add(current)
+
+        # Get 8-connected neighbors
+        cx, cy = current
+        neighbors = []
+        for dx, dy in [
+            (0, 1), (1, 0), (0, -1), (-1, 0),  # Cardinal
+            (1, 1), (1, -1), (-1, 1), (-1, -1)  # Diagonal
+        ]:
+            nx, ny = cx + dx, cy + dy
+            if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
+                cell_value = grid.grid[ny, nx]
+                if cell_value == 0 or cell_value == net_id:
+                    neighbors.append((nx, ny))
+
+        for neighbor in neighbors:
+            if neighbor in closed_set:
+                continue
+
+            # THETA* OPTIMIZATION: Check line-of-sight from parent
+            parent = came_from.get(current)
+            if parent and _line_of_sight(parent, neighbor, grid, net_id):
+                # Path 2: parent -> neighbor (shortcut)
+                tentative_g = g_score[parent] + euclidean_dist(parent, neighbor)
+                path_source = parent
+            else:
+                # Path 1: current -> neighbor (standard A*)
+                tentative_g = g_score[current] + euclidean_dist(current, neighbor)
+                path_source = current
+
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                came_from[neighbor] = path_source
+                g_score[neighbor] = tentative_g
+                f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
+                counter += 1
+                heappush(open_set, (f_score, counter, neighbor))
+
+    return None  # No path found
 
 
 def _astar_search_3d(

@@ -106,14 +106,23 @@ class RouterV6Result:
 class RouterV6Pipeline:
     """Router V6 end-to-end pipeline."""
 
-    def __init__(self, verbose: bool = False):
+    def __init__(
+        self,
+        verbose: bool = False,
+        enable_theta_star: bool = False,
+        enable_smoothing: bool = False,
+    ):
         """
         Initialize Router V6 pipeline.
 
         Args:
             verbose: Enable verbose logging
+            enable_theta_star: Use Theta* any-angle routing (Experiment F)
+            enable_smoothing: Apply force-directed smoothing (Experiment G)
         """
         self.verbose = verbose
+        self.enable_theta_star = enable_theta_star
+        self.enable_smoothing = enable_smoothing
 
     def run(self, pcb_path: Path) -> RouterV6Result:
         """
@@ -397,7 +406,31 @@ class RouterV6Pipeline:
             alternate_grid=bcu_grid,
             pcb=pcb,
             escape_vias_map=escape_vias_map,
+            use_theta_star=self.enable_theta_star,
         )
+
+        # 4.2.5: Force-directed smoothing (optional post-processing)
+        if self.enable_smoothing:
+            if self.verbose:
+                print("  4.2.5: Applying force-directed smoothing...")
+
+            from temper_placer.routing.post_processing.trace_nudger import smooth_all_paths
+
+            smoothing_result = smooth_all_paths(
+                pathfinding_result.routed_paths,
+                pcb.design_rules,
+                max_iterations=200
+            )
+
+            if self.verbose:
+                print(f"    Violations: {smoothing_result.violations_before} → {smoothing_result.violations_after}")
+                if smoothing_result.violations_before > 0:
+                    improvement = 100 * (1 - smoothing_result.violations_after / smoothing_result.violations_before)
+                    print(f"    Improvement: {improvement:.1f}%")
+                print(f"    Converged: {smoothing_result.converged}")
+
+            # Replace paths with smoothed versions
+            pathfinding_result.routed_paths = smoothing_result.smoothed_paths
 
         # 4.3: Place vias
         if self.verbose:
