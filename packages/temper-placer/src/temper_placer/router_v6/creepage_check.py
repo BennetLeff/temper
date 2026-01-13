@@ -152,9 +152,18 @@ def _calculate_minimum_distance(
     min_dist = float('inf')
     closest_point = (0.0, 0.0)
 
+    # Extract coordinates handling RoutePath3D
+    def get_coords(route):
+        if hasattr(route.path, 'segments'):
+            return [c[:2] for c in route.path.segments]
+        return route.path.coordinates
+
+    coords1 = get_coords(route1)
+    coords2 = get_coords(route2)
+
     # Check all point pairs between routes
-    for p1 in route1.path.coordinates:
-        for p2 in route2.path.coordinates:
+    for p1 in coords1:
+        for p2 in coords2:
             dx = p2[0] - p1[0]
             dy = p2[1] - p1[1]
             dist = (dx**2 + dy**2)**0.5

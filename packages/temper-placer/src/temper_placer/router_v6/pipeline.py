@@ -220,9 +220,17 @@ class RouterV6Pipeline:
         # 2.5: Build occupancy grid
         if self.verbose:
             print("  2.5: Building occupancy grid...")
+        
+        # Calculate base inflation for C-Space (trace radius + clearance)
+        base_inflation = (pcb.design_rules.default_trace_width_mm / 2.0) + \
+                         pcb.design_rules.default_clearance_mm
+                         
         occupancy_grids = {}
         for layer_name, routing_space in routing_spaces.items():
-            grid = build_occupancy_grid(routing_space)
+            grid = build_occupancy_grid(
+                routing_space, 
+                inflation_mm=base_inflation
+            )
             occupancy_grids[layer_name] = grid
 
         # 2.6: Calculate per-layer capacity
@@ -348,53 +356,24 @@ class RouterV6Pipeline:
             components=pcb.components,
         )
 
-        # 4.2: Run A* pathfinding PER LAYER
+        # 4.2: Run A* pathfinding (Unified)
         if self.verbose:
-            print("  4.2: Running A* pathfinding (multi-layer)...")
+            print("  4.2: Running A* pathfinding (unified multi-layer)...")
         
-        # Get grids for each layer
+        # Get primary and alternate grids
         fcu_grid = stage2.occupancy_grids.get("F.Cu")
         bcu_grid = stage2.occupancy_grids.get("B.Cu")
         
         if not fcu_grid:
             fcu_grid = list(stage2.occupancy_grids.values())[0]
-        if not bcu_grid:
-            bcu_grid = list(stage2.occupancy_grids.values())[-1]
+        if not bcu_grid and len(stage2.occupancy_grids) > 1:
+            bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
         
-        # Split channel mapping by preferred layer
-        fcu_paths = {name: path for name, path in channel_mapping.channel_paths.items() 
-                     if path.preferred_layer == "F.Cu"}
-        bcu_paths = {name: path for name, path in channel_mapping.channel_paths.items() 
-                     if path.preferred_layer == "B.Cu"}
-        
-        if self.verbose:
-            print(f"    F.Cu: {len(fcu_paths)} nets, B.Cu: {len(bcu_paths)} nets")
-        
-        # Route F.Cu nets WITH B.Cu fallback for THT pads
-        fcu_mapping = ChannelMapping(channel_paths=fcu_paths)
-        fcu_result = run_astar_pathfinding(
-            fcu_mapping, fcu_grid, pcb.design_rules,
-            alternate_grid=bcu_grid,  # Allow fallback to B.Cu at THT pads
-            pcb=pcb,  # For THT pad location building
-        )
-        
-        # Route B.Cu nets
-        bcu_mapping = ChannelMapping(channel_paths=bcu_paths)
-        bcu_result = run_astar_pathfinding(bcu_mapping, bcu_grid, pcb.design_rules)
-        
-        # Merge results
-        merged_routed = {**fcu_result.routed_paths, **bcu_result.routed_paths}
-        merged_failed = list(set(fcu_result.failed_nets + bcu_result.failed_nets))
-        merged_reports = {}
-        if fcu_result.failure_reports:
-            merged_reports.update(fcu_result.failure_reports)
-        if bcu_result.failure_reports:
-            merged_reports.update(bcu_result.failure_reports)
-        
-        pathfinding_result = PathfindingResult(
-            routed_paths=merged_routed,
-            failed_nets=merged_failed,
-            failure_reports=merged_reports if merged_reports else None,
+        # Unified call: pass all nets and both grids
+        pathfinding_result = run_astar_pathfinding(
+            channel_mapping, fcu_grid, pcb.design_rules,
+            alternate_grid=bcu_grid,
+            pcb=pcb
         )
 
         # 4.3: Place vias

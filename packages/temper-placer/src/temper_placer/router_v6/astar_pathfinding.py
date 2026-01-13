@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
+import numpy as np
 
 
 @dataclass
@@ -91,7 +92,7 @@ class RoutingFailureReport:
 class PathfindingResult:
     """Result of A* pathfinding."""
 
-    routed_paths: dict[str, RoutePath]  # net_name -> RoutePath
+    routed_paths: dict[str, RoutePath | RoutePath3D]  # net_name -> RoutePath
     failed_nets: list[str]  # Nets that failed to route
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
 
@@ -191,6 +192,124 @@ def _build_tht_pad_locations(pcb) -> set[tuple[float, float]]:
     return tht_locations
 
 
+def _extract_pad_centers_per_net(pcb) -> dict[str, list[tuple[float, float, float, str]]]:
+    """
+    Extract pad center coordinates, radius, and layer for each net.
+    
+    Returns dictionary mapping net_name -> list of (x, y, radius, layer) coordinates.
+    radius is approximated as max(width, height) / 2.
+    """
+    import math
+    
+    pad_info: dict[str, list[tuple[float, float, float, str]]] = {}
+    
+    if not hasattr(pcb, 'components'):
+        return pad_info
+    
+    for comp in pcb.components:
+        # Skip if no position or pins
+        if not comp.initial_position or not hasattr(comp, 'pins'):
+            continue
+        
+        # Get component rotation (in degrees, need to convert to radians)
+        rotation_deg = comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
+        rotation_rad = math.radians(rotation_deg)
+        side = comp.initial_side if hasattr(comp, 'initial_side') and comp.initial_side is not None else 0
+        
+        for pin in comp.pins:
+            # Get pin's net
+            if not pin.net:
+                continue
+            
+            # Use Pin.absolute_position() method to get absolute coordinates
+            abs_pos = pin.absolute_position(comp.initial_position, rotation_rad, side)
+            
+            # Approximate radius
+            pin_w = pin.width if hasattr(pin, 'width') else 0.0
+            pin_h = pin.height if hasattr(pin, 'height') else 0.0
+            radius = max(pin_w, pin_h) / 2.0
+            if radius == 0.0:
+                radius = 0.5 # Default fallback
+            
+            layer = pin.layer if hasattr(pin, 'layer') else "F.Cu"
+
+            if pin.net not in pad_info:
+                pad_info[pin.net] = []
+            pad_info[pin.net].append((abs_pos[0], abs_pos[1], radius, layer))
+
+    return pad_info
+
+
+def _unblock_net_pads(
+    net_name: str,
+    pad_info: dict,
+    grids: dict[str, OccupancyGrid],
+    inflation_mm: float = 0.0,
+) -> list[tuple[OccupancyGrid, list[tuple[int, int, int]]]]:
+    """
+    Temporarily unblock pads for the given net.
+    Returns restoration data: list of (grid, [(x, y, old_val)]).
+    """
+    restoration_data = []
+    
+    if not pad_info or net_name not in pad_info:
+        return restoration_data
+
+    pads = pad_info[net_name]
+    for px, py, radius, layer in pads:
+        # Determine target grids
+        target_grids = []
+        if layer == "All" or "*.Cu" in layer or "Through" in layer:
+            target_grids = list(grids.values())
+        elif layer in grids:
+            target_grids = [grids[layer]]
+        
+        # Unblock identifying area
+        for grid in target_grids:
+            # Expansion MUST include inflation to bridge the 'moat'
+            expansion = int(np.ceil((radius + inflation_mm) / grid.cell_size)) + 1
+            cx, cy = grid.world_to_grid(px, py)
+            
+            x_start = max(0, cx - expansion)
+            x_end = min(grid.width_cells, cx + expansion + 1)
+            y_start = max(0, cy - expansion)
+            y_end = min(grid.height_cells, cy + expansion + 1)
+            
+            saved_cells = []
+            
+            # Simpler: Only unblock if cell center is within (radius + inflation) of THIS pad.
+            # This allows the router to cross the C-Space 'moat' to reach the pad center.
+            # We subtract a tiny epsilon (0.01mm) to ensure we don't accidentally touch 
+            # the exact center of a neighboring pad in extreme fine-pitch cases.
+            effective_unblock_radius = radius + inflation_mm - 0.01
+            
+            for y in range(y_start, y_end):
+                for x in range(x_start, x_end):
+                    val = grid.grid[y, x]
+                    if val == -1: # Only unblock static obstacles
+                        # Geometric check: Is this cell center inside our surgical unblock zone?
+                        wx, wy = grid.grid_to_world(x, y)
+                        dist = ((wx - px)**2 + (wy - py)**2)**0.5
+                        if dist <= effective_unblock_radius:
+                            saved_cells.append((x, y, val))
+                            grid.grid[y, x] = 0
+            
+            if saved_cells:
+                restoration_data.append((grid, saved_cells))
+                
+    return restoration_data
+
+
+def _restore_net_pads(restoration_data):
+    """Restore grid state after routing."""
+    for grid, cells in restoration_data:
+        for x, y, val in cells:
+            # Only restore if it's still 0 (free).
+            # If it's > 0, the router claimed it, so we leave it.
+            if grid.grid[y, x] == 0:
+                grid.grid[y, x] = val
+
+
 def _is_at_tht_pad(
     position: tuple[float, float],
     tht_locations: set[tuple[float, float]],
@@ -227,6 +346,10 @@ def run_astar_pathfinding(
     components: list | None = None,
     pcb = None,  # For accessing pads
 ) -> PathfindingResult:
+    # Build grids dictionary for multi-layer blocking
+    all_grids = {grid.layer_name: grid}
+    if alternate_grid:
+        all_grids[alternate_grid.layer_name] = alternate_grid
     """
     Run A* pathfinding to generate routing paths.
 
@@ -258,10 +381,15 @@ def run_astar_pathfinding(
     
     # Build THT pad locations once (for layer switching)
     tht_locations = set()
+    pad_centers_per_net: dict[str, list[tuple[float, float, float, str]]] = {}
+    
     if pcb:
         tht_locations = _build_tht_pad_locations(pcb)
         if tht_locations:
             print(f"  Found {len(tht_locations)} THT pads for layer switching")
+        
+        # Extract actual pad centers for connectivity
+        pad_centers_per_net = _extract_pad_centers_per_net(pcb)
     
     # Net classification filter
     def should_route(net_name: str) -> bool:
@@ -309,12 +437,26 @@ def run_astar_pathfinding(
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
         
+        # Determine primary and alternate grid based on net's preference
+        primary_grid = all_grids.get(channel_path.preferred_layer, grid)
+        # Alternate grid is the one NOT preferred
+        alt_layer = next((l for l in all_grids.keys() if l != channel_path.preferred_layer), None)
+        active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
+        
+        # Unblock pads for this net to allow A* to connect (Surgery is inflation-aware)
+        base_inflation = (design_rules.default_trace_width_mm / 2.0) + design_rules.default_clearance_mm
+        restoration = _unblock_net_pads(net_name, pad_centers_per_net, all_grids, inflation_mm=base_inflation)
+        
         # Route with rip-up capability
         route_path, ripped_ids = _astar_route_with_ripup(
-            net_name, channel_path, grid,
+            net_name, channel_path, primary_grid,
             routed_paths, design_rules, net_ids,
-            alternate_grid, tht_locations,
+            active_alternate, tht_locations, pad_centers_per_net,
+            all_grids=all_grids # Pass all for blocker identification
         )
+        
+        # Restore grid state
+        _restore_net_pads(restoration)
         
         # Get blocker names for diagnostics
         blocker_names = [id_to_net.get(rid, f"Unknown-{rid}") for rid in ripped_ids]
@@ -337,10 +479,10 @@ def run_astar_pathfinding(
                 if ripped_id in id_to_net:
                     ripped_name = id_to_net[ripped_id]
                     if ripped_name in routed_paths:
-                        # Unmark the ripped path from grid
+                        # Unmark the ripped path from grids (layer-aware)
                         ripped_path = routed_paths[ripped_name]
-                        grid.unmark_path(
-                            ripped_path.coordinates,
+                        _unmark_route_blocked(
+                            ripped_path, all_grids,
                             design_rules.default_trace_width_mm,
                             design_rules.default_clearance_mm,
                             ripped_id
@@ -351,10 +493,10 @@ def run_astar_pathfinding(
                         # Track ripup count
                         ripup_counts[ripped_name] = ripup_counts.get(ripped_name, 0) + 1
 
-            # Mark new path
+            # Mark new path (layer-aware)
             routed_paths[net_name] = route_path
-            grid.mark_path_blocked(
-                route_path.coordinates,
+            _mark_route_blocked(
+                route_path, all_grids,
                 trace_width=design_rules.default_trace_width_mm,
                 clearance=design_rules.default_clearance_mm,
                 net_id=net_id
@@ -430,7 +572,9 @@ def _astar_route_with_ripup(
     net_ids: dict[str, int],
     alternate_grid: OccupancyGrid | None = None,
     tht_locations: set[tuple[float, float]] | None = None,
-) -> tuple[RoutePath | None, list[int]]:
+    pad_centers: dict[str, list[tuple[float, float, float, str]]] | None = None,
+    all_grids: dict[str, OccupancyGrid] | None = None,
+) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
     """
     Route a net, potentially ripping up blocking nets.
     
@@ -451,15 +595,17 @@ def _astar_route_with_ripup(
     
     # Identify blockers if forced
     if path and path.forced_segment_count > 0:
-        blockers = _identify_blocking_nets(channel_path, grid)
+        # Check ALL grids for blockers if available, otherwise just current grid
+        target_grids = list(all_grids.values()) if all_grids else [grid]
+        blockers = _identify_blocking_nets(channel_path, target_grids)
         if blockers:
             return path, list(blockers)
             
     return path, []
 
 
-def _identify_blocking_nets(channel_path, grid: OccupancyGrid) -> set[int]:
-    """Identify net IDs blocking the straight-line paths."""
+def _identify_blocking_nets(channel_path, grids: list[OccupancyGrid]) -> set[int]:
+    """Identify net IDs blocking the straight-line paths across all specified layers."""
     blockers = set()
     waypoints = channel_path.waypoints
     
@@ -467,9 +613,10 @@ def _identify_blocking_nets(channel_path, grid: OccupancyGrid) -> set[int]:
         p1 = waypoints[i]
         p2 = waypoints[i+1]
         
-        # Check if segment is blocked
-        segment_blockers = grid.get_blocking_nets(p1, p2)
-        blockers.update(segment_blockers)
+        # Check if segment is blocked on ANY of the grids
+        for grid in grids:
+            segment_blockers = grid.get_blocking_nets(p1, p2)
+            blockers.update(segment_blockers)
         
     return blockers
 
@@ -513,7 +660,7 @@ def _astar_route_multilayer(
     primary_grid: OccupancyGrid,
     alternate_grid: OccupancyGrid | None,
     tht_locations: set[tuple[float, float]] | None,
-) -> RoutePath | None:
+) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
     
@@ -530,13 +677,14 @@ def _astar_route_multilayer(
         tht_locations: Set of THT pad positions for layer switching
         
     Returns:
-        RoutePath with segments potentially on multiple layers
+        RoutePath3D with segments potentially on multiple layers
     """
-    waypoints = channel_path.waypoints
+    waypoints = channel_path.waypoints  # Use skeleton waypoints directly
     if not waypoints or len(waypoints) < 2:
         return None
     
-    detailed_coords = []
+    detailed_segments = []  # (x, y, layer)
+    via_positions = []
     forced_segments = 0
     
     for i in range(len(waypoints) - 1):
@@ -580,33 +728,41 @@ def _astar_route_multilayer(
         # Add segment to path
         if segment_path:
             # Convert grid path to world coordinates
-            for grid_cell in segment_path:
+            for j, grid_cell in enumerate(segment_path):
                 world_coord = grid_to_use.grid_to_world(grid_cell[0], grid_cell[1])
-                if not detailed_coords or detailed_coords[-1] != world_coord:
-                    detailed_coords.append(world_coord)
+                new_node = (world_coord[0], world_coord[1], grid_to_use.layer_name)
+                
+                # Check for layer transition vs previous segment
+                if detailed_segments and detailed_segments[-1][2] != grid_to_use.layer_name:
+                    via_positions.append((world_coord[0], world_coord[1]))
+                
+                if not detailed_segments or detailed_segments[-1][:2] != world_coord:
+                    detailed_segments.append(new_node)
         else:
             # Fallback: direct line
             if i == 0:
-                detailed_coords.append(start_world)
-            detailed_coords.append(goal_world)
+                detailed_segments.append((start_world[0], start_world[1], grid_to_use.layer_name))
+            detailed_segments.append((goal_world[0], goal_world[1], grid_to_use.layer_name))
             forced_segments += 1
     
-    if not detailed_coords:
-        detailed_coords = waypoints
+    if not detailed_segments:
+        # Fallback to waypoints on primary layer
+        detailed_segments = [(w[0], w[1], primary_grid.layer_name) for w in waypoints]
         forced_segments = len(waypoints) - 1
     
     # Calculate path length
     path_length = 0.0
-    for i in range(len(detailed_coords) - 1):
-        x1, y1 = detailed_coords[i]
-        x2, y2 = detailed_coords[i + 1]
+    for i in range(len(detailed_segments) - 1):
+        x1, y1, _ = detailed_segments[i]
+        x2, y2, _ = detailed_segments[i + 1]
         path_length += ((x2 - x1)**2 + (y2 - y1)**2)**0.5
     
-    return RoutePath(
+    return RoutePath3D(
         net_name=net_name,
-        coordinates=detailed_coords,
-        layer_name="F.Cu",  # Multilayer path (mix of F.Cu/B.Cu)
+        segments=detailed_segments,
+        via_positions=via_positions,
         path_length=path_length,
+        via_count=len(via_positions),
         forced_segment_count=forced_segments,
     )
 
@@ -919,9 +1075,12 @@ def _route_segment_3d(
     """
     Route a single segment using 3D A* with via insertion.
     
+    IMPORTANT: Preserves exact start/goal positions (pad centers) in the final path.
+    Only the bulk routing happens on-grid; fanout to pads is off-grid.
+    
     Args:
-        start_world: Start position in mm (x, y)
-        goal_world: Goal position in mm (x, y)
+        start_world: Start position in mm (x, y) - exact pad center
+        goal_world: Goal position in mm (x, y) - exact pad center
         start_layer: Starting layer name
         goal_layer: Goal layer name
         grids: Dictionary of OccupancyGrid per layer
@@ -929,7 +1088,7 @@ def _route_segment_3d(
         
     Returns:
         (world_path, via_positions) or None
-        - world_path: List of (x, y, layer) in world coordinates
+        - world_path: List of (x, y, layer) in ABSOLUTE board coordinates
         - via_positions: List of (x, y) where vias are placed
     """
     if not grids:
@@ -938,7 +1097,7 @@ def _route_segment_3d(
     # Get a grid for coordinate conversion
     sample_grid = next(iter(grids.values()))
     
-    # Convert to grid coordinates
+    # Find nearest grid cells to start/goal (for bulk routing)
     start_grid = sample_grid.world_to_grid(start_world[0], start_world[1])
     goal_grid = sample_grid.world_to_grid(goal_world[0], goal_world[1])
     
@@ -961,12 +1120,33 @@ def _route_segment_3d(
     
     path_nodes, via_grid_positions = result
     
-    # Convert to world coordinates
-    world_path = []
+    # Convert bulk path to world coordinates (grid-to-world conversion)
+    bulk_path = []
     for node in path_nodes:
         grid = grids[node.layer]
         world_x, world_y = grid.grid_to_world(node.x, node.y)
-        world_path.append((world_x, world_y, node.layer))
+        bulk_path.append((world_x, world_y, node.layer))
+    
+    # **KEY FIX**: Replace first and last points with exact pad positions
+    # This ensures routes connect directly to pad centers, not grid-snapped approximations
+    world_path = []
+    
+    if len(bulk_path) > 0:
+        # Start with exact pad center
+        world_path.append((start_world[0], start_world[1], start_layer))
+        
+        # Add bulk path (excluding first and last if they're the same as pads)
+        # Keep middle segments
+        if len(bulk_path) > 2:
+            world_path.extend(bulk_path[1:-1])
+        
+        # End with exact pad center (if different from start)
+        if len(bulk_path) == 1:
+            # Single-cell path: just start and end at pads
+            if (start_world[0], start_world[1]) != (goal_world[0], goal_world[1]):
+                world_path.append((goal_world[0], goal_world[1], goal_layer))
+        else:
+            world_path.append((goal_world[0], goal_world[1], goal_layer))
     
     via_world_positions = []
     for gx, gy in via_grid_positions:
@@ -974,3 +1154,69 @@ def _route_segment_3d(
         via_world_positions.append((wx, wy))
     
     return world_path, via_world_positions
+
+
+def _mark_route_blocked(
+    route_path: RoutePath | RoutePath3D,
+    grids: dict[str, OccupancyGrid],
+    trace_width: float,
+    clearance: float,
+    net_id: int,
+) -> None:
+    """Mark a path blocked on its respective layer grids."""
+    if isinstance(route_path, RoutePath3D):
+        # Mark each segment on its specific layer
+        for i in range(len(route_path.segments) - 1):
+            p1 = route_path.segments[i]
+            p2 = route_path.segments[i + 1]
+            
+            # Use layer from segment if it matches, otherwise fallback
+            layer = p1[2]
+            if layer in grids:
+                grids[layer].mark_segment_blocked(
+                    (p1[0], p1[1]), (p2[0], p2[1]),
+                    trace_width, clearance, net_id
+                )
+        
+        # Mark vias on ALL layers (assuming they span the stackup for now)
+        for vx, vy in route_path.via_positions:
+            for grid in grids.values():
+                grid.mark_via_blocked(vx, vy, 0.6, clearance, net_id) # 0.6mm via dia
+    else:
+        # Legacy single-layer behavior
+        if route_path.layer_name in grids:
+            grids[route_path.layer_name].mark_path_blocked(
+                route_path.coordinates, trace_width, clearance, net_id
+            )
+
+
+def _unmark_route_blocked(
+    route_path: RoutePath | RoutePath3D,
+    grids: dict[str, OccupancyGrid],
+    trace_width: float,
+    clearance: float,
+    net_id: int,
+) -> None:
+    """Unmark a path from its respective layer grids."""
+    if isinstance(route_path, RoutePath3D):
+        for i in range(len(route_path.segments) - 1):
+            p1 = route_path.segments[i]
+            p2 = route_path.segments[i + 1]
+            layer = p1[2]
+            if layer in grids:
+                grids[layer].unmark_segment_blocked(
+                    (p1[0], p1[1]), (p2[0], p2[1]),
+                    trace_width, clearance, net_id
+                )
+        
+        # Unmark vias from all layers
+        # (Assuming mark_via_blocked simply overwrites cells, 
+        # so we rely on net_id check inside unmark_point)
+        for vx, vy in route_path.via_positions:
+            for grid in grids.values():
+                grid.unmark_path([(vx, vy), (vx, vy)], 0.6, clearance, net_id)
+    else:
+        if route_path.layer_name in grids:
+            grids[route_path.layer_name].unmark_path(
+                route_path.coordinates, trace_width, clearance, net_id
+            )

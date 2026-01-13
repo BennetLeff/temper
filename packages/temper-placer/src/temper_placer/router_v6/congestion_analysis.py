@@ -104,14 +104,20 @@ def identify_congested_regions(
 
     # Analyze successful routes for density
     for net_name, compiled_route in routing_results.compiled_routes.items():
-        # Mark cells that routes pass through
-        for coord in compiled_route.path.coordinates:
-            x, y = coord
-            cell_x = int(x / grid_size)
-            cell_y = int(y / grid_size)
+            # Extract coordinates (handle RoutePath and RoutePath3D)
+            coords = []
+            if hasattr(compiled_route.path, 'segments'):
+                 coords = [c[:2] for c in compiled_route.path.segments]
+            elif hasattr(compiled_route.path, 'coordinates'):
+                 coords = compiled_route.path.coordinates
+            
+            for coord in coords:
+                x, y = coord
+                cell_x = int(x / grid_size)
+                cell_y = int(y / grid_size)
 
-            if 0 <= cell_x < grid_cells_x and 0 <= cell_y < grid_cells_y:
-                congestion_grid[cell_y][cell_x] += 0.1  # Route density contribution
+                if 0 <= cell_x < grid_cells_x and 0 <= cell_y < grid_cells_y:
+                    congestion_grid[cell_y][cell_x] += 0.1  # Route density contribution
 
     # Identify congested regions
     regions = []

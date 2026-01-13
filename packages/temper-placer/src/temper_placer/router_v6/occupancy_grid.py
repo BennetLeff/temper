@@ -34,6 +34,7 @@ class OccupancyGrid:
     cell_size: float  # Cell size in mm
     width_cells: int  # Grid width in cells
     height_cells: int  # Grid height in cells
+    static_mask: np.ndarray | None = None  # Boolean mask of static obstacles (-1)
 
     @property
     def width_mm(self) -> float:
@@ -139,6 +140,82 @@ class OccupancyGrid:
                     x = p1[0] + t * (p2[0] - p1[0])
                     y = p1[1] + t * (p2[1] - p1[1])
                     mark_point(x, y)
+
+    def mark_segment_blocked(
+        self,
+        p1: tuple[float, float],
+        p2: tuple[float, float],
+        trace_width: float,
+        clearance: float,
+        net_id: int,
+    ) -> None:
+        """Mark a single segment blocked on THIS grid."""
+        radius_mm = (trace_width / 2) + clearance
+        expansion = int(np.ceil(radius_mm / self.cell_size))
+        
+        def mark_point(x_mm, y_mm):
+            cx, cy = self.world_to_grid(x_mm, y_mm)
+            x_start = max(0, cx - expansion)
+            x_end = min(self.width_cells, cx + expansion + 1)
+            y_start = max(0, cy - expansion)
+            y_end = min(self.height_cells, cy + expansion + 1)
+            self.grid[y_start:y_end, x_start:x_end] = net_id
+
+        dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+        steps = int(np.ceil(dist / (self.cell_size / 2)))
+        
+        if steps > 0:
+            for s in range(steps + 1):
+                t = s / steps
+                x = p1[0] + t * (p2[0] - p1[0])
+                y = p1[1] + t * (p2[1] - p1[1])
+                mark_point(x, y)
+        else:
+            mark_point(p1[0], p1[1])
+
+    def unmark_segment_blocked(
+        self,
+        p1: tuple[float, float],
+        p2: tuple[float, float],
+        trace_width: float,
+        clearance: float,
+        net_id: int,
+    ) -> None:
+        """Unmark a single segment from THIS grid."""
+        radius_mm = (trace_width / 2) + clearance
+        expansion = int(np.ceil(radius_mm / self.cell_size))
+        
+        def unmark_point(x_mm, y_mm):
+            cx, cy = self.world_to_grid(x_mm, y_mm)
+            x_start = max(0, cx - expansion)
+            x_end = min(self.width_cells, cx + expansion + 1)
+            y_start = max(0, cy - expansion)
+            y_end = min(self.height_cells, cy + expansion + 1)
+            region = self.grid[y_start:y_end, x_start:x_end]
+            
+            # Restore -1 if it was a static obstacle, otherwise set to 0
+            if self.static_mask is not None:
+                static_region = self.static_mask[y_start:y_end, x_start:x_end]
+                # Identify cells that are currently our net
+                net_mask = (region == net_id)
+                # Set them to 0 (Free)
+                region[net_mask] = 0
+                # But if they were originally static, restore to -1
+                region[static_region & net_mask] = -1
+            else:
+                region[region == net_id] = 0
+
+        dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+        steps = int(np.ceil(dist / (self.cell_size / 2)))
+        
+        if steps > 0:
+            for s in range(steps + 1):
+                t = s / steps
+                x = p1[0] + t * (p2[0] - p1[0])
+                y = p1[1] + t * (p2[1] - p1[1])
+                unmark_point(x, y)
+        else:
+            unmark_point(p1[0], p1[1])
 
     def unmark_path(
         self,
@@ -289,22 +366,19 @@ def build_occupancy_grid(
     routing_space: RoutingSpace,
     cell_size: float = 0.1,
     margin: float = 2.0,
+    inflation_mm: float = 0.0,
 ) -> OccupancyGrid:
     """
-    Build occupancy grid from routing space.
+    Build occupancy grid from routing space with C-Space inflation.
 
     Args:
         routing_space: Routing space from Stage 2.2
         cell_size: Grid cell size in mm (default 0.1mm)
         margin: Margin around routing area in mm
+        inflation_mm: Buffer to erode free area by (for C-Space)
 
     Returns:
         OccupancyGrid with blocked cells marked
-
-    Example:
-        >>> grid = build_occupancy_grid(routing_space, cell_size=0.5)
-        >>> grid.free_cell_count > 0
-        True
     """
     # Get board bounds from routing space
     x_min, y_min, x_max, y_max = routing_space.available_area.bounds
@@ -325,6 +399,12 @@ def build_occupancy_grid(
     # Initialize grid as all blocked (static obstacle)
     grid = np.full((height_cells, width_cells), -1, dtype=np.int16)
 
+    # Use eroded area if inflation requested
+    check_area = routing_space.available_area
+    if inflation_mm > 0.1: # Threshold to avoid tiny/empty buffers
+        # Erode the available area (which is dilation of obstacles)
+        check_area = routing_space.available_area.buffer(-inflation_mm, quad_segs=4)
+
     # Mark cells that are inside routing space as free
     for y in range(height_cells):
         for x in range(width_cells):
@@ -332,10 +412,13 @@ def build_occupancy_grid(
             x_world = x_min + (x + 0.5) * cell_size
             y_world = y_min + (y + 0.5) * cell_size
 
-            # Check if cell center is inside available routing area
+            # Check if cell center is inside (potentially inflated) area
             point = Point(x_world, y_world)
-            if routing_space.available_area.contains(point):
+            if check_area.contains(point):
                 grid[y, x] = 0  # 0 = Free
+
+    # Record which cells were static obstacles (-1) before routing
+    static_mask = (grid == -1)
 
     return OccupancyGrid(
         layer_name=routing_space.layer_name,
@@ -344,4 +427,5 @@ def build_occupancy_grid(
         cell_size=cell_size,
         width_cells=width_cells,
         height_cells=height_cells,
+        static_mask=static_mask,
     )

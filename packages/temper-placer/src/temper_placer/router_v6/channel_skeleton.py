@@ -42,19 +42,25 @@ class ChannelSkeleton:
 def extract_channel_skeleton(
     routing_space: RoutingSpace,
     simplify_tolerance: float = 0.5,
+    pcb = None,  # Optional ParsedPCB for pad anchoring
 ) -> ChannelSkeleton:
     """
     Extract routing channel skeleton using medial axis approximation.
+    
+    If pcb is provided, adds component pad positions as anchor nodes
+    connected to nearest skeleton nodes. This ensures routes connect
+    to actual pad centers, not approximated skeleton positions.
 
     Args:
         routing_space: Routing space from Stage 2.2
         simplify_tolerance: Tolerance for simplifying skeleton (mm)
+        pcb: Optional ParsedPCB for adding pad anchor nodes
 
     Returns:
         ChannelSkeleton with graph representation
 
     Example:
-        >>> skeleton = extract_channel_skeleton(routing_space)
+        >>> skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
         >>> skeleton.is_connected
         True
     """
@@ -101,6 +107,53 @@ def extract_channel_skeleton(
             
     # Ensure connectivity by bridging islands
     G = _ensure_skeleton_connectivity(G, max_bridge_distance=10.0)
+    
+    # **OPTION F FIX**: Add component pad positions as anchor nodes
+    if pcb and hasattr(pcb, 'components') and G.number_of_nodes() > 0:
+        import math
+        
+        # Extract all pad positions
+        pad_positions = []
+        for comp in pcb.components:
+            if not comp.initial_position or not hasattr(comp, 'pins'):
+                continue
+            
+            rotation_deg = comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
+            rotation_rad = math.radians(rotation_deg)
+            side = comp.initial_side if hasattr(comp, 'initial_side') and comp.initial_side is not None else 0
+            
+            for pin in comp.pins:
+                if pin.net:
+                    abs_pos = pin.absolute_position(comp.initial_position, rotation_rad, side)
+                    pad_positions.append(abs_pos)
+        
+        # Add pads as anchor nodes, connected to nearest skeleton node
+        skeleton_nodes = list(G.nodes())
+        pads_added = 0
+        
+        for pad_pos in pad_positions:
+            # Skip if pad already exists in skeleton (within 0.1mm)
+            if any(abs(pad_pos[0] - n[0]) < 0.1 and abs(pad_pos[1] - n[1]) < 0.1 for n in skeleton_nodes):
+                continue
+            
+            # Find nearest skeleton node
+            nearest_node = None
+            min_dist = float('inf')
+            for node in skeleton_nodes:
+                dist = math.sqrt((pad_pos[0] - node[0])**2 + (pad_pos[1] - node[1])**2)
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest_node = node
+            
+            # Add pad as new node with edge to nearest skeleton node
+            if nearest_node and min_dist < 50.0:  # Only connect if within 50mm
+                G.add_node(pad_pos, pos=pad_pos)
+                G.add_edge(pad_pos, nearest_node, weight=min_dist)
+                total_length += min_dist
+                pads_added += 1
+        
+        if pads_added > 0:
+            print(f"  Added {pads_added} pad anchor nodes to skeleton")
 
     return ChannelSkeleton(
         graph=G,

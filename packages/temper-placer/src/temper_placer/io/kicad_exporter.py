@@ -99,44 +99,51 @@ def path_to_segments(
     layer_map: dict[int, str] | None = None,
 ) -> list[TraceSegment]:
     """Convert path to trace segments."""
-    if hasattr(path, 'coordinates') and path.coordinates:
-        segments = []
+    segments = []
+    
+    # Extract coordinates and layer mapping from either RoutePath or RoutePath3D
+    if hasattr(path, 'segments') and path.segments:
+        coords = path.segments
+        # RoutePath3D coordinates are already (x, y, layer)
+    elif hasattr(path, 'coordinates') and path.coordinates:
         coords = path.coordinates
-        layer_name = getattr(path, 'layer_name', "F.Cu")
+    else:
+        return []
+
+    layer_name = getattr(path, 'layer_name', "F.Cu")
+    
+    # Check if coordinates have layer info (3D path)
+    for i in range(len(coords) - 1):
+        p1 = coords[i]
+        p2 = coords[i+1]
         
-        # Check if coordinates have layer info (3D path)
-        for i in range(len(coords) - 1):
-            p1 = coords[i]
-            p2 = coords[i+1]
+        # Extract position and layer
+        if len(p1) == 3:
+            x1, y1, l1 = p1
+        else:
+            x1, y1 = p1
+            l1 = layer_name
             
-            # Extract position and layer
-            if len(p1) == 3:
-                x1, y1, l1 = p1
-            else:
-                x1, y1 = p1
-                l1 = layer_name
-                
-            if len(p2) == 3:
-                x2, y2, l2 = p2
-            else:
-                x2, y2 = p2
-                l2 = layer_name
-            
-            # If layers differ, skip (via will handle it)
-            if l1 != l2:
-                continue
-            
-            # APPLY ORIGIN OFFSET: REMOVED (Router now uses Absolute Coords)
-            segments.append(
-                TraceSegment(
-                    net=getattr(path, 'net_name', 'unknown'),
-                    start=(x1, y1),
-                    end=(x2, y2),
-                    width=trace_width,
-                    layer=l1,
-                )
+        if len(p2) == 3:
+            x2, y2, l2 = p2
+        else:
+            x2, y2 = p2
+            l2 = layer_name
+        
+        # If layers differ, skip (via will handle it)
+        if l1 != l2:
+            continue
+        
+        segments.append(
+            TraceSegment(
+                net=getattr(path, 'net_name', 'unknown'),
+                start=(x1, y1),
+                end=(x2, y2),
+                width=trace_width,
+                layer=l1,
             )
-        return segments
+        )
+    return segments
 
     if not path.success or not hasattr(path, 'cells') or len(path.cells) < 2:
         return []
@@ -185,43 +192,47 @@ def path_to_vias(
 ) -> list[TraceVia]:
     """Extract vias from layer transitions in path."""
     # Support V6 Router Path (coordinates instead of cells)
-    if hasattr(path, 'coordinates') and path.coordinates:
-        vias = []
+    vias = []
+    
+    # Extract coordinates from either RoutePath or RoutePath3D
+    if hasattr(path, 'segments') and path.segments:
+        coords = path.segments
+    elif hasattr(path, 'coordinates') and path.coordinates:
         coords = path.coordinates
+    else:
+        return []
         
-        # Only 3D paths with (x, y, layer) can generate implicit vias
-        # RoutePath3D likely has explicit vias list or we infer from coords
-        # V6 pathfinding logic: vias are implicit at layer changes in coords
+    # Only 3D paths with (x, y, layer) can generate implicit vias
+    # RoutePath3D likely has explicit vias list or we infer from coords
+    # V6 pathfinding logic: vias are implicit at layer changes in coords
+    
+    for i in range(1, len(coords)):
+        p1 = coords[i-1]
+        p2 = coords[i]
         
-        for i in range(1, len(coords)):
-            p1 = coords[i-1]
-            p2 = coords[i]
+        if len(p1) == 3 and len(p2) == 3:
+            x1, y1, l1 = p1
+            x2, y2, l2 = p2
             
-            if len(p1) == 3 and len(p2) == 3:
-                x1, y1, l1 = p1
-                x2, y2, l2 = p2
+            if l1 != l2:
+                # Via placed at transition point (they share x,y)
+                pos = (x2, y2)
                 
-                if l1 != l2:
-                    # Via placed at transition point (they share x,y)
-                    # APPLY ORIGIN OFFSET: REMOVED
-                    pos = (x2, y2)
-                    
-                    # For through-hole via, specify all relevant layers
-                    # Usually "F.Cu", "B.Cu" plus inner if needed.
-                    all_layers = ["F.Cu", "B.Cu"] # Default TH
-                    if "In1.Cu" in [l1, l2] or "In2.Cu" in [l1, l2]:
-                         all_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+                # For through-hole via, specify all relevant layers
+                all_layers = ["F.Cu", "B.Cu"] # Default TH
+                if "In1.Cu" in [l1, l2] or "In2.Cu" in [l1, l2]:
+                     all_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
 
-                    vias.append(
-                        TraceVia(
-                            net=getattr(path, 'net_name', 'unknown'),
-                            position=pos,
-                            size=via_size,
-                            drill=via_drill,
-                            layers=all_layers, 
-                        )
+                vias.append(
+                    TraceVia(
+                        net=getattr(path, 'net_name', 'unknown'),
+                        position=pos,
+                        size=via_size,
+                        drill=via_drill,
+                        layers=all_layers, 
                     )
-        return vias
+                )
+    return vias
 
     if not path.success or not hasattr(path, 'cells') or len(path.cells) < 2:
         return []

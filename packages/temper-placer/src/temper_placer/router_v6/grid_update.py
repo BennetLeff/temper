@@ -53,8 +53,16 @@ def _mark_path_occupied(
         route_path: RoutePath to mark
         clearance_cells: Clearance inflation
     """
-    # Convert each coordinate to grid cells and mark as occupied
-    for coord in route_path.coordinates:
+    # Extract coordinates from either RoutePath or RoutePath3D
+    coords = []
+    if hasattr(route_path, 'segments'):
+        # Filter for this grid's layer
+        coords = [c[:2] for c in route_path.segments if c[2] == grid.layer_name]
+    elif hasattr(route_path, 'coordinates'):
+        if getattr(route_path, 'layer_name', '') == grid.layer_name:
+            coords = route_path.coordinates
+    
+    for coord in coords:
         x_mm, y_mm = coord
         x_cell, y_cell = grid.world_to_grid(x_mm, y_mm)
 

@@ -100,11 +100,22 @@ def _place_vias_for_path(
     """
     vias = []
 
-    # For multi-layer routing, detect layer transitions
-    # Simplified: assume single layer for now, but add via at midpoint
-    # if path is long enough
+    # If RoutePath3D, use explicit via_positions from pathfinder
+    if hasattr(route_path, 'via_positions'):
+        for vx, vy in route_path.via_positions:
+            vias.append(
+                Via(
+                    net=net_name,
+                    at=(vx, vy),
+                    diameter=via_diameter,
+                    drill=via_drill,
+                    layers=("F.Cu", "B.Cu"), # Multi-layer via
+                )
+            )
+        return vias
 
-    if len(route_path.coordinates) >= 3:
+    # Legacy fallback for RoutePath
+    if hasattr(route_path, 'coordinates') and len(route_path.coordinates) >= 3:
         # Add a via at the midpoint for demonstration
         mid_idx = len(route_path.coordinates) // 2
         via_pos = route_path.coordinates[mid_idx]
