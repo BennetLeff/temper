@@ -29,6 +29,8 @@ from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_esc
 from temper_placer.router_v6.layer_capacity import LayerCapacity, calculate_layer_capacity
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
+from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
+from temper_placer.routing.variational_router.snake_optimizer import SnakeOptimizer
 from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import RoutingSpace, compute_routing_space
@@ -424,27 +426,45 @@ class RouterV6Pipeline:
         # 4.2.5: Force-directed smoothing (optional post-processing)
         if self.enable_smoothing:
             if self.verbose:
-                print("  4.2.5: Applying force-directed smoothing...")
+                print("  4.2.5: Applying Variational Smoothing (Snakes)...")
 
-            from temper_placer.routing.post_processing.trace_nudger import smooth_all_paths
+            # 1. Build SDFs for all layers
+            sdf_grids = {}
+            clearance_mm = pcb.design_rules.default_clearance_mm
 
-            smoothing_result = smooth_all_paths(
-                pathfinding_result.routed_paths, pcb.design_rules, max_iterations=200
+            # Use base inflation (trace_width/2 + clearance) from Stage 2.5
+            # Occupancy grids are already inflated.
+            # We need raw obstacle geometry ideally, but occupancy grid is our best "free space" map.
+            # OccupancyGrid cells != 0 are blocked.
+            # We want SDF=0 to be the boundary between Free(0) and Blocked(!=0).
+            # This aligns exactly with the occupancy grid definition.
+
+            for layer_name, grid in stage2.occupancy_grids.items():
+                if self.verbose:
+                    print(f"    Building SDF for {layer_name}...")
+                sdf_grids[layer_name] = SDFGrid.from_occupancy_grid(grid, clearance_mm=0.0)
+
+            # 2. Run Snake Optimizer
+            optimizer = SnakeOptimizer(
+                sdf_grids=sdf_grids,
+                alpha=0.2,  # Lower elasticity to allow sticking to path
+                beta=0.1,  # Low stiffness to allow sharp turns near pads
+                gamma=2.0,  # Strong repulsion from obstacles
+                step_size=0.1,
+                node_spacing_mm=0.2,
+                max_iterations=100,
             )
 
-            if self.verbose:
-                print(
-                    f"    Violations: {smoothing_result.violations_before} → {smoothing_result.violations_after}"
-                )
-                if smoothing_result.violations_before > 0:
-                    improvement = 100 * (
-                        1 - smoothing_result.violations_after / smoothing_result.violations_before
-                    )
-                    print(f"    Improvement: {improvement:.1f}%")
-                print(f"    Converged: {smoothing_result.converged}")
+            smoothed_paths = {}
+            for net_name, path in pathfinding_result.routed_paths.items():
+                # Optimize
+                opt_path = optimizer.optimize_path(path)
+                smoothed_paths[net_name] = opt_path
 
-            # Replace paths with smoothed versions
-            pathfinding_result.routed_paths = smoothing_result.smoothed_paths
+            pathfinding_result.routed_paths = smoothed_paths
+
+            if self.verbose:
+                print(f"    Smoothed {len(smoothed_paths)} paths")
 
         # 4.3: Place vias
         if self.verbose:
