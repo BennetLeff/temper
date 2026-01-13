@@ -32,6 +32,7 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupanc
 from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
 from temper_placer.routing.variational_router.snake_optimizer import SnakeOptimizer
 from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
+from temper_placer.placement.legalization import Legalizer
 from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import RoutingSpace, compute_routing_space
@@ -115,6 +116,7 @@ class RouterV6Pipeline:
         enable_theta_star: bool = False,
         enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
+        enable_legalization: bool = True,  # Default ON for robustness
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
     ):
@@ -126,6 +128,7 @@ class RouterV6Pipeline:
             enable_theta_star: Use Theta* any-angle routing (Experiment F)
             enable_lazy_theta_star: Use Lazy Theta* (Experiment O4)
             enable_smoothing: Apply force-directed smoothing (Experiment G)
+            enable_legalization: Auto-fix component overlaps (Phase 6)
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
         """
@@ -133,6 +136,7 @@ class RouterV6Pipeline:
         self.enable_theta_star = enable_theta_star
         self.enable_lazy_theta_star = enable_lazy_theta_star
         self.enable_smoothing = enable_smoothing
+        self.enable_legalization = enable_legalization
         self.max_nets = max_nets
         self.target_nets = target_nets
 
@@ -153,7 +157,27 @@ class RouterV6Pipeline:
             print("Stage 0: Loading PCB...")
         pcb = parse_kicad_pcb_v6(pcb_path)
 
-        # Validate placement
+        # Stage 0.5: Legalization
+        if self.enable_legalization:
+            if self.verbose:
+                print("Stage 0.5: Checking and Legalizing Placement...")
+
+            legalizer = Legalizer(pcb)
+            # Check collisions before
+            if self.verbose:
+                collisions = legalizer.auditor.check_collisions()
+                print(f"  Found {len(collisions)} initial collisions")
+
+            if legalizer.legalize():
+                if self.verbose:
+                    print("  Legalization successful (0 overlaps)")
+            else:
+                if self.verbose:
+                    print("  Warning: Legalization did not fully converge (residual overlap)")
+
+        # Validate placement (Post-Legalization)
+        # Note: pcb.validate_placement checks for missing footprints etc, not necessarily geometric overlap.
+        # But we assume Legalizer updated pcb.components in-place.
         errors = pcb.validate_placement()
         if errors:
             raise ValueError(f"PCB validation failed: {errors}")

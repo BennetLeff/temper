@@ -6,11 +6,36 @@ Run Router V6 on temper PCB and generate baseline metrics.
 import json
 import sys
 from pathlib import Path
+from dataclasses import dataclass
 
 # Add temper-placer to path
 sys.path.insert(0, str(Path(__file__).parent / "packages" / "temper-placer" / "src"))
 
+from temper_placer.io.kicad_writer import (
+    write_placements_to_pcb,
+    write_routes_to_pcb,
+    PlacementUpdate,
+)
 from temper_placer.router_v6.pipeline import RouterV6Pipeline
+from temper_placer.router_v6.astar_pathfinding import RoutePath3D
+
+
+@dataclass(frozen=True)
+class SimpleTrace:
+    start: tuple[float, float]
+    end: tuple[float, float]
+    width: float
+    layer: str
+    net: str
+
+
+@dataclass(frozen=True)
+class SimpleVia:
+    position: tuple[float, float]
+    width: float
+    drill: float
+    layers: tuple[str, ...]  # Expects tuple for frozen set
+    net: str
 
 
 def main():
@@ -42,6 +67,11 @@ def main():
         "--smoothing", action="store_true", help="Enable force-directed smoothing (Experiment G)"
     )
     parser.add_argument(
+        "--no-legalize",
+        action="store_true",
+        help="Disable automatic placement legalization (Phase 6)",
+    )
+    parser.add_argument(
         "--max-nets", type=int, default=None, help="Limit number of nets to route (for profiling)"
     )
     parser.add_argument(
@@ -69,6 +99,8 @@ def main():
         print("Experiment O4: Lazy Theta* ENABLED")
     if args.smoothing:
         print("Experiment G: Force-directed smoothing ENABLED")
+    if not args.no_legalize:
+        print("Experiment P2: Placement Legalization ENABLED")
     if target_nets:
         print(f"Profiling Mode: Targeting {len(target_nets)} nets: {', '.join(target_nets)}")
     elif args.max_nets:
@@ -82,6 +114,7 @@ def main():
             enable_theta_star=args.theta_star,
             enable_lazy_theta_star=args.lazy_theta,
             enable_smoothing=args.smoothing,
+            enable_legalization=not args.no_legalize,
             max_nets=args.max_nets,
             target_nets=target_nets,
         )
@@ -110,8 +143,96 @@ def main():
 
         print(f"Metrics written to: {metrics_path}")
 
-        # TODO: Export routed PCB (not implemented in pipeline yet)
-        print("\nNote: PCB export not yet implemented in Router V6 pipeline")
+        # Export Routed PCB
+        print(f"\nExporting to {output_path}...")
+
+        # 1. Export Placement (Legalized)
+        placements = {}
+        for comp in result.pcb.components:
+            if comp.initial_position is None:
+                continue
+
+            # Convert rotation index to degrees if needed, or use stored value
+            rot = comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
+
+            placements[comp.ref] = PlacementUpdate(
+                ref=comp.ref, x=comp.initial_position[0], y=comp.initial_position[1], rotation=rot
+            )
+
+        # Write placement first (Template -> Output)
+        write_placements_to_pcb(
+            template_pcb=pcb_path,
+            output_pcb=output_path,
+            placements=placements,
+            preserve_unmatched=True,
+        )
+
+        # 2. Export Routes
+        routes = set()
+        vias = set()
+
+        for net_name, compiled_route in result.stage4.routing_results.compiled_routes.items():
+            # Convert RoutePath (polyline) to segments
+            path = compiled_route.path
+
+            # Handle 3D path
+            if isinstance(path, RoutePath3D):
+                # RoutePath3D: segments is list of (x, y, layer)
+                if len(path.segments) < 2:
+                    continue
+                for i in range(len(path.segments) - 1):
+                    p1 = path.segments[i]
+                    p2 = path.segments[i + 1]
+
+                    if p1[2] == p2[2]:
+                        routes.add(
+                            SimpleTrace(
+                                start=(p1[0], p1[1]),
+                                end=(p2[0], p2[1]),
+                                width=compiled_route.width_mm,
+                                layer=p1[2],
+                                net=net_name,
+                            )
+                        )
+            else:
+                # 2D RoutePath: coordinates is list of (x, y)
+                coords = path.coordinates
+                layer = path.layer_name
+                for i in range(len(coords) - 1):
+                    routes.add(
+                        SimpleTrace(
+                            start=coords[i],
+                            end=coords[i + 1],
+                            width=compiled_route.width_mm,
+                            layer=layer,
+                            net=net_name,
+                        )
+                    )
+
+            # Add Vias
+            for via in compiled_route.vias:
+                # via is SimpleVia compatible structure or just object with attributes
+                # ViaPlacement.place_vias returns list of Via objects (dataclass in via_placement.py)
+
+                vias.add(
+                    SimpleVia(
+                        position=via.position,
+                        width=via.diameter,
+                        drill=via.drill,
+                        layers=tuple(via.layers),  # Tuple for hashability
+                        net=net_name,
+                    )
+                )
+
+        # Write routes (Output -> Output)
+        write_routes_to_pcb(
+            template_pcb=output_path,  # Read the file we just wrote placements to
+            output_pcb=output_path,
+            routes=frozenset(routes),
+            vias=frozenset(vias),
+            clear_existing=True,  # Remove old ratsnests/traces
+        )
+        print(f"Exported {len(routes)} segments and {len(vias)} vias.")
 
     except Exception as e:
         print(f"\nERROR: {e}")
