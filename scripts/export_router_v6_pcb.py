@@ -137,6 +137,25 @@ def export_router_v6_to_kicad(input_pcb: Path, output_pcb: Path, verbose: bool =
     if verbose:
         print(f"Exporting {len(pathfinding.routed_paths)} routed nets...")
 
+    # Add Escape Vias (from Stage 1)
+    if result.escape_vias:
+        for via_info in result.escape_vias:
+            net_code = net_codes.get(via_info.net_name)
+            if not net_code:
+                continue
+
+            via = Via(
+                position=Position(X=via_info.position[0], Y=via_info.position[1]),
+                size=via_info.diameter,
+                drill=via_info.drill,
+                net=net_code,
+                # Escape vias usually span all layers (THT)
+                layers=["F.Cu", "B.Cu"],
+                tstamp=str(uuid.uuid4()),
+            )
+            board.traceItems.append(via)
+            via_count += 1
+
     for net_name, path3d in pathfinding.routed_paths.items():
         if net_name not in net_codes:
             print(f"Warning: Net '{net_name}' not found in board nets, skipping")

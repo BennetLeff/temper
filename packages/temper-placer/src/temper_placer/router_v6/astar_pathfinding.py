@@ -391,6 +391,58 @@ def _is_at_tht_pad(
     return False
 
 
+def _find_access_node(
+    grid: OccupancyGrid,
+    pin_pos: tuple[float, float],
+    net_id: int,
+    search_radius_cells: int = 3,
+) -> tuple[int, int] | None:
+    """
+    Find best grid access node for an off-grid pin position.
+
+    Searches neighborhood for the closest grid point that is either free (0)
+    or owned by the net (net_id).
+
+    Args:
+        grid: Occupancy grid
+        pin_pos: (x, y) world coordinates of pin center
+        net_id: Net ID (to allow passing through own obstacles)
+        search_radius_cells: Radius to search around snapped grid point
+
+    Returns:
+        (x_grid, y_grid) of best access node, or None if no valid node found.
+    """
+    px, py = pin_pos
+    cx, cy = grid.world_to_grid(px, py)
+
+    best_node = None
+    min_dist = float("inf")
+
+    # Iterate neighborhood
+    for dy in range(-search_radius_cells, search_radius_cells + 1):
+        for dx in range(-search_radius_cells, search_radius_cells + 1):
+            gx, gy = cx + dx, cy + dy
+
+            if not (0 <= gx < grid.width_cells and 0 <= gy < grid.height_cells):
+                continue
+
+            # Check if grid point is free or owned by net
+            # Note: We rely on _unblock_net_pads having cleared the area around the pin
+            val = grid.grid[gy, gx]
+            if val != 0 and val != net_id:
+                continue
+
+            # Calculate distance to exact pin position
+            wx, wy = grid.grid_to_world(gx, gy)
+            dist = ((wx - px) ** 2 + (wy - py) ** 2) ** 0.5
+
+            if dist < min_dist:
+                min_dist = dist
+                best_node = (gx, gy)
+
+    return best_node
+
+
 def run_astar_pathfinding(
     channel_mapping: ChannelMapping,
     grid: OccupancyGrid,
@@ -784,8 +836,15 @@ def _astar_route_multilayer(
         segment_path = None
 
         # Convert to grid coordinates
-        start_grid = grid_to_use.world_to_grid(start_world[0], start_world[1])
-        goal_grid = grid_to_use.world_to_grid(goal_world[0], goal_world[1])
+        # Use intelligent access node finding to avoid starting/ending in obstacles
+        # Pass dummy net_id=-1 since we haven't routed yet (cells should be 0)
+        start_grid = _find_access_node(grid_to_use, start_world, -1)
+        if not start_grid:
+            start_grid = grid_to_use.world_to_grid(start_world[0], start_world[1])
+
+        goal_grid = _find_access_node(grid_to_use, goal_world, -1)
+        if not goal_grid:
+            goal_grid = grid_to_use.world_to_grid(goal_world[0], goal_world[1])
 
         # Check bounds
         start_valid = (
@@ -823,28 +882,35 @@ def _astar_route_multilayer(
 
         # Add segment to path
         if segment_path:
-            # Convert grid path to world coordinates
-            for j, grid_cell in enumerate(segment_path):
-                world_coord = grid_to_use.grid_to_world(grid_cell[0], grid_cell[1])
-                new_node = (world_coord[0], world_coord[1], grid_to_use.layer_name)
+            # Found path!
+            layer_name = grid_to_use.layer_name
 
-                # Check for layer transition vs previous segment
-                if detailed_segments and detailed_segments[-1][2] != grid_to_use.layer_name:
-                    via_positions.append((world_coord[0], world_coord[1]))
-
-                if not detailed_segments or detailed_segments[-1][:2] != world_coord:
-                    detailed_segments.append(new_node)
-        else:
-            # Fallback: direct line
+            # Stitch: Add start_world if first segment
             if i == 0:
-                detailed_segments.append((start_world[0], start_world[1], grid_to_use.layer_name))
-            detailed_segments.append((goal_world[0], goal_world[1], grid_to_use.layer_name))
-            forced_segments += 1
+                detailed_segments.append((start_world[0], start_world[1], layer_name))
 
-    if not detailed_segments:
-        # Fallback to waypoints on primary layer
-        detailed_segments = [(w[0], w[1], primary_grid.layer_name) for w in waypoints]
-        forced_segments = len(waypoints) - 1
+            for node in segment_path:
+                # Node is RouteNode3D(x, y, z, layer_name) or tuple(x, y)
+                # We need world coords
+                if hasattr(node, "layer_name"):  # 3D node
+                    wx, wy = grid_to_use.grid_to_world(node.x, node.y)
+                    detailed_segments.append((wx, wy, node.layer_name))
+                else:  # 2D tuple (x, y) from normal A*
+                    wx, wy = grid_to_use.grid_to_world(node[0], node[1])
+                    detailed_segments.append((wx, wy, layer_name))
+
+            # Stitch: Add goal_world if last segment
+            if i == len(waypoints) - 2:
+                detailed_segments.append((goal_world[0], goal_world[1], layer_name))
+
+            continue
+
+        # If we get here, segment failed
+        forced_segments += 1
+        # Fallback: add direct segment
+        if i == 0:
+            detailed_segments.append((start_world[0], start_world[1], grid_to_use.layer_name))
+        detailed_segments.append((goal_world[0], goal_world[1], grid_to_use.layer_name))
 
     # Calculate path length
     path_length = 0.0
@@ -895,8 +961,14 @@ def _astar_route(
         goal_world = waypoints[i + 1]
 
         # Convert world coordinates to grid coordinates
-        start_grid = grid.world_to_grid(start_world[0], start_world[1])
-        goal_grid = grid.world_to_grid(goal_world[0], goal_world[1])
+        # Use intelligent access node finding
+        start_grid = _find_access_node(grid, start_world, -1)
+        if not start_grid:
+            start_grid = grid.world_to_grid(start_world[0], start_world[1])
+
+        goal_grid = _find_access_node(grid, goal_world, -1)
+        if not goal_grid:
+            goal_grid = grid.world_to_grid(goal_world[0], goal_world[1])
 
         # Check if coordinates are within grid bounds
         start_valid = (
@@ -904,23 +976,26 @@ def _astar_route(
         )
         goal_valid = 0 <= goal_grid[0] < grid.width_cells and 0 <= goal_grid[1] < grid.height_cells
 
-        if not start_valid or not goal_valid:
-            # Coordinates out of bounds, use direct line
-            if i == 0:
-                detailed_coords.append(start_world)
-            detailed_coords.append(goal_world)
-            continue
-
-        # Run A* search between waypoints
-        grid_path = _astar_search(start_grid, goal_grid, grid)
+        grid_path = None
+        if start_valid and goal_valid:
+            # Run A* search between waypoints
+            grid_path = _astar_search(start_grid, goal_grid, grid)
 
         if grid_path:
+            # Add start point exactly for the first segment (to touch pad center)
+            if i == 0:
+                detailed_coords.append(start_world)
+
             # Convert grid path back to world coordinates
             for grid_cell in grid_path:
                 world_coord = grid.grid_to_world(grid_cell[0], grid_cell[1])
                 # Avoid duplicate coordinates
                 if not detailed_coords or detailed_coords[-1] != world_coord:
                     detailed_coords.append(world_coord)
+
+            # Add goal point exactly for the last segment
+            if i == len(waypoints) - 2:
+                detailed_coords.append(goal_world)
         else:
             # A* failed, fall back to direct line
             if i == 0:
@@ -941,6 +1016,15 @@ def _astar_route(
         dx = x2 - x1
         dy = y2 - y1
         path_length += (dx**2 + dy**2) ** 0.5
+
+    return RoutePath(
+        net_name=net_name,
+        coordinates=detailed_coords,
+        layer_name=grid.layer_name,
+        segment_count=len(detailed_coords) - 1,
+        path_length=path_length,
+        forced_segment_count=forced_segments,
+    )
 
     return RoutePath(
         net_name=net_name,
