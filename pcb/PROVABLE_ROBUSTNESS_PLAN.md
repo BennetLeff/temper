@@ -1,58 +1,51 @@
-# Phase 4: Provable Robustness via Closed-Loop Geometry
+# Phase 4: Verification via Visualization & Dynamic Safety
 
-## Philosophy: "Measure, Don't Guess"
-The persistent DRC violations indicate a disconnect between the Router's internal model ($M$) and the Design Rules Engine's reality ($R$). Instead of endlessly refining the parser to approximate $R$, we will use the DRC engine itself as a **Measurement Oracle** to correct $M$ iteratively.
-
-We also adopt **Constructive Solid Geometry (CSG)** principles to transform "Clearance" problems into "Connectivity" problems, making violations mathematically impossible if a path exists.
+## Critique & Pivot
+*Original Plan Risk*: The "Feedback Loop" (V1) relying on DRC text reports is slow, unstable, and treats the symptom (shorts) rather than the root cause (incomplete world model).
+*Refined Strategy*: **Visual Debugging** to confirm the "Missing Obstacle" theory, and **Dynamic Safety** to ensure routed nets see *each other*.
 
 ---
+
+## Hypothesis Refinement
+The `AC_L` vs `CGND` short persists despite accurate static parsing.
+**New Theory**: **The "Ghost Trace" Problem**.
+- The `SDFGrid` represents **Static Obstacles** (Pads, Keepouts, Pre-routed Tracks).
+- The `OccupancyGrid` represents **Dynamic Obstacles** (New traces routed in this session).
+- `PathSimplifier` currently checks **ONLY** the `SDFGrid`.
+- **Failure Mode**: `PathSimplifier` optimizes a path to be "smooth" according to static geometry, but effectively "ignores" the `OccupancyGrid` reservation made by other nets. It might pull a string tight *through* a neighboring net that was just routed!
 
 ## Experiments
 
-### Experiment V1: The "Echo" Loop (Iterative Learning)
-**Goal**: guaranteed resolution of "Missing Obstacle" shorts.
+### Experiment V1: The "Dual-Layer" Safety Check
+**Goal**: Ensure `PathSimplifier` respects both static geometry and dynamic reservations.
 **Method**:
-1. **Route**: Run the router with current Obstacle Map $O_i$.
-2. **Measure**: Run KiCad DRC (CLI). Parse the JSON report.
-3. **Learn**: For every violation $v$ (coordinate $x,y$):
-   - Create a local exclusion zone $Z_v$ (e.g., Circle($x,y$, $r=0.5mm$)).
-   - Add $Z_v$ to the Obstacle Map: $O_{i+1} = O_i \cup Z_v$.
-4. **Retry**: Reroute the specific failed nets.
-**Convergence**: The free space decreases monotonically. The router effectively "feels" the invisible obstacles by bumping into them and remembering the location.
+- Modify `PathSimplifier.check_segment_safety`:
+  1. **Static Check**: `SDF.get_distance(p) > margin` (Existing).
+  2. **Dynamic Check**: Query `OccupancyGrid` at `p`. If cell is occupied by *another net*, REJECT.
+- **Why**: The grid router (Theta*) respects OccupancyGrid. The Smoother (Simplifier) broke that contract by looking only at SDF.
 
-### Experiment V2: Minkowski Configuration Space (C-Space)
-**Goal**: Eliminate clearance math errors by geometry transformation.
+### Experiment V2: The "Truth Map" (Visualization)
+**Goal**: visually confirm what the router sees.
 **Method**:
-- Instead of checking `Dist(Trace, Obs) > Clearance + Width/2` at runtime:
-- **Pre-process**:
-  - For each net class (Width $W$, Clearance $C$):
-  - Compute $O_{expanded} = \bigcup (O_j \oplus \text{Disk}(W/2 + C))$.
-  - Use `shapely.buffer` and `unary_union`.
-- **Route**: Find a path for a *point* robot in $\mathbb{R}^2 \setminus O_{expanded}$.
-**Guarantee**: Any valid path in this space corresponds to a physical trace with **zero** clearance violations. The geometry engine enforces the constraints *a priori*.
-
-### Experiment V3: Homotopic Locking
-**Goal**: Prevent "Tunneling" during simplification.
-**Method**:
-- When simplifying path $P_{rough} \to P_{smooth}$:
-- Verify that the polygon formed by $(P_{rough} \cup P_{smooth})$ does not contain any obstacle centroids.
-- If it does, the paths wind differently around an obstacle -> **Reject**.
-- This ensures the Smoother respects the topology found by the Router (Theta*).
+- Generate an image `debug_layer_F_Cu.png`.
+- Plot:
+  - **Black**: Static Obstacles (from `RoutingSpace`).
+  - **Red**: Low SDF regions (< margin).
+  - **Blue**: Dynamic Occupancy (other nets).
+  - **Green**: The failing path.
+- **Analysis**: If the path crosses Black/Red, it's a Static bug. If it crosses Blue, it's a Dynamic bug.
 
 ---
 
-## Implementation Roadmap
+## Implementation Plan
 
-### 1. `FeedbackLooper` (Module: `temper_placer.deterministic.feedback`)
-- Wraps `RouterV6Pipeline`.
-- Parses `drc_report.json`.
-- Inject "Virtual Obstacles" into `Stage2Output`.
+### 1. `PathSimplifier` Upgrade
+- Inject `OccupancyGrid` into the simplifier.
+- Add `check_occupancy(p)` method.
 
-### 2. `CSpaceBuilder` (Module: `temper_placer.router_v6.c_space`)
-- Replaces raw `SDFGrid` generation.
-- Generates exact Buffered Polygons for the Pathfinding graph.
+### 2. `DebugVisualizer`
+- Simple script using `matplotlib` or `PIL` to render the router's internal state.
 
-### Success Criteria
-1. **Convergence**: < 3 iterations of V1 to reach 0 Shorts.
-2. **Yield**: 100% DRC Clean board.
-3. **Automation**: No human intervention required to identify "invisible" obstacles.
+## Success Metrics
+1. **Shorts**: 0.
+2. **Visual Confirmation**: The debug image shows the path staying in "White" (Safe) space.
