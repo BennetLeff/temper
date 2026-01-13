@@ -201,7 +201,7 @@ class RouterV6Pipeline:
             print("  2.3: Extracting channel skeleton...")
         skeletons = {}
         for layer_name, routing_space in routing_spaces.items():
-            skeleton = extract_channel_skeleton(routing_space)
+            skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
             skeletons[layer_name] = skeleton
             if self.verbose:
                 print(f"    {layer_name}: {skeleton.node_count} nodes, {skeleton.edge_count} edges")

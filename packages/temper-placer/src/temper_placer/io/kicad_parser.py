@@ -85,12 +85,13 @@ class ParseResult:
         return len(self.warnings) > 0
 
 
-def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
+def parse_kicad_pcb(pcb_path: Path, normalize: bool = True) -> ParseResult:
     """
     Parse a KiCad PCB file (.kicad_pcb) to extract component placement and netlist.
 
     Args:
         pcb_path: Path to the .kicad_pcb file.
+        normalize: If True, subtract board origin from component positions.
 
     Returns:
         ParseResult containing netlist, board geometry, and any warnings.
@@ -113,7 +114,8 @@ def parse_kicad_pcb(pcb_path: Path) -> ParseResult:
     board = _extract_board_geometry(ki_board, warnings)
 
     # Extract components (footprints) with origin-relative positions
-    components = _extract_components_from_pcb(ki_board, warnings, board_origin=board.origin)
+    origin_to_use = board.origin if normalize else (0.0, 0.0)
+    components = _extract_components_from_pcb(ki_board, warnings, board_origin=origin_to_use)
 
     # Extract nets
     nets = _extract_nets_from_pcb(ki_board, components, warnings)
@@ -311,6 +313,9 @@ def _extract_components_from_pcb(
         # Calculate component bounds - prefer courtyard graphics, fallback to pads
         width, height = _calculate_footprint_bounds(fp)
 
+        # Determine side (0=Top, 1=Bottom)
+        side = 1 if fp.layer in ["B.Cu", "Back", "Bottom"] else 0
+
         # Extract pins and calculate bounding box center offset
         # Note: In kiutils, pad.position is in footprint-local coordinates (relative to origin)
         # But our internal representation expects pin positions relative to BOUNDING BOX CENTER
@@ -385,9 +390,11 @@ def _extract_components_from_pcb(
 
         # Rotate the center offset based on footprint rotation
         # KiCad rotates counter-clockwise, so we need to rotate the offset
+        # If on bottom side, mirror X center offset before rotation (to match netlist logic)
+        cx_to_rotate = -center_offset_x if side == 1 else center_offset_x
         rot_rad = math.radians(rot_deg)
-        rotated_cx = center_offset_x * math.cos(rot_rad) - center_offset_y * math.sin(rot_rad)
-        rotated_cy = center_offset_x * math.sin(rot_rad) + center_offset_y * math.cos(rot_rad)
+        rotated_cx = cx_to_rotate * math.cos(rot_rad) - center_offset_y * math.sin(rot_rad)
+        rotated_cy = cx_to_rotate * math.sin(rot_rad) + center_offset_y * math.cos(rot_rad)
 
         # initial_position is the BOUNDING BOX CENTER position (footprint origin + rotated center offset)
         # Store the UNROTATED center offset in attributes for the writer to use
@@ -402,6 +409,7 @@ def _extract_components_from_pcb(
             ),
             fixed=fp.locked,
             initial_rotation=rot_idx,
+            initial_side=side,
             attributes={
                 "_center_offset_x": str(center_offset_x),
                 "_center_offset_y": str(center_offset_y),
@@ -900,7 +908,8 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
         pcb_content = ""
 
     # Use existing parser for components, nets, zones, board geometry
-    legacy_result = parse_kicad_pcb(pcb_path)
+    # NOTE: Set normalize=False for Router V6 to work in absolute coordinates
+    legacy_result = parse_kicad_pcb(pcb_path, normalize=False)
     warnings.extend(legacy_result.warnings)
 
     # Extract design rules

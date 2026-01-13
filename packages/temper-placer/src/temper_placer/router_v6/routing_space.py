@@ -115,22 +115,21 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
         Board polygon
     """
     # If PCB has explicit board geometry, use it
-    if hasattr(pcb, 'board_geometry') and pcb.board_geometry:
-        geom = pcb.board_geometry
-        if hasattr(geom, 'outline') and geom.outline:
-            # If outline is already a Shapely object
-            if isinstance(geom.outline, Polygon):
-                return geom.outline
-            # If outline is a list of points
-            if isinstance(geom.outline, list):
-                return Polygon(geom.outline)
+    if hasattr(pcb, 'board') and pcb.board:
+        board = pcb.board
+        if hasattr(board, 'outline_polygon') and board.outline_polygon:
+            return Polygon(board.outline_polygon)
 
         # Otherwise use bounds
-        if hasattr(geom, 'bounds'):
-            x_min, y_min, x_max, y_max = geom.bounds
-            return box(x_min, y_min, x_max, y_max)
-        if hasattr(geom, 'width') and hasattr(geom, 'height'):
-            return box(0, 0, geom.width, geom.height)
+        try:
+            # Board.get_bounds_array returns [xmin, ymin, xmax, ymax]
+            bounds = board.get_bounds_array()
+            return box(float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3]))
+        except (AttributeError, IndexError):
+            if hasattr(board, 'width') and hasattr(board, 'height'):
+                # Default to origin-based box if bounds calculation fails
+                ox, oy = getattr(board, 'origin', (0.0, 0.0))
+                return box(ox, oy, ox + board.width, oy + board.height)
 
     # Fallback: compute bounding box from components
     if pcb.components:

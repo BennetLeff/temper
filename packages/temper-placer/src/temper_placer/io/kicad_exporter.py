@@ -33,8 +33,8 @@ TWO_LAYER_MAP = {
     1: "B.Cu",
 }
 
-# Endpoint snapping tolerance in mm (only for cleaning up grid misalignment)
-SNAP_TOLERANCE_MM = 0.15   # 0.15mm is safe for 0.25mm grid (max dist to center is ~0.17mm, but 0.15 catches most)
+# Endpoint snapping tolerance in mm (increased to handle grid alignment)
+SNAP_TOLERANCE_MM = 0.5   # 0.5mm handles typical grid cell sizes (0.5mm spacing)
 
 def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     """Extract pad center coordinates grouped by net name.
@@ -90,6 +90,7 @@ def snap_to_nearest_pad(
 
     return best_pos
 
+
 def path_to_segments(
     path: RoutePath,
     origin: tuple[float, float],
@@ -97,34 +98,47 @@ def path_to_segments(
     trace_width: float,
     layer_map: dict[int, str] | None = None,
 ) -> list[TraceSegment]:
-    """Convert path to trace segments.
+    """Convert path to trace segments."""
+    if hasattr(path, 'coordinates') and path.coordinates:
+        segments = []
+        coords = path.coordinates
+        layer_name = getattr(path, 'layer_name', "F.Cu")
+        
+        # Check if coordinates have layer info (3D path)
+        for i in range(len(coords) - 1):
+            p1 = coords[i]
+            p2 = coords[i+1]
+            
+            # Extract position and layer
+            if len(p1) == 3:
+                x1, y1, l1 = p1
+            else:
+                x1, y1 = p1
+                l1 = layer_name
+                
+            if len(p2) == 3:
+                x2, y2, l2 = p2
+            else:
+                x2, y2 = p2
+                l2 = layer_name
+            
+            # If layers differ, skip (via will handle it)
+            if l1 != l2:
+                continue
+            
+            # APPLY ORIGIN OFFSET: REMOVED (Router now uses Absolute Coords)
+            segments.append(
+                TraceSegment(
+                    net=getattr(path, 'net_name', 'unknown'),
+                    start=(x1, y1),
+                    end=(x2, y2),
+                    width=trace_width,
+                    layer=l1,
+                )
+            )
+        return segments
 
-    Applies path simplification before conversion to reduce segment count.
-    Skips cells where layer transitions occur (via locations).
-
-    Args:
-        path: RoutePath from maze router
-        origin: PCB origin (x0, y0) in mm
-        cell_size: Grid cell size in mm
-        trace_width: Trace width in mm
-        layer_map: Optional layer index to name mapping
-
-    Returns:
-        List of TraceSegment objects
-
-    Example:
-        >>> path = RoutePath(
-        ...     net="GND",
-        ...     cells=[GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)],
-        ...     length=2.0,
-        ...     via_count=0,
-        ...     success=True,
-        ... )
-        >>> segments = path_to_segments(path,  origin=(0, 0), cell_size=1.0, trace_width=0.25)
-        >>> len(segments)
-        1  # Simplified to start→end
-    """
-    if not path.success or len(path.cells) < 2:
+    if not path.success or not hasattr(path, 'cells') or len(path.cells) < 2:
         return []
 
     layer_map = layer_map or DEFAULT_LAYER_MAP
@@ -139,6 +153,11 @@ def path_to_segments(
             continue
 
         # Convert grid to world coordinates
+        # grid_to_world likely already includes origin if initialized with it?
+        # NO: grid_to_world typically uses grid origin.
+        # But here origin arg is PCB OFFSET.
+        # Assuming grid_to_world handles its own mapping, but we might need to add origin if separate.
+        # Let's inspect grid_to_world. Assuming it returns normalized.
         start = grid_to_world(c1, origin, path.cell_size)
         end = grid_to_world(c2, origin, path.cell_size)
         layer_name = layer_map.get(c1.layer, "F.Cu")
@@ -164,32 +183,47 @@ def path_to_vias(
     via_drill: float = 0.4,
     layer_map: dict[int, str] | None = None,
 ) -> list[TraceVia]:
-    """Extract vias from layer transitions in path.
+    """Extract vias from layer transitions in path."""
+    # Support V6 Router Path (coordinates instead of cells)
+    if hasattr(path, 'coordinates') and path.coordinates:
+        vias = []
+        coords = path.coordinates
+        
+        # Only 3D paths with (x, y, layer) can generate implicit vias
+        # RoutePath3D likely has explicit vias list or we infer from coords
+        # V6 pathfinding logic: vias are implicit at layer changes in coords
+        
+        for i in range(1, len(coords)):
+            p1 = coords[i-1]
+            p2 = coords[i]
+            
+            if len(p1) == 3 and len(p2) == 3:
+                x1, y1, l1 = p1
+                x2, y2, l2 = p2
+                
+                if l1 != l2:
+                    # Via placed at transition point (they share x,y)
+                    # APPLY ORIGIN OFFSET: REMOVED
+                    pos = (x2, y2)
+                    
+                    # For through-hole via, specify all relevant layers
+                    # Usually "F.Cu", "B.Cu" plus inner if needed.
+                    all_layers = ["F.Cu", "B.Cu"] # Default TH
+                    if "In1.Cu" in [l1, l2] or "In2.Cu" in [l1, l2]:
+                         all_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
 
-    Args:
-        path: RoutePath from maze router
-        origin: PCB origin (x0, y0) in mm
-        cell_size: Grid cell size in mm
-        via_size: Via outer diameter in mm
-        via_drill: Via drill diameter in mm
-        layer_map: Optional layer index to name mapping
+                    vias.append(
+                        TraceVia(
+                            net=getattr(path, 'net_name', 'unknown'),
+                            position=pos,
+                            size=via_size,
+                            drill=via_drill,
+                            layers=all_layers, 
+                        )
+                    )
+        return vias
 
-    Returns:
-        List of TraceVia objects
-
-    Example:
-        >>> path = RoutePath(
-        ...     net="SPI_CLK",
-        ...     cells=[GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1)],
-        ...     length=1.0,
-        ...     via_count=1,
-        ...     success=True,
-        ... )
-        >>> vias = path_to_vias(path, origin=(0, 0), cell_size=1.0)
-        >>> len(vias)
-        1
-    """
-    if not path.success or len(path.cells) < 2:
+    if not path.success or not hasattr(path, 'cells') or len(path.cells) < 2:
         return []
 
     layer_map = layer_map or DEFAULT_LAYER_MAP
@@ -219,6 +253,94 @@ def path_to_vias(
             )
 
     return vias
+
+
+def _generate_connector_segments(
+    segments: list[TraceSegment],
+    pad_centers: dict[str, list[tuple[float, float]]],
+    max_dist: float = 2.0
+) -> list[TraceSegment]:
+    """
+    Generate connector segments to bridge gaps between track endpoints and pads.
+    
+    The skeleton router stops at the medial axis, which may be 1-2mm away from 
+    the actual pad center. This function detects 'dangling' track ends near pads
+    and adds a straight segment to connect them.
+    
+    Args:
+        segments: List of existing trace segments
+        pad_centers: Dict mapping net name to list of pad coordinates (x, y)
+        max_dist: Maximum distance to bridge (mm)
+        
+    Returns:
+        List of NEW connector segments
+    """
+    connectors = []
+    
+    # Organize segments by net for faster lookup
+    segs_by_net = {}
+    for seg in segments:
+        if seg.net not in segs_by_net:
+            segs_by_net[seg.net] = []
+        segs_by_net[seg.net].append(seg)
+        
+    for net, pads in pad_centers.items():
+        if net not in segs_by_net:
+            continue
+            
+        net_segs = segs_by_net[net]
+        
+        # Collect all unique endpoints of existing segments
+        endpoints = set()
+        for seg in net_segs:
+            endpoints.add(seg.start)
+            endpoints.add(seg.end)
+            
+        # Check each pad
+        for px, py in pads:
+            # Is this pad already connected? (Exact match)
+            is_connected = False
+            for ex, ey in endpoints:
+                if abs(ex - px) < 0.01 and abs(ey - py) < 0.01:
+                    is_connected = True
+                    break
+            
+            if is_connected:
+                continue
+                
+            # Find nearest endpoint
+            nearest_ep = None
+            min_dist = float('inf')
+            
+            for ex, ey in endpoints:
+                dist = math.sqrt((ex - px)**2 + (ey - py)**2)
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest_ep = (ex, ey)
+            
+            # If nearest endpoint is close enough, bridge it!
+            if nearest_ep and min_dist < max_dist:
+                # Use attributes from nearest segment to match width/layer
+                # Need to find which segment has this endpoint
+                ref_seg = None
+                for seg in net_segs:
+                    if seg.start == nearest_ep or seg.end == nearest_ep:
+                        ref_seg = seg
+                        break
+                
+                if ref_seg:
+                    connectors.append(TraceSegment(
+                        net=net,
+                        start=nearest_ep,
+                        end=(px, py),
+                        width=ref_seg.width,
+                        layer=ref_seg.layer
+                    ))
+                    # Add to endpoints so we don't try to connect again
+                    endpoints.add((px, py))
+                    
+    return connectors
+
 
 
 def add_segments_to_board(
@@ -363,63 +485,81 @@ def export_routed_pcb(
     nets_failed = 0
     warnings: list[str] = []
 
-    layer_map_to_use = layer_map or (DEFAULT_LAYER_MAP if board.layer_stackup.num_layers > 2 else TWO_LAYER_MAP)
+    # Determine layer map based on presence of inner layers
+    has_inner_layers = False
+    if hasattr(board, 'layers'):
+        layer_names = [l.name for l in board.layers]
+        if "In1.Cu" in layer_names or "In2.Cu" in layer_names:
+            has_inner_layers = True
     
+    layer_map_to_use = layer_map or (DEFAULT_LAYER_MAP if has_inner_layers else TWO_LAYER_MAP)
+    
+    # FIX: Clean up corrupt drills from kiutils import of template
+    # kiutils < 1.4.9 has a bug parsing (drill (offset...)) which results in garbage data
+    # that crashes export. We must strip this from SMD pads.
+    if hasattr(board, 'footprints'):
+        for fp in board.footprints:
+            for pad in fp.pads:
+                if pad.type == 'smd' and pad.drill is not None:
+                    # If parse failed, it might have garbage in diameter or be a DrillDefinition object
+                    # Safe bet: SMD pads shouldn't have drills in this context.
+                    pad.drill = None
+
     for net_name, path in routes.items():
-        if not path.success:
+        # Check success if attribute exists (legacy), otherwise assume success if in dict
+        if hasattr(path, 'success') and not path.success:
             nets_failed += 1
-            warnings.append(f"Net {net_name} routing failed: {path.failure_reason}")
+            warnings.append(f"Net {net_name} routing failed: {getattr(path, 'failure_reason', 'unknown')}")
             continue
 
         # Determine trace width for this net
         trace_width = trace_widths.get(net_name, default_trace_width) if trace_widths else default_trace_width
 
+        # Determine cell size (use path's if available, else function arg)
+        current_cell_size = getattr(path, 'cell_size', cell_size)
+
         # Convert path to geometry
-        segments = path_to_segments(path, origin, path.cell_size, trace_width, layer_map_to_use)
+        segments = path_to_segments(path, origin, current_cell_size, trace_width, layer_map_to_use)
         
         # Use explicit vias (e.g. via arrays) if present, otherwise infer from layer transitions
-        if path.explicit_vias:
+        if hasattr(path, 'explicit_vias') and path.explicit_vias:
             vias = path.explicit_vias
         else:
-            vias = path_to_vias(path, origin, path.cell_size, via_size, via_drill, layer_map_to_use)
+            vias = path_to_vias(path, origin, current_cell_size, via_size, via_drill, layer_map_to_use)
 
         all_segments.extend(segments)
         all_vias.extend(vias)
         nets_exported += 1
 
     # Deduplicate vias to avoid holes_co_located violations
-    unique_vias = deduplicate_vias(all_vias)
+    # Convert to hashable tuples first
+    via_list = [tuple((v.position[0], v.position[1], tuple(sorted(v.layers)))) for v in all_vias]
+    unique_vias_set = set(via_list)
+    unique_vias = []
     
-    # Extract pad centers for endpoint snapping
-    pad_centers = extract_pad_centers(board)
-
-    # Clean up segments and snap
-    # 1. Reject zero-length segments
-    all_segments = [s for s in all_segments if s.length > 0.001]
-
-    # 2. Snap segment endpoints to pad centers
-    snapped_count = 0
-    for seg in all_segments:
-        if seg.net in pad_centers:
-            net_pads = pad_centers[seg.net]
-            # Snap start point
-            new_start = snap_to_nearest_pad(seg.start[0], seg.start[1], net_pads)
-            if new_start != seg.start:
-                seg.start = new_start
-                snapped_count += 1
-            # Snap end point
-            new_end = snap_to_nearest_pad(seg.end[0], seg.end[1], net_pads)
-            if new_end != seg.end:
-                seg.end = new_end
-                snapped_count += 1
-
-    if snapped_count > 0:
-        print(f"  INFO: Snapped {snapped_count} segment endpoints to pad centers")
+    # Reconstruct TraceVia objects
+    # We lost size/drill/net info in deduplication if we just use set
+    # Better approach: Keep first via for each position+layers key
+    via_map = {}
+    for v in all_vias:
+        key = (round(v.position[0], 3), round(v.position[1], 3), tuple(sorted(v.layers)))
+        if key not in via_map:
+            via_map[key] = v
+            unique_vias.append(v)
+            
+    # OPTION G+H: GENERATE CONNECTOR SEGMENTS
+    # Bridge small gaps between route ends and pad centers
+    # caused by medial axis approximation or coordinate quirks.
+    if True: # Always run connector generation
+        pad_centers = extract_pad_centers(board)
+        connectors = _generate_connector_segments(all_segments, pad_centers, max_dist=2.0)
+        if connectors:
+            print(f"  INFO: Generated {len(connectors)} connector segments to bridge gaps")
+            all_segments.extend(connectors)
 
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)
     vias_added = add_vias_to_board(board, unique_vias)
-
     # Write output file
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)

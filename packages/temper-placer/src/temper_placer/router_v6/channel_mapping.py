@@ -328,7 +328,8 @@ def _find_skeleton_path_for_net(
             if pin:
                 comp_x, comp_y = comp.initial_position or (0.0, 0.0)
                 angle = float(comp.initial_rotation or 0) * math.pi / 2.0
-                pos = pin.absolute_position((comp_x, comp_y), angle)
+                side = comp.initial_side if hasattr(comp, 'initial_side') and comp.initial_side is not None else 0
+                pos = pin.absolute_position((comp_x, comp_y), angle, side)
                 pin_positions.append(pos)
     
     if len(pin_positions) < 2:
