@@ -1,0 +1,39 @@
+============================================================
+VIOLATION TAXONOMY REPORT
+============================================================
+
+Total violations: 274
+
+By Category:
+  Clearance Insufficient      93 ( 33.9%)
+  Via Placement               91 ( 33.2%)
+  Pad Entry                   49 ( 17.9%)
+  Trace Crossing              31 ( 11.3%)
+  Unknown                      8 (  2.9%)
+  Zone Bleeding                2 (  0.7%)
+
+By Net (Top 10):
+  +15V                        97 violations
+  +5V                         76 violations
+  SPI_MOSI                    39 violations
+  SW_NODE                     25 violations
+  +3V3                        24 violations
+  CGND                        22 violations
+  USB_D-                      21 violations
+  VCC_BOOT                    21 violations
+  SPI_CLK                     16 violations
+  PWM_H                       13 violations
+  ... and 10 more nets
+
+By Location (Grid Quadrant):
+  Top-Left         185 ( 67.5%)
+  Bottom-Left       53 ( 19.3%)
+  Bottom-Right      18 (  6.6%)
+  Top-Right         18 (  6.6%)
+
+Top 3 Root Causes:
+  1. Clearance Insufficient (34%) - Fix: Enable net-class-aware pathfinding with proper trace width inflation
+  2. Via Placement (33%) - Fix: Implement via consolidation pass and via keepout checking
+  3. Pad Entry (18%) - Fix: Improve pad escape routing and entry angle constraints
+
+============================================================

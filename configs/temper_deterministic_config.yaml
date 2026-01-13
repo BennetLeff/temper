@@ -1,0 +1,511 @@
+# Temper Board Deterministic Placement Configuration
+# Simplified format compatible with config_loader.py
+
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+# Zone definitions (HV, Power, Signal, MCU)
+# Professional layout: HV needs most space for PTH components, MCU needs ~25mm for ESP32
+# EXP-4: Reduced max_size to limit zone expansion and preserve routing channels
+zones:
+  - name: "HV"
+    bounds_ratio: [0.0, 0.0, 0.35, 1.0]  # Left 35% (0-35mm) - large PTH components
+    description: "High voltage components"
+    max_size: [40.0, 150.0]  # EXP-4: Was 50, max 5mm expansion
+    can_expand: ["right"]
+  - name: "Power"
+    bounds_ratio: [0.35, 0.0, 0.55, 1.0]  # Center-left 20% (35-55mm) - DC-DC, regulators
+    description: "Power management"
+    max_size: [25.0, 150.0]  # EXP-4: Was 50, max 5mm expansion
+    can_expand: ["right", "left"]
+  - name: "Signal"
+    bounds_ratio: [0.55, 0.0, 0.75, 1.0]  # Center-right 20% (55-75mm) - sensing ICs
+    description: "Signal processing"
+    max_size: [25.0, 150.0]  # EXP-4: Was 50, max 5mm expansion
+    can_expand: ["right", "left"]
+  - name: "MCU"
+    bounds_ratio: [0.75, 0.0, 1.0, 1.0]  # Right 25% (75-100mm) - ESP32 + peripherals
+    description: "Microcontroller"
+    max_size: [28.0, 150.0]  # EXP-4: Was 30, max 3mm expansion
+    can_expand: ["left"]
+
+# Feedback loop configuration
+# EXP-4: Conservative expansion to preserve working routes
+# Problem: Previous settings (threshold=5, expansion=0.5) caused +30mm zone expansion
+#          which broke USB diff pair, I_SENSE, and SPI routes that were working
+# Solution: Much higher threshold and lower expansion rate
+feedback:
+  max_iterations: 5
+  violation_threshold: 50    # EXP-4: Was 5, need many violations before expanding
+  expansion_per_violation: 0.1  # EXP-4: Was 0.5, 5x less expansion per violation
+
+# Zone assignments (component ref -> zone name)
+zone_assignments:
+  # HV Zone
+  J_AC_IN: "HV"
+  Q1: "HV"
+  Q2: "HV"
+  D1: "HV"
+  D2: "HV"
+  C_DC_BUS: "HV"
+  # Power Zone  
+  U_15V: "Power"
+  U_3V3: "Power"
+  U_5V_ISO: "Power"
+  # Signal Zone
+  U_CT: "Signal"
+  U_TEMP: "Signal"
+  U_OCP: "Signal"
+  # MCU Zone
+  U_MCU: "MCU"
+
+# Fixed placements for critical components
+# Ensures minimal loop area for gate drive and DC bus
+# EXP-11: U_GATE moved from (35, 35) to (35, 30) to reduce gate signal path length
+fixed_positions:
+  U_GATE: [35.0, 30.0]
+  C_BUS1: [10.0, 60.0]
+  C_BUS2: [10.0, 90.0]
+  # Fix AC input flow: Connector -> Diodes -> Caps (Vertical flow up)
+  J_AC_IN: [15.0, 20.0]
+  # D1/D2 removed to allow placer to optimize for routing channels within HV zone
+
+# Net class assignments (net_name -> net_class)
+net_classes:
+  # HighVoltage nets
+  AC_L: "HighVoltage"
+  AC_N: "HighVoltage"
+  DC_BUS+: "HighVoltage"
+  DC_BUS-: "HighVoltage"
+  SW_NODE: "HighVoltage"
+  # Power nets (See TemperPowerTopology in core/power_topology.py)
+  # +15V (5A): PLANE - highest current, requires plane connectivity
+  # +5V (2A): WIDE_TRACE - medium current, can be routed as wide traces
+  # +3V3 (0.5A): STANDARD_TRACE - low current MCU rail, normal traces
+  # VCC_BOOT (0.1A): STANDARD_TRACE - bootstrap supply, thin traces
+  "+15V": "Power"         # 5A → PLANE (In2.Cu)
+  "+5V": "PowerTrace"     # 2A → WIDE_TRACE (0.4mm width)
+  VCC_BOOT: "Signal"      # 0.1A → STANDARD_TRACE
+  # Ground nets
+  GND: "Ground"
+  PGND: "Ground"
+  CGND: "Ground"
+  # FinePitch nets (QFN-56 MCU signal pads with 0.4mm pitch, 0.16mm gap)
+  # These nets connect to adjacent pads on U_MCU and need relaxed clearance
+  "+3V3": "FinePitch"      # 0.5A → STANDARD_TRACE (routed as trace, not plane)
+  PWM_H: "FinePitch"       # Adjacent to PWM_L on U_MCU
+  PWM_L: "FinePitch"       # Adjacent to I_SENSE on U_MCU
+  I_SENSE: "FinePitch"     # Adjacent to PWM_L on U_MCU
+  SPI_CLK: "FinePitch"     # Adjacent to SPI_MOSI on U_MCU
+  SPI_MOSI: "FinePitch"    # Adjacent to SPI_CLK and SPI_MISO on U_MCU
+  SPI_MISO: "FinePitch"    # Adjacent to SPI_MOSI and SPI_CS_TEMP on U_MCU
+  SPI_CS_TEMP: "FinePitch" # Adjacent to SPI_MISO on U_MCU
+  # Standard Signal nets (not on fine-pitch pads)
+  GATE_H: "Signal"
+  GATE_L: "Signal"
+  SHUTDOWN_N: "Signal"
+  TEMP_SENSE: "Signal"
+  # Differential pair (USB-C connector has 0.4mm pitch, 0.1mm gap)
+  USB_D+: "Differential"
+  USB_D-: "Differential"
+
+# Net class rules (class_name -> design rules)
+# Each class specifies:
+#   - type: ground|power|high_voltage|signal|differential|high_current
+#   - connectivity: plane|copper_pour|trace|via_array|direct
+#   - target_layer: Layer for plane/pour connectivity
+#   - voltage_class: For HV nets (selv|low_voltage|mains_120v|mains_240v|high_voltage)
+#
+# Type system enforces:
+#   - Ground nets MUST use plane connectivity (EMI/return path)
+#   - High voltage nets MUST have IEC 60335 creepage/clearance
+#   - High current (>5A) MUST use via arrays or pours
+net_class_rules:
+  HighVoltage:
+    type: high_voltage           # ENFORCES creepage/clearance validation
+    connectivity: copper_pour    # Connect via filled copper zones
+    target_layer: "F.Cu"         # HV pours on top layer only
+    voltage_class: mains_240v    # IEC 60335 classification
+    max_current_a: 20.0          # 20A for induction coil drive
+    trace_width_mm: 2.0          # Wide traces for current capacity
+    clearance_mm: 6.0            # IEC 60335-1 Table 16 (mains, PD2)
+    creepage_mm: 6.0             # IEC 60335-1 Table 17 (basic insulation)
+    via_size_mm: 1.0
+    via_drill_mm: 0.5
+    via_template: "Via3x3"       # 9 vias for 20A+ layer transitions
+    allow_layer_change: false    # Keep HV on single layer for safety
+    description: "High voltage AC/DC nets - IEC 60335-1 compliant"
+  
+  Power:
+    type: power                  # Power distribution rail
+    connectivity: plane          # Connect via inner power plane
+    target_layer: "In2.Cu"       # Inner layer 2 for power islands
+    max_current_a: 2.0           # Typical for 15V/5V rails
+    trace_width_mm: 0.5
+    clearance_mm: 0.3
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"       # 4 vias for power delivery
+    description: "Power rails - plane connected"
+  
+  Ground:
+    type: ground                 # ENFORCES plane connectivity
+    connectivity: plane          # Ground MUST use plane (not traces)
+    target_layer: "In1.Cu"       # Inner layer 1 for ground plane
+    max_current_a: 10.0          # Return current capacity
+    trace_width_mm: 0.5          # For stub traces to vias
+    clearance_mm: 0.25
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"       # 4 vias for low-impedance return path
+    description: "Ground planes - provides low-impedance return path"
+  
+  PowerTrace:
+    type: power                  # Power distribution via wide traces
+    connectivity: trace          # Route as traces (NOT plane)
+    target_layer: "F.Cu"         # Top layer (can change if needed)
+    max_current_a: 2.0           # For +5V rail (2A continuous)
+    trace_width_mm: 0.4          # IPC-2221: 2A * 0.15 + 0.1 = 0.4mm
+    clearance_mm: 0.3
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"       # 4 vias for power delivery
+    description: "Medium-current power rails - trace routing"
+  
+  Signal:
+    type: signal                 # Standard signal routing
+    connectivity: trace          # Route as traces (default)
+    target_layer: "F.Cu"         # Start on top, can change layers
+    max_current_a: 0.5
+    trace_width_mm: 0.15         # Reduced from 0.25 to navigate tight gaps
+    clearance_mm: 0.2
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    via_template: "Via1x1"       # Single via for signals
+    description: "Standard signals"
+  
+  FinePitch:
+    type: signal                 # Signal type with tighter rules
+    connectivity: trace
+    target_layer: "F.Cu"
+    max_current_a: 0.3
+    trace_width_mm: 0.127        # 5 mil traces for fine-pitch routing
+    clearance_mm: 0.05           # Reduced from 0.15 - allows 0.127mm traces at 0.177mm center-to-center
+    via_size_mm: 0.4             # Smaller vias for dense areas
+    via_drill_mm: 0.2
+    via_template: "Via1x1"       # Single via for fine-pitch
+    description: "Fine-pitch IC signals (QFN-56 with 0.4mm pitch)"
+  
+  FinePitchPower:
+    type: power                  # Power rail with fine-pitch pad clearance
+    connectivity: plane          # Connect via inner power plane (like Power class)
+    target_layer: "In2.Cu"       # Inner layer 2 for power islands
+    max_current_a: 2.0           # Typical for 3.3V MCU rail
+    trace_width_mm: 0.25         # Stub traces to vias
+    clearance_mm: 0.08           # Ultra-relaxed for fine-pitch IC (QFN-56: 0.16mm gap)
+    via_size_mm: 0.4             # Micro-vias for dense areas (0.2mm radius)
+    via_drill_mm: 0.2
+    via_template: "Via1x1"       # Single via (micro-via, not plated through)
+    description: "Power rails on fine-pitch IC pads (QFN-56)"
+  
+  Differential:
+    type: differential           # ENFORCES impedance specification
+    connectivity: trace          # Coupled trace routing
+    target_layer: "F.Cu"
+    target_impedance: 90         # USB 2.0 differential impedance
+    max_current_a: 0.1
+    trace_width_mm: 0.127        # Calculated for 90Ω differential
+    clearance_mm: 0.10           # USB 2.0 differential clearance
+    via_size_mm: 0.5
+    via_drill_mm: 0.25
+    via_template: "Via1x1"       # Single via for USB (minimal discontinuity)
+    description: "USB differential pair (tightly coupled)"
+
+# Net priority ordering - route critical nets first when board is least congested
+# Lower priority number = routed first
+#
+# CRITICAL FIX: HV nets were incorrectly at priority 6 (last) which caused them
+# to fail routing due to board congestion. HV nets have 6mm clearance requirements
+# and MUST route first to get the best routing channels.
+#
+# Priority levels:
+#   1: HV power path - 6mm clearance, needs best channels FIRST
+#   2: Gate drive - timing critical, minimal loop area required
+#   3: Ground planes - return paths needed before signal routing
+#   4: Power rails - wide traces need routing space
+#   5: Differential pairs (USB) - impedance controlled
+#   6: Communication buses (SPI) - flexible routing
+#   7: Analog sensing - noise sensitive, route after power
+#   8: Default for unlisted nets
+net_priority:
+  # ==========================================================
+  # Priority 1: HV Power Path (MUST route FIRST)
+  # These nets have 6mm clearance requirements and need the
+  # best routing channels before other nets consume space.
+  # ==========================================================
+  AC_L: 1
+  AC_N: 1
+  DC_BUS+: 1
+  DC_BUS-: 1
+  SW_NODE: 1
+
+  # ==========================================================
+  # Priority 2: Gate Drive Signals (timing critical)
+  # These control IGBTs and must have short, direct paths.
+  # Routing them early ensures minimal loop area.
+  # ==========================================================
+  GATE_H: 2
+  GATE_L: 2
+  VCC_BOOT: 2
+  PWM_H: 2
+  PWM_L: 2
+
+  # ==========================================================
+  # Priority 3: Ground Planes (return path critical)
+  # Ground vias need to be placed early to establish
+  # return paths before signal routing.
+  # ==========================================================
+  GND: 3
+  PGND: 3
+  CGND: 3
+
+  # ==========================================================
+  # Priority 4: Power Rails (current carrying)
+  # Power traces are wider and need routing channels.
+  # ==========================================================
+  "+15V": 4
+  "+5V": 4
+  "+3V3": 4
+
+  # ==========================================================
+  # Priority 5: Differential Pairs (impedance matched)
+  # USB pairs need parallel routing with length matching.
+  # ==========================================================
+  USB_D+: 5
+  USB_D-: 5
+
+  # ==========================================================
+  # Priority 6: Communication Buses
+  # SPI/I2C can route through any available channels.
+  # ==========================================================
+  SPI_CLK: 6
+  SPI_MOSI: 6
+  SPI_MISO: 6
+  SPI_CS_TEMP: 6
+
+  # ==========================================================
+  # Priority 7: Analog Sensing (noise sensitive)
+  # Route after power to avoid crossing power traces.
+  # ==========================================================
+  I_SENSE: 7
+  TEMP_SENSE: 7
+  SHUTDOWN_N: 7
+
+  # Default priority for unlisted nets: 8
+
+# Differential pairs
+differential_pairs:
+  - net_pos: "USB_D+"
+    net_neg: "USB_D-"
+    # spacing_mm = trace_width + edge_clearance = 0.127 + 0.10 = 0.227mm (center-to-center)
+    # With 0.25mm grid, the closest we can get is 0.25mm (adjacent cells)
+    spacing_mm: 0.25
+    coupling_tolerance_mm: 0.5
+    max_skew_mm: 0.5
+    description: "USB 2.0 differential pair"
+
+# Copper zones (GND/VCC planes) - used for zone-aware routing
+# These supplement any copper zones found in the PCB file
+copper_zones:
+  - name: "GND_plane"
+    net_classes: ["GND", "PGND"]
+    bounds: [0.5, 0.5, 99.5, 149.5]  # Cover most of board
+    layers: ["B.Cu"]  # Bottom copper layer
+    description: "Ground plane on bottom layer"
+  - name: "VCC_plane"
+    net_classes: ["+3V3", "+5V"]
+    bounds: [30.0, 0.5, 99.5, 149.5]  # Right side (excluding HV zone)
+    layers: ["In1.Cu"]  # Internal layer 1
+    description: "Power plane on internal layer"
+
+# Slot generation config
+# Professional rule: spacing >= max footprint dimension to prevent overlaps
+# J_AC_IN connector ~15mm, Q1/Q2 IGBTs ~12mm, smallest SMD ~3mm
+slot_generation:
+  spacing_mm: 12.0  # Minimum to prevent PTH component overlaps
+  grid_alignment: true
+
+# Component spacing constraints
+# The 'tier' field determines if a constraint is hard (filter rejects) or soft (scorer penalizes)
+minimum_spacing:
+  # Hard constraint: High-power MOSFETs must be separated for thermal management
+  - components: ["Q1", "Q2"]
+    min_separation_mm: 15.0
+    tier: "hard"
+    description: "Thermal isolation between power switches"
+  
+  # Soft constraint: Prefer spacing between regulators but not required
+  - components: ["U_15V", "U_3V3"]
+    min_separation_mm: 10.0
+    tier: "soft"
+    description: "Prefer spacing between regulators"
+
+# Component groups with proximity rules
+groups:
+  - name: "gate_drive_circuit"
+    components: ["U_GATE", "Q1", "Q2"]
+    proximity:
+      # Hard constraint: Gate driver must be within 8mm of MOSFETs for fast switching
+      - pair: ["U_GATE", "Q1"]
+        max_distance_mm: 8.0
+        tier: "hard"
+      - pair: ["U_GATE", "Q2"]
+        max_distance_mm: 8.0
+        tier: "hard"
+  
+  - name: "decoupling_caps"
+    components: ["C_BUS1", "C_BUS2"]
+    proximity:
+      # Soft constraint: Prefer keeping bus caps close but not critical
+      - pair: ["C_BUS1", "C_BUS2"]
+        max_distance_mm: 20.0
+        tier: "soft"
+
+# EXP-11: Signal-to-HV clearance constraints for gate drive routing
+# These ensure gate driver outputs are placed close enough to MOSFET gates
+# that signal routes don't need to pass near HV pins (6mm IEC 60335 creepage)
+signal_hv_clearances:
+  - name: "gate_h_clearance"
+    signal_component: "U_GATE"
+    signal_pin: "15"          # OUTA (high-side gate output)
+    target_component: "Q1"
+    target_pin: "1"           # Gate pin
+    hv_component: "Q1"
+    hv_pins: ["2", "3"]       # DC_BUS+ and SW_NODE (5.45mm and 10.9mm from gate)
+    required_clearance_mm: 6.0
+    max_path_length_mm: 25.0  # Via R_GATE_H
+    tier: "hard"
+    description: "High-side gate signal must not approach Q1 collector/emitter"
+
+  - name: "gate_l_clearance"
+    signal_component: "U_GATE"
+    signal_pin: "10"          # OUTB (low-side gate output)
+    target_component: "Q2"
+    target_pin: "1"           # Gate pin
+    hv_component: "Q2"
+    hv_pins: ["2", "3"]       # SW_NODE and DC_BUS-
+    required_clearance_mm: 6.0
+    max_path_length_mm: 25.0  # Via R_GATE_L
+    tier: "hard"
+    description: "Low-side gate signal must not approach Q2 collector/emitter"
+
+# Pin-level placement proximity (more precise than component-center proximity)
+placement_proximity:
+  - name: "ugate_to_rgateh"
+    from_component: "U_GATE"
+    from_pin: "15"            # OUTA
+    to_component: "R_GATE_H"
+    to_pin: "1"
+    max_distance_mm: 12.0
+    tier: "soft"
+    description: "Gate driver output close to gate resistor"
+
+  - name: "rgateh_to_q1gate"
+    from_component: "R_GATE_H"
+    from_pin: "2"
+    to_component: "Q1"
+    to_pin: "1"
+    max_distance_mm: 12.0
+    tier: "soft"
+    description: "Gate resistor close to MOSFET gate"
+
+  - name: "ugate_to_rgatel"
+    from_component: "U_GATE"
+    from_pin: "10"            # OUTB
+    to_component: "R_GATE_L"
+    to_pin: "1"
+    max_distance_mm: 12.0
+    tier: "soft"
+    description: "Gate driver output close to gate resistor"
+
+  - name: "rgatel_to_q2gate"
+    from_component: "R_GATE_L"
+    from_pin: "2"
+    to_component: "Q2"
+    to_pin: "1"
+    max_distance_mm: 12.0
+    tier: "soft"
+    description: "Gate resistor close to MOSFET gate"
+
+# EXP-13: HV exclusion zones for signal routing
+# These define rectangular areas around HV pins that low-voltage signals must avoid.
+# The router will route around these zones instead of through them.
+# Zone covers HV pins plus margin for creepage - routes must go around entirely.
+#
+# UPDATED: Shifted centers to cover only Pin 2 (Collector) and Pin 3 (Emitter)
+# leaving Pin 1 (Gate) accessible outside the zone.
+# Q1 Pin 1 (Gate) @ 22.2mm, Zone starts @ 25.4mm
+# Q2 Pin 1 (Gate) @ 47.7mm, Zone starts @ 50.9mm
+hv_exclusion_zones:
+  - name: "q1_hv_zone"
+    center: [30.4, 15.0]       # Shifted right to expose Gate (Pin 1)
+    size: [10.0, 10.0]         # Reduced width, covers Pins 2 & 3
+    clearance_mm: 6.0          # IEC 60335-1 creepage
+    excluded_nets:             # Nets that must avoid this zone
+      - "GATE_H"
+      # PWM_H removed - control signal can safely pass through HV zone
+    description: "Q1 HV pins (DC_BUS+, SW_NODE) - gate signals must route around"
+    
+  - name: "q2_hv_zone"
+    center: [55.9, 15.0]       # Shifted right to expose Gate (Pin 1)
+    size: [10.0, 10.0]         # Reduced width, covers Pins 2 & 3
+    clearance_mm: 6.0
+    excluded_nets:
+      - "GATE_L"
+      # PWM_L removed - control signal can safely pass through HV zone
+    description: "Q2 HV pins - gate signals must route around"
+
+# EXP-15: Isolation slots for IEC 60335-1 creepage compliance
+# Physical slots (routed cutouts) between gate pins and HV pins on TO-247 packages.
+# TO-247 geometry: Gate (pin 1) is 5.45mm from collector (pin 2), but IEC requires 6mm.
+# Solution: A 1.5mm wide slot forces creepage path around it, achieving 12-15mm effective.
+# 
+# Slot coordinates are relative to component origin (footprint position).
+# The slot runs perpendicular to the pin row to maximize creepage path extension.
+#
+# Manufacturing notes:
+# - Slot width 1.5mm allows standard router bit (1.6mm typical minimum)
+# - Slot length 10mm provides clearance above/below pin row
+# - Consider castellated plating for EMI shielding if needed
+isolation_slots:
+  - name: "q1_gate_isolation"
+    component_ref: "Q1"
+    start_offset: [2.725, -5.0]   # Between gate (pin 1 at x=0) and collector (pin 2 at x=5.45)
+    end_offset: [2.725, 5.0]      # Vertical slot 10mm long
+    width_mm: 1.5                 # Standard router bit compatible
+    lv_pin: "1"                   # Gate
+    hv_pin: "2"                   # Collector
+    description: "IEC 60335-1 creepage isolation for Q1 gate-to-HV"
+    
+  - name: "q2_gate_isolation"
+    component_ref: "Q2"
+    start_offset: [2.725, -5.0]
+    end_offset: [2.725, 5.0]
+    width_mm: 1.5
+    lv_pin: "1"
+    hv_pin: "2"
+    description: "IEC 60335-1 creepage isolation for Q2 gate-to-HV"
+
+# Loss function configuration (for gradient optimizer - not used in deterministic pipeline)
+losses:
+  overlap:
+    weight: 1000.0
+    enabled: true
+  boundary:
+    weight: 100.0
+    enabled: true
+  wirelength:
+    weight: 10.0
+    enabled: true

@@ -1,0 +1,71 @@
+# Example configuration demonstrating EscapeClearance and RoutingCorridor constraints
+# Part of temper-g54c: Deterministic Constraint System for One-Shot Placement
+
+board:
+  width_mm: 100
+  height_mm: 150
+  margin_mm: 3.0
+
+# NEW: Escape clearances for fine-pitch ICs
+# These keep areas clear around components for escape routing
+escape_clearances:
+  # MCU with QFN-56 package (0.5mm pitch)
+  - component: "U_MCU"
+    # clearance_mm: null means auto-compute from pin density
+    # For QFN-56: sqrt(56) * 0.5 * 1.5 ≈ 5.6mm
+    priority_sides: ["bottom", "right"]  # Prefer clearing these sides
+    tier: "soft"  # Soft constraint = scorer (penalty)
+    description: "ESP32-S3 QFN-56 escape routing clearance"
+  
+  # USB controller with explicit clearance
+  - component: "U_USB"
+    clearance_mm: 6.0  # Explicit clearance overrides computation
+    priority_sides: ["top", "left"]
+    tier: "hard"  # Hard constraint = filter (reject)
+    description: "USB controller requires 6mm clearance"
+
+# NEW: Routing corridors for critical nets
+# These preserve routing channels between components
+routing_corridors:
+  # USB differential pair corridor
+  - name: "usb_diff_path"
+    from_component: "J_USB"
+    to_component: "U_MCU"
+    width_mm: 5.0
+    keep_clear: true  # Don't place components in this corridor
+    nets: ["USB_D+", "USB_D-"]
+    tier: "soft"
+    description: "USB differential pair routing corridor"
+  
+  # SPI bus corridor
+  - name: "spi_bus"
+    from_component: "U_MCU"
+    to_component: "U_FLASH"
+    width_mm: 3.0
+    keep_clear: true
+    nets: ["SPI_CLK", "SPI_MOSI", "SPI_MISO", "SPI_CS"]
+    tier: "soft"
+    description: "SPI bus routing corridor to flash"
+  
+  # High-speed clock path
+  - name: "clock_path"
+    from_component: "Y_XTAL"
+    to_component: "U_MCU"
+    width_mm: 4.0
+    keep_clear: true
+    nets: ["XTAL_IN", "XTAL_OUT"]
+    tier: "hard"  # Critical timing path
+    description: "Crystal oscillator to MCU clock input"
+
+# Existing constraints continue to work
+zones:
+  - name: "Signal"
+    bounds: [5, 5, 95, 145]
+    net_classes: ["Signal"]
+
+zone_assignments:
+  U_MCU: "Signal"
+  U_USB: "Signal"
+  J_USB: "Signal"
+  U_FLASH: "Signal"
+  Y_XTAL: "Signal"

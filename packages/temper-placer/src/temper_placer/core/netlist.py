@@ -40,7 +40,13 @@ class Pin:
     height: float = 1.0
     shape: str = "rect"
     layer: str = "F.Cu"
+    drill: float = 0.0  # Drill diameter (0 = SMD)
+    is_pth: bool = False  # Convenience flag for Plated Through-Hole
 
+    @property
+    def mask_expansion(self) -> float:
+        """Return recommended solder mask expansion for this pin."""
+        return 0.15 if self.is_pth else 0.1
 
     def absolute_position(
         self,
@@ -230,6 +236,32 @@ class Netlist:
         """Get (N,) boolean array of fixed components."""
         return jnp.array([c.fixed for c in self.components], dtype=jnp.bool_)
 
+    def apply_net_class_mapping(self, mapping: dict[str, str]) -> int:
+        """
+        Apply a net_name -> net_class mapping to all nets.
+
+        This updates the net_class attribute of each Net object based on
+        the provided mapping. Nets not in the mapping retain their current
+        net_class (typically the default 'Signal').
+
+        Args:
+            mapping: Dictionary mapping net names to net class names.
+                     Example: {'GND': 'Ground', 'AC_L': 'HighVoltage'}
+
+        Returns:
+            Number of nets that were updated.
+        """
+        updated = 0
+        for net in self.nets:
+            if net.name in mapping:
+                new_class = mapping[net.name]
+                if net.net_class != new_class:
+                    # Net is a frozen dataclass, need to create new one
+                    # But Net is not frozen, so direct assignment works
+                    net.net_class = new_class
+                    updated += 1
+        return updated
+
     def find_isomorphic_groups(self, iterations: int = 2) -> list[list[int]]:
         """
         Find groups of components that are topologically isomorphic.
@@ -257,6 +289,7 @@ class Netlist:
         for c in self.components:
             # Extract ref prefix (all letters at start)
             import re
+
             match = re.match(r"^([a-zA-Z]+)", c.ref)
             prefix = match.group(1) if match else ""
             labels.append(f"{c.footprint}|{prefix}")

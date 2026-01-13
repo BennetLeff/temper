@@ -150,49 +150,51 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
     # High-voltage nets: L1 preferred (2oz copper)
     LayerConstraint(
         net_pattern=r"DC_BUS_.*|HV_.*|SW_NODE|AC_L|AC_N|RECT_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
         reason="High-voltage power distribution prefers Top layer (2oz copper)",
     ),
     # Gate drive nets: L1 preferred (close to ground plane on L2)
     LayerConstraint(
         net_pattern=r"GATE_.*|DRV_.*|DRIVER_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
         reason="Gate drive signals prefer L1 for tight coupling to L2 ground",
     ),
-    # Sensitive Analog/Sensing: Top layer ONLY (isolate from Digital)
+    # Sensitive Analog/Sensing: Top layer preferred (isolate from Digital)
+    # Allow all layers for via transitions to enable routing flexibility
     LayerConstraint(
         net_pattern=r"SENSE_.*|ADC_.*|TEMP_.*|ANALOG_.*|I_SENSE",
-        allowed_layers={Layer.L1_TOP},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L1_TOP,
-        reason="Analog signals forced to Top layer to isolate from digital SPI bus",
+        reason="Analog signals prefer Top layer, vias allowed for routing flexibility",
     ),
-    # SPI Bus: Bottom layer ONLY (isolate from HV/Analog on Top)
+    # SPI Bus: Bottom layer preferred (isolate from HV/Analog on Top)
+    # Allow L1 for via transitions since pads are on L1
     LayerConstraint(
         net_pattern=r"SPI_.*",
-        allowed_layers={Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
-        reason="SPI digital signals forced to Bottom layer to minimize noise coupling to analog",
+        reason="SPI prefers Bottom layer, visas allowed for pad access",
     ),
     # USB/Digital: prefer bottom
     LayerConstraint(
         net_pattern=r"USB_.*|PWM_.*|DIGITAL_.*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="General digital signals prefer bottom layer",
     ),
     # Ground nets: prefer bottom, can use top
     LayerConstraint(
         net_pattern=r"GND|PGND|CGND|ISOGND|AGND|DGND|.*_GND",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="Ground connections prefer bottom layer",
     ),
     # Catch-all: default to bottom layer for general signals
     LayerConstraint(
         net_pattern=r".*",
-        allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
+        allowed_layers={Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT},
         preferred_layer=Layer.L4_BOT,
         reason="Default signal routing prefers bottom layer",
     ),
@@ -254,11 +256,11 @@ def assign_layers(
         # try to be smart about geometric assignment
         geometric_preferred_layer = None
         if component_positions is not None:
-             # Check if we hit the catch-all constraint (usually ".*")
-             # Or if we want to provide a hint for constraints that allow multiple layers
-             is_catch_all = matched_constraint and matched_constraint.net_pattern == r".*"
-             
-             if matched_constraint is None or is_catch_all:
+            # Check if we hit the catch-all constraint (usually ".*")
+            # Or if we want to provide a hint for constraints that allow multiple layers
+            is_catch_all = matched_constraint and matched_constraint.net_pattern == r".*"
+
+            if matched_constraint is None or is_catch_all:
                 direction = _get_net_dominant_direction(net, netlist, component_positions)
                 if direction == "horizontal":
                     geometric_preferred_layer = Layer.L1_TOP
@@ -272,16 +274,18 @@ def assign_layers(
                 net_pattern=r".*",
                 allowed_layers={Layer.L1_TOP, Layer.L4_BOT},
                 preferred_layer=preferred,
-                reason="No matching constraint, using default (Geometric)" if geometric_preferred_layer else "No matching constraint, using default",
+                reason="No matching constraint, using default (Geometric)"
+                if geometric_preferred_layer
+                else "No matching constraint, using default",
             )
         elif geometric_preferred_layer and matched_constraint.net_pattern == r".*":
-             # Enhance the catch-all with geometric preference
-             matched_constraint = LayerConstraint(
+            # Enhance the catch-all with geometric preference
+            matched_constraint = LayerConstraint(
                 net_pattern=r".*",
                 allowed_layers=matched_constraint.allowed_layers,
                 preferred_layer=geometric_preferred_layer,
                 reason=f"Geometric preference ({'Horizontal' if geometric_preferred_layer == Layer.L1_TOP else 'Vertical'})",
-             )
+            )
 
         # Determine if vias are required (multi-layer routing)
         # For now, single-layer-only constraints don't need vias
@@ -303,55 +307,56 @@ def assign_layers(
 
     return assignments
 
+
 def _get_net_dominant_direction(net: "Net", netlist: Netlist, positions: Array) -> str:
     """Determine dominant direction of a net based on pin positions.
-    
+
     Args:
         net: Net object
         netlist: Netlist for component lookups
         positions: (N, 2) array of component positions
-        
+
     Returns:
         "horizontal", "vertical", or "mixed"
     """
     if not net.pins:
         return "mixed"
-        
-    min_x, max_x = float('inf'), float('-inf')
-    min_y, max_y = float('inf'), float('-inf')
-    
+
+    min_x, max_x = float("inf"), float("-inf")
+    min_y, max_y = float("inf"), float("-inf")
+
     count = 0
     for comp_ref, pin_name in net.pins:
         comp_idx = netlist.get_component_index(comp_ref)
-        if comp_idx is None: 
+        if comp_idx is None:
             continue
-            
+
         comp = netlist.components[comp_idx]
         pin = comp.get_pin(pin_name)
         if pin:
             cx, cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
             px, py = cx + pin.position[0], cy + pin.position[1]
-            
+
             min_x = min(min_x, px)
             max_x = max(max_x, px)
             min_y = min(min_y, py)
             max_y = max(max_y, py)
             count += 1
-            
+
     if count < 2:
         return "mixed"
-        
+
     dx = max_x - min_x
     dy = max_y - min_y
-    
+
     # Hysteresis ratio to decide direction
     ratio = 1.2
-    
+
     if dx > dy * ratio:
         return "horizontal"
     elif dy > dx * ratio:
         return "vertical"
-        
+
     return "mixed"
 
 
@@ -393,15 +398,26 @@ def get_routing_layers() -> list[Layer]:
     """Get layers available for signal routing.
 
     Returns:
-        List of layers that can be used for routing (L1 and L4).
+        List of layers that can be used for routing.
+        Now includes all 4 layers since inner layers support mixed routing.
     """
-    return [Layer.L1_TOP, Layer.L4_BOT]
+    return [Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT]
 
 
 def get_plane_layers() -> list[Layer]:
-    """Get layers that are planes (not for routing).
+    """Get layers that are primarily planes (but can also route signals).
 
     Returns:
         List of plane layers (L2 and L3).
+        Note: These layers now support mixed-mode routing.
     """
     return [Layer.L2_GND, Layer.L3_PWR]
+
+
+def get_signal_only_layers() -> list[Layer]:
+    """Get layers that are signal-only (outer layers).
+
+    Returns:
+        List of signal-only layers (L1 and L4).
+    """
+    return [Layer.L1_TOP, Layer.L4_BOT]

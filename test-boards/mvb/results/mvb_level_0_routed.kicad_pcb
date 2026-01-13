@@ -1,0 +1,52 @@
+(kicad_pcb (version 20221018) (generator temper_mvb_gen)
+
+  (general
+    (thickness 1.6)
+  )
+
+  (paper "A4")
+  (layers
+    (0 "F.Cu" signal)
+    (31 "B.Cu" signal)
+    (44 "Edge.Cuts" user)
+  )
+
+  (setup
+    (pad_to_mask_clearance 0.1)
+  )
+
+  (net 0 "")
+  (net 1 "GND")
+  (net 2 "VCC")
+
+  (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
+    (tedit 0) (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 2.5 5 0)
+    (property "Reference" "J1")
+    (property "Value" "Conn_01x02")
+    (pad "1" thru_hole rect (at 0 0) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
+      (net 1 "GND"))
+    (pad "2" thru_hole oval (at 0 2.54) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
+      (net 2 "VCC"))
+  )
+
+  (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
+    (tedit 0) (tstamp 00000000-0000-0000-0000-000000000002)
+    (at 7.5 5 0)
+    (property "Reference" "J2")
+    (property "Value" "Conn_01x02")
+    (pad "1" thru_hole rect (at 0 0) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
+      (net 1 "GND"))
+    (pad "2" thru_hole oval (at 0 2.54) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
+      (net 2 "VCC"))
+  )
+
+  (gr_line (start 0 0) (end 10 0) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 10 0) (end 10 10) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 10 10) (end 0 10) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 0 10) (end 0 0) (layer "Edge.Cuts") (width 0.1))
+
+  (segment (start 5.1 10.1) (end 15.1 10.1) (width 0.2) (layer "F.Cu") (net 1) (tstamp 3051530f-b57b-40d5-9262-716e2c79f8cc))
+  (segment (start 5.1 15.1) (end 15.1 15.1) (width 0.2) (layer "F.Cu") (net 2) (tstamp 28cdc546-16cf-42a7-a8fb-5a2da4dc5bdb))
+
+)

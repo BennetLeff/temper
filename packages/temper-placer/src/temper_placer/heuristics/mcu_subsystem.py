@@ -42,7 +42,7 @@ class MCUSubsystemHeuristic:
         self,
         netlist: Netlist,
         board: Board,
-        zone_name: str = "MCU_ZONE",
+        zone_name: str = "MCU",
     ) -> PlacementResult:
         """
         Apply MCU subsystem template to the netlist.

@@ -102,6 +102,10 @@ from temper_placer.routing.dithered_router import (
     DitherConfig,
     DitherAttempt,
 )
+from temper_placer.routing.escape_router import (
+    EscapeRouter,
+    EscapeResult,
+)
 from temper_placer.routing.unified_router import (
     RoutingConfig,
     RoutingStrategy,
@@ -119,6 +123,53 @@ from temper_placer.routing.post_processing import (
     FunnelSmoother,
     Point,
 )
+from temper_placer.routing.grid import GridConverter
+from temper_placer.routing.difficulty import (
+    compute_proximity_difficulty,
+    compute_density_difficulty,
+    get_cell_difficulty,
+    compute_density_map,
+    compute_local_density,
+)
+from temper_placer.routing.neighbors import (
+    get_cardinal_neighbors,
+    get_layer_neighbors,
+    get_all_neighbors,
+    count_neighbors,
+)
+from temper_placer.routing.occupancy import OccupancyManager
+from temper_placer.routing.drc import (
+    CLASS_DEFAULT,
+    CLASS_HV,
+    CLASS_LV,
+    check_class_clearance,
+    compute_drc_margin,
+    get_asymmetric_clearance,
+    get_class_id,
+)
+from temper_placer.routing.orchestrator import (
+    NetRouterOrchestrator,
+    RoutingConfig,
+    RoutingResult,
+    RoutingSummary,
+    RoutingStatistics,
+)
+from temper_placer.routing.cost import (
+    BLOCKED_COST,
+    check_blocked,
+    check_net_isolation,
+    compute_base_cost,
+    compute_congestion_cost,
+    compute_congestion_multiplier,
+    compute_layer_balance_cost,
+    compute_path_cost,
+    compute_sharing_penalty,
+    compute_total_move_cost,
+    compute_via_cost,
+    count_vias,
+    extract_cells_from_paths,
+    get_strategy_multiplier,
+)
 from temper_placer.routing.critical_net_detector import (
     CriticalNet,
     CriticalNetCategory,
@@ -129,6 +180,22 @@ from temper_placer.routing.pdn_router import (
     PDNRouteResult,
     PDNRouter,
     PowerTraceWidth,
+)
+from temper_placer.routing.cost import (
+    BLOCKED_COST,
+    check_blocked,
+    check_net_isolation,
+    compute_base_cost,
+    compute_congestion_cost,
+    compute_congestion_multiplier,
+    compute_layer_balance_cost,
+    compute_path_cost,
+    compute_sharing_penalty,
+    compute_total_move_cost,
+    compute_via_cost,
+    count_vias,
+    extract_cells_from_paths,
+    get_strategy_multiplier,
 )
 
 __all__ = [
@@ -193,6 +260,8 @@ __all__ = [
     "RoutingStrategy",
     "UnifiedRoutePath",
     "UnifiedRouter",
+    "EscapeRouter",
+    "EscapeResult",
     # Critical Net Detection (temper-cjxg)
     "CriticalNet",
     "CriticalNetCategory",

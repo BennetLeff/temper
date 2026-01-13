@@ -87,6 +87,12 @@ from temper_placer.losses.congestion import (
     visualize_congestion,
 )
 
+# Channel capacity loss (routing bottleneck prevention)
+from temper_placer.losses.channel_capacity import (
+    ChannelCapacityLoss,
+    compute_channel_capacity,
+)
+
 # Critical path length loss
 from temper_placer.losses.critical_path import (
     CriticalPath,
@@ -256,6 +262,14 @@ from temper_placer.losses.zone import (
     create_temper_zone_assignments,
 )
 
+# Zone avoidance loss (temper-3b1l)
+from temper_placer.losses.zone_avoidance import (
+    ZoneAvoidanceLoss,
+    compute_zone_avoidance_penalty,
+    signed_distance_to_polygon,
+    signed_distance_to_rectangle,
+)
+
 # Routing-aware placement losses
 from temper_placer.losses.routing_aware import (
     BusAlignmentLoss,
@@ -295,9 +309,12 @@ __all__ = [
     "EdgePreferenceLoss",
     "ThermalComponentConfig",
     "ZoneMembershipLoss",
+    "ZoneAvoidanceLoss",
     "GroundCrossingLoss",
     "CongestionLoss",
     "RoutabilityLoss",
+    "ChannelCapacityLoss",
+    "compute_channel_capacity",
     "PowerPathLoss",
     "create_power_path_loss",
     "HighCurrentPathConfig",
@@ -353,6 +370,9 @@ __all__ = [
     "compute_edge_distance",
     "compute_zone_distance",
     "compute_zone_membership_penalty",
+    "compute_zone_avoidance_penalty",
+    "signed_distance_to_polygon",
+    "signed_distance_to_rectangle",
     "compute_ground_crossing_penalty",
     "detect_ground_domain_violations",
     "compute_congestion_penalty",

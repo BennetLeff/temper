@@ -875,7 +875,7 @@ class WeightedLoss:
         # Apply curriculum schedule
         if self.schedule_end > self.schedule_start:
             progress = jnp.array(epoch / max(total_epochs, 1))
-            curriculum = float(smooth_step(progress, self.schedule_start, self.schedule_end))
+            curriculum = smooth_step(progress, self.schedule_start, self.schedule_end)
         else:
             curriculum = 1.0
 
@@ -911,7 +911,7 @@ class WeightedLoss:
             return 1.0  # Unknown mode, no normalization
 
 
-class CompositeLoss:
+class CompositeLoss(LossFunction):
     """
     Aggregates multiple weighted loss functions.
 
@@ -940,6 +940,11 @@ class CompositeLoss:
             losses: List of WeightedLoss instances to aggregate.
         """
         self.losses = losses
+
+    @property
+    def name(self) -> str:
+        """Name of the composite loss."""
+        return "composite"
 
     def __call__(
         self,

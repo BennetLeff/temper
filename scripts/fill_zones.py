@@ -1,54 +1,45 @@
-#!/usr/bin/env python3
-"""
-Fill all zones in a KiCad PCB file using the pcbnew Python API.
-
-This script must be run with KiCad's Python interpreter or in an environment
-where the pcbnew module is available.
-
-Usage:
-    python3 fill_zones.py input.kicad_pcb output.kicad_pcb
-    
-Or via KiCad's scripting console:
-    exec(open('/path/to/fill_zones.py').read())
-"""
 
 import sys
-from pathlib import Path
+import os
+import pcbnew
+import wx
 
-def fill_zones(input_path: str, output_path: str):
-    """Load PCB, fill all zones, and save."""
+def fill_zones(pcb_file):
+    # Initialize wxApp to prevent "create wxApp before calling this" error
+    # This is required because pcbnew may initialize GUI components (fonts, etc.)
+    app = wx.App(False)
+    
+    if not os.path.exists(pcb_file):
+        print(f"Error: File {pcb_file} not found")
+        sys.exit(1)
+        
+    abs_pcb = os.path.abspath(pcb_file)
+    print(f"Loading {abs_pcb}...")
     try:
-        import pcbnew
-    except ImportError:
-        print("ERROR: pcbnew module not found.")
-        print("This script must be run with KiCad's Python environment.")
-        print("Try: /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 fill_zones.py ...")
+        board = pcbnew.LoadBoard(abs_pcb)
+    except Exception as e:
+        print(f"Caught exception during LoadBoard: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
     
-    print(f"Loading {input_path}...")
-    board = pcbnew.LoadBoard(input_path)
+    if board is None:
+        print(f"Error: Failed to load board from {abs_pcb}. The file might be corrupted or incompatible.")
+        # Sometimes pcbnew doesn't raise but returns None. 
+        # We've printed enough to know it failed.
+        sys.exit(1)
     
-    print("Filling zones...")
+    print(f"Found {len(board.Zones())} zones.")
+    print("Refilling all zones...")
     filler = pcbnew.ZONE_FILLER(board)
-    zones = board.Zones()
+    filler.Fill(board.Zones())
     
-    # In newer KiCad, Zones() returns a tuple/list directly
-    zone_list = list(zones)
-    
-    if not zone_list:
-        print("No zones found in the board.")
-    else:
-        print(f"Found {len(zone_list)} zones to fill.")
-        filler.Fill(zone_list)
-        print("Zones filled successfully.")
-    
-    print(f"Saving to {output_path}...")
-    pcbnew.SaveBoard(output_path, board)
-    print("Done!")
+    print(f"Saving {pcb_file}...")
+    board.Save(pcb_file)
+    print("Success: Zones filled.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: fill_zones.py <input.kicad_pcb> <output.kicad_pcb>")
+    if len(sys.argv) < 2:
+        print("Usage: python3 fill_zones.py <pcb_file>")
         sys.exit(1)
-    
-    fill_zones(sys.argv[1], sys.argv[2])
+    fill_zones(sys.argv[1])

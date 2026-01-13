@@ -217,7 +217,8 @@ class RoutingAnalyzer:
         # 1. Get total connections from DSN
         dsn_content = dsn_path.read_text()
         # Find (net NAME (pins ...))
-        net_matches = re.findall(r"\(net\s+([\w\-.]+)\s+\(pins\s+([^)]+)\)\)", dsn_content)
+        # Handle both unquoted and quoted net names (e.g., "USB_D+" with special chars)
+        net_matches = re.findall(r'\(net\s+"?([^"\s]+)"?\s+\(pins\s+([^)]+)\)\)', dsn_content)
         dsn_nets = {name: pins_str.split() for name, pins_str in net_matches}
         
         total_connections = sum(max(0, len(pins) - 1) for pins in dsn_nets.values())

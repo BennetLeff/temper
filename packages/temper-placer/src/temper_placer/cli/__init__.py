@@ -126,6 +126,112 @@ main.add_command(phase)
 main.add_command(trace)
 
 
+@main.command("mvp3-route")
+@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "-c",
+    "--config",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="YAML configuration file with zones, net classes, and rules.",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Output .kicad_pcb file path.",
+)
+@click.option(
+    "--layers",
+    type=int,
+    default=4,
+    help="Number of routing layers (default: 4).",
+)
+@click.option(
+    "--cell-size",
+    type=float,
+    default=0.5,
+    help="Routing grid cell size in mm (default: 0.5).",
+)
+@click.option(
+    "--slot-spacing",
+    type=float,
+    default=5.0,
+    help="Slot grid spacing for placement in mm (default: 5.0).",
+)
+def mvp3_route(
+    input_pcb: Path,
+    config: Path,
+    output: Path,
+    layers: int,
+    cell_size: float,
+    slot_spacing: float,
+) -> None:
+    """
+    Run MVP-3 deterministic placement and routing pipeline.
+    
+    This command uses zone-based placement and layer-aware routing
+    to deterministically place and route a KiCad PCB without gradient 
+    optimization.
+    
+    Example:
+        temper-placer mvp3-route temper.kicad_pcb \\
+            -c temper_config.yaml \\
+            -o temper_routed.kicad_pcb \\
+            --layers 4
+    """
+    from temper_placer.pipeline.mvp3_runner import MVP3Config, MVP3Runner
+    
+    console.print(
+        Panel.fit(
+            "[bold cyan]MVP-3 Deterministic Pipeline[/]",
+            subtitle=f"v{__version__}"
+        )
+    )
+    
+    console.print(f"\n[bold]Input:[/] {input_pcb}")
+    console.print(f"[bold]Config:[/] {config}")
+    console.print(f"[bold]Output:[/] {output}")
+    console.print(f"[bold]Layers:[/] {layers}")
+    console.print(f"[bold]Grid:[/] {cell_size}mm")
+    console.print(f"[bold]Slots:[/] {slot_spacing}mm spacing\n")
+    
+    # Configure MVP3
+    mvp3_config = MVP3Config(
+        layer_count=layers,
+        cell_size_mm=cell_size,
+        slot_spacing_mm=slot_spacing,
+    )
+    
+    # Create runner
+    runner = MVP3Runner(
+        pcb_path=input_pcb,
+        config_path=config,
+        output_path=output,
+        mvp3_config=mvp3_config,
+    )
+    
+    # Execute pipeline
+    console.print("[bold cyan]Running deterministic pipeline...[/]")
+    result = runner.run()
+    
+    if result.success:
+        console.print("\n[bold green]✓ Pipeline completed successfully![/]")
+        console.print(f"  Components placed: {result.components_placed}/{result.total_components}")
+        console.print(f"  Nets routed: {result.nets_routed}/{result.total_nets}")
+        
+        if result.total_nets > 0:
+            completion = 100 * result.nets_routed / result.total_nets
+            console.print(f"  Routing completion: {completion:.1f}%")
+        
+        console.print(f"\n[bold]Output:[/] {output}")
+    else:
+        console.print(f"\n[bold red]✗ Pipeline failed:[/] {result.error}")
+        raise click.Abort()
+
+
+
 @main.command()
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
 @click.option(
@@ -277,6 +383,17 @@ main.add_command(trace)
     default=100.0,
     help="Weight for SPICE validation penalty in loss function (if enabled).",
 )
+@click.option(
+    "--weight-channel-capacity",
+    type=float,
+    default=None,
+    help="Override channel capacity loss weight.",
+)
+@click.option(
+    "--compact/--no-compact",
+    default=False,
+    help="Use the consolidated Core 8 loss set (default: False).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -305,6 +422,8 @@ def optimize(
     track_metrics: Path | None,
     spice_validate: bool,
     spice_penalty_weight: float,
+    weight_channel_capacity: float | None,
+    compact: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -330,6 +449,7 @@ def optimize(
     console.print(f"[bold]Curriculum:[/] {'enabled' if curriculum else 'disabled'}")
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
+    console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
 
     # Import heavy dependencies only when needed
     console.print("\n[dim]Loading JAX and optimizer modules...[/]")
@@ -355,6 +475,7 @@ def optimize(
         )
         from temper_placer.losses import (
             BoundaryLoss,
+            ChannelCapacityLoss,
             CompositeLoss,
             GroupClusterLoss,
             GroupConfig,
@@ -365,6 +486,7 @@ def optimize(
             WirelengthLoss,
         )
         from temper_placer.losses.base import LossContext
+        from temper_placer.losses.compact import create_compact_loss_set
         from temper_placer.optimizer import OptimizerConfig, train, train_multiphase
         from temper_placer.optimizer.curriculum import create_default_phases, create_fast_phases
     except ImportError as e:
@@ -485,7 +607,10 @@ def optimize(
 
     # Build composite loss with curriculum-aware weights
     def make_loss(weights: dict) -> CompositeLoss:
-        """Factory function for curriculum learning."""
+        """Create composite loss function from weights."""
+        if compact:
+            return create_compact_loss_set(weights, context, constraints)
+
         losses = []
 
         # Core feasibility losses
@@ -536,6 +661,23 @@ def optimize(
         elif "congestion" in weights:
             # Map congestion to the new layer-aware routability loss
             losses.append(WeightedLoss(RoutabilityLoss(), weight=weights["congestion"]))
+
+        # Channel capacity (routing bottlenecks)
+        if "channel_capacity" in weights:
+            losses.append(
+                WeightedLoss(
+                    ChannelCapacityLoss(trace_width=0.15, trace_spacing=0.15, min_margin=0.2),
+                    weight=weights["channel_capacity"],
+                )
+            )
+        elif "routability" in weights or "congestion" in weights:
+            # Enable by default if routability is requested
+            losses.append(
+                WeightedLoss(
+                    ChannelCapacityLoss(trace_width=0.15, trace_spacing=0.15, min_margin=0.2),
+                    weight=weights.get("routability", weights.get("congestion", 10.0)) * 0.5,
+                )
+            )
 
         # Regularization losses
         if "edge_avoidance" in weights and weights["edge_avoidance"] > 0:
@@ -732,6 +874,8 @@ def optimize(
             config_weights["overlap"] = weight_overlap
         if weight_wirelength is not None:
             config_weights["wirelength"] = weight_wirelength
+        if weight_channel_capacity is not None:
+            config_weights["channel_capacity"] = weight_channel_capacity
 
         weights = config_weights
     else:
@@ -744,15 +888,17 @@ def optimize(
             "spread": 5.0,
         }
 
-    composite_loss = make_loss(weights)
-    console.print(f"  [green]✓[/] Created {len(composite_loss.losses)} loss functions")
-
-    # Step 4: Create optimizer config and context
-    console.print("\n[bold cyan]Step 4/5:[/] Initializing optimizer...")
+    # Step 4: Create optimizer context
+    console.print("\n[bold cyan]Step 4/5:[/] Initializing context...")
 
     context = LossContext.from_netlist_and_board(
         netlist, board, use_centrality_weighting=centrality
     )
+
+    composite_loss = make_loss(weights)
+    console.print(f"  [green]✓[/] Created {len(composite_loss.losses)} loss functions")
+
+    # Configure optimizer
 
     # Configure optimizer
     from temper_placer.optimizer.config import GradNormConfig
@@ -3645,7 +3791,7 @@ def routing(input_pcb: Path, level: int, output: Path | None) -> None:
     console.print("[green]✓[/] Routing verification complete")
 
 
-@main.command()
+@main.command("place-deterministic")
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
 @click.option(
     "-c",
@@ -3662,28 +3808,9 @@ def routing(input_pcb: Path, level: int, output: Path | None) -> None:
     help="Output .kicad_pcb file path.",
 )
 @click.option(
-    "--max-iterations",
-    type=int,
-    default=5,
-    help="Maximum placement-routing iterations (default: 5).",
-)
-@click.option(
-    "--routability-threshold",
-    type=float,
-    default=0.85,
-    help="Congestion threshold for refinement (default: 0.85).",
-)
-@click.option(
-    "--max-movement",
-    type=float,
-    default=3.0,
-    help="Maximum allowed movement during refinement in mm (default: 3.0).",
-)
-@click.option(
-    "--no-local-refinement",
-    is_flag=True,
-    default=False,
-    help="Skip the gradient-based local refinement phase.",
+    "--drc-aware/--no-drc-aware",
+    default=True,
+    help="Enable DRC-aware routing using DRCOracle integration.",
 )
 @click.option(
     "--seed",
@@ -3695,201 +3822,95 @@ def place_deterministic(
     input_pcb: Path,
     config: Path,
     output: Path,
-    max_iterations: int,
-    routability_threshold: float,
-    max_movement: float,
-    no_local_refinement: bool,
+    drc_aware: bool,
     seed: int,
 ) -> None:
     """
     Place components using hierarchical deterministic pipeline.
 
     This command runs:
-    Topological -> Preflight -> [Local Refinement] -> Routing Feedback -> Output
+    Zone-based Placement -> DRC-aware Sequential Routing -> Validation
     """
+    from temper_placer.deterministic import (
+        create_drc_aware_pipeline, 
+        create_legacy_pipeline,
+        BoardState
+    )
+    from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.io.kicad_writer import (
+        write_placements_to_pcb, 
+        write_routes_to_pcb, 
+        strip_routing, 
+        PlacementUpdate,
+        add_bounding_boxes_to_pcb,
+        add_silkscreen_labels
+    )
+    
     console.print(
-        Panel.fit("[bold cyan]Hierarchical Deterministic Placement[/]", subtitle=f"v{__version__}")
+        Panel.fit(
+            f"[bold cyan]Deterministic Placement Pipeline ({'DRC-aware' if drc_aware else 'Legacy'})[/]",
+            subtitle=f"v{__version__}"
+        )
     )
-
-    # Create pipeline configuration
-    pipeline_config = PipelineConfig(
-        input_pcb=input_pcb,
-        constraints_yaml=config,
-        output_pcb=output,
-        max_iterations=max_iterations,
-        routability_threshold=routability_threshold,
-        max_movement_mm=max_movement,
-        skip_local_refinement=no_local_refinement,
-        seed=seed,
-    )
-
-    # Initialize orchestrator
-    orchestrator = PipelineOrchestrator(pipeline_config)
-
-    # Setup progress display
-    from rich.live import Live
-
-    dashboard = RichDashboard()
-    orchestrator.on_phase_start = dashboard.on_phase_start
-    orchestrator.on_phase_complete = dashboard.on_phase_complete
 
     try:
-        with Live(dashboard.create_layout(), refresh_per_second=4):
-            result = orchestrator.run()
+        # 1. Load constraints and design rules
+        console.print(f"  [dim]Loading constraints from {config}...[/]")
+        constraints = load_constraints(config)
+        design_rules = constraints_to_design_rules(constraints)
 
-        if result.success:
-            console.print("\n[bold green]Placement completed successfully![/]")
-            console.print(f"  Output: {output}")
+        # 2. Extract KiCad metadata for DRC oracle
+        from temper_placer.io.kicad_metadata import extract_kicad_metadata
+        console.print(f"  [dim]Extracting KiCad metadata...[/]")
+        metadata = extract_kicad_metadata(input_pcb)
 
-            # Show summary metrics if available
-            if result.physics_report:
-                console.print("\n[bold cyan]Physical Metrics:[/]")
-                console.print(f"  Overlap Count: {result.physics_report.geometric.overlap_count}")
-                console.print(f"  Max Tj: {result.physics_report.thermal.max_junction_temp_c:.1f}")
-                console.print(
-                    f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}"
-                )
+        # 3. Create pipeline
+        if drc_aware:
+            pipeline = create_drc_aware_pipeline(
+                design_rules=design_rules,
+                config=constraints,
+                metadata=metadata,
+                zone_aware=True,
+            )
         else:
-            console.print(f"\n[bold red]Placement failed:[/] {result.failure_reason}")
+            pipeline = create_legacy_pipeline()
 
-            # Show preflight details if that's where it failed
-            if result.failed_phase == PipelinePhase.PREFLIGHT:
-                from temper_placer.pipeline.preflight import PreflightResult
-
-                if hasattr(result, "preflight_report") and result.preflight_report:
-                    for check in result.preflight_report.checks:
-                        if check.result == PreflightResult.FAIL:
-                            console.print(f"  [red]→[/] {check.name}: {check.message}")
-                            if check.details and "impossible" in check.details:
-                                for msg in check.details["impossible"]:
-                                    console.print(f"    - {msg}")
-
-            raise click.Abort()
+        # 4. Parse PCB
+        console.print(f"  [dim]Parsing PCB {input_pcb}...[/]")
+        parse_result = parse_kicad_pcb(input_pcb)
+        initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
+        
+        # 4. Run pipeline
+        console.print("[bold cyan]Running pipeline stages...[/]")
+        final_state = pipeline.run(initial_state)
+        
+        # 5. Export results
+        console.print("[bold cyan]Exporting results...[/]")
+        
+        # Strip existing routing first to ensure clean output
+        strip_routing(input_pcb, output, keep_zones=True)
+        
+        # Export placements
+        placements_dict = {
+            ref: PlacementUpdate(ref=ref, x=pos[0], y=pos[1], rotation=0.0) 
+            for ref, pos in (final_state.placements or [])
+        }
+        write_placements_to_pcb(output, output, placements_dict)
+        
+        # Export routes
+        if final_state.routes:
+            write_routes_to_pcb(output, output, final_state.routes, final_state.vias)
+            
+        # Add visual enhancements
+        add_bounding_boxes_to_pcb(output)
+        add_silkscreen_labels(output)
+            
+        console.print(f"\n[bold green]✓ Pipeline completed![/] Output: {output}")
 
     except Exception as e:
         console.print(f"\n[bold red]Error:[/] {e}")
         import traceback
-
-        console.print(traceback.format_exc())
-        raise click.Abort() from e
-
-
-# =============================================================================
-# Template-Based Deterministic Placement Command
-# =============================================================================
-
-
-@main.command()
-@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "-c",
-    "--config",
-    type=click.Path(exists=True, path_type=Path),
-    required=True,
-    help="Constraint configuration YAML file.",
-)
-@click.option(
-    "-o",
-    "--output",
-    type=click.Path(path_type=Path),
-    required=True,
-    help="Output .kicad_pcb file path.",
-)
-@click.option(
-    "--max-iterations",
-    type=int,
-    default=5,
-    help="Maximum placement-routing iterations (default: 5).",
-)
-@click.option(
-    "--routability-threshold",
-    type=float,
-    default=0.85,
-    help="Congestion threshold for refinement (default: 0.85).",
-)
-@click.option(
-    "--max-movement",
-    type=float,
-    default=3.0,
-    help="Maximum allowed movement during refinement in mm (default: 3.0).",
-)
-@click.option(
-    "--no-local-refinement",
-    is_flag=True,
-    default=False,
-    help="Skip the gradient-based local refinement phase.",
-)
-@click.option(
-    "--seed",
-    type=int,
-    default=42,
-    help="Random seed for reproducibility (default: 42).",
-)
-def place_deterministic(
-    input_pcb: Path,
-    config: Path,
-    output: Path,
-    max_iterations: int,
-    routability_threshold: float,
-    max_movement: float,
-    no_local_refinement: bool,
-    seed: int,
-) -> None:
-    """
-    Place components using hierarchical deterministic pipeline.
-
-    This command runs:
-    Topological -> Preflight -> [Local Refinement] -> Routing Feedback -> Output
-    """
-    console.print(
-        Panel.fit("[bold cyan]Hierarchical Deterministic Placement[/]", subtitle=f"v{__version__}")
-    )
-
-    # Create pipeline configuration
-    pipeline_config = PipelineConfig(
-        input_pcb=input_pcb,
-        constraints_yaml=config,
-        output_pcb=output,
-        max_iterations=max_iterations,
-        routability_threshold=routability_threshold,
-        max_movement_mm=max_movement,
-        skip_local_refinement=no_local_refinement,
-        seed=seed,
-    )
-
-    # Initialize orchestrator
-    orchestrator = PipelineOrchestrator(pipeline_config)
-
-    # Setup progress display
-    from rich.live import Live
-
-    dashboard = RichDashboard()
-    orchestrator.on_phase_start = dashboard.on_phase_start
-    orchestrator.on_phase_complete = dashboard.on_phase_complete
-
-    try:
-        with Live(dashboard.create_layout(), refresh_per_second=4):
-            result = orchestrator.run()
-
-        if result.success:
-            console.print("\n[bold green]Placement completed successfully![/]")
-            console.print(f"  Output: {output}")
-
-            # Show summary metrics if available
-            if result.physics_report:
-                console.print("\n[bold cyan]Physical Metrics:[/]")
-                console.print(f"  Overlap Count: {result.physics_report.geometric.overlap_count}")
-                console.print(
-                    f"  Max Congestion: {result.physics_report.routability.max_congestion:.2f}"
-                )
-        else:
-            console.print(f"\n[bold red]Placement failed:[/] {result.failure_reason}")
-            raise click.Abort()
-
-    except Exception as e:
-        console.print(f"\n[bold red]Error:[/] {e}")
-        import traceback
-
         console.print(traceback.format_exc())
         raise click.Abort() from e
 

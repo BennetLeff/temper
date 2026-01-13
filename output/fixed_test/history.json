@@ -1,0 +1,16 @@
+[
+  {
+    "iteration": 1,
+    "total": 165,
+    "actionable": 132,
+    "by_type": {
+      "clearance": 8,
+      "solder_mask_bridge": 8,
+      "track_dangling": 12,
+      "via_dangling": 8,
+      "holes_co_located": 16,
+      "lib_footprint_issues": 33,
+      "unconnected": 80
+    }
+  }
+]

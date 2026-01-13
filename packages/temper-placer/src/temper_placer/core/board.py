@@ -44,6 +44,7 @@ class Pad:
         number: Pad number.
         net_name: Name of connected net.
     """
+
     position: tuple[float, float]
     size: tuple[float, float]
     shape: str = "rect"
@@ -67,6 +68,7 @@ class Component:
         layer: Layer name.
         fixed: Whether the component is locked.
     """
+
     ref: str
     position: tuple[float, float]
     rotation: float
@@ -78,7 +80,7 @@ class Component:
     fixed: bool = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class Trace:
     """
     A routed trace segment.
@@ -90,11 +92,34 @@ class Trace:
         layer: Layer name.
         net: Net name.
     """
+
     start: tuple[float, float]
     end: tuple[float, float]
     width: float
     layer: str
     net: str | None = None
+
+
+@dataclass(frozen=True)
+class Via:
+    """
+    A plated through-hole via.
+
+    Attributes:
+        position: (x, y) coordinates.
+        drill: Drill diameter in mm.
+        width: Annular ring diameter in mm.
+        layers: List of connected layers (e.g. ["F.Cu", "In1.Cu", "B.Cu"]).
+        net: Net name.
+        is_diff_pair: If True, via is part of differential pair routing and protected from validation removal.
+    """
+
+    position: tuple[float, float]
+    drill: float
+    width: float
+    layers: tuple[str, ...] = ("F.Cu", "B.Cu")
+    net: str | None = None
+    is_diff_pair: bool = False
 
 
 @dataclass
@@ -142,12 +167,22 @@ class LayerStackup:
 
     @classmethod
     def default_4layer(cls) -> LayerStackup:
-        """Create default 4-layer stackup for Temper board."""
+        """Create default 4-layer stackup for Temper board.
+
+        Inner layers (In1.Cu, In2.Cu) are marked as "mixed" type - they function
+        as power/ground planes but can also be used for signal routing when
+        the outer layers are congested. The PowerPlaneStage handles plane net
+        connections separately via vias.
+        """
         return cls(
             layers=[
                 Layer("F.Cu", "signal", copper_weight=2.0, is_routable=True),
-                Layer("In1.Cu", "plane", copper_weight=1.0, is_routable=False),  # GND
-                Layer("In2.Cu", "plane", copper_weight=1.0, is_routable=False),  # PWR
+                Layer(
+                    "In1.Cu", "mixed", copper_weight=1.0, is_routable=True
+                ),  # GND plane + signal routing
+                Layer(
+                    "In2.Cu", "mixed", copper_weight=1.0, is_routable=True
+                ),  # PWR plane + signal routing
                 Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
             ],
             thickness=1.6,
@@ -222,6 +257,8 @@ class Zone:
         net_classes: Allowed net classes in this zone.
         components: Mandatory components for this zone.
         weight: Priority weight for zone constraints.
+        max_size: Optional (max_width, max_height) for feedback expansion.
+        can_expand: List of allowed expansion directions ('up', 'down', 'left', 'right').
     """
 
     name: str
@@ -229,7 +266,12 @@ class Zone:
     net_classes: list[str] = field(default_factory=lambda: ["Signal"])
     components: list[str] = field(default_factory=list)
     weight: float = 1.0
-    polygon: list[tuple[float, float]] | None = None  # Optional polygon vertices for non-rectangular zones
+    polygon: list[tuple[float, float]] | None = (
+        None  # Optional polygon vertices for non-rectangular zones
+    )
+    layers: list[str] = field(default_factory=lambda: ["F.Cu"])
+    max_size: tuple[float, float] | None = None
+    can_expand: list[str] = field(default_factory=lambda: ["up", "down", "left", "right"])
 
     @property
     def width(self) -> float:
@@ -302,7 +344,9 @@ class Board:
     origin: tuple[float, float] = (0.0, 0.0)
     zones: list[Zone] = field(default_factory=list)
     mounting_holes: list[MountingHole] = field(default_factory=list)
-    keepouts: list[tuple[float, float, float, float]] = field(default_factory=list)  # (x_min, y_min, x_max, y_max)
+    keepouts: list[tuple[float, float, float, float]] = field(
+        default_factory=list
+    )  # (x_min, y_min, x_max, y_max)
     ground_domains: list[GroundDomain] = field(default_factory=list)
     layer_stackup: LayerStackup | None = None
     outline_polygon: list[tuple[float, float]] | None = None
@@ -319,6 +363,11 @@ class Board:
     def build_indices(self) -> None:
         """Build name -> object map for zones."""
         self._zone_map = {z.name: z for z in self.zones}
+
+    @property
+    def keepout_regions(self) -> list[tuple[float, float, float, float]]:
+        """Alias for keepouts for heuristic compatibility."""
+        return self.keepouts
 
     @property
     def has_polygon_outline(self) -> bool:

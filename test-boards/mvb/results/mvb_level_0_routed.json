@@ -1,0 +1,187 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-01-03T11:31:59-0600",
+    "kicad_version": "9.0.6",
+    "schematic_parity": [],
+    "source": "mvb_level_0_routed.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 10.1
+                    },
+                    "uuid": "3051530f-b57b-40d5-9262-716e2c79f8cc"
+                },
+                {
+                    "description": "PTH pad 1 [GND] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "5140f60e-4c4b-4637-a986-ee138eb5dbba"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 1 [GND] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "5140f60e-4c4b-4637-a986-ee138eb5dbba"
+                },
+                {
+                    "description": "PTH pad 1 [GND] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 5.0
+                    },
+                    "uuid": "137444fa-9d36-4586-8b7e-e05ce9371cb8"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [VCC] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 15.1
+                    },
+                    "uuid": "28cdc546-16cf-42a7-a8fb-5a2da4dc5bdb"
+                },
+                {
+                    "description": "PTH pad 2 [VCC] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "fccd75c8-fc5b-409d-af04-9649e363633a"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 2 [VCC] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "fccd75c8-fc5b-409d-af04-9649e363633a"
+                },
+                {
+                    "description": "PTH pad 2 [VCC] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 7.54
+                    },
+                    "uuid": "36d40931-0310-4872-8da3-573e35ff8f7f"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 0.0
+                    },
+                    "uuid": "6e7ee2ad-ddf9-42f4-8f63-2c8d8f06dce8"
+                },
+                {
+                    "description": "Track [GND] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 10.1
+                    },
+                    "uuid": "3051530f-b57b-40d5-9262-716e2c79f8cc"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 10.1
+                    },
+                    "uuid": "3051530f-b57b-40d5-9262-716e2c79f8cc"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [VCC] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 15.1
+                    },
+                    "uuid": "28cdc546-16cf-42a7-a8fb-5a2da4dc5bdb"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 5.0
+                    },
+                    "uuid": "00000000-0000-0000-0000-000000000001"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "00000000-0000-0000-0000-000000000002"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        }
+    ]
+}

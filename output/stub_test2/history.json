@@ -1,0 +1,20 @@
+[
+  {
+    "iteration": 1,
+    "total": 412,
+    "actionable": 346,
+    "by_type": {
+      "clearance": 212,
+      "shorting_items": 11,
+      "tracks_crossing": 3,
+      "hole_clearance": 1,
+      "drill_out_of_range": 9,
+      "solder_mask_bridge": 1,
+      "via_dangling": 26,
+      "track_dangling": 10,
+      "missing_courtyard": 33,
+      "lib_footprint_issues": 33,
+      "unconnected": 73
+    }
+  }
+]

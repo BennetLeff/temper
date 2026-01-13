@@ -1,0 +1,15 @@
+{
+  "router": "v6_topological",
+  "board": "temper",
+  "timestamp": "2026-01-12T23:55:00",
+  "success_count": 14,
+  "failure_count": 4,
+  "completion_rate": 0.778,
+  "runtime_seconds": 282.5,
+  "drc_violations": {
+    "clearance": 27,
+    "shorting": 14,
+    "total": 99
+  },
+  "notes": "Fixed THT obstacle bug. Failures due to congestion/resolution."
+}

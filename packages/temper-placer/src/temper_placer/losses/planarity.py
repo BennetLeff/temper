@@ -59,27 +59,22 @@ class EdgeCrossingLoss(LossFunction):
         # net_pin_indices: (M, P), net_pin_mask: (M, P)
         mask = context.net_pin_mask
 
-        # Identify 2-pin nets
-        pin_counts = jnp.sum(mask, axis=1)
-        is_2pin = pin_counts == 2
-
-        if not jnp.any(is_2pin):
+        if not context.net_pin_indices.shape[1] >= 2:
             return LossResult(value=jnp.array(0.0))
 
-        # Extract indices of 2-pin nets
-        net_indices = jnp.where(is_2pin)[0]
+        # We compute crossing penalty for ALL nets, then mask out non-2-pin nets
+        # This avoids dynamic shapes (TracerBoolConversionError) in JIT
+        
+        # Get pin positions for ALL nets: (M, 2, 2)
+        # We take the first two pins of every net
+        indices_all = context.net_pin_indices[:, :2] # (M, 2)
+        offsets_all = context.net_pin_offsets[:, :2] # (M, 2, 2)
 
-        # Get pin positions for these nets: (M2, 2, 2)
-        # where M2 is number of 2-pin nets
-        indices_2pin = context.net_pin_indices[net_indices] # (M2, P)
-        offsets_2pin = context.net_pin_offsets[net_indices] # (M2, P, 2)
+        p0_idx = indices_all[:, 0]
+        p1_idx = indices_all[:, 1]
 
-        # For 2-pin nets, pin 0 and pin 1 are valid
-        p0_idx = indices_2pin[:, 0]
-        p1_idx = indices_2pin[:, 1]
-
-        p0_offset = offsets_2pin[:, 0]
-        p1_offset = offsets_2pin[:, 1]
+        p0_offset = offsets_all[:, 0]
+        p1_offset = offsets_all[:, 1]
 
         # 3. Compute rotations
         angles = jnp.array([0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2])
@@ -150,7 +145,7 @@ class EdgeCrossingLoss(LossFunction):
         len_i_sq = jnp.sum((B - A)**2, axis=1) + 1e-6
         len_j_sq = jnp.sum((B - A)**2, axis=1) + 1e-6
 
-        # (M2, M2) normalization
+        # (M, M) normalization
         norm = jnp.sqrt(len_i_sq[:, None] * len_j_sq[None, :])
 
         penalty_matrix = jax.nn.relu(-s1 * s2) * jax.nn.relu(-s3 * s4)
@@ -159,8 +154,16 @@ class EdgeCrossingLoss(LossFunction):
         # Remove self-intersection and double counting
         eye_mask = jnp.eye(penalty_matrix.shape[0], dtype=bool)
         tri_mask = jnp.triu(jnp.ones_like(penalty_matrix, dtype=bool), k=1)
+        
+        # Mask out non-2-pin nets
+        # Only count crossings where BOTH nets are 2-pin
+        is_2pin = jnp.sum(mask, axis=1) == 2
+        valid_net_mask = is_2pin[:, None] & is_2pin[None, :]
+        
+        # Combine masks
+        final_mask = tri_mask & valid_net_mask
 
-        total_penalty = jnp.sum(penalty_matrix * tri_mask)
+        total_penalty = jnp.sum(penalty_matrix * final_mask)
 
         return LossResult(value=total_penalty)
 

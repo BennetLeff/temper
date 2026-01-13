@@ -19,7 +19,7 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.items.common import Position
-from kiutils.items.gritems import GrRect, GrText
+from kiutils.items.gritems import GrRect, GrText, GrLine
 
 from temper_placer.core.state import PlacementState
 
@@ -77,6 +77,7 @@ def write_placements_to_pcb(
     output_pcb: Path,
     placements: dict[str, PlacementUpdate],
     preserve_unmatched: bool = True,
+    components: list | None = None,
 ) -> WriteResult:
     """
     Write optimized placements to a KiCad PCB file.
@@ -91,15 +92,33 @@ def write_placements_to_pcb(
         template_pcb: Path to the template .kicad_pcb file.
         output_pcb: Path for the output .kicad_pcb file.
         placements: Dictionary mapping component ref to PlacementUpdate.
+            Positions are assumed to be in bounding-box-center coordinates
+            if `components` is provided, otherwise footprint-origin coordinates.
         preserve_unmatched: If True, keep components not in placements dict
             at their original positions. If False, warn about unmatched.
+        components: Optional list of Component objects from the netlist.
+            If provided, center offsets will be extracted and subtracted
+            from positions to convert from bounding-box-center to
+            footprint-origin coordinates (which KiCad expects).
 
     Returns:
         WriteResult with statistics and any warnings.
     """
+    import math
+
     warnings: list[str] = []
     components_updated = 0
     components_skipped = 0
+
+    # Build center offset map from components if provided
+    center_offsets: dict[str, tuple[float, float]] = {}
+    if components:
+        for comp in components:
+            if hasattr(comp, "attributes") and comp.attributes:
+                cx = float(comp.attributes.get("_center_offset_x", "0"))
+                cy = float(comp.attributes.get("_center_offset_y", "0"))
+                if cx != 0 or cy != 0:
+                    center_offsets[comp.ref] = (cx, cy)
 
     # Load the template PCB
     try:
@@ -122,14 +141,26 @@ def write_placements_to_pcb(
             continue
 
         update = placements[ref]
+        x, y = update.x, update.y
+        rotation_deg = update.rotation
+
+        # Convert from bounding-box-center to footprint-origin coordinates
+        if ref in center_offsets:
+            cx, cy = center_offsets[ref]
+            rot_rad = math.radians(rotation_deg)
+            # Rotate the center offset by the component's rotation
+            rotated_cx = cx * math.cos(rot_rad) - cy * math.sin(rot_rad)
+            rotated_cy = cx * math.sin(rot_rad) + cy * math.cos(rot_rad)
+            x -= rotated_cx
+            y -= rotated_cy
 
         # Update position
         if fp.position is None:
-            fp.position = Position(X=update.x, Y=update.y, angle=update.rotation)
+            fp.position = Position(X=x, Y=y, angle=rotation_deg)
         else:
-            fp.position.X = update.x
-            fp.position.Y = update.y
-            fp.position.angle = update.rotation
+            fp.position.X = x
+            fp.position.Y = y
+            fp.position.angle = rotation_deg
 
         components_updated += 1
 
@@ -386,81 +417,81 @@ def add_bounding_boxes_to_pcb(
 ) -> int:
     """
     Add bounding box rectangles to a PCB file for component visualization.
-    
+
     This draws a rectangle around each component on a user layer, making it
     easy to see component boundaries vs individual pads.
-    
+
     If component_bounds is None, calculates bounds from actual footprint pads.
-    
+
     Args:
         pcb_path: Path to the .kicad_pcb file to modify (in-place).
         component_bounds: Optional dict mapping ref -> (x, y, width, height).
             If None, bounds are calculated from footprint pads.
         layer: KiCad layer to draw on (default: "Dwgs.User").
         stroke_width: Line width in mm.
-    
+
     Returns:
         Number of bounding boxes added.
     """
     import math
-    
+
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to load PCB: {e}")
-    
+
     boxes_added = 0
-    
+
     for fp in ki_board.footprints:
         ref = _get_footprint_reference(fp)
         if not ref:
             continue
-        
+
         # Get footprint center position
         fp_x = fp.position.X if fp.position else 0.0
         fp_y = fp.position.Y if fp.position else 0.0
         fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
         angle_rad = math.radians(fp_angle)
-        
+
         # Calculate bounds from all pads
         if not fp.pads:
             continue
-            
-        x_min, y_min = float('inf'), float('inf')
-        x_max, y_max = float('-inf'), float('-inf')
-        
+
+        x_min, y_min = float("inf"), float("inf")
+        x_max, y_max = float("-inf"), float("-inf")
+
         for pad in fp.pads:
             # Pad position is local to footprint center
             local_x = pad.position.X if pad.position else 0.0
             local_y = pad.position.Y if pad.position else 0.0
-            
+
             # Rotate local position by footprint angle
             if abs(fp_angle) > 0.1:
                 rotated_x = local_x * math.cos(angle_rad) - local_y * math.sin(angle_rad)
                 rotated_y = local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
             else:
                 rotated_x, rotated_y = local_x, local_y
-            
+
             # Get pad size
             pad_w = pad.size.X if pad.size else 1.0
             pad_h = pad.size.Y if pad.size else 1.0
-            
+
             # Update bounds (absolute coordinates)
             abs_x = fp_x + rotated_x
             abs_y = fp_y + rotated_y
-            
+
             x_min = min(x_min, abs_x - pad_w / 2)
             y_min = min(y_min, abs_y - pad_h / 2)
             x_max = max(x_max, abs_x + pad_w / 2)
             y_max = max(y_max, abs_y + pad_h / 2)
-        
+
         # Add small margin
         margin = 0.3
         x_min -= margin
         y_min -= margin
         x_max += margin
         y_max += margin
-        
+
         # Create rectangle graphic item
         try:
             rect = GrRect(
@@ -474,13 +505,13 @@ def add_bounding_boxes_to_pcb(
         except Exception:
             # GrRect might not be available in older kiutils, skip silently
             pass
-    
+
     # Write back
     try:
         ki_board.to_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to write PCB: {e}")
-    
+
     return boxes_added
 
 
@@ -495,12 +526,12 @@ def add_silkscreen_labels(
 ) -> dict[str, int]:
     """
     Add improved silkscreen labels and fab layer outlines to a PCB file.
-    
+
     This function enhances component visibility by:
     1. Adding reference designators on F.SilkS layer (positioned above component)
     2. Adding value text on F.SilkS layer (positioned below reference)
     3. Adding component body outlines on F.Fab layer
-    
+
     Args:
         pcb_path: Path to the .kicad_pcb file to modify (in-place).
         add_references: If True, add reference designator text.
@@ -509,66 +540,66 @@ def add_silkscreen_labels(
         text_height: Height of text in mm.
         text_thickness: Stroke width of text in mm.
         outline_width: Stroke width of F.Fab outlines in mm.
-    
+
     Returns:
         Dictionary with counts: {"references": n, "values": n, "outlines": n}
     """
     import math
-    
+
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to load PCB: {e}")
-    
+
     counts = {"references": 0, "values": 0, "outlines": 0}
-    
+
     for fp in ki_board.footprints:
         ref = _get_footprint_reference(fp)
         if not ref:
             continue
-        
+
         # Get footprint position and bounds
         fp_x = fp.position.X if fp.position else 0.0
         fp_y = fp.position.Y if fp.position else 0.0
         fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
         angle_rad = math.radians(fp_angle)
-        
+
         # Calculate bounds from pads
         if not fp.pads:
             continue
-            
-        x_min, y_min = float('inf'), float('inf')
-        x_max, y_max = float('-inf'), float('-inf')
-        
+
+        x_min, y_min = float("inf"), float("inf")
+        x_max, y_max = float("-inf"), float("-inf")
+
         for pad in fp.pads:
             local_x = pad.position.X if pad.position else 0.0
             local_y = pad.position.Y if pad.position else 0.0
-            
+
             if abs(fp_angle) > 0.1:
                 rotated_x = local_x * math.cos(angle_rad) - local_y * math.sin(angle_rad)
                 rotated_y = local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
             else:
                 rotated_x, rotated_y = local_x, local_y
-            
+
             pad_w = pad.size.X if pad.size else 1.0
             pad_h = pad.size.Y if pad.size else 1.0
-            
+
             abs_x = fp_x + rotated_x
             abs_y = fp_y + rotated_y
-            
+
             x_min = min(x_min, abs_x - pad_w / 2)
             y_min = min(y_min, abs_y - pad_h / 2)
             x_max = max(x_max, abs_x + pad_w / 2)
             y_max = max(y_max, abs_y + pad_h / 2)
-        
+
         comp_width = x_max - x_min
         comp_height = y_max - y_min
         comp_cx = (x_min + x_max) / 2
         comp_cy = (y_min + y_max) / 2
-        
+
         # Scale text based on component size (min 0.8mm, max 1.5mm)
         scaled_height = max(0.8, min(1.5, min(comp_width, comp_height) / 4))
-        
+
         # Get component value from properties
         value = None
         props = getattr(fp, "properties", {})
@@ -579,7 +610,7 @@ def add_silkscreen_labels(
                 if hasattr(prop, "key") and prop.key == "Value":
                     value = getattr(prop, "value", None)
                     break
-        
+
         # Add reference text on F.SilkS (positioned above component)
         if add_references:
             try:
@@ -596,7 +627,7 @@ def add_silkscreen_labels(
                 counts["references"] += 1
             except Exception:
                 pass
-        
+
         # Add value text on F.SilkS (positioned below reference)
         if add_values and value:
             try:
@@ -610,7 +641,7 @@ def add_silkscreen_labels(
                 counts["values"] += 1
             except Exception:
                 pass
-        
+
         # Add F.Fab outline (component body rectangle)
         if add_fab_outlines:
             try:
@@ -625,13 +656,13 @@ def add_silkscreen_labels(
                 counts["outlines"] += 1
             except Exception:
                 pass
-    
+
     # Write back
     try:
         ki_board.to_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to write PCB: {e}")
-    
+
     return counts
 
 
@@ -797,14 +828,251 @@ def strip_routing_preserve_nets(
                 pad_num = pad.number or ""
                 expected_net = input_net_assignments[ref].get(pad_num)
                 actual_net = pad.net.name if pad.net else None
-
-                if expected_net != actual_net:
+                if expected_net == actual_net:
+                    continue
+                if expected_net and actual_net != expected_net:
                     result.warnings.append(
-                        f"Net mismatch for {ref}.{pad_num}: "
-                        f"expected '{expected_net}', got '{actual_net}'"
+                        f"Net assignment mismatch for {ref} pad {pad_num}: expected {expected_net}, got {actual_net}"
                     )
 
     return result
+
+
+# ============================================================================
+# Route Export for Deterministic Pipeline
+# ============================================================================
+
+
+def write_routes_to_pcb(
+    template_pcb: Path,
+    output_pcb: Path,
+    routes: frozenset,
+    vias: frozenset | None = None,
+    net_name_to_index: dict[str, int] | None = None,
+    clear_existing: bool = False,
+) -> WriteResult:
+    """
+    Add deterministic routes (traces) and vias to a KiCad PCB file.
+
+    This function takes routes generated by the deterministic pipeline
+    (as Trace objects) and adds them to a KiCad board as Segment objects.
+    Also adds Vias if provided.
+
+    Args:
+        template_pcb: Path to the template .kicad_pcb file.
+        output_pcb: Path for the output .kicad_pcb file.
+        routes: Frozen set of Trace objects from BoardState.routes.
+        vias: Frozen set of Via objects from BoardState.vias.
+        net_name_to_index: Optional map of net name → net index.
+            If None, will be built from the template PCB.
+        clear_existing: If True, remove all existing traces before adding new ones.
+
+    Returns:
+        WriteResult with statistics and warnings.
+    """
+    from kiutils.items.common import Position
+    from kiutils.items.brditems import Segment, Via
+
+    warnings: list[str] = []
+    traces_added = 0
+    traces_skipped = 0
+    vias_added = 0
+
+    # Load the template PCB
+    try:
+        ki_board = KiBoard.from_file(str(template_pcb))
+    except Exception as e:
+        raise ValueError(f"Failed to load template PCB: {e}")
+
+    # Build net name → index mapping if not provided
+    if net_name_to_index is None:
+        net_name_to_index = {}
+        if hasattr(ki_board, "nets") and ki_board.nets:
+            for net in ki_board.nets:
+                if hasattr(net, "name") and hasattr(net, "number"):
+                    net_name_to_index[net.name] = net.number
+
+    # Clear existing traces if requested
+    if clear_existing and hasattr(ki_board, "traceItems"):
+        original_count = len(ki_board.traceItems) if ki_board.traceItems else 0
+        ki_board.traceItems = []
+        if original_count > 0:
+            warnings.append(f"Cleared {original_count} existing trace items")
+
+    # Initialize traceItems if it doesn't exist
+    if not hasattr(ki_board, "traceItems") or ki_board.traceItems is None:
+        ki_board.traceItems = []
+
+    # Add routes as Segment objects
+    for route in routes:
+        # Get net index (default to 0 if not found)
+        net_index = 0
+        if route.net and route.net in net_name_to_index:
+            net_index = net_name_to_index[route.net]
+        elif route.net:
+            warnings.append(f"Net '{route.net}' not found in board, using index 0")
+
+        try:
+            import uuid
+
+            segment = Segment(
+                start=Position(X=route.start[0], Y=route.start[1]),
+                end=Position(X=route.end[0], Y=route.end[1]),
+                width=route.width,
+                layer=route.layer,
+                net=net_index,
+                tstamp=str(uuid.uuid4()),  # Required: unique timestamp ID
+            )
+            ki_board.traceItems.append(segment)
+            traces_added += 1
+        except Exception as e:
+            warnings.append(f"Failed to add trace {route.start} → {route.end}: {e}")
+            traces_skipped += 1
+
+    # Add vias if provided
+    if vias:
+        for via in vias:
+            net_index = 0
+            if via.net and via.net in net_name_to_index:
+                net_index = net_name_to_index[via.net]
+
+            try:
+                import uuid
+
+                kicad_via = Via(
+                    position=Position(X=via.position[0], Y=via.position[1]),
+                    size=via.width,
+                    drill=via.drill,
+                    layers=list(via.layers),
+                    net=net_index,
+                    tstamp=str(uuid.uuid4()),
+                )
+                ki_board.traceItems.append(kicad_via)
+                vias_added += 1
+            except Exception as e:
+                warnings.append(f"Failed to add via at {via.position}: {e}")
+
+    # Ensure output directory exists
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write the modified PCB
+    try:
+        ki_board.to_file(str(output_pcb))
+    except Exception as e:
+        raise ValueError(f"Failed to write output PCB: {e}")
+
+    return WriteResult(
+        output_path=output_pcb,
+        components_updated=traces_added,  # Reusing field for trace count
+        components_skipped=traces_skipped,
+        warnings=warnings,
+    )
+
+
+def write_zones_to_pcb(
+    template_pcb: Path,
+    output_pcb: Path,
+    zones: list[dict],  # {net_name, layer, polygon_pts}
+    net_name_to_index: dict[str, int] | None = None,
+) -> WriteResult:
+    """
+    Add zones to a KiCad PCB file.
+
+    Args:
+        template_pcb: Path to template PCB.
+        output_pcb: Path to output PCB.
+        zones: List of dicts with keys:
+               - net_name: str
+               - layer: str
+               - polygon_pts: list of (x, y) tuples
+        net_name_to_index: Optional map of net name -> index.
+
+    Returns:
+        WriteResult.
+    """
+    from kiutils.items.zones import Zone, ZonePolygon, FillSettings
+    from kiutils.items.common import Position
+
+    warnings: list[str] = []
+    zones_added = 0
+
+    try:
+        ki_board = KiBoard.from_file(str(template_pcb))
+    except Exception as e:
+        raise ValueError(f"Failed to load template PCB: {e}")
+
+    if net_name_to_index is None:
+        net_name_to_index = {}
+        if hasattr(ki_board, "nets") and ki_board.nets:
+            for net in ki_board.nets:
+                if hasattr(net, "name") and hasattr(net, "number"):
+                    net_name_to_index[net.name] = net.number
+
+    if not hasattr(ki_board, "zones") or ki_board.zones is None:
+        ki_board.zones = []
+
+    for zone_def in zones:
+        net_name = zone_def["net_name"]
+        layer = zone_def["layer"]
+        pts = zone_def["polygon_pts"]
+
+        net_index = net_name_to_index.get(net_name, 0)
+
+        try:
+            import uuid
+
+            zone = Zone(
+                netName=net_name,
+                net=net_index,
+                layers=[layer],
+                tstamp=str(uuid.uuid4()),
+                polygons=[ZonePolygon(coordinates=[Position(p[0], p[1]) for p in pts])],
+                # Default fill settings
+                minThickness=0.254,
+            )
+            ki_board.zones.append(zone)
+            zones_added += 1
+        except Exception as e:
+            warnings.append(f"Failed to add zone for {net_name}: {e}")
+
+    try:
+        ki_board.to_file(str(output_pcb))
+    except Exception as e:
+        raise ValueError(f"Failed to write output PCB: {e}")
+
+    return WriteResult(
+        output_path=output_pcb,
+        components_updated=zones_added,
+        components_skipped=0,
+        warnings=warnings,
+    )
+
+
+def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
+    """
+    Extract net name → index mapping from a KiCad PCB file.
+
+    KiCad uses integer net indices internally, but our Trace objects
+    use net names. This function builds the mapping for conversion.
+
+    Args:
+        pcb_path: Path to .kicad_pcb file.
+
+    Returns:
+        Dictionary mapping net name (str) to net index (int).
+    """
+    try:
+        ki_board = KiBoard.from_file(str(pcb_path))
+    except Exception as e:
+        raise ValueError(f"Failed to load PCB: {e}")
+
+    net_map = {}
+    if hasattr(ki_board, "nets") and ki_board.nets:
+        for net in ki_board.nets:
+            if hasattr(net, "name") and hasattr(net, "number"):
+                net_map[net.name] = net.number
+
+    return net_map
 
 
 def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
@@ -840,3 +1108,197 @@ def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
         "components": len(ki_board.footprints) if ki_board.footprints else 0,
         "nets": len(ki_board.nets) if ki_board.nets else 0,
     }
+
+
+# ============================================================================
+# Isolation Slot Export for Creepage Compliance (EXP-15)
+# ============================================================================
+
+
+@dataclass
+class IsolationSlotResult:
+    """Result of adding isolation slots to a KiCad file."""
+
+    output_path: Path
+    slots_added: int
+    slots_skipped: int
+    warnings: list[str]
+
+    @property
+    def has_warnings(self) -> bool:
+        return len(self.warnings) > 0
+
+
+def add_isolation_slots_to_pcb(
+    pcb_path: Path,
+    isolation_slots: list,
+    output_path: Path | None = None,
+) -> IsolationSlotResult:
+    """
+    Add creepage isolation slots to a KiCad PCB file.
+
+    Slots are drawn on the Edge.Cuts layer as lines with specified width.
+    The PCB manufacturer will route these as slots (board cutouts).
+
+    For TO-247 packages where gate pin is 5.45mm from HV collector:
+    - A 1.5mm wide slot between pins forces creepage path around it
+    - Effective creepage becomes 12-15mm (compliant with IEC 60335-1's 6mm requirement)
+
+    Args:
+        pcb_path: Path to the input .kicad_pcb file.
+        isolation_slots: List of IsolationSlot objects from config.
+        output_path: Optional output path. If None, modifies pcb_path in-place.
+
+    Returns:
+        IsolationSlotResult with statistics and warnings.
+
+    Example config YAML:
+        isolation_slots:
+          - name: "q1_gate_isolation"
+            component_ref: "Q1"
+            start_offset: [-2.0, -2.5]   # Relative to component center
+            end_offset: [-2.0, 7.5]      # Slot runs vertically
+            width_mm: 1.5
+            lv_pin: "1"                  # Gate
+            hv_pin: "2"                  # Collector
+            description: "IEC 60335-1 creepage isolation"
+    """
+    import math
+
+    warnings: list[str] = []
+    slots_added = 0
+    slots_skipped = 0
+
+    # Load the PCB
+    try:
+        ki_board = KiBoard.from_file(str(pcb_path))
+    except Exception as e:
+        raise ValueError(f"Failed to load PCB: {e}")
+
+    # Build component reference -> position mapping
+    component_positions: dict[str, tuple[float, float, float]] = {}  # ref -> (x, y, angle)
+    for fp in ki_board.footprints:
+        ref = _get_footprint_reference(fp)
+        if ref and fp.position:
+            x = fp.position.X if fp.position.X is not None else 0.0
+            y = fp.position.Y if fp.position.Y is not None else 0.0
+            angle = fp.position.angle if fp.position.angle is not None else 0.0
+            component_positions[ref] = (x, y, angle)
+
+    # Add slots for each IsolationSlot configuration
+    for slot in isolation_slots:
+        comp_ref = slot.component_ref
+
+        if comp_ref not in component_positions:
+            warnings.append(f"Component '{comp_ref}' not found for slot '{slot.name}'")
+            slots_skipped += 1
+            continue
+
+        comp_x, comp_y, comp_angle = component_positions[comp_ref]
+        angle_rad = math.radians(comp_angle)
+
+        # Get slot offsets from component origin
+        dx_start, dy_start = slot.start_offset
+        dx_end, dy_end = slot.end_offset
+
+        # Rotate offsets by component angle
+        # Note: Apply rotation for any non-zero angle (threshold removed to avoid
+        # silently ignoring small rotations that could affect slot placement)
+        if comp_angle != 0.0:
+            rot_start_x = dx_start * math.cos(angle_rad) - dy_start * math.sin(angle_rad)
+            rot_start_y = dx_start * math.sin(angle_rad) + dy_start * math.cos(angle_rad)
+            rot_end_x = dx_end * math.cos(angle_rad) - dy_end * math.sin(angle_rad)
+            rot_end_y = dx_end * math.sin(angle_rad) + dy_end * math.cos(angle_rad)
+        else:
+            rot_start_x, rot_start_y = dx_start, dy_start
+            rot_end_x, rot_end_y = dx_end, dy_end
+
+        # Absolute coordinates
+        abs_start_x = comp_x + rot_start_x
+        abs_start_y = comp_y + rot_start_y
+        abs_end_x = comp_x + rot_end_x
+        abs_end_y = comp_y + rot_end_y
+
+        # Create GrLine on Edge.Cuts layer
+        # Width of the line = slot width (routed slot)
+        try:
+            slot_line = GrLine(
+                start=Position(X=abs_start_x, Y=abs_start_y),
+                end=Position(X=abs_end_x, Y=abs_end_y),
+                layer="Edge.Cuts",
+                width=slot.width_mm,
+            )
+            ki_board.graphicItems.append(slot_line)
+            slots_added += 1
+        except Exception as e:
+            warnings.append(f"Failed to add slot '{slot.name}': {e}")
+            slots_skipped += 1
+
+    # Write output
+    out_path = output_path if output_path else pcb_path
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        ki_board.to_file(str(out_path))
+    except Exception as e:
+        raise ValueError(f"Failed to write PCB: {e}")
+
+    return IsolationSlotResult(
+        output_path=out_path,
+        slots_added=slots_added,
+        slots_skipped=slots_skipped,
+        warnings=warnings,
+    )
+
+
+def compute_to247_isolation_slots(
+    component_refs: list[str],
+    slot_width_mm: float = 1.5,
+    slot_length_mm: float = 10.0,
+) -> list:
+    """
+    Automatically compute isolation slot positions for TO-247 packages.
+
+    TO-247 packages have a fixed geometry where pin 1 (gate) is 5.45mm
+    from pin 2 (collector/drain). This function computes slot positions
+    that isolate the gate from HV pins.
+
+    The slot is positioned between pin 1 and pin 2, running perpendicular
+    to the pin row to maximize creepage path extension.
+
+    Args:
+        component_refs: List of component references to add slots for (e.g., ["Q1", "Q2"]).
+        slot_width_mm: Width of the slot (default 1.5mm).
+        slot_length_mm: Length of the slot (default 10mm).
+
+    Returns:
+        List of IsolationSlot objects ready for use with add_isolation_slots_to_pcb().
+    """
+    from temper_placer.io.config_loader import IsolationSlot
+
+    # TO-247 pin geometry (from datasheet, pin 1 to pin 2 center-to-center)
+    # Pin pitch: 5.45mm between pin 1 and pin 2
+    # Pins are aligned along the X-axis when component angle=0
+    TO247_PIN1_TO_PIN2_X = 5.45  # mm
+
+    # Slot position: between pin 1 and pin 2, offset to avoid hitting pads
+    # Place slot at X = 2.72mm (midpoint) from component origin (which is typically at pin 2)
+    SLOT_X_OFFSET = -TO247_PIN1_TO_PIN2_X / 2  # Between pins
+
+    slots = []
+    for ref in component_refs:
+        # Create slot definition
+        # Slot runs vertically (Y direction) centered on the midpoint between pins
+        slot = IsolationSlot(
+            name=f"{ref.lower()}_gate_isolation",
+            component_ref=ref,
+            start_offset=(SLOT_X_OFFSET, -slot_length_mm / 2),
+            end_offset=(SLOT_X_OFFSET, slot_length_mm / 2),
+            width_mm=slot_width_mm,
+            lv_pin="1",  # Gate
+            hv_pin="2",  # Collector/Drain
+            description=f"IEC 60335-1 creepage isolation for {ref} gate",
+        )
+        slots.append(slot)
+
+    return slots

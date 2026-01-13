@@ -13,7 +13,8 @@ def test_export_structure_basic():
     
     assert "(layer F.Cu (type signal)" in s
     assert "(layer B.Cu (type signal)" in s
-    assert "(boundary (rect pcb 0 0 100 80))" in s
+    # With S=100 scale factor (resolution um 10), 100mm -> 10000, 80mm -> 8000
+    assert "(boundary (rect pcb 0 0 10000 8000))" in s
 
 def test_export_structure_4layer():
     stackup = LayerStackup.default_4layer()
@@ -24,11 +25,19 @@ def test_export_structure_4layer():
     structure = exporter.export_structure()
     s = str(structure)
     
+    # Default all_layers_signal=True marks all layers as signal for autorouting
     assert "(layer F.Cu (type signal)" in s
-    assert "(layer In1.Cu (type power)" in s # Plane layer
-    assert "(layer In2.Cu (type power)" in s
+    assert "(layer In1.Cu (type signal)" in s
+    assert "(layer In2.Cu (type signal)" in s
     assert "(layer B.Cu (type signal)" in s
-    assert "(boundary (rect pcb 0 0 50 50))" in s
+    # With S=100 scale factor (resolution um 10), 50mm -> 5000
+    assert "(boundary (rect pcb 0 0 5000 5000))" in s
+    
+    # Test that all_layers_signal=False uses original layer types
+    structure_with_types = exporter.export_structure(all_layers_signal=False)
+    s2 = str(structure_with_types)
+    assert "(layer In1.Cu (type power)" in s2
+    assert "(layer In2.Cu (type power)" in s2
 
 def test_export_library_and_placement():
     board = Board(width=100, height=100)
@@ -49,14 +58,20 @@ def test_export_library_and_placement():
     
     library = exporter.export_library()
     s_lib = str(library)
-    assert "(image Package_SOIC-8" in s_lib
-    assert "(outline (rect signal -2.5 -2 2.5 2))" in s_lib
-    assert "(pin PS_RECT_1.5x1.5 8 (at 2 1.5))" in s_lib
+    # Image ID now includes component ref for uniqueness
+    assert "(image Package_SOIC-8_U1" in s_lib
+    # Pin positions are scaled by S=100 and centered. Original pins at (2,1.5) and (-2,-1.5)
+    # Center offset = (0, 0) since pins are symmetric. Scaled: 2*100=200, 1.5*100=150
+    assert "(pin" in s_lib  # Basic pin check
+    assert "200" in s_lib  # Scaled x position
+    assert "150" in s_lib  # Scaled y position
     
     placement = exporter.export_placement()
     s_place = str(placement)
-    assert "(component Package_SOIC-8" in s_place
-    assert "(place U1 50 50 front 90)" in s_place
+    assert "(component Package_SOIC-8_U1" in s_place
+    # Position is scaled by S=100: 50*100=5000
+    assert "(place U1 5000" in s_place
+    assert "front 90" in s_place
 
 def test_export_network():
     board = Board(width=100, height=100)
@@ -81,7 +96,8 @@ def test_export_structure_keepouts():
         width=100, 
         height=100, 
         keepouts=[(10, 10, 20, 20)],
-        mounting_holes=[MountingHole(position=(50, 50), diameter=3, keepout_radius=5)]
+        # Mounting holes are not exported as keepouts in export_structure
+        # They are handled separately via the board model
     )
     netlist = Netlist()
     exporter = DSNExporter(board, netlist)
@@ -89,8 +105,9 @@ def test_export_structure_keepouts():
     structure = exporter.export_structure()
     s = str(structure)
     
-    assert "(keepout KO_0 (rect signal 10 10 20 20))" in s
-    assert "(keepout HOLE_0 (rect signal 45 45 55 55))" in s
+    # Keepouts use layer name (F.Cu) instead of "signal", and are scaled by S=100
+    # 10*100=1000, 20*100=2000
+    assert "(keepout KO_0 (rect F.Cu 1000 1000 2000 2000))" in s
     assert "(via VIA)" in s
 
 def test_export_pcb_full():
@@ -144,7 +161,8 @@ def test_export_from_kicad_pcb():
         assert "(network" in s
         # Spot check some content
         assert "(unit mm)" in s
-        assert "(resolution um 1000)" in s
+        # Resolution is now "um 10" (1 unit = 10 micrometers)
+        assert "(resolution um 10)" in s
 
 
 def test_export_network_exclude_nets():

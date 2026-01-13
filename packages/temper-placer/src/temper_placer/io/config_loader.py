@@ -21,6 +21,7 @@ import yaml
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
 from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.net_graph import NetGraph, SubNetEdge
+from temper_placer.core.net_types import NetClassification
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
@@ -156,6 +157,15 @@ class ThermalProperties:
 
 
 @dataclass
+class FeedbackConfig:
+    """Configuration for the automated DRC feedback loop."""
+
+    max_iterations: int = 5
+    violation_threshold: int = 5
+    expansion_per_violation: float = 0.5
+
+
+@dataclass
 class ProximityRule:
     """Proximity constraint between two components."""
 
@@ -163,6 +173,7 @@ class ProximityRule:
     component_b: str
     max_distance_mm: float = 10.0
     description: str = ""
+    tier: str = "soft"  # "hard" or "soft"
 
 
 @dataclass
@@ -184,6 +195,7 @@ class ComponentSpacingRule:
     min_separation_mm: float
     description: str = ""
     weight: float = 1.0
+    tier: str = "soft"  # "hard" or "soft"
 
 
 @dataclass
@@ -196,6 +208,171 @@ class ManufacturingConstraint:
     tier: str = "hard"
     because: str = ""
     weight: float = 1.0
+
+
+@dataclass
+class EscapeClearance:
+    """Keep area clear around fine-pitch ICs for escape routing.
+
+    The clearance is computed from pin density to ensure routes can escape.
+    """
+
+    component: str  # Component ref (e.g., "U_MCU")
+    clearance_mm: float | None = None  # If None, computed from pin density
+    priority_sides: list[str] = field(default_factory=list)  # ["bottom", "right"]
+    tier: str = "soft"  # "hard" or "soft"
+    description: str = ""
+
+    def compute_clearance(self, pin_count: int, pitch_mm: float) -> float:
+        """Compute clearance from pin density.
+
+        Heuristic: clearance = sqrt(pin_count) * pitch * 1.5
+        For QFN-56 with 0.5mm pitch: sqrt(56) * 0.5 * 1.5 ≈ 5.6mm
+        """
+        return math.sqrt(pin_count) * pitch_mm * 1.5
+
+
+@dataclass
+class RoutingCorridor:
+    """Preserve routing channel between components.
+
+    Used to keep paths clear for critical nets like USB, SPI.
+    """
+
+    name: str
+    from_component: str  # Source component ref
+    to_component: str  # Target component ref
+    width_mm: float  # Corridor width
+    keep_clear: bool = True  # If True, don't place components in corridor
+    nets: list[str] = field(default_factory=list)  # Associated nets
+    tier: str = "soft"
+    description: str = ""
+
+
+@dataclass
+class SignalToHVClearance:
+    """Constraint ensuring signal paths maintain clearance from HV component pins.
+
+    This validates that signal-carrying components (like gate drivers) are placed
+    close enough to their destination pins (like MOSFET gates) that the signal
+    path doesn't need to route near HV pins (like collector/emitter).
+
+    Example: Gate driver output must be within 15mm of MOSFET gate pin so
+    the gate signal doesn't route past the HV collector/emitter pins.
+
+    Attributes:
+        name: Unique identifier for the constraint
+        signal_component: Component that outputs the signal (e.g., "U_GATE")
+        signal_pin: Pin on signal_component (e.g., "15" for OUTA)
+        target_component: Component receiving the signal (e.g., "Q1")
+        target_pin: Pin on target_component (e.g., "1" for gate)
+        hv_component: Component with HV pins to avoid (often same as target_component)
+        hv_pins: List of pin numbers that carry HV (e.g., ["2", "3"] for collector/emitter)
+        required_clearance_mm: Minimum clearance from signal path to any HV pin
+        max_path_length_mm: Maximum allowed signal path length
+        tier: "hard" (fail) or "soft" (warn)
+        description: Human-readable description
+    """
+
+    name: str
+    signal_component: str
+    signal_pin: str
+    target_component: str
+    target_pin: str
+    hv_component: str
+    hv_pins: list[str]
+    required_clearance_mm: float = 6.0  # IEC 60335 default
+    max_path_length_mm: float = 20.0
+    tier: str = "hard"
+    description: str = ""
+
+
+@dataclass
+class PlacementProximityConstraint:
+    """Constraint ensuring a component output pin is close to a target input pin.
+
+    This is a more specific version of ProximityRule that operates on pins
+    rather than component centers, which is critical for gate drive circuits.
+
+    Attributes:
+        name: Unique identifier
+        from_component: Source component ref
+        from_pin: Pin on source component
+        to_component: Target component ref
+        to_pin: Pin on target component
+        max_distance_mm: Maximum pin-to-pin distance
+        tier: "hard" or "soft"
+        description: Human-readable description
+    """
+
+    name: str
+    from_component: str
+    from_pin: str
+    to_component: str
+    to_pin: str
+    max_distance_mm: float = 15.0
+    tier: str = "hard"
+    description: str = ""
+
+
+@dataclass
+class HVExclusionZone:
+    """Defines a rectangular zone around HV components that signals must avoid.
+
+    Used by the ClearanceGridStage to block low-voltage signal routing near
+    HV pins. This forces the router to find paths around the HV zone.
+
+    EXP-13: HV exclusion zones for gate signal routing safety.
+
+    Attributes:
+        name: Unique identifier
+        center: (x, y) center position in mm
+        size: (width, height) in mm
+        clearance_mm: Required clearance (creepage distance)
+        excluded_nets: List of net names that must avoid this zone
+        description: Human-readable description
+    """
+
+    name: str
+    center: tuple[float, float]
+    size: tuple[float, float]
+    clearance_mm: float = 6.0
+    excluded_nets: list[str] = field(default_factory=list)
+    description: str = ""
+
+
+@dataclass
+class IsolationSlot:
+    """Defines a PCB slot for creepage isolation between HV and LV pins.
+
+    Slots are routed cutouts in the PCB substrate that force the creepage
+    path around them, effectively multiplying the creepage distance.
+
+    EXP-15: Automated slot isolation for IEC 60335-1 compliance.
+
+    For TO-247 packages where gate pin (5.45mm from HV) cannot meet 6mm creepage:
+    - A 1-2mm wide slot between gate and collector pins
+    - Forces creepage path around slot (12-15mm effective distance)
+
+    Attributes:
+        name: Unique identifier for the slot
+        component_ref: Component reference (e.g., "Q1") - slot positioned relative to component
+        start_offset: (dx, dy) offset from component origin to slot start
+        end_offset: (dx, dy) offset from component origin to slot end
+        width_mm: Slot width (typically 1.0-2.0mm for routing)
+        lv_pin: Low-voltage pin number being isolated (e.g., "1" for gate)
+        hv_pin: High-voltage pin number (e.g., "2" for collector)
+        description: Human-readable description
+    """
+
+    name: str
+    component_ref: str
+    start_offset: tuple[float, float]  # Relative to component position
+    end_offset: tuple[float, float]  # Relative to component position
+    width_mm: float = 1.5
+    lv_pin: str = ""
+    hv_pin: str = ""
+    description: str = ""
 
 
 @dataclass
@@ -323,7 +500,7 @@ class ComponentGroup:
 class NetClassRule:
     """Design rules for a specific net class."""
 
-    name: str # e.g. "HighVoltage"
+    name: str  # e.g. "HighVoltage"
     trace_width_mm: float = 0.2
     clearance_mm: float = 0.2
     via_size_mm: float = 0.6
@@ -333,9 +510,12 @@ class NetClassRule:
     allow_neckdown: bool = True
     description: str = ""
 
-    voltage_v: float = 0.0 # Working voltage for creepage calculation
+    voltage_v: float = 0.0  # Working voltage for creepage calculation
     max_current_rating: float | None = None  # Maximum current in Amps (e.g., 20.0)
-    routing_strategy: str | None = None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    routing_strategy: str | None = (
+        None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
+    )
+    via_cost_multiplier: float = 1.0  # Multiplier for via cost (higher = fewer vias)
     target_impedance: float | None = None  # Target impedance in Ohms
 
 
@@ -440,15 +620,44 @@ class PlacementConstraints:
     # Net topology constraints (NetGraph)
     net_topologies: list[NetGraph] = field(default_factory=list)
 
+    # Feedback loop configuration
+    feedback: FeedbackConfig = field(default_factory=FeedbackConfig)
+
+    # Copper zones for zone-aware routing (supplements PCB zones)
+    copper_zones: list = field(default_factory=list)
+
     # Layer stackup
     layer_stackup: LayerStackup | None = None
 
     # Loss function configuration
     losses: LossesConfig | None = None
 
+    # Type-safe net classification (supersedes net_classes + net_class_rules)
+    net_classification: NetClassification | None = None
+
     # Priority-based placement and routing configuration
     placement_priority: dict = field(default_factory=dict)
     routing_priority: dict = field(default_factory=dict)
+
+    # EXP-6: Explicit net routing priority (net_name -> priority, 1=highest)
+    # Lower priority numbers route first when board is least congested
+    net_priority: dict[str, int] = field(default_factory=dict)
+
+    # NEW: Routing-aware placement constraints
+    escape_clearances: list[EscapeClearance] = field(default_factory=list)
+    routing_corridors: list[RoutingCorridor] = field(default_factory=list)
+
+    # Signal-to-HV clearance constraints (EXP-11: gate drive safety)
+    signal_hv_clearances: list[SignalToHVClearance] = field(default_factory=list)
+
+    # Pin-level placement proximity constraints
+    placement_proximity: list[PlacementProximityConstraint] = field(default_factory=list)
+
+    # EXP-13: HV exclusion zones for routing
+    hv_exclusion_zones: list[HVExclusionZone] = field(default_factory=list)
+
+    # EXP-15: Isolation slots for creepage compliance
+    isolation_slots: list[IsolationSlot] = field(default_factory=list)
 
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
@@ -524,8 +733,43 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 bounds=bounds,
                 net_classes=zone_cfg.get("net_classes", ["Signal"]),
                 components=zone_cfg.get("components", []),
+                max_size=tuple(zone_cfg["max_size"]) if "max_size" in zone_cfg else None,
+                can_expand=zone_cfg.get("can_expand", ["up", "down", "left", "right"]),
             )
             constraints.zones.append(zone)
+
+    # Load copper zones (for zone-aware routing)
+    if "copper_zones" in config:
+        from ..core.board import Zone as CopperZone
+
+        for cz_cfg in config["copper_zones"]:
+            # Parse bounds (support both absolute and ratio formats)
+            if "bounds_ratio" in cz_cfg:
+                ratio = cz_cfg["bounds_ratio"]
+                bounds = (
+                    ratio[0] * constraints.board_width_mm,
+                    ratio[1] * constraints.board_height_mm,
+                    ratio[2] * constraints.board_width_mm,
+                    ratio[3] * constraints.board_height_mm,
+                )
+            else:
+                bounds = tuple(cz_cfg["bounds"])
+
+            copper_zone = CopperZone(
+                name=cz_cfg["name"],
+                bounds=bounds,
+                net_classes=cz_cfg.get("net_classes", ["GND"]),
+                layers=cz_cfg.get("layers", ["B.Cu"]),
+            )
+            constraints.copper_zones.append(copper_zone)
+
+    if "feedback" in config:
+        f_cfg = config["feedback"]
+        constraints.feedback = FeedbackConfig(
+            max_iterations=f_cfg.get("max_iterations", 5),
+            violation_threshold=f_cfg.get("violation_threshold", 5),
+            expansion_per_violation=f_cfg.get("expansion_per_violation", 0.5),
+        )
 
     if "ground_domains" in config:
         for domain_cfg in config["ground_domains"]:
@@ -612,7 +856,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "thermal" in config:
         for thermal_cfg in config["thermal"]:
-            min_spacing = thermal_cfg.get("min_spacing_mm", thermal_cfg.get("min_separation_mm", 5.0))
+            min_spacing = thermal_cfg.get(
+                "min_spacing_mm", thermal_cfg.get("min_separation_mm", 5.0)
+            )
             thermal = ThermalConstraint(
                 components=thermal_cfg["components"],
                 prefer_edge=thermal_cfg.get("prefer_edge", True),
@@ -634,7 +880,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             min_separation_mm=high_power.get("min_separation_mm", 15.0),
             heat_sensitive_components=heat_sensitive.get("components", []),
             max_temp_rise_c=heat_sensitive.get("max_temp_rise_c", 20.0),
-            min_distance_from_heat_sources_mm=heat_sensitive.get("min_distance_from_heat_sources_mm", 20.0),
+            min_distance_from_heat_sources_mm=heat_sensitive.get(
+                "min_distance_from_heat_sources_mm", 20.0
+            ),
             thermal_pad_components=thermal_pads.get("components", []),
             prefer_edge=thermal_pads.get("prefer_edge", True),
             preferred_edge_margin_mm=thermal_pads.get("preferred_edge_margin_mm", 10.0),
@@ -652,7 +900,17 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                         pair = prox_cfg[0] if len(prox_cfg) > 0 else []
                         max_dist = prox_cfg[1] if len(prox_cfg) > 1 else 10.0
                     if len(pair) >= 2:
-                        proximity_rules.append(ProximityRule(pair[0], pair[1], max_dist))
+                        tier = (
+                            prox_cfg.get("tier", "soft") if isinstance(prox_cfg, dict) else "soft"
+                        )
+                        proximity_rules.append(
+                            ProximityRule(
+                                component_a=pair[0],
+                                component_b=pair[1],
+                                max_distance_mm=max_dist,
+                                tier=tier,
+                            )
+                        )
 
             group = ComponentGroup(
                 name=group_cfg["name"],
@@ -693,7 +951,8 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             groups = sep_cfg.get("groups", [])
             if len(groups) >= 2:
                 separation = GroupSeparation(
-                    group_a=groups[0], group_b=groups[1],
+                    group_a=groups[0],
+                    group_b=groups[1],
                     min_distance_mm=sep_cfg.get("min_distance_mm", 20.0),
                     description=sep_cfg.get("description", ""),
                 )
@@ -709,6 +968,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     min_separation_mm=spacing_cfg.get("min_separation_mm", 2.0),
                     description=spacing_cfg.get("description", ""),
                     weight=spacing_cfg.get("weight", 1.0),
+                    tier=spacing_cfg.get("tier", "soft"),
                 )
                 constraints.component_spacing_rules.append(rule)
 
@@ -754,19 +1014,45 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 description=rule_cfg.get("description", ""),
                 max_current_rating=rule_cfg.get("max_current_rating"),  # NEW
                 routing_strategy=rule_cfg.get("routing_strategy"),  # NEW
+                via_cost_multiplier=rule_cfg.get("via_cost_multiplier", 1.0),
                 target_impedance=rule_cfg.get("target_impedance"),
                 voltage_v=rule_cfg.get("voltage_v", 0.0),  # Newly added field
             )
             constraints.net_class_rules[name] = rule
+
+    # EXP-6: Load explicit net routing priority
+    # Lower numbers route first (1=highest priority)
+    if "net_priority" in config:
+        constraints.net_priority = {str(k): int(v) for k, v in config["net_priority"].items()}
+
+    # Build type-safe NetClassification from net_classes and net_class_rules
+    # This provides validated connectivity semantics (ground MUST use planes, etc.)
+    if constraints.net_classes or constraints.net_class_rules:
+        net_class_rules_raw = config.get("net_class_rules", {})
+        constraints.net_classification = NetClassification.from_yaml_config(
+            net_classes=constraints.net_classes,
+            net_class_rules=net_class_rules_raw,
+        )
+
+        # Validate net classification (ground must use planes, HV must have creepage)
+        validation_errors = constraints.net_classification.validate_all()
+        if validation_errors:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            for net_name, errors in validation_errors.items():
+                for error in errors:
+                    logger.error(f"Net '{net_name}' validation error: {error}")
 
     if "differential_pairs" in config:
         for dp_cfg in config["differential_pairs"]:
             # Support multiple key variants
             pos = dp_cfg.get("positive_net") or dp_cfg.get("net_pos")
             neg = dp_cfg.get("negative_net") or dp_cfg.get("net_neg")
-            
+
             if not pos or not neg:
                 import logging
+
                 logging.getLogger(__name__).warning(f"Differential pair missing nets: {dp_cfg}")
                 continue
 
@@ -812,25 +1098,29 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             star_pin = ks_cfg["star_point_pin"]
             graph = NetGraph(net_name=net_name)
             graph.star_nodes.add(star_pin)
-            
+
             # Create edges for force pins
             for fp in ks_cfg.get("force_pins", []):
-                graph.edges.append(SubNetEdge(
-                    source_pin=star_pin,
-                    sink_pin=fp,
-                    trace_width_mm=ks_cfg.get("force_width_mm", 1.0),
-                    priority=10 # Force lines route first
-                ))
-                
+                graph.edges.append(
+                    SubNetEdge(
+                        source_pin=star_pin,
+                        sink_pin=fp,
+                        trace_width_mm=ks_cfg.get("force_width_mm", 1.0),
+                        priority=10,  # Force lines route first
+                    )
+                )
+
             # Create edges for sense pins
             for sp in ks_cfg.get("sense_pins", []):
-                graph.edges.append(SubNetEdge(
-                    source_pin=star_pin,
-                    sink_pin=sp,
-                    trace_width_mm=ks_cfg.get("sense_width_mm", 0.2),
-                    priority=5
-                ))
-            
+                graph.edges.append(
+                    SubNetEdge(
+                        source_pin=star_pin,
+                        sink_pin=sp,
+                        trace_width_mm=ks_cfg.get("sense_width_mm", 0.2),
+                        priority=5,
+                    )
+                )
+
             constraints.net_topologies.append(graph)
 
     if "aesthetics" in config:
@@ -838,7 +1128,9 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         constraints.aesthetics.grid_size_mm = aes.get("grid_size_mm", 0.5)
         constraints.aesthetics.grid_weight = aes.get("grid_weight", 1.0)
         constraints.aesthetics.alignment_weight = aes.get("alignment_weight", 1.0)
-        constraints.aesthetics.rotation_consistency_weight = aes.get("rotation_consistency_weight", 1.0)
+        constraints.aesthetics.rotation_consistency_weight = aes.get(
+            "rotation_consistency_weight", 1.0
+        )
         constraints.aesthetics.align_by_prefix = aes.get("align_by_prefix", True)
         constraints.aesthetics.prefix_exceptions = aes.get("prefix_exceptions", [])
         constraints.aesthetics.max_wirelength_tax = aes.get("max_wirelength_tax", 2.5)
@@ -858,8 +1150,17 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         if losses_cfg:
             losses_config = LossesConfig()
             for loss_name in [
-                "overlap", "boundary", "wirelength", "spread", "edge_avoidance",
-                "group_cluster", "thermal", "zone", "clearance", "loop_area", "star_point"
+                "overlap",
+                "boundary",
+                "wirelength",
+                "spread",
+                "edge_avoidance",
+                "group_cluster",
+                "thermal",
+                "zone",
+                "clearance",
+                "loop_area",
+                "star_point",
             ]:
                 if loss_name in losses_cfg:
                     loss_data = losses_cfg[loss_name]
@@ -868,7 +1169,11 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     elif isinstance(loss_data, dict):
                         w = float(loss_data.get("weight", 1.0))
                         _validate_weight(w, loss_name)
-                        loss_config = LossConfig(weight=w, enabled=loss_data.get("enabled", True), margin=loss_data.get("margin"))
+                        loss_config = LossConfig(
+                            weight=w,
+                            enabled=loss_data.get("enabled", True),
+                            margin=loss_data.get("margin"),
+                        )
                     else:
                         w = float(loss_data)
                         _validate_weight(w, loss_name)
@@ -881,16 +1186,33 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         if loss_weights:
             losses_config = LossesConfig()
             weight_name_map = {
-                "zone_membership": "zone", "zone": "zone", "overlap": "overlap", "boundary": "boundary",
-                "wirelength": "wirelength", "spread": "spread", "edge_avoidance": "edge_avoidance",
-                "group_cluster": "group_cluster", "thermal": "thermal", "clearance": "clearance",
-                "loop_area": "loop_area", "star_point": "star_point",
+                "zone_membership": "zone",
+                "zone": "zone",
+                "overlap": "overlap",
+                "boundary": "boundary",
+                "wirelength": "wirelength",
+                "spread": "spread",
+                "edge_avoidance": "edge_avoidance",
+                "group_cluster": "group_cluster",
+                "thermal": "thermal",
+                "clearance": "clearance",
+                "loop_area": "loop_area",
+                "star_point": "star_point",
             }
             for weight_key, weight_value in loss_weights.items():
                 loss_name = weight_name_map.get(weight_key, weight_key)
                 if loss_name in [
-                    "overlap", "boundary", "wirelength", "spread", "edge_avoidance",
-                    "group_cluster", "thermal", "zone", "clearance", "loop_area", "star_point"
+                    "overlap",
+                    "boundary",
+                    "wirelength",
+                    "spread",
+                    "edge_avoidance",
+                    "group_cluster",
+                    "thermal",
+                    "zone",
+                    "clearance",
+                    "loop_area",
+                    "star_point",
                 ]:
                     w = float(weight_value)
                     _validate_weight(w, loss_name)
@@ -904,39 +1226,193 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     if "routing_priority" in config:
         constraints.routing_priority = config["routing_priority"]
 
+    # NEW: Load escape clearances for routing-aware placement
+    if "escape_clearances" in config:
+        for ec_cfg in config["escape_clearances"]:
+            ec = EscapeClearance(
+                component=ec_cfg["component"],
+                clearance_mm=ec_cfg.get("clearance_mm"),
+                priority_sides=ec_cfg.get("priority_sides", []),
+                tier=ec_cfg.get("tier", "soft"),
+                description=ec_cfg.get("description", ""),
+            )
+            constraints.escape_clearances.append(ec)
+
+    # NEW: Load routing corridors for routing-aware placement
+    if "routing_corridors" in config:
+        for rc_cfg in config["routing_corridors"]:
+            rc = RoutingCorridor(
+                name=rc_cfg["name"],
+                from_component=rc_cfg["from_component"],
+                to_component=rc_cfg["to_component"],
+                width_mm=rc_cfg["width_mm"],
+                keep_clear=rc_cfg.get("keep_clear", True),
+                nets=rc_cfg.get("nets", []),
+                tier=rc_cfg.get("tier", "soft"),
+                description=rc_cfg.get("description", ""),
+            )
+            constraints.routing_corridors.append(rc)
+
+    # EXP-11: Load signal-to-HV clearance constraints
+    if "signal_hv_clearances" in config:
+        for shv_cfg in config["signal_hv_clearances"]:
+            shv = SignalToHVClearance(
+                name=shv_cfg["name"],
+                signal_component=shv_cfg["signal_component"],
+                signal_pin=str(shv_cfg["signal_pin"]),
+                target_component=shv_cfg["target_component"],
+                target_pin=str(shv_cfg["target_pin"]),
+                hv_component=shv_cfg["hv_component"],
+                hv_pins=[str(p) for p in shv_cfg["hv_pins"]],
+                required_clearance_mm=shv_cfg.get("required_clearance_mm", 6.0),
+                max_path_length_mm=shv_cfg.get("max_path_length_mm", 20.0),
+                tier=shv_cfg.get("tier", "hard"),
+                description=shv_cfg.get("description", ""),
+            )
+            constraints.signal_hv_clearances.append(shv)
+
+    # EXP-11: Load pin-level placement proximity constraints
+    if "placement_proximity" in config:
+        for pp_cfg in config["placement_proximity"]:
+            pp = PlacementProximityConstraint(
+                name=pp_cfg["name"],
+                from_component=pp_cfg["from_component"],
+                from_pin=str(pp_cfg["from_pin"]),
+                to_component=pp_cfg["to_component"],
+                to_pin=str(pp_cfg["to_pin"]),
+                max_distance_mm=pp_cfg.get("max_distance_mm", 15.0),
+                tier=pp_cfg.get("tier", "hard"),
+                description=pp_cfg.get("description", ""),
+            )
+            constraints.placement_proximity.append(pp)
+
+    # EXP-13: Load HV exclusion zones for routing
+    if "hv_exclusion_zones" in config:
+        for hvz_cfg in config["hv_exclusion_zones"]:
+            center = hvz_cfg["center"]
+            size = hvz_cfg["size"]
+            hvz = HVExclusionZone(
+                name=hvz_cfg["name"],
+                center=(float(center[0]), float(center[1])),
+                size=(float(size[0]), float(size[1])),
+                clearance_mm=hvz_cfg.get("clearance_mm", 6.0),
+                excluded_nets=hvz_cfg.get("excluded_nets", []),
+                description=hvz_cfg.get("description", ""),
+            )
+            constraints.hv_exclusion_zones.append(hvz)
+
+    # EXP-15: Parse isolation_slots
+    if "isolation_slots" in config:
+        for slot_cfg in config["isolation_slots"]:
+            start = slot_cfg["start_offset"]
+            end = slot_cfg["end_offset"]
+            slot = IsolationSlot(
+                name=slot_cfg["name"],
+                component_ref=slot_cfg["component_ref"],
+                start_offset=(float(start[0]), float(start[1])),
+                end_offset=(float(end[0]), float(end[1])),
+                width_mm=slot_cfg.get("width_mm", 1.5),
+                lv_pin=slot_cfg.get("lv_pin", ""),
+                hv_pin=slot_cfg.get("hv_pin", ""),
+                description=slot_cfg.get("description", ""),
+            )
+            constraints.isolation_slots.append(slot)
+
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
+
+    # EXP-6: Warn on unknown config keys to prevent silent config bugs
+    _warn_unknown_config_keys(config)
 
     return constraints
 
 
+# Known top-level config keys - add new keys here when adding config features
+_KNOWN_CONFIG_KEYS = frozenset(
+    {
+        "board",
+        "zones",
+        "copper_zones",
+        "feedback",
+        "ground_domains",
+        "clearances",
+        "hv_clearance_mm",
+        "critical_loops",
+        "component_groups",
+        "groups",  # Alias for component_groups
+        "thermal_constraints",
+        "minimum_spacing",
+        "slot_generation",
+        "fixed_positions",
+        "zone_assignments",
+        "net_classes",
+        "net_class_rules",
+        "net_priority",  # EXP-6: Net routing priority
+        "differential_pairs",
+        "net_topologies",
+        "kelvin_sensing",
+        "aesthetics",
+        "manufacturing",
+        "losses",
+        "loss_weights",
+        "placement_priority",
+        "routing_priority",
+        "escape_clearances",
+        "routing_corridors",
+        "layer_stackup",
+        "signal_hv_clearances",  # EXP-11: Signal-to-HV clearance constraints
+        "placement_proximity",  # EXP-11: Pin-level placement proximity
+        "hv_exclusion_zones",  # EXP-13: HV zones that signals must route around
+        "isolation_slots",  # EXP-15: PCB slots for creepage isolation
+    }
+)
+
+
+def _warn_unknown_config_keys(config: dict) -> None:
+    """Warn about unknown top-level config keys.
+
+    This catches bugs where a YAML config key is misspelled or not yet
+    supported by the loader, preventing silent config loading failures.
+    """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    unknown_keys = set(config.keys()) - _KNOWN_CONFIG_KEYS
+    if unknown_keys:
+        logger.warning(
+            f"Unknown config keys will be ignored: {sorted(unknown_keys)}. "
+            f"If these are valid keys, add them to _KNOWN_CONFIG_KEYS in config_loader.py"
+        )
+
+
 def _validate_current_capacity(constraints: PlacementConstraints) -> None:
     """
-    Validate that high-current nets have appropriate routing strategies.
-    
-    Enforces professional PCB design standards:
-    - High current (>10A): MUST have zone/pour assignment
-   - Medium current (5-10A): WARN if using single vias
-    - Low current (<5A): Standard routing acceptable
-    
-    Args:
-        constraints: Placement constraints to validate
-        
-    Raises:
-        ValueError: If high-current net lacks zone assignment
-        
-    Examples:
-        # Good: 20A net assigned to plane
-        net_classes: {"AC_L": "HighCurrent"}
-        net_class_rules:
-            HighCurrent:
-                max_current_rating: 20.0
-                routing_strategy: "plane_required"
-        zones:
-            - name: "AC_PLANE"
-              net_classes: ["HighCurrent"]
-              
-        # Bad: 20A net without zone → ValueError
+     Validate that high-current nets have appropriate routing strategies.
+
+     Enforces professional PCB design standards:
+     - High current (>10A): MUST have zone/pour assignment
+    - Medium current (5-10A): WARN if using single vias
+     - Low current (<5A): Standard routing acceptable
+
+     Args:
+         constraints: Placement constraints to validate
+
+     Raises:
+         ValueError: If high-current net lacks zone assignment
+
+     Examples:
+         # Good: 20A net assigned to plane
+         net_classes: {"AC_L": "HighCurrent"}
+         net_class_rules:
+             HighCurrent:
+                 max_current_rating: 20.0
+                 routing_strategy: "plane_required"
+         zones:
+             - name: "AC_PLANE"
+               net_classes: ["HighCurrent"]
+
+         # Bad: 20A net without zone → ValueError
     """
     import logging
 
@@ -958,10 +1434,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
             current_a = estimate_current_from_net_class(net_class.trace_width_mm)
 
         # Check zone assignment
-        has_zone = any(
-            net_class_name in zone.net_classes
-            for zone in constraints.zones
-        )
+        has_zone = any(net_class_name in zone.net_classes for zone in constraints.zones)
 
         # HIGH CURRENT (>10A): Plane REQUIRED
         if current_a > 10.0:
@@ -981,7 +1454,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
             if net_class.via_template == "Via1x1" or not net_class.via_template:
                 logger.warning(
                     f"MEDIUM CURRENT NET '{net_name}' ({current_a:.1f}A) uses single vias.\n"
-                   f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
+                    f"Consider via_template: 'Via2x2' or 'Via3x3' for {net_class_name} class.\n"
                     f"Single 0.3mm vias rated ~3-5A; via arrays recommended for >5A."
                 )
 
@@ -991,7 +1464,6 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
                     f"Net '{net_name}' ({current_a:.1f}A) approaching high-current threshold. "
                     f"Consider zone/pour assignment for better thermal performance."
                 )
-
 
 
 def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRules:
@@ -1015,6 +1487,8 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
             via_template=rule.via_template or "Via1x1",  # Default to single via
             creepage_mm=rule.creepage_mm,
             voltage_v=rule.voltage_v,
+            routing_strategy=rule.routing_strategy,
+            via_cost_multiplier=rule.via_cost_multiplier,
         )
 
     # Convert differential pair rules
@@ -1049,9 +1523,7 @@ def create_board_from_constraints(constraints: PlacementConstraints) -> Board:
     )
 
 
-def apply_zones_to_netlist(
-    netlist: Netlist, constraints: PlacementConstraints
-) -> None:
+def apply_zones_to_netlist(netlist: Netlist, constraints: PlacementConstraints) -> None:
     """Apply zone assignments from component groups to components."""
     for group in constraints.component_groups:
         if group.zone:

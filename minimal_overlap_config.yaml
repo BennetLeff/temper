@@ -1,0 +1,10 @@
+# Minimal config for Overlap test
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+losses:
+  overlap:
+    weight: 1.0
+    enabled: true

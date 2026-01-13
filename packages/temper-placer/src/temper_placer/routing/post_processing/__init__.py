@@ -17,6 +17,15 @@ from temper_placer.routing.post_processing.via_optimizer import (
     ViaOptimizer,
     ViaOptimizationStats,
 )
+from temper_placer.routing.post_processing.pipeline import (
+    PostProcessingPipeline,
+    PostProcessConfig,
+    ViaOptimizationConfig,
+    TraceNudgingConfig,
+    TraceBallooningConfig,
+    StageMetrics,
+    PostProcessingResult,
+)
 
 __all__ = [
     "FunnelSmoother",
@@ -28,4 +37,11 @@ __all__ = [
     "TraceBallooner",
     "ViaOptimizer",
     "ViaOptimizationStats",
+    "PostProcessingPipeline",
+    "PostProcessConfig",
+    "ViaOptimizationConfig",
+    "TraceNudgingConfig",
+    "TraceBallooningConfig",
+    "StageMetrics",
+    "PostProcessingResult",
 ]

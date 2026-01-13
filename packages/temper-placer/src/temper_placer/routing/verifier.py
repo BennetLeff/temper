@@ -18,8 +18,11 @@ Example usage:
     ...     adjustments = verifier.to_placement_feedback(result)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from jax import Array
 
@@ -27,12 +30,13 @@ from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing.congestion import analyze_congestion
-from temper_placer.routing.diagnostics import (
-    PlacementAdjustment,
-    RoutingDiagnostic,
-    RoutingReport,
-    generate_diagnostics_from_results,
-)
+
+if TYPE_CHECKING:
+    from temper_placer.routing.diagnostics import (
+        PlacementAdjustment,
+        RoutingDiagnostic,
+        RoutingReport,
+    )
 from temper_placer.routing.heuristics import compute_completion_rate
 from temper_placer.routing.layer_assignment import LayerAssignment, assign_layers
 from temper_placer.routing.maze_router import MazeRouter
@@ -95,7 +99,7 @@ class VerificationResult:
     net_ordering: list[str]
     layer_assignments: dict[str, LayerAssignment]
     congestion_map: Array | None = None
-    diagnostics: list[RoutingDiagnostic] = field(default_factory=list)
+    diagnostics: "list[RoutingDiagnostic]" = field(default_factory=list)
     routed_nets: list[str] = field(default_factory=list)
     failed_nets: list[str] = field(default_factory=list)
     total_wirelength: float = 0.0
@@ -220,14 +224,16 @@ class RoutingVerifier:
         result.total_vias = sum(path.via_count for path in routing_results.values() if path.success)
 
         # Generate diagnostics for failures
+        # Lazy import to avoid circular dependency
+        from temper_placer.routing.diagnostics import generate_diagnostics_from_results
         result.diagnostics = generate_diagnostics_from_results(routing_results)
 
         return result
 
     def to_placement_feedback(
         self,
-        report: RoutingReport,
-    ) -> list[PlacementAdjustment]:
+        report: "RoutingReport",
+    ) -> "list[PlacementAdjustment]":
         """Convert routing report to placement adjustment hints.
 
         Extracts placement hints from diagnostics and sorts them by priority.
@@ -238,6 +244,8 @@ class RoutingVerifier:
         Returns:
             List of PlacementAdjustment sorted by priority (highest first)
         """
+        # Lazy import to avoid circular dependency
+        from temper_placer.routing.diagnostics import PlacementAdjustment
         adjustments: list[PlacementAdjustment] = []
 
         for diag in report.diagnostics:

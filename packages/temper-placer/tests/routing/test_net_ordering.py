@@ -8,7 +8,7 @@ Priority order (highest to lowest):
 1. Loop membership: Nets in critical loops route first
 2. Net class: HV > Power > GateDrive > Signal
 3. Pin count: Fewer pins = higher priority (easier to route)
-4. Bounding box area: Smaller = higher priority
+4. Estimated wirelength: Shorter = higher priority (HPWL)
 5. Alphabetical: Final deterministic tie-breaker
 """
 
@@ -174,14 +174,14 @@ class TestNetPriority:
             loop_criticality=0,  # critical
             net_class=NetClass.SIGNAL,
             pin_count=10,
-            bbox_area=1000.0,
+            estimated_wirelength=1000.0,
             name="NET_A",
         )
         non_critical = NetPriority(
             loop_criticality=3,  # low
             net_class=NetClass.HIGH_VOLTAGE,  # Higher net class
             pin_count=2,
-            bbox_area=10.0,
+            estimated_wirelength=10.0,
             name="NET_B",
         )
 
@@ -195,14 +195,14 @@ class TestNetPriority:
             loop_criticality=2,
             net_class=NetClass.HIGH_VOLTAGE,
             pin_count=10,
-            bbox_area=1000.0,
+            estimated_wirelength=1000.0,
             name="NET_HV",
         )
         signal_net = NetPriority(
             loop_criticality=2,  # Same criticality
             net_class=NetClass.SIGNAL,
             pin_count=2,  # Fewer pins (would win if net class didn't matter)
-            bbox_area=10.0,
+            estimated_wirelength=10.0,
             name="NET_SIG",
         )
 
@@ -216,39 +216,39 @@ class TestNetPriority:
             loop_criticality=2,
             net_class=NetClass.SIGNAL,
             pin_count=2,
-            bbox_area=1000.0,  # Larger area
+            estimated_wirelength=1000.0,  # Larger area
             name="NET_A",
         )
         many_pins = NetPriority(
             loop_criticality=2,
             net_class=NetClass.SIGNAL,
             pin_count=10,
-            bbox_area=10.0,
+            estimated_wirelength=10.0,
             name="NET_B",
         )
 
         assert few_pins < many_pins
 
-    def test_priority_comparison_by_bbox_area(self):
-        """Smaller bounding box should route first (after pin count)."""
+    def test_priority_comparison_by_wirelength(self):
+        """Shorter wirelength should route first (after pin count)."""
         from temper_placer.routing.net_ordering import NetClass, NetPriority
 
-        small_bbox = NetPriority(
+        short_net = NetPriority(
             loop_criticality=2,
             net_class=NetClass.SIGNAL,
             pin_count=4,
-            bbox_area=100.0,
+            estimated_wirelength=100.0,
             name="NET_B",  # Alphabetically later
         )
-        large_bbox = NetPriority(
+        long_net = NetPriority(
             loop_criticality=2,
             net_class=NetClass.SIGNAL,
             pin_count=4,
-            bbox_area=500.0,
+            estimated_wirelength=500.0,
             name="NET_A",
         )
 
-        assert small_bbox < large_bbox
+        assert short_net < long_net
 
     def test_priority_comparison_alphabetical_tiebreaker(self):
         """Alphabetical order is the final tiebreaker."""
@@ -258,14 +258,14 @@ class TestNetPriority:
             loop_criticality=2,
             net_class=NetClass.SIGNAL,
             pin_count=4,
-            bbox_area=100.0,
+            estimated_wirelength=100.0,
             name="NET_A",
         )
         net_b = NetPriority(
             loop_criticality=2,
             net_class=NetClass.SIGNAL,
             pin_count=4,
-            bbox_area=100.0,
+            estimated_wirelength=100.0,
             name="NET_B",
         )
 
@@ -279,14 +279,14 @@ class TestNetPriority:
             loop_criticality=1,
             net_class=NetClass.POWER,
             pin_count=3,
-            bbox_area=50.0,
+            estimated_wirelength=50.0,
             name="VCC",
         )
         p2 = NetPriority(
             loop_criticality=1,
             net_class=NetClass.POWER,
             pin_count=3,
-            bbox_area=50.0,
+            estimated_wirelength=50.0,
             name="VCC",
         )
 

@@ -1,0 +1,1272 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-01-03T11:32:01-0600",
+    "kicad_version": "9.0.6",
+    "schematic_parity": [],
+    "source": "mvb_level_1_routed.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 8.7
+                    },
+                    "uuid": "cde5b9d4-70c0-417b-8589-03a3b99b8a61"
+                },
+                {
+                    "description": "PTH pad 1 [GND] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 5.0
+                    },
+                    "uuid": "4ce6f1e5-f8fc-4f59-9c0b-9932dc0103d8"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 1 [GND] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 2.0
+                    },
+                    "uuid": "3a827a54-9092-4811-b316-ba7e94c0fba7"
+                },
+                {
+                    "description": "Track [GND] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 8.7
+                    },
+                    "uuid": "cde5b9d4-70c0-417b-8589-03a3b99b8a61"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                },
+                {
+                    "description": "PTH pad 2 [VCC] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 5.0
+                    },
+                    "uuid": "826b9f59-08ae-40ac-9489-6297612dfa26"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                },
+                {
+                    "description": "Track [VCC] on F.Cu, length 1.6000 mm",
+                    "pos": {
+                        "x": 9.1,
+                        "y": 10.1
+                    },
+                    "uuid": "aeac7719-0746-4306-a465-ef90311ac183"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [SIG1] on F.Cu, length 0.2000 mm",
+                    "pos": {
+                        "x": 3.5,
+                        "y": 2.5
+                    },
+                    "uuid": "5ad426b4-554c-4fcd-9acf-c548b55fe30f"
+                },
+                {
+                    "description": "PTH pad 2 [SIG1] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 4.54
+                    },
+                    "uuid": "777b56ea-2217-494c-83cb-3241e52582a8"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG2] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "c000eb22-9f6b-4e52-88c3-da152d210cba"
+                },
+                {
+                    "description": "PTH pad 4 [SIG2] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 7.54
+                    },
+                    "uuid": "70728db0-1a9b-4ce6-aa40-5f4fac0aad97"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [SIG2] on F.Cu, length 0.2000 mm",
+                    "pos": {
+                        "x": 9.3,
+                        "y": 14.1
+                    },
+                    "uuid": "7f50240b-b59d-4ed6-b756-e37f4c36b4c6"
+                },
+                {
+                    "description": "PTH pad 2 [SIG2] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "c000eb22-9f6b-4e52-88c3-da152d210cba"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 1 [SIG3] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 8.0
+                    },
+                    "uuid": "3caaf581-1e88-4054-9599-7a1442537085"
+                },
+                {
+                    "description": "PTH pad 5 [SIG3] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 10.08
+                    },
+                    "uuid": "43cc5246-b83b-4b2a-99bb-199dd99045c6"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [SIG3] on F.Cu, length 2.6000 mm",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 21.1
+                    },
+                    "uuid": "59de64ca-5cca-43b7-be31-e4279ffe8572"
+                },
+                {
+                    "description": "PTH pad 5 [SIG3] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 10.08
+                    },
+                    "uuid": "43cc5246-b83b-4b2a-99bb-199dd99045c6"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG4] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 10.54
+                    },
+                    "uuid": "201d00ee-2835-46a5-ba0e-ceef10c53566"
+                },
+                {
+                    "description": "PTH pad 6 [SIG4] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 10.08
+                    },
+                    "uuid": "614f4235-474f-4c01-8507-90f1dc85af9b"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [SIG4] on F.Cu, length 0.8000 mm",
+                    "pos": {
+                        "x": 10.1,
+                        "y": 20.3
+                    },
+                    "uuid": "58cf60b4-1b5b-4771-8362-6bf1d0bbc3d5"
+                },
+                {
+                    "description": "PTH pad 2 [SIG4] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 10.54
+                    },
+                    "uuid": "201d00ee-2835-46a5-ba0e-ceef10c53566"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Items shorting two nets (nets GND and SIG4)",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 1.4000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 10.1
+                    },
+                    "uuid": "2a268869-4c71-4d95-8d04-56c82a1055d5"
+                },
+                {
+                    "description": "PTH pad 6 [SIG4] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 10.08
+                    },
+                    "uuid": "614f4235-474f-4c01-8507-90f1dc85af9b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets VCC and GND)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [VCC] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 5.0
+                    },
+                    "uuid": "826b9f59-08ae-40ac-9489-6297612dfa26"
+                },
+                {
+                    "description": "Track [GND] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 8.7
+                    },
+                    "uuid": "cde5b9d4-70c0-417b-8589-03a3b99b8a61"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets VCC and GND)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [VCC] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 5.0
+                    },
+                    "uuid": "826b9f59-08ae-40ac-9489-6297612dfa26"
+                },
+                {
+                    "description": "Track [GND] on F.Cu, length 9.4000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 4.7
+                    },
+                    "uuid": "a68f264d-dc16-48b7-a070-dd6d674ec780"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets GND and SIG1)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [GND] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 5.0
+                    },
+                    "uuid": "4ce6f1e5-f8fc-4f59-9c0b-9932dc0103d8"
+                },
+                {
+                    "description": "Track [SIG1] on F.Cu, length 8.4000 mm",
+                    "pos": {
+                        "x": 3.3,
+                        "y": 11.1
+                    },
+                    "uuid": "fc17b5a7-d272-42a5-9620-ab312cee6348"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets GND and SIG1)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [GND] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 2.0
+                    },
+                    "uuid": "3a827a54-9092-4811-b316-ba7e94c0fba7"
+                },
+                {
+                    "description": "Track [SIG1] on F.Cu, length 12.8000 mm",
+                    "pos": {
+                        "x": 3.7,
+                        "y": 2.3
+                    },
+                    "uuid": "5f2c3601-f94d-485e-8fef-6e1bb8c17bbf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets SIG1 and VCC)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG1] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 4.54
+                    },
+                    "uuid": "777b56ea-2217-494c-83cb-3241e52582a8"
+                },
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets SIG2 and SIG3)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG2] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "c000eb22-9f6b-4e52-88c3-da152d210cba"
+                },
+                {
+                    "description": "PTH pad 1 [SIG3] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 8.0
+                    },
+                    "uuid": "3caaf581-1e88-4054-9599-7a1442537085"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [VCC] on F.Cu, length 5.8000 mm",
+                    "pos": {
+                        "x": 9.3,
+                        "y": 11.9
+                    },
+                    "uuid": "34edc9fd-2b87-4ca0-85b7-4ac9d92118ed"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [VCC] on F.Cu, length 1.8000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 11.9
+                    },
+                    "uuid": "9107bb60-2228-47ee-95c0-512836a5c7f8"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [GND] on F.Cu, length 9.4000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 4.7
+                    },
+                    "uuid": "a68f264d-dc16-48b7-a070-dd6d674ec780"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [GND] on F.Cu, length 0.6000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 4.7
+                    },
+                    "uuid": "05217bf1-3a52-4bdb-aa6f-cecab946111d"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 15.0
+                    },
+                    "uuid": "35b3bbff-4492-425f-af9f-e68595fdaacb"
+                },
+                {
+                    "description": "Track [SIG2] on F.Cu, length 1.0000 mm",
+                    "pos": {
+                        "x": 10.1,
+                        "y": 15.1
+                    },
+                    "uuid": "5538adf5-3c89-4d9e-ae56-c2042d95d6d5"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 15.0
+                    },
+                    "uuid": "35b3bbff-4492-425f-af9f-e68595fdaacb"
+                },
+                {
+                    "description": "Track [SIG2] on F.Cu, length 1.0000 mm",
+                    "pos": {
+                        "x": 9.1,
+                        "y": 15.1
+                    },
+                    "uuid": "dc01d1c7-dcf6-469c-adc3-d0bf7229f8c2"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [SIG2] on F.Cu, length 5.8000 mm",
+                    "pos": {
+                        "x": 9.3,
+                        "y": 13.9
+                    },
+                    "uuid": "d997e9fd-2348-46b1-8921-fa690c74e487"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [SIG2] on F.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 13.9
+                    },
+                    "uuid": "0790caf2-d439-4db1-9200-e6f9268f4849"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 15.0
+                    },
+                    "uuid": "35b3bbff-4492-425f-af9f-e68595fdaacb"
+                },
+                {
+                    "description": "Track [SIG1] on F.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 15.1
+                    },
+                    "uuid": "6db9c6d0-99c1-41ad-aa5e-275bc1901966"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 15.0
+                    },
+                    "uuid": "35b3bbff-4492-425f-af9f-e68595fdaacb"
+                },
+                {
+                    "description": "Track [SIG1] on F.Cu, length 3.8000 mm",
+                    "pos": {
+                        "x": 3.9,
+                        "y": 15.1
+                    },
+                    "uuid": "cb11a45c-6b57-4148-afc8-4b19fadba263"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [SIG1] on F.Cu, length 12.8000 mm",
+                    "pos": {
+                        "x": 3.7,
+                        "y": 2.3
+                    },
+                    "uuid": "5f2c3601-f94d-485e-8fef-6e1bb8c17bbf"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.5000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 15.0,
+                        "y": 0.0
+                    },
+                    "uuid": "1811d554-5daa-4e03-84ad-4a3578b86a81"
+                },
+                {
+                    "description": "Track [SIG1] on F.Cu, length 1.8000 mm",
+                    "pos": {
+                        "x": 16.9,
+                        "y": 9.1
+                    },
+                    "uuid": "91ad5416-2ea3-4c59-bc5e-9e8717be066b"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 1.4000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 10.1
+                    },
+                    "uuid": "2a268869-4c71-4d95-8d04-56c82a1055d5"
+                },
+                {
+                    "description": "PTH pad 6 [SIG4] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 10.08
+                    },
+                    "uuid": "614f4235-474f-4c01-8507-90f1dc85af9b"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 8.7
+                    },
+                    "uuid": "cde5b9d4-70c0-417b-8589-03a3b99b8a61"
+                },
+                {
+                    "description": "PTH pad 2 [VCC] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 5.0
+                    },
+                    "uuid": "826b9f59-08ae-40ac-9489-6297612dfa26"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 8.7
+                    },
+                    "uuid": "cde5b9d4-70c0-417b-8589-03a3b99b8a61"
+                },
+                {
+                    "description": "PTH pad 4 [SIG2] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 7.54
+                    },
+                    "uuid": "70728db0-1a9b-4ce6-aa40-5f4fac0aad97"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 9.4000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 4.7
+                    },
+                    "uuid": "a68f264d-dc16-48b7-a070-dd6d674ec780"
+                },
+                {
+                    "description": "PTH pad 2 [VCC] of J1",
+                    "pos": {
+                        "x": 5.04,
+                        "y": 5.0
+                    },
+                    "uuid": "826b9f59-08ae-40ac-9489-6297612dfa26"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 9.4000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 4.7
+                    },
+                    "uuid": "a68f264d-dc16-48b7-a070-dd6d674ec780"
+                },
+                {
+                    "description": "PTH pad 2 [SIG1] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 4.54
+                    },
+                    "uuid": "777b56ea-2217-494c-83cb-3241e52582a8"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 9.4000 mm",
+                    "pos": {
+                        "x": 5.7,
+                        "y": 4.7
+                    },
+                    "uuid": "a68f264d-dc16-48b7-a070-dd6d674ec780"
+                },
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [SIG1] on F.Cu, length 8.4000 mm",
+                    "pos": {
+                        "x": 3.3,
+                        "y": 11.1
+                    },
+                    "uuid": "fc17b5a7-d272-42a5-9620-ab312cee6348"
+                },
+                {
+                    "description": "PTH pad 1 [GND] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 5.0
+                    },
+                    "uuid": "4ce6f1e5-f8fc-4f59-9c0b-9932dc0103d8"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [SIG1] on F.Cu, length 8.4000 mm",
+                    "pos": {
+                        "x": 3.3,
+                        "y": 11.1
+                    },
+                    "uuid": "fc17b5a7-d272-42a5-9620-ab312cee6348"
+                },
+                {
+                    "description": "PTH pad 5 [SIG3] of J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 10.08
+                    },
+                    "uuid": "43cc5246-b83b-4b2a-99bb-199dd99045c6"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [SIG1] on F.Cu, length 12.8000 mm",
+                    "pos": {
+                        "x": 3.7,
+                        "y": 2.3
+                    },
+                    "uuid": "5f2c3601-f94d-485e-8fef-6e1bb8c17bbf"
+                },
+                {
+                    "description": "PTH pad 1 [GND] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 2.0
+                    },
+                    "uuid": "3a827a54-9092-4811-b316-ba7e94c0fba7"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG1] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 4.54
+                    },
+                    "uuid": "777b56ea-2217-494c-83cb-3241e52582a8"
+                },
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG1] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 4.54
+                    },
+                    "uuid": "777b56ea-2217-494c-83cb-3241e52582a8"
+                },
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG2] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "c000eb22-9f6b-4e52-88c3-da152d210cba"
+                },
+                {
+                    "description": "PTH pad 1 [SIG3] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 8.0
+                    },
+                    "uuid": "3caaf581-1e88-4054-9599-7a1442537085"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG2] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "c000eb22-9f6b-4e52-88c3-da152d210cba"
+                },
+                {
+                    "description": "PTH pad 1 [SIG3] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 8.0
+                    },
+                    "uuid": "3caaf581-1e88-4054-9599-7a1442537085"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG4] on F.Cu, length 0.8000 mm",
+                    "pos": {
+                        "x": 10.1,
+                        "y": 20.3
+                    },
+                    "uuid": "58cf60b4-1b5b-4771-8362-6bf1d0bbc3d5"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG4] on F.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 10.1,
+                        "y": 21.1
+                    },
+                    "uuid": "9d826241-3a74-4bad-84a6-687270014503"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [VCC] on F.Cu, length 1.0000 mm",
+                    "pos": {
+                        "x": 10.1,
+                        "y": 10.1
+                    },
+                    "uuid": "8e0f158a-14b7-4d2d-b685-275c6883df8c"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [VCC] on F.Cu, length 1.8000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 11.9
+                    },
+                    "uuid": "9107bb60-2228-47ee-95c0-512836a5c7f8"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [GND] on F.Cu, length 0.6000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 4.7
+                    },
+                    "uuid": "05217bf1-3a52-4bdb-aa6f-cecab946111d"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG2] on F.Cu, length 1.0000 mm",
+                    "pos": {
+                        "x": 10.1,
+                        "y": 15.1
+                    },
+                    "uuid": "5538adf5-3c89-4d9e-ae56-c2042d95d6d5"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG2] on F.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 13.9
+                    },
+                    "uuid": "0790caf2-d439-4db1-9200-e6f9268f4849"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG1] on F.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 15.1
+                    },
+                    "uuid": "6db9c6d0-99c1-41ad-aa5e-275bc1901966"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG1] on F.Cu, length 1.8000 mm",
+                    "pos": {
+                        "x": 16.9,
+                        "y": 9.1
+                    },
+                    "uuid": "91ad5416-2ea3-4c59-bc5e-9e8717be066b"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG3] on F.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 5.1,
+                        "y": 20.3
+                    },
+                    "uuid": "192ca3f3-1a61-4f90-b41c-1020b31b2fb1"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SIG3] on F.Cu, length 2.4000 mm",
+                    "pos": {
+                        "x": 15.1,
+                        "y": 18.5
+                    },
+                    "uuid": "93d9b56d-abcc-4f0b-93b1-6a140bbd7436"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [SIG1] of J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 4.54
+                    },
+                    "uuid": "777b56ea-2217-494c-83cb-3241e52582a8"
+                },
+                {
+                    "description": "PTH pad 1 [VCC] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "aa73bf2c-7a98-43e0-aca5-2199ff5476f6"
+                }
+            ],
+            "severity": "warning",
+            "type": "hole_to_hole"
+        },
+        {
+            "description": "Drilled hole too close to other hole (board setup constraints min 0.2495 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [SIG3] of J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 8.0
+                    },
+                    "uuid": "3caaf581-1e88-4054-9599-7a1442537085"
+                },
+                {
+                    "description": "PTH pad 2 [SIG2] of J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 7.54
+                    },
+                    "uuid": "c000eb22-9f6b-4e52-88c3-da152d210cba"
+                }
+            ],
+            "severity": "warning",
+            "type": "hole_to_hole"
+        },
+        {
+            "description": "The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint J1",
+                    "pos": {
+                        "x": 2.5,
+                        "y": 5.0
+                    },
+                    "uuid": "00000000-0000-0000-0000-000000000011"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint J2",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 2.0
+                    },
+                    "uuid": "00000000-0000-0000-0000-000000000012"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint J3",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 5.0
+                    },
+                    "uuid": "00000000-0000-0000-0000-000000000013"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "The footprint library 'Connector_PinHeader_2.54mm' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_PinHeader_2.54mm.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint J4",
+                    "pos": {
+                        "x": 7.5,
+                        "y": 8.0
+                    },
+                    "uuid": "00000000-0000-0000-0000-000000000014"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        }
+    ]
+}

@@ -22,6 +22,7 @@ from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress
 @click.option("--dry-run", is_flag=True, help="Check feasibility only")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 @click.option("--visualize", is_flag=True, help="Show real-time dashboard")
+@click.option("--routability-threshold", type=float, default=1.0, help="Target routing completion rate (0.0-1.0)")
 def pipeline(
     input_pcb: str,
     loops: str,
@@ -35,7 +36,8 @@ def pipeline(
     seed: int,
     dry_run: bool,
     verbose: bool,
-    visualize: bool
+    visualize: bool,
+    routability_threshold: float,
 ):
     """Run the full placement pipeline."""
 
@@ -51,6 +53,7 @@ def pipeline(
         seed=seed,
         fab_preset=fab,
         dry_run=dry_run,
+        routability_threshold=routability_threshold,
     )
 
     orchestrator = PipelineOrchestrator(config)

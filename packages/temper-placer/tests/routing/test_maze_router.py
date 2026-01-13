@@ -222,8 +222,8 @@ class TestComponentBlocking:
         router.block_rect(x=8, y=8, width=4, height=4, layer=0)
 
         # Cells (8,8) to (11,11) should be blocked
-        assert router.occupancy[8, 8, 0] == 1
-        assert router.occupancy[11, 11, 0] == 1
+        assert router.occupancy[8, 8, 0] == -1
+        assert router.occupancy[11, 11, 0] == -1
 
         # Outside should be free
         assert router.occupancy[7, 7, 0] == 0
@@ -240,15 +240,15 @@ class TestComponentBlocking:
         # Create positions from initial positions
         positions = jnp.array(
             [
-                [5.0, 10.0],  # U1
-                [15.0, 10.0],  # U2
+                [3.0, 10.0],  # U1
+                [17.0, 10.0],  # U2
             ]
         )
 
         router.block_components(sample_netlist.components, positions)
 
         # Some cells should now be blocked
-        total_blocked = jnp.sum(router.occupancy == 1)
+        total_blocked = jnp.sum(router.occupancy == -1)
         assert total_blocked > 0
 
 
@@ -579,7 +579,7 @@ class TestPinEscapeRoutes:
         pin_grid = router._world_to_grid(pin_world[0], pin_world[1])
 
         # Temporarily unblock the pin cell (as route_net would do)
-        router.occupancy = router.occupancy.at[pin_grid[0], pin_grid[1], 0].set(0)
+        router.occupancy[pin_grid[0], pin_grid[1], 0] = 0
 
         # Check neighbors
         neighbors = router._get_neighbors(
@@ -766,3 +766,37 @@ class TestRoutingCompletion:
 
         completion = compute_completion_rate(results)
         assert completion == 0.5  # 2 out of 4
+
+
+# =============================================================================
+# Tests for Asymmetric Clearance
+# =============================================================================
+
+
+class TestAsymmetricClearance:
+    """Tests for asymmetric clearance calculations."""
+
+    def test_asymmetric_clearance_logic(self):
+        """Should return correct clearances for different class combinations."""
+        from temper_placer.routing.maze_router import (
+            CLASS_DEFAULT,
+            CLASS_HV,
+            CLASS_LV,
+            MazeRouter,
+        )
+
+        router = MazeRouter(grid_size=(10, 10), min_clearance=0.2)
+
+        # HV to LV/Default -> 8.0mm (Reinforced)
+        assert router._get_asymmetric_clearance(CLASS_HV, CLASS_LV) == 8.0
+        assert router._get_asymmetric_clearance(CLASS_HV, CLASS_DEFAULT) == 8.0
+        assert router._get_asymmetric_clearance(CLASS_LV, CLASS_HV) == 8.0
+        assert router._get_asymmetric_clearance(CLASS_DEFAULT, CLASS_HV) == 8.0
+
+        # HV to HV -> 2.5mm (Basic)
+        assert router._get_asymmetric_clearance(CLASS_HV, CLASS_HV) == 2.5
+
+        # LV to LV/Default -> 0.2mm (Standard)
+        assert router._get_asymmetric_clearance(CLASS_LV, CLASS_LV) == 0.2
+        assert router._get_asymmetric_clearance(CLASS_LV, CLASS_DEFAULT) == 0.2
+        assert router._get_asymmetric_clearance(CLASS_DEFAULT, CLASS_DEFAULT) == 0.2

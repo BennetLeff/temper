@@ -1,0 +1,18 @@
+[
+  {
+    "iteration": 1,
+    "total": 138,
+    "actionable": 89,
+    "fine_pitch_filtered": 16,
+    "by_type": {
+      "clearance": 9,
+      "hole_clearance": 1,
+      "drill_out_of_range": 3,
+      "via_diameter": 3,
+      "solder_mask_bridge": 9,
+      "track_dangling": 3,
+      "lib_footprint_issues": 33,
+      "unconnected": 77
+    }
+  }
+]

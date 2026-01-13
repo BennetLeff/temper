@@ -47,6 +47,7 @@ from temper_placer.optimizer.convergence_analytics import (
     LossImprovementTracker,
 )
 from temper_placer.optimizer.initialization import SpectralInitializer
+from temper_placer.optimizer.zone_aware_init import ZoneAwareSpectralInitializer
 from temper_placer.optimizer.scheduler import (
     get_learning_rate,
     get_temperature,
@@ -321,11 +322,26 @@ def initialize_training_state(
             )
             positions = initializer.initialize(netlist, board)
             net_virtual_nodes = None
+        elif config.initialization.method == "zone_aware_spectral":
+            # Zone-aware spectral: bias components away from copper zones
+            zone_cfg = config.initialization.zone_aware
+            initializer = ZoneAwareSpectralInitializer(
+                normalized_laplacian=config.initialization.spectral_normalized,
+                margin_fraction=config.initialization.spectral_margin,
+                zone_penalty=zone_cfg.zone_penalty,
+                boundary_margin=zone_cfg.boundary_margin,
+                adjustment_iters=zone_cfg.adjustment_iters,
+            )
+            positions = initializer.initialize(netlist, board)
+            net_virtual_nodes = None
+            logger.info(
+                f"Zone-aware spectral init: penalty={zone_cfg.zone_penalty}, "
+                f"margin={zone_cfg.boundary_margin}mm, iters={zone_cfg.adjustment_iters}"
+            )
         elif config.initialization.method == "learned":
             from temper_placer.optimizer.initialization import LearnedInitializer
-            initializer = LearnedInitializer(
-                model_path=config.initialization.learned_model_path
-            )
+
+            initializer = LearnedInitializer(model_path=config.initialization.learned_model_path)
             positions = initializer.initialize(netlist, board)
             net_virtual_nodes = None
         else:
@@ -346,13 +362,17 @@ def initialize_training_state(
 
     # Initialize virtual nodes if not present
     if net_virtual_nodes is None:
-         ox, oy = board.origin
-         # Use 10mm margin but cap it at 20% of board dimensions to handle small boards
-         margin = min(10.0, board.width * 0.2, board.height * 0.2)
-         key_vn_x, key_vn_y = jax.random.split(rng_key, 2)
-         nx = jax.random.uniform(key_vn_x, (netlist.n_nets,), minval=ox+margin, maxval=ox+board.width-margin)
-         ny = jax.random.uniform(key_vn_y, (netlist.n_nets,), minval=oy+margin, maxval=oy+board.height-margin)
-         net_virtual_nodes = jnp.stack([nx, ny], axis=-1)
+        ox, oy = board.origin
+        # Use 10mm margin but cap it at 20% of board dimensions to handle small boards
+        margin = min(10.0, board.width * 0.2, board.height * 0.2)
+        key_vn_x, key_vn_y = jax.random.split(rng_key, 2)
+        nx = jax.random.uniform(
+            key_vn_x, (netlist.n_nets,), minval=ox + margin, maxval=ox + board.width - margin
+        )
+        ny = jax.random.uniform(
+            key_vn_y, (netlist.n_nets,), minval=oy + margin, maxval=oy + board.height - margin
+        )
+        net_virtual_nodes = jnp.stack([nx, ny], axis=-1)
 
     # Apply force-directed unfolding if enabled
     if config.initialization.force_directed.enabled:
@@ -404,7 +424,8 @@ def make_train_step(
     grad_norm_lr: float = 0.025,
     composite_loss: CompositeLoss | None = None,
     loss_context: LossContext | None = None,
-    zone_bounds: Array | None = None,  # (N, 4) per-component zone bounds [x_min, y_min, x_max, y_max]
+    zone_bounds: Array
+    | None = None,  # (N, 4) per-component zone bounds [x_min, y_min, x_max, y_max]
 ):
     """
     Create a JIT-compiled training step function.
@@ -442,7 +463,22 @@ def make_train_step(
         overlap_weights: Array,
         loss_weights: Array,
         initial_grad_norms: Array,
-    ) -> tuple[Array, Array, Array, Array, dict[str, Array], Any, Any, Any, Array, Array, Array, float, Array, Array]:
+    ) -> tuple[
+        Array,
+        Array,
+        Array,
+        Array,
+        dict[str, Array],
+        Any,
+        Any,
+        Any,
+        Array,
+        Array,
+        Array,
+        float,
+        Array,
+        Array,
+    ]:
         """
         Single training step.
 
@@ -491,6 +527,7 @@ def make_train_step(
                         wloss = composite_loss.losses[wloss_idx]
                         res = wloss.loss_fn(pos_in, rot_in, loss_context, epoch, total_epochs)
                         return res.value / wloss.get_normalizer(loss_context)
+
                     return thunk
 
                 thunks = [make_loss_thunk(idx) for idx in range(len(composite_loss.losses))]
@@ -515,11 +552,7 @@ def make_train_step(
             curr_grad_norms = jax.vmap(get_grad_norm)(jnp.arange(n_losses))
 
             # Update initial norms at epoch 0
-            new_initial_grad_norms = jnp.where(
-                epoch == 0,
-                curr_grad_norms,
-                initial_grad_norms
-            )
+            new_initial_grad_norms = jnp.where(epoch == 0, curr_grad_norms, initial_grad_norms)
             # Avoid division by zero
             new_initial_grad_norms = jnp.maximum(new_initial_grad_norms, 1e-6)
 
@@ -573,11 +606,7 @@ def make_train_step(
         # Hard clamping to board bounds (temper-p11g.2)
         if loss_context is not None:
             board_bounds = loss_context.board.get_relative_bounds_array()
-            new_positions = jnp.clip(
-                new_positions,
-                min=board_bounds[:2],
-                max=board_bounds[2:]
-            )
+            new_positions = jnp.clip(new_positions, min=board_bounds[:2], max=board_bounds[2:])
 
         # Hard clamping to zone bounds (guaranteed zone compliance)
         # zone_bounds is (N, 4) where each row is [x_min, y_min, x_max, y_max]
@@ -586,38 +615,34 @@ def make_train_step(
             new_positions = jnp.clip(
                 new_positions,
                 min=zone_bounds[:, :2],  # x_min, y_min
-                max=zone_bounds[:, 2:]   # x_max, y_max
+                max=zone_bounds[:, 2:],  # x_max, y_max
             )
 
         # Ensure fixed components don't move (temper-p11g.6)
         if loss_context is not None:
-            new_positions = jnp.where(
-                loss_context.fixed_mask[:, None],
-                positions,
-                new_positions
-            )
+            new_positions = jnp.where(loss_context.fixed_mask[:, None], positions, new_positions)
 
             # Zero out optimizer state for fixed components to prevent drift (temper-p11g.6)
             # Adam optimizer maintains momentum (mu) and variance (nu) which can accumulate
-            if hasattr(next_opt_state_pos, 'mu'):
+            if hasattr(next_opt_state_pos, "mu"):
                 next_opt_state_pos = next_opt_state_pos._replace(
                     mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.mu),
                     nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.nu),
                 )
 
-        updates_rot, next_opt_state_rot = opt_rot.update(grad_rot, new_opt_state_rot, rotation_logits)
+        updates_rot, next_opt_state_rot = opt_rot.update(
+            grad_rot, new_opt_state_rot, rotation_logits
+        )
         new_rotation_logits = optax.apply_updates(rotation_logits, updates_rot)
 
         # Fixed components don't rotate either
         if loss_context is not None:
             new_rotation_logits = jnp.where(
-                loss_context.fixed_mask[:, None],
-                rotation_logits,
-                new_rotation_logits
+                loss_context.fixed_mask[:, None], rotation_logits, new_rotation_logits
             )
 
             # Zero out optimizer state for fixed components (temper-p11g.6)
-            if hasattr(next_opt_state_rot, 'mu'):
+            if hasattr(next_opt_state_rot, "mu"):
                 next_opt_state_rot = next_opt_state_rot._replace(
                     mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.mu),
                     nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.nu),
@@ -630,9 +655,7 @@ def make_train_step(
         if loss_context is not None:
             board_bounds = loss_context.board.get_relative_bounds_array()
             new_net_virtual_nodes = jnp.clip(
-                new_net_virtual_nodes,
-                min=board_bounds[:2],
-                max=board_bounds[2:]
+                new_net_virtual_nodes, min=board_bounds[:2], max=board_bounds[2:]
             )
 
         # Compute movement norm and update EMA
@@ -736,7 +759,7 @@ def train(
 
     # Create JIT-compiled train step
     centrality = context.centrality if config.use_centrality_weighting else None
-    
+
     # Compute zone bounds per component for hard zone clamping
     # Each row is [x_min, y_min, x_max, y_max] for component i
     zone_bounds = None
@@ -746,7 +769,7 @@ def train(
         for zone in context.board.zones:
             for comp_ref in zone.components:
                 ref_to_zone[comp_ref] = zone.bounds
-        
+
         # Build zone_bounds array
         board_bounds = context.board.get_relative_bounds_array()
         zone_bounds_list = []
@@ -755,10 +778,11 @@ def train(
                 zone_bounds_list.append(ref_to_zone[comp.ref])
             else:
                 # No zone assignment - use board bounds
-                zone_bounds_list.append((board_bounds[0], board_bounds[1], 
-                                        board_bounds[2], board_bounds[3]))
+                zone_bounds_list.append(
+                    (board_bounds[0], board_bounds[1], board_bounds[2], board_bounds[3])
+                )
         zone_bounds = jnp.array(zone_bounds_list, dtype=jnp.float32)
-    
+
     train_step = make_train_step(
         value_and_grad_fn,
         opt_pos,
@@ -776,9 +800,7 @@ def train(
     )
 
     # Optional: Enable JAX profiler
-    profile_ctx = (
-        jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
-    )
+    profile_ctx = jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
 
     # Training history
     history: list[TrainingMetrics] = []
@@ -814,7 +836,7 @@ def train(
 
             # Get current temperature and learning rate
             temperature = get_temperature(epoch, config.epochs, config.temperature)
-            
+
             # Adaptive Learning Rate (ALR) - Reduce on Plateau
             lr_cfg = config.reduce_lr_on_plateau
             if lr_cfg.enabled and is_plateau:
@@ -822,12 +844,14 @@ def train(
                 if state.plateau_count >= lr_cfg.patience:
                     state.current_lr = max(state.current_lr * lr_cfg.factor, lr_cfg.min_lr)
                     state.plateau_count = 0
-                    logger.info(f"Epoch {epoch}: Reducing learning rate to {state.current_lr:.6f} due to plateau")
+                    logger.info(
+                        f"Epoch {epoch}: Reducing learning rate to {state.current_lr:.6f} due to plateau"
+                    )
             else:
                 state.plateau_count = 0
-                
+
             # If not plateauing, follow base schedule (optional: blend them)
-            # For now, if ALR has touched the LR, we stay with ALR's value 
+            # For now, if ALR has touched the LR, we stay with ALR's value
             # unless the schedule is even lower.
             base_lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
             lr = min(state.current_lr, base_lr)
@@ -894,7 +918,9 @@ def train(
 
             confidence = conv_confidence.confidence
             is_plateau = conv_metrics.is_stagnating
-            state.improvement_ema = conv_metrics.improvement_rate # Use rate as EMA proxy for backward compat if needed
+            state.improvement_ema = (
+                conv_metrics.improvement_rate
+            )  # Use rate as EMA proxy for backward compat if needed
 
             # Adaptive Overlap Weighting Logic
             # Adaptive Overlap Weighting
@@ -904,24 +930,34 @@ def train(
                 per_comp_boundary = loss_breakdown_arrays.get("boundary_per_component")
                 per_comp_group = loss_breakdown_arrays.get("group_cluster_per_component")
 
-                if per_comp_overlap is not None or per_comp_boundary is not None or per_comp_group is not None:
+                if (
+                    per_comp_overlap is not None
+                    or per_comp_boundary is not None
+                    or per_comp_group is not None
+                ):
                     # Initialize mask
                     violation_mask = jnp.zeros(state.overlap_weights.shape, dtype=jnp.bool_)
 
                     if per_comp_overlap is not None:
-                        violation_mask = jnp.logical_or(violation_mask, per_comp_overlap > ao_cfg.collision_threshold)
+                        violation_mask = jnp.logical_or(
+                            violation_mask, per_comp_overlap > ao_cfg.collision_threshold
+                        )
 
                     if per_comp_boundary is not None:
-                        violation_mask = jnp.logical_or(violation_mask, per_comp_boundary > ao_cfg.collision_threshold)
+                        violation_mask = jnp.logical_or(
+                            violation_mask, per_comp_boundary > ao_cfg.collision_threshold
+                        )
 
                     if per_comp_group is not None:
-                        violation_mask = jnp.logical_or(violation_mask, per_comp_group > ao_cfg.collision_threshold)
+                        violation_mask = jnp.logical_or(
+                            violation_mask, per_comp_group > ao_cfg.collision_threshold
+                        )
 
                     # Increment weight for any violation
                     state.overlap_weights = jnp.where(
                         violation_mask,
                         state.overlap_weights * ao_cfg.ramp_rate,
-                        state.overlap_weights
+                        state.overlap_weights,
                     )
                     # Cap is critical to prevent explosion (temper-taaj.1)
                     state.overlap_weights = jnp.minimum(state.overlap_weights, ao_cfg.max_cap)
@@ -929,10 +965,16 @@ def train(
                     # Log when weights approach cap for debugging
                     max_weight = float(jnp.max(state.overlap_weights))
                     if max_weight > ao_cfg.max_cap * 0.9:
-                        logger.debug(f"Epoch {epoch}: Adaptive weight near cap: {max_weight:.2f}/{ao_cfg.max_cap}")
+                        logger.debug(
+                            f"Epoch {epoch}: Adaptive weight near cap: {max_weight:.2f}/{ao_cfg.max_cap}"
+                        )
             # Stochastic Perturbation (Jiggle) Logic
             j_cfg = config.jiggle
-            if j_cfg.enabled and state.position_delta_ema < j_cfg.ema_threshold and epoch > j_cfg.min_epoch:
+            if (
+                j_cfg.enabled
+                and state.position_delta_ema < j_cfg.ema_threshold
+                and epoch > j_cfg.min_epoch
+            ):
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
                 sigma = j_cfg.sigma_fraction * max(board.width, board.height)
                 noise_scale = sigma * (temperature / config.temperature.start)
@@ -985,8 +1027,10 @@ def train(
 
                 # Use breakdown from train_step (no recomputation needed!)
                 # Convert arrays to scalars for logging, keeping only the totals
-                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
-                           for k, v in loss_breakdown_arrays.items()}
+                breakdown = {
+                    k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
+                    for k, v in loss_breakdown_arrays.items()
+                }
 
                 # Extract current loss weights for logging
                 logged_weights = None
@@ -1032,7 +1076,9 @@ def train(
                     and confidence >= config.early_stopping.confidence_threshold
                     and epoch > config.early_stopping.patience // 2  # Warmup
                 ):
-                    logger.info(f"Epoch {epoch}: Early stopping due to convergence confidence ({confidence:.4f})")
+                    logger.info(
+                        f"Epoch {epoch}: Early stopping due to convergence confidence ({confidence:.4f})"
+                    )
                     convergence_reached = True
                     break
 
@@ -1063,7 +1109,8 @@ def train(
         best_loss=best_loss,
         history=history,
         total_epochs=epoch + 1,
-        converged=epochs_without_improvement >= config.early_stopping.patience or convergence_reached,
+        converged=epochs_without_improvement >= config.early_stopping.patience
+        or convergence_reached,
         elapsed_seconds=elapsed,
         validation_history=validation_history,
         stopped_by_validation=stopped_by_validation,
@@ -1075,7 +1122,7 @@ def train(
             context,
             epoch=epoch,
             total_epochs=config.epochs,
-            net_virtual_nodes=state.net_virtual_nodes
+            net_virtual_nodes=state.net_virtual_nodes,
         )[1],
     )
 
@@ -1124,7 +1171,9 @@ def train_parallel(
     # We estimate the tax by comparing total wirelength vs a hypothetical minimum
     # Or just looking at the wirelength component of the best result vs the average.
     best_wl = best_result.history[-1].loss_breakdown.get("wirelength", 0.0)
-    avg_wl = jnp.mean(jnp.array([r.history[-1].loss_breakdown.get("wirelength", 0.0) for r in results]))
+    avg_wl = jnp.mean(
+        jnp.array([r.history[-1].loss_breakdown.get("wirelength", 0.0) for r in results])
+    )
 
     # Aesthetic tax is best_wl / minimal_achieved_wl
     min_wl = min([r.history[-1].loss_breakdown.get("wirelength", 1e9) for r in results])
@@ -1147,6 +1196,7 @@ def train_parallel(
 def dataclass_replace(obj, **kwargs):
     """Simple helper to replace fields in a dataclass."""
     from dataclasses import replace
+
     return replace(obj, **kwargs)
 
 
@@ -1248,7 +1298,7 @@ def train_multiphase(
         for zone in board.zones:
             for comp_ref in zone.components:
                 ref_to_zone[comp_ref] = zone.bounds
-        
+
         # Build zone_bounds array
         board_bounds = board.get_relative_bounds_array()
         zone_bounds_list = []
@@ -1257,14 +1307,13 @@ def train_multiphase(
                 zone_bounds_list.append(ref_to_zone[comp.ref])
             else:
                 # No zone assignment - use board bounds
-                zone_bounds_list.append((board_bounds[0], board_bounds[1], 
-                                        board_bounds[2], board_bounds[3]))
+                zone_bounds_list.append(
+                    (board_bounds[0], board_bounds[1], board_bounds[2], board_bounds[3])
+                )
         zone_bounds = jnp.array(zone_bounds_list, dtype=jnp.float32)
 
     # Optional: Enable JAX profiler
-    profile_ctx = (
-        jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
-    )
+    profile_ctx = jax.profiler.trace(profile_dir) if profile_dir else contextlib.nullcontext()
 
     # Main training loop
     is_plateau = False
@@ -1289,7 +1338,9 @@ def train_multiphase(
 
                 # Get current weights
                 if config.curriculum_phases:
-                    weights = get_curriculum_weights(epoch, config.curriculum_phases, default_weights)
+                    weights = get_curriculum_weights(
+                        epoch, config.curriculum_phases, default_weights
+                    )
                 else:
                     weights = default_weights
 
@@ -1334,7 +1385,7 @@ def train_multiphase(
 
             # Get current temperature and learning rate
             temperature = get_temperature(epoch, config.epochs, config.temperature)
-            
+
             # Adaptive Learning Rate (ALR) - Reduce on Plateau
             lr_cfg = config.reduce_lr_on_plateau
             if lr_cfg.enabled and is_plateau:
@@ -1342,10 +1393,12 @@ def train_multiphase(
                 if state.plateau_count >= lr_cfg.patience:
                     state.current_lr = max(state.current_lr * lr_cfg.factor, lr_cfg.min_lr)
                     state.plateau_count = 0
-                    logger.info(f"Epoch {epoch}: Reducing learning rate to {state.current_lr:.6f} due to plateau")
+                    logger.info(
+                        f"Epoch {epoch}: Reducing learning rate to {state.current_lr:.6f} due to plateau"
+                    )
             else:
                 state.plateau_count = 0
-                
+
             base_lr = get_learning_rate(epoch, config.epochs, config.learning_rate)
             lr = min(state.current_lr, base_lr)
 
@@ -1358,7 +1411,9 @@ def train_multiphase(
 
             # Run training step (returns breakdown alongside loss to avoid recomputation)
             if train_step is None:
-                raise RuntimeError(f"train_step not initialized at epoch {epoch}. Check curriculum phases.")
+                raise RuntimeError(
+                    f"train_step not initialized at epoch {epoch}. Check curriculum phases."
+                )
 
             (
                 new_positions,
@@ -1413,7 +1468,9 @@ def train_multiphase(
 
             confidence = conv_confidence.confidence
             is_plateau = conv_metrics.is_stagnating
-            state.improvement_ema = conv_metrics.improvement_rate # Use rate as EMA proxy for backward compat if needed
+            state.improvement_ema = (
+                conv_metrics.improvement_rate
+            )  # Use rate as EMA proxy for backward compat if needed
 
             # Adaptive Overlap Weighting Logic
             # Adaptive Overlap Weighting
@@ -1425,28 +1482,32 @@ def train_multiphase(
                     state.overlap_weights = jnp.where(
                         collision_mask,
                         state.overlap_weights * ao_cfg.ramp_rate,
-                        state.overlap_weights
+                        state.overlap_weights,
                     )
                     state.overlap_weights = jnp.minimum(state.overlap_weights, ao_cfg.max_cap)
                     state.overlap_weights = jnp.where(
                         ~collision_mask,
                         jnp.maximum(1.0, state.overlap_weights * ao_cfg.decay_rate),
-                        state.overlap_weights
+                        state.overlap_weights,
                     )
 
             # Stochastic Perturbation (Jiggle) Logic
             # Stochastic Perturbation (Jiggle) Logic
             j_cfg = config.jiggle
-            if j_cfg.enabled and state.position_delta_ema < j_cfg.ema_threshold and epoch > j_cfg.min_epoch:
+            if (
+                j_cfg.enabled
+                and state.position_delta_ema < j_cfg.ema_threshold
+                and epoch > j_cfg.min_epoch
+            ):
                 state.rng_key, jiggle_key = jax.random.split(state.rng_key)
                 sigma = j_cfg.sigma_fraction * max(board.width, board.height)
                 noise_scale = sigma * (temperature / config.temperature.start)
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
-                
+
                 # Apply mask to jiggle
                 jiggle = jnp.where(context.fixed_mask[:, None], 0.0, jiggle)
-                
+
                 state.positions = state.positions + jiggle
                 # We don't reset EMA to 1.0 anymore (temper-p11g.9)
                 logger.debug(f"Epoch {epoch}: Jiggle triggered")
@@ -1492,8 +1553,10 @@ def train_multiphase(
 
                 # Use breakdown from train_step (no recomputation needed!)
                 # Convert arrays to scalars for logging, keeping only the totals
-                breakdown = {k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
-                           for k, v in loss_breakdown_arrays.items()}
+                breakdown = {
+                    k: float(jnp.sum(v)) if hasattr(v, "shape") and v.shape else float(v)
+                    for k, v in loss_breakdown_arrays.items()
+                }
 
                 # Extract current loss weights for logging
                 logged_weights = None
@@ -1539,7 +1602,9 @@ def train_multiphase(
                     and confidence >= config.early_stopping.confidence_threshold
                     and epoch > config.early_stopping.patience // 2  # Warmup
                 ):
-                    logger.info(f"Epoch {epoch}: Early stopping due to convergence confidence ({confidence:.4f})")
+                    logger.info(
+                        f"Epoch {epoch}: Early stopping due to convergence confidence ({confidence:.4f})"
+                    )
                     convergence_reached = True
                     break
 
@@ -1569,7 +1634,8 @@ def train_multiphase(
         best_loss=best_loss,
         history=history,
         total_epochs=epoch + 1,
-        converged=epochs_without_improvement >= config.early_stopping.patience or convergence_reached,
+        converged=epochs_without_improvement >= config.early_stopping.patience
+        or convergence_reached,
         elapsed_seconds=elapsed,
         validation_history=validation_history,
         stopped_by_validation=stopped_by_validation,
@@ -1581,6 +1647,6 @@ def train_multiphase(
             context,
             epoch=epoch,
             total_epochs=config.epochs,
-            net_virtual_nodes=state.net_virtual_nodes
+            net_virtual_nodes=state.net_virtual_nodes,
         )[1],
     )

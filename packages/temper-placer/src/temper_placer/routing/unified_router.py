@@ -28,6 +28,8 @@ from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Netlist
 from temper_placer.routing import push_shove as ps
 from temper_placer.routing.maze_router import MazeRouter
+from temper_placer.routing.escape_router import EscapeRouter
+from temper_placer.routing.fanout import FanoutConfig
 from temper_placer.routing.current_capacity_strategy import (
     CurrentCapacityStrategy,
     select_current_capacity_strategy,
@@ -102,6 +104,8 @@ class RoutingConfig:
         push_shove_num_samples: Samples per segment for collision detection
         enable_via: Whether to allow layer transitions
         prefer_push_shove_for_dense: Use push-shove for high-congestion areas
+        enable_escape_routing: Whether to automatically generate pin fanouts
+        fanout_config: Configuration for fanout generation
     """
 
     strategy: RoutingStrategy = RoutingStrategy.AUTO
@@ -110,6 +114,8 @@ class RoutingConfig:
     push_shove_num_samples: int = 20
     enable_via: bool = True
     prefer_push_shove_for_dense: bool = False
+    enable_escape_routing: bool = True
+    fanout_config: FanoutConfig | None = None
 
 
 @dataclass
@@ -570,6 +576,7 @@ class UnifiedRouter:
         positions: Array,
         net_order: list[str],
         assignments: dict[str, "LayerAssignment"],
+        ki_board: "KiBoard | None" = None,
     ) -> dict[str, UnifiedRoutePath]:
         """Route all nets in priority order.
 
@@ -578,6 +585,7 @@ class UnifiedRouter:
             positions: Component positions
             net_order: Net routing order (priority)
             assignments: Layer assignments per net
+            ki_board: Optional Kiutils board for escape routing (fanouts)
 
         Returns:
             Dictionary of net name -> routing result
@@ -589,6 +597,11 @@ class UnifiedRouter:
         context = None
         if self.hypergraph is not None:
             context = get_routing_context(self.hypergraph, positions, self.board, netlist)
+
+        # 2. Initialize Escape Router if requested
+        escape_router = None
+        if self.config.enable_escape_routing and ki_board:
+            escape_router = EscapeRouter(ki_board, netlist, self.config.fanout_config)
 
         # Block components in both routers
         self.maze_router.block_components(netlist.components, positions)
@@ -628,7 +641,23 @@ class UnifiedRouter:
             if assignment is None:
                 continue
 
-            # 2. Apply Semantic Strategy
+            # 3. Apply Escape Routing (Fanout) if enabled
+            current_pin_positions = pin_positions
+            escape_via_count = 0
+            escape_length = 0.0
+            if escape_router:
+                escape_result = escape_router.route_net_escapes(net_name)
+                if escape_result.success:
+                    current_pin_positions = escape_result.escape_positions
+                    escape_via_count = escape_result.via_count
+                    escape_length = escape_result.length
+                    
+                    # Register escape routes as fixed obstacles for OTHER nets
+                    # MazeRouter already handles excluding own net if we use block_traces
+                    self.maze_router.block_traces(escape_result.traces)
+                    self.maze_router.block_vias(escape_result.vias)
+
+            # 4. Apply Semantic Strategy
             cost_map = None
             if context:
                 # Check for Flood Fill (skip routing)
@@ -646,7 +675,12 @@ class UnifiedRouter:
                     net_id=net_name
                 )
 
-            result = self.route_net(net_name, pin_positions, assignment, cost_map=cost_map)
+            result = self.route_net(net_name, current_pin_positions, assignment, cost_map=cost_map)
+            
+            # Combine results
+            result.via_count += escape_via_count
+            result.length += escape_length
+            
             results[net_name] = result
 
         return results

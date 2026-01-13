@@ -8,6 +8,8 @@ and escape route generation.
 
 import jax.numpy as jnp
 import pytest
+
+pytest_bdd = pytest.importorskip("pytest_bdd", reason="pytest_bdd not installed")
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from temper_placer.core.board import Board

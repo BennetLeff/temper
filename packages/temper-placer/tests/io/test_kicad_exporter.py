@@ -98,7 +98,11 @@ class TestPathToVias:
     """Tests for extracting vias from paths."""
 
     def test_single_layer_transition_creates_one_via(self):
-        """Path with one layer change should create one via."""
+        """Path with one layer change should create one via.
+        
+        Uses default 4-layer map where layer 0=F.Cu, layer 1=In1.Cu.
+        Via connects only the layers involved in the transition (partial stack).
+        """
         path = RoutePath(
             net="CLK",
             cells=[GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1)],
@@ -113,8 +117,10 @@ class TestPathToVias:
         assert vias[0].net == "CLK"
         assert vias[0].size == 0.8  # Default
         assert vias[0].drill == 0.4  # Default
+        # With default 4-layer map, layer 0→1 creates F.Cu→In1.Cu via
         assert "F.Cu" in vias[0].layers
-        assert "B.Cu" in vias[0].layers
+        assert "In1.Cu" in vias[0].layers
+        assert len(vias[0].layers) == 2  # Partial stack, not through-hole
 
     def test_multiple_layer_transitions(self):
         """Multiple vias in path."""

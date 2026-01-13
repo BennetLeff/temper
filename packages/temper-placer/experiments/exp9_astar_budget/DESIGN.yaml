@@ -1,0 +1,72 @@
+# EXP-9: Fix Escape Layer / Routing Layer Mismatch
+# Created: 2026-01-09
+# Updated: 2026-01-09 - Diagnosed root cause
+
+experiment_id: EXP-9
+name: "Fix Escape Layer / Routing Layer Mismatch for Analog Nets"
+status: in_progress
+
+hypothesis: |
+  REVISED HYPOTHESIS (after testing):
+  
+  Initial hypothesis (iteration budget) was WRONG - increasing budget had no effect.
+  
+  ROOT CAUSE: Layer mismatch between escape routing and main routing.
+  - fine_pitch_escape.py escapes I_SENSE to Layer 1 (In1.Cu)
+  - sequential_routing.py restricts I_SENSE to layers [0, 3] only
+  - Result: Route cannot continue from escape via because Layer 1 not allowed!
+  
+  Same issue likely affects TEMP_SENSE and other "SENSE_" pattern nets.
+  
+  FIX: Add layer3_nets to fine_pitch_escape for analog nets that should
+  escape to B.Cu (layer 3) instead of In1.Cu to match their routing restrictions.
+
+target_nets:
+  - I_SENSE: 19 violations (layer-restricted to [0, 3])
+  - GATE_L: 15 violations
+  - SPI_MISO: 13 violations
+  - SPI_MOSI: 11 violations
+
+baseline:
+  total_violations: 102
+  base_iterations_per_cell: 200
+  # Current adaptive budget: 200 * distance * congestion_factor * layer_factor * distance_factor * 2.0
+  # For 50mm route with HIGH congestion and 2 layers: 200 * 50 * 4.0 * 1.5 * 1.5 * 2.0 = 180,000 iterations
+
+approach:
+  option_a:
+    description: "Global budget increase"
+    change: "base_iterations_per_cell: 200 -> 400"
+    file: "sequential_routing.py:1368"
+    risk: "2x routing time, but likely still acceptable"
+    
+  option_b:
+    description: "Net-specific budget override"
+    change: "Add HIGH_VIOLATION_NETS list with custom budget multiplier"
+    file: "sequential_routing.py:1358-1369"
+    risk: "More complex, but targeted"
+    
+  option_c:
+    description: "Expand layer options for I_SENSE"
+    change: "_get_allowed_layers_for_net: [0,3] -> [0,1,2,3]"
+    file: "sequential_routing.py:368-371"
+    risk: "May introduce noise coupling issues"
+
+selected_approach: option_a  # Start with simplest, measure impact
+
+success_criteria:
+  primary: "Total connectivity violations < 80 (>20% reduction from 102)"
+  secondary: "Target net violations reduced by >30% each"
+  constraint: "No DRC regressions"
+  constraint: "Routing time < 2x baseline"
+
+metrics_to_capture:
+  - total_connectivity_violations
+  - per_net_violations (I_SENSE, GATE_L, SPI_*, PWM_*)
+  - drc_violations
+  - routing_time_seconds
+
+rollback_plan: |
+  If DRC violations increase or routing time exceeds 3x:
+  1. Revert base_iterations_per_cell to 200
+  2. Try option_b (net-specific) or option_c (layer expansion)

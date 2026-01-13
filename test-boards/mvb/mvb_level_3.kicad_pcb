@@ -1,0 +1,50 @@
+(kicad_pcb (version 20221018) (generator temper_mvb_gen)
+  (general
+    (thickness 1.6)
+  )
+  (layers
+    (0 "F.Cu" signal)
+    (31 "B.Cu" signal)
+    (44 "Edge.Cuts" user)
+  )
+  (setup
+    (pad_to_mask_clearance 0.1)
+  )
+
+  (net 0 "")
+  (net 1 "GND")
+  (net 2 "SIG")
+  (net 3 "HV")
+
+  (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
+    (tedit 0) (tstamp 00000000-0000-0000-0000-000000000031)
+    (at 2.5 5 0)
+    (property "Reference" "J1")
+    (pad "1" thru_hole rect (at 0 0) (size 1.7 1.7) (drill 1.0) (layers *.Cu *.Mask) (net 1 "GND"))
+    (pad "2" thru_hole oval (at 0 2.54) (size 1.7 1.7) (drill 1.0) (layers *.Cu *.Mask) (net 2 "SIG"))
+  )
+  
+  (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
+    (tedit 0) (tstamp 00000000-0000-0000-0000-000000000032)
+    (at 12.5 5 0)
+    (property "Reference" "J2")
+    (pad "1" thru_hole rect (at 0 0) (size 1.7 1.7) (drill 1.0) (layers *.Cu *.Mask) (net 1 "GND"))
+    (pad "2" thru_hole oval (at 0 2.54) (size 1.7 1.7) (drill 1.0) (layers *.Cu *.Mask) (net 2 "SIG"))
+  )
+
+  (zone (net 3) (net_name "HV") (layer "F.Cu") (tstamp 00000000-0000-0000-0000-000000000033) (hatch edge 0.5)
+    (connect_pads (clearance 3.0))
+    (min_thickness 0.254) (filled_areas_thickness no)
+    (fill (thermal_gap 0.5) (thermal_bridge_width 0.5))
+    (polygon
+      (pts
+        (xy 5 0) (xy 10 0) (xy 10 10) (xy 5 10)
+      )
+    )
+  )
+
+  (gr_line (start 0 0) (end 15 0) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 15 0) (end 15 10) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 15 10) (end 0 10) (layer "Edge.Cuts") (width 0.1))
+  (gr_line (start 0 10) (end 0 0) (layer "Edge.Cuts") (width 0.1))
+)

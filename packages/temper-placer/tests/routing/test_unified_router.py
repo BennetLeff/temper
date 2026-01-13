@@ -403,3 +403,28 @@ class TestIntegration:
         # All strategies should produce results
         for strategy, results in all_results.items():
             assert len(results) == 1, f"Strategy {strategy} failed to route net"
+
+    def test_escape_routing_integration(
+        self, simple_board, simple_netlist, simple_positions, simple_assignments
+    ):
+        """Test that escape routing is triggered when ki_board is provided."""
+        from unittest.mock import MagicMock
+        from kiutils.board import Board as KiBoard
+        
+        ki_board = KiBoard()
+        ki_board.traceItems = []
+        ki_board.nets = [MagicMock()]
+        ki_board.nets[0].name = "VCC"
+        
+        router = UnifiedRouter.from_board(simple_board, enable_escape_routing=True)
+        results = router.route_all_nets(
+            simple_netlist, simple_positions, ["VCC"], simple_assignments,
+            ki_board=ki_board
+        )
+        
+        assert "VCC" in results
+        assert results["VCC"].success
+        
+        # Check if vias were added to ki_board by EscapeRouter
+        via_count = sum(1 for item in ki_board.traceItems if hasattr(item, 'drill'))
+        assert via_count > 0

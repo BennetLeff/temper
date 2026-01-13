@@ -104,7 +104,7 @@ def main():
     parser.add_argument("input_pcb", type=Path, help="Input .kicad_pcb file")
     parser.add_argument("-o", "--output", type=Path, help="Output .kicad_pcb file")
     parser.add_argument("--max-iterations", type=int, default=10, help="Max outer loop iterations")
-    parser.add_argument("--cell-size", type=float, default=0.5, help="Routing grid cell size (mm)")
+    parser.add_argument("--cell-size", type=float, default=0.2, help="Routing grid cell size (mm)")
     parser.add_argument("--placement-steps", type=int, default=100, help="Placement optimizer steps per iteration")
     parser.add_argument("--rrr-iters", type=int, default=5, help="RRR iterations per routing pass")
     parser.add_argument("--target-conflicts", type=int, default=0, help="Stop when conflicts <= this")
@@ -376,6 +376,9 @@ def main():
 
         # Block components at current positions
         router.block_components(netlist.components, positions)
+
+        # Block Zones (prevent bleeding)
+        router.block_zones(board.zones, clearance=0.3)
 
         # Route all nets
         results = router.rrr_route_all_nets(
