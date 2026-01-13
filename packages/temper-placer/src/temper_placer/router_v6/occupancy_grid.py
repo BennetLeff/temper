@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
-from shapely.geometry import Point
+from shapely import contains, points
 
 from temper_placer.router_v6.routing_space import RoutingSpace
 
@@ -97,7 +97,7 @@ class OccupancyGrid:
     ) -> None:
         """
         Mark cells occupied by a routed path (with clearance expansion).
-        
+
         Args:
             path: List of (x, y) coordinates
             trace_width: Width of the trace in mm
@@ -108,32 +108,32 @@ class OccupancyGrid:
         # width/2 + clearance gives blocking radius
         radius_mm = (trace_width / 2) + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
-        
+
         # Helper to mark a single point
         def mark_point(x_mm, y_mm):
             cx, cy = self.world_to_grid(x_mm, y_mm)
-            
+
             x_start = max(0, cx - expansion)
             x_end = min(self.width_cells, cx + expansion + 1)
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
-            
+
             # Use net_id to mark
             self.grid[y_start:y_end, x_start:x_end] = net_id
 
         # Mark all points in path
         if not path:
             return
-            
+
         # Rasterize lines between points
         for i in range(len(path) - 1):
             p1 = path[i]
-            p2 = path[i+1]
-            
+            p2 = path[i + 1]
+
             # Interpolate for smooth blocking if segment is long
-            dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
-            steps = int(np.ceil(dist / (self.cell_size / 2))) # 2x density for safety
-            
+            dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+            steps = int(np.ceil(dist / (self.cell_size / 2)))  # 2x density for safety
+
             if steps > 0:
                 for s in range(steps + 1):
                     t = s / steps
@@ -152,7 +152,7 @@ class OccupancyGrid:
         """Mark a single segment blocked on THIS grid."""
         radius_mm = (trace_width / 2) + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
-        
+
         def mark_point(x_mm, y_mm):
             cx, cy = self.world_to_grid(x_mm, y_mm)
             x_start = max(0, cx - expansion)
@@ -161,9 +161,9 @@ class OccupancyGrid:
             y_end = min(self.height_cells, cy + expansion + 1)
             self.grid[y_start:y_end, x_start:x_end] = net_id
 
-        dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+        dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
         steps = int(np.ceil(dist / (self.cell_size / 2)))
-        
+
         if steps > 0:
             for s in range(steps + 1):
                 t = s / steps
@@ -184,7 +184,7 @@ class OccupancyGrid:
         """Unmark a single segment from THIS grid."""
         radius_mm = (trace_width / 2) + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
-        
+
         def unmark_point(x_mm, y_mm):
             cx, cy = self.world_to_grid(x_mm, y_mm)
             x_start = max(0, cx - expansion)
@@ -192,12 +192,12 @@ class OccupancyGrid:
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
             region = self.grid[y_start:y_end, x_start:x_end]
-            
+
             # Restore -1 if it was a static obstacle, otherwise set to 0
             if self.static_mask is not None:
                 static_region = self.static_mask[y_start:y_end, x_start:x_end]
                 # Identify cells that are currently our net
-                net_mask = (region == net_id)
+                net_mask = region == net_id
                 # Set them to 0 (Free)
                 region[net_mask] = 0
                 # But if they were originally static, restore to -1
@@ -205,9 +205,9 @@ class OccupancyGrid:
             else:
                 region[region == net_id] = 0
 
-        dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+        dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
         steps = int(np.ceil(dist / (self.cell_size / 2)))
-        
+
         if steps > 0:
             for s in range(steps + 1):
                 t = s / steps
@@ -226,35 +226,35 @@ class OccupancyGrid:
     ) -> None:
         """
         Unmark cells occupied by a specific net.
-        
+
         Only clears cells that are currently owned by net_id.
         Does NOT clear if another net has overwritten it (shouldn't happen in valid state)
         or if it's a static obstacle.
         """
         radius_mm = (trace_width / 2) + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
-        
+
         def unmark_point(x_mm, y_mm):
             cx, cy = self.world_to_grid(x_mm, y_mm)
-            
+
             x_start = max(0, cx - expansion)
             x_end = min(self.width_cells, cx + expansion + 1)
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
-            
+
             # Only clear cells equal to net_id
             region = self.grid[y_start:y_end, x_start:x_end]
             region[region == net_id] = 0  # Set back to Free.
 
         if not path:
             return
-            
+
         for i in range(len(path) - 1):
             p1 = path[i]
-            p2 = path[i+1]
-            dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+            p2 = path[i + 1]
+            dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
             steps = int(np.ceil(dist / (self.cell_size / 2)))
-            
+
             if steps > 0:
                 for s in range(steps + 1):
                     t = s / steps
@@ -271,25 +271,25 @@ class OccupancyGrid:
         Identify which net IDs are blocking the line segment p1-p2.
         """
         blocking_ids = set()
-        
+
         # Simple sampling along line
-        dist = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+        dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
         steps = int(np.ceil(dist / (self.cell_size / 2)))
-        
+
         if steps > 0:
             for s in range(steps + 1):
                 t = s / steps
                 x = p1[0] + t * (p2[0] - p1[0])
                 y = p1[1] + t * (p2[1] - p1[1])
-                
+
                 cx, cy = self.world_to_grid(x, y)
                 if 0 <= cx < self.width_cells and 0 <= cy < self.height_cells:
                     val = self.grid[cy, cx]
                     if val > 0:  # Valid Net ID
                         blocking_ids.add(int(val))
-                        
+
         return blocking_ids
-    
+
     def mark_via_blocked(
         self,
         x_mm: float,
@@ -300,9 +300,9 @@ class OccupancyGrid:
     ) -> None:
         """
         Mark cells blocked by a via (circular region).
-        
+
         Vias block cells on the layer with their annular ring + clearance.
-        
+
         Args:
             x_mm: Via center X in mm
             y_mm: Via center Y in mm
@@ -312,19 +312,19 @@ class OccupancyGrid:
         """
         radius_mm = (via_diameter / 2) + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
-        
+
         cx, cy = self.world_to_grid(x_mm, y_mm)
-        
+
         x_start = max(0, cx - expansion)
         x_end = min(self.width_cells, cx + expansion + 1)
         y_start = max(0, cy - expansion)
         y_end = min(self.height_cells, cy + expansion + 1)
-        
+
         # Mark circular region
         for y in range(y_start, y_end):
             for x in range(x_start, x_end):
                 # Check if within circular radius
-                dist = ((x - cx)**2 + (y - cy)**2)**0.5 * self.cell_size
+                dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 * self.cell_size
                 if dist <= radius_mm:
                     self.grid[y, x] = net_id
 
@@ -338,9 +338,9 @@ def mark_path_blocked_3d(
 ) -> None:
     """
     Mark a 3D path on per-layer grids.
-    
+
     Each segment is marked on the grid corresponding to its layer.
-    
+
     Args:
         grids: Dictionary of OccupancyGrid per layer
         path_3d: List of (x, y, layer) coordinates
@@ -350,12 +350,12 @@ def mark_path_blocked_3d(
     """
     if len(path_3d) < 2:
         return
-    
+
     # Group consecutive points by layer
     for i in range(len(path_3d) - 1):
         x1, y1, layer1 = path_3d[i]
         x2, y2, layer2 = path_3d[i + 1]
-        
+
         # Mark on starting layer's grid
         if layer1 in grids:
             segment = [(x1, y1), (x2, y2)]
@@ -401,24 +401,39 @@ def build_occupancy_grid(
 
     # Use eroded area if inflation requested
     check_area = routing_space.available_area
-    if inflation_mm > 0.1: # Threshold to avoid tiny/empty buffers
+    if inflation_mm > 0.1:  # Threshold to avoid tiny/empty buffers
         # Erode the available area (which is dilation of obstacles)
         check_area = routing_space.available_area.buffer(-inflation_mm, quad_segs=4)
 
-    # Mark cells that are inside routing space as free
-    for y in range(height_cells):
-        for x in range(width_cells):
-            # Get cell center in world coordinates
-            x_world = x_min + (x + 0.5) * cell_size
-            y_world = y_min + (y + 0.5) * cell_size
+    # Vectorized grid construction
+    # 1. Create coordinate grids
+    x_indices = np.arange(width_cells)
+    y_indices = np.arange(height_cells)
+    xx_idx, yy_idx = np.meshgrid(x_indices, y_indices)
 
-            # Check if cell center is inside (potentially inflated) area
-            point = Point(x_world, y_world)
-            if check_area.contains(point):
-                grid[y, x] = 0  # 0 = Free
+    # 2. Convert to world coordinates
+    xx_world = x_min + (xx_idx + 0.5) * cell_size
+    yy_world = y_min + (yy_idx + 0.5) * cell_size
+
+    # 3. Create Shapely points in batch
+    # Flatten for vectorization
+    flat_x = xx_world.ravel()
+    flat_y = yy_world.ravel()
+    batch_points = points(flat_x, flat_y)
+
+    # 4. Check containment in batch
+    # Note: check_area is a Polygon/MultiPolygon. contains() supports array input.
+    mask_flat = contains(check_area, batch_points)
+
+    # 5. Reshape and update grid
+    mask = mask_flat.reshape(height_cells, width_cells)
+
+    # Set Free (0) where mask is True (contained in available area)
+    # The grid was initialized to -1 (Blocked)
+    grid[mask] = 0
 
     # Record which cells were static obstacles (-1) before routing
-    static_mask = (grid == -1)
+    static_mask = grid == -1
 
     return OccupancyGrid(
         layer_name=routing_space.layer_name,

@@ -111,6 +111,8 @@ class RouterV6Pipeline:
         verbose: bool = False,
         enable_theta_star: bool = False,
         enable_smoothing: bool = False,
+        max_nets: int | None = None,
+        target_nets: list[str] | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -119,10 +121,14 @@ class RouterV6Pipeline:
             verbose: Enable verbose logging
             enable_theta_star: Use Theta* any-angle routing (Experiment F)
             enable_smoothing: Apply force-directed smoothing (Experiment G)
+            max_nets: Limit number of nets to route (for profiling)
+            target_nets: List of specific net names to route
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
         self.enable_smoothing = enable_smoothing
+        self.max_nets = max_nets
+        self.target_nets = target_nets
 
     def run(self, pcb_path: Path) -> RouterV6Result:
         """
@@ -407,6 +413,8 @@ class RouterV6Pipeline:
             pcb=pcb,
             escape_vias_map=escape_vias_map,
             use_theta_star=self.enable_theta_star,
+            max_nets=self.max_nets,
+            target_nets=self.target_nets,
         )
 
         # 4.2.5: Force-directed smoothing (optional post-processing)
@@ -417,15 +425,17 @@ class RouterV6Pipeline:
             from temper_placer.routing.post_processing.trace_nudger import smooth_all_paths
 
             smoothing_result = smooth_all_paths(
-                pathfinding_result.routed_paths,
-                pcb.design_rules,
-                max_iterations=200
+                pathfinding_result.routed_paths, pcb.design_rules, max_iterations=200
             )
 
             if self.verbose:
-                print(f"    Violations: {smoothing_result.violations_before} → {smoothing_result.violations_after}")
+                print(
+                    f"    Violations: {smoothing_result.violations_before} → {smoothing_result.violations_after}"
+                )
                 if smoothing_result.violations_before > 0:
-                    improvement = 100 * (1 - smoothing_result.violations_after / smoothing_result.violations_before)
+                    improvement = 100 * (
+                        1 - smoothing_result.violations_after / smoothing_result.violations_before
+                    )
                     print(f"    Improvement: {improvement:.1f}%")
                 print(f"    Converged: {smoothing_result.converged}")
 

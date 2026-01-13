@@ -13,6 +13,7 @@ from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
 import numpy as np
+import sys
 
 
 @dataclass
@@ -452,6 +453,8 @@ def run_astar_pathfinding(
     pcb=None,  # For accessing pads
     escape_vias_map: dict[str, list[tuple[float, float, float]]] | None = None,
     use_theta_star: bool = False,
+    max_nets: int | None = None,
+    target_nets: list[str] | None = None,
 ) -> PathfindingResult:
     # Build grids dictionary for multi-layer blocking
     all_grids = {grid.layer_name: grid}
@@ -536,6 +539,14 @@ def run_astar_pathfinding(
 
     # Filter to only routable nets
     routable_nets = [n for n in net_order if should_route(n)]
+
+    if target_nets:
+        print(f"  Profiling Mode: Routing only {len(target_nets)} specific nets")
+        routable_nets = [n for n in routable_nets if n in target_nets]
+    elif max_nets is not None:
+        print(f"  Limiting to first {max_nets} nets for profiling...")
+        routable_nets = routable_nets[:max_nets]
+
     skipped_nets = [n for n in net_order if not should_route(n)]
 
     # Nets that historically fail - give them more rip-up attempts
@@ -579,7 +590,13 @@ def run_astar_pathfinding(
         )
 
         # Route with rip-up capability
+        # Adaptive Routing (Experiment O1)
+        # If Theta* is enabled, try A* first as it is much faster.
+        # Only use Theta* if A* fails or produces a poor path.
+
+        # Route with rip-up capability
         import sys
+
         mode = "Theta*" if use_theta_star else "A*"
         print(f"    Routing {net_name} using {mode}...", flush=True)
         sys.stdout.flush()
@@ -656,7 +673,10 @@ def run_astar_pathfinding(
 
         # Determine failure reason
         if blocker_names:
-            print(f"      ✗ {net_name} FAILED: congestion (blockers: {', '.join(blocker_names[:3])})", flush=True)
+            print(
+                f"      ✗ {net_name} FAILED: congestion (blockers: {', '.join(blocker_names[:3])})",
+                flush=True,
+            )
             sys.stdout.flush()
             return False, "congestion", blocker_names, congestion_region
         else:
@@ -740,7 +760,9 @@ def _astar_route_with_ripup(
     """
     # Try multilayer routing if alternate grid available
     if alternate_grid and tht_locations:
-        path = _astar_route_multilayer(net_name, channel_path, grid, alternate_grid, tht_locations, use_theta_star)
+        path = _astar_route_multilayer(
+            net_name, channel_path, grid, alternate_grid, tht_locations, use_theta_star
+        )
     else:
         path = _astar_route(net_name, channel_path, grid, use_theta_star)
 
@@ -874,7 +896,9 @@ def _astar_route_multilayer(
 
         if start_valid and goal_valid:
             if use_theta_star:
-                segment_path = _astar_search_theta_star(grid_to_use, start_grid, goal_grid, net_id=-1)
+                segment_path = _astar_search_theta_star(
+                    grid_to_use, start_grid, goal_grid, net_id=-1
+                )
             else:
                 segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
 
@@ -898,7 +922,9 @@ def _astar_route_multilayer(
 
             if start_valid and goal_valid:
                 if use_theta_star:
-                    segment_path = _astar_search_theta_star(grid_to_use, start_grid, goal_grid, net_id=-1)
+                    segment_path = _astar_search_theta_star(
+                        grid_to_use, start_grid, goal_grid, net_id=-1
+                    )
                 else:
                     segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
 
@@ -1004,9 +1030,7 @@ def _astar_route(
         if start_valid and goal_valid:
             # Run A* or Theta* search between waypoints
             if use_theta_star:
-                grid_path = _astar_search_theta_star(
-                    grid, start_grid, goal_grid, net_id=-1
-                )
+                grid_path = _astar_search_theta_star(grid, start_grid, goal_grid, net_id=-1)
             else:
                 grid_path = _astar_search(start_grid, goal_grid, grid)
 
@@ -1136,10 +1160,7 @@ def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
 
 
 def _line_of_sight(
-    p1: tuple[int, int],
-    p2: tuple[int, int],
-    grid: OccupancyGrid,
-    net_id: int
+    p1: tuple[int, int], p2: tuple[int, int], grid: OccupancyGrid, net_id: int
 ) -> bool:
     """
     Check if there's an unobstructed diagonal line between two grid points.
@@ -1197,7 +1218,7 @@ def _astar_search_theta_star(
     start_grid: tuple[int, int],
     goal_grid: tuple[int, int],
     net_id: int,
-    came_from_init: dict | None = None
+    came_from_init: dict | None = None,
 ) -> list[tuple[int, int]] | None:
     """
     Theta* pathfinding with any-angle paths.
@@ -1229,7 +1250,7 @@ def _astar_search_theta_star(
     closed_set = set()
 
     def euclidean_dist(p1, p2):
-        return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
     def reconstruct_path(current):
         path = [current]
@@ -1254,8 +1275,14 @@ def _astar_search_theta_star(
         cx, cy = current
         neighbors = []
         for dx, dy in [
-            (0, 1), (1, 0), (0, -1), (-1, 0),  # Cardinal
-            (1, 1), (1, -1), (-1, 1), (-1, -1)  # Diagonal
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, 0),  # Cardinal
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),  # Diagonal
         ]:
             nx, ny = cx + dx, cy + dy
             if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:

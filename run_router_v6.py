@@ -17,16 +17,39 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Run Router V6 on temper PCB")
-    parser.add_argument("--pcb", type=Path, default=Path("pcb/temper.kicad_pcb"), help="Input PCB file")
-    parser.add_argument("--output", type=Path, default=Path("pcb/temper_router_v6_output.kicad_pcb"), help="Output PCB file")
-    parser.add_argument("--metrics", type=Path, default=Path("pcb/temper_router_v6_metrics.json"), help="Metrics JSON file")
-    parser.add_argument("--theta-star", action="store_true", help="Enable Theta* any-angle routing (Experiment F)")
-    parser.add_argument("--smoothing", action="store_true", help="Enable force-directed smoothing (Experiment G)")
+    parser.add_argument(
+        "--pcb", type=Path, default=Path("pcb/temper.kicad_pcb"), help="Input PCB file"
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("pcb/temper_router_v6_output.kicad_pcb"),
+        help="Output PCB file",
+    )
+    parser.add_argument(
+        "--metrics",
+        type=Path,
+        default=Path("pcb/temper_router_v6_metrics.json"),
+        help="Metrics JSON file",
+    )
+    parser.add_argument(
+        "--theta-star", action="store_true", help="Enable Theta* any-angle routing (Experiment F)"
+    )
+    parser.add_argument(
+        "--smoothing", action="store_true", help="Enable force-directed smoothing (Experiment G)"
+    )
+    parser.add_argument(
+        "--max-nets", type=int, default=None, help="Limit number of nets to route (for profiling)"
+    )
+    parser.add_argument(
+        "--nets", type=str, default=None, help="Comma-separated list of nets to route"
+    )
     args = parser.parse_args()
 
     pcb_path = args.pcb
     output_path = args.output
     metrics_path = args.metrics
+    target_nets = args.nets.split(",") if args.nets else None
 
     if not pcb_path.exists():
         print(f"ERROR: PCB file not found: {pcb_path}")
@@ -41,6 +64,10 @@ def main():
         print("Experiment F: Theta* any-angle routing ENABLED")
     if args.smoothing:
         print("Experiment G: Force-directed smoothing ENABLED")
+    if target_nets:
+        print(f"Profiling Mode: Targeting {len(target_nets)} nets: {', '.join(target_nets)}")
+    elif args.max_nets:
+        print(f"Profiling Mode: Limiting to first {args.max_nets} nets")
     print()
 
     # Run Router V6
@@ -49,6 +76,8 @@ def main():
             verbose=True,
             enable_theta_star=args.theta_star,
             enable_smoothing=args.smoothing,
+            max_nets=args.max_nets,
+            target_nets=target_nets,
         )
         result = pipeline.run(pcb_path)
 

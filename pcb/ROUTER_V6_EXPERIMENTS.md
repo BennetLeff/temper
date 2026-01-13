@@ -208,3 +208,40 @@ See `PROFILING_OPTIMIZATION_PLAN.md` for detailed profiling strategy and optimiz
 - **Router V6 Architecture**: See exploration results in git history
 - **Baseline Results**: `pcb/ROUTER_V6_TEMPER_BASELINE.md`
 - **Original Plan**: `.claude/plans/effervescent-tickling-donut.md`
+
+## Session 2: Profiling & Optimization (2026-01-13)
+
+### Experiment P1: Baseline Profiling
+**Goal**: Identify runtime bottlenecks.
+**Method**: `cProfile` with `--max-nets 5`.
+**Results**:
+- **Setup Bottleneck**: `build_occupancy_grid` took 85s (75% of runtime).
+  - Cause: 8 million calls to `shapely.geometry.Point` and `contains`.
+- **Routing Speed**:
+  - Theta*: ~0.4s per net (uncongested).
+  - A*: >10s per net (timed out).
+  - **Finding**: Theta* is significantly faster than A* on the 0.1mm grid because it skips nodes (Euclidean heuristic + line-of-sight checks) whereas A* visits every grid cell.
+
+### Experiment O0: Vectorized Grid Construction (Implemented)
+**Goal**: Optimize setup time.
+**Method**: Replaced iterative Shapely checks with vectorized `shapely.contains(polygon, points_array)`.
+**Results**:
+- **Setup Time**: Reduced from ~85s to ~3s.
+- **Total Runtime (5 nets)**: Reduced from 113s to 31s.
+- **Status**: **SUCCESS**. Implemented in `occupancy_grid.py`.
+
+### Experiment O1: Adaptive Routing (Evaluated & Rejected)
+**Goal**: Use A* first, fallback to Theta* to save time.
+**Hypothesis**: A* is faster than Theta* (no LOS checks).
+**Result**: **FAILURE**.
+- A* timed out (>120s) on nets that Theta* routed in <2s.
+- **Conclusion**: On a fine grid (1000x1000), A* node expansion overhead (O(N)) exceeds Theta*'s LOS overhead (O(N) but lower constant factor due to heap ops).
+- **Action**: Rejected "A* first". Theta* remains the default.
+
+### Profiling "Difficult" Nets
+**Method**: Profiled `DC_BUS-`, `PWM_H`, `SW_NODE` with optimized setup.
+**Results**:
+- `DC_BUS-`: Fast (<1s).
+- `PWM_H`: Slow (>30s).
+- `SW_NODE`: Not reached (due to PWM_H timeout).
+- **Insight**: `PWM_H` is the new bottleneck. Likely requires **Lazy Theta*** (O4) to reduce LOS checks during massive search.
