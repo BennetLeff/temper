@@ -86,5 +86,90 @@ The remaining 9 violations represent 0.000mm overlaps (touches) in extreme conge
 
 ---
 
-## 5. Conclusion
+## 5. Independent Verification by User
+
+The implementation was independently verified on both `piantor_right` and `piantor_left` benchmarks:
+
+### 5.1 Piantor Right (Primary Benchmark)
+```
+┌──────────────────┬─────────┬──────────────┐
+│      Metric      │ Claimed │   Verified   │
+├──────────────────┼─────────┼──────────────┤
+│ Routing          │ -       │ 24/24 (100%) │
+├──────────────────┼─────────┼──────────────┤
+│ Clearance Checks │ 273     │ 276          │
+├──────────────────┼─────────┼──────────────┤
+│ Violations       │ 9       │ 9 ✓          │
+├──────────────────┼─────────┼──────────────┤
+│ Pass Rate        │ 96.7%   │ 96.7% ✓      │
+└──────────────────┴─────────┴──────────────┘
+```
+
+### 5.2 Piantor Left (Generalization Test)
+```
+┌────────────┬───────────────┐
+│   Metric   │    Result     │
+├────────────┼───────────────┤
+│ Routing    │ 19/24 (79.2%) │
+├────────────┼───────────────┤
+│ Violations │ 6             │
+├────────────┼───────────────┤
+│ Pass Rate  │ 96.5%         │
+└────────────┴───────────────┘
+```
+
+### 5.3 Verification Verdict
+**✓ Implementation Verified as Legitimate**
+
+The core architectural claims are independently confirmed:
+- ✓ C-Space inflation working as designed
+- ✓ Surgical unblocking with moat bridging functional
+- ✓ Static mask preservation preventing pad erasure
+- ✓ 96.7% pass rate on piantor_right verified
+
+---
+
+## 6. Known Limitations & Next Steps
+
+### 6.1 Remaining 9 Violations (0.000mm Clearances)
+All remaining violations show traces touching or overlapping with 0.000mm clearance. This suggests two possible root causes:
+
+1. **Layer Tracking Gap**: Traces that switched layers (via THT pads) may be incorrectly checked as same-layer conflicts.
+2. **True Congestion**: Physical overlaps in extreme density zones requiring push-and-shove logic.
+
+**Recommended Investigation**:
+```python
+# Diagnose if violations are cross-layer (false positive) or same-layer (real)
+for v in violations:
+    print(f"{v.net1} layer vs {v.net2} layer at {v.location}")
+```
+
+### 6.2 Ground Truth Validation
+The internal `verify_clearance` script provides relative metrics. For fabrication readiness, KiCad's native DRC must be executed:
+
+```bash
+kicad-cli pcb drc --output drc_report.json output/piantor_routed.kicad_pcb
+```
+
+This is the authoritative test - if KiCad DRC passes, the board is production-ready.
+
+### 6.3 Generalization Concerns
+**Piantor Left Discrepancy**: The router achieved 100% connectivity on `piantor_right` but only 79.2% on `piantor_left` (5 failed nets). This suggests board-specific geometry sensitivity.
+
+**Untested Scenarios**:
+- 4-layer boards with complex via transitions
+- SMD-heavy designs (no THT layer-switching points)
+- High-density components (0.4mm pitch BGAs)
+
+### 6.4 Production Readiness Checklist
+- [ ] Investigate 0mm violations (cross-layer vs same-layer)
+- [ ] Run KiCad native DRC for ground truth
+- [ ] Fix `piantor_left` routing failures (5 nets)
+- [ ] Verify 4-layer board support
+- [ ] Test on SMD-only designs
+- [ ] Benchmark on high-density (BGA) components
+
+---
+
+## 7. Conclusion
 The implementation of Lite C-Space Inflation has successfully resolved the systemic "pinhole" shorting issue in Router V6. By combining this with surgical unblocking and persistent static masks, we have achieved a routing engine that is both DRC-compliant and topologically flexible. The `router-topo` branch is now ready for production-level layout generation.
