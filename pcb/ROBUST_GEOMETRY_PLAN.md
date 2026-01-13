@@ -1,46 +1,40 @@
-# Phase 3: Robust Geometric Refinement (Homotopic & Computational Geometry)
+# Phase 3: Robust Geometric Refinement (Hybrid Approach)
 
-## Philosophy: Constructive Geometry over Simulation
-Iterative solvers ("Snakes") are sensitive to hyperparameters (step size, weights) and can fail (tunneling, oscillation). 
-We will replace them with **Constructive Computational Geometry** algorithms that provide **guarantees** on validity and optimality.
-
-The core concept is **Homotopy Preservation**:
-1. The Grid Router (Theta*) finds a valid *topological* path (a sequence of free cells).
-2. We convert this sequence into a **Safe Corridor** (Simple Polygon).
-3. We compute the optimal **Geometric Path** strictly *inside* this corridor.
-
-Since the corridor is constructed from free space, any path inside it is **guaranteed** to be DRC-clean regarding static obstacles.
+## Critique & Refinement
+*Original Plan Risk*: Constructing complex "Safe Corridor" polygons from grid cells is computationally expensive ($O(N^2)$ union) and prone to numerical instability (`shapely` errors).
+*Refined Strategy*: Use **Path Decimation** verified by **Signed Distance Fields (SDF)**. This achieves the "taut string" effect of the Funnel Algorithm without the heavy geometric construction overhead.
 
 ---
 
 ## Experiments
 
-### Experiment H1: Safe Corridor Construction
-**Goal**: Convert a grid path into a continuous geometric "Tube" that guarantees safety.
+### Experiment H1: SDF-Verified Path Decimation (The "Rubber Band")
+**Goal**: Remove jaggedness and minimize path length efficiently.
 **Method**:
-1. Iterate through the grid cells $(x,y)$ traversed by the Theta* path.
-2. Construct a polygon $P = \bigcup \text{Cell}_i$.
-3. **Refinement**: Since the grid is conservative, $P$ is a rough approximation of free space. We can "inflate" $P$ locally until it hits real obstacles (using the SDF computed in Phase 2) to maximize the maneuvering room.
-**Guarantee**: $P \cap \text{Obstacles} = \emptyset$.
+1. Start with the dense Theta* path.
+2. **Iterative Shortcut**: For every triplet of nodes $(A, B, C)$:
+   - Check if segment $AC$ is valid.
+   - **Validity Check**: Instead of geometric ray-casting, sample the **SDF** along line $AC$.
+   - Condition: $\min_{p \in AC} SDF(p) \ge 0$ (Safe).
+   - If valid, remove $B$.
+3. **Repeat** until no more nodes can be removed.
+**Benefit**: Reduces node count by ~90% and removes "stair-casing" naturally. $O(N)$ runtime.
 
-### Experiment H2: The Funnel Algorithm (Euclidean Shortest Path)
-**Goal**: Remove jaggedness ("stair-casing") optimally.
+### Experiment H2: Vertex Relaxation (SDF Gradient Descent)
+**Goal**: Maximize clearance for the remaining vertices.
 **Method**:
-- The **Funnel Algorithm** finds the shortest path inside a simple polygon between two points.
-- It operates on the triangulation of the polygon.
-- **Math**: It maintains a "funnel" (deque of vertices) and collapses it as we traverse the channel.
-- **Result**: A "taut string" path that hugs the inner corners of the corridor.
-- **Pros**: $O(N)$ efficiency, guaranteed shortest length.
-- **Cons**: Hugs corners (min clearance). Good for "tight" routing, but maybe too tight.
+- After H1, we have a minimal polyline (Corner $\to$ Corner).
+- The vertices effectively "touch" obstacles (clearance = 0).
+- **Relaxation**: Move each vertex $v$ along the SDF gradient $\nabla \phi$ until local clearance is maximized or it becomes collinear with neighbors.
+- **Math**: $v_{new} = v + \alpha \nabla SDF(v)$.
+- **Result**: Pushes the "tight string" slightly away from corners to improve yield.
 
-### Experiment H3: Medial Axis Retraction (Maximum Clearance)
-**Goal**: Maximize manufacturing yield by centering traces.
+### Experiment H3: Acute Angle Mitigation
+**Goal**: Prevent "Acid Traps" (angles < 90°) at pads.
 **Method**:
-- Instead of shortest path (hugging walls), we want the path furthest from walls.
-- Construct the **Medial Axis Transform (MAT)** (or Voronoi Skeleton) of the Safe Corridor $P$.
-- Project the original path onto this skeleton.
-- **Result**: A path that flows down the "center river" of the free space.
-- **Why**: This maximizes $d(\text{trace}, \text{obstacle})$, absorbing manufacturing tolerances.
+- Post-process the path endpoints.
+- Ensure the entry vector into a Pad is aligned with the Pad's preferred axis (or normal to the edge).
+- Insert a "dog-bone" or small intermediate segment if the angle is too sharp.
 
 ---
 
@@ -48,31 +42,19 @@ Since the corridor is constructed from free space, any path inside it is **guara
 
 ### Module: `temper_placer.routing.exact_geometry`
 
-#### 1. `CorridorBuilder`
-- Input: `RoutePath` (grid nodes).
-- Output: `shapely.Polygon` (The Safe Corridor).
-- Logic: Union of grid cell rectangles + optional expansion into SDF.
+#### 1. `PathSimplifier`
+- Input: `RoutePath`, `SDFGrid`.
+- Output: Optimized `RoutePath`.
+- Logic: Greedy decimation using `sdf.get_distance(line_sample)`.
 
-#### 2. `FunnelOptimizer`
-- Input: Corridor Polygon, Start, End.
-- Output: Optimized Polyline.
-- Algorithm: `shapely.ops.triangulate` -> graph search -> string pulling.
-- *Simplified Alternative*: `shapely.simplify` but constrained to stay within the polygon (buffer(0) check).
+#### 2. `CornerRelaxer`
+- Input: Simplified `RoutePath`.
+- Logic: Nudge vertices away from obstacles using SDF gradient (local optimization only, no global energy minimization).
 
-#### 3. `MedialAxisOptimizer`
-- Input: Corridor Polygon.
-- Output: Optimized Polyline.
-- Algorithm: `skimage.morphology.medial_axis` on the rasterized corridor, or `scipy.spatial.Voronoi` of the polygon boundary samples.
-
-## Comparison: Why this is better than Snakes?
-| Feature | Snakes (Force-Directed) | Homotopic Corridor (Geometry) |
-|---------|-------------------------|-------------------------------|
-| **Validity** | Probabilistic (can tunnel) | **Guaranteed** (bounded by corridor) |
-| **Stability** | Oscillates / Diverges | **Deterministic** |
-| **Optimality**| Local Minimum | **Global Optimum** (for defined metric) |
-| **Tuning** | Many parameters ($\alpha, \beta, \gamma$) | **Zero parameters** |
+#### 3. `ViaLocker`
+- Logic: Split 3D paths at Via locations. Optimize 2D segments independently. Treat Vias as fixed anchors initially.
 
 ## Success Metrics
-1. **Static DRC Violations**: Must be exactly **0** for all smoothed paths.
-2. **Path Length**: Should be $\le$ Theta* path length.
-3. **Runtime**: Should be faster than 200 iterations of snake optimization.
+1. **DRC Violations**: 0.
+2. **Path Node Count**: Reduced by >80% vs Theta*.
+3. **Runtime**: < 5s for full board (vs 25s for Snake Optimizer).
