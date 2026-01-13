@@ -238,10 +238,12 @@ See `PROFILING_OPTIMIZATION_PLAN.md` for detailed profiling strategy and optimiz
 - **Conclusion**: On a fine grid (1000x1000), A* node expansion overhead (O(N)) exceeds Theta*'s LOS overhead (O(N) but lower constant factor due to heap ops).
 - **Action**: Rejected "A* first". Theta* remains the default.
 
-### Profiling "Difficult" Nets
-**Method**: Profiled `DC_BUS-`, `PWM_H`, `SW_NODE` with optimized setup.
+### Experiment O4: Lazy Theta* (Implemented & SUCCESS)
+**Goal**: Reduce Line-of-Sight (LOS) overhead for congested nets.
+**Algorithm**: Delay LOS check until node expansion (optimistic parent assignment).
+**Target**: Route `DC_BUS-`, `PWM_H`, `SW_NODE` (previously `PWM_H` took >30s).
 **Results**:
-- `DC_BUS-`: Fast (<1s).
-- `PWM_H`: Slow (>30s).
-- `SW_NODE`: Not reached (due to PWM_H timeout).
-- **Insight**: `PWM_H` is the new bottleneck. Likely requires **Lazy Theta*** (O4) to reduce LOS checks during massive search.
+- **Total Runtime (3 difficult nets)**: **38.4s** (Setup ~29s + Routing ~9s).
+- **PWM_H Routing Time**: Dropped from **>30s** to **~4s**.
+- **LOS Checks**: 153k calls vs millions (estimated).
+- **Status**: **SUCCESS**. This solves the primary performance bottleneck.

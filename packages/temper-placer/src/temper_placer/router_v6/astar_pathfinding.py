@@ -455,6 +455,7 @@ def run_astar_pathfinding(
     use_theta_star: bool = False,
     max_nets: int | None = None,
     target_nets: list[str] | None = None,
+    use_lazy_theta_star: bool = False,
 ) -> PathfindingResult:
     # Build grids dictionary for multi-layer blocking
     all_grids = {grid.layer_name: grid}
@@ -597,7 +598,12 @@ def run_astar_pathfinding(
         # Route with rip-up capability
         import sys
 
-        mode = "Theta*" if use_theta_star else "A*"
+        if use_lazy_theta_star:
+            mode = "Lazy Theta*"
+        elif use_theta_star:
+            mode = "Theta*"
+        else:
+            mode = "A*"
         print(f"    Routing {net_name} using {mode}...", flush=True)
         sys.stdout.flush()
 
@@ -613,6 +619,7 @@ def run_astar_pathfinding(
             pad_centers_per_net,
             all_grids=all_grids,  # Pass all for blocker identification
             use_theta_star=use_theta_star,
+            use_lazy_theta_star=use_lazy_theta_star,
         )
 
         # Restore grid state
@@ -748,6 +755,7 @@ def _astar_route_with_ripup(
     pad_centers: dict[str, list[tuple[float, float, float, str]]] | None = None,
     all_grids: dict[str, OccupancyGrid] | None = None,
     use_theta_star: bool = False,
+    use_lazy_theta_star: bool = False,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -761,10 +769,16 @@ def _astar_route_with_ripup(
     # Try multilayer routing if alternate grid available
     if alternate_grid and tht_locations:
         path = _astar_route_multilayer(
-            net_name, channel_path, grid, alternate_grid, tht_locations, use_theta_star
+            net_name,
+            channel_path,
+            grid,
+            alternate_grid,
+            tht_locations,
+            use_theta_star,
+            use_lazy_theta_star,
         )
     else:
-        path = _astar_route(net_name, channel_path, grid, use_theta_star)
+        path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star)
 
     if path and path.forced_segment_count == 0:
         return path, []
@@ -837,6 +851,7 @@ def _astar_route_multilayer(
     alternate_grid: OccupancyGrid | None,
     tht_locations: set[tuple[float, float]] | None,
     use_theta_star: bool = False,
+    use_lazy_theta_star: bool = False,
 ) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -895,7 +910,11 @@ def _astar_route_multilayer(
         )
 
         if start_valid and goal_valid:
-            if use_theta_star:
+            if use_lazy_theta_star:
+                segment_path = _astar_search_lazy_theta_star(
+                    grid_to_use, start_grid, goal_grid, net_id=-1
+                )
+            elif use_theta_star:
                 segment_path = _astar_search_theta_star(
                     grid_to_use, start_grid, goal_grid, net_id=-1
                 )
@@ -921,7 +940,11 @@ def _astar_route_multilayer(
             )
 
             if start_valid and goal_valid:
-                if use_theta_star:
+                if use_lazy_theta_star:
+                    segment_path = _astar_search_lazy_theta_star(
+                        grid_to_use, start_grid, goal_grid, net_id=-1
+                    )
+                elif use_theta_star:
                     segment_path = _astar_search_theta_star(
                         grid_to_use, start_grid, goal_grid, net_id=-1
                     )
@@ -982,6 +1005,7 @@ def _astar_route(
     channel_path,
     grid: OccupancyGrid,
     use_theta_star: bool = False,
+    use_lazy_theta_star: bool = False,
 ) -> RoutePath | None:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -1029,7 +1053,9 @@ def _astar_route(
         grid_path = None
         if start_valid and goal_valid:
             # Run A* or Theta* search between waypoints
-            if use_theta_star:
+            if use_lazy_theta_star:
+                grid_path = _astar_search_lazy_theta_star(grid, start_grid, goal_grid, net_id=-1)
+            elif use_theta_star:
                 grid_path = _astar_search_theta_star(grid, start_grid, goal_grid, net_id=-1)
             else:
                 grid_path = _astar_search(start_grid, goal_grid, grid)
@@ -1211,6 +1237,167 @@ def _line_of_sight(
             y += sy
 
     return True
+
+
+def _astar_search_lazy_theta_star(
+    grid: OccupancyGrid,
+    start_grid: tuple[int, int],
+    goal_grid: tuple[int, int],
+    net_id: int,
+    came_from_init: dict | None = None,
+) -> list[tuple[int, int]] | None:
+    """
+    Lazy Theta* pathfinding.
+
+    Optimizes Theta* by delaying the line-of-sight check until a node is expanded.
+    This significantly reduces the number of geometric checks.
+
+    Args:
+        grid: Occupancy grid
+        start_grid: Start position (grid coordinates)
+        goal_grid: Goal position (grid coordinates)
+        net_id: Net ID for unblocking own cells
+        came_from_init: Optional initial came_from for warm-starting
+
+    Returns:
+        Path as list of (x, y) grid cells, or None if no path
+    """
+    from heapq import heappush, heappop
+    import math
+
+    # Priority queue: (f_score, counter, current_pos)
+    counter = 0
+    open_set = []
+    heappush(open_set, (0.0, counter, start_grid))
+
+    came_from = came_from_init.copy() if came_from_init else {}
+    g_score = {start_grid: 0.0}
+    closed_set = set()
+
+    def euclidean_dist(p1, p2):
+        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+    def reconstruct_path(current):
+        path = [current]
+        while current in came_from:
+            current = came_from[current]
+            # Handle start node case (came_from[start] not in came_from)
+            if current == start_grid:
+                break
+            path.append(current)
+        path.reverse()
+        return path
+
+    while open_set:
+        _, _, current = heappop(open_set)
+
+        if current in closed_set:
+            continue
+
+        # LAZY CHECK: Validate LOS only when expanding
+        parent = came_from.get(current)
+        if parent:
+            if not _line_of_sight(parent, current, grid, net_id):
+                # LOS Failed.
+                # Standard Lazy Theta* strategy: find a valid parent from closed neighbors
+                # This is "Vertex A adjustment" from the paper.
+                # However, since we populate using optimistic parents, the 'current'
+                # node might not have a valid parent in the closed set that reaches it
+                # directly via LOS.
+                # Simplified strategy: If LOS from parent fails, treat it as an A* node
+                # (but we didn't store the A* parent).
+                # Re-evaluate parent from neighbors in closed set.
+
+                best_parent = None
+                best_g = float("inf")
+
+                # Check 8-connected neighbors
+                cx, cy = current
+                for dx, dy in [
+                    (0, 1),
+                    (1, 0),
+                    (0, -1),
+                    (-1, 0),
+                    (1, 1),
+                    (1, -1),
+                    (-1, 1),
+                    (-1, -1),
+                ]:
+                    nx, ny = cx + dx, cy + dy
+                    neighbor = (nx, ny)
+
+                    if neighbor in closed_set and neighbor in g_score:
+                        # Cost is just distance (1 or 1.414)
+                        step_cost = euclidean_dist(neighbor, current)
+                        new_g = g_score[neighbor] + step_cost
+                        if new_g < best_g:
+                            best_g = new_g
+                            best_parent = neighbor
+
+                if best_parent:
+                    came_from[current] = best_parent
+                    g_score[current] = best_g
+                    # Continue expansion with corrected parent
+                else:
+                    # Should not happen if we reached 'current'
+                    continue
+
+        if current == goal_grid:
+            return reconstruct_path(current)
+
+        closed_set.add(current)
+
+        # Get 8-connected neighbors
+        cx, cy = current
+        neighbors = []
+        for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            nx, ny = cx + dx, cy + dy
+            if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
+                cell_value = grid.grid[ny, nx]
+                if cell_value == 0 or cell_value == net_id:
+                    neighbors.append((nx, ny))
+
+        for neighbor in neighbors:
+            if neighbor in closed_set:
+                continue
+
+            # LAZY OPTIMIZATION: Always assume LOS from parent(current) to neighbor
+            # This makes the "parent" pointer jump multiple steps.
+            # parent(neighbor) = parent(current)
+
+            grandparent = came_from.get(current)
+
+            # Path 1: Optimistic (grandparent -> neighbor)
+            if grandparent:
+                tentative_g_lazy = g_score[grandparent] + euclidean_dist(grandparent, neighbor)
+                path_source_lazy = grandparent
+            else:
+                # Start node has no parent
+                tentative_g_lazy = float("inf")
+                path_source_lazy = None
+
+            # Path 2: A* (current -> neighbor) - always valid if adjacent
+            tentative_g_astar = g_score[current] + euclidean_dist(current, neighbor)
+
+            # Choose best (usually optimistic)
+            # Standard Lazy Theta* typically just picks the optimistic one if better.
+            # But we must ensure g-values are consistent.
+
+            if grandparent and tentative_g_lazy < tentative_g_astar:
+                tentative_g = tentative_g_lazy
+                path_source = path_source_lazy
+            else:
+                tentative_g = tentative_g_astar
+                path_source = current
+
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                came_from[neighbor] = path_source
+                g_score[neighbor] = tentative_g
+                f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
+                counter += 1
+                heappush(open_set, (f_score, counter, neighbor))
+
+    return None
 
 
 def _astar_search_theta_star(

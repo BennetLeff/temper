@@ -110,6 +110,7 @@ class RouterV6Pipeline:
         self,
         verbose: bool = False,
         enable_theta_star: bool = False,
+        enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
@@ -120,12 +121,14 @@ class RouterV6Pipeline:
         Args:
             verbose: Enable verbose logging
             enable_theta_star: Use Theta* any-angle routing (Experiment F)
+            enable_lazy_theta_star: Use Lazy Theta* (Experiment O4)
             enable_smoothing: Apply force-directed smoothing (Experiment G)
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
+        self.enable_lazy_theta_star = enable_lazy_theta_star
         self.enable_smoothing = enable_smoothing
         self.max_nets = max_nets
         self.target_nets = target_nets
@@ -413,6 +416,7 @@ class RouterV6Pipeline:
             pcb=pcb,
             escape_vias_map=escape_vias_map,
             use_theta_star=self.enable_theta_star,
+            use_lazy_theta_star=self.enable_lazy_theta_star,
             max_nets=self.max_nets,
             target_nets=self.target_nets,
         )

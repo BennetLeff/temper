@@ -36,6 +36,9 @@ def main():
         "--theta-star", action="store_true", help="Enable Theta* any-angle routing (Experiment F)"
     )
     parser.add_argument(
+        "--lazy-theta", action="store_true", help="Enable Lazy Theta* (Experiment O4)"
+    )
+    parser.add_argument(
         "--smoothing", action="store_true", help="Enable force-directed smoothing (Experiment G)"
     )
     parser.add_argument(
@@ -62,6 +65,8 @@ def main():
     print(f"Output: {output_path}")
     if args.theta_star:
         print("Experiment F: Theta* any-angle routing ENABLED")
+    if args.lazy_theta:
+        print("Experiment O4: Lazy Theta* ENABLED")
     if args.smoothing:
         print("Experiment G: Force-directed smoothing ENABLED")
     if target_nets:
@@ -75,6 +80,7 @@ def main():
         pipeline = RouterV6Pipeline(
             verbose=True,
             enable_theta_star=args.theta_star,
+            enable_lazy_theta_star=args.lazy_theta,
             enable_smoothing=args.smoothing,
             max_nets=args.max_nets,
             target_nets=target_nets,
