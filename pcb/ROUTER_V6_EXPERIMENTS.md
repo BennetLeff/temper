@@ -247,8 +247,8 @@ See `PROFILING_OPTIMIZATION_PLAN.md` for detailed profiling strategy and optimiz
 - **Routing Time (3 difficult nets)**: ~9s.
 - **Full Board Run**:
   - Routed 18/18 initial nets in <60s.
-  - Triggered rip-up/reroute for SPI nets (expected behavior in congested areas).
-  - Estimated convergence: ~3 minutes (vs >19m for standard Theta*).
+  - **Status**: `PWM_H` and `SW_NODE` (the hardest nets) routed successfully.
+  - **Convergence**: `SPI_CLK` routed successfully. `SPI_MOSI` routed successfully. Convergence of all signal nets during rerouting takes >5 minutes due to high congestion, but the algorithm is working and resolving conflicts.
 - **Status**: **SUCCESS**. This solves the primary performance bottleneck.
 
 ## Final Status (Session 2)
