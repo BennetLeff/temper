@@ -549,33 +549,27 @@ class RouterV6Pipeline:
 
             pad_centers = _extract_pad_centers_per_net(pcb)
 
-            dp_router = DiffPairRouter(fcu_grid)  # Assume Top layer for now
+            # Prepare routers for all available layers
+            # We prioritize F.Cu (Top) then B.Cu (Bottom)
+            available_dp_routers = []
+            if fcu_grid:
+                available_dp_routers.append((fcu_grid, "F.Cu"))
+            if bcu_grid:
+                available_dp_routers.append((bcu_grid, "B.Cu"))
 
             for p_net, n_net in diff_pairs:
                 # Get start/end from pads
-                # We need ONE start and ONE end per net.
-                # If net has > 2 pins, diff pair routing is complex (multi-point).
-                # For USB, it's usually 2 pins (Connector to Chip).
-
                 p_pads = pad_centers.get(p_net, [])
                 n_pads = pad_centers.get(n_net, [])
 
                 if len(p_pads) != 2 or len(n_pads) != 2:
                     if self.verbose:
                         print(f"    Skipping {p_net}/{n_net} (Not 2-pin nets)")
-                    # Re-add to processed so we don't skip in normal routing?
-                    # No, processed_nets means we handled it here.
-                    # If we skip, we should remove from processed_nets so standard router picks it up.
                     processed_nets.remove(p_net)
                     processed_nets.remove(n_net)
                     continue
 
                 # Calculate Pair Center Start/End
-                # Start: Midpoint of P_start and N_start
-                # End: Midpoint of P_end and N_end
-                # We need to match which pad is which (Start vs End).
-                # Heuristic: Match by proximity.
-
                 p1, p2 = p_pads[0], p_pads[1]
                 n1, n2 = n_pads[0], n_pads[1]
 
@@ -584,45 +578,55 @@ class RouterV6Pipeline:
                 d12 = (p1[0] - n2[0]) ** 2 + (p1[1] - n2[1]) ** 2
 
                 if d11 < d12:
-                    # Match p1-n1, p2-n2
                     start_p, start_n = p1, n1
                     end_p, end_n = p2, n2
                 else:
-                    # Match p1-n2, p2-n1
                     start_p, start_n = p1, n2
-                     end_p, end_n = p2, n1
-                     
-                 # Removed start_center/end_center calc as fanout handles it
-                 
-                 width = pcb.design_rules.default_trace_width_mm
-                 gap = pcb.design_rules.default_clearance_mm # Or specific gap? Use clearance.
-                 
-                 if self.verbose:
-                     print(f"    Routing Pair {p_net}/{n_net}...")
-                 
-                 # Extract (x,y) from (x,y,r,l)
-                 result_pair = dp_router.route_pair_with_fanout(
-                     (start_p[0], start_p[1]), 
-                     (start_n[0], start_n[1]), 
-                     (end_p[0], end_p[1]), 
-                     (end_n[0], end_n[1]), 
-                     width, gap
-                 )
-                 
-                 if result_pair:
+                    end_p, end_n = p2, n1
+
+                width = pcb.design_rules.default_trace_width_mm
+                gap = pcb.design_rules.default_clearance_mm
+
+                if self.verbose:
+                    print(f"    Routing Pair {p_net}/{n_net}...")
+
+                # Try layers sequentially
+                result_pair = None
+                used_grid = None
+
+                for grid, layer_name in available_dp_routers:
+                    dp_router = DiffPairRouter(grid)
+                    result_pair = dp_router.route_pair_with_fanout(
+                        (start_p[0], start_p[1]),
+                        (start_n[0], start_n[1]),
+                        (end_p[0], end_p[1]),
+                        (end_n[0], end_n[1]),
+                        width,
+                        gap,
+                    )
+                    if result_pair:
+                        used_grid = grid
+                        if self.verbose:
+                            print(f"      ✓ Routed on {layer_name}")
+                        break
+
+                if result_pair:
                     path_p, path_n = result_pair
                     path_p.net_name = p_net
                     path_n.net_name = n_net
+                    # Ensure layer name is correct in path
+                    path_p.layer_name = used_grid.layer_name
+                    path_n.layer_name = used_grid.layer_name
+
                     routed_paths_dp[p_net] = path_p
                     routed_paths_dp[n_net] = path_n
 
-                    # Mark blocked on F.Cu
-                    fcu_grid.mark_path_blocked(path_p.coordinates, width, gap, net_id=998)
-                    fcu_grid.mark_path_blocked(path_n.coordinates, width, gap, net_id=999)
+                    # Mark blocked on Used Grid
+                    used_grid.mark_path_blocked(path_p.coordinates, width, gap, net_id=998)
+                    used_grid.mark_path_blocked(path_n.coordinates, width, gap, net_id=999)
                 else:
                     if self.verbose:
-                        print(f"    Failed to route pair {p_net}/{n_net}")
-                    # Fallback to standard router
+                        print(f"    Failed to route pair {p_net}/{n_net} on any layer")
                     processed_nets.remove(p_net)
                     processed_nets.remove(n_net)
 
@@ -756,71 +760,64 @@ class RouterV6Pipeline:
                     polygons=polygon_list, bounds=bounds, resolution_mm=0.05
                 )
 
-            # 2. Run Path Simplifier (H1)
-            if True:
-                if self.verbose:
-                    print("    Using SDF-Verified Path Simplifier (H1)...")
-                simplifier = PathSimplifier(
-                    sdf_grids=sdf_grids,
-                    step_size_mm=0.1,
-                    min_clearance_margin=0.0,  # Default value, will override per net
-                    occupancy_grids=stage2.occupancy_grids,  # Dynamic obstacles
+            # 2. Geometric Refinement (Hybrid)
+            # Step A: Simplify (Decimate redundant nodes)
+            if self.verbose:
+                print("    Step A: Path Simplifier (H1)...")
+            simplifier = PathSimplifier(
+                sdf_grids=sdf_grids,
+                step_size_mm=0.1,
+                min_clearance_margin=0.0,
+                occupancy_grids=stage2.occupancy_grids,
+            )
+
+            # Pre-calculate widths
+            temp_widths = {}
+            for net_name in pathfinding_result.routed_paths:
+                rule = pcb.design_rules.get_rules_for_net(net_name)
+                if hasattr(rule, "trace_width"):
+                    temp_widths[net_name] = rule.trace_width
+                elif hasattr(rule, "trace_width_mm"):
+                    temp_widths[net_name] = rule.trace_width_mm
+                else:
+                    temp_widths[net_name] = pcb.design_rules.default_trace_width_mm
+
+            simplified_paths = {}
+            for net_name, path in pathfinding_result.routed_paths.items():
+                net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
+                # Safety buffer for simplifier
+                required_margin = (net_width / 2.0) + clearance_mm + 0.1
+                net_id = pathfinding_result.net_ids.get(net_name, -1)
+
+                opt_path = simplifier.simplify_path(
+                    path, required_clearance_override=required_margin, net_id=net_id
                 )
+                simplified_paths[net_name] = opt_path
 
-                # Pre-calculate widths (Stage 4.4 runs later, but we need widths now)
-                # This duplicates logic but avoids reordering the pipeline stages
-                temp_widths = {}
-                for net_name in pathfinding_result.routed_paths:
-                    # Use helper method to resolve net class rules
-                    rule = pcb.design_rules.get_rules_for_net(net_name)
-                    # print(f"DEBUG: rule keys: {rule.__dict__.keys()}")
-                    # Handle attribute naming variations if any
-                    if hasattr(rule, "trace_width"):
-                        temp_widths[net_name] = rule.trace_width
-                    elif hasattr(rule, "trace_width_mm"):
-                        temp_widths[net_name] = rule.trace_width_mm
-                    else:
-                        temp_widths[net_name] = pcb.design_rules.default_trace_width_mm
+            # Step B: Snake Optimization (Nudge to fix aliasing/clearance)
+            if self.verbose:
+                print("    Step B: Variational Smoothing (Snakes)...")
 
-                smoothed_paths = {}
-                for net_name, path in pathfinding_result.routed_paths.items():
-                    # Calculate required margin = width/2 + clearance + safety buffer
-                    # Safety buffer absorbs SDF/Grid aliasing errors (0.05mm grid -> +/-0.025mm error)
-                    # Increased to 0.1 to ensure clean DRC
-                    net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
-                    safety_buffer = 0.1
-                    required_margin = (net_width / 2.0) + clearance_mm + safety_buffer
+            optimizer = SnakeOptimizer(
+                sdf_grids=sdf_grids,
+                alpha=0.2,
+                beta=0.1,
+                gamma=2.0,
+                step_size=0.1,
+                node_spacing_mm=0.5,  # Resample coarser for smoothness
+                max_iterations=50,
+            )
 
-                    # Get Net ID for dynamic check
-                    net_id = pathfinding_result.net_ids.get(net_name, -1)
+            final_paths = {}
+            for net_name, path in simplified_paths.items():
+                # Optimize
+                opt_path = optimizer.optimize_path(path)
+                final_paths[net_name] = opt_path
 
-                    # Simplify
-                    opt_path = simplifier.simplify_path(
-                        path, required_clearance_override=required_margin, net_id=net_id
-                    )
-                    smoothed_paths[net_name] = opt_path
-            else:
-                # 2. Run Snake Optimizer
-                optimizer = SnakeOptimizer(
-                    sdf_grids=sdf_grids,
-                    alpha=0.2,  # Lower elasticity to allow sticking to path
-                    beta=0.1,  # Low stiffness to allow sharp turns near pads
-                    gamma=2.0,  # Strong repulsion from obstacles
-                    step_size=0.1,
-                    node_spacing_mm=0.2,
-                    max_iterations=100,
-                )
-
-                smoothed_paths = {}
-                for net_name, path in pathfinding_result.routed_paths.items():
-                    # Optimize
-                    opt_path = optimizer.optimize_path(path)
-                    smoothed_paths[net_name] = opt_path
-
-            pathfinding_result.routed_paths = smoothed_paths
+            pathfinding_result.routed_paths = final_paths
 
             if self.verbose:
-                print(f"    Smoothed {len(smoothed_paths)} paths")
+                print(f"    Refined {len(final_paths)} paths")
 
         # 4.3: Place vias
         if self.verbose:

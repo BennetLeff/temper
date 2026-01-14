@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent / "packages" / "temper-placer" / "s
 from temper_placer.io.kicad_writer import (
     write_placements_to_pcb,
     write_routes_to_pcb,
+    write_zones_to_pcb,
     PlacementUpdate,
 )
 from temper_placer.router_v6.pipeline import RouterV6Pipeline
@@ -72,6 +73,13 @@ def main():
         help="Disable automatic placement legalization (Phase 6)",
     )
     parser.add_argument(
+        "--placement-mode",
+        type=str,
+        default="physics",
+        choices=["physics", "analytical"],
+        help="Placement strategy: 'physics' (Force-Directed) or 'analytical' (Spectral+LP)",
+    )
+    parser.add_argument(
         "--max-nets", type=int, default=None, help="Limit number of nets to route (for profiling)"
     )
     parser.add_argument(
@@ -100,7 +108,7 @@ def main():
     if args.smoothing:
         print("Experiment G: Force-directed smoothing ENABLED")
     if not args.no_legalize:
-        print("Experiment P2: Placement Legalization ENABLED")
+        print(f"Experiment P2: Placement Legalization ENABLED (Mode: {args.placement_mode})")
     if target_nets:
         print(f"Profiling Mode: Targeting {len(target_nets)} nets: {', '.join(target_nets)}")
     elif args.max_nets:
@@ -115,6 +123,7 @@ def main():
             enable_lazy_theta_star=args.lazy_theta,
             enable_smoothing=args.smoothing,
             enable_legalization=not args.no_legalize,
+            placement_mode=args.placement_mode,
             max_nets=args.max_nets,
             target_nets=target_nets,
         )
@@ -128,6 +137,10 @@ def main():
         print(f"Success: {result.success_count}/{result.success_count + result.failure_count} nets")
         print(f"Completion: {result.completion_rate * 100:.1f}%")
         print()
+
+        # Print Detailed Failures
+        if result.failure_count > 0:
+            result.stage4.pathfinding_result.print_failure_analysis()
 
         # Export metrics
         metrics = {
@@ -233,6 +246,15 @@ def main():
             clear_existing=True,  # Remove old ratsnests/traces
         )
         print(f"Exported {len(routes)} segments and {len(vias)} vias.")
+
+        # 3. Export Power Planes (Zones)
+        if result.stage4.power_planes:
+            print(f"Exporting {len(result.stage4.power_planes)} Power Planes...")
+            write_zones_to_pcb(
+                template_pcb=output_path, output_pcb=output_path, zones=result.stage4.power_planes
+            )
+        else:
+            print("No Power Planes generated.")
 
     except Exception as e:
         print(f"\nERROR: {e}")

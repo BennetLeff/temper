@@ -40,11 +40,13 @@ class OccupancyGrid:
     congestion_cost: np.ndarray | None = None  # Persistent history cost
     usage_count: np.ndarray | None = None  # Current iteration usage count
     negotiated_mode: bool = False  # If True, allow overlaps
+    base_cost: float = 1.0  # Base traversal cost (higher = avoid this layer)
 
     def __post_init__(self):
         # Initialize congestion arrays if not provided
         if self.congestion_cost is None:
-            self.congestion_cost = np.zeros((self.height_cells, self.width_cells), dtype=np.float32)
+            # Use float64 to prevent overflow/precision loss with exponential history
+            self.congestion_cost = np.zeros((self.height_cells, self.width_cells), dtype=np.float64)
         if self.usage_count is None:
             self.usage_count = np.zeros((self.height_cells, self.width_cells), dtype=np.int16)
 
@@ -107,6 +109,10 @@ class OccupancyGrid:
         # Increase history cost
         # Vectorized update
         self.congestion_cost[congested_mask] += self.usage_count[congested_mask] * history_factor
+        if np.any(congested_mask):
+            print(
+                f"DEBUG: Updated {np.sum(congested_mask)} congested cells. Max cost: {np.max(self.congestion_cost)}"
+            )
 
     def get_cost(self, x: int, y: int, current_congestion_penalty: float = 1.0) -> float:
         """
@@ -116,8 +122,8 @@ class OccupancyGrid:
         if not (0 <= x < self.width_cells and 0 <= y < self.height_cells):
             return float("inf")
 
-        # Base cost (1.0)
-        cost = 1.0
+        # Base cost (Layer Bias)
+        cost = self.base_cost
 
         if self.usage_count is not None:
             usage = self.usage_count[y, x]
@@ -188,6 +194,10 @@ class OccupancyGrid:
 
             # Use net_id to mark
             self.grid[y_start:y_end, x_start:x_end] = net_id
+
+            # Update usage count for PathFinder
+            if self.negotiated_mode and self.usage_count is not None:
+                self.usage_count[y_start:y_end, x_start:x_end] += 1
 
         # Mark all points in path
         if not path:

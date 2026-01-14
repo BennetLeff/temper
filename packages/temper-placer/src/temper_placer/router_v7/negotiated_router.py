@@ -8,6 +8,7 @@ by paying congestion costs. Guarantees convergence if a solution exists.
 from __future__ import annotations
 
 import time
+import numpy as np
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.astar_pathfinding import (
     RoutePath,
@@ -25,7 +26,7 @@ class NegotiatedRouter:
         design_rules: DesignRules,
         max_iterations: int = 50,
         initial_history_factor: float = 0.5,
-        history_growth: float = 1.2,
+        history_growth: float = 2.0,  # More aggressive growth
     ):
         self.grids = grids
         self.design_rules = design_rules
@@ -45,8 +46,15 @@ class NegotiatedRouter:
         iteration = 0
         routed_paths = {}
 
+        # Heuristic Weight Schedule
+        # Start greedy (1.5) to find paths fast.
+        # Decay to 1.0 (Dijkstra-like) to find detours around congestion.
+        heuristic_weight = 1.5
+
         while iteration < self.max_iterations:
-            print(f"Iteration {iteration}: History Factor = {self.history_factor:.2f}")
+            print(
+                f"Iteration {iteration}: History Factor = {self.history_factor:.2f}, Heuristic = {heuristic_weight:.2f}"
+            )
             iteration += 1
             overlaps = 0
 
@@ -84,7 +92,9 @@ class NegotiatedRouter:
                     net_name,
                     channel_path,
                     grid,
-                    use_theta_star=False,  # Use A* for speed in inner loop
+                    use_theta_star=True,  # Use Eager Theta* for accurate cost integration
+                    use_lazy_theta_star=False,
+                    heuristic_weight=heuristic_weight,
                 )
 
                 if path:
@@ -96,11 +106,7 @@ class NegotiatedRouter:
                         self.design_rules.default_clearance_mm,
                         net_id=1,  # Dummy ID, we just count usage
                     )
-                    # mark_path_blocked normally sets grid=ID.
-                    # We need it to increment usage_count.
-                    # I need to update mark_path_blocked to handle negotiated mode?
-                    # Or manually trace it.
-                    self._update_usage(grid, path)
+                    # Usage count is handled by mark_path_blocked now
 
             # Check for congestion
             total_congestion = 0
@@ -121,17 +127,9 @@ class NegotiatedRouter:
 
             self.history_factor *= self.history_growth
 
+            # Decay heuristic weight to find detours. Drop to 0.0 (Dijkstra) eventually.
+            heuristic_weight = max(0.0, heuristic_weight * 0.8)
+            if iteration > 5:
+                heuristic_weight = 0.0  # Force Dijkstra mode to respect congestion absolute costs
+
         return routed_paths
-
-    def _update_usage(self, grid, path):
-        """Increment usage for path."""
-        # Simple rasterization matching grid logic
-        # This duplicates logic in OccupancyGrid.mark_path_blocked.
-        # Ideally OccupancyGrid should handle this.
-        # For prototype, I will rely on OccupancyGrid having a method or doing it here.
-        # I added add_usage(x,y).
-
-        for p in path.coordinates:
-            cx, cy = grid.world_to_grid(p[0], p[1])
-            grid.add_usage(cx, cy)
-            # Interpolation needed for full path...

@@ -9,6 +9,10 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.ndimage import distance_transform_edt
+from shapely.geometry import Polygon, MultiPolygon
+from shapely.ops import unary_union
+from shapely import contains, points
+
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 
@@ -36,6 +40,70 @@ class SDFGrid:
         # Precompute gradients for faster query
         # Gradient of distance field points towards safety (away from obstacles)
         self.grad_y, self.grad_x = np.gradient(distance_grid, cell_size)
+
+    @classmethod
+    def from_polygons(
+        cls,
+        polygons: list[Polygon | MultiPolygon],
+        bounds: tuple[float, float, float, float],
+        resolution_mm: float = 0.05,
+    ) -> SDFGrid:
+        """
+        Create exact SDF from Shapely polygons.
+
+        Args:
+            polygons: List of obstacle polygons
+            bounds: (min_x, min_y, max_x, max_y) of the area
+            resolution_mm: Grid resolution for the distance field
+        """
+        min_x, min_y, max_x, max_y = bounds
+        width_mm = max_x - min_x
+        height_mm = max_y - min_y
+
+        width_cells = int(np.ceil(width_mm / resolution_mm))
+        height_cells = int(np.ceil(height_mm / resolution_mm))
+
+        # 1. Create raster grid of coordinates
+        x = np.linspace(min_x, max_x, width_cells)
+        y = np.linspace(min_y, max_y, height_cells)
+        xx, yy = np.meshgrid(x, y)
+
+        # 2. Rasterize obstacles
+        # Use shapely vectorization if possible, or rasterize via rasterio/cv2 if available
+        # Fallback: Distance transform on high-res mask
+
+        if not polygons:
+            # Empty board, all safe
+            # Distance to nearest obstacle is infinite (or huge)
+            raw_sdf = np.full((height_cells, width_cells), 999.9)
+        else:
+            # Combine all obstacles into one
+            obstacles = unary_union(polygons)
+
+            # Vectorized containment check
+            flat_x = xx.ravel()
+            flat_y = yy.ravel()
+            batch_points = points(flat_x, flat_y)
+
+            mask_flat = contains(obstacles, batch_points)
+            mask = mask_flat.reshape(height_cells, width_cells)
+
+            # 3. Compute EDT
+            # Inside obstacle (True): distance to nearest free (False) => Negative
+            # Inside free (False): distance to nearest obstacle (True) => Positive
+
+            dist_free = distance_transform_edt(np.logical_not(mask), sampling=resolution_mm)
+            dist_obstacle = distance_transform_edt(mask, sampling=resolution_mm)
+
+            raw_sdf = dist_free - dist_obstacle
+
+        return cls(
+            distance_grid=raw_sdf,
+            origin=(min_x, min_y),
+            cell_size=resolution_mm,
+            width_cells=width_cells,
+            height_cells=height_cells,
+        )
 
     @classmethod
     def from_occupancy_grid(cls, occupancy_grid: OccupancyGrid, clearance_mm: float) -> SDFGrid:
@@ -93,8 +161,9 @@ class SDFGrid:
 
     def get_distance(self, x: float, y: float) -> float:
         """Get signed distance at world coordinates (bilinear interpolation)."""
-        gx = (x - self.origin[0]) / self.cell_size - 0.5
-        gy = (y - self.origin[1]) / self.cell_size - 0.5
+        # No -0.5 shift: we assume grid points align with linspace coordinates
+        gx = (x - self.origin[0]) / self.cell_size
+        gy = (y - self.origin[1]) / self.cell_size
 
         # Check bounds
         if not (0 <= gx < self.width_cells - 1 and 0 <= gy < self.height_cells - 1):
@@ -117,8 +186,8 @@ class SDFGrid:
 
     def get_gradient(self, x: float, y: float) -> tuple[float, float]:
         """Get gradient (dx, dy) at world coordinates."""
-        gx = (x - self.origin[0]) / self.cell_size - 0.5
-        gy = (y - self.origin[1]) / self.cell_size - 0.5
+        gx = (x - self.origin[0]) / self.cell_size
+        gy = (y - self.origin[1]) / self.cell_size
 
         if not (0 <= gx < self.width_cells - 1 and 0 <= gy < self.height_cells - 1):
             return (0.0, 0.0)

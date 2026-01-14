@@ -46,7 +46,7 @@ class DiffPairRouter:
         dy = ecy - scy
 
         # Gather distance
-        fanout_dist = 2.0  # mm
+        fanout_dist = 4.0  # mm
 
         # Normalize direction
         dist = math.sqrt(dx * dx + dy * dy)
@@ -61,7 +61,11 @@ class DiffPairRouter:
 
         # 2. Route Coupled Middle Section
         # This determines exactly where the coupled traces end up
-        mid_p, mid_n = self.route_pair(g_start_center, g_end_center, width, gap)
+        mid_result = self.route_pair(g_start_center, g_end_center, width, gap)
+        if not mid_result:
+            return None
+
+        mid_p, mid_n = mid_result
 
         if not mid_p or not mid_n:
             return None

@@ -21,7 +21,10 @@ from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
 def build_obstacle_map(
-    pcb: ParsedPCB, escape_vias: list[EscapeVia], exclude_net_name: str | None = None
+    pcb: ParsedPCB,
+    escape_vias: list[EscapeVia],
+    exclude_net_name: str | None = None,
+    exclude_nets: list[str] | None = None,
 ) -> dict[str, MultiPolygon]:
     """
     Build a map of obstacles for each copper layer.
@@ -29,12 +32,19 @@ def build_obstacle_map(
     Args:
         pcb: Parsed PCB data containing components, nets, and design rules.
         escape_vias: List of generated escape vias.
-        exclude_net_name: Optional net name to exclude from obstacles (e.g. for Plane generation).
+        exclude_net_name: Optional net name to exclude (legacy).
+        exclude_nets: List of net names to exclude from obstacles.
 
     Returns:
         Dictionary mapping layer name (e.g. "F.Cu") to a Shapely MultiPolygon.
     """
     layer_obstacles = defaultdict(list)
+
+    excluded = set()
+    if exclude_net_name:
+        excluded.add(exclude_net_name)
+    if exclude_nets:
+        excluded.update(exclude_nets)
 
     # 1. Component Pads
     for comp in pcb.components:
@@ -48,8 +58,8 @@ def build_obstacle_map(
             angle = float(comp.initial_rotation) * math.pi / 2.0
 
         for pin in comp.pins:
-            # Skip if this pin belongs to the excluded net
-            if exclude_net_name and pin.net == exclude_net_name:
+            # Skip if this pin belongs to the excluded net(s)
+            if pin.net in excluded:
                 continue
 
             # Get absolute position

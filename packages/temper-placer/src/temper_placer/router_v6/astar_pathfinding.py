@@ -1009,6 +1009,7 @@ def _astar_route(
     grid: OccupancyGrid,
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
+    heuristic_weight: float = 1.0,
 ) -> RoutePath | None:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -1018,6 +1019,7 @@ def _astar_route(
         channel_path: Channel path guidance
         grid: Occupancy grid
         use_theta_star: Use Theta* any-angle routing instead of standard A*
+        heuristic_weight: A* heuristic multiplier (default 1.0)
 
     Returns:
         RoutePath or None if routing fails
@@ -1057,7 +1059,9 @@ def _astar_route(
         if start_valid and goal_valid:
             # Run A* or Theta* search between waypoints
             if use_lazy_theta_star:
-                grid_path = _astar_search_lazy_theta_star(grid, start_grid, goal_grid, net_id=-1)
+                grid_path = _astar_search_lazy_theta_star(
+                    grid, start_grid, goal_grid, net_id=-1, heuristic_weight=heuristic_weight
+                )
             elif use_theta_star:
                 grid_path = _astar_search_theta_star(grid, start_grid, goal_grid, net_id=-1)
             else:
@@ -1098,15 +1102,6 @@ def _astar_route(
         dx = x2 - x1
         dy = y2 - y1
         path_length += (dx**2 + dy**2) ** 0.5
-
-    return RoutePath(
-        net_name=net_name,
-        coordinates=detailed_coords,
-        layer_name=grid.layer_name,
-        segment_count=len(detailed_coords) - 1,
-        path_length=path_length,
-        forced_segment_count=forced_segments,
-    )
 
     return RoutePath(
         net_name=net_name,
@@ -1251,12 +1246,74 @@ def _line_of_sight(
     return True
 
 
+def _line_cost(p1: tuple[int, int], p2: tuple[int, int], grid: OccupancyGrid, net_id: int) -> float:
+    """
+    Calculate accumulated cost along a line segment.
+    Returns float('inf') if blocked.
+    """
+    x0, y0 = p1
+    x1, y1 = p2
+
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    sx = 1 if x0 < x1 else -1
+    sy = 1 if y0 < y1 else -1
+    err = dx - dy
+
+    x, y = x0, y0
+    total_cell_cost = 0.0
+    count = 0
+
+    while True:
+        # Check bounds
+        if not (0 <= x < grid.width_cells and 0 <= y < grid.height_cells):
+            return float("inf")
+
+        cell_value = grid.grid[y, x]
+        # In negotiated mode, we check cost. In normal mode, we check blocking.
+        if grid.negotiated_mode:
+            # Check static obstacle
+            if cell_value == -1:
+                return float("inf")
+            # Accumulate cost
+            total_cell_cost += grid.get_cost(x, y)
+        else:
+            # Binary check
+            if cell_value != 0 and cell_value != net_id:
+                return float("inf")
+            total_cell_cost += 1.0
+
+        count += 1
+
+        if x == x1 and y == y1:
+            break
+
+        e2 = 2 * err
+        if e2 > -dy:
+            err -= dy
+            x += sx
+        if e2 < dx:
+            err += dx
+            y += sy
+
+    # Calculate geometric length
+    length = ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5
+
+    # Average cost per unit length * length
+    if count == 0:
+        return length  # Should not happen
+
+    avg_cost = total_cell_cost / count
+    return avg_cost * length
+
+
 def _astar_search_lazy_theta_star(
     grid: OccupancyGrid,
     start_grid: tuple[int, int],
     goal_grid: tuple[int, int],
     net_id: int,
     came_from_init: dict | None = None,
+    heuristic_weight: float = 1.2,
 ) -> list[tuple[int, int]] | None:
     """
     Lazy Theta* pathfinding.
@@ -1270,6 +1327,7 @@ def _astar_search_lazy_theta_star(
         goal_grid: Goal position (grid coordinates)
         net_id: Net ID for unblocking own cells
         came_from_init: Optional initial came_from for warm-starting
+        heuristic_weight: A* heuristic multiplier (1.0 = optimal, >1.0 = faster/greedier)
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path
@@ -1311,7 +1369,11 @@ def _astar_search_lazy_theta_star(
         if (counter % 1000 == 0) and (time.time() - start_time > timeout_seconds):
             return None
 
-        _, _, current = heappop(open_set)
+        f_val, _, current = heappop(open_set)
+
+        # DEBUG: Trace search
+        if heuristic_weight == 0.0 and (counter < 50 or current == (10, 10) or current == (10, 2)):
+            print(f"DEBUG: Expanding {current} g={g_score.get(current)} f={f_val}")
 
         if current in closed_set:
             continue
@@ -1415,8 +1477,8 @@ def _astar_search_lazy_theta_star(
             if neighbor not in g_score or tentative_g < g_score[neighbor]:
                 came_from[neighbor] = path_source
                 g_score[neighbor] = tentative_g
-                # Add heuristic weight (1.5) to speed up search in open spaces
-                f_score = tentative_g + 1.5 * euclidean_dist(neighbor, goal_grid)
+                # Add heuristic weight to speed up search in open spaces
+                f_score = tentative_g + heuristic_weight * euclidean_dist(neighbor, goal_grid)
                 counter += 1
                 heappush(open_set, (f_score, counter, neighbor))
 
@@ -1484,40 +1546,59 @@ def _astar_search_theta_star(
         # Get 8-connected neighbors
         cx, cy = current
         neighbors = []
-        for dx, dy in [
-            (0, 1),
-            (1, 0),
-            (0, -1),
-            (-1, 0),  # Cardinal
-            (1, 1),
-            (1, -1),
-            (-1, 1),
-            (-1, -1),  # Diagonal
-        ]:
+        for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
             nx, ny = cx + dx, cy + dy
             if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
-                cell_value = grid.grid[ny, nx]
-                if cell_value == 0 or cell_value == net_id:
-                    neighbors.append((nx, ny))
+                # Check occupancy (binary or cost is handled in line_cost, but fast check here?)
+                # Basic check
+                cell_val = grid.grid[ny, nx]
+                if grid.negotiated_mode:
+                    if cell_val == -1:
+                        continue
+                else:
+                    if cell_val != 0 and cell_val != net_id:
+                        continue
+                neighbors.append((nx, ny))
 
         for neighbor in neighbors:
             if neighbor in closed_set:
                 continue
 
-            # THETA* OPTIMIZATION: Check line-of-sight from parent
+            # Theta* Logic: Check path from Parent(Current) -> Neighbor
             parent = came_from.get(current)
-            if parent and _line_of_sight(parent, neighbor, grid, net_id):
-                # Path 2: parent -> neighbor (shortcut)
-                tentative_g = g_score[parent] + euclidean_dist(parent, neighbor)
+
+            # 1. Try Shortcut (Parent -> Neighbor)
+            shortcut_g = float("inf")
+            if parent:
+                cost = _line_cost(parent, neighbor, grid, net_id)
+                if cost != float("inf"):
+                    shortcut_g = g_score[parent] + cost
+
+            # 2. Try Normal (Current -> Neighbor)
+            # Edge cost
+            dist = 1.414 if (neighbor[0] != current[0] and neighbor[1] != current[1]) else 1.0
+            if grid.negotiated_mode:
+                node_cost = grid.get_cost(neighbor[0], neighbor[1])
+                step_cost = node_cost * dist
+            else:
+                step_cost = dist
+
+            normal_g = g_score[current] + step_cost
+
+            # Choose best
+            if shortcut_g < normal_g:
+                tentative_g = shortcut_g
                 path_source = parent
             else:
-                # Path 1: current -> neighbor (standard A*)
-                tentative_g = g_score[current] + euclidean_dist(current, neighbor)
+                tentative_g = normal_g
                 path_source = current
 
             if neighbor not in g_score or tentative_g < g_score[neighbor]:
                 came_from[neighbor] = path_source
                 g_score[neighbor] = tentative_g
+                # Use heuristic weight from argument? (Need to add arg to function signature)
+                # I didn't add it to this function yet. Assume 1.0 or fix signature.
+                # I'll just use 1.0 here or standard Euclidean.
                 f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
                 counter += 1
                 heappush(open_set, (f_score, counter, neighbor))
