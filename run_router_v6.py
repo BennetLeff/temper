@@ -283,6 +283,17 @@ def main():
         #     print("No Power Planes generated.")
         print("Power Plane export disabled for DRC testing.")
 
+        # 4. Copy .pro file with netclass settings
+        pro_path = pcb_path.parent / f"{pcb_path.stem}.kicad_pro"
+        output_pro_path = output_path.parent / f"{output_path.stem}.kicad_pro"
+        if pro_path.exists():
+            import shutil
+
+            shutil.copy(pro_path, output_pro_path)
+            print(f"Copied {pro_path.name} to {output_pro_path.name}")
+        else:
+            print(f"WARNING: {pro_path} not found, DRC may use wrong clearance rules")
+
     except Exception as e:
         print(f"\nERROR: {e}")
         import traceback
