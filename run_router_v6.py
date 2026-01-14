@@ -273,15 +273,13 @@ def main():
         print(f"Exported {len(routes)} segments and {len(vias)} vias.")
 
         # 3. Export Power Planes (Zones)
-        # TEMPORARILY DISABLED to isolate routing DRC issues
-        # if result.stage4.power_planes:
-        #     print(f"Exporting {len(result.stage4.power_planes)} Power Planes...")
-        #     write_zones_to_pcb(
-        #         template_pcb=output_path, output_pcb=output_path, zones=result.stage4.power_planes
-        #     )
-        # else:
-        #     print("No Power Planes generated.")
-        print("Power Plane export disabled for DRC testing.")
+        if result.stage4.power_planes:
+            print(f"Exporting {len(result.stage4.power_planes)} Power Planes...")
+            write_zones_to_pcb(
+                template_pcb=output_path, output_pcb=output_path, zones=result.stage4.power_planes
+            )
+        else:
+            print("No Power Planes generated.")
 
         # 4. Copy .pro file with netclass settings
         pro_path = pcb_path.parent / f"{pcb_path.stem}.kicad_pro"
