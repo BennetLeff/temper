@@ -721,7 +721,8 @@ def run_astar_pathfinding(
             record_failure(net_name, reason, blockers, region)
 
     # Second pass: Reroute queue (iteratively)
-    max_reroute_attempts = len(routable_nets) * 5
+    # Reduce limit to prevent infinite oscillation. 2 passes should be enough.
+    max_reroute_attempts = len(routable_nets) * 2
     attempts = 0
 
     while reroute_queue and attempts < max_reroute_attempts:
@@ -1166,7 +1167,16 @@ def _astar_search(
                 continue
 
             # Diagonal cost = 1.414, Cardinal = 1.0
-            move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
+            dist = 1.414 if dx != 0 and dy != 0 else 1.0
+
+            # Congestion cost
+            if grid.negotiated_mode:
+                # PathFinder cost: (Base + History + Congestion) * Distance
+                node_cost = grid.get_cost(neighbor[0], neighbor[1])
+                move_cost = node_cost * dist
+            else:
+                move_cost = dist
+
             new_cost = cost_so_far[current] + move_cost
 
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
@@ -1276,6 +1286,12 @@ def _astar_search_lazy_theta_star(
     g_score = {start_grid: 0.0}
     closed_set = set()
 
+    import time
+
+    start_time = time.time()
+    # 5 seconds is enough for most nets; if it takes longer, it's likely stuck exploring open space
+    timeout_seconds = 5.0
+
     def euclidean_dist(p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
@@ -1291,6 +1307,10 @@ def _astar_search_lazy_theta_star(
         return path
 
     while open_set:
+        # Timeout check
+        if (counter % 1000 == 0) and (time.time() - start_time > timeout_seconds):
+            return None
+
         _, _, current = heappop(open_set)
 
         if current in closed_set:
@@ -1395,7 +1415,8 @@ def _astar_search_lazy_theta_star(
             if neighbor not in g_score or tentative_g < g_score[neighbor]:
                 came_from[neighbor] = path_source
                 g_score[neighbor] = tentative_g
-                f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
+                # Add heuristic weight (1.5) to speed up search in open spaces
+                f_score = tentative_g + 1.5 * euclidean_dist(neighbor, goal_grid)
                 counter += 1
                 heappush(open_set, (f_score, counter, neighbor))
 

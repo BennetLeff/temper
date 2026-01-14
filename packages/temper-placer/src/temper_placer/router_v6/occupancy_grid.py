@@ -36,6 +36,18 @@ class OccupancyGrid:
     height_cells: int  # Grid height in cells
     static_mask: np.ndarray | None = None  # Boolean mask of static obstacles (-1)
 
+    # PathFinder Congestion Fields
+    congestion_cost: np.ndarray | None = None  # Persistent history cost
+    usage_count: np.ndarray | None = None  # Current iteration usage count
+    negotiated_mode: bool = False  # If True, allow overlaps
+
+    def __post_init__(self):
+        # Initialize congestion arrays if not provided
+        if self.congestion_cost is None:
+            self.congestion_cost = np.zeros((self.height_cells, self.width_cells), dtype=np.float32)
+        if self.usage_count is None:
+            self.usage_count = np.zeros((self.height_cells, self.width_cells), dtype=np.int16)
+
     @property
     def width_mm(self) -> float:
         """Grid width in mm."""
@@ -49,8 +61,12 @@ class OccupancyGrid:
     def is_free(self, x_cell: int, y_cell: int) -> bool:
         """Check if a cell is free for routing."""
         if 0 <= x_cell < self.width_cells and 0 <= y_cell < self.height_cells:
-            # 0 is Free
-            return self.grid[y_cell, x_cell] == 0
+            val = self.grid[y_cell, x_cell]
+            # In negotiated mode, allow overlap (usage > 0) but respect static obstacles (-1)
+            if self.negotiated_mode:
+                return val != -1
+            # Normal mode: 0 is Free
+            return val == 0
         return False
 
     def is_blocked(self, x_cell: int, y_cell: int) -> bool:
@@ -59,6 +75,58 @@ class OccupancyGrid:
             # != 0 is blocked (either static or dynamic)
             return self.grid[y_cell, x_cell] != 0
         return False
+
+    def add_usage(self, x: int, y: int) -> None:
+        """Increment usage count for a cell."""
+        if 0 <= x < self.width_cells and 0 <= y < self.height_cells:
+            if self.usage_count is not None:
+                self.usage_count[y, x] += 1
+
+    def remove_usage(self, x: int, y: int) -> None:
+        """Decrement usage count for a cell."""
+        if 0 <= x < self.width_cells and 0 <= y < self.height_cells:
+            if self.usage_count is not None:
+                self.usage_count[y, x] = max(0, self.usage_count[y, x] - 1)
+
+    def update_history_cost(self, history_factor: float = 0.5) -> None:
+        """
+        Update persistent history cost based on current congestion.
+        PathFinder Logic: h(n) = h(n) + usage(n) * h_fac if congested.
+        """
+        if self.congestion_cost is None or self.usage_count is None:
+            return
+
+        # Capacity is 1 (binary grid). Usage > 1 means congestion.
+        # However, for variable width nets, usage is just a count.
+        # If we allow sharing (during negotiation), any usage > 1 is bad?
+        # Yes, standard PathFinder assumes capacity=1 per resource node.
+
+        # Identify congested cells (usage > 1)
+        congested_mask = self.usage_count > 1
+
+        # Increase history cost
+        # Vectorized update
+        self.congestion_cost[congested_mask] += self.usage_count[congested_mask] * history_factor
+
+    def get_cost(self, x: int, y: int, current_congestion_penalty: float = 1.0) -> float:
+        """
+        Get total cost of a cell for pathfinding.
+        Cost = Base + (Usage * Penalty) + History
+        """
+        if not (0 <= x < self.width_cells and 0 <= y < self.height_cells):
+            return float("inf")
+
+        # Base cost (1.0)
+        cost = 1.0
+
+        if self.usage_count is not None:
+            usage = self.usage_count[y, x]
+            cost += usage * current_congestion_penalty
+
+        if self.congestion_cost is not None:
+            cost += self.congestion_cost[y, x]
+
+        return cost
 
     def world_to_grid(self, x_mm: float, y_mm: float) -> tuple[int, int]:
         """Convert world coordinates (mm) to grid coordinates."""
