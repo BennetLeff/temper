@@ -337,10 +337,23 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  2.5: Building occupancy grid...")
 
-        # Calculate base inflation for C-Space (trace radius + clearance)
-        base_inflation = (
-            pcb.design_rules.default_trace_width_mm / 2.0
-        ) + pcb.design_rules.default_clearance_mm
+        # Calculate base inflation using MAX clearance from routing-relevant net classes
+        # Excludes ACMains/HighVoltageIsolated which have special safety requirements
+        # and would inflate C-Space too aggressively for normal routing
+        max_clearance = pcb.design_rules.default_clearance_mm
+        max_trace_width = pcb.design_rules.default_trace_width_mm
+        for nc_name, nc_rules in pcb.design_rules.net_classes.items():
+            if nc_name in ("ACMains", "HighVoltageIsolated"):
+                continue  # Skip special safety classes
+            if nc_rules.clearance_mm > max_clearance:
+                max_clearance = nc_rules.clearance_mm
+            if nc_rules.trace_width_mm > max_trace_width:
+                max_trace_width = nc_rules.trace_width_mm
+
+        base_inflation = (max_trace_width / 2.0) + max_clearance
+
+        if self.verbose:
+            print(f"    Using max clearance: {max_clearance}mm for C-Space inflation")
 
         occupancy_grids = {}
         for layer_name, routing_space in routing_spaces.items():
