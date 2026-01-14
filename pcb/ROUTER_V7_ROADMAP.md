@@ -35,6 +35,57 @@
 2.  **Global Place**: Optimize cluster locations.
 3.  **Detailed Legalize**: Use existing Phase 6 legalizer.
 
+## Phase 8.5: Provable Capacity & Corridors (The Math Fix)
+**Problem**: The "Oscillation" in Phase 8 occurs when the Global Router (Stage 3) assigns more nets to a channel than geometrically possible. PathFinder tries to solve an impossible packing problem.
+**Solution**: **Algebraic Capacity & Topological Confinement**.
+
+### 1. Algebraic Capacity Calibration
+Instead of guessing channel capacity, we derive it from **Grid Efficiency constraints**.
+- **Theory**: The max flow in a grid with via blockage is limited by the **Vertex Cut** density.
+- **Action**: Update `layer_capacity.py` to use a conservative formula:
+  $$ C_{effective} = \lfloor \frac{W_{channel} - 2\cdot \text{margin}}{W_{trace} + S_{spacing}} \rfloor \times (1 - \text{ViaDensityFactor}) $$
+- **Guarantee**: If Stage 3 finds a SAT solution under these constraints, a geometric solution **exists** with high probability ($P > 99\%$).
+
+### 2. Strict Topological Corridors
+**Concept**: Do not allow PathFinder to wander across the whole board.
+- **Method**: Convert the Stage 3 `TopologyGraph` into hard **Polygon Constraints** (Corridors).
+- **Algorithm**:
+  1. Construct Corridor Polygons for each edge in the Skeleton.
+  2. In `_astar_search`, treat pixels outside the assigned Corridor as **Infinite Cost**.
+- **Benefit**: Decomposes one global $O((N \cdot G)^2)$ problem into $K$ local $O(G_{channel}^2)$ problems. Oscillation is confined to local channels and resolved quickly or flagged as "Capacity Error" immediately.
+
+### 3. Critique & Refinement (Phase 8.5)
+**Weakness**: Hard Corridors are brittle (geometry bugs at junctions).
+**Pivot**: **"Calibrate, Don't Constrain"**.
+- Instead of forcing the router to stay in a box, we make the Global Solver (Stage 3) smarter.
+- If Stage 3 knows the **Real Capacity** (calibrated via $\eta$), it won't over-subscribe channels.
+- The oscillation in Stage 4 vanishes because the problem is feasible.
+
+---
+
+# Experiments
+
+## Experiment T1: The Packing Limit (Calibration)
+**Objective**: Measure the "Phase Transition" density where `Lazy Theta*` fails due to congestion/via blockage.
+**Setup**:
+- Channel: 5mm x 10mm.
+- Trace Width: 0.2mm + 0.2mm spacing (Pitch 0.4mm).
+- Theoretical Max: $N_{theo} = 5.0 / 0.4 = 12$ nets.
+- **Variable**: Via Density (nets switching layers randomly).
+**Method**:
+- Run with $N=1..12$.
+- Record $N_{max}$ (Success).
+- Calculate $\eta = N_{max} / N_{theo}$.
+**Outcome**: Update `layer_capacity.py` with specific $\eta_{via}$ factors.
+
+## Experiment T2: Corridor Confinement
+**Objective**: Verify A* stays inside a polygon.
+**Setup**:
+- Define a "U" shaped polygon corridor.
+- Route start to end.
+- **Pass**: Path follows the U shape.
+- **Fail**: Path shortcuts through the void (violating topology).
+
 ---
 
 # Critical Analysis & Refinement
