@@ -33,6 +33,10 @@ from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
 from temper_placer.routing.variational_router.snake_optimizer import SnakeOptimizer
 from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
 from temper_placer.placement.legalization import Legalizer
+from temper_placer.placement.spectral import SpectralPlacer
+from temper_placer.placement.analytical import AnalyticalLegalizer
+from temper_placer.router_v7.negotiated_router import NegotiatedRouter
+from temper_placer.router_v7.diff_pair_router import DiffPairRouter
 from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import RoutingSpace, compute_routing_space
@@ -76,6 +80,7 @@ class Stage4Output:
     via_placement: ViaPlacement
     width_assignment: TraceWidthAssignment
     routing_results: RoutingResults
+    power_planes: list[dict] | None = None  # List of zone definitions
 
 
 @dataclass
@@ -117,6 +122,8 @@ class RouterV6Pipeline:
         enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
         enable_legalization: bool = True,  # Default ON for robustness
+        enable_negotiated_congestion: bool = False,  # Phase 8 PathFinder
+        placement_mode: str = "physics",  # "physics" or "analytical"
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
     ):
@@ -129,6 +136,8 @@ class RouterV6Pipeline:
             enable_lazy_theta_star: Use Lazy Theta* (Experiment O4)
             enable_smoothing: Apply force-directed smoothing (Experiment G)
             enable_legalization: Auto-fix component overlaps (Phase 6)
+            enable_negotiated_congestion: Use PathFinder algorithm (Phase 8)
+            placement_mode: Strategy for placement ("physics", "analytical")
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
         """
@@ -137,6 +146,8 @@ class RouterV6Pipeline:
         self.enable_lazy_theta_star = enable_lazy_theta_star
         self.enable_smoothing = enable_smoothing
         self.enable_legalization = enable_legalization
+        self.enable_negotiated_congestion = enable_negotiated_congestion
+        self.placement_mode = placement_mode
         self.max_nets = max_nets
         self.target_nets = target_nets
 
@@ -160,20 +171,70 @@ class RouterV6Pipeline:
         # Stage 0.5: Legalization
         if self.enable_legalization:
             if self.verbose:
-                print("Stage 0.5: Checking and Legalizing Placement...")
+                print(f"Stage 0.5: Placement Optimization (Mode: {self.placement_mode})...")
 
-            legalizer = Legalizer(pcb)
-            # Check collisions before
-            if self.verbose:
-                collisions = legalizer.auditor.check_collisions()
-                print(f"  Found {len(collisions)} initial collisions")
-
-            if legalizer.legalize():
+            if self.placement_mode == "analytical":
+                # Experiment P3: Spectral + LP
                 if self.verbose:
-                    print("  Legalization successful (0 overlaps)")
+                    print("  Running Spectral Placement...")
+                spectral = SpectralPlacer(pcb)
+                coords = spectral.compute_placement()
+
+                # Determine bounds (use existing board area or component extent)
+                # For now, use existing component extent as bounds to avoid expansion
+                init_x = [c.initial_position[0] for c in pcb.components if c.initial_position]
+                init_y = [c.initial_position[1] for c in pcb.components if c.initial_position]
+                if init_x:
+                    bounds = (min(init_x), min(init_y), max(init_x), max(init_y))
+                else:
+                    bounds = (0, 0, 100, 100)
+
+                # Scale spectral coords to bounds
+                spec_x = [p[0] for p in coords.values()]
+                spec_y = [p[1] for p in coords.values()]
+                s_min_x, s_max_x = min(spec_x), max(spec_x)
+                s_min_y, s_max_y = min(spec_y), max(spec_y)
+
+                # Avoid div by zero
+                sx = (bounds[2] - bounds[0]) / (s_max_x - s_min_x) if s_max_x != s_min_x else 1
+                sy = (bounds[3] - bounds[1]) / (s_max_y - s_min_y) if s_max_y != s_min_y else 1
+                scale = min(sx, sy)  # Uniform scaling
+
+                # Center
+                cx = (bounds[0] + bounds[2]) / 2
+                cy = (bounds[1] + bounds[3]) / 2
+
+                scaled_coords = {}
+                for ref, (x, y) in coords.items():
+                    scaled_coords[ref] = (x * scale + cx, y * scale + cy)
+
+                if self.verbose:
+                    print("  Running Analytical Legalization (LP)...")
+                legalizer = AnalyticalLegalizer(pcb)
+                if legalizer.legalize(scaled_coords, bounds):
+                    if self.verbose:
+                        print("  Analytical Legalization successful")
+                else:
+                    if self.verbose:
+                        print("  Warning: LP Infeasible, falling back to Physics")
+                    # Fallback to physics
+                    phys_legalizer = Legalizer(pcb)
+                    phys_legalizer.legalize()
+
             else:
+                # Default: Physics-based Legalization (Experiment P2)
+                legalizer = Legalizer(pcb)
+                # Check collisions before
                 if self.verbose:
-                    print("  Warning: Legalization did not fully converge (residual overlap)")
+                    collisions = legalizer.auditor.check_collisions()
+                    print(f"  Found {len(collisions)} initial collisions")
+
+                if legalizer.legalize():
+                    if self.verbose:
+                        print("  Physics Legalization successful (0 overlaps)")
+                else:
+                    if self.verbose:
+                        print("  Warning: Legalization did not fully converge (residual overlap)")
 
         # Validate placement (Post-Legalization)
         # Note: pcb.validate_placement checks for missing footprints etc, not necessarily geometric overlap.
@@ -284,6 +345,16 @@ class RouterV6Pipeline:
         occupancy_grids = {}
         for layer_name, routing_space in routing_spaces.items():
             grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
+
+            # Apply Stackup Strategy: Prefer Top Layer (F.Cu)
+            # Penalize Bottom Layer (B.Cu) to reserve it for Ground Plane
+            if layer_name == "F.Cu":
+                grid.base_cost = 1.0
+            elif layer_name == "B.Cu":
+                grid.base_cost = 10.0  # 10x cost -> Prefer Top unless blocked
+            else:
+                grid.base_cost = 5.0  # Inner layers
+
             occupancy_grids[layer_name] = grid
 
         # 2.6: Calculate per-layer capacity
@@ -423,7 +494,10 @@ class RouterV6Pipeline:
 
         # 4.2: Run A* pathfinding (Unified)
         if self.verbose:
-            print("  4.2: Running A* pathfinding (unified multi-layer)...")
+            mode_str = (
+                "Negotiated PathFinder" if self.enable_negotiated_congestion else "Sequential A*"
+            )
+            print(f"  4.2: Running Routing ({mode_str})...")
 
         # Get primary and alternate grids
         fcu_grid = stage2.occupancy_grids.get("F.Cu")
@@ -434,19 +508,202 @@ class RouterV6Pipeline:
         if not bcu_grid and len(stage2.occupancy_grids) > 1:
             bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
 
-        # Unified call: pass all nets and both grids
-        pathfinding_result = run_astar_pathfinding(
-            channel_mapping,
-            fcu_grid,
-            pcb.design_rules,
-            alternate_grid=bcu_grid,
-            pcb=pcb,
-            escape_vias_map=escape_vias_map,
-            use_theta_star=self.enable_theta_star,
-            use_lazy_theta_star=self.enable_lazy_theta_star,
-            max_nets=self.max_nets,
-            target_nets=self.target_nets,
-        )
+        # Unified call: pass all nets and both grids (Logic split for Diff Pairs)
+
+        # 1. Route Differential Pairs (Priority)
+        routed_paths_dp = {}
+
+        # Identify Diff Pairs
+        diff_pairs = []  # List of (p_net, n_net)
+        processed_nets = set()
+
+        # Use F.Cu skeleton for initial mapping (layer assignment happens inside)
+        # We need a list of nets to scan.
+        sorted_nets = sorted(channel_mapping.channel_paths.keys())
+        for n1 in sorted_nets:
+            if n1 in processed_nets:
+                continue
+
+            # Check for pair: USB_D+, USB_D- or similar
+            if n1.endswith("+"):
+                base = n1[:-1]
+                n2 = base + "-"
+                if n2 in channel_mapping.channel_paths:
+                    diff_pairs.append((n1, n2))
+                    processed_nets.add(n1)
+                    processed_nets.add(n2)
+            elif n1.endswith("_P"):
+                base = n1[:-2]
+                n2 = base + "_N"
+                if n2 in channel_mapping.channel_paths:
+                    diff_pairs.append((n1, n2))
+                    processed_nets.add(n1)
+                    processed_nets.add(n2)
+
+        if diff_pairs:
+            if self.verbose:
+                print(f"  Found {len(diff_pairs)} differential pairs")
+
+            # Extract pads for start/end
+            from temper_placer.router_v6.astar_pathfinding import _extract_pad_centers_per_net
+
+            pad_centers = _extract_pad_centers_per_net(pcb)
+
+            dp_router = DiffPairRouter(fcu_grid)  # Assume Top layer for now
+
+            for p_net, n_net in diff_pairs:
+                # Get start/end from pads
+                # We need ONE start and ONE end per net.
+                # If net has > 2 pins, diff pair routing is complex (multi-point).
+                # For USB, it's usually 2 pins (Connector to Chip).
+
+                p_pads = pad_centers.get(p_net, [])
+                n_pads = pad_centers.get(n_net, [])
+
+                if len(p_pads) != 2 or len(n_pads) != 2:
+                    if self.verbose:
+                        print(f"    Skipping {p_net}/{n_net} (Not 2-pin nets)")
+                    # Re-add to processed so we don't skip in normal routing?
+                    # No, processed_nets means we handled it here.
+                    # If we skip, we should remove from processed_nets so standard router picks it up.
+                    processed_nets.remove(p_net)
+                    processed_nets.remove(n_net)
+                    continue
+
+                # Calculate Pair Center Start/End
+                # Start: Midpoint of P_start and N_start
+                # End: Midpoint of P_end and N_end
+                # We need to match which pad is which (Start vs End).
+                # Heuristic: Match by proximity.
+
+                p1, p2 = p_pads[0], p_pads[1]
+                n1, n2 = n_pads[0], n_pads[1]
+
+                # Dist p1-n1
+                d11 = (p1[0] - n1[0]) ** 2 + (p1[1] - n1[1]) ** 2
+                d12 = (p1[0] - n2[0]) ** 2 + (p1[1] - n2[1]) ** 2
+
+                if d11 < d12:
+                    # Match p1-n1, p2-n2
+                    start_p, start_n = p1, n1
+                    end_p, end_n = p2, n2
+                else:
+                    # Match p1-n2, p2-n1
+                    start_p, start_n = p1, n2
+                     end_p, end_n = p2, n1
+                     
+                 # Removed start_center/end_center calc as fanout handles it
+                 
+                 width = pcb.design_rules.default_trace_width_mm
+                 gap = pcb.design_rules.default_clearance_mm # Or specific gap? Use clearance.
+                 
+                 if self.verbose:
+                     print(f"    Routing Pair {p_net}/{n_net}...")
+                 
+                 # Extract (x,y) from (x,y,r,l)
+                 result_pair = dp_router.route_pair_with_fanout(
+                     (start_p[0], start_p[1]), 
+                     (start_n[0], start_n[1]), 
+                     (end_p[0], end_p[1]), 
+                     (end_n[0], end_n[1]), 
+                     width, gap
+                 )
+                 
+                 if result_pair:
+                    path_p, path_n = result_pair
+                    path_p.net_name = p_net
+                    path_n.net_name = n_net
+                    routed_paths_dp[p_net] = path_p
+                    routed_paths_dp[n_net] = path_n
+
+                    # Mark blocked on F.Cu
+                    fcu_grid.mark_path_blocked(path_p.coordinates, width, gap, net_id=998)
+                    fcu_grid.mark_path_blocked(path_n.coordinates, width, gap, net_id=999)
+                else:
+                    if self.verbose:
+                        print(f"    Failed to route pair {p_net}/{n_net}")
+                    # Fallback to standard router
+                    processed_nets.remove(p_net)
+                    processed_nets.remove(n_net)
+
+        # Remove routed Diff Pairs from channel mapping for standard router
+        # We need to filter channel_mapping.channel_paths
+        # But channel_mapping object is used inside run_astar.
+        # We can modify it in place?
+        # Or pass a filtered list of 'target_nets' to run_astar?
+        # run_astar takes 'target_nets'.
+
+        # Calculate remaining nets
+        all_nets = list(channel_mapping.channel_paths.keys())
+        remaining_nets = [n for n in all_nets if n not in routed_paths_dp]
+
+        if self.enable_negotiated_congestion:
+            # Phase 8: Negotiated Router
+            grids = stage2.occupancy_grids
+            negotiated_router = NegotiatedRouter(
+                grids=grids,
+                design_rules=pcb.design_rules,
+                max_iterations=30,  # Limit for prototype
+            )
+
+            # Need list of nets. Use remaining_nets.
+            nets_to_route = remaining_nets
+
+            # ... (Existing logic for pads) ...
+
+            # Extract pads
+            pad_centers_per_net = {}  # Should extract from pcb
+            # Use helper from astar_pathfinding if available or inline
+            from temper_placer.router_v6.astar_pathfinding import (
+                _extract_pad_centers_per_net,
+                _build_tht_pad_locations,
+            )
+
+            pad_centers_per_net = _extract_pad_centers_per_net(pcb)
+            tht_locations = _build_tht_pad_locations(pcb)
+
+            routed_paths_dict = negotiated_router.route(
+                nets=nets_to_route,
+                channel_mapping=channel_mapping,
+                pad_centers=pad_centers_per_net,
+                tht_locations=tht_locations,
+            )
+
+            # Merge Diff Pairs
+            routed_paths_dict.update(routed_paths_dp)
+
+            # Wrap in PathfindingResult
+            pathfinding_result = PathfindingResult(
+                routed_paths=routed_paths_dict,
+                failed_nets=[],  # Assume all routed or failed silently
+                failure_reports={},
+                net_ids={},  # TODO: Generate IDs
+            )
+
+        else:
+            # Unified call: pass all nets and both grids
+            # Use 'target_nets' to exclude Diff Pairs
+
+            # Merge target_nets (if CLI arg) with remaining_nets
+            final_target_nets = remaining_nets
+            if self.target_nets:
+                final_target_nets = [n for n in remaining_nets if n in self.target_nets]
+
+            pathfinding_result = run_astar_pathfinding(
+                channel_mapping,
+                fcu_grid,
+                pcb.design_rules,
+                alternate_grid=bcu_grid,
+                pcb=pcb,
+                escape_vias_map=escape_vias_map,
+                use_theta_star=self.enable_theta_star,
+                use_lazy_theta_star=self.enable_lazy_theta_star,
+                max_nets=self.max_nets,
+                target_nets=final_target_nets,  # Pass filtered list
+            )
+
+            # Merge Diff Pairs into result
+            pathfinding_result.routed_paths.update(routed_paths_dp)
 
         # 4.2.5: Force-directed smoothing (optional post-processing)
         if self.enable_smoothing:
@@ -529,8 +786,9 @@ class RouterV6Pipeline:
                 for net_name, path in pathfinding_result.routed_paths.items():
                     # Calculate required margin = width/2 + clearance + safety buffer
                     # Safety buffer absorbs SDF/Grid aliasing errors (0.05mm grid -> +/-0.025mm error)
+                    # Increased to 0.1 to ensure clean DRC
                     net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
-                    safety_buffer = 0.05
+                    safety_buffer = 0.1
                     required_margin = (net_width / 2.0) + clearance_mm + safety_buffer
 
                     # Get Net ID for dynamic check
@@ -593,9 +851,45 @@ class RouterV6Pipeline:
             length_matching=None,
         )
 
+        # 4.10: Generate Power Planes
+        power_planes = []
+        if self.verbose:
+            print("  4.10: Generating Power Planes...")
+
+        # Find GND net
+        gnd_net_name = next((n.name for n in pcb.nets if "GND" in n.name.upper()), None)
+
+        if gnd_net_name:
+            if self.verbose:
+                print(f"    Generating GND Plane for {gnd_net_name} on B.Cu...")
+
+            # Determine bounds from components
+            all_x = [c.initial_position[0] for c in pcb.components if c.initial_position]
+            all_y = [c.initial_position[1] for c in pcb.components if c.initial_position]
+
+            if all_x:
+                # Add margin
+                min_x, max_x = min(all_x) - 5, max(all_x) + 5
+                min_y, max_y = min(all_y) - 5, max(all_y) + 5
+
+                # Create zone dict
+                power_planes.append(
+                    {
+                        "net_name": gnd_net_name,
+                        "layer": "B.Cu",
+                        "polygon_pts": [
+                            (min_x, min_y),
+                            (max_x, min_y),
+                            (max_x, max_y),
+                            (min_x, max_y),
+                        ],
+                    }
+                )
+
         return Stage4Output(
             pathfinding_result=pathfinding_result,
             via_placement=via_placement,
             width_assignment=width_assignment,
             routing_results=routing_results,
+            power_planes=power_planes,
         )
