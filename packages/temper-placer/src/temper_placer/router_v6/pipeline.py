@@ -587,6 +587,12 @@ class RouterV6Pipeline:
                 width = pcb.design_rules.default_trace_width_mm
                 gap = pcb.design_rules.default_clearance_mm
 
+                # Get Differential class-specific values for correct diff pair routing
+                diff_class = pcb.design_rules.net_classes.get("Differential")
+                if diff_class:
+                    width = diff_class.trace_width_mm
+                    gap = diff_class.diff_pair_gap_mm if diff_class.diff_pair_gap_mm else gap
+
                 if self.verbose:
                     print(f"    Routing Pair {p_net}/{n_net}...")
 
