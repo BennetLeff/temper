@@ -42,6 +42,14 @@ class OccupancyGrid:
     negotiated_mode: bool = False  # If True, allow overlaps
     base_cost: float = 1.0  # Base traversal cost (higher = avoid this layer)
 
+    # Differential Pair Support (Phase 2)
+    net_id_to_name: dict[int, str] | None = None  # Maps net_id -> net_name
+    design_rules: "DesignRules | None" = None  # For pair-aware clearance checking
+
+    # Phase 2.1: Trace geometry for distance calculation
+    # Maps net_id -> list of (p1, p2, trace_width) tuples
+    trace_segments: dict[int, list[tuple[tuple[float, float], tuple[float, float], float]]] | None = None
+
     def __post_init__(self):
         # Initialize congestion arrays if not provided
         if self.congestion_cost is None:
@@ -49,6 +57,8 @@ class OccupancyGrid:
             self.congestion_cost = np.zeros((self.height_cells, self.width_cells), dtype=np.float64)
         if self.usage_count is None:
             self.usage_count = np.zeros((self.height_cells, self.width_cells), dtype=np.int16)
+        if self.trace_segments is None:
+            self.trace_segments = {}
 
     @property
     def width_mm(self) -> float:
@@ -71,12 +81,201 @@ class OccupancyGrid:
             return val == 0
         return False
 
+    def is_free_for_net(self, x_cell: int, y_cell: int, net_id: int) -> bool:
+        """
+        Check if a cell is free for a specific net (differential-pair-aware).
+
+        For differential pairs, allows routing through cells occupied by pair mate
+        if within the pair gap distance.
+
+        Args:
+            x_cell: X grid coordinate
+            y_cell: Y grid coordinate
+            net_id: Net ID attempting to route
+
+        Returns:
+            True if cell is routable for this net
+        """
+        if not (0 <= x_cell < self.width_cells and 0 <= y_cell < self.height_cells):
+            return False
+
+        cell_value = self.grid[y_cell, x_cell]
+
+        # Static obstacle
+        if cell_value == -1:
+            return False
+
+        # Free cell
+        if cell_value == 0:
+            return True
+
+        # Own net
+        if cell_value == net_id:
+            return True
+
+        # Negotiated mode: allow overlaps
+        if self.negotiated_mode:
+            return True
+
+        # Occupied by different net - check if it's our differential pair mate
+        if self.net_id_to_name and self.design_rules:
+            current_net = self.net_id_to_name.get(net_id)
+            blocking_net = self.net_id_to_name.get(cell_value)
+
+            if current_net and blocking_net:
+                is_pair, pair_gap = self.design_rules.are_differential_pair(current_net, blocking_net)
+
+                if is_pair and pair_gap is not None:
+                    # Phase 2.2: Edge-to-edge distance validation for differential pairs
+                    # Calculate edge-to-edge distance accounting for trace widths
+                    distance = self._distance_to_trace(x_cell, y_cell, cell_value, net_id)
+
+                    # Allow routing only if edge-to-edge distance >= pair_gap
+                    # This enforces minimum spacing between differential pair traces
+                    return distance >= pair_gap
+
+        # Blocked by other net
+        return False
+
     def is_blocked(self, x_cell: int, y_cell: int) -> bool:
         """Check if a cell is blocked."""
         if 0 <= x_cell < self.width_cells and 0 <= y_cell < self.height_cells:
             # != 0 is blocked (either static or dynamic)
             return self.grid[y_cell, x_cell] != 0
         return False
+
+    def check_clearance(self, x_cell: int, y_cell: int, current_net_id: int) -> float:
+        """
+        Get required clearance at this cell for the current net.
+
+        For differential pairs, returns reduced clearance (pair_gap) between pair mates.
+        For other nets, returns normal clearance from design rules.
+
+        Args:
+            x_cell: X grid coordinate
+            y_cell: Y grid coordinate
+            current_net_id: Net ID attempting to route through this cell
+
+        Returns:
+            Required clearance in mm (0.0 if cell is free)
+        """
+        # Check bounds
+        if not (0 <= x_cell < self.width_cells and 0 <= y_cell < self.height_cells):
+            return float("inf")  # Out of bounds
+
+        # Check if cell is free
+        blocking_net_id = self.grid[y_cell, x_cell]
+        if blocking_net_id <= 0:
+            return 0.0  # Free cell or static obstacle
+
+        # If no net mapping or design rules, use default behavior
+        if not self.net_id_to_name or not self.design_rules:
+            # Fallback: return default clearance
+            if self.design_rules:
+                return self.design_rules.default_clearance_mm
+            return 0.2  # Hardcoded fallback
+
+        # Get net names
+        current_net = self.net_id_to_name.get(current_net_id)
+        blocking_net = self.net_id_to_name.get(blocking_net_id)
+
+        if not current_net or not blocking_net:
+            # Unknown net, use default clearance
+            return self.design_rules.default_clearance_mm
+
+        # Check if this is a differential pair
+        is_pair, pair_gap = self.design_rules.are_differential_pair(current_net, blocking_net)
+
+        if is_pair and pair_gap is not None:
+            # Use pair gap for differential pair mate
+            return pair_gap
+        else:
+            # Use normal clearance from blocking net's rules
+            blocking_rules = self.design_rules.get_rules_for_net(blocking_net)
+            return blocking_rules.clearance_mm
+
+    def _distance_to_segment(
+        self, px: float, py: float, p1: tuple[float, float], p2: tuple[float, float]
+    ) -> float:
+        """
+        Calculate minimum distance from point (px, py) to line segment (p1, p2).
+
+        Returns:
+            Distance in mm from point to nearest point on segment
+        """
+        x1, y1 = p1
+        x2, y2 = p2
+
+        # Vector from p1 to p2
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Length squared of segment
+        length_sq = dx * dx + dy * dy
+
+        if length_sq == 0:
+            # Segment is a point
+            return ((px - x1) ** 2 + (py - y1) ** 2) ** 0.5
+
+        # Project point onto line (parametric t in [0, 1] for segment)
+        t = max(0.0, min(1.0, ((px - x1) * dx + (py - y1) * dy) / length_sq))
+
+        # Nearest point on segment
+        nearest_x = x1 + t * dx
+        nearest_y = y1 + t * dy
+
+        # Distance from point to nearest point on segment
+        return ((px - nearest_x) ** 2 + (py - nearest_y) ** 2) ** 0.5
+
+    def _distance_to_trace(self, x_cell: int, y_cell: int, blocking_net_id: int, current_net_id: int) -> float:
+        """
+        Calculate edge-to-edge distance from cell to nearest trace segment of given net.
+
+        Phase 2.2: Accounts for trace widths to compute edge-to-edge distance instead of
+        center-to-center distance.
+
+        Args:
+            x_cell: X grid coordinate
+            y_cell: Y grid coordinate
+            blocking_net_id: Net ID of the trace we're measuring distance to
+            current_net_id: Net ID attempting to route (for determining its trace width)
+
+        Returns:
+            Edge-to-edge distance in mm from current net's trace edge to blocking net's trace edge
+        """
+        if not self.trace_segments or blocking_net_id not in self.trace_segments:
+            return float("inf")
+
+        # Convert cell to world coordinates (cell center)
+        px = self.origin[0] + (x_cell + 0.5) * self.cell_size
+        py = self.origin[1] + (y_cell + 0.5) * self.cell_size
+
+        # Find minimum center-to-center distance to any segment of blocking net
+        min_center_dist = float("inf")
+        blocking_trace_width = 0.0
+
+        for p1, p2, trace_width in self.trace_segments[blocking_net_id]:
+            dist = self._distance_to_segment(px, py, p1, p2)
+            if dist < min_center_dist:
+                min_center_dist = dist
+                blocking_trace_width = trace_width
+
+        if min_center_dist == float("inf"):
+            return float("inf")
+
+        # Get current net's trace width
+        current_trace_width = 0.0
+        if self.design_rules and self.net_id_to_name:
+            current_net_name = self.net_id_to_name.get(current_net_id)
+            if current_net_name:
+                rules = self.design_rules.get_rules_for_net(current_net_name)
+                current_trace_width = rules.trace_width_mm
+
+        # Convert center-to-center distance to edge-to-edge distance
+        # Edge-to-edge = center-to-center - (width1/2 + width2/2)
+        edge_to_edge_dist = min_center_dist - (blocking_trace_width / 2.0) - (current_trace_width / 2.0)
+
+        return max(0.0, edge_to_edge_dist)  # Distance can't be negative
 
     def add_usage(self, x: int, y: int) -> None:
         """Increment usage count for a cell."""
@@ -179,11 +378,11 @@ class OccupancyGrid:
             net_id: Unique positive integer ID for this net
         """
         # Calculate how many cells to block around center
-        # width/2 + clearance gives blocking radius
-        radius_mm = (trace_width / 2) + clearance
+        # Correct C-Space: width + clearance (accounts for both trace radii + gap)
+        radius_mm = trace_width + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
 
-        # Helper to mark a single point
+        # Helper to mark a single point with circular blocking
         def mark_point(x_mm, y_mm):
             cx, cy = self.world_to_grid(x_mm, y_mm)
 
@@ -192,21 +391,33 @@ class OccupancyGrid:
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
 
-            # Use net_id to mark
-            self.grid[y_start:y_end, x_start:x_end] = net_id
-
-            # Update usage count for PathFinder
-            if self.negotiated_mode and self.usage_count is not None:
-                self.usage_count[y_start:y_end, x_start:x_end] += 1
+            # Use circular distance check to avoid over-blocking in diagonal directions
+            for y in range(y_start, y_end):
+                for x in range(x_start, x_end):
+                    dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 * self.cell_size
+                    if dist <= radius_mm:
+                        self.grid[y, x] = net_id
+                        # Update usage count for PathFinder
+                        if self.negotiated_mode and self.usage_count is not None:
+                            self.usage_count[y, x] += 1
 
         # Mark all points in path
         if not path:
             return
 
+        # Phase 2.1: Store segments for distance calculation
+        if self.trace_segments is not None:
+            if net_id not in self.trace_segments:
+                self.trace_segments[net_id] = []
+
         # Rasterize lines between points
         for i in range(len(path) - 1):
             p1 = path[i]
             p2 = path[i + 1]
+
+            # Phase 2.1: Store this segment with trace width
+            if self.trace_segments is not None and net_id in self.trace_segments:
+                self.trace_segments[net_id].append((p1, p2, trace_width))
 
             # Interpolate for smooth blocking if segment is long
             dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
@@ -228,7 +439,13 @@ class OccupancyGrid:
         net_id: int,
     ) -> None:
         """Mark a single segment blocked on THIS grid."""
-        radius_mm = (trace_width / 2) + clearance
+        # Phase 2.1: Store segment geometry with trace width for distance calculation
+        if self.trace_segments is not None:
+            if net_id not in self.trace_segments:
+                self.trace_segments[net_id] = []
+            self.trace_segments[net_id].append((p1, p2, trace_width))
+
+        radius_mm = trace_width + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
 
         def mark_point(x_mm, y_mm):
@@ -237,7 +454,13 @@ class OccupancyGrid:
             x_end = min(self.width_cells, cx + expansion + 1)
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
-            self.grid[y_start:y_end, x_start:x_end] = net_id
+
+            # Use circular distance check
+            for y in range(y_start, y_end):
+                for x in range(x_start, x_end):
+                    dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 * self.cell_size
+                    if dist <= radius_mm:
+                        self.grid[y, x] = net_id
 
         dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
         steps = int(np.ceil(dist / (self.cell_size / 2)))
@@ -260,7 +483,16 @@ class OccupancyGrid:
         net_id: int,
     ) -> None:
         """Unmark a single segment from THIS grid."""
-        radius_mm = (trace_width / 2) + clearance
+        # Phase 2.1: Remove segment geometry (match by p1, p2 only, ignoring trace_width)
+        if self.trace_segments is not None and net_id in self.trace_segments:
+            self.trace_segments[net_id] = [
+                seg for seg in self.trace_segments[net_id]
+                if not (seg[0] == p1 and seg[1] == p2)
+            ]
+            if not self.trace_segments[net_id]:
+                del self.trace_segments[net_id]
+
+        radius_mm = trace_width + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
 
         def unmark_point(x_mm, y_mm):
@@ -269,19 +501,18 @@ class OccupancyGrid:
             x_end = min(self.width_cells, cx + expansion + 1)
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
-            region = self.grid[y_start:y_end, x_start:x_end]
 
-            # Restore -1 if it was a static obstacle, otherwise set to 0
-            if self.static_mask is not None:
-                static_region = self.static_mask[y_start:y_end, x_start:x_end]
-                # Identify cells that are currently our net
-                net_mask = region == net_id
-                # Set them to 0 (Free)
-                region[net_mask] = 0
-                # But if they were originally static, restore to -1
-                region[static_region & net_mask] = -1
-            else:
-                region[region == net_id] = 0
+            # Use circular distance check
+            for y in range(y_start, y_end):
+                for x in range(x_start, x_end):
+                    dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 * self.cell_size
+                    if dist <= radius_mm:
+                        if self.grid[y, x] == net_id:
+                            # Restore -1 if it was a static obstacle, otherwise set to 0
+                            if self.static_mask is not None and self.static_mask[y, x]:
+                                self.grid[y, x] = -1
+                            else:
+                                self.grid[y, x] = 0
 
         dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
         steps = int(np.ceil(dist / (self.cell_size / 2)))
@@ -309,7 +540,7 @@ class OccupancyGrid:
         Does NOT clear if another net has overwritten it (shouldn't happen in valid state)
         or if it's a static obstacle.
         """
-        radius_mm = (trace_width / 2) + clearance
+        radius_mm = trace_width + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
 
         def unmark_point(x_mm, y_mm):
@@ -320,12 +551,31 @@ class OccupancyGrid:
             y_start = max(0, cy - expansion)
             y_end = min(self.height_cells, cy + expansion + 1)
 
-            # Only clear cells equal to net_id
-            region = self.grid[y_start:y_end, x_start:x_end]
-            region[region == net_id] = 0  # Set back to Free.
+            # Use circular distance check
+            for y in range(y_start, y_end):
+                for x in range(x_start, x_end):
+                    dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 * self.cell_size
+                    if dist <= radius_mm and self.grid[y, x] == net_id:
+                        self.grid[y, x] = 0  # Set back to Free
 
         if not path:
             return
+
+        # Phase 2.1: Remove segments from trace_segments
+        if self.trace_segments is not None and net_id in self.trace_segments:
+            # Remove all segments for this path (match by p1, p2 only, ignoring trace_width)
+            for i in range(len(path) - 1):
+                p1 = path[i]
+                p2 = path[i + 1]
+                # Find and remove segment matching p1, p2 (regardless of trace_width)
+                self.trace_segments[net_id] = [
+                    seg for seg in self.trace_segments[net_id]
+                    if not (seg[0] == p1 and seg[1] == p2)
+                ]
+
+            # Clean up empty lists
+            if net_id in self.trace_segments and not self.trace_segments[net_id]:
+                del self.trace_segments[net_id]
 
         for i in range(len(path) - 1):
             p1 = path[i]
@@ -388,7 +638,8 @@ class OccupancyGrid:
             clearance: Required clearance in mm
             net_id: Net ID owning this via
         """
-        radius_mm = (via_diameter / 2) + clearance
+        # Correct C-Space: via_diameter + clearance (accounts for both via and trace radii)
+        radius_mm = via_diameter + clearance
         expansion = int(np.ceil(radius_mm / self.cell_size))
 
         cx, cy = self.world_to_grid(x_mm, y_mm)

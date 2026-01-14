@@ -1,0 +1,31 @@
+{
+  "router": "v6_topological",
+  "board": "temper",
+  "runtime_seconds": 98.83557724952698,
+  "success_count": 18,
+  "failure_count": 0,
+  "completion_rate": 1.0,
+  "escape_vias": 0,
+  "total_nets": 24,
+  "routed_nets": [
+    "AC_L",
+    "AC_N",
+    "DC_BUS+",
+    "DC_BUS-",
+    "GATE_H",
+    "GATE_L",
+    "I_SENSE",
+    "PWM_H",
+    "PWM_L",
+    "SPI_CLK",
+    "SPI_CS_TEMP",
+    "SPI_MISO",
+    "SPI_MOSI",
+    "SW_NODE",
+    "TEMP_SENSE",
+    "USB_D+",
+    "USB_D-",
+    "VCC_BOOT"
+  ],
+  "failed_nets": []
+}

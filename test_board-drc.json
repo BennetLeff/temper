@@ -1,0 +1,41 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-01-14T16:39:39-0600",
+    "kicad_version": "9.0.6",
+    "schematic_parity": [],
+    "source": "test_board.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "The footprint library 'Connector_USB' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_USB.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint <no reference designator>",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "fb5bd02b-e866-4aef-a619-fff625ad4f69"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint <no reference designator>",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 50.0
+                    },
+                    "uuid": "50b5c361-b9bc-4d02-aa6f-71895a5ed8c3"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        }
+    ]
+}

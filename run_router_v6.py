@@ -5,6 +5,9 @@ Run Router V6 on temper PCB and generate baseline metrics.
 
 import json
 import sys
+import signal
+import cProfile
+import pstats
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -85,6 +88,8 @@ def main():
     parser.add_argument(
         "--nets", type=str, default=None, help="Comma-separated list of nets to route"
     )
+    parser.add_argument("--profile", action="store_true", help="Enable cProfile with timeout dump")
+    parser.add_argument("--timeout", type=int, default=600, help="Profiling timeout in seconds")
     args = parser.parse_args()
 
     pcb_path = args.pcb
@@ -114,6 +119,26 @@ def main():
     elif args.max_nets:
         print(f"Profiling Mode: Limiting to first {args.max_nets} nets")
     print()
+
+    # Profiling Support
+    profiler = None
+    if args.profile:
+        print(f"Profiling enabled (Timeout: {args.timeout}s)...")
+        profiler = cProfile.Profile()
+        profiler.enable()
+
+        def handler(signum, frame):
+            print("\nTimeout/Interrupt detected! Dumping profile stats...")
+            profiler.disable()
+            stats = pstats.Stats(profiler).sort_stats("cumulative")
+            stats.dump_stats("router_interrupt.prof")
+            stats.print_stats(30)
+            sys.exit(1)
+
+        signal.signal(signal.SIGINT, handler)
+        if args.timeout > 0:
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(args.timeout)
 
     # Run Router V6
     try:
@@ -232,7 +257,7 @@ def main():
                         position=via.position,
                         width=via.diameter,
                         drill=via.drill,
-                        layers=tuple(via.layers),  # Tuple for hashability
+                        layers=(via.from_layer, via.to_layer),  # Construct tuple from layer pair
                         net=net_name,
                     )
                 )
@@ -248,13 +273,15 @@ def main():
         print(f"Exported {len(routes)} segments and {len(vias)} vias.")
 
         # 3. Export Power Planes (Zones)
-        if result.stage4.power_planes:
-            print(f"Exporting {len(result.stage4.power_planes)} Power Planes...")
-            write_zones_to_pcb(
-                template_pcb=output_path, output_pcb=output_path, zones=result.stage4.power_planes
-            )
-        else:
-            print("No Power Planes generated.")
+        # TEMPORARILY DISABLED to isolate routing DRC issues
+        # if result.stage4.power_planes:
+        #     print(f"Exporting {len(result.stage4.power_planes)} Power Planes...")
+        #     write_zones_to_pcb(
+        #         template_pcb=output_path, output_pcb=output_path, zones=result.stage4.power_planes
+        #     )
+        # else:
+        #     print("No Power Planes generated.")
+        print("Power Plane export disabled for DRC testing.")
 
     except Exception as e:
         print(f"\nERROR: {e}")

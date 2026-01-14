@@ -930,7 +930,7 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
     warnings.extend(legacy_result.warnings)
 
     # Extract design rules
-    design_rules = _extract_design_rules(ki_board, warnings, pcb_content)
+    design_rules = _extract_design_rules(ki_board, warnings, pcb_content, pcb_path)
 
     # Extract stackup
     stackup = _extract_stackup(ki_board, warnings)
@@ -949,7 +949,10 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
 
 
 def _extract_design_rules(
-    ki_board: KiBoard, warnings: list[str], pcb_content: str | None = None
+    ki_board: KiBoard,
+    warnings: list[str],
+    pcb_content: str | None = None,
+    pcb_path: Path | None = None,
 ) -> "DesignRules":
     """
     Extract KiCad design rules from board setup.
@@ -1095,6 +1098,39 @@ def _extract_design_rules(
             if hasattr(nc, "nets") and nc.nets:
                 for net_name in nc.nets:
                     net_class_assignments[net_name] = class_name
+
+    # NEW: Load from .pro file if no net classes found
+    if not net_classes:
+        pro_path = pcb_path.parent / f"{pcb_path.stem}.kicad_pro"
+        if pro_path.exists():
+            try:
+                import json
+
+                with open(pro_path) as f:
+                    pro = json.load(f)
+
+                # Extract net classes from .pro file
+                for nc in pro.get("net_settings", {}).get("classes", []):
+                    class_name = nc.get("name", "Signal")
+                    net_classes[class_name] = NetClassRules(
+                        name=class_name,
+                        clearance_mm=nc.get("clearance", default_clearance),
+                        trace_width_mm=nc.get("track_width", default_trace_width),
+                        via_diameter_mm=nc.get("via_diameter", default_via_diameter),
+                        via_drill_mm=nc.get("via_drill", default_via_drill),
+                        diff_pair_gap_mm=nc.get("diff_pair_gap"),
+                        diff_pair_width_mm=nc.get("diff_pair_width"),
+                    )
+
+                # Extract net class assignments from .pro file
+                assignments = pro.get("net_settings", {}).get("netclass_assignments", {})
+                for net_name, class_name in assignments.items():
+                    if class_name in net_classes:
+                        net_class_assignments[net_name] = class_name
+
+                warnings.append(f"Loaded {len(net_classes)} net classes from {pro_path.name}")
+            except Exception as e:
+                warnings.append(f"Failed to load .pro file for net classes: {e}")
 
     # Add default class if not present
     if "Signal" not in net_classes:

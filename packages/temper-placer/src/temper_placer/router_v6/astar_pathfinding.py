@@ -536,6 +536,11 @@ def run_astar_pathfinding(
     # Reverse map for checking (Net ID -> Net Name)
     id_to_net = {v: k for k, v in net_ids.items()}
 
+    # Phase 2: Update grids with net_id_to_name mapping and design_rules for differential pair support
+    for grid_obj in all_grids.values():
+        grid_obj.net_id_to_name = id_to_net
+        grid_obj.design_rules = design_rules
+
     # Sort nets by routing scheduling priority
     net_order = _compute_net_order(channel_mapping)
 
@@ -552,7 +557,7 @@ def run_astar_pathfinding(
     skipped_nets = [n for n in net_order if not should_route(n)]
 
     # Nets that historically fail - give them more rip-up attempts
-    problem_nets = {"/k02", "/k04", "/k25", "/k24", "/k15"}
+    problem_nets = {"/k02", "/k04", "/k25", "/k24", "/k15", "I_SENSE", "SPI_MOSI", "SPI_MISO", "PWM_L"}
 
     reroute_queue: list[str] = []
 
@@ -579,10 +584,13 @@ def run_astar_pathfinding(
         alt_layer = next((l for l in all_grids.keys() if l != channel_path.preferred_layer), None)
         active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
 
+        # Get net-specific routing rules
+        net_rules = design_rules.get_rules_for_net(net_name)
+
         # Unblock pads for this net to allow A* to connect (Surgery is inflation-aware)
         base_inflation = (
-            design_rules.default_trace_width_mm / 2.0
-        ) + design_rules.default_clearance_mm
+            net_rules.trace_width_mm / 2.0
+        ) + net_rules.clearance_mm
         restoration = _unblock_net_pads(
             net_name,
             pad_centers_per_net,
@@ -649,14 +657,17 @@ def run_astar_pathfinding(
                 if ripped_id in id_to_net:
                     ripped_name = id_to_net[ripped_id]
                     if ripped_name in routed_paths:
+                        # Get net-specific rules for the ripped net
+                        ripped_rules = design_rules.get_rules_for_net(ripped_name)
+
                         # Unmark the ripped path from grids (layer-aware)
                         ripped_path = routed_paths[ripped_name]
                         _unmark_route_blocked(
                             ripped_path,
                             all_grids,
-                            design_rules.default_trace_width_mm,
-                            design_rules.default_clearance_mm,
-                            ripped_id,
+                            trace_width=ripped_rules.trace_width_mm,
+                            clearance=ripped_rules.clearance_mm,
+                            net_id=ripped_id,
                         )
                         del routed_paths[ripped_name]
                         reroute_queue.append(ripped_name)
@@ -664,13 +675,13 @@ def run_astar_pathfinding(
                         # Track ripup count
                         ripup_counts[ripped_name] = ripup_counts.get(ripped_name, 0) + 1
 
-            # Mark new path (layer-aware)
+            # Mark new path with net-specific rules (layer-aware)
             routed_paths[net_name] = route_path
             _mark_route_blocked(
                 route_path,
                 all_grids,
-                trace_width=design_rules.default_trace_width_mm,
-                clearance=design_rules.default_clearance_mm,
+                trace_width=net_rules.trace_width_mm,
+                clearance=net_rules.clearance_mm,
                 net_id=net_id,
             )
 
@@ -769,6 +780,9 @@ def _astar_route_with_ripup(
     Returns:
         (RoutePath, list_of_net_ids_to_rip)
     """
+    # Get net_id for differential pair support
+    net_id = net_ids.get(net_name, -1)
+
     # Try multilayer routing if alternate grid available
     if alternate_grid and tht_locations:
         path = _astar_route_multilayer(
@@ -779,9 +793,10 @@ def _astar_route_with_ripup(
             tht_locations,
             use_theta_star,
             use_lazy_theta_star,
+            net_id=net_id,
         )
     else:
-        path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star)
+        path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star, net_id=net_id)
 
     if path and path.forced_segment_count == 0:
         return path, []
@@ -826,7 +841,7 @@ def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
     nets = list(channel_mapping.channel_paths.keys())
 
     # Nets that historically fail - give them priority
-    problem_nets = {"/k02", "/k04", "/k25", "/k24", "/k15"}
+    problem_nets = {"/k02", "/k04", "/k25", "/k24", "/k15", "I_SENSE", "SPI_MOSI", "SPI_MISO", "PWM_L"}
 
     def priority_key(net_name: str):
         path = channel_mapping.channel_paths[net_name]
@@ -855,6 +870,7 @@ def _astar_route_multilayer(
     tht_locations: set[tuple[float, float]] | None,
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
+    net_id: int = -1,
 ) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -915,14 +931,14 @@ def _astar_route_multilayer(
         if start_valid and goal_valid:
             if use_lazy_theta_star:
                 segment_path = _astar_search_lazy_theta_star(
-                    grid_to_use, start_grid, goal_grid, net_id=-1
+                    grid_to_use, start_grid, goal_grid, net_id=net_id
                 )
             elif use_theta_star:
                 segment_path = _astar_search_theta_star(
-                    grid_to_use, start_grid, goal_grid, net_id=-1
+                    grid_to_use, start_grid, goal_grid, net_id=net_id
                 )
             else:
-                segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
+                segment_path = _astar_search(start_grid, goal_grid, grid_to_use, net_id=net_id)
 
         # If primary failed and alternate available, try alternate layer
         # Allow layer switching when THT pads exist on the board - the router
@@ -945,14 +961,14 @@ def _astar_route_multilayer(
             if start_valid and goal_valid:
                 if use_lazy_theta_star:
                     segment_path = _astar_search_lazy_theta_star(
-                        grid_to_use, start_grid, goal_grid, net_id=-1
+                        grid_to_use, start_grid, goal_grid, net_id=net_id
                     )
                 elif use_theta_star:
                     segment_path = _astar_search_theta_star(
-                        grid_to_use, start_grid, goal_grid, net_id=-1
+                        grid_to_use, start_grid, goal_grid, net_id=net_id
                     )
                 else:
-                    segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
+                    segment_path = _astar_search(start_grid, goal_grid, grid_to_use, net_id=net_id)
 
         # Add segment to path
         if segment_path:
@@ -1010,6 +1026,7 @@ def _astar_route(
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
     heuristic_weight: float = 1.0,
+    net_id: int = -1,
 ) -> RoutePath | None:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -1116,6 +1133,7 @@ def _astar_search(
     start: tuple[int, int],
     goal: tuple[int, int],
     grid: OccupancyGrid,
+    net_id: int = -1,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -1124,6 +1142,7 @@ def _astar_search(
         start: Start cell (x, y)
         goal: Goal cell (x, y)
         grid: Occupancy grid
+        net_id: Net ID for differential-pair-aware routing
 
     Returns:
         List of cells or None if no path found
@@ -1157,9 +1176,13 @@ def _astar_search(
         for dx, dy in moves:
             neighbor = (x + dx, y + dy)
 
-            # Check if neighbor is valid and free
-            if not grid.is_free(neighbor[0], neighbor[1]):
-                continue
+            # Check if neighbor is valid and free (differential-pair-aware if net_id provided)
+            if net_id > 0:
+                if not grid.is_free_for_net(neighbor[0], neighbor[1], net_id):
+                    continue
+            else:
+                if not grid.is_free(neighbor[0], neighbor[1]):
+                    continue
 
             # Diagonal cost = 1.414, Cardinal = 1.0
             dist = 1.414 if dx != 0 and dy != 0 else 1.0
@@ -1437,9 +1460,14 @@ def _astar_search_lazy_theta_star(
         for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
             nx, ny = cx + dx, cy + dy
             if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
-                cell_value = grid.grid[ny, nx]
-                if cell_value == 0 or cell_value == net_id:
-                    neighbors.append((nx, ny))
+                # Use differential-pair-aware free check if net_id provided
+                if net_id > 0:
+                    if grid.is_free_for_net(nx, ny, net_id):
+                        neighbors.append((nx, ny))
+                else:
+                    cell_value = grid.grid[ny, nx]
+                    if cell_value == 0 or cell_value == net_id:
+                        neighbors.append((nx, ny))
 
         for neighbor in neighbors:
             if neighbor in closed_set:
@@ -1491,23 +1519,13 @@ def _astar_search_theta_star(
     goal_grid: tuple[int, int],
     net_id: int,
     came_from_init: dict | None = None,
+    heuristic_weight: float = 1.0,
 ) -> list[tuple[int, int]] | None:
     """
     Theta* pathfinding with any-angle paths.
 
-    Key difference from A*: When expanding a neighbor, checks if parent
-    of current has line-of-sight to neighbor. If yes, connects parent
-    directly to neighbor (skipping current), creating diagonal shortcuts.
-
     Args:
-        grid: Occupancy grid
-        start_grid: Start position (grid coordinates)
-        goal_grid: Goal position (grid coordinates)
-        net_id: Net ID for unblocking own cells
-        came_from_init: Optional initial came_from for warm-starting
-
-    Returns:
-        Path as list of (x, y) grid cells, or None if no path
+        heuristic_weight: A* heuristic multiplier.
     """
     from heapq import heappush, heappop
     import math
@@ -1549,15 +1567,20 @@ def _astar_search_theta_star(
         for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
             nx, ny = cx + dx, cy + dy
             if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
-                # Check occupancy (binary or cost is handled in line_cost, but fast check here?)
-                # Basic check
-                cell_val = grid.grid[ny, nx]
-                if grid.negotiated_mode:
-                    if cell_val == -1:
+                # Use differential-pair-aware free check if net_id provided
+                if net_id > 0:
+                    if not grid.is_free_for_net(nx, ny, net_id):
                         continue
                 else:
-                    if cell_val != 0 and cell_val != net_id:
-                        continue
+                    # Check occupancy (binary or cost is handled in line_cost, but fast check here?)
+                    # Basic check
+                    cell_val = grid.grid[ny, nx]
+                    if grid.negotiated_mode:
+                        if cell_val == -1:
+                            continue
+                    else:
+                        if cell_val != 0 and cell_val != net_id:
+                            continue
                 neighbors.append((nx, ny))
 
         for neighbor in neighbors:
@@ -1596,10 +1619,7 @@ def _astar_search_theta_star(
             if neighbor not in g_score or tentative_g < g_score[neighbor]:
                 came_from[neighbor] = path_source
                 g_score[neighbor] = tentative_g
-                # Use heuristic weight from argument? (Need to add arg to function signature)
-                # I didn't add it to this function yet. Assume 1.0 or fix signature.
-                # I'll just use 1.0 here or standard Euclidean.
-                f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
+                f_score = tentative_g + heuristic_weight * euclidean_dist(neighbor, goal_grid)
                 counter += 1
                 heappush(open_set, (f_score, counter, neighbor))
 
@@ -1704,18 +1724,29 @@ def _astar_search_3d(
         # Same-layer moves (8-connected)
         for dx, dy in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
             nx, ny = x + dx, y + dy
-            if grid.is_free(nx, ny):
-                move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
-                moves.append(((nx, ny, layer), move_cost))
+            # Use differential-pair-aware free check if net_id available
+            if net_id > 0:
+                if grid.is_free_for_net(nx, ny, net_id):
+                    move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
+                    moves.append(((nx, ny, layer), move_cost))
+            else:
+                if grid.is_free(nx, ny):
+                    move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
+                    moves.append(((nx, ny, layer), move_cost))
 
         # Layer transition moves (via insertion)
         for other_layer in available_layers:
             if other_layer != layer:
                 other_grid = grids[other_layer]
                 # Can place via if current cell is free on other layer
-                if other_grid.is_free(x, y):
-                    # Via cost discourages excessive transitions
-                    moves.append(((x, y, other_layer), via_cost))
+                if net_id > 0:
+                    if other_grid.is_free_for_net(x, y, net_id):
+                        # Via cost discourages excessive transitions
+                        moves.append(((x, y, other_layer), via_cost))
+                else:
+                    if other_grid.is_free(x, y):
+                        # Via cost discourages excessive transitions
+                        moves.append(((x, y, other_layer), via_cost))
 
         for neighbor_key, move_cost in moves:
             new_cost = cost_so_far[current_key] + move_cost

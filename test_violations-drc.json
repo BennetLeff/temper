@@ -1,0 +1,148 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-01-14T16:42:38-0600",
+    "kicad_version": "9.0.6",
+    "schematic_parity": [],
+    "source": "test_violations.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad D- [USB_D-] of ",
+                    "pos": {
+                        "x": 3.6,
+                        "y": -3.5
+                    },
+                    "uuid": "de1b19e0-0466-4860-8b6f-2d083399bba1"
+                },
+                {
+                    "description": "Track [USB_D-] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 10.0
+                    },
+                    "uuid": "59f19c64-8765-4455-a127-287d2a0573f7"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "PTH pad VBUS [DC_BUS+] of ",
+                    "pos": {
+                        "x": -1.8,
+                        "y": -3.5
+                    },
+                    "uuid": "12065ce4-870e-44e0-9be0-3af9ff6f06b6"
+                },
+                {
+                    "description": "Track [DC_BUS+] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 20.0
+                    },
+                    "uuid": "d0d858e3-8e81-47de-8723-7df29d4e9844"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [USB_D-] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 10.0
+                    },
+                    "uuid": "59f19c64-8765-4455-a127-287d2a0573f7"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [USB_D-] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 10.08
+                    },
+                    "uuid": "dfebe612-f54a-4ea4-9492-af4bed9c15de"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [DC_BUS+] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 20.0
+                    },
+                    "uuid": "d0d858e3-8e81-47de-8723-7df29d4e9844"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [DC_BUS+] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 20.1
+                    },
+                    "uuid": "700633c2-3b08-4448-803f-1220dd57afec"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "The footprint library 'Connector_USB' was not found at '/opt/homebrew/bin/SharedSupport/footprints//Connector_USB.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint <no reference designator>",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "aa658383-92a1-4454-a19a-31bb84ec73af"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "The footprint library 'MountingHole' was not found at '/opt/homebrew/bin/SharedSupport/footprints//MountingHole.pretty'.",
+            "items": [
+                {
+                    "description": "Footprint <no reference designator>",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 50.0
+                    },
+                    "uuid": "9d865857-135a-4466-9239-fa78a3dc9608"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        }
+    ]
+}

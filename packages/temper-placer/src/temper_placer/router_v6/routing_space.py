@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from shapely.geometry import MultiPolygon, Polygon, box
+from shapely.strtree import STRtree
 
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.stage0_data import ParsedPCB
@@ -25,6 +26,7 @@ class RoutingSpace:
     obstacle_area: float  # Total obstacle area in mm²
     routing_area: float  # Available routing area in mm²
     obstacles: MultiPolygon | None = None  # Raw obstacles for SDF generation
+    obstacle_tree: STRtree | None = None  # Spatial index for fast queries
 
     @property
     def utilization_ratio(self) -> float:
@@ -94,6 +96,13 @@ def compute_routing_space(
         obstacle_area = obstacles.area if hasattr(obstacles, "area") else 0.0
         routing_area = available_area.area if hasattr(available_area, "area") else board_area
 
+        # Build spatial index
+        obstacle_tree = None
+        if isinstance(obstacles, MultiPolygon) and len(obstacles.geoms) > 0:
+            obstacle_tree = STRtree(obstacles.geoms)
+        elif isinstance(obstacles, Polygon):
+            obstacle_tree = STRtree([obstacles])
+
         routing_spaces[layer_name] = RoutingSpace(
             layer_name=layer_name,
             available_area=available_area,
@@ -101,6 +110,7 @@ def compute_routing_space(
             obstacle_area=obstacle_area,
             routing_area=routing_area,
             obstacles=obstacles,
+            obstacle_tree=obstacle_tree,
         )
 
     return routing_spaces

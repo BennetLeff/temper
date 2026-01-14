@@ -81,6 +81,23 @@ def build_obstacle_map(
                 # Specific layer (e.g. "F.Cu")
                 layer_obstacles[pin.layer].append(pad_poly)
 
+            # Add drill hole obstacle if this is a PTH pad
+            # Drill holes are physical voids that block ALL copper layers
+            if pin.is_pth and pin.drill:
+                # Extract drill diameter (handle both float and DrillDefinition object)
+                drill_diameter = pin.drill if isinstance(pin.drill, (int, float)) else getattr(pin.drill, 'diameter', 0)
+
+                if drill_diameter and drill_diameter > 0:
+                    # DRC requirement: 0.25mm hole clearance (from KiCad board setup)
+                    hole_clearance_mm = 0.25
+                    drill_radius = drill_diameter / 2.0
+                    hole_poly = Point(px, py).buffer(drill_radius + hole_clearance_mm, quad_segs=8)
+
+                    # Drill goes through ALL signal layers
+                    for layer_info in pcb.stackup.layers:
+                        if layer_info.layer_type in ["signal", "mixed"]:
+                            layer_obstacles[layer_info.name].append(hole_poly)
+
     # 2. Escape Vias
     # Assume Through-Hole Vias for now (blocking all layers)
     for via in escape_vias:

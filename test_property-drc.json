@@ -1,0 +1,41 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-01-14T16:48:03-0600",
+    "kicad_version": "9.0.6",
+    "schematic_parity": [],
+    "source": "test_property.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "The current configuration does not include the footprint library 'Connector_IEC'.",
+            "items": [
+                {
+                    "description": "Footprint J_AC_IN",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 75.0
+                    },
+                    "uuid": "20fb3504-5438-44cb-a81a-afa4d767f2b0"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of J_AC_IN",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 75.0
+                    },
+                    "uuid": "c01e561e-e0eb-4911-88de-c3db6b9dda55"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        }
+    ]
+}

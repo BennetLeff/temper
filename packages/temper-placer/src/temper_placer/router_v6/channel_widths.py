@@ -76,7 +76,7 @@ def compute_channel_widths(
 
     # Compute width at each node
     for node in skeleton.graph.nodes():
-        width = _compute_width_at_point(node, available_area)
+        width = _compute_width_at_point(node, routing_space)
         node_widths[node] = width
 
     # Compute width along each edge
@@ -91,7 +91,7 @@ def compute_channel_widths(
         # Sample intermediate points
         dx = v[0] - u[0]
         dy = v[1] - u[1]
-        edge_length = (dx**2 + dy**2)**0.5
+        edge_length = (dx**2 + dy**2) ** 0.5
 
         if edge_length > sample_distance:
             num_samples = int(edge_length / sample_distance)
@@ -99,7 +99,7 @@ def compute_channel_widths(
                 t = i / num_samples
                 sample_x = u[0] + t * dx
                 sample_y = u[1] + t * dy
-                width = _compute_width_at_point((sample_x, sample_y), available_area)
+                width = _compute_width_at_point((sample_x, sample_y), routing_space)
                 widths_along_edge.append(width)
 
         # Edge width is the minimum along the edge (bottleneck)
@@ -127,7 +127,7 @@ def compute_channel_widths(
 
 def _compute_width_at_point(
     point: tuple[float, float],
-    available_area,
+    routing_space: RoutingSpace,
 ) -> float:
     """
     Compute channel width at a point.
@@ -136,7 +136,7 @@ def _compute_width_at_point(
 
     Args:
         point: (x, y) coordinate
-        available_area: Available routing area (Polygon or MultiPolygon)
+        routing_space: RoutingSpace object
 
     Returns:
         Width in mm
@@ -145,14 +145,76 @@ def _compute_width_at_point(
     from shapely.geometry import Point as ShapelyPoint
 
     pt = ShapelyPoint(point)
+    available_area = routing_space.available_area
 
-    # Check if point is inside available area
+    # Check if point is inside available area (fast check first)
     if not available_area.contains(pt):
         return 0.0
 
+    # Optimization O6: Use STRtree if available
+    if routing_space.obstacle_tree:
+        # Distance to nearest obstacle
+        # Note: obstacle_tree contains OBSTACLES.
+        # Distance to nearest obstacle is roughly clearance.
+        # But we also need distance to BOARD EDGE.
+        # RoutingSpace doesn't store board edge explicitly, but available_area is intersection.
+
+        # Method: query tree for nearest
+        nearest_idx = routing_space.obstacle_tree.nearest(pt)
+
+        # If nearest_idx is int/array
+        import numpy as np
+
+        if isinstance(nearest_idx, (int, np.integer)):
+            nearest_idx = [nearest_idx]
+
+        min_dist_obs = float("inf")
+
+        # We need the geometries.
+        # RoutingSpace.obstacles is MultiPolygon.
+        if routing_space.obstacles:
+            geoms = (
+                routing_space.obstacles.geoms
+                if hasattr(routing_space.obstacles, "geoms")
+                else [routing_space.obstacles]
+            )
+
+            # nearest returns index in geoms
+            # distance(pt, geoms[idx])
+            # Actually query_nearest or nearest?
+            # Shapely 2.0: tree.nearest(geom) returns index.
+            # distance is computed manually or via tree.query(geom, distance)?
+
+            # Simpler: use nearest object
+            if nearest_idx is not None:
+                # Check closest
+                # Just iterate the nearest few?
+                # tree.nearest returns THE nearest index.
+                idx = nearest_idx
+                if isinstance(idx, (list, np.ndarray)) and len(idx) > 0:
+                    idx = idx[0]
+
+                obs = geoms[idx]
+                min_dist_obs = pt.distance(obs)
+
+        # Also verify boundary of board (available_area exterior)
+        # Usually obstacles cover holes. Board edge is exterior.
+        # Distance to available_area boundary is rigorous but slow.
+        # If obstacle tree gives X, we trust it?
+        # But what if board edge is closer?
+        # Fallback to rigorous check if we are far from obstacles?
+        # No, mixing is hard.
+
+        # Let's stick to the rigorous check but OPTIMIZE it.
+        # Only check polygons that are close?
+        # available_area contains holes (obstacles).
+
+        pass
+
+    # Fallback to rigorous (slow) check
     # Compute distance to boundary
     # For a polygon, the distance to boundary is the distance to exterior ring
-    min_distance = float('inf')
+    min_distance = float("inf")
 
     if isinstance(available_area, Polygon):
         polygons = [available_area]
@@ -167,13 +229,36 @@ def _compute_width_at_point(
             dist_to_exterior = pt.distance(polygon.exterior)
             min_distance = min(min_distance, dist_to_exterior)
 
-            # Distance to any interior holes
-            for interior in polygon.interiors:
-                dist_to_hole = pt.distance(interior)
-                min_distance = min(min_distance, dist_to_hole)
+            # Optimization: Use tree to check holes?
+            # Holes are obstacles.
+            # If we have obstacle tree, we can find nearest obstacle quickly.
+            if routing_space.obstacle_tree:
+                # Use tree to find nearest obstacle distance
+                # This replaces iterating interior rings!
+                nearest_idx = routing_space.obstacle_tree.nearest(pt)
+                import numpy as np
+
+                if nearest_idx is not None:
+                    idx = nearest_idx
+                    if isinstance(idx, (list, np.ndarray)) and len(idx) > 0:
+                        idx = idx[0]
+
+                    geoms = (
+                        routing_space.obstacles.geoms
+                        if hasattr(routing_space.obstacles, "geoms")
+                        else [routing_space.obstacles]
+                    )
+                    obs = geoms[idx]
+                    dist_to_hole = pt.distance(obs)
+                    min_distance = min(min_distance, dist_to_hole)
+            else:
+                # Distance to any interior holes (Legacy Slow Loop)
+                for interior in polygon.interiors:
+                    dist_to_hole = pt.distance(interior)
+                    min_distance = min(min_distance, dist_to_hole)
 
     # Width is 2x the clearance (distance on both sides)
-    if min_distance == float('inf'):
+    if min_distance == float("inf"):
         return 0.0
 
     return 2.0 * min_distance

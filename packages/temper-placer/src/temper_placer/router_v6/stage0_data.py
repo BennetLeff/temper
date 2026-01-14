@@ -115,6 +115,49 @@ class DesignRules:
             via_drill_mm=self.default_via_drill_mm,
         )
 
+    def are_differential_pair(self, net_a: str, net_b: str) -> tuple[bool, float | None]:
+        """
+        Check if two nets are a differential pair.
+
+        Returns:
+            (is_pair, pair_gap_mm) - pair_gap_mm is the required gap between the pair
+        """
+        # Get net classes for both nets
+        class_a = self.net_class_assignments.get(net_a)
+        class_b = self.net_class_assignments.get(net_b)
+
+        # Must be in the same net class
+        if not class_a or not class_b or class_a != class_b:
+            return (False, None)
+
+        # Get the shared net class
+        net_class = self.net_classes.get(class_a)
+        if not net_class or not net_class.diff_pair_gap_mm:
+            return (False, None)
+
+        # Check if net names match differential pair patterns
+        # Common patterns: USB_D+/USB_D-, CLK_P/CLK_N, TX+/TX-, etc.
+        def get_base_name(net: str) -> str:
+            """Extract base name by removing +/- or _P/_N suffixes."""
+            if net.endswith("+") or net.endswith("-"):
+                return net[:-1]
+            if net.upper().endswith("_P") or net.upper().endswith("_N"):
+                return net[:-2]
+            if net.upper().endswith("P") or net.upper().endswith("N"):
+                # Only strip single P/N if preceded by non-letter (like "TX1P")
+                if len(net) > 1 and not net[-2].isalpha():
+                    return net[:-1]
+            return net
+
+        base_a = get_base_name(net_a)
+        base_b = get_base_name(net_b)
+
+        # If base names match, they're a differential pair
+        if base_a == base_b and base_a != net_a and base_b != net_b:
+            return (True, net_class.diff_pair_gap_mm)
+
+        return (False, None)
+
 
 @dataclass
 class ParsedPCB:

@@ -216,7 +216,7 @@
       },
       {
         "bus_width": 12,
-        "clearance": 2.0,
+        "clearance": 3.0,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -230,7 +230,7 @@
         "via_diameter": 1.2,
         "via_drill": 0.6,
         "wire_width": 6,
-        "description": "DC bus, switch node, resonant tank. 340V, 22A peak. Use copper pours."
+        "description": "DC bus, switch node, resonant tank. 340V, 22A peak. 3.0mm clearance for IEC 62368-1."
       },
       {
         "bus_width": 12,
@@ -306,20 +306,39 @@
       },
       {
         "bus_width": 12,
-        "clearance": 0.1,
-        "diff_pair_gap": 0.1,
+        "clearance": 0.3,
+        "diff_pair_gap": 0.127,
         "diff_pair_via_gap": 0.25,
-        "diff_pair_width": 0.127,
+        "diff_pair_width": 0.35,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "Differential",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.127,
+        "track_width": 0.35,
         "via_diameter": 0.5,
         "via_drill": 0.25,
-        "wire_width": 6
+        "wire_width": 6,
+        "description": "USB 2.0 differential pairs. 0.127mm pair gap for 90-ohm impedance."
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.3,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Ground",
+        "pcb_color": "rgba(0, 128, 0, 1.000)",
+        "schematic_color": "rgba(0, 128, 0, 1.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6,
+        "description": "Ground nets. 0.3mm clearance for zone filling and thermal relief."
       }
     ],
     "meta": {
@@ -341,7 +360,7 @@
       "ENCODER_A": "Default",
       "ENCODER_B": "Default",
       "FAULT_STATUS": "Default",
-      "GND": "FinePitch",
+      "GND": "Ground",
       "I_SENSE": "FinePitch",
       "I2C_SCL": "Default",
       "I2C_SDA": "Default",

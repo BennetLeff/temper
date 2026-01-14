@@ -429,7 +429,7 @@ def create_temper_design_rules() -> DesignRules:
     """
     return DesignRules(
         default_trace_width=0.2,
-        default_clearance=0.15,  # Relaxed from 0.2mm to allow signal density (Targeted Reduction)
+        default_clearance=0.2,  # Matches KiCad DRC requirement (was 0.15mm - caused violations)
         default_via_diameter=0.6,
         default_via_drill=0.3,
         net_classes=deepcopy(TEMPER_NET_CLASSES),

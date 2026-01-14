@@ -85,19 +85,29 @@ class DiffPairRouter:
 
         # P Fan-out
         fo_start_p = _astar_route(
-            "Fanout_P_Start", MockChannelPath([start_p, mid_start_p]), self.grid
+            "Fanout_P_Start",
+            MockChannelPath([start_p, mid_start_p]),
+            self.grid,
+            use_lazy_theta_star=True,
         )
         # N Fan-out
         fo_start_n = _astar_route(
-            "Fanout_N_Start", MockChannelPath([start_n, mid_start_n]), self.grid
+            "Fanout_N_Start",
+            MockChannelPath([start_n, mid_start_n]),
+            self.grid,
+            use_lazy_theta_star=True,
         )
 
         # 4. Route Fan-ins (Mid End -> End)
         mid_end_p = mid_p.coordinates[-1]
         mid_end_n = mid_n.coordinates[-1]
 
-        fo_end_p = _astar_route("Fanout_P_End", MockChannelPath([mid_end_p, end_p]), self.grid)
-        fo_end_n = _astar_route("Fanout_N_End", MockChannelPath([mid_end_n, end_n]), self.grid)
+        fo_end_p = _astar_route(
+            "Fanout_P_End", MockChannelPath([mid_end_p, end_p]), self.grid, use_lazy_theta_star=True
+        )
+        fo_end_n = _astar_route(
+            "Fanout_N_End", MockChannelPath([mid_end_n, end_n]), self.grid, use_lazy_theta_star=True
+        )
 
         if not (fo_start_p and fo_start_n and fo_end_p and fo_end_n):
             return None
