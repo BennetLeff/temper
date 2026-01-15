@@ -208,27 +208,154 @@ class ExactGeometryRouter:
         net_name: str,
         clearance: float,
         trace_width: float,
+        target_pads: list[tuple[float, float]] | None = None,
     ) -> list[Polygon]:
-        """Get inflated obstacles excluding same-net pads."""
+        """Get inflated obstacles with escape zone handling for dense footprints.
+        
+        Key insight: Pads on the same IC footprint (< 1mm apart) should have
+        ZERO inflation to allow routing to reach adjacent pins.
+        """
         obstacles = []
-        inflation = clearance + trace_width / 2
+        full_inflation = clearance + trace_width / 2
+        pad_radius = 0.4  # Typical pad radius in mm
+        
+        # Get target pad positions for escape zone calculation
+        if target_pads is None:
+            target_pads = self._net_pads.get(net_name, [])
+        
+        def min_distance_to_targets(pos: tuple[float, float]) -> float:
+            """Minimum distance from pos to any target pad."""
+            if not target_pads:
+                return float('inf')
+            return min(
+                np.sqrt((pos[0] - t[0])**2 + (pos[1] - t[1])**2)
+                for t in target_pads
+            )
         
         for obs in self.base_obstacles.get(layer, []):
             if isinstance(obs, tuple):
                 poly, obs_net = obs
                 if obs_net == net_name:
                     continue  # Skip same-net pads
+                
+                # Get centroid for distance calculation
+                centroid = (poly.centroid.x, poly.centroid.y)
+                dist = min_distance_to_targets(centroid)
+                
+                # Tiered inflation based on distance to target pads:
+                # - Same footprint (< 1mm): NO inflation - just the pad itself
+                # - Close (1-3mm): Minimal inflation (clearance only)
+                # - Far (> 3mm): Full inflation
+                if dist < 1.0:
+                    # Same IC footprint - no inflation, let traces squeeze through
+                    inflation = 0.0
+                elif dist < 3.0:
+                    # Nearby - reduced inflation
+                    inflation = clearance * 0.5
+                else:
+                    # Far away - full inflation
+                    inflation = full_inflation
+                
                 obstacles.append(poly.buffer(inflation))
             else:
-                obstacles.append(obs.buffer(inflation))
+                # Non-pad obstacles (keepouts, etc) get full inflation
+                obstacles.append(obs.buffer(full_inflation))
         
         # Add existing routed segments as obstacles
         for seg in self.routed_segments.get(layer, []):
             if seg.net_name == net_name:
-                continue  # Skip same-net segments
+                continue
             obstacles.append(seg.as_buffered_polygon(clearance))
         
         return obstacles
+    
+    def _rrt_path(
+        self,
+        start: tuple[float, float],
+        goal: tuple[float, float],
+        obstacles: list[Polygon],
+        max_iterations: int = 10000,  # More iterations for complex paths
+        step_size: float = 5.0,  # mm - larger steps cover more ground
+    ) -> list[tuple[float, float]] | None:
+        """Find path using RRT (Rapidly-exploring Random Tree).
+        
+        Better than visibility graph for dense obstacle environments.
+        """
+        import random
+        
+        # Filter and merge obstacles
+        min_area = 0.1
+        obstacles = [o for o in obstacles if o.area > min_area]
+        merged = unary_union(obstacles) if obstacles else Polygon()
+        if not merged.is_empty:
+            prepare(merged)
+        
+        # Check direct path first
+        direct = LineString([start, goal])
+        if merged.is_empty or not direct.intersects(merged):
+            return [start, goal]
+        
+        # Get bounds for random sampling - focus on path corridor
+        path_length = np.sqrt((goal[0] - start[0])**2 + (goal[1] - start[1])**2)
+        corridor_width = max(20.0, path_length * 0.3)  # 30% of path length or 20mm
+        
+        # Bounding box around start-goal with corridor
+        x_min = min(start[0], goal[0]) - corridor_width
+        x_max = max(start[0], goal[0]) + corridor_width
+        y_min = min(start[1], goal[1]) - corridor_width
+        y_max = max(start[1], goal[1]) + corridor_width
+        
+        # RRT tree: node -> parent
+        tree = {start: None}
+        nodes = [start]
+        
+        for _ in range(max_iterations):
+            # Bias towards goal 30% of the time for faster convergence
+            if random.random() < 0.3:
+                sample = goal
+            else:
+                sample = (
+                    random.uniform(x_min, x_max),
+                    random.uniform(y_min, y_max)
+                )
+            
+            # Find nearest node in tree
+            nearest = min(nodes, key=lambda n: 
+                (n[0] - sample[0])**2 + (n[1] - sample[1])**2)
+            
+            # Steer towards sample
+            dx = sample[0] - nearest[0]
+            dy = sample[1] - nearest[1]
+            dist = np.sqrt(dx*dx + dy*dy)
+            
+            if dist < 0.1:
+                continue
+            
+            if dist > step_size:
+                dx = dx / dist * step_size
+                dy = dy / dist * step_size
+            
+            new_node = (nearest[0] + dx, nearest[1] + dy)
+            
+            # Check if edge is collision-free
+            edge = LineString([nearest, new_node])
+            if not edge.intersects(merged):
+                tree[new_node] = nearest
+                nodes.append(new_node)
+                
+                # Check if we can reach goal from new_node
+                to_goal = LineString([new_node, goal])
+                if not to_goal.intersects(merged):
+                    tree[goal] = new_node
+                    # Reconstruct path
+                    path = [goal]
+                    current = goal
+                    while tree[current] is not None:
+                        current = tree[current]
+                        path.append(current)
+                    return list(reversed(path))
+        
+        return None  # Failed to find path
     
     def _build_visibility_graph(
         self,
@@ -237,75 +364,25 @@ class ExactGeometryRouter:
         obstacles: list[Polygon],
         max_vertices: int = 200,
     ) -> VisibilityGraph:
-        """Build visibility graph from obstacles.
+        """Build visibility graph - fallback to RRT if no direct edges."""
+        # Try RRT first (works better for dense obstacles)
+        rrt_path = self._rrt_path(start, goal, obstacles)
         
-        Optimizations:
-        - Limit vertices to max_vertices (closest to start/goal)
-        - Merge obstacles for O(1) intersection test
-        - Skip very small obstacles
-        """
-        # Filter out tiny obstacles
-        min_area = 0.1  # mm²
-        obstacles = [o for o in obstacles if o.area > min_area]
-        
-        # Merge obstacles for faster intersection testing
-        merged = unary_union(obstacles) if obstacles else Polygon()
-        if not merged.is_empty:
-            prepare(merged)
-        
-        # Check if direct path is clear
-        direct_line = LineString([start, goal])
-        if merged.is_empty or not direct_line.intersects(merged):
-            # Direct path! No need for visibility graph
-            vertices = [start, goal]
-            edges = {0: [(1, direct_line.length)], 1: [(0, direct_line.length)]}
+        if rrt_path:
+            # Convert RRT path to visibility graph format
+            vertices = rrt_path
+            edges = {i: [] for i in range(len(vertices))}
+            for i in range(len(vertices) - 1):
+                dist = np.sqrt(
+                    (vertices[i+1][0] - vertices[i][0])**2 +
+                    (vertices[i+1][1] - vertices[i][1])**2
+                )
+                edges[i].append((i + 1, dist))
+                edges[i + 1].append((i, dist))
             return VisibilityGraph(vertices=vertices, edges=edges)
         
-        # Collect vertices: start, goal, and obstacle corners
-        vertices = [start, goal]
-        
-        # Get obstacle corners, prioritized by distance to start/goal midpoint
-        midpoint = ((start[0] + goal[0]) / 2, (start[1] + goal[1]) / 2)
-        all_corners = []
-        
-        for obs in obstacles:
-            if hasattr(obs, 'exterior'):
-                # Simplify aggressively
-                simplified = obs.simplify(0.2)  # 0.2mm tolerance
-                coords = list(simplified.exterior.coords)[:-1]
-                for c in coords:
-                    dist = np.sqrt((c[0] - midpoint[0])**2 + (c[1] - midpoint[1])**2)
-                    all_corners.append((dist, c))
-        
-        # Sort by distance and take closest
-        all_corners.sort(key=lambda x: x[0])
-        for _, corner in all_corners[:max_vertices - 2]:
-            vertices.append(corner)
-        
-        # Build edges between visible vertices
-        n = len(vertices)
-        edges: dict[int, list[tuple[int, float]]] = {i: [] for i in range(n)}
-        
-        # Only check edges involving start or goal, plus nearby vertex pairs
-        for i in range(n):
-            # Always check edges from start (0) and goal (1)
-            if i < 2:
-                for j in range(2, n):
-                    line = LineString([vertices[i], vertices[j]])
-                    if not line.intersects(merged):
-                        dist = line.length
-                        edges[i].append((j, dist))
-                        edges[j].append((i, dist))
-            else:
-                # For obstacle vertices, only check nearby ones
-                for j in range(i + 1, min(i + 20, n)):  # Check 20 nearest
-                    line = LineString([vertices[i], vertices[j]])
-                    if not line.intersects(merged):
-                        dist = line.length
-                        edges[i].append((j, dist))
-                        edges[j].append((i, dist))
-        
-        return VisibilityGraph(vertices=vertices, edges=edges)
+        # Fallback: empty graph (will fail routing)
+        return VisibilityGraph(vertices=[start, goal], edges={0: [], 1: []})
     
     def route_net(
         self,
@@ -332,8 +409,11 @@ class ExactGeometryRouter:
         clearance = rules.clearance_mm
         trace_width = rules.trace_width_mm
         
-        # Get obstacles for this net
-        obstacles = self._get_obstacles_for_net(layer, net_name, clearance, trace_width)
+        # Get obstacles with escape zones around our target pads
+        obstacles = self._get_obstacles_for_net(
+            layer, net_name, clearance, trace_width,
+            target_pads=pads  # Pass target pads for escape zone calculation
+        )
         
         route = ExactRoutePath(net_name=net_name, layer_name=layer)
         
@@ -364,9 +444,9 @@ class ExactGeometryRouter:
                     layer=layer,
                 )
                 route.segments.append(seg)
-                
-                # Add segment as obstacle for remaining pads
-                obstacles.append(seg.as_buffered_polygon(clearance))
+            
+            # NOTE: Don't add same-net segments as obstacles!
+            # All segments of a net form one connected trace and shouldn't block each other.
         
         # Store routed segments
         self.routed_segments[layer].extend(route.segments)
@@ -378,22 +458,39 @@ class ExactGeometryRouter:
     
     def route_all(
         self,
-        channel_mapping: ChannelMapping,
+        channel_mapping: ChannelMapping | None = None,
+        net_order: list[str] | None = None,
     ) -> dict[str, ExactRoutePath]:
         """
-        Route all nets using channel mapping for ordering and layer assignment.
+        Route all nets.
+        
+        Args:
+            channel_mapping: Optional ChannelMapping for layer preferences
+            net_order: Optional list of net names in routing order
         
         This is the main entry point that replaces run_astar_pathfinding().
         """
         routed_paths = {}
         failed_nets = []
         
-        # Get nets in topological order from channel mapping
-        for net_name, channel_path in channel_mapping.net_channels.items():
+        # Determine nets to route
+        if net_order:
+            nets_to_route = net_order
+        elif channel_mapping and hasattr(channel_mapping, 'net_channels'):
+            nets_to_route = list(channel_mapping.net_channels.keys())
+        else:
+            # Use all nets with 2+ pads
+            nets_to_route = [n for n, pads in self._net_pads.items() if len(pads) >= 2]
+        
+        for net_name in nets_to_route:
             # Get layer from design rules or channel mapping
             layer = self.design_rules.get_layer_constraint(net_name)
             if layer is None:
-                layer = channel_path.preferred_layer
+                if channel_mapping and hasattr(channel_mapping, 'net_channels'):
+                    cp = channel_mapping.net_channels.get(net_name)
+                    layer = cp.preferred_layer if cp else 'F.Cu'
+                else:
+                    layer = 'F.Cu'
             
             # Get pad locations from our pre-built mapping
             pads = self._net_pads.get(net_name, [])
