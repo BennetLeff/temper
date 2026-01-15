@@ -637,11 +637,18 @@ def run_astar_pathfinding(
         if not primary_grid and current_grids:
              primary_grid = list(current_grids.values())[0]
              
-        # Alternate grid is the one NOT preferred
-        alt_layer = next((l for l in current_grids.keys() if l != channel_path.preferred_layer), None)
-        active_alternate = current_grids.get(alt_layer)
-        if not active_alternate and alternate_grid and current_grids is all_grids:
-             active_alternate = alternate_grid # fallback for standard case
+        # For nets with B.Cu layer assignment, force single-layer routing
+        # This prevents MISO from jumping to F.Cu where it would conflict with MOSI
+        # This is how professional PCB tools handle parallel bus routing - force layer separation
+        if channel_path.preferred_layer == "B.Cu":
+            # Force single-layer routing on B.Cu only
+            active_alternate = None
+        else:
+            # Alternate grid is the one NOT preferred
+            alt_layer = next((l for l in current_grids.keys() if l != channel_path.preferred_layer), None)
+            active_alternate = current_grids.get(alt_layer)
+            if not active_alternate and alternate_grid and current_grids is all_grids:
+                 active_alternate = alternate_grid # fallback for standard case
 
         # Get net-specific routing rules
         net_rules = design_rules.get_rules_for_net(net_name)

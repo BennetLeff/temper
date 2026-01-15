@@ -156,7 +156,7 @@ def export_router_v6_to_kicad(input_pcb: Path, output_pcb: Path, verbose: bool =
             board.traceItems.append(via)
             via_count += 1
 
-    for net_name, path3d in pathfinding.routed_paths.items():
+    for net_name, path in pathfinding.routed_paths.items():
         if net_name not in net_codes:
             print(f"Warning: Net '{net_name}' not found in board nets, skipping")
             continue
@@ -168,12 +168,24 @@ def export_router_v6_to_kicad(input_pcb: Path, output_pcb: Path, verbose: bool =
         if hasattr(width_assignment, "widths") and net_name in width_assignment.widths:
             trace_width = width_assignment.widths[net_name]
 
-        # Convert RoutePath3D to KiCad segments with simplification
+        # Handle both RoutePath (2D) and RoutePath3D (multilayer)
+        if hasattr(path, 'segments'):
+            # RoutePath3D with multilayer segments
+            segments_with_layer = path.segments
+        elif hasattr(path, 'coordinates'):
+            # RoutePath with 2D coordinates - use preferred layer or F.Cu
+            layer = getattr(path, 'layer', 'F.Cu')
+            segments_with_layer = [(x, y, layer) for x, y in path.coordinates]
+        else:
+            print(f"Warning: Unknown path type for {net_name}, skipping")
+            continue
+
+        # Convert to KiCad segments with simplification
         # Group segments by layer and simplify
         current_layer = None
         layer_segments = []
 
-        for x, y, layer in path3d.segments:
+        for x, y, layer in segments_with_layer:
             if layer != current_layer:
                 # Flush previous layer segments
                 if layer_segments:
