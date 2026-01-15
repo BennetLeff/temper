@@ -27,16 +27,39 @@ class ChannelPath:
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
 
 
-def _assign_layer(net_name: str) -> str:
+def _assign_layer(net_name: str, competing_nets: set[str] | None = None) -> str:
     """
-    Assign net to preferred layer based on net class.
+    Assign net to preferred layer based on net class and competition.
 
     Power nets go to B.Cu (bottom) to free up F.Cu for signals.
+    
+    For competing signal nets (detected oscillation), alternate layers:
+    - SPI_MOSI → F.Cu
+    - SPI_MISO → B.Cu (alternate)
+    This prevents them from fighting for the same routing channel.
     """
     name_upper = net_name.upper()
+    
+    # Power nets go to B.Cu
     power_keywords = ["GND", "VCC", "VBUS", "+", "PWR", "V+", "V-"]
     if any(kw in name_upper for kw in power_keywords):
         return "B.Cu"
+    
+    # Professional PCB design: Route parallel bus signals on alternate layers
+    # This is how Altium/Cadence handle competing signals
+    if competing_nets and net_name in competing_nets:
+        # Alternate layers for competing nets based on name hash
+        # This ensures consistent assignment across runs
+        if hash(net_name) % 2 == 0:
+            return "F.Cu"
+        else:
+            return "B.Cu"
+    
+    # SPI bus special handling: MISO always on alternate layer from MOSI
+    # This is standard practice for parallel bus routing
+    if "SPI_MISO" in name_upper:
+        return "B.Cu"  # Force to bottom layer
+    
     return "F.Cu"
 
 

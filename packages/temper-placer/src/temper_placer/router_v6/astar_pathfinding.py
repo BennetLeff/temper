@@ -599,17 +599,11 @@ def run_astar_pathfinding(
         Returns:
             (success, failure_reason, blocking_nets, congestion_region)
         """
-        # If this net is marked as competing, don't attempt routing - it will go to negotiated router
-        if net_name in competing_nets:
-            channel_path = channel_mapping.channel_paths.get(net_name)
-            region = None
-            if channel_path and channel_path.waypoints:
-                mid_idx = len(channel_path.waypoints) // 2
-                region = channel_path.waypoints[mid_idx]
-            return False, "oscillation_detected", [], region
+        # NOTE: We DON'T block competing nets from routing!
+        # With layer assignment, they should be able to route on their assigned layers.
+        # We only prevent them from ripping up each other.
         
-        # Adaptive depth limit: with hybrid routing, we use low limits
-        # Competing nets will be handled by negotiated router
+        # Adaptive depth limit
         max_depth = 5  # Low limit to prevent infinite loops
         if depth > max_depth:
             # Compute congestion region from waypoints for diagnostics
