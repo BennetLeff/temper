@@ -596,7 +596,13 @@ def run_astar_pathfinding(
         # Adaptive depth limit: problem nets get more attempts
         max_depth = 30 if net_name in problem_nets else 15
         if depth > max_depth:
-            return False, "rip_up_limit", [], None
+            # Compute congestion region from waypoints for diagnostics
+            channel_path = channel_mapping.channel_paths.get(net_name)
+            region = None
+            if channel_path and channel_path.waypoints:
+                mid_idx = len(channel_path.waypoints) // 2
+                region = channel_path.waypoints[mid_idx]
+            return False, "rip_up_limit", [], region
 
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
@@ -749,12 +755,100 @@ def run_astar_pathfinding(
     def record_failure(
         net_name: str, reason: str, blockers: list[str], region: tuple[float, float] | None
     ) -> None:
-        """Record a failure with all accumulated data."""
+        """Record a failure with all accumulated data and enhanced diagnostics."""
         channel_path = channel_mapping.channel_paths.get(net_name)
         pin_count = len(channel_path.waypoints) if channel_path else 0
 
         # Merge with previously recorded blockers
         all_blockers = list(blocker_history.get(net_name, set()))
+
+        # ENHANCED DIAGNOSTICS (Phase 2)
+        from temper_placer.router_v6.channel_state import (
+            estimate_required_spacing,
+            identify_blocking_components,
+            compute_failure_confidence,
+            ChannelState,
+        )
+        
+        failed_at = region  # Use congestion region as failure location
+        congested_channel = None
+        suggested_spacing_mm = None
+        blocking_components = None
+        confidence = 0.0
+        
+        # Try to analyze failure if we have a location
+        if region and grid:
+            try:
+                # Convert mm to grid coordinates
+                gx = int((region[0] - grid.origin[0]) / grid.cell_size)
+                gy = int((region[1] - grid.origin[1]) / grid.cell_size)
+                
+                # Analyze channel capacity at failure point
+                # Count occupied cells in a small region around failure
+                search_radius = 5  # cells
+                occupied_count = 0
+                total_cells = 0
+                occupied_cells_map = {}
+                
+                for dx in range(-search_radius, search_radius + 1):
+                    for dy in range(-search_radius, search_radius + 1):
+                        cx, cy = gx + dx, gy + dy
+                        if 0 <= cx < grid.width_cells and 0 <= cy < grid.height_cells:
+                            total_cells += 1
+                            cell_val = grid.grid[cy, cx]
+                            if cell_val > 0:  # Occupied by a net
+                                occupied_count += 1
+                                # Try to get net name
+                                if id_to_net and cell_val in id_to_net:
+                                    occupied_cells_map[(cx, cy)] = id_to_net[cell_val]
+                
+                # Estimate channel capacity
+                # Rough heuristic: 1 track per 2 cells width
+                capacity = max(1, total_cells // 10)
+                used = max(1, occupied_count // 10)
+                
+                # Create ChannelState
+                nets_using = list(set(occupied_cells_map.values()))[:4]  # Top 4
+                
+                congested_channel = ChannelState(
+                    channel_id=f"region_{region[0]:.1f}_{region[1]:.1f}",
+                    capacity=capacity,
+                    used=used,
+                    nets_using=nets_using,
+                    bounding_components=("unknown", "unknown"),  # Will identify below
+                    position=region,
+                    width_mm=search_radius * grid.cell_size * 2,
+                )
+                
+                # Identify blocking components from occupied cells
+                blocking_components = identify_blocking_components(
+                    failure_grid_pos=(gx, gy),
+                    occupied_cells=occupied_cells_map,
+                    search_radius=search_radius,
+                )
+                
+                # Estimate required spacing
+                if congested_channel.used >= congested_channel.capacity:
+                    tracks_needed = congested_channel.used + 1
+                    suggested_spacing_mm = estimate_required_spacing(
+                        tracks_needed=tracks_needed,
+                        tracks_available=congested_channel.capacity,
+                        trace_width_mm=design_rules.default_trace_width_mm,
+                        clearance_mm=design_rules.default_clearance_mm,
+                    )
+                
+                # Compute confidence
+                confidence = compute_failure_confidence(
+                    channel_utilization=congested_channel.utilization if congested_channel else None,
+                    blocking_components_count=len(blocking_components) if blocking_components else 0,
+                    has_exact_location=region is not None,
+                    has_channel_data=congested_channel is not None,
+                )
+                
+            except Exception as e:
+                # If analysis fails, just use defaults
+                # Silently continue with basic diagnostics
+                pass
 
         failure_reports[net_name] = RoutingFailureReport(
             net_name=net_name,
@@ -763,6 +857,12 @@ def run_astar_pathfinding(
             attempted_ripups=ripup_counts.get(net_name, 0),
             congestion_region=region,
             pin_count=pin_count,
+            # Enhanced fields
+            failed_at=failed_at,
+            congested_channel=congested_channel,
+            suggested_spacing_mm=suggested_spacing_mm,
+            blocking_components=blocking_components,
+            confidence=confidence,
         )
 
     # First pass: Route all routable nets (skip PLANE/unconnected)
@@ -790,7 +890,13 @@ def run_astar_pathfinding(
     # Final cleanup: Record any nets left in queue as failures
     for net_name in reroute_queue:
         failed_nets.append(net_name)
-        record_failure(net_name, "rip_up_limit", [], None)
+        # Compute region from waypoints for diagnostics
+        channel_path = channel_mapping.channel_paths.get(net_name)
+        region = None
+        if channel_path and channel_path.waypoints:
+            mid_idx = len(channel_path.waypoints) // 2
+            region = channel_path.waypoints[mid_idx]
+        record_failure(net_name, "rip_up_limit", [], region)
 
     return PathfindingResult(
         routed_paths=routed_paths,
