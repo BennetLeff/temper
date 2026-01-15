@@ -1284,8 +1284,8 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         # Determine layer count from board
         layer_count = 2  # Default to 2-layer
         if hasattr(ki_board, "layers") and ki_board.layers:
-            # Count copper layers
-            copper_layers = [l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")]
+            # Count copper layers (must end in .Cu)
+            copper_layers = [l for l in ki_board.layers if getattr(l, "name", "").endswith(".Cu")]
             layer_count = len(copper_layers)
 
         # Standard layer names for 2/4/6-layer boards
