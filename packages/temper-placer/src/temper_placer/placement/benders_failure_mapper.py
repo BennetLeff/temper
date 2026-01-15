@@ -21,6 +21,7 @@ def map_failures_to_components(
     pcb: ParsedPCB,
     component_positions: dict[str, tuple[float, float]],
     verbose: bool = False,
+    congestion_threshold: float = 0.5,  # Only generate cuts if utilization > 50%
 ) -> list[BlockingPair]:
     """
     Map routing failures to component pairs that need more spacing.
@@ -29,17 +30,20 @@ def map_failures_to_components(
     - Use precise diagnostics when available (blocking_components, suggested_spacing_mm)
     - Fall back to heuristics for legacy failures
     - Prioritize high-confidence data from router
+    - SKIP cut generation for non-congestion failures (low channel utilization)
     
     Strategy:
-    1. Check if failure has enhanced diagnostics (blocking_components, suggested_spacing_mm)
-    2. If yes: Use precise data with high confidence
-    3. If no: Fall back to heuristics (proximity, blocking nets, topology)
+    1. Check channel utilization - if low (<50%), skip (placement can't fix router oscillation)
+    2. Check if failure has enhanced diagnostics (blocking_components, suggested_spacing_mm)
+    3. If yes: Use precise data with high confidence
+    4. If no: Fall back to heuristics (proximity, blocking nets, topology)
     
     Args:
         failures: List of routing failure reports from router
         pcb: Parsed PCB data with nets and components
         component_positions: Current component positions {ref: (x, y)}
         verbose: Print debug information
+        congestion_threshold: Only generate cuts if channel utilization > threshold (default 50%)
         
     Returns:
         List of BlockingPair objects with confidence scores
@@ -47,6 +51,16 @@ def map_failures_to_components(
     blocking_pairs = []
     
     for failure in failures:
+        # CHECK: Skip non-congestion failures
+        # If channel utilization is low, the failure is likely due to router
+        # oscillation (nets competing), not placement. Spacing cuts won't help.
+        if failure.congested_channel:
+            utilization = failure.congested_channel.utilization
+            if utilization < congestion_threshold:
+                if verbose:
+                    print(f"\n⏭️  SKIPPING {failure.net_name}: channel only {utilization:.0%} utilized")
+                    print(f"   This is router oscillation, not congestion. Spacing cuts won't help.")
+                continue
         # ENHANCED: Check if router provided precise diagnostics
         if failure.blocking_components and failure.suggested_spacing_mm and failure.confidence > 0:
             if verbose:
