@@ -9,20 +9,25 @@ Key Components:
     - Legalization: Post-optimization placement adjustment
 """
 
-from temper_placer.placement.benders_master import (
-    BendersMasterProblem,
-    BendersMasterResult,
-    BoardData,
-    ComponentData,
-    PlacementConstraints,
-    run_benders_master,
-)
+# Try to import Benders master (requires OR-Tools)
+try:
+    from temper_placer.placement.benders_master import (
+        BendersMasterProblem,
+        BendersMasterResult,
+        BoardData,
+        ComponentData,
+        PlacementConstraints,
+        run_benders_master,
+    )
 
-__all__ = [
-    "BendersMasterProblem",
-    "BendersMasterResult",
-    "BoardData",
-    "ComponentData",
-    "PlacementConstraints",
-    "run_benders_master",
-]
+    __all__ = [
+        "BendersMasterProblem",
+        "BendersMasterResult",
+        "BoardData",
+        "ComponentData",
+        "PlacementConstraints",
+        "run_benders_master",
+    ]
+except ImportError:
+    # OR-Tools not available, skip master problem imports
+    __all__ = []

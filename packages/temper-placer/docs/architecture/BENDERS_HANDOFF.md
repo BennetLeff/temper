@@ -71,15 +71,21 @@ This is an implementation of **Benders decomposition** for achieving **provably 
 | HV netclass fixes | `pcb/temper.kicad_pro` | ✅ Complete |
 | Max-Flow analyzer | `router_v6/analysis/max_flow.py` | ✅ Already existed |
 | OR-Tools dependency | `pyproject.toml` | ✅ Added |
+| **Min-cut → component mapping** | `placement/benders_mincut_mapper.py` | ✅ **Complete** |
+| **Cut generator** | `placement/benders_cut_generator.py` | ✅ **Complete** |
+| **Benders loop orchestration** | `placement/benders_loop.py` | ✅ **Complete** |
+| **Validation experiments** | `experiments/test_*.py` | ✅ **Complete** |
+| **Integration guide** | `docs/architecture/BENDERS_INTEGRATION_GUIDE.md` | ✅ **Complete** |
 
 ### What's Left ⏳
 
 | Component | Effort | Description |
 |-----------|--------|-------------|
-| Min-cut → component mapping | Medium | Map Max-Flow bottlenecks to blocking components |
-| Cut generator | Medium | Convert bottleneck info to ILP constraints |
-| Benders loop | Easy | Orchestrate ILP → Max-Flow → cut cycle |
-| Validation | Medium | Verify final placement routes successfully |
+| Install OR-Tools | Trivial | `pip install ortools` |
+| Max-Flow integration | Small | Wire up `_check_routability()` in `benders_loop.py` |
+| PCB update helper | Small | Method to apply placement to PCB file |
+| Net extraction helper | Small | Parse PCB to get net terminals |
+| End-to-end validation | Medium | Verify on Temper board, measure routing success |
 
 ---
 
