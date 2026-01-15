@@ -854,6 +854,7 @@ class RouterV6Pipeline:
                 target_nets=final_target_nets,  # Pass filtered list
                 hv_grids=hv_grids,
                 enable_topological_ordering=self.enable_topological_ordering,
+                all_layer_grids=stage2.occupancy_grids,  # Pass all 4 layer grids
             )
 
             print(f"  Checking for competing nets...", flush=True)

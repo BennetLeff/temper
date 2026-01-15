@@ -468,11 +468,16 @@ def run_astar_pathfinding(
     hv_grids: dict[str, OccupancyGrid] | None = None,
     enable_topological_ordering: bool = False,
     verbose: bool = False,
+    all_layer_grids: dict[str, OccupancyGrid] | None = None,  # All 4 layers
 ) -> PathfindingResult:
     # Build standard grids dictionary
-    all_grids = {grid.layer_name: grid}
-    if alternate_grid:
-        all_grids[alternate_grid.layer_name] = alternate_grid
+    # If all_layer_grids provided, use it. Otherwise build from grid + alternate_grid
+    if all_layer_grids:
+        all_grids = dict(all_layer_grids)
+    else:
+        all_grids = {grid.layer_name: grid}
+        if alternate_grid:
+            all_grids[alternate_grid.layer_name] = alternate_grid
     
     # Pre-process HV grids if provided
     if hv_grids:
@@ -631,20 +636,23 @@ def run_astar_pathfinding(
              # print(f"    Using HV Grids for {net_name} ({class_name})")
              current_grids = hv_grids
 
-        # Determine primary and alternate grid based on net's preference
-        primary_grid = current_grids.get(channel_path.preferred_layer, grid)
-        # Fallback if primary not found in current_grids (shouldn't happen if consistent)
-        if not primary_grid and current_grids:
-             primary_grid = list(current_grids.values())[0]
-             
         # LAYER-LOCKED ROUTING (Professional PCB Design Practice)
-        # If net has explicit layer constraint from design rules, force single-layer routing
-        # This prevents parallel bus signals from competing for the same channel
+        # If net has explicit layer constraint from design rules, use THAT layer
+        # This enables true 4-layer routing with signals on inner layers
         layer_constraint = design_rules.get_layer_constraint(net_name)
-        if layer_constraint is not None:
+        
+        if layer_constraint is not None and layer_constraint in current_grids:
+            # Use the constrained layer as primary
+            primary_grid = current_grids[layer_constraint]
             # Force single-layer routing - no layer switching allowed
             active_alternate = None
         else:
+            # Determine primary and alternate grid based on net's preference
+            primary_grid = current_grids.get(channel_path.preferred_layer, grid)
+            # Fallback if primary not found in current_grids (shouldn't happen if consistent)
+            if not primary_grid and current_grids:
+                 primary_grid = list(current_grids.values())[0]
+            
             # Alternate grid is the one NOT preferred
             alt_layer = next((l for l in current_grids.keys() if l != channel_path.preferred_layer), None)
             active_alternate = current_grids.get(alt_layer)

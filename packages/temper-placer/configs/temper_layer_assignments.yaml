@@ -1,16 +1,21 @@
 # Net-specific layer assignments for Temper board
 #
-# STRATEGY: Categorize nets by routing requirements
-# - Power nets: NO VIAS (inductance causes ringing)
-# - Control nets: VIAS OK (can tolerate ~1nH)
-# - Analog nets: MINIMAL VIAS (noise pickup)
+# 4-LAYER STACKUP:
+#   F.Cu  (Top)    - Control/Digital signals
+#   In1.Cu         - GND plane (return path reference)
+#   In2.Cu         - Power plane (+15V, VCC)
+#   B.Cu  (Bottom) - Power stage signals
+#
+# STRATEGY: Complete layer separation eliminates crossings
+# - Power stage on B.Cu ONLY (near transistors, short loops)
+# - Control/digital on F.Cu ONLY (away from switching noise)
+# - No same-layer crossings possible!
 
 # =============================================================================
-# NET CATEGORIES - Determines routing behavior
+# NET CATEGORIES
 # =============================================================================
 net_categories:
-  # POWER: No vias allowed, crossings accepted, wide traces
-  # These form the gate drive and commutation loops
+  # POWER: Route on B.Cu only, minimize loop area
   power:
     - GATE_L
     - GATE_H
@@ -18,8 +23,7 @@ net_categories:
     - DC_BUS+
     - PGND
 
-  # CONTROL: Vias allowed at crossings, standard traces
-  # Low dI/dt signals that can tolerate via inductance
+  # CONTROL: Route on F.Cu only
   control:
     - SPI_MOSI
     - SPI_MISO
@@ -30,77 +34,65 @@ net_categories:
     - VCC_BOOT
     - SHUTDOWN_N
 
-  # ANALOG: Minimal vias, guard from digital noise
+  # ANALOG: Route on F.Cu (away from power switching)
   analog:
     - I_SENSE
     - TEMP_SENSE
 
-  # DIFFERENTIAL: Must via together, matched lengths
+  # DIFFERENTIAL: F.Cu, matched lengths
   differential:
     - USB_D+
     - USB_D-
 
 # =============================================================================
-# LAYER ASSIGNMENTS
+# LAYER ASSIGNMENTS - TRUE 4-LAYER STRATEGY
 # =============================================================================
+# Spread signals across all 4 layers to eliminate same-layer crossings
+#
+# F.Cu:   SPI bus (keep together for signal integrity)
+# In1.Cu: USB + analog sensing
+# In2.Cu: PWM control
+# B.Cu:   Power stage (GATE, SW_NODE)
+#
 net_layers:
-  # === F.Cu GROUP ===
-  # SPI clock stays on F.Cu, MOSI moved to B.Cu to avoid crossing
+  # === F.Cu: SPI CLK/CS + USB ===
   SPI_CLK: "F.Cu"
   SPI_CS_TEMP: "F.Cu"
-  # MISO moved to F.Cu to avoid I_SENSE crossing
-  SPI_MISO: "F.Cu"
-  
-  # USB must stay on F.Cu (differential pair)
   "USB_D+": "F.Cu"
   "USB_D-": "F.Cu"
-  
   VCC_BOOT: "F.Cu"
+  # Analog on F.Cu (away from power on B.Cu)
+  I_SENSE: "F.Cu"
+  TEMP_SENSE: "F.Cu"
   
-  # === B.Cu GROUP ===
-  # Power stage - NO VIAS
+  # === In1.Cu: SPI MOSI only ===
+  SPI_MOSI: "In1.Cu"
+  
+  # === In2.Cu: SPI MISO + PWM ===
+  # MISO on different layer from MOSI
+  SPI_MISO: "In2.Cu"
+  PWM_L: "In2.Cu"
+  PWM_H: "In2.Cu"
+  SHUTDOWN_N: "In2.Cu"
+  
+  # === B.Cu: POWER STAGE ===
+  # Gate drive (short loops, no vias)
   GATE_L: "B.Cu"
   GATE_H: "B.Cu"
+  # Switching node
   SW_NODE: "B.Cu"
-  
-  # MOSI moved to B.Cu to avoid SPI_CLK crossing
-  SPI_MOSI: "B.Cu"
-  
-  # PWM moved to B.Cu to avoid USB crossing
-  PWM_L: "B.Cu"
-  PWM_H: "B.Cu"
-  
-  # Analog on B.Cu
-  I_SENSE: "B.Cu"
-  TEMP_SENSE: "B.Cu"
+  # DC bus
+  DC_BUS+: "B.Cu"
 
 # =============================================================================
-# CROSSING RULES
+# CROSSING RULES - Should be NONE with proper 4-layer separation
 # =============================================================================
 crossing_rules:
-  # Acceptable crossings (no via needed):
-  # - Power-to-power: unavoidable, vias add inductance
-  # - Differential pairs: expected behavior
-  # - Control-to-power: PWM must reach gate drivers near power stage
+  # On 4-layer, only USB diff pair should cross itself
   accept_crossings:
-    - [GATE_L, SW_NODE]
-    - [GATE_H, SW_NODE]
-    - [GATE_L, GATE_H]
-    - [USB_D+, USB_D-]  # Differential pair
-    - [PWM_L, SW_NODE]  # Control must cross power to reach gate driver
-    - [PWM_H, SW_NODE]  # Control must cross power to reach gate driver
-    - [SPI_CLK, SPI_MISO]  # SPI signals - route carefully
+    - [USB_D+, USB_D-]  # Differential pair crossing is OK
   
-  # Control crossings that need vias (if they occur):
-  via_at_crossing:
-    - [SPI_MOSI, SPI_CLK]
-    - [SPI_CS_TEMP, SPI_MOSI]
-    - [PWM_L, USB_D+]
-    - [PWM_L, USB_D-]
-    - [PWM_H, USB_D+]
-    - [PWM_H, USB_D-]
-    - [I_SENSE, SPI_MISO]
-    - [I_SENSE, SPI_CLK]
-    - [I_SENSE, SPI_MOSI]
+  # No control crossings expected - all on same layer (F.Cu)
+  via_at_crossing: []
 
 net_class_layers: {}
