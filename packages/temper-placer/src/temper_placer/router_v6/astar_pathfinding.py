@@ -1070,9 +1070,12 @@ def _astar_route_multilayer(
     """
     Route a single net with per-segment layer switching at THT pads.
 
-    For each waypoint pair:
+    For multi-pin nets (>2 waypoints), uses MST-based routing for optimal
+    wire length and reduced self-blocking.
+
+    For each MST edge:
     1. Try routing on primary grid
-    2. If it fails AND waypoints are at THT pads, try alternate grid
+    2. If it fails AND THT pads available, try alternate grid
     3. Stitch segments together
 
     Args:
@@ -1090,13 +1093,21 @@ def _astar_route_multilayer(
     if not waypoints or len(waypoints) < 2:
         return None
 
+    # Determine routing pairs: MST for multi-pin, sequential for 2-pin
+    if len(waypoints) > 2:
+        # Multi-pin net: use MST for optimal routing order
+        from temper_placer.router_v6.steiner_tree import compute_mst_edges, compute_routing_order
+        mst_edges = compute_mst_edges(waypoints)
+        routing_pairs = compute_routing_order(mst_edges)
+    else:
+        # 2-pin net: simple direct connection
+        routing_pairs = [(waypoints[0], waypoints[1])]
+
     detailed_segments = []  # (x, y, layer)
     via_positions = []
     forced_segments = 0
 
-    for i in range(len(waypoints) - 1):
-        start_world = waypoints[i]
-        goal_world = waypoints[i + 1]
+    for edge_idx, (start_world, goal_world) in enumerate(routing_pairs):
 
         # Try primary grid first
         grid_to_use = primary_grid
@@ -1171,7 +1182,7 @@ def _astar_route_multilayer(
             layer_name = grid_to_use.layer_name
 
             # Stitch: Add start_world if first segment
-            if i == 0:
+            if edge_idx == 0:
                 detailed_segments.append((start_world[0], start_world[1], layer_name))
 
             for node in segment_path:
@@ -1185,7 +1196,7 @@ def _astar_route_multilayer(
                     detailed_segments.append((wx, wy, layer_name))
 
             # Stitch: Add goal_world if last segment
-            if i == len(waypoints) - 2:
+            if edge_idx == len(routing_pairs) - 1:
                 detailed_segments.append((goal_world[0], goal_world[1], layer_name))
 
             continue
@@ -1193,7 +1204,7 @@ def _astar_route_multilayer(
         # If we get here, segment failed
         forced_segments += 1
         # Fallback: add direct segment
-        if i == 0:
+        if edge_idx == 0:
             detailed_segments.append((start_world[0], start_world[1], grid_to_use.layer_name))
         detailed_segments.append((goal_world[0], goal_world[1], grid_to_use.layer_name))
 
@@ -1226,6 +1237,9 @@ def _astar_route(
     """
     Route a single net using A* or Theta* pathfinding.
 
+    For multi-pin nets (>2 waypoints), uses MST-based routing instead of
+    sequential chain routing for optimal wire length and reduced self-blocking.
+
     Args:
         net_name: Net to route
         channel_path: Channel path guidance
@@ -1243,16 +1257,22 @@ def _astar_route(
         # Need at least 2 waypoints (start and end)
         return None
 
-    # Refine waypoints into detailed path using A*
-    detailed_coords = []
+    # Determine routing pairs: MST for multi-pin, sequential for 2-pin
+    if len(waypoints) > 2:
+        # Multi-pin net: use MST for optimal routing order
+        from temper_placer.router_v6.steiner_tree import compute_mst_edges, compute_routing_order
+        mst_edges = compute_mst_edges(waypoints)
+        routing_pairs = compute_routing_order(mst_edges)
+    else:
+        # 2-pin net: simple direct connection
+        routing_pairs = [(waypoints[0], waypoints[1])]
+
+    # Route each pair and collect all coordinates
+    all_edge_coords = []  # List of coordinate lists, one per edge
     forced_segments = 0
 
-    for i in range(len(waypoints) - 1):
-        start_world = waypoints[i]
-        goal_world = waypoints[i + 1]
-
+    for edge_idx, (start_world, goal_world) in enumerate(routing_pairs):
         # Convert world coordinates to grid coordinates
-        # Use intelligent access node finding
         start_grid = _find_access_node(grid, start_world, -1)
         if not start_grid:
             start_grid = grid.world_to_grid(start_world[0], start_world[1])
@@ -1279,27 +1299,43 @@ def _astar_route(
             else:
                 grid_path = _astar_search(start_grid, goal_grid, grid)
 
+        edge_coords = []
         if grid_path:
-            # Add start point exactly for the first segment (to touch pad center)
-            if i == 0:
-                detailed_coords.append(start_world)
-
+            # Add start point exactly
+            edge_coords.append(start_world)
+            
             # Convert grid path back to world coordinates
             for grid_cell in grid_path:
                 world_coord = grid.grid_to_world(grid_cell[0], grid_cell[1])
                 # Avoid duplicate coordinates
-                if not detailed_coords or detailed_coords[-1] != world_coord:
-                    detailed_coords.append(world_coord)
-
-            # Add goal point exactly for the last segment
-            if i == len(waypoints) - 2:
-                detailed_coords.append(goal_world)
+                if not edge_coords or edge_coords[-1] != world_coord:
+                    edge_coords.append(world_coord)
+            
+            # Add goal point exactly
+            if edge_coords[-1] != goal_world:
+                edge_coords.append(goal_world)
         else:
             # A* failed, fall back to direct line
-            if i == 0:
-                detailed_coords.append(start_world)
-            detailed_coords.append(goal_world)
+            edge_coords = [start_world, goal_world]
             forced_segments += 1
+
+        all_edge_coords.append(edge_coords)
+
+    # Merge all edge coordinates into a single path
+    # For tree structures, we traverse edges in order (center-out from MST ordering)
+    detailed_coords = []
+    seen_points = set()
+    
+    for edge_coords in all_edge_coords:
+        for coord in edge_coords:
+            # Use tuple for hashability, round for floating point comparison
+            coord_key = (round(coord[0], 4), round(coord[1], 4))
+            if coord_key not in seen_points:
+                detailed_coords.append(coord)
+                seen_points.add(coord_key)
+            elif coord == edge_coords[-1]:
+                # Always include endpoint to maintain connectivity
+                detailed_coords.append(coord)
 
     # Ensure we have at least start and end
     if not detailed_coords:
