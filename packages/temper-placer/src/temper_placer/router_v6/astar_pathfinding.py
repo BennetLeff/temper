@@ -599,8 +599,18 @@ def run_astar_pathfinding(
         Returns:
             (success, failure_reason, blocking_nets, congestion_region)
         """
-        # Adaptive depth limit: problem nets get more attempts
-        max_depth = 30 if net_name in problem_nets else 15
+        # If this net is marked as competing, don't attempt routing - it will go to negotiated router
+        if net_name in competing_nets:
+            channel_path = channel_mapping.channel_paths.get(net_name)
+            region = None
+            if channel_path and channel_path.waypoints:
+                mid_idx = len(channel_path.waypoints) // 2
+                region = channel_path.waypoints[mid_idx]
+            return False, "oscillation_detected", [], region
+        
+        # Adaptive depth limit: with hybrid routing, we use low limits
+        # Competing nets will be handled by negotiated router
+        max_depth = 5  # Low limit to prevent infinite loops
         if depth > max_depth:
             # Compute congestion region from waypoints for diagnostics
             channel_path = channel_mapping.channel_paths.get(net_name)
@@ -716,13 +726,14 @@ def run_astar_pathfinding(
                         pair_key = tuple(sorted([net_name, ripped_name]))
                         oscillation_tracker[pair_key] = oscillation_tracker.get(pair_key, 0) + 1
                         
-                        # Detect oscillation: if same pair rips each other 3+ times, mark for negotiation
-                        if oscillation_tracker[pair_key] >= 3:
+                        # Detect oscillation: if same pair rips each other 2+ times, mark for negotiation
+                        if oscillation_tracker[pair_key] >= 2:
                             competing_nets.add(net_name)
                             competing_nets.add(ripped_name)
                             print(f"      ⚠️  Oscillation detected: {net_name} ↔ {ripped_name} ({oscillation_tracker[pair_key]} times)")
-                            print(f"         Marking both for negotiated routing, skipping further rip-ups")
-                            # Don't rip up or reroute - let negotiated router handle it
+                            print(f"         Marking both for negotiated routing, NO FURTHER RIP-UPS")
+                            # Don't rip up - this prevents the infinite loop
+                            # Both nets will be marked as failed and handed to negotiated router
                             continue
                         
                         # Get net-specific rules for the ripped net
@@ -895,14 +906,19 @@ def run_astar_pathfinding(
 
     # Second pass: Reroute queue (iteratively)
     # Limit reroute attempts to prevent oscillation
-    # With oscillation detection, we can be more aggressive but still need a cap
-    max_reroute_attempts = min(50, len(routable_nets) * 2)
-    attempts = 0
-    max_iterations_per_net = 5  # Each net can be rerouted at most 5 times
+    # With hybrid routing, we don't need many attempts - competing nets go to negotiated router
+    max_loop_iterations = 15  # Maximum number of times to process the queue
+    loop_iterations = 0
+    max_iterations_per_net = 2  # Each net can be rerouted at most 2 times
 
     net_reroute_counts = {}  # Track how many times each net has been rerouted
     
-    while reroute_queue and attempts < max_reroute_attempts:
+    while reroute_queue:
+        if loop_iterations >= max_loop_iterations:
+            print(f"      ⚠️  Reroute limit reached ({max_loop_iterations} iterations), stopping")
+            break
+        
+        loop_iterations += 1
         net_name = reroute_queue.pop(0)
         
         # Skip nets that are marked as competing (will be handled by negotiated router)
@@ -930,7 +946,6 @@ def run_astar_pathfinding(
                 record_failure(net_name, "rip_up_limit", [], region)
             continue
         
-        attempts += 1
         success, reason, blockers, region = attempt_route(net_name, depth=1)
         if not success:
             if net_name not in failed_nets:
