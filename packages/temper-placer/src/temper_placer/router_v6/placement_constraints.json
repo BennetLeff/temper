@@ -1,0 +1,20 @@
+{
+    "description": "Manual placement overrides to resolve AC Mains clearance violations (Hybrid Locking)",
+    "overrides": {
+        "U_GATE": {
+            "position": [25.8, 30.7],
+            "fixed": true,
+            "description": "Anchor component. X=25.8mm ensures >6mm clearance from AC Mains while allowing USB_D+ routing."
+        },
+        "C_BOOT": {
+            "position": [19.2, 33.0],
+            "fixed": false,
+            "description": "Bootstrap capacitor. Placed in Safe Zone but allowed to drift to resolve overlaps."
+        },
+        "C_VCC": {
+            "position": [19.2, 27.0],
+            "fixed": false,
+            "description": "Bypass capacitor. Placed in Safe Zone but allowed to drift to resolve overlaps."
+        }
+    }
+}

@@ -457,11 +457,17 @@ def run_astar_pathfinding(
     max_nets: int | None = None,
     target_nets: list[str] | None = None,
     use_lazy_theta_star: bool = False,
+    hv_grids: dict[str, OccupancyGrid] | None = None,
 ) -> PathfindingResult:
-    # Build grids dictionary for multi-layer blocking
+    # Build standard grids dictionary
     all_grids = {grid.layer_name: grid}
     if alternate_grid:
         all_grids[alternate_grid.layer_name] = alternate_grid
+    
+    # Pre-process HV grids if provided
+    if hv_grids:
+        # Ensure HV grids have net mapping too
+        pass  # Will be updated in loop below
     """
     Run A* or Theta* pathfinding to generate routing paths.
 
@@ -540,6 +546,11 @@ def run_astar_pathfinding(
     for grid_obj in all_grids.values():
         grid_obj.net_id_to_name = id_to_net
         grid_obj.design_rules = design_rules
+        
+    if hv_grids:
+        for grid_obj in hv_grids.values():
+            grid_obj.net_id_to_name = id_to_net
+            grid_obj.design_rules = design_rules
 
     # Sort nets by routing scheduling priority
     net_order = _compute_net_order(channel_mapping)
@@ -577,12 +588,32 @@ def run_astar_pathfinding(
 
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
+        
+        # Grid Selection Strategy:
+        # If net is ACMains, use the inflated HV grids (6.0mm clearance).
+        # Otherwise use standard grids.
+        current_grids = all_grids
+        
+        # Check Net Class
+        net_rules = design_rules.get_rules_for_net(net_name)
+        class_name = design_rules.net_class_assignments.get(net_name, "")
+        # print(f"      DEBUG: Net {net_name} class='{class_name}', hv_grids_present={hv_grids is not None}")
+        
+        if hv_grids and class_name in ("ACMains", "HighVoltageIsolated"):
+             # print(f"    Using HV Grids for {net_name} ({class_name})")
+             current_grids = hv_grids
 
         # Determine primary and alternate grid based on net's preference
-        primary_grid = all_grids.get(channel_path.preferred_layer, grid)
+        primary_grid = current_grids.get(channel_path.preferred_layer, grid)
+        # Fallback if primary not found in current_grids (shouldn't happen if consistent)
+        if not primary_grid and current_grids:
+             primary_grid = list(current_grids.values())[0]
+             
         # Alternate grid is the one NOT preferred
-        alt_layer = next((l for l in all_grids.keys() if l != channel_path.preferred_layer), None)
-        active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
+        alt_layer = next((l for l in current_grids.keys() if l != channel_path.preferred_layer), None)
+        active_alternate = current_grids.get(alt_layer)
+        if not active_alternate and alternate_grid and current_grids is all_grids:
+             active_alternate = alternate_grid # fallback for standard case
 
         # Get net-specific routing rules
         net_rules = design_rules.get_rules_for_net(net_name)
