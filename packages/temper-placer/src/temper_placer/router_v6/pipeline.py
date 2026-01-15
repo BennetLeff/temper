@@ -46,6 +46,7 @@ from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_t
 from temper_placer.router_v6.topology_solver import TopologicalSolution, solve_topology
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
+from temper_placer.router_v6.analysis.max_flow import MaxFlowAnalyzer, MaxFlowResult
 
 
 @dataclass
@@ -57,6 +58,7 @@ class Stage2Output:
     skeletons: dict[str, ChannelSkeleton]  # layer -> skeleton
     channel_widths: dict[str, ChannelWidths]  # layer -> widths
     occupancy_grids: dict[str, OccupancyGrid]  # layer -> grid
+    hv_occupancy_grids: dict[str, OccupancyGrid]  # dedicated HV grids
     layer_capacities: dict[str, LayerCapacity]  # layer -> capacity
     routing_demand: RoutingDemand
     bottleneck_analysis: BottleneckAnalysis
@@ -123,6 +125,7 @@ class RouterV6Pipeline:
         enable_smoothing: bool = False,
         enable_legalization: bool = True,  # Default ON for robustness
         enable_negotiated_congestion: bool = False,  # Phase 8 PathFinder
+        enable_routability_analysis: bool = False,  # Max-Flow feasibility analysis
         placement_mode: str = "physics",  # "physics" or "analytical"
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
@@ -137,6 +140,7 @@ class RouterV6Pipeline:
             enable_smoothing: Apply force-directed smoothing (Experiment G)
             enable_legalization: Auto-fix component overlaps (Phase 6)
             enable_negotiated_congestion: Use PathFinder algorithm (Phase 8)
+            enable_routability_analysis: Run Max-Flow feasibility analysis (Phase 10)
             placement_mode: Strategy for placement ("physics", "analytical")
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
@@ -147,6 +151,7 @@ class RouterV6Pipeline:
         self.enable_smoothing = enable_smoothing
         self.enable_legalization = enable_legalization
         self.enable_negotiated_congestion = enable_negotiated_congestion
+        self.enable_routability_analysis = enable_routability_analysis
         self.placement_mode = placement_mode
         self.max_nets = max_nets
         self.target_nets = target_nets
@@ -167,6 +172,39 @@ class RouterV6Pipeline:
         if self.verbose:
             print("Stage 0: Loading PCB...")
         pcb = parse_kicad_pcb_v6(pcb_path)
+
+        # MANUAL OVERRIDE: Fix Placement of Gate Driver Cluster to avoid AC Mains violations
+        # Loaded from placement_constraints.json to separate data from logic.
+        try:
+            import json
+            from pathlib import Path
+            
+            config_path = Path(__file__).parent / "placement_constraints.json"
+            if config_path.exists():
+                with open(config_path, "r") as f:
+                    config = json.load(f)
+                    overrides = config.get("overrides", {})
+                    
+                if self.verbose and overrides:
+                    print(f"Applying {len(overrides)} placement constraints from {config_path.name}...")
+
+                for comp in pcb.components:
+                    if comp.ref in overrides:
+                        data = overrides[comp.ref]
+                        new_pos = tuple(data["position"])
+                        is_fixed = data.get("fixed", False)
+                        
+                        comp.initial_position = new_pos
+                        comp.fixed = is_fixed
+                        
+                        if self.verbose:
+                            status = "LOCKED" if is_fixed else "PLACED"
+                            print(f"  {status} {comp.ref} at {new_pos}")
+            else:
+                if self.verbose:
+                    print(f"Warning: Constraint file not found at {config_path}")
+        except Exception as e:
+            print(f"Error loading placement constraints: {e}")
 
         # Stage 0.5: Legalization
         if self.enable_legalization:
@@ -356,19 +394,34 @@ class RouterV6Pipeline:
             print(f"    Using max clearance: {max_clearance}mm for C-Space inflation")
 
         occupancy_grids = {}
+        hv_occupancy_grids = {}  # dedicated grids for AC Mains (6.0mm clearance)
+
+        # HV Inflation: Conservative estimate for AC Mains
+        # We assume AC Mains might use wide traces, so we take the max trace width from all classes (or default safe value)
+        # + 6.0mm safety clearance.
+        hv_inflation = (max_trace_width / 2.0) + 6.0
+        
+        if self.verbose:
+             print(f"    Building specialized HV grids with inflation: {hv_inflation}mm")
+
         for layer_name, routing_space in routing_spaces.items():
-            grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
+            # 1. Standard Grid (Low Voltage)
+            grid = build_occupancy_grid(routing_space, cell_size=0.2, inflation_mm=base_inflation)
 
             # Apply Stackup Strategy: Prefer Top Layer (F.Cu)
-            # Penalize Bottom Layer (B.Cu) to reserve it for Ground Plane
             if layer_name == "F.Cu":
                 grid.base_cost = 1.0
             elif layer_name == "B.Cu":
                 grid.base_cost = 10.0  # 10x cost -> Prefer Top unless blocked
             else:
                 grid.base_cost = 5.0  # Inner layers
-
+            
             occupancy_grids[layer_name] = grid
+            
+            # 2. HV Grid (High Voltage / AC Mains)
+            hv_grid = build_occupancy_grid(routing_space, cell_size=0.2, inflation_mm=hv_inflation)
+            hv_grid.base_cost = grid.base_cost # inherit cost strategy
+            hv_occupancy_grids[layer_name] = hv_grid
 
         # 2.6: Calculate per-layer capacity
         if self.verbose:
@@ -398,12 +451,45 @@ class RouterV6Pipeline:
         if self.verbose and bottleneck_analysis.has_critical_bottlenecks:
             print(f"    Warning: {len(bottleneck_analysis.bottlenecks)} bottlenecks identified")
 
+        # 2.9: Max-Flow Routability Analysis (Phase 10)
+        if self.enable_routability_analysis:
+            if self.verbose:
+                print("  2.9: Running Max-Flow Routability Analysis...")
+            
+            # Use Top Layer (F.Cu) as primary indicator for routability
+            layer_name = "F.Cu" if "F.Cu" in skeletons else list(skeletons.keys())[0]
+            skeleton = skeletons[layer_name]
+            widths = channel_widths[layer_name]
+            
+            analyzer = MaxFlowAnalyzer(skeleton, widths, pcb.design_rules)
+            
+            # Map failed_nets to (source_pos, sink_pos) for analysis
+            # In a real run, it may look at ALL routable nets to check global feasibility
+            demands = {}
+            from temper_placer.router_v6.astar_pathfinding import _extract_pad_centers_per_net
+            pad_centers = _extract_pad_centers_per_net(pcb)
+            
+            for net_name, pads in pad_centers.items():
+                if len(pads) >= 2:
+                    demands[net_name] = (pads[0], pads[-1])
+            
+            if demands:
+                result = analyzer.compute_feasibility(demands)
+                if self.verbose:
+                    print(f"    Max-Flow Capacity: {result.max_flow} traces")
+                    print(f"    Net Demand: {result.total_demand} nets")
+                    if not result.is_feasible:
+                        print(f"    WARNING: Board is MATHEMATICALLY UNROUTABLE! Bottleneck: {len(result.min_cut_edges)} edges.")
+            elif self.verbose:
+                print("    Skipping Max-Flow: No multi-pin nets found")
+
         return Stage2Output(
             obstacle_maps=obstacle_maps,
             routing_spaces=routing_spaces,
             skeletons=skeletons,
             channel_widths=channel_widths,
             occupancy_grids=occupancy_grids,
+            hv_occupancy_grids=hv_occupancy_grids,
             layer_capacities=layer_capacities,
             routing_demand=routing_demand,
             bottleneck_analysis=bottleneck_analysis,
@@ -505,12 +591,8 @@ class RouterV6Pipeline:
             components=pcb.components,
         )
 
-        # 4.2: Run A* pathfinding (Unified)
         if self.verbose:
-            mode_str = (
-                "Negotiated PathFinder" if self.enable_negotiated_congestion else "Sequential A*"
-            )
-            print(f"  4.2: Running Routing ({mode_str})...")
+            print("  4.2: Running Routing (Sequential A*)...")
 
         # Get primary and alternate grids
         fcu_grid = stage2.occupancy_grids.get("F.Cu")
@@ -520,8 +602,9 @@ class RouterV6Pipeline:
             fcu_grid = list(stage2.occupancy_grids.values())[0]
         if not bcu_grid and len(stage2.occupancy_grids) > 1:
             bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
-
-        # Unified call: pass all nets and both grids (Logic split for Diff Pairs)
+        
+        # Pass HV grids for ACMains handling
+        hv_grids = stage2.hv_occupancy_grids
 
         # 1. Route Differential Pairs (Priority)
         routed_paths_dp = {}
@@ -723,6 +806,7 @@ class RouterV6Pipeline:
                 use_lazy_theta_star=self.enable_lazy_theta_star,
                 max_nets=self.max_nets,
                 target_nets=final_target_nets,  # Pass filtered list
+                hv_grids=hv_grids,
             )
 
             # Merge Diff Pairs into result

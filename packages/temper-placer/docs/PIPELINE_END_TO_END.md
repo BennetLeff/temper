@@ -66,6 +66,7 @@ uv run debug_piantor.py
 After the gradient-based phases, the pipeline automatically runs:
 - **Grid Snapping**: Aligns components to the specified manufacturing grid (e.g., 0.5mm).
 - **Hard Legalization**: Uses an optimized NumPy-based geometric projection to force zero overlap.
+- **Max-Flow Routability Analysis (V6)**: Optionally performs a mathematical feasibility check using the Max-Flow Min-Cut theorem to prove if the current placement is routable. See [ROUTABILITY_ANALYSIS.md](ROUTABILITY_ANALYSIS.md).
 - **Plane Integrity Check**: Verifies that ground planes (L2/L3) have not been "cut" by accidental trace placement.
 
 ## 5. Inspection
