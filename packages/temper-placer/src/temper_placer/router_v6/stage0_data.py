@@ -85,6 +85,7 @@ class NetClassRules:
     diff_pair_gap_mm: float | None = None
     diff_pair_width_mm: float | None = None
     current_rating_amps: float | None = None
+    layer_constraint: str | None = None  # "F.Cu", "B.Cu", etc. - forces net to this layer
 
 
 @dataclass
@@ -93,10 +94,11 @@ class DesignRules:
 
     net_classes: dict[str, NetClassRules]  # class_name -> rules
     net_class_assignments: dict[str, str]  # net_name -> class_name
-    default_clearance_mm: float
-    default_trace_width_mm: float
-    default_via_diameter_mm: float
-    default_via_drill_mm: float
+    net_layer_assignments: dict[str, str] = field(default_factory=dict)  # net_name -> layer (e.g. "B.Cu")
+    default_clearance_mm: float = 0.2
+    default_trace_width_mm: float = 0.2
+    default_via_diameter_mm: float = 0.8
+    default_via_drill_mm: float = 0.4
     min_hole_to_hole_mm: float = 0.25
     min_annular_ring_mm: float = 0.1
 
@@ -114,6 +116,32 @@ class DesignRules:
             via_diameter_mm=self.default_via_diameter_mm,
             via_drill_mm=self.default_via_drill_mm,
         )
+
+    def get_layer_constraint(self, net_name: str) -> str | None:
+        """
+        Get layer constraint for a specific net.
+        
+        Returns None if no constraint (net can route on any layer).
+        Returns layer name (e.g. "B.Cu") if net is constrained to that layer.
+        
+        Checks:
+        1. Explicit net-level assignment (net_layer_assignments)
+        2. Net class layer constraint
+        3. None (unconstrained)
+        """
+        # 1. Check explicit net assignment
+        if net_name in self.net_layer_assignments:
+            return self.net_layer_assignments[net_name]
+        
+        # 2. Check net class constraint
+        class_name = self.net_class_assignments.get(net_name)
+        if class_name and class_name in self.net_classes:
+            net_class = self.net_classes[class_name]
+            if net_class.layer_constraint:
+                return net_class.layer_constraint
+        
+        # 3. Unconstrained
+        return None
 
     def are_differential_pair(self, net_a: str, net_b: str) -> tuple[bool, float | None]:
         """

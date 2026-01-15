@@ -637,11 +637,12 @@ def run_astar_pathfinding(
         if not primary_grid and current_grids:
              primary_grid = list(current_grids.values())[0]
              
-        # For nets with B.Cu layer assignment, force single-layer routing
-        # This prevents MISO from jumping to F.Cu where it would conflict with MOSI
-        # This is how professional PCB tools handle parallel bus routing - force layer separation
-        if channel_path.preferred_layer == "B.Cu":
-            # Force single-layer routing on B.Cu only
+        # LAYER-LOCKED ROUTING (Professional PCB Design Practice)
+        # If net has explicit layer constraint from design rules, force single-layer routing
+        # This prevents parallel bus signals from competing for the same channel
+        layer_constraint = design_rules.get_layer_constraint(net_name)
+        if layer_constraint is not None:
+            # Force single-layer routing - no layer switching allowed
             active_alternate = None
         else:
             # Alternate grid is the one NOT preferred

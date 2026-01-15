@@ -27,39 +27,45 @@ class ChannelPath:
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
 
 
-def _assign_layer(net_name: str, competing_nets: set[str] | None = None) -> str:
+def _assign_layer(
+    net_name: str,
+    design_rules=None,
+    competing_nets: set[str] | None = None
+) -> str:
     """
-    Assign net to preferred layer based on net class and competition.
-
-    Power nets go to B.Cu (bottom) to free up F.Cu for signals.
+    Assign net to preferred layer based on configuration hierarchy:
     
-    For competing signal nets (detected oscillation), alternate layers:
-    - SPI_MOSI → F.Cu
-    - SPI_MISO → B.Cu (alternate)
-    This prevents them from fighting for the same routing channel.
+    1. Explicit layer constraint from YAML/design rules
+    2. Power net heuristic (GND/VCC → B.Cu)
+    3. Competing net alternation (oscillation prevention)
+    4. Default (F.Cu)
+    
+    Professional PCB design principle:
+    Layer assignment should come from design intent (YAML config),
+    not hardcoded logic. This allows designers to specify routing strategy.
     """
+    # 1. Check design rules for explicit layer constraint
+    if design_rules:
+        layer_constraint = design_rules.get_layer_constraint(net_name)
+        if layer_constraint:
+            return layer_constraint
+    
+    # 2. Power net heuristic (fallback)
     name_upper = net_name.upper()
-    
-    # Power nets go to B.Cu
     power_keywords = ["GND", "VCC", "VBUS", "+", "PWR", "V+", "V-"]
     if any(kw in name_upper for kw in power_keywords):
         return "B.Cu"
     
-    # Professional PCB design: Route parallel bus signals on alternate layers
-    # This is how Altium/Cadence handle competing signals
+    # 3. Competing nets alternation (for nets without explicit constraint)
+    # This prevents oscillation for parallel signals
     if competing_nets and net_name in competing_nets:
-        # Alternate layers for competing nets based on name hash
-        # This ensures consistent assignment across runs
+        # Deterministic alternation based on name hash
         if hash(net_name) % 2 == 0:
             return "F.Cu"
         else:
             return "B.Cu"
     
-    # SPI bus special handling: MISO always on alternate layer from MOSI
-    # This is standard practice for parallel bus routing
-    if "SPI_MISO" in name_upper:
-        return "B.Cu"  # Force to bottom layer
-    
+    # 4. Default
     return "F.Cu"
 
 
@@ -84,6 +90,7 @@ def map_topology_to_channels(
     skeleton: ChannelSkeleton,
     nets: list[Net] | None = None,
     components: list[Component] | None = None,
+    design_rules=None,  # Pass design rules for layer assignment
 ) -> ChannelMapping:
     """
     Map abstract topology graph to concrete routing channels.
@@ -93,6 +100,7 @@ def map_topology_to_channels(
         skeleton: Channel skeleton
         nets: List of nets (optional, for fallback)
         components: List of components (optional, for pin lookup in fallback)
+        design_rules: Design rules (optional, for layer assignment)
 
     Returns:
         ChannelMapping
@@ -113,7 +121,7 @@ def map_topology_to_channels(
         net_obj = net_map.get(net_name)
         
         # Map this net's topology (or fallback) to channels
-        channel_path = _map_net_to_channels(net_name, net_topology, skeleton, net_obj, comp_map)
+        channel_path = _map_net_to_channels(net_name, net_topology, skeleton, net_obj, comp_map, design_rules)
         if channel_path:
             channel_paths[net_name] = channel_path
 
@@ -126,6 +134,7 @@ def _map_net_to_channels(
     skeleton: ChannelSkeleton,
     net_obj: Net | None = None,
     comp_map: dict[str, Component] | None = None,
+    design_rules=None,
 ) -> ChannelPath | None:
     """
     Map a single net's topology to channel sequence.
@@ -179,7 +188,7 @@ def _map_net_to_channels(
             channel_sequence=channel_sequence,
             waypoints=waypoints,
             total_length=total_length,
-            preferred_layer=_assign_layer(net_name),
+            preferred_layer=_assign_layer(net_name, design_rules=design_rules),
         )
 
     return None

@@ -173,8 +173,9 @@ def export_router_v6_to_kicad(input_pcb: Path, output_pcb: Path, verbose: bool =
             # RoutePath3D with multilayer segments
             segments_with_layer = path.segments
         elif hasattr(path, 'coordinates'):
-            # RoutePath with 2D coordinates - use preferred layer or F.Cu
-            layer = getattr(path, 'layer', 'F.Cu')
+            # RoutePath with 2D coordinates - use layer_name attribute
+            # This is set correctly during routing based on grid layer
+            layer = getattr(path, 'layer_name', 'F.Cu')
             segments_with_layer = [(x, y, layer) for x, y in path.coordinates]
         else:
             print(f"Warning: Unknown path type for {net_name}, skipping")

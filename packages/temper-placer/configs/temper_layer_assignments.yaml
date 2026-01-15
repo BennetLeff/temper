@@ -1,0 +1,22 @@
+# Net-specific layer assignments for Temper board
+#
+# Professional PCB design principle:
+# Parallel bus signals should be routed on alternating layers to prevent crosstalk
+# and ensure they don't compete for the same routing channel.
+
+net_layers:
+  # SPI Bus - alternate layers for MISO/MOSI to prevent oscillation
+  SPI_MISO: "B.Cu"     # Route on bottom layer
+  SPI_MOSI: "F.Cu"     # Route on top layer
+  SPI_CLK: "F.Cu"      # Clock on top with MOSI
+  SPI_CS_TEMP: "F.Cu"  # CS on top
+  
+  # Power nets typically on bottom for better thermal
+  # (These may be overridden by plane assignment)
+  # GND: "B.Cu"
+  # VCC: "B.Cu"
+
+# Net class constraints (optional - applies to all nets in class)
+net_class_layers:
+  # Example: Force all "HighSpeed" class nets to F.Cu
+  # HighSpeed: "F.Cu"

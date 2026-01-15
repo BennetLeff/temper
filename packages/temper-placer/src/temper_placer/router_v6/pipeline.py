@@ -583,12 +583,33 @@ class RouterV6Pipeline:
         if not bcu_skeleton:
             bcu_skeleton = list(stage2.skeletons.values())[-1]
 
+        # Load layer assignments from YAML config
+        from pathlib import Path
+        import yaml
+        
+        # Config is at packages/temper-placer/configs/, not src/temper_placer/configs/
+        layer_config_path = Path(__file__).parent.parent.parent.parent / "configs" / "temper_layer_assignments.yaml"
+        if layer_config_path.exists():
+            with open(layer_config_path) as f:
+                layer_config = yaml.safe_load(f)
+                # Merge net-specific layer assignments into design rules
+                if "net_layers" in layer_config:
+                    pcb.design_rules.net_layer_assignments.update(layer_config["net_layers"])
+                    if self.verbose:
+                        print(f"  Loaded {len(layer_config['net_layers'])} layer assignments from YAML")
+                # Merge net class layer constraints
+                if "net_class_layers" in layer_config and layer_config["net_class_layers"]:
+                    for class_name, layer in layer_config["net_class_layers"].items():
+                        if class_name in pcb.design_rules.net_classes:
+                            pcb.design_rules.net_classes[class_name].layer_constraint = layer
+        
         # Map all nets with layer assignment
         channel_mapping = map_topology_to_channels(
             stage3.topology_graph,
             fcu_skeleton,  # Use F.Cu skeleton for mapping (waypoints are generic)
             nets=pcb.nets,
             components=pcb.components,
+            design_rules=pcb.design_rules,
         )
 
         if self.verbose:
