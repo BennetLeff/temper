@@ -71,6 +71,7 @@ class BendersOptimizer:
         check_routability: bool = True,
         pcb_file: str | Path | None = None,
         verbose: bool = True,
+        use_ultrafast_check: bool = True,  # NEW: Use ultra-fast heuristic check
     ):
         """
         Initialize the Benders optimizer.
@@ -82,6 +83,8 @@ class BendersOptimizer:
             check_routability: Whether to check routability (set False for testing)
             pcb_file: Optional path to KiCad PCB file for routability checking
             verbose: Print progress information
+            use_ultrafast_check: If True, use ultra-fast heuristic check (<1s).
+                                 If False, use full Max-Flow analysis (~60s).
         """
         self.component_data_json = Path(component_data_json)
         self.max_iterations = max_iterations
@@ -89,6 +92,7 @@ class BendersOptimizer:
         self.check_routability = check_routability
         self._pcb_file = Path(pcb_file) if pcb_file else None
         self.verbose = verbose
+        self.use_ultrafast_check = use_ultrafast_check
 
         # State
         self.current_iteration = 0
@@ -263,7 +267,10 @@ class BendersOptimizer:
 
     def _check_routability(self, positions: dict[str, tuple[float, float]]) -> tuple[bool, list]:
         """
-        Check if placement is routable using Max-Flow.
+        Check if placement is routable.
+
+        Uses either ultra-fast heuristic (<1s) or full Max-Flow analysis (~60s)
+        depending on the use_ultrafast_check setting.
 
         Args:
             positions: Component positions from Master Problem
@@ -271,11 +278,27 @@ class BendersOptimizer:
         Returns:
             Tuple of (is_routable, min_cut_edges)
         """
+        import time
+        start_time = time.time()
+        
+        # Try ultra-fast check first (if enabled)
+        if self.use_ultrafast_check:
+            try:
+                result = self._check_routability_ultrafast(positions)
+                self._routability_time_total += time.time() - start_time
+                
+                if self.verbose and not result[0]:
+                    print(f"  Ultra-fast check: Not routable")
+                
+                return result
+                
+            except Exception as e:
+                if self.verbose:
+                    print(f"  Ultra-fast check failed: {e}, falling back to Max-Flow")
+                # Fall through to Max-Flow
+        
+        # Full Max-Flow analysis
         try:
-            import time
-
-            start_time = time.time()
-
             # 1. Update PCB with new positions (if PCB file available)
             if hasattr(self, "_pcb_file") and self._pcb_file:
                 self._update_pcb_with_placement(positions)
@@ -306,6 +329,55 @@ class BendersOptimizer:
                 print(f"Warning: Routability check failed: {e}")
             # Fall back to assuming routable
             return True, []
+    
+    def _check_routability_ultrafast(self, positions: dict[str, tuple[float, float]]) -> tuple[bool, list]:
+        """
+        Ultra-fast routability check using heuristics.
+        
+        Args:
+            positions: Component positions
+            
+        Returns:
+            Tuple of (is_routable, []) - no min-cut edges for heuristic check
+        """
+        from temper_placer.router_v6.benders_routability_ultrafast import (
+            check_routability_ultrafast
+        )
+        
+        # Get component sizes from master problem
+        import json
+        with open(self.component_data_json) as f:
+            data = json.load(f)
+        
+        sizes = {
+            c["ref"]: (c["width_mm"], c["height_mm"])
+            for c in data["components"]
+        }
+        
+        # Extract net connections (simplified - connect components sharing nets)
+        net_connections = []
+        # For now, use empty net connections (quick check for overlaps/congestion only)
+        
+        # Get board bounds
+        xs = [p[0] for p in positions.values()]
+        ys = [p[1] for p in positions.values()]
+        margin = 10.0
+        bounds = (min(xs) - margin, min(ys) - margin, max(xs) + margin, max(ys) + margin)
+        
+        result = check_routability_ultrafast(
+            component_positions=positions,
+            component_sizes=sizes,
+            net_connections=net_connections,
+            board_bounds=bounds,
+            min_clearance_mm=0.5,
+            verbose=self.verbose,
+        )
+        
+        if self.verbose:
+            print(f"  Ultra-fast: congestion={result.congestion_score:.1%}, overlaps={result.overlap_count}")
+        
+        # No min-cut edges for heuristic check
+        return result.is_feasible, []
 
     def _generate_cuts_from_mincut(self, min_cut_edges: list) -> list[RoutabilityCut]:
         """
@@ -486,6 +558,7 @@ def run_benders_optimization(
     pcb_file: str | Path | None = None,
     check_routability: bool = True,
     verbose: bool = True,
+    use_ultrafast_check: bool = True,
 ) -> BendersResult:
     """
     Convenience function to run Benders optimization.
@@ -494,8 +567,10 @@ def run_benders_optimization(
         component_data_json: Path to benders_input.json
         max_iterations: Maximum Benders iterations
         pcb_file: Optional path to KiCad PCB file for routability checking
-        check_routability: Whether to check routability with Max-Flow
+        check_routability: Whether to check routability
         verbose: Print progress
+        use_ultrafast_check: If True, use ultra-fast heuristic check (<1s).
+                             If False, use full Max-Flow analysis (~60s).
 
     Returns:
         BendersResult
@@ -506,6 +581,7 @@ def run_benders_optimization(
         check_routability=check_routability,
         pcb_file=pcb_file,
         verbose=verbose,
+        use_ultrafast_check=use_ultrafast_check,
     )
 
     return optimizer.optimize()
