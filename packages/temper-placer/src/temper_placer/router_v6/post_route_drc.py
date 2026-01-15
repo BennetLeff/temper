@@ -1,8 +1,9 @@
 """
 Post-Route DRC Validation and Repair
 
-Detects same-layer crossings and automatically repairs them by
-reassigning one net to a different layer.
+Detects same-layer crossings and categorizes them:
+- Acceptable crossings (power stage) - no action needed
+- Fixable crossings (control signals) - need via insertion
 """
 
 from __future__ import annotations
@@ -19,10 +20,13 @@ class CrossingViolation:
     net2: str
     layer: str
     crossing_point: tuple[float, float]
+    is_acceptable: bool = False  # True if power-stage crossing (no via needed)
+    needs_via: bool = False  # True if should insert via
 
 
 def detect_same_layer_crossings(
     routed_paths: dict,
+    design_rules=None,
     verbose: bool = False,
 ) -> list[CrossingViolation]:
     """
@@ -75,12 +79,21 @@ def detect_same_layer_crossings(
                         continue
                     
                     # Count crossing points
+                    # Determine if this crossing is acceptable or needs a via
+                    is_acceptable = False
+                    needs_via = False
+                    if design_rules:
+                        is_acceptable = design_rules.is_crossing_accepted(net1, net2)
+                        needs_via = design_rules.should_via_at_crossing(net1, net2)
+                    
                     if intersection.geom_type == 'Point':
                         violations.append(CrossingViolation(
                             net1=net1,
                             net2=net2,
                             layer=layer,
                             crossing_point=(intersection.x, intersection.y),
+                            is_acceptable=is_acceptable,
+                            needs_via=needs_via,
                         ))
                     elif intersection.geom_type == 'MultiPoint':
                         for pt in intersection.geoms:
@@ -89,6 +102,8 @@ def detect_same_layer_crossings(
                                 net2=net2,
                                 layer=layer,
                                 crossing_point=(pt.x, pt.y),
+                                is_acceptable=is_acceptable,
+                                needs_via=needs_via,
                             ))
                     elif intersection.geom_type in ['LineString', 'MultiLineString']:
                         # Overlapping segments - even worse!
@@ -98,6 +113,8 @@ def detect_same_layer_crossings(
                             net2=net2,
                             layer=layer,
                             crossing_point=(centroid.x, centroid.y),
+                            is_acceptable=is_acceptable,
+                            needs_via=needs_via,
                         ))
                 except Exception:
                     # Shapely geometry error - skip this pair
@@ -190,21 +207,42 @@ def print_crossing_summary(violations: list[CrossingViolation]) -> None:
         print("  ✅ No same-layer crossings detected")
         return
     
-    print(f"\n  ❌ {len(violations)} same-layer crossings detected:")
+    # Categorize violations
+    acceptable = [v for v in violations if v.is_acceptable]
+    needs_via = [v for v in violations if v.needs_via and not v.is_acceptable]
+    other = [v for v in violations if not v.is_acceptable and not v.needs_via]
     
-    # Group by layer
-    by_layer = defaultdict(list)
-    for v in violations:
-        by_layer[v.layer].append(v)
+    print(f"\n  Crossing Analysis ({len(violations)} total):")
+    print(f"    ✓ Acceptable (power stage): {len(acceptable)}")
+    print(f"    ⚠ Needs via (control):      {len(needs_via)}")
+    print(f"    ? Other:                    {len(other)}")
     
-    for layer, layer_violations in sorted(by_layer.items()):
-        print(f"\n  {layer}:")
-        
-        # Group by net pair
+    # Show acceptable crossings (power stage)
+    if acceptable:
+        print(f"\n  ✓ Acceptable Power Stage Crossings ({len(acceptable)}):")
         pair_counts = defaultdict(int)
-        for v in layer_violations:
+        for v in acceptable:
             pair = tuple(sorted([v.net1, v.net2]))
             pair_counts[pair] += 1
-        
         for (n1, n2), count in sorted(pair_counts.items(), key=lambda x: -x[1]):
-            print(f"    {n1} ↔ {n2}: {count} crossing(s)")
+            print(f"    {n1} ↔ {n2}: {count}x (no via - inductance)")
+    
+    # Show crossings that need vias
+    if needs_via:
+        print(f"\n  ⚠ Crossings Needing Via Insertion ({len(needs_via)}):")
+        pair_counts = defaultdict(int)
+        for v in needs_via:
+            pair = tuple(sorted([v.net1, v.net2]))
+            pair_counts[pair] += 1
+        for (n1, n2), count in sorted(pair_counts.items(), key=lambda x: -x[1]):
+            print(f"    {n1} ↔ {n2}: {count}x → INSERT VIA")
+    
+    # Show other crossings
+    if other:
+        print(f"\n  ? Uncategorized Crossings ({len(other)}):")
+        pair_counts = defaultdict(int)
+        for v in other:
+            pair = tuple(sorted([v.net1, v.net2]))
+            pair_counts[pair] += 1
+        for (n1, n2), count in sorted(pair_counts.items(), key=lambda x: -x[1])[:5]:
+            print(f"    {n1} ↔ {n2}: {count}x")

@@ -595,16 +595,38 @@ class RouterV6Pipeline:
         if layer_config_path.exists():
             with open(layer_config_path) as f:
                 layer_config = yaml.safe_load(f)
-                # Merge net-specific layer assignments into design rules
+                
+                # Merge net-specific layer assignments
                 if "net_layers" in layer_config:
                     pcb.design_rules.net_layer_assignments.update(layer_config["net_layers"])
                     if self.verbose:
                         print(f"  Loaded {len(layer_config['net_layers'])} layer assignments from YAML")
+                
                 # Merge net class layer constraints
                 if "net_class_layers" in layer_config and layer_config["net_class_layers"]:
                     for class_name, layer in layer_config["net_class_layers"].items():
                         if class_name in pcb.design_rules.net_classes:
                             pcb.design_rules.net_classes[class_name].layer_constraint = layer
+                
+                # Load net categories (power/control/analog/differential)
+                if "net_categories" in layer_config:
+                    for category, nets in layer_config["net_categories"].items():
+                        if nets:
+                            for net in nets:
+                                pcb.design_rules.net_categories[net] = category
+                    if self.verbose:
+                        print(f"  Loaded {len(pcb.design_rules.net_categories)} net categories")
+                
+                # Load crossing rules
+                if "crossing_rules" in layer_config:
+                    rules = layer_config["crossing_rules"]
+                    if "accept_crossings" in rules and rules["accept_crossings"]:
+                        pcb.design_rules.accept_crossings = [tuple(p) for p in rules["accept_crossings"]]
+                    if "via_at_crossing" in rules and rules["via_at_crossing"]:
+                        pcb.design_rules.via_at_crossing = [tuple(p) for p in rules["via_at_crossing"]]
+                    if self.verbose:
+                        print(f"  Loaded {len(pcb.design_rules.accept_crossings)} accepted crossing pairs")
+                        print(f"  Loaded {len(pcb.design_rules.via_at_crossing)} via-at-crossing pairs")
         
         # Map all nets with layer assignment
         channel_mapping = map_topology_to_channels(

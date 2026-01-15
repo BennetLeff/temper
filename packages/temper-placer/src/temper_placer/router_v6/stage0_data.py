@@ -95,6 +95,9 @@ class DesignRules:
     net_classes: dict[str, NetClassRules]  # class_name -> rules
     net_class_assignments: dict[str, str]  # net_name -> class_name
     net_layer_assignments: dict[str, str] = field(default_factory=dict)  # net_name -> layer (e.g. "B.Cu")
+    net_categories: dict[str, str] = field(default_factory=dict)  # net_name -> category (power/control/analog/differential)
+    accept_crossings: list[tuple[str, str]] = field(default_factory=list)  # List of net pairs where crossings are OK
+    via_at_crossing: list[tuple[str, str]] = field(default_factory=list)  # List of net pairs that should via at crossings
     default_clearance_mm: float = 0.2
     default_trace_width_mm: float = 0.2
     default_via_diameter_mm: float = 0.8
@@ -142,6 +145,62 @@ class DesignRules:
         
         # 3. Unconstrained
         return None
+
+    def get_net_category(self, net_name: str) -> str:
+        """
+        Get the routing category for a net.
+        
+        Returns:
+            "power" - No vias allowed, crossings accepted
+            "control" - Vias OK at crossings
+            "analog" - Minimal vias
+            "differential" - Must via together
+            "default" - Standard routing
+        """
+        return self.net_categories.get(net_name, "default")
+    
+    def is_crossing_accepted(self, net_a: str, net_b: str) -> bool:
+        """
+        Check if a crossing between two nets is acceptable (no via needed).
+        
+        Power stage crossings are accepted because vias would add inductance.
+        """
+        pair = tuple(sorted([net_a, net_b]))
+        for accepted_pair in self.accept_crossings:
+            if tuple(sorted(accepted_pair)) == pair:
+                return True
+        
+        # Also accept if both are power nets
+        cat_a = self.get_net_category(net_a)
+        cat_b = self.get_net_category(net_b)
+        if cat_a == "power" and cat_b == "power":
+            return True
+        
+        return False
+    
+    def should_via_at_crossing(self, net_a: str, net_b: str) -> bool:
+        """
+        Check if a via should be inserted when these nets cross.
+        
+        Returns True for control signal crossings.
+        """
+        # Never via power nets
+        cat_a = self.get_net_category(net_a)
+        cat_b = self.get_net_category(net_b)
+        if cat_a == "power" or cat_b == "power":
+            return False
+        
+        # Check explicit via_at_crossing list
+        pair = tuple(sorted([net_a, net_b]))
+        for via_pair in self.via_at_crossing:
+            if tuple(sorted(via_pair)) == pair:
+                return True
+        
+        # Default: via if both are control signals
+        if cat_a in ("control", "default") and cat_b in ("control", "default"):
+            return True
+        
+        return False
 
     def are_differential_pair(self, net_a: str, net_b: str) -> tuple[bool, float | None]:
         """

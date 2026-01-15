@@ -1,41 +1,90 @@
 # Net-specific layer assignments for Temper board
 #
-# GOAL: Minimize same-layer crossings while maintaining signal integrity
-#
-# REALITY CHECK: On a 2-layer board, some crossings are unavoidable:
-# - Power stage signals (GATE_L, GATE_H, SW_NODE) connect the same transistors
-# - They MUST cross unless we add vias (which add inductance to gate drive)
-#
-# BEST STRATEGY: 
-# 1. Accept 12 unavoidable power stage crossings
-# 2. Minimize other crossings through layer separation
-# 3. The router should insert vias at crossing points (future enhancement)
+# STRATEGY: Categorize nets by routing requirements
+# - Power nets: NO VIAS (inductance causes ringing)
+# - Control nets: VIAS OK (can tolerate ~1nH)
+# - Analog nets: MINIMAL VIAS (noise pickup)
 
+# =============================================================================
+# NET CATEGORIES - Determines routing behavior
+# =============================================================================
+net_categories:
+  # POWER: No vias allowed, crossings accepted, wide traces
+  # These form the gate drive and commutation loops
+  power:
+    - GATE_L
+    - GATE_H
+    - SW_NODE
+    - DC_BUS+
+    - PGND
+
+  # CONTROL: Vias allowed at crossings, standard traces
+  # Low dI/dt signals that can tolerate via inductance
+  control:
+    - SPI_MOSI
+    - SPI_MISO
+    - SPI_CLK
+    - SPI_CS_TEMP
+    - PWM_L
+    - PWM_H
+    - VCC_BOOT
+    - SHUTDOWN_N
+
+  # ANALOG: Minimal vias, guard from digital noise
+  analog:
+    - I_SENSE
+    - TEMP_SENSE
+
+  # DIFFERENTIAL: Must via together, matched lengths
+  differential:
+    - USB_D+
+    - USB_D-
+
+# =============================================================================
+# LAYER ASSIGNMENTS
+# =============================================================================
 net_layers:
   # === F.Cu GROUP (Control/Digital) ===
-  SPI_MOSI: "F.Cu"     # SPI data out
-  SPI_CLK: "F.Cu"      # SPI clock
-  SPI_CS_TEMP: "F.Cu"  # Chip select
-  
-  PWM_L: "F.Cu"        # PWM low-side
-  PWM_H: "F.Cu"        # PWM high-side
-  
-  "USB_D+": "F.Cu"     # USB (must stay together)
+  SPI_MOSI: "F.Cu"
+  SPI_CLK: "F.Cu"
+  SPI_CS_TEMP: "F.Cu"
+  PWM_L: "F.Cu"
+  PWM_H: "F.Cu"
+  "USB_D+": "F.Cu"
   "USB_D-": "F.Cu"
-  
-  VCC_BOOT: "F.Cu"     # Bootstrap supply
+  VCC_BOOT: "F.Cu"
   
   # === B.Cu GROUP (Power Stage + Analog) ===
-  GATE_L: "B.Cu"       # Low-side gate (will cross SW_NODE)
-  GATE_H: "B.Cu"       # High-side gate (will cross SW_NODE)
-  SW_NODE: "B.Cu"      # Switching node
-  
-  SPI_MISO: "B.Cu"     # SPI data in (separated from MOSI)
-  I_SENSE: "B.Cu"      # Current sense (analog)
-  TEMP_SENSE: "B.Cu"   # Temperature sense
+  GATE_L: "B.Cu"       # NO VIAS - power loop
+  GATE_H: "B.Cu"       # NO VIAS - power loop
+  SW_NODE: "B.Cu"      # NO VIAS - power loop
+  SPI_MISO: "B.Cu"
+  I_SENSE: "B.Cu"
+  TEMP_SENSE: "B.Cu"
 
-# Expected crossings (based on analysis):
-# - B.Cu: 12 (power stage - unavoidable without vias)
-# - F.Cu: 6 (can be reduced with via insertion)
+# =============================================================================
+# CROSSING RULES
+# =============================================================================
+crossing_rules:
+  # Power-to-power crossings: ACCEPT (no vias)
+  # These are unavoidable on 2-layer and vias would be worse
+  accept_crossings:
+    - [GATE_L, SW_NODE]
+    - [GATE_H, SW_NODE]
+    - [GATE_L, GATE_H]
+    - [USB_D+, USB_D-]  # Differential pair crossing itself is OK
+  
+  # Control/analog crossings: INSERT VIA
+  # Router should add via when these cross
+  via_at_crossing:
+    - [SPI_MOSI, SPI_CLK]
+    - [SPI_CS_TEMP, SPI_MOSI]
+    - [PWM_L, USB_D+]
+    - [PWM_L, USB_D-]
+    - [PWM_H, USB_D+]
+    - [PWM_H, USB_D-]
+    - [I_SENSE, SPI_MISO]  # Analog-control crossing
+    - [I_SENSE, SPI_CLK]
+    - [I_SENSE, SPI_MOSI]
 
 net_class_layers: {}
