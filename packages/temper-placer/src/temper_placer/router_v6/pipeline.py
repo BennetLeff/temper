@@ -126,6 +126,7 @@ class RouterV6Pipeline:
         enable_legalization: bool = True,  # Default ON for robustness
         enable_negotiated_congestion: bool = False,  # Phase 8 PathFinder
         enable_routability_analysis: bool = False,  # Max-Flow feasibility analysis
+        enable_topological_ordering: bool = False,  # Phase 2: Ordering Optimization
         placement_mode: str = "physics",  # "physics" or "analytical"
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
@@ -141,6 +142,7 @@ class RouterV6Pipeline:
             enable_legalization: Auto-fix component overlaps (Phase 6)
             enable_negotiated_congestion: Use PathFinder algorithm (Phase 8)
             enable_routability_analysis: Run Max-Flow feasibility analysis (Phase 10)
+            enable_topological_ordering: Optimize routing sequence (Phase 11)
             placement_mode: Strategy for placement ("physics", "analytical")
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
@@ -152,6 +154,7 @@ class RouterV6Pipeline:
         self.enable_legalization = enable_legalization
         self.enable_negotiated_congestion = enable_negotiated_congestion
         self.enable_routability_analysis = enable_routability_analysis
+        self.enable_topological_ordering = enable_topological_ordering
         self.placement_mode = placement_mode
         self.max_nets = max_nets
         self.target_nets = target_nets
@@ -807,6 +810,7 @@ class RouterV6Pipeline:
                 max_nets=self.max_nets,
                 target_nets=final_target_nets,  # Pass filtered list
                 hv_grids=hv_grids,
+                enable_topological_ordering=self.enable_topological_ordering,
             )
 
             # Merge Diff Pairs into result

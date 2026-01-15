@@ -458,6 +458,7 @@ def run_astar_pathfinding(
     target_nets: list[str] | None = None,
     use_lazy_theta_star: bool = False,
     hv_grids: dict[str, OccupancyGrid] | None = None,
+    enable_topological_ordering: bool = False,
 ) -> PathfindingResult:
     # Build standard grids dictionary
     all_grids = {grid.layer_name: grid}
@@ -553,7 +554,11 @@ def run_astar_pathfinding(
             grid_obj.design_rules = design_rules
 
     # Sort nets by routing scheduling priority
-    net_order = _compute_net_order(channel_mapping)
+    net_order = _compute_net_order(
+        channel_mapping, 
+        pcb=pcb, 
+        enable_topological_ordering=enable_topological_ordering
+    )
 
     # Filter to only routable nets
     routable_nets = [n for n in net_order if should_route(n)]
@@ -860,15 +865,61 @@ def _identify_blocking_nets(channel_path, grids: list[OccupancyGrid]) -> set[int
     return blockers
 
 
-def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
+def _compute_net_order(
+    channel_mapping: ChannelMapping,
+    pcb: any = None,
+    enable_topological_ordering: bool = False
+) -> list[str]:
     """
     Compute routing order for nets.
 
     Priority (highest to lowest):
     1. Power/HV/Critical nets (establish main arteries)
-    2. Historically problematic nets (route early before congestion)
-    3. Shortest paths first (easier to fit)
+    2. Topological Constraints (nested nets)
+    3. Heuristic Scores (pin density, area)
     """
+    from temper_placer.router_v6.analysis.topological_ordering import TopologicalOrderer
+    
+    nets_data = {}
+    if pcb:
+        # Extract pad centers for the orderer
+        pad_centers = _extract_pad_centers_per_net(pcb)
+        for net_name in channel_mapping.channel_paths.keys():
+            if net_name in pad_centers:
+                # Store (x, y) coordinates
+                nets_data[net_name] = [(p[0], p[1]) for p in pad_centers[net_name]]
+    
+    if enable_topological_ordering and pcb and nets_data:
+        print("  Using Topological Net Ordering...")
+        orderer = TopologicalOrderer()
+        
+        # 1. Automatic Constraint Detection (Nesting)
+        auto_deps = orderer.detect_topological_constraints(nets_data)
+        
+        # 2. Conflict Analysis (Intersections)
+        conflicts = orderer.detect_conflicts(nets_data)
+        
+        # 3. Compute final order
+        all_deps = auto_deps + conflicts
+        
+        # Get board centroid for radial priority
+        centroid = None
+        if hasattr(pcb, "board") and pcb.board:
+            bounds = pcb.board.get_bounds_array() # [xmin, ymin, xmax, ymax]
+            centroid = ((bounds[0] + bounds[2]) / 2.0, (bounds[1] + bounds[3]) / 2.0)
+            
+        order, sccs = orderer.compute_order(nets_data, dependencies=all_deps, board_centroid=centroid)
+        
+        if sccs:
+            print(f"  Warning: Found {len(sccs)} irreducible routing conflicts (SCCs)")
+            for i, scc in enumerate(sccs[:3]):
+                print(f"    SCC {i+1}: {', '.join(scc[:5])}...")
+                
+        # Fill in any nets missing from data (unconnected or single-pin)
+        missing = [n for n in channel_mapping.channel_paths.keys() if n not in order]
+        return order + missing
+        
+    # Standard Heuristic Fallback
     nets = list(channel_mapping.channel_paths.keys())
 
     # Nets that historically fail - give them priority
