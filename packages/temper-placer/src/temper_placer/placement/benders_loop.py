@@ -69,6 +69,7 @@ class BendersOptimizer:
         max_iterations: int = 20,
         time_limit_per_ilp_sec: float = 60.0,
         check_routability: bool = True,
+        pcb_file: str | Path | None = None,
         verbose: bool = True,
     ):
         """
@@ -79,12 +80,14 @@ class BendersOptimizer:
             max_iterations: Maximum Benders iterations
             time_limit_per_ilp_sec: Time limit for each ILP solve
             check_routability: Whether to check routability (set False for testing)
+            pcb_file: Optional path to KiCad PCB file for routability checking
             verbose: Print progress information
         """
         self.component_data_json = Path(component_data_json)
         self.max_iterations = max_iterations
         self.time_limit_per_ilp_sec = time_limit_per_ilp_sec
         self.check_routability = check_routability
+        self._pcb_file = Path(pcb_file) if pcb_file else None
         self.verbose = verbose
 
         # State
@@ -95,6 +98,7 @@ class BendersOptimizer:
         self._master_problem = None
         self._mapper = None
         self._cut_generator = None
+        self.design_rules = None  # Loaded from pipeline
 
         # Timing
         self._master_time_total = 0.0
@@ -344,15 +348,29 @@ class BendersOptimizer:
         Args:
             positions: New component positions {ref: (x, y)}
         """
-        # TODO: Implement PCB update
-        # This requires:
-        # 1. Load PCB file (KiCad format)
-        # 2. Update component positions
-        # 3. Save modified PCB
-        #
-        # For now, this is a placeholder
-        if self.verbose:
-            print(f"  (PCB update not implemented - using original positions)")
+        try:
+            from kiutils.board import Board as KiBoard
+            
+            # Load PCB
+            board = KiBoard.from_file(str(self._pcb_file))
+            
+            # Update component positions
+            for footprint in board.footprints:
+                if footprint.entryName in positions:
+                    new_x, new_y = positions[footprint.entryName]
+                    footprint.position.X = new_x
+                    footprint.position.Y = new_y
+            
+            # Save PCB
+            board.to_file(str(self._pcb_file))
+            
+            if self.verbose:
+                print(f"  Updated {len(positions)} component positions in PCB")
+                
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: PCB update failed: {e}")
+            # Continue anyway - Max-Flow can work with original positions
 
     def _run_router_pipeline(self):
         """
@@ -361,16 +379,34 @@ class BendersOptimizer:
         Returns:
             Tuple of (skeletons, widths, design_rules)
         """
-        # TODO: Implement router pipeline integration
-        # This requires:
-        # 1. Load PCB
-        # 2. Run Stage 2 of router_v6 pipeline
-        # 3. Extract skeletons and widths
-        #
-        # For now, return empty structures
-        if self.verbose:
-            print(f"  (Router pipeline not implemented - returning empty structures)")
-        return {}, {}, None
+        try:
+            from temper_placer.router_v6.pipeline import RouterV6Pipeline
+            
+            pipeline = RouterV6Pipeline(
+                verbose=False,
+                enable_routability_analysis=False,  # Don't run Max-Flow recursively!
+            )
+            
+            # Load board
+            pipeline.load_board(str(self._pcb_file))
+            
+            # Run Stage 2 to get channel skeletons and widths
+            stage2 = pipeline.run_stage_2()
+            
+            if self.verbose:
+                print(f"  Router pipeline complete: {len(stage2.skeletons)} layers")
+            
+            return (
+                stage2.skeletons,
+                stage2.channel_widths,
+                pipeline.design_rules
+            )
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: Router pipeline failed: {e}")
+            # Return empty structures - Max-Flow will gracefully fail
+            return {}, {}, None
 
     def _extract_nets_from_placement(self, positions: dict[str, tuple[float, float]]) -> dict:
         """
@@ -382,16 +418,44 @@ class BendersOptimizer:
         Returns:
             Dict of net_name -> {source, sink, allowed_layers}
         """
-        # TODO: Implement net extraction
-        # This requires:
-        # 1. Parse PCB netlist
-        # 2. Find terminal positions for each net
-        # 3. Determine allowed layers
-        #
-        # For now, return empty dict
-        if self.verbose:
-            print(f"  (Net extraction not implemented - returning empty nets)")
-        return {}
+        try:
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
+            
+            # Parse PCB to get netlist with pad positions
+            parse_result = parse_kicad_pcb(Path(self._pcb_file), normalize=False)
+            
+            nets_dict = {}
+            
+            # Extract terminal positions for each net
+            for net in parse_result.netlist.nets:
+                # Skip power nets and single-pin nets
+                if net.is_power or len(net.pins) < 2:
+                    continue
+                
+                # Get first two pads as source/sink (simplified)
+                # In a full implementation, would use better heuristics
+                pads_for_net = [
+                    pad for pad in parse_result.pads 
+                    if pad.net == net.name
+                ]
+                
+                if len(pads_for_net) >= 2:
+                    nets_dict[net.name] = {
+                        "source": pads_for_net[0].position,
+                        "sink": pads_for_net[1].position,
+                        "allowed_layers": ["F.Cu", "B.Cu"],  # Simplified
+                    }
+            
+            if self.verbose:
+                print(f"  Extracted {len(nets_dict)} nets for Max-Flow analysis")
+            
+            return nets_dict
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: Net extraction failed: {e}")
+            # Return empty dict
+            return {}
 
     def _build_result(
         self,
@@ -416,6 +480,8 @@ class BendersOptimizer:
 def run_benders_optimization(
     component_data_json: str | Path,
     max_iterations: int = 20,
+    pcb_file: str | Path | None = None,
+    check_routability: bool = True,
     verbose: bool = True,
 ) -> BendersResult:
     """
@@ -424,6 +490,8 @@ def run_benders_optimization(
     Args:
         component_data_json: Path to benders_input.json
         max_iterations: Maximum Benders iterations
+        pcb_file: Optional path to KiCad PCB file for routability checking
+        check_routability: Whether to check routability with Max-Flow
         verbose: Print progress
 
     Returns:
@@ -432,6 +500,8 @@ def run_benders_optimization(
     optimizer = BendersOptimizer(
         component_data_json=component_data_json,
         max_iterations=max_iterations,
+        check_routability=check_routability,
+        pcb_file=pcb_file,
         verbose=verbose,
     )
 
