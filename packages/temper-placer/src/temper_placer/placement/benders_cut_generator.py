@@ -128,14 +128,22 @@ class BendersCutGenerator:
         return cuts
 
     def generate_cuts_from_router_failures(
-        self, blocking_pairs: list[BlockingPair], iteration: int = 0
+        self, blocking_pairs: list[BlockingPair], iteration: int = 0,
+        max_cuts_per_iteration: int = 3, min_confidence: float = 0.5
     ) -> list[RoutabilityCut]:
         """
         Generate routability cuts from router failure analysis.
         
+        IMPROVED STRATEGY (Phase 5):
+        - Only high-confidence pairs (>0.5 default)
+        - Limit cuts per iteration (3 default)
+        - Use exact spacing when available (from enhanced diagnostics)
+        
         Args:
             blocking_pairs: List of component pairs identified as blocking routing
             iteration: Current Benders iteration number
+            max_cuts_per_iteration: Maximum cuts to generate (prevent infeasibility)
+            min_confidence: Minimum confidence threshold (0.0-1.0)
             
         Returns:
             List of RoutabilityCut objects
@@ -145,23 +153,34 @@ class BendersCutGenerator:
         if not blocking_pairs:
             return []
         
+        # Filter to high-confidence pairs only
+        high_confidence = [p for p in blocking_pairs if p.confidence >= min_confidence]
+        
+        if not high_confidence:
+            # Fall back to lower threshold if no high-confidence pairs
+            high_confidence = [p for p in blocking_pairs if p.confidence >= 0.3]
+        
+        # Sort by confidence (highest first)
+        high_confidence.sort(key=lambda p: p.confidence, reverse=True)
+        
+        # Limit number of cuts
+        selected = high_confidence[:max_cuts_per_iteration]
+        
         cuts = []
         
-        for pair in blocking_pairs:
-            # For router failures, we don't know the exact direction,
-            # so we add both horizontal and vertical cuts with the same spacing
-            # The ILP will enforce whichever is binding
-            
+        for pair in selected:
             # Use the required spacing from the BlockingPair
-            # Add 20% safety margin
-            gap = pair.required_spacing * 1.2
+            # For high-confidence pairs from enhanced diagnostics, this is precise
+            # For heuristic pairs, add safety margin
+            if pair.confidence >= 0.8:
+                # High confidence - use exact spacing
+                gap = pair.required_spacing
+            else:
+                # Lower confidence - add safety margin
+                gap = pair.required_spacing * 1.2
             
             # Clamp to reasonable range
             gap = min(max(gap, self.min_gap_mm), self.max_gap_mm)
-            
-            # Weight by confidence - only add cuts for high-confidence pairs
-            if pair.confidence < 0.2:
-                continue
             
             # Add horizontal cut
             cuts.append(

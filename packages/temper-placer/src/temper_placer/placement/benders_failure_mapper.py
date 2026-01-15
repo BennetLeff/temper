@@ -25,11 +25,15 @@ def map_failures_to_components(
     """
     Map routing failures to component pairs that need more spacing.
     
+    ENHANCED STRATEGY (Phase 5):
+    - Use precise diagnostics when available (blocking_components, suggested_spacing_mm)
+    - Fall back to heuristics for legacy failures
+    - Prioritize high-confidence data from router
+    
     Strategy:
-    1. For each failed net, find components with pads on that net
-    2. Find components in/near the congestion region
-    3. Identify pairs that are too close
-    4. Assign confidence scores based on evidence
+    1. Check if failure has enhanced diagnostics (blocking_components, suggested_spacing_mm)
+    2. If yes: Use precise data with high confidence
+    3. If no: Fall back to heuristics (proximity, blocking nets, topology)
     
     Args:
         failures: List of routing failure reports from router
@@ -43,6 +47,53 @@ def map_failures_to_components(
     blocking_pairs = []
     
     for failure in failures:
+        # ENHANCED: Check if router provided precise diagnostics
+        if failure.blocking_components and failure.suggested_spacing_mm and failure.confidence > 0:
+            if verbose:
+                print(f"\n🎯 Using PRECISE diagnostics for {failure.net_name}")
+                print(f"   Blocking: {failure.blocking_components}")
+                print(f"   Suggested spacing: {failure.suggested_spacing_mm}mm")
+                print(f"   Confidence: {failure.confidence:.0%}")
+            
+            # Get components on this net
+            net_components = set()
+            for net in pcb.nets:
+                if net.name == failure.net_name:
+                    for ref, pin in net.pins:
+                        net_components.add(ref)
+                    break
+            
+            # Create pairs between net components and blocking components
+            for net_comp in net_components:
+                for blocking_comp in failure.blocking_components:
+                    if net_comp == blocking_comp:
+                        continue
+                    
+                    pos_a = component_positions.get(net_comp)
+                    pos_b = component_positions.get(blocking_comp)
+                    
+                    if not pos_a or not pos_b:
+                        continue
+                    
+                    distance = math.sqrt(
+                        (pos_a[0] - pos_b[0]) ** 2 + (pos_a[1] - pos_b[1]) ** 2
+                    )
+                    
+                    blocking_pairs.append(
+                        BlockingPair(
+                            component_a=net_comp,
+                            component_b=blocking_comp,
+                            failed_net=failure.net_name,
+                            current_spacing=distance,
+                            required_spacing=distance + failure.suggested_spacing_mm,
+                            confidence=failure.confidence,  # Use router's confidence
+                            reason="router_precise_diagnostics",
+                        )
+                    )
+            
+            continue  # Skip heuristics for this failure
+        
+        # FALLBACK: Use heuristics for legacy failures
         if verbose:
             print(f"\n🔍 Analyzing failure: {failure.net_name}")
             print(f"   Reason: {failure.failure_reason}")
