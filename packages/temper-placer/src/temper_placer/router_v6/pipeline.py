@@ -392,8 +392,7 @@ class RouterV6Pipeline:
                 max_trace_width = nc_rules.trace_width_mm
 
         # Increase C-space inflation for better clearance
-        # Original: (trace_width/2 + clearance) = 0.125 + 0.2 = 0.325mm
-        # New: Add extra margin for routing safety
+        # C-space inflation: trace_width/2 + clearance + safety margin
         base_inflation = (max_trace_width / 2.0) + max_clearance + 0.1  # Extra 0.1mm margin
 
         if self.verbose:
