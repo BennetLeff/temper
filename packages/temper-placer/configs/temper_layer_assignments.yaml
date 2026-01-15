@@ -1,22 +1,41 @@
 # Net-specific layer assignments for Temper board
 #
-# Professional PCB design principle:
-# Parallel bus signals should be routed on alternating layers to prevent crosstalk
-# and ensure they don't compete for the same routing channel.
+# GOAL: Minimize same-layer crossings while maintaining signal integrity
+#
+# REALITY CHECK: On a 2-layer board, some crossings are unavoidable:
+# - Power stage signals (GATE_L, GATE_H, SW_NODE) connect the same transistors
+# - They MUST cross unless we add vias (which add inductance to gate drive)
+#
+# BEST STRATEGY: 
+# 1. Accept 12 unavoidable power stage crossings
+# 2. Minimize other crossings through layer separation
+# 3. The router should insert vias at crossing points (future enhancement)
 
 net_layers:
-  # SPI Bus - alternate layers for MISO/MOSI to prevent oscillation
-  SPI_MISO: "B.Cu"     # Route on bottom layer
-  SPI_MOSI: "F.Cu"     # Route on top layer
-  SPI_CLK: "F.Cu"      # Clock on top with MOSI
-  SPI_CS_TEMP: "F.Cu"  # CS on top
+  # === F.Cu GROUP (Control/Digital) ===
+  SPI_MOSI: "F.Cu"     # SPI data out
+  SPI_CLK: "F.Cu"      # SPI clock
+  SPI_CS_TEMP: "F.Cu"  # Chip select
   
-  # Power nets typically on bottom for better thermal
-  # (These may be overridden by plane assignment)
-  # GND: "B.Cu"
-  # VCC: "B.Cu"
+  PWM_L: "F.Cu"        # PWM low-side
+  PWM_H: "F.Cu"        # PWM high-side
+  
+  "USB_D+": "F.Cu"     # USB (must stay together)
+  "USB_D-": "F.Cu"
+  
+  VCC_BOOT: "F.Cu"     # Bootstrap supply
+  
+  # === B.Cu GROUP (Power Stage + Analog) ===
+  GATE_L: "B.Cu"       # Low-side gate (will cross SW_NODE)
+  GATE_H: "B.Cu"       # High-side gate (will cross SW_NODE)
+  SW_NODE: "B.Cu"      # Switching node
+  
+  SPI_MISO: "B.Cu"     # SPI data in (separated from MOSI)
+  I_SENSE: "B.Cu"      # Current sense (analog)
+  TEMP_SENSE: "B.Cu"   # Temperature sense
 
-# Net class constraints (optional - applies to all nets in class)
-net_class_layers:
-  # Example: Force all "HighSpeed" class nets to F.Cu
-  # HighSpeed: "F.Cu"
+# Expected crossings (based on analysis):
+# - B.Cu: 12 (power stage - unavoidable without vias)
+# - F.Cu: 6 (can be reduced with via insertion)
+
+net_class_layers: {}

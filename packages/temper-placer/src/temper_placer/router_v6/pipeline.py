@@ -391,7 +391,10 @@ class RouterV6Pipeline:
             if nc_rules.trace_width_mm > max_trace_width:
                 max_trace_width = nc_rules.trace_width_mm
 
-        base_inflation = (max_trace_width / 2.0) + max_clearance
+        # Increase C-space inflation for better clearance
+        # Original: (trace_width/2 + clearance) = 0.125 + 0.2 = 0.325mm
+        # New: Add extra margin for routing safety
+        base_inflation = (max_trace_width / 2.0) + max_clearance + 0.1  # Extra 0.1mm margin
 
         if self.verbose:
             print(f"    Using max clearance: {max_clearance}mm for C-Space inflation")
