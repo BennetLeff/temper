@@ -649,12 +649,16 @@ class BendersOptimizer:
             router_time = time.time() - router_start
             self._router_time_total += router_time
             
+            # Extract PathfindingResult from Stage4Output
+            pathfinding_result = result.stage4.pathfinding_result
+            
             if self.verbose:
-                success = result.stage4.success_count if hasattr(result.stage4, 'success_count') else len(result.stage4.routed_paths)
-                total = success + (result.stage4.failure_count if hasattr(result.stage4, 'failure_count') else len(result.stage4.failed_nets))
+                success = pathfinding_result.success_count if hasattr(pathfinding_result, 'success_count') else len(pathfinding_result.routed_paths)
+                failed = pathfinding_result.failure_count if hasattr(pathfinding_result, 'failure_count') else len(pathfinding_result.failed_nets)
+                total = success + failed
                 print(f"  Router: {success}/{total} nets routed ({router_time:.1f}s)")
             
-            return result.stage4  # PathfindingResult
+            return pathfinding_result  # PathfindingResult
             
         except Exception as e:
             if self.verbose:
