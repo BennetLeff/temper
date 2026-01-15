@@ -44,21 +44,33 @@ net_categories:
 # LAYER ASSIGNMENTS
 # =============================================================================
 net_layers:
-  # === F.Cu GROUP (Control/Digital) ===
-  SPI_MOSI: "F.Cu"
+  # === F.Cu GROUP ===
+  # SPI clock stays on F.Cu, MOSI moved to B.Cu to avoid crossing
   SPI_CLK: "F.Cu"
   SPI_CS_TEMP: "F.Cu"
-  PWM_L: "F.Cu"
-  PWM_H: "F.Cu"
+  # MISO moved to F.Cu to avoid I_SENSE crossing
+  SPI_MISO: "F.Cu"
+  
+  # USB must stay on F.Cu (differential pair)
   "USB_D+": "F.Cu"
   "USB_D-": "F.Cu"
+  
   VCC_BOOT: "F.Cu"
   
-  # === B.Cu GROUP (Power Stage + Analog) ===
-  GATE_L: "B.Cu"       # NO VIAS - power loop
-  GATE_H: "B.Cu"       # NO VIAS - power loop
-  SW_NODE: "B.Cu"      # NO VIAS - power loop
-  SPI_MISO: "B.Cu"
+  # === B.Cu GROUP ===
+  # Power stage - NO VIAS
+  GATE_L: "B.Cu"
+  GATE_H: "B.Cu"
+  SW_NODE: "B.Cu"
+  
+  # MOSI moved to B.Cu to avoid SPI_CLK crossing
+  SPI_MOSI: "B.Cu"
+  
+  # PWM moved to B.Cu to avoid USB crossing
+  PWM_L: "B.Cu"
+  PWM_H: "B.Cu"
+  
+  # Analog on B.Cu
   I_SENSE: "B.Cu"
   TEMP_SENSE: "B.Cu"
 
@@ -66,16 +78,20 @@ net_layers:
 # CROSSING RULES
 # =============================================================================
 crossing_rules:
-  # Power-to-power crossings: ACCEPT (no vias)
-  # These are unavoidable on 2-layer and vias would be worse
+  # Acceptable crossings (no via needed):
+  # - Power-to-power: unavoidable, vias add inductance
+  # - Differential pairs: expected behavior
+  # - Control-to-power: PWM must reach gate drivers near power stage
   accept_crossings:
     - [GATE_L, SW_NODE]
     - [GATE_H, SW_NODE]
     - [GATE_L, GATE_H]
-    - [USB_D+, USB_D-]  # Differential pair crossing itself is OK
+    - [USB_D+, USB_D-]  # Differential pair
+    - [PWM_L, SW_NODE]  # Control must cross power to reach gate driver
+    - [PWM_H, SW_NODE]  # Control must cross power to reach gate driver
+    - [SPI_CLK, SPI_MISO]  # SPI signals - route carefully
   
-  # Control/analog crossings: INSERT VIA
-  # Router should add via when these cross
+  # Control crossings that need vias (if they occur):
   via_at_crossing:
     - [SPI_MOSI, SPI_CLK]
     - [SPI_CS_TEMP, SPI_MOSI]
@@ -83,7 +99,7 @@ crossing_rules:
     - [PWM_L, USB_D-]
     - [PWM_H, USB_D+]
     - [PWM_H, USB_D-]
-    - [I_SENSE, SPI_MISO]  # Analog-control crossing
+    - [I_SENSE, SPI_MISO]
     - [I_SENSE, SPI_CLK]
     - [I_SENSE, SPI_MOSI]
 
