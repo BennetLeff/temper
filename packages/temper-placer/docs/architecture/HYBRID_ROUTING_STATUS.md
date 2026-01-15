@@ -1,12 +1,42 @@
-# Hybrid Routing Status - Incomplete
+# Hybrid Routing Status - Working with Limitations
 
 ## Summary
 
-Attempted to implement hybrid routing (sequential + negotiated) to resolve SPI net oscillation. **Oscillation detection works perfectly, but infinite loop bug prevents completion.**
+Implemented smart oscillation handling that prevents infinite loops while maintaining 88.2% routing success. The NegotiatedRouter integration is ready but disabled due to grid blocking issues.
 
 ---
 
-## What Was Implemented
+## Current Results
+
+- **Routing Success**: 15/17 (88.2%)
+- **Infinite Loop**: FIXED
+- **Competing Nets**: SPI_MOSI, SPI_MISO (correctly identified)
+
+---
+
+## What Works
+
+### ✅ Smart Oscillation Handling (FINAL SOLUTION)
+
+**Key insight**: The smarter way to deal with oscillations is NOT to stop all rip-ups immediately, but to use **per-net limits**:
+
+```python
+# Per-net rip-up limit (in attempt_route)
+if ripup_counts.get(ripped_name, 0) >= 3:
+    continue  # Don't rip up - let it stay
+
+# Per-pair oscillation detection  
+if oscillation_tracker[pair_key] >= 3:
+    competing_nets.add(net_name)
+    competing_nets.add(ripped_name)
+    continue  # Don't rip up competing nets
+
+# Per-net reroute limit (in reroute queue)
+if net_reroute_counts[net_name] > 3:
+    # Mark as failed, don't reroute
+```
+
+This allows nets to negotiate for space (up to 3 times each) before giving up, preventing infinite loops while maximizing routing success.
 
 ### ✅ Phase 1: Oscillation Detection
 
