@@ -41,6 +41,23 @@ class DRCResult:
     date: str
     kicad_version: str
     
+    # Violation categories
+    ACTIONABLE_TYPES = {
+        "tracks_crossing",
+        "clearance",
+        "unconnected_items",
+        "short",
+        "track_dangling",
+        "copper_edge_clearance",
+    }
+    
+    COSMETIC_TYPES = {
+        "lib_footprint_issues",
+        "silk_over_copper",
+        "silk_overlap",
+        "courtyards_overlap",
+    }
+    
     @property
     def error_count(self) -> int:
         return sum(1 for v in self.violations if v.is_error)
@@ -56,6 +73,26 @@ class DRCResult:
     @property
     def is_clean(self) -> bool:
         return self.error_count == 0
+    
+    @property
+    def actionable_violations(self) -> list[DRCViolation]:
+        """Get violations that can be fixed by placement changes."""
+        return [v for v in self.violations if v.type in self.ACTIONABLE_TYPES]
+    
+    @property
+    def cosmetic_violations(self) -> list[DRCViolation]:
+        """Get cosmetic violations (footprint issues, silkscreen, etc.)."""
+        return [v for v in self.violations if v.type in self.COSMETIC_TYPES]
+    
+    @property
+    def actionable_error_count(self) -> int:
+        """Count of actionable errors (can be fixed by placement)."""
+        return sum(1 for v in self.actionable_violations if v.is_error)
+    
+    @property
+    def is_actionable_clean(self) -> bool:
+        """Check if all actionable violations are resolved."""
+        return self.actionable_error_count == 0
     
     def violations_by_type(self) -> dict[str, int]:
         """Count violations by type."""

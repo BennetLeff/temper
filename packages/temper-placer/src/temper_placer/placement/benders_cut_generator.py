@@ -1,8 +1,8 @@
 """
 Benders Cut Generator.
 
-Converts blocking components (from min-cut analysis) into routability cuts
-for the ILP Master Problem.
+Converts blocking components (from min-cut analysis) and router failures
+into routability cuts for the ILP Master Problem.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.placement.benders_mincut_mapper import BlockingComponent
+    from temper_placer.placement.router_failure_types import BlockingPair
 
 from temper_placer.placement.benders_mincut_mapper import CutDirection
 
@@ -124,6 +125,64 @@ class BendersCutGenerator:
             v_cuts = self._generate_direction_cuts(vertical_blockers, CutType.VERTICAL)
             cuts.extend(v_cuts)
 
+        return cuts
+
+    def generate_cuts_from_router_failures(
+        self, blocking_pairs: list[BlockingPair], iteration: int = 0
+    ) -> list[RoutabilityCut]:
+        """
+        Generate routability cuts from router failure analysis.
+        
+        Args:
+            blocking_pairs: List of component pairs identified as blocking routing
+            iteration: Current Benders iteration number
+            
+        Returns:
+            List of RoutabilityCut objects
+        """
+        self._iteration = iteration
+        
+        if not blocking_pairs:
+            return []
+        
+        cuts = []
+        
+        for pair in blocking_pairs:
+            # For router failures, we don't know the exact direction,
+            # so we add both horizontal and vertical cuts with the same spacing
+            # The ILP will enforce whichever is binding
+            
+            # Use the required spacing from the BlockingPair
+            # Add 20% safety margin
+            gap = pair.required_spacing * 1.2
+            
+            # Clamp to reasonable range
+            gap = min(max(gap, self.min_gap_mm), self.max_gap_mm)
+            
+            # Weight by confidence - only add cuts for high-confidence pairs
+            if pair.confidence < 0.2:
+                continue
+            
+            # Add horizontal cut
+            cuts.append(
+                RoutabilityCut(
+                    cut_type=CutType.HORIZONTAL,
+                    component_pair=(pair.component_a, pair.component_b),
+                    gap_required=gap,
+                    iteration=self._iteration,
+                )
+            )
+            
+            # Add vertical cut
+            cuts.append(
+                RoutabilityCut(
+                    cut_type=CutType.VERTICAL,
+                    component_pair=(pair.component_a, pair.component_b),
+                    gap_required=gap,
+                    iteration=self._iteration,
+                )
+            )
+        
         return cuts
 
     def _generate_direction_cuts(

@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from temper_placer.placement.benders_cut_generator import RoutabilityCut
@@ -41,6 +41,8 @@ class BendersResult:
         solve_time_sec: Total optimization time
         master_problem_time: Time spent in ILP solver
         routability_check_time: Time spent in Max-Flow analysis
+        router_result: Router result (if use_router_feedback=True)
+        drc_result: DRC result (if require_drc_clean=True)
     """
 
     status: BendersStatus
@@ -51,6 +53,8 @@ class BendersResult:
     solve_time_sec: float
     master_problem_time: float = 0.0
     routability_check_time: float = 0.0
+    router_result: Any = None  # PathfindingResult
+    drc_result: Any = None  # DRCResult
 
 
 class BendersOptimizer:
@@ -71,7 +75,9 @@ class BendersOptimizer:
         check_routability: bool = True,
         pcb_file: str | Path | None = None,
         verbose: bool = True,
-        use_ultrafast_check: bool = True,  # NEW: Use ultra-fast heuristic check
+        use_ultrafast_check: bool = True,  # Use ultra-fast heuristic check
+        use_router_feedback: bool = False,  # NEW: Use actual router for feedback
+        require_drc_clean: bool = False,  # NEW: Require DRC clean output
     ):
         """
         Initialize the Benders optimizer.
@@ -85,6 +91,8 @@ class BendersOptimizer:
             verbose: Print progress information
             use_ultrafast_check: If True, use ultra-fast heuristic check (<1s).
                                  If False, use full Max-Flow analysis (~60s).
+            use_router_feedback: If True, run actual router and use failures for cuts.
+            require_drc_clean: If True, iterate until DRC is clean (actionable errors only).
         """
         self.component_data_json = Path(component_data_json)
         self.max_iterations = max_iterations
@@ -93,6 +101,8 @@ class BendersOptimizer:
         self._pcb_file = Path(pcb_file) if pcb_file else None
         self.verbose = verbose
         self.use_ultrafast_check = use_ultrafast_check
+        self.use_router_feedback = use_router_feedback
+        self.require_drc_clean = require_drc_clean
 
         # State
         self.current_iteration = 0
@@ -107,6 +117,8 @@ class BendersOptimizer:
         # Timing
         self._master_time_total = 0.0
         self._routability_time_total = 0.0
+        self._router_time_total = 0.0
+        self._drc_time_total = 0.0
 
     def optimize(self) -> BendersResult:
         """
@@ -159,35 +171,106 @@ class BendersOptimizer:
                         time.time() - start_time,
                     )
 
-                # Step 2: Check routability with Max-Flow
-                is_routable, min_cut_edges = self._check_routability(master_result.positions)
-
-                if is_routable:
+                # Step 2: Check routability
+                cuts = []
+                
+                if self.use_router_feedback:
+                    # Use actual router for feedback
                     if self.verbose:
-                        print("✓ Placement is routable!")
-                    return self._build_result(
-                        BendersStatus.OPTIMAL,
-                        master_result.positions,
-                        master_result.objective_value,
-                        time.time() - start_time,
-                    )
+                        print("  Running actual router...")
+                    
+                    # Update PCB with new placement
+                    self._update_pcb_with_placement(master_result.positions)
+                    
+                    # Run router
+                    router_result = self._run_actual_router(master_result.positions)
+                    
+                    if router_result and router_result.failure_count == 0:
+                        # All nets routed successfully
+                        if self.require_drc_clean:
+                            # Gate 2: Check DRC
+                            if self.verbose:
+                                print("  ✓ All nets routed. Checking DRC...")
+                            
+                            drc_result = self._run_drc_check(self._pcb_file)
+                            
+                            if drc_result and drc_result.actionable_error_count == 0:
+                                if self.verbose:
+                                    print("  ✓ DRC clean!")
+                                return self._build_result(
+                                    BendersStatus.OPTIMAL,
+                                    master_result.positions,
+                                    master_result.objective_value,
+                                    time.time() - start_time,
+                                    router_result=router_result,
+                                    drc_result=drc_result,
+                                )
+                            else:
+                                # Generate cuts from DRC violations
+                                if self.verbose:
+                                    print(f"  ✗ DRC has {drc_result.actionable_error_count} actionable errors")
+                                
+                                from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+                                pcb = parse_kicad_pcb_v6(self._pcb_file)
+                                
+                                drc_cuts = self._generate_cuts_from_drc_violations(
+                                    drc_result, pcb, master_result.positions
+                                )
+                                cuts.extend(drc_cuts)
+                        else:
+                            # Success - all nets routed
+                            if self.verbose:
+                                print("  ✓ All nets routed!")
+                            return self._build_result(
+                                BendersStatus.OPTIMAL,
+                                master_result.positions,
+                                master_result.objective_value,
+                                time.time() - start_time,
+                                router_result=router_result,
+                            )
+                    else:
+                        # Router failures - generate cuts
+                        if self.verbose:
+                            failed = router_result.failure_count if router_result else "unknown"
+                            print(f"  ✗ Router failed: {failed} nets")
+                        
+                        from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+                        pcb = parse_kicad_pcb_v6(self._pcb_file)
+                        
+                        router_cuts = self._generate_cuts_from_router_failures(
+                            router_result, pcb, master_result.positions
+                        )
+                        cuts.extend(router_cuts)
+                else:
+                    # Use Max-Flow or ultra-fast heuristic
+                    is_routable, min_cut_edges = self._check_routability(master_result.positions)
 
-                # Step 3: Generate cuts from min-cut
-                if self.verbose:
-                    print(f"✗ Placement not routable. Min-cut has {len(min_cut_edges)} edges")
+                    if is_routable:
+                        if self.verbose:
+                            print("✓ Placement is routable!")
+                        return self._build_result(
+                            BendersStatus.OPTIMAL,
+                            master_result.positions,
+                            master_result.objective_value,
+                            time.time() - start_time,
+                        )
 
-                cuts = self._generate_cuts_from_mincut(min_cut_edges)
+                    # Generate cuts from min-cut
+                    if self.verbose:
+                        print(f"✗ Placement not routable. Min-cut has {len(min_cut_edges)} edges")
 
+                    mincut_cuts = self._generate_cuts_from_mincut(min_cut_edges)
+                    cuts.extend(mincut_cuts)
+
+                # Step 3: Add cuts to Master Problem
                 if not cuts:
                     if self.verbose:
-                        print("Warning: No cuts generated from min-cut")
-                    # Continue anyway, might converge on next iteration
+                        print("Warning: No cuts generated")
                     continue
 
                 if self.verbose:
                     print(f"Generated {len(cuts)} routability cuts")
 
-                # Step 4: Add cuts to Master Problem
                 for cut in cuts:
                     self._add_cut(cut)
 
@@ -197,11 +280,25 @@ class BendersOptimizer:
 
             # Return best placement found so far
             final_master = self._solve_master_problem()
+            
+            # Run final router/DRC if requested
+            final_router_result = None
+            final_drc_result = None
+            
+            if self.use_router_feedback:
+                self._update_pcb_with_placement(final_master.positions)
+                final_router_result = self._run_actual_router(final_master.positions)
+                
+                if self.require_drc_clean and final_router_result:
+                    final_drc_result = self._run_drc_check(self._pcb_file)
+            
             return self._build_result(
                 BendersStatus.MAX_ITERATIONS,
                 final_master.positions,
                 final_master.objective_value,
                 time.time() - start_time,
+                router_result=final_router_result,
+                drc_result=final_drc_result,
             )
 
         except Exception as e:
@@ -532,12 +629,159 @@ class BendersOptimizer:
             # Return empty dict
             return {}
 
+    def _run_actual_router(self, positions: dict[str, tuple[float, float]]):
+        """
+        Run the actual Router V6 pipeline and return routing results.
+        
+        Returns:
+            PathfindingResult with success/failure information
+        """
+        import tempfile
+        import shutil
+        
+        router_start = time.time()
+        
+        try:
+            # Create temporary PCB with new placement
+            with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False) as tmp:
+                tmp_pcb = Path(tmp.name)
+            
+            shutil.copy(self._pcb_file, tmp_pcb)
+            self._update_pcb_with_placement(positions)
+            
+            # Run router
+            from temper_placer.router_v6.pipeline import RouterV6Pipeline
+            
+            pipeline = RouterV6Pipeline(verbose=self.verbose)
+            result = pipeline.run(tmp_pcb)
+            
+            router_time = time.time() - router_start
+            self._router_time_total += router_time
+            
+            if self.verbose:
+                print(f"  Router: {result.stage4.success_count}/{result.stage4.success_count + result.stage4.failure_count} nets routed ({router_time:.1f}s)")
+            
+            # Clean up
+            tmp_pcb.unlink(missing_ok=True)
+            
+            return result.stage4  # PathfindingResult
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  Router failed: {e}")
+            return None
+    
+    def _run_drc_check(self, pcb_file: Path):
+        """
+        Run KiCad DRC and return actionable violations.
+        
+        Returns:
+            DRCResult
+        """
+        drc_start = time.time()
+        
+        try:
+            from temper_placer.io.kicad_drc import run_drc
+            
+            result = run_drc(pcb_file, verbose=False)
+            
+            drc_time = time.time() - drc_start
+            self._drc_time_total += drc_time
+            
+            if self.verbose:
+                actionable = len(result.actionable_violations)
+                cosmetic = len(result.cosmetic_violations)
+                print(f"  DRC: {actionable} actionable, {cosmetic} cosmetic ({drc_time:.1f}s)")
+            
+            return result
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  DRC check failed: {e}")
+            return None
+    
+    def _generate_cuts_from_router_failures(self, router_result, pcb, positions):
+        """
+        Generate ILP cuts from router failures.
+        
+        Returns:
+            List of RoutabilityCut objects
+        """
+        try:
+            from temper_placer.placement.benders_failure_mapper import map_failures_to_components
+            
+            # Extract failure reports
+            if not router_result.failure_reports:
+                return []
+            
+            failures = list(router_result.failure_reports.values())
+            
+            # Map to blocking pairs
+            blocking_pairs = map_failures_to_components(
+                failures=failures,
+                pcb=pcb,
+                component_positions=positions,
+                verbose=self.verbose,
+            )
+            
+            # Generate cuts
+            cuts = self._cut_generator.generate_cuts_from_router_failures(
+                blocking_pairs=blocking_pairs,
+                iteration=self.current_iteration,
+            )
+            
+            return cuts
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: Failed to generate cuts from router failures: {e}")
+            return []
+    
+    def _generate_cuts_from_drc_violations(self, drc_result, pcb, positions):
+        """
+        Generate ILP cuts from DRC violations.
+        
+        Returns:
+            List of RoutabilityCut objects
+        """
+        try:
+            from temper_placer.placement.benders_drc_mapper import map_drc_violations_to_components
+            
+            # Get actionable violations only
+            violations = drc_result.actionable_violations
+            
+            if not violations:
+                return []
+            
+            # Map to blocking pairs
+            blocking_pairs = map_drc_violations_to_components(
+                violations=violations,
+                pcb=pcb,
+                component_positions=positions,
+                verbose=self.verbose,
+            )
+            
+            # Generate cuts
+            cuts = self._cut_generator.generate_cuts_from_router_failures(
+                blocking_pairs=blocking_pairs,
+                iteration=self.current_iteration,
+            )
+            
+            return cuts
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: Failed to generate cuts from DRC violations: {e}")
+            return []
+
     def _build_result(
         self,
         status: BendersStatus,
         positions: dict[str, tuple[float, float]],
         total_movement: float,
         total_time: float,
+        router_result=None,
+        drc_result=None,
     ) -> BendersResult:
         """Build a BendersResult object."""
         return BendersResult(
@@ -549,6 +793,8 @@ class BendersOptimizer:
             solve_time_sec=total_time,
             master_problem_time=self._master_time_total,
             routability_check_time=self._routability_time_total,
+            router_result=router_result,
+            drc_result=drc_result,
         )
 
 
