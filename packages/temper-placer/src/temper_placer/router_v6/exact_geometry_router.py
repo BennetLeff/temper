@@ -210,18 +210,42 @@ class ExactGeometryRouter:
         trace_width: float,
         target_pads: list[tuple[float, float]] | None = None,
     ) -> list[Polygon]:
-        """Get inflated obstacles with escape zone handling for dense footprints.
+        """Get inflated obstacles with same-component handling.
         
-        Key insight: Pads on the same IC footprint (< 1mm apart) should have
-        ZERO inflation to allow routing to reach adjacent pins.
+        Key insight: Pads on the SAME COMPONENT as our target pads should NOT
+        be obstacles. We're routing from a pin on that IC - we can freely
+        pass near other pins on the same IC (just need clearance to our trace).
         """
         obstacles = []
         full_inflation = clearance + trace_width / 2
-        pad_radius = 0.4  # Typical pad radius in mm
         
         # Get target pad positions for escape zone calculation
         if target_pads is None:
             target_pads = self._net_pads.get(net_name, [])
+        
+        # Find which components have our target pads
+        target_components = set()
+        for net in self.pcb.nets:
+            if net.name == net_name:
+                for comp_ref, pin in net.pins:
+                    target_components.add(comp_ref)
+        
+        def is_on_same_component(pad_pos: tuple[float, float]) -> bool:
+            """Check if a pad position is on a component that has our target pads."""
+            for comp_ref in target_components:
+                comp = self._comp_by_ref.get(comp_ref)
+                if not comp:
+                    continue
+                for pin in comp.pins:
+                    pin_pos = (
+                        comp.initial_position[0] + pin.position[0],
+                        comp.initial_position[1] + pin.position[1]
+                    )
+                    # Check if this pad position matches
+                    dist = np.sqrt((pad_pos[0] - pin_pos[0])**2 + (pad_pos[1] - pin_pos[1])**2)
+                    if dist < 0.1:  # Same position (within tolerance)
+                        return True
+            return False
         
         def min_distance_to_targets(pos: tuple[float, float]) -> float:
             """Minimum distance from pos to any target pad."""
@@ -238,22 +262,21 @@ class ExactGeometryRouter:
                 if obs_net == net_name:
                     continue  # Skip same-net pads
                 
-                # Get centroid for distance calculation
                 centroid = (poly.centroid.x, poly.centroid.y)
+                
+                # SKIP pads that are on the same component as our target
+                # These are adjacent IC pins - we can route freely near them
+                if is_on_same_component(centroid):
+                    continue
+                
                 dist = min_distance_to_targets(centroid)
                 
-                # Tiered inflation based on distance to target pads:
-                # - Same footprint (< 1mm): NO inflation - just the pad itself
-                # - Close (1-3mm): Minimal inflation (clearance only)
-                # - Far (> 3mm): Full inflation
-                if dist < 1.0:
-                    # Same IC footprint - no inflation, let traces squeeze through
-                    inflation = 0.0
-                elif dist < 3.0:
-                    # Nearby - reduced inflation
+                # Tiered inflation:
+                # - Very close (< 2mm): Minimal inflation
+                # - Far (> 2mm): Full inflation
+                if dist < 2.0:
                     inflation = clearance * 0.5
                 else:
-                    # Far away - full inflation
                     inflation = full_inflation
                 
                 obstacles.append(poly.buffer(inflation))
