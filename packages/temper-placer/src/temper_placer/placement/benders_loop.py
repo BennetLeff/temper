@@ -387,19 +387,16 @@ class BendersOptimizer:
                 enable_routability_analysis=False,  # Don't run Max-Flow recursively!
             )
             
-            # Load board
-            pipeline.load_board(str(self._pcb_file))
-            
-            # Run Stage 2 to get channel skeletons and widths
-            stage2 = pipeline.run_stage_2()
+            # Run full pipeline (loads PCB, runs Stage 0-4)
+            result = pipeline.run(self._pcb_file)
             
             if self.verbose:
-                print(f"  Router pipeline complete: {len(stage2.skeletons)} layers")
+                print(f"  Router pipeline complete: {len(result.stage2.skeletons)} layers")
             
             return (
-                stage2.skeletons,
-                stage2.channel_widths,
-                pipeline.design_rules
+                result.stage2.skeletons,
+                result.stage2.channel_widths,
+                result.pcb.design_rules
             )
             
         except Exception as e:
@@ -428,8 +425,14 @@ class BendersOptimizer:
             
             # Extract terminal positions for each net
             for net in parse_result.netlist.nets:
+                # Skip power/ground nets (heuristic: name contains GND, VCC, VDD, VBUS, etc.)
+                is_power = any(
+                    keyword in net.name.upper()
+                    for keyword in ["GND", "VCC", "VDD", "VBUS", "+", "POWER"]
+                )
+                
                 # Skip power nets and single-pin nets
-                if net.is_power or len(net.pins) < 2:
+                if is_power or len(net.pins) < 2:
                     continue
                 
                 # Get first two pads as source/sink (simplified)
