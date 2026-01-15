@@ -386,7 +386,10 @@
       "VBOOT_H": "HighVoltageIsolated",
       "VBOOT_L": "HighVoltageIsolated",
       "GATE_H": "GateDrive",
-      "GATE_L": "GateDrive"
+      "GATE_L": "GateDrive",
+      "VCC_BOOT": "HighVoltageIsolated",
+      "CGND": "Ground",
+      "PGND": "Ground"
     },
     "netclass_patterns": [
       {

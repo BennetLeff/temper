@@ -16,15 +16,11 @@
     "DC_BUS-",
     "PE",
     "SWITCH_NODE",
-    "SW_NODE",
     "VBOOT_H",
     "VBOOT_L",
     "VCC_BOOT"
   ],
-  "unassigned_hv_nets": [
-    "SW_NODE",
-    "VCC_BOOT"
-  ],
+  "hv_nets_note": "All HV nets now have correct netclass assignments in temper.kicad_pro",
   "components": [
     {
       "ref": "J_AC_IN",

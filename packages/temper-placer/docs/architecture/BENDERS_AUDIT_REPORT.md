@@ -5,46 +5,48 @@
 
 ## Executive Summary
 
-A thorough audit of the Benders placement optimization requirements revealed several **critical issues** that must be addressed before implementation:
+A thorough audit of the Benders placement optimization requirements revealed several issues. **Most critical issues have been resolved:**
 
 | Category | Status | Issues Found |
 |----------|--------|--------------|
-| Component Positions | ⚠️ | Coordinate system needs clarification |
-| Net Assignments | ❌ | 6 unassigned nets (2 are HV-critical) |
-| Grouping Constraints | ❌ | 4 constraint violations in current placement |
-| Overlap Detection | ⚠️ | 5 apparent overlaps (may be coordinate issue) |
-| HV Classification | ❌ | SW_NODE and VCC_BOOT missing HV assignment |
+| Component Positions | ✅ | Coordinate system verified as center-based |
+| Net Assignments | ✅ | Fixed - VCC_BOOT, CGND, PGND added |
+| Grouping Constraints | ⚠️ | 2 constraint violations in current placement |
+| Overlap Detection | ✅ | 5 apparent overlaps verified as THT/SMD 3D-valid |
+| HV Classification | ✅ | SWITCH_NODE already assigned, VCC_BOOT fixed |
 
 ---
 
-## 1. Critical Issues
+## 1. Critical Issues (RESOLVED)
 
-### 1.1 Missing HV Net Assignments ❌
+### 1.1 Missing HV Net Assignments ✅ FIXED
 
-**Impact:** Router will use 0.2mm clearance instead of 3-6mm for high-voltage nets.
+**Original Issue:** VCC_BOOT was falling back to pattern matching (`VCC*` → Power) instead of HighVoltageIsolated.
 
-| Net | Should Be | Currently | Components Affected |
-|-----|-----------|-----------|---------------------|
-| **SW_NODE** | HighVoltage (3mm) | Default (0.2mm) | Q1, Q2, U_GATE, C_BOOT, J_COIL |
-| **VCC_BOOT** | HighVoltageIsolated (6mm) | Default (0.2mm) | U_GATE, C_BOOT |
+**Correction:** The audit originally flagged "SW_NODE" but the actual net name in KiCad is "SWITCH_NODE", which was already correctly assigned to HighVoltage.
 
-**Fix Required:** Add to `temper.kicad_pro`:
+| Net | Should Be | Status | Fix Applied |
+|-----|-----------|--------|-------------|
+| **SWITCH_NODE** | HighVoltage (3mm) | ✅ Already correct | N/A |
+| **VCC_BOOT** | HighVoltageIsolated (6mm) | ✅ Fixed | Added to temper.kicad_pro |
+
+**Fix Applied to `temper.kicad_pro`:**
 ```json
 "netclass_assignments": {
-    "SW_NODE": "HighVoltage",
     "VCC_BOOT": "HighVoltageIsolated",
-    ...
+    "CGND": "Ground",
+    "PGND": "Ground"
 }
 ```
 
-### 1.2 Other Unassigned Nets ⚠️
+### 1.2 Other Unassigned Nets ✅ FIXED
 
-| Net | Recommendation | Components |
-|-----|----------------|------------|
-| +5V | Power (0.5mm) | U_BUCK, U_LDO_3V3, U_LDO_5V, U_OPAMP_CT |
-| CGND | Ground (0.3mm) | U_GATE, C_VCC |
-| PGND | Ground (0.3mm) | C_BUS1, C_BUS2, U_GATE |
-| TEMP_SENSE | Default (0.2mm) | MAX31865, J_NTC |
+| Net | Recommendation | Status |
+|-----|----------------|--------|
+| +5V | Power (0.5mm) | ✅ Matched by pattern `+*V` |
+| CGND | Ground (0.3mm) | ✅ Fixed - added explicit assignment |
+| PGND | Ground (0.3mm) | ✅ Fixed - added explicit assignment |
+| TEMP_SENSE | Default (0.2mm) | ✅ OK - low-level analog, default is fine |
 
 ---
 
@@ -194,26 +196,37 @@ MCU-to-power-stage distances meet requirements:
 
 | Requirement | Previous | Current | Notes |
 |-------------|----------|---------|-------|
-| Component data extracted | ✅ | ⚠️ | Coordinate system unclear |
+| Component data extracted | ✅ | ✅ | Coordinate system verified as center-based |
 | Fixed components identified | ✅ | ✅ | 9 confirmed |
-| HV components identified | ✅ | ❌ | Missing SW_NODE, VCC_BOOT nets |
-| Grouping constraints defined | ✅ | ⚠️ | Some may need relaxation |
+| HV components identified | ✅ | ✅ | SWITCH_NODE OK, VCC_BOOT fixed |
+| Grouping constraints defined | ✅ | ⚠️ | MCU decoupling needs decision (5mm vs 8mm) |
 | Zone constraints defined | ✅ | ✅ | All verified |
-| Clearance rules verified | ✅ | ❌ | Missing HV net assignments |
-| Overlap detection | N/A | ⚠️ | Needs coordinate fix |
+| Clearance rules verified | ✅ | ✅ | VCC_BOOT, CGND, PGND added |
+| Overlap detection | N/A | ✅ | THT/SMD overlaps are 3D-valid |
 
 ---
 
 ## 8. Action Items
 
-| # | Action | Priority | Owner |
-|---|--------|----------|-------|
-| 1 | Add SW_NODE, VCC_BOOT to netclass assignments | Critical | User |
-| 2 | Verify coordinate system (center vs corner) | Critical | Claude |
-| 3 | Add +5V, CGND, PGND to netclass assignments | High | User |
-| 4 | Decide on MCU decoupling constraint (5mm vs 8mm) | Medium | User |
-| 5 | Add rotation handling to component extraction | Medium | Claude |
-| 6 | Extract net terminal positions | Medium | Claude |
+| # | Action | Priority | Owner | Status |
+|---|--------|----------|-------|--------|
+| 1 | ~~Add VCC_BOOT to netclass assignments~~ | ~~Critical~~ | ~~Claude~~ | ✅ Done |
+| 2 | ~~Verify coordinate system (center vs corner)~~ | ~~Critical~~ | ~~Claude~~ | ✅ Done |
+| 3 | ~~Add CGND, PGND to netclass assignments~~ | ~~High~~ | ~~Claude~~ | ✅ Done |
+| 4 | Decide on MCU decoupling constraint (5mm vs 8mm) | Medium | User | ⏳ Pending |
+| 5 | Add rotation handling to component extraction | Low | Claude | Optional |
+| 6 | Extract net terminal positions | Medium | Claude | Next task |
+
+---
+
+## 9. Next Steps
+
+With critical issues resolved, the implementation can proceed:
+
+1. **Install OR-Tools** - ILP solver for master problem
+2. **Implement min-cut → component mapping** - Needed for cut generation
+3. **Build basic ILP formulation** - Non-overlap, board bounds, fixed positions
+4. **Run Experiment B1** - Baseline feasibility (Max-Flow on current placement)
 
 ---
 
@@ -222,3 +235,4 @@ MCU-to-power-stage distances meet requirements:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-01-15 | Claude | Initial audit report |
+| 1.1 | 2026-01-15 | Claude | Fixed VCC_BOOT, CGND, PGND assignments; verified coordinate system |
