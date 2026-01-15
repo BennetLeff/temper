@@ -459,22 +459,19 @@ class RouterV6Pipeline:
             if self.verbose:
                 print("  2.9: Running Max-Flow Routability Analysis...")
             
-            # Use Top Layer (F.Cu) as primary indicator for routability
-            layer_name = "F.Cu" if "F.Cu" in skeletons else list(skeletons.keys())[0]
-            skeleton = skeletons[layer_name]
-            widths = channel_widths[layer_name]
+            analyzer = MaxFlowAnalyzer(skeletons, channel_widths, pcb.design_rules)
             
-            analyzer = MaxFlowAnalyzer(skeleton, widths, pcb.design_rules)
-            
-            # Map failed_nets to (source_pos, sink_pos) for analysis
-            # In a real run, it may look at ALL routable nets to check global feasibility
             demands = {}
             from temper_placer.router_v6.astar_pathfinding import _extract_pad_centers_per_net
             pad_centers = _extract_pad_centers_per_net(pcb)
             
             for net_name, pads in pad_centers.items():
                 if len(pads) >= 2:
-                    demands[net_name] = (pads[0], pads[-1])
+                    demands[net_name] = {
+                        "source": (pads[0][0], pads[0][1]),
+                        "sink": (pads[-1][0], pads[-1][1]),
+                        "allowed_layers": list(skeletons.keys())
+                    }
             
             if demands:
                 result = analyzer.compute_feasibility(demands)

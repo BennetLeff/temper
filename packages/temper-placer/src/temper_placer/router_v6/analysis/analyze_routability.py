@@ -65,14 +65,16 @@ def analyze_temper_routability(pcb_path: Path):
             obstacle_tree=obstacle_tree
         )
     
-    layer_name = "F.Cu" # Focus on Top layer
-    space = routing_spaces[layer_name]
-    
-    print(f"Extracting skeleton for {layer_name}...")
-    skeleton = extract_channel_skeleton(space, pcb=pcb)
-    
-    print(f"Computing channel widths...")
-    widths = compute_channel_widths(space, skeleton)
+    skeletons = {}
+    channel_widths = {}
+    for layer_name, space in routing_spaces.items():
+        print(f"Extracting skeleton for {layer_name}...")
+        skeleton = extract_channel_skeleton(space, pcb=pcb)
+        skeletons[layer_name] = skeleton
+        
+        print(f"Computing channel widths for {layer_name}...")
+        widths = compute_channel_widths(space, skeleton)
+        channel_widths[layer_name] = widths
     
     # 3. Define Net Demands
     failed_nets = [
@@ -92,28 +94,33 @@ def analyze_temper_routability(pcb_path: Path):
                     pads.append(abs_pos)
         
         if len(pads) >= 2:
-            net_demands[net_name] = (pads[0], pads[-1])
+            net_demands[net_name] = {
+                "source": (pads[0][0], pads[0][1]),
+                "sink": (pads[-1][0], pads[-1][1]),
+                "allowed_layers": list(skeletons.keys())
+            }
             
     print(f"Default Trace Width: {pcb.design_rules.default_trace_width_mm}mm")
     print(f"Default Clearance: {pcb.design_rules.default_clearance_mm}mm")
     
-    # Check for terminal collisions
-    print("\nChecking for terminal collisions...")
+    # Check for terminal collisions (Top layer as proxy)
+    print("\nChecking for terminal collisions (Top Layer)...")
     from shapely.geometry import Point
-    for net_name, (p1, p2) in net_demands.items():
-        pt1 = Point(p1)
-        pt2 = Point(p2)
-        if space.obstacles.contains(pt1):
-            print(f"  WARNING: {net_name} source {p1} is INSIDE an obstacle!")
-        if space.obstacles.contains(pt2):
-            print(f"  WARNING: {net_name} sink {p2} is INSIDE an obstacle!")
+    top_space = routing_spaces.get("F.Cu", list(routing_spaces.values())[0])
+    for net_name, data in net_demands.items():
+        p1 = data["source"]
+        p2 = data["sink"]
+        if top_space.obstacles.contains(Point(p1)):
+            print(f"  WARNING: {net_name} source {p1} is INSIDE Top Layer obstacle!")
+        if top_space.obstacles.contains(Point(p2)):
+            print(f"  WARNING: {net_name} sink {p2} is INSIDE Top Layer obstacle!")
             
-    print(f"\nAnalyzing {len(net_demands)} failed nets via Max-Flow...")
+    print(f"\nAnalyzing {len(net_demands)} failed nets via 3D Max-Flow...")
     
-    analyzer = MaxFlowAnalyzer(skeleton, widths, pcb.design_rules)
+    analyzer = MaxFlowAnalyzer(skeletons, channel_widths, pcb.design_rules)
     res_std = analyzer.compute_feasibility(net_demands)
     
-    print(f"Results for Standard (Default):")
+    print(f"Results for 3D Flow (All Signal Layers):")
     print(f"  Max Flow: {res_std.max_flow}")
     print(f"  Total Demand: {res_std.total_demand}")
     print(f"  Feasible? {res_std.is_feasible}")
@@ -122,35 +129,47 @@ def analyze_temper_routability(pcb_path: Path):
         for u, v, cap in res_std.min_cut_edges[:5]:
             print(f"    Edge {u} -> {v}, Capacity: {cap}")
             
-    # 5. Global Cut Analysis (Left to Right)
-    nodes_x = [n[0] for n in skeleton.graph.nodes()]
-    if nodes_x:
-        min_x, max_x = min(nodes_x), max(nodes_x)
-        
-        left_nodes = [n for n in skeleton.graph.nodes() if n[0] < min_x + 5.0]
-        right_nodes = [n for n in skeleton.graph.nodes() if n[0] > max_x - 5.0]
-        
-        print(f"\nAnalyzing Global Cut Capacity (X-direction):")
-        F_global = nx.DiGraph()
-        SOURCE = "L"
-        SINK = "R"
-        
-        pitch = pcb.design_rules.default_trace_width_mm + pcb.design_rules.default_clearance_mm
-        tw = pcb.design_rules.default_trace_width_mm
+    # 5. Global Cut Analysis (Left to Right) - Multi-layer
+    print(f"\nAnalyzing Global 3D Cut Capacity (X-direction):")
+    F_global = nx.DiGraph()
+    SOURCE = "GLOBAL_L"
+    SINK = "GLOBAL_R"
+    
+    pitch = pcb.design_rules.default_trace_width_mm + pcb.design_rules.default_clearance_mm
+    tw = pcb.design_rules.default_trace_width_mm
+    
+    # Combine all layers into one global flow graph
+    for layer_name, skeleton in skeletons.items():
+        widths = channel_widths[layer_name]
+        nodes_x = [n[0] for n in skeleton.graph.nodes()]
+        if not nodes_x: continue
+        min_lx, max_lx = min(nodes_x), max(nodes_x)
         
         for u, v in skeleton.graph.edges():
             w = widths.edge_widths.get((u, v), widths.edge_widths.get((v, u), 0.0))
             capacity = int((w - tw) // pitch) + 1 if w >= tw else 0
-            F_global.add_edge(u, v, capacity=capacity)
-            F_global.add_edge(v, u, capacity=capacity)
-            
-        for n in left_nodes:
-            F_global.add_edge(SOURCE, n, capacity=999)
-        for n in right_nodes:
-            F_global.add_edge(n, SINK, capacity=999)
-            
-        global_cut_val, _ = nx.minimum_cut(F_global, SOURCE, SINK)
-        print(f"  Max Flow (Left -> Right): {global_cut_val} traces")
+            F_global.add_edge((layer_name, u), (layer_name, v), capacity=capacity)
+            F_global.add_edge((layer_name, v), (layer_name, u), capacity=capacity)
+        
+        # Connect to global source/sink
+        for n in skeleton.graph.nodes():
+            if n[0] < min_lx + 5.0:
+                F_global.add_edge(SOURCE, (layer_name, n), capacity=999)
+            if n[0] > max_lx - 5.0:
+                F_global.add_edge((layer_name, n), SINK, capacity=999)
+    
+    # Add interlayer vias for global cut
+    layer_list = list(skeletons.keys())
+    for i in range(len(layer_list)-1):
+        l1, l2 = layer_list[i], layer_list[i+1]
+        for n1 in skeletons[l1].graph.nodes():
+            for n2 in skeletons[l2].graph.nodes():
+                if math.sqrt((n1[0]-n2[0])**2 + (n1[1]-n2[1])**2) < 0.2:
+                    F_global.add_edge((l1, n1), (l2, n2), capacity=100)
+                    F_global.add_edge((l2, n2), (l1, n1), capacity=100)
+    
+    global_cut_val, _ = nx.minimum_cut(F_global, SOURCE, SINK)
+    print(f"  Aggregate Max Flow (Left -> Right) across {len(skeletons)} layers: {global_cut_val} traces")
 
 if __name__ == "__main__":
     analyze_temper_routability(Path("pre_routed_v5.kicad_pcb"))
