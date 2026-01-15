@@ -292,26 +292,31 @@ class DiffPairRouter:
         return (0, 0)
 
     def _is_valid_pair(self, x, y, ori, half_pitch_mm):
-        # Convert half_pitch to cells
-        # Approximate
-        offset_cells = int(half_pitch_mm / self.grid.cell_size)
+        # Convert center position to world coordinates
+        wx, wy = self.grid.grid_to_world(x, y)
 
+        # Get direction vectors
         dx, dy = self._get_dir(ori)
-        # Perp (-dy, dx)
-        ox, oy = -dy, dx
+        # Perp (-dy, dx) for left, (dy, -dx) for right
+        lx, ly = -dy, dx  # Left
+        rx, ry = dy, -dx  # Right
 
-        # P position
-        px = x + ox * offset_cells
-        py = y + oy * offset_cells
+        # P position (left side) - use actual float positions
+        px = wx + lx * half_pitch_mm
+        py = wy + ly * half_pitch_mm
 
-        # N position
-        nx = x - ox * offset_cells
-        ny = y - oy * offset_cells
+        # N position (right side) - use actual float positions
+        nx = wx + rx * half_pitch_mm
+        ny = wy + ry * half_pitch_mm
 
-        # Check grid bounds and obstacles
-        if not self.grid.is_free(px, py):
+        # Convert to grid cells for free check
+        px_cell, py_cell = self.grid.world_to_grid(px, py)
+        nx_cell, ny_cell = self.grid.world_to_grid(nx, ny)
+
+        # Check grid bounds and obstacles at actual positions
+        if not self.grid.is_free(px_cell, py_cell):
             return False
-        if not self.grid.is_free(nx, ny):
+        if not self.grid.is_free(nx_cell, ny_cell):
             return False
 
         return True
