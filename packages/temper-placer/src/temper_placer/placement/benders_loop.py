@@ -636,39 +636,31 @@ class BendersOptimizer:
         Returns:
             PathfindingResult with success/failure information
         """
-        import tempfile
-        import shutil
-        
         router_start = time.time()
         
         try:
-            # Create temporary PCB with new placement
-            with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False) as tmp:
-                tmp_pcb = Path(tmp.name)
-            
-            shutil.copy(self._pcb_file, tmp_pcb)
-            self._update_pcb_with_placement(positions)
-            
-            # Run router
+            # PCB should already be updated by caller
+            # Just run the router
             from temper_placer.router_v6.pipeline import RouterV6Pipeline
             
             pipeline = RouterV6Pipeline(verbose=self.verbose)
-            result = pipeline.run(tmp_pcb)
+            result = pipeline.run(self._pcb_file)
             
             router_time = time.time() - router_start
             self._router_time_total += router_time
             
             if self.verbose:
-                print(f"  Router: {result.stage4.success_count}/{result.stage4.success_count + result.stage4.failure_count} nets routed ({router_time:.1f}s)")
-            
-            # Clean up
-            tmp_pcb.unlink(missing_ok=True)
+                success = result.stage4.success_count if hasattr(result.stage4, 'success_count') else len(result.stage4.routed_paths)
+                total = success + (result.stage4.failure_count if hasattr(result.stage4, 'failure_count') else len(result.stage4.failed_nets))
+                print(f"  Router: {success}/{total} nets routed ({router_time:.1f}s)")
             
             return result.stage4  # PathfindingResult
             
         except Exception as e:
             if self.verbose:
                 print(f"  Router failed: {e}")
+                import traceback
+                traceback.print_exc()
             return None
     
     def _run_drc_check(self, pcb_file: Path):
