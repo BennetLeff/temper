@@ -82,11 +82,18 @@ class RoutingFailureReport:
     """Detailed failure report for a net that failed to route."""
 
     net_name: str
-    failure_reason: str  # "congestion", "no_path", "rip_up_limit", "no_channel"
+    failure_reason: str  # "congestion", "no_path", "rip_up_limit", "no_channel", "channel_capacity_exceeded"
     blocking_nets: list[str]  # Which nets are blocking
     attempted_ripups: int
     congestion_region: tuple[float, float] | None  # Approximate (x, y) of stuck location
     pin_count: int = 0  # Number of pins in the net
+    
+    # Enhanced diagnostics for Benders cut generation
+    failed_at: tuple[float, float] | None = None  # Exact failure location (mm)
+    congested_channel: 'ChannelState | None' = None  # Channel that was full
+    suggested_spacing_mm: float | None = None  # Estimated spacing needed
+    blocking_components: list[str] | None = None  # Components to separate
+    confidence: float = 0.0  # Confidence in diagnosis (0.0-1.0)
 
 
 @dataclass
