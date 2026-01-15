@@ -75,38 +75,70 @@ class NegotiatedRouter:
             # Route all nets
             for net_name in nets:
                 # Route using current costs
-                # Note: We need to adapt _astar_route to NOT fail on overlap
-                # It calls _astar_search which calls is_free.
-                # We set negotiated_mode=True, so is_free returns True.
-                # So it will always find a path (if connectivity exists).
+                # Note: We set negotiated_mode=True, so is_free returns True.
+                # This allows routing through congested cells (with cost penalty).
 
-                # We need to manually update usage counts after routing
-                channel_path = channel_mapping.channel_paths[net_name]
-                grid = self.grids[channel_path.preferred_layer]
+                channel_path = channel_mapping.channel_paths.get(net_name)
+                if not channel_path:
+                    continue
+                
+                grid = self.grids.get(channel_path.preferred_layer)
+                if not grid:
+                    continue
+                
+                # Get net-specific design rules
+                net_rules = self.design_rules.get_rules_for_net(net_name)
 
-                # Unblock pads logic is tricky here.
-                # In PathFinder, pads are just nodes.
-                # We can reuse _unblock_net_pads but need to be careful not to break usage counting.
-
-                path = _astar_route(
-                    net_name,
-                    channel_path,
-                    grid,
-                    use_theta_star=True,  # Use Eager Theta* for accurate cost integration
-                    use_lazy_theta_star=False,
-                    heuristic_weight=heuristic_weight,
-                )
+                # Route with MST support (already integrated in _astar_route)
+                # Use multilayer if THT locations available
+                if tht_locations and len(self.grids) > 1:
+                    # Get alternate grid
+                    alt_layer = next((l for l in self.grids.keys() if l != channel_path.preferred_layer), None)
+                    alternate_grid = self.grids.get(alt_layer) if alt_layer else None
+                    
+                    path = _astar_route_multilayer(
+                        net_name,
+                        channel_path,
+                        grid,
+                        alternate_grid,
+                        tht_locations,
+                        use_theta_star=True,
+                        use_lazy_theta_star=False,
+                        net_id=1,  # Dummy ID for negotiation
+                    )
+                else:
+                    path = _astar_route(
+                        net_name,
+                        channel_path,
+                        grid,
+                        use_theta_star=True,  # Use Eager Theta* for accurate cost integration
+                        use_lazy_theta_star=False,
+                        heuristic_weight=heuristic_weight,
+                        net_id=1,
+                    )
 
                 if path:
                     routed_paths[net_name] = path
-                    # Update usage count
-                    grid.mark_path_blocked(
-                        path.coordinates,
-                        self.design_rules.default_trace_width_mm,
-                        self.design_rules.default_clearance_mm,
-                        net_id=1,  # Dummy ID, we just count usage
-                    )
-                    # Usage count is handled by mark_path_blocked now
+                    # Update usage count with net-specific rules
+                    if hasattr(path, 'coordinates'):
+                        # RoutePath
+                        grid.mark_path_blocked(
+                            path.coordinates,
+                            net_rules.trace_width_mm,
+                            net_rules.clearance_mm,
+                            net_id=1,  # Dummy ID, we just count usage
+                        )
+                    elif hasattr(path, 'segments'):
+                        # RoutePath3D - mark on appropriate grids
+                        for seg in path.segments:
+                            layer = seg[2] if len(seg) > 2 else channel_path.preferred_layer
+                            seg_grid = self.grids.get(layer, grid)
+                            seg_grid.mark_path_blocked(
+                                [(seg[0], seg[1])],
+                                net_rules.trace_width_mm,
+                                net_rules.clearance_mm,
+                                net_id=1,
+                            )
 
             # Check for congestion
             total_congestion = 0

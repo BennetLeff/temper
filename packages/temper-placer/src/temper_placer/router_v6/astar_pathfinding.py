@@ -104,6 +104,7 @@ class PathfindingResult:
     failed_nets: list[str]  # Nets that failed to route
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
     net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
+    competing_nets: set[str] | None = None  # Nets that oscillated and need negotiated routing
 
     @property
     def success_count(self) -> int:
@@ -466,6 +467,7 @@ def run_astar_pathfinding(
     use_lazy_theta_star: bool = False,
     hv_grids: dict[str, OccupancyGrid] | None = None,
     enable_topological_ordering: bool = False,
+    verbose: bool = False,
 ) -> PathfindingResult:
     # Build standard grids dictionary
     all_grids = {grid.layer_name: grid}
@@ -505,6 +507,10 @@ def run_astar_pathfinding(
     # Track ripup statistics per net
     ripup_counts: dict[str, int] = {}
     blocker_history: dict[str, set[str]] = {}
+    
+    # Track oscillation: (net_a, net_b) -> count of times they ripped each other
+    oscillation_tracker: dict[tuple[str, str], int] = {}
+    competing_nets: set[str] = set()  # Nets that need negotiated routing
 
     # Build THT pad locations once (for layer switching)
     tht_locations = set()
@@ -706,6 +712,19 @@ def run_astar_pathfinding(
                 if ripped_id in id_to_net:
                     ripped_name = id_to_net[ripped_id]
                     if ripped_name in routed_paths:
+                        # Track oscillation: net_name ripped up ripped_name
+                        pair_key = tuple(sorted([net_name, ripped_name]))
+                        oscillation_tracker[pair_key] = oscillation_tracker.get(pair_key, 0) + 1
+                        
+                        # Detect oscillation: if same pair rips each other 3+ times, mark for negotiation
+                        if oscillation_tracker[pair_key] >= 3:
+                            competing_nets.add(net_name)
+                            competing_nets.add(ripped_name)
+                            print(f"      ⚠️  Oscillation detected: {net_name} ↔ {ripped_name} ({oscillation_tracker[pair_key]} times)")
+                            print(f"         Marking both for negotiated routing, skipping further rip-ups")
+                            # Don't rip up or reroute - let negotiated router handle it
+                            continue
+                        
                         # Get net-specific rules for the ripped net
                         ripped_rules = design_rules.get_rules_for_net(ripped_name)
 
@@ -875,16 +894,47 @@ def run_astar_pathfinding(
             record_failure(net_name, reason, blockers, region)
 
     # Second pass: Reroute queue (iteratively)
-    # Reduce limit to prevent infinite oscillation. 2 passes should be enough.
-    max_reroute_attempts = len(routable_nets) * 2
+    # Limit reroute attempts to prevent oscillation
+    # With oscillation detection, we can be more aggressive but still need a cap
+    max_reroute_attempts = min(50, len(routable_nets) * 2)
     attempts = 0
+    max_iterations_per_net = 5  # Each net can be rerouted at most 5 times
 
+    net_reroute_counts = {}  # Track how many times each net has been rerouted
+    
     while reroute_queue and attempts < max_reroute_attempts:
         net_name = reroute_queue.pop(0)
+        
+        # Skip nets that are marked as competing (will be handled by negotiated router)
+        if net_name in competing_nets:
+            if net_name not in failed_nets:  # Only add once
+                failed_nets.append(net_name)
+                channel_path = channel_mapping.channel_paths.get(net_name)
+                region = None
+                if channel_path and channel_path.waypoints:
+                    mid_idx = len(channel_path.waypoints) // 2
+                    region = channel_path.waypoints[mid_idx]
+                record_failure(net_name, "oscillation_detected", [], region)
+            continue
+        
+        # Check if this net has been rerouted too many times
+        net_reroute_counts[net_name] = net_reroute_counts.get(net_name, 0) + 1
+        if net_reroute_counts[net_name] > max_iterations_per_net:
+            if net_name not in failed_nets:
+                failed_nets.append(net_name)
+                channel_path = channel_mapping.channel_paths.get(net_name)
+                region = None
+                if channel_path and channel_path.waypoints:
+                    mid_idx = len(channel_path.waypoints) // 2
+                    region = channel_path.waypoints[mid_idx]
+                record_failure(net_name, "rip_up_limit", [], region)
+            continue
+        
         attempts += 1
         success, reason, blockers, region = attempt_route(net_name, depth=1)
         if not success:
-            failed_nets.append(net_name)
+            if net_name not in failed_nets:
+                failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
 
     # Final cleanup: Record any nets left in queue as failures
@@ -898,11 +948,17 @@ def run_astar_pathfinding(
             region = channel_path.waypoints[mid_idx]
         record_failure(net_name, "rip_up_limit", [], region)
 
+    # Report competing nets if any were detected
+    if competing_nets and verbose:
+        print(f"\n⚠️  Detected {len(competing_nets)} competing nets that need negotiated routing:")
+        print(f"   {', '.join(sorted(competing_nets))}")
+    
     return PathfindingResult(
         routed_paths=routed_paths,
         failed_nets=list(set(failed_nets)),
         failure_reports=failure_reports,
         net_ids=net_ids,
+        competing_nets=competing_nets if competing_nets else None,
     )
 
 

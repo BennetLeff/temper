@@ -810,6 +810,51 @@ class RouterV6Pipeline:
                 enable_topological_ordering=self.enable_topological_ordering,
             )
 
+            # HYBRID ROUTING: If competing nets detected, use NegotiatedRouter
+            if pathfinding_result.competing_nets and len(pathfinding_result.competing_nets) > 0:
+                if self.verbose:
+                    print(f"\n  🔄 Hybrid Routing: Handing off {len(pathfinding_result.competing_nets)} competing nets to NegotiatedRouter...")
+                    print(f"     Competing nets: {', '.join(sorted(pathfinding_result.competing_nets))}")
+                
+                # Extract pad centers and THT locations
+                from temper_placer.router_v6.astar_pathfinding import (
+                    _extract_pad_centers_per_net,
+                    _build_tht_pad_locations,
+                )
+                pad_centers_per_net = _extract_pad_centers_per_net(pcb)
+                tht_locations = _build_tht_pad_locations(pcb)
+                
+                # Create NegotiatedRouter
+                negotiated_router = NegotiatedRouter(
+                    grids=stage2.occupancy_grids,
+                    design_rules=pcb.design_rules,
+                    max_iterations=30,
+                )
+                
+                # Route only the competing nets
+                competing_nets_list = list(pathfinding_result.competing_nets)
+                negotiated_paths = negotiated_router.route(
+                    nets=competing_nets_list,
+                    channel_mapping=channel_mapping,
+                    pad_centers=pad_centers_per_net,
+                    tht_locations=tht_locations,
+                )
+                
+                # Merge negotiated results
+                if negotiated_paths:
+                    if self.verbose:
+                        print(f"     ✓ NegotiatedRouter routed {len(negotiated_paths)}/{len(competing_nets_list)} competing nets")
+                    
+                    # Remove competing nets from failed list
+                    for net_name in negotiated_paths.keys():
+                        if net_name in pathfinding_result.failed_nets:
+                            pathfinding_result.failed_nets.remove(net_name)
+                        if net_name in pathfinding_result.failure_reports:
+                            del pathfinding_result.failure_reports[net_name]
+                    
+                    # Add negotiated paths to result
+                    pathfinding_result.routed_paths.update(negotiated_paths)
+
             # Merge Diff Pairs into result
             pathfinding_result.routed_paths.update(routed_paths_dp)
 
