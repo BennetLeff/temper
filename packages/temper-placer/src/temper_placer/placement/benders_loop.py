@@ -267,24 +267,41 @@ class BendersOptimizer:
         Returns:
             Tuple of (is_routable, min_cut_edges)
         """
-        # TODO: Integrate with MaxFlowAnalyzer
-        # For now, return mock result
-        # This requires:
-        # 1. Convert placement to PCB file or update existing PCB
-        # 2. Run router_v6 pipeline to get channel skeletons
-        # 3. Run MaxFlowAnalyzer.compute_feasibility()
+        try:
+            import time
 
-        # Mock implementation for testing
-        if not hasattr(self, "_mock_routability"):
-            self._mock_routability = True
+            start_time = time.time()
 
-        if self._mock_routability:
+            # 1. Update PCB with new positions (if PCB file available)
+            if hasattr(self, "_pcb_file") and self._pcb_file:
+                self._update_pcb_with_placement(positions)
+            
+            # 2. Run router pipeline to get channel skeletons
+            skeletons, widths, design_rules = self._run_router_pipeline()
+            
+            # 3. Extract nets from PCB
+            nets = self._extract_nets_from_placement(positions)
+            
+            # 4. Run Max-Flow analysis
+            from temper_placer.router_v6.analysis.max_flow import MaxFlowAnalyzer
+            
+            analyzer = MaxFlowAnalyzer(skeletons, widths, design_rules)
+            result = analyzer.compute_feasibility(nets)
+            
+            self._routability_time_total += time.time() - start_time
+            
+            return result.is_feasible, result.min_cut_edges
+            
+        except ImportError as e:
+            if self.verbose:
+                print(f"Warning: Max-Flow analyzer not available: {e}")
+            # Fall back to mock
             return True, []
-        else:
-            # Mock min-cut
-            return False, [
-                (("F.Cu", (30.0, 45.0)), ("F.Cu", (30.0, 55.0)), 0),
-            ]
+        except Exception as e:
+            if self.verbose:
+                print(f"Warning: Routability check failed: {e}")
+            # Fall back to assuming routable
+            return True, []
 
     def _generate_cuts_from_mincut(self, min_cut_edges: list) -> list[RoutabilityCut]:
         """
@@ -319,6 +336,62 @@ class BendersOptimizer:
 
         # Track in history
         self.cuts_history.append(cut)
+
+    def _update_pcb_with_placement(self, positions: dict[str, tuple[float, float]]) -> None:
+        """
+        Update PCB file with new component positions.
+
+        Args:
+            positions: New component positions {ref: (x, y)}
+        """
+        # TODO: Implement PCB update
+        # This requires:
+        # 1. Load PCB file (KiCad format)
+        # 2. Update component positions
+        # 3. Save modified PCB
+        #
+        # For now, this is a placeholder
+        if self.verbose:
+            print(f"  (PCB update not implemented - using original positions)")
+
+    def _run_router_pipeline(self):
+        """
+        Run router pipeline to get channel skeletons and widths.
+
+        Returns:
+            Tuple of (skeletons, widths, design_rules)
+        """
+        # TODO: Implement router pipeline integration
+        # This requires:
+        # 1. Load PCB
+        # 2. Run Stage 2 of router_v6 pipeline
+        # 3. Extract skeletons and widths
+        #
+        # For now, return empty structures
+        if self.verbose:
+            print(f"  (Router pipeline not implemented - returning empty structures)")
+        return {}, {}, None
+
+    def _extract_nets_from_placement(self, positions: dict[str, tuple[float, float]]) -> dict:
+        """
+        Extract net information for Max-Flow analysis.
+
+        Args:
+            positions: Component positions {ref: (x, y)}
+
+        Returns:
+            Dict of net_name -> {source, sink, allowed_layers}
+        """
+        # TODO: Implement net extraction
+        # This requires:
+        # 1. Parse PCB netlist
+        # 2. Find terminal positions for each net
+        # 3. Determine allowed layers
+        #
+        # For now, return empty dict
+        if self.verbose:
+            print(f"  (Net extraction not implemented - returning empty nets)")
+        return {}
 
     def _build_result(
         self,
