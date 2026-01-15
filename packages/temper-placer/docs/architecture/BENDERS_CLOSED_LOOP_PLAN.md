@@ -243,35 +243,144 @@ router_result = self._run_router(placement)
 
 ---
 
-## Task 5: End-to-End Test
+## Task 5: DRC Integration
+
+### Purpose
+Routing success ≠ manufacturable. We need real KiCad DRC validation.
+
+### Current State
+We have `kicad_drc.py` with `run_drc()` function, but it's not integrated into the loop.
+
+### DRC Error Categories
+
+| Category | Source | Actionable? |
+|----------|--------|-------------|
+| `tracks_crossing` | Router bug | Yes - re-route |
+| `clearance` | Traces too close | Yes - widen spacing |
+| `unconnected_items` | Failed nets | Yes - re-route |
+| `lib_footprint_issues` | KiCad library | No - ignore |
+| `silk_over_copper` | Cosmetic | No - ignore |
+
+### Implementation
+
+**File**: `packages/temper-placer/src/temper_placer/placement/benders_loop.py`
+
+```python
+from temper_placer.io.kicad_drc import run_drc, DRCResult
+
+def _check_drc(self, pcb_file: Path) -> tuple[bool, list[DRCViolation]]:
+    """
+    Run KiCad DRC and return actionable violations.
+    """
+    result = run_drc(pcb_file)
+    
+    # Filter to actionable violations only
+    actionable_types = {
+        "tracks_crossing",
+        "clearance", 
+        "unconnected_items",
+        "short",
+        "track_dangling",
+    }
+    
+    actionable = [v for v in result.violations 
+                  if v.type in actionable_types]
+    
+    return len(actionable) == 0, actionable
+
+def _map_drc_to_cuts(
+    self, 
+    violations: list[DRCViolation]
+) -> list[RoutabilityCut]:
+    """
+    Convert DRC violations to ILP cuts.
+    
+    - clearance violation → increase spacing between nearby components
+    - tracks_crossing → push apart components on those nets
+    """
+```
+
+### Updated Loop Logic
+
+```python
+def run_benders_optimization(self, ...):
+    while iteration < max_iterations:
+        # 1. Solve ILP
+        placement = self.master.solve()
+        
+        # 2. Quick pre-filter
+        if not self._check_routability_ultrafast(placement):
+            cuts = self._generate_heuristic_cuts(...)
+            self.master.add_cuts(cuts)
+            continue
+        
+        # 3. Run full router
+        router_result = self._run_router(placement)
+        
+        if router_result.failure_count > 0:
+            # Generate cuts from routing failures
+            cuts = self._generate_router_failure_cuts(...)
+            self.master.add_cuts(cuts)
+            continue
+        
+        # 4. ✅ NEW: Run KiCad DRC
+        drc_clean, violations = self._check_drc(output_pcb)
+        
+        if not drc_clean:
+            # Generate cuts from DRC violations
+            cuts = self._map_drc_to_cuts(violations)
+            self.master.add_cuts(cuts)
+            continue
+        
+        # 5. SUCCESS: All nets routed AND DRC clean
+        return OptimizationResult(
+            placement=placement,
+            router_result=router_result,
+            drc_result=drc_result,
+            iterations=iteration,
+        )
+```
+
+### Effort: ~2-3 hours
+
+---
+
+## Task 6: End-to-End Test
 
 ### Test Case
 ```python
-def test_benders_closed_loop_achieves_100_percent():
+def test_benders_closed_loop_drc_clean():
     """
-    Verify that Benders loop iterates until all nets route.
+    Verify Benders loop produces DRC-clean output.
     """
     loop = BendersLoop(pcb_file="temper_placed.kicad_pcb")
     
     result = loop.run_benders_optimization(
-        max_iterations=10,
-        use_router_feedback=True,  # NEW: Enable closed loop
+        max_iterations=15,
+        use_router_feedback=True,
+        require_drc_clean=True,  # NEW
     )
     
-    # All 17 signal nets should route
+    # All signal nets routed
     assert result.router_result.failure_count == 0
     assert result.router_result.success_count == 17
     
-    # Check convergence
-    assert result.iterations_used <= 10
+    # DRC clean (excluding footprint issues)
+    assert result.drc_result.actionable_errors == 0
+    
+    # Convergence
+    assert result.iterations_used <= 15
     print(f"Converged in {result.iterations_used} iterations")
+    print(f"DRC: {result.drc_result.total_errors} total, "
+          f"{result.drc_result.actionable_errors} actionable")
 ```
 
 ### Success Criteria
 - [ ] 17/17 signal nets route successfully
-- [ ] Loop converges in reasonable iterations (<10)
-- [ ] Final DRC has only footprint issues (no routing errors)
-- [ ] Total time < 5 minutes
+- [ ] 0 actionable DRC errors (clearance, shorts, crossings)
+- [ ] Loop converges in reasonable iterations (<15)
+- [ ] Total time < 10 minutes
+- [ ] Output PCB is manufacturable
 
 ### Effort: ~1-2 hours
 
@@ -289,14 +398,18 @@ Task 1 (Router Reporting) ──► Task 2 (Failure Mapping) ──┐
                               Task 4 (Orchestrator)
                                       │
                                       ▼
-                              Task 5 (End-to-End Test)
+                              Task 5 (DRC Integration)
+                                      │
+                                      ▼
+                              Task 6 (End-to-End Test)
 ```
 
 **Dependencies:**
 - Task 2 depends on Task 1 (needs failure data)
 - Task 3 depends on Task 2 (needs blocking pairs)
 - Task 4 depends on Tasks 1, 2, 3
-- Task 5 depends on Task 4
+- Task 5 depends on Task 4 (DRC validates router output)
+- Task 6 depends on Task 5
 
 ---
 
@@ -308,8 +421,9 @@ Task 1 (Router Reporting) ──► Task 2 (Failure Mapping) ──┐
 | 2. Failure-to-Component Mapping | 2-3h | Low (new module) |
 | 3. Cut Generator Integration | 2h | Low (extends existing) |
 | 4. Closed-Loop Orchestrator | 3-4h | Medium (integration) |
-| 5. End-to-End Test | 1-2h | Low |
-| **Total** | **10-14h** | |
+| 5. DRC Integration | 2-3h | Low (uses existing kicad_drc.py) |
+| 6. End-to-End Test | 1-2h | Low |
+| **Total** | **12-17h** | |
 
 ---
 
@@ -340,14 +454,17 @@ Task 1 (Router Reporting) ──► Task 2 (Failure Mapping) ──┐
 ### New Files
 - `benders_failure_mapper.py` - Map failures to components
 - `router_failure_types.py` - Data classes for failure info
+- `benders_drc_mapper.py` - Map DRC violations to cuts
 
 ### Modified Files
 - `astar_pathfinding.py` - Add failure reporting
-- `benders_cut_generator.py` - Add router failure cuts
-- `benders_loop.py` - Closed-loop orchestration
+- `benders_cut_generator.py` - Add router failure cuts + DRC cuts
+- `benders_loop.py` - Closed-loop orchestration with DRC gate
 - `pipeline.py` - Expose failure details in result
+- `kicad_drc.py` - Add violation categorization (actionable vs cosmetic)
 
 ### Test Files
 - `test_failure_mapper.py`
 - `test_router_failure_cuts.py`
-- `test_closed_loop.py`
+- `test_drc_mapper.py`
+- `test_closed_loop_drc_clean.py`
