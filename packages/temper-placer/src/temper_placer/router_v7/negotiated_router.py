@@ -73,13 +73,16 @@ class NegotiatedRouter:
                     grid.usage_count.fill(0)
 
             # Route all nets
-            for net_name in nets:
+            for idx, net_name in enumerate(nets):
+                print(f"      Routing {net_name} ({idx+1}/{len(nets)})...", flush=True)
+                
                 # Route using current costs
                 # Note: We set negotiated_mode=True, so is_free returns True.
                 # This allows routing through congested cells (with cost penalty).
 
                 channel_path = channel_mapping.channel_paths.get(net_name)
                 if not channel_path:
+                    print(f"        ⚠️  No channel path for {net_name}", flush=True)
                     continue
                 
                 grid = self.grids.get(channel_path.preferred_layer)
@@ -89,33 +92,32 @@ class NegotiatedRouter:
                 # Get net-specific design rules
                 net_rules = self.design_rules.get_rules_for_net(net_name)
 
-                # Route with MST support (already integrated in _astar_route)
-                # Use multilayer if THT locations available
-                if tht_locations and len(self.grids) > 1:
-                    # Get alternate grid
-                    alt_layer = next((l for l in self.grids.keys() if l != channel_path.preferred_layer), None)
-                    alternate_grid = self.grids.get(alt_layer) if alt_layer else None
-                    
-                    path = _astar_route_multilayer(
-                        net_name,
-                        channel_path,
-                        grid,
-                        alternate_grid,
-                        tht_locations,
-                        use_theta_star=True,
-                        use_lazy_theta_star=False,
-                        net_id=1,  # Dummy ID for negotiation
-                    )
-                else:
+                # Route with single-layer A* for simplicity
+                # Multilayer routing is too slow for negotiation
+                import signal
+                
+                def timeout_handler(signum, frame):
+                    raise TimeoutError(f"A* timed out for {net_name}")
+                
+                # Set 5 second timeout per net
+                old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(5)
+                try:
                     path = _astar_route(
                         net_name,
                         channel_path,
                         grid,
-                        use_theta_star=True,  # Use Eager Theta* for accurate cost integration
+                        use_theta_star=False,  # Use plain A* for speed
                         use_lazy_theta_star=False,
                         heuristic_weight=heuristic_weight,
                         net_id=1,
                     )
+                except TimeoutError as e:
+                    print(f"        ❌ {e}", flush=True)
+                    path = None
+                finally:
+                    signal.alarm(0)
+                    signal.signal(signal.SIGALRM, old_handler)
 
                 if path:
                     routed_paths[net_name] = path

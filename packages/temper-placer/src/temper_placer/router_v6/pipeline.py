@@ -810,13 +810,22 @@ class RouterV6Pipeline:
                 enable_topological_ordering=self.enable_topological_ordering,
             )
 
-            # HYBRID ROUTING: If competing nets detected, use NegotiatedRouter
+            print(f"  Checking for competing nets...", flush=True)
+            
+            # HYBRID ROUTING: Report competing nets but skip NegotiatedRouter
+            # NegotiatedRouter hangs due to blocked grids - needs grid clearing fix
             if pathfinding_result.competing_nets and len(pathfinding_result.competing_nets) > 0:
-                if self.verbose:
-                    print(f"\n  🔄 Hybrid Routing: Handing off {len(pathfinding_result.competing_nets)} competing nets to NegotiatedRouter...")
-                    print(f"     Competing nets: {', '.join(sorted(pathfinding_result.competing_nets))}")
+                print(f"\n  ℹ️  Detected {len(pathfinding_result.competing_nets)} competing nets (oscillation detected)")
+                print(f"     {', '.join(sorted(pathfinding_result.competing_nets))}")
+                print(f"     (NegotiatedRouter disabled - using graceful degradation)")
+            
+            # Skip NegotiatedRouter for now
+            if False and pathfinding_result.competing_nets and len(pathfinding_result.competing_nets) > 0:
+                print(f"\n  🔄 Hybrid Routing: Handing off {len(pathfinding_result.competing_nets)} competing nets to NegotiatedRouter...", flush=True)
+                print(f"     Competing nets: {', '.join(sorted(pathfinding_result.competing_nets))}", flush=True)
                 
                 # Extract pad centers and THT locations
+                print(f"     Extracting pad centers and THT locations...", flush=True)
                 from temper_placer.router_v6.astar_pathfinding import (
                     _extract_pad_centers_per_net,
                     _build_tht_pad_locations,
@@ -825,20 +834,23 @@ class RouterV6Pipeline:
                 tht_locations = _build_tht_pad_locations(pcb)
                 
                 # Create NegotiatedRouter
+                print(f"     Creating NegotiatedRouter...", flush=True)
                 negotiated_router = NegotiatedRouter(
                     grids=stage2.occupancy_grids,
                     design_rules=pcb.design_rules,
-                    max_iterations=30,
+                    max_iterations=5,  # Reduced for testing
                 )
                 
                 # Route only the competing nets
                 competing_nets_list = list(pathfinding_result.competing_nets)
+                print(f"     Starting NegotiatedRouter.route() for {len(competing_nets_list)} nets...", flush=True)
                 negotiated_paths = negotiated_router.route(
                     nets=competing_nets_list,
                     channel_mapping=channel_mapping,
                     pad_centers=pad_centers_per_net,
                     tht_locations=tht_locations,
                 )
+                print(f"     NegotiatedRouter.route() returned.", flush=True)
                 
                 # Merge negotiated results
                 if negotiated_paths:
