@@ -679,14 +679,14 @@ class BendersOptimizer:
         try:
             from temper_placer.io.kicad_drc import run_drc
             
-            result = run_drc(pcb_file, verbose=False)
+            result = run_drc(pcb_file)
             
             drc_time = time.time() - drc_start
             self._drc_time_total += drc_time
             
             if self.verbose:
-                actionable = len(result.actionable_violations)
-                cosmetic = len(result.cosmetic_violations)
+                actionable = len(result.actionable_violations) if hasattr(result, 'actionable_violations') else 0
+                cosmetic = len(result.cosmetic_violations) if hasattr(result, 'cosmetic_violations') else 0
                 print(f"  DRC: {actionable} actionable, {cosmetic} cosmetic ({drc_time:.1f}s)")
             
             return result
