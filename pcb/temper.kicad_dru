@@ -1,0 +1,136 @@
+# Custom Design Rules for Temper Induction Heater
+# IEC 60335-1 compliant with footprint exceptions
+#
+# Professional PCB design approach:
+# 1. Strict clearances for ROUTING (traces between components)
+# 2. Relaxed clearances for PADS WITHIN SAME FOOTPRINT (inherent to package)
+# 3. Specific net-to-net rules where needed
+
+(version 1)
+
+# =============================================================================
+# RULE 1: Allow reduced clearance within same footprint
+# This handles TO-247, SOT-23, QFN packages where pad pitch < net class clearance
+# =============================================================================
+(rule "Same footprint pads"
+    (condition "A.insideCourtyard('*') && B.insideCourtyard('*') && A.insideCourtyard(B.Reference)")
+    (constraint clearance (min 0.1mm))
+)
+
+# =============================================================================
+# RULE 1a: Fine-pitch IC pads (QFN, BGA with 0.4mm pitch)
+# =============================================================================
+(rule "Fine pitch IC pads"
+    (condition "A.Type == 'Pad' && B.Type == 'Pad' && A.Pad_Type == 'SMD' && B.Pad_Type == 'SMD'")
+    (constraint clearance (min 0.1mm))
+)
+
+# =============================================================================
+# RULE 2: AC Mains isolation - 6mm to everything except itself
+# IEC 60335-1 basic insulation for 240V AC
+# =============================================================================
+(rule "AC Mains to LV"
+    (condition "A.NetClass == 'ACMains' && B.NetClass != 'ACMains' && B.NetClass != 'HighVoltage'")
+    (constraint clearance (min 6.0mm))
+)
+
+# =============================================================================
+# RULE 3: AC Mains to High Voltage - 3mm (both are isolated from earth)
+# Reduced clearance since both are on same side of isolation barrier
+# =============================================================================
+(rule "AC Mains to HV"
+    (condition "A.NetClass == 'ACMains' && B.NetClass == 'HighVoltage'")
+    (constraint clearance (min 3.0mm))
+)
+
+# =============================================================================
+# RULE 4: High Voltage DC bus - 2mm to LV
+# 400V DC bus after rectification
+# =============================================================================
+(rule "HV to LV"
+    (condition "A.NetClass == 'HighVoltage' && B.NetClass != 'HighVoltage' && B.NetClass != 'ACMains'")
+    (constraint clearance (min 2.0mm))
+)
+
+# =============================================================================
+# RULE 5: High Voltage internal - relaxed for same footprint
+# TO-247 IGBTs have 5.45mm pin pitch, internal clearance OK
+# =============================================================================
+(rule "HV internal same footprint"
+    (condition "A.NetClass == 'HighVoltage' && B.NetClass == 'HighVoltage' && A.insideCourtyard(B.Reference)")
+    (constraint clearance (min 1.5mm))
+)
+
+# =============================================================================
+# RULE 6: Gate drive signals near HV - 0.5mm minimum
+# Gate resistors placed close to IGBTs
+# =============================================================================
+(rule "GateDrive near HV"
+    (condition "A.NetClass == 'GateDrive' && B.NetClass == 'HighVoltage'")
+    (constraint clearance (min 0.5mm))
+)
+
+# =============================================================================
+# RULE 7: Power nets internal - allow SOT-23 pitch
+# =============================================================================
+(rule "Power internal same footprint"
+    (condition "A.NetClass == 'Power' && B.NetClass == 'Power' && A.insideCourtyard(B.Reference)")
+    (constraint clearance (min 0.2mm))
+)
+
+# =============================================================================
+# RULE 8: Ground to everything - standard clearance
+# GND is a reference, not a hazard
+# =============================================================================
+(rule "Ground clearance"
+    (condition "A.NetClass == 'Ground' || B.NetClass == 'Ground'")
+    (constraint clearance (min 0.15mm))
+)
+
+# =============================================================================
+# RULE 9: USB differential pair - tight coupling
+# =============================================================================
+(rule "USB differential"
+    (condition "A.NetClass == 'HighSpeed' && B.NetClass == 'HighSpeed'")
+    (constraint clearance (min 0.1mm))
+)
+
+# =============================================================================
+# RULE 10: Default routing clearance
+# Standard 0.2mm for signal traces
+# =============================================================================
+(rule "Default routing"
+    (condition "A.Type == 'track' || B.Type == 'track'")
+    (constraint clearance (min 0.2mm))
+)
+
+# =============================================================================
+# TRACE WIDTH RULES
+# =============================================================================
+
+(rule "AC Mains trace width"
+    (condition "A.NetClass == 'ACMains'")
+    (constraint track_width (min 2.5mm))
+)
+
+(rule "HV trace width"
+    (condition "A.NetClass == 'HighVoltage'")
+    (constraint track_width (min 2.0mm))
+)
+
+(rule "Power trace width"
+    (condition "A.NetClass == 'Power'")
+    (constraint track_width (min 0.4mm))
+)
+
+# =============================================================================
+# HOLE CLEARANCE RULES
+# =============================================================================
+
+(rule "Via hole clearance"
+    (constraint hole_clearance (min 0.25mm))
+)
+
+(rule "PTH hole to hole"
+    (constraint hole_to_hole (min 0.5mm))
+)

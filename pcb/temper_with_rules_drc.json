@@ -1,0 +1,445 @@
+** Drc report for temper.kicad_pcb **
+** Created on 2026-01-16T14:08:10-0600 **
+
+** Found 33 DRC violations **
+[lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_IEC'.
+    Local override; warning
+    @(15.0000 mm, 25.0000 mm): Footprint J_AC_IN
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Diode_THT.pretty'.
+    Local override; warning
+    @(15.0000 mm, 60.0000 mm): Footprint D1
+[lib_footprint_issues]: The footprint library 'Diode_THT' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Diode_THT.pretty'.
+    Local override; warning
+    @(15.0000 mm, 75.0000 mm): Footprint D2
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_THT.pretty'.
+    Local override; warning
+    @(45.0000 mm, 65.0000 mm): Footprint C_BUS1
+[lib_footprint_issues]: The footprint library 'Capacitor_THT' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_THT.pretty'.
+    Local override; warning
+    @(45.0000 mm, 85.0000 mm): Footprint C_BUS2
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(20.0000 mm, 110.0000 mm): Footprint Q1
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_THT' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_TO_SOT_THT.pretty'.
+    Local override; warning
+    @(20.0000 mm, 125.0000 mm): Footprint Q2
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_SO.pretty'.
+    Local override; warning
+    @(45.0000 mm, 117.0000 mm): Footprint U_GATE
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(55.0000 mm, 110.0000 mm): Footprint C_BOOT
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(55.0000 mm, 125.0000 mm): Footprint C_VCC
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Resistor_SMD.pretty'.
+    Local override; warning
+    @(35.0000 mm, 110.0000 mm): Footprint R_GATE_H
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Resistor_SMD.pretty'.
+    Local override; warning
+    @(35.0000 mm, 125.0000 mm): Footprint R_GATE_L
+[lib_footprint_issues]: The footprint library 'Connector_Phoenix_MC' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Connector_Phoenix_MC.pretty'.
+    Local override; warning
+    @(20.0000 mm, 145.0000 mm): Footprint J_COIL
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(85.0000 mm, 25.0000 mm): Footprint U_BUCK
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(85.0000 mm, 40.0000 mm): Footprint U_LDO_3V3
+[lib_footprint_issues]: The footprint library 'Package_TO_SOT_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_TO_SOT_SMD.pretty'.
+    Local override; warning
+    @(85.0000 mm, 55.0000 mm): Footprint U_LDO_5V
+[lib_footprint_issues]: The footprint library 'Package_DFN_QFN' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_DFN_QFN.pretty'.
+    Local override; warning
+    @(95.0000 mm, 85.0000 mm): Footprint U_MCU
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(88.0000 mm, 82.0000 mm): Footprint C_MCU_1
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(88.0000 mm, 85.0000 mm): Footprint C_MCU_2
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(88.0000 mm, 88.0000 mm): Footprint C_MCU_3
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(102.0000 mm, 85.0000 mm): Footprint C_MCU_4
+[lib_footprint_issues]: The footprint library 'Connector_USB' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Connector_USB.pretty'.
+    Local override; warning
+    @(110.0000 mm, 85.0000 mm): Footprint J_USB
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(110.0000 mm, 105.0000 mm): Footprint J_DEBUG
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_SO.pretty'.
+    Local override; warning
+    @(85.0000 mm, 125.0000 mm): Footprint U_CT
+[lib_footprint_issues]: The footprint library 'Resistor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Resistor_SMD.pretty'.
+    Local override; warning
+    @(85.0000 mm, 140.0000 mm): Footprint R_BURDEN
+[lib_footprint_issues]: The footprint library 'Capacitor_SMD' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Capacitor_SMD.pretty'.
+    Local override; warning
+    @(85.0000 mm, 145.0000 mm): Footprint C_CT_FILT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_SO.pretty'.
+    Local override; warning
+    @(95.0000 mm, 140.0000 mm): Footprint U_OPAMP_CT
+[lib_footprint_issues]: The footprint library 'Package_SO' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Package_SO.pretty'.
+    Local override; warning
+    @(85.0000 mm, 155.0000 mm): Footprint MAX31865
+[lib_footprint_issues]: The footprint library 'Connector_PinHeader_2.54mm' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/Connector_PinHeader_2.54mm.pretty'.
+    Local override; warning
+    @(110.0000 mm, 155.0000 mm): Footprint J_NTC
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/MountingHole.pretty'.
+    Local override; warning
+    @(5.0000 mm, 5.0000 mm): Footprint MH1
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/MountingHole.pretty'.
+    Local override; warning
+    @(115.0000 mm, 5.0000 mm): Footprint MH2
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/MountingHole.pretty'.
+    Local override; warning
+    @(5.0000 mm, 165.0000 mm): Footprint MH3
+[lib_footprint_issues]: The footprint library 'MountingHole' was not found at '/Users/bennet.leff/Documents/temper/pcb/libs/kicad-footprints/MountingHole.pretty'.
+    Local override; warning
+    @(115.0000 mm, 165.0000 mm): Footprint MH4
+
+** Found 84 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(15.0000 mm, 45.0000 mm): PTH pad 3 [GND] of J_AC_IN
+    @(82.7000 mm, 40.0000 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(23.8100 mm, 145.0000 mm): PTH pad 2 [GND] of J_COIL
+    @(82.1000 mm, 157.9250 mm): Pad 10 [GND] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 127.9250 mm): Pad 10 [GND] of U_CT on F.Cu
+    @(86.0000 mm, 140.0000 mm): Pad 2 [GND] of R_BURDEN on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 127.9250 mm): Pad 10 [GND] of U_CT on F.Cu
+    @(110.0000 mm, 105.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.7000 mm, 40.0000 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+    @(83.9000 mm, 25.9500 mm): Pad 1 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.7000 mm, 40.0000 mm): Pad 1 [GND] of U_LDO_3V3 on F.Cu
+    @(82.7000 mm, 55.0000 mm): Pad 1 [GND] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(83.9000 mm, 25.9500 mm): Pad 1 [GND] of U_BUCK on F.Cu
+    @(86.1000 mm, 25.9500 mm): Pad 6 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(85.8250 mm, 145.0000 mm): Pad 2 [GND] of C_CT_FILT on F.Cu
+    @(86.0000 mm, 140.0000 mm): Pad 2 [GND] of R_BURDEN on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(85.8250 mm, 145.0000 mm): Pad 2 [GND] of C_CT_FILT on F.Cu
+    @(82.1000 mm, 157.9250 mm): Pad 10 [GND] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(86.1000 mm, 25.9500 mm): Pad 6 [GND] of U_BUCK on F.Cu
+    @(86.1000 mm, 25.0000 mm): Pad 5 [GND] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(88.5000 mm, 82.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+    @(82.7000 mm, 55.0000 mm): Pad 1 [GND] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(88.5000 mm, 85.0000 mm): Pad 2 [GND] of C_MCU_2 on F.Cu
+    @(88.5000 mm, 82.0000 mm): Pad 2 [GND] of C_MCU_1 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(88.5000 mm, 88.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+    @(88.5000 mm, 85.0000 mm): Pad 2 [GND] of C_MCU_2 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(91.5500 mm, 87.4000 mm): Pad 2 [GND] of U_MCU on F.Cu
+    @(88.5000 mm, 88.0000 mm): Pad 2 [GND] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(92.5250 mm, 141.9050 mm): Pad 4 [GND] of U_OPAMP_CT on F.Cu
+    @(86.0000 mm, 140.0000 mm): Pad 2 [GND] of R_BURDEN on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(95.0000 mm, 85.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+    @(91.5500 mm, 87.4000 mm): Pad 2 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(102.5000 mm, 85.0000 mm): Pad 2 [GND] of C_MCU_4 on F.Cu
+    @(95.0000 mm, 85.0000 mm): Pad 57 [GND] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(107.6500 mm, 85.0000 mm): Pad A1 [GND] of J_USB on F.Cu
+    @(102.5000 mm, 85.0000 mm): Pad 2 [GND] of C_MCU_4 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(107.6500 mm, 85.0000 mm): Pad A1 [GND] of J_USB on F.Cu
+    @(110.0000 mm, 105.0000 mm): PTH pad 1 [GND] of J_DEBUG
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(112.3500 mm, 85.0000 mm): Pad A12 [GND] of J_USB on F.Cu
+    @(107.6500 mm, 85.0000 mm): Pad A1 [GND] of J_USB on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(112.5400 mm, 155.0000 mm): PTH pad 2 [GND] of J_NTC
+    @(92.5250 mm, 141.9050 mm): Pad 4 [GND] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(45.0000 mm, 85.0000 mm): PTH pad 1 [PGND] of C_BUS2
+    @(49.5000 mm, 116.3650 mm): Pad 13 [PGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(49.5000 mm, 117.6350 mm): Pad 12 [PGND] of U_GATE on F.Cu
+    @(49.5000 mm, 116.3650 mm): Pad 13 [PGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(52.5000 mm, 65.0000 mm): PTH pad 2 [PGND] of C_BUS1
+    @(45.0000 mm, 85.0000 mm): PTH pad 1 [PGND] of C_BUS2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 117.6350 mm): Pad 5 [CGND] of U_GATE on F.Cu
+    @(40.5000 mm, 118.9050 mm): Pad 6 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 118.9050 mm): Pad 6 [CGND] of U_GATE on F.Cu
+    @(40.5000 mm, 120.1750 mm): Pad 7 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 120.1750 mm): Pad 7 [CGND] of U_GATE on F.Cu
+    @(40.5000 mm, 121.4450 mm): Pad 8 [CGND] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 121.4450 mm): Pad 8 [CGND] of U_GATE on F.Cu
+    @(56.0000 mm, 125.0000 mm): Pad 2 [CGND] of C_VCC on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(85.0000 mm, 36.8000 mm): Pad 4 [+3V3] of U_LDO_3V3 on F.Cu
+    @(85.0000 mm, 40.0000 mm): Pad 2 [+3V3] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(85.0000 mm, 40.0000 mm): Pad 2 [+3V3] of U_LDO_3V3 on F.Cu
+    @(87.5000 mm, 82.0000 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.5000 mm, 85.0000 mm): Pad 1 [+3V3] of C_MCU_2 on F.Cu
+    @(87.5000 mm, 82.0000 mm): Pad 1 [+3V3] of C_MCU_1 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.5000 mm, 85.0000 mm): Pad 1 [+3V3] of C_MCU_2 on F.Cu
+    @(87.5000 mm, 88.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.5000 mm, 88.0000 mm): Pad 1 [+3V3] of C_MCU_3 on F.Cu
+    @(91.5500 mm, 87.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.9000 mm, 122.0750 mm): Pad 20 [+3V3] of U_CT on F.Cu
+    @(87.9000 mm, 152.0750 mm): Pad 20 [+3V3] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(101.5000 mm, 85.0000 mm): Pad 1 [+3V3] of C_MCU_4 on F.Cu
+    @(91.5500 mm, 87.8000 mm): Pad 1 [+3V3] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(110.0000 mm, 107.5400 mm): PTH pad 2 [+3V3] of J_DEBUG
+    @(101.5000 mm, 85.0000 mm): Pad 1 [+3V3] of C_MCU_4 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(110.0000 mm, 107.5400 mm): PTH pad 2 [+3V3] of J_DEBUG
+    @(87.9000 mm, 122.0750 mm): Pad 20 [+3V3] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(83.9000 mm, 25.0000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+    @(87.3000 mm, 40.0000 mm): Pad 3 [+5V] of U_LDO_3V3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(85.0000 mm, 55.0000 mm): Pad 2 [+5V] of U_LDO_5V on F.Cu
+    @(85.0000 mm, 51.8000 mm): Pad 4 [+5V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(86.1000 mm, 24.0500 mm): Pad 4 [+5V] of U_BUCK on F.Cu
+    @(83.9000 mm, 25.0000 mm): Pad 2 [+5V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.3000 mm, 40.0000 mm): Pad 3 [+5V] of U_LDO_3V3 on F.Cu
+    @(85.0000 mm, 51.8000 mm): Pad 4 [+5V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(97.4750 mm, 138.0950 mm): Pad 8 [+5V] of U_OPAMP_CT on F.Cu
+    @(85.0000 mm, 55.0000 mm): Pad 2 [+5V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(97.4750 mm, 139.3650 mm): Pad 7 [+5V] of U_OPAMP_CT on F.Cu
+    @(97.4750 mm, 138.0950 mm): Pad 8 [+5V] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 112.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(49.5000 mm, 118.9050 mm): Pad 11 [+15V] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 112.5550 mm): Pad 1 [+15V] of U_GATE on F.Cu
+    @(87.3000 mm, 55.0000 mm): Pad 3 [+15V] of U_LDO_5V on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(54.0000 mm, 125.0000 mm): Pad 1 [+15V] of C_VCC on F.Cu
+    @(49.5000 mm, 118.9050 mm): Pad 11 [+15V] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(87.3000 mm, 55.0000 mm): Pad 3 [+15V] of U_LDO_5V on F.Cu
+    @(83.9000 mm, 24.0500 mm): Pad 3 [+15V] of U_BUCK on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(49.5000 mm, 115.0950 mm): Pad 14 [VCC_BOOT] of U_GATE on F.Cu
+    @(54.0000 mm, 110.0000 mm): Pad 1 [VCC_BOOT] of C_BOOT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.4500 mm, 110.0000 mm): PTH pad 2 [DC_BUS+] of Q1
+    @(45.0000 mm, 65.0000 mm): PTH pad 1 [DC_BUS+] of C_BUS1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(45.0000 mm, 65.0000 mm): PTH pad 1 [DC_BUS+] of C_BUS1
+    @(30.2400 mm, 60.0000 mm): PTH pad 2 [DC_BUS+] of D1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.9000 mm, 125.0000 mm): PTH pad 3 [DC_BUS-] of Q2
+    @(52.5000 mm, 85.0000 mm): PTH pad 2 [DC_BUS-] of C_BUS2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(52.5000 mm, 85.0000 mm): PTH pad 2 [DC_BUS-] of C_BUS2
+    @(15.0000 mm, 75.0000 mm): PTH pad 1 [DC_BUS-] of D2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(25.4500 mm, 125.0000 mm): PTH pad 2 [SW_NODE] of Q2
+    @(20.0000 mm, 145.0000 mm): PTH pad 1 [SW_NODE] of J_COIL
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(30.9000 mm, 110.0000 mm): PTH pad 3 [SW_NODE] of Q1
+    @(25.4500 mm, 125.0000 mm): PTH pad 2 [SW_NODE] of Q2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(49.5000 mm, 112.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+    @(30.9000 mm, 110.0000 mm): PTH pad 3 [SW_NODE] of Q1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(49.5000 mm, 121.4450 mm): Pad 9 [SW_NODE] of U_GATE on F.Cu
+    @(49.5000 mm, 112.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(56.0000 mm, 110.0000 mm): Pad 2 [SW_NODE] of C_BOOT on F.Cu
+    @(49.5000 mm, 112.5550 mm): Pad 16 [SW_NODE] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(34.0000 mm, 110.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+    @(20.0000 mm, 110.0000 mm): PTH pad 1 [GATE_H] of Q1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(36.0000 mm, 110.0000 mm): Pad 2 [GATE_H] of R_GATE_H on F.Cu
+    @(34.0000 mm, 110.0000 mm): Pad 1 [GATE_H] of R_GATE_H on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(49.5000 mm, 113.8250 mm): Pad 15 [GATE_H] of U_GATE on F.Cu
+    @(36.0000 mm, 110.0000 mm): Pad 2 [GATE_H] of R_GATE_H on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(20.0000 mm, 125.0000 mm): PTH pad 1 [GATE_L] of Q2
+    @(34.0000 mm, 125.0000 mm): Pad 1 [GATE_L] of R_GATE_L on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(34.0000 mm, 125.0000 mm): Pad 1 [GATE_L] of R_GATE_L on F.Cu
+    @(36.0000 mm, 125.0000 mm): Pad 2 [GATE_L] of R_GATE_L on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(36.0000 mm, 125.0000 mm): Pad 2 [GATE_L] of R_GATE_L on F.Cu
+    @(49.5000 mm, 120.1750 mm): Pad 10 [GATE_L] of U_GATE on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 113.8250 mm): Pad 2 [PWM_H] of U_GATE on F.Cu
+    @(91.5500 mm, 83.4000 mm): Pad 13 [PWM_H] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(40.5000 mm, 115.0950 mm): Pad 3 [PWM_L] of U_GATE on F.Cu
+    @(91.5500 mm, 83.0000 mm): Pad 14 [PWM_L] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(84.0000 mm, 140.0000 mm): Pad 1 [I_SENSE] of R_BURDEN on F.Cu
+    @(84.1750 mm, 145.0000 mm): Pad 1 [I_SENSE] of C_CT_FILT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(84.0000 mm, 140.0000 mm): Pad 1 [I_SENSE] of R_BURDEN on F.Cu
+    @(92.5250 mm, 139.3650 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(91.5500 mm, 82.6000 mm): Pad 15 [I_SENSE] of U_MCU on F.Cu
+    @(92.5250 mm, 138.0950 mm): Pad 1 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(92.5250 mm, 138.0950 mm): Pad 1 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(92.5250 mm, 139.3650 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(92.5250 mm, 140.6350 mm): Pad 3 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(92.5250 mm, 139.3650 mm): Pad 2 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(97.4750 mm, 140.6350 mm): Pad 6 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(92.5250 mm, 140.6350 mm): Pad 3 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(97.4750 mm, 141.9050 mm): Pad 5 [I_SENSE] of U_OPAMP_CT on F.Cu
+    @(97.4750 mm, 140.6350 mm): Pad 6 [I_SENSE] of U_OPAMP_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 154.0250 mm): Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu
+    @(110.0000 mm, 155.0000 mm): PTH pad 1 [TEMP_SENSE] of J_NTC
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(15.0000 mm, 25.0000 mm): PTH pad 1 [AC_L] of J_AC_IN
+    @(15.0000 mm, 60.0000 mm): PTH pad 1 [AC_L] of D1
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(15.0000 mm, 35.0000 mm): PTH pad 2 [AC_N] of J_AC_IN
+    @(30.2400 mm, 75.0000 mm): PTH pad 2 [AC_N] of D2
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 122.0750 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+    @(82.1000 mm, 152.0750 mm): Pad 1 [SPI_CLK] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(92.6000 mm, 81.5500 mm): Pad 20 [SPI_CLK] of U_MCU on F.Cu
+    @(82.1000 mm, 122.0750 mm): Pad 1 [SPI_CLK] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 122.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+    @(82.1000 mm, 152.7250 mm): Pad 2 [SPI_MOSI] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(93.0000 mm, 81.5500 mm): Pad 21 [SPI_MOSI] of U_MCU on F.Cu
+    @(82.1000 mm, 122.7250 mm): Pad 2 [SPI_MOSI] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 123.3750 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+    @(82.1000 mm, 153.3750 mm): Pad 3 [SPI_MISO] of MAX31865 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(93.4000 mm, 81.5500 mm): Pad 22 [SPI_MISO] of U_MCU on F.Cu
+    @(82.1000 mm, 123.3750 mm): Pad 3 [SPI_MISO] of U_CT on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(82.1000 mm, 124.0250 mm): Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu
+    @(93.8000 mm, 81.5500 mm): Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(98.4500 mm, 85.0000 mm): Pad 40 [USB_D+] of U_MCU on F.Cu
+    @(110.0000 mm, 85.0000 mm): Pad A6 [USB_D+] of J_USB on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(98.4500 mm, 85.4000 mm): Pad 41 [USB_D-] of U_MCU on F.Cu
+    @(110.4000 mm, 85.0000 mm): Pad B6 [USB_D-] of J_USB on F.Cu
+
+** Found 0 Footprint errors **
+
+** End of Report **
