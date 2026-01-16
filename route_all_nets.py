@@ -93,10 +93,29 @@ def main():
         'USB_D+', 'USB_D-', 'TEMP_SENSE'
     ]
     
-    # Assign layers (alternate between F.Cu and B.Cu)
-    net_layers = {}
-    for i, net in enumerate(signal_nets):
-        net_layers[net] = 'F.Cu' if i % 2 == 0 else 'B.Cu'
+    # Assign layers strategically for 4-layer board
+    # F.Cu: High-speed signals (USB, SPI)
+    # In1.Cu: Power signals (PWM, GATE)
+    # In2.Cu: Analog signals (I_SENSE, TEMP)
+    # B.Cu: AC/high-voltage signals
+    net_layers = {
+        'AC_L': 'B.Cu',
+        'AC_N': 'B.Cu',
+        'GATE_H': 'In1.Cu',
+        'SW_NODE': 'In1.Cu',
+        'GATE_L': 'In1.Cu',
+        'PWM_H': 'In1.Cu',
+        'PWM_L': 'In1.Cu',
+        'SHUTDOWN_N': 'F.Cu',
+        'I_SENSE': 'In2.Cu',
+        'SPI_CLK': 'F.Cu',
+        'SPI_MOSI': 'F.Cu',
+        'SPI_MISO': 'F.Cu',
+        'SPI_CS_TEMP': 'F.Cu',
+        'USB_D+': 'F.Cu',
+        'USB_D-': 'F.Cu',
+        'TEMP_SENSE': 'In2.Cu',
+    }
     
     print(f"\n4. Routing {len(signal_nets)} signal nets...")
     print("   (Timeout: 30s per net)\n")

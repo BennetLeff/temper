@@ -523,6 +523,11 @@ class ExactGeometryRouter:
                         if hasattr(pad.size, 'X') and hasattr(pad.size, 'Y'):
                             pad_size = max(pad.size.X, pad.size.Y)
                     
+                    # Skip large exposed pads (thermal pads) - they're typically GND
+                    # and vias can be placed on/near them
+                    if pad_size > 3.0:
+                        continue  # Skip thermal pads
+                    
                     self.via_planner.register_pad((abs_x, abs_y), pad_size=pad_size)
                     pad_count += 1
             
@@ -539,14 +544,16 @@ class ExactGeometryRouter:
         if self.verbose:
             print("      [OBS] Setting up layers...")
             sys.stdout.flush()
-        # Use only actual copper layers from board stackup
-        # Default to 2-layer (F.Cu, B.Cu) if unknown
-        self._copper_layers = ["F.Cu", "B.Cu"]  # Default 2-layer
+        # Use actual copper layers from board stackup
+        # Default to 4-layer (F.Cu, In1.Cu, In2.Cu, B.Cu) for Temper board
+        self._copper_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]  # Default 4-layer
         if hasattr(self.pcb, 'stackup') and self.pcb.stackup:
             if hasattr(self.pcb.stackup, 'copper_layers'):
                 self._copper_layers = self.pcb.stackup.copper_layers
             elif hasattr(self.pcb.stackup, 'layer_count'):
-                if self.pcb.stackup.layer_count >= 4:
+                if self.pcb.stackup.layer_count == 2:
+                    self._copper_layers = ["F.Cu", "B.Cu"]
+                elif self.pcb.stackup.layer_count >= 4:
                     self._copper_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
         
         for layer in self._copper_layers:

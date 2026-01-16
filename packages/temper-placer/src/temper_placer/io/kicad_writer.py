@@ -937,15 +937,21 @@ def write_routes_to_pcb(
                 net_index = net_name_to_index[via.net]
 
             try:
-                import uuid
+                # KiCad 9 requires:
+                # 1. Only 2 layers (from/to), not all 4
+                # 2. No tstamp field
+                via_layers = list(via.layers)
+                if len(via_layers) > 2:
+                    # Use only first and last layer (from/to)
+                    via_layers = [via_layers[0], via_layers[-1]]
 
                 kicad_via = Via(
                     position=Position(X=via.position[0], Y=via.position[1]),
                     size=via.width,
                     drill=via.drill,
-                    layers=list(via.layers),
+                    layers=via_layers,
                     net=net_index,
-                    tstamp=str(uuid.uuid4()),
+                    # Note: No tstamp - KiCad 9 doesn't like it on vias
                 )
                 ki_board.traceItems.append(kicad_via)
                 vias_added += 1

@@ -83,8 +83,8 @@ class ViaPlanner:
         # Track placed vias
         self.placed_vias: list[PlacedVia] = []
         
-        # Copper layers (default 2-layer board)
-        self.copper_layers = copper_layers or ['F.Cu', 'B.Cu']
+        # Copper layers (default 4-layer board for Temper)
+        self.copper_layers = copper_layers or ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
         
         # Obstacles per layer
         self.obstacles: dict[str, list[ShapelyPolygon]] = {
