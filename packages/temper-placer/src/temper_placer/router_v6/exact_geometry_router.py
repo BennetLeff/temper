@@ -193,14 +193,49 @@ class ExactGeometryRouter:
             # This is a simplified fallback when routing_spaces not provided
             pass
         
-        # Add other-net pads as obstacles (small circles)
-        pad_size = 0.8  # mm - typical pad size
+        # Add ALL pads as obstacles (including unconnected ones)
+        # This is critical - unconnected pads still exist physically!
+        pad_size = 0.8  # mm - typical pad size for SMD
+        tht_pad_size = 2.5  # mm - larger for through-hole (DO-201 diodes are 2.5mm)
+        
+        # First, add pads from known nets
         for net_name, pads in self._net_pads.items():
             for x, y in pads:
                 center = Point(x, y)
                 poly = center.buffer(pad_size / 2)
                 for layer in self.base_obstacles:
                     self.base_obstacles[layer].append((poly, net_name))
+        
+        # Track which pads we've already added (by position)
+        added_pad_positions = set()
+        for pads in self._net_pads.values():
+            for x, y in pads:
+                added_pad_positions.add((round(x, 2), round(y, 2)))
+        
+        # Now add ALL component pads, including unconnected ones
+        for comp in self.pcb.components:
+            for pin in comp.pins:
+                abs_x = comp.initial_position[0] + pin.position[0]
+                abs_y = comp.initial_position[1] + pin.position[1]
+                pos_key = (round(abs_x, 2), round(abs_y, 2))
+                
+                # Skip if already added from net
+                if pos_key in added_pad_positions:
+                    continue
+                
+                # This is an unconnected pad - add as obstacle with special net name
+                center = Point(abs_x, abs_y)
+                # Use larger size for THT pads (check footprint name)
+                is_tht = 'THT' in (comp.footprint or '') or 'PTH' in (comp.footprint or '')
+                size = tht_pad_size if is_tht else pad_size
+                poly = center.buffer(size / 2)
+                
+                # Mark as unconnected with component reference
+                unconnected_net = f"_UNCONNECTED_{comp.ref}_{pin.number}"
+                for layer in self.base_obstacles:
+                    self.base_obstacles[layer].append((poly, unconnected_net))
+                
+                added_pad_positions.add(pos_key)
     
     def _get_obstacles_for_net(
         self,
@@ -215,35 +250,61 @@ class ExactGeometryRouter:
         Key insight: Pads on the SAME COMPONENT as our target pads should NOT
         be obstacles. We're routing from a pin on that IC - we can freely
         pass near other pins on the same IC (just need clearance to our trace).
+        
+        PRODUCTION FIX: Add extra margin (0.05mm) beyond clearance to ensure
+        DRC passes even with floating point tolerance.
         """
         obstacles = []
-        full_inflation = clearance + trace_width / 2
+        # Safety margins for DRC compliance
+        # The trace centerline must be at least (clearance + trace_width/2) from obstacle edge
+        # Add extra margin for RRT path approximation
+        pad_safety_margin = 0.05  # mm extra for pad obstacles
+        track_safety_margin = 0.05  # mm extra for existing track obstacles
+        full_inflation = clearance + trace_width / 2 + pad_safety_margin
         
         # Get target pad positions for escape zone calculation
         if target_pads is None:
             target_pads = self._net_pads.get(net_name, [])
         
-        # Find which components have our target pads
+        # Find target pads AND target components
+        target_pad_positions = set()
         target_components = set()
         for net in self.pcb.nets:
             if net.name == net_name:
-                for comp_ref, pin in net.pins:
+                for comp_ref, pin_number in net.pins:
                     target_components.add(comp_ref)
+                    comp = self._comp_by_ref.get(comp_ref)
+                    if not comp:
+                        continue
+                    for pin in comp.pins:
+                        if pin.number == pin_number or pin.name == pin_number:
+                            abs_x = comp.initial_position[0] + pin.position[0]
+                            abs_y = comp.initial_position[1] + pin.position[1]
+                            target_pad_positions.add((round(abs_x, 2), round(abs_y, 2)))
+                            break
         
-        def is_on_same_component(pad_pos: tuple[float, float]) -> bool:
-            """Check if a pad position is on a component that has our target pads."""
+        def is_target_pad(pad_pos: tuple[float, float]) -> bool:
+            """Check if a pad position is one of our target pads (on same net)."""
+            pos_key = (round(pad_pos[0], 2), round(pad_pos[1], 2))
+            return pos_key in target_pad_positions
+        
+        def is_on_target_ic(pad_pos: tuple[float, float]) -> bool:
+            """Check if pad is on same IC as our target (for escape routing).
+            
+            Only applies to ICs with 3+ pins (not simple diodes/resistors).
+            2-pin components should have all pins as obstacles.
+            """
             for comp_ref in target_components:
                 comp = self._comp_by_ref.get(comp_ref)
-                if not comp:
+                if not comp or len(comp.pins) <= 2:  # Skip 2-pin components
                     continue
                 for pin in comp.pins:
                     pin_pos = (
                         comp.initial_position[0] + pin.position[0],
                         comp.initial_position[1] + pin.position[1]
                     )
-                    # Check if this pad position matches
                     dist = np.sqrt((pad_pos[0] - pin_pos[0])**2 + (pad_pos[1] - pin_pos[1])**2)
-                    if dist < 0.1:  # Same position (within tolerance)
+                    if dist < 0.1:
                         return True
             return False
         
@@ -264,19 +325,28 @@ class ExactGeometryRouter:
                 
                 centroid = (poly.centroid.x, poly.centroid.y)
                 
-                # SKIP pads that are on the same component as our target
-                # These are adjacent IC pins - we can route freely near them
-                if is_on_same_component(centroid):
+                # SKIP pads that ARE our target pads (same net)
+                if is_target_pad(centroid):
                     continue
+                
+                # Check if this is on an IC we're routing from (for escape)
+                on_target_ic = is_on_target_ic(centroid)
                 
                 dist = min_distance_to_targets(centroid)
                 
-                # Tiered inflation:
-                # - Very close (< 2mm): Minimal inflation
-                # - Far (> 2mm): Full inflation
-                if dist < 2.0:
-                    inflation = clearance * 0.5
+                # Tiered inflation based on context:
+                # 1. On same IC (3+ pins): skip entirely for escape routing
+                # 2. Close to target: reduced inflation  
+                # 3. Far away: full inflation
+                if on_target_ic:
+                    # Same IC - skip entirely to allow escape routing
+                    # (clearance is enforced by trace width itself)
+                    continue
+                elif dist < 2.0:
+                    # Close but different component - reduced inflation
+                    inflation = clearance * 0.7 + pad_safety_margin
                 else:
+                    # Full inflation for distant obstacles
                     inflation = full_inflation
                 
                 obstacles.append(poly.buffer(inflation))
@@ -284,11 +354,11 @@ class ExactGeometryRouter:
                 # Non-pad obstacles (keepouts, etc) get full inflation
                 obstacles.append(obs.buffer(full_inflation))
         
-        # Add existing routed segments as obstacles
+        # Add existing routed segments as obstacles with safety margin
         for seg in self.routed_segments.get(layer, []):
             if seg.net_name == net_name:
                 continue
-            obstacles.append(seg.as_buffered_polygon(clearance))
+            obstacles.append(seg.as_buffered_polygon(clearance + track_safety_margin))
         
         return obstacles
     
