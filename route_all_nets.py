@@ -96,6 +96,8 @@ def main():
     
     # Signal nets to route - ordered by routing difficulty
     # Route longer/more complex nets first to give them more space
+    # NOTE: AC_L/AC_N excluded - 6mm clearance requirement makes auto-routing
+    # impossible with current board layout. These need manual routing.
     signal_nets = [
         # Complex multi-pad nets first
         'SW_NODE',      # 6 pads
@@ -109,10 +111,8 @@ def main():
         'SPI_CS_TEMP',
         'USB_D+', 'USB_D-',
         'TEMP_SENSE',
-        # High voltage (will fail due to clearance)
-        'AC_L', 'AC_N',
-        # Single pad (skip)
-        'SHUTDOWN_N',
+        'AC_N',  # THT pad, should route directly
+        # Excluded: AC_L (6mm clearance impossible), SHUTDOWN_N (single pad)
     ]
     
     print(f"\n4. Routing {len(signal_nets)} signal nets...")
@@ -164,10 +164,10 @@ def main():
         route, error = try_route_net(net_name, layer, pad_info)
         
         # If failed on F.Cu, try B.Cu (and vice versa)
-        if route is None and error != 'timeout':
+        if route is None:
             alt_layer = 'B.Cu' if layer == 'F.Cu' else 'F.Cu'
             print(f"trying {alt_layer}...", end=" ", flush=True)
-            route, error = try_route_net(net_name, alt_layer, pad_info, timeout_sec=15)
+            route, error = try_route_net(net_name, alt_layer, pad_info, timeout_sec=30)
         
         if route:
             print(f"✓ {len(route.segments)} seg, {len(route.vias)} vias")
