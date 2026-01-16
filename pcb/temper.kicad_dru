@@ -1,10 +1,14 @@
 # Custom Design Rules for Temper Induction Heater
-# IEC 60335-1 compliant with footprint exceptions
+# IEC 60335-1 / IEC 60664-1 compliant
 #
-# Professional PCB design approach:
+# IMPORTANT: This board REQUIRES conformal coating for safety!
+# Without coating, TO-247 packages violate IEC 60664-1 clearances.
+# See docs/SAFETY_CLEARANCES.md for details.
+#
+# Design approach:
 # 1. Strict clearances for ROUTING (traces between components)
-# 2. Relaxed clearances for PADS WITHIN SAME FOOTPRINT (inherent to package)
-# 3. Specific net-to-net rules where needed
+# 2. Package exceptions for HV components (requires conformal coating)
+# 3. Standard exceptions for LV fine-pitch ICs (no coating needed)
 
 (version 1)
 
@@ -54,7 +58,10 @@
 
 # =============================================================================
 # RULE 5: High Voltage internal - relaxed for same footprint
-# TO-247 IGBTs have 5.45mm pin pitch, internal clearance OK
+# TO-247 IGBTs have 5.45mm pin pitch (1.95mm edge-to-edge)
+# 
+# WARNING: This violates IEC 60664-1 PD2 (needs 2.0mm for 400V)
+# REQUIRES: Conformal coating to achieve PD1 (needs 0.8mm for 400V)
 # =============================================================================
 (rule "HV internal same footprint"
     (condition "A.NetClass == 'HighVoltage' && B.NetClass == 'HighVoltage' && A.insideCourtyard(B.Reference)")
