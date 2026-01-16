@@ -163,29 +163,28 @@ class PadLayerConnector:
         """
         Find legal via position for pad.
         
-        Strategy:
-        1. Try near pad (0.5-1mm) - for normal SMD
-        2. Try fanout zone (2-5mm) - for dense IC
+        Strategy (adjusted for DRC compliance):
+        1. Skip "near pad" - hole clearance makes it impossible
+        2. Use fanout zone (1.5-5mm) - maintains proper clearances
         3. Give up if no space
+        
+        Note: With via drill=0.4mm and hole_clearance=0.25mm, vias must be
+        at least ~1.0mm from IC pad centers to maintain clearance.
         """
-        # First try: Near pad (0.5mm radius)
-        near_position = self.via_planner.find_via_location_near(
-            target=pad.position,
-            search_radius=1.0
-        )
+        # First try: Medium distance (1.5-2.5mm) for normal fanout
+        for radius in [1.5, 2.0, 2.5]:
+            # Try 8 directions at this radius
+            for angle_deg in [0, 45, 90, 135, 180, 225, 270, 315]:
+                angle = math.radians(angle_deg)
+                x = pad.position[0] + radius * math.cos(angle)
+                y = pad.position[1] + radius * math.sin(angle)
+                
+                # Check if this position is legal
+                if self.via_planner._is_position_legal((x, y)):
+                    return (x, y)
         
-        if near_position is not None:
-            # Check if truly near pad
-            dist = math.sqrt(
-                (near_position[0] - pad.position[0])**2 + 
-                (near_position[1] - pad.position[1])**2
-            )
-            if dist < 1.0:
-                return near_position
-        
-        # Second try: Fanout zone (2-5mm)
-        # Sample positions in fanout zone
-        for radius in [2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]:
+        # Second try: Larger fanout zone (3-5mm) for dense ICs
+        for radius in [3.0, 3.5, 4.0, 4.5, 5.0]:
             # Try 8 directions at this radius
             for angle_deg in [0, 45, 90, 135, 180, 225, 270, 315]:
                 angle = math.radians(angle_deg)

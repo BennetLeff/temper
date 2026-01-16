@@ -50,12 +50,14 @@ class ViaSpec:
         clearance: Minimum clearance to copper (mm)
         type: Via type (through-hole, blind, buried, microvia)
         margin: Safety margin beyond clearance (mm)
+        hole_clearance: Minimum hole-to-hole clearance (mm) - for DRC
     """
     diameter: float
     drill: float
     clearance: float
     type: ViaType
     margin: float = 0.1  # Safety margin
+    hole_clearance: float = 0.15  # Typical PCB fab capability (relaxed from 0.25mm KiCad default)
     
     @classmethod
     def standard(cls) -> "ViaSpec":
@@ -141,6 +143,38 @@ class ViaSpec:
         distance = math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
         min_hole_spacing = (self.drill / 2) + (other.drill / 2)
         return distance < min_hole_spacing
+    
+    def has_hole_clearance_to_pad(
+        self,
+        via_pos: tuple[float, float],
+        pad_pos: tuple[float, float],
+        pad_size: float = 0.8  # Typical SMD pad size
+    ) -> bool:
+        """
+        Check if via HOLE has sufficient clearance from pad COPPER.
+        
+        Critical for DRC: Via drill hole must be separated from ANY copper
+        (including SMD pads) by at least hole_clearance (typically 0.25mm).
+        
+        This is different from hole-to-hole clearance!
+        For SMD pads: via_hole_edge must be > hole_clearance from pad_edge
+        
+        Args:
+            via_pos: Position of via (x, y)
+            pad_pos: Position of pad (x, y)
+            pad_size: Pad size/diameter (mm) - for SMD or THT annular ring
+        
+        Returns:
+            True if clearance is sufficient, False if DRC violation
+        """
+        distance = math.sqrt(
+            (via_pos[0] - pad_pos[0])**2 + 
+            (via_pos[1] - pad_pos[1])**2
+        )
+        # Via hole edge to pad edge must be > hole_clearance
+        # distance = (via_hole_radius + clearance + pad_radius)
+        min_distance = (self.drill / 2) + self.hole_clearance + (pad_size / 2)
+        return distance >= min_distance
     
     def keepouts_overlap(
         self,

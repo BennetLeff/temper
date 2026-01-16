@@ -391,6 +391,12 @@ class ExactGeometryRouter:
         self.via_planner = ViaPlanner(self._board_polygon, ViaSpec.standard(), self._copper_layers)
         self.pad_connector = PadLayerConnector(self.via_planner)
         
+        # Register all pad positions for hole clearance checking
+        if self.verbose:
+            print(f"    [DEBUG] Registering pad positions for hole clearance...")
+            sys.stdout.flush()
+        self._register_pads_with_via_planner()
+        
         if self.verbose:
             print(f"    [DEBUG] Base obstacles built: {list(self.base_obstacles.keys())}")
             sys.stdout.flush()
@@ -474,6 +480,58 @@ class ExactGeometryRouter:
                 print(f"  Warning: Could not read KiCad file directly: {e}")
         
         return positions
+    
+    def _register_pads_with_via_planner(self):
+        """
+        Register ALL pad positions with ViaPlanner for hole clearance checking.
+        
+        CRITICAL: Via drill holes must maintain clearance from ALL copper,
+        including both SMD and THT pads. KiCad's "hole clearance" rule checks
+        via drill hole to pad copper edge distance.
+        
+        This ensures vias maintain proper clearance, preventing DRC violations.
+        """
+        # Use KiCad file to get accurate pad sizes
+        if self.kicad_file is None:
+            if self.verbose:
+                print(f"      [VIA] No KiCad file - skipping pad registration")
+            return
+        
+        try:
+            from kiutils.board import Board
+            board = Board.from_file(str(self.kicad_file))
+            
+            pad_count = 0
+            for fp in board.footprints:
+                ref = fp.entryName if hasattr(fp, 'entryName') else None
+                if not ref:
+                    continue
+                
+                fp_x = fp.position.X if fp.position else 0
+                fp_y = fp.position.Y if fp.position else 0
+                
+                for pad in fp.pads:
+                    pad_x = pad.position.X if pad.position else 0
+                    pad_y = pad.position.Y if pad.position else 0
+                    abs_x = fp_x + pad_x
+                    abs_y = fp_y + pad_y
+                    
+                    # Get pad size (SMD or THT annular ring)
+                    pad_size = 0.8  # Default for SMD
+                    if hasattr(pad, 'size') and pad.size:
+                        # Use max dimension (width or height)
+                        if hasattr(pad.size, 'X') and hasattr(pad.size, 'Y'):
+                            pad_size = max(pad.size.X, pad.size.Y)
+                    
+                    self.via_planner.register_pad((abs_x, abs_y), pad_size=pad_size)
+                    pad_count += 1
+            
+            if self.verbose:
+                print(f"      [VIA] Registered {pad_count} pads for hole clearance")
+        
+        except Exception as e:
+            if self.verbose:
+                print(f"      [VIA] Warning: Could not register pads: {e}")
     
     def _build_base_obstacles(self):
         """Build obstacles from Stage 2 routing spaces or PCB."""

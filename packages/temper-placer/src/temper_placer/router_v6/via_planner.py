@@ -90,6 +90,10 @@ class ViaPlanner:
         self.obstacles: dict[str, list[ShapelyPolygon]] = {
             layer: [] for layer in self.copper_layers
         }
+        
+        # Track pad positions for hole clearance checking
+        # List of (position, drill_size) tuples
+        self.pad_holes: list[tuple[tuple[float, float], float]] = []
     
     @property
     def via_count(self) -> int:
@@ -106,6 +110,18 @@ class ViaPlanner:
         """
         if layer in self.obstacles:
             self.obstacles[layer].append(obstacle)
+    
+    def register_pad(self, position: tuple[float, float], pad_size: float = 0.8):
+        """
+        Register a pad position for hole clearance checking.
+        
+        Via drill holes must maintain clearance from ALL pads (SMD and THT).
+        
+        Args:
+            position: Pad center (x, y)
+            pad_size: Pad copper size/diameter (mm) - for SMD or THT annular ring
+        """
+        self.pad_holes.append((position, pad_size))
     
     def place_via(
         self,
@@ -152,6 +168,16 @@ class ViaPlanner:
                 self.via_spec
             ):
                 return None
+        
+        # Check hole clearance with pads (CRITICAL for DRC)
+        # Via drill hole must be > hole_clearance from ALL pad copper
+        for pad_pos, pad_size in self.pad_holes:
+            if not self.via_spec.has_hole_clearance_to_pad(
+                via_pos=position,
+                pad_pos=pad_pos,
+                pad_size=pad_size
+            ):
+                return None  # DRC violation: via hole too close to pad copper
         
         # Create via
         # For through-hole, connect all copper layers
