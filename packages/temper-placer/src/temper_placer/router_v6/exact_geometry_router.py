@@ -521,15 +521,11 @@ class ExactGeometryRouter:
             if net.name == net_name:
                 for comp_ref, pin_number in net.pins:
                     target_components.add(comp_ref)
-                    comp = self._comp_by_ref.get(comp_ref)
-                    if not comp:
-                        continue
-                    for pin in comp.pins:
-                        if pin.number == pin_number or pin.name == pin_number:
-                            abs_x = comp.initial_position[0] + pin.position[0]
-                            abs_y = comp.initial_position[1] + pin.position[1]
-                            target_pad_positions.add((round(abs_x, 2), round(abs_y, 2)))
-                            break
+        
+        # Use actual pad positions from our (rotation-corrected) mapping
+        if net_name in self._net_pads:
+            for x, y in self._net_pads[net_name]:
+                target_pad_positions.add((round(x, 2), round(y, 2)))
         
         def is_target_pad(pad_pos: tuple[float, float]) -> bool:
             """Check if a pad position is one of our target pads (on same net)."""
@@ -546,13 +542,21 @@ class ExactGeometryRouter:
                 comp = self._comp_by_ref.get(comp_ref)
                 if not comp or len(comp.pins) <= 2:  # Skip 2-pin components
                     continue
-                for pin in comp.pins:
-                    pin_pos = (
-                        comp.initial_position[0] + pin.position[0],
-                        comp.initial_position[1] + pin.position[1]
-                    )
-                    dist = np.sqrt((pad_pos[0] - pin_pos[0])**2 + (pad_pos[1] - pin_pos[1])**2)
-                    if dist < 0.1:
+                
+                # Get all pads on this component from our nets
+                # (Use rotation-corrected positions from _net_pads)
+                comp_pads = []
+                for other_net in self.pcb.nets:
+                    for c_ref, pin_num in other_net.pins:
+                        if c_ref == comp_ref and other_net.name in self._net_pads:
+                            # Find this pad's position
+                            for pad_coord in self._net_pads[other_net.name]:
+                                comp_pads.append(pad_coord)
+                
+                # Check if pad_pos is close to any pad on this component
+                for comp_pad in comp_pads:
+                    dist = np.sqrt((pad_pos[0] - comp_pad[0])**2 + (pad_pos[1] - comp_pad[1])**2)
+                    if dist < 0.5:  # Within 0.5mm = same pad
                         return True
             return False
         
@@ -638,7 +642,13 @@ class ExactGeometryRouter:
         
         # Get bounds for random sampling - focus on path corridor
         path_length = np.sqrt((goal[0] - start[0])**2 + (goal[1] - start[1])**2)
-        corridor_width = max(20.0, path_length * 0.3)  # 30% of path length or 20mm
+        
+        # For very long paths (>50mm), use wider corridor and more iterations
+        if path_length > 50:
+            corridor_width = max(40.0, path_length * 0.5)  # Wider for long paths
+            max_iterations = int(max_iterations * 2)  # 60k iterations for long paths
+        else:
+            corridor_width = max(20.0, path_length * 0.3)  # 30% of path length or 20mm
         
         # Bounding box around start-goal with corridor
         x_min = min(start[0], goal[0]) - corridor_width
