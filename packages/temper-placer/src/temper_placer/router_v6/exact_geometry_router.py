@@ -312,16 +312,31 @@ class ExactGeometryRouter:
         self.kicad_file = kicad_file  # For accurate pad positions
         
         # VIA-AWARE: Setup via planning
-        board_outline = self.pcb.board_outline
-        if board_outline:
-            board_polygon = Polygon(board_outline)
-        else:
+        # Try to get board outline from various sources
+        board_polygon = None
+        
+        if hasattr(self.pcb, 'board_outline') and self.pcb.board_outline:
+            board_polygon = Polygon(self.pcb.board_outline)
+        elif hasattr(self.pcb, 'board') and self.pcb.board:
+            # Use board geometry
+            board_info = self.pcb.board
+            if hasattr(board_info, 'width') and hasattr(board_info, 'height'):
+                width = board_info.width
+                height = board_info.height
+                board_polygon = Polygon([(0, 0), (width, 0), (width, height), (0, height)])
+        
+        if board_polygon is None:
             # Fallback to bounding box from components
             all_coords = []
-            for comp in self.pcb.components.values():
-                all_coords.append((comp.x, comp.y))
+            for comp in self.pcb.components:
+                if hasattr(comp, 'initial_position') and comp.initial_position:
+                    all_coords.append(comp.initial_position)
+                elif hasattr(comp, 'x') and hasattr(comp, 'y'):
+                    all_coords.append((comp.x, comp.y))
+            
             if all_coords:
-                xs, ys = zip(*all_coords)
+                xs = [c[0] for c in all_coords]
+                ys = [c[1] for c in all_coords]
                 margin = 10.0  # mm
                 board_polygon = Polygon([
                     (min(xs) - margin, min(ys) - margin),

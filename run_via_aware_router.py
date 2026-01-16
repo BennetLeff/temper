@@ -97,19 +97,23 @@ def export_routes_to_kicad(
         for track in route.tracks:
             from kiutils.items.brditems import Segment
             from kiutils.items.common import Position
-            
-            seg = Segment()
-            seg.start = Position(X=track.start[0], Y=track.start[1])
-            seg.end = Position(X=track.end[0], Y=track.end[1])
-            seg.width = track.width
-            seg.layer = track.layer
-            seg.net = 0
+            import uuid
             
             # Find net number
+            net_index = 0
             for net in board.nets:
                 if net.name == net_name:
-                    seg.net = net.number
+                    net_index = net.number
                     break
+            
+            seg = Segment(
+                start=Position(X=track.start[0], Y=track.start[1]),
+                end=Position(X=track.end[0], Y=track.end[1]),
+                width=track.width,
+                layer=track.layer,
+                net=net_index,
+                tstamp=str(uuid.uuid4())
+            )
             
             board.traceItems.append(seg)
         
@@ -117,19 +121,23 @@ def export_routes_to_kicad(
         for via in route.vias:
             from kiutils.items.brditems import Via
             from kiutils.items.common import Position
-            
-            via_obj = Via()
-            via_obj.position = Position(X=via.position[0], Y=via.position[1])
-            via_obj.size = via.spec.diameter
-            via_obj.drill = via.spec.drill
-            via_obj.layers = via.layers
-            via_obj.net = 0
+            import uuid
             
             # Find net number
+            net_index = 0
             for net in board.nets:
                 if net.name == net_name:
-                    via_obj.net = net.number
+                    net_index = net.number
                     break
+            
+            via_obj = Via(
+                position=Position(X=via.position[0], Y=via.position[1]),
+                size=via.spec.diameter,
+                drill=via.spec.drill,
+                layers=list(via.layers),
+                net=net_index,
+                tstamp=str(uuid.uuid4())
+            )
             
             board.traceItems.append(via_obj)
     
