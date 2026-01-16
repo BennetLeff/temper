@@ -33,6 +33,170 @@ from temper_placer.router_v6.stage0_data import ParsedPCB, DesignRules
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 
 
+def compute_mst_edges(
+    pads: list[tuple[float, float]],
+) -> list[tuple[int, int, float]]:
+    """
+    Compute Minimum Spanning Tree edges for a set of pads using Prim's algorithm.
+    
+    Returns list of (pad_idx_a, pad_idx_b, distance) edges in MST order.
+    This gives optimal connection order to minimize total wire length.
+    """
+    if len(pads) < 2:
+        return []
+    
+    n = len(pads)
+    
+    # Compute distance matrix
+    def dist(i: int, j: int) -> float:
+        dx = pads[i][0] - pads[j][0]
+        dy = pads[i][1] - pads[j][1]
+        return np.sqrt(dx*dx + dy*dy)
+    
+    # Prim's algorithm
+    in_mst = [False] * n
+    in_mst[0] = True
+    edges = []
+    
+    for _ in range(n - 1):
+        best_edge = None
+        best_dist = float('inf')
+        
+        for i in range(n):
+            if not in_mst[i]:
+                continue
+            for j in range(n):
+                if in_mst[j]:
+                    continue
+                d = dist(i, j)
+                if d < best_dist:
+                    best_dist = d
+                    best_edge = (i, j, d)
+        
+        if best_edge:
+            edges.append(best_edge)
+            in_mst[best_edge[1]] = True
+    
+    return edges
+
+
+def identify_differential_pairs(
+    net_names: list[str],
+) -> list[tuple[str, str]]:
+    """
+    Identify differential pairs from net names.
+    
+    Looks for patterns like USB_D+/USB_D-, LVDS_P/LVDS_N, etc.
+    
+    Returns list of (positive_net, negative_net) tuples.
+    """
+    pairs = []
+    positive_suffixes = ['+', '_P', '_p', 'P', '_DP', '_PLUS']
+    negative_suffixes = ['-', '_N', '_n', 'N', '_DN', '_MINUS']
+    
+    for pos_suffix in positive_suffixes:
+        for neg_suffix in negative_suffixes:
+            for net in net_names:
+                if net.endswith(pos_suffix):
+                    base = net[:-len(pos_suffix)]
+                    neg_net = base + neg_suffix
+                    if neg_net in net_names:
+                        pairs.append((net, neg_net))
+    
+    return pairs
+
+
+def compute_parallel_offset_path(
+    path: list[tuple[float, float]],
+    offset_distance: float,
+) -> list[tuple[float, float]] | None:
+    """
+    Compute a parallel path offset from the original.
+    
+    For differential pairs, the negative signal runs parallel to positive.
+    Uses perpendicular offset at each segment.
+    
+    Args:
+        path: Original path coordinates
+        offset_distance: Distance to offset (positive = left, negative = right)
+    
+    Returns:
+        Offset path coordinates, or None if path is invalid
+    """
+    if len(path) < 2:
+        return None
+    
+    offset_path = []
+    
+    for i in range(len(path)):
+        if i == 0:
+            # First point: use direction to next point
+            dx = path[1][0] - path[0][0]
+            dy = path[1][1] - path[0][1]
+        elif i == len(path) - 1:
+            # Last point: use direction from previous point
+            dx = path[-1][0] - path[-2][0]
+            dy = path[-1][1] - path[-2][1]
+        else:
+            # Middle point: average of incoming and outgoing directions
+            dx1 = path[i][0] - path[i-1][0]
+            dy1 = path[i][1] - path[i-1][1]
+            dx2 = path[i+1][0] - path[i][0]
+            dy2 = path[i+1][1] - path[i][1]
+            dx = dx1 + dx2
+            dy = dy1 + dy2
+        
+        # Compute perpendicular unit vector
+        length = np.sqrt(dx*dx + dy*dy)
+        if length < 1e-6:
+            # Degenerate case, skip offset
+            offset_path.append(path[i])
+            continue
+        
+        # Perpendicular: rotate 90° counter-clockwise
+        perp_x = -dy / length
+        perp_y = dx / length
+        
+        # Apply offset
+        new_x = path[i][0] + perp_x * offset_distance
+        new_y = path[i][1] + perp_y * offset_distance
+        offset_path.append((new_x, new_y))
+    
+    return offset_path
+
+
+def compute_steiner_point(
+    pads: list[tuple[float, float]],
+) -> tuple[float, float] | None:
+    """
+    Compute approximate Steiner point for 3+ pads.
+    
+    For 3 pads forming a triangle with all angles < 120°, the Steiner point
+    minimizes total wire length. For other cases, returns centroid.
+    
+    Returns None if fewer than 3 pads or Steiner point doesn't help.
+    """
+    if len(pads) < 3:
+        return None
+    
+    # For simplicity, use centroid as approximate Steiner point
+    # True Steiner point computation is complex for N > 3
+    cx = sum(p[0] for p in pads) / len(pads)
+    cy = sum(p[1] for p in pads) / len(pads)
+    
+    # Check if centroid helps (star topology shorter than MST)
+    star_length = sum(np.sqrt((p[0]-cx)**2 + (p[1]-cy)**2) for p in pads)
+    
+    mst_edges = compute_mst_edges(pads)
+    mst_length = sum(e[2] for e in mst_edges)
+    
+    # Only use Steiner if it saves > 10% wire length
+    if star_length < mst_length * 0.9:
+        return (cx, cy)
+    
+    return None
+
+
 @dataclass
 class ExactSegment:
     """A routed trace segment with exact geometry."""
@@ -599,6 +763,135 @@ class ExactGeometryRouter:
         # No clear direction found
         return None
     
+    def _route_pad_pair(
+        self,
+        net_name: str,
+        layer: str,
+        start_pad: tuple[float, float],
+        goal_pad: tuple[float, float],
+        start_escape: tuple[float, float] | None,
+        goal_escape: tuple[float, float] | None,
+        obstacles: list[Polygon],
+        clearance: float,
+        trace_width: float,
+        start_idx: int,
+        goal_idx: int,
+    ) -> list[ExactSegment] | None:
+        """
+        Route between two pads with optional escape routing.
+        
+        Args:
+            net_name: Name of net
+            layer: Target layer
+            start_pad: Start pad position
+            goal_pad: Goal pad position
+            start_escape: Escape point for start pad (or None)
+            goal_escape: Escape point for goal pad (or None)
+            obstacles: Pre-computed obstacles for this net
+            clearance: Required clearance in mm
+            trace_width: Trace width in mm
+            start_idx: Index of start pad (for error messages)
+            goal_idx: Index of goal pad (for error messages)
+        
+        Returns:
+            List of segments if successful, None if routing failed
+        """
+        segments = []
+        
+        # Calculate direct distance between pads
+        direct_dist = np.sqrt(
+            (goal_pad[0] - start_pad[0])**2 + (goal_pad[1] - start_pad[1])**2
+        )
+        
+        # Skip escape routing for short connections (< 5mm)
+        # Escape routing is only needed for long routes that might graze adjacent pads
+        if direct_dist < 5.0:
+            start_escape = None
+            goal_escape = None
+        
+        # Build waypoints: pad -> escape -> ... -> escape -> pad
+        waypoints = [start_pad]
+        if start_escape:
+            waypoints.append(start_escape)
+        if goal_escape:
+            waypoints.append(goal_escape)
+        waypoints.append(goal_pad)
+        
+        # Route through waypoints
+        for j in range(len(waypoints) - 1):
+            start = waypoints[j]
+            goal = waypoints[j + 1]
+            
+            # For escape segments (short, near IC), check against ALL pads
+            is_escape_segment = (j == 0 and start_escape) or (j == len(waypoints) - 2 and goal_escape)
+            
+            if is_escape_segment:
+                # For escape, get obstacles WITHOUT same-IC skipping
+                escape_obstacles = self._get_escape_obstacles(
+                    layer, net_name, clearance, trace_width, start
+                )
+                direct = LineString([start, goal])
+                merged = unary_union([o for o in escape_obstacles if o.area > 0.1])
+                if merged.is_empty or not direct.intersects(merged):
+                    # Direct escape works
+                    seg = ExactSegment(
+                        start=start,
+                        end=goal,
+                        width=trace_width,
+                        net_name=net_name,
+                        layer=layer,
+                    )
+                    segments.append(seg)
+                    continue
+                else:
+                    # Escape blocked, try RRT with escape obstacles
+                    rrt_path = self._rrt_path(start, goal, escape_obstacles, max_iterations=5000, step_size=1.0)
+                    if rrt_path:
+                        for k in range(len(rrt_path) - 1):
+                            seg = ExactSegment(
+                                start=rrt_path[k],
+                                end=rrt_path[k + 1],
+                                width=trace_width,
+                                net_name=net_name,
+                                layer=layer,
+                            )
+                            segments.append(seg)
+                        continue
+            
+            # Use visibility graph + RRT for non-escape segments
+            vg = self._build_visibility_graph(start, goal, obstacles)
+            path_indices = vg.shortest_path(0, 1)
+            
+            if path_indices is None:
+                # Visibility graph failed, try RRT as fallback
+                rrt_path = self._rrt_path(start, goal, obstacles)
+                if rrt_path:
+                    for k in range(len(rrt_path) - 1):
+                        seg = ExactSegment(
+                            start=rrt_path[k],
+                            end=rrt_path[k + 1],
+                            width=trace_width,
+                            net_name=net_name,
+                            layer=layer,
+                        )
+                        segments.append(seg)
+                    continue
+                return None  # Both VG and RRT failed
+            
+            # Convert path to segments
+            path_coords = [vg.vertices[idx] for idx in path_indices]
+            for k in range(len(path_coords) - 1):
+                seg = ExactSegment(
+                    start=path_coords[k],
+                    end=path_coords[k + 1],
+                    width=trace_width,
+                    net_name=net_name,
+                    layer=layer,
+                )
+                segments.append(seg)
+        
+        return segments
+    
     def route_net(
         self,
         net_name: str,
@@ -606,11 +899,13 @@ class ExactGeometryRouter:
         pads: list[tuple[float, float]],
     ) -> ExactRoutePath | None:
         """
-        Route a single net using visibility graph with escape routing.
+        Route a single net using MST-optimized connection order.
         
-        For pads on dense ICs, first routes a short escape segment perpendicular
-        to the pad row, then routes to the destination. This avoids clearance
-        violations with adjacent pads.
+        For multi-pad nets (3+), uses Minimum Spanning Tree to determine
+        optimal connection order, minimizing total wire length and avoiding
+        blockages that occur with sequential routing.
+        
+        For pads on dense ICs, uses escape routing to avoid adjacent pads.
         
         Args:
             net_name: Name of net to route
@@ -637,91 +932,64 @@ class ExactGeometryRouter:
         route = ExactRoutePath(net_name=net_name, layer_name=layer)
         
         # Calculate escape points for each pad
-        # First and intermediate pads are sources, last pad is destination
-        escape_points = []
+        escape_points = {}
         for i, pad in enumerate(pads):
-            is_dest = (i == len(pads) - 1)  # Last pad is destination
             escape = self._get_escape_point(
-                pad, net_name, escape_distance=2.0, layer=layer, is_destination=is_dest
+                pad, net_name, escape_distance=2.0, layer=layer, is_destination=False
             )
-            escape_points.append(escape)
+            escape_points[i] = escape
         
-        # Route between consecutive pads with escape routing
-        for i in range(len(pads) - 1):
-            start_pad = pads[i]
-            goal_pad = pads[i + 1]
-            start_escape = escape_points[i]
-            goal_escape = escape_points[i + 1]
+        # Use MST for multi-pad nets (3+) instead of sequential routing
+        if len(pads) >= 3:
+            mst_edges = compute_mst_edges(pads)
             
-            # Build waypoints: pad -> escape -> ... -> escape -> pad
-            waypoints = [start_pad]
-            if start_escape:
-                waypoints.append(start_escape)
-            if goal_escape:
-                waypoints.append(goal_escape)
-            waypoints.append(goal_pad)
+            # Track which pads are "connected" (have a route to them)
+            connected_pads = {0}  # Start with first pad in MST
             
-            # Route through waypoints
-            for j in range(len(waypoints) - 1):
-                start = waypoints[j]
-                goal = waypoints[j + 1]
+            # Route MST edges in order
+            for start_idx, goal_idx, _ in mst_edges:
+                # Ensure we're routing from connected to unconnected
+                if start_idx not in connected_pads:
+                    start_idx, goal_idx = goal_idx, start_idx
                 
-                # For escape segments (short, near IC), check against ALL pads
-                is_escape_segment = (j == 0 and start_escape) or (j == len(waypoints) - 2 and goal_escape)
+                start_pad = pads[start_idx]
+                goal_pad = pads[goal_idx]
+                start_escape = escape_points.get(start_idx)
+                goal_escape = escape_points.get(goal_idx)
                 
-                if is_escape_segment:
-                    # For escape, get obstacles WITHOUT same-IC skipping
-                    escape_obstacles = self._get_escape_obstacles(
-                        layer, net_name, clearance, trace_width, start
-                    )
-                    direct = LineString([start, goal])
-                    merged = unary_union([o for o in escape_obstacles if o.area > 0.1])
-                    if merged.is_empty or not direct.intersects(merged):
-                        # Direct escape works
-                        seg = ExactSegment(
-                            start=start,
-                            end=goal,
-                            width=trace_width,
-                            net_name=net_name,
-                            layer=layer,
-                        )
-                        route.segments.append(seg)
-                        continue
-                    else:
-                        # Escape blocked, try RRT with escape obstacles
-                        rrt_path = self._rrt_path(start, goal, escape_obstacles, max_iterations=5000, step_size=1.0)
-                        if rrt_path:
-                            for k in range(len(rrt_path) - 1):
-                                seg = ExactSegment(
-                                    start=rrt_path[k],
-                                    end=rrt_path[k + 1],
-                                    width=trace_width,
-                                    net_name=net_name,
-                                    layer=layer,
-                                )
-                                route.segments.append(seg)
-                            continue
+                # Route this MST edge
+                edge_segments = self._route_pad_pair(
+                    net_name, layer, start_pad, goal_pad,
+                    start_escape, goal_escape, obstacles,
+                    clearance, trace_width, start_idx, goal_idx
+                )
                 
-                # Use RRT for non-escape or blocked escape segments
-                vg = self._build_visibility_graph(start, goal, obstacles)
-                path_indices = vg.shortest_path(0, 1)
-                
-                if path_indices is None:
+                if edge_segments is None:
                     if self.verbose:
-                        print(f"  ✗ {net_name}: No path from pad {i} to {i+1}")
+                        print(f"  ✗ {net_name}: No path from pad {start_idx} to {goal_idx}")
                     return None
                 
-                # Convert path to segments
-                path_coords = [vg.vertices[idx] for idx in path_indices]
-                for k in range(len(path_coords) - 1):
-                    seg = ExactSegment(
-                        start=path_coords[k],
-                        end=path_coords[k + 1],
-                        width=trace_width,
-                        net_name=net_name,
-                        layer=layer,
-                    )
-                    route.segments.append(seg)
+                route.segments.extend(edge_segments)
+                connected_pads.add(goal_idx)
+        else:
+            # For 2-pad nets, use simple routing
+            start_pad = pads[0]
+            goal_pad = pads[1]
+            start_escape = escape_points.get(0)
+            goal_escape = escape_points.get(1)
+            
+            edge_segments = self._route_pad_pair(
+                net_name, layer, start_pad, goal_pad,
+                start_escape, goal_escape, obstacles,
+                clearance, trace_width, 0, 1
+            )
+            
+            if edge_segments is None:
+                if self.verbose:
+                    print(f"  ✗ {net_name}: No path from pad 0 to 1")
+                return None
+            
+            route.segments.extend(edge_segments)
         
         # Store routed segments
         self.routed_segments[layer].extend(route.segments)
@@ -731,13 +999,152 @@ class ExactGeometryRouter:
         
         return route
     
+    def route_differential_pair(
+        self,
+        pos_net: str,
+        neg_net: str,
+        layer: str,
+        spacing: float = 0.15,  # mm spacing between traces
+    ) -> tuple[ExactRoutePath | None, ExactRoutePath | None]:
+        """
+        Route a differential pair together.
+        
+        Strategy:
+        1. Try routing both nets and computing parallel offset
+        2. If one blocks the other, try reversed order
+        3. Use intelligent offset based on pad positions
+        
+        Args:
+            pos_net: Positive net name (e.g., "USB_D+")
+            neg_net: Negative net name (e.g., "USB_D-")
+            layer: Target layer
+            spacing: Distance between trace centerlines
+        
+        Returns:
+            Tuple of (positive_route, negative_route), either may be None if failed
+        """
+        pos_pads = self._net_pads.get(pos_net, [])
+        neg_pads = self._net_pads.get(neg_net, [])
+        
+        if len(pos_pads) < 2 or len(neg_pads) < 2:
+            return None, None
+        
+        # Compute offset direction from pad positions
+        # The pads should be parallel, so we use their relative position
+        dx = neg_pads[0][0] - pos_pads[0][0]
+        dy = neg_pads[0][1] - pos_pads[0][1]
+        pad_dist = np.sqrt(dx*dx + dy*dy)
+        
+        rules_pos = self.design_rules.get_rules_for_net(pos_net)
+        rules_neg = self.design_rules.get_rules_for_net(neg_net)
+        trace_width = rules_pos.trace_width_mm
+        clearance = rules_pos.clearance_mm
+        
+        # Minimum spacing needed between trace centerlines for parallel routing
+        min_spacing = clearance + trace_width + 0.05  # = 0.2 + 0.25 + 0.05 = 0.5mm
+        
+        # If pads are too close for parallel offset, route on different layers
+        # This is the case for USB (0.4mm pad spacing < 0.5mm min)
+        if pad_dist < min_spacing:
+            if self.verbose:
+                print(f"  ⚠ Diff pair: Pad spacing ({pad_dist:.2f}mm) < min ({min_spacing:.2f}mm)")
+                print(f"    Routing on different layers: {pos_net} on F.Cu, {neg_net} on B.Cu")
+            pos_route = self.route_net(pos_net, 'F.Cu', pos_pads)
+            neg_route = self.route_net(neg_net, 'B.Cu', neg_pads)
+            return pos_route, neg_route
+        
+        # Strategy 1: Route positive first, offset for negative
+        pos_route = self.route_net(pos_net, layer, pos_pads)
+        if pos_route is None:
+            if self.verbose:
+                print(f"  ✗ Diff pair: {pos_net} failed to route")
+            # Try routing negative independently
+            neg_route = self.route_net(neg_net, layer, neg_pads)
+            return None, neg_route
+        
+        # Try parallel offset using the natural pad spacing
+        # Minimum spacing = clearance + trace_width (center to center)
+        pos_coords = pos_route.coordinates
+        min_spacing = clearance + trace_width + 0.05  # Extra safety margin
+        offset_dist = max(pad_dist, min_spacing) if pad_dist > 0.1 else (spacing + trace_width)
+        
+        # Determine offset direction from pad delta
+        if pad_dist > 0.1:
+            # Use pad-to-pad direction for offset
+            for sign in [1, -1]:
+                offset_path = compute_parallel_offset_path(pos_coords, sign * offset_dist)
+                if offset_path is None:
+                    continue
+                
+                # Check if endpoints match negative pads reasonably well
+                start_dist = np.sqrt((offset_path[0][0] - neg_pads[0][0])**2 + 
+                                     (offset_path[0][1] - neg_pads[0][1])**2)
+                end_dist = np.sqrt((offset_path[-1][0] - neg_pads[-1][0])**2 + 
+                                   (offset_path[-1][1] - neg_pads[-1][1])**2)
+                
+                if start_dist < 2.0 and end_dist < 2.0:
+                    # Good match, adjust endpoints to exact pad positions
+                    offset_path[0] = neg_pads[0]
+                    offset_path[-1] = neg_pads[-1]
+                    
+                    # Verify path doesn't hit obstacles
+                    # IMPORTANT: Exclude positive net's segments (they're parallel, expected to be close)
+                    obstacles = self._get_obstacles_for_net(
+                        layer, neg_net, clearance, trace_width, target_pads=neg_pads
+                    )
+                    
+                    # Filter out positive net's segments from obstacle check
+                    # (they should be parallel, not blocking)
+                    filtered_obstacles = []
+                    pos_path_buffered = LineString(pos_coords).buffer(trace_width)
+                    for obs in obstacles:
+                        if hasattr(obs, 'area') and obs.area > 0.1:
+                            # Skip obstacles that are part of the positive route
+                            if not obs.intersects(pos_path_buffered):
+                                filtered_obstacles.append(obs)
+                            elif obs.area > pos_path_buffered.area * 2:
+                                # Keep larger obstacles that contain the pos path
+                                filtered_obstacles.append(obs)
+                    
+                    merged = unary_union(filtered_obstacles) if filtered_obstacles else Polygon()
+                    
+                    path_line = LineString(offset_path)
+                    buffered_path = path_line.buffer(trace_width / 2)
+                    
+                    if merged.is_empty or not buffered_path.intersects(merged):
+                        # Success! Create route from offset
+                        neg_route = ExactRoutePath(net_name=neg_net, layer_name=layer)
+                        for i in range(len(offset_path) - 1):
+                            seg = ExactSegment(
+                                start=offset_path[i],
+                                end=offset_path[i + 1],
+                                width=trace_width,
+                                net_name=neg_net,
+                                layer=layer,
+                            )
+                            neg_route.segments.append(seg)
+                        
+                        self.routed_segments[layer].extend(neg_route.segments)
+                        
+                        if self.verbose:
+                            print(f"  ✓ Diff pair: {neg_net} parallel to {pos_net}")
+                        
+                        return pos_route, neg_route
+        
+        # Offset failed, try independent routing for negative
+        if self.verbose:
+            print(f"  ⚠ Diff pair: {neg_net} offset failed, trying independent route")
+        
+        neg_route = self.route_net(neg_net, layer, neg_pads)
+        return pos_route, neg_route
+    
     def route_all(
         self,
         channel_mapping: ChannelMapping | None = None,
         net_order: list[str] | None = None,
     ) -> dict[str, ExactRoutePath]:
         """
-        Route all nets.
+        Route all nets, handling differential pairs first.
         
         Args:
             channel_mapping: Optional ChannelMapping for layer preferences
@@ -750,14 +1157,56 @@ class ExactGeometryRouter:
         
         # Determine nets to route
         if net_order:
-            nets_to_route = net_order
+            nets_to_route = list(net_order)  # Make a copy we can modify
         elif channel_mapping and hasattr(channel_mapping, 'net_channels'):
             nets_to_route = list(channel_mapping.net_channels.keys())
         else:
             # Use all nets with 2+ pads
             nets_to_route = [n for n, pads in self._net_pads.items() if len(pads) >= 2]
         
+        # Auto-prioritize complex nets (4+ pads) - they need more routing space
+        # and should be routed before simpler nets block their paths
+        complex_nets = [n for n in nets_to_route if len(self._net_pads.get(n, [])) >= 4]
+        simple_nets = [n for n in nets_to_route if n not in complex_nets]
+        nets_to_route = complex_nets + simple_nets
+        
+        if self.verbose and complex_nets:
+            print(f"  Prioritizing complex nets: {complex_nets}")
+        
+        # Identify and route differential pairs first
+        diff_pairs = identify_differential_pairs(nets_to_route)
+        routed_as_diff = set()
+        
+        for pos_net, neg_net in diff_pairs:
+            if pos_net in routed_as_diff or neg_net in routed_as_diff:
+                continue
+            
+            # Get layer for differential pair
+            layer = self.design_rules.get_layer_constraint(pos_net)
+            if layer is None:
+                layer = 'F.Cu'
+            
+            if self.verbose:
+                print(f"  Routing differential pair: {pos_net} / {neg_net}")
+            
+            pos_route, neg_route = self.route_differential_pair(pos_net, neg_net, layer)
+            
+            if pos_route:
+                routed_paths[pos_net] = pos_route
+                routed_as_diff.add(pos_net)
+            else:
+                failed_nets.append(pos_net)
+            
+            if neg_route:
+                routed_paths[neg_net] = neg_route
+                routed_as_diff.add(neg_net)
+            else:
+                failed_nets.append(neg_net)
+        
+        # Route remaining nets
         for net_name in nets_to_route:
+            if net_name in routed_as_diff:
+                continue  # Already routed as part of diff pair
             # Get layer from design rules or channel mapping
             layer = self.design_rules.get_layer_constraint(net_name)
             if layer is None:
