@@ -48,21 +48,36 @@ def main():
     
     # Create router with via-awareness
     print("\n2. Creating via-aware router...")
+    print("   DEBUG: About to create ExactGeometryRouter...")
+    import sys
+    sys.stdout.flush()
+    
     router = ExactGeometryRouter(
         pcb=parsed_pcb,
         design_rules=design_rules,
         verbose=True,
         kicad_file=str(pcb_path)
     )
+    print("   DEBUG: Router created successfully")
+    sys.stdout.flush()
     
     print(f"   ✓ Router initialized")
+    sys.stdout.flush()
     print(f"   Via min spacing: {router.via_planner.via_spec.min_spacing:.2f}mm")
+    sys.stdout.flush()
     
     # Get pad information from board for via-aware routing
     print("\n3. Extracting pad information...")
+    sys.stdout.flush()
+    
+    print("   DEBUG: Starting pad extraction loop...")
+    sys.stdout.flush()
     
     net_pad_info = {}
-    for fp in board.footprints:
+    for i, fp in enumerate(board.footprints):
+        if i % 10 == 0:
+            print(f"   DEBUG: Processing footprint {i}...")
+            sys.stdout.flush()
         ref = fp.entryName if hasattr(fp, 'entryName') else None
         if not ref:
             continue
@@ -92,34 +107,45 @@ def main():
                 'pin': pad.number or ""
             })
     
+    print(f"   DEBUG: Pad loop complete")
+    sys.stdout.flush()
     print(f"   ✓ Extracted pads for {len(net_pad_info)} nets")
+    sys.stdout.flush()
     
     # Select test nets (simple power nets that should route easily)
+    # Note: This is a 2-layer board (F.Cu, B.Cu only)
     test_nets = [
-        ('PWM_H', 'In1.Cu'),
-        ('PWM_L', 'In1.Cu'),
-        ('AC_L', 'In1.Cu'),
-        ('AC_N', 'In1.Cu'),
-        ('VCC_BOOT', 'In1.Cu'),
+        ('PWM_H', 'F.Cu'),
+        ('PWM_L', 'F.Cu'),
+        ('AC_L', 'B.Cu'),
+        ('AC_N', 'B.Cu'),
+        ('VCC_BOOT', 'F.Cu'),
     ]
     
     print("\n4. Routing test nets with via-awareness...")
+    sys.stdout.flush()
     
     routes = []
     vias_all = []
     routed_count = 0
     
     for net_name, layer in test_nets:
+        print(f"   DEBUG: Checking {net_name}...")
+        sys.stdout.flush()
+        
         if net_name not in net_pad_info:
             print(f"   ⚠ {net_name}: Not found")
+            sys.stdout.flush()
             continue
         
         pad_info = net_pad_info[net_name]
         if len(pad_info) < 2:
             print(f"   ⚠ {net_name}: Only {len(pad_info)} pads")
+            sys.stdout.flush()
             continue
         
         print(f"   Routing {net_name} on {layer} ({len(pad_info)} pads)...")
+        sys.stdout.flush()
         
         # Prepare for via-aware routing
         pads_with_layers = [
@@ -127,9 +153,20 @@ def main():
             for p in pad_info
         ]
         
-        # Try via-aware routing
+        # Try via-aware routing with timeout
+        import signal
+        
+        def timeout_handler(signum, frame):
+            raise TimeoutError(f"Routing {net_name} timed out")
+        
         try:
+            # Set 15 second timeout per net
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(15)
+            
             route = router.route_net_with_vias(net_name, layer, pads_with_layers)
+            
+            signal.alarm(0)  # Cancel timeout
             
             if route:
                 print(f"     ✓ {len(route.segments)} segments, {len(route.vias)} vias")
@@ -157,12 +194,21 @@ def main():
             else:
                 print(f"     ✗ Failed")
                 
+        except TimeoutError as te:
+            signal.alarm(0)  # Cancel timeout
+            print(f"     ✗ Timeout (>15s)")
+            sys.stdout.flush()
+            continue
         except Exception as e:
+            signal.alarm(0)  # Cancel timeout
             print(f"     ✗ Exception: {e}")
+            sys.stdout.flush()
             # Fallback to non-via-aware
             try:
+                signal.alarm(10)  # 10 second timeout for fallback
                 pads_positions = [p['position'] for p in pad_info]
                 route = router.route_net(net_name, layer, pads_positions)
+                signal.alarm(0)
                 
                 if route:
                     print(f"     ✓ Fallback: {len(route.segments)} segments (no vias)")
@@ -175,6 +221,9 @@ def main():
                             'net': net_name
                         })
                     routed_count += 1
+            except TimeoutError:
+                signal.alarm(0)
+                print(f"     ✗ Fallback also timed out")
             except Exception as e2:
                 print(f"     ✗ Fallback also failed: {e2}")
     

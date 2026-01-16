@@ -65,13 +65,14 @@ class ViaPlanner:
     4. Search for legal via locations near desired position
     """
     
-    def __init__(self, board_area: "Polygon", via_spec: ViaSpec):
+    def __init__(self, board_area: "Polygon", via_spec: ViaSpec, copper_layers: list[str] | None = None):
         """
         Initialize via planner.
         
         Args:
             board_area: Board outline polygon
             via_spec: Via specifications to use
+            copper_layers: List of copper layer names (default: 2-layer F.Cu, B.Cu)
         """
         if not SHAPELY_AVAILABLE:
             raise ImportError("Shapely required for via planning")
@@ -82,12 +83,12 @@ class ViaPlanner:
         # Track placed vias
         self.placed_vias: list[PlacedVia] = []
         
+        # Copper layers (default 2-layer board)
+        self.copper_layers = copper_layers or ['F.Cu', 'B.Cu']
+        
         # Obstacles per layer
         self.obstacles: dict[str, list[ShapelyPolygon]] = {
-            'F.Cu': [],
-            'In1.Cu': [],
-            'In2.Cu': [],
-            'B.Cu': []
+            layer: [] for layer in self.copper_layers
         }
     
     @property
@@ -153,9 +154,9 @@ class ViaPlanner:
                 return None
         
         # Create via
-        # For through-hole, connect all layers
+        # For through-hole, connect all copper layers
         if self.via_spec.type.spans_all_layers():
-            layers = ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+            layers = self.copper_layers
         else:
             layers = [from_layer, to_layer]
         

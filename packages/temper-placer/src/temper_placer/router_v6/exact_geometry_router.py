@@ -302,6 +302,11 @@ class ExactGeometryRouter:
         verbose: bool = False,
         kicad_file: str | None = None,  # Path to original .kicad_pcb file
     ):
+        import sys
+        if verbose:
+            print("    [INIT] Starting ExactGeometryRouter.__init__...")
+            sys.stdout.flush()
+        
         if not SHAPELY_AVAILABLE:
             raise ImportError("Shapely required for exact geometry routing")
         
@@ -311,8 +316,16 @@ class ExactGeometryRouter:
         self.verbose = verbose
         self.kicad_file = kicad_file  # For accurate pad positions
         
+        if verbose:
+            print("    [INIT] Basic attributes set")
+            sys.stdout.flush()
+        
         # VIA-AWARE: Setup via planning
         # Try to get board outline from various sources
+        if verbose:
+            print("    [INIT] Getting board polygon...")
+            sys.stdout.flush()
+        
         board_polygon = None
         
         if hasattr(self.pcb, 'board_outline') and self.pcb.board_outline:
@@ -327,6 +340,10 @@ class ExactGeometryRouter:
         
         if board_polygon is None:
             # Fallback to bounding box from components
+            if verbose:
+                print("    [INIT] Using component bounding box for board polygon...")
+                sys.stdout.flush()
+            
             all_coords = []
             for comp in self.pcb.components:
                 if hasattr(comp, 'initial_position') and comp.initial_position:
@@ -348,17 +365,44 @@ class ExactGeometryRouter:
                 # Last resort: large default board
                 board_polygon = Polygon([(0, 0), (150, 0), (150, 100), (0, 100)])
         
-        self.via_planner = ViaPlanner(board_polygon, ViaSpec.standard())
-        self.pad_connector = PadLayerConnector(self.via_planner)
+        if verbose:
+            print(f"    [INIT] Board polygon created: {board_polygon.bounds}")
+            sys.stdout.flush()
         
+        import sys
+        if self.verbose:
+            print("    [DEBUG] Creating ViaPlanner...")
+            sys.stdout.flush()
+        # ViaPlanner is created after _build_base_obstacles determines copper_layers
+        self._copper_layers = None  # Will be set in _build_base_obstacles
+        self._board_polygon = board_polygon
+        
+        if self.verbose:
+            print("    [DEBUG] Building base obstacles...")
+            sys.stdout.flush()
         # Build base obstacles from routing spaces (preferred) or PCB
         self.base_obstacles: dict[str, list[Polygon]] = {}
         self._build_base_obstacles()
+        
+        # Now create ViaPlanner with known copper layers
+        if self.verbose:
+            print(f"    [DEBUG] Creating ViaPlanner with layers: {self._copper_layers}")
+            sys.stdout.flush()
+        self.via_planner = ViaPlanner(self._board_polygon, ViaSpec.standard(), self._copper_layers)
+        self.pad_connector = PadLayerConnector(self.via_planner)
+        
+        if self.verbose:
+            print(f"    [DEBUG] Base obstacles built: {list(self.base_obstacles.keys())}")
+            sys.stdout.flush()
         
         # Track routed segments per layer
         self.routed_segments: dict[str, list[ExactSegment]] = {}
         for layer in self.base_obstacles:
             self.routed_segments[layer] = []
+        
+        if self.verbose:
+            print("    [DEBUG] Router initialization complete")
+            sys.stdout.flush()
     
     def _read_kicad_pad_positions(self) -> dict[tuple[str, str, str], tuple[float, float]]:
         """
@@ -433,18 +477,47 @@ class ExactGeometryRouter:
     
     def _build_base_obstacles(self):
         """Build obstacles from Stage 2 routing spaces or PCB."""
-        for layer in ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]:
+        import sys
+        if self.verbose:
+            print("      [OBS] Setting up layers...")
+            sys.stdout.flush()
+        # Use only actual copper layers from board stackup
+        # Default to 2-layer (F.Cu, B.Cu) if unknown
+        self._copper_layers = ["F.Cu", "B.Cu"]  # Default 2-layer
+        if hasattr(self.pcb, 'stackup') and self.pcb.stackup:
+            if hasattr(self.pcb.stackup, 'copper_layers'):
+                self._copper_layers = self.pcb.stackup.copper_layers
+            elif hasattr(self.pcb.stackup, 'layer_count'):
+                if self.pcb.stackup.layer_count >= 4:
+                    self._copper_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+        
+        for layer in self._copper_layers:
             self.base_obstacles[layer] = []
         
+        if self.verbose:
+            print(f"      [OBS] Using {len(self._copper_layers)} copper layers: {self._copper_layers}")
+        
+        if self.verbose:
+            print("      [OBS] Building component lookup...")
+            sys.stdout.flush()
         # Build component lookup and net-to-pads mapping
         self._comp_by_ref = {comp.ref: comp for comp in self.pcb.components}
         self._net_pads: dict[str, list[tuple[float, float]]] = {}
         
+        if self.verbose:
+            print("      [OBS] Reading KiCad pad positions...")
+            sys.stdout.flush()
         # Try to read pad positions directly from KiCad file for accuracy
         # ParsedPCB has rotation bugs that cause incorrect positions
         kicad_pad_positions = self._read_kicad_pad_positions()
+        if self.verbose:
+            print(f"      [OBS] Read {len(kicad_pad_positions)} pad positions from KiCad")
+            sys.stdout.flush()
         
-        for net in self.pcb.nets:
+        if self.verbose:
+            print(f"      [OBS] Processing {len(self.pcb.nets)} nets...")
+            sys.stdout.flush()
+        for i, net in enumerate(self.pcb.nets):
             pads = []
             for comp_ref, pin_number in net.pins:
                 # First try KiCad-sourced positions (most accurate)
@@ -464,6 +537,9 @@ class ExactGeometryRouter:
                         pads.append((abs_x, abs_y))
                         break
             self._net_pads[net.name] = pads
+        if self.verbose:
+            print(f"      [OBS] Net pads built: {len(self._net_pads)} nets")
+            sys.stdout.flush()
         
         # If routing_spaces provided (from Stage 2), use them
         if self.routing_spaces:
@@ -485,18 +561,27 @@ class ExactGeometryRouter:
             # This is a simplified fallback when routing_spaces not provided
             pass
         
+        if self.verbose:
+            print("      [OBS] Adding pad obstacles...")
+            sys.stdout.flush()
         # Add ALL pads as obstacles (including unconnected ones)
         # This is critical - unconnected pads still exist physically!
         pad_size = 0.8  # mm - typical pad size for SMD
         tht_pad_size = 2.5  # mm - larger for through-hole (DO-201 diodes are 2.5mm)
         
         # First, add pads from known nets
+        pad_count = 0
         for net_name, pads in self._net_pads.items():
             for x, y in pads:
                 center = Point(x, y)
                 poly = center.buffer(pad_size / 2)
                 for layer in self.base_obstacles:
                     self.base_obstacles[layer].append((poly, net_name))
+                pad_count += 1
+        
+        if self.verbose:
+            print(f"      [OBS] Added {pad_count} pad obstacles from nets")
+            sys.stdout.flush()
         
         # Track which pads we've already added (by position)
         added_pad_positions = set()
@@ -504,7 +589,12 @@ class ExactGeometryRouter:
             for x, y in pads:
                 added_pad_positions.add((round(x, 2), round(y, 2)))
         
+        if self.verbose:
+            print(f"      [OBS] Adding unconnected pad obstacles...")
+            sys.stdout.flush()
+        
         # Now add ALL component pads, including unconnected ones
+        unconnected_count = 0
         for comp in self.pcb.components:
             for pin in comp.pins:
                 abs_x = comp.initial_position[0] + pin.position[0]
@@ -528,6 +618,13 @@ class ExactGeometryRouter:
                     self.base_obstacles[layer].append((poly, unconnected_net))
                 
                 added_pad_positions.add(pos_key)
+                unconnected_count += 1
+        
+        if self.verbose:
+            print(f"      [OBS] Added {unconnected_count} unconnected pad obstacles")
+            total_obs = sum(len(v) for v in self.base_obstacles.values())
+            print(f"      [OBS] Total obstacles: {total_obs}")
+            sys.stdout.flush()
     
     def _get_obstacles_for_net(
         self,
