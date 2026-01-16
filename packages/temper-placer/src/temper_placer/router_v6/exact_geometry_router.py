@@ -1138,6 +1138,128 @@ class ExactGeometryRouter:
         neg_route = self.route_net(neg_net, layer, neg_pads)
         return pos_route, neg_route
     
+    def rip_up_net(self, net_name: str) -> None:
+        """
+        Remove all routed segments for a net.
+        
+        Used for rip-up and retry when DRC violations are found.
+        """
+        for layer in self.routed_segments:
+            self.routed_segments[layer] = [
+                seg for seg in self.routed_segments[layer]
+                if seg.net_name != net_name
+            ]
+    
+    def reroute_with_clearance(
+        self,
+        net_name: str,
+        extra_clearance: float = 0.1,
+    ) -> ExactRoutePath | None:
+        """
+        Rip up a net and reroute with increased clearance.
+        
+        Args:
+            net_name: Net to reroute
+            extra_clearance: Additional clearance margin (mm)
+        
+        Returns:
+            New route if successful, None otherwise
+        """
+        # Rip up existing route
+        self.rip_up_net(net_name)
+        
+        # Get pads and layer
+        pads = self._net_pads.get(net_name, [])
+        if len(pads) < 2:
+            return None
+        
+        layer = self.design_rules.get_layer_constraint(net_name) or 'F.Cu'
+        
+        # Temporarily increase clearance for this net
+        original_clearance = self.design_rules.get_rules_for_net(net_name).clearance_mm
+        
+        # Create modified obstacle set with extra clearance
+        rules = self.design_rules.get_rules_for_net(net_name)
+        obstacles = self._get_obstacles_for_net(
+            layer, net_name, 
+            rules.clearance_mm + extra_clearance,  # Extra clearance
+            rules.trace_width_mm, 
+            target_pads=pads
+        )
+        
+        route = ExactRoutePath(net_name=net_name, layer_name=layer)
+        
+        # Use MST for multi-pad nets
+        if len(pads) >= 3:
+            mst_edges = compute_mst_edges(pads)
+            connected_pads = {0}
+            
+            for start_idx, goal_idx, _ in mst_edges:
+                if start_idx not in connected_pads:
+                    start_idx, goal_idx = goal_idx, start_idx
+                
+                start_pad = pads[start_idx]
+                goal_pad = pads[goal_idx]
+                
+                # Route without escape (simpler is better for reroute)
+                direct = LineString([start_pad, goal_pad])
+                merged = unary_union([o for o in obstacles if hasattr(o, 'area') and o.area > 0.1])
+                
+                if merged.is_empty or not direct.intersects(merged):
+                    # Direct works
+                    seg = ExactSegment(
+                        start=start_pad, end=goal_pad,
+                        width=rules.trace_width_mm, net_name=net_name, layer=layer
+                    )
+                    route.segments.append(seg)
+                else:
+                    # Try RRT
+                    rrt_path = self._rrt_path(start_pad, goal_pad, obstacles)
+                    if rrt_path:
+                        for i in range(len(rrt_path) - 1):
+                            seg = ExactSegment(
+                                start=rrt_path[i], end=rrt_path[i+1],
+                                width=rules.trace_width_mm, net_name=net_name, layer=layer
+                            )
+                            route.segments.append(seg)
+                    else:
+                        if self.verbose:
+                            print(f"  ✗ Reroute {net_name}: failed at {start_idx}->{goal_idx}")
+                        return None
+                
+                connected_pads.add(goal_idx)
+        else:
+            # 2-pad net
+            start_pad, goal_pad = pads[0], pads[1]
+            direct = LineString([start_pad, goal_pad])
+            merged = unary_union([o for o in obstacles if hasattr(o, 'area') and o.area > 0.1])
+            
+            if merged.is_empty or not direct.intersects(merged):
+                seg = ExactSegment(
+                    start=start_pad, end=goal_pad,
+                    width=rules.trace_width_mm, net_name=net_name, layer=layer
+                )
+                route.segments.append(seg)
+            else:
+                rrt_path = self._rrt_path(start_pad, goal_pad, obstacles)
+                if rrt_path:
+                    for i in range(len(rrt_path) - 1):
+                        seg = ExactSegment(
+                            start=rrt_path[i], end=rrt_path[i+1],
+                            width=rules.trace_width_mm, net_name=net_name, layer=layer
+                        )
+                        route.segments.append(seg)
+                else:
+                    return None
+        
+        # Store new route
+        self.routed_segments[layer].extend(route.segments)
+        
+        if self.verbose:
+            print(f"  ✓ Rerouted {net_name} with +{extra_clearance}mm clearance")
+        
+        return route
+    
     def route_all(
         self,
         channel_mapping: ChannelMapping | None = None,
