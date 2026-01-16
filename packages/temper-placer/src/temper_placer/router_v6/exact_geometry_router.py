@@ -31,6 +31,9 @@ except ImportError:
 
 from temper_placer.router_v6.stage0_data import ParsedPCB, DesignRules
 from temper_placer.router_v6.channel_mapping import ChannelMapping
+from temper_placer.router_v6.via_model import ViaSpec
+from temper_placer.router_v6.via_planner import ViaPlanner, PlacedVia
+from temper_placer.router_v6.pad_layer_connector import Pad, PadLayerConnector
 
 
 def compute_mst_edges(
@@ -222,6 +225,7 @@ class ExactRoutePath:
     net_name: str
     layer_name: str
     segments: list[ExactSegment] = field(default_factory=list)
+    vias: list[PlacedVia] = field(default_factory=list)  # VIA-AWARE: Add via list
     
     @property
     def coordinates(self) -> list[tuple[float, float]]:
@@ -306,6 +310,31 @@ class ExactGeometryRouter:
         self.routing_spaces = routing_spaces
         self.verbose = verbose
         self.kicad_file = kicad_file  # For accurate pad positions
+        
+        # VIA-AWARE: Setup via planning
+        board_outline = self.pcb.board_outline
+        if board_outline:
+            board_polygon = Polygon(board_outline)
+        else:
+            # Fallback to bounding box from components
+            all_coords = []
+            for comp in self.pcb.components.values():
+                all_coords.append((comp.x, comp.y))
+            if all_coords:
+                xs, ys = zip(*all_coords)
+                margin = 10.0  # mm
+                board_polygon = Polygon([
+                    (min(xs) - margin, min(ys) - margin),
+                    (max(xs) + margin, min(ys) - margin),
+                    (max(xs) + margin, max(ys) + margin),
+                    (min(xs) - margin, max(ys) + margin)
+                ])
+            else:
+                # Last resort: large default board
+                board_polygon = Polygon([(0, 0), (150, 0), (150, 100), (0, 100)])
+        
+        self.via_planner = ViaPlanner(board_polygon, ViaSpec.standard())
+        self.pad_connector = PadLayerConnector(self.via_planner)
         
         # Build base obstacles from routing spaces (preferred) or PCB
         self.base_obstacles: dict[str, list[Polygon]] = {}
@@ -985,6 +1014,80 @@ class ExactGeometryRouter:
                 segments.append(seg)
         
         return segments
+    
+    def route_net_with_vias(
+        self,
+        net_name: str,
+        layer: str,
+        pads_with_layers: list[tuple[tuple[float, float], list[str], str, str]],
+    ) -> ExactRoutePath | None:
+        """
+        VIA-AWARE: Route a net with automatic via placement for layer transitions.
+        
+        Args:
+            net_name: Name of net to route
+            layer: Target routing layer (e.g., "In1.Cu")
+            pads_with_layers: List of (position, layers, ref, pin_num) tuples
+        
+        Returns:
+            ExactRoutePath with segments and vias, or None if failed
+        """
+        if len(pads_with_layers) < 2:
+            return None
+        
+        # Convert to Pad objects
+        pad_objects = [
+            Pad(position=pos, layers=lyrs, net=net_name, ref=ref, number=pin)
+            for pos, lyrs, ref, pin in pads_with_layers
+        ]
+        
+        # Get connection points (may include vias)
+        connection_points = []
+        vias = []
+        
+        for pad in pad_objects:
+            conn = self.pad_connector.get_connection_point(pad, layer)
+            if conn is None:
+                # Can't connect this pad
+                if self.verbose:
+                    print(f"  ✗ {net_name}: Can't get connection point for {pad.ref}.{pad.number}")
+                return None
+            connection_points.append((pad, conn))
+            if conn.via:
+                vias.append(conn.via)
+                # Add via as obstacle
+                self.via_planner.add_obstacle(conn.via.keepout_zone(), layer)
+        
+        # Extract positions for routing
+        routing_positions = [conn.position for _, conn in connection_points]
+        
+        # Use existing route_net on routing layer
+        route = self.route_net(net_name, layer, routing_positions)
+        
+        if route is None:
+            return None
+        
+        # Add escape segments (pad → via on pad layer)
+        for pad, conn in connection_points:
+            if conn.requires_escape and conn.via:
+                # Add escape segment from pad to via on pad's layer
+                pad_layer = self.pad_connector._get_primary_copper_layer(pad)
+                escape_seg = ExactSegment(
+                    start=pad.position,
+                    end=conn.position,
+                    width=self.design_rules.get_rules_for_net(net_name).trace_width_mm,
+                    net_name=net_name,
+                    layer=pad_layer
+                )
+                route.segments.insert(0, escape_seg)  # Add at beginning
+        
+        # Add vias to route
+        route.vias = vias
+        
+        if self.verbose:
+            print(f"  ✓ {net_name}: {len(route.segments)} segments, {len(vias)} vias")
+        
+        return route
     
     def route_net(
         self,
