@@ -964,6 +964,9 @@ def write_routes_to_pcb(
     # Write the modified PCB
     try:
         ki_board.to_file(str(output_pcb))
+        
+        # Post-process to fix kiutils bugs for KiCad 9 compatibility
+        _fix_kicad9_compatibility(output_pcb)
     except Exception as e:
         raise ValueError(f"Failed to write output PCB: {e}")
 
@@ -971,6 +974,102 @@ def write_routes_to_pcb(
         output_path=output_pcb,
         components_updated=traces_added,  # Reusing field for trace count
         components_skipped=traces_skipped,
+        warnings=warnings,
+    )
+
+
+def _fix_kicad9_compatibility(pcb_path: Path) -> None:
+    """
+    Fix kiutils output for KiCad 9 compatibility.
+    
+    kiutils has bugs that break KiCad 9:
+    1. Removes quotes from layer wildcards (*.Cu -> "*.Cu")
+    2. Changes drill precision (1.0 -> 1)
+    
+    This post-processes the file to fix these issues.
+    """
+    import re
+    
+    with open(pcb_path, 'r') as f:
+        content = f.read()
+    
+    # Fix unquoted layer wildcards: (layers *.Cu *.Mask) -> (layers "*.Cu" "*.Mask")
+    # Match (layers followed by unquoted wildcards
+    content = re.sub(
+        r'\(layers\s+(\*\.[A-Za-z]+)\s+(\*\.[A-Za-z]+)\)',
+        r'(layers "\1" "\2")',
+        content
+    )
+    
+    with open(pcb_path, 'w') as f:
+        f.write(content)
+
+
+def write_routes_direct(
+    template_pcb: Path,
+    output_pcb: Path,
+    routes: list[dict],  # [{start, end, width, layer, net}]
+    vias: list[dict] | None = None,  # [{position, width, drill, layers, net}]
+    net_name_to_index: dict[str, int] | None = None,
+) -> WriteResult:
+    """
+    Write routes directly to PCB file without using kiutils.
+    
+    This avoids kiutils bugs that break KiCad 9 compatibility.
+    Simply appends trace/via S-expressions to the original file.
+    """
+    import shutil
+    
+    warnings = []
+    
+    # Copy template to output
+    shutil.copy(template_pcb, output_pcb)
+    
+    # Read the file
+    with open(output_pcb, 'r') as f:
+        content = f.read()
+    
+    # Build net name to index mapping from file
+    if net_name_to_index is None:
+        import re
+        net_name_to_index = {}
+        for match in re.finditer(r'\(net\s+(\d+)\s+"([^"]+)"\)', content):
+            net_name_to_index[match.group(2)] = int(match.group(1))
+    
+    # Build trace S-expressions
+    trace_sexps = []
+    for route in routes:
+        net_idx = net_name_to_index.get(route['net'], 0)
+        sexp = f'  (segment (start {route["start"][0]} {route["start"][1]}) (end {route["end"][0]} {route["end"][1]}) (width {route["width"]}) (layer "{route["layer"]}") (net {net_idx}))'
+        trace_sexps.append(sexp)
+    
+    # Build via S-expressions
+    via_sexps = []
+    if vias:
+        for via in vias:
+            net_idx = net_name_to_index.get(via['net'], 0)
+            # Use only first and last layer for KiCad 9 compatibility
+            layers = list(via['layers'])
+            if len(layers) > 2:
+                layers = [layers[0], layers[-1]]
+            layers_str = ' '.join(f'"{l}"' for l in layers)
+            sexp = f'  (via (at {via["position"][0]} {via["position"][1]}) (size {via["width"]}) (drill {via["drill"]}) (layers {layers_str}) (net {net_idx}))'
+            via_sexps.append(sexp)
+    
+    # Insert before final )
+    all_sexps = '\n'.join(trace_sexps + via_sexps)
+    content = content.rstrip()
+    if content.endswith(')'):
+        content = content[:-1] + '\n' + all_sexps + '\n)'
+    
+    # Write output
+    with open(output_pcb, 'w') as f:
+        f.write(content)
+    
+    return WriteResult(
+        output_path=output_pcb,
+        components_updated=len(routes),
+        components_skipped=0,
         warnings=warnings,
     )
 

@@ -200,7 +200,8 @@ class PadLayerConnector:
     def _get_primary_copper_layer(self, pad: Pad) -> str:
         """Get primary copper layer for pad"""
         # Prefer F.Cu, then B.Cu
-        copper_layers = [l for l in pad.layers if '.Cu' in l]
+        # Filter out wildcards (*.Cu) - only use specific layers
+        copper_layers = [l for l in pad.layers if '.Cu' in l and not l.startswith('*')]
         
         if 'F.Cu' in copper_layers:
             return 'F.Cu'
@@ -209,4 +210,5 @@ class PadLayerConnector:
         elif copper_layers:
             return copper_layers[0]
         else:
-            return 'F.Cu'  # Default
+            # THT pads have *.Cu - default to F.Cu
+            return 'F.Cu'
