@@ -85,19 +85,35 @@ def main():
     
     print(f"   ✓ Extracted pads for {len(net_pad_info)} nets")
     
-    # Signal nets to route
-    signal_nets = [
+    # Assign layers - all F.Cu for SMD pads (no via issues)
+    # B.Cu routing requires vias which adds complexity
+    net_layers = {net: 'F.Cu' for net in [
         'AC_L', 'AC_N', 'GATE_H', 'SW_NODE', 'GATE_L', 
         'PWM_H', 'PWM_L', 'SHUTDOWN_N', 'I_SENSE', 
         'SPI_CLK', 'SPI_MOSI', 'SPI_MISO', 'SPI_CS_TEMP',
         'USB_D+', 'USB_D-', 'TEMP_SENSE'
-    ]
+    ]}
     
-    # Assign layers - use F.Cu and B.Cu for now (outer layers)
-    # Inner layers (In1.Cu, In2.Cu) require via transitions which need more work
-    net_layers = {}
-    for i, net in enumerate(signal_nets):
-        net_layers[net] = 'F.Cu' if i % 2 == 0 else 'B.Cu'
+    # Signal nets to route - ordered by routing difficulty
+    # Route longer/more complex nets first to give them more space
+    signal_nets = [
+        # Complex multi-pad nets first
+        'SW_NODE',      # 6 pads
+        'I_SENSE',      # 8 pads
+        'GATE_H',       # 4 pads
+        'GATE_L',       # 4 pads
+        # SPI bus (3 pads each)
+        'SPI_CLK', 'SPI_MOSI', 'SPI_MISO',
+        # Simple 2-pad nets
+        'PWM_H', 'PWM_L',
+        'SPI_CS_TEMP',
+        'USB_D+', 'USB_D-',
+        'TEMP_SENSE',
+        # High voltage (will fail due to clearance)
+        'AC_L', 'AC_N',
+        # Single pad (skip)
+        'SHUTDOWN_N',
+    ]
     
     print(f"\n4. Routing {len(signal_nets)} signal nets...")
     print("   (Timeout: 30s per net)\n")

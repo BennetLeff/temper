@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.kicad.org/drc.v1.json",
     "coordinate_units": "mm",
-    "date": "2026-01-16T11:24:02-0600",
+    "date": "2026-01-16T11:37:54-0600",
     "kicad_version": "9.0.6",
     "schematic_parity": [],
     "source": "temper_all_nets_routed.kicad_pcb",
@@ -15,7 +15,7 @@
                         "x": 10.0,
                         "y": 95.0
                     },
-                    "uuid": "0a5ab76a-6bc5-4a57-9d9d-7f6a3def0395"
+                    "uuid": "c811ee9e-2b5b-4d74-b880-491b5818f5fb"
                 },
                 {
                     "description": "Pad 10 [GND] of U_CT on F.Cu",
@@ -23,7 +23,7 @@
                         "x": 27.1,
                         "y": 112.925
                     },
-                    "uuid": "fc4e1ef8-6810-4977-946d-64981c3f3a3a"
+                    "uuid": "2a7dc082-eb80-4d97-9156-a3c13fbfb9b4"
                 }
             ],
             "severity": "error",
@@ -38,7 +38,7 @@
                         "x": 12.54,
                         "y": 135.0
                     },
-                    "uuid": "7c802bad-aee0-4411-a37b-c9324d19b739"
+                    "uuid": "b435df93-5fa0-4440-91b1-caca0f4f18e1"
                 },
                 {
                     "description": "Pad 10 [GND] of MAX31865 on F.Cu",
@@ -46,7 +46,7 @@
                         "x": 27.1,
                         "y": 137.925
                     },
-                    "uuid": "7d77f4cc-501b-467d-be7d-3be7661752b6"
+                    "uuid": "a2ab0143-7312-4c14-8a16-55f70669c3b8"
                 }
             ],
             "severity": "error",
@@ -61,7 +61,7 @@
                         "x": 13.81,
                         "y": 120.0
                     },
-                    "uuid": "0d6b1076-7afa-43a2-a862-7dee9d696cd3"
+                    "uuid": "afd22ab6-bffc-4695-9748-1aed6ff2653a"
                 },
                 {
                     "description": "PTH pad 2 [GND] of J_NTC",
@@ -69,7 +69,7 @@
                         "x": 12.54,
                         "y": 135.0
                     },
-                    "uuid": "7c802bad-aee0-4411-a37b-c9324d19b739"
+                    "uuid": "b435df93-5fa0-4440-91b1-caca0f4f18e1"
                 }
             ],
             "severity": "error",
@@ -84,7 +84,7 @@
                         "x": 27.1,
                         "y": 112.925
                     },
-                    "uuid": "fc4e1ef8-6810-4977-946d-64981c3f3a3a"
+                    "uuid": "2a7dc082-eb80-4d97-9156-a3c13fbfb9b4"
                 },
                 {
                     "description": "Pad 2 [GND] of R_BURDEN on F.Cu",
@@ -92,7 +92,7 @@
                         "x": 31.0,
                         "y": 120.0
                     },
-                    "uuid": "9d2d278a-dddd-48cf-9917-1c62d1ca8cf7"
+                    "uuid": "de0833f2-91f6-4b73-9f42-cb439a80844e"
                 }
             ],
             "severity": "error",
@@ -107,7 +107,7 @@
                         "x": 27.1,
                         "y": 137.925
                     },
-                    "uuid": "7d77f4cc-501b-467d-be7d-3be7661752b6"
+                    "uuid": "a2ab0143-7312-4c14-8a16-55f70669c3b8"
                 },
                 {
                     "description": "Pad 2 [GND] of C_CT_FILT on F.Cu",
@@ -115,7 +115,7 @@
                         "x": 30.825,
                         "y": 125.0
                     },
-                    "uuid": "3d09b4e6-ee6f-4c57-8358-cd74b294dbfc"
+                    "uuid": "faf88c54-93e5-47e2-bff1-37677a3f285a"
                 }
             ],
             "severity": "error",
@@ -130,7 +130,7 @@
                         "x": 30.825,
                         "y": 125.0
                     },
-                    "uuid": "3d09b4e6-ee6f-4c57-8358-cd74b294dbfc"
+                    "uuid": "faf88c54-93e5-47e2-bff1-37677a3f285a"
                 },
                 {
                     "description": "Pad 2 [GND] of R_BURDEN on F.Cu",
@@ -138,7 +138,7 @@
                         "x": 31.0,
                         "y": 120.0
                     },
-                    "uuid": "9d2d278a-dddd-48cf-9917-1c62d1ca8cf7"
+                    "uuid": "de0833f2-91f6-4b73-9f42-cb439a80844e"
                 }
             ],
             "severity": "error",
@@ -153,7 +153,7 @@
                         "x": 37.525,
                         "y": 121.905
                     },
-                    "uuid": "f27c52b1-823f-43df-a73f-069454aeaa8a"
+                    "uuid": "f741efe7-b412-4043-8c3e-17a5383d0ac9"
                 },
                 {
                     "description": "Pad 2 [GND] of R_BURDEN on F.Cu",
@@ -161,7 +161,7 @@
                         "x": 31.0,
                         "y": 120.0
                     },
-                    "uuid": "9d2d278a-dddd-48cf-9917-1c62d1ca8cf7"
+                    "uuid": "de0833f2-91f6-4b73-9f42-cb439a80844e"
                 }
             ],
             "severity": "error",
@@ -176,7 +176,7 @@
                         "x": 72.7,
                         "y": 50.0
                     },
-                    "uuid": "5d794f7c-6812-4ffb-ac54-7efd97f10b6a"
+                    "uuid": "b12a4eed-b147-4f59-a4fd-3121404b12b4"
                 },
                 {
                     "description": "Pad 1 [GND] of U_BUCK on F.Cu",
@@ -184,7 +184,7 @@
                         "x": 73.9,
                         "y": 30.95
                     },
-                    "uuid": "8f8f9580-ee1a-465a-8c38-c747d3a11bc2"
+                    "uuid": "84273186-d132-4370-90eb-d4784d91ba6a"
                 }
             ],
             "severity": "error",
@@ -199,7 +199,7 @@
                         "x": 72.7,
                         "y": 65.0
                     },
-                    "uuid": "40a8137b-3db3-4da7-97e8-b01db9ad6eeb"
+                    "uuid": "3e34d7b4-ee23-44d0-8b6b-921950694995"
                 },
                 {
                     "description": "Pad 1 [GND] of U_LDO_3V3 on F.Cu",
@@ -207,7 +207,7 @@
                         "x": 72.7,
                         "y": 50.0
                     },
-                    "uuid": "5d794f7c-6812-4ffb-ac54-7efd97f10b6a"
+                    "uuid": "b12a4eed-b147-4f59-a4fd-3121404b12b4"
                 }
             ],
             "severity": "error",
@@ -222,7 +222,7 @@
                         "x": 73.5,
                         "y": 97.0
                     },
-                    "uuid": "11fcfff7-86f1-434d-8c60-c8fcc7e45841"
+                    "uuid": "cc625caf-1877-4c48-abd8-80f8a5a13c41"
                 },
                 {
                     "description": "Pad 1 [GND] of U_LDO_5V on F.Cu",
@@ -230,7 +230,7 @@
                         "x": 72.7,
                         "y": 65.0
                     },
-                    "uuid": "40a8137b-3db3-4da7-97e8-b01db9ad6eeb"
+                    "uuid": "3e34d7b4-ee23-44d0-8b6b-921950694995"
                 }
             ],
             "severity": "error",
@@ -245,7 +245,7 @@
                         "x": 73.5,
                         "y": 100.0
                     },
-                    "uuid": "432e7924-d70c-4e4f-b187-400e7250b552"
+                    "uuid": "08807137-e44e-4b14-ae1a-f5ba9b813116"
                 },
                 {
                     "description": "Pad 2 [GND] of C_MCU_1 on F.Cu",
@@ -253,7 +253,7 @@
                         "x": 73.5,
                         "y": 97.0
                     },
-                    "uuid": "11fcfff7-86f1-434d-8c60-c8fcc7e45841"
+                    "uuid": "cc625caf-1877-4c48-abd8-80f8a5a13c41"
                 }
             ],
             "severity": "error",
@@ -268,7 +268,7 @@
                         "x": 73.5,
                         "y": 100.0
                     },
-                    "uuid": "432e7924-d70c-4e4f-b187-400e7250b552"
+                    "uuid": "08807137-e44e-4b14-ae1a-f5ba9b813116"
                 },
                 {
                     "description": "Pad 2 [GND] of C_MCU_3 on F.Cu",
@@ -276,7 +276,7 @@
                         "x": 73.5,
                         "y": 103.0
                     },
-                    "uuid": "b9f52648-6ca4-4261-af2f-ca0d0c619cce"
+                    "uuid": "273e15a3-b878-4791-8cba-72f55d9f80ec"
                 }
             ],
             "severity": "error",
@@ -291,7 +291,7 @@
                         "x": 73.5,
                         "y": 103.0
                     },
-                    "uuid": "b9f52648-6ca4-4261-af2f-ca0d0c619cce"
+                    "uuid": "273e15a3-b878-4791-8cba-72f55d9f80ec"
                 },
                 {
                     "description": "Pad 2 [GND] of U_MCU on F.Cu",
@@ -299,7 +299,7 @@
                         "x": 76.55,
                         "y": 102.4
                     },
-                    "uuid": "cade9721-aae3-4717-a6e5-dbd5644d6dd2"
+                    "uuid": "126bee88-ca94-4f67-a67b-3611a50af368"
                 }
             ],
             "severity": "error",
@@ -314,7 +314,7 @@
                         "x": 73.5,
                         "y": 103.0
                     },
-                    "uuid": "b9f52648-6ca4-4261-af2f-ca0d0c619cce"
+                    "uuid": "273e15a3-b878-4791-8cba-72f55d9f80ec"
                 },
                 {
                     "description": "Pad 4 [GND] of U_OPAMP_CT on F.Cu",
@@ -322,7 +322,7 @@
                         "x": 37.525,
                         "y": 121.905
                     },
-                    "uuid": "f27c52b1-823f-43df-a73f-069454aeaa8a"
+                    "uuid": "f741efe7-b412-4043-8c3e-17a5383d0ac9"
                 }
             ],
             "severity": "error",
@@ -337,7 +337,7 @@
                         "x": 76.1,
                         "y": 30.0
                     },
-                    "uuid": "7155fe2e-33d0-4706-aa30-5248446865f1"
+                    "uuid": "8deba239-7064-4ec5-8bcf-c353bb9bbd4d"
                 },
                 {
                     "description": "Pad 6 [GND] of U_BUCK on F.Cu",
@@ -345,7 +345,7 @@
                         "x": 76.1,
                         "y": 30.95
                     },
-                    "uuid": "1760e6b7-3d84-4f69-9ad0-3dcbe7dc73cf"
+                    "uuid": "a88c79a6-9b4e-453d-95e9-3a2bf73b26db"
                 }
             ],
             "severity": "error",
@@ -360,7 +360,7 @@
                         "x": 76.1,
                         "y": 30.95
                     },
-                    "uuid": "1760e6b7-3d84-4f69-9ad0-3dcbe7dc73cf"
+                    "uuid": "a88c79a6-9b4e-453d-95e9-3a2bf73b26db"
                 },
                 {
                     "description": "Pad 1 [GND] of U_BUCK on F.Cu",
@@ -368,7 +368,7 @@
                         "x": 73.9,
                         "y": 30.95
                     },
-                    "uuid": "8f8f9580-ee1a-465a-8c38-c747d3a11bc2"
+                    "uuid": "84273186-d132-4370-90eb-d4784d91ba6a"
                 }
             ],
             "severity": "error",
@@ -383,7 +383,7 @@
                         "x": 80.0,
                         "y": 100.0
                     },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
+                    "uuid": "02213dd8-2a99-4b14-bbff-e044102a7d0f"
                 },
                 {
                     "description": "Pad 2 [GND] of U_MCU on F.Cu",
@@ -391,7 +391,7 @@
                         "x": 76.55,
                         "y": 102.4
                     },
-                    "uuid": "cade9721-aae3-4717-a6e5-dbd5644d6dd2"
+                    "uuid": "126bee88-ca94-4f67-a67b-3611a50af368"
                 }
             ],
             "severity": "error",
@@ -406,7 +406,7 @@
                         "x": 80.0,
                         "y": 100.0
                     },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
+                    "uuid": "02213dd8-2a99-4b14-bbff-e044102a7d0f"
                 },
                 {
                     "description": "Pad 2 [GND] of C_MCU_4 on F.Cu",
@@ -414,7 +414,7 @@
                         "x": 87.5,
                         "y": 100.0
                     },
-                    "uuid": "713c772e-9a75-4c40-a10a-b449dff11b5b"
+                    "uuid": "3c40385a-c120-4e83-9dc2-56ce4e3d0065"
                 }
             ],
             "severity": "error",
@@ -429,7 +429,7 @@
                         "x": 95.0,
                         "y": 115.0
                     },
-                    "uuid": "e57b096a-52a0-4025-a2a8-ef72e9a2915e"
+                    "uuid": "3603a8d7-e9f2-49c8-95a6-bba1a5f5617e"
                 },
                 {
                     "description": "Pad A1 [GND] of J_USB on F.Cu",
@@ -437,7 +437,7 @@
                         "x": 92.65,
                         "y": 130.0
                     },
-                    "uuid": "95296d07-0d6b-4719-a444-f571a2f94f2e"
+                    "uuid": "b053e760-24f0-4292-bd60-2c5932eb2a23"
                 }
             ],
             "severity": "error",
@@ -452,7 +452,7 @@
                         "x": 95.0,
                         "y": 115.0
                     },
-                    "uuid": "e57b096a-52a0-4025-a2a8-ef72e9a2915e"
+                    "uuid": "3603a8d7-e9f2-49c8-95a6-bba1a5f5617e"
                 },
                 {
                     "description": "Pad 2 [GND] of C_MCU_4 on F.Cu",
@@ -460,7 +460,7 @@
                         "x": 87.5,
                         "y": 100.0
                     },
-                    "uuid": "713c772e-9a75-4c40-a10a-b449dff11b5b"
+                    "uuid": "3c40385a-c120-4e83-9dc2-56ce4e3d0065"
                 }
             ],
             "severity": "error",
@@ -475,7 +475,7 @@
                         "x": 97.35,
                         "y": 130.0
                     },
-                    "uuid": "4df01204-9249-4d65-9482-3c10877f6528"
+                    "uuid": "ba1e834c-c7bc-45ab-b5e4-867323a69b6a"
                 },
                 {
                     "description": "Pad A1 [GND] of J_USB on F.Cu",
@@ -483,7 +483,7 @@
                         "x": 92.65,
                         "y": 130.0
                     },
-                    "uuid": "95296d07-0d6b-4719-a444-f571a2f94f2e"
+                    "uuid": "b053e760-24f0-4292-bd60-2c5932eb2a23"
                 }
             ],
             "severity": "error",
@@ -498,7 +498,7 @@
                         "x": 32.5,
                         "y": 60.0
                     },
-                    "uuid": "6fa50aff-21b0-4834-9478-14bae740f325"
+                    "uuid": "a53f1cec-2e6b-4a25-b9b0-f36d7022a8a3"
                 },
                 {
                     "description": "PTH pad 1 [PGND] of C_BUS2",
@@ -506,7 +506,7 @@
                         "x": 45.0,
                         "y": 60.0
                     },
-                    "uuid": "7831c54d-500a-465e-8285-19d944d4b13a"
+                    "uuid": "25f76653-97cd-44d8-b234-11f89c73ae4c"
                 }
             ],
             "severity": "error",
@@ -521,7 +521,7 @@
                         "x": 39.5,
                         "y": 30.635
                     },
-                    "uuid": "1d960b17-3502-468b-a775-873f782594e9"
+                    "uuid": "3b86046a-3f4b-4af4-8c86-3f825320c1a2"
                 },
                 {
                     "description": "Pad 13 [PGND] of U_GATE on F.Cu",
@@ -529,7 +529,7 @@
                         "x": 39.5,
                         "y": 29.365
                     },
-                    "uuid": "9399a589-1033-4ea9-9a17-3bcd7343add0"
+                    "uuid": "3410d21a-17df-4b26-9a1f-572dfe4afb81"
                 }
             ],
             "severity": "error",
@@ -544,7 +544,7 @@
                         "x": 45.0,
                         "y": 60.0
                     },
-                    "uuid": "7831c54d-500a-465e-8285-19d944d4b13a"
+                    "uuid": "25f76653-97cd-44d8-b234-11f89c73ae4c"
                 },
                 {
                     "description": "Pad 12 [PGND] of U_GATE on F.Cu",
@@ -552,7 +552,7 @@
                         "x": 39.5,
                         "y": 30.635
                     },
-                    "uuid": "1d960b17-3502-468b-a775-873f782594e9"
+                    "uuid": "3b86046a-3f4b-4af4-8c86-3f825320c1a2"
                 }
             ],
             "severity": "error",
@@ -567,7 +567,7 @@
                         "x": 30.5,
                         "y": 30.635
                     },
-                    "uuid": "f8a55859-7cfb-4c13-8b51-f6785f054d97"
+                    "uuid": "b41ea868-16c3-4481-b618-226e226e1730"
                 },
                 {
                     "description": "Pad 6 [CGND] of U_GATE on F.Cu",
@@ -575,7 +575,7 @@
                         "x": 30.5,
                         "y": 31.905
                     },
-                    "uuid": "5f983979-0def-4ed2-ad4d-acd581939803"
+                    "uuid": "6656fef2-2af1-4a2e-8a18-46007d191fc8"
                 }
             ],
             "severity": "error",
@@ -590,7 +590,7 @@
                         "x": 30.5,
                         "y": 31.905
                     },
-                    "uuid": "5f983979-0def-4ed2-ad4d-acd581939803"
+                    "uuid": "6656fef2-2af1-4a2e-8a18-46007d191fc8"
                 },
                 {
                     "description": "Pad 7 [CGND] of U_GATE on F.Cu",
@@ -598,7 +598,7 @@
                         "x": 30.5,
                         "y": 33.175
                     },
-                    "uuid": "1bdfe773-48e6-4ad5-a984-e0ed464885e3"
+                    "uuid": "359a0d88-284f-4ebb-9d24-5bb1cee7f8f8"
                 }
             ],
             "severity": "error",
@@ -613,7 +613,7 @@
                         "x": 30.5,
                         "y": 33.175
                     },
-                    "uuid": "1bdfe773-48e6-4ad5-a984-e0ed464885e3"
+                    "uuid": "359a0d88-284f-4ebb-9d24-5bb1cee7f8f8"
                 },
                 {
                     "description": "Pad 8 [CGND] of U_GATE on F.Cu",
@@ -621,7 +621,7 @@
                         "x": 30.5,
                         "y": 34.445
                     },
-                    "uuid": "7152c743-a569-4846-8b16-ff6ce60375f1"
+                    "uuid": "39dc3aeb-12bd-434b-8d64-48f8ac125454"
                 }
             ],
             "severity": "error",
@@ -636,7 +636,7 @@
                         "x": 32.9,
                         "y": 107.075
                     },
-                    "uuid": "5de927c6-bfab-4f01-ae27-c71910837e22"
+                    "uuid": "2cf3b3a8-0aeb-42bd-b3e0-6d2f7ea11615"
                 },
                 {
                     "description": "Pad 20 [+3V3] of MAX31865 on F.Cu",
@@ -644,7 +644,7 @@
                         "x": 32.9,
                         "y": 132.075
                     },
-                    "uuid": "f8bba031-4f39-4de7-8515-f396daaa70b2"
+                    "uuid": "c7422f7c-0a3e-43cb-a44a-34fb2db0c5ca"
                 }
             ],
             "severity": "error",
@@ -659,7 +659,7 @@
                         "x": 72.5,
                         "y": 97.0
                     },
-                    "uuid": "b23528e7-3c56-4690-b9f0-93c236317626"
+                    "uuid": "e8abd13c-86cc-4f4b-b447-4898784dce4d"
                 },
                 {
                     "description": "Pad 2 [+3V3] of U_LDO_3V3 on F.Cu",
@@ -667,7 +667,7 @@
                         "x": 75.0,
                         "y": 50.0
                     },
-                    "uuid": "3f5b265b-fa14-4aa2-87dc-465b1ce4f2d4"
+                    "uuid": "0e06529f-f053-4c36-9887-60b5c4b85b7f"
                 }
             ],
             "severity": "error",
@@ -682,7 +682,7 @@
                         "x": 72.5,
                         "y": 100.0
                     },
-                    "uuid": "723481c2-36df-4605-a6d9-7573693c5cd1"
+                    "uuid": "883b8517-9785-4206-87ce-f647c5a74943"
                 },
                 {
                     "description": "Pad 1 [+3V3] of C_MCU_1 on F.Cu",
@@ -690,7 +690,7 @@
                         "x": 72.5,
                         "y": 97.0
                     },
-                    "uuid": "b23528e7-3c56-4690-b9f0-93c236317626"
+                    "uuid": "e8abd13c-86cc-4f4b-b447-4898784dce4d"
                 }
             ],
             "severity": "error",
@@ -705,7 +705,7 @@
                         "x": 72.5,
                         "y": 100.0
                     },
-                    "uuid": "723481c2-36df-4605-a6d9-7573693c5cd1"
+                    "uuid": "883b8517-9785-4206-87ce-f647c5a74943"
                 },
                 {
                     "description": "Pad 1 [+3V3] of C_MCU_3 on F.Cu",
@@ -713,7 +713,7 @@
                         "x": 72.5,
                         "y": 103.0
                     },
-                    "uuid": "ab2190a0-5dbe-41ee-8864-c5833b0cf7dd"
+                    "uuid": "62cd322b-99f1-4e08-a858-6196a62c0fe9"
                 }
             ],
             "severity": "error",
@@ -728,7 +728,7 @@
                         "x": 72.5,
                         "y": 103.0
                     },
-                    "uuid": "ab2190a0-5dbe-41ee-8864-c5833b0cf7dd"
+                    "uuid": "62cd322b-99f1-4e08-a858-6196a62c0fe9"
                 },
                 {
                     "description": "Pad 1 [+3V3] of U_MCU on F.Cu",
@@ -736,7 +736,7 @@
                         "x": 76.55,
                         "y": 102.8
                     },
-                    "uuid": "f3435b42-0b24-4029-92f7-d5a7d01ad613"
+                    "uuid": "1231d645-9019-4309-894e-088755e31bd7"
                 }
             ],
             "severity": "error",
@@ -751,7 +751,7 @@
                         "x": 72.5,
                         "y": 103.0
                     },
-                    "uuid": "ab2190a0-5dbe-41ee-8864-c5833b0cf7dd"
+                    "uuid": "62cd322b-99f1-4e08-a858-6196a62c0fe9"
                 },
                 {
                     "description": "Pad 20 [+3V3] of U_CT on F.Cu",
@@ -759,7 +759,7 @@
                         "x": 32.9,
                         "y": 107.075
                     },
-                    "uuid": "5de927c6-bfab-4f01-ae27-c71910837e22"
+                    "uuid": "2cf3b3a8-0aeb-42bd-b3e0-6d2f7ea11615"
                 }
             ],
             "severity": "error",
@@ -774,7 +774,7 @@
                         "x": 75.0,
                         "y": 50.0
                     },
-                    "uuid": "3f5b265b-fa14-4aa2-87dc-465b1ce4f2d4"
+                    "uuid": "0e06529f-f053-4c36-9887-60b5c4b85b7f"
                 },
                 {
                     "description": "Pad 4 [+3V3] of U_LDO_3V3 on F.Cu",
@@ -782,7 +782,7 @@
                         "x": 75.0,
                         "y": 46.8
                     },
-                    "uuid": "679a24c9-7ed5-4e39-91ca-2f2e45bf742a"
+                    "uuid": "664ccb2f-f54a-4d36-abec-4b2387556492"
                 }
             ],
             "severity": "error",
@@ -797,7 +797,7 @@
                         "x": 86.5,
                         "y": 100.0
                     },
-                    "uuid": "009ab43b-4e43-4248-9d18-692ad8fbd71f"
+                    "uuid": "c70a0baf-e713-49ad-b28e-dfa401b23462"
                 },
                 {
                     "description": "Pad 1 [+3V3] of U_MCU on F.Cu",
@@ -805,7 +805,7 @@
                         "x": 76.55,
                         "y": 102.8
                     },
-                    "uuid": "f3435b42-0b24-4029-92f7-d5a7d01ad613"
+                    "uuid": "1231d645-9019-4309-894e-088755e31bd7"
                 }
             ],
             "severity": "error",
@@ -820,7 +820,7 @@
                         "x": 86.5,
                         "y": 100.0
                     },
-                    "uuid": "009ab43b-4e43-4248-9d18-692ad8fbd71f"
+                    "uuid": "c70a0baf-e713-49ad-b28e-dfa401b23462"
                 },
                 {
                     "description": "PTH pad 2 [+3V3] of J_DEBUG",
@@ -828,7 +828,7 @@
                         "x": 95.0,
                         "y": 117.54
                     },
-                    "uuid": "be88a257-f281-41e0-a83d-100032caf003"
+                    "uuid": "e2886f8a-5be5-4c1d-9f81-2d34f64dcd19"
                 }
             ],
             "severity": "error",
@@ -843,7 +843,7 @@
                         "x": 42.475,
                         "y": 118.095
                     },
-                    "uuid": "eb8bab6b-e4b5-4d1d-8e4b-9c7480b8f07f"
+                    "uuid": "8548d670-b10a-4219-8867-e189dc3f2b1d"
                 },
                 {
                     "description": "Pad 7 [+5V] of U_OPAMP_CT on F.Cu",
@@ -851,7 +851,7 @@
                         "x": 42.475,
                         "y": 119.365
                     },
-                    "uuid": "497c6cc6-693b-42dc-b66b-d36b4e645512"
+                    "uuid": "43f163a1-7d53-47f6-820b-463902c0dc61"
                 }
             ],
             "severity": "error",
@@ -866,7 +866,7 @@
                         "x": 42.475,
                         "y": 118.095
                     },
-                    "uuid": "eb8bab6b-e4b5-4d1d-8e4b-9c7480b8f07f"
+                    "uuid": "8548d670-b10a-4219-8867-e189dc3f2b1d"
                 },
                 {
                     "description": "Pad 2 [+5V] of U_LDO_5V on F.Cu",
@@ -874,7 +874,7 @@
                         "x": 75.0,
                         "y": 65.0
                     },
-                    "uuid": "767d38b9-36e3-4e42-a607-eb08814584d5"
+                    "uuid": "7011543d-08c4-414a-9a76-4f71b0fabf81"
                 }
             ],
             "severity": "error",
@@ -889,7 +889,7 @@
                         "x": 73.9,
                         "y": 30.0
                     },
-                    "uuid": "c7d29713-1b92-40d1-918b-8abec27d4f7f"
+                    "uuid": "23aad892-8c9e-4509-b7fd-9240b89481d0"
                 },
                 {
                     "description": "Pad 3 [+5V] of U_LDO_3V3 on F.Cu",
@@ -897,7 +897,7 @@
                         "x": 77.3,
                         "y": 50.0
                     },
-                    "uuid": "75e3fc78-ca58-4d53-ba59-af9c2b145c9e"
+                    "uuid": "56ede1be-3ae2-4f24-a366-14330d3860a3"
                 }
             ],
             "severity": "error",
@@ -912,7 +912,7 @@
                         "x": 75.0,
                         "y": 65.0
                     },
-                    "uuid": "767d38b9-36e3-4e42-a607-eb08814584d5"
+                    "uuid": "7011543d-08c4-414a-9a76-4f71b0fabf81"
                 },
                 {
                     "description": "Pad 4 [+5V] of U_LDO_5V on F.Cu",
@@ -920,7 +920,7 @@
                         "x": 75.0,
                         "y": 61.8
                     },
-                    "uuid": "6e256dae-e892-4234-acb9-426b401950e2"
+                    "uuid": "df4f8ac4-f6ad-4cac-ae44-c3bfbb830e31"
                 }
             ],
             "severity": "error",
@@ -935,7 +935,7 @@
                         "x": 76.1,
                         "y": 29.05
                     },
-                    "uuid": "3d5aa27f-65ae-45c1-8c98-532ba1c8d2f9"
+                    "uuid": "148a02dc-b9b8-4d9e-8f0a-41f1189046b8"
                 },
                 {
                     "description": "Pad 2 [+5V] of U_BUCK on F.Cu",
@@ -943,7 +943,7 @@
                         "x": 73.9,
                         "y": 30.0
                     },
-                    "uuid": "c7d29713-1b92-40d1-918b-8abec27d4f7f"
+                    "uuid": "23aad892-8c9e-4509-b7fd-9240b89481d0"
                 }
             ],
             "severity": "error",
@@ -958,7 +958,7 @@
                         "x": 77.3,
                         "y": 50.0
                     },
-                    "uuid": "75e3fc78-ca58-4d53-ba59-af9c2b145c9e"
+                    "uuid": "56ede1be-3ae2-4f24-a366-14330d3860a3"
                 },
                 {
                     "description": "Pad 4 [+5V] of U_LDO_5V on F.Cu",
@@ -966,7 +966,7 @@
                         "x": 75.0,
                         "y": 61.8
                     },
-                    "uuid": "6e256dae-e892-4234-acb9-426b401950e2"
+                    "uuid": "df4f8ac4-f6ad-4cac-ae44-c3bfbb830e31"
                 }
             ],
             "severity": "error",
@@ -981,7 +981,7 @@
                         "x": 29.0,
                         "y": 30.0
                     },
-                    "uuid": "be24721a-5b3b-416a-adad-ab730086cd0f"
+                    "uuid": "fdeaaf1e-cb52-4f99-a270-864bee25c5f8"
                 },
                 {
                     "description": "Pad 11 [+15V] of U_GATE on F.Cu",
@@ -989,7 +989,7 @@
                         "x": 39.5,
                         "y": 31.905
                     },
-                    "uuid": "e93d4e8a-21d6-4196-96b2-a0b9de2ce5cf"
+                    "uuid": "10c69944-ff8a-4f00-b377-a6ba4847ed27"
                 }
             ],
             "severity": "error",
@@ -1004,7 +1004,7 @@
                         "x": 30.5,
                         "y": 25.555
                     },
-                    "uuid": "d2ca6547-de32-415c-b0d2-7f84328e3a4d"
+                    "uuid": "5be4f6f9-207d-482a-af23-f58b466acd63"
                 },
                 {
                     "description": "Pad 1 [+15V] of C_VCC on F.Cu",
@@ -1012,7 +1012,7 @@
                         "x": 29.0,
                         "y": 30.0
                     },
-                    "uuid": "be24721a-5b3b-416a-adad-ab730086cd0f"
+                    "uuid": "fdeaaf1e-cb52-4f99-a270-864bee25c5f8"
                 }
             ],
             "severity": "error",
@@ -1027,7 +1027,7 @@
                         "x": 39.5,
                         "y": 31.905
                     },
-                    "uuid": "e93d4e8a-21d6-4196-96b2-a0b9de2ce5cf"
+                    "uuid": "10c69944-ff8a-4f00-b377-a6ba4847ed27"
                 },
                 {
                     "description": "Pad 3 [+15V] of U_BUCK on F.Cu",
@@ -1035,7 +1035,7 @@
                         "x": 73.9,
                         "y": 29.05
                     },
-                    "uuid": "95e1a63e-b473-4a30-a114-1b3be77f6bec"
+                    "uuid": "b3700479-feff-4ce6-89ab-9f5857b258db"
                 }
             ],
             "severity": "error",
@@ -1050,7 +1050,7 @@
                         "x": 77.3,
                         "y": 65.0
                     },
-                    "uuid": "db7738c3-d7b5-4ed7-b8a9-482535802929"
+                    "uuid": "b023a35f-116d-4d2d-a7be-33519794c589"
                 },
                 {
                     "description": "Pad 3 [+15V] of U_BUCK on F.Cu",
@@ -1058,7 +1058,7 @@
                         "x": 73.9,
                         "y": 29.05
                     },
-                    "uuid": "95e1a63e-b473-4a30-a114-1b3be77f6bec"
+                    "uuid": "b3700479-feff-4ce6-89ab-9f5857b258db"
                 }
             ],
             "severity": "error",
@@ -1073,7 +1073,7 @@
                         "x": 39.5,
                         "y": 28.095
                     },
-                    "uuid": "1b0c1c95-fca0-4ee8-b24d-b23636162696"
+                    "uuid": "367989fc-b3d1-4cf6-af6c-ce463018f8e5"
                 },
                 {
                     "description": "Pad 1 [VCC_BOOT] of C_BOOT on F.Cu",
@@ -1081,7 +1081,7 @@
                         "x": 41.0,
                         "y": 30.0
                     },
-                    "uuid": "0a4e11f6-3fcf-4086-bebc-8f703c9f0fa0"
+                    "uuid": "d9597cab-07d4-44ad-abdd-8194cfc393fe"
                 }
             ],
             "severity": "error",
@@ -1096,7 +1096,7 @@
                         "x": 25.0,
                         "y": 60.0
                     },
-                    "uuid": "e380c131-9024-447e-ad30-579f5c9f414d"
+                    "uuid": "0a73712c-1fa1-4195-a3c2-c5acf58c4154"
                 },
                 {
                     "description": "PTH pad 2 [DC_BUS+] of D1",
@@ -1104,7 +1104,7 @@
                         "x": 45.24,
                         "y": 30.0
                     },
-                    "uuid": "996fe5ea-16e8-442e-ba57-5494ebcbedd1"
+                    "uuid": "b1605d6c-306b-423e-8e68-a0d2bbc9cd3a"
                 }
             ],
             "severity": "error",
@@ -1119,7 +1119,7 @@
                         "x": 45.24,
                         "y": 30.0
                     },
-                    "uuid": "996fe5ea-16e8-442e-ba57-5494ebcbedd1"
+                    "uuid": "b1605d6c-306b-423e-8e68-a0d2bbc9cd3a"
                 },
                 {
                     "description": "PTH pad 2 [DC_BUS+] of Q1",
@@ -1127,7 +1127,7 @@
                         "x": 25.45,
                         "y": 15.0
                     },
-                    "uuid": "31313865-4041-44df-983e-9184034e1035"
+                    "uuid": "95eeb418-329a-4ada-9b4d-29b1fa99485f"
                 }
             ],
             "severity": "error",
@@ -1142,7 +1142,7 @@
                         "x": 30.0,
                         "y": 45.0
                     },
-                    "uuid": "509a5e3d-3515-4921-bdd6-cdafa857923a"
+                    "uuid": "1a4d38d2-428d-4343-941e-14a42b0004eb"
                 },
                 {
                     "description": "PTH pad 2 [DC_BUS-] of C_BUS2",
@@ -1150,7 +1150,7 @@
                         "x": 52.5,
                         "y": 60.0
                     },
-                    "uuid": "ff1347b1-c50e-48f8-be8e-6af3b56dc37f"
+                    "uuid": "e9b87a67-636d-455f-8a37-7775946a80c4"
                 }
             ],
             "severity": "error",
@@ -1165,7 +1165,7 @@
                         "x": 55.9,
                         "y": 15.0
                     },
-                    "uuid": "6beb81b0-019f-4b27-8ae5-4ed0f6bb53b4"
+                    "uuid": "87101bd8-ee0d-4a92-ab69-5385fa0ac882"
                 },
                 {
                     "description": "PTH pad 1 [DC_BUS-] of D2",
@@ -1173,7 +1173,7 @@
                         "x": 30.0,
                         "y": 45.0
                     },
-                    "uuid": "509a5e3d-3515-4921-bdd6-cdafa857923a"
+                    "uuid": "1a4d38d2-428d-4343-941e-14a42b0004eb"
                 }
             ],
             "severity": "error",
@@ -1183,20 +1183,20 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 16 [SW_NODE] of U_GATE on F.Cu",
+                    "description": "Track [GATE_L] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 39.5,
-                        "y": 25.555
+                        "x": 44.0,
+                        "y": 25.0
                     },
-                    "uuid": "4da5c430-852d-4419-bc91-974710278cec"
+                    "uuid": "17fc9807-3597-413c-bf97-f2715a03bd8b"
                 },
                 {
-                    "description": "PTH pad 3 [SW_NODE] of Q1",
+                    "description": "PTH pad 1 [GATE_L] of Q2",
                     "pos": {
-                        "x": 30.9,
+                        "x": 45.0,
                         "y": 15.0
                     },
-                    "uuid": "21e0662a-134d-4172-acbc-5f240cf6008a"
+                    "uuid": "d8b1e6fc-f879-4067-8b83-b2583c811d2b"
                 }
             ],
             "severity": "error",
@@ -1206,20 +1206,20 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 9 [SW_NODE] of U_GATE on F.Cu",
+                    "description": "Track [GATE_L] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 39.5,
-                        "y": 34.445
+                        "x": 46.0,
+                        "y": 25.0
                     },
-                    "uuid": "8b09e93d-c8b7-4ff9-adab-32f74c37adf2"
+                    "uuid": "3d8c1276-353b-426b-906f-ca9575f8ee59"
                 },
                 {
-                    "description": "Pad 2 [SW_NODE] of C_BOOT on F.Cu",
+                    "description": "Pad 10 [GATE_L] of U_GATE on F.Cu",
                     "pos": {
-                        "x": 43.0,
-                        "y": 30.0
+                        "x": 39.5,
+                        "y": 33.175
                     },
-                    "uuid": "cc07bc1f-1f5e-402f-914f-ede66fb7156d"
+                    "uuid": "9f517f93-a763-4476-831c-1f00155050c2"
                 }
             ],
             "severity": "error",
@@ -1229,66 +1229,20 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 9 [SW_NODE] of U_GATE on F.Cu",
+                    "description": "Pad 13 [PWM_H] of U_MCU on F.Cu",
                     "pos": {
-                        "x": 39.5,
-                        "y": 34.445
+                        "x": 76.55,
+                        "y": 98.4
                     },
-                    "uuid": "8b09e93d-c8b7-4ff9-adab-32f74c37adf2"
+                    "uuid": "baf3e7fd-a9de-49a5-8822-c1515f2934fb"
                 },
                 {
-                    "description": "PTH pad 1 [SW_NODE] of J_COIL",
+                    "description": "Pad 2 [PWM_H] of U_GATE on F.Cu",
                     "pos": {
-                        "x": 10.0,
-                        "y": 120.0
+                        "x": 30.5,
+                        "y": 26.825
                     },
-                    "uuid": "de71d585-ccec-4bb5-a005-f326ab3999d9"
-                }
-            ],
-            "severity": "error",
-            "type": "unconnected_items"
-        },
-        {
-            "description": "Missing connection between items",
-            "items": [
-                {
-                    "description": "Pad 2 [SW_NODE] of C_BOOT on F.Cu",
-                    "pos": {
-                        "x": 43.0,
-                        "y": 30.0
-                    },
-                    "uuid": "cc07bc1f-1f5e-402f-914f-ede66fb7156d"
-                },
-                {
-                    "description": "Pad 16 [SW_NODE] of U_GATE on F.Cu",
-                    "pos": {
-                        "x": 39.5,
-                        "y": 25.555
-                    },
-                    "uuid": "4da5c430-852d-4419-bc91-974710278cec"
-                }
-            ],
-            "severity": "error",
-            "type": "unconnected_items"
-        },
-        {
-            "description": "Missing connection between items",
-            "items": [
-                {
-                    "description": "PTH pad 2 [SW_NODE] of Q2",
-                    "pos": {
-                        "x": 50.45,
-                        "y": 15.0
-                    },
-                    "uuid": "33e1eded-d804-4971-92fb-a550c7a97581"
-                },
-                {
-                    "description": "Pad 16 [SW_NODE] of U_GATE on F.Cu",
-                    "pos": {
-                        "x": 39.5,
-                        "y": 25.555
-                    },
-                    "uuid": "4da5c430-852d-4419-bc91-974710278cec"
+                    "uuid": "e5144d70-f5ca-44f3-a260-7117ff5459d2"
                 }
             ],
             "severity": "error",
@@ -1303,7 +1257,7 @@
                         "x": 76.55,
                         "y": 98.0
                     },
-                    "uuid": "791ec735-7222-4ec7-a3de-a55426761407"
+                    "uuid": "19cd264e-fe73-4796-82f9-33e6597e7a9b"
                 },
                 {
                     "description": "Pad 3 [PWM_L] of U_GATE on F.Cu",
@@ -1311,7 +1265,7 @@
                         "x": 30.5,
                         "y": 28.095
                     },
-                    "uuid": "d0d0d966-d5d3-4c46-850f-69be38cd8119"
+                    "uuid": "6cd94aaa-4f8b-4d9d-b5fc-3dd63471ee52"
                 }
             ],
             "severity": "error",
@@ -1326,7 +1280,7 @@
                         "x": 10.0,
                         "y": 135.0
                     },
-                    "uuid": "9ff3962e-8b75-4bb9-85eb-195f0ee90e55"
+                    "uuid": "376ef1ca-ba37-4ae7-b57b-0a6b9b769a5e"
                 },
                 {
                     "description": "Pad 4 [TEMP_SENSE] of MAX31865 on F.Cu",
@@ -1334,7 +1288,7 @@
                         "x": 27.1,
                         "y": 134.025
                     },
-                    "uuid": "f1093aa1-7de7-4ae1-aa1e-438652d12325"
+                    "uuid": "0652b953-c427-4997-b8af-57289a315097"
                 }
             ],
             "severity": "error",
@@ -1349,7 +1303,7 @@
                         "x": 10.0,
                         "y": 75.0
                     },
-                    "uuid": "98e2cc35-0fc0-492e-beb2-e68e124c2c53"
+                    "uuid": "7180fc84-b660-47d8-97a1-171837697753"
                 },
                 {
                     "description": "PTH pad 1 [AC_L] of D1",
@@ -1357,7 +1311,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 }
             ],
             "severity": "error",
@@ -1372,7 +1326,7 @@
                         "x": 10.0,
                         "y": 85.0
                     },
-                    "uuid": "102a5699-75aa-45e1-a104-c6ba6e7d0887"
+                    "uuid": "d438fa56-1bf2-46c6-a5e9-072e6e7d2a54"
                 },
                 {
                     "description": "PTH pad 2 [AC_N] of D2",
@@ -1380,7 +1334,7 @@
                         "x": 45.24,
                         "y": 45.0
                     },
-                    "uuid": "0a221f14-5ee8-44e6-a185-bdc5f5969516"
+                    "uuid": "4cb636d0-2f64-46e9-ae12-0724ba5acda7"
                 }
             ],
             "severity": "error",
@@ -1390,20 +1344,20 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 1 [SPI_CLK] of U_CT on F.Cu",
+                    "description": "Pad 2 [SPI_MOSI] of MAX31865 on F.Cu",
                     "pos": {
                         "x": 27.1,
-                        "y": 107.075
+                        "y": 132.725
                     },
-                    "uuid": "512fa6c3-f5ee-408d-991a-09daae571553"
+                    "uuid": "bd719d49-778b-4d43-9101-3d31d1552b40"
                 },
                 {
-                    "description": "Pad 1 [SPI_CLK] of MAX31865 on F.Cu",
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
                     "pos": {
                         "x": 27.1,
-                        "y": 132.075
+                        "y": 107.725
                     },
-                    "uuid": "9a1ca230-d73e-4180-a19e-32d528182c19"
+                    "uuid": "d432128a-c20a-4d77-91e4-274dcd7b908d"
                 }
             ],
             "severity": "error",
@@ -1413,20 +1367,20 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 20 [SPI_CLK] of U_MCU on F.Cu",
+                    "description": "Pad 21 [SPI_MOSI] of U_MCU on F.Cu",
                     "pos": {
-                        "x": 77.6,
+                        "x": 78.0,
                         "y": 96.55
                     },
-                    "uuid": "f05863bc-6d4c-46f1-9912-f6f2766357ca"
+                    "uuid": "75c09271-d1c2-4c96-aaeb-aedd1d000174"
                 },
                 {
-                    "description": "Pad 1 [SPI_CLK] of U_CT on F.Cu",
+                    "description": "Pad 2 [SPI_MOSI] of U_CT on F.Cu",
                     "pos": {
                         "x": 27.1,
-                        "y": 107.075
+                        "y": 107.725
                     },
-                    "uuid": "512fa6c3-f5ee-408d-991a-09daae571553"
+                    "uuid": "7ea9be8e-55fd-49a7-8f3b-115527d746b2"
                 }
             ],
             "severity": "error",
@@ -1436,20 +1390,43 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Track [SPI_MISO] on F.Cu, length 1.5000 mm",
+                    "description": "Pad 3 [SPI_MISO] of U_CT on F.Cu",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 108.375
+                    },
+                    "uuid": "053ecbeb-8333-469a-b77d-3c87b58ba7a7"
+                },
+                {
+                    "description": "Pad 3 [SPI_MISO] of MAX31865 on F.Cu",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 133.375
+                    },
+                    "uuid": "ae787884-b62c-41e5-8f1a-6da10b3d7792"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 22 [SPI_MISO] of U_MCU on F.Cu",
                     "pos": {
                         "x": 78.4,
                         "y": 96.55
                     },
-                    "uuid": "492642e9-d974-45f6-8d4b-8d5b9f8c5268"
+                    "uuid": "b605a27c-c0c6-4529-90ed-122482cc6f6e"
                 },
                 {
-                    "description": "Track [SPI_MISO] on B.Cu, length 25.0000 mm",
+                    "description": "Pad 3 [SPI_MISO] of U_CT on F.Cu",
                     "pos": {
-                        "x": 28.6,
+                        "x": 27.1,
                         "y": 108.375
                     },
-                    "uuid": "87c686aa-3ad8-4b44-b927-feadfeaca617"
+                    "uuid": "053ecbeb-8333-469a-b77d-3c87b58ba7a7"
                 }
             ],
             "severity": "error",
@@ -1458,21 +1435,21 @@
         {
             "description": "Missing connection between items",
             "items": [
-                {
-                    "description": "Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 109.025
-                    },
-                    "uuid": "090423c4-54cb-4b17-8978-867a071d2bc9"
-                },
                 {
                     "description": "Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu",
                     "pos": {
                         "x": 78.8,
                         "y": 96.55
                     },
-                    "uuid": "f93425a5-a6bf-432f-9f40-f3f464a609f4"
+                    "uuid": "3566a707-57aa-43ad-9a6e-110082a4d49e"
+                },
+                {
+                    "description": "Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 109.025
+                    },
+                    "uuid": "ba89b56c-c548-4b89-b3f4-0befdb43f42a"
                 }
             ],
             "severity": "error",
@@ -1482,12 +1459,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 40 [USB_D+] of U_MCU on F.Cu",
+                    "description": "Track [USB_D+] on F.Cu, length 2.0000 mm",
                     "pos": {
                         "x": 83.45,
                         "y": 100.0
                     },
-                    "uuid": "3106592c-a018-435d-9711-52b0b61b4a61"
+                    "uuid": "fecb2d07-3234-4035-a4ee-4b60430253da"
                 },
                 {
                     "description": "Pad A6 [USB_D+] of J_USB on F.Cu",
@@ -1495,7 +1472,7 @@
                         "x": 95.0,
                         "y": 130.0
                     },
-                    "uuid": "07cee8b7-163f-4429-99c9-a73f9d226754"
+                    "uuid": "d40518ee-d65a-4478-9185-9f609d460c59"
                 }
             ],
             "severity": "error",
@@ -1505,20 +1482,20 @@
             "description": "Missing connection between items",
             "items": [
                 {
+                    "description": "Pad 41 [USB_D-] of U_MCU on F.Cu",
+                    "pos": {
+                        "x": 83.45,
+                        "y": 100.4
+                    },
+                    "uuid": "b420853d-87c4-40af-af9a-132ae977ce1f"
+                },
+                {
                     "description": "Pad B6 [USB_D-] of J_USB on F.Cu",
                     "pos": {
                         "x": 95.4,
                         "y": 130.0
                     },
-                    "uuid": "e44d902b-86b9-4300-9623-19e712182c96"
-                },
-                {
-                    "description": "Track [USB_D-] on F.Cu, length 2.0000 mm",
-                    "pos": {
-                        "x": 83.45,
-                        "y": 100.4
-                    },
-                    "uuid": "2b3c2403-15aa-4712-8f0d-3ac2aa0d64d0"
+                    "uuid": "bc8ce6f7-7b39-4163-babf-8073eabd2858"
                 }
             ],
             "severity": "error",
@@ -1527,69 +1504,69 @@
     ],
     "violations": [
         {
-            "description": "Tracks crossing",
+            "description": "Items shorting two nets (nets GND and USB_D+)",
             "items": [
                 {
-                    "description": "Track [SPI_MISO] on F.Cu, length 1.5000 mm",
+                    "description": "Pad 57 [GND] of U_MCU on F.Cu",
                     "pos": {
-                        "x": 27.1,
-                        "y": 108.375
+                        "x": 80.0,
+                        "y": 100.0
                     },
-                    "uuid": "9be27223-3362-4598-8c8b-f06d4e8c157b"
+                    "uuid": "02213dd8-2a99-4b14-bbff-e044102a7d0f"
                 },
                 {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 25.0000 mm",
+                    "description": "Track [USB_D+] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 27.1,
-                        "y": 107.725
+                        "x": 83.45,
+                        "y": 100.0
                     },
-                    "uuid": "f67b3d2e-b285-40a3-a80b-dfd81b8443c7"
-                }
-            ],
-            "severity": "error",
-            "type": "tracks_crossing"
-        },
-        {
-            "description": "Items shorting two nets (nets AC_N and PWM_H)",
-            "items": [
-                {
-                    "description": "PTH pad 2 [AC_N] of D2",
-                    "pos": {
-                        "x": 45.24,
-                        "y": 45.0
-                    },
-                    "uuid": "0a221f14-5ee8-44e6-a185-bdc5f5969516"
-                },
-                {
-                    "description": "Track [PWM_H] on B.Cu, length 85.1092 mm",
-                    "pos": {
-                        "x": 32.0,
-                        "y": 26.825
-                    },
-                    "uuid": "e17b3352-3e06-42dd-8371-2ff32deefa0c"
+                    "uuid": "fecb2d07-3234-4035-a4ee-4b60430253da"
                 }
             ],
             "severity": "error",
             "type": "shorting_items"
         },
         {
-            "description": "Items shorting two nets (nets GATE_L and SW_NODE)",
+            "description": "Items shorting two nets (nets SPI_MISO and SPI_MOSI)",
             "items": [
                 {
-                    "description": "Track [GATE_L] on F.Cu, length 8.2329 mm",
+                    "description": "Pad 3 [SPI_MISO] of U_CT on F.Cu",
                     "pos": {
-                        "x": 44.0,
-                        "y": 25.0
+                        "x": 27.1,
+                        "y": 108.375
                     },
-                    "uuid": "36acceb2-25c0-444d-a2c3-38bc46820700"
+                    "uuid": "053ecbeb-8333-469a-b77d-3c87b58ba7a7"
                 },
                 {
-                    "description": "Pad 2 [SW_NODE] of C_BOOT on F.Cu",
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 43.0,
-                        "y": 30.0
+                        "x": 27.1,
+                        "y": 107.725
                     },
-                    "uuid": "cc07bc1f-1f5e-402f-914f-ede66fb7156d"
+                    "uuid": "d432128a-c20a-4d77-91e4-274dcd7b908d"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets +15V and GATE_H)",
+            "items": [
+                {
+                    "description": "Pad 1 [+15V] of U_GATE on F.Cu",
+                    "pos": {
+                        "x": 30.5,
+                        "y": 25.555
+                    },
+                    "uuid": "5be4f6f9-207d-482a-af23-f58b466acd63"
+                },
+                {
+                    "description": "Track [GATE_H] on F.Cu, length 11.6244 mm",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 25.0
+                    },
+                    "uuid": "9186abf7-e6f1-4f53-8602-f1b96c0906d6"
                 }
             ],
             "severity": "error",
@@ -1604,7 +1581,7 @@
                         "x": 37.525,
                         "y": 119.365
                     },
-                    "uuid": "738c01b5-61c9-4a79-adc9-06d969994e0b"
+                    "uuid": "c21cb0c5-708d-4f09-bd10-c1a3de7ceb92"
                 },
                 {
                     "description": "Pad 2 [GND] of R_BURDEN on F.Cu",
@@ -1612,149 +1589,57 @@
                         "x": 31.0,
                         "y": 120.0
                     },
-                    "uuid": "9d2d278a-dddd-48cf-9917-1c62d1ca8cf7"
+                    "uuid": "de0833f2-91f6-4b73-9f42-cb439a80844e"
                 }
             ],
             "severity": "error",
             "type": "shorting_items"
         },
         {
-            "description": "Items shorting two nets (nets SPI_MISO and SPI_CS_TEMP)",
+            "description": "Items shorting two nets (nets PGND and SW_NODE)",
             "items": [
                 {
-                    "description": "Track [SPI_MISO] on F.Cu, length 1.5000 mm",
+                    "description": "PTH pad 2 [PGND] of C_BUS1",
+                    "pos": {
+                        "x": 32.5,
+                        "y": 60.0
+                    },
+                    "uuid": "a53f1cec-2e6b-4a25-b9b0-f36d7022a8a3"
+                },
+                {
+                    "description": "Track [SW_NODE] on F.Cu, length 89.1451 mm",
+                    "pos": {
+                        "x": 40.922882,
+                        "y": 35.850491
+                    },
+                    "uuid": "c1720862-49f5-4f98-a68b-31e364e43129"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets SPI_MISO and SPI_MOSI)",
+            "items": [
+                {
+                    "description": "Pad 22 [SPI_MISO] of U_MCU on F.Cu",
                     "pos": {
                         "x": 78.4,
                         "y": 96.55
                     },
-                    "uuid": "492642e9-d974-45f6-8d4b-8d5b9f8c5268"
+                    "uuid": "b605a27c-c0c6-4529-90ed-122482cc6f6e"
                 },
                 {
-                    "description": "Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 78.8,
-                        "y": 96.55
-                    },
-                    "uuid": "f93425a5-a6bf-432f-9f40-f3f464a609f4"
-                }
-            ],
-            "severity": "error",
-            "type": "shorting_items"
-        },
-        {
-            "description": "Items shorting two nets (nets GND and PWM_H)",
-            "items": [
-                {
-                    "description": "Pad 57 [GND] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 80.0,
-                        "y": 100.0
-                    },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
-                },
-                {
-                    "description": "Track [PWM_H] on F.Cu, length 1.5000 mm",
-                    "pos": {
-                        "x": 76.55,
-                        "y": 98.4
-                    },
-                    "uuid": "ba7ccbe2-ccf4-4806-9652-96fbf3835bf1"
-                }
-            ],
-            "severity": "error",
-            "type": "shorting_items"
-        },
-        {
-            "description": "Items shorting two nets (nets SPI_MOSI and SPI_CLK)",
-            "items": [
-                {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 52.1123 mm",
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
                     "pos": {
                         "x": 78.0,
                         "y": 96.55
                     },
-                    "uuid": "0d20a0bd-9cc9-455b-b5db-346730d9f03b"
-                },
-                {
-                    "description": "Pad 20 [SPI_CLK] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 77.6,
-                        "y": 96.55
-                    },
-                    "uuid": "f05863bc-6d4c-46f1-9912-f6f2766357ca"
+                    "uuid": "d105c744-20c0-4323-9f08-07eddc5e738a"
                 }
             ],
             "severity": "error",
             "type": "shorting_items"
-        },
-        {
-            "description": "Items shorting two nets (nets GATE_H and +15V)",
-            "items": [
-                {
-                    "description": "Track [GATE_H] on F.Cu, length 15.6216 mm",
-                    "pos": {
-                        "x": 26.0,
-                        "y": 25.0
-                    },
-                    "uuid": "3925819d-730b-442f-bc32-75e943edd497"
-                },
-                {
-                    "description": "Pad 1 [+15V] of U_GATE on F.Cu",
-                    "pos": {
-                        "x": 30.5,
-                        "y": 25.555
-                    },
-                    "uuid": "d2ca6547-de32-415c-b0d2-7f84328e3a4d"
-                }
-            ],
-            "severity": "error",
-            "type": "shorting_items"
-        },
-        {
-            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0161 mm)",
-            "items": [
-                {
-                    "description": "Track [PWM_H] on F.Cu, length 1.5000 mm",
-                    "pos": {
-                        "x": 30.5,
-                        "y": 26.825
-                    },
-                    "uuid": "9310aa8b-d566-469d-9a6b-050ec88f57f6"
-                },
-                {
-                    "description": "Track [PWM_L] on F.Cu, length 2.0000 mm",
-                    "pos": {
-                        "x": 28.658235,
-                        "y": 27.315319
-                    },
-                    "uuid": "e8f38fe5-bbd2-479d-a1fd-87fb664f7139"
-                }
-            ],
-            "severity": "error",
-            "type": "clearance"
-        },
-        {
-            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0572 mm)",
-            "items": [
-                {
-                    "description": "Track [USB_D-] on F.Cu, length 2.0000 mm",
-                    "pos": {
-                        "x": 83.45,
-                        "y": 100.4
-                    },
-                    "uuid": "2b3c2403-15aa-4712-8f0d-3ac2aa0d64d0"
-                },
-                {
-                    "description": "Pad 40 [USB_D+] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 83.45,
-                        "y": 100.0
-                    },
-                    "uuid": "3106592c-a018-435d-9711-52b0b61b4a61"
-                }
-            ],
-            "severity": "error",
-            "type": "clearance"
         },
         {
             "description": "Items shorting two nets (nets PWM_L and I_SENSE)",
@@ -1765,7 +1650,7 @@
                         "x": 76.55,
                         "y": 98.0
                     },
-                    "uuid": "791ec735-7222-4ec7-a3de-a55426761407"
+                    "uuid": "19cd264e-fe73-4796-82f9-33e6597e7a9b"
                 },
                 {
                     "description": "Track [I_SENSE] on F.Cu, length 39.8320 mm",
@@ -1773,57 +1658,57 @@
                         "x": 76.55,
                         "y": 97.6
                     },
-                    "uuid": "e32b5853-0d3e-4c35-8433-579c843fed37"
+                    "uuid": "d1bfabe8-5f9e-4a83-874a-2d576c9c6cb7"
                 }
             ],
             "severity": "error",
             "type": "shorting_items"
         },
         {
-            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.4500 mm)",
+            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1328 mm)",
             "items": [
                 {
-                    "description": "Pad 57 [GND] of U_MCU on F.Cu",
+                    "description": "PTH pad 2 [SW_NODE] of Q2",
                     "pos": {
-                        "x": 80.0,
-                        "y": 100.0
+                        "x": 50.45,
+                        "y": 15.0
                     },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
+                    "uuid": "b28052b8-41a6-4956-a458-d9721e0d4217"
                 },
                 {
-                    "description": "Via [PWM_H] on F.Cu - B.Cu",
+                    "description": "Track [GATE_L] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 78.05,
-                        "y": 98.4
+                        "x": 46.5,
+                        "y": 15.0
                     },
-                    "uuid": "d5723b59-66ac-4224-9214-2f9d4f1b0677"
+                    "uuid": "c65c686b-8b24-462f-ad5b-f174eeebd2f6"
                 }
             ],
             "severity": "error",
             "type": "clearance"
         },
         {
-            "description": "Items shorting two nets (nets AC_L and CGND)",
+            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0960 mm)",
             "items": [
                 {
-                    "description": "PTH pad 1 [AC_L] of D1",
+                    "description": "Track [SPI_CLK] on F.Cu, length 52.7006 mm",
                     "pos": {
-                        "x": 30.0,
-                        "y": 30.0
+                        "x": 77.6,
+                        "y": 96.55
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "6e4dc186-44f7-466c-936e-78386a4f4034"
                 },
                 {
-                    "description": "Pad 5 [CGND] of U_GATE on F.Cu",
+                    "description": "Pad 1 [+3V3] of C_MCU_1 on F.Cu",
                     "pos": {
-                        "x": 30.5,
-                        "y": 30.635
+                        "x": 72.5,
+                        "y": 97.0
                     },
-                    "uuid": "f8a55859-7cfb-4c13-8b51-f6785f054d97"
+                    "uuid": "e8abd13c-86cc-4f4b-b447-4898784dce4d"
                 }
             ],
             "severity": "error",
-            "type": "shorting_items"
+            "type": "clearance"
         },
         {
             "description": "Items shorting two nets (nets AC_L and SHUTDOWN_N)",
@@ -1834,7 +1719,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 },
                 {
                     "description": "Pad 4 [SHUTDOWN_N] of U_GATE on F.Cu",
@@ -1842,30 +1727,7 @@
                         "x": 30.5,
                         "y": 29.365
                     },
-                    "uuid": "3813e17e-c309-4709-9d70-5278c8630165"
-                }
-            ],
-            "severity": "error",
-            "type": "shorting_items"
-        },
-        {
-            "description": "Items shorting two nets (nets AC_L and CGND)",
-            "items": [
-                {
-                    "description": "PTH pad 1 [AC_L] of D1",
-                    "pos": {
-                        "x": 30.0,
-                        "y": 30.0
-                    },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
-                },
-                {
-                    "description": "Pad 2 [CGND] of C_VCC on F.Cu",
-                    "pos": {
-                        "x": 31.0,
-                        "y": 30.0
-                    },
-                    "uuid": "5491ef9e-543e-4b83-8b4c-0d7b8ce1f8aa"
+                    "uuid": "53f63916-4f63-4afa-b7d1-737bf938b18c"
                 }
             ],
             "severity": "error",
@@ -1880,7 +1742,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 },
                 {
                     "description": "Pad 1 [+15V] of C_VCC on F.Cu",
@@ -1888,11 +1750,80 @@
                         "x": 29.0,
                         "y": 30.0
                     },
-                    "uuid": "be24721a-5b3b-416a-adad-ab730086cd0f"
+                    "uuid": "fdeaaf1e-cb52-4f99-a270-864bee25c5f8"
                 }
             ],
             "severity": "error",
             "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_L and CGND)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [AC_L] of D1",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 30.0
+                    },
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
+                },
+                {
+                    "description": "Pad 5 [CGND] of U_GATE on F.Cu",
+                    "pos": {
+                        "x": 30.5,
+                        "y": 30.635
+                    },
+                    "uuid": "b41ea868-16c3-4481-b618-226e226e1730"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_L and CGND)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [AC_L] of D1",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 30.0
+                    },
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
+                },
+                {
+                    "description": "Pad 2 [CGND] of C_VCC on F.Cu",
+                    "pos": {
+                        "x": 31.0,
+                        "y": 30.0
+                    },
+                    "uuid": "59cfde8d-7cc1-40bd-8a79-28e825d6e944"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0001 mm)",
+            "items": [
+                {
+                    "description": "Pad 4 [SHUTDOWN_N] of U_GATE on F.Cu",
+                    "pos": {
+                        "x": 30.5,
+                        "y": 29.365
+                    },
+                    "uuid": "53f63916-4f63-4afa-b7d1-737bf938b18c"
+                },
+                {
+                    "description": "Pad 1 [+15V] of C_VCC on F.Cu",
+                    "pos": {
+                        "x": 29.0,
+                        "y": 30.0
+                    },
+                    "uuid": "fdeaaf1e-cb52-4f99-a270-864bee25c5f8"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
         },
         {
             "description": "Items shorting two nets (nets SHUTDOWN_N and CGND)",
@@ -1903,7 +1834,7 @@
                         "x": 30.5,
                         "y": 29.365
                     },
-                    "uuid": "3813e17e-c309-4709-9d70-5278c8630165"
+                    "uuid": "53f63916-4f63-4afa-b7d1-737bf938b18c"
                 },
                 {
                     "description": "Pad 2 [CGND] of C_VCC on F.Cu",
@@ -1911,34 +1842,11 @@
                         "x": 31.0,
                         "y": 30.0
                     },
-                    "uuid": "5491ef9e-543e-4b83-8b4c-0d7b8ce1f8aa"
+                    "uuid": "59cfde8d-7cc1-40bd-8a79-28e825d6e944"
                 }
             ],
             "severity": "error",
             "type": "shorting_items"
-        },
-        {
-            "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0001 mm)",
-            "items": [
-                {
-                    "description": "Pad 4 [SHUTDOWN_N] of U_GATE on F.Cu",
-                    "pos": {
-                        "x": 30.5,
-                        "y": 29.365
-                    },
-                    "uuid": "3813e17e-c309-4709-9d70-5278c8630165"
-                },
-                {
-                    "description": "Pad 1 [+15V] of C_VCC on F.Cu",
-                    "pos": {
-                        "x": 29.0,
-                        "y": 30.0
-                    },
-                    "uuid": "be24721a-5b3b-416a-adad-ab730086cd0f"
-                }
-            ],
-            "severity": "error",
-            "type": "clearance"
         },
         {
             "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.0001 mm)",
@@ -1949,7 +1857,7 @@
                         "x": 30.5,
                         "y": 30.635
                     },
-                    "uuid": "f8a55859-7cfb-4c13-8b51-f6785f054d97"
+                    "uuid": "b41ea868-16c3-4481-b618-226e226e1730"
                 },
                 {
                     "description": "Pad 1 [+15V] of C_VCC on F.Cu",
@@ -1957,7 +1865,7 @@
                         "x": 29.0,
                         "y": 30.0
                     },
-                    "uuid": "be24721a-5b3b-416a-adad-ab730086cd0f"
+                    "uuid": "fdeaaf1e-cb52-4f99-a270-864bee25c5f8"
                 }
             ],
             "severity": "error",
@@ -1972,7 +1880,7 @@
                         "x": 39.5,
                         "y": 30.635
                     },
-                    "uuid": "1d960b17-3502-468b-a775-873f782594e9"
+                    "uuid": "3b86046a-3f4b-4af4-8c86-3f825320c1a2"
                 },
                 {
                     "description": "Pad 1 [VCC_BOOT] of C_BOOT on F.Cu",
@@ -1980,7 +1888,7 @@
                         "x": 41.0,
                         "y": 30.0
                     },
-                    "uuid": "0a4e11f6-3fcf-4086-bebc-8f703c9f0fa0"
+                    "uuid": "d9597cab-07d4-44ad-abdd-8194cfc393fe"
                 }
             ],
             "severity": "error",
@@ -1995,7 +1903,7 @@
                         "x": 39.5,
                         "y": 29.365
                     },
-                    "uuid": "9399a589-1033-4ea9-9a17-3bcd7343add0"
+                    "uuid": "3410d21a-17df-4b26-9a1f-572dfe4afb81"
                 },
                 {
                     "description": "Pad 1 [VCC_BOOT] of C_BOOT on F.Cu",
@@ -2003,7 +1911,7 @@
                         "x": 41.0,
                         "y": 30.0
                     },
-                    "uuid": "0a4e11f6-3fcf-4086-bebc-8f703c9f0fa0"
+                    "uuid": "d9597cab-07d4-44ad-abdd-8194cfc393fe"
                 }
             ],
             "severity": "error",
@@ -2018,7 +1926,7 @@
                         "x": 76.55,
                         "y": 102.8
                     },
-                    "uuid": "f3435b42-0b24-4029-92f7-d5a7d01ad613"
+                    "uuid": "1231d645-9019-4309-894e-088755e31bd7"
                 },
                 {
                     "description": "Pad 2 [GND] of U_MCU on F.Cu",
@@ -2026,7 +1934,7 @@
                         "x": 76.55,
                         "y": 102.4
                     },
-                    "uuid": "cade9721-aae3-4717-a6e5-dbd5644d6dd2"
+                    "uuid": "126bee88-ca94-4f67-a67b-3611a50af368"
                 }
             ],
             "severity": "error",
@@ -2041,7 +1949,7 @@
                         "x": 76.55,
                         "y": 98.4
                     },
-                    "uuid": "9a14b0bf-841a-4403-b59d-5aa30b878c76"
+                    "uuid": "baf3e7fd-a9de-49a5-8822-c1515f2934fb"
                 },
                 {
                     "description": "Pad 14 [PWM_L] of U_MCU on F.Cu",
@@ -2049,7 +1957,7 @@
                         "x": 76.55,
                         "y": 98.0
                     },
-                    "uuid": "791ec735-7222-4ec7-a3de-a55426761407"
+                    "uuid": "19cd264e-fe73-4796-82f9-33e6597e7a9b"
                 }
             ],
             "severity": "error",
@@ -2064,7 +1972,7 @@
                         "x": 76.55,
                         "y": 98.0
                     },
-                    "uuid": "791ec735-7222-4ec7-a3de-a55426761407"
+                    "uuid": "19cd264e-fe73-4796-82f9-33e6597e7a9b"
                 },
                 {
                     "description": "Pad 15 [I_SENSE] of U_MCU on F.Cu",
@@ -2072,7 +1980,7 @@
                         "x": 76.55,
                         "y": 97.6
                     },
-                    "uuid": "cdbf2424-6656-4712-a252-db80bcd4c574"
+                    "uuid": "f6344c2a-000b-4164-8229-fac109291943"
                 }
             ],
             "severity": "error",
@@ -2087,7 +1995,7 @@
                         "x": 77.6,
                         "y": 96.55
                     },
-                    "uuid": "f05863bc-6d4c-46f1-9912-f6f2766357ca"
+                    "uuid": "571e52fd-d512-4ce3-b8ff-a5db2068c3d1"
                 },
                 {
                     "description": "Pad 21 [SPI_MOSI] of U_MCU on F.Cu",
@@ -2095,7 +2003,7 @@
                         "x": 78.0,
                         "y": 96.55
                     },
-                    "uuid": "4a3bc443-ed96-4307-a220-479cc934def1"
+                    "uuid": "75c09271-d1c2-4c96-aaeb-aedd1d000174"
                 }
             ],
             "severity": "error",
@@ -2110,7 +2018,7 @@
                         "x": 78.0,
                         "y": 96.55
                     },
-                    "uuid": "4a3bc443-ed96-4307-a220-479cc934def1"
+                    "uuid": "75c09271-d1c2-4c96-aaeb-aedd1d000174"
                 },
                 {
                     "description": "Pad 22 [SPI_MISO] of U_MCU on F.Cu",
@@ -2118,7 +2026,7 @@
                         "x": 78.4,
                         "y": 96.55
                     },
-                    "uuid": "80038c94-4810-4b0c-b469-e053943fc0a6"
+                    "uuid": "b605a27c-c0c6-4529-90ed-122482cc6f6e"
                 }
             ],
             "severity": "error",
@@ -2133,7 +2041,7 @@
                         "x": 78.4,
                         "y": 96.55
                     },
-                    "uuid": "80038c94-4810-4b0c-b469-e053943fc0a6"
+                    "uuid": "b605a27c-c0c6-4529-90ed-122482cc6f6e"
                 },
                 {
                     "description": "Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu",
@@ -2141,7 +2049,7 @@
                         "x": 78.8,
                         "y": 96.55
                     },
-                    "uuid": "f93425a5-a6bf-432f-9f40-f3f464a609f4"
+                    "uuid": "3566a707-57aa-43ad-9a6e-110082a4d49e"
                 }
             ],
             "severity": "error",
@@ -2156,7 +2064,7 @@
                         "x": 83.45,
                         "y": 100.0
                     },
-                    "uuid": "3106592c-a018-435d-9711-52b0b61b4a61"
+                    "uuid": "d8fbe6a9-7a1d-4929-96f8-e4a970afd6b4"
                 },
                 {
                     "description": "Pad 41 [USB_D-] of U_MCU on F.Cu",
@@ -2164,34 +2072,11 @@
                         "x": 83.45,
                         "y": 100.4
                     },
-                    "uuid": "e1fdd0f4-7aff-4a08-8088-3060ca235c28"
+                    "uuid": "b420853d-87c4-40af-af9a-132ae977ce1f"
                 }
             ],
             "severity": "error",
             "type": "clearance"
-        },
-        {
-            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
-            "items": [
-                {
-                    "description": "Pad 57 [GND] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 80.0,
-                        "y": 100.0
-                    },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
-                },
-                {
-                    "description": "Via [PWM_H] on F.Cu - B.Cu",
-                    "pos": {
-                        "x": 78.05,
-                        "y": 98.4
-                    },
-                    "uuid": "d5723b59-66ac-4224-9214-2f9d4f1b0677"
-                }
-            ],
-            "severity": "error",
-            "type": "hole_clearance"
         },
         {
             "description": "Clearance violation (netclass 'Default' clearance 0.2000 mm; actual 0.1000 mm)",
@@ -2202,7 +2087,7 @@
                         "x": 95.0,
                         "y": 130.0
                     },
-                    "uuid": "07cee8b7-163f-4429-99c9-a73f9d226754"
+                    "uuid": "d40518ee-d65a-4478-9185-9f609d460c59"
                 },
                 {
                     "description": "Pad B6 [USB_D-] of J_USB on F.Cu",
@@ -2210,7 +2095,7 @@
                         "x": 95.4,
                         "y": 130.0
                     },
-                    "uuid": "e44d902b-86b9-4300-9623-19e712182c96"
+                    "uuid": "bc8ce6f7-7b39-4163-babf-8073eabd2858"
                 }
             ],
             "severity": "error",
@@ -2220,135 +2105,20 @@
             "description": "Front solder mask aperture bridges items with different nets",
             "items": [
                 {
-                    "description": "Track [GATE_H] on F.Cu, length 15.6216 mm",
+                    "description": "Track [SW_NODE] on F.Cu, length 89.1451 mm",
                     "pos": {
-                        "x": 26.0,
-                        "y": 25.0
+                        "x": 40.922882,
+                        "y": 35.850491
                     },
-                    "uuid": "3925819d-730b-442f-bc32-75e943edd497"
+                    "uuid": "c1720862-49f5-4f98-a68b-31e364e43129"
                 },
                 {
-                    "description": "Pad 1 [+15V] of U_GATE on F.Cu",
+                    "description": "PTH pad 2 [PGND] of C_BUS1",
                     "pos": {
-                        "x": 30.5,
-                        "y": 25.555
-                    },
-                    "uuid": "d2ca6547-de32-415c-b0d2-7f84328e3a4d"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [GATE_L] on F.Cu, length 8.2329 mm",
-                    "pos": {
-                        "x": 44.0,
-                        "y": 25.0
-                    },
-                    "uuid": "36acceb2-25c0-444d-a2c3-38bc46820700"
-                },
-                {
-                    "description": "Pad 2 [SW_NODE] of C_BOOT on F.Cu",
-                    "pos": {
-                        "x": 43.0,
-                        "y": 30.0
-                    },
-                    "uuid": "cc07bc1f-1f5e-402f-914f-ede66fb7156d"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [PWM_H] on F.Cu, length 1.5000 mm",
-                    "pos": {
-                        "x": 76.55,
-                        "y": 98.4
-                    },
-                    "uuid": "ba7ccbe2-ccf4-4806-9652-96fbf3835bf1"
-                },
-                {
-                    "description": "Pad 57 [GND] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 80.0,
-                        "y": 100.0
-                    },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Rear solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [PWM_H] on B.Cu, length 85.1092 mm",
-                    "pos": {
-                        "x": 32.0,
-                        "y": 26.825
-                    },
-                    "uuid": "e17b3352-3e06-42dd-8371-2ff32deefa0c"
-                },
-                {
-                    "description": "PTH pad 2 [AC_N] of D2",
-                    "pos": {
-                        "x": 45.24,
-                        "y": 45.0
-                    },
-                    "uuid": "0a221f14-5ee8-44e6-a185-bdc5f5969516"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Rear solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [PWM_H] on B.Cu, length 85.1092 mm",
-                    "pos": {
-                        "x": 32.0,
-                        "y": 26.825
-                    },
-                    "uuid": "e17b3352-3e06-42dd-8371-2ff32deefa0c"
-                },
-                {
-                    "description": "PTH pad 2 [DC_BUS-] of C_BUS2",
-                    "pos": {
-                        "x": 52.5,
+                        "x": 32.5,
                         "y": 60.0
                     },
-                    "uuid": "ff1347b1-c50e-48f8-be8e-6af3b56dc37f"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [PWM_L] on F.Cu, length 2.0000 mm",
-                    "pos": {
-                        "x": 28.658235,
-                        "y": 27.315319
-                    },
-                    "uuid": "e8f38fe5-bbd2-479d-a1fd-87fb664f7139"
-                },
-                {
-                    "description": "Pad 2 [PWM_H] of U_GATE on F.Cu",
-                    "pos": {
-                        "x": 30.5,
-                        "y": 26.825
-                    },
-                    "uuid": "b6121da7-2a27-4fc8-aafb-9e277d69a3ef"
+                    "uuid": "a53f1cec-2e6b-4a25-b9b0-f36d7022a8a3"
                 }
             ],
             "severity": "error",
@@ -2363,7 +2133,7 @@
                         "x": 76.55,
                         "y": 97.6
                     },
-                    "uuid": "e32b5853-0d3e-4c35-8433-579c843fed37"
+                    "uuid": "d1bfabe8-5f9e-4a83-874a-2d576c9c6cb7"
                 },
                 {
                     "description": "Pad 14 [PWM_L] of U_MCU on F.Cu",
@@ -2371,7 +2141,7 @@
                         "x": 76.55,
                         "y": 98.0
                     },
-                    "uuid": "791ec735-7222-4ec7-a3de-a55426761407"
+                    "uuid": "19cd264e-fe73-4796-82f9-33e6597e7a9b"
                 }
             ],
             "severity": "error",
@@ -2386,7 +2156,7 @@
                         "x": 76.55,
                         "y": 97.6
                     },
-                    "uuid": "e32b5853-0d3e-4c35-8433-579c843fed37"
+                    "uuid": "d1bfabe8-5f9e-4a83-874a-2d576c9c6cb7"
                 },
                 {
                     "description": "Pad 2 [GND] of C_MCU_2 on F.Cu",
@@ -2394,7 +2164,7 @@
                         "x": 73.5,
                         "y": 100.0
                     },
-                    "uuid": "432e7924-d70c-4e4f-b187-400e7250b552"
+                    "uuid": "08807137-e44e-4b14-ae1a-f5ba9b813116"
                 }
             ],
             "severity": "error",
@@ -2409,7 +2179,7 @@
                         "x": 37.525,
                         "y": 119.365
                     },
-                    "uuid": "738c01b5-61c9-4a79-adc9-06d969994e0b"
+                    "uuid": "c21cb0c5-708d-4f09-bd10-c1a3de7ceb92"
                 },
                 {
                     "description": "Pad 2 [GND] of R_BURDEN on F.Cu",
@@ -2417,7 +2187,7 @@
                         "x": 31.0,
                         "y": 120.0
                     },
-                    "uuid": "9d2d278a-dddd-48cf-9917-1c62d1ca8cf7"
+                    "uuid": "de0833f2-91f6-4b73-9f42-cb439a80844e"
                 }
             ],
             "severity": "error",
@@ -2427,43 +2197,43 @@
             "description": "Front solder mask aperture bridges items with different nets",
             "items": [
                 {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 52.1123 mm",
+                    "description": "Track [GATE_H] on F.Cu, length 11.6244 mm",
                     "pos": {
-                        "x": 78.0,
-                        "y": 96.55
+                        "x": 26.0,
+                        "y": 25.0
                     },
-                    "uuid": "0d20a0bd-9cc9-455b-b5db-346730d9f03b"
+                    "uuid": "9186abf7-e6f1-4f53-8602-f1b96c0906d6"
                 },
                 {
-                    "description": "Pad 20 [SPI_CLK] of U_MCU on F.Cu",
+                    "description": "Pad 1 [+15V] of U_GATE on F.Cu",
+                    "pos": {
+                        "x": 30.5,
+                        "y": 25.555
+                    },
+                    "uuid": "5be4f6f9-207d-482a-af23-f58b466acd63"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [SPI_CLK] on F.Cu, length 52.7006 mm",
                     "pos": {
                         "x": 77.6,
                         "y": 96.55
                     },
-                    "uuid": "f05863bc-6d4c-46f1-9912-f6f2766357ca"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 25.0000 mm",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 107.725
-                    },
-                    "uuid": "f67b3d2e-b285-40a3-a80b-dfd81b8443c7"
+                    "uuid": "6e4dc186-44f7-466c-936e-78386a4f4034"
                 },
                 {
-                    "description": "Pad 3 [SPI_MISO] of U_CT on F.Cu",
+                    "description": "Pad 2 [GND] of C_MCU_1 on F.Cu",
                     "pos": {
-                        "x": 27.1,
-                        "y": 108.375
+                        "x": 73.5,
+                        "y": 97.0
                     },
-                    "uuid": "4c32b8e4-f52e-4ccf-8f3e-80c4648a3e0f"
+                    "uuid": "cc625caf-1877-4c48-abd8-80f8a5a13c41"
                 }
             ],
             "severity": "error",
@@ -2473,89 +2243,20 @@
             "description": "Front solder mask aperture bridges items with different nets",
             "items": [
                 {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 25.0000 mm",
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 27.1,
-                        "y": 107.725
+                        "x": 78.0,
+                        "y": 96.55
                     },
-                    "uuid": "f67b3d2e-b285-40a3-a80b-dfd81b8443c7"
+                    "uuid": "d105c744-20c0-4323-9f08-07eddc5e738a"
                 },
                 {
-                    "description": "Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 109.025
-                    },
-                    "uuid": "090423c4-54cb-4b17-8978-867a071d2bc9"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 25.0000 mm",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 107.725
-                    },
-                    "uuid": "f67b3d2e-b285-40a3-a80b-dfd81b8443c7"
-                },
-                {
-                    "description": "Pad 10 [GND] of U_CT on F.Cu",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 112.925
-                    },
-                    "uuid": "fc4e1ef8-6810-4977-946d-64981c3f3a3a"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [SPI_MOSI] on F.Cu, length 25.0000 mm",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 107.725
-                    },
-                    "uuid": "f67b3d2e-b285-40a3-a80b-dfd81b8443c7"
-                },
-                {
-                    "description": "Pad 1 [SPI_CLK] of MAX31865 on F.Cu",
-                    "pos": {
-                        "x": 27.1,
-                        "y": 132.075
-                    },
-                    "uuid": "9a1ca230-d73e-4180-a19e-32d528182c19"
-                }
-            ],
-            "severity": "error",
-            "type": "solder_mask_bridge"
-        },
-        {
-            "description": "Front solder mask aperture bridges items with different nets",
-            "items": [
-                {
-                    "description": "Track [SPI_MISO] on F.Cu, length 1.5000 mm",
+                    "description": "Pad 22 [SPI_MISO] of U_MCU on F.Cu",
                     "pos": {
                         "x": 78.4,
                         "y": 96.55
                     },
-                    "uuid": "492642e9-d974-45f6-8d4b-8d5b9f8c5268"
-                },
-                {
-                    "description": "Pad 23 [SPI_CS_TEMP] of U_MCU on F.Cu",
-                    "pos": {
-                        "x": 78.8,
-                        "y": 96.55
-                    },
-                    "uuid": "f93425a5-a6bf-432f-9f40-f3f464a609f4"
+                    "uuid": "b605a27c-c0c6-4529-90ed-122482cc6f6e"
                 }
             ],
             "severity": "error",
@@ -2565,12 +2266,12 @@
             "description": "Front solder mask aperture bridges items with different nets",
             "items": [
                 {
-                    "description": "Via [PWM_H] on F.Cu - B.Cu",
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 78.05,
-                        "y": 98.4
+                        "x": 78.0,
+                        "y": 96.55
                     },
-                    "uuid": "d5723b59-66ac-4224-9214-2f9d4f1b0677"
+                    "uuid": "d105c744-20c0-4323-9f08-07eddc5e738a"
                 },
                 {
                     "description": "Pad 57 [GND] of U_MCU on F.Cu",
@@ -2578,7 +2279,99 @@
                         "x": 80.0,
                         "y": 100.0
                     },
-                    "uuid": "9d4caffe-f254-4cdc-9610-390f60c42759"
+                    "uuid": "02213dd8-2a99-4b14-bbff-e044102a7d0f"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 107.725
+                    },
+                    "uuid": "d432128a-c20a-4d77-91e4-274dcd7b908d"
+                },
+                {
+                    "description": "Pad 3 [SPI_MISO] of U_CT on F.Cu",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 108.375
+                    },
+                    "uuid": "053ecbeb-8333-469a-b77d-3c87b58ba7a7"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 107.725
+                    },
+                    "uuid": "d432128a-c20a-4d77-91e4-274dcd7b908d"
+                },
+                {
+                    "description": "Pad 4 [SPI_CS_TEMP] of U_CT on F.Cu",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 109.025
+                    },
+                    "uuid": "ba89b56c-c548-4b89-b3f4-0befdb43f42a"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [USB_D+] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 83.45,
+                        "y": 100.0
+                    },
+                    "uuid": "fecb2d07-3234-4035-a4ee-4b60430253da"
+                },
+                {
+                    "description": "Pad 57 [GND] of U_MCU on F.Cu",
+                    "pos": {
+                        "x": 80.0,
+                        "y": 100.0
+                    },
+                    "uuid": "02213dd8-2a99-4b14-bbff-e044102a7d0f"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [USB_D+] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 83.45,
+                        "y": 100.0
+                    },
+                    "uuid": "fecb2d07-3234-4035-a4ee-4b60430253da"
+                },
+                {
+                    "description": "Pad 41 [USB_D-] of U_MCU on F.Cu",
+                    "pos": {
+                        "x": 83.45,
+                        "y": 100.4
+                    },
+                    "uuid": "b420853d-87c4-40af-af9a-132ae977ce1f"
                 }
             ],
             "severity": "error",
@@ -2593,7 +2386,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 },
                 {
                     "description": "Pad 4 [SHUTDOWN_N] of U_GATE on F.Cu",
@@ -2601,7 +2394,7 @@
                         "x": 30.5,
                         "y": 29.365
                     },
-                    "uuid": "3813e17e-c309-4709-9d70-5278c8630165"
+                    "uuid": "53f63916-4f63-4afa-b7d1-737bf938b18c"
                 }
             ],
             "severity": "error",
@@ -2616,7 +2409,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 },
                 {
                     "description": "Pad 5 [CGND] of U_GATE on F.Cu",
@@ -2624,7 +2417,7 @@
                         "x": 30.5,
                         "y": 30.635
                     },
-                    "uuid": "f8a55859-7cfb-4c13-8b51-f6785f054d97"
+                    "uuid": "b41ea868-16c3-4481-b618-226e226e1730"
                 }
             ],
             "severity": "error",
@@ -2639,7 +2432,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 },
                 {
                     "description": "Pad 2 [CGND] of C_VCC on F.Cu",
@@ -2647,7 +2440,7 @@
                         "x": 31.0,
                         "y": 30.0
                     },
-                    "uuid": "5491ef9e-543e-4b83-8b4c-0d7b8ce1f8aa"
+                    "uuid": "59cfde8d-7cc1-40bd-8a79-28e825d6e944"
                 }
             ],
             "severity": "error",
@@ -2662,7 +2455,7 @@
                         "x": 30.0,
                         "y": 30.0
                     },
-                    "uuid": "6f3ab2d3-06ec-454d-a627-1a30bac5c9ee"
+                    "uuid": "b52fe7b8-2411-4931-9894-44d6e1160f3f"
                 },
                 {
                     "description": "Pad 1 [+15V] of C_VCC on F.Cu",
@@ -2670,7 +2463,7 @@
                         "x": 29.0,
                         "y": 30.0
                     },
-                    "uuid": "be24721a-5b3b-416a-adad-ab730086cd0f"
+                    "uuid": "fdeaaf1e-cb52-4f99-a270-864bee25c5f8"
                 }
             ],
             "severity": "error",
@@ -2685,7 +2478,7 @@
                         "x": 30.5,
                         "y": 29.365
                     },
-                    "uuid": "3813e17e-c309-4709-9d70-5278c8630165"
+                    "uuid": "53f63916-4f63-4afa-b7d1-737bf938b18c"
                 },
                 {
                     "description": "Pad 2 [CGND] of C_VCC on F.Cu",
@@ -2693,7 +2486,7 @@
                         "x": 31.0,
                         "y": 30.0
                     },
-                    "uuid": "5491ef9e-543e-4b83-8b4c-0d7b8ce1f8aa"
+                    "uuid": "59cfde8d-7cc1-40bd-8a79-28e825d6e944"
                 }
             ],
             "severity": "error",
@@ -2703,12 +2496,12 @@
             "description": "Track has unconnected end",
             "items": [
                 {
-                    "description": "Track [SPI_MISO] on B.Cu, length 2.0000 mm",
+                    "description": "Track [GATE_L] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 79.9,
-                        "y": 96.55
+                        "x": 46.5,
+                        "y": 15.0
                     },
-                    "uuid": "a84c3aa1-3b57-488c-a336-1cafc013bba5"
+                    "uuid": "c65c686b-8b24-462f-ad5b-f174eeebd2f6"
                 }
             ],
             "severity": "warning",
@@ -2718,16 +2511,136 @@
             "description": "Track has unconnected end",
             "items": [
                 {
-                    "description": "Track [USB_D-] on F.Cu, length 2.0000 mm",
+                    "description": "Track [GATE_L] on F.Cu, length 2.0000 mm",
                     "pos": {
-                        "x": 83.45,
-                        "y": 100.4
+                        "x": 44.0,
+                        "y": 25.0
                     },
-                    "uuid": "2b3c2403-15aa-4712-8f0d-3ac2aa0d64d0"
+                    "uuid": "17fc9807-3597-413c-bf97-f2715a03bd8b"
                 }
             ],
             "severity": "warning",
             "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [GATE_L] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 37.529154,
+                        "y": 33.515244
+                    },
+                    "uuid": "50746e51-fbe1-4bea-8954-41515d987347"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SPI_MOSI] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 27.1,
+                        "y": 107.725
+                    },
+                    "uuid": "d432128a-c20a-4d77-91e4-274dcd7b908d"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [PWM_H] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 28.529154,
+                        "y": 27.165244
+                    },
+                    "uuid": "49162d93-42c0-464d-ae39-1bab00caf9f6"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [PWM_L] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 28.646358,
+                        "y": 28.846007
+                    },
+                    "uuid": "624ba49c-f3d4-49cd-8b88-e9ab9d720bf0"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [SPI_CS_TEMP] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 78.8,
+                        "y": 96.55
+                    },
+                    "uuid": "3f1160b3-910c-413d-8ef2-d29b9e936701"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Via is not connected or connected on only one layer",
+            "items": [
+                {
+                    "description": "Via [SW_NODE] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 32.4,
+                        "y": 15.0
+                    },
+                    "uuid": "e645bf37-1572-4f20-bc42-b7e34d947a49"
+                }
+            ],
+            "severity": "warning",
+            "type": "via_dangling"
+        },
+        {
+            "description": "Via is not connected or connected on only one layer",
+            "items": [
+                {
+                    "description": "Via [SW_NODE] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 51.95,
+                        "y": 15.0
+                    },
+                    "uuid": "6f5c621c-7352-4aa1-85cf-c114f4b75650"
+                }
+            ],
+            "severity": "warning",
+            "type": "via_dangling"
+        },
+        {
+            "description": "Via is not connected or connected on only one layer",
+            "items": [
+                {
+                    "description": "Via [SW_NODE] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 11.5,
+                        "y": 120.0
+                    },
+                    "uuid": "b7f81640-b149-4c88-85ac-b3cc6493b8d6"
+                }
+            ],
+            "severity": "warning",
+            "type": "via_dangling"
         },
         {
             "description": "Via is not connected or connected on only one layer",
@@ -2738,7 +2651,7 @@
                         "x": 21.5,
                         "y": 15.0
                     },
-                    "uuid": "e64ba9e1-4bd3-4e35-aa75-ad19ce1d7716"
+                    "uuid": "908ac76e-71aa-4635-918c-dc9bba906360"
                 }
             ],
             "severity": "warning",
@@ -2753,7 +2666,7 @@
                         "x": 46.5,
                         "y": 15.0
                     },
-                    "uuid": "be6b3dc7-5045-4131-8084-1e9586f2bac5"
+                    "uuid": "8b9f425a-1c37-468e-b218-55bda1b251d8"
                 }
             ],
             "severity": "warning",
