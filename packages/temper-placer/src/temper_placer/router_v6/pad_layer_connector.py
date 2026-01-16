@@ -42,8 +42,16 @@ class Pad:
     
     def is_tht(self) -> bool:
         """Check if pad is through-hole (exists on multiple layers)"""
-        # THT pads have at least F.Cu and B.Cu
-        return 'F.Cu' in self.layers and 'B.Cu' in self.layers
+        # THT pads have either:
+        # 1. Both F.Cu and B.Cu explicitly
+        # 2. Wildcard *.Cu (all copper layers)
+        if 'F.Cu' in self.layers and 'B.Cu' in self.layers:
+            return True
+        # Check for wildcard copper layers
+        for layer in self.layers:
+            if '*.Cu' in layer or layer == '*.Cu':
+                return True
+        return False
     
     def distance_to(self, other: "Pad") -> float:
         """Calculate distance to another pad"""
@@ -165,33 +173,35 @@ class PadLayerConnector:
         
         Strategy (adjusted for DRC compliance):
         1. Skip "near pad" - hole clearance makes it impossible
-        2. Use fanout zone (1.5-5mm) - maintains proper clearances
-        3. Give up if no space
+        2. Use fanout zone (1.5-10mm) - maintains proper clearances
+        3. Try more angles for dense connectors
+        4. Give up if no space
         
-        Note: With via drill=0.4mm and hole_clearance=0.25mm, vias must be
-        at least ~1.0mm from IC pad centers to maintain clearance.
+        Note: With via drill=0.4mm and hole_clearance=0.15mm, vias must be
+        at least ~0.85mm from pad centers to maintain clearance.
         """
-        # First try: Medium distance (1.5-2.5mm) for normal fanout
-        for radius in [1.5, 2.0, 2.5]:
-            # Try 8 directions at this radius
-            for angle_deg in [0, 45, 90, 135, 180, 225, 270, 315]:
+        # Try multiple radii with 16 directions for better coverage
+        angles = [i * 22.5 for i in range(16)]  # 0, 22.5, 45, ... 337.5
+        
+        # First try: Medium distance (1.5-3mm) for normal fanout
+        for radius in [1.5, 2.0, 2.5, 3.0]:
+            for angle_deg in angles:
                 angle = math.radians(angle_deg)
                 x = pad.position[0] + radius * math.cos(angle)
                 y = pad.position[1] + radius * math.sin(angle)
                 
-                # Check if this position is legal
+                # Quick bounds check only (full check happens in place_via)
                 if self.via_planner._is_position_legal((x, y)):
                     return (x, y)
         
-        # Second try: Larger fanout zone (3-5mm) for dense ICs
-        for radius in [3.0, 3.5, 4.0, 4.5, 5.0]:
-            # Try 8 directions at this radius
-            for angle_deg in [0, 45, 90, 135, 180, 225, 270, 315]:
+        # Second try: Larger fanout zone (3.5-10mm) for dense connectors
+        for radius in [3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 10.0]:
+            for angle_deg in angles:
                 angle = math.radians(angle_deg)
                 x = pad.position[0] + radius * math.cos(angle)
                 y = pad.position[1] + radius * math.sin(angle)
                 
-                # Check if this position is legal
+                # Quick bounds check only
                 if self.via_planner._is_position_legal((x, y)):
                     return (x, y)
         

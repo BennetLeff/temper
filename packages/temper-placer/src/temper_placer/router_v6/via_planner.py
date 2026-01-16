@@ -286,4 +286,13 @@ class ViaPlanner:
             ):
                 return False
         
+        # Check hole clearance to all pads (CRITICAL for DRC)
+        for pad_pos, pad_size in self.pad_holes:
+            if not self.via_spec.has_hole_clearance_to_pad(
+                via_pos=position,
+                pad_pos=pad_pos,
+                pad_size=pad_size
+            ):
+                return False
+        
         return True

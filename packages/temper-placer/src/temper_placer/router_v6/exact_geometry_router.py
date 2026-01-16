@@ -489,6 +489,8 @@ class ExactGeometryRouter:
         including both SMD and THT pads. KiCad's "hole clearance" rule checks
         via drill hole to pad copper edge distance.
         
+        For THT pads, we also need to check hole-to-hole clearance (drill to drill).
+        
         This ensures vias maintain proper clearance, preventing DRC violations.
         """
         # Use KiCad file to get accurate pad sizes
@@ -523,12 +525,28 @@ class ExactGeometryRouter:
                         if hasattr(pad.size, 'X') and hasattr(pad.size, 'Y'):
                             pad_size = max(pad.size.X, pad.size.Y)
                     
+                    # For THT pads, also check drill size for hole-to-hole clearance
+                    # Via must be far enough that drill holes don't overlap
+                    drill_size = 0
+                    if hasattr(pad, 'drill') and pad.drill:
+                        if hasattr(pad.drill, 'diameter'):
+                            drill_size = pad.drill.diameter or 0
+                    
+                    # For THT pads, use the larger of pad_size or drill+margin
+                    # This ensures hole-to-hole clearance is maintained
+                    if drill_size > 0:
+                        # THT pad: need clearance from drill hole edge
+                        # Use drill + 0.5mm margin for hole-to-hole clearance
+                        effective_size = max(pad_size, drill_size + 0.5)
+                    else:
+                        effective_size = pad_size
+                    
                     # Skip large exposed pads (thermal pads) - they're typically GND
                     # and vias can be placed on/near them
                     if pad_size > 3.0:
                         continue  # Skip thermal pads
                     
-                    self.via_planner.register_pad((abs_x, abs_y), pad_size=pad_size)
+                    self.via_planner.register_pad((abs_x, abs_y), pad_size=effective_size)
                     pad_count += 1
             
             if self.verbose:

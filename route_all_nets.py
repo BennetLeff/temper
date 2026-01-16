@@ -124,6 +124,26 @@ def main():
     failed_nets = []
     timeout_nets = []
     
+    def try_route_net(net_name, layer, pad_info, timeout_sec=30):
+        """Try to route a net on a given layer. Returns (route, error_type)."""
+        pads_with_layers = [
+            (p['position'], p['layers'], p['ref'], p['pin'])
+            for p in pad_info
+        ]
+        
+        try:
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(timeout_sec)
+            route = router.route_net_with_vias(net_name, layer, pads_with_layers)
+            signal.alarm(0)
+            return route, None
+        except TimeoutError:
+            signal.alarm(0)
+            return None, 'timeout'
+        except Exception as e:
+            signal.alarm(0)
+            return None, str(e)
+    
     for net_name in signal_nets:
         layer = net_layers[net_name]
         
@@ -140,53 +160,42 @@ def main():
         
         print(f"   Routing {net_name:15s} on {layer} ({len(pad_info)} pads)...", end=" ", flush=True)
         
-        pads_with_layers = [
-            (p['position'], p['layers'], p['ref'], p['pin'])
-            for p in pad_info
-        ]
+        # Try primary layer first
+        route, error = try_route_net(net_name, layer, pad_info)
         
-        try:
-            # Set 30 second timeout per net
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(30)
-            
-            route = router.route_net_with_vias(net_name, layer, pads_with_layers)
-            signal.alarm(0)
-            
-            if route:
-                print(f"✓ {len(route.segments)} seg, {len(route.vias)} vias")
-                
-                for seg in route.segments:
-                    routes.append({
-                        'start': seg.start,
-                        'end': seg.end,
-                        'width': seg.width,
-                        'layer': seg.layer,
-                        'net': net_name
-                    })
-                
-                for via in route.vias:
-                    vias_all.append({
-                        'position': via.position,
-                        'width': via.spec.diameter,
-                        'drill': via.spec.drill,
-                        'layers': tuple(via.layers),
-                        'net': net_name
-                    })
-                
-                routed_count += 1
-            else:
-                print(f"✗ Failed (no path)")
-                failed_nets.append(net_name)
+        # If failed on F.Cu, try B.Cu (and vice versa)
+        if route is None and error != 'timeout':
+            alt_layer = 'B.Cu' if layer == 'F.Cu' else 'F.Cu'
+            print(f"trying {alt_layer}...", end=" ", flush=True)
+            route, error = try_route_net(net_name, alt_layer, pad_info, timeout_sec=15)
         
-        except TimeoutError:
-            signal.alarm(0)
-            print(f"✗ Timeout (>30s)")
+        if route:
+            print(f"✓ {len(route.segments)} seg, {len(route.vias)} vias")
+            
+            for seg in route.segments:
+                routes.append({
+                    'start': seg.start,
+                    'end': seg.end,
+                    'width': seg.width,
+                    'layer': seg.layer,
+                    'net': net_name
+                })
+            
+            for via in route.vias:
+                vias_all.append({
+                    'position': via.position,
+                    'width': via.spec.diameter,
+                    'drill': via.spec.drill,
+                    'layers': tuple(via.layers),
+                    'net': net_name
+                })
+            
+            routed_count += 1
+        elif error == 'timeout':
+            print(f"✗ Timeout")
             timeout_nets.append(net_name)
-        
-        except Exception as e:
-            signal.alarm(0)
-            print(f"✗ Error: {e}")
+        else:
+            print(f"✗ Failed (no path)")
             failed_nets.append(net_name)
     
     print(f"\n   Routed: {routed_count}/{len(signal_nets)} nets ({100*routed_count/len(signal_nets):.0f}%)")
