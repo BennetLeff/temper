@@ -296,6 +296,7 @@ class ExactGeometryRouter:
         design_rules: DesignRules,
         routing_spaces: dict | None = None,  # From Stage 2
         verbose: bool = False,
+        kicad_file: str | None = None,  # Path to original .kicad_pcb file
     ):
         if not SHAPELY_AVAILABLE:
             raise ImportError("Shapely required for exact geometry routing")
@@ -304,6 +305,7 @@ class ExactGeometryRouter:
         self.design_rules = design_rules
         self.routing_spaces = routing_spaces
         self.verbose = verbose
+        self.kicad_file = kicad_file  # For accurate pad positions
         
         # Build base obstacles from routing spaces (preferred) or PCB
         self.base_obstacles: dict[str, list[Polygon]] = {}
@@ -314,6 +316,77 @@ class ExactGeometryRouter:
         for layer in self.base_obstacles:
             self.routed_segments[layer] = []
     
+    def _read_kicad_pad_positions(self) -> dict[tuple[str, str, str], tuple[float, float]]:
+        """
+        Read pad positions directly from KiCad file for accuracy.
+        
+        ParsedPCB has rotation bugs that cause incorrect pad positions.
+        This reads from the original KiCad file using kiutils.
+        
+        Returns:
+            Dict mapping (net_name, comp_ref, pin_number) -> (abs_x, abs_y)
+        """
+        positions = {}
+        
+        # Try to find the source KiCad file
+        kicad_file = self.kicad_file
+        if kicad_file is None and hasattr(self.pcb, 'source_file'):
+            kicad_file = self.pcb.source_file
+        
+        if kicad_file is None:
+            return positions
+        
+        try:
+            from kiutils.board import Board
+            import math
+            
+            board = Board.from_file(str(kicad_file))
+            
+            # Build ref->footprint mapping by finding Reference property
+            for fp in board.footprints:
+                ref = None
+                # Try different ways to get reference
+                if hasattr(fp, 'reference'):
+                    ref = fp.reference
+                
+                # properties might be dict or list depending on kiutils version
+                props = getattr(fp, 'properties', {})
+                if isinstance(props, dict):
+                    ref = props.get('Reference', ref)
+                elif isinstance(props, list):
+                    for prop in props:
+                        if isinstance(prop, str):
+                            continue
+                        key = getattr(prop, 'key', None) or getattr(prop, 'name', None)
+                        if key == 'Reference':
+                            ref = getattr(prop, 'value', None)
+                            break
+                
+                if ref is None:
+                    continue
+                
+                angle = math.radians(fp.position.angle or 0)
+                
+                for pad in fp.pads:
+                    if pad.net is None:
+                        continue
+                    
+                    net_name = pad.net.name
+                    pin_num = str(pad.number)
+                    
+                    # Calculate absolute position with rotation
+                    px, py = pad.position.X, pad.position.Y
+                    abs_x = fp.position.X + px * math.cos(angle) - py * math.sin(angle)
+                    abs_y = fp.position.Y + px * math.sin(angle) + py * math.cos(angle)
+                    
+                    positions[(net_name, ref, pin_num)] = (abs_x, abs_y)
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  Warning: Could not read KiCad file directly: {e}")
+        
+        return positions
+    
     def _build_base_obstacles(self):
         """Build obstacles from Stage 2 routing spaces or PCB."""
         for layer in ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]:
@@ -323,9 +396,20 @@ class ExactGeometryRouter:
         self._comp_by_ref = {comp.ref: comp for comp in self.pcb.components}
         self._net_pads: dict[str, list[tuple[float, float]]] = {}
         
+        # Try to read pad positions directly from KiCad file for accuracy
+        # ParsedPCB has rotation bugs that cause incorrect positions
+        kicad_pad_positions = self._read_kicad_pad_positions()
+        
         for net in self.pcb.nets:
             pads = []
             for comp_ref, pin_number in net.pins:
+                # First try KiCad-sourced positions (most accurate)
+                key = (net.name, comp_ref, str(pin_number))
+                if key in kicad_pad_positions:
+                    pads.append(kicad_pad_positions[key])
+                    continue
+                
+                # Fallback to ParsedPCB (may have rotation issues)
                 comp = self._comp_by_ref.get(comp_ref)
                 if not comp:
                     continue
