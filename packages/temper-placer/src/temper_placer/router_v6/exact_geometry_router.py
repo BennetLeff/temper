@@ -258,8 +258,8 @@ class ExactGeometryRouter:
         # Safety margins for DRC compliance
         # The trace centerline must be at least (clearance + trace_width/2) from obstacle edge
         # Add extra margin for RRT path approximation
-        pad_safety_margin = 0.05  # mm extra for pad obstacles
-        track_safety_margin = 0.05  # mm extra for existing track obstacles
+        pad_safety_margin = 0.08  # mm extra for pad obstacles (balanced)
+        track_safety_margin = 0.08  # mm extra for existing track obstacles
         full_inflation = clearance + trace_width / 2 + pad_safety_margin
         
         # Get target pad positions for escape zone calculation
@@ -367,8 +367,8 @@ class ExactGeometryRouter:
         start: tuple[float, float],
         goal: tuple[float, float],
         obstacles: list[Polygon],
-        max_iterations: int = 10000,  # More iterations for complex paths
-        step_size: float = 5.0,  # mm - larger steps cover more ground
+        max_iterations: int = 30000,  # High for complex paths
+        step_size: float = 2.0,  # mm - smaller for precision in tight spaces
     ) -> list[tuple[float, float]] | None:
         """Find path using RRT (Rapidly-exploring Random Tree).
         
@@ -525,10 +525,12 @@ class ExactGeometryRouter:
         net_name: str,
         escape_distance: float = 2.0,
         layer: str = "F.Cu",
+        is_destination: bool = False,
     ) -> tuple[float, float] | None:
-        """Calculate escape point for a pad on a dense IC.
+        """Calculate escape/approach point for a pad on a dense IC.
         
-        Tries multiple directions and picks the first one that's clear of obstacles.
+        For source pads: finds clear direction to escape from IC
+        For destination pads: finds approach direction that avoids adjacent pins
         
         Returns escape point or None if pad doesn't need escape routing.
         """
@@ -553,7 +555,7 @@ class ExactGeometryRouter:
             return None
         
         comp = self._comp_by_ref.get(comp_ref)
-        if not comp or len(comp.pins) < 6:
+        if not comp or len(comp.pins) < 4:
             # Not a dense IC, no escape needed
             return None
         
@@ -564,7 +566,8 @@ class ExactGeometryRouter:
         )
         merged = unary_union([o for o in escape_obstacles if o.area > 0.1])
         
-        # Try 8 directions, starting with "away from center"
+        # For destination approach, prefer directions perpendicular to pin row
+        # This avoids adjacent pins
         comp_center = comp.initial_position
         base_dx = pad_pos[0] - comp_center[0]
         base_dy = pad_pos[1] - comp_center[1]
@@ -575,8 +578,15 @@ class ExactGeometryRouter:
         else:
             base_angle = np.arctan2(base_dy, base_dx)
         
-        # Try directions: away from center first, then rotate
-        for angle_offset in [0, np.pi/4, -np.pi/4, np.pi/2, -np.pi/2, 3*np.pi/4, -3*np.pi/4, np.pi]:
+        # For destination pads, try perpendicular directions first (avoid pin row)
+        if is_destination:
+            # Perpendicular to away-from-center: ±90°
+            angle_offsets = [np.pi/2, -np.pi/2, np.pi/4, -np.pi/4, 3*np.pi/4, -3*np.pi/4, 0, np.pi]
+        else:
+            # For source, try away from center first
+            angle_offsets = [0, np.pi/4, -np.pi/4, np.pi/2, -np.pi/2, 3*np.pi/4, -3*np.pi/4, np.pi]
+        
+        for angle_offset in angle_offsets:
             angle = base_angle + angle_offset
             escape_x = pad_pos[0] + np.cos(angle) * escape_distance
             escape_y = pad_pos[1] + np.sin(angle) * escape_distance
@@ -627,9 +637,13 @@ class ExactGeometryRouter:
         route = ExactRoutePath(net_name=net_name, layer_name=layer)
         
         # Calculate escape points for each pad
+        # First and intermediate pads are sources, last pad is destination
         escape_points = []
-        for pad in pads:
-            escape = self._get_escape_point(pad, net_name, escape_distance=2.0, layer=layer)
+        for i, pad in enumerate(pads):
+            is_dest = (i == len(pads) - 1)  # Last pad is destination
+            escape = self._get_escape_point(
+                pad, net_name, escape_distance=2.0, layer=layer, is_destination=is_dest
+            )
             escape_points.append(escape)
         
         # Route between consecutive pads with escape routing
