@@ -477,6 +477,118 @@ class ExactGeometryRouter:
         # Fallback: empty graph (will fail routing)
         return VisibilityGraph(vertices=[start, goal], edges={0: [], 1: []})
     
+    def _get_escape_obstacles(
+        self,
+        layer: str,
+        net_name: str,
+        clearance: float,
+        trace_width: float,
+        pad_pos: tuple[float, float],
+    ) -> list[Polygon]:
+        """Get obstacles for escape routing - includes ALL pads except our own.
+        
+        Unlike _get_obstacles_for_net, this doesn't skip same-IC pads.
+        Escape routing needs to avoid adjacent GND/power pads on the same IC.
+        """
+        obstacles = []
+        full_inflation = clearance + trace_width / 2 + 0.05  # Small safety margin
+        
+        # Only skip the exact pad we're escaping from
+        our_pad_key = (round(pad_pos[0], 2), round(pad_pos[1], 2))
+        
+        for obs in self.base_obstacles.get(layer, []):
+            if isinstance(obs, tuple):
+                poly, obs_net = obs
+                centroid = (poly.centroid.x, poly.centroid.y)
+                centroid_key = (round(centroid[0], 2), round(centroid[1], 2))
+                
+                # Skip only our own pad
+                if centroid_key == our_pad_key:
+                    continue
+                
+                # Full inflation for all other pads
+                obstacles.append(poly.buffer(full_inflation))
+            else:
+                obstacles.append(obs.buffer(full_inflation))
+        
+        # Add existing routed segments
+        for seg in self.routed_segments.get(layer, []):
+            if seg.net_name == net_name:
+                continue
+            obstacles.append(seg.as_buffered_polygon(clearance + 0.05))
+        
+        return obstacles
+    
+    def _get_escape_point(
+        self,
+        pad_pos: tuple[float, float],
+        net_name: str,
+        escape_distance: float = 2.0,
+        layer: str = "F.Cu",
+    ) -> tuple[float, float] | None:
+        """Calculate escape point for a pad on a dense IC.
+        
+        Tries multiple directions and picks the first one that's clear of obstacles.
+        
+        Returns escape point or None if pad doesn't need escape routing.
+        """
+        # Find which component this pad belongs to
+        comp_ref = None
+        
+        for net in self.pcb.nets:
+            if net.name == net_name:
+                for ref, pin in net.pins:
+                    comp = self._comp_by_ref.get(ref)
+                    if not comp:
+                        continue
+                    for p in comp.pins:
+                        if p.number == pin or p.name == pin:
+                            abs_x = comp.initial_position[0] + p.position[0]
+                            abs_y = comp.initial_position[1] + p.position[1]
+                            if abs(abs_x - pad_pos[0]) < 0.1 and abs(abs_y - pad_pos[1]) < 0.1:
+                                comp_ref = ref
+                                break
+        
+        if not comp_ref:
+            return None
+        
+        comp = self._comp_by_ref.get(comp_ref)
+        if not comp or len(comp.pins) < 6:
+            # Not a dense IC, no escape needed
+            return None
+        
+        # Get obstacles for checking escape directions
+        rules = self.design_rules.get_rules_for_net(net_name)
+        escape_obstacles = self._get_escape_obstacles(
+            layer, net_name, rules.clearance_mm, rules.trace_width_mm, pad_pos
+        )
+        merged = unary_union([o for o in escape_obstacles if o.area > 0.1])
+        
+        # Try 8 directions, starting with "away from center"
+        comp_center = comp.initial_position
+        base_dx = pad_pos[0] - comp_center[0]
+        base_dy = pad_pos[1] - comp_center[1]
+        base_dist = np.sqrt(base_dx*base_dx + base_dy*base_dy)
+        
+        if base_dist < 0.1:
+            base_angle = 0
+        else:
+            base_angle = np.arctan2(base_dy, base_dx)
+        
+        # Try directions: away from center first, then rotate
+        for angle_offset in [0, np.pi/4, -np.pi/4, np.pi/2, -np.pi/2, 3*np.pi/4, -3*np.pi/4, np.pi]:
+            angle = base_angle + angle_offset
+            escape_x = pad_pos[0] + np.cos(angle) * escape_distance
+            escape_y = pad_pos[1] + np.sin(angle) * escape_distance
+            
+            # Check if escape segment is clear
+            escape_line = LineString([pad_pos, (escape_x, escape_y)])
+            if merged.is_empty or not escape_line.intersects(merged):
+                return (escape_x, escape_y)
+        
+        # No clear direction found
+        return None
+    
     def route_net(
         self,
         net_name: str,
@@ -484,7 +596,11 @@ class ExactGeometryRouter:
         pads: list[tuple[float, float]],
     ) -> ExactRoutePath | None:
         """
-        Route a single net using visibility graph.
+        Route a single net using visibility graph with escape routing.
+        
+        For pads on dense ICs, first routes a short escape segment perpendicular
+        to the pad row, then routes to the destination. This avoids clearance
+        violations with adjacent pads.
         
         Args:
             net_name: Name of net to route
@@ -510,36 +626,88 @@ class ExactGeometryRouter:
         
         route = ExactRoutePath(net_name=net_name, layer_name=layer)
         
-        # Route between consecutive pads (minimum spanning tree would be better)
+        # Calculate escape points for each pad
+        escape_points = []
+        for pad in pads:
+            escape = self._get_escape_point(pad, net_name, escape_distance=2.0, layer=layer)
+            escape_points.append(escape)
+        
+        # Route between consecutive pads with escape routing
         for i in range(len(pads) - 1):
-            start = pads[i]
-            goal = pads[i + 1]
+            start_pad = pads[i]
+            goal_pad = pads[i + 1]
+            start_escape = escape_points[i]
+            goal_escape = escape_points[i + 1]
             
-            # Build visibility graph
-            vg = self._build_visibility_graph(start, goal, obstacles)
+            # Build waypoints: pad -> escape -> ... -> escape -> pad
+            waypoints = [start_pad]
+            if start_escape:
+                waypoints.append(start_escape)
+            if goal_escape:
+                waypoints.append(goal_escape)
+            waypoints.append(goal_pad)
             
-            # Find shortest path
-            path_indices = vg.shortest_path(0, 1)  # 0=start, 1=goal
-            
-            if path_indices is None:
-                if self.verbose:
-                    print(f"  ✗ {net_name}: No path from pad {i} to {i+1}")
-                return None
-            
-            # Convert path to segments
-            path_coords = [vg.vertices[idx] for idx in path_indices]
-            for j in range(len(path_coords) - 1):
-                seg = ExactSegment(
-                    start=path_coords[j],
-                    end=path_coords[j + 1],
-                    width=trace_width,
-                    net_name=net_name,
-                    layer=layer,
-                )
-                route.segments.append(seg)
-            
-            # NOTE: Don't add same-net segments as obstacles!
-            # All segments of a net form one connected trace and shouldn't block each other.
+            # Route through waypoints
+            for j in range(len(waypoints) - 1):
+                start = waypoints[j]
+                goal = waypoints[j + 1]
+                
+                # For escape segments (short, near IC), check against ALL pads
+                is_escape_segment = (j == 0 and start_escape) or (j == len(waypoints) - 2 and goal_escape)
+                
+                if is_escape_segment:
+                    # For escape, get obstacles WITHOUT same-IC skipping
+                    escape_obstacles = self._get_escape_obstacles(
+                        layer, net_name, clearance, trace_width, start
+                    )
+                    direct = LineString([start, goal])
+                    merged = unary_union([o for o in escape_obstacles if o.area > 0.1])
+                    if merged.is_empty or not direct.intersects(merged):
+                        # Direct escape works
+                        seg = ExactSegment(
+                            start=start,
+                            end=goal,
+                            width=trace_width,
+                            net_name=net_name,
+                            layer=layer,
+                        )
+                        route.segments.append(seg)
+                        continue
+                    else:
+                        # Escape blocked, try RRT with escape obstacles
+                        rrt_path = self._rrt_path(start, goal, escape_obstacles, max_iterations=5000, step_size=1.0)
+                        if rrt_path:
+                            for k in range(len(rrt_path) - 1):
+                                seg = ExactSegment(
+                                    start=rrt_path[k],
+                                    end=rrt_path[k + 1],
+                                    width=trace_width,
+                                    net_name=net_name,
+                                    layer=layer,
+                                )
+                                route.segments.append(seg)
+                            continue
+                
+                # Use RRT for non-escape or blocked escape segments
+                vg = self._build_visibility_graph(start, goal, obstacles)
+                path_indices = vg.shortest_path(0, 1)
+                
+                if path_indices is None:
+                    if self.verbose:
+                        print(f"  ✗ {net_name}: No path from pad {i} to {i+1}")
+                    return None
+                
+                # Convert path to segments
+                path_coords = [vg.vertices[idx] for idx in path_indices]
+                for k in range(len(path_coords) - 1):
+                    seg = ExactSegment(
+                        start=path_coords[k],
+                        end=path_coords[k + 1],
+                        width=trace_width,
+                        net_name=net_name,
+                        layer=layer,
+                    )
+                    route.segments.append(seg)
         
         # Store routed segments
         self.routed_segments[layer].extend(route.segments)
