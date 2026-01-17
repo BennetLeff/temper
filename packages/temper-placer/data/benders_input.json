@@ -1,8 +1,11 @@
 {
   "board": {
-    "width_mm": 120,
-    "height_mm": 170,
-    "origin": [0, 0]
+    "width_mm": 100,
+    "height_mm": 150,
+    "origin": [
+      0,
+      0
+    ]
   },
   "coordinate_system": "center",
   "hv_nets": [
@@ -20,8 +23,15 @@
       "height_mm": 23.5,
       "center_x_mm": 15.0,
       "center_y_mm": 25.0,
-      "nets": ["AC_L", "AC_N", "GND"],
-      "hv_nets": ["AC_L", "AC_N"],
+      "nets": [
+        "AC_L",
+        "AC_N",
+        "GND"
+      ],
+      "hv_nets": [
+        "AC_L",
+        "AC_N"
+      ],
       "classification": "FIXED"
     },
     {
@@ -30,8 +40,14 @@
       "height_mm": 2.5,
       "center_x_mm": 15.0,
       "center_y_mm": 60.0,
-      "nets": ["AC_L", "DC_BUS+"],
-      "hv_nets": ["AC_L", "DC_BUS+"],
+      "nets": [
+        "AC_L",
+        "DC_BUS+"
+      ],
+      "hv_nets": [
+        "AC_L",
+        "DC_BUS+"
+      ],
       "classification": "FIXED"
     },
     {
@@ -40,8 +56,14 @@
       "height_mm": 2.5,
       "center_x_mm": 15.0,
       "center_y_mm": 75.0,
-      "nets": ["DC_BUS-", "AC_N"],
-      "hv_nets": ["DC_BUS-", "AC_N"],
+      "nets": [
+        "DC_BUS-",
+        "AC_N"
+      ],
+      "hv_nets": [
+        "DC_BUS-",
+        "AC_N"
+      ],
       "classification": "FIXED"
     },
     {
@@ -50,8 +72,13 @@
       "height_mm": 3.0,
       "center_x_mm": 45.0,
       "center_y_mm": 65.0,
-      "nets": ["DC_BUS+", "PGND"],
-      "hv_nets": ["DC_BUS+"],
+      "nets": [
+        "DC_BUS+",
+        "PGND"
+      ],
+      "hv_nets": [
+        "DC_BUS+"
+      ],
       "classification": "HV"
     },
     {
@@ -60,8 +87,13 @@
       "height_mm": 3.0,
       "center_x_mm": 45.0,
       "center_y_mm": 85.0,
-      "nets": ["PGND", "DC_BUS-"],
-      "hv_nets": ["DC_BUS-"],
+      "nets": [
+        "PGND",
+        "DC_BUS-"
+      ],
+      "hv_nets": [
+        "DC_BUS-"
+      ],
       "classification": "HV"
     },
     {
@@ -70,8 +102,15 @@
       "height_mm": 3.5,
       "center_x_mm": 20.0,
       "center_y_mm": 110.0,
-      "nets": ["GATE_H", "DC_BUS+", "SW_NODE"],
-      "hv_nets": ["DC_BUS+", "SW_NODE"],
+      "nets": [
+        "GATE_H",
+        "DC_BUS+",
+        "SW_NODE"
+      ],
+      "hv_nets": [
+        "DC_BUS+",
+        "SW_NODE"
+      ],
       "classification": "HV"
     },
     {
@@ -80,8 +119,15 @@
       "height_mm": 3.5,
       "center_x_mm": 20.0,
       "center_y_mm": 125.0,
-      "nets": ["GATE_L", "SW_NODE", "DC_BUS-"],
-      "hv_nets": ["SW_NODE", "DC_BUS-"],
+      "nets": [
+        "GATE_L",
+        "SW_NODE",
+        "DC_BUS-"
+      ],
+      "hv_nets": [
+        "SW_NODE",
+        "DC_BUS-"
+      ],
       "classification": "HV"
     },
     {
@@ -90,8 +136,22 @@
       "height_mm": 9.49,
       "center_x_mm": 45.0,
       "center_y_mm": 117.0,
-      "nets": ["+15V", "PWM_H", "PWM_L", "SHUTDOWN_N", "CGND", "SW_NODE", "GATE_L", "PGND", "VCC_BOOT", "GATE_H"],
-      "hv_nets": ["SW_NODE", "VCC_BOOT"],
+      "nets": [
+        "+15V",
+        "PWM_H",
+        "PWM_L",
+        "SHUTDOWN_N",
+        "CGND",
+        "SW_NODE",
+        "GATE_L",
+        "PGND",
+        "VCC_BOOT",
+        "GATE_H"
+      ],
+      "hv_nets": [
+        "SW_NODE",
+        "VCC_BOOT"
+      ],
       "classification": "HV"
     },
     {
@@ -100,8 +160,14 @@
       "height_mm": 1.45,
       "center_x_mm": 55.0,
       "center_y_mm": 110.0,
-      "nets": ["VCC_BOOT", "SW_NODE"],
-      "hv_nets": ["VCC_BOOT", "SW_NODE"],
+      "nets": [
+        "VCC_BOOT",
+        "SW_NODE"
+      ],
+      "hv_nets": [
+        "VCC_BOOT",
+        "SW_NODE"
+      ],
       "classification": "HV"
     },
     {
@@ -110,7 +176,10 @@
       "height_mm": 1.45,
       "center_x_mm": 55.0,
       "center_y_mm": 125.0,
-      "nets": ["+15V", "CGND"],
+      "nets": [
+        "+15V",
+        "CGND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -120,7 +189,9 @@
       "height_mm": 1.45,
       "center_x_mm": 35.0,
       "center_y_mm": 110.0,
-      "nets": ["GATE_H"],
+      "nets": [
+        "GATE_H"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -130,7 +201,9 @@
       "height_mm": 1.45,
       "center_x_mm": 35.0,
       "center_y_mm": 125.0,
-      "nets": ["GATE_L"],
+      "nets": [
+        "GATE_L"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -140,8 +213,13 @@
       "height_mm": 2.0,
       "center_x_mm": 20.0,
       "center_y_mm": 145.0,
-      "nets": ["SW_NODE", "GND"],
-      "hv_nets": ["SW_NODE"],
+      "nets": [
+        "SW_NODE",
+        "GND"
+      ],
+      "hv_nets": [
+        "SW_NODE"
+      ],
       "classification": "HV"
     },
     {
@@ -150,7 +228,11 @@
       "height_mm": 2.5,
       "center_x_mm": 85.0,
       "center_y_mm": 25.0,
-      "nets": ["GND", "+5V", "+15V"],
+      "nets": [
+        "GND",
+        "+5V",
+        "+15V"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -160,7 +242,11 @@
       "height_mm": 5.2,
       "center_x_mm": 85.0,
       "center_y_mm": 40.0,
-      "nets": ["GND", "+3V3", "+5V"],
+      "nets": [
+        "GND",
+        "+3V3",
+        "+5V"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -170,7 +256,11 @@
       "height_mm": 5.2,
       "center_x_mm": 85.0,
       "center_y_mm": 55.0,
-      "nets": ["GND", "+5V", "+15V"],
+      "nets": [
+        "GND",
+        "+5V",
+        "+15V"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -180,7 +270,19 @@
       "height_mm": 6.77,
       "center_x_mm": 95.0,
       "center_y_mm": 85.0,
-      "nets": ["+3V3", "GND", "PWM_H", "PWM_L", "I_SENSE", "SPI_CLK", "SPI_MOSI", "SPI_MISO", "SPI_CS_TEMP", "USB_D+", "USB_D-"],
+      "nets": [
+        "+3V3",
+        "GND",
+        "PWM_H",
+        "PWM_L",
+        "I_SENSE",
+        "SPI_CLK",
+        "SPI_MOSI",
+        "SPI_MISO",
+        "SPI_CS_TEMP",
+        "USB_D+",
+        "USB_D-"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -190,7 +292,10 @@
       "height_mm": 0.5,
       "center_x_mm": 88.0,
       "center_y_mm": 82.0,
-      "nets": ["+3V3", "GND"],
+      "nets": [
+        "+3V3",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -200,7 +305,10 @@
       "height_mm": 0.5,
       "center_x_mm": 88.0,
       "center_y_mm": 85.0,
-      "nets": ["+3V3", "GND"],
+      "nets": [
+        "+3V3",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -210,7 +318,10 @@
       "height_mm": 0.5,
       "center_x_mm": 88.0,
       "center_y_mm": 88.0,
-      "nets": ["+3V3", "GND"],
+      "nets": [
+        "+3V3",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -218,9 +329,12 @@
       "ref": "C_MCU_4",
       "width_mm": 1.6,
       "height_mm": 0.5,
-      "center_x_mm": 102.0,
+      "center_x_mm": 92.0,
       "center_y_mm": 85.0,
-      "nets": ["+3V3", "GND"],
+      "nets": [
+        "+3V3",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -228,9 +342,13 @@
       "ref": "J_USB",
       "width_mm": 5.0,
       "height_mm": 1.0,
-      "center_x_mm": 110.0,
+      "center_x_mm": 95.0,
       "center_y_mm": 85.0,
-      "nets": ["USB_D+", "USB_D-", "GND"],
+      "nets": [
+        "USB_D+",
+        "USB_D-",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -238,9 +356,12 @@
       "ref": "J_DEBUG",
       "width_mm": 1.7,
       "height_mm": 14.4,
-      "center_x_mm": 110.0,
-      "center_y_mm": 105.0,
-      "nets": ["GND", "+3V3"],
+      "center_x_mm": 95.0,
+      "center_y_mm": 95.0,
+      "nets": [
+        "GND",
+        "+3V3"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -250,7 +371,14 @@
       "height_mm": 6.3,
       "center_x_mm": 85.0,
       "center_y_mm": 125.0,
-      "nets": ["SPI_CLK", "SPI_MOSI", "SPI_MISO", "SPI_CS_TEMP", "GND", "+3V3"],
+      "nets": [
+        "SPI_CLK",
+        "SPI_MOSI",
+        "SPI_MISO",
+        "SPI_CS_TEMP",
+        "GND",
+        "+3V3"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -260,7 +388,10 @@
       "height_mm": 1.45,
       "center_x_mm": 85.0,
       "center_y_mm": 140.0,
-      "nets": ["I_SENSE", "GND"],
+      "nets": [
+        "I_SENSE",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -270,7 +401,10 @@
       "height_mm": 0.95,
       "center_x_mm": 85.0,
       "center_y_mm": 145.0,
-      "nets": ["I_SENSE", "GND"],
+      "nets": [
+        "I_SENSE",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -280,7 +414,11 @@
       "height_mm": 4.41,
       "center_x_mm": 95.0,
       "center_y_mm": 140.0,
-      "nets": ["I_SENSE", "GND", "+5V"],
+      "nets": [
+        "I_SENSE",
+        "GND",
+        "+5V"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -289,8 +427,15 @@
       "width_mm": 7.2,
       "height_mm": 6.3,
       "center_x_mm": 85.0,
-      "center_y_mm": 155.0,
-      "nets": ["SPI_CLK", "SPI_MOSI", "SPI_MISO", "TEMP_SENSE", "GND", "+3V3"],
+      "center_y_mm": 145.0,
+      "nets": [
+        "SPI_CLK",
+        "SPI_MOSI",
+        "SPI_MISO",
+        "TEMP_SENSE",
+        "GND",
+        "+3V3"
+      ],
       "hv_nets": [],
       "classification": "LV"
     },
@@ -298,9 +443,12 @@
       "ref": "J_NTC",
       "width_mm": 4.24,
       "height_mm": 1.7,
-      "center_x_mm": 110.0,
-      "center_y_mm": 155.0,
-      "nets": ["TEMP_SENSE", "GND"],
+      "center_x_mm": 95.0,
+      "center_y_mm": 145.0,
+      "nets": [
+        "TEMP_SENSE",
+        "GND"
+      ],
       "hv_nets": [],
       "classification": "LV"
     }

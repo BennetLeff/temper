@@ -45,11 +45,11 @@ Homepage = "https://github.com/temper-project/temper"
 Repository = "https://github.com/temper-project/temper"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/temper_drc"]
+packages = ["temper_drc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["."]
 addopts = [
     "-v",
     "--tb=short",

@@ -32,10 +32,11 @@ symbolic = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/temper_testing"]
+packages = ["temper_testing"]
 
 [tool.pytest.ini_options]
 addopts = "-v --tb=short"
+pythonpath = ["."]
 testpaths = ["tests"]
 
 [tool.hypothesis]

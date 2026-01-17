@@ -1,0 +1,928 @@
+{
+  "status": "max_iterations",
+  "iterations": 10,
+  "total_time_sec": 643.8907148838043,
+  "master_problem_time_sec": 11.672804355621338,
+  "routability_check_time_sec": 630.7043378353119,
+  "total_movement_mm": 20.720000000000013,
+  "cuts_added": [
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D1",
+        "D2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "D2",
+        "J_AC_IN"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "J_AC_IN",
+        "Q1"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q1",
+        "Q2"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "Q2",
+        "J_COIL"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BUS1",
+        "U_GATE"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "U_GATE",
+        "C_BOOT"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "horizontal",
+      "component_pair": [
+        "C_BOOT",
+        "C_VCC"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "J_AC_IN",
+        "U_BUCK"
+      ],
+      "gap_required_mm": 14.0
+    },
+    {
+      "cut_type": "vertical",
+      "component_pair": [
+        "U_LDO_5V",
+        "D1"
+      ],
+      "gap_required_mm": 14.0
+    }
+  ],
+  "final_positions": {
+    "J_AC_IN": {
+      "x_mm": 15.0,
+      "y_mm": 25.0
+    },
+    "D1": {
+      "x_mm": 15.0,
+      "y_mm": 60.0
+    },
+    "D2": {
+      "x_mm": 15.0,
+      "y_mm": 75.0
+    },
+    "C_BUS1": {
+      "x_mm": 45.0,
+      "y_mm": 65.0
+    },
+    "C_BUS2": {
+      "x_mm": 45.0,
+      "y_mm": 85.0
+    },
+    "Q1": {
+      "x_mm": 20.0,
+      "y_mm": 110.0
+    },
+    "Q2": {
+      "x_mm": 20.0,
+      "y_mm": 125.0
+    },
+    "U_GATE": {
+      "x_mm": 47.0,
+      "y_mm": 117.0
+    },
+    "C_BOOT": {
+      "x_mm": 55.0,
+      "y_mm": 110.0
+    },
+    "C_VCC": {
+      "x_mm": 55.0,
+      "y_mm": 124.0
+    },
+    "R_GATE_H": {
+      "x_mm": 35.0,
+      "y_mm": 110.0
+    },
+    "R_GATE_L": {
+      "x_mm": 35.0,
+      "y_mm": 125.0
+    },
+    "J_COIL": {
+      "x_mm": 20.0,
+      "y_mm": 145.0
+    },
+    "U_BUCK": {
+      "x_mm": 85.0,
+      "y_mm": 25.0
+    },
+    "U_LDO_3V3": {
+      "x_mm": 85.0,
+      "y_mm": 40.0
+    },
+    "U_LDO_5V": {
+      "x_mm": 85.0,
+      "y_mm": 55.0
+    },
+    "U_MCU": {
+      "x_mm": 95.0,
+      "y_mm": 85.0
+    },
+    "C_MCU_1": {
+      "x_mm": 88.0,
+      "y_mm": 82.0
+    },
+    "C_MCU_2": {
+      "x_mm": 88.0,
+      "y_mm": 85.0
+    },
+    "C_MCU_3": {
+      "x_mm": 88.0,
+      "y_mm": 88.0
+    },
+    "C_MCU_4": {
+      "x_mm": 90.14999999999999,
+      "y_mm": 85.0
+    },
+    "J_USB": {
+      "x_mm": 95.0,
+      "y_mm": 80.91500000000002
+    },
+    "J_DEBUG": {
+      "x_mm": 95.0,
+      "y_mm": 95.78500000000003
+    },
+    "U_CT": {
+      "x_mm": 85.0,
+      "y_mm": 125.09500000000003
+    },
+    "R_BURDEN": {
+      "x_mm": 85.0,
+      "y_mm": 140.0
+    },
+    "C_CT_FILT": {
+      "x_mm": 85.0,
+      "y_mm": 135.09500000000003
+    },
+    "U_OPAMP_CT": {
+      "x_mm": 95.0,
+      "y_mm": 140.0
+    },
+    "MAX31865": {
+      "x_mm": 85.0,
+      "y_mm": 145.0
+    },
+    "J_NTC": {
+      "x_mm": 95.0,
+      "y_mm": 145.0
+    }
+  }
+}

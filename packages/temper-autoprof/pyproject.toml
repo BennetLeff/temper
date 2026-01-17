@@ -41,7 +41,7 @@ Issues = "https://github.com/BennetLeff/temper/issues"
 temper-autoprof = "temper_autoprof.cli:main"
 
 [tool.hatch.version]
-path = "src/temper_autoprof/__about__.py"
+path = "temper_autoprof/__about__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/temper_autoprof"]

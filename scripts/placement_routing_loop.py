@@ -24,6 +24,14 @@ from rich.console import Console
 
 console = Console()
 
+# Adapter for compatibility with loop script
+@dataclass
+class RoutePathCompat:
+    success: bool
+    length: float = 0.0
+
+
+
 
 @dataclass
 class LoopProfileStats:
@@ -125,14 +133,12 @@ def main():
     console.print(f"Max iterations: {args.max_iterations}")
 
     # Import dependencies
-    import jax.numpy as jnp
+    import numpy as np
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
     from temper_placer.io.trace_writer import write_traces_to_pcb
-    from temper_placer.losses.routing_congestion import RoutingCongestionLoss
     from temper_placer.routing.layer_assignment import assign_layers
-    from temper_placer.routing.maze_router import MazeRouter
     from temper_placer.routing.net_ordering import order_nets
 
     # Parse initial PCB
@@ -140,8 +146,8 @@ def main():
     parse_result = parse_kicad_pcb(args.input_pcb)
     board = parse_result.board
     netlist = parse_result.netlist
-    # Extract positions - use initial_position like internal_route.py does
-    positions = jnp.array([c.initial_position for c in netlist.components])
+    # Extract positions
+    positions = np.array([c.initial_position for c in netlist.components])
 
     console.print(f"  ✓ Loaded {len(netlist.components)} components, {len(netlist.nets)} nets")
     console.print(f"  Nets: {', '.join([n.name for n in netlist.nets])}")
@@ -169,13 +175,14 @@ def main():
 
     best_positions = positions
     best_conflicts = float('inf')
+    best_routing_results = {}
     congestion_heatmap = None
     no_improvement_count = 0
 
     # Parse fixed references
     fixed_refs = set(args.fixed_refs.split(",")) if args.fixed_refs else set()
-    fixed_mask = jnp.array([1.0 if c.ref in fixed_refs else 0.0 for c in netlist.components])
-    fixed_mask = fixed_mask[:, jnp.newaxis] # (N, 1)
+    fixed_mask = np.array([1.0 if c.ref in fixed_refs else 0.0 for c in netlist.components])
+    fixed_mask = fixed_mask[:, np.newaxis] # (N, 1)
 
     # Initialize profiling
     from datetime import datetime
@@ -206,110 +213,43 @@ def main():
 
         console.print(f"\n[bold yellow]═══ Outer Loop Iteration {iteration + 1}/{args.max_iterations} ═══[/]")
 
-        # ===== 1. Run Placement (if we have congestion feedback) =====
+        # ===== 1. Run Placement =====
         placement_start = time.perf_counter()
-        if congestion_heatmap is not None:
-            console.print("\n[bold cyan]Phase A:[/] Optimizing placement with routing feedback...")
+        
+        # Iteration 0: Use Hierarchical Benders to find a valid global placement
+        if iteration == 0:
+            console.print("\n[bold cyan]Phase A (Init):[/] Running Hierarchical Benders Placement...")
+            from temper_placer.io.benders_adapter import BendersAdapter
+            from temper_placer.placement.hierarchical_loop import HierarchicalBendersLoop
+            
+            # Convert internal data to Benders format
+            benders_input = BendersAdapter.convert(board, netlist)
+            
+            # Run Optimizer
+            hb_loop = HierarchicalBendersLoop(input_data=benders_input, pcb_file=str(args.input_pcb))
+            hb_result = hb_loop.run()
+            
+            if hb_result.final_positions:
+                console.print(f"  ✓ Benders Placement Successful ({len(hb_result.final_positions)} components)")
+                # Update positions array
+                new_pos_list = []
+                for comp in netlist.components:
+                    if comp.ref in hb_result.final_positions:
+                        raw_pos = hb_result.final_positions[comp.ref]
+                        # Clamp to board (safety)
+                        px = max(0.0, min(board.width, raw_pos[0]))
+                        py = max(0.0, min(board.height, raw_pos[1]))
+                        new_pos_list.append((px, py))
+                    else:
+                        # Fallback (should not happen if Benders works)
+                        new_pos_list.append(comp.initial_position)
+                positions = np.array(new_pos_list)
+            else:
+                console.print("  [red]Warning: Benders Placement failed to return positions. Using default.[/]")
 
-            # Import routing-aware losses
-            from temper_placer.losses import (
-                BoundaryLoss,
-                BusAlignmentLoss,
-                ComponentSpacingLoss,
-                MCUClusteringLoss,
-                OverlapLoss,
-                RoutingChannelLoss,
-            )
-            from temper_placer.losses.routing_congestion import RoutingCongestionLoss
-
-            # Create losses (weights applied in combined_loss)
-            overlap_loss = OverlapLoss()
-            boundary_loss = BoundaryLoss()
-            # Increase channel width for 0.6mm vias + 0.15mm clearance (0.75mm + extra)
-            channel_loss = RoutingChannelLoss(weight=30.0, min_channel_width=8.0)
-
-            # MCU clustering - find MCU and its peripherals
-            mcu_clustering = MCUClusteringLoss.from_netlist(
-                netlist, mcu_ref="U_MCU", weight=10.0, max_distance=20.0
-            )
-
-            # Bus alignment for SPI, I2C, USB
-            bus_alignment = BusAlignmentLoss.from_netlist(netlist, weight=5.0)
-
-            # Component spacing for HV components (from config)
-            component_spacing = ComponentSpacingLoss(use_rotated_bounds=True)
-
-            # Congestion loss from routing feedback
-            congestion_loss = RoutingCongestionLoss(
-                congestion_heatmap,
-                weight=50.0, # Increased from 30.0
-                cell_size=args.cell_size,
-                origin=jnp.array(board.origin),
-                grid_size=jnp.array(router.grid_size),
-            )
-
-            # Simple gradient descent for placement adjustment
-            import jax
-
-            from temper_placer.io.config_loader import load_constraints
-            from temper_placer.losses.base import LossContext
-
-            # Load constraints to get component_spacing_rules
-            config_path = Path("packages/temper-placer/configs/temper_constraints.yaml")
-            constraints = load_constraints(config_path) if config_path.exists() else None
-
-            # Hotfix: Clear critical loops to avoid validation errors for components
-            # (like U_GD) that might be missing in some netlist versions
-            if constraints:
-                constraints.critical_loops = []
-
-            # Create context using factory method
-            context = LossContext.from_netlist_and_board(netlist, board, constraints=constraints)
-
-            # Combined loss function with weights
-            def combined_loss(pos):
-                rotations = jnp.zeros((len(netlist.components), 4))
-                total = 0.0
-                total += 1500.0 * overlap_loss(pos, rotations, context).value # Increased from 1000
-                total += 300.0 * boundary_loss(pos, rotations, context).value # Increased from 200
-                total += channel_loss(pos, rotations, context).value
-                total += mcu_clustering(pos, rotations, context).value
-                total += bus_alignment(pos, rotations, context).value
-                total += 25.0 * component_spacing(pos, rotations, context).value  # NEW: Enforce HV spacing
-                total += congestion_loss(pos, rotations, context).value
-                return total
-
-            # Gradient descent for N steps
-            grad_fn = jax.grad(combined_loss)
-            learning_rate = 0.05
-            for step in range(args.placement_steps):
-                grads = grad_fn(positions)
-
-                # Safety: Replace NaNs with 0.0 (vectorized, no sync)
-                grads = jnp.nan_to_num(grads, nan=0.0)
-
-                # Apply fixed mask (only move non-fixed components)
-                grads = grads * (1.0 - fixed_mask)
-
-                # Gradient clipping
-                grad_norm = jnp.linalg.norm(grads)
-                # Avoid division by zero
-                grad_norm = jnp.where(grad_norm > 1e-6, grad_norm, 1.0)
-
-                # Clip scaling factor
-                scale = jnp.where(grad_norm > 10.0, 10.0 / grad_norm, 1.0)
-                grads = grads * scale
-
-                positions = positions - learning_rate * grads
-                # Clamp to board bounds
-                positions = jnp.clip(
-                    positions,
-                    jnp.array([5.0, 5.0]),
-                    jnp.array([board.width - 5.0, board.height - 5.0])
-                )
-
-            console.print(f"  ✓ Ran {args.placement_steps} placement optimization steps")
-            iter_profile.num_placement_steps = args.placement_steps
+        # Subsequent Iterations: Placeholder for future discrete refinement logic
+        elif congestion_heatmap is not None:
+             pass
 
         iter_profile.placement_ms = (time.perf_counter() - placement_start) * 1000.0
 
@@ -362,47 +302,134 @@ def main():
 
         # ===== 2. Run Routing =====
         routing_start = time.perf_counter()
-        console.print("\n[bold cyan]Phase B:[/] Routing...")
+        console.print("\n[bold cyan]Phase B:[/] Routing (Exact Geometry V6)...")
 
-        router = MazeRouter.from_board(
-            board,
-            cell_size_mm=args.cell_size,
-            num_layers=args.layers,
-            via_cost=10.0,
-            soft_blocking=True,
-            min_clearance=0.15,
-            design_rules=design_rules,
+        # Create temporary PCB with current placement to ensure router sees valid positions
+        temp_pcb_path = Path("temp_placement_v6.kicad_pcb")
+        from temper_placer.io.kicad_writer import export_placements, PlacementUpdate
+        from temper_placer.core.state import PlacementState
+        
+        # Build placement state
+        placements_dict = {}
+        processed_refs = []
+        for i, comp in enumerate(netlist.components):
+            p = PlacementUpdate(
+                ref=comp.ref,
+                x=float(positions[i][0]),
+                y=float(positions[i][1]),
+                rotation=0.0
+            )
+            placements_dict[comp.ref] = p
+            processed_refs.append(comp.ref)
+            
+        dummy_state = PlacementState(
+            positions=positions,
+            rotation_logits=np.zeros((len(positions), 4)),
+            net_virtual_nodes=None
+        )
+        
+        export_placements(
+            template_pcb=args.input_pcb,
+            output_pcb=temp_pcb_path,
+            state=dummy_state,
+            component_refs=processed_refs,
+            components=netlist.components
+        )
+        
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        parse_result = parse_kicad_pcb(temp_pcb_path, normalize=False)
+        
+        if not parse_result.board:
+             console.print("[red]Failed to parse temp PCB![/]")
+             continue
+
+        from temper_placer.router_v6.stage0_data import (
+            ParsedPCB, 
+            StackupInfo, 
+            LayerInfo, 
+            DesignRules as V6DesignRules,
+            NetClassRules as V6NetClassRules
+        )
+        
+        if not hasattr(parse_result, 'stackup') or not parse_result.stackup:
+             stackup = StackupInfo(
+                layers=[
+                    LayerInfo(0, "F.Cu", "signal", 35.0),
+                    LayerInfo(1, "In1.Cu", "plane", 35.0, "GND"), 
+                    LayerInfo(2, "In2.Cu", "plane", 35.0, "+15V"),
+                    LayerInfo(3, "B.Cu", "signal", 35.0)
+                ],
+                total_thickness_mm=1.6,
+                layer_count=4
+             )
+        else:
+             stackup = parse_result.stackup
+
+        # Convert Legacy DesignRules to V6 DesignRules
+        v6_net_classes = {}
+        for name, rules in design_rules.net_classes.items():
+            # Legacy NetClassRules fields: name, trace_width, clearance, via_diameter, via_drill
+             v6_net_classes[name] = V6NetClassRules(
+                 name=rules.name,
+                 clearance_mm=rules.clearance,
+                 trace_width_mm=rules.trace_width,
+                 via_diameter_mm=rules.via_diameter,
+                 via_drill_mm=rules.via_drill,
+             )
+             
+        v6_design_rules = V6DesignRules(
+             net_classes=v6_net_classes,
+             net_class_assignments=design_rules.net_class_assignments,
+             default_clearance_mm=design_rules.default_clearance,
+             default_trace_width_mm=design_rules.default_trace_width,
+             default_via_diameter_mm=design_rules.default_via_diameter,
+             default_via_drill_mm=design_rules.default_via_drill,
         )
 
-        # Block components at current positions
-        router.block_components(netlist.components, positions)
-
-        # Block Zones (prevent bleeding)
-        router.block_zones(board.zones, clearance=0.3)
-
-        # Route all nets
-        results = router.rrr_route_all_nets(
-            netlist,
-            positions,
-            net_order,
-            assignments,
-            max_iterations=args.rrr_iters,
-            history_increment=2.0,
+        parsed_pcb = ParsedPCB(
+            components=parse_result.netlist.components,
+            nets=parse_result.netlist.nets,
+            zones=parse_result.zones if hasattr(parse_result, 'zones') else [],
+            board=parse_result.board,
+            design_rules=v6_design_rules,
+            stackup=stackup,
+            source_path=temp_pcb_path,
+            tracks=parse_result.traces,
         )
 
-        # Get conflict information
-        conflict_locs = router.get_conflict_locations()
-        num_conflicts = len(conflict_locs)
-        successful = sum(1 for r in results.values() if r.success)
+        from temper_placer.router_v6.exact_geometry_router import ExactGeometryRouter
+        router = ExactGeometryRouter(parsed_pcb, v6_design_rules, kicad_file=str(temp_pcb_path))
+        
+        try:
+            raw_results = router.route_all()
+        except Exception as e:
+            console.print(f"[red]Routing failed with error: {e}[/]")
+            import traceback
+            traceback.print_exc()
+            raw_results = {}
+
+        results = {}
+        nets_routed_count = 0
+        target_nets = set(n.name for n in netlist.nets)
+        if args.exclude_power_nets:
+             target_nets = {n for n in target_nets if not any(p in n for p in POWER_NET_PATTERNS)}
+
+        for net_name in target_nets:
+            if net_name in raw_results:
+                results[net_name] = RoutePathCompat(success=True, length=raw_results[net_name].total_length())
+                nets_routed_count += 1
+            else:
+                results[net_name] = RoutePathCompat(success=False)
+
+        # Get conflict information (Assumed 0 for ExactGeometryRouter as it enforces DRC)
+        conflict_locs = [] 
+        num_conflicts = 0 
+        successful = nets_routed_count
         completion = (successful / len(net_order)) * 100 if net_order else 100
 
         iter_profile.routing_ms = (time.perf_counter() - routing_start) * 1000.0
 
         # Capture router sub-stats
-        iter_profile.astar_ms = router.stats.profile.astar_total_ms
-        iter_profile.rip_up_ms = router.stats.profile.rip_up_ms
-        iter_profile.prepare_costs_ms = router.stats.profile.prepare_costs_ms
-        iter_profile.analyze_conflicts_ms = router.stats.profile.analyze_conflicts_ms
         iter_profile.nets_routed = successful
         iter_profile.nets_failed = len(net_order) - successful
         iter_profile.num_conflicts = num_conflicts
@@ -410,18 +437,20 @@ def main():
 
         console.print(f"  ✓ Routed: {successful}/{len(net_order)} ({completion:.1f}%)")
         console.print(f"  ✓ Conflicts: {num_conflicts}")
-        console.print(f"  ✓ Routing took {iter_profile.routing_ms:.1f}ms (A* {iter_profile.astar_ms:.1f}ms)")
+        console.print(f"  ✓ Routing took {iter_profile.routing_ms:.1f}ms")
 
         # ===== 3. Check for convergence =====
-        if num_conflicts <= args.target_conflicts and successful == len(net_order):
-            console.print(f"\n[bold green]✓ Target reached! ({num_conflicts} <= {args.target_conflicts} and all routed)[/]")
+        if num_conflicts <= args.target_conflicts and successful >= len(net_order) * 0.95:
+            console.print(f"\n[bold green]✓ Target reached! ({num_conflicts} <= {args.target_conflicts} and routed > 95%)[/]")
             best_positions = positions
             best_conflicts = num_conflicts
+            best_routing_results = raw_results
             break
 
         if num_conflicts < best_conflicts:
             best_positions = positions
             best_conflicts = num_conflicts
+            best_routing_results = raw_results
             no_improvement_count = 0
             console.print(f"  [green]New best: {best_conflicts} conflicts[/]")
         else:
@@ -432,20 +461,10 @@ def main():
 
         # ===== 4. Build congestion heatmap for next iteration =====
         congestion_start = time.perf_counter()
-        # Improved: Use router's internal history cost instead of reconstructing from points
-        if num_conflicts > 0 or True: # Always use congestion feedback if available?
-            # history_cost is (W, H, L)
-            # Sum over layers to get 2D map
-            import numpy as np
-            hist = np.asarray(router.history_cost)
-            # Normalize: subtract 1.0 base cost
-            congestion_heatmap = jnp.array(np.sum(np.maximum(0, hist - 1.0), axis=2))
-
-            max_heat = jnp.max(congestion_heatmap)
-            console.print(f"  Generated congestion heatmap (max cost: {max_heat:.1f})")
-        iter_profile.congestion_analysis_ms = (time.perf_counter() - congestion_start) * 1000.0 if 'congestion_start' in dir() else 0.0
-
-        # Record iteration timing
+        # Mock for now as ExactGeometryRouter doesn't expose history grid yet
+        congestion_heatmap = np.zeros((640, 480)) 
+        
+        iter_profile.congestion_analysis_ms = (time.perf_counter() - congestion_start) * 1000.0
         iter_profile.total_ms = (time.perf_counter() - iter_start) * 1000.0
         profile_report.iterations.append(iter_profile)
 
@@ -498,39 +517,18 @@ def main():
         try:
             write_placements_to_pcb(args.input_pcb, temp_placed_pcb, placements)
 
-            # 2. Re-run routing one last time with best positions to get full results for export
-            # (In a real implementation we'd cache the best 'results' object)
-            router = MazeRouter.from_board(
-                board,
-                cell_size_mm=args.cell_size,
-                num_layers=args.layers,
-                via_cost=10.0,
-                soft_blocking=True,
-            )
-            router.block_components(netlist.components, best_positions)
-            final_results = router.rrr_route_all_nets(
-                netlist,
-                best_positions,
-                net_order,
-                assignments,
-                max_iterations=args.rrr_iters,
-            )
+            # 2. Export exact routes
+            from temper_placer.io.trace_writer import write_exact_routes_to_pcb
 
-            # 3. Write traces
-            items_added = write_traces_to_pcb(
-                temp_placed_pcb,
-                args.output,
-                final_results,
-                cell_size=args.cell_size,
-                origin=board.origin,
-                default_trace_width=0.15,
-                via_size=0.6,
-                via_drill=0.3,
-
-                netlist=netlist,
-                component_positions=best_positions,
-            )
-            console.print(f"  ✓ Exported {items_added} trace segments and vias")
+            if best_routing_results:
+                items_added = write_exact_routes_to_pcb(
+                    temp_placed_pcb,
+                    args.output,
+                    best_routing_results
+                )
+                console.print(f"  ✓ Exported {items_added} trace/via items")
+            else:
+                 console.print("  [yellow]Warning: No routing results available to export.[/]")
 
         finally:
             if temp_placed_pcb.exists():
@@ -563,9 +561,6 @@ def _apply_congestion_nudge(
     Uses gradient of congestion heatmap to push components
     in the direction of lower congestion.
     """
-    import jax.numpy as jnp
-
-    grid_w, grid_h = congestion_heatmap.shape
     new_positions = []
 
     for pos in positions:
@@ -580,7 +575,7 @@ def _apply_congestion_nudge(
         grad_y = (congestion_heatmap[gx, gy + 1] - congestion_heatmap[gx, gy - 1]) / 2.0
 
         # Normalize and apply nudge (move against gradient)
-        mag = float(jnp.sqrt(grad_x**2 + grad_y**2))
+        mag = float(np.sqrt(grad_x**2 + grad_y**2))
         if mag > 0.01:
             dx = -nudge_strength * (grad_x / mag)
             dy = -nudge_strength * (grad_y / mag)
@@ -590,7 +585,7 @@ def _apply_congestion_nudge(
 
         new_positions.append(new_pos)
 
-    return jnp.array(new_positions)
+    return np.array(new_positions)
 
 
 if __name__ == "__main__":

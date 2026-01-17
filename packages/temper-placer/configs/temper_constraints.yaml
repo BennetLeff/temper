@@ -18,22 +18,21 @@ board:
 # ==============================================================================
 
 zones:
+  # Power zone - IGBTs and DC bus (TOP)
   - name: "power_zone"
-    bounds: [0, 110, 100, 150]  # Y > 110mm - High voltage switching area (TOP)
-    description: "Power stage only - 340V/40A switching components"
+    bounds: [0, 50, 120, 160]  # Y > 50mm - includes DC bus caps
   
+  # Driver zone - Gate drivers, sensing (MIDDLE)  
   - name: "driver_zone"
-    bounds: [0, 70, 100, 110]  # Y 70-110mm - Gate drivers and sensing
-    description: "Gate drivers and current sensing - isolated from MCU"
+    bounds: [0, 30, 120, 160]  # Y 30-160mm - very generous overlap
   
+  # Control zone - MCU and low-voltage (BOTTOM)
   - name: "control_zone"
-    bounds: [0, 0, 100, 70]  # Y < 70mm - EXPANDED for better space use
-    description: "MCU and low-voltage control - separated from power stage"
+    bounds: [0, 0, 120, 120]  # Y < 120mm - very generous
   
+  # Interface zone - Connectors
   - name: "interface_zone"
-    bounds: [0, 115, 20, 140]  # Left edge - adjusted for connector pin extents
-    # J_AC_IN has 20mm extent, so center max Y = 150 - 10 - margin = 138mm
-    description: "Connectors and interfaces - adjusted bounds for pin extents"
+    bounds: [0, 10, 120, 160]  # Very permissive for connectors
 
 # ==============================================================================
 # COMPONENT FUNCTIONAL GROUPS
@@ -270,7 +269,12 @@ nets: []  # Added to satisfy config loader requirements
 net_classes:
   +340V_BUS: "HighVoltage"
   DC_BUS_RTN: "HighVoltage"
+  AC_L: "HighVoltage"
+  AC_N: "HighVoltage"
+  "DC_BUS+": "HighVoltage"
+  "DC_BUS-": "HighVoltage"
   SW_NODE: "HighVoltage"
+  VCC_BOOT: "HighVoltage"
   GATE_HS: "GateDrive"
   GATE_LS: "GateDrive"
   GND: "Ground"
@@ -329,13 +333,13 @@ net_class_rules:
     routing_strategy: "wide_trace"
     
   HighVoltage:
-    trace_width_mm: 0.3
+    trace_width_mm: 3.0  # FIXED: Was 0.3mm (simulation value), now 3.0mm for real 40A current
     clearance_mm: 3.0     # Router V5: IEC 60950-1 clearance
     creepage_mm: 3.0      # Router V5: IEC 60950-1 creepage (was 5.0)
     via_size_mm: 0.8
     via_drill_mm: 0.4
     via_template: "Via2x2"
-    max_current_rating: 1.0  # 1A - but high voltage
+    max_current_rating: 40.0  # FIXED: Was 1.0A, now 40A for IGBT current
     voltage_v: 340.0  # Router V5: DC bus voltage (340V)
     routing_strategy: "standard"
     

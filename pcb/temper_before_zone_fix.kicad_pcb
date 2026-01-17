@@ -243,7 +243,7 @@
 
   (footprint "Capacitor_SMD:C_0805_2012Metric" (layer "F.Cu")
     (tedit 696a2dde) (tstamp 00000002-0003-0000-0000-000000000002)
-    (at 54.0 125.0)
+    (at 55.0 124.0)
     (property "Reference" "C_VCC")
     (property "Value" "10uF")
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric")
@@ -412,7 +412,7 @@
 
   (footprint "Capacitor_SMD:C_0402_1005Metric" (layer "F.Cu")
     (tedit 696a2dde) (tstamp 00000004-0002-0000-0000-000000000004)
-    (at 90.14999999999998 85.0)
+    (at 102.0 85.0)
     (property "Reference" "C_MCU_4")
     (property "Value" "10uF")
     (property "Footprint" "Capacitor_SMD:C_0402_1005Metric")
@@ -424,7 +424,7 @@
 
   (footprint "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12" (layer "F.Cu")
     (tedit 696a2dde) (tstamp 00000004-0003-0000-0000-000000000001)
-    (at 95.0 80.91500000000002)
+    (at 110.0 85.0)
     (property "Reference" "J_USB")
     (property "Value" "USB_C")
     (property "Footprint" "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12")
@@ -441,7 +441,7 @@
 
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" (layer "F.Cu")
     (tedit 696a2dde) (tstamp 00000004-0004-0000-0000-000000000001)
-    (at 95.0 95.78500000000003)
+    (at 110.0 105.0)
     (property "Reference" "J_DEBUG")
     (property "Value" "Debug")
     (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical")
@@ -530,7 +530,7 @@
 
   (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (layer "F.Cu")
     (tedit 696a2dde) (tstamp 00000005-0005-0000-0000-000000000001)
-    (at 85.0 145.0)
+    (at 85.0 155.0)
     (property "Reference" "MAX31865")
     (property "Value" "MAX31865")
     (property "Footprint" "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm")
@@ -550,7 +550,7 @@
 
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
     (tedit 696a2dde) (tstamp 00000006-0002-0000-0000-000000000001)
-    (at 95.0 145.0)
+    (at 110.0 155.0)
     (property "Reference" "J_NTC")
     (property "Value" "NTC")
     (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")

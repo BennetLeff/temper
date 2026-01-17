@@ -25,8 +25,9 @@ dev = [
 temper-validate = "temper_validation.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/temper_validation"]
+packages = ["temper_validation"]
 
 [tool.pytest.ini_options]
 addopts = "-v --tb=short"
+pythonpath = ["."]
 testpaths = ["tests"]
