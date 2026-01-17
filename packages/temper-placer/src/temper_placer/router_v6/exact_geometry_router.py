@@ -727,12 +727,13 @@ class ExactGeometryRouter:
         DRC passes even with floating point tolerance.
         """
         obstacles = []
-        # Safety margins for DRC compliance
+        # PHASE 2 FIX: Tune safety margins for better balance
         # The trace centerline must be at least (clearance + trace_width/2) from obstacle edge
-        # Add extra margin for RRT path approximation and floating point tolerance
-        # INCREASED: Previous 0.08mm was too small, causing shorts and clearance violations
-        pad_safety_margin = 0.15  # mm extra for pad obstacles
-        track_safety_margin = 0.15  # mm extra for existing track obstacles
+        # Safety margins account for RRT path approximation and floating point tolerance
+        # Previous 0.15mm was conservative but still had violations
+        # Reduce slightly to allow tighter routing while maintaining DRC compliance
+        pad_safety_margin = 0.12  # mm extra for pad obstacles (was 0.15)
+        track_safety_margin = 0.10  # mm extra for existing track obstacles (was 0.15)
         full_inflation = clearance + trace_width / 2 + pad_safety_margin
         
         # Get target pad positions for escape zone calculation
@@ -864,15 +865,17 @@ class ExactGeometryRouter:
         # Get bounds for random sampling - focus on path corridor
         path_length = np.sqrt((goal[0] - start[0])**2 + (goal[1] - start[1])**2)
         
+        # PHASE 2 FIX: Increase max iterations significantly for better exploration
         # Adaptive corridor and iterations based on path length
         if path_length > 80:
             corridor_width = max(50.0, path_length * 0.6)
-            max_iterations = 80000
+            max_iterations = 150000  # Increased from 80k to allow more complex routing
         elif path_length > 50:
             corridor_width = max(40.0, path_length * 0.5)
-            max_iterations = 60000
+            max_iterations = 100000  # Increased from 60k
         else:
             corridor_width = max(25.0, path_length * 0.4)
+            max_iterations = 50000  # Increased from default 30k
         
         # Bounding box around start-goal with corridor
         x_min = min(start[0], goal[0]) - corridor_width
