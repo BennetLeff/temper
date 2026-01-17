@@ -42,6 +42,14 @@ from temper_placer.router_v6.length_matching import (
     apply_length_matching,
 )
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
+from temper_placer.router_v6.homotopy import (
+    HSignature,
+    HSignatureElement,
+    Side,
+    compute_h_signature,
+    enumerate_homotopy_classes,
+    paths_are_homotopic,
+)
 from temper_placer.router_v6.pad_escape_classification import (
     ClassifiedPad,
     EscapeClass,
@@ -89,6 +97,12 @@ __all__ = [
     "validate_escape_plan",
     # Stage 2: Topology
     "build_obstacle_map",
+    "HSignature",
+    "HSignatureElement",
+    "Side",
+    "compute_h_signature",
+    "enumerate_homotopy_classes",
+    "paths_are_homotopic",
     # Stage 3: Routing Constraints
     "ConstraintModel",
     "ModelBuilder",
