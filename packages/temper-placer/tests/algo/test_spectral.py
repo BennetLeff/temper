@@ -2,8 +2,8 @@ import numpy as np
 
 from temper_placer.core.board import Board, LayerStackup
 from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.heuristics.base import ComponentPlacement, PlacementConstraints, PlacementContext
-from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
+from temper_placer.algo.base import ComponentPlacement, PlacementConstraints, PlacementContext
+from temper_placer.algo.spectral import SpectralPlacementHeuristic
 
 
 class TestSpectralHeuristic:

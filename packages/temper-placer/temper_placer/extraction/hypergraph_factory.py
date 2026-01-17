@@ -3,13 +3,13 @@ Factory for creating PhysicsHypergraph instances from Netlists.
 
 This module handles the complexity of parsing netlists, filtering global nets,
 and extracting physical attributes to populate the clean PhysicsHypergraph
-data structure.
+data structure. Standardized on NumPy for the JAX-free Benders-V6 pipeline.
 """
 
 from __future__ import annotations
 
-import jax.numpy as jnp
-from jax.experimental import sparse
+import numpy as np
+import scipy.sparse as sparse
 
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 from temper_placer.core.netlist import Netlist
@@ -17,7 +17,7 @@ from temper_placer.core.netlist import Netlist
 
 class HypergraphFactory:
     """
-    Builder for PhysicsHypergraph.
+    Builder for PhysicsHypergraph using NumPy and SciPy.
     """
 
     def __init__(
@@ -42,13 +42,12 @@ class HypergraphFactory:
         for net in self.netlist.nets:
             if self.ignore_global_nets and len(net.pins) > self.global_net_threshold:
                 continue
-            # Only include nets with >= 2 pins (single-pin nets don't constrain placement)
             if len(net.pins) >= 2:
                 valid_nets.append(net)
         
         n_edges = len(valid_nets)
         
-        # 2. Build COO Data
+        # 2. Build COO Data for sparse matrix
         rows = []
         cols = []
         data = []
@@ -58,13 +57,10 @@ class HypergraphFactory:
         edge_widths = []   
         
         for net_idx, net in enumerate(valid_nets):
-            # Physics extraction from Netlist
-            # voltage_class can be "LV" or "HV"
             is_hv = 1.0 if net.voltage_class == "HV" or net.net_class == "HighVoltage" else 0.0
             edge_voltages.append(is_hv)
             edge_currents.append(net.max_current)
             
-            # Default width based on net class or current
             if net.net_class == "HighVoltage":
                 width = 1.0
             elif net.max_current > 1.0:
@@ -73,7 +69,6 @@ class HypergraphFactory:
                 width = 0.2
             edge_widths.append(width)   
             
-            # Connections
             connected_indices = set()
             for comp_ref, _ in net.pins:
                 if comp_ref in node_ref_to_idx:
@@ -84,40 +79,38 @@ class HypergraphFactory:
                 cols.append(net_idx)
                 data.append(net.weight)
                 
-        # 3. Create JAX Arrays
-        if n_edges > 0:
-            indices = jnp.array([rows, cols]).T # (N_entries, 2)
-            values = jnp.array(data, dtype=jnp.float32)
+        # 3. Create Incidence Matrix
+        if n_edges > 0 and rows:
+            # We use dense for now if expected by downstream, but CSR is better
+            # For Benders-V6 and spectral, we often dense it anyway
+            coo = sparse.coo_matrix((data, (rows, cols)), shape=(n_nodes, n_edges))
+            matrix = coo.toarray()
         else:
-            indices = jnp.empty((0, 2), dtype=jnp.int32)
-            values = jnp.empty((0,), dtype=jnp.float32)
-        
-        shape = (n_nodes, n_edges)
-        bcoo_matrix = sparse.BCOO((values, indices), shape=shape)
+            matrix = np.zeros((n_nodes, n_edges), dtype=np.float32)
         
         # 4. Node Weights (Area based)
-        node_weights = jnp.array(
+        node_weights = np.array(
             [c.width * c.height for c in self.netlist.components],
-            dtype=jnp.float32
+            dtype=np.float32
         )
         
         # 5. Hyperedge Weights (Base importance)
-        hyperedge_weights = jnp.array(
+        hyperedge_weights = np.array(
             [n.weight for n in valid_nets],
-            dtype=jnp.float32
+            dtype=np.float32
         )
         
         return PhysicsHypergraph(
             incidence=HypergraphIncidence(
-                matrix=bcoo_matrix,
+                matrix=matrix,
                 node_weights=node_weights,
                 hyperedge_weights=hyperedge_weights
             ),
             node_refs=[c.ref for c in self.netlist.components],
             hyperedge_names=[n.name for n in valid_nets],
-            edge_voltages=jnp.array(edge_voltages, dtype=jnp.float32),
-            edge_currents=jnp.array(edge_currents, dtype=jnp.float32),
-            edge_widths=jnp.array(edge_widths, dtype=jnp.float32)
+            edge_voltages=np.array(edge_voltages, dtype=np.float32),
+            edge_currents=np.array(edge_currents, dtype=np.float32),
+            edge_widths=np.array(edge_widths, dtype=np.float32)
         )
 
 

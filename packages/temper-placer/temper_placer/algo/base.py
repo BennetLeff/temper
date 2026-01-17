@@ -10,8 +10,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import IntEnum
+from typing import Any
 
-from jax import Array
+import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
@@ -103,15 +104,15 @@ class PlacementContext:
         constraints: Placement constraints from YAML config
         current_placements: Already-placed components (from higher-priority heuristics)
         keep_out_mask: Optional (H, W) boolean mask of valid placement regions
-        rng_key: JAX random key for any stochastic decisions
+        rng_key: Random key for any stochastic decisions
     """
 
     board: Board
     netlist: Netlist
     constraints: PlacementConstraints
     current_placements: dict[str, ComponentPlacement] = field(default_factory=dict)
-    keep_out_mask: Array | None = None
-    rng_key: Array | None = None
+    keep_out_mask: np.ndarray | None = None
+    rng_key: Any | None = None
 
     def get_unplaced_components(self) -> list[Component]:
         """Get components that haven't been placed yet."""
@@ -125,15 +126,7 @@ class PlacementContext:
     def is_position_valid(self, x: float, y: float, width: float, height: float) -> bool:
         """
         Check if a position is valid (within bounds and not in keep-out).
-
-        Args:
-            x, y: Center position in mm
-            width, height: Component dimensions in mm
-
-        Returns:
-            True if position is valid
         """
-        # Check board bounds
         margin = self.constraints.board_margin_mm
         ox, oy = self.board.origin
 
@@ -143,9 +136,7 @@ class PlacementContext:
         if y - half_h < oy + margin or y + half_h > oy + self.board.height - margin:
             return False
 
-        # Check keep-out mask if available
         if self.keep_out_mask is not None:
-            # Convert to mask coordinates (assuming 1mm resolution)
             mask_x = int(x - ox)
             mask_y = int(y - oy)
             if (
@@ -167,14 +158,6 @@ class PlacementContext:
     ) -> bool:
         """
         Check if a position would overlap with already-placed components.
-
-        Args:
-            x, y: Center position in mm
-            width, height: Component dimensions in mm
-            exclude_refs: Component refs to exclude from overlap check
-
-        Returns:
-            True if there is an overlap
         """
         exclude_refs = exclude_refs or set()
         half_w, half_h = width / 2, height / 2
@@ -188,7 +171,6 @@ class PlacementContext:
             other_half_w, other_half_h = other_w / 2, other_h / 2
             ox, oy = placement.position
 
-            # AABB overlap check
             if abs(x - ox) < half_w + other_half_w and abs(y - oy) < half_h + other_half_h:
                 return True
 
@@ -198,24 +180,6 @@ class PlacementContext:
 class Heuristic(ABC):
     """
     Abstract base class for placement heuristics.
-
-    Subclasses implement specific placement strategies by overriding
-    the apply() method. Each heuristic has a priority that determines
-    when it runs relative to others.
-
-    Example:
-        class ThermalEdgeHeuristic(Heuristic):
-            @property
-            def name(self) -> str:
-                return "thermal_edge"
-
-            @property
-            def priority(self) -> HeuristicPriority:
-                return HeuristicPriority.STRUCTURAL
-
-            def apply(self, context: PlacementContext) -> HeuristicResult:
-                # Place thermal components near edges
-                ...
     """
 
     @property
@@ -239,27 +203,11 @@ class Heuristic(ABC):
     def apply(self, context: PlacementContext) -> HeuristicResult:
         """
         Apply this heuristic to generate placements.
-
-        Args:
-            context: PlacementContext with board, netlist, constraints,
-                and any placements from higher-priority heuristics.
-
-        Returns:
-            HeuristicResult with generated placements.
         """
         pass
 
     def identify_target_components(self, context: PlacementContext) -> list[Component]:
         """
         Identify which components this heuristic should place.
-
-        Default implementation returns all unplaced components.
-        Override to filter for specific component types.
-
-        Args:
-            context: PlacementContext
-
-        Returns:
-            List of components this heuristic should consider placing.
         """
         return context.get_unplaced_components()

@@ -44,4 +44,4 @@ temper-autoprof = "temper_autoprof.cli:main"
 path = "temper_autoprof/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/temper_autoprof"]
+packages = ["temper_autoprof"]

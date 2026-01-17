@@ -1,4 +1,6 @@
 import numpy as np
+from temper_placer.losses.base import LossFunction
+from temper_placer.losses.types import LossContext, LossResult
 
 
 class WirelengthLoss(LossFunction):
