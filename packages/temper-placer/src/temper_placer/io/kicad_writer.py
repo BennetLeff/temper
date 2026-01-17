@@ -1011,23 +1011,42 @@ def write_routes_direct(
     routes: list[dict],  # [{start, end, width, layer, net}]
     vias: list[dict] | None = None,  # [{position, width, drill, layers, net}]
     net_name_to_index: dict[str, int] | None = None,
+    clear_existing: bool = False,  # Remove existing traces/vias before adding
 ) -> WriteResult:
     """
     Write routes directly to PCB file without using kiutils.
     
     This avoids kiutils bugs that break KiCad 9 compatibility.
     Simply appends trace/via S-expressions to the original file.
+    
+    Args:
+        clear_existing: If True, removes all existing (segment) and (via) entries.
     """
     import shutil
+    import re
     
     warnings = []
     
-    # Copy template to output
-    shutil.copy(template_pcb, output_pcb)
+    # Copy template to output (skip if same file)
+    if str(template_pcb) != str(output_pcb):
+        shutil.copy(template_pcb, output_pcb)
     
     # Read the file
     with open(output_pcb, 'r') as f:
         content = f.read()
+    
+    # Clear existing traces and vias if requested
+    if clear_existing:
+        # Remove all lines that start with (segment or (via
+        # These are complete lines in KiCad format
+        lines = content.split('\n')
+        filtered_lines = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith('(segment ') or stripped.startswith('(via '):
+                continue  # Skip trace and via lines
+            filtered_lines.append(line)
+        content = '\n'.join(filtered_lines)
     
     # Build net name to index mapping from file
     if net_name_to_index is None:
@@ -1036,11 +1055,20 @@ def write_routes_direct(
         for match in re.finditer(r'\(net\s+(\d+)\s+"([^"]+)"\)', content):
             net_name_to_index[match.group(2)] = int(match.group(1))
     
-    # Build trace S-expressions
+    # Build trace S-expressions with proper formatting
+    import uuid
     trace_sexps = []
     for route in routes:
         net_idx = net_name_to_index.get(route['net'], 0)
-        sexp = f'  (segment (start {route["start"][0]} {route["start"][1]}) (end {route["end"][0]} {route["end"][1]}) (width {route["width"]}) (layer "{route["layer"]}") (net {net_idx}))'
+        # Round coordinates to 6 decimal places to avoid floating point noise
+        sx = round(route["start"][0], 6)
+        sy = round(route["start"][1], 6)
+        ex = round(route["end"][0], 6)
+        ey = round(route["end"][1], 6)
+        w = round(route["width"], 6)
+        # Generate a unique tstamp
+        tstamp = str(uuid.uuid4())[:8]
+        sexp = f'  (segment (start {sx} {sy}) (end {ex} {ey}) (width {w}) (layer "{route["layer"]}") (net {net_idx}) (tstamp {tstamp}))'
         trace_sexps.append(sexp)
     
     # Build via S-expressions
@@ -1053,7 +1081,13 @@ def write_routes_direct(
             if len(layers) > 2:
                 layers = [layers[0], layers[-1]]
             layers_str = ' '.join(f'"{l}"' for l in layers)
-            sexp = f'  (via (at {via["position"][0]} {via["position"][1]}) (size {via["width"]}) (drill {via["drill"]}) (layers {layers_str}) (net {net_idx}))'
+            # Round coordinates
+            vx = round(via["position"][0], 6)
+            vy = round(via["position"][1], 6)
+            vsize = round(via["width"], 6)
+            vdrill = round(via["drill"], 6)
+            tstamp = str(uuid.uuid4())[:8]
+            sexp = f'  (via (at {vx} {vy}) (size {vsize}) (drill {vdrill}) (layers {layers_str}) (net {net_idx}) (tstamp {tstamp}))'
             via_sexps.append(sexp)
     
     # Insert before final )

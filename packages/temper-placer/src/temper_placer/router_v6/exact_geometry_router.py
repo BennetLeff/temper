@@ -729,9 +729,10 @@ class ExactGeometryRouter:
         obstacles = []
         # Safety margins for DRC compliance
         # The trace centerline must be at least (clearance + trace_width/2) from obstacle edge
-        # Add extra margin for RRT path approximation
-        pad_safety_margin = 0.08  # mm extra for pad obstacles (balanced)
-        track_safety_margin = 0.08  # mm extra for existing track obstacles
+        # Add extra margin for RRT path approximation and floating point tolerance
+        # INCREASED: Previous 0.08mm was too small, causing shorts and clearance violations
+        pad_safety_margin = 0.15  # mm extra for pad obstacles
+        track_safety_margin = 0.15  # mm extra for existing track obstacles
         full_inflation = clearance + trace_width / 2 + pad_safety_margin
         
         # Get target pad positions for escape zone calculation
@@ -810,20 +811,13 @@ class ExactGeometryRouter:
                 
                 dist = min_distance_to_targets(centroid)
                 
-                # Tiered inflation based on context:
-                # 1. On same IC (3+ pins): skip entirely for escape routing
-                # 2. Close to target: reduced inflation  
-                # 3. Far away: full inflation
-                if on_target_ic:
-                    # Same IC - skip entirely to allow escape routing
-                    # (clearance is enforced by trace width itself)
-                    continue
-                elif dist < 2.0:
-                    # Close but different component - reduced inflation
-                    inflation = clearance * 0.7 + pad_safety_margin
-                else:
-                    # Full inflation for distant obstacles
-                    inflation = full_inflation
+                # CRITICAL FIX: Do NOT skip pads just because they're on the same IC
+                # We were skipping SW_NODE pads because Q1 also has GATE_H
+                # This caused traces to route directly through other-net pads!
+                # 
+                # Only skip same-net pads (already handled above with obs_net == net_name)
+                # All other pads must be obstacles with full inflation
+                inflation = full_inflation
                 
                 obstacles.append(poly.buffer(inflation))
             else:
@@ -846,9 +840,12 @@ class ExactGeometryRouter:
         max_iterations: int = 30000,  # High for complex paths
         step_size: float = 2.0,  # mm - smaller for precision in tight spaces
     ) -> list[tuple[float, float]] | None:
-        """Find path using RRT (Rapidly-exploring Random Tree).
+        """Find path using Bidirectional RRT with adaptive step size.
         
-        Better than visibility graph for dense obstacle environments.
+        Improvements over basic RRT:
+        1. Bidirectional search (grow trees from both start and goal)
+        2. Adaptive step size (larger in open areas, smaller near obstacles)
+        3. Path smoothing to reduce unnecessary waypoints
         """
         import random
         
@@ -867,12 +864,15 @@ class ExactGeometryRouter:
         # Get bounds for random sampling - focus on path corridor
         path_length = np.sqrt((goal[0] - start[0])**2 + (goal[1] - start[1])**2)
         
-        # For very long paths (>50mm), use wider corridor and more iterations
-        if path_length > 50:
-            corridor_width = max(40.0, path_length * 0.5)  # Wider for long paths
-            max_iterations = int(max_iterations * 2)  # 60k iterations for long paths
+        # Adaptive corridor and iterations based on path length
+        if path_length > 80:
+            corridor_width = max(50.0, path_length * 0.6)
+            max_iterations = 80000
+        elif path_length > 50:
+            corridor_width = max(40.0, path_length * 0.5)
+            max_iterations = 60000
         else:
-            corridor_width = max(20.0, path_length * 0.3)  # 30% of path length or 20mm
+            corridor_width = max(25.0, path_length * 0.4)
         
         # Bounding box around start-goal with corridor
         x_min = min(start[0], goal[0]) - corridor_width
@@ -880,57 +880,162 @@ class ExactGeometryRouter:
         y_min = min(start[1], goal[1]) - corridor_width
         y_max = max(start[1], goal[1]) + corridor_width
         
-        # RRT tree: node -> parent
-        tree = {start: None}
-        nodes = [start]
+        # Bidirectional RRT: two trees
+        tree_start = {start: None}
+        tree_goal = {goal: None}
+        nodes_start = [start]
+        nodes_goal = [goal]
         
-        for _ in range(max_iterations):
-            # Bias towards goal 30% of the time for faster convergence
-            if random.random() < 0.3:
-                sample = goal
-            else:
-                sample = (
-                    random.uniform(x_min, x_max),
-                    random.uniform(y_min, y_max)
-                )
-            
+        def extend_tree(tree, nodes, sample, other_nodes, merged_obs, base_step):
+            """Extend tree towards sample, return connection point if trees meet."""
             # Find nearest node in tree
             nearest = min(nodes, key=lambda n: 
                 (n[0] - sample[0])**2 + (n[1] - sample[1])**2)
             
-            # Steer towards sample
+            # Steer towards sample with adaptive step size
             dx = sample[0] - nearest[0]
             dy = sample[1] - nearest[1]
             dist = np.sqrt(dx*dx + dy*dy)
             
             if dist < 0.1:
-                continue
+                return None
             
-            if dist > step_size:
-                dx = dx / dist * step_size
-                dy = dy / dist * step_size
+            # Adaptive step: larger steps in open areas
+            # Check distance to nearest obstacle
+            pt = Point(nearest)
+            obs_dist = merged_obs.distance(pt) if not merged_obs.is_empty else 10.0
+            adaptive_step = min(base_step * (1 + obs_dist / 5.0), base_step * 3)
+            adaptive_step = max(adaptive_step, 1.0)  # Minimum 1mm step
+            
+            if dist > adaptive_step:
+                dx = dx / dist * adaptive_step
+                dy = dy / dist * adaptive_step
             
             new_node = (nearest[0] + dx, nearest[1] + dy)
             
             # Check if edge is collision-free
             edge = LineString([nearest, new_node])
-            if not edge.intersects(merged):
+            if not edge.intersects(merged_obs):
                 tree[new_node] = nearest
                 nodes.append(new_node)
                 
-                # Check if we can reach goal from new_node
-                to_goal = LineString([new_node, goal])
-                if not to_goal.intersects(merged):
-                    tree[goal] = new_node
-                    # Reconstruct path
-                    path = [goal]
-                    current = goal
-                    while tree[current] is not None:
-                        current = tree[current]
-                        path.append(current)
-                    return list(reversed(path))
+                # Check if we can connect to other tree
+                for other_node in other_nodes:
+                    connect = LineString([new_node, other_node])
+                    if not connect.intersects(merged_obs):
+                        return (new_node, other_node)
+            
+            return None
+        
+        for i in range(max_iterations):
+            # Alternate between growing from start and goal
+            if i % 2 == 0:
+                # Grow from start
+                if random.random() < 0.25:
+                    sample = goal
+                elif random.random() < 0.4:
+                    # Sample near goal tree nodes for faster connection
+                    target = random.choice(nodes_goal)
+                    sample = (
+                        target[0] + random.uniform(-5, 5),
+                        target[1] + random.uniform(-5, 5)
+                    )
+                else:
+                    sample = (
+                        random.uniform(x_min, x_max),
+                        random.uniform(y_min, y_max)
+                    )
+                
+                result = extend_tree(tree_start, nodes_start, sample, 
+                                    nodes_goal, merged, step_size)
+                if result:
+                    # Trees connected! Reconstruct path
+                    node_start, node_goal = result
+                    
+                    # Path from start to connection
+                    path_a = []
+                    current = node_start
+                    while current is not None:
+                        path_a.append(current)
+                        current = tree_start[current]
+                    path_a.reverse()
+                    
+                    # Path from connection to goal
+                    path_b = []
+                    current = node_goal
+                    while current is not None:
+                        path_b.append(current)
+                        current = tree_goal[current]
+                    
+                    full_path = path_a + path_b
+                    return self._smooth_path(full_path, merged)
+            else:
+                # Grow from goal
+                if random.random() < 0.25:
+                    sample = start
+                elif random.random() < 0.4:
+                    target = random.choice(nodes_start)
+                    sample = (
+                        target[0] + random.uniform(-5, 5),
+                        target[1] + random.uniform(-5, 5)
+                    )
+                else:
+                    sample = (
+                        random.uniform(x_min, x_max),
+                        random.uniform(y_min, y_max)
+                    )
+                
+                result = extend_tree(tree_goal, nodes_goal, sample,
+                                    nodes_start, merged, step_size)
+                if result:
+                    node_goal, node_start = result
+                    
+                    path_a = []
+                    current = node_start
+                    while current is not None:
+                        path_a.append(current)
+                        current = tree_start[current]
+                    path_a.reverse()
+                    
+                    path_b = []
+                    current = node_goal
+                    while current is not None:
+                        path_b.append(current)
+                        current = tree_goal[current]
+                    
+                    full_path = path_a + path_b
+                    return self._smooth_path(full_path, merged)
         
         return None  # Failed to find path
+    
+    def _smooth_path(
+        self,
+        path: list[tuple[float, float]],
+        obstacles: Polygon | MultiPolygon,
+    ) -> list[tuple[float, float]]:
+        """Smooth path by removing unnecessary waypoints.
+        
+        Iteratively tries to skip intermediate points if direct connection is clear.
+        """
+        if len(path) <= 2:
+            return path
+        
+        smoothed = [path[0]]
+        i = 0
+        
+        while i < len(path) - 1:
+            # Try to skip as many points as possible
+            best_j = i + 1
+            for j in range(len(path) - 1, i + 1, -1):
+                line = LineString([path[i], path[j]])
+                if obstacles.is_empty or not line.intersects(obstacles):
+                    best_j = j
+                    break
+            
+            smoothed.append(path[best_j])
+            i = best_j
+        
+        return smoothed
     
     def _build_visibility_graph(
         self,
@@ -973,7 +1078,7 @@ class ExactGeometryRouter:
         Escape routing needs to avoid adjacent GND/power pads on the same IC.
         """
         obstacles = []
-        full_inflation = clearance + trace_width / 2 + 0.05  # Small safety margin
+        full_inflation = clearance + trace_width / 2 + 0.15  # Safety margin for DRC
         
         # Only skip the exact pad we're escaping from
         our_pad_key = (round(pad_pos[0], 2), round(pad_pos[1], 2))
@@ -997,7 +1102,7 @@ class ExactGeometryRouter:
         for seg in self.routed_segments.get(layer, []):
             if seg.net_name == net_name:
                 continue
-            obstacles.append(seg.as_buffered_polygon(clearance + 0.05))
+            obstacles.append(seg.as_buffered_polygon(clearance + 0.15))
         
         return obstacles
     
@@ -1237,11 +1342,18 @@ class ExactGeometryRouter:
         ]
         
         # Get connection points (may include vias)
+        # Pass routed_segments for escape trace validation
         connection_points = []
         vias = []
+        rules = self.design_rules.get_rules_for_net(net_name)
         
         for pad in pad_objects:
-            conn = self.pad_connector.get_connection_point(pad, layer)
+            conn = self.pad_connector.get_connection_point(
+                pad, layer,
+                routed_segments=self.routed_segments,
+                clearance=rules.clearance_mm,
+                trace_width=rules.trace_width_mm
+            )
             if conn is None:
                 # Can't connect this pad
                 if self.verbose:
@@ -1263,18 +1375,24 @@ class ExactGeometryRouter:
             return None
         
         # Add escape segments (pad → via on pad layer)
+        # Note: Escape trace validity was already checked during via placement
+        escape_width = rules.trace_width_mm
+        
         for pad, conn in connection_points:
             if conn.requires_escape and conn.via:
                 # Add escape segment from pad to via on pad's layer
                 pad_layer = self.pad_connector._get_primary_copper_layer(pad)
+                
                 escape_seg = ExactSegment(
                     start=pad.position,
                     end=conn.position,
-                    width=self.design_rules.get_rules_for_net(net_name).trace_width_mm,
+                    width=escape_width,
                     net_name=net_name,
                     layer=pad_layer
                 )
                 route.segments.insert(0, escape_seg)  # Add at beginning
+                # Register escape segment as routed to block future routes
+                self.routed_segments[pad_layer].append(escape_seg)
         
         # Add vias to route
         route.vias = vias
@@ -1433,7 +1551,7 @@ class ExactGeometryRouter:
         clearance = rules_pos.clearance_mm
         
         # Minimum spacing needed between trace centerlines for parallel routing
-        min_spacing = clearance + trace_width + 0.05  # = 0.2 + 0.25 + 0.05 = 0.5mm
+        min_spacing = clearance + trace_width + 0.15  # Safety margin for DRC
         
         # If pads are too close for parallel offset, route on different layers
         # This is the case for USB (0.4mm pad spacing < 0.5mm min)
@@ -1457,7 +1575,7 @@ class ExactGeometryRouter:
         # Try parallel offset using the natural pad spacing
         # Minimum spacing = clearance + trace_width (center to center)
         pos_coords = pos_route.coordinates
-        min_spacing = clearance + trace_width + 0.05  # Extra safety margin
+        min_spacing = clearance + trace_width + 0.15  # Extra safety margin
         offset_dist = max(pad_dist, min_spacing) if pad_dist > 0.1 else (spacing + trace_width)
         
         # Determine offset direction from pad delta

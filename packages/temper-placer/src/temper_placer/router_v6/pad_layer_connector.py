@@ -104,7 +104,10 @@ class PadLayerConnector:
     def get_connection_point(
         self,
         pad: Pad,
-        routing_layer: str
+        routing_layer: str,
+        routed_segments: dict[str, list] | None = None,
+        clearance: float = 0.2,
+        trace_width: float = 0.25
     ) -> ConnectionPoint | None:
         """
         Get connection point for pad on specified routing layer.
@@ -112,6 +115,9 @@ class PadLayerConnector:
         Args:
             pad: Pad to connect
             routing_layer: Layer where routing will occur
+            routed_segments: Dict of layer -> list of ExactSegment for escape validation
+            clearance: Minimum clearance for escape traces
+            trace_width: Trace width for escape traces
         
         Returns:
             ConnectionPoint with via if needed, None if impossible
@@ -136,7 +142,10 @@ class PadLayerConnector:
         
         # Case 3: SMD pad needs via
         # Determine via placement strategy based on density
-        via_position = self._find_via_position_for_pad(pad)
+        # Pass routed_segments to check escape trace validity
+        via_position = self._find_via_position_for_pad(
+            pad, routed_segments, clearance, trace_width
+        )
         
         if via_position is None:
             return None  # Can't place via
@@ -167,21 +176,52 @@ class PadLayerConnector:
             requires_escape=requires_escape
         )
     
-    def _find_via_position_for_pad(self, pad: Pad) -> tuple[float, float] | None:
+    def _find_via_position_for_pad(
+        self, 
+        pad: Pad,
+        routed_segments: dict[str, list] | None = None,
+        clearance: float = 0.2,
+        trace_width: float = 0.25
+    ) -> tuple[float, float] | None:
         """
-        Find legal via position for pad.
+        Find legal via position for pad with escape trace validation.
         
         Strategy (adjusted for DRC compliance):
         1. Skip "near pad" - hole clearance makes it impossible
         2. Use fanout zone (1.5-10mm) - maintains proper clearances
         3. Try more angles for dense connectors
-        4. Give up if no space
+        4. Check escape trace doesn't cross existing routes
+        5. Give up if no space
         
         Note: With via drill=0.4mm and hole_clearance=0.15mm, vias must be
         at least ~0.85mm from pad centers to maintain clearance.
         """
+        from shapely.geometry import LineString
+        
         # Try multiple radii with 16 directions for better coverage
         angles = [i * 22.5 for i in range(16)]  # 0, 22.5, 45, ... 337.5
+        
+        pad_layer = self._get_primary_copper_layer(pad)
+        
+        def is_escape_clear(via_pos: tuple[float, float]) -> bool:
+            """Check if escape trace from pad to via is clear of existing routes."""
+            if routed_segments is None:
+                return True
+            
+            escape_line = LineString([pad.position, via_pos])
+            for existing_seg in routed_segments.get(pad_layer, []):
+                if existing_seg.net_name == pad.net:
+                    continue
+                existing_line = existing_seg.as_linestring()
+                # Check intersection - this is critical (would cause short)
+                if escape_line.intersects(existing_line):
+                    return False
+                # Check clearance - use only the minimum clearance, not trace width
+                # The trace width is already accounted for in the existing segment's buffer
+                # Using clearance only allows tighter routing while still being DRC-safe
+                if escape_line.distance(existing_line) < clearance:
+                    return False
+            return True
         
         # First try: Medium distance (1.5-3mm) for normal fanout
         for radius in [1.5, 2.0, 2.5, 3.0]:
@@ -190,8 +230,8 @@ class PadLayerConnector:
                 x = pad.position[0] + radius * math.cos(angle)
                 y = pad.position[1] + radius * math.sin(angle)
                 
-                # Quick bounds check only (full check happens in place_via)
-                if self.via_planner._is_position_legal((x, y)):
+                # Check via position AND escape trace
+                if self.via_planner._is_position_legal((x, y)) and is_escape_clear((x, y)):
                     return (x, y)
         
         # Second try: Larger fanout zone (3.5-10mm) for dense connectors
@@ -201,8 +241,7 @@ class PadLayerConnector:
                 x = pad.position[0] + radius * math.cos(angle)
                 y = pad.position[1] + radius * math.sin(angle)
                 
-                # Quick bounds check only
-                if self.via_planner._is_position_legal((x, y)):
+                if self.via_planner._is_position_legal((x, y)) and is_escape_clear((x, y)):
                     return (x, y)
         
         return None  # No legal position found

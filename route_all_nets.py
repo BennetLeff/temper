@@ -94,29 +94,31 @@ def main():
         'USB_D+', 'USB_D-', 'TEMP_SENSE'
     ]}
     
-    # Signal nets to route - ordered by routing difficulty
-    # Route longer/more complex nets first to give them more space
-    # NOTE: AC_L/AC_N excluded - 6mm clearance requirement makes auto-routing
+    # Signal nets to route - ordered to minimize conflicts
+    # Strategy: Route nets that need vias FIRST (they're more constrained)
+    # Then route nets that can stay on F.Cu (more flexible)
+    # NOTE: AC_L excluded - 6mm clearance requirement makes auto-routing
     # impossible with current board layout. These need manual routing.
     signal_nets = [
-        # Complex multi-pad nets first
-        'SW_NODE',      # 6 pads
+        # FIRST: Nets that need vias (SMD pads on F.Cu routing to B.Cu)
+        # These are most constrained - route them first
+        'GATE_H',       # 4 pads, needs vias for gate driver
+        'GATE_L',       # 4 pads, needs vias for gate driver
+        'PWM_H', 'PWM_L',  # MCU to gate driver
+        'SPI_MOSI', 'SPI_MISO', 'SPI_CS_TEMP',  # SPI bus
+        'USB_D-',       # USB differential (one needs via)
+        # SECOND: Nets that can route on F.Cu without vias
+        'SW_NODE',      # 6 pads, THT pads
         'I_SENSE',      # 8 pads
-        'GATE_H',       # 4 pads
-        'GATE_L',       # 4 pads
-        # SPI bus (3 pads each)
-        'SPI_CLK', 'SPI_MOSI', 'SPI_MISO',
-        # Simple 2-pad nets
-        'PWM_H', 'PWM_L',
-        'SPI_CS_TEMP',
-        'USB_D+', 'USB_D-',
-        'TEMP_SENSE',
-        'AC_N',  # THT pad, should route directly
+        'SPI_CLK',      # Can route on F.Cu
+        'USB_D+',       # USB differential
+        'TEMP_SENSE',   # Simple 2-pad
+        'AC_N',         # THT pad, should route directly
         # Excluded: AC_L (6mm clearance impossible), SHUTDOWN_N (single pad)
     ]
     
     print(f"\n4. Routing {len(signal_nets)} signal nets...")
-    print("   (Timeout: 30s per net)\n")
+    print("   (Timeout: 15s per net)\n")
     
     routes = []
     vias_all = []
@@ -144,6 +146,12 @@ def main():
             signal.alarm(0)
             return None, str(e)
     
+    # Layer priority for fallback routing (4-layer board)
+    layer_priority = ['F.Cu', 'B.Cu', 'In1.Cu', 'In2.Cu']
+    
+    # Track failed nets for retry
+    failed_first_pass = []
+    
     for net_name in signal_nets:
         layer = net_layers[net_name]
         
@@ -160,14 +168,18 @@ def main():
         
         print(f"   Routing {net_name:15s} on {layer} ({len(pad_info)} pads)...", end=" ", flush=True)
         
-        # Try primary layer first
-        route, error = try_route_net(net_name, layer, pad_info)
+        # Try primary layer first (15s timeout)
+        route, error = try_route_net(net_name, layer, pad_info, timeout_sec=15)
         
-        # If failed on F.Cu, try B.Cu (and vice versa)
+        # If failed, try all other layers in priority order (15s each)
         if route is None:
-            alt_layer = 'B.Cu' if layer == 'F.Cu' else 'F.Cu'
-            print(f"trying {alt_layer}...", end=" ", flush=True)
-            route, error = try_route_net(net_name, alt_layer, pad_info, timeout_sec=30)
+            for alt_layer in layer_priority:
+                if alt_layer == layer:
+                    continue
+                print(f"trying {alt_layer}...", end=" ", flush=True)
+                route, error = try_route_net(net_name, alt_layer, pad_info, timeout_sec=15)
+                if route is not None:
+                    break  # Found a working layer
         
         if route:
             print(f"✓ {len(route.segments)} seg, {len(route.vias)} vias")
@@ -196,7 +208,7 @@ def main():
             timeout_nets.append(net_name)
         else:
             print(f"✗ Failed (no path)")
-            failed_nets.append(net_name)
+            failed_first_pass.append(net_name)  # Track for retry
     
     print(f"\n   Routed: {routed_count}/{len(signal_nets)} nets ({100*routed_count/len(signal_nets):.0f}%)")
     print(f"   Total segments: {len(routes)}")

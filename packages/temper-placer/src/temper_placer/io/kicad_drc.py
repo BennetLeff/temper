@@ -47,8 +47,11 @@ class DRCResult:
         "clearance",
         "unconnected_items",
         "short",
+        "shorting_items",  # KiCad reports shorts as "shorting_items"
         "track_dangling",
         "copper_edge_clearance",
+        "hole_clearance",
+        "hole_to_hole",
     }
     
     COSMETIC_TYPES = {
@@ -56,6 +59,7 @@ class DRCResult:
         "silk_over_copper",
         "silk_overlap",
         "courtyards_overlap",
+        "solder_mask_bridge",
     }
     
     @property

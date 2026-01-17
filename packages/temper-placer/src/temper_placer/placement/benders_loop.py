@@ -524,17 +524,20 @@ class BendersOptimizer:
             board = KiBoard.from_file(str(self._pcb_file))
             
             # Update component positions
+            updated = 0
             for footprint in board.footprints:
-                if footprint.entryName in positions:
-                    new_x, new_y = positions[footprint.entryName]
+                ref = footprint.properties.get('Reference', None)
+                if ref and ref in positions:
+                    new_x, new_y = positions[ref]
                     footprint.position.X = new_x
                     footprint.position.Y = new_y
+                    updated += 1
             
             # Save PCB
             board.to_file(str(self._pcb_file))
             
             if self.verbose:
-                print(f"  Updated {len(positions)} component positions in PCB")
+                print(f"  Updated {updated} component positions in PCB")
                 
         except Exception as e:
             if self.verbose:
@@ -633,6 +636,8 @@ class BendersOptimizer:
         """
         Run the actual Router V6 pipeline and return routing results.
         
+        Also writes routes to PCB file for DRC checking.
+        
         Returns:
             PathfindingResult with success/failure information
         """
@@ -642,6 +647,7 @@ class BendersOptimizer:
             # PCB should already be updated by caller
             # Just run the router
             from temper_placer.router_v6.pipeline import RouterV6Pipeline
+            from temper_placer.io.kicad_writer import write_routes_direct
             
             pipeline = RouterV6Pipeline(verbose=self.verbose)
             result = pipeline.run(self._pcb_file)
@@ -651,12 +657,31 @@ class BendersOptimizer:
             
             # Extract PathfindingResult from Stage4Output
             pathfinding_result = result.stage4.pathfinding_result
+            width_assignment = result.stage4.width_assignment
             
             if self.verbose:
                 success = pathfinding_result.success_count if hasattr(pathfinding_result, 'success_count') else len(pathfinding_result.routed_paths)
                 failed = pathfinding_result.failure_count if hasattr(pathfinding_result, 'failure_count') else len(pathfinding_result.failed_nets)
                 total = success + failed
                 print(f"  Router: {success}/{total} nets routed ({router_time:.1f}s)")
+            
+            # Write routes to PCB file for DRC checking
+            routes, vias = self._extract_routes_for_export(
+                pathfinding_result, 
+                width_assignment,
+                result.pcb.design_rules
+            )
+            
+            if routes:
+                write_routes_direct(
+                    template_pcb=self._pcb_file,
+                    output_pcb=self._pcb_file,  # Overwrite input file
+                    routes=routes,
+                    vias=vias if vias else None,
+                    clear_existing=True,  # Remove old routes before adding new
+                )
+                if self.verbose:
+                    print(f"  Wrote {len(routes)} traces, {len(vias) if vias else 0} vias to PCB")
             
             return pathfinding_result  # PathfindingResult
             
@@ -666,6 +691,71 @@ class BendersOptimizer:
                 import traceback
                 traceback.print_exc()
             return None
+    
+    def _extract_routes_for_export(self, pathfinding_result, width_assignment, design_rules):
+        """
+        Extract routes from PathfindingResult in format for write_routes_direct.
+        
+        Returns:
+            (routes, vias) where:
+            - routes: list of {start, end, width, layer, net}
+            - vias: list of {position, width, drill, layers, net}
+        """
+        routes = []
+        vias = []
+        
+        for net_name, path in pathfinding_result.routed_paths.items():
+            # Get trace width for this net
+            width = None
+            if width_assignment:
+                width = width_assignment.get_width(net_name)
+            if width is None:
+                rules = design_rules.get_rules_for_net(net_name) if design_rules else None
+                width = rules.trace_width_mm if rules else 0.25
+            
+            # Handle RoutePath3D (multi-layer with explicit segments)
+            if hasattr(path, 'segments') and path.segments:
+                # RoutePath3D: segments are (x, y, layer)
+                for i in range(len(path.segments) - 1):
+                    x1, y1, layer1 = path.segments[i]
+                    x2, y2, layer2 = path.segments[i + 1]
+                    
+                    # If layers differ, we need a via (handled by via_positions)
+                    if layer1 == layer2:
+                        routes.append({
+                            'start': (x1, y1),
+                            'end': (x2, y2),
+                            'width': width,
+                            'layer': layer1,
+                            'net': net_name,
+                        })
+                
+                # Add vias at layer transitions
+                if hasattr(path, 'via_positions') and path.via_positions:
+                    for vx, vy in path.via_positions:
+                        vias.append({
+                            'position': (vx, vy),
+                            'width': 0.8,  # Standard via size
+                            'drill': 0.4,  # Standard drill size
+                            'layers': ('F.Cu', 'B.Cu'),
+                            'net': net_name,
+                        })
+            
+            # Handle RoutePath (single layer with coordinates)
+            elif hasattr(path, 'coordinates') and path.coordinates:
+                layer = path.layer_name if hasattr(path, 'layer_name') else 'F.Cu'
+                for i in range(len(path.coordinates) - 1):
+                    x1, y1 = path.coordinates[i]
+                    x2, y2 = path.coordinates[i + 1]
+                    routes.append({
+                        'start': (x1, y1),
+                        'end': (x2, y2),
+                        'width': width,
+                        'layer': layer,
+                        'net': net_name,
+                    })
+        
+        return routes, vias
     
     def _run_drc_check(self, pcb_file: Path):
         """

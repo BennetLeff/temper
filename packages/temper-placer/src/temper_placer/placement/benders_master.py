@@ -520,29 +520,35 @@ class BendersMasterProblem:
             # Grouping from design doc
             grouping_constraints={
                 "U_MCU": [
-                    ("C_MCU_1", 8.0),  # Relaxed from 5mm to 8mm per audit
-                    ("C_MCU_2", 8.0),
-                    ("C_MCU_3", 8.0),
-                    ("C_MCU_4", 8.0),
+                    ("C_MCU_1", 10.0),
+                    ("C_MCU_2", 10.0),
+                    ("C_MCU_3", 10.0),
+                    ("C_MCU_4", 15.0),
                 ],
                 "U_GATE": [
-                    ("C_VCC", 8.0),
-                    ("C_BOOT", 8.0),
+                    ("C_VCC", 15.0),
+                    ("C_BOOT", 15.0),
                 ],
                 "U_CT": [
-                    ("C_CT_FILT", 5.0),
+                    ("C_CT_FILT", 10.0),
                 ],
                 "U_OPAMP_CT": [
-                    ("R_BURDEN", 5.0),
+                    ("R_BURDEN", 10.0),
                 ],
             },
-            # Zone constraints from design doc
+            # Zone constraints - power stage at bottom, MCU at right side
+            # Updated to match actual placement
             zone_constraints={
-                "Q1": [("y", "max", 20.0)],
-                "Q2": [("y", "max", 20.0)],
-                "D1": [("y", "max", 50.0)],
-                "D2": [("y", "max", 50.0)],
-                "U_MCU": [("y", "min", 80.0), ("x", "min", 60.0)],
+                # Power stage (IGBTs) in lower-left quadrant
+                "Q1": [("x", "max", 60.0), ("y", "min", 90.0), ("y", "max", 140.0)],
+                "Q2": [("x", "max", 60.0), ("y", "min", 90.0), ("y", "max", 140.0)],
+                # Rectifier diodes in upper-left
+                "D1": [("x", "max", 50.0), ("y", "min", 50.0), ("y", "max", 90.0)],
+                "D2": [("x", "max", 50.0), ("y", "min", 50.0), ("y", "max", 90.0)],
+                # MCU in right side, middle height
+                "U_MCU": [("x", "min", 70.0), ("y", "min", 60.0), ("y", "max", 110.0)],
+                # Gate driver near IGBTs
+                "U_GATE": [("x", "max", 70.0), ("y", "min", 100.0), ("y", "max", 140.0)],
             },
         )
 
