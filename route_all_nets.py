@@ -94,28 +94,59 @@ def main():
         'USB_D+', 'USB_D-', 'TEMP_SENSE'
     ]}
     
-    # Signal nets to route - ordered to minimize conflicts
-    # Strategy: Route nets that need vias FIRST (they're more constrained)
-    # Then route nets that can stay on F.Cu (more flexible)
-    # NOTE: AC_L excluded - 6mm clearance requirement makes auto-routing
-    # impossible with current board layout. These need manual routing.
-    signal_nets = [
-        # FIRST: Nets that need vias (SMD pads on F.Cu routing to B.Cu)
-        # These are most constrained - route them first
-        'GATE_H',       # 4 pads, needs vias for gate driver
-        'GATE_L',       # 4 pads, needs vias for gate driver
-        'PWM_H', 'PWM_L',  # MCU to gate driver
-        'SPI_MOSI', 'SPI_MISO', 'SPI_CS_TEMP',  # SPI bus
-        'USB_D-',       # USB differential (one needs via)
-        # SECOND: Nets that can route on F.Cu without vias
-        'SW_NODE',      # 6 pads, THT pads
-        'I_SENSE',      # 8 pads
-        'SPI_CLK',      # Can route on F.Cu
-        'USB_D+',       # USB differential
-        'TEMP_SENSE',   # Simple 2-pad
-        'AC_N',         # THT pad, should route directly
-        # Excluded: AC_L (6mm clearance impossible), SHUTDOWN_N (single pad)
+    # PHASE 1 FIX: Compute routing order dynamically based on net characteristics
+    # Score nets by pin count, criticality, and via requirements
+    def score_net(net_name, pad_info_dict):
+        """Score net for routing priority (higher = route earlier)."""
+        if net_name not in pad_info_dict:
+            return 0
+        
+        pads = pad_info_dict[net_name]
+        score = 0
+        
+        # 1. Pin count: More pins = route earlier (claim space for complex nets)
+        score += len(pads) * 10
+        
+        # 2. Criticality: Gate drivers and power control are most critical
+        critical_nets = ['GATE_H', 'GATE_L', 'PWM_H', 'PWM_L', 'SW_NODE']
+        if net_name in critical_nets:
+            score += 50
+        
+        # 3. Via requirement: Multi-layer nets are more constrained
+        layers = set()
+        for p in pads:
+            layers.update(p['layers'])
+        # Check if needs vias (pads on different layers)
+        has_f_cu = any('F.Cu' in p['layers'] for p in pads)
+        has_b_cu = any('B.Cu' in p['layers'] for p in pads)
+        if has_f_cu and has_b_cu:
+            score += 30  # Definitely needs via
+        elif len(layers) > 2:  # Multiple specific layers
+            score += 30
+        
+        # 4. High-speed/differential: Route together for matching
+        diff_pairs = ['USB_D+', 'USB_D-']
+        if net_name in diff_pairs:
+            score += 20
+        
+        return score
+    
+    # All signal nets (excluding AC_L with 6mm clearance, SHUTDOWN_N single pad)
+    all_signal_nets = [
+        'GATE_H', 'GATE_L', 'PWM_H', 'PWM_L', 
+        'SPI_MOSI', 'SPI_MISO', 'SPI_CS_TEMP', 'SPI_CLK',
+        'USB_D+', 'USB_D-', 
+        'SW_NODE', 'I_SENSE', 'TEMP_SENSE', 'AC_N'
     ]
+    
+    # Score and sort nets
+    net_scores = [(net, score_net(net, net_pad_info)) for net in all_signal_nets]
+    signal_nets = [net for net, score in sorted(net_scores, key=lambda x: -x[1])]
+    
+    print("\n   Routing order (by priority score):")
+    for net, score in sorted(net_scores, key=lambda x: -x[1]):
+        pin_count = len(net_pad_info.get(net, []))
+        print(f"     {net:15s} score={score:3.0f} pins={pin_count}")
     
     print(f"\n4. Routing {len(signal_nets)} signal nets...")
     print("   (Timeout: 15s per net)\n")

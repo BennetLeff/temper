@@ -931,7 +931,8 @@ class ExactGeometryRouter:
             # Alternate between growing from start and goal
             if i % 2 == 0:
                 # Grow from start
-                if random.random() < 0.25:
+                # PHASE 1 FIX: Increase goal bias from 25% to 35% for faster convergence
+                if random.random() < 0.35:
                     sample = goal
                 elif random.random() < 0.4:
                     # Sample near goal tree nodes for faster connection
@@ -971,7 +972,8 @@ class ExactGeometryRouter:
                     return self._smooth_path(full_path, merged)
             else:
                 # Grow from goal
-                if random.random() < 0.25:
+                # PHASE 1 FIX: Increase goal bias from 25% to 35% for faster convergence
+                if random.random() < 0.35:
                     sample = start
                 elif random.random() < 0.4:
                     target = random.choice(nodes_start)

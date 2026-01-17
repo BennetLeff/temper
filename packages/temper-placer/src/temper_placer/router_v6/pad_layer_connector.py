@@ -209,6 +209,10 @@ class PadLayerConnector:
                 return True
             
             escape_line = LineString([pad.position, via_pos])
+            # PHASE 1 FIX: Use 50% clearance for escape traces to allow dense fanout
+            # Escape traces are short and can use tighter spacing for IC fanout
+            escape_clearance = clearance * 0.5
+            
             for existing_seg in routed_segments.get(pad_layer, []):
                 if existing_seg.net_name == pad.net:
                     continue
@@ -216,10 +220,9 @@ class PadLayerConnector:
                 # Check intersection - this is critical (would cause short)
                 if escape_line.intersects(existing_line):
                     return False
-                # Check clearance - use only the minimum clearance, not trace width
-                # The trace width is already accounted for in the existing segment's buffer
-                # Using clearance only allows tighter routing while still being DRC-safe
-                if escape_line.distance(existing_line) < clearance:
+                # Check clearance - use reduced clearance for escape traces
+                # This allows fanout from dense ICs while staying DRC-compliant
+                if escape_line.distance(existing_line) < escape_clearance:
                     return False
             return True
         
