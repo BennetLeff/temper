@@ -727,13 +727,13 @@ class ExactGeometryRouter:
         DRC passes even with floating point tolerance.
         """
         obstacles = []
-        # PHASE 2 FIX: Tune safety margins for better balance
+        # PHASE 3 FIX: Use more conservative margins to prevent DRC violations
         # The trace centerline must be at least (clearance + trace_width/2) from obstacle edge
         # Safety margins account for RRT path approximation and floating point tolerance
-        # Previous 0.15mm was conservative but still had violations
-        # Reduce slightly to allow tighter routing while maintaining DRC compliance
-        pad_safety_margin = 0.12  # mm extra for pad obstacles (was 0.15)
-        track_safety_margin = 0.10  # mm extra for existing track obstacles (was 0.15)
+        # Phase 2 showed that reducing margins (0.12/0.10) increased violations
+        # Increase margins beyond original 0.15mm to ensure DRC compliance
+        pad_safety_margin = 0.20  # mm extra for pad obstacles (was 0.15, tried 0.12)
+        track_safety_margin = 0.20  # mm extra for existing track obstacles (was 0.15, tried 0.10)
         full_inflation = clearance + trace_width / 2 + pad_safety_margin
         
         # Get target pad positions for escape zone calculation
