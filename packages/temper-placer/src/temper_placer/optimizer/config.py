@@ -488,6 +488,7 @@ def get_default_loss_weights() -> dict[str, float]:
         "overlap": 100.0,
         "boundary": 50.0,
         "clearance": 80.0,  # HV-LV safety critical
+        "drc_proxy": 60.0,  # Width-inflated DRC proxy (manufacturability)
         # Medium constraints
         "thermal": 30.0,  # IGBT heatsink placement
         "loop_area": 40.0,  # Gate drive loop EMI

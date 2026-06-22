@@ -116,6 +116,11 @@ from temper_placer.losses.drc_loss import (
     create_drc_loss,
 )
 
+# DRC proxy loss (differentiable width-inflated clearance)
+from temper_placer.losses.drc_proxy import (
+    DRCProxyLoss,
+)
+
 # Grid alignment loss
 from temper_placer.losses.grid import (
     GridAlignmentLoss,
@@ -411,4 +416,6 @@ __all__ = [
     "MCUClusteringLoss",
     "BusAlignmentLoss",
     "compute_routing_channel_penalty",
+    # DRC proxy loss (differentiable width-inflated clearance)
+    "DRCProxyLoss",
 ]
