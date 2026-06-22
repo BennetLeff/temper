@@ -10,6 +10,7 @@ from .apply_placements import ApplyPlacementsStage
 from .clearance_grid import ClearanceGridStage
 from .net_ordering import NetOrderingStage
 from .sequential_routing import SequentialRoutingStage
+from .sequential_routing_dataclasses import DiffPairConfig
 from .drc_validation import DRCValidationStage, DRCValidationError
 from .connectivity_validation import (
     ConnectivityValidationStage,
@@ -42,6 +43,7 @@ __all__ = [
     "ClearanceGridStage",
     "NetOrderingStage",
     "SequentialRoutingStage",
+    "DiffPairConfig",
     "LayerAssignmentStage",
     "PowerPlaneStage",
     "TEMPER_PLANE_NETS",

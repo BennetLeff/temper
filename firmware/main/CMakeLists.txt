@@ -5,6 +5,7 @@ idf_component_register(
     SRCS 
         "main.c"
         "state_machine.c"
+        "state_handlers.c"
     INCLUDE_DIRS 
         "."
         ".."
