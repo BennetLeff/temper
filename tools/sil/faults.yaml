@@ -1,0 +1,191 @@
+# SIL Fault-Injection Table
+#
+# Each row defines a perturbation applied to a baseline plant-model trace
+# and the expected state-machine outcome.
+#
+# Schema:
+#   name:              unique identifier for this fault row
+#   description:       human-readable description
+#   trace:             baseline scenario name (plant_model.py --scenario)
+#   initial_conditions: optional overrides before trace replay
+#   perturbation:
+#     at_tick:         tick at which perturbation begins
+#     sensors:
+#       - channel:     CSV column name (heatsink_temp_c, pan_temp_c,
+#                      dc_bus_current_a, rtd_resistance_ohm, pan_impedance,
+#                      fan_running)
+#         type:        ramp | step | stuck | dropout | noise
+#         from:        value before perturbation (null = baseline at at_tick-1)
+#         to:          value after perturbation
+#         over_ticks:  ticks for ramp/noise/dropout
+#   expected:
+#     final_state:     STATE_INIT | IDLE | PAN_DET | PREHEAT | HEATING |
+#                      NO_PAN | COOLDOWN | FAULT
+#     fault_code:      FAULT_NONE | FAULT_OVER_TEMP | FAULT_OVER_CURRENT |
+#                      FAULT_FAN_FAILURE | FAULT_PROBE_OPEN | FAULT_PROBE_SHORT |
+#                      FAULT_THERMAL_RUNAWAY | FAULT_SELF_TEST_FAILED | ...
+#     max_latency_ticks: maximum allowed ticks from perturbation end to
+#                        final_state entry
+#     soft_assertions:  optional list of assertions that produce warnings only
+
+faults:
+  # ---------------------------------------------------------------------------
+  # Over-temperature fault
+  # ---------------------------------------------------------------------------
+  - name: igbt_over_temp_during_heating
+    description: Heatsink exceeds 100C during HEATING triggers FAULT_OVER_TEMP
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: heatsink_temp_c
+          type: ramp
+          from: null
+          to: 105.0
+          over_ticks: 10
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_OVER_TEMP
+      max_latency_ticks: 10
+      soft_assertions:
+        - eeprom_logged: FAULT_OVER_TEMP
+
+  # ---------------------------------------------------------------------------
+  # Over-current fault
+  # ---------------------------------------------------------------------------
+  - name: over_current_during_heating
+    description: DC bus current exceeds 35A during HEATING triggers FAULT_OVER_CURRENT
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: dc_bus_current_a
+          type: step
+          to: 40.0
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_OVER_CURRENT
+      max_latency_ticks: 2
+
+  # ---------------------------------------------------------------------------
+  # Fan failure fault
+  # ---------------------------------------------------------------------------
+  - name: fan_failure_during_heating
+    description: Fan stops during HEATING triggers FAULT_FAN_FAILURE
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: fan_running
+          type: step
+          to: 0
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_FAN_FAILURE
+      max_latency_ticks: 2
+
+  # ---------------------------------------------------------------------------
+  # Probe open fault
+  # ---------------------------------------------------------------------------
+  - name: probe_open_during_heating
+    description: RTD resistance opens (>10kΩ) during HEATING
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: rtd_resistance_ohm
+          type: step
+          to: 15000.0
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_PROBE_OPEN
+      max_latency_ticks: 2
+
+  # ---------------------------------------------------------------------------
+  # Probe short fault
+  # ---------------------------------------------------------------------------
+  - name: probe_short_during_heating
+    description: RTD resistance shorts (<10Ω) during HEATING
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: rtd_resistance_ohm
+          type: step
+          to: 5.0
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_PROBE_SHORT
+      max_latency_ticks: 2
+
+  # ---------------------------------------------------------------------------
+  # Thermal runaway fault
+  # ---------------------------------------------------------------------------
+  - name: thermal_runaway_during_heating
+    description: Pan temperature overshoots target +10C triggers FAULT_THERMAL_RUNAWAY
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: pan_temp_c
+          type: ramp
+          from: null
+          to: 130.0
+          over_ticks: 10
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_THERMAL_RUNAWAY
+      max_latency_ticks: 5
+
+  # ---------------------------------------------------------------------------
+  # Pan removed
+  # ---------------------------------------------------------------------------
+  - name: pan_removed_during_heating
+    description: Pan removed during HEATING triggers NO_PAN after debounce
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: pan_impedance
+          type: step
+          to: 1.0
+    expected:
+      final_state: NO_PAN
+      fault_code: FAULT_NONE
+      max_latency_ticks: 13
+
+  # ---------------------------------------------------------------------------
+  # Brownout (multi-sensor perturbation)
+  # ---------------------------------------------------------------------------
+  - name: brownout_during_heating
+    description: DC bus drops to zero (fan stops) triggers FAULT_FAN_FAILURE
+    trace: heating_to_steady_state
+    perturbation:
+      at_tick: 300
+      sensors:
+        - channel: dc_bus_current_a
+          type: step
+          to: 0.0
+        - channel: fan_running
+          type: step
+          to: 0
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_FAN_FAILURE
+      max_latency_ticks: 5
+
+  # ---------------------------------------------------------------------------
+  # Self-test failure
+  # ---------------------------------------------------------------------------
+  - name: self_test_failed_initial
+    description: Self-test fails during INIT triggers FAULT_SELF_TEST_FAILED
+    trace: standby_long_run
+    initial_conditions:
+      self_test_pass: false
+    perturbation:
+      at_tick: 5
+      sensors: []
+    expected:
+      final_state: FAULT
+      fault_code: FAULT_SELF_TEST_FAILED
+      max_latency_ticks: 5

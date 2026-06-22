@@ -28,7 +28,7 @@ typedef struct {
 /**
  * @brief Full cooking profile
  */
-typedef struct {
+typedef struct cooking_profile_t {
     char name[32];          /**< Profile name */
     uint8_t num_stages;     /**< 1-5 */
     profile_stage_t stages[MAX_PROFILE_STAGES];

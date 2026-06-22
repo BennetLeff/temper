@@ -119,6 +119,8 @@ add_executable(test_state_machine_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
     ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_state_machine.c
@@ -352,3 +354,20 @@ add_executable(test_profiles_only
 )
 target_include_directories(test_profiles_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_profiles_only m)
+
+# SIL Fault Injection Tests
+add_executable(test_sil_fault_injection
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_sil_fault_injection.c
+)
+target_include_directories(test_sil_fault_injection PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_sil_fault_injection m)
+
+# CTest registration
+add_test(NAME sil_fault_tests COMMAND test_sil_fault_injection)
