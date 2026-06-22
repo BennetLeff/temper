@@ -34,8 +34,9 @@ extern "C" {
     X(STATE_PREHEAT,  "PREHEAT") \
     X(STATE_HEATING,  "HEATING") \
     X(STATE_NO_PAN,   "NO_PAN") \
-    X(STATE_COOLDOWN, "COOLDOWN") \
-    X(STATE_FAULT,    "FAULT")
+    X(STATE_COOLDOWN,     "COOLDOWN") \
+    X(STATE_FAULT,        "FAULT") \
+    X(STATE_RUNAWAY_FAULT, "RUNAWAY_FAULT")
 
 #define EXPAND_STATE_ENUM(sym, str)  sym,
 typedef enum {
@@ -61,8 +62,9 @@ static const state_name_entry_t state_name_table[] = {
 #define FAULT_LIST(X) \
     X(FAULT_NONE,             "NO FAULT") \
     X(FAULT_OVER_TEMP,        "OVER TEMP") \
-    X(FAULT_OVER_CURRENT,     "OVER CURRENT") \
-    X(FAULT_FAN_FAILURE,      "FAN FAILED") \
+    X(FAULT_OVER_CURRENT,       "OVER CURRENT") \
+    X(FAULT_RUNAWAY_BOUNDARY,    "RUNAWAY BOUNDARY") \
+    X(FAULT_FAN_FAILURE,        "FAN FAILED") \
     X(FAULT_PROBE_OPEN,       "PROBE OPEN") \
     X(FAULT_PROBE_SHORT,      "PROBE SHORT") \
     X(FAULT_THERMAL_RUNAWAY,  "THERMAL RUNAWAY") \

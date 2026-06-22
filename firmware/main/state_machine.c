@@ -65,6 +65,9 @@ static struct {
     thermal_mass_handle_t thermal_mass;
     bool thermal_mass_estimation_done;
 
+    /* Runaway interlock */
+    bool runaway_latched;
+
 } sm_ctx = {
     .current_state = STATE_INIT,
     .previous_state = STATE_INIT,
@@ -91,6 +94,8 @@ static void state_cooldown_entry(void);
 static void state_cooldown_update(void);
 static void state_fault_entry(void);
 static void state_fault_update(void);
+static void state_runaway_fault_entry(void);
+static void state_runaway_fault_update(void);
 
 /* Forward declarations - helpers */
 static void transition_to(system_state_t new_state);
@@ -194,6 +199,9 @@ void state_machine_init(void) {
     /* Reset timing */
     sm_ctx.last_update_time_ms = 0;
     
+    /* Reset runaway interlock latch */
+    sm_ctx.runaway_latched = false;
+    
     transition_to(STATE_INIT);
 }
 
@@ -255,6 +263,7 @@ void state_machine_update(void) {
         case STATE_NO_PAN:   state_no_pan_update();   break;
         case STATE_COOLDOWN: state_cooldown_update(); break;
         case STATE_FAULT:    state_fault_update();    break;
+        case STATE_RUNAWAY_FAULT: state_runaway_fault_update(); break;
         default:
             sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
             transition_to(STATE_FAULT);
@@ -895,6 +904,37 @@ static void state_fault_update(void) {
 }
 
 /* ============================================================================
+ * STATE_RUNAWAY_FAULT Implementation
+ * ============================================================================ */
+
+static void state_runaway_fault_entry(void) {
+    /* EMERGENCY SHUTDOWN */
+    power_set_level(0);
+    pwm_disable_all();
+    pll_disable();
+
+    /* Maximum cooling */
+    fan_set_speed(FAN_SPEED_MAX);
+
+    /* Alert user */
+    led_set_pattern(LED_FAULT);
+    display_show_fault(sm_ctx.fault_code);
+    buzzer_beep_continuous();
+
+    /* Log to EEPROM */
+    eeprom_log_fault(sm_ctx.fault_code, get_time_ms());
+
+    /* Set watchdog */
+    watchdog_set_timeout(5000);
+}
+
+static void state_runaway_fault_update(void) {
+    /* Dead-end state: power stays off, no button processing */
+    /* Feed watchdog to prevent unwanted MCU reset */
+    watchdog_feed();
+}
+
+/* ============================================================================
  * Helper Functions
  * ============================================================================ */
 
@@ -929,6 +969,7 @@ static void transition_to(system_state_t new_state) {
         case STATE_NO_PAN:   state_no_pan_entry();   break;
         case STATE_COOLDOWN: state_cooldown_entry(); break;
         case STATE_FAULT:    state_fault_entry();    break;
+        case STATE_RUNAWAY_FAULT: state_runaway_fault_entry(); break;
         default:
             sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
             transition_to(STATE_FAULT);
@@ -989,6 +1030,9 @@ static bool fault_cleared(void) {
 
         case FAULT_SELF_TEST_FAILED:
             return run_self_test();
+
+        case FAULT_RUNAWAY_BOUNDARY:
+            return false;  /* Never clearable by software */
 
         default:
             return false;  /* Most faults require power cycle */
