@@ -120,7 +120,7 @@
 <body>
   <header class="app-header">
     <h1>Session Dashboard</h1>
-    <div id="status-bar" class="status-bar" aria-live="polite">Loading...</div>
+    <div id="status-bar" class="status-bar" aria-live="polite">Starting...</div>
   </header>
   <main>
     <div class="toolbar">
@@ -183,6 +183,7 @@
       status.textContent = 'Loading...';
       try {
         const res = await fetch(`/api/sessions?limit=${PAGE_SIZE}&offset=${offset}`);
+        if (!res.ok) throw new Error(`Server error (${res.status})`);
         const data = await res.json();
         sessions = reset ? data.sessions : [...sessions, ...data.sessions];
         total = data.total;
@@ -191,6 +192,10 @@
         status.textContent = 'Ready';
       } catch(e) {
         status.textContent = 'Error: ' + e.message;
+        if (!sessions.length && listEl.children.length === 0) {
+          listEl.className = 'empty-state';
+          listEl.innerHTML = `<h2>Cannot reach server</h2><p>Make sure <code>python3 server.py</code> is running in the session-dashboard directory.</p><p style="margin-top:12px"><button class="btn btn-primary" onclick="location.reload()">Retry</button></p>`;
+        }
       }
     }
 
