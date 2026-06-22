@@ -115,5 +115,9 @@ When expanding scope to new modules:
 - Recommended cadence: quarterly hardening sprint focused on writing tests for allowlisted functions and removing entries.
 - An allowlist entry that now has coverage triggers a `WARNING` in CI (stale entry) — not a failure.
 
+## 7. Documented Solutions
+
+`docs/solutions/` — documented solutions to past problems (bugs, best practices, architecture patterns, workflow issues), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
+
 ### Escape Hatch
 There is no env-var override to skip the gate. The allowlist **is** the recorded justification — a reviewer sees allowlist additions/removals in `git diff`. To skip the gate temporarily in an emergency, the CI step configuration (`python-tests.yml`) can be modified directly.
