@@ -66,6 +66,7 @@ def _authority_map() -> dict[tuple[str, str], float]:
 # flagged as reconciliation HOLDs.
 DRU_allowed_orphans: list[str] = [
     "AC Mains to HV",  # ACMains->HV inter-class gap -- site-specific minimum per EE review
+    "HV internal same footprint",  # HV internal same-footprint -- manufacturing clearance per EE review
 ]
 
 
