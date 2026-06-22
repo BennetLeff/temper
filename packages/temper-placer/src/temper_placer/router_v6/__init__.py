@@ -56,6 +56,7 @@ from temper_placer.router_v6.safety_pair_inference import (
     SafetyPair,
     infer_safety_pairs,
 )
+from temper_placer.router_v6.adapter import route_pcb, RoutingResult
 from temper_placer.router_v6.stage0_data import (
     DesignRules,
     LayerInfo,
@@ -107,4 +108,7 @@ __all__ = [
     "LengthMatchingResult",
     "LengthMatchingResults",
     "apply_length_matching",
+    # Adapter for closure test pipeline
+    "route_pcb",
+    "RoutingResult",
 ]
