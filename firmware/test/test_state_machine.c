@@ -536,6 +536,68 @@ void test_sm_fault_on_over_current(void) {
 }
 
 /**
+ * Test: IGBT short (>50A) triggers FAULT_IGBT_SHORT
+ */
+void test_sm_fault_on_igbt_short(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    mock_sm_set_pan_temperature(92.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+    
+    /* Trigger IGBT short (>50A) */
+    mock_sm_set_dc_bus_current(55.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_IGBT_SHORT, state_machine_get_fault());
+}
+
+/**
+ * Test: IGBT short does NOT trigger at 35A (should be FAULT_OVER_CURRENT)
+ */
+void test_sm_fault_on_igbt_short_is_distinct(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    mock_sm_set_pan_temperature(92.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+    
+    /* 40A triggers FAULT_OVER_CURRENT, not FAULT_IGBT_SHORT (>50A) */
+    mock_sm_set_dc_bus_current(40.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_CURRENT, state_machine_get_fault());
+}
+
+/**
  * Test: Fan failure triggers FAULT
  */
 void test_sm_fault_on_fan_failure(void) {
@@ -661,6 +723,39 @@ void test_sm_fault_on_thermal_runaway(void) {
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_THERMAL_RUNAWAY, state_machine_get_fault());
+}
+
+/**
+ * Test: ADC stuck (3+ identical pan_temp readings) triggers FAULT_ADC_STUCK
+ */
+void test_sm_fault_on_adc_stuck(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    mock_sm_set_pan_temperature(92.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+    
+    /* Inject same pan temperature across 50 consecutive updates */
+    for (int i = 0; i < 50; i++) {
+        mock_sm_set_pan_temperature(92.0f);
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_ADC_STUCK, state_machine_get_fault());
 }
 
 /* ============================================================================
@@ -1150,6 +1245,9 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_fault_on_probe_open);
     RUN_TEST(test_sm_fault_on_probe_short);
     RUN_TEST(test_sm_fault_on_thermal_runaway);
+    RUN_TEST(test_sm_fault_on_igbt_short);
+    RUN_TEST(test_sm_fault_on_igbt_short_is_distinct);
+    RUN_TEST(test_sm_fault_on_adc_stuck);
     
     /* FAULT behavior */
     RUN_TEST(test_sm_fault_entry_logs_to_eeprom);

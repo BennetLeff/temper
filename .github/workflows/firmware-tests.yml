@@ -40,3 +40,9 @@ jobs:
           cmake -B firmware/test/build firmware/test
           cmake --build firmware/test/build --target test_state_machine_only
           ctest --test-dir firmware/test/build -R state_machine --output-on-failure
+
+      - name: Build and run SIL fault injection tests
+        run: |
+          cmake -B firmware/test/build firmware/test
+          cmake --build firmware/test/build --target test_sil_fault_injection
+          ctest --test-dir firmware/test/build -R sil_fault_tests --output-on-failure

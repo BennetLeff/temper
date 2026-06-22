@@ -65,6 +65,12 @@ static struct {
     thermal_mass_handle_t thermal_mass;
     bool thermal_mass_estimation_done;
 
+    /* ADC stuck-at detection */
+    float last_pan_temp;
+    uint8_t pan_temp_stuck_count;
+    float last_heatsink_temp;
+    uint8_t heatsink_temp_stuck_count;
+
 } sm_ctx = {
     .current_state = STATE_INIT,
     .previous_state = STATE_INIT,
@@ -182,6 +188,12 @@ void state_machine_init(void) {
     sm_ctx.cooking_time_ms = 0;
     sm_ctx.cooking_timer_enabled = false;
     sm_ctx.intensity_level = 10;
+
+    /* Reset ADC stuck detection */
+    sm_ctx.last_pan_temp = 0.0f;
+    sm_ctx.pan_temp_stuck_count = 0;
+    sm_ctx.last_heatsink_temp = 0.0f;
+    sm_ctx.heatsink_temp_stuck_count = 0;
     
     /* Reset profile */
     profile_init_status(&sm_ctx.profile);
@@ -944,6 +956,14 @@ static void check_safety_interlocks(void) {
         return;
     }
 
+    /* IGBT short-circuit detection (hard short > 50A)
+     * Catches the hard-fault case before the steady-state 35A limit */
+    if (read_dc_bus_current() > 50.0f) {
+        sm_ctx.fault_code = FAULT_IGBT_SHORT;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
     /* Over-current check */
     if (read_dc_bus_current() > 35.0f) {
         sm_ctx.fault_code = FAULT_OVER_CURRENT;
@@ -970,6 +990,41 @@ static void check_safety_interlocks(void) {
         transition_to(STATE_FAULT);
         return;
     }
+
+    /* ADC stuck-at detection: same value across 50+ consecutive reads
+     * A stuck ADC is a silent failure that existing threshold checks
+     * may miss. Uses float equality because a stuck ADC register returns
+     * bit-identical values after conversion. Threshold of 50 (5 seconds
+     * at 100ms/tick) avoids false positives during normal state transitions,
+     * pan removal debounce, and constant-sensor trace replay. */
+    {
+        float pan_temp = read_pan_temperature();
+        if (pan_temp == sm_ctx.last_pan_temp) {
+            sm_ctx.pan_temp_stuck_count++;
+            if (sm_ctx.pan_temp_stuck_count >= 50) {
+                sm_ctx.fault_code = FAULT_ADC_STUCK;
+                transition_to(STATE_FAULT);
+                return;
+            }
+        } else {
+            sm_ctx.last_pan_temp = pan_temp;
+            sm_ctx.pan_temp_stuck_count = 0;
+        }
+    }
+    {
+        float hs_temp = read_heatsink_temperature();
+        if (hs_temp == sm_ctx.last_heatsink_temp) {
+            sm_ctx.heatsink_temp_stuck_count++;
+            if (sm_ctx.heatsink_temp_stuck_count >= 50) {
+                sm_ctx.fault_code = FAULT_ADC_STUCK;
+                transition_to(STATE_FAULT);
+                return;
+            }
+        } else {
+            sm_ctx.last_heatsink_temp = hs_temp;
+            sm_ctx.heatsink_temp_stuck_count = 0;
+        }
+    }
 }
 
 static bool fault_cleared(void) {
@@ -978,6 +1033,10 @@ static bool fault_cleared(void) {
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
             return (read_heatsink_temperature() < 70.0f);
+
+        case FAULT_OVER_CURRENT:
+        case FAULT_IGBT_SHORT:
+            return false;  /* requires power cycle */
 
         case FAULT_FAN_FAILURE:
             return is_fan_running();

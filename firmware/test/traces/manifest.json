@@ -1,0 +1,212 @@
+[
+  {
+    "name": "SIL: Over-Temperature Fault",
+    "description": "Heatsink exceeds 100C during heating triggers FAULT_OVER_TEMP",
+    "trace_file": "trace_fault_over_temp.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "heatsink_temperature", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_OVER_TEMP",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_OVER_TEMP" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Over-Current Fault",
+    "description": "DC bus current exceeds 35A triggers FAULT_OVER_CURRENT",
+    "trace_file": "trace_fault_over_current.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "dc_bus_current", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_OVER_CURRENT",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_OVER_CURRENT" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Fan Failure Fault",
+    "description": "Fan stops during heating triggers FAULT_FAN_FAILURE",
+    "trace_file": "trace_fault_fan_failure.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "fan_running", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_FAN_FAILURE",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_FAN_FAILURE" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: RTD Probe Open Fault",
+    "description": "RTD resistance exceeds 10kOhm triggers FAULT_PROBE_OPEN",
+    "trace_file": "trace_fault_probe_open.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "rtd_resistance", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_PROBE_OPEN" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: RTD Probe Short Fault",
+    "description": "RTD resistance below 10 Ohm triggers FAULT_PROBE_SHORT",
+    "trace_file": "trace_fault_probe_short.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "rtd_resistance", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_SHORT",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_PROBE_SHORT" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Thermal Runaway Fault",
+    "description": "Pan temperature exceeds target + 10C triggers FAULT_THERMAL_RUNAWAY",
+    "trace_file": "trace_fault_thermal_runaway.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "pan_temperature", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_THERMAL_RUNAWAY",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_THERMAL_RUNAWAY" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: IGBT Short Fault",
+    "description": "DC bus current exceeds 50A triggers FAULT_IGBT_SHORT (hard short detection)",
+    "trace_file": "trace_fault_igbt_short.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        { "name": "dc_bus_current", "over_ticks": 1 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_IGBT_SHORT",
+      "max_latency_ticks": 2,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_IGBT_SHORT" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Relay Welded Fault (detected as COOLDOWN_OVERHEAT)",
+    "description": "Heatsink temperature rises during COOLDOWN indicates welded relay contacts",
+    "trace_file": "trace_fault_relay_welded.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 82,
+      "sensors": [
+        { "name": "heatsink_temperature", "over_ticks": 4 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_COOLDOWN_OVERHEAT",
+      "max_latency_ticks": 3,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: ADC Stuck Fault",
+    "description": "Pan temperature ADC returns identical value across 3+ reads triggers FAULT_ADC_STUCK",
+    "trace_file": "trace_fault_adc_stuck.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 60,
+      "sensors": [
+        { "name": "pan_temperature", "over_ticks": 50 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_ADC_STUCK",
+      "max_latency_ticks": 52,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_ADC_STUCK" }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Cooldown Overheat Fault",
+    "description": "Heatsink temperature spikes during COOLDOWN triggers FAULT_COOLDOWN_OVERHEAT",
+    "trace_file": "trace_fault_cooldown_overheat.csv",
+    "initial_conditions": { "self_test_pass": true },
+    "perturbation": {
+      "at_tick": 82,
+      "sensors": [
+        { "name": "heatsink_temperature", "over_ticks": 2 }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_COOLDOWN_OVERHEAT",
+      "max_latency_ticks": 3,
+      "soft_assertions": [
+        { "power_off": true },
+        { "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT" }
+      ]
+    }
+  }
+]

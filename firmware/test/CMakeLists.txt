@@ -387,4 +387,7 @@ target_include_directories(test_sil_fault_injection PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_sil_fault_injection m)
 
 # CTest registration
-add_test(NAME sil_fault_tests COMMAND test_sil_fault_injection)
+add_test(NAME sil_fault_tests
+    COMMAND test_sil_fault_injection
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
