@@ -1,160 +1,120 @@
-"""Placement strategy module for the closure test pipeline.
+"""Benders placement wrapper with strategy pattern.
 
-Exposes benders_placement() — the single entry point the closure test
-imports at temper_placer.placement.benders_loop.  The default strategy
-delegates to the existing template-based deterministic placer; Benders
-decomposition registers as a future strategy under the same interface.
+Provides `benders_placement(parsed, seed, *, strategy)` that delegates to
+deterministic template placement. Strategy slot reserved for future Benders
+decomposition algorithm.
 """
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
+
+from temper_placer.core.board import Board, Zone
+from temper_placer.core.netlist import Netlist
+from temper_placer.placer.deterministic import place_power_stage_template
+from temper_placer.placer.template import HalfBridgeTemplate
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class BendersPlacementResult:
-    """Placement result matching ClosureTest's expected interface."""
+    """Result from benders_placement call.
 
-    placements: dict[str, tuple[float, float]]
-    iterations: int
-    cuts: int
+    Attributes:
+        placements: Dict mapping component ref -> (x, y) position in mm.
+        iterations: Number of Benders iterations (1 for template strategy).
+        cuts: Number of feasibility cuts (0 for template strategy).
+    """
 
-
-# ---------------------------------------------------------------------------
-# Strategy registry
-# ---------------------------------------------------------------------------
-
-_STRATEGIES: dict[str, Any] = {}
-
-
-def register_strategy(name: str, fn):
-    """Register a placement function under a strategy name."""
-    _STRATEGIES[name] = fn
-
-
-def _template_strategy(parsed, seed: int) -> BendersPlacementResult:
-    """Default strategy: use the existing deterministic template placer."""
-    try:
-        from temper_placer.placer.deterministic import (
-            place_power_stage_template,
-            PlacementResult,
-        )
-        from temper_placer.placer.template import HalfBridgeTemplate
-    except ImportError as exc:
-        logger.warning("Template placer not available: %s", exc)
-        return BendersPlacementResult(placements={}, iterations=0, cuts=0)
-
-    netlist = _extract_netlist(parsed)
-    board = _extract_board(parsed)
-    if netlist is None or board is None:
-        raise ValueError(
-            "Parsed PCB missing netlist or board data — cannot place components"
-        )
-
-    try:
-        template = HalfBridgeTemplate(
-            name="half_bridge_power_stage",
-            components=[],  # template defines component positions; load from YAML when available
-        )
-        result: PlacementResult = place_power_stage_template(
-            netlist, board, template
-        )
-    except Exception as exc:
-        logger.warning(
-            "Template placement failed: %s — falling back to existing positions", exc
-        )
-        return _fallback_positions(parsed)
-
-    placements: dict[str, tuple[float, float]] = {}
-    positions = result.positions
-    for i, ref in enumerate(result.placed_refs):
-        x = float(positions[i][0])
-        y = float(positions[i][1])
-        placements[ref] = (x, y)
-
-    return BendersPlacementResult(
-        placements=placements,
-        iterations=1,
-        cuts=0,
-    )
-
-
-def _fallback_positions(parsed) -> BendersPlacementResult:
-    """Extract existing component positions from the parsed PCB."""
-    placements: dict[str, tuple[float, float]] = {}
-    board = _extract_board(parsed)
-    if board is None:
-        return BendersPlacementResult(placements={}, iterations=0, cuts=0)
-
-    for fp in getattr(board, "footprints", []):
-        ref = getattr(fp, "reference", None)
-        pos = getattr(fp, "position", None)
-        if ref and pos:
-            placements[ref] = (float(pos[0]), float(pos[1]))
-
-    if placements:
-        logger.info(
-            "Using %d existing component positions from board", len(placements)
-        )
-    return BendersPlacementResult(
-        placements=placements, iterations=1, cuts=0
-    )
-
-
-def _extract_netlist(parsed) -> Any | None:
-    """Extract netlist from a ParsedPCB object (attribute name varies)."""
-    for attr in ("netlist", "net_list", "nets"):
-        if hasattr(parsed, attr):
-            return getattr(parsed, attr)
-    return None
-
-
-def _extract_board(parsed) -> Any | None:
-    """Extract board from a ParsedPCB object (attribute name varies)."""
-    for attr in ("board", "pcb", "layout"):
-        if hasattr(parsed, attr):
-            return getattr(parsed, attr)
-    return None
-
-
-# Register the default strategy
-register_strategy("template", _template_strategy)
-
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+    placements: dict[str, tuple[float, float]] = field(default_factory=dict)
+    iterations: int = 0
+    cuts: int = 0
 
 
 def benders_placement(
-    parsed,
+    parsed: Any,
     seed: int,
     *,
     strategy: str = "template",
 ) -> BendersPlacementResult:
-    """Run component placement.
+    """Run component placement using the selected strategy.
 
     Args:
-        parsed: ParsedPCB from parse_kicad_pcb_v6().
-        seed: Random seed (passed through to strategies that use it).
-        strategy: Placement strategy name. ``"template"`` (default) uses the
-            existing deterministic placer.  ``"benders"`` is reserved for
-            future Benders decomposition — calling it today produces a
-            warning and empty placements.
+        parsed: ParsedPCB from parse_kicad_pcb_v6.
+        seed: Random seed for placement reproducibility.
+        strategy: Placement strategy name. Currently supports "template" (default).
+            Unknown strategy names log a warning and return empty placements.
 
     Returns:
-        BendersPlacementResult with .placements dict, .iterations, .cuts.
-    """
-    fn = _STRATEGIES.get(strategy)
-    if fn is None:
-        logger.warning(
-            "Placement strategy '%s' not registered — returning empty placements",
-            strategy,
-        )
-        return BendersPlacementResult(placements={}, iterations=0, cuts=0)
+        BendersPlacementResult with placements dict and iteration counts.
 
-    return fn(parsed, seed)
+    Raises:
+        ValueError: If parsed data is missing required netlist or board data.
+    """
+    if strategy == "template":
+        return _template_strategy(parsed, seed)
+
+    logger.warning(
+        "Unknown placement strategy '%s', returning empty placements.", strategy
+    )
+    return BendersPlacementResult()
+
+
+def _template_strategy(
+    parsed: Any,
+    seed: int,  # noqa: ARG001
+) -> BendersPlacementResult:
+    """Run deterministic template-based placement using HalfBridgeTemplate.
+
+    If the board lacks a 'power_zone', a fallback zone covering the full
+    board area is injected so placement can proceed.
+    """
+    netlist = _extract_netlist(parsed)
+    board = _extract_board(parsed)
+
+    if netlist is None or board is None:
+        raise ValueError("ParsedPCB must contain valid netlist and board data")
+
+    board = _ensure_power_zone(board)
+
+    template = HalfBridgeTemplate.create_vertical()
+    result = place_power_stage_template(netlist, board, template)
+
+    placements: dict[str, tuple[float, float]] = {}
+    for i, ref in enumerate(result.placed_refs):
+        placements[ref] = (
+            float(result.positions[i][0]),
+            float(result.positions[i][1]),
+        )
+
+    return BendersPlacementResult(placements=placements, iterations=1, cuts=0)
+
+
+def _ensure_power_zone(board: Board) -> Board:
+    """Ensure the board has a 'power_zone'. Creates one if missing."""
+    for zone in board.zones:
+        if zone.name == "power_zone":
+            return board
+    fallback = Zone(
+        "power_zone",
+        (0, 0, board.width, board.height),
+    )
+    board.zones.append(fallback)
+    return board
+
+
+def _extract_netlist(parsed: Any) -> Netlist | None:
+    """Extract a Netlist from ParsedPCB components and nets."""
+    components = getattr(parsed, "components", None)
+    nets = getattr(parsed, "nets", None)
+    if components is None or nets is None:
+        return None
+    return Netlist(components=list(components), nets=list(nets))
+
+
+def _extract_board(parsed: Any) -> Board | None:
+    """Extract the Board from ParsedPCB."""
+    return getattr(parsed, "board", None)
