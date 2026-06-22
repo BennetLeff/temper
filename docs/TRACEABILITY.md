@@ -1,55 +1,173 @@
-# Requirement-Traceability List
+# Lightweight Requirements-to-Code Traceability Convention
 
-**Project:** Temper Induction Cooker  
-**Version:** 1.0  
-**Date:** 2026-06-22  
-**Authoritative Gate Definition:** `docs/STRATEGY.md`  
-**Criteria Source:** `docs/FUNCTIONAL_TEST_CRITERIA.md`
+## Overview
 
-This table maps each non-negotiable safety and performance gate to the test artifact that covers it. Gaps are surfaced with linked issues.
+Inline `@req(<plan-id>, <req-id>): <note>` comments link source code to plan
+requirements. Two CI gates enforce consistency:
 
-## Coverage Summary
+- **R2 (annotation validity):** Every claimed `@req` tag must reference a live
+  (non-deferred) requirement in the plan document named by the plan-id.
+- **R3 (requirement coverage):** Every non-deferred requirement in an active
+  plan must have at least one `@req` annotation in opted-in source code.
 
-| Status | Count |
-|--------|-------|
-| Covered | 12 |
-| Gap | 7 |
-| Deferred | 0 |
-| **Total** | **19** |
+The system is opt-in per-directory via a `TRACEABILITY` sentinel file. Only
+directories containing a `TRACEABILITY` file are scanned for annotations.
+No mass-annotate pass is required; adoption is incremental.
 
-## Traceability Table
+## Annotation Format
 
-| Gate ID | Domain | Description | Criteria Ref | Covered By | Coverage Type | Status | Issue | Notes |
-|---------|--------|-------------|-------------|------------|---------------|--------|-------|-------|
-| EFF-01 | Performance | Efficiency >90% @1000W | §1.1 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 6 | hw-procedure | Covered | | Full-power HV validation |
-| EFF-02 | Performance | Efficiency >92% @1800W | §1.1 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 6 | hw-procedure | Covered | | ZVS-active region only |
-| EFF-03 | Performance | Standby <1.0W | §1.1 | No standby power test procedure exists | none | Gap | temper-thwr | Requires mains-connected off-state measurement |
-| PWR-01 | Performance | 1000W ±10% | §1.2 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 6 | hw-procedure | Covered | | Verified at full-power HV |
-| PWR-02 | Performance | 1800W ±5% | §1.2 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 6 | hw-procedure | Covered | | Verified at full-power HV |
-| PID-01 | Performance | Accuracy ±2°C | §1.3 | `firmware/test/test_pid_control.c`, `firmware/test/test_main_pid.c` | unity-test | Covered | | Unity tests cover PID setpoint tracking |
-| PID-02 | Performance | Stability ±1°C | §1.3 | `firmware/test/test_pid_control.c` | unity-test | Covered | | Unity tests cover steady-state deviation |
-| PID-03 | Performance | Overshoot <5°C | §1.3 | `firmware/test/test_cascade_pid.c`, `firmware/test/test_main_cascade_pid.c` | unity-test | Covered | | Cascade PID tests cover step-response overshoot |
-| PID-04 | Performance | Settling <5min | §1.3 | `firmware/test/test_pid_control.c` | unity-test | Covered | | Unity tests cover settling time bounds |
-| OCP-01 | Protection | Primary OCP 45-55A, <1µs | §2.1 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 4 (I_SENSE injection); `simulation/testbenches/sim_17_ocp_protection.cir` | hw-procedure, simulation | Covered | | HW injection + SPICE simulation |
-| OCP-02 | Protection | Secondary OCP 55-65A, <5µs | §2.1 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 4 | hw-procedure | Covered | | HW interlock verification |
-| OVP-01 | Protection | DC Bus OVP 390-410V | §2.2 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 4 (V_BUS_SENSE injection); `simulation/testbenches/sim_18_ovp_protection.cir` | hw-procedure, simulation | Covered | | HW injection + SPICE simulation |
-| THM-01 | Protection | Heatsink NTC 85°C shutdown | §2.3 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 4; `firmware/test/test_thermal_mass.c`; `simulation/testbenches/sim_31_coil_thermal.cir` | hw-procedure, unity-test, simulation | Covered | | Triple coverage: HW + firmware unit + thermal sim |
-| THM-02 | Protection | Coil NTC 120°C shutdown | §2.3 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 4; `firmware/test/test_thermal_mass.c` | hw-procedure, unity-test | Covered | | HW + firmware unit test |
-| UVL-01 | Protection | Gate Drive UVLO <12.0V | §2.4 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 2 (logic power validation covers 3.3V rail only; 15V rail UVLO not explicitly tested) | none | Gap | temper-yn4i | Gate drive UVLO requires dedicated 15V sag test. Logic rail (3.3V) UVLO is covered by Step 2. |
-| UVL-02 | Protection | Logic UVLO <2.9V | §2.4 | `docs/FUNCTIONAL_TEST_PROCEDURE.md` Step 2 | hw-procedure | Covered | | Logic power validation covers 3.3V rail |
-| EMC-01 | EMC | CISPR 14-1 Class B 150-500kHz | §3.1 | No EMC test procedure exists | none | Gap | temper-0045 | Requires pre-compliance conducted emissions test setup |
-| EMC-02 | EMC | CISPR 14-1 Class B 0.5-5MHz | §3.1 | No EMC test procedure exists | none | Gap | temper-0045 | Same procedure as EMC-01 |
-| EMC-03 | EMC | CISPR 14-1 Class B 5-30MHz | §3.1 | No EMC test procedure exists | none | Gap | temper-0045 | Same procedure as EMC-01 |
-| MCH-01 | Mechanical | Button Force 2-5N | §4 | No mechanical test procedure exists | none | Gap | temper-drz8 | Requires force gauge fixture |
-| MCH-02 | Mechanical | Knob Torque 0.5-2 N·cm | §4 | No mechanical test procedure exists | none | Gap | temper-drz8 | Requires torque gauge fixture |
-| MCH-03 | Mechanical | Glass Load 20kg | §4 | No mechanical test procedure exists | none | Gap | temper-drz8 | Requires load test fixture |
+### Syntax
 
-## Gap Review Procedure
+```
+# Python:
+# @req(<plan-id>, <req-id>): <optional free-form note>
 
-See `docs/PRE_FAB_SIGN_OFF.md` §3.1 for the per-fab-cycle gap review procedure.
+// C / C++:
+// @req(<plan-id>, <req-id>): <optional free-form note>
+```
 
-## Change Log
+The `@req` keyword, the opening parenthesis, the plan-id, a comma, the req-id,
+and the closing parenthesis are **required**. Whitespace between tokens is
+flexible. The colon and trailing note are optional.
 
-| Date | Author | Change |
-|------|--------|--------|
-| 2026-06-22 | AI Agent | Initial traceability table created from `docs/FUNCTIONAL_TEST_CRITERIA.md` gates declared in `docs/STRATEGY.md` |
+### Valid Examples
+
+```python
+# @req(N4, R4): safety_category fallback with model-first resolution
+# @req(N2,R3)
+# @req( N2 , R1 ): authority record enumeration -- note
+```
+
+```c
+// @req(N8, R2): X-macro expansion produces contiguous enum values
+// @req(N8,R1)
+```
+
+### Semantics
+
+- **One line can carry multiple `@req` tags.** A line implementing two
+  requirements carries two annotations.
+- **One requirement can appear on multiple lines.** A requirement spread across
+  several code sites has an annotation at each site.
+- **Annotations are informational at the line level** and machine-checked at
+  CI time.
+- **The plan-id** is the short form used in plan prose (e.g., `N4` for
+  `docs/plans/2026-06-22-004-feat-net-class-rules-fields-plan.md`). The
+  mapping from short plan-ids to filesystem paths is maintained in
+  `docs/traceability-registry.yaml`.
+- **The req-id** is as defined in the plan document (e.g., `R4`).
+
+## Opt-In Model: `TRACEABILITY` Sentinel Files
+
+A file named `TRACEABILITY` at the root of a directory signals that files
+under that directory (recursively) participate in traceability. Only
+directories containing a `TRACEABILITY` file are scanned for `@req`
+annotations.
+
+### Empty Sentinel
+
+An empty `TRACEABILITY` file means "all active plans' annotations are
+accepted in this directory."
+
+### Scoped Sentinel
+
+A `TRACEABILITY` file containing a `plans:` list restricts which plan-ids'
+annotations are accepted:
+
+```yaml
+plans: [N2, N4]
+```
+
+Annotations referencing plans not in the list are flagged as violations
+(wrong-directory check).
+
+## Plan-ID Registry: `docs/traceability-registry.yaml`
+
+A committed YAML file mapping short plan-ids to plan document paths and
+file-level scopes. Schema:
+
+```yaml
+plans:
+  <plan-id>:
+    path: docs/plans/<plan-document>.md
+    scope:
+      - path/to/implementing/file.py
+      - path/to/another/file.c
+```
+
+### Scope Field
+
+The `scope` field lists files that the plan's implementation touches. It
+is used by the R3 gate to determine where to look for coverage annotations.
+A plan author adds their plan to the registry and populates the scope at
+plan-implementation time.
+
+## CI Gates
+
+### R2: Annotation Validity (`test_req_annotations_valid`)
+
+Validates every `@req(<plan-id>, <req-id>)` annotation against the plan
+document:
+
+1. Plan-id must be in the registry.
+2. The referenced plan document must have `status: active` in its YAML
+   frontmatter.
+3. The req-id must be defined in the plan's "In scope" or "Requirements"
+   section.
+4. The req-id must not be listed in the plan's "Deferred" section.
+5. If the `TRACEABILITY` file lists specific plan-ids, the annotation's
+   plan-id must be in the list.
+
+Violations are hard CI failures with file:line and reason.
+
+### R3: Requirement Coverage (`test_req_coverage_complete`)
+
+For every plan with `status: active`:
+
+1. Parse all non-deferred requirement IDs from the plan document.
+2. For each requirement, check that at least one `@req` annotation exists
+   in an opted-in file within the plan's scope.
+3. Flag uncovered requirements as hard CI failures.
+
+## Plan Requirement Format (Expected by Parser)
+
+The R2/R3 gates parse requirement IDs from plan documents using the
+following heuristics:
+
+- **Requirement definitions:** Lines matching `- R<num>.` or `- R<num>:`
+  or `* R<num>` in sections named "In scope" or "Requirements" or
+  "Scope Boundaries".
+- **Deferred sections:** Sections headed `### Deferred` or `## Deferred`.
+  Requirement IDs mentioned in deferred sections are excluded from
+  coverage.
+- **Plan status:** Read from YAML frontmatter field `status`. Only
+  `status: active` plans are gated.
+- **Ambiguous requirements:** If a requirement ID appears in both
+  "In scope" and "Deferred" sections, it is treated as non-deferred
+  (conservative: failures are better than silent gaps).
+
+## Developer Workflow
+
+1. **Plan author:** Adds the plan to `docs/traceability-registry.yaml`
+   (mapping plan-id to path and scope) as part of implementation.
+2. **Implementer:** Places a `TRACEABILITY` sentinel in the directory
+   (if none exists) and annotates implementing code with
+   `@req(<plan-id>, <req-id>): <note>`.
+3. **CI:** Catches invalid annotations and uncovered requirements.
+4. **Reader:** Sees `@req(N4, R4)` in code and navigates to the plan
+   document via the registry mapping.
+
+## Local Development
+
+```bash
+# Run both gates locally
+uv run pytest packages/temper-drc/tests/test_traceability_gate.py
+
+# CLI convenience wrapper
+uv run python scripts/check_traceability.py --all
+
+# Individual checks
+uv run python scripts/check_traceability.py --check-annotations
+uv run python scripts/check_traceability.py --check-coverage
+uv run python scripts/check_traceability.py --check-registry-scope
+```

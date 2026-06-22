@@ -11,6 +11,9 @@ on:
       - '.github/workflows/python-tests.yml'
       - 'deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
+      - 'docs/plans/**'
+      - 'docs/traceability-registry.yaml'
+      - '**/TRACEABILITY'
   pull_request:
     branches: [main]
     paths:
@@ -21,6 +24,9 @@ on:
       - '.github/workflows/python-tests.yml'
       - 'deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
+      - 'docs/plans/**'
+      - 'docs/traceability-registry.yaml'
+      - '**/TRACEABILITY'
 
 jobs:
   test:
