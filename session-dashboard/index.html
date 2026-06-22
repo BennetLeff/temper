@@ -138,6 +138,7 @@
     .tag-project { background: var(--accent-bg); color: var(--accent); }
     .tag-subagent { background: rgba(63,185,80,0.15); color: var(--success); }
     .tag-type { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .tag-type-deemphasized { font-size: 0.6875rem; color: var(--text-tertiary); opacity: 0.7; }
     .session-card[data-phase="ideate"] { border-left: 3px solid var(--phase-ideate); }
     .session-card[data-phase="brainstorm"] { border-left: 3px solid var(--phase-brainstorm); }
@@ -1268,7 +1269,13 @@
 
       const meta = document.createElement('div');
       meta.className = 'card-meta';
+      // Derive status: green dot if recent sub-agent activity, grey otherwise
+      const statusAge = s.latestAgentDate ? Date.now() - new Date(s.latestAgentDate).getTime() : null;
+      const isActive = statusAge !== null && statusAge < 3600000; // < 1 hour
+      const statusColor = isActive ? 'var(--success)' : 'var(--text-tertiary)';
+      const statusLabel = isActive ? 'Active' : (s.status || 'completed');
       const items = [
+        `<span class="card-meta-item" title="Status: ${statusLabel}"><span class="status-dot" style="background:${statusColor}"></span></span>`,
         `<span class="card-meta-item">${svgIcon(phase.icon)}${esc(phase.label)}</span>`,
         dur ? `<span class="card-meta-item" title="Duration ${dur}">${svgIcon('clock')}${dur}</span>` : '',
         s.subAgentCount > 0 ? `<span class="card-meta-item subagent-count-badge" title="${s.subAgentCount} sub-agents">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
