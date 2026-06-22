@@ -128,10 +128,38 @@ CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/comp
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/pid_control.c -o CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.s
 
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o: CMakeFiles/test_state_machine_only.dir/flags.make
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o: /Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o: CMakeFiles/test_state_machine_only.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o -MF CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o.d -o CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o -c /Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c
+
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c > CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.i
+
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c -o CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.s
+
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o: CMakeFiles/test_state_machine_only.dir/flags.make
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o: /Users/bennet/Desktop/temper/firmware/components/control/profiles.c
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o: CMakeFiles/test_state_machine_only.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o -MF CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o.d -o CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o -c /Users/bennet/Desktop/temper/firmware/components/control/profiles.c
+
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/components/control/profiles.c > CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.i
+
+CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/components/control/profiles.c -o CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.s
+
 CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o: CMakeFiles/test_state_machine_only.dir/flags.make
 CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o: /Users/bennet/Desktop/temper/firmware/test/state_machine_stubs.c
 CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o: CMakeFiles/test_state_machine_only.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o -MF CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o.d -o CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o -c /Users/bennet/Desktop/temper/firmware/test/state_machine_stubs.c
 
 CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.i: cmake_force
@@ -145,7 +173,7 @@ CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.s: cmake_force
 CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o: CMakeFiles/test_state_machine_only.dir/flags.make
 CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o: /Users/bennet/Desktop/temper/firmware/test/test_state_machine.c
 CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o: CMakeFiles/test_state_machine_only.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o -MF CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o.d -o CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_state_machine.c
 
 CMakeFiles/test_state_machine_only.dir/test_state_machine.c.i: cmake_force
@@ -156,10 +184,24 @@ CMakeFiles/test_state_machine_only.dir/test_state_machine.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_state_machine_only.dir/test_state_machine.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/test/test_state_machine.c -o CMakeFiles/test_state_machine_only.dir/test_state_machine.c.s
 
+CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o: CMakeFiles/test_state_machine_only.dir/flags.make
+CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o: /Users/bennet/Desktop/temper/firmware/test/test_transition_table_generated.c
+CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o: CMakeFiles/test_state_machine_only.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o -MF CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o.d -o CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_transition_table_generated.c
+
+CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/bennet/Desktop/temper/firmware/test/test_transition_table_generated.c > CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.i
+
+CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/bennet/Desktop/temper/firmware/test/test_transition_table_generated.c -o CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.s
+
 CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o: CMakeFiles/test_state_machine_only.dir/flags.make
 CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o: /Users/bennet/Desktop/temper/firmware/test/test_main_state_machine.c
 CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o: CMakeFiles/test_state_machine_only.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o -MF CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o.d -o CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o -c /Users/bennet/Desktop/temper/firmware/test/test_main_state_machine.c
 
 CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.i: cmake_force
@@ -176,8 +218,11 @@ test_state_machine_only_OBJECTS = \
 "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/main/state_machine.c.o" \
 "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o" \
 "CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o" \
+"CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o" \
+"CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o" \
 "CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o" \
 "CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o" \
+"CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o" \
 "CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o"
 
 # External object files for target test_state_machine_only
@@ -187,12 +232,15 @@ test_state_machine_only: CMakeFiles/test_state_machine_only.dir/unity/unity.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/main/state_machine.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/low_temp_control.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/pid_control.c.o
+test_state_machine_only: CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/thermal_mass.c.o
+test_state_machine_only: CMakeFiles/test_state_machine_only.dir/Users/bennet/Desktop/temper/firmware/components/control/profiles.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o
+test_state_machine_only: CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/build.make
 test_state_machine_only: CMakeFiles/test_state_machine_only.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable test_state_machine_only"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/bennet/Desktop/temper/firmware/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking C executable test_state_machine_only"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_state_machine_only.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
