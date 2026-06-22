@@ -751,10 +751,17 @@
       }
       listEl.className = 'session-list';
       listEl.innerHTML = '';
+      let autoExpanded = false;
       for (const s of displaySessions) {
         try {
           const card = renderCard(s);
           card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+          if (!autoExpanded && s.subAgentCount > 0) {
+            card.classList.add('expanded');
+            const se = card.querySelector('.card-summary');
+            if (se) { se.classList.remove('clamped'); se.classList.add('expanded'); }
+            autoExpanded = true;
+          }
           listEl.appendChild(card);
         } catch(e) {
           const err = document.createElement('div');
