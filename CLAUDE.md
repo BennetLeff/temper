@@ -60,24 +60,19 @@ The session is **not** over until the plane has landed. You must execute this pr
 *   **State Management**: Use React hooks efficiently.
 *   **Styling**: Adhere to the established Tailwind palette in `lib/colors.ts`.
 
-## 5. LOC Cap Gate
+## 5. NetClassRules Fields (N4 — Single Source of Truth)
 
-A 1000-line ceiling is enforced on source `.py` and `.c` files by CI.
+Every `NetClassRules` instance in `TEMPER_NET_CLASSES` must set:
 
-**Gate command:** `uv run python tools/loc_cap_check.py`
+| Field | Type | Required | Purpose |
+|-------|------|----------|---------|
+| `dru_priority` | `int` | **Yes** | DRU emission order (lower = earlier). Derived via `sorted(keys, key=lambda k: (dru_priority, k))`. Ties break lexicographically. |
+| `required_layer` | `str \| None` | No | KiCad layer name constraint (e.g., `"B.Cu"` for HighVoltage). `None` = no constraint. |
+| `safety_category` | `"HV" \| "LV" \| "AC" \| "iso" \| None` | No | Safety classification. `"AC"` is treated as HV-side in separation checks. |
 
-**Allowlist:** `.loc-allowlist.txt` at repo root. Format:
-```
-# Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
-```
+**DRC integration**: `packages/temper-drc/src/temper_drc/checks/safety/_safety_keywords.py` exports a shared `resolve_safety_category(net_class_str)` used by all three safety checks. When a net class is in `TEMPER_NET_CLASSES` with a non-`None` `safety_category`, the category is used directly. Otherwise a keyword-scan fallback fires with a **stderr warning** (grep-visible in CI logs). The warning convention: `"[temper-drc] safety_category fallback: ... Declare safety_category on net class '...' or add net to TEMPER_NET_ASSIGNMENTS."`
 
-**Strict-shrink policy:** The allowlist must shrink monotonically. Adding a new entry requires removing a larger/comparable one. The gate's `NEW_ENTRY_NO_REMOVAL` check rejects new entries without corresponding removals.
-
-**Exemption globs:**
-- Include: `packages/*/src/temper_*/**/*.py`, `firmware/**/*.c`
-- Exclude: `packages/*/tests/**`, `firmware/test/**`, `firmware/test/build/**`, `**/__pycache__/**`, `**/build/**`
-
-When growing a file past 1000 lines, see the gate's failure message for the specific violation class.
+**Regression note**: `HighCurrent` was reclassified from *neither HV nor LV* to `"HV"` in this changeset. Existing boards with `HighCurrent`-classed components will now trigger HV/LV separation checks.
 
 ## 6. Operational Rules
 

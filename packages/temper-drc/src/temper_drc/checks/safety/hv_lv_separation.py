@@ -1,3 +1,4 @@
+from temper_drc.checks.safety._safety_keywords import resolve_safety_category
 from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue, Severity, Location
 from temper_drc.input.constraints import ConstraintSet
@@ -31,9 +32,6 @@ class HVLVSeparationCheck(Check):
         
         required_gap = constraints.hv_clearance_mm
         
-        HV_KEYWORDS = ["hv", "line", "ac", "neutral", "mains"]
-        LV_KEYWORDS = ["lv", "signal", "3v3", "5v", "gnd", "analog"]
-        
         for ref_a, ref_b in pairs:
             comp_a = placement.get_component(ref_a)
             comp_b = placement.get_component(ref_b)
@@ -41,13 +39,12 @@ class HVLVSeparationCheck(Check):
             if not comp_a or not comp_b:
                 continue
                 
-            a_class = comp_a.net_class.lower()
-            b_class = comp_b.net_class.lower()
-            
-            is_a_hv = any(k in a_class for k in HV_KEYWORDS)
-            is_b_hv = any(k in b_class for k in HV_KEYWORDS)
-            is_a_lv = any(k in a_class for k in LV_KEYWORDS)
-            is_b_lv = any(k in b_class for k in LV_KEYWORDS)
+            a_cat = resolve_safety_category(comp_a.net_class)
+            b_cat = resolve_safety_category(comp_b.net_class)
+            is_a_hv = a_cat in ("HV", "AC")
+            is_b_hv = b_cat in ("HV", "AC")
+            is_a_lv = a_cat == "LV"
+            is_b_lv = b_cat == "LV"
             
             # Check if one is HV and the other is LV
             if (is_a_hv and is_b_lv) or (is_b_hv and is_a_lv):

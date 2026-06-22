@@ -1,3 +1,8 @@
+from temper_drc.checks.safety._safety_keywords import (
+    ISO_COMPONENT_KEYWORDS,
+    ISO_ZONE_KEYWORDS,
+    resolve_safety_category,
+)
 from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue, Severity, Location
 from temper_drc.input.constraints import ConstraintSet
@@ -27,21 +32,19 @@ class IsolationCheck(Check):
     def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         issues = []
         
-        ISO_KEYWORDS = ["iso", "opto", "coupler", "transformer", "gutter", "slot"]
-        
-        # 1. Identify Isolation Zones
+        # 1. Identify Isolation Zones -- uses ISO_ZONE_KEYWORDS
         iso_zones = []
         for zone in constraints.zones:
-            if any(k in zone.name.lower() for k in ISO_KEYWORDS):
+            if any(k in zone.name.lower() for k in ISO_ZONE_KEYWORDS):
                 iso_zones.append(zone)
                 
         # 2. Check each component
         for ref, comp in placement.components.items():
-            comp_class = comp.net_class.lower()
-            comp_footprint = comp.footprint.lower()
-            
-            is_iso_device = any(k in comp_class for k in ISO_KEYWORDS) or \
-                            any(k in comp_footprint for k in ISO_KEYWORDS)
+            cat = resolve_safety_category(comp.net_class)
+            is_iso_device = (cat == "iso") or (
+                any(k in comp.net_class.lower() for k in ISO_COMPONENT_KEYWORDS)
+                or any(k in comp.footprint.lower() for k in ISO_COMPONENT_KEYWORDS)
+            )
             
             cx, cy = comp.center
             

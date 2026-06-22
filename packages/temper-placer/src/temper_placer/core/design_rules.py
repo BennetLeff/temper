@@ -337,111 +337,113 @@ class DesignRules:
 TEMPER_NET_CLASSES = {
     "ACMains": NetClassRules(
         name="ACMains",
-        trace_width=2.5,  # Wide trace for mains current
-        clearance=6.0,  # IEC 60335-1 safety clearance for mains voltage
+        trace_width=2.5,
+        clearance=6.0,
         via_diameter=1.2,
         via_drill=0.6,
-        via_template="Via2x2",  # Multiple vias for current capacity
-        voltage_v=240.0,  # Mains voltage rating
-        creepage_mm=6.0,  # Creepage distance
-        routing_strategy="plane_required",  # Must use polygon pour, not traces,
+        via_template="Via2x2",
+        voltage_v=240.0,
+        creepage_mm=6.0,
+        routing_strategy="plane_required",
         dru_priority=10,
         required_layer=None,
         safety_category="AC",
-    )
+    ),
     "HighVoltage": NetClassRules(
         name="HighVoltage",
-        trace_width=3.0,  # Wide trace for DC bus current
-        clearance=2.0,  # HV clearance (300-400V DC after rectification)
+        trace_width=3.0,
+        clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
-        via_template="Via3x3",  # Multiple vias for high current
-        voltage_v=400.0,  # DC bus voltage rating
+        via_template="Via3x3",
+        voltage_v=400.0,
         creepage_mm=2.0,
-        routing_strategy="plane_required",,
+        routing_strategy="plane_required",
         dru_priority=20,
         required_layer="B.Cu",
         safety_category="HV",
-    )
+    ),
     "FinePitch": NetClassRules(
         name="FinePitch",
-        trace_width=0.127,  # Fine pitch for dense ICs
-        clearance=0.1,  # Minimum clearance for fine pitch
+        trace_width=0.127,
+        clearance=0.1,
         via_diameter=0.4,
         via_drill=0.2,
-        via_template="Via1x1",,
+        via_template="Via1x1",
         dru_priority=30,
         required_layer=None,
         safety_category="LV",
-    )
+    ),
     "Power": NetClassRules(
         name="Power",
-        trace_width=0.5,  # Reduced from 1.0mm to fit ESP32 pitch
-        clearance=0.25,  # Reduced from 0.5mm
+        trace_width=0.5,
+        clearance=0.25,
         via_diameter=0.8,
         via_drill=0.4,
-        via_template="Via2x2",  # 4 vias for power delivery,
+        via_template="Via2x2",
         dru_priority=40,
         required_layer=None,
         safety_category="LV",
-    )
+    ),
     "GateDrive": NetClassRules(
         name="GateDrive",
-        trace_width=0.4,  # Robust drive trace
-        clearance=0.25,  # Increased clearance for transient safety
+        trace_width=0.4,
+        clearance=0.25,
         via_diameter=0.8,
         via_drill=0.4,
-        via_template="Via1x1",  # Single via sufficient,
+        via_template="Via1x1",
         dru_priority=50,
         required_layer="F.Cu",
         safety_category="LV",
-    )
+    ),
     "GND": NetClassRules(
         name="GND",
-        trace_width=1.0,  # Wide ground traces
+        trace_width=1.0,
         clearance=0.3,
         via_diameter=1.0,
         via_drill=0.5,
-        via_template="Via3x3",  # 9 vias for low impedance,
+        via_template="Via3x3",
         dru_priority=60,
         required_layer=None,
         safety_category="LV",
-    )
+    ),
     "HighSpeed": NetClassRules(
         name="HighSpeed",
-        trace_width=0.15,  # Controlled impedance
+        trace_width=0.15,
         clearance=0.2,
-        via_diameter=0.6,  # Increased to standard 0.6mm
-        via_drill=0.3,  # Increased to standard 0.3mm
+        via_diameter=0.6,
+        via_drill=0.3,
         target_impedance=50.0,
-        via_template="Via1x1",  # Single via for minimal discontinuity,
+        via_template="Via1x1",
         dru_priority=70,
         required_layer=None,
         safety_category="LV",
-    )
+    ),
     "Signal": NetClassRules(
         name="Signal",
         trace_width=0.2,
         clearance=0.15,
         via_diameter=0.6,
         via_drill=0.3,
-        via_template="Via1x1",  # Single via default,
+        via_template="Via1x1",
         dru_priority=80,
         required_layer=None,
         safety_category="LV",
-    )
+    ),
     "HighCurrent": NetClassRules(
         name="HighCurrent",
         trace_width=0.5,
         clearance=0.25,
         via_diameter=0.8,
         via_drill=0.4,
-        via_template="Via4x4",  # 16 vias for 20A+ nets,
+        via_template="Via4x4",
         dru_priority=90,
         required_layer=None,
         safety_category="HV",
-    )
+    ),
 }
+
+
 
 # Net class assignments matching KiCad project (temper.kicad_pro)
 TEMPER_NET_ASSIGNMENTS = {
@@ -459,6 +461,24 @@ TEMPER_NET_ASSIGNMENTS = {
 }
 
 
+# -----------------------------------------------------------------------------
+# Safety constant single source of truth (SSOT).
+# Every consumer needing a safety clearance MUST reference TEMPER_NET_CLASSES
+# (or SAFETY_CONSTANT_AUTHORITY derived from it) instead of repeating the float.
+# Duplicating a bare float that appears here outside this module is blocked by
+# the AST linter at packages/temper-drc/tests/test_safety_constant_lint.py.
+# -----------------------------------------------------------------------------
+SAFETY_CONSTANT_AUTHORITY_NET_CLASSES: frozenset[str] = frozenset({"ACMains", "HighVoltage"})
+SAFETY_CONSTANT_AUTHORITY_FIELDS: frozenset[str] = frozenset({"clearance", "creepage_mm"})
+
+SAFETY_CONSTANT_AUTHORITY: tuple[tuple[str, str, float], ...] = tuple(
+    (nc_name, field_name, float(getattr(nc, field_name)))
+    for nc_name, nc in TEMPER_NET_CLASSES.items()
+    if nc_name in SAFETY_CONSTANT_AUTHORITY_NET_CLASSES
+    for field_name in SAFETY_CONSTANT_AUTHORITY_FIELDS
+)
+
+
 def create_temper_design_rules() -> DesignRules:
     """Create design rules with Temper-specific net classes.
 
@@ -473,3 +493,4 @@ def create_temper_design_rules() -> DesignRules:
         net_classes=deepcopy(TEMPER_NET_CLASSES),
         net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),
     )
+
