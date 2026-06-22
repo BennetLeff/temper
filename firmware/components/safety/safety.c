@@ -46,13 +46,8 @@ static const char *TAG = "safety";
 /* Hardware Watchdog GPIO Configuration
  * TPS3823-33 WDI input - must toggle to prevent timeout
  * Timeout: 1.6 seconds
- * GPIO can be any available ESP32 GPIO - configure in sdkconfig or here
+ * GPIO assignments in safety.h
  */
-#ifdef ESP_PLATFORM
-#include "driver/gpio.h"
-#define WDI_GPIO_NUM            GPIO_NUM_4  /* Heartbeat output to TPS3823 */
-#define WDT_RESET_GPIO_NUM      GPIO_NUM_6  /* Input from TPS3823 RESET_N */
-#endif
 
 /* Module state */
 static bool safe_mode_active = false;
@@ -477,9 +472,20 @@ void watchdog_hardware_init(void) {
     };
     ESP_ERROR_CHECK(gpio_config(&reset_conf));
     
+    /* Configure RUNAWAY_CUT_GPIO output (active HIGH cuts power via OR gate) */
+    gpio_config_t runaway_cut_conf = {
+        .pin_bit_mask = (1ULL << RUNAWAY_CUT_GPIO),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_ENABLE,  /* Default LOW = power ON */
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&runaway_cut_conf));
+    gpio_set_level(RUNAWAY_CUT_GPIO, 0);
+    
     wdi_state = false;
-    ESP_LOGI(TAG, "Hardware watchdog WDI on GPIO%d, RESET_N on GPIO%d", 
-             WDI_GPIO_NUM, WDT_RESET_GPIO_NUM);
+    ESP_LOGI(TAG, "Hardware watchdog WDI on GPIO%d, RESET_N on GPIO%d, RUNAWAY_CUT on GPIO%d", 
+             WDI_GPIO_NUM, WDT_RESET_GPIO_NUM, RUNAWAY_CUT_GPIO);
 #else
     /* Simulation: just reset state */
     wdi_state = false;

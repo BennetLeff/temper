@@ -16,9 +16,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "driver/gpio.h"
 static const char *TAG = "state_machine";
-#define RUNAWAY_CUT_GPIO GPIO_NUM_5
 #endif
 
 /* Include component headers */
@@ -30,6 +28,7 @@ static const char *TAG = "state_machine";
 /* #include "low_temp_control.h" */
 #include "../components/control/thermal_mass.h"
 #include "../components/control/profiles.h"
+#include "../components/safety/safety.h"
 
 /* State machine context */
 static struct {
