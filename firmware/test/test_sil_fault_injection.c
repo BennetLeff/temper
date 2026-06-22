@@ -82,6 +82,7 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!str || !strcmp(str, "FAULT_NONE"))            return FAULT_NONE;
     if (!strcmp(str, "FAULT_OVER_TEMP"))               return FAULT_OVER_TEMP;
     if (!strcmp(str, "FAULT_OVER_CURRENT"))            return FAULT_OVER_CURRENT;
+    if (!strcmp(str, "FAULT_RUNAWAY_BOUNDARY"))         return FAULT_RUNAWAY_BOUNDARY;
     if (!strcmp(str, "FAULT_FAN_FAILURE"))             return FAULT_FAN_FAILURE;
     if (!strcmp(str, "FAULT_PROBE_OPEN"))              return FAULT_PROBE_OPEN;
     if (!strcmp(str, "FAULT_PROBE_SHORT"))             return FAULT_PROBE_SHORT;
