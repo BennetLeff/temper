@@ -115,6 +115,57 @@
     .msg-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; color: var(--text-tertiary); }
     .msg-content { white-space: pre-wrap; font: inherit; font-size: 0.8125rem; line-height: 1.6; max-height: 360px; overflow-y: auto; margin: 0; }
     .load-more { display: block; margin: 20px auto; min-width: 240px; }
+    /* Artifacts */
+    .artifact-section { margin-top: 12px; }
+    .artifact-section-title { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .artifact-group-header { font-size: 0.75rem; color: var(--text-tertiary); margin: 8px 0 4px; }
+    .artifact-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.8125rem; cursor: pointer; border-radius: var(--radius-sm); transition: background var(--transition); }
+    .artifact-row:hover { background: var(--surface-overlay); }
+    .artifact-path { color: var(--accent); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .artifact-path:hover { color: var(--accent-hover); text-decoration: underline; }
+    .artifact-deleted { color: var(--error); font-size: 0.6875rem; margin-left: 4px; }
+    .badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 8px; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.01em; }
+    .badge-idea { background: rgba(210,153,34,0.15); color: var(--warning); }
+    .badge-plan { background: rgba(88,166,255,0.15); color: var(--accent); }
+    .badge-req { background: rgba(163,113,247,0.15); color: #a371f7; }
+    .badge-sol { background: rgba(63,185,80,0.15); color: var(--success); }
+    .badge-hw { background: rgba(248,81,73,0.15); color: var(--error); }
+    .badge-doc { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    .badge-review { background: rgba(163,113,247,0.15); color: #a371f7; }
+    .badge-fix { background: rgba(248,81,73,0.15); color: var(--error); }
+    .badge-design { background: rgba(210,153,34,0.15); color: var(--warning); }
+    .badge-report { background: rgba(63,185,80,0.15); color: var(--success); }
+    .badge-polish { background: rgba(88,166,255,0.15); color: var(--accent); }
+    .badge-work { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    .confidence-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .confidence-dot.high { background: var(--success); }
+    .confidence-dot.medium { background: var(--warning); }
+    .confidence-dot.low { border: 1px solid var(--text-tertiary); background: transparent; }
+    .artifact-toggle { font-size: 0.75rem; color: var(--accent); cursor: pointer; padding: 2px 4px; border: none; background: none; }
+    .artifact-toggle:hover { text-decoration: underline; }
+    .no-time-note { font-size: 0.75rem; color: var(--warning); margin-top: 8px; }
+    /* Preview pane */
+    .artifact-preview { margin: 6px 0 6px 16px; border-left: 3px solid var(--accent); background: var(--surface-overlay); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; overflow: hidden; }
+    .preview-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface-raised); border-bottom: 1px solid var(--border); }
+    .preview-header span { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+    .preview-close { cursor: pointer; border: none; background: none; color: var(--text-secondary); padding: 2px; }
+    .preview-close:hover { color: var(--text-primary); }
+    .preview-body { padding: 12px; font-size: 0.8125rem; line-height: 1.6; color: var(--text-primary); max-height: 400px; overflow-y: auto; }
+    .preview-body h1 { font-size: 1.1rem; margin: 8px 0 4px; }
+    .preview-body h2 { font-size: 1rem; margin: 8px 0 4px; }
+    .preview-body h3 { font-size: 0.925rem; margin: 6px 0 3px; }
+    .preview-body p { margin: 4px 0; }
+    .preview-body pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; overflow-x: auto; margin: 6px 0; }
+    .preview-body code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.75rem; }
+    .preview-body pre code { background: none; padding: 0; }
+    .preview-body :not(pre) > code { background: rgba(88,166,255,0.1); padding: 1px 4px; border-radius: 3px; }
+    .preview-body ul, .preview-body ol { padding-left: 20px; margin: 4px 0; }
+    .preview-body blockquote { border-left: 3px solid var(--border); padding-left: 12px; margin: 6px 0; color: var(--text-secondary); }
+    .preview-body hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .preview-body a { color: var(--accent); }
+    .preview-body a:hover { color: var(--accent-hover); }
+    .preview-loading { padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 0.8125rem; }
+    .preview-error { padding: 12px; color: var(--error); font-size: 0.8125rem; }
   </style>
 </head>
 <body>
@@ -158,6 +209,117 @@
 
     function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
     function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
+
+    const artifactsCache = new Map();
+    let activePreview = null;
+
+    function typeBadge(path) {
+      if (path.startsWith('docs/plans/')) return 'plan';
+      if (path.startsWith('docs/brainstorms/')) return 'req';
+      if (path.startsWith('docs/ideation/')) return 'idea';
+      if (path.startsWith('docs/solutions/')) return 'sol';
+      if (path.startsWith('docs/hardware/')) return 'hw';
+      if (path.startsWith('docs/reviews/')) return 'review';
+      if (path.startsWith('docs/fixes/')) return 'fix';
+      if (path.startsWith('docs/designs/')) return 'design';
+      if (path.startsWith('docs/reports/')) return 'report';
+      if (path.startsWith('docs/polish/')) return 'polish';
+      if (path.startsWith('docs/work/')) return 'work';
+      return 'doc';
+    }
+
+    function typeLabel(b) {
+      const m = {plan:'plan', req:'req', idea:'idea', sol:'sol', hw:'hw', doc:'doc', review:'review', fix:'fix', design:'design', report:'report', polish:'polish', work:'work'};
+      return m[b] || b;
+    }
+
+    function renderMarkdown(text) {
+      const escaped = esc(text);
+      let html = escaped;
+      // fenced code blocks
+      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+        const c = esc(code);
+        return `<pre><code${lang ? ` class="lang-${esc(lang)}"` : ''}>${c}</code></pre>`;
+      });
+      // inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // headings
+      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+      // blockquote
+      html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+      // horizontal rules
+      html = html.replace(/^---$/gm, '<hr>');
+      // bold/italic
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      // links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      // unordered lists
+      html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+      // ordered lists
+      html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => m.includes('<ul>') ? m : '<ol>' + m + '</ol>');
+      // paragraphs
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      // clean empty paragraphs
+      html = html.replace(/<p>\s*<\/p>/g, '');
+      return html;
+    }
+
+    async function fetchArtifacts(sessionId) {
+      if (artifactsCache.has(sessionId)) return artifactsCache.get(sessionId);
+      try {
+        const res = await fetch(`/api/session/${sessionId}/artifacts`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        artifactsCache.set(sessionId, data);
+        return data;
+      } catch { return []; }
+    }
+
+    async function previewArtifact(path, rowEl) {
+      if (activePreview && activePreview.row === rowEl && activePreview.path === path) {
+        closePreview(activePreview);
+        return;
+      }
+      if (activePreview) closePreview(activePreview);
+      const existing = rowEl.querySelector('.artifact-preview');
+      if (existing) existing.remove();
+      const preview = document.createElement('div');
+      preview.className = 'artifact-preview';
+      preview.innerHTML = '<div class="preview-loading">Loading...</div>';
+      rowEl.appendChild(preview);
+      activePreview = { row: rowEl, path, el: preview, close: () => closePreview(activePreview) };
+      try {
+        const res = await fetch(`/api/artifact-content?path=${encodeURIComponent(path)}`);
+        if (!res.ok) {
+          preview.innerHTML = `<div class="preview-error">Could not load preview (${res.status})</div>`;
+          return;
+        }
+        const data = await res.json();
+        const rendered = renderMarkdown(data.content || '');
+        preview.innerHTML = `
+          <div class="preview-header">
+            <span>${esc(path.split('/').pop())}</span>
+            <button class="preview-close" aria-label="Close preview">${svgIcon('x')}</button>
+          </div>
+          <div class="preview-body">${rendered}</div>
+        `;
+        preview.querySelector('.preview-close').onclick = (e) => { e.stopPropagation(); closePreview(activePreview); };
+      } catch(e) {
+        preview.innerHTML = `<div class="preview-error">Could not load preview: ${esc(e.message)}</div>`;
+      }
+    }
+
+    function closePreview(pv) {
+      if (!pv) return;
+      if (pv.el && pv.el.parentNode) pv.el.remove();
+      if (activePreview === pv) activePreview = null;
+    }
 
     function fmtDur(ms) {
       if (!ms || ms < 0) return '';
@@ -304,11 +466,13 @@
 
       const detail = document.createElement('div');
       detail.className = 'card-detail';
+      const detailId = `artifacts-${s.id}`;
       detail.innerHTML = [
         `<div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px">${esc(summary)}</div>`,
         s.agentType ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('folder')} ${esc(s.agentType)}</div>` : '',
         s.cwd ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('file')} ${esc(s.cwd)}</div>` : '',
         `<button class="btn btn-ghost" style="margin-top:8px;font-size:0.8125rem" aria-label="View raw conversation for ${esc(summary)}">${svgIcon('file')} View raw conversation</button>`,
+        `<div id="${esc(detailId)}" class="artifact-section"></div>`,
       ].join('');
 
       card.appendChild(summaryEl);
@@ -321,6 +485,7 @@
         card.classList.toggle('expanded', expanded);
         summaryEl.classList.toggle('clamped', !expanded);
         summaryEl.classList.toggle('expanded', expanded);
+        if (expanded) renderArtifacts(s);
       };
 
       // Wire raw view button
@@ -330,7 +495,77 @@
       return card;
     }
 
-    document.getElementById('refresh-btn').onclick = () => fetchPage(true);
+    async function renderArtifacts(s) {
+      const container = document.getElementById(`artifacts-${s.id}`);
+      if (!container || container.dataset.loaded) return;
+      container.dataset.loaded = 'true';
+      const data = await fetchArtifacts(s.id);
+      const artifacts = data.artifacts;
+      const note = data.note;
+      if (!artifacts || artifacts.length === 0) {
+        if (note === 'no_time_data') {
+          container.innerHTML = '<div class="no-time-note">No time data — limited matching</div>';
+        }
+        return;
+      }
+      let html = '<div class="artifact-section-title">Produced</div>';
+      const groups = { high: [], medium: [], low: [] };
+      for (const a of artifacts) {
+        groups[a.confidence]?.push(a);
+      }
+      const limit = 5;
+      let total = artifacts.length;
+      for (const level of ['high', 'medium', 'low']) {
+        const items = groups[level] || [];
+        if (!items.length) continue;
+        const label = level.charAt(0).toUpperCase() + level.slice(1);
+        html += `<div class="artifact-group-header">${label} confidence</div>`;
+        items.forEach((a, i) => {
+          const cls = `artifact-row${total > limit && i >= limit ? ' artifact-hidden' : ''}`;
+          const style = total > limit && i >= limit ? ' style="display:none"' : '';
+          const b = typeBadge(a.path);
+          const confClass = a.confidence;
+          const deleted = !a.exists ? '<span class="artifact-deleted">(deleted)</span>' : '';
+          html += `<div class="${cls}" data-path="${esc(a.path)}"${style}>
+            <span class="confidence-dot ${confClass}"></span>
+            <span class="badge badge-${b}">${typeLabel(b)}</span>
+            <span class="artifact-path">${esc(a.path)}</span>${deleted}
+          </div>`;
+        });
+        if (total > limit) break;
+      }
+      // Show hidden ones if > limit
+      if (total > limit) {
+        html += `<button class="artifact-toggle" data-session-id="${esc(s.id)}">Show all ${total} artifacts</button>`;
+      }
+      container.innerHTML = html;
+      // Wire clicks
+      container.querySelectorAll('.artifact-row').forEach(row => {
+        row.onclick = (e) => {
+          e.stopPropagation();
+          const path = row.dataset.path;
+          previewArtifact(path, row);
+        };
+      });
+      const toggle = container.querySelector('.artifact-toggle');
+      if (toggle) {
+        function showAll() {
+          const hidden = container.querySelectorAll('.artifact-row.artifact-hidden');
+          hidden.forEach(el => { el.style.display = ''; el.classList.remove('artifact-hidden'); });
+          toggle.textContent = 'Show fewer';
+          toggle.onclick = showFewer;
+        }
+        function showFewer() {
+          const all = container.querySelectorAll('.artifact-row');
+          all.forEach((el, i) => { if (i >= limit) { el.style.display = 'none'; el.classList.add('artifact-hidden'); } });
+          toggle.textContent = `Show all ${total} artifacts`;
+          toggle.onclick = showAll;
+        }
+        toggle.onclick = (e) => { e.stopPropagation(); showAll(); };
+      }
+    }
+
+    document.getElementById('refresh-btn').onclick = () => { artifactsCache.clear(); fetchPage(true); };
     fetchPage(true);
   </script>
 </body>

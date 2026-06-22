@@ -4,7 +4,10 @@ import http.server
 import json
 import os
 import glob
+import time
 from datetime import datetime, timezone
+from urllib.parse import parse_qs
+import matcher
 
 CLAUDE_DIR = os.path.expanduser("~/.claude/projects")
 CODEX_DIR = os.path.expanduser("~/.codex/sessions")
@@ -12,6 +15,7 @@ STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # In-memory cache
 _cache = {"sessions": None, "ts": 0}
+_matcher_cache = {}  # key: (sid, project_root) -> (results, timestamp)
 CACHE_TTL = 30  # seconds
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -22,16 +26,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         path = self.path.split("?")[0]
         qs = {}
         if "?" in self.path:
-            from urllib.parse import parse_qs
             qs = {k: v[0] for k, v in parse_qs(self.path.split("?")[1]).items()}
 
         if path == "/api/discover" or path == "/api/sessions":
             limit = int(qs.get("limit", 50))
             offset = int(qs.get("offset", 0))
             self._json(self._discover(limit, offset))
+        elif path.startswith("/api/session/") and path.endswith("/artifacts"):
+            parts = path.split("/")
+            if len(parts) >= 4:
+                sid = parts[3]
+                self._handle_session_artifacts(sid)
+            else:
+                self._json({"error": "invalid_path"})
         elif path.startswith("/api/session/"):
             sid = path.split("/api/session/")[1]
             self._json(self._session_detail(sid))
+        elif path == "/api/artifacts":
+            self._handle_artifact_reverse_lookup(qs)
+        elif path == "/api/artifact-content":
+            self._handle_artifact_content(qs)
         else:
             super().do_GET()
 
@@ -310,6 +324,98 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                             s["messages"] = msgs[:500]
                         return s
         return None
+
+    def _project_root(self, cwd):
+        if cwd:
+            resolved = os.path.realpath(cwd)
+            while True:
+                if os.path.isdir(os.path.join(resolved, ".git")):
+                    return resolved
+                parent = os.path.dirname(resolved)
+                if parent == resolved:
+                    break
+                resolved = parent
+        return os.path.realpath(os.environ.get("PROJECT_ROOT", os.getcwd()))
+
+    def _cached_matcher(self, session, project_root):
+        sid = session.get("id", "")
+        key = (sid, project_root)
+        now = time.time()
+        if key in _matcher_cache:
+            results, ts = _matcher_cache[key]
+            if (now - ts) < CACHE_TTL:
+                return results
+        results = matcher.match_session(session, project_root)
+        _matcher_cache[key] = (results, now)
+        return results
+
+    def _handle_session_artifacts(self, sid):
+        session = self._session_detail(sid)
+        if session is None:
+            self._json({"error": "session_not_found"})
+            return
+        if not session.get("startedAt"):
+            self._json({"artifacts": [], "note": "no_time_data"})
+            return
+        project_root = self._project_root(session.get("cwd"))
+        artifacts = self._cached_matcher(session, project_root)
+        self._json({"session_id": sid, "artifacts": artifacts})
+
+    def _handle_artifact_reverse_lookup(self, qs):
+        raw_path = qs.get("path", "")
+        if not raw_path:
+            self.send_response(400)
+            self._json({"error": "missing_path"})
+            return
+        normalized = os.path.normpath(raw_path.strip("/"))
+        project_root = self._project_root(None)
+        resolved = os.path.realpath(os.path.join(project_root, normalized))
+        if not resolved.startswith(os.path.realpath(project_root)):
+            self.send_response(400)
+            self._json({"error": "path_escapes_project_root"})
+            return
+        all_sessions = self._discover(limit=9999, offset=0).get("sessions", [])
+        matches = []
+        for s in all_sessions:
+            pr = self._project_root(s.get("cwd"))
+            arts = self._cached_matcher(s, pr)
+            for a in arts:
+                if a["path"] == normalized:
+                    matches.append({
+                        "session_id": s.get("id", ""),
+                        "confidence": a["confidence"],
+                        "match_method": a["match_method"],
+                        "matched_at": s.get("startedAt", ""),
+                    })
+                    break
+        matches.sort(key=lambda x: ({"high": 0, "medium": 1, "low": 2}.get(x["confidence"], 99), x.get("matched_at", "") or ""), reverse=False)
+        self._json({"path": normalized, "sessions": matches})
+
+    def _handle_artifact_content(self, qs):
+        raw_path = qs.get("path", "")
+        if not raw_path:
+            self.send_response(400)
+            self._json({"error": "missing_path"})
+            return
+        normalized = os.path.normpath(raw_path.strip("/"))
+        project_root = self._project_root(None)
+        resolved = os.path.realpath(os.path.join(project_root, normalized))
+        if not resolved.startswith(os.path.realpath(project_root)):
+            self.send_response(400)
+            self._json({"error": "path_escapes_project_root"})
+            return
+        if not os.path.isfile(resolved):
+            self.send_response(404)
+            self._json({"error": "file_not_found", "path": normalized})
+            return
+        try:
+            with open(resolved, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            self._json({"path": normalized, "content": content})
+        except Exception as e:
+            self.send_response(500)
+            self._json({"error": str(e)})
+
 
 if __name__ == "__main__":
     port = 8765
