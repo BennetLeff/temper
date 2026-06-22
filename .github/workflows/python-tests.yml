@@ -7,12 +7,26 @@ on:
       - 'packages/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
+      - '.gitignore'
+      - '*.py'
+      - '*.kicad_pcb'
+      - '*.kicad_pro'
+      - '*-drc.json'
+      - '*.stats'
+      - '.git-blame-ignore-revs'
   pull_request:
     branches: [main]
     paths:
       - 'packages/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
+      - '.gitignore'
+      - '*.py'
+      - '*.kicad_pcb'
+      - '*.kicad_pro'
+      - '*-drc.json'
+      - '*.stats'
+      - '.git-blame-ignore-revs'
 
 jobs:
   test:
