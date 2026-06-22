@@ -35,6 +35,11 @@ jobs:
       - name: Check header matches manifest
         run: python3 firmware/tools/check_config_matches_manifest.py
 
+      - name: Regenerate transition table and check drift
+        run: |
+          python3 firmware/tools/gen_transition_table.py
+          git diff --exit-code firmware/main/transition_table.h
+
       - name: Build and run host tests
         run: |
           cmake -B firmware/test/build firmware/test

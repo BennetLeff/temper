@@ -109,6 +109,21 @@ add_custom_command(
 add_custom_target(gen_config DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../config.h)
 
 # ============================================================================
+# Codegen: regenerate firmware/main/transition_table.h from transition_table.yaml
+# ============================================================================
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../main/transition_table.h
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/../transition_table.yaml
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.h
+    COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/../tools/gen_transition_table.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+    COMMENT "Regenerating firmware/main/transition_table.h from transition_table.yaml"
+    VERBATIM
+)
+add_custom_target(gen_transition_table DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../main/transition_table.h)
+
+# ============================================================================
 # Test executable
 # ============================================================================
 
@@ -143,7 +158,7 @@ add_executable(test_state_machine_only
 )
 target_include_directories(test_state_machine_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_state_machine_only m)
-add_dependencies(test_state_machine_only gen_config)
+add_dependencies(test_state_machine_only gen_config gen_transition_table)
 
 # PID controller tests only
 add_executable(test_pid_only
