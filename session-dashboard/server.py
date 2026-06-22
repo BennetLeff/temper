@@ -267,7 +267,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "chainId": None,
             "agentType": agent_type,
             "filename": os.path.relpath(filepath, CLAUDE_DIR), "sourceType": "jsonl",
-            "summary": self._make_summary(project, branch, duration, agent_count, "claude"),
+            "summary": self._make_summary(project, branch, duration, agent_count, "opencode"),
             "agentType": agent_type,
         }
 
