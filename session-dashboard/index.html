@@ -299,6 +299,7 @@
     const PAGE_SIZE = 50;
     let offset = 0, total = 0, sessions = [];
     let activePhases = new Set();
+    let activeChainId = null;
 
     const PHASES = {
       'ce-ideate':       { id: 'ideate',      color: 'var(--phase-ideate)',       icon: 'lightbulb',      label: 'Ideation' },
@@ -1501,11 +1502,11 @@
       return html;
     }
 
-    document.getElementById('refresh-reviews-btn').onclick = () => {
+    document.getElementById('refresh-reviews-btn')?.addEventListener('click', () => {
       analyticsData = null;
       if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
       loadReviews();
-    };
+    });
   </script>
 </body>
 </html>
