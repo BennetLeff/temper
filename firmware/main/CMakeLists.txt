@@ -7,6 +7,7 @@ idf_component_register(
         "state_machine.c"
     INCLUDE_DIRS 
         "."
+        ".."
     REQUIRES
         driver
         nvs_flash

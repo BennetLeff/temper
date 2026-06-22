@@ -85,6 +85,7 @@ set(TEST_SOURCES
 
 set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/unity
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock
@@ -92,6 +93,20 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety
     ${CMAKE_CURRENT_SOURCE_DIR}/../main
 )
+
+# ============================================================================
+# Codegen: regenerate firmware/config.h from config.yaml
+# ============================================================================
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../config.h
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/../config.yaml
+    COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/../tools/gen_config.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+    COMMENT "Regenerating firmware/config.h from config.yaml"
+    VERBATIM
+)
+add_custom_target(gen_config DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../config.h)
 
 # ============================================================================
 # Test executable
@@ -127,6 +142,7 @@ add_executable(test_state_machine_only
 )
 target_include_directories(test_state_machine_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_state_machine_only m)
+add_dependencies(test_state_machine_only gen_config)
 
 # PID controller tests only
 add_executable(test_pid_only
