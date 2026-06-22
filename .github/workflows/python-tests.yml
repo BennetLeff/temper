@@ -7,12 +7,16 @@ on:
       - 'packages/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
+      - 'deadcode-baseline.py'
+      - 'scripts/vulture_gate.py'
   pull_request:
     branches: [main]
     paths:
       - 'packages/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
+      - 'deadcode-baseline.py'
+      - 'scripts/vulture_gate.py'
 
 jobs:
   test:
@@ -51,6 +55,9 @@ jobs:
       
       - name: Lint with ruff
         run: uv run ruff check packages/
+
+      - name: Vulture dead-code gate
+        run: uv run python scripts/vulture_gate.py
 
   regression:
     name: Performance & Quality Regression
