@@ -88,6 +88,32 @@ class OccupancyGrid:
         total = self.width_cells * self.height_cells
         return self.blocked_cell_count / total if total > 0 else 0.0
 
+    def downsample(self, factor: int = 2) -> OccupancyGrid:
+        """Return a coarser grid with cells `factor`× larger.
+
+        A coarse cell is blocked if any of its sub-cells are blocked.
+        Used for coarse-to-fine A* routing (U4).
+        """
+        old_w, old_h = self.width_cells, self.height_cells
+        new_w = max(1, old_w // factor)
+        new_h = max(1, old_h // factor)
+        new_grid = np.zeros((new_h, new_w), dtype=self.grid.dtype)
+        for j in range(new_h):
+            for i in range(new_w):
+                patch = self.grid[
+                    j * factor : min((j + 1) * factor, old_h),
+                    i * factor : min((i + 1) * factor, old_w),
+                ]
+                new_grid[j, i] = CellState.BLOCKED.value if np.any(patch) else CellState.FREE.value
+        return OccupancyGrid(
+            layer_name=f"{self.layer_name}_coarse",
+            grid=new_grid,
+            origin=self.origin,
+            cell_size=self.cell_size * factor,
+            width_cells=new_w,
+            height_cells=new_h,
+        )
+
     def mark_path_blocked(
         self,
         path: list[tuple[float, float]],
