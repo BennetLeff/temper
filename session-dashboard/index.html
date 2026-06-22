@@ -1246,8 +1246,10 @@
       const agentType = sa.agentType || '';
       const iconName = getSubagentIcon(agentType);
 
+      const subDotColor = sa.duration == null ? 'var(--success)' : sa.status === 'failed' || sa.status === 'error' ? 'var(--error)' : 'var(--text-tertiary)';
+      const subDotTitle = sa.duration == null ? 'Running' : sa.status === 'failed' ? 'Failed' : 'Completed';
       row.innerHTML = `
-        <span class="status-dot" style="background:${sa.status === 'passed' || sa.status === 'completed' ? 'var(--text-tertiary)' : sa.status === 'failed' ? 'var(--error)' : 'var(--success)'};flex-shrink:0" title="Status: ${sa.status || 'completed'}"></span>
+        <span class="status-dot" style="background:${subDotColor}" title="${subDotTitle}"></span>
         <span class="subagent-icon" title="${esc(agentType || 'agent')}">${svgIcon(iconName)}</span>
         <span class="subagent-desc" title="${esc(desc)}">${esc(desc.substring(0, 80))}</span>
         <span class="subagent-dur">${dur ? esc(dur) : ''}</span>
@@ -1366,7 +1368,6 @@
         card.classList.toggle('expanded', expanded);
         summaryEl.classList.toggle('clamped', !expanded);
         summaryEl.classList.toggle('expanded', expanded);
-        if (expanded) renderArtifacts(s);
       };
 
       rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
