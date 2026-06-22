@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 
 # Add root to sys.path to import add_power_planes
-sys.path.append(str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from add_power_planes import add_unified_gnd_plane
 
 def test_add_unified_gnd_plane_thermal_relief(tmp_path):
