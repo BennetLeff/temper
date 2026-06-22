@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'scripts/**'
+      - 'tests/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
       - 'firmware/**'
@@ -21,6 +23,8 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'scripts/**'
+      - 'tests/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
       - 'firmware/**'
