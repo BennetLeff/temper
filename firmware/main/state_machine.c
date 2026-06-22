@@ -949,6 +949,11 @@ static void state_runaway_fault_update(void) {
  * ============================================================================ */
 
 static void transition_to(system_state_t new_state) {
+    /* Runaway interlock: block all transitions once latched */
+    if (sm_ctx.runaway_latched && new_state != STATE_RUNAWAY_FAULT) {
+        return;
+    }
+
     /* Stop low-temperature control if transitioning out of heating state */
     if (sm_ctx.current_state == STATE_HEATING) {
         /* low_temp_stop(); */
