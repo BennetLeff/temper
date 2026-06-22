@@ -1,0 +1,18 @@
+{
+  "boards": [
+    {
+      "board_id": "temper_routed",
+      "path": "pcb/temper_routed.kicad_pcb",
+      "error_ceiling": 2844,
+      "warning_ceiling": 164,
+      "violations_by_type": {}
+    },
+    {
+      "board_id": "temper_placed",
+      "path": "pcb/temper_placed.kicad_pcb",
+      "error_ceiling": 16,
+      "warning_ceiling": 52,
+      "violations_by_type": {}
+    }
+  ]
+}

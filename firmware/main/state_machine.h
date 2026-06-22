@@ -119,7 +119,7 @@ typedef enum {
 } fan_speed_t;
 
 /* Forward declarations */
-typedef struct cooking_profile_t cooking_profile_t;
+struct cooking_profile_t;
 
 /**
  * @brief Initialize the state machine
@@ -136,7 +136,7 @@ void state_machine_update(void);
  * 
  * @param profile Pointer to profile definition
  */
-void state_machine_start_profile(const cooking_profile_t *profile);
+void state_machine_start_profile(const struct cooking_profile_t *profile);
 
 /**
  * @brief Set the target temperature

@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include "unity/unity.h"
 
-/* External test function */
+/* External test functions */
 extern void run_state_machine_tests(void);
+extern void test_transition_table(void);
 
 /* Unity required functions */
 void setUp(void) {}
@@ -18,6 +19,9 @@ int main(void) {
     
     printf("\n=== State Machine Tests ===\n\n");
     run_state_machine_tests();
+    
+    printf("\n=== Transition Table Tests ===\n\n");
+    RUN_TEST(test_transition_table);
     
     return UnityEnd();
 }

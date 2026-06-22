@@ -1,0 +1,8 @@
+version: 1
+boards:
+  - id: temper_placed
+    path: pcb/temper_placed.kicad_pcb
+    component_count: 0
+    net_count: 0
+    baseline_git_hash: unknown
+    description: "Temper induction cooker — placed, not routed"

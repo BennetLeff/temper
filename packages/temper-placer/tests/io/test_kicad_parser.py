@@ -18,6 +18,7 @@ from temper_placer.io.kicad_parser import (
     _extract_board_geometry,
     _get_footprint_reference,
     parse_kicad_pcb,
+    parse_kicad_pcb_v6,
 )
 
 
@@ -591,3 +592,44 @@ class TestEdgeCases:
         for comp in result.netlist.components:
             assert comp.bounds[0] > 0
             assert comp.bounds[1] > 0
+
+    def test_empty_board_no_indexerror(self, tmp_path: Path):
+        """T1.1: Parse empty_board.kicad_pcb with zero footprints. No IndexError."""
+        empty_pcb = tmp_path / "empty_board.kicad_pcb"
+        empty_pcb.write_text("""(kicad_pcb (version 20221018) (generator test)
+  (general (thickness 1.6))
+  (paper "A4")
+  (layers (0 "F.Cu" signal) (1 "B.Cu" signal))
+)
+""")
+
+        result = parse_kicad_pcb(empty_pcb)
+        assert isinstance(result, ParseResult)
+        assert result.netlist.components == []
+        assert result.netlist.nets == []
+        assert any("No footprints" in w for w in result.warnings)
+
+    def test_empty_board_v6(self, tmp_path: Path):
+        """T1.2: Parse empty board through parse_kicad_pcb_v6."""
+        empty_pcb = tmp_path / "empty_board_v6.kicad_pcb"
+        empty_pcb.write_text("""(kicad_pcb (version 20221018) (generator test)
+  (general (thickness 1.6))
+  (paper "A4")
+  (layers (0 "F.Cu" signal) (1 "B.Cu" signal))
+)
+""")
+
+        pcb = parse_kicad_pcb_v6(empty_pcb)
+        assert pcb.components == []
+
+    def test_empty_board_fixture(self, fixtures_dir: Path):
+        """T1.1: Parse empty_board.kicad_pcb fixture with zero footprints."""
+        empty_path = fixtures_dir / "empty_board.kicad_pcb"
+        if not empty_path.exists():
+            pytest.skip(f"Fixture not found: {empty_path}")
+
+        result = parse_kicad_pcb(empty_path)
+        assert isinstance(result, ParseResult)
+        assert result.netlist.components == []
+        assert result.netlist.nets == []
+        assert any("No footprints" in w for w in result.warnings)

@@ -1,0 +1,27 @@
+* Parasitic Subcircuit Template for ngspice
+* Layout-Aware SPICE Stack
+*
+* This template defines the subcircuit used to model layout parasitics.
+* Each instance represents the series R+L and shunt C for one net segment.
+*
+* Usage in augmented netlist:
+*   XPAR_HS gate_hi gate_hi_peec gnd_hi parasitic_segment
+*     PARAMS: R_SERIES={R_GATE_H} L_SERIES={L_GATE_H} C_SHUNT={C_GATE_H}
+*
+* Parameters:
+*   R_SERIES: Series trace resistance in Ohms
+*   L_SERIES: Series trace inductance in Henrys
+*   C_SHUNT: Shunt capacitance to reference in Farads
+
+.subckt parasitic_segment node_in node_out node_ref
++ PARAMS: R_SERIES=0 L_SERIES=0 C_SHUNT=0
+
+* Series resistance and inductance
+Rser node_in node_l_int {R_SERIES}
+Lser node_l_int node_out {L_SERIES}
+
+* Shunt capacitance from both sides to reference
+Csh_in node_in node_ref {C_SHUNT}
+Csh_out node_out node_ref {C_SHUNT}
+
+.ends parasitic_segment

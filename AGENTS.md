@@ -221,6 +221,26 @@ bd blocked
 - `temper-placer/` - JAX-based PCB placement optimizer
 - `pcb/` - KiCad schematics
 
+## Transition Table Regeneration
+
+`firmware/test/test_transition_table_generated.c` is generated from the
+transition table in `firmware/test/gen_transition_table.py`. After editing
+the table:
+
+    python3 firmware/test/gen_transition_table.py --generate
+    git add firmware/test/test_transition_table_generated.c
+    git commit -m "test: regenerate transition table tests"
+
+CI regenerates and `git diff --exit-code`s against the committed copy.
+
+### Building and Running Firmware Tests
+
+```bash
+cmake -B firmware/test/build firmware/test
+cmake --build firmware/test/build
+./firmware/test/build/test_state_machine_only
+```
+
 ## Quick Reference Card
 
 ```

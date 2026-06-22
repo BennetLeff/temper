@@ -27,6 +27,25 @@ Final validation and sign-off criteria before releasing the design for manufactu
 - [ ] **Thermal Budget**: Verified heatsink performance in simulation.
 - [ ] **EMI/EMC**: Verified filter performance and loop areas.
 - [ ] **Functional Safety**: Verified fail-safe logic (Watchdog, OCP, OVP).
+- [ ] **Traceability Review**: `docs/TRACEABILITY.md` reviewed. All non-negotiable gates are Covered, or gaps are acknowledged with linked issues. See §3.1 for gap-review procedure.
+
+### 3.1 Traceability Gap Review
+
+1. Open `docs/TRACEABILITY.md`.
+2. Scan the **Status** column for `Gap` rows.
+3. For each gap: verify a linked issue exists and that it is accepted, blocked, or deferred for this fab cycle.
+4. If a non-negotiable gate has no coverage and no accepted gap: **sign-off is blocked**.
+5. Sign below to acknowledge all open gaps:
+
+| Gap ID | Issue Link | Accepted? | Reviewer Initials | Date |
+|--------|-----------|-----------|-------------------|------|
+| | | | | |
+| | | | | |
+| | | | | |
+| | | | | |
+| | | | | |
+| | | | | |
+| | | | | |
 
 ## 4. Final Approval
 

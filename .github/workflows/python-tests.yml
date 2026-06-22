@@ -77,6 +77,11 @@ jobs:
         working-directory: packages/temper-drc
         run: uv run pytest tests/ -v --tb=short
       
+      - name: Regenerate transition-table test and check drift
+        run: |
+          python3 firmware/test/gen_transition_table.py --generate
+          git diff --exit-code firmware/test/test_transition_table_generated.c
+
       - name: Lint with ruff
         run: uv run ruff check packages/
 
