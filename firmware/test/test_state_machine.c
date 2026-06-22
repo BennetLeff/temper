@@ -16,6 +16,7 @@
 #include "unity/unity.h"
 #include "test_common.h"
 #include "../main/state_machine.h"
+#include <string.h>
 
 /* Forward declare mock control functions from state_machine_stubs.c */
 extern void mock_sm_reset(void);
@@ -1072,6 +1073,33 @@ void test_sm_intensity_change_during_heating(void) {
 }
 
 /* ============================================================================
+ * Test Cases: String table coverage (R10)
+ * ============================================================================ */
+
+/**
+ * Test: Every state in STATE_LIST has a non-empty string name
+ *
+ * If a state is added to STATE_LIST with an empty string field,
+ * this test fails at strlen(name) == 0 (AE6).
+ */
+static void test_state_string_table_covers_all_states(void) {
+    for (int s = 0; s < STATE_COUNT; s++) {
+        const char *name = state_machine_get_state_string((system_state_t)s);
+        TEST_ASSERT_GREATER_THAN(0, strlen(name));
+    }
+}
+
+/**
+ * Test: Every fault in FAULT_LIST has a non-empty string name
+ */
+static void test_fault_string_table_covers_all_faults(void) {
+    for (int f = 0; f < FAULT_COUNT; f++) {
+        const char *name = state_machine_get_fault_string((fault_code_t)f);
+        TEST_ASSERT_GREATER_THAN(0, strlen(name));
+    }
+}
+
+/* ============================================================================
  * Test Runner
  * ============================================================================ */
 
@@ -1154,4 +1182,8 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_intensity_clamping_preheat);
     RUN_TEST(test_sm_intensity_clamping_heating);
     RUN_TEST(test_sm_intensity_change_during_heating);
+
+    /* String table coverage (R10) */
+    RUN_TEST(test_state_string_table_covers_all_states);
+    RUN_TEST(test_fault_string_table_covers_all_faults);
 }
