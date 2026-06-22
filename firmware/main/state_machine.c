@@ -7,6 +7,7 @@
  */
 
 #include "state_machine.h"
+#include "config.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -27,17 +28,6 @@ static const char *TAG = "state_machine";
 /* #include "low_temp_control.h" */
 #include "../components/control/thermal_mass.h"
 #include "../components/control/profiles.h"
-
-/* Configuration */
-#define SAFE_IDLE_TEMP          50.0f   /* °C - safe to return to idle */
-#define MAX_TEMP                250.0f  /* °C - maximum allowed temperature */
-#define MIN_TEMP                30.0f   /* °C - minimum setpoint */
-#define PAN_DETECT_TIMEOUT_MS   5000    /* 5 second pan detection timeout */
-#define NO_PAN_TIMEOUT_MS       3000    /* 3 second window to replace pan */
-#define PAN_DEBOUNCE_COUNT      10      /* Consecutive samples for debounce */
-#define PAN_CONFIDENCE_REQUIRED 3       /* Confirmations before heating */
-#define MAX_PREHEAT_TIME_MS     600000  /* 10 minute max preheat time */
-#define MESSAGE_DISPLAY_TIME_MS 2000    /* Non-blocking message display time */
 
 /* State machine context */
 static struct {
