@@ -22,10 +22,12 @@ class DSNExporter:
         netlist: Netlist,
         positions: Array | None = None,
         rotations: Array | None = None,
+        deterministic: bool = True,
     ):
         self.board = board
         self.netlist = netlist
         self.positions = positions
+        self.deterministic = deterministic
 
         # Convert rotations to indices (0-3) if provided as logits/one-hot
         if rotations is not None:
@@ -141,12 +143,21 @@ class DSNExporter:
 
         return dsn_list("structure", *layer_exprs, boundary, *keepout_exprs, *via_exprs, rules)
 
+    def _natural_sort_key(self, s: str) -> tuple:
+        """Natural sort key: splits into text and number parts for sorting."""
+        import re
+        parts = re.split(r"(\d+)", s)
+        result = []
+        for p in parts:
+            result.append(int(p) if p.isdigit() else p.lower())
+        return tuple(result)
+
     def export_library(self) -> DSNExpression:
         """Export the library section (footprints and padstacks)."""
         images = []
         padstacks = {}
-        S = 100.0 # Scale factor
-        
+        S = 100.0  # Scale factor
+
         # Determine layers for padstacks
         layer_names = ["F.Cu", "B.Cu"]
         if self.board.layer_stackup:
@@ -218,6 +229,10 @@ class DSNExporter:
                     )
                 )
 
+            # Sort pins by pin number for deterministic output
+            if self.deterministic:
+                pins.sort(key=lambda p: self._natural_sort_key(str(p.args[2])))
+
             # For footprints without pins (like mounting holes), add a small keepout
             # to ensure the router doesn't treat them as empty space.
             if not pins:
@@ -226,7 +241,16 @@ class DSNExporter:
 
             images.append(dsn_list("image", fp_id, *pins))
 
-        return dsn_list("library", *images, *padstacks.values())
+        # Sort images by fp_id for deterministic output
+        if self.deterministic:
+            images.sort(key=lambda img: str(img.args[0]).lower())
+
+        # Sort padstack values by padstack name for deterministic output
+        ps_values = list(padstacks.values())
+        if self.deterministic:
+            ps_values.sort(key=lambda ps: str(ps.args[0]).lower())
+
+        return dsn_list("library", *images, *ps_values)
 
     def export_placement(self) -> DSNExpression:
         """Export the placement section (component instances)."""
@@ -267,8 +291,16 @@ class DSNExporter:
             )
 
         comp_exprs = []
-        for fp_id, instances in components_by_fp.items():
-            comp_exprs.append(dsn_list("component", fp_id, *instances))
+        if self.deterministic:
+            sorted_fp_ids = sorted(components_by_fp.keys(), key=lambda k: k.lower())
+            for fp_id in sorted_fp_ids:
+                instances = components_by_fp[fp_id]
+                instances.sort(key=lambda inst: str(inst.args[0]).lower())
+                comp_exprs.append(dsn_list("component", fp_id, *instances))
+            comp_exprs.sort(key=lambda c: str(c.args[0]).lower())
+        else:
+            for fp_id, instances in components_by_fp.items():
+                comp_exprs.append(dsn_list("component", fp_id, *instances))
 
         return dsn_list("placement", *comp_exprs)
 
@@ -328,12 +360,19 @@ class DSNExporter:
         import re
         voltage_pattern = re.compile(r"(_PLUS|VCC|VDD)\d+V?\d*$", re.IGNORECASE)
 
-        # Sort nets by fanout (low first) then span (short first)
-        # This gives FreeRouter easier nets first, reducing resource contention
-        sorted_nets = sorted(
-            self.netlist.nets,
-            key=lambda n: (len(n.pins), self._compute_net_span(n))
-        )
+        # Sort nets: deterministic mode sorts alphabetically by sanitized name;
+        # non-deterministic sorts by fanout (low first) then span (short first)
+        # for better FreeRouter routing quality.
+        if self.deterministic:
+            sorted_nets = sorted(
+                self.netlist.nets,
+                key=lambda n: n.name.replace("+", "_PLUS").replace("-", "_MINUS").lower()
+            )
+        else:
+            sorted_nets = sorted(
+                self.netlist.nets,
+                key=lambda n: (len(n.pins), self._compute_net_span(n))
+            )
 
         for net in sorted_nets:
             # Sanitize net names for SPECCTRA compatibility
