@@ -600,7 +600,7 @@ def run_astar_pathfinding(
 
         # Route with rip-up capability
         import sys
-import time
+        import time
 
         if use_lazy_theta_star:
             mode = "Lazy Theta*"
