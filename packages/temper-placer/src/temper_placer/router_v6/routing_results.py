@@ -31,8 +31,8 @@ class RoutingResults:
     """Complete routing results for the design."""
 
     compiled_routes: dict[str, CompiledRoute]  # net_name -> CompiledRoute
+    failed_nets: list[str]  # Nets that failed to route
     plane_net_count: int = 0  # Nets excluded (planes, unconnected)
-    failed_nets: list[str]
 
     @property
     def success_count(self) -> int:

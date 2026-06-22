@@ -48,6 +48,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .card-detail { transition: none !important; }
     }
     .app-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -112,8 +113,23 @@
     .card-meta { display: flex; gap: 16px; font-size: 0.8125rem; color: var(--text-secondary); flex-wrap: wrap; align-items: center; min-height: 32px; }
     .card-meta-item { display: inline-flex; align-items: center; gap: 5px; }
     .card-meta-item svg { width: 14px; height: 14px; opacity: 0.7; }
-    .card-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-    .session-card.expanded .card-detail { display: block; }
+    .card-detail {
+      display: block;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 200ms ease, opacity 150ms ease;
+      opacity: 0;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    .session-card.expanded .card-detail {
+      max-height: 2000px;
+      opacity: 1;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
     .tag {
       display: inline-flex; align-items: center; gap: 3px;
       padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;
@@ -1059,7 +1075,7 @@
       const card = document.createElement('div');
       card.className = 'session-card' + (s.isSynthetic ? ' card-synthetic' : '');
       card.dataset.phase = phase.id;
-      card.setAttribute('role', 'article');
+      card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${summary}, ${s.project || ''}${s.branch ? ', ' + s.branch : ''}`);
       card.dataset.chainId = s.chainId || '';
