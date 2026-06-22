@@ -264,3 +264,13 @@ cmake --build firmware/test/build
 1.  **Context Awareness**: Before editing or using a script, check for a corresponding `*_INSTRUCTIONS.md` or `*_DESIGN.md` file in the same directory or project root (e.g., `AUTOMATED_PCB_DESIGN_INSTRUCTIONS.md`). Read it to understand the "Why" and "How" of the tool.
 2.  **Documentation Sync**: If you modify the logic of a script (e.g., `add_power_planes_v2.py`), you **MUST** update the corresponding instructions file to reflect the change. Code and documentation must never drift apart.
 3.  **Decision Logging**: Major architectural decisions must be recorded in `docs/` or the relevant `*_INSTRUCTIONS.md` file. Do not rely on git history alone.
+
+### Traceability Convention
+
+Inline `# @req(<plan-id>, <req-id>): <note>` comments link code to plan
+requirements. Two CI gates enforce consistency: every claimed @req tag must
+correspond to a live requirement in a plan document, and every plan's
+non-deferred requirement must have at least one code annotation — but only
+in directories that have opted in via a `TRACEABILITY` sentinel file.
+
+See `docs/TRACEABILITY.md` for the full specification.
