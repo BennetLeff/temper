@@ -1,0 +1,17 @@
+overrides:
+  - site: "creepage.py:CreepageCheck.__init__.min_iso_width_mm"
+    expected_value: 7.0
+    reason: "Known drift vs authority 6.0; remediation tracked in temper-X1"
+    ticket: "temper-X1"
+  - site: "cli.py:init_constraints.creepage_mm"
+    expected_value: 8.0
+    reason: "Known drift vs authority 6.0; remediation tracked in temper-X2"
+    ticket: "temper-X2"
+  - site: "dru:AC Mains to HV"
+    expected_value: 3.0
+    reason: "Orphan - no authority source; EE decision pending in temper-X3"
+    ticket: "temper-X3"
+  - site: "dru:HV internal same footprint"
+    expected_value: 1.5
+    reason: "Orphan - no authority source; EE decision pending in temper-X4"
+    ticket: "temper-X4"
