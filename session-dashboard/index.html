@@ -25,6 +25,13 @@
       --gap: 12px;
       --focus-ring: 0 0 0 3px rgba(88,166,255,0.4);
       --transition: 150ms ease;
+      --phase-ideate: #f59e0b;
+      --phase-brainstorm: #a855f7;
+      --phase-plan: #3b82f6;
+      --phase-work: #22c55e;
+      --phase-code-review: #ef4444;
+      --phase-doc-review: #eab308;
+      --phase-other: #6b7280;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { touch-action: manipulation; }
@@ -98,6 +105,30 @@
     .tag-project { background: var(--accent-bg); color: var(--accent); }
     .tag-subagent { background: rgba(63,185,80,0.15); color: var(--success); }
     .tag-type { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    .tag-type-deemphasized { font-size: 0.6875rem; color: var(--text-tertiary); opacity: 0.7; }
+    .session-card[data-phase="ideate"] { border-left: 3px solid var(--phase-ideate); }
+    .session-card[data-phase="brainstorm"] { border-left: 3px solid var(--phase-brainstorm); }
+    .session-card[data-phase="plan"] { border-left: 3px solid var(--phase-plan); }
+    .session-card[data-phase="work"] { border-left: 3px solid var(--phase-work); }
+    .session-card[data-phase="code-review"] { border-left: 3px solid var(--phase-code-review); }
+    .session-card[data-phase="doc-review"] { border-left: 3px solid var(--phase-doc-review); }
+    .session-card[data-phase="other"] { border-left: 3px solid var(--phase-other); }
+    .tag-phase-ideate { background: rgba(245,158,11,0.15); color: var(--phase-ideate); border-color: var(--phase-ideate); }
+    .tag-phase-brainstorm { background: rgba(168,85,247,0.15); color: var(--phase-brainstorm); border-color: var(--phase-brainstorm); }
+    .tag-phase-plan { background: rgba(59,130,246,0.15); color: var(--phase-plan); border-color: var(--phase-plan); }
+    .tag-phase-work { background: rgba(34,197,94,0.15); color: var(--phase-work); border-color: var(--phase-work); }
+    .tag-phase-code-review { background: rgba(239,68,68,0.15); color: var(--phase-code-review); border-color: var(--phase-code-review); }
+    .tag-phase-doc-review { background: rgba(234,179,8,0.15); color: var(--phase-doc-review); border-color: var(--phase-doc-review); }
+    .tag-phase-other { background: rgba(107,114,128,0.15); color: var(--phase-other); border-color: var(--phase-other); }
+    .phase-filter { display: flex; align-items: center; gap: 8px; padding: 8px 0; margin-bottom: 12px; flex-wrap: wrap; }
+    .phase-filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .phase-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 8px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface-raised); color: var(--text-primary); cursor: pointer; font-size: 0.8125rem; font-weight: 500; transition: opacity var(--transition), border-color var(--transition); user-select: none; }
+    .phase-pill:hover { border-color: var(--border-hover); }
+    .phase-pill .pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+    .phase-pill .pill-count { font-size: 0.6875rem; color: var(--text-tertiary); margin-left: 2px; }
+    .phase-pill.inactive { opacity: 0.5; border-color: var(--border); background: transparent; }
+    .phase-pill.inactive .pill-count { opacity: 0.5; }
+    .phase-filter-clear { font-size: 0.8125rem; }
     /* Modal */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
@@ -130,6 +161,10 @@
       </button>
       <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
     </div>
+    <div class="phase-filter" id="phase-filter" role="group" aria-label="Filter by phase">
+      <div class="phase-filter-pills" id="phase-filter-pills"></div>
+      <button class="btn btn-ghost phase-filter-clear" id="phase-filter-clear" style="display:none">Clear filters</button>
+    </div>
     <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
   </main>
   <div id="raw-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Raw conversation viewer">
@@ -145,6 +180,13 @@
     <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
     <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
     <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></symbol>
+    <symbol id="icon-message-square" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></symbol>
+    <symbol id="icon-help-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
   </svg>
 
   <script type="module">
@@ -155,6 +197,25 @@
     const modalContent = document.getElementById('raw-modal-content');
     const PAGE_SIZE = 50;
     let offset = 0, total = 0, sessions = [];
+    let activePhases = new Set();
+
+    const PHASES = {
+      'ce-ideate':       { id: 'ideate',      color: 'var(--phase-ideate)',       icon: 'lightbulb',      label: 'Ideation' },
+      'ce-brainstorm':   { id: 'brainstorm',  color: 'var(--phase-brainstorm)',   icon: 'message-square', label: 'Brainstorm' },
+      'ce-plan':         { id: 'plan',        color: 'var(--phase-plan)',         icon: 'file-text',      label: 'Plan' },
+      'ce-work':         { id: 'work',        color: 'var(--phase-work)',         icon: 'code',           label: 'Work' },
+      'ce-code-review':  { id: 'code-review', color: 'var(--phase-code-review)',  icon: 'search',         label: 'Code Review' },
+      'ce-doc-review':   { id: 'doc-review',  color: 'var(--phase-doc-review)',   icon: 'clipboard',      label: 'Doc Review' },
+    };
+    const PHASE_OTHER = { id: 'other', color: 'var(--phase-other)', icon: 'help-circle', label: 'Other' };
+
+    function getPhase(agentType) {
+      if (!agentType) return PHASE_OTHER;
+      const raw = String(agentType).trim().toLowerCase().replace(/\s*:\s*/g, ':').replace(/\s*-\s*/g, '-');
+      const match = raw.match(/(?:compound-engineering:)?(ce-\w+)/);
+      if (!match) return PHASE_OTHER;
+      return PHASES[match[1]] || PHASE_OTHER;
+    }
 
     function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
     function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
@@ -227,6 +288,8 @@
         more.onclick = () => { offset += PAGE_SIZE; fetchPage(false); };
         listEl.appendChild(more);
       }
+      renderFilterPills();
+      applyFilter();
     }
 
     async function viewRaw(sid) {
@@ -278,9 +341,11 @@
       const summary = s.summary || 'Session';
       const dur = fmtDur(s.duration);
       const ts = fmtTime(s.startedAt);
+      const phase = getPhase(s.agentType);
 
       const card = document.createElement('div');
       card.className = 'session-card';
+      card.dataset.phase = phase.id;
       card.setAttribute('role', 'article');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${summary}, ${s.project || ''}${s.branch ? ', ' + s.branch : ''}`);
@@ -292,24 +357,43 @@
       const meta = document.createElement('div');
       meta.className = 'card-meta';
       const items = [
+        `<span class="card-meta-item">${svgIcon(phase.icon)}${esc(phase.label)}</span>`,
         dur ? `<span class="card-meta-item">${svgIcon('clock')}${dur}</span>` : '',
         s.subAgentCount > 0 ? `<span class="card-meta-item">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
         s.branch ? `<span class="card-meta-item">${svgIcon('branch')}${esc(s.branch)}</span>` : '',
         ts ? `<span class="card-meta-item">${svgIcon('calendar')}${ts}</span>` : '',
         s.project ? `<span class="tag tag-project">${esc(s.project)}</span>` : '',
-        s.agentType ? `<span class="tag tag-type">${esc(s.agentType.split(':').pop())}</span>` : '',
+        s.agentType ? `<span class="tag tag-type tag-type-deemphasized">${esc(s.agentType.split(':').pop())}</span>` : '',
         s.isSubagent ? '<span class="tag tag-subagent">sub-agent</span>' : '',
       ];
       meta.innerHTML = items.filter(Boolean).join('');
 
       const detail = document.createElement('div');
       detail.className = 'card-detail';
-      detail.innerHTML = [
-        `<div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px">${esc(summary)}</div>`,
-        s.agentType ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('folder')} ${esc(s.agentType)}</div>` : '',
-        s.cwd ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('file')} ${esc(s.cwd)}</div>` : '',
-        `<button class="btn btn-ghost" style="margin-top:8px;font-size:0.8125rem" aria-label="View raw conversation for ${esc(summary)}">${svgIcon('file')} View raw conversation</button>`,
-      ].join('');
+      const detailSummary = document.createElement('div');
+      detailSummary.style.cssText = 'font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px';
+      detailSummary.textContent = summary;
+      detail.appendChild(detailSummary);
+      if (s.agentType) {
+        const atEl = document.createElement('div');
+        atEl.style.cssText = 'font-size:0.75rem;color:var(--text-tertiary);margin:4px 0';
+        atEl.innerHTML = `${svgIcon('folder')} ${esc(s.agentType)}`;
+        detail.appendChild(atEl);
+      }
+      if (s.cwd) {
+        const cwdEl = document.createElement('div');
+        cwdEl.style.cssText = 'font-size:0.75rem;color:var(--text-tertiary);margin:4px 0';
+        cwdEl.innerHTML = `${svgIcon('file')} ${esc(s.cwd)}`;
+        detail.appendChild(cwdEl);
+      }
+      const phaseDetail = renderPhaseDetail(s, phase);
+      if (phaseDetail) detail.appendChild(phaseDetail);
+      const rawBtn = document.createElement('button');
+      rawBtn.className = 'btn btn-ghost';
+      rawBtn.style.cssText = 'margin-top:8px;font-size:0.8125rem';
+      rawBtn.setAttribute('aria-label', `View raw conversation for ${esc(summary)}`);
+      rawBtn.innerHTML = `${svgIcon('file')} View raw conversation`;
+      detail.appendChild(rawBtn);
 
       card.appendChild(summaryEl);
       card.appendChild(meta);
@@ -323,14 +407,145 @@
         summaryEl.classList.toggle('expanded', expanded);
       };
 
-      // Wire raw view button
-      const rawBtn = detail.querySelector('button');
-      if (rawBtn) rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
+      rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
 
       return card;
     }
 
+    function renderPhaseDetail(s, phase) {
+      const el = document.createElement('div');
+      el.style.cssText = 'font-size:0.8125rem;color:var(--text-secondary);margin:6px 0';
+      let text = '';
+      switch (phase.id) {
+        case 'ideate':
+          text = s.frameCount != null ? `${s.frameCount} divergent frames` : '\u2014';
+          break;
+        case 'brainstorm':
+          text = s.requirementsCount != null ? `${s.requirementsCount} requirements` : '\u2014';
+          break;
+        case 'plan':
+          text = s.planUnits != null ? `${s.planUnits} implementation units` : '\u2014';
+          break;
+        case 'work':
+          text = s.filesChanged != null ? `${s.filesChanged} files changed` : '\u2014';
+          break;
+        case 'code-review':
+          if (s.findings && (s.findings.critical != null || s.findings.major != null || s.findings.minor != null)) {
+            const parts = [];
+            if (s.findings.critical) parts.push(`${s.findings.critical} critical`);
+            if (s.findings.major) parts.push(`${s.findings.major} major`);
+            if (s.findings.minor) parts.push(`${s.findings.minor} minor`);
+            text = parts.join(', ');
+          } else if (s.criticalFindings != null || s.majorFindings != null || s.minorFindings != null) {
+            const parts = [];
+            if (s.criticalFindings) parts.push(`${s.criticalFindings} critical`);
+            if (s.majorFindings) parts.push(`${s.majorFindings} major`);
+            if (s.minorFindings) parts.push(`${s.minorFindings} minor`);
+            text = parts.join(', ');
+          } else {
+            text = '\u2014';
+          }
+          break;
+        case 'doc-review':
+          if (s.consensusScore != null) {
+            text = `${s.consensusScore}/5 reviewers agree`;
+          } else if (s.approvedBy != null) {
+            text = `${s.approvedBy} approvals`;
+          } else {
+            text = '\u2014';
+          }
+          break;
+        default:
+          return null;
+      }
+      el.innerHTML = `${svgIcon(phase.icon)} ${esc(text)}`;
+      return el;
+    }
+
+    function renderFilterPills() {
+      const container = document.getElementById('phase-filter-pills');
+      const clearBtn = document.getElementById('phase-filter-clear');
+      if (!container) return;
+      const counts = {};
+      for (const s of sessions) {
+        const p = getPhase(s.agentType);
+        counts[p.id] = (counts[p.id] || 0) + 1;
+      }
+      const visiblePhases = Object.values(PHASES).filter(p => counts[p.id] > 0);
+      if (counts['other'] > 0) visiblePhases.push(PHASE_OTHER);
+      container.innerHTML = '';
+      for (const phase of visiblePhases) {
+        const pill = document.createElement('button');
+        pill.className = 'phase-pill';
+        if (activePhases.size > 0 && !activePhases.has(phase.id)) {
+          pill.classList.add('inactive');
+        }
+        const dot = document.createElement('span');
+        dot.className = 'pill-dot';
+        dot.style.background = `var(--phase-${phase.id})`;
+        pill.appendChild(dot);
+        const label = document.createElement('span');
+        label.textContent = phase.label;
+        pill.appendChild(label);
+        const count = document.createElement('span');
+        count.className = 'pill-count';
+        count.textContent = `(${counts[phase.id]})`;
+        pill.appendChild(count);
+        pill.addEventListener('click', () => {
+          if (activePhases.size === 0) {
+            activePhases = new Set(Object.keys(PHASES).map(k => PHASES[k].id));
+            activePhases.add('other');
+            activePhases.delete(phase.id);
+          } else {
+            if (activePhases.has(phase.id)) {
+              activePhases.delete(phase.id);
+              if (activePhases.size === 0) activePhases = new Set();
+            } else {
+              activePhases.add(phase.id);
+            }
+          }
+          applyFilter();
+        });
+        container.appendChild(pill);
+      }
+      clearBtn.style.display = activePhases.size > 0 && activePhases.size < (Object.keys(PHASES).length + (counts['other'] > 0 ? 1 : 0)) ? '' : 'none';
+    }
+
+    function applyFilter() {
+      const allShown = activePhases.size === 0;
+      let hasVisible = false;
+      for (const card of listEl.querySelectorAll('.session-card')) {
+        const phase = card.dataset.phase;
+        const visible = allShown || activePhases.has(phase);
+        card.style.display = visible ? '' : 'none';
+        if (visible) hasVisible = true;
+      }
+      const existingEmpty = document.getElementById('phase-filter-empty');
+      if (!hasVisible) {
+        if (!existingEmpty) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.id = 'phase-filter-empty';
+          empty.innerHTML = '<h2>No sessions match the active filters</h2><p><button class="btn btn-ghost" id="phase-filter-show-all">Show all sessions</button></p>';
+          listEl.insertBefore(empty, listEl.firstChild);
+          document.getElementById('phase-filter-show-all')?.addEventListener('click', () => {
+            activePhases = new Set();
+            renderFilterPills();
+            applyFilter();
+          });
+        }
+      } else if (existingEmpty) {
+        existingEmpty.remove();
+      }
+      renderFilterPills();
+    }
+
     document.getElementById('refresh-btn').onclick = () => fetchPage(true);
+    document.getElementById('phase-filter-clear')?.addEventListener('click', () => {
+      activePhases = new Set();
+      renderFilterPills();
+      applyFilter();
+    });
     fetchPage(true);
   </script>
 </body>

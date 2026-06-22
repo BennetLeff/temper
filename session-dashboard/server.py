@@ -165,6 +165,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         agent_count = 0
         branch = None
         cwd = None
+        agent_type = None
         for line in lines:
             try:
                 o = json.loads(line)
@@ -182,6 +183,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     branch = o.get("gitBranch") or o.get("branch")
                 if not cwd:
                     cwd = o.get("cwd")
+                if not agent_type:
+                    if o.get("type") == "metadata" and o.get("agentType"):
+                        agent_type = o.get("agentType")
+                    elif o.get("agentType"):
+                        agent_type = o.get("agentType")
+                    elif o.get("type") == "tool_use" and o.get("name") == "Task":
+                        sub_type = o.get("input", {}).get("subagent_type")
+                        if sub_type:
+                            agent_type = f"compound-engineering:{sub_type}"
             except Exception:
                 pass
         duration = (last_ts - started_at) if (started_at and last_ts) else None
@@ -201,6 +211,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "status": "completed" if duration else "unknown",
             "filename": os.path.relpath(filepath, CLAUDE_DIR), "sourceType": "jsonl",
             "summary": self._make_summary(project, branch, duration, agent_count, "claude"),
+            "agentType": agent_type,
         }
 
     def _parse_codex_json(self, filepath):
@@ -227,6 +238,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     pass
         duration = (last_ts - started_at) if (started_at and last_ts) else None
         sid = session.get("id") or session.get("sessionId") or os.path.splitext(os.path.basename(filepath))[0]
+        agent_type = session.get("agentType") or (session.get("metadata") or {}).get("agentType")
         return {
             "id": str(sid), "platform": "codex", "project": session.get("project") or session.get("cwd") or "unknown",
             "branch": session.get("branch"), "cwd": session.get("cwd"),
@@ -235,6 +247,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "status": "completed" if duration else "unknown",
             "filename": filepath, "sourceType": "json",
             "summary": self._make_summary(session.get("project") or session.get("cwd") or "unknown", session.get("branch"), duration, 0, "codex"),
+            "agentType": agent_type,
         }
 
     def _from_index_entry(self, entry, encoded_dir):
@@ -246,6 +259,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         created = entry.get("created") or ""
         modified = entry.get("modified") or ""
         msg_count = entry.get("messageCount", 0)
+        agent_type = entry.get("agentType")
         started_at = None
         duration = None
         if created:
@@ -268,6 +282,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "status": "completed",
             "filename": entry.get("fullPath", ""), "sourceType": "jsonl",
             "summary": summary or self._make_summary(project, branch, duration, 0, "claude"),
+            "agentType": agent_type,
         }
 
     def _make_summary(self, project, branch, duration_ms, agent_count, platform):
