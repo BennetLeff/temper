@@ -1,0 +1,42 @@
+# Default corner sweep definition for layout-aware SPICE validation.
+#
+# Axes are defined with min, max, and num_points (step count).
+# Full factorial sweep produces product(num_points) corners.
+# Corners-only mode uses only min and max of each axis (2^N corners).
+
+# Simulation mode: "full" (all combinations) or "corners" (min/max only)
+mode: corners
+
+axes:
+  Vbus:
+    unit: V
+    min: 300
+    max: 400
+    num_points: 3  # 300, 350, 400
+    spice_param: VDC
+
+  Iload:
+    unit: A
+    min: 0
+    max: 30
+    num_points: 3  # 0, 15, 30
+    spice_param: ILOAD
+
+  Tj:
+    unit: degC
+    min: 25
+    max: 150
+    num_points: 3  # 25, 87.5, 150
+    spice_param: TJ
+    sets_temp: true  # Use .temp directive instead of .param
+
+  Zload:
+    unit: deg
+    min: -30
+    max: 30
+    num_points: 3  # -30, 0, 30
+    spice_param: ZLOAD_ANGLE
+
+# Parallel execution
+parallel:
+  max_workers: 4
