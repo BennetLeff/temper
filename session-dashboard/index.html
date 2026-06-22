@@ -246,6 +246,71 @@
     .preview-body a:hover { color: var(--accent-hover); }
     .preview-loading { padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 0.8125rem; }
     .preview-error { padding: 12px; color: var(--error); font-size: 0.8125rem; }
+    #refresh-toast {
+      position: fixed; bottom: 24px; right: 24px;
+      padding: 8px 16px; border-radius: var(--radius-sm);
+      background: var(--accent-bg); border: 1px solid var(--accent);
+      color: var(--accent); font-size: 0.8125rem; z-index: 999;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 200ms ease, transform 200ms ease;
+      pointer-events: none;
+    }
+    #refresh-toast.toast-visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .swimlane-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--gap); }
+    .swimlane-column { background: var(--surface-overlay); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; min-height: 200px; }
+    .swimlane-header { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .swimlane-header .count { float: right; color: var(--text-tertiary); }
+    .swimlane-column .session-card { margin-bottom: 8px; }
+    .search-wrapper { position: relative; display: inline-flex; align-items: center; }
+    .search-wrapper input {
+      padding: 8px 32px 8px 36px; width: 200px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface-raised); color: var(--text-primary);
+      font-size: 0.875rem; font-family: inherit;
+      outline: none; transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .search-wrapper input:focus { border-color: var(--border-hover); box-shadow: var(--focus-ring); }
+    .search-wrapper input::placeholder { color: var(--text-tertiary); }
+    .search-wrapper .search-icon { position: absolute; left: 10px; pointer-events: none; color: var(--text-tertiary); width: 16px; height: 16px; }
+    .search-wrapper .search-clear { position: absolute; right: 8px; cursor: pointer; display: none; color: var(--text-secondary); font-size: 16px; line-height: 1; padding: 0 4px; }
+    .search-wrapper .search-clear.visible { display: block; }
+    .search-wrapper .search-clear:hover { color: var(--text-primary); }
+    .scroll-top-btn {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--accent-bg); border: 1px solid var(--accent);
+      color: var(--accent); cursor: pointer; z-index: 100;
+      display: none; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .scroll-top-btn.visible { display: flex; }
+    .minimap {
+      position: fixed; right: 0; top: 80px; bottom: 0;
+      width: 40px; background: var(--surface-overlay);
+      border-left: 1px solid var(--border);
+      z-index: 50; overflow: hidden;
+      display: none; flex-direction: column; padding: 4px 2px;
+    }
+    .minimap.visible { display: flex; }
+    .minimap-bar {
+      flex: 1; border-radius: 1px; margin-bottom: 1px;
+      cursor: pointer; min-height: 2px; opacity: 0.6;
+      transition: opacity 100ms;
+    }
+    .minimap-bar:hover { opacity: 1; }
+    .minimap-bar.active { opacity: 1; outline: 1px solid var(--text); }
+    .breadcrumbs {
+      font-size: 0.75rem; color: var(--text-tertiary);
+      padding: 4px 0 8px; display: flex; gap: 4px; align-items: center;
+    }
+    .breadcrumbs .sep { color: var(--text-tertiary); margin: 0 2px; }
+    .breadcrumbs .crumb { cursor: pointer; color: var(--accent); }
+    .breadcrumbs .crumb:hover { text-decoration: underline; }
+    .breadcrumbs .crumb.current { color: var(--text-primary); cursor: default; }
+    .breadcrumbs .crumb.current:hover { text-decoration: none; }
+    body.minimap-visible { padding-right: 60px; }
   </style>
 </head>
 <body>
@@ -259,6 +324,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         Refresh
       </button>
+      <button class="btn btn-ghost" id="view-mode-toggle" aria-label="Toggle swimlane view"><svg class="icon" aria-hidden="true"><use href="#icon-columns"/></svg> Pipeline View</button>
+      <div class="search-wrapper">
+        <input type="text" id="search-input" placeholder="Search sessions..." aria-label="Search sessions">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="search-clear" id="search-clear" role="button" tabindex="0" aria-label="Clear search">×</span>
+      </div>
       <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
     </div>
     <div class="phase-filter" id="phase-filter" role="group" aria-label="Filter by phase">
@@ -279,6 +350,8 @@
   <div id="raw-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Raw conversation viewer">
     <div class="modal-content" id="raw-modal-content"></div>
   </div>
+
+  <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Scroll to top">↑</button>
 
   <svg style="display:none" aria-hidden="true">
     <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
@@ -301,6 +374,7 @@
     <symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
     <symbol id="icon-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="icon-columns" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></symbol>
   </svg>
 
   <script type="module">
@@ -319,8 +393,11 @@
     const sessionsTabEl = document.getElementById('sessions-tab');
     const PAGE_SIZE = 50;
     let offset = 0, total = 0, sessions = [];
+    let _loading = false;
     let activePhases = new Set();
     let activeChainId = null;
+    let searchQuery = '';
+    let viewMode = 'list';
 
     const PHASES = {
       'ce-ideate':       { id: 'ideate',      color: 'var(--phase-ideate)',       icon: 'lightbulb',      label: 'Ideation' },
@@ -759,6 +836,52 @@
       }
     }
 
+    function renderBreadcrumbs() {
+      let bc = document.getElementById('breadcrumbs');
+      if (!bc) {
+        bc = document.createElement('div');
+        bc.id = 'breadcrumbs';
+        bc.className = 'breadcrumbs';
+        listEl.parentNode.insertBefore(bc, listEl);
+      }
+      let parts = ['<span class="crumb current">Home</span>'];
+      if (currentFilter?.project) {
+        parts = [`<span class="crumb" onclick="clearFilter()">Home</span> <span class="sep">›</span> <span class="crumb current">${esc(currentFilter.project)}</span>`];
+      }
+      if (activeChainId) {
+        parts = [`<span class="crumb" onclick="clearFilter()">Home</span> <span class="sep">›</span> <span class="crumb current">Chain ${esc(activeChainId.substring(0, 8))}</span>`];
+      }
+      bc.innerHTML = parts.join('');
+    }
+
+    function renderMinimap(sessions) {
+      let mm = document.getElementById('minimap');
+      if (!mm) {
+        mm = document.createElement('div');
+        mm.id = 'minimap';
+        mm.className = 'minimap';
+        document.body.appendChild(mm);
+      }
+      if (sessions.length < 10) { mm.classList.remove('visible'); document.body.classList.remove('minimap-visible'); return; }
+      mm.classList.add('visible');
+      document.body.classList.add('minimap-visible');
+      mm.innerHTML = '';
+      for (let i = 0; i < sessions.length; i++) {
+        const s = sessions[i];
+        const phase = getPhase(s.agentType);
+        const bar = document.createElement('div');
+        bar.className = 'minimap-bar';
+        bar.style.background = phase.color;
+        bar.title = s.summary ? s.summary.substring(0, 60) : '';
+        bar.dataset.index = i;
+        bar.addEventListener('click', () => {
+          const cards = document.querySelectorAll('.session-card');
+          if (cards[i]) cards[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        mm.appendChild(bar);
+      }
+    }
+
     async function fetchPage(reset) {
       if (reset) { offset = 0; sessions = []; listEl.innerHTML = ''; }
       status.textContent = 'Loading...';
@@ -785,6 +908,16 @@
       if (activeChainId) {
         displaySessions = sessions.filter(s => s.chainId === activeChainId);
       }
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        displaySessions = displaySessions.filter(s => {
+          const fields = [s.summary, s.project, s.branch, s.agentType, s.description];
+          for (const sa of s.subAgents || []) {
+            if (sa.description) fields.push(sa.description);
+          }
+          return fields.some(f => f && f.toLowerCase().includes(q));
+        });
+      }
       if (!displaySessions.length) {
         listEl.className = 'empty-state';
         listEl.innerHTML = activeChainId
@@ -792,37 +925,52 @@
           : '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has session data.</p>';
         return;
       }
-      listEl.className = 'session-list';
-      listEl.innerHTML = '';
-      let autoExpanded = false;
-      for (const s of displaySessions) {
-        try {
-          const card = renderCard(s);
-          card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
-          if (!autoExpanded && s.subAgentCount > 0) {
-            card.classList.add('expanded');
-            const se = card.querySelector('.card-summary');
-            if (se) { se.classList.remove('clamped'); se.classList.add('expanded'); }
-            autoExpanded = true;
+      if (viewMode === 'swimlane') {
+        listEl.className = 'swimlane-view';
+        listEl.innerHTML = '';
+        const phases = [...Object.values(PHASES), PHASE_OTHER];
+        for (const phase of phases) {
+          const phaseSessions = displaySessions.filter(s => getPhase(s.agentType).id === phase.id);
+          const col = document.createElement('div');
+          col.className = 'swimlane-column';
+          col.innerHTML = `<div class="swimlane-header">${esc(phase.label)} <span class="count">(${phaseSessions.length})</span></div>`;
+          for (const s of phaseSessions) {
+            const card = renderCard(s);
+            card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+            col.appendChild(card);
           }
-          listEl.appendChild(card);
-        } catch(e) {
-          const err = document.createElement('div');
-          err.className = 'session-card';
-          err.textContent = `Error: ${s.id || '?'} — ${e.message}`;
-          listEl.appendChild(err);
+          listEl.appendChild(col);
         }
-      }
+      } else {
+        listEl.className = 'session-list';
+        listEl.innerHTML = '';
+        let autoExpanded = false;
+        for (const s of displaySessions) {
+          try {
+            const card = renderCard(s);
+            card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+            if (!autoExpanded && s.subAgentCount > 0) {
+              card.classList.add('expanded');
+              const se = card.querySelector('.card-summary');
+              if (se) { se.classList.remove('clamped'); se.classList.add('expanded'); }
+              autoExpanded = true;
+            }
+            listEl.appendChild(card);
+          } catch(e) {
+            const err = document.createElement('div');
+            err.className = 'session-card';
+            err.textContent = `Error: ${s.id || '?'} — ${e.message}`;
+            listEl.appendChild(err);
+          }
+        }
       if (!activeChainId && sessions.length < total) {
-        const more = document.createElement('button');
-        more.className = 'btn btn-primary load-more';
-        more.textContent = `Load more (${sessions.length} of ${total})`;
-        more.setAttribute('aria-label', `Load more sessions. Currently showing ${sessions.length} of ${total}`);
-        more.onclick = () => { offset += PAGE_SIZE; fetchPage(false); };
-        listEl.appendChild(more);
+        listEl.appendChild(sentinel);
+      }
       }
       renderFilterPills();
       applyPhaseFilter();
+      renderBreadcrumbs();
+      renderMinimap(displaySessions);
     }
 
     async function fetchChains() {
@@ -1296,13 +1444,128 @@
       renderFilterPills();
     }
 
+    function searchSessions(query) {
+      if (!query) return sessions.slice();
+      const q = query.toLowerCase();
+      return sessions.filter(s => {
+        const fields = [s.summary, s.project, s.branch, s.agentType, s.description];
+        for (const sa of s.subAgents || []) {
+          if (sa.description) fields.push(sa.description);
+        }
+        return fields.some(f => f && f.toLowerCase().includes(q));
+      });
+    }
+
+    function applySearch() {
+      const input = document.getElementById('search-input');
+      const clear = document.getElementById('search-clear');
+      searchQuery = input.value;
+      clear.classList.toggle('visible', searchQuery.length > 0);
+      renderList();
+    }
+
     document.getElementById('refresh-btn').onclick = () => fetchPage(true);
+    document.getElementById('view-mode-toggle')?.addEventListener('click', () => {
+      viewMode = viewMode === 'list' ? 'swimlane' : 'list';
+      document.getElementById('view-mode-toggle').innerHTML = `<svg class="icon" aria-hidden="true"><use href="#icon-columns"/></svg> ${viewMode === 'list' ? 'Pipeline View' : 'List View'}`;
+      renderList();
+    });
     document.getElementById('phase-filter-clear')?.addEventListener('click', () => {
       activePhases = new Set();
       renderFilterPills();
       applyPhaseFilter();
     });
+
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    searchInput.addEventListener('input', applySearch);
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      applySearch();
+      searchInput.focus();
+    });
+    searchClear.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        searchInput.value = '';
+        applySearch();
+        searchInput.focus();
+      }
+    });
+
+    // ── Keyboard shortcuts ──────────────────────────────────────────────
+
+    document.addEventListener('keydown', (e) => {
+      const target = e.target;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') return;
+
+      const cards = Array.from(document.querySelectorAll('.session-card:not(.card-synthetic)'));
+      const currentIdx = cards.findIndex(c => c.matches(':hover') || c.classList.contains('expanded'));
+
+      switch (e.key) {
+        case 'j':
+        case 'ArrowDown':
+          e.preventDefault();
+          if (currentIdx < cards.length - 1) {
+            cards[Math.max(0, currentIdx)].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            cards[Math.max(0, currentIdx)].focus();
+          }
+          break;
+        case 'k':
+        case 'ArrowUp':
+          e.preventDefault();
+          if (currentIdx > 0) {
+            cards[currentIdx - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            cards[currentIdx - 1].focus();
+          } else if (currentIdx === -1 && cards.length > 0) {
+            cards[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            cards[0].focus();
+          }
+          break;
+        case 'e':
+        case 'Enter':
+          if (currentIdx >= 0) cards[currentIdx].click();
+          break;
+        case '/':
+          e.preventDefault();
+          const searchInput = document.querySelector('.search-wrapper input');
+          if (searchInput) searchInput.focus();
+          break;
+        case 'r':
+          // Only when not in input, refresh
+          if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
+            document.getElementById('refresh-btn')?.click();
+          }
+          break;
+      }
+    });
+
     fetchPage(true);
+
+    // Auto-refresh on tab visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        fetchPage(true);
+        showRefreshToast();
+        if (window._healthInterval) {
+          clearInterval(window._healthInterval);
+          window._healthInterval = setInterval(fetchHealthBoard, 15000);
+        }
+      }
+    });
+
+    function showRefreshToast() {
+      let toast = document.getElementById('refresh-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'refresh-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '\u21BB Updated';
+      toast.className = 'toast-visible';
+      clearTimeout(toast._hide);
+      toast._hide = setTimeout(() => { toast.className = ''; }, 2000);
+    }
 
     // ── Reviews tab ──────────────────────────────────────────────────
 
@@ -1558,6 +1821,29 @@
       analyticsData = null;
       if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
       loadReviews();
+    });
+
+    // ── Infinite scroll ──────────────────────────────────────────────
+    const sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.cssText = 'height:1px;width:100%';
+
+    const scrollObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !_loading && sessions.length < total) {
+        _loading = true;
+        offset += PAGE_SIZE;
+        fetchPage(false).finally(() => { _loading = false; });
+      }
+    }, { rootMargin: '200px' });
+    scrollObserver.observe(sentinel);
+
+    // ── Scroll to top ────────────────────────────────────────────────
+    const scrollTopBtn = document.getElementById('scroll-top-btn');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
+    });
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 </body>
