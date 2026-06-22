@@ -67,6 +67,7 @@ def _authority_map() -> dict[tuple[str, str], float]:
 DRU_allowed_orphans: list[str] = [
     "AC Mains to HV",  # ACMains->HV inter-class gap -- site-specific minimum per EE review
     "HV internal same footprint",  # HV internal same-footprint -- manufacturing clearance per EE review
+    "GateDrive near HV",  # Gate drive routing near HV -- site-specific minimum per EE review
 ]
 
 
@@ -212,9 +213,9 @@ def _runtime_findings() -> list[dict]:
         )
 
     # -- CLI template creepage_mm --
-    cli_mod = _load_module("cli", _REPO_ROOT / "packages" / "temper-drc" / "src" / "temper_drc" / "cli.py")
-    source = inspect.getsource(cli_mod.init_constraints)
-    cli_match = re.search(r'"creepage_mm":\s*([\d.]+)', source)
+    cli_path = _REPO_ROOT / "packages" / "temper-drc" / "src" / "temper_drc" / "cli.py"
+    cli_source = cli_path.read_text()
+    cli_match = re.search(r'"creepage_mm":\s*([\d.]+)', cli_source)
     if cli_match:
         cli_creepage = float(cli_match.group(1))
         if abs(cli_creepage - auth_acmains_creepage) > 0.005:
