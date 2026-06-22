@@ -60,7 +60,21 @@ The session is **not** over until the plane has landed. You must execute this pr
 *   **State Management**: Use React hooks efficiently.
 *   **Styling**: Adhere to the established Tailwind palette in `lib/colors.ts`.
 
-## 5. Operational Rules
+## 5. NetClassRules Fields (N4 — Single Source of Truth)
+
+Every `NetClassRules` instance in `TEMPER_NET_CLASSES` must set:
+
+| Field | Type | Required | Purpose |
+|-------|------|----------|---------|
+| `dru_priority` | `int` | **Yes** | DRU emission order (lower = earlier). Derived via `sorted(keys, key=lambda k: (dru_priority, k))`. Ties break lexicographically. |
+| `required_layer` | `str \| None` | No | KiCad layer name constraint (e.g., `"B.Cu"` for HighVoltage). `None` = no constraint. |
+| `safety_category` | `"HV" \| "LV" \| "AC" \| "iso" \| None` | No | Safety classification. `"AC"` is treated as HV-side in separation checks. |
+
+**DRC integration**: `packages/temper-drc/src/temper_drc/checks/safety/_safety_keywords.py` exports a shared `resolve_safety_category(net_class_str)` used by all three safety checks. When a net class is in `TEMPER_NET_CLASSES` with a non-`None` `safety_category`, the category is used directly. Otherwise a keyword-scan fallback fires with a **stderr warning** (grep-visible in CI logs). The warning convention: `"[temper-drc] safety_category fallback: ... Declare safety_category on net class '...' or add net to TEMPER_NET_ASSIGNMENTS."`
+
+**Regression note**: `HighCurrent` was reclassified from *neither HV nor LV* to `"HV"` in this changeset. Existing boards with `HighCurrent`-classed components will now trigger HV/LV separation checks.
+
+## 6. Operational Rules
 
 *   **No "Ready when you are"**: You must push your changes (`bd sync && git push`).
 *   **Sandboxing**: Recommend enabling sandboxing for shell execution.
