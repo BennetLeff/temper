@@ -82,10 +82,12 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!str || !strcmp(str, "FAULT_NONE"))            return FAULT_NONE;
     if (!strcmp(str, "FAULT_OVER_TEMP"))               return FAULT_OVER_TEMP;
     if (!strcmp(str, "FAULT_OVER_CURRENT"))            return FAULT_OVER_CURRENT;
+    if (!strcmp(str, "FAULT_IGBT_SHORT"))              return FAULT_IGBT_SHORT;
     if (!strcmp(str, "FAULT_FAN_FAILURE"))             return FAULT_FAN_FAILURE;
     if (!strcmp(str, "FAULT_PROBE_OPEN"))              return FAULT_PROBE_OPEN;
     if (!strcmp(str, "FAULT_PROBE_SHORT"))             return FAULT_PROBE_SHORT;
     if (!strcmp(str, "FAULT_THERMAL_RUNAWAY"))         return FAULT_THERMAL_RUNAWAY;
+    if (!strcmp(str, "FAULT_ADC_STUCK"))               return FAULT_ADC_STUCK;
     if (!strcmp(str, "FAULT_SELF_TEST_FAILED"))        return FAULT_SELF_TEST_FAILED;
     if (!strcmp(str, "FAULT_WATCHDOG_RESET"))          return FAULT_WATCHDOG_RESET;
     if (!strcmp(str, "FAULT_COOLDOWN_OVERHEAT"))       return FAULT_COOLDOWN_OVERHEAT;
