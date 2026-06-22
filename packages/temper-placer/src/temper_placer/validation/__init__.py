@@ -30,6 +30,12 @@ from temper_placer.validation.drc import (
     KiCadDRCValidator,
     find_kicad_cli,
 )
+from temper_placer.validation.drc_oracle import (
+    DRCOracle,
+    build_constraint_set,
+    build_placement_from_netlist,
+    create_standard_drc_oracle,
+)
 from temper_placer.validation.geometric import (
     GeometricValidator,
     GeometricViolation,
@@ -127,4 +133,9 @@ __all__ = [
     "ValidationGatesResult",
     "check_all_gates",
     "check_gate",
+    # DRC Oracle (temper-drc integration)
+    "DRCOracle",
+    "create_standard_drc_oracle",
+    "build_placement_from_netlist",
+    "build_constraint_set",
 ]
