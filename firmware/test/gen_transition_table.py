@@ -64,6 +64,10 @@ TRANSITIONS = [
     # FAULT transitions (require fault_setup = True)
     ("STATE_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
     ("STATE_FAULT", "FAULT_RESET_PERSISTS", "STATE_FAULT", None, True),
+
+    # Wildcard transitions: runaway boundary interlock fires regardless of state
+    ("*", "RUNAWAY_ABSOLUTE_TEMP", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
+    ("*", "RUNAWAY_RISE_RATE", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
 ]
 
 # ---------------------------------------------------------------------------
@@ -113,6 +117,13 @@ EVENT_STUBS = {
         "mock_sm_set_heatsink_temperature(105.0f);\n"
         "    mock_sm_press_button(BUTTON_RESET);"
     ),
+    "RUNAWAY_ABSOLUTE_TEMP": "mock_sm_set_pan_temperature(310.0f);",
+    "RUNAWAY_RISE_RATE": (
+        "mock_sm_set_pan_temperature(30.0f);\n"
+        "    state_machine_update();\n"
+        "    mock_sm_advance_time(100);\n"
+        "    mock_sm_set_pan_temperature(200.0f);"
+    ),
 }
 
 # Pan detection is handled by a CONFIDENCE counter. For PAN_DETECTED,
@@ -123,29 +134,55 @@ EVENT_STUBS = {
 # States that need a confidence-loop update for PAN_DETECTED to fire:
 NEEDS_CONFIDENCE_LOOP = {"PAN_DETECTED"}
 
+# Active states for wildcard-expanded transitions (excludes INIT, IDLE,
+# FAULT, and RUNAWAY_FAULT since those states don't have active heating paths)
+ACTIVE_STATES = [
+    "STATE_PAN_DET",
+    "STATE_PREHEAT",
+    "STATE_HEATING",
+    "STATE_NO_PAN",
+    "STATE_COOLDOWN",
+]
+
 # ---------------------------------------------------------------------------
 # Enum parsing
 # ---------------------------------------------------------------------------
 
 def parse_state_machine_header(header_path):
-    """Extract STATE_* and FAULT_* members from state_machine.h."""
+    """Extract STATE_* and FAULT_* members from state_machine.h.
+    Handles X-macro pattern: STATE_LIST(X) / FAULT_LIST(X)."""
     with open(header_path, 'r') as f:
         content = f.read()
 
     state_members = set()
     fault_members = set()
 
-    # Match typedef enum { ... } system_state_t;
-    m = re.search(r'typedef\s+enum\s*\{([^}]*)\}\s*system_state_t\s*;', content, re.DOTALL)
-    if m:
-        for name in re.findall(r'\b(STATE_\w+)', m.group(1)):
+    # Extract from STATE_LIST X-macro body: X(STATE_NAME, "str")
+    # Only match within the #define STATE_LIST(X) ... block
+    state_block = re.search(r'#define\s+STATE_LIST\(X\)\s*\\(.*?)(?=\n\s*$|\n#define|\n#if|\n#endif|\Z)', content, re.DOTALL)
+    if state_block:
+        for name in re.findall(r'X\(\s*(STATE_\w+)\s*,', state_block.group(1)):
             state_members.add(name)
 
-    # Match typedef enum { ... } fault_code_t;
-    m = re.search(r'typedef\s+enum\s*\{([^}]*)\}\s*fault_code_t\s*;', content, re.DOTALL)
+    # Also match STATE_COUNT sentinel if present
+    m = re.search(r'typedef\s+enum\s*\{[^}]*}\s*system_state_t\s*;', content, re.DOTALL)
     if m:
-        for name in re.findall(r'\b(FAULT_\w+)', m.group(1)):
+        body = m.group(0)
+        if 'STATE_COUNT' in body:
+            state_members.add('STATE_COUNT')
+
+    # Extract from FAULT_LIST X-macro body: X(FAULT_NAME, "str")
+    fault_block = re.search(r'#define\s+FAULT_LIST\(X\)\s*\\(.*?)(?=\n\s*$|\n#define|\n#if|\n#endif|\Z)', content, re.DOTALL)
+    if fault_block:
+        for name in re.findall(r'X\(\s*(FAULT_\w+)\s*,', fault_block.group(1)):
             fault_members.add(name)
+
+    # Also match FAULT_COUNT sentinel if present
+    m = re.search(r'typedef\s+enum\s*\{[^}]*}\s*fault_code_t\s*;', content, re.DOTALL)
+    if m:
+        body = m.group(0)
+        if 'FAULT_COUNT' in body:
+            fault_members.add('FAULT_COUNT')
 
     return state_members, fault_members
 
@@ -156,7 +193,8 @@ def validate_table(transitions, states, faults):
     table_faults = set()
 
     for from_s, event, to_s, fault, _ in transitions:
-        table_states.add(from_s)
+        if from_s != "*":
+            table_states.add(from_s)
         table_states.add(to_s)
         if fault:
             table_faults.add(fault)
@@ -290,21 +328,28 @@ def _c_fault_setup():
 
 
 def _c_table_rows():
-    """Generate the transition_table[] array entries."""
+    """Generate the transition_table[] array entries, expanding wildcards."""
     lines = []
     for from_s, event, to_s, fault, _ in TRANSITIONS:
-        has_fault = "true" if fault else "false"
-        fault_val = fault if fault else "FAULT_NONE"
-        extra = ""
-        if event == "PAN_REPLACED_SAME":
-            extra = "  /* same impedance -> resumes PREHEAT */"
-        elif event == "PAN_REPLACED_DIFFERENT":
-            extra = "  /* different impedance -> COOLDOWN */"
-        elif event == "NEAR_TARGET" and from_s == "STATE_HEATING":
-            extra = "  /* self-loop (PID control continues) */"
-        lines.append(
-            f'    {{ {from_s}, "{event}", {to_s}, {fault_val}, {has_fault} }},{extra}'
-        )
+        if from_s == "*":
+            # Wildcard: expand to one entry per active state
+            for active_state in ACTIVE_STATES:
+                lines.append(
+                    f'    {{ {active_state}, "{event}", {to_s}, {fault}, false }},'
+                )
+        else:
+            has_fault = "true" if fault else "false"
+            fault_val = fault if fault else "FAULT_NONE"
+            extra = ""
+            if event == "PAN_REPLACED_SAME":
+                extra = "  /* same impedance -> resumes PREHEAT */"
+            elif event == "PAN_REPLACED_DIFFERENT":
+                extra = "  /* different impedance -> COOLDOWN */"
+            elif event == "NEAR_TARGET" and from_s == "STATE_HEATING":
+                extra = "  /* self-loop (PID control continues) */"
+            lines.append(
+                f'    {{ {from_s}, "{event}", {to_s}, {fault_val}, {has_fault} }},{extra}'
+            )
     return lines
 
 

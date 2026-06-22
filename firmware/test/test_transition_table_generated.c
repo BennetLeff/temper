@@ -69,6 +69,16 @@ static const transition_row_t transition_table[] = {
     { STATE_COOLDOWN, "COOLDOWN_OVERHEAT", STATE_FAULT, FAULT_COOLDOWN_OVERHEAT, true },
     { STATE_FAULT, "FAULT_RESET_CLEARED", STATE_INIT, FAULT_NONE, false },
     { STATE_FAULT, "FAULT_RESET_PERSISTS", STATE_FAULT, FAULT_NONE, false },
+    { STATE_PAN_DET, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_PREHEAT, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_HEATING, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_NO_PAN, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_COOLDOWN, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_PAN_DET, "RUNAWAY_RISE_RATE", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_PREHEAT, "RUNAWAY_RISE_RATE", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_HEATING, "RUNAWAY_RISE_RATE", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_NO_PAN, "RUNAWAY_RISE_RATE", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
+    { STATE_COOLDOWN, "RUNAWAY_RISE_RATE", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
 };
 static const size_t transition_count = sizeof(transition_table) / sizeof(transition_table[0]);
 
@@ -165,6 +175,17 @@ static void apply_event_stubs(const char *event) {
     if (strcmp(event, "FAULT_RESET_PERSISTS") == 0) {
         mock_sm_set_heatsink_temperature(105.0f);
         mock_sm_press_button(BUTTON_RESET);
+        return;
+    }
+    if (strcmp(event, "RUNAWAY_ABSOLUTE_TEMP") == 0) {
+        mock_sm_set_pan_temperature(310.0f);
+        return;
+    }
+    if (strcmp(event, "RUNAWAY_RISE_RATE") == 0) {
+        mock_sm_set_pan_temperature(30.0f);
+        state_machine_update();
+        mock_sm_advance_time(100);
+        mock_sm_set_pan_temperature(200.0f);
         return;
     }
 }
