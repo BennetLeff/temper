@@ -290,6 +290,13 @@ const char* state_machine_get_state_string(system_state_t state) {
     return "UNKNOWN";
 }
 
+const char* state_machine_get_event_string(event_t event) {
+    for (size_t i = 0; i < EVENT_COUNT; i++) {
+        if (event_name_table[i].value == event) return event_name_table[i].name;
+    }
+    return "UNKNOWN EVENT";
+}
+
 void state_machine_set_timer(bool enabled, uint32_t time_ms) {
     sm_ctx.cooking_timer_enabled = enabled;
     sm_ctx.cooking_time_ms = time_ms;
