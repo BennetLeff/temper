@@ -11,13 +11,10 @@ Uses IterationBudget.calculate() to scale limits based on:
 - Layer count (1-4 layers)
 - Distance scaling (>100mm gets 1.5x extra budget)
 
-New in v5 (temper-6te4): Cython-accelerated A* implementation (50-100x speedup).
-Toggle between Cython and Python using TEMPER_USE_CYTHON_ASTAR environment variable.
 """
 
 import heapq
 import math
-import os
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Set, TYPE_CHECKING
 from numba import njit
@@ -258,49 +255,7 @@ class MultiLayerAStar:
         adaptive_limit = self._estimate_iterations(start_cell, end_cell)
         self.last_iteration_limit = adaptive_limit
 
-        # Try Cython implementation if available
-        # Note: Cython implementation doesn't support tolerance yet, so skip it if tolerance > cell size
-        use_cython = os.getenv("TEMPER_USE_CYTHON_ASTAR", "1") == "1"
-        if use_cython and end_tolerance <= self.grid.cell_size_mm:
-            try:
-                from temper_placer.routing.astar import find_path as find_path_impl
-
-                # Build config dict for Cython
-                config = {
-                    "via_cost": self.via_cost,
-                    "max_iterations": adaptive_limit,
-                }
-
-                # Call Cython implementation with DRC oracle for via validation
-                path = find_path_impl(
-                    grid=self.grid,
-                    start_pos=start,
-                    end_pos=end,
-                    net_id=self._net_id,
-                    config=config,
-                    start_layer=start_layer,
-                    end_layer=end_layer,
-                    drc_oracle=self.drc_oracle,
-                    net_name=self.net_name,
-                    via_diameter=self.via_diameter,
-                )
-
-                if path is not None:
-                    # Update stats (Cython doesn't track iterations yet)
-                    self.last_iterations = -1  # Unknown for Cython
-                    self.last_timeout = False
-                    return path
-                else:
-                    self.last_iterations = -1
-                    self.last_timeout = False  # Assume no timeout
-                    return None
-
-            except Exception as e:
-                # Fall through to Python implementation on any error
-                print(f"WARNING: Cython A* failed ({e}), falling back to Python")
-                pass
-
-        # Python implementation fallback
+        # Pure-Python A* implementation
         # Determine which layers are blocked at the goal (heuristic optimization)
         # This allows the heuristic to encourage early layer transitions when needed
         end_blocked_layers: Optional[Set[int]] = None
