@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Session Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
   <style>
     :root {
       --surface: #0d1117;
@@ -54,6 +55,22 @@
     }
     .app-header h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
     .status-bar { font-size: 0.8125rem; color: var(--text-secondary); }
+
+    .tab-bar {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 10px 20px; border: none; background: none; color: var(--text-secondary);
+      cursor: pointer; font-size: 0.875rem; font-weight: 500;
+      border-bottom: 2px solid transparent; transition: all var(--transition);
+      font-family: inherit; outline: none;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn:focus-visible { box-shadow: var(--focus-ring); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     .toolbar {
       display: flex; gap: 8px; align-items: center; padding: 8px 0; margin-bottom: 16px; flex-wrap: wrap;
     }
@@ -162,6 +179,57 @@
     .msg-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; color: var(--text-tertiary); }
     .msg-content { white-space: pre-wrap; font: inherit; font-size: 0.8125rem; line-height: 1.6; max-height: 360px; overflow-y: auto; margin: 0; }
     .load-more { display: block; margin: 20px auto; min-width: 240px; }
+    /* Artifacts */
+    .artifact-section { margin-top: 12px; }
+    .artifact-section-title { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .artifact-group-header { font-size: 0.75rem; color: var(--text-tertiary); margin: 8px 0 4px; }
+    .artifact-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.8125rem; cursor: pointer; border-radius: var(--radius-sm); transition: background var(--transition); }
+    .artifact-row:hover { background: var(--surface-overlay); }
+    .artifact-path { color: var(--accent); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .artifact-path:hover { color: var(--accent-hover); text-decoration: underline; }
+    .artifact-deleted { color: var(--error); font-size: 0.6875rem; margin-left: 4px; }
+    .badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 8px; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.01em; }
+    .badge-idea { background: rgba(210,153,34,0.15); color: var(--warning); }
+    .badge-plan { background: rgba(88,166,255,0.15); color: var(--accent); }
+    .badge-req { background: rgba(163,113,247,0.15); color: #a371f7; }
+    .badge-sol { background: rgba(63,185,80,0.15); color: var(--success); }
+    .badge-hw { background: rgba(248,81,73,0.15); color: var(--error); }
+    .badge-doc { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    .badge-review { background: rgba(163,113,247,0.15); color: #a371f7; }
+    .badge-fix { background: rgba(248,81,73,0.15); color: var(--error); }
+    .badge-design { background: rgba(210,153,34,0.15); color: var(--warning); }
+    .badge-report { background: rgba(63,185,80,0.15); color: var(--success); }
+    .badge-polish { background: rgba(88,166,255,0.15); color: var(--accent); }
+    .badge-work { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    .confidence-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .confidence-dot.high { background: var(--success); }
+    .confidence-dot.medium { background: var(--warning); }
+    .confidence-dot.low { border: 1px solid var(--text-tertiary); background: transparent; }
+    .artifact-toggle { font-size: 0.75rem; color: var(--accent); cursor: pointer; padding: 2px 4px; border: none; background: none; }
+    .artifact-toggle:hover { text-decoration: underline; }
+    .no-time-note { font-size: 0.75rem; color: var(--warning); margin-top: 8px; }
+    /* Preview pane */
+    .artifact-preview { margin: 6px 0 6px 16px; border-left: 3px solid var(--accent); background: var(--surface-overlay); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; overflow: hidden; }
+    .preview-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface-raised); border-bottom: 1px solid var(--border); }
+    .preview-header span { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+    .preview-close { cursor: pointer; border: none; background: none; color: var(--text-secondary); padding: 2px; }
+    .preview-close:hover { color: var(--text-primary); }
+    .preview-body { padding: 12px; font-size: 0.8125rem; line-height: 1.6; color: var(--text-primary); max-height: 400px; overflow-y: auto; }
+    .preview-body h1 { font-size: 1.1rem; margin: 8px 0 4px; }
+    .preview-body h2 { font-size: 1rem; margin: 8px 0 4px; }
+    .preview-body h3 { font-size: 0.925rem; margin: 6px 0 3px; }
+    .preview-body p { margin: 4px 0; }
+    .preview-body pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; overflow-x: auto; margin: 6px 0; }
+    .preview-body code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.75rem; }
+    .preview-body pre code { background: none; padding: 0; }
+    .preview-body :not(pre) > code { background: rgba(88,166,255,0.1); padding: 1px 4px; border-radius: 3px; }
+    .preview-body ul, .preview-body ol { padding-left: 20px; margin: 4px 0; }
+    .preview-body blockquote { border-left: 3px solid var(--border); padding-left: 12px; margin: 6px 0; color: var(--text-secondary); }
+    .preview-body hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .preview-body a { color: var(--accent); }
+    .preview-body a:hover { color: var(--accent-hover); }
+    .preview-loading { padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 0.8125rem; }
+    .preview-error { padding: 12px; color: var(--error); font-size: 0.8125rem; }
   </style>
 </head>
 <body>
@@ -180,6 +248,14 @@
     <div class="phase-filter" id="phase-filter" role="group" aria-label="Filter by phase">
       <div class="phase-filter-pills" id="phase-filter-pills"></div>
       <button class="btn btn-ghost phase-filter-clear" id="phase-filter-clear" style="display:none">Clear filters</button>
+    </div>
+    <div id="health-board">
+      <div class="health-skeleton">
+        <div class="skeleton-summary"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
     </div>
     <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
   </main>
@@ -232,9 +308,161 @@
       if (!match) return PHASE_OTHER;
       return PHASES[match[1]] || PHASE_OTHER;
     }
+    function fmtDate(ts) {
+      if (!ts) return '';
+      try {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString([], {month:'short',day:'numeric'});
+      } catch { return ''; }
+    }
+
+    // ── Tab switching ────────────────────────────────────────────────
+
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = {
+      sessions: document.getElementById('tab-sessions'),
+      reviews: document.getElementById('tab-reviews'),
+    };
+    let activeTab = 'sessions';
+    let reviewsLoaded = false;
+
+    function switchTab(tab) {
+      if (tab === activeTab) return;
+      activeTab = tab;
+      for (const btn of tabBtns) {
+        const isActive = btn.dataset.tab === tab;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive);
+      }
+      for (const [key, panel] of Object.entries(tabPanels)) {
+        panel.classList.toggle('active', key === tab);
+      }
+      if (tab === 'reviews' && !reviewsLoaded) {
+        reviewsLoaded = true;
+        loadReviews();
+      }
+    }
+
+    for (const btn of tabBtns) {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    }
+
+    // ── Session list ─────────────────────────────────────────────────
 
     function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
     function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
+
+    const artifactsCache = new Map();
+    let activePreview = null;
+
+    function typeBadge(path) {
+      if (path.startsWith('docs/plans/')) return 'plan';
+      if (path.startsWith('docs/brainstorms/')) return 'req';
+      if (path.startsWith('docs/ideation/')) return 'idea';
+      if (path.startsWith('docs/solutions/')) return 'sol';
+      if (path.startsWith('docs/hardware/')) return 'hw';
+      if (path.startsWith('docs/reviews/')) return 'review';
+      if (path.startsWith('docs/fixes/')) return 'fix';
+      if (path.startsWith('docs/designs/')) return 'design';
+      if (path.startsWith('docs/reports/')) return 'report';
+      if (path.startsWith('docs/polish/')) return 'polish';
+      if (path.startsWith('docs/work/')) return 'work';
+      return 'doc';
+    }
+
+    function typeLabel(b) {
+      const m = {plan:'plan', req:'req', idea:'idea', sol:'sol', hw:'hw', doc:'doc', review:'review', fix:'fix', design:'design', report:'report', polish:'polish', work:'work'};
+      return m[b] || b;
+    }
+
+    function renderMarkdown(text) {
+      const escaped = esc(text);
+      let html = escaped;
+      // fenced code blocks
+      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+        const c = esc(code);
+        return `<pre><code${lang ? ` class="lang-${esc(lang)}"` : ''}>${c}</code></pre>`;
+      });
+      // inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // headings
+      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+      // blockquote
+      html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+      // horizontal rules
+      html = html.replace(/^---$/gm, '<hr>');
+      // bold/italic
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      // links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      // unordered lists
+      html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+      // ordered lists
+      html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => m.includes('<ul>') ? m : '<ol>' + m + '</ol>');
+      // paragraphs
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      // clean empty paragraphs
+      html = html.replace(/<p>\s*<\/p>/g, '');
+      return html;
+    }
+
+    async function fetchArtifacts(sessionId) {
+      if (artifactsCache.has(sessionId)) return artifactsCache.get(sessionId);
+      try {
+        const res = await fetch(`/api/session/${sessionId}/artifacts`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        artifactsCache.set(sessionId, data);
+        return data;
+      } catch { return []; }
+    }
+
+    async function previewArtifact(path, rowEl) {
+      if (activePreview && activePreview.row === rowEl && activePreview.path === path) {
+        closePreview(activePreview);
+        return;
+      }
+      if (activePreview) closePreview(activePreview);
+      const existing = rowEl.querySelector('.artifact-preview');
+      if (existing) existing.remove();
+      const preview = document.createElement('div');
+      preview.className = 'artifact-preview';
+      preview.innerHTML = '<div class="preview-loading">Loading...</div>';
+      rowEl.appendChild(preview);
+      activePreview = { row: rowEl, path, el: preview, close: () => closePreview(activePreview) };
+      try {
+        const res = await fetch(`/api/artifact-content?path=${encodeURIComponent(path)}`);
+        if (!res.ok) {
+          preview.innerHTML = `<div class="preview-error">Could not load preview (${res.status})</div>`;
+          return;
+        }
+        const data = await res.json();
+        const rendered = renderMarkdown(data.content || '');
+        preview.innerHTML = `
+          <div class="preview-header">
+            <span>${esc(path.split('/').pop())}</span>
+            <button class="preview-close" aria-label="Close preview">${svgIcon('x')}</button>
+          </div>
+          <div class="preview-body">${rendered}</div>
+        `;
+        preview.querySelector('.preview-close').onclick = (e) => { e.stopPropagation(); closePreview(activePreview); };
+      } catch(e) {
+        preview.innerHTML = `<div class="preview-error">Could not load preview: ${esc(e.message)}</div>`;
+      }
+    }
+
+    function closePreview(pv) {
+      if (!pv) return;
+      if (pv.el && pv.el.parentNode) pv.el.remove();
+      if (activePreview === pv) activePreview = null;
+    }
 
     function fmtDur(ms) {
       if (!ms || ms < 0) return '';
@@ -253,6 +481,227 @@
         if (diff < 6048e5) return d.toLocaleDateString([], {weekday:'short',hour:'2-digit',minute:'2-digit'});
         return d.toLocaleDateString([], {month:'short',day:'numeric'});
       } catch { return ''; }
+    }
+
+    function timeAgo(ts) {
+      const diff = Date.now() - ts;
+      if (diff < 0) return 'just now';
+      const s = Math.round(diff / 1000);
+      if (s < 60) return `${s}s ago`;
+      if (s < 3600) return `${Math.round(s / 60)}m ago`;
+      if (s < 86400) return `${Math.round(s / 3600)}h ago`;
+      return `${Math.round(s / 86400)}d ago`;
+    }
+
+    function derivePipelineHealth(sessions) {
+      const groups = new Map();
+      for (const s of sessions) {
+        const project = s.project || '(unknown)';
+        if (!groups.has(project)) groups.set(project, []);
+        groups.get(project).push(s);
+      }
+
+      const pipelines = [];
+      for (const [project, projectSessions] of groups) {
+        const sorted = [...projectSessions].sort((a, b) => {
+          const ta = a.startedAt ? new Date(a.startedAt).getTime() : 0;
+          const tb = b.startedAt ? new Date(b.startedAt).getTime() : 0;
+          return tb - ta;
+        });
+        const latest = sorted[0];
+
+        let phase = 'active';
+        if (latest.agentType) {
+          const parts = latest.agentType.split(':');
+          if (parts.length > 1) phase = parts[parts.length - 1];
+        }
+
+        let status = 'active';
+        let stalenessTs = null;
+
+        if (latest.blockedReason || latest.dependsOn) {
+          status = 'blocked';
+        }
+
+        if (status === 'active') {
+          if (latest.duration && latest.startedAt) {
+            const started = new Date(latest.startedAt).getTime();
+            if (started + latest.duration < Date.now()) {
+              status = 'idle';
+              stalenessTs = started + latest.duration;
+            }
+          }
+        }
+
+        if (status === 'active') {
+          const lastMsg = latest.lastMessageTimestamp || latest.startedAt;
+          if (lastMsg) {
+            stalenessTs = new Date(lastMsg).getTime();
+            if (Date.now() - stalenessTs > STALL_THRESHOLD_MS) {
+              status = 'stalled';
+            }
+          }
+        }
+
+        const stalenessText = stalenessTs ? timeAgo(stalenessTs) : '—';
+
+        pipelines.push({
+          project,
+          phase,
+          status,
+          subAgentCount: latest.subAgentCount || 0,
+          latestSession: latest,
+          stalenessText,
+          stalenessTs,
+        });
+      }
+
+      pipelines.sort((a, b) => {
+        const order = { stalled: 0, active: 1, blocked: 2, idle: 3 };
+        return (order[a.status] ?? 4) - (order[b.status] ?? 4);
+      });
+
+      const summary = { active: 0, stalled: 0, idle: 0, blocked: 0 };
+      for (const p of pipelines) summary[p.status]++;
+
+      return { pipelines, summary };
+    }
+
+    function renderHealthBoard(data) {
+      healthData = data;
+      firstHealthFetchDone = true;
+
+      const { pipelines, summary } = data;
+      const total = pipelines.length;
+
+      let html = '<div class="health-board">';
+      html += '<div class="health-error-banner"></div>';
+
+      if (total === 0) {
+        html += '<div class="health-summary">0 pipelines active</div>';
+        html += '<div style="padding:24px 12px;text-align:center;color:var(--text-tertiary);font-size:0.8125rem">No pipeline activity</div>';
+      } else {
+        const parts = [];
+        if (summary.active) parts.push(`<span class="count count-active">${summary.active} active</span>`);
+        if (summary.stalled) parts.push(`<span class="count count-stalled">${summary.stalled} stalled</span>`);
+        if (summary.idle) parts.push(`<span class="count count-idle">${summary.idle} idle</span>`);
+        if (summary.blocked) parts.push(`<span class="count count-blocked">${summary.blocked} blocked</span>`);
+        html += `<div class="health-summary">${total} pipeline${total !== 1 ? 's' : ''} \u2014 ${parts.join(', ')}</div>`;
+
+        html += '<div class="health-pipelines">';
+        for (const p of pipelines) {
+          const selected = currentFilter && currentFilter.project === p.project;
+          html += `<div class="pipeline-row status-${p.status}${selected ? ' selected' : ''}" data-project="${esc(p.project)}" tabindex="0" role="button" aria-label="Filter by ${esc(p.project)}">
+            <span class="status-dot"></span>
+            <span class="pipeline-name">${esc(p.project)}</span>
+            <span class="phase-badge">${esc(p.phase)}</span>
+            <span class="status-label">${p.status}</span>
+            ${p.subAgentCount > 0 ? `<span class="agent-count">${svgIcon('bot')}${p.subAgentCount}</span>` : ''}
+            <span class="staleness-text">${esc(p.stalenessText)}</span>
+          </div>`;
+        }
+        html += '</div>';
+      }
+
+      html += '</div>';
+      healthBoardEl.innerHTML = html;
+
+      const rows = healthBoardEl.querySelectorAll('.pipeline-row');
+      for (const row of rows) {
+        row.addEventListener('click', () => onPipelineRowClick(row.dataset.project));
+        row.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPipelineRowClick(row.dataset.project); }
+        });
+      }
+    }
+
+    function renderHealthBoardSkeleton() {
+      healthBoardEl.innerHTML = '<div class="health-skeleton"><div class="skeleton-summary"></div><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>';
+    }
+
+    function showHealthBoardError() {
+      if (firstHealthFetchDone) {
+        const board = healthBoardEl.querySelector('.health-board');
+        if (board) {
+          const banner = board.querySelector('.health-error-banner');
+          if (banner) {
+            banner.classList.add('visible');
+            banner.textContent = 'Status board unavailable \u2014 retrying...';
+          }
+        }
+      } else {
+        healthBoardEl.innerHTML = '<div style="padding:24px 12px;text-align:center;color:var(--text-tertiary);font-size:0.8125rem">Status board unavailable</div>';
+      }
+    }
+
+    function hideHealthBoardError() {
+      const banner = healthBoardEl.querySelector('.health-error-banner');
+      if (banner) banner.classList.remove('visible');
+    }
+
+    function updateStalenessTexts() {
+      if (!healthData) return;
+      const now = Date.now();
+      const rows = healthBoardEl.querySelectorAll('.pipeline-row');
+      for (const row of rows) {
+        const project = row.dataset.project;
+        const pipeline = healthData.pipelines.find(p => p.project === project);
+        if (!pipeline) continue;
+
+        const stalenessEl = row.querySelector('.staleness-text');
+        if (!stalenessEl) continue;
+
+        if (pipeline.status === 'active' && pipeline.stalenessTs) {
+          if (now - pipeline.stalenessTs > STALL_THRESHOLD_MS) {
+            pipeline.status = 'stalled';
+            row.classList.remove('status-active');
+            row.classList.add('status-stalled');
+            const label = row.querySelector('.status-label');
+            if (label) label.textContent = 'stalled';
+          }
+        }
+
+        if (pipeline.stalenessTs) {
+          stalenessEl.textContent = timeAgo(pipeline.stalenessTs);
+        }
+      }
+    }
+
+    function onPipelineRowClick(project) {
+      if (currentFilter && currentFilter.project === project) return;
+      currentFilter = { project };
+      renderHealthBoard(healthData);
+      applyFilterToSessionList();
+    }
+
+    function clearFilter() {
+      currentFilter = null;
+      if (healthData) renderHealthBoard(healthData);
+      renderList();
+      updateFilterIndicator();
+    }
+
+    function applyFilterToSessionList() {
+      renderList();
+      updateFilterIndicator();
+    }
+
+    function updateFilterIndicator() {
+      const toolbar = document.querySelector('.toolbar');
+      if (!toolbar) return;
+      let indicator = toolbar.querySelector('.filter-indicator');
+      if (currentFilter) {
+        if (!indicator) {
+          indicator = document.createElement('span');
+          indicator.className = 'filter-indicator';
+          toolbar.appendChild(indicator);
+        }
+        indicator.innerHTML = `Showing: <strong>${esc(currentFilter.project)}</strong> <button class="btn btn-ghost" id="clear-filter-btn" style="padding:2px 6px;min-height:auto;font-size:0.75rem" aria-label="Clear filter">${svgIcon('x')} Clear</button>`;
+        const clearBtn = indicator.querySelector('#clear-filter-btn');
+        if (clearBtn) clearBtn.onclick = (e) => { e.stopPropagation(); clearFilter(); };
+      } else {
+        if (indicator) indicator.remove();
+      }
     }
 
     async function fetchPage(reset) {
@@ -277,14 +726,20 @@
     }
 
     function renderList() {
-      if (!sessions.length) {
+      let displaySessions = sessions;
+      if (activeChainId) {
+        displaySessions = sessions.filter(s => s.chainId === activeChainId);
+      }
+      if (!displaySessions.length) {
         listEl.className = 'empty-state';
-        listEl.innerHTML = '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has session data.</p>';
+        listEl.innerHTML = activeChainId
+          ? '<h2>No sessions in this chain</h2><p>Try loading more sessions or select a different chain.</p>'
+          : '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has session data.</p>';
         return;
       }
       listEl.className = 'session-list';
       listEl.innerHTML = '';
-      for (const s of sessions) {
+      for (const s of displaySessions) {
         try {
           const card = renderCard(s);
           card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
@@ -296,7 +751,7 @@
           listEl.appendChild(err);
         }
       }
-      if (sessions.length < total) {
+      if (!activeChainId && sessions.length < total) {
         const more = document.createElement('button');
         more.className = 'btn btn-primary load-more';
         more.textContent = `Load more (${sessions.length} of ${total})`;
@@ -306,6 +761,176 @@
       }
       renderFilterPills();
       applyFilter();
+    }
+
+    async function fetchChains() {
+      try {
+        const res = await fetch('/api/chains');
+        if (!res.ok) return;
+        const data = await res.json();
+        chains = data.chains || [];
+        renderChains();
+      } catch(e) {
+        // Silently degrade
+      }
+    }
+
+    function renderChains() {
+      const existing = document.querySelector('.chain-section');
+      if (existing) existing.remove();
+      if (!chains.length) return;
+
+      const section = document.createElement('div');
+      section.className = 'chain-section';
+
+      for (const chain of chains) {
+        const row = renderChainRow(chain);
+        section.appendChild(row);
+      }
+
+      const list = document.getElementById('session-list');
+      list.parentNode.insertBefore(section, list);
+    }
+
+    function renderChainRow(chain) {
+      const row = document.createElement('div');
+      row.className = 'chain-row';
+      if (activeChainId === chain.id) row.classList.add('active-filter');
+      row.dataset.chainId = chain.id;
+
+      const topic = document.createElement('div');
+      topic.className = 'chain-topic';
+      topic.textContent = chain.label || chain.project || 'Untitled';
+      topic.title = chain.label || '';
+      row.appendChild(topic);
+
+      const bar = document.createElement('div');
+      bar.className = 'chain-bar';
+
+      const phaseNames = ['ideation', 'brainstorm', 'plan', 'work', 'review'];
+      const phaseLabels = ['Ideation', 'Brainstorm', 'Plan', 'Work', 'Review'];
+      const phases = chain.phases || {};
+
+      for (let i = 0; i < phaseNames.length; i++) {
+        const name = phaseNames[i];
+        const state = phases[name] || { status: 'pending' };
+        const wrapper = renderPhaseDot(state, name, phaseLabels[i]);
+        bar.appendChild(wrapper);
+        if (i < phaseNames.length - 1) {
+          const line = document.createElement('div');
+          line.className = 'phase-line';
+          if (state.status === 'completed' || state.status === 'active') {
+            line.classList.add('completed-line');
+          }
+          bar.appendChild(line);
+        }
+      }
+
+      row.appendChild(bar);
+
+      if (chain.health && chain.health.length) {
+        const healthEl = renderHealth(chain.health);
+        row.appendChild(healthEl);
+      }
+
+      attachFilter(row, chain.id);
+
+      return row;
+    }
+
+    function renderPhaseDot(state, phaseName, displayLabel) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'phase-dot-wrapper';
+
+      const dot = document.createElement('div');
+      dot.className = `phase-dot ${state.status}`;
+      dot.setAttribute('aria-label', `${displayLabel}: ${state.status}`);
+
+      wrapper.appendChild(dot);
+
+      const label = document.createElement('div');
+      label.className = 'phase-label';
+      label.textContent = state.status === 'unknown' ? '?' : displayLabel;
+      wrapper.appendChild(label);
+
+      attachTooltip(wrapper, state, displayLabel);
+
+      return wrapper;
+    }
+
+    function renderHealth(health) {
+      const section = document.createElement('div');
+      section.className = 'health-section';
+      for (const h of health) {
+        const el = document.createElement('div');
+        el.className = h.type === 'broken' ? 'health-broken' : 'health-stalled';
+        el.textContent = `${h.type === 'broken' ? '\u26A0' : '\u26A1'} ${h.message}`;
+        section.appendChild(el);
+      }
+      return section;
+    }
+
+    function attachTooltip(wrapper, state, displayLabel) {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'phase-tooltip';
+
+      let content = '';
+      if (state.sessionId) {
+        const sid = state.sessionId.length > 12 ? state.sessionId.slice(0, 12) + '\u2026' : state.sessionId;
+        const dur = state.duration ? fmtDur(state.duration) : '';
+        const ts = state.startedAt ? fmtTime(state.startedAt) : '';
+        content = `<div class="phase-tooltip-label">${esc(displayLabel)}</div>`;
+        content += `<div class="phase-tooltip-meta">${esc(sid)}</div>`;
+        if (dur) content += `<div class="phase-tooltip-meta">${dur}</div>`;
+        if (ts) content += `<div class="phase-tooltip-meta">${ts}</div>`;
+      } else {
+        content = `<div class="phase-tooltip-label">${esc(displayLabel)}</div><div class="phase-tooltip-meta">No session</div>`;
+      }
+      tooltip.innerHTML = content;
+      wrapper.appendChild(tooltip);
+
+      wrapper.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') tooltip.style.opacity = '0';
+      });
+    }
+
+    function attachFilter(row, chainId) {
+      row.addEventListener('click', () => {
+        if (activeChainId === chainId) {
+          clearFilter();
+        } else {
+          activeChainId = chainId;
+          applyFilter();
+        }
+      });
+    }
+
+    function clearFilter() {
+      activeChainId = null;
+      document.querySelectorAll('.chain-row').forEach(r => r.classList.remove('active-filter'));
+      const clearBtn = document.getElementById('clear-filter-btn');
+      if (clearBtn) clearBtn.remove();
+      renderList();
+    }
+
+    function applyFilter() {
+      document.querySelectorAll('.chain-row').forEach(r => {
+        r.classList.toggle('active-filter', r.dataset.chainId === activeChainId);
+      });
+      let clearBtn = document.getElementById('clear-filter-btn');
+      if (!clearBtn) {
+        clearBtn = document.createElement('button');
+        clearBtn.id = 'clear-filter-btn';
+        clearBtn.className = 'btn btn-ghost';
+        clearBtn.innerHTML = `${svgIcon('x')} Clear filter`;
+        clearBtn.onclick = clearFilter;
+        document.querySelector('.toolbar').appendChild(clearBtn);
+      }
+      renderList();
+      const firstMatch = document.querySelector(`.session-card[data-chain-id="${activeChainId}"]`);
+      if (firstMatch) {
+        setTimeout(() => firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+      }
     }
 
     async function viewRaw(sid) {
@@ -384,10 +1009,12 @@
     }
 
     function renderCard(s) {
-      const summary = s.summary || 'Session';
+      let summary = s.summary || 'Session';
       const dur = fmtDur(s.duration);
       const ts = fmtTime(s.startedAt);
       const phase = getPhase(s.agentType);
+      const latest = s.latestAgentDate;
+      if (latest) summary += ` \u2014 latest: ${fmtTime(latest)}`;
 
       const card = document.createElement('div');
       card.className = 'session-card' + (s.isSynthetic ? ' card-synthetic' : '');
@@ -395,6 +1022,7 @@
       card.setAttribute('role', 'article');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${summary}, ${s.project || ''}${s.branch ? ', ' + s.branch : ''}`);
+      card.dataset.chainId = s.chainId || '';
 
       const summaryEl = document.createElement('div');
       summaryEl.className = 'card-summary clamped';
@@ -476,6 +1104,7 @@
         card.classList.toggle('expanded', expanded);
         summaryEl.classList.toggle('clamped', !expanded);
         summaryEl.classList.toggle('expanded', expanded);
+        if (expanded) renderArtifacts(s);
       };
 
       rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
@@ -618,6 +1247,262 @@
       applyFilter();
     });
     fetchPage(true);
+
+    // ── Reviews tab ──────────────────────────────────────────────────
+
+    async function loadReviews() {
+      reviewsContent.innerHTML = '<div class="reviews-loading"><div class="spinner"></div><p>Loading analytics...</p></div>';
+      reviewsInfo.textContent = 'Loading...';
+      try {
+        const res = await fetch('/api/analytics/reviewers');
+        if (!res.ok) throw new Error(`Server error (${res.status})`);
+        analyticsData = await res.json();
+        reviewsInfo.textContent = `${analyticsData.personas.length} personas, ${analyticsData.sessions.length} sessions`;
+        renderReviews();
+      } catch(e) {
+        reviewsContent.innerHTML = `<div class="empty-state"><h2>Cannot load analytics</h2><p>${esc(e.message)}</p><p style="margin-top:12px"><button class="btn btn-primary" onclick="loadReviews()">Retry</button></p></div>`;
+        reviewsInfo.textContent = 'Error';
+      }
+    }
+
+    function renderReviews() {
+      if (!analyticsData) return;
+      const data = analyticsData;
+      let html = '';
+
+      // Pivot table
+      html += '<section class="reviews-section"><h2>Findings Heatmap</h2>';
+      html += renderPivotTable(data);
+      html += '</section>';
+
+      // Summary cards
+      html += '<section class="reviews-section"><h2>Persona Summary</h2>';
+      html += renderSummaryCards(data);
+      html += '</section>';
+
+      // Trend chart
+      html += '<section class="reviews-section"><h2>Trend</h2>';
+      html += '<div class="chart-container"><canvas id="trend-chart"></canvas></div>';
+      html += '</section>';
+
+      // Blind spots
+      html += '<section class="reviews-section"><h2>Blind Spots</h2>';
+      html += renderBlindSpots(data);
+      html += '</section>';
+
+      reviewsContent.innerHTML = html;
+
+      if (data.trends && Object.keys(data.trends).length > 0) {
+        renderTrendChart(data);
+      }
+    }
+
+    function renderPivotTable(data) {
+      const personas = data.personas || [];
+      const sessions = data.sessions || [];
+      const matrix = data.matrix || {};
+
+      if (!sessions.length) {
+        return '<div class="empty-state"><p>No review sessions found.</p></div>';
+      }
+
+      const maxCount = Math.max(1, ...Object.values(matrix).flatMap(
+        row => Object.values(row).filter(v => typeof v === 'number' && v >= 0)
+      ));
+
+      const visibleSessions = sessions.slice(0, 30);
+
+      let html = '<div class="pivot-wrapper"><table class="pivot-table"><thead><tr><th>Persona</th>';
+      for (const s of visibleSessions) {
+        html += `<th title="${esc(s.sessionId)}">${esc(fmtDate(s.startedAt))}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+
+      for (const p of personas) {
+        const pk = p.agentType.replace('compound-engineering:', '');
+        const row = matrix[pk] || {};
+        html += `<tr><td><span class="tag tag-reviewer">${esc(p.displayName)}</span></td>`;
+        for (const s of visibleSessions) {
+          const val = row[s.sessionId];
+          if (val === undefined || val === null) {
+            html += `<td class="cell-empty">×</td>`;
+          } else if (val === 0) {
+            html += `<td class="cell-zero">•</td>`;
+          } else {
+            const alpha = 0.15 + 0.70 * (val / maxCount);
+            const bg = `rgba(88,166,255,${alpha.toFixed(3)})`;
+            const fontWeight = val > 0 ? 'font-weight:600' : '';
+            html += `<td style="background:${bg};${fontWeight}" title="${esc(p.displayName)} in ${esc(fmtDate(s.startedAt))}: ${val} findings">${val}</td>`;
+          }
+        }
+        html += '</tr>';
+      }
+
+      html += '</tbody></table></div>';
+      return html;
+    }
+
+    function renderSummaryCards(data) {
+      const personas = data.personas || [];
+      if (!personas.length) {
+        return '<div class="empty-state"><p>No persona data available.</p></div>';
+      }
+
+      let html = '<div class="cards-grid">';
+      for (const p of personas) {
+        const pk = p.agentType.replace('compound-engineering:', '');
+        const trends = (data.trends || {})[pk] || [];
+        const recent = trends.slice(-4);
+        let trendArrow = '→';
+        let trendClass = 'p-trend-flat';
+        if (recent.length >= 4) {
+          const current = recent.slice(-1)[0].findingCount;
+          const priorAvg = (recent.slice(0, -1).reduce((s, t) => s + t.findingCount, 0)) / 3;
+          if (current > priorAvg * 1.10) { trendArrow = '↑'; trendClass = 'p-trend-up'; }
+          else if (current < priorAvg * 0.90) { trendArrow = '↓'; trendClass = 'p-trend-down'; }
+        }
+
+        const acceptRate = p.acceptanceRate !== null && p.acceptanceRate !== undefined
+          ? `${Math.round(p.acceptanceRate * 100)}%`
+          : '—';
+
+        html += `<div class="persona-card">
+          <div class="p-name">${esc(p.displayName)}</div>
+          <div class="p-stat"><span>Total findings</span><span class="p-val">${p.totalFindings}</span></div>
+          <div class="p-stat"><span>High severity</span><span class="p-val p-warn">${p.highSeverityCount}</span></div>
+          <div class="p-stat"><span>Acceptance</span><span class="p-val p-accepted">${acceptRate}</span></div>
+          <div class="p-stat"><span>Trend <span class="${trendClass}">${trendArrow}</span></span><span class="p-val">${recent.length} session${recent.length !== 1 ? 's' : ''}</span></div>
+        </div>`;
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderTrendChart(data) {
+      const canvas = document.getElementById('trend-chart');
+      if (!canvas) return;
+
+      if (trendChartInstance) {
+        trendChartInstance.destroy();
+        trendChartInstance = null;
+      }
+
+      const ctx = canvas.getContext('2d');
+      const trends = data.trends || {};
+      const personas = data.personas || [];
+
+      const personaKeys = personas.map(p => p.agentType.replace('compound-engineering:', ''));
+      const allSessionIds = new Set();
+      const sessionDates = {};
+      for (const s of data.sessions || []) {
+        allSessionIds.add(s.sessionId);
+        sessionDates[s.sessionId] = s.startedAt;
+      }
+
+      const chronoSessions = (data.sessions || []).slice().reverse();
+
+      const colors = [
+        '#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff',
+        '#79c0ff', '#56d364', '#e3b341', '#ff7b72', '#d2a8ff',
+        '#1f6feb', '#238636', '#9e6a03', '#da3633', '#8957e5',
+        '#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff',
+        '#79c0ff',
+      ];
+
+      const datasets = [];
+      let colorIdx = 0;
+
+      for (const pk of personaKeys) {
+        const trend = trends[pk] || [];
+        if (!trend.length) continue;
+
+        const trendMap = {};
+        for (const t of trend) {
+          trendMap[t.sessionId] = t.findingCount;
+        }
+
+        const dataPoints = [];
+        for (const s of chronoSessions) {
+          dataPoints.push(trendMap[s.sessionId] !== undefined ? trendMap[s.sessionId] : null);
+        }
+
+        const pinfo = personas.find(p => p.agentType.replace('compound-engineering:', '') === pk);
+        datasets.push({
+          label: pinfo ? pinfo.displayName : pk,
+          data: dataPoints,
+          borderColor: colors[colorIdx % colors.length],
+          backgroundColor: colors[colorIdx % colors.length] + '33',
+          tension: 0.2,
+          pointRadius: 3,
+          spanGaps: false,
+        });
+        colorIdx++;
+      }
+
+      if (!datasets.length) return;
+
+      if (typeof Chart === 'undefined') {
+        canvas.parentElement.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:40px">Chart library unavailable</p>';
+        return;
+      }
+
+      trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          scales: {
+            x: {
+              type: 'category',
+              labels: chronoSessions.map(s => fmtDate(s.startedAt)),
+              ticks: { color: '#8b949e', maxTicksLimit: 15 },
+              grid: { color: '#30363d33' },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#8b949e', precision: 0 },
+              grid: { color: '#30363d33' },
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#e6edf3', boxWidth: 12, padding: 16, usePointStyle: true, pointStyle: 'circle' },
+              onClick: function(e, legendItem, legend) {
+                const index = legendItem.datasetIndex;
+                const ci = legend.chart;
+                const meta = ci.getDatasetMeta(index);
+                meta.hidden = !meta.hidden;
+                ci.update();
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function renderBlindSpots(data) {
+      const blindSpots = data.blindSpots || [];
+      if (!blindSpots.length) {
+        return '<div class="blind-spot-clear">No blind spots detected</div>';
+      }
+      let html = '';
+      for (const bs of blindSpots) {
+        html += `<div class="blind-spot-item">
+          <svg class="bs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="bs-text"><strong>${esc(bs.displayName)}</strong> – ${esc(bs.reason)}</div>
+        </div>`;
+      }
+      return html;
+    }
+
+    document.getElementById('refresh-reviews-btn').onclick = () => {
+      analyticsData = null;
+      if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
+      loadReviews();
+    };
   </script>
 </body>
 </html>
