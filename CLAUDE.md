@@ -60,7 +60,26 @@ The session is **not** over until the plane has landed. You must execute this pr
 *   **State Management**: Use React hooks efficiently.
 *   **Styling**: Adhere to the established Tailwind palette in `lib/colors.ts`.
 
-## 5. Operational Rules
+## 5. LOC Cap Gate
+
+A 1000-line ceiling is enforced on source `.py` and `.c` files by CI.
+
+**Gate command:** `uv run python tools/loc_cap_check.py`
+
+**Allowlist:** `.loc-allowlist.txt` at repo root. Format:
+```
+# Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
+```
+
+**Strict-shrink policy:** The allowlist must shrink monotonically. Adding a new entry requires removing a larger/comparable one. The gate's `NEW_ENTRY_NO_REMOVAL` check rejects new entries without corresponding removals.
+
+**Exemption globs:**
+- Include: `packages/*/src/temper_*/**/*.py`, `firmware/**/*.c`
+- Exclude: `packages/*/tests/**`, `firmware/test/**`, `firmware/test/build/**`, `**/__pycache__/**`, `**/build/**`
+
+When growing a file past 1000 lines, see the gate's failure message for the specific violation class.
+
+## 6. Operational Rules
 
 *   **No "Ready when you are"**: You must push your changes (`bd sync && git push`).
 *   **Sandboxing**: Recommend enabling sandboxing for shell execution.
