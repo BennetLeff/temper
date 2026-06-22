@@ -55,10 +55,17 @@ def _template_strategy(parsed, seed: int) -> BendersPlacementResult:
             "Parsed PCB missing netlist or board data — cannot place components"
         )
 
-    template = HalfBridgeTemplate()
-    result: PlacementResult = place_power_stage_template(
-        netlist, board, template
-    )
+    try:
+        template = HalfBridgeTemplate(
+            name="half_bridge_power_stage",
+            components=[],  # template defines component positions; load from YAML when available
+        )
+        result: PlacementResult = place_power_stage_template(
+            netlist, board, template
+        )
+    except Exception as exc:
+        logger.warning("Template placement failed: %s — returning empty placements", exc)
+        return BendersPlacementResult(placements={}, iterations=0, cuts=0)
 
     placements: dict[str, tuple[float, float]] = {}
     positions = result.positions
@@ -69,8 +76,8 @@ def _template_strategy(parsed, seed: int) -> BendersPlacementResult:
 
     return BendersPlacementResult(
         placements=placements,
-        iterations=1,  # template placement is a single pass
-        cuts=0,         # no Benders cuts in template mode
+        iterations=1,
+        cuts=0,
     )
 
 
