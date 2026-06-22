@@ -516,3 +516,230 @@ class TestDRCLossIntegration:
         assert hasattr(result, "breakdown")
         assert float(result.value) == 15.0
         assert isinstance(result.breakdown, dict)
+
+
+# =============================================================================
+# DRCCompositeLoss Tests (temper-drc composable check integration)
+# =============================================================================
+
+
+def _make_drc_composite_context(n_components: int = 3) -> "LossContext":
+    """Build a minimal LossContext for DRCCompositeLoss tests."""
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Component, Netlist, Pin
+    from temper_placer.losses.base import LossContext
+
+    components = []
+    for i in range(n_components):
+        c = Component(
+            ref=f"U{i+1}",
+            footprint="0805",
+            bounds=(4.0, 3.0),
+            net_class="Signal",
+            pins=[Pin(f"p{j}", f"{j}", (float(j) * 1.5, 0)) for j in range(1, 3)],
+        )
+        components.append(c)
+    netlist = Netlist(components=components, nets=[])
+    board = Board(width=100, height=100)
+    return LossContext.from_netlist_and_board(netlist, board)
+
+
+class TestDRCCompositeLoss:
+    """Tests for DRCCompositeLoss with temper-drc integration."""
+
+    def test_name(self):
+        """Loss function name is 'drc_composite'."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(2)
+        loss_fn = create_drc_composite_loss(context)
+        assert loss_fn.name == "drc_composite"
+
+    def test_available_when_temper_drc_installed(self):
+        """is_available is True when temper-drc is present."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(2)
+        loss_fn = create_drc_composite_loss(context)
+        assert loss_fn.is_available is True
+
+    def test_non_overlapping_returns_zero(self):
+        """Non-overlapping placement has zero penalty."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(3)
+        loss_fn = create_drc_composite_loss(context)
+
+        pos = jnp.array([[10.0, 10.0], [40.0, 40.0], [70.0, 70.0]])
+        rot = jnp.zeros((3, 4)).at[:, 0].set(1.0)
+
+        result = loss_fn(pos, rot, context)
+
+        assert float(result.value) == 0.0
+        assert float(result.breakdown["drc_errors"]) == 0
+        assert float(result.breakdown["drc_criticals"]) == 0
+
+    def test_overlapping_returns_positive_loss(self):
+        """Overlapping components produce positive loss."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(3)
+        loss_fn = create_drc_composite_loss(context)
+
+        pos = jnp.array([[10.0, 10.0], [12.0, 10.0], [70.0, 70.0]])
+        rot = jnp.zeros((3, 4)).at[:, 0].set(1.0)
+
+        result = loss_fn(pos, rot, context)
+
+        assert float(result.value) > 0
+        assert float(result.breakdown["drc_criticals"]) > 0
+
+    def test_drc_loss_signal_exists(self):
+        """Overlapping placement has strictly higher loss than non-overlapping."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(3)
+        loss_fn = create_drc_composite_loss(context)
+
+        pos_a = jnp.array([[10.0, 10.0], [40.0, 40.0], [70.0, 70.0]])
+        pos_b = jnp.array([[10.0, 10.0], [12.0, 10.0], [70.0, 70.0]])
+        rot = jnp.zeros((3, 4)).at[:, 0].set(1.0)
+
+        loss_a = loss_fn(pos_a, rot, context).value
+        loss_b = loss_fn(pos_b, rot, context).value
+
+        assert float(loss_b) > float(loss_a), (
+            f"Overlapping should increase loss: {float(loss_a):.1f} -> {float(loss_b):.1f}"
+        )
+
+    def test_weight_schedule_ramp(self):
+        """weight_schedule ramps from 0 to 1 over first 20%."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(2)
+        loss_fn = create_drc_composite_loss(context)
+
+        total = 100
+        assert loss_fn.weight_schedule(0, total) == 0.0
+        assert loss_fn.weight_schedule(10, total) == 0.5
+        assert loss_fn.weight_schedule(19, total) == 0.95
+        assert loss_fn.weight_schedule(20, total) == 1.0
+        assert loss_fn.weight_schedule(100, total) == 1.0
+
+    def test_breakdown_keys_present(self):
+        """LossResult breakdown contains all expected keys."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(3)
+        loss_fn = create_drc_composite_loss(context)
+
+        pos = jnp.array([[10.0, 10.0], [12.0, 10.0], [70.0, 70.0]])
+        rot = jnp.zeros((3, 4)).at[:, 0].set(1.0)
+
+        result = loss_fn(pos, rot, context)
+
+        expected_keys = {
+            "drc_total_penalty",
+            "drc_checks_run",
+            "drc_checks_failed",
+            "drc_errors",
+            "drc_warnings",
+            "drc_criticals",
+        }
+        for key in expected_keys:
+            assert key in result.breakdown, f"Missing breakdown key: {key}"
+
+    def test_last_penalty_tracks(self):
+        """last_penalty property reflects most recent evaluation."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(3)
+        loss_fn = create_drc_composite_loss(context)
+
+        pos = jnp.array([[10.0, 10.0], [12.0, 10.0], [70.0, 70.0]])
+        rot = jnp.zeros((3, 4)).at[:, 0].set(1.0)
+
+        loss_fn(pos, rot, context)
+        assert loss_fn.last_penalty > 0
+
+    def test_loss_result_format(self):
+        """Result conforms to LossResult interface."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(2)
+        loss_fn = create_drc_composite_loss(context)
+
+        pos = jnp.array([[10.0, 10.0], [40.0, 40.0]])
+        rot = jnp.zeros((2, 4)).at[:, 0].set(1.0)
+
+        result = loss_fn(pos, rot, context)
+
+        assert hasattr(result, "value")
+        assert hasattr(result, "breakdown")
+        assert isinstance(result.breakdown, dict)
+        assert result.value.dtype is not None
+
+
+class TestDRCCompositeLossUnavailable:
+    """Tests for graceful degradation when temper-drc is not available."""
+
+    def test_unavailable_returns_zero(self):
+        """When oracle is None, loss returns 0.0."""
+        from temper_placer.losses.drc_oracle_loss import DRCCompositeLoss
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Netlist
+        from temper_placer.losses.base import LossContext
+
+        loss_fn = DRCCompositeLoss(oracle=None)
+        assert loss_fn.is_available is False
+
+        netlist = Netlist(components=[], nets=[])
+        board = Board(width=100, height=100)
+        context = LossContext.from_netlist_and_board(netlist, board)
+        pos = jnp.zeros((0, 2))
+        rot = jnp.zeros((0, 4))
+
+        result = loss_fn(pos, rot, context)
+
+        assert float(result.value) == 0.0
+        assert "drc_unavailable" in result.breakdown
+        assert float(result.breakdown["drc_unavailable"]) == 1.0
+
+    def test_unavailable_name_is_correct(self):
+        """Name is still 'drc_composite' when unavailable."""
+        from temper_placer.losses.drc_oracle_loss import DRCCompositeLoss
+
+        loss_fn = DRCCompositeLoss(oracle=None)
+        assert loss_fn.name == "drc_composite"
+
+
+class TestDRCCompositeLossGradientSignal:
+    """Tests verifying DRC loss provides non-constant signal (R4)."""
+
+    def test_loss_value_varies_with_positions(self):
+        """Loss value changes meaningfully between different placements."""
+        from temper_placer.losses.drc_oracle_loss import create_drc_composite_loss
+
+        context = _make_drc_composite_context(4)
+        loss_fn = create_drc_composite_loss(context)
+
+        # Placement A: all non-overlapping
+        pos_a = jnp.array([[5.0, 5.0], [25.0, 25.0], [50.0, 50.0], [75.0, 75.0]])
+        # Placement B: one pair overlaps
+        pos_b = jnp.array([[5.0, 5.0], [7.0, 6.0], [50.0, 50.0], [75.0, 75.0]])
+        # Placement C: two pairs overlap
+        pos_c = jnp.array([[5.0, 5.0], [7.0, 6.0], [50.0, 50.0], [51.0, 51.0]])
+        rot = jnp.zeros((4, 4)).at[:, 0].set(1.0)
+
+        val_a = float(loss_fn(pos_a, rot, context).value)
+        val_b = float(loss_fn(pos_b, rot, context).value)
+        val_c = float(loss_fn(pos_c, rot, context).value)
+
+        # Non-overlapping should be 0 (ERC warnings from floating pins still exist)
+        # Overlapping should produce higher loss
+        assert val_b > val_a, (
+            f"Overlapping should increase loss: {val_a} -> {val_b}"
+        )
+        assert val_c > val_b, (
+            f"More overlaps should increase loss: {val_b} -> {val_c}"
+        )
