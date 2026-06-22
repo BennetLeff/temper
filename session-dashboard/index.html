@@ -953,6 +953,18 @@
           return fields.some(f => f && f.toLowerCase().includes(q));
         });
       }
+      // Sort: active (green) first, then completed (grey), then failed (red)
+      displaySessions.sort((a, b) => {
+        const ageA = a.latestAgentDate ? Date.now() - new Date(a.latestAgentDate).getTime() : null;
+        const ageB = b.latestAgentDate ? Date.now() - new Date(b.latestAgentDate).getTime() : null;
+        const activeA = ageA !== null && ageA < 3600000 ? 0 : 1;
+        const activeB = ageB !== null && ageB < 3600000 ? 0 : 1;
+        if (activeA !== activeB) return activeA - activeB;
+        // Within same active group, keep chronological order
+        const ta = a.startedAt ? new Date(a.startedAt).getTime() : 0;
+        const tb = b.startedAt ? new Date(b.startedAt).getTime() : 0;
+        return tb - ta;
+      });
       if (!displaySessions.length) {
         listEl.className = 'empty-state';
         listEl.innerHTML = activeChainId
@@ -1327,7 +1339,11 @@
           const btn = document.createElement('button');
           btn.className = 'btn btn-ghost subagent-truncated';
           btn.textContent = `Show all ${s.subAgents.length} sub-agents`;
-          btn.onclick = (e) => { e.stopPropagation(); btn.remove(); for (const sa of s.subAgents.slice(20)) rowsContainer.appendChild(createSubagentRow(sa)); };
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            btn.style.display = 'none';
+            for (const sa of s.subAgents.slice(20)) rowsContainer.appendChild(createSubagentRow(sa));
+          };
           rowsContainer.appendChild(btn);
         }
         detail.appendChild(rowsContainer);
