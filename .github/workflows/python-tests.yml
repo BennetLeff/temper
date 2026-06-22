@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
   pull_request:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
 

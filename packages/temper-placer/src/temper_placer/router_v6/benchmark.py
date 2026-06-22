@@ -11,6 +11,7 @@ Usage:
 
 import argparse
 import json
+import statistics
 import sys
 import time
 from pathlib import Path
@@ -185,6 +186,124 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
     return board_report
 
 
+def _compute_latency_stats(latency_ms_values: list[float]) -> dict:
+    """Compute per-path latency statistics.
+
+    Returns dict with mean, median, p95, min, max, count, or nulls if empty.
+    """
+    if not latency_ms_values:
+        return {"mean": None, "median": None, "p95": None, "min": None, "max": None, "count": 0}
+    sorted_vals = sorted(latency_ms_values)
+    n = len(sorted_vals)
+    return {
+        "mean": statistics.mean(sorted_vals),
+        "median": statistics.median(sorted_vals),
+        "p95": sorted_vals[int(n * 0.95)] if n > 1 else sorted_vals[0],
+        "min": sorted_vals[0],
+        "max": sorted_vals[-1],
+        "count": n,
+    }
+
+
+def run_v6_router(pcb_path: Path) -> BoardRoutingReport:
+    """Run V6 router on a board and generate diagnostic report.
+
+    Args:
+        pcb_path: Path to .kicad_pcb file
+
+    Returns:
+        BoardRoutingReport with structured diagnostics including per-path p95 latency
+    """
+    from temper_placer.router_v6.pipeline import RouterV6Pipeline
+
+    board_name = pcb_path.stem
+    print(f"\n{'='*60}")
+    print(f"Running V6 router on: {board_name}")
+    print(f"{'='*60}")
+
+    pipeline = RouterV6Pipeline(verbose=True)
+
+    route_start = time.time()
+    result = pipeline.run(pcb_path)
+    route_time = time.time() - route_start
+
+    pcb = result.pcb
+    pf_result = result.stage4.pathfinding_result
+
+    # Build per-net reports
+    net_reports: list[NetRoutingReport] = []
+    routed_nets = set(pf_result.routed_paths.keys())
+
+    for net in pcb.nets:
+        net_name = net.name
+        if net_name in routed_nets:
+            path = pf_result.routed_paths[net_name]
+            route_length = path.path_length
+            pin_count = len(net.pins)
+            report = NetRoutingReport(
+                net_name=net_name,
+                status=RoutingStatus.SUCCESS,
+                score=1.0,
+                pins=pin_count,
+                routed_segments=path.segment_count,
+                total_segments=pin_count - 1 if pin_count > 1 else 1,
+                route_length_mm=route_length,
+            )
+        else:
+            pin_count = len(net.pins)
+            report = NetRoutingReport(
+                net_name=net_name,
+                status=RoutingStatus.FAILED,
+                score=0.0,
+                pins=pin_count,
+                routed_segments=0,
+                total_segments=pin_count - 1 if pin_count > 1 else 1,
+                failure_reason=FailureReason.NO_PATH,
+                message="V6 router failed to find path",
+            )
+        net_reports.append(report)
+
+    # Per-path latency stats from the PathfindingResult
+    per_path_latencies: list[float] = []
+    if pf_result.per_path_latency_ms:
+        per_path_latencies = list(pf_result.per_path_latency_ms.values())
+    latency_stats = _compute_latency_stats(per_path_latencies)
+
+    # Aggregate board statistics
+    auto_routed = result.success_count
+    failed = result.failure_count
+    total_nets = auto_routed + failed
+    completion_rate = result.completion_rate
+    overall_score = aggregate_board_score(net_reports)
+
+    total_route_length = sum(
+        r.route_length_mm for r in net_reports if r.route_length_mm > 0
+    )
+
+    board_report = BoardRoutingReport(
+        board_name=board_name,
+        net_reports=net_reports,
+        overall_score=overall_score,
+        auto_routed_count=auto_routed,
+        flagged_count=0,
+        failed_count=failed,
+        total_nets=total_nets,
+        completion_rate=completion_rate,
+        total_route_length_mm=total_route_length,
+        avg_detour_ratio=0.0,
+        total_drc_violations=0,
+        runtime_seconds=route_time,
+        per_path_latency_ms=latency_stats,
+    )
+
+    print(f"\n{board_report}")
+    print(f"  Route time: {route_time:.1f}s")
+    print(f"  Per-path p95 latency: {latency_stats['p95']:.2f} ms" if latency_stats.get('p95') else "  Per-path p95 latency: N/A")
+    print(f"  Overall score: {overall_score:.3f}")
+
+    return board_report
+
+
 def run_benchmark_suite(
     router: str = "v5",
     board_filter: str | None = None,
@@ -232,9 +351,7 @@ def run_benchmark_suite(
         if router == "v5":
             report = run_v5_router(board.path)
         elif router == "v6":
-            # TODO: Implement V6 router
-            print("ERROR: V6 router not yet implemented")
-            sys.exit(1)
+            report = run_v6_router(board.path)
         else:
             print(f"ERROR: Unknown router version: {router}")
             sys.exit(1)
@@ -251,6 +368,8 @@ def run_benchmark_suite(
         print(f"  Score: {report.overall_score:.3f}")
         print(f"  Completion: {report.completion_rate*100:.1f}% ({report.auto_routed_count}/{report.total_nets})")
         print(f"  Runtime: {report.runtime_seconds:.1f}s")
+        if report.per_path_latency_ms and report.per_path_latency_ms.get("p95"):
+            print(f"  Per-path p95: {report.per_path_latency_ms['p95']:.2f} ms")
         print()
 
     # Geometric mean across boards

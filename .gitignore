@@ -53,6 +53,8 @@ fp-info-cache
 *.raw
 *.log
 *.txt
+!*.pyc
+!.loc-allowlist.txt
 !*results.txt
 !.loc-allowlist.txt
 
