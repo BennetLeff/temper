@@ -1,0 +1,39 @@
+# KiCad Net Name to Critical Loop Group Mapping
+#
+# Each entry maps one or more KiCad net names to a critical loop group.
+# The extraction pipeline uses this to identify which nets belong to
+# which electrical loop for parasitic extraction.
+#
+# Net names are matched exactly (case-sensitive).
+
+gate_drive_hs:
+  nets:
+    - GATE_H
+    - GND
+  description: High-side gate-drive loop (driver -> gate trace -> IGBT gate -> emitter return)
+
+gate_drive_ls:
+  nets:
+    - GATE_L
+    - PGND
+  description: Low-side gate-drive loop (driver -> gate trace -> IGBT gate -> emitter return)
+
+dc_bus:
+  nets:
+    - DC_BUS+
+    - DC_BUS-
+  description: DC-bus power loop (bus capacitor -> half-bridge -> return)
+
+resonant_tank:
+  nets:
+    - SW_NODE
+    - DC_BUS-
+  description: Resonant tank loop (half-bridge midpoint -> capacitor -> coil -> return)
+
+aux_supply:
+  nets:
+    - "+3V3"
+    - "+5V"
+    - "+15V"
+    - VCC_BOOT
+  description: Auxiliary supply rails (digital, analog, gate-drive supplies)
