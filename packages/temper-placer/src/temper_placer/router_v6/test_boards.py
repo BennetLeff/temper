@@ -45,13 +45,12 @@ class TestBoard:
 
 # Standard test suite locations
 # NOTE: Using unrouted versions from test fixtures for benchmarking
-BASE_PATH = Path("/Users/bennet/Desktop/temper/packages/temper-placer/tests/fixtures/external/.cache")
+BASE_PATH = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "external" / ".cache"
 
 PIANTOR_PATH = BASE_PATH / "piantor_right" / "piantor_right_unrouted.kicad_pcb"
 LIBRESOLAR_BMS_PATH = BASE_PATH / "libresolar_bms" / "libresolar_bms_unrouted.kicad_pcb"
 RP2040_PATH = BASE_PATH / "rp2040_designguide" / "rp2040_designguide_unrouted.kicad_pcb"
 BITAXE_PATH = BASE_PATH / "bitaxe_ultra" / "bitaxe_ultra_unrouted.kicad_pcb"
-TEMPER_PATH = Path("/Users/bennet/Desktop/temper/packages/temper-placer/temper_router_v6_fine.kicad_pcb")
 
 
 # Test board definitions (using unrouted versions)
