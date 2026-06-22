@@ -58,6 +58,7 @@ def compile_routing_results(
     width_assignment: TraceWidthAssignment,
     via_placement: ViaPlacement,
     length_matching: LengthMatchingResults | None = None,
+    plane_net_names: list[str] | None = None,
 ) -> RoutingResults:
     """
     Compile all routing results into final output.
@@ -70,6 +71,8 @@ def compile_routing_results(
         width_assignment: Trace widths from Stage 4.4
         via_placement: Placed vias from Stage 4.3
         length_matching: Optional length matching from Stage 4.5
+        plane_net_names: Optional list of plane net names counted as
+            routed-by-plane successes (e.g., GND, VCC, PGND)
 
     Returns:
         RoutingResults with complete routing solution
@@ -111,6 +114,21 @@ def compile_routing_results(
             vias=net_vias,
             matched_length_mm=matched_length,
         )
+
+    # Count plane nets as routed-by-plane successes
+    if plane_net_names:
+        dummy_path = RoutePath(
+            net_name="", coordinates=[], layer_name="F.Cu", path_length=0.0
+        )
+        for name in plane_net_names:
+            if name not in compiled_routes:
+                compiled_routes[name] = CompiledRoute(
+                    net_name=name,
+                    path=dummy_path,
+                    width_mm=0.0,
+                    vias=[],
+                    matched_length_mm=None,
+                )
 
     return RoutingResults(
         compiled_routes=compiled_routes,
