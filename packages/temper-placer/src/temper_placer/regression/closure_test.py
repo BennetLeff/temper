@@ -116,7 +116,7 @@ class ClosureTest:
         # Step 3: Router V6 routing
         router_completion_pct = 0.0
         try:
-            from temper_placer.router_v6.pipeline import route_pcb
+            from temper_placer.router_v6 import route_pcb
 
             routing_result = route_pcb(parsed, optimized_placements, seed=self.router_seed)
             router_completion_pct = getattr(routing_result, "completion_rate", 0.0)
