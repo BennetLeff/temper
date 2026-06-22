@@ -64,8 +64,10 @@ def _template_strategy(parsed, seed: int) -> BendersPlacementResult:
             netlist, board, template
         )
     except Exception as exc:
-        logger.warning("Template placement failed: %s — returning empty placements", exc)
-        return BendersPlacementResult(placements={}, iterations=0, cuts=0)
+        logger.warning(
+            "Template placement failed: %s — falling back to existing positions", exc
+        )
+        return _fallback_positions(parsed)
 
     placements: dict[str, tuple[float, float]] = {}
     positions = result.positions
@@ -78,6 +80,28 @@ def _template_strategy(parsed, seed: int) -> BendersPlacementResult:
         placements=placements,
         iterations=1,
         cuts=0,
+    )
+
+
+def _fallback_positions(parsed) -> BendersPlacementResult:
+    """Extract existing component positions from the parsed PCB."""
+    placements: dict[str, tuple[float, float]] = {}
+    board = _extract_board(parsed)
+    if board is None:
+        return BendersPlacementResult(placements={}, iterations=0, cuts=0)
+
+    for fp in getattr(board, "footprints", []):
+        ref = getattr(fp, "reference", None)
+        pos = getattr(fp, "position", None)
+        if ref and pos:
+            placements[ref] = (float(pos[0]), float(pos[1]))
+
+    if placements:
+        logger.info(
+            "Using %d existing component positions from board", len(placements)
+        )
+    return BendersPlacementResult(
+        placements=placements, iterations=1, cuts=0
     )
 
 
