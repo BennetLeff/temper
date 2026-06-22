@@ -233,6 +233,8 @@ class BoardRoutingReport:
     avg_detour_ratio: float
     total_drc_violations: int
     runtime_seconds: float
+    per_path_latency_ms: dict | None = None
+    per_path_latency_ms: dict | None = None
 
     def __str__(self) -> str:
         return (f"{self.board_name}: {self.completion_rate*100:.1f}% complete "
@@ -255,6 +257,7 @@ class BoardRoutingReport:
             "avg_detour_ratio": self.avg_detour_ratio,
             "total_drc_violations": self.total_drc_violations,
             "runtime_seconds": self.runtime_seconds,
+            "per_path_latency_ms": self.per_path_latency_ms,
         }
 
 
