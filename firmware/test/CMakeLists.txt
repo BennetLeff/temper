@@ -119,8 +119,11 @@ add_executable(test_state_machine_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
     ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_transition_table_generated.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_state_machine.c
 )
 target_include_directories(test_state_machine_only PRIVATE ${INCLUDE_DIRS})
