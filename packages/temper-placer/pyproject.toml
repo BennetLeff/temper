@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "Cython>=3.0.0"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
@@ -42,6 +42,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "opencv-python>=4.11.0.86",
     "shapely>=2.1.2",
+    "pydantic>=2.13.4",
 ]
 
 [project.optional-dependencies]
@@ -128,9 +129,5 @@ dev = [
     "hypothesis>=6.148.7",
     "pytest>=9.0.2",
     "pytest-bdd>=8.1.0",
-    "Cython>=3.0.0",
 ]
 
-# Cython configuration for A* acceleration
-[tool.cython]
-language_level = "3"
