@@ -147,16 +147,9 @@ The firmware implements multiple layers of safety:
 
 ## Configuration
 
-Key parameters in `state_machine.c`:
-
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| `SAFE_IDLE_TEMP` | 50°C | Temperature for COOLDOWN → IDLE |
-| `MAX_TEMP` | 250°C | Maximum allowed setpoint |
-| `MIN_TEMP` | 50°C | Minimum allowed setpoint |
-| `PAN_DETECT_TIMEOUT_MS` | 5000ms | Pan detection timeout |
-| `NO_PAN_TIMEOUT_MS` | 3000ms | Pan removal grace period |
-| `MAX_PREHEAT_TIME_MS` | 600000ms | 10 minute preheat limit |
+Tunable parameters are declared in `firmware/config.yaml` and rendered into
+`firmware/config.h` by `firmware/tools/gen_config.py`. See the manifest for
+current values.
 
 ## API Reference
 
