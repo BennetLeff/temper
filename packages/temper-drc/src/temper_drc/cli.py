@@ -350,7 +350,7 @@ def init_constraints(
             "HV-Signal": 10.0,
         },
         "hv_clearance_mm": hv_clearance,
-        "creepage_mm": 8.0,
+        "creepage_mm": 6.0,
         "isolation_mm": 6.0,
         "courtyard_clearance_mm": 0.25,
         "max_loop_area_mm2": 100.0,
