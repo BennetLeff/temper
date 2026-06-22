@@ -1,0 +1,37 @@
+version: 1
+boards:
+  - id: temper
+    pcb: temper/temper.kicad_pcb
+    constraints: temper/constraints.yaml
+    baseline: temper/baseline.json
+    seed: 42
+    epochs: 8000
+    description: "Temper induction cooker — must never regress"
+  - id: minimal
+    pcb: minimal/minimal_board.kicad_pcb
+    constraints: minimal/constraints_minimal.yaml
+    baseline: minimal/baseline.json
+    seed: 43
+    epochs: 2000
+    description: "Minimal 4-component board — fast parse/optimize smoke test"
+  - id: rp2040_designguide
+    pcb: rp2040_designguide/RP2040-Guide.kicad_pcb
+    constraints: rp2040_designguide/constraints.yaml
+    baseline: rp2040_designguide/baseline.json
+    seed: 44
+    epochs: 8000
+    description: "RP2040 Design Guide — real open-source KiCad 6+ board"
+  - id: bitaxe_ultra
+    pcb: bitaxe_ultra/bitaxeUltra.kicad_pcb
+    constraints: bitaxe_ultra/constraints.yaml
+    baseline: bitaxe_ultra/baseline.json
+    seed: 45
+    epochs: 8000
+    description: "BitAxe Ultra — power electronics, most relevant domain"
+  - id: piantor_right
+    pcb: piantor_right/keyboard_pcb.kicad_pcb
+    constraints: piantor_right/constraints.yaml
+    baseline: piantor_right/baseline.json
+    seed: 46
+    epochs: 8000
+    description: "Piantor Right — keyboard matrix, grid-like placement"

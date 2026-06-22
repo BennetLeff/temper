@@ -1,0 +1,15 @@
+board:
+  width_mm: 138.8
+  height_mm: 89.72
+  margin_mm: 2.0
+
+zones:
+  - name: main
+    bounds: [0, 0, 138.8, 89.72]
+    net_classes: ["Signal", "Power"]
+
+loss_weights:
+  overlap: 200.0
+  boundary: 100.0
+  wirelength: 20.0
+  spread: 5.0
