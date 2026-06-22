@@ -54,6 +54,7 @@ fp-info-cache
 *.log
 *.txt
 !*results.txt
+!.loc-allowlist.txt
 
 # IDEs
 .vscode/
