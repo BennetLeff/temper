@@ -223,15 +223,20 @@ bd blocked
 
 ## Transition Table Regeneration
 
-`firmware/test/test_transition_table_generated.c` is generated from the
-transition table in `firmware/test/gen_transition_table.py`. After editing
-the table:
+`firmware/main/transition_table.h` is generated from `firmware/transition_table.yaml`
+by `firmware/tools/gen_transition_table.py`. After editing the manifest:
+
+    python3 firmware/tools/gen_transition_table.py
+    git add firmware/main/transition_table.h && git commit -m "chore: regenerate transition table"
+
+CI regenerates and `git diff --exit-code`s against the committed copy.
+
+`firmware/test/test_transition_table_generated.c` is also regenerated from the
+same manifest via `firmware/test/gen_transition_table.py`. After manifest edits:
 
     python3 firmware/test/gen_transition_table.py --generate
     git add firmware/test/test_transition_table_generated.c
     git commit -m "test: regenerate transition table tests"
-
-CI regenerates and `git diff --exit-code`s against the committed copy.
 
 ### Building and Running Firmware Tests
 
