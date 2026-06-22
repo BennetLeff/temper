@@ -11,7 +11,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Netlist
 from temper_placer.placer.deterministic import place_power_stage_template
 from temper_placer.placer.template import HalfBridgeTemplate
@@ -67,12 +67,18 @@ def _template_strategy(
     parsed: Any,
     seed: int,  # noqa: ARG001
 ) -> BendersPlacementResult:
-    """Run deterministic template-based placement using HalfBridgeTemplate."""
+    """Run deterministic template-based placement using HalfBridgeTemplate.
+
+    If the board lacks a 'power_zone', a fallback zone covering the full
+    board area is injected so placement can proceed.
+    """
     netlist = _extract_netlist(parsed)
     board = _extract_board(parsed)
 
     if netlist is None or board is None:
         raise ValueError("ParsedPCB must contain valid netlist and board data")
+
+    board = _ensure_power_zone(board)
 
     template = HalfBridgeTemplate.create_vertical()
     result = place_power_stage_template(netlist, board, template)
@@ -85,6 +91,19 @@ def _template_strategy(
         )
 
     return BendersPlacementResult(placements=placements, iterations=1, cuts=0)
+
+
+def _ensure_power_zone(board: Board) -> Board:
+    """Ensure the board has a 'power_zone'. Creates one if missing."""
+    for zone in board.zones:
+        if zone.name == "power_zone":
+            return board
+    fallback = Zone(
+        "power_zone",
+        (0, 0, board.width, board.height),
+    )
+    board.zones.append(fallback)
+    return board
 
 
 def _extract_netlist(parsed: Any) -> Netlist | None:
