@@ -722,6 +722,8 @@ def run_astar_pathfinding(
     per_path_latency_ms: dict[str, float] = {}
 
     # First pass: Route all routable nets (skip PLANE/unconnected)
+    first_pass_success = 0
+    first_pass_fail = 0
     for i, net_name in enumerate(routable_nets):
         if net_name not in channel_mapping.channel_paths:
             continue
@@ -731,13 +733,20 @@ def run_astar_pathfinding(
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
+            first_pass_fail += 1
             failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
+        else:
+            first_pass_success += 1
 
+    print(f"  First pass: {first_pass_success} routed, {first_pass_fail} failed,"
+          f" {len(reroute_queue)} queued for rip-up")
     # Second pass: Reroute queue (iteratively)
     max_reroute_attempts = len(routable_nets) * 5
     attempts = 0
 
+    reroute_success = 0
+    reroute_fail = 0
     while reroute_queue and attempts < max_reroute_attempts:
         net_name = reroute_queue.pop(0)
         attempts += 1
@@ -747,9 +756,13 @@ def run_astar_pathfinding(
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
+            reroute_fail += 1
             failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
+        else:
+            reroute_success += 1
 
+    print(f"  Reroute pass: {reroute_success} recovered, {reroute_fail} still failed")
     # Final cleanup: Record any nets left in queue as failures
     for net_name in reroute_queue:
         failed_nets.append(net_name)
