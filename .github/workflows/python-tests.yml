@@ -5,12 +5,16 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'tests/**'
+      - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
   pull_request:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'tests/**'
+      - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
 
@@ -35,7 +39,7 @@ jobs:
       
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
-        run: uv run pytest tests/core/ -v --tb=short
+        run: uv run pytest tests/core/ -v --tb=short --cov=temper_placer.core --cov-report=json --cov-report=term
       
       - name: Run temper-workflow tests
         working-directory: packages/temper-workflow
