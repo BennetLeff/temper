@@ -116,6 +116,12 @@ from temper_placer.losses.drc_loss import (
     create_drc_loss,
 )
 
+# DRC oracle loss (temper-drc composable check integration)
+from temper_placer.losses.drc_oracle_loss import (
+    DRCCompositeLoss,
+    create_drc_composite_loss,
+)
+
 # DRC proxy loss (differentiable width-inflated clearance)
 from temper_placer.losses.drc_proxy import (
     DRCProxyLoss,
@@ -418,4 +424,7 @@ __all__ = [
     "compute_routing_channel_penalty",
     # DRC proxy loss (differentiable width-inflated clearance)
     "DRCProxyLoss",
+    # DRC oracle loss (temper-drc composable check integration)
+    "DRCCompositeLoss",
+    "create_drc_composite_loss",
 ]
