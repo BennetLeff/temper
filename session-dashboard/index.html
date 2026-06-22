@@ -330,6 +330,12 @@
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span class="search-clear" id="search-clear" role="button" tabindex="0" aria-label="Clear search">×</span>
       </div>
+      <select class="btn" id="date-filter" aria-label="Filter by date" style="margin-left:auto">
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+        <option value="3months">Last 3 Months</option>
+        <option value="all">All Time</option>
+      </select>
       <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
     </div>
     <div class="phase-filter" id="phase-filter" role="group" aria-label="Filter by phase">
@@ -396,6 +402,7 @@
     let _loading = false;
     let activePhases = new Set();
     let activeChainId = null;
+    let dateFilter = 'week';
     let searchQuery = '';
     let viewMode = 'list';
 
@@ -921,6 +928,19 @@
       let displaySessions = sessions;
       if (activeChainId) {
         displaySessions = sessions.filter(s => s.chainId === activeChainId);
+      }
+      if (dateFilter !== 'all') {
+        const now = Date.now();
+        const cutoff = dateFilter === 'week' ? now - 7 * 86400000
+          : dateFilter === 'month' ? now - 30 * 86400000
+          : now - 90 * 86400000;
+        displaySessions = displaySessions.filter(s => {
+          const d = s.startedAt ? new Date(s.startedAt).getTime() : 0;
+          if (d >= cutoff) return true;
+          const lad = s.latestAgentDate ? new Date(s.latestAgentDate).getTime() : 0;
+          if (lad >= cutoff) return true;
+          return false;
+        });
       }
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -1555,6 +1575,12 @@
     });
 
     fetchPage(true);
+
+    // Date filter
+    document.getElementById('date-filter').addEventListener('change', (e) => {
+      dateFilter = e.target.value;
+      renderList();
+    });
 
     // Auto-refresh on tab visibility change
     document.addEventListener('visibilitychange', () => {
