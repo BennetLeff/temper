@@ -71,6 +71,15 @@ temper-placer/research/*.png
 temper-placer/research/*.svg
 .gemini/
 
+# Root hygiene — no generated/artifact files at repo root
+/*.py
+/*.kicad_pcb
+/*.kicad_pro
+/*.kicad_prl
+/*-drc.json
+/*.stats
+/10A
+
 # Beads issue tracking - ignore runtime files, track JSONL and config
 # Use .beads/* instead of .beads/ to allow negation patterns to work
 .beads/*
