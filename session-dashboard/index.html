@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Dashboard</title>
+  <style>
+    :root { --bg: #0d1117; --card-bg: #161b22; --border: #30363d; --text: #c9d1d9; --text-muted: #8b949e; --accent: #58a6ff; --accent-dim: #1f6feb33; --green: #3fb950; --yellow: #d29922; --red: #f85149; --radius: 6px; --gap: 12px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; max-width: 960px; margin: 0 auto; padding: 20px var(--gap); }
+    .app-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .app-header h1 { font-size: 1.25rem; font-weight: 600; }
+    .status-bar { font-size: 0.8rem; color: var(--text-muted); }
+    .btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-bg); color: var(--text); cursor: pointer; font-size: 0.85rem; }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state h2 { margin-bottom: 8px; color: var(--text); }
+    .session-list { display: flex; flex-direction: column; gap: var(--gap); }
+    .session-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: border-color 0.15s; }
+    .session-card:hover { border-color: var(--accent); }
+    .card-summary { font-size: 0.95rem; line-height: 1.6; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-summary.expanded { display: block; -webkit-line-clamp: unset; }
+    .card-badges { display: flex; gap: 16px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap; }
+    .card-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .session-card.expanded .card-detail { display: block; }
+    .badge { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 0.72rem; font-weight: 500; }
+    .badge-active { background: var(--green); color: #000; }
+    .badge-completed { background: var(--accent-dim); color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Session Dashboard</h1>
+    <div id="status-bar" class="status-bar">Loading...</div>
+  </header>
+  <main>
+    <div style="display:flex;gap:8px;align-items:center;padding:8px 0;margin-bottom:16px">
+      <button class="btn btn-primary" id="discover-btn">Refresh</button>
+      <span style="font-size:0.78rem;color:var(--text-muted)" id="page-info"></span>
+    </div>
+    <div id="session-list" class="session-list"></div>
+  </main>
+
+  <script type="module">
+    import { renderCard } from './js/session-card.js?v=4';
+    import { renderGitHistory } from './js/git-history.js?v=4';
+    import { emit, on } from './js/db.js?v=4';
+
+    const status = document.getElementById('status-bar');
+    const listEl = document.getElementById('session-list');
+    const pageInfo = document.getElementById('page-info');
+    const PAGE_SIZE = 50;
+    let offset = 0, total = 0, sessions = [];
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+    function fmtDur(ms) {
+      if (!ms || ms < 0) return '';
+      if (ms < 60000) return `${Math.round(ms/1000)}s`;
+      if (ms < 3600000) return `${Math.round(ms/60000)}m`;
+      return `${(ms/3600000).toFixed(1)}h`;
+    }
+    function fmtTime(ts) {
+      if (!ts) return '';
+      try {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const diff = Date.now() - d;
+        if (diff < 86400000) return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        return d.toLocaleDateString([], {month:'short',day:'numeric'});
+      } catch { return ''; }
+    }
+
+    async function fetchPage(reset) {
+      if (reset) { offset = 0; sessions = []; listEl.innerHTML = ''; }
+      status.textContent = 'Loading...';
+      try {
+        const res = await fetch(`/api/sessions?limit=${PAGE_SIZE}&offset=${offset}`);
+        const data = await res.json();
+        sessions = reset ? data.sessions : [...sessions, ...data.sessions];
+        total = data.total;
+        renderList();
+        pageInfo.textContent = `${sessions.length} of ${total}`;
+        status.textContent = 'Ready';
+        emit('sessions:loaded', { sessions });
+      } catch(e) {
+        status.textContent = e.message;
+      }
+    }
+
+    function renderList() {
+      if (!sessions.length) {
+        listEl.className = 'empty-state';
+        listEl.innerHTML = '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has .jsonl files.</p>';
+        return;
+      }
+      listEl.className = 'session-list';
+      listEl.innerHTML = '';
+      for (const s of sessions) {
+        try {
+          const card = renderCardLocal(s);
+          const btn = card.querySelector('.raw-view-btn');
+          if (btn) btn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
+          listEl.appendChild(card);
+        } catch(e) {
+          const err = document.createElement('div');
+          err.className = 'session-card';
+          err.textContent = 'Error rendering: ' + (s.id || '?') + ' — ' + e.message;
+          listEl.appendChild(err);
+        }
+      }
+      if (sessions.length < total) {
+        const more = document.createElement('button');
+        more.className = 'btn btn-primary';
+        more.textContent = `Load more (${sessions.length} of ${total})`;
+        more.style.cssText = 'display:block;margin:16px auto;width:240px;padding:10px';
+        more.onclick = () => { offset += PAGE_SIZE; fetchPage(false); };
+        listEl.appendChild(more);
+      }
+    }
+
+    async function viewRaw(sid) {
+      let modal = document.getElementById('raw-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'raw-modal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:1000;overflow-y:auto;padding:40px';
+        modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+        document.body.appendChild(modal);
+      }
+      modal.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:60px">Loading conversation...</p>';
+      modal.style.display = 'block';
+      try {
+        const res = await fetch(`/api/session/${sid}`);
+        if (!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        const msgs = data.messages || [];
+        let html = `<div style="max-width:800px;margin:0 auto;color:var(--text)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+            <div><strong>${esc(data.project || sid)}</strong> ${data.branch ? `on ${esc(data.branch)}` : ''}</div>
+            <button class="btn" onclick="this.closest('#raw-modal').style.display='none'">Close</button>
+          </div>`;
+        for (const m of msgs) {
+          const msg = m.message || m;
+          const blocks = Array.isArray(msg?.content) ? msg.content : [{ type: 'text', text: typeof msg === 'string' ? msg : JSON.stringify(msg) }];
+
+          for (const block of blocks) {
+            let label = msg.role || m.type || '?';
+            let text = '';
+            let blockType = block.type || 'unknown';
+
+            if (blockType === 'text') {
+              text = block.text || '';
+            } else if (blockType === 'tool_use') {
+              label = 'tool: ' + (block.name || '?');
+              text = JSON.stringify(block.input || {}).slice(0, 500);
+            } else if (blockType === 'tool_result') {
+              label = 'result';
+              const c = block.content;
+              text = typeof c === 'string' ? c : (Array.isArray(c) ? c.map(x => x.text || '').join('\n') : JSON.stringify(c || {}));
+            } else {
+              text = JSON.stringify(block).slice(0, 500);
+            }
+
+            if (!text && !blockType) continue;
+            const color = label.startsWith('user') ? 'var(--accent)' : label.startsWith('assistant') ? 'var(--text)' : 'var(--text-muted)';
+            html += `<div style="margin:6px 0;padding:8px;border-left:3px solid ${color}">
+              <span style="font-size:0.7rem;color:var(--text-muted)">${esc(label)}</span>
+              <pre style="white-space:pre-wrap;font:inherit;margin:4px 0 0;max-height:300px;overflow-y:auto">${esc(text.slice(0, 3000))}</pre>
+            </div>`;
+          }
+        }
+        html += `<p style="color:var(--text-muted);text-align:center;padding:20px">${msgs.length} messages</p></div>`;
+        modal.innerHTML = html;
+      } catch(e) {
+        modal.innerHTML = `<p style="color:var(--red);text-align:center;padding:60px">${esc(e.message)}</p>`;
+      }
+    }
+
+    function renderCardLocal(s) {
+      const summary = s.summary || `${s.platform} session in ${s.project}`;
+      const hasSubs = s.subAgentCount > 0;
+      const dur = fmtDur(s.duration);
+      const ts = fmtTime(s.startedAt);
+
+      const card = document.createElement('div');
+      card.className = 'session-card';
+
+      const summaryEl = document.createElement('div');
+      summaryEl.className = 'card-summary';
+      summaryEl.textContent = summary;
+
+      const badges = document.createElement('div');
+      badges.className = 'card-badges';
+      badges.innerHTML = [
+        dur ? `<span>⏱ ${dur}</span>` : '',
+        hasSubs ? `<span>🤖 ${s.subAgentCount} agents</span>` : '',
+        s.branch ? `<span>${esc(s.branch)}</span>` : '',
+        ts ? `<span>${ts}</span>` : '',
+        s.project ? `<span class="badge badge-completed">${esc(s.project)}</span>` : '',
+        s.agentType ? `<span class="badge">${esc(s.agentType.split(':').pop())}</span>` : '',
+        s.isSubagent ? '<span class="badge badge-active">sub-agent</span>' : '',
+        `<button class="btn raw-view-btn" style="font-size:0.72rem;padding:2px 8px;margin-left:auto">view raw</button>`,
+      ].filter(Boolean).join(' ');
+
+      const detail = document.createElement('div');
+      detail.className = 'card-detail';
+      detail.innerHTML = [
+        `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">${esc(summary)}</div>`,
+        s.platform ? `<span class="badge">${esc(s.platform)}</span>` : '',
+        s.agentType ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">type: ${esc(s.agentType)}</div>` : '',
+        s.cwd ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">${esc(s.cwd)}</div>` : '',
+      ].join(' ');
+
+      card.appendChild(summaryEl);
+      card.appendChild(badges);
+      card.appendChild(detail);
+
+      const expanded = { v: false };
+      card.onclick = (e) => {
+        if (e.target.classList.contains('raw-view-btn')) return;
+        expanded.v = !expanded.v;
+        card.classList.toggle('expanded', expanded.v);
+        summaryEl.classList.toggle('expanded', expanded.v);
+      };
+
+      return card;
+    }
+
+    document.getElementById('discover-btn').onclick = () => fetchPage(true);
+    fetchPage(true);
+  </script>
+</body>
+</html>
