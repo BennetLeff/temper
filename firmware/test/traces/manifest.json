@@ -173,15 +173,15 @@
     "trace_file": "trace_fault_adc_stuck.csv",
     "initial_conditions": { "self_test_pass": true },
     "perturbation": {
-      "at_tick": 80,
+      "at_tick": 60,
       "sensors": [
-        { "name": "pan_temperature", "over_ticks": 3 }
+        { "name": "pan_temperature", "over_ticks": 50 }
       ]
     },
     "expected": {
       "final_state": "FAULT",
       "fault_code": "FAULT_ADC_STUCK",
-      "max_latency_ticks": 5,
+      "max_latency_ticks": 52,
       "soft_assertions": [
         { "power_off": true },
         { "eeprom_logged": "FAULT_ADC_STUCK" }

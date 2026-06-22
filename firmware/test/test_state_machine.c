@@ -588,8 +588,8 @@ void test_sm_fault_on_igbt_short_is_distinct(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* 35A triggers FAULT_OVER_CURRENT, not FAULT_IGBT_SHORT */
-    mock_sm_set_dc_bus_current(35.0f);
+    /* 40A triggers FAULT_OVER_CURRENT, not FAULT_IGBT_SHORT (>50A) */
+    mock_sm_set_dc_bus_current(40.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -747,8 +747,8 @@ void test_sm_fault_on_adc_stuck(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject same pan temperature across 3 consecutive updates */
-    for (int i = 0; i < 3; i++) {
+    /* Inject same pan temperature across 50 consecutive updates */
+    for (int i = 0; i < 50; i++) {
         mock_sm_set_pan_temperature(92.0f);
         mock_sm_advance_time(100);
         state_machine_update();

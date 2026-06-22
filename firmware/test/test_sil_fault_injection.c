@@ -44,6 +44,7 @@ extern void  mock_sm_set_selftest_results(bool adc, bool pwm, bool fan,
 extern fault_code_t mock_sm_get_last_logged_fault(void);
 extern uint32_t     mock_sm_get_eeprom_log_count(void);
 extern uint32_t     mock_sm_get_trigger_shutdown_count(void);
+extern uint32_t     mock_sm_get_power_level(void);
 
 #define MOCK_PAN_ABSENT  0
 #define MOCK_PAN_PRESENT 1
@@ -191,6 +192,9 @@ static void skip_value(const char **pp) {
 /* ---------------------------------------------------------------------------
  * Manifest entry structure
  * --------------------------------------------------------------------------- */
+
+/* Forward declaration for coverage tracking (defined later) */
+static void coverage_record(fault_code_t fc, bool detected, int latency);
 
 typedef struct {
     char name[128];
@@ -631,9 +635,9 @@ static void run_sil_test(const manifest_entry_t *entry) {
 
     /* --- Soft assertions (warnings only) --- */
     if (entry->soft_power_off) {
-        uint32_t shutdowns = mock_sm_get_trigger_shutdown_count();
-        if (shutdowns == 0) {
-            printf("  [WARN] soft_assertion: power_off expected but none called\n");
+        if (mock_sm_get_power_level() != 0) {
+            printf("  [WARN] soft_assertion: power_off expected but power_level=%u\n",
+                   mock_sm_get_power_level());
         }
     }
     if (entry->soft_eeprom_logged) {
@@ -704,19 +708,20 @@ static void coverage_print_report(void) {
 
     /* Iterate FAULT_LIST to print in definition order */
 #define PRINT_COVERAGE_LINE(sym, str) \
-    do { \
+    { \
         int idx = (int)(sym); \
-        if (idx >= FAULT_COUNT) break; \
-        total_faults++; \
-        bool t = covered[idx]; \
-        bool d = detected[idx]; \
-        int lm = latency_ms[idx]; \
-        if (t) total_tested++; \
-        printf("%-25s %-8s %-9s ", str, t ? "YES" : "NO", t ? (d ? "YES" : "NO") : "-"); \
-        if (t && lm > 0) printf("%d", lm); \
-        else printf("-"); \
-        printf("\n"); \
-    } while (0)
+        if (idx < FAULT_COUNT) { \
+            total_faults++; \
+            bool t = covered[idx]; \
+            bool d = detected[idx]; \
+            int lm = latency_ms[idx]; \
+            if (t) total_tested++; \
+            printf("%-25s %-8s %-9s ", str, t ? "YES" : "NO", t ? (d ? "YES" : "NO") : "-"); \
+            if (t && lm > 0) printf("%d", lm); \
+            else printf("-"); \
+            printf("\n"); \
+        } \
+    }
 
     FAULT_LIST(PRINT_COVERAGE_LINE);
 

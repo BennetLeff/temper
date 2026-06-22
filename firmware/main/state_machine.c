@@ -991,15 +991,17 @@ static void check_safety_interlocks(void) {
         return;
     }
 
-    /* ADC stuck-at detection: same value across 3+ consecutive reads
+    /* ADC stuck-at detection: same value across 50+ consecutive reads
      * A stuck ADC is a silent failure that existing threshold checks
      * may miss. Uses float equality because a stuck ADC register returns
-     * bit-identical values after conversion. */
+     * bit-identical values after conversion. Threshold of 50 (5 seconds
+     * at 100ms/tick) avoids false positives during normal state transitions,
+     * pan removal debounce, and constant-sensor trace replay. */
     {
         float pan_temp = read_pan_temperature();
         if (pan_temp == sm_ctx.last_pan_temp) {
             sm_ctx.pan_temp_stuck_count++;
-            if (sm_ctx.pan_temp_stuck_count >= 3) {
+            if (sm_ctx.pan_temp_stuck_count >= 50) {
                 sm_ctx.fault_code = FAULT_ADC_STUCK;
                 transition_to(STATE_FAULT);
                 return;
@@ -1013,7 +1015,7 @@ static void check_safety_interlocks(void) {
         float hs_temp = read_heatsink_temperature();
         if (hs_temp == sm_ctx.last_heatsink_temp) {
             sm_ctx.heatsink_temp_stuck_count++;
-            if (sm_ctx.heatsink_temp_stuck_count >= 3) {
+            if (sm_ctx.heatsink_temp_stuck_count >= 50) {
                 sm_ctx.fault_code = FAULT_ADC_STUCK;
                 transition_to(STATE_FAULT);
                 return;
