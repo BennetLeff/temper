@@ -16,7 +16,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "driver/gpio.h"
 static const char *TAG = "state_machine";
+#define RUNAWAY_CUT_GPIO GPIO_NUM_5
 #endif
 
 /* Include component headers */
@@ -67,6 +69,8 @@ static struct {
 
     /* Runaway interlock */
     bool runaway_latched;
+    float last_pan_temp_c;
+    uint32_t last_pan_temp_time_ms;
 
 } sm_ctx = {
     .current_state = STATE_INIT,
@@ -101,6 +105,7 @@ static void state_runaway_fault_update(void);
 static void transition_to(system_state_t new_state);
 static bool run_self_test(void);
 static void check_safety_interlocks(void);
+static void check_runaway_boundary(void);
 static bool fault_cleared(void);
 static void show_message_then_transition(const char *msg, system_state_t next_state);
 
@@ -224,6 +229,11 @@ void state_machine_update(void) {
      * will timeout after 1.6s and disable the power stage.
      * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
     watchdog_hardware_feed();
+    
+    /* Runaway boundary interlock: check before ALL state-specific logic.
+     * This fires even during message display to ensure safety-critical
+     * events preempt all normal operation. */
+    check_runaway_boundary();
     
     /* Handle non-blocking message display */
     if (sm_ctx.message_pending) {
@@ -1011,6 +1021,55 @@ static void check_safety_interlocks(void) {
         transition_to(STATE_FAULT);
         return;
     }
+}
+
+static void check_runaway_boundary(void) {
+    /* If already latched, nothing to check */
+    if (sm_ctx.runaway_latched) return;
+
+    float temp = read_pan_temperature();
+    uint32_t now = get_time_ms();
+
+    /* NaN/infinite temperature → immediate breach */
+    if (!isfinite(temp)) {
+        sm_ctx.fault_code = FAULT_RUNAWAY_BOUNDARY;
+        goto trigger_runaway;
+    }
+
+    /* Absolute temperature check */
+    if (temp > g_config.runaway.max_absolute_temp_c) {
+        sm_ctx.fault_code = FAULT_RUNAWAY_BOUNDARY;
+        goto trigger_runaway;
+    }
+
+    /* Rate-of-rise check (requires at least one prior reading) */
+    if (sm_ctx.last_pan_temp_time_ms > 0) {
+        uint32_t dt_ms = now - sm_ctx.last_pan_temp_time_ms;
+        if (dt_ms >= 10) {  /* Minimum 10ms to avoid noise amplification */
+            float dt_s = dt_ms / 1000.0f;
+            float rate = (temp - sm_ctx.last_pan_temp_c) / dt_s;
+            if (rate > g_config.runaway.max_temp_rise_rate_c_per_s) {
+                sm_ctx.fault_code = FAULT_RUNAWAY_BOUNDARY;
+                goto trigger_runaway;
+            }
+        }
+    }
+
+    /* Store for next iteration */
+    sm_ctx.last_pan_temp_c = temp;
+    sm_ctx.last_pan_temp_time_ms = now;
+    return;
+
+trigger_runaway:
+    /* Hardware-level cut: assert GPIO to OR gate */
+#ifdef ESP_PLATFORM
+    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
+#endif
+    /* Software-level cut: disable PWM and power */
+    trigger_hardware_shutdown();
+
+    sm_ctx.runaway_latched = true;
+    transition_to(STATE_RUNAWAY_FAULT);
 }
 
 static bool fault_cleared(void) {
