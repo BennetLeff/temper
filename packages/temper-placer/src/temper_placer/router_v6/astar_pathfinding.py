@@ -944,7 +944,30 @@ def _astar_route_multilayer(
         )
 
         if start_valid and goal_valid:
-            if use_lazy_theta_star:
+            # U4: Try coarser grid first for performance on open terrain
+            coarse_enabled = not use_theta_star and not use_lazy_theta_star
+            coarse_grid = grid_to_use.downsample(2) if coarse_enabled else None
+
+            if coarse_grid is not None:
+                coarse_start = coarse_grid.world_to_grid(start_world[0], start_world[1])
+                coarse_goal = coarse_grid.world_to_grid(goal_world[0], goal_world[1])
+                if (0 <= coarse_start[0] < coarse_grid.width_cells
+                        and 0 <= coarse_start[1] < coarse_grid.height_cells
+                        and 0 <= coarse_goal[0] < coarse_grid.width_cells
+                        and 0 <= coarse_goal[1] < coarse_grid.height_cells):
+                    coarse_path = _astar_search(coarse_start, coarse_goal, coarse_grid)
+                    if coarse_path:
+                        # Map coarse path back to fine grid for waypoints
+                        fine_waypoints = [
+                            (start_world[0] + (gp[0] + 0.5) * coarse_grid.cell_size - coarse_grid.origin[0],
+                             start_world[1] + (gp[1] + 0.5) * coarse_grid.cell_size - coarse_grid.origin[1])
+                            for gp in coarse_path
+                        ]
+                        # Build a simple path from the coarse waypoints
+                        segment_path = fine_waypoints
+
+            if segment_path is None:
+                if use_lazy_theta_star:
                 segment_path = _astar_search_lazy_theta_star(
                     grid_to_use, start_grid, goal_grid, net_id=-1
                 )
