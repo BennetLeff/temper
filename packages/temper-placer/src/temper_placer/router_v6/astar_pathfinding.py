@@ -711,11 +711,16 @@ def run_astar_pathfinding(
             pin_count=pin_count,
         )
 
+    # Per-path latency tracking (U4: benchmark extension)
+    per_path_latency_ms: dict[str, float] = {}
+
     # First pass: Route all routable nets (skip PLANE/unconnected)
     for i, net_name in enumerate(routable_nets):
         if net_name not in channel_mapping.channel_paths:
             continue
+        t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name)
+        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
             failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
@@ -727,7 +732,9 @@ def run_astar_pathfinding(
     while reroute_queue and attempts < max_reroute_attempts:
         net_name = reroute_queue.pop(0)
         attempts += 1
+        t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name, depth=1)
+        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
             failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
@@ -742,6 +749,7 @@ def run_astar_pathfinding(
         failed_nets=list(set(failed_nets)),
         failure_reports=failure_reports,
         net_ids=net_ids,
+        per_path_latency_ms=per_path_latency_ms,
     )
 
 
