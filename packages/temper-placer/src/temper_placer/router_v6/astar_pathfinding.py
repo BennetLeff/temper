@@ -14,6 +14,7 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
 import numpy as np
 import sys
+import time
 
 
 @dataclass
@@ -97,6 +98,7 @@ class PathfindingResult:
     failed_nets: list[str]  # Nets that failed to route
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
     net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
+    per_path_latency_ms: dict[str, float] | None = None  # Per-net A* wall time (ms)
 
     @property
     def success_count(self) -> int:
@@ -598,6 +600,7 @@ def run_astar_pathfinding(
 
         # Route with rip-up capability
         import sys
+import time
 
         if use_lazy_theta_star:
             mode = "Lazy Theta*"
@@ -714,12 +717,17 @@ def run_astar_pathfinding(
     # Per-path latency tracking (U4: benchmark extension)
     per_path_latency_ms: dict[str, float] = {}
 
+    # Per-path latency tracking (U4: benchmark extension)
+    per_path_latency_ms: dict[str, float] = {}
+
     # First pass: Route all routable nets (skip PLANE/unconnected)
     for i, net_name in enumerate(routable_nets):
         if net_name not in channel_mapping.channel_paths:
             continue
         t0 = time.perf_counter()
+        t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name)
+        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
             failed_nets.append(net_name)
@@ -733,7 +741,9 @@ def run_astar_pathfinding(
         net_name = reroute_queue.pop(0)
         attempts += 1
         t0 = time.perf_counter()
+        t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name, depth=1)
+        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
             failed_nets.append(net_name)
