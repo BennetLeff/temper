@@ -11,6 +11,7 @@ dev = [
     "mypy>=1.7.0",
     "pytest-bdd>=8.1.0",
     "hypothesis>=6.148.7",
+    "vulture>=2.16,<3.0",
 ]
 
 [tool.uv.workspace]
