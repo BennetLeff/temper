@@ -495,4 +495,11 @@ class DSNExporter:
         if traces:
             sections.append(self.export_wiring(traces))
 
-        return dsn_list("pcb", pcb_name, *sections)
+        pcb_expr = dsn_list("pcb", pcb_name, *sections)
+
+        if self.deterministic:
+            from temper_placer.io.dsn_schema import DSNSchemaHasher
+            schema_hash = DSNSchemaHasher.compute_schema_hash(self.board, self.netlist)
+            pcb_expr = pcb_expr.with_comment(f"schema-version: sha256:{schema_hash}")
+
+        return pcb_expr
