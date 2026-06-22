@@ -1,0 +1,65 @@
+* IKW40N120H3 IGBT Electro-Thermal Subcircuit Wrapper
+* IKW40N120H3_thermal.sub
+*
+* PURPOSE: Wraps the IKW40N120H3 subcircuit with thermal ports (Tj, Tc)
+*          for coupled electro-thermal transient simulation.
+*
+* THEORY:
+* The IKW40N120H3 .lib model provides electrical behavior only (C, G, E pins).
+* This wrapper adds:
+*   1. Power dissipation sensing: P_diss = Vce * Ic
+*   2. Junction-to-case thermal RC: RthetaJC = 0.6 K/W
+*   3. Case-to-heatsink thermal RC: RthetaCH = 0.3 K/W
+*   4. Behavioral B-source injecting P_diss as current into Tj node
+*
+* External connections: Tamb voltage source + RthetaHA define ambient cooling.
+*
+* REFERENCE: docs/ELECTRICAL_VALIDATION_IMPACT.md (RthetaJC, mounting sensitivity)
+*
+*****************************************************************************
+
+* NOTE: Caller must .INCLUDE IKW40N120H3.lib before this file.
+* The testbench sim_35 does: .INCLUDE ../models/IKW40N120H3.lib
+
+*****************************************************************************
+* SUBCIRCUIT: IKW40N120H3_THERMAL
+*
+* Terminals:
+*   C, G, E: Standard IGBT power terminals
+*   Tj:      Junction temperature output (voltage = temperature in °C)
+*   Tc:      Case temperature output (voltage = temperature in °C)
+*
+* Parameters:
+*   RTH_JC = Junction-to-case thermal resistance (default 0.6 K/W)
+*   CTH_JC = Junction thermal capacitance (default 50m F)
+*   RTH_CH = Case-to-heatsink thermal resistance (default 0.3 K/W)
+*   CTH_CH = Case thermal capacitance (default 200m F)
+*****************************************************************************
+.subckt IKW40N120H3_THERMAL C G E Tj Tc
+  .param RTH_JC=0.6 CTH_JC=50m
+  .param RTH_CH=0.3 CTH_CH=200m
+
+  * Instantiate the electrical IKW40N120H3 model
+  X_igbt C_int G E IKW40N120H3
+
+  * Current sense for power dissipation calculation
+  V_sense C C_int 0
+
+  * Power dissipation behavioral source (injects I = P_diss into Tj node)
+  * P_diss = Vce * Ic (in watts -> current in amps models thermal power)
+  B_Pdiss 0 Tj I=(V(C,E) * I(V_sense))
+
+  * Junction-to-case thermal RC network
+  * Tj is the junction temperature node (voltage equiv. to temp in °C)
+  R_jc Tj N_jc {RTH_JC}
+  C_jc N_jc 0 {CTH_JC}
+
+  * Case-to-heatsink thermal RC network
+  R_ch N_jc Tc {RTH_CH}
+  C_ch Tc 0 {CTH_CH}
+
+  * Note: Heatsink-to-ambient (R_ha + Tamb) is external to this subcircuit.
+  * Connect a DC voltage source at Tc for Tamb, with series R for RthetaHA.
+  * Fan state scales RthetaHA: R_ha_eff = R_ha_base / FAN
+
+.ends IKW40N120H3_THERMAL
