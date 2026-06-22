@@ -35,7 +35,7 @@ from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
 from temper_placer.placement.legalization import Legalizer
 from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
-from temper_placer.router_v6.routing_space import RoutingSpace, compute_routing_space
+from temper_placer.router_v6.routing_space import PLANE_NETS, RoutingSpace, compute_routing_space
 from temper_placer.router_v6.sat_model import SATModel, build_sat_model
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_topology_solution
@@ -421,6 +421,22 @@ class RouterV6Pipeline:
             components=pcb.components,
         )
 
+        # Fallback: nets without SAT channel assignment get direct A* attempt
+        from temper_placer.router_v6.channel_mapping import ChannelPath
+        routed_nets = {cp.net_name for cp in channel_mapping}
+        for net in pcb.nets:
+            if net.name not in routed_nets and len(net.pads) >= 2:
+                start = net.pads[0].position
+                end = net.pads[-1].position
+                fallback_cp = ChannelPath(
+                    net_name=net.name,
+                    channel_sequence=[],
+                    waypoints=[start, end],
+                    total_length=0.0,
+                    preferred_layer="F.Cu",
+                )
+                channel_mapping.append(fallback_cp)
+
         # 4.2: Run A* pathfinding (Unified)
         if self.verbose:
             print("  4.2: Running A* pathfinding (unified multi-layer)...")
@@ -586,11 +602,17 @@ class RouterV6Pipeline:
         # 4.9: Compile results
         if self.verbose:
             print("  4.9: Compiling routing results...")
+        # Identify plane nets from the board's net list
+        plane_net_names = [
+            net.name for net in pcb.nets
+            if net.name.upper() in {n.upper() for n in PLANE_NETS}
+        ]
         routing_results = compile_routing_results(
             pathfinding_result,
             width_assignment,
             via_placement,
             length_matching=None,
+            plane_net_names=plane_net_names,
         )
 
         return Stage4Output(

@@ -788,7 +788,7 @@ def _astar_route_with_ripup(
         (RoutePath, list_of_net_ids_to_rip)
     """
     # Try multilayer routing if alternate grid available
-    if alternate_grid and tht_locations:
+    if alternate_grid:
         path = _astar_route_multilayer(
             net_name,
             channel_path,
@@ -945,7 +945,7 @@ def _astar_route_multilayer(
         # If primary failed and alternate available, try alternate layer
         # Allow layer switching when THT pads exist on the board - the router
         # assumes layer transitions happen at nearby THT pads (implicit vias)
-        if not segment_path and alternate_grid and tht_locations:
+        if not segment_path and alternate_grid:
             # Try alternate layer (THT pads enable layer transitions)
             grid_to_use = alternate_grid
             start_grid = grid_to_use.world_to_grid(start_world[0], start_world[1])

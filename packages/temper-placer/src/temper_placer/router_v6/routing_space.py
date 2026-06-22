@@ -14,6 +14,22 @@ from shapely.geometry import MultiPolygon, Polygon, box
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.stage0_data import ParsedPCB
 
+PLANE_NETS: set[str] = {
+    "GND",
+    "VCC",
+    "VBUS",
+    "PGND",
+    "AGND",
+    "CGND",
+    "+3V3",
+    "+5V",
+    "+12V",
+    "+15V",
+    "V+",
+    "V-",
+    "PWR",
+}
+
 
 @dataclass
 class RoutingSpace:
