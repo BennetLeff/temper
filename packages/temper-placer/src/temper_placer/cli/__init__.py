@@ -3942,5 +3942,53 @@ def version() -> None:
         console.print("optax: [red]not installed[/]")
 
 
+@main.command()
+@click.option(
+    "--repo-root",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Repository root (default: auto-detect).",
+)
+@click.option(
+    "--boards",
+    type=str,
+    default=None,
+    multiple=True,
+    help="Specific board IDs to test.",
+)
+@click.option(
+    "--with-routing",
+    is_flag=True,
+    default=False,
+    help="Include routing quality in GPBM comparison.",
+)
+def regression(
+    repo_root: Path | None,
+    boards: tuple[str, ...],
+    with_routing: bool,
+) -> None:
+    """
+    Run golden-board regression suite against frozen GPBM baselines.
+
+    Tests all golden boards and reports pass/fail per board.
+    Exits 0 if all boards pass, 1 if any board regresses.
+
+    Example:
+        temper-placer regression
+        temper-placer regression --boards temper_placed
+    """
+    from temper_placer.regression.cli import run_regression
+
+    class Args:
+        pass
+
+    args = Args()
+    args.repo_root = str(repo_root) if repo_root else None
+    args.boards = list(boards) if boards else None
+    args.with_routing = with_routing
+
+    sys.exit(run_regression(args))
+
+
 if __name__ == "__main__":
     main()

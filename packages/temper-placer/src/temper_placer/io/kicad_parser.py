@@ -112,6 +112,19 @@ def parse_kicad_pcb(pcb_path: Path, normalize: bool = True) -> ParseResult:
     # Load the KiCad board
     ki_board = KiBoard.from_file(str(pcb_path))
 
+    # Guard: empty footprints — return result with empty netlist and warning
+    if not ki_board.footprints:
+        warnings.append("No footprints found in PCB.")
+        board = _extract_board_geometry(ki_board, warnings)
+        return ParseResult(
+            netlist=Netlist(components=[], nets=[]),
+            board=board,
+            warnings=warnings,
+            traces=[],
+            vias=[],
+            pads=[],
+        )
+
     # Extract board dimensions first (needed for coordinate normalization)
     board = _extract_board_geometry(ki_board, warnings)
 
@@ -916,6 +929,9 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
 
     # Load KiCad board
     ki_board = KiBoard.from_file(str(pcb_path))
+
+    # Guard: empty footprints — skip to early return via parse_kicad_pcb
+    # The existing parser now handles empty footprints gracefully
 
     # Read raw content for manual parsing (net classes)
     try:
