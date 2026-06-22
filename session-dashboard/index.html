@@ -98,6 +98,28 @@
     .tag-project { background: var(--accent-bg); color: var(--accent); }
     .tag-subagent { background: rgba(63,185,80,0.15); color: var(--success); }
     .tag-type { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    /* Sub-agent rows */
+    .subagent-rows { margin: 8px 0; border-radius: var(--radius-sm); overflow: hidden; }
+    .subagent-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px; font-size: 0.8125rem;
+      cursor: pointer; border-radius: var(--radius-sm);
+      transition: background var(--transition);
+      outline: none;
+    }
+    .subagent-row:hover { background: var(--surface-overlay); }
+    .subagent-row:focus-visible { box-shadow: var(--focus-ring); }
+    .subagent-icon { flex-shrink: 0; color: var(--text-tertiary); }
+    .subagent-desc { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
+    .subagent-dur { flex-shrink: 0; color: var(--text-tertiary); font-size: 0.75rem; min-width: 36px; text-align: right; }
+    .pass-badge { flex-shrink: 0; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.6875rem; font-weight: 700; }
+    .pass-badge.passed { background: rgba(63,185,80,0.15); color: var(--success); }
+    .pass-badge.failed { background: rgba(248,81,73,0.15); color: var(--error); }
+    .subagent-count-badge { background: rgba(63,185,80,0.1); padding: 2px 8px; border-radius: 12px; color: var(--success); display: inline-flex; align-items: center; gap: 4px; }
+    .subagent-truncated { width: 100%; justify-content: center; font-size: 0.75rem; color: var(--text-secondary); padding: 6px; min-height: auto; }
+    .card-synthetic { border-style: dashed; border-color: var(--text-tertiary); background: var(--surface-overlay); }
+    .card-synthetic:hover { border-color: var(--warning); }
+    .orphan-tag { background: rgba(210,153,34,0.15); color: var(--warning); }
     /* Modal */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
@@ -274,13 +296,43 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
 
+    function createSubagentRow(sa) {
+      const row = document.createElement('div');
+      row.className = 'subagent-row';
+      row.setAttribute('tabindex', '0');
+      row.setAttribute('role', 'button');
+      row.setAttribute('aria-label', `View sub-agent: ${sa.description || sa.agentType || sa.id}`);
+
+      let statusHtml = '';
+      if (sa.status === 'passed') {
+        statusHtml = '<span class="pass-badge passed">✓</span>';
+      } else if (sa.status === 'failed') {
+        statusHtml = '<span class="pass-badge failed">✗</span>';
+      }
+
+      const desc = sa.description || sa.agentType || 'sub-agent';
+      const dur = fmtDur(sa.duration);
+
+      row.innerHTML = `
+        <span class="subagent-icon">${svgIcon('bot')}</span>
+        <span class="subagent-desc">${esc(desc.substring(0, 80))}</span>
+        <span class="subagent-dur">${dur ? esc(dur) : ''}</span>
+        ${statusHtml}
+      `;
+
+      row.onclick = (e) => { e.stopPropagation(); viewRaw(sa.id); };
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); viewRaw(sa.id); } });
+
+      return row;
+    }
+
     function renderCard(s) {
       const summary = s.summary || 'Session';
       const dur = fmtDur(s.duration);
       const ts = fmtTime(s.startedAt);
 
       const card = document.createElement('div');
-      card.className = 'session-card';
+      card.className = 'session-card' + (s.isSynthetic ? ' card-synthetic' : '');
       card.setAttribute('role', 'article');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${summary}, ${s.project || ''}${s.branch ? ', ' + s.branch : ''}`);
@@ -293,23 +345,52 @@
       meta.className = 'card-meta';
       const items = [
         dur ? `<span class="card-meta-item">${svgIcon('clock')}${dur}</span>` : '',
-        s.subAgentCount > 0 ? `<span class="card-meta-item">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
+        s.subAgentCount > 0 ? `<span class="card-meta-item subagent-count-badge">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
         s.branch ? `<span class="card-meta-item">${svgIcon('branch')}${esc(s.branch)}</span>` : '',
         ts ? `<span class="card-meta-item">${svgIcon('calendar')}${ts}</span>` : '',
         s.project ? `<span class="tag tag-project">${esc(s.project)}</span>` : '',
         s.agentType ? `<span class="tag tag-type">${esc(s.agentType.split(':').pop())}</span>` : '',
-        s.isSubagent ? '<span class="tag tag-subagent">sub-agent</span>' : '',
+        s.isSynthetic ? '<span class="tag orphan-tag">orphan</span>' : '',
       ];
       meta.innerHTML = items.filter(Boolean).join('');
 
       const detail = document.createElement('div');
       detail.className = 'card-detail';
-      detail.innerHTML = [
+
+      // Sub-agent rows
+      if (s.subAgents && s.subAgents.length > 0) {
+        const rowsContainer = document.createElement('div');
+        rowsContainer.className = 'subagent-rows';
+        const showAll = s.subAgents.length > 20;
+        const visible = showAll ? s.subAgents.slice(0, 20) : s.subAgents;
+        for (const sa of visible) {
+          rowsContainer.appendChild(createSubagentRow(sa));
+        }
+        if (showAll) {
+          const btn = document.createElement('button');
+          btn.className = 'btn btn-ghost subagent-truncated';
+          btn.textContent = `Show all ${s.subAgents.length} sub-agents`;
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            btn.remove();
+            for (const sa of s.subAgents.slice(20)) {
+              rowsContainer.appendChild(createSubagentRow(sa));
+            }
+          };
+          rowsContainer.appendChild(btn);
+        }
+        detail.appendChild(rowsContainer);
+      }
+
+      const detailBody = document.createElement('div');
+      detailBody.innerHTML = [
         `<div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px">${esc(summary)}</div>`,
         s.agentType ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('folder')} ${esc(s.agentType)}</div>` : '',
         s.cwd ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('file')} ${esc(s.cwd)}</div>` : '',
+        s.isSynthetic ? `<div style="font-size:0.75rem;color:var(--warning);margin:4px 0">⚠ Orphan sub-agents</div>` : '',
         `<button class="btn btn-ghost" style="margin-top:8px;font-size:0.8125rem" aria-label="View raw conversation for ${esc(summary)}">${svgIcon('file')} View raw conversation</button>`,
       ].join('');
+      detail.appendChild(detailBody);
 
       card.appendChild(summaryEl);
       card.appendChild(meta);
@@ -324,7 +405,7 @@
       };
 
       // Wire raw view button
-      const rawBtn = detail.querySelector('button');
+      const rawBtn = detailBody.querySelector('button');
       if (rawBtn) rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
 
       return card;

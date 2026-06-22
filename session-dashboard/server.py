@@ -82,6 +82,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             sessions.sort(key=lambda s: s.get("startedAt") or "", reverse=True)
             _cache["sessions"] = sessions
             _cache["ts"] = now
+        sessions = self._group_sessions(sessions)
+        sessions.sort(key=lambda s: s.get("startedAt") or "", reverse=True)
         total = len(sessions)
         page = sessions[offset:offset + limit]
         return {"sessions": page, "count": len(page), "total": total, "offset": offset, "limit": limit}
@@ -91,17 +93,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         subs = []
         sub_dir = os.path.join(proj_path, "subagents")
         if not os.path.isdir(sub_dir):
-            # Check within session UUID dirs
+            # Check within session UUID dirs — parent UUID is the dir name
             for item in os.listdir(proj_path):
                 item_path = os.path.join(proj_path, item)
                 if os.path.isdir(item_path):
                     sdir = os.path.join(item_path, "subagents")
                     if os.path.isdir(sdir):
-                        subs.extend(self._parse_subagent_dir(sdir, proj_dir))
+                        subs.extend(self._parse_subagent_dir(sdir, proj_dir, parent_uuid=item))
             return subs
-        return self._parse_subagent_dir(sub_dir, proj_dir)
+        return self._parse_subagent_dir(sub_dir, proj_dir, parent_uuid=None)
 
-    def _parse_subagent_dir(self, sub_dir, proj_dir):
+    def _parse_subagent_dir(self, sub_dir, proj_dir, parent_uuid=None):
         subs = []
         for meta_file in glob.glob(os.path.join(sub_dir, "*.meta.json")):
             try:
@@ -116,6 +118,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             started_at = None
             duration = None
             msg_count = 0
+            status = None
             if os.path.isfile(jsonl_path):
                 lines = []
                 try:
@@ -136,6 +139,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                             if not duration:
                                 duration = 0
                             duration = max(duration, ts_ms - started_at)
+                        role = o.get("role") or o.get("type") or ""
+                        if role == "assistant":
+                            content = o.get("content")
+                            if isinstance(content, str):
+                                last_text = content
+                            elif isinstance(content, list):
+                                texts = []
+                                for block in content:
+                                    if isinstance(block, dict):
+                                        texts.append(block.get("text") or block.get("content") or "")
+                                last_text = " ".join(texts)
+                            else:
+                                last_text = None
+                            if last_text:
+                                text_lower = last_text.lower()
+                                if "passed" in text_lower:
+                                    status = "passed"
+                                elif "failed" in text_lower:
+                                    status = "failed"
                     except Exception:
                         pass
             project = os.path.basename(proj_dir.replace("-", "/").lstrip("/").split("/")[-1] or "unknown")
@@ -145,8 +167,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 "branch": "", "cwd": proj_dir,
                 "startedAt": datetime.fromtimestamp(started_at / 1000, tz=timezone.utc).isoformat() if started_at else None,
                 "duration": duration, "subAgentCount": 0, "messageCount": msg_count,
-                "status": "completed", "sourceType": "jsonl",
+                "status": status or "completed", "sourceType": "jsonl",
                 "summary": summary, "isSubagent": True,
+                "parentUuid": parent_uuid,
                 "agentType": agent_type, "filename": jsonl_path,
             })
         return subs
@@ -288,6 +311,76 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if parts:
             summary += " — " + ", ".join(parts)
         return summary
+
+    def _group_sessions(self, sessions):
+        """Group sub-agents under their parent sessions; inject synthetic parents for orphans."""
+        parent_map = {}
+        linked_ids = set()
+        for s in sessions:
+            pu = s.get("parentUuid")
+            if s.get("isSubagent") and pu:
+                if pu not in parent_map:
+                    parent_map[pu] = {"parent": None, "sub_agents": []}
+                parent_map[pu]["sub_agents"].append(s)
+                linked_ids.add(s["id"])
+        for s in sessions:
+            if not s.get("isSubagent") and s["id"] in parent_map:
+                parent_map[s["id"]]["parent"] = s
+        synthetic_parents = []
+        for pu, entry in parent_map.items():
+            sas = entry["sub_agents"]
+            sub_agent_data = []
+            for sa in sas:
+                sub_agent_data.append({
+                    "id": sa["id"],
+                    "agentType": sa.get("agentType"),
+                    "description": sa.get("summary"),
+                    "duration": sa.get("duration"),
+                    "status": sa.get("status"),
+                    "messageCount": sa.get("messageCount", 0),
+                })
+            if entry["parent"]:
+                p = entry["parent"]
+                p["parentUuid"] = None
+                p["subAgents"] = sub_agent_data
+                p["subAgentIds"] = [sa["id"] for sa in sas]
+                p["subAgentCount"] = len(sas)
+            else:
+                started_at = None
+                project = None
+                for sa in sas:
+                    if sa.get("startedAt"):
+                        try:
+                            t = datetime.fromisoformat(sa["startedAt"].replace("Z", "+00:00"))
+                            ts_ms = t.timestamp() * 1000
+                            if not started_at or ts_ms < started_at:
+                                started_at = ts_ms
+                        except Exception:
+                            pass
+                    if sa.get("project"):
+                        project = sa["project"]
+                duration = None
+                if sas:
+                    durations = [sa.get("duration") for sa in sas if sa.get("duration") is not None]
+                    if durations:
+                        duration = max(durations)
+                agent_types = set()
+                for sa in sas:
+                    if sa.get("agentType"):
+                        agent_types.add(sa["agentType"])
+                synthetic_parents.append({
+                    "id": pu, "platform": "opencode",
+                    "project": project or "unknown", "branch": "", "cwd": "",
+                    "startedAt": datetime.fromtimestamp(started_at / 1000, tz=timezone.utc).isoformat() if started_at else None,
+                    "duration": duration, "subAgentCount": len(sas),
+                    "subAgentIds": [sa["id"] for sa in sas], "subAgents": sub_agent_data,
+                    "messageCount": 0, "status": "completed", "sourceType": "jsonl",
+                    "summary": "Parent session (not in view)", "isSynthetic": True,
+                    "parentUuid": None, "agentType": ", ".join(sorted(agent_types)) if agent_types else None,
+                })
+        result = [s for s in sessions if s["id"] not in linked_ids]
+        result.extend(synthetic_parents)
+        return result
 
     def _session_detail(self, sid):
         for base in [CLAUDE_DIR, CODEX_DIR]:
