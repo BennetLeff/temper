@@ -421,6 +421,22 @@ class RouterV6Pipeline:
             components=pcb.components,
         )
 
+        # Fallback: nets without SAT channel assignment get direct A* attempt
+        from temper_placer.router_v6.channel_mapping import ChannelPath
+        routed_nets = {cp.net_name for cp in channel_mapping}
+        for net in pcb.nets:
+            if net.name not in routed_nets and len(net.pads) >= 2:
+                start = net.pads[0].position
+                end = net.pads[-1].position
+                fallback_cp = ChannelPath(
+                    net_name=net.name,
+                    channel_sequence=[],
+                    waypoints=[start, end],
+                    total_length=0.0,
+                    preferred_layer="F.Cu",
+                )
+                channel_mapping.append(fallback_cp)
+
         # 4.2: Run A* pathfinding (Unified)
         if self.verbose:
             print("  4.2: Running A* pathfinding (unified multi-layer)...")
