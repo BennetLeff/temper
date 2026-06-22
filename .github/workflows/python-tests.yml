@@ -9,16 +9,8 @@ on:
       - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
-      - 'firmware/**'
-      - 'tools/loc_cap_check.py'
-      - '.loc-allowlist.txt'
-      - '.gitignore'
-      - '*.py'
-      - '*.kicad_pcb'
-      - '*.kicad_pro'
-      - '*-drc.json'
-      - '*.stats'
-      - '.git-blame-ignore-revs'
+      - 'deadcode-baseline.py'
+      - 'scripts/vulture_gate.py'
   pull_request:
     branches: [main]
     paths:
@@ -27,16 +19,8 @@ on:
       - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
-      - 'firmware/**'
-      - 'tools/loc_cap_check.py'
-      - '.loc-allowlist.txt'
-      - '.gitignore'
-      - '*.py'
-      - '*.kicad_pcb'
-      - '*.kicad_pro'
-      - '*-drc.json'
-      - '*.stats'
-      - '.git-blame-ignore-revs'
+      - 'deadcode-baseline.py'
+      - 'scripts/vulture_gate.py'
 
 jobs:
   test:
@@ -84,6 +68,9 @@ jobs:
 
       - name: Lint with ruff
         run: uv run ruff check packages/
+
+      - name: Vulture dead-code gate
+        run: uv run python scripts/vulture_gate.py
 
   regression:
     name: Performance & Quality Regression
