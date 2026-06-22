@@ -259,6 +259,7 @@
     </div>
     <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
   </main>
+  <div id="reviews-content" style="display:none"></div>
   <div id="raw-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Raw conversation viewer">
     <div class="modal-content" id="raw-modal-content"></div>
   </div>
@@ -285,8 +286,16 @@
     const status = document.getElementById('status-bar');
     const listEl = document.getElementById('session-list');
     const pageInfo = document.getElementById('page-info');
+    const pageCount = document.getElementById('page-count');
     const modal = document.getElementById('raw-modal');
     const modalContent = document.getElementById('raw-modal-content');
+    const healthBoardEl = document.getElementById('health-board');
+    const reviewsContent = document.getElementById('reviews-content');
+    const reviewsInfo = document.getElementById('reviews-info') || { textContent: '' };
+    let analyticsData = null;
+    let trendChartInstance = null;
+    const reviewsTabEl = document.getElementById('reviews-tab');
+    const sessionsTabEl = document.getElementById('sessions-tab');
     const PAGE_SIZE = 50;
     let offset = 0, total = 0, sessions = [];
     let activePhases = new Set();
@@ -676,6 +685,8 @@
 
     function clearFilter() {
       currentFilter = null;
+      activeChainId = null;
+      document.querySelectorAll('.chain-row').forEach(r => r.classList.remove('active-filter'));
       if (healthData) renderHealthBoard(healthData);
       renderList();
       updateFilterIndicator();
@@ -760,7 +771,7 @@
         listEl.appendChild(more);
       }
       renderFilterPills();
-      applyFilter();
+      applyPhaseFilter();
     }
 
     async function fetchChains() {
@@ -903,14 +914,6 @@
           applyFilter();
         }
       });
-    }
-
-    function clearFilter() {
-      activeChainId = null;
-      document.querySelectorAll('.chain-row').forEach(r => r.classList.remove('active-filter'));
-      const clearBtn = document.getElementById('clear-filter-btn');
-      if (clearBtn) clearBtn.remove();
-      renderList();
     }
 
     function applyFilter() {
@@ -1204,14 +1207,14 @@
               activePhases.add(phase.id);
             }
           }
-          applyFilter();
+          applyPhaseFilter();
         });
         container.appendChild(pill);
       }
       clearBtn.style.display = activePhases.size > 0 && activePhases.size < (Object.keys(PHASES).length + (counts['other'] > 0 ? 1 : 0)) ? '' : 'none';
     }
 
-    function applyFilter() {
+    function applyPhaseFilter() {
       const allShown = activePhases.size === 0;
       let hasVisible = false;
       for (const card of listEl.querySelectorAll('.session-card')) {
@@ -1231,7 +1234,7 @@
           document.getElementById('phase-filter-show-all')?.addEventListener('click', () => {
             activePhases = new Set();
             renderFilterPills();
-            applyFilter();
+            applyPhaseFilter();
           });
         }
       } else if (existingEmpty) {
@@ -1244,7 +1247,7 @@
     document.getElementById('phase-filter-clear')?.addEventListener('click', () => {
       activePhases = new Set();
       renderFilterPills();
-      applyFilter();
+      applyPhaseFilter();
     });
     fetchPage(true);
 
