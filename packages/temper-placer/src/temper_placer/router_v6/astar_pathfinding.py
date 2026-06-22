@@ -1190,11 +1190,16 @@ def _astar_search(
         # Directions: Right, Down, Left, Up, Diagonals
         moves = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
+        # Direct numpy access for inner-loop performance (U1: avoid 180M method calls)
+        grid_arr = grid.grid
+        gw, gh = grid.width_cells, grid.height_cells
+
         for dx, dy in moves:
             neighbor = (x + dx, y + dy)
+            nx, ny = neighbor
 
-            # Check if neighbor is valid and free
-            if not grid.is_free(neighbor[0], neighbor[1]):
+            # Check if neighbor is valid and free (inlined bounds + numpy check)
+            if not (0 <= nx < gw and 0 <= ny < gh and grid_arr[ny, nx] == 0):
                 continue
 
             # Diagonal cost = 1.414, Cardinal = 1.0

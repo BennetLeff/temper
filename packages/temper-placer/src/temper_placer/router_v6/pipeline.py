@@ -255,7 +255,9 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  2.3: Extracting channel skeleton...")
         skeletons = {}
-        for layer_name, routing_space in routing_spaces.items():
+        # U3: Extract skeleton from F.Cu + B.Cu only (inner layers are power/ground planes)
+        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
+        for layer_name, routing_space in outer_layers.items():
             skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
             skeletons[layer_name] = skeleton
             if self.verbose:
@@ -423,7 +425,7 @@ class RouterV6Pipeline:
 
         # Fallback: nets without SAT channel assignment get direct A* attempt
         from temper_placer.router_v6.channel_mapping import ChannelPath
-        routed_nets = {cp.net_name for cp in channel_mapping}
+        routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
         for net in pcb.nets:
             if net.name not in routed_nets and len(net.pads) >= 2:
                 start = net.pads[0].position
