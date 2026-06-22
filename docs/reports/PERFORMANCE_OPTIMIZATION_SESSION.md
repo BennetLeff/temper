@@ -4,6 +4,17 @@
 **Branch**: `feat/router-v5`  
 **Agent**: fast-build  
 
+> **Historical note (added 2026-06-22):** The Cython A* twin described in this
+> report (`packages/temper-placer/src/temper_placer/routing/astar/astar_core.pyx`,
+> 707 lines) was **deleted in commit `3314d94a` on Jan 17 2026** along with the
+> entire `routing/astar/` package. The `TEMPER_USE_CYTHON_ASTAR` env var no longer
+> exists. The active router is `packages/temper-placer/temper_placer/router_v6/
+> astar_pathfinding.py` (pure Python, 2289 lines). The 40× per-path speedup claim
+> below was measured against the deleted implementation driving the legacy
+> `deterministic/stages/multilayer_astar.py` and is **not reproducible** against
+> the current router. Any re-introduction of a Cython twin is gated on the
+> measure-first threshold recorded in `docs/specs/cython_twin_threshold.md`.
+
 ## Session Summary
 
 Achieved **10.2x total pipeline speedup** through two major optimizations, reducing execution time from 88.25s to 8.66s.
