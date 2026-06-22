@@ -1,0 +1,100 @@
+name: Placer Regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/temper-placer/src/**'
+      - 'power_pcb_dataset/corpus/**'
+      - 'packages/temper-placer/configs/**'
+      - '.github/workflows/placer-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/temper-placer/src/**'
+      - 'power_pcb_dataset/corpus/**'
+      - 'packages/temper-placer/configs/**'
+      - '.github/workflows/placer-regression.yml'
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      JAX_PLATFORM_NAME: cpu
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Check for baseline changes without approval
+        run: |
+          if git diff --name-only origin/main...HEAD | grep -q 'power_pcb_dataset/corpus/.*/baseline.json'; then
+            echo "Checking for baseline approval in commit messages..."
+            if ! git log origin/main..HEAD --format=%B | grep -q 'Ceiling-Approval:'; then
+              echo "FAIL: baseline.json modified without Ceiling-Approval in commit message"
+              echo "Please add 'Ceiling-Approval: <reason>' to your commit message body."
+              exit 2
+            fi
+            echo "Baseline-Approval found in commit message."
+          fi
+
+      - name: Run corpus regression
+        run: uv run python -m temper_placer.regression.cli run-corpus --json
+
+      - name: Generate summary table
+        if: always()
+        run: |
+          {
+            echo "## Placer Regression Results"
+            echo ""
+            if [ -f regression-report.json ]; then
+              echo "| Board ID | Status | Skipped | Elapsed (s) |"
+              echo "| --- | --- | --- | --- |"
+              uv run python -c "
+          import json
+          with open('regression-report.json') as f:
+              report = json.load(f)
+          for b in report['boards']:
+              status = 'SKIP' if b['skipped'] else ('PASS' if b['passed'] else 'FAIL')
+              print(f\"| {b['board_id']} | {status} | {b['skipped']} | {b['elapsed_seconds']:.1f} |\")
+          failed = [b for b in report['boards'] if not b['passed'] and not b['skipped']]
+          if failed:
+              print()
+              print('> [!CAUTION]')
+              print(f'> Regression detected in: {\", \".join(b[\"board_id\"] for b in failed)}')
+          else:
+              skipped = [b for b in report['boards'] if b['skipped']]
+              if skipped:
+                  print()
+                  print('> [!WARNING]')
+                  print(f'> Skipped: {\", \".join(b[\"board_id\"] for b in skipped)}')
+              else:
+                  print()
+                  print('> [!IMPORTANT]')
+                  print('> All corpus boards passed regression checks.')
+              "
+            else
+              echo "No regression report generated."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report
+          path: regression-report.json

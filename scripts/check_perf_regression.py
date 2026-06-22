@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# NOTE: This script covers loss-function execution time regression
+# (microbenchmarks). For placement quality regression (wirelength, overlap,
+# boundary), use the corpus regression runner instead:
+#   python3 -m temper_placer.regression.cli run-corpus
+#
+# See packages/temper-placer/src/temper_placer/regression/corpus_runner.py
+# and power_pcb_dataset/corpus/ for the multi-board optimization regression.
 import sys
 import json
 import argparse

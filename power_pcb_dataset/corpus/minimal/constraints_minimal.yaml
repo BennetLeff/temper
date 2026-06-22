@@ -1,0 +1,25 @@
+board:
+  width_mm: 50.0
+  height_mm: 30.0
+  margin_mm: 2.0
+
+zones:
+  - name: main
+    bounds: [0, 0, 50, 30]
+    net_classes: ["Signal", "Power"]
+
+groups:
+  - name: passives
+    components: ["R1", "R2", "C1"]
+    zone: main
+    max_spread_mm: 20.0
+  - name: ics
+    components: ["U1"]
+    zone: main
+    max_spread_mm: 10.0
+
+loss_weights:
+  overlap: 200.0
+  boundary: 100.0
+  wirelength: 20.0
+  spread: 5.0

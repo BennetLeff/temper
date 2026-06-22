@@ -1,0 +1,26 @@
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 3.0
+
+zones:
+  - name: main
+    bounds: [0, 0, 100, 150]
+    net_classes: ["Signal", "Power"]
+
+loss_weights:
+  overlap: 200.0
+  boundary: 100.0
+  clearance: 100.0
+  wirelength: 20.0
+  spread: 5.0
+  alignment: 5.0
+  grid: 2.0
+  grouping: 50.0
+  decoupling: 30.0
+  loop_area: 100.0
+  thermal: 30.0
+  thermal_spread: 25.0
+  zone_membership: 150.0
+  power_path: 40.0
+  ground_crossing: 30.0
