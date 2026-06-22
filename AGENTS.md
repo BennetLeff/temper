@@ -126,6 +126,18 @@ export BEADS_AUTO_PR=true                # Auto-create PR on bd-done
 export BEADS_AUTO_TAKEOVER=true          # Auto-takeover stale claims
 ```
 
+### Firmware Config Codegen
+
+`firmware/config.h` is generated from `firmware/config.yaml` by
+`firmware/tools/gen_config.py`. After editing the manifest:
+
+```bash
+python3 firmware/tools/gen_config.py
+git add firmware/config.h && git commit -m "chore: regenerate config.h"
+```
+
+CI regenerates and `git diff --exit-code`s against the committed copy.
+
 ## ECO Memory (Long-Term Context)
 
 **Before starting work:**

@@ -1,0 +1,169 @@
+# Temper firmware — single-source-of-truth for all tunable parameters.
+#
+# This manifest declares every field in the generated firmware/config.h.
+# After editing, regenerate the header:
+#
+#     python3 firmware/tools/gen_config.py
+#     git add firmware/config.h && git commit -m "chore: regenerate config.h"
+#
+# Entries with `legacy_define: true` also produce a bare #define so
+# state_machine.c call sites compile unchanged.
+# Entries with `legacy_define: false` appear only in the struct initializer.
+# Entries with `legacy_define_only: true` produce a #define but no struct field.
+
+temperatures:
+  - c_symbol: SAFE_IDLE_TEMP
+    field: safe_idle_temp
+    value: 50.0
+    c_type: float
+    units: "°C"
+    env_var: TEMP_SAFE_IDLE_C
+    doc: "Safe temperature to return to IDLE"
+
+  - c_symbol: MIN_TEMP
+    field: min_temp
+    value: 30.0
+    c_type: float
+    units: "°C"
+    env_var: TEMP_MIN_C
+    doc: "Minimum setpoint temperature"
+
+  - c_symbol: MAX_TEMP
+    field: max_temp
+    value: 250.0
+    c_type: float
+    units: "°C"
+    env_var: TEMP_MAX_C
+    doc: "Maximum setpoint temperature"
+
+timeouts:
+  - c_symbol: PAN_DETECT_TIMEOUT_MS
+    field: pan_detect
+    value: 5000
+    c_type: uint32_t
+    units: ms
+    env_var: PAN_DETECT_TIMEOUT_MS
+    doc: "Pan detection timeout"
+
+  - c_symbol: NO_PAN_TIMEOUT_MS
+    field: no_pan_grace
+    value: 3000
+    c_type: uint32_t
+    units: ms
+    env_var: NO_PAN_GRACE_MS
+    doc: "Pan removal grace period"
+
+  - c_symbol: MAX_PREHEAT_TIME_MS
+    field: max_preheat
+    value: 600000
+    c_type: uint32_t
+    units: ms
+    env_var: MAX_PREHEAT_MS
+    doc: "Maximum preheat time"
+
+  - field: wdt_normal
+    value: 1000
+    c_type: uint32_t
+    units: ms
+    env_var: WDT_NORMAL_MS
+    doc: "Watchdog timeout in normal operation"
+    legacy_define: false
+
+  - field: wdt_idle
+    value: 10000
+    c_type: uint32_t
+    units: ms
+    env_var: WDT_IDLE_MS
+    doc: "Watchdog timeout in IDLE state"
+    legacy_define: false
+
+  - field: wdt_init
+    value: 5000
+    c_type: uint32_t
+    units: ms
+    env_var: WDT_INIT_MS
+    doc: "Watchdog timeout during INIT"
+    legacy_define: false
+
+  - field: fan_check_interval
+    value: 1000
+    c_type: uint32_t
+    units: ms
+    env_var: FAN_CHECK_INTERVAL_MS
+    doc: "Fan guard check interval"
+    legacy_define: false
+
+  - field: adc_check_interval
+    value: 500
+    c_type: uint32_t
+    units: ms
+    env_var: ADC_CHECK_INTERVAL_MS
+    doc: "ADC guard check interval"
+    legacy_define: false
+
+thresholds:
+  - c_symbol: PAN_DEBOUNCE_COUNT
+    field: pan_debounce_count
+    value: 10
+    c_type: uint16_t
+    env_var: PAN_DEBOUNCE_COUNT
+    doc: "Pan detection debounce samples"
+
+  - c_symbol: PAN_CONFIDENCE_REQUIRED
+    field: pan_confidence_required
+    value: 3
+    c_type: uint8_t
+    env_var: PAN_CONFIDENCE_REQUIRED
+    doc: "Pan detection confirmations needed"
+
+  - field: adc_min_valid_raw
+    value: 100
+    c_type: uint16_t
+    env_var: ADC_MIN_VALID_RAW
+    doc: "ADC minimum valid raw value"
+    legacy_define: false
+
+  - field: adc_max_valid_raw
+    value: 3950
+    c_type: uint16_t
+    env_var: ADC_MAX_VALID_RAW
+    doc: "ADC maximum valid raw value"
+    legacy_define: false
+
+  - field: adc_stuck_buffer_size
+    value: 8
+    c_type: uint8_t
+    env_var: ADC_STUCK_BUFFER_SIZE
+    doc: "ADC stuck check buffer size"
+    legacy_define: false
+
+  - field: adc_stuck_variance_threshold
+    value: 5
+    c_type: uint32_t
+    env_var: ADC_STUCK_VARIANCE_THRESHOLD
+    doc: "ADC stuck variance threshold"
+    legacy_define: false
+
+  - field: adc_watchdog_timeout_ms
+    value: 500
+    c_type: uint32_t
+    units: ms
+    env_var: ADC_WATCHDOG_TIMEOUT_MS
+    doc: "ADC watchdog timeout"
+    legacy_define: false
+
+  - field: fan_max_temp_rise_rate_c_per_s
+    value: 5.0
+    c_type: float
+    units: "°C/s"
+    env_var: FAN_MAX_TEMP_RISE_RATE_C_PER_S
+    doc: "Maximum fan temp rise rate"
+    legacy_define: false
+
+misc:
+  - c_symbol: MESSAGE_DISPLAY_TIME_MS
+    value: 2000
+    c_type: uint32_t
+    units: ms
+    doc: "Non-blocking message display time"
+    legacy_define_only: true

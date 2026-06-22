@@ -1,19 +1,13 @@
 /**
  * @file state_machine.c
  * @brief State machine implementation for induction cooker
- * 
- * States:
- * - INIT: Power-on self-test
- * - IDLE: Standby (low power)
- * - PAN_DET: Pan detection (5s timeout)
- * - PREHEAT: Aggressive heating to target
- * - HEATING: Precision PID control
- * - NO_PAN: Pan removed pause (3s window)
- * - COOLDOWN: Active cooling
- * - FAULT: Lockout (requires reset)
+ *
+ * States are defined by STATE_LIST in state_machine.h.
+ * Fault codes are defined by FAULT_LIST in state_machine.h.
  */
 
 #include "state_machine.h"
+#include "config.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -34,17 +28,6 @@ static const char *TAG = "state_machine";
 /* #include "low_temp_control.h" */
 #include "../components/control/thermal_mass.h"
 #include "../components/control/profiles.h"
-
-/* Configuration */
-#define SAFE_IDLE_TEMP          50.0f   /* °C - safe to return to idle */
-#define MAX_TEMP                250.0f  /* °C - maximum allowed temperature */
-#define MIN_TEMP                30.0f   /* °C - minimum setpoint */
-#define PAN_DETECT_TIMEOUT_MS   5000    /* 5 second pan detection timeout */
-#define NO_PAN_TIMEOUT_MS       3000    /* 3 second window to replace pan */
-#define PAN_DEBOUNCE_COUNT      10      /* Consecutive samples for debounce */
-#define PAN_CONFIDENCE_REQUIRED 3       /* Confirmations before heating */
-#define MAX_PREHEAT_TIME_MS     600000  /* 10 minute max preheat time */
-#define MESSAGE_DISPLAY_TIME_MS 2000    /* Non-blocking message display time */
 
 /* State machine context */
 static struct {
@@ -272,6 +255,10 @@ void state_machine_update(void) {
         case STATE_NO_PAN:   state_no_pan_update();   break;
         case STATE_COOLDOWN: state_cooldown_update(); break;
         case STATE_FAULT:    state_fault_update();    break;
+        default:
+            sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
+            transition_to(STATE_FAULT);
+            break;
     }
 }
 
@@ -290,34 +277,17 @@ fault_code_t state_machine_get_fault(void) {
 }
 
 const char* state_machine_get_fault_string(fault_code_t code) {
-    switch (code) {
-        case FAULT_NONE:            return "NO FAULT";
-        case FAULT_OVER_TEMP:       return "OVER TEMP";
-        case FAULT_OVER_CURRENT:    return "OVER CURRENT";
-        case FAULT_FAN_FAILURE:     return "FAN FAILED";
-        case FAULT_PROBE_OPEN:      return "PROBE OPEN";
-        case FAULT_PROBE_SHORT:     return "PROBE SHORT";
-        case FAULT_THERMAL_RUNAWAY: return "THERMAL RUNAWAY";
-        case FAULT_SELF_TEST_FAILED: return "SELF TEST FAIL";
-        case FAULT_WATCHDOG_RESET:  return "WATCHDOG RESET";
-        case FAULT_COOLDOWN_OVERHEAT: return "COOLDOWN FAULT";
-        case FAULT_PAN_DETECT_HW:   return "PAN DETECT HW";
-        default:                    return "UNKNOWN FAULT";
+    for (size_t i = 0; i < FAULT_COUNT; i++) {
+        if (fault_name_table[i].value == code) return fault_name_table[i].name;
     }
+    return "UNKNOWN FAULT";
 }
 
 const char* state_machine_get_state_string(system_state_t state) {
-    switch (state) {
-        case STATE_INIT:     return "INIT";
-        case STATE_IDLE:     return "IDLE";
-        case STATE_PAN_DET:  return "PAN_DET";
-        case STATE_PREHEAT:  return "PREHEAT";
-        case STATE_HEATING:  return "HEATING";
-        case STATE_NO_PAN:   return "NO_PAN";
-        case STATE_COOLDOWN: return "COOLDOWN";
-        case STATE_FAULT:    return "FAULT";
-        default:             return "UNKNOWN";
+    for (size_t i = 0; i < STATE_COUNT; i++) {
+        if (state_name_table[i].value == state) return state_name_table[i].name;
     }
+    return "UNKNOWN";
 }
 
 void state_machine_set_timer(bool enabled, uint32_t time_ms) {
@@ -959,6 +929,10 @@ static void transition_to(system_state_t new_state) {
         case STATE_NO_PAN:   state_no_pan_entry();   break;
         case STATE_COOLDOWN: state_cooldown_entry(); break;
         case STATE_FAULT:    state_fault_entry();    break;
+        default:
+            sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
+            transition_to(STATE_FAULT);
+            break;
     }
 }
 

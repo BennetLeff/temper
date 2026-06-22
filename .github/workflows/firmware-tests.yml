@@ -1,0 +1,42 @@
+name: Firmware Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install codegen dependencies
+        run: pip install -r firmware/tools/requirements.txt
+
+      - name: Regenerate config.h and check drift
+        run: |
+          python3 firmware/tools/gen_config.py
+          git diff --exit-code firmware/config.h
+
+      - name: Check header matches manifest
+        run: python3 firmware/tools/check_config_matches_manifest.py
+
+      - name: Build and run host tests
+        run: |
+          cmake -B firmware/test/build firmware/test
+          cmake --build firmware/test/build --target test_state_machine_only
+          ctest --test-dir firmware/test/build -R state_machine --output-on-failure

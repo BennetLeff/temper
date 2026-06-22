@@ -21,35 +21,69 @@ extern "C" {
 #endif
 
 /**
- * @brief System states
+ * @brief System states — single-source list (X-macro)
+ *
+ * Add a state: add one X(STATE_NAME, "STRING") line.
+ * The enum, STATE_COUNT sentinel, and string-name table
+ * all expand from this list automatically.
  */
+#define STATE_LIST(X) \
+    X(STATE_INIT,     "INIT") \
+    X(STATE_IDLE,     "IDLE") \
+    X(STATE_PAN_DET,  "PAN_DET") \
+    X(STATE_PREHEAT,  "PREHEAT") \
+    X(STATE_HEATING,  "HEATING") \
+    X(STATE_NO_PAN,   "NO_PAN") \
+    X(STATE_COOLDOWN, "COOLDOWN") \
+    X(STATE_FAULT,    "FAULT")
+
+#define EXPAND_STATE_ENUM(sym, str)  sym,
 typedef enum {
-    STATE_INIT,         /**< Power-on self-test */
-    STATE_IDLE,         /**< Standby (no heating) */
-    STATE_PAN_DET,      /**< Pan detection */
-    STATE_PREHEAT,      /**< Aggressive heating to target */
-    STATE_HEATING,      /**< Precision PID control */
-    STATE_NO_PAN,       /**< Pan removed (brief pause) */
-    STATE_COOLDOWN,     /**< Active cooling after stop */
-    STATE_FAULT         /**< Lockout (requires user reset) */
+    STATE_LIST(EXPAND_STATE_ENUM)
+    STATE_COUNT
 } system_state_t;
+#undef EXPAND_STATE_ENUM
+
+#define EXPAND_STATE_NAME(sym, str)  { sym, str },
+typedef struct { system_state_t value; const char *name; } state_name_entry_t;
+static const state_name_entry_t state_name_table[] = {
+    STATE_LIST(EXPAND_STATE_NAME)
+};
+#undef EXPAND_STATE_NAME
 
 /**
- * @brief Fault codes
+ * @brief Fault codes — single-source list (X-macro)
+ *
+ * Add a fault: add one X(FAULT_NAME, "STRING") line.
+ * The enum, FAULT_COUNT sentinel, and string-name table
+ * all expand from this list automatically.
  */
+#define FAULT_LIST(X) \
+    X(FAULT_NONE,             "NO FAULT") \
+    X(FAULT_OVER_TEMP,        "OVER TEMP") \
+    X(FAULT_OVER_CURRENT,     "OVER CURRENT") \
+    X(FAULT_FAN_FAILURE,      "FAN FAILED") \
+    X(FAULT_PROBE_OPEN,       "PROBE OPEN") \
+    X(FAULT_PROBE_SHORT,      "PROBE SHORT") \
+    X(FAULT_THERMAL_RUNAWAY,  "THERMAL RUNAWAY") \
+    X(FAULT_SELF_TEST_FAILED, "SELF TEST FAIL") \
+    X(FAULT_WATCHDOG_RESET,   "WATCHDOG RESET") \
+    X(FAULT_COOLDOWN_OVERHEAT,"COOLDOWN FAULT") \
+    X(FAULT_PAN_DETECT_HW,    "PAN DETECT HW")
+
+#define EXPAND_FAULT_ENUM(sym, str)  sym,
 typedef enum {
-    FAULT_NONE = 0,
-    FAULT_OVER_TEMP,            /**< Heatsink >100°C */
-    FAULT_OVER_CURRENT,         /**< DC bus current >35A */
-    FAULT_FAN_FAILURE,          /**< Fan tachometer = 0 */
-    FAULT_PROBE_OPEN,           /**< RTD resistance >10kΩ */
-    FAULT_PROBE_SHORT,          /**< RTD resistance <10Ω */
-    FAULT_THERMAL_RUNAWAY,      /**< Temp rising with power off */
-    FAULT_SELF_TEST_FAILED,     /**< POST failed */
-    FAULT_WATCHDOG_RESET,       /**< Software crash */
-    FAULT_COOLDOWN_OVERHEAT,    /**< Temp rising in cooldown */
-    FAULT_PAN_DETECT_HW         /**< Pan detection hardware issue */
+    FAULT_LIST(EXPAND_FAULT_ENUM)
+    FAULT_COUNT
 } fault_code_t;
+#undef EXPAND_FAULT_ENUM
+
+#define EXPAND_FAULT_NAME(sym, str)  { sym, str },
+typedef struct { fault_code_t value; const char *name; } fault_name_entry_t;
+static const fault_name_entry_t fault_name_table[] = {
+    FAULT_LIST(EXPAND_FAULT_NAME)
+};
+#undef EXPAND_FAULT_NAME
 
 /**
  * @brief Button identifiers

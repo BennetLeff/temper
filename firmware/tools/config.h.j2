@@ -36,83 +36,55 @@
 #define CONFIG_VERSION_STRING "0.1.0"
 #define CONFIG_BUILD_DATE __DATE__
 #define CONFIG_BUILD_TIME __TIME__
+
+{%- macro c_value(v, ctype) -%}
+{%- if ctype == "float" %}{{ v }}f{%- else %}{{ v }}{%- endif -%}
+{%- endmacro -%}
+
+{%- macro c_struct_type(name) -%}
+{%- if name == "temperatures" %}temperature_limits_t
+{%- elif name == "timeouts" %}timeouts_t
+{%- elif name == "thresholds" %}thresholds_t
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro c_default_macro(name) -%}
+{%- if name == "temperatures" %}TEMP_LIMITS_DEFAULT
+{%- elif name == "timeouts" %}TIMEOUTS_DEFAULT
+{%- elif name == "thresholds" %}THRESHOLDS_DEFAULT
+{%- endif -%}
+{%- endmacro -%}
+
+{% for group_name, entries in [
+  ("temperatures", temperatures),
+  ("timeouts", timeouts),
+  ("thresholds", thresholds),
+] %}
 /* ================================
+{%- if group_name == "temperatures" %}
  * Temperature Limits (°C)
- * ================================
- */
-
-typedef struct {
-    float safe_idle_temp; /**< Safe temperature to return to IDLE (°C) */
-    float min_temp; /**< Minimum setpoint temperature (°C) */
-    float max_temp; /**< Maximum setpoint temperature (°C) */
-} temperature_limits_t;
-
-/* Default temperatures */
-#define TEMP_LIMITS_DEFAULT { \
-    .safe_idle_temp = 50.0f, \
-    .min_temp = 30.0f, \
-    .max_temp = 250.0f, \
-}
-
-
-/* ================================
+{%- elif group_name == "timeouts" %}
  * Timeouts (ms)
- * ================================
- */
-
-typedef struct {
-    uint32_t pan_detect; /**< Pan detection timeout (ms) */
-    uint32_t no_pan_grace; /**< Pan removal grace period (ms) */
-    uint32_t max_preheat; /**< Maximum preheat time (ms) */
-    uint32_t wdt_normal; /**< Watchdog timeout in normal operation (ms) */
-    uint32_t wdt_idle; /**< Watchdog timeout in IDLE state (ms) */
-    uint32_t wdt_init; /**< Watchdog timeout during INIT (ms) */
-    uint32_t fan_check_interval; /**< Fan guard check interval (ms) */
-    uint32_t adc_check_interval; /**< ADC guard check interval (ms) */
-} timeouts_t;
-
-/* Default timeouts */
-#define TIMEOUTS_DEFAULT { \
-    .pan_detect = 5000, \
-    .no_pan_grace = 3000, \
-    .max_preheat = 600000, \
-    .wdt_normal = 1000, \
-    .wdt_idle = 10000, \
-    .wdt_init = 5000, \
-    .fan_check_interval = 1000, \
-    .adc_check_interval = 500, \
-}
-
-
-/* ================================
+{%- elif group_name == "thresholds" %}
  * Thresholds
+{%- endif %}
  * ================================
  */
 
 typedef struct {
-    uint16_t pan_debounce_count; /**< Pan detection debounce samples */
-    uint8_t pan_confidence_required; /**< Pan detection confirmations needed */
-    uint16_t adc_min_valid_raw; /**< ADC minimum valid raw value */
-    uint16_t adc_max_valid_raw; /**< ADC maximum valid raw value */
-    uint8_t adc_stuck_buffer_size; /**< ADC stuck check buffer size */
-    uint32_t adc_stuck_variance_threshold; /**< ADC stuck variance threshold */
-    uint32_t adc_watchdog_timeout_ms; /**< ADC watchdog timeout (ms) */
-    float fan_max_temp_rise_rate_c_per_s; /**< Maximum fan temp rise rate (°C/s) */
-} thresholds_t;
+{%- for entry in entries %}
+    {{ entry.c_type }} {{ entry.field }};{% if entry.units %} /**< {{ entry.doc }} ({{ entry.units }}){% elif entry.doc %} /**< {{ entry.doc }}{% endif %} */
+{%- endfor %}
+} {{ c_struct_type(group_name).rstrip() }};
 
-/* Default thresholds */
-#define THRESHOLDS_DEFAULT { \
-    .pan_debounce_count = 10, \
-    .pan_confidence_required = 3, \
-    .adc_min_valid_raw = 100, \
-    .adc_max_valid_raw = 3950, \
-    .adc_stuck_buffer_size = 8, \
-    .adc_stuck_variance_threshold = 5, \
-    .adc_watchdog_timeout_ms = 500, \
-    .fan_max_temp_rise_rate_c_per_s = 5.0f, \
+/* Default {{ group_name }} */
+#define {{ c_default_macro(group_name).rstrip() }} { \
+{%- for entry in entries %}
+    .{{ entry.field }} = {{ c_value(entry.value, entry.c_type) }}, \
+{%- endfor %}
 }
 
-
+{% endfor %}
 /* ================================
  * Combined Runtime Configuration
  * ================================
@@ -145,26 +117,13 @@ void config_init(void);
  * @brief Load configuration from environment variables
  *
  * Allows runtime configuration via environment variables:
-
- * - TEMP_SAFE_IDLE_C
- * - TEMP_MIN_C
- * - TEMP_MAX_C
- * - PAN_DETECT_TIMEOUT_MS
- * - NO_PAN_GRACE_MS
- * - MAX_PREHEAT_MS
- * - WDT_NORMAL_MS
- * - WDT_IDLE_MS
- * - WDT_INIT_MS
- * - FAN_CHECK_INTERVAL_MS
- * - ADC_CHECK_INTERVAL_MS
- * - PAN_DEBOUNCE_COUNT
- * - PAN_CONFIDENCE_REQUIRED
- * - ADC_MIN_VALID_RAW
- * - ADC_MAX_VALID_RAW
- * - ADC_STUCK_BUFFER_SIZE
- * - ADC_STUCK_VARIANCE_THRESHOLD
- * - ADC_WATCHDOG_TIMEOUT_MS
- * - FAN_MAX_TEMP_RISE_RATE_C_PER_S
+{% for group in [temperatures, timeouts, thresholds] -%}
+{%- for entry in group -%}
+{%- if entry.env_var %}
+ * - {{ entry.env_var }}
+{%- endif -%}
+{%- endfor -%}
+{%- endfor %}
  *
  * Useful for testing or calibration without recompiling.
  */
@@ -229,13 +188,12 @@ void config_print(void);
  * Every value matches the corresponding field in the *_DEFAULT block above.
  * New parameters should use `legacy_define: false` and access g_config directly.
  */
-
-#define SAFE_IDLE_TEMP 50.0f
-#define MIN_TEMP 30.0f
-#define MAX_TEMP 250.0f
-#define PAN_DETECT_TIMEOUT_MS 5000
-#define NO_PAN_TIMEOUT_MS 3000
-#define MAX_PREHEAT_TIME_MS 600000
-#define PAN_DEBOUNCE_COUNT 10
-#define PAN_CONFIDENCE_REQUIRED 3
-#define MESSAGE_DISPLAY_TIME_MS 2000
+{% for group in [temperatures, timeouts, thresholds, misc] %}
+{%- for entry in group %}
+{%- if entry.legacy_define_only and entry.c_symbol %}
+#define {{ entry.c_symbol }} {{ entry.value }}
+{%- elif not (entry.legacy_define is defined and entry.legacy_define == false) and entry.c_symbol %}
+#define {{ entry.c_symbol }} {{ c_value(entry.value, entry.c_type) }}
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
