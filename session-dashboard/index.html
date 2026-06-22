@@ -409,8 +409,22 @@
     };
     const PHASE_OTHER = { id: 'other', color: 'var(--phase-other)', icon: 'help-circle', label: 'Other' };
 
-    function getPhase(agentType) {
-      if (!agentType) return PHASE_OTHER;
+    function getPhase(agentType, subAgents) {
+      if (!agentType) {
+        if (subAgents && subAgents.length > 0) {
+          const types = {};
+          for (const sa of subAgents) {
+            const at = sa.agentType || 'general';
+            types[at] = (types[at] || 0) + 1;
+          }
+          const sorted = Object.entries(types).sort((a, b) => b[1] - a[1]);
+          for (const [t] of sorted) {
+            const p = getPhase(t, null);
+            if (p.id !== 'other') return p;
+          }
+        }
+        return PHASE_OTHER;
+      }
       const raw = String(agentType).trim().toLowerCase().replace(/\s*:\s*/g, ':').replace(/\s*-\s*/g, '-');
       const match = raw.match(/(?:compound-engineering:)?(ce-\w+)/);
       if (!match) return PHASE_OTHER;
@@ -868,7 +882,7 @@
       mm.innerHTML = '';
       for (let i = 0; i < sessions.length; i++) {
         const s = sessions[i];
-        const phase = getPhase(s.agentType);
+        const phase = getPhase(s.agentType, s.subAgents);
         const bar = document.createElement('div');
         bar.className = 'minimap-bar';
         bar.style.background = phase.color;
@@ -930,7 +944,7 @@
         listEl.innerHTML = '';
         const phases = [...Object.values(PHASES), PHASE_OTHER];
         for (const phase of phases) {
-          const phaseSessions = displaySessions.filter(s => getPhase(s.agentType).id === phase.id);
+          const phaseSessions = displaySessions.filter(s => getPhase(s.agentType, s.subAgents).id === phase.id);
           const col = document.createElement('div');
           col.className = 'swimlane-column';
           col.innerHTML = `<div class="swimlane-header">${esc(phase.label)} <span class="count">(${phaseSessions.length})</span></div>`;
@@ -1216,7 +1230,7 @@
       let summary = s.summary || 'Session';
       const dur = fmtDur(s.duration);
       const ts = fmtTime(s.startedAt);
-      const phase = getPhase(s.agentType);
+      const phase = getPhase(s.agentType, s.subAgents);
       const latest = s.latestAgentDate;
       if (latest) summary += ` \u2014 latest: ${fmtTime(latest)}`;
 
@@ -1372,7 +1386,7 @@
       if (!container) return;
       const counts = {};
       for (const s of sessions) {
-        const p = getPhase(s.agentType);
+        const p = getPhase(s.agentType, s.subAgents);
         counts[p.id] = (counts[p.id] || 0) + 1;
       }
       const visiblePhases = Object.values(PHASES).filter(p => counts[p.id] > 0);
