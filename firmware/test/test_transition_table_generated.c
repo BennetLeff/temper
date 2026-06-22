@@ -8,6 +8,7 @@
 
 #include "test_common.h"
 #include "../main/state_machine.h"
+#include "../main/transition_table.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -36,8 +37,8 @@ typedef struct {
     bool has_fault;
 } transition_row_t;
 
-/* The transition table (generated from gen_transition_table.py) */
-static const transition_row_t transition_table[] = {
+/* The test transition rows (generated from transition_table.yaml) */
+static const transition_row_t test_rows[] = {
     { STATE_INIT, "SELFTEST_PASS", STATE_IDLE, FAULT_NONE, false },
     { STATE_INIT, "SELFTEST_FAIL", STATE_FAULT, FAULT_SELF_TEST_FAILED, true },
     { STATE_IDLE, "START_BUTTON", STATE_PAN_DET, FAULT_NONE, false },
@@ -70,7 +71,7 @@ static const transition_row_t transition_table[] = {
     { STATE_FAULT, "FAULT_RESET_CLEARED", STATE_INIT, FAULT_NONE, false },
     { STATE_FAULT, "FAULT_RESET_PERSISTS", STATE_FAULT, FAULT_NONE, false },
 };
-static const size_t transition_count = sizeof(transition_table) / sizeof(transition_table[0]);
+static const size_t test_row_count = sizeof(test_rows) / sizeof(test_rows[0]);
 
 static void apply_event_stubs(const char *event) {
     if (strcmp(event, "SELFTEST_FAIL") == 0) {
@@ -229,8 +230,8 @@ static system_state_t drain_message(void) {
 }
 
 void test_transition_table(void) {
-    for (size_t i = 0; i < transition_count; i++) {
-        const transition_row_t *row = &transition_table[i];
+    for (size_t i = 0; i < test_row_count; i++) {
+        const transition_row_t *row = &test_rows[i];
         char msg[128];
         snprintf(msg, sizeof(msg), "Row %zu: %s + %s", i,
                  state_machine_get_state_string(row->from), row->event);
@@ -356,6 +357,36 @@ void test_transition_table(void) {
         if (row->has_fault) {
             TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
                 state_machine_get_fault(), msg);
+        }
+    }
+}
+
+/* Cross-check: verify the official transition_table.h matches our test rows */
+static event_t event_enum_from_string(const char *name) {
+    for (size_t i = 0; i < EVENT_COUNT; i++) {
+        if (strcmp(name, event_name_table[i].name) == 0)
+            return event_name_table[i].value;
+    }
+    return EVENT_COUNT;
+}
+
+void test_transition_table_cross_check(void) {
+    for (size_t i = 0; i < test_row_count; i++) {
+        const transition_row_t *row = &test_rows[i];
+        event_t ev = event_enum_from_string(row->event);
+        char msg[128];
+        snprintf(msg, sizeof(msg), "Cross-check row %zu: %s + %s",
+                 i, state_machine_get_state_string(row->from), row->event);
+
+        TEST_ASSERT_NOT_EQUAL(EVENT_COUNT, ev);
+
+        system_state_t official = transition_table[row->from][ev];
+        TEST_ASSERT_NOT_EQUAL(TRANSITION_INVALID, official);
+        TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, official, msg);
+
+        if (row->has_fault) {
+            fault_code_t official_fault = transition_fault[row->from][ev];
+            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault, official_fault, msg);
         }
     }
 }
