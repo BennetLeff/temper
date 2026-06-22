@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# DEPRECATED: Use `python3 -m temper_placer.regression.cli run-corpus` instead.
+# This script is kept for reference but will be removed after the corpus
+# regression runner is validated in CI for 2 weeks.
+#
+# The corpus runner (packages/temper-placer/src/temper_placer/regression/
+# corpus_runner.py) provides multi-board optimization regression, per-metric
+# threshold comparison, JSON reporting, and CI integration.
 import sys
 import json
 import argparse
