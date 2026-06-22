@@ -1,0 +1,164 @@
+# Import-linter allowlist — monotonically shrinking
+# Each entry permits a specific import violation.
+# Entries may only be removed when the violation is fixed.
+# Entries may only be added with justification and ticket reference.
+# See docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md
+
+allowlist:
+  # Integration test entries (R11 / AE3)
+  - source: temper_placer\.validation\.drc
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Validation layer accesses core internals to validate placement against DRC rules"
+    ticket: temper-xxx
+
+  - source: temper_placer\.routing\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Routing layer reads core data structures (netlist, state, board) to operate"
+    ticket: temper-xxx
+
+  - source: temper_placer\.pipeline\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Pipeline orchestrator coordinates across layers and reads core state"
+    ticket: temper-xxx
+
+  - source: temper_placer\.optimizer\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Optimizer reads core data structures for training and post-processing"
+    ticket: temper-xxx
+
+  - source: temper_placer\.losses\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Loss functions access core data structures for constraint evaluation"
+    ticket: temper-xxx
+
+  - source: temper_placer\.io\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "IO layer reads/writes core data structures for serialization"
+    ticket: temper-xxx
+
+  - source: temper_placer\.heuristics\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Heuristics access core data structures for placement initialization"
+    ticket: temper-xxx
+
+  - source: temper_placer\.deterministic\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Deterministic stages read core data structures for state manipulation"
+    ticket: temper-xxx
+
+  - source: temper_placer\.cli\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "CLI commands access core data structures for command dispatch"
+    ticket: temper-xxx
+
+  - source: temper_placer\.metrics\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Metrics read core data structures for quality measurement"
+    ticket: temper-xxx
+
+  - source: temper_placer\.regression\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Regression tests access core data structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.scale\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Scale tests access core data structures for memory profiling"
+    ticket: temper-xxx
+
+  - source: temper_placer\.validation\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Validation layer reads core data structures for verification"
+    ticket: temper-xxx
+
+  - source: temper_placer\.ablation\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Ablation studies access core data structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.fixtures\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Test fixtures create core data structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.constraints\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Constraint builder/compiler reads core data structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.pcl\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "PCL parser/linter accesses core data structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.geometry\..*
+    target: temper_placer\.core\..*
+    contract: core-public-interface-only
+    reason: "Geometry transforms read core units and data structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.router_v6\..*
+    target: temper_placer\.core\..*
+    contract: core-isolated-from-router-v6
+    reason: "Router v6 reads core data structures (netlist, state, board) for routing"
+    ticket: temper-xxx
+
+  - source: temper_placer\.cli\..*
+    target: temper_placer\.router_v6\.stage0_data
+    contract: router-v6-public-interface-only
+    reason: "CLI uses deterministic state which imports router_v6 shared structures"
+    ticket: temper-xxx
+
+  - source: temper_placer\.io\..*
+    target: temper_placer\.router_v6\.stage0_data
+    contract: router-v6-public-interface-only
+    reason: "IO layer uses kicad_parser which imports router_v6 stage0 shared structures"
+    ticket: temper-xxx
+
+  # Script audit entries (118+ scripts default to allowlisted — U7)
+  - source: scripts/.*\.py
+    target: temper_placer\..*
+    contract: .*
+    reason: "Ad-hoc tooling scripts — re-evaluate in temper-xxx"
+    ticket: temper-xxx
+
+  - source: tools/.*\.py
+    target: temper_placer\..*
+    contract: .*
+    reason: "Ad-hoc tooling scripts — re-evaluate in temper-xxx"
+    ticket: temper-xxx
+
+  - source: experiments/.*\.py
+    target: temper_placer\..*
+    contract: .*
+    reason: "Ad-hoc experimentation scripts — re-evaluate in temper-xxx"
+    ticket: temper-xxx
+
+  - source: simulation/.*\.py
+    target: temper_placer\..*
+    contract: .*
+    reason: "Simulation scripts — re-evaluate in temper-xxx"
+    ticket: temper-xxx
+
+  - source: router-experiments/.*\.py
+    target: temper_placer\..*
+    contract: .*
+    reason: "Router experimentation scripts — re-evaluate in temper-xxx"
+    ticket: temper-xxx

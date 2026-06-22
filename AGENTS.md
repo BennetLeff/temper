@@ -238,6 +238,22 @@ same manifest via `firmware/test/gen_transition_table.py`. After manifest edits:
     git add firmware/test/test_transition_table_generated.c
     git commit -m "test: regenerate transition table tests"
 
+### Import Boundary Check
+
+Before pushing, verify your changes don't violate import boundaries:
+
+```bash
+uv run python scripts/import_linter_gate.py
+```
+
+If violations are reported:
+1. Check `.importlinter` for the boundary contract violated
+2. Option A: Move the import to a permitted module (use public `__init__.py` exports)
+3. Option B: Add an allowlist entry to `import-linter-allowlist.yaml` with justification + ticket reference
+
+The same check runs in CI. After the soft-launch period (until 2026-07-06), violations block PR merge.
+See `docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md`.
+
 ### Building and Running Firmware Tests
 
 ```bash

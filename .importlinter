@@ -1,0 +1,168 @@
+# import-linter boundary configuration for Temper
+# docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md
+#
+# Contracts:
+#   - core-isolated-from-router-v6: independence (R2)
+#   - core-public-interface-only: forbid internal submodule imports (R3)
+#   - router-v6-public-interface-only: forbid internal submodule imports (R3)
+
+[importlinter]
+root_packages =
+    temper_placer
+
+# R2: core/ and router_v6/ must not import from each other.
+[importlinter:contract:core-isolated-from-router-v6]
+name = core-isolated-from-router-v6
+type = independence
+modules =
+    temper_placer.core
+    temper_placer.router_v6
+
+# R3: External packages may only import from core/ public interface (__init__.py).
+# Only explicitly listed submodules are forbidden; the package root (__init__.py) is allowed.
+[importlinter:contract:core-public-interface-only]
+name = core-public-interface-only
+type = forbidden
+source_modules =
+    temper_placer.ablation
+    temper_placer.adapters
+    temper_placer.cli
+    temper_placer.constraints
+    temper_placer.deterministic
+    temper_placer.experiments
+    temper_placer.explainability
+    temper_placer.fixtures
+    temper_placer.geometry
+    temper_placer.heuristics
+    temper_placer.io
+    temper_placer.losses
+    temper_placer.manufacturing
+    temper_placer.metrics
+    temper_placer.ml
+    temper_placer.optimizer
+    temper_placer.pcl
+    temper_placer.pipeline
+    temper_placer.placement
+    temper_placer.placer
+    temper_placer.regression
+    temper_placer.router_v6
+    temper_placer.routing
+    temper_placer.scale
+    temper_placer.topological
+    temper_placer.validation
+    temper_placer.visualization
+forbidden_modules =
+    temper_placer.core.board
+    temper_placer.core.bus_cohort
+    temper_placer.core.community
+    temper_placer.core.decision
+    temper_placer.core.design_rules
+    temper_placer.core.differential_pair
+    temper_placer.core.graph
+    temper_placer.core.hypergraph
+    temper_placer.core.ipc2221
+    temper_placer.core.loop
+    temper_placer.core.loop_extractor
+    temper_placer.core.loop_ownership
+    temper_placer.core.manufacturing
+    temper_placer.core.net_graph
+    temper_placer.core.net_types
+    temper_placer.core.netlist
+    temper_placer.core.placement_drc
+    temper_placer.core.power_topology
+    temper_placer.core.priority
+    temper_placer.core.routing_validator
+    temper_placer.core.specification
+    temper_placer.core.state
+    temper_placer.core.topology
+    temper_placer.core.units
+as_packages = False
+ignore_imports =
+    temper_placer.core.* -> temper_placer.core.*
+
+# R3: External packages may only import from router_v6/ public interface (__init__.py).
+[importlinter:contract:router-v6-public-interface-only]
+name = router-v6-public-interface-only
+type = forbidden
+source_modules =
+    temper_placer.ablation
+    temper_placer.adapters
+    temper_placer.cli
+    temper_placer.constraints
+    temper_placer.core
+    temper_placer.deterministic
+    temper_placer.experiments
+    temper_placer.explainability
+    temper_placer.fixtures
+    temper_placer.geometry
+    temper_placer.heuristics
+    temper_placer.io
+    temper_placer.losses
+    temper_placer.manufacturing
+    temper_placer.metrics
+    temper_placer.ml
+    temper_placer.optimizer
+    temper_placer.pcl
+    temper_placer.pipeline
+    temper_placer.placement
+    temper_placer.placer
+    temper_placer.regression
+    temper_placer.routing
+    temper_placer.scale
+    temper_placer.topological
+    temper_placer.validation
+    temper_placer.visualization
+forbidden_modules =
+    temper_placer.router_v6.acid_trap_detection
+    temper_placer.router_v6.adapter
+    temper_placer.router_v6.annular_ring_check
+    temper_placer.router_v6.apply_suggestions
+    temper_placer.router_v6.astar_pathfinding
+    temper_placer.router_v6.benchmark
+    temper_placer.router_v6.bottleneck_analysis
+    temper_placer.router_v6.channel_mapping
+    temper_placer.router_v6.channel_skeleton
+    temper_placer.router_v6.channel_widths
+    temper_placer.router_v6.clearance_check
+    temper_placer.router_v6.congestion_analysis
+    temper_placer.router_v6.connectivity_constraints
+    temper_placer.router_v6.constraint_model
+    temper_placer.router_v6.convergence_check
+    temper_placer.router_v6.copper_balance
+    temper_placer.router_v6.creepage_check
+    temper_placer.router_v6.dense_package_detection
+    temper_placer.router_v6.diagnostics
+    temper_placer.router_v6.diff_pair_inference
+    temper_placer.router_v6.differential_pair_constraints
+    temper_placer.router_v6.escape_drc_validator
+    temper_placer.router_v6.escape_via_generator
+    temper_placer.router_v6.feedback_loop
+    temper_placer.router_v6.grid_update
+    temper_placer.router_v6.layer_capacity
+    temper_placer.router_v6.length_group_inference
+    temper_placer.router_v6.length_matching
+    temper_placer.router_v6.manufacturing_report
+    temper_placer.router_v6.obstacle_map
+    temper_placer.router_v6.occupancy_grid
+    temper_placer.router_v6.pad_escape_classification
+    temper_placer.router_v6.pipeline
+    temper_placer.router_v6.placement_suggestions
+    temper_placer.router_v6.reference_plane_constraints
+    temper_placer.router_v6.routing_demand
+    temper_placer.router_v6.routing_failure_handler
+    temper_placer.router_v6.routing_results
+    temper_placer.router_v6.routing_space
+    temper_placer.router_v6.safety_pair_inference
+    temper_placer.router_v6.sat_model
+    temper_placer.router_v6.stage0_data
+    temper_placer.router_v6.teardrop_generation
+    temper_placer.router_v6.test_boards
+    temper_placer.router_v6.thermal_relief
+    temper_placer.router_v6.topology_extraction
+    temper_placer.router_v6.topology_solver
+    temper_placer.router_v6.trace_width_assignment
+    temper_placer.router_v6.via_grid_reservation
+    temper_placer.router_v6.via_placement
+as_packages = False
+ignore_imports =
+    temper_placer.router_v6.* -> temper_placer.router_v6.*

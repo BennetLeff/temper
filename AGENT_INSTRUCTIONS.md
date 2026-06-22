@@ -231,6 +231,23 @@ python3 tools/gpbm/reflect.py --task temper-xxx --reason "Done"
 - Blockers and dependencies
 - Implementation details
 
+## Import Boundary Enforcement
+
+Before pushing, verify import boundaries:
+
+```bash
+uv run python scripts/import_linter_gate.py
+```
+
+**If violations are reported:**
+1. Check `.importlinter` for the boundary contract violated
+2. **Option A**: Move the import to a permitted module (use public `__init__.py` exports)
+3. **Option B**: Add an allowlist entry to `import-linter-allowlist.yaml` with justification + ticket reference
+
+**Soft-launch**: Until 2026-07-06, violations are WARNING-only. After that date, violations block PR merge.
+
+See `docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md` for details.
+
 ## Troubleshooting
 
 | Issue | Solution |
