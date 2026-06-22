@@ -265,6 +265,10 @@ void state_machine_update(void) {
         case STATE_NO_PAN:   state_no_pan_update();   break;
         case STATE_COOLDOWN: state_cooldown_update(); break;
         case STATE_FAULT:    state_fault_update();    break;
+        default:
+            sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
+            transition_to(STATE_FAULT);
+            break;
     }
 }
 
@@ -935,6 +939,10 @@ static void transition_to(system_state_t new_state) {
         case STATE_NO_PAN:   state_no_pan_entry();   break;
         case STATE_COOLDOWN: state_cooldown_entry(); break;
         case STATE_FAULT:    state_fault_entry();    break;
+        default:
+            sm_ctx.fault_code = FAULT_SELF_TEST_FAILED;
+            transition_to(STATE_FAULT);
+            break;
     }
 }
 
