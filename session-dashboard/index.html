@@ -1235,6 +1235,7 @@
       const iconName = getSubagentIcon(agentType);
 
       row.innerHTML = `
+        <span class="status-dot" style="background:${sa.status === 'passed' || sa.status === 'completed' ? 'var(--text-tertiary)' : sa.status === 'failed' ? 'var(--error)' : 'var(--success)'};flex-shrink:0" title="Status: ${sa.status || 'completed'}"></span>
         <span class="subagent-icon" title="${esc(agentType || 'agent')}">${svgIcon(iconName)}</span>
         <span class="subagent-desc" title="${esc(desc)}">${esc(desc.substring(0, 80))}</span>
         <span class="subagent-dur">${dur ? esc(dur) : ''}</span>
