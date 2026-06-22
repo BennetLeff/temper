@@ -41,6 +41,10 @@ jobs:
         working-directory: packages/temper-placer
         run: uv run pytest tests/core/ -v --tb=short --cov=temper_placer.core --cov-report=json --cov-report=term
       
+      - name: Coverage gate (temper-placer/core)
+        working-directory: packages/temper-placer
+        run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage.json --allowlist ../../.coverage-allowlist
+      
       - name: Run temper-workflow tests
         working-directory: packages/temper-workflow
         run: uv run pytest tests/ -v --tb=short
