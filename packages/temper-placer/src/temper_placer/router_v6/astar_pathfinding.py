@@ -568,7 +568,7 @@ def run_astar_pathfinding(
             (success, failure_reason, blocking_nets, congestion_region)
         """
         # Adaptive depth limit: problem nets get more attempts
-        max_depth = 30 if net_name in problem_nets else 15
+        max_depth = 60 if net_name in problem_nets else 30
         if depth > max_depth:
             return False, "rip_up_limit", [], None
 

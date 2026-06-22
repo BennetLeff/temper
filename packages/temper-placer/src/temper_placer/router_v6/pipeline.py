@@ -360,7 +360,7 @@ class RouterV6Pipeline:
         # 3.8: Solve topology
         if self.verbose:
             print("  3.8: Solving topology...")
-        solution = solve_topology(sat_model, timeout_ms=5000.0)
+        solution = solve_topology(sat_model, timeout_ms=30000.0)
 
         if self.verbose:
             if solution.is_satisfiable:

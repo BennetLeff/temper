@@ -71,7 +71,12 @@ def route_pcb(
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(modified_content)
 
-            pipeline = RouterV6Pipeline(verbose=False)
+            pipeline = RouterV6Pipeline(
+                verbose=False,
+                enable_theta_star=True,
+                enable_lazy_theta_star=True,
+                enable_smoothing=True,
+            )
             result = pipeline.run(Path(temp_path))
             return RoutingResult(completion_rate=result.completion_rate)
         finally:
@@ -80,7 +85,12 @@ def route_pcb(
             except OSError:
                 pass
     else:
-        pipeline = RouterV6Pipeline(verbose=False)
+        pipeline = RouterV6Pipeline(
+            verbose=False,
+            enable_theta_star=True,
+            enable_lazy_theta_star=True,
+            enable_smoothing=True,
+        )
         result = pipeline.run(pcb_path)
         return RoutingResult(completion_rate=result.completion_rate)
 
