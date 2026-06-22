@@ -16,6 +16,16 @@ if(NOT gen_config_result EQUAL 0)
     message(WARNING "config.h regeneration failed — using committed copy")
 endif()
 
+# Regenerate transition_table.h from transition_table.yaml before every build.
+execute_process(
+    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_transition_table.py"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    RESULT_VARIABLE gen_tt_result
+)
+if(NOT gen_tt_result EQUAL 0)
+    message(WARNING "transition_table.h regeneration failed — using committed copy")
+endif()
+
 # Include ESP-IDF CMake functions
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
