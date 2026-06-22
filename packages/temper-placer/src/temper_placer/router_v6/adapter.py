@@ -56,7 +56,7 @@ def route_pcb(
     pcb_path = _write_temp_pcb(parsed, placements)
 
     try:
-        pipeline = RouterV6Pipeline(repo_root=root, seed=seed)
+        pipeline = RouterV6Pipeline()
         result = pipeline.run(pcb_path)
         return RoutingResult(
             completion_rate=getattr(result, "completion_rate", 0.0)
