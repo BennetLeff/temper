@@ -114,6 +114,23 @@ typedef struct {
 
 
 /* ================================
+ * Runaway Interlock Limits
+ * ================================
+ */
+
+typedef struct {
+    float max_absolute_temp_c; /**< Maximum absolute pan temperature before runaway interlock triggers (°C) */
+    float max_temp_rise_rate_c_per_s; /**< Maximum pan temperature rise rate before runaway interlock triggers (°C/s) */
+} runaway_t;
+
+/* Default runaway */
+#define RUNAWAY_DEFAULT { \
+    .max_absolute_temp_c = 300.0f, \
+    .max_temp_rise_rate_c_per_s = 15.0f, \
+}
+
+
+/* ================================
  * Combined Runtime Configuration
  * ================================
  */
@@ -122,6 +139,7 @@ typedef struct {
     temperature_limits_t temperatures;
     timeouts_t timeouts;
     thresholds_t thresholds;
+    runaway_t runaway;
 } config_t;
 
 /* Global configuration instance */
@@ -165,6 +183,8 @@ void config_init(void);
  * - ADC_STUCK_VARIANCE_THRESHOLD
  * - ADC_WATCHDOG_TIMEOUT_MS
  * - FAN_MAX_TEMP_RISE_RATE_C_PER_S
+ * - RUNAWAY_MAX_ABSOLUTE_TEMP_C
+ * - RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S
  *
  * Useful for testing or calibration without recompiling.
  */
@@ -239,3 +259,5 @@ void config_print(void);
 #define PAN_DEBOUNCE_COUNT 10
 #define PAN_CONFIDENCE_REQUIRED 3
 #define MESSAGE_DISPLAY_TIME_MS 2000
+#define RUNAWAY_MAX_ABSOLUTE_TEMP_C 300.0f
+#define RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S 15.0f

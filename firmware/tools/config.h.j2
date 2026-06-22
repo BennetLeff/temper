@@ -45,6 +45,7 @@
 {%- if name == "temperatures" %}temperature_limits_t
 {%- elif name == "timeouts" %}timeouts_t
 {%- elif name == "thresholds" %}thresholds_t
+{%- elif name == "runaway" %}runaway_t
 {%- endif -%}
 {%- endmacro -%}
 
@@ -52,6 +53,7 @@
 {%- if name == "temperatures" %}TEMP_LIMITS_DEFAULT
 {%- elif name == "timeouts" %}TIMEOUTS_DEFAULT
 {%- elif name == "thresholds" %}THRESHOLDS_DEFAULT
+{%- elif name == "runaway" %}RUNAWAY_DEFAULT
 {%- endif -%}
 {%- endmacro -%}
 
@@ -59,6 +61,7 @@
   ("temperatures", temperatures),
   ("timeouts", timeouts),
   ("thresholds", thresholds),
+  ("runaway", runaway),
 ] %}
 /* ================================
 {%- if group_name == "temperatures" %}
@@ -67,6 +70,8 @@
  * Timeouts (ms)
 {%- elif group_name == "thresholds" %}
  * Thresholds
+{%- elif group_name == "runaway" %}
+ * Runaway Interlock Limits
 {%- endif %}
  * ================================
  */
@@ -94,6 +99,7 @@ typedef struct {
     temperature_limits_t temperatures;
     timeouts_t timeouts;
     thresholds_t thresholds;
+    runaway_t runaway;
 } config_t;
 
 /* Global configuration instance */
@@ -117,7 +123,7 @@ void config_init(void);
  * @brief Load configuration from environment variables
  *
  * Allows runtime configuration via environment variables:
-{% for group in [temperatures, timeouts, thresholds] -%}
+{% for group in [temperatures, timeouts, thresholds, runaway] -%}
 {%- for entry in group -%}
 {%- if entry.env_var %}
  * - {{ entry.env_var }}
@@ -188,7 +194,7 @@ void config_print(void);
  * Every value matches the corresponding field in the *_DEFAULT block above.
  * New parameters should use `legacy_define: false` and access g_config directly.
  */
-{% for group in [temperatures, timeouts, thresholds, misc] %}
+{% for group in [temperatures, timeouts, thresholds, misc, runaway] %}
 {%- for entry in group %}
 {%- if entry.legacy_define_only and entry.c_symbol %}
 #define {{ entry.c_symbol }} {{ entry.value }}
