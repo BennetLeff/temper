@@ -539,7 +539,11 @@ class RouterV6Pipeline:
                     # Simplify
                     opt_path = simplifier.simplify_path(
                         path, required_clearance_override=required_margin, net_id=net_id
-                    )
+        )
+
+# Re-export route_pcb from the adapter so the closure test can find it
+# at temper_placer.router_v6.pipeline (its expected import path).
+from temper_placer.router_v6.adapter import route_pcb  # noqa: E402, F401
                     smoothed_paths[net_name] = opt_path
             else:
                 # 2. Run Snake Optimizer
