@@ -95,3 +95,19 @@
 | **Glass Load** | Static weight | **20 kg** | No cracking |
 
 ---
+
+## Appendix: Runaway Boundary Map Reference
+
+The interlock trip thresholds (85 C heatsink / 120 C coil in SS 2.3) are
+verified against the IKW40N120H3 thermal-runaway boundary by simulation 35.
+
+- **Boundary map:** `simulation/results/runaway_boundary_map.svg`
+- **Margin report:** `simulation/results/runaway_interlock_margin.md`
+- **Testbench:** `simulation/testbenches/sim_35_runaway_boundary.cir`
+- **Plan:** `docs/plans/2026-06-22-010-feat-runaway-boundary-interlock-plan.md`
+
+The interlock must fire with >=20 C margin below the runaway boundary at
+every sweep corner (432 points). See the margin report for per-point
+pass/fail and worst-3 corners.
+
+---

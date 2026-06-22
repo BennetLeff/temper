@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Dashboard</title>
+  <style>
+    :root {
+      --surface: #0d1117;
+      --surface-raised: #161b22;
+      --surface-overlay: #1c2128;
+      --border: #30363d;
+      --border-hover: #58a6ff;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-tertiary: #6e7681;
+      --accent: #58a6ff;
+      --accent-bg: #1f6feb33;
+      --accent-hover: #79c0ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --error: #f85149;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --gap: 12px;
+      --focus-ring: 0 0 0 3px rgba(88,166,255,0.4);
+      --transition: 150ms ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { touch-action: manipulation; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--surface);
+      color: var(--text-primary);
+      line-height: 1.6;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px var(--gap);
+      -webkit-font-smoothing: antialiased;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    .app-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+    }
+    .app-header h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+    .status-bar { font-size: 0.8125rem; color: var(--text-secondary); }
+    .toolbar {
+      display: flex; gap: 8px; align-items: center; padding: 8px 0; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; min-height: 44px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface-raised); color: var(--text-primary);
+      cursor: pointer; font-size: 0.875rem; font-weight: 500;
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+      outline: none; text-decoration: none; white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--border-hover); background: var(--surface-overlay); }
+    .btn:focus-visible { box-shadow: var(--focus-ring); border-color: var(--border-hover); }
+    .btn:active { background: var(--accent-bg); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+    .btn-primary:hover { background: rgba(31,111,235,0.25); color: var(--accent-hover); }
+    .btn-ghost { border-color: transparent; background: transparent; color: var(--text-secondary); }
+    .btn-ghost:hover { border-color: var(--border); color: var(--text-primary); }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .icon { width: 14px; height: 14px; flex-shrink: 0; vertical-align: middle; }
+    .card-meta-item svg { width: 12px; height: 12px; }
+    .msg-block svg { width: 12px; height: 12px; }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .empty-state h2 { margin-bottom: 8px; color: var(--text-primary); font-size: 1.125rem; }
+    .session-list { display: flex; flex-direction: column; gap: var(--gap); }
+    .session-card {
+      background: var(--surface-raised); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 16px;
+      cursor: pointer; transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .session-card:hover { border-color: var(--border-hover); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .session-card:focus-visible { box-shadow: var(--focus-ring); border-color: var(--border-hover); }
+    .card-summary { font-size: 0.9375rem; line-height: 1.6; margin-bottom: 10px; color: var(--text-primary); }
+    .card-summary.clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-summary.expanded { -webkit-line-clamp: unset; display: block; }
+    .card-meta { display: flex; gap: 16px; font-size: 0.8125rem; color: var(--text-secondary); flex-wrap: wrap; align-items: center; min-height: 32px; }
+    .card-meta-item { display: inline-flex; align-items: center; gap: 5px; }
+    .card-meta-item svg { width: 14px; height: 14px; opacity: 0.7; }
+    .card-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .session-card.expanded .card-detail { display: block; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .tag-project { background: var(--accent-bg); color: var(--accent); }
+    .tag-subagent { background: rgba(63,185,80,0.15); color: var(--success); }
+    .tag-type { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+      z-index: 1000; overflow-y: auto; padding: 40px 20px;
+    }
+    .modal-overlay.open { display: block; }
+    .modal-content { max-width: 820px; margin: 0 auto; color: var(--text-primary); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-header strong { font-size: 1rem; }
+    .msg-block { margin: 4px 0; padding: 10px 12px; border-left: 3px solid var(--border); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .msg-block.user { border-left-color: var(--accent); background: var(--accent-bg); }
+    .msg-block.assistant { border-left-color: var(--text-tertiary); }
+    .msg-block.tool { border-left-color: var(--warning); background: rgba(210,153,34,0.08); }
+    .msg-block.result { border-left-color: var(--success); background: rgba(63,185,80,0.08); }
+    .msg-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; color: var(--text-tertiary); }
+    .msg-content { white-space: pre-wrap; font: inherit; font-size: 0.8125rem; line-height: 1.6; max-height: 360px; overflow-y: auto; margin: 0; }
+    .load-more { display: block; margin: 20px auto; min-width: 240px; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Session Dashboard</h1>
+    <div id="status-bar" class="status-bar" aria-live="polite">Starting...</div>
+  </header>
+  <main>
+    <div class="toolbar">
+      <button class="btn btn-primary" id="refresh-btn" aria-label="Refresh sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+      <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
+    </div>
+    <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
+  </main>
+  <div id="raw-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Raw conversation viewer">
+    <div class="modal-content" id="raw-modal-content"></div>
+  </div>
+
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="icon-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="icon-branch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></symbol>
+    <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+  </svg>
+
+  <script type="module">
+    const status = document.getElementById('status-bar');
+    const listEl = document.getElementById('session-list');
+    const pageInfo = document.getElementById('page-info');
+    const modal = document.getElementById('raw-modal');
+    const modalContent = document.getElementById('raw-modal-content');
+    const PAGE_SIZE = 50;
+    let offset = 0, total = 0, sessions = [];
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+    function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
+
+    function fmtDur(ms) {
+      if (!ms || ms < 0) return '';
+      const s = Math.round(ms / 1000);
+      if (s < 60) return `${s}s`;
+      if (s < 3600) return `${Math.round(s / 60)}m`;
+      return `${(s / 3600).toFixed(1)}h`;
+    }
+    function fmtTime(ts) {
+      if (!ts) return '';
+      try {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const diff = Date.now() - d;
+        if (diff < 864e5) return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        if (diff < 6048e5) return d.toLocaleDateString([], {weekday:'short',hour:'2-digit',minute:'2-digit'});
+        return d.toLocaleDateString([], {month:'short',day:'numeric'});
+      } catch { return ''; }
+    }
+
+    async function fetchPage(reset) {
+      if (reset) { offset = 0; sessions = []; listEl.innerHTML = ''; }
+      status.textContent = 'Loading...';
+      try {
+        const res = await fetch(`/api/sessions?limit=${PAGE_SIZE}&offset=${offset}`);
+        if (!res.ok) throw new Error(`Server error (${res.status})`);
+        const data = await res.json();
+        sessions = reset ? data.sessions : [...sessions, ...data.sessions];
+        total = data.total;
+        renderList();
+        pageInfo.textContent = `${sessions.length} of ${total}`;
+        status.textContent = 'Ready';
+      } catch(e) {
+        status.textContent = 'Error: ' + e.message;
+        if (!sessions.length && listEl.children.length === 0) {
+          listEl.className = 'empty-state';
+          listEl.innerHTML = `<h2>Cannot reach server</h2><p>Make sure <code>python3 server.py</code> is running in the session-dashboard directory.</p><p style="margin-top:12px"><button class="btn btn-primary" onclick="location.reload()">Retry</button></p>`;
+        }
+      }
+    }
+
+    function renderList() {
+      if (!sessions.length) {
+        listEl.className = 'empty-state';
+        listEl.innerHTML = '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has session data.</p>';
+        return;
+      }
+      listEl.className = 'session-list';
+      listEl.innerHTML = '';
+      for (const s of sessions) {
+        try {
+          const card = renderCard(s);
+          card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+          listEl.appendChild(card);
+        } catch(e) {
+          const err = document.createElement('div');
+          err.className = 'session-card';
+          err.textContent = `Error: ${s.id || '?'} — ${e.message}`;
+          listEl.appendChild(err);
+        }
+      }
+      if (sessions.length < total) {
+        const more = document.createElement('button');
+        more.className = 'btn btn-primary load-more';
+        more.textContent = `Load more (${sessions.length} of ${total})`;
+        more.setAttribute('aria-label', `Load more sessions. Currently showing ${sessions.length} of ${total}`);
+        more.onclick = () => { offset += PAGE_SIZE; fetchPage(false); };
+        listEl.appendChild(more);
+      }
+    }
+
+    async function viewRaw(sid) {
+      modalContent.innerHTML = `<p style="color:var(--text-secondary);text-align:center;padding:60px">Loading...</p>`;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('refresh-btn').focus();
+      try {
+        const res = await fetch(`/api/session/${sid}`);
+        if (!res.ok) throw new Error('Session not found');
+        const data = await res.json();
+        const msgs = data.messages || [];
+        let html = `<div class="modal-header">
+          <div><strong>${esc(data.project || sid)}</strong>${data.branch ? ` <span style="color:var(--text-secondary)">on ${esc(data.branch)}</span>` : ''}</div>
+          <button class="btn btn-ghost" onclick="closeModal()" aria-label="Close">${svgIcon('x')}</button>
+        </div>`;
+        for (const m of msgs) {
+          const msg = m.message || m;
+          const blocks = Array.isArray(msg?.content) ? msg.content : [{type:'text', text: typeof msg === 'string' ? msg : JSON.stringify(msg)}];
+          for (const block of blocks) {
+            let label = msg.role || m.type || '?';
+            let text = '';
+            const bt = block.type || 'unknown';
+            if (bt === 'text') text = block.text || '';
+            else if (bt === 'tool_use') { label = `tool: ${block.name || '?'}`; text = JSON.stringify(block.input || {}).slice(0, 1000); }
+            else if (bt === 'tool_result') {
+              label = 'result';
+              const c = block.content;
+              text = typeof c === 'string' ? c : (Array.isArray(c) ? c.map(x => x.text || '').join('\n') : JSON.stringify(c || {}));
+            } else text = JSON.stringify(block).slice(0, 1000);
+            if (!text && bt === 'unknown') continue;
+            const cls = label.startsWith('user') ? 'user' : label.startsWith('assistant') ? 'assistant' : label.startsWith('tool') ? 'tool' : label.startsWith('result') ? 'result' : '';
+            html += `<div class="msg-block ${cls}"><div class="msg-label">${esc(label)}</div><pre class="msg-content">${esc(text.slice(0, 3000))}</pre></div>`;
+          }
+        }
+        html += `<p style="color:var(--text-secondary);text-align:center;padding:20px">${msgs.length} messages</p>`;
+        modalContent.innerHTML = html;
+      } catch(e) {
+        modalContent.innerHTML = `<p style="color:var(--error);text-align:center;padding:60px">${esc(e.message)}</p>`;
+      }
+    }
+
+    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+    window.closeModal = closeModal;
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+    function renderCard(s) {
+      const summary = s.summary || 'Session';
+      const dur = fmtDur(s.duration);
+      const ts = fmtTime(s.startedAt);
+
+      const card = document.createElement('div');
+      card.className = 'session-card';
+      card.setAttribute('role', 'article');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `${summary}, ${s.project || ''}${s.branch ? ', ' + s.branch : ''}`);
+
+      const summaryEl = document.createElement('div');
+      summaryEl.className = 'card-summary clamped';
+      summaryEl.textContent = summary;
+
+      const meta = document.createElement('div');
+      meta.className = 'card-meta';
+      const items = [
+        dur ? `<span class="card-meta-item">${svgIcon('clock')}${dur}</span>` : '',
+        s.subAgentCount > 0 ? `<span class="card-meta-item">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
+        s.branch ? `<span class="card-meta-item">${svgIcon('branch')}${esc(s.branch)}</span>` : '',
+        ts ? `<span class="card-meta-item">${svgIcon('calendar')}${ts}</span>` : '',
+        s.project ? `<span class="tag tag-project">${esc(s.project)}</span>` : '',
+        s.agentType ? `<span class="tag tag-type">${esc(s.agentType.split(':').pop())}</span>` : '',
+        s.isSubagent ? '<span class="tag tag-subagent">sub-agent</span>' : '',
+      ];
+      meta.innerHTML = items.filter(Boolean).join('');
+
+      const detail = document.createElement('div');
+      detail.className = 'card-detail';
+      detail.innerHTML = [
+        `<div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px">${esc(summary)}</div>`,
+        s.agentType ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('folder')} ${esc(s.agentType)}</div>` : '',
+        s.cwd ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('file')} ${esc(s.cwd)}</div>` : '',
+        `<button class="btn btn-ghost" style="margin-top:8px;font-size:0.8125rem" aria-label="View raw conversation for ${esc(summary)}">${svgIcon('file')} View raw conversation</button>`,
+      ].join('');
+
+      card.appendChild(summaryEl);
+      card.appendChild(meta);
+      card.appendChild(detail);
+
+      let expanded = false;
+      card.onclick = () => {
+        expanded = !expanded;
+        card.classList.toggle('expanded', expanded);
+        summaryEl.classList.toggle('clamped', !expanded);
+        summaryEl.classList.toggle('expanded', expanded);
+      };
+
+      // Wire raw view button
+      const rawBtn = detail.querySelector('button');
+      if (rawBtn) rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
+
+      return card;
+    }
+
+    document.getElementById('refresh-btn').onclick = () => fetchPage(true);
+    fetchPage(true);
+  </script>
+</body>
+</html>
