@@ -115,6 +115,83 @@
     .msg-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; color: var(--text-tertiary); }
     .msg-content { white-space: pre-wrap; font: inherit; font-size: 0.8125rem; line-height: 1.6; max-height: 360px; overflow-y: auto; margin: 0; }
     .load-more { display: block; margin: 20px auto; min-width: 240px; }
+    #health-board { margin-bottom: 16px; }
+    .health-board { transition: opacity .3s; }
+    .health-summary {
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+      padding: 8px 12px; margin-bottom: 8px;
+      font-size: 0.8125rem; color: var(--text-secondary);
+    }
+    .health-summary .count { font-weight: 600; }
+    .health-summary .count-active { color: var(--success); }
+    .health-summary .count-stalled { color: var(--error); }
+    .health-summary .count-idle { color: var(--text-tertiary); }
+    .health-summary .count-blocked { color: var(--warning); }
+    .pipeline-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: var(--surface-raised);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      cursor: pointer; transition: border-color var(--transition), background var(--transition);
+      outline: none; font-size: 0.8125rem;
+    }
+    .pipeline-row + .pipeline-row { margin-top: 6px; }
+    .pipeline-row:hover { border-color: var(--border-hover); background: var(--surface-overlay); }
+    .pipeline-row:focus-visible { box-shadow: var(--focus-ring); }
+    .pipeline-row.selected { border-color: var(--accent); background: var(--accent-bg); }
+    .pipeline-name { flex: 1; font-weight: 500; color: var(--text-primary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .phase-badge {
+      padding: 1px 7px; border-radius: 10px; font-size: 0.6875rem; font-weight: 500;
+      background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .status-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .status-active .status-dot { background: var(--success); }
+    .status-stalled .status-dot { background: var(--error); animation: pulse-red 2s ease-in-out infinite; }
+    .status-idle .status-dot { background: var(--text-tertiary); }
+    .status-blocked .status-dot { background: var(--warning); }
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    .status-label { font-size: 0.75rem; font-weight: 500; flex-shrink: 0; }
+    .status-active .status-label { color: var(--success); }
+    .status-stalled .status-label { color: var(--error); }
+    .status-idle .status-label { color: var(--text-tertiary); }
+    .status-blocked .status-label { color: var(--warning); }
+    .agent-count {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 1px 6px; border-radius: 8px; font-size: 0.6875rem;
+      background: rgba(63,185,80,0.12); color: var(--success);
+      flex-shrink: 0;
+    }
+    .staleness-text { color: var(--text-tertiary); font-size: 0.75rem; white-space: nowrap; flex-shrink: 0; }
+    .health-skeleton { pointer-events: none; }
+    .skeleton-row {
+      height: 40px; margin-bottom: 6px; border-radius: var(--radius-sm);
+      background: linear-gradient(90deg, var(--surface-raised) 25%, var(--surface-overlay) 50%, var(--surface-raised) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite;
+    }
+    .skeleton-summary { height: 20px; width: 240px; margin-bottom: 10px; border-radius: 4px; background: linear-gradient(90deg, var(--surface-raised) 25%, var(--surface-overlay) 50%, var(--surface-raised) 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .health-error-banner {
+      padding: 6px 12px; margin-bottom: 8px;
+      font-size: 0.75rem; color: var(--text-tertiary);
+      background: var(--surface-raised); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); display: none;
+    }
+    .health-error-banner.visible { display: block; }
+    .filter-indicator {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 10px; margin-left: 8px;
+      font-size: 0.8125rem; color: var(--accent);
+      background: var(--accent-bg); border-radius: var(--radius-sm);
+    }
+    .filter-indicator strong { font-weight: 600; }
   </style>
 </head>
 <body>
@@ -129,6 +206,14 @@
         Refresh
       </button>
       <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
+    </div>
+    <div id="health-board">
+      <div class="health-skeleton">
+        <div class="skeleton-summary"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
     </div>
     <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
   </main>
@@ -153,8 +238,17 @@
     const pageInfo = document.getElementById('page-info');
     const modal = document.getElementById('raw-modal');
     const modalContent = document.getElementById('raw-modal-content');
+    const healthBoardEl = document.getElementById('health-board');
     const PAGE_SIZE = 50;
+    const STALL_THRESHOLD_MS = 5 * 60 * 1000;
+    const POLL_INTERVAL_MS = 30000;
+    const FETCH_LIMIT = 200;
     let offset = 0, total = 0, sessions = [];
+    let healthData = null;
+    let currentFilter = null;
+    let pollTimer = null;
+    let stalenessRaf = null;
+    let firstHealthFetchDone = false;
 
     function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
     function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
@@ -178,6 +272,227 @@
       } catch { return ''; }
     }
 
+    function timeAgo(ts) {
+      const diff = Date.now() - ts;
+      if (diff < 0) return 'just now';
+      const s = Math.round(diff / 1000);
+      if (s < 60) return `${s}s ago`;
+      if (s < 3600) return `${Math.round(s / 60)}m ago`;
+      if (s < 86400) return `${Math.round(s / 3600)}h ago`;
+      return `${Math.round(s / 86400)}d ago`;
+    }
+
+    function derivePipelineHealth(sessions) {
+      const groups = new Map();
+      for (const s of sessions) {
+        const project = s.project || '(unknown)';
+        if (!groups.has(project)) groups.set(project, []);
+        groups.get(project).push(s);
+      }
+
+      const pipelines = [];
+      for (const [project, projectSessions] of groups) {
+        const sorted = [...projectSessions].sort((a, b) => {
+          const ta = a.startedAt ? new Date(a.startedAt).getTime() : 0;
+          const tb = b.startedAt ? new Date(b.startedAt).getTime() : 0;
+          return tb - ta;
+        });
+        const latest = sorted[0];
+
+        let phase = 'active';
+        if (latest.agentType) {
+          const parts = latest.agentType.split(':');
+          if (parts.length > 1) phase = parts[parts.length - 1];
+        }
+
+        let status = 'active';
+        let stalenessTs = null;
+
+        if (latest.blockedReason || latest.dependsOn) {
+          status = 'blocked';
+        }
+
+        if (status === 'active') {
+          if (latest.duration && latest.startedAt) {
+            const started = new Date(latest.startedAt).getTime();
+            if (started + latest.duration < Date.now()) {
+              status = 'idle';
+              stalenessTs = started + latest.duration;
+            }
+          }
+        }
+
+        if (status === 'active') {
+          const lastMsg = latest.lastMessageTimestamp || latest.startedAt;
+          if (lastMsg) {
+            stalenessTs = new Date(lastMsg).getTime();
+            if (Date.now() - stalenessTs > STALL_THRESHOLD_MS) {
+              status = 'stalled';
+            }
+          }
+        }
+
+        const stalenessText = stalenessTs ? timeAgo(stalenessTs) : '—';
+
+        pipelines.push({
+          project,
+          phase,
+          status,
+          subAgentCount: latest.subAgentCount || 0,
+          latestSession: latest,
+          stalenessText,
+          stalenessTs,
+        });
+      }
+
+      pipelines.sort((a, b) => {
+        const order = { stalled: 0, active: 1, blocked: 2, idle: 3 };
+        return (order[a.status] ?? 4) - (order[b.status] ?? 4);
+      });
+
+      const summary = { active: 0, stalled: 0, idle: 0, blocked: 0 };
+      for (const p of pipelines) summary[p.status]++;
+
+      return { pipelines, summary };
+    }
+
+    function renderHealthBoard(data) {
+      healthData = data;
+      firstHealthFetchDone = true;
+
+      const { pipelines, summary } = data;
+      const total = pipelines.length;
+
+      let html = '<div class="health-board">';
+      html += '<div class="health-error-banner"></div>';
+
+      if (total === 0) {
+        html += '<div class="health-summary">0 pipelines active</div>';
+        html += '<div style="padding:24px 12px;text-align:center;color:var(--text-tertiary);font-size:0.8125rem">No pipeline activity</div>';
+      } else {
+        const parts = [];
+        if (summary.active) parts.push(`<span class="count count-active">${summary.active} active</span>`);
+        if (summary.stalled) parts.push(`<span class="count count-stalled">${summary.stalled} stalled</span>`);
+        if (summary.idle) parts.push(`<span class="count count-idle">${summary.idle} idle</span>`);
+        if (summary.blocked) parts.push(`<span class="count count-blocked">${summary.blocked} blocked</span>`);
+        html += `<div class="health-summary">${total} pipeline${total !== 1 ? 's' : ''} \u2014 ${parts.join(', ')}</div>`;
+
+        html += '<div class="health-pipelines">';
+        for (const p of pipelines) {
+          const selected = currentFilter && currentFilter.project === p.project;
+          html += `<div class="pipeline-row status-${p.status}${selected ? ' selected' : ''}" data-project="${esc(p.project)}" tabindex="0" role="button" aria-label="Filter by ${esc(p.project)}">
+            <span class="status-dot"></span>
+            <span class="pipeline-name">${esc(p.project)}</span>
+            <span class="phase-badge">${esc(p.phase)}</span>
+            <span class="status-label">${p.status}</span>
+            ${p.subAgentCount > 0 ? `<span class="agent-count">${svgIcon('bot')}${p.subAgentCount}</span>` : ''}
+            <span class="staleness-text">${esc(p.stalenessText)}</span>
+          </div>`;
+        }
+        html += '</div>';
+      }
+
+      html += '</div>';
+      healthBoardEl.innerHTML = html;
+
+      const rows = healthBoardEl.querySelectorAll('.pipeline-row');
+      for (const row of rows) {
+        row.addEventListener('click', () => onPipelineRowClick(row.dataset.project));
+        row.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPipelineRowClick(row.dataset.project); }
+        });
+      }
+    }
+
+    function renderHealthBoardSkeleton() {
+      healthBoardEl.innerHTML = '<div class="health-skeleton"><div class="skeleton-summary"></div><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>';
+    }
+
+    function showHealthBoardError() {
+      if (firstHealthFetchDone) {
+        const board = healthBoardEl.querySelector('.health-board');
+        if (board) {
+          const banner = board.querySelector('.health-error-banner');
+          if (banner) {
+            banner.classList.add('visible');
+            banner.textContent = 'Status board unavailable \u2014 retrying...';
+          }
+        }
+      } else {
+        healthBoardEl.innerHTML = '<div style="padding:24px 12px;text-align:center;color:var(--text-tertiary);font-size:0.8125rem">Status board unavailable</div>';
+      }
+    }
+
+    function hideHealthBoardError() {
+      const banner = healthBoardEl.querySelector('.health-error-banner');
+      if (banner) banner.classList.remove('visible');
+    }
+
+    function updateStalenessTexts() {
+      if (!healthData) return;
+      const now = Date.now();
+      const rows = healthBoardEl.querySelectorAll('.pipeline-row');
+      for (const row of rows) {
+        const project = row.dataset.project;
+        const pipeline = healthData.pipelines.find(p => p.project === project);
+        if (!pipeline) continue;
+
+        const stalenessEl = row.querySelector('.staleness-text');
+        if (!stalenessEl) continue;
+
+        if (pipeline.status === 'active' && pipeline.stalenessTs) {
+          if (now - pipeline.stalenessTs > STALL_THRESHOLD_MS) {
+            pipeline.status = 'stalled';
+            row.classList.remove('status-active');
+            row.classList.add('status-stalled');
+            const label = row.querySelector('.status-label');
+            if (label) label.textContent = 'stalled';
+          }
+        }
+
+        if (pipeline.stalenessTs) {
+          stalenessEl.textContent = timeAgo(pipeline.stalenessTs);
+        }
+      }
+    }
+
+    function onPipelineRowClick(project) {
+      if (currentFilter && currentFilter.project === project) return;
+      currentFilter = { project };
+      renderHealthBoard(healthData);
+      applyFilterToSessionList();
+    }
+
+    function clearFilter() {
+      currentFilter = null;
+      if (healthData) renderHealthBoard(healthData);
+      renderList();
+      updateFilterIndicator();
+    }
+
+    function applyFilterToSessionList() {
+      renderList();
+      updateFilterIndicator();
+    }
+
+    function updateFilterIndicator() {
+      const toolbar = document.querySelector('.toolbar');
+      if (!toolbar) return;
+      let indicator = toolbar.querySelector('.filter-indicator');
+      if (currentFilter) {
+        if (!indicator) {
+          indicator = document.createElement('span');
+          indicator.className = 'filter-indicator';
+          toolbar.appendChild(indicator);
+        }
+        indicator.innerHTML = `Showing: <strong>${esc(currentFilter.project)}</strong> <button class="btn btn-ghost" id="clear-filter-btn" style="padding:2px 6px;min-height:auto;font-size:0.75rem" aria-label="Clear filter">${svgIcon('x')} Clear</button>`;
+        const clearBtn = indicator.querySelector('#clear-filter-btn');
+        if (clearBtn) clearBtn.onclick = (e) => { e.stopPropagation(); clearFilter(); };
+      } else {
+        if (indicator) indicator.remove();
+      }
+    }
+
     async function fetchPage(reset) {
       if (reset) { offset = 0; sessions = []; listEl.innerHTML = ''; }
       status.textContent = 'Loading...';
@@ -199,15 +514,77 @@
       }
     }
 
+    async function fetchAndUpdate() {
+      try {
+        const res = await fetch(`/api/sessions?limit=${FETCH_LIMIT}&offset=0`);
+        if (!res.ok) throw new Error(`Server error (${res.status})`);
+        const data = await res.json();
+
+        const health = derivePipelineHealth(data.sessions);
+        renderHealthBoard(health);
+        hideHealthBoardError();
+
+        if (currentFilter) {
+          const filtered = data.sessions.filter(s => s.project === currentFilter.project);
+          if (filtered.length === 0) {
+            clearFilter();
+          } else {
+            sessions = filtered;
+            total = data.total;
+            renderList();
+            updateFilterIndicator();
+            pageInfo.textContent = `${sessions.length} of ${total} (filtered)`;
+          }
+        } else {
+          sessions = data.sessions;
+          total = data.total;
+          renderList();
+          pageInfo.textContent = `${sessions.length} of ${total}`;
+        }
+      } catch(e) {
+        showHealthBoardError();
+      }
+    }
+
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(fetchAndUpdate, POLL_INTERVAL_MS);
+    }
+
+    function stopPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      if (stalenessRaf) { cancelAnimationFrame(stalenessRaf); stalenessRaf = null; }
+    }
+
+    function startStalenessTimer() {
+      function tick() {
+        updateStalenessTexts();
+        stalenessRaf = requestAnimationFrame(tick);
+      }
+      stalenessRaf = requestAnimationFrame(tick);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        startPolling();
+        startStalenessTimer();
+      }
+    });
+
     function renderList() {
-      if (!sessions.length) {
+      const data = currentFilter ? sessions.filter(s => s.project === currentFilter.project) : sessions;
+      if (!data.length) {
         listEl.className = 'empty-state';
-        listEl.innerHTML = '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has session data.</p>';
+        listEl.innerHTML = currentFilter
+          ? `<h2>No sessions for &ldquo;${esc(currentFilter.project)}&rdquo;</h2><p><button class="btn btn-ghost" onclick="window.clearFilter()" style="color:var(--accent)">Clear filter</button></p>`
+          : '<h2>No sessions found</h2><p>Check that ~/.claude/projects/ has session data.</p>';
         return;
       }
       listEl.className = 'session-list';
       listEl.innerHTML = '';
-      for (const s of sessions) {
+      for (const s of data) {
         try {
           const card = renderCard(s);
           card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
@@ -215,11 +592,11 @@
         } catch(e) {
           const err = document.createElement('div');
           err.className = 'session-card';
-          err.textContent = `Error: ${s.id || '?'} — ${e.message}`;
+          err.textContent = `Error: ${s.id || '?'} \u2014 ${e.message}`;
           listEl.appendChild(err);
         }
       }
-      if (sessions.length < total) {
+      if (!currentFilter && data.length < total) {
         const more = document.createElement('button');
         more.className = 'btn btn-primary load-more';
         more.textContent = `Load more (${sessions.length} of ${total})`;
@@ -323,15 +700,18 @@
         summaryEl.classList.toggle('expanded', expanded);
       };
 
-      // Wire raw view button
       const rawBtn = detail.querySelector('button');
       if (rawBtn) rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
 
       return card;
     }
 
+    window.clearFilter = clearFilter;
     document.getElementById('refresh-btn').onclick = () => fetchPage(true);
     fetchPage(true);
+    renderHealthBoardSkeleton();
+    startPolling();
+    startStalenessTimer();
   </script>
 </body>
 </html>
