@@ -280,6 +280,11 @@
     <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
     <symbol id="icon-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></symbol>
     <symbol id="icon-help-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="icon-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
   </svg>
 
   <script type="module">
@@ -362,6 +367,28 @@
 
     function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
     function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
+
+    // Map compound-engineering agent types to distinct SVG icons
+    function getSubagentIcon(agentType) {
+      const t = (agentType || '').toLowerCase();
+      if (t.includes('security') || t.includes('adversarial') || t.includes('correctness')) return 'shield';
+      if (t.includes('testing') || t.includes('reliability')) return 'zap';
+      if (t.includes('performance')) return 'zap';
+      if (t.includes('maintainability') || t.includes('project-standard')) return 'wrench';
+      if (t.includes('design') || t.includes('lens') || t.includes('product')) return 'eye';
+      if (t.includes('kieran') || t.includes('swift') || t.includes('ios') || t.includes('julik')) return 'code';
+      if (t.includes('scope') || t.includes('feasibility') || t.includes('coherence')) return 'users';
+      if (t.includes('api') || t.includes('contract') || t.includes('data')) return 'file-text';
+      if (t.includes('deployment') || t.includes('schema') || t.includes('migration')) return 'clipboard';
+      if (t.includes('learnings') || t.includes('research') || t.includes('repo')) return 'folder';
+      if (t.includes('history') || t.includes('git')) return 'branch';
+      if (t.includes('dhh') || t.includes('rails')) return 'code';
+      if (t.includes('ideate') || t.includes('brainstorm')) return 'lightbulb';
+      if (t.includes('plan')) return 'file-text';
+      if (t.includes('doc-review')) return 'clipboard';
+      if (t.includes('code-review')) return 'search';
+      return 'bot';
+    }
 
     const artifactsCache = new Map();
     let activePreview = null;
@@ -1005,10 +1032,12 @@
 
       const desc = sa.description || sa.agentType || 'sub-agent';
       const dur = fmtDur(sa.duration);
+      const agentType = sa.agentType || '';
+      const iconName = getSubagentIcon(agentType);
 
       row.innerHTML = `
-        <span class="subagent-icon">${svgIcon('bot')}</span>
-        <span class="subagent-desc">${esc(desc.substring(0, 80))}</span>
+        <span class="subagent-icon" title="${esc(agentType || 'agent')}">${svgIcon(iconName)}</span>
+        <span class="subagent-desc" title="${esc(desc)}">${esc(desc.substring(0, 80))}</span>
         <span class="subagent-dur">${dur ? esc(dur) : ''}</span>
         ${statusHtml}
       `;
@@ -1043,10 +1072,10 @@
       meta.className = 'card-meta';
       const items = [
         `<span class="card-meta-item">${svgIcon(phase.icon)}${esc(phase.label)}</span>`,
-        dur ? `<span class="card-meta-item">${svgIcon('clock')}${dur}</span>` : '',
-        s.subAgentCount > 0 ? `<span class="card-meta-item subagent-count-badge">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
-        s.branch ? `<span class="card-meta-item">${svgIcon('branch')}${esc(s.branch)}</span>` : '',
-        ts ? `<span class="card-meta-item">${svgIcon('calendar')}${ts}</span>` : '',
+        dur ? `<span class="card-meta-item" title="Duration ${dur}">${svgIcon('clock')}${dur}</span>` : '',
+        s.subAgentCount > 0 ? `<span class="card-meta-item subagent-count-badge" title="${s.subAgentCount} sub-agents">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
+        s.branch ? `<span class="card-meta-item" title="Branch: ${esc(s.branch)}">${svgIcon('branch')}${esc(s.branch)}</span>` : '',
+        ts ? `<span class="card-meta-item" title="Started: ${s.startedAt || 'unknown'}">${svgIcon('calendar')}${ts}</span>` : '',
         s.project ? `<span class="tag tag-project">${esc(s.project)}</span>` : '',
         s.agentType ? `<span class="tag tag-type tag-type-deemphasized">${esc(s.agentType.split(':').pop())}</span>` : '',
         s.isSubagent ? '<span class="tag tag-subagent">sub-agent</span>' : '',
