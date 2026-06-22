@@ -128,5 +128,7 @@ dev = [
     "hypothesis>=6.148.7",
     "pytest>=9.0.2",
     "pytest-bdd>=8.1.0",
+    "Cython>=3.0.0",
+    "pytest-cov>=7.0.0",
 ]
 
