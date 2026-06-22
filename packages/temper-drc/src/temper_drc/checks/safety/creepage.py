@@ -1,3 +1,7 @@
+from temper_drc.checks.safety._safety_keywords import (
+    ISO_COMPONENT_KEYWORDS,
+    resolve_safety_category,
+)
 from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue, Severity, Location
 from temper_drc.input.constraints import ConstraintSet
@@ -37,15 +41,12 @@ class CreepageCheck(Check):
     def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         issues = []
         
-        # Keywords for isolation components
-        ISO_KEYWORDS = ["iso", "opto", "coupler", "isoloator", "transformer"]
-        
         for ref, comp in placement.components.items():
-            comp_class = comp.net_class.lower()
-            comp_footprint = comp.footprint.lower()
-            
-            is_iso = any(k in comp_class for k in ISO_KEYWORDS) or \
-                     any(k in comp_footprint for k in ISO_KEYWORDS)
+            cat = resolve_safety_category(comp.net_class)
+            is_iso = (cat == "iso") or (
+                any(k in comp.net_class.lower() for k in ISO_COMPONENT_KEYWORDS)
+                or any(k in comp.footprint.lower() for k in ISO_COMPONENT_KEYWORDS)
+            )
             
             if is_iso:
                 # For an isolation component, the 'width' (or max dimension) 

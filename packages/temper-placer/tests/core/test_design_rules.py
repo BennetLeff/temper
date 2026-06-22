@@ -185,3 +185,64 @@ class TestCreateTemperDesignRules:
         assert critical.name == "Critical"
         assert critical.trace_width == 0.5
 
+
+
+class TestSafetyConstantAuthority:
+    """Tests for SAFETY_CONSTANT_AUTHORITY (U1 - SSOT authority record)."""
+
+    def test_import_succeeds(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY
+        assert SAFETY_CONSTANT_AUTHORITY is not None
+
+    def test_contains_exactly_four_triples(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY
+        assert len(SAFETY_CONSTANT_AUTHORITY) == 4
+
+    def test_authority_set_contents(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY
+        expected = {
+            ("ACMains", "clearance", 6.0),
+            ("ACMains", "creepage_mm", 6.0),
+            ("HighVoltage", "clearance", 2.0),
+            ("HighVoltage", "creepage_mm", 2.0),
+        }
+        assert set(SAFETY_CONSTANT_AUTHORITY) == expected
+
+    def test_derives_from_temper_net_classes(self):
+        from temper_placer.core.design_rules import (
+            SAFETY_CONSTANT_AUTHORITY_NET_CLASSES,
+            SAFETY_CONSTANT_AUTHORITY_FIELDS,
+            TEMPER_NET_CLASSES,
+        )
+        old = TEMPER_NET_CLASSES["ACMains"].clearance
+        try:
+            object.__setattr__(TEMPER_NET_CLASSES["ACMains"], "clearance", 6.5)
+            authority = tuple(
+                (nc_name, field_name, float(getattr(nc, field_name)))
+                for nc_name, nc in TEMPER_NET_CLASSES.items()
+                if nc_name in SAFETY_CONSTANT_AUTHORITY_NET_CLASSES
+                for field_name in SAFETY_CONSTANT_AUTHORITY_FIELDS
+            )
+            assert ("ACMains", "clearance", 6.5) in authority
+        finally:
+            object.__setattr__(TEMPER_NET_CLASSES["ACMains"], "clearance", old)
+
+    def test_non_safety_class_excluded(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY
+        values = {(nc, field) for (nc, field, _) in SAFETY_CONSTANT_AUTHORITY}
+        assert ("FinePitch", "clearance") not in values
+        assert ("Signal", "clearance") not in values
+
+    def test_non_safety_field_excluded(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY
+        values = {(nc, field) for (nc, field, _) in SAFETY_CONSTANT_AUTHORITY}
+        assert ("ACMains", "trace_width") not in values
+        assert ("HighVoltage", "via_diameter") not in values
+
+    def test_net_class_frozenset_correct(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY_NET_CLASSES
+        assert SAFETY_CONSTANT_AUTHORITY_NET_CLASSES == frozenset({"ACMains", "HighVoltage"})
+
+    def test_field_frozenset_correct(self):
+        from temper_placer.core.design_rules import SAFETY_CONSTANT_AUTHORITY_FIELDS
+        assert SAFETY_CONSTANT_AUTHORITY_FIELDS == frozenset({"clearance", "creepage_mm"})
