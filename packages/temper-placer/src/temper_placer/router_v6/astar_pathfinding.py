@@ -96,6 +96,7 @@ class PathfindingResult:
 
     routed_paths: dict[str, RoutePath | RoutePath3D]  # net_name -> RoutePath
     failed_nets: list[str]  # Nets that failed to route
+    plane_net_count: int = 0  # Nets excluded (planes, unconnected)
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
     net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
     per_path_latency_ms: dict[str, float] | None = None  # Per-net A* wall time (ms)

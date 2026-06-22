@@ -31,12 +31,13 @@ class RoutingResults:
     """Complete routing results for the design."""
 
     compiled_routes: dict[str, CompiledRoute]  # net_name -> CompiledRoute
+    plane_net_count: int = 0  # Nets excluded (planes, unconnected)
     failed_nets: list[str]
 
     @property
     def success_count(self) -> int:
-        """Number of successfully routed nets."""
-        return len(self.compiled_routes)
+        """Number of successfully routed nets (includes plane nets)."""
+        return len(self.compiled_routes) + self.plane_net_count
 
     @property
     def failure_count(self) -> int:
@@ -115,4 +116,5 @@ def compile_routing_results(
     return RoutingResults(
         compiled_routes=compiled_routes,
         failed_nets=pathfinding_result.failed_nets,
+        plane_net_count=getattr(pathfinding_result, 'plane_net_count', 0),
     )
