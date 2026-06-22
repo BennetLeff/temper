@@ -1,0 +1,15 @@
+{
+  "_note": "Baseline placeholder. Run: python -m temper_placer.router_v6.benchmark --router v6 --output packages/temper-placer/tests/router_v6/benchmarks/baseline.json",
+  "_commit": "TBD",
+  "_python_version": "TBD",
+  "_hostname": "TBD",
+  "_date": "TBD",
+  "_threshold_doc": "docs/specs/cython_twin_threshold.md",
+  "router": "v6",
+  "timestamp": 0,
+  "boards": [],
+  "summary": {
+    "board_count": 0,
+    "geometric_mean_score": 0.0
+  }
+}
