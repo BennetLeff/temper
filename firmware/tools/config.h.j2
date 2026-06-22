@@ -1,0 +1,199 @@
+/**
+ * @file config.h
+ * @brief Centralized firmware configuration — GENERATED FILE
+ *
+ * DO NOT EDIT. This file is generated from firmware/config.yaml
+ * by firmware/tools/gen_config.py.
+ *
+ * Usage:
+ *     #include "config.h"
+ *
+ *     config_init();  // Load defaults
+ *     float temp = g_config.thresholds.pan_confidence_required;
+ *     uint32_t timeout = g_config.timeouts.pan_detect;
+ *
+ * All configuration values are single-sourced from firmware/config.yaml.
+ * The bare #define block at the bottom allows state_machine.c call sites
+ * to compile without changes. Every #define value matches the corresponding
+ * field in the *_DEFAULT initializer.
+ */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+/* ================================
+ * Version Information
+ * ================================
+ */
+
+#define CONFIG_VERSION_MAJOR 0
+#define CONFIG_VERSION_MINOR 1
+#define CONFIG_VERSION_PATCH 0
+
+#define CONFIG_VERSION_STRING "0.1.0"
+#define CONFIG_BUILD_DATE __DATE__
+#define CONFIG_BUILD_TIME __TIME__
+
+{%- macro c_value(v, ctype) -%}
+{%- if ctype == "float" %}{{ v }}f{%- else %}{{ v }}{%- endif -%}
+{%- endmacro -%}
+
+{%- macro c_struct_type(name) -%}
+{%- if name == "temperatures" %}temperature_limits_t
+{%- elif name == "timeouts" %}timeouts_t
+{%- elif name == "thresholds" %}thresholds_t
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro c_default_macro(name) -%}
+{%- if name == "temperatures" %}TEMP_LIMITS_DEFAULT
+{%- elif name == "timeouts" %}TIMEOUTS_DEFAULT
+{%- elif name == "thresholds" %}THRESHOLDS_DEFAULT
+{%- endif -%}
+{%- endmacro -%}
+
+{% for group_name, entries in [
+  ("temperatures", temperatures),
+  ("timeouts", timeouts),
+  ("thresholds", thresholds),
+] %}
+/* ================================
+{%- if group_name == "temperatures" %}
+ * Temperature Limits (°C)
+{%- elif group_name == "timeouts" %}
+ * Timeouts (ms)
+{%- elif group_name == "thresholds" %}
+ * Thresholds
+{%- endif %}
+ * ================================
+ */
+
+typedef struct {
+{%- for entry in entries %}
+    {{ entry.c_type }} {{ entry.field }};{% if entry.units %} /**< {{ entry.doc }} ({{ entry.units }}){% elif entry.doc %} /**< {{ entry.doc }}{% endif %} */
+{%- endfor %}
+} {{ c_struct_type(group_name).rstrip() }};
+
+/* Default {{ group_name }} */
+#define {{ c_default_macro(group_name).rstrip() }} { \
+{%- for entry in entries %}
+    .{{ entry.field }} = {{ c_value(entry.value, entry.c_type) }}, \
+{%- endfor %}
+}
+
+{% endfor %}
+/* ================================
+ * Combined Runtime Configuration
+ * ================================
+ */
+
+typedef struct {
+    temperature_limits_t temperatures;
+    timeouts_t timeouts;
+    thresholds_t thresholds;
+} config_t;
+
+/* Global configuration instance */
+extern config_t g_config;
+
+/* ================================
+ * Public API
+ * ================================
+ */
+
+/**
+ * @brief Initialize configuration with default values
+ *
+ * This function loads all default values into g_config.
+ * Call this during system initialization before using any
+ * configuration values.
+ */
+void config_init(void);
+
+/**
+ * @brief Load configuration from environment variables
+ *
+ * Allows runtime configuration via environment variables:
+{% for group in [temperatures, timeouts, thresholds] -%}
+{%- for entry in group -%}
+{%- if entry.env_var %}
+ * - {{ entry.env_var }}
+{%- endif -%}
+{%- endfor -%}
+{%- endfor %}
+ *
+ * Useful for testing or calibration without recompiling.
+ */
+void config_set_from_env(void);
+
+/**
+ * @brief Validate configuration values
+ *
+ * @return true if all values are valid, false otherwise
+ *
+ * Checks for:
+ * - Temperature ranges (0-300°C)
+ * - Timeouts are positive
+ * - Thresholds are valid
+ */
+bool config_validate(void);
+
+/**
+ * @brief Print current configuration (for debugging)
+ *
+ * Dumps all configuration values to stdout in a readable format.
+ * Useful for debugging configuration issues.
+ */
+void config_print(void);
+
+/* ================================
+ * Access Macros (Convenience)
+ * ================================
+ */
+
+/**
+ * @brief Check if temperature is in valid operating range
+ */
+#define CONFIG_IS_VALID_TEMP(t) \
+    ((t) >= g_config.temperatures.min_temp && (t) <= g_config.temperatures.max_temp)
+
+/**
+ * @brief Check if temperature is safe for IDLE state
+ */
+#define CONFIG_IS_SAFE_IDLE_TEMP(t) \
+    ((t) <= g_config.temperatures.safe_idle_temp)
+
+/**
+ * @brief Check if pan detection timeout has elapsed
+ */
+#define CONFIG_PAN_DETECT_TIMEOUT(now_ms, start_ms) \
+    ((now_ms) - (start_ms) >= g_config.timeouts.pan_detect)
+
+/**
+ * @brief Calculate remaining pan detection time (ms)
+ */
+#define CONFIG_PAN_DETECT_REMAINING(now_ms, start_ms) \
+    (g_config.timeouts.pan_detect - ((now_ms) - (start_ms)))
+
+#endif /* CONFIG_H */
+
+/* ================================
+ * Legacy #define block
+ * ================================
+ *
+ * These are emitted for backward compatibility with state_machine.c.
+ * Every value matches the corresponding field in the *_DEFAULT block above.
+ * New parameters should use `legacy_define: false` and access g_config directly.
+ */
+{% for group in [temperatures, timeouts, thresholds, misc] %}
+{%- for entry in group %}
+{%- if entry.legacy_define_only and entry.c_symbol %}
+#define {{ entry.c_symbol }} {{ entry.value }}
+{%- elif not (entry.legacy_define is defined and entry.legacy_define == false) and entry.c_symbol %}
+#define {{ entry.c_symbol }} {{ c_value(entry.value, entry.c_type) }}
+{%- endif %}
+{%- endfor %}
+{%- endfor %}

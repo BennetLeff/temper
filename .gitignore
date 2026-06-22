@@ -54,6 +54,7 @@ fp-info-cache
 *.log
 *.txt
 !*results.txt
+!firmware/tools/requirements.txt
 
 # IDEs
 .vscode/
