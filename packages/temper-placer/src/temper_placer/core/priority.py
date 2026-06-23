@@ -129,10 +129,10 @@ class PriorityConfig:
                         return phase.priority
                 elif net_name == pattern:
                     return phase.priority
-        
+
         # Default classification by net name
         upper = net_name.upper()
-        
+
         if any(x in upper for x in ("BUS", "340V", "HV", "SW_NODE")):
             return RoutingPriority.POWER
         elif any(x in upper for x in ("GATE", "+15V", "CGND")):
@@ -143,6 +143,16 @@ class PriorityConfig:
             return RoutingPriority.ANALOG
         else:
             return RoutingPriority.DIGITAL
+
+
+def classify_net_priority(net_name: str) -> RoutingPriority:
+    """Module-level classifier for routing priority.
+
+    Used by ``temper_placer.core.__init__`` as a public re-export. Wraps
+    ``PriorityConfig.classify_net`` with a default-empty config to keep
+    pre-existing call sites working.
+    """
+    return PriorityConfig().classify_net(net_name)
 
 
 # Pre-defined power stage templates

@@ -24,6 +24,10 @@ class Community:
     component_refs: list[str]
     modularity_score: float
 
+
+# Backwards-compatible alias retained for ``temper_placer.core.__init__`` re-exports.
+ComponentCommunity = Community
+
 def detect_communities(netlist: Netlist) -> list[Community]:
     """
     Detect functional communities in the netlist using the Louvain algorithm.
