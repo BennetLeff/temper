@@ -163,25 +163,25 @@ class DRCOracle:
         # Use a radius large enough to catch HighVoltage clearances (2.0mm+)
         search_radius = (via_radius + 3.0) * 1.5
 
-        # Check against nearby tracks
-        for layer in range(10):  # Check all potential layers
-            nearby_tracks = self.geometry.query_tracks_near(p_center, search_radius, layer)
-            for track in nearby_tracks:
-                if track.net == net:
-                    continue
+        # Check against nearby tracks (single query, no layer filter -
+        # vias are through-hole so clearance must hold on all layers)
+        nearby_tracks = self.geometry.query_tracks_near(p_center, search_radius)
+        for track in nearby_tracks:
+            if track.net == net:
+                continue
 
-                required = self.rules.get_clearance(net, track.net, p_center.x, p_center.y)
-                if neckdown:
-                    required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-                effective_clearance = required + via_radius + (track.width / 2)
+            required = self.rules.get_clearance(net, track.net, p_center.x, p_center.y)
+            if neckdown:
+                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
+            effective_clearance = required + via_radius + (track.width / 2)
 
-                actual = point_to_segment_distance(p_center, track.to_segment())
-                if actual < effective_clearance:
-                    return (
-                        False,
-                        f"via-to-track clearance violation with {track.id}: "
-                        f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
-                    )
+            actual = point_to_segment_distance(p_center, track.to_segment())
+            if actual < effective_clearance:
+                return (
+                    False,
+                    f"via-to-track clearance violation with {track.id}: "
+                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
+                )
 
         # Check against pads
         nearby_pads = self.geometry.query_pads_near(p_center, search_radius)
