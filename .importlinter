@@ -10,12 +10,13 @@
 root_packages =
     temper_placer
 
-# R2: core/ and router_v6/ must not import from each other.
+# R2: core/ must not import from router_v6/ (router_v6 may use core types).
 [importlinter:contract:core-isolated-from-router-v6]
 name = core-isolated-from-router-v6
-type = independence
-modules =
+type = forbidden
+source_modules =
     temper_placer.core
+forbidden_modules =
     temper_placer.router_v6
 
 # R3: External packages may only import from core/ public interface (__init__.py).
