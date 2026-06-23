@@ -1,8 +1,16 @@
-"""Monolith vs Stage2Orchestrator parity tests.
+"""Monolith vs Stage4Orchestrator parity tests.
 
 Compares the old _run_stage4 monolith approach against the new
-Stage2Orchestrator. Full output parity on one representative board;
+Stage4Orchestrator. Full output parity on one representative board;
 per-stage parity and performance regression on Piantor_Right.
+
+STATUS: scaffold -- the body of this test predates the Stage 4 orchestrator
+API (it references `Stage2Orchestrator` from an earlier Stage 2 decomposition
+plan that was never landed). The plan
+`docs/plans/2026-06-23-001-feat-strangler-stage4-astar-plan.md` (U7) will
+rewrite the body once Stage 4 micro-stages are extracted. Until then this
+file is import-clean and module-level-skipped so it doesn't break pytest
+collection.
 """
 
 from __future__ import annotations
@@ -12,16 +20,24 @@ import time
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.bottleneck_analysis import identify_bottlenecks
-from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton
-from temper_placer.router_v6.channel_widths import compute_channel_widths
-from temper_placer.router_v6.layer_capacity import calculate_layer_capacity
-from temper_placer.router_v6.obstacle_map import build_obstacle_map
-from temper_placer.router_v6.occupancy_grid import build_occupancy_grid
-from temper_placer.router_v6.routing_demand import estimate_routing_demand
-from temper_placer.router_v6.routing_space import compute_routing_space
-from temper_placer.router_v6.stage4_orchestrator import Stage2Orchestrator
-from temper_placer.router_v6.test_boards import get_available_boards
+pytest.skip(
+    "Stage 4 monolith parity tests are scaffold-only; "
+    "see plan 2026-06-23-001 U7 for the rewrite.",
+    allow_module_level=True,
+)
+
+# The body below is preserved verbatim from the original scaffold (4fa9edf7)
+# so the rewrite can reuse the test cases once Stage 4 micro-stages land.
+from temper_placer.router_v6.bottleneck_analysis import identify_bottlenecks  # noqa: E402
+from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton  # noqa: E402
+from temper_placer.router_v6.channel_widths import compute_channel_widths  # noqa: E402
+from temper_placer.router_v6.layer_capacity import calculate_layer_capacity  # noqa: E402
+from temper_placer.router_v6.obstacle_map import build_obstacle_map  # noqa: E402
+from temper_placer.router_v6.occupancy_grid import build_occupancy_grid  # noqa: E402
+from temper_placer.router_v6.routing_demand import estimate_routing_demand  # noqa: E402
+from temper_placer.router_v6.routing_space import compute_routing_space  # noqa: E402
+from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator  # noqa: E402,E501
+from temper_placer.router_v6.test_boards import get_available_boards  # noqa: E402
 
 BOARDS = get_available_boards()
 
@@ -53,8 +69,8 @@ def _get_orchestrated_state(board):
     if board.name in _state_cache:
         return _state_cache[board.name]
     pcb, escape_vias = _prepare_pcb_and_vias(board)
-    orch = Stage2Orchestrator(verbose=False)
-    state = orch.run(pcb, escape_vias)
+    orch = Stage4Orchestrator(verbose=False)
+    state = orch.run()  # U7 will fix: needs BoardState with Stage 2 outputs (channel_skeletons, etc.)
     _state_cache[board.name] = state
     return state
 
@@ -157,11 +173,11 @@ class TestMonolithParity:
     @pytest.mark.slow
     def test_performance_regression(self):
         """Asserts <5% wall-clock overhead (2 warm-up + 2 measured runs)."""
-        orch = Stage2Orchestrator(verbose=False)
+        orch = Stage4Orchestrator(verbose=False)
 
         # Warm-up
         _run_monolith(self.pcb, self.escape_vias)
-        orch.run(self.pcb, self.escape_vias)
+        orch.run()  # U7 will fix: needs BoardState with Stage 2 outputs
 
         # Benchmark (2 iterations to keep test under timeout)
         t0 = time.perf_counter()
@@ -169,7 +185,7 @@ class TestMonolithParity:
         mono_time = time.perf_counter() - t0
 
         t0 = time.perf_counter()
-        orch.run(self.pcb, self.escape_vias)
+        orch.run()  # U7 will fix: needs BoardState with Stage 2 outputs
         orch_time = time.perf_counter() - t0
 
         overhead_pct = ((orch_time - mono_time) / mono_time) * 100 if mono_time > 0 else 0

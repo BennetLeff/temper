@@ -4,6 +4,14 @@ Loads committed JSON fixtures and asserts each micro-stage produces
 output consistent with the golden data. Runs on all 4 canonical boards.
 
 Tolerances: coordinate equality to 1e-6, exact integer equality for cell counts.
+
+STATUS: scaffold -- the body of this test predates the Stage 4 orchestrator
+API (it references `Stage2Orchestrator` from an earlier Stage 2 decomposition
+plan that was never landed). The plan
+`docs/plans/2026-06-23-001-feat-strangler-stage4-astar-plan.md` (U7) will
+rewrite the body once Stage 4 micro-stages are extracted. Until then this
+file is import-clean and module-level-skipped so it doesn't break pytest
+collection.
 """
 
 from __future__ import annotations
@@ -14,8 +22,16 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from temper_placer.deterministic.state import BoardState
-from temper_placer.router_v6.stage4_orchestrator import Stage2Orchestrator
+pytest.skip(
+    "Stage 4 golden parity tests are scaffold-only; "
+    "see plan 2026-06-23-001 U7 for the rewrite.",
+    allow_module_level=True,
+)
+
+# The body below is preserved verbatim from the original scaffold (4fa9edf7)
+# so the rewrite can reuse the test cases once Stage 4 micro-stages land.
+from temper_placer.deterministic.state import BoardState  # noqa: E402
+from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator  # noqa: E402,E501
 
 HERE = Path(__file__).resolve().parent
 GOLDEN_DIR = HERE.parent / "fixtures" / "stage4_goldens"
@@ -35,7 +51,12 @@ AVAILABLE_BOARDS = _available_board_names()
 
 
 def _run_stage4_for_board(board_name: str) -> BoardState:
-    """Run the full Stage2Orchestrator on a canonical board."""
+    """Run the full Stage4Orchestrator on a canonical board.
+
+    NOTE: the orchestrator API is `run(initial_state)` not `run(pcb, escape_vias)`.
+    Once U7 rewrites this test, it should use the correct API and produce a
+    BoardState populated with the micro-stage outputs.
+    """
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6.dense_package_detection import identify_dense_packages
     from temper_placer.router_v6.escape_via_generator import generate_escape_vias
@@ -54,8 +75,10 @@ def _run_stage4_for_board(board_name: str) -> BoardState:
             vias = generate_escape_vias(dp, pcb.design_rules, strategy="via-in-pad")
         escape_vias.extend(vias)
 
-    orch = Stage2Orchestrator(verbose=False)
-    return orch.run(pcb, escape_vias)
+    orch = Stage4Orchestrator(verbose=False)
+    # U7 will fix this call to construct the correct initial BoardState.
+    initial_state = BoardState()
+    return orch.run(initial_state=initial_state)
 
 
 # Cache BoardState per board (session-scoped for speed)

@@ -1,9 +1,21 @@
 """Tests for pipeline metrics trend CLI (R2, R5)."""
+import sys
 from pathlib import Path
 from datetime import timedelta
 import pytest
 from temper_placer.regression.metrics_recorder import PipelineMetricsRecord, record_metrics
-from scripts.pipeline_metrics import _compute_trends, _parse_window
+
+# `scripts/pipeline_metrics.py` is a CLI script, not a module. Add scripts/ to
+# sys.path and import as a top-level module (not `scripts.pipeline_metrics`,
+# which would require scripts/ to be a package).
+# Path: tests/regression/test_metrics_trend.py -> ../../../../../scripts
+_SCRIPTS_DIR = Path(__file__).resolve().parents[4] / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import pipeline_metrics  # noqa: E402
+_compute_trends = pipeline_metrics._compute_trends
+_parse_window = pipeline_metrics._parse_window
 
 
 def _make_records(tmp_path, values):
