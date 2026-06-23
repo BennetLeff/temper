@@ -26,13 +26,13 @@ def main() -> None:
 from .pipeline_commands import phase, pipeline
 from .trace_commands import trace
 from .dsn_commands import dsn
-from .golden import golden
+from .timing import timing
 
 main.add_command(pipeline)
 main.add_command(phase)
 main.add_command(trace)
 main.add_command(dsn)
-main.add_command(golden)
+main.add_command(timing)
 
 
 @main.command("mvp3-route")

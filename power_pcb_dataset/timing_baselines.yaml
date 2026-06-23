@@ -1,0 +1,145 @@
+format_version: 1
+captured_python: 3.11.14
+captured_platform: darwin
+captured_at: '2026-06-23T05:14:05.654299+00:00'
+stages:
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: zone_geometry
+  wall_ms_mean: 0.018
+  wall_ms_p95: 0.018
+  n_runs: 1
+  individual_ms:
+  - 0.018
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: zone_assignment
+  wall_ms_mean: 0.066
+  wall_ms_p95: 0.066
+  n_runs: 1
+  individual_ms:
+  - 0.066
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: slot_generation
+  wall_ms_mean: 0.032
+  wall_ms_p95: 0.032
+  n_runs: 1
+  individual_ms:
+  - 0.032
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: component_assignment
+  wall_ms_mean: 13.391
+  wall_ms_p95: 13.391
+  n_runs: 1
+  individual_ms:
+  - 13.391
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: apply_placements
+  wall_ms_mean: 0.088
+  wall_ms_p95: 0.088
+  n_runs: 1
+  individual_ms:
+  - 0.088
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: clearance_grid
+  wall_ms_mean: 0.573
+  wall_ms_p95: 0.573
+  n_runs: 1
+  individual_ms:
+  - 0.573
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: net_ordering
+  wall_ms_mean: 0.22
+  wall_ms_p95: 0.22
+  n_runs: 1
+  individual_ms:
+  - 0.22
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: layer_assignment
+  wall_ms_mean: 0.02
+  wall_ms_p95: 0.02
+  n_runs: 1
+  individual_ms:
+  - 0.02
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: sequential_routing
+  wall_ms_mean: 2820.071
+  wall_ms_p95: 2820.071
+  n_runs: 1
+  individual_ms:
+  - 2820.071
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: track_deduplication
+  wall_ms_mean: 0.474
+  wall_ms_p95: 0.474
+  n_runs: 1
+  individual_ms:
+  - 0.474
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: via_deduplication
+  wall_ms_mean: 0.085
+  wall_ms_p95: 0.085
+  n_runs: 1
+  individual_ms:
+  - 0.085
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: via_validation
+  wall_ms_mean: 4.013
+  wall_ms_p95: 4.013
+  n_runs: 1
+  individual_ms:
+  - 4.013
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: drc_validation
+  wall_ms_mean: 0.08
+  wall_ms_p95: 0.08
+  n_runs: 1
+  individual_ms:
+  - 0.08
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
+- board: temper_placed
+  pipeline: DeterministicPipeline
+  stage: connectivity_validation
+  wall_ms_mean: 0.017
+  wall_ms_p95: 0.017
+  n_runs: 1
+  individual_ms:
+  - 0.017
+  git_hash: 60c7e9b96c87
+  captured_at: '2026-06-23T05:14:05.654299+00:00'
