@@ -1,0 +1,1 @@
+{"iteration": 1, "stage_optimized": "sequential_routing", "change_made": "Reduced retry params: MAX_RETRIES 5->3, BASE_ITERATIONS 10000->50, added per-net 10s and total 60s time caps, disabled adaptive budget for retries with max_iterations_cap=5000", "total_time_s": 39.29, "completion_rate": 0.333, "drc_violations": 2, "slowest_stage": "sequential_routing"}

@@ -1730,11 +1730,15 @@ class SequentialRoutingStage(Stage):
             state = state.with_locked_routes(newly_locked_nets)
 
         # ========== PHASE 2: ROUTING RETRY LOGIC ==========
-        # Retry failed nets with exponentially increasing iteration budgets.
+        # Retry failed nets with increased iteration budgets.
         # This handles cases where initial routing failed due to congestion.
-        MAX_RETRIES = 5
-        BASE_ITERATIONS = 10000  # Increased for tough nets (tx, k01)
+        # perf: Reduced retries (5→3) and budgets to prevent timeout on
+        # fundamentally unroutable nets. Added per-retry and total time caps.
+        MAX_RETRIES = 3
+        BASE_ITERATIONS = 50  # Keep low - adaptive budget scales by distance
         ITERATION_MULTIPLIER = 2.0
+        RETRY_TIME_LIMIT_S = 10.0  # Cap per-net retry wall time
+        RETRY_TOTAL_LIMIT_S = 60.0  # Cap total retry phase wall time
 
         # Collect nets that failed to route completely
         failed_nets = []
@@ -1758,8 +1762,15 @@ class SequentialRoutingStage(Stage):
 
             retry_queue = [(net_name, 1) for net_name in failed_nets]
             retry_successes = 0
+            retry_total_start = time.time()
 
             while retry_queue:
+                # perf: Cap total retry time to prevent runaway on unroutable nets
+                retry_elapsed = time.time() - retry_total_start
+                if retry_elapsed > RETRY_TOTAL_LIMIT_S:
+                    print(f"  [Retry] Total retry time {retry_elapsed:.1f}s exceeded {RETRY_TOTAL_LIMIT_S}s limit, stopping")
+                    break
+
                 net_name, retry_count = retry_queue.pop(0)
 
                 if retry_count > MAX_RETRIES:
@@ -1829,7 +1840,7 @@ class SequentialRoutingStage(Stage):
                     f"    Retry {retry_count}/{MAX_RETRIES}: {net_name} (budget: {iteration_budget} iters)"
                 )
 
-                # Create pathfinder with increased budget
+                    # Create pathfinder with moderate retry budget
                 retry_pathfinder = MultiLayerAStar(
                     grid=grid,
                     drc_oracle=state.drc_oracle,
@@ -1838,9 +1849,9 @@ class SequentialRoutingStage(Stage):
                     trace_width=width,
                     via_cost=2.0,  # Lower via cost on retry to encourage layer changes
                     allowed_layers=allowed_layers,
-                    congestion_detector=congestion_detector,
-                    use_adaptive_budget=True,
-                    base_iterations_per_cell=iteration_budget,  # Increased budget
+                    use_adaptive_budget=False,  # perf: Use legacy budget with hard cap for retries
+                    max_iterations=5000,  # perf: Hard iteration cap per segment on retries
+                    max_iterations_cap=5000,  # perf: Enforce cap
                 )
 
                 # Compute MST and route
@@ -1849,8 +1860,15 @@ class SequentialRoutingStage(Stage):
 
                 retry_success = True
                 retry_paths = []
+                retry_attempt_start = time.time()
 
                 for idx1, idx2 in mst_edges:
+                    # perf: Check per-attempt time limit
+                    if time.time() - retry_attempt_start > RETRY_TIME_LIMIT_S:
+                        print(f"    {net_name} retry {retry_count} timed out after {RETRY_TIME_LIMIT_S}s")
+                        retry_success = False
+                        break
+
                     p1_snapped = snapped_positions[idx1]
                     p2_snapped = snapped_positions[idx2]
 

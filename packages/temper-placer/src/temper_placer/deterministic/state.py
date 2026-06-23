@@ -67,6 +67,10 @@ class BoardState:
     topological_solution: Optional["TopologicalSolution"] = None
     assignment_valid: Optional[bool] = None
     topology_graph: Optional["TopologyGraph"] = None
+    # Router V6 Stage 4 A* pathfinding fields
+    parsed_grids: Optional[dict[str, Any]] = None
+    net_route_order: Optional[list[str]] = None
+    per_net_results: Optional[dict[str, Any]] = None
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.
