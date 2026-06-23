@@ -247,3 +247,530 @@ def is_hard_blocked(grid: "ClearanceGrid", cell: tuple[int, int, int]) -> bool:
         return True
 
     return trace_id == -2 or pad_id == -2
+
+
+# ---------------------------------------------------------------------------
+# U2 — analyze_bottleneck: min-cut computation
+# ---------------------------------------------------------------------------
+
+
+def _mm_to_cell(grid: "ClearanceGrid", x_mm: float, y_mm: float) -> tuple[int, int]:
+    """Convert mm coordinates to ``(row, col)`` cell indices.
+
+    Mirrors the private helper in ``ClearanceGrid`` but is robust to grid
+    layout changes. Out-of-range inputs are clamped to the grid bounds
+    so that the caller can still feed near-edge pads.
+    """
+    col = int(x_mm / grid.cell_size_mm)
+    row = int(y_mm / grid.cell_size_mm)
+    if row < 0:
+        row = 0
+    if col < 0:
+        col = 0
+    if row >= grid.rows:
+        row = grid.rows - 1
+    if col >= grid.cols:
+        col = grid.cols - 1
+    return row, col
+
+
+def _build_capacitated_graph(
+    grid: "ClearanceGrid",
+    source_cells: list[tuple[int, int, int]],
+    sink_cells: list[tuple[int, int, int]],
+    net_class_rules: "dict[str, NetClassRules] | None",
+    board_state: "BoardState",
+    net_name: str,
+) -> "object":  # networkx.DiGraph (avoids hard import in fast path)
+    """Build a directed capacitated graph for s-t min-cut.
+
+    Nodes are ``(layer, row, col)`` triples whose capacity is > 0 and
+    that are not hard-blocked. Edges connect 4-neighbour cells on the
+    same layer with weight ``min(src_capacity, dst_capacity)``.
+
+    Iterating cells in ``sorted()`` order keeps the function
+    deterministic across Python versions (Determinism Risk SC3 in plan).
+
+    Args:
+        grid: ``ClearanceGrid`` carrying occupancy data.
+        source_cells: Pad cells on the source side of the s-t partition.
+        sink_cells: Pad cells on the sink side.
+        net_class_rules: Optional mapping of net class name → rules;
+            passed through to ``_compute_cell_capacity``.
+        board_state: ``BoardState`` for context (zones, etc.). Currently
+            unused but reserved for future creepage halo lookups.
+        net_name: Net being analysed (forwarded to
+            ``_compute_cell_capacity``).
+
+    Returns:
+        A ``networkx.DiGraph`` whose edges carry a ``capacity`` attribute.
+    """
+    import networkx as nx
+
+    del board_state  # reserved for future zone-based exclusion
+
+    nodes: set[tuple[int, int, int]] = set()
+    # Iterate the union of source, sink, and reachable 4-neighbours in
+    # sorted order for determinism.
+    candidate_cells: set[tuple[int, int, int]] = set(source_cells) | set(sink_cells)
+    frontier = list(candidate_cells)
+    while frontier:
+        cell = frontier.pop()
+        if cell in nodes:
+            continue
+        if is_hard_blocked(grid, cell):
+            continue
+        capacity = _compute_cell_capacity(
+            cell=cell,
+            layer=cell[0],
+            grid=grid,
+            net_class_rules=net_class_rules,
+            net_name=net_name,
+        )
+        if capacity <= 0:
+            continue
+        nodes.add(cell)
+        layer, row, col = cell
+        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            nr, nc = row + dr, col + dc
+            if 0 <= nr < grid.rows and 0 <= nc < grid.cols:
+                neighbor = (layer, nr, nc)
+                if neighbor not in nodes:
+                    frontier.append(neighbor)
+
+    g = nx.DiGraph()
+    for cell in sorted(nodes):
+        g.add_node(cell)
+    for cell in sorted(nodes):
+        layer, row, col = cell
+        cap_here = _compute_cell_capacity(
+            cell=cell,
+            layer=layer,
+            grid=grid,
+            net_class_rules=net_class_rules,
+            net_name=net_name,
+        )
+        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            nr, nc = row + dr, col + dc
+            if 0 <= nr < grid.rows and 0 <= nc < grid.cols:
+                neighbor = (layer, nr, nc)
+                if neighbor in nodes:
+                    cap_there = _compute_cell_capacity(
+                        cell=neighbor,
+                        layer=layer,
+                        grid=grid,
+                        net_class_rules=net_class_rules,
+                        net_name=net_name,
+                    )
+                    edge_cap = min(cap_here, cap_there)
+                    if edge_cap <= 0:
+                        continue
+                    # Directed graph: add both directions with the same
+                    # weight so min-cut is symmetric.
+                    g.add_edge(cell, neighbor, capacity=edge_cap)
+                    g.add_edge(neighbor, cell, capacity=edge_cap)
+
+    return g
+
+
+def _resolve_pad_cells(
+    grid: "ClearanceGrid",
+    board_state: "BoardState",
+    net: "object",
+) -> tuple[list[tuple[int, int, int]], list[tuple[int, int, int]]]:
+    """Resolve source / sink cells for the failing net.
+
+    Returns two lists: source cells (one per pad) and sink cells
+    (one per pad, excluding the source). For multi-pad nets, all
+    non-source pads are unioned as sinks, which matches the
+    MST-routing pattern used by the main router.
+
+    Each pad is converted to a single ``(layer, row, col)`` cell on its
+    declared layer; if the pin is PTH or ``"all"`` layers, the first
+    available layer is used.
+    """
+    source_cells: list[tuple[int, int, int]] = []
+    sink_cells: list[tuple[int, int, int]] = []
+
+    pads = []
+    if board_state.netlist is not None and net is not None:
+        for comp_ref, pin_name in getattr(net, "pins", []):
+            comp = next(
+                (c for c in board_state.netlist.components if c.ref == comp_ref), None
+            )
+            if comp is None:
+                continue
+            pin = next(
+                (
+                    p
+                    for p in comp.pins
+                    if p.name == pin_name or p.number == pin_name
+                ),
+                None,
+            )
+            if pin is None:
+                continue
+            pos = comp.initial_position or (0.0, 0.0)
+            x_mm = pos[0] + pin.position[0]
+            y_mm = pos[1] + pin.position[1]
+            row, col = _mm_to_cell(grid, x_mm, y_mm)
+            layer = 0
+            if pin.layer in ("B.Cu",) and grid.layer_count > 0:
+                layer = grid.layer_count - 1
+            elif pin.layer == "In1.Cu" and grid.layer_count > 1:
+                layer = 1
+            elif pin.layer == "In2.Cu" and grid.layer_count > 2:
+                layer = 2
+            elif pin.is_pth or pin.layer == "all":
+                layer = 0
+            pads.append(((comp_ref, pin_name), (layer, row, col), (x_mm, y_mm)))
+
+    if not pads:
+        return source_cells, sink_cells
+
+    # First pad is the source; everything else is the sink side.
+    source_cells = [p[1] for p in pads[:1]]
+    sink_cells = [p[1] for p in pads[1:]]
+    return source_cells, sink_cells
+
+
+def _partition_to_components(
+    reachable: set[tuple[int, int, int]],
+    non_reachable: set[tuple[int, int, int]],
+    board_state: "BoardState",
+    source_cells: list[tuple[int, int, int]],
+    sink_cells: list[tuple[int, int, int]],
+    pad_positions: dict[tuple[int, int, int], tuple[str, tuple[float, float]]],
+) -> tuple[
+    tuple[str, str],
+    "PairKind",
+    tuple[tuple[float, float], tuple[float, float]],
+]:
+    """Classify the s-t partition and return (pair, kind, positions).
+
+    For each side of the partition, the function tries to associate a
+    pad with a component ref. If neither side matches a pad, it falls
+    back to a board-edge / keepout classification based on the cell's
+    position relative to the board outline / keepouts.
+
+    The return shape is ``(component_pair, pair_kind, positions_mm)``.
+    ``component_pair`` is a 2-tuple of strings; one or both entries may
+    be a free-form description (e.g. ``"board_edge"``) for non-component
+    kinds.
+    """
+    source_label = "source"
+    sink_label = "sink"
+    source_pos = (0.0, 0.0)
+    sink_pos = (0.0, 0.0)
+    pair_kind: PairKind = "component_component"
+
+    # Try to resolve labels from the pad mapping.
+    for cell in source_cells:
+        info = pad_positions.get(cell)
+        if info is not None:
+            source_label = info[0]
+            source_pos = info[1]
+            break
+    for cell in sink_cells:
+        info = pad_positions.get(cell)
+        if info is not None:
+            sink_label = info[0]
+            sink_pos = info[1]
+            break
+
+    # If the source side hits the board edge, classify as component_edge.
+    board = getattr(board_state, "board", None)
+    if board is not None and board.width > 0 and board.height > 0:
+        for cell in reachable:
+            layer, row, col = cell
+            x_mm = col * grid_cell_size(board) + grid_cell_size(board) / 2
+            y_mm = row * grid_cell_size(board) + grid_cell_size(board) / 2
+            if (
+                x_mm <= 0.01
+                or y_mm <= 0.01
+                or x_mm >= board.width - 0.01
+                or y_mm >= board.height - 0.01
+            ):
+                source_label = source_label or "board_edge"
+                if pair_kind == "component_component":
+                    pair_kind = "component_edge"
+                break
+
+    # If the sink side hits a keepout polygon, classify as component_keepout.
+    keepouts = getattr(board, "keepouts", None) if board is not None else None
+    if keepouts:
+        for cell in non_reachable:
+            x_mm = cell[2] * grid_cell_size(board) + grid_cell_size(board) / 2
+            y_mm = cell[1] * grid_cell_size(board) + grid_cell_size(board) / 2
+            for (x_min, y_min, x_max, y_max) in keepouts:
+                if x_min <= x_mm <= x_max and y_min <= y_mm <= y_max:
+                    sink_label = sink_label or "keepout"
+                    if pair_kind == "component_component":
+                        pair_kind = "component_keepout"
+                    break
+            if pair_kind == "component_keepout":
+                break
+
+    return (source_label, sink_label), pair_kind, (source_pos, sink_pos)
+
+
+def grid_cell_size(board_state_or_grid: "object") -> float:
+    """Return the cell size in mm for any object exposing ``cell_size_mm``.
+
+    Tolerates ``BoardState``, ``ClearanceGrid``, and bare objects so
+    that ``_partition_to_components`` can be called from synthetic
+    tests where we pass a stub.
+    """
+    return float(getattr(board_state_or_grid, "cell_size_mm", 1.0))
+
+
+def _format_message(
+    component_pair: tuple[str, str],
+    positions_mm: tuple[tuple[float, float], tuple[float, float]],
+    current_gap_mm: float,
+    required_gap_mm: float,
+    pair_kind: PairKind,
+) -> str:
+    """Format the human-readable diagnostic message per ``pair_kind``."""
+    (a, b), (a_pos, b_pos) = component_pair, positions_mm
+    if pair_kind == "component_keepout":
+        return (
+            f"{a} at ({a_pos[0]:.1f}, {a_pos[1]:.1f}) and {b} (keepout) "
+            f"create {current_gap_mm:.1f}mm gap that needs {required_gap_mm:.1f}mm"
+        )
+    if pair_kind == "component_edge":
+        return (
+            f"{a} at ({a_pos[0]:.1f}, {a_pos[1]:.1f}) and {b} at board edge "
+            f"create {current_gap_mm:.1f}mm gap that needs {required_gap_mm:.1f}mm"
+        )
+    return (
+        f"{a} at ({a_pos[0]:.1f}, {a_pos[1]:.1f}) and {b} at "
+        f"({b_pos[0]:.1f}, {b_pos[1]:.1f}) create {current_gap_mm:.1f}mm "
+        f"gap that needs {required_gap_mm:.1f}mm"
+    )
+
+
+def _compute_current_gap_mm(
+    positions_mm: tuple[tuple[float, float], tuple[float, float]],
+) -> float:
+    """Return Euclidean distance in mm between the two pad positions."""
+    a, b = positions_mm
+    return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
+
+def _required_creepage_mm(
+    net_class_rules: "dict[str, NetClassRules] | None",
+    net: "object",
+    board_state: "BoardState",
+) -> float:
+    """Pick the higher of the two sides' ``creepage_mm`` for the cut.
+
+    Falls back to ``net_class_rules[name].clearance`` when no creepage
+    is configured; falls back to ``board_state``'s default clearance as
+    a last resort.
+    """
+    fallback = 0.2  # mm; matches default_signal_clearance elsewhere
+    if not net_class_rules or net is None:
+        return fallback
+
+    candidates: list[float] = []
+    for comp_ref, _pin_name in getattr(net, "pins", []):
+        comp_class = None
+        if board_state.netlist is not None:
+            comp = next(
+                (c for c in board_state.netlist.components if c.ref == comp_ref),
+                None,
+            )
+            if comp is not None:
+                comp_class = comp.net_class
+        if comp_class and comp_class in net_class_rules:
+            rule = net_class_rules[comp_class]
+            candidates.append(float(getattr(rule, "creepage_mm", 0.0) or 0.0))
+            candidates.append(float(getattr(rule, "clearance", fallback) or fallback))
+        else:
+            candidates.append(fallback)
+    if not candidates:
+        return fallback
+    return max(candidates)
+
+
+def analyze_bottleneck(
+    grid: "ClearanceGrid",
+    net: "object",
+    board_state: "BoardState",
+    report: "NetRoutingReport",
+    net_class_rules: "dict[str, NetClassRules] | None" = None,
+) -> "BottleneckGeometry | None":
+    """Public entry point for per-failed-net min-cut analysis.
+
+    Returns ``None`` when the report's ``failure_reason`` is set and not
+    in ``{CHANNEL_CAPACITY, CLEARANCE, None}`` (those are the only
+    reasons for which a global capacity analysis is meaningful).
+
+    On a clean min-cut, returns a populated ``BottleneckGeometry``.
+    On a timeout, graph-build failure, or trivial graph, returns a
+    ``BottleneckGeometry`` with the appropriate ``aborted_*`` status.
+    """
+    from temper_placer.router_v6.diagnostics import FailureReason
+
+    # Short-circuit on non-capacity failures.
+    skip_reasons = {
+        FailureReason.TOPOLOGY,
+        FailureReason.PLACEMENT,
+        FailureReason.LAYER_LIMIT,
+        FailureReason.UNKNOWN,
+        FailureReason.NO_PATH,
+    }
+    if report.failure_reason in skip_reasons:
+        return None
+
+    # Resolve pads.
+    source_cells, sink_cells = _resolve_pad_cells(grid, board_state, net)
+    if not source_cells or not sink_cells:
+        # No pads to analyze; we cannot compute a min-cut. Surface a
+        # structured "aborted" payload so the closure test can still see
+        # the diagnostic envelope.
+        return _empty_bottleneck(
+            "aborted_no_pads",
+            message=f"{getattr(net, 'name', '?')}: no resolvable pads for min-cut",
+        )
+
+    # Pad metadata for partition classification.
+    pad_positions: dict[tuple[int, int, int], tuple[str, tuple[float, float]]] = {}
+    if board_state.netlist is not None and net is not None:
+        for comp_ref, pin_name in getattr(net, "pins", []):
+            comp = next(
+                (c for c in board_state.netlist.components if c.ref == comp_ref),
+                None,
+            )
+            if comp is None:
+                continue
+            pin = next(
+                (
+                    p
+                    for p in comp.pins
+                    if p.name == pin_name or p.number == pin_name
+                ),
+                None,
+            )
+            if pin is None:
+                continue
+            pos = comp.initial_position or (0.0, 0.0)
+            x_mm = pos[0] + pin.position[0]
+            y_mm = pos[1] + pin.position[1]
+            row, col = _mm_to_cell(grid, x_mm, y_mm)
+            layer = 0
+            if pin.layer == "B.Cu" and grid.layer_count > 0:
+                layer = grid.layer_count - 1
+            elif pin.layer == "In1.Cu" and grid.layer_count > 1:
+                layer = 1
+            elif pin.layer == "In2.Cu" and grid.layer_count > 2:
+                layer = 2
+            elif pin.is_pth or pin.layer == "all":
+                layer = 0
+            pad_positions[(layer, row, col)] = (comp_ref, (x_mm, y_mm))
+
+    deadline = time.monotonic() + BOTTLENECK_TIMEOUT_S
+
+    # Build the capacitated graph (with timeout awareness).
+    try:
+        g = _build_capacitated_graph(
+            grid=grid,
+            source_cells=source_cells,
+            sink_cells=sink_cells,
+            net_class_rules=net_class_rules,
+            board_state=board_state,
+            net_name=getattr(net, "name", ""),
+        )
+    except Exception as exc:  # noqa: BLE001 — surfaced to caller via status
+        logger.debug("analyze_bottleneck build failure: %s", exc)
+        return _empty_bottleneck(
+            "aborted_build_failure",
+            message=f"{getattr(net, 'name', '?')}: graph build failed ({exc})",
+        )
+
+    if time.monotonic() >= deadline:
+        return _empty_bottleneck(
+            "aborted_timeout",
+            message=f"{getattr(net, 'name', '?')}: graph build exceeded budget",
+        )
+
+    # Choose a representative source / sink cell.
+    src = source_cells[0]
+    sink = sink_cells[0]
+    if src not in g or sink not in g:
+        return _empty_bottleneck(
+            "aborted_no_sink",
+            message=f"{getattr(net, 'name', '?')}: pad not in graph",
+        )
+
+    # Compute the s-t min-cut.
+    try:
+        import networkx as nx
+
+        cut_value, (reachable, non_reachable) = nx.minimum_cut(
+            g,
+            src,
+            sink,
+            capacity="capacity",
+            flow_func=nx.algorithms.flow.edmonds_karp,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("analyze_bottleneck flow failure: %s", exc)
+        return _empty_bottleneck(
+            "aborted_build_failure",
+            message=f"{getattr(net, 'name', '?')}: min-cut failed ({exc})",
+        )
+
+    if time.monotonic() >= deadline:
+        return _empty_bottleneck(
+            "aborted_timeout",
+            message=f"{getattr(net, 'name', '?')}: min-cut exceeded budget",
+        )
+
+    # Identify the cut cells: nodes on the reachable side with at least
+    # one edge crossing to the non-reachable side. The cut cells are
+    # reported as (layer, row, col) triples.
+    cut_cells: list[tuple[int, int, int]] = []
+    for cell in sorted(reachable):
+        for neighbor in sorted(g.successors(cell)):
+            if neighbor in non_reachable:
+                cut_cells.append(cell)
+                break
+
+    # Classify partition.
+    component_pair, pair_kind, positions_mm = _partition_to_components(
+        reachable=set(reachable),
+        non_reachable=set(non_reachable),
+        board_state=board_state,
+        source_cells=source_cells,
+        sink_cells=sink_cells,
+        pad_positions=pad_positions,
+    )
+
+    current_gap_mm = _compute_current_gap_mm(positions_mm)
+    required_gap_mm = _required_creepage_mm(
+        net_class_rules=net_class_rules,
+        net=net,
+        board_state=board_state,
+    )
+
+    message = _format_message(
+        component_pair=component_pair,
+        positions_mm=positions_mm,
+        current_gap_mm=current_gap_mm,
+        required_gap_mm=required_gap_mm,
+        pair_kind=pair_kind,
+    )
+
+    return BottleneckGeometry(
+        component_pair=component_pair,
+        pair_kind=pair_kind,
+        positions_mm=positions_mm,
+        current_gap_mm=current_gap_mm,
+        required_gap_mm=required_gap_mm,
+        cut_size=int(cut_value),
+        cut_cells=tuple(cut_cells),
+        message=message,
+        bottleneck_status="ok",
+    )
