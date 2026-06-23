@@ -8,9 +8,58 @@ import jax
 import pytest
 
 from temper_placer.core.board import Board, Zone
+from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
+from temper_placer.deterministic.state import BoardState
 from temper_placer.io.footprint_library import load_footprint_library
+
+
+def _make_temper_design_rules() -> DesignRules:
+    """Subset of core/design_rules.py:337-444 net classes for fixture use."""
+    return DesignRules(
+        net_classes={
+            "ACMains": NetClassRules(
+                name="ACMains",
+                trace_width=2.5,
+                clearance=6.0,
+                via_diameter=1.2,
+                via_drill=0.6,
+                creepage_mm=6.0,
+                dru_priority=10,
+                safety_category="AC",
+            ),
+            "HighVoltage": NetClassRules(
+                name="HighVoltage",
+                trace_width=3.0,
+                clearance=2.0,
+                via_diameter=1.2,
+                via_drill=0.6,
+                creepage_mm=2.0,
+                dru_priority=20,
+                safety_category="HV",
+            ),
+            "Power": NetClassRules(
+                name="Power",
+                trace_width=0.5,
+                clearance=0.25,
+                via_diameter=0.8,
+                via_drill=0.4,
+                dru_priority=40,
+                safety_category="LV",
+            ),
+            "Signal": NetClassRules(
+                name="Signal",
+                trace_width=0.2,
+                clearance=0.15,
+                via_diameter=0.6,
+                via_drill=0.3,
+                dru_priority=80,
+                safety_category="LV",
+            ),
+        },
+        net_class_assignments={},
+    )
 
 
 @pytest.fixture
@@ -165,3 +214,106 @@ def component_factory(footprint_library):
         return Component(ref=ref, **kwargs)
 
     return make_component
+
+
+# =============================================================================
+# feat/hv-lv-guard-strip fixtures (plan 2026-06-23-001)
+# =============================================================================
+
+
+@pytest.fixture
+def fixture_design_rules_temper():
+    """Subset of core/design_rules.py:337-444 net classes (creepage + safety)."""
+    return _make_temper_design_rules()
+
+
+@pytest.fixture
+def fixture_minimal_pcb(fixture_design_rules_temper):
+    """10-component mixed HV/LV PCB on a 100x150 board."""
+    components = [
+        Component(
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 10.0),
+            pins=[Pin("1", "1", (0, 0), net="DC_BUS+")],
+        ),
+        Component(
+            ref="Q2",
+            footprint="TO-247",
+            bounds=(10.0, 10.0),
+            pins=[Pin("1", "1", (0, 0), net="DC_BUS+")],
+        ),
+        Component(
+            ref="D1",
+            footprint="DO-201",
+            bounds=(8.0, 8.0),
+            pins=[Pin("1", "1", (0, 0), net="AC_L")],
+        ),
+        Component(
+            ref="D2",
+            footprint="DO-201",
+            bounds=(8.0, 8.0),
+            pins=[Pin("1", "1", (0, 0), net="AC_N")],
+        ),
+        Component(
+            ref="C_DC_BUS",
+            footprint="CAP_BIG",
+            bounds=(6.0, 6.0),
+            pins=[Pin("1", "1", (0, 0), net="DC_BUS+")],
+        ),
+        Component(
+            ref="U_15V",
+            footprint="SOIC8",
+            bounds=(5.0, 5.0),
+            pins=[Pin("1", "1", (0, 0), net="+15V")],
+        ),
+        Component(
+            ref="U_3V3",
+            footprint="SOIC8",
+            bounds=(5.0, 5.0),
+            pins=[Pin("1", "1", (0, 0), net="+3V3")],
+        ),
+        Component(
+            ref="U_TEMP",
+            footprint="SOT23",
+            bounds=(2.0, 1.5),
+            pins=[Pin("1", "1", (0, 0), net="TEMP_SENSE")],
+        ),
+        Component(
+            ref="U_MCU",
+            footprint="QFN56",
+            bounds=(8.0, 8.0),
+            pins=[Pin("1", "1", (0, 0), net="SPI_CLK")],
+        ),
+        Component(
+            ref="J1",
+            footprint="CONN_USB",
+            bounds=(10.0, 6.0),
+            pins=[Pin("1", "1", (0, 0), net="+3V3")],
+        ),
+    ]
+    nets = [
+        Net("DC_BUS+", [("Q1", "1"), ("Q2", "1"), ("C_DC_BUS", "1")], net_class="HighVoltage"),
+        Net("AC_L", [("D1", "1")], net_class="ACMains"),
+        Net("AC_N", [("D2", "1")], net_class="ACMains"),
+        Net("+15V", [("U_15V", "1")], net_class="Power"),
+        Net("+3V3", [("U_3V3", "1"), ("J1", "1")], net_class="Power"),
+        Net("TEMP_SENSE", [("U_TEMP", "1")], net_class="Signal"),
+        Net("SPI_CLK", [("U_MCU", "1")], net_class="Signal"),
+    ]
+    return BoardState(
+        board=Board(width=100.0, height=150.0),
+        netlist=Netlist(components=components, nets=nets),
+        drc_oracle=__import__("types").SimpleNamespace(design_rules=fixture_design_rules_temper),
+    )
+
+
+@pytest.fixture
+def fixture_hv_lv_config_yaml():
+    """The YAML block from U3, as a raw string."""
+    return (
+        "hv_lv_guard_strip:\n"
+        "  enabled: true\n"
+        "  width_mm: null\n"
+        "  fallback_to_unconstrained: true\n"
+    )
