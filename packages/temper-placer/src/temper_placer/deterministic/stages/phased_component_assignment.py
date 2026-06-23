@@ -120,12 +120,14 @@ class PhasedComponentAssignmentStage(Stage):
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
         self.channel_map = channel_map
+        self.w_r = w_r
         # Default to the constraints' seed_filter if not provided, so
         # callers can configure via the YAML loader without a separate
         # argument. Passing ``None`` is treated as "use constraints default".
         if seed_filter is None:
             seed_filter = getattr(constraints, "seed_filter", None)
         self.seed_filter = seed_filter
+        self._bottleneck_map = None
         self.compiler = ConstraintCompiler(constraints)
 
         # Compile constraint functions once
@@ -1057,17 +1059,19 @@ class PhasedComponentAssignmentStage(Stage):
         * the seed filter is disabled at the config level
         * no ``BottleneckMap`` is reachable on the current state
         * the filter would drop every candidate (empty pool fallback
-          per R2; a warning is logged and the original pool passes
-          through unchanged)
+           per R2; a warning is logged and the original pool passes
+           through unchanged)
 
         Otherwise returns the slot list with cells at or above the
         applicable (LV or HV) threshold removed, and emits one
         structured INFO log line per call with the keys required by R6.
 
-        @req(2026-06-23-004, R2)
-        @req(2026-06-23-004, R6)
-        @req(2026-06-23-004, K4)
+        # @req(2026-06-23-004, R2)
+        # @req(2026-06-23-004, R6)
+        # @req(2026-06-23-004, K4)
         """
+        logger = logging.getLogger(__name__)
+
         config = self.seed_filter
         if config is None or not config.enabled:
             return candidate_slots
@@ -1182,8 +1186,8 @@ class PhasedComponentAssignmentStage(Stage):
         contract.
 
         Out-of-grid placements (gx, gy outside the channel map bounds) are
-        not flagged, matching the routability penalty's "no penalty at the
-        board edge" semantics.
+        not flagged, matching the routability penalty 'no penalty at the
+        board edge' semantics.
         """
         if self.channel_map is None or not self.channel_map.has_grid():
             return []
