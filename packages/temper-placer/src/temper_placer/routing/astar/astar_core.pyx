@@ -19,6 +19,7 @@ from temper_placer.routing.astar.types import MultiLayerPath
 from libc.stdlib cimport malloc, free, realloc
 from libc.math cimport sqrt, abs as c_abs, INFINITY
 import numpy as np
+import os
 cimport numpy as cnp
 
 # Initialize NumPy C API
@@ -174,20 +175,23 @@ cdef inline bint grid_is_available_bitmap(GridView* grid, int row, int col, int 
     If bitmap is present, checks the bitmap first (L1-cache hot).
     Falls back to full int32 grid check only when bitmap shows free.
     """
+    cdef int word, bit, stride, value
+    cdef unsigned long long val
+
     if row < 0 or row >= grid.height or col < 0 or col >= grid.width:
         return False
     if layer < 0 or layer >= grid.num_layers:
         return False
 
     if grid.bitmap != NULL:
-        cdef int word = col >> 6
-        cdef int bit = col & 63
-        cdef int stride = grid.bitmap_row_stride
-        cdef unsigned long long val = grid.bitmap[layer * grid.height * stride + row * stride + word]
+        word = col >> 6
+        bit = col & 63
+        stride = grid.bitmap_row_stride
+        val = grid.bitmap[layer * grid.height * stride + row * stride + word]
         if (val >> bit) & 1:
             return False
 
-    cdef int value = grid_get(grid, row, col, layer)
+    value = grid_get(grid, row, col, layer)
     return value == 0 or value == net_id
 
 
@@ -597,10 +601,11 @@ def find_path_cython(
     cdef cnp.ndarray[cnp.uint64_t, ndim=3] bitmap_data
     grid_view.bitmap = NULL
     grid_view.bitmap_row_stride = 0
-    if hasattr(grid, 'occupancy_bitmap') and getattr(grid, 'occupancy_bitmap') is not None:
-        bitmap_data = np.ascontiguousarray(grid.occupancy_bitmap, dtype=np.uint64)
-        grid_view.bitmap = <unsigned long long*>cnp.PyArray_DATA(bitmap_data)
-        grid_view.bitmap_row_stride = grid.bitmap_row_stride
+    if not os.environ.get("TEMPER_DISABLE_BITMAP"):
+        if hasattr(grid, 'occupancy_bitmap') and getattr(grid, 'occupancy_bitmap') is not None:
+            bitmap_data = np.ascontiguousarray(grid.occupancy_bitmap, dtype=np.uint64)
+            grid_view.bitmap = <unsigned long long*>cnp.PyArray_DATA(bitmap_data)
+            grid_view.bitmap_row_stride = grid.bitmap_row_stride
     
     # State space size
     cdef int state_space_size = width * height * num_layers
