@@ -19,17 +19,24 @@ from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 
-from ..channels import ChannelMap, routability_penalty
+from ..channels import Bottleneck, ChannelMap, routability_penalty
 from ..state import BoardState
 from .base import Stage
 
 if TYPE_CHECKING:
+    from temper_drc.core.fence import InvariantSpec
     from temper_placer.core.component import Component
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.config_loader import PlacementConstraints
 
 
 _LOGGER = logging.getLogger(__name__)
+
+
+#: Invariant name used by the DRC fence. Declared on
+#: :class:`PhasedComponentAssignmentStage` only when a ``channel_map`` is
+#: present, so runs without a sidecar never report false positives.
+CRITICAL_BOTTLENECK_INVARIANT: str = "no_component_center_in_critical_bottleneck"
 
 
 class PhasedComponentAssignmentStage(Stage):
@@ -114,6 +121,29 @@ class PhasedComponentAssignmentStage(Stage):
     def name(self) -> str:
         return "phased_component_assignment"
 
+    @property
+    def invariants(self) -> tuple:
+        """Per-stage invariants for the DRC fence.
+
+        The :data:`CRITICAL_BOTTLENECK_INVARIANT` is declared only when a
+        ``channel_map`` is supplied; runs without a sidecar cannot run the
+        check meaningfully, so the invariant is omitted to avoid spurious
+        false positives on degraded runs.
+        """
+        from temper_drc.core.fence import InvariantSpec
+
+        if self.channel_map is None or not self.channel_map.has_grid():
+            return ()
+        return (
+            InvariantSpec(
+                check_name=CRITICAL_BOTTLENECK_INVARIANT,
+                guarantees=(
+                    "No component center falls inside a CRITICAL-severity "
+                    "bottleneck cell of the channel map."
+                ),
+            ),
+        )
+
     def run(self, state: BoardState) -> BoardState:
         """Execute phased placement."""
         if not state.netlist or not state.component_zone_map or not state.zone_slots:
@@ -133,6 +163,12 @@ class PhasedComponentAssignmentStage(Stage):
             dict(state.component_zone_map),
             dict(state.zone_slots),
         )
+
+        # R6: Soft-launch DRC fence invariant check. Currently WARNING-only;
+        # U6 wires the hard-fail flip. Center-only sampling in v1; the
+        # invariant name reflects that explicit deferral.
+        if self.channel_map is not None and self.channel_map.has_grid():
+            self._check_critical_bottlenecks(placements)
 
         return replace(state, placements=frozenset(placements.items()))
 
@@ -603,3 +639,85 @@ class PhasedComponentAssignmentStage(Stage):
                 total_hpwl += hpwl
 
         return total_hpwl
+
+    def find_critical_bottleneck_violations(
+        self, placements: Dict[str, Tuple[float, float]]
+    ) -> list[dict]:
+        """Return a list of CRITICAL-severity bottleneck violations.
+
+        Each violation is a dict with keys ``ref``, ``x``, ``y``, ``layer``,
+        ``severity``. The center of each placed component is converted to
+        grid coordinates (floor semantics, same as
+        :func:`routability_penalty`); any cell covered by a CRITICAL
+        bottleneck record produces a violation. MEDIUM/HIGH severities are
+        not flagged - the invariant name
+        (``no_component_center_in_critical_bottleneck``) is part of the
+        contract.
+
+        Out-of-grid placements (gx, gy outside the channel map bounds) are
+        not flagged, matching the routability penalty's "no penalty at the
+        board edge" semantics.
+        """
+        if self.channel_map is None or not self.channel_map.has_grid():
+            return []
+
+        cmap = self.channel_map
+        cell_um = cmap.cell_size_um
+        width = cmap.width
+        height = cmap.height
+
+        # Pre-index bottlenecks by (gx, gy) for O(1) lookup per placement.
+        critical_by_cell: Dict[Tuple[int, int], Bottleneck] = {}
+        for bn in cmap.bottlenecks:
+            if bn.severity != "CRITICAL":
+                continue
+            key = (bn.x, bn.y)
+            existing = critical_by_cell.get(key)
+            if existing is None or bn.score > existing.score:
+                critical_by_cell[key] = bn
+
+        violations: list[dict] = []
+        for ref, pos in placements.items():
+            if not isinstance(pos, (tuple, list)) or len(pos) < 2:
+                continue
+            x_mm, y_mm = pos[0], pos[1]
+            gx = int(math.floor((float(x_mm) * 1000.0) / cell_um))
+            gy = int(math.floor((float(y_mm) * 1000.0) / cell_um))
+            if gx < 0 or gx >= width or gy < 0 or gy >= height:
+                continue
+            bn = critical_by_cell.get((gx, gy))
+            if bn is None:
+                continue
+            violations.append(
+                {
+                    "ref": ref,
+                    "x": gx,
+                    "y": gy,
+                    "layer": bn.layer,
+                    "severity": bn.severity,
+                }
+            )
+        return violations
+
+    def _check_critical_bottlenecks(
+        self, placements: Dict[str, Tuple[float, float]]
+    ) -> list[dict]:
+        """Run the invariant check; WARNING-only in soft-launch mode.
+
+        The hard-fail flip lives in U6 (DRC_FENCE_FAIL_ENABLED). For now
+        every violation is logged at WARNING level. The returned list of
+        violations is also returned to the caller so tests (and U6) can
+        drive the hard-fail path without re-running the placement.
+        """
+        violations = self.find_critical_bottleneck_violations(placements)
+        for v in violations:
+            _LOGGER.warning(
+                "DRC fence violation: %s placed in CRITICAL bottleneck cell "
+                "(%d, %d) on layer %s; severity=%s",
+                v["ref"],
+                v["x"],
+                v["y"],
+                v["layer"],
+                v["severity"],
+            )
+        return violations
