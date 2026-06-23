@@ -17,7 +17,7 @@ from .channels import (
 )
 
 if TYPE_CHECKING:
-    from typing import Iterable
+    pass
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,24 +90,6 @@ class SidecarAwarePipeline(DeterministicPipeline):
         """Increment and return the per-instance sidecar load counter."""
         self._sidecar_load_count += 1
         return self._sidecar_load_count
-
-
-def _inject_channel_map(
-    stages: "Iterable", channel_map: ChannelMap | None
-) -> list:
-    """Pass ``channel_map`` to any :class:`PhasedComponentAssignmentStage`.
-
-    Other stages in the pipeline do not consume the sidecar; they pass
-    through unchanged.
-    """
-    from .stages.phased_component_assignment import PhasedComponentAssignmentStage
-
-    out: list = []
-    for stage in stages:
-        if isinstance(stage, PhasedComponentAssignmentStage):
-            stage.channel_map = channel_map
-        out.append(stage)
-    return out
 
 
 def create_drc_aware_pipeline(
