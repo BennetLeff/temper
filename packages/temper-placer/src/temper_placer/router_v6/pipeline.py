@@ -139,6 +139,43 @@ class RouterV6Result:
         return self.success_count / total if total > 0 else 0.0
 
 
+def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
+    """Resolve a Net's pads to world coordinates via component lookup.
+
+    ``Net`` carries ``pins`` as ``[(component_ref, pin_name), ...]``; this
+    helper joins each pair with the corresponding component's
+    ``initial_position`` plus the pin's local ``position`` offset to produce
+    a list of (x, y) world coordinates. Pads whose component is missing
+    from ``comp_by_ref`` or which lack a resolvable position are skipped
+    silently so the caller's fallback logic can decide what to do.
+
+    The previous version of this pipeline used ``net.pads[0].position``,
+    which assumed a ``pads`` attribute that does not exist on ``Net`` --
+    that latent bug was reintroduced when the fallback path was refactored
+    in this branch. Routing this through a single helper keeps the lookup
+    consistent and gives the rest of the pipeline one place to change
+    if pin-resolution semantics evolve (e.g., to account for rotation).
+    """
+    positions: list[tuple[float, float]] = []
+    for comp_ref, pin_name in getattr(net, "pins", []):
+        comp = comp_by_ref.get(comp_ref)
+        if comp is None:
+            continue
+        comp_pos = getattr(comp, "initial_position", None)
+        if comp_pos is None:
+            continue
+        pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
+        if pin is None:
+            # No pin lookup available: fall back to component center so the
+            # caller still gets a usable world position for the fallback
+            # waypoint (Stage 4 will re-route through channels if present).
+            positions.append((float(comp_pos[0]), float(comp_pos[1])))
+            continue
+        px, py = pin.position
+        positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
+    return positions
+
+
 def _parsed_pcb_to_drc_input(
     pcb: ParsedPCB,
 ) -> tuple:
@@ -484,19 +521,22 @@ class RouterV6Pipeline:
 
         # Fallback: nets without SAT channel assignment get direct A* attempt
         from temper_placer.router_v6.channel_mapping import ChannelPath
+        comp_by_ref = {c.ref: c for c in pcb.components}
         routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
         for net in pcb.nets:
-            if net.name not in routed_nets and len(net.pads) >= 2:
-                start = net.pads[0].position
-                end = net.pads[-1].position
-                fallback_cp = ChannelPath(
-                    net_name=net.name,
-                    channel_sequence=[],
-                    waypoints=[start, end],
-                    total_length=0.0,
-                    preferred_layer="F.Cu",
-                )
-                channel_mapping.channel_paths[net.name] = fallback_cp
+            if net.name in routed_nets:
+                continue
+            pads = _net_pad_positions(net, comp_by_ref)
+            if len(pads) < 2:
+                continue
+            fallback_cp = ChannelPath(
+                net_name=net.name,
+                channel_sequence=[],
+                waypoints=[pads[0], pads[-1]],
+                total_length=0.0,
+                preferred_layer="F.Cu",
+            )
+            channel_mapping.channel_paths[net.name] = fallback_cp
 
         # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:
