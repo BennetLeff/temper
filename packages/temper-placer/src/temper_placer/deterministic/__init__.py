@@ -152,13 +152,16 @@ def create_drc_aware_pipeline(
             net_priority = dict(config_net_priority)
 
         # EXP-12: Extract placement validation constraints
-        signal_hv = getattr(config, "signal_hv_clearances", [])
-        proximity = getattr(config, "placement_proximity", [])
-        if signal_hv or proximity:
-            placement_constraints = {
-                "signal_hv_clearances": signal_hv,
-                "placement_proximity": proximity,
-            }
+        signal_hv = getattr(config, "signal_hv_clearances", None) or []
+        proximity = getattr(config, "placement_proximity", None) or []
+        # feat/hv-lv-guard-strip: PlacementValidationStage always reads
+        # ``self.constraints.get(...)`` even when no constraints were
+        # declared, so the dict must be non-empty to survive the
+        # ``constraints or []`` fallback in the stage.
+        placement_constraints = {
+            "signal_hv_clearances": signal_hv,
+            "placement_proximity": proximity,
+        }
 
         # EXP-13: Extract HV exclusion zones for routing
         hv_exclusion_zones = getattr(config, "hv_exclusion_zones", [])
