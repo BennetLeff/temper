@@ -14,9 +14,9 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from temper_placer.core.bus_cohort import BusCohortConstraint
     from temper_placer.routing.heuristics import GridCell
     from temper_placer.routing.maze_router import RoutePath
-    from temper_placer.core.bus_cohort import BusCohortConstraint
 
 
 @dataclass

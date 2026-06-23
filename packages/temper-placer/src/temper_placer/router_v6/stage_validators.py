@@ -10,8 +10,9 @@ Part of feat/decompose-stage2: U0 BoardState Extension.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 # Global registry: validator_name -> callable
 VALIDATOR_REGISTRY: dict[str, list[Callable]] = {}
