@@ -67,7 +67,7 @@ from temper_placer.core.net_graph import NetGraph, SubNetEdge
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 
 # Net priority classification
-from temper_placer.core.priority import PlacementPriority, RoutingPriority, PriorityConfig
+from temper_placer.core.priority import PlacementPriority, PriorityConfig, RoutingPriority
 
 # Differential pair constraints
 from temper_placer.core.differential_pair import DifferentialPairConstraint
