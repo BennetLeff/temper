@@ -88,7 +88,7 @@ def check(
         # Simple check: if only coordinate values differ, it's WITHIN_TOLERANCE
         import re
         golden_no_coords = re.sub(r"\b\d+(\.\d+)?\b", "X", golden_text)
-        current_no_coords = re.sub(r"\b\d+(\.\d+)?\b", "X", current_text)
+        current_no_coords = re.sub(r"\b\d+(\.\d+)?\b", "X", current)
         if golden_no_coords == current_no_coords:
             click.echo(f"WITHIN_TOLERANCE: {boundary} (geometry-only differences)")
         else:
