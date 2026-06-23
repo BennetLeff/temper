@@ -12,9 +12,22 @@ Tests in this module:
 - test_expansion_increases_blocked_cells: with HV zones enabled, the grid
   blocks more cells than without (the expansion actually expands).
 - test_fence_passes_on_built_grid: U3's fence passes on a grid built by U1-U3.
-- test_placement_hpwl_unchanged_by_expansion: running the stage with and
-  without expansion does not change the placement HPWL (placement is
-  unchanged per K5).
+- test_placement_hpwl_unchanged_by_expansion: enabling the expansion
+  does not change the placement (K5: no placement-side creepage
+  awareness).
+
+U4a status (deferred to follow-up):
+    The plan's closure test (24/24 nets, 10 stuck HV nets) and HPWL
+    assertion are deferred because the Benders + Router V6 protocol
+    stages are not yet registered in this worktree's stage DAG (a
+    pre-existing infrastructure issue, not introduced by this PR).
+    This module is the only U4a deliverable; the closure baseline is
+    gated on a follow-up that wires the protocol registry.
+
+    To assert the 24/24 baseline once the registry is fixed, run:
+
+        uv run pytest packages/temper-placer/src/temper_placer/regression/closure_test.py \\
+            --kicad-pcb pcb/temper_agent_optimized.kicad_pcb
 """
 
 import pytest
