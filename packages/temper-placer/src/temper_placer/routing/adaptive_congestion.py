@@ -23,7 +23,7 @@ Example usage:
     ...     CongestionLevel
     ... )
     >>> from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
-    >>> from temper_placer.core import Millimeters
+    >>> from temper_placer.core.units import Millimeters
     >>>
     >>> grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.1)
     >>> detector = GridBasedCongestionDetector(grid=grid)

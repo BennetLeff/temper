@@ -1730,15 +1730,13 @@ class SequentialRoutingStage(Stage):
             state = state.with_locked_routes(newly_locked_nets)
 
         # ========== PHASE 2: ROUTING RETRY LOGIC ==========
-        # Retry failed nets with increased iteration budgets.
-        # This handles cases where initial routing failed due to congestion.
-        # perf: Reduced retries (5→3) and budgets to prevent timeout on
-        # fundamentally unroutable nets. Added per-retry and total time caps.
+        # Retry failed nets with tight budgets and wall-time caps. The cap on
+        # total retry time prevents runaway loops on fundamentally unroutable
+        # nets (e.g. clearance-blocked GATE nets).
         MAX_RETRIES = 3
-        BASE_ITERATIONS = 50  # Keep low - adaptive budget scales by distance
-        ITERATION_MULTIPLIER = 2.0
-        RETRY_TIME_LIMIT_S = 10.0  # Cap per-net retry wall time
-        RETRY_TOTAL_LIMIT_S = 60.0  # Cap total retry phase wall time
+        RETRY_ITERATION_CAP = 1000
+        RETRY_TIME_LIMIT_S = 10.0
+        RETRY_TOTAL_LIMIT_S = 60.0
 
         # Collect nets that failed to route completely
         failed_nets = []
@@ -1776,9 +1774,6 @@ class SequentialRoutingStage(Stage):
                 if retry_count > MAX_RETRIES:
                     print(f"    {net_name}: Exceeded max retries ({MAX_RETRIES})")
                     continue
-
-                # Calculate increased iteration budget
-                iteration_budget = int(BASE_ITERATIONS * (ITERATION_MULTIPLIER ** retry_count))
 
                 net = net_by_name[net_name]
                 net_class_name = getattr(net, "net_class", None)
@@ -1837,10 +1832,9 @@ class SequentialRoutingStage(Stage):
                     continue
 
                 print(
-                    f"    Retry {retry_count}/{MAX_RETRIES}: {net_name} (budget: {iteration_budget} iters)"
+                    f"    Retry {retry_count}/{MAX_RETRIES}: {net_name} (cap: {RETRY_ITERATION_CAP} iters)"
                 )
 
-                    # Create pathfinder with moderate retry budget
                 retry_pathfinder = MultiLayerAStar(
                     grid=grid,
                     drc_oracle=state.drc_oracle,
@@ -1849,10 +1843,9 @@ class SequentialRoutingStage(Stage):
                     trace_width=width,
                     via_cost=2.0,  # Lower via cost on retry to encourage layer changes
                     allowed_layers=allowed_layers,
-                    use_adaptive_budget=False,  # perf: Use legacy budget with hard cap for retries
-                    max_iterations=1000,  # perf: Tighter cap - GATE nets need ~400 iters, clearance-blocked nets waste time at 5000
-                    max_iterations_cap=1000,  # perf: Enforce cap
-                    min_iterations=1000,  # perf: Override 5000 default floor to allow faster failure
+                    use_adaptive_budget=False,  # Legacy distance-based budget with hard cap
+                    max_iterations_cap=1000,  # GATE nets need ~400 iters; cap keeps retries fast
+                    min_iterations=1000,  # Override 5000 default floor to allow fast failure
                 )
 
                 # Compute MST and route
