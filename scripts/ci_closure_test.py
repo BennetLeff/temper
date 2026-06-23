@@ -30,6 +30,12 @@ def main() -> int:
     parser.add_argument("--pcb", type=str, required=True, help="Path to input .kicad_pcb file")
     parser.add_argument("--seed", type=str, default=None, help="Path to seed.json file")
     parser.add_argument("--output", type=str, default=None, help="Output path for JSON summary")
+    parser.add_argument(
+        "--require-all-stages",
+        action="store_true",
+        default=False,
+        help="Fail if any pipeline stage is skipped (promotes import/runtime warnings to errors)",
+    )
     args = parser.parse_args()
 
     repo_root = _find_repo_root()
@@ -50,7 +56,12 @@ def main() -> int:
     from temper_placer.regression.closure_test import ClosureTest
 
     seed = ClosureTest.load_seed(seed_path)
-    test = ClosureTest(pcb_path=pcb_path, seed=seed, repo_root=repo_root)
+    test = ClosureTest(
+        pcb_path=pcb_path,
+        seed=seed,
+        repo_root=repo_root,
+        require_all_stages=args.require_all_stages,
+    )
     result = test.run()
 
     print(result.summary())
@@ -70,6 +81,7 @@ def main() -> int:
                     "drc_errors": result.drc_errors,
                     "drc_warnings": result.drc_warnings,
                     "wall_clock_seconds": result.wall_clock_seconds,
+                    "stages_exercised": result.stages_exercised,
                     "errors": result.errors,
                     "warnings": result.warnings,
                 },
