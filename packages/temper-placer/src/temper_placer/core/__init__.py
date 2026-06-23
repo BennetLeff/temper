@@ -67,7 +67,7 @@ from temper_placer.core.net_graph import NetGraph, SubNetEdge
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 
 # Net priority classification
-from temper_placer.core.priority import classify_net_priority
+from temper_placer.core.priority import PlacementPriority, RoutingPriority, PriorityConfig
 
 # Differential pair constraints
 from temper_placer.core.differential_pair import DifferentialPairConstraint
@@ -82,7 +82,7 @@ from temper_placer.core.specification import EMISpec, PcbSpecification, ThermalS
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 
 # Component community detection
-from temper_placer.core.community import ComponentCommunity
+from temper_placer.core.community import Community, detect_communities
 
 __all__ = [
     # State
@@ -149,7 +149,9 @@ __all__ = [
     "HypergraphIncidence",
     "PhysicsHypergraph",
     # Priority
-    "classify_net_priority",
+    "PlacementPriority",
+    "RoutingPriority",
+    "PriorityConfig",
     # Differential pair
     "DifferentialPairConstraint",
     # Bus cohort
@@ -163,5 +165,6 @@ __all__ = [
     "DesignRules",
     "NetClassRules",
     # Community
-    "ComponentCommunity",
+    "Community",
+    "detect_communities",
 ]

@@ -10,6 +10,10 @@ Unlike V5's binary success/failure, V6 provides:
 
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from temper_placer.router_v6.bottleneck_geometry import BottleneckGeometry
 
 
 class RoutingStatus(Enum):
@@ -137,6 +141,12 @@ class NetRoutingReport:
     # Performance
     iterations_used: int = 0
 
+    # Min-cut bottleneck geometry (U1)
+    # None when the analysis did not run, was skipped, or aborted. When
+    # present, the closure test emits ``bottleneck.message`` as the
+    # actionable signal for the designer.
+    bottleneck: "BottleneckGeometry | None" = None
+
     # Summary
     message: str = ""
 
@@ -199,6 +209,7 @@ class NetRoutingReport:
             "channels_used": list(self.channels_used),
             "layer": self.layer,
             "iterations_used": self.iterations_used,
+            "bottleneck": self.bottleneck.to_dict() if self.bottleneck is not None else None,
             "message": self.message,
         }
 
