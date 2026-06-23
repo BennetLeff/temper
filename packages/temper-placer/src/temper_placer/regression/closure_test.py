@@ -30,6 +30,12 @@ class ClosureResult:
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     stages_exercised: int = 0
+    # U4: Routing-failure diagnostics surfaced from the post-mortem
+    # min-cut bottleneck analysis. Each entry is a
+    # ``NetRoutingReport.bottleneck.message`` string; the closure test
+    # JSON report (SC1) and the regression reporter (SC2) read this
+    # list to render the actionable "Routing failures" section.
+    routing_failure_messages: list[str] = field(default_factory=list)
 
     def validate(self) -> list[str]:
         """Return assertion failures if the pipeline produced no real results."""
@@ -140,6 +146,7 @@ class ClosureTest:
 
         # Step 3: Router V6 routing via protocol
         router_completion_pct = 0.0
+        routing_failure_messages: list[str] = []
         try:
             from temper_placer.protocol import StageInput, StageMeta
             from temper_placer.runner import resolve_and_run
@@ -157,6 +164,14 @@ class ClosureTest:
             )
             router_completion_pct = getattr(routing_result.data, "completion_rate", 0.0)
             stages_exercised += 1
+
+            # U4: Surface ``BottleneckGeometry.message`` strings from
+            # any failed net so the closure test JSON (SC1) carries
+            # actionable diagnostics. The list is consumed by the
+            # regression reporter and downstream tooling.
+            routing_failure_messages = self._extract_routing_failure_messages(
+                routing_result
+            )
         except Exception as e:
             msg = f"Router V6 not available: {e}"
             if self.require_all_stages:
@@ -228,7 +243,43 @@ class ClosureTest:
             errors=errors,
             warnings=warnings,
             stages_exercised=stages_exercised,
+            routing_failure_messages=routing_failure_messages,
         )
+
+    @staticmethod
+    def _extract_routing_failure_messages(routing_result: Any) -> list[str]:
+        """Pull ``BottleneckGeometry.message`` strings from the routing result.
+
+        The router V6 protocol adapter returns a ``Stage4Output`` whose
+        ``routing_results.net_reports`` field carries per-net
+        ``NetRoutingReport`` objects. Each failed report may carry a
+        ``bottleneck`` with a ``message``; this helper surfaces those
+        messages in the closure test JSON so the "Routing failures"
+        section (SC1/SC2) is actionable. Returns an empty list when
+        the routing result has no per-net reports.
+
+        The function also tolerates the historical
+        ``routing_result.data.net_reports`` shape and any object that
+        exposes a ``net_reports`` attribute directly.
+        """
+        messages: list[str] = []
+        data = getattr(routing_result, "data", routing_result)
+        net_reports: list = []
+        # Real shape: Stage4Output -> RoutingResults -> net_reports
+        routing_results = getattr(data, "routing_results", None)
+        if routing_results is not None:
+            net_reports = getattr(routing_results, "net_reports", None) or []
+        # Backwards-compat: data.net_reports directly
+        if not net_reports:
+            net_reports = getattr(data, "net_reports", None) or []
+        for report in net_reports:
+            bottleneck = getattr(report, "bottleneck", None)
+            if bottleneck is None:
+                continue
+            message = getattr(bottleneck, "message", None)
+            if message:
+                messages.append(str(message))
+        return messages
 
     @classmethod
     def load_seed(cls, seed_path: Path) -> dict:

@@ -7,12 +7,16 @@ Part of temper-xnsk (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
 from temper_placer.router_v6.length_matching import LengthMatchingResults
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
 from temper_placer.router_v6.via_placement import ViaPlacement
+
+if TYPE_CHECKING:
+    from temper_placer.router_v6.diagnostics import NetRoutingReport
 
 
 @dataclass
@@ -33,6 +37,11 @@ class RoutingResults:
     compiled_routes: dict[str, CompiledRoute]  # net_name -> CompiledRoute
     failed_nets: list[str]  # Nets that failed to route
     plane_net_count: int = 0  # Nets excluded (planes, unconnected)
+    # U4: per-net routing reports. Each ``NetRoutingReport`` may carry a
+    # ``BottleneckGeometry`` describing the min-cut for a failed net.
+    # The closure test reads this list to surface the actionable
+    # ``routing_failure_messages`` field (SC1/SC2).
+    net_reports: list["NetRoutingReport"] = field(default_factory=list)
 
     @property
     def success_count(self) -> int:
@@ -60,6 +69,7 @@ def compile_routing_results(
     via_placement: ViaPlacement,
     length_matching: LengthMatchingResults | None = None,
     plane_net_names: list[str] | None = None,
+    net_reports: list["NetRoutingReport"] | None = None,
 ) -> RoutingResults:
     """
     Compile all routing results into final output.
@@ -74,6 +84,10 @@ def compile_routing_results(
         length_matching: Optional length matching from Stage 4.5
         plane_net_names: Optional list of plane net names counted as
             routed-by-plane successes (e.g., GND, VCC, PGND)
+        net_reports: Optional per-net ``NetRoutingReport`` list, used to
+            thread bottleneck diagnostics from upstream
+            ``analyze_bottleneck`` calls into the closure test JSON
+            (SC1/SC2). Defaults to an empty list.
 
     Returns:
         RoutingResults with complete routing solution
@@ -135,4 +149,5 @@ def compile_routing_results(
         compiled_routes=compiled_routes,
         failed_nets=pathfinding_result.failed_nets,
         plane_net_count=getattr(pathfinding_result, 'plane_net_count', 0),
+        net_reports=list(net_reports) if net_reports else [],
     )
