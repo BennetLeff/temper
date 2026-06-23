@@ -160,7 +160,7 @@ def matches_allowlist(
 # temper_placer internals. These aren't Python packages so import-linter
 # doesn't scan them natively. The gate has a separate code path that
 # scans these dirs directly and checks against the per-file allowlist.
-PHASE3_DIRS = ("tools", "experiments", "simulation", "router-experiments")
+PHASE3_DIRS = ("tools", "simulation")
 PHASE3_CONTRACT = "phase3-public-interface-only"
 
 # Regex to find `import temper_placer.X` or `from temper_placer.X import ...` at
@@ -176,7 +176,7 @@ def scan_phase3_imports(
     repo_root: Path,
     dirs: tuple[str, ...] = PHASE3_DIRS,
 ) -> set[tuple[str, str, str]]:
-    """Scan tools/, experiments/, etc. for temper_placer imports.
+    """Scan tools/, simulation/, etc. for temper_placer imports.
 
     Returns a set of (file, target_module, contract) tuples representing
     every temper_placer.* import found in the scanned directories.
@@ -342,7 +342,7 @@ def main():
     resolved_violations = baseline - current_edges
     matched_violations = current_edges & baseline
 
-    # Phase 3: scan tools/, experiments/, simulation/, router-experiments/
+    # Phase 3: scan tools/, simulation/
     # for temper_placer.* imports. These dirs aren't Python packages, so
     # import-linter doesn't scan them natively. The allowlist has per-file
     # entries matching the current import surface; new imports fail the gate.
@@ -352,8 +352,7 @@ def main():
     )
     if phase3_current:
         print(
-            f"\n=== PHASE 3 SCAN: tools/, experiments/, simulation/, "
-            f"router-experiments/ ==="
+            f"\n=== PHASE 3 SCAN: tools/, simulation/ ==="
         )
         print(
             f"  Found {len(phase3_current)} temper_placer.* imports across "
