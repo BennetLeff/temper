@@ -218,9 +218,12 @@ def create_drc_aware_pipeline(
             # Placement stages
             ZoneGeometryStage(zone_config=zone_config),
             ZoneAssignmentStage(),
+            # feat/hv-lv-guard-strip: HV/LV domain map MUST run before
+            # component assignment so phased_component_assignment (and the
+            # standard fallback) can filter slots by domain.
+            HvLvPartitionStage(),
             slot_stage,  # Use zone-aware or standard slot generation
             component_stage,  # Use phased or standard component assignment
-            HvLvPartitionStage(),  # feat/hv-lv-guard-strip: HV/LV domain map
             ApplyPlacementsStage(),
             # DRC-FIX-4: Resolve courtyard overlaps and clamp to board bounds
             CourtyardCheckStage(
@@ -301,9 +304,11 @@ def create_legacy_pipeline():
             # Placement stages
             ZoneGeometryStage(),
             ZoneAssignmentStage(),
+            # feat/hv-lv-guard-strip: HV/LV domain map MUST run before
+            # component assignment so the domain filter is applied.
+            HvLvPartitionStage(),
             SlotGenerationStage(slot_spacing_mm=7.5),  # Balanced spacing
             ComponentAssignmentStage(),
-            HvLvPartitionStage(),  # feat/hv-lv-guard-strip: HV/LV domain map
             ApplyPlacementsStage(),
             # Routing
             ClearanceGridStage(cell_size_mm=0.25, layer_count=4),
