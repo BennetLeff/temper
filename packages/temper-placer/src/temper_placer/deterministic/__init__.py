@@ -196,10 +196,17 @@ def create_drc_aware_pipeline(
     )
 
     if use_phased_placement:
+        # U1: pass design_rules so PhasedComponentAssignmentStage can inject
+        # 6mm ghost-pad reservations around HV pins before the placement
+        # loop runs.  U2: use_isolation_slots toggles creepage reduction
+        # against the `isolation_slots` table (default off, NFR4 parity).
+        placer_cfg = getattr(config, "placer", None) or {}
         component_stage = PhasedComponentAssignmentStage(
             constraints=config,
             slot_spacing=slot_spacing,
             fixed_placements=fixed_placements,
+            design_rules=design_rules,
+            use_isolation_slots=bool(placer_cfg.get("use_isolation_slots", False)),
         )
     else:
         component_stage = ComponentAssignmentStage(

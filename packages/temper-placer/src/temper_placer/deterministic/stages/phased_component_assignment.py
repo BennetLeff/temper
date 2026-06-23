@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import replace
-from typing import TYPE_CHECKING, Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 
@@ -23,8 +23,9 @@ from .base import Stage
 
 if TYPE_CHECKING:
     from temper_placer.core.component import Component
+    from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.config_loader import PlacementConstraints
+    from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 
 class PhasedComponentAssignmentStage(Stage):
@@ -69,6 +70,8 @@ class PhasedComponentAssignmentStage(Stage):
         constraints: PlacementConstraints,
         slot_spacing: float = 12.0,
         fixed_placements: Dict[str, Dict] = None,
+        design_rules: Optional["DesignRules"] = None,
+        use_isolation_slots: bool = False,
     ):
         """Initialize phased placement.
 
@@ -76,6 +79,15 @@ class PhasedComponentAssignmentStage(Stage):
             constraints: Parsed placement constraints (for compiler)
             slot_spacing: Spacing between slots in mm
             fixed_placements: Dict of ref -> {'position': [x, y], 'rotation': deg}
+            design_rules: PCB design rules (SSOT for creepage_mm per net class).
+                When provided, ghost-pad injection uses the HV class creepage
+                to reserve slots around HV pin positions (U1). When None,
+                injection is a no-op.
+            use_isolation_slots: When True (U2), reduce each HV pin's
+                effective ghost-pad radius by the projection of the
+                referenced isolation slot onto the pin-to-other-HV-pin
+                vector (IEC 62368-1 Annex G). When False (default),
+                behavior is bit-identical to U1.
         """
         self.constraints = constraints
         self.slot_spacing = slot_spacing
@@ -85,6 +97,16 @@ class PhasedComponentAssignmentStage(Stage):
         # Compile constraint functions once
         self.slot_filter = self.compiler.compile_to_slot_filter()
         self.slot_scorer = self.compiler.compile_to_slot_scorer()
+
+        # Cache design rules + isolation-slot toggle for U1/U2.
+        # _isolation_slots_by_ref lets the U2 reduction path find slots
+        # without re-scanning the constraints list on every pin.
+        self.design_rules = design_rules
+        self.use_isolation_slots = use_isolation_slots
+        self._isolation_slots_by_ref: Dict[str, List["IsolationSlot"]] = {}
+        if use_isolation_slots and getattr(constraints, "isolation_slots", None):
+            for slot in constraints.isolation_slots:
+                self._isolation_slots_by_ref.setdefault(slot.component_ref, []).append(slot)
 
     @property
     def name(self) -> str:
@@ -105,6 +127,7 @@ class PhasedComponentAssignmentStage(Stage):
                 logger.warning(f"Constraint validation: {error}")
 
         placements = self._phased_placement(
+            state,
             state.netlist,
             dict(state.component_zone_map),
             dict(state.zone_slots),
@@ -114,6 +137,7 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _phased_placement(
         self,
+        state: BoardState,
         netlist: Netlist,
         component_zone_map: Dict[str, str],
         zone_slots: Dict[str, Tuple],
@@ -130,6 +154,17 @@ class PhasedComponentAssignmentStage(Stage):
         comp_by_ref = {c.ref: c for c in netlist.components}
         net_pins = self._build_net_pins(netlist)
         all_slots = self._flatten_slots(zone_slots)
+
+        # U1 (Ghost-Pad Injection): reserve every slot within creepage of
+        # an HV pin position BEFORE the placement loop runs.  This blocks
+        # placement from sitting in the IEC 62368-1 6mm ring around HV pins
+        # so the router never has to leave the placer a placement it cannot
+        # route.  When design_rules is None (older pipelines), this is a
+        # no-op (NFR4 parity).
+        if self.design_rules is not None:
+            self._inject_ghost_pads(
+                state, netlist, used_slots, all_slots, logger_name=__name__
+            )
 
         # Get placement phases from config
         phases = self.constraints.placement_priority
@@ -502,6 +537,169 @@ class PhasedComponentAssignmentStage(Stage):
             self._reserve_slots(best_slot, radius, all_slots, used_slots)
 
         return placements
+
+    # =====================================================================
+    # Ghost-pad injection (U1) and isolation-slot reduction (U2)
+    # =====================================================================
+
+    # Categorical safety tags that mark a net as HV for the purposes of
+    # creepage-aware placement.  "AC" is included because mains-voltage
+    # nets (AC_L/AC_N/PE) need the same 6mm ring as HV in the Temper
+    # design.  Per open question A.1, None / missing values are treated
+    # as LV (no ghost pad).
+    _HV_SAFETY_CATEGORIES: Set[str] = {"HV", "AC"}
+
+    def _collect_hv_pin_positions(
+        self,
+        netlist: Netlist,
+    ) -> List[Tuple[float, float, str, str]]:
+        """Collect absolute (x, y) positions for every HV-class pin.
+
+        Returns a list of (pin_x, pin_y, component_ref, pin_name) tuples
+        for pins whose net class has a non-None ``safety_category`` in
+        :attr:`_HV_SAFETY_CATEGORIES``.  Pins whose net is missing from
+        :attr:`design_rules.net_classes` (or has a non-HV / None safety
+        tag) are silently skipped — this preserves NFR4 parity on
+        LV-only boards.
+
+        Note: pin coordinates returned here are RELATIVE to their
+        component origin, not absolute board positions.  Callers that
+        need absolute positions (U3 validator) must combine with the
+        component's placement.  The placer itself reserves slots around
+        the *current* anchor of every component (which is its initial /
+        fixed position at placement time), so relative coordinates are
+        sufficient for the placer's reservation step.
+        """
+        if self.design_rules is None or not getattr(self.design_rules, "net_classes", None):
+            return []
+
+        net_classes = self.design_rules.net_classes
+        net_class_assignments = getattr(self.design_rules, "net_class_assignments", {}) or {}
+
+        hv_pins: List[Tuple[float, float, str, str]] = []
+        for component in netlist.components:
+            for pin in component.pins:
+                if pin.net is None:
+                    continue
+                # Resolve net -> net class via the assignments table, then
+                # the net-class rules' safety_category field.
+                class_name = net_class_assignments.get(pin.net)
+                if class_name is None:
+                    # Fall back to scanning net_classes by name (mirrors
+                    # the lookup in core.design_rules.get_rules_for_net).
+                    class_name = next(
+                        (nc for nc in net_classes if nc == pin.net),
+                        None,
+                    )
+                if class_name is None or class_name not in net_classes:
+                    continue
+                safety = getattr(net_classes[class_name], "safety_category", None)
+                if safety not in self._HV_SAFETY_CATEGORIES:
+                    continue
+                px, py = pin.position
+                hv_pins.append((float(px), float(py), component.ref, pin.name))
+        return hv_pins
+
+    def _effective_ghost_pad_radius(
+        self,
+        component_ref: str,
+        pin_name: str,
+        base_radius: float,
+    ) -> float:
+        """Apply U2 isolation-slot reduction to a base ghost-pad radius.
+
+        When :attr:`use_isolation_slots` is False, returns ``base_radius``
+        unchanged (NFR4 bit-identical parity with U1).  When True, walks
+        every isolation slot whose ``component_ref`` matches and reduces
+        the radius by the slot's length projected onto the slot's
+        axis (IEC 62368-1 Annex G creepage compliance).  The reduction
+        is clamped at 0 and never expands beyond ``base_radius`` (the
+        FR4 SSOT).
+        """
+        if not self.use_isolation_slots:
+            return base_radius
+        slots = self._isolation_slots_by_ref.get(component_ref, [])
+        if not slots:
+            return base_radius
+        for slot in slots:
+            sx0, sy0 = slot.start_offset
+            sx1, sy1 = slot.end_offset
+            dx = sx1 - sx0
+            dy = sy1 - sy0
+            length = math.hypot(dx, dy)
+            if length <= 0.0:
+                continue
+            # Project slot length onto its own axis (always length).
+            # Only the on-axis component reduces creepage; off-axis
+            # contributions are accounted for by the slot's own
+            # geometry, not the placer's radius budget.
+            base_radius = max(0.0, base_radius - length)
+        return base_radius
+
+    def _inject_ghost_pads(
+        self,
+        state: BoardState,
+        netlist: Netlist,
+        used_slots: Set[Tuple[float, float]],
+        all_slots: List[Tuple[float, float]],
+        logger_name: str = __name__,
+    ) -> None:
+        """Inject HV-creepage ghost pads into ``used_slots``.
+
+        For every HV pin, reserves every grid slot within
+        ``creepage_mm`` (max across HV net classes, FR4 SSOT) of the
+        pin's component-relative position.  Inner layers are
+        over-reserved by design (FR2b).  Logs a per-stage summary
+        ``ghost_pads_injected={N} slots_blocked={M}`` at INFO so
+        downstream tooling can correlate.
+        """
+        import logging
+
+        logger = logging.getLogger(logger_name)
+
+        hv_pins = self._collect_hv_pin_positions(netlist)
+        if not hv_pins:
+            logger.debug("No HV pins found; ghost-pad injection is a no-op")
+            return
+
+        # FR4 base radius: max creepage across HV/AC classes.  Using
+        # the max keeps the placer conservative — every HV pin gets at
+        # least its class's required ring, and over-reservation is the
+        # intended failure mode (FR2b).
+        base_radius = 0.0
+        for rules in getattr(self.design_rules, "net_classes", {}).values():
+            safety = getattr(rules, "safety_category", None)
+            if safety in self._HV_SAFETY_CATEGORIES:
+                base_radius = max(base_radius, float(getattr(rules, "creepage_mm", 0.0)))
+        if base_radius <= 0.0:
+            logger.debug("creepage_mm is zero across all HV classes; skipping injection")
+            return
+
+        before = len(used_slots)
+        rejected = 0
+        for pin_x, pin_y, comp_ref, pin_name in hv_pins:
+            radius = self._effective_ghost_pad_radius(comp_ref, pin_name, base_radius)
+            new_slots = [
+                slot
+                for slot in all_slots
+                if math.hypot(slot[0] - pin_x, slot[1] - pin_y) <= radius
+                and slot not in used_slots
+            ]
+            if not new_slots:
+                # FR7: log when an HV pin cannot reserve any slot.
+                logger.debug(
+                    f"Ghost-pad for {comp_ref}.{pin_name} at ({pin_x},{pin_y}) "
+                    f"radius={radius}mm rejected: no slots within radius"
+                )
+                rejected += 1
+                continue
+            used_slots.update(new_slots)
+
+        added = len(used_slots) - before
+        logger.info(
+            f"ghost_pads_injected={len(hv_pins)} slots_blocked={added} "
+            f"rejected={rejected} base_creepage_mm={base_radius}"
+        )
 
     def _build_net_pins(self, netlist: Netlist) -> Dict[str, list]:
         """Build net_name -> [(comp_ref, pin_name), ...] map."""

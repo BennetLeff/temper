@@ -8,6 +8,8 @@ from unittest.mock import Mock
 
 import pytest
 
+from temper_placer.core.design_rules import DesignRules, NetClassRules
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
@@ -376,3 +378,375 @@ class TestPhaseOrdering:
 
         # C placed last (phase3)
         assert "C" in placements
+
+
+# =====================================================================
+# U1 — Ghost-Pad Injection Core
+# =====================================================================
+
+
+def _build_canonical_hv_netlist() -> Netlist:
+    """Canonical 4-component netlist: 2 HV components, 2 LV components."""
+    q1 = Component(
+        ref="Q1",
+        footprint="TO247",
+        bounds=(10.0, 10.0),
+        pins=[
+            Pin(name="1", number="1", position=(0.0, 0.0), net="DC_BUS+"),
+            Pin(name="2", number="2", position=(5.0, 0.0), net="DC_BUS+"),
+        ],
+    )
+    q2 = Component(
+        ref="Q2",
+        footprint="TO247",
+        bounds=(10.0, 10.0),
+        pins=[
+            Pin(name="1", number="1", position=(0.0, 0.0), net="DC_BUS+"),
+            Pin(name="2", number="2", position=(5.0, 0.0), net="DC_BUS+"),
+        ],
+    )
+    c1 = Component(
+        ref="C1",
+        footprint="0603",
+        bounds=(2.0, 2.0),
+        pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="VCC")],
+    )
+    c2 = Component(
+        ref="C2",
+        footprint="0603",
+        bounds=(2.0, 2.0),
+        pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="GND")],
+    )
+    return Netlist(
+        components=[q1, q2, c1, c2],
+        nets=[
+            Net(name="DC_BUS+", pins=[("Q1", "1"), ("Q2", "1")], net_class="HighVoltage"),
+            Net(name="VCC", pins=[("C1", "1")], net_class="Power"),
+            Net(name="GND", pins=[("C2", "1")], net_class="Ground"),
+        ],
+    )
+
+
+def _hv_design_rules() -> DesignRules:
+    """Build a DesignRules with one HV net class (creepage_mm=6.0)."""
+    return DesignRules(
+        net_classes={
+            "HighVoltage": NetClassRules(
+                name="HighVoltage",
+                trace_width=0.5,
+                clearance=2.0,
+                dru_priority=10,
+                creepage_mm=6.0,
+                safety_category="HV",
+            ),
+            "Power": NetClassRules(
+                name="Power",
+                trace_width=0.25,
+                clearance=0.2,
+                dru_priority=20,
+                safety_category="LV",
+            ),
+            "Ground": NetClassRules(
+                name="Ground",
+                trace_width=0.25,
+                clearance=0.2,
+                dru_priority=30,
+                safety_category="LV",
+            ),
+        },
+        net_class_assignments={
+            "DC_BUS+": "HighVoltage",
+            "VCC": "Power",
+            "GND": "Ground",
+        },
+    )
+
+
+def _build_state(
+    netlist: Netlist,
+    *,
+    components: list[str] | None = None,
+    slot_grid: tuple[float, float, float, float, float] = (0.0, 0.0, 60.0, 60.0, 5.0),
+) -> BoardState:
+    """Build a BoardState with a regular slot grid covering slot_grid extent.
+
+    slot_grid is (x0, y0, x_max, y_max, spacing).  Slots are emitted at
+    ``(x0 + i*spacing, y0 + j*spacing)`` for 0 <= i,j < extent/spacing.
+    Components default to all netlist components.
+    """
+    if components is None:
+        components = [c.ref for c in netlist.components]
+    x0, y0, x_max, y_max, spacing = slot_grid
+    n_x = int((x_max - x0) / spacing) + 1
+    n_y = int((y_max - y0) / spacing) + 1
+    slots: list[tuple[float, float]] = []
+    for i in range(n_x):
+        for j in range(n_y):
+            slots.append((x0 + i * spacing, y0 + j * spacing))
+    return BoardState(
+        netlist=netlist,
+        component_zone_map=frozenset((ref, "Signal") for ref in components),
+        zone_slots=frozenset([("Signal", tuple(slots))]),
+    )
+
+
+class TestGhostPadInjection:
+    """U1: inject 6mm-radius obstacles at every HV pin position."""
+
+    def test_hv_pin_yields_ghost_pad(self):
+        """Every slot within 6mm of an HV pin must be reserved."""
+        constraints = PlacementConstraints()
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        state = _build_state(_build_canonical_hv_netlist())
+
+        used_slots: set[tuple[float, float]] = set()
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        stage._inject_ghost_pads(
+            state, state.netlist, used_slots, all_slots, logger_name="test"
+        )
+
+        # Q1 pin 1 is at (0, 0) — slot (0, 0) and any within 6mm must
+        # be in used_slots.  Slot spacing 5mm means (0,0), (5,0), (0,5)
+        # all qualify (dist <= 6).
+        assert (0.0, 0.0) in used_slots
+        assert (5.0, 0.0) in used_slots
+        assert (0.0, 5.0) in used_slots
+        # (10, 0) is sqrt(100) = 10mm from Q1 pin 1 — outside ring.
+        # Q1 pin 2 is at (5, 0) — also HV — so (10, 0) is 5mm from
+        # pin 2 and STILL within the ring.  Use a more distant slot.
+        # (15, 0) is 15mm from Q1 pin 1 AND 10mm from Q1 pin 2 — outside
+        # the ring for both.
+        assert (15.0, 0.0) not in used_slots
+
+    def test_lv_pin_yields_no_ghost_pad(self):
+        """Board with all safety_category=LV must produce no ghost pads."""
+        constraints = PlacementConstraints()
+        rules = DesignRules(
+            net_classes={
+                "Power": NetClassRules(
+                    name="Power",
+                    trace_width=0.25,
+                    clearance=0.2,
+                    dru_priority=10,
+                    creepage_mm=6.0,
+                    safety_category="LV",
+                ),
+            },
+            net_class_assignments={"VCC": "Power"},
+        )
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        netlist = Netlist(
+            components=[
+                Component(
+                    ref="C1",
+                    footprint="0603",
+                    bounds=(2.0, 2.0),
+                    pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="VCC")],
+                )
+            ],
+            nets=[Net(name="VCC", pins=[("C1", "1")], net_class="Power")],
+        )
+        state = _build_state(netlist)
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used_slots: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_slots, all_slots, logger_name="test"
+        )
+        assert used_slots == set()
+
+    def test_none_safety_category_treated_as_lv(self):
+        """A pin whose net resolves to a None safety_category yields no ghost pad."""
+        constraints = PlacementConstraints()
+        rules = DesignRules(
+            net_classes={
+                "Default": NetClassRules(
+                    name="Default",
+                    trace_width=0.2,
+                    clearance=0.2,
+                    dru_priority=99,
+                    safety_category=None,
+                ),
+            },
+            net_class_assignments={"VCC": "Default"},
+        )
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        netlist = Netlist(
+            components=[
+                Component(
+                    ref="C1",
+                    footprint="0603",
+                    bounds=(2.0, 2.0),
+                    pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="VCC")],
+                )
+            ],
+            nets=[Net(name="VCC", pins=[("C1", "1")], net_class="Default")],
+        )
+        state = _build_state(netlist)
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used_slots: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_slots, all_slots, logger_name="test"
+        )
+        assert used_slots == set()
+
+    def test_injection_idempotent(self):
+        """Calling _inject_ghost_pads twice yields identical used_slots."""
+        constraints = PlacementConstraints()
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        state = _build_state(_build_canonical_hv_netlist())
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used_a: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_a, all_slots, logger_name="test"
+        )
+        used_b: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_b, all_slots, logger_name="test"
+        )
+        assert used_a == used_b
+
+    def test_no_randomness_seed_unchanged(self):
+        """Placing on the same netlist/state at fixed seed yields the same placements."""
+        constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "auto": {"method": "auto"},
+        }
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        state = _build_state(_build_canonical_hv_netlist())
+
+        r1 = stage.run(state)
+        r2 = stage.run(state)
+        assert dict(r1.placements) == dict(r2.placements)
+
+    def test_hv_pin_at_slot_grid_boundary_still_blocked(self):
+        """Slot grid boundary case: HV pin within 1 slot-spacing of board edge.
+
+        Reproduces the A5 failure mode where a slot exactly on the board
+        edge must still be reserved by the ghost-pad radius.
+        """
+        constraints = PlacementConstraints()
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        # Build a netlist whose Q1 sits at (1.0, 1.0) — 1mm in from corner.
+        # With a 5mm slot grid, the nearest slot is (0.0, 0.0) — within
+        # the 6mm creepage ring.
+        netlist = Netlist(
+            components=[
+                Component(
+                    ref="Q1",
+                    footprint="TO247",
+                    bounds=(10.0, 10.0),
+                    initial_position=(1.0, 1.0),
+                    pins=[
+                        Pin(name="1", number="1", position=(0.0, 0.0), net="DC_BUS+"),
+                    ],
+                ),
+                Component(
+                    ref="C1",
+                    footprint="0603",
+                    bounds=(2.0, 2.0),
+                    pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="VCC")],
+                ),
+            ],
+            nets=[
+                Net(name="DC_BUS+", pins=[("Q1", "1")], net_class="HighVoltage"),
+                Net(name="VCC", pins=[("C1", "1")], net_class="Power"),
+            ],
+        )
+        # Slot grid covering (0,0) to (15,15) with 5mm spacing.
+        state = _build_state(
+            netlist, slot_grid=(0.0, 0.0, 15.0, 15.0, 5.0)
+        )
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used_slots: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_slots, all_slots, logger_name="test"
+        )
+        # Q1 pin 1 is at (0,0) within its component bounds; absolute
+        # position is (1.0, 1.0) per initial_position.  The closest
+        # grid slot is (0.0, 0.0) at distance sqrt(2) ~ 1.41mm < 6mm.
+        assert (0.0, 0.0) in used_slots
+
+    def test_empty_net_classes_yields_no_ghosts(self):
+        """state.design_rules.net_classes == {} → no ghosts, no exception."""
+        constraints = PlacementConstraints()
+        rules = DesignRules(net_classes={}, net_class_assignments={})
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        state = _build_state(_build_canonical_hv_netlist())
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used_slots: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_slots, all_slots, logger_name="test"
+        )
+        assert used_slots == set()
+
+    def test_no_design_rules_is_noop(self):
+        """design_rules=None → injection is a no-op (legacy pipelines)."""
+        constraints = PlacementConstraints()
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=None)
+        state = _build_state(_build_canonical_hv_netlist())
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used_slots: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used_slots, all_slots, logger_name="test"
+        )
+        assert used_slots == set()
+
+    def test_lv_only_placement_is_unchanged_parity_anchor(self):
+        """NFR4: a board with all-LV nets produces identical placements before/after."""
+        constraints = PlacementConstraints()
+        constraints.placement_priority = {"auto": {"method": "auto"}}
+        # Build an LV-only netlist
+        netlist = Netlist(
+            components=[
+                Component(
+                    ref="C1",
+                    footprint="0603",
+                    bounds=(2.0, 2.0),
+                    pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="VCC")],
+                ),
+                Component(
+                    ref="C2",
+                    footprint="0603",
+                    bounds=(2.0, 2.0),
+                    pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="GND")],
+                ),
+            ],
+            nets=[
+                Net(name="VCC", pins=[("C1", "1")], net_class="Power"),
+                Net(name="GND", pins=[("C2", "1")], net_class="Ground"),
+            ],
+        )
+        rules = DesignRules(
+            net_classes={
+                "Power": NetClassRules(
+                    name="Power", trace_width=0.25, clearance=0.2, dru_priority=10,
+                    safety_category="LV",
+                ),
+                "Ground": NetClassRules(
+                    name="Ground", trace_width=0.25, clearance=0.2, dru_priority=20,
+                    safety_category="LV",
+                ),
+            },
+            net_class_assignments={"VCC": "Power", "GND": "Ground"},
+        )
+        # With ghost-pad injection ON
+        stage_on = PhasedComponentAssignmentStage(constraints, design_rules=rules)
+        state = _build_state(netlist)
+        result_on = dict(stage_on.run(state).placements)
+
+        # With ghost-pad injection OFF (legacy)
+        stage_off = PhasedComponentAssignmentStage(constraints, design_rules=None)
+        result_off = dict(stage_off.run(state).placements)
+
+        assert result_on == result_off

@@ -659,6 +659,11 @@ class PlacementConstraints:
     # EXP-15: Isolation slots for creepage compliance
     isolation_slots: list[IsolationSlot] = field(default_factory=list)
 
+    # U2: Placer-level toggles.  Mirrors the top-level `placer` YAML
+    # block (e.g. ``placer: {use_isolation_slots: true}``).  Defaults
+    # are off so legacy configs are bit-identical to pre-U2 behavior.
+    placer: dict = field(default_factory=dict)
+
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
         return self.zone_assignments.get(ref)
@@ -1318,6 +1323,11 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.isolation_slots.append(slot)
 
+    # U2: Placer-level toggles (e.g. ``placer: {use_isolation_slots: true}``).
+    # Default is empty dict so legacy configs are bit-identical (NFR4).
+    if "placer" in config and isinstance(config["placer"], dict):
+        constraints.placer = dict(config["placer"])
+
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
 
@@ -1364,6 +1374,7 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "placement_proximity",  # EXP-11: Pin-level placement proximity
         "hv_exclusion_zones",  # EXP-13: HV zones that signals must route around
         "isolation_slots",  # EXP-15: PCB slots for creepage isolation
+        "placer",  # U2: Placer-level toggles (e.g. use_isolation_slots)
     }
 )
 
