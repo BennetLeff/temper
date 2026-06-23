@@ -601,6 +601,29 @@ def _dispatch_search(grid, start, goal, use_theta_star: bool, use_lazy_theta_sta
     return _astar_search(start, goal, grid)
 
 
+def _segment_search(
+    grid: OccupancyGrid,
+    start_world: tuple[float, float],
+    goal_world: tuple[float, float],
+    use_theta_star: bool,
+    use_lazy_theta_star: bool,
+) -> tuple[list | None, OccupancyGrid]:
+    """Run A* between two world-coordinate waypoints on ``grid``.
+
+    Returns ``(path, grid)`` where ``path`` is a list of grid cells or
+    ``None`` if no path was found (or start/goal are out of bounds), and
+    ``grid`` is the grid that was searched.  The caller may retry on
+    ``alternate_grid`` if ``path`` is ``None`` and an alternate grid is
+    available.
+    """
+    start = grid.world_to_grid(*start_world)
+    goal = grid.world_to_grid(*goal_world)
+    if not _in_bounds(grid, start) or not _in_bounds(grid, goal):
+        return None, grid
+    path = _dispatch_search(grid, start, goal, use_theta_star, use_lazy_theta_star)
+    return path, grid
+
+
 def _in_bounds(grid: OccupancyGrid, point: tuple[int, int]) -> bool:
     return 0 <= point[0] < grid.width_cells and 0 <= point[1] < grid.height_cells
 
