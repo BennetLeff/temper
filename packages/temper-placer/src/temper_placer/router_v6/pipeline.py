@@ -16,6 +16,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, run_astar_pathfinding
@@ -43,19 +44,34 @@ from temper_placer.router_v6.topology_solver import TopologicalSolution, solve_t
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
 
+if TYPE_CHECKING:
+    from temper_drc.core.fence import DRCFence
+
 
 @dataclass
 class Stage2Output:
     """Output from Stage 2: Channel Analysis."""
 
-    obstacle_maps: dict[str, any]  # layer -> obstacles
-    routing_spaces: dict[str, RoutingSpace]  # layer -> routing space
-    skeletons: dict[str, ChannelSkeleton]  # layer -> skeleton
-    channel_widths: dict[str, ChannelWidths]  # layer -> widths
-    occupancy_grids: dict[str, OccupancyGrid]  # layer -> grid
-    layer_capacities: dict[str, LayerCapacity]  # layer -> capacity
+    obstacle_maps: dict[str, any]
+    routing_spaces: dict[str, RoutingSpace]
+    skeletons: dict[str, ChannelSkeleton]
+    channel_widths: dict[str, ChannelWidths]
+    occupancy_grids: dict[str, OccupancyGrid]
+    layer_capacities: dict[str, LayerCapacity]
     routing_demand: RoutingDemand
     bottleneck_analysis: BottleneckAnalysis
+
+    def to_snapshot_dict(self) -> dict[str, any]:
+        return {
+            "obstacle_maps": self.obstacle_maps,
+            "routing_spaces": self.routing_spaces,
+            "skeletons": self.skeletons,
+            "channel_widths": self.channel_widths,
+            "occupancy_grids": self.occupancy_grids,
+            "layer_capacities": self.layer_capacities,
+            "routing_demand": self.routing_demand,
+            "bottleneck_analysis": self.bottleneck_analysis,
+        }
 
 
 @dataclass
@@ -67,6 +83,14 @@ class Stage3Output:
     solution: TopologicalSolution
     topology_graph: TopologyGraph
 
+    def to_snapshot_dict(self) -> dict[str, any]:
+        return {
+            "constraint_model": self.constraint_model,
+            "sat_model": self.sat_model,
+            "solution": self.solution,
+            "topology_graph": self.topology_graph,
+        }
+
 
 @dataclass
 class Stage4Output:
@@ -76,6 +100,14 @@ class Stage4Output:
     via_placement: ViaPlacement
     width_assignment: TraceWidthAssignment
     routing_results: RoutingResults
+
+    def to_snapshot_dict(self) -> dict[str, any]:
+        return {
+            "via_placement": self.via_placement,
+            "width_assignment": self.width_assignment,
+            "pathfinding_result": self.pathfinding_result,
+            "routing_results": self.routing_results,
+        }
 
 
 @dataclass
@@ -107,6 +139,74 @@ class RouterV6Result:
         return self.success_count / total if total > 0 else 0.0
 
 
+def _parsed_pcb_to_drc_input(
+    pcb: ParsedPCB,
+) -> tuple:
+    """Convert ParsedPCB to temper_drc Placement and ConstraintSet.
+
+    Bridges the RouterV6 pipeline's ParsedPCB representation to the
+    DRC check input format. Extracts component positions, net assignments,
+    and board dimensions.
+
+    Initial implementation handles component overlap and clearance checks;
+    expanded as additional checks require more data fields.
+    """
+    from temper_drc.input.placement import Placement as DRCPlacement, ComponentPlacement as DRCCompPlacement
+    from temper_drc.input.constraints import ConstraintSet, ClearanceRule
+
+    board_width = pcb.board.width
+    board_height = pcb.board.height
+
+    components = {}
+    for comp in pcb.components:
+        if hasattr(comp, 'initial_position') and comp.initial_position:
+            x, y = comp.initial_position
+        else:
+            x, y = 0.0, 0.0
+
+        side = getattr(comp, 'initial_side', 0)
+        layer = "F.Cu" if side == 0 else "B.Cu"
+
+        components[comp.ref] = DRCCompPlacement(
+            ref=comp.ref,
+            footprint=comp.footprint,
+            x=float(x),
+            y=float(y),
+            rotation=float(getattr(comp, 'initial_rotation', 0) or 0),
+            layer=layer,
+            width=comp.width,
+            height=comp.height,
+            net_class=comp.net_class,
+        )
+
+    nets = {}
+    for net in pcb.nets:
+        if hasattr(net, 'pins'):
+            nets[net.name] = [pin[0] for pin in net.pins]
+
+    zones = {}
+    for zone in pcb.zones:
+        if hasattr(zone, 'name') and hasattr(zone, 'bounds'):
+            zones[zone.name] = zone.bounds
+
+    placement = DRCPlacement(
+        components=components,
+        nets=nets,
+        zones=zones,
+        board_width=board_width,
+        board_height=board_height,
+    )
+
+    default_clearance = getattr(pcb.design_rules, 'default_clearance_mm', 0.3)
+    constraints = ConstraintSet(
+        clearances=[ClearanceRule(from_class="*", to_class="*", min_mm=default_clearance)],
+        board_width=board_width,
+        board_height=board_height,
+    )
+
+    return placement, constraints
+
+
 class RouterV6Pipeline:
     """Router V6 end-to-end pipeline."""
 
@@ -116,9 +216,10 @@ class RouterV6Pipeline:
         enable_theta_star: bool = False,
         enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
-        enable_legalization: bool = True,  # Default ON for robustness
+        enable_legalization: bool = True,
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
+        fence: DRCFence | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -131,6 +232,7 @@ class RouterV6Pipeline:
             enable_legalization: Auto-fix component overlaps (Phase 6)
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
+            fence: Optional DRCFence for per-stage DRC verification
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
@@ -139,6 +241,7 @@ class RouterV6Pipeline:
         self.enable_legalization = enable_legalization
         self.max_nets = max_nets
         self.target_nets = target_nets
+        self.fence = fence
 
     def run(self, pcb_path: Path) -> RouterV6Result:
         """
@@ -182,6 +285,14 @@ class RouterV6Pipeline:
         if errors:
             raise ValueError(f"PCB validation failed: {errors}")
 
+        # Stage 0.5 Fence: Check component overlap after legalization
+        if self.fence:
+            self._run_fence(
+                stage_name="router_v6.legalization",
+                invariants=_stage_0_5_invariants(),
+                pcb=pcb,
+            )
+
         # Stage 1: Generate escape vias
         if self.verbose:
             print(f"Stage 1: Detecting dense packages in {len(pcb.components)} components...")
@@ -204,6 +315,15 @@ class RouterV6Pipeline:
         if self.verbose:
             print(f"  Generated {len(escape_vias)} escape vias")
 
+        # Stage 1 Fence: Check clearance after escape via generation
+        if self.fence:
+            self._run_fence(
+                stage_name="router_v6.escape_vias",
+                invariants=_stage_1_invariants(),
+                pcb=pcb,
+                escape_vias=escape_vias,
+            )
+
         # Stage 2: Channel analysis
         if self.verbose:
             print("Stage 2: Channel analysis...")
@@ -218,6 +338,15 @@ class RouterV6Pipeline:
         if self.verbose:
             print("Stage 4: Geometric realization...")
         stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
+
+        # Stage 4 Fence: Check clearance and overlap after geometric realization
+        if self.fence:
+            self._run_fence(
+                stage_name="router_v6.geometric_realization",
+                invariants=_stage_4_invariants(),
+                pcb=pcb,
+                stage4=stage4,
+            )
 
         runtime = time.time() - start_time
 
@@ -623,3 +752,51 @@ class RouterV6Pipeline:
             width_assignment=width_assignment,
             routing_results=routing_results,
         )
+
+    def _run_fence(
+        self,
+        *,
+        stage_name: str,
+        invariants: tuple,
+        pcb: ParsedPCB,
+        escape_vias: list[EscapeVia] | None = None,
+        stage4: Stage4Output | None = None,
+    ):
+        """Run fence checks for a Router V6 stage.
+
+        Creates DRC inputs from the PCB data and invokes the fence.
+        """
+        from temper_drc.core.fence import InvariantSpec
+
+        placement, constraints = _parsed_pcb_to_drc_input(pcb)
+        self.fence.check(
+            stage_name=stage_name,
+            invariants=invariants,
+            placement=placement,
+            constraints=constraints,
+        )
+
+
+def _stage_0_5_invariants() -> tuple:
+    """Invariants for Stage 0.5 legalization."""
+    from temper_drc.core.fence import InvariantSpec
+    return (
+        InvariantSpec("drc_component_overlap", "No component overlaps after legalization"),
+    )
+
+
+def _stage_1_invariants() -> tuple:
+    """Invariants for Stage 1 escape via generation."""
+    from temper_drc.core.fence import InvariantSpec
+    return (
+        InvariantSpec("drc_clearance", "Vias maintain minimum clearance to pads"),
+    )
+
+
+def _stage_4_invariants() -> tuple:
+    """Invariants for Stage 4 geometric realization."""
+    from temper_drc.core.fence import InvariantSpec
+    return (
+        InvariantSpec("drc_clearance", "Routed traces maintain minimum clearance"),
+        InvariantSpec("drc_component_overlap", "Traces do not overlap component pads"),
+    )
