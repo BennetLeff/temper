@@ -11,13 +11,20 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from dataclasses import replace
 
 from shapely.geometry import MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
 from temper_placer.core.netlist import Pin
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str, MultiPolygon]:
@@ -154,6 +161,20 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
     return result_map
 
 
+class ObstacleMapStage(Stage):
+    """Stage 2.1: Build obstacle maps for each copper layer."""
+
+    @property
+    def name(self) -> str:
+        return "ObstacleMap"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        escape_vias = list(state._escape_vias) if state._escape_vias else []
+        obstacle_maps = build_obstacle_map(pcb, escape_vias)
+        return replace(state, obstacle_maps=obstacle_maps)
+
+
 def _create_pad_polygon(pin: Pin, x: float, y: float, comp_angle: float) -> Polygon:
     """
     Create a shapely Polygon for a pin pad.
@@ -197,3 +218,40 @@ def _create_pad_polygon(pin: Pin, x: float, y: float, comp_angle: float) -> Poly
             transformed_coords.append((rx, ry))
 
         return Polygon(transformed_coords)
+
+
+@register_validator("ObstacleMap")
+def validate_obstacle_map(state: BoardState) -> list[StageDRCFailure]:
+    """Validate obstacle map invariants."""
+    failures: list[StageDRCFailure] = []
+    if state.obstacle_maps is None:
+        failures.append(StageDRCFailure(
+            field="obstacle_maps",
+            value=None,
+            reason="Obstacle maps not computed",
+            stage="ObstacleMap",
+        ))
+        return failures
+
+    pcb: ParsedPCB = state._parsed_pcb
+    declared_layers = {l.name for l in pcb.stackup.layers if l.layer_type in ("signal", "mixed")}
+
+    for layer_name, obstacles in state.obstacle_maps.items():
+        if layer_name not in declared_layers:
+            failures.append(StageDRCFailure(
+                field="obstacle_maps",
+                value=layer_name,
+                reason=f"Layer {layer_name} has obstacles but is not a declared signal/mixed layer",
+                stage="ObstacleMap",
+            ))
+
+    for layer_name in declared_layers:
+        if layer_name not in state.obstacle_maps:
+            failures.append(StageDRCFailure(
+                field="obstacle_maps",
+                value=layer_name,
+                reason=f"Declared layer {layer_name} missing from obstacle maps",
+                stage="ObstacleMap",
+            ))
+
+    return failures

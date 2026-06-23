@@ -3,14 +3,18 @@ from temper_drc.core.result import CheckResult, Issue, Severity, Location
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
 
+def _bb_intersects(bb, region):
+    return not (bb[2] < region[0] or bb[0] > region[2] or bb[3] < region[1] or bb[1] > region[3])
+
+
 class ComponentOverlapCheck(Check):
     """
     Checks for physical overlap between component bodies.
-    
+
     This is a critical DRC violation.
     Only checks components on the same layer.
     """
-    
+
     @property
     def name(self) -> str:
         return "drc_component_overlap"
@@ -23,9 +27,17 @@ class ComponentOverlapCheck(Check):
     def description(self) -> str:
         return "Detect overlap between component bodies on the same layer."
 
-    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
+    @property
+    def supports_incremental(self) -> bool:
+        return True
+
+    def run(self, placement: Placement, constraints: ConstraintSet,
+            modified_regions: list | None = None) -> CheckResult:
         issues = []
-        pairs = placement.all_pairs()
+        if modified_regions:
+            pairs = self._filtered_pairs(placement, modified_regions)
+        else:
+            pairs = placement.all_pairs()
         
         overlap_count = 0
         

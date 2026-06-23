@@ -7,10 +7,16 @@ Part of temper-7qu7 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.routing_space import RoutingSpace
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 @dataclass
@@ -177,3 +183,47 @@ def _compute_width_at_point(
         return 0.0
 
     return 2.0 * min_distance
+
+
+class ChannelWidthsStage(Stage):
+    '''Stage 2.4: Compute channel widths along skeletons.'''
+
+    @property
+    def name(self) -> str:
+        return "ChannelWidths"
+
+    def run(self, state: BoardState) -> BoardState:
+        channel_widths: dict[str, ChannelWidths] = {}
+        for layer_name, skeleton in state.channel_skeletons.items():
+            widths = compute_channel_widths(
+                state.routing_spaces[layer_name],
+                skeleton,
+            )
+            channel_widths[layer_name] = widths
+        return replace(state, channel_widths=channel_widths)
+
+
+@register_validator("ChannelWidths")
+def validate_channel_widths(state: BoardState) -> list[StageDRCFailure]:
+    '''Validate channel width invariants.'''
+    failures: list[StageDRCFailure] = []
+    if state.channel_widths is None:
+        failures.append(StageDRCFailure(
+            field="channel_widths", value=None,
+            reason="Channel widths not computed", stage="ChannelWidths",
+        ))
+        return failures
+
+    for layer_name, cw in state.channel_widths.items():
+        if cw.min_width < 0:
+            failures.append(StageDRCFailure(
+                field="channel_widths", value=layer_name,
+                reason="Negative minimum width: " + repr(cw.min_width), stage="ChannelWidths",
+            ))
+        if cw.max_width < 0:
+            failures.append(StageDRCFailure(
+                field="channel_widths", value=layer_name,
+                reason="Negative maximum width: " + repr(cw.max_width), stage="ChannelWidths",
+            ))
+
+    return failures

@@ -7,10 +7,17 @@ Part of temper-cmzd (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 @dataclass
@@ -93,3 +100,53 @@ def calculate_layer_capacity(
         avg_channel_width=avg_channel_width,
         estimated_traces=estimated_traces,
     )
+
+
+class LayerCapacityStage(Stage):
+    '''Stage 2.6: Calculate per-layer routing capacity.'''
+
+    @property
+    def name(self) -> str:
+        return "LayerCapacity"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        layer_capacities: dict[str, LayerCapacity] = {}
+        for layer_name in state.occupancy_grids.keys():
+            widths = state.channel_widths.get(layer_name)
+            if widths is None:
+                continue
+            capacity = calculate_layer_capacity(
+                pcb.design_rules.default_trace_width_mm * 1.5,
+                pcb.design_rules.default_clearance_mm,
+            )
+            layer_capacities[layer_name] = capacity
+        return replace(state, layer_capacities=layer_capacities)
+
+
+@register_validator("LayerCapacity")
+def validate_layer_capacity(state: BoardState) -> list[StageDRCFailure]:
+    '''Validate layer capacity invariants.'''
+    failures: list[StageDRCFailure] = []
+    if state.layer_capacities is None:
+        failures.append(StageDRCFailure(
+            field="layer_capacities", value=None,
+            reason="Layer capacities not computed", stage="LayerCapacity",
+        ))
+        return failures
+
+    for layer_name, lc in state.layer_capacities.items():
+        if lc.estimated_traces < 0:
+            failures.append(StageDRCFailure(
+                field="layer_capacities", value=layer_name,
+                reason="Negative estimated traces: " + repr(lc.estimated_traces),
+                stage="LayerCapacity",
+            ))
+        if lc.free_cells > lc.total_cells:
+            failures.append(StageDRCFailure(
+                field="layer_capacities", value=layer_name,
+                reason="Free cells (" + repr(lc.free_cells) + ") > total cells (" + repr(lc.total_cells) + ")",
+                stage="LayerCapacity",
+            ))
+
+    return failures

@@ -7,9 +7,15 @@ Part of temper-eccz (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 @dataclass
@@ -114,3 +120,46 @@ def estimate_routing_demand(
         avg_pins_per_net=avg_pins_per_net,
         max_pins_per_net=max_pins_per_net,
     )
+
+
+class RoutingDemandStage(Stage):
+    '''Stage 2.7: Estimate routing demand from netlist.'''
+
+    @property
+    def name(self) -> str:
+        return "RoutingDemand"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        routing_demand = estimate_routing_demand(pcb)
+        return replace(state, routing_demand=routing_demand)
+
+
+@register_validator("RoutingDemand")
+def validate_routing_demand(state: BoardState) -> list[StageDRCFailure]:
+    '''Validate routing demand invariants.'''
+    failures: list[StageDRCFailure] = []
+    if state.routing_demand is None:
+        failures.append(StageDRCFailure(
+            field="routing_demand", value=None,
+            reason="Routing demand not computed", stage="RoutingDemand",
+        ))
+        return failures
+
+    rd = state.routing_demand
+    if rd.signal_nets + rd.power_nets > rd.total_nets:
+        failures.append(StageDRCFailure(
+            field="routing_demand",
+            value="signal=" + repr(rd.signal_nets) + ", power=" + repr(rd.power_nets) + ", total=" + repr(rd.total_nets),
+            reason="signal_nets + power_nets exceeds total_nets",
+            stage="RoutingDemand",
+        ))
+    if rd.routable_nets < 0 or rd.total_pins < 0:
+        failures.append(StageDRCFailure(
+            field="routing_demand",
+            value="routable=" + repr(rd.routable_nets) + ", pins=" + repr(rd.total_pins),
+            reason="Negative net/pin counts",
+            stage="RoutingDemand",
+        ))
+
+    return failures

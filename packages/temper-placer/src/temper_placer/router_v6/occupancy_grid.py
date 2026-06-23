@@ -7,13 +7,20 @@ Part of temper-8bj1 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 
 import numpy as np
 from shapely import contains, points
 
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.routing_space import RoutingSpace
+from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 class CellState(Enum):
@@ -470,3 +477,45 @@ def build_occupancy_grid(
         height_cells=height_cells,
         static_mask=static_mask,
     )
+
+
+class OccupancyGridStage(Stage):
+    '''Stage 2.5: Build occupancy grids from routing spaces.'''
+
+    @property
+    def name(self) -> str:
+        return "OccupancyGrid"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        base_inflation = (
+            pcb.design_rules.default_trace_width_mm / 2.0
+        ) + pcb.design_rules.default_clearance_mm
+
+        occupancy_grids: dict[str, OccupancyGrid] = {}
+        for layer_name, routing_space in state.routing_spaces.items():
+            grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
+            occupancy_grids[layer_name] = grid
+        return replace(state, occupancy_grids=occupancy_grids)
+
+
+@register_validator("OccupancyGrid")
+def validate_occupancy_grid(state: BoardState) -> list[StageDRCFailure]:
+    '''Validate occupancy grid invariants.'''
+    failures: list[StageDRCFailure] = []
+    if state.occupancy_grids is None:
+        failures.append(StageDRCFailure(
+            field="occupancy_grids", value=None,
+            reason="Occupancy grids not computed", stage="OccupancyGrid",
+        ))
+        return failures
+
+    for layer_name, grid in state.occupancy_grids.items():
+        if grid.width_cells <= 0 or grid.height_cells <= 0:
+            failures.append(StageDRCFailure(
+                field="occupancy_grids", value=layer_name,
+                reason="Non-positive grid dimensions: " + repr((grid.width_cells, grid.height_cells)),
+                stage="OccupancyGrid",
+            ))
+
+    return failures

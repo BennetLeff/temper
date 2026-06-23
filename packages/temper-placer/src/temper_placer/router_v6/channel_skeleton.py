@@ -7,12 +7,20 @@ Part of temper-h6t7 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import networkx as nx
 from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
 from shapely.ops import voronoi_diagram
+
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.routing_space import RoutingSpace
+from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 @dataclass
@@ -388,3 +396,45 @@ def _ensure_skeleton_connectivity(G: nx.Graph, max_bridge_distance: float = 5.0)
         current_components = list(nx.connected_components(G))
 
     return G
+
+
+class ChannelSkeletonStage(Stage):
+    '''Stage 2.3: Extract channel skeletons from routing spaces.'''
+
+    @property
+    def name(self) -> str:
+        return "ChannelSkeleton"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        routing_spaces = state.routing_spaces
+        skeletons: dict[str, ChannelSkeleton] = {}
+        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
+        for layer_name, routing_space in outer_layers.items():
+            skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
+            skeletons[layer_name] = skeleton
+        return replace(state, channel_skeletons=skeletons)
+
+
+@register_validator("ChannelSkeleton")
+def validate_channel_skeleton(state: BoardState) -> list[StageDRCFailure]:
+    '''Validate channel skeleton invariants.'''
+    failures: list[StageDRCFailure] = []
+    if state.channel_skeletons is None:
+        failures.append(StageDRCFailure(
+            field="channel_skeletons", value=None,
+            reason="Channel skeletons not computed", stage="ChannelSkeleton",
+        ))
+        return failures
+
+    for layer_name, skeleton in state.channel_skeletons.items():
+        if skeleton.node_count == 0 and state.routing_spaces:
+            rs = state.routing_spaces.get(layer_name)
+            if rs and rs.routing_area > 0:
+                failures.append(StageDRCFailure(
+                    field="channel_skeletons", value=layer_name,
+                    reason="Zero nodes on layer with positive routing area",
+                    stage="ChannelSkeleton",
+                ))
+
+    return failures

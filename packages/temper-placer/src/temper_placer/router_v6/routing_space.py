@@ -7,12 +7,18 @@ Part of temper-643u (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from shapely.geometry import MultiPolygon, Polygon, box
 
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 PLANE_NETS: set[str] = {
     "GND",
@@ -60,6 +66,7 @@ class RoutingSpace:
 def compute_routing_space(
     pcb: ParsedPCB,
     escape_vias: list | None = None,
+    obstacle_maps: dict[str, MultiPolygon] | None = None,
 ) -> dict[str, RoutingSpace]:
     """
     Compute available routing space for each layer.
@@ -78,7 +85,10 @@ def compute_routing_space(
         True
     """
     # Build obstacle map for all layers
-    obstacle_map = build_obstacle_map(pcb, escape_vias or [])
+    if obstacle_maps is None:
+        obstacle_map = build_obstacle_map(pcb, escape_vias or [])
+    else:
+        obstacle_map = obstacle_maps
 
     # Get board outline as a polygon
     board_polygon = _get_board_polygon(pcb)
@@ -172,3 +182,39 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
 
     # Ultimate fallback: standard board size
     return box(0, 0, 100, 100)
+
+
+class RoutingSpaceStage(Stage):
+    """Stage 2.2: Compute routing spaces from obstacle maps."""
+
+    @property
+    def name(self) -> str:
+        return "RoutingSpace"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        escape_vias = list(state._escape_vias) if state._escape_vias else []
+        obstacle_maps = state.obstacle_maps
+        routing_spaces = compute_routing_space(pcb, escape_vias, obstacle_maps=obstacle_maps)
+        return replace(state, routing_spaces=routing_spaces)
+
+
+@register_validator("RoutingSpace")
+def validate_routing_space(state: BoardState) -> list[StageDRCFailure]:
+    """Validate routing space invariants."""
+    failures: list[StageDRCFailure] = []
+    if state.routing_spaces is None:
+        failures.append(StageDRCFailure(
+            field="routing_spaces", value=None,
+            reason="Routing spaces not computed", stage="RoutingSpace",
+        ))
+        return failures
+
+    for layer_name, rs in state.routing_spaces.items():
+        if rs.routing_area < 0:
+            failures.append(StageDRCFailure(
+                field="routing_spaces", value=layer_name,
+                reason=f"Negative routing area: {repr(rs.routing_area)}", stage="RoutingSpace",
+            ))
+
+    return failures

@@ -87,6 +87,7 @@ class CheckRunner:
         constraints: ConstraintSet,
         categories: list[str] | None = None,
         check_names: list[str] | None = None,
+        modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> RunResult:
         """
         Run all applicable checks.
@@ -98,6 +99,8 @@ class CheckRunner:
                        If None, runs all categories.
             check_names: Optional list of specific check names to run.
                         If None, runs all checks in selected categories.
+            modified_regions: Optional list of (xmin, ymin, xmax, ymax) regions
+                to limit check execution scope for incremental-capable checks.
 
         Returns:
             RunResult with all check results and aggregate metrics.
@@ -123,7 +126,10 @@ class CheckRunner:
                 self.on_check_start(check)
 
             check_start = time.time()
-            result = check.run(placement, constraints)
+            if modified_regions is not None and check.supports_incremental:
+                result = check.run(placement, constraints, modified_regions=modified_regions)
+            else:
+                result = check.run(placement, constraints)
             result = CheckResult(
                 check_name=result.check_name,
                 passed=result.passed,

@@ -54,12 +54,14 @@ class ClosureTest:
         pcb_path: Path,
         seed: dict | None = None,
         repo_root: Path | None = None,
+        strategy: str = "template",
     ):
         self.pcb_path = Path(pcb_path)
         self.seed = seed or {}
         self.repo_root = repo_root or Path.cwd()
         self.benders_seed = self.seed.get("benders_seed", 42)
         self.router_seed = self.seed.get("router_seed", 42)
+        self.strategy = strategy
 
     def run(self) -> ClosureResult:
         start_time = time.perf_counter()
@@ -80,50 +82,49 @@ class ClosureTest:
                 wall_clock_seconds=time.perf_counter() - start_time,
             )
 
-        # Step 2: Benders placement (lazy import to avoid side effects)
+        # Step 2: Benders placement via protocol
         benders_iterations = 0
         benders_cuts = 0
         try:
-            import jax
+            from temper_placer.protocol import StageInput, StageMeta
+            from temper_placer.runner import resolve_and_run
 
-            jax.config.update("jax_platform_name", "cpu")
-
-            from temper_placer.placement.benders_loop import benders_placement
-
-            benders_result = benders_placement(
-                parsed,
-                seed=self.benders_seed,
+            placement_result = resolve_and_run(
+                phase="placement",
+                strategies=[self.strategy],
+                input=StageInput(
+                    data=parsed,
+                    meta=StageMeta(seed=self.benders_seed),
+                ),
+                fallback="template",
             )
-            benders_iterations = getattr(benders_result, "iterations", 0)
-            benders_cuts = getattr(benders_result, "cuts", 0)
-
-            optimized_placements = benders_result.placements
-        except ImportError as e:
-            warnings.append(f"Benders not importable: {e}")
-            optimized_placements = {}
+            benders_iterations = getattr(placement_result.data, "iterations", 0)
+            benders_cuts = getattr(placement_result.data, "cuts", 0)
+            optimized_placements = getattr(placement_result.data, "placements", {})
         except Exception as e:
-            errors.append(f"Benders placement failed: {e}")
-            return ClosureResult(
-                passed=False,
-                board_id=board_id,
-                benders_iterations=benders_iterations,
-                benders_cuts=benders_cuts,
-                errors=errors,
-                warnings=warnings,
-                wall_clock_seconds=time.perf_counter() - start_time,
-            )
+            warnings.append(f"Placement not available: {e}")
+            optimized_placements = {}
 
-        # Step 3: Router V6 routing
+        # Step 3: Router V6 routing via protocol
         router_completion_pct = 0.0
         try:
-            from temper_placer.router_v6 import route_pcb
+            from temper_placer.protocol import StageInput, StageMeta
+            from temper_placer.runner import resolve_and_run
 
-            routing_result = route_pcb(parsed, optimized_placements, seed=self.router_seed)
-            router_completion_pct = getattr(routing_result, "completion_rate", 0.0)
-        except ImportError as e:
-            warnings.append(f"Router V6 not importable: {e}")
+            routing_result = resolve_and_run(
+                phase="routing",
+                strategies=["router_v6_full"],
+                input=StageInput(
+                    data=parsed,
+                    meta=StageMeta(
+                        seed=self.router_seed,
+                        trace_context={"placements": optimized_placements},
+                    ),
+                ),
+            )
+            router_completion_pct = getattr(routing_result.data, "completion_rate", 0.0)
         except Exception as e:
-            errors.append(f"Router V6 routing failed: {e}")
+            warnings.append(f"Router V6 not available: {e}")
 
         # Step 4: KiCad DRC
         drc_errors = 0

@@ -1,0 +1,83 @@
+pipeline:
+  name: "temper-default"
+  version: "1.0.0"
+
+stages:
+  - name: input
+    handler: temper_placer.pipeline.stages.input_stage.InputStage
+    requires: []
+    provides: [board, netlist, constraints, loops]
+    timeout_s: 60
+    skip_if: "config.input_pcb == null"
+
+  - name: semantic
+    handler: temper_placer.pipeline.stages.semantic_stage.SemanticStage
+    requires: [board, netlist, loops]
+    provides: [loops_enriched]
+    timeout_s: 30
+
+  - name: topological
+    handler: temper_placer.pipeline.stages.topological_stage.TopologicalStage
+    requires: [board, netlist, constraints]
+    provides: [deterministic_result]
+    skip_if: "config.skip_topological == true"
+    timeout_s: 120
+
+  - name: preflight
+    handler: temper_placer.pipeline.stages.preflight_stage.PreflightStage
+    requires: [board, netlist, constraints]
+    provides: [preflight_report]
+    timeout_s: 30
+
+  - name: geometric
+    handler: temper_placer.pipeline.stages.geometric_stage.GeometricStage
+    requires: [board, netlist, deterministic_result]
+    provides: [placement_state]
+    timeout_s: 120
+    feedback_contracts:
+      - name: "routability-retry"
+        trigger:
+          metric: "routing_completion"
+          condition: "lt"
+          threshold: 0.5
+        target_stage: "geometric"
+        parameter_adjustments:
+          spacing_multiplier: 1.1
+          epochs_boost: 200
+        max_retriggers: 3
+
+  - name: routing
+    handler: temper_placer.pipeline.stages.routing_stage.RoutingStage
+    requires: [board, netlist, placement_state]
+    provides: [routing_result, routing_completion]
+    skip_if: "config.skip_routing == true"
+    timeout_s: 60
+
+  - name: refinement
+    handler: temper_placer.pipeline.stages.refinement_stage.RefinementStage
+    requires: [board, netlist, placement_state, routing_result]
+    provides: [placement_state, routing_result]
+    skip_if: "config.skip_routing == true"
+    timeout_s: 300
+
+  - name: output
+    handler: temper_placer.pipeline.stages.output_stage.OutputStage
+    requires: [input_pcb, board, netlist, placement_state]
+    provides: [output_files, physics_report]
+    skip_if: "config.dry_run == true"
+    timeout_s: 30
+
+data_keys:
+  input_pcb: { type: Path, description: "Path to input KiCad PCB" }
+  board: { type: Board, description: "Parsed board specification" }
+  netlist: { type: Netlist, description: "Parsed netlist" }
+  constraints: { type: PlacementConstraints, description: "PCL constraints" }
+  loops: { type: list, description: "Loop definitions" }
+  loops_enriched: { type: list, description: "Enriched loop definitions" }
+  deterministic_result: { type: PlacementResult, description: "Step 1-2 topological placement" }
+  placement_state: { type: PlacementState, description: "Current placement state" }
+  routing_result: { type: RoutingResult, description: "Routing verification result" }
+  routing_completion: { type: float, description: "Fraction of nets routed (0-1)" }
+  preflight_report: { type: PreflightReport, description: "Preflight check results" }
+  output_files: { type: list, description: "Generated output file paths" }
+  physics_report: { type: PhysicsReport, description: "Physical metrics report" }

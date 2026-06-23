@@ -7,11 +7,17 @@ Part of temper-pox8 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.layer_capacity import LayerCapacity
 from temper_placer.router_v6.routing_demand import RoutingDemand
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 class BottleneckSeverity(Enum):
@@ -151,3 +157,51 @@ def _classify_severity(capacity: int, demand: int) -> BottleneckSeverity:
         return BottleneckSeverity.LOW
     else:
         return BottleneckSeverity.NONE
+
+
+class BottleneckAnalysisStage(Stage):
+    '''Stage 2.8: Identify routing bottlenecks.'''
+
+    @property
+    def name(self) -> str:
+        return "BottleneckAnalysis"
+
+    def run(self, state: BoardState) -> BoardState:
+        bottleneck_analysis = identify_bottlenecks(
+            state.layer_capacities,
+            state.routing_demand,
+        )
+        return replace(state, bottleneck_analysis=bottleneck_analysis)
+
+
+@register_validator("BottleneckAnalysis")
+def validate_bottleneck_analysis(state: BoardState) -> list[StageDRCFailure]:
+    '''Validate bottleneck analysis invariants.'''
+    failures: list[StageDRCFailure] = []
+    if state.bottleneck_analysis is None:
+        failures.append(StageDRCFailure(
+            field="bottleneck_analysis", value=None,
+            reason="Bottleneck analysis not computed", stage="BottleneckAnalysis",
+        ))
+        return failures
+
+    ba = state.bottleneck_analysis
+    num_layers = len(state.layer_capacities) if state.layer_capacities else 0
+    if len(ba.bottlenecks) > num_layers:
+        failures.append(StageDRCFailure(
+            field="bottleneck_analysis",
+            value="bottlenecks=" + repr(len(ba.bottlenecks)) + ", layers=" + repr(num_layers),
+            reason="More bottlenecks than layers",
+            stage="BottleneckAnalysis",
+        ))
+
+    for bn in ba.bottlenecks:
+        if bn.severity == BottleneckSeverity.NONE and bn.utilization > 0:
+            failures.append(StageDRCFailure(
+                field="bottleneck_analysis",
+                value=bn.layer_name,
+                reason="NONE severity but utilization > 0",
+                stage="BottleneckAnalysis",
+            ))
+
+    return failures

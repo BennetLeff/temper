@@ -70,6 +70,17 @@ class Check(ABC):
         return ""
 
     @property
+    def supports_incremental(self) -> bool:
+        """
+        Whether this check supports region-scoped incremental execution.
+
+        When True, the check can accept a modified_regions parameter
+        to limit checking to specific board regions, reducing overhead
+        for per-stage fence invocations.
+        """
+        return False
+
+    @property
     def code_prefix(self) -> str:
         """
         Code prefix for issues from this check.
@@ -86,6 +97,7 @@ class Check(ABC):
         self,
         placement: Placement,
         constraints: ConstraintSet,
+        modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         """
         Run the check on the given placement.
@@ -93,6 +105,9 @@ class Check(ABC):
         Args:
             placement: Component placement data.
             constraints: PCL constraint set.
+            modified_regions: Optional list of (xmin, ymin, xmax, ymax) regions
+                to scope checking to. Checks that support incremental execution
+                limit their work to components intersecting these regions.
 
         Returns:
             CheckResult with any issues found.
@@ -180,13 +195,17 @@ class CompositeCheck(Check):
         self,
         placement: Placement,
         constraints: ConstraintSet,
+        modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         """Run all child checks and combine results."""
         result = CheckResult(check_name=self.name, passed=True)
 
         for check in self._checks:
             if check.is_applicable(placement, constraints):
-                sub_result = check.run(placement, constraints)
+                if modified_regions is not None and check.supports_incremental:
+                    sub_result = check.run(placement, constraints, modified_regions=modified_regions)
+                else:
+                    sub_result = check.run(placement, constraints)
                 result = result.merge(sub_result)
                 if not sub_result.passed:
                     result = CheckResult(
