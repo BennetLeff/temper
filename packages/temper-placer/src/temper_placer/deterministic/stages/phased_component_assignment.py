@@ -12,12 +12,14 @@ Uses ConstraintCompiler for constraint-aware slot selection.
 
 from __future__ import annotations
 
+import logging
 import math
 from dataclasses import replace
 from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 
+from ..channels import ChannelMap, routability_penalty
 from ..state import BoardState
 from .base import Stage
 
@@ -25,6 +27,9 @@ if TYPE_CHECKING:
     from temper_placer.core.component import Component
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.config_loader import PlacementConstraints
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class PhasedComponentAssignmentStage(Stage):
@@ -69,6 +74,8 @@ class PhasedComponentAssignmentStage(Stage):
         constraints: PlacementConstraints,
         slot_spacing: float = 12.0,
         fixed_placements: Dict[str, Dict] = None,
+        channel_map: ChannelMap | None = None,
+        w_r: float = 0.05,
     ):
         """Initialize phased placement.
 
@@ -76,15 +83,32 @@ class PhasedComponentAssignmentStage(Stage):
             constraints: Parsed placement constraints (for compiler)
             slot_spacing: Spacing between slots in mm
             fixed_placements: Dict of ref -> {'position': [x, y], 'rotation': deg}
+            channel_map: Optional :class:`ChannelMap` snapshot from
+                ``placement.channels.json``. When ``None`` the placer falls back
+                to wirelength-only scoring and emits a WARNING (under-instrumented
+                run). When provided, ``routability_penalty`` contributes to
+                ``score_slot`` with weight ``w_r``.
+            w_r: Routability weight applied to ``routability_penalty`` in
+                ``score_slot``. ``0.0`` produces output identical to
+                ``channel_map=None`` and is the explicit escape hatch.
         """
         self.constraints = constraints
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
+        self.channel_map = channel_map
+        self.w_r = float(w_r)
         self.compiler = ConstraintCompiler(constraints)
 
         # Compile constraint functions once
         self.slot_filter = self.compiler.compile_to_slot_filter()
         self.slot_scorer = self.compiler.compile_to_slot_scorer()
+
+        if self.channel_map is None and self.w_r > 0.0:
+            _LOGGER.warning(
+                "PhasedComponentAssignmentStage: no channel_map provided; "
+                "placement will not use routability-aware scoring "
+                "(under-instrumented run)"
+            )
 
     @property
     def name(self) -> str:
@@ -451,8 +475,17 @@ class PhasedComponentAssignmentStage(Stage):
             # Wirelength penalty
             wirelength = self._compute_wirelength(component_ref, slot, net_pins, all_placements)
 
+            # Routability term (channel-aware). When channel_map is None or
+            # w_r is 0, this contributes 0.0 and we get byte-identical output
+            # to the pre-change baseline.
+            cm = self.channel_map
+            if cm is not None and self.w_r > 0.0:
+                routability = routability_penalty(slot, cm) * self.w_r
+            else:
+                routability = 0.0
+
             # Combined score (weight wirelength lower than constraints)
-            return constraint_penalty + wirelength * 0.1
+            return constraint_penalty + wirelength * 0.1 + routability
 
         # Phase 3: Select best slot
         best_slot = min(valid_slots, key=score_slot)
