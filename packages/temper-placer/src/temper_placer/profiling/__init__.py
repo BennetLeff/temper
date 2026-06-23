@@ -5,8 +5,24 @@ Provides:
 - ProfileReport: structured profiling output dataclass
 - Validation layers: Hypothesis PBT and golden fixture tests
 - Autoprof: GPBM experiment loop for bottleneck identification
+- Timing gate: per-stage timing measurement and regression check
 """
 
 from temper_placer.profiling.instrumentation import PipelineProfiler, ProfileReport
+from temper_placer.profiling.timing_gate import (
+    TimingResult,
+    TimingReport,
+    StageTimingEntry,
+    measure_stage_timing,
+    measure_all_stages,
+)
 
-__all__ = ["PipelineProfiler", "ProfileReport"]
+__all__ = [
+    "PipelineProfiler",
+    "ProfileReport",
+    "TimingResult",
+    "TimingReport",
+    "StageTimingEntry",
+    "measure_stage_timing",
+    "measure_all_stages",
+]
