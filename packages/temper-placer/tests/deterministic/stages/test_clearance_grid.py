@@ -4,6 +4,8 @@ from temper_placer.deterministic.stages.clearance_grid import (
     ConfigError,
     _EXPANSION_LOG,
     _layer_index_to_name,
+    check_clearance_grid_conservatism,
+    check_clearance_grid_perf_budget,
     effective_creepage,
     hv_pad_set,
 )
@@ -518,4 +520,162 @@ def test_expansion_runs_once_per_stage():
     assert first_log[0][0] == "Q1"
     assert first_log[0][1] == "1"
     assert first_log[0][2] == 0
+    # Tuple: (ref, pin_name, layer, pos, shape, radius, size, eff, cells_added)
+    assert len(first_log[0]) == 9
+
+
+# =============================================================================
+# U3 tests: Grid Validity Fence — clearance_grid_conservatism
+# =============================================================================
+
+
+def _build_grid_with_hv_pad(pos=(25.0, 25.0), pad_w=2.0, pad_shape="circle",
+                            layer="F.Cu", ref="Q1", pin_name="1",
+                            net_class="HighVoltage", clearance=0.2,
+                            layer_count=2):
+    """Helper: run a stage with a single HV pad and return the resulting grid."""
+    pin = Pin(name=pin_name, number=pin_name, position=(0.0, 0.0),
+              net=ref, shape=pad_shape, layer=layer,
+              width=pad_w, height=pad_w if pad_shape == "circle" else 1.0)
+    comp = Component(ref=ref, footprint="TO-247", bounds=(10.0, 10.0),
+                     pins=[pin], net_class=net_class, initial_position=pos)
+    net = Net(name=ref, pins=[(ref, pin_name)], net_class=net_class)
+    netlist = Netlist(components=[comp], nets=[net])
+    state = BoardState(
+        board=Board(width=50.0, height=50.0),
+        netlist=netlist,
+    )
+    pad_sizes = {(ref, pin_name): _make_pad_size(pad_w, pad_w if pad_shape == "circle" else 1.0, pad_shape)}
+    zone = HVExclusionZone(
+        name=f"{ref}_zone", center=pos, size=(10.0, 10.0),
+        clearance_mm=6.0, component_refdes=ref,
+    )
+    result = _run_grid_stage(
+        state, hv_exclusion_zones=[zone], layer_count=layer_count,
+        pad_sizes=pad_sizes,
+        net_class_clearances={"Signal": clearance, net_class: clearance},
+    )
+    return result.grid
+
+
+def test_fence_passes_on_correct_expansion():
+    grid = _build_grid_with_hv_pad()
+    violations = check_clearance_grid_conservatism(grid)
+    assert violations == []
+
+
+def test_fence_detects_missing_block_on_circle():
+    """Hand-craft a grid where one of the 16 sample points is unblocked:
+    build the grid, then poke a hole at the boundary."""
+    grid = _build_grid_with_hv_pad()
+    assert _EXPANSION_LOG, "expansion log should have an entry"
+    entry = _EXPANSION_LOG[0]
+    (_ref, _pin, layer_idx, pos, _shape, pad_radius, _size, eff_creep, _cells) = entry
+
+    # The fence samples at radius pad_radius + eff_creep - cell/2 = 6.75.
+    # At angle 0 the sample lands at (31.75, 25), which is cell (50, 63).
+    # Unblock that exact cell to make the fence flag the missing block.
+    sample_x = 31.75
+    sample_y = 25.25
+    row = int(sample_y / grid.cell_size_mm)
+    col = int(sample_x / grid.cell_size_mm)
+    grid._trace_net_ids[layer_idx][row, col] = 0
+    grid._invalidate_cache()
+
+    violations = check_clearance_grid_conservatism(grid)
+    assert len(violations) >= 1
+    v = violations[0]
+    assert v["ref"] == "Q1"
+    assert v["pin_name"] == "1"
+    assert v["layer"] == layer_idx
+
+
+def test_fence_detects_missing_block_on_rect_corner():
+    grid = _build_grid_with_hv_pad(pad_shape="rect", pad_w=2.0)
+    assert _EXPANSION_LOG, "expansion log should have an entry"
+    entry = _EXPANSION_LOG[0]
+    (_ref, _pin, layer_idx, pos, _shape, _radius, pad_size, eff_creep, _cells) = entry
+    w, h = pad_size
+    cell = grid.cell_size_mm
+    # The fence samples at corner (cx + w/2 + eff_creep - cell/2, cy + h/2 + eff_creep - cell/2).
+    sample_x = pos[0] + w / 2.0 + eff_creep - cell / 2.0
+    sample_y = pos[1] + h / 2.0 + eff_creep - cell / 2.0
+    row = int(sample_y / cell)
+    col = int(sample_x / cell)
+    grid._trace_net_ids[layer_idx][row, col] = 0
+    grid._invalidate_cache()
+
+    violations = check_clearance_grid_conservatism(grid)
+    assert len(violations) >= 1
+    assert violations[0]["reason"].startswith("cell at")
+
+
+def test_fence_detects_missing_block_on_rect_edge():
+    grid = _build_grid_with_hv_pad(pad_shape="rect", pad_w=2.0)
+    assert _EXPANSION_LOG, "expansion log should have an entry"
+    entry = _EXPANSION_LOG[0]
+    (_ref, _pin, layer_idx, pos, _shape, _radius, pad_size, eff_creep, _cells) = entry
+    w, h = pad_size
+    cell = grid.cell_size_mm
+    # The fence samples at the top edge midpoint: (cx, cy + h/2 + eff_creep - cell/2).
+    edge_x = pos[0]
+    edge_y = pos[1] + h / 2.0 + eff_creep - cell / 2.0
+    row = int(edge_y / cell)
+    col = int(edge_x / cell)
+    grid._trace_net_ids[layer_idx][row, col] = 0
+    grid._invalidate_cache()
+
+    violations = check_clearance_grid_conservatism(grid)
+    assert len(violations) >= 1
+    # Top edge midpoint should be named in the violation.
+    assert any(abs(v["xy"][1] - edge_y) < 1e-6 for v in violations)
+
+
+def test_fence_warns_on_budget_overrun():
+    """The fence wall-time check should warn (not raise) when the 20%
+    budget is exceeded. Below the floor_ms, the fence is exempt."""
+    over_budget, msg = check_clearance_grid_perf_budget(
+        fence_elapsed_ms=20.0, stage_elapsed_ms=50.0,  # 40% > 20%
+        budget_pct=20.0, floor_ms=50.0,
+    )
+    assert over_budget is True
+    assert msg is not None
+    assert "exceeds budget" in msg
+
+    # Within budget -> no warning.
+    over_budget, msg = check_clearance_grid_perf_budget(
+        fence_elapsed_ms=5.0, stage_elapsed_ms=100.0,  # 5% < 20%
+        budget_pct=20.0, floor_ms=50.0,
+    )
+    assert over_budget is False
+    assert msg is None
+
+    # Below floor -> exempt.
+    over_budget, msg = check_clearance_grid_perf_budget(
+        fence_elapsed_ms=10.0, stage_elapsed_ms=20.0,  # 50% but stage<floor
+        budget_pct=20.0, floor_ms=50.0,
+    )
+    assert over_budget is False
+    assert msg is None
+
+
+def test_fence_integration_violation_names_pad_ref():
+    """End-to-end: a fence that detects a violation must name the pad."""
+    grid = _build_grid_with_hv_pad()
+    assert _EXPANSION_LOG, "expansion log should have an entry"
+    entry = _EXPANSION_LOG[0]
+    (_ref, _pin, layer_idx, pos, _shape, _radius, _size, _eff, _cells) = entry
+    # Unblock a cell at the boundary the fence samples (radius - cell/2).
+    cell = grid.cell_size_mm
+    sample_x = pos[0] + _radius + _eff - cell / 2.0
+    sample_y = pos[1]
+    row = int(sample_y / cell)
+    col = int(sample_x / cell)
+    grid._trace_net_ids[layer_idx][row, col] = 0
+    grid._invalidate_cache()
+
+    violations = check_clearance_grid_conservatism(grid)
+    assert any("Q1" in v["reason"] for v in violations)
+    assert any("1" in v["reason"] for v in violations)  # pin name
+
 
