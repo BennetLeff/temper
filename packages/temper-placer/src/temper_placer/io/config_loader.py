@@ -1322,9 +1322,15 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     # EXP-13: Load HV exclusion zones for routing
     if "hv_exclusion_zones" in config:
-        for hvz_cfg in config["hv_exclusion_zones"]:
+            for hvz_cfg in config["hv_exclusion_zones"]:
             center = hvz_cfg["center"]
             size = hvz_cfg["size"]
+            name_to_refdes = {
+                "q1_hv_zone": "Q1",
+                "q2_hv_zone": "Q2",
+                "q1_hv_exclusion": "Q1",
+                "q2_hv_exclusion": "Q2",
+            }
             hvz = HVExclusionZone(
                 name=hvz_cfg["name"],
                 center=(float(center[0]), float(center[1])),
@@ -1332,6 +1338,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 clearance_mm=hvz_cfg.get("clearance_mm", 6.0),
                 excluded_nets=hvz_cfg.get("excluded_nets", []),
                 description=hvz_cfg.get("description", ""),
+                component_refdes=name_to_refdes.get(hvz_cfg["name"]),
             )
             constraints.hv_exclusion_zones.append(hvz)
 

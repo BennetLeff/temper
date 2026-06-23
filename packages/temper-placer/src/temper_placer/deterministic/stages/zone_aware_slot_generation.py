@@ -213,9 +213,17 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         copper_zones = _get_copper_zones(state.board, self.yaml_copper_zones)
 
         if not copper_zones and not iso_aabbs:
-            # Neither filter applies — fall back to the unfiltered base stage.
+            # Neither filter applies — generate slots without filtering.
             logger.info("No copper zones or isolation slots, using standard slot generation")
-            return replace(state, reclaim_by_pin_pair=None)
+            zone_slots_list = []
+            for zone in state.zones:
+                slots = self._generate_slots_for_zone(zone, self.slot_spacing_mm)
+                zone_slots_list.append((zone.name, tuple(slots)))
+            return replace(
+                state,
+                zone_slots=frozenset(zone_slots_list),
+                reclaim_by_pin_pair=None,
+            )
 
         if copper_zones:
             logger.info(f"Found {len(copper_zones)} copper zones, filtering slots")
