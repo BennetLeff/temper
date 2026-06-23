@@ -1,0 +1,131 @@
+{
+  "repository_root": "/Users/bennet/Desktop/temper",
+  "call_graph": {
+    "add_power_planes.py": [],
+    "analyze_congestion.py": [],
+    "analyze_drc.py": [],
+    "analyze_drc_json.py": [],
+    "analyze_star_ground.py": [],
+    "analyze_steiner_correlation.py": [],
+    "benchmark_baselines.py": [],
+    "benchmark_router.py": [],
+    "benchmark_routing.py": [],
+    "bless_baselines.py": [],
+    "check_coverage_gate.py": [
+      ".github/workflows/python-tests.yml"
+    ],
+    "check_manifest_gate.py": [],
+    "check_perf_regression.py": [
+      "Makefile"
+    ],
+    "check_regression.py": [
+      "Makefile"
+    ],
+    "check_script_sunset.py": [],
+    "check_traceability.py": [],
+    "ci_check_drc.py": [
+      ".github/workflows/regression.yml"
+    ],
+    "ci_closure_test.py": [
+      ".github/workflows/python-tests.yml",
+      ".github/workflows/regression.yml"
+    ],
+    "collect_routing_data.py": [],
+    "compare_configs.py": [],
+    "compare_drc_reports.py": [
+      "scripts/sprint1_validation.sh"
+    ],
+    "correlation_analysis.py": [],
+    "debug_clearance_grid.py": [],
+    "debug_diff_pair_path.py": [
+      "scripts/test_backpath_fix.sh",
+      "tests/test_diff_pair_path_continuity.py"
+    ],
+    "diagnose_clearance_grid.py": [],
+    "diagnose_failures.py": [],
+    "diagnose_routing_congestion.py": [],
+    "diagnose_start_positions.py": [],
+    "export_router_v6_pcb.py": [],
+    "extract_corpus_baselines.py": [],
+    "extract_temper_a98v_full_metrics.py": [],
+    "extract_temper_a98v_metrics.py": [],
+    "fanout_power.py": [],
+    "fill_zones.py": [
+      "router-experiments/exp_24_piantor_benchmark.py",
+      "router-experiments/exp_25_stub_convergence.py",
+      "router-experiments/exp_26_dual_pad.py"
+    ],
+    "finalize_board.py": [],
+    "finalize_pcb.py": [],
+    "fix_igbt_pinout.py": [],
+    "force_drill_rule.py": [],
+    "generate_golden_baselines.py": [],
+    "generate_kicad_dru.py": [],
+    "import_linter_gate.py": [
+      ".github/workflows/python-tests.yml"
+    ],
+    "instrumented_pipeline_with_config.py": [],
+    "inter_loss_correlation.py": [],
+    "internal_route.py": [
+      "Makefile",
+      "scripts/route_v3.sh",
+      "scripts/run_physics_flow.sh",
+      "scripts/sprint1_validation.sh",
+      "scripts/verify_occupancy_strict.sh",
+      "scripts/verify_temper_a98v_all_routing.sh"
+    ],
+    "measure_structural_placement.py": [],
+    "measure_usb_baseline.py": [],
+    "patch_pcb_footprint.py": [],
+    "pipeline_metrics.py": [],
+    "placement_quality_report.py": [
+      "tests/scripts/test_quality_report.py",
+      "tools/bd-worktree-helpers.sh"
+    ],
+    "placement_routing_loop.py": [],
+    "pre_route_power.py": [],
+    "profile_optimizer.py": [],
+    "profile_pipeline.py": [
+      "scripts/measure_usb_baseline.py"
+    ],
+    "profile_usb_routing.py": [],
+    "quick_routing_metrics.py": [],
+    "refine_placement.py": [],
+    "routing_experiments.py": [],
+    "run_feedback_loop.py": [
+      "experiments/diagnose_routing_failures.py",
+      "experiments/validate_adaptive_routing.py",
+      "experiments/validate_power_trace_routing.py",
+      "scripts/test_backpath_fix.sh",
+      "tests/deterministic/test_feedback_e2e.py",
+      "tests/test_diff_pair_path_continuity.py"
+    ],
+    "run_spectral.py": [],
+    "sanitize_baseline.py": [],
+    "steiner_vs_hpwl_analysis.py": [],
+    "test_copper_zone_loading.py": [],
+    "test_correlation_analysis.py": [],
+    "test_improved_placer.py": [],
+    "test_zone_aware_integration.py": [],
+    "test_zone_detection.py": [],
+    "trace_invocations.py": [],
+    "trace_pipeline_debug.py": [],
+    "tune_loss_weights.py": [],
+    "validate_footprints.py": [
+      "scripts/sprint1_validation.sh"
+    ],
+    "validate_input.py": [],
+    "validate_placement_bounds.py": [],
+    "verify_copper_zones.py": [],
+    "verify_hypergraph_routing.py": [],
+    "verify_nsga_improvement.py": [],
+    "vulture_gate.py": [
+      ".github/workflows/python-tests.yml"
+    ]
+  },
+  "summary": {
+    "total_scripts": 76,
+    "invoked_scripts": 15,
+    "uninvoked_scripts": 61
+  }
+}
