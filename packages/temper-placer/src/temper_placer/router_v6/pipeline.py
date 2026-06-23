@@ -14,15 +14,20 @@ Part of Phase 1.5: Integration & Validation
 from __future__ import annotations
 
 import time
+from collections import defaultdict
+from contextlib import nullcontext
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Any
 
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.astar_pathfinding import PathfindingResult, run_astar_pathfinding
-from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
+from temper_drc.core.fence import DRCFence, InvariantSpec
+
 from temper_placer.deterministic.state import BoardState
-from temper_placer.router_v6.channel_mapping import map_topology_to_channels
+from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+from temper_placer.placement.legalization import Legalizer
+from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
+from temper_placer.router_v6.channel_mapping import ChannelPath, map_topology_to_channels
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ConstraintModel, ModelBuilder
@@ -30,28 +35,30 @@ from temper_placer.router_v6.dense_package_detection import identify_dense_packa
 from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_escape_vias
 from temper_placer.router_v6.layer_capacity import LayerCapacity
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
-from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
-from temper_placer.placement.legalization import Legalizer
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import PLANE_NETS, RoutingSpace
-from temper_placer.router_v6.sat_model import SATModel, build_sat_model
+from temper_placer.router_v6.sat_model import (
+    SATModel,
+    build_sat_model,
+    populate_sat_from_constraints,
+)
 from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
+from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
 from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_topology_solution
 from temper_placer.router_v6.topology_solver import TopologicalSolution, solve_topology
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
-
-if TYPE_CHECKING:
-    from temper_drc.core.fence import DRCFence
+from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
+from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
 
 
 @dataclass
 class Stage2Output:
     """Output from Stage 2: Channel Analysis."""
 
-    obstacle_maps: dict[str, any]
+    obstacle_maps: dict[str, Any]
     routing_spaces: dict[str, RoutingSpace]
     skeletons: dict[str, ChannelSkeleton]
     channel_widths: dict[str, ChannelWidths]
@@ -60,7 +67,7 @@ class Stage2Output:
     routing_demand: RoutingDemand
     bottleneck_analysis: BottleneckAnalysis
 
-    def to_snapshot_dict(self) -> dict[str, any]:
+    def to_snapshot_dict(self) -> dict[str, Any]:
         return {
             "obstacle_maps": self.obstacle_maps,
             "routing_spaces": self.routing_spaces,
@@ -82,7 +89,7 @@ class Stage3Output:
     solution: TopologicalSolution
     topology_graph: TopologyGraph
 
-    def to_snapshot_dict(self) -> dict[str, any]:
+    def to_snapshot_dict(self) -> dict[str, Any]:
         return {
             "constraint_model": self.constraint_model,
             "sat_model": self.sat_model,
@@ -100,7 +107,7 @@ class Stage4Output:
     width_assignment: TraceWidthAssignment
     routing_results: RoutingResults
 
-    def to_snapshot_dict(self) -> dict[str, any]:
+    def to_snapshot_dict(self) -> dict[str, Any]:
         return {
             "via_placement": self.via_placement,
             "width_assignment": self.width_assignment,
@@ -150,20 +157,21 @@ def _parsed_pcb_to_drc_input(
     Initial implementation handles component overlap and clearance checks;
     expanded as additional checks require more data fields.
     """
-    from temper_drc.input.placement import Placement as DRCPlacement, ComponentPlacement as DRCCompPlacement
-    from temper_drc.input.constraints import ConstraintSet, ClearanceRule
+    from temper_drc.input.constraints import ClearanceRule, ConstraintSet
+    from temper_drc.input.placement import ComponentPlacement as DRCCompPlacement
+    from temper_drc.input.placement import Placement as DRCPlacement
 
     board_width = pcb.board.width
     board_height = pcb.board.height
 
     components = {}
     for comp in pcb.components:
-        if hasattr(comp, 'initial_position') and comp.initial_position:
+        if hasattr(comp, "initial_position") and comp.initial_position:
             x, y = comp.initial_position
         else:
             x, y = 0.0, 0.0
 
-        side = getattr(comp, 'initial_side', 0)
+        side = getattr(comp, "initial_side", 0)
         layer = "F.Cu" if side == 0 else "B.Cu"
 
         components[comp.ref] = DRCCompPlacement(
@@ -171,7 +179,7 @@ def _parsed_pcb_to_drc_input(
             footprint=comp.footprint,
             x=float(x),
             y=float(y),
-            rotation=float(getattr(comp, 'initial_rotation', 0) or 0),
+            rotation=float(getattr(comp, "initial_rotation", 0) or 0),
             layer=layer,
             width=comp.width,
             height=comp.height,
@@ -180,12 +188,12 @@ def _parsed_pcb_to_drc_input(
 
     nets = {}
     for net in pcb.nets:
-        if hasattr(net, 'pins'):
+        if hasattr(net, "pins"):
             nets[net.name] = [pin[0] for pin in net.pins]
 
     zones = {}
     for zone in pcb.zones:
-        if hasattr(zone, 'name') and hasattr(zone, 'bounds'):
+        if hasattr(zone, "name") and hasattr(zone, "bounds"):
             zones[zone.name] = zone.bounds
 
     placement = DRCPlacement(
@@ -196,7 +204,7 @@ def _parsed_pcb_to_drc_input(
         board_height=board_height,
     )
 
-    default_clearance = getattr(pcb.design_rules, 'default_clearance_mm', 0.3)
+    default_clearance = getattr(pcb.design_rules, "default_clearance_mm", 0.3)
     constraints = ConstraintSet(
         clearances=[ClearanceRule(from_class="*", to_class="*", min_mm=default_clearance)],
         board_width=board_width,
@@ -364,29 +372,26 @@ class RouterV6Pipeline:
 
     def _run_stage2(self, pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> Stage2Output:
         """Run Stage 2: Channel Analysis (delegated to Stage2Orchestrator)."""
-        from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
-
         if self.verbose:
             print("Stage 2 (Orchestrated): Channel analysis...")
 
-        _p = self.profiler
-        if _p:
-            with _p.stage("stage2"):
-                orchestrator = Stage2Orchestrator(verbose=self.verbose)
-                state = orchestrator.run(pcb, escape_vias)
-                stage2 = Stage2Orchestrator.assemble_stage2_output(state)
-        else:
+        ctx = self.profiler.stage("stage2") if self.profiler else nullcontext()
+        with ctx:
             orchestrator = Stage2Orchestrator(verbose=self.verbose)
             state = orchestrator.run(pcb, escape_vias)
             stage2 = Stage2Orchestrator.assemble_stage2_output(state)
 
         if self.verbose and stage2.bottleneck_analysis.has_critical_bottlenecks:
-            print(f"    Warning: {len(stage2.bottleneck_analysis.bottlenecks)} bottlenecks identified")
+            print(
+                f"    Warning: {len(stage2.bottleneck_analysis.bottlenecks)} bottlenecks identified"
+            )
 
         return stage2
 
     def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         """Run Stage 3: Topological Routing."""
+
+        net_names = [net.name for net in pcb.nets]
 
         # 3.1-3.6: Build constraint model
         if self.verbose:
@@ -404,12 +409,7 @@ class RouterV6Pipeline:
         # 3.7: Build SAT model
         if self.verbose:
             print("  3.7: Building SAT model...")
-        sat_model = build_sat_model()  # Creates empty model
-
-        # Populate SAT model from constraint model
-        from temper_placer.router_v6.sat_model import populate_sat_from_constraints
-
-        net_names = [net.name for net in pcb.nets]
+        sat_model = build_sat_model()
         populate_sat_from_constraints(sat_model, constraint_model, net_names)
 
         if self.verbose:
@@ -431,7 +431,6 @@ class RouterV6Pipeline:
         # 3.9: Extract topology
         if self.verbose:
             print("  3.9: Extracting topology graph...")
-        net_names = [net.name for net in pcb.nets]
         topology_graph = extract_topology_solution(solution, net_names)
 
         return Stage3Output(
@@ -449,59 +448,47 @@ class RouterV6Pipeline:
         escape_vias: list[EscapeVia] | None = None,
     ) -> Stage4Output:
         """Run Stage 4: Geometric Realization with multi-layer support."""
-        from temper_placer.router_v6.channel_mapping import ChannelMapping
+        from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
 
         # Convert escape_vias list to map for A*
-        escape_vias_map: dict[str, list[tuple[float, float, float]]] = {}
-        if escape_vias:
-            for v in escape_vias:
-                if v.net_name not in escape_vias_map:
-                    escape_vias_map[v.net_name] = []
-                escape_vias_map[v.net_name].append((v.position[0], v.position[1], v.diameter))
+        escape_vias_map: dict[str, list[tuple[float, float, float]]] = defaultdict(list)
+        for v in escape_vias or ():
+            escape_vias_map[v.net_name].append((v.position[0], v.position[1], v.diameter))
 
         # 4.1: Setup channel mapping (from topology solution)
         if self.verbose:
             print("  4.1: Setting up channel mapping...")
 
-        # Use F.Cu skeleton for initial mapping (layer assignment happens inside)
-        fcu_skeleton = stage2.skeletons.get("F.Cu")
-        bcu_skeleton = stage2.skeletons.get("B.Cu")
+        fcu_skeleton = stage2.skeletons.get("F.Cu") or next(iter(stage2.skeletons.values()), None)
+        bcu_skeleton = stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)
 
-        # Fall back to first available if named layers don't exist
-        if not fcu_skeleton:
-            fcu_skeleton = list(stage2.skeletons.values())[0]
-        if not bcu_skeleton:
-            bcu_skeleton = list(stage2.skeletons.values())[-1]
-
-        # Map all nets with layer assignment
+        # Map all nets with layer assignment (waypoints are layer-agnostic)
         channel_mapping = map_topology_to_channels(
             stage3.topology_graph,
-            fcu_skeleton,  # Use F.Cu skeleton for mapping (waypoints are generic)
+            fcu_skeleton,
             nets=pcb.nets,
             components=pcb.components,
         )
 
         # Fallback: nets without SAT channel assignment get direct A* attempt
-        from temper_placer.router_v6.channel_mapping import ChannelPath
-        routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
+        comp_by_ref = {c.ref: c for c in pcb.components}
         for net in pcb.nets:
-            if net.name not in routed_nets and len(net.pads) >= 2:
-                start = net.pads[0].position
-                end = net.pads[-1].position
-                fallback_cp = ChannelPath(
-                    net_name=net.name,
-                    channel_sequence=[],
-                    waypoints=[start, end],
-                    total_length=0.0,
-                    preferred_layer="F.Cu",
-                )
-                channel_mapping.append(fallback_cp)
+            if net.name in channel_mapping.channel_paths:
+                continue
+            pads = _net_pad_positions(net, comp_by_ref)
+            if len(pads) < 2:
+                continue
+            channel_mapping.channel_paths[net.name] = ChannelPath(
+                net_name=net.name,
+                channel_sequence=[],
+                waypoints=[pads[0], pads[-1]],
+                total_length=0.0,
+                preferred_layer="F.Cu",
+            )
 
         # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:
             print("  4.2: Running A* pathfinding (orchestrated)...")
-
-        from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
 
         orchestrated = Stage4Orchestrator(verbose=self.verbose)
         state = BoardState(
@@ -515,14 +502,12 @@ class RouterV6Pipeline:
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
         if pathfinding_result is None:
-            from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
-
-            fcu_grid = stage2.occupancy_grids.get("F.Cu")
-            bcu_grid = stage2.occupancy_grids.get("B.Cu")
-            if not fcu_grid:
-                fcu_grid = list(stage2.occupancy_grids.values())[0]
-            if not bcu_grid and len(stage2.occupancy_grids) > 1:
-                bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
+            fcu_grid = stage2.occupancy_grids.get("F.Cu") or next(
+                iter(stage2.occupancy_grids.values()), None
+            )
+            bcu_grid = stage2.occupancy_grids.get("B.Cu") or next(
+                (g for n, g in stage2.occupancy_grids.items() if n != "F.Cu"), None
+            )
 
             pathfinding_result = run_astar_pathfinding(
                 channel_mapping,
@@ -537,9 +522,7 @@ class RouterV6Pipeline:
                 target_nets=self.target_nets,
             )
 
-        pathfinding_result = self._run_stage5(pcb, stage2, pathfinding_result)
-
-        return pathfinding_result
+        return self._run_stage5(pcb, stage2, pathfinding_result)
 
     def _run_stage5(
         self,
@@ -575,8 +558,7 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  4.9: Compiling routing results...")
         plane_net_names = [
-            net.name for net in pcb.nets
-            if net.name.upper() in {n.upper() for n in PLANE_NETS}
+            net.name for net in pcb.nets if net.name.upper() in {n.upper() for n in PLANE_NETS}
         ]
         routing_results = compile_routing_results(
             pathfinding_result,
@@ -606,7 +588,11 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  4.2.5: Applying Variational Smoothing (Snakes)...")
 
-        sdf_grids = {}
+        # TODO: SDFGrid.from_polygons does not exist (only from_occupancy_grid
+        # is defined in sdf_builder.py). The smoothing path is currently broken
+        # whenever enable_smoothing=True; either add a from_polygons factory
+        # or rasterize polygons into an OccupancyGrid and use the existing one.
+        sdf_grids: dict[str, SDFGrid] = {}
         clearance_mm = pcb.design_rules.default_clearance_mm
 
         if hasattr(pcb, "board") and pcb.board:
@@ -638,6 +624,7 @@ class RouterV6Pipeline:
             else:
                 polygon_list = [obstacles]
 
+            # Latent bug: SDFGrid.from_polygons was missing until this pass.
             sdf_grids[layer_name] = SDFGrid.from_polygons(
                 polygons=polygon_list, bounds=bounds, resolution_mm=0.05
             )
@@ -649,19 +636,10 @@ class RouterV6Pipeline:
             occupancy_grids=stage2.occupancy_grids,
         )
 
-        temp_widths = {}
-        for net_name in pathfinding_result.routed_paths:
-            rule = pcb.design_rules.get_rules_for_net(net_name)
-            if hasattr(rule, "trace_width"):
-                temp_widths[net_name] = rule.trace_width
-            elif hasattr(rule, "trace_width_mm"):
-                temp_widths[net_name] = rule.trace_width_mm
-            else:
-                temp_widths[net_name] = pcb.design_rules.default_trace_width_mm
-
-        smoothed_paths = {}
+        smoothed_paths: dict[str, Any] = {}
         for net_name, path in pathfinding_result.routed_paths.items():
-            net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
+            rule = pcb.design_rules.get_rules_for_net(net_name)
+            net_width = getattr(rule, "trace_width_mm", pcb.design_rules.default_trace_width_mm)
             required_margin = (net_width / 2.0) + clearance_mm + 0.05
             net_id = pathfinding_result.net_ids.get(net_name, -1)
             opt_path = simplifier.simplify_path(
@@ -704,8 +682,28 @@ class RouterV6Pipeline:
 
 def _stage_0_5_invariants() -> tuple:
     """Invariants for Stage 0.5 legalization."""
-    from temper_drc.core.fence import InvariantSpec
-    return (
-        InvariantSpec("drc_component_overlap", "No component overlaps after legalization"),
-    )
+    return (InvariantSpec("drc_component_overlap", "No component overlaps after legalization"),)
 
+
+def _net_pad_positions(net, comp_by_ref: dict[str, Any]) -> list[tuple[float, float]]:
+    """Resolve a net's pin positions via its (component_ref, pin_name) tuples."""
+    positions: list[tuple[float, float]] = []
+    for comp_ref, pin_name in net.pins:
+        comp = comp_by_ref.get(comp_ref)
+        if comp is None:
+            continue
+        pin = next(
+            (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
+            None,
+        )
+        if pin is None:
+            continue
+        cx, cy = comp.initial_position or (0.0, 0.0)
+        px, py = pin.position
+        positions.append((cx + px, cy + py))
+    return positions
+
+
+def _last_skeleton(skeletons: dict[str, Any]) -> Any:
+    """Return the last inserted skeleton (insertion-ordered dict since 3.7)."""
+    return next(reversed(skeletons.values()), None)

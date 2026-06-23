@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.ndimage import distance_transform_edt
+
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 
@@ -89,6 +90,51 @@ class SDFGrid:
             cell_size=occupancy_grid.cell_size,
             width_cells=occupancy_grid.width_cells,
             height_cells=occupancy_grid.height_cells,
+        )
+
+    @classmethod
+    def from_polygons(
+        cls,
+        polygons: list,
+        bounds: tuple[float, float, float, float],
+        resolution_mm: float,
+    ) -> SDFGrid:
+        """Rasterize polygons into an occupancy grid, then build the SDF.
+
+        Args:
+            polygons: Iterable of Shapely polygons (may be empty).
+            bounds: (xmin, ymin, xmax, ymax) in mm.
+            resolution_mm: Grid cell size in mm.
+        """
+        xmin, ymin, xmax, ymax = bounds
+        width_cells = max(1, int((xmax - xmin) / resolution_mm))
+        height_cells = max(1, int((ymax - ymin) / resolution_mm))
+
+        polys = [p for p in polygons if p is not None and not p.is_empty]
+        mask = np.zeros((height_cells, width_cells), dtype=bool)
+        if polys:
+            cell_xs = xmin + (np.arange(width_cells) + 0.5) * resolution_mm
+            cell_ys = ymin + (np.arange(height_cells) + 0.5) * resolution_mm
+            xx, yy = np.meshgrid(cell_xs, cell_ys)
+            for poly in polys:
+                mask |= np.fromiter(
+                    (poly.covers((float(x), float(y))) for x, y in zip(xx.flat, yy.flat)),
+                    dtype=bool,
+                    count=xx.size,
+                ).reshape(mask.shape)
+
+        obstacle_mask = mask
+        dist_free = distance_transform_edt(~obstacle_mask, sampling=resolution_mm)
+        dist_obstacle = distance_transform_edt(obstacle_mask, sampling=resolution_mm)
+        raw_sdf = dist_free - dist_obstacle
+        del obstacle_mask
+
+        return cls(
+            distance_grid=raw_sdf,
+            origin=(xmin, ymin),
+            cell_size=resolution_mm,
+            width_cells=width_cells,
+            height_cells=height_cells,
         )
 
     def get_distance(self, x: float, y: float) -> float:
