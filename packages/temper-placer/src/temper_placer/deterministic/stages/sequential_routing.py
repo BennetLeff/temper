@@ -89,12 +89,17 @@ class SequentialRoutingStage(Stage):
     def _get_allowed_zones(self, net_class_name: str, state: BoardState):
         """Get the list of Zone objects where this net class can route.
 
+        Note:
+            Zone confinement is currently disabled. Reintroduce the
+            body below when A* is optimized for zone-aware routing;
+            git history preserves the original implementation.
+
         Args:
             net_class_name: Name of the net class (e.g., 'HighVoltage', 'Signal')
             state: BoardState with zone definitions
 
         Returns:
-            List of Zone objects, or None if no restriction
+            Always ``None`` while zone confinement is disabled.
         """
         # TEMPORARILY DISABLED: Zone confinement causes routing timeouts.
         # TODO: Re-enable after optimizing A* for zone-aware routing.

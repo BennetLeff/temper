@@ -548,6 +548,30 @@ class DifferentialPairRule:
 
 
 @dataclass
+class SeedFilterConfig:
+    """Configuration for the bottleneck-map seed filter.
+
+    @req(2026-06-23-004, R4)
+    @req(2026-06-23-004, K3)
+    """
+
+    enabled: bool = True
+    threshold: float = 0.7
+    hv_threshold: float = 0.5
+
+    def __post_init__(self) -> None:
+        for name, value in (("threshold", self.threshold), ("hv_threshold", self.hv_threshold)):
+            if not math.isfinite(value):
+                raise ValueError(
+                    f"SeedFilterConfig.{name} must be finite (got {value!r})"
+                )
+            if not 0.0 <= value <= 1.0:
+                raise ValueError(
+                    f"SeedFilterConfig.{name} must be in [0, 1] (got {value!r})"
+                )
+
+
+@dataclass
 class PlacementConstraints:
     """Complete set of placement constraints."""
 
@@ -1328,10 +1352,15 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.isolation_slots.append(slot)
 
-    # U2: Placer-level toggles (e.g. ``placer: {use_isolation_slots: true}``).
-    # Default is empty dict so legacy configs are bit-identical (NFR4).
-    if "placer" in config and isinstance(config["placer"], dict):
-        constraints.placer = dict(config["placer"])
+    # Seed filter (bottleneck-map pre-filter for placement seeds)
+    # @req(2026-06-23-004, R4)
+    if "seed_filter" in config and isinstance(config["seed_filter"], dict):
+        sf_cfg = config["seed_filter"]
+        constraints.seed_filter = SeedFilterConfig(
+            enabled=bool(sf_cfg.get("enabled", True)),
+            threshold=float(sf_cfg.get("threshold", 0.7)),
+            hv_threshold=float(sf_cfg.get("hv_threshold", 0.5)),
+        )
 
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
@@ -1379,7 +1408,7 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "placement_proximity",  # EXP-11: Pin-level placement proximity
         "hv_exclusion_zones",  # EXP-13: HV zones that signals must route around
         "isolation_slots",  # EXP-15: PCB slots for creepage isolation
-        "placer",  # U2: Placer-level toggles (e.g. use_isolation_slots)
+        "seed_filter",  # Bottleneck-map seed filter (2026-06-23-004)
     }
 )
 

@@ -4,6 +4,7 @@ Tests for PhasedComponentAssignmentStage - priority-based placement.
 Part of temper-g54c.3: Phased placement using placement_priority configuration.
 """
 
+import logging
 from unittest.mock import Mock
 
 import math
@@ -16,7 +17,7 @@ from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
+from temper_placer.io.config_loader import PlacementConstraints, SeedFilterConfig
 
 
 class TestPhasedPlacement:

@@ -165,8 +165,9 @@ PHASE3_CONTRACT = "phase3-public-interface-only"
 
 # Regex to find `import temper_placer.X` or `from temper_placer.X import ...` at
 # module top level. (Skips indented imports — those are inside if blocks.)
+# Two alternatives, each with its own capture group; we use whichever is non-None.
 TP_IMPORT_RE = re.compile(
-    r"^(?:from\s+temper_placer(?:\.(\S+?))?\s+import|import\s+temper_placer(?:\.(\S+?))?(?:\s+as\s+\w+)?\s*)$",
+    r"^(?:from\s+temper_placer\.(\S+)\s+import|import\s+temper_placer\.(\S+))",
     re.MULTILINE,
 )
 
@@ -193,10 +194,12 @@ def scan_phase3_imports(
             except (UnicodeDecodeError, OSError):
                 continue
             for m in TP_IMPORT_RE.finditer(content):
-                if m.group(1) is None:
+                # Either group 1 (from import) or group 2 (import) is set;
+                # pick whichever is non-None.
+                module = m.group(1) or m.group(2)
+                if module is None:
                     # `import temper_placer` (the root) - no enforcement
                     continue
-                module = m.group(1)
                 # target is the full submodule path (e.g. "core.board")
                 target = "temper_placer." + module
                 rel_file = str(f.relative_to(repo_root))

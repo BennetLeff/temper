@@ -115,8 +115,12 @@ class PhasedComponentAssignmentStage(Stage):
         self.constraints = constraints
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
-        self.channel_map = channel_map
-        self.w_r = float(w_r)
+        # Default to the constraints' seed_filter if not provided, so
+        # callers can configure via the YAML loader without a separate
+        # argument. Passing ``None`` is treated as "use constraints default".
+        if seed_filter is None:
+            seed_filter = getattr(constraints, "seed_filter", None)
+        self.seed_filter = seed_filter
         self.compiler = ConstraintCompiler(constraints)
 
         # Compile constraint functions once
@@ -168,9 +172,6 @@ class PhasedComponentAssignmentStage(Stage):
         # Validate constraints before placement
         errors = self.compiler.validate(state.board, state.netlist)
         if errors:
-            import logging
-
-            logger = logging.getLogger(__name__)
             for error in errors:
                 logger.warning(f"Constraint validation: {error}")
 
@@ -475,8 +476,9 @@ class PhasedComponentAssignmentStage(Stage):
         This is the core placement algorithm:
           1. Sort by footprint size (largest first)
           2. Filter slots using hard constraints
-          3. Score slots using soft constraints + wirelength
-          4. Select best slot
+          3. **Apply bottleneck-map seed filter** (when enabled+available)
+          4. Score slots using soft constraints + wirelength
+          5. Select best slot
 
         Args:
             components: Component refs to place
@@ -519,6 +521,18 @@ class PhasedComponentAssignmentStage(Stage):
                     available_slots = [s for s in slots if s not in used_slots]
                     if available_slots:
                         break
+
+            if not available_slots:
+                continue
+
+            # Apply bottleneck-map seed filter (if enabled and reachable)
+            # The filter is per-component: drop slots whose cell score
+            # is at or above the (HV-aware) threshold. ``comp_by_ref``
+            # is forwarded so the filter can identify HV-class refs
+            # and apply the stricter ``hv_threshold``.
+            available_slots = self._apply_bottleneck_filter(
+                ref, available_slots, comp_by_ref
+            )
 
             if not available_slots:
                 continue
@@ -941,6 +955,131 @@ class PhasedComponentAssignmentStage(Stage):
     def _distance(self, p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
         """Euclidean distance between two points."""
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+    def _is_hv_ref(self, ref: str, comp_by_ref: Dict[str, Component]) -> bool:
+        """Return True if ``ref`` participates in any HV-class net.
+
+        "HV" is determined by :meth:`PlacementConstraints.get_net_class`
+        (which flags names containing "HV"/"BUS"/"DC_BUS" as
+        HighVoltage) and, when available, by the
+        ``NetClassRules.safety_category`` field for that class.
+        """
+        comp = comp_by_ref.get(ref)
+        if comp is None or not hasattr(comp, "pins") or not comp.pins:
+            return False
+        constraints = self.constraints
+        get_net_class = getattr(constraints, "get_net_class", None)
+        if get_net_class is None:
+            return False
+        for pin in comp.pins:
+            net = getattr(pin, "net", None)
+            if not net:
+                continue
+            try:
+                net_class = get_net_class(net)
+            except Exception:
+                continue
+            if net_class == "HighVoltage":
+                return True
+            rule = constraints.net_class_rules.get(net_class)
+            if rule is not None and getattr(rule, "safety_category", None) == "HV":
+                return True
+        return False
+
+    def _apply_bottleneck_filter(
+        self,
+        component_ref: str,
+        candidate_slots: List[Tuple[float, float]],
+        comp_by_ref: Optional[Dict[str, Component]] = None,
+    ) -> List[Tuple[float, float]]:
+        """Filter ``candidate_slots`` through the bottleneck map.
+
+        Returns the unfiltered list when:
+
+        * the seed filter is disabled at the config level
+        * no ``BottleneckMap`` is reachable on the current state
+        * the filter would drop every candidate (empty pool fallback
+          per R2; a warning is logged and the original pool passes
+          through unchanged)
+
+        Otherwise returns the slot list with cells at or above the
+        applicable (LV or HV) threshold removed, and emits one
+        structured INFO log line per call with the keys required by R6.
+
+        @req(2026-06-23-004, R2)
+        @req(2026-06-23-004, R6)
+        @req(2026-06-23-004, K4)
+        """
+        config = self.seed_filter
+        if config is None or not config.enabled:
+            return candidate_slots
+        bmap = self._bottleneck_map
+        if bmap is None:
+            # R3 silent-disable when no map is reachable.
+            return candidate_slots
+
+        is_hv = False
+        if comp_by_ref is not None:
+            is_hv = self._is_hv_ref(component_ref, comp_by_ref)
+        limit = config.hv_threshold if is_hv else config.threshold
+
+        accepted: List[Tuple[float, float]] = []
+        scores_accepted: List[float] = []
+        all_scores: List[float] = []
+        for slot in candidate_slots:
+            score = bmap.score_at(slot[0], slot[1])
+            all_scores.append(score)
+            if score < limit:
+                accepted.append(slot)
+                scores_accepted.append(score)
+
+        candidates_total = len(candidate_slots)
+        candidates_accepted = len(accepted)
+        candidates_rejected = candidates_total - candidates_accepted
+        fallback_used = False
+
+        if candidates_accepted == 0 and candidates_total > 0:
+            # R2: empty pool -> fall back to the unfiltered list with
+            # a warning so the placer never silently reduces to zero.
+            logger.warning(
+                "seed_filter: would reject all %d candidates for %s; "
+                "falling back to unfiltered pool",
+                candidates_total,
+                component_ref,
+            )
+            fallback_used = True
+            # Reuse the per-slot scores already computed in the first
+            # loop; avoid re-querying the map for the fallback pool.
+            accepted = list(candidate_slots)
+            scores_accepted = list(all_scores)
+            candidates_accepted = candidates_total
+            candidates_rejected = 0
+
+        avg_score = (
+            sum(scores_accepted) / len(scores_accepted) if scores_accepted else 0.0
+        )
+        logger.info(
+            "seed_filter event=seed_filter "
+            "component=%s "
+            "candidates_total=%d "
+            "candidates_accepted=%d "
+            "candidates_rejected=%d "
+            "avg_bottleneck_score_accepted=%.4f "
+            "threshold=%.4f "
+            "hv_threshold=%.4f "
+            "is_hv=%s "
+            "fallback_used=%s",
+            component_ref,
+            candidates_total,
+            candidates_accepted,
+            candidates_rejected,
+            avg_score,
+            config.threshold,
+            config.hv_threshold,
+            is_hv,
+            fallback_used,
+        )
+        return accepted
 
     def _compute_wirelength(
         self,

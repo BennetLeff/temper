@@ -129,10 +129,10 @@ class PriorityConfig:
                         return phase.priority
                 elif net_name == pattern:
                     return phase.priority
-        
+
         # Default classification by net name
         upper = net_name.upper()
-        
+
         if any(x in upper for x in ("BUS", "340V", "HV", "SW_NODE")):
             return RoutingPriority.POWER
         elif any(x in upper for x in ("GATE", "+15V", "CGND")):
@@ -143,6 +143,39 @@ class PriorityConfig:
             return RoutingPriority.ANALOG
         else:
             return RoutingPriority.DIGITAL
+
+
+def classify_net_priority(
+    net_name: str,
+    routing_phases: list[RoutingPhaseConfig] | None = None,
+) -> RoutingPriority:
+    """Module-level convenience wrapper for net priority classification.
+
+    Re-exported via ``temper_placer.core`` as ``classify_net_priority`` so callers
+    that previously imported the symbol at module level can resolve it.
+
+    Args:
+        net_name: Net to classify.
+        routing_phases: Optional explicit routing-phase config. If omitted, the
+            classification falls back to the default name-based rules.
+
+    Returns:
+        The net's :class:`RoutingPriority`.
+    """
+    if routing_phases:
+        config = PriorityConfig(routing_phases=routing_phases)
+        return config.classify_net(net_name)
+
+    upper = net_name.upper()
+    if any(x in upper for x in ("BUS", "340V", "HV", "SW_NODE")):
+        return RoutingPriority.POWER
+    if any(x in upper for x in ("GATE", "+15V", "CGND")):
+        return RoutingPriority.GATE_DRIVE
+    if any(x in upper for x in ("SPI", "I2C", "USB", "CLK")):
+        return RoutingPriority.HIGH_SPEED
+    if any(x in upper for x in ("SENSE", "NTC", "RTD")):
+        return RoutingPriority.ANALOG
+    return RoutingPriority.DIGITAL
 
 
 # Pre-defined power stage templates

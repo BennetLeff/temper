@@ -38,6 +38,11 @@ class ComponentCommunity:
     community_name: str
     confidence: float = 1.0
 
+
+# Backwards-compatible alias for callers that imported the historical name.
+ComponentCommunity = Community
+
+
 def detect_communities(netlist: Netlist) -> list[Community]:
     """
     Detect functional communities in the netlist using the Louvain algorithm.
