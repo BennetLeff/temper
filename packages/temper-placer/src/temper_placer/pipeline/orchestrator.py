@@ -148,7 +148,7 @@ class PipelineState:
 
     # Timing
     elapsed_time_s: float = 0.0
-    phase_timings: dict[PipelinePhase, float] = field(default_factory=dict)
+    phase_timings: dict[PipelinePhase | str, float] = field(default_factory=dict)
 
     # Data populated by phases
     board: Any = None  # Board from core
@@ -207,12 +207,35 @@ class PipelineOrchestrator:
         self.on_iteration: Callable[[int, PipelineState], None] | None = None
 
     def get_phase_order(self) -> list[PipelinePhase]:
-        """Get the ordered list of phases to execute (from DAG manifest)."""
-        phases: list[PipelinePhase] = []
+        """Get the ordered list of phases to execute (from DAG manifest, config-filtered)."""
         phase_map = {p.value: p for p in PipelinePhase}
+        all_phases = []
         for stage_name in self._engine.stage_order:
             if stage_name in phase_map:
-                phases.append(phase_map[stage_name])
+                all_phases.append(phase_map[stage_name])
+
+        phases = []
+        for phase in all_phases:
+            if phase == PipelinePhase.TOPOLOGICAL and self.config.skip_topological:
+                continue
+            if (
+                phase in (PipelinePhase.ROUTING, PipelinePhase.REFINEMENT)
+                and self.config.skip_routing
+            ):
+                continue
+            if (
+                phase == PipelinePhase.GEOMETRIC
+                and self.config.skip_local_refinement
+            ):
+                continue
+            if self.config.dry_run and phase in (
+                PipelinePhase.GEOMETRIC,
+                PipelinePhase.ROUTING,
+                PipelinePhase.REFINEMENT,
+                PipelinePhase.OUTPUT,
+            ):
+                continue
+            phases.append(phase)
         return phases
 
     def run(self) -> PipelineState:

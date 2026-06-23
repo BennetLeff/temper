@@ -151,8 +151,8 @@ class RefinementStage:
         elapsed = time.time() - start_time
         return StageResult(
             outputs={
-                "placement_state": new_placement_state,
-                "routing_result": routing_result,
+                "refinement_placement": new_placement_state,
+                "refinement_routing_result": routing_result,
             },
             duration_s=elapsed,
         )

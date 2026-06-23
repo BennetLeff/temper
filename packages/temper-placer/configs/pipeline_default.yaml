@@ -34,6 +34,13 @@ stages:
     requires: [board, netlist, deterministic_result]
     provides: [placement_state]
     timeout_s: 120
+
+  - name: routing
+    handler: temper_placer.pipeline.stages.routing_stage.RoutingStage
+    requires: [board, netlist, placement_state]
+    provides: [routing_result, routing_completion]
+    skip_if: "config.skip_routing == true"
+    timeout_s: 60
     feedback_contracts:
       - name: "routability-retry"
         trigger:
@@ -46,17 +53,10 @@ stages:
           epochs_boost: 200
         max_retriggers: 3
 
-  - name: routing
-    handler: temper_placer.pipeline.stages.routing_stage.RoutingStage
-    requires: [board, netlist, placement_state]
-    provides: [routing_result, routing_completion]
-    skip_if: "config.skip_routing == true"
-    timeout_s: 60
-
   - name: refinement
     handler: temper_placer.pipeline.stages.refinement_stage.RefinementStage
     requires: [board, netlist, placement_state, routing_result]
-    provides: [placement_state, routing_result]
+    provides: [refinement_placement, refinement_routing_result]
     skip_if: "config.skip_routing == true"
     timeout_s: 300
 
@@ -79,5 +79,7 @@ data_keys:
   routing_result: { type: RoutingResult, description: "Routing verification result" }
   routing_completion: { type: float, description: "Fraction of nets routed (0-1)" }
   preflight_report: { type: PreflightReport, description: "Preflight check results" }
+  refinement_placement: { type: PlacementState, description: "Refinement-updated placement state" }
+  refinement_routing_result: { type: RoutingResult, description: "Refinement routing result" }
   output_files: { type: list, description: "Generated output file paths" }
   physics_report: { type: PhysicsReport, description: "Physical metrics report" }
