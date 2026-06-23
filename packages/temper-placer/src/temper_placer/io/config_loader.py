@@ -1547,6 +1547,7 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
             voltage_v=rule.voltage_v,
             routing_strategy=rule.routing_strategy,
             via_cost_multiplier=rule.via_cost_multiplier,
+            dru_priority=0,
         )
 
     # Convert differential pair rules

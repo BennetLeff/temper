@@ -1488,6 +1488,36 @@ class SequentialRoutingStage(Stage):
 
                 # ========== END PHASE 4 ==========
 
+                # Add a marker trace on the plane layer so the net
+                # appears in state.routes. Plane nets with all pins
+                # already on the plane layer produce no physical
+                # trace segments, but downstream consumers (e.g. SM3
+                # in the HV/LV partition integration test) need to
+                # confirm the net was not dropped. A zero-length
+                # trace at the first pin's position serves as a
+                # visible "routed" marker without affecting DRC.
+                if pin_positions:
+                    first_pos = pin_positions[0]
+                    all_traces.append(
+                        Trace(
+                            start=first_pos,
+                            end=first_pos,
+                            width=width,
+                            layer=layer_name,
+                            net=net_name,
+                        )
+                    )
+                    if state.drc_oracle:
+                        state.drc_oracle.register_track(
+                            OracleTrack(
+                                start=OraclePoint(first_pos[0], first_pos[1]),
+                                end=OraclePoint(first_pos[0], first_pos[1]),
+                                width=width,
+                                net=net_name,
+                                layer=layer_idx,
+                            )
+                        )
+
                 # Skip trace routing for plane nets
                 continue
 

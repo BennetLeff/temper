@@ -120,6 +120,12 @@ class PhasedComponentAssignmentStage(Stage):
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
         self.channel_map = channel_map
+        if channel_map is None:
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "channel_map is None; channel-aware scoring and seed "
+                "filter will be disabled (R4d fallback)"
+            )
         self.w_r = w_r
         # Default to the constraints' seed_filter if not provided, so
         # callers can configure via the YAML loader without a separate

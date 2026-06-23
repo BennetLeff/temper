@@ -120,6 +120,14 @@ class NetClassRules(BaseModel):
     via_template: str | None = None  # Via array template name
     creepage_mm: float = 0.0  # Creepage distance for high-voltage nets
     target_impedance: float | None = None  # Target impedance in ohms
+
+    def __init__(self, name: str = "", **data: object) -> None:
+        # Accept a positional name for ergonomics so callers can write
+        # ``NetClassRules("HighVoltage", trace_width=0.5)`` instead of
+        # ``NetClassRules(name="HighVoltage", trace_width=0.5)``.
+        if name and "name" not in data:
+            data["name"] = name
+        super().__init__(**data)
     voltage_v: float = 0.0  # Voltage rating for safety distance calculation
     routing_strategy: str | None = (
         None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
@@ -128,7 +136,7 @@ class NetClassRules(BaseModel):
     layer_costs: dict[str, float] | None = (
         None  # Layer-specific cost multipliers {"F.Cu": 10.0, "In1.Cu": 0.1, ...}
     )
-    dru_priority: int  # lower emits earlier in DRU trace-width section (required)
+    dru_priority: int = 0  # lower emits earlier in DRU trace-width section (required)
     required_layer: str | None = None  # KiCad layer name or None for no constraint
     safety_category: Literal["HV", "LV", "AC", "iso"] | None = None
 
