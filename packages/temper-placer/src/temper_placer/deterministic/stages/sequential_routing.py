@@ -7,7 +7,6 @@ from .multilayer_astar import MultiLayerAStar
 from .sequential_routing_dataclasses import DiffPairConfig
 from .sequential_routing_helpers import (
     LAYER_IDX_TO_NAME,
-    LAYER_NAME_TO_IDX,
     LAYER_ENUM_TO_IDX,
     _compute_endpoint_tolerance,
     _compute_mst,
@@ -16,8 +15,8 @@ from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
 from ...routing.constraints.geometry import Point as OraclePoint
-from ..geometry.via_placement import PadInfo, place_via_with_clearance
-from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
+from ..geometry.via_placement import PadInfo
+from ..geometry.grid_utils import snap_to_grid
 from ...routing.layer_assignment import Layer as LayerEnum
 from ...routing.diff_pair_router import DiffPairRouter, DiffPairPath
 
@@ -51,7 +50,6 @@ class SequentialRoutingStage(Stage):
         design_rules: DesignRules | None = None,
         trace_width_mm: float = 0.25,
         clearance_mm: float = 0.2,
-        cost_map_weights: any = None,
         pad_sizes: dict = None,
         net_class_rules: dict = None,
         differential_pairs: List[DiffPairConfig] = None,
@@ -62,7 +60,6 @@ class SequentialRoutingStage(Stage):
             design_rules: DRC rules for trace widths/clearances
             trace_width_mm: Default trace width
             clearance_mm: Default clearance
-            cost_map_weights: Unused legacy parameter
             pad_sizes: Pad size lookup for via placement
             net_class_rules: Dict of net_class_name -> NetClassRule with zone confinement info
             differential_pairs: List of differential pair configs for coupled routing
@@ -81,35 +78,19 @@ class SequentialRoutingStage(Stage):
     def _get_allowed_zones(self, net_class_name: str, state: BoardState):
         """Get the list of Zone objects where this net class can route.
 
+        Note:
+            Zone confinement is currently disabled. Reintroduce the
+            body below when A* is optimized for zone-aware routing;
+            git history preserves the original implementation.
+
         Args:
             net_class_name: Name of the net class (e.g., 'HighVoltage', 'Signal')
             state: BoardState with zone definitions
 
         Returns:
-            List of Zone objects, or None if no restriction
+            Always ``None`` while zone confinement is disabled.
         """
-        # TEMPORARILY DISABLED: Zone confinement causes routing timeouts
-        # TODO: Re-enable after optimizing A* for zone-aware routing
-        # The domain-driven placement should be enough for now
         return None
-
-        if not net_class_name or not self.net_class_rules:
-            return None
-
-        rule = self.net_class_rules.get(net_class_name)
-        if not rule or not hasattr(rule, "confined_to_zones") or not rule.confined_to_zones:
-            return None
-
-        # Convert zone names to Zone objects
-        zone_by_name = {z.name: z for z in state.zones}
-        allowed_zones = []
-        for zone_name in rule.confined_to_zones:
-            if zone_name in zone_by_name:
-                allowed_zones.append(zone_by_name[zone_name])
-            else:
-                print(f"WARNING: Zone '{zone_name}' in confined_to_zones not found in board zones")
-
-        return allowed_zones if allowed_zones else None
 
     def _get_escape_via_for_pin(
         self,
