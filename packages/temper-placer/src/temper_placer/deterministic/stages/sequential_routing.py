@@ -1358,15 +1358,28 @@ class SequentialRoutingStage(Stage):
                             stub_valid = True
 
                         if stub_valid and stub_end and stub_end != pos:
+                            stub_layer_name = "F.Cu" if "F.Cu" in str(pin.layer) or "F.Cu" == layer_name else layer_name
+                            stub_layer_idx = 0 if stub_layer_name == "F.Cu" else LAYER_IDX_TO_NAME.inverse[stub_layer_name] if hasattr(LAYER_IDX_TO_NAME, "inverse") else 0
+                            stub_width = s_width if 's_width' in locals() else self.default_width
                             all_traces.append(
                                 Trace(
                                     start=pos,
                                     end=stub_end,
-                                    width=s_width if 's_width' in locals() else self.default_width,
-                                    layer="F.Cu" if "F.Cu" in str(pin.layer) or "F.Cu" == layer_name else layer_name,
+                                    width=stub_width,
+                                    layer=stub_layer_name,
                                     net=net_name
                                 )
                             )
+                            if state.drc_oracle:
+                                state.drc_oracle.register_track(
+                                    OracleTrack(
+                                        start=OraclePoint(pos[0], pos[1]),
+                                        end=OraclePoint(stub_end[0], stub_end[1]),
+                                        width=stub_width,
+                                        net=net_name,
+                                        layer=stub_layer_idx,
+                                    )
+                                )
 
                     # Block Via on ALL layers
                     for l_idx in range(grid.layer_count):

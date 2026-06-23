@@ -693,6 +693,12 @@ class PlacementConstraints:
     # are off so legacy configs are bit-identical to pre-U2 behavior.
     placer: dict = field(default_factory=dict)
 
+    # Bottleneck-map seed filter (2026-06-23-004). Defaults to enabled
+    # with threshold=0.7 / hv_threshold=0.5 so the filter is active by
+    # default and the stage's ``if config is None or not config.enabled``
+    # branch is exercised in normal use.
+    seed_filter: SeedFilterConfig = field(default_factory=SeedFilterConfig)
+
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
         return self.zone_assignments.get(ref)

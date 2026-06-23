@@ -576,6 +576,15 @@ class PhasedComponentAssignmentStage(Stage):
             if not available_slots:
                 continue
 
+            # Apply domain filter (FR4): drop slots outside the
+            # component's domain region. Boundary points are kept.
+            available_slots = self._filter_by_domain(
+                ref, available_slots, domain_for_ref, domain_regions
+            )
+
+            if not available_slots:
+                continue
+
             # Merge current + phase placements for scoring
             all_placements = {**current_placements, **placements}
 

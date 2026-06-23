@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from .pipeline import DeterministicPipeline
 from .state import BoardState
+from .stages.hv_lv_partition import HvLvPartitionStage, PartitionError
 from .channels import (
     ALLOWED_SCHEMA_HASHES,
     ALLOWED_SEVERITIES,
