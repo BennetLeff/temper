@@ -192,13 +192,17 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
     def run(self, state: BoardState) -> BoardState:
         """Generate slots, filtering out those covered by copper zones or isolation cutouts."""
-        if not state.zones:
-            return state
-
-        # @req(2026-06-23-007, R2): Build isolation-slot AABBs from the
-        # netlist components' current positions. Components without
-        # initial_position are skipped (no cutout filter and no reclaim).
+        # @req(2026-06-23-007, R2): Always run the isolation filter so the
+        # K4 reclaim dict is produced even when state.zones is empty.
+        # _isolation_filter is cheap when yaml_isolation_slots is empty
+        # (it returns ([], {})), so running it unconditionally is the
+        # simplest way to avoid dropping the reclaim on the early-return
+        # path. The downstream U3 bridge consumes the reclaim without
+        # needing zone-based slot filtering.
         iso_aabbs, reclaim = self._isolation_filter(state)
+
+        if not state.zones:
+            return replace(state, reclaim_by_pin_pair=reclaim or None)
 
         # Get copper zones from board AND YAML config
         copper_zones = _get_copper_zones(state.board, self.yaml_copper_zones)
