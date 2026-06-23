@@ -571,23 +571,26 @@ def _astar_route(
     )
 
 
-def _segment_search(
-    grid: OccupancyGrid,
-    start_world: tuple[float, float],
-    goal_world: tuple[float, float],
-    use_theta_star: bool,
-    use_lazy_theta_star: bool,
-):
-    """Resolve waypoints to grid coords, run the requested search variant.
 
-    Returns (path, grid) where path is the search result (or None) and grid is
-    the grid that produced it. Caller decides what to do on failure.
-    """
-    start_grid = _find_access_node(grid, start_world, -1) or grid.world_to_grid(*start_world)
-    goal_grid = _find_access_node(grid, goal_world, -1) or grid.world_to_grid(*goal_world)
-    if not (_in_bounds(grid, start_grid) and _in_bounds(grid, goal_grid)):
-        return None, grid
-    return _dispatch_search(grid, start_grid, goal_grid, use_theta_star, use_lazy_theta_star), grid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def _dispatch_search(grid, start, goal, use_theta_star: bool, use_lazy_theta_star: bool):

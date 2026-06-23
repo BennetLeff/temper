@@ -12,21 +12,43 @@ Uses ConstraintCompiler for constraint-aware slot selection.
 
 from __future__ import annotations
 
+import logging
 import math
 from dataclasses import replace
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 
+from ..channels import Bottleneck, ChannelMap, routability_penalty
+from ..flags import is_drc_fence_fail_enabled
 from ..state import BoardState
 from . import phased_component_assignment_validator  # noqa: F401  (registers U3 validator)
 from .base import Stage
 
 if TYPE_CHECKING:
+    from temper_drc.core.fence import InvariantSpec
     from temper_placer.core.component import Component
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
+
+
+_LOGGER = logging.getLogger(__name__)
+
+
+#: Invariant name used by the DRC fence. Declared on
+#: :class:`PhasedComponentAssignmentStage` only when a ``channel_map`` is
+#: present, so runs without a sidecar never report false positives.
+CRITICAL_BOTTLENECK_INVARIANT: str = "no_component_center_in_critical_bottleneck"
+
+
+class PhasedComponentAssignmentError(Exception):
+    """Raised when a phased-placement stage invariant hard-fails.
+
+    Used by the U6 DRC fence flip. The message includes the offending
+    component ref and bottleneck severity so the failure is actionable
+    from a CI log.
+    """
 
 
 class PhasedComponentAssignmentStage(Stage):
@@ -71,8 +93,8 @@ class PhasedComponentAssignmentStage(Stage):
         constraints: PlacementConstraints,
         slot_spacing: float = 12.0,
         fixed_placements: Dict[str, Dict] = None,
-        design_rules: Optional["DesignRules"] = None,
-        use_isolation_slots: bool = False,
+        channel_map: ChannelMap | None = None,
+        w_r: float = 0.05,
     ):
         """Initialize phased placement.
 
@@ -93,6 +115,8 @@ class PhasedComponentAssignmentStage(Stage):
         self.constraints = constraints
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
+        self.channel_map = channel_map
+        self.w_r = float(w_r)
         self.compiler = ConstraintCompiler(constraints)
 
         # Compile constraint functions once
@@ -112,6 +136,29 @@ class PhasedComponentAssignmentStage(Stage):
     @property
     def name(self) -> str:
         return "phased_component_assignment"
+
+    @property
+    def invariants(self) -> tuple:
+        """Per-stage invariants for the DRC fence.
+
+        The :data:`CRITICAL_BOTTLENECK_INVARIANT` is declared only when a
+        ``channel_map`` is supplied; runs without a sidecar cannot run the
+        check meaningfully, so the invariant is omitted to avoid spurious
+        false positives on degraded runs.
+        """
+        from temper_drc.core.fence import InvariantSpec
+
+        if self.channel_map is None or not self.channel_map.has_grid():
+            return ()
+        return (
+            InvariantSpec(
+                check_name=CRITICAL_BOTTLENECK_INVARIANT,
+                guarantees=(
+                    "No component center falls inside a CRITICAL-severity "
+                    "bottleneck cell of the channel map."
+                ),
+            ),
+        )
 
     def run(self, state: BoardState) -> BoardState:
         """Execute phased placement."""
@@ -543,8 +590,17 @@ class PhasedComponentAssignmentStage(Stage):
             # Wirelength penalty
             wirelength = self._compute_wirelength(component_ref, slot, net_pins, all_placements)
 
+            # Routability term (channel-aware). When channel_map is None or
+            # w_r is 0, this contributes 0.0 and we get byte-identical output
+            # to the pre-change baseline.
+            cm = self.channel_map
+            if cm is not None and self.w_r > 0.0:
+                routability = routability_penalty(slot, cm) * self.w_r
+            else:
+                routability = 0.0
+
             # Combined score (weight wirelength lower than constraints)
-            return constraint_penalty + wirelength * 0.1
+            return constraint_penalty + wirelength * 0.1 + routability
 
         # Phase 3: Select best slot
         best_slot = min(valid_slots, key=score_slot)
@@ -913,3 +969,92 @@ class PhasedComponentAssignmentStage(Stage):
                 total_hpwl += hpwl
 
         return total_hpwl
+
+    def find_critical_bottleneck_violations(
+        self, placements: Dict[str, Tuple[float, float]]
+    ) -> list[dict]:
+        """Return a list of CRITICAL-severity bottleneck violations.
+
+        Each violation is a dict with keys ``ref``, ``x``, ``y``, ``layer``,
+        ``severity``. The center of each placed component is converted to
+        grid coordinates (floor semantics, same as
+        :func:`routability_penalty`); any cell covered by a CRITICAL
+        bottleneck record produces a violation. MEDIUM/HIGH severities are
+        not flagged - the invariant name
+        (``no_component_center_in_critical_bottleneck``) is part of the
+        contract.
+
+        Out-of-grid placements (gx, gy outside the channel map bounds) are
+        not flagged, matching the routability penalty's "no penalty at the
+        board edge" semantics.
+        """
+        if self.channel_map is None or not self.channel_map.has_grid():
+            return []
+
+        cmap = self.channel_map
+        cell_um = cmap.cell_size_um
+        width = cmap.width
+        height = cmap.height
+
+        # Pre-index bottlenecks by (gx, gy) for O(1) lookup per placement.
+        critical_by_cell: Dict[Tuple[int, int], Bottleneck] = {}
+        for bn in cmap.bottlenecks:
+            if bn.severity != "CRITICAL":
+                continue
+            key = (bn.x, bn.y)
+            existing = critical_by_cell.get(key)
+            if existing is None or bn.score > existing.score:
+                critical_by_cell[key] = bn
+
+        violations: list[dict] = []
+        for ref, pos in placements.items():
+            if not isinstance(pos, (tuple, list)) or len(pos) < 2:
+                continue
+            x_mm, y_mm = pos[0], pos[1]
+            gx = int(math.floor((float(x_mm) * 1000.0) / cell_um))
+            gy = int(math.floor((float(y_mm) * 1000.0) / cell_um))
+            if gx < 0 or gx >= width or gy < 0 or gy >= height:
+                continue
+            bn = critical_by_cell.get((gx, gy))
+            if bn is None:
+                continue
+            violations.append(
+                {
+                    "ref": ref,
+                    "x": gx,
+                    "y": gy,
+                    "layer": bn.layer,
+                    "severity": bn.severity,
+                }
+            )
+        return violations
+
+    def _check_critical_bottlenecks(
+        self, placements: Dict[str, Tuple[float, float]]
+    ) -> list[dict]:
+        """Run the invariant check; WARNING-only in soft-launch mode.
+
+        When :func:`is_drc_fence_fail_enabled` returns True, the first
+        violation raises :class:`PhasedComponentAssignmentError` with the
+        offending ref and severity in the message. The U6 follow-up
+        bd issue ``Flip DRC fence invariant to hard-fail`` owns the
+        2-week timeline for flipping the env var by default.
+        """
+        violations = self.find_critical_bottleneck_violations(placements)
+        for v in violations:
+            if is_drc_fence_fail_enabled():
+                raise PhasedComponentAssignmentError(
+                    f"DRC fence violation (hard-fail): {v['ref']} placed in "
+                    f"CRITICAL bottleneck cell ({v['x']}, {v['y']}) on "
+                    f"layer {v['layer']}; severity={v['severity']}"
+                )
+            _LOGGER.warning(
+                "DRC fence violation: %s placed in CRITICAL bottleneck cell "
+                "(%d, %d) on layer %s; severity=%s",
+                v["ref"],
+                v["x"],
+                v["y"],
+                v["layer"],
+                v["severity"],
+            )
+        return violations

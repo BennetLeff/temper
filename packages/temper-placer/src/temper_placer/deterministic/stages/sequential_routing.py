@@ -417,6 +417,9 @@ class SequentialRoutingStage(Stage):
         net_by_name = {n.name: n for n in state.netlist.nets}
         comp_by_ref = {c.ref: c for c in state.netlist.components}
 
+        import time
+        total_start = time.time()
+
         # Build layer assignment lookup from BoardState
         layer_by_net = {}
         is_plane_by_net = {}
@@ -1753,13 +1756,14 @@ class SequentialRoutingStage(Stage):
             state = state.with_locked_routes(newly_locked_nets)
 
         # ========== PHASE 2: ROUTING RETRY LOGIC ==========
-        # Retry failed nets with tight budgets and wall-time caps. The cap on
-        # total retry time prevents runaway loops on fundamentally unroutable
-        # nets (e.g. clearance-blocked GATE nets).
+        # Retry failed nets with increased iteration budgets.
+        # This handles cases where initial routing failed due to congestion.
+        # perf: Reduced from 5→3 retries and 10000→3000 base to avoid timeout
+        # on fundamentally unroutable nets. Added per-retry time cap.
         MAX_RETRIES = 3
-        RETRY_ITERATION_CAP = 1000
-        RETRY_TIME_LIMIT_S = 10.0
-        RETRY_TOTAL_LIMIT_S = 60.0
+        BASE_ITERATIONS = 3000
+        ITERATION_MULTIPLIER = 2.0
+        RETRY_TIME_LIMIT_S = 15.0  # Cap per-retry wall time
 
         # Collect nets that failed to route completely
         failed_nets = []
@@ -1788,8 +1792,8 @@ class SequentialRoutingStage(Stage):
             while retry_queue:
                 # perf: Cap total retry time to prevent runaway on unroutable nets
                 retry_elapsed = time.time() - retry_total_start
-                if retry_elapsed > RETRY_TOTAL_LIMIT_S:
-                    print(f"  [Retry] Total retry time {retry_elapsed:.1f}s exceeded {RETRY_TOTAL_LIMIT_S}s limit, stopping")
+                if retry_elapsed > 120.0:  # Total retry budget: 2 minutes
+                    print(f"  [Retry] Total retry time {retry_elapsed:.1f}s exceeded 120s limit, stopping")
                     break
 
                 net_name, retry_count = retry_queue.pop(0)
@@ -1797,6 +1801,9 @@ class SequentialRoutingStage(Stage):
                 if retry_count > MAX_RETRIES:
                     print(f"    {net_name}: Exceeded max retries ({MAX_RETRIES})")
                     continue
+
+                # Calculate increased iteration budget
+                iteration_budget = int(BASE_ITERATIONS * (ITERATION_MULTIPLIER ** retry_count))
 
                 net = net_by_name[net_name]
                 net_class_name = getattr(net, "net_class", None)
@@ -1855,9 +1862,10 @@ class SequentialRoutingStage(Stage):
                     continue
 
                 print(
-                    f"    Retry {retry_count}/{MAX_RETRIES}: {net_name} (cap: {RETRY_ITERATION_CAP} iters)"
+                    f"    Retry {retry_count}/{MAX_RETRIES}: {net_name} (budget: {iteration_budget} iters)"
                 )
 
+                # Create pathfinder with increased budget
                 retry_pathfinder = MultiLayerAStar(
                     grid=grid,
                     drc_oracle=state.drc_oracle,
@@ -1866,9 +1874,9 @@ class SequentialRoutingStage(Stage):
                     trace_width=width,
                     via_cost=2.0,  # Lower via cost on retry to encourage layer changes
                     allowed_layers=allowed_layers,
-                    use_adaptive_budget=False,  # Legacy distance-based budget with hard cap
-                    max_iterations_cap=1000,  # GATE nets need ~400 iters; cap keeps retries fast
-                    min_iterations=1000,  # Override 5000 default floor to allow fast failure
+                    congestion_detector=congestion_detector,
+                    use_adaptive_budget=True,
+                    base_iterations_per_cell=iteration_budget,  # Increased budget
                 )
 
                 # Compute MST and route
@@ -1877,15 +1885,8 @@ class SequentialRoutingStage(Stage):
 
                 retry_success = True
                 retry_paths = []
-                retry_attempt_start = time.time()
 
                 for idx1, idx2 in mst_edges:
-                    # perf: Check per-attempt time limit
-                    if time.time() - retry_attempt_start > RETRY_TIME_LIMIT_S:
-                        print(f"    {net_name} retry {retry_count} timed out after {RETRY_TIME_LIMIT_S}s")
-                        retry_success = False
-                        break
-
                     p1_snapped = snapped_positions[idx1]
                     p2_snapped = snapped_positions[idx2]
 

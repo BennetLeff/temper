@@ -31,3 +31,880 @@ allowlist:
   - source: temper_placer.deterministic
     target: temper_placer.router_v6.obstacle_map
     contract: router-v6-public-interface-only
+
+  # === Phase 3 per-file allowlist (plan 2026-06-22-014, plan 021 U6) ===
+  # Auto-generated from current imports in tools/, experiments/,
+  # simulation/, router-experiments/. Each file gets per-file entries
+  # listing the temper_placer.* submodules it imports from. New files
+  # importing from internal submodules will fail this gate.
+
+  - source: experiments/analyze_global_accessibility\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/analyze_global_accessibility\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/analyze_layer_utilization\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/analyze_pin_accessibility\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/analyze_pin_accessibility\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/debug_v5_routing\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/debug_v5_routing\.py
+    target: temper_placer.deterministic\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/debug_v5_routing\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/exp_25_drc1_net_isolation\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/exp_yj7p_4_validation\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/exp_yj7p_4_validation\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-g549/exp_24_hv_lv_integration\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-g549/exp_24_hv_lv_integration\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-g549/exp_24_hv_lv_integration\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-l7by/run_exp03\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-l7by/run_exp03\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-l7by/run_exp03\.py
+    target: temper_placer.losses\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-l7by/synthetic_spacing_pcb\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-l7by/synthetic_spacing_pcb\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/temper-no3r/exp_25_drc1_net_isolation\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: experiments/test_power_topology\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/analysis/apply_via_optimization\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/analysis/apply_via_optimization\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/demo_via_arrays\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_c_complex_weave\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_c_complex_weave\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_d_qfp44\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_d_qfp44\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_e_bga_escape\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_e_bga_escape\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_f_reserved_channel\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_02_f_reserved_channel\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_a_canal\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_a_canal\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_a_canal\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_b_creepage\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_b_creepage\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_b_creepage\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_c_mixed\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_c_mixed\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_c_mixed\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_d_creepage_auto\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_d_creepage_auto\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_05_d_creepage_auto\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_a_diff_pair\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_a_diff_pair\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_a_diff_pair\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_a_diff_pair_verification\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_a_diff_pair_verification\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_b_via_farm\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_b_via_farm\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_b_via_farm\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_b_via_test\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_b_via_test\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_c_star_point\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_c_star_point\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_06_c_star_point\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_07_a_config_validation\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_07_c_plane_connection\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_a_threshold_test\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_a_threshold_test\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_a_threshold_test\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_c_error_handling\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_g_mixed_capabilities\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_g_mixed_capabilities\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_g_mixed_capabilities\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_g_regression\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_08_i_ipc_accuracy\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_09_a_power_stage\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_09_b_dc_bus\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_09_c_current_sensing\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_09_f_connectors\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_10_a_gate_driver\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_10_a_gate_driver\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_10_b_current_sensing\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_10_b_current_sensing\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_11_gate_driver_yaml\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_11_gate_driver_yaml\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_11_gate_driver_yaml\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_12_current_sensing_star\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_12_current_sensing_star\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_12_current_sensing_star\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_13_igbt_stage\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_13_igbt_stage\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_13_igbt_stage\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_14_mcu_decoupling\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_14_mcu_decoupling\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_14_mcu_decoupling\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_15_spi_diff_pair\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_15_spi_diff_pair\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_15_spi_diff_pair\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16_hierarchical\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16_hierarchical\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16_hierarchical\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16_high_current_via_array\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16_high_current_via_array\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16_high_current_via_array\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16h_hierarchical_direct\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16h_hierarchical_direct\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_16h_hierarchical_direct\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_17_resonant_tank\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_17_resonant_tank\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_17_resonant_tank\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_18_spi_bus\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_18_spi_bus\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_18_spi_bus\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_18_voltage_doubler\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_18_voltage_doubler\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_18_voltage_doubler\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_19_hv_lv_crossing\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_19_hv_lv_crossing\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_19_isolation\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_19_isolation\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_19_isolation\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_1_b_neckdown\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_1_b_neckdown\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_20_mounting_hole\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_20_mounting_hole\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_21_ac_input\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_21_ac_input\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_21_dynamic_geometry\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_21_dynamic_geometry\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_22_gate_drive_loop\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_22_gate_drive_loop\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_22_routing_strategy\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_22_routing_strategy\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_23_kelvin_4wire\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_24_piantor_benchmark\.py
+    target: temper_placer.deterministic\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_24_piantor_benchmark\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_24_piantor_benchmark\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_24c_blocking_analysis\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_24c_blocking_analysis\.py
+    target: temper_placer.deterministic\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_24c_blocking_analysis\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/exp_bsr8_diff_pair_verification\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/full_board_validation_v2\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/full_board_validation_v2\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/full_board_validation_v2\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/mandatory_bottom_side\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/mandatory_bottom_side\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/pitchfork\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/pitchfork\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/profile_diff_pair\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/repro_pad_entry\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/repro_pad_entry\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/repro_zone_bleeding\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/repro_zone_bleeding\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_astar_01_minimal\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_astar_02_bisection\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_astar_03_heuristic\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_astar_04_neighbors\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_astar_05_search_pattern\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_clean_hierarchical\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_creepage_clearance\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_hierarchical_routing\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/test_via_generation_minimal\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/traffic_jam\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/traffic_jam\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/traffic_jam_weave\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/traffic_jam_weave\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_creepage\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_creepage\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_creepage\.py
+    target: temper_placer.pipeline\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_creepage\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_drc_fixes\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_drc_fixes\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_net_classes\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_net_classes\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: router-experiments/verify_net_classes\.py
+    target: temper_placer.pipeline\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: tools/benchmark_router\.py
+    target: temper_placer.io\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: tools/benchmark_router\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: tools/demo_explainability\.py
+    target: temper_placer\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: tools/demo_explainability\.py
+    target: temper_placer.core\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: tools/demo_explainability\.py
+    target: temper_placer.explainability\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+
+  - source: tools/demo_explainability\.py
+    target: temper_placer.routing\..*
+    contract: .*
+    reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
+

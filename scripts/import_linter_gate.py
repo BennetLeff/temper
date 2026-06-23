@@ -156,6 +156,72 @@ def matches_allowlist(
     return False
 
 
+# Phase 3 (plan 2026-06-22-014): top-level directories that import from
+# temper_placer internals. These aren't Python packages so import-linter
+# doesn't scan them natively. The gate has a separate code path that
+# scans these dirs directly and checks against the per-file allowlist.
+PHASE3_DIRS = ("tools", "experiments", "simulation", "router-experiments")
+PHASE3_CONTRACT = "phase3-public-interface-only"
+
+# Regex to find `import temper_placer.X` or `from temper_placer.X import ...` at
+# module top level. (Skips indented imports — those are inside if blocks.)
+TP_IMPORT_RE = re.compile(
+    r"^(?:from\s+temper_placer(?:\.(\S+?))?\s+import|import\s+temper_placer(?:\.(\S+?))?(?:\s+as\s+\w+)?\s*)$",
+    re.MULTILINE,
+)
+
+
+def scan_phase3_imports(
+    repo_root: Path,
+    dirs: tuple[str, ...] = PHASE3_DIRS,
+) -> set[tuple[str, str, str]]:
+    """Scan tools/, experiments/, etc. for temper_placer imports.
+
+    Returns a set of (file, target_module, contract) tuples representing
+    every temper_placer.* import found in the scanned directories.
+    """
+    found: set[tuple[str, str, str]] = set()
+    for d in dirs:
+        dpath = repo_root / d
+        if not dpath.is_dir():
+            continue
+        for f in dpath.rglob("*.py"):
+            if "__pycache__" in f.parts:
+                continue
+            try:
+                content = f.read_text()
+            except (UnicodeDecodeError, OSError):
+                continue
+            for m in TP_IMPORT_RE.finditer(content):
+                if m.group(1) is None:
+                    # `import temper_placer` (the root) - no enforcement
+                    continue
+                module = m.group(1)
+                # target is the full submodule path (e.g. "core.board")
+                target = "temper_placer." + module
+                rel_file = str(f.relative_to(repo_root))
+                found.add((rel_file, target, PHASE3_CONTRACT))
+    return found
+
+
+def check_phase3_compliance(
+    current_edges: set[tuple[str, str, str]],
+    allowlist: set[tuple[str, str, str]],
+) -> tuple[set, set, set]:
+    """Compare scanned phase3 imports against the allowlist.
+
+    Returns (new_violations, allowed, unmatched_allowlist_entries).
+    """
+    allowed: set[tuple[str, str, str]] = set()
+    new_violations: set[tuple[str, str, str]] = set()
+    for edge in current_edges:
+        if matches_allowlist(*edge, allowlist):
+            allowed.add(edge)
+        else:
+            new_violations.add(edge)
+    return new_violations, allowed, set()
+
+
 def run_lint_imports(config_path: str) -> tuple[int, str]:
     """Run import-linter and return (exit_code, combined stdout+stderr)."""
     args = ["uv", "run", "lint-imports", "--config", config_path]
@@ -272,6 +338,36 @@ def main():
     new_violations = current_edges - baseline - allowed_edges
     resolved_violations = baseline - current_edges
     matched_violations = current_edges & baseline
+
+    # Phase 3: scan tools/, experiments/, simulation/, router-experiments/
+    # for temper_placer.* imports. These dirs aren't Python packages, so
+    # import-linter doesn't scan them natively. The allowlist has per-file
+    # entries matching the current import surface; new imports fail the gate.
+    phase3_current = scan_phase3_imports(REPO_ROOT)
+    phase3_new, phase3_allowed, _ = check_phase3_compliance(
+        phase3_current, allowlist_raw
+    )
+    if phase3_current:
+        print(
+            f"\n=== PHASE 3 SCAN: tools/, experiments/, simulation/, "
+            f"router-experiments/ ==="
+        )
+        print(
+            f"  Found {len(phase3_current)} temper_placer.* imports across "
+            f"{len({e[0] for e in phase3_current})} files"
+        )
+        print(f"  Allowlisted (per-file): {len(phase3_allowed)}")
+        print(f"  New violations: {len(phase3_new)}")
+        if phase3_new:
+            new_violations |= phase3_new
+            print(
+                f"\n  Add per-file entries to import-linter-allowlist.yaml "
+                f"for these imports:"
+            )
+            for src, tgt, _ in sorted(phase3_new)[:20]:
+                print(f"    - source: {src}  target: {tgt}")
+            if len(phase3_new) > 20:
+                print(f"    ... and {len(phase3_new) - 20} more")
 
     # GitHub step summary
     gh_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
