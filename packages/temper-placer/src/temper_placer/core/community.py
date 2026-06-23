@@ -24,6 +24,10 @@ class Community:
     component_refs: list[str]
     modularity_score: float
 
+
+# Backwards-compatible alias for callers that imported the historical name.
+ComponentCommunity = Community
+
 def detect_communities(netlist: Netlist) -> list[Community]:
     """
     Detect functional communities in the netlist using the Louvain algorithm.
