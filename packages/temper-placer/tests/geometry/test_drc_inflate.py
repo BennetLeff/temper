@@ -6,7 +6,6 @@ import pytest
 from temper_placer.geometry.drc_inflate import (
     inflate_pad_polygon,
     precompute_inflated_dims,
-    precompute_from_pad_polygons,
     compute_inflated_half_dims_from_bounds,
     compute_drc_proxy_score,
 )

@@ -31,7 +31,6 @@ from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_esc
 from temper_placer.router_v6.layer_capacity import LayerCapacity
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
-from temper_placer.routing.variational_router.snake_optimizer import SnakeOptimizer
 from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
 from temper_placer.placement.legalization import Legalizer
 from temper_placer.router_v6.routing_demand import RoutingDemand

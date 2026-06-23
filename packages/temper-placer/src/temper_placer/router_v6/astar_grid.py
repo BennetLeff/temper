@@ -163,50 +163,6 @@ def _unblock_net_pads(
 
     return restoration_data
 
-    pads = pad_info[net_name]
-    for px, py, radius, layer in pads:
-        # Determine target grids
-        target_grids = []
-        if layer in ["All", "all"] or "*.Cu" in layer or "Through" in layer:
-            target_grids = list(grids.values())
-        elif layer in grids:
-            target_grids = [grids[layer]]
-
-        # Unblock identifying area
-        for grid in target_grids:
-            # Expansion MUST include inflation to bridge the 'moat'
-            expansion = int(np.ceil((radius + inflation_mm) / grid.cell_size)) + 1
-            cx, cy = grid.world_to_grid(px, py)
-
-            x_start = max(0, cx - expansion)
-            x_end = min(grid.width_cells, cx + expansion + 1)
-            y_start = max(0, cy - expansion)
-            y_end = min(grid.height_cells, cy + expansion + 1)
-
-            saved_cells = []
-
-            # Simpler: Only unblock if cell center is within (radius + inflation) of THIS pad.
-            # This allows the router to cross the C-Space 'moat' to reach the pad center.
-            # We subtract a tiny epsilon (0.01mm) to ensure we don't accidentally touch
-            # the exact center of a neighboring pad in extreme fine-pitch cases.
-            effective_unblock_radius = radius + inflation_mm - 0.01
-
-            for y in range(y_start, y_end):
-                for x in range(x_start, x_end):
-                    val = grid.grid[y, x]
-                    if val == -1:  # Only unblock static obstacles
-                        # Geometric check: Is this cell center inside our surgical unblock zone?
-                        wx, wy = grid.grid_to_world(x, y)
-                        dist = ((wx - px) ** 2 + (wy - py) ** 2) ** 0.5
-                        if dist <= effective_unblock_radius:
-                            saved_cells.append((x, y, val))
-                            grid.grid[y, x] = 0
-
-            if saved_cells:
-                restoration_data.append((grid, saved_cells))
-
-    return restoration_data
-
 
 def _restore_net_pads(restoration_data):
     """Restore grid state after routing."""

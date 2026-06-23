@@ -19,7 +19,6 @@ from temper_placer.router_v6.astar_grid import (
     _extract_pad_centers_per_net,
     _find_access_node,
     _identify_blocking_nets,
-    _is_at_tht_pad,
     _mark_route_blocked,
     _restore_net_pads,
     _unblock_net_pads,
@@ -28,16 +27,6 @@ from temper_placer.router_v6.astar_grid import (
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
-
-
-
-
-
-
-
-
-
-
 
 @dataclass
 class RoutingFailureReport:
@@ -49,7 +38,6 @@ class RoutingFailureReport:
     attempted_ripups: int
     congestion_region: tuple[float, float] | None  # Approximate (x, y) of stuck location
     pin_count: int = 0  # Number of pins in the net
-
 
 @dataclass
 class PathfindingResult:
@@ -118,25 +106,6 @@ class PathfindingResult:
             if report.blocking_nets:
                 print(f"      Blocked by: {', '.join(report.blocking_nets[:5])}")
         print()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def run_astar_pathfinding(
     channel_mapping: ChannelMapping,
@@ -438,7 +407,6 @@ def run_astar_pathfinding(
         per_path_latency_ms=per_path_latency_ms,
     )
 
-
 def _astar_route_with_ripup(
     net_name: str,
     channel_path,
@@ -489,10 +457,6 @@ def _astar_route_with_ripup(
 
     return path, []
 
-
-
-
-
 def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
     """
     Compute routing order for nets.
@@ -524,7 +488,6 @@ def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
         return (not is_power, not is_problem, length)
 
     return sorted(nets, key=priority_key)
-
 
 def _astar_route_multilayer(
     net_name: str,
@@ -681,7 +644,6 @@ def _astar_route_multilayer(
         forced_segment_count=forced_segments,
     )
 
-
 def _astar_route(
     net_name: str,
     channel_path,
@@ -786,38 +748,4 @@ def _astar_route(
         path_length=path_length,
         forced_segment_count=forced_segments,
     )
-
-    return RoutePath(
-        net_name=net_name,
-        coordinates=detailed_coords,
-        layer_name=grid.layer_name,
-        path_length=path_length,
-        forced_segment_count=forced_segments,
-    )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

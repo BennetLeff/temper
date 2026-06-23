@@ -295,16 +295,15 @@ def _extract_medial_axis_single(
         skeleton_lines = []
         
         for geom in raw_lines:
-             if True: #Indent preservation wrapper
-                if isinstance(geom, LineString):
-                    # Check if line is mostly inside polygon
-                    # Use small buffer to handle grazing edges
-                    midpoint = geom.interpolate(0.5, normalized=True)
-                    if polygon.buffer(1e-3).contains(midpoint):
-                        # Simplify the line
-                        simplified = geom.simplify(simplify_tolerance)
-                        if simplified.length > 0:
-                            skeleton_lines.append(simplified)
+            if isinstance(geom, LineString):
+                # Check if line is mostly inside polygon
+                # Use small buffer to handle grazing edges
+                midpoint = geom.interpolate(0.5, normalized=True)
+                if polygon.buffer(1e-3).contains(midpoint):
+                    # Simplify the line
+                    simplified = geom.simplify(simplify_tolerance)
+                    if simplified.length > 0:
+                        skeleton_lines.append(simplified)
 
         if skeleton_lines:
             return skeleton_lines

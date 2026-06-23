@@ -5,7 +5,6 @@ import pytest
 from temper_placer.testing.golden_diff import (
     DiffEntry,
     DiffReport,
-    GoldenDiffParseError,
     diff_golden,
     _diff_dsn,
     _diff_ses,

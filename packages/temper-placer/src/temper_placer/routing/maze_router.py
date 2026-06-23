@@ -4417,28 +4417,6 @@ class MazeRouter:
             self.routed_paths[net_name] = res
             return res
 
-        if self.drc_oracle is not None:
-            net_rules = self.design_rules.get_rules_for_net(net_name) if self.design_rules else None
-            self._register_routed_path(final_all_cells, net_name, rules=net_rules)
-
-        # Restore original occupancy
-        for gx, gy, l, v in original_occupancy:
-            self.occupancy[gx, gy, l] = v
-
-        res = RoutePath(
-            net=net_name,
-            cells=final_all_cells,
-            length=len(final_all_cells) * self.cell_size,
-            via_count=final_total_vias,
-            success=True,
-            difficulty=final_total_difficulty,
-            cell_difficulties=final_cell_difficulties,
-            trace_width=trace_width,
-            explicit_vias=explicit_vias,
-        )
-        self.routed_paths[net_name] = res
-        return res
-
     def route_net_hierarchical(
         self,
         net_name: str,
