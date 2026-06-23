@@ -1,0 +1,39 @@
+name: Golden DSN Check
+
+on:
+  pull_request:
+    paths:
+      - 'packages/temper-placer/src/temper_placer/**'
+      - 'power_pcb_dataset/goldens/**'
+      - 'pcb/**'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/temper-placer/src/temper_placer/**'
+      - 'power_pcb_dataset/goldens/**'
+
+jobs:
+  golden-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        boundary: [semantic, topological, placement, routing, validation]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install temper-placer
+        run: |
+          pip install -e packages/temper-placer
+
+      - name: Run golden check (${{ matrix.boundary }})
+        run: |
+          temper dsn check \
+            --boundary ${{ matrix.boundary }} \
+            --input pcb/temper.kicad_pcb \
+            --config pcb/temper_config.yaml \
+            --golden-dir power_pcb_dataset/goldens/temper
