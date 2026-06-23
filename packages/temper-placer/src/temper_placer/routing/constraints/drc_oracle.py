@@ -10,7 +10,7 @@ Part of temper-lueu.3 and temper-lueu.4
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Mapping, Union
+from typing import TYPE_CHECKING, Callable, Literal, Mapping, Union
 
 from temper_placer.routing.constraints.design_rules import ClearanceMatrix
 from temper_placer.routing.constraints.geometry import (
@@ -113,11 +113,17 @@ class DRCOracle:
     # @req(2026-06-23-007, R3): Spatially-scoped clearance credits.
     # Keys are (component_ref, lv_pin, hv_pin); values are
     # (effective_clearance_mm, half_width_mm, half_length_mm,
-    # slot_midpoint_x, slot_midpoint_y).
+    # slot_midpoint_x, slot_midpoint_y, axis).
     # The slot midpoint is part of the value so the AABB can be centered
     # on the actual slot geometry rather than the segment between pads.
+    # `axis` is 'x' or 'y' depending on the cutout's orientation, and is
+    # used by get_effective_clearance / get_pad_credit to gate the
+    # spatial test on the correct AABB orientation. None is accepted
+    # (and conservatively tested in either orientation) for legacy
+    # callers that don't know the axis.
     clearance_credits: dict[
-        tuple[str, str, str], tuple[float, float, float, float, float]
+        tuple[str, str, str],
+        tuple[float, float, float, float, float, Literal["x", "y"] | None],
     ] = field(default_factory=dict)
     # @req(2026-06-23-007, R3): Maps each pad's `id` to its owning
     # component reference. May be a dict or a callable.
@@ -138,6 +144,7 @@ class DRCOracle:
         half_width_mm: float,
         half_length_mm: float,
         slot_midpoint: tuple[float, float] = (0.0, 0.0),
+        axis: Literal["x", "y"] | None = None,
     ) -> None:
         """Register a clearance credit for a (component_ref, lv_pin, hv_pin) triple.
 
@@ -149,13 +156,25 @@ class DRCOracle:
         `slot_midpoint` is the absolute board-coords midpoint of the
         cutout. The AABB is centered on this point so the spatial test
         does not depend on the pad positions themselves.
+
+        `axis` is the cutout's primary axis: 'x' if the slot runs along
+        x (so `half_length_mm` is the x extent and `half_width_mm` is
+        the y extent), or 'y' for the perpendicular orientation. When
+        provided, the spatial test rejects pads that fit the wrong
+        orientation, preventing the credit from leaking outside the
+        reclaimed band. When None, both orientations are checked for
+        backward compatibility with callers that don't yet know the
+        axis (e.g. older test fixtures).
         """
+        if axis not in (None, "x", "y"):
+            raise ValueError(f"axis must be 'x', 'y', or None; got {axis!r}")
         self.clearance_credits[(component_ref, lv_pin, hv_pin)] = (
             float(effective_clearance_mm),
             float(half_width_mm),
             float(half_length_mm),
             float(slot_midpoint[0]),
             float(slot_midpoint[1]),
+            axis,
         )
 
     def _resolve_owner(self, pin_id: str) -> str | None:
@@ -181,12 +200,15 @@ class DRCOracle:
           identifiers that the pads correspond to, AND
         - both pad centers lie inside the slot's reclaimed AABB
           (centered on the slot's midpoint with half-extents
-          `(half_width + 0.5, half_length)`).
+          `(half_width + 0.5, half_length)`), gated on the credit's
+          stored axis when available.
 
-        The credit's "axis" is the longer dimension (half_length); the
-        "perpendicular" is half_width. We don't store the axis direction
-        in the credit, so we conservatively check both orientations: the
-        AABB must contain both pads in at least one orientation.
+        When the credit has an axis ('x' or 'y'), the spatial test
+        requires both pads to fit the matching orientation. When the
+        axis is None (legacy callers), the test accepts either
+        orientation for backward compatibility, but the production
+        bridge now always supplies the axis so the credit cannot leak
+        outside the reclaimed band.
 
         Returns None otherwise — callers should fall back to the
         ClearanceMatrix baseline.
@@ -202,16 +224,17 @@ class DRCOracle:
         pin_b = pad_b.id.rsplit("-", 1)[-1]
         if not pin_a or not pin_b:
             return None
-        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy) in self.clearance_credits.items():
+        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy, axis) in self.clearance_credits.items():
             if comp_ref != owner_a:
                 continue
             if {pin_a, pin_b} != {c_lv, c_hv}:
                 continue
             # @req(2026-06-23-007, R3): Spatial scope — both pad centers
-            # must lie inside the slot's reclaimed AABB. We accept the
-            # credit if the pads fit in EITHER orientation of the AABB
-            # (slot axis along x or along y) since the credit's axis
-            # direction is not stored.
+            # must lie inside the slot's reclaimed AABB. When the
+            # credit has a stored axis, the test is gated on that
+            # single orientation so the credit cannot leak into the
+            # perpendicular band. axis=None keeps the legacy
+            # "either orientation" check for older callers.
             half_w_band = hw + 0.5
             ax, ay = pad_a.center.x, pad_a.center.y
             bx, by = pad_b.center.x, pad_b.center.y
@@ -227,6 +250,14 @@ class DRCOracle:
                 and smy - half_w_band <= ay <= smy + half_w_band
                 and smy - half_w_band <= by <= smy + half_w_band
             )
+            if axis == "x":
+                if inside_x_axis:
+                    return effective
+                continue
+            if axis == "y":
+                if inside_y_axis:
+                    return effective
+                continue
             if inside_x_axis or inside_y_axis:
                 return effective
         return None
@@ -249,14 +280,13 @@ class DRCOracle:
         pin = pad.id.rsplit("-", 1)[-1]
         if not pin:
             return None
-        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy) in self.clearance_credits.items():
+        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy, axis) in self.clearance_credits.items():
             if comp_ref != owner:
                 continue
             if pin not in (c_lv, c_hv):
                 continue
             half_w_band = hw + 0.5
             px, py = pad.center.x, pad.center.y
-            # Accept either orientation.
             inside_x_axis = (
                 smx - half_w_band <= px <= smx + half_w_band
                 and smy - hl <= py <= smy + hl
@@ -265,6 +295,14 @@ class DRCOracle:
                 smx - hl <= px <= smx + hl
                 and smy - half_w_band <= py <= smy + half_w_band
             )
+            if axis == "x":
+                if inside_x_axis:
+                    return effective
+                continue
+            if axis == "y":
+                if inside_y_axis:
+                    return effective
+                continue
             if inside_x_axis or inside_y_axis:
                 return effective
         return None
