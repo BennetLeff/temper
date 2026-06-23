@@ -107,6 +107,8 @@ class ClearanceGrid:
         self._next_net_id = 1
         # Cache for occupancy_grid property (lazy init)
         self._occupancy_grid_cache = None
+        self._bitmap_cache = None
+        self._bitmap_stride_cache = None
 
     @property
     def occupancy_grid(self) -> np.ndarray:
@@ -121,6 +123,42 @@ class ClearanceGrid:
         # For now, just stack trace arrays (pads are less important for routing)
         # TODO: properly merge trace and pad net IDs
         return np.stack(self._trace_net_ids, axis=0)
+
+    @property
+    def occupancy_bitmap(self) -> np.ndarray:
+        if self._bitmap_cache is not None:
+            return self._bitmap_cache
+        cols = self.cols
+        stride = (cols + 63) // 64
+        bitmap = np.zeros((self.layer_count, self.rows, stride), dtype=np.uint64)
+        for layer in range(self.layer_count):
+            trace = self._trace_net_ids[layer]
+            pad = self._pad_net_ids[layer]
+            for row in range(self.rows):
+                for word in range(stride):
+                    start_col = word * 64
+                    end_col = min(start_col + 64, cols)
+                    word_val = np.uint64(0)
+                    for col in range(start_col, end_col):
+                        t_val = int(trace[row, col])
+                        p_val = int(pad[row, col])
+                        if t_val != 0 or p_val != 0:
+                            word_val |= np.uint64(1) << np.uint64(col - start_col)
+                    bitmap[layer, row, word] = word_val
+        self._bitmap_cache = bitmap
+        self._bitmap_stride_cache = stride
+        return bitmap
+
+    @property
+    def bitmap_row_stride(self) -> int:
+        if self._bitmap_stride_cache is None:
+            _ = self.occupancy_bitmap
+        return self._bitmap_stride_cache
+
+    def _invalidate_cache(self) -> None:
+        self._occupancy_grid_cache = None
+        self._bitmap_cache = None
+        self._bitmap_stride_cache = None
 
     def get_net_id(self, net_name: str) -> int:
         """Get or create unique integer ID for a net name."""
@@ -203,6 +241,7 @@ class ClearanceGrid:
             min_col,
             max_col,
         )
+        self._invalidate_cache()
 
     def block_trace(
         self,
@@ -286,6 +325,7 @@ class ClearanceGrid:
             min_col,
             max_col,
         )
+        self._invalidate_cache()
 
     def block_rect(
         self,
@@ -337,6 +377,7 @@ class ClearanceGrid:
                     target_grid[row, col] = net_id
                 elif curr != net_id:
                     target_grid[row, col] = -1  # Multiple nets/conflict
+        self._invalidate_cache()
 
     def unblock_circle(self, center: tuple[float, float], radius_mm: float, layer: int = 0):
         """Unblock cells within radius of center on specified layer."""
@@ -359,6 +400,7 @@ class ClearanceGrid:
                 if dist <= radius_mm:
                     self._trace_net_ids[layer][row, col] = 0
                     self._pad_net_ids[layer][row, col] = 0
+        self._invalidate_cache()
 
     @property
     def blocked_count(self) -> int:
