@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Optional, FrozenSet
+from typing import TYPE_CHECKING, Any, Mapping, Optional, FrozenSet
 
 if TYPE_CHECKING:
+    from shapely.geometry import Polygon
+
     from temper_placer.core.board import Board
     from temper_placer.core.loop import LoopCollection
     from temper_placer.core.netlist import Netlist
@@ -85,6 +87,11 @@ class BoardState:
     parsed_grids: Optional[dict[str, Any]] = None
     net_route_order: Optional[list[str]] = None
     per_net_results: Optional[dict[str, Any]] = None
+    # HvLv guard strip fields (U1 of feat/hv-lv-guard-strip)
+    component_domain_map: frozenset = frozenset()  # (ref, "HV_edge" | "LV_interior")
+    routing_corridors: tuple["Polygon", ...] = ()
+    domain_regions: tuple["Polygon", ...] = field(default_factory=tuple)  # (hv_poly, lv_poly)
+    config: Optional[Mapping[str, Any]] = None  # Raw config dict for stages that need it
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.
