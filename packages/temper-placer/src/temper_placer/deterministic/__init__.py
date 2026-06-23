@@ -170,6 +170,7 @@ def create_drc_aware_pipeline(
         ShortCircuitDetectionStage,
         PlacementValidationStage,
     )
+    from .stages.config_attach import ConfigAttachStage
     from .stages.sequential_routing import DiffPairConfig
 
     # Build zone config from YAML config if available

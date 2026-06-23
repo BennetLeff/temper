@@ -10,6 +10,7 @@ This module defines the PCB board geometry and placement zones:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import IntEnum
 
 import jax.numpy as jnp
 from jax import Array
@@ -138,6 +139,90 @@ class Layer:
     layer_type: str  # "signal", "plane", "mixed"
     copper_weight: float = 1.0  # oz
     is_routable: bool = True
+
+
+class LayerIndex(IntEnum):
+    """
+    Canonical 4-layer PCB layer index (IntEnum).
+
+    Each member's `__str__` returns the standard KiCad name
+    (`"F.Cu"`, `"In1.Cu"`, `"In2.Cu"`, `"B.Cu"`); the inherited
+    `Enum.name` returns the Python identifier (`"F_CU"`, etc.).
+    Use `__str__(layer)` for the KiCad name and `layer.name` for the
+    identifier — do not conflate them.
+    """
+
+    F_CU = 0
+    IN1_CU = 1
+    IN2_CU = 2
+    B_CU = 3
+
+    def __str__(self) -> str:
+        return _LAYER_INDEX_TO_KICAD_NAME[self]
+
+    @classmethod
+    def from_name(cls, name: str) -> LayerIndex:
+        """Look up a LayerIndex by its KiCad name (raises KeyError on miss)."""
+        return LAYER_NAME_TO_IDX[name]
+
+
+# Canonical 4-layer order (top to bottom).
+STANDARD_LAYER_ORDER: tuple[LayerIndex, ...] = (
+    LayerIndex.F_CU,
+    LayerIndex.IN1_CU,
+    LayerIndex.IN2_CU,
+    LayerIndex.B_CU,
+)
+
+# Inner plane layers (GND/PWR) on a 4-layer board.
+PLANE_LAYER_INDICES: frozenset[LayerIndex] = frozenset(
+    {LayerIndex.IN1_CU, LayerIndex.IN2_CU}
+)
+
+_LAYER_INDEX_TO_KICAD_NAME: dict[LayerIndex, str] = {
+    LayerIndex.F_CU: "F.Cu",
+    LayerIndex.IN1_CU: "In1.Cu",
+    LayerIndex.IN2_CU: "In2.Cu",
+    LayerIndex.B_CU: "B.Cu",
+}
+
+LAYER_IDX_TO_NAME: dict[LayerIndex, str] = _LAYER_INDEX_TO_KICAD_NAME
+LAYER_NAME_TO_IDX: dict[str, LayerIndex] = {
+    name: idx for idx, name in _LAYER_INDEX_TO_KICAD_NAME.items()
+}
+
+
+def _coerce_layer_index(name_or_index: str | LayerIndex) -> LayerIndex:
+    if isinstance(name_or_index, LayerIndex):
+        return name_or_index
+    return LAYER_NAME_TO_IDX[name_or_index]
+
+
+def is_plane_layer(name_or_index: str | LayerIndex) -> bool:
+    """Return True if the layer is a plane layer (In1.Cu or In2.Cu)."""
+    return _coerce_layer_index(name_or_index) in PLANE_LAYER_INDICES
+
+
+def is_signal_layer(name_or_index: str | LayerIndex) -> bool:
+    """Return True if the layer is a signal layer (F.Cu or B.Cu)."""
+    return not is_plane_layer(name_or_index)
+
+
+def side_to_layer_name(side: int) -> str:
+    """Map a board side (0=top, 1=bottom) to its KiCad layer name.
+
+    Raises ValueError for sides other than 0 or 1.
+    """
+    if side == 0:
+        return "F.Cu"
+    if side == 1:
+        return "B.Cu"
+    raise ValueError(f"side must be 0 or 1, got {side!r}")
+
+
+def layer_name_to_index(name: str) -> LayerIndex:
+    """Map a KiCad layer name to its LayerIndex. Raises KeyError on miss."""
+    return LAYER_NAME_TO_IDX[name]
 
 
 @dataclass

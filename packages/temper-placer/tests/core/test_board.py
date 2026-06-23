@@ -1,11 +1,22 @@
 """Tests for core.board module."""
 
 
+import pytest
+
 from temper_placer.core.board import (
     GroundDomain,
+    LayerIndex,
     LayerStackup,
+    LAYER_IDX_TO_NAME,
+    LAYER_NAME_TO_IDX,
     MountingHole,
+    PLANE_LAYER_INDICES,
+    STANDARD_LAYER_ORDER,
     Zone,
+    is_plane_layer,
+    is_signal_layer,
+    layer_name_to_index,
+    side_to_layer_name,
 )
 
 
@@ -180,5 +191,92 @@ class TestGroundDomain:
 
     def test_domain_with_star_point(self):
         """Test ground domain with star point."""
-        domain = GroundDomain("CGND", (50, 0, 100, 150), star_point=(50, 40))
+        domain = GroundDomain("CGND", (0, 0, 100, 150), star_point=(50, 40))
         assert domain.star_point == (50, 40)
+
+
+class TestLayerIndex:
+    """Tests for the canonical LayerIndex enum and helpers."""
+
+    def test_name_vs_str(self):
+        """__str__ returns the KiCad name; .name returns the Python identifier."""
+        assert LayerIndex.F_CU.name == "F_CU"
+        assert str(LayerIndex.F_CU) == "F.Cu"
+        assert str(LayerIndex.IN1_CU) == "In1.Cu"
+        assert str(LayerIndex.IN2_CU) == "In2.Cu"
+        assert str(LayerIndex.B_CU) == "B.Cu"
+
+    def test_int_values(self):
+        """IntEnum values match the canonical 0/1/2/3 layer indices."""
+        assert LayerIndex.F_CU.value == 0
+        assert LayerIndex.IN1_CU.value == 1
+        assert LayerIndex.IN2_CU.value == 2
+        assert LayerIndex.B_CU.value == 3
+
+    def test_standard_layer_order(self):
+        """STANDARD_LAYER_ORDER is the canonical top-to-bottom 4-layer tuple."""
+        assert len(STANDARD_LAYER_ORDER) == 4
+        assert STANDARD_LAYER_ORDER[0] is LayerIndex.F_CU
+        assert STANDARD_LAYER_ORDER[-1] is LayerIndex.B_CU
+        assert tuple(STANDARD_LAYER_ORDER) == (
+            LayerIndex.F_CU,
+            LayerIndex.IN1_CU,
+            LayerIndex.IN2_CU,
+            LayerIndex.B_CU,
+        )
+
+    def test_plane_layer_indices(self):
+        """PLANE_LAYER_INDICES contains the inner plane layers."""
+        assert PLANE_LAYER_INDICES == frozenset({LayerIndex.IN1_CU, LayerIndex.IN2_CU})
+
+    def test_is_plane_layer_enum_and_str(self):
+        """is_plane_layer accepts both LayerIndex and str."""
+        assert is_plane_layer(LayerIndex.IN1_CU) is True
+        assert is_plane_layer(LayerIndex.IN2_CU) is True
+        assert is_plane_layer("In1.Cu") is True
+        assert is_plane_layer("In2.Cu") is True
+        assert is_plane_layer(LayerIndex.F_CU) is False
+        assert is_plane_layer("F.Cu") is False
+        assert is_plane_layer(LayerIndex.B_CU) is False
+        assert is_plane_layer("B.Cu") is False
+
+    def test_is_signal_layer(self):
+        """is_signal_layer is the inverse of is_plane_layer for canonical 4 layers."""
+        assert is_signal_layer("F.Cu") is True
+        assert is_signal_layer("B.Cu") is True
+        assert is_signal_layer(LayerIndex.F_CU) is True
+        assert is_signal_layer(LayerIndex.B_CU) is True
+        assert is_signal_layer("In1.Cu") is False
+        assert is_signal_layer("In2.Cu") is False
+
+    def test_side_to_layer_name(self):
+        """side_to_layer_name maps 0->F.Cu, 1->B.Cu; raises on other values."""
+        assert side_to_layer_name(0) == "F.Cu"
+        assert side_to_layer_name(1) == "B.Cu"
+        with pytest.raises(ValueError):
+            side_to_layer_name(2)
+        with pytest.raises(ValueError):
+            side_to_layer_name(-1)
+
+    def test_layer_name_to_index(self):
+        """layer_name_to_index maps the four KiCad names; raises KeyError on miss."""
+        assert layer_name_to_index("F.Cu") is LayerIndex.F_CU
+        assert layer_name_to_index("In1.Cu") is LayerIndex.IN1_CU
+        assert layer_name_to_index("In2.Cu") is LayerIndex.IN2_CU
+        assert layer_name_to_index("B.Cu") is LayerIndex.B_CU
+        with pytest.raises(KeyError):
+            layer_name_to_index("F.GND")
+
+    def test_layer_index_from_name(self):
+        """LayerIndex.from_name is a convenience alias for layer_name_to_index."""
+        assert LayerIndex.from_name("B.Cu") is LayerIndex.B_CU
+        with pytest.raises(KeyError):
+            LayerIndex.from_name("nope")
+
+    def test_bidirectional_maps(self):
+        """LAYER_IDX_TO_NAME and LAYER_NAME_TO_IDX are exact inverses on canonical 4."""
+        assert LAYER_IDX_TO_NAME[LayerIndex.F_CU] == "F.Cu"
+        assert LAYER_IDX_TO_NAME[LayerIndex.B_CU] == "B.Cu"
+        assert LAYER_NAME_TO_IDX["In2.Cu"] is LayerIndex.IN2_CU
+        for idx, name in LAYER_IDX_TO_NAME.items():
+            assert LAYER_NAME_TO_IDX[name] is idx

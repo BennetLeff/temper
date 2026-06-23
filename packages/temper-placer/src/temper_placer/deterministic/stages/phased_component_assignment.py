@@ -96,6 +96,9 @@ class PhasedComponentAssignmentStage(Stage):
         fixed_placements: Dict[str, Dict] = None,
         channel_map: ChannelMap | None = None,
         w_r: float = 0.05,
+        design_rules=None,
+        use_isolation_slots: bool = False,
+        seed_filter=None,
     ):
         """Initialize phased placement.
 
@@ -169,6 +172,8 @@ class PhasedComponentAssignmentStage(Stage):
         """Execute phased placement."""
         if not state.netlist or not state.component_zone_map or not state.zone_slots:
             return state
+        import logging
+        logger = logging.getLogger(__name__)
 
         # Validate constraints before placement
         errors = self.compiler.validate(state.board, state.netlist)
@@ -182,6 +187,8 @@ class PhasedComponentAssignmentStage(Stage):
         # degrades to a no-op.
         if self.design_rules is not None and getattr(state, "design_rules", None) is None:
             state = replace(state, design_rules=self.design_rules)
+
+        domain_for_ref, domain_regions = self._domain_lookups(state)
 
         placements, used_slots = self._phased_placement(
             state,

@@ -50,6 +50,25 @@ class BoardState:
     # validator can check the actual reservation set rather than
     # re-deriving it from placements.
     used_slots: frozenset = frozenset()
+    # Optional configuration block (parsed PlacementConstraints dict).
+    # Populated by ConfigAttachStage at the head of the pipeline so downstream
+    # stages (HvLvPartitionStage, etc.) can read their own block from
+    # ``state.config`` without the orchestrator threading the raw config
+    # through every hook point. Default None preserves older pipeline
+    # callers that construct BoardState() with no config.
+    config: Any = None
+    # feat/hv-lv-guard-strip: per-component HV/LV domain assignment (set
+    # by HvLvPartitionStage). FrozenSet of (component_ref, domain_name)
+    # tuples where domain_name is one of {"HV_edge", "LV_interior", "iso"}.
+    component_domain_map: frozenset = frozenset()
+    # feat/hv-lv-guard-strip: tuple of corridor polygons between HV_edge
+    # and LV_interior domains. Used by the placer to keep component slots
+    # out of routing channels.
+    routing_corridors: tuple = ()
+    # feat/hv-lv-guard-strip: tuple of (domain_name, polygon) pairs for
+    # the computed HV/LV regions. The placer's domain filter consults
+    # this map when assigning a slot to a component.
+    domain_regions: tuple = ()
     routes: frozenset = frozenset()
     vias: frozenset = frozenset()
     violations: frozenset = frozenset()
