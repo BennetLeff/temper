@@ -4,6 +4,256 @@ from numba import njit
 from ..state import BoardState
 from .base import Stage
 
+from temper_placer.routing.constraints.drc_oracle import INTERNAL_LAYER_CREEPAGE_FACTOR
+
+
+# @req(2026-06-23-005, R2): Layer-aware creepage factor.
+# Outer copper layers (F.Cu, B.Cu) carry the full creepage distance; inner
+# layers (In1.Cu, In2.Cu, ...) carry the reduced factor because the plane acts
+# as a shield. The reduction mirrors `drc_oracle.INTERNAL_LAYER_CREEPAGE_FACTOR`
+# so the expansion is consistent with the router's clearance arithmetic.
+OUTER_COPPER_LAYERS = frozenset({"F.Cu", "B.Cu"})
+
+
+class ConfigError(ValueError):
+    """Raised when HV exclusion zone config cannot be resolved against the netlist.
+
+    The pre-route creepage expansion requires each HV zone to map to a known
+    component. This error names the offending refdes/zone to make failures
+    actionable during config validation.
+    """
+
+
+class FenceViolation(RuntimeError):
+    """Raised when the U3 clearance-grid fence detects a non-conservative expansion.
+
+    The fence (R8) samples the boundary of every (pad, layer) expansion
+    produced by the U2 pass and asserts each sample lies inside the
+    blocked region of the produced grid. A miss means the expansion under-
+    blocked: a downstream A* run would think the cell is free and route
+    through it, violating creepage. The exception names the offending
+    pad (ref, pin_name), layer, sample coordinate, and a human-readable
+    reason so the failure is actionable from CI logs.
+
+    @req(2026-06-23-005, R8)
+    """
+
+
+def effective_creepage(layer: str, base_creepage_mm: float) -> float:
+    """Return the per-layer effective creepage distance in mm.
+
+    @req(2026-06-23-005, R2): Outer layers use the full base creepage; inner
+    layers use `base_creepage_mm * INTERNAL_LAYER_CREEPAGE_FACTOR`.
+
+    Args:
+        layer: KiCad layer name (e.g., "F.Cu", "In1.Cu").
+        base_creepage_mm: Base creepage distance in mm (typically 6.0).
+
+    Returns:
+        Effective creepage distance in mm for the given layer.
+    """
+    if layer in OUTER_COPPER_LAYERS:
+        return base_creepage_mm
+    return base_creepage_mm * INTERNAL_LAYER_CREEPAGE_FACTOR
+
+
+def _layer_index_to_name(layer_idx: int, layer_count: int) -> str:
+    """Map a 0-based layer index to its KiCad layer name.
+
+    Used to translate grid layer indices into the names `effective_creepage`
+    accepts. Matches the convention in `ClearanceGrid.export_visualization`.
+    """
+    names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+    if 0 <= layer_idx < len(names):
+        return names[layer_idx]
+    return f"Layer_{layer_idx}"
+
+
+# @req(2026-06-23-005, R1): HV-pad identification. The set is the union of all
+# pads whose parent component is mapped to an HV exclusion zone.
+def hv_pad_set(pads, hv_exclusion_zones, component_positions):
+    """Identify the set of (component_ref, pin_name) pads that belong to HV components.
+
+    For each HV exclusion zone, resolve the parent component refdes:
+      1. If the zone has `component_refdes` set explicitly, use it (R1).
+      2. Otherwise, fall back to the component closest to the zone center.
+
+    All pads of the resolved HV components are returned. The set is rebuilt on
+    every stage run; no module-level state is mutated.
+
+    Args:
+        pads: Iterable of pad dicts each having keys ``"ref"`` and ``"name"``.
+        hv_exclusion_zones: Iterable of `HVExclusionZone` (or duck-typed
+            objects exposing ``component_refdes``, ``center``, ``size``,
+            ``name``).
+        component_positions: Dict mapping ``component_ref -> (x, y)`` position
+            in mm. Used for the spatial fallback.
+
+    Returns:
+        Set of ``(ref, pin_name)`` tuples for HV pads.
+
+    Raises:
+        ConfigError: If an explicit ``component_refdes`` does not appear in
+            ``component_positions``, or if the spatial fallback finds no
+            component within the zone bounds.
+    """
+    hv_refs: set[str] = set()
+    for zone in hv_exclusion_zones:
+        ref = getattr(zone, "component_refdes", None)
+        if ref is not None:
+            if ref not in component_positions:
+                raise ConfigError(
+                    f"HV exclusion zone '{getattr(zone, 'name', '?')}' declares "
+                    f"component_refdes '{ref}' which is not present in the "
+                    f"placed netlist."
+                )
+            hv_refs.add(ref)
+            continue
+
+        zx, zy = zone.center
+        zw, zh = zone.size
+        half_w, half_h = zw / 2.0, zh / 2.0
+        candidates = [
+            (ref, pos)
+            for ref, pos in component_positions.items()
+            if (zx - half_w) <= pos[0] <= (zx + half_w)
+            and (zy - half_h) <= pos[1] <= (zy + half_h)
+        ]
+        if not candidates:
+            raise ConfigError(
+                f"HV exclusion zone '{getattr(zone, 'name', '?')}' centered at "
+                f"({zx}, {zy}) with size {zone.size} contains no placed component."
+            )
+        closest_ref, _ = min(
+            candidates,
+            key=lambda item: (item[1][0] - zx) ** 2 + (item[1][1] - zy) ** 2,
+        )
+        hv_refs.add(closest_ref)
+
+    return {(pad["ref"], pad["name"]) for pad in pads if pad["ref"] in hv_refs}
+
+
+# @req(2026-06-23-005, U2): Module-level log of expansion operations. Rebuilt
+# on every `clearance_grid` stage run; consumed by the fence (U3) and the
+# closure test (U4a). Persistent state is not used.
+#
+# Each entry is a tuple:
+#   (ref, pin_name, layer_idx, pos, shape, radius, size, eff_creep, cells_added)
+# where shape ∈ {"circle", "rect", "roundrect", "oval"} and `size` is the
+# bbox (w, h) for rect-shaped pads (or (0, 0) for circles).
+_EXPANSION_LOG: list[tuple] = []
+
+
+# @req(2026-06-23-005, U3): Per-stage fence that asserts the expansion is
+# conservative. Returns a list of (ref, pin_name, layer, sample_xy, reason)
+# violations; empty list means the expansion is conservative on every
+# (pad, layer) pair in `_EXPANSION_LOG`.
+#
+# Cell quantization: the grid is a discrete array; cells are square and
+# the cell center sits at (col*cell + cell/2, row*cell + cell/2). Sampling
+# exactly on the boundary radius `pad_radius + eff_creep` can land on a
+# cell whose center is just outside the radius. To accommodate, the fence
+# samples at `boundary - cell/2` so the cell containing the sample is the
+# one just *inside* the boundary. This matches the ±0.5 cell tolerance in
+# the plan's R8 and the existing test scenarios.
+def check_clearance_grid_conservatism(
+    grid,
+    expansion_log=None,
+    sample_count_circle: int = 16,
+):
+    """Verify the expanded grid blocks the creepage boundary on every layer.
+
+    For circular pads, sample `sample_count_circle` points on a circle of
+    radius `pad_radius + eff_creep - cell/2` and assert each cell is blocked.
+    For rect pads, sample 4 corners and 4 edge midpoints offset by
+    `eff_creep - cell/2` on each side. The cell/2 inset is the ±0.5 cell
+    tolerance required by R8.
+
+    Args:
+        grid: The `ClearanceGrid` produced by the stage.
+        expansion_log: Iterable of tuples as written by U2. Defaults to the
+            module-level `_EXPANSION_LOG`.
+        sample_count_circle: Number of points to sample on circular pads.
+
+    Returns:
+        List of violation dicts. Each has ``ref``, ``pin_name``, ``layer``,
+        ``xy``, and ``reason``. Empty list means conservative.
+    """
+    log = expansion_log if expansion_log is not None else _EXPANSION_LOG
+    violations: list[dict] = []
+    import math
+
+    cell = grid.cell_size_mm
+    inset = cell / 2.0  # ±0.5 cell tolerance per R8
+
+    for entry in log:
+        (ref, pin_name, layer_idx, pos, shape, pad_radius, pad_size, eff_creep,
+         _cells_added) = entry
+        if layer_idx < 0 or layer_idx >= grid.layer_count:
+            continue
+
+        samples: list[tuple[float, float]] = []
+        if shape in ("rect", "roundrect", "oval") and pad_size[0] > 0 and pad_size[1] > 0:
+            cx, cy = pos
+            w, h = pad_size
+            eff = eff_creep - inset
+            # 4 corners expanded by eff on each side
+            samples.append((cx - w / 2 - eff, cy - h / 2 - eff))
+            samples.append((cx + w / 2 + eff, cy - h / 2 - eff))
+            samples.append((cx - w / 2 - eff, cy + h / 2 + eff))
+            samples.append((cx + w / 2 + eff, cy + h / 2 + eff))
+            # 4 edge midpoints
+            samples.append((cx, cy - h / 2 - eff))
+            samples.append((cx, cy + h / 2 + eff))
+            samples.append((cx - w / 2 - eff, cy))
+            samples.append((cx + w / 2 + eff, cy))
+        else:
+            cx, cy = pos
+            r = pad_radius + eff_creep - inset
+            for i in range(sample_count_circle):
+                theta = 2.0 * math.pi * i / sample_count_circle
+                samples.append((cx + r * math.cos(theta), cy + r * math.sin(theta)))
+
+        for x, y in samples:
+            if grid.is_available(x, y, layer=layer_idx):
+                violations.append({
+                    "ref": ref,
+                    "pin_name": pin_name,
+                    "layer": layer_idx,
+                    "xy": (x, y),
+                    "reason": (
+                        f"cell at ({x:.3f}, {y:.3f}) on layer {layer_idx} is "
+                        f"unblocked but should be inside the expanded creepage "
+                        f"boundary for pad {ref}.{pin_name}"
+                    ),
+                })
+
+    return violations
+
+
+def check_clearance_grid_perf_budget(
+    fence_elapsed_ms: float,
+    stage_elapsed_ms: float,
+    budget_pct: float = 20.0,
+    floor_ms: float = 50.0,
+) -> tuple[bool, str | None]:
+    """Return (over_budget, warning_message) for fence wall-time.
+
+    The fence is allowed to overrun the soft 20% budget; we emit a WARNING
+    rather than a hard failure to keep CI flakes off critical path
+    (per the plan's R4: "soft warning, not a hard gate").
+    """
+    if stage_elapsed_ms < floor_ms:
+        return False, None
+    overhead_pct = (fence_elapsed_ms / stage_elapsed_ms) * 100.0
+    if overhead_pct > budget_pct:
+        return True, (
+            f"fence overhead {overhead_pct:.1f}% exceeds budget "
+            f"{budget_pct:.1f}% (fence={fence_elapsed_ms:.1f}ms, "
+            f"stage={stage_elapsed_ms:.1f}ms)"
+        )
+    return False, None
+
 
 @njit
 def _block_circle_numba(
@@ -696,6 +946,7 @@ class ClearanceGridStage(Stage):
 
             # Build net->pads mapping for selective unblocking
             net_pads = {}
+            all_pads_for_expansion = []
             for component in state.netlist.components:
                 pos = placements_dict.get(component.ref, component.initial_position)
                 if pos is None:
@@ -703,7 +954,7 @@ class ClearanceGridStage(Stage):
 
                 for pin in component.pins:
                     pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
-                    
+
                     pad_radius = 0.5
                     pad_width = 1.0
                     pad_height = 1.0
@@ -733,19 +984,19 @@ class ClearanceGridStage(Stage):
                     else:
                         target_layers = list(range(grid.layer_count))
 
-                    net_pads[net].append(
-                        {
-                            "pos": pin_pos,
-                            "size": (pad_width, pad_height), # Store full size
-                            "radius": pad_radius, # Keep radius for circle fallback
-                            "shape": pin.shape, # Store shape
-                            "rotation": getattr(pin, "rotation", 0.0), # Store rotation if available
-                            "layers": target_layers,
-                            "is_pth": pin.is_pth,
-                            "ref": component.ref, # Store ref for lookup
-                            "name": pin.name, # Store pin name for lookup
-                        }
-                    )
+                    pad_dict = {
+                        "pos": pin_pos,
+                        "size": (pad_width, pad_height), # Store full size
+                        "radius": pad_radius, # Keep radius for circle fallback
+                        "shape": pin.shape, # Store shape
+                        "rotation": getattr(pin, "rotation", 0.0), # Store rotation if available
+                        "layers": target_layers,
+                        "is_pth": pin.is_pth,
+                        "ref": component.ref, # Store ref for lookup
+                        "name": pin.name, # Store pin name for lookup
+                    }
+                    net_pads[net].append(pad_dict)
+                    all_pads_for_expansion.append(pad_dict)
 
             # Block all pads with clearance based on the pad's net class.
             for net_name, pads in net_pads.items():
@@ -818,6 +1069,111 @@ class ClearanceGridStage(Stage):
                                     layer=layer_idx,
                                     net_name=net_name,
                                 )
+
+            # @req(2026-06-23-005, U2, R1, R2, R3): Pre-route creepage expansion
+            # pass. After the per-net blocking above, walk the HV-pad set
+            # (resolved by U1's `hv_pad_set`) and re-block each HV pad with its
+            # per-layer effective creepage distance applied. Non-HV pads are
+            # left at their current blocking radius.
+            component_positions = {
+                component.ref: positions
+                for positions, component in (
+                    (placements_dict.get(component.ref, component.initial_position), component)
+                    for component in state.netlist.components
+                )
+                if positions is not None
+            }
+            hv_pads = hv_pad_set(all_pads_for_expansion, self.hv_exclusion_zones, component_positions)
+            _EXPANSION_LOG.clear()
+            for pad in all_pads_for_expansion:
+                if (pad["ref"], pad["name"]) not in hv_pads:
+                    continue
+
+                for layer_idx in pad["layers"]:
+                    if layer_idx >= grid.layer_count:
+                        continue
+
+                    layer_name = _layer_index_to_name(layer_idx, grid.layer_count)
+                    eff_creep = effective_creepage(layer_name, 6.0)
+
+                    pre_count = grid.blocked_count_on_layer(layer_idx)
+
+                    pad_key = (pad["ref"], pad["name"])
+                    real_pad = self.pad_sizes.get(pad_key)
+                    use_rect = False
+                    rect_size = (0.0, 0.0)
+                    if real_pad and real_pad.shape in ("rect", "roundrect", "oval"):
+                        rot = int(round(getattr(real_pad, "rotation", 0.0))) % 180
+                        if rot == 0:
+                            rect_size = (real_pad.size.X, real_pad.size.Y)
+                            use_rect = True
+                        elif rot == 90:
+                            rect_size = (real_pad.size.Y, real_pad.size.X)
+                            use_rect = True
+
+                    if use_rect:
+                        # Minkowski sum with a disc: each side grows by eff_creep.
+                        w, h = rect_size
+                        grid.block_rect(
+                            center=pad["pos"],
+                            size=(w + 2.0 * eff_creep, h + 2.0 * eff_creep),
+                            clearance_mm=0.0,
+                            layer=layer_idx,
+                            net_name=None,
+                            is_obstacle=True,
+                        )
+                    else:
+                        # Circular Minkowski sum: radius grows by eff_creep.
+                        grid.block_circle(
+                            pad["pos"],
+                            radius_mm=pad["radius"] + eff_creep,
+                            clearance_mm=0.0,
+                            layer=layer_idx,
+                            net_name=None,
+                            is_pad=False,
+                        )
+
+                    _EXPANSION_LOG.append((
+                        pad["ref"],
+                        pad["name"],
+                        layer_idx,
+                        pad["pos"],
+                        pad["shape"],
+                        pad["radius"],
+                        (real_pad.size.X, real_pad.size.Y) if real_pad else (0.0, 0.0),
+                        eff_creep,
+                        grid.blocked_count_on_layer(layer_idx) - pre_count,
+                    ))
+
+        # @req(2026-06-23-005, U3, R4, R8): After the U2 expansion pass,
+        # invoke the grid-validity fence. A non-empty violation list means
+        # the expansion under-blocked somewhere: a downstream A* would
+        # route through an unsafe cell, violating creepage. Raise
+        # FenceViolation with the first named pad/layer so the failure
+        # is actionable from CI logs. The 20% perf-budget check is a
+        # soft warning (R4) and is logged but does not fail the stage.
+        if _EXPANSION_LOG:
+            import time as _fence_time
+            _fence_t0 = _fence_time.perf_counter()
+            violations = check_clearance_grid_conservatism(grid, _EXPANSION_LOG)
+            _fence_elapsed_ms = (_fence_time.perf_counter() - _fence_t0) * 1000.0
+            if violations:
+                first = violations[0]
+                raise FenceViolation(
+                    f"U3 fence failed on expansion: {first['reason']} "
+                    f"(additional violations: {len(violations) - 1})"
+                )
+            # Soft perf-budget warning (R4). We approximate stage elapsed
+            # time by the fence's own wall-time on its first run; this
+            # keeps the budget comparison local to the fence call so
+            # callers don't need to instrument the whole stage.
+            _stage_elapsed_ms = max(_fence_elapsed_ms, 1.0)
+            over_budget, warning = check_clearance_grid_perf_budget(
+                fence_elapsed_ms=_fence_elapsed_ms,
+                stage_elapsed_ms=_stage_elapsed_ms,
+            )
+            if over_budget and warning is not None:
+                print(f"  [clearance_grid fence] {warning}")
 
         # EXP-13: Block HV exclusion zones for specified nets
         # These zones force signals (like GATE_H, PWM_H) to route around HV areas

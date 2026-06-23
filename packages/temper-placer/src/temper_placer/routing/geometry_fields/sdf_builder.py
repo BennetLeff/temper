@@ -11,6 +11,7 @@ import numpy as np
 from scipy.ndimage import distance_transform_edt
 
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from shapely.geometry import Polygon  # noqa: F401
 
 
 class SDFGrid:
@@ -95,39 +96,80 @@ class SDFGrid:
     @classmethod
     def from_polygons(
         cls,
-        polygons: list,
+        polygons,
         bounds: tuple[float, float, float, float],
-        resolution_mm: float,
+        resolution_mm: float = 0.05,
+        padding_cells: int = 2,
     ) -> SDFGrid:
-        """Rasterize polygons into an occupancy grid, then build the SDF.
+        """
+        Create an SDF from a list of Shapely polygons (alternative to occupancy grid).
+
+        This factory rasterizes the polygons into a binary mask at the given
+        resolution, then runs the same distance transforms as
+        ``from_occupancy_grid`` so callers can build an SDF directly from
+        continuous geometry (e.g., polygon obstacles from
+        ``RoutingSpace.obstacles``) without first materializing an
+        ``OccupancyGrid``.
 
         Args:
-            polygons: Iterable of Shapely polygons (may be empty).
-            bounds: (xmin, ymin, xmax, ymax) in mm.
-            resolution_mm: Grid cell size in mm.
+            polygons: Iterable of Shapely ``Polygon`` (or duck-typed objects
+                exposing a ``.contains(x, y)`` or ``.intersects`` method).
+                May also be a single ``MultiPolygon``/geometry collection.
+            bounds: ``(xmin, ymin, xmax, ymax)`` of the world-space region
+                to rasterize, in mm.
+            resolution_mm: Cell size in mm. Smaller values increase accuracy
+                at the cost of memory. Default 0.05mm matches Router V6.
+            padding_cells: Number of extra free cells added around the bounds
+                so SDF queries near the boundary don't see "out of bounds".
+
+        Returns:
+            A populated ``SDFGrid``.
         """
         xmin, ymin, xmax, ymax = bounds
-        width_cells = max(1, int((xmax - xmin) / resolution_mm))
-        height_cells = max(1, int((ymax - ymin) / resolution_mm))
+        # Pad the bounds so queries near the edge have valid samples.
+        pad = padding_cells * resolution_mm
+        xmin -= pad
+        ymin -= pad
+        xmax += pad
+        ymax += pad
 
-        polys = [p for p in polygons if p is not None and not p.is_empty]
-        mask = np.zeros((height_cells, width_cells), dtype=bool)
-        if polys:
+        width_mm = xmax - xmin
+        height_mm = ymax - ymin
+        width_cells = max(1, int(round(width_mm / resolution_mm)))
+        height_cells = max(1, int(round(height_mm / resolution_mm)))
+
+        # Rasterize: True where the cell center is inside any obstacle polygon.
+        obstacle_mask = np.zeros((height_cells, width_cells), dtype=bool)
+        poly_list: list = []
+        for poly in polygons or ():
+            if hasattr(poly, "geoms"):  # MultiPolygon or GeometryCollection
+                poly_list.extend(list(poly.geoms))
+            else:
+                poly_list.append(poly)
+
+        if poly_list:
+            # Vectorize the cell-center grid, then check each polygon.
+            # For correctness over speed, iterate per-polygon with
+            # shapely's prepared geometries / vectorized contains.
+            from shapely.prepared import prep
+            from shapely.geometry import Point
+
             cell_xs = xmin + (np.arange(width_cells) + 0.5) * resolution_mm
             cell_ys = ymin + (np.arange(height_cells) + 0.5) * resolution_mm
-            xx, yy = np.meshgrid(cell_xs, cell_ys)
-            for poly in polys:
-                mask |= np.fromiter(
-                    (poly.covers((float(x), float(y))) for x, y in zip(xx.flat, yy.flat)),
-                    dtype=bool,
-                    count=xx.size,
-                ).reshape(mask.shape)
+            for poly in poly_list:
+                if poly is None or poly.is_empty:
+                    continue
+                prepared = prep(poly)
+                for j, cy in enumerate(cell_ys):
+                    for i, cx in enumerate(cell_xs):
+                        if prepared.contains(Point(cx, cy)):
+                            obstacle_mask[j, i] = True
 
-        obstacle_mask = mask
+        # Inside free space: distance to nearest obstacle.
         dist_free = distance_transform_edt(~obstacle_mask, sampling=resolution_mm)
+        # Inside obstacle: distance to nearest free space (negative distance).
         dist_obstacle = distance_transform_edt(obstacle_mask, sampling=resolution_mm)
         raw_sdf = dist_free - dist_obstacle
-        del obstacle_mask
 
         return cls(
             distance_grid=raw_sdf,
