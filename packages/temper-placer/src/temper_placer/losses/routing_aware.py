@@ -160,10 +160,10 @@ class RoutingChannelLoss(LossFunction):
             context.bounds,
             self.min_channel_width,
         )
-        
+
         return LossResult(
             value=self.weight * penalty,
-            breakdown={},  # Can't materialize during tracing
+            breakdown={"routing_channel": self.weight * penalty},
         )
 
 

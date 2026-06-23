@@ -85,7 +85,7 @@ class TestKeepoutViolations:
         board = Board(
             width=100.0,
             height=100.0,
-            keepout_regions=[(40, 40, 60, 60)],  # 20x20mm keepout in center
+            keepouts=[(40, 40, 60, 60)],  # 20x20mm keepout in center
         )
 
         # Component in keepout zone

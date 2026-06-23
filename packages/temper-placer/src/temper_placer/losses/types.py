@@ -236,9 +236,11 @@ class LossContext:
     Immutable context containing all data needed by loss functions.
     This monolith is being decomposed into the sub-contexts above.
     """
-    # Original references (Keep at top for positional constructor compatibility)
-    netlist: Any  # Netlist object
-    board: Any    # Board object
+    # Original references (Keep at top for positional constructor compatibility).
+    # netlist and board default to None for loss functions that don't need them
+    # (e.g., self-contained tests on position arrays).
+    netlist: Any = None  # Netlist object
+    board: Any = None    # Board object
     bounds: Array = None  # (N, 2) component bounds
     fixed_mask: Array = None  # (N,) boolean mask
     

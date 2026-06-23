@@ -69,9 +69,6 @@ class TestRoutingChannelLoss:
         
         context = LossContext(
             bounds=bounds,
-            board_bounds=jnp.array([0.0, 0.0, 100.0, 100.0]),
-            net_pin_indices={},
-            n_components=2,
         )
         
         loss = RoutingChannelLoss(weight=10.0, min_channel_width=5.0)
@@ -101,9 +98,6 @@ class TestMCUClusteringLoss:
         
         context = LossContext(
             bounds=jnp.zeros((3, 4)),
-            board_bounds=jnp.array([0.0, 0.0, 100.0, 100.0]),
-            net_pin_indices={},
-            n_components=3,
         )
         
         result = loss(positions, jnp.zeros((3, 4)), context)
@@ -127,9 +121,6 @@ class TestMCUClusteringLoss:
         
         context = LossContext(
             bounds=jnp.zeros((2, 4)),
-            board_bounds=jnp.array([0.0, 0.0, 100.0, 100.0]),
-            net_pin_indices={},
-            n_components=2,
         )
         
         result = loss(positions, jnp.zeros((2, 4)), context)
@@ -159,9 +150,6 @@ class TestBusAlignmentLoss:
         
         context = LossContext(
             bounds=jnp.zeros((3, 4)),
-            board_bounds=jnp.array([0.0, 0.0, 100.0, 100.0]),
-            net_pin_indices={},
-            n_components=3,
         )
         
         result = loss(positions, jnp.zeros((3, 4)), context)
@@ -185,9 +173,6 @@ class TestBusAlignmentLoss:
         
         context = LossContext(
             bounds=jnp.zeros((3, 4)),
-            board_bounds=jnp.array([0.0, 0.0, 100.0, 100.0]),
-            net_pin_indices={},
-            n_components=3,
         )
         
         result = loss(positions, jnp.zeros((3, 4)), context)

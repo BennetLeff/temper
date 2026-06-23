@@ -219,7 +219,7 @@ def test_loop_area_loss_vectorized_oracles():
         constraints_data=constraints_data,
         loop_constraints=loop_constraints
     )
-    loss_fn = LoopAreaLoss(area_penalty_scale=1.0)
+    loss_fn = LoopAreaLoss(area_penalty_scale=1.0, routing_factor=1.0)
 
     # Expected area = 20 * 10 = 200.
     # Violation = 200 - 100 = 100.

@@ -283,7 +283,7 @@ class TestNetClassScenarios:
 
         # Mark HV path as routed
         for cell in hv_path:
-            router.occupancy = router.occupancy.at[cell.x, cell.y, cell.layer].set(2)
+            router.occupancy[cell.x, cell.y, cell.layer] = 2
 
         # Route Power net (L1, L4)
         power_path = router.find_path(
@@ -298,7 +298,7 @@ class TestNetClassScenarios:
 
         # Mark power path as routed
         for cell in power_path:
-            router.occupancy = router.occupancy.at[cell.x, cell.y, cell.layer].set(2)
+            router.occupancy[cell.x, cell.y, cell.layer] = 2
 
         # Route Signal net (L1, L4)
         signal_path = router.find_path(
