@@ -217,6 +217,8 @@ class AutomatedZeroDRC:
             # Reset state for next iteration (re-placement needed with new zones)
             # We preserve core objects but clear derived state
             # EXP-5: Preserve locked_routes so successfully routed nets aren't re-routed
+            # feat/hv-lv-guard-strip: Preserve config so HvLvPartitionStage and
+            # any other config-reading stages still find their block.
             if state:
                 logger.info(
                     f"EXP-5: Preserving {len(state.locked_routes)} locked routes for next iteration"
@@ -225,6 +227,7 @@ class AutomatedZeroDRC:
                     board=state.board,
                     netlist=state.netlist,
                     locked_routes=state.locked_routes,  # EXP-5: Preserve locks
+                    config=state.config,  # feat/hv-lv-guard-strip: Preserve config
                 )
 
         return state

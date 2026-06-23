@@ -134,3 +134,22 @@ class BoardState:
             True if the route is locked
         """
         return net_name in self.locked_routes
+
+    def with_config(self, config: "Mapping[str, Any] | None") -> "BoardState":
+        """Return new state with ``config`` populated for stage-local config lookups.
+
+        Used by ``create_drc_aware_pipeline`` (and the feedback orchestrator)
+        to attach the parsed configuration to a state so stages such as
+        ``HvLvPartitionStage`` can read their own block from
+        ``state.config``. Preserves every other field; safe to call before
+        any stages run.
+
+        Args:
+            config: Raw config dict (typically parsed YAML) or None.
+
+        Returns:
+            New BoardState with ``config`` set.
+        """
+        from dataclasses import replace
+
+        return replace(self, config=config)

@@ -1,8 +1,32 @@
 from .pipeline import DeterministicPipeline
 from .state import BoardState
+from .stages.base import Stage
 from .stages.hv_lv_partition import HvLvPartitionStage, PartitionError
 
 __all__ = ["DeterministicPipeline", "BoardState", "HvLvPartitionStage", "PartitionError"]
+
+
+class ConfigAttachStage(Stage):
+    """Prepend-only stage that writes ``config`` onto ``BoardState``.
+
+    Stages such as ``HvLvPartitionStage`` read their block from
+    ``state.config``; without this stage the field stays ``None`` and the
+    partition never engages.
+
+    This stage is idempotent: a no-op when ``config`` is None.
+    """
+
+    def __init__(self, config):
+        self._config = config
+
+    @property
+    def name(self) -> str:
+        return "config_attach"
+
+    def run(self, state: BoardState) -> BoardState:
+        if self._config is None:
+            return state
+        return state.with_config(self._config)
 
 
 def create_drc_aware_pipeline(
@@ -213,6 +237,10 @@ def create_drc_aware_pipeline(
 
     return DeterministicPipeline(
         stages=[
+            # feat/hv-lv-guard-strip: attach the parsed config to state so
+            # downstream stages (HvLvPartitionStage in particular) can read
+            # their own block from ``state.config``.
+            ConfigAttachStage(config),
             # Setup - apply net class mapping early
             NetClassSetupStage(net_classes=config.net_classes if config else None),
             # Placement stages
