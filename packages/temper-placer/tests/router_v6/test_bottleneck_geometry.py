@@ -522,3 +522,103 @@ class TestBottleneckSynthetic:
             f"PTH pin collapse regression: expected 8 cells (2 PTH × 4 layers), "
             f"got source={len(source_cells)}, sink={len(sink_cells)}"
         )
+
+    def test_high_safety_neighbor_discounts_capacity(self) -> None:
+        """Fix #5 (plan R4): a category-HIGH pad adjacent to a
+        category-LOW cell discounts the cell's capacity by 1, while
+        an LV-LV adjacency leaves capacity unchanged.
+
+        The test sets up an empty cell with no trace occupancy and
+        a single neighbour pad. We then compare capacity with the
+        neighbour classified as HV (discount) vs LV (no discount).
+        """
+        from temper_placer.core.design_rules import NetClassRules
+        from temper_placer.router_v6.bottleneck_geometry import (
+            _BASE_CAPACITY,
+            _compute_cell_capacity,
+        )
+
+        # 5×5 grid at 1.0 mm; cell (0, 2, 2) is the target, with
+        # a pad at (0, 2, 3) to the right.
+        grid = ClearanceGrid(
+            width_mm=5.0, height_mm=5.0, cell_size_mm=1.0, layer_count=1
+        )
+        cell = (0, 2, 2)
+        # The neighbour (0, 2, 3) is a pad. Mark it as such in
+        # ``_pad_net_ids`` so the discount branch fires.
+        grid._pad_net_ids[0][2, 3] = 1
+
+        # Build NetClassRules: HV (rank 2) and LV (rank 1).
+        hv_rule = NetClassRules(
+            name="HV",
+            trace_width=0.2,
+            clearance=0.2,
+            dru_priority=0,
+            safety_category="HV",
+        )
+        lv_rule = NetClassRules(
+            name="LV",
+            trace_width=0.2,
+            clearance=0.2,
+            dru_priority=0,
+            safety_category="LV",
+        )
+        net_class_rules = {"HV": hv_rule, "LV": lv_rule}
+
+        # The target cell belongs to a category-LOW net, with a
+        # category-HIGH neighbour at (0, 2, 3) → discount fires.
+        cap_with_hv = _compute_cell_capacity(
+            cell=cell,
+            layer=0,
+            grid=grid,
+            net_class_rules=net_class_rules,
+            net_name="LV_SIG",
+            pad_net_classes={(0, 2, 3): "HV"},
+            current_net_class="LV",
+        )
+        assert cap_with_hv == _BASE_CAPACITY - 1, (
+            f"HIGH on LOW must discount capacity by 1; got {cap_with_hv}"
+        )
+
+        # LV-LV adjacency → no discount, capacity stays at base.
+        cap_with_lv = _compute_cell_capacity(
+            cell=cell,
+            layer=0,
+            grid=grid,
+            net_class_rules=net_class_rules,
+            net_name="LV_SIG",
+            pad_net_classes={(0, 2, 3): "LV"},
+            current_net_class="LV",
+        )
+        assert cap_with_lv == _BASE_CAPACITY, (
+            f"LV on LV must not discount capacity; got {cap_with_lv} "
+            f"(expected {_BASE_CAPACITY})"
+        )
+
+        # HV-HV adjacency (current net is HV) → no discount (the
+        # neighbour is not *strictly* higher safety).
+        cap_hv_on_hv = _compute_cell_capacity(
+            cell=cell,
+            layer=0,
+            grid=grid,
+            net_class_rules=net_class_rules,
+            net_name="HV_SIG",
+            pad_net_classes={(0, 2, 3): "HV"},
+            current_net_class="HV",
+        )
+        assert cap_hv_on_hv == _BASE_CAPACITY
+
+        # Backward-compat: when the caller omits ``current_net_class``
+        # the function falls back to the historical "any non-zero
+        # pad id" discount. The discount fires for any non-zero pad.
+        cap_legacy = _compute_cell_capacity(
+            cell=cell,
+            layer=0,
+            grid=grid,
+            net_class_rules=net_class_rules,
+            net_name="LV_SIG",
+            pad_net_classes={(0, 2, 3): "LV"},
+        )
+        assert cap_legacy == _BASE_CAPACITY - 1, (
+            f"legacy path (no current_net_class) must discount; got {cap_legacy}"
+        )

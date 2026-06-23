@@ -146,13 +146,15 @@ def _compute_cell_capacity(
     grid: "ClearanceGrid",
     net_class_rules: "dict[str, NetClassRules] | NetClassRules | None",
     net_name: str,
+    pad_net_classes: "dict[tuple[int, int, int], str] | None" = None,
+    current_net_class: str | None = None,
 ) -> int:
     """Return the routing capacity of a single cell after subtractive discounts.
 
     Capacity starts at ``_BASE_CAPACITY`` (= 4). The function subtracts 1
-    per existing trace already routed through the cell, and 1 per adjacent
-    creepage exclusion from any higher-safety-category pad. The result is
-    clamped to ``[0, _BASE_CAPACITY]``.
+    per existing trace already routed through the cell, and (Fix #5) 1
+    per adjacent creepage exclusion from a higher-safety-category pad.
+    The result is clamped to ``[0, _BASE_CAPACITY]``.
 
     Hard-blocked cells (e.g. obstacle markers) are not modelled here — the
     caller omits them from the capacitated graph entirely.
@@ -163,9 +165,25 @@ def _compute_cell_capacity(
             explicitly to avoid tuple unpacking in hot paths.
         grid: The ``ClearanceGrid`` carrying occupancy data.
         net_class_rules: Mapping of net class name → ``NetClassRules``;
-            used to compute the higher-safety category on the cut.
-        net_name: Name of the net being analysed; used as the fallback
-            when ``net_class_rules`` is not a dict.
+            used to compare the current net's safety category against
+            each neighbour pad's category (plan R4 "category-HIGH on
+            category-LOW" rule). When the mapping is missing, the
+            function falls back to the historical "any non-zero pad
+            id" behaviour with no category check.
+        net_name: Name of the net being analysed; reserved for
+            future per-net overrides.
+        pad_net_classes: Optional mapping from
+            ``(layer, row, col)`` cell → net class name. Populated by
+            ``analyze_bottleneck`` from the netlist; used to look up
+            the neighbour pad's net class for the R4 discount check.
+        current_net_class: Optional name of the current net's class
+            (e.g. ``"LV"``). When supplied together with
+            ``net_class_rules``, the function uses the rule's
+            ``safety_category`` to determine whether neighbour pads
+            are strictly higher-safety (and therefore trigger the
+            discount). When absent, the function falls back to the
+            historical "any non-zero pad id" discount for backward
+            compatibility.
 
     Returns:
         Integer capacity in ``[0, _BASE_CAPACITY]``.
@@ -173,6 +191,7 @@ def _compute_cell_capacity(
     del layer  # currently only ``cell[0]`` is read; the explicit layer arg
     # exists so the function can grow into per-layer lookups without
     # changing the signature.
+    del net_name  # reserved for future per-net overrides
 
     _, row, col = cell
 
@@ -204,22 +223,45 @@ def _compute_cell_capacity(
         if 0 <= nr < rows and 0 <= nc < cols and int(trace_layer[nr, nc]) != 0:
             capacity -= 1
 
-    # Discount 1 per adjacent creepage exclusion from a higher-safety
-    # pad. The plan specifies the "category-HIGH on a category-LOW net"
-    # rule; we approximate that with a single discount when any of the
-    # four cardinal neighbours carries a non-zero pad id (caller may
-    # pass a stricter rule via ``net_class_rules`` in the future).
+    # Fix #5: "category-HIGH on category-LOW" rule (plan R4).
+    #
+    # Discount 1 only when an adjacent pad is from a strictly
+    # higher-safety category than the current net. The historical
+    # behaviour (discount on any non-zero pad id) is preserved as a
+    # fallback when the caller has not supplied ``pad_net_classes``
+    # or ``net_class_rules`` / ``current_net_class``.
     try:
         pad_layer = grid._pad_net_ids[cell[0]]
     except AttributeError:
         return max(0, min(_BASE_CAPACITY, capacity))
 
+    # Resolve the current net's safety rank. ``None`` (no mapping
+    # supplied) means the R4 check cannot compare, so we apply the
+    # historical "any non-zero pad id" discount for backward
+    # compatibility.
+    current_category: int | None = None
+    if current_net_class and isinstance(net_class_rules, dict):
+        rule = net_class_rules.get(current_net_class)
+        if rule is not None:
+            current_category = _SAFETY_RANK.get(
+                getattr(rule, "safety_category", None), 0
+            )
+
+    pad_classes = pad_net_classes or {}
     for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
         nr, nc = row + dr, col + dc
         if 0 <= nr < pad_layer.shape[0] and 0 <= nc < pad_layer.shape[1]:
-            if int(pad_layer[nr, nc]) != 0:
-                capacity -= 1
-                break
+            if int(pad_layer[nr, nc]) == 0:
+                continue
+            if not _should_discount_for_neighbor(
+                neighbor_cell=(cell[0], nr, nc),
+                pad_classes=pad_classes,
+                net_class_rules=net_class_rules,
+                current_category=current_category,
+            ):
+                continue
+            capacity -= 1
+            break
 
     if capacity < 0:
         capacity = 0
@@ -227,6 +269,52 @@ def _compute_cell_capacity(
         capacity = _BASE_CAPACITY
 
     return capacity
+
+
+# Numeric ranking of the ``NetClassRules.safety_category`` enum.
+# Higher number = stricter isolation. ``None`` maps to 0 (lowest),
+# which means the discount never fires against unclassified nets.
+_SAFETY_RANK: dict[str, int] = {
+    "LV": 1,
+    "HV": 2,
+    "AC": 3,
+    "iso": 4,
+}
+
+
+def _should_discount_for_neighbor(
+    neighbor_cell: tuple[int, int, int],
+    pad_classes: dict[tuple[int, int, int], str],
+    net_class_rules: "dict[str, NetClassRules] | None",
+    current_category: int | None,
+) -> bool:
+    """Return True when the neighbour pad should discount capacity.
+
+    When ``current_category`` is ``None`` (the caller did not supply a
+    complete safety mapping), the function returns ``True`` for any
+    non-zero neighbour pad — preserving the historical
+    "any non-zero pad id" discount for backward compatibility.
+
+    When ``current_category`` is set, the discount fires only when the
+    neighbour pad is from a strictly higher-safety category
+    (``_SAFETY_RANK[neighbor_cat] > current_category``). Unresolved
+    neighbour classes also fall back to ``True`` for stability with
+    partial inputs.
+    """
+    if current_category is None:
+        return True
+    if not pad_classes:
+        return True
+    neighbor_class = pad_classes.get(neighbor_cell)
+    if neighbor_class is None:
+        return True
+    if not isinstance(net_class_rules, dict):
+        return True
+    rule = net_class_rules.get(neighbor_class)
+    if rule is None:
+        return True
+    neighbor_category = _SAFETY_RANK.get(getattr(rule, "safety_category", None), 0)
+    return neighbor_category > current_category
 
 
 def is_hard_blocked(grid: "ClearanceGrid", cell: tuple[int, int, int]) -> bool:
@@ -290,6 +378,8 @@ def _build_capacitated_graph(
     board_state: "BoardState",
     net_name: str,
     deadline: float | None = None,
+    pad_net_classes: "dict[tuple[int, int, int], str] | None" = None,
+    current_net_class: str | None = None,
 ) -> "object":  # networkx.DiGraph (avoids hard import in fast path)
     """Build a directed capacitated graph for s-t min-cut.
 
@@ -317,6 +407,17 @@ def _build_capacitated_graph(
             ``TimeoutError`` once exceeded, so callers can surface an
             ``aborted_timeout`` status without waiting for the full
             graph build.
+        pad_net_classes: Optional mapping from
+            ``(layer, row, col)`` → net class name. Used by
+            ``_compute_cell_capacity`` for the R4
+            "category-HIGH on category-LOW" rule (Fix #5). When absent,
+            the function falls back to the historical "any non-zero
+            pad id" discount.
+        current_net_class: Optional name of the current net's class
+            (Fix #5). Used together with ``net_class_rules`` to
+            determine which neighbour pads are strictly
+            higher-safety. ``None`` preserves the historical
+            backward-compatible discount.
 
     Returns:
         A ``networkx.DiGraph`` whose edges carry a ``capacity`` attribute.
@@ -361,6 +462,8 @@ def _build_capacitated_graph(
             grid=grid,
             net_class_rules=net_class_rules,
             net_name=net_name,
+            pad_net_classes=pad_net_classes,
+            current_net_class=current_net_class,
         )
         if capacity <= 0:
             continue
@@ -385,6 +488,8 @@ def _build_capacitated_graph(
             grid=grid,
             net_class_rules=net_class_rules,
             net_name=net_name,
+            pad_net_classes=pad_net_classes,
+            current_net_class=current_net_class,
         )
         for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
             nr, nc = row + dr, col + dc
@@ -410,6 +515,8 @@ def _build_capacitated_graph(
                         grid=grid,
                         net_class_rules=net_class_rules,
                         net_name=net_name,
+                        pad_net_classes=pad_net_classes,
+                        current_net_class=current_net_class,
                     )
                     edge_cap = min(cap_here, cap_there)
                     if edge_cap <= 0:
@@ -780,6 +887,14 @@ def analyze_bottleneck(
     # PTH pads and SMD pads are placed on the same set of cells
     # (Fix #3: PTH pads occupy all layers, SMD pads occupy one).
     pad_positions: dict[tuple[int, int, int], tuple[str, tuple[float, float]]] = {}
+    # Fix #5: lookup from (layer, row, col) → net class name. Built
+    # from the netlist's components + ``design_rules.net_class_assignments``
+    # when available; used by ``_compute_cell_capacity`` to discount
+    # capacity only when the neighbour pad is from a strictly
+    # higher-safety category (plan R4 "category-HIGH on category-LOW").
+    pad_net_classes: dict[tuple[int, int, int], str] = {}
+    design_rules = getattr(board_state, "design_rules", None)
+    pin_net_class_assignments = getattr(design_rules, "net_class_assignments", None)
     if board_state.netlist is not None and net is not None:
         for comp_ref, pin_name in getattr(net, "pins", []):
             comp = next(
@@ -804,8 +919,30 @@ def analyze_bottleneck(
             row, col = _mm_to_cell(grid, x_mm, y_mm)
             for layer in _layers_for_pin(pin, grid.layer_count):
                 pad_positions[(layer, row, col)] = (comp_ref, (x_mm, y_mm))
+                # Resolve the pin's net class via
+                # ``design_rules.net_class_assignments`` when the
+                # netlist exposes one. ``Component.net_class`` is
+                # also honoured as a per-component override.
+                pin_class: str | None = None
+                pin_net = getattr(pin, "net", None)
+                if isinstance(pin_net_class_assignments, dict) and pin_net:
+                    pin_class = pin_net_class_assignments.get(pin_net)
+                if pin_class is None:
+                    pin_class = getattr(comp, "net_class", None)
+                if pin_class is not None:
+                    pad_net_classes[(layer, row, col)] = str(pin_class)
 
     deadline = time.monotonic() + BOTTLENECK_TIMEOUT_S
+
+    # Resolve the current net's class for the R4 "category-HIGH on
+    # category-LOW" discount check (Fix #5). Use
+    # ``design_rules.net_class_assignments`` first, then fall back to
+    # ``Net.net_class``.
+    current_net_class: str | None = None
+    if isinstance(pin_net_class_assignments, dict) and getattr(net, "name", None):
+        current_net_class = pin_net_class_assignments.get(net.name)
+    if current_net_class is None:
+        current_net_class = getattr(net, "net_class", None)
 
     # Build the capacitated graph (with timeout awareness). The
     # ``deadline`` argument (Fix #4) lets the inner BFS and edge
@@ -821,6 +958,8 @@ def analyze_bottleneck(
             board_state=board_state,
             net_name=getattr(net, "name", ""),
             deadline=deadline,
+            pad_net_classes=pad_net_classes,
+            current_net_class=current_net_class,
         )
     except TimeoutError as exc:
         logger.debug("analyze_bottleneck graph build timeout: %s", exc)
