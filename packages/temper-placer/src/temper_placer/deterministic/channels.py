@@ -79,12 +79,16 @@ class ChannelMap:
         cell_size_um: Cell edge length in micrometres.
         bottlenecks: Frozenset of :class:`Bottleneck` records.
         schema_hash: Schema identifier from the sidecar; ``""`` for empty map.
+        _bottleneck_by_cell: Pre-indexed ``(x, y) -> Bottleneck`` map populated
+            once at load time so :func:`routability_penalty` does a single
+            dict lookup per call instead of scanning all bottlenecks.
     """
 
     grid: tuple[tuple[float, ...], ...]
     cell_size_um: float
     bottlenecks: frozenset[Bottleneck] = field(default_factory=frozenset)
     schema_hash: str = ""
+    _bottleneck_by_cell: dict = field(default_factory=dict, repr=False, compare=False)
 
     @property
     def width(self) -> int:
@@ -97,7 +101,13 @@ class ChannelMap:
     @classmethod
     def empty(cls) -> "ChannelMap":
         """Return a sentinel zero-bottleneck map (no routability penalty)."""
-        return cls(grid=(), cell_size_um=0, bottlenecks=frozenset(), schema_hash="")
+        return cls(
+            grid=(),
+            cell_size_um=0,
+            bottlenecks=frozenset(),
+            schema_hash="",
+            _bottleneck_by_cell={},
+        )
 
     @classmethod
     def load_from_sidecar(cls, path: Path | str) -> "ChannelMap":
@@ -213,11 +223,30 @@ class ChannelMap:
                 )
             )
 
+        # Pre-index bottlenecks by (x, y) for O(1) lookup in
+        # routability_penalty. When multiple bottlenecks share a cell we
+        # keep the worst-severity one (ties: highest score), matching the
+        # "worst severity" semantics of the hot path.
+        bottleneck_by_cell: dict[tuple[int, int], Bottleneck] = {}
+        for bn in bottlenecks:
+            key = (bn.x, bn.y)
+            existing = bottleneck_by_cell.get(key)
+            if existing is None:
+                bottleneck_by_cell[key] = bn
+                continue
+            existing_w = SEVERITY_WEIGHTS.get(existing.severity, 0.0)
+            new_w = SEVERITY_WEIGHTS.get(bn.severity, 0.0)
+            if new_w > existing_w or (
+                new_w == existing_w and bn.score > existing.score
+            ):
+                bottleneck_by_cell[key] = bn
+
         return cls(
             grid=grid_tuple,
             cell_size_um=cell_size_um,
             bottlenecks=frozenset(bottlenecks),
             schema_hash=schema_hash,
+            _bottleneck_by_cell=bottleneck_by_cell,
         )
 
     def has_grid(self) -> bool:
@@ -263,24 +292,19 @@ def routability_penalty(
     elif occupancy > 1.0:
         occupancy = 1.0
 
-    # Look up the worst-severity bottleneck for this cell. Bottlenecks are
-    # stored per-layer; we conservatively pick the worst across all layers
-    # because the penalty function has no layer context.
-    severity = ""
-    worst_score = 0.0
-    for bn in channel_map.bottlenecks:
-        if bn.x == gx and bn.y == gy:
-            sev_weight = SEVERITY_WEIGHTS.get(bn.severity, 0.0)
-            if sev_weight > worst_score:
-                worst_score = sev_weight
-                severity = bn.severity
-            elif sev_weight == worst_score and sev_weight > 0.0 and not severity:
-                severity = bn.severity
-
-    if not severity:
+    # O(1) lookup of the worst-severity bottleneck for this cell via the
+    # precomputed ``_bottleneck_by_cell`` index (built in ``_from_payload``).
+    # Multiple bottlenecks may share a cell across layers; the index already
+    # picked the worst-severity one at load time so the hot path is just a
+    # dict lookup with no per-call scan.
+    bn = channel_map._bottleneck_by_cell.get((gx, gy))
+    if bn is None:
         return 0.0
 
-    severity_weight = SEVERITY_WEIGHTS[severity]
+    severity = bn.severity
+    severity_weight = SEVERITY_WEIGHTS.get(severity, 0.0)
+    if severity_weight <= 0.0:
+        return 0.0
     penalty = severity_weight * (0.5 + 0.5 * occupancy)
     if penalty < 0.0:
         return 0.0
