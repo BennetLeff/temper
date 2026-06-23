@@ -11,10 +11,13 @@ if TYPE_CHECKING:
     from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     from temper_placer.router_v6.channel_widths import ChannelWidths
+    from temper_placer.router_v6.constraint_model import ConstraintModel
     from temper_placer.router_v6.layer_capacity import LayerCapacity
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
     from temper_placer.router_v6.routing_demand import RoutingDemand
     from temper_placer.router_v6.routing_space import RoutingSpace
+    from temper_placer.router_v6.topology_extraction import TopologyGraph
+    from temper_placer.router_v6.topology_solver import TopologicalSolution
 
     from .stages.clearance_grid import ClearanceGrid
     from .stages.connectivity_validation import ConnectivityViolation
@@ -58,6 +61,12 @@ class BoardState:
     # Bridge fields for Stage2Orchestrator (pending protocol unification)
     _parsed_pcb: Optional[Any] = None
     _escape_vias: Optional[Any] = None
+    # Router V6 Stage 3 topological-routing fields
+    constraint_model: Optional["ConstraintModel"] = None
+    sat_variable_map: Optional[dict[str, Any]] = None
+    topological_solution: Optional["TopologicalSolution"] = None
+    assignment_valid: Optional[bool] = None
+    topology_graph: Optional["TopologyGraph"] = None
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.
