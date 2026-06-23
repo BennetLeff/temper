@@ -10,7 +10,7 @@ Part of temper-lueu.3 and temper-lueu.4
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Mapping, Union
 
 from temper_placer.routing.constraints.design_rules import ClearanceMatrix
 from temper_placer.routing.constraints.geometry import (
@@ -82,6 +82,13 @@ class DRCOracle:
     under ground/power planes. When routing on In1.Cu or In2.Cu, clearance
     requirements against PTH pads are reduced by INTERNAL_LAYER_CREEPAGE_FACTOR.
 
+    @req(2026-06-23-007, R3): Optional clearance credit for isolation-slot
+    reclaimed bands. When a credit is registered for a (component_ref,
+    lv_pin, hv_pin) triple and both pads in a check resolve to the same
+    component, the effective clearance is reduced to the credited value
+    provided the segment between pad centers lies inside the slot's
+    reclaimed band. Cross-component credit is rejected.
+
     Usage:
         oracle = DRCOracle(rules)
         oracle.register_pad(pad)
@@ -102,6 +109,165 @@ class DRCOracle:
     # EXP-13: Enable internal layer creepage reduction
     # When True, routes on In1.Cu/In2.Cu get reduced clearance to PTH pads
     enable_internal_layer_creepage: bool = True
+
+    # @req(2026-06-23-007, R3): Spatially-scoped clearance credits.
+    # Keys are (component_ref, lv_pin, hv_pin); values are
+    # (effective_clearance_mm, half_width_mm, half_length_mm,
+    # slot_midpoint_x, slot_midpoint_y).
+    # The slot midpoint is part of the value so the AABB can be centered
+    # on the actual slot geometry rather than the segment between pads.
+    clearance_credits: dict[
+        tuple[str, str, str], tuple[float, float, float, float, float]
+    ] = field(default_factory=dict)
+    # @req(2026-06-23-007, R3): Maps each pad's `id` to its owning
+    # component reference. May be a dict or a callable.
+    pin_owner: Union[Mapping[str, str], Callable[[str], str | None]] = field(
+        default_factory=dict
+    )
+
+    # ------------------------------------------------------------------
+    # Clearance credits (R3)
+    # ------------------------------------------------------------------
+
+    def add_clearance_credit(
+        self,
+        component_ref: str,
+        lv_pin: str,
+        hv_pin: str,
+        effective_clearance_mm: float,
+        half_width_mm: float,
+        half_length_mm: float,
+        slot_midpoint: tuple[float, float] = (0.0, 0.0),
+    ) -> None:
+        """Register a clearance credit for a (component_ref, lv_pin, hv_pin) triple.
+
+        The credit applies when a clearance check is performed between a
+        pad owned by `component_ref` on the lv_pin and a pad owned by the
+        same component on the hv_pin, AND the segment between the two pad
+        centers lies inside the slot's reclaimed band.
+
+        `slot_midpoint` is the absolute board-coords midpoint of the
+        cutout. The AABB is centered on this point so the spatial test
+        does not depend on the pad positions themselves.
+        """
+        self.clearance_credits[(component_ref, lv_pin, hv_pin)] = (
+            float(effective_clearance_mm),
+            float(half_width_mm),
+            float(half_length_mm),
+            float(slot_midpoint[0]),
+            float(slot_midpoint[1]),
+        )
+
+    def _resolve_owner(self, pin_id: str) -> str | None:
+        if callable(self.pin_owner):
+            try:
+                return self.pin_owner(pin_id)
+            except Exception:
+                return None
+        if isinstance(self.pin_owner, Mapping):
+            return self.pin_owner.get(pin_id)
+        return None
+
+    def get_effective_clearance(
+        self,
+        pad_a: "Pad",
+        pad_b: "Pad",
+    ) -> float | None:
+        """Return the credited clearance for a (pad_a, pad_b) check, or None.
+
+        Returns the effective clearance in mm when:
+        - both pads resolve to the same component via `pin_owner`, AND
+        - a credit is registered for that component with the two pin
+          identifiers that the pads correspond to, AND
+        - both pad centers lie inside the slot's reclaimed AABB
+          (centered on the slot's midpoint with half-extents
+          `(half_width + 0.5, half_length)`).
+
+        The credit's "axis" is the longer dimension (half_length); the
+        "perpendicular" is half_width. We don't store the axis direction
+        in the credit, so we conservatively check both orientations: the
+        AABB must contain both pads in at least one orientation.
+
+        Returns None otherwise — callers should fall back to the
+        ClearanceMatrix baseline.
+        """
+        if not pad_a.id or not pad_b.id:
+            return None
+        owner_a = self._resolve_owner(pad_a.id)
+        owner_b = self._resolve_owner(pad_b.id)
+        if not owner_a or not owner_b or owner_a != owner_b:
+            return None
+        # Pad IDs follow the convention "{component_ref}-{pin_number}".
+        pin_a = pad_a.id.rsplit("-", 1)[-1]
+        pin_b = pad_b.id.rsplit("-", 1)[-1]
+        if not pin_a or not pin_b:
+            return None
+        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy) in self.clearance_credits.items():
+            if comp_ref != owner_a:
+                continue
+            if {pin_a, pin_b} != {c_lv, c_hv}:
+                continue
+            # @req(2026-06-23-007, R3): Spatial scope — both pad centers
+            # must lie inside the slot's reclaimed AABB. We accept the
+            # credit if the pads fit in EITHER orientation of the AABB
+            # (slot axis along x or along y) since the credit's axis
+            # direction is not stored.
+            half_w_band = hw + 0.5
+            ax, ay = pad_a.center.x, pad_a.center.y
+            bx, by = pad_b.center.x, pad_b.center.y
+            inside_x_axis = (
+                smx - half_w_band <= ax <= smx + half_w_band
+                and smx - half_w_band <= bx <= smx + half_w_band
+                and smy - hl <= ay <= smy + hl
+                and smy - hl <= by <= smy + hl
+            )
+            inside_y_axis = (
+                smx - hl <= ax <= smx + hl
+                and smx - hl <= bx <= smx + hl
+                and smy - half_w_band <= ay <= smy + half_w_band
+                and smy - half_w_band <= by <= smy + half_w_band
+            )
+            if inside_x_axis or inside_y_axis:
+                return effective
+        return None
+
+    def get_pad_credit(
+        self,
+        pad: "Pad",
+    ) -> float | None:
+        """Return the credited clearance for a single pad inside a slot's reclaimed band.
+
+        Convenience hook for can_place_track_segment: when a track is being
+        placed and a pad on a credited component is in range, return the
+        reduced clearance (or None if the pad is outside the slot's band).
+        """
+        if not pad.id:
+            return None
+        owner = self._resolve_owner(pad.id)
+        if not owner:
+            return None
+        pin = pad.id.rsplit("-", 1)[-1]
+        if not pin:
+            return None
+        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy) in self.clearance_credits.items():
+            if comp_ref != owner:
+                continue
+            if pin not in (c_lv, c_hv):
+                continue
+            half_w_band = hw + 0.5
+            px, py = pad.center.x, pad.center.y
+            # Accept either orientation.
+            inside_x_axis = (
+                smx - half_w_band <= px <= smx + half_w_band
+                and smy - hl <= py <= smy + hl
+            )
+            inside_y_axis = (
+                smx - hl <= px <= smx + hl
+                and smy - half_w_band <= py <= smy + half_w_band
+            )
+            if inside_x_axis or inside_y_axis:
+                return effective
+        return None
 
     def register_track(self, track: Track) -> str:
         """Add a track to the geometry index."""
@@ -297,6 +463,14 @@ class DRCOracle:
             required = self.rules.get_clearance(net, pad.net, midpoint.x, midpoint.y)
             if neckdown:
                 required = min(required, 0.08)  # Ultra-relaxed for plane stubs
+
+            # @req(2026-06-23-007, R3): Apply spatially-scoped clearance
+            # credit if the existing pad is on a credited component and
+            # lies inside the slot's reclaimed band. The credit stacks
+            # multiplicatively with the EXP-13 internal-layer factor (K5).
+            credit = self.get_pad_credit(pad)
+            if credit is not None and credit < required:
+                required = credit
 
             # EXP-13: Apply internal layer creepage reduction for PTH pads
             # When routing on internal layers (In1.Cu, In2.Cu) under a ground/power
