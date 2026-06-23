@@ -4,6 +4,12 @@ from numba import njit
 from ..state import BoardState
 from .base import Stage
 
+from temper_placer.core.board import (
+    LAYER_IDX_TO_NAME,
+    LayerIndex,
+    PLANE_LAYER_INDICES,
+    STANDARD_LAYER_ORDER,
+)
 from temper_placer.routing.constraints.drc_oracle import INTERNAL_LAYER_CREEPAGE_FACTOR
 
 
@@ -12,7 +18,11 @@ from temper_placer.routing.constraints.drc_oracle import INTERNAL_LAYER_CREEPAGE
 # layers (In1.Cu, In2.Cu, ...) carry the reduced factor because the plane acts
 # as a shield. The reduction mirrors `drc_oracle.INTERNAL_LAYER_CREEPAGE_FACTOR`
 # so the expansion is consistent with the router's clearance arithmetic.
-OUTER_COPPER_LAYERS = frozenset({"F.Cu", "B.Cu"})
+OUTER_COPPER_LAYERS = frozenset(
+    str(idx) for idx in STANDARD_LAYER_ORDER if idx not in PLANE_LAYER_INDICES
+)
+
+_STANDARD_LAYER_NAMES: tuple[str, ...] = tuple(str(idx) for idx in STANDARD_LAYER_ORDER)
 
 
 class ConfigError(ValueError):
@@ -63,10 +73,10 @@ def _layer_index_to_name(layer_idx: int, layer_count: int) -> str:
     Used to translate grid layer indices into the names `effective_creepage`
     accepts. Matches the convention in `ClearanceGrid.export_visualization`.
     """
-    names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
-    if 0 <= layer_idx < len(names):
-        return names[layer_idx]
-    return f"Layer_{layer_idx}"
+    try:
+        return str(LAYER_IDX_TO_NAME[LayerIndex(layer_idx)])
+    except (KeyError, ValueError):
+        return f"Layer_{layer_idx}"
 
 
 # @req(2026-06-23-005, R1): HV-pad identification. The set is the union of all
@@ -776,8 +786,9 @@ class ClearanceGrid:
 
         ax.legend(handles=legend_patches, loc="upper right", fontsize=8)
 
-        layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
-        layer_name = layer_names[layer] if layer < len(layer_names) else f"Layer_{layer}"
+        layer_name = (
+            _STANDARD_LAYER_NAMES[layer] if layer < len(_STANDARD_LAYER_NAMES) else f"Layer_{layer}"
+        )
         ax.set_title(
             f"Clearance Grid - {layer_name}\n"
             f"Grid: {self.cols}x{self.rows} cells, Cell size: {self.cell_size_mm}mm\n"
@@ -809,7 +820,7 @@ class ClearanceGrid:
         }
 
         for layer in range(self.layer_count):
-            layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+            layer_names = list(_STANDARD_LAYER_NAMES)
             layer_name = layer_names[layer] if layer < len(layer_names) else f"Layer_{layer}"
 
             pad_blocked = int(np.sum(self._pad_net_ids[layer] != 0))

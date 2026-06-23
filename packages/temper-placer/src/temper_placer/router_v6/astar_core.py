@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from temper_placer.core.board import STANDARD_LAYER_ORDER
+
 
 @dataclass
 class RoutePath:
@@ -502,7 +504,7 @@ def _astar_search_3d(
 
     # Available layers for transitions (dynamic from grids)
     # Prefer standard PCB layer order if possible
-    standard_order = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+    standard_order = [str(idx) for idx in STANDARD_LAYER_ORDER]
     available_layers = [l for l in standard_order if l in grids]
     # Add any non-standard layers from grids
     for layer in grids.keys():

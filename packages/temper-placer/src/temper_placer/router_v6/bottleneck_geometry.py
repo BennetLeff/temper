@@ -607,12 +607,7 @@ def _resolve_pad_cells(
 # kept here to avoid an import cycle (sequential_routing imports this
 # module). When the layer name is missing from the map, SMD pins fall
 # back to layer 0 (F.Cu) so the resulting cell is still routable.
-_SMD_LAYER_NAME_TO_IDX: dict[str, int] = {
-    "F.Cu": 0,
-    "In1.Cu": 1,
-    "In2.Cu": 2,
-    "B.Cu": 3,
-}
+from temper_placer.core.board import LAYER_NAME_TO_IDX as _SMD_LAYER_NAME_TO_IDX
 
 
 def _layers_for_pin(pin: "object", grid_layer_count: int) -> list[int]:
@@ -621,7 +616,7 @@ def _layers_for_pin(pin: "object", grid_layer_count: int) -> list[int]:
     PTH pins and pins with layer ``"all"`` occupy every layer in
     ``range(grid_layer_count)`` so the source/sink set spans the full
     routing stack. SMD pins occupy exactly one layer, looked up from
-    the local ``_SMD_LAYER_NAME_TO_IDX`` mirror; an unknown layer
+    the canonical ``LAYER_NAME_TO_IDX``; an unknown layer
     name falls back to layer 0 (F.Cu).
     """
     if grid_layer_count <= 0:

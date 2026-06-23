@@ -16,6 +16,7 @@ from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.routing.grid_converter import grid_to_world
 from temper_placer.routing.maze_router import RoutePath
 from temper_placer.routing.path_simplify import simplify_path
+from temper_placer.core.board import STANDARD_LAYER_ORDER
 from temper_placer.io.via_dedup import deduplicate_vias
 
 
@@ -221,7 +222,7 @@ def path_to_vias(
                 # For through-hole via, specify all relevant layers
                 all_layers = ["F.Cu", "B.Cu"] # Default TH
                 if "In1.Cu" in [l1, l2] or "In2.Cu" in [l1, l2]:
-                     all_layers = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+                     all_layers = [str(idx) for idx in STANDARD_LAYER_ORDER]
 
                 vias.append(
                     TraceVia(

@@ -17,7 +17,7 @@ from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.schematic import Schematic
 
-from temper_placer.core.board import Board, MountingHole, Zone
+from temper_placer.core.board import Board, MountingHole, STANDARD_LAYER_ORDER, Zone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 if TYPE_CHECKING:
@@ -1272,7 +1272,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         if layer_count == 2:
             layer_names = ["F.Cu", "B.Cu"]
         elif layer_count == 4:
-            layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+            layer_names = [str(idx) for idx in STANDARD_LAYER_ORDER]
         elif layer_count == 6:
             layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
         else:

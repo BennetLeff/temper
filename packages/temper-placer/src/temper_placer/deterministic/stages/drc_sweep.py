@@ -7,6 +7,7 @@ from being exported.
 
 from dataclasses import replace
 from typing import Set, Tuple, List
+from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
 from ..state import BoardState
 from .base import Stage
 from ...core.board import Trace, Via
@@ -46,9 +47,6 @@ class DRCSweepStage(Stage):
         removed_vias = 0
         removed_nets = set()
 
-        # Layer name to index mapping
-        layer_name_to_idx = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}
-
         # Check all traces
         valid_traces = []
         for trace in state.routes:
@@ -56,7 +54,7 @@ class DRCSweepStage(Stage):
                 valid_traces.append(trace)
                 continue
 
-            layer_idx = layer_name_to_idx.get(trace.layer, 0)
+            layer_idx = LAYER_NAME_TO_IDX.get(trace.layer, 0)
             valid, reason = oracle.can_place_track_segment(
                 start=trace.start,
                 end=trace.end,
@@ -199,7 +197,7 @@ class ShortCircuitDetectionStage(Stage):
                     if (comp.ref, pin.name) in net.pins or (comp.ref, pin.number) in net.pins:
                         # Register on appropriate layers
                         if pin.is_pth:
-                            for layer in ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]:
+                            for layer in (str(idx) for idx in STANDARD_LAYER_ORDER):
                                 pin_net_map[(round(pin_pos[0], 2), round(pin_pos[1], 2), layer)] = (
                                     net.name
                                 )

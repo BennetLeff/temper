@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from temper_placer.core.board import STANDARD_LAYER_ORDER
 from temper_placer.router_v6.routing_results import RoutingResults
 
 
@@ -81,7 +82,7 @@ def analyze_copper_balance(
     total_area = board_width * board_height
 
     # Analyze each layer
-    layers_to_check = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+    layers_to_check = [str(idx) for idx in STANDARD_LAYER_ORDER]
 
     for layer_name in layers_to_check:
         # Calculate copper area on this layer

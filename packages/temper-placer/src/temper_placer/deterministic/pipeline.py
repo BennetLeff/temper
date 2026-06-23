@@ -7,6 +7,7 @@ from .state import BoardState
 from .stages.base import Stage
 from .stages.clearance_grid import ClearanceGrid
 from .stages.astar import DeterministicAStar
+from ..core.board import side_to_layer_name
 
 if TYPE_CHECKING:
     from temper_drc.core.fence import DRCFence
@@ -61,7 +62,7 @@ def _board_state_to_drc_input(
                 rot = 0
 
             side = getattr(comp, 'initial_side', 0) if comp else 0
-            layer = "F.Cu" if side == 0 else "B.Cu"
+            layer = side_to_layer_name(side)
 
             components[ref] = DRCCompPlacement(
                 ref=ref,

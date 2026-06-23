@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable, Literal, Mapping, Union
 
 from temper_placer.routing.constraints.design_rules import ClearanceMatrix
+from temper_placer.core.board import LayerIndex, PLANE_LAYER_INDICES
 from temper_placer.routing.constraints.geometry import (
     LineSegment,
     Point,
@@ -57,7 +58,7 @@ class Violation:
 # When routing on these layers under a ground/power plane, creepage requirements
 # are reduced because the plane acts as a shield (IEC 60335-1 considers internal
 # layers with plane separation as having increased creepage distance)
-INTERNAL_LAYERS = frozenset({1, 2})  # In1.Cu, In2.Cu
+INTERNAL_LAYERS = frozenset(PLANE_LAYER_INDICES)  # In1.Cu, In2.Cu
 
 # EXP-13: Creepage reduction factor for internal layers under plane
 # With proper plane separation (0.2mm+ prepreg) AND via barrier, creepage can be
@@ -517,7 +518,7 @@ class DRCOracle:
             # This only applies to PTH pads (which appear on all layers).
             if (
                 self.enable_internal_layer_creepage
-                and layer in INTERNAL_LAYERS
+                and LayerIndex(layer) in INTERNAL_LAYERS
                 and pad.is_pth
                 and required > 0.5  # Only reduce creepage requirements, not basic clearance
             ):

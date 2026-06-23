@@ -25,6 +25,7 @@ from temper_drc.core.fence import DRCFence, InvariantSpec
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.placement.legalization import Legalizer
+from temper_placer.core.board import side_to_layer_name
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import ChannelPath, map_topology_to_channels
@@ -209,7 +210,7 @@ def _parsed_pcb_to_drc_input(
             x, y = 0.0, 0.0
 
         side = getattr(comp, "initial_side", 0)
-        layer = "F.Cu" if side == 0 else "B.Cu"
+        layer = side_to_layer_name(side)
 
         components[comp.ref] = DRCCompPlacement(
             ref=comp.ref,

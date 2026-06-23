@@ -7,12 +7,11 @@ from .base import Stage
 from .multilayer_astar import MultiLayerAStar
 from .sequential_routing_dataclasses import DiffPairConfig
 from .sequential_routing_helpers import (
-    LAYER_IDX_TO_NAME,
     LAYER_ENUM_TO_IDX,
     _compute_endpoint_tolerance,
     _compute_mst,
 )
-from ...core.board import Trace, Via
+from ...core.board import LAYER_IDX_TO_NAME, LayerIndex, Trace, Via
 from ...core.design_rules import DesignRules
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
 from ...routing.constraints.geometry import Point as OraclePoint
@@ -886,13 +885,13 @@ class SequentialRoutingStage(Stage):
                 # Create Trace objects for P trace
                 for i in range(len(pos_path_mm) - 1):
                     p1, p2 = pos_path_mm[i], pos_path_mm[i + 1]
-                    layer_name = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
+                    layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(p1[2])])
 
                     # Check for layer change -> add via
                     if p1[2] != p2[2]:
                         via_pos = (p1[0], p1[1])
-                        from_layer = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
-                        to_layer = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                        from_layer = str(LAYER_IDX_TO_NAME[LayerIndex(p1[2])])
+                        to_layer = str(LAYER_IDX_TO_NAME[LayerIndex(p2[2])])
                         via = Via(
                             position=via_pos,
                             drill=0.3,
@@ -906,7 +905,7 @@ class SequentialRoutingStage(Stage):
                         # NEW: Add bridge trace from via to next point on new layer
                         # This ensures via is connected on both layers (fixes validation issue)
                         if (p2[0], p2[1]) != via_pos:
-                            to_layer_name = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                            to_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(p2[2])])
                             bridge_trace = Trace(
                                 start=via_pos,
                                 end=(p2[0], p2[1]),
@@ -979,13 +978,13 @@ class SequentialRoutingStage(Stage):
                 # Create Trace objects for N trace
                 for i in range(len(neg_path_mm) - 1):
                     p1, p2 = neg_path_mm[i], neg_path_mm[i + 1]
-                    layer_name = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
+                    layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(p1[2])])
 
                     # Check for layer change -> add via
                     if p1[2] != p2[2]:
                         via_pos = (p1[0], p1[1])
-                        from_layer = LAYER_IDX_TO_NAME.get(p1[2], "F.Cu")
-                        to_layer = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                        from_layer = str(LAYER_IDX_TO_NAME[LayerIndex(p1[2])])
+                        to_layer = str(LAYER_IDX_TO_NAME[LayerIndex(p2[2])])
                         via = Via(
                             position=via_pos,
                             drill=0.3,
@@ -999,7 +998,7 @@ class SequentialRoutingStage(Stage):
                         # NEW: Add bridge trace from via to next point on new layer
                         # This ensures via is connected on both layers (fixes validation issue)
                         if (p2[0], p2[1]) != via_pos:
-                            to_layer_name = LAYER_IDX_TO_NAME.get(p2[2], "B.Cu")
+                            to_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(p2[2])])
                             bridge_trace = Trace(
                                 start=via_pos,
                                 end=(p2[0], p2[1]),
@@ -1146,7 +1145,7 @@ class SequentialRoutingStage(Stage):
 
             # Determine layer for this net
             layer_idx = layer_by_net.get(net_name, 0)  # Default to layer 0
-            layer_name = LAYER_IDX_TO_NAME.get(layer_idx, "F.Cu")
+            layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(layer_idx)])
 
             # Get net class for zone confinement and design rules lookup
             net_class_name = getattr(net, "net_class", None)
@@ -1643,7 +1642,7 @@ class SequentialRoutingStage(Stage):
             for ml_path in net_multilayer_paths:
                 # Commit trace segments
                 for segment in ml_path.segments:
-                    seg_layer_name = LAYER_IDX_TO_NAME.get(segment.layer, "F.Cu")
+                    seg_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(segment.layer)])
 
                     # Block on grid with net_name
                     grid.block_trace(
@@ -1693,8 +1692,8 @@ class SequentialRoutingStage(Stage):
 
                 # Commit vias from layer transitions - use via arrays for high-current nets
                 for vx, vy, from_layer, to_layer in ml_path.via_positions:
-                    from_layer_name = LAYER_IDX_TO_NAME.get(from_layer, "F.Cu")
-                    to_layer_name = LAYER_IDX_TO_NAME.get(to_layer, "B.Cu")
+                    from_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(from_layer)])
+                    to_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(to_layer)])
 
                     # Use via array helper (creates single or array based on net class)
                     self._create_via_array(
@@ -1925,7 +1924,7 @@ class SequentialRoutingStage(Stage):
                     for ml_path in retry_paths:
                         # Commit trace segments
                         for segment in ml_path.segments:
-                            seg_layer_name = LAYER_IDX_TO_NAME.get(segment.layer, "F.Cu")
+                            seg_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(segment.layer)])
 
                             # Block on grid
                             grid.block_trace(
@@ -1971,8 +1970,8 @@ class SequentialRoutingStage(Stage):
 
                         # Commit vias
                         for vx, vy, from_layer, to_layer in ml_path.via_positions:
-                            from_layer_name = LAYER_IDX_TO_NAME.get(from_layer, "F.Cu")
-                            to_layer_name = LAYER_IDX_TO_NAME.get(to_layer, "B.Cu")
+                            from_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(from_layer)])
+                            to_layer_name = str(LAYER_IDX_TO_NAME[LayerIndex(to_layer)])
 
                             self._create_via_array(
                                 center=(vx, vy),

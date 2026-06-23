@@ -13,12 +13,12 @@ from dataclasses import replace
 from typing import Set, Tuple
 from ..state import BoardState
 from .base import Stage
-from ...core.board import Via, Trace
+from ...core.board import Via, Trace, PLANE_LAYER_INDICES, is_plane_layer, STANDARD_LAYER_ORDER
 
 
 # Layers that typically have copper pour planes
 # Vias connecting to these layers don't need traces
-PLANE_LAYERS = frozenset({"In1.Cu", "In2.Cu"})
+PLANE_LAYERS = frozenset(str(idx) for idx in PLANE_LAYER_INDICES)
 
 # Nets that typically use plane connectivity
 PLANE_NET_PATTERNS = frozenset(
@@ -205,7 +205,7 @@ class ViaValidationStage(Stage):
 
                 if pin.is_pth:
                     # PTH pins are on all layers
-                    for layer in ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]:
+                    for layer in (str(idx) for idx in STANDARD_LAYER_ORDER):
                         if layer not in index:
                             index[layer] = set()
                         index[layer].add(pin_pos)
@@ -234,7 +234,7 @@ class ViaValidationStage(Stage):
 
         for layer in via.layers:
             # For plane nets, inner layers count as connected (copper pour)
-            if is_plane and layer in PLANE_LAYERS:
+            if is_plane and is_plane_layer(layer):
                 connected_layers.add(layer)
                 continue
 

@@ -3,10 +3,6 @@ from typing import List, Optional, Tuple
 from ...routing.layer_assignment import Layer as LayerEnum
 
 
-# Layer name mappings
-LAYER_IDX_TO_NAME = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
-LAYER_NAME_TO_IDX = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}
-
 # Layer enum to index mapping
 LAYER_ENUM_TO_IDX = {
     LayerEnum.L1_TOP: 0,
