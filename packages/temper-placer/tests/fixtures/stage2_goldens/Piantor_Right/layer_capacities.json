@@ -1,0 +1,20 @@
+{
+  "F.Cu": {
+    "layer_name": "F.Cu",
+    "total_cells": 1340402,
+    "free_cells": 1044727,
+    "blocked_cells": 0,
+    "min_channel_width": 0.0,
+    "avg_channel_width": 3.8644716488763673,
+    "estimated_traces": 41789
+  },
+  "B.Cu": {
+    "layer_name": "B.Cu",
+    "total_cells": 1340402,
+    "free_cells": 1021382,
+    "blocked_cells": 0,
+    "min_channel_width": 0.0,
+    "avg_channel_width": 2.7693307148050534,
+    "estimated_traces": 30641
+  }
+}

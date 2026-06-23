@@ -1,0 +1,13 @@
+{
+  "bottlenecks": [
+    {
+      "layer_name": "F.Cu",
+      "severity": "none",
+      "capacity": 7739,
+      "demand": 56,
+      "utilization": 0.007236077012533919
+    }
+  ],
+  "total_capacity": 7739,
+  "total_demand": 56
+}

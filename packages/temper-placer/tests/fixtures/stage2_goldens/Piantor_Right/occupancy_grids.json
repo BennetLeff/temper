@@ -1,0 +1,66 @@
+{
+  "F.Cu": {
+    "layer_name": "F.Cu",
+    "grid": {
+      "_type": "ndarray_summary",
+      "dtype": "int16",
+      "shape": [
+        938,
+        1429
+      ],
+      "sha256": "cb0a017374a510a822fcb0de3cdffa49680070c8d1d8715ac418e50530f36ded",
+      "free_count": 1044727,
+      "blocked_count": 295675
+    },
+    "origin": [
+      64.44000244140625,
+      41.400001525878906
+    ],
+    "cell_size": 0.1,
+    "width_cells": 1429,
+    "height_cells": 938,
+    "static_mask": {
+      "_type": "ndarray_summary",
+      "dtype": "bool",
+      "shape": [
+        938,
+        1429
+      ],
+      "sha256": "a82d887ab9623ffe993b17a536e2f358d9afee4a9eaada512e4f5d4adf3b804b",
+      "free_count": 1044727,
+      "blocked_count": 295675
+    }
+  },
+  "B.Cu": {
+    "layer_name": "B.Cu",
+    "grid": {
+      "_type": "ndarray_summary",
+      "dtype": "int16",
+      "shape": [
+        938,
+        1429
+      ],
+      "sha256": "52ce557b529309c1cc4b971278c6919e13864fdef0ed7f26bafbe20644360678",
+      "free_count": 1021382,
+      "blocked_count": 319020
+    },
+    "origin": [
+      64.44000244140625,
+      41.400001525878906
+    ],
+    "cell_size": 0.1,
+    "width_cells": 1429,
+    "height_cells": 938,
+    "static_mask": {
+      "_type": "ndarray_summary",
+      "dtype": "bool",
+      "shape": [
+        938,
+        1429
+      ],
+      "sha256": "1a6ec1c1bf2d85c0d8939489d5c59ad3c6654079d59c8d20d7566f1d0e7d88ef",
+      "free_count": 1021382,
+      "blocked_count": 319020
+    }
+  }
+}

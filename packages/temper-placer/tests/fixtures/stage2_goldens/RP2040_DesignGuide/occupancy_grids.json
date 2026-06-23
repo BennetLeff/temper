@@ -1,0 +1,34 @@
+{
+  "F.Cu": {
+    "layer_name": "F.Cu",
+    "grid": {
+      "_type": "ndarray_summary",
+      "dtype": "int16",
+      "shape": [
+        975,
+        493
+      ],
+      "sha256": "d4f3fc64bc820fac3a86f2dd52f998f608cc8a034fcbf9014d40a34e27c725c7",
+      "free_count": 386958,
+      "blocked_count": 93717
+    },
+    "origin": [
+      169.4499969482422,
+      28.400625228881836
+    ],
+    "cell_size": 0.1,
+    "width_cells": 493,
+    "height_cells": 975,
+    "static_mask": {
+      "_type": "ndarray_summary",
+      "dtype": "bool",
+      "shape": [
+        975,
+        493
+      ],
+      "sha256": "8bf6c2f71174960f678952fdc541f75c722b9895ce6bd1064ea2697571cb5a1a",
+      "free_count": 386958,
+      "blocked_count": 93717
+    }
+  }
+}
