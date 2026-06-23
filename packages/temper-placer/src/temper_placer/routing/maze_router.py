@@ -313,6 +313,7 @@ class MazeRouter:
         # Occupancy grid: 0=free, -1=blocked, 2=routed
         # Using numpy for mutable in-place updates (faster than JAX .at[].set())
         self.occupancy = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.int32)
+        self._init_bitmap()
         # Class grid: 0=none, 1=HV, 2=LV (for creepage checks)
         self.class_grid = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.int8)
         # RRR structures
@@ -396,6 +397,38 @@ class MazeRouter:
             cell_size=cell_size_mm,
             origin=origin,
         )
+
+    def _init_bitmap(self) -> None:
+        cols = self.grid_size[0]
+        self._bitmap_stride = (cols + 63) // 64
+        self.occupancy_bitmap = np.zeros(
+            (self.grid_size[1], self._bitmap_stride, self.num_layers), dtype=np.uint64
+        )
+
+    def _set_bitmap_bit(self, x: int, y: int, layer: int, blocked: bool) -> None:
+        if not (0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1] and 0 <= layer < self.num_layers):
+            return
+        word = x // 64
+        bit = x % 64
+        if blocked:
+            self.occupancy_bitmap[y, word, layer] |= np.uint64(1) << np.uint64(bit)
+        else:
+            self.occupancy_bitmap[y, word, layer] &= ~(np.uint64(1) << np.uint64(bit))
+
+    def _sync_bitmap_from_occupancy(self, net_id: int = 0) -> None:
+        cols = self.grid_size[0]
+        rows = self.grid_size[1]
+        for layer in range(self.num_layers):
+            for row in range(rows):
+                for word in range(self._bitmap_stride):
+                    start_col = word * 64
+                    end_col = min(start_col + 64, cols)
+                    word_val = np.uint64(0)
+                    for col in range(start_col, end_col):
+                        val = int(self.occupancy[col, row, layer])
+                        if val != 0 and val != net_id:
+                            word_val |= np.uint64(1) << np.uint64(col - start_col)
+                    self.occupancy_bitmap[row, word, layer] = word_val
 
     def _get_net_id(self, net_name: str) -> int:
         """Get or create a unique integer ID for a net."""
@@ -570,6 +603,7 @@ class MazeRouter:
 
         self.grid_size = new_grid_size
         self.cell_size = new_cell_size_mm
+        self._init_bitmap()
 
         # Update GridConverter (crucial for _world_to_grid consistency)
         self.grid_converter = GridConverter(

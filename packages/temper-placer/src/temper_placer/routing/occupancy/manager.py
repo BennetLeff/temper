@@ -37,6 +37,7 @@ class OccupancyManager:
         self.congestion = np.zeros((grid_size[0], grid_size[1], num_layers), dtype=np.float32)
         self._net_to_id: dict[str, int] = {}
         self._next_net_id = 1
+        self._init_bitmap()
 
     def _is_valid(self, x: int, y: int, layer: int) -> bool:
         """Check if coordinates are within bounds."""
@@ -49,6 +50,45 @@ class OccupancyManager:
     def _key(self, x: int, y: int, layer: int) -> tuple[int, int, int]:
         """Create a tuple key for cell coordinates."""
         return (x, y, layer)
+
+    def _init_bitmap(self) -> None:
+        cols = self.grid_size[0]
+        rows = self.grid_size[1]
+        self._bitmap_stride = (cols + 63) // 64
+        self.occupancy_bitmap = np.zeros(
+            (rows, self._bitmap_stride, self.num_layers), dtype=np.uint64
+        )
+
+    def _sync_bitmap(self, net_id: int = 0) -> None:
+        for layer in range(self.num_layers):
+            occ = self.occupancy[:, :, layer]
+            for row in range(self.grid_size[1]):
+                for word in range(self._bitmap_stride):
+                    start_col = word * 64
+                    end_col = min(start_col + 64, self.grid_size[0])
+                    word_val = np.uint64(0)
+                    for col in range(start_col, end_col):
+                        val = int(occ[col, row])
+                        if val != 0 and val != net_id:
+                            word_val |= np.uint64(1) << np.uint64(col - start_col)
+                    self.occupancy_bitmap[row, word, layer] = word_val
+
+    def _set_bitmap_bit(self, x: int, y: int, layer: int, blocked: bool) -> None:
+        if not self._is_valid(x, y, layer):
+            return
+        word = x // 64
+        bit = x % 64
+        if blocked:
+            self.occupancy_bitmap[y, word, layer] |= np.uint64(1) << np.uint64(bit)
+        else:
+            self.occupancy_bitmap[y, word, layer] &= ~(np.uint64(1) << np.uint64(bit))
+
+    def _is_blocked_bitmap(self, x: int, y: int, layer: int) -> bool:
+        if not self._is_valid(x, y, layer):
+            return True
+        word = x // 64
+        bit = x % 64
+        return bool(self.occupancy_bitmap[y, word, layer] & (np.uint64(1) << np.uint64(bit)))
 
     def get_net_id(self, net_name: str) -> int:
         """Get or create a numeric ID for a net name.
@@ -82,6 +122,7 @@ class OccupancyManager:
                 x, y, layer = cell.x, cell.y, cell.layer
             if self._is_valid(x, y, layer):
                 self.occupancy[x, y, layer] = self.BLOCKED
+                self._set_bitmap_bit(x, y, layer, True)
                 if net_name is not None:
                     key = self._key(x, y, layer)
                     if key not in self.cell_owner:
@@ -110,6 +151,7 @@ class OccupancyManager:
             if net_name is not None and self.cell_owner.get(key) != net_name:
                 continue
             self.occupancy[x, y, layer] = self.FREE
+            self._set_bitmap_bit(x, y, layer, False)
 
     def mark_routed(
         self,
@@ -132,6 +174,7 @@ class OccupancyManager:
                 continue
             key = self._key(x, y, layer)
             self.occupancy[x, y, layer] = self.OCCUPIED
+            self._set_bitmap_bit(x, y, layer, True)
             if key not in self.net_occupancy:
                 self.net_occupancy[key] = set()
             self.net_occupancy[key].add(net_name)
@@ -154,6 +197,7 @@ class OccupancyManager:
             if self.cell_owner[key] == net_name:
                 x, y, layer = key
                 self.occupancy[x, y, layer] = self.FREE
+                self._set_bitmap_bit(x, y, layer, False)
                 del self.net_occupancy[key]
                 del self.cell_owner[key]
                 self.owner_grid[x, y, layer] = 0
@@ -264,6 +308,7 @@ class OccupancyManager:
     def clear_all(self) -> None:
         """Clear all occupancy data, resetting to free state."""
         self.occupancy.fill(self.FREE)
+        self.occupancy_bitmap.fill(0)
         self.net_occupancy.clear()
         self.cell_owner.clear()
         self.owner_grid.fill(0)
@@ -285,5 +330,6 @@ class OccupancyManager:
         self.congestion = np.zeros(
             (new_grid_size[0], new_grid_size[1], self.num_layers), dtype=np.float32
         )
+        self._init_bitmap()
         self.net_occupancy.clear()
         self.cell_owner.clear()
