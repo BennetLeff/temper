@@ -156,11 +156,16 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         copper_zone_margin: float = 2.0,
         min_routing_channel: float = 3.0,
         yaml_copper_zones: Optional[List] = None,
+        yaml_isolation_slots: Optional[List] = None,  # @req(2026-06-23-007, R1)
     ):
         super().__init__(slot_spacing_mm=slot_spacing_mm)
         self.copper_zone_margin = copper_zone_margin
         self.min_routing_channel = min_routing_channel
         self.yaml_copper_zones = yaml_copper_zones or []
+        # @req(2026-06-23-007, R1): Stash isolation slots on the stage so U2 can
+        # filter candidate slots against the cutout footprints and emit the
+        # per-(component, pin-pair) reclaim dict that U3 consumes.
+        self.yaml_isolation_slots = list(yaml_isolation_slots) if yaml_isolation_slots else []
 
     @property
     def name(self) -> str:
