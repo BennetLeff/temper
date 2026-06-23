@@ -1,0 +1,44 @@
+format_version: 1
+description: "Stage 2 placement micro-stage boundary definitions for golden fixture generation"
+pipeline: DeterministicPipeline
+boundaries:
+  - name: zone_geometry
+    stage_index: 0
+    stage_class: ZoneGeometryStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: zone_assignment
+    stage_index: 1
+    stage_class: ZoneAssignmentStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: slot_generation
+    stage_index: 2
+    stage_class: SlotGenerationStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: component_assignment
+    stage_index: 3
+    stage_class: ComponentAssignmentStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: apply_placements
+    stage_index: 4
+    stage_class: ApplyPlacementsStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: courtyard_check
+    stage_index: 5
+    stage_class: CourtyardCheckStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: apply_placements_reapply
+    stage_index: 6
+    stage_class: ApplyPlacementsStage
+    output_format: dsn
+    serializer: serialize_boardstate_to_dsn
+  - name: placement_validation
+    stage_index: 7
+    stage_class: PlacementValidationStage
+    output_format: json
+    serializer: serialize_violations_to_json
