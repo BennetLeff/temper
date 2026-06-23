@@ -85,7 +85,7 @@ class PipelineState:
 
     # Timing
     elapsed_time_s: float = 0.0
-    phase_timings: dict[PipelinePhase, float] = field(default_factory=dict)
+    phase_timings: dict[PipelinePhase | str, float] = field(default_factory=dict)
 
     # Data populated by phases
     board: Any = None  # Board from core

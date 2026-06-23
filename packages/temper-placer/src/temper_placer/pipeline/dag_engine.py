@@ -63,28 +63,50 @@ class StageDAGEngine:
 
     def _topological_sort(self) -> None:
         in_degree: dict[str, int] = {s.name: 0 for s in self.manifest.stages}
+        manifest_order = {s.name: i for i, s in enumerate(self.manifest.stages)}
+
+        consumers_map: dict[str, set[str]] = {}
+        for stage in self.manifest.stages:
+            for key in stage.requires:
+                consumers_map.setdefault(key, set()).add(stage.name)
+
+        stage_decl_order = [s.name for s in self.manifest.stages]
+
+        def _first_provider(key: str) -> str | None:
+            providers = self.provides_map.get(key, set())
+            if not providers:
+                return None
+            return min(providers, key=lambda p: stage_decl_order.index(p))
 
         for stage in self.manifest.stages:
             for key in stage.requires:
                 if key in self.provides_map:
-                    for provider in self.provides_map[key]:
-                        if provider != stage.name:
-                            in_degree[stage.name] = in_degree.get(stage.name, 0) + 1
+                    provider = _first_provider(key)
+                    if provider is not None and provider != stage.name:
+                        in_degree[stage.name] = in_degree.get(stage.name, 0) + 1
 
-        queue = [name for name, deg in in_degree.items() if deg == 0]
+        queue = sorted(
+            [name for name, deg in in_degree.items() if deg == 0],
+            key=lambda n: manifest_order.get(n, 999),
+        )
         result = []
 
         while queue:
             node = queue.pop(0)
             result.append(node)
 
+            newly_ready = []
             for key in self.stage_map[node].provides:
-                for consumer_name in self.provides_map.get(key, set()):
+                for consumer_name in consumers_map.get(key, set()):
                     if consumer_name == node:
                         continue
                     in_degree[consumer_name] -= 1
                     if in_degree[consumer_name] == 0:
-                        queue.append(consumer_name)
+                        newly_ready.append(consumer_name)
+
+            queue.extend(
+                sorted(newly_ready, key=lambda n: manifest_order.get(n, 999))
+            )
 
         if len(result) != len(self.manifest.stages):
             raise ValueError(
@@ -184,7 +206,7 @@ class StageDAGEngine:
             for key, value in result.outputs.items():
                 context[key] = value
 
-            state.phase_timings[stage_name] = stage_duration
+            self._record_phase_timing(state, stage_name, stage_duration)
             self.execution_log.stage_timings[stage_name] = stage_duration
             if retry_attempts > 0:
                 self.execution_log.retry_counts[stage_name] = retry_attempts
@@ -222,6 +244,16 @@ class StageDAGEngine:
             pass
 
         return state
+
+    @staticmethod
+    def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
+        """Record phase timing, converting stage name to PipelinePhase if possible."""
+        try:
+            from temper_placer.pipeline.orchestrator import PipelinePhase
+            phase = PipelinePhase(stage_name)
+            state.phase_timings[phase] = duration
+        except (ValueError, ImportError):
+            state.phase_timings[stage_name] = duration
 
     def _init_context(self, config: Any) -> dict[str, Any]:
         context: dict[str, Any] = {}

@@ -3,18 +3,23 @@
 This module provides the main orchestration logic for running the full
 placement pipeline from inputs to outputs.
 
-Pipeline Phases:
-    1. INPUT - Load KiCad PCB, constraints, loops
-    2. SEMANTIC - Extract loops, assign ownership
-    3. TOPOLOGICAL - Reason about adjacency/separation
-    4. PREFLIGHT - Verify constraints are satisfiable
-    5. GEOMETRIC - JAX gradient descent optimization
-    6. ROUTING - Check placement is routable
-    7. REFINEMENT - Iterate if routing fails
-    8. OUTPUT - Write placed PCB, reports
+The orchestrator is now a thin adapter that delegates to the declarative
+StageDAGEngine. The old phase handler methods remain with deprecation
+warnings for backward compatibility.
+
+Pipeline Stages (via DAG manifest):
+    1. input - Load KiCad PCB, constraints, loops
+    2. semantic - Extract loops, assign ownership
+    3. topological - Reason about adjacency/separation
+    4. preflight - Verify constraints are satisfiable
+    5. geometric - JAX gradient descent optimization
+    6. routing - Check placement is routable
+    7. refinement - Iterate if routing fails
+    8. output - Write placed PCB, reports
 """
 
 import time
+import warnings
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -143,7 +148,7 @@ class PipelineState:
 
     # Timing
     elapsed_time_s: float = 0.0
-    phase_timings: dict[PipelinePhase, float] = field(default_factory=dict)
+    phase_timings: dict[PipelinePhase | str, float] = field(default_factory=dict)
 
     # Data populated by phases
     board: Any = None  # Board from core
@@ -154,6 +159,7 @@ class PipelineState:
     placement_state: Any = None  # PlacementState from optimizer
     routing_result: Any = None  # RoutingResult from routing
     physics_report: Any = None  # PhysicsReport
+    preflight_report: Any = None  # PreflightReport
     decision_trace: Any = None  # DecisionTrace from explainability
 
     # Internal flags
@@ -161,14 +167,30 @@ class PipelineState:
 
 
 class PipelineOrchestrator:
-    """Orchestrates the full placement pipeline."""
+    """Orchestrates the full placement pipeline.
 
-    def __init__(self, config: PipelineConfig):
-        """Initialize the orchestrator with configuration."""
+    Delegates to StageDAGEngine backed by a declarative YAML manifest.
+    The old handler methods remain with DeprecationWarning for backward compat.
+    """
+
+    def __init__(self, config: PipelineConfig, manifest_path: Path | str | None = None):
         self.config = config
         self.state = PipelineState(config=config)
 
-        # Phase handlers
+        if manifest_path is None:
+            manifest_path = (
+                Path(__file__).parent.parent.parent.parent
+                / "configs"
+                / "pipeline_default.yaml"
+            )
+
+        from temper_placer.pipeline.dag_engine import StageDAGEngine
+        from temper_placer.pipeline.dag_observability import DAGToLegacyObserver
+
+        self._engine = StageDAGEngine(manifest_path)
+        self._dag_observer = DAGToLegacyObserver(self)
+        self._engine.add_observer(self._dag_observer)
+
         self.phases: dict[PipelinePhase, Callable[[PipelineState], PipelineState]] = {
             PipelinePhase.INPUT: self._run_input,
             PipelinePhase.SEMANTIC: self._run_semantic,
@@ -180,23 +202,25 @@ class PipelineOrchestrator:
             PipelinePhase.OUTPUT: self._run_output,
         }
 
-        # Callbacks
         self.on_phase_start: Callable[[PipelinePhase, PipelineState], None] | None = None
         self.on_phase_complete: Callable[[PipelinePhase, PipelineState], None] | None = None
         self.on_iteration: Callable[[int, PipelineState], None] | None = None
 
     def get_phase_order(self) -> list[PipelinePhase]:
-        """Get the ordered list of phases to execute."""
-        all_phases = [
-            PipelinePhase.INPUT,
-            PipelinePhase.SEMANTIC,
-            PipelinePhase.TOPOLOGICAL,
-            PipelinePhase.PREFLIGHT,
-            PipelinePhase.GEOMETRIC,
-            PipelinePhase.ROUTING,
-            PipelinePhase.REFINEMENT,
-            PipelinePhase.OUTPUT,
-        ]
+        """Get the ordered list of phases to execute (from DAG manifest, config-filtered).
+
+        NOTE: The hardcoded skip filter below duplicates the DAG engine's
+        skip_if expression evaluation. These two code paths can produce
+        different phase orders if a stage's skip_if in the manifest diverges
+        from the boolean checks here. For the authoritative ordering, inspect
+        StageDAGEngine.stage_order directly, which reflects the manifest's
+        skip_if expressions evaluated at runtime.
+        """
+        phase_map = {p.value: p for p in PipelinePhase}
+        all_phases = []
+        for stage_name in self._engine.stage_order:
+            if stage_name in phase_map:
+                all_phases.append(phase_map[stage_name])
 
         phases = []
         for phase in all_phases:
@@ -223,51 +247,8 @@ class PipelineOrchestrator:
         return phases
 
     def run(self) -> PipelineState:
-        """Execute the full pipeline."""
-        start_time = time.time()
-        phase_order = self.get_phase_order()
-
-        idx = 0
-        while idx < len(phase_order):
-            phase = phase_order[idx]
-            self.state.current_phase = phase
-
-            if self.on_phase_start:
-                self.on_phase_start(phase, self.state)
-
-            phase_start = time.time()
-            try:
-                handler = self.phases[phase]
-                self.state = handler(self.state)
-            except PipelineError as e:
-                self.state.success = False
-                self.state.failure_reason = str(e)
-                self.state.failed_phase = e.phase if e.phase else phase
-                self.state.elapsed_time_s = time.time() - start_time
-                return self.state
-
-            self.state.phase_timings[phase] = time.time() - phase_start
-            self._save_snapshot(phase)
-
-            if self.on_phase_complete:
-                self.on_phase_complete(phase, self.state)
-
-            # Handle refinement loop
-            if (
-                phase == PipelinePhase.REFINEMENT
-                and not self.state._refinement_complete
-                and self.state.iteration < self.state.config.max_iterations
-            ):
-                try:
-                    idx = phase_order.index(PipelinePhase.GEOMETRIC)
-                    continue
-                except ValueError:
-                    pass
-            idx += 1
-
-        self.state.success = True
-        self.state.elapsed_time_s = time.time() - start_time
-        return self.state
+        """Execute the full pipeline via DAG engine."""
+        return self._engine.run(self.state)
 
     def _save_snapshot(self, phase: PipelinePhase) -> None:
         """Save state snapshot (JSON + SVG)."""
@@ -298,8 +279,9 @@ class PipelineOrchestrator:
     # Phase Handlers
     # ==========================================================================
 
-    def _run_input(self, state: PipelineState) -> PipelineState:
-        """Load input files."""
+    def _run_input(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Load input files (deprecated — use InputStage)."""
+        warnings.warn("_run_input is deprecated. Use InputStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         
         print(f"Loading PCB from {state.config.input_pcb}")
@@ -359,12 +341,14 @@ class PipelineOrchestrator:
 
         return state
 
-    def _run_semantic(self, state: PipelineState) -> PipelineState:
-        """Extract semantic information."""
+    def _run_semantic(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Extract semantic information (deprecated — use SemanticStage)."""
+        warnings.warn("_run_semantic is deprecated. Use SemanticStage.", DeprecationWarning, stacklevel=2)
         return state
 
-    def _run_topological(self, state: PipelineState) -> PipelineState:
-        """Run topological placement phase."""
+    def _run_topological(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Run topological placement phase (deprecated — use TopologicalStage)."""
+        warnings.warn("_run_topological is deprecated. Use TopologicalStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.optimizer.legalization import legalize_zone_aware
         from temper_placer.placer.deterministic import PlacementResult
         from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
@@ -416,8 +400,9 @@ class PipelineOrchestrator:
         )
         return state
 
-    def _run_preflight(self, state: PipelineState) -> PipelineState:
-        """Run preflight feasibility checks."""
+    def _run_preflight(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Run preflight feasibility checks (deprecated — use PreflightStage)."""
+        warnings.warn("_run_preflight is deprecated. Use PreflightStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.pipeline.preflight import PreflightChecker
         print("Running preflight feasibility checks...")
         @dataclass
@@ -430,8 +415,9 @@ class PipelineOrchestrator:
             raise PipelineError(f"Preflight checks failed: {report.summary()}", phase=PipelinePhase.PREFLIGHT)
         return state
 
-    def _run_geometric(self, state: PipelineState) -> PipelineState:
-        """Run geometric optimization."""
+    def _run_geometric(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Run geometric optimization (deprecated — use GeometricStage)."""
+        warnings.warn("_run_geometric is deprecated. Use GeometricStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.core.state import PlacementState
         from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
         from temper_placer.optimizer.legalization import project_to_trust_region, resolve_overlaps_priority
@@ -488,8 +474,9 @@ class PipelineOrchestrator:
         state.placement_state = PlacementState.from_positions(jnp.array(final_pos))
         return state
 
-    def _run_routing(self, state: PipelineState) -> PipelineState:
-        """Run routing verification."""
+    def _run_routing(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Run routing verification (deprecated — use RoutingStage)."""
+        warnings.warn("_run_routing is deprecated. Use RoutingStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.routing.congestion import analyze_congestion
         import jax.numpy as jnp
         print("Running routing verification...")
@@ -501,8 +488,9 @@ class PipelineOrchestrator:
             print("Warning: High congestion detected!")
         return state
 
-    def _run_refinement(self, state: PipelineState) -> PipelineState:
-        """Run placement-routing refinement loop using PlaceRouteIterator."""
+    def _run_refinement(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Run placement-routing refinement loop (deprecated — use RefinementStage)."""
+        warnings.warn("_run_refinement is deprecated. Use RefinementStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.pipeline.iterator import PlaceRouteIterator
         from temper_placer.routing.maze_router import MazeRouter
         from temper_placer.routing.congestion_heatmap import CongestionHeatmap
@@ -628,8 +616,9 @@ class PipelineOrchestrator:
         
         return state
 
-    def _run_output(self, state: PipelineState) -> PipelineState:
-        """Generate output files."""
+    def _run_output(self, state: PipelineState) -> PipelineState:  # pragma: no cover
+        """Generate output files (deprecated — use OutputStage)."""
+        warnings.warn("_run_output is deprecated. Use OutputStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.io.kicad_writer import export_placements, add_bounding_boxes_to_pcb, add_silkscreen_labels
         self._compute_physics_metrics()
         if not state.config.output_pcb:

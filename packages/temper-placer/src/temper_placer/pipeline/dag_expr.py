@@ -221,7 +221,7 @@ def evaluate_skip_expr(
                     if not _eval(v):
                         return False
                 return True
-            elif isinstance(node, ast.Or):
+            elif isinstance(node.op, ast.Or):
                 for v in node.values:
                     if _eval(v):
                         return True
