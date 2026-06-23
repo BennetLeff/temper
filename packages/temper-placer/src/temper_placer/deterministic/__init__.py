@@ -61,6 +61,8 @@ def create_drc_aware_pipeline(
     net_class_clearances = {}
     fixed_placements = {}
     yaml_copper_zones = []
+    yaml_isolation_slots = []  # @req(2026-06-23-007, R1)
+    config_rules = None  # @req(2026-06-23-007, R2)
     differential_pairs = []
     net_priority = {}  # EXP-6: Explicit net routing priority
     placement_constraints = {}  # EXP-12: Placement validation constraints
@@ -77,11 +79,17 @@ def create_drc_aware_pipeline(
         slot_config = getattr(config, "slot_generation", None)
         fixed_placements = getattr(config, "fixed_positions", {})
         yaml_copper_zones = getattr(config, "copper_zones", [])
+        config_rules = getattr(config, "net_class_rules", None)  # @req(2026-06-23-007, R2)
+        # @req(2026-06-23-007, R1): Thread isolation_slots from Constraints
+        # to the slot-generation stage so the cutouts can be honored during
+        # slot filtering (U2) and the reclaim dict can be exposed to the
+        # DRC oracle (U3). Degrade to [] when the field is absent so older
+        # configs and test fixtures that don't set isolation_slots still work.
+        yaml_isolation_slots = getattr(config, "isolation_slots", [])
         if slot_config and "spacing_mm" in slot_config:
             slot_spacing = slot_config["spacing_mm"]
 
         # Get net class rules from config
-        config_rules = getattr(config, "net_class_rules", None)
         if config_rules:
             for name, rules in config_rules.items():
                 if hasattr(rules, "clearance_mm"):
@@ -169,6 +177,8 @@ def create_drc_aware_pipeline(
             copper_zone_margin=2.0,
             min_routing_channel=3.0,
             yaml_copper_zones=yaml_copper_zones,
+            yaml_isolation_slots=yaml_isolation_slots,  # @req(2026-06-23-007, R1)
+            net_class_rules=config_rules,  # @req(2026-06-23-007, R2)
         )
     else:
         slot_stage = SlotGenerationStage(slot_spacing_mm=slot_spacing)

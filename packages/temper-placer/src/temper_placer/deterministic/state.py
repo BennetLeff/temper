@@ -85,6 +85,12 @@ class BoardState:
     parsed_grids: Optional[dict[str, Any]] = None
     net_route_order: Optional[list[str]] = None
     per_net_results: Optional[dict[str, Any]] = None
+    # @req(2026-06-23-007, R2): Per-(component, lv_pin, hv_pin) clearance
+    # reclaim (mm) emitted by ZoneAwareSlotGenerationStage when an isolation
+    # cutout is present. The DRC oracle (U3) reads this dict to apply a
+    # reduced clearance inside the slot's reclaimed band. Optional so older
+    # pipelines that don't run the zone-aware stage still type-check.
+    reclaim_by_pin_pair: Optional[dict[tuple[str, str, str], float]] = None
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.
