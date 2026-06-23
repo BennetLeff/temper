@@ -247,7 +247,7 @@ class DRCFence:
         if stage_wall_time_ms is not None and stage_wall_time_ms >= self.perf_budget_floor_ms:
             overhead_pct = (elapsed_ms / stage_wall_time_ms) * 100
 
-        passed = len(new_violations) == 0
+        passed = len(violations) == 0
 
         result = FenceResult(
             stage_name=stage_name,
@@ -284,8 +284,8 @@ class DRCFence:
             if self.ci_enforce and datetime.now() >= _BUDGET_ENFORCEMENT_START:
                 raise FenceBudgetError(result)
 
-        # Violation enforcement
-        if self.fail_on_violation and not result.passed:
+        # Violation enforcement - only raise on new violations introduced by this stage
+        if self.fail_on_violation and len(new_violations) > 0:
             raise FenceViolationError(result)
 
         return result
