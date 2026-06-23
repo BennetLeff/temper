@@ -462,14 +462,14 @@ def _default_connectivity(net_type: NetType) -> str:
     return defaults.get(net_type, "trace")
 
 
-def _default_layer(net_type: NetType) -> str:
+def _default_layer(net_type: NetType) -> LayerIndex:
     """Get default target layer for net type."""
-    defaults = {
-        NetType.GROUND: "In1.Cu",  # Inner ground plane
-        NetType.POWER: "In2.Cu",  # Inner power plane
-        NetType.HIGH_VOLTAGE: "F.Cu",  # Top copper pour
-        NetType.HIGH_CURRENT: "F.Cu",
-        NetType.SIGNAL: "F.Cu",
-        NetType.DIFFERENTIAL: "F.Cu",
+    defaults: dict[NetType, LayerIndex] = {
+        NetType.GROUND: LayerIndex.IN1_CU,  # Inner ground plane
+        NetType.POWER: LayerIndex.IN2_CU,  # Inner power plane
+        NetType.HIGH_VOLTAGE: LayerIndex.F_CU,  # Top copper pour
+        NetType.HIGH_CURRENT: LayerIndex.F_CU,
+        NetType.SIGNAL: LayerIndex.F_CU,
+        NetType.DIFFERENTIAL: LayerIndex.F_CU,
     }
-    return defaults.get(net_type, "F.Cu")
+    return defaults.get(net_type, LayerIndex.F_CU)
