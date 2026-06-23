@@ -1,4 +1,4 @@
-"""Tests for the unified pipeline profiler and Stage 2 instrumentation."""
+"""Tests for the unified pipeline profiler, Stage 2 instrumentation, and ProfileStats integration."""
 
 import json
 import time
@@ -90,6 +90,13 @@ class TestPipelineProfiler:
         assert d["stages"] == {}
         assert d["maze_router"]["numba_time_ms"] == 0.0
 
+    def test_multiple_stages_preserved_in_order(self):
+        profiler = PipelineProfiler()
+        for name in ("parse", "stage1", "stage2"):
+            with profiler.stage(name):
+                pass
+        assert list(profiler.report.stage_timings.keys()) == ["parse", "stage1", "stage2"]
+
 
 class TestStageTiming:
     def test_to_dict_no_sub_steps(self):
@@ -106,3 +113,34 @@ class TestStageTiming:
         d = t.to_dict()
         assert "sub_steps" in d
         assert d["sub_steps"]["child"]["wall_time_ms"] == 3.0
+
+
+class TestProfileStatsIntegration:
+    """U3: integration tests for ProfileStats wiring and per-path latency."""
+
+    def test_per_path_latency_no_duplicates(self):
+        profiler = PipelineProfiler()
+        profiler.record_per_path_latency("NET_A", 1.5)
+        profiler.record_per_path_latency("NET_A", 2.0)
+        profiler.record_per_path_latency("NET_B", 3.0)
+        assert profiler.report.per_path_latency_ms["NET_A"] == 2.0
+        assert profiler.report.per_path_latency_ms["NET_B"] == 3.0
+
+    def test_merge_router_stats_preserves_all_fields(self):
+        from dataclasses import dataclass
+
+        @dataclass
+        class RealisticStats:
+            numba_time_ms: float = 15.5
+            python_time_ms: float = 5.2
+            astar_total_ms: float = 45.0
+            dist_map_ms: float = 2.3
+
+        profiler = PipelineProfiler()
+        profiler.merge_router_stats(RealisticStats())
+        d = profiler.report.to_dict()
+        maze = d["maze_router"]
+        assert maze["numba_time_ms"] == 15.5
+        assert maze["python_time_ms"] == 5.2
+        assert maze["astar_total_ms"] == 45.0
+        assert maze["dist_map_ms"] == 2.3

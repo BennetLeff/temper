@@ -119,6 +119,7 @@ class RouterV6Pipeline:
         enable_legalization: bool = True,  # Default ON for robustness
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
+        profiler: object | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -131,6 +132,7 @@ class RouterV6Pipeline:
             enable_legalization: Auto-fix component overlaps (Phase 6)
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
+            profiler: Optional PipelineProfiler for stage timing instrumentation
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
@@ -139,6 +141,7 @@ class RouterV6Pipeline:
         self.enable_legalization = enable_legalization
         self.max_nets = max_nets
         self.target_nets = target_nets
+        self.profiler = profiler
 
     def run(self, pcb_path: Path) -> RouterV6Result:
         """
@@ -240,79 +243,112 @@ class RouterV6Pipeline:
 
     def _run_stage2(self, pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> Stage2Output:
         """Run Stage 2: Channel Analysis."""
+        _p = self.profiler
 
         # 2.1-2.2: Compute routing space (includes obstacle map building)
         if self.verbose:
             print("  2.1-2.2: Computing routing space...")
-        routing_spaces = compute_routing_space(pcb, escape_vias)
+        if _p:
+            with _p.sub_step("stage2", "obstacle_map_and_routing_space"):
+                routing_spaces = compute_routing_space(pcb, escape_vias)
+                obstacle_maps = build_obstacle_map(pcb, escape_vias)
+        else:
+            routing_spaces = compute_routing_space(pcb, escape_vias)
+            obstacle_maps = build_obstacle_map(pcb, escape_vias)
         if self.verbose:
             print(f"    Computed routing spaces for {len(routing_spaces)} layers")
-
-        # Build obstacle maps separately for later use
-        obstacle_maps = build_obstacle_map(pcb, escape_vias)
 
         # 2.3: Extract channel skeleton
         if self.verbose:
             print("  2.3: Extracting channel skeleton...")
-        skeletons = {}
-        # U3: Extract skeleton from F.Cu + B.Cu only (inner layers are power/ground planes)
-        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
-        for layer_name, routing_space in outer_layers.items():
-            skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
-            skeletons[layer_name] = skeleton
-            if self.verbose:
+        if _p:
+            with _p.sub_step("stage2", "channel_skeleton"):
+                skeletons = {}
+                outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
+                for layer_name, routing_space in outer_layers.items():
+                    skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
+                    skeletons[layer_name] = skeleton
+        else:
+            skeletons = {}
+            outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
+            for layer_name, routing_space in outer_layers.items():
+                skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
+                skeletons[layer_name] = skeleton
+        if self.verbose:
+            for layer_name, skeleton in skeletons.items():
                 print(f"    {layer_name}: {skeleton.node_count} nodes, {skeleton.edge_count} edges")
 
         # 2.4: Compute channel widths
         if self.verbose:
             print("  2.4: Computing channel widths...")
-        channel_widths = {}
-        for layer_name, skeleton in skeletons.items():
-            widths = compute_channel_widths(
-                routing_spaces[layer_name],
-                skeleton,
-            )
-            channel_widths[layer_name] = widths
+        if _p:
+            with _p.sub_step("stage2", "channel_widths"):
+                channel_widths = {}
+                for layer_name, skeleton in skeletons.items():
+                    widths = compute_channel_widths(routing_spaces[layer_name], skeleton)
+                    channel_widths[layer_name] = widths
+        else:
+            channel_widths = {}
+            for layer_name, skeleton in skeletons.items():
+                widths = compute_channel_widths(routing_spaces[layer_name], skeleton)
+                channel_widths[layer_name] = widths
 
         # 2.5: Build occupancy grid
         if self.verbose:
             print("  2.5: Building occupancy grid...")
-
-        # Calculate base inflation for C-Space (trace radius + clearance)
         base_inflation = (
             pcb.design_rules.default_trace_width_mm / 2.0
         ) + pcb.design_rules.default_clearance_mm
-
-        occupancy_grids = {}
-        for layer_name, routing_space in routing_spaces.items():
-            grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
-            occupancy_grids[layer_name] = grid
+        if _p:
+            with _p.sub_step("stage2", "occupancy_grid"):
+                occupancy_grids = {}
+                for layer_name, routing_space in routing_spaces.items():
+                    grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
+                    occupancy_grids[layer_name] = grid
+        else:
+            occupancy_grids = {}
+            for layer_name, routing_space in routing_spaces.items():
+                grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
+                occupancy_grids[layer_name] = grid
 
         # 2.6: Calculate per-layer capacity
         if self.verbose:
             print("  2.6: Calculating layer capacity...")
-        layer_capacities = {}
-        for layer_name in occupancy_grids.keys():
-            capacity = calculate_layer_capacity(
-                occupancy_grids[layer_name],
-                channel_widths.get(layer_name, 0.0),
-                pcb.design_rules.default_trace_width_mm * 1.5,
-                pcb.design_rules.default_clearance_mm,
-            )
-            layer_capacities[layer_name] = capacity
+        if _p:
+            with _p.sub_step("stage2", "layer_capacity"):
+                layer_capacities = {}
+                for layer_name in occupancy_grids.keys():
+                    capacity = calculate_layer_capacity(
+                        occupancy_grids[layer_name], channel_widths.get(layer_name, 0.0),
+                        pcb.design_rules.default_trace_width_mm * 1.5,
+                        pcb.design_rules.default_clearance_mm)
+                    layer_capacities[layer_name] = capacity
+        else:
+            layer_capacities = {}
+            for layer_name in occupancy_grids.keys():
+                capacity = calculate_layer_capacity(
+                    occupancy_grids[layer_name], channel_widths.get(layer_name, 0.0),
+                    pcb.design_rules.default_trace_width_mm * 1.5,
+                    pcb.design_rules.default_clearance_mm)
+                layer_capacities[layer_name] = capacity
 
         # 2.7: Estimate demand
         if self.verbose:
             print("  2.7: Estimating routing demand...")
-        routing_demand = estimate_routing_demand(pcb)
+        if _p:
+            with _p.sub_step("stage2", "routing_demand"):
+                routing_demand = estimate_routing_demand(pcb)
+        else:
+            routing_demand = estimate_routing_demand(pcb)
 
         # 2.8: Identify bottlenecks
         if self.verbose:
             print("  2.8: Identifying bottlenecks...")
-        bottleneck_analysis = identify_bottlenecks(
-            layer_capacities,
-            routing_demand,
-        )
+        if _p:
+            with _p.sub_step("stage2", "bottleneck_analysis"):
+                bottleneck_analysis = identify_bottlenecks(layer_capacities, routing_demand)
+        else:
+            bottleneck_analysis = identify_bottlenecks(layer_capacities, routing_demand)
         if self.verbose and bottleneck_analysis.has_critical_bottlenecks:
             print(f"    Warning: {len(bottleneck_analysis.bottlenecks)} bottlenecks identified")
 
