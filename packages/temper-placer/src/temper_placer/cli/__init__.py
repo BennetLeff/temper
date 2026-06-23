@@ -3819,7 +3819,7 @@ def place_deterministic(
         raise click.Abort() from e
 
 
-from ._version import version
+from .version import version
 
 main.add_command(version)
 
