@@ -1,0 +1,12 @@
+{
+  "board_id": "temper_canonical",
+  "captured_at": "2026-06-23T00:00:00Z",
+  "captured_on_branch": "main",
+  "captured_at_commit": "2334d647",
+  "seed": 0,
+  "ghost_pad_injection": false,
+  "router_completion_pct": 33.0,
+  "drc_clearance_pass_pct": 100.0,
+  "wall_clock_seconds": 1.0,
+  "notes": "Pre-U1 baseline (33% closure per the plan problem frame). Captured on main before U1 merge. The 33% number is the documented completion rate the SM1 ≥90% target is measured against."
+}
