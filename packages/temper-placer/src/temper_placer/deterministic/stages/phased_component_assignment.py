@@ -654,8 +654,10 @@ class PhasedComponentAssignmentStage(Stage):
 
         accepted: List[Tuple[float, float]] = []
         scores_accepted: List[float] = []
+        all_scores: List[float] = []
         for slot in candidate_slots:
             score = bmap.score_at(slot[0], slot[1])
+            all_scores.append(score)
             if score < limit:
                 accepted.append(slot)
                 scores_accepted.append(score)
@@ -675,8 +677,10 @@ class PhasedComponentAssignmentStage(Stage):
                 component_ref,
             )
             fallback_used = True
+            # Reuse the per-slot scores already computed in the first
+            # loop; avoid re-querying the map for the fallback pool.
             accepted = list(candidate_slots)
-            scores_accepted = [bmap.score_at(s[0], s[1]) for s in candidate_slots]
+            scores_accepted = list(all_scores)
             candidates_accepted = candidates_total
             candidates_rejected = 0
 
