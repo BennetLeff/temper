@@ -1195,6 +1195,150 @@ static void test_fault_string_table_covers_all_faults(void) {
 }
 
 /* ============================================================================
+ * Test Cases: Runaway Boundary Interlock
+ * ============================================================================ */
+
+/**
+ * Test: Pan temp above max_absolute_temp_c triggers STATE_RUNAWAY_FAULT
+ */
+void test_sm_runaway_absolute_temp(void) {
+    setup_test();
+    /* Complete INIT -> IDLE */
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+
+    /* Set target temp and enter PAN_DET */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_PAN_DET, state_machine_get_state());
+    mock_sm_release_button(BUTTON_START);
+
+    /* Enter PAN_DET with pan present to progress to PREHEAT */
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 4; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+
+    /* Set pan temp above 300°C threshold */
+    mock_sm_set_pan_temperature(310.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_RUNAWAY_BOUNDARY, state_machine_get_fault());
+}
+
+/**
+ * Test: Pan temp rise rate above max_temp_rise_rate_c_per_s triggers STATE_RUNAWAY_FAULT
+ */
+void test_sm_runaway_rate_of_rise(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+
+    /* Enter PREHEAT */
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 4; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+
+    /* Establish baseline: first update stores temp reading, rate check skipped */
+    mock_sm_set_pan_temperature(30.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+
+    /* Set pan temp to 200°C, rate = (200-30)/0.1s = 1700°C/s >> 15°C/s threshold */
+    mock_sm_set_pan_temperature(200.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_RUNAWAY_BOUNDARY, state_machine_get_fault());
+}
+
+/**
+ * Test: Normal temperatures and rates do not trigger runaway
+ */
+void test_sm_runaway_no_breach_normal_operation(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+
+    /* Enter PREHEAT */
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 4; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+
+    /* Set pan temp to 100°C - well below 300°C threshold */
+    mock_sm_set_pan_temperature(100.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+
+    /* Raise by 1°C over 100ms = 10°C/s, below 15°C/s threshold */
+    mock_sm_set_pan_temperature(101.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+}
+
+/**
+ * Test: After runaway breach, latch blocks transition
+ */
+void test_sm_runaway_latch_blocks_transition(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+
+    /* Enter PREHEAT */
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 4; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+
+    /* Trigger runaway */
+    mock_sm_set_pan_temperature(310.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+
+    /* Try to force transition back to IDLE */
+    state_machine_force_state(STATE_IDLE);
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+
+    /* Try forcing other states - latch blocks all */
+    state_machine_force_state(STATE_INIT);
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+    state_machine_force_state(STATE_HEATING);
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+}
+
+/* ============================================================================
  * Test Runner
  * ============================================================================ */
 
@@ -1284,4 +1428,10 @@ void run_state_machine_tests(void) {
     /* String table coverage (R10) */
     RUN_TEST(test_state_string_table_covers_all_states);
     RUN_TEST(test_fault_string_table_covers_all_faults);
+
+    /* Runaway boundary interlock tests */
+    RUN_TEST(test_sm_runaway_absolute_temp);
+    RUN_TEST(test_sm_runaway_rate_of_rise);
+    RUN_TEST(test_sm_runaway_no_breach_normal_operation);
+    RUN_TEST(test_sm_runaway_latch_blocks_transition);
 }

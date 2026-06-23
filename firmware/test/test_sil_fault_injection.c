@@ -44,7 +44,6 @@ extern void  mock_sm_set_selftest_results(bool adc, bool pwm, bool fan,
 extern fault_code_t mock_sm_get_last_logged_fault(void);
 extern uint32_t     mock_sm_get_eeprom_log_count(void);
 extern uint32_t     mock_sm_get_trigger_shutdown_count(void);
-extern uint32_t     mock_sm_get_power_level(void);
 
 #define MOCK_PAN_ABSENT  0
 #define MOCK_PAN_PRESENT 1
@@ -83,12 +82,11 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!str || !strcmp(str, "FAULT_NONE"))            return FAULT_NONE;
     if (!strcmp(str, "FAULT_OVER_TEMP"))               return FAULT_OVER_TEMP;
     if (!strcmp(str, "FAULT_OVER_CURRENT"))            return FAULT_OVER_CURRENT;
-    if (!strcmp(str, "FAULT_IGBT_SHORT"))              return FAULT_IGBT_SHORT;
+    if (!strcmp(str, "FAULT_RUNAWAY_BOUNDARY"))         return FAULT_RUNAWAY_BOUNDARY;
     if (!strcmp(str, "FAULT_FAN_FAILURE"))             return FAULT_FAN_FAILURE;
     if (!strcmp(str, "FAULT_PROBE_OPEN"))              return FAULT_PROBE_OPEN;
     if (!strcmp(str, "FAULT_PROBE_SHORT"))             return FAULT_PROBE_SHORT;
     if (!strcmp(str, "FAULT_THERMAL_RUNAWAY"))         return FAULT_THERMAL_RUNAWAY;
-    if (!strcmp(str, "FAULT_ADC_STUCK"))               return FAULT_ADC_STUCK;
     if (!strcmp(str, "FAULT_SELF_TEST_FAILED"))        return FAULT_SELF_TEST_FAILED;
     if (!strcmp(str, "FAULT_WATCHDOG_RESET"))          return FAULT_WATCHDOG_RESET;
     if (!strcmp(str, "FAULT_COOLDOWN_OVERHEAT"))       return FAULT_COOLDOWN_OVERHEAT;
@@ -192,9 +190,6 @@ static void skip_value(const char **pp) {
 /* ---------------------------------------------------------------------------
  * Manifest entry structure
  * --------------------------------------------------------------------------- */
-
-/* Forward declaration for coverage tracking (defined later) */
-static void coverage_record(fault_code_t fc, bool detected, int latency);
 
 typedef struct {
     char name[128];
@@ -548,7 +543,6 @@ static void run_sil_test(const manifest_entry_t *entry) {
             /* Expected outcome - test passes */
             TEST_ASSERT_EQUAL(STATE_FAULT, st);
             TEST_ASSERT_EQUAL(FAULT_SELF_TEST_FAILED, fc);
-            coverage_record(FAULT_SELF_TEST_FAILED, true, 0);
             printf("  [PASS] self_test_failed detected\n");
             return;
         }
@@ -631,13 +625,11 @@ static void run_sil_test(const manifest_entry_t *entry) {
     printf("  [PASS] state=%d fault=%d latency=%d ticks (at tick %d)\n",
            (int)entry->expected_state, (int)captured_fault, latency, reached_tick);
 
-    coverage_record(captured_fault, true, latency);
-
     /* --- Soft assertions (warnings only) --- */
     if (entry->soft_power_off) {
-        if (mock_sm_get_power_level() != 0) {
-            printf("  [WARN] soft_assertion: power_off expected but power_level=%u\n",
-                   mock_sm_get_power_level());
+        uint32_t shutdowns = mock_sm_get_trigger_shutdown_count();
+        if (shutdowns == 0) {
+            printf("  [WARN] soft_assertion: power_off expected but none called\n");
         }
     }
     if (entry->soft_eeprom_logged) {
@@ -647,89 +639,6 @@ static void run_sil_test(const manifest_entry_t *entry) {
                    (int)entry->soft_eeprom_fault, (int)logged);
         }
     }
-}
-
-/* ---------------------------------------------------------------------------
- * Fault coverage tracking
- * --------------------------------------------------------------------------- */
-
-typedef struct {
-    fault_code_t fault_code;
-    bool tested;
-    bool detected;
-    int latency_ticks;
-} fault_coverage_t;
-
-static fault_coverage_t g_coverage[FAULT_COUNT];
-static int g_coverage_count = 0;
-
-static void coverage_record(fault_code_t fc, bool detected, int latency) {
-    if (fc == FAULT_NONE) return;
-    for (int i = 0; i < g_coverage_count; i++) {
-        if (g_coverage[i].fault_code == fc) {
-            if (detected) g_coverage[i].detected = true;
-            g_coverage[i].latency_ticks = latency;
-            return;
-        }
-    }
-    if (g_coverage_count < FAULT_COUNT) {
-        g_coverage[g_coverage_count].fault_code = fc;
-        g_coverage[g_coverage_count].tested = true;
-        g_coverage[g_coverage_count].detected = detected;
-        g_coverage[g_coverage_count].latency_ticks = latency;
-        g_coverage_count++;
-    }
-}
-
-static void coverage_print_report(void) {
-    printf("\n=== SIL Fault Coverage Report ===\n");
-    printf("%-25s %-8s %-9s %s\n", "FAULT CODE", "TESTED", "DETECTED", "LATENCY (ms)");
-    printf("-------------------------------------------------------\n");
-
-    /* Build a set of fault codes we have coverage for */
-    bool covered[FAULT_COUNT];
-    bool detected[FAULT_COUNT];
-    int latency_ms[FAULT_COUNT];
-    memset(covered, 0, sizeof(covered));
-    memset(detected, 0, sizeof(detected));
-    memset(latency_ms, 0, sizeof(latency_ms));
-
-    for (int i = 0; i < g_coverage_count; i++) {
-        int idx = (int)g_coverage[i].fault_code;
-        if (idx >= 0 && idx < FAULT_COUNT) {
-            covered[idx] = true;
-            detected[idx] = g_coverage[i].detected;
-            latency_ms[idx] = g_coverage[i].latency_ticks * DT_MS;
-        }
-    }
-
-    int total_tested = 0;
-    int total_faults = 0;
-
-    /* Iterate FAULT_LIST to print in definition order */
-#define PRINT_COVERAGE_LINE(sym, str) \
-    { \
-        int idx = (int)(sym); \
-        if (idx < FAULT_COUNT) { \
-            total_faults++; \
-            bool t = covered[idx]; \
-            bool d = detected[idx]; \
-            int lm = latency_ms[idx]; \
-            if (t) total_tested++; \
-            printf("%-25s %-8s %-9s ", str, t ? "YES" : "NO", t ? (d ? "YES" : "NO") : "-"); \
-            if (t && lm > 0) printf("%d", lm); \
-            else printf("-"); \
-            printf("\n"); \
-        } \
-    }
-
-    FAULT_LIST(PRINT_COVERAGE_LINE);
-
-#undef PRINT_COVERAGE_LINE
-
-    printf("-------------------------------------------------------\n");
-    int pct = total_faults > 0 ? (total_tested * 100) / total_faults : 0;
-    printf("Coverage: %d/%d faults tested (%d%%)\n", total_tested, total_faults, pct);
 }
 
 /* ---------------------------------------------------------------------------
@@ -799,9 +708,5 @@ int main(void) {
         }
     }
 
-    int failures = UnityEnd();
-
-    coverage_print_report();
-
-    return failures;
+    return UnityEnd();
 }

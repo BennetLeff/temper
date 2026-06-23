@@ -33,6 +33,9 @@ void config_init(void) {
     
     /* Load thresholds with defaults */
     g_config.thresholds = (thresholds_t)THRESHOLDS_DEFAULT;
+
+    /* Load runaway interlock limits with defaults */
+    g_config.runaway = (runaway_t)RUNAWAY_DEFAULT;
 }
 
 void config_load_defaults(void) {
@@ -44,6 +47,9 @@ void config_load_defaults(void) {
     
     /* Reset thresholds to defaults */
     g_config.thresholds = (thresholds_t)THRESHOLDS_DEFAULT;
+
+    /* Reset runaway interlock limits to defaults */
+    g_config.runaway = (runaway_t)RUNAWAY_DEFAULT;
 }
 
 void config_set_from_env(void) {
@@ -146,6 +152,17 @@ void config_set_from_env(void) {
     if (env_str) {
         g_config.thresholds.fan_max_temp_rise_rate_c_per_s = strtof(env_str, NULL, 10);
     }
+    
+    /* Load runaway interlock limits */
+    env_str = getenv("RUNAWAY_MAX_ABSOLUTE_TEMP_C");
+    if (env_str) {
+        g_config.runaway.max_absolute_temp_c = strtof(env_str, NULL, 10);
+    }
+    
+    env_str = getenv("RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S");
+    if (env_str) {
+        g_config.runaway.max_temp_rise_rate_c_per_s = strtof(env_str, NULL, 10);
+    }
 }
 
 bool config_validate(void) {
@@ -222,6 +239,14 @@ bool config_validate(void) {
         valid = false;
     }
     
+    /* Validate runaway interlock limits */
+    if (g_config.runaway.max_absolute_temp_c <= 0.0f || g_config.runaway.max_absolute_temp_c > 500.0f) {
+        valid = false;
+    }
+    if (g_config.runaway.max_temp_rise_rate_c_per_s < 0.0f || g_config.runaway.max_temp_rise_rate_c_per_s > 100.0f) {
+        valid = false;
+    }
+    
     return valid;
 }
 
@@ -263,6 +288,10 @@ void config_print(void) {
     printf("  ADC Stuck Variance: %u\n", g_config.thresholds.adc_stuck_variance_threshold);
     printf("  ADC Watchdog:      %lu ms\n", g_config.thresholds.adc_watchdog_timeout_ms);
     printf("  Fan Max Temp Rise: %.2f °C/s\n", g_config.thresholds.fan_max_temp_rise_rate_c_per_s);
+    printf("\n");
+    printf("Runaway Interlock Limits:\n");
+    printf("  Max Absolute Temp:  %.1f °C\n", g_config.runaway.max_absolute_temp_c);
+    printf("  Max Temp Rise Rate: %.1f °C/s\n", g_config.runaway.max_temp_rise_rate_c_per_s);
     printf("\n");
     printf("========================================\n");
 }

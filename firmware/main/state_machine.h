@@ -34,8 +34,9 @@ extern "C" {
     X(STATE_PREHEAT,  "PREHEAT") \
     X(STATE_HEATING,  "HEATING") \
     X(STATE_NO_PAN,   "NO_PAN") \
-    X(STATE_COOLDOWN, "COOLDOWN") \
-    X(STATE_FAULT,    "FAULT")
+    X(STATE_COOLDOWN,     "COOLDOWN") \
+    X(STATE_FAULT,        "FAULT") \
+    X(STATE_RUNAWAY_FAULT, "RUNAWAY_FAULT")
 
 #define EXPAND_STATE_ENUM(sym, str)  sym,
 typedef enum {
@@ -61,13 +62,12 @@ static const state_name_entry_t state_name_table[] = {
 #define FAULT_LIST(X) \
     X(FAULT_NONE,             "NO FAULT") \
     X(FAULT_OVER_TEMP,        "OVER TEMP") \
-    X(FAULT_OVER_CURRENT,     "OVER CURRENT") \
-    X(FAULT_IGBT_SHORT,       "IGBT SHORT") \
-    X(FAULT_FAN_FAILURE,      "FAN FAILED") \
+    X(FAULT_OVER_CURRENT,       "OVER CURRENT") \
+    X(FAULT_RUNAWAY_BOUNDARY,    "RUNAWAY BOUNDARY") \
+    X(FAULT_FAN_FAILURE,        "FAN FAILED") \
     X(FAULT_PROBE_OPEN,       "PROBE OPEN") \
     X(FAULT_PROBE_SHORT,      "PROBE SHORT") \
     X(FAULT_THERMAL_RUNAWAY,  "THERMAL RUNAWAY") \
-    X(FAULT_ADC_STUCK,        "ADC STUCK") \
     X(FAULT_SELF_TEST_FAILED, "SELF TEST FAIL") \
     X(FAULT_WATCHDOG_RESET,   "WATCHDOG RESET") \
     X(FAULT_COOLDOWN_OVERHEAT,"COOLDOWN FAULT") \
@@ -86,52 +86,6 @@ static const fault_name_entry_t fault_name_table[] = {
     FAULT_LIST(EXPAND_FAULT_NAME)
 };
 #undef EXPAND_FAULT_NAME
-
-/**
- * @brief Event types — single-source list (X-macro)
- *
- * Add an event: add one X(EVENT_NAME, "STRING") line.
- * The enum, EVENT_COUNT sentinel, and string-name table
- * all expand from this list automatically.
- */
-#define EVENT_LIST(X) \
-    X(EVENT_SELFTEST_PASS,       "SELFTEST_PASS") \
-    X(EVENT_SELFTEST_FAIL,       "SELFTEST_FAIL") \
-    X(EVENT_START_BUTTON,        "START_BUTTON") \
-    X(EVENT_PAN_DETECTED,        "PAN_DETECTED") \
-    X(EVENT_PAN_TIMEOUT,         "PAN_TIMEOUT") \
-    X(EVENT_NEAR_TARGET,         "NEAR_TARGET") \
-    X(EVENT_PREHEAT_TIMEOUT,     "PREHEAT_TIMEOUT") \
-    X(EVENT_OVER_TEMP,           "OVER_TEMP") \
-    X(EVENT_OVER_CURRENT,        "OVER_CURRENT") \
-    X(EVENT_FAN_FAILURE,         "FAN_FAILURE") \
-    X(EVENT_PROBE_OPEN,          "PROBE_OPEN") \
-    X(EVENT_PROBE_SHORT,         "PROBE_SHORT") \
-    X(EVENT_THERMAL_RUNAWAY,     "THERMAL_RUNAWAY") \
-    X(EVENT_PAN_REMOVED,         "PAN_REMOVED") \
-    X(EVENT_STOP_BUTTON,         "STOP_BUTTON") \
-    X(EVENT_TIMER_EXPIRED,       "TIMER_EXPIRED") \
-    X(EVENT_PAN_REPLACED_SAME,   "PAN_REPLACED_SAME") \
-    X(EVENT_PAN_REPLACED_DIFFERENT, "PAN_REPLACED_DIFFERENT") \
-    X(EVENT_NO_PAN_TIMEOUT,      "NO_PAN_TIMEOUT") \
-    X(EVENT_COOLED_DOWN,         "COOLED_DOWN") \
-    X(EVENT_COOLDOWN_OVERHEAT,   "COOLDOWN_OVERHEAT") \
-    X(EVENT_FAULT_RESET_CLEARED, "FAULT_RESET_CLEARED") \
-    X(EVENT_FAULT_RESET_PERSISTS,"FAULT_RESET_PERSISTS")
-
-#define EXPAND_EVENT_ENUM(sym, str)  sym,
-typedef enum {
-    EVENT_LIST(EXPAND_EVENT_ENUM)
-    EVENT_COUNT
-} event_t;
-#undef EXPAND_EVENT_ENUM
-
-#define EXPAND_EVENT_NAME(sym, str)  { sym, str },
-typedef struct { event_t value; const char *name; } event_name_entry_t;
-static const event_name_entry_t event_name_table[] = {
-    EVENT_LIST(EXPAND_EVENT_NAME)
-};
-#undef EXPAND_EVENT_NAME
 
 /**
  * @brief Button identifiers
@@ -222,14 +176,6 @@ const char* state_machine_get_fault_string(fault_code_t code);
  * @return Human-readable state name
  */
 const char* state_machine_get_state_string(system_state_t state);
-
-/**
- * @brief Get event name string
- *
- * @param event Event code
- * @return Human-readable event name
- */
-const char* state_machine_get_event_string(event_t event);
 
 /**
  * @brief Enable/disable cooking timer

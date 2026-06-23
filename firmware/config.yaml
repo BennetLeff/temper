@@ -167,3 +167,20 @@ misc:
     units: ms
     doc: "Non-blocking message display time"
     legacy_define_only: true
+
+runaway:
+  - c_symbol: RUNAWAY_MAX_ABSOLUTE_TEMP_C
+    field: max_absolute_temp_c
+    value: 300.0
+    c_type: float
+    units: "°C"
+    env_var: RUNAWAY_MAX_ABSOLUTE_TEMP_C
+    doc: "Maximum absolute pan temperature before runaway interlock triggers"
+
+  - c_symbol: RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S
+    field: max_temp_rise_rate_c_per_s
+    value: 15.0
+    c_type: float
+    units: "°C/s"
+    env_var: RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S
+    doc: "Maximum pan temperature rise rate before runaway interlock triggers"

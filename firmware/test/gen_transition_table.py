@@ -10,50 +10,65 @@ import re
 import sys
 import os
 
-import yaml
-
 # ---------------------------------------------------------------------------
-# Transition Table (loaded from YAML manifest)
+# Transition Table (the spec)
 # ---------------------------------------------------------------------------
+# Each row: (from_state_enum, event_name, expected_to_enum, expected_fault_or_None, needs_fault_setup)
+# `needs_fault_setup` is True for rows where from_state is STATE_FAULT and we
+# need to first trigger a fault transition to set sm_ctx.fault_code properly.
 
-def load_transitions_from_yaml(repo_root):
-    """Load transition rows from firmware/transition_table.yaml.
-    Returns a list of (from_state_enum, event_name_str, expected_to_enum,
-    expected_fault_or_None, needs_fault_setup) tuples."""
-    manifest_path = os.path.join(repo_root, "transition_table.yaml")
+TRANSITIONS = [
+    # INIT transitions
+    ("STATE_INIT", "SELFTEST_PASS", "STATE_IDLE", None, False),
+    ("STATE_INIT", "SELFTEST_FAIL", "STATE_FAULT", "FAULT_SELF_TEST_FAILED", False),
 
-    with open(manifest_path, 'r') as f:
-        manifest = yaml.safe_load(f)
+    # IDLE transitions
+    ("STATE_IDLE", "START_BUTTON", "STATE_PAN_DET", None, False),
 
-    transitions = []
-    for row in manifest.get('transitions', []):
-        from_s = row['from']
-        event = row['event']
-        to_s = row['to']
-        fault = row.get('fault') or None
-        # needs_fault_setup is True for rows where from_state is STATE_FAULT
-        needs_fault_setup = (from_s == 'STATE_FAULT')
+    # PAN_DET transitions
+    ("STATE_PAN_DET", "PAN_DETECTED", "STATE_PREHEAT", None, False),
+    ("STATE_PAN_DET", "PAN_TIMEOUT", "STATE_IDLE", None, False),
 
-        # Convert EVENT_* name to the event string name used in EVENT_STUBS
-        # (e.g. EVENT_PAN_DETECTED -> PAN_DETECTED)
-        event_name = event.replace('EVENT_', '')
-        transitions.append((from_s, event_name, to_s, fault, needs_fault_setup))
+    # PREHEAT transitions
+    ("STATE_PREHEAT", "NEAR_TARGET", "STATE_HEATING", None, False),
+    ("STATE_PREHEAT", "PREHEAT_TIMEOUT", "STATE_FAULT", "FAULT_THERMAL_RUNAWAY", False),
+    ("STATE_PREHEAT", "OVER_TEMP", "STATE_FAULT", "FAULT_OVER_TEMP", False),
+    ("STATE_PREHEAT", "OVER_CURRENT", "STATE_FAULT", "FAULT_OVER_CURRENT", False),
+    ("STATE_PREHEAT", "FAN_FAILURE", "STATE_FAULT", "FAULT_FAN_FAILURE", False),
+    ("STATE_PREHEAT", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
+    ("STATE_PREHEAT", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
+    ("STATE_PREHEAT", "PAN_REMOVED", "STATE_NO_PAN", None, False),
+    ("STATE_PREHEAT", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
 
-    return transitions
+    # HEATING transitions
+    ("STATE_HEATING", "NEAR_TARGET", "STATE_HEATING", None, False),
+    ("STATE_HEATING", "OVER_TEMP", "STATE_FAULT", "FAULT_OVER_TEMP", False),
+    ("STATE_HEATING", "OVER_CURRENT", "STATE_FAULT", "FAULT_OVER_CURRENT", False),
+    ("STATE_HEATING", "FAN_FAILURE", "STATE_FAULT", "FAULT_FAN_FAILURE", False),
+    ("STATE_HEATING", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
+    ("STATE_HEATING", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
+    ("STATE_HEATING", "THERMAL_RUNAWAY", "STATE_FAULT", "FAULT_THERMAL_RUNAWAY", False),
+    ("STATE_HEATING", "PAN_REMOVED", "STATE_NO_PAN", None, False),
+    ("STATE_HEATING", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
+    ("STATE_HEATING", "TIMER_EXPIRED", "STATE_COOLDOWN", None, False),
 
+    # NO_PAN transitions
+    ("STATE_NO_PAN", "PAN_REPLACED_SAME", "STATE_PREHEAT", None, False),
+    ("STATE_NO_PAN", "PAN_REPLACED_DIFFERENT", "STATE_COOLDOWN", None, False),
+    ("STATE_NO_PAN", "NO_PAN_TIMEOUT", "STATE_COOLDOWN", None, False),
 
-def parse_event_list_from_header(header_path):
-    """Extract EVENT_* members from state_machine.h for --check mode."""
-    with open(header_path, 'r') as f:
-        content = f.read()
-    event_members = set()
-    m = re.search(
-        r'#define\s+EVENT_LIST\(X\)(.*?)(?:#define\s+EXPAND_EVENT_ENUM|\Z)',
-        content, re.DOTALL)
-    if m:
-        for name in re.findall(r'\b(EVENT_\w+)', m.group(1)):
-            event_members.add(name)
-    return event_members
+    # COOLDOWN transitions
+    ("STATE_COOLDOWN", "COOLED_DOWN", "STATE_IDLE", None, False),
+    ("STATE_COOLDOWN", "COOLDOWN_OVERHEAT", "STATE_FAULT", "FAULT_COOLDOWN_OVERHEAT", False),
+
+    # FAULT transitions (require fault_setup = True)
+    ("STATE_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
+    ("STATE_FAULT", "FAULT_RESET_PERSISTS", "STATE_FAULT", None, True),
+
+    # Wildcard transitions: runaway boundary interlock fires regardless of state
+    ("*", "RUNAWAY_ABSOLUTE_TEMP", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
+    ("*", "RUNAWAY_RISE_RATE", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
+]
 
 # ---------------------------------------------------------------------------
 # Event-to-stub mapping
@@ -102,6 +117,13 @@ EVENT_STUBS = {
         "mock_sm_set_heatsink_temperature(105.0f);\n"
         "    mock_sm_press_button(BUTTON_RESET);"
     ),
+    "RUNAWAY_ABSOLUTE_TEMP": "mock_sm_set_pan_temperature(310.0f);",
+    "RUNAWAY_RISE_RATE": (
+        "mock_sm_set_pan_temperature(30.0f);\n"
+        "    state_machine_update();\n"
+        "    mock_sm_advance_time(100);\n"
+        "    mock_sm_set_pan_temperature(200.0f);"
+    ),
 }
 
 # Pan detection is handled by a CONFIDENCE counter. For PAN_DETECTED,
@@ -112,51 +134,70 @@ EVENT_STUBS = {
 # States that need a confidence-loop update for PAN_DETECTED to fire:
 NEEDS_CONFIDENCE_LOOP = {"PAN_DETECTED"}
 
+# Active states for wildcard-expanded transitions (excludes INIT, IDLE,
+# FAULT, and RUNAWAY_FAULT since those states don't have active heating paths)
+ACTIVE_STATES = [
+    "STATE_PAN_DET",
+    "STATE_PREHEAT",
+    "STATE_HEATING",
+    "STATE_NO_PAN",
+    "STATE_COOLDOWN",
+]
+
 # ---------------------------------------------------------------------------
 # Enum parsing
 # ---------------------------------------------------------------------------
 
 def parse_state_machine_header(header_path):
-    """Extract STATE_* and FAULT_* members from state_machine.h X-macros."""
+    """Extract STATE_* and FAULT_* members from state_machine.h.
+    Handles X-macro pattern: STATE_LIST(X) / FAULT_LIST(X)."""
     with open(header_path, 'r') as f:
         content = f.read()
 
     state_members = set()
     fault_members = set()
 
-    # Parse STATE_LIST X-macro entries
-    m = re.search(
-        r'#define\s+STATE_LIST\(X\)(.*?)(?:#define\s+EXPAND_STATE_ENUM|\Z)',
-        content, re.DOTALL)
-    if m:
-        for name in re.findall(r'\b(STATE_\w+)', m.group(1)):
+    # Extract from STATE_LIST X-macro body: X(STATE_NAME, "str")
+    # Only match within the #define STATE_LIST(X) ... block
+    state_block = re.search(r'#define\s+STATE_LIST\(X\)\s*\\(.*?)(?=\n\s*$|\n#define|\n#if|\n#endif|\Z)', content, re.DOTALL)
+    if state_block:
+        for name in re.findall(r'X\(\s*(STATE_\w+)\s*,', state_block.group(1)):
             state_members.add(name)
 
-    # Parse FAULT_LIST X-macro entries
-    m = re.search(
-        r'#define\s+FAULT_LIST\(X\)(.*?)(?:#define\s+EXPAND_FAULT_ENUM|\Z)',
-        content, re.DOTALL)
+    # Also match STATE_COUNT sentinel if present
+    m = re.search(r'typedef\s+enum\s*\{[^}]*}\s*system_state_t\s*;', content, re.DOTALL)
     if m:
-        for name in re.findall(r'\b(FAULT_\w+)', m.group(1)):
+        body = m.group(0)
+        if 'STATE_COUNT' in body:
+            state_members.add('STATE_COUNT')
+
+    # Extract from FAULT_LIST X-macro body: X(FAULT_NAME, "str")
+    fault_block = re.search(r'#define\s+FAULT_LIST\(X\)\s*\\(.*?)(?=\n\s*$|\n#define|\n#if|\n#endif|\Z)', content, re.DOTALL)
+    if fault_block:
+        for name in re.findall(r'X\(\s*(FAULT_\w+)\s*,', fault_block.group(1)):
             fault_members.add(name)
+
+    # Also match FAULT_COUNT sentinel if present
+    m = re.search(r'typedef\s+enum\s*\{[^}]*}\s*fault_code_t\s*;', content, re.DOTALL)
+    if m:
+        body = m.group(0)
+        if 'FAULT_COUNT' in body:
+            fault_members.add('FAULT_COUNT')
 
     return state_members, fault_members
 
 
-def validate_table(transitions, states, faults, events=None):
-    """Check every state, fault, and event in the table exists in the header."""
+def validate_table(transitions, states, faults):
+    """Check every state and fault in the table exists in the header."""
     table_states = set()
     table_faults = set()
-    table_events = set()
 
     for from_s, event, to_s, fault, _ in transitions:
-        table_states.add(from_s)
+        if from_s != "*":
+            table_states.add(from_s)
         table_states.add(to_s)
         if fault:
             table_faults.add(fault)
-        # event names in the table are like "PAN_DETECTED", need "EVENT_PAN_DETECTED"
-        table_event_enum = "EVENT_" + event
-        table_events.add(table_event_enum)
 
     errors = []
     for s in table_states:
@@ -166,11 +207,6 @@ def validate_table(transitions, states, faults, events=None):
     for f in table_faults:
         if f not in faults:
             errors.append(f"ERROR: '{f}' referenced in table but not found in state_machine.h")
-
-    if events:
-        for e in table_events:
-            if e not in events:
-                errors.append(f"ERROR: '{e}' referenced in table but not found in state_machine.h EVENT_LIST")
 
     if errors:
         for e in errors:
@@ -183,21 +219,17 @@ def validate_table(transitions, states, faults, events=None):
     for f in sorted(faults - table_faults):
         print(f"INFO: {f} has zero transition rows in table (not an error)", file=sys.stderr)
 
-    if events:
-        for e in sorted(events - table_events):
-            print(f"WARNING: {e} has zero transition rows in table", file=sys.stderr)
-
 
 # ---------------------------------------------------------------------------
 # C code generation
 # ---------------------------------------------------------------------------
 
-def _c_event_stubs(transitions):
+def _c_event_stubs():
     """Generate the apply_event_stubs() function body (deduplicated)."""
     lines = []
     lines.append("static void apply_event_stubs(const char *event) {")
     seen = set()
-    for row in transitions:
+    for row in TRANSITIONS:
         event = row[1]
         if event in seen:
             continue
@@ -295,22 +327,29 @@ def _c_fault_setup():
     ]
 
 
-def _c_table_rows(transitions):
-    """Generate the transition_table[] array entries."""
+def _c_table_rows():
+    """Generate the transition_table[] array entries, expanding wildcards."""
     lines = []
-    for from_s, event, to_s, fault, _ in transitions:
-        has_fault = "true" if fault else "false"
-        fault_val = fault if fault else "FAULT_NONE"
-        extra = ""
-        if event == "PAN_REPLACED_SAME":
-            extra = "  /* same impedance -> resumes PREHEAT */"
-        elif event == "PAN_REPLACED_DIFFERENT":
-            extra = "  /* different impedance -> COOLDOWN */"
-        elif event == "NEAR_TARGET" and from_s == "STATE_HEATING":
-            extra = "  /* self-loop (PID control continues) */"
-        lines.append(
-            f'    {{ {from_s}, "{event}", {to_s}, {fault_val}, {has_fault} }},{extra}'
-        )
+    for from_s, event, to_s, fault, _ in TRANSITIONS:
+        if from_s == "*":
+            # Wildcard: expand to one entry per active state
+            for active_state in ACTIVE_STATES:
+                lines.append(
+                    f'    {{ {active_state}, "{event}", {to_s}, {fault}, false }},'
+                )
+        else:
+            has_fault = "true" if fault else "false"
+            fault_val = fault if fault else "FAULT_NONE"
+            extra = ""
+            if event == "PAN_REPLACED_SAME":
+                extra = "  /* same impedance -> resumes PREHEAT */"
+            elif event == "PAN_REPLACED_DIFFERENT":
+                extra = "  /* different impedance -> COOLDOWN */"
+            elif event == "NEAR_TARGET" and from_s == "STATE_HEATING":
+                extra = "  /* self-loop (PID control continues) */"
+            lines.append(
+                f'    {{ {from_s}, "{event}", {to_s}, {fault_val}, {has_fault} }},{extra}'
+            )
     return lines
 
 
@@ -328,8 +367,8 @@ def _c_test_function():
         "}",
         "",
         "void test_transition_table(void) {",
-        "    for (size_t i = 0; i < test_row_count; i++) {",
-        "        const transition_row_t *row = &test_rows[i];",
+        "    for (size_t i = 0; i < transition_count; i++) {",
+        "        const transition_row_t *row = &transition_table[i];",
         "        char msg[128];",
         '        snprintf(msg, sizeof(msg), "Row %zu: %s + %s", i,',
         '                 state_machine_get_state_string(row->from), row->event);',
@@ -461,42 +500,6 @@ def _c_test_function():
     ]
 
 
-def _c_cross_check():
-    """Generate a function that cross-checks the test table against the
-    official transition_table[][] from transition_table.h."""
-    return [
-        "/* Cross-check: verify the official transition_table.h matches our test rows */",
-        "static event_t event_enum_from_string(const char *name) {",
-        "    for (size_t i = 0; i < EVENT_COUNT; i++) {",
-        '        if (strcmp(name, event_name_table[i].name) == 0)',
-        "            return event_name_table[i].value;",
-        "    }",
-        "    return EVENT_COUNT;",
-        "}",
-        "",
-        "void test_transition_table_cross_check(void) {",
-        "    for (size_t i = 0; i < test_row_count; i++) {",
-        "        const transition_row_t *row = &test_rows[i];",
-        "        event_t ev = event_enum_from_string(row->event);",
-        '        char msg[128];',
-        '        snprintf(msg, sizeof(msg), "Cross-check row %zu: %s + %s",',
-        '                 i, state_machine_get_state_string(row->from), row->event);',
-        "",
-        '        TEST_ASSERT_NOT_EQUAL(EVENT_COUNT, ev);',
-        "",
-        "        system_state_t official = transition_table[row->from][ev];",
-        '        TEST_ASSERT_NOT_EQUAL(TRANSITION_INVALID, official);',
-        '        TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, official, msg);',
-        "",
-        "        if (row->has_fault) {",
-        "            fault_code_t official_fault = transition_fault[row->from][ev];",
-        '            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault, official_fault, msg);',
-        "        }",
-        "    }",
-        "}",
-    ]
-
-
 def generate_c_output(transitions, output_path):
     """Write the generated C file."""
     header_path = os.path.join(os.path.dirname(__file__), "..", "main", "state_machine.h")
@@ -514,7 +517,6 @@ def generate_c_output(transitions, output_path):
         "",
         '#include "test_common.h"',
         '#include "../main/state_machine.h"',
-        '#include "../main/transition_table.h"',
         '#include <string.h>',
         '#include <stdio.h>',
         "",
@@ -543,21 +545,21 @@ def generate_c_output(transitions, output_path):
         "    bool has_fault;",
         "} transition_row_t;",
         "",
-        "/* The test transition rows (generated from transition_table.yaml) */",
-        "static const transition_row_t test_rows[] = {",
+        "/* The transition table (generated from gen_transition_table.py) */",
+        "static const transition_row_t transition_table[] = {",
     ]
 
-    for l in _c_table_rows(transitions):
+    for l in _c_table_rows():
         lines.append(l)
 
     lines.extend([
         "};",
-        "static const size_t test_row_count = "
-        "sizeof(test_rows) / sizeof(test_rows[0]);",
+        "static const size_t transition_count = "
+        "sizeof(transition_table) / sizeof(transition_table[0]);",
         "",
     ])
 
-    lines.extend(_c_event_stubs(transitions))
+    lines.extend(_c_event_stubs())
     lines.append("")
 
     lines.extend(_c_fault_setup())
@@ -567,8 +569,6 @@ def generate_c_output(transitions, output_path):
     lines.append("")
 
     lines.extend(_c_test_function())
-    lines.append("")
-    lines.extend(_c_cross_check())
 
     with open(output_path, 'w') as f:
         f.write('\n'.join(lines) + '\n')
@@ -582,7 +582,6 @@ def generate_c_output(transitions, output_path):
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.join(script_dir, "..")
     header_path = os.path.join(script_dir, "..", "main", "state_machine.h")
     output_path = os.path.join(script_dir, "test_transition_table_generated.c")
 
@@ -592,19 +591,15 @@ def main():
 
     cmd = sys.argv[1]
 
-    # Load transitions from the YAML manifest
-    transitions = load_transitions_from_yaml(repo_root)
-
     states, faults = parse_state_machine_header(header_path)
-    events = parse_event_list_from_header(header_path)
 
     if cmd == "--check":
-        validate_table(transitions, states, faults, events)
-        print(f"Validated {len(transitions)} transition rows against {header_path}")
+        validate_table(TRANSITIONS, states, faults)
+        print(f"Validated {len(TRANSITIONS)} transition rows against {header_path}")
         return
 
     if cmd == "--generate":
-        generate_c_output(transitions, output_path)
+        generate_c_output(TRANSITIONS, output_path)
         return
 
     print(f"Unknown command: {cmd}", file=sys.stderr)

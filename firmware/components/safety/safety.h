@@ -159,6 +159,22 @@ void watchdog_hardware_init(void);
  */
 void watchdog_hardware_feed(void);
 
+/**
+ * @brief Hardware Watchdog and Runaway Interlock GPIO Configuration
+ *
+ * GPIO assignments for safety-critical signals:
+ * - WDI_GPIO_NUM: Heartbeat output to TPS3823-33 WDI pin
+ * - WDT_RESET_GPIO_NUM: Input from TPS3823-33 RESET_N pin
+ * - RUNAWAY_CUT_GPIO: Runaway interlock output to fault OR gate
+ *   (asserted HIGH on runaway boundary breach, latched until power-cycle)
+ */
+#ifdef ESP_PLATFORM
+#include "driver/gpio.h"
+#define WDI_GPIO_NUM            GPIO_NUM_4
+#define WDT_RESET_GPIO_NUM      GPIO_NUM_6
+#define RUNAWAY_CUT_GPIO        GPIO_NUM_5
+#endif
+
 /* ============================================================================
  * Simulation API (Non-ESP builds only)
  * 
