@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 import math
 from dataclasses import replace
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 
@@ -26,7 +26,8 @@ from . import phased_component_assignment_validator  # noqa: F401  (registers U3
 from .base import Stage
 
 if TYPE_CHECKING:
-    from temper_drc.core.fence import InvariantSpec
+    from shapely.geometry import Point, Polygon
+
     from temper_placer.core.component import Component
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.netlist import Netlist
@@ -187,6 +188,8 @@ class PhasedComponentAssignmentStage(Stage):
             state.netlist,
             dict(state.component_zone_map),
             dict(state.zone_slots),
+            domain_for_ref,
+            domain_regions,
         )
 
         new_state = replace(
@@ -213,12 +216,32 @@ class PhasedComponentAssignmentStage(Stage):
 
         return new_state
 
+    @staticmethod
+    def _domain_lookups(
+        state: BoardState,
+    ) -> tuple[dict[str, str], dict[str, "Polygon"]]:
+        domain_for_ref: dict[str, str] = {}
+        domain_regions: dict[str, "Polygon"] = {}
+        if not state.component_domain_map or not state.domain_regions:
+            return domain_for_ref, domain_regions
+        for ref, domain in state.component_domain_map:
+            domain_for_ref[ref] = domain
+        regions = state.domain_regions
+        if len(regions) >= 2:
+            domain_regions["HV_edge"] = regions[0]
+            domain_regions["LV_interior"] = regions[1]
+        elif len(regions) == 1:
+            domain_regions["LV_interior"] = regions[0]
+        return domain_for_ref, domain_regions
+
     def _phased_placement(
         self,
         state: BoardState,
         netlist: Netlist,
         component_zone_map: Dict[str, str],
         zone_slots: Dict[str, Tuple],
+        domain_for_ref: Mapping[str, str] | None = None,
+        domain_regions: Mapping[str, "Polygon"] | None = None,
     ) -> Dict[str, Tuple[float, float]]:
         """Execute placement in priority-defined phases.
 
@@ -303,7 +326,8 @@ class PhasedComponentAssignmentStage(Stage):
                     used_slots,
                     all_slots,
                     net_pins,
-                    netlist=netlist,
+                    domain_for_ref,
+                    domain_regions,
                 )
             else:
                 import logging
@@ -469,7 +493,8 @@ class PhasedComponentAssignmentStage(Stage):
         used_slots: Set[Tuple[float, float]],
         all_slots: List[Tuple[float, float]],
         net_pins: Dict[str, list],
-        netlist: Optional[Netlist] = None,
+        domain_for_ref: Mapping[str, str] | None = None,
+        domain_regions: Mapping[str, "Polygon"] | None = None,
     ) -> Dict[str, Tuple[float, float]]:
         """Place components using constraint-aware greedy optimization.
 
@@ -481,7 +506,7 @@ class PhasedComponentAssignmentStage(Stage):
           5. Select best slot
 
         Args:
-            components: Component refs to place
+            components: Components to place
             comp_by_ref: Component lookup
             component_zone_map: Component -> zone assignments
             zone_slots: Slots by zone
@@ -489,6 +514,8 @@ class PhasedComponentAssignmentStage(Stage):
             used_slots: Already-used slots
             all_slots: All available slots
             net_pins: Net connectivity
+            domain_for_ref: feat/hv-lv-guard-strip per-ref domain assignments.
+            domain_regions: Polygon lookup keyed by domain name.
 
         Returns:
             Dict of ref -> (x, y) for this phase
@@ -555,6 +582,27 @@ class PhasedComponentAssignmentStage(Stage):
                 )
 
         return placements
+
+    @staticmethod
+    def _filter_by_domain(
+        ref: str,
+        slots: List[Tuple[float, float]],
+        domain_for_ref: Mapping[str, str] | None,
+        domain_regions: Mapping[str, "Polygon"] | None,
+    ) -> List[Tuple[float, float]]:
+        if not domain_for_ref or not domain_regions:
+            return slots
+        domain = domain_for_ref.get(ref)
+        if not domain:
+            return slots
+        region = domain_regions.get(domain)
+        if region is None or region.is_empty:
+            return slots
+        from shapely.geometry import Point
+
+        # Use ``covers`` so boundary points are kept; ``contains`` would
+        # exclude slots sitting exactly on the corridor edge.
+        return [s for s in slots if region.covers(Point(s[0], s[1]))]
 
     def _select_best_slot(
         self,

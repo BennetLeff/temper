@@ -4,7 +4,11 @@ plan_id: 2026-06-23-001-feat-hv-lv-guard-strip
 title: HV/LV Pre-Placement Guard Strip Stage
 type: feat
 origin: docs/brainstorms/2026-06-23-hv-lv-guard-strip-requirements.md
+<<<<<<< HEAD
 status: active
+=======
+status: completed
+>>>>>>> feat/hv-lv-guard-strip
 ---
 
 # Implementation Plan: HV/LV Pre-Placement Guard Strip

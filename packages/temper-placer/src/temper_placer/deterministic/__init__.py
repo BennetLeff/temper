@@ -151,6 +151,7 @@ def create_drc_aware_pipeline(
         ZoneAwareSlotGenerationStage,
         ComponentAssignmentStage,
         PhasedComponentAssignmentStage,
+        HvLvPartitionStage,
         ApplyPlacementsStage,
         CourtyardCheckStage,
         NetClassSetupStage,
@@ -249,13 +250,16 @@ def create_drc_aware_pipeline(
             net_priority = dict(config_net_priority)
 
         # EXP-12: Extract placement validation constraints
-        signal_hv = getattr(config, "signal_hv_clearances", [])
-        proximity = getattr(config, "placement_proximity", [])
-        if signal_hv or proximity:
-            placement_constraints = {
-                "signal_hv_clearances": signal_hv,
-                "placement_proximity": proximity,
-            }
+        signal_hv = getattr(config, "signal_hv_clearances", None) or []
+        proximity = getattr(config, "placement_proximity", None) or []
+        # feat/hv-lv-guard-strip: PlacementValidationStage always reads
+        # ``self.constraints.get(...)`` even when no constraints were
+        # declared, so the dict must be non-empty to survive the
+        # ``constraints or []`` fallback in the stage.
+        placement_constraints = {
+            "signal_hv_clearances": signal_hv,
+            "placement_proximity": proximity,
+        }
 
         # EXP-13: Extract HV exclusion zones for routing
         hv_exclusion_zones = getattr(config, "hv_exclusion_zones", [])
@@ -351,11 +355,19 @@ def create_drc_aware_pipeline(
 
     pipeline = DeterministicPipeline(
         stages=[
+            # feat/hv-lv-guard-strip: attach the parsed config to state so
+            # downstream stages (HvLvPartitionStage in particular) can read
+            # their own block from ``state.config``.
+            ConfigAttachStage(config),
             # Setup - apply net class mapping early
             NetClassSetupStage(net_classes=config.net_classes if config else None),
             # Placement stages
             ZoneGeometryStage(zone_config=zone_config),
             ZoneAssignmentStage(),
+            # feat/hv-lv-guard-strip: HV/LV domain map MUST run before
+            # component assignment so phased_component_assignment (and the
+            # standard fallback) can filter slots by domain.
+            HvLvPartitionStage(),
             slot_stage,  # Use zone-aware or standard slot generation
             component_stage,  # Use phased or standard component assignment
             ApplyPlacementsStage(),
@@ -433,6 +445,7 @@ def create_legacy_pipeline():
         ZoneAssignmentStage,
         SlotGenerationStage,
         ComponentAssignmentStage,
+        HvLvPartitionStage,
         ApplyPlacementsStage,
         ClearanceGridStage,
         NetOrderingStage,
@@ -450,6 +463,9 @@ def create_legacy_pipeline():
             # Placement stages
             ZoneGeometryStage(),
             ZoneAssignmentStage(),
+            # feat/hv-lv-guard-strip: HV/LV domain map MUST run before
+            # component assignment so the domain filter is applied.
+            HvLvPartitionStage(),
             SlotGenerationStage(slot_spacing_mm=7.5),  # Balanced spacing
             ComponentAssignmentStage(),
             ApplyPlacementsStage(),

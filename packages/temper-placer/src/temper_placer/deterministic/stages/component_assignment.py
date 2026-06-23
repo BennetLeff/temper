@@ -1,15 +1,19 @@
 from dataclasses import replace
-from typing import Dict, Tuple, Set, List
+from typing import Dict, Tuple, Set, List, Mapping, TYPE_CHECKING
 import math
 from ..state import BoardState
 from .base import Stage
+
+if TYPE_CHECKING:
+    from shapely.geometry import Polygon
+
 
 class ComponentAssignmentStage(Stage):
     """Assign components to slots with multi-slot reservation for large footprints."""
 
     def __init__(self, slot_spacing: float = 12.0, fixed_placements: Dict[str, Dict] = None):
         """Initialize with slot spacing and optional fixed placements.
-        
+
         Args:
             slot_spacing: Spacing between slots in mm
             fixed_placements: Dict of ref -> {'position': [x, y], 'rotation': deg}
@@ -25,13 +29,68 @@ class ComponentAssignmentStage(Stage):
         if not state.netlist or not state.component_zone_map or not state.zone_slots:
             return state
 
+        # feat/hv-lv-guard-strip: build per-ref domain region lookup.
+        # Empty component_domain_map means the partition stage was disabled
+        # or skipped, so the filter is a no-op (NFR6 backward compat).
+        domain_for_ref, domain_regions = self._domain_lookups(state)
+
         placements = self._assign_components_to_slots(
             state.netlist,
             dict(state.component_zone_map),
-            dict(state.zone_slots)
+            dict(state.zone_slots),
+            domain_for_ref,
+            domain_regions,
         )
 
         return replace(state, placements=frozenset(placements.items()))
+
+    @staticmethod
+    def _domain_lookups(
+        state: BoardState,
+    ) -> tuple[dict[str, str], dict[str, "Polygon"]]:
+        """Mirror of PhasedComponentAssignmentStage._domain_lookups (NFR6 parity)."""
+        domain_for_ref: dict[str, str] = {}
+        domain_regions: dict[str, "Polygon"] = {}
+        if not state.component_domain_map or not state.domain_regions:
+            return domain_for_ref, domain_regions
+        for ref, domain in state.component_domain_map:
+            domain_for_ref[ref] = domain
+        regions = state.domain_regions
+        if len(regions) >= 2:
+            domain_regions["HV_edge"] = regions[0]
+            domain_regions["LV_interior"] = regions[1]
+        elif len(regions) == 1:
+            domain_regions["LV_interior"] = regions[0]
+        return domain_for_ref, domain_regions
+
+    @staticmethod
+    def _filter_by_domain(
+        ref: str,
+        slots: List[Tuple[float, float]],
+        domain_for_ref: Mapping[str, str] | None,
+        domain_regions: Mapping[str, "Polygon"] | None,
+    ) -> List[Tuple[float, float]]:
+        """Drop slots outside the component's HV/LV domain region.
+
+        Mirrors ``PhasedComponentAssignmentStage._filter_by_domain`` so the
+        non-phased fallback (used when no placement_priority / groups /
+        component_spacing_rules are configured) still honors the partition
+        from ``HvLvPartitionStage``. Returns ``slots`` unchanged when no
+        domain map is present, preserving NFR6 backward compatibility.
+        """
+        if not domain_for_ref or not domain_regions:
+            return slots
+        domain = domain_for_ref.get(ref)
+        if not domain:
+            return slots
+        region = domain_regions.get(domain)
+        if region is None or region.is_empty:
+            return slots
+        from shapely.geometry import Point
+
+        # ``covers`` keeps boundary points; ``contains`` would drop slots
+        # sitting exactly on the corridor edge.
+        return [s for s in slots if region.covers(Point(s[0], s[1]))]
 
     def _get_footprint_radius(self, component) -> float:
         """Get the minimum radius needed to enclose the component footprint.
@@ -65,7 +124,9 @@ class ComponentAssignmentStage(Stage):
         self,
         netlist,
         component_zone_map: Dict[str, str],
-        zone_slots: Dict[str, Tuple]
+        zone_slots: Dict[str, Tuple],
+        domain_for_ref: Mapping[str, str] | None = None,
+        domain_regions: Mapping[str, "Polygon"] | None = None,
     ) -> Dict[str, Tuple[float, float]]:
         """
         Assign components to slots using greedy wirelength minimization.
@@ -75,6 +136,8 @@ class ComponentAssignmentStage(Stage):
         2. Sort remaining components by footprint size (largest first)
         3. Multi-slot reservation - large footprints block nearby slots
         4. Wirelength-based slot selection
+        5. feat/hv-lv-guard-strip: domain filter drops slots outside the
+           component's HV/LV region when a domain map is present.
         """
         placements = {}
         used_slots: Set[Tuple[float, float]] = set()
@@ -137,6 +200,15 @@ class ComponentAssignmentStage(Stage):
             if not available_slots:
                 continue  # Skip if no slots available
 
+            # feat/hv-lv-guard-strip: domain filter — drop slots outside the
+            # component's HV/LV region when a domain map is present.
+            # No-op when domain_for_ref/domain_regions are empty (NFR6).
+            available_slots = self._filter_by_domain(
+                ref, available_slots, domain_for_ref, domain_regions
+            )
+            if not available_slots:
+                continue  # Domain filter removed every candidate
+
             # Score each slot by wirelength
             best_slot = min(
                 available_slots,
@@ -147,7 +219,7 @@ class ComponentAssignmentStage(Stage):
 
             # Reserve this slot AND all slots within footprint radius
             self._reserve_slots(best_slot, footprint_radius, all_slots, used_slots)
-        
+
         return placements
     
     def _compute_wirelength(
