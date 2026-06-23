@@ -409,3 +409,77 @@ class TestSidecarAwarePipelineWrapper:
         wrapper.record_sidecar_load()
         wrapper.record_sidecar_load()
         assert wrapper._sidecar_load_count == 3
+
+
+class TestSidecarE2EWiringFromParsedPCB:
+    """End-to-end: a sidecar staged next to a parsed PCB is consumed by the
+    pipeline without the caller threading output_dir explicitly.
+    """
+
+    def test_output_dir_derived_from_parsed_pcb(self, tmp_path):
+        """When the caller passes a ParsedPCB-like object (with source_path)
+        and omits output_dir, the pipeline loads the sidecar from the parent
+        of the PCB source file. This is the closure test's E2E wiring.
+        """
+        from types import SimpleNamespace
+
+        # Stage a sidecar next to a fake PCB file.
+        pcb_path = tmp_path / "board.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb )")
+        _write_sidecar(pcb_path.parent / SIDECAR_FILENAME)
+
+        # Mock ParsedPCB - just an object with source_path. The pipeline
+        # only ever reads source_path to derive output_dir.
+        parsed_pcb = SimpleNamespace(source_path=pcb_path)
+
+        pipeline = create_drc_aware_pipeline(
+            metadata=_metadata(),
+            parsed_pcb=parsed_pcb,
+        )
+
+        assert isinstance(pipeline, SidecarAwarePipeline)
+        assert pipeline._sidecar_load_count == 1
+        assert pipeline.channel_map is not None
+        assert pipeline.channel_map.has_grid()
+        assert pipeline.channel_map.cell_size_um == PLACER_CELL_SIZE_UM
+
+    def test_explicit_output_dir_overrides_parsed_pcb(self, tmp_path):
+        """Explicit output_dir takes precedence over the parsed_pcb parent."""
+        from types import SimpleNamespace
+
+        # Two directories: one with a sidecar (explicit), one without
+        # (would be derived from parsed_pcb). The explicit one wins.
+        explicit_dir = tmp_path / "explicit"
+        explicit_dir.mkdir()
+        _write_sidecar(explicit_dir / SIDECAR_FILENAME)
+
+        pcb_dir = tmp_path / "pcb"
+        pcb_dir.mkdir()
+        pcb_path = pcb_dir / "board.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb )")
+        # No sidecar here; if the pipeline looked here it would be empty.
+
+        parsed_pcb = SimpleNamespace(source_path=pcb_path)
+
+        pipeline = create_drc_aware_pipeline(
+            metadata=_metadata(),
+            output_dir=explicit_dir,
+            parsed_pcb=parsed_pcb,
+        )
+
+        assert pipeline._sidecar_load_count == 1
+        assert pipeline.channel_map is not None
+        assert pipeline.channel_map.has_grid()
+
+    def test_parsed_pcb_without_source_path_falls_back_to_none(self, tmp_path):
+        """A parsed_pcb without source_path is treated as if not provided."""
+        from types import SimpleNamespace
+
+        # No output_dir, no usable parsed_pcb -> no sidecar loaded, no crash.
+        parsed_pcb = SimpleNamespace()  # no source_path
+        pipeline = create_drc_aware_pipeline(
+            metadata=_metadata(),
+            parsed_pcb=parsed_pcb,
+        )
+        assert pipeline._sidecar_load_count == 0
+        assert pipeline.channel_map is None

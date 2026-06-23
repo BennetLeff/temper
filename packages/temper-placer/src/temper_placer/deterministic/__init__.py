@@ -99,6 +99,7 @@ def create_drc_aware_pipeline(
     zone_aware=True,
     parsed_pads=None,
     output_dir: Path | str | None = None,
+    parsed_pcb: Any = None,
 ):
     """Create pipeline with full DRC integration.
 
@@ -116,6 +117,14 @@ def create_drc_aware_pipeline(
             the :class:`PhasedComponentAssignmentStage` (R4c). On any error
             the placer falls back to wirelength-only scoring and a WARNING is
             logged (R4d).
+        parsed_pcb: Optional :class:`temper_placer.router_v6.stage0_data.ParsedPCB`
+            (or any object with a ``source_path: Path`` attribute). When supplied
+            AND ``output_dir`` is ``None``, the pipeline derives ``output_dir``
+            from ``parsed_pcb.source_path.parent``. This is the canonical
+            end-to-end wiring path: the closure test runs channel analysis
+            (which writes ``placement.channels.json`` next to the PCB) and
+            then calls the pipeline, which now finds the sidecar without
+            the caller having to thread ``output_dir`` through the protocol.
 
     Raises:
         TypeError: If metadata is not provided
@@ -125,6 +134,15 @@ def create_drc_aware_pipeline(
     """
     if metadata is None:
         raise TypeError("create_drc_aware_pipeline() requires 'metadata' parameter (KiCadMetadata)")
+
+    # R4c end-to-end: if the caller didn't pass output_dir explicitly but did
+    # pass a parsed PCB, default to the parent of the PCB source file. The
+    # closure test's _run_channel_analysis writes the sidecar next to the
+    # PCB, so this is the only plumbing needed to wire it through.
+    if output_dir is None and parsed_pcb is not None:
+        source_path = getattr(parsed_pcb, "source_path", None)
+        if source_path is not None:
+            output_dir = Path(source_path).parent
 
     from .stages import (
         ZoneGeometryStage,
