@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, FrozenSet
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
+    from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.loop import LoopCollection
     from temper_placer.core.netlist import Netlist
     from temper_placer.routing.constraints.drc_oracle import DRCOracle, Violation
@@ -34,9 +35,19 @@ class BoardState:
     grid: Optional["ClearanceGrid"] = None
     drc_oracle: Optional["DRCOracle"] = None
     drc_violations: tuple["Violation", ...] | None = None
+    # U3: optional design rules.  Set by PhasedComponentAssignmentStage so
+    # stage validators can check creepage / HV invariants without the
+    # pipeline having to thread the SSOT through every hook point.
+    # Default None preserves the existing schema for older stages.
+    design_rules: Optional["DesignRules"] = None
     connectivity_violations: tuple["ConnectivityViolation", ...] | None = None
     placement_violations: tuple["PlacementViolation", ...] | None = None
     placements: frozenset = frozenset()
+    # U3: set of grid slots reserved by the placer (footprint + HV rings).
+    # Set by PhasedComponentAssignmentStage so the post-stage DRC fence
+    # validator can check the actual reservation set rather than
+    # re-deriving it from placements.
+    used_slots: frozenset = frozenset()
     routes: frozenset = frozenset()
     vias: frozenset = frozenset()
     violations: frozenset = frozenset()

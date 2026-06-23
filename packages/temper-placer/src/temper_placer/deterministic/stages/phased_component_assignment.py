@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 from temper_placer.constraints.compiler import ConstraintCompiler
 
 from ..state import BoardState
+from . import phased_component_assignment_validator  # noqa: F401  (registers U3 validator)
 from .base import Stage
 
 if TYPE_CHECKING:
@@ -126,14 +127,43 @@ class PhasedComponentAssignmentStage(Stage):
             for error in errors:
                 logger.warning(f"Constraint validation: {error}")
 
-        placements = self._phased_placement(
+        # U3: surface design_rules on state so the post-stage DRC fence
+        # validator can recompute HV-pin coverage without a side-channel.
+        # Additive, optional — older pipelines pass None and the validator
+        # degrades to a no-op.
+        if self.design_rules is not None and getattr(state, "design_rules", None) is None:
+            state = replace(state, design_rules=self.design_rules)
+
+        placements, used_slots = self._phased_placement(
             state,
             state.netlist,
             dict(state.component_zone_map),
             dict(state.zone_slots),
         )
 
-        return replace(state, placements=frozenset(placements.items()))
+        new_state = replace(
+            state,
+            placements=frozenset(placements.items()),
+            used_slots=frozenset(used_slots),
+        )
+
+        # U3: run any registered DRC fence validators for this stage.
+        # Failures are logged but do not abort the pipeline — the
+        # validator is a fence, not a hard stop (the closure test is).
+        try:
+            from temper_placer.router_v6.stage_validators import run_validators
+
+            failures = run_validators("PhasedComponentAssignment", new_state)
+            if failures:
+                import logging
+
+                logger = logging.getLogger(__name__)
+                for f in failures:
+                    logger.warning(f"DRC fence failure: {f}")
+        except ImportError:
+            pass
+
+        return new_state
 
     def _phased_placement(
         self,
@@ -155,16 +185,20 @@ class PhasedComponentAssignmentStage(Stage):
         net_pins = self._build_net_pins(netlist)
         all_slots = self._flatten_slots(zone_slots)
 
-        # U1 (Ghost-Pad Injection): reserve every slot within creepage of
-        # an HV pin position BEFORE the placement loop runs.  This blocks
-        # placement from sitting in the IEC 62368-1 6mm ring around HV pins
-        # so the router never has to leave the placer a placement it cannot
-        # route.  When design_rules is None (older pipelines), this is a
-        # no-op (NFR4 parity).
-        if self.design_rules is not None:
-            self._inject_ghost_pads(
-                state, netlist, used_slots, all_slots, logger_name=__name__
-            )
+        # U1 (Ghost-Pad Injection): per-placement creepage rings around
+        # the absolute HV pin positions of each placed component.  The
+        # reservation happens at placement time (not pre-compute) so the
+        # ring tracks the actual placed coordinates.  This is the only
+        # physically correct semantic — pin-relative injection would
+        # reserve slots at the wrong absolute location.  When
+        # design_rules is None (older pipelines), no HV ring is added
+        # and behavior is bit-identical to pre-U1 (NFR4 parity).
+        #
+        # We don't pre-compute: the ring is added inside each placement
+        # method via ``_reserve_slots_with_hv`` (see _place_template,
+        # _place_proximity, _place_optimize).  Cost is O(M*pin) per
+        # placed component, dominated by the slot-distance scan which
+        # is the same loop the placer was already doing.
 
         # Get placement phases from config
         phases = self.constraints.placement_priority
@@ -232,7 +266,7 @@ class PhasedComponentAssignmentStage(Stage):
             placements.update(phase_placements)
             placed_refs.update(phase_placements.keys())
 
-        return placements
+        return placements, used_slots
 
     def _place_template(
         self,
@@ -274,9 +308,10 @@ class PhasedComponentAssignmentStage(Stage):
 
             placements[ref] = pos
 
-            # Reserve slots
-            radius = self._get_footprint_radius(comp_by_ref[ref])
-            self._reserve_slots(pos, radius, all_slots, used_slots)
+            # Reserve slots (footprint + HV creepage rings, U1)
+            self._reserve_slots_with_hv(
+                comp_by_ref[ref], pos, all_slots, used_slots
+            )
 
         return placements
 
@@ -354,8 +389,10 @@ class PhasedComponentAssignmentStage(Stage):
 
             if best_slot:
                 placements[ref] = best_slot
-                radius = self._get_footprint_radius(component)
-                self._reserve_slots(best_slot, radius, all_slots, used_slots)
+                # Reserve slots (footprint + HV creepage rings, U1)
+                self._reserve_slots_with_hv(
+                    component, best_slot, all_slots, used_slots
+                )
 
         return placements
 
@@ -433,8 +470,10 @@ class PhasedComponentAssignmentStage(Stage):
 
             if best_slot:
                 placements[ref] = best_slot
-                radius = self._get_footprint_radius(component)
-                self._reserve_slots(best_slot, radius, all_slots, used_slots)
+                # Reserve slots (footprint + HV creepage rings, U1)
+                self._reserve_slots_with_hv(
+                    component, best_slot, all_slots, used_slots
+                )
 
         return placements
 
@@ -500,8 +539,14 @@ class PhasedComponentAssignmentStage(Stage):
         netlist: Netlist,
         component_zone_map: Dict[str, str],
         zone_slots: Dict[str, Tuple],
-    ) -> Dict[str, Tuple[float, float]]:
-        """Fallback: simple greedy placement (same as ComponentAssignmentStage)."""
+    ) -> Tuple[Dict[str, Tuple[float, float]], Set[Tuple[float, float]]]:
+        """Fallback: simple greedy placement (same as ComponentAssignmentStage).
+
+        Returns a ``(placements, used_slots)`` tuple mirroring the
+        phase-based path.  HV creepage rings are NOT added in the
+        fallback (NFR4 parity — the fallback predates U1 and is only
+        used when ``placement_priority`` is empty).
+        """
         placements = {}
         used_slots: Set[Tuple[float, float]] = set()
 
@@ -536,7 +581,7 @@ class PhasedComponentAssignmentStage(Stage):
             radius = self._get_footprint_radius(component)
             self._reserve_slots(best_slot, radius, all_slots, used_slots)
 
-        return placements
+        return placements, used_slots
 
     # =====================================================================
     # Ghost-pad injection (U1) and isolation-slot reduction (U2)
@@ -736,6 +781,74 @@ class PhasedComponentAssignmentStage(Stage):
             dist = math.sqrt((sx - cx) ** 2 + (sy - cy) ** 2)
             if dist <= radius:
                 used_slots.add(slot)
+
+    def _reserve_slots_with_hv(
+        self,
+        component: "Component",
+        placed_pos: Tuple[float, float],
+        all_slots: List[Tuple[float, float]],
+        used_slots: Set[Tuple[float, float]],
+    ) -> None:
+        """Reserve the footprint ring AND any HV-pin creepage ring for a placed component.
+
+        Wraps ``_reserve_slots`` (footprint ring) and, when the placer
+        has design_rules available, adds a creepage-radius reservation
+        around every HV pin's ABSOLUTE position (placed + pin-relative
+        offset).  This is the per-placement hook for the U1
+        ghost-pad injection: doing it at placement time, with the
+        actual placed coordinates, is the only physically correct
+        semantic — pin-relative injection would reserve slots at the
+        wrong absolute location.
+
+        HV ring reservation respects U2 isolation-slot reductions
+        (``_effective_ghost_pad_radius``) and never expands beyond
+        the FR4 base radius.
+        """
+        # Footprint ring (unchanged from pre-U1 behavior).
+        radius = self._get_footprint_radius(component)
+        self._reserve_slots(placed_pos, radius, all_slots, used_slots)
+
+        if self.design_rules is None or component.pins is None:
+            return
+
+        # FR4 base radius: max creepage across HV/AC classes.
+        base_radius = 0.0
+        for rules in getattr(self.design_rules, "net_classes", {}).values():
+            safety = getattr(rules, "safety_category", None)
+            if safety in self._HV_SAFETY_CATEGORIES:
+                base_radius = max(
+                    base_radius, float(getattr(rules, "creepage_mm", 0.0))
+                )
+        if base_radius <= 0.0:
+            return
+
+        # Walk this component's pins.  For each HV pin, reserve the
+        # creepage ring around its absolute position.
+        net_class_assignments = (
+            getattr(self.design_rules, "net_class_assignments", {}) or {}
+        )
+        net_classes = getattr(self.design_rules, "net_classes", {}) or {}
+        cx, cy = placed_pos
+        for pin in component.pins:
+            if pin.net is None:
+                continue
+            class_name = net_class_assignments.get(pin.net)
+            if class_name is None or class_name not in net_classes:
+                continue
+            safety = getattr(net_classes[class_name], "safety_category", None)
+            if safety not in self._HV_SAFETY_CATEGORIES:
+                continue
+            ring_radius = self._effective_ghost_pad_radius(
+                component.ref, pin.name, base_radius
+            )
+            if ring_radius <= 0.0:
+                continue
+            px, py = pin.position
+            abs_x = cx + float(px)
+            abs_y = cy + float(py)
+            self._reserve_slots(
+                (abs_x, abs_y), ring_radius, all_slots, used_slots
+            )
 
     def _distance(self, p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
         """Euclidean distance between two points."""
