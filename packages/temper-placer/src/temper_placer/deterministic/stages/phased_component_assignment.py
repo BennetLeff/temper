@@ -420,9 +420,11 @@ class PhasedComponentAssignmentStage(Stage):
 
             # Apply bottleneck-map seed filter (if enabled and reachable)
             # The filter is per-component: drop slots whose cell score
-            # is at or above the (HV-aware) threshold.
+            # is at or above the (HV-aware) threshold. ``comp_by_ref``
+            # is forwarded so the filter can identify HV-class refs
+            # and apply the stricter ``hv_threshold``.
             available_slots = self._apply_bottleneck_filter(
-                ref, available_slots
+                ref, available_slots, comp_by_ref
             )
 
             if not available_slots:

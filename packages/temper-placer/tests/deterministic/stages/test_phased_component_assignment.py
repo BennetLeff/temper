@@ -486,3 +486,104 @@ class TestObservabilityR6:
         assert seed_filter_records
         # At least one record should report fallback_used=True.
         assert any("fallback_used=True" in r.message for r in seed_filter_records)
+
+    def test_hv_ref_uses_hv_threshold_and_logs_is_hv(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """R6 + R2 contract: an HV-class ref's log line must show
+        ``is_hv=True`` and apply ``hv_threshold`` (the stricter one).
+
+        We construct two refs: ``HV_DRAIN`` carries a pin on a net whose
+        ``get_net_class(...)`` resolves to ``HighVoltage`` (via the
+        ``"HV"`` substring rule); ``R1`` is a normal LV ref. The
+        bottleneck map has a uniform score of 0.6 in every cell, which
+        lies strictly between the configured ``threshold=0.7`` and
+        ``hv_threshold=0.5`` so the two refs take diverging paths:
+
+        * HV_DRAIN: score 0.6 >= 0.5 -> all slots rejected -> fallback
+          fires (``fallback_used=True``) with the unfiltered pool
+          restored; the log line must report ``is_hv=True`` and
+          ``hv_threshold=0.5`` and the LV ``threshold=0.7`` is also
+          visible for comparison.
+        * R1: score 0.6 < 0.7 -> all slots accepted; the log line must
+          report ``is_hv=False``.
+        """
+        bmap = BottleneckMap(
+            cell_size_mm=2.0,
+            width=8,
+            height=8,
+            origin_xy=(0.0, 0.0),
+            scores=tuple(0.6 for _ in range(64)),
+        )
+        netlist = Mock()
+        # LV ref: no pins, never HV-class.
+        lv_comp = Mock(ref="R1", bounds=(2, 2), pins=[])
+        # HV ref: one pin on a net whose name triggers
+        # get_net_class(...) == "HighVoltage" (the "HV" substring rule).
+        hv_pin = Mock(net="HV_DRAIN")
+        hv_comp = Mock(ref="HV_DRAIN", bounds=(2, 2), pins=[hv_pin])
+        netlist.components = [lv_comp, hv_comp]
+        netlist.nets = []
+        slots = tuple(
+            (i * 2.0 + 0.5, j * 2.0 + 0.5) for i in range(8) for j in range(8)
+        )
+        state = BoardState(
+            netlist=netlist,
+            component_zone_map=frozenset(
+                [("R1", "Signal"), ("HV_DRAIN", "Signal")]
+            ),
+            zone_slots=frozenset([("Signal", slots)]),
+            bottleneck_analysis=bmap,
+        )
+        constraints = self._constraints_with_optimize_phase()
+        # Pick a distinct threshold/hv_threshold pair so the log line is
+        # unambiguous about which value the filter applied.
+        constraints.seed_filter = SeedFilterConfig(
+            enabled=True, threshold=0.7, hv_threshold=0.5
+        )
+        stage = PhasedComponentAssignmentStage(constraints)
+
+        with caplog.at_level(logging.DEBUG):
+            stage.run(state)
+
+        records_by_ref: dict[str, str] = {}
+        for record in caplog.records:
+            message = record.message
+            if "event=seed_filter" not in message:
+                continue
+            for ref in ("HV_DRAIN", "R1"):
+                if f"component={ref} " in message:
+                    records_by_ref.setdefault(ref, message)
+
+        assert "HV_DRAIN" in records_by_ref, (
+            "Expected a seed_filter log line for HV_DRAIN"
+        )
+        assert "R1" in records_by_ref, (
+            "Expected a seed_filter log line for R1"
+        )
+
+        hv_line = records_by_ref["HV_DRAIN"]
+        assert "is_hv=True" in hv_line, (
+            f"HV-class ref must log is_hv=True, got: {hv_line!r}"
+        )
+        # The HV threshold field is emitted as a %.4f float, so the
+        # 0.5 -> "0.5000" representation is what we match.
+        assert "hv_threshold=0.5000" in hv_line, (
+            f"HV-class ref must log hv_threshold=0.5000, got: {hv_line!r}"
+        )
+        # The LV threshold is still emitted for operator visibility.
+        assert "threshold=0.7000" in hv_line
+        # All slots in the 0.6 map are >= the HV threshold, so the
+        # filter must have triggered the empty-pool fallback for the
+        # HV ref and logged fallback_used=True.
+        assert "fallback_used=True" in hv_line, (
+            f"HV ref at score 0.6 should hit fallback, got: {hv_line!r}"
+        )
+
+        lv_line = records_by_ref["R1"]
+        assert "is_hv=False" in lv_line, (
+            f"LV ref must log is_hv=False, got: {lv_line!r}"
+        )
+        # LV ref: 0.6 < threshold 0.7, so every slot passes and the
+        # fallback should NOT fire.
+        assert "fallback_used=False" in lv_line
