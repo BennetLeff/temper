@@ -196,11 +196,11 @@ def validate_bottleneck_analysis(state: BoardState) -> list[StageDRCFailure]:
         ))
 
     for bn in ba.bottlenecks:
-        if bn.severity == BottleneckSeverity.NONE and bn.utilization > 0:
+        if bn.severity == BottleneckSeverity.CRITICAL and bn.demand == 0:
             failures.append(StageDRCFailure(
                 field="bottleneck_analysis",
                 value=bn.layer_name,
-                reason="NONE severity but utilization > 0",
+                reason="CRITICAL severity with zero demand",
                 stage="BottleneckAnalysis",
             ))
 
