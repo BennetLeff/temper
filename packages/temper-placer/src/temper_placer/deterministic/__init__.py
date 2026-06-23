@@ -1,5 +1,14 @@
 from .pipeline import DeterministicPipeline
 from .state import BoardState
+from .channels import (
+    ALLOWED_SCHEMA_HASHES,
+    ALLOWED_SEVERITIES,
+    SEVERITY_WEIGHTS,
+    Bottleneck,
+    ChannelMap,
+    ChannelSidecarError,
+    routability_penalty,
+)
 
 
 def create_drc_aware_pipeline(
