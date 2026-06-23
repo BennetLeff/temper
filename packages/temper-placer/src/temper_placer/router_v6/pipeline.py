@@ -496,7 +496,7 @@ class RouterV6Pipeline:
                     total_length=0.0,
                     preferred_layer="F.Cu",
                 )
-                channel_mapping.append(fallback_cp)
+                channel_mapping.channel_paths[net.name] = fallback_cp
 
         # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:
