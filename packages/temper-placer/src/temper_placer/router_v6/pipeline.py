@@ -219,6 +219,7 @@ class RouterV6Pipeline:
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
         fence: DRCFence | None = None,
+        profiler: object | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -232,6 +233,7 @@ class RouterV6Pipeline:
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
             fence: Optional DRCFence for per-stage DRC verification
+            profiler: Optional PipelineProfiler for stage timing instrumentation
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
@@ -241,6 +243,7 @@ class RouterV6Pipeline:
         self.max_nets = max_nets
         self.target_nets = target_nets
         self.fence = fence
+        self.profiler = profiler
 
     def run(self, pcb_path: Path) -> RouterV6Result:
         """
@@ -366,10 +369,16 @@ class RouterV6Pipeline:
         if self.verbose:
             print("Stage 2 (Orchestrated): Channel analysis...")
 
-        orchestrator = Stage2Orchestrator(verbose=self.verbose)
-        state = orchestrator.run(pcb, escape_vias)
-
-        stage2 = Stage2Orchestrator.assemble_stage2_output(state)
+        _p = self.profiler
+        if _p:
+            with _p.stage("stage2"):
+                orchestrator = Stage2Orchestrator(verbose=self.verbose)
+                state = orchestrator.run(pcb, escape_vias)
+                stage2 = Stage2Orchestrator.assemble_stage2_output(state)
+        else:
+            orchestrator = Stage2Orchestrator(verbose=self.verbose)
+            state = orchestrator.run(pcb, escape_vias)
+            stage2 = Stage2Orchestrator.assemble_stage2_output(state)
 
         if self.verbose and stage2.bottleneck_analysis.has_critical_bottlenecks:
             print(f"    Warning: {len(stage2.bottleneck_analysis.bottlenecks)} bottlenecks identified")

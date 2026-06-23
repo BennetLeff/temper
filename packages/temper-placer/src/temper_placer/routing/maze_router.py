@@ -404,6 +404,14 @@ class MazeRouter:
             self._next_net_id += 1
         return self.net_to_id[net_name]
 
+    def get_profile_stats(self) -> "ProfileStats":
+        """Return the accumulated profiling statistics for this router.
+
+        Provides Numba vs Python timing, A* total time, and distance map
+        computation time for consumption by the PipelineProfiler.
+        """
+        return self.stats.profile
+
     def _get_inflated_cells(
         self,
         x: int,
