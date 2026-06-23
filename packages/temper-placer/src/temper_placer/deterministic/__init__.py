@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 from .pipeline import DeterministicPipeline
 from .state import BoardState
 from .channels import (
@@ -10,6 +16,99 @@ from .channels import (
     routability_penalty,
 )
 
+if TYPE_CHECKING:
+    from typing import Iterable
+
+_LOGGER = logging.getLogger(__name__)
+
+
+#: Default placer grid cell size, in micrometres. The closure test verifies
+#: that any loaded sidecar's ``cell_size_um`` matches this constant; a
+#: mismatch raises a hard error so the placer never consumes a misaligned
+#: grid.
+PLACER_CELL_SIZE_UM: int = 1000
+
+
+SIDECAR_FILENAME: str = "placement.channels.json"
+
+
+def load_channel_map_from_sidecar(
+    output_dir: Path | str | None, *, source_label: str = "sidecar"
+) -> ChannelMap:
+    """Load ``placement.channels.json`` from ``output_dir`` once per call.
+
+    Returns :meth:`ChannelMap.empty` when ``output_dir`` is ``None``, the
+    file is missing, or the file fails to parse. All non-fatal failures
+    log a WARNING rather than raise so the placer can fall back to
+    wirelength-only scoring (R4d).
+
+    The caller (``create_drc_aware_pipeline``) tracks how many times this
+    succeeds so the per-instance counter can be asserted at end of run.
+    """
+    if output_dir is None:
+        _LOGGER.warning(
+            "no output_dir provided for %s; channel_map disabled", source_label
+        )
+        return ChannelMap.empty()
+    sidecar_path = Path(output_dir) / SIDECAR_FILENAME
+    if not sidecar_path.exists():
+        _LOGGER.warning(
+            "no placement.channels.json at %s; channel_map disabled",
+            sidecar_path,
+        )
+        return ChannelMap.empty()
+    try:
+        cmap = ChannelMap.load_from_sidecar(sidecar_path)
+    except ChannelSidecarError as exc:
+        _LOGGER.warning("failed to load %s: %s", sidecar_path, exc)
+        return ChannelMap.empty()
+    if cmap.cell_size_um != PLACER_CELL_SIZE_UM:
+        raise ChannelSidecarError(
+            f"sidecar cell_size_um {cmap.cell_size_um} does not match "
+            f"placer PLACER_CELL_SIZE_UM {PLACER_CELL_SIZE_UM}; "
+            f"refusing to consume a misaligned grid"
+        )
+    return cmap
+
+
+class SidecarAwarePipeline(DeterministicPipeline):
+    """Pipeline wrapper that owns a per-instance sidecar load counter.
+
+    The counter starts at 0 and is incremented each time a sidecar is
+    successfully read from disk. Storing the counter on the instance keeps
+    the loader thread-safe under pytest-xdist and avoids the trap of a
+    module-level global that would double-count across pipeline runs in
+    the same process.
+    """
+
+    def __init__(self, *args, channel_map: ChannelMap | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._sidecar_load_count: int = 0
+        self.channel_map: ChannelMap | None = channel_map
+
+    def record_sidecar_load(self) -> int:
+        """Increment and return the per-instance sidecar load counter."""
+        self._sidecar_load_count += 1
+        return self._sidecar_load_count
+
+
+def _inject_channel_map(
+    stages: "Iterable", channel_map: ChannelMap | None
+) -> list:
+    """Pass ``channel_map`` to any :class:`PhasedComponentAssignmentStage`.
+
+    Other stages in the pipeline do not consume the sidecar; they pass
+    through unchanged.
+    """
+    from .stages.phased_component_assignment import PhasedComponentAssignmentStage
+
+    out: list = []
+    for stage in stages:
+        if isinstance(stage, PhasedComponentAssignmentStage):
+            stage.channel_map = channel_map
+        out.append(stage)
+    return out
+
 
 def create_drc_aware_pipeline(
     design_rules=None,
@@ -17,6 +116,7 @@ def create_drc_aware_pipeline(
     metadata: "KiCadMetadata | None" = None,
     zone_aware=True,
     parsed_pads=None,
+    output_dir: Path | str | None = None,
 ):
     """Create pipeline with full DRC integration.
 
@@ -29,9 +129,17 @@ def create_drc_aware_pipeline(
             If provided, DRC oracle uses these exact positions instead of computing
             from component placements. This ensures DRC validates against actual
             KiCad positions, not optimizer-generated positions.
+        output_dir: Optional directory searched for ``placement.channels.json``
+            (R4a). If present, the sidecar is loaded once and injected into
+            the :class:`PhasedComponentAssignmentStage` (R4c). On any error
+            the placer falls back to wirelength-only scoring and a WARNING is
+            logged (R4d).
 
     Raises:
         TypeError: If metadata is not provided
+        ChannelSidecarError: If the sidecar exists but its ``cell_size_um``
+            does not match :data:`PLACER_CELL_SIZE_UM` (refusing to consume
+            a misaligned grid).
     """
     if metadata is None:
         raise TypeError("create_drc_aware_pipeline() requires 'metadata' parameter (KiCadMetadata)")
@@ -216,7 +324,15 @@ def create_drc_aware_pipeline(
             fixed_placements=fixed_placements,
         )
 
-    return DeterministicPipeline(
+    # R4a/R4c/R4d: Look for placement.channels.json in the run output dir.
+    # Load once per pipeline run; record the count on the wrapper.
+    channel_map: ChannelMap | None = load_channel_map_from_sidecar(output_dir)
+    if channel_map.has_grid():
+        # Sidecar loaded successfully -> thread it into the placement stage.
+        if isinstance(component_stage, PhasedComponentAssignmentStage):
+            component_stage.channel_map = channel_map
+
+    pipeline = DeterministicPipeline(
         stages=[
             # Setup - apply net class mapping early
             NetClassSetupStage(net_classes=config.net_classes if config else None),
@@ -278,6 +394,19 @@ def create_drc_aware_pipeline(
             ConnectivityValidationStage(),
         ]
     )
+
+    # Wrap in SidecarAwarePipeline so the per-instance sidecar load counter
+    # can be asserted at end of run (R7e). The wrapper delegates everything
+    # else to the underlying DeterministicPipeline.
+    wrapper = SidecarAwarePipeline(
+        stages=pipeline.stages,
+        fence=pipeline.fence,
+        channel_map=channel_map if channel_map.has_grid() else None,
+    )
+    if channel_map.has_grid():
+        # Bump the counter exactly once per successful load.
+        wrapper.record_sidecar_load()
+    return wrapper
 
 
 def create_legacy_pipeline():
