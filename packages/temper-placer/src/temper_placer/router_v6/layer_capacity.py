@@ -117,6 +117,8 @@ class LayerCapacityStage(Stage):
             if widths is None:
                 continue
             capacity = calculate_layer_capacity(
+                state.occupancy_grids[layer_name],
+                widths,
                 pcb.design_rules.default_trace_width_mm * 1.5,
                 pcb.design_rules.default_clearance_mm,
             )

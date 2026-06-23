@@ -78,6 +78,86 @@ jobs:
       - name: Vulture dead-code gate
         run: uv run python scripts/vulture_gate.py
 
+  coverage-stage2:
+    name: Stage 2 Per-Module Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: |
+      github.event_name == 'push' && (
+        contains(github.event.head_commit.message, 'channel') ||
+        contains(github.event.head_commit.message, 'Stage2') ||
+        contains(github.event.head_commit.message, 'stage2') ||
+        contains(github.event.head_commit.message, 'obstacle') ||
+        contains(github.event.head_commit.message, 'routing_space') ||
+        contains(github.event.head_commit.message, 'channel_skeleton') ||
+        contains(github.event.head_commit.message, 'channel_width') ||
+        contains(github.event.head_commit.message, 'occupancy') ||
+        contains(github.event.head_commit.message, 'layer_capacity') ||
+        contains(github.event.head_commit.message, 'routing_demand') ||
+        contains(github.event.head_commit.message, 'bottleneck') ||
+        contains(github.event.head_commit.message, 'decompose-stage2')
+      ) ||
+      github.event_name == 'pull_request' && (
+        contains(github.event.pull_request.title, 'channel') ||
+        contains(github.event.pull_request.title, 'Stage2') ||
+        contains(github.event.pull_request.title, 'stage2') ||
+        contains(github.event.pull_request.title, 'obstacle') ||
+        contains(github.event.pull_request.title, 'routing_space') ||
+        contains(github.event.pull_request.title, 'channel_skeleton') ||
+        contains(github.event.pull_request.title, 'channel_width') ||
+        contains(github.event.pull_request.title, 'occupancy') ||
+        contains(github.event.pull_request.title, 'layer_capacity') ||
+        contains(github.event.pull_request.title, 'routing_demand') ||
+        contains(github.event.pull_request.title, 'bottleneck') ||
+        contains(github.event.pull_request.title, 'decompose-stage2')
+      )
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Coverage - obstacle_map
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_obstacle_map.py tests/router_v6/test_obstacle_map_pbt.py --cov=temper_placer.router_v6.obstacle_map --cov-fail-under=90 -q
+
+      - name: Coverage - routing_space
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_routing_space.py tests/router_v6/test_routing_space_pbt.py --cov=temper_placer.router_v6.routing_space --cov-fail-under=90 -q
+
+      - name: Coverage - channel_skeleton
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py --cov=temper_placer.router_v6.channel_skeleton --cov-fail-under=90 -q
+
+      - name: Coverage - channel_widths
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_channel_widths.py tests/router_v6/test_channel_widths_pbt.py --cov=temper_placer.router_v6.channel_widths --cov-fail-under=90 -q
+
+      - name: Coverage - occupancy_grid
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_occupancy_grid.py tests/router_v6/test_occupancy_grid_pbt.py --cov=temper_placer.router_v6.occupancy_grid --cov-fail-under=90 -q
+
+      - name: Coverage - layer_capacity
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_layer_capacity.py tests/router_v6/test_layer_capacity_pbt.py --cov=temper_placer.router_v6.layer_capacity --cov-fail-under=90 -q
+
+      - name: Coverage - routing_demand
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_demand_pbt.py --cov=temper_placer.router_v6.routing_demand --cov-fail-under=90 -q
+
+      - name: Coverage - bottleneck_analysis
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/router_v6/test_bottleneck_analysis.py tests/router_v6/test_bottleneck_analysis_pbt.py --cov=temper_placer.router_v6.bottleneck_analysis --cov-fail-under=90 -q
+
   regression:
     name: Performance & Quality Regression
     runs-on: ubuntu-latest

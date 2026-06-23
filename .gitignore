@@ -99,3 +99,6 @@ experiments/temper-a98v/*.kicad_pcb
 experiments/temper-a98v/*.json
 experiments/temper-a98v/*.log
 .hypothesis/
+
+# Stage 2 golden fixtures (generated on-demand, not committed)
+packages/temper-placer/tests/fixtures/stage2_goldens/

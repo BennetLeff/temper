@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional, FrozenSet
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.loop import LoopCollection
     from temper_placer.core.netlist import Netlist
     from temper_placer.routing.constraints.drc_oracle import DRCOracle, Violation
+    from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
+    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+    from temper_placer.router_v6.channel_widths import ChannelWidths
+    from temper_placer.router_v6.layer_capacity import LayerCapacity
+    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+    from temper_placer.router_v6.routing_demand import RoutingDemand
+    from temper_placer.router_v6.routing_space import RoutingSpace
 
     from .stages.clearance_grid import ClearanceGrid
     from .stages.connectivity_validation import ConnectivityViolation
@@ -38,8 +45,19 @@ class BoardState:
     )  # Set of (zone_name, tuple_of_slots) - each zone maps to tuple of (x,y) positions
     layer_assignments: frozenset = frozenset()  # Set of LayerAssignment objects (net_name, layer)
     # EXP-5: Route locking - nets that have been successfully routed and should be preserved
-    locked_routes: frozenset[str] = field(default_factory=frozenset)
-
+    locked_routes: FrozenSet[str] = field(default_factory=frozenset)
+    # Router V6 Stage 2 channel-analysis fields
+    obstacle_maps: Optional[dict[str, Any]] = None
+    routing_spaces: Optional[dict[str, "RoutingSpace"]] = None
+    channel_skeletons: Optional[dict[str, "ChannelSkeleton"]] = None
+    channel_widths: Optional[dict[str, "ChannelWidths"]] = None
+    occupancy_grids: Optional[dict[str, "OccupancyGrid"]] = None
+    layer_capacities: Optional[dict[str, "LayerCapacity"]] = None
+    routing_demand: Optional["RoutingDemand"] = None
+    bottleneck_analysis: Optional["BottleneckAnalysis"] = None
+    # Bridge fields for Stage2Orchestrator (pending protocol unification)
+    _parsed_pcb: Optional[Any] = None
+    _escape_vias: Optional[Any] = None
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.

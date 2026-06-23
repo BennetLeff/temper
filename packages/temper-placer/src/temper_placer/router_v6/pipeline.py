@@ -20,23 +20,22 @@ from typing import TYPE_CHECKING
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, run_astar_pathfinding
-from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis, identify_bottlenecks
+from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import map_topology_to_channels
-from temper_placer.router_v6.channel_skeleton import ChannelSkeleton, extract_channel_skeleton
-from temper_placer.router_v6.channel_widths import ChannelWidths, compute_channel_widths
+from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ConstraintModel, ModelBuilder
 from temper_placer.router_v6.dense_package_detection import identify_dense_packages
 from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_escape_vias
-from temper_placer.router_v6.layer_capacity import LayerCapacity, calculate_layer_capacity
-from temper_placer.router_v6.obstacle_map import build_obstacle_map
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
+from temper_placer.router_v6.layer_capacity import LayerCapacity
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
 from temper_placer.routing.variational_router.snake_optimizer import SnakeOptimizer
 from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
 from temper_placer.placement.legalization import Legalizer
-from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
+from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
-from temper_placer.router_v6.routing_space import PLANE_NETS, RoutingSpace, compute_routing_space
+from temper_placer.router_v6.routing_space import PLANE_NETS, RoutingSpace
 from temper_placer.router_v6.sat_model import SATModel, build_sat_model
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_topology_solution
@@ -361,96 +360,21 @@ class RouterV6Pipeline:
         )
 
     def _run_stage2(self, pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> Stage2Output:
-        """Run Stage 2: Channel Analysis."""
+        """Run Stage 2: Channel Analysis (delegated to Stage2Orchestrator)."""
+        from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
 
-        # 2.1-2.2: Compute routing space (includes obstacle map building)
         if self.verbose:
-            print("  2.1-2.2: Computing routing space...")
-        routing_spaces = compute_routing_space(pcb, escape_vias)
-        if self.verbose:
-            print(f"    Computed routing spaces for {len(routing_spaces)} layers")
+            print("Stage 2 (Orchestrated): Channel analysis...")
 
-        # Build obstacle maps separately for later use
-        obstacle_maps = build_obstacle_map(pcb, escape_vias)
+        orchestrator = Stage2Orchestrator(verbose=self.verbose)
+        state = orchestrator.run(pcb, escape_vias)
 
-        # 2.3: Extract channel skeleton
-        if self.verbose:
-            print("  2.3: Extracting channel skeleton...")
-        skeletons = {}
-        # U3: Extract skeleton from F.Cu + B.Cu only (inner layers are power/ground planes)
-        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
-        for layer_name, routing_space in outer_layers.items():
-            skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
-            skeletons[layer_name] = skeleton
-            if self.verbose:
-                print(f"    {layer_name}: {skeleton.node_count} nodes, {skeleton.edge_count} edges")
+        stage2 = Stage2Orchestrator.assemble_stage2_output(state)
 
-        # 2.4: Compute channel widths
-        if self.verbose:
-            print("  2.4: Computing channel widths...")
-        channel_widths = {}
-        for layer_name, skeleton in skeletons.items():
-            widths = compute_channel_widths(
-                routing_spaces[layer_name],
-                skeleton,
-            )
-            channel_widths[layer_name] = widths
+        if self.verbose and stage2.bottleneck_analysis.has_critical_bottlenecks:
+            print(f"    Warning: {len(stage2.bottleneck_analysis.bottlenecks)} bottlenecks identified")
 
-        # 2.5: Build occupancy grid
-        if self.verbose:
-            print("  2.5: Building occupancy grid...")
-
-        # Calculate base inflation for C-Space (trace radius + clearance)
-        base_inflation = (
-            pcb.design_rules.default_trace_width_mm / 2.0
-        ) + pcb.design_rules.default_clearance_mm
-
-        occupancy_grids = {}
-        for layer_name, routing_space in routing_spaces.items():
-            grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
-            occupancy_grids[layer_name] = grid
-
-        # 2.6: Calculate per-layer capacity
-        if self.verbose:
-            print("  2.6: Calculating layer capacity...")
-        layer_capacities = {}
-        for layer_name in occupancy_grids.keys():
-            layer_widths = channel_widths.get(layer_name)
-            if layer_widths is None:
-                continue
-            capacity = calculate_layer_capacity(
-                occupancy_grids[layer_name],
-                layer_widths,
-                pcb.design_rules.default_trace_width_mm * 1.5,
-                pcb.design_rules.default_clearance_mm,
-            )
-            layer_capacities[layer_name] = capacity
-
-        # 2.7: Estimate demand
-        if self.verbose:
-            print("  2.7: Estimating routing demand...")
-        routing_demand = estimate_routing_demand(pcb)
-
-        # 2.8: Identify bottlenecks
-        if self.verbose:
-            print("  2.8: Identifying bottlenecks...")
-        bottleneck_analysis = identify_bottlenecks(
-            layer_capacities,
-            routing_demand,
-        )
-        if self.verbose and bottleneck_analysis.has_critical_bottlenecks:
-            print(f"    Warning: {len(bottleneck_analysis.bottlenecks)} bottlenecks identified")
-
-        return Stage2Output(
-            obstacle_maps=obstacle_maps,
-            routing_spaces=routing_spaces,
-            skeletons=skeletons,
-            channel_widths=channel_widths,
-            occupancy_grids=occupancy_grids,
-            layer_capacities=layer_capacities,
-            routing_demand=routing_demand,
-            bottleneck_analysis=bottleneck_analysis,
-        )
+        return stage2
 
     def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         """Run Stage 3: Topological Routing."""
