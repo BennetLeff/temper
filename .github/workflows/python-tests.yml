@@ -18,6 +18,8 @@ on:
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
+      - 'power_pcb_dataset/timing_baselines.yaml'
+      - 'power_pcb_dataset/golden_manifest.yaml'
   pull_request:
     branches: [main]
     paths:
@@ -35,6 +37,8 @@ on:
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
+      - 'power_pcb_dataset/timing_baselines.yaml'
+      - 'power_pcb_dataset/golden_manifest.yaml'
 
 jobs:
   test:
@@ -88,6 +92,12 @@ jobs:
 
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
+
+      - name: Per-stage timing regression check
+        working-directory: packages/temper-placer
+        run: uv run temper-placer timing check --ci --json
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 
   regression:
     name: Performance & Quality Regression
