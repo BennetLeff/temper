@@ -27,8 +27,13 @@ logger = logging.getLogger(__name__)
 # when present.
 _K4_PERPENDICULAR_CLEARANCE_BUDGET_MM = 5.5
 _K4_ORIGINAL_REQUIREMENT_MM = 6.0
-# TO-247 pin-1 to pin-2 distance the K4 derivation assumes.
-_K4_PIN_PITCH_MM = 5.45
+# @req(2026-06-23-007, R2/K4): TO-247 pin-1 to pin-2 distance the K4
+# derivation historically assumed. Used only as a fallback when the
+# component's lv/hv pin positions cannot be resolved from the netlist
+# (e.g. fixtures that build slots in isolation). For real components the
+# per-slot pitch is computed from the placed component's pin offsets, so
+# non-TO-247 packages get correct K4 reclaim values automatically.
+_K4_TO247_PIN_PITCH_DEFAULT_MM = 5.45
 
 # Common power net names that indicate copper fill zones
 POWER_NET_NAMES = {
@@ -301,8 +306,10 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         # Build a {ref -> (x, y)} lookup from the netlist. If the netlist
         # is missing, we cannot localize slots, so the filter is a no-op.
         comp_pos: Dict[str, Tuple[float, float]] = {}
+        comp_by_ref: Dict[str, object] = {}
         if state.netlist is not None:
             for comp in state.netlist.components:
+                comp_by_ref[comp.ref] = comp
                 if comp.initial_position is not None:
                     comp_pos[comp.ref] = tuple(comp.initial_position)
 
@@ -315,13 +322,49 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
             if comp_xy is None:
                 continue
             aabbs.append(isolation_slot_aabb(slot, comp_xy))
-            # @req(2026-06-23-007, R2): K4 reclaim formula.
-            raw = slot.width_mm / 2.0 + perp_budget - _K4_PIN_PITCH_MM
+            # @req(2026-06-23-007, R2): K4 reclaim formula. Pin pitch is
+            # per-slot (resolved from the placed component's pin offsets)
+            # so non-TO-247 packages aren't silently forced into the
+            # TO-247 geometry. The TO-247 default is the fallback when
+            # the netlist component or its lv/hv pin entries are missing.
+            pin_pitch_mm = self._resolve_pin_pitch_mm(
+                comp_by_ref.get(slot.component_ref),
+                slot.lv_pin,
+                slot.hv_pin,
+            )
+            raw = slot.width_mm / 2.0 + perp_budget - pin_pitch_mm
             upper = max(0.0, original_req - 0.5)
             reclaim_value = max(0.0, min(raw, upper))
             reclaim[(slot.component_ref, slot.lv_pin, slot.hv_pin)] = reclaim_value
 
         return aabbs, reclaim
+
+    @staticmethod
+    def _resolve_pin_pitch_mm(
+        comp: object | None,
+        lv_pin: str,
+        hv_pin: str,
+    ) -> float:
+        """Return the placed component's pin-1 to pin-2 pitch, or the TO-247 default.
+
+        Pin offsets are component-local, so the distance between them is
+        translation-invariant — we don't need the component's absolute
+        position to compute the pitch. When the component or either pin
+        entry is missing we fall back to the TO-247 default that earlier
+        versions of this stage hard-coded.
+        """
+        if comp is None or not lv_pin or not hv_pin:
+            return _K4_TO247_PIN_PITCH_DEFAULT_MM
+        get_pin = getattr(comp, "get_pin", None)
+        if get_pin is None:
+            return _K4_TO247_PIN_PITCH_DEFAULT_MM
+        lv = get_pin(lv_pin)
+        hv = get_pin(hv_pin)
+        if lv is None or hv is None:
+            return _K4_TO247_PIN_PITCH_DEFAULT_MM
+        lx, ly = lv.position
+        hx, hy = hv.position
+        return ((hx - lx) ** 2 + (hy - ly) ** 2) ** 0.5
 
     def _hv_clearance_overrides(self, state: BoardState) -> Tuple[float, float]:
         """Return (perpendicular_clearance_budget, original_requirement) from net_class_rules.
