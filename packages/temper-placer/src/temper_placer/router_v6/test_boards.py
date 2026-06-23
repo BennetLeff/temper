@@ -45,7 +45,7 @@ class TestBoard:
 
 # Standard test suite locations
 # NOTE: Using unrouted versions from test fixtures for benchmarking
-BASE_PATH = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "external" / ".cache"
+BASE_PATH = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "external" / ".cache"
 
 PIANTOR_PATH = BASE_PATH / "piantor_right" / "piantor_right_unrouted.kicad_pcb"
 LIBRESOLAR_BMS_PATH = BASE_PATH / "libresolar_bms" / "libresolar_bms_unrouted.kicad_pcb"
