@@ -150,10 +150,10 @@ class TestClosureTestRequireAllStages:
         pcb_path.write_text("(kicad_pcb)")
 
         with patch(
-            "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
+            "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
             return_value={},
         ), patch(
-            "temper_placer.runner.resolve_and_run",
+            "temper_placer.regression.closure_test.resolve_and_run",
             side_effect=ImportError("No module named temper_placer.protocol"),
         ):
             test = ClosureTest(
@@ -170,10 +170,10 @@ class TestClosureTestRequireAllStages:
         pcb_path.write_text("(kicad_pcb)")
 
         with patch(
-            "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
+            "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
             return_value={},
         ), patch(
-            "temper_placer.runner.resolve_and_run",
+            "temper_placer.regression.closure_test.resolve_and_run",
             side_effect=ImportError("No module named temper_placer.protocol"),
         ):
             test = ClosureTest(
@@ -182,3 +182,5 @@ class TestClosureTestRequireAllStages:
             )
             result = test.run()
             assert any("Placement not available" in w for w in result.warnings)
+            # validate() will catch the zero-results and make passed=False
+            # because benders_iterations=0, router_completion_pct=0

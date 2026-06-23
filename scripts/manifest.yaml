@@ -28,17 +28,21 @@ _meta:
   total_scripts: 103
 
 scripts:
-  # ==========================================================================
-  # Category: keep — ci-gate
-  # ==========================================================================
-
   - path: import_linter_gate.py
     purpose: "Import boundary enforcement CI gate wrapper"
     owner: pipeline
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports: [argparse, datetime, os, re, subprocess, sys, pathlib, yaml]
+    imports:
+      - argparse
+      - datetime
+      - os
+      - re
+      - subprocess
+      - sys
+      - pathlib
+      - yaml
 
   - path: vulture_gate.py
     purpose: "Vulture dead-code CI gate: diff wrapper with baseline allowlist"
@@ -46,7 +50,12 @@ scripts:
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports: [argparse, re, subprocess, sys, pathlib]
+    imports:
+      - argparse
+      - re
+      - subprocess
+      - sys
+      - pathlib
 
   - path: check_coverage_gate.py
     purpose: "Coverage gate: fail CI on zero-coverage public functions"
@@ -54,7 +63,16 @@ scripts:
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports: [argparse, ast, json, os, re, subprocess, sys, pathlib, rich.console]
+    imports:
+      - argparse
+      - ast
+      - json
+      - os
+      - re
+      - subprocess
+      - sys
+      - pathlib
+      - rich.console
 
   - path: ci_check_drc.py
     purpose: "CI entry point: DRC ratchet check"
@@ -62,7 +80,9 @@ scripts:
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports: [sys, pathlib]
+    imports:
+      - sys
+      - pathlib
 
   - path: ci_closure_test.py
     purpose: "CI entry point: closure test (Benders -> Router -> DRC)"
@@ -70,4 +90,7 @@ scripts:
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports: [argparse, sys, pathlib]
+    imports:
+      - argparse
+      - sys
+      - pathlib
