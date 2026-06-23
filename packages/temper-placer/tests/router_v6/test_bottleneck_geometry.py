@@ -309,6 +309,58 @@ class TestBottleneckSynthetic:
         assert "analyze_bottleneck" not in text
         assert "BottleneckGeometry" not in text
 
+    def test_graph_build_aborts_on_deadline(self, monkeypatch) -> None:
+        """Fix #4: ``_build_capacitated_graph`` must abort mid-loop
+        when the wall-clock deadline is exceeded (rather than running
+        to completion and only failing the outer deadline check).
+
+        We patch ``time.monotonic`` so the deadline check inside the
+        BFS expansion fires after a small number of iterations, and
+        assert that ``_build_capacitated_graph`` raises ``TimeoutError``
+        with a graph that has not been fully built.
+        """
+        from temper_placer.router_v6.bottleneck_geometry import (
+            _build_capacitated_graph,
+        )
+
+        # 30×30 grid (900 cells) at 1.0 mm — enough that the BFS
+        # explores many cells, giving the deadline check a chance to
+        # fire at the configured stride.
+        grid = ClearanceGrid(
+            width_mm=30.0, height_mm=30.0, cell_size_mm=1.0, layer_count=1
+        )
+        # Source / sink far apart → BFS walks most of the grid.
+        source = (0, 0, 0)
+        sink = (0, 29, 29)
+        real_monotonic = time.monotonic
+        state = {"call": 0}
+
+        def fake_monotonic() -> float:
+            state["call"] += 1
+            # First call: return the deadline baseline. Subsequent
+            # calls: pretend ``BOTTLENECK_TIMEOUT_S + 1`` has elapsed,
+            # so any deadline check inside the loop fires.
+            if state["call"] == 1:
+                return real_monotonic()
+            return real_monotonic() + BOTTLENECK_TIMEOUT_S + 1.0
+
+        monkeypatch.setattr(
+            "temper_placer.router_v6.bottleneck_geometry.time.monotonic",
+            fake_monotonic,
+        )
+
+        deadline = real_monotonic()  # baseline
+        with pytest.raises(TimeoutError):
+            _build_capacitated_graph(
+                grid=grid,
+                source_cells=[source],
+                sink_cells=[sink],
+                net_class_rules=None,
+                board_state=_make_state(_build_two_pad_netlist(), grid),
+                net_name="N",
+                deadline=deadline,
+            )
+
     def test_partition_uses_grid_cell_size_not_board_default(self) -> None:
         """Fix #2: ``_partition_to_components`` must read ``cell_size_mm``
         from the ``ClearanceGrid`` (which carries the attribute), not

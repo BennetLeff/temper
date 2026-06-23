@@ -47,6 +47,14 @@ BottleneckStatus = Literal[
 # baseline. See plan §"Risks & Dependencies" / "Performance risk (R6)".
 BOTTLENECK_TIMEOUT_S: float = 0.5
 
+# Fix #4: iteration stride at which the BFS / edge-construction
+# loops re-check the wall-clock deadline. A small stride gives quick
+# abort on tight deadlines; a large stride avoids the overhead of a
+# ``time.monotonic()`` call on every iteration. ``256`` keeps the
+# per-iteration overhead negligible (< 1 µs amortised) while still
+# bounding worst-case overshoot to one full stride.
+_DEADLINE_CHECK_STRIDE: int = 256
+
 # Cell starting capacity. Each cell can in principle carry 4 traces (H+V
 # cardinal directions) and that is the value the graph model uses before
 # subtractively accounting for occupancy and creepage.
@@ -281,6 +289,7 @@ def _build_capacitated_graph(
     net_class_rules: "dict[str, NetClassRules] | None",
     board_state: "BoardState",
     net_name: str,
+    deadline: float | None = None,
 ) -> "object":  # networkx.DiGraph (avoids hard import in fast path)
     """Build a directed capacitated graph for s-t min-cut.
 
@@ -301,9 +310,21 @@ def _build_capacitated_graph(
             unused but reserved for future creepage halo lookups.
         net_name: Net being analysed (forwarded to
             ``_compute_cell_capacity``).
+        deadline: Optional wall-clock ``time.monotonic()`` deadline
+            (Fix #4). When provided, the BFS expansion and edge
+            construction loops check the deadline every
+            ``_DEADLINE_CHECK_STRIDE`` iterations and raise
+            ``TimeoutError`` once exceeded, so callers can surface an
+            ``aborted_timeout`` status without waiting for the full
+            graph build.
 
     Returns:
         A ``networkx.DiGraph`` whose edges carry a ``capacity`` attribute.
+
+    Raises:
+        TimeoutError: When the wall-clock deadline is exceeded during
+            graph construction. Callers should catch this and surface
+            an ``aborted_timeout`` ``BottleneckGeometry``.
     """
     import networkx as nx
 
@@ -314,8 +335,22 @@ def _build_capacitated_graph(
     # sorted order for determinism.
     candidate_cells: set[tuple[int, int, int]] = set(source_cells) | set(sink_cells)
     frontier = list(candidate_cells)
+    bfs_iters = 0
     while frontier:
         cell = frontier.pop()
+        bfs_iters += 1
+        # Fix #4: deadline check inside the BFS expansion loop. A
+        # pathological grid (e.g. an open board with a long thin
+        # corridor) would otherwise BFS-explore hundreds of thousands
+        # of cells before the outer deadline check fires.
+        if (
+            deadline is not None
+            and bfs_iters % _DEADLINE_CHECK_STRIDE == 0
+            and time.monotonic() >= deadline
+        ):
+            raise TimeoutError(
+                f"capacitated graph BFS exceeded {BOTTLENECK_TIMEOUT_S}s budget"
+            )
         if cell in nodes:
             continue
         if is_hard_blocked(grid, cell):
@@ -341,6 +376,7 @@ def _build_capacitated_graph(
     g = nx.DiGraph()
     for cell in sorted(nodes):
         g.add_node(cell)
+    edge_iters = 0
     for cell in sorted(nodes):
         layer, row, col = cell
         cap_here = _compute_cell_capacity(
@@ -355,6 +391,19 @@ def _build_capacitated_graph(
             if 0 <= nr < grid.rows and 0 <= nc < grid.cols:
                 neighbor = (layer, nr, nc)
                 if neighbor in nodes:
+                    edge_iters += 1
+                    # Fix #4: deadline check inside the edge
+                    # construction loop. Edge construction is also
+                    # O(N · degree) so it needs the same protection.
+                    if (
+                        deadline is not None
+                        and edge_iters % _DEADLINE_CHECK_STRIDE == 0
+                        and time.monotonic() >= deadline
+                    ):
+                        raise TimeoutError(
+                            f"capacitated graph edge build exceeded "
+                            f"{BOTTLENECK_TIMEOUT_S}s budget"
+                        )
                     cap_there = _compute_cell_capacity(
                         cell=neighbor,
                         layer=layer,
@@ -758,7 +807,11 @@ def analyze_bottleneck(
 
     deadline = time.monotonic() + BOTTLENECK_TIMEOUT_S
 
-    # Build the capacitated graph (with timeout awareness).
+    # Build the capacitated graph (with timeout awareness). The
+    # ``deadline`` argument (Fix #4) lets the inner BFS and edge
+    # loops abort early on tight deadlines. ``TimeoutError`` is
+    # surfaced here as ``aborted_timeout`` to keep the closure
+    # test's diagnostic envelope stable.
     try:
         g = _build_capacitated_graph(
             grid=grid,
@@ -767,6 +820,13 @@ def analyze_bottleneck(
             net_class_rules=net_class_rules,
             board_state=board_state,
             net_name=getattr(net, "name", ""),
+            deadline=deadline,
+        )
+    except TimeoutError as exc:
+        logger.debug("analyze_bottleneck graph build timeout: %s", exc)
+        return _empty_bottleneck(
+            "aborted_timeout",
+            message=f"{getattr(net, 'name', '?')}: graph build exceeded budget",
         )
     except Exception as exc:  # noqa: BLE001 — surfaced to caller via status
         logger.debug("analyze_bottleneck build failure: %s", exc)
