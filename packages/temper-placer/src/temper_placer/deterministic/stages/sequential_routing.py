@@ -1,5 +1,6 @@
 from dataclasses import replace
 from typing import List, Tuple, Optional, Set
+import logging
 import numpy as np
 from ..state import BoardState
 from .base import Stage
@@ -20,6 +21,16 @@ from ..geometry.via_placement import PadInfo, place_via_with_clearance
 from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
 from ...routing.layer_assignment import Layer as LayerEnum
 from ...routing.diff_pair_router import DiffPairRouter, DiffPairPath
+from ...router_v6 import (
+    BottleneckGeometry,
+    FailureReason,
+    NetRoutingReport,
+    RoutingStatus,
+    analyze_bottleneck,
+)
+
+
+logger = logging.getLogger(__name__)
 
 # EXP-6: Import coupled diff pair router for USB pairs
 # The experiments folder is at package root, not in src/
@@ -438,6 +449,11 @@ class SequentialRoutingStage(Stage):
 
         all_traces = list(state.routes)
         all_vias = list(state.vias)
+        # U3: per-net routing reports. The post-mortem ``_attach_bottlenecks``
+        # pass iterates over reports whose status is FAILED / PARTIAL /
+        # BLOCKED and calls ``analyze_bottleneck`` for each. Successful
+        # nets do not need a bottleneck diagnostic and are skipped.
+        all_net_reports: list[NetRoutingReport] = []
 
         # Gather all pads for via clearance checking
         all_pads_info = []
@@ -1724,6 +1740,34 @@ class SequentialRoutingStage(Stage):
                     flush=True,
                 )
 
+            # U3: build a per-net report. The bottleneck is attached
+            # later by ``_attach_bottlenecks``. Plane nets and
+            # successfully routed nets still get a report (status
+            # SUCCESS) so the post-mortem pass can skip them
+            # unambiguously; failed/partial/blocked nets drive the
+            # min-cut analysis.
+            if not is_plane:
+                routed_count = len(net_multilayer_paths)
+                total_segments = max(1, len(mst_edges))
+                status = (
+                    RoutingStatus.FAILED
+                    if net_routing_failed
+                    else RoutingStatus.SUCCESS
+                )
+                failure_reason = (
+                    FailureReason.CHANNEL_CAPACITY if net_routing_failed else None
+                )
+                report = NetRoutingReport(
+                    net_name=net_name,
+                    status=status,
+                    score=1.0 if status == RoutingStatus.SUCCESS else 0.0,
+                    pins=len(net.pins),
+                    routed_segments=routed_count,
+                    total_segments=total_segments,
+                    failure_reason=failure_reason,
+                )
+                all_net_reports.append(report)
+
         # EXP-5: Update state with newly locked routes
         if newly_locked_nets:
             print(f"\n  EXP-5: Locking {len(newly_locked_nets)} successfully routed nets")
@@ -1966,6 +2010,32 @@ class SequentialRoutingStage(Stage):
                     retry_queue.append((net_name, retry_count + 1))
                     print(f"      ✗ {net_name} retry {retry_count} failed, requeuing")
 
+                # U3: build a per-net report after each retry attempt.
+                # A successful retry overwrites the prior FAILED report
+                # so the post-mortem pass sees the net as SUCCESS.
+                retry_status = (
+                    RoutingStatus.SUCCESS if retry_success else RoutingStatus.FAILED
+                )
+                retry_report = NetRoutingReport(
+                    net_name=net_name,
+                    status=retry_status,
+                    score=1.0 if retry_status == RoutingStatus.SUCCESS else 0.0,
+                    pins=len(net.pins),
+                    routed_segments=len(retry_paths) if retry_success else 0,
+                    total_segments=max(1, len(mst_edges)),
+                    failure_reason=(
+                        None
+                        if retry_status == RoutingStatus.SUCCESS
+                        else FailureReason.CHANNEL_CAPACITY
+                    ),
+                )
+                # Replace any prior report for this net (e.g. an earlier
+                # failed attempt or a successful first-pass attempt).
+                all_net_reports[:] = [
+                    r for r in all_net_reports if r.net_name != net_name
+                ]
+                all_net_reports.append(retry_report)
+
             if retry_successes > 0:
                 print(f"\n  [Retry] Successfully routed {retry_successes} nets on retry")
                 # Update locked routes with retry successes
@@ -1973,4 +2043,83 @@ class SequentialRoutingStage(Stage):
 
         # ========== END PHASE 2 ==========
 
+        # ========== POST-MORTEM: MIN-CUT BOTTLENECK ANALYSIS (U3) ==========
+        # For every net that the routing pass could not complete, attach a
+        # BottleneckGeometry via ``analyze_bottleneck`` so the closure test
+        # JSON surfaces an actionable signal. The pass/fail result of the
+        # routing loop is the source of truth; this is informational only
+        # and is wrapped in a broad try/except so it never crashes the
+        # routing pass.
+        self._attach_bottlenecks(state, all_net_reports, net_by_name, grid)
+
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
+
+    def _attach_bottlenecks(
+        self,
+        state: BoardState,
+        all_net_reports: list[NetRoutingReport],
+        net_by_name: dict,
+        grid: "ClearanceGrid",
+    ) -> None:
+        """Attach ``BottleneckGeometry`` to every failed/partial report.
+
+        For each report whose status is FAILED, PARTIAL, or BLOCKED, this
+        method calls ``analyze_bottleneck`` (U2) and, on a non-None
+        return, mutates the report in place to record the geometry. The
+        analysis is wrapped in a broad try/except so any failure inside
+        ``analyze_bottleneck`` (e.g. networkx import error, exception
+        inside the graph builder) cannot crash the routing pass.
+
+        Successful nets are intentionally skipped — the routing
+        pass/fail result is the source of truth, and bottleneck
+        analysis for completed nets is wasted work.
+
+        The closure test's WARNING capture picks up the
+        ``logger.warning("routing_bottleneck: %s", result.message)``
+        call so the human-readable message surfaces in the JSON
+        output.
+        """
+        net_class_rules: dict = {}
+        design_rules = getattr(state, "design_rules", None)
+        if design_rules and getattr(design_rules, "net_classes", None):
+            net_class_rules = {
+                name: rule
+                for name, rule in design_rules.net_classes.items()
+            }
+
+        for idx, report in enumerate(all_net_reports):
+            if report.status in (RoutingStatus.SUCCESS, RoutingStatus.FLAGGED):
+                continue
+            net = net_by_name.get(report.net_name)
+            if net is None:
+                continue
+            try:
+                result = analyze_bottleneck(
+                    grid=grid,
+                    net=net,
+                    board_state=state,
+                    report=report,
+                    net_class_rules=net_class_rules or None,
+                )
+            except Exception as exc:  # noqa: BLE001 — never crash the pass
+                logger.debug(
+                    "analyze_bottleneck raised for %s: %s",
+                    report.net_name,
+                    exc,
+                )
+                continue
+
+            if result is None:
+                # The failure reason is not a capacity/clearance one;
+                # ``analyze_bottleneck`` correctly returned None and the
+                # routing pass already classifies this net as a
+                # different failure mode.
+                continue
+
+            # NetRoutingReport is a frozen dataclass; replace with a
+            # new instance that carries the bottleneck, and write it
+            # back into ``all_net_reports`` so the caller can observe
+            # the change.
+            all_net_reports[idx] = replace(report, bottleneck=result)
+            if result.message:
+                logger.warning("routing_bottleneck: %s", result.message)

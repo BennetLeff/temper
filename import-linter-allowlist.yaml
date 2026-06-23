@@ -3,4 +3,31 @@
 # New violations should be added to the baseline or the allowlist as needed.
 # See docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md
 
-allowlist: []
+allowlist:
+  # U3: SequentialRoutingStage in deterministic/ imports
+  # analyze_bottleneck + NetRoutingReport via the router_v6 public
+  # interface (__init__.py). The public interface re-exports from
+  # router_v6.adapter / diagnostics / obstacle_map (existing pattern
+  # used by the rest of the codebase), which the linter then reports
+  # as transitive violations. We allowlist the three so the post-mortem
+  # bottleneck hook can be wired in without restructuring the public
+  # interface. See docs/plans/2026-06-23-006-feat-min-cut-bottleneck-plan.md
+  # §U3 (Wire analyze_bottleneck into SequentialRoutingStage).
+  - source: temper_placer.cli
+    target: temper_placer.router_v6.adapter
+    contract: router-v6-public-interface-only
+  - source: temper_placer.cli
+    target: temper_placer.router_v6.diagnostics
+    contract: router-v6-public-interface-only
+  - source: temper_placer.cli
+    target: temper_placer.router_v6.obstacle_map
+    contract: router-v6-public-interface-only
+  - source: temper_placer.deterministic
+    target: temper_placer.router_v6.adapter
+    contract: router-v6-public-interface-only
+  - source: temper_placer.deterministic
+    target: temper_placer.router_v6.diagnostics
+    contract: router-v6-public-interface-only
+  - source: temper_placer.deterministic
+    target: temper_placer.router_v6.obstacle_map
+    contract: router-v6-public-interface-only

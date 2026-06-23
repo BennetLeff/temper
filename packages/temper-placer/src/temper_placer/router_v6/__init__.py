@@ -4,6 +4,57 @@ Router V6: Topological-First Architecture
 See docs/architecture/ROUTER_V6_TOPOLOGICAL_ARCHITECTURE.md
 """
 
+# PEP 562 lazy attribute lookup — must be defined BEFORE any submodule
+# imports below, because some submodules (e.g. ``constraint_model``)
+# transitively load ``deterministic.stages.sequential_routing``,
+# which in turn does ``from .router_v6 import ...``. Importing the
+# referenced modules eagerly here would deadlock. The set of lazily
+# resolved names matches the symbols re-exported for downstream
+# consumers (see __all__).
+_LAZY_NAMES = {
+    # Diagnostics (U1)
+    "BlockingObstacle",
+    "BoardRoutingReport",
+    "FailureReason",
+    "NetRoutingReport",
+    "PlacementSuggestion",
+    "RoutingStatus",
+    # Min-cut bottleneck geometry (U2/U3)
+    "BottleneckGeometry",
+    "analyze_bottleneck",
+}
+_LAZY_MODULES = {
+    # Diagnostics (U1)
+    "BlockingObstacle": "temper_placer.router_v6.diagnostics",
+    "BoardRoutingReport": "temper_placer.router_v6.diagnostics",
+    "FailureReason": "temper_placer.router_v6.diagnostics",
+    "NetRoutingReport": "temper_placer.router_v6.diagnostics",
+    "PlacementSuggestion": "temper_placer.router_v6.diagnostics",
+    "RoutingStatus": "temper_placer.router_v6.diagnostics",
+    # Min-cut bottleneck geometry (U2/U3)
+    "BottleneckGeometry": "temper_placer.router_v6.bottleneck_geometry",
+    "analyze_bottleneck": "temper_placer.router_v6.bottleneck_geometry",
+}
+
+
+def __getattr__(name: str):  # noqa: D401 — module-level dunder
+    """Lazy attribute lookup for diagnostics + bottleneck symbols.
+
+    Resolves the names listed in ``_LAZY_NAMES`` on first access,
+    breaking the ``router_v6 -> constraint_model -> deterministic ->
+    router_v6`` circular import chain.
+    """
+    if name in _LAZY_MODULES:
+        import importlib
+
+        module = importlib.import_module(_LAZY_MODULES[name])
+        value = getattr(module, name)
+        # Cache on the module so subsequent lookups are O(1).
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module 'temper_placer.router_v6' has no attribute {name!r}")
+
+
 from temper_placer.router_v6.constraint_model import (
     CapacityConstraint,
     Constraint,
@@ -117,4 +168,14 @@ __all__ = [
     "LengthMatchingResult",
     "LengthMatchingResults",
     "apply_length_matching",
+    # Diagnostics (U1)
+    "NetRoutingReport",
+    "BoardRoutingReport",
+    "RoutingStatus",
+    "FailureReason",
+    "BlockingObstacle",
+    "PlacementSuggestion",
+    # Min-cut bottleneck geometry (U2/U3) — lazily resolved; see __getattr__.
+    "BottleneckGeometry",
+    "analyze_bottleneck",
 ]
