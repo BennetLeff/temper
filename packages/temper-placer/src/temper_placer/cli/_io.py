@@ -7,7 +7,7 @@ from rich.table import Table
 
 console = Console()
 
-def _print_placement_summary(console_obj, netlist, state, constraints, min_separation=2.0):
+def _print_placement_summary(console, netlist, state, constraints, min_separation=2.0):
     import numpy as np
     from rich.table import Table as RT
     positions = np.array(state.positions)
@@ -27,15 +27,15 @@ def _print_placement_summary(console_obj, netlist, state, constraints, min_separ
             overlap_y = (hh_i + hh_j + min_separation) - dy
             if overlap_x > 0 and overlap_y > 0:
                 overlap_pairs.append((netlist.components[i].ref, netlist.components[j].ref, min(overlap_x, overlap_y)))
-    console_obj.print("\n[bold cyan]--- Placement Summary ---")
+    console.print("\n[bold cyan]--- Placement Summary ---")
     fixed_count = sum(1 for c in netlist.components if c.fixed)
-    console_obj.print(f"  Components: {n} total, {fixed_count} fixed, {n - fixed_count} optimized")
+    console.print(f"  Components: {n} total, {fixed_count} fixed, {n - fixed_count} optimized")
     if overlap_pairs:
-        console_obj.print(f"  [red]Overlaps: {len(overlap_pairs)} pairs[/]")
+        console.print(f"  [red]Overlaps: {len(overlap_pairs)} pairs[/]")
         for ref_a, ref_b, amount in overlap_pairs[:5]:
-            console_obj.print(f"    [red]- {ref_a} <-> {ref_b}: {amount:.1f}mm[/]")
+            console.print(f"    [red]- {ref_a} <-> {ref_b}: {amount:.1f}mm[/]")
     else:
-        console_obj.print(f"  [green]Overlaps: 0 pairs[/]")
+        console.print(f"  [green]Overlaps: 0 pairs[/]")
     table = RT(title="Component Positions", show_lines=False)
     table.add_column("Ref", style="cyan", width=12)
     table.add_column("Size (mm)", width=10)
@@ -46,4 +46,4 @@ def _print_placement_summary(console_obj, netlist, state, constraints, min_separ
         w, h = widths[idx], heights[idx]
         x, y = positions[idx]
         table.add_row(comp.ref, f"{w:.1f}x{h:.1f}", f"({x:.1f}, {y:.1f})")
-    console_obj.print(table)
+    console.print(table)
