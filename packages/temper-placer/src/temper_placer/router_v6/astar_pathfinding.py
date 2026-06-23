@@ -728,9 +728,7 @@ def run_astar_pathfinding(
         if net_name not in channel_mapping.channel_paths:
             continue
         t0 = time.perf_counter()
-        t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name)
-        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
             first_pass_fail += 1
@@ -751,9 +749,7 @@ def run_astar_pathfinding(
         net_name = reroute_queue.pop(0)
         attempts += 1
         t0 = time.perf_counter()
-        t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name, depth=1)
-        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
             reroute_fail += 1
