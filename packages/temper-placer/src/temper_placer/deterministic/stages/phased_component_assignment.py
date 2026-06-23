@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 from temper_placer.constraints.compiler import ConstraintCompiler
 
 from ..channels import Bottleneck, ChannelMap, routability_penalty
+from ..flags import is_drc_fence_fail_enabled
 from ..state import BoardState
 from .base import Stage
 
@@ -37,6 +38,15 @@ _LOGGER = logging.getLogger(__name__)
 #: :class:`PhasedComponentAssignmentStage` only when a ``channel_map`` is
 #: present, so runs without a sidecar never report false positives.
 CRITICAL_BOTTLENECK_INVARIANT: str = "no_component_center_in_critical_bottleneck"
+
+
+class PhasedComponentAssignmentError(Exception):
+    """Raised when a phased-placement stage invariant hard-fails.
+
+    Used by the U6 DRC fence flip. The message includes the offending
+    component ref and bottleneck severity so the failure is actionable
+    from a CI log.
+    """
 
 
 class PhasedComponentAssignmentStage(Stage):
@@ -704,13 +714,20 @@ class PhasedComponentAssignmentStage(Stage):
     ) -> list[dict]:
         """Run the invariant check; WARNING-only in soft-launch mode.
 
-        The hard-fail flip lives in U6 (DRC_FENCE_FAIL_ENABLED). For now
-        every violation is logged at WARNING level. The returned list of
-        violations is also returned to the caller so tests (and U6) can
-        drive the hard-fail path without re-running the placement.
+        When :func:`is_drc_fence_fail_enabled` returns True, the first
+        violation raises :class:`PhasedComponentAssignmentError` with the
+        offending ref and severity in the message. The U6 follow-up
+        bd issue ``Flip DRC fence invariant to hard-fail`` owns the
+        2-week timeline for flipping the env var by default.
         """
         violations = self.find_critical_bottleneck_violations(placements)
         for v in violations:
+            if is_drc_fence_fail_enabled():
+                raise PhasedComponentAssignmentError(
+                    f"DRC fence violation (hard-fail): {v['ref']} placed in "
+                    f"CRITICAL bottleneck cell ({v['x']}, {v['y']}) on "
+                    f"layer {v['layer']}; severity={v['severity']}"
+                )
             _LOGGER.warning(
                 "DRC fence violation: %s placed in CRITICAL bottleneck cell "
                 "(%d, %d) on layer %s; severity=%s",
