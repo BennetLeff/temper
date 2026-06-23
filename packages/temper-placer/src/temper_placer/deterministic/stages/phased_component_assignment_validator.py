@@ -188,7 +188,8 @@ def validate_phased_component_assignment_hv(state) -> List[StageDRCFailure]:
                 if safety not in _HV_SAFETY_CATEGORIES:
                     continue
                 ring_radius = stage._effective_ghost_pad_radius(
-                    comp.ref, pin.name, creepage
+                    comp.ref, pin.name, creepage,
+                    (cx, cy), (cx, cy),
                 )
                 if ring_radius <= 0.0:
                     continue
@@ -266,7 +267,8 @@ def validate_phased_component_assignment_hv(state) -> List[StageDRCFailure]:
                 if safety not in _HV_SAFETY_CATEGORIES:
                     continue
                 ring_radius = stage._effective_ghost_pad_radius(
-                    comp.ref, pin.name, creepage
+                    comp.ref, pin.name, creepage,
+                    (cx, cy), (cx, cy),
                 )
                 if ring_radius <= 0.0:
                     continue

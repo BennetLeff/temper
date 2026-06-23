@@ -903,16 +903,27 @@ class TestIsolationSlotReduction:
         assert used == used_bare
 
     def test_isolation_slots_enabled_reduces_radius(self):
-        """use_isolation_slots=True must shrink the effective radius by slot length."""
+        """use_isolation_slots=True must shrink the effective radius by the projected slot length.
+
+        Q1 pin 1 absolute is (0, 0); the nearest other HV pin (Q2 pin 1)
+        absolute is (0, 10).  The creepage direction is unit (0, 1).
+        Q1's isolation slot vector is (0, 10) (from (2.725, -5) to
+        (2.725, 5)) and is fully aligned with the direction, so
+        projection = 10.  Effective radius for Q1 pins =
+        max(0, 6 - 10) = 0.  Q2 has no slot referenced, so its
+        effective radius stays 6.0mm.
+        """
         constraints = _u2_constraints_with_slot("Q1")
         rules = _hv_design_rules()
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=True
         )
-        # Effective radius for Q1 pins = 6.0 - 10.0 = 0.0 (clamped at 0).
-        # For Q2 pins (no slot referenced) the radius stays 6.0mm.
-        eff_q1 = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
-        eff_q2 = stage._effective_ghost_pad_radius("Q2", "1", 6.0)
+        eff_q1 = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
+        )
+        eff_q2 = stage._effective_ghost_pad_radius(
+            "Q2", "1", 6.0, (0.0, 10.0), (0.0, 0.0)
+        )
         assert eff_q1 == 0.0
         assert eff_q2 == 6.0
 
@@ -928,11 +939,19 @@ class TestIsolationSlotReduction:
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=True
         )
-        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        eff = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
+        )
         assert eff == 6.0
 
     def test_isolation_slot_length_can_fully_clamp_to_zero(self):
-        """Multiple slots on the same component can clamp the radius to zero."""
+        """Multiple slots on the same component can clamp the radius to zero.
+
+        Both Q1 slots are vertical (along the y-axis).  With
+        current_pin=(0,0) and other=(0,12), the creepage unit vector is
+        (0, 1) and both slots project to their full length: 8 + 4 = 12.
+        6.0 - 12.0 = -6.0 → clamped at 0.
+        """
         constraints = PlacementConstraints(
             isolation_slots=[
                 IsolationSlot(
@@ -955,9 +974,95 @@ class TestIsolationSlotReduction:
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=True
         )
-        # 6.0 - 8.0 - 4.0 = -6.0 → clamped at 0
-        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        eff = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 12.0)
+        )
         assert eff == 0.0
+
+    def test_isolation_slot_perpendicular_to_direction_reduces_zero(self):
+        """A slot perpendicular to the creepage direction must reduce radius by 0.
+
+        This is the property test for the IEC 62368-1 Annex G
+        projection: a slot that runs perpendicular to the
+        pin-to-other-HV direction does not reclaim any creepage.
+        """
+        constraints = _u2_constraints_with_slot("Q1")
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=True
+        )
+        # Creepage direction: x-axis (Q1 pin at (0,0), other HV pin at (10, 0)).
+        # The default Q1 slot runs along the y-axis, perpendicular to x.
+        # Projection = (0, 10) · (1, 0) = 0 → no reduction.
+        eff = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (10.0, 0.0)
+        )
+        assert eff == 6.0
+
+    def test_isolation_slot_anti_parallel_reduces_zero(self):
+        """A slot pointing AWAY from the other HV pin must reduce by 0.
+
+        Negative projections are clamped to 0 (a slot that points
+        away from the other HV pin does not extend creepage).
+        """
+        constraints = PlacementConstraints(
+            isolation_slots=[
+                IsolationSlot(
+                    name="anti_slot",
+                    component_ref="Q1",
+                    start_offset=(2.725, 5.0),
+                    end_offset=(2.725, -5.0),  # 10mm long, pointing DOWN
+                    width_mm=1.5,
+                ),
+            ]
+        )
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=True
+        )
+        # Other HV pin is ABOVE the current pin → direction is +y.
+        # Slot vector is -y → projection = -10 → clamped to 0.
+        eff = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
+        )
+        assert eff == 6.0
+
+    def test_isolation_slot_partial_projection(self):
+        """A 45° slot projects to slot_length * cos(45°) ≈ 0.707 * length.
+
+        A 10mm slot at 45° to the creepage direction projects to
+        10 * cos(45°) ≈ 7.07mm.  Effective radius for Q1 =
+        max(0, 6 - 7.07) ≈ 0 (clamped to 0).
+        """
+        constraints = PlacementConstraints(
+            isolation_slots=[
+                IsolationSlot(
+                    name="diag_slot",
+                    component_ref="Q1",
+                    start_offset=(0.0, 0.0),
+                    end_offset=(10.0 / math.sqrt(2), 10.0 / math.sqrt(2)),
+                    width_mm=1.0,
+                ),
+            ]
+        )
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=True
+        )
+        # Creepage direction is +x.  Slot vector is (10/√2, 10/√2) ≈ (7.07, 7.07).
+        # Projection = 7.07 * 1 + 7.07 * 0 = 7.07.
+        # Effective radius = max(0, 6 - 7.07) = 0.
+        eff = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (10.0, 0.0)
+        )
+        assert eff == 0.0
+
+        # A larger base radius yields a non-zero effective radius.
+        # 10.0 - 7.07 ≈ 2.93
+        eff2 = stage._effective_ghost_pad_radius(
+            "Q1", "1", 10.0, (0.0, 0.0), (10.0, 0.0)
+        )
+        assert abs(eff2 - (10.0 - 10.0 / math.sqrt(2))) < 1e-9
 
     def test_use_isolation_slots_loaded_from_config(self):
         """The `placer: {use_isolation_slots: true}` YAML block must be honored."""
@@ -973,5 +1078,7 @@ class TestIsolationSlotReduction:
             use_isolation_slots=bool(constraints.placer.get("use_isolation_slots", False)),
         )
         assert stage.use_isolation_slots is True
-        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        eff = stage._effective_ghost_pad_radius(
+            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
+        )
         assert eff == 0.0

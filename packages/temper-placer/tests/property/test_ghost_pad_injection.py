@@ -20,6 +20,7 @@ from dataclasses import replace
 
 import pytest
 from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
@@ -210,3 +211,100 @@ def test_property_used_slots_symmetric(state_rules):
                     covered = True
                     break
         assert covered, f"Slot {slot} is in used_slots but has no origin"
+
+
+# ---------------------------------------------------------------------------
+# U2 property: a slot perpendicular to the creepage direction reclaims 0
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.property
+@given(
+    slot_angle=st.floats(
+        min_value=0.0, max_value=2 * math.pi, allow_nan=False, allow_infinity=False
+    ),
+    slot_length=st.floats(
+        min_value=0.1, max_value=20.0, allow_nan=False, allow_infinity=False
+    ),
+    pin_to_hv_angle=st.floats(
+        min_value=0.0, max_value=2 * math.pi, allow_nan=False, allow_infinity=False
+    ),
+    base_radius=st.floats(
+        min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False
+    ),
+)
+@settings(max_examples=100, deadline=None)
+def test_property_perpendicular_slot_reduces_zero(
+    slot_angle, slot_length, pin_to_hv_angle, base_radius
+):
+    """U2: a slot perpendicular to the pin-to-other-HV direction reclaims 0 creepage.
+
+    The reduction is the projection of the slot vector onto the unit
+    vector from the current pin to the nearest other HV pin.  When
+    those two vectors are perpendicular, the projection is exactly
+    zero regardless of the slot's length.  This is the IEC 62368-1
+    Annex G property: a slot that runs perpendicular to the creepage
+    path contributes no creepage distance.
+
+    The placer must not over- or under-credit perpendicular slots.
+    """
+    from temper_placer.io.config_loader import (
+        IsolationSlot,
+        PlacementConstraints,
+    )
+
+    # Build a stage with a single slot whose vector points along ``slot_angle``.
+    sx = math.cos(slot_angle) * slot_length
+    sy = math.sin(slot_angle) * slot_length
+    constraints = PlacementConstraints(
+        isolation_slots=[
+            IsolationSlot(
+                name="perp_slot",
+                component_ref="Q1",
+                start_offset=(0.0, 0.0),
+                end_offset=(sx, sy),
+                width_mm=1.0,
+            ),
+        ]
+    )
+    stage = PhasedComponentAssignmentStage(
+        constraints,
+        design_rules=_trivial_hv_rules(),
+        use_isolation_slots=True,
+    )
+
+    # Pick a pin-to-other-HV direction perpendicular to the slot.
+    # The perpendicular angle is slot_angle + pi/2.
+    perp_angle = slot_angle + math.pi / 2
+    # Place the nearest other HV pin 10mm away along the perpendicular.
+    other_hv_x = 10.0 * math.cos(perp_angle)
+    other_hv_y = 10.0 * math.sin(perp_angle)
+
+    eff = stage._effective_ghost_pad_radius(
+        "Q1", "1", base_radius,
+        (0.0, 0.0), (other_hv_x, other_hv_y),
+    )
+    assert abs(eff - base_radius) < 1e-9, (
+        f"perpendicular slot (angle={slot_angle:.3f}, length={slot_length:.3f}) "
+        f"and pin-to-HV direction (angle={perp_angle:.3f}) must project to 0, "
+        f"but effective radius changed from {base_radius} to {eff}"
+    )
+
+
+def _trivial_hv_rules():
+    """A minimal DesignRules with one HV class for the U2 unit tests."""
+    from temper_placer.core.design_rules import DesignRules, NetClassRules
+
+    return DesignRules(
+        net_classes={
+            "HighVoltage": NetClassRules(
+                name="HighVoltage",
+                trace_width=0.5,
+                clearance=2.0,
+                dru_priority=10,
+                creepage_mm=6.0,
+                safety_category="HV",
+            ),
+        },
+        net_class_assignments={"HV": "HighVoltage"},
+    )
