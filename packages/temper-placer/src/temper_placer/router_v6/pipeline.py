@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, run_astar_pathfinding
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_mapping import map_topology_to_channels
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
@@ -497,32 +498,39 @@ class RouterV6Pipeline:
                 )
                 channel_mapping.append(fallback_cp)
 
-        # 4.2: Run A* pathfinding (Unified)
+        # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:
-            print("  4.2: Running A* pathfinding (unified multi-layer)...")
+            print("  4.2: Running A* pathfinding (orchestrated)...")
 
-        # Get primary and alternate grids
-        fcu_grid = stage2.occupancy_grids.get("F.Cu")
-        bcu_grid = stage2.occupancy_grids.get("B.Cu")
+        from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
 
-        if not fcu_grid:
-            fcu_grid = list(stage2.occupancy_grids.values())[0]
-        if not bcu_grid and len(stage2.occupancy_grids) > 1:
-            bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
+        orchestrated = Stage4Orchestrator(verbose=self.verbose)
+        state = BoardState(_parsed_pcb=pcb)
+        state = orchestrated.run(initial_state=state)
+        pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
-        # Unified call: pass all nets and both grids
-        pathfinding_result = run_astar_pathfinding(
-            channel_mapping,
-            fcu_grid,
-            pcb.design_rules,
-            alternate_grid=bcu_grid,
-            pcb=pcb,
-            escape_vias_map=escape_vias_map,
-            use_theta_star=self.enable_theta_star,
-            use_lazy_theta_star=self.enable_lazy_theta_star,
-            max_nets=self.max_nets,
-            target_nets=self.target_nets,
-        )
+        if pathfinding_result is None:
+            from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
+
+            fcu_grid = stage2.occupancy_grids.get("F.Cu")
+            bcu_grid = stage2.occupancy_grids.get("B.Cu")
+            if not fcu_grid:
+                fcu_grid = list(stage2.occupancy_grids.values())[0]
+            if not bcu_grid and len(stage2.occupancy_grids) > 1:
+                bcu_grid = [g for g in stage2.occupancy_grids.values() if g != fcu_grid][0]
+
+            pathfinding_result = run_astar_pathfinding(
+                channel_mapping,
+                fcu_grid,
+                pcb.design_rules,
+                alternate_grid=bcu_grid,
+                pcb=pcb,
+                escape_vias_map=escape_vias_map,
+                use_theta_star=self.enable_theta_star,
+                use_lazy_theta_star=self.enable_lazy_theta_star,
+                max_nets=self.max_nets,
+                target_nets=self.target_nets,
+            )
 
         # 4.2.5: Force-directed smoothing (optional post-processing)
         if self.enable_smoothing:
