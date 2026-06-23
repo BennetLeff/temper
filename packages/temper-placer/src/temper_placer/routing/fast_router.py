@@ -27,54 +27,107 @@ except ImportError:
 
 
 @njit(cache=True)
-def get_neighbors_numba(cx, cy, cl, grid_w, grid_h, num_layers, occupancy, allow_violation):
-    """Get valid neighbors for a cell."""
+def get_neighbors_numba(cx, cy, cl, grid_w, grid_h, num_layers, occupancy, allow_violation, occupancy_bitmap):
+    """Get valid neighbors for a cell.
+
+    If occupancy_bitmap is non-empty, uses bitmap fast-path before int32 check.
+    """
     neighbors = []
+    has_bitmap = occupancy_bitmap.size > 0
+
+    def _is_blocked(nx, ny, nl):
+        if has_bitmap:
+            word = nx >> 6
+            bit = nx & 63
+            if (occupancy_bitmap[ny, word, nl] >> bit) & 1:
+                return True
+            return False
+        occ = occupancy[nx, ny, nl]
+        if occ == -1 and not allow_violation:
+            return True
+        return False
 
     # Planar moves (NSEW)
-    # Check 4 directions: (0, 1), (0, -1), (1, 0), (-1, 0)
-    # Manual unrolling for speed
-
     # (0, 1)
     nx, ny = cx, cy + 1
     if 0 <= nx < grid_w and 0 <= ny < grid_h:
-        occ = occupancy[nx, ny, cl]
-        if occ != -1 or allow_violation:
-            neighbors.append((nx, ny, cl))
+        if has_bitmap:
+            word = nx >> 6
+            bit = nx & 63
+            blocked = (occupancy_bitmap[ny, word, cl] >> bit) & 1
+            if not blocked:
+                neighbors.append((nx, ny, cl))
+        else:
+            occ = occupancy[nx, ny, cl]
+            if occ != -1 or allow_violation:
+                neighbors.append((nx, ny, cl))
 
     # (0, -1)
     nx, ny = cx, cy - 1
     if 0 <= nx < grid_w and 0 <= ny < grid_h:
-        occ = occupancy[nx, ny, cl]
-        if occ != -1 or allow_violation:
-            neighbors.append((nx, ny, cl))
+        if has_bitmap:
+            word = nx >> 6
+            bit = nx & 63
+            blocked = (occupancy_bitmap[ny, word, cl] >> bit) & 1
+            if not blocked:
+                neighbors.append((nx, ny, cl))
+        else:
+            occ = occupancy[nx, ny, cl]
+            if occ != -1 or allow_violation:
+                neighbors.append((nx, ny, cl))
 
     # (1, 0)
     nx, ny = cx + 1, cy
     if 0 <= nx < grid_w and 0 <= ny < grid_h:
-        occ = occupancy[nx, ny, cl]
-        if occ != -1 or allow_violation:
-            neighbors.append((nx, ny, cl))
+        if has_bitmap:
+            word = nx >> 6
+            bit = nx & 63
+            blocked = (occupancy_bitmap[ny, word, cl] >> bit) & 1
+            if not blocked:
+                neighbors.append((nx, ny, cl))
+        else:
+            occ = occupancy[nx, ny, cl]
+            if occ != -1 or allow_violation:
+                neighbors.append((nx, ny, cl))
 
     # (-1, 0)
     nx, ny = cx - 1, cy
     if 0 <= nx < grid_w and 0 <= ny < grid_h:
-        occ = occupancy[nx, ny, cl]
-        if occ != -1 or allow_violation:
-            neighbors.append((nx, ny, cl))
+        if has_bitmap:
+            word = nx >> 6
+            bit = nx & 63
+            blocked = (occupancy_bitmap[ny, word, cl] >> bit) & 1
+            if not blocked:
+                neighbors.append((nx, ny, cl))
+        else:
+            occ = occupancy[nx, ny, cl]
+            if occ != -1 or allow_violation:
+                neighbors.append((nx, ny, cl))
 
     # Via moves (Up/Down)
     if num_layers > 1:
-        # Up
         if cl < num_layers - 1:
-            occ = occupancy[cx, cy, cl + 1]
-            if occ != -1 or allow_violation:
-                neighbors.append((cx, cy, cl + 1))
-        # Down
+            if has_bitmap:
+                word = cx >> 6
+                bit = cx & 63
+                blocked = (occupancy_bitmap[cy, word, cl + 1] >> bit) & 1
+                if not blocked:
+                    neighbors.append((cx, cy, cl + 1))
+            else:
+                occ = occupancy[cx, cy, cl + 1]
+                if occ != -1 or allow_violation:
+                    neighbors.append((cx, cy, cl + 1))
         if cl > 0:
-            occ = occupancy[cx, cy, cl - 1]
-            if occ != -1 or allow_violation:
-                neighbors.append((cx, cy, cl - 1))
+            if has_bitmap:
+                word = cx >> 6
+                bit = cx & 63
+                blocked = (occupancy_bitmap[cy, word, cl - 1] >> bit) & 1
+                if not blocked:
+                    neighbors.append((cx, cy, cl - 1))
+            else:
+                occ = occupancy[cx, cy, cl - 1]
+                if occ != -1 or allow_violation:
+                    neighbors.append((cx, cy, cl - 1))
 
     return neighbors
 
@@ -151,6 +204,7 @@ def find_path_astar_numba(
     layer_penalty=0.0,
     owner_grid=None,
     current_net_id=0,
+    occupancy_bitmap=None,
 ):
     """
     Numba-accelerated A* pathfinding.
@@ -180,6 +234,8 @@ def find_path_astar_numba(
     Returns:
         List of (x, y, l) coordinates or empty list if no path.
     """
+
+    has_bitmap = occupancy_bitmap is not None and occupancy_bitmap.size > 0
 
     # Priority queue: (f_score, counter, x, y, l)
     # Numba's heapq implementation requires identical tuples.
@@ -245,6 +301,13 @@ def find_path_astar_numba(
             # Check bounds
             if not (0 <= nx < grid_w and 0 <= ny < grid_h and 0 <= nl < num_layers):
                 continue
+
+            # Bitmap fast-path: skip if blocked
+            if has_bitmap:
+                word = nx >> 6
+                bit = nx & 63
+                if (occupancy_bitmap[ny, word, nl] >> bit) & 1:
+                    continue
 
             if allowed_layers_mask is not None:
                 if not allowed_layers_mask[nl]:
@@ -420,6 +483,7 @@ def find_path_astar_numba_adaptive(
     layer_penalty=0.0,
     owner_grid=None,
     current_net_id=0,
+    occupancy_bitmap=None,
 ):
     """
     Numba-accelerated A* pathfinding with adaptive distance map heuristic.
@@ -457,6 +521,7 @@ def find_path_astar_numba_adaptive(
         List of (x, y, l) coordinates or empty list if no path.
     """
     INF = float("inf")
+    has_bitmap = occupancy_bitmap is not None and occupancy_bitmap.size > 0
 
     pq = [(0.0, 0.0, float(start_x), float(start_y), float(start_l))]
 
@@ -507,6 +572,13 @@ def find_path_astar_numba_adaptive(
             if not (0 <= nx < grid_w and 0 <= ny < grid_h and 0 <= nl < num_layers):
                 continue
 
+            # Bitmap fast-path: skip if blocked
+            if has_bitmap:
+                word = nx >> 6
+                bit = nx & 63
+                if (occupancy_bitmap[ny, word, nl] >> bit) & 1:
+                    continue
+
             if allowed_layers_mask is not None:
                 if not allowed_layers_mask[nl]:
                     continue
@@ -517,8 +589,9 @@ def find_path_astar_numba_adaptive(
             if tap_mask is not None:
                 if tap_mask[nx, ny, nl] != 0:
                     continue
-
-            # Class Clearance Check (HV/LV isolation) - Adaptive Version
+            
+            # Check class clearance (HV/LV isolation)
+            # This is the "Numba Port" of temper-kmbw
             if class_grid is not None and current_class_id != 0:
                 # print("DEBUG_NUMBA: Checking clearance for class", current_class_id)
                 obs_class = class_grid[nx, ny, nl]

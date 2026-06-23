@@ -2113,6 +2113,7 @@ class MazeRouter:
                     layer_penalty=5.0,
                     owner_grid=self.owner_grid,
                     current_net_id=current_net_id,
+                    occupancy_bitmap=self.occupancy_bitmap,
                 )
 
                 if result:
@@ -4709,6 +4710,7 @@ class MazeRouter:
                     allowed_layers_mask=allowed_mask,
                     primary_layer_idx=primary_idx,
                     layer_penalty=5.0,
+                    occupancy_bitmap=self.occupancy_bitmap,
                 )
 
                 if path_coords:
