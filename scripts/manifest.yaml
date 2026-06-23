@@ -12,85 +12,438 @@
 #                  for ticket: ticket reference (temper-xxx)
 #     imports: <list of top-level import sources>
 #
-# Template for new scripts (copy-paste):
-#   - path: your_script.py
-#     purpose: "What this script does"
-#     owner: your-name
-#     last_run: null
-#     category: ticket
-#     disposition: temper-xxx
-#     imports: []
-#
 # See docs/plans/2026-06-22-021-feat-script-triage-sunset-plan.md
 
 _meta:
   last_audit_date: "2026-06-22"
-  total_scripts: 103
+  total_scripts: 61
+  counts: {'keep': 20, 'ticket': 41}
 
 scripts:
-  - path: import_linter_gate.py
-    purpose: "Import boundary enforcement CI gate wrapper"
+  - path: add_power_planes.py
+    purpose: "Manually add power plane geometry to a KiCad PCB"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: utility
+    imports: []
+  - path: analyze_congestion.py
+    purpose: "Post-mortem analysis of routing congestion patterns"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: analyze_drc.py
+    purpose: "Analyze DRC violations"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: analyze_drc_json.py
+    purpose: "DRC JSON analysis pipeline"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: analyze_star_ground.py
+    purpose: "Analyze star-grounding topology quality"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: analyze_steiner_correlation.py
+    purpose: "Correlate Steiner tree length with routing quality"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: benchmark_baselines.py
+    purpose: "Benchmark baseline placement configurations"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: benchmark_router.py
+    purpose: "Router performance benchmark"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: benchmark_routing.py
+    purpose: "End-to-end routing benchmark"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: bless_baselines.py
+    purpose: "Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)"
     owner: pipeline
     last_run: "2026-06-22"
     category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - datetime
-      - os
-      - re
-      - subprocess
-      - sys
-      - pathlib
-      - yaml
-
-  - path: vulture_gate.py
-    purpose: "Vulture dead-code CI gate: diff wrapper with baseline allowlist"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - re
-      - subprocess
-      - sys
-      - pathlib
-
+    disposition: utility
+    imports: []
   - path: check_coverage_gate.py
     purpose: "Coverage gate: fail CI on zero-coverage public functions"
     owner: pipeline
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports:
-      - argparse
-      - ast
-      - json
-      - os
-      - re
-      - subprocess
-      - sys
-      - pathlib
-      - rich.console
-
+    imports: []
+  - path: check_perf_regression.py
+    purpose: "Performance regression check (called by Makefile)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: check_regression.py
+    purpose: "Functional regression check (called by Makefile)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: check_traceability.py
+    purpose: "Verify @req() tags in code match plan requirements"
+    owner: pipeline
+    last_run: "2026-06-22"
+    category: keep
+    disposition: utility
+    imports: []
   - path: ci_check_drc.py
     purpose: "CI entry point: DRC ratchet check"
     owner: pipeline
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports:
-      - sys
-      - pathlib
-
+    imports: []
   - path: ci_closure_test.py
     purpose: "CI entry point: closure test (Benders -> Router -> DRC)"
     owner: pipeline
     last_run: "2026-06-22"
     category: keep
     disposition: ci-gate
-    imports:
-      - argparse
-      - sys
-      - pathlib
+    imports: []
+  - path: collect_routing_data.py
+    purpose: "Collect routing metrics across boards"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: compare_configs.py
+    purpose: "Compare placement config files"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: compare_drc_reports.py
+    purpose: "Compare DRC reports across runs (shell-invoked)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: correlation_analysis.py
+    purpose: "Cross-loss correlation analysis"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: debug_diff_pair_path.py
+    purpose: "Debug differential pair path (shell-invoked)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: export_router_v6_pcb.py
+    purpose: "Export Router V6 routed output to KiCad PCB"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: extract_corpus_baselines.py
+    purpose: "Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)"
+    owner: pipeline
+    last_run: "2026-06-22"
+    category: keep
+    disposition: utility
+    imports: []
+  - path: extract_temper_a98v_full_metrics.py
+    purpose: "Extract full metrics for temper_a98v board"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: extract_temper_a98v_metrics.py
+    purpose: "Extract metrics for temper_a98v board"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: fanout_power.py
+    purpose: "Generate power net fanout routing"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: fill_zones.py
+    purpose: "Fill zones with copper pour"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: finalize_board.py
+    purpose: "Finalize board for export"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: finalize_pcb.py
+    purpose: "Finalize PCB for fabrication"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: fix_igbt_pinout.py
+    purpose: "Fix IGBT pinout assignment"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: force_drill_rule.py
+    purpose: "Force a specific drill rule on the PCB"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: generate_golden_baselines.py
+    purpose: "Generate golden baseline fixtures for tests"
+    owner: pipeline
+    last_run: "2026-06-22"
+    category: keep
+    disposition: utility
+    imports: []
+  - path: generate_kicad_dru.py
+    purpose: "Generate KiCad design rules from config (used by temper-drc tests)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: utility
+    imports: []
+  - path: import_linter_gate.py
+    purpose: "Import boundary enforcement CI gate wrapper"
+    owner: pipeline
+    last_run: "2026-06-22"
+    category: keep
+    disposition: ci-gate
+    imports: []
+  - path: instrumented_pipeline_with_config.py
+    purpose: "Run pipeline with instrumentation hooks"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: inter_loss_correlation.py
+    purpose: "Inter-loss correlation analysis"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: internal_route.py
+    purpose: "Internal route command (Makefile + shell-invoked)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: measure_structural_placement.py
+    purpose: "Measure structural placement quality"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: measure_usb_baseline.py
+    purpose: "Measure USB baseline routing metrics"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: patch_pcb_footprint.py
+    purpose: "Patch footprint assignments in a PCB"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: pipeline_metrics.py
+    purpose: "Record pipeline metrics to JSON for trend analysis (CI-invoked)"
+    owner: pipeline
+    last_run: "2026-06-22"
+    category: keep
+    disposition: ci-gate
+    imports: []
+  - path: placement_quality_report.py
+    purpose: "Generate placement quality report (tool-helper-invoked)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: placement_routing_loop.py
+    purpose: "Iterate placement+routing loop"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: pre_route_power.py
+    purpose: "Pre-routing setup for power nets"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: profile_optimizer.py
+    purpose: "Profile optimizer performance"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: profile_pipeline.py
+    purpose: "Profile end-to-end pipeline"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: profile_usb_routing.py
+    purpose: "Profile USB routing specifically"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: quick_routing_metrics.py
+    purpose: "Quick metrics dump for routing runs"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: refine_placement.py
+    purpose: "Refine placement after initial optimization"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: routing_experiments.py
+    purpose: "Routing algorithm experiment harness"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: run_feedback_loop.py
+    purpose: "Run iterative feedback loop (shell-invoked)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: run_spectral.py
+    purpose: "Run spectral initialization standalone"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: sanitize_baseline.py
+    purpose: "Sanitize baseline metrics for committed storage"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: steiner_vs_hpwl_analysis.py
+    purpose: "Compare Steiner tree vs HPWL metrics"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: trace_invocations.py
+    purpose: "Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/ references"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: trace_pipeline_debug.py
+    purpose: "Trace pipeline execution for debugging"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: tune_loss_weights.py
+    purpose: "Tune loss function weights"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: validate_footprints.py
+    purpose: "Validate footprint assignments (shell-invoked)"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: keep
+    disposition: shell-invoked
+    imports: []
+  - path: validate_input.py
+    purpose: "Validate PCB/config input"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: validate_placement_bounds.py
+    purpose: "Validate placement stays within board bounds"
+    owner: unassigned
+    last_run: "2026-06-22"
+    category: ticket
+    disposition: temper-scripts-sunset
+    imports: []
+  - path: vulture_gate.py
+    purpose: "Vulture dead-code CI gate: diff wrapper with baseline allowlist"
+    owner: pipeline
+    last_run: "2026-06-22"
+    category: keep
+    disposition: ci-gate
+    imports: []
