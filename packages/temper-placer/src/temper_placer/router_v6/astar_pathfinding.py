@@ -276,32 +276,32 @@ def run_astar_pathfinding(
         # Only use Theta* if A* fails or produces a poor path.
 
         # Route with rip-up capability
-import sys
+        import sys
 
 
-from temper_placer.router_v6.astar_core import (
-    RoutePath,
-    RouteNode3D,
-    RoutePath3D,
-    _astar_search,
-    _heuristic,
-    _line_of_sight,
-    _astar_search_lazy_theta_star,
-    _astar_search_theta_star,
-    _astar_search_3d,
-    _route_segment_3d,
-)
-from temper_placer.router_v6.astar_grid import (
-    _build_tht_pad_locations,
-    _extract_pad_centers_per_net,
-    _find_access_node,
-    _identify_blocking_nets,
-    _is_at_tht_pad,
-    _mark_route_blocked,
-    _restore_net_pads,
-    _unblock_net_pads,
-    _unmark_route_blocked,
-)
+        from temper_placer.router_v6.astar_core import (
+        RoutePath,
+        RouteNode3D,
+        RoutePath3D,
+        _astar_search,
+        _heuristic,
+        _line_of_sight,
+        _astar_search_lazy_theta_star,
+        _astar_search_theta_star,
+        _astar_search_3d,
+        _route_segment_3d,
+        )
+        from temper_placer.router_v6.astar_grid import (
+        _build_tht_pad_locations,
+        _extract_pad_centers_per_net,
+        _find_access_node,
+        _identify_blocking_nets,
+        _is_at_tht_pad,
+        _mark_route_blocked,
+        _restore_net_pads,
+        _unblock_net_pads,
+        _unmark_route_blocked,
+        )
 
         if use_lazy_theta_star:
             mode = "Lazy Theta*"
@@ -313,19 +313,19 @@ from temper_placer.router_v6.astar_grid import (
         sys.stdout.flush()
 
         route_path, ripped_ids = _astar_route_with_ripup(
-            net_name,
-            channel_path,
-            primary_grid,
-            routed_paths,
-            design_rules,
-            net_ids,
-            active_alternate,
-            tht_locations,
-            pad_centers_per_net,
-            all_grids=all_grids,  # Pass all for blocker identification
-            use_theta_star=use_theta_star,
-            use_lazy_theta_star=use_lazy_theta_star,
-        )
+        net_name,
+        channel_path,
+        primary_grid,
+        routed_paths,
+        design_rules,
+        net_ids,
+        active_alternate,
+        tht_locations,
+        pad_centers_per_net,
+        all_grids=all_grids,  # Pass all for blocker identification
+        use_theta_star=use_theta_star,
+        use_lazy_theta_star=use_lazy_theta_star,
+    )
 
         # Restore grid state
         _restore_net_pads(restoration)
@@ -341,19 +341,17 @@ from temper_placer.router_v6.astar_grid import (
         # Get approximate congestion region from waypoints
         congestion_region: tuple[float, float] | None = None
         if channel_path.waypoints:
-            # Use middle waypoint as approximate stuck location
             mid_idx = len(channel_path.waypoints) // 2
             congestion_region = channel_path.waypoints[mid_idx]
 
         if route_path:
             print(f"      ✓ {net_name} routed successfully", flush=True)
             sys.stdout.flush()
-            # Handle Ripped Nets
+
             for ripped_id in ripped_ids:
                 if ripped_id in id_to_net:
                     ripped_name = id_to_net[ripped_id]
                     if ripped_name in routed_paths:
-                        # Unmark the ripped path from grids (layer-aware)
                         ripped_path = routed_paths[ripped_name]
                         _unmark_route_blocked(
                             ripped_path,
@@ -364,11 +362,8 @@ from temper_placer.router_v6.astar_grid import (
                         )
                         del routed_paths[ripped_name]
                         reroute_queue.append(ripped_name)
-
-                        # Track ripup count
                         ripup_counts[ripped_name] = ripup_counts.get(ripped_name, 0) + 1
 
-            # Mark new path (layer-aware)
             routed_paths[net_name] = route_path
             _mark_route_blocked(
                 route_path,
@@ -378,12 +373,10 @@ from temper_placer.router_v6.astar_grid import (
                 net_id=net_id,
             )
 
-            # Check if it was a forced route (which means congestion)
             if route_path.forced_segment_count > 0:
                 return True, "congestion_forced", blocker_names, congestion_region
             return True, "", [], None
 
-        # Determine failure reason
         if blocker_names:
             print(
                 f"      ✗ {net_name} FAILED: congestion (blockers: {', '.join(blocker_names[:3])})",
