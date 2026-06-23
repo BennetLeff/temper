@@ -292,3 +292,56 @@ class TestBottleneckGeometryFields:
     def test_timeout_constant_default(self) -> None:
         """SC4 uses 0.5s per failed net — pin the constant."""
         assert BOTTLENECK_TIMEOUT_S == 0.5
+
+    def test_net_routing_report_snapshot_no_bottleneck(self) -> None:
+        """SC5: ``to_dict()`` output for a NetRoutingReport with
+        ``bottleneck=None`` is byte-identical to a hand-rolled golden
+        snapshot. The new ``bottleneck`` key is the only addition;
+        all other fields are unchanged from the pre-change output."""
+        import json
+
+        report = NetRoutingReport(
+            net_name="NET_X",
+            status=RoutingStatus.SUCCESS,
+            score=1.0,
+            pins=2,
+            routed_segments=1,
+            total_segments=1,
+            route_length_mm=4.2,
+            direct_distance_mm=4.0,
+            detour_ratio=1.05,
+            drc_violations=0,
+            channels_used=frozenset({"ch-1"}),
+            layer=0,
+            iterations_used=7,
+            message="routed",
+        )
+        snapshot = {
+            "net_name": "NET_X",
+            "status": "success",
+            "score": 1.0,
+            "pins": 2,
+            "routed_segments": 1,
+            "total_segments": 1,
+            "route_length_mm": 4.2,
+            "direct_distance_mm": 4.0,
+            "detour_ratio": 1.05,
+            "failure_reason": None,
+            "failure_point": None,
+            "blocking_obstacles": [],
+            "placement_suggestions": [],
+            "drc_violations": 0,
+            "channels_used": ["ch-1"],
+            "layer": 0,
+            "iterations_used": 7,
+            "bottleneck": None,
+            "message": "routed",
+        }
+        out = report.to_dict()
+        # The snapshot pre-dates the bottleneck field addition but
+        # every pre-existing field's value must match exactly.
+        for key, expected in snapshot.items():
+            assert out[key] == expected, f"field {key!r} drifted: got {out[key]!r}, expected {expected!r}"
+        # Round-trip through JSON to assert the dict is fully
+        # serialisable (no non-JSON types).
+        json.dumps(out)
