@@ -380,19 +380,31 @@ def _resolve_pad_cells(
 ) -> tuple[list[tuple[int, int, int]], list[tuple[int, int, int]]]:
     """Resolve source / sink cells for the failing net.
 
-    Returns two lists: source cells (one per pad) and sink cells
-    (one per pad, excluding the source). For multi-pad nets, all
-    non-source pads are unioned as sinks, which matches the
-    MST-routing pattern used by the main router.
+    Returns two lists: source cells and sink cells, expressed as
+    ``(layer, row, col)`` triples. For multi-pad nets, all non-source
+    pads are unioned as sinks, which matches the MST-routing pattern
+    used by the main router.
 
-    Each pad is converted to a single ``(layer, row, col)`` cell on its
-    declared layer; if the pin is PTH or ``"all"`` layers, the first
-    available layer is used.
+    Each pad is converted to one or more cells:
+
+    - **SMD pins** (single layer): exactly one ``(layer, row, col)``
+      on the declared layer (looked up via ``LAYER_NAME_TO_IDX`` so
+      the result is correct for any layer naming scheme).
+    - **PTH pins** and pins with layer ``"all"``: one
+      ``(layer, row, col)`` per layer in
+      ``range(grid.layer_count)``. This is required so the
+      source/sink set covers every layer; collapsing PTH pads to a
+      single layer would under-represent the actual connectivity and
+      produce artificially low min-cut values.
+
+    Pads that resolve to no cells (e.g. PTH on a 0-layer grid) are
+    skipped. The first emitted pad is the source; everything else is
+    the sink side.
     """
     source_cells: list[tuple[int, int, int]] = []
     sink_cells: list[tuple[int, int, int]] = []
 
-    pads = []
+    pads: list[tuple[tuple[str, str], list[tuple[int, int, int]], tuple[float, float]]] = []
     if board_state.netlist is not None and net is not None:
         for comp_ref, pin_name in getattr(net, "pins", []):
             comp = next(
@@ -414,24 +426,61 @@ def _resolve_pad_cells(
             x_mm = pos[0] + pin.position[0]
             y_mm = pos[1] + pin.position[1]
             row, col = _mm_to_cell(grid, x_mm, y_mm)
-            layer = 0
-            if pin.layer in ("B.Cu",) and grid.layer_count > 0:
-                layer = grid.layer_count - 1
-            elif pin.layer == "In1.Cu" and grid.layer_count > 1:
-                layer = 1
-            elif pin.layer == "In2.Cu" and grid.layer_count > 2:
-                layer = 2
-            elif pin.is_pth or pin.layer == "all":
-                layer = 0
-            pads.append(((comp_ref, pin_name), (layer, row, col), (x_mm, y_mm)))
+            cells_for_pad = _layers_for_pin(pin, grid.layer_count)
+            if not cells_for_pad:
+                continue
+            pads.append(
+                (
+                    (comp_ref, pin_name),
+                    [(layer, row, col) for layer in cells_for_pad],
+                    (x_mm, y_mm),
+                )
+            )
 
     if not pads:
         return source_cells, sink_cells
 
     # First pad is the source; everything else is the sink side.
-    source_cells = [p[1] for p in pads[:1]]
-    sink_cells = [p[1] for p in pads[1:]]
+    source_cells = list(pads[0][1])
+    for _, cells, _ in pads[1:]:
+        sink_cells.extend(cells)
     return source_cells, sink_cells
+
+
+# Local mirror of LAYER_NAME_TO_IDX from sequential_routing_helpers,
+# kept here to avoid an import cycle (sequential_routing imports this
+# module). When the layer name is missing from the map, SMD pins fall
+# back to layer 0 (F.Cu) so the resulting cell is still routable.
+_SMD_LAYER_NAME_TO_IDX: dict[str, int] = {
+    "F.Cu": 0,
+    "In1.Cu": 1,
+    "In2.Cu": 2,
+    "B.Cu": 3,
+}
+
+
+def _layers_for_pin(pin: "object", grid_layer_count: int) -> list[int]:
+    """Return the list of layer indices a pad should occupy.
+
+    PTH pins and pins with layer ``"all"`` occupy every layer in
+    ``range(grid_layer_count)`` so the source/sink set spans the full
+    routing stack. SMD pins occupy exactly one layer, looked up from
+    the local ``_SMD_LAYER_NAME_TO_IDX`` mirror; an unknown layer
+    name falls back to layer 0 (F.Cu).
+    """
+    if grid_layer_count <= 0:
+        return []
+    pin_layer = getattr(pin, "layer", None)
+    is_pth = bool(getattr(pin, "is_pth", False))
+    if is_pth or pin_layer == "all":
+        return list(range(grid_layer_count))
+    if pin_layer in _SMD_LAYER_NAME_TO_IDX:
+        idx = _SMD_LAYER_NAME_TO_IDX[pin_layer]
+        return [idx] if 0 <= idx < grid_layer_count else [0]
+    # Unknown / missing layer — treat as F.Cu so the cell is still
+    # routable; the caller can still detect the anomaly via the
+    # ``positions_mm`` tuple in the result.
+    return [0]
 
 
 def _partition_to_components(
@@ -677,7 +726,10 @@ def analyze_bottleneck(
             message=f"{getattr(net, 'name', '?')}: no resolvable pads for min-cut",
         )
 
-    # Pad metadata for partition classification.
+    # Pad metadata for partition classification. Iterate the same
+    # ``_layers_for_pin`` helper that ``_resolve_pad_cells`` uses, so
+    # PTH pads and SMD pads are placed on the same set of cells
+    # (Fix #3: PTH pads occupy all layers, SMD pads occupy one).
     pad_positions: dict[tuple[int, int, int], tuple[str, tuple[float, float]]] = {}
     if board_state.netlist is not None and net is not None:
         for comp_ref, pin_name in getattr(net, "pins", []):
@@ -701,16 +753,8 @@ def analyze_bottleneck(
             x_mm = pos[0] + pin.position[0]
             y_mm = pos[1] + pin.position[1]
             row, col = _mm_to_cell(grid, x_mm, y_mm)
-            layer = 0
-            if pin.layer == "B.Cu" and grid.layer_count > 0:
-                layer = grid.layer_count - 1
-            elif pin.layer == "In1.Cu" and grid.layer_count > 1:
-                layer = 1
-            elif pin.layer == "In2.Cu" and grid.layer_count > 2:
-                layer = 2
-            elif pin.is_pth or pin.layer == "all":
-                layer = 0
-            pad_positions[(layer, row, col)] = (comp_ref, (x_mm, y_mm))
+            for layer in _layers_for_pin(pin, grid.layer_count):
+                pad_positions[(layer, row, col)] = (comp_ref, (x_mm, y_mm))
 
     deadline = time.monotonic() + BOTTLENECK_TIMEOUT_S
 
