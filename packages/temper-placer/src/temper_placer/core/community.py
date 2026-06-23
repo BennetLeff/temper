@@ -24,6 +24,20 @@ class Community:
     component_refs: list[str]
     modularity_score: float
 
+
+@dataclass
+class ComponentCommunity:
+    """A community membership record for a single component.
+
+    Re-exported via :mod:`temper_placer.core` for backward compatibility with
+    downstream callers that import ``ComponentCommunity`` from the public
+    package interface.
+    """
+
+    component_ref: str
+    community_name: str
+    confidence: float = 1.0
+
 def detect_communities(netlist: Netlist) -> list[Community]:
     """
     Detect functional communities in the netlist using the Louvain algorithm.
