@@ -1,0 +1,52 @@
+name: Metrics Record
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  record:
+    name: Record Pipeline Metrics
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Run closure test
+        continue-on-error: true
+        run: >
+          uv run python3 scripts/ci_closure_test.py
+          --pcb pcb/temper.kicad_pcb
+          --require-all-stages
+          --output closure-result.json
+          || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
+      - name: Record metrics
+        run: |
+          uv run python scripts/pipeline_metrics.py record \
+            --board temper --commit "${{ github.sha }}"
+          cat power_pcb_dataset/metrics/pipeline_metrics.jsonl
+      - name: Commit and push metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add power_pcb_dataset/metrics/pipeline_metrics.jsonl
+          if git diff --cached --quiet; then
+            echo "No metrics changes to commit"; exit 0
+          fi
+          git commit -m "chore(metrics): record pipeline metrics for ${{ github.sha }}"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && break
+            echo "Push attempt $i failed, retrying..."; sleep 5
+          done
