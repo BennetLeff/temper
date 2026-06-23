@@ -787,14 +787,6 @@ def _astar_route(
         forced_segment_count=forced_segments,
     )
 
-    return RoutePath(
-        net_name=net_name,
-        coordinates=detailed_coords,
-        layer_name=grid.layer_name,
-        path_length=path_length,
-        forced_segment_count=forced_segments,
-    )
-
 
 
 
