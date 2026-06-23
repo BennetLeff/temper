@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional, FrozenSet
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -36,7 +38,8 @@ class BoardState:
     )  # Set of (zone_name, tuple_of_slots) - each zone maps to tuple of (x,y) positions
     layer_assignments: frozenset = frozenset()  # Set of LayerAssignment objects (net_name, layer)
     # EXP-5: Route locking - nets that have been successfully routed and should be preserved
-    locked_routes: FrozenSet[str] = field(default_factory=frozenset)
+    locked_routes: frozenset[str] = field(default_factory=frozenset)
+
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.

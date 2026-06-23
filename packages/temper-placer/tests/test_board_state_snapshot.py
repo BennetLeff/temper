@@ -1,48 +1,48 @@
-"""Tests for BoardState.copy() and StageOutput.to_snapshot_dict() (U4)."""
+"""Tests for BoardState frozen dataclass immutability (U4)."""
 
 from temper_placer.deterministic.state import BoardState
 
 
-class TestBoardStateCopy:
-    """Test BoardState.copy() method."""
+class TestBoardStateImmutability:
+    """Test BoardState frozen dataclass operations."""
 
-    def test_copy_creates_distinct_object(self):
-        """copy() returns a distinct object from the original."""
+    def test_with_locked_route_creates_new_state(self):
+        """with_locked_route returns a new distinct BoardState."""
         state = BoardState()
-        copied = state.copy()
-        assert copied is not state
-        assert id(copied) != id(state)
+        modified = state.with_locked_route("NET1")
+        assert modified is not state
+        assert "NET1" not in state.locked_routes
+        assert "NET1" in modified.locked_routes
 
-    def test_copy_preserves_field_values(self):
-        """Copy preserves all field values."""
+    def test_with_locked_route_preserves_fields(self):
+        """with_locked_route preserves other field values."""
         state = BoardState(
             board=None,
             netlist=None,
-            loops=None,
-            grid=None,
-            drc_oracle=None,
             net_order=("NET1", "NET2"),
-            locked_routes=frozenset({"NET1"}),
+            locked_routes=frozenset(),
         )
-        copied = state.copy()
-        assert copied.board is state.board
-        assert copied.net_order == state.net_order
-        assert copied.locked_routes == state.locked_routes
-
-    def test_copy_is_independent(self):
-        """Modifications to one copy don't affect the original."""
-        state = BoardState()
-        copied = state.copy()
-        modified = copied.with_locked_route("NET_NEW")
+        modified = state.with_locked_route("NET_NEW")
+        assert modified.net_order == state.net_order
         assert "NET_NEW" in modified.locked_routes
         assert "NET_NEW" not in state.locked_routes
-        assert "NET_NEW" not in copied.locked_routes
 
-    def test_copy_empty_state(self):
-        """Copy of empty state works."""
+    def test_with_locked_routes_adds_multiple(self):
+        """with_locked_routes adds multiple nets atomically."""
+        state = BoardState(locked_routes=frozenset({"A"}))
+        result = state.with_locked_routes({"B", "C"})
+        assert result.locked_routes == frozenset({"A", "B", "C"})
+
+    def test_default_state_is_valid(self):
+        """Default BoardState has sane defaults."""
         state = BoardState()
-        copied = state.copy()
-        assert copied.board is None
-        assert copied.netlist is None
-        assert copied.net_order == ()
-        assert copied.locked_routes == frozenset()
+        assert state.board is None
+        assert state.netlist is None
+        assert state.net_order == ()
+        assert state.locked_routes == frozenset()
+
+    def test_is_route_locked(self):
+        """is_route_locked correctly reports lock status."""
+        state = BoardState(locked_routes=frozenset({"NET1"}))
+        assert state.is_route_locked("NET1")
+        assert not state.is_route_locked("NET2")

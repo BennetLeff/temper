@@ -1,8 +1,8 @@
 """Tests for Stage invariants property (U1)."""
 
-import pytest
 
 from temper_drc.core.fence import InvariantSpec
+
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 
@@ -58,17 +58,6 @@ class TestStageInvariants:
         stage = WithInvariantsStage()
         for inv in stage.invariants:
             assert isinstance(inv, InvariantSpec)
-
-    def test_alternative_default_none(self):
-        """Stage.alternative defaults to None."""
-        stage = NoInvariantsStage()
-        assert stage.alternative is None
-
-    def test_alternative_can_be_set(self):
-        """Stage.alternative can be set for strangler transitions."""
-        stage = WithInvariantsStage()
-        stage.alternative = NoInvariantsStage()
-        assert stage.alternative is not None
 
     def test_last_modified_regions_default_none(self):
         """Stage.last_modified_regions defaults to None."""

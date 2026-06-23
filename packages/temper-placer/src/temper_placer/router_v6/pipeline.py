@@ -315,14 +315,11 @@ class RouterV6Pipeline:
         if self.verbose:
             print(f"  Generated {len(escape_vias)} escape vias")
 
-        # Stage 1 Fence: Check clearance after escape via generation
-        if self.fence:
-            self._run_fence(
-                stage_name="router_v6.escape_vias",
-                invariants=_stage_1_invariants(),
-                pcb=pcb,
-                escape_vias=escape_vias,
-            )
+        # NOTE: No Stage 1 fence. The temper_drc Placement model only
+        # carries component-level data (no via positions or trace geometry).
+        # The drc_clearance and drc_component_overlap checks operate on
+        # component pairs only; a fence check at this stage would be a no-op.
+        # Revisit when the DRC input model supports via/trace primitives.
 
         # Stage 2: Channel analysis
         if self.verbose:
@@ -339,14 +336,10 @@ class RouterV6Pipeline:
             print("Stage 4: Geometric realization...")
         stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
 
-        # Stage 4 Fence: Check clearance and overlap after geometric realization
-        if self.fence:
-            self._run_fence(
-                stage_name="router_v6.geometric_realization",
-                invariants=_stage_4_invariants(),
-                pcb=pcb,
-                stage4=stage4,
-            )
+        # NOTE: No Stage 4 fence. Same reason as Stage 1 -- the DRC input
+        # model cannot represent routed traces or vias, so clearance and
+        # overlap checks on geometric realization output would be no-ops.
+        # Revisit when the DRC input model supports trace/via primitives.
 
         runtime = time.time() - start_time
 
@@ -422,11 +415,12 @@ class RouterV6Pipeline:
             print("  2.6: Calculating layer capacity...")
         layer_capacities = {}
         for layer_name in occupancy_grids.keys():
-            if layer_name not in channel_widths:
+            layer_widths = channel_widths.get(layer_name)
+            if layer_widths is None:
                 continue
             capacity = calculate_layer_capacity(
                 occupancy_grids[layer_name],
-                channel_widths[layer_name],
+                layer_widths,
                 pcb.design_rules.default_trace_width_mm * 1.5,
                 pcb.design_rules.default_clearance_mm,
             )
@@ -761,15 +755,17 @@ class RouterV6Pipeline:
         stage_name: str,
         invariants: tuple,
         pcb: ParsedPCB,
-        escape_vias: list[EscapeVia] | None = None,
-        stage4: Stage4Output | None = None,
     ):
         """Run fence checks for a Router V6 stage.
 
         Creates DRC inputs from the PCB data and invokes the fence.
-        """
-        from temper_drc.core.fence import InvariantSpec
 
+        NOTE: Currently only Stage 0.5 (legalization) is fenced.
+        The temper_drc Placement model only carries component-level data
+        (positions, nets, zones).  Stage 1 (escape vias) and Stage 4
+        (routed traces) produce geometry that the DRC input model cannot
+        represent yet, so those stages are not fenced.
+        """
         placement, constraints = _parsed_pcb_to_drc_input(pcb)
         self.fence.check(
             stage_name=stage_name,
@@ -786,19 +782,3 @@ def _stage_0_5_invariants() -> tuple:
         InvariantSpec("drc_component_overlap", "No component overlaps after legalization"),
     )
 
-
-def _stage_1_invariants() -> tuple:
-    """Invariants for Stage 1 escape via generation."""
-    from temper_drc.core.fence import InvariantSpec
-    return (
-        InvariantSpec("drc_clearance", "Vias maintain minimum clearance to pads"),
-    )
-
-
-def _stage_4_invariants() -> tuple:
-    """Invariants for Stage 4 geometric realization."""
-    from temper_drc.core.fence import InvariantSpec
-    return (
-        InvariantSpec("drc_clearance", "Routed traces maintain minimum clearance"),
-        InvariantSpec("drc_component_overlap", "Traces do not overlap component pads"),
-    )
