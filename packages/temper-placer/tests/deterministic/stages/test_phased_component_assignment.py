@@ -17,7 +17,7 @@ from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import PlacementConstraints, SeedFilterConfig
+from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints, SeedFilterConfig
 
 
 class TestPhasedPlacement:

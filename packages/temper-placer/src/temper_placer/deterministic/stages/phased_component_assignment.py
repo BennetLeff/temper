@@ -18,6 +18,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
+from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 from ..channels import Bottleneck, ChannelMap, routability_penalty
 from ..flags import is_drc_fence_fail_enabled
@@ -31,7 +32,6 @@ if TYPE_CHECKING:
     from temper_placer.core.component import Component
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -119,6 +119,7 @@ class PhasedComponentAssignmentStage(Stage):
         self.constraints = constraints
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
+        self.channel_map = channel_map
         # Default to the constraints' seed_filter if not provided, so
         # callers can configure via the YAML loader without a separate
         # argument. Passing ``None`` is treated as "use constraints default".
@@ -333,8 +334,9 @@ class PhasedComponentAssignmentStage(Stage):
                     used_slots,
                     all_slots,
                     net_pins,
-                    domain_for_ref,
-                    domain_regions,
+                    netlist=netlist,
+                    domain_for_ref=domain_for_ref,
+                    domain_regions=domain_regions,
                 )
             else:
                 import logging
@@ -500,6 +502,7 @@ class PhasedComponentAssignmentStage(Stage):
         used_slots: Set[Tuple[float, float]],
         all_slots: List[Tuple[float, float]],
         net_pins: Dict[str, list],
+        netlist=None,
         domain_for_ref: Mapping[str, str] | None = None,
         domain_regions: Mapping[str, "Polygon"] | None = None,
     ) -> Dict[str, Tuple[float, float]]:

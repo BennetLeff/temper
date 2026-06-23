@@ -261,15 +261,20 @@ class TestGumbelSoftmax:
             # Loss: want y-coordinate to be high (prefer 90° rotation)
             return -rotated[1]
 
-        key = jax.random.PRNGKey(99)
+        # Average over many keys to get a stable gradient signal.
+        # Single samples are too noisy because rotations are stochastic.
         logits = jnp.array([0.0, 0.0, 0.0, 0.0])
-        grads = grad(loss_fn)(logits, key)
+        keys = jax.random.split(jax.random.PRNGKey(99), 100)
+        per_key_grads = jnp.stack(
+            [grad(loss_fn)(logits, k) for k in keys]
+        )
+        avg_grads = jnp.mean(per_key_grads, axis=0)
 
         # Gradients should exist and not be NaN
-        assert not jnp.any(jnp.isnan(grads))
-        # Gradient for 90° (index 1) should be most negative
+        assert not jnp.any(jnp.isnan(avg_grads))
+        # Average gradient for 90° (index 1) should be most negative
         # (we want to increase logits[1] to decrease loss)
-        assert jnp.argmin(grads) == 1
+        assert jnp.argmin(avg_grads) == 1
 
     def test_gumbel_softmax_jit_compatible(self):
         """Test that Gumbel-Softmax works with JIT."""
