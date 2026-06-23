@@ -10,6 +10,11 @@ class DSNExpression:
 
     name: str
     args: Sequence[Union[str, float, int, DSNExpression]] = field(default_factory=list)
+    comment: str | None = None
+
+    def with_comment(self, line: str) -> DSNExpression:
+        """Return a copy with a comment line prepended before the S-expression."""
+        return DSNExpression(name=self.name, args=self.args, comment=line)
 
     def __str__(self) -> str:
         def fmt(v) -> str:
@@ -37,11 +42,10 @@ class DSNExpression:
                 return v
             return str(v)
 
-        if not self.args:
-            return f"({self.name})"
-        
-        args_str = " ".join(fmt(arg) for arg in self.args)
-        return f"({self.name} {args_str})"
+        body = f"({self.name})" if not self.args else f"({self.name} {' '.join(fmt(arg) for arg in self.args)})"
+        if self.comment:
+            return f"{self.comment}\n{body}"
+        return body
 
 
 def dsn_list(name: str, *args) -> DSNExpression:

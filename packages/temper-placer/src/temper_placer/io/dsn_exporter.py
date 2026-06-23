@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import jax.numpy as jnp
 from typing import TYPE_CHECKING, Sequence, Union
 
@@ -13,6 +15,11 @@ if TYPE_CHECKING:
     from temper_placer.io.kicad_parser import TraceData
 
 
+def _natural_sort_key(s: str) -> list:
+    """Sort key that ensures natural numeric ordering (e.g., 'pin10' > 'pin2')."""
+    return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", s)]
+
+
 class DSNExporter:
     """Exporter for KiCad PCB to SPECCTRA DSN format."""
 
@@ -22,10 +29,12 @@ class DSNExporter:
         netlist: Netlist,
         positions: Array | None = None,
         rotations: Array | None = None,
+        deterministic: bool = True,
     ):
         self.board = board
         self.netlist = netlist
         self.positions = positions
+        self.deterministic = deterministic
 
         # Convert rotations to indices (0-3) if provided as logits/one-hot
         if rotations is not None:
@@ -128,6 +137,8 @@ class DSNExporter:
             keepout_exprs.append(
                 dsn_list("keepout", f"KO_{i}", dsn_list("rect", keepout_layer, round(ko[0] * S), round(ko[1] * S), round(ko[2] * S), round(ko[3] * S)))
             )
+        if self.deterministic:
+            keepout_exprs.sort(key=lambda k: str(k.args[0]) if k.args else "")
         
         # Vias
         via_exprs = [dsn_list("via", "VIA")]
@@ -224,9 +235,19 @@ class DSNExporter:
                 # Add a 1mm x 1mm keepout at origin as an 'outline'
                 pins.append(dsn_list("outline", dsn_list("rect", layer_names[0], -0.5 * S, -0.5 * S, 0.5 * S, 0.5 * S)))
 
+            # Sort pins by pin number for deterministic output
+            if self.deterministic:
+                pins.sort(key=lambda p: _natural_sort_key(str(p.args[1])) if len(p.args) > 1 else "0")
             images.append(dsn_list("image", fp_id, *pins))
 
-        return dsn_list("library", *images, *padstacks.values())
+        # Sort images and padstacks for deterministic output
+        if self.deterministic:
+            images.sort(key=lambda img: str(img.args[0]) if img.args else "")
+            sorted_ps = sorted(padstacks.values(), key=lambda ps: str(ps.args[0]) if ps.args else "")
+        else:
+            sorted_ps = list(padstacks.values())
+
+        return dsn_list("library", *images, *sorted_ps)
 
     def export_placement(self) -> DSNExpression:
         """Export the placement section (component instances)."""
@@ -267,7 +288,11 @@ class DSNExporter:
             )
 
         comp_exprs = []
-        for fp_id, instances in components_by_fp.items():
+        fp_ids = components_by_fp.keys()
+        if self.deterministic:
+            fp_ids = sorted(fp_ids)
+        for fp_id in fp_ids:
+            instances = components_by_fp[fp_id]
             comp_exprs.append(dsn_list("component", fp_id, *instances))
 
         return dsn_list("placement", *comp_exprs)
@@ -328,12 +353,17 @@ class DSNExporter:
         import re
         voltage_pattern = re.compile(r"(_PLUS|VCC|VDD)\d+V?\d*$", re.IGNORECASE)
 
-        # Sort nets by fanout (low first) then span (short first)
-        # This gives FreeRouter easier nets first, reducing resource contention
-        sorted_nets = sorted(
-            self.netlist.nets,
-            key=lambda n: (len(n.pins), self._compute_net_span(n))
-        )
+        # Sort nets: deterministic mode sorts alphabetically; otherwise by fanout/span
+        if self.deterministic:
+            sorted_nets = sorted(
+                self.netlist.nets,
+                key=lambda n: n.name.replace("+", "_PLUS").replace("-", "_MINUS").lower()
+            )
+        else:
+            sorted_nets = sorted(
+                self.netlist.nets,
+                key=lambda n: (len(n.pins), self._compute_net_span(n))
+            )
 
         for net in sorted_nets:
             # Sanitize net names for SPECCTRA compatibility
@@ -456,4 +486,11 @@ class DSNExporter:
         if traces:
             sections.append(self.export_wiring(traces))
 
-        return dsn_list("pcb", pcb_name, *sections)
+        result = dsn_list("pcb", pcb_name, *sections)
+
+        if self.deterministic:
+            from temper_placer.io.dsn_schema import DSNSchemaHasher
+            schema_hash = DSNSchemaHasher.compute_schema_hash(self.board, self.netlist)
+            result = result.with_comment(f";schema-version: sha256:{schema_hash}")
+
+        return result

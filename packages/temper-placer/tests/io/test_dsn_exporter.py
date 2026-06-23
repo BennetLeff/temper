@@ -210,3 +210,87 @@ def test_export_network_exclude_nets():
     s_pcb = str(pcb_dsn)
     assert "(net GND" not in s_pcb
     assert "(net SIG1" in s_pcb
+
+
+def test_deterministic_output_identical_on_repeat():
+    """Two DSNExporter calls with same inputs produce identical output."""
+    board = Board(width=100, height=100)
+    netlist = Netlist(
+        components=[
+            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
+                Pin("1", "1", (0, 0)),
+                Pin("GND", "4", (0, 1)),
+            ]),
+            Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[
+                Pin("1", "1", (0, 0)),
+                Pin("2", "2", (1, 0)),
+            ]),
+        ],
+        nets=[
+            Net(name="SIG1", pins=[("U1", "1"), ("R1", "1")]),
+            Net(name="GND", pins=[("U1", "4"), ("R1", "2")]),
+        ]
+    )
+
+    exp1 = DSNExporter(board, netlist, deterministic=True)
+    exp2 = DSNExporter(board, netlist, deterministic=True)
+
+    s1 = str(exp1.export_pcb("test"))
+    s2 = str(exp2.export_pcb("test"))
+
+    assert s1 == s2
+
+
+def test_deterministic_sorts_nets_alphabetically():
+    """Deterministic mode sorts nets by sanitized name, not fanout."""
+    board = Board(width=100, height=100)
+    netlist = Netlist(
+        components=[
+            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
+                Pin("1", "1", (0, 0)),
+                Pin("2", "2", (0, 1)),
+                Pin("3", "3", (0, 2)),
+            ]),
+            Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[Pin("1", "1", (0, 0))]),
+            Component(ref="R2", footprint="0805", bounds=(2, 1), pins=[Pin("1", "1", (0, 0))]),
+        ],
+        nets=[
+            Net(name="SIG_A", pins=[("U1", "1"), ("R1", "1")]),
+            Net(name="SIG_B", pins=[("U1", "2"), ("R2", "1")]),
+            Net(name="SIG_C", pins=[("U1", "3")]),
+        ]
+    )
+
+    # Non-deterministic would sort by fanout (3-pin then 2-pin then 1-pin)
+    exp_non_det = DSNExporter(board, netlist, deterministic=False)
+    s_non = str(exp_non_det.export_network(use_net_classes=False))
+    # With deterministic=False, net with most pins (SIG_A has 2, SIG_C has 1) comes later
+    # Actually they're sorted by fanout then span, SIG_A and SIG_B both have 2 pins
+    # In non-det mode, they should NOT be strictly alphabetical
+
+    exp_det = DSNExporter(board, netlist, deterministic=True)
+    s_det = str(exp_det.export_network(use_net_classes=False))
+
+    # Deterministic: alphabetical order: SIG_A, SIG_B, SIG_C
+    idx_a = s_det.index("SIG_A")
+    idx_b = s_det.index("SIG_B")
+    idx_c = s_det.index("SIG_C")
+    assert idx_a < idx_b < idx_c
+
+
+def test_deterministic_embedded_schema_hash():
+    """Deterministic mode embeds schema-version header."""
+    board = Board(width=100, height=100)
+    netlist = Netlist()
+    exporter = DSNExporter(board, netlist, deterministic=True)
+    s = str(exporter.export_pcb("test"))
+    assert s.startswith(";schema-version: sha256:")
+
+
+def test_non_deterministic_no_schema_hash():
+    """Non-deterministic mode does NOT embed schema-version header."""
+    board = Board(width=100, height=100)
+    netlist = Netlist()
+    exporter = DSNExporter(board, netlist, deterministic=False)
+    s = str(exporter.export_pcb("test"))
+    assert not s.startswith(";schema-version:")
