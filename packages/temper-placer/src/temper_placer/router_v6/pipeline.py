@@ -538,121 +538,22 @@ class RouterV6Pipeline:
                 target_nets=self.target_nets,
             )
 
-        # 4.2.5: Force-directed smoothing (optional post-processing)
-        if self.enable_smoothing:
-            if self.verbose:
-                print("  4.2.5: Applying Variational Smoothing (Snakes)...")
+        pathfinding_result = self._run_stage5(pcb, stage2, pathfinding_result)
 
-            # 1. Build SDFs for all layers
-            sdf_grids = {}
-            clearance_mm = pcb.design_rules.default_clearance_mm
+        return pathfinding_result
 
-            # Use exact geometry from Stage 2.1 RoutingSpace
-            # This avoids grid quantization artifacts in the SDF
+    def _run_stage5(
+        self,
+        pcb: ParsedPCB,
+        stage2: Stage2Output,
+        pathfinding_result: PathfindingResult,
+    ) -> Stage4Output:
+        """Run Stage 5: Post-processing (smoothing, via placement, width, results)."""
+        if self.verbose:
+            print("Stage 5: Post-processing...")
 
-            # Calculate bounds safely
-            if hasattr(pcb, "board") and pcb.board:
-                bounds_array = pcb.board.get_bounds_array()  # [xmin, ymin, xmax, ymax]
-                bounds = tuple(bounds_array)
-            else:
-                # Fallback: compute from components
-                all_x = []
-                all_y = []
-                for comp in pcb.components:
-                    x, y = comp.initial_position
-                    all_x.append(x)
-                    all_y.append(y)
-                if all_x:
-                    bounds = (min(all_x) - 5, min(all_y) - 5, max(all_x) + 5, max(all_y) + 5)
-                else:
-                    bounds = (0, 0, 100, 100)
-
-            # Add small padding to bounds
-            bounds = (bounds[0] - 1, bounds[1] - 1, bounds[2] + 1, bounds[3] + 1)
-
-            for layer_name, routing_space in stage2.routing_spaces.items():
-                if self.verbose:
-                    print(f"    Building Exact SDF for {layer_name}...")
-
-                # Get raw obstacles (Shapely polygons)
-                # Ensure it's a list
-                obstacles = routing_space.obstacles
-                if not obstacles:
-                    polygon_list = []
-                elif hasattr(obstacles, "geoms"):
-                    polygon_list = list(obstacles.geoms)
-                else:
-                    polygon_list = [obstacles]
-
-                # Build high-resolution SDF (0.05mm)
-                sdf_grids[layer_name] = SDFGrid.from_polygons(
-                    polygons=polygon_list, bounds=bounds, resolution_mm=0.05
-                )
-
-            # 2. Run Path Simplifier (H1)
-            if True:
-                if self.verbose:
-                    print("    Using SDF-Verified Path Simplifier (H1)...")
-                simplifier = PathSimplifier(
-                    sdf_grids=sdf_grids,
-                    step_size_mm=0.1,
-                    min_clearance_margin=0.0,  # Default value, will override per net
-                    occupancy_grids=stage2.occupancy_grids,  # Dynamic obstacles
-                )
-
-                # Pre-calculate widths (Stage 4.4 runs later, but we need widths now)
-                # This duplicates logic but avoids reordering the pipeline stages
-                temp_widths = {}
-                for net_name in pathfinding_result.routed_paths:
-                    # Use helper method to resolve net class rules
-                    rule = pcb.design_rules.get_rules_for_net(net_name)
-                    # print(f"DEBUG: rule keys: {rule.__dict__.keys()}")
-                    # Handle attribute naming variations if any
-                    if hasattr(rule, "trace_width"):
-                        temp_widths[net_name] = rule.trace_width
-                    elif hasattr(rule, "trace_width_mm"):
-                        temp_widths[net_name] = rule.trace_width_mm
-                    else:
-                        temp_widths[net_name] = pcb.design_rules.default_trace_width_mm
-
-                smoothed_paths = {}
-                for net_name, path in pathfinding_result.routed_paths.items():
-                    # Calculate required margin = width/2 + clearance + safety buffer
-                    # Safety buffer absorbs SDF/Grid aliasing errors (0.05mm grid -> +/-0.025mm error)
-                    net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
-                    safety_buffer = 0.05
-                    required_margin = (net_width / 2.0) + clearance_mm + safety_buffer
-
-                    # Get Net ID for dynamic check
-                    net_id = pathfinding_result.net_ids.get(net_name, -1)
-
-                    # Simplify
-                    opt_path = simplifier.simplify_path(
-                        path, required_clearance_override=required_margin, net_id=net_id
-                    )
-                    smoothed_paths[net_name] = opt_path
-            else:
-                # 2. Run Snake Optimizer
-                optimizer = SnakeOptimizer(
-                    sdf_grids=sdf_grids,
-                    alpha=0.2,  # Lower elasticity to allow sticking to path
-                    beta=0.1,  # Low stiffness to allow sharp turns near pads
-                    gamma=2.0,  # Strong repulsion from obstacles
-                    step_size=0.1,
-                    node_spacing_mm=0.2,
-                    max_iterations=100,
-                )
-
-                smoothed_paths = {}
-                for net_name, path in pathfinding_result.routed_paths.items():
-                    # Optimize
-                    opt_path = optimizer.optimize_path(path)
-                    smoothed_paths[net_name] = opt_path
-
-            pathfinding_result.routed_paths = smoothed_paths
-
-            if self.verbose:
-                print(f"    Smoothed {len(smoothed_paths)} paths")
+        # 4.2.5: Smoothing
+        pathfinding_result = self._apply_smoothing(pcb, stage2, pathfinding_result)
 
         # 4.3: Place vias
         if self.verbose:
@@ -671,12 +572,9 @@ class RouterV6Pipeline:
             default_width=pcb.design_rules.default_trace_width_mm,
         )
 
-        # 4.5-4.8: Skip length matching for now
-
         # 4.9: Compile results
         if self.verbose:
             print("  4.9: Compiling routing results...")
-        # Identify plane nets from the board's net list
         plane_net_names = [
             net.name for net in pcb.nets
             if net.name.upper() in {n.upper() for n in PLANE_NETS}
@@ -695,6 +593,89 @@ class RouterV6Pipeline:
             width_assignment=width_assignment,
             routing_results=routing_results,
         )
+
+    def _apply_smoothing(
+        self,
+        pcb: ParsedPCB,
+        stage2: Stage2Output,
+        pathfinding_result: PathfindingResult,
+    ) -> PathfindingResult:
+        """Apply optional force-directed smoothing to routed paths."""
+        if not self.enable_smoothing:
+            return pathfinding_result
+
+        if self.verbose:
+            print("  4.2.5: Applying Variational Smoothing (Snakes)...")
+
+        sdf_grids = {}
+        clearance_mm = pcb.design_rules.default_clearance_mm
+
+        if hasattr(pcb, "board") and pcb.board:
+            bounds_array = pcb.board.get_bounds_array()
+            bounds = tuple(bounds_array)
+        else:
+            all_x = []
+            all_y = []
+            for comp in pcb.components:
+                x, y = comp.initial_position
+                all_x.append(x)
+                all_y.append(y)
+            if all_x:
+                bounds = (min(all_x) - 5, min(all_y) - 5, max(all_x) + 5, max(all_y) + 5)
+            else:
+                bounds = (0, 0, 100, 100)
+
+        bounds = (bounds[0] - 1, bounds[1] - 1, bounds[2] + 1, bounds[3] + 1)
+
+        for layer_name, routing_space in stage2.routing_spaces.items():
+            if self.verbose:
+                print(f"    Building Exact SDF for {layer_name}...")
+
+            obstacles = routing_space.obstacles
+            if not obstacles:
+                polygon_list = []
+            elif hasattr(obstacles, "geoms"):
+                polygon_list = list(obstacles.geoms)
+            else:
+                polygon_list = [obstacles]
+
+            sdf_grids[layer_name] = SDFGrid.from_polygons(
+                polygons=polygon_list, bounds=bounds, resolution_mm=0.05
+            )
+
+        simplifier = PathSimplifier(
+            sdf_grids=sdf_grids,
+            step_size_mm=0.1,
+            min_clearance_margin=0.0,
+            occupancy_grids=stage2.occupancy_grids,
+        )
+
+        temp_widths = {}
+        for net_name in pathfinding_result.routed_paths:
+            rule = pcb.design_rules.get_rules_for_net(net_name)
+            if hasattr(rule, "trace_width"):
+                temp_widths[net_name] = rule.trace_width
+            elif hasattr(rule, "trace_width_mm"):
+                temp_widths[net_name] = rule.trace_width_mm
+            else:
+                temp_widths[net_name] = pcb.design_rules.default_trace_width_mm
+
+        smoothed_paths = {}
+        for net_name, path in pathfinding_result.routed_paths.items():
+            net_width = temp_widths.get(net_name, pcb.design_rules.default_trace_width_mm)
+            required_margin = (net_width / 2.0) + clearance_mm + 0.05
+            net_id = pathfinding_result.net_ids.get(net_name, -1)
+            opt_path = simplifier.simplify_path(
+                path, required_clearance_override=required_margin, net_id=net_id
+            )
+            smoothed_paths[net_name] = opt_path
+
+        pathfinding_result.routed_paths = smoothed_paths
+
+        if self.verbose:
+            print(f"    Smoothed {len(smoothed_paths)} paths")
+
+        return pathfinding_result
 
     def _run_fence(
         self,
