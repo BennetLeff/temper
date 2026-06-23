@@ -1,5 +1,8 @@
 from .pipeline import DeterministicPipeline
 from .state import BoardState
+from .stages.hv_lv_partition import HvLvPartitionStage, PartitionError
+
+__all__ = ["DeterministicPipeline", "BoardState", "HvLvPartitionStage", "PartitionError"]
 
 
 def create_drc_aware_pipeline(
@@ -34,6 +37,7 @@ def create_drc_aware_pipeline(
         ZoneAwareSlotGenerationStage,
         ComponentAssignmentStage,
         PhasedComponentAssignmentStage,
+        HvLvPartitionStage,
         ApplyPlacementsStage,
         CourtyardCheckStage,
         NetClassSetupStage,
@@ -216,6 +220,7 @@ def create_drc_aware_pipeline(
             ZoneAssignmentStage(),
             slot_stage,  # Use zone-aware or standard slot generation
             component_stage,  # Use phased or standard component assignment
+            HvLvPartitionStage(),  # feat/hv-lv-guard-strip: HV/LV domain map
             ApplyPlacementsStage(),
             # DRC-FIX-4: Resolve courtyard overlaps and clamp to board bounds
             CourtyardCheckStage(
@@ -278,6 +283,7 @@ def create_legacy_pipeline():
         ZoneAssignmentStage,
         SlotGenerationStage,
         ComponentAssignmentStage,
+        HvLvPartitionStage,
         ApplyPlacementsStage,
         ClearanceGridStage,
         NetOrderingStage,
@@ -297,6 +303,7 @@ def create_legacy_pipeline():
             ZoneAssignmentStage(),
             SlotGenerationStage(slot_spacing_mm=7.5),  # Balanced spacing
             ComponentAssignmentStage(),
+            HvLvPartitionStage(),  # feat/hv-lv-guard-strip: HV/LV domain map
             ApplyPlacementsStage(),
             # Routing
             ClearanceGridStage(cell_size_mm=0.25, layer_count=4),

@@ -509,3 +509,14 @@ losses:
   wirelength:
     weight: 10.0
     enabled: true
+
+# HV/LV pre-placement guard strip (feat/hv-lv-guard-strip).
+# Width is derived from NetClassRules.creepage_mm in
+# packages/temper-placer/src/temper_placer/core/design_rules.py:121
+# (the SSOT for creepage values); set width_mm to a positive number to
+# override. width_mm=0 disables the guard geometry and the partition is
+# still applied to the placement filter.
+hv_lv_guard_strip:
+  enabled: true
+  width_mm: null  # null = derive from max(creepage_mm) of HV-classified net classes
+  fallback_to_unconstrained: true
