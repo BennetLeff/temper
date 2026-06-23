@@ -61,6 +61,10 @@ class BoardState:
     # Bridge fields for Stage2Orchestrator (pending protocol unification)
     _parsed_pcb: Optional[Any] = None
     _escape_vias: Optional[Any] = None
+    # Router V6 Stage 4 A* pathfinding fields
+    parsed_grids: Optional[dict[str, Any]] = None
+    net_route_order: Optional[list[str]] = None
+    per_net_results: Optional[dict[str, Any]] = None
     # Router V6 Stage 3 topological-routing fields
     constraint_model: Optional["ConstraintModel"] = None
     sat_variable_map: Optional[dict[str, Any]] = None
