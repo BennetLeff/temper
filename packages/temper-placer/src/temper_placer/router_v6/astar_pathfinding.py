@@ -964,15 +964,15 @@ def _astar_route_multilayer(
 
             if segment_path is None:
                 if use_lazy_theta_star:
-                segment_path = _astar_search_lazy_theta_star(
-                    grid_to_use, start_grid, goal_grid, net_id=-1
-                )
-            elif use_theta_star:
-                segment_path = _astar_search_theta_star(
-                    grid_to_use, start_grid, goal_grid, net_id=-1
-                )
-            else:
-                segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
+                    segment_path = _astar_search_lazy_theta_star(
+                        grid_to_use, start_grid, goal_grid, net_id=-1
+                    )
+                elif use_theta_star:
+                    segment_path = _astar_search_theta_star(
+                        grid_to_use, start_grid, goal_grid, net_id=-1
+                    )
+                else:
+                    segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
 
         # If primary failed and alternate available, try alternate layer
         # Allow layer switching when THT pads exist on the board - the router
