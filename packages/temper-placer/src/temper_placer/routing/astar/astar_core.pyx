@@ -163,7 +163,30 @@ cdef inline bint grid_is_available(GridView* grid, int row, int col, int layer, 
         return False
     if layer < 0 or layer >= grid.num_layers:
         return False
-    
+
+    cdef int value = grid_get(grid, row, col, layer)
+    return value == 0 or value == net_id
+
+
+cdef inline bint grid_is_available_bitmap(GridView* grid, int row, int col, int layer, int net_id):
+    """Check if grid cell is available using bitmap fast-path.
+
+    If bitmap is present, checks the bitmap first (L1-cache hot).
+    Falls back to full int32 grid check only when bitmap shows free.
+    """
+    if row < 0 or row >= grid.height or col < 0 or col >= grid.width:
+        return False
+    if layer < 0 or layer >= grid.num_layers:
+        return False
+
+    if grid.bitmap != NULL:
+        cdef int word = col >> 6
+        cdef int bit = col & 63
+        cdef int stride = grid.bitmap_row_stride
+        cdef unsigned long long val = grid.bitmap[layer * grid.height * stride + row * stride + word]
+        if (val >> bit) & 1:
+            return False
+
     cdef int value = grid_get(grid, row, col, layer)
     return value == 0 or value == net_id
 
@@ -379,7 +402,7 @@ cdef inline int get_neighbors(
         new_row = row + dr[i]
         new_col = col + dc[i]
         
-        if grid_is_available(grid, new_row, new_col, layer, net_id):
+        if grid_is_available_bitmap(grid, new_row, new_col, layer, net_id):
             neighbor_rows[num_neighbors] = new_row
             neighbor_cols[num_neighbors] = new_col
             neighbor_layers[num_neighbors] = layer
@@ -393,7 +416,7 @@ cdef inline int get_neighbors(
             continue
         
         # Check if target layer is available at current position
-        if grid_is_available(grid, row, col, new_layer, net_id):
+        if grid_is_available_bitmap(grid, row, col, new_layer, net_id):
             neighbor_rows[num_neighbors] = row
             neighbor_cols[num_neighbors] = col
             neighbor_layers[num_neighbors] = new_layer
@@ -570,6 +593,14 @@ def find_path_cython(
     grid_view.width = width
     grid_view.height = height
     grid_view.num_layers = num_layers
+
+    cdef cnp.ndarray[cnp.uint64_t, ndim=3] bitmap_data
+    grid_view.bitmap = NULL
+    grid_view.bitmap_row_stride = 0
+    if hasattr(grid, 'occupancy_bitmap') and getattr(grid, 'occupancy_bitmap') is not None:
+        bitmap_data = np.ascontiguousarray(grid.occupancy_bitmap, dtype=np.uint64)
+        grid_view.bitmap = <unsigned long long*>cnp.PyArray_DATA(bitmap_data)
+        grid_view.bitmap_row_stride = grid.bitmap_row_stride
     
     # State space size
     cdef int state_space_size = width * height * num_layers
@@ -578,11 +609,16 @@ def find_path_cython(
     cdef float* g_score = <float*>malloc(state_space_size * sizeof(float))
     cdef int* came_from = <int*>malloc(state_space_size * sizeof(int))
     cdef MinHeap open_set
-    
+
+    cdef int closed_set_words = (state_space_size + 63) // 64
+    cdef unsigned long long* closed_set = <unsigned long long*>malloc(closed_set_words * sizeof(unsigned long long))
+
     # Initialize arrays
     for i in range(state_space_size):
         g_score[i] = INFINITY
         came_from[i] = -1
+    for i in range(closed_set_words):
+        closed_set[i] = 0
     
     # Initialize heap
     heap_init(&open_set, 1000)
@@ -618,7 +654,9 @@ def find_path_cython(
             current_idx = heap_pop(&open_set, &priority)
             if current_idx == -1:
                 break
-            
+
+            closed_set[current_idx >> 6] |= (1ULL << (current_idx & 63))
+
             # Convert to state
             index_to_state(current_idx, &current_row, &current_col, &current_layer, width, height, num_layers)
             
@@ -659,7 +697,10 @@ def find_path_cython(
                     neighbor_rows[j], neighbor_cols[j], neighbor_layers[j],
                     width, height, num_layers
                 )
-                
+
+                if (closed_set[neighbor_idx >> 6] >> (neighbor_idx & 63)) & 1:
+                    continue
+
                 tentative_g = g_score[current_idx] + neighbor_costs[j]
                 
                 if tentative_g < g_score[neighbor_idx]:
@@ -704,4 +745,5 @@ def find_path_cython(
         # Always cleanup memory
         free(g_score)
         free(came_from)
+        free(closed_set)
         heap_free(&open_set)

@@ -32,9 +32,12 @@ cdef struct GridView:
     int width
     int height
     int num_layers
+    unsigned long long* bitmap
+    int bitmap_row_stride
 
 cdef int grid_get(GridView* grid, int row, int col, int layer)
 cdef bint grid_is_available(GridView* grid, int row, int col, int layer, int net_id)
+cdef bint grid_is_available_bitmap(GridView* grid, int row, int col, int layer, int net_id)
 
 # Heuristic function
 cdef float heuristic(int row1, int col1, int layer1, int row2, int col2, int layer2, float cell_size, float via_cost)
