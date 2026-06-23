@@ -258,8 +258,8 @@ class ClosureTest:
                 output_dir=self.pcb_path.parent,
                 stages_exercised=stages_exercised,
             )
-        except ImportError as e:
-            _LOGGER.warning("Router V6 import failed: %s", e)
+        except Exception as e:
+            _LOGGER.warning("Router V6 channel analysis failed: %s", e)
 
         # Validate the sidecar's cell_size_um matches the placer's grid (R4a).
         # A mismatch is a hard error: the placer must never consume a

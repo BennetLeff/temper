@@ -311,6 +311,69 @@ class TestClosureTestChannelAnalysisOrdering:
         msgs = [r.message for r in caplog.records]
         assert any("Router V6" in m or "import" in m.lower() for m in msgs)
 
+    def test_closure_test_falls_back_on_runtime_error(self, tmp_path, monkeypatch, caplog):
+        """R4d: any failure inside the Step 1b block (not just ImportError)
+        must degrade gracefully. A RuntimeError from _run_channel_analysis
+        is logged as WARNING and the rest of the pipeline continues.
+        """
+        from temper_placer.regression import closure_test
+
+        pcb_path = tmp_path / "board.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb (version 20240101) )")
+
+        def fake_parse(path):
+            return object()
+
+        def fake_channel_analysis(*, output_dir, stages_exercised):
+            # Simulate a non-ImportError failure (e.g. a corrupt stage 2
+            # input, a missing dep, an internal assertion). The closure
+            # test must catch this and not propagate.
+            raise RuntimeError("simulated stage 2 crash")
+
+        monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", fake_parse)
+        monkeypatch.setattr("temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False)
+        monkeypatch.setattr(
+            "temper_placer.regression.closure_test._run_channel_analysis",
+            fake_channel_analysis,
+        )
+
+        def fake_resolve_and_run(*, phase, strategies, input, fallback=None):
+            from dataclasses import dataclass
+            if phase == "placement":
+                @dataclass
+                class P:
+                    iterations: int = 1
+                    cuts: int = 0
+                    placements: dict = None
+                p = P()
+                p.placements = {}
+                return type("Res", (), {"data": p})()
+            if phase == "routing":
+                return type("Res", (), {"data": type("D", (), {"completion_rate": 0.5})()})()
+            raise RuntimeError(phase)
+
+        monkeypatch.setattr("temper_placer.runner.resolve_and_run", fake_resolve_and_run)
+        monkeypatch.setattr(
+            "temper_placer.regression.closure_test.resolve_and_run",
+            fake_resolve_and_run,
+            raising=False,
+        )
+        monkeypatch.setattr(
+            "temper_placer.regression.closure_test.run_drc",
+            lambda p: type("D", (), {"error_count": 0, "warning_count": 0})(),
+            raising=False,
+        )
+
+        with caplog.at_level(logging.WARNING):
+            ct = closure_test.ClosureTest(pcb_path, repo_root=tmp_path)
+            result = ct.run()
+
+        # Test passes only if the closure test returns a result (not a
+        # traceback) and the failure is surfaced as a WARNING.
+        assert result is not None
+        msgs = [r.message for r in caplog.records]
+        assert any("channel analysis failed" in m for m in msgs)
+
     def test_closure_test_sidecar_grid_matches_placer_grid(self, tmp_path):
         """A sidecar with mismatched cell_size_um causes a hard error."""
         from temper_placer.regression import closure_test
