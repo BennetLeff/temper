@@ -43,7 +43,9 @@ class DSNBoundaryExporter:
         dsn_results: dict[str, str] = {}
 
         def make_callback(target_phase: PipelinePhase):
-            def callback(state: PipelineState) -> None:
+            def callback(phase: PipelinePhase, state: PipelineState) -> None:
+                if phase != target_phase:
+                    return
                 if state.board is None and state.netlist is None:
                     return
                 exporter = DSNExporter(
@@ -94,10 +96,10 @@ class DSNBoundaryExporter:
             bd = BoundaryRegistry.get_boundary(name)
             phase_to_boundary[PipelinePhase(bd.phase_name)] = name
 
-        def callback(state: PipelineState) -> None:
+        def callback(phase: PipelinePhase, state: PipelineState) -> None:
             if state.board is None or state.netlist is None:
                 return
-            if state.current_phase not in phase_to_boundary:
+            if phase not in phase_to_boundary:
                 return
             exporter = DSNExporter(
                 board=state.board,
@@ -108,7 +110,7 @@ class DSNBoundaryExporter:
             dsn_expr = exporter.export_pcb(input_pcb.stem)
             dsn_text = str(dsn_expr)
             dsn_text = DSNNormalizer.normalize(dsn_text)
-            boundary_name = phase_to_boundary[state.current_phase]
+            boundary_name = phase_to_boundary[phase]
             dsn_results[boundary_name] = dsn_text
 
         orchestrator = PipelineOrchestrator(pipeline_config)

@@ -29,7 +29,7 @@ class DSNExporter:
         netlist: Netlist,
         positions: Array | None = None,
         rotations: Array | None = None,
-        deterministic: bool = True,
+        deterministic: bool = False,
     ):
         self.board = board
         self.netlist = netlist

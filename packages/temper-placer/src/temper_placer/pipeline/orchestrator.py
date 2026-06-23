@@ -163,19 +163,10 @@ class PipelineState:
 class PipelineOrchestrator:
     """Orchestrates the full placement pipeline."""
 
-    def __init__(self, config: PipelineConfig, dsn_callbacks: dict[str, Callable[[PipelineState], None]] | None = None):
-        """Initialize the orchestrator with configuration.
-
-        Args:
-            config: Pipeline configuration.
-            dsn_callbacks: Optional dict mapping boundary names to callbacks that
-                fire after each phase completes. Callbacks receive the current
-                PipelineState. Used by DSNBoundaryExporter to capture state at
-                stage boundaries.
-        """
+    def __init__(self, config: PipelineConfig):
+        """Initialize the orchestrator with configuration."""
         self.config = config
         self.state = PipelineState(config=config)
-        self._dsn_callbacks: dict[str, Callable[[PipelineState], None]] = dsn_callbacks or {}
 
         # Phase handlers
         self.phases: dict[PipelinePhase, Callable[[PipelineState], PipelineState]] = {
@@ -260,11 +251,6 @@ class PipelineOrchestrator:
 
             if self.on_phase_complete:
                 self.on_phase_complete(phase, self.state)
-
-            # Fire dsn_callbacks if registered for this phase
-            phase_key = phase.value
-            if phase_key in self._dsn_callbacks:
-                self._dsn_callbacks[phase_key](self.state)
 
             # Handle refinement loop
             if (
