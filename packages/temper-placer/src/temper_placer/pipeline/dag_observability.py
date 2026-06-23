@@ -82,6 +82,37 @@ class DAGToLegacyObserver:
             except ValueError:
                 phase = stage_name
             self.orchestrator.on_phase_complete(phase, self.orchestrator.state)
+        self._save_snapshot(stage_name)
+
+    def _save_snapshot(self, stage_name: str) -> None:
+        try:
+            from temper_placer.io.snapshot import save_json_snapshot, save_svg_snapshot
+            from temper_placer.pipeline.state import PipelinePhase
+            config = self.orchestrator.config
+            state = self.orchestrator.state
+            if config.output_pcb:
+                snapshot_dir = config.output_pcb.parent / "snapshots"
+            else:
+                snapshot_dir = Path("snapshots")
+            snapshot_dir.mkdir(parents=True, exist_ok=True)
+            phase_order = [p.value for p in PipelinePhase]
+            try:
+                phase = PipelinePhase(stage_name)
+            except ValueError:
+                return
+            try:
+                phase_idx = phase_order.index(phase.value)
+            except ValueError:
+                phase_idx = 0
+            prefix = f"{phase_idx:02d}_{phase.value}"
+            if stage_name == "refinement":
+                prefix += f"_iter{state.iteration}"
+            json_path = snapshot_dir / f"{prefix}.json"
+            svg_path = snapshot_dir / f"{prefix}.svg"
+            save_json_snapshot(state, json_path)
+            save_svg_snapshot(state, svg_path)
+        except Exception:
+            pass
 
     def on_stage_skip(self, stage_name: str, reason: str) -> None:
         pass

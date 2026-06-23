@@ -207,7 +207,15 @@ class PipelineOrchestrator:
         self.on_iteration: Callable[[int, PipelineState], None] | None = None
 
     def get_phase_order(self) -> list[PipelinePhase]:
-        """Get the ordered list of phases to execute (from DAG manifest, config-filtered)."""
+        """Get the ordered list of phases to execute (from DAG manifest, config-filtered).
+
+        NOTE: The hardcoded skip filter below duplicates the DAG engine's
+        skip_if expression evaluation. These two code paths can produce
+        different phase orders if a stage's skip_if in the manifest diverges
+        from the boolean checks here. For the authoritative ordering, inspect
+        StageDAGEngine.stage_order directly, which reflects the manifest's
+        skip_if expressions evaluated at runtime.
+        """
         phase_map = {p.value: p for p in PipelinePhase}
         all_phases = []
         for stage_name in self._engine.stage_order:

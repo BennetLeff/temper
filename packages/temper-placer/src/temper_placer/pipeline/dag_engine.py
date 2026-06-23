@@ -70,12 +70,20 @@ class StageDAGEngine:
             for key in stage.requires:
                 consumers_map.setdefault(key, set()).add(stage.name)
 
+        stage_decl_order = [s.name for s in self.manifest.stages]
+
+        def _first_provider(key: str) -> str | None:
+            providers = self.provides_map.get(key, set())
+            if not providers:
+                return None
+            return min(providers, key=lambda p: stage_decl_order.index(p))
+
         for stage in self.manifest.stages:
             for key in stage.requires:
                 if key in self.provides_map:
-                    for provider in self.provides_map[key]:
-                        if provider != stage.name:
-                            in_degree[stage.name] = in_degree.get(stage.name, 0) + 1
+                    provider = _first_provider(key)
+                    if provider is not None and provider != stage.name:
+                        in_degree[stage.name] = in_degree.get(stage.name, 0) + 1
 
         queue = sorted(
             [name for name, deg in in_degree.items() if deg == 0],

@@ -33,6 +33,7 @@ stages:
     handler: temper_placer.pipeline.stages.geometric_stage.GeometricStage
     requires: [board, netlist, deterministic_result]
     provides: [placement_state]
+    skip_if: "config.skip_local_refinement == true"
     timeout_s: 120
 
   - name: routing
@@ -62,7 +63,7 @@ stages:
 
   - name: output
     handler: temper_placer.pipeline.stages.output_stage.OutputStage
-    requires: [input_pcb, board, netlist, placement_state]
+    requires: [input_pcb, board, netlist, placement_state, refinement_placement]
     provides: [output_files, physics_report]
     skip_if: "config.dry_run == true"
     timeout_s: 30

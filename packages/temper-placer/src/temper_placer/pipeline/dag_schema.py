@@ -142,10 +142,21 @@ def _detect_cycles(stages: list[StageDefinition], provides_map: dict[str, set[st
     stage_idx = {name: i for i, name in enumerate(sorted(stage_names))}
     n = len(stage_names)
 
+    stage_decl_order = [s.name for s in stages]
+
+    def _first_provider(key: str) -> str | None:
+        providers = provides_map.get(key, set())
+        if not providers:
+            return None
+        return min(providers, key=lambda p: stage_decl_order.index(p))
+
     adj: list[list[int]] = [[] for _ in range(n)]
     for stage in stages:
         src = stage_idx[stage.name]
         for key in stage.provides:
+            main_provider = _first_provider(key)
+            if main_provider is not None and main_provider != stage.name:
+                continue
             for consumer in stages:
                 if consumer.name == stage.name:
                     continue
