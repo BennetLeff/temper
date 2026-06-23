@@ -1,6 +1,7 @@
-description: "import-linter ratchet baseline \u2014 monotonically shrinking"
-note: Each entry is a pre-existing violation admitted at gate launch. Entries are removed when the violation is fixed.
-generated: '2026-06-22'
+description: import-linter ratchet baseline — monotonically shrinking
+note: Each entry is a pre-existing violation admitted at gate launch. Entries are
+  removed when the violation is fixed.
+generated: '2026-06-23'
 plan: docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md
 violations:
 - contract: core-isolated-from-router-v6
@@ -444,3 +445,12 @@ violations:
 - contract: router-v6-public-interface-only
   source: temper_placer.io
   target: temper_placer.router_v6.stage0_data
+- contract: core-public-interface-only
+  source: temper_placer.io
+  target: temper_placer.core.bus_cohort
+- contract: core-public-interface-only
+  source: temper_placer.io
+  target: temper_placer.core.specification
+- contract: core-public-interface-only
+  source: temper_placer.io
+  target: temper_placer.core.units
