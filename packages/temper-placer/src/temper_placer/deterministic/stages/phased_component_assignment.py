@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import replace
-from typing import TYPE_CHECKING, Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 
@@ -24,7 +24,7 @@ from .base import Stage
 if TYPE_CHECKING:
     from temper_placer.core.component import Component
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.config_loader import PlacementConstraints
+    from temper_placer.io.config_loader import PlacementConstraints, SeedFilterConfig
 
 
 class PhasedComponentAssignmentStage(Stage):
@@ -69,6 +69,7 @@ class PhasedComponentAssignmentStage(Stage):
         constraints: PlacementConstraints,
         slot_spacing: float = 12.0,
         fixed_placements: Dict[str, Dict] = None,
+        seed_filter: Optional["SeedFilterConfig"] = None,
     ):
         """Initialize phased placement.
 
@@ -76,10 +77,22 @@ class PhasedComponentAssignmentStage(Stage):
             constraints: Parsed placement constraints (for compiler)
             slot_spacing: Spacing between slots in mm
             fixed_placements: Dict of ref -> {'position': [x, y], 'rotation': deg}
+            seed_filter: Optional bottleneck-map seed filter configuration.
+                When ``None``, the filter is disabled. When provided,
+                ``enabled=False`` disables at runtime; ``enabled=True`` runs
+                the filter when a bottleneck map is reachable.
+
+        @req(2026-06-23-004, R4)
         """
         self.constraints = constraints
         self.slot_spacing = slot_spacing
         self.fixed_placements = fixed_placements or {}
+        # Default to the constraints' seed_filter if not provided, so
+        # callers can configure via the YAML loader without a separate
+        # argument. Passing ``None`` is treated as "use constraints default".
+        if seed_filter is None:
+            seed_filter = getattr(constraints, "seed_filter", None)
+        self.seed_filter = seed_filter
         self.compiler = ConstraintCompiler(constraints)
 
         # Compile constraint functions once
